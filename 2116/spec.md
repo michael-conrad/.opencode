@@ -27,12 +27,70 @@ PASS/FAIL branching, mirroring the criteria defined in the master reference file
 `audit/reference/decomposition-criteria.md`. Entry condition: skip if spec has 1 SC
 AND 1 affected file.
 
+## Alternatives Considered & Why Discarded
+
+The selected approach is a single inline copy of the decomposition criteria in
+`spec-creation/tasks/validate.md`. The following alternatives were evaluated and
+discarded:
+
+1. **Runtime import / read-only reference to the master file.** Make `validate.md`
+   read `audit/reference/decomposition-criteria.md` at runtime instead of inlining a
+   copy. **Discarded:** `validate.md` is a task card that must be self-contained for
+   clean-room sub-agent execution; runtime import couples the task to a file that may
+   drift and complicates clean-room dispatch. A cross-reference comment (SC-7) is
+   retained instead to point to the authoritative source.
+2. **Extract the check into a standalone tool or sub-skill.** Move the decomposition
+   check into a separate script or skill invoked by validate. **Discarded:**
+   over-engineering — the check is a deterministic string/pass-fail evaluation best
+   expressed as inline checklist text; a separate tool adds dispatch overhead with no
+   behavioral benefit for a 4-criterion checklist.
+3. **Defer enforcement entirely to the Phase 3 audit evaluator (#2117).** Rely solely
+   on the audit evaluator to catch monolithic SCs. **Discarded:** this leaves a gap in
+   the validate gate — monolithic SCs would pass validate and be caught only later at
+   audit, which is exactly the defect this spec prevents (defects are more expensive to
+   fix the further downstream they surface).
+
+## Key Design Decisions
+
+1. **Inline copy + cross-reference comment (chosen) vs. runtime import.** Tradeoff:
+   a self-contained task card that executes reliably in clean-room dispatch, versus a
+   single source of truth. Resolved by inlining the copy AND adding the cross-reference
+   comment (SC-7) so drift is auditable. A maintainer note governs synchronization.
+2. **Imperative binary decision-tree format with explicit PASS/FAIL branches (SC-2).**
+   Tradeoff: verbosity versus unambiguous, mechanically-checkable verification. Chosen
+   because prose guidance would pass a string check but fail to enforce behavior.
+3. **Skip-guard for exactly 1 SC AND 1 affected file (SC-8).** Tradeoff: avoids
+   spurious flagging of single-concern specs, at the cost of an edge condition that
+   must be explicitly tested (SC-9, SC-10 submit specs with MORE than 1 affected file so
+   the guard does not fire).
+4. **Retain the existing Step 3.3 Compound-SC detection as a distinct check.** Tradeoff:
+   some redundancy with the new Atomicity criterion, versus preserving existing behavior
+   and not regressing a currently-shipped gate.
+
+## User Intent / Original Prompt
+
+The original user prompt that motivated this spec is not recorded in the available
+session context. The recorded intent is the change request that produced issue #2116:
+the spec-creation validate task does not enforce the 4 spec-level decomposition
+criteria defined in the master reference file, so monolithic SCs pass through to plan
+creation and implementation where defects are more expensive to fix. This spec adds
+those criteria to the validate pipeline.
+
 ## Decomposition Criteria Definitions
 
 These definitions summarize the master reference file
 `audit/reference/decomposition-criteria.md` (the authoritative source). Each
 criterion is expressed as an imperative binary decision tree with explicit PASS/FAIL
 branches, matching the format SC-2 mandates for the inline copy in validate.md.
+
+### Atomic Work Unit
+
+An **atomic work unit** is a single concern that cannot be further decomposed without
+losing meaning, and that maps to exactly one deliverable and one verifiable outcome.
+It is the granularity standard the four criteria below enforce: an SC that bundles
+more than one concern, produces more than one deliverable, or requires more than one
+verifiable outcome is not atomic. The four decision trees below define the
+mechanically-checkable test of whether an SC is a single atomic work unit.
 
 ### Atomicity
 
@@ -95,8 +153,8 @@ cycle.
 | SC-6 | PR-gate viability check references meta RED/GREEN principle | string | grep for the exact strings `RED` and `GREEN` within the PR-Gate Viability decision-tree block in validate.md — both must match |
 | SC-7 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md for master definition' | string | grep for the exact string `See audit/reference/decomposition-criteria.md for master definition` in validate.md — must match |
 | SC-8 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for the exact strings `1 SC` and `1 affected file` in validate.md — both must match within the skip-condition guard |
-| SC-9 | Behavioral test: spec with monolithic SC containing 'and' submitted to validate returns FAIL with correct reason | behavioral | opencode run: submit a spec whose single SC is `The system validates email format AND sends confirmation email` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) to validate; assert stderr contains `FAIL` and the atomicity reason `SC contains trigger words indicating multiple concerns` |
-| SC-10 | Behavioral test: spec with single atomic SC submitted to validate returns PASS for decomposition criteria | behavioral | opencode run: submit a spec whose single SC is `The system validates email format on registration` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) to validate; assert stderr contains `PASS` for the decomposition criteria check |
+| SC-9 | Behavioral test: submitting a spec whose SC contains the conjunction `AND` returns FAIL with the atomicity reason — specifically, submitting a spec whose single SC is `The system validates email format AND sends confirmation email` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns FAIL with the reason `SC contains trigger words indicating multiple concerns` | behavioral | opencode run: submit the above spec to validate; assert stderr contains `FAIL` and the atomicity reason `SC contains trigger words indicating multiple concerns` |
+| SC-10 | Behavioral test: submitting a spec with a single atomic SC returns PASS for decomposition criteria — specifically, submitting a spec whose single SC is `The system validates email format on registration` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns PASS for the decomposition criteria check | behavioral | opencode run: submit the above spec to validate; assert stderr contains `PASS` for the decomposition criteria check |
 
 ## Requirements
 
@@ -276,6 +334,71 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-9:** Running the monolithic-SC behavioral test costs minutes of execution time. Skipping means a monolithic SC passes validate and ships, where the defect costs 1000× more to fix in production.
 - **SC-10:** Running the atomic-SC behavioral test costs minutes of execution time. Skipping means the decomposition criteria are not verified to accept valid atomic SCs, risking false rejection of compliant specs.
 
+## Edge Cases
+
+Each edge case below states the condition, the expected behavior, and the resolution.
+
+### Edge Case: Single SC with a single affected file (skip-guard fires)
+
+- **Condition:** A spec has exactly 1 SC AND 1 affected file.
+- **Expected behavior:** The decomposition check MUST be skipped (not evaluated), per SC-8/R-8.
+- **Resolution:** The skip-condition guard short-circuits the check before any criterion is evaluated, so single-concern specs are not spuriously flagged.
+
+### Edge Case: Single SC with multiple affected files
+
+- **Condition:** A spec has exactly 1 SC but MORE than 1 affected file.
+- **Expected behavior:** The decomposition check MUST be evaluated (skip-guard does not fire). SC-9 and SC-10 exercise this exact boundary so the guard's `AND` condition is honored — only 1 SC AND 1 affected file triggers the skip.
+- **Resolution:** The skip-guard requires BOTH conditions; multiple affected files disables the skip, forcing the criteria to run.
+
+### Edge Case: Compound-SC detection overlap with the new Atomicity criterion
+
+- **Condition:** A spec contains an SC with coordinating conjunctions that both the existing Step 3.3 "Compound-SC detection" and the new Atomicity trigger-word sub-check would flag.
+- **Expected behavior:** The new Decomposition Criteria section operates as a distinct checklist; the existing Step 3.3 is retained for its distinct purpose. Both checks may flag the same SC without conflict.
+- **Resolution:** Documented in the Key Design Decisions (#4) and Not Included sections; no removal or replacement of Step 3.3.
+
+### Edge Case: Failure of a dependency (master reference file missing)
+
+- **Condition:** `audit/reference/decomposition-criteria.md` (the master reference) is absent or unavailable at implementation time.
+- **Expected behavior:** The inline copy must still be complete and self-contained, because it is the executable checklist; the cross-reference comment (SC-7) is a pointer, not a load dependency.
+- **Resolution:** The spec's Dependency table records #2118 as satisfied; the inline copy carries the full criteria so implementation does not depend on reading the master file at runtime.
+
+### Edge Case: Inline copy drift from the master reference
+
+- **Condition:** After implementation, the inline copy in validate.md diverges from the master reference file.
+- **Expected behavior:** The cross-reference comment and maintainer note govern synchronization; drift is auditable via the pointer.
+- **Resolution:** SC-7 mandates the cross-reference comment; a maintainer note in validate.md governs keeping the inline copy in sync with the authoritative source.
+
+### Edge Case: Behavioral test affected-files count ambiguity
+
+- **Condition:** A test harness or reader cannot determine the affected-files count of the SC-9/SC-10 test specs, causing the skip-guard to be ambiguous.
+- **Expected behavior:** The behavioral test specs MUST specify MORE than 1 affected file so the skip-guard does not fire and the decomposition criteria are always evaluated.
+- **Resolution:** SC-9 and SC-10 explicitly state the affected-files list contains MORE than 1 file (documented in the Change Control entry of 2026-08-17).
+
+### Edge Case: Zero SCs or zero affected files
+
+- **Condition:** A spec submitted to validate has zero SCs or zero affected files (degenerate input).
+- **Expected behavior:** The decomposition check is not a substitute for overall spec validation; degenerate inputs are outside the decomposition check's skip-guard scope and are handled by validate's other checks.
+- **Resolution:** Out of scope for this spec — the decomposition criteria evaluate SC quality, not spec presence. Noted here as a boundary to avoid treating the skip-guard as a general input validator.
+
+### Edge Case: Concurrency / resource contention
+
+- **Condition:** Two agents concurrently edit validate.md while the decomposition checklist is being added.
+- **Expected behavior:** The change is a single-file edit (SC-1..SC-8 all target validate.md); concurrent edits are resolved by the repo's normal merge/rebase workflow.
+- **Resolution:** Standard git conflict resolution applies; the spec makes no concurrency assumptions beyond normal single-file change management.
+
+## Recency-Check Evidence
+
+This section documents the verification that the spec's claims about current file state are accurate, per the re-audit revision reason. All checks were performed against the live working tree at revision time.
+
+| Check | Claim Verified | Verification |
+|-------|----------------|--------------|
+| `spec-creation/tasks/validate.md` current state | The file does NOT yet contain the 4 criterion headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) — RED state confirmed, the spec's SC-1..SC-8 are not yet implemented | `grep` for the 4 headings across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches; the file exists on disk (7135 bytes) |
+| `audit/reference/decomposition-criteria.md` current state | The master reference file EXISTS and defines all 4 criteria (Atomicity, Single Deliverable, Binary Verifiability, PR-Gate Viability) — the spec's Dependency claim is accurate | File exists on disk (7661 bytes); `grep` returned all 4 criterion headings plus the summary table rows at lines 185-188 |
+| Commit history of `validate.md` | The validate task has recent, active change history, confirming it is a live maintained file | `git -C .opencode log` shows recent commits (e.g., `17ef1680 #2254 ...`, `93e7eb34 feat(#2225): add structured checks to validate.md`) |
+| Commit history of `decomposition-criteria.md` | The master reference was created via `feat: create master decomposition criteria reference file` (commit `33adef85`) | `git -C .opencode log` on the reference file returned that single commit |
+
+**Note:** No connectivity constraints apply to the files referenced in this spec; all are local files verified present in the working tree.
+
 ## Change Control
 
 | Date | What Changed | Why | Authorized By |
@@ -292,3 +415,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-17 | Reconciled the Decomposition Criteria Definitions section from prose bullets to imperative binary decision-tree format with explicit PASS/FAIL branches, matching the format SC-2 mandates for the inline copy | Re-audit FAILED on Internal Consistency — SC-2 mandated imperative binary decision-tree format but the Definitions section used prose bullets | spec-audit remediation |
 | 2026-08-17 | Added the 'Requirements' (§4) and 'Items' (§5) sections required by spec-structure-standards: R-1..R-10 mapping to SC-1..SC-10, and Item 1..Item 10 with per-SC RED/GREEN/verify/commit cycles | Re-audit FAILED on SC-1 (structural completeness) — spec was missing the 'Requirements' and 'Items' sections required by spec-structure-standards | spec-audit remediation |
 | 2026-08-17 | Explicitly specified the affected-files count (MORE than 1 file) for the SC-9 and SC-10 behavioral test specs so the SC-8 skip-guard (1 SC AND 1 affected file) does not fire and the decomposition criteria are always evaluated in the tests | Re-audit FAILED on A1-contradictions and A5-gap_analysis — SC-8's skip condition conflicted with the single-SC behavioral assertions in SC-9/SC-10 because the test specs' affected-files count was unspecified | spec-audit remediation |
+| 2026-08-17 | Added the 3 missing preamble fields as sections: "Alternatives Considered & Why Discarded", "Key Design Decisions", and "User Intent / Original Prompt" (documenting that the original prompt is not recorded, and stating the recorded intent) | Re-audit FAILED on SC-1-preamble-structural / SC-12-preamble-fields — spec-structure-standards §1 requires a 6-field preamble; the spec had only 3 (Problem, Root Cause/Motivation, Approach) | spec-audit remediation |
+| 2026-08-17 | Documented 3 alternative approaches evaluated and why each was discarded (runtime import, standalone tool, defer to audit evaluator) in the "Alternatives Considered & Why Discarded" section, and added "Key Design Decisions" with named tradeoffs | Re-audit FAILED on research-investigation-breadth — the spec selected the single inline-in-validate.md approach without documenting or ruling out alternatives | spec-audit remediation |
+| 2026-08-17 | Added "Edge Cases" section covering input boundaries, state transitions, failure modes, concurrency, and recovery per spec-structure-standards §11, and added "Recency-Check Evidence" section with live file-state and commit-history verification of validate.md and decomposition-criteria.md | Re-audit FAILED — the spec was missing the "Edge Cases" section and lacked current-state verification evidence for its file claims | spec-audit remediation |
+| 2026-08-17 | Added an explicit definition of "atomic work unit" (a single concern that cannot be further decomposed without losing meaning, and that maps to exactly one deliverable and one verifiable outcome) in a new "Atomic Work Unit" subsection under "Decomposition Criteria Definitions" | Re-audit FAILED on Completeness — the term 'atomic work units' was undefined, forcing implementor guessing | spec-audit remediation |
+| 2026-08-17 | Pinned the exact expected values into the SC-9 and SC-10 criterion text: SC-9 now states that submitting a spec whose SC contains the conjunction `AND` (single SC `The system validates email format AND sends confirmation email`, MORE than 1 affected file) returns FAIL with the atomicity reason `SC contains trigger words indicating multiple concerns`; SC-10 now states that submitting a spec with a single atomic SC (single SC `The system validates email format on registration`, MORE than 1 affected file) returns PASS for decomposition criteria | Re-audit FAILED on Testability — SC-9 and SC-10 had ambiguous expected values, with the behavioral assertions' expected values only in the verification method, not in the criterion text | spec-audit remediation |
