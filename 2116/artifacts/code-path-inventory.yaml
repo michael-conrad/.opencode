@@ -1,0 +1,26 @@
+target_file: .opencode/skills/spec-creation/tasks/validate.md
+code_paths:
+  - name: validate-checklist
+    scs: [SC-1, SC-2]
+    description: Inline decomposition criteria checklist section added to validate.md after existing validation checks; contains 4 criterion headings in imperative binary PASS/FAIL decision-tree format
+  - name: validate-atomicity
+    scs: [SC-3]
+    description: Atomicity decision-tree block with trigger-word sub-check (and, or, comma-separated lists)
+  - name: validate-binary-verifiability
+    scs: [SC-4, SC-5]
+    description: Binary Verifiability decision-tree block with disjunctive-pattern (SC-4) and vague-term (SC-5) sub-checks
+  - name: validate-pr-gate-viability
+    scs: [SC-6]
+    description: PR-Gate Viability decision-tree block referencing meta RED/GREEN principle
+  - name: validate-cross-reference
+    scs: [SC-7]
+    description: Cross-reference comment 'See audit/reference/decomposition-criteria.md for master definition' in the inline copy
+  - name: validate-skip-guard
+    scs: [SC-8]
+    description: Skip-condition guard that short-circuits the decomposition check when the spec has exactly 1 SC AND 1 affected file
+  - name: validate-behavioral-execution
+    scs: [SC-9, SC-10]
+    description: Runtime execution of validate.md via opencode run; asserts FAIL with atomicity reason for monolithic SC (SC-9) and PASS for atomic SC (SC-10)
+notes:
+  - The single target file validate.md (7135 bytes) exists and currently does NOT contain the 4 criterion headings (RED state confirmed per Recency-Check Evidence).
+  - The master reference file .opencode/audit/reference/decomposition-criteria.md (7661 bytes) exists and defines all 4 criteria; used as the authoritative source for the inline copy.

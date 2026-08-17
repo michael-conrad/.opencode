@@ -1,0 +1,58 @@
+evidence_type_map:
+  SC-1: string
+  SC-2: string
+  SC-3: string
+  SC-4: string
+  SC-5: string
+  SC-6: string
+  SC-7: string
+  SC-8: string
+  SC-9: behavioral
+  SC-10: behavioral
+testability:
+  SC-1:
+    evidence: string
+    method: grep for the 4 exact criterion headings (### Atomicity, ### Single Deliverable, ### Binary Verifiability, ### PR-Gate Viability) in validate.md
+    feasible: true
+  SC-2:
+    evidence: string
+    method: grep for exact branch tokens PASS — and FAIL — in each of the 4 decision-tree blocks
+    feasible: true
+  SC-3:
+    evidence: string
+    method: grep for exact strings and, or, comma-separated within the Atomicity decision-tree block
+    feasible: true
+  SC-4:
+    evidence: string
+    method: grep for exact strings either/or, alternatively, one of within the Binary Verifiability decision-tree block
+    feasible: true
+  SC-5:
+    evidence: string
+    method: grep for exact strings should, could, ideally, as appropriate within the Binary Verifiability decision-tree block
+    feasible: true
+  SC-6:
+    evidence: string
+    method: grep for exact strings RED and GREEN within the PR-Gate Viability decision-tree block
+    feasible: true
+  SC-7:
+    evidence: string
+    method: grep for exact string 'See audit/reference/decomposition-criteria.md for master definition' in validate.md
+    feasible: true
+  SC-8:
+    evidence: string
+    method: grep for exact strings '1 SC' and '1 affected file' within the skip-condition guard
+    feasible: true
+  SC-9:
+    evidence: behavioral
+    method: opencode run submits spec with monolithic SC (AND) + >1 affected file; assert stderr contains FAIL and 'SC contains trigger words indicating multiple concerns'
+    feasible: true
+    runtime: true
+  SC-10:
+    evidence: behavioral
+    method: opencode run submits spec with single atomic SC + >1 affected file; assert stderr contains PASS for decomposition criteria check
+    feasible: true
+    runtime: true
+summary:
+  - SC-1..SC-8 are string-verifiable static checks requiring only grep; all are deterministically reproducible with exact expected strings pinned in the SC text.
+  - SC-9 and SC-10 are behavioral tests requiring opencode run execution against the validate task; both specify >1 affected file so the SC-8 skip-guard does not fire.
+  - All 10 SCs have deterministic expected values (pinned in criterion text per Change Control 2026-08-17), enabling independent reproduction.

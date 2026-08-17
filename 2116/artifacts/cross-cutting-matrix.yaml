@@ -1,0 +1,35 @@
+matrix:
+  - scs: [SC-1]
+    concerns: [checklist-presence]
+    cross_cutting: false
+    notes: SC-1 establishes the checklist container; subsequent SCs (SC-2..SC-8) add content within the same section.
+  - scs: [SC-2]
+    concerns: [decision-tree-format]
+    cross_cutting: true
+    notes: SC-2's decision-tree format applies to ALL 4 criterion blocks (Atomicity, Single Deliverable, Binary Verifiability, PR-Gate Viability), so it spans the atomicity, binary-verifiability, and pr-gate-viability concern groups structurally.
+  - scs: [SC-3]
+    concerns: [atomicity-subchecks]
+    cross_cutting: false
+  - scs: [SC-4, SC-5]
+    concerns: [binary-verifiability-subchecks]
+    cross_cutting: false
+    notes: SC-4 and SC-5 are sibling sub-checks within the same Binary Verifiability block; they were split from a single compound SC (per Change Control) because each is independently verifiable.
+  - scs: [SC-6]
+    concerns: [pr-gate-viability]
+    cross_cutting: false
+  - scs: [SC-7]
+    concerns: [cross-reference]
+    cross_cutting: false
+    notes: Cross-reference comment lives within the same inline copy; depends on the checklist presence (SC-1).
+  - scs: [SC-8]
+    concerns: [skip-guard]
+    cross_cutting: true
+    notes: Skip-guard wraps the entire decomposition check and affects all 4 criteria; it short-circuits evaluation for single-SC/single-file specs.
+  - scs: [SC-9, SC-10]
+    concerns: [behavioral-rejection, behavioral-acceptance]
+    cross_cutting: false
+    notes: Both behavioral tests exercise the same validate.md execution path but assert opposite outcomes (FAIL vs PASS); both depend on SC-8's skip-guard NOT firing (more than 1 affected file).
+cross_cutting_summary:
+  - SC-2 format requirement spans all 4 criterion blocks.
+  - SC-8 skip-guard spans the whole decomposition check.
+  - All 10 SCs share the single edit target validate.md.
