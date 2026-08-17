@@ -1,0 +1,31 @@
+# Code Path Inventory
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+
+## Code Paths Touched Per Item
+
+### Item 1 — Live-root fallback elimination
+- Path: behavior_run() → __ensure_gitbucket() → line 267 `local test_project="${TEST_PROJECT:-$project_root}"`
+- Callers: all BEHAVIOR_NEEDS_REMOTE=1 test scripts → behavior_run() → __ensure_gitbucket()
+- Downstream: lines 268-273 (remote get-url/remove/add/push against $test_project)
+
+### Item 2 — Live-root mutation guard
+- Path: helpers.sh new guard; invoked before any git-mutating op resolves a target
+- Callers: __ensure_gitbucket() remote-wiring block; any future git-mutating op in harness
+- Downstream: aborts with BLOCKED diagnostic on live-root target
+
+### Item 3 — Remote-wiring ordering dependency
+- Path: behavior_run() line 488 (__ensure_gitbucket) vs line 620 (with-test-home sets TEST_PROJECT)
+- Callers: behavior_run() for BEHAVIOR_NEEDS_REMOTE=1
+- Downstream: remote wiring either relocated to after isolated-target establishment or guarded
+
+### Item 4 — Structural regression enforcement test
+- Path: new enforcement test in tests-v2/
+- Callers: test-enforcement.sh --changed/--tag, or standalone test-*.sh
+- Downstream: CI/content-verification gate
+
+## Unchanged Paths
+- with-test-home env -i block (lines 520-544): unchanged isolation contract
+- attempt_workdir provisioning (helpers.sh lines 511-547): unchanged isolated target creation
+- attempt_workdir remote wiring (line 615): unchanged (correct isolated target)
+- behavioral evaluation methodology (session.yaml): unchanged

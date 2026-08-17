@@ -1,0 +1,32 @@
+# State Analysis
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+
+## State Machine Transitions Per Phase
+
+### Phase 1 — Harness Fix (Items 1-3)
+
+**Current (defective) state:**
+- [UNGUARDED] → __ensure_gitbucket() resolves $test_project=${TEST_PROJECT:-$project_root}
+  → TEST_PROJECT unset → $project_root = live repo → git-mutating remote ops on live repo → MUTATED
+
+**Target (fixed) state:**
+- [UNGUARDED] → resolve target → is target == live repo (PARENT_REPO_DIR/PROJECT_DIR)?
+  - YES → BLOCK (diagnostic, no mutation)
+  - NO (isolated target) → perform git-mutating op → [SAFE]
+
+**Ordering transition:**
+- Before: __ensure_gitbucket() (line 488) runs before isolated target established (line 620)
+  → fallback to live repo
+- After: remote-wiring block requires an established isolated target, or is guarded to BLOCK
+  when target == live repo
+
+### Phase 2 — Enforcement (Item 4)
+
+- [TEST ADDED] → enforcement test asserts absence of live-root-mutation patterns → PASS/FAIL gate
+- The enforcement test is additive; no state transition in harness runtime.
+
+## Invariants
+- INV-1: The live `.opencode` repo's `origin` remote and `main` ref are NEVER modified by the test harness.
+- INV-2: Every git-mutating op in the harness targets either `$attempt_workdir` or a validated isolated repo.
+- INV-3: The guard only blocks when target == live repo (never isolated targets).

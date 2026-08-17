@@ -1,0 +1,36 @@
+# Testability Assessment
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+
+## Test Strategy Per Phase/Item
+
+### Item 1 — Live-root fallback elimination
+- Type: behavioral + structural
+- Structural: grep helpers.sh for `${TEST_PROJECT:-$project_root}` fallback → assert absent
+- Behavioral: run a BEHAVIOR_NEEDS_REMOTE=1 test; assert live `.opencode` repo `origin` remote
+  and `main` ref are unchanged (git remote -v, git rev-parse main before/after)
+
+### Item 2 — Live-root mutation guard
+- Type: behavioral
+- Behavioral: invoke the guard (or a harness path) with target == live repo; assert BLOCK +
+  diagnostic, no mutation occurs (git remote -v unchanged, no push)
+
+### Item 3 — Remote-wiring ordering dependency
+- Type: behavioral
+- Behavioral: run a BEHAVIOR_NEEDS_REMOTE=1 test; assert GitBucket origin is wired on the
+  attempt_workdir (isolated repo) and the live repo origin is untouched
+
+### Item 4 — Structural regression enforcement test
+- Type: structural (content-verification)
+- Structural: enforcement test greps harness source for live-root git-mutation patterns
+  (`-C "$PROJECT_DIR"` mutation, `${TEST_PROJECT:-$project_root}`, unguarded bare git mutation)
+  → assert zero matches
+
+## Two-SC Pattern
+Per AGENTS.md §6a, behavioral items use the artifact-generation + clean-room-evaluation pattern:
+- SC-N (behavioral): run test script → produce session.yaml/artifacts
+- SC-N+1 (behavioral): clean-room sub-agent evaluates session.yaml for the behavioral criterion
+
+## Phase Summary
+- Phase 1 (Items 1-3): behavioral (artifact + clean-room evaluation)
+- Phase 2 (Item 4): structural (content-verification enforcement test)

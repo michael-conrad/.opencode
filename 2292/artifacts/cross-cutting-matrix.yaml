@@ -1,0 +1,20 @@
+# Cross-Cutting Matrix
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+
+## Cross-Cutting Concerns Matrix
+
+| Concern | Item 1 (fallback elim) | Item 2 (guard) | Item 3 (ordering) | Item 4 (enforcement) |
+|---------|------------------------|----------------|-------------------|----------------------|
+| Isolation safety | REQUIRED — removes live-root target | REQUIRED — blocks live-root target | REQUIRED — ordering ensures isolated target | Asserted |
+| GitBucket provisioning correctness | Affected — remote wiring must still work | Affected — guard must not block legit wiring | REQUIRED — wiring runs after isolated target | Asserted |
+| Ordering integrity | Related | Related | REQUIRED | Asserted |
+| Backward compatibility (18 remote tests) | Must not break | Must not false-positive | Must not break | Asserted |
+| Artifact-only paradigm | Preserved | Preserved | Preserved | Preserved |
+| env -i isolation contract | Preserved | Preserved | Preserved | Preserved |
+
+## Cross-Cutting Constraints
+- Any fix to Items 1-3 MUST keep the GitBucket origin wiring functional for the 18
+  BEHAVIOR_NEEDS_REMOTE=1 tests.
+- The guard (Item 2) MUST only block when target == live repo, not isolated targets.
+- Phase 1 (Items 1-3) must precede Phase 2 (Item 4) so the enforcement test asserts the fix.

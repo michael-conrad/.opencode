@@ -1,0 +1,23 @@
+spec_path: .opencode/.issues/2116/spec.md
+state_analysis:
+  - id: ST-1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+    state: spec-creation validate task gains decomposition criteria enforcement
+    transition: validate.md currently has Step 3.3 Compound-SC detection only → adds inline 4-criteria checklist with binary PASS/FAIL sub-checks and cross-reference.
+    verification: grep for each criterion, PASS/FAIL branching, trigger-word sub-check, disjunctive sub-check, vague-term sub-check, RED/GREEN reference, cross-reference comment.
+  - id: ST-2
+    scs: [SC-8]
+    state: decomposition check skip condition
+    transition: decomposition criteria not evaluated → skipped when spec has exactly 1 SC AND 1 affected file.
+    verification: grep for trigger condition.
+  - id: ST-3
+    scs: [SC-9]
+    state: monolithic SC rejected
+    transition: spec with monolithic SC containing 'and' submitted to validate → decomposition criteria returns FAIL with correct reason.
+    verification: opencode run behavioral test with assertion on stderr/behavioral evidence.
+  - id: ST-4
+    scs: [SC-10]
+    state: atomic SC accepted
+    transition: spec with single atomic SC submitted to validate → decomposition criteria returns PASS.
+    verification: opencode run behavioral test with assertion.
+state_boundary_note: SC-9 and SC-10 are behavioral (runtime) state transitions exercised through opencode run; SC-1..SC-8 are static string-checked transitions.

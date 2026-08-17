@@ -1,0 +1,32 @@
+# Research Card Consultation
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+
+## Consultation Result
+
+Globbed .opencode/.issues/research-cards/*.md and grepped frontmatter for research questions
+matching the spec topic (git-mutation isolation, project root protection, test harness isolation).
+
+Available cards:
+- create-md-remote-format-defect.md
+- cross-reference-form-comparison.md
+- local-issues-discover-repos-worktree-filter.md
+- multi-feature-branch-main-with-submodules.md
+- plan-fidelity-auditor-authoritative-sources.md
+- plan-fidelity-sc-coverage-gate.md
+- pre-response-gate-skill-description-design.md
+- searxng-mcp-search-alternatives.md
+- spec-creation-state.md
+- spec-writing-ai-agents-opencode-skill-architecture.md
+- wiki-operations-agent-tools-survey.md
+
+## Matching Cards
+
+NONE — no card has `confidence >= 0.7` with a research question matching "test framework must
+never use project root as a git-mutating target". No card addresses git-mutation isolation or
+project-root protection in the test harness.
+
+## Findings Incorporated
+
+No cached findings incorporated. The defect was grounded via direct live inspection of the test
+harness source (helpers.sh `__ensure_gitbucket()`), not a research card.

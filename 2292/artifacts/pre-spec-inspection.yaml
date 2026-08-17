@@ -1,0 +1,64 @@
+# Pre-Spec Inspection
+issue: 2292
+topic: Test framework must never use project root as a git-mutating target
+project_root: /home/muksihs/git/opencode-config/.opencode
+
+## Affected Files
+
+Primary (test harness code):
+- .opencode/tests-v2/behaviors/helpers.sh — `__ensure_gitbucket()` (line 267) falls back to
+  `$project_root` (live repo) when `TEST_PROJECT` is unset, then runs git-mutating remote ops
+  against it. Also `__ensure_gitbucket()` at line 488 runs BEFORE with-test-home sets TEST_PROJECT.
+- .opencode/tests-v2/with-test-home — sets TEST_PROJECT only inside its own subprocess (line 229,
+  389-392); never exports it to the parent shell where helpers.sh runs.
+
+Related (test scripts that trigger the vulnerable path via BEHAVIOR_NEEDS_REMOTE=1 without setting
+TEST_PROJECT in the parent shell):
+- 2241-sc12-gather-local-first.sh
+- 2241-sc13-drift-detection-local-first.sh
+- 2241-sc14-operating-protocol-local-first.sh
+- 2241-sc1-handoff-local-read.sh
+- 2241-sc3-creation-local-first.sh
+- 2241-sc4-completion-local-read.sh
+- 2241-sc6-spec-creation-create-local-first.sh
+- 2241-sc7-analyze-and-spec-local-first.sh
+- 2241-sc8-writing-plans-create-local-first.sh
+- 2241-sc9-read-labels-local-first.sh
+- 2242-sc6-cleanup-dispatch-no-task-card-read.sh
+- 2254-sc32-functional-spec-creation-pipeline.sh
+- 2254-sc33-audit-dimo-chain.sh
+- 2254-sc34-shared-test-home.sh
+- 2257-sc1-gitbucket-harness-provision.sh
+- 2257-sc2-issue-level-label-mutation.sh
+- 2257-sc3-repo-level-label-crud.sh
+- stacked-pr-organization.sh
+
+## Defect Root Cause
+
+`.opencode/tests-v2/behaviors/helpers.sh` `__ensure_gitbucket()`:
+```
+local test_project="${TEST_PROJECT:-$project_root}"
+```
+`$project_root` = `$PARENT_REPO_DIR` = the LIVE `.opencode` git repo.
+
+The git-mutating operations executed against it (lines 267-273):
+1. `git -C "$test_project" remote get-url origin` (read)
+2. `git -C "$test_project" remote remove origin` (MUTATE)
+3. `git -C "$test_project" remote add origin "http://root:${GB_TOKEN}@localhost:${port}/git/root/test-repo.git"` (MUTATE)
+4. `git -C "$test_project" push -u origin main` (MUTATE — pushes live main to test GitBucket)
+
+## Reachability
+
+`__ensure_gitbucket()` runs at helpers.sh line 488 (inside behavior_run) BEFORE with-test-home is
+invoked at line 620. At that point TEST_PROJECT is NEVER set in the parent shell — it is only set
+inside with-test-home's subprocess. Therefore EVERY test that sets `BEHAVIOR_NEEDS_REMOTE=1`
+(18 scripts) triggers the live-root mutation fallback. The remote ops also run a second time against
+the correct `$attempt_workdir` (line 615) but the first invocation already mutated the live repo.
+
+## Existing Patterns & Conventions
+
+- The harness isolates test git operations against `$TEST_PROJECT` / `$attempt_workdir` (test-home
+  project) — this is the intended isolation boundary.
+- `with-test-home` uses `env -i -C "$TEST_PROJECT"` so the model's CWD is isolated.
+- No existing guard prevents git-mutating ops when the target repo equals `$PARENT_REPO_DIR` /
+  `$PROJECT_DIR` (the live repo).

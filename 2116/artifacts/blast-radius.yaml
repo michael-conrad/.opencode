@@ -1,0 +1,20 @@
+spec_path: .opencode/.issues/2116/spec.md
+affected_files:
+  - path: .opencode/skills/spec-creation/tasks/validate.md
+    action: edit
+    exists: true
+    verification_method: ls .opencode/skills/spec-creation/tasks/validate.md
+    scope_note: Single edit target — the decomposition criteria checklist is added to this validate task.
+related_references:
+  - path: .opencode/audit/reference/decomposition-criteria.md
+    action: read-only
+    exists: true
+    verification_method: ls .opencode/audit/reference/decomposition-criteria.md
+    scope_note: Authoritative master reference; NOT modified (read-only dependency). Cross-referenced by inline copy.
+  - path: .opencode/skills/writing-plans/tasks/validate.md
+    action: none
+    scope_note: Out of scope (Phase 5, issue #2115).
+  - path: .opencode/audit/tasks/spec-audit-evaluator.md
+    action: none
+    scope_note: Out of scope (Phase 3, issue #2117) — preserves adversarial separation.
+blast_radius: Single-file edit confined to spec-creation/tasks/validate.md; no changes to other validate tasks, the master reference, or plan-level validation.

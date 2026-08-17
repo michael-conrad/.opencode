@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "__ensure_gitbucket() must not fall back to $project_root for git-mutating remote operations when $TEST_PROJECT is unset"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Harness detects when a git-mutating target resolves to the live repo and BLOCKs with a clear diagnostic before mutating"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "__ensure_gitbucket() remote-wiring block runs against a validated isolated repo established before remote wiring, or is relocated/guarded so it cannot hit the live repo"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Content-verification enforcement test asserts the harness contains no git-mutating operation that can target the live project root"
+    evidence_type: "structural"
+    plan_item: 4
