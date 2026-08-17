@@ -1,0 +1,47 @@
+# Cross-Cutting Matrix — Issue 2256
+# Identifies SCs that span multiple concerns or multiple affected files.
+
+cross_cutting_scs:
+  - sc: SC-1b
+    concerns: [C1]
+    files_span: 6
+    note: "References plan-structure-standards.md as the single authority across create.md and all four plan-fidelity tasks."
+  - sc: SC-12
+    concerns: [C5]
+    files_span: 2
+    note: "Normalizes per-item cycle terminology across writing-plans/SKILL.md and create.md."
+  - sc: SC-17
+    concerns: [C5]
+    files_span: 1
+    note: "research.md sc-summary.yaml path must match the post-#2254 spec-creation write path (cross-repo dependency on #2254)."
+  - sc: SC-8
+    concerns: [C3]
+    files_span: 2
+    note: "Mutually exclusive scope requires coordinated edits to both plan/SKILL.md and solve/SKILL.md."
+  - sc: SC-9
+    concerns: [C3]
+    files_span: 2
+    note: "state/fallback ownership requires coordinated edits to both plan/SKILL.md and solve/SKILL.md."
+  - sc: SC-10a
+    concerns: [C4]
+    files_span: 4
+    note: "Single-plan model applied across all four plan-fidelity task files."
+  - sc: SC-10b
+    concerns: [C4]
+    files_span: 4
+    note: "plan-fidelity.md reference removed across all four plan-fidelity task files."
+  - sc: SC-14
+    concerns: [C5]
+    files_span: 9
+    note: "blocker_reason added to all 9 output contract templates."
+
+shared_file_scs:
+  - file: ".opencode/skills/writing-plans/SKILL.md"
+    scs: [SC-1c, SC-11, SC-12, SC-15]
+    note: "Multiple P6 items edit this file; items execute sequentially in the dependency DAG (11->12, 11->15) to avoid conflicting edits."
+  - file: ".opencode/skills/writing-plans/tasks/research.md"
+    scs: [SC-4, SC-5, SC-6, SC-7, SC-17]
+    note: "Cross-cutting file edited by both P4 (SC-4/5/6/7) and P6 (SC-17)."
+  - file: ".opencode/reference/plan-structure-standards.md"
+    scs: [SC-1b, SC-2, SC-3]
+    note: "Single authority file edited by three P1 SCs."

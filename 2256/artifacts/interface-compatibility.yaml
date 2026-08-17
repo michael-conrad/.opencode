@@ -1,0 +1,55 @@
+# Interface Compatibility — Issue 2256
+# Checks interface boundaries between affected modules.
+# R-20: tools/solve and tools/plan CLI interfaces MUST remain unchanged.
+
+interface_boundaries:
+  - boundary: "writing-plans/tasks/research.md -> tools/solve (model)"
+    scs: [SC-4]
+    status: "broken at backfill time"
+    issue: "solve model invocation passes the literal `sat` instead of a valid Z3 boolean expression (--query True)."
+    resolution: "Fix the --query argument to a valid Z3 boolean expression evaluating to a z3.BoolRef. Tool CLI unchanged (R-20)."
+  - boundary: "writing-plans/tasks/research.md -> tools/solve (check)"
+    scs: [SC-5]
+    status: "broken at backfill time"
+    issue: "solve check invocation passes the state-analysis.yaml analytical artifact instead of a real solve state file."
+    resolution: "Bind --state-path to {issues_prefix}/{N}/artifacts/state.yaml. Tool CLI unchanged (R-20)."
+  - boundary: "writing-plans/tasks/research.md -> tools/plan (plan)"
+    scs: [SC-6]
+    status: "broken at backfill time"
+    issue: "plan plan invocation uses --contract-path/--output instead of the --problem flag."
+    resolution: "Use --problem bound to {issues_prefix}/{N}/artifacts/plan-problem.yaml. Tool CLI unchanged (R-20)."
+  - boundary: "writing-plans/tasks/research.md -> analytical artifacts"
+    scs: [SC-7, SC-17]
+    status: "inconsistent at backfill time"
+    issue: "No BLOCK-on-incomplete-spec gate before Z3/planner invocation; sc-summary.yaml path does not match the post-#2254 spec-creation write path."
+    resolution: "Add BLOCK gate (INCOMPLETE_SPEC) with diagnose-to-remediate-to-escalate; fix sc-summary.yaml path."
+  - boundary: "plan/SKILL.md <-> solve/SKILL.md"
+    scs: [SC-8, SC-9]
+    status: "collision at backfill time"
+    issue: "Descriptions share identical scope language, misrouting agent-intent dispatch; state/fallback ownership ambiguous."
+    resolution: "Make descriptions mutually exclusive; state owned by plan, fallback owned by solve."
+  - boundary: "audit/tasks/plan-fidelity-*.md -> plan artifact"
+    scs: [SC-10a, SC-10b]
+    status: "phantom basis at backfill time"
+    issue: "Plan-fidelity evaluates against a phantom clean-room plan that is never generated; references non-existent plan-fidelity.md."
+    resolution: "Adopt single-plan (plan-vs-spec) model; remove plan-fidelity.md reference."
+  - boundary: "writing-plans/contracts/*-output.yaml <-> task result contracts"
+    scs: [SC-14]
+    status: "asymmetric at backfill time"
+    issue: "Output contract templates lack blocker_reason, asymmetric with task result contracts."
+    resolution: "Add blocker_reason to all 9 output contract templates."
+  - boundary: "writing-plans/tasks/completion.md -> completion-core lifecycle manifest"
+    scs: [SC-16a, SC-16b, SC-16c, SC-16d]
+    status: "misdirected at backfill time"
+    issue: "Lifecycle event written to issue body/plan file instead of the completion-core manifest; no chat exec summary."
+    resolution: "Append to {project_root}/tmp/{issue-N}/lifecycle.yaml (metadata, append-only); report exec summary in chat; no plan.md/spec.md appends; no issue comments."
+  - boundary: "writing-plans/tasks/handoff.md -> approval-gate tasks"
+    scs: [SC-18]
+    status: "dangling at backfill time"
+    issue: "References non-existent verify-authorization approval-gate task."
+    resolution: "Repoint to an existing approval-gate task (apply-label, resolve-scope, or route)."
+
+interface_invariants:
+  - "tools/solve and tools/plan CLI interfaces MUST remain unchanged (R-20)."
+  - "No src/ code changes (R-19)."
+  - "No new runtime features (R-21)."

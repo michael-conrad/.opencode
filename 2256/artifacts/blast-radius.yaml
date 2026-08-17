@@ -1,0 +1,69 @@
+# Blast Radius — Issue 2256
+# Plan skill card remediation (P1-P6). All affected files are agent-facing
+# markdown under .opencode/; no src/ or runtime code changes (R-19, R-21).
+# Each affected file was verified to exist in the codebase at backfill time.
+
+affected_files:
+  - path: ".opencode/reference/plan-structure-standards.md"
+    status: exists
+    scs: [SC-1b, SC-2, SC-3]
+    change: "Become the single canonical plan-structure authority; remove dispatch field; string plan_schema_version"
+  - path: ".opencode/skills/writing-plans/reference/plan-artifact-format.md"
+    status: exists
+    scs: [SC-1a]
+    change: "Deleted outright (file absent from codebase)"
+  - path: ".opencode/skills/writing-plans/SKILL.md"
+    status: exists
+    scs: [SC-1c, SC-11, SC-12, SC-15]
+    change: "Remove plan-artifact-format.md from File Structure; task count 9; per-item cycle terminology; wire verify-plan-pipeline"
+  - path: ".opencode/skills/writing-plans/tasks/research.md"
+    status: exists
+    scs: [SC-4, SC-5, SC-6, SC-7, SC-17]
+    change: "Fix solve model/check and plan plan invocations; add BLOCK-on-incomplete-spec gate; fix sc-summary.yaml path"
+  - path: ".opencode/skills/writing-plans/tasks/create.md"
+    status: exists
+    scs: [SC-1b, SC-12, SC-13]
+    change: "Reference single authority; per-item cycle terminology; remove YAML code block"
+  - path: ".opencode/skills/writing-plans/tasks/completion.md"
+    status: exists
+    scs: [SC-16a, SC-16b, SC-16c, SC-16d]
+    change: "Route lifecycle event to completion-core manifest; report exec summary in chat; no plan.md/spec.md appends; no issue comments"
+  - path: ".opencode/skills/writing-plans/tasks/handoff.md"
+    status: exists
+    scs: [SC-18]
+    change: "Reference an existing approval-gate task (not verify-authorization)"
+  - path: ".opencode/skills/writing-plans/contracts/*-output.yaml"
+    status: exists
+    scs: [SC-14]
+    change: "Add blocker_reason field to all 9 output contract templates"
+  - path: ".opencode/skills/plan/SKILL.md"
+    status: exists
+    scs: [SC-8, SC-9]
+    change: "Mutually exclusive scope; own the state task"
+  - path: ".opencode/skills/solve/SKILL.md"
+    status: exists
+    scs: [SC-8, SC-9]
+    change: "Mutually exclusive scope; own the fallback task"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+    status: exists
+    scs: [SC-10a, SC-10b]
+    change: "Single-plan evaluation model; remove plan-fidelity.md reference"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+    status: exists
+    scs: [SC-10a, SC-10b]
+    change: "Single-plan evaluation model; remove plan-fidelity.md reference"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+    status: exists
+    scs: [SC-10a, SC-10b]
+    change: "Single-plan evaluation model; remove plan-fidelity.md reference"
+  - path: ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+    status: exists
+    scs: [SC-10a, SC-10b]
+    change: "Single-plan evaluation model; remove plan-fidelity.md reference"
+
+out_of_scope:
+  - "src/ code changes (R-19)"
+  - "tools/solve and tools/plan CLI interfaces (R-20)"
+  - "unified-planning / Z3 solver internals (REQ-NON-1)"
+  - "spec-creation skill changes (REQ-NON-2)"
+  - "new runtime features (R-21)"

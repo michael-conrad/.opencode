@@ -38,19 +38,19 @@ scs:
     plan_item: 9
   - id: "SC-8"
     description: "plan and solve skill descriptions no longer share scope language"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 10
   - id: "SC-9"
     description: "state/fallback tasks have a single owning skill between plan and solve"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 11
   - id: "SC-10a"
     description: "plan-fidelity tasks use a single-plan evaluation model (plan-vs-spec), removing the phantom clean-room basis"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 12
   - id: "SC-10b"
     description: "plan-fidelity tasks do not reference the non-existent plan-fidelity.md main task file"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 13
   - id: "SC-11"
     description: "writing-plans/SKILL.md task count matches the actual task file count"
@@ -70,31 +70,31 @@ scs:
     plan_item: 17
   - id: "SC-15"
     description: "verify-plan-pipeline is wired into the writing-plans workflow"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 18
   - id: "SC-16a"
     description: "completion.md routes the lifecycle event to the completion-core lifecycle manifest"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 19
   - id: "SC-16b"
     description: "completion.md reports the executive summary in chat"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 20
   - id: "SC-16c"
     description: "completion.md does not append lifecycle events to plan.md or spec.md"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 21
   - id: "SC-16d"
     description: "completion.md does not post lifecycle events as human-facing issue comments"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 22
   - id: "SC-17"
-    description: "research.md sc-summary.yaml path matches spec-creation write path"
-    evidence_type: "structural"
+    description: "research.md reads sc-summary.yaml from {issues_prefix}/{N}/sc-summary.yaml (the spec-creation write path)"
+    evidence_type: "behavioral"
     plan_item: 23
   - id: "SC-18"
-    description: "handoff.md references an existing approval-gate task"
-    evidence_type: "structural"
+    description: "handoff.md references the apply-label approval-gate task"
+    evidence_type: "behavioral"
     plan_item: 24
   - id: "SC-19"
     description: "analytical artifacts (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) generated and stored at .opencode/.issues/2256/artifacts/"

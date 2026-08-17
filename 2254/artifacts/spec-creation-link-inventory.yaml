@@ -6,9 +6,10 @@
 # Issue: .opencode#2254 — Spec-creation / audit skill card remediation.
 # Target: .opencode/skills/spec-creation/SKILL.md
 #
-# Enumerates the 6 inventoried links in spec-creation/SKILL.md: the 5
-# markdown task-card links plus the broken backtick reference
-# `docs/specs/how-to-write-good-spec-ai-agents.md` (SC-38).
+# Enumerates the 7 markdown links in spec-creation/SKILL.md: 5 task-card
+# dispatch links plus 2 cross-reference links in the Plan Audit Code Deep Dive
+# section. The broken backtick reference
+# `docs/specs/how-to-write-good-spec-ai-agents.md` was removed (SC-38).
 #
 # resolution_status:
 #   - resolved:   the target path resolves to a real on-disk file
@@ -16,7 +17,7 @@
 #
 # Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
 
-link_count: 6
+link_count: 7
 links_list:
   - target: .opencode/skills/spec-creation/tasks/analyze.md
     link_text: spec-creation/tasks/analyze.md
@@ -33,6 +34,9 @@ links_list:
   - target: .opencode/skills/spec-creation/tasks/validate.md
     link_text: spec-creation/tasks/validate.md
     resolution_status: resolved
-  - target: docs/specs/how-to-write-good-spec-ai-agents.md
-    link_text: docs/specs/how-to-write-good-spec-ai-agents.md
-    resolution_status: unresolved
+  - target: .opencode/skills/spec-creation/SKILL.md
+    link_text: spec-creation
+    resolution_status: resolved
+  - target: .opencode/skills/audit/SKILL.md
+    link_text: audit
+    resolution_status: resolved

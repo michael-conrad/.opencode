@@ -1,0 +1,93 @@
+# Code Path Inventory — Issue 2256
+# Lists the code paths (agent-facing files) implied by each SC.
+
+code_paths:
+  - sc: SC-1a
+    paths: [".opencode/skills/writing-plans/reference/plan-artifact-format.md"]
+    action: "delete file"
+  - sc: SC-1b
+    paths:
+      - ".opencode/reference/plan-structure-standards.md"
+      - ".opencode/skills/writing-plans/tasks/create.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+    action: "reference plan-structure-standards.md as the single canonical authority"
+  - sc: SC-1c
+    paths: [".opencode/skills/writing-plans/SKILL.md"]
+    action: "remove plan-artifact-format.md from File Structure listing"
+  - sc: SC-2
+    paths: [".opencode/reference/plan-structure-standards.md"]
+    action: "remove dispatch field from plan frontmatter"
+  - sc: SC-3
+    paths: [".opencode/reference/plan-structure-standards.md"]
+    action: "string plan_schema_version"
+  - sc: SC-4
+    paths: [".opencode/skills/writing-plans/tasks/research.md"]
+    action: "fix solve model invocation (--query True, not sat)"
+  - sc: SC-5
+    paths: [".opencode/skills/writing-plans/tasks/research.md"]
+    action: "fix solve check invocation (--state-path to real state file)"
+  - sc: SC-6
+    paths: [".opencode/skills/writing-plans/tasks/research.md"]
+    action: "fix plan plan invocation (--problem flag)"
+  - sc: SC-7
+    paths: [".opencode/skills/writing-plans/tasks/research.md"]
+    action: "add BLOCK-on-incomplete-spec gate (INCOMPLETE_SPEC)"
+  - sc: SC-8
+    paths: [".opencode/skills/plan/SKILL.md", ".opencode/skills/solve/SKILL.md"]
+    action: "make descriptions mutually exclusive in scope"
+  - sc: SC-9
+    paths: [".opencode/skills/plan/SKILL.md", ".opencode/skills/solve/SKILL.md"]
+    action: "clarify state (plan) / fallback (solve) ownership"
+  - sc: SC-10a
+    paths:
+      - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+    action: "adopt single-plan (plan-vs-spec) evaluation model"
+  - sc: SC-10b
+    paths:
+      - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+    action: "remove plan-fidelity.md reference"
+  - sc: SC-11
+    paths: [".opencode/skills/writing-plans/SKILL.md"]
+    action: "declare task count 9"
+  - sc: SC-12
+    paths: [".opencode/skills/writing-plans/SKILL.md", ".opencode/skills/writing-plans/tasks/create.md"]
+    action: "use per-item TDD cycle terminology (RED/GREEN/REFACTOR/COMMIT)"
+  - sc: SC-13
+    paths: [".opencode/skills/writing-plans/tasks/create.md"]
+    action: "remove JSON/YAML code blocks from body"
+  - sc: SC-14
+    paths: [".opencode/skills/writing-plans/contracts/*-output.yaml"]
+    action: "add blocker_reason field to all 9 templates"
+  - sc: SC-15
+    paths: [".opencode/skills/writing-plans/SKILL.md"]
+    action: "wire verify-plan-pipeline between validate PASS and completion"
+  - sc: SC-16a
+    paths: [".opencode/skills/writing-plans/tasks/completion.md"]
+    action: "append lifecycle event to completion-core manifest"
+  - sc: SC-16b
+    paths: [".opencode/skills/writing-plans/tasks/completion.md"]
+    action: "report executive summary in chat"
+  - sc: SC-16c
+    paths: [".opencode/skills/writing-plans/tasks/completion.md"]
+    action: "do not append lifecycle events to plan.md/spec.md"
+  - sc: SC-16d
+    paths: [".opencode/skills/writing-plans/tasks/completion.md"]
+    action: "do not post lifecycle events as issue comments"
+  - sc: SC-17
+    paths: [".opencode/skills/writing-plans/tasks/research.md"]
+    action: "fix sc-summary.yaml path to match spec-creation write path"
+  - sc: SC-18
+    paths: [".opencode/skills/writing-plans/tasks/handoff.md"]
+    action: "reference an existing approval-gate task"
+  - sc: SC-19
+    paths: [".opencode/.issues/2256/artifacts/*"]
+    action: "generate the seven analytical artifacts"

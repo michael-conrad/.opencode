@@ -1,0 +1,114 @@
+# Testability Assessment — Issue 2256
+# Assigns evidence types to each SC. Evidence types align with the canonical
+# evidence-type taxonomy established by #2254 (SC-15/16) and the spec.md SC
+# table. Behavioral SCs are verified via opencode run; structural SCs via file
+# inspection.
+
+testability:
+  - sc: SC-1a
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm plan-artifact-format.md is absent from the codebase"
+    testable: true
+  - sc: SC-1b
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm plan-structure-standards.md is referenced by create.md and the plan-fidelity tasks"
+    testable: true
+  - sc: SC-1c
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm writing-plans/SKILL.md File Structure no longer lists plan-artifact-format.md"
+    testable: true
+  - sc: SC-2
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm no plan frontmatter declares dispatch:"
+    testable: true
+  - sc: SC-3
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm plan_schema_version is a quoted string"
+    testable: true
+  - sc: SC-4
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering research.md Step 10; assert stderr shows the solve model invocation passes --query True (valid Z3 boolean expression), not sat"
+    testable: true
+  - sc: SC-5
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering research.md Step 11; assert stderr shows the solve check invocation binds --state-path to the real solve state file {issues_prefix}/{N}/artifacts/state.yaml, not state-analysis.yaml"
+    testable: true
+  - sc: SC-6
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering research.md Step 12; assert stderr shows the plan plan invocation uses --problem {issues_prefix}/{N}/artifacts/plan-problem.yaml, not --contract-path/--output"
+    testable: true
+  - sc: SC-7
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt with an incomplete spec; assert stderr shows research.md BLOCKs with INCOMPLETE_SPEC rather than invoking tools"
+    testable: true
+  - sc: SC-8
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt that could route to plan or solve; assert stderr shows the agent dispatches exactly one skill (no shared scope language)"
+    testable: true
+  - sc: SC-9
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering a state/fallback operation; assert stderr shows the single owning skill dispatches the task (state->plan, fallback->solve)"
+    testable: true
+  - sc: SC-10a
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering a plan-fidelity audit; assert stderr shows the audit evaluates plan-vs-spec (no clean-room reference)"
+    testable: true
+  - sc: SC-10b
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering a plan-fidelity audit; assert stderr shows no dispatch to plan-fidelity.md"
+    testable: true
+  - sc: SC-11
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm SKILL.md task count matches the 9 task files"
+    testable: true
+  - sc: SC-12
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm SKILL.md and create.md use per-item cycle terminology and do not use per-task cycle"
+    testable: true
+  - sc: SC-13
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm the Result Contract section has no YAML code block"
+    testable: true
+  - sc: SC-14
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm all 9 output contract templates include blocker_reason"
+    testable: true
+  - sc: SC-15
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt running the writing-plans workflow; assert stderr shows verify-plan-pipeline dispatched between validate PASS and completion"
+    testable: true
+  - sc: SC-16a
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering the completion task; assert stderr shows the lifecycle event appended to {project_root}/tmp/{issue-N}/lifecycle.yaml"
+    testable: true
+  - sc: SC-16b
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering the completion task; assert stderr shows the executive summary reported in chat"
+    testable: true
+  - sc: SC-16c
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering the completion task; assert stderr shows no lifecycle append to plan.md/spec.md"
+    testable: true
+  - sc: SC-16d
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering the completion task; assert stderr shows no lifecycle event posted as an issue comment"
+    testable: true
+  - sc: SC-17
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering research.md; assert stderr shows sc-summary.yaml read from the post-#2254 spec-creation write path"
+    testable: true
+  - sc: SC-18
+    evidence_type: "behavioral"
+    verification_method: "opencode run — dispatch a real-domain prompt triggering the handoff task; assert stderr shows dispatch to an existing approval-gate task (not verify-authorization)"
+    testable: true
+  - sc: SC-19
+    evidence_type: "structural"
+    verification_method: "file inspection — confirm all 7 analytical artifact files exist at .opencode/.issues/2256/artifacts/"
+    testable: true
+
+summary:
+  total_scs: 25
+  structural: 10
+  behavioral: 15
+  untestable: 0
+  note: "Evidence types align with the canonical taxonomy established by #2254 (SC-15/16). Behavioral SCs (SC-4/5/6/7/8/9/10a/10b/15/16a-16d/17/18) change agent-facing instructions affecting runtime behavior and are uplifted per critical-rules-BEH-EV."

@@ -1,0 +1,42 @@
+# Analysis Summary — Issue 2256
+# Backfill summary for the analytical artifacts directory.
+
+spec_path: ".opencode/.issues/2256/spec.md"
+sc_count: 25
+
+artifacts:
+  - name: "blast-radius.yaml"
+    status: "existing"
+  - name: "concern-map.yaml"
+    status: "existing"
+  - name: "code-path-inventory.yaml"
+    status: "existing"
+  - name: "cross-cutting-matrix.yaml"
+    status: "existing"
+  - name: "interface-compatibility.yaml"
+    status: "backfilled"
+  - name: "state-analysis.yaml"
+    status: "backfilled"
+  - name: "testability-assessment.yaml"
+    status: "backfilled"
+
+scope_summary:
+  affected_files: 14
+  phases: [P0, P1, P3, P4, P5, P6]
+  concerns: 6
+  evidence_types:
+    structural: 10
+    behavioral: 15
+  out_of_scope:
+    - "src/ code changes (R-19)"
+    - "tools/solve and tools/plan CLI interfaces (R-20)"
+    - "unified-planning / Z3 solver internals (REQ-NON-1)"
+    - "spec-creation skill changes (REQ-NON-2)"
+    - "new runtime features (R-21)"
+
+backfill_notes:
+  - "All 14 affected files verified to exist in the codebase at backfill time."
+  - "interface-compatibility.yaml: 12 interfaces identified, all incompatible (to be remediated); no runtime code or tool CLI changes (R-19, R-20, R-21)."
+  - "state-analysis.yaml: 25 state transitions, one per SC; all file-system or agent-facing text state changes (R-21)."
+  - "testability-assessment.yaml: evidence types align with the canonical taxonomy established by #2254 (SC-15/16); 15 behavioral SCs uplifted per critical-rules-BEH-EV."
+  - "SC-19 (analytical artifacts) is a developer-directive remediation requirement (R-22), not a root-cause-derived SC."

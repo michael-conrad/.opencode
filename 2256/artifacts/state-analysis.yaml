@@ -1,0 +1,110 @@
+# State Analysis — Issue 2256
+# Identifies state transitions required by each SC. This is a documentation/skill-card
+# remediation (R-21: no new runtime features); state here refers to the state of the
+# agent-facing artifacts and the solve state file referenced by research.md.
+
+state_transitions:
+  - sc: SC-1a
+    from: "plan-artifact-format.md present in codebase"
+    to: "plan-artifact-format.md absent from codebase"
+    artifact: ".opencode/skills/writing-plans/reference/plan-artifact-format.md"
+  - sc: SC-1b
+    from: "split plan-structure authority (two reference docs)"
+    to: "plan-structure-standards.md is the single canonical authority"
+    artifact: ".opencode/reference/plan-structure-standards.md"
+  - sc: SC-1c
+    from: "writing-plans/SKILL.md File Structure lists plan-artifact-format.md"
+    to: "File Structure no longer lists plan-artifact-format.md"
+    artifact: ".opencode/skills/writing-plans/SKILL.md"
+  - sc: SC-2
+    from: "plan frontmatter declares dispatch: field"
+    to: "no plan frontmatter declares dispatch:"
+    artifact: ".opencode/reference/plan-structure-standards.md"
+  - sc: SC-3
+    from: "plan_schema_version is integer 1"
+    to: "plan_schema_version is quoted string \"1.0\""
+    artifact: ".opencode/reference/plan-structure-standards.md"
+  - sc: SC-4
+    from: "solve model invocation passes literal sat"
+    to: "solve model invocation passes valid Z3 boolean expression --query True"
+    artifact: ".opencode/skills/writing-plans/tasks/research.md"
+  - sc: SC-5
+    from: "solve check invocation passes state-analysis.yaml"
+    to: "solve check invocation passes --state-path {issues_prefix}/{N}/artifacts/state.yaml"
+    artifact: ".opencode/skills/writing-plans/tasks/research.md"
+  - sc: SC-6
+    from: "plan plan invocation uses --contract-path/--output"
+    to: "plan plan invocation uses --problem {issues_prefix}/{N}/artifacts/plan-problem.yaml"
+    artifact: ".opencode/skills/writing-plans/tasks/research.md"
+  - sc: SC-7
+    from: "no gate before Z3/planner invocation"
+    to: "BLOCK-on-incomplete-spec gate returns BLOCKED INCOMPLETE_SPEC before invocation"
+    artifact: ".opencode/skills/writing-plans/tasks/research.md"
+  - sc: SC-8
+    from: "plan and solve descriptions share scope language"
+    to: "plan and solve descriptions are mutually exclusive in scope"
+    artifacts: [".opencode/skills/plan/SKILL.md", ".opencode/skills/solve/SKILL.md"]
+  - sc: SC-9
+    from: "state/fallback ownership ambiguous between plan and solve"
+    to: "state owned by plan; fallback owned by solve; neither claims the other's task"
+    artifacts: [".opencode/skills/plan/SKILL.md", ".opencode/skills/solve/SKILL.md"]
+  - sc: SC-10a
+    from: "plan-fidelity evaluates against phantom clean-room plan"
+    to: "plan-fidelity evaluates plan-vs-spec (single-plan model)"
+    artifacts: [".opencode/skills/audit/tasks/plan-fidelity-*.md"]
+  - sc: SC-10b
+    from: "plan-fidelity tasks reference non-existent plan-fidelity.md"
+    to: "no plan-fidelity.md reference in plan-fidelity tasks"
+    artifacts: [".opencode/skills/audit/tasks/plan-fidelity-*.md"]
+  - sc: SC-11
+    from: "writing-plans/SKILL.md declares task count 7"
+    to: "writing-plans/SKILL.md declares task count 9"
+    artifact: ".opencode/skills/writing-plans/SKILL.md"
+  - sc: SC-12
+    from: "per-task cycle terminology"
+    to: "per-item TDD cycle terminology (RED/GREEN/REFACTOR/COMMIT)"
+    artifacts: [".opencode/skills/writing-plans/SKILL.md", ".opencode/skills/writing-plans/tasks/create.md"]
+  - sc: SC-13
+    from: "create.md body contains JSON/YAML code blocks"
+    to: "create.md body contains no JSON/YAML code blocks"
+    artifact: ".opencode/skills/writing-plans/tasks/create.md"
+  - sc: SC-14
+    from: "output contract templates lack blocker_reason"
+    to: "all 9 output contract templates include blocker_reason"
+    artifact: ".opencode/skills/writing-plans/contracts/*-output.yaml"
+  - sc: SC-15
+    from: "verify-plan-pipeline unwired (declared but never runs)"
+    to: "verify-plan-pipeline wired between validate PASS and completion"
+    artifact: ".opencode/skills/writing-plans/SKILL.md"
+  - sc: SC-16a
+    from: "lifecycle event written to issue body/plan file"
+    to: "lifecycle event appended to completion-core manifest at {project_root}/tmp/{issue-N}/lifecycle.yaml"
+    artifact: ".opencode/skills/writing-plans/tasks/completion.md"
+  - sc: SC-16b
+    from: "completion silent (no exec summary)"
+    to: "completion reports executive summary in chat"
+    artifact: ".opencode/skills/writing-plans/tasks/completion.md"
+  - sc: SC-16c
+    from: "lifecycle events appended to plan.md/spec.md"
+    to: "no lifecycle appends to plan.md/spec.md"
+    artifact: ".opencode/skills/writing-plans/tasks/completion.md"
+  - sc: SC-16d
+    from: "lifecycle events posted as issue comments"
+    to: "no lifecycle events posted as issue comments"
+    artifact: ".opencode/skills/writing-plans/tasks/completion.md"
+  - sc: SC-17
+    from: "research.md sc-summary.yaml path mismatched"
+    to: "research.md sc-summary.yaml path matches post-#2254 spec-creation write path"
+    artifact: ".opencode/skills/writing-plans/tasks/research.md"
+  - sc: SC-18
+    from: "handoff.md references non-existent verify-authorization"
+    to: "handoff.md references an existing approval-gate task"
+    artifact: ".opencode/skills/writing-plans/tasks/handoff.md"
+  - sc: SC-19
+    from: "analytical artifacts absent from .opencode/.issues/2256/artifacts/"
+    to: "all seven analytical artifacts present at .opencode/.issues/2256/artifacts/"
+    artifact: ".opencode/.issues/2256/artifacts/*"
+
+state_invariants:
+  - "Specs and plans are NOT tracking documents (non-tracking mandate) — no lifecycle/status markers in plan.md/spec.md (SC-16c)."
+  - "Non-substantive progress goes to chat only, never issue comments (substantive-comment gate) (SC-16d)."

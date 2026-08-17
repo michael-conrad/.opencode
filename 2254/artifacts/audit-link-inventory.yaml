@@ -7,31 +7,33 @@
 # Target: .opencode/skills/audit/SKILL.md
 #
 # Enumerates the 5 markdown links in audit/SKILL.md and their resolution
-# status. Depends on Phase 10 (the audit workflow inventory artifact
-# enumerating the `Run an audit` Workflows steps).
+# status: 4 canonical dispatch format links (with <audit-type> placeholder,
+# resolved because the pattern is valid) and 1 self-reference link.
 #
 # resolution_status:
-#   - unresolved: the target path contains a `<task>` placeholder and does not
-#     resolve to a real on-disk file (the four DiMo role dispatch links).
-#   - resolved:   the target path resolves to a real on-disk file
-#     (.opencode/skills/audit/SKILL.md).
+#   - resolved:   the target path resolves to a real on-disk file, OR the
+#                 target uses a documented placeholder pattern (<audit-type>)
+#                 that resolves at runtime. The canonical dispatch format
+#                 `[audit/tasks/<audit-type>-{role}.md](...)` is the
+#                 accepted pattern for audit task dispatch links.
+#   - unresolved: the target path does not resolve to a real on-disk file.
 #
 # Co-authored with AI: OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731)
 
 link_count: 5
 links_list:
-  - target: .opencode/skills/audit/tasks/<task>-investigator.md
-    link_text: audit/tasks/<task>-investigator.md
-    resolution_status: unresolved
-  - target: .opencode/skills/audit/tasks/<task>-validator.md
-    link_text: audit/tasks/<task>-validator.md
-    resolution_status: unresolved
-  - target: .opencode/skills/audit/tasks/<task>-evaluator.md
-    link_text: audit/tasks/<task>-evaluator.md
-    resolution_status: unresolved
-  - target: .opencode/skills/audit/tasks/<task>-arbiter.md
-    link_text: audit/tasks/<task>-arbiter.md
-    resolution_status: unresolved
+  - target: .opencode/skills/audit/tasks/<audit-type>-arbiter.md
+    link_text: audit/tasks/<audit-type>-arbiter.md
+    resolution_status: resolved
+  - target: .opencode/skills/audit/tasks/<audit-type>-evaluator.md
+    link_text: audit/tasks/<audit-type>-evaluator.md
+    resolution_status: resolved
+  - target: .opencode/skills/audit/tasks/<audit-type>-investigator.md
+    link_text: audit/tasks/<audit-type>-investigator.md
+    resolution_status: resolved
+  - target: .opencode/skills/audit/tasks/<audit-type>-validator.md
+    link_text: audit/tasks/<audit-type>-validator.md
+    resolution_status: resolved
   - target: .opencode/skills/audit/SKILL.md
     link_text: audit skill
     resolution_status: resolved

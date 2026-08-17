@@ -1,0 +1,72 @@
+# Concern Map — Issue 2256
+# Decomposes the 25 SCs into concern groups, each mapped to a phase boundary.
+# Phase boundaries from the spec Traceability table (Section 7).
+
+concerns:
+  - id: C1
+    name: "plan-structure authority consolidation"
+    phase: P1
+    scs: [SC-1a, SC-1b, SC-1c, SC-2, SC-3]
+    description: "Resolve the split plan-structure authority to plan-structure-standards.md as the single canonical source; delete plan-artifact-format.md; remove dispatch field; string plan_schema_version."
+    affected_files:
+      - ".opencode/reference/plan-structure-standards.md"
+      - ".opencode/skills/writing-plans/reference/plan-artifact-format.md"
+      - ".opencode/skills/writing-plans/SKILL.md"
+      - ".opencode/skills/writing-plans/tasks/create.md"
+
+  - id: C2
+    name: "tool invocation remediation"
+    phase: P4
+    scs: [SC-4, SC-5, SC-6, SC-7]
+    description: "Fix the three runtime-broken solve/plan tool invocations in research.md and add a BLOCK-on-incomplete-spec gate with diagnose-to-remediate-to-escalate."
+    affected_files:
+      - ".opencode/skills/writing-plans/tasks/research.md"
+
+  - id: C3
+    name: "plan/solve scope and ownership"
+    phase: P3
+    scs: [SC-8, SC-9]
+    description: "Resolve the plan/solve description scope collision and clarify state/fallback ownership (state owned by plan, fallback owned by solve)."
+    affected_files:
+      - ".opencode/skills/plan/SKILL.md"
+      - ".opencode/skills/solve/SKILL.md"
+
+  - id: C4
+    name: "plan-fidelity audit model"
+    phase: P5
+    scs: [SC-10a, SC-10b]
+    description: "Adopt a single-plan (plan-vs-spec) evaluation model in the plan-fidelity chain, removing the phantom clean-room basis and the plan-fidelity.md reference."
+    affected_files:
+      - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+      - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+
+  - id: C5
+    name: "writing-plans internal consistency"
+    phase: P6
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16a, SC-16b, SC-16c, SC-16d, SC-17, SC-18]
+    description: "Fix writing-plans internal inconsistencies: task count, cycle terminology, YAML blocks, contract symmetry, verify-plan-pipeline wiring, completion lifecycle, sc-summary path, auth gating."
+    affected_files:
+      - ".opencode/skills/writing-plans/SKILL.md"
+      - ".opencode/skills/writing-plans/tasks/create.md"
+      - ".opencode/skills/writing-plans/tasks/completion.md"
+      - ".opencode/skills/writing-plans/tasks/handoff.md"
+      - ".opencode/skills/writing-plans/tasks/research.md"
+      - ".opencode/skills/writing-plans/contracts/*-output.yaml"
+
+  - id: C6
+    name: "analytical artifacts generation"
+    phase: P0
+    scs: [SC-19]
+    description: "Generate the seven analytical artifacts retroactively at .opencode/.issues/2256/artifacts/ so the artifact cross-reference check can run (developer-directive remediation requirement)."
+    affected_files:
+      - ".opencode/.issues/2256/artifacts/*"
+
+phase_boundaries:
+  P0: [SC-19]
+  P1: [SC-1a, SC-1b, SC-1c, SC-2, SC-3]
+  P3: [SC-8, SC-9]
+  P4: [SC-4, SC-5, SC-6, SC-7]
+  P5: [SC-10a, SC-10b]
+  P6: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16a, SC-16b, SC-16c, SC-16d, SC-17, SC-18]
