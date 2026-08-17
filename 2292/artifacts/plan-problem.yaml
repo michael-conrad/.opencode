@@ -1,0 +1,20 @@
+# Plan problem — issue #2292
+# Derived from dependency-contract.yaml (phases, precondition P2=>P1).
+domain: issue-2292-harness-live-root-guard
+fluents:
+  - name: phase_P1
+  - name: phase_P2
+actions:
+  - name: do_P1
+    preconditions: []
+    effects:
+      - phase_P1
+  - name: do_P2
+    preconditions:
+      - phase_P1
+    effects:
+      - phase_P2
+init: []
+goals:
+  - phase_P1
+  - phase_P2

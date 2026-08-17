@@ -25,3 +25,30 @@ topic: Test framework must never use project root as a git-mutating target
 ## Compatibility Summary
 - No breaking interface changes. All existing test scripts, flags, and harness entry points remain
   valid. The fix is internal to helpers.sh/with-test-home with additive guard + enforcement test.
+
+dependency_contract:
+  variables:
+    phase_P1:
+      type: bool
+      description: "Harness fix — live-root fallback elimination, live-root mutation guard, remote-wiring ordering (SC-1, SC-2, SC-3)"
+    phase_P2:
+      type: bool
+      description: "Structural regression enforcement test (SC-4)"
+  preconditions:
+    - "z3.Implies(phase_P2, phase_P1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_P1:
+      files:
+        - ".opencode/tests-v2/behaviors/helpers.sh"
+        - ".opencode/tests-v2/with-test-home"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+    phase_P2:
+      files:
+        - ".opencode/tests-v2/test-enforcement.sh"
+      scs:
+        - SC-4

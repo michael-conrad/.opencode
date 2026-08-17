@@ -1,0 +1,26 @@
+spec_path: .opencode/.issues/2292/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 4
+sc_ids:
+- SC-1
+- SC-2
+- SC-3
+- SC-4
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+- path: tests-v2/behaviors/helpers.sh
+  status: exists
+- path: tests-v2/with-test-home
+  status: exists
+- path: tests-v2/test-enforcement.sh
+  status: exists
+missing_artifacts: []
+missing_scope_files: []

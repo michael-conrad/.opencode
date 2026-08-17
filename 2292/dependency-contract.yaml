@@ -1,0 +1,28 @@
+# Dependency contract — issue #2292
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_P1:
+    type: bool
+    description: "Harness fix — live-root fallback elimination, live-root mutation guard, remote-wiring ordering (SC-1, SC-2, SC-3)"
+  phase_P2:
+    type: bool
+    description: "Structural regression enforcement test (SC-4)"
+preconditions:
+  - "z3.Implies(phase_P2, phase_P1)"
+invariants: []
+postconditions: []
+phases:
+  phase_P1:
+    files:
+      - ".opencode/tests-v2/behaviors/helpers.sh"
+      - ".opencode/tests-v2/with-test-home"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+  phase_P2:
+    files:
+      - ".opencode/tests-v2/test-enforcement.sh"
+    scs:
+      - SC-4

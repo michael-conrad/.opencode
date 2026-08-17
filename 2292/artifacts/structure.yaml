@@ -1,0 +1,67 @@
+# Structure — issue #2292
+# Phase decomposition, dependency DAG, and skill+task selection
+
+phases:
+  - id: phase_P1
+    name: "Harness fix — live-root fallback elimination, live-root mutation guard, remote-wiring ordering"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    items:
+      - item: 1
+        sc: SC-1
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator commit-inline
+      - item: 2
+        sc: SC-2
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator commit-inline
+      - item: 3
+        sc: SC-3
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator commit-inline
+    files:
+      - ".opencode/tests-v2/behaviors/helpers.sh"
+      - ".opencode/tests-v2/with-test-home"
+  - id: phase_P2
+    name: "Structural regression enforcement test"
+    scs:
+      - SC-4
+    items:
+      - item: 4
+        sc: SC-4
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        commit: orchestrator commit-inline
+    files:
+      - ".opencode/tests-v2/test-enforcement.sh"
+
+dependency_dag:
+  edges:
+    - "phase_P1 -> phase_P2"
+  constraints:
+    - "z3.Implies(phase_P2, phase_P1)"
+
+triplet_co_location:
+  status: OK
+  detail: "Each SC's RED/GREEN/COMMIT steps are co-located in a single phase (SC-1/2/3 in phase_P1, SC-4 in phase_P2)."
+
+cross_phase_dependency:
+  status: OK
+  detail: "No RED test in an earlier phase depends on SC output from a later phase. The only dependency edge is forward (P2 depends on P1), which is permitted."
+
+skill_task_selection:
+  phase_P1:
+    red: "test-driven-development — execute red task"
+    green: "test-driven-development — execute green task"
+    verify: "verification-before-completion — execute verify task"
+    commit: "orchestrator — commit-inline"
+  phase_P2:
+    red: "test-driven-development — execute red task"
+    green: "test-driven-development — execute green task"
+    verify: "verification-before-completion — execute verify task"
+    commit: "orchestrator — commit-inline"
