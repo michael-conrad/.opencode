@@ -53,12 +53,13 @@ The user flagged that the TDD RED/GREEN task cards lack an exit for irregular te
 | SC-3 | RED abort protocol enumerates classifications ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT. | string | `grep` red.md for the four classification identifiers |
 | SC-4 | GREEN abort protocol enumerates classifications NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION. | string | `grep` green.md for the five classification identifiers |
 | SC-5 | Abort is defined as task completion: the sub-agent must not force the outcome, must not modify a test to make it fail, and must not loop. | string + behavioral | `grep` for abort-is-completion normative language in both cards; behavioral scenario asserts classified abort returned, not a forced/looping test |
-| SC-6 | Orchestrator abort handling routes to a cold-reading re-evaluation sub-agent that identifies the defect and routes to `spec-creation --task revise` / `writing-plans --task revise`. | string + semantic | `grep` for post-abort routing guidance in both cards; clean-room sub-agent evaluation of routing behavior |
-| SC-7 | Re-evaluation sub-agent autonomously classifies the adjustment as substantive (revokes plan approval, requires re-auth) or non-substantive (auto-revise, no re-auth). | string + semantic | `grep` for substantive/non-substantive classification guidance; clean-room sub-agent evaluation |
-| SC-8 | Retrigger ladder: after 2 aborts with the same classification, dispatch a re-decomposition/rework evaluation sub-agent; escalate to spec-audit only if re-decomposition is NOT the fix. | string + semantic | `grep` for retrigger ladder guidance in both cards; clean-room sub-agent evaluation |
+| SC-6 | Orchestrator abort handling routes to a cold-reading re-evaluation sub-agent that identifies the defect and routes to `spec-creation --task revise` / `writing-plans --task revise`. The re-evaluation, re-reading, and routing analysis is orchestrator-side only — the aborting sub-agent performs none of it. | string + semantic | `grep` for post-abort routing guidance in both cards; clean-room sub-agent evaluation of routing behavior |
+| SC-7 | Re-evaluation sub-agent autonomously classifies the adjustment as substantive (revokes plan approval, requires re-auth) or non-substantive (auto-revise, no re-auth). This classification analysis is orchestrator-side only — the aborting sub-agent does not classify its own abort. | string + semantic | `grep` for substantive/non-substantive classification guidance; clean-room sub-agent evaluation |
+| SC-8 | Retrigger ladder: after 2 aborts with the same classification, the orchestrator dispatches a re-decomposition/rework evaluation sub-agent; escalate to spec-audit only if re-decomposition is NOT the fix. The ladder is orchestrator-side only — the aborting sub-agent does not track, count, or re-trigger. | string + semantic | `grep` for retrigger ladder guidance in both cards; clean-room sub-agent evaluation |
 | SC-9 | Abort protocol is self-contained in each task card (red.md and green.md), customized to that card's role — not shared in `operating-protocol.md`. | string | `grep` for abort protocol in red.md and green.md; `grep` negative check that operating-protocol.md does not contain the abort protocol |
 | SC-10 | A behavioral enforcement test verifies the sub-agent returns a classified abort (ALREADY_GREEN case) instead of looping. | behavioral | `bash .opencode/tests-v2/behaviors/<scenario>.sh` with clean-room session.yaml evaluation |
 | SC-11 | GREEN abort protocol defines a `BAD_TEST_NEEDS_REVISION` classification: when the test being implemented against is defective and needs revision, the GREEN sub-agent SHALL abort via immediate `status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION` (shuffling the test back to RED for revision) rather than implementing against the defective test. | string + behavioral | `grep` green.md for the BAD_TEST_NEEDS_REVISION classification and shuffle-to-RED routing; behavioral BAD_TEST_NEEDS_REVISION scenario via `opencode run` asserting the classified BLOCK abort, not implementation against a defective test |
+| SC-12 | Both `red.md` and `green.md` SHALL state that a sub-agent detecting a BLOCK condition SHALL immediately return a classified abort with zero further analysis — no additional reading, analysis, remediation, or re-evaluation after detecting the block — and that remediation is exclusively the orchestrator's responsibility (the orchestrator handles remediation by tasking new sub-agents with the needed remediation tasks; the sub-agent does not remediate). | string | `grep` red.md and green.md for the immediate-abort-with-no-further-analysis language and the orchestrator-only-remediation statement |
 
 ## 4. Requirements
 
@@ -72,11 +73,11 @@ R-4. The GREEN abort protocol SHALL enumerate the classifications NO_PURPOSE, IM
 
 R-5. Both task cards SHALL state that returning a classified abort IS completing the task correctly, and SHALL prohibit forcing the outcome, modifying a test to make it fail, and looping.
 
-R-6. On abort, the orchestrator SHALL dispatch a cold-reading re-evaluation sub-agent that identifies the defect and routes to `spec-creation --task revise` / `writing-plans --task revise`.
+R-6. On abort, the orchestrator SHALL dispatch a cold-reading re-evaluation sub-agent that identifies the defect and routes to `spec-creation --task revise` / `writing-plans --task revise`. The re-evaluation/routing analysis is orchestrator-side only — the aborting sub-agent performs none of it.
 
-R-7. The re-evaluation sub-agent SHALL autonomously classify the adjustment as substantive (revoking plan approval, requiring re-auth) or non-substantive (auto-revise, no re-auth).
+R-7. The re-evaluation sub-agent SHALL autonomously classify the adjustment as substantive (revoking plan approval, requiring re-auth) or non-substantive (auto-revise, no re-auth). The classification analysis is orchestrator-side only — the aborting sub-agent does not classify its own abort.
 
-R-8. The retrigger ladder SHALL dispatch a re-decomposition/rework evaluation sub-agent after 2 aborts with the same classification, and SHALL escalate to spec-audit only if re-decomposition is NOT the fix.
+R-8. The retrigger ladder SHALL dispatch a re-decomposition/rework evaluation sub-agent after 2 aborts with the same classification, and SHALL escalate to spec-audit only if re-decomposition is NOT the fix. The ladder is orchestrator-side only — the aborting sub-agent does not track, count, or re-trigger.
 
 R-9. The abort protocol SHALL be self-contained in each task card (red.md and green.md), customized to that card's role, and SHALL NOT be shared in `operating-protocol.md`.
 
@@ -85,6 +86,8 @@ R-10. The change SHALL ship a behavioral enforcement test verifying the sub-agen
 R-11. The spec SHALL declare how the SCOPE_CREEP / un-spec'ed feature removal conditions are covered, given the flagged testability uncertainty.
 
 R-12. The GREEN abort protocol SHALL define a `BAD_TEST_NEEDS_REVISION` classification: when the GREEN sub-agent discovers the test it is implementing against is defective and needs revision, it SHALL return `status: BLOCKED` with `blocker_reason: BAD_TEST_NEEDS_REVISION` (shuffling the test back to RED for revision) and SHALL NOT attempt to implement against the defective test.
+
+R-13. Both `red.md` and `green.md` SHALL state that a sub-agent detecting a BLOCK condition SHALL immediately return a classified abort with zero further analysis (no additional reading, analysis, remediation, or re-evaluation after detecting the block), and SHALL state that remediation is exclusively the orchestrator's responsibility — the orchestrator handles remediation by tasking new sub-agents with the needed remediation tasks; the aborting sub-agent does not remediate.
 
 ## 5. Items
 
@@ -126,21 +129,21 @@ R-12. The GREEN abort protocol SHALL define a `BAD_TEST_NEEDS_REVISION` classifi
 ### Item 6 (SC-6): Orchestrator post-abort re-evaluation routing
 
 - RED: Content assertion that both cards contain post-abort cold re-evaluation routing fails.
-- GREEN: Add post-abort routing guidance to both cards: cold-reading re-evaluation sub-agent → spec-creation --task revise / writing-plans --task revise.
+- GREEN: Add post-abort routing guidance to both cards: cold-reading re-evaluation sub-agent → spec-creation --task revise / writing-plans --task revise. The re-evaluation/routing analysis is orchestrator-side only — the aborting sub-agent performs none of it.
 - verify: `grep` both cards for routing guidance; clean-room sub-agent evaluation of routing behavior.
 - commit: red.md + green.md change.
 
 ### Item 7 (SC-7): Re-evaluation substantive vs non-substantive classification
 
 - RED: Content assertion that both cards contain substantive/non-substantive classification guidance fails.
-- GREEN: Add guidance that the re-evaluation sub-agent autonomously classifies the adjustment as substantive (re-auth) or non-substantive (auto-revise).
+- GREEN: Add guidance that the re-evaluation sub-agent autonomously classifies the adjustment as substantive (re-auth) or non-substantive (auto-revise). This classification analysis is orchestrator-side only — the aborting sub-agent does not classify its own abort.
 - verify: `grep` both cards for classification guidance; clean-room sub-agent evaluation.
 - commit: red.md + green.md change.
 
 ### Item 8 (SC-8): Retrigger ladder
 
 - RED: Content assertion that both cards contain the retrigger ladder fails.
-- GREEN: Add retrigger ladder guidance: after 2 same-classification aborts, dispatch re-decomposition/rework evaluation; spec-audit only if re-decomposition is NOT the fix.
+- GREEN: Add retrigger ladder guidance: after 2 same-classification aborts, dispatch re-decomposition/rework evaluation; spec-audit only if re-decomposition is NOT the fix. The ladder is orchestrator-side only — the aborting sub-agent does not track, count, or re-trigger.
 - verify: `grep` both cards for retrigger ladder; clean-room sub-agent evaluation.
 - commit: red.md + green.md change.
 
@@ -164,6 +167,13 @@ R-12. The GREEN abort protocol SHALL define a `BAD_TEST_NEEDS_REVISION` classifi
 - GREEN: Add the `BAD_TEST_NEEDS_REVISION` classification to green.md's abort section, with routing guidance that the GREEN sub-agent aborts via `status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION` and shuffles the defective test back to the RED phase for revision (the test is defective, not the SC).
 - verify: `grep` green.md for the classification identifier and shuffle-to-RED routing; behavioral BAD_TEST_NEEDS_REVISION scenario via `opencode run` asserting the classified BLOCK abort, not implementation against a defective test.
 - commit: green.md change only.
+
+### Item 12 (SC-12): Immediate classified abort with zero further analysis; remediation is orchestrator-only
+
+- RED: Content assertion that both cards contain the immediate-abort-with-no-further-analysis language and the orchestrator-only-remediation statement fails.
+- GREEN: Add to both cards a normative statement: a sub-agent detecting a BLOCK condition SHALL immediately return a classified abort with zero further analysis (no additional reading, analysis, remediation, or re-evaluation after detecting the block). State that remediation is exclusively the orchestrator's responsibility — the orchestrator handles remediation by tasking new sub-agents with the needed remediation tasks; the aborting sub-agent does not remediate. Any additional analysis is wasted cycles and tokens and will not be used.
+- verify: `grep` both cards for the immediate-abort language and the orchestrator-only-remediation statement.
+- commit: red.md + green.md change.
 
 ## 6. Dependencies
 
@@ -192,6 +202,7 @@ R-12. The GREEN abort protocol SHALL define a `BAD_TEST_NEEDS_REVISION` classifi
 | R-10 | SC-10 | Phase 4 (behavioral test) |
 | R-11 | SC-4 | Phase 4 (SCOPE_CREEP coverage declaration) |
 | R-12 | SC-11 | Phase 2 (green.md) |
+| R-13 | SC-12 | Phase 1 + 2 (red.md, green.md) |
 
 ## 8. Documentation Sources
 
@@ -226,6 +237,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-9:** Verifying per-card self-containment costs two greps (presence) plus one negative grep (absence in operating-protocol.md). Skipping means the abort protocol leaks into a shared file and loses role-customization.
 - **SC-10:** Running the behavioral test costs minutes of `opencode run` execution. Skipping means the classified-abort behavior is never verified against a real model, and the defect ships to production at 1000× the cost.
 - **SC-11:** Verifying green.md defines the BAD_TEST_NEEDS_REVISION shuffle-to-RED abort costs one grep plus one behavioral `opencode run`. Skipping means the GREEN sub-agent implements against a defective test, and the resulting semantic defect ships downstream to verification at 1000× the cost.
+- **SC-12:** Verifying both cards state immediate classified abort with no further analysis and orchestrator-only remediation costs two greps. Skipping means the aborting sub-agent attempts its own remediation after detecting a block, wasting cycles and tokens and producing analysis the orchestrator will discard — shipping the abort-routing defect at 1000× the cost.
 
 ## 11. Edge Cases
 
@@ -238,6 +250,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Boundary — persona enforcement on abort:** Condition: sub-agent aborts RED or GREEN. Expected behavior: RED-phase sub-agent must NOT modify `src/`; GREEN-phase sub-agent must NOT modify test files. Resolution: persona boundaries remain in force even when aborting.
 - **Failure mode — operating-protocol.md contamination:** Condition: abort protocol is accidentally added to `operating-protocol.md`. Expected behavior: SC-9 negative grep fails, flagging the contamination. Resolution: revert the shared-file addition; keep protocol self-contained per card.
 - **Input boundary — defective test (BAD_TEST_NEEDS_REVISION):** Condition: GREEN sub-agent discovers the test it is implementing against is bad and needs revision. Expected behavior: sub-agent aborts via `status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION`, shuffling the test back to the RED phase for revision — it must NOT attempt to implement against the defective test. Resolution: SC-11 classification + shuffle-to-RED routing in green.md; distinct from NO_PURPOSE (defective test) and IMPOSSIBLE (unimplementable SC).
+- **Failure mode — aborting sub-agent attempts its own remediation:** Condition: a sub-agent detects a BLOCK condition (an irregular condition making the normal terminal state unreachable or invalid). Expected behavior: sub-agent SHALL immediately return a classified abort with zero further analysis — no additional reading, analysis, remediation, or re-evaluation after detecting the block. Remediation is exclusively the orchestrator's responsibility; the orchestrator handles it by tasking new sub-agents with the needed remediation tasks. Resolution: SC-12 immediate-abort-with-no-further-analysis language + orchestrator-only-remediation statement in both cards.
 
 ## 12. Change Control
 
@@ -247,6 +260,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-18 | Corrected four research-card path references (2 in Dependencies, 2 in Documentation Sources) from `.opencode/.issues/research-cards/` to `.issues/research-cards/` | Validation finding: the two research cards (`per-sc-decomposition-industry-standards.md`, `self-attribution-bias-independent-verification.md`) exist at the root repo path `.issues/research-cards/`, not at `.opencode/.issues/research-cards/`. The cards are not fabricated — the paths were wrong. | Spec validation pipeline |
 | 2026-08-18 | Added a new quick-fail GREEN abort classification `BAD_TEST_NEEDS_REVISION` (SC-11, R-12, Item 11). When a GREEN sub-agent discovers the test it is implementing against is defective, it SHALL abort via immediate `status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION`, shuffling the test back to the RED phase for revision — distinct from the existing GREEN abort conditions (NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP). Updated SC-4, R-4, Item 4 to enumerate the five GREEN classifications, added SC-11/R-12/Item 11 with traceability and verification, added a cost frame entry and an edge case. | Revision request: the GREEN abort protocol was missing a quick-fail path for a defective test; the test is defective, not the SC, so the abort shuffles the test back to RED for revision rather than implementing against it. | Revision request (orchestrator) |
 | 2026-08-18 | Removed the implementer-discretion clause "unless a reliable fixture is designed" from the "Recovery — SCOPE_CREEP testability gap" edge case entry. Rewrote the entry as a fixed declaration: SCOPE_CREEP / un-spec'ed feature removal coverage is ALWAYS declared as content/semantic evidence per R-11 and the testability assessment, with no conditional fallback. | Spec-audit FAIL on Escape Hatches (dimension 6): the prior clause let the implementer short-circuit SCOPE_CREEP behavioral coverage on their own judgment, with no objective threshold for "reliable fixture" — an escape hatch. | Spec-audit (dimension 6) |
+| 2026-08-18 | Added SC-12/R-13/Item 12 requiring both `red.md` and `green.md` to state that a sub-agent detecting a BLOCK condition SHALL immediately return a classified abort with zero further analysis (no additional reading, analysis, remediation, or re-evaluation after detecting the block), and that remediation is exclusively the orchestrator's responsibility (the orchestrator tasks new sub-agents with the needed remediation tasks; the aborting sub-agent does not remediate). Refined SC-6/SC-7/SC-8, R-6/R-7/R-8, and Items 6/7/8 to make explicit that the re-evaluation/routing/retrigger/classification analysis is orchestrator-side only, never sub-agent-side. Added traceability (R-13 → SC-12), a cost frame entry, and an edge case. | Developer feedback during implementation: requires a new success criterion for the abort protocol — a sub-agent detecting a BLOCK must return a classified abort with zero further analysis (additional analysis is wasted cycles and tokens and will not be used) and must not attempt remediation (the orchestrator handles all remediation by tasking new sub-agents). The post-abort routing/re-evaluation SCs must make clear this analysis is orchestrator-side only. | Revision request (developer feedback) |
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
