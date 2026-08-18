@@ -1,0 +1,15 @@
+cross_cutting_matrix:
+  issue_number: 2293
+  cross_cutting_concerns:
+    - concern: "Parent-repo scope qualifier wording consistency"
+      phases: [PHASE-1, PHASE-2]
+      description: "The phrase 'parent-repo' must be used consistently across 020-go-prohibitions.md and all task files to avoid introducing new ambiguity."
+      impact: "Inconsistent wording could create a new misapplication vector."
+    - concern: "Preservation of parent-repo prohibition substance"
+      phases: [PHASE-1, PHASE-2]
+      description: "The Tier 1 prohibition against parent-repo submodule-pointer-only PRs must remain intact in every file."
+      impact: "Over-correction would weaken the parent-repo prohibition (issue Risk 1)."
+    - concern: "Behavioral enforcement test coverage"
+      phases: [PHASE-1, PHASE-2]
+      description: "Each SC is behavioral and requires opencode run verification that agents apply the parent-repo scope."
+      impact: "Behavioral tests must assert agents permit submodule repos' own PRs and still block parent-repo pointer-only PRs."

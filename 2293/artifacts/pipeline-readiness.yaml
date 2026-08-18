@@ -1,0 +1,21 @@
+pipeline_readiness:
+  issue_number: 2293
+  atomicity:
+    status: "PASS"
+    description: "Each SC maps to exactly one RED→GREEN→COMMIT cycle. SC-1/SC-2 (guideline scoping) and SC-3 (task-file audit) are each independently verifiable."
+  dependency_ordering:
+    status: "PASS"
+    description: "SC dependency DAG is acyclic. SC-1/SC-2 (guideline) and SC-3 (task files) are independent; no SC depends on another."
+  single_concern:
+    status: "PASS"
+    description: "Each SC targets one file category (guidelines vs skill task files) and one verification domain (behavioral)."
+  phase_dependency:
+    status: "PASS"
+    description: "Phase dependency graph is acyclic. PHASE-1 (guideline) and PHASE-2 (task files) are independent and can be ordered either way."
+  three_tier_structure:
+    status: "PASS"
+    description: "Two-phase spec. PHASE-1 is the pre/per-file guideline scoping; PHASE-2 is the per-file task audit. Structure is coherent."
+  blockers:
+    - "None. The change is documentation-only with no code dependencies."
+  cross_repo_note:
+    - "R2 (root AGENTS.md Submodule Pointer Updates section) targets the parent repo (michael-conrad/opencode-config), not this .opencode submodule. It is out of scope for this .opencode repo's implementation and must be tracked as a separate parent-repo change."

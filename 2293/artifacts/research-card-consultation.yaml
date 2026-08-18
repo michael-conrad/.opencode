@@ -1,0 +1,14 @@
+research_card_consultation:
+  issue_number: 2293
+  consulted_cards:
+    - name: "multi-feature-branch-main-with-submodules.md"
+      confidence: 0.7
+      relevance: "Partial. Discusses submodule dependency management in trunk-based development but does not address the submodule-only PR prohibition scope. Not directly applicable."
+    - name: "local-issues-discover-repos-worktree-filter.md"
+      confidence: 0.95
+      relevance: "Not applicable. Concerns local-issues worktree detection, unrelated to submodule PR prohibition."
+  conclusion:
+    - "No research card directly addresses the submodule-only PR prohibition scope or the parent-repo vs submodule-repo PR distinction."
+    - "No cached findings to incorporate. This is a documentation-scoping change; no external research is required."
+  gap:
+    - "No research card exists for the parent-repo vs submodule-repo PR distinction. Not needed for this documentation-only fix."

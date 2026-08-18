@@ -3,6 +3,80 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2293/
+
+
+  ## Problem
+
+
+  The "Submodule-only PR prohibition" (critical-rules-049) is worded as a global prohibition
+  ("NEVER create a submodule-only PR in ANY context, for ANY reason") across `020-go-prohibitions.md`
+  and the git-workflow skill task files. This wording is misapplied by agents to mean
+  that a submodule repo (e.g. SHARED-DAO, DailiesDb, ProcessFinishedNotify, DaoCore2)
+  cannot file its own PR for its own changes — a conflation of two distinct concepts:
+  a parent-repo submodule-pointer PR (correctly prohibited) and a submodule repo''s
+  own PR for its own changes (completely normal).
+
+
+  ## Scope
+
+
+  - Scope the critical-rules-049 block in `020-go-prohibitions.md` to the parent repo.
+
+  - Add explicit permission language stating a submodule repo filing its own PR for
+  its own changes is normal and NOT covered by the prohibition.
+
+  - Audit and add the parent-repo scope qualifier to all git-workflow task files referencing
+  submodule-only PRs.
+
+
+  **Out of scope:**
+
+  - Changing the substance of the parent-repo submodule-pointer PR prohibition itself.
+
+  - Any change to submodule repos'' own PR workflows beyond removing the misapplied
+  block.
+
+  - The root `AGENTS.md` Submodule Pointer Updates section (parent repo, cross-repo
+  change).
+
+  - The `hooks/pre-commit` Gate 4 submodule-pointer-only commit blocker.
+
+
+  ## Approach
+
+
+  Add explicit parent-repo scope qualifiers to the critical-rules-049 block in `020-go-prohibitions.md`
+  and to every git-workflow task file that references the prohibition, while preserving
+  the parent-repo prohibition substance intact. Explicitly state that a submodule
+  repo filing its own PR for its own changes is normal and NOT covered by the prohibition.
+  Use a consistent "parent-repo" qualifier across all files to avoid introducing new
+  ambiguity.
+
+
+  ## Impact
+
+
+  - **Risk 1:** Over-correction could weaken the parent-repo prohibition. *Mitigation:*
+  Keep the parent-repo prohibition substance intact; only add scope qualifiers.
+
+  - **Risk 2:** Missed task files still block submodule PRs. *Mitigation:* Audit all
+  task files referencing submodule-only PRs.
+
+  - **Risk 3:** Ambiguous wording persists in some files. *Mitigation:* Use explicit
+  "parent-repo" qualifier consistently.
+
+
+  **Dependencies:** None — documentation-only change.
+
+
+  **Call to action:** Approve this spec so the scoping fix can be implemented.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-08-18T02:29:47+00:00'
-updated_at: '2026-08-18T02:29:59+00:00'
+updated_at: '2026-08-18T02:31:27+00:00'
+github_url: '2293'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2293

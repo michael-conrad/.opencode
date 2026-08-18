@@ -1,0 +1,18 @@
+state_analysis:
+  issue_number: 2293
+  phases:
+    - phase: PHASE-1
+      sc_ids: [SC-1, SC-2]
+      state_transitions:
+        - from: "Agent reads critical-rules-049 as a global prohibition (blocks submodule repos' own PRs)"
+          to: "Agent reads critical-rules-049 as parent-repo-scoped (permits submodule repos' own PRs)"
+          trigger: "Scope qualifier added to 020-go-prohibitions.md critical-rules-049 block"
+    - phase: PHASE-2
+      sc_ids: [SC-3]
+      state_transitions:
+        - from: "Task-file sub-agents block submodule repos' own PRs during commit/PR/cleanup"
+          to: "Task-file sub-agents permit submodule repos' own PRs while still blocking parent-repo pointer-only PRs"
+          trigger: "Parent-repo scope qualifier added to all task files referencing submodule-only PRs"
+  invariants:
+    - "The parent-repo submodule-pointer-only PR prohibition remains enforced in all files."
+    - "No change to hooks/pre-commit Gate 4 submodule-pointer-only commit blocker."

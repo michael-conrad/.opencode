@@ -1,0 +1,30 @@
+pre_spec_inspection:
+  issue_number: 2293
+  topic: "Submodule-only PR prohibition misapplied to submodule repos filing their own PRs"
+  affected_files:
+    - path: "guidelines/020-go-prohibitions.md"
+      lines: "229-236"
+      description: "critical-rules-049 block. Contains the global-sounding prohibition 'NEVER create a submodule-only PR in ANY context, for ANY reason (Tier 1 — CRITICAL VIOLATION)'. This is the primary source of the misapplication. Needs parent-repo scope qualifier."
+    - path: "skills/git-workflow-commit/tasks/implementation.md"
+      lines: "39"
+      description: "Pre-Commit Submodule Pointer Check. Contains 'Creating a submodule-only PR is FORBIDDEN in ANY context.' Needs parent-repo scope qualifier."
+    - path: "skills/git-workflow-pr/tasks/pr-creation.md"
+      lines: "54"
+      description: "Pre-Push Submodule Pointer Verification. Contains 'Creating a submodule-only PR is FORBIDDEN in ANY context.' Needs parent-repo scope qualifier."
+    - path: "skills/git-workflow-branch/tasks/pre-work.md"
+      lines: "251"
+      description: "No-Op Branch Guard. Contains 'Submodule-only PRs are against policy.' Needs parent-repo scope qualifier."
+    - path: "skills/git-workflow-cleanup/SKILL.md"
+      lines: "51, 87-91"
+      description: "critical-rules-049 reference and 'Standalone Submodule-Only PR Creation During Cleanup' block. Needs parent-repo scope qualifier."
+    - path: "skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+      lines: "172, 319"
+      description: "Dirty submodule pointer exemption. Contains 'submodule-only PR, any number of submodules'. Needs parent-repo scope qualifier."
+  cross_repo_note:
+    description: "The issue scope also references the root repo AGENTS.md 'Submodule Pointer Updates' section (lines 67-76). That file lives in the PARENT repo (michael-conrad/opencode-config), NOT this .opencode submodule repo. Changes to the root AGENTS.md belong to the parent repo and are out of scope for this .opencode repo issue unless explicitly included."
+  existing_patterns:
+    - "The prohibition is consistently worded as 'in ANY context' / 'for ANY reason' across all files, which is the root cause of the misapplication."
+    - "The git-workflow-cleanup/SKILL.md already has a 'Scope clarification' paragraph (line 91) that narrows the prohibition to 'PR creation only' — a partial precedent for scoping language."
+    - "The prohibition is Tier 1 (CRITICAL VIOLATION) in 020-go-prohibitions.md, so scoping changes must preserve the parent-repo substance while adding explicit scope qualifiers."
+  dependencies:
+    - "None — documentation-only change."
