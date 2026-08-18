@@ -23,16 +23,16 @@
 link_count: 5
 links_list:
   - target: .opencode/skills/audit/tasks/<audit-type>-arbiter.md
-    link_text: audit/tasks/<audit-type>-arbiter.md
+    link_text: arbitrate audit consensus
     resolution_status: resolved
   - target: .opencode/skills/audit/tasks/<audit-type>-evaluator.md
-    link_text: audit/tasks/<audit-type>-evaluator.md
+    link_text: evaluate audit findings
     resolution_status: resolved
   - target: .opencode/skills/audit/tasks/<audit-type>-investigator.md
-    link_text: audit/tasks/<audit-type>-investigator.md
+    link_text: investigate audit findings
     resolution_status: resolved
   - target: .opencode/skills/audit/tasks/<audit-type>-validator.md
-    link_text: audit/tasks/<audit-type>-validator.md
+    link_text: validate audit findings
     resolution_status: resolved
   - target: .opencode/skills/audit/SKILL.md
     link_text: audit skill

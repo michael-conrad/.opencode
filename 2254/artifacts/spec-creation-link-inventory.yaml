@@ -20,19 +20,19 @@
 link_count: 7
 links_list:
   - target: .opencode/skills/spec-creation/tasks/analyze.md
-    link_text: spec-creation/tasks/analyze.md
+    link_text: analyze spec requirements
     resolution_status: resolved
   - target: .opencode/skills/spec-creation/tasks/create.md
-    link_text: spec-creation/tasks/create.md
+    link_text: create spec issue
     resolution_status: resolved
   - target: .opencode/skills/spec-creation/tasks/reconcile-push.md
-    link_text: spec-creation/tasks/reconcile-push.md
+    link_text: reconcile spec artifact URL
     resolution_status: resolved
   - target: .opencode/skills/spec-creation/tasks/revise.md
-    link_text: spec-creation/tasks/revise.md
+    link_text: revise spec
     resolution_status: resolved
   - target: .opencode/skills/spec-creation/tasks/validate.md
-    link_text: spec-creation/tasks/validate.md
+    link_text: validate spec holistically
     resolution_status: resolved
   - target: .opencode/skills/spec-creation/SKILL.md
     link_text: spec-creation
