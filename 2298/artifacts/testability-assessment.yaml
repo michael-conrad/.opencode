@@ -1,0 +1,68 @@
+spec_path: .opencode/.issues/2298/spec.md
+scs:
+  - id: SC-1
+    evidence_type: string + behavioral
+    verification_method: "grep for abort terminal state in red.md; behavioral ALREADY_GREEN scenario via opencode run"
+    testable: true
+    test_type: grep + behavioral_opencode_run
+  - id: SC-2
+    evidence_type: string + behavioral
+    verification_method: "grep for abort terminal state in green.md; behavioral NO_PURPOSE scenario via opencode run"
+    testable: true
+    test_type: grep + behavioral_opencode_run
+  - id: SC-3
+    evidence_type: string
+    verification_method: "grep red.md for the four classification identifiers (ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT)"
+    testable: true
+    test_type: grep
+  - id: SC-4
+    evidence_type: string
+    verification_method: "grep green.md for the five classification identifiers (NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION)"
+    testable: true
+    test_type: grep
+  - id: SC-5
+    evidence_type: string + behavioral
+    verification_method: "grep for abort-is-completion normative language in both cards; behavioral scenario asserts classified abort returned, not a forced/looping test"
+    testable: true
+    test_type: grep + behavioral_opencode_run
+  - id: SC-6
+    evidence_type: string + semantic
+    verification_method: "grep for post-abort routing guidance in both cards; clean-room sub-agent evaluation of routing behavior"
+    testable: true
+    test_type: grep + clean_room_semantic_evaluation
+  - id: SC-7
+    evidence_type: string + semantic
+    verification_method: "grep for substantive/non-substantive classification guidance; clean-room sub-agent evaluation"
+    testable: true
+    test_type: grep + clean_room_semantic_evaluation
+  - id: SC-8
+    evidence_type: string + semantic
+    verification_method: "grep for retrigger ladder guidance in both cards; clean-room sub-agent evaluation"
+    testable: true
+    test_type: grep + clean_room_semantic_evaluation
+  - id: SC-9
+    evidence_type: string
+    verification_method: "grep for abort protocol in red.md and green.md; grep negative check that operating-protocol.md does not contain the abort protocol"
+    testable: true
+    test_type: grep + negative_grep
+  - id: SC-10
+    evidence_type: behavioral
+    verification_method: "bash .opencode/tests-v2/behaviors/<scenario>.sh with clean-room session.yaml evaluation asserting classified BLOCKED abort, not a forced/looping test"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-11
+    evidence_type: string + behavioral
+    verification_method: "grep green.md for the BAD_TEST_NEEDS_REVISION classification and shuffle-to-RED routing; behavioral BAD_TEST_NEEDS_REVISION scenario via opencode run asserting the classified BLOCK abort, not implementation against a defective test"
+    testable: true
+    test_type: grep + behavioral_opencode_run
+scope_creep_coverage:
+  declaration: "fixed"
+  evidence_type: "content/semantic"
+  basis: "R-11"
+  conditional_fallback: false
+  note: "SCOPE_CREEP / un-spec'ed feature removal coverage is ALWAYS declared as content/semantic evidence per R-11 and this testability assessment. There is no conditional fallback and no implementer-discretion clause (e.g., 'unless a reliable fixture is designed'). The implementer may not short-circuit SCOPE_CREEP behavioral coverage on their own judgment."
+platform_testing_notes:
+  - "Behavioral tests (SC-1, SC-2, SC-5, SC-10, SC-11) require opencode run with the with-test-home wrapper per AGENTS.md; bash tool timeout >= 600000ms."
+  - "Semantic evidence (SC-6, SC-7, SC-8) is produced by clean-room sub-agent evaluation of routing/classification behavior — sub-agent read + judgment, not test execution with output inspection. This is why these SCs are declared string + semantic, not string + behavioral."
+  - "SC-9 requires a negative grep on operating-protocol.md to confirm the abort protocol is NOT shared there."
+  - "SC-10 is the sole standalone behavioral scenario (ALREADY_GREEN). SCOPE_CREEP is NOT a standalone behavioral scenario — it is covered as a content/semantic declaration per R-11."

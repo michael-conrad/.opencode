@@ -1,0 +1,13 @@
+spec_path: .opencode/.issues/2298/spec.md
+sc_count: 11
+requirement_count: 12
+artifact_presence:
+  testability-assessment.yaml: REGENERATED
+  sc-summary.yaml: REGENERATED
+backfill_notes:
+  - "Spec-audit flagged stale analytical artifacts for issue 2298 after the spec was revised."
+  - "SC-6, SC-7, SC-8 evidence type changed from string + behavioral to string + semantic (clean-room sub-agent evaluation is semantic evidence, not behavioral test execution)."
+  - "The escape-hatch clause 'unless a reliable fixture is designed' was removed from the SCOPE_CREEP edge case; SCOPE_CREEP coverage is now a fixed declaration (always content/semantic per R-11, no conditional fallback)."
+  - "sc-summary.yaml regenerated: SC-6/7/8 evidence_type updated to string + semantic; SC-1/2/5/11 confirmed as string + behavioral; SC-3/4/9 string; SC-10 behavioral."
+  - "testability-assessment.yaml regenerated: per-SC evidence types and verification methods from the current spec; SCOPE_CREEP coverage declared as fixed content/semantic with no conditional fallback and no implementer-discretion clause."
+  - "The current spec has 11 SCs (SC-1..SC-11) and 12 requirements (R-1..R-12). SC-11 is the BAD_TEST_NEEDS_REVISION GREEN abort classification."
