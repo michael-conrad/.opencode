@@ -60,4 +60,4 @@
 
 - [ ] 38. **VbC (**clean-room**).** Verify SC-7 passes its structural doc review: the locked condensation dispatch template is present and consistent with the SC-6 purpose-source spec. **→ SC-7**
 
-**Concern transition:** Leaving locked condensation dispatch template → entering condensation-format validation gate. Phase 7 depends on Phase 1's SC-1 condensation format (the format to validate against) and on Phase 5/6's SC-6/SC-7 normative condensation source (the rule the gate enforces).
+**Concern transition:** Leaving locked condensation dispatch template → entering condensation-format validation gate. Phase 7 depends on Phase 2's SC-1 condensation format (the format to validate against) and on Phase 5/6's SC-6/SC-7 normative condensation source (the rule the gate enforces).

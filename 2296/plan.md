@@ -17,6 +17,11 @@ lifecycle_events:
     event: plan_created
     plan_path: ".opencode/.issues/2296/plan.md"
     phase_count: 7
+  - timestamp: "2026-08-18T12:15:00Z"
+    event: plan_revised
+    plan_path: ".opencode/.issues/2296/plan.md"
+    phase_count: 7
+    detail: "Reordered SC-2 (purpose statement quality) before SC-1 (dispatch anchor semantics): corrected purposes are the condensation source SC-1 derives from. Phase 1=SC-2, Phase 2=SC-1; SC-2 → SC-1 dependency edge added. SC content and steps intact."
 ---
 
 # Implementation Plan — #2296 — Semantic Dispatch Link Text as Purpose-Statement Condensation
@@ -25,7 +30,7 @@ lifecycle_events:
 
 **Goal:** Replace every dead-weight dispatch link `[text]` (path restatement) across the skill deck with a semantic condensation of the linked task card's Purpose statement, and lock the condensation source/format contracts plus a structural validation gate so future cards inherit the correct pattern.
 
-**Architecture:** Seven-phase, one-concern-per-phase decomposition, one SC per phase. Phases 1–4 rewrite/convert the 48 affected SKILL.md files (SC-1 dispatch anchor semantics, SC-2 purpose quality, SC-3 legacy-format conversion, SC-4 audit placeholder templating). Phases 5–6 lock the normative contracts (SC-6 purpose-as-dispatch-anchor source in `task-card-structure-standards.md`, SC-7 locked condensation dispatch template in `skill-card-description-standards.md`). Phase 7 (SC-5) adds the structural condensation-format validation gate in skill-creator, sequenced after its dependencies (SC-1 format, SC-6/SC-7 normative source). Enforcement is structural (validation gate), not behavioral — per spec Notes.
+**Architecture:** Seven-phase, one-concern-per-phase decomposition, one SC per phase. Phases 1–4 rewrite/convert the 48 affected SKILL.md files (SC-2 purpose quality, SC-1 dispatch anchor semantics, SC-3 legacy-format conversion, SC-4 audit placeholder templating). SC-2 (purpose quality) is Phase 1 because SC-1's dispatch condensations are derived FROM task card Purpose statements — the purpose source must be corrected before the condensation rewrite. Phases 5–6 lock the normative contracts (SC-6 purpose-as-dispatch-anchor source in `task-card-structure-standards.md`, SC-7 locked condensation dispatch template in `skill-card-description-standards.md`). Phase 7 (SC-5) adds the structural condensation-format validation gate in skill-creator, sequenced after its dependencies (SC-1 format, SC-6/SC-7 normative source). Enforcement is structural (validation gate), not behavioral — per spec Notes.
 
 **Files:**
 - `.opencode/skills/*/SKILL.md` (48 files — dispatch link `[text]` values)
@@ -45,8 +50,8 @@ lifecycle_events:
 
 ## Blast Radius
 
-- **Phase 1 — Dispatch anchor semantics (SC-1):** Wide but shallow — touches all 48 SKILL.md files; each edit is a localized `[text]` swap with the URL unchanged. URL paths unchanged so routing still resolves. No enforcement test asserts path-restatement `[text]` (verified via research-card scan; condensation is not behaviorally asserted).
-- **Phase 2 — Purpose statement quality (SC-2):** Limited to flagged task-card Purpose sections; corrections preserve task semantics.
+- **Phase 1 — Purpose statement quality (SC-2):** Limited to flagged task-card Purpose sections; corrections preserve task semantics.
+- **Phase 2 — Dispatch anchor semantics (SC-1):** Wide but shallow — touches all 48 SKILL.md files; each edit is a localized `[text]` swap with the URL unchanged. URL paths unchanged so routing still resolves. No enforcement test asserts path-restatement `[text]` (verified via research-card scan; condensation is not behaviorally asserted).
 - **Phase 3 — Dispatch format structure (SC-3):** Isolated to playwright-cli and completion-core; internal skill-card structure conversion, dispatch contracts preserved.
 - **Phase 4 — Placeholder template semantics (SC-4):** Isolated to the audit skill's 4 placeholder dispatch links.
 - **Phase 5 — Purpose-as-dispatch-anchor source (SC-6):** Documentation only — `task-card-structure-standards.md` §4.
@@ -69,8 +74,8 @@ lifecycle_events:
 
 ## Pre-Implementation Steps
 
-- [ ] 1. **Coherence gate (**inline**).** Verify the spec's SCs, the structure artifact's items, and the dependency contract are mutually consistent: every SC maps to exactly one item, every item's RED/GREEN/verify/commit steps are in the same phase, and the phase DAG is acyclic (phase_1 → phase_2 → phase_3 → phase_4 → phase_5 → phase_6 → phase_7, with phase_7 additionally depending on phase_1). If any inconsistency is found, HALT and report before proceeding.
-- [ ] 2. **Baseline check (**inline**).** Verify the working tree is clean, the feature branch exists, and the affected files (48 SKILL.md files, playwright-cli, completion-core, audit, skill-creator, the two reference docs) are present and at their expected paths. Confirm the current dispatch link `[text]` values are path-restatements (the RED precondition). If the baseline is not met, HALT and report.
+- [ ] 1. **Coherence gate (**inline**).** Verify the spec's SCs, the structure artifact's items, and the dependency contract are mutually consistent: every SC maps to exactly one item, every item's RED/GREEN/verify/commit steps are in the same phase, and the phase DAG is acyclic (phase_1 → phase_2 → phase_3 → phase_4 → phase_5 → phase_6 → phase_7, with phase_7 additionally depending on phase_2). If any inconsistency is found, HALT and report before proceeding.
+- [ ] 2. **Baseline check (**inline**).** Verify the working tree is clean, the feature branch exists, and the affected files (48 SKILL.md files, playwright-cli, completion-core, audit, skill-creator, the two reference docs) are present and at their expected paths. Confirm the flagged purpose statements fail the audit criteria and the current dispatch link `[text]` values are path-restatements (the RED precondition). If the baseline is not met, HALT and report.
 
 ---
 
@@ -78,56 +83,19 @@ lifecycle_events:
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Dispatch anchor semantics | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | 48 SKILL.md files dispatch link `[text]` | SC-1 | — |
-| 2 — Purpose statement quality | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | flagged task-card Purpose sections | SC-2 | 1 |
+| 1 — Purpose statement quality | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | flagged task-card Purpose sections | SC-2 | — |
+| 2 — Dispatch anchor semantics | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | 48 SKILL.md files dispatch link `[text]` | SC-1 | 1 |
 | 3 — Dispatch format structure | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | playwright-cli/SKILL.md, completion-core/SKILL.md | SC-3 | — |
 | 4 — Placeholder template semantics | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | audit/SKILL.md | SC-4 | — |
 | 5 — Purpose-as-dispatch-anchor source | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | reference/task-card-structure-standards.md §4 | SC-6 | — |
 | 6 — Locked condensation dispatch template | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | reference/skill-card-description-standards.md | SC-7 | — |
-| 7 — Condensation-format validation gate | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | skill-creator/SKILL.md, scripts/validate_skill_cards.py, tasks/validate.md | SC-5 | 1, 5, 6 |
+| 7 — Condensation-format validation gate | `test-driven-development`, `verification-before-completion` | `red`, `green`, `verify` | skill-creator/SKILL.md, scripts/validate_skill_cards.py, tasks/validate.md | SC-5 | 2, 5, 6 |
 
 ---
 
 ## Phase Details
 
-### Phase 1 — Dispatch anchor semantics
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development`, `verification-before-completion` |
-| Task | `red`, `green`, `verify` |
-| Target | 48 SKILL.md files dispatch link `[text]` |
-| SCs | SC-1 |
-| Depends On | — |
-
-**Context:**
-```yaml
-sc_ids: [SC-1]
-rewrite_target: "dispatch link [text] values across 48 SKILL.md files"
-condensation_source: "linked task card Purpose statement"
-url_preservation: "URL stays the task path; only [text] changes"
-```
-
-**Procedure (SC-1 — dispatch link `[text]` condensation):**
-- [ ] 3. **RED (**sub-agent**).** Write a failing structural condensation-format check asserting that dispatch link `[text]` values across the 48 SKILL.md files are path-restatements (not condensations). **→ SC-1**
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
-  - Context: SC-1, 48 SKILL.md files, current `[text]` = path-restatement
-- [ ] 4. **GREEN (**sub-agent**).** Rewrite every dispatch link `[text]` across the 48 affected SKILL.md files as a condensation of the linked task card's Purpose statement; the URL remains the path. **→ SC-1**
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
-  - Context: SC-1, condensation source = task card Purpose, URL preserved
-- [ ] 5. **post-regression (**sub-agent**).** Run regression test patterns after the GREEN phase to confirm no dispatch behavior regressed. **→ SC-1**
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-  - Context: SC-1, post-GREEN regression
-- [ ] 6. **verify (**sub-agent**).** Run the structural condensation-format check against the purpose source; review the manifest diff to confirm every `[text]` is a condensation and the URL is unchanged. **→ SC-1**
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-  - Context: SC-1, condensation-format check, manifest diff review
-- [ ] 7. **commit-inline (**inline**).** Stage and commit the 48 SKILL.md files with rewritten dispatch link `[text]` values. **→ SC-1**
-  - Command: `git add <48 SKILL.md files> && git commit -m "<message>"`
-
-**Phase 1 VbC:**
-- [ ] 8. **VbC (**clean-room**).** Verify SC-1 passes its structural check: all 255 `[text]` values are purpose condensations with URL unchanged. **→ SC-1**
-
-### Phase 2 — Purpose statement quality
+### Phase 1 — Purpose statement quality
 
 | Field | Value |
 |-------|-------|
@@ -135,33 +103,70 @@ url_preservation: "URL stays the task path; only [text] changes"
 | Task | `red`, `green`, `verify` |
 | Target | flagged task-card Purpose sections |
 | SCs | SC-2 |
-| Depends On | 1 |
+| Depends On | — |
 
 **Context:**
 ```yaml
 sc_ids: [SC-2]
 audit_criteria: "condensable, outcome-as-subject, distinctive from siblings"
-flagged_purposes: "purposes flagged by SC-1 rewrite as non-condensable"
+flagged_purposes: "purposes failing the audit criteria (condensation SOURCE for SC-1)"
 ```
 
 **Procedure (SC-2 — purpose-statement correction):**
-- [ ] 9. **RED (**sub-agent**).** Write a failing structural audit asserting that purpose statements failing the audit criteria (not condensable, not outcome-as-subject, not distinctive from siblings) are identified. **→ SC-2**
+- [ ] 3. **RED (**sub-agent**).** Write a failing structural audit asserting that purpose statements failing the audit criteria (not condensable, not outcome-as-subject, not distinctive from siblings) are identified. **→ SC-2**
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
-  - Context: SC-2, audit criteria, flagged purposes from SC-1 rewrite
-- [ ] 10. **GREEN (**sub-agent**).** Correct the flagged purpose statements in the affected task cards so they are condensable, outcome-as-subject, and distinctive from siblings. **→ SC-2**
+  - Context: SC-2, audit criteria, flagged purposes (fail condensable/outcome-subject/distinctive)
+- [ ] 4. **GREEN (**sub-agent**).** Correct the flagged purpose statements in the affected task cards so they are condensable, outcome-as-subject, and distinctive from siblings. **→ SC-2**
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
   - Context: SC-2, corrected purposes, intent preservation
-- [ ] 11. **post-regression (**sub-agent**).** Run regression test patterns after the GREEN phase to confirm purpose corrections did not alter task semantics. **→ SC-2**
+- [ ] 5. **post-regression (**sub-agent**).** Run regression test patterns after the GREEN phase to confirm purpose corrections did not alter task semantics. **→ SC-2**
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
   - Context: SC-2, post-GREEN regression
-- [ ] 12. **verify (**sub-agent**).** Run the structural audit of corrected purpose statements; re-run the SC-1 condensation check on corrected purposes. **→ SC-2**
+- [ ] 6. **verify (**sub-agent**).** Run the structural audit of corrected purpose statements; confirm the corrected purposes are condensable, outcome-as-subject, and distinctive (the source SC-1 will condense). **→ SC-2**
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-  - Context: SC-2, condensability/outcome-subject/distinctiveness audit, SC-1 re-check
-- [ ] 13. **commit-inline (**inline**).** Stage and commit the corrected Purpose sections in the affected task cards. **→ SC-2**
+  - Context: SC-2, condensability/outcome-subject/distinctiveness audit
+- [ ] 7. **commit-inline (**inline**).** Stage and commit the corrected Purpose sections in the affected task cards. **→ SC-2**
   - Command: `git add <task cards> && git commit -m "<message>"`
 
+**Phase 1 VbC:**
+- [ ] 8. **VbC (**clean-room**).** Verify SC-2 passes its structural audit: corrected purposes are condensable, outcome-as-subject, and distinctive from siblings. **→ SC-2**
+
+### Phase 2 — Dispatch anchor semantics
+
+| Field | Value |
+|-------|-------|
+| Skill | `test-driven-development`, `verification-before-completion` |
+| Task | `red`, `green`, `verify` |
+| Target | 48 SKILL.md files dispatch link `[text]` |
+| SCs | SC-1 |
+| Depends On | 1 |
+
+**Context:**
+```yaml
+sc_ids: [SC-1]
+rewrite_target: "dispatch link [text] values across 48 SKILL.md files"
+condensation_source: "corrected task card Purpose statement (Phase 1)"
+url_preservation: "URL stays the task path; only [text] changes"
+```
+
+**Procedure (SC-1 — dispatch link `[text]` condensation):**
+- [ ] 9. **RED (**sub-agent**).** Write a failing structural condensation-format check asserting that dispatch link `[text]` values across the 48 SKILL.md files are path-restatements (not condensations). **→ SC-1**
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+  - Context: SC-1, 48 SKILL.md files, current `[text]` = path-restatement, condensation source = corrected purposes (Phase 1)
+- [ ] 10. **GREEN (**sub-agent**).** Rewrite every dispatch link `[text]` across the 48 affected SKILL.md files as a condensation of the linked task card's corrected Purpose statement; the URL remains the path. **→ SC-1**
+  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+  - Context: SC-1, condensation source = corrected task card Purpose, URL preserved
+- [ ] 11. **post-regression (**sub-agent**).** Run regression test patterns after the GREEN phase to confirm no dispatch behavior regressed. **→ SC-1**
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - Context: SC-1, post-GREEN regression
+- [ ] 12. **verify (**sub-agent**).** Run the structural condensation-format check against the corrected purpose source; review the manifest diff to confirm every `[text]` is a condensation and the URL is unchanged. **→ SC-1**
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+  - Context: SC-1, condensation-format check, manifest diff review, corrected purposes source
+- [ ] 13. **commit-inline (**inline**).** Stage and commit the 48 SKILL.md files with rewritten dispatch link `[text]` values. **→ SC-1**
+  - Command: `git add <48 SKILL.md files> && git commit -m "<message>"`
+
 **Phase 2 VbC:**
-- [ ] 14. **VbC (**clean-room**).** Verify SC-2 passes its structural audit: corrected purposes are condensable, outcome-as-subject, and distinctive from siblings. **→ SC-2**
+- [ ] 14. **VbC (**clean-room**).** Verify SC-1 passes its structural check: all 255 `[text]` values are purpose condensations with URL unchanged. **→ SC-1**
 
 ### Phase 3 — Dispatch format structure
 
@@ -315,7 +320,7 @@ target_doc: "reference/skill-card-description-standards.md"
 | Task | `red`, `green`, `verify` |
 | Target | skill-creator/SKILL.md, scripts/validate_skill_cards.py, tasks/validate.md |
 | SCs | SC-5 |
-| Depends On | 1, 5, 6 |
+| Depends On | 2, 5, 6 |
 
 **Context:**
 ```yaml
@@ -390,6 +395,7 @@ validation_gate: "structural condensation-format check in validate_skill_cards.p
 | Timestamp | Event | Details |
 |-----------|-------|---------|
 | 2026-08-18T14:54:22Z | `plan_created` | Plan file: `.opencode/.issues/2296/plan.md`, phase count: 7 |
+| 2026-08-18T12:15:00Z | `plan_revised` | Reordered SC-2 (purpose statement quality) before SC-1 (dispatch anchor semantics); corrected purposes are the condensation source. Phase 1=SC-2, Phase 2=SC-1. |
 
 ---
 

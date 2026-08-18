@@ -1,8 +1,10 @@
 number: 2298
-title: "[SPEC] TDD RED/GREEN abort protocol for irregular test conditions"
+title: '[SPEC] TDD RED/GREEN abort protocol for irregular test conditions'
 labels:
-  - spec
-  - needs-approval
+- needs-approval
+- spec-draft
+- spec
 remote_issue: 2298
 remote_url: https://github.com/michael-conrad/.opencode/issues/2298
-promoted_at: 2026-08-18T12:47:00Z
+promoted_at: 2026-08-18 12:47:00+00:00
+updated_at: '2026-08-18T17:02:30+00:00'

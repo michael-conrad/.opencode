@@ -5,16 +5,19 @@ solve_output:
   checks:
     model:
       contract_path: .opencode/.issues/2296/dependency-contract.yaml
-      query: "z3.And(phase_2_per_file, phase_3_post)"
+      query: "z3.And(phase_2_per_file, phase_3_post, sc2_purposes_corrected, sc1_condensations_applied, sc1_sc2_ordered)"
       result: SAT
       assignment:
         phase_2_per_file: true
         phase_3_post: true
+        sc2_purposes_corrected: true
+        sc1_condensations_applied: true
+        sc1_sc2_ordered: true
     check:
       contract_path: .opencode/.issues/2296/dependency-contract.yaml
       state_path: .opencode/.issues/2296/artifacts/state-analysis.yaml
       result: SAT
-      detail: "SAT (+ postconditions + invariants); assignment phase_2_per_file=False, phase_3_post=False"
+      detail: "SAT (+ postconditions + invariants); assignment phase_2_per_file=False, phase_3_post=False, sc2_purposes_corrected=False, sc1_condensations_applied=False, sc1_sc2_ordered=True"
   planner:
     engine: tamer
     problem: .opencode/.issues/2296/artifacts/plan-problem.yaml
@@ -23,3 +26,5 @@ solve_output:
     plan:
       - execute_phase(phase_2_per_file)
       - execute_phase(phase_3_post)
+  ordering:
+    SC-2_precedes_SC-1: "SAT — sc1_sc2_ordered=true; dependency edge sc2_purposes_corrected -> sc1_condensations_applied reflects corrected-purpose-before-condensation ordering"

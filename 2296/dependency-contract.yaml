@@ -5,8 +5,19 @@ variables:
   phase_3_post:
     type: bool
     description: "Post-rewrite normative and enforcement SCs — SC-5, SC-6, SC-7"
+  sc2_purposes_corrected:
+    type: bool
+    description: "SC-2 purpose statements corrected (condensable, outcome-as-subject, distinctive)"
+  sc1_condensations_applied:
+    type: bool
+    description: "SC-1 dispatch link [text] condensations applied across 48 SKILL.md files"
+  sc1_sc2_ordered:
+    type: bool
+    description: "SC-2 precedes SC-1: corrected purposes are the source SC-1 condenses"
 preconditions:
   - "z3.Implies(phase_3_post, phase_2_per_file)"
+  - "z3.Implies(sc1_condensations_applied, sc2_purposes_corrected)"
+  - "sc1_sc2_ordered"
 invariants: []
 postconditions: []
 phases:
@@ -22,6 +33,8 @@ phases:
       - SC-2
       - SC-3
       - SC-4
+    order:
+      - SC-2 before SC-1: "SC-1's dispatch condensations derive from corrected task card Purpose statements, so the purpose source (SC-2) must be corrected before the condensation rewrite (SC-1)."
   phase_3_post:
     files:
       - .opencode/skills/skill-creator/SKILL.md
@@ -37,6 +50,10 @@ edges:
   - from: phase_2_per_file
     to: phase_3_post
     rationale: "phase_3_post ITEM-5 (SC-5) validation gate depends on phase_2_per_file SC-1's condensation format (the format to validate against) and on SC-6/SC-7's normative condensation source (the rule the gate enforces). The gate cannot be specified or tested until the condensation format and its normative source exist."
+  - from: sc2_purposes_corrected
+    to: sc1_condensations_applied
+    rationale: "SC-1 (dispatch link [text] condensation) depends on SC-2's corrected purposes — the corrected Purpose statements are the source from which SC-1 derives its condensations. SC-2 must be corrected before SC-1's rewrite pass."
 notes:
   - "phase_3_post is strictly sequenced after phase_2_per_file; its SC-5 gate's positive/negative unit tests depend on the condensation format established by SC-1 and the normative source defined by SC-6/SC-7."
   - "phase_2_per_file and phase_3_post touch disjoint file sets — no same-file edit conflicts; the dependency is informational (SC-1/SC-6/SC-7 outputs feed SC-5), not file-overlap driven."
+  - "Within phase_2_per_file, SC-2 precedes SC-1: corrected purposes are the condensation source for the dispatch link [text] rewrite. This is an ordering dependency, not a discard — the committed SC-1 work and worktree SC-2 work remain valid."

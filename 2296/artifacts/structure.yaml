@@ -83,7 +83,7 @@ structure:
     edges:
       - "phase_2_per_file -> phase_3_post"
       - "ITEM-5 (SC-5, gate) depends on ITEM-1 (SC-1, condensation format to validate against) and ITEM-6/ITEM-7 (SC-6/SC-7, normative source of condensation rule)"
-      - "ITEM-2 (SC-2) driven by findings from ITEM-1 (SC-1 rewrite flags non-condensable purposes) — within phase_2"
+      - "ITEM-1 (SC-1) depends on ITEM-2 (SC-2): the corrected purposes are the source SC-1's condensations are derived from — SC-2 precedes SC-1"
       - "ITEM-3 (SC-3) and ITEM-4 (SC-4) are independent conversions"
       - "ITEM-6 (SC-6) and ITEM-7 (SC-7) are independent doc updates but must remain mutually consistent"
 
@@ -93,4 +93,4 @@ structure:
 
   cross_phase_dependency:
     status: PASS
-    detail: "phase_2 items depend only on phase_2 SC outputs (committed within phase_2). phase_3 ITEM-5 depends on phase_2 SC-1 output (Y < X, committed earlier) — not a violation. No RED test in a later phase depends on SC output from a phase it cannot yet have committed."
+    detail: "phase_2 items depend only on phase_2 SC outputs (committed within phase_2). ITEM-1 (SC-1) depends on ITEM-2 (SC-2) output within phase_2 — corrected purposes precede the condensation rewrite (Y < X within the same phase). phase_3 ITEM-5 depends on phase_2 SC-1 output (Y < X, committed earlier) — not a violation. No RED test in a later phase depends on SC output from a phase it cannot yet have committed."

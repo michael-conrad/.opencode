@@ -9,10 +9,10 @@
 
 **SCs:** SC-5
 
-**Dependencies:** Phase 1, Phase 5, Phase 6
+**Dependencies:** Phase 2, Phase 5, Phase 6
 
 **Entry Conditions:**
-- Phase 1 complete: all 255 dispatch link `[text]` values are purpose condensations (SC-1)
+- Phase 2 complete: all 255 dispatch link `[text]` values are purpose condensations (SC-1)
 - Phase 5 complete: `reference/task-card-structure-standards.md` §4 specifies the purpose statement as the dispatch-anchor source (SC-6)
 - Phase 6 complete: `reference/skill-card-description-standards.md` specifies the locked condensation dispatch template (SC-7)
 - The condensation format (SC-1) and its normative source (SC-6/SC-7) exist to validate against
