@@ -1,0 +1,71 @@
+validate_findings:
+  issue_number: 2296
+  overall_status: FAIL
+  categories:
+    category_1_structural:
+      status: FAIL
+      checks:
+        - name: "phase_table_required_columns"
+          status: FAIL
+          detail: "Phase table columns are [Phase, Concern, SCs, Depends On, Step Range, Dispatch]. Canonical format (plan-artifact-format.md §3.3) requires [Phase, Skill, Task, Target, SCs, Depends On]. Missing Skill, Task, Target columns. Skill/Task/Target are present only in the Phase Details sections, not the phase table."
+        - name: "phase_procedure_numbered_steps"
+          status: PASS
+          detail: "Each phase has a procedure section with numbered checkbox steps (Phase 1: steps 3-23, Phase 2: steps 24-47)."
+        - name: "exit_criteria_sc_mapping"
+          status: PASS
+          detail: "Exit Criteria section exists with SC-to-phase mapping (C1-C7 map to SC-1..SC-7, C8 covers all SCs)."
+    category_2_skill_task_validity:
+      status: PASS
+      checks:
+        - name: "skill_task_references_valid"
+          status: PASS
+          detail: "All skill+task references valid per implementation-workflow.md: test-driven-development (red, green, phase-4), verification-before-completion (verify), audit (verification-audit DiMo investigator), finishing-a-development-branch (checklist), git-workflow-pr (review-prep, create), completion-core (completion)."
+    category_3_sc_coverage:
+      status: PASS
+      checks:
+        - name: "all_scs_covered"
+          status: PASS
+          detail: "All 7 SCs appear in exit criteria: SC-1(C1), SC-2(C2), SC-3(C3), SC-4(C4), SC-5(C5), SC-6(C6), SC-7(C7)."
+        - name: "triplet_split_detection"
+          status: PASS
+          detail: "No SC has RED/GREEN/COMMIT split across phases. SC-1/2/3/4 all in Phase 1 (steps 3-22); SC-5/6/7 all in Phase 2 (steps 24-38). Each SC's RED, GREEN, and commit-inline steps are in the same phase."
+    category_4_concern_separation:
+      status: FAIL
+      checks:
+        - name: "one_concern_per_phase"
+          status: FAIL
+          detail: "Phase 1 (phase_2_per_file) addresses 4 distinct concerns from the concern-map (SC-1 dispatch anchor semantics, SC-2 purpose quality, SC-3 dispatch format structure, SC-4 placeholder template semantics). Phase 2 (phase_3_post) addresses 3 distinct concerns (SC-5 enforcement gate, SC-6 purpose-source normative, SC-7 locked template). Each phase addresses multiple concerns, not exactly one."
+        - name: "no_duplicate_concern_across_phases"
+          status: PASS
+          detail: "No two phases address the same concern; the 7 concerns are distinct between Phase 1 and Phase 2."
+    category_5_dag_validation:
+      status: PASS
+      checks:
+        - name: "no_cycles"
+          status: PASS
+          detail: "Dependency contract DAG has a single edge phase_2_per_file -> phase_3_post; no cycles."
+        - name: "all_phases_reachable"
+          status: PASS
+          detail: "phase_2_per_file is the start node; phase_3_post is reachable via the edge."
+        - name: "no_orphan_phases"
+          status: PASS
+          detail: "Both phases have edges (phase_2 has outgoing, phase_3 has incoming); no orphans."
+    category_6_holistic_quality:
+      status: PASS
+      checks:
+        - name: "no_tbd_todo_placeholders"
+          status: PASS
+          detail: "No TBD/TODO placeholders in the plan body."
+        - name: "checkbox_format_steps"
+          status: PASS
+          detail: "All steps use checkbox format (- [ ])."
+        - name: "dispatch_mode_consistency"
+          status: PASS
+          detail: "Dispatch indicators consistent: RED/GREEN/post-regression/verify/audit/structural-checks/pre-pr-gate/regression-check/review-prep/create-pr/exec-summary use (sub-agent); commit-inline, z3-check, pre-implementation steps use (inline); VbC steps use (clean-room). No inline phase has dispatched steps; no clean-room step is inline."
+  findings:
+    - category: 1
+      severity: FAIL
+      finding: "Phase table missing required Skill, Task, Target columns per plan-artifact-format.md §3.3. Columns present: Phase, Concern, SCs, Depends On, Step Range, Dispatch."
+    - category: 4
+      severity: FAIL
+      finding: "Each phase addresses multiple concerns from the concern-map, not exactly one. Phase 1 covers 4 concerns (SC-1..SC-4); Phase 2 covers 3 concerns (SC-5..SC-7)."
