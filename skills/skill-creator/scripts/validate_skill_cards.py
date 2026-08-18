@@ -410,6 +410,34 @@ def validate_req3(name: str, body: str, file_path: str) -> list[Violation]:
         )
     return violations
 
+DISPATCH_LINK_RE = re.compile(
+    r"\[([^\]]+)\]\(([^)]*\.opencode/skills/[^)]*tasks/[^)]*\.md)\)"
+)
+
+def validate_condensation(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    for m in DISPATCH_LINK_RE.finditer(body):
+        text = m.group(1).strip()
+        url = m.group(2)
+        task_stem = Path(url).stem
+        # Path-restatement: the link text restates the dispatch path or filename
+        # instead of condensing the task card's purpose statement (SC-6 source:
+        # condensable, outcome-as-subject, distinctive).
+        if "tasks/" in text or text.endswith(".md") or text == task_stem:
+            violations.append(
+                Violation(
+                    "CONDENSATION",
+                    name,
+                    "CONDENSATION-001",
+                    f"Dispatch link text '{text}' is a path restatement of '{url}' — use a purpose condensation",
+                    text,
+                    file_path=file_path,
+                    severity="ERROR",
+                    pass_fail="FAIL",
+                )
+            )
+    return violations
+
 ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
 WORKFLOWS_HEADING_RE = re.compile(
     r"^##\s+Workflows", re.MULTILINE
@@ -510,6 +538,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req3(name, body, rel_path))
     violations.extend(validate_req5(name, body, rel_path))
     violations.extend(validate_req6(name, body, rel_path))
+    violations.extend(validate_condensation(name, body, rel_path))
     return violations
 
 def violation_to_dict(v: Violation) -> dict:

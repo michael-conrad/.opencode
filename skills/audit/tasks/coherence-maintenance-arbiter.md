@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Arbiter role for the coherence-maintenance chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes, not evaluates. It does NOT re-evaluate criteria, re-validate evidence, or second-guess upstream roles.
+Produce the final coherence-maintenance judgment in `judgment.yaml` with `next_step` by synthesizing upstream evidence, reasoning, and verdict artifacts. Synthesizes only — does not re-evaluate or second-guess upstream roles.
 
 
 ## Dispatch Contract

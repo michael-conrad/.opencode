@@ -102,13 +102,13 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 |------|----------------|
-| `problem` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/problem.md](.opencode/skills/plan/tasks/problem.md). "))` |
-| `plan` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/plan.md](.opencode/skills/plan/tasks/plan.md). "))` |
-| `validate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/validate.md](.opencode/skills/plan/tasks/validate.md). "))` |
-| `pddl` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/pddl.md](.opencode/skills/plan/tasks/pddl.md). "))` |
-| `ground` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/ground.md](.opencode/skills/plan/tasks/ground.md). "))` |
-| `fallback` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/fallback.md](.opencode/skills/plan/tasks/fallback.md). "))` |
-| `state` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [plan/tasks/state.md](.opencode/skills/plan/tasks/state.md). "))` |
+| `problem` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [reference problem YAML schema](.opencode/skills/plan/tasks/problem.md). "))` |
+| `plan` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [generate plan from problem](.opencode/skills/plan/tasks/plan.md). "))` |
+| `validate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [validate plan against domain](.opencode/skills/plan/tasks/validate.md). "))` |
+| `pddl` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [convert plan to PDDL](.opencode/skills/plan/tasks/pddl.md). "))` |
+| `ground` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [ground action schemas](.opencode/skills/plan/tasks/ground.md). "))` |
+| `fallback` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manual acyclic plan check](.opencode/skills/plan/tasks/fallback.md). "))` |
+| `state` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage pipeline state files](.opencode/skills/plan/tasks/state.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "plan"})` ``
 

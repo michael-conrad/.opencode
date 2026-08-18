@@ -37,9 +37,9 @@ Issue Sync Manager. Focus: bidirectional reconciliation, spec.md mirror mandate,
 
 | Task | Call via task() |
 |------|-----------------|
-| `sync-from-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-from-remote.md](.opencode/skills/issue-operations-sync/tasks/sync-from-remote.md). "))` |
-| `sync-pull-to-local` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/sync-pull-to-local.md](.opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md). "))` |
-| `import-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-sync/tasks/import-remote.md](.opencode/skills/issue-operations-sync/tasks/import-remote.md). "))` |
+| `sync-from-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync issues from remote](.opencode/skills/issue-operations-sync/tasks/sync-from-remote.md). "))` |
+| `sync-pull-to-local` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [mirror remote issue to local](.opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md). "))` |
+| `import-remote` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [import remote issue to local](.opencode/skills/issue-operations-sync/tasks/import-remote.md). "))` |
 
 ## DISPATCH_GATE
 

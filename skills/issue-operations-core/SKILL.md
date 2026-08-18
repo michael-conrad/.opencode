@@ -63,18 +63,18 @@ Issue Operations Core Router. Focus: spec-first workflow, validation, labeling, 
 
 | Task | Call via task() |
 |------|-----------------|
-| `pre-creation` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/pre-creation.md](.opencode/skills/issue-operations-core/tasks/pre-creation.md). "))` |
-| `creation` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/creation.md](.opencode/skills/issue-operations-core/tasks/creation.md). "))` |
-| `close` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/close.md](.opencode/skills/issue-operations-core/tasks/close.md). "))` |
-| `verify-merge` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/verify-merge.md](.opencode/skills/issue-operations-core/tasks/verify-merge.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/completion.md](.opencode/skills/issue-operations-core/tasks/completion.md). "))` |
-| `read-issue` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-issue.md](.opencode/skills/issue-operations-core/tasks/read-issue.md). "))` |
-| `read-comments` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-comments.md](.opencode/skills/issue-operations-core/tasks/read-comments.md). "))` |
-| `read-labels` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/read-labels.md](.opencode/skills/issue-operations-core/tasks/read-labels.md). "))` |
-| `list-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/list-issues.md](.opencode/skills/issue-operations-core/tasks/list-issues.md). "))` |
-| `search-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/search-issues.md](.opencode/skills/issue-operations-core/tasks/search-issues.md). "))` |
-| `update-issue` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/update-issue.md](.opencode/skills/issue-operations-core/tasks/update-issue.md). "))` |
-| `push-artifacts` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-operations-core/tasks/push-artifacts.md](.opencode/skills/issue-operations-core/tasks/push-artifacts.md). "))` |
+| `pre-creation` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [validate spec before issue creation](.opencode/skills/issue-operations-core/tasks/pre-creation.md). "))` |
+| `creation` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create issue](.opencode/skills/issue-operations-core/tasks/creation.md). "))` |
+| `close` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [close issue after merge](.opencode/skills/issue-operations-core/tasks/close.md). "))` |
+| `verify-merge` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify PR merge before close](.opencode/skills/issue-operations-core/tasks/verify-merge.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete issue operation](.opencode/skills/issue-operations-core/tasks/completion.md). "))` |
+| `read-issue` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [read issue](.opencode/skills/issue-operations-core/tasks/read-issue.md). "))` |
+| `read-comments` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [read issue comments](.opencode/skills/issue-operations-core/tasks/read-comments.md). "))` |
+| `read-labels` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [read issue labels](.opencode/skills/issue-operations-core/tasks/read-labels.md). "))` |
+| `list-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [list issues](.opencode/skills/issue-operations-core/tasks/list-issues.md). "))` |
+| `search-issues` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [search issues](.opencode/skills/issue-operations-core/tasks/search-issues.md). "))` |
+| `update-issue` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [update issue](.opencode/skills/issue-operations-core/tasks/update-issue.md). "))` |
+| `push-artifacts` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [push spec artifacts to issues-data](.opencode/skills/issue-operations-core/tasks/push-artifacts.md). "))` |
 
 ## DISPATCH_GATE
 

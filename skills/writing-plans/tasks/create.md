@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Generates a structured implementation plan from the structure artifact. The plan is structured markdown with English instructions. Every task in every phase enumerates every step from the implementation-workflow reference card's per-task cycle — no skipping, no combining, no grouping.
+Generate a structured implementation plan from the structure artifact. The plan is structured markdown with English instructions. Every task in every phase enumerates every step from the implementation-workflow reference card's per-task cycle — no skipping, no combining, no grouping.
+
+## Workflow Reference Card
 
 The per-task cycle steps are discovered at runtime by reading the implementation-workflow reference card at `skills/writing-plans/reference/implementation-workflow.md`. The plan writer MUST NOT embed a hardcoded copy of the workflow.
 

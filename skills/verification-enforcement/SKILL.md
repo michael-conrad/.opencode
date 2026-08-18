@@ -51,10 +51,10 @@ Verification Gatekeeper. Not the content author — the evidence collector runni
 
 | Task | Call via task() |
 
-| `verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/verify.md](.opencode/skills/verification-enforcement/tasks/verify.md). "))` |
-| `revisit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/revisit.md](.opencode/skills/verification-enforcement/tasks/revisit.md). "))` |
-| `enforce` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/enforce.md](.opencode/skills/verification-enforcement/tasks/enforce.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verification-enforcement/tasks/completion.md](.opencode/skills/verification-enforcement/tasks/completion.md). "))` |
+| `verify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify claims pre-generation](.opencode/skills/verification-enforcement/tasks/verify.md). "))` |
+| `revisit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [resolve unverified claims post-generation](.opencode/skills/verification-enforcement/tasks/revisit.md). "))` |
+| `enforce` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [enforce evidence in sub-agent output](.opencode/skills/verification-enforcement/tasks/enforce.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete verification enforcement](.opencode/skills/verification-enforcement/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "verification-enforcement"})` ``
 

@@ -7,8 +7,9 @@
 
 ## Purpose
 
-Arbiter role for the concern-separation chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. Synthesizes upstream outputs into a single authoritative judgment. Does NOT re-evaluate, re-validate, or second-guess upstream roles.
+Produce the final concern-separation judgment by synthesizing upstream evidence, reasoning, and verdict artifacts into `judgment.yaml` with `next_step`. Synthesizes, does not re-evaluate or second-guess upstream roles.
 
+## Default Assumption
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted.
 

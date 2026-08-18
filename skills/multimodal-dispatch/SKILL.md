@@ -47,9 +47,9 @@ Modality Router. Focus: probe models, resolve modality hints, task sub-agents to
 
 | Task | Call via task() |
 
-| `probe` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [multimodal-dispatch/tasks/probe.md](.opencode/skills/multimodal-dispatch/tasks/probe.md). "))` |
-| `route` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [multimodal-dispatch/tasks/route.md](.opencode/skills/multimodal-dispatch/tasks/route.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [multimodal-dispatch/tasks/completion.md](.opencode/skills/multimodal-dispatch/tasks/completion.md). "))` |
+| `probe` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [probe model capabilities](.opencode/skills/multimodal-dispatch/tasks/probe.md). "))` |
+| `route` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [route task to model by modality](.opencode/skills/multimodal-dispatch/tasks/route.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete multimodal dispatch](.opencode/skills/multimodal-dispatch/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "multimodal-dispatch"})` ``
 

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the spec-audit chain. Reads the spec file(s) from `spec_local_dir` and produces `evidence.yaml` with raw evidence about spec structure, determinism, and live documentation sources. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `evidence.yaml` with raw evidence about spec structure, determinism, and live documentation sources. Collects evidence only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

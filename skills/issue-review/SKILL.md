@@ -54,12 +54,12 @@ Issue Review Orchestrator. Focus: gather context, classify path, delegate to cor
 
 | Task | Call via task() |
 |------|----------|
-| `gather` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/gather.md](.opencode/skills/issue-review/tasks/gather.md). "))` |
-| `triage` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/triage.md](.opencode/skills/issue-review/tasks/triage.md). "))` |
-| `analyze-and-spec` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/analyze-and-spec.md](.opencode/skills/issue-review/tasks/analyze-and-spec.md). "))` |
-| `audit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/audit.md](.opencode/skills/issue-review/tasks/audit.md). "))` |
-| `qa` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/qa.md](.opencode/skills/issue-review/tasks/qa.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [issue-review/tasks/completion.md](.opencode/skills/issue-review/tasks/completion.md). "))` |
+| `gather` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gather issue context](.opencode/skills/issue-review/tasks/gather.md). "))` |
+| `triage` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [classify issue review path](.opencode/skills/issue-review/tasks/triage.md). "))` |
+| `analyze-and-spec` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [analyze bug and create fix spec](.opencode/skills/issue-review/tasks/analyze-and-spec.md). "))` |
+| `audit` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [delegate spec audit](.opencode/skills/issue-review/tasks/audit.md). "))` |
+| `qa` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [ask clarifying questions](.opencode/skills/issue-review/tasks/qa.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete issue review](.opencode/skills/issue-review/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "issue-review"})` ``
 

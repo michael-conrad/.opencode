@@ -25,7 +25,7 @@ Pull request management sub-skill of git-workflow. Handles PR creation, review p
 When the agent needs to create a pull request, squash commits to a single commit, push the branch, and create the PR targeting `$DEFAULT_BRANCH`.
 
 - [ ] 1. **Pr-creation** — Creates a pull request with a structured body and compare URL
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pull request](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
   - **Context passed:** `{branch_name, spec_summary, is_release}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
   - **Execution mode:** sub-agent dispatch
@@ -36,7 +36,7 @@ When the agent needs to create a pull request, squash commits to a single commit
 When the agent needs to generate a GitHub compare URL for developer review after implementation completes.
 
 - [ ] 1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/review-prep.md](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [prepare PR review context](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
@@ -46,7 +46,7 @@ When the agent needs to generate a GitHub compare URL for developer review after
 When the agent needs to create a PR from a pair mode branch.
 
 - [ ] 1. **Pair-pr-creation** — Creates a PR from a pair mode branch
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/pair-pr-creation.md](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: ", branch_name))`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pair-mode pull request](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
   - **Execution mode:** sub-agent dispatch
@@ -56,7 +56,7 @@ When the agent needs to create a PR from a pair mode branch.
 When the agent needs to push the feature branch, generate a compare URL, and report completion after implementation.
 
 - [ ] 1. **Post-implementation** — Pushes the feature branch, generates a compare URL, and reports completion
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/post-implementation.md](.opencode/skills/git-workflow-pr/tasks/post-implementation.md). branch_name: ", branch_name))`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [push and report implementation](.opencode/skills/git-workflow-pr/tasks/post-implementation.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
@@ -66,7 +66,7 @@ When the agent needs to push the feature branch, generate a compare URL, and rep
 When the agent needs to run idempotent completion steps to ensure mandatory checks run regardless of where the workflow halted.
 
 - [ ] 1. **Completion** — Runs PR lifecycle completion, final status, and URL reporting
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [git-workflow-pr/tasks/completion.md](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete git-workflow](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
   - **Context passed:** `{workflow_state}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch

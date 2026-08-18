@@ -63,11 +63,11 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 | Task | Call via task() |
 
-| `explore` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/explore.md](.opencode/skills/brainstorming/tasks/explore.md). "))` |
-| `top-down-analysis` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/top-down-analysis.md](.opencode/skills/brainstorming/tasks/top-down-analysis.md). "))` |
-| `enforcement` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/enforcement.md](.opencode/skills/brainstorming/tasks/enforcement.md). "))` |
-| `cross-scope` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/cross-scope.md](.opencode/skills/brainstorming/tasks/cross-scope.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [brainstorming/tasks/completion.md](.opencode/skills/brainstorming/tasks/completion.md). "))` |
+| `explore` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [explore requirements conversationally](.opencode/skills/brainstorming/tasks/explore.md). "))` |
+| `top-down-analysis` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [perform top-down analysis](.opencode/skills/brainstorming/tasks/top-down-analysis.md). "))` |
+| `enforcement` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [enforce brainstorming prerequisite](.opencode/skills/brainstorming/tasks/enforcement.md). "))` |
+| `cross-scope` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [analyze cross-scope concerns](.opencode/skills/brainstorming/tasks/cross-scope.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete brainstorming workflow](.opencode/skills/brainstorming/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "brainstorming"})` ``
 

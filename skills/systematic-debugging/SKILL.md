@@ -47,9 +47,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `diagnose` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [systematic-debugging/tasks/diagnose.md](.opencode/skills/systematic-debugging/tasks/diagnose.md). "))` |
-| `fix` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [systematic-debugging/tasks/fix.md](.opencode/skills/systematic-debugging/tasks/fix.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [systematic-debugging/tasks/completion.md](.opencode/skills/systematic-debugging/tasks/completion.md). "))` |
+| `diagnose` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [diagnose bug root cause](.opencode/skills/systematic-debugging/tasks/diagnose.md). "))` |
+| `fix` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [apply targeted bug fix](.opencode/skills/systematic-debugging/tasks/fix.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete debugging workflow](.opencode/skills/systematic-debugging/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "systematic-debugging"})` ``
 

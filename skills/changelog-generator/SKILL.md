@@ -50,10 +50,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `since-last-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/since-last-release.md](.opencode/skills/changelog-generator/tasks/since-last-release.md). "))` |
-| `date-range` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/date-range.md](.opencode/skills/changelog-generator/tasks/date-range.md). from_date: ", from_date, ", to_date: ", to_date))` |
-| `backfill` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/backfill.md](.opencode/skills/changelog-generator/tasks/backfill.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog-generator/tasks/completion.md](.opencode/skills/changelog-generator/tasks/completion.md). "))` |
+| `since-last-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog since last release](.opencode/skills/changelog-generator/tasks/since-last-release.md). "))` |
+| `date-range` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog for date range](.opencode/skills/changelog-generator/tasks/date-range.md). from_date: ", from_date, ", to_date: ", to_date))` |
+| `backfill` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [backfill changelog entries](.opencode/skills/changelog-generator/tasks/backfill.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete changelog workflow](.opencode/skills/changelog-generator/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "changelog-generator"})` ``
 

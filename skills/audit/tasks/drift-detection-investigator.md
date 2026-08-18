@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the drift-detection chain. Reads spec requirements from `spec_local_dir` and scans code implementation to collect raw evidence about documentation-code drift. Writes `evidence.yaml` with file existence data, function signature comparisons, untracked file inventory, and raw drift observations. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `evidence.yaml` with raw evidence about documentation-code drift by scanning spec requirements and code implementation. Collects evidence only — does not evaluate, judge, or produce verdicts.
 
 
 ## Metadata Verification Extension

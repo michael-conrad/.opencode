@@ -10,14 +10,15 @@
 #        `.opencode/skills/spec-creation/SKILL.md`.
 #
 # SC-1 (string): spec-creation/SKILL.md SHALL use the canonical dispatch prompt
-#   format `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all
-#   task() dispatches, with zero occurrences of the deprecated `execute X from Y`
-#   coded strings.
+#   format `Follow the instructions in [<condensation>](.opencode/skills/spec-creation/tasks/<task>.md)`
+#   for all task() dispatches, with zero occurrences of the deprecated `execute X from Y`
+#   coded strings. Per .opencode#2296 (SC-7 locked template), the link text is a
+#   purpose condensation, not a path restatement; the URL remains the task path.
 #
 # RED state: spec-creation/SKILL.md currently has 6 deprecated `execute X from Y`
 #   dispatch prompt strings (analyze, create, validate, revise) in the Workflows
 #   section. Assertions (a) and (b) FAIL. GREEN converts the 6 deprecated strings to
-#   the canonical `Follow the instructions in [<skill>/tasks/<task>.md](...)` format.
+#   the canonical `Follow the instructions in [<condensation>](<path>)` format.
 #
 # Evidence type: SC-1 is a `string` SC. This content-verification test greps
 #   spec-creation/SKILL.md for the required patterns. It is the primary gate for
@@ -60,8 +61,10 @@ echo ""
 
 # ---------------------------------------------------------------------------
 # SC-1 (string): spec-creation/SKILL.md uses the canonical dispatch prompt format
-#   `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task()
-#   dispatches, with zero deprecated `execute X from Y` coded strings.
+#   `Follow the instructions in [<condensation>](.opencode/skills/spec-creation/tasks/<task>.md)`
+#   for all task() dispatches, with zero deprecated `execute X from Y` coded strings.
+#   Per .opencode#2296 (SC-7 locked template), the [text] is a purpose condensation
+#   and the URL is the task path.
 #
 # (a) Zero deprecated `execute .* from` coded strings. RED-now: 6 such strings exist
 #     in the Workflows section (analyze, create, validate, revise).
@@ -77,15 +80,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# (b) Canonical `Follow the instructions in [<skill>/tasks/<task>.md](...)`
+# (b) Canonical `Follow the instructions in [<condensation>](<task path>)`
 #     format is present for all task() dispatches. Each of the 4 task cards
 #     (analyze, create, validate, revise) must be dispatched via the canonical
-#     prompt format. RED-now: none use the canonical format.
+#     prompt format with the URL preserved as the .opencode task path.
 # ---------------------------------------------------------------------------
 echo ""
-echo "--- SC-1 (b): canonical 'Follow the instructions in [<skill>/tasks/<task>.md](...)' format present ---"
+echo "--- SC-1 (b): canonical 'Follow the instructions in [<condensation>](<path>)' format present ---"
 
-CANONICAL_COUNT=$(grep -cE 'Follow the instructions in \[spec-creation/tasks/[a-z]+\.md\]' "$SKILL_MD" 2>/dev/null || true)
+CANONICAL_COUNT=$(grep -cE 'Follow the instructions in \[[^]]*\]\(\.opencode/skills/spec-creation/tasks/[a-z]+\.md\)' "$SKILL_MD" 2>/dev/null || true)
 if [ "$CANONICAL_COUNT" -ge 4 ]; then
     check_pass "SC-1: canonical dispatch format present for task cards"
 else
@@ -102,7 +105,7 @@ if [ "$FAIL_COUNT" -gt 0 ]; then
     echo "RED phase expected: SC-1 (canonical dispatch format) not yet implemented."
     echo "spec-creation/SKILL.md still uses $DEPRECATED_COUNT deprecated 'execute X from Y'"
     echo "dispatch prompt strings and does not use the canonical"
-    echo "'Follow the instructions in [<skill>/tasks/<task>.md](...)' format."
+    echo "'Follow the instructions in [<condensation>](<path>)' format."
     echo "GREEN converts the deprecated strings to the canonical dispatch format."
     echo ""
     exit 1

@@ -23,11 +23,17 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
-## Trigger Dispatch Table
+## Workflows
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "push branch" / "generate URL" / "exec summary" | `completion` | `sub-task` | {workflow_state, issue_number} |
+### Complete a skill task workflow
+
+When the agent needs to push a branch, generate a URL, append a lifecycle event, or report an executive summary.
+
+- [ ] 1. **completion** — Pushes the branch, generates the URL, appends the lifecycle event, and reports the executive summary
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete skill task workflow](.opencode/skills/completion-core/tasks/completion.md). workflow_state: ", workflow_state, ", issue_number: ", issue_number))`
+**Context passed:** `{workflow_state, issue_number}`
+**Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+**Execution mode:** sub-agent dispatch
 
 **Entry gate: verification-before-completion PASS required before any completion operation.**
 
@@ -89,9 +95,9 @@ Exclusions (MUST NOT be in prompt):
 
 #### Orchestrator Entry Criteria
 
-Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
+Reading the Workflows section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
 
-After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+After loading this skill and reading the Workflows section, the orchestrator MUST:
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
@@ -140,9 +146,9 @@ Exclusions (MUST NOT be in prompt):
 
 #### Orchestrator Entry Criteria
 
-Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
+Reading the Workflows section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
 
-After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+After loading this skill and reading the Workflows section, the orchestrator MUST:
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes

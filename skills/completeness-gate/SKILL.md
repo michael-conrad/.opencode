@@ -94,8 +94,8 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 
-| `check` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [completeness-gate/tasks/check.md](.opencode/skills/completeness-gate/tasks/check.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [completeness-gate/tasks/completion.md](.opencode/skills/completeness-gate/tasks/completion.md). "))` |
+| `check` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [check deliverable completeness](.opencode/skills/completeness-gate/tasks/check.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete completeness gate](.opencode/skills/completeness-gate/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "completeness-gate"})` ``
 

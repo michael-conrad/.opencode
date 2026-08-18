@@ -229,8 +229,8 @@ The orchestrator MUST NOT preload execution context into `task()` prompts. Every
 
 | Violation                        | Forbidden Pattern                                | Correct Pattern                              |
 | -------------------------------- | ------------------------------------------------ | -------------------------------------------- |
-| Preloaded file paths             | "Read tasks/creation.md then execute step 1"     | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [local/tasks/creation.md](.opencode/skills/issue-operations/platforms/local/tasks/creation.md). "))  |
-| Preloaded step sequences         | "Step 1: write spec.md. Step 2: update counter." | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [local/tasks/creation.md](.opencode/skills/issue-operations/platforms/local/tasks/creation.md). "))  |
+| Preloaded file paths             | "Read tasks/creation.md then execute step 1"     | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create issue in local .issues](.opencode/skills/issue-operations/platforms/local/tasks/creation.md). "))  |
+| Preloaded step sequences         | "Step 1: write spec.md. Step 2: update counter." | task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create issue in local .issues](.opencode/skills/issue-operations/platforms/local/tasks/creation.md). "))  |
 | Preloaded expected outcomes      | "Return { local_path, number }"                  | Let sub-agent define its own result contract |
 | Preloaded orchestrator reasoning | "The issue was just drafted so we need to..."    | Pure objective, no narrative                 |
 

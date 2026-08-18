@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Update an issue's body, labels, state, or other mutable properties. Routes to the appropriate platform sub-skill based on `github.platform`. The dispatcher resolves platform selection — no deliberation about which API to use.
+Update an issue's body, labels, state, or other mutable properties, routed to the appropriate platform sub-skill based on `github.platform`. The dispatcher resolves platform selection — no deliberation about which API to use.
+
+## Body-Preservation Safeguard
 
 **CRITICAL: Body-preservation safeguard applies.** If `github_issue_write(method=update, body=...)` is used, the body parameter MUST preserve all original content. If `len(new_body) < 0.8 * len(original_body)`, HALT — this indicates content erasure per `000-critical-rules.md`.
 

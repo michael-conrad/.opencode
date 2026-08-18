@@ -50,10 +50,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `verify-understanding` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/verify-understanding.md](.opencode/skills/engineering-approach/tasks/verify-understanding.md). "))` |
-| `design-before-code` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/design-before-code.md](.opencode/skills/engineering-approach/tasks/design-before-code.md). "))` |
-| `verify-before-complete` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/verify-before-complete.md](.opencode/skills/engineering-approach/tasks/verify-before-complete.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [engineering-approach/tasks/completion.md](.opencode/skills/engineering-approach/tasks/completion.md). "))` |
+| `verify-understanding` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify problem understanding](.opencode/skills/engineering-approach/tasks/verify-understanding.md). "))` |
+| `design-before-code` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [enforce design-before-code](.opencode/skills/engineering-approach/tasks/design-before-code.md). "))` |
+| `verify-before-complete` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [enforce verify-before-complete](.opencode/skills/engineering-approach/tasks/verify-before-complete.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete engineering workflow](.opencode/skills/engineering-approach/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "engineering-approach"})` ``
 

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Arbiter role for the guideline-audit chain. Reads all upstream artifacts (`evidence.yaml` from Investigator, `reasoning.yaml` from Validator, `verdict.yaml` from Evaluator) and produces the final `judgment.yaml` with final judgment and `next_step`. This role synthesizes — it does NOT evaluate, re-evaluate, or second-guess upstream roles.
+Produce the final guideline-audit judgment in `judgment.yaml` with `next_step` by synthesizing upstream evidence, reasoning, and verdict artifacts. Synthesizes only — does not evaluate, re-evaluate, or second-guess upstream roles.
 
 
 ## Dispatch Contract

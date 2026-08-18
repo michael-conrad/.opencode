@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Validator role for the drift-detection chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (spec files, code files, live tool calls), and writes `reasoning.yaml` with validated evidence and source references. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `reasoning.yaml` with validated evidence and source references by checking each evidence item against source data (spec files, code files, live tool calls). Validates and supports only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

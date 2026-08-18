@@ -3,7 +3,7 @@
 
 ## Purpose
 
-Validate evidence produced by the Investigator against source data. Check accuracy, completeness, and relevance of each evidence item.
+Produce `reasoning.yaml` with validated PR/spec consistency evidence by checking each evidence item against source data. Check accuracy, completeness, and relevance of each evidence item.
 
 ## Entry Criteria
 

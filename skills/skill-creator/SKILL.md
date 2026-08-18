@@ -53,10 +53,10 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `init` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/init.md](.opencode/skills/skill-creator/tasks/init.md). "))` |
-| `package` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/package.md](.opencode/skills/skill-creator/tasks/package.md). "))` |
-| `validate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/validate.md](.opencode/skills/skill-creator/tasks/validate.md). "))` |
-| `fragment-management` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [skill-creator/tasks/fragment-management.md](.opencode/skills/skill-creator/tasks/fragment-management.md). "))` |
+| `init` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [initialize new skill card](.opencode/skills/skill-creator/tasks/init.md). "))` |
+| `package` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [package skill card](.opencode/skills/skill-creator/tasks/package.md). "))` |
+| `validate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [validate skill cards](.opencode/skills/skill-creator/tasks/validate.md). "))` |
+| `fragment-management` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage duplicate content fragments](.opencode/skills/skill-creator/tasks/fragment-management.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "skill-creator"})` ``
 
@@ -121,6 +121,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 - [ ] 2. **No hardcoded identity values:** Skill files MUST use `<AgentName>`, `<ModelId>` placeholders
 - [ ] 3. **Worktree awareness:** Git/file skills MUST include a Worktree Mode section
 - [ ] 4. **Master copy is single source of truth:** Never edit fragment copies directly — edit the master first
+- [ ] 5. **Condensation-anchor rule:** Every new card created and every existing card edited MUST use a condensation dispatch anchor. Dispatch link text `[<condensation>]` is a condensation of the linked task card's purpose statement (SC-6: condensable, outcome-as-subject, distinctive) — never a path restatement of the URL. A path-restatement link (`[tasks/validate.md]`) is a dead-weight pattern that FAILs the structural condensation-format gate (`CONDENSATION-001`) in `validate_skill_cards.py` on card create/edit.
 
 ## Cross-References
 

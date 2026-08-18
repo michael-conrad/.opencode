@@ -45,8 +45,8 @@ Research Agent. Focus: discover information, produce findings with source attrib
 
 | Task | Call via task() |
 
-| `research` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [research/tasks/research.md](.opencode/skills/research/tasks/research.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [research/tasks/completion.md](.opencode/skills/research/tasks/completion.md). "))` |
+| `research` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [research with source attribution](.opencode/skills/research/tasks/research.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete research workflow](.opencode/skills/research/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "research"})` ``
 

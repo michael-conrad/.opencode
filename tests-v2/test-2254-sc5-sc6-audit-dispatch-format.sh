@@ -10,15 +10,16 @@
 #        `.opencode/skills/audit/SKILL.md`.
 #
 # SC-5 (string): audit/SKILL.md SHALL use the canonical dispatch prompt format
-#   `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task()
-#   dispatches.
+#   `Follow the instructions in [<condensation>](.opencode/skills/audit/tasks/<task>.md)`
+#   for all task() dispatches. Per .opencode#2296 (SC-7 locked template), the link
+#   text is a purpose condensation (not a path restatement); the URL is the task path.
 #
 # SC-6 (string): audit/SKILL.md SHALL NOT contain deprecated
 #   `execute <task-name> DiMo <role> from audit` dispatch strings.
 #
 # RED state: audit/SKILL.md previously used deprecated
 #   `execute <task> DiMo <role> from audit` dispatch strings and lacked the
-#   canonical `Follow the instructions in [audit/tasks/<task>.md](...)` format.
+#   canonical `Follow the instructions in [<condensation>](<path>)` format.
 #   Assertions (a) and (b) FAIL. GREEN converts the dispatch to the canonical
 #   format and removes the deprecated DiMo strings.
 #
@@ -63,19 +64,20 @@ echo ""
 
 # ---------------------------------------------------------------------------
 # SC-5 (string): audit/SKILL.md SHALL use the canonical dispatch prompt format
-#   `Follow the instructions in [<skill>/tasks/<task>.md](...)` for all task()
-#   dispatches.
+#   `Follow the instructions in [<condensation>](.opencode/skills/audit/tasks/<task>.md)`
+#   for all task() dispatches. Per .opencode#2296 (SC-7 locked template), the [text]
+#   is a purpose condensation; the URL is the task path.
 #
 # (a) At least one canonical dispatch string is present in the Workflows section.
 # ---------------------------------------------------------------------------
 echo "--- SC-5 (a): canonical dispatch format present ---"
 
-CANONICAL_COUNT=$(grep -c 'Follow the instructions in \[audit/tasks/' "$SKILL_MD" 2>/dev/null || true)
+CANONICAL_COUNT=$(grep -cE 'Follow the instructions in \[[^]]*\]\(\.opencode/skills/audit/tasks/[^)]*\.md\)' "$SKILL_MD" 2>/dev/null || true)
 if [ "$CANONICAL_COUNT" -ge 1 ]; then
     check_pass "SC-5: audit/SKILL.md uses canonical dispatch format (found $CANONICAL_COUNT)"
 else
     check_fail "SC-5: canonical dispatch format present" \
-        "no 'Follow the instructions in [audit/tasks/...]' dispatch string found in $SKILL_MD"
+        "no 'Follow the instructions in [<condensation>](audit/tasks/...md)' dispatch string found in $SKILL_MD"
 fi
 
 # ---------------------------------------------------------------------------
@@ -102,7 +104,7 @@ echo ""
 if [ "$FAIL_COUNT" -gt 0 ]; then
     echo "RED phase expected: SC-5/SC-6 (audit dispatch format) not yet implemented."
     echo "audit/SKILL.md still uses deprecated DiMo dispatch strings and lacks the"
-    echo "canonical 'Follow the instructions in [audit/tasks/<task>.md](...)' format."
+    echo "canonical 'Follow the instructions in [<condensation>](<path>)' format."
     echo "GREEN converts the dispatch to the canonical format and removes the"
     echo "deprecated DiMo strings."
     echo ""

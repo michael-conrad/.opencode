@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the guideline-audit chain. Reads guideline files from `guideline_paths` and produces `evidence.yaml` with raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `evidence.yaml` with raw evidence about guideline content, structure, rule conditions, cross-references, token counts, ambiguity markers, conflict indicators, and enforcement patterns. Collects evidence only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

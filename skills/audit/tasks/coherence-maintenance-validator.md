@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Validator role for the coherence-maintenance chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data (guideline files, skill files, baseline JSON), and writes `reasoning.yaml` with validated evidence. This role validates and supports the evidence — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
+Produce `reasoning.yaml` with validated evidence by checking each evidence item against source data (guideline files, skill files, baseline JSON). Validates and supports evidence only — does not evaluate, judge, classify drift, or produce verdicts.
 
 
 ## Dispatch Contract
