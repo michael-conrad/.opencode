@@ -1,0 +1,99 @@
+# Testability assessment — issue #2298
+# Assigns evidence types to each success criterion, including the SCOPE_CREEP content/semantic coverage declaration.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+
+testability:
+  - id: SC-1
+    evidence_type: "string + behavioral"
+    primary_evidence: string
+    method: "grep for abort terminal state in red.md; behavioral ALREADY_GREEN scenario via opencode run."
+    testable: true
+    rationale: "Content assertion via grep plus a behavioral scenario asserting classified abort returned."
+  - id: SC-2
+    evidence_type: "string + behavioral"
+    primary_evidence: string
+    method: "grep for abort terminal state in green.md; behavioral NO_PURPOSE scenario via opencode run."
+    testable: true
+    rationale: "Content assertion plus a behavioral scenario for a GREEN abort condition."
+  - id: SC-3
+    evidence_type: "string"
+    primary_evidence: string
+    method: "grep red.md for ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT."
+    testable: true
+    rationale: "Pure content enumeration; grep verifies the four identifiers present."
+  - id: SC-4
+    evidence_type: "string"
+    primary_evidence: string
+    method: "grep green.md for NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION."
+    testable: true
+    rationale: "Pure content enumeration; grep verifies the five identifiers present. Also declares SCOPE_CREEP coverage per R-11."
+  - id: SC-5
+    evidence_type: "string + behavioral"
+    primary_evidence: string
+    method: "grep both cards for abort-is-completion normative language; behavioral scenario asserts a classified abort returned."
+    testable: true
+    rationale: "Normative language asserted statically; behavior asserted behaviorally."
+  - id: SC-6
+    evidence_type: "string + semantic"
+    primary_evidence: semantic
+    method: "grep both cards for post-abort routing guidance; clean-room sub-agent evaluation of routing behavior."
+    testable: true
+    rationale: "Routing is orchestrator behavior evaluated by a clean-room sub-agent (sub-agent read + judgment), which is semantic evidence — not test execution via opencode run."
+  - id: SC-7
+    evidence_type: "string + semantic"
+    primary_evidence: semantic
+    method: "grep both cards for substantive/non-substantive classification guidance; clean-room sub-agent evaluation."
+    testable: true
+    rationale: "Classification is an orchestrator-side judgment evaluated semantically."
+  - id: SC-8
+    evidence_type: "string + semantic"
+    primary_evidence: semantic
+    method: "grep both cards for retrigger ladder guidance; clean-room sub-agent evaluation."
+    testable: true
+    rationale: "Retrigger ladder routing is orchestrator behavior evaluated semantically."
+  - id: SC-9
+    evidence_type: "string"
+    primary_evidence: string
+    method: "positive grep red.md and green.md for abort protocol; negative grep operating-protocol.md for absence."
+    testable: true
+    rationale: "Static presence/absence checks; negative check guards against shared-file contamination."
+  - id: SC-10
+    evidence_type: "behavioral"
+    primary_evidence: behavioral
+    method: "bash .opencode/tests-v2/behaviors/<scenario>.sh with clean-room session.yaml evaluation."
+    testable: true
+    rationale: "True behavioral enforcement test (ALREADY_GREEN case) asserting classified abort instead of looping."
+  - id: SC-11
+    evidence_type: "string + behavioral"
+    primary_evidence: string
+    method: "grep green.md for BAD_TEST_NEEDS_REVISION + shuffle-to-RED routing; behavioral BAD_TEST_NEEDS_REVISION scenario asserting classified BLOCK abort."
+    testable: true
+    rationale: "Static classification + routing assertion plus a behavioral scenario."
+  - id: SC-12
+    evidence_type: "string"
+    primary_evidence: string
+    method: "grep both cards for immediate-abort-with-no-further-analysis language and orchestrator-only-remediation statement."
+    testable: true
+    rationale: "Pure content assertion; grep both cards for the normative language and ownership statement."
+
+coverage_declarations:
+  - id: SCOPE_CREEP
+    coverage_type: "content/semantic"
+    declared: true
+    unconditional: true
+    rationale: "Per R-11 and spec-audit dimension-6 finding, SCOPE_CREEP / un-spec'ed feature removal coverage is ALWAYS declared as content/semantic evidence via SC-4's enumeration of the classification and routing. There is NO conditional fallback (the prior 'unless a reliable fixture is designed' implementer-discretion clause was removed)."
+  - id: BAD_TEST_NEEDS_REVISION
+    coverage_type: "string + behavioral"
+    declared: true
+    rationale: "Standalone behavioral scenario (SC-11) asserting the classified BLOCK abort, not implementation against a defective test."
+
+evidence_type_rationale:
+  - "SC-6, SC-7, SC-8 are declared string + semantic because their verification method is clean-room sub-agent evaluation (sub-agent read + judgment), which is semantic evidence, not behavioral (test execution with output inspection via opencode run). This matches the spec Change Control revision of 2026-08-18."
+  - "SC-10 is purely behavioral (the enforcement test)."
+  - "All other SCs carry grep (string) verification; SC-1, SC-2, SC-5, SC-11 additionally carry a behavioral scenario."
+
+testability_summary:
+  all_scs_testable: true
+  note: "Every one of the 12 SCs has a defined, non-conditional evidence type and verification method. No SC depends on implementer discretion for coverage."

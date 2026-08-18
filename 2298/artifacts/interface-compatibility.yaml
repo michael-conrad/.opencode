@@ -1,0 +1,125 @@
+# Interface compatibility — issue #2298
+# Checks interface boundaries between affected modules.
+# Includes the dependency_contract matching the revised 7-phase plan.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+
+interfaces:
+  - module: .opencode/skills/test-driven-development/tasks/red.md
+    interface: "classified-abort terminal state (status: BLOCKED + blocker_reason classification)"
+    compatibility: compatible
+    detail: "Abort is returned as status: BLOCKED with a blocker_reason value — the existing result-contract channel. No new return signature; compatibility with the existing orchestrator result-contract intake preserved."
+  - module: .opencode/skills/test-driven-development/tasks/green.md
+    interface: "classified-abort terminal state (status: BLOCKED + blocker_reason classification)"
+    compatibility: compatible
+    detail: "Same result-contract channel as red.md. BAD_TEST_NEEDS_REVISION shuffles the test back to RED; compatible with the RED/GREEN phase handoff interface."
+  - module: .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    interface: "shared operating protocol"
+    compatibility: not_modified
+    detail: "Abort protocol MUST NOT be added here (SC-9, R-9). Interface must remain clean of abort-protocol content; negative-grep verified."
+  - module: .opencode/skills/spec-creation/tasks/revise.md
+    interface: "spec revision routing target"
+    compatibility: compatible
+    detail: "Re-evaluation sub-agent routes to spec-creation --task revise on substantive adjustment. File exists and is read-only (routing target, not modified)."
+  - module: .opencode/skills/writing-plans/tasks/revise.md
+    interface: "plan revision routing target"
+    compatibility: compatible
+    detail: "Re-evaluation sub-agent routes to writing-plans --task revise. File exists and is read-only (routing target, not modified)."
+  - module: .opencode/tests-v2/behaviors/helpers.sh
+    interface: "behavior_run() harness entry point"
+    compatibility: compatible
+    detail: "New scenario is wired through helpers.sh behavior_run; harness is read-only (not modified per spec §2)."
+  - module: .opencode/skills/test-driven-development/SKILL.md
+    interface: "Trigger Dispatch Table / routing metadata"
+    compatibility: not_modified
+    detail: "SKILL.md routing metadata unchanged (spec §2 explicitly excludes routing changes)."
+
+dependency_contract:
+  schema_version: "1.0"
+  issue: 2298
+  title: "TDD RED/GREEN abort protocol — dependency contract"
+  variables:
+    phase_1:
+      type: bool
+      description: "RED abort protocol (red.md) — SC-1, SC-3"
+    phase_2:
+      type: bool
+      description: "GREEN abort contract (green.md) — SC-2, SC-4, SC-11"
+    phase_3:
+      type: bool
+      description: "Abort-is-completion normative language (red.md + green.md) — SC-5"
+    phase_4:
+      type: bool
+      description: "Self-containment (red.md + green.md) — SC-9"
+    phase_5:
+      type: bool
+      description: "Orchestrator post-abort routing and re-evaluation (red.md + green.md) — SC-6, SC-7, SC-8; analysis is orchestrator-side only"
+    phase_6:
+      type: bool
+      description: "Behavioral enforcement test (ALREADY_GREEN) — SC-10"
+    phase_7:
+      type: bool
+      description: "Immediate classified abort + orchestrator-only remediation (red.md + green.md) — SC-12"
+  preconditions:
+    - "z3.Implies(phase_3, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+    - "z3.Implies(phase_4, phase_3)"
+    - "z3.Implies(phase_5, phase_4)"
+    - "z3.Implies(phase_6, phase_1)"
+    - "z3.Implies(phase_7, phase_5)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - skills/test-driven-development/tasks/red.md
+      scs: [SC-1, SC-3]
+    phase_2:
+      files:
+        - skills/test-driven-development/tasks/green.md
+      scs: [SC-2, SC-4, SC-11]
+    phase_3:
+      files:
+        - skills/test-driven-development/tasks/red.md
+        - skills/test-driven-development/tasks/green.md
+      scs: [SC-5]
+    phase_4:
+      files:
+        - skills/test-driven-development/tasks/red.md
+        - skills/test-driven-development/tasks/green.md
+      scs: [SC-9]
+    phase_5:
+      files:
+        - skills/test-driven-development/tasks/red.md
+        - skills/test-driven-development/tasks/green.md
+      scs: [SC-6, SC-7, SC-8]
+    phase_6:
+      files:
+        - tests-v2/behaviors/<scenario>.sh
+      scs: [SC-10]
+    phase_7:
+      files:
+        - skills/test-driven-development/tasks/red.md
+        - skills/test-driven-development/tasks/green.md
+      scs: [SC-12]
+  edges:
+    - {from: phase_1, to: phase_3, rationale: "Phase-3 abort-is-completion (SC-5) extends the RED abort terminal state and classification language established in Phase-1 (SC-1/SC-3)."}
+    - {from: phase_2, to: phase_3, rationale: "Phase-3 abort-is-completion (SC-5) extends the GREEN abort terminal state and classification language established in Phase-2 (SC-2/SC-4/SC-11)."}
+    - {from: phase_3, to: phase_4, rationale: "Phase-4 self-containment (SC-9) verifies the full abort protocol added in Phase-1/2 and Phase-3 is self-contained per card and absent from operating-protocol.md."}
+    - {from: phase_4, to: phase_5, rationale: "Phase-5 orchestrator routing (SC-6/7/8) builds on the self-contained abort protocol verified in Phase-4; routing guidance is added to the same cards."}
+    - {from: phase_1, to: phase_6, rationale: "Phase-6 behavioral test (SC-10, ALREADY_GREEN case) verifies the red.md abort terminal state (SC-1) returns a classified abort; depends on Phase-1 red abort protocol."}
+    - {from: phase_3, to: phase_7, rationale: "Phase-7 immediate-abort-with-zero-further-analysis and orchestrator-only-remediation (SC-12) extends the abort-is-completion normative language (SC-5) added in Phase-3 to both cards."}
+    - {from: phase_5, to: phase_7, rationale: "Phase-7 edits both red.md and green.md, strictly sequenced after Phase-5 to avoid same-file edit conflicts; builds on orchestrator-only-routing framing (SC-6/7/8)."}
+  notes:
+    - "Phases 1 and 2 are independent (red.md vs green.md) and may proceed in parallel; both must complete before Phase-3, which edits both cards."
+    - "Phase-3 → Phase-4 → Phase-5 is a strict chain: self-containment verification precedes the routing additions, and routing follows self-containment."
+    - "Phase-6 depends only on Phase-1 (the ALREADY_GREEN scenario exercises red.md); it does not depend on Phase-2 through Phase-5."
+    - "Phase-7 depends on Phase-3 (abort-is-completion, SC-5) and Phase-5 (orchestrator-only routing, SC-6/7/8)."
+    - "Phases 3, 4, 5, 7 each touch both red.md and green.md, so they are strictly sequenced (3 → 4 → 5 → 7) to avoid same-file edit conflicts."
+
+phase_dag_consistency:
+  plan_phase_count: 7
+  contract_phase_count: 7
+  consistent: true
+  verification: "The dependency_contract section enumerates exactly phase_1..phase_7, matching the plan.md Phase Table (7 phases). Phase-to-SC mapping and edges match the plan's Depends-On column: Phase-3 depends on 1,2; Phase-4 on 3; Phase-5 on 4; Phase-6 on 1; Phase-7 on 5."

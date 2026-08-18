@@ -1,0 +1,68 @@
+# State analysis — issue #2298
+# Identifies state transitions required by each success criterion.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+
+state_machines:
+  - id: red_terminal_state
+    name: "RED task card terminal state machine"
+    description: "The valid terminal states a RED sub-agent can reach when producing a failing test."
+    states:
+      - {name: RED, terminal: false, description: "An executed failing test produced and confirmed (existing)."}
+      - {name: FALSE, terminal: true, description: "Non-execution — RED != FALSE clause (existing)."}
+      - {name: ABORT, terminal: true, description: "Classified abort — status: BLOCKED + blocker_reason (NEW, SC-1)."}
+    transitions:
+      - {from: RED_TESTING, to: ABORT, trigger: "sub-agent detects an irregular condition (ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT) preventing a valid failing test.", sc: SC-1}
+      - {from: ABORT, to: RE_EVALUATION, trigger: "orchestrator receives BLOCKED + classification and dispatches a cold-reading re-evaluation sub-agent (SC-6)."}
+      - {from: ABORT, to: "no additional analysis", trigger: "immediate classified abort with zero further analysis — sub-agent SHALL NOT remediate (SC-12)."}
+
+  - id: green_phase_state
+    description: "The valid states a green sub-agent can reach when producing a passing implementation."
+    states:
+      - {id: GREEN_PASS, terminal: true, description: "Passing implementation verified against SC evidence type (existing)."}
+      - {id: ABORT, terminal: true, description: "Classified abort — status: BLOCKED + blocker_reason (NEW, SC-2)."}
+    transitions:
+      - {from: GREEN_PASS, to: ABORT, trigger: "sub-agent detects an irregular condition (NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION) preventing a valid passing implementation.", sc: SC-2}
+      - {from: ABORT, to: RED_TESTING, trigger: "BAD_TEST_NEEDS_REVISION — defective test is shuffled back to RED phase for revision (SC-11)."}
+      - {from: ABORT, to: RE_EVALUATION, trigger: "orchestrator dispatches a cold-reading re-evaluation sub-agent (SC-6)."}
+      - {from: ABORT, to: "no additional transitions", trigger: "immediate classified abort with zero further analysis — sub-agent never remediates (SC-12)."}
+
+  - id: orchestrator_abort_routing
+    description: "Orchestrator-side post-abort routing states."
+    states:
+      - {id: RE_EVALUATION, terminal: false, description: "Cold-reading re-evaluation sub-agent dispatched (SC-6)."}
+      - {id: CLASSIFIED_ADJUSTMENT, terminal: false, description: "Adjustment classified substantive or non-substantive (SC-7)."}
+      - {id: RETRIGGER_LADDER, terminal: false, description: "After 2 same-classification aborts, re-decomposition evaluation; spec-audit only if not the fix (SC-8)."}
+    transitions:
+      - {from: RE_EVALUATION, to: spec-creation--revise, trigger: "substantive adjustment — revokes plan approval, requires re-auth (SC-7)."}
+      - {from: RE_EVALUATION, to: writing-plans--revise, trigger: "non-substantive adjustment — auto-revise, no re-auth (SC-7)."}
+      - {from: RETROGRESSION, to: RE_DECOMPOSITION, trigger: "2 same-classification aborts (SC-8)."}
+      - {from: RE_DECOMPOSITION, to: SPEC_AUDIT, trigger: "re-decomposition is NOT the fix (SC-8)."}
+
+  - id: persona_boundary
+    description: "Persona boundary enforcement on abort — must remain in force."
+    states:
+      - {id: RED_ABORT, terminal: false, description: "RED-phase sub-agent aborting."}
+      - {id: GREEN_ABORT, terminal: false, description: "GREEN-phase sub-agent aborting."}
+    transitions:
+      - {from: RED_ABORT, to: "no file modification", trigger: "RED-phase sub-agent MUST NOT modify src/ even when aborting."}
+      - {from: GREEN_ABORT, to: "no test-file modification", trigger: "GREEN-phase sub-agent MUST NOT modify test files even when aborting."}
+
+required_transitions_by_sc:
+  SC-1: "Add ABORT terminal state to red.md's state model."
+  SC-2: "Add ABORT terminal state to green.md's state model."
+  SC-3: "Classify RED aborts (ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT)."
+  SC-4: "Classify GREEN aborts (NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION)."
+  SC-5: "Abort-is-completion: ABORT is a completed task, not a failure state."
+  SC-6: "RED_ABORT/GREEN_ABORT → RE_EVALUATION on orchestrator receipt of BLOCKED+classification."
+  SC-7: "RE_EVALUATION → substantive (spec-creation revise) or non-substantive (writing-plans revise)."
+  SC-8: "2 same-classification aborts → re-decomposition; spec-audit only if not the fix."
+  SC-9: "Self-containment preserved; operating-protocol.md stays clean of abort states."
+  SC-10: "Behavioral test asserts classified ABORT terminal state returned (no loop)."
+  SC-11: "GREEN ABORT with BAD_TEST_NEEDS_REVISION → test shuffled back to RED for revision."
+  SC-12: "ABORT → immediate return with zero further analysis; no remediation by aborting sub-agent."
+
+notes:
+  - "The RED/GREEN abort is a new terminal state in each card's state model; the existing FALSE (RED) and PASS (GREEN) terminal states are preserved."
+  - "Post-abort re-evaluation, classification, and retrigger states are orchestrator-side only — the aborting sub-agent does not enter them."

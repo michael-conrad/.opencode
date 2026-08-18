@@ -1,0 +1,78 @@
+# Validation findings — issue #2298
+# Structural validation of plan.md against the 6 check categories.
+issue: 2298
+
+overall_status: PASS
+
+categories:
+  category_1_structural:
+    status: PASS
+    checks:
+      - name: "Phase table with all required columns"
+        result: PASS
+        detail: "Phase table (lines 25-33) has all required columns: Phase, Skill, Task, Target, SCs, Depends On."
+      - name: "Each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "All 7 phases have a Procedure section with numbered steps (1., 2., ...)."
+      - name: "Exit criteria section with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria section (lines 290-303) maps C1-C12 to SC-1..SC-12 across all 7 phases."
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - name: "Every skill+task reference matches implementation-workflow reference card"
+        result: PASS
+        detail: "All phase Task references are `red` or `green` from `test-driven-development`, both valid entries in skills/writing-plans/reference/implementation-workflow.md RED-GREEN Daisy-Chain. Pre-implementation references `pre-regression` (test-driven-development) and `verify` (verification-before-completion), both valid."
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - name: "Every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "All 12 SCs covered: SC-1->C1, SC-2->C2, SC-3->C3, SC-4->C4, SC-5->C5, SC-6->C6, SC-7->C7, SC-8->C8, SC-9->C9, SC-10->C10, SC-11->C11, SC-12->C12."
+      - name: "Triplet split detection (RED/GREEN/COMMIT in same phase)"
+        result: PASS
+        detail: "Each SC maps to exactly one phase in the phase table SCs column. No SC has its steps split across phases."
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - name: "Each phase addresses exactly one concern from concern-map"
+        result: PASS
+        detail: "Phase 1->concern_red_abort, 2->concern_green_abort, 3->concern_abort_is_completion, 4->concern_self_containment, 5->concern_orchestrator_routing, 6->concern_behavioral_test, 7->concern_immediate_abort."
+      - name: "No two phases address the same concern"
+        result: PASS
+        detail: "All 7 concerns are distinct and map 1:1 to phases per concern-map.yaml phase_to_concern_map."
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - name: "Dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Edges phase_1->phase_3, phase_2->phase_3, phase_3->phase_4, phase_4->phase_5, phase_1->phase_6, phase_3->phase_7, phase_5->phase_7 are strictly forward (edges always point to higher phase numbers). Acyclic."
+      - name: "All phases reachable from the start node"
+        result: PASS
+        detail: "Roots phase_1 and phase_2. All other phases reachable transitively: 3 (from 1/2), 4 (from 3), 5 (from 4), 6 (from 1), 7 (from 3/5)."
+      - name: "No orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        detail: "phase_1 and phase_2 are roots with outgoing edges; every other phase has at least one incoming edge. No orphans."
+    observations:
+      - "Phase 7 in plan.md lists `Depends On 5` only, while the dependency contract DAG has an explicit phase_3->phase_7 edge. This is transitively satisfied (phase_5 -> phase_4 -> phase_3), so execution ordering is preserved and no behavioral defect results. Non-blocking consistency note."
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - name: "No TBD/TODO placeholders in plan body"
+        result: PASS
+        detail: "No TBD/TODO/FIXME/XXX/placeholder tokens found in plan.md."
+      - name: "All steps use checkbox format"
+        result: PASS
+        detail: "Execution/tracking steps (Pre-Implementation Steps, Exit Criteria C1-C12) use checkbox format `- [ ]`. Phase procedure sections use numbered steps, which Category 1 (structural) explicitly requires; the two are consistent, not contradictory."
+      - name: "Dispatch mode consistency (inline vs clean-room)"
+        result: PASS
+        detail: "Pre-implementation steps are explicitly annotated clean-room and dispatch via task(). No inline phase contains a dispatched step and no clean-room phase contains an inline step. Phases are not individually annotated for dispatch mode, but no inconsistency is present."
+
+notes:
+  - "solve-output.yaml present with solve_status: SAT and planner SOLVED_SATISFICING."
+  - "Minor non-blocking observations: (1) Phase 7 Depends On lists only phase 5 while the DAG has an additional phase_3->phase_7 edge (transitively satisfied). (2) Per-phase dispatch-mode (inline/clean-room) annotations are not explicit in plan.md."

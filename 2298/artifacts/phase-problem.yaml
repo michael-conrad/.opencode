@@ -1,0 +1,76 @@
+# PDDL problem — issue #2298 phase ordering
+# Encodes the dependency DAG edges from dependency-contract.yaml.
+# Edges: 1->3, 2->3, 3->4, 4->5, 1->6, 3->7, 5->7
+domain: tdd-abort-phases
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: phase_4
+    type: phase
+  - name: phase_5
+    type: phase
+  - name: phase_6
+    type: phase
+  - name: phase_7
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase_1
+    params: []
+    preconditions: []
+    effects:
+      - done(phase_1)
+  - name: execute_phase_2
+    params: []
+    preconditions: []
+    effects:
+      - done(phase_2)
+  - name: execute_phase_3
+    params: []
+    preconditions:
+      - done(phase_1)
+      - done(phase_2)
+    effects:
+      - done(phase_3)
+  - name: execute_phase_4
+    params: []
+    preconditions:
+      - done(phase_3)
+    effects:
+      - done(phase_4)
+  - name: execute_phase_5
+    params: []
+    preconditions:
+      - done(phase_4)
+    effects:
+      - done(phase_5)
+  - name: execute_phase_6
+    params: []
+    preconditions:
+      - done(phase_1)
+    effects:
+      - done(phase_6)
+  - name: execute_phase_7
+    params: []
+    preconditions:
+      - done(phase_3)
+      - done(phase_5)
+    effects:
+      - done(phase_7)
+init: []
+goals:
+  - done(phase_1)
+  - done(phase_2)
+  - done(phase_3)
+  - done(phase_4)
+  - done(phase_5)
+  - done(phase_6)
+  - done(phase_7)

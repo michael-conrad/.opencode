@@ -16,16 +16,20 @@ variables:
     description: "Self-containment (red.md + green.md) — SC-9"
   phase_5:
     type: bool
-    description: "Orchestrator post-abort routing and re-evaluation (red.md + green.md) — SC-6, SC-7, SC-8"
+    description: "Orchestrator post-abort routing and re-evaluation (red.md + green.md) — SC-6, SC-7, SC-8; analysis is orchestrator-side only"
   phase_6:
     type: bool
     description: "Behavioral enforcement test (ALREADY_GREEN) — SC-10"
+  phase_7:
+    type: bool
+    description: "Immediate classified abort + orchestrator-only remediation (red.md + green.md) — SC-12"
 preconditions:
   - "z3.Implies(phase_3, phase_1)"
   - "z3.Implies(phase_3, phase_2)"
   - "z3.Implies(phase_4, phase_3)"
   - "z3.Implies(phase_5, phase_4)"
   - "z3.Implies(phase_6, phase_1)"
+  - "z3.Implies(phase_7, phase_5)"
 invariants: []
 postconditions: []
 phases:
@@ -67,6 +71,12 @@ phases:
       - tests-v2/behaviors/<scenario>.sh
     scs:
       - SC-10
+  phase_7:
+    files:
+      - skills/test-driven-development/tasks/red.md
+      - skills/test-driven-development/tasks/green.md
+    scs:
+      - SC-12
 edges:
   - from: phase_1
     to: phase_3
@@ -83,8 +93,15 @@ edges:
   - from: phase_1
     to: phase_6
     rationale: "Phase-6 behavioral test (SC-10, ALREADY_GREEN case) verifies the red.md abort terminal state (SC-1) returns a classified abort; it depends on Phase-1 red abort protocol."
+  - from: phase_3
+    to: phase_7
+    rationale: "Phase-7 immediate-abort-with-zero-further-analysis and orchestrator-only-remediation (SC-12) extends the abort-is-completion normative language (SC-5) added in Phase-3 to both cards."
+  - from: phase_5
+    to: phase_7
+    rationale: "Phase-7 edits both red.md and green.md, so it is strictly sequenced after Phase-5 to avoid same-file edit conflicts; it also builds on the orchestrator-only-routing framing established in Phase-5 (SC-6/7/8)."
 notes:
   - "Phases 1 and 2 are independent (red.md vs green.md) and may proceed in parallel; both must complete before Phase-3, which edits both cards."
   - "Phase-3 → Phase-4 → Phase-5 is a strict chain: self-containment verification precedes the routing additions, and routing follows self-containment."
   - "Phase-6 depends only on Phase-1 (the ALREADY_GREEN scenario exercises red.md); it does not depend on Phase-2 through Phase-5."
-  - "Phases 3, 4, and 5 each touch both red.md and green.md, so they are strictly sequenced after the phases that establish the abort protocol and self-containment to avoid same-file edit conflicts."
+  - "Phase-7 depends on Phase-3 (abort-is-completion normative language, SC-5) and Phase-5 (orchestrator-only routing framing, SC-6/7/8); it extends SC-5's zero-further-analysis intent into the immediate classified abort (SC-12)."
+  - "Phases 3, 4, 5, and 7 each touch both red.md and green.md, so they are strictly sequenced (3 → 4 → 5 → 7) to avoid same-file edit conflicts."

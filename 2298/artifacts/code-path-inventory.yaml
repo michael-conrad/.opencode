@@ -1,0 +1,96 @@
+# Code-path inventory — issue #2298
+# Lists the code paths (file regions) implied by each success criterion.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+
+code_paths:
+  - sc: SC-1
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "abort terminal state section (status: BLOCKED + blocker_reason)"
+    action: add
+    detail: "red.md defines a second valid terminal state returning status: BLOCKED with a blocker_reason classification."
+  - sc: SC-2
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "abort terminal state section (status: BLOCKED + blocker_reason)"
+    action: add
+    detail: "green.md defines a second valid terminal state returning status: BLOCKED with a blocker_reason classification."
+  - sc: SC-3
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "RED abort classification enumeration (blocker_reason values)"
+    action: add
+    detail: "Enumerate ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT as blocker_reason values."
+  - sc: SC-4
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "GREEN abort classification enumeration (blocker_reason values)"
+    action: add
+    detail: "Enumerate NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION as blocker_reason values."
+  - sc: SC-5
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "abort-is-completion normative language + forbidden behaviors"
+    action: add
+    detail: "red.md states abort IS task completion; forbids forcing a failing test, modifying a test to fail, and looping."
+  - sc: SC-5
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "abort-is-completion normative language + forbidden behaviors"
+    action: add
+    detail: "green.md states abort IS task completion; forbids forcing an invalid implementation, modifying a test to pass, and looping."
+  - sc: SC-6
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "post-abort routing guidance (orchestrator-side)"
+    action: add
+    detail: "Orchestrator dispatches cold-reading re-evaluation sub-agent routing to spec-creation --task revise / writing-plans --task revise."
+  - sc: SC-6
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "post-abort routing guidance (orchestrator-side)"
+    action: add
+    detail: "Same post-abort routing guidance in green.md."
+  - sc: SC-7
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "substantive vs non-substantive classification guidance (orchestrator-side)"
+    action: add
+    detail: "Re-evaluation sub-agent autonomously classifies adjustment substantive/non-substantive; aborting sub-agent does not classify its own abort."
+  - sc: SC-7
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "substantive vs non-substantive classification guidance (orchestrator-side)"
+    action: add
+    detail: "Same classification guidance in green.md."
+  - sc: SC-8
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "retrigger ladder guidance (orchestrator-side)"
+    action: add
+    detail: "After 2 same-classification aborts dispatch re-decomposition evaluation; spec-audit only if not the fix."
+  - sc: SC-8
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "retrigger ladder guidance (orchestrator-side)"
+    action: add
+    detail: "Same retrigger ladder guidance in green.md."
+  - sc: SC-9
+    target: .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    region: "entire file (negative check)"
+    action: verify_only
+    detail: "Negative grep: abort protocol must NOT be present in operating-protocol.md."
+  - sc: SC-10
+    target: .opencode/tests-v2/behaviors/<scenario>.sh
+    region: "new ALREADY_GREEN scenario script"
+    action: add
+    detail: "Behavioral scenario triggering an ALREADY_GREEN-style irregular RED condition; wired via helpers.sh behavior_run; asserts classified BLOCKED abort in session.yaml."
+  - sc: SC-11
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "BAD_TEST_NEEDS_REVISION classification + shuffle-to-RED routing"
+    action: add
+    detail: "GREEN sub-agent detecting a defective test SHALL abort via status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION, shuffling the test back to RED for revision."
+  - sc: SC-12
+    target: .opencode/skills/test-driven-development/tasks/red.md
+    region: "immediate-abort-with-zero-further-analysis + orchestrator-only-remediation statement"
+    action: add
+    detail: "red.md states a BLOCK condition SHALL produce an immediate classified abort with zero further analysis; remediation is exclusively the orchestrator's responsibility."
+  - sc: SC-12
+    target: .opencode/skills/test-driven-development/tasks/green.md
+    region: "immediate-abort-with-zero-further-analysis + orchestrator-only-remediation statement"
+    action: add
+    detail: "Same immediate-abort and orchestrator-only-remediation statement in green.md."
+
+notes:
+  - "All primary code paths are additive edits to two task cards (red.md, green.md) plus one new behavioral scenario file; no destructive or removal operations."
+  - "operating-protocol.md is a verification-only path (negative grep), never a modification target."

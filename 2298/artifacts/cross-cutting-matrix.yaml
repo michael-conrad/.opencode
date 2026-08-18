@@ -1,0 +1,82 @@
+# Cross-cutting matrix — issue #2298
+# Identifies success criteria that span multiple concerns, files, or phases.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+
+cross_cutting_scs:
+  - sc: SC-5
+    description: "Abort-is-completion normative language"
+    concerns: [concern_abort_is_completion]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+    phases: [3]
+    reason: "Touches both cards (red.md + green.md) in a single phase; role-specific forbidden-behavior wording differs per card."
+  - sc: SC-6
+    description: "Orchestrator post-abort re-evaluation routing"
+    concerns: [concern_orchestrator_routing]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+    phases: [5]
+    reason: "Adds the same routing guidance to both cards; orchestrator-side-only constraint."
+  - sc: SC-7
+    description: "Substantive vs non-substantive classification"
+    concerns: [concern_orchestrator_routing]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+    phases: [5]
+    reason: "Adds classification guidance to both cards; orchestrator-side-only constraint."
+  - sc: SC-8
+    description: "Retrigger ladder"
+    concerns: [concern_orchestrator_routing]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+    phases: [5]
+    reason: "Adds retrigger-ladder guidance to both cards; orchestrator-side-only constraint."
+  - sc: SC-9
+    description: "Per-card self-containment"
+    concerns: [concern_self_containment]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+      - .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    phases: [4]
+    reason: "Positive check on both cards plus negative check on operating-protocol.md."
+  - sc: SC-12
+    description: "Immediate classified abort + orchestrator-only remediation"
+    concerns: [concern_immediate_abort]
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+      - .opencode/skills/test-driven-development/tasks/green.md
+    phases: [7]
+    reason: "Adds the immediate-abort statement to both cards in a single phase."
+
+non_cross_cutting_scs:
+  - id: SC-1
+    concern: concern_red_abort
+    reason: "Single file (red.md), single phase (1)."
+  - id: SC-2
+    concern: concern_green_abort
+    reason: "Single file (green.md), single phase (2)."
+  - id: SC-3
+    concern: concern_red_abort
+    reason: "Single file (red.md), single phase (1)."
+  - id: SC-4
+    concern: concern_green_abort
+    reason: "Single file (green.md), single phase (2)."
+  - id: SC-10
+    concern: concern_behavioral_test
+    reason: "Single new file (behaviors scenario), single phase (6)."
+  - id: SC-11
+    concern: concern_green_abort
+    reason: "Single file (green.md), single phase (2)."
+
+matrix:
+  phases_touching_both_cards: [3, 4, 5, 7]
+  phases_touching_single_card: [1, 2]
+  phases_touching_new_file: [6]
+  implication: "Phases 3, 4, 5, 7 each touch both red.md and green.md and MUST be strictly sequenced to avoid same-file edit conflicts."

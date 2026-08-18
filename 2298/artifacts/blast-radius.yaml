@@ -1,0 +1,59 @@
+# Blast-radius analysis — issue #2298
+# Generated from the REVISED spec (SC-12 added; SC-6/7/8 refined) and the revised 7-phase plan.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+sc_count: 12
+
+affected_files:
+  - path: .opencode/skills/test-driven-development/tasks/red.md
+    exists: true
+    scope: "ADD abort terminal state, 4 RED classifications, abort-is-completion, post-abort routing guidance, retrigger ladder, immediate-abort + orchestrator-only-remediation (SC-1, SC-3, SC-5, SC-6, SC-7, SC-8, SC-9, SC-12)"
+    phases: [1, 3, 4, 5, 7]
+  - path: .opencode/skills/test-driven-development/tasks/green.md
+    exists: true
+    scope: "ADD abort terminal state, 5 GREEN classifications (incl. BAD_TEST_NEEDS_REVISION), abort-is-completion, post-abort routing guidance, retrigger ladder, immediate-abort + orchestrator-only-remediation (SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-11, SC-12)"
+    phases: [2, 3, 4, 5, 7]
+  - path: .opencode/tests-v2/behaviors/<scenario>.sh
+    exists: false
+    scope: "NEW behavioral enforcement scenario (ALREADY_GREEN case, SC-10); not yet created"
+    phases: [6]
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    exists: true
+    scope: "READ-ONLY harness dependency used by the new scenario; NOT modified"
+    phases: []
+  - path: .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    exists: true
+    scope: "MUST NOT be modified; negative-grep self-containment check (SC-9)"
+    phases: [4]
+
+unchanged_files:
+  - path: .opencode/skills/test-driven-development/SKILL.md
+    reason: "Spec §2 explicitly excludes SKILL.md routing changes (Trigger Dispatch Table); routing metadata is unchanged."
+  - path: .opencode/skills/spec-creation/tasks/revise.md
+    reason: "Routing target read by the re-evaluation sub-agent; not modified."
+  - path: .opencode/skills/writing-plans/tasks/revise.md
+    reason: "Routing target read by the re-evaluation sub-agent; not modified."
+  - path: .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    reason: "Abort protocol MUST remain absent from operating-protocol.md (SC-9, R-9)."
+  - path: .opencode/skills/test-driven-development/tasks/phase-0.md
+    reason: "Phase 0 / Phase 4 BLOCKED-on-failure protocols are out of scope (spec §2)."
+  - path: .opencode/skills/test-driven-development/tasks/phase-4.md
+    reason: "Phase 0 / Phase 4 BLOCKED-on-failure protocols are out of scope (spec §2)."
+
+blast_radius_summary:
+  primary_targets: 3
+  primary_files:
+    - .opencode/skills/test-driven-development/tasks/red.md
+    - .opencode/skills/test-driven-development/tasks/green.md
+    - .opencode/tests-v2/behaviors/<scenario>.sh (new)
+  read_only_dependencies:
+    - .opencode/tests-v2/behaviors/helpers.sh
+    - .opencode/skills/spec-creation/tasks/revise.md
+    - .opencode/skills/writing-plans/tasks/revise.md
+    - .opencode/skills/test-driven-development/SKILL.md
+  prohibited_modification:
+    - .opencode/skills/test-driven-development/tasks/operating-protocol.md
+    - .opencode/skills/test-driven-development/SKILL.md
+  overall_risk: moderate
+  rationale: "Change is localized to two task cards plus one new behavioral test scenario. Orphaned-files risk is low. The primary risk is protocol contamination of operating-protocol.md, guarded by the SC-9 negative grep, and orchestration-behavior defects in routing, guarded by SC-6/7/8 semantic evidence."

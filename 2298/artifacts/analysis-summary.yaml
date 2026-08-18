@@ -1,0 +1,41 @@
+# Analysis summary — issue #2298
+# Generated for the REVISED spec (SC-12 added; SC-6/7/8 refined) and the revised 7-phase plan.
+
+spec_path: .opencode/.issues/2298/spec.md
+plan_path: .opencode/.issues/2298/plan.md
+sc_count: 12
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+  analysis-summary: generated
+  sc-summary: regenerated
+
+scope_summary:
+  primary_targets:
+    - .opencode/skills/test-driven-development/tasks/red.md
+    - .opencode/skills/test-driven-development/tasks/green.md
+    - .opencode/tests-v2/behaviors/<scenario>.sh (new)
+  read_only_dependencies:
+    - .opencode/tests-v2/behaviors/helpers.sh
+    - .opencode/skills/spec-creation/tasks/revise.md
+    - .opencode/skills/writing-plans/tasks/revise.md
+    - .opencode/skills/test-driven-development/SKILL.md
+  prohibited_modification:
+    - .opencode/skills/test-driven-development/tasks/operating-protocol.md
+  phase_count: 7
+
+dependency_contract_consistency:
+  plan_phase_count: 7
+  contract_phase_count: 7
+  consistent: true
+  note: "interface-compatibility.yaml dependency_contract enumerates phase_1..phase_7 matching the plan Phase Table; preconditions and edges match the plan's Depends-On DAG."
+
+notes:
+  - "All 7 analytical artifacts were regenerated because the prior artifacts were deleted as stale after the spec revision."
+  - "sc-summary.yaml regenerated to include SC-12 and phase mapping aligned to the revised 7-phase plan."

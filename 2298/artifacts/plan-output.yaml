@@ -1,0 +1,44 @@
+problem built: tdd-abort-phases
+  objects: 7
+  fluents: 1
+  actions: 7
+  goals:   7
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/.opencode/./tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 7
+
+- [ ] 1. execute_phase_1()
+- [ ] 2. execute_phase_2()
+- [ ] 3. execute_phase_3()
+- [ ] 4. execute_phase_4()
+- [ ] 5. execute_phase_5()
+- [ ] 6. execute_phase_6()
+- [ ] 7. execute_phase_7()
+
+---
+actions:
+- name: execute_phase_1
+  parameters: []
+- name: execute_phase_2
+  parameters: []
+- name: execute_phase_3
+  parameters: []
+- name: execute_phase_4
+  parameters: []
+- name: execute_phase_5
+  parameters: []
+- name: execute_phase_6
+  parameters: []
+- name: execute_phase_7
+  parameters: []
+domain: tdd-abort-phases
+engine: tamer
+plan_length: 7
+status: SOLVED_SATISFICING
