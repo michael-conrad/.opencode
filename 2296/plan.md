@@ -12,6 +12,11 @@ dispatch:
   - finishing-a-development-branch
   - git-workflow-pr
   - completion-core
+lifecycle_events:
+  - timestamp: "2026-08-18T14:54:32Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2296/plan.md"
+    phase_count: 7
 ---
 
 # Implementation Plan — #2296 — Semantic Dispatch Link Text as Purpose-Statement Condensation
