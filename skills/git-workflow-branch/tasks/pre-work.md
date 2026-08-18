@@ -248,7 +248,7 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 **⚠️ CRITICAL: No-Op Branch Guard**
 
-After committing the submodule pointer, if the branch has NO additional commits with source code changes by the time PR creation is requested, the branch MUST be deleted instead of creating a PR. Submodule-only PRs are against policy.
+After committing the submodule pointer, if the branch has NO additional commits with source code changes by the time PR creation is requested, the branch MUST be deleted instead of creating a PR. A parent-repo PR whose sole change is bumping submodule pointers is against policy. A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 
 Read [the dirty pointer lifecycle rule in branch-cleanup.md](skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md) — submodule pointer commits only happen alongside real code changes on a feature branch, never during cleanup.
 

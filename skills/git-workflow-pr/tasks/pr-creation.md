@@ -29,7 +29,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
   - Clean working tree (`git status --porcelain` is empty)
   - No pending rebase (no `.git/REBASE_HEAD`)
   - All changes committed
-  - No uncommitted submodule changes
+  - No uncommitted submodule changes — **release carve-out:** dirty/staged submodule pointers are EXPECTED and permitted in a parent-repo release (per AGENTS.md Release discipline and create-pr.md Step 6.8 `--release` Mode). The 'no uncommitted submodule changes' check SHALL NOT block the release path. This check remains enforced for non-release PRs.
 
 ## Exit Criteria
 
@@ -51,7 +51,7 @@ Before squash and push, verify dirty submodule pointers are included in staged c
 
 - [ ] 1. Run `git submodule status | grep '^ '` to detect dirty submodule pointers
 - [ ] 2. If dirty pointers found: verify they are staged (`git diff --cached --name-only` includes submodule paths)
-- [ ] 3. If staged: verify there are non-submodule changes staged (`git diff --cached --name-only` shows files outside `.opencode/`). If NO non-submodule changes exist, HALT — do NOT push. Creating a submodule-only PR is FORBIDDEN in ANY context.
+- [ ] 3. If staged: verify there are non-submodule changes staged (`git diff --cached --name-only` shows files outside `.opencode/`). If NO non-submodule changes exist, HALT — do NOT push. Creating a parent-repo PR whose sole change is bumping submodule pointers is FORBIDDEN. A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 - [ ] 4. If not staged: `git add <submodule_path>` before squash
 - [ ] 5. Confirm staged files include both source changes AND submodule pointer updates
 
