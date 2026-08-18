@@ -1,0 +1,68 @@
+spec_path: .opencode/.issues/2295/spec.md
+plan_path: .opencode/.issues/2295/plan.md
+dependency_contract_path: .opencode/.issues/2295/dependency-contract.yaml
+solve_output_path: .opencode/.issues/2295/artifacts/solve-output.yaml
+solve_status: SAT
+overall_status: PASS
+categories:
+  category_1_structural:
+    status: PASS
+    checks:
+      - check: "plan.md has a phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+        result: PASS
+        detail: "Phase Table at plan.md lines 74-81 lists all 6 phases with Phase/Skill/Task/Target/SCs/Depends On columns."
+      - check: "Each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "Phases 1-6 each have a Procedure section with numbered checkbox steps (steps 3-43)."
+      - check: "Exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria section (lines 349-358) maps C1-C8 to SC-1..SC-7 and phase targets."
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - check: "Every skill+task reference in the plan matches a valid entry in implementation-workflow.md"
+        result: PASS
+        detail: "All 13 step types referenced (red, green, post-regression, verify, commit-inline, audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary) match the reference card's canonical dispatch strings and owning skills."
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - check: "Every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "SC-1..SC-7 all covered: C1(SC-1), C2(SC-2), C3(SC-3), C4(SC-4), C5(SC-5), C6(SC-6), C7(SC-7)."
+      - check: "No SC has RED/GREEN/COMMIT steps split across phases (triplet split detection)"
+        result: PASS
+        detail: "SC-1 (steps 3,4,7 in Phase 1), SC-2 (9,10,13 in Phase 2), SC-3 (14,15,18 in Phase 2), SC-4 (20,21,24 in Phase 3), SC-5 (26,27,30 in Phase 4), SC-6 (32,33,36 in Phase 5), SC-7 (38,39,42 in Phase 6). No triplet split detected."
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern from the concern-map artifact"
+        result: PASS
+        detail: "Phase 1->C1(content-type-boundary), Phase 2->C2(test-placement-directive), Phase 3->C3(artifact-retention-framing), Phase 4->C4(artifact-copy-disambiguation), Phase 5->C5(pr-auto-commit-removal), Phase 6->C6(behavioral-enforcement)."
+      - check: "No two phases address the same concern"
+        result: PASS
+        detail: "Each of the 6 concerns maps to exactly one phase."
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - check: "Dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Edges are phase_1 -> phase_2..phase_6 only; no back edges, acyclic."
+      - check: "All phases are reachable from the start node"
+        result: PASS
+        detail: "phase_1 is the start; phases 2-6 each have an incoming edge from phase_1."
+      - check: "No orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        detail: "phase_1 has 5 outgoing edges; phases 2-6 each have 1 incoming edge. No orphans."
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - check: "No TBD/TODO placeholders in the plan body"
+        result: PASS
+        detail: "No TBD/TODO markers found. Template placeholders (<scenario>.sh, <message>) are intentional per spec and not TBD/TODO."
+      - check: "All steps use checkbox format"
+        result: PASS
+        detail: "All 51 steps use '- [ ]' checkbox format."
+      - check: "Dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+        result: PASS
+        detail: "Clean-room phases dispatch RED/GREEN/post-regression/verify/audit/structural-checks/pre-pr-gate/regression-check/review-prep/create-pr/exec-summary to sub-agents; commit-inline and z3-check are inline per the reference card's (orchestrator) designation. Pre-implementation coherence gate and baseline check are inline. Consistent with canonical dispatch model."
+findings: []
