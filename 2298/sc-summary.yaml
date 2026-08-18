@@ -1,0 +1,46 @@
+sc_count: 11
+scs:
+  - id: "SC-1"
+    description: "red.md defines a second valid terminal state: a classified ABORT returned as status: BLOCKED with a blocker_reason classification."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "green.md defines a second valid terminal state: a classified ABORT returned as status: BLOCKED with a blocker_reason classification."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "RED abort protocol enumerates classifications ALREADY_GREEN, FALSE_PREMISE, NOT_RELEVANT, CONFLICT."
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "GREEN abort protocol enumerates classifications NO_PURPOSE, IMPOSSIBLE, CONFLICT, SCOPE_CREEP, BAD_TEST_NEEDS_REVISION."
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Abort is defined as task completion: the sub-agent must not force the outcome, must not modify a test to make it fail, and must not loop."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Orchestrator abort handling routes to a cold-reading re-evaluation sub-agent that identifies the defect and routes to spec-creation --task revise / writing-plans --task revise."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Re-evaluation sub-agent autonomously classifies the adjustment as substantive (revokes plan approval, requires re-auth) or non-substantive (auto-revise, no re-auth)."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Retrigger ladder: after 2 aborts with the same classification, dispatch a re-decomposition/rework evaluation sub-agent; escalate to spec-audit only if re-decomposition is NOT the fix."
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Abort protocol is self-contained in each task card (red.md and green.md), customized to that card's role — not shared in operating-protocol.md."
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "A behavioral enforcement test verifies the sub-agent returns a classified abort (ALREADY_GREEN case) instead of looping."
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "GREEN abort protocol defines a BAD_TEST_NEEDS_REVISION classification: when the test being implemented against is defective and needs revision, the GREEN sub-agent SHALL abort via immediate status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION (shuffling the test back to RED for revision) rather than implementing against the defective test."
+    evidence_type: "behavioral"
+    plan_item: 11
