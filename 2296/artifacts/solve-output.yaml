@@ -1,0 +1,24 @@
+solve_output:
+  issue_number: 2296
+  solve_status: SAT
+  plan_status: SOLVED_SATISFICING
+  checks:
+    model:
+      query: "z3.And(phase_2_per_file, phase_3_post)"
+      result: SAT
+      assignment:
+        phase_2_per_file: true
+        phase_3_post: true
+    check:
+      contract_path: .opencode/.issues/2296/dependency-contract.yaml
+      state_path: .opencode/.issues/2296/artifacts/state-analysis.yaml
+      result: SAT
+      detail: "SAT (+ postconditions + invariants); assignment phase_2_per_file=False, phase_3_post=False"
+  planner:
+    engine: tamer
+    problem: .opencode/.issues/2296/artifacts/plan-problem.yaml
+    result: SOLVED_SATISFICING
+    plan_length: 2
+    plan:
+      - execute_phase(phase_2_per_file)
+      - execute_phase(phase_3_post)

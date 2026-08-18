@@ -54,3 +54,47 @@ interface_compatibility:
             status: modified
             compatibility: internal_only
             note: "Adds locked condensation dispatch template [<condensation>](<path>)."
+
+dependency_contract:
+  variables:
+    phase_2_per_file:
+      type: bool
+      description: "Per-file SC rewrites/conversions — SC-1, SC-2, SC-3, SC-4"
+    phase_3_post:
+      type: bool
+      description: "Post-rewrite normative and enforcement SCs — SC-5, SC-6, SC-7"
+  preconditions:
+    - "z3.Implies(phase_3_post, phase_2_per_file)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_2_per_file:
+      files:
+        - .opencode/skills/*/SKILL.md (48 files)
+        - .opencode/skills/*/tasks/*.md (Purpose sections)
+        - .opencode/skills/playwright-cli/SKILL.md
+        - .opencode/skills/completion-core/SKILL.md
+        - .opencode/skills/audit/SKILL.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+    phase_3_post:
+      files:
+        - .opencode/skills/skill-creator/SKILL.md
+        - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+        - .opencode/skills/skill-creator/tasks/validate.md
+        - .opencode/reference/task-card-structure-standards.md
+        - .opencode/reference/skill-card-description-standards.md
+      scs:
+        - SC-5
+        - SC-6
+        - SC-7
+  edges:
+    - from: phase_2_per_file
+      to: phase_3_post
+      rationale: "phase_3_post ITEM-5 (SC-5) validation gate depends on phase_2_per_file SC-1's condensation format (the format to validate against) and on SC-6/SC-7's normative condensation source (the rule the gate enforces). The gate cannot be specified or tested until the condensation format and its normative source exist."
+  notes:
+    - "phase_3_post is strictly sequenced after phase_2_per_file; its SC-5 gate's positive/negative unit tests depend on the condensation format established by SC-1 and the normative source defined by SC-6/SC-7."
+    - "phase_2_per_file and phase_3_post touch disjoint file sets — no same-file edit conflicts; the dependency is informational (SC-1/SC-6/SC-7 outputs feed SC-5), not file-overlap driven."

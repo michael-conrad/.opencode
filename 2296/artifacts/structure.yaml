@@ -1,0 +1,96 @@
+structure:
+  issue_number: 2296
+  spec_path: .opencode/.issues/2296/spec.md
+  methodology: "Per-SC decomposition — one implementation item per SC-ID, each with its own RED/GREEN/verify/commit cycle. Each item references exactly one SC-ID (atomicity)."
+
+  phases:
+    phase_1_pre:
+      description: "Shared pre-work before per-file rewrites."
+      items: []
+
+    phase_2_per_file:
+      description: "Per-file SC rewrites/conversions across the affected skills."
+      items:
+        - id: ITEM-1
+          sc_id: SC-1
+          description: "Rewrite all 255 dispatch link [text] values as purpose-statement condensations across the 48 affected SKILL.md files; URL remains the path."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add <48 SKILL.md files> && git commit"
+        - id: ITEM-2
+          sc_id: SC-2
+          description: "Correct purpose statements failing audit criteria (not condensable, not outcome-as-subject, not distinctive from siblings) in affected task cards."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add <task cards> && git commit"
+        - id: ITEM-3
+          sc_id: SC-3
+          description: "Convert playwright-cli and completion-core from legacy table dispatch format to canonical checkbox-list sub-bullets format."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add playwright-cli/SKILL.md completion-core/SKILL.md && git commit"
+        - id: ITEM-4
+          sc_id: SC-4
+          description: "Convert the audit skill's 4 placeholder dispatch links from path templates to semantic templates; URL path template unchanged."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add audit/SKILL.md && git commit"
+
+    phase_3_post:
+      description: "Post-rewrite normative and enforcement SCs (gate + reference documents)."
+      items:
+        - id: ITEM-5
+          sc_id: SC-5
+          description: "Add normative condensation-anchor rule + structural condensation-format validation gate to skill-creator."
+          evidence_type: structural
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add skill-creator/SKILL.md scripts/validate_skill_cards.py tasks/validate.md && git commit"
+        - id: ITEM-6
+          sc_id: SC-6
+          description: "Specify purpose statement as dispatch-anchor source (condensable, outcome-as-subject, distinctive) in reference/task-card-structure-standards.md Section 4."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add reference/task-card-structure-standards.md && git commit"
+        - id: ITEM-7
+          sc_id: SC-7
+          description: "Specify locked condensation dispatch template in reference/skill-card-description-standards.md: 'You are a sub-agent. Follow the instructions in [<condensation>](<path>). <context-fields>'."
+          evidence_type: string
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add reference/skill-card-description-standards.md && git commit"
+
+  dependency_dag:
+    edges:
+      - "phase_2_per_file -> phase_3_post"
+      - "ITEM-5 (SC-5, gate) depends on ITEM-1 (SC-1, condensation format to validate against) and ITEM-6/ITEM-7 (SC-6/SC-7, normative source of condensation rule)"
+      - "ITEM-2 (SC-2) driven by findings from ITEM-1 (SC-1 rewrite flags non-condensable purposes) — within phase_2"
+      - "ITEM-3 (SC-3) and ITEM-4 (SC-4) are independent conversions"
+      - "ITEM-6 (SC-6) and ITEM-7 (SC-7) are independent doc updates but must remain mutually consistent"
+
+  triplet_co_location:
+    status: PASS
+    detail: "Every SC maps to exactly one item; each item's RED, GREEN, and COMMIT steps are assigned to the same phase. SC-1/2/3/4 -> phase_2_per_file; SC-5/6/7 -> phase_3_post. No SC has steps split across phases."
+
+  cross_phase_dependency:
+    status: PASS
+    detail: "phase_2 items depend only on phase_2 SC outputs (committed within phase_2). phase_3 ITEM-5 depends on phase_2 SC-1 output (Y < X, committed earlier) — not a violation. No RED test in a later phase depends on SC output from a phase it cannot yet have committed."
