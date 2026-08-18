@@ -29,7 +29,7 @@ phase_count: 2
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
 | 1 — Harness fix | `test-driven-development` | `red` | `helpers.sh`, `with-test-home` | SC-1, SC-2, SC-3 | — |
-| 2 — Structural enforcement | `test-driven-development` | `red` | `test-enforcement.sh`, new test | SC-4 | 1 |
+| 2 — Structural enforcement | `test-driven-development` | `red` | `test-enforcement.sh`, new test, `create-pr.md` | SC-4, SC-5 | 1 |
 
 ---
 
@@ -75,8 +75,8 @@ isolated_target_var: "$attempt_workdir"
 |-------|-------|
 | Skill | `test-driven-development` |
 | Task | `red` |
-| Target | `.opencode/tests-v2/test-enforcement.sh`, new standalone test |
-| SCs | SC-4 |
+| Target | `.opencode/tests-v2/test-enforcement.sh`, new standalone test, `.opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md` |
+| SCs | SC-4, SC-5 |
 | Depends On | 1 |
 
 **Context:**
@@ -84,11 +84,14 @@ isolated_target_var: "$attempt_workdir"
 files_to_modify:
   - .opencode/tests-v2/test-enforcement.sh
   - .opencode/tests-v2/test-2292-sc4-live-root-mutation.sh
-sc_ids: [SC-4]
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+sc_ids: [SC-4, SC-5]
 forbidden_patterns:
   - "-C \"$PROJECT_DIR\""
   - "${TEST_PROJECT:-$project_root}"
   - unguarded bare git mutation against live root
+phantom_artifact_pattern: "verification-*.md"
+create_pr_gate_area: "the verification-evidence gate in create-pr.md Step 4.75"
 ```
 
 **Procedure** (`(**clean-room**)` — dispatch via `test-driven-development` task `red`/`green`; commit via orchestrator `commit-inline`):
@@ -96,6 +99,9 @@ forbidden_patterns:
 - [ ] 1. **Item 4 — SC-4 RED (`(**clean-room**)`).** Dispatch the `red` task to add the content-verification enforcement test (`test-2292-sc4-live-root-mutation.sh`) asserting zero grep matches for live-root git-mutation patterns in the harness. The test FAILs because the live-root mutation patterns are still present in the source.
 - [ ] 2. **Item 4 — SC-4 GREEN (`(**clean-room**)`).** Dispatch the `green` task to register the standalone test in `test-enforcement.sh` so it runs via the `--changed`/`--tag` or standalone path. What must be true: the enforcement test runs and PASSes with zero matches for the forbidden live-root patterns.
 - [ ] 3. **Item 4 — SC-4 COMMIT (`(**inline**)`).** Stage the enforcement-test registration and the new standalone test file and commit them as one atomic slice.
+- [ ] 4. **Item 5 — SC-5 RED (`(**clean-room**)`).** Dispatch the `red` task to write a structural content-verification test or grep assertion that the verification-evidence gate in `create-pr.md` Step 4.75 still references `verification-*.md` as a required PR-blocking artifact. The test FAILs because the reference is present.
+- [ ] 5. **Item 5 — SC-5 GREEN (`(**clean-room**)`).** Dispatch the `green` task to remove the `verification-*.md` check line from the verification-evidence gate in `create-pr.md` Step 4.75, so the gate requires only `vbc-table-*.md` and `judgment.yaml`. What must be true: the gate no longer references `verification-*.md` and both remaining artifact checks (vbc-table, judgment) are intact.
+- [ ] 6. **Item 5 — SC-5 COMMIT (`(**inline**)`).** Stage the `create-pr.md` gate change and the structural test and commit them as one atomic slice.
 
 ---
 
@@ -105,9 +111,10 @@ forbidden_patterns:
 - [ ] C2. The harness detects when a git-mutating target resolves to the live repo and BLOCKs with a clear diagnostic before mutating (SC-2)
 - [ ] C3. The `__ensure_gitbucket()` remote-wiring block runs against a validated isolated repo established before remote wiring, or is relocated/guarded so it cannot hit the live repo (SC-3)
 - [ ] C4. A content-verification enforcement test asserts the harness contains no git-mutating operation that can target the live project root (SC-4)
-- [ ] C5. All 18 existing `BEHAVIOR_NEEDS_REMOTE=1` tests remain functional (GitBucket origin still wired on the isolated repo)
-- [ ] C6. The isolation contract (`env -i`, test home, `TEST_PROJECT`/`attempt_workdir`) is preserved
-- [ ] C7. The artifact-only generator paradigm is preserved (scripts exit 0, no evaluation logic)
+- [ ] C5. The verification-evidence gate in `create-pr.md` Step 4.75 no longer references `verification-*.md`; it requires only `vbc-table-*.md` and `judgment.yaml` (SC-5)
+- [ ] C6. All 18 existing `BEHAVIOR_NEEDS_REMOTE=1` tests remain functional (GitBucket origin still wired on the isolated repo)
+- [ ] C7. The isolation contract (`env -i`, test home, `TEST_PROJECT`/`attempt_workdir`) is preserved
+- [ ] C8. The artifact-only generator paradigm is preserved (scripts exit 0, no evaluation logic)
 
 ---
 

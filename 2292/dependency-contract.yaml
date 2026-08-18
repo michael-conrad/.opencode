@@ -7,7 +7,7 @@ variables:
     description: "Harness fix — live-root fallback elimination, live-root mutation guard, remote-wiring ordering (SC-1, SC-2, SC-3)"
   phase_P2:
     type: bool
-    description: "Structural regression enforcement test (SC-4)"
+    description: "Structural regression enforcement test (SC-4) and create-pr verification-evidence gate fix (SC-5)"
 preconditions:
   - "z3.Implies(phase_P2, phase_P1)"
 invariants: []
@@ -24,5 +24,7 @@ phases:
   phase_P2:
     files:
       - ".opencode/tests-v2/test-enforcement.sh"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
     scs:
       - SC-4
+      - SC-5

@@ -1,5 +1,0 @@
-# State — issue #2292
-# Satisfiable target state derived from dependency-contract.yaml phases.
-variables:
-  phase_P1: true
-  phase_P2: true
