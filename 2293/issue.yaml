@@ -2,7 +2,7 @@ title: '[SPEC] Scope submodule-only PR prohibition to parent repo'
 status: open
 labels:
 - needs-approval
-- needs-approval,spec-draft
+- spec-draft
 body: ''
 created_at: '2026-08-18T02:29:47+00:00'
-updated_at: '2026-08-18T02:29:47+00:00'
+updated_at: '2026-08-18T02:29:59+00:00'
