@@ -169,7 +169,7 @@ fi
 **⚠️ CRITICAL: Dirty submodule pointer exemption:**
 - 🚫 FORBIDDEN: Attempting to commit, stash, or resolve any dirty submodule pointer
 - 🚫 FORBIDDEN: Treating a dirty submodule pointer as a cleanup failure or error condition
-- 🚫 FORBIDDEN: Creating a feature branch + PR solely to update submodule pointer(s) (submodule-only PR, any number of submodules)
+- 🚫 FORBIDDEN: Creating a parent-repo feature branch + PR solely to update submodule pointer(s) (parent-repo submodule-pointer-only PR, any number of submodules). A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 - 🚫 FORBIDDEN: Running `git add <submodule_path>`, `git commit`, or any git operation that commits submodule pointer(s) during cleanup
 - ✅ REQUIRED: Acknowledge the dirty state as expected and continue
 - ✅ REQUIRED: The parent repo `git status` after this step will show modified submodule entry/entries — this is correct and expected
@@ -316,7 +316,7 @@ echo "The parent repo 'git status' will show modified submodule entry/entries �
 - `git submodule update --recursive` or any `--recursive` submodule command
 - Switching the parent repo away from `$DEFAULT_BRANCH`
 - Treating a dirty submodule pointer as an error condition
-- Creating a PR whose sole purpose is to update submodule pointer(s) (submodule-only PR, any number of submodules)
+- Creating a parent-repo PR whose sole purpose is to update submodule pointer(s) (parent-repo submodule-pointer-only PR, any number of submodules). A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 
 **✅ REQUIRED:**
 - Verify each submodule is on `$DEFAULT_BRANCH` before branch operations

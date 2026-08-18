@@ -48,7 +48,7 @@ When the agent needs to clean up a pair mode branch after a merge.
 - Read [critical-rules-039](guidelines/000-critical-rules.md) for parent/child closure ordering
 - Read [critical-rules-041](guidelines/000-critical-rules.md) for cleanup-on-PR-check trigger
 - Read [critical-rules-042](guidelines/000-critical-rules.md) for content verification before branch deletion
-- Read [critical-rules-049](guidelines/000-critical-rules.md) for submodule-only PR prohibition during cleanup
+- Read [critical-rules-049](guidelines/000-critical-rules.md) for the parent-repo submodule-pointer-only PR prohibition during cleanup
 - Read [critical-rules-070](guidelines/000-critical-rules.md) for issue closure outside cleanup workflow
 - Read [§3](guidelines/060-tool-usage.md) for behavioral evidence artifact preservation rules
 
@@ -84,11 +84,11 @@ See verify-already-implemented Step 6, cleanup Step 2.8.
 The agent MUST NOT call `github_issue_write(method=update, state=closed)` or equivalent on any GitHub Issue outside the `git-workflow --task cleanup` workflow. The cleanup workflow is the sole authorized closure path, and it enforces PR merge verification, body-preservation safeguards, and parent/child ordering before closure. Issues created by the agent in a session MUST survive at least one session boundary before closure. Read [git-workflow --task cleanup](skills/git-workflow/SKILL.md) for the authorized closure path. Read [issue-operations/tasks/close.md](skills/issue-operations/SKILL.md) for the structured close workflow (only callable from within cleanup).
 
 
-### [critical-rules-049] Standalone Submodule-Only PR Creation During Cleanup
+### [critical-rules-049] Parent-Repo Submodule-Pointer-Only PR Creation During Cleanup
 
-Creating a PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. Read [git-workflow cleanup task](skills/git-workflow/SKILL.md) Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched).
+Creating a parent-repo PR whose sole purpose is to update a submodule pointer during the cleanup pipeline stage. Read [git-workflow cleanup task](skills/git-workflow/SKILL.md) Step 1.7 for the complete prohibition and correct behavior (leave dirty pointer untouched). A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 
-**Scope clarification:** This prohibition applies to PR creation only. It does NOT exempt the agent from dispatching `git-workflow --task cleanup` on "pr merged" triggers. The cleanup sub-agent independently determines which cleanup actions apply — including whether to leave the submodule pointer dirty. Using this prohibition as a rationalization to skip the entire cleanup workflow is a routing-bypass self-authorization violation (critical-rules-006).
+**Scope clarification:** This prohibition applies to parent-repo PR creation only. It does NOT exempt the agent from dispatching `git-workflow --task cleanup` on "pr merged" triggers. The cleanup sub-agent independently determines which cleanup actions apply — including whether to leave the submodule pointer dirty. Using this prohibition as a rationalization to skip the entire cleanup workflow is a routing-bypass self-authorization violation (critical-rules-006).
 
 
 ### [critical-rules-039] Parent Issue Left Open After All Children Closed

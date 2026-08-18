@@ -226,14 +226,6 @@ EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispat
   - ✅ REQUIRED: Assess hardware (`ollama-probe hw`) before running full suite — only proceed if VRAM ≥ 8 GB and at least one local model ≥ 7B is installed
 - **Functional/behavioral test substitution is FORBIDDEN.** When a behavioral/functional test cannot be executed (model unavailable, timeout, infrastructure failure), the agent MUST report FAIL — NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks. "Functional test" and "behavioral test" are synonymous in this rule.
 - **Remediate before escalating.** Escalation is only permitted after verified remediation failure. Skipping remediation is not a valid choice.
-<!-- #862,#863,#864: Critical-rules-049 standalone submodule-only PR prohibition — CRITICAL VIOLATION -->
-- **NEVER create a submodule-only PR in ANY context, for ANY reason (Tier 1 — CRITICAL VIOLATION).** When the parent repo has dirty submodule pointer(s) (`git status` shows modified submodules), the agent MUST NOT create a feature branch + PR solely to update those pointers. This applies during cleanup, implementation, PR creation, or any other workflow stage. **NO trunk commits either** — the dirty pointer(s) are left dirty, period. Submodule pointer commits only happen alongside real code changes on a feature branch — never during cleanup or as a standalone operation. Read [git-workflow cleanup task](skills/git-workflow/SKILL.md) Step 1.7 for the complete prohibition.
-  - 🚫 FORBIDDEN: `git checkout -b feature/submodule-pointer-*` and opening a PR
-  - 🚫 FORBIDDEN: Any PR whose only changed files are submodule pointer updates (regardless of submodule count)
-  - 🚫 FORBIDDEN: Committing dirty pointer(s) to the trunk
-  - 🚫 FORBIDDEN: Rationalizing "this is just a pointer update, not real code"
-  - 🚫 FORBIDDEN: Using critical-rules-049 (submodule-only-PR prohibition) as a rationalization to skip `git-workflow --task cleanup` dispatch on "pr merged" triggers. The prohibition applies to PR creation only — it does NOT exempt cleanup dispatch.
-  - ✅ CORRECT: Leave dirty pointer(s) untouched — pointer commits only happen alongside real code changes on a feature branch
 
 **⚠️ Asking for confirmation or clarification after receiving a pipeline-scoped authorization phrase is a CRITICAL GUIDELINE VIOLATION.**
 
