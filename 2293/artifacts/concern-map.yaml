@@ -1,0 +1,51 @@
+spec_path: .opencode/.issues/2293/spec.md
+concerns:
+  - id: CONCERN-GLOBAL-GUIDELINE
+    name: global guideline residence removal
+    description: Remove the submodule-only-PR prohibition from the global guideline resident in every agent's context
+    scs:
+      - SC-1
+    phase: PHASE-1
+    affected_files:
+      - guidelines/020-go-prohibitions.md
+  - id: CONCERN-TASK-CARD-SCOPING
+    name: parent-repo + action-scoped rewording of surviving task-card references
+    description: Reword all surviving submodule-only-PR references in git-workflow task cards to scope the prohibition to parent-repo submodule-pointer-only PRs and explicitly permit submodule repos' own PRs
+    scs:
+      - SC-2
+      - SC-3
+    phase: PHASE-2
+    affected_files:
+      - skills/git-workflow-commit/tasks/implementation.md
+      - skills/git-workflow-pr/tasks/pr-creation.md
+      - skills/git-workflow-branch/tasks/pre-work.md
+      - skills/git-workflow-cleanup/SKILL.md
+      - skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+  - id: CONCERN-RELEASE-CARVEOUT
+    name: release path exemption
+    description: add release carve-out to pr-creation.md release pre-validation so dirty/staged submodule pointers do not block a parent-repo release
+    scs:
+      - SC-4
+    phase: PHASE-3
+    affected_files:
+      - skills/git-workflow-pr/tasks/pr-creation.md
+      - skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+  - id: CONCERN-ENFORCEMENT
+    name: retained enforcement
+    description: enforcement lives in the pre-push hook Gate 2 (unchanged) and the reworded task cards; substance preserved
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    phase: PHASE-1, PHASE-2
+    affected_files:
+      - hooks/pre-push
+    notes:
+      - NOT modified (REQ-NON-2, R-7, REQ-CON-1); retained parent-repo-gated, action-scoped enforcement
+phase_boundary_map:
+  PHASE-1: [CONC-GLOBAL-GUIDELINE, CON-ENFORCEMENT]
+  PHASE-2: [CONC-TASK-CARD-SCOPING, CON-ENFORCEMENT]
+  PHASE-3: [CONC-RELEASE-CARVEOUT]
+dependency_ordering:
+  - PHASE-1 must complete (SC-1 guideline removal) before PHASE-2 (SC-2/3 task-card rewording) so surviving references read consistently
+  - PHASE-3 (SC-4 release carve-out) follows PHASE-2 in dependency DAG

@@ -1,0 +1,43 @@
+variables:
+  phase_1:
+    type: bool
+    description: "Remove critical-rules-049 block from global 020-go-prohibitions.md — SC-1"
+  phase_2:
+    type: bool
+    description: "Reword surviving task-card references to parent-repo + action scope — SC-2, SC-3"
+  phase_3:
+    type: bool
+    description: "Add release carve-out to pr-creation.md release pre-validation — SC-4"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/guidelines/020-go-prohibitions.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+      - .opencode/skills/git-workflow-cleanup/SKILL.md
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    scs:
+      - SC-2
+      - SC-3
+  phase_3:
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    scs:
+      - SC-4
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Phase 2 rewording of the surviving task-card references reads the prohibition after Phase 1 removes the global block; the task cards must be reworded against the post-removal state"
+  - from: phase_2
+    to: phase_3
+    rationale: "Phase 3 adds the release carve-out to pr-creation.md after Phase 2 rewords that same file's pre-push submodule pointer verification, so the release pre-validation is edited against the reworded state"

@@ -1,0 +1,81 @@
+spec_path: .opencode/.issues/2293/spec.md
+interface_boundaries:
+  - id: IF-1
+    boundary: global guideline (020-go-prohibitions.md) → agent session context
+    scs: [SC-1]
+    current_state: critical-rules-049 block resident in every agent's context at session start (progressive disclosure violation)
+    target_state: block removed; rule not resident globally
+    compatibility: Removing the block is safe — enforcement survives in the pre-push hook (action-scoped) and task cards. No interface remains broken because agents no longer inherit a rule irrelevant to their context.
+  - id: IF-2
+    boundary: git-workflow task cards → commit/PR/branch/cleanup path sub-agents
+    scs: [SC-2, SC-3]
+    current_state: task cards state "submodule-only PR FORBIDDEN in ANY context", which sub-agents misread as blocking submodule repos' own PRs
+    target_state: parent-repo + action-scoped wording; explicit permission for submodule repos' own PRs
+    compatibility: All 5 task-card files must be updated consistently so no residual "ANY context" wording remains. Checked across implementation.md (39), pr-creation.md (54), pre-work.md (251), cleanup SKILL.md (51, 87-91), branch-cleanup.md (172, 319).
+  - id: IF-3
+    boundary: pre-push hook Gate 2 ↔ task-card enforcement
+    scs: [SC-1, SC-2, SC-3]
+    current_state: pre-push hook enforces parent-repo submodule-pointer-only push block
+    target_state: unchanged — retained enforcement mechanism
+    compatibility: The hook is the authoritative action-scoped enforcement; task cards provide contextual guidance. No interface change to the hook (REQ-NON-2, R-7).
+  - id: IF-4
+    boundary: pr-creation.md release pre-validation ↔ release path (create-pr.md Step 6.8)
+    scs: [SC-4]
+    current_state: release pre-validation "No uncommitted submodule changes" blocks release when dirty/staged submodule pointers are expected
+    target_state: release carve-out exempts the release path from that check
+    compatibility: Must align with create-pr.md Step 6.8 (--release Mode) and AGENTS.md Release discipline — dirty/staged pointers EXPECTED and permitted in a parent-repo release.
+  - id: IF-5
+    boundary: .opencode submodule ↔ parent repo (opencode-config) AGENTS.md
+    scs: [SC-1]
+    current_state: root AGENTS.md has a Submodule Pointer Updates section with global guidance
+    target_state: unchanged in this .opencode repo (cross-repo change documented in Not Included, REQ-NON-1, R-6)
+    compatibility: No interface change here; removal tracked as a separate parent-repo change. Avoids a broken cross-repo dependency.
+interface_summary: "The critical interface is the task-card → sub-agent routing boundary (IF-2). Miswording there is the defect vector. The global guideline → session context boundary (IF-1) and pre-push hook interface (IF-3) must remain consistent: remove globally, keep action-scoped enforcement."
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Remove critical-rules-049 block from global 020-go-prohibitions.md — SC-1"
+    phase_2:
+      type: bool
+      description: "Reword surviving task-card references to parent-repo + action scope — SC-2, SC-3"
+    phase_3:
+      type: bool
+      description: "Add release carve-out to pr-creation.md release pre-validation — SC-4"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+    - "z3.Implies(phase_3, phase_2)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/guidelines/020-go-prohibitions.md
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/skills/git-workflow-commit/tasks/implementation.md
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+        - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+        - .opencode/skills/git-workflow-cleanup/SKILL.md
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      scs:
+        - SC-2
+        - SC-3
+    phase_3:
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      scs:
+        - SC-4
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Phase 2 rewording of the surviving task-card references reads the prohibition after Phase 1 removes the global block; the task cards must be reworded against the post-removal state"
+    - from: phase_2
+      to: phase_3
+      rationale: "Phase 3 adds the release carve-out to pr-creation.md after Phase 2 rewords that same file's pre-push submodule pointer verification, so the release pre-validation is edited against the reworded state"
+  notes:
+    - "Phases are sequential (1 → 2 → 3): remove the global block, reword the surviving task-card references, then add the release carve-out. Phase 2 touches pr-creation.md which Phase 3 also edits, so Phase 3 must follow Phase 2 to avoid conflicting edits."
+    - "The dependency contract is derived from the spec traceability (R-1 → SC-1 → PHASE-1; R-2/R-3 → SC-2/SC-3 → PHASE-2; R-5 → SC-4 → PHASE-3) and the spec §6 Dependencies ordering."

@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2293/spec.md
+code_paths:
+  - id: CP-1
+    file: guidelines/020-go-prohibitions.md
+    sc: SC-1
+    path_implied: critical-rules-049 submodule-only-PR prohibition block (lines 229-236)
+    action: REMOVE the entire block from the global guideline
+  - id: CP-2
+    file: hooks/pre-push
+    sc: SC-1, SC-2, SC-3
+    path_implied: Gate 2 submodule-pointer-only push blocker (lines 93-130), parent-repo-gated via `.gitmodules` existence check and action-scoped via trunk-tip diff
+    action: NONE — retained unchanged; verified in Documentation Sources as the surviving enforcement
+  - id: CP-3
+    file: skills/git-workflow-commit/tasks/implementation.md
+    sc: SC-2, SC-3
+    path_implied: Pre-Commit Submodule Pointer Check (line 39) — "Creating a submodule-only PR is FORBIDDEN in ANY context"
+    action: reword to parent-repo + action-scoped; add explicit permission for submodule repos' own PRs
+  - id: CP-4
+    file: skills/git-workflow-pr/tasks/pr-creation.md
+    sc: SC-2, SC-3, SC-4
+    path_implied: Pre-Push Submodule Pointer Verification (line 54) — "FORBIDDEN in ANY context"; release pre-validation (line 32) — "No uncommitted submodule changes"
+    action: reword line 54 parent-repo + action-scoped; add explicit permission; add release carve-out to line 32 release pre-validation
+  - id: CP-5
+    file: skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    sc: SC-4
+    path_implied: Step 6.8 Submodule SHA Verification (--release Mode) (lines 232-238)
+    action: reference authority for the release carve-out; no content change
+  - id: CP-6
+    file: skills/git-workflow-branch/tasks/pre-work.md
+    sc: SC-2, SC-3
+    path_implied: No-Op Branch Guard (line 251) — "Submodule-only PRs are against policy"
+    action: reword to parent-repo + action-scoped; do not treat submodule repo own branches as policy violations
+  - id: CP-7
+    file: skills/git-workflow-cleanup/SKILL.md
+    sc: SC-2, SC-3
+    path_implied: critical-rules-049 reference (line 51); standalone submodule-only PR creation section (lines 87-91)
+    action: reword to parent-repo + action-scoped
+  - id: CP-8
+    file: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    sc: SC-2, SC-3
+    path_implied: Dirty submodule pointer exemption (lines 172, 319)
+    action: reword to parent-repo + action-scoped; acknowledge dirty state, never commit, but do not block submodule repos' own PRs

@@ -1,0 +1,31 @@
+spec_path: .opencode/.issues/2293/spec.md
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model:
+    query: "z3.And(phase_1, phase_2, phase_3)"
+    result: SAT
+    assignment:
+      phase_1: true
+      phase_2: true
+      phase_3: true
+  check:
+    state_path: .opencode/.issues/2293/artifacts/state-analysis.yaml
+    result: SAT
+    assignment:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+planner:
+  engine: tamer
+  problem_path: .opencode/.issues/2293/artifacts/plan-problem.yaml
+  result: SOLVED_SATISFICING
+  plan_length: 3
+  plan:
+    - execute_phase_1()
+    - execute_phase_2()
+    - execute_phase_3()
+notes:
+  - "The task file's documented plan invocation (plan plan --contract-path ... --output ...) does not match the actual CLI (plan plan --problem <path>). Adapted by building a problem YAML from the dependency contract DAG and capturing planner stdout."
+  - "The model query 'sat' is not a valid Z3 expression; used z3.And(phase_1, phase_2, phase_3) to verify the full pipeline is satisfiable."
+  - "The check step returned SAT with all phases False, consistent with the state-analysis artifact (no phase completed yet)."

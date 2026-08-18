@@ -1,7 +1,7 @@
 title: '[SPEC] Scope submodule-only PR prohibition to parent repo'
 status: open
 labels:
-- approved-for-pr
+- spec-cleared
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2293/
 
 
@@ -94,6 +94,6 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-18T02:29:47+00:00'
-updated_at: '2026-08-18T02:40:29+00:00'
+updated_at: '2026-08-18T02:54:47+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2293
 remote_url: https://github.com/michael-conrad/.opencode/issues/2293

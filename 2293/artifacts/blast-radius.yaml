@@ -1,0 +1,39 @@
+spec_path: .opencode/.issues/2293/spec.md
+affected_files:
+  - path: guidelines/020-go-prohibitions.md
+    exists: true
+    change: remove critical-rules-049 submodule-only-PR prohibition block (SC-1, R-1)
+    impact: global guideline resident in every agent's context at session start; removing the block removes the misapplication vector
+  - path: hooks/pre-push
+    exists: true
+    change: NONE — retained enforcement mechanism (SC-1/2/3, R-7, REQ-NON-2); must NOT be modified
+    impact: remains the parent-repo-gated, action-scoped enforcement; no blast radius from spec change
+  - path: hooks/pre-commit
+    exists: true
+    change: NONE — out of scope (R-8, REQ-NON-3)
+    impact: unaffected
+  - path: skills/git-workflow-commit/tasks/implementation.md
+    exists: true
+    change: reword Pre-Commit Submodule Pointer Check (line 39) to be parent-repo + action-scoped; add submodule-repo-own-PR permission (SC-2/3, R-2/3)
+    impact: commit-path sub-agents no longer block submodule repos' own PRs
+  - path: skills/git-workflow-pr/tasks/pr-creation.md
+    exists: true
+    change: reword Pre-Push Submodule Pointer Verification (line 54) parent-repo + action-scoped; add explicit permission; add release carve-out to release pre-validation (line 32) (SC-2/3/4, R-2/3/5)
+    impact: PR-creation-path sub-agents scope the prohibition; release path not blocked by "no uncommitted submodule changes"
+  - path: skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    exists: true
+    change: reference only — Step 6.8 Submodule SHA Verification (--release Mode) is the release carve-out authority (SC-4)
+    impact: provides the release-discipline context the carve-out aligns with; no content change
+  - path: skills/git-workflow-branch/tasks/pre-work.md
+    exists: true
+    change: reword No-Op Branch Guard (line 251) parent-repo + action-scoped (SC-2/3, R-2/3)
+    impact: branch-creation sub-agents no longer delete legitimate submodule branches or infer global prohibition
+  - path: skills/git-workflow-cleanup/SKILL.md
+    exists: true
+    change: reword critical-rules-049 reference (lines 51, 87-91) parent-repo + action-scoped (SC-2/3, R-2/3)
+    impact: cleanup executors apply prohibition only to parent-repo submodule-pointer-only PRs
+  - path: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    exists: true
+    change: reword Dirty submodule pointer exemption (lines 172, 319) parent-repo + action-scoped (SC-2/3, R-2/3)
+    impact: cleanup executors leave dirty pointers; submodule repo own PRs unaffected
+scope_boundary: .opencode/ submodule only — root repo AGENTS.md global guidance removal is cross-repo, out of scope (REQ-NON-1, R-6)

@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2293/spec.md
+state_transitions:
+  - id: ST-1
+    sc: SC-1
+    from_state: "critical-rules-049 prohibition resident in global guideline 020-go-prohibitions.md (in every agent's session context)"
+    to_state: "prohibition block removed from global guideline; rule absent from global residence"
+    trigger: "item 1 (RED: behavioral test asserts block absent; GREEN: remove block; verify via opencode run; commit guidelines/020-go-prohibitions.md)"
+    enforcement_transition: "rule transitions to pre-push hook (parent-repo-gated, action-scoped) + contextual task cards"
+  - id: ST-2
+    sc: SC-2
+    from_state: 'submodule repo''s own PR for its own changes is ambiguous / implicitly blocked by global "ANY context" wording'
+    to_state: "submodule repo filing its own PR for its own changes is unambiguously permitted"
+    trigger: "item 2 (add explicit permission language to surviving task-card references)"
+  - id: ST-3
+    sc: SC-3
+    from_state: "task-card references apply prohibition globally (commit/PR/branch/cleanup sub-agents block submodule repos' own PRs)"
+    to_state: "task-card references are parent-repo + action-scoped, applying ONLY to a parent-repo PR whose sole change is bumping submodule pointers"
+    trigger: "item 3 (reword surviving task-card references across 5 files)"
+  - id: ST-4
+    sc: SC-4
+    from_state: 'release path blocked by "no uncommitted submodule changes" pre-validation when dirty/staged submodule pointers are expected'
+    to_state: "release path proceeds (release carve-out applied; dirty/staged submodule pointers EXPECTED and permitted in parent-repo release)"
+    trigger: "item 4 (add release carve-out to pr-creation.md release pre-validation)"
+state_machine_notes:
+  - "The overall prohibition state SHALL transition from a global guideline resident in every agent's context to a parent-repo + action-scoped rule in the pre-push hook and contextual task cards (spec §11 State transitions SC-1/2/3)."
+  - "No state transition applies to hooks/pre-push, hooks/pre-commit, or the parent-repo AGENTS.md — all remain unchanged (REQ-NON-2/3, REQ-NON-1)."
+  - "Each SC has a single RED→GREEN→verify→commit cycle per the per-SC decomposition mandate (091-incremental-build)."

@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2293/spec.md
+testability_assessment:
+  - sc: SC-1
+    evidence_type: behavioral
+    verification_method: opencode run — dispatch a real-domain prompt asking whether a submodule repo may file its own PR; clean-room sub-agent inspects session.yaml for agent behavior confirming the global guideline no longer blocks submodule repos' own PRs
+    testability: HIGH — the change is a removal from a guideline resident in agent context; behavioral test asserts the misapplication disappears when the global block is gone
+  - sc: SC-2
+    evidence_type: behavioral
+    verification_method: opencode run — dispatch a real-domain prompt asking whether SHARED-DAO may file a PR for its own AGENTS.md change; sub-agent inspects session.yaml for permission-confirming behavior
+    testability: HIGH — explicit permission language is directly testable by prompting with a concrete submodule repo example
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: opencode run — dispatch a real-domain prompt in a parent-repo PR-creation context; sub-agent inspects session.yaml for behavior confirming parent-repo scope is applied
+    testability: HIGH — testable by prompting in parent-repo PR-creation context and asserting the parent-repo-only scope is honored
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: opencode run — dispatch a real-domain release-PR prompt with dirty/staged submodule pointers; sub-agent inspects session.yaml for behavior confirming the release path proceeds (release carve-out applied)
+    testability: HIGH — testable by constructing a release-PR scenario with expected dirty submodule pointers
+method_note:
+  - All 4 SCs use behavioral evidence via opencode run + session.yaml inspection. No structural/string substitution is permitted for these runtime-behavioral changes (critical-rules-BEH-EV: the change affects agent routing/dispatch behavior → automatic behavioral uplift).
+  - Behavioral tests must run via with-test-home with the standalone binary per .opencode/AGENTS.md test discipline, with >=600s timeout for 35B model inference.
+  - RED phase: each behavioral test must FAIL on the current (pre-change) wording; GREEN after the change must PASS.

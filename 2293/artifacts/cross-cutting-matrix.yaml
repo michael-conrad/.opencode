@@ -1,0 +1,34 @@
+spec_path: .opencode/.issues/2293/spec.md
+cross_cutting_scs:
+  - sc: SC-1
+    spans_concerns:
+      - CONCERN-GLOBAL-GUIDELINE
+      - CONCERN-ENFORCEMENT
+    reason: "Removing the global guideline block (CONCERN-GLOBAL-GUIDELINE) also determines where enforcement survives (CONCERN-ENFORCEMENT — pre-push hook). Requires coordination: R-1/R-4/R-7/R-8."
+  - sc: SC-2
+    spans_concerns:
+      - CONCERN-TASK-CARD-SCOPING
+      - CONCERN-ENFORCEMENT
+    reason: Permission language added across all 5 task-card files (CONCERN-TASK-CARD-SCOPING) while preserving enforcement substance (CONCERN-ENFORCEMENT). Single-file item touching 5 files.
+  - sc: SC-3
+    spans_concerns:
+      - CONCERN-TASK-CARD-SCOPING
+      - CONCERN-ENFORCEMENT
+    reason: Same file set as SC-2; parent-repo scope qualifier must be applied consistently across commit/PR/branch/cleanup paths while enforcement is retained. High cross-file coupling between SC-2 and SC-3.
+  - sc: SC-4
+    spans_concerns:
+      - CONCERN-RELEASE-CARVEOUT
+      - CONCERN-TASK-CARD-SCOPING
+    reason: "Release carve-out lives in pr-creation.md (release pre-validation, line 32), which is the same file as the SC-2/3 rewording target (line 54) — the two edits must not conflict and both must coexist in one file."
+cross_cutting_matrix:
+  - concern_pair: [CONCERN-TASK-CARD-SCOPING, CONCERN-RELEASE-CARVEOUT]
+    shared_file: skills/git-workflow-pr/tasks/pr-creation.md
+    coordination_required: true
+    note: SC-2/3 reword line 54 and SC-4 edits line 32 of the same file; sequential execution in dependency DAG avoids conflict (per spec §11 Concurrency).
+  - concern_pair: [CONCERN-GLOBAL-GUIDELINE, CONCERN-ENFORCEMENT]
+    shared_files:
+      - guidelines/020-go-prohibitions.md
+      - hooks/pre-push
+    coordination_required: true
+    note: Removal from global guideline must not weaken the retained pre-push hook enforcement.
+coupling_summary: The highest coupling is within pr-creation.md (SC-2/3 and SC-4 share the file) and the five-file SC-2/3 task-card rewording set. Enforcement (pre-push) is a read-only constraint shared by SC-1/2/3.
