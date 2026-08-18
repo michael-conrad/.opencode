@@ -10,73 +10,91 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   The "Submodule-only PR prohibition" (critical-rules-049) is worded as a global prohibition
-  ("NEVER create a submodule-only PR in ANY context, for ANY reason") across `020-go-prohibitions.md`
-  and the git-workflow skill task files. This wording is misapplied by agents to mean
-  that a submodule repo (e.g. SHARED-DAO, DailiesDb, ProcessFinishedNotify, DaoCore2)
-  cannot file its own PR for its own changes — a conflation of two distinct concepts:
-  a parent-repo submodule-pointer PR (correctly prohibited) and a submodule repo''s
-  own PR for its own changes (completely normal).
+  ("NEVER create a submodule-only PR in ANY context, for ANY reason") resident in
+  `020-go-prohibitions.md` and the git-workflow skill task files. This wording is
+  misapplied by agents to mean that a submodule repo (e.g. SHARED-DAO, DailiesDb,
+  ProcessFinishedNotify, DaoCore2) cannot file its own PR for its own changes — a
+  conflation of two distinct concepts: a parent-repo submodule-pointer PR (correctly
+  prohibited) and a submodule repo''s own PR for its own changes (completely normal).
+  The rule is also resident in the global guideline loaded into every agent''s context,
+  violating progressive disclosure.
 
 
   ## Scope
 
 
-  - Scope the critical-rules-049 block in `020-go-prohibitions.md` to the parent repo.
+  - Remove the critical-rules-049 block from the global guideline `020-go-prohibitions.md`
+  entirely.
 
-  - Add explicit permission language stating a submodule repo filing its own PR for
-  its own changes is normal and NOT covered by the prohibition.
 
-  - Audit and add the parent-repo scope qualifier to all git-workflow task files referencing
-  submodule-only PRs.
+  - Reword the surviving task-card references to be parent-repo + action-scoped (the
+  prohibition applies ONLY to a parent-repo PR whose sole change is bumping submodule
+  pointers; a submodule repo filing its own PR for its own changes is normal and NOT
+  covered).
+
+
+  - Add a release carve-out to `pr-creation.md` release pre-validation: dirty/staged
+  submodule pointers are EXPECTED and permitted in a parent-repo release; the "no
+  uncommitted submodule changes" check must not block the release path.
 
 
   **Out of scope:**
 
-  - Changing the substance of the parent-repo submodule-pointer PR prohibition itself.
+
+  - The root `AGENTS.md` Submodule Pointer Updates section (parent repo, cross-repo
+  change — documented in Not Included).
+
+
+  - The `hooks/pre-push` Gate 2 submodule-pointer-only push blocker (retained enforcement
+  mechanism, not modified).
+
+
+  - The `hooks/pre-commit` Gate 4 submodule-pointer-only commit blocker.
+
 
   - Any change to submodule repos'' own PR workflows beyond removing the misapplied
   block.
-
-  - The root `AGENTS.md` Submodule Pointer Updates section (parent repo, cross-repo
-  change).
-
-  - The `hooks/pre-commit` Gate 4 submodule-pointer-only commit blocker.
 
 
   ## Approach
 
 
-  Add explicit parent-repo scope qualifiers to the critical-rules-049 block in `020-go-prohibitions.md`
-  and to every git-workflow task file that references the prohibition, while preserving
-  the parent-repo prohibition substance intact. Explicitly state that a submodule
-  repo filing its own PR for its own changes is normal and NOT covered by the prohibition.
-  Use a consistent "parent-repo" qualifier across all files to avoid introducing new
-  ambiguity.
+  Remove the submodule-only-PR prohibition from the global guideline entirely, keeping
+  enforcement ONLY in the existing pre-push hook (`hooks/pre-push` Gate 2, already
+  parent-repo-gated and action-scoped) and in the contextual skill/task cards that
+  execute the parent-repo PR/commit/cleanup paths. Reword the surviving task-card
+  references to be parent-repo + action-scoped, and add a release carve-out to `pr-creation.md`
+  release pre-validation so dirty/staged submodule pointers do not block the release
+  path.
 
 
   ## Impact
 
 
-  - **Risk 1:** Over-correction could weaken the parent-repo prohibition. *Mitigation:*
-  Keep the parent-repo prohibition substance intact; only add scope qualifiers.
+  - **Risk 1:** Removing the global guideline could weaken enforcement. *Mitigation:*
+  The pre-push hook Gate 2 and the reworded task cards retain the parent-repo prohibition
+  substance.
+
 
   - **Risk 2:** Missed task files still block submodule PRs. *Mitigation:* Audit all
-  task files referencing submodule-only PRs.
+  task files referencing submodule-only PRs and reword them to be parent-repo + action-scoped.
 
-  - **Risk 3:** Ambiguous wording persists in some files. *Mitigation:* Use explicit
-  "parent-repo" qualifier consistently.
+
+  - **Risk 3:** The release path could be blocked by the surviving check. *Mitigation:*
+  Add the release carve-out to `pr-creation.md` release pre-validation.
 
 
   **Dependencies:** None — documentation-only change.
 
 
-  **Call to action:** Approve this spec so the scoping fix can be implemented.
+  **Call to action:** Approve this spec so the removal, rewording, and release carve-out
+  can be implemented.
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
   '
 created_at: '2026-08-18T02:29:47+00:00'
-updated_at: '2026-08-18T02:31:45+00:00'
+updated_at: '2026-08-18T02:36:18+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2293
 remote_url: https://github.com/michael-conrad/.opencode/issues/2293
