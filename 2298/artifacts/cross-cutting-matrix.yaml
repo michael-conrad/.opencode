@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2298/spec.md
+cross_cutting_scs:
+  - id: SC-5
+    description: "Abort-is-completion normative language"
+    spans: [red-abort-protocol, green-abort-protocol]
+    files: [skills/test-driven-development/tasks/red.md, skills/test-driven-development/tasks/green.md]
+    notes: "Applies to BOTH task cards; must be added to red.md and green.md consistently."
+  - id: SC-6
+    description: "Orchestrator post-abort re-evaluation routing"
+    spans: [red-abort-protocol, green-abort-protocol, orchestrator-routing]
+    files: [skills/test-driven-development/tasks/red.md, skills/test-driven-development/tasks/green.md]
+    notes: "Routing guidance appears in both cards; orchestrator behavior is shared across both abort paths."
+  - id: SC-7
+    description: "Re-evaluation substantive vs non-substantive classification"
+    spans: [red-abort-protocol, green-abort-protocol, orchestrator-routing]
+    files: [skills/test-driven-development/tasks/red.md, skills/test-driven-development/tasks/green.md]
+    notes: "Classification guidance appears in both cards; applies to both RED and GREEN abort paths."
+  - id: SC-8
+    description: "Retrigger ladder"
+    spans: [red-abort-protocol, green-abort-protocol, orchestrator-routing]
+    files: [skills/test-driven-development/tasks/red.md, skills/test-driven-development/tasks/green.md]
+    notes: "Retrigger ladder guidance appears in both cards; escalation behavior is shared."
+  - id: SC-9
+    description: "Per-card self-containment"
+    spans: [red-abort-protocol, green-abort-protocol]
+    files: [skills/test-driven-development/tasks/red.md, skills/test-driven-development/tasks/green.md, skills/test-driven-development/tasks/operating-protocol.md]
+    notes: "Presence check on both cards plus negative check on operating-protocol.md."
+single_concern_scs:
+  - id: SC-1
+    concern: red-abort-protocol
+  - id: SC-2
+    concern: green-abort-protocol
+  - id: SC-3
+    concern: red-abort-protocol
+  - id: SC-4
+    concern: green-abort-protocol
+  - id: SC-10
+    concern: behavioral-enforcement
+  - id: SC-11
+    concern: green-abort-protocol

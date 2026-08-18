@@ -1,0 +1,34 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+code_paths:
+- sc: SC-1
+  path: .opencode/.issues/AGENTS.md
+  implied_change: Add exclusions-list marker / content-type boundary statement
+  verification: grep AGENTS.md for exclusions-list marker
+- sc: SC-2
+  path: .opencode/skills/test-driven-development/tasks/red.md
+  implied_change: Remove .issues/{N}/tests/ as a valid test storage path
+  verification: grep red.md for absence of .issues/{N}/tests/
+- sc: SC-3
+  path: .opencode/skills/test-driven-development/tasks/red.md
+  implied_change: Add owning-repo principle directive for test placement
+  verification: grep red.md for presence of owning-repo reference
+- sc: SC-4
+  path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  implied_change: Reframe Rule 1 Artifact Retention to metadata-only language
+  verification: grep Rule 1 for metadata-only language
+- sc: SC-5
+  path: .opencode/skills/spec-creation/tasks/create.md
+  implied_change: Disambiguate Step 6 analytical-artifacts copy target
+  verification: grep Step 6 for unambiguous copy-target description
+- sc: SC-6
+  path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+  implied_change: Remove unconditional git add .issues/ auto-commit from Step 0
+  verification: grep Step 0 for removal of unconditional git add .issues/ auto-commit
+- sc: SC-7
+  path: .opencode/tests-v2/behaviors/<scenario>.sh
+  implied_change: Add behavioral enforcement test asserting no .issues/ test-file writes
+  verification: with-test-home opencode run; stderr-based absence assertions; timeout >= 600s
+notes:
+- All code paths are agent-facing text files or a test harness addition; no runtime application code.
+- SC-2 and SC-3 share the same file (red.md) but verify distinct content changes.

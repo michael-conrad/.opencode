@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2298/spec.md
+state_transitions:
+  - id: RED_ABORT
+    scs: [SC-1, SC-3, SC-5]
+    from: "RED sub-agent detects irregular condition (already-green test, false premise, not-relevant, conflict)"
+    to: "status: BLOCKED + blocker_reason classification"
+    notes: "RED sub-agent returns a classified abort instead of forcing a failing test or looping."
+  - id: GREEN_ABORT
+    scs: [SC-2, SC-4, SC-5]
+    from: "GREEN sub-agent detects irregular condition (no purpose, impossible, conflict, scope creep, bad test needs revision)"
+    to: "status: BLOCKED + blocker_reason classification"
+    notes: "GREEN sub-agent returns a classified abort instead of forcing an invalid implementation."
+  - id: RED_ABORT_TO_RE_EVALUATION
+    scs: [SC-6]
+    from: "Orchestrator receives BLOCKED + classification from RED"
+    to: "Orchestrator dispatches cold-reading re-evaluation sub-agent"
+    notes: "Orchestrator routes on BLOCKED + classification, not a blind re-task."
+  - id: GREEN_ABORT_TO_RE_EVALUATION
+    scs: [SC-6]
+    from: "Orchestrator receives BLOCKED + classification from GREEN"
+    to: "Orchestrator dispatches cold-reading re-evaluation sub-agent"
+    notes: "Orchestrator routes on BLOCKED + classification, not a blind re-task."
+  - id: RE_EVALUATION_TO_REVISE
+    scs: [SC-6, SC-7]
+    from: "Re-evaluation sub-agent identifies the defect"
+    to: "Routes to spec-creation --task revise / writing-plans --task revise"
+    notes: "Re-evaluation sub-agent autonomously classifies the adjustment as substantive (re-auth) or non-substantive (auto-revise)."
+  - id: RETRIGGER_LADDER
+    scs: [SC-8]
+    from: "2 aborts with the same classification"
+    to: "Dispatch re-decomposition/rework evaluation sub-agent; escalate to spec-audit only if re-decomposition is NOT the fix"
+    notes: "Prevents premature spec-audit escalation."
+  - id: BAD_TEST_SHUFFLE_TO_RED
+    scs: [SC-11]
+    from: "GREEN sub-agent discovers the test it is implementing against is defective"
+    to: "status: BLOCKED, blocker_reason: BAD_TEST_NEEDS_REVISION; test shuffled back to RED for revision"
+    notes: "The test is defective, not the SC. GREEN sub-agent does NOT implement against the defective test."

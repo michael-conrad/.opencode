@@ -1,0 +1,53 @@
+spec_path: .opencode/.issues/2298/spec.md
+affected_files:
+  - path: skills/test-driven-development/tasks/red.md
+    status: EXISTS
+    change_type: modify
+    scs: [SC-1, SC-3, SC-5, SC-6, SC-7, SC-8, SC-9]
+    notes: "Add classified ABORT terminal state, four RED classifications, abort-is-completion language, post-abort routing, substantive/non-substantive classification, retrigger ladder. Self-contained per-card protocol."
+  - path: skills/test-driven-development/tasks/green.md
+    status: EXISTS
+    change_type: modify
+    scs: [SC-2, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-11]
+    notes: "Add classified ABORT terminal state, five GREEN classifications (incl. BAD_TEST_NEEDS_REVISION), abort-is-completion language, post-abort routing, substantive/non-substantive classification, retrigger ladder, shuffle-to-RED routing. Self-contained per-card protocol."
+  - path: skills/test-driven-development/tasks/operating-protocol.md
+    status: EXISTS
+    change_type: no_change
+    scs: [SC-9]
+    notes: "Negative check only — abort protocol MUST NOT be added here. Verification-only (SC-9)."
+  - path: skills/test-driven-development/SKILL.md
+    status: EXISTS
+    change_type: no_change
+    scs: []
+    notes: "Routing metadata unchanged per spec Not Included section. Read for Enforcement Test Mandate context only."
+  - path: skills/spec-creation/tasks/revise.md
+    status: EXISTS
+    change_type: no_change
+    scs: [SC-6, SC-7]
+    notes: "Routing target for SC adjustment on abort. Referenced, not modified."
+  - path: skills/writing-plans/tasks/revise.md
+    status: EXISTS
+    change_type: no_change
+    scs: [SC-6, SC-7]
+    notes: "Routing target for plan adjustment on abort. Referenced, not modified."
+  - path: tests-v2/behaviors/helpers.sh
+    status: EXISTS
+    change_type: no_change
+    scs: [SC-10]
+    notes: "behavior_run() used by new scenario. Referenced, not modified."
+  - path: tests-v2/behaviors/<scenario>.sh
+    status: NEW
+    change_type: create
+    scs: [SC-10]
+    notes: "New behavioral enforcement test scenario (ALREADY_GREEN case) asserting classified BLOCKED abort, not a forced/looping test."
+  - path: tests-v2/behaviors/<fixture>
+    status: NEW
+    change_type: create
+    scs: [SC-10]
+    notes: "New fixture for the ALREADY_GREEN behavioral scenario."
+scope_boundary:
+  - "Phase 0 / Phase 4 BLOCKED-on-failure protocols: OUT OF SCOPE (unchanged)"
+  - "Shared abort protocol in operating-protocol.md: OUT OF SCOPE (explicitly forbidden)"
+  - "SKILL.md routing changes (Trigger Dispatch Table): OUT OF SCOPE"
+  - "Behavioral test harness infrastructure (helpers.sh, default-model.sh, artifact-only generator): OUT OF SCOPE"
+  - "Default test model changes: OUT OF SCOPE"

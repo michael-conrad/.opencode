@@ -1,13 +1,29 @@
 spec_path: .opencode/.issues/2298/spec.md
+approval_status: approved-for-pr
 sc_count: 11
 requirement_count: 12
 artifact_presence:
-  testability-assessment.yaml: REGENERATED
-  sc-summary.yaml: REGENERATED
-backfill_notes:
-  - "Spec-audit flagged stale analytical artifacts for issue 2298 after the spec was revised."
-  - "SC-6, SC-7, SC-8 evidence type changed from string + behavioral to string + semantic (clean-room sub-agent evaluation is semantic evidence, not behavioral test execution)."
-  - "The escape-hatch clause 'unless a reliable fixture is designed' was removed from the SCOPE_CREEP edge case; SCOPE_CREEP coverage is now a fixed declaration (always content/semantic per R-11, no conditional fallback)."
-  - "sc-summary.yaml regenerated: SC-6/7/8 evidence_type updated to string + semantic; SC-1/2/5/11 confirmed as string + behavioral; SC-3/4/9 string; SC-10 behavioral."
-  - "testability-assessment.yaml regenerated: per-SC evidence types and verification methods from the current spec; SCOPE_CREEP coverage declared as fixed content/semantic with no conditional fallback and no implementer-discretion clause."
-  - "The current spec has 11 SCs (SC-1..SC-11) and 12 requirements (R-1..R-12). SC-11 is the BAD_TEST_NEEDS_REVISION GREEN abort classification."
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: PRESENT
+  sc-summary.yaml: PRESENT
+scope_boundary_findings:
+  - "skills/test-driven-development/tasks/red.md: EXISTS"
+  - "skills/test-driven-development/tasks/green.md: EXISTS"
+  - "skills/test-driven-development/tasks/operating-protocol.md: EXISTS"
+  - "skills/test-driven-development/SKILL.md: EXISTS"
+  - "skills/spec-creation/tasks/revise.md: EXISTS"
+  - "skills/writing-plans/tasks/revise.md: EXISTS"
+  - "tests-v2/behaviors/helpers.sh: EXISTS"
+  - ".issues/research-cards/per-sc-decomposition-industry-standards.md: EXISTS (root repo)"
+  - ".issues/research-cards/self-attribution-bias-independent-verification.md: EXISTS (root repo)"
+notes:
+  - "Spec is approved (label: approved-for-pr)."
+  - "11 SCs (SC-1..SC-11) and 12 requirements (R-1..R-12) verified from spec body."
+  - "6 of 7 analytical artifacts were MISSING (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis) and have been BACKFILLED from the spec body. testability-assessment.yaml and sc-summary.yaml were already present."
+  - "All scope-boundary files referenced in the spec's Dependencies and Documentation Sources sections exist in the codebase."
+  - "Backfill source: spec.md sections 3 (Success Criteria), 4 (Requirements), 5 (Items), 6 (Dependencies), 7 (Traceability), 11 (Edge Cases)."

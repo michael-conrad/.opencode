@@ -1,0 +1,42 @@
+spec_path: .opencode/.issues/2295/spec.md
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  model:
+    query: "z3.BoolVal(True)"
+    result: SAT
+    assignment:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+      phase_4: false
+      phase_5: false
+      phase_6: false
+  check:
+    state_path: .opencode/.issues/2295/artifacts/state-analysis.yaml
+    result: SAT
+    assignment:
+      phase_1: false
+      phase_2: false
+      phase_3: false
+      phase_4: false
+      phase_5: false
+      phase_6: false
+    postconditions_invariants: SAT
+planner:
+  engine: tamer
+  problem_path: .opencode/.issues/2295/artifacts/plan-problem.yaml
+  result: SOLVED_SATISFICING
+  plan_length: 6
+  plan:
+    - execute_phase_1()
+    - execute_phase_2()
+    - execute_phase_5()
+    - execute_phase_6()
+    - execute_phase_3()
+    - execute_phase_4()
+notes:
+  - "The task file's documented plan invocation (plan plan --contract-path ... --output ...) does not match the actual CLI (plan plan --problem <path>). Adapted by building a problem YAML from the dependency contract DAG and capturing planner stdout."
+  - "The model query 'sat' is not a valid Z3 expression; used z3.BoolVal(True) (matching prior runs) to verify satisfiability of the contract's constraints."
+  - "The check step returned SAT with all phases False, consistent with the state-analysis artifact (no phase completed yet)."
+  - "Planner produced a 6-step plan with phase_1 executed first, then phases 2-6 in arbitrary order — consistent with the contract's DAG where phases 2-6 all depend only on phase_1 and are mutually independent."

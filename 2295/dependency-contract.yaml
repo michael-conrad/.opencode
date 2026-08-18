@@ -1,0 +1,82 @@
+# Dependency Contract — Issue 2295: `.issues/` content-type boundary and owning-repo placement
+# Extracted from interface-compatibility.yaml dependency_contract section
+spec: .opencode/.issues/2295/spec.md
+variables:
+  phase_1:
+    type: bool
+    description: "Add exclusions list to .opencode/.issues/AGENTS.md establishing the content-type boundary (.issues/ holds issue metadata only, never source/test/fixture/code) — SC-1"
+  phase_2:
+    type: bool
+    description: "Edit .opencode/skills/test-driven-development/tasks/red.md: remove .issues/{N}/tests/ as a test storage path and add the owning-repo placement directive — SC-2, SC-3"
+  phase_3:
+    type: bool
+    description: "Clarify Artifact Retention Rule 1 in .opencode/skills/writing-plans/reference/implementation-workflow.md to state .issues/{N}/ holds issue metadata only — SC-4"
+  phase_4:
+    type: bool
+    description: "Disambiguate Step 6 analytical-artifacts copy target in .opencode/skills/spec-creation/tasks/create.md so only analysis artifacts are copied to .issues/{N}/artifacts/ — SC-5"
+  phase_5:
+    type: bool
+    description: "Remove the unconditional git add .issues/ auto-commit from Step 0 of .opencode/skills/git-workflow-pr/tasks/review-prep.md — SC-6"
+  phase_6:
+    type: bool
+    description: "Add behavioral enforcement test at .opencode/tests-v2/behaviors/<scenario>.sh asserting an agent does NOT write test files under .issues/ — SC-7"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_4, phase_1)"
+  - "z3.Implies(phase_5, phase_1)"
+  - "z3.Implies(phase_6, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/.issues/AGENTS.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/skills/test-driven-development/tasks/red.md
+    scs:
+      - SC-2
+      - SC-3
+  phase_3:
+    files:
+      - .opencode/skills/writing-plans/reference/implementation-workflow.md
+    scs:
+      - SC-4
+  phase_4:
+    files:
+      - .opencode/skills/spec-creation/tasks/create.md
+    scs:
+      - SC-5
+  phase_5:
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+    scs:
+      - SC-6
+  phase_6:
+    files:
+      - .opencode/tests-v2/behaviors/<scenario>.sh
+    scs:
+      - SC-7
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "SC-1's exclusions list in AGENTS.md is the authoritative content-type boundary that SC-2/SC-3's owning-repo placement directive references"
+  - from: phase_1
+    to: phase_3
+    rationale: "SC-1's metadata-only boundary is the framing SC-4's Rule 1 clarification aligns to"
+  - from: phase_1
+    to: phase_4
+    rationale: "SC-1's boundary disambiguates what is metadata vs source/test/fixture, which SC-5's copy-target clarification references"
+  - from: phase_1
+    to: phase_5
+    rationale: "SC-1's boundary clarifies that .issues/ is metadata-only, which SC-6's auto-commit removal is consistent with"
+  - from: phase_1
+    to: phase_6
+    rationale: "SC-7's behavioral test asserts the .issues/ content-type boundary established by SC-1"
+notes:
+  - "Phases 2-6 all depend on Phase 1 (the content-type boundary) and are otherwise independent of each other; they edit disjoint files and may run in any order after Phase 1."
+  - "Phase 2 applies SC-2 before SC-3 (remove .issues/{N}/tests/ before adding the owning-repo directive) to avoid edit conflicts on the same file."
+  - "Phase 6 (SC-7) is behavioral; its verification runs via with-test-home opencode run with stderr-based assertions and Bash tool timeout >= 600s."

@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+affected_files:
+- path: .opencode/.issues/AGENTS.md
+  status: EXISTS
+  change: Add explicit exclusions list stating .issues/ holds issue metadata only, never source/test/fixture/code
+  sc: SC-1
+- path: .opencode/skills/test-driven-development/tasks/red.md
+  status: EXISTS
+  change: Remove .issues/{N}/tests/ as a valid test storage path; add owning-repo principle for test placement
+  sc: SC-2, SC-3
+- path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  status: EXISTS
+  change: Clarify Rule 1 Artifact Retention to state .issues/{N}/ holds issue metadata only, not arbitrary source/test/fixture artifacts
+  sc: SC-4
+- path: .opencode/skills/spec-creation/tasks/create.md
+  status: EXISTS
+  change: Disambiguate Step 6 analytical-artifacts copy target so only analysis artifacts (not source/test/fixture) are copied to .issues/{N}/artifacts/
+  sc: SC-5
+- path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+  status: EXISTS
+  change: Remove unconditional git add .issues/ auto-commit from Step 0
+  sc: SC-6
+- path: .opencode/tests-v2/behaviors/<scenario>.sh
+  status: NEW
+  change: Add behavioral enforcement test asserting an agent does NOT write test files under .issues/
+  sc: SC-7
+scope_boundary:
+  repo: .opencode submodule only
+  root_repo_changes: false
+  misrouted_file_migration: false
+  worktree_mechanism_change: false
+notes:
+- All 6 existing scope-boundary files verified present in codebase.
+- SC-7 introduces one new file (behavioral test) under tests-v2/behaviors/.
+- Blast radius confined to .opencode submodule; no root repo (opencode-config) changes.

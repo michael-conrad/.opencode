@@ -2,6 +2,7 @@ title: '[SPEC] Prevent agents from storing source/tests/fixtures in .issues/ wor
   (non-deployable repos, lost work)'
 status: open
 labels:
+- spec-cleared
 - approved-for-pr
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2295/
 
@@ -87,4 +88,4 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-18T03:14:25+00:00'
-updated_at: '2026-08-18T20:27:36+00:00'
+updated_at: '2026-08-18T20:44:10+00:00'

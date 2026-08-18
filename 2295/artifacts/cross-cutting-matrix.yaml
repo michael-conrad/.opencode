@@ -1,0 +1,45 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+cross_cutting_scs:
+- sc: SC-1
+  concerns:
+  - C1
+  spans_multiple_concerns: false
+  notes: Content-type boundary is the authoritative reference other fixes align to, but is itself a single-concern change.
+- sc: SC-2
+  concerns:
+  - C2
+  spans_multiple_concerns: false
+- sc: SC-3
+  concerns:
+  - C2
+  spans_multiple_concerns: false
+- sc: SC-4
+  concerns:
+  - C3
+  spans_multiple_concerns: false
+- sc: SC-5
+  concerns:
+  - C4
+  spans_multiple_concerns: false
+- sc: SC-6
+  concerns:
+  - C5
+  spans_multiple_concerns: false
+- sc: SC-7
+  concerns:
+  - C6
+  spans_multiple_concerns: false
+shared_files:
+- file: .opencode/skills/test-driven-development/tasks/red.md
+  scs:
+  - SC-2
+  - SC-3
+  notes: Two SCs modify the same file; must be sequenced (Item 2 then Item 3) to avoid edit conflicts.
+cross_concern_dependencies:
+- from: SC-1
+  to: SC-2, SC-3, SC-4, SC-5, SC-6
+  relationship: The exclusions list in AGENTS.md is the authoritative content-type boundary all other text fixes reference.
+notes:
+- No SC spans multiple concerns; each SC maps to exactly one concern.
+- The only cross-cutting relationship is the reference dependency of SC-1's boundary on the other text fixes.

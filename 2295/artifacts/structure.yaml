@@ -1,0 +1,70 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+phases:
+  phase_1:
+    concern: C1
+    scs:
+    - SC-1
+    files:
+    - .opencode/.issues/AGENTS.md
+    skill_task: writing-plans RED-GREEN daisy-chain (red -> green -> verify -> commit)
+  phase_2:
+    concern: C2
+    scs:
+    - SC-2
+    - SC-3
+    files:
+    - .opencode/skills/test-driven-development/tasks/red.md
+    skill_task: writing-plans RED-GREEN daisy-chain (red -> green -> verify -> commit)
+    order:
+    - "SC-2 before SC-3: both modify red.md; Item 2 (remove .issues/{N}/tests/) must be applied before Item 3 (owning-repo directive) to avoid edit conflicts on the same file"
+  phase_3:
+    concern: C3
+    scs:
+    - SC-4
+    files:
+    - .opencode/skills/writing-plans/reference/implementation-workflow.md
+    skill_task: writing-plans RED-GREEN daisy-chain (red -> green -> verify -> commit)
+  phase_4:
+    concern: C4
+    scs:
+    - SC-5
+    files:
+    - .opencode/skills/spec-creation/tasks/create.md
+    skill_task: writing-plans RED-GREEN daisy-chain (red -> green -> verify -> commit)
+  phase_5:
+    concern: C5
+    scs:
+    - SC-6
+    files:
+    - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+    skill_task: writing-plans RED-GREEN daisy-chain (red -> green -> verify -> commit)
+  phase_6:
+    concern: C6
+    scs:
+    - SC-7
+    files:
+    - .opencode/tests-v2/behaviors/<scenario>.sh
+    skill_task: test-driven-development behavioral RED/GREEN (red -> green -> verify -> commit)
+edges:
+- from: phase_1
+  to: phase_2
+  rationale: "SC-1's exclusions list in AGENTS.md is the authoritative content-type boundary that SC-2/SC-3's owning-repo placement directive references"
+- from: phase_1
+  to: phase_3
+  rationale: "SC-1's metadata-only boundary is the framing SC-4's Rule 1 clarification aligns to"
+- from: phase_1
+  to: phase_4
+  rationale: "SC-1's boundary disambiguates what is metadata vs source/test/fixture, which SC-5's copy-target clarification references"
+- from: phase_1
+  to: phase_5
+  rationale: "SC-1's boundary clarifies that .issues/ is metadata-only, which SC-6's auto-commit removal is consistent with"
+- from: phase_1
+  to: phase_6
+  rationale: "SC-7's behavioral test asserts the .issues/ content-type boundary established by SC-1"
+triplet_co_location:
+  status: OK
+  notes: "Each SC's RED, GREEN, verify, and commit steps are all assigned to the same phase; no SC has steps split across phases"
+cross_phase_dependencies:
+  status: OK
+  notes: "No RED test in a phase depends on SC output from a later phase. All text-fix phases edit disjoint files; SC-1's boundary is an informational reference, not a test-input dependency"

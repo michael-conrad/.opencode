@@ -1,0 +1,38 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+state_transitions:
+- sc: SC-1
+  from: .issues/ accepts anything (no content-type boundary)
+  to: .issues/ accepts issue metadata only (explicit exclusions list)
+  type: monotonic restriction
+  notes: No pre-existing valid behavior removed; no state lost.
+- sc: SC-2
+  from: red.md lists .issues/{N}/tests/ as valid test storage path
+  to: red.md no longer lists .issues/{N}/tests/ as valid path
+  type: monotonic restriction
+- sc: SC-3
+  from: red.md has no owning-repo placement directive
+  to: red.md directs test placement by owning-repo principle
+  type: additive directive
+- sc: SC-4
+  from: implementation-workflow.md Rule 1 frames .issues/{N}/ as permanent/never-delete
+  to: Rule 1 clarifies .issues/{N}/ holds issue metadata only
+  type: reframe
+- sc: SC-5
+  from: create.md Step 6 ambiguous analytical-artifacts copy target
+  to: Step 6 disambiguated to analysis artifacts only
+  type: disambiguation
+- sc: SC-6
+  from: review-prep.md Step 0 auto-commits arbitrary dirty .issues/ files
+  to: Step 0 no longer auto-commits .issues/ files
+  type: monotonic restriction
+- sc: SC-7
+  from: no behavioral enforcement of .issues/ test-write prohibition
+  to: behavioral test asserts agents do not write .issues/ test files
+  type: additive enforcement
+recovery:
+  type: revert
+  notes: All changes are idempotent text/behavior edits; recovery is a revert of the diff. No data migration or rollback path beyond the text change.
+misrouted_files:
+  status: untouched
+  notes: Misrouted test files on issues-data branch remain untouched; migration/deletion out of scope.

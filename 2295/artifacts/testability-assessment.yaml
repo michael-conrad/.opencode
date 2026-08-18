@@ -1,0 +1,45 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+testability_assessment:
+- sc: SC-1
+  evidence_type: string
+  verification_method: grep AGENTS.md for exclusions-list marker / content-type boundary statement
+  testable: true
+  notes: String grep verification; no behavioral test needed.
+- sc: SC-2
+  evidence_type: string
+  verification_method: grep red.md for absence of .issues/{N}/tests/
+  testable: true
+  notes: String grep verification for absence.
+- sc: SC-3
+  evidence_type: string
+  verification_method: grep red.md for presence of owning-repo reference
+  testable: true
+  notes: String grep verification for presence.
+- sc: SC-4
+  evidence_type: string
+  verification_method: grep Rule 1 for metadata-only language
+  testable: true
+  notes: String grep verification.
+- sc: SC-5
+  evidence_type: string
+  verification_method: grep Step 6 for unambiguous copy-target description
+  testable: true
+  notes: String grep verification.
+- sc: SC-6
+  evidence_type: string
+  verification_method: grep Step 0 for removal of unconditional git add .issues/ auto-commit
+  testable: true
+  notes: String grep verification for removal.
+- sc: SC-7
+  evidence_type: behavioral
+  verification_method: with-test-home opencode run; stderr-based assertions for absence of .issues/ write actions; Bash tool timeout >= 600s
+  testable: true
+  notes: Behavioral enforcement test; artifact-only generator per canonical framework in tests-v2/AGENTS.md.
+evidence_type_summary:
+  string: 6
+  behavioral: 1
+  structural: 0
+notes:
+- SC-1 through SC-6 are string evidence (grep/pattern-match) per the canonical taxonomy.
+- SC-7 is the sole behavioral evidence type, requiring real agent execution via with-test-home.

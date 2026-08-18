@@ -1,0 +1,65 @@
+domain: issues-content-type-boundary
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: phase_4
+    type: phase
+  - name: phase_5
+    type: phase
+  - name: phase_6
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase_1
+    preconditions:
+      - not completed(phase_1)
+    effects:
+      - completed(phase_1)
+  - name: execute_phase_2
+    preconditions:
+      - completed(phase_1)
+      - not completed(phase_2)
+    effects:
+      - completed(phase_2)
+  - name: execute_phase_3
+    preconditions:
+      - completed(phase_1)
+      - not completed(phase_3)
+    effects:
+      - completed(phase_3)
+  - name: execute_phase_4
+    preconditions:
+      - completed(phase_1)
+      - not completed(phase_4)
+    effects:
+      - completed(phase_4)
+  - name: execute_phase_5
+    preconditions:
+      - completed(phase_1)
+      - not completed(phase_5)
+    effects:
+      - completed(phase_5)
+  - name: execute_phase_6
+    preconditions:
+      - completed(phase_1)
+      - not completed(phase_6)
+    effects:
+      - completed(phase_6)
+init: []
+goals:
+  - completed(phase_1)
+  - completed(phase_2)
+  - completed(phase_3)
+  - completed(phase_4)
+  - completed(phase_5)
+  - completed(phase_6)

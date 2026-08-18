@@ -1,0 +1,65 @@
+# Dependency contract — issue #2298
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "RED abort protocol (red.md) — SC-1, SC-3, SC-5, SC-9"
+  phase_2:
+    type: bool
+    description: "GREEN abort contract (green.md) — SC-2, SC-4, SC-11"
+  phase_3:
+    type: bool
+    description: "Orchestrator post-abort routing and re-evaluation (red.md + green.md) — SC-6, SC-7, SC-8"
+  phase_4:
+    type: bool
+    description: "Behavioral enforcement test (ALREADY_GREEN) — SC-10"
+preconditions:
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - skills/test-driven-development/tasks/red.md
+    scs:
+      - SC-1
+      - SC-3
+      - SC-5
+      - SC-9
+  phase_2:
+    files:
+      - skills/test-driven-development/tasks/green.md
+    scs:
+      - SC-2
+      - SC-4
+      - SC-11
+  phase_3:
+    files:
+      - skills/test-driven-development/tasks/red.md
+      - skills/test-driven-development/tasks/green.md
+    scs:
+      - SC-6
+      - SC-7
+      - SC-8
+  phase_4:
+    files:
+      - tests-v2/behaviors/<scenario>.sh
+    scs:
+      - SC-10
+edges:
+  - from: phase_1
+    to: phase_3
+    rationale: "Phase-3 routing guidance (SC-6/7/8) references the abort terminal state and abort-is-completion language established in Phase-1 (SC-1/SC-5/SC-9)."
+  - from: phase_2
+    to: phase_3
+    rationale: "Phase-3 routing guidance also references the GREEN abort terminal state and BAD_TEST_NEEDS_REVISION routing established in Phase-2 (SC-2/SC-11)."
+  - from: phase_1
+    to: phase_4
+    rationale: "Phase-4 behavioral test (SC-10, ALREADY_GREEN case) verifies the red.md abort terminal state returns a classified abort; it depends on Phase-1 red abort protocol."
+notes:
+  - "Phase-1 and Phase-2 are independent (red.md vs green.md) and may proceed in parallel; both must complete before Phase-3, which edits both cards."
+  - "Phase-4 depends only on Phase-1 (the ALREADY_GREEN scenario exercises red.md); it does not depend on Phase-2 or Phase-3."
+  - "Phase-3 touches both red.md and green.md, so it is strictly sequenced after Phase-1 and Phase-2 to avoid same-file edit conflicts."

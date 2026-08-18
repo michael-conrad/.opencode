@@ -1,0 +1,17 @@
+actions:
+- name: execute_phase_1
+  parameters: []
+- name: execute_phase_2
+  parameters: []
+- name: execute_phase_5
+  parameters: []
+- name: execute_phase_6
+  parameters: []
+- name: execute_phase_3
+  parameters: []
+- name: execute_phase_4
+  parameters: []
+domain: issues-content-type-boundary
+engine: tamer
+plan_length: 6
+status: SOLVED_SATISFICING

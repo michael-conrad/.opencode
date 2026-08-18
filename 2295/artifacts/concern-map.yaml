@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2295/spec.md
+issue_number: 2295
+concerns:
+- id: C1
+  name: content-type-boundary
+  description: Establish the authoritative exclusions list declaring .issues/ holds issue metadata only, never source/test/fixture/code
+  scs:
+  - SC-1
+  phase_boundary: Item 1
+- id: C2
+  name: test-placement-directive
+  description: Remove the explicit .issues/{N}/tests/ authorization and direct test placement by the owning-repo principle
+  scs:
+  - SC-2
+  - SC-3
+  phase_boundary: Item 2, Item 3
+- id: C3
+  name: artifact-retention-framing
+  description: Correct the misleading permanent/never-delete framing in implementation-workflow.md Rule 1 to metadata-only
+  scs:
+  - SC-4
+  phase_boundary: Item 4
+- id: C4
+  name: artifact-copy-disambiguation
+  description: Disambiguate the analytical-artifacts copy target in create.md Step 6 so only analysis artifacts are copied
+  scs:
+  - SC-5
+  phase_boundary: Item 5
+- id: C5
+  name: pr-auto-commit-removal
+  description: Remove the unconditional git add .issues/ auto-commit from review-prep.md Step 0
+  scs:
+  - SC-6
+  phase_boundary: Item 6
+- id: C6
+  name: behavioral-enforcement
+  description: Add a behavioral enforcement test asserting agents do not write test files under .issues/
+  scs:
+  - SC-7
+  phase_boundary: Item 7
+notes:
+- Each concern maps to exactly one item/phase boundary, matching the spec's per-SC item decomposition.
+- C2 spans two SCs (SC-2, SC-3) but both modify the same file (red.md) within Items 2-3.
