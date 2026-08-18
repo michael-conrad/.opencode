@@ -1,0 +1,30 @@
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "All 255 dispatch link [text] values across the 48 affected SKILL.md files are rewritten as condensations of their task card's purpose statement."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Purpose statements that fail the audit criteria (not condensable, not outcome-as-subject, or not distinctive from siblings) are corrected."
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "The playwright-cli and completion-core skills are converted from the legacy table dispatch format to the canonical checkbox list sub-bullets format."
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Placeholder dispatch links (audit skill) use semantic templates rather than path templates."
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The skill-creator skill carries the normative rule that every new/edited card uses a condensation dispatch anchor, enforced via a validation gate."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "reference/task-card-structure-standards.md specifies the purpose statement as the dispatch-anchor source."
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "reference/skill-card-description-standards.md specifies the locked condensation dispatch template."
+    evidence_type: "string"
+    plan_item: 7
