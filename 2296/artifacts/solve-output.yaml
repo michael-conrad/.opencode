@@ -4,6 +4,7 @@ solve_output:
   plan_status: SOLVED_SATISFICING
   checks:
     model:
+      contract_path: .opencode/.issues/2296/dependency-contract.yaml
       query: "z3.And(phase_2_per_file, phase_3_post)"
       result: SAT
       assignment:
