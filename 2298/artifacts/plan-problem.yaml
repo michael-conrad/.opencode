@@ -4,6 +4,8 @@ fluents:
   - name: phase_2
   - name: phase_3
   - name: phase_4
+  - name: phase_5
+  - name: phase_6
 actions:
   - name: do_phase_1
     preconditions: []
@@ -21,12 +23,24 @@ actions:
       - phase_3
   - name: do_phase_4
     preconditions:
-      - phase_1
+      - phase_3
     effects:
       - phase_4
+  - name: do_phase_5
+    preconditions:
+      - phase_4
+    effects:
+      - phase_5
+  - name: do_phase_6
+    preconditions:
+      - phase_1
+    effects:
+      - phase_6
 init: []
 goals:
   - phase_1
   - phase_2
   - phase_3
   - phase_4
+  - phase_5
+  - phase_6
