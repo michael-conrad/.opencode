@@ -1,0 +1,29 @@
+issue_number: 2295
+repo: .opencode (submodule)
+
+## Cross-Cutting Matrix
+
+Cross-cutting concerns across the six SCs.
+
+| Cross-Cutting Concern | SC-1 | SC-2 | SC-3 | SC-4 | SC-5 | SC-6 |
+|-----------------------|------|------|------|------|------|------|
+| Content-type boundary statement (`.issues/` = metadata only) | X (source) | X | X | X | X | X (enforces) |
+| Owning-repo principle (tests live where code lives) | — | X | — | — | — | X |
+| Stable anchors vs line numbers (drift risk) | X | X | X | X | X | — |
+| Canonical test harness conformance | — | — | — | — | — | X |
+| Submodule-only change scope | X | X | X | X | X | X |
+| No migration of existing misrouted files | (preserved) | (preserved) | (preserved) | (preserved) | (preserved) | (preserved) |
+
+## Notes
+
+- **Content-type boundary** is the single dominant cross-cutting concern — every SC reinforces it. SC-1 declares it authoritatively; SC-2..SC-5 remove the specific paths that violate it; SC-6 enforces it behaviorally.
+- **Owning-repo principle** is the replacement directive where paths were removed (SC-2) and is what the behavioral test (SC-6) validates.
+- **Stable-anchor discipline** applies to all five text SCs given confirmed line-number drift (spec cites AGENTS.md:133, live is 145).
+- **Submodule scope** is universal — every SC is confined to `.opencode/`.
+- **No-migration constraint** is preserved across all SCs — none touches the misrouted test files.
+
+## Verification Domain Cross-Cut
+
+- Structural (text): SC-1, SC-2 (partially), SC-3, SC-4, SC-5
+- Behavioral (runtime agent action): SC-6
+- SC-2 has both: text removal is structural, but its ultimate gate is the behavioral enforcement test (SC-6) that asserts agents do not write `.issues/` tests.

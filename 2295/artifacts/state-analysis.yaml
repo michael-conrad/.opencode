@@ -1,0 +1,29 @@
+issue_number: 2295
+repo: .opencode (submodule)
+
+## State Analysis
+
+This change has no runtime state machine — it modifies agent-facing documentation and adds a behavioral test. There is no persistent application state, no data pipeline, no state transitions in the codebase sense.
+
+### Agent-Behavior "State Machine" Perspective
+
+The change alters the *documented agent routing state* for test/source placement:
+
+| State | Before | After |
+|-------|--------|-------|
+| Test placement decision | Agent may choose `.opencode/tests-v2/` OR `.issues/{N}/tests/` | Agent must resolve owning repo (root vs submodule) and place per that repo's conventions; `.issues/` prohibited |
+| `.issues/` authorization | "Reading and writing `.issues/` is authorization-free" (unbounded content types) | authorization-free for **issue metadata only**; source/test/fixture/code excluded |
+| Artifact retention in `.issues/{N}/` | "permanent / never delete" (invites anything) | issue metadata only (spec, plan, cards, contracts, audit) |
+| spec-creation artifact copy | "analytical artifacts" (ambiguous scope) | analysis artifacts only, explicitly not source/test/fixture |
+| Feature PR composition | auto-commit dirty `.issues/` files | no auto-commit of arbitrary `.issues/` files |
+| Enforcement | none for `.issues/` content boundary | behavioral test asserts agents do not write `.issues/` test files |
+
+### State Transition Invariants
+
+- No data is migrated, deleted, or transformed — the misrouted test files on issues-data branch remain untouched.
+- The `.issues/` worktree mechanism (gitignored orphan branch) is unchanged.
+- All transitions are from "`.issues/` accepts anything" → "`.issues/` accepts issue metadata only." This is a monotonic restriction; no state is lost, no pre-existing valid behavior is removed.
+
+### Transitions per phase
+
+No phase introduces a stateful transition requiring rollback beyond the text-change itself (revert of the diff). All transitions are idempotent text/behavior edits.

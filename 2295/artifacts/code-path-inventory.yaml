@@ -1,0 +1,33 @@
+issue_number: 2295
+repo: .opencode (submodule)
+
+## Code Path Inventory
+
+Code paths touched by each phase (all within `.opencode/`).
+
+| Phase/Item | File Path | Nature | What Touches It |
+|------------|-----------|--------|-----------------|
+| ITEM-1 (SC-1) | `.opencode/.issues/AGENTS.md` | Agent-facing workspace guide | All agents reading `.issues/` workspace guide at session start |
+| ITEM-2 (SC-2) | `.opencode/skills/test-driven-development/tasks/red.md` | Skill task card (RED phase) | RED-phase sub-agents dispatched via test-driven-development skill |
+| ITEM-3 (SC-3) | `.opencode/skills/writing-plans/reference/implementation-workflow.md` | Skill reference doc | Agents implementing plans; writing-plans pipeline consumers |
+| ITEM-4 (SC-4) | `.opencode/skills/spec-creation/tasks/create.md` | Skill task card (Step 6) | spec-creation pipeline create-phase sub-agents |
+| ITEM-5 (SC-5) | `.opencode/skills/git-workflow-pr/tasks/review-prep.md` | Skill task card (Step 0) | review-prep sub-agents; git-workflow-pr pipeline |
+| ITEM-6 (SC-6) | `.opencode/tests-v2/behaviors/<scenario>.sh` (new) | Behavioral enforcement test | test harness (`with-test-home opencode run`) |
+
+## Code Paths NOT Touched
+
+- `.opencode/tools/` — no tool logic change
+- `src/`, `test/` (root) — root repo out of scope
+- Runtime application code — none exists in this change
+- `.issues/` content on issues-data branch — explicitly out of scope (no migration)
+
+## Callers / Consumers of Affected Symbols
+
+No function/method symbols involved. The "symbols" here are documented agent-facing conventions:
+- red.md test-path text consumed by RED-phase sub-agents
+- implementation-workflow.md Artifact Retention Rule 1 consumed by writing-plans pipeline
+- create.md Step 6 copy semantics consumed by spec-creation pipeline
+- review-prep.md Step 0 auto-commit consumed by git-workflow-pr pipeline
+- AGENTS.md authorization/exclusions consumed by all agents
+
+These have no programmatic dependents — only agent-routing and skill-dispatch consumers.

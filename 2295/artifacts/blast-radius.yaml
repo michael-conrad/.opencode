@@ -1,0 +1,40 @@
+issue_number: 2295
+repo: .opencode (submodule)
+
+## Blast Radius
+
+Affected components and ripple effects per SC (all within `.opencode/` submodule).
+
+### ITEM-1 (SC-1) — AGENTS.md exclusions list
+- **Direct:** `.opencode/.issues/AGENTS.md`
+- **Ripple:** Agents reading the workspace guide gain a hard content-type boundary. Downstream agent routing that defaults to `.issues/` for test/source storage is discouraged.
+- **Blast radius**: LOW — single agent-facing document; no code paths.
+
+### ITEM-2 (SC-2) — red.md test-storage path
+- **Direct**: `.opencode/skills/test-driven-development/tasks/red.md`
+- **Ripple**: RED-phase sub-agents no longer have an authorized `.issues/{N}/tests/` path; they must resolve owning repo. Skill task consumers (test-driven-development skill) affected.
+- **Blast radius**: LOW-MEDIUM — agent-facing task card; changes agent test placement behavior.
+
+### ITEM-3 (SC-3) — implementation-workflow.md artifact retention
+- **Direct**: `.opencode/skills/writing-plans/reference/implementation-workflow.md`
+- **Ripple**: Agents referencing Artifact Retention Rule 1 no longer treat `.issues/{N}/` as a safe "never clean" landing zone for arbitrary artifacts.
+- **Blast radius**: LOW — reference document clarification.
+
+### ITEM-4 (SC-4) — create.md artifact copy disambiguation
+- **Direct**: `.opencode/skills/spec-creation/tasks/create.md`
+- **Ripple**: spec-creation pipeline Step 6 consumers; scope of what gets copied to `.issues/{N}/artifacts/` tightened.
+- **Blast radius**: LOW — task text clarification; downstream artifact-copy behavior preserved for legit analysis artifacts.
+
+### ITEM-5 (SC-5) — review-prep.md auto-commit
+- **Direct**: `.opencode/skills/git-workflow-pr/tasks/review-prep.md`
+- **Ripple**: git-workflow-pr pipeline; feature PR composition no longer auto-includes arbitrary `.issues/` dirty files. This is a behavioral workflow change — the largest functional blast radius of the text SCs.
+- **Blast radius**: MEDIUM — workflow behavior change affecting what rides with feature PRs.
+
+### ITEM-6 (SC-6) — behavioral enforcement test
+- **Direct**: new `.opencode/tests-v2/behaviors/<scenario>.sh`
+- **Ripple**: test suite (tests-v2) gains a new scenario; enforcement coverage for `.issues/` content-type boundary.
+- **Blast radius**: LOW-MEDIUM — new test; if flaky, may produce false negatives in enforcement suite.
+
+## Cross-Phase Ripple
+
+All six phases touch `.opencode/` only. No root repo, no runtime application code, no database, no external services affected. The aggregate effect establishes a universal `.issues/` content-type boundary enforced by both text (SC-1..SC-5) and behavior (SC-6).

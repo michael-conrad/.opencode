@@ -1,0 +1,42 @@
+issue_number: 2295
+repo: .opencode (submodule)
+scope: .opencode submodule only — no root repo changes
+
+## Affected Files (verified against live codebase)
+
+1. `.opencode/skills/test-driven-development/tasks/red.md`
+   - Line 42: "Test files go to permanent storage (`.opencode/tests-v2/` or `.issues/{N}/tests/`)."
+   - VERIFIED present (line 42). This is the PRIMARY defect — explicitly authorizes `.issues/{N}/tests/`.
+   - Fix intent: remove `.issues/{N}/tests/` as valid test storage path; anchor to owning-repo principle.
+
+2. `.opencode/skills/writing-plans/reference/implementation-workflow.md`
+   - Line 64 (Artifact Retention Rule 1): "Artifacts under `.issues/{issue-N}/` (root repo) or `{project_root}/{path}/.issues/{issue-N}/` (submodule/sub-repo) are permanent — they survive pipeline restarts... Never delete or clean these files."
+   - VERIFIED present. Misleading "permanent / Never delete or clean" framing invites persisting arbitrary source artifacts.
+   - Fix intent: clarify `.issues/{N}/` holds issue metadata only, not arbitrary source artifacts.
+
+3. `.opencode/skills/spec-creation/tasks/create.md`
+   - Step 6 "Copy analytical artifacts" (lines 126-135): copies from `tmp/{issue_number}/artifacts/` to `{project_root}/{path}/.issues/{issue_number}/artifacts/` using `shutil.copytree`.
+   - Ambiguous term "analytical artifacts" — could be read to include source/test/fixture content. Fix intent: disambiguate the copy target (only analysis artifacts, not arbitrary project files).
+
+4. `.opencode/.issues/AGENTS.md`
+   - Authorization section line 145 (not 133 as spec states — minor line-number drift): "Reading and writing `.issues/` is **authorization-free**..."
+   - Reinforces `.issues/` as a default landing zone with no content-type boundary.
+   - Fix intent: add explicit exclusions list stating `.issues/` holds issue metadata only, never source/test/fixture/code.
+
+5. `.opencode/skills/git-workflow-pr/tasks/review-prep.md`
+   - Step 0 "Auto-Commit Dirty .issues/<N>/ Files (MANDATORY)" (lines 39-51): runs `git add .issues/` + `git commit` for any dirty `.issues/` changes before push.
+   - Auto-commits `.issues/<N>/` files into feature PRs. Fix intent: stop auto-committing `.issues/` files (or scope to metadata-only).
+
+6. NEW behavioral enforcement test
+   - `.opencode/tests-v2/behaviors/<name>.sh` — asserts agent does NOT write test files under `.issues/`.
+   - Follows canonical artifact-only generator paradigm (See .opencode/tests-v2/AGENTS.md).
+
+## Line-Number Drift Note
+
+Spec cites AGENTS.md line 133; live file has the "authorization-free" text at line 145. All other cited line numbers (red.md:42, implementation-workflow.md:64, review-prep.md:39-51, create.md:126-135) verified against live files. Use stable anchors, not line numbers, in final spec.
+
+## Non-affected / Out of Scope
+
+- No changes to root repo (`opencode-config`).
+- No migration/deletion of already-misrouted test files on issues-data branch (.issues/1297/tests/, .issues/2127/tests/, .issues/1346/tests/).
+- No runtime code changes — all fixes are agent-facing text and test harness changes.

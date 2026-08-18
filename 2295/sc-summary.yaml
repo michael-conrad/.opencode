@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: ".opencode/.issues/AGENTS.md contains an explicit exclusions list stating .issues/ holds issue metadata only, never source/test/fixture/code."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: ".opencode/skills/test-driven-development/tasks/red.md no longer lists .issues/{N}/tests/ as a valid test storage path; replaced with owning-repo principle."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: ".opencode/skills/writing-plans/reference/implementation-workflow.md Rule 1 clarifies .issues/{N}/ holds issue metadata only, not arbitrary source/test/fixture artifacts."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: ".opencode/skills/spec-creation/tasks/create.md Step 6 disambiguates the analytical artifacts copy target so only analysis artifacts (not source/test/fixture) are copied to .issues/{N}/artifacts/."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: ".opencode/skills/git-workflow-pr/tasks/review-prep.md Step 0 no longer auto-commits arbitrary dirty .issues/<N>/ files into feature PRs (stopped entirely, or scoped to metadata-only)."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "A new behavioral enforcement test at .opencode/tests-v2/behaviors/ asserts an agent does NOT write test files under .issues/. Artifact-only generator per canonical framework."
+    evidence_type: "behavioral"
+    plan_item: 6
