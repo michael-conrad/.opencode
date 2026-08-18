@@ -3,6 +3,116 @@ title: '[SPEC] Prevent agents from storing source/tests/fixtures in .issues/ wor
 status: open
 labels:
 - needs-approval
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/N/
+
+
+  ## Problem Statement
+
+  The AI agent has begun storing tests, test fixtures, and other source/project items
+  in the `.issues/` worktree folders. `.issues/` is a git worktree on the `issues-data`
+  branch — a separate git repository gitignored in the parent repo. Any file written
+  there never reaches the deployable repo and is lost. Confirmed misrouted test files
+  exist on the issues-data branch: .issues/1297/tests/, .issues/2127/tests/, .issues/1346/tests/.
+
+
+  ## Root Cause
+
+  Primary defect: `.opencode/skills/test-driven-development/tasks/red.md` line 42
+  states "Test files go to permanent storage (`.opencode/tests-v2/` or `.issues/{N}/tests/`)."
+  This explicitly authorizes placing test files in `.issues/{N}/tests/`, a path that
+  does not exist in the canonical `.issues/` layout and is invisible to the parent
+  repo''s build system.
+
+
+  Contributing defects:
+
+  1. `.opencode/skills/writing-plans/reference/implementation-workflow.md` line 64
+  labels `.issues/{N}/` "permanent" artifacts that "Never delete or clean" — inviting
+  agents to persist anything there.
+
+  2. `.opencode/skills/spec-creation/tasks/create.md` copies "analytical artifacts"
+  into `.issues/{N}/artifacts/` with an ambiguous term.
+
+  3. `.opencode/.issues/AGENTS.md` line 133 declares "Reading and writing `.issues/`
+  is authorization-free" — reinforcing `.issues/` as a default landing zone with no
+  content-type boundary.
+
+  4. `.opencode/skills/git-workflow-pr/tasks/review-prep.md` lines 39-51 auto-commit
+  dirty `.issues/<N>/` files into feature PRs.
+
+
+  ## Fix Intent
+
+  Tests MUST be tracked in the git repository that owns the code under test — never
+  in `.issues/`. The rule is a principle, not a path: resolve the owning repo from
+  the code under test (root repo vs submodule), then place the test per that repo''s
+  own conventions (language, framework, project layout). The `.issues/` prohibition
+  is universal because `.issues/` is a git worktree gitignored in the parent repo.
+  Add an explicit exclusions list to `.opencode/.issues/AGENTS.md` stating `.issues/`
+  holds issue metadata only, never source/test/fixture/code. Add a behavioral enforcement
+  test asserting an agent does NOT write test files under `.issues/`.
+
+
+  ## Scope
+
+  - Add an explicit exclusions list to `.opencode/.issues/AGENTS.md` stating `.issues/`
+  holds issue metadata only, never source/test/fixture/code.
+
+  - Fix `.opencode/skills/test-driven-development/tasks/red.md` line 42 to remove
+  `.issues/{N}/tests/` as a valid test storage path.
+
+  - Fix `.opencode/skills/writing-plans/reference/implementation-workflow.md` line
+  64 to clarify `.issues/{N}/` holds issue metadata only, not arbitrary source artifacts.
+
+  - Fix `.opencode/skills/spec-creation/tasks/create.md` to disambiguate the "analytical
+  artifacts" copy target.
+
+  - Fix `.opencode/skills/git-workflow-pr/tasks/review-prep.md` auto-commit of dirty
+  `.issues/<N>/` files.
+
+  - Add a behavioral enforcement test asserting an agent does NOT write test files
+  under `.issues/`.
+
+
+  **Out of scope:**
+
+  - Migrating or deleting the already-misrouted test files on the issues-data branch.
+
+  - Changes to the root repo (this is a `.opencode` submodule change only).
+
+
+  ## Approach
+
+  Establish a universal principle: tests and source artifacts are tracked in the git
+  repository that owns the code under test, never in `.issues/`. The `.issues/` worktree
+  is a gitignored, non-deployable git repository — any source/test/fixture written
+  there is lost. The fix removes the explicit authorization in `red.md`, corrects
+  the misleading "permanent" framing in `implementation-workflow.md`, disambiguates
+  the artifact copy in `create.md`, and stops auto-committing `.issues/` files into
+  feature PRs. An explicit exclusions list in `.opencode/.issues/AGENTS.md` establishes
+  the content-type boundary. A behavioral enforcement test verifies agents do not
+  write test files under `.issues/`.
+
+
+  ## Impact
+
+  - **Risk 1:** Agents may still route tests to `.issues/` via other paths not covered
+  by the fix. *Mitigation:* The exclusions list in AGENTS.md is the universal boundary;
+  the behavioral test covers the primary path.
+
+  - **Risk 2:** Removing `.issues/{N}/tests/` from `red.md` may break existing workflows
+  that relied on it. *Mitigation:* The owning-repo principle provides a clear replacement
+  path.
+
+  - **Risk 3:** The behavioral enforcement test may be flaky. *Mitigation:* Follow
+  the canonical behavioral test framework in `.opencode/tests-v2/`.
+
+
+  **Dependencies:** None. **Call to action:** Review and approve this spec for implementation.
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
+
+  '
 created_at: '2026-08-18T03:14:25+00:00'
-updated_at: '2026-08-18T03:14:25+00:00'
+updated_at: '2026-08-18T03:14:57+00:00'
