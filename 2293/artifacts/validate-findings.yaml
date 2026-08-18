@@ -1,0 +1,72 @@
+spec_path: .opencode/.issues/2293/spec.md
+plan_path: .opencode/.issues/2293/plan.md
+solve_status: SAT
+overall_status: PASS
+categories:
+  - id: 1
+    name: structural
+    status: PASS
+    checks:
+      - check: "plan.md has a phase table with all required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+        result: PASS
+        detail: "Phase Table present with all six required columns (Phase, Skill, Task, Target, SCs, Depends On)"
+      - check: "each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "Each Phase Details section (Phase 1, 2, 3) has a Procedure section with numbered steps describing the RED/GREEN/COMMIT execution sequence for that phase's SC(s). Phase 1 has 3 steps, Phase 2 has 6 steps, Phase 3 has 3 steps."
+      - check: "exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria section present with C1-C4 mapping to SC-1 through SC-4"
+  - id: 2
+    name: skill_task_validity
+    status: PASS
+    checks:
+      - check: "every skill+task reference matches a valid entry in implementation-workflow reference card"
+        result: PASS
+        detail: "All three phases reference test-driven-development/red, a valid RED-GREEN daisy-chain entry in skills/writing-plans/reference/implementation-workflow.md. COMMIT steps use the orchestrator commit-inline action, also a valid reference-card entry."
+  - id: 3
+    name: sc_coverage
+    status: PASS
+    checks:
+      - check: "every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "SC-1 (C1), SC-2 (C2), SC-3 (C3), SC-4 (C4) all covered"
+      - check: "no SC has RED/GREEN/COMMIT steps split across phases (triplet split detection)"
+        result: PASS
+        detail: "SC-1 in Phase 1, SC-2/SC-3 in Phase 2, SC-4 in Phase 3. No SC's RED/GREEN/COMMIT steps are split across phases."
+  - id: 4
+    name: concern_separation
+    status: PASS
+    checks:
+      - check: "each phase addresses exactly one concern from the concern-map artifact"
+        result: PASS
+        detail: "Phase 1 -> CONCERN-GLOBAL-GUIDELINE (SC-1); Phase 2 -> CONCERN-TASK-CARD-SCOPING (SC-2, SC-3); Phase 3 -> CONCERN-RELEASE-CARVEOUT (SC-4)"
+      - check: "no two phases address the same concern"
+        result: PASS
+        detail: "Each implementation concern maps to exactly one phase. CONCERN-ENFORCEMENT spans PHASE-1/PHASE-2 but is a retained-enforcement (not-modified) concern, not an implementation concern."
+  - id: 5
+    name: dag_validation
+    status: PASS
+    checks:
+      - check: "dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Edges phase_1->phase_2->phase_3 form a linear acyclic chain"
+      - check: "all phases are reachable from the start node"
+        result: PASS
+        detail: "phase_1 is the start (no incoming); phase_2 reachable from phase_1; phase_3 reachable from phase_2"
+      - check: "no orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        detail: "phase_1 has outgoing, phase_2 has in+out, phase_3 has incoming; no orphans"
+  - id: 6
+    name: holistic_quality
+    status: PASS
+    checks:
+      - check: "no TBD/TODO placeholders in the plan body"
+        result: PASS
+        detail: "No TBD/TODO placeholders found"
+      - check: "all steps use checkbox format"
+        result: PASS
+        detail: "Procedure steps and exit criteria use checkbox format"
+      - check: "dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+        result: PASS
+        detail: "All phases use test-driven-development/red (dispatched clean-room task) for RED/GREEN and orchestrator commit-inline for COMMIT. commit-inline is the orchestrator's own commit action per the reference card, not an inline implementation step; dispatch mode is consistent."
+findings: []
