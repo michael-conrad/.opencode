@@ -47,9 +47,9 @@ SRE-oriented operator writing runbooks for sysops under pressure. Runbooks are o
 
 | Task | Call via task() |
 
-| `generate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sre-runbook/tasks/generate.md](.opencode/skills/sre-runbook/tasks/generate.md). "))` |
-| `track` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sre-runbook/tasks/track.md](.opencode/skills/sre-runbook/tasks/track.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sre-runbook/tasks/completion.md](.opencode/skills/sre-runbook/tasks/completion.md). "))` |
+| `generate` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [generate operational runbook](.opencode/skills/sre-runbook/tasks/generate.md). "))` |
+| `track` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [track incident via issue](.opencode/skills/sre-runbook/tasks/track.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete runbook workflow](.opencode/skills/sre-runbook/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "sre-runbook"})` ``
 

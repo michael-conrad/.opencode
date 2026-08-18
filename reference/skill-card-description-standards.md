@@ -181,7 +181,7 @@ Understanding the two-tool pipeline is essential for writing correct description
 - The `prompt` parameter is the **ONLY context** the subagent receives
 - The subagent MUST use its own file read tools to load `tasks/<name>.md`
 - The task tool does NOT auto-load task card files
-- The discovery directive in the prompt (`Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md)`) is REQUIRED because `task()` does not auto-load
+- The discovery directive in the prompt (`Follow the instructions in [<condensation>](<path>)`) is REQUIRED because `task()` does not auto-load
 
 ### The Complete Pipeline
 
@@ -190,7 +190,7 @@ orchestrator
   → skill({name: "..."})
     → SKILL.md auto-loaded into orchestrator context
   → orchestrator reads Workflows section
-  → task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). context_1: ", value_1))
+  → task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<condensation>](<path>). context_1: ", value_1))
     → child session created
     → subagent reads tasks/<name>.md via file tools (orchestrator does NOT read task cards)
     → subagent executes procedure
@@ -306,12 +306,13 @@ When the agent needs to produce a specification document from a problem statemen
 The base prompt MUST use the canonical `task()` format:
 
 ```
-task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). context_1: ", value_1, ", context_2: ", value_2))
+task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [<condensation>](<path>). context_1: ", value_1, ", context_2: ", value_2))
 ```
 
 - **Canonical format** — uses `task(subagent_type="general", prompt: concat(...))` syntax
-- **Discovery directive** — tells the subagent which file to read (required because `task()` does not auto-load task cards)
-- **Context values** — passed as `concat()` arguments after the discovery directive, formatted as `name: ", value`
+- **Locked condensation dispatch template** — `You are a sub-agent. Follow the instructions in [<condensation>](<path>). <context-fields>`: the link text `<condensation>` is a condensation of the linked task card's purpose statement (per the SC-6 purpose-source spec: condensable, outcome-as-subject, distinctive), and `<path>` is its dispatch path. This locks the condensation FORMAT contract that the skill-creator condensation-format validation gate (SC-5) validates against.
+- **Discovery directive** — the `[<condensation>](<path>)` link tells the subagent which file to read (required because `task()` does not auto-load task cards)
+- **Context values** — passed as `concat()` arguments after the discovery directive, formatted as `name: ", value; the `<context-fields>` trailer follows the locked condensation link
 - **Orchestrator does NOT read task cards** — the sub-agent discovers the task card independently
 
 ### What the Workflows Section Replaces

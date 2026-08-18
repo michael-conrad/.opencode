@@ -196,6 +196,16 @@ This is required because `task()` does NOT auto-load task card files. The sub-ag
 
 The discovery directive is routing metadata (which file to read), not preloading. It tells the sub-agent where to find its instructions — it does not tell the sub-agent what those instructions say.
 
+### Purpose Statement as Dispatch-Anchor Source
+
+The **purpose statement** — the first content section after the YAML frontmatter/provenance of a task card — is the **dispatch-anchor source**. The dispatch anchor is the condensed routing signal the orchestrator uses to select and dispatch a task card. The purpose statement is the normative source from which that anchor is condensed, and it MUST satisfy three properties:
+
+1. **Condensable** — the purpose statement is short enough to condense into a concise dispatch anchor without loss of routing meaning. A purpose statement that cannot be condensed into a dispatch anchor is a routing defect.
+2. **Outcome-as-subject** — the purpose statement names the outcome as its subject, not the mechanism or role. It describes what the task accomplishes (the result), not how it is performed or who performs it.
+3. **Distinctive** — the purpose statement is distinguishable from sibling tasks within the same skill. A purpose statement that could be confused with another task card in the same skill cannot anchor dispatch unambiguously.
+
+This establishes the condensation SOURCE contract: the dispatch anchor is derived from the purpose statement, so the purpose statement's condensability, outcome-as-subject framing, and distinctiveness determine whether the anchor can route dispatch correctly.
+
 ---
 
 ## 5. Task Card vs SKILL.md — Division of Responsibility

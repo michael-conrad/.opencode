@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Evaluator role for the coherence-maintenance chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each coherence maintenance criterion against the validated evidence, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence against sources.
+Produce per-criterion PASS/FAIL verdicts in `verdict.yaml` by evaluating each coherence maintenance criterion against validated evidence. Produces judgments only — does not collect or validate evidence.
 
 
 ## Dispatch Contract

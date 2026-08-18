@@ -7,8 +7,9 @@
 
 ## Purpose
 
-Evaluator role for the content-audit chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each factual claim against the validated evidence, and writes `verdict.yaml` with per-claim PASS/FAIL/FABRICATED verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Produce per-claim PASS/FAIL/FABRICATED verdicts in `verdict.yaml` by evaluating each factual claim against validated evidence. Produces judgments only — does not collect or validate evidence.
 
+## Default Assumption
 
 > **Default assumption: FABRICATED.** The default verdict for every claim is FABRICATED unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FABRICATED. A clean PASS requires: (1) source data files are present and readable, (2) the claim is directly supported by source data, (3) no hedging language in the explanation, (4) all criteria evaluated against validated evidence.
 

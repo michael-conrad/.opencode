@@ -41,20 +41,27 @@ The global `--raw` option strips page status, generated code, and snapshot secti
 
 Read [open parameters](skills/playwright-cli/tasks/commands-reference.md).
 
-## Trigger Dispatch Table
+## Workflows
 
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "browse" / "open browser" / "web automation" | `browse` | `sub-task` | {url, instructions} |
-| "test" / "playwright test" / "generate test" | `test` | `sub-task` | {test_scope} |
+### Browse the web
 
-## Tasks
+When the agent needs to open a browser, navigate to a page, or perform web automation.
 
-| `browse` |
+- [ ] 1. **browse** — Opens a browser and navigates to a URL with instructions
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [browse the web with playwright-cli](.opencode/skills/playwright-cli/tasks/commands-reference.md). url: ", url, ", instructions: ", instructions))`
+**Context passed:** `{url, instructions}`
+**Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+**Execution mode:** sub-agent dispatch
 
-## Invocation
+### Generate a Playwright test
 
-`skill({name: "playwright-cli"})` — call the skill, then call via task().
+When the agent needs to generate a Playwright test or run a Playwright test.
+
+- [ ] 1. **test** — Generates a Playwright test for the given scope
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [generate playwright tests](.opencode/skills/playwright-cli/tasks/commands-reference.md). test_scope: ", test_scope))`
+**Context passed:** `{test_scope}`
+**Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+**Execution mode:** sub-agent dispatch
 
 ## Sub-Agent Routing
 
@@ -74,9 +81,9 @@ A sub-agent receiving a `task()` prompt MUST reject it if the prompt contains:
 
 ### Orchestrator Entry Criteria
 
-Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
+Reading the Workflows section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
 
-After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+After loading this skill and reading the Workflows section, the orchestrator MUST:
 - Use the exact `task(..., prompt: "...")` string from the table
 - NOT write a custom prompt with preloaded context
 - NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the test-quality-audit chain. Reads test files, spec success criteria, git history, and VbC artifacts to produce `evidence.yaml` with raw evidence about test coverage and quality. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `evidence.yaml` with raw evidence about test coverage and quality by reading test files, spec success criteria, git history, and VbC artifacts. Collects evidence only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

@@ -47,8 +47,8 @@ Automatic from `git-workflow` when conflicts detected. Manual invocation:
 
 | Task | Call via task() |
 
-| `classify-and-resolve` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [conflict-resolution/tasks/classify-and-resolve.md](.opencode/skills/conflict-resolution/tasks/classify-and-resolve.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [conflict-resolution/tasks/completion.md](.opencode/skills/conflict-resolution/tasks/completion.md). "))` |
+| `classify-and-resolve` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [classify and resolve git conflicts](.opencode/skills/conflict-resolution/tasks/classify-and-resolve.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete conflict resolution](.opencode/skills/conflict-resolution/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "conflict-resolution"})` ``
 

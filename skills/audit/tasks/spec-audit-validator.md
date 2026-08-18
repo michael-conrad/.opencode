@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Validator role for the spec-audit chain. Reads `evidence.yaml` produced by the Investigator, validates each evidence item against source data, and writes `reasoning.yaml` with validated evidence. This role validates and supports — it does NOT evaluate, judge, or produce PASS/FAIL verdicts.
+Produce `reasoning.yaml` with validated evidence by checking each evidence item against source data. Validates and supports only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

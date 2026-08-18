@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Run the post-generation verification pass. After content has been generated and the skill's own quality checks have run, this task scans the output for `⚠️ UNVERIFIED` markers and attempts to resolve them. Any claims that remain unverifiable after this pass are escalated to the developer.
+Run the post-generation verification pass: scan the generated output for `⚠️ UNVERIFIED` markers and attempt to resolve them. Any claims that remain unverifiable after this pass are escalated to the developer.
 
 This task is mandatory after every content generation. The output is never shipped as done while unverified claims remain without developer acknowledgment.
 

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Arbiter role for the test-quality-audit chain. Reads all upstream artifacts — `evidence.yaml` (Investigator), `reasoning.yaml` (Validator), and `verdict.yaml` (Evaluator) — and produces the final `judgment.yaml` with final judgment and `next_step`. This is the fourth and final role in the 4-role chain. It synthesizes, not evaluates.
+Produce the final test-quality-audit judgment in `judgment.yaml` with `next_step` by synthesizing upstream evidence, reasoning, and verdict artifacts. Synthesizes only — does not re-evaluate or second-guess upstream roles.
 
 
 ## Dispatch Contract

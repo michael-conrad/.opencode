@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Resolve a caller's modality hint against the actual content payload, validate the hint, select the best available model from the capability snapshot, and log any overrides. This task implements the hybrid routing principle (REQ-2): the caller provides a hint, the dispatcher validates it, and if the hint contradicts the content, the dispatcher overrides and logs. (The name `dispatcher` refers to this skill's internal router role — preserved as-is for technical accuracy.)
+Resolve a caller's modality hint against the actual content payload, validate the hint, select the best available model from the capability snapshot, and log any overrides. Implements the hybrid routing principle (REQ-2): the caller provides a hint, the dispatcher validates it, and overrides and logs when the hint contradicts the content.
 
 ## Entry Criteria
 

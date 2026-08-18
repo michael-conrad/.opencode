@@ -47,9 +47,9 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 | Task | Call via task() |
 
-| `create-worktree` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [using-git-worktrees/tasks/create-worktree.md](.opencode/skills/using-git-worktrees/tasks/create-worktree.md). "))` |
-| `verify-worktree` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [using-git-worktrees/tasks/verify-worktree.md](.opencode/skills/using-git-worktrees/tasks/verify-worktree.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [using-git-worktrees/tasks/completion.md](.opencode/skills/using-git-worktrees/tasks/completion.md). "))` |
+| `create-worktree` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create feature branch worktree](.opencode/skills/using-git-worktrees/tasks/create-worktree.md). "))` |
+| `verify-worktree` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify worktree state](.opencode/skills/using-git-worktrees/tasks/verify-worktree.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete worktree workflow](.opencode/skills/using-git-worktrees/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "using-git-worktrees"})` ``
 

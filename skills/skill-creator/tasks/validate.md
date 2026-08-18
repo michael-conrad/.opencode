@@ -113,6 +113,16 @@ Missing sections are auto-fixable when the skill's task files exist and the stru
 - Old TDT/DISPATCH_GATE sections: replace with Workflows section
 - Inline procedure content: flag for developer review — the agent MUST NOT move procedure content to task files autonomously, as the decomposition requires developer judgment about task boundaries
 
+## Condensation-Anchor Rule (NORMATIVE)
+
+Every new skill card created and every existing card edited MUST use a **condensation dispatch anchor** in its Workflows dispatch links. The dispatch link `[<condensation>](<path>)` MUST satisfy:
+
+1. **Condensation, not path restatement** — the link text `<condensation>` is a condensation of the linked task card's purpose statement, NOT a restatement of the dispatch path or filename. A link text that repeats the path (`[tasks/validate.md]`), ends in `.md`, or equals the task filename is a dead-weight path-restatement and is FORBIDDEN.
+2. **Purpose-statement source (SC-6)** — the condensation is derived from the task card's purpose statement, which MUST be condensable, outcome-as-subject, and distinctive from sibling tasks.
+3. **Locked template (SC-7)** — the dispatch link follows the locked condensation template `Follow the instructions in [<condensation>](<path>). <context-fields>`.
+
+The structural condensation-format gate in `validate_skill_cards.py` (rule `CONDENSATION-001`) enforces this on card create/edit. A path-restatement dispatch link produces a CONDENSATION violation and FAILs validation.
+
 ## Phase 7: Presenting Findings
 
 Findings are presented to the developer one at a time, not as a bulk report. This allows the developer to consider each finding individually without being overwhelmed.

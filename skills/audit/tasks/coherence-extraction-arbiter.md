@@ -3,7 +3,7 @@
 
 ## Purpose
 
-Provide resolution paths and recommendations based on the Evaluator's verdict. Reads `verdict.yaml` (Evaluator) and produces the final result contract.
+Produce the final coherence-extraction result contract with resolution paths and recommendations based on the Evaluator's verdict. Reads `verdict.yaml` (Evaluator) and produces the final result contract.
 
 ## Entry Criteria
 

@@ -51,11 +51,11 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `classify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/classify.md](.opencode/skills/sync-guidelines/tasks/classify.md). "))` |
-| `sync-push` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/sync-push.md](.opencode/skills/sync-guidelines/tasks/sync-push.md). "))` |
-| `sync-pull` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/sync-pull.md](.opencode/skills/sync-guidelines/tasks/sync-pull.md). "))` |
-| `issue-format` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/issue-format.md](.opencode/skills/sync-guidelines/tasks/issue-format.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync-guidelines/tasks/completion.md](.opencode/skills/sync-guidelines/tasks/completion.md). "))` |
+| `classify` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [classify files for sync](.opencode/skills/sync-guidelines/tasks/classify.md). "))` |
+| `sync-push` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [push guidelines to target repo](.opencode/skills/sync-guidelines/tasks/sync-push.md). "))` |
+| `sync-pull` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [pull guidelines from source repo](.opencode/skills/sync-guidelines/tasks/sync-pull.md). "))` |
+| `issue-format` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [format sync issue content](.opencode/skills/sync-guidelines/tasks/issue-format.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete guideline sync](.opencode/skills/sync-guidelines/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "sync-guidelines"})` ``
 

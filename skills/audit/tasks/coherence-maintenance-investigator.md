@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the coherence-maintenance chain. Reads the baseline coherence state and the current codebase (guidelines and skills), then produces `evidence.yaml` with raw evidence about what exists in both states. This role collects evidence only — it does NOT evaluate, judge, classify drift, or produce PASS/FAIL verdicts.
+Produce `evidence.yaml` with raw evidence about the baseline coherence state and current codebase (guidelines and skills). Collects evidence only — does not evaluate, judge, classify drift, or produce verdicts.
 
 
 ## Dispatch Contract

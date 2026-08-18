@@ -48,9 +48,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 |------|----------------|
-| `tag` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [release-promoter/tasks/tag.md](.opencode/skills/release-promoter/tasks/tag.md). "))` |
-| `create-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [release-promoter/tasks/create-release.md](.opencode/skills/release-promoter/tasks/create-release.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [release-promoter/tasks/completion.md](.opencode/skills/release-promoter/tasks/completion.md). "))` |
+| `tag` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create annotated release tag](.opencode/skills/release-promoter/tasks/tag.md). "))` |
+| `create-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create GitHub release](.opencode/skills/release-promoter/tasks/create-release.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete release promotion](.opencode/skills/release-promoter/tasks/completion.md). "))` |
 
 ## Operating Protocol
 

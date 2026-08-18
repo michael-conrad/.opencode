@@ -49,9 +49,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `principles` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [programming-principles/tasks/principles.md](.opencode/skills/programming-principles/tasks/principles.md). "))` |
-| `check-limits` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [programming-principles/tasks/check-limits.md](.opencode/skills/programming-principles/tasks/check-limits.md). "))` |
-| `decompose` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [programming-principles/tasks/decompose.md](.opencode/skills/programming-principles/tasks/decompose.md). "))` |
+| `principles` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [reference engineering principles](.opencode/skills/programming-principles/tasks/principles.md). "))` |
+| `check-limits` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [check code size limits](.opencode/skills/programming-principles/tasks/check-limits.md). "))` |
+| `decompose` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [decompose oversized code](.opencode/skills/programming-principles/tasks/decompose.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "programming-principles"})` ``
 

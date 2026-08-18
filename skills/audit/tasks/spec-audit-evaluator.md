@@ -7,8 +7,9 @@
 
 ## Purpose
 
-Evaluator role for the spec-audit chain. Reads `evidence.yaml` (Investigator) and `reasoning.yaml` (upstream reasoning role), evaluates each criterion against the spec, and writes `verdict.yaml` with per-criterion PASS/FAIL verdicts. This role produces judgments — it does NOT collect evidence or validate evidence. Those are upstream responsibilities.
+Produce per-criterion PASS/FAIL verdicts in `verdict.yaml` by evaluating each criterion against the spec. Produces judgments only — does not collect or validate evidence.
 
+## Default Assumption
 
 > **Default assumption: FAIL.** The default verdict for every criterion is FAIL unless the evidence 100% supports a clean PASS with no caveats, concerns, or notes. Any hedging, partial evidence, or uncertainty results in FAIL. A clean PASS requires: (1) evidence artifacts from upstream roles are present and complete, (2) no hedging language in the explanation, (3) no caveats or concerns noted, (4) all criteria evaluated against validated evidence.
 

@@ -25,7 +25,7 @@ GitBucket CLI (gb) operations for authentication, issue and PR workflows, labels
 When the agent needs to verify or establish gb CLI authentication against a GitBucket host before running gb commands.
 
 1. **Check authentication** — verify `gb auth status` succeeds, prompt login if missing, verify version >= 0.6.1
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/authenticate.md](.opencode/skills/gb-cli/tasks/authenticate.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [authenticate gb CLI](.opencode/skills/gb-cli/tasks/authenticate.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -33,7 +33,7 @@ When the agent needs to verify or establish gb CLI authentication against a GitB
 When the agent needs to create a PR with title, body, head/base branches, and verify it was created.
 
 1. **Create PR** — `gb pr create` with title/body/head/base, then `gb pr view` to verify (NOT merge — human-only per critical-rules-merge)
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/create-pr.md](.opencode/skills/gb-cli/tasks/create-pr.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create gb pull request](.opencode/skills/gb-cli/tasks/create-pr.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -41,12 +41,12 @@ When the agent needs to create a PR with title, body, head/base branches, and ve
 When the agent needs to list, view, edit, comment on, or close GitBucket issues.
 
 1. **List and view issues** — `gb issue list` with filters, `gb issue view` for details
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/triage-issues.md](.opencode/skills/gb-cli/tasks/triage-issues.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [triage gb issues](.opencode/skills/gb-cli/tasks/triage-issues.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Edit and close issues** — `gb issue edit` for labels/assignees, `gb issue comment`, `gb issue close`
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/triage-issues.md](.opencode/skills/gb-cli/tasks/triage-issues.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [triage gb issues](.opencode/skills/gb-cli/tasks/triage-issues.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -54,12 +54,12 @@ When the agent needs to list, view, edit, comment on, or close GitBucket issues.
 When the agent needs to list, view diff, checkout, and comment on GitBucket PRs.
 
 1. **List and view PRs** — `gb pr list` with filters, `gb pr view` / `gb pr diff` for changes
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/review-pr.md](.opencode/skills/gb-cli/tasks/review-pr.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [review gb pull request](.opencode/skills/gb-cli/tasks/review-pr.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Checkout and comment** — `gb pr checkout`, `gb pr comment` for review feedback (no formal review API — comment-based)
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/review-pr.md](.opencode/skills/gb-cli/tasks/review-pr.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [review gb pull request](.opencode/skills/gb-cli/tasks/review-pr.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -67,12 +67,12 @@ When the agent needs to list, view diff, checkout, and comment on GitBucket PRs.
 When the agent needs to create, fork, view, list, clone, or delete a GitBucket repository.
 
 1. **Create, fork, or delete** — `gb repo create/fork/delete` with confirmation for delete
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-repo.md](.opencode/skills/gb-cli/tasks/manage-repo.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb repositories](.opencode/skills/gb-cli/tasks/manage-repo.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **View and list** — `gb repo view` / `gb repo list` / `gb repo clone`
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-repo.md](.opencode/skills/gb-cli/tasks/manage-repo.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb repositories](.opencode/skills/gb-cli/tasks/manage-repo.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -80,12 +80,12 @@ When the agent needs to create, fork, view, list, clone, or delete a GitBucket r
 When the agent needs to list, create, edit, or delete GitBucket repository labels.
 
 1. **List and create labels** — `gb label list`, `gb label create` with color
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-labels.md](.opencode/skills/gb-cli/tasks/manage-labels.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb labels](.opencode/skills/gb-cli/tasks/manage-labels.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Edit or delete labels** — `gb label edit`, `gb label delete --yes` (post-creation label mutation documented limitation)
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-labels.md](.opencode/skills/gb-cli/tasks/manage-labels.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb labels](.opencode/skills/gb-cli/tasks/manage-labels.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -93,12 +93,12 @@ When the agent needs to list, create, edit, or delete GitBucket repository label
 When the agent needs to list, view, create, edit, or delete GitBucket milestones (gb-specific workflow, no gh equivalent).
 
 1. **List and create milestones** — `gb milestone list`, `gb milestone create`
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-milestones.md](.opencode/skills/gb-cli/tasks/manage-milestones.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb milestones](.opencode/skills/gb-cli/tasks/manage-milestones.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **Edit or delete milestones** — `gb milestone edit`, `gb milestone delete`
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/manage-milestones.md](.opencode/skills/gb-cli/tasks/manage-milestones.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [manage gb milestones](.opencode/skills/gb-cli/tasks/manage-milestones.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -106,12 +106,12 @@ When the agent needs to list, view, create, edit, or delete GitBucket milestones
 When the agent needs to search repositories, issues, or PRs on a GitBucket instance (no native search API — iterative listing + client-side filter).
 
 1. **List and filter** — `gb issue list` / `gb pr list` / `gb repo list` with client-side filtering
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/search-investigate.md](.opencode/skills/gb-cli/tasks/search-investigate.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [search and investigate in gb](.opencode/skills/gb-cli/tasks/search-investigate.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
 2. **API and browse** — `gb api` passthrough to available endpoints, `gb browse` to open in browser
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/search-investigate.md](.opencode/skills/gb-cli/tasks/search-investigate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [search and investigate in gb](.opencode/skills/gb-cli/tasks/search-investigate.md). issue_number: ", issue_number, ", project_root: ", project_root, ", step1_artifact_path: ", step1_artifact_path))`
    - Context: `{issue_number, project_root, step1_artifact_path}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -119,7 +119,7 @@ When the agent needs to search repositories, issues, or PRs on a GitBucket insta
 When the agent needs to make authenticated REST API requests to a GitBucket instance.
 
 1. **Make API request** — `gb api <endpoint>` with method and input
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/api-requests.md](.opencode/skills/gb-cli/tasks/api-requests.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [make gb API requests](.opencode/skills/gb-cli/tasks/api-requests.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -127,7 +127,7 @@ When the agent needs to make authenticated REST API requests to a GitBucket inst
 When the agent needs to generate shell completion scripts for the gb CLI.
 
 1. **Generate completion** — `gb completion <shell>` for bash/zsh/fish/powershell
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/completion.md](.opencode/skills/gb-cli/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [generate gb shell completion](.opencode/skills/gb-cli/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 
@@ -135,7 +135,7 @@ When the agent needs to generate shell completion scripts for the gb CLI.
 When the agent needs to follow a complete multi-step workflow combining multiple gb operations.
 
 1. **Execute workflow** — follow end-to-end workflow examples (PR creation, issue triage, milestone management)
-   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [gb-cli/tasks/common-workflows.md](.opencode/skills/gb-cli/tasks/common-workflows.md). issue_number: ", issue_number, ", project_root: ", project_root))`
+   - Prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [reference gb end-to-end workflows](.opencode/skills/gb-cli/tasks/common-workflows.md). issue_number: ", issue_number, ", project_root: ", project_root))`
    - Context: `{issue_number, project_root}`
    - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
 

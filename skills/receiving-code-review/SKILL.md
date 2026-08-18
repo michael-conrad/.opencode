@@ -47,9 +47,9 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 | Task | Call via task() |
 
-| `address` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/address.md](.opencode/skills/receiving-code-review/tasks/address.md). "))` |
-| `respond` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/respond.md](.opencode/skills/receiving-code-review/tasks/respond.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [receiving-code-review/tasks/completion.md](.opencode/skills/receiving-code-review/tasks/completion.md). "))` |
+| `address` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [address review comments](.opencode/skills/receiving-code-review/tasks/address.md). "))` |
+| `respond` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [respond to review comments](.opencode/skills/receiving-code-review/tasks/respond.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete code review response](.opencode/skills/receiving-code-review/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "receiving-code-review"})` ``
 

@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Investigator role for the content-audit chain. Reads the generated content section from `document_section` and source data from `source_data_paths`, extracts all factual claims, and collects raw evidence about each claim against local source data. This role collects evidence only — it does NOT evaluate, judge, or produce PASS/FAIL/FABRICATED verdicts.
+Produce `evidence.yaml` with raw evidence about each factual claim against local source data, extracted from the generated content section and source data paths. Collects evidence only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract

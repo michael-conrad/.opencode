@@ -6,7 +6,11 @@ PRODUCTION
 
 ## Purpose
 
-Read analysis artifacts from disk, assemble the full spec document, create a remote issue stub (when remote API available), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path. The `needs-approval` and `spec-draft` labels are written to the local `{issues_prefix}/{N}/issue.yaml` labels array as the **primary canonical source**; remote label writes are best-effort/secondary and MUST NEVER block the pipeline. This task does NOT perform analysis steps or verification steps.
+Assemble the full spec document from analysis artifacts, create a remote issue stub (when remote API available), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path. This task does NOT perform analysis steps or verification steps.
+
+## Label Canonical Source
+
+The `needs-approval` and `spec-draft` labels are written to the local `{issues_prefix}/{N}/issue.yaml` labels array as the **primary canonical source**; remote label writes are best-effort/secondary and MUST NEVER block the pipeline.
 
 ## Entry Criteria
 
