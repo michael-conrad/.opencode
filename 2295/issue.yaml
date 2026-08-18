@@ -1,0 +1,8 @@
+title: '[SPEC] Prevent agents from storing source/tests/fixtures in .issues/ worktree
+  (non-deployable repos, lost work)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-18T03:14:25+00:00'
+updated_at: '2026-08-18T03:14:25+00:00'
