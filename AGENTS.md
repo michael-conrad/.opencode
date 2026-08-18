@@ -140,6 +140,20 @@ Session start comprises three sequential steps:
 | Adversarial audit consensus verdict | `.issues/46/audit/consensus.yaml` |
 | Session 2026-06-06 corrections | `.issues/lessons-learned/session-2026-06-06/README.md` |
 
+## Exclusions — Content Boundary
+
+`.issues/` holds issue metadata only — never source/test/fixture/code.
+
+The `.issues/` worktree is a metadata-only store. The following content types MUST NOT live in `.issues/`:
+
+- Source code (`.py`, `.ts`, `.js`, `.rs`, `.go`, `.java`, etc.)
+- Test files and test fixtures
+- Test configuration
+- Application code of any language
+- Build artifacts, lock files, or compiled outputs
+
+`.issues/` is reserved for spec/plan/card/design/research/audit metadata and evidence artifacts associated with issue tracking. It is not a code directory. Never source/test/fixture/code.
+
 ## Authorization
 
 Reading and writing `.issues/` is **authorization-free** — it is workspace-local metadata, not implementation code. All spec/plan/card operations within `.issues/` may proceed without `"approved"` or `"go"`.
