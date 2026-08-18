@@ -1,0 +1,30 @@
+code_path_inventory:
+  issue_number: 2296
+  description: "Code paths touched by each phase"
+  phases:
+    phase_2_per_file:
+      - item: ITEM-1 (SC-1)
+        code_paths:
+          - ".opencode/skills/*/SKILL.md (48 files) — dispatch link [text] values"
+      - item: ITEM-2 (SC-2)
+        code_paths:
+          - ".opencode/skills/*/tasks/*.md — Purpose sections of flagged task cards"
+      - item: ITEM-3 (SC-3)
+        code_paths:
+          - ".opencode/skills/playwright-cli/SKILL.md"
+          - ".opencode/skills/completion-core/SKILL.md"
+      - item: ITEM-4 (SC-4)
+        code_paths:
+          - ".opencode/skills/audit/SKILL.md (4 placeholder dispatch links)"
+    phase_3_post:
+      - item: ITEM-5 (SC-5)
+        code_paths:
+          - ".opencode/skills/skill-creator/SKILL.md"
+          - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+          - ".opencode/skills/skill-creator/tasks/validate.md"
+      - item: ITEM-6 (SC-6)
+        code_paths:
+          - ".opencode/reference/task-card-structure-standards.md"
+      - item: ITEM-7 (SC-7)
+        code_paths:
+          - ".opencode/reference/skill-card-description-standards.md"

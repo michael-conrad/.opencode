@@ -1,0 +1,67 @@
+pre_spec_inspection:
+  issue_number: 2296
+  issue_repo: .opencode
+  topic: "Semantic dispatch link text as purpose-statement condensation"
+  verification_method: "Live scripted scan of .opencode/skills/ via rg/find on 2026-08-18"
+  scope:
+    total_skill_md_files: 200
+    top_level_skill_dirs: 47
+    files_with_dispatch_links: 48
+    total_dispatch_links: 255
+    links_using_path_restatement: 255
+    files_using_legacy_table_dispatch_format: [completion-core, playwright-cli]
+
+  findings:
+    - id: F1
+      claim: "48 SKILL.md files contain dispatch links"
+      verified: true
+      detail: "rg -l 'You are a sub-agent. Follow the instructions in \\[' . -g 'SKILL.md' returns exactly 48 files."
+    - id: F2
+      claim: "255 dispatch links across 48 files use [text] that restates the path"
+      verified: true
+      detail: "All 255 occurrences of 'You are a sub-agent. Follow the instructions in [x](y)' have [x] == the task path without the leading '.opencode/skills/' prefix, i.e. the link text duplicates the URL path."
+    - id: F3
+      claim: "Semantic condensation pattern already used in body cross-references"
+      verified: true
+      detail: "release-promoter/tasks/operating-protocol.md and completion-core use 'Read [the full completion operations](path)' semantic-text form in body cross-references."
+    - id: F4
+      claim: "playwright-cli and completion-core use legacy table dispatch format"
+      verified: true
+      detail: "Both contain '## Trigger Dispatch Table' with '| User says / Context | Task | Dispatch | Context passed |' rows and '## Tasks'/'## Invocation' sections — the legacy format the canonical checklist sub-bullets replace."
+    - id: F5
+      claim: "audit skill uses placeholder dispatch links with <audit-type> in both text and path"
+      verified: true
+      detail: "4 dispatch links in audit/SKILL.md use [audit/tasks/<audit-type>-{role}.md](.opencode/skills/audit/tasks/<audit-type>-{role}.md) — path template in both text and URL."
+    - id: F6
+      claim: "skill-creator has a validation script (validate_skill_cards.py) and a validate task"
+      verified: true
+      detail: "skills/skill-creator/scripts/validate_skill_cards.py (576 lines) runs mechanical REQ-1/2/3 checks; skills/skill-creator/tasks/validate.md documents the 7-phase review workflow. A condensation-format gate can be added as a new mechanical check (REQ-4 or SC-LINT-xxx)."
+    - id: F7
+      claim: "reference/task-card-structure-standards.md documents the dispatch discovery directive with path template"
+      verified: true
+      detail: "Section 4 'Task File Discovery Directive' line 192 shows 'Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md)'. No condensation/purpose-source requirement exists today."
+    - id: F8
+      claim: "reference/skill-card-description-standards.md documents the base prompt format with path template"
+      verified: true
+      detail: "Line 309 base prompt format uses [<skill>/tasks/<task>.md]. No locked condensation dispatch template exists today."
+    - id: F9
+      claim: "Task cards have a Purpose section usable as the condensation source"
+      verified: true
+      detail: "Sample gh-cli/tasks/authenticate.md has '## Purpose' — 1-2 sentence third-person declarative outcome statement. Purpose statements are the condensation source per SC-1."
+
+  affected_files:
+    - .opencode/skills/*/SKILL.md (48 files, 255 dispatch links)
+    - .opencode/skills/playwright-cli/SKILL.md
+    - .opencode/skills/completion-core/SKILL.md
+    - .opencode/skills/audit/SKILL.md
+    - .opencode/skills/skill-creator/SKILL.md
+    - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    - .opencode/skills/skill-creator/tasks/validate.md
+    - .opencode/reference/task-card-structure-standards.md
+    - .opencode/reference/skill-card-description-standards.md
+
+  conventions:
+    - Dispatch link format: 'You are a sub-agent. Follow the instructions in [<task-path>](.opencode/skills/<task-path>). <context-fields>'
+    - Purpose section is the first content section after provenance/frontmatter in every task card
+    - Canonical checklist dispatch format uses numbered-checkbox list (- [ ] N.) with sub-bullets (Prompt, Context, Returns, Execution mode)
+    - Legacy table format uses Trigger Dispatch Table + Tasks + Invocation sections

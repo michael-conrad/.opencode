@@ -1,0 +1,40 @@
+pipeline_readiness:
+  issue_number: 2296
+  validations:
+    - check: "Atomicity — every SC maps to exactly one RED->GREEN->COMMIT cycle"
+      pass: true
+      detail: "7 SCs map 1:1 to 7 implementation items (ITEM-1..7). No item covers multiple SCs."
+    - check: "Dependency ordering — SC dependency DAG is acyclic"
+      pass: true
+      detail: "ITEM-5 depends on ITEM-1/6/7 (format/source must exist before gate). ITEM-2 driven by ITEM-1 findings. ITEM-3/4 independent. ITEM-6/7 independent but mutually consistent. No cycles."
+    - check: "Single concern — every SC targets one file category and one verification domain"
+      pass: true
+      detail: "ITEM-1: SKILL.md dispatch links / string. ITEM-2: task-card Purpose / string. ITEM-3: 2 skill-card formats / string. ITEM-4: audit skill links / string. ITEM-5: skill-creator script+docs / structural. ITEM-6: task-card-structure reference / string. ITEM-7: skill-card-description reference / string."
+    - check: "Phase dependency — phase dependency graph is acyclic"
+      pass: true
+      detail: "phase_2_per_file (ITEM-1/2/3/4) -> phase_3_post (ITEM-5/6/7). No post->per-file dependency."
+    - check: "Three-tier structure — multi-phase specs have pre/per-file/post structure"
+      pass: true
+      detail: "phase_1_pre: empty (no shared pre-work beyond the spec's own audit). phase_2_per_file: the 4 per-file SC rewrites/conversions. phase_3_post: the 3 enforcement/doc normative SCs (gate + 2 references)."
+
+  blockers:
+    - id: BLOCK-1
+      status: resolved_in_analysis
+      detail: "Spec states '48 affected SKILL.md files' and '255 dispatch links'. Live scan confirms 48 files and 255 'You are a sub-agent. Follow the instructions in [...]' links. The spec's 48-file / 255-link claim is accurate."
+    - id: BLOCK-2
+      status: note
+      detail: "SC-3 (playwright-cli, completion-core) and SC-4 (audit) reference skills whose dispatch links are either absent from the 255 (playwright-cli, completion-core use legacy table format with no 'You are a sub-agent' links) or use placeholder templates counted in the 255 (audit 4 links). SC-1's 'all 255 links' excludes the 2 legacy-format skills; SC-3 covers their conversion separately. No overlap or double-count: SC-1 rewrites the 255 concrete links (including audit's 4 placeholders), SC-3 converts the 2 legacy-format skills to checklist form (which will then be subject to SC-1's condensation rule in the same or follow-on pass), SC-4 additionally rewrites the audit placeholder [text] to semantic templates."
+
+  readiness_verdict: PASS
+  evidence_artifacts:
+    - tmp/2296/artifacts/pre-spec-inspection.yaml
+    - tmp/2296/artifacts/research-card-consultation.yaml
+    - tmp/2296/artifacts/blast-radius.yaml
+    - tmp/2296/artifacts/concern-map.yaml
+    - tmp/2296/artifacts/code-path-inventory.yaml
+    - tmp/2296/artifacts/cross-cutting-matrix.yaml
+    - tmp/2296/artifacts/interface-compatibility.yaml
+    - tmp/2296/artifacts/state-analysis.yaml
+    - tmp/2296/artifacts/testability-assessment.yaml
+    - tmp/2296/contracts/requirements-output.yaml
+    - tmp/2296/contracts/decompose-output.yaml

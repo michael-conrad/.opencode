@@ -1,0 +1,16 @@
+research_card_consultation:
+  issue_number: 2296
+  topic: "Semantic dispatch link text as purpose-statement condensation"
+  cards_consulted:
+    - card: .opencode/.issues/research-cards/cross-reference-form-comparison.md
+      title: "Cross-Reference Form Comparison — Inline Link vs Resolution Table"
+      confidence: 0.95
+      relevant_findings:
+        - "Inline link form is the only viable pattern at 100% Tier 1 access rate (12/12)."
+        - "The resolution-table + admonition pattern achieves only 42-58% — the agent reads the table as text but does not follow the links."
+        - "Implication: the dispatch discovery directive MUST keep the inline markdown link form (path stays a real link). SC-1 must preserve the link URL while changing only the link [text]."
+        - "Verb sub-test: 'Load' was the only verb triggering file access + correct value application. Supports keeping 'Follow the instructions in [condensation](path)' verb framing — the verb stays, only the link text becomes semantic."
+  cards_with_no_match:
+    - "No research card directly addresses dispatch-anchor condensation or dispatch link [text] semantics."
+  gap: "No prior card covers the semantic-content-of-the-link-text dimension. This spec's SC-6/SC-7 introduce a new normative rule (purpose-statement as condensation source). The condensation format rule itself is novel and will need its own validation gate (SC-5) rather than reuse of an existing card."
+  recommendation: "Proceed with inline-link preservation (SC-1 rewrites only [text], never the URL). Follow existing inline-link best practice from cross-reference-form-comparison (confidence 0.95)."

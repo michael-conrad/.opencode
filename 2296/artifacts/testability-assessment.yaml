@@ -1,0 +1,35 @@
+testability_assessment:
+  issue_number: 2296
+  description: "Test strategy per phase"
+  phases:
+    phase_2_per_file:
+      - item: ITEM-1 (SC-1)
+        test_strategy: structural
+        detail: "Structural condensation-format check: verify every dispatch link [text] in the 48 files is a purpose condensation (not a path restatement) and the URL is unchanged. Scriptable via rg/regex over SKILL.md files."
+        evidence_type: string
+      - item: ITEM-2 (SC-2)
+        test_strategy: structural
+        detail: "Structural audit of corrected purpose statements: verify condensability, outcome-as-subject, distinctiveness from siblings. Re-run condensation check (ITEM-1 gate) on corrected purposes."
+        evidence_type: string
+      - item: ITEM-3 (SC-3)
+        test_strategy: structural
+        detail: "Structural format check: verify playwright-cli and completion-core use canonical numbered-checkbox sub-bullets (no legacy Trigger Dispatch Table / Invocation sections)."
+        evidence_type: string
+      - item: ITEM-4 (SC-4)
+        test_strategy: structural
+        detail: "Structural check: verify audit dispatch links use semantic templates in [text] (no path-restatement in [text]); URL path template unchanged."
+        evidence_type: string
+    phase_3_post:
+      - item: ITEM-5 (SC-5)
+        test_strategy: unit + structural
+        detail: "Unit-test the new validate_skill_cards.py condensation check (positive case: condensation [text] passes; negative case: path-restatement [text] FAILs). Run the script against sample rewritten cards."
+        evidence_type: structural
+      - item: ITEM-6 (SC-6)
+        test_strategy: structural
+        detail: "Structural doc review: verify §4 specifies purpose as dispatch-anchor source (condensable, outcome-as-subject, distinctive)."
+        evidence_type: string
+      - item: ITEM-7 (SC-7)
+        test_strategy: structural
+        detail: "Structural doc review: verify locked condensation dispatch template present and consistent with ITEM-6."
+        evidence_type: string
+  overall_note: "Per spec Notes, enforcement is a structural condensation-format check (validation gate in skill-creator), NOT a behavioral RED test. All SCs use structural/string evidence types."

@@ -1,0 +1,25 @@
+cross_cutting_matrix:
+  issue_number: 2296
+  description: "Cross-cutting concerns matrix"
+  concerns:
+    - concern: "URL/path integrity"
+      applies_to: [ITEM-1, ITEM-4]
+      note: "Every [text] rewrite must preserve the link URL (the task path). No routing breakage."
+    - concern: "Purpose-statement semantic fidelity"
+      applies_to: [ITEM-2]
+      note: "Corrected purposes must remain faithful to the task's core outcome — no semantic drift."
+    - concern: "Condensation distinctiveness"
+      applies_to: [ITEM-1, ITEM-2]
+      note: "Condensations must be distinctive from sibling tasks within the same skill."
+    - concern: "Canonical dispatch format consistency"
+      applies_to: [ITEM-3, ITEM-1]
+      note: "playwright-cli/completion-core converted to canonical checklist (ITEM-3) and must then carry condensation links (ITEM-1)."
+    - concern: "Normative source consistency"
+      applies_to: [ITEM-6, ITEM-7, ITEM-5]
+      note: "The condensation SOURCE (purpose, ITEM-6) and FORMAT (<condensation>, ITEM-7) must be consistent with the skill-creator validation gate (ITEM-5)."
+    - concern: "Structural (non-behavioral) enforcement"
+      applies_to: [ITEM-5]
+      note: "The validation gate is a structural condensation-format check, NOT a behavioral RED test (spec Notes)."
+    - concern: "Audit DiMo role distinctiveness"
+      applies_to: [ITEM-4]
+      note: "The 4 placeholder links (investigator/validator/evaluator/arbiter) must remain distinguishable after semantic templating."

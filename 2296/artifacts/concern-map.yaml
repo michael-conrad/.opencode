@@ -1,0 +1,27 @@
+concern_map:
+  issue_number: 2296
+  description: "Concern boundaries and separation per phase"
+  phases:
+    phase_2_per_file:
+      - item: ITEM-1 (SC-1)
+        concern: "Dispatch anchor semantics (link [text] content)"
+        separation: "One concern — rewrite link [text] only. URL/path, dispatch verbs, and context fields are out of scope. Kept atomic per SC-1."
+      - item: ITEM-2 (SC-2)
+        concern: "Purpose statement quality (condensability, outcome-as-subject, distinctiveness)"
+        separation: "Distinct from ITEM-1 — ITEM-1 rewrites links; ITEM-2 corrects the purpose SOURCE. Two separate work units."
+      - item: ITEM-3 (SC-3)
+        concern: "Dispatch format structure (table vs checklist)"
+        separation: "Distinct from ITEM-1/2 — a structural conversion of the dispatch presentation, not the link text. Only playwright-cli and completion-core."
+      - item: ITEM-4 (SC-4)
+        concern: "Placeholder template semantics (path template vs semantic template)"
+        separation: "Distinct concern — only the audit skill's 4 placeholder links. Kept separate from ITEM-1 because the audit links use templates, not concrete paths."
+    phase_3_post:
+      - item: ITEM-5 (SC-5)
+        concern: "Enforcement gate for condensation format (skill-creator validation)"
+        separation: "Distinct — enforcement tooling, not content. Depends on ITEM-1/6/7 defining the format to enforce."
+      - item: ITEM-6 (SC-6)
+        concern: "Purpose-as-dispatch-anchor normative source (task-card-structure-standards)"
+        separation: "Documentation concern; defines the condensation SOURCE contract."
+      - item: ITEM-7 (SC-7)
+        concern: "Locked condensation dispatch template (skill-card-description-standards)"
+        separation: "Documentation concern; defines the condensation FORMAT contract."

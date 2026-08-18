@@ -1,0 +1,49 @@
+blast_radius:
+  issue_number: 2296
+  description: "Affected components and ripple effects per phase"
+  phases:
+    phase_2_per_file:
+      - item: ITEM-1 (SC-1)
+        affected_components:
+          - "48 SKILL.md files (all dispatch link [text] values)"
+        ripple_effects:
+          - "Every skill's dispatch discovery directive [text] changes; URL paths unchanged so routing still resolves"
+          - "Any test/agent that matches on the old [text] (path-restatement) string would break — grep evidence: no enforcement tests assert path-restatement [text] (verified via research-card scan; condensation is not behaviorally asserted)"
+        blast_radius: "Wide but shallow — touches all 48 files; each edit is a localized [text] swap with URL unchanged."
+      - item: ITEM-2 (SC-2)
+        affected_components:
+          - "Task cards whose Purpose statements fail condensation audit"
+        ripple_effects:
+          - "Purpose sections are consumed as dispatch-anchor source; corrected purposes must remain semantically faithful (intent preservation constraint)"
+        blast_radius: "Limited to purpose statements flagged in ITEM-1."
+      - item: ITEM-3 (SC-3)
+        affected_components:
+          - "playwright-cli/SKILL.md, completion-core/SKILL.md"
+        ripple_effects:
+          - "Structure conversion from table to checklist; dispatch contracts must be preserved (task names, context fields)"
+        blast_radius: "Isolated to 2 skills."
+      - item: ITEM-4 (SC-4)
+        affected_components:
+          - "audit/SKILL.md (4 placeholder dispatch links)"
+        ripple_effects:
+          - "[text] becomes semantic template; URL path template unchanged; the 4 DiMo roles must remain distinguishable"
+        blast_radius: "Isolated to audit skill."
+    phase_3_post:
+      - item: ITEM-5 (SC-5)
+        affected_components:
+          - "skill-creator/SKILL.md, scripts/validate_skill_cards.py, tasks/validate.md"
+        ripple_effects:
+          - "New condensation-format validation gate fires on card create/edit; must not false-positive on existing rewritten cards"
+        blast_radius: "skill-creator validation tooling only; no effect on dispatch behavior."
+      - item: ITEM-6 (SC-6)
+        affected_components:
+          - "reference/task-card-structure-standards.md"
+        ripple_effects:
+          - "Purpose statement becomes normative dispatch-anchor source; downstream skill-creator gate and ITEM-1 depend on this definition"
+        blast_radius: "Documentation; establishes the condensation source contract."
+      - item: ITEM-7 (SC-7)
+        affected_components:
+          - "reference/skill-card-description-standards.md"
+        ripple_effects:
+          - "Locked dispatch template [<condensation>](<path>) governs all future dispatch links; must be consistent with ITEM-6"
+        blast_radius: "Documentation; establishes the locked template contract."

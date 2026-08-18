@@ -1,0 +1,56 @@
+interface_compatibility:
+  issue_number: 2296
+  description: "Interface compatibility analysis per phase"
+  phases:
+    phase_2_per_file:
+      - item: ITEM-1 (SC-1)
+        interfaces:
+          - name: "dispatch link [text]"
+            status: modified
+            compatibility: backward_compatible
+            note: "Link text changes; the link target/URL unchanged. Any agent relying on the URL still resolves; agents reading the [text] get more semantic context (improvement, not breakage)."
+          - name: "dispatch link URL/path"
+            status: unchanged
+            compatibility: backward_compatible
+            note: "Path stays identical — no routing change."
+      - item: ITEM-2 (SC-2)
+        interfaces:
+          - name: "task card Purpose section"
+            status: modified
+            compatibility: backward_compatible
+            note: "Purpose reworded for condensability/outcome-subject/distinctiveness; semantics preserved."
+      - item: ITEM-3 (SC-3)
+        interfaces:
+          - name: "dispatch format (table -> checklist)"
+            status: modified
+            compatibility: internal_only
+            note: "Internal skill-card structure conversion. Dispatch contracts (task names, context fields) preserved; orchestration behavior unchanged."
+      - item: ITEM-4 (SC-4)
+        interfaces:
+          - name: "audit placeholder dispatch [text]"
+            status: modified
+            compatibility: internal_only
+            note: "Path template -> semantic template in [text]; URL path template unchanged."
+    phase_3_post:
+      - item: ITEM-5 (SC-5)
+        interfaces:
+          - name: "validate_skill_cards.py condensation check"
+            status: new
+            compatibility: internal_only
+            note: "New structural validation rule; existing validation output format (violation array) preserved."
+          - name: "skill-creator SKILL.md / validate.md"
+            status: modified
+            compatibility: internal_only
+            note: "Adds normative condensation rule and gate documentation."
+      - item: ITEM-6 (SC-6)
+        interfaces:
+          - name: "task-card-structure-standards.md §4"
+            status: modified
+            compatibility: internal_only
+            note: "Adds purpose-as-dispatch-anchor-source normative spec."
+      - item: ITEM-7 (SC-7)
+        interfaces:
+          - name: "skill-card-description-standards.md base prompt template"
+            status: modified
+            compatibility: internal_only
+            note: "Adds locked condensation dispatch template [<condensation>](<path>)."
