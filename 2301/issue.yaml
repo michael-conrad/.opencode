@@ -1,0 +1,15 @@
+number: 2301
+title: "[SPEC-FIX] import-remote must materialize missing mirror files instead of halting on directory existence"
+status: open
+labels:
+  - bug
+  - spec
+  - needs-approval
+created: 2026-08-19T10:50:00Z
+updated: 2026-08-19T10:50:00Z
+remote_issue: 2301
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2301"
+promoted_at: 2026-08-19T10:50:00Z
+promotion_type: retroactive_import
+last_sync: 2026-08-19T10:50:00Z
+author: michael-conrad
