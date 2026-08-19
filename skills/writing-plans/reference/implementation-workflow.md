@@ -59,9 +59,9 @@ Each SC follows a RED → GREEN → COMMIT sequence:
 
 ## Artifact Retention
 
-### Rule 1: Permanent Artifacts Never Cleaned
+### Rule 1: `.issues/{N}/` Holds Issue Metadata Only
 
-Artifacts under `.issues/{issue-N}/` (root repo) or `{project_root}/{path}/.issues/{issue-N}/` (submodule/sub-repo) are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for spec lifecycle, SC coverage, verification consistency, and revision re-entry protocols.
+`.issues/{N}/` holds issue metadata only, not arbitrary source/test/fixture artifacts. It does not host source code, test files, fixtures, or any other implementation artifacts. The directory is reserved for the issue's tracking record — spec, plan, evidence, and lifecycle state. These files are permanent — they survive pipeline restarts, branch switches, and PR merges. Never delete or clean these files. They serve as the authoritative audit trail for issue lifecycle, SC coverage, verification consistency, and revision re-entry protocols. Implementation artifacts (source, tests, fixtures) belong under their designated project directories, never under `.issues/{N}/`.
 
 ### Rule 2: Ephemeral Artifacts Cleaned at PR Merge
 
