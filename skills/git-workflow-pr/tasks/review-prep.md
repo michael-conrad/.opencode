@@ -36,21 +36,7 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 ## Procedure
 
-### Step 0: Auto-Commit Dirty .issues/<N>/ Files (MANDATORY)
-
-Before push, auto-commit any dirty `.issues/<issue_number>/` files to ensure all tracking artifacts ride with the feature PR:
-
-```bash
-# Check for uncommitted .issues/ changes
-if git status --porcelain -- .issues/ 2>/dev/null | grep -q '^'; then
-    git add .issues/
-    git commit -m "docs(issues): <issue_number> - tracking artifacts checkpoint before review-prep"
-fi
-```
-
-**No separate PR required.** `.issues/<N>/` commits ride along with the feature branch PR. No additional authorization needed — covered by feature branch authorization — Read [Auto-Commit Convention](guidelines/000-critical-rules.md).
-
-### Steps 0-2: Push, Cleanup, Rebase, Verify
+### Steps 1-2: Push, Cleanup, Rebase, Verify
 
 **Route to:** `review-prep/push-and-cleanup`
 
@@ -111,13 +97,12 @@ Guideline and documentation changes are NOT exempt from PR workflow.
 
 | Sub-Task | Purpose | Handler | Words |
 | -- | -- | -- | -- |
-| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | sub-agent (Step 0) | ≈700 |
+| `review-prep/push-and-cleanup` | Submodule push via sub-agent, temp cleanup, rebase, branch push, worktree handoff | sub-agent | ≈700 |
 | `review-prep/report-url` | URL generation, chat format, HALT protocol | — | ≈600 |
 
 ## Enforcement Checklist
 
 - ✅ Implementation work is complete
-- ✅ `.issues/<N>/` dirty files auto-committed (Step 0)
 - ✅ All file changes committed
 - ✅ Branch pushed to remote
 - ✅ Temp files cleaned

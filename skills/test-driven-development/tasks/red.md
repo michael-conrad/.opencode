@@ -39,7 +39,14 @@ The RED phase targets exactly one SC from the spec. Reference the SC-ID in the t
 | Expected on FAIL | Exit code N (non-zero) |
 | Artifact output | `{project_root}/tmp/{issue-N}/artifacts/{phase}-test-output.log` |
 
-Test files go to permanent storage (`.opencode/tests-v2/` or `.issues/{N}/tests/`).
+### Test Placement — Owning-Repo Principle
+
+Determine test file placement by resolving the repo owning the code under test, then placing per that repo's conventions. Do NOT default to `.issues/` and do NOT default to the root repo's test path when the code under test lives in another repo.
+
+1. Resolve the repo owning the code under test using the `## Repo Information` section from session-init (match the affected file path prefix).
+2. Place the test file per that repo's conventions (e.g., `.opencode/tests-v2/` for `.opencode` code, `test/` for root repo code).
+3. Only when the owning repo's convention is indeterminate, fall back to the configured test storage path.
+
 Test output artifacts (exit code, stdout, stderr) go to `{project_root}/tmp/{issue-N}/artifacts/` for auditor consumption. Auditors inspect artifacts, they do NOT re-run tests.
 
 ## Task Context Schema

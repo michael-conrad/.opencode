@@ -129,14 +129,15 @@ Include the GitHub URL blockquote at the top of the local spec:
 
 ### Step 6: Copy analytical artifacts
 
-Copy analytical artifacts from the analysis step to the issue's artifact directory:
+Copy **only analysis artifacts** from the analysis step to the issue's artifact directory. The `.issues/{N}/artifacts/` directory is a metadata-only store — it MUST NOT receive source code, test files, test fixtures, or any other non-analysis content. Only the analysis artifacts produced by the spec-creation pipeline (pre-spec-inspection, requirements, decomposition, and the 7 analytical artifacts) belong here.
 
 - [ ] 1. Source: `tmp/{issue_number}/artifacts/`
 - [ ] 2. Destination: `{project_root}/{path}/.issues/{issue_number}/artifacts/`
-- [ ] 3. Use `shutil.copytree` or equivalent to copy the full artifact directory
-- [ ] 4. If the source directory does not exist, log a warning and continue (artifacts may have been cleaned up)
+- [ ] 3. Copy only the analysis artifacts (`.yaml`/`.md` analysis outputs such as `pre-spec-inspection.yaml`, `requirements-output.yaml`, `decompose-output.yaml`, `blast-radius.yaml`, `concern-map.yaml`, `code-path-inventory.yaml`, `cross-cutting-matrix.yaml`, `interface-compatibility.yaml`, `state-analysis.yaml`, `testability-assessment.yaml`, `pipeline-readiness.yaml`) — do NOT copy source code, test files, test fixtures, or test configuration
+- [ ] 4. Use `shutil.copytree` or equivalent to copy the analysis-artifact directory
+- [ ] 5. If the source directory does not exist, log a warning and continue (artifacts may have been cleaned up)
 
-This ensures analytical artifacts are preserved alongside the spec for downstream consumers (auditors, plan creators).
+This ensures analysis artifacts are preserved alongside the spec for downstream consumers (auditors, plan creators) while keeping `.issues/{N}/artifacts/` free of source/test/fixture content.
 
 ```
 > **Full spec and artifacts: [`{issues_prefix}{N}/`]({browser_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
@@ -160,7 +161,7 @@ After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/i
 - [ ] Remote `spec-draft` label write attempted best-effort; remote failure does not block completion
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
-- [ ] Analytical artifacts copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
+- [ ] Analysis artifacts (not source/test/fixture) copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
 - [ ] `artifact_url` from `push-artifacts` recorded in the result contract for the `reconcile-push` step
 - [ ] No internal sub-agent dispatch performed — this task executes its steps directly
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
