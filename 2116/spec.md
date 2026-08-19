@@ -6,10 +6,22 @@ spec-creation's validate task does not check whether SCs are properly decomposed
 to atomic work units. Monolithic SCs pass through to plan creation and implementation,
 where defects are more expensive to fix.
 
-The current `validate.md` Step 3.3 "Compound-SC detection" flags conjunctions
-(`and`, `or`, `also`, `plus`) but does not enforce the 4 spec-level decomposition
+The current `validate.md` Step 3.3 "Compound-SC
+detection" flags conjunctions (`and`, `or`, `also`, `plus`) but does not enforce the 6 spec-level decomposition
 criteria defined in the master reference. This spec adds those criteria to the
 validate pipeline.
+
+The spec-level criteria set comprises the four original criteria (atomicity, single
+deliverable, binary verifiability, PR-gate viability) plus a new section covering two
+additional defect classes detected at the same decomposition pass: **Ceremony** (an SC
+that adds zero verification signal over the union of prior SCs — same deliverable +
+same verification method, no new requirement) and **Coverage / covered-by-prior** (an
+SC whose requirement set is already entailed by a prior SC). Both new criteria are
+computed as set-entailment over prior SCs only; the Problem Statement / intent prose
+universe is explicitly OUT OF SCOPE because the master reference's Binary Verifiability
+criterion (criterion 3) forbids interpretation-dependent verdicts. The new section is
+spec-level only and does not touch the plan-level criteria (acyclic DAG, file collision
+freedom, explicit dependency declaration).
 
 ## Root Cause / Motivation
 
@@ -29,6 +41,16 @@ content, not the master reference's numbered heading format — the inline copy 
 unnumbered headings per SC-1). Entry condition: skip if spec has 1 SC
 AND 1 affected file.
 
+The Decomposition Criteria section covers the 6 spec-level criteria: the four original
+criteria (atomicity, single deliverable, binary verifiability, PR-gate viability) plus
+the new Ceremony and Coverage criteria. The Ceremony and Coverage criteria are evaluated
+in the same decomposition pass as the four original criteria. Both are computed as
+set-entailment over prior SCs only — the Problem Statement / intent prose universe is
+explicitly OUT OF SCOPE because the master reference's Binary Verifiability criterion
+(criterion 3) forbids interpretation-dependent verdicts. The new section is spec-level
+only; it does not touch the plan-level criteria (acyclic DAG, file collision freedom,
+explicit dependency declaration).
+
 ## Alternatives Considered & Why Discarded
 
 The selected approach is a single inline copy of the decomposition criteria in
@@ -45,7 +67,7 @@ discarded:
    check into a separate script or skill invoked by validate. **Discarded:**
    over-engineering — the check is a deterministic string/pass-fail evaluation best
    expressed as inline checklist text; a separate tool adds dispatch overhead with no
-   behavioral benefit for a 4-criterion checklist.
+   behavioral benefit for a 6-criterion checklist.
 3. **Defer enforcement entirely to the Phase 3 audit evaluator (#2117).** Rely solely
    on the audit evaluator to catch monolithic SCs. **Discarded:** this leaves a gap in
    the validate gate — monolithic SCs would pass validate and be caught only later at
@@ -73,7 +95,7 @@ discarded:
 
 The original user prompt that motivated this spec is not recorded in the available
 session context. The recorded intent is the change request that produced issue #2116:
-the spec-creation validate task does not enforce the 4 spec-level decomposition
+the spec-creation validate task does not enforce the 6 spec-level decomposition
 criteria defined in the master reference file, so monolithic SCs pass through to plan
 creation and implementation where defects are more expensive to fix. This spec adds
 those criteria to the validate pipeline.
@@ -89,9 +111,9 @@ branches, matching the format SC-2 mandates for the inline copy in validate.md.
 
 An **atomic work unit** is a single concern that cannot be further decomposed without
 losing meaning, and that maps to exactly one deliverable and one verifiable outcome.
-It is the granularity standard the four criteria below enforce: an SC that bundles
+It is the granularity standard the six criteria below enforce: an SC that bundles
 more than one concern, produces more than one deliverable, or requires more than one
-verifiable outcome is not atomic. The four decision trees below define the
+verifiable outcome is not atomic. The six decision trees below define the
 mechanically-checkable test of whether an SC is a single atomic work unit.
 
 ### Atomicity
@@ -143,12 +165,43 @@ it makes that truth permanent. An SC that requires multiple PR merges to satisfy
 not PR-gate viable and SHALL be decomposed into sub-SCs, each with its own RED/GREEN
 cycle.
 
+### Ceremony
+
+```
+Does the SC add any verification signal over the union of prior SCs?
+├── YES → PASS — SC adds a new verification signal
+└── NO → FAIL — SC is ceremony (same deliverable + same verification method, no new requirement)
+```
+
+**Scope of comparison:** The Ceremony criterion is computed as set-entailment over
+prior SCs only — the union of the deliverables and verification methods of all SCs
+that precede it in the spec. The Problem Statement / intent prose universe is
+explicitly OUT OF SCOPE because the master reference's Binary Verifiability criterion
+(criterion 3) forbids interpretation-dependent verdicts. An SC that repeats a prior
+SC's deliverable and verification method without adding a new requirement is
+ceremony and SHALL be removed or merged into the prior SC.
+
+### Coverage / Covered-by-Prior
+
+```
+Is the SC's requirement set already entailed by a prior SC?
+├── NO → PASS — SC adds a requirement not entailed by any prior SC
+└── YES → FAIL — SC is covered by a prior SC (requirement set already entailed)
+```
+
+**Scope of comparison:** The Coverage criterion is computed as set-entailment over
+prior SCs only — the requirement set of each prior SC in the spec. The Problem
+Statement / intent prose universe is explicitly OUT OF SCOPE because the master
+reference's Binary Verifiability criterion (criterion 3) forbids
+interpretation-dependent verdicts. An SC whose requirement set is already entailed by
+a prior SC is redundant and SHALL be removed or merged into the entailing SC.
+
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `spec-creation/tasks/validate.md` includes inline decomposition criteria checklist for 4 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability | string | grep for each of the 4 exact criterion headings `### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability` in validate.md — all 4 must match |
-| SC-2 | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL branches (not prose guidance) | string | grep for the exact branch tokens `PASS —` and `FAIL —` in validate.md — each of the 4 decision-tree blocks must contain at least one `PASS —` and one `FAIL —` line |
+| SC-1 | `spec-creation/tasks/validate.md` includes inline decomposition criteria checklist for 6 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability, ceremony, coverage / covered-by-prior | string | grep for each of the 6 exact criterion headings `### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`, `### Ceremony`, `### Coverage / Covered-by-Prior` in validate.md — all 6 must match |
+| SC-2 | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL branches (not prose guidance) | string | grep for the exact branch tokens `PASS —` and `FAIL —` in validate.md — each of the 6 decision-tree blocks must contain at least one `PASS —` and one `FAIL —` line |
 | SC-3 | Atomicity check includes trigger-word sub-check (and, or, comma-separated lists → FAIL) | string | grep for the exact strings `and`, `or`, and `comma-separated` within the Atomicity decision-tree block in validate.md — all 3 must match |
 | SC-4 | Binary verifiability check includes disjunctive pattern sub-check (either/or, alternatively, one of → FAIL) | string | grep for the exact strings `either/or`, `alternatively`, and `one of` within the Binary Verifiability decision-tree block in validate.md — all 3 must match |
 | SC-5 | Binary verifiability check includes vague term sub-check (should, could, ideally, as appropriate → FAIL) | string | grep for the exact strings `should`, `could`, `ideally`, and `as appropriate` within the Binary Verifiability decision-tree block in validate.md — all 4 must match |
@@ -157,12 +210,16 @@ cycle.
 | SC-8 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for the exact strings `1 SC` and `1 affected file` in validate.md — both must match within the skip-condition guard |
 | SC-9 | Behavioral test: submitting a spec whose SC contains the conjunction `AND` returns FAIL with the atomicity reason — specifically, submitting a spec whose single SC is `The system validates email format AND sends confirmation email` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns FAIL with the reason `SC contains trigger words indicating multiple concerns` | behavioral | Two-SC pattern: a behavioral test script (artifact-only generator) at `.opencode/tests-v2/behaviors/` runs the above spec through validate via `with-test-home`, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the atomicity reason `SC contains trigger words indicating multiple concerns` |
 | SC-10 | Behavioral test: submitting a spec with a single atomic SC returns PASS for decomposition criteria — specifically, submitting a spec whose single SC is `The system validates email format on registration` and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns PASS for the decomposition criteria check | behavioral | Two-SC pattern: a behavioral test script (artifact-only generator) at `.opencode/tests-v2/behaviors/` runs the above spec through validate via `with-test-home`, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned PASS for the decomposition criteria check |
+| SC-11 | `spec-creation/tasks/validate.md` includes the Ceremony criterion in the Decomposition Criteria section, expressed as an imperative binary decision tree with explicit PASS/FAIL branches, computed as set-entailment over prior SCs only (Problem Statement / intent prose universe OUT OF SCOPE) | string | grep for the exact criterion heading `### Ceremony` in validate.md — must match; grep for the exact branch tokens `PASS —` and `FAIL —` within the Ceremony decision-tree block — both must match; grep for the exact string `prior SCs` within the Ceremony block — must match |
+| SC-12 | `spec-creation/tasks/validate.md` includes the Coverage / covered-by-prior criterion in the Decomposition Criteria section, expressed as an imperative binary decision tree with explicit PASS/FAIL branches, computed as set-entailment over prior SCs only (Problem Statement / intent prose universe OUT OF SCOPE) | string | grep for the exact criterion heading `### Coverage / Covered-by-Prior` in validate.md — must match; grep for the exact branch tokens `PASS —` and `FAIL —` within the Coverage decision-tree block — both must match; grep for the exact string `prior SCs` within the Coverage block — must match |
+| SC-13 | Behavioral test: submitting a spec whose SC is ceremony (same deliverable + same verification method as a prior SC, no new requirement) returns FAIL with the ceremony reason — specifically, submitting a spec whose first SC is `The system validates email format on registration` and whose second SC is `The system validates email format on registration` (identical deliverable and verification method, no new requirement) and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns FAIL with the reason `SC is ceremony` | behavioral | Two-SC pattern: a behavioral test script (artifact-only generator) at `.opencode/tests-v2/behaviors/` runs the above spec through validate via `with-test-home`, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the ceremony reason `SC is ceremony` |
+| SC-14 | Behavioral test: submitting a spec whose SC is covered by a prior SC (requirement set already entailed) returns FAIL with the coverage reason — specifically, submitting a spec whose first SC is `The system validates email format on registration` and whose second SC is `The system validates email format on registration` (requirement set already entailed by the first SC) and whose affected-files list contains MORE than 1 file (so the SC-8 skip-guard does not fire) returns FAIL with the reason `SC is covered by a prior SC` | behavioral | Two-SC pattern: a behavioral test script (artifact-only generator) at `.opencode/tests-v2/behaviors/` runs the above spec through validate via `with-test-home`, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the coverage reason `SC is covered by a prior SC` |
 
 ## Requirements
 
-R-1. The `spec-creation/tasks/validate.md` task SHALL include an inline decomposition criteria checklist covering the 4 spec-level criteria: atomicity, single deliverable, binary verifiability, and PR-gate viability.
+R-1. The `spec-creation/tasks/validate.md` task SHALL include an inline decomposition criteria checklist covering the 6 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability, ceremony, and coverage / covered-by-prior.
 
-R-2. Each of the 4 decomposition criteria SHALL be expressed as an imperative binary decision tree with explicit PASS/FAIL branches, not prose guidance.
+R-2. Each of the 6 decomposition criteria SHALL be expressed as an imperative binary decision tree with explicit PASS/FAIL branches, not prose guidance.
 
 R-3. The atomicity criterion SHALL include a trigger-word sub-check that flags `and`, `or`, and comma-separated lists as compound structure (FAIL).
 
@@ -180,22 +237,30 @@ R-9. The decomposition check SHALL reject a monolithic SC containing `and` with 
 
 R-10. The decomposition check SHALL accept a single atomic SC. This behavioral criterion SHALL be verified via the Two-SC pattern: a behavioral test script (artifact-only generator) generates session.yaml artifacts via `with-test-home`, and a clean-room sub-agent evaluates session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) for PASS evidence.
 
+R-11. The decomposition check SHALL include a Ceremony criterion that flags an SC adding zero verification signal over the union of prior SCs (same deliverable + same verification method, no new requirement) as FAIL. The criterion SHALL be computed as set-entailment over prior SCs only; the Problem Statement / intent prose universe is OUT OF SCOPE.
+
+R-12. The decomposition check SHALL include a Coverage / covered-by-prior criterion that flags an SC whose requirement set is already entailed by a prior SC as FAIL. The criterion SHALL be computed as set-entailment over prior SCs only; the Problem Statement / intent prose universe is OUT OF SCOPE.
+
+R-13. The decomposition check SHALL reject a ceremony SC (identical deliverable and verification method to a prior SC, no new requirement) with the ceremony reason `SC is ceremony`. This behavioral criterion SHALL be verified via the Two-SC pattern: a behavioral test script (artifact-only generator) generates session.yaml artifacts via `with-test-home`, and a clean-room sub-agent evaluates session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) for FAIL evidence.
+
+R-14. The decomposition check SHALL reject an SC whose requirement set is already entailed by a prior SC with the coverage reason `SC is covered by a prior SC`. This behavioral criterion SHALL be verified via the Two-SC pattern: a behavioral test script (artifact-only generator) generates session.yaml artifacts via `with-test-home`, and a clean-room sub-agent evaluates session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) for FAIL evidence.
+
 ## Items
 
 Each SC maps to exactly one item. Items are numbered sequentially from 1.
 
 ### Item 1 (SC-1): Inline decomposition criteria checklist
 
-- RED: grep for the 4 criterion headings in validate.md fails (no checklist present)
-- GREEN: add the inline decomposition criteria checklist with the 4 criterion headings to validate.md
-- verify: grep for each of the 4 exact criterion headings `### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability` — all 4 match
+- RED: grep for the 6 criterion headings in validate.md fails (no checklist present)
+- GREEN: add the inline decomposition criteria checklist with the 6 criterion headings to validate.md
+- verify: grep for each of the 6 exact criterion headings `### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`, `### Ceremony`, `### Coverage / Covered-by-Prior` — all 6 match
 - commit: validate.md checklist addition
 
 ### Item 2 (SC-2): Imperative binary decision-tree format
 
-- RED: grep for `PASS —`/`FAIL —` branch tokens in the 4 decision-tree blocks fails
+- RED: grep for `PASS —`/`FAIL —` branch tokens in the 6 decision-tree blocks fails
 - GREEN: express each criterion as an imperative binary decision tree with explicit PASS/FAIL branches
-- verify: each of the 4 decision-tree blocks contains at least one `PASS —` and one `FAIL —` line
+- verify: each of the 6 decision-tree blocks contains at least one `PASS —` and one `FAIL —` line
 - commit: validate.md decision-tree format
 
 ### Item 3 (SC-3): Atomicity trigger-word sub-check
@@ -254,6 +319,34 @@ Each SC maps to exactly one item. Items are numbered sequentially from 1.
 - verify: clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and confirms the agent's tool calls/decisions show PASS for the decomposition criteria check
 - commit: validate.md decomposition acceptance behavior
 
+### Item 11 (SC-11): Ceremony criterion
+
+- RED: grep for the `### Ceremony` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Ceremony block in validate.md fails
+- GREEN: add the Ceremony criterion to the Decomposition Criteria section in validate.md, expressed as an imperative binary decision tree with explicit PASS/FAIL branches, computed as set-entailment over prior SCs only
+- verify: grep for the `### Ceremony` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Ceremony block — all match
+- commit: validate.md ceremony criterion
+
+### Item 12 (SC-12): Coverage / covered-by-prior criterion
+
+- RED: grep for the `### Coverage / Covered-by-Prior` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Coverage block in validate.md fails
+- GREEN: add the Coverage / covered-by-prior criterion to the Decomposition Criteria section in validate.md, expressed as an imperative binary decision tree with explicit PASS/FAIL branches, computed as set-entailment over prior SCs only
+- verify: grep for the `### Coverage / Covered-by-Prior` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Coverage block — all match
+- commit: validate.md coverage criterion
+
+### Item 13 (SC-13): Ceremony-SC behavioral rejection
+
+- RED: behavioral test script (artifact-only generator) submits a spec whose second SC is ceremony (identical deliverable and verification method to the first SC, no new requirement) and MORE than 1 affected file; the generated session.yaml does not show the decomposition check returning FAIL with the ceremony reason
+- GREEN: ensure the decomposition check rejects the ceremony SC with the ceremony reason
+- verify: clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and confirms the agent's tool calls/decisions show FAIL with `SC is ceremony`
+- commit: validate.md ceremony rejection behavior
+
+### Item 14 (SC-14): Covered-by-prior-SC behavioral rejection
+
+- RED: behavioral test script (artifact-only generator) submits a spec whose second SC is covered by a prior SC (requirement set already entailed) and MORE than 1 affected file; the generated session.yaml does not show the decomposition check returning FAIL with the coverage reason
+- GREEN: ensure the decomposition check rejects the covered-by-prior SC with the coverage reason
+- verify: clean-room sub-agent reads session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and confirms the agent's tool calls/decisions show FAIL with `SC is covered by a prior SC`
+- commit: validate.md coverage rejection behavior
+
 ## Not Included
 
 - **`audit/tasks/spec-audit-evaluator.md`** — Phase 3 (issue #2117) adds the
@@ -262,12 +355,15 @@ Each SC maps to exactly one item. Items are numbered sequentially from 1.
 - **`writing-plans/tasks/validate.md`** — Phase 5 (issue #2115) addresses
   plan-level criteria (acyclic DAG, file collision freedom, explicit dependency
   declaration). Out of scope here.
-- **Modifying the master reference file** — `audit/reference/decomposition-criteria.md`
-  is the authoritative source; validate.md only inlines a copy with a cross-reference.
+- **Modifying the plan-level criteria in the master reference file** — the new
+  Ceremony and Coverage criteria are spec-level only; the plan-level criteria
+  (acyclic DAG, file collision freedom, explicit dependency declaration) in
+  `audit/reference/decomposition-criteria.md` are NOT modified by this spec.
 
 ## Affected Files
 
 - `spec-creation/tasks/validate.md` (edit)
+- `audit/reference/decomposition-criteria.md` (edit — add the new spec-level Ceremony and Coverage criteria section, per the maintainer note requiring inline copies be updated in lockstep)
 
 ## Dependencies
 
@@ -277,11 +373,13 @@ Each SC maps to exactly one item. Items are numbered sequentially from 1.
 
 The inline decomposition criteria checklist in validate.md SHALL mirror the
 spec-level criteria CONTENT (atomicity, single deliverable, binary verifiability,
-PR-gate viability) defined in the master reference file, and SHALL include the
+PR-gate viability, ceremony, coverage / covered-by-prior) defined in the master
+reference file, and SHALL include the
 cross-reference comment `See audit/reference/decomposition-criteria.md for master
 definition`. The inline copy mirrors the criteria content, not the master reference's
 numbered heading format — the inline copy SHALL use unnumbered headings (`### Atomicity`,
-`### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) per SC-1.
+`### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`,
+`### Ceremony`, `### Coverage / Covered-by-Prior`) per SC-1.
 
 ## Traceability
 
@@ -300,12 +398,16 @@ root cause: the spec-creation validate task lacks decomposition criteria enforce
 | SC-8 | Phase 2 | validate.md decomposition check lacks skip condition for single-SC/single-file specs |
 | SC-9 | Phase 2 | validate.md monolithic SC not rejected by decomposition criteria |
 | SC-10 | Phase 2 | validate.md atomic SC not accepted by decomposition criteria |
+| SC-11 | Phase 2 | validate.md decomposition criteria lacks Ceremony criterion |
+| SC-12 | Phase 2 | validate.md decomposition criteria lacks Coverage / covered-by-prior criterion |
+| SC-13 | Phase 2 | validate.md ceremony SC not rejected by decomposition criteria |
+| SC-14 | Phase 2 | validate.md covered-by-prior SC not rejected by decomposition criteria |
 
 ### Phase Mapping
 
 | Phase | SCs |
 |-------|-----|
-| Phase 2 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10 |
+| Phase 2 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14 |
 
 ## Documentation Sources
 
@@ -317,7 +419,7 @@ documented here.
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
-| Master decomposition criteria reference | doc | `.opencode/audit/reference/decomposition-criteria.md` | Read — file exists on disk |
+| Master decomposition criteria reference | doc | `.opencode/audit/reference/decomposition-criteria.md` | Read — file exists on disk; maintainer note declares inline copies in validate.md, spec-audit-evaluator.md, and writing-plans/tasks/validate.md |
 | spec-creation validate task | code | `.opencode/skills/spec-creation/tasks/validate.md` | Read — file exists on disk |
 
 ## Enforcement Gate
@@ -328,7 +430,7 @@ documented here.
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- **SC-1:** Verifying validate.md inlines the 4-criteria checklist costs one grep search. Skipping means a monolithic SC passes validate and ships to plan creation, where decomposition costs exponentially more to unwind.
+- **SC-1:** Verifying validate.md inlines the 6-criteria checklist costs one grep search. Skipping means a monolithic SC passes validate and ships to plan creation, where decomposition costs exponentially more to unwind.
 - **SC-2:** Verifying each criterion uses imperative binary PASS/FAIL branches costs one grep search. Skipping means prose guidance passes string check but fails to enforce behavior, surfacing as a behavioral defect downstream.
 - **SC-3:** Verifying the atomicity trigger-word sub-check costs one grep search. Skipping means an SC bundling `and`/`or`/comma lists reaches implementation and is discovered as a monolithic defect at PR review.
 - **SC-4:** Verifying the binary verifiability disjunctive-pattern sub-check costs one grep search. Skipping means an SC with a disjunctive pattern ships and is only caught when the implementation cannot be evaluated as PASS or FAIL.
@@ -338,6 +440,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-8:** Verifying the decomposition check is skipped for single-SC/single-file specs costs one grep search. Skipping means the skip condition is absent and single-concern specs are spuriously flagged, forcing needless decomposition work.
 - **SC-9:** Running the monolithic-SC behavioral test (artifact generation + clean-room session.yaml evaluation) costs minutes of execution time. Skipping means a monolithic SC passes validate and ships, where the defect costs 1000× more to fix in production.
 - **SC-10:** Running the atomic-SC behavioral test (artifact generation + clean-room session.yaml evaluation) costs minutes of execution time. Skipping means the decomposition criteria are not verified to accept valid atomic SCs, risking false rejection of compliant specs.
+- **SC-11:** Verifying the Ceremony criterion is present in validate.md costs one grep search. Skipping means a ceremony SC (zero verification signal over prior SCs) passes validate and ships, adding dead weight to the spec and inflating review cost with no verification benefit.
+- **SC-12:** Verifying the Coverage / covered-by-prior criterion is present in validate.md costs one grep search. Skipping means a redundant SC whose requirement set is already entailed by a prior SC passes validate and ships, duplicating requirements and fragmenting the verification signal.
+- **SC-13:** Running the ceremony-SC behavioral test (artifact generation + clean-room session.yaml evaluation) costs minutes of execution time. Skipping means a ceremony SC passes validate and ships, where the dead-weight defect costs 1000× more to unwind in production.
+- **SC-14:** Running the covered-by-prior-SC behavioral test (artifact generation + clean-room session.yaml evaluation) costs minutes of execution time. Skipping means a redundant SC passes validate and ships, where the requirement-duplication defect costs 1000× more to unwind in production.
 
 ## Edge Cases
 
@@ -391,6 +497,24 @@ Each edge case below states the condition, the expected behavior, and the resolu
 - **Expected behavior:** The change is a single-file edit (SC-1..SC-8 all target validate.md); concurrent edits are resolved by the repo's normal merge/rebase workflow.
 - **Resolution:** Standard git conflict resolution applies; the spec makes no concurrency assumptions beyond normal single-file change management.
 
+### Edge Case: Ceremony / Coverage comparison scope
+
+- **Condition:** A spec contains an SC that appears redundant with the Problem Statement / intent prose, but is not entailed by any prior SC.
+- **Expected behavior:** The Ceremony and Coverage criteria are computed as set-entailment over prior SCs only. The Problem Statement / intent prose universe is explicitly OUT OF SCOPE because the master reference's Binary Verifiability criterion (criterion 3) forbids interpretation-dependent verdicts. An SC that is redundant with prose but not with a prior SC is NOT flagged.
+- **Resolution:** The comparison scope is bounded to prior SCs only, so the criteria remain mechanically checkable without interpretation.
+
+### Edge Case: First SC in a spec
+
+- **Condition:** A spec's first SC is evaluated against the Ceremony and Coverage criteria.
+- **Expected behavior:** The first SC has no prior SCs, so its requirement set and verification signal are trivially not entailed by any prior SC. The Ceremony and Coverage criteria PASS for the first SC.
+- **Resolution:** The set-entailment comparison over an empty prior-SC set yields PASS; the first SC is never flagged as ceremony or covered-by-prior.
+
+### Edge Case: Behavioral test affected-files count for SC-13/SC-14
+
+- **Condition:** A test harness or reader cannot determine the affected-files count of the SC-13/SC-14 test specs, causing the skip-guard to be ambiguous.
+- **Expected behavior:** The behavioral test specs MUST specify MORE than 1 affected file so the skip-guard does not fire and the decomposition criteria are always evaluated.
+- **Resolution:** SC-13 and SC-14 explicitly state the affected-files list contains MORE than 1 file, matching the SC-9/SC-10 pattern.
+
 ## Recency-Check Evidence
 
 This section documents the verification that the spec's claims about current file state are accurate, per the re-audit revision reason. All checks were performed against the live working tree at revision time.
@@ -398,7 +522,7 @@ This section documents the verification that the spec's claims about current fil
 | Check | Claim Verified | Verification |
 |-------|----------------|--------------|
 | `spec-creation/tasks/validate.md` current state | At revision time, `grep` for the 4 criterion headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches, so the headings are absent from the current file state | `grep` for the 4 headings across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches; the file exists on disk (7135 bytes) |
-| `audit/reference/decomposition-criteria.md` current state | The master reference file EXISTS and defines all 4 criteria (Atomicity, Single Deliverable, Binary Verifiability, PR-Gate Viability) — the spec's Dependency claim is accurate | File exists on disk (7661 bytes); `grep` returned all 4 criterion headings plus the summary table rows at lines 185-188 |
+| `audit/reference/decomposition-criteria.md` current state | The master reference file EXISTS and defines all 4 original criteria (Atomicity, Single Deliverable, Binary Verifiability, PR-Gate Viability) — the spec's Dependency claim is accurate. The maintainer note at the top of the file declares that inline copies are maintained in `spec-creation/tasks/validate.md`, `audit/tasks/spec-audit-evaluator.md`, and `writing-plans/tasks/validate.md`, and that when the file changes, all three must be updated in lockstep. This revision adds the new spec-level Ceremony and Coverage criteria section to BOTH the master reference and this spec's affected scope (validate.md) | File exists on disk; `grep` returned all 4 original criterion headings plus the summary table rows; the maintainer note is present at lines 7-10 |
 | Commit history of `validate.md` | The validate task has recent, active change history, confirming it is a live maintained file | `git -C .opencode log` shows recent commits (e.g., `17ef1680 #2254 ...`, `93e7eb34 feat(#2225): add structured checks to validate.md`) |
 | Commit history of `decomposition-criteria.md` | The master reference was created via `feat: create master decomposition criteria reference file` (commit `33adef85`) | `git -C .opencode log` on the reference file returned that single commit |
 
@@ -406,7 +530,7 @@ This section documents the verification that the spec's claims about current fil
 
 ### Prescriptive-Code Carve-Out
 
-Prescriptive-code carve-out: The exact grep strings in the SC-1..SC-8 verification methods are an intentional, documented exception to the spec-structure-standards prescriptive-code prohibition. Deterministic grep patterns are REQUIRED in string-evidence verification methods so that independent auditors can reproduce PASS/FAIL without subjective judgment (per the 2026-08-17 Change Control entry).
+Prescriptive-code carve-out: The exact grep strings in the SC-1..SC-8, SC-11, and SC-12 verification methods are an intentional, documented exception to the spec-structure-standards prescriptive-code prohibition. Deterministic grep patterns are REQUIRED in string-evidence verification methods so that independent auditors can reproduce PASS/FAIL without subjective judgment (per the 2026-08-17 Change Control entry).
 
 ## Change Control
 
@@ -433,3 +557,4 @@ Prescriptive-code carve-out: The exact grep strings in the SC-1..SC-8 verificati
 | 2026-08-19 | Clarified the 'mirror' language in the Approach section and the Dependencies SHALL clause: the inline copy in validate.md mirrors the CRITERIA CONTENT of the master reference file `audit/reference/decomposition-criteria.md`, not its numbered heading format. The inline copy SHALL use unnumbered headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) per SC-1. SC-1, Item 1, the Definitions section, and all other SCs are unchanged. The criteria content mirroring requirement and the cross-reference comment requirement (SC-7) are preserved. | Spec-audit Internal Consistency FAIL — the Approach (line 26) and Dependencies SHALL clause (lines 276-278) stated the inline copy SHALL 'mirror' the master reference, but the master reference uses numbered criterion headings (`### 1. Atomicity`, etc.) while SC-1, Item 1, and the Definitions section specify unnumbered headings. An implementor following 'mirror' would copy numbered headings and fail SC-1's grep for unnumbered headings. Resolution (option b): clarify that the inline copy mirrors criteria content, not heading numbering. | spec-audit remediation |
 | 2026-08-19 | Reworded the Recency-Check Evidence 'Claim Verified' cell for `spec-creation/tasks/validate.md` to remove the prohibited status/tracking markers 'RED state confirmed' and 'not yet implemented'. The cell now describes the grep result factually as a verification check outcome at revision time (grep for the 4 headings returned no matches), without status markers. No SC criterion text, evidence type, or verification method was changed. | Spec-audit SC-TRACKING-LANG FAIL — the Recency-Check Evidence section used prohibited status/tracking markers ('confirmed', 'not yet implemented'); specs are not tracking documents. | spec-audit remediation |
 | 2026-08-19 | Added a 'Prescriptive-Code Carve-Out' subsection under the Recency-Check Evidence section documenting that the exact grep strings in the SC-1..SC-8 verification methods are an intentional, documented exception to the spec-structure-standards prescriptive-code prohibition, required for deterministic, independently reproducible PASS/FAIL (per the 2026-08-17 Change Control entry). No SC criterion text, evidence type, or verification method was changed. | Spec-audit SC-PRESCRIPTIVE-CODE FAIL — the exact grep assertion strings in the SC-1..SC-8 verification-method column were flagged as prescriptive code per spec-structure-standards §Prohibited Content Patterns; this is a standard-conformant deviation requiring an explicit documented carve-out. | spec-audit remediation |
+| 2026-08-19 | Substantive revision: added a new spec-level section to the decomposition criteria set for two additional defect classes detected at the same decomposition pass as the existing four criteria. (1) **Ceremony** — an SC that adds zero verification signal over the union of prior SCs (same deliverable + same verification method, no new requirement). (2) **Coverage / covered-by-prior** — an SC whose requirement set is already entailed by a prior SC. Both are computed as set-entailment over prior SCs only; the Problem Statement / intent prose universe is explicitly OUT OF SCOPE because the master reference's Binary Verifiability criterion (criterion 3) forbids interpretation-dependent verdicts. The new section is spec-level only; it does not touch the plan-level criteria (acyclic DAG, file collision freedom, explicit dependency declaration). Added SC-11 (Ceremony, string), SC-12 (Coverage, string), SC-13 (Ceremony behavioral rejection), SC-14 (Coverage behavioral rejection); R-11..R-14; Item 11..Item 14; updated the Problem, Approach, Alternatives Considered, Decomposition Criteria Definitions, Success Criteria, Requirements, Items, Not Included, Affected Files, Dependencies, Traceability, Phase Mapping, Cost Frame, Edge Cases, Recency-Check Evidence, Prescriptive-Code Carve-Out, and Documentation Sources sections. The master reference at `audit/reference/decomposition-criteria.md` already declares the maintainer note requiring inline copies be updated in lockstep in `spec-creation/tasks/validate.md` and `audit/tasks/spec-audit-evaluator.md`; this revision adds the new section to BOTH the master reference and this spec's affected scope (validate.md). | Substantive revision per requirements discussion — the spec-level decomposition criteria set gains a new section for two additional defect classes (Ceremony, Coverage / covered-by-prior) detected at the same decomposition pass as the existing four criteria. | spec-creation revise task |
