@@ -82,3 +82,49 @@ RED-phase sub-agents write tests only — they MUST NOT modify `src/` or any imp
 ### Violation Handling
 
 The RED-phase sub-agent MUST NOT modify any file under `src/`. If `git diff --name-only -- src/` shows changes after RED, the orchestrator re-dispatches the RED-phase from clean-room state — no inline fallback.
+
+## RED Abort Protocol
+
+RED defines exactly one normal terminal state: a confirmed-failing enforcement test. When an irregular condition makes that terminal state unreachable or invalid, the RED-phase sub-agent returns a **classified ABORT** as its terminal state. Returning a classified abort IS completing the task correctly — it is task completion, not failure. The sub-agent MUST NOT force the outcome, MUST NOT modify a test to make it fail, and MUST NOT loop between the mandate and reality.
+
+### Abort Terminal State — Result Contract
+
+When the RED phase cannot validly produce a confirmed-failing test, the sub-agent returns:
+
+```
+status: BLOCKED
+blocker_reason: <classification>
+```
+
+The `status` field is always `BLOCKED`. The `blocker_reason` field carries exactly one of the classifications enumerated below. This result contract is the abort's only terminal output — no forcing, no test-modification-to-fail, no looping.
+
+### RED Classifications
+
+The RED abort protocol enumerates four classifications. Select exactly one `blocker_reason` value:
+
+| Classification | Meaning |
+|----------------|---------|
+| `ALREADY_GREEN` | The enforcement test already passes — the expected-failing behavior is already implemented, so a failing RED test cannot be validly produced |
+| `FALSE_PREMISE` | The test is based on a false premise — the scenario the SC describes does not correspond to actual system state, so the test would be invalid |
+| `NOT_RELEVANT` | The test is not relevant to the code path under test — it targets behavior outside the SC's scope, so the SC's test cannot validly target the intended path |
+| `CONFLICT` | The test conflicts with existing behavior, other tests, or the spec's intent — writing it would be contradictory, so a valid RED test cannot be produced |
+
+Select the classification that most precisely describes why the confirmed-failing RED terminal state is unreachable or invalid. Report the classified abort as the task result; do not proceed to GREEN with an unconfirmed, forced, or irrelevant failing test.
+
+### Immediate-Abort Zero-Further-Analysis Mandate
+
+A sub-agent detecting a BLOCK condition SHALL immediately return a classified abort with ZERO further analysis. No additional reading, no additional analysis, no remediation, and no re-evaluation after detecting the block.
+
+### Orchestrator-Only Remediation
+
+Remediation is exclusively the orchestrator's responsibility — the orchestrator handles remediation by tasking new sub-agents with the needed remediation tasks. The aborting sub-agent does not remediate.
+
+### Post-Abort Orchestrator Routing
+
+On receiving a RED classified abort (`status: BLOCKED` + `blocker_reason`), the orchestrator SHALL NOT blindly re-task RED from clean-room state. The abort signals an irregular condition rooted in the SC, the spec, or the plan — not a transient failure. The orchestrator SHALL route on the classification:
+
+1. **Cold-reading re-evaluation sub-agent.** The orchestrator dispatches a re-evaluation sub-agent that reads the spec and plan cold (no orchestrator preload, no cached results, no expected outcomes). The re-evaluation sub-agent identifies the defect that made the confirmed-failing RED terminal state unreachable and routes to `spec-creation --task revise` / `writing-plans --task revise` to adjust the SC so RED does not retrigger the abort.
+2. **Substantive vs non-substantive classification.** The re-evaluation sub-agent autonomously classifies the adjustment (it does not defer to the developer for non-substantive cases):
+   - **Substantive** (new/removed SCs, changed scope, changed implementation approach) — revokes plan approval, requires re-authorization before GREEN resumes.
+   - **Non-substantive** (evidence types, verification methods, artifact paths, SC wording that does not alter implementation intent, scope, or SC semantics) — auto-revise via the revise task, no re-authorization.
+3. **Retrigger ladder.** Track aborts per classification. After **2 aborts with the same classification**, the orchestrator dispatches a re-decomposition/rework evaluation sub-agent. Escalate to spec-audit ONLY if re-decomposition is NOT the fix — do not escalate to spec-audit prematurely.
