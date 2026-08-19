@@ -1,0 +1,43 @@
+# Structure artifact — issue #2116
+# Phase decomposition, dependency DAG, and skill+task selection.
+# Derived from analysis-summary.yaml, spec Items section, interface-compatibility.yaml dependency_contract, and implementation-workflow reference card.
+
+phase_count: 2
+sc_count: 14
+
+phases:
+  phase_2:
+    name: "Inline decomposition criteria checklist (validate.md content)"
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-11, SC-12]
+    skill: test-driven-development
+    task: red
+    target: "skills/spec-creation/tasks/validate.md, audit/reference/decomposition-criteria.md"
+    files:
+      - .opencode/skills/spec-creation/tasks/validate.md
+      - .opencode/audit/reference/decomposition-criteria.md
+  behavioral_tests:
+    name: "Decomposition behavioral enforcement tests"
+    scs: [SC-9, SC-10, SC-13, SC-14]
+    skill: test-driven-development
+    task: red
+    target: ".opencode/tests-v2/behaviors/"
+    files:
+      - tests-v2/behaviors/<scenario>.sh
+
+edges:
+  - {from: phase_2, to: behavioral_tests}
+
+triplet_co_location:
+  status: verified
+  detail: "Each SC maps to exactly one phase (per the spec's Phase Mapping table); the RED, GREEN, and COMMIT steps of each SC item are all assigned to that single phase. No SC has steps split across phases."
+
+cross_phase_dependency:
+  status: verified
+  detail: "No RED test in an earlier phase depends on SC output from a later phase. behavioral_tests (SC-9, SC-10, SC-13, SC-14) depends on phase_2 output (SC-1..SC-8, SC-11, SC-12) — an ordering consistent with the forward dependency edge phase_2 -> behavioral_tests. All dependency edges point forward."
+
+skill_task_selection:
+  reference: "skills/writing-plans/reference/implementation-workflow.md"
+  per_sc_cycle: "RED -> GREEN -> COMMIT"
+  post_phase_gates:
+    - "verify (verification-before-completion) after each phase GREEN"
+    - "z3-check (orchestrator runs tools/solve check) after each phase"

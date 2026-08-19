@@ -1,0 +1,32 @@
+# Solve output — issue #2116
+# Z3 + planner verification results for the 14-SC dependency contract.
+issue: 2116
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+checks:
+  model:
+    status: SAT
+    query: "z3.And(phase_2, behavioral_tests)"
+    assignment:
+      phase_2: true
+      behavioral_tests: true
+  check:
+    status: SAT
+    result: "SAT (+ postconditions + invariants)"
+    assignment:
+      phase_2: false
+      behavioral_tests: false
+
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  actions:
+    - complete_phase_2
+    - complete_behavioral_tests
+
+notes:
+  - "Dependency DAG edge encoded: phase_2 -> behavioral_tests (behavioral_tests precondition requires phase_done(phase_2))."
+  - "Planner produced a valid 2-action ordering satisfying the phase_2 -> behavioral_tests dependency."

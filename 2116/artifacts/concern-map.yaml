@@ -1,0 +1,76 @@
+spec_path: .opencode/.issues/2116/spec.md
+concerns:
+  - id: C1
+    name: Inline decomposition criteria checklist
+    description: Add the 6 spec-level decomposition criteria as an inline checklist in validate.md
+    scs: [SC-1]
+    phase: Phase 2
+  - id: C2
+    name: Imperative binary decision-tree format
+    description: Express each criterion as an imperative binary decision tree with explicit PASS/FAIL branches
+    scs: [SC-2]
+    phase: Phase 2
+  - id: C3
+    name: Atomicity trigger-word sub-check
+    description: Atomicity criterion flags and/or/comma-separated lists as compound structure (FAIL)
+    scs: [SC-3]
+    phase: Phase 2
+  - id: C4
+    name: Binary verifiability disjunctive-pattern sub-check
+    description: Binary verifiability criterion flags either/or/alternatively/one of (FAIL)
+    scs: [SC-4]
+    phase: Phase 2
+  - id: C5
+    name: Binary verifiability vague-term sub-check
+    description: Binary verifiability criterion flags should/could/ideally/as appropriate (FAIL)
+    scs: [SC-5]
+    phase: Phase 2
+  - id: C6
+    name: PR-gate viability meta RED/GREEN reference
+    description: PR-gate viability criterion references the meta RED/GREEN principle
+    scs: [SC-6]
+    phase: Phase 2
+  - id: C7
+    name: Cross-reference comment
+    description: Inline copy includes cross-reference comment to master reference file
+    scs: [SC-7]
+    phase: Phase 2
+  - id: C8
+    name: Skip condition for single-SC/single-file specs
+    description: Decomposition check skipped when spec has exactly 1 SC AND 1 affected file
+    scs: [SC-8]
+    phase: Phase 2
+  - id: C9
+    name: Monolithic-SC behavioral rejection
+    description: Behavioral test verifying monolithic SC (with AND) returns FAIL with atomicity reason
+    scs: [SC-9]
+    phase: Phase 2
+  - id: C10
+    name: Atomic-SC behavioral acceptance
+    description: Behavioral test verifying single atomic SC returns PASS for decomposition criteria
+    scs: [SC-10]
+    phase: Phase 2
+  - id: C11
+    name: Ceremony criterion
+    description: Add Ceremony criterion (set-entailment over prior SCs) to Decomposition Criteria section
+    scs: [SC-11]
+    phase: Phase 2
+  - id: C12
+    name: Coverage / covered-by-prior criterion
+    description: Add Coverage / covered-by-prior criterion (set-entailment over prior SCs) to Decomposition Criteria section
+    scs: [SC-12]
+    phase: Phase 2
+  - id: C13
+    name: Ceremony-SC behavioral rejection
+    description: Behavioral test verifying ceremony SC returns FAIL with ceremony reason
+    scs: [SC-13]
+    phase: Phase 2
+  - id: C14
+    name: Covered-by-prior-SC behavioral rejection
+    description: Behavioral test verifying covered-by-prior SC returns FAIL with coverage reason
+    scs: [SC-14]
+    phase: Phase 2
+phase_boundaries:
+  - phase: Phase 2
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14]
+    boundary: All 14 SCs map to Phase 2. Single phase — no inter-phase boundary transitions.

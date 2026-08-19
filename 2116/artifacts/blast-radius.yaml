@@ -1,0 +1,21 @@
+spec_path: .opencode/.issues/2116/spec.md
+affected_files:
+  - path: .opencode/skills/spec-creation/tasks/validate.md
+    status: EXISTS
+    role: primary edit target
+    change_type: edit
+    blast_radius: The validate task card is executed by clean-room sub-agents during spec-creation. Adding a Decomposition Criteria section changes the validation behavior for all specs passing through validate. The change is additive (new checklist section) and does not alter existing validation checks (Step 3.3 Compound-SC detection retained).
+  - path: .opencode/audit/reference/decomposition-criteria.md
+    status: EXISTS
+    role: edit target (add spec-level Ceremony and Coverage criteria section)
+    change_type: edit
+    blast_radius: The master reference file is the authoritative source for decomposition criteria. Adding the spec-level Ceremony and Coverage criteria section affects the maintainer-note lockstep requirement: inline copies in validate.md, spec-audit-evaluator.md, and writing-plans/tasks/validate.md must be updated in lockstep. The plan-level criteria (acyclic DAG, file collision freedom, explicit dependency declaration) are NOT modified.
+  - path: .opencode/tests-v2/behaviors/
+    status: EXISTS
+    role: behavioral test scripts location (SC-9, SC-10, SC-13, SC-14)
+    change_type: add
+    blast_radius: New behavioral test scripts (artifact-only generators) are added for SC-9, SC-10, SC-13, SC-14. These run specs through validate via with-test-home and generate session.yaml artifacts for clean-room evaluation. No existing behavioral tests are modified.
+scope_boundary:
+  - out_of_scope: .opencode/audit/tasks/spec-audit-evaluator.md (Phase 3, issue #2117)
+  - out_of_scope: .opencode/skills/writing-plans/tasks/validate.md (Phase 5, issue #2115)
+  - out_of_scope: plan-level criteria in master reference (acyclic DAG, file collision freedom, explicit dependency declaration)

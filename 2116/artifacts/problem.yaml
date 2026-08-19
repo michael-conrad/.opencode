@@ -1,0 +1,40 @@
+# Problem YAML — Issue 2116
+# Models phase execution for the dependency contract: phase_2 (validate.md content) must complete before behavioral_tests.
+# Goals: both phases complete.
+
+domain: spec-creation-decomposition-criteria
+
+types:
+  - name: phase
+
+objects:
+  - name: phase_2
+    type: phase
+  - name: behavioral_tests
+    type: phase
+
+fluents:
+  - name: phase_done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: complete_phase_2
+    params: []
+    preconditions:
+      - not phase_done(phase_2)
+    effects:
+      - phase_done(phase_2)
+  - name: complete_behavioral_tests
+    params: []
+    preconditions:
+      - phase_done(phase_2)
+    effects:
+      - phase_done(behavioral_tests)
+
+init: []
+
+goals:
+  - phase_done(phase_2)
+  - phase_done(behavioral_tests)

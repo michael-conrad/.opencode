@@ -1,0 +1,62 @@
+spec_path: .opencode/.issues/2116/spec.md
+cross_cutting_scs:
+  - sc: SC-1
+    concerns: [C1]
+    spans_multiple_concerns: false
+    note: Single concern — inline checklist presence
+  - sc: SC-2
+    concerns: [C2]
+    spans_multiple_concerns: false
+    note: Single concern — decision-tree format
+  - sc: SC-3
+    concerns: [C3]
+    spans_multiple_concerns: false
+    note: Single concern — atomicity sub-check
+  - sc: SC-4
+    concerns: [C4]
+    spans_multiple_concerns: false
+    note: Single concern — disjunctive-pattern sub-check
+  - sc: SC-5
+    concerns: [C5]
+    spans_multiple_concerns: false
+    note: Single concern — vague-term sub-check
+  - sc: SC-6
+    concerns: [C6]
+    spans_multiple_concerns: false
+    note: Single concern — RED/GREEN reference
+  - sc: SC-7
+    concerns: [C7]
+    spans_multiple_concerns: false
+    note: Single concern — cross-reference comment
+  - sc: SC-8
+    concerns: [C8]
+    spans_multiple_concerns: false
+    note: Single concern — skip-condition guard
+  - sc: SC-9
+    concerns: [C9]
+    spans_multiple_concerns: false
+    note: Single concern — monolithic-SC behavioral rejection
+  - sc: SC-10
+    concerns: [C10]
+    spans_multiple_concerns: false
+    note: Single concern — atomic-SC behavioral acceptance
+  - sc: SC-11
+    concerns: [C11]
+    spans_multiple_concerns: false
+    note: Single concern — Ceremony criterion; also touches master reference file (lockstep)
+  - sc: SC-12
+    concerns: [C12]
+    spans_multiple_concerns: false
+    note: Single concern — Coverage criterion; also touches master reference file (lockstep)
+  - sc: SC-13
+    concerns: [C13]
+    spans_multiple_concerns: false
+    note: Single concern — ceremony-SC behavioral rejection
+  - sc: SC-14
+    concerns: [C14]
+    spans_multiple_concerns: false
+    note: Single concern — covered-by-prior-SC behavioral rejection
+cross_cutting_observations:
+  - observation: SC-11 and SC-12 (Ceremony and Coverage criteria) both require edits to the master reference file .opencode/audit/reference/decomposition-criteria.md in addition to validate.md, per the maintainer-note lockstep requirement. This is a shared-file dependency, not a concern-spanning SC.
+  - observation: SC-9, SC-10, SC-13, SC-14 are behavioral SCs that all share the same test infrastructure pattern (artifact-only generator + with-test-home + session.yaml clean-room evaluation). They share the .opencode/tests-v2/behaviors/ directory but each is an independent test script.
+  - observation: All 14 SCs map to a single phase (Phase 2) and a single primary edit target (validate.md), so no SC spans multiple phase boundaries.

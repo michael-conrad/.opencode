@@ -1,0 +1,61 @@
+spec_path: .opencode/.issues/2116/spec.md
+state_transitions:
+  - sc: SC-1
+    from: validate.md lacks decomposition criteria checklist
+    to: validate.md includes inline decomposition criteria checklist (6 criterion headings)
+    trigger: Edit validate.md to add the Decomposition Criteria section
+  - sc: SC-2
+    from: criteria expressed as prose guidance
+    to: criteria expressed as imperative binary decision trees with PASS/FAIL branches
+    trigger: Edit validate.md decision-tree format
+  - sc: SC-3
+    from: atomicity check lacks trigger-word sub-check
+    to: atomicity check flags and/or/comma-separated lists (FAIL)
+    trigger: Edit validate.md atomicity sub-check
+  - sc: SC-4
+    from: binary verifiability check lacks disjunctive-pattern sub-check
+    to: binary verifiability check flags either/or/alternatively/one of (FAIL)
+    trigger: Edit validate.md disjunctive-pattern sub-check
+  - sc: SC-5
+    from: binary verifiability check lacks vague-term sub-check
+    to: binary verifiability check flags should/could/ideally/as appropriate (FAIL)
+    trigger: Edit validate.md vague-term sub-check
+  - sc: SC-6
+    from: PR-gate viability check lacks meta RED/GREEN reference
+    to: PR-gate viability check references meta RED/GREEN principle
+    trigger: Edit validate.md PR-gate viability reference
+  - sc: SC-7
+    from: inline copy lacks cross-reference to master reference
+    to: inline copy includes cross-reference comment
+    trigger: Edit validate.md cross-reference comment
+  - sc: SC-8
+    from: decomposition check always evaluated
+    to: decomposition check skipped when spec has exactly 1 SC AND 1 affected file
+    trigger: Edit validate.md skip-condition guard
+  - sc: SC-9
+    from: monolithic SC (with AND) passes validate
+    to: monolithic SC returns FAIL with atomicity reason 'SC contains trigger words indicating multiple concerns'
+    trigger: Behavioral test + decomposition rejection behavior
+  - sc: SC-10
+    from: atomic SC not verified to pass decomposition criteria
+    to: atomic SC returns PASS for decomposition criteria check
+    trigger: Behavioral test + decomposition acceptance behavior
+  - sc: SC-11
+    from: validate.md decomposition criteria lacks Ceremony criterion
+    to: validate.md includes Ceremony criterion (set-entailment over prior SCs)
+    trigger: Edit validate.md ceremony criterion + master reference lockstep
+  - sc: SC-12
+    from: validate.md decomposition criteria lacks Coverage / covered-by-prior criterion
+    to: validate.md includes Coverage / covered-by-prior criterion (set-entailment over prior SCs)
+    trigger: Edit validate.md coverage criterion + master reference lockstep
+  - sc: SC-13
+    from: ceremony SC passes validate
+    to: ceremony SC returns FAIL with ceremony reason 'SC is ceremony'
+    trigger: Behavioral test + ceremony rejection behavior
+  - sc: SC-14
+    from: covered-by-prior SC passes validate
+    to: covered-by-prior SC returns FAIL with coverage reason 'SC is covered by a prior SC'
+    trigger: Behavioral test + coverage rejection behavior
+state_notes:
+  - note: All state transitions are within Phase 2 and target the single edit target validate.md (plus master reference lockstep for SC-11/SC-12). No cross-phase state transitions.
+  - note: The first SC in a spec has no prior SCs, so its requirement set and verification signal are trivially not entailed by any prior SC — Ceremony and Coverage criteria PASS for the first SC (empty prior-SC set yields PASS).

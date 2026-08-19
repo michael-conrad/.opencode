@@ -1,0 +1,47 @@
+spec_path: .opencode/.issues/2116/spec.md
+code_paths:
+  - sc: SC-1
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Decomposition Criteria section with 6 criterion headings (### Atomicity, ### Single Deliverable, ### Binary Verifiability, ### PR-Gate Viability, ### Ceremony, ### Coverage / Covered-by-Prior)
+  - sc: SC-2
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Each of the 6 decision-tree blocks contains at least one PASS — and one FAIL — branch line
+  - sc: SC-3
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Atomicity decision-tree block contains trigger-word sub-check strings (and, or, comma-separated)
+  - sc: SC-4
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Binary Verifiability decision-tree block contains disjunctive-pattern sub-check strings (either/or, alternatively, one of)
+  - sc: SC-5
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Binary Verifiability decision-tree block contains vague-term sub-check strings (should, could, ideally, as appropriate)
+  - sc: SC-6
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: PR-Gate Viability decision-tree block references meta RED/GREEN principle (RED, GREEN strings)
+  - sc: SC-7
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Cross-reference comment 'See audit/reference/decomposition-criteria.md for master definition'
+  - sc: SC-8
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Skip-condition guard with strings '1 SC' and '1 affected file' that short-circuits the check
+  - sc: SC-9
+    path: .opencode/tests-v2/behaviors/
+    implied_code_path: Behavioral test script (artifact-only generator) submitting monolithic SC spec via with-test-home; session.yaml evaluation for FAIL with atomicity reason
+  - sc: SC-10
+    path: .opencode/tests-v2/behaviors/
+    implied_code_path: Behavioral test script (artifact-only generator) submitting atomic SC spec via with-test-home; session.yaml evaluation for PASS
+  - sc: SC-11
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Ceremony decision-tree block with ### Ceremony heading, PASS —/FAIL — branches, and 'prior SCs' string
+  - sc: SC-12
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    implied_code_path: Coverage decision-tree block with ### Coverage / Covered-by-Prior heading, PASS —/FAIL — branches, and 'prior SCs' string
+  - sc: SC-13
+    path: .opencode/tests-v2/behaviors/
+    implied_code_path: Behavioral test script (artifact-only generator) submitting ceremony SC spec via with-test-home; session.yaml evaluation for FAIL with ceremony reason
+  - sc: SC-14
+    path: .opencode/tests-v2/behaviors/
+    implied_code_path: Behavioral test script (artifact-only generator) submitting covered-by-prior SC spec via with-test-home; session.yaml evaluation for FAIL with coverage reason
+  - sc: SC-11, SC-12
+    path: .opencode/audit/reference/decomposition-criteria.md
+    implied_code_path: Add spec-level Ceremony and Coverage criteria section to master reference (lockstep with inline copies)
