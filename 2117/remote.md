@@ -1,36 +1,34 @@
 ---
 remote_issue: 2117
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2117"
-last_sync: "2026-08-19T14:34:32Z"
+last_sync: "2026-08-19T14:37:47Z"
 source: github
 ---
 
+> **Full spec and plan artifacts:** [`.opencode/.issues/2117/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2117) — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2117/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+
 ## Problem
 
-The audit skill's spec-audit evaluator does not independently verify SC decomposition quality. Specs with monolithic SCs pass audit and advance to plan creation, where defects are more expensive to fix.
+The audit skill's spec-audit evaluator does not independently verify SC decomposition quality. Specs with monolithic SCs pass audit and advance to plan creation, where defects are more expensive to fix. The decomposition criteria set also lacks checks for redundant or ceremonial SCs — SCs that add no verification signal over prior SCs, or whose requirements are already entailed by an earlier SC.
 
-## Success Criteria
+## Scope
 
-| ID | Criterion | Evidence Type | Verification Method |
-|----|-----------|---------------|---------------------|
-| SC-1 | `audit/tasks/spec-audit-evaluator.md` includes inline decomposition criteria checklist for 4 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability | string | grep for each criterion in spec-audit-evaluator.md |
-| SC-2 | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL branches (not prose guidance) | string | grep for PASS/FAIL branching |
-| SC-3 | Atomicity check includes trigger-word sub-check (and, or, comma-separated lists → FAIL) | string | grep for trigger word sub-check |
-| SC-4 | Binary verifiability check includes disjunctive pattern sub-check (either/or, alternatively, one of → FAIL) and vague term sub-check (should, could, ideally, as appropriate → FAIL) | string | grep for disjunctive and vague term sub-checks |
-| SC-5 | PR-gate viability check references meta RED/GREEN principle | string | grep for RED/GREEN reference |
-| SC-6 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md for master definition' | string | grep for cross-reference |
-| SC-7 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for trigger condition |
-| SC-8 | Behavioral test: spec with monolithic SC containing 'and' submitted to spec-audit returns FAIL with correct reason | behavioral | opencode run with assertion |
-| SC-9 | Behavioral test: spec with single atomic SC submitted to spec-audit returns PASS for decomposition criteria | behavioral | opencode run with assertion |
+- Add a new spec-level 'Redundancy Detection' section to the decomposition criteria set, applied in the same pass as the existing four criteria (atomicity, single deliverable, binary verifiability, PR-gate viability).
+- Define two new defect classes: Ceremony (an SC that adds zero verification signal over the union of prior SCs) and Coverage / covered-by-prior (an SC whose requirement set is already entailed by a prior SC).
+- Both are computed as set-entailment over prior SCs only, applied in both the master reference and the spec-audit evaluator's inline copy in lockstep.
+- Add structural evidence-type SCs and behavioral enforcement tests for each defect class.
+
+**Out of scope:** The Problem Statement / intent prose universe is explicitly OUT OF SCOPE for the new criteria (the master reference's Binary Verifiability criterion forbids interpretation-dependent verdicts). The new section is spec-level only and independent of the plan-level criteria.
 
 ## Approach
 
-Edit `audit/tasks/spec-audit-evaluator.md` to add a new 'Decomposition Criteria' section. Same criteria as Phase 2, independently applied. The evaluator reads the spec independently and produces its own verdicts — this is adversarial separation, not a re-check of spec-creation validate.
+Edit `audit/reference/decomposition-criteria.md` to add a new spec-level 'Redundancy Detection' section defining Ceremony and Coverage, computed as set-entailment over prior SCs only. Edit `audit/tasks/spec-audit-evaluator.md` to add the same section to the inline copy in lockstep with the master reference per the maintainer note. The evaluator reads the spec independently and produces its own verdicts — adversarial separation, not a re-check of spec-creation validate.
 
-## Affected Files
+## Impact
 
-- `audit/tasks/spec-audit-evaluator.md` (edit)
-
-## Dependencies
-
-Depends on Phase 1 PR being merged (master reference file must exist). Can be implemented in parallel with Phase 2.
+- Risk: interpretation-dependent verdicts if the intent prose universe is considered — mitigated by explicitly scoping both criteria to set-entailment over prior SCs only.
+- Risk: divergence between master reference and inline copies — mitigated by the lockstep maintainer note and a structural SC asserting both copies stay in sync.
+- Risk: false FAIL on non-redundant specs — mitigated by behavioral tests asserting PASS for distinct requirements with distinct verification methods.
+- Dependency: Phase 1 PR must be merged (master reference file must exist). Parallel with Phase 2.
