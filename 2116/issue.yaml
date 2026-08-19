@@ -2,109 +2,122 @@ title: '[SPEC] Phase 2: Add decomposition criteria to spec-creation validate'
 status: open
 labels:
 - spec
-body: "# [SPEC] Phase 2: Add decomposition criteria to spec-creation validate\n\n\
-  ## Problem\n\nspec-creation's validate task does not check whether SCs are properly\
-  \ decomposed\nto atomic work units. Monolithic SCs pass through to plan creation\
-  \ and implementation,\nwhere defects are more expensive to fix.\n\nThe current `validate.md`\
-  \ Step 3.3 \"Compound-SC detection\" flags conjunctions\n(`and`, `or`, `also`, `plus`)\
-  \ but does not enforce the 4 spec-level decomposition\ncriteria defined in the master\
-  \ reference. This spec adds those criteria to the\nvalidate pipeline.\n\n## Root\
-  \ Cause / Motivation\n\nThe decomposition audit chain (Phase 1, issue #2118) established\
-  \ a master reference\nfile defining the decomposition criteria, but the spec-creation\
-  \ validate task has\nnot yet been wired to enforce those criteria. Without enforcement\
-  \ in validate,\nmonolithic SCs pass through to plan creation and implementation\
-  \ where they are\nmore expensive to fix.\n\n## Approach\n\nEdit `spec-creation/tasks/validate.md`\
-  \ to add a new 'Decomposition Criteria' section\nafter existing validation checks.\
-  \ The section is a structured checklist with binary\nPASS/FAIL branching, mirroring\
-  \ the criteria defined in the master reference file\n`audit/reference/decomposition-criteria.md`.\
-  \ Entry condition: skip if spec has 1 SC\nAND 1 affected file.\n\n## Decomposition\
-  \ Criteria Definitions\n\nThese definitions summarize the master reference file\n\
-  `audit/reference/decomposition-criteria.md` (the authoritative source). Each\ncriterion\
-  \ uses an imperative binary decision tree with explicit PASS/FAIL branches.\n\n\
-  - **Atomicity:** Each SC MUST represent exactly one atomic concern. A non-atomic\
-  \ SC\n  bundles multiple concerns and cannot be verified independently. FAIL if\
-  \ the SC\n  contains coordinating conjunctions (`and`, `or`) or comma-separated\
-  \ lists.\n- **Single deliverable:** Each SC MUST produce exactly one deliverable\
-  \ (file,\n  function, config change). FAIL if the SC spans multiple files or multiple\n\
-  \  independent deliverables.\n- **Binary verifiability:** Each SC MUST be verifiable\
-  \ as PASS or FAIL with no gray\n  area. FAIL if the SC contains disjunctive patterns\
-  \ (`either/or`, `alternatively`,\n  `one of`) or vague terms (`should`, `could`,\
-  \ `ideally`, `as appropriate`).\n- **PR-gate viability:** Each SC MUST be deliverable\
-  \ as a single, independently\n  reviewable PR. FAIL if the SC requires unreviewed\
-  \ dependencies or spans multiple\n  RED/GREEN cycles.\n- **Meta RED/GREEN principle:**\
-  \ Each spec is a **RED** — it defines what must be\n  true. Each PR merge is a **GREEN**\
-  \ — it makes that truth permanent. An SC that\n  requires multiple PR merges to\
-  \ satisfy is not PR-gate viable and MUST be\n  decomposed into sub-SCs.\n\n## Success\
-  \ Criteria\n\n| ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
-  | SC-1 | `spec-creation/tasks/validate.md` includes inline decomposition criteria\
-  \ checklist for 4 spec-level criteria: atomicity, single deliverable, binary verifiability,\
-  \ PR-gate viability | string | grep for each criterion in validate.md |\n| SC-2\
-  \ | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL\
-  \ branches (not prose guidance) | string | grep for PASS/FAIL branching |\n| SC-3\
-  \ | Atomicity check includes trigger-word sub-check (and, or, comma-separated lists\
-  \ → FAIL) | string | grep for trigger word sub-check |\n| SC-4 | Binary verifiability\
-  \ check includes disjunctive pattern sub-check (either/or, alternatively, one of\
-  \ → FAIL) and vague term sub-check (should, could, ideally, as appropriate → FAIL)\
-  \ | string | grep for disjunctive and vague term sub-checks |\n| SC-5 | PR-gate\
-  \ viability check references meta RED/GREEN principle | string | grep for RED/GREEN\
-  \ reference |\n| SC-6 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md\
-  \ for master definition' | string | grep for cross-reference |\n| SC-7 | Decomposition\
-  \ check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file\
-  \ | string | grep for trigger condition |\n| SC-8 | Behavioral test: spec with monolithic\
-  \ SC containing 'and' submitted to validate returns FAIL with correct reason | behavioral\
-  \ | opencode run with assertion |\n| SC-9 | Behavioral test: spec with single atomic\
-  \ SC submitted to validate returns PASS for decomposition criteria | behavioral\
-  \ | opencode run with assertion |\n\n## Not Included\n\n- **`audit/tasks/spec-audit-evaluator.md`**\
-  \ — Phase 3 (issue #2117) adds the\n  criteria to the audit evaluator independently.\
-  \ Out of scope here to preserve\n  adversarial separation.\n- **`writing-plans/tasks/validate.md`**\
-  \ — Phase 5 (issue #2115) addresses\n  plan-level criteria (acyclic DAG, file collision\
-  \ freedom, explicit dependency\n  declaration). Out of scope here.\n- **Modifying\
-  \ the master reference file** — `audit/reference/decomposition-criteria.md`\n  is\
-  \ the authoritative source; validate.md only inlines a copy with a cross-reference.\n\
-  \n## Affected Files\n\n- `spec-creation/tasks/validate.md` (edit)\n\n## Dependencies\n\
-  \n| Reference | Relationship | Status |\n|-----------|--------------|--------|\n\
-  | Issue #2118 — `[SPEC] Phase 1: Master decomposition criteria reference file` (closed/merged)\
-  \ | The master reference file `audit/reference/decomposition-criteria.md` must exist\
-  \ before the inline copy is added to validate.md | Satisfied — `audit/reference/decomposition-criteria.md`\
-  \ exists on disk at `.opencode/audit/reference/decomposition-criteria.md` |\n\n\
-  The inline decomposition criteria checklist in validate.md SHALL mirror the\nspec-level\
-  \ criteria (atomicity, single deliverable, binary verifiability, PR-gate\nviability)\
-  \ defined in the master reference file, and SHALL include the cross-reference\n\
-  comment `See audit/reference/decomposition-criteria.md for master definition`.\n\
-  \n## Traceability\n\nEvery SC maps to the single edit target `spec-creation/tasks/validate.md`\
-  \ and to the\nroot cause: the spec-creation validate task lacks decomposition criteria\
-  \ enforcement.\n\n| SC | Phase | Root Cause |\n|----|-------|------------|\n| SC-1\
-  \ | Phase 2 | validate.md lacks decomposition criteria checklist |\n| SC-2 | Phase\
-  \ 2 | validate.md lacks binary PASS/FAIL decision-tree format |\n| SC-3 | Phase\
-  \ 2 | validate.md atomicity check lacks trigger-word sub-check |\n| SC-4 | Phase\
-  \ 2 | validate.md binary verifiability check lacks disjunctive/vague-term sub-checks\
-  \ |\n| SC-5 | Phase 2 | validate.md PR-gate viability check lacks meta RED/GREEN\
-  \ reference |\n| SC-6 | Phase 2 | validate.md inline copy lacks cross-reference\
-  \ to master reference |\n| SC-7 | Phase 2 | validate.md decomposition check lacks\
-  \ skip condition for single-SC/single-file specs |\n| SC-8 | Phase 2 | validate.md\
-  \ monolithic SC not rejected by decomposition criteria |\n| SC-9 | Phase 2 | validate.md\
-  \ atomic SC not accepted by decomposition criteria |\n\n### Phase Mapping\n\n| Phase\
-  \ | SCs |\n|-------|-----|\n| Phase 2 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7,\
-  \ SC-8, SC-9 |\n\n## Documentation Sources\n\n| Source | Type | Location | Verification\
-  \ |\n|--------|------|----------|-------------|\n| Master decomposition criteria\
-  \ reference | doc | `.opencode/audit/reference/decomposition-criteria.md` | Read\
-  \ — file exists on disk |\n| spec-creation validate task | code | `.opencode/skills/spec-creation/tasks/validate.md`\
-  \ | Read — file exists on disk |\n\n## Enforcement Gate\n\n> **Enforcement gate:**\
-  \ All success criteria MUST pass before this spec is considered complete. Partial\
-  \ implementation is not permitted.\n\n## Change Control\n\n| Date | What Changed\
-  \ | Why | Authorized By |\n|------|--------------|-----|---------------|\n| 2026-08-16\
-  \ | Added \"Decomposition Criteria Definitions\" section summarizing the master\
-  \ reference file and defining the 5 previously undefined terms (atomic work units,\
-  \ single deliverable, binary verifiability, PR-gate viability, meta RED/GREEN principle)\
-  \ | Spec-audit finding (1) Completeness — undefined terms forced implementor guessing\
-  \ | spec-audit remediation |\n| 2026-08-16 | Replaced deferral-language Dependencies\
-  \ section with concrete dependency table naming issue #2118, the relationship, and\
-  \ satisfied status | Spec-audit finding (2) Escape Hatches — deferral language permitted\
-  \ short-circuiting decomposition work | spec-audit remediation |\n| 2026-08-16 |\
-  \ Added Traceability section mapping each SC to Phase 2 and its root cause, plus\
-  \ a phase mapping table | Spec-audit finding (3) Traceability — all 9 SCs were orphan\
-  \ SCs with no phase mapping | spec-audit remediation |\n| 2026-08-16 | Added Not\
-  \ Included, Documentation Sources, and Enforcement Gate sections | Verify spec against\
-  \ spec-structure-standards and current code base | spec-audit remediation |\n"
+body: '> **Full spec and artifacts: [`.opencode/.issues/2116/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2116)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+
+  ## Problem
+
+
+  spec-creation''s validate task does not check whether SCs are properly decomposed
+  to atomic work units. Monolithic SCs pass through to plan creation and implementation,
+  where defects are more expensive to fix. The current `validate.md` Step 3.3 "Compound-SC
+  detection" flags conjunctions but does not enforce the 4 spec-level decomposition
+  criteria defined in the master reference.
+
+
+  ## Scope
+
+
+  - Add a ''Decomposition Criteria'' section to `spec-creation/tasks/validate.md`
+  with the 4 spec-level criteria: atomicity, single deliverable, binary verifiability,
+  PR-gate viability
+
+  - Each criterion in imperative binary decision-tree format with explicit PASS/FAIL
+  branches
+
+  - Atomicity trigger-word sub-check (and, or, comma-separated lists → FAIL)
+
+  - Binary verifiability disjunctive-pattern sub-check (either/or, alternatively,
+  one of → FAIL)
+
+  - Binary verifiability vague-term sub-check (should, could, ideally, as appropriate
+  → FAIL)
+
+  - PR-gate viability check referencing the meta RED/GREEN principle
+
+  - Cross-reference comment to the master reference file
+
+  - Skip condition when spec has 1 SC AND 1 affected file
+
+  - Two behavioral enforcement tests (monolithic ''and'' SC → FAIL; single atomic
+  SC → PASS), each submitted with MORE than 1 affected file so the skip-guard does
+  not fire and the decomposition criteria are always evaluated, verified via the Two-SC
+  pattern (artifact-only generator script + clean-room session.yaml evaluation)
+
+
+  **Out of scope:** `audit/tasks/spec-audit-evaluator.md` (Phase 3, #2117), `writing-plans/tasks/validate.md`
+  (plan-level criteria, #2115), and any modification to the master reference file
+  `audit/reference/decomposition-criteria.md`.
+
+
+  ## Approach
+
+
+  Edit `spec-creation/tasks/validate.md` to add a new ''Decomposition Criteria'' section
+  after existing validation checks. The section is a structured checklist with binary
+  PASS/FAIL branching, mirroring the criteria in the master reference file `audit/reference/decomposition-criteria.md`.
+  Entry condition: skip if spec has 1 SC AND 1 affected file. Each criterion uses
+  an imperative binary decision tree with explicit PASS/FAIL branches.
+
+
+  The spec now satisfies the full 6-field preamble required by spec-structure-standards
+  §1: Problem Statement, Root Cause/Motivation, Approach, plus the added Alternatives
+  Considered & Why Discarded (3 approaches evaluated and rejected), Key Design Decisions
+  (4 decisions with named tradeoffs), and User Intent / Original Prompt (original
+  prompt not recorded; recorded intent stated). It also includes an Edge Cases section
+  (spec-structure-standards §11) covering input boundaries, state transitions, failure
+  modes, concurrency, and recovery, and a Recency-Check Evidence section verifying
+  current file state and commit history of validate.md and decomposition-criteria.md.
+
+
+  The spec explicitly defines an "atomic work unit" (a single concern that cannot
+  be further decomposed without losing meaning, and that maps to exactly one deliverable
+  and one verifiable outcome) as the granularity standard the four criteria enforce.
+  All 10 success criteria carry precise, independently-reproducible expected values:
+  string SCs specify the exact grep pattern/string to match; behavioral SCs (SC-9,
+  SC-10) specify the exact expected output and are verified via the Two-SC pattern
+  per tests-v2/AGENTS.md §6a — a behavioral test script (artifact-only generator)
+  at `.opencode/tests-v2/behaviors/` generates session.yaml artifacts via `with-test-home`
+  (exit 0, no in-script assertion), and a clean-room sub-agent evaluates session.yaml
+  (the SQLite DB export — PRIMARY evidence per §2/§5a) for FAIL/PASS evidence. Specifically,
+  SC-9 states that submitting a spec whose SC contains the conjunction `AND` (single
+  SC `The system validates email format AND sends confirmation email`, MORE than 1
+  affected file) returns FAIL with the atomicity reason `SC contains trigger words
+  indicating multiple concerns`; SC-10 states that submitting a spec with a single
+  atomic SC (single SC `The system validates email format on registration`, MORE than
+  1 affected file) returns PASS for decomposition criteria. The spec includes the
+  Requirements (§4) and Items (§5) sections required by spec-structure-standards,
+  with R-1..R-10 mapping to SC-1..SC-10 and per-SC RED/GREEN/verify/commit items.
+
+
+  ## Impact
+
+
+  - **Risk:** Decomposition criteria could conflict with the existing Step 3.3 Compound-SC
+  detection. *Mitigation:* New section operates as a distinct checklist; Step 3.3
+  is retained for its distinct purpose (documented as a Key Design Decision).
+
+  - **Risk:** Behavioral tests may be time-intensive. *Mitigation:* Two targeted behavioral
+  test scripts (artifact-only generators) run via `with-test-home`, scope-limited;
+  evaluation is delegated to clean-room sub-agents reading session.yaml.
+
+  - **Risk:** Inline copy could drift from the master reference. *Mitigation:* Cross-reference
+  comment points to the authoritative source; maintainer note governs synchronization.
+
+  - **Risk:** Inline copy vs runtime import tradeoff. *Mitigation:* Self-contained
+  inline copy chosen for clean-room dispatch; drift is auditable via the cross-reference
+  comment.
+
+
+  Key dependency: Phase 1 (#2118) master reference file — satisfied; `audit/reference/decomposition-criteria.md`
+  exists on disk.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+
+  '
 created_at: '2026-07-25T03:06:40+00:00'
-updated_at: '2026-08-17T02:10:47+00:00'
+updated_at: '2026-08-19T04:46:43+00:00'
