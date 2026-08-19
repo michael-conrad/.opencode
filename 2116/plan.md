@@ -305,3 +305,15 @@ Phase 2 completes the behavioral verification of the decomposition check. All 14
 - [ ] 6. **Review-prep** — Run `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare the PR review context. `(**sub-agent**)`
 - [ ] 7. **Create PR** — Run `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request. `(**sub-agent**)`
 - [ ] 8. **Exec summary** — Run `task(..., prompt: "execute completion task from completion-core")`. Generate the completion executive summary. `(**sub-agent**)`
+
+---
+
+## Lifecycle Events
+
+- `plan_created` at `2026-08-19T17:33:59Z` — Plan file: `2116/plan.md`, 2 phases (Phase 1: inline decomposition criteria; Phase 2: behavioral enforcement tests).
+
+---
+
+## Lifecycle Events
+
+- **plan_created** at `2026-08-19T17:33:59Z` — Plan file: `.opencode/.issues/2116/plan.md`, 2 phases.

@@ -1,0 +1,77 @@
+# Validate findings — issue #2116
+# Structural validation of plan.md against 6 check categories.
+issue: 2116
+overall_status: PASS
+
+# Category 1 — Structural validation
+category_1:
+  status: PASS
+  checks:
+    - name: phase_table_columns
+      status: PASS
+      detail: "plan.md has a phase table with all required columns (Phase, Name, Concern, SCs, Dependencies, Steps, Dispatch)."
+    - name: phase_procedure_numbered_steps
+      status: PASS
+      detail: "Each phase (Phase 1, Phase 2) has a Step-by-step section with numbered checkbox steps. Phase 1 has Items 1-10 (steps 1-70), Phase 2 has Items 11-14 (steps 1-28)."
+    - name: exit_criteria_sc_mapping
+      status: PASS
+      detail: "Exit Criteria section exists with C1..C6 mapping SCs to phases; C1 covers all 14 SCs."
+
+# Category 2 — Skill+task validity
+category_2:
+  status: PASS
+  checks:
+    - name: skill_task_references_valid
+      pass: PASS
+      detail: "All skill+task references in the plan match entries in skills/writing-plans/reference/implementation-workflow.md (test-driven-development: phase-0/red/green/phase-4; verification-before-completion: verify; audit; finishing-a-development-branch; git-workflow-pr: review-prep/create; completion-core: completion)."
+    - name: dispatch_header_valid
+      pass: PASS
+      detail: "Frontmatter dispatch list (test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core) all resolve to valid implementation-workflow reference entries."
+  findings: []
+
+# Category 3 — SC coverage
+category_3:
+  status: PASS
+  checks:
+    - name: sc_coverage
+      pass: PASS
+      detail: "All 14 SCs (SC-1..SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14) appear in phase exit criteria / completion blocks: SC-1..SC-8+SC-11+SC-12 in Phase 1, SC-9/SC-10/SC-13/SC-14 in Phase 2."
+    - name: triplet_split_detection
+      pass: PASS
+      detail: "No SC has its RED/GREEN/COMMIT steps split across phases. Each SC item (Item 1-10 in Phase 1, Item 11-14 in Phase 2) contains its full RED/GREEN/COMMIT cycle within a single phase. Confirmed by structure.yaml triplet_co_location status=verified."
+
+# Category 4 — Concern separation
+category_4:
+  status: PASS
+  checks:
+    - name: phase_to_concern_bijection
+      pass: PASS
+      detail: "Phase 1 covers concerns C1-C8, C11, C12 (Inline decomposition criteria checklist, decision-tree format, atomicity trigger-word sub-check, binary verifiability disjunctive/vague sub-checks, PR-gate meta RED/GREEN, cross-reference comment, skip condition, Ceremony criterion, Coverage criterion). Phase 2 covers concerns C9, C10, C13, C14 (monolithic-SC behavioral rejection, atomic-SC acceptance, ceremony-SC rejection, covered-by-prior rejection). No concern is addressed by two phases; each phase addresses a distinct set."
+
+# Category 5 — DAG validation
+category_5:
+  status: PASS
+  checks:
+    - name: dag_acyclic
+      pass: PASS
+      detail: "Dependency contract DAG has edge phase_2 -> behavioral_tests only. No cycles."
+    - name: all_phases_reachable
+      pass: PASS
+      detail: "All phases (phase_2, behavioral_tests) reachable from start node phase_2."
+    - name: no_orphan_phases
+      pass: PASS
+      detail: "No orphan phases: phase_2 is the source (outgoing edge), behavioral_tests is the sink (incoming edge). No phase is isolated."
+
+# Category 6 — Holistic quality
+category_6:
+  status: PASS
+  checks:
+    - name: no_tbd_placeholders
+      pass: PASS
+      detail: "No TBD/TODO/placeholder tokens present in plan.md body."
+    - name: checkbox_format_steps
+      pass: PASS
+      detail: "All 116 step/checklist lines use checkbox format (- [ ])."
+    - name: dispatch_mode_consistency
+      pass: PASS
+      detail: "All sub-agent steps tagged (sub-agent)/(clean-room); commit steps tagged (inline); Z3 check tagged inline. No inline-dispatched steps in clean-room phases; no clean-room steps in inline commit. Dispatch modes consistent per phase."
