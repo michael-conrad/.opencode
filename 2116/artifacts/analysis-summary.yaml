@@ -1,4 +1,5 @@
 spec_path: .opencode/.issues/2116/spec.md
+approval_status: approved-for-for_pr
 sc_count: 10
 artifact_status:
   blast-radius.yaml: backfilled
@@ -17,3 +18,10 @@ scope_summary: |
   behavioral tests (SC-9, SC-10) at .opencode/tests-v2/behaviors/ using the Two-SC pattern.
   All 10 SCs map to Phase 2. Master reference file .opencode/audit/reference/
   decomposition-criteria.md is read-only (cross-reference only).
+scope_boundary_findings:
+  - file: .opencode/skills/spec-creation/tasks/validate.md
+    status: present
+  - file: .opencode/audit/reference/decomposition-criteria.md
+    status: present
+  - file: .opencode/tests-v2/behaviors/ (SC-9/SC-10 behavioral test scripts)
+    status: to-be-created
