@@ -6,7 +6,7 @@ variables:
     description: "Add inline decomposition criteria checklist to validate.md with 6 criteria (atomicity, single deliverable, binary verifiability, PR-gate viability, ceremony, coverage / covered-by-prior), binary PASS/FAIL decision trees, sub-checks, cross-reference comment, and skip-guard — SC-1 through SC-8, SC-11, SC-12 (all string SCs target validate.md; SC-11/SC-12 also update the master reference file in lockstep)"
   behavioral_tests:
     type: bool
-    description: "Add behavioral test scripts at .opencode/tests-v2/behaviors/ for SC-9, SC-10, SC-13, SC-14 (Two-SC pattern, artifact-only generators)"
+    description: "Add behavioral test scripts at .opencode/tests-v2/behaviors/ for SC-9, SC-10, SC-13, SC-14 (Two-SC pattern, artifact-only generators). Per-item RED steps are vacuous — the decomposition check content the tests target was already implemented in Phase 1 (SC-1..SC-8, SC-11, SC-12 committed to validate.md), so items proceed directly to artifact-only script generation + clean-room session.yaml verification (the GREEN/verify path)."
 preconditions:
   - "z3.Implies(behavioral_tests, phase_2)"
 invariants: []
@@ -41,4 +41,5 @@ edges:
     rationale: "The decomposition check must exist in validate.md (phase_2) before its behavioral rejection/acceptance behavior can be tested (SC-9, SC-10, SC-13, SC-14)"
 notes:
   - "All 14 SCs map to Phase 2 per the spec's Phase Mapping table. The dependency_contract splits Phase 2 into the validate.md content work (SC-1..SC-8, SC-11, SC-12) and the behavioral test scripts (SC-9, SC-10, SC-13, SC-14), which depend on the validate.md content being present."
+  - "Because the validate.md content (Phase 1) IS the implementation of the behavior the Phase 2 behavioral tests target, the Phase 2 per-item RED steps are vacuous — a confirmed-failing RED is structurally unreachable. This is a legitimate consequence of the plan's own Phase 1 -> Phase 2 dependency ordering, not a defect. The Phase 2 items proceed directly to artifact-only script generation + clean-room session.yaml verification (the GREEN/verify path), preserving the clean-room evaluation contract. This is a NON-SUBSTANTIVE revision: SCs, scope, evidence types, and verification methods are unchanged."
   - "SC-11 and SC-12 (Ceremony and Coverage criteria) also update the master reference file .opencode/audit/reference/decomposition-criteria.md in lockstep per the maintainer note; the master reference is otherwise a satisfied external dependency (issue #2118, closed/merged)."
