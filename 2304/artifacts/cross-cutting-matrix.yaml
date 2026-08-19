@@ -1,0 +1,22 @@
+cross_cutting_matrix:
+  issue_number: 2304
+  issue_repo: .opencode
+  topic: "Standardize remote branch-tip terminology"
+  matrix:
+    - concern: "Terminology consistency"
+      phases: [1]
+      files_affected: "All branch-tip prose files (19 listed in code-path-inventory)"
+      notes: "SC-1/SC-2 — the sweep is inherently cross-cutting across all git-workflow skills and commands"
+    - concern: "Verification integrity"
+      phases: [1]
+      files_affected: "trunk-tip-verification.md Steps 3/6"
+      notes: "SC-3 — a cross-cutting guard ensuring the sweep never alters enforcement logic"
+    - concern: "Behavioral regression"
+      phases: [1]
+      files_affected: "tests-v2 behavioral scenario (SC-4)"
+      notes: "Cross-cutting across the whole sweep — validates the collective terminology change end-to-end"
+    - concern: "Submodule/trunk discipline"
+      phases: [1]
+      files_affected: "pre-work.md, submodule-sync.md, cleanup.md, branch-cleanup.md, submodule-tag-*.md"
+      notes: "Submodule trunk-tip terminology is a recurring cross-cutting theme in every git-workflow task"
+  cross_cutting_note: "The single concern (remote-tip terminology) recurs across all git-workflow sub-skills; the sweep is one coherent documentation change rather than N independent edits."

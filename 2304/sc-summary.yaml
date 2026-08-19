@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "Structural scan across .opencode/skills/, .opencode/guidelines/, .opencode/commands/, and AGENTS.md returns zero unqualified branch-tip references remaining."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "All 'trunk tip' prose sites standardized to 'remote trunk tip' / 'remote $DEFAULT_BRANCH tip'."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "trunk-tip-verification.md Steps 3/6 fetch+compare against origin/$DEFAULT_BRANCH remain byte-identical to pre-change state."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Behavioral tests-v2 scenario asserts the agent consults origin/$DEFAULT_BRANCH rather than a stale local tip."
+    evidence_type: "behavioral"
+    plan_item: 4

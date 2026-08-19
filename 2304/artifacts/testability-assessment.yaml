@@ -1,0 +1,26 @@
+testability_assessment:
+  issue_number: 2304
+  issue_repo: .opencode
+  topic: "Standardize remote branch-tip terminology"
+  per_sc_strategy:
+    - sc_id: SC-1
+      strategy: "structural"
+      test: "rg scan across .opencode/skills/, .opencode/guidelines/, .opencode/commands/, AGENTS.md asserting zero unqualified branch-tip references remain (rg 'trunk tip' NOT preceded by remote; rg 'dev tip'; rg 'feature-branch tip'; rg hardcoded 'dev'/'master' branch-tip)."
+      tool: "rg / shell assertion"
+    - sc_id: SC-2
+      strategy: "structural"
+      test: "rg 'trunk tip' returns only remote-qualified sites (matches 'remote trunk tip' / 'remote \\$DEFAULT_BRANCH tip')."
+      tool: "rg / shell assertion"
+    - sc_id: SC-3
+      strategy: "structural"
+      test: "Byte-identical diff of trunk-tip-verification.md Steps 3/6 pre/post sweep (git diff scope restricted to prose lines only)."
+      tool: "git diff / assertion"
+    - sc_id: SC-4
+      strategy: "behavioral"
+      test: "tests-v2 behavioral scenario via with-test-home + opencode run with real-domain prompt; assert stderr shows agent consulting origin/$DEFAULT_BRANCH, not a stale local tip."
+      tool: "bash .opencode/tests-v2/with-test-home opencode run"
+      behavioral_evidence: "Agent actions visible in stderr (tool calls, reads) — NOT prose recall"
+  coverage:
+    structural: "SC-1, SC-2, SC-3"
+    behavioral: "SC-4"
+  note: "SC-4 is the behavioral enforcement test required by the spec's Risk 3 mitigation; it MUST run via opencode run against a real model with stderr-based assertions per §9 Prompt Construction Mandate."

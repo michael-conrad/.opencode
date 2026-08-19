@@ -1,0 +1,25 @@
+state_analysis:
+  issue_number: 2304
+  issue_repo: .opencode
+  topic: "Standardize remote branch-tip terminology"
+  note: "Documentation-only change — no runtime state machine is modified. This artifact documents the conceptual state the prose describes, to ground the behavioral SC-4 scenario."
+  states:
+    - state: "START / before sweep"
+      description: "Prose says 'trunk tip' / 'dev tip' unqualified → agent may assume stale LOCAL branch tip is authoritative"
+      agent_behavior_risk: "Starting work from a stale local base (spec problem statement)"
+    - state: "AFTER / sweep applied"
+      description: "Prose says 'remote trunk tip' / 'origin/$DEFAULT_BRANCH tip' → agent reads that remote origin/ tip is authoritative"
+      agent_behavior: "Agent consults origin/$DEFAULT_BRANCH before starting work"
+    - state: "VERIFICATION"
+      description: "trunk-tip-verification.md Steps 3/6 fetch+compare against origin — UNCHANGED"
+      behavior: "Enforcement logic intact (SC-3 guard)"
+  transitions:
+    - from: "START"
+      to: "AFTER"
+      via: "SC-2 terminology sweep"
+      effect: "Prose communicates remote-tip authority"
+    - from: "AFTER"
+      to: "VERIFICATION"
+      via: "SC-4 behavioral scenario"
+      effect: "Agent observed consulting origin/$DEFAULT_BRANCH in stderr"
+  acyclic: true

@@ -1,0 +1,25 @@
+research_card_consultation:
+  issue_number: 2304
+  issue_repo: .opencode
+  topic: "Standardize remote branch-tip terminology across skilldeck and guidelines"
+
+  procedure:
+    - Globbed .opencode/.issues/research-cards/*.md (12 cards) and .issues/research-cards/*.md (root repo)
+    - Grepped frontmatter and bodies for branch-tip, trunk-tip, dev-tip, branch-management terminology
+
+  consulted_cards:
+    - name: multi-feature-branch-main-with-submodules
+      path: .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md
+      confidence: 0.7
+      match: "PARTIAL — concerns branch management against main/dev trunk, not remote-tip terminology"
+      relevance: "NOT ADOPTED. Card addresses feature-branch → main/dev topology, not the prose terminology sweep. No branch-tip terminology findings to incorporate."
+    - name: cross-reference-form-comparison
+      path: .opencode/.issues/research-cards/cross-reference-form-comparison.md
+      match: "NO — cross-reference link format, unrelated"
+    - name: create-md-remote-format-defect
+      path: .opencode/.issues/research-cards/create-md-remote-format-defect.md
+      match: "NO — remote issue format defect, unrelated"
+
+  finding: "NO matching research card with confidence >= 0.7 covering branch-tip terminology. multi-feature card is tangentially related (branch topology) but does not address the remote-tip prose standardization this spec targets."
+
+  action: "Proceed without incorporating research-card findings. The analysis is grounded in the live pre-spec scan (F1-F9)."

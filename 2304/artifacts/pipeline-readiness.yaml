@@ -1,0 +1,30 @@
+pipeline_readiness:
+  issue_number: 2304
+  issue_repo: .opencode
+  topic: "Standardize remote branch-tip terminology"
+
+  checks:
+    - check: "Atomicity"
+      result: "PASS"
+      detail: "Each SC maps to exactly one RED→GREEN→COMMIT cycle. SC-1 (scan gate) and SC-2 (sweep) are structurally separate items; SC-3 (guard) and SC-4 (behavioral) are distinct concerns."
+    - check: "Dependency ordering"
+      result: "PASS"
+      detail: "SC-1 depends on SC-2 (scan proves sweep); SC-3 independent; SC-4 depends on SC-2 (wording in place). DAG acyclic — verified in decompose-output.yaml."
+    - check: "Single concern"
+      result: "PASS"
+      detail: "Every SC targets documentation prose (one file category: .md/.sh under .opencode/) and one verification domain (structural/structural-guard/behavioral)."
+    - check: "Phase dependency"
+      result: "PASS"
+      detail: "Single-phase spec (documentation sweep). No phase graph cycles. SC-3 and SC-4 are parallel guards on the same single phase."
+    - check: "Three-tier structure"
+      result: "N/A (single phase)"
+      detail: "Single-phase spec — pre/per-file/post three-tier structure not required; the sweep is one coherent documentation change."
+    - check: "Documentation-only scope preserved"
+      result: "PASS"
+      detail: "All SCs are prose/structural/behavioral-evidence; no code/config/workflow behavior changes (verified F8, interface-compatibility.yaml)."
+
+  gate_result: "PASS"
+  notes:
+    - "Spec is single-phase documentation sweep with 4 SCs (structural x3 + behavioral x1)."
+    - "SC-4 behavioral test MUST use with-test-home + opencode run per mandatory test framework; stderr-based assertions."
+    - "No blocking findings. Analysis complete and pipeline-ready."
