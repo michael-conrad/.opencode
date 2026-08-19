@@ -23,8 +23,10 @@ more expensive to fix.
 
 Edit `spec-creation/tasks/validate.md` to add a new 'Decomposition Criteria' section
 after existing validation checks. The section is a structured checklist with binary
-PASS/FAIL branching, mirroring the criteria defined in the master reference file
-`audit/reference/decomposition-criteria.md`. Entry condition: skip if spec has 1 SC
+PASS/FAIL branching, mirroring the criteria CONTENT defined in the master reference file
+`audit/reference/decomposition-criteria.md` (the inline copy mirrors the criteria
+content, not the master reference's numbered heading format — the inline copy SHALL use
+unnumbered headings per SC-1). Entry condition: skip if spec has 1 SC
 AND 1 affected file.
 
 ## Alternatives Considered & Why Discarded
@@ -274,9 +276,12 @@ Each SC maps to exactly one item. Items are numbered sequentially from 1.
 | Issue #2118 — `[SPEC] Phase 1: Master decomposition criteria reference file` (closed/merged) | The master reference file `audit/reference/decomposition-criteria.md` must exist before the inline copy is added to validate.md | Satisfied — `audit/reference/decomposition-criteria.md` exists on disk at `.opencode/audit/reference/decomposition-criteria.md` |
 
 The inline decomposition criteria checklist in validate.md SHALL mirror the
-spec-level criteria (atomicity, single deliverable, binary verifiability, PR-gate
-viability) defined in the master reference file, and SHALL include the cross-reference
-comment `See audit/reference/decomposition-criteria.md for master definition`.
+spec-level criteria CONTENT (atomicity, single deliverable, binary verifiability,
+PR-gate viability) defined in the master reference file, and SHALL include the
+cross-reference comment `See audit/reference/decomposition-criteria.md for master
+definition`. The inline copy mirrors the criteria content, not the master reference's
+numbered heading format — the inline copy SHALL use unnumbered headings (`### Atomicity`,
+`### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) per SC-1.
 
 ## Traceability
 
@@ -392,12 +397,16 @@ This section documents the verification that the spec's claims about current fil
 
 | Check | Claim Verified | Verification |
 |-------|----------------|--------------|
-| `spec-creation/tasks/validate.md` current state | The file does NOT yet contain the 4 criterion headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) — RED state confirmed, the spec's SC-1..SC-8 are not yet implemented | `grep` for the 4 headings across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches; the file exists on disk (7135 bytes) |
+| `spec-creation/tasks/validate.md` current state | At revision time, `grep` for the 4 criterion headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches, so the headings are absent from the current file state | `grep` for the 4 headings across `.opencode/skills/spec-creation/tasks/validate.md` returned no matches; the file exists on disk (7135 bytes) |
 | `audit/reference/decomposition-criteria.md` current state | The master reference file EXISTS and defines all 4 criteria (Atomicity, Single Deliverable, Binary Verifiability, PR-Gate Viability) — the spec's Dependency claim is accurate | File exists on disk (7661 bytes); `grep` returned all 4 criterion headings plus the summary table rows at lines 185-188 |
 | Commit history of `validate.md` | The validate task has recent, active change history, confirming it is a live maintained file | `git -C .opencode log` shows recent commits (e.g., `17ef1680 #2254 ...`, `93e7eb34 feat(#2225): add structured checks to validate.md`) |
 | Commit history of `decomposition-criteria.md` | The master reference was created via `feat: create master decomposition criteria reference file` (commit `33adef85`) | `git -C .opencode log` on the reference file returned that single commit |
 
 **Note:** No connectivity constraints apply to the files referenced in this spec; all are local files verified present in the working tree.
+
+### Prescriptive-Code Carve-Out
+
+Prescriptive-code carve-out: The exact grep strings in the SC-1..SC-8 verification methods are an intentional, documented exception to the spec-structure-standards prescriptive-code prohibition. Deterministic grep patterns are REQUIRED in string-evidence verification methods so that independent auditors can reproduce PASS/FAIL without subjective judgment (per the 2026-08-17 Change Control entry).
 
 ## Change Control
 
@@ -421,3 +430,6 @@ This section documents the verification that the spec's claims about current fil
 | 2026-08-17 | Added an explicit definition of "atomic work unit" (a single concern that cannot be further decomposed without losing meaning, and that maps to exactly one deliverable and one verifiable outcome) in a new "Atomic Work Unit" subsection under "Decomposition Criteria Definitions" | Re-audit FAILED on Completeness — the term 'atomic work units' was undefined, forcing implementor guessing | spec-audit remediation |
 | 2026-08-17 | Pinned the exact expected values into the SC-9 and SC-10 criterion text: SC-9 now states that submitting a spec whose SC contains the conjunction `AND` (single SC `The system validates email format AND sends confirmation email`, MORE than 1 affected file) returns FAIL with the atomicity reason `SC contains trigger words indicating multiple concerns`; SC-10 now states that submitting a spec with a single atomic SC (single SC `The system validates email format on registration`, MORE than 1 affected file) returns PASS for decomposition criteria | Re-audit FAILED on Testability — SC-9 and SC-10 had ambiguous expected values, with the behavioral assertions' expected values only in the verification method, not in the criterion text | spec-audit remediation |
 | 2026-08-19 | Aligned SC-9/SC-10 behavioral test verification methods with the merged clean-room sub-agent evaluation contract from issue #2245. Replaced the inline `opencode run` + "assert stderr contains FAIL/PASS" verification method with the Two-SC pattern: a behavioral test script (artifact-only generator) at `.opencode/tests-v2/behaviors/` generates session.yaml artifacts via `with-test-home` (exit 0, no in-script assertion), and a clean-room sub-agent evaluates session.yaml (the SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) for FAIL/PASS evidence. Updated the SC-9/SC-10 verification method column, R-9/R-10, Item 9/Item 10 verify steps, and the SC-9/SC-10 Cost Frame statements. The behavioral SCs are NOT weakened or removed — only the evaluation is relocated to the clean-room session.yaml contract. The concrete test scenarios (monolithic AND-email SC for SC-9; single atomic SC for SC-10) are preserved. | Revision request: align SC-9/SC-10 behavioral test verification methods with the merged clean-room sub-agent evaluation contract from issue #2245 — the prior "assert stderr contains FAIL/PASS" inline opencode-run assertion contradicts tests-v2/AGENTS.md §2/§5a which mandate artifact-only generator scripts (behavior_run + exit 0) evaluated by orchestrator-dispatched clean-room sub-agents reading session.yaml as PRIMARY evidence | spec-creation revise task |
+| 2026-08-19 | Clarified the 'mirror' language in the Approach section and the Dependencies SHALL clause: the inline copy in validate.md mirrors the CRITERIA CONTENT of the master reference file `audit/reference/decomposition-criteria.md`, not its numbered heading format. The inline copy SHALL use unnumbered headings (`### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`) per SC-1. SC-1, Item 1, the Definitions section, and all other SCs are unchanged. The criteria content mirroring requirement and the cross-reference comment requirement (SC-7) are preserved. | Spec-audit Internal Consistency FAIL — the Approach (line 26) and Dependencies SHALL clause (lines 276-278) stated the inline copy SHALL 'mirror' the master reference, but the master reference uses numbered criterion headings (`### 1. Atomicity`, etc.) while SC-1, Item 1, and the Definitions section specify unnumbered headings. An implementor following 'mirror' would copy numbered headings and fail SC-1's grep for unnumbered headings. Resolution (option b): clarify that the inline copy mirrors criteria content, not heading numbering. | spec-audit remediation |
+| 2026-08-19 | Reworded the Recency-Check Evidence 'Claim Verified' cell for `spec-creation/tasks/validate.md` to remove the prohibited status/tracking markers 'RED state confirmed' and 'not yet implemented'. The cell now describes the grep result factually as a verification check outcome at revision time (grep for the 4 headings returned no matches), without status markers. No SC criterion text, evidence type, or verification method was changed. | Spec-audit SC-TRACKING-LANG FAIL — the Recency-Check Evidence section used prohibited status/tracking markers ('confirmed', 'not yet implemented'); specs are not tracking documents. | spec-audit remediation |
+| 2026-08-19 | Added a 'Prescriptive-Code Carve-Out' subsection under the Recency-Check Evidence section documenting that the exact grep strings in the SC-1..SC-8 verification methods are an intentional, documented exception to the spec-structure-standards prescriptive-code prohibition, required for deterministic, independently reproducible PASS/FAIL (per the 2026-08-17 Change Control entry). No SC criterion text, evidence type, or verification method was changed. | Spec-audit SC-PRESCRIPTIVE-CODE FAIL — the exact grep assertion strings in the SC-1..SC-8 verification-method column were flagged as prescriptive code per spec-structure-standards §Prohibited Content Patterns; this is a standard-conformant deviation requiring an explicit documented carve-out. | spec-audit remediation |

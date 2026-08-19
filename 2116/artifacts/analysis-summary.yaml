@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2116/spec.md
+sc_count: 10
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_summary: |
+  Single-file edit to .opencode/skills/spec-creation/tasks/validate.md adding an inline
+  decomposition criteria checklist (4 spec-level criteria: atomicity, single deliverable,
+  binary verifiability, PR-gate viability) with imperative binary PASS/FAIL decision trees,
+  trigger-word/disjunctive-pattern/vague-term sub-checks, meta RED/GREEN reference,
+  cross-reference comment, and skip-guard for single-SC/single-file specs. Plus two
+  behavioral tests (SC-9, SC-10) at .opencode/tests-v2/behaviors/ using the Two-SC pattern.
+  All 10 SCs map to Phase 2. Master reference file .opencode/audit/reference/
+  decomposition-criteria.md is read-only (cross-reference only).

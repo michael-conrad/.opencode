@@ -1,0 +1,18 @@
+spec_path: .opencode/.issues/2116/spec.md
+interface_boundaries:
+  - module: .opencode/skills/spec-creation/tasks/validate.md
+    interface: Task card procedure (Step 3 structural validation)
+    change: Adds a new 'Decomposition Criteria' section after existing validation checks
+    compatibility: Compatible - additive change; existing Step 3.3 Compound-SC detection retained as distinct check
+    notes: No interface signature changes; validate.md remains a self-contained task card for clean-room dispatch
+  - module: .opencode/audit/reference/decomposition-criteria.md
+    interface: Master reference file (authoritative source)
+    change: None - not modified by this spec
+    compatibility: Compatible - validate.md inlines a copy with cross-reference comment (SC-7)
+    notes: Inline copy mirrors criteria content, not numbered heading format; cross-reference comment governs drift
+  - module: .opencode/tests-v2/behaviors/
+    interface: Behavioral test scripts (artifact-only generators)
+    change: New test scripts for SC-9 and SC-10
+    compatibility: Compatible - follows Two-SC pattern per tests-v2/AGENTS.md §2/§5a
+    notes: Scripts generate session.yaml artifacts via with-test-home (exit 0, no in-script assertion); clean-room sub-agent evaluates session.yaml
+interface_conflicts: none
