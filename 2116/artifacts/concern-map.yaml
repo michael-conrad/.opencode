@@ -2,75 +2,113 @@ spec_path: .opencode/.issues/2116/spec.md
 concerns:
   - id: C1
     name: Inline decomposition criteria checklist
-    description: Add the 6 spec-level decomposition criteria as an inline checklist in validate.md
+    phase_boundary: Phase 2
     scs: [SC-1]
-    phase: Phase 2
+    summary: >
+      Add the inline decomposition criteria checklist with the 6 criterion
+      headings (### Atomicity, ### Single Deliverable, ### Binary Verifiability,
+      ### PR-Gate Viability, ### Ceremony, ### Coverage / Covered-by-Prior) to
+      spec-creation/tasks/validate.md as a new 'Decomposition Criteria' section.
   - id: C2
-    name: Imperative binary decision-tree format
-    description: Express each criterion as an imperative binary decision tree with explicit PASS/FAIL branches
+    name: Decision-tree format
+    phase_boundary: Phase 2
     scs: [SC-2]
-    phase: Phase 2
+    summary: >
+      Express each of the 6 criteria as an imperative binary decision tree with
+      explicit PASS — / FAIL — branches (not prose guidance).
   - id: C3
     name: Atomicity trigger-word sub-check
-    description: Atomicity criterion flags and/or/comma-separated lists as compound structure (FAIL)
+    phase_boundary: Phase 2
     scs: [SC-3]
-    phase: Phase 2
+    summary: >
+      Add the trigger-word sub-check to the Atomicity decision tree flagging
+      and, or, and comma-separated lists as compound structure (FAIL).
   - id: C4
     name: Binary verifiability disjunctive-pattern sub-check
-    description: Binary verifiability criterion flags either/or/alternatively/one of (FAIL)
+    phase_boundary: Phase 2
     scs: [SC-4]
-    phase: Phase 2
+    summary: >
+      Add the disjunctive-pattern sub-check to the Binary Verifiability decision
+      tree flagging either/or, alternatively, and one of (FAIL).
   - id: C5
     name: Binary verifiability vague-term sub-check
-    description: Binary verifiability criterion flags should/could/ideally/as appropriate (FAIL)
+    phase_boundary: Phase 2
     scs: [SC-5]
-    phase: Phase 2
+    summary: >
+      Add the vague-term sub-check to the Binary Verifiability decision tree
+      flagging should, could, ideally, and as appropriate (FAIL).
   - id: C6
     name: PR-gate viability meta RED/GREEN reference
-    description: PR-gate viability criterion references the meta RED/GREEN principle
+    phase_boundary: Phase 2
     scs: [SC-6]
-    phase: Phase 2
+    summary: >
+      Add the meta RED/GREEN principle reference to the PR-Gate Viability
+      decision tree.
   - id: C7
     name: Cross-reference comment
-    description: Inline copy includes cross-reference comment to master reference file
+    phase_boundary: Phase 2
     scs: [SC-7]
-    phase: Phase 2
+    summary: >
+      Add the cross-reference comment 'See
+      audit/reference/decomposition-criteria.md for master definition' to the
+      inline copy.
   - id: C8
-    name: Skip condition for single-SC/single-file specs
-    description: Decomposition check skipped when spec has exactly 1 SC AND 1 affected file
+    name: Skip condition guard
+    phase_boundary: Phase 2
     scs: [SC-8]
-    phase: Phase 2
+    summary: >
+      Add the skip-condition guard that short-circuits the decomposition check
+      when the spec has exactly 1 SC AND 1 affected file.
   - id: C9
     name: Monolithic-SC behavioral rejection
-    description: Behavioral test verifying monolithic SC (with AND) returns FAIL with atomicity reason
+    phase_boundary: Phase 2
     scs: [SC-9]
-    phase: Phase 2
+    summary: >
+      Behavioral test: a spec whose single SC contains AND (monolithic) and MORE
+      than 1 affected file returns FAIL for the atomicity/decomposition check.
   - id: C10
     name: Atomic-SC behavioral acceptance
-    description: Behavioral test verifying single atomic SC returns PASS for decomposition criteria
+    phase_boundary: Phase 2
     scs: [SC-10]
-    phase: Phase 2
+    summary: >
+      Behavioral test: a spec with a single atomic SC and MORE than 1 affected
+      file is accepted (no FAIL verdict).
   - id: C11
     name: Ceremony criterion
-    description: Add Ceremony criterion (set-entailment over prior SCs) to Decomposition Criteria section
+    phase_boundary: Phase 2
     scs: [SC-11]
-    phase: Phase 2
+    summary: >
+      Add the Ceremony criterion as a binary decision tree with explicit PASS
+      —/FAIL — branches, computed as set-entailment over prior SCs only.
   - id: C12
     name: Coverage / covered-by-prior criterion
-    description: Add Coverage / covered-by-prior criterion (set-entailment over prior SCs) to Decomposition Criteria section
+    phase_boundary: Phase 2
     scs: [SC-12]
-    phase: Phase 2
+    summary: >
+      Add the Coverage / Covered-by-Prior criterion as a binary decision tree
+      with explicit PASS —/FAIL — branches, computed as set-entailment over
+      prior SCs only.
   - id: C13
     name: Ceremony-SC behavioral rejection
-    description: Behavioral test verifying ceremony SC returns FAIL with ceremony reason
+    phase_boundary: Phase 2
     scs: [SC-13]
-    phase: Phase 2
+    summary: >
+      Behavioral test: a spec whose second SC is identical to the first (same
+      deliverable + same verification method, no new requirement) and MORE than
+      1 affected file is rejected for ceremony.
   - id: C14
     name: Covered-by-prior-SC behavioral rejection
-    description: Behavioral test verifying covered-by-prior SC returns FAIL with coverage reason
+    phase_boundary: Phase 2
     scs: [SC-14]
-    phase: Phase 2
+    summary: >
+      Behavioral test: a spec whose second SC's requirement set is already
+      entailed by the first SC and MORE than 1 affected file is rejected for
+      coverage / duplicate / covered-by-prior.
+
+phase_mapping:
+  Phase 2: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14]
+
 phase_boundaries:
-  - phase: Phase 2
+  - id: Phase 2
     scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13, SC-14]
-    boundary: All 14 SCs map to Phase 2. Single phase — no inter-phase boundary transitions.
+    deliverable: spec-creation/tasks/validate.md decomposition criteria section + master reference Ceremony/Coverage section + 4 behavioral test scripts

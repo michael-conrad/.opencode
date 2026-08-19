@@ -115,24 +115,31 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2116/`](https://github.c
   and one verifiable outcome) as the granularity standard the six criteria enforce.
   All 14 success criteria carry precise, independently-reproducible expected values:
   string SCs specify the exact grep pattern/string to match; behavioral SCs (SC-9,
-  SC-10, SC-13, SC-14) specify the exact expected output and are verified via the
+  SC-10, SC-13, SC-14) specify the expected semantic verdict and are verified via the
   Two-SC pattern per tests-v2/AGENTS.md §6a — a behavioral test script (artifact-only
   generator) at `.opencode/tests-v2/behaviors/` generates session.yaml artifacts via
   `with-test-home` (exit 0, no in-script assertion), and a clean-room sub-agent evaluates
   session.yaml (the SQLite DB export — PRIMARY evidence per §2/§5a) for FAIL/PASS
   evidence. Specifically, SC-9 states that submitting a spec whose SC contains the
   conjunction `AND` (single SC `The system validates email format AND sends confirmation
-  email`, MORE than 1 affected file) returns FAIL with the atomicity reason `SC contains
-  trigger words indicating multiple concerns`; SC-10 states that submitting a spec
-  with a single atomic SC (single SC `The system validates email format on registration`,
-  MORE than 1 affected file) returns PASS for decomposition criteria; SC-13 states
-  that submitting a spec whose second SC is ceremony (identical deliverable and verification
-  method to the first SC, MORE than 1 affected file) returns FAIL with the ceremony
-  reason `SC is ceremony`; SC-14 states that submitting a spec whose second SC is
-  covered by a prior SC (requirement set already entailed, MORE than 1 affected file)
-  returns FAIL with the coverage reason `SC is covered by a prior SC`. The spec includes
-  the Requirements (§4) and Items (§5) sections required by spec-structure-standards,
-  with R-1..R-14 mapping to SC-1..SC-14 and per-SC RED/GREEN/verify/commit items.
+  email`, MORE than 1 affected file) returns FAIL for the atomicity/decomposition
+  check (monolithic SC rejected), with the FAIL reason semantically indicating multiple
+  concerns / a compound SC; SC-10 states that submitting a spec with a single atomic
+  SC (single SC `The system validates email format on registration`, MORE than 1 affected
+  file) returns PASS or is NOT rejected by the decomposition criteria check (no FAIL
+  verdict; WARN is an acceptable pass-equivalent); SC-13 states that submitting a
+  spec whose first SC is `The system validates email format on registration` and whose
+  second SC is `The system validates email format on registration` (identical deliverable
+  and verification method, no new requirement, MORE than 1 affected file) returns
+  FAIL for the decomposition/ceremony check, with the FAIL reason semantically indicating
+  ceremony / no new verification signal; SC-14 states that submitting a spec whose
+  first SC is `The system validates email format on registration` and whose second
+  SC is `The system validates email format on registration` (requirement set already
+  entailed by the first SC, MORE than 1 affected file) returns FAIL for the decomposition/coverage
+  check, with the FAIL reason semantically indicating coverage / duplicate / covered-by-prior.
+  The spec includes the Requirements (§4) and Items (§5) sections required by
+  spec-structure-standards, with R-1..R-14 mapping to SC-1..SC-14 and per-SC
+  RED/GREEN/verify/commit items.
 
 
   ## Impact

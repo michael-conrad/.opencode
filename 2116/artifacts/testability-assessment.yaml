@@ -2,77 +2,81 @@ spec_path: .opencode/.issues/2116/spec.md
 testability_assessment:
   - sc: SC-1
     evidence_type: string
-    verification_method: grep for each of the 6 exact criterion headings in validate.md — all 6 must match
+    method: "grep for each of the 6 criterion headings `### Atomicity`, `### Single Deliverable`, `### Binary Verifiability`, `### PR-Gate Viability`, `### Ceremony`, `### Coverage / Covered-by-Prior` in validate.md — all 6 must match."
     testable: true
-    test_kind: static string check
   - sc: SC-2
     evidence_type: string
-    verification_method: grep for the exact branch tokens PASS — and FAIL — in validate.md — each of the 6 decision-tree blocks must contain at least one of each
+    method: "grep for exact branch tokens `PASS —` and `FAIL —` in each of the 6 decision-tree blocks."
     testable: true
-    test_kind: static string check
   - sc: SC-3
     evidence_type: string
-    verification_method: grep for the exact strings and, or, and comma-separated within the Atomicity decision-tree block — all 3 must match
+    method: "grep for `and`, `or`, `comma-separated` within the Atomicity decision-tree block."
     testable: true
-    test_kind: static string check
   - sc: SC-4
     evidence_type: string
-    verification_method: grep for the exact strings either/or, alternatively, and one of within the Binary Verifiability decision-tree block — all 3 must match
+    method: "grep for `either/or`, `alternatively`, `one of` within the Binary Verifiability block."
     testable: true
-    test_kind: static string check
   - sc: SC-5
     evidence_type: string
-    verification_method: grep for the exact strings should, could, ideally, and as appropriate within the Binary Verifiability decision-tree block — all 4 must match
+    method: "grep for `should`, `could`, `ideally`, `as appropriate` within the Binary Verifiability block."
     testable: true
-    test_kind: static string check
   - sc: SC-6
     evidence_type: string
-    verification_method: grep for the exact strings RED and GREEN within the PR-Gate Viability decision-tree block — both must match
+    method: "grep for `RED` and `GREEN` within the PR-Gate Viability block."
     testable: true
-    test_kind: static string check
   - sc: SC-7
     evidence_type: string
-    verification_method: grep for the exact string 'See audit/reference/decomposition-criteria.md for master definition' in validate.md — must match
+    method: "grep for `See audit/reference/decomposition-criteria.md for master definition` in validate.md."
     testable: true
-    test_kind: static string check
   - sc: SC-8
     evidence_type: string
-    verification_method: grep for the exact strings '1 SC' and '1 affected file' in validate.md — both must match within the skip-condition guard
+    method: "grep for `1 SC` and `1 affected file` within the skip-condition guard."
     testable: true
-    test_kind: static string check
   - sc: SC-9
     evidence_type: behavioral
-    verification_method: Two-SC pattern — behavioral test script (artifact-only generator) at .opencode/tests-v2/behaviors/ runs the monolithic-SC spec through validate via with-test-home, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the atomicity reason 'SC contains trigger words indicating multiple concerns'
+    method: >
+      Two-SC pattern: artifact-only generator script at
+      .opencode/tests-v2/behaviors/ runs a monolithic-SC spec through validate
+      via with-test-home, generating session.yaml. Clean-room sub-agent reads
+      session.yaml (SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md
+      §2/§5a) and evaluates whether agent tool calls/decisions show the
+      decomposition check returned FAIL (monolithic SC rejected), reason
+      indicating multiple concerns / compound SC.
     testable: true
-    test_kind: behavioral (opencode run via with-test-home + session.yaml evaluation)
   - sc: SC-10
     evidence_type: behavioral
-    verification_method: Two-SC pattern — behavioral test script (artifact-only generator) at .opencode/tests-v2/behaviors/ runs the atomic-SC spec through validate via with-test-home, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned PASS for the decomposition criteria check
+    method: >
+      Two-SC pattern: artifact-only generator script submits a single atomic-SC
+      spec; clean-room sub-agent evaluates session.yaml for PASS / no-FAIL
+      verdict.
     testable: true
-    test_kind: behavioral (opencode run via with-test-home + session.yaml evaluation)
   - sc: SC-11
     evidence_type: string
-    verification_method: grep for the ### Ceremony heading, PASS —/FAIL — branch tokens, and 'prior SCs' within the Ceremony block in validate.md — all must match
+    method: "grep for `### Ceremony` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Ceremony block."
     testable: true
-    test_kind: static string check
   - sc: SC-12
     evidence_type: string
-    verification_method: grep for the ### Coverage / Covered-by-Prior heading, PASS —/FAIL — branch tokens, and 'prior SCs' within the Coverage block in validate.md — all must match
+    method: "grep for `### Coverage / Covered-by-Prior` heading, `PASS —`/`FAIL —` branch tokens, and `prior SCs` within the Coverage block."
     testable: true
-    test_kind: static string check
   - sc: SC-13
     evidence_type: behavioral
-    verification_method: Two-SC pattern — behavioral test script (artifact-only generator) at .opencode/tests-v2/behaviors/ runs the ceremony-SC spec through validate via with-test-home, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the ceremony reason 'SC is ceremony'
+    method: >
+      Two-SC pattern: artifact-only generator script submits a ceremony-SC spec
+      (2nd SC identical to 1st, >1 affected file); clean-room sub-agent evaluates
+      session.yaml for FAIL evidence on the ceremony check.
     testable: true
-    test_kind: behavioral (opencode run via with-test-home + session.yaml evaluation)
   - sc: SC-14
     evidence_type: behavioral
-    verification_method: Two-SC pattern — behavioral test script (artifact-only generator) at .opencode/tests-v2/behaviors/ runs the covered-by-prior-SC spec through validate via with-test-home, generating session.yaml artifacts (exit 0, no in-script assertion). A clean-room sub-agent reads session.yaml (SQLite DB export — PRIMARY evidence per tests-v2/AGENTS.md §2/§5a) and evaluates whether the agent's tool calls/decisions show the decomposition check returned FAIL with the coverage reason 'SC is covered by a prior SC'
+    method: >
+      Two-SC pattern: artifact-only generator script submits a covered-by-prior
+      spec (2nd SC's requirement set entailed by 1st, >1 affected file);
+      clean-room sub-agent evaluates session.yaml for FAIL evidence on the
+      coverage check.
     testable: true
-    test_kind: behavioral (opencode run via with-test-home + session.yaml evaluation)
-evidence_type_summary:
-  string: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-11, SC-12]
-  behavioral: [SC-9, SC-10, SC-13, SC-14]
-test_infrastructure_notes:
-  - note: Behavioral SCs (SC-9, SC-10, SC-13, SC-14) require the with-test-home harness and a real AI model via opencode run. They are artifact-only generators (exit 0, no in-script assertion); the assertion is performed by a clean-room sub-agent reading session.yaml.
-  - note: Behavioral test specs MUST specify MORE than 1 affected file so the SC-8 skip-guard does not fire and the decomposition criteria are always evaluated.
+
+summary: >
+  10 of 14 SCs (SC-1..SC-8, SC-11, SC-12) are string-type, mechanically testable
+  via grep on validate.md. 4 of 14 SCs (SC-9, SC-10, SC-13, SC-14) are behavioral,
+  requiring new artifact-only generator scripts under .opencode/tests-v2/behaviors/
+  and clean-room session.yaml evaluation. The behavioral evidence is the PRIMARY
+  evidence type per tests-v2/AGENTS.md — all 14 SCs are testable.

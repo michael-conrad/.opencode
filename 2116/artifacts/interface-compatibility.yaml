@@ -1,66 +1,43 @@
 spec_path: .opencode/.issues/2116/spec.md
-interface_boundaries:
-  - boundary: validate.md ↔ clean-room sub-agent
-    description: validate.md is a task card executed by clean-room sub-agents during spec-creation. The Decomposition Criteria section must be self-contained (no runtime import of the master reference file) so clean-room dispatch executes reliably. The cross-reference comment (SC-7) is a pointer, not a load dependency.
-    compatibility: The inline copy must be complete and self-contained; the master reference file is not a runtime dependency. No interface contract change to the task card's execution contract.
-  - boundary: validate.md ↔ master reference file (decomposition-criteria.md)
-    description: The inline copy mirrors the criteria CONTENT of the master reference file. The maintainer note requires inline copies in validate.md, spec-audit-evaluator.md, and writing-plans/tasks/validate.md to be updated in lockstep when the master reference changes.
-    compatibility: SC-11 and SC-12 add the Ceremony and Coverage criteria to BOTH validate.md and the master reference file. The inline copy uses unnumbered headings (### Atomicity, etc.) while the master reference uses numbered headings — the inline copy mirrors content, not heading format. No interface incompatibility; the lockstep requirement is a synchronization obligation.
-  - boundary: validate.md ↔ existing Step 3.3 Compound-SC detection
-    description: The existing Step 3.3 Compound-SC detection is retained as a distinct check. The new Atomicity criterion may overlap in flagging SCs with coordinating conjunctions.
-    compatibility: Both checks may flag the same SC without conflict. The new Decomposition Criteria section operates as a distinct checklist; Step 3.3 is not removed or replaced. No interface incompatibility.
-  - boundary: validate.md ↔ behavioral test scripts (tests-v2/behaviors/)
-    description: SC-9, SC-10, SC-13, SC-14 behavioral tests submit specs through validate via with-test-home and generate session.yaml artifacts for clean-room evaluation.
-    compatibility: The behavioral test specs MUST specify MORE than 1 affected file so the SC-8 skip-guard (1 SC AND 1 affected file) does not fire. The skip-guard requires BOTH conditions; multiple affected files disables the skip. No interface incompatibility.
-  - boundary: spec-level criteria ↔ plan-level criteria
-    description: The new Ceremony and Coverage criteria are spec-level only. The plan-level criteria (acyclic DAG, file collision freedom, explicit dependency declaration) in the master reference are NOT modified by this spec.
-    compatibility: The new section is spec-level only and does not touch plan-level criteria. No interface incompatibility.
-interface_risks:
-  - risk: Inline copy drift from master reference
-    mitigation: SC-7 mandates the cross-reference comment; a maintainer note governs keeping the inline copy in sync with the authoritative source.
-  - risk: Skip-guard ambiguity in behavioral tests
-    mitigation: SC-9, SC-10, SC-13, SC-14 explicitly state the affected-files list contains MORE than 1 file so the skip-guard does not fire.
+interfaces:
+  - module: .opencode/skills/spec-creation/tasks/validate.md
+    module_role: validate task card (clean-room sub-agent execution)
+    exposed_interface: validate task instructions/checklist consumed verbatim by
+      spec-creation clean-room sub-agents
+    compatibility_analysis: >
+      The 'Decomposition Criteria' section is an additive inline section within
+      the validate task card. It does not alter the task card's execution
+      contract, entry/exit criteria, or dispatch path. Existing Step 3.3
+      Compound-SC detection is retained (Key Design Decision 4), so no
+      regression to the currently-shipped gate. Adding a new section is
+      backward-compatible with all consumers of validate.md.
+    breaking_change: false
+  - module: .opencode/audit/reference/decomposition-criteria.md
+    module_role: master decomposition criteria reference (authoritative source)
+    interface: doc-only; read by maintainers and mirrored by inline copies
+    compatibility: >
+      SC-11/SC-12 add the Ceremony and Coverage spec-level criteria sections to
+      the master reference. This is additive and does not modify the existing
+      plan-level criteria (acyclic DAG, file collision freedom, explicit
+      dependency declaration). No plan-level interface contract is changed.
+    breaking_change: false
+  - module: .opencode/skills/spec-creation/tasks/validate.md -> .opencode/tests-v2/behaviors/
+    module_role: behavioral test generator scripts
+    interface: Two-SC pattern — artifact-only generator scripts under
+      .opencode/tests-v2/behaviors/ run specs through validate via
+      with-test-home, producing session.yaml artifacts; clean-room sub-agents
+      evaluate session.yaml (SQLite DB export, PRIMARY evidence per
+      tests-v2/AGENTS.md §2/§5a)
+    compatibility_notes: >
+      The behavioral test scripts are new files added to .opencode/tests-v2/
+      behaviors/. They must conform to the tests-v2 artifact-only generator
+      pattern (exit 0, no in-script assertion). They depend on validate.md
+      decomposition behavior (SC-9/SC-10/SC-13/SC-14). No existing interface
+      changed.
+    breaking_change: false
 
-dependency_contract:
-  variables:
-    phase_2:
-      type: bool
-      description: "Add inline decomposition criteria checklist to validate.md with 6 criteria (atomicity, single deliverable, binary verifiability, PR-gate viability, ceremony, coverage / covered-by-prior), binary PASS/FAIL decision trees, sub-checks, cross-reference comment, and skip-guard — SC-1 through SC-8, SC-11, SC-12 (all string SCs target validate.md; SC-11/SC-12 also update the master reference file in lockstep)"
-    behavioral_tests:
-      type: bool
-      description: "Add behavioral test scripts at .opencode/tests-v2/behaviors/ for SC-9, SC-10, SC-13, SC-14 (Two-SC pattern, artifact-only generators)"
-  preconditions:
-    - "z3.Implies(behavioral_tests, phase_2)"
-  invariants: []
-  postconditions: []
-  phases:
-    phase_2:
-      files:
-        - .opencode/skills/spec-creation/tasks/validate.md
-        - .opencode/audit/reference/decomposition-criteria.md
-      scs:
-        - SC-1
-        - SC-2
-        - SC-3
-        - SC-4
-        - SC-5
-        - SC-6
-        - SC-7
-        - SC-8
-        - SC-11
-        - SC-12
-    behavioral_tests:
-      files:
-        - .opencode/tests-v2/behaviors/
-      scs:
-        - SC-9
-        - SC-10
-        - SC-13
-        - SC-14
-  edges:
-    - from: phase_2
-      to: behavioral_tests
-      rationale: "The decomposition check must exist in validate.md (Phase 2) before its behavioral rejection/acceptance behavior can be tested (SC-9, SC-10, SC-13, SC-14)"
-  notes:
-    - "All 14 SCs map to Phase 2 per the spec's Phase Mapping table. The dependency_contract splits Phase 2 into the validate.md content work (SC-1..SC-8, SC-11, SC-12) and the behavioral test scripts (SC-9, SC-10, SC-13, SC-14), which depend on the validate.md content being present."
-    - "SC-11 and SC-12 (Ceremony and Coverage criteria) also update the master reference file .opencode/audit/reference/decomposition-criteria.md in lockstep per the maintainer note; the master reference is otherwise a satisfied external dependency (issue #2118, closed/merged)."
+external_dependencies:
+  - dependency: .opencode/audit/reference/decomposition-criteria.md
+    status: satisfied
+    detail: File exists on disk (verified); required by SC-1..SC-14 via the
+      cross-reference comment and inline-content mirroring.
