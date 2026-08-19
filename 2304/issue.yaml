@@ -2,6 +2,98 @@ title: '[SPEC] Standardize remote branch-tip terminology across skilldeck and gu
 status: open
 labels:
 - needs-approval
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/N/
+
+
+  ## Problem
+
+
+  The skilldeck and guidelines use inconsistent branch-tip terminology that causes
+  agent confusion. Prose in many skill cards and task cards says "at trunk tip", "verify
+  trunk tip", "dev tip", "feature-branch tip", or bare branch names ("dev", "master")
+  without the remote qualifier. When the agent reads "trunk tip" unqualified, it assumes
+  the stale LOCAL branch tip is authoritative and never consults the remote (origin/)
+  tip — causing starting work from a stale base. The verification operations already
+  compare against `origin/$DEFAULT_BRANCH` (e.g. `trunk-tip-verification.md` Steps
+  3 and 6), but the prose labels do not communicate that the REMOTE tip is the source
+  of truth. The fix is a full holistic documentation-only terminology sweep: every
+  branch-tip reference must be standardized to "remote <branch> branch tip" so the
+  agent always reads that the remote `origin/` tip is authoritative, with no ambiguity
+  to escape-hatch on.
+
+
+  ## Scope
+
+
+  **In scope:**
+
+  - Standardize "trunk tip" (24 unqualified prose sites) → "remote trunk tip" / "remote
+  $DEFAULT_BRANCH tip"
+
+  - Standardize "dev tip" and hardcoded "dev"/"master" branch names (7 sites) → "remote
+  $DEFAULT_BRANCH tip" / "$DEFAULT_BRANCH" / "origin/$DEFAULT_BRANCH"
+
+  - Standardize "feature-branch tip" → "remote feature branch tip" / "remote $DEFAULT_BRANCH
+  tip"
+
+  - Align all sites with the existing model pattern in `git-workflow-pr/tasks/pr-creation/create-pr.md`
+  ("remote trunk tip SHA") and `enforcement-gate.md` ("remote trunk HEAD SHAs")
+
+  - Use `$DEFAULT_BRANCH` / `origin/$DEFAULT_BRANCH` vocabulary, not hardcoded branch
+  names
+
+  - Retire stale "dev tip" and "dev"/"master" branch-name terminology
+
+  - Full scan of `.opencode/skills/`, `.opencode/guidelines/`, `.opencode/commands/`,
+  and `AGENTS.md` for all unqualified branch-tip references
+
+
+  **Out of scope:**
+
+  - Any change to verification enforcement logic (trunk-tip-verification.md Steps
+  3/6 fetch+compare against origin remain UNCHANGED — documentation-only)
+
+  - Changes to branch naming conventions or git workflow behavior
+
+  - Changes to the parent `opencode-config` repo
+
+
+  ## Approach
+
+
+  Perform a holistic documentation-only terminology sweep across the full skilldeck
+  and guidelines. Every branch-tip reference is standardized to "remote <branch> tip"
+  or "origin/<branch>" so the agent always reads that the remote `origin/` tip is
+  authoritative. The sweep aligns all sites with the existing model pattern already
+  used in `create-pr.md` ("remote trunk tip SHA") and `enforcement-gate.md` ("remote
+  trunk HEAD SHAs"). The `$DEFAULT_BRANCH` / `origin/$DEFAULT_BRANCH` vocabulary replaces
+  hardcoded branch names ("dev", "master"). The verification enforcement gates are
+  left untouched — this is a prose-only change that removes the ambiguity that lets
+  agents escape-hatch onto stale local tips.
+
+
+  ## Impact
+
+
+  - **Risk 1: Terminology sweep misses a site** — Mitigation: SC-1 structural scan
+  across all four directories enforces zero unqualified references remain.
+
+  - **Risk 2: Prose change accidentally alters verification logic** — Mitigation:
+  SC-3 explicitly asserts trunk-tip-verification.md Steps 3/6 remain unchanged.
+
+  - **Risk 3: Behavioral regression not caught** — Mitigation: SC-4 behavioral tests-v2
+  scenario asserts the agent consults `origin/$DEFAULT_BRANCH` rather than a stale
+  local tip.
+
+  - **Dependencies:** None — documentation-only, no code or config changes.
+
+  - **Call to action:** Approve this spec to standardize branch-tip terminology and
+  eliminate stale-base starts.
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
+
+  '
 created_at: '2026-08-19T22:58:42+00:00'
-updated_at: '2026-08-19T22:58:42+00:00'
+updated_at: '2026-08-19T22:58:56+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2304
