@@ -1,0 +1,36 @@
+---
+remote_issue: 2117
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2117"
+last_sync: "2026-08-19T14:34:32Z"
+source: github
+---
+
+## Problem
+
+The audit skill's spec-audit evaluator does not independently verify SC decomposition quality. Specs with monolithic SCs pass audit and advance to plan creation, where defects are more expensive to fix.
+
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | `audit/tasks/spec-audit-evaluator.md` includes inline decomposition criteria checklist for 4 spec-level criteria: atomicity, single deliverable, binary verifiability, PR-gate viability | string | grep for each criterion in spec-audit-evaluator.md |
+| SC-2 | Each criterion uses imperative binary decision tree format with explicit PASS/FAIL branches (not prose guidance) | string | grep for PASS/FAIL branching |
+| SC-3 | Atomicity check includes trigger-word sub-check (and, or, comma-separated lists → FAIL) | string | grep for trigger word sub-check |
+| SC-4 | Binary verifiability check includes disjunctive pattern sub-check (either/or, alternatively, one of → FAIL) and vague term sub-check (should, could, ideally, as appropriate → FAIL) | string | grep for disjunctive and vague term sub-checks |
+| SC-5 | PR-gate viability check references meta RED/GREEN principle | string | grep for RED/GREEN reference |
+| SC-6 | Inline copy includes cross-reference comment: 'See audit/reference/decomposition-criteria.md for master definition' | string | grep for cross-reference |
+| SC-7 | Decomposition check is skipped (not evaluated) when spec has exactly 1 SC AND 1 affected file | string | grep for trigger condition |
+| SC-8 | Behavioral test: spec with monolithic SC containing 'and' submitted to spec-audit returns FAIL with correct reason | behavioral | opencode run with assertion |
+| SC-9 | Behavioral test: spec with single atomic SC submitted to spec-audit returns PASS for decomposition criteria | behavioral | opencode run with assertion |
+
+## Approach
+
+Edit `audit/tasks/spec-audit-evaluator.md` to add a new 'Decomposition Criteria' section. Same criteria as Phase 2, independently applied. The evaluator reads the spec independently and produces its own verdicts — this is adversarial separation, not a re-check of spec-creation validate.
+
+## Affected Files
+
+- `audit/tasks/spec-audit-evaluator.md` (edit)
+
+## Dependencies
+
+Depends on Phase 1 PR being merged (master reference file must exist). Can be implemented in parallel with Phase 2.
