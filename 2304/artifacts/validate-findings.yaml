@@ -1,0 +1,71 @@
+# Validate-findings — issue #2304 (documentation-only terminology sweep)
+# Structural validation of plan.md against 6 check categories.
+
+overall_status: PASS
+
+categories:
+  - name: "Category 1 — Structural validation"
+    status: PASS
+    checks:
+      - check: "Phase table with all required columns"
+        result: PASS
+        detail: "Phase table (plan.md lines 34-52) includes Name, Concern, SCs, Dependencies, Dispatch columns."
+      - check: "Each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "Phases 1-4 each contain steps 1-5 in a procedure section."
+      - check: "Exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria C1-C4 map to SC-1..SC-4; C5-C6 cover atomic commits and pipeline completion."
+
+  - name: "Category 2 — Skill+task validity"
+    status: PASS
+    checks:
+      - check: "Every skill+task reference matches the implementation-workflow reference card"
+        result: PASS
+        detail: "All plan skill+task references (red, green, post-regression, verify, commit-inline, audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary) map to valid entries in skills/writing-plans/reference/implementation-workflow.md. Owning skills: test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core. commit-inline and z3-check correctly designated as orchestrator (inline)."
+
+  - name: "Category 3 — SC coverage"
+    status: PASS
+    checks:
+      - check: "Every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "SC-1 (C1/Phase 1), SC-2 (C2/Phase 2), SC-3 (C3/Phase 3), SC-4 (C4/Phase 4). All 4 SCs covered."
+      - check: "No SC has RED/GREEN/COMMIT steps split across phases (triplet split)"
+        result: PASS
+        detail: "Each SC's RED, GREEN, COMMIT all reside within a single phase (steps 1-5 per phase). No TRIPLET_SPLIT."
+
+  - name: "Category 4 — Concern separation"
+    status: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern; no two phases share a concern"
+        result: PASS
+        detail: "Phase 1 (zero unqualified refs/SC-1), Phase 2 (remote-qualify trunk tip prose/SC-2), Phase 3 (Steps 3/6 byte-identical/SC-3), Phase 4 (behavioral origin/$DEFAULT_BRANCH/SC-4). All concerns distinct, one SC per phase. Note: concern-map.yaml is MISSING (documented intentional for documentation-only sweep in analysis-summary.yaml), so phase concerns validated from the plan phase table and dependency-contract 'concern' columns."
+
+  - name: "Category 5 — DAG validation"
+    status: PASS
+    checks:
+      - check: "Dependency contract DAG has no cycles"
+        result: PASS
+        detail: "dependency-contract.yaml edges: [] — no edges, hence no cycles."
+      - check: "All phases reachable from the start node"
+        result: PASS
+        detail: "All 4 phases independent leaves with no preconditions; each individually reachable."
+      - check: "No orphan phases"
+        result: PASS
+        detail: "All 4 phases declared as variables and in phases list; independent leaf design is intentional per contract notes; no disconnected/unreachable node."
+
+  - name: "Category 6 — Holistic quality"
+    status: PASS
+    checks:
+      - check: "No TBD/TODO placeholders in the plan body"
+        result: PASS
+        detail: "grep for TBD/TODO/FIXME/XXX returned zero matches."
+      - check: "All steps use checkbox format"
+        result: PASS
+        detail: "All procedural steps use '[ ]' checkbox format. Non-checkbox '-' bullets are metadata lists (Files, Dispatch) only."
+      - check: "Dispatch mode consistency (inline phases have no dispatched steps; clean-room phases have no inline steps)"
+        result: PASS
+        detail: "All phases are sub-agent (clean-room) phases for RED/GREEN/post-regression/verify with orchestrator inline commit step — consistent with reference card commit-inline design. Post-implementation Z3 check is inline (z3-check orchestrator) as specified. No inline phase contains dispatched steps; no clean-room phase contains an invalid inline step."
+
+summary:
+  - "All 6 validation categories PASS. Plan structurally valid, all SCs covered, no triplet splits, no DAG violations, dispatch modes consistent, no placeholders."
