@@ -46,13 +46,13 @@ author: michael-newsrx
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | The `submodule-sync.md` task card explicitly bounds scope to the parent repo's direct submodule pointers passed in `submodule_paths`. | structural | Read the task card; assert a scope-bound statement referencing `submodule_paths` and direct pointers | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` |
-| SC-2 | The task card explicitly forbids recursion into nested submodules. | structural | Read the task card; assert recursion prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
-| SC-3 | The task card explicitly forbids `git submodule foreach` for the sync operation. | structural | Read the task card; assert `foreach` prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
-| SC-4 | The task card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md` §4. | structural | Read the task card; assert no-`--recursive` constraint consistent with guideline wording | `.opencode/guidelines/060-tool-usage.md` §4 |
-| SC-5 | The task card directs explicit per-submodule operations (not recursive/foreach iteration). | structural | Read the task card; assert explicit per-submodule `git -C <path>` operation directive | task card |
-| SC-6 | The task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag). | structural | Read the task card; assert false-pointer-flag avoidance note present | task card |
-| SC-7 | The existing `--ff-only` divergence handling and autonomous resolution logic is preserved unchanged. | structural | Read the task card; assert divergence block byte-identical to pre-change state | task card |
+| SC-1 | The `submodule-sync.md` task card explicitly bounds scope to the parent repo's direct submodule pointers passed in `submodule_paths`. | string | Read the task card; assert a scope-bound statement referencing `submodule_paths` and direct pointers | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` |
+| SC-2 | The task card explicitly forbids recursion into nested submodules. | string | Read the task card; assert recursion prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-3 | The task card explicitly forbids `git submodule foreach` for the sync operation. | string | Read the task card; assert `foreach` prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-4 | The task card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md` §4. | string | Read the task card; assert no-`--recursive` constraint consistent with guideline wording | `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-5 | The task card directs explicit per-submodule operations (not recursive/foreach iteration). | string | Read the task card; assert explicit per-submodule `git -C <path>` operation directive | task card |
+| SC-6 | The task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag). | string | Read the task card; assert false-pointer-flag avoidance note present | task card |
+| SC-7 | The existing `--ff-only` divergence handling and autonomous resolution logic is preserved unchanged. | string | Read the task card; assert divergence block byte-identical to pre-change state | task card |
 
 ## 4. Requirements
 
@@ -170,3 +170,4 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-20 | Decomposed compound SC-2 into two atomic SCs: SC-2 (recursion prohibition, R-2) and SC-3 (`foreach` prohibition, R-3). Renumbered subsequent SCs (SC-4..SC-7), Items (Item 3..Item 7), Traceability, and Cost Frame accordingly. | Validation finding: SC-2 was compound — bundled recursion prohibition and `foreach` prohibition (R-2 and R-3 both mapped to SC-2). | Pipeline validation gate |
+| 2026-08-20 | Corrected declared evidence type from `structural` to `string` for all 7 SCs (SC-1..SC-7). | Validation finding: EVIDENCE_TYPE_MISMATCH — all 7 SCs declared evidence type `structural` but their verification methods assert specific content presence (string evidence). | Pipeline validation gate |
