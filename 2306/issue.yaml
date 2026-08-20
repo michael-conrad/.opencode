@@ -1,4 +1,155 @@
 labels:
 - needs-approval
 - spec-draft
-updated_at: '2026-08-20T22:23:36+00:00'
+updated_at: '2026-08-20T22:47:28+00:00'
+body: "---\nnumber: 2306\ntitle: \"git-workflow-branch submodule-sync task card invites\
+  \ submodule recursion, violating the standing no-`--recursive` guideline and producing\
+  \ false \\\"changed submodule\\\" flags\"\nstatus: open\nlabels: [needs-approval,\
+  \ spec-draft]\ncreated: 2026-08-20T02:19:08Z\nupdated: 2026-08-20T18:26:04Z\nremote_issue:\
+  \ 2306\nremote_url: \"https://github.com/michael-conrad/.opencode/issues/2306\"\n\
+  promoted_at: 2026-08-20T18:26:04Z\npromotion_type: retroactive_import\nlast_sync:\
+  \ 2026-08-20T18:26:04Z\nauthor: michael-newsrx\n---\n\n# Spec: Bound submodule-sync\
+  \ task card scope to direct pointers and forbid recursion\n\n## 1. Intent and Executive\
+  \ Summary\n\n1. **Problem Statement:** The task card `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`\
+  \ instructs syncing \"dirty submodule pointers to latest trunk tip\" but does not\
+  \ bound scope to the parent repo's direct submodule pointers or forbid recursion\
+  \ into nested submodules. A literal reading invites `git submodule foreach` recursion,\
+  \ which violates the standing no-`--recursive` guideline and produces false \"changed\
+  \ submodule\" (`+`) flags in the parent repo.\n\n2. **Root Cause / Motivation:**\
+  \ The task card's Step 2 iterates \"submodule paths\" without an explicit scope\
+  \ bound or recursion prohibition. The standing constraint already exists in `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 but is not mirrored into the task card. Recursion causes the parent repo to\
+  \ see every submodule pointer diverge from the committed SHA, showing all as `M`/`+`\
+  \ — a false-changed-state that triggers needless re-pointer churn and can corrupt\
+  \ branch/PR intent.\n\n3. **Approach Chosen:** Modify the task card text to (a)\
+  \ explicitly bound scope to the parent repo's direct submodule pointers passed in\
+  \ `submodule_paths`, (b) forbid recursion into nested submodules and forbid `git\
+  \ submodule foreach` for the sync operation, (c) mirror the no-`--recursive` language\
+  \ from `060-tool-usage.md` §4, and (d) direct explicit per-submodule operations.\
+  \ Preserve the existing `--ff-only` divergence handling unchanged.\n\n4. **Alternatives\
+  \ Considered & Why Discarded:**\n   - *Modify `060-tool-usage.md` to add more language*\
+  \ — discarded: the guideline is already correct and authoritative; the defect is\
+  \ that the task card fails to mirror it.\n   - *Change `trunk-tip-verification.md`'s\
+  \ `foreach` usage* — discarded: that is a separate read-only verification concern,\
+  \ out of scope.\n   - *Add a runtime guard/script* — discarded: this is a documentation/instruction\
+  \ defect; no runtime code path changes.\n\n5. **Key Design Decisions:**\n   - The\
+  \ task card operates only on the `submodule_paths` context variable passed by the\
+  \ orchestrator (already scoped to direct paths).\n   - The no-`--recursive` constraint\
+  \ is mirrored verbatim from the authoritative guideline to keep wording consistent.\n\
+  \   - The `--ff-only` divergence handling block is preserved byte-identical to avoid\
+  \ regressing a correct feature.\n\n6. **User Intent / Original Prompt:** The issue\
+  \ reports that an orchestrator acting on the task card (plus a \"do this for all\
+  \ submodules\" directive) attempted to recurse into nested submodules, violating\
+  \ the no-`--recursive` guideline and producing false \"changed submodule\" flags.\
+  \ The expected behavior is that the task card bounds scope to direct pointers and\
+  \ forbids recursion.\n\n## 2. Not Included\n\n- **`trunk-tip-verification.md`**\
+  \ — Its read-only use of `git submodule foreach` for verification is a separate\
+  \ concern and out of scope.\n- **`reference/submodule-divergence.md`** — The shared\
+  \ divergence reference is not a modification target.\n- **`060-tool-usage.md`**\
+  \ — The guideline is already correct; it is the authoritative source to mirror,\
+  \ not to change.\n- **Git behavior, config, or runtime** — This is a documentation/instruction\
+  \ fix; no executable code changes.\n\n## 3. Success Criteria\n\n| ID | Criterion\
+  \ | Evidence Type | Verification Method | Documentation Sources |\n|----|-----------|---------------|---------------------|----------------------|\n\
+  | SC-1 | The `submodule-sync.md` task card explicitly bounds scope to the parent\
+  \ repo's direct submodule pointers passed in `submodule_paths`. | structural | Read\
+  \ the task card; assert a scope-bound statement referencing `submodule_paths` and\
+  \ direct pointers | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`\
+  \ |\n| SC-2 | The task card explicitly forbids recursion into nested submodules.\
+  \ | structural | Read the task card; assert recursion prohibition present | task\
+  \ card; `.opencode/guidelines/060-tool-usage.md` §4 |\n| SC-3 | The task card explicitly\
+  \ forbids `git submodule foreach` for the sync operation. | structural | Read the\
+  \ task card; assert `foreach` prohibition present | task card; `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 |\n| SC-4 | The task card mirrors the standing no-`--recursive` guideline from\
+  \ `060-tool-usage.md` §4. | structural | Read the task card; assert no-`--recursive`\
+  \ constraint consistent with guideline wording | `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 |\n| SC-5 | The task card directs explicit per-submodule operations (not recursive/foreach\
+  \ iteration). | structural | Read the task card; assert explicit per-submodule `git\
+  \ -C <path>` operation directive | task card |\n| SC-6 | The task card documents\
+  \ that syncing each submodule to its own trunk tip must not be reported as a parent\
+  \ pointer change (no false `+` flag). | structural | Read the task card; assert\
+  \ false-pointer-flag avoidance note present | task card |\n| SC-7 | The existing\
+  \ `--ff-only` divergence handling and autonomous resolution logic is preserved unchanged.\
+  \ | structural | Read the task card; assert divergence block byte-identical to pre-change\
+  \ state | task card |\n\n## 4. Requirements\n\n- R-1. The task card SHALL bound\
+  \ scope to the parent repo's direct submodule pointers passed in `submodule_paths`.\n\
+  - R-2. The task card SHALL forbid recursion into nested submodules.\n- R-3. The\
+  \ task card SHALL forbid `git submodule foreach` for the sync operation.\n- R-4.\
+  \ The task card SHALL mirror the no-`--recursive` constraint from `060-tool-usage.md`\
+  \ §4.\n- R-5. The task card SHALL direct explicit per-submodule operations.\n- R-6.\
+  \ The task card SHALL document that syncing a submodule to its own trunk tip must\
+  \ not be reported as a parent pointer change.\n- R-7. The task card SHALL preserve\
+  \ the existing `--ff-only` divergence handling unchanged.\n\n## 5. Items\n\n###\
+  \ Item 1 (SC-1): Add explicit scope-bound statement to task card Step 2\n\n- RED:\
+  \ Enforcement test asserts the task card does not contain a scope-bound statement\
+  \ referencing `submodule_paths`/direct pointers.\n- GREEN: Add the scope-bound statement\
+  \ to Step 2.\n- verify: Read the task card; assert the scope-bound statement is\
+  \ present.\n- commit: Task card text change.\n\n### Item 2 (SC-2): Add explicit\
+  \ recursion prohibition to task card\n\n- RED: Enforcement test asserts the task\
+  \ card does not forbid recursion into nested submodules.\n- GREEN: Add recursion\
+  \ prohibition to Step 2.\n- verify: Read the task card; assert recursion prohibition\
+  \ present.\n- commit: Task card text change.\n\n### Item 3 (SC-3): Add explicit\
+  \ `foreach` prohibition to task card\n\n- RED: Enforcement test asserts the task\
+  \ card does not forbid `git submodule foreach` for the sync operation.\n- GREEN:\
+  \ Add `foreach` prohibition to Step 2.\n- verify: Read the task card; assert `foreach`\
+  \ prohibition present.\n- commit: Task card text change.\n\n### Item 4 (SC-4): Mirror\
+  \ no-`--recursive` guideline language\n\n- RED: Enforcement test asserts the task\
+  \ card lacks the no-`--recursive` constraint.\n- GREEN: Add the no-`--recursive`\
+  \ constraint consistent with `060-tool-usage.md` §4.\n- verify: Read the task card;\
+  \ assert wording consistent with guideline.\n- commit: Task card text change.\n\n\
+  ### Item 5 (SC-5): Direct explicit per-submodule operations\n\n- RED: Enforcement\
+  \ test asserts the task card does not direct explicit per-submodule operations.\n\
+  - GREEN: Add explicit per-submodule `git -C <path>` operation directive.\n- verify:\
+  \ Read the task card; assert directive present.\n- commit: Task card text change.\n\
+  \n### Item 6 (SC-6): Document false-pointer-flag avoidance\n\n- RED: Enforcement\
+  \ test asserts the task card does not document false-flag avoidance.\n- GREEN: Add\
+  \ a note that syncing to trunk tip must not be reported as a parent pointer change.\n\
+  - verify: Read the task card; assert note present.\n- commit: Task card text change.\n\
+  \n### Item 7 (SC-7): Preserve `--ff-only` divergence handling\n\n- RED: Enforcement\
+  \ test asserts the divergence block differs from the pre-change state.\n- GREEN:\
+  \ Ensure the divergence block is unchanged.\n- verify: Read the task card; assert\
+  \ divergence block byte-identical.\n- commit: Task card text change (or no-op if\
+  \ already preserved).\n\n## 6. Dependencies\n\n- **Reference:** `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 — Relationship: authoritative no-`--recursive` constraint to mirror — Status:\
+  \ satisfied.\n- **Reference:** `git-workflow-branch/SKILL.md` — Relationship: dispatches\
+  \ the task card with `submodule_paths`; unchanged — Status: satisfied.\n- **Reference:**\
+  \ `reference/submodule-divergence.md` — Relationship: shared divergence reference;\
+  \ unchanged — Status: satisfied.\n\n## 7. Traceability\n\n| Requirement | SC(s)\
+  \ | Phase(s) |\n|-------------|-------|----------|\n| R-1 | SC-1 | Phase 1 |\n|\
+  \ R-2 | SC-2 | Phase 1 |\n| R-3 | SC-3 | Phase 1 |\n| R-4 | SC-4 | Phase 1 |\n|\
+  \ R-5 | SC-5 | Phase 1 |\n| R-6 | SC-6 | Phase 2 |\n| R-7 | SC-7 | Phase 2 |\n\n\
+  ## 8. Documentation Sources\n\n| Source | Type | Location | Verification |\n|--------|------|-------------|----------|\n\
+  | submodule-sync task card | code | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`\
+  \ | read |\n| no-`--recursive` guideline | code | `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 | read |\n| git-workflow-branch SKILL | code | `.opencode/skills/git-workflow-branch/SKILL.md`\
+  \ | read |\n\n## 9. Enforcement Gate\n\n> **Enforcement gate:** All success criteria\
+  \ MUST pass before this spec is considered complete. Partial implementation is not\
+  \ permitted.\n\n## 10. Cost Frame\n\nCost is measured in defect-discovery-latency,\
+  \ not tool calls. Correctness is the only metric.\n\n- SC-1: Verifying the scope-bound\
+  \ statement costs one read of the task card. Skipping means the task card still\
+  \ invites recursion and the regression ships unchanged.\n- SC-2: Verifying the recursion\
+  \ prohibition costs one read. Skipping means nested-submodule recursion continues,\
+  \ violating the guideline.\n- SC-3: Verifying the `foreach` prohibition costs one\
+  \ read. Skipping means the sync operation can still recurse via `git submodule foreach`.\n\
+  - SC-4: Verifying the no-`--recursive` mirror costs one read against the guideline.\
+  \ Skipping means the task card wording diverges from the authoritative source.\n\
+  - SC-5: Verifying the explicit per-submodule directive costs one read. Skipping\
+  \ means the agent falls back to recursive iteration.\n- SC-6: Verifying the false-flag\
+  \ avoidance note costs one read. Skipping means false `+` pointer churn continues\
+  \ to corrupt branch/PR intent.\n- SC-7: Verifying the divergence block is byte-identical\
+  \ costs one read. Skipping means a correct feature regresses silently.\n\n## 11.\
+  \ Edge Cases\n\n- **Input boundaries:** Empty `submodule_paths` — the task card\
+  \ SHALL handle an empty list by reporting no submodules to sync without error.\n\
+  - **State transitions:** A submodule pointer that is already at trunk tip — the\
+  \ task card SHALL report it as already current, not as a change.\n- **Failure modes:**\
+  \ `--ff-only` pull fails due to divergence — the task card SHALL preserve the existing\
+  \ autonomous resolution logic (ahead/behind/rebase/escalate).\n- **Concurrency:**\
+  \ Multiple submodules synced sequentially — the task card SHALL operate on each\
+  \ direct path independently without cross-contamination.\n- **Recovery:** A failed\
+  \ sync on one submodule — the task card SHALL report the failure and continue with\
+  \ remaining direct submodules without recursing.\n\n## 12. Change Control\n\n| Date\
+  \ | Change | Reason | Authorized By |\n|------|--------|--------|---------------|\n\
+  | 2026-08-20 | Decomposed compound SC-2 into two atomic SCs: SC-2 (recursion prohibition,\
+  \ R-2) and SC-3 (`foreach` prohibition, R-3). Renumbered subsequent SCs (SC-4..SC-7),\
+  \ Items (Item 3..Item 7), Traceability, and Cost Frame accordingly. | Validation\
+  \ finding: SC-2 was compound — bundled recursion prohibition and `foreach` prohibition\
+  \ (R-2 and R-3 both mapped to SC-2). | Pipeline validation gate |\n"
