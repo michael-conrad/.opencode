@@ -13,6 +13,7 @@ variables:
     description: "Edge Cases table update for 'Issue already imported' (SC3)"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
 invariants: []
 postconditions: []
 phases:
@@ -35,6 +36,8 @@ edges:
   - from: phase_1
     to: phase_2
     rationale: "The behavioral test (SC2) exercises the completeness gate (SC1); the gate must exist before a test can prove it materializes missing files."
+  - from: phase_1
+    to: phase_3
+    rationale: "Phase 3 touches import-remote.md which Phase 1 also edits; it is sequenced after Phase 1 to avoid same-file edit conflicts."
 notes:
-  - "SC1 (completeness gate) is a prerequisite for SC2 (behavioral test proving spec.md materialized). SC3 (Edge Cases doc) is independent and documentation-only."
-  - "Phase 3 touches import-remote.md which Phase 1 also edits; it is sequenced after Phase 1 to avoid same-file edit conflicts, but has no logical dependency on the gate behavior."
+  - "SC1 (completeness gate) is a prerequisite for SC2 (behavioral test proving spec.md materialized). SC3 (Edge Cases doc) is documentation-only but sequenced after Phase 1 to avoid same-file edit conflicts on import-remote.md."

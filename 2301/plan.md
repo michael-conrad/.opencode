@@ -25,7 +25,7 @@ phase_count: 3
 |-------|-------|------|--------|-----|------------|
 | 1 — import-remote completeness gate | `test-driven-development` | `red` | `.opencode/skills/issue-operations-sync/tasks/import-remote.md` | SC1 | — |
 | 2 — behavioral test proving spec.md materialized | `test-driven-development` | `red` | `.opencode/tests-v2/behaviors/2301-*.sh` | SC2 | 1 |
-| 3 — Edge Cases table update | `test-driven-development` | `red` | `.opencode/skills/issue-operations-sync/tasks/import-remote.md` | SC3 | — |
+| 3 — Edge Cases table update | `test-driven-development` | `red` | `.opencode/skills/issue-operations-sync/tasks/import-remote.md` | SC3 | 1 |
 
 ---
 
@@ -54,6 +54,11 @@ frontmatter_fields:
 behavior: "when local issue directory exists, enumerate required mirror files and materialize any that are missing; only halt when directory is genuinely complete"
 ```
 
+**Procedure:**
+- [ ] 1. **RED (**sub-agent**).** Write a failing enforcement test for the completeness gate (scenario 2301). **→ SC1**
+- [ ] 2. **GREEN (**sub-agent**).** Implement the completeness gate in `import-remote.md`. **→ SC1**
+- [ ] 3. **COMMIT (**inline**).** Stage and commit the test and change together as one atomic slice. **→ SC1**
+
 ### Phase 2 — behavioral test proving spec.md materialized
 
 | Field | Value |
@@ -70,6 +75,11 @@ test_scenario: "a folder that exists without spec.md is completed (spec.md mater
 assertion: "spec.md exists after run; no HALT on directory existence alone"
 ```
 
+**Procedure:**
+- [ ] 4. **RED (**sub-agent**).** Write a failing behavioral test `2301-*.sh` asserting `spec.md` is materialized (no HALT). **→ SC2**
+- [ ] 5. **GREEN (**sub-agent**).** Make the test pass (the gate materializes `spec.md`). **→ SC2**
+- [ ] 6. **COMMIT (**inline**).** Stage and commit the test and change together as one atomic slice. **→ SC2**
+
 ### Phase 3 — Edge Cases table update
 
 | Field | Value |
@@ -78,7 +88,7 @@ assertion: "spec.md exists after run; no HALT on directory existence alone"
 | Task | `red` |
 | Target | `.opencode/skills/issue-operations-sync/tasks/import-remote.md` |
 | SCs | SC3 |
-| Depends On | — |
+| Depends On | 1 |
 
 **Context:**
 ```yaml
@@ -87,11 +97,15 @@ row: "Issue already imported"
 new_behavior: "reflect the new completeness-check behavior (materialize missing files rather than halt on directory existence)"
 ```
 
+**Procedure:**
+- [ ] 7. **RED (**sub-agent**).** Write a failing doc-edit check for the Edge Cases row. **→ SC3**
+- [ ] 8. **GREEN (**sub-agent**).** Update the Edge Cases "Issue already imported" row. **→ SC3**
+- [ ] 9. **COMMIT (**inline**).** Stage and commit the doc edit. **→ SC3**
+
 ---
 
 ## Exit Criteria
 
-- [ ] C1. `import-remote` checks all required mirror files (`spec.md`, `comments.md`, `remote.md`, `state.md`, frontmatter `github_issue`/`remote_url`) when the local issue directory exists
-- [ ] C2. `import-remote` materializes any missing required mirror files rather than halting on directory existence alone
-- [ ] C3. A behavioral/structural test proves a folder that exists without `spec.md` is completed (spec.md materialized) rather than halted
-- [ ] C4. The Edge Cases table entry for "Issue already imported" reflects the new completeness-check behavior
+- [ ] **SC1 (Phase 1).** `import-remote` checks all required mirror files (`spec.md`, `comments.md`, `remote.md`, `state.md`, frontmatter `github_issue`/`remote_url`) when the local issue directory exists, and materializes any that are missing rather than halting on directory existence alone.
+- [ ] **SC2 (Phase 2).** A behavioral/structural test proves a folder that exists without `spec.md` is completed (spec.md materialized) rather than halted.
+- [ ] **SC3 (Phase 3).** The Edge Cases table entry for "Issue already imported" reflects the new completeness-check behavior.

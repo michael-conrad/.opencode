@@ -48,6 +48,14 @@ regeneration: "writing-plans revise regenerates against revised SC set"
 sc_ids: [SC-1, SC-2]
 ```
 
+**Procedure:**
+- [ ] 1. **RED (**sub-agent**).** Write a failing enforcement test asserting that when a spec is revised, the linked plan (if it exists) is regenerated to match the revised spec's SC set. **→ SC-1**
+- [ ] 2. **GREEN (**sub-agent**).** Implement the change that makes the RED test pass — add the spec-revision → plan-regeneration linkage in the spec-creation revision pipeline. **→ SC-1**
+- [ ] 3. **Commit (**inline**).** Stage and commit the SC-1 test + change together as one atomic slice.
+- [ ] 4. **RED (**sub-agent**).** Write a failing enforcement test asserting that plan regeneration is an automatic consequence of spec revision, not a manual corrective step. **→ SC-2**
+- [ ] 5. **GREEN (**sub-agent**).** Implement the change that makes the RED test pass — make regeneration automatic within the revision pipeline. **→ SC-2**
+- [ ] 6. **Commit (**inline**).** Stage and commit the SC-2 test + change together as one atomic slice.
+
 ### Phase 2 — for_pr scope continuation
 
 | Field | Value |
@@ -65,6 +73,11 @@ halt_at: "pr_created"
 sc_ids: [SC-3]
 ```
 
+**Procedure:**
+- [ ] 7. **RED (**sub-agent**).** Write a failing enforcement test asserting that under `for_pr` scope, spec revision + plan regeneration does not cause a premature halt before `pr_created`. **→ SC-3**
+- [ ] 8. **GREEN (**sub-agent**).** Implement the change that makes the RED test pass — adjust approval-gate scope handling so the pipeline continues to `pr_created`. **→ SC-3**
+- [ ] 9. **Commit (**inline**).** Stage and commit the SC-3 test + change together as one atomic slice.
+
 ---
 
 ## Exit Criteria
@@ -74,3 +87,12 @@ sc_ids: [SC-3]
 - [ ] C3. Under `for_pr` scope, spec revision + plan regeneration does not cause a premature halt before `pr_created` (SC-3)
 - [ ] C4. All SCs (SC-1, SC-2, SC-3) are covered by at least one phase
 - [ ] C5. No circular dependencies in the phase DAG (phase_1 → phase_2)
+
+---
+
+## lifecycle_events
+
+- **timestamp:** 2026-08-20T03:45:42Z
+- **event:** plan_created
+- **plan_file:** `.issues/2302/plan.md`
+- **phase_count:** 2
