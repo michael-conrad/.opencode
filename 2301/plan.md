@@ -109,3 +109,11 @@ new_behavior: "reflect the new completeness-check behavior (materialize missing 
 - [ ] **SC1 (Phase 1).** `import-remote` checks all required mirror files (`spec.md`, `comments.md`, `remote.md`, `state.md`, frontmatter `github_issue`/`remote_url`) when the local issue directory exists, and materializes any that are missing rather than halting on directory existence alone.
 - [ ] **SC2 (Phase 2).** A behavioral/structural test proves a folder that exists without `spec.md` is completed (spec.md materialized) rather than halted.
 - [ ] **SC3 (Phase 3).** The Edge Cases table entry for "Issue already imported" reflects the new completeness-check behavior.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-20T03:49:29Z | plan_created | Plan file: `.issues/2301/plan.md`, phase count: 3 |
