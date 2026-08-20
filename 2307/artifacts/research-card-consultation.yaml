@@ -1,0 +1,25 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  One research card consulted: multi-feature-branch-main-with-submodules.md
+  (confidence 0.7). It documents the trunk-based workflow where PRs target the
+  default branch (main/master) directly without an intermediate 'dev'
+  integration branch, and its gap explicitly notes 'pr-target hardcoded to dev'.
+  This corroborates the bug: the hardcoded 'dev' base is a legacy artifact of a
+  removed dev-branch workflow.
+
+consulted_cards:
+  - name: multi-feature-branch-main-with-submodules
+    path: .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md
+    confidence: 0.7
+    relevance: high
+    findings_applied:
+      - "Trunk-based development targets the default branch directly; no 'dev' integration branch."
+      - "Gap field explicitly states 'pr-target hardcoded to dev' — the same defect class as this bug."
+      - "PRs converge directly on the default branch (main/master), so compare URL base must be the default branch."
+  - name: per-sc-decomposition-industry-standards
+    path: .opencode/.issues/research-cards/per-sc-decomposition-industry-standards.md
+    confidence: "not consulted (no frontmatter match for this topic)"
+    relevance: none
+    findings_applied: []

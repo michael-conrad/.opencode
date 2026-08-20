@@ -1,0 +1,25 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  Testability assessment. The change is a shell function that can be tested
+  behaviorally by sourcing url_validation.sh and invoking construct_compare_url
+  against a controlled git remote. A behavioral shell test is the appropriate
+  strategy for all four SCs.
+
+testability:
+  - phase: 1
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+    strategy: behavioral (shell execution)
+    approach: >-
+      Source url_validation.sh, set up a controlled git remote whose HEAD branch
+      is 'master', and invoke construct_compare_url. Assert the compare URL uses
+      the resolved default branch (SC-1), that --base overrides it (SC-2), that
+      an empty/absent remote resolution falls back to 'main' (SC-3), and that
+      owner/repo character-match verification and error handling still work
+      (SC-4).
+    testable: true
+    test_notes: >-
+      No existing tests reference url_validation.sh; a new behavioral test file
+      is required. The function is deterministic and side-effect-free, making it
+      straightforward to assert on stdout and exit codes.

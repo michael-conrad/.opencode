@@ -1,0 +1,19 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  No persistent state machine is involved. The change is a pure function
+  behavior change: the base default transitions from a static literal to a
+  dynamic resolution with a deterministic fallback. No state transitions are
+  introduced.
+
+state_analysis:
+  - phase: 1
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+    state_machine: none
+    description: >-
+      construct_compare_url() is a stateless pure function. The base value is
+      determined by: (1) explicit --base override if provided, else (2) dynamic
+      remote HEAD branch resolution, else (3) 'main' fallback. No persistent
+      state, no transitions, no side effects beyond stdout/stderr output.
+    transitions: []

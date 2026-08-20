@@ -1,0 +1,27 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  Interface compatibility analysis for construct_compare_url(). The function
+  signature and behavior contract are unchanged; only the default value of the
+  base parameter changes from a hardcoded 'dev' to a dynamically resolved
+  default branch.
+
+interfaces:
+  - name: construct_compare_url
+    file: .opencode/skills/git-workflow/enforcement/url_validation.sh
+    change: modified
+    signature: "construct_compare_url --owner <owner> --repo <repo> --branch <branch> [--base <base>]"
+    backward_compatible: true
+    compatibility_notes: >-
+      Signature unchanged. The --base override still works (SC-2). The default
+      base value changes from 'dev' to the resolved default branch, which is a
+      behavioral correction, not a breaking interface change. No in-repo callers
+      exist, so no caller migration is required.
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+  - name: validate_pr_body
+    file: .opencode/skills/git-workflow/enforcement/url_validation.sh
+    change: unchanged
+    backward_compatible: true
+    compatibility_notes: "Not modified by this fix (non-requirement R8)."
+    sc_ids: []

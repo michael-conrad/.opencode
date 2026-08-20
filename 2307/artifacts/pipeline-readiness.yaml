@@ -1,0 +1,30 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  Pipeline readiness gate passed. All 4 SCs map to exactly one RED/GREEN/commit
+  cycle, the SC dependency DAG is acyclic, each SC targets one file category and
+  one verification domain, and the phase dependency graph is acyclic. The spec
+  is single-phase (no pre/per-file/post structure required).
+
+validation:
+  atomicity:
+    passed: true
+    detail: "Each SC (SC-1..SC-4) maps to exactly one RED->GREEN->COMMIT cycle (item-1..item-4)."
+  dependency_ordering:
+    passed: true
+    detail: "SC dependency DAG is acyclic. SC-1 (base resolution) is foundational; SC-2/SC-3 are independent behaviors of the same change; SC-4 (preservation) is a regression guard."
+  single_concern:
+    passed: true
+    detail: "Every SC targets one file category (shell script) and one verification domain (behavioral shell execution)."
+  phase_dependency:
+    passed: true
+    detail: "Single-phase spec; phase dependency graph is trivially acyclic."
+  three_tier_structure:
+    passed: true
+    detail: "Single-phase spec; pre/per-file/post structure not required."
+  sc_count: 4
+  sc_ids: [SC-1, SC-2, SC-3, SC-4]
+  notes:
+    - "The spec.md currently has no success criteria body (frontmatter only). The create task must author the SC table from this decomposition."
+    - "All 4 SCs are behavioral (shell execution) — no structural/string SCs."

@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "Resolve base from remote HEAD branch instead of hardcoded 'dev'"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Preserve --base explicit override"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Fallback to 'main' when remote HEAD branch is undeterminable"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Preserve character-match verification and error handling"
+    evidence_type: "behavioral"
+    plan_item: 4

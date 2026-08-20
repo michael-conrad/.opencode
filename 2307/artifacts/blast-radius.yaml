@@ -1,0 +1,20 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  Single-file, single-function change. Blast radius is confined to
+  construct_compare_url() in url_validation.sh. No in-repo callers exist, so
+  ripple effects are limited to the module's own behavior and any future
+  consumers that source the module.
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+    affected_components:
+      - .opencode/skills/git-workflow/enforcement/url_validation.sh (construct_compare_url)
+    ripple_effects:
+      - "No in-repo callers reference the module (grep across .opencode/skills/ returned only the definition)."
+      - "Behavioral change: compare URL base now resolves to the remote HEAD branch (master) instead of 'dev'."
+      - "Any external/future consumer sourcing url_validation.sh inherits the corrected base resolution."
+    blast_radius: low
+    rationale: "Single function in a single file; no dependents in the repository."

@@ -1,0 +1,22 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  The only code path touched is the base-branch defaulting inside
+  construct_compare_url(). The change replaces a static literal with a dynamic
+  resolution plus fallback, preserving the --base override path.
+
+code_paths:
+  - phase: 1
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+    file: .opencode/skills/git-workflow/enforcement/url_validation.sh
+    function: construct_compare_url
+    path: >-
+      arg parse (--owner/--repo/--branch/--base) -> base default resolution
+      (replaces 'local base="dev"') -> required-arg check -> URL construction
+      -> owner/repo character-match verification -> echo URL / return 1
+    touched_lines:
+      - "line 18: 'local base=\"dev\"' -> dynamic $DEFAULT_BRANCH resolution + 'main' fallback"
+      - "line 25: '--base) base=\"$2\"' (preserved, SC-2)"
+      - "lines 30-33: required-arg check (preserved)"
+      - "lines 35-47: URL construction + verification (preserved, SC-4)"

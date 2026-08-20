@@ -1,0 +1,44 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+affected_file: .opencode/skills/git-workflow/enforcement/url_validation.sh
+finding_summary: >-
+  The construct_compare_url() function in url_validation.sh line 18 hardcodes
+  local base="dev". The codebase's trunk-based development uses the remote HEAD
+  branch (master) as the default branch. The established DEFAULT_BRANCH
+  resolution pattern across the skill deck is
+  'git remote show origin 2>/dev/null | sed -n "s/.*HEAD branch: //p"' with a
+  'main' fallback. The --base argument override must be preserved.
+
+inspection:
+  affected_file: .opencode/skills/git-workflow/enforcement/url_validation.sh
+  affected_function: construct_compare_url
+  hardcoded_line: 18
+  hardcoded_value: 'local base="dev"'
+  url_format: "https://github.com/${owner}/${repo}/compare/${base}...${branch}"
+  consumers:
+    - "No in-repo callers reference url_validation.sh or construct_compare_url (grep across .opencode/skills/ returned only the definition)."
+    - "The module is a shared, sourceable enforcement utility (Usage: source url_validation.sh)."
+  established_default_branch_pattern:
+    - "git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p'"
+    - "if [ -z \"$DEFAULT_BRANCH\" ]; then DEFAULT_BRANCH=\"main\"; fi"
+  pattern_usage_sites:
+    - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    - .opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md
+    - .opencode/skills/completion-core/completion-core.md
+    - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    - .opencode/skills/verification-before-completion/tasks/verify.md
+    - .opencode/skills/git-workflow-commit/tasks/pair-commit.md
+    - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+  compare_url_base_convention:
+    - "PR compare URL base is $DEFAULT_BRANCH (the trunk), not 'dev'."
+    - "Reference: .opencode/skills/git-workflow-pr/tasks/pr-creation.md line 119."
+    - "Reference: .opencode/skills/git-workflow-pr/tasks/review-prep/report-url.md (compare/$DEFAULT_BRANCH...<branch>)."
+  existing_tests:
+    - "No existing tests reference url_validation.sh or construct_compare_url in .opencode/tests-v2/."
+  notes:
+    - "The hardcoded 'dev' default is inconsistent with the trunk-based workflow where the default branch is master."
+    - "The --base argument (line 25) already allows callers to override; the fix must keep this override working."

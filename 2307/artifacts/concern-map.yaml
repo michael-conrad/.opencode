@@ -1,0 +1,33 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  One concern boundary: base-branch resolution within construct_compare_url().
+  The change is confined to the base defaulting logic and does not touch URL
+  construction, verification, or the validate_pr_body() function.
+
+concerns:
+  - id: C1
+    name: base-branch resolution
+    scope: construct_compare_url() default base value
+    separation: >-
+      Base resolution (dynamic $DEFAULT_BRANCH + 'main' fallback + --base
+      override) is isolated from URL construction and character-match
+      verification, which remain unchanged.
+    phase: 1
+    sc_ids: [SC-1, SC-2, SC-3]
+  - id: C2
+    name: URL construction and verification
+    scope: construct_compare_url() URL format and owner/repo checks
+    separation: >-
+      Unchanged. The URL template and character-match verification are
+      preserved (SC-4).
+    phase: 1
+    sc_ids: [SC-4]
+  - id: C3
+    name: PR body validation
+    scope: validate_pr_body()
+    separation: >-
+      Out of scope. Not modified by this fix (non-requirement R8).
+    phase: none
+    sc_ids: []

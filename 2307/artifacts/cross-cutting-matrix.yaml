@@ -1,0 +1,32 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  No cross-cutting concerns span multiple components. The change is confined to
+  a single function in a single file. The only shared convention is the
+  DEFAULT_BRANCH resolution pattern, which is applied consistently with the
+  rest of the skill deck.
+
+cross_cutting_matrix:
+  - concern: DEFAULT_BRANCH resolution pattern
+    affected_components:
+      - .opencode/skills/git-workflow/enforcement/url_validation.sh
+    consistency_requirement: >-
+      Must match the established pattern
+      'git remote show origin 2>/dev/null | sed -n "s/.*HEAD branch: //p"'
+      with 'main' fallback, used across 10+ skill task files.
+    phase: 1
+    sc_ids: [SC-1, SC-3]
+  - concern: compare URL base convention
+    affected_components:
+      - .opencode/skills/git-workflow/enforcement/url_validation.sh
+    consistency_requirement: >-
+      Compare URL base must be $DEFAULT_BRANCH (the trunk), consistent with
+      git-workflow-pr pr-creation.md and review-prep/report-url.md.
+    phase: 1
+    sc_ids: [SC-1]
+  - concern: none (no other cross-cutting concerns)
+    affected_components: []
+    consistency_requirement: ""
+    phase: none
+    sc_ids: []
