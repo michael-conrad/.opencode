@@ -1,0 +1,24 @@
+spec_path: .issues/2301/spec.md
+approval_status: approved
+approval_label: approved-for-for_pr
+sc_count: 3
+sc_source: in-scope bullets (no formal SC table)
+artifacts:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    exists: true
+    note: primary target file referenced in spec
+  - path: .opencode/tests-v2/behaviors/
+    exists: true
+    note: behavioral test directory exists; no test file yet for this issue
+findings:
+  - All 7 analytical artifacts are missing. The artifacts/ directory did not exist and was created. Backfill is required before plan creation.
+  - Spec has no formal Success Criteria table; SCs are expressed as in-scope bullets. Plan writer must derive SCs from the in-scope section.
+  - The referenced import-remote.md task file exists and matches the spec's description of the directory-existence-only halt behavior.

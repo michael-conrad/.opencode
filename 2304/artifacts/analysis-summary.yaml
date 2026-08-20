@@ -1,0 +1,36 @@
+spec_path: ".issues/2304/spec.md"
+approval_status: approved-for-for_pr
+sc_count: 4
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+artifact_findings:
+  - note: "All 7 analytical artifacts are absent. Spec change-control (2026-08-19) documents this as intentional: 'analytical artifacts are not applicable to a documentation-only terminology sweep.' SC-1/SC-2 declared string evidence (rg grep scans), SC-3 structural (git diff), SC-4 behavioral (with-test-home). No analytical artifacts required."
+scope_boundary_findings:
+  - file: ".opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md"
+    exists: true
+    note: "SC-3 baseline; must remain byte-identical Steps 3/6"
+  - file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
+    exists: true
+    note: "SC-2 model pattern ('remote trunk tip SHA')"
+  - file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+    exists: true
+    note: "SC-2 model pattern ('remote trunk HEAD SHAs')"
+  - file: ".opencode/skills/"
+    exists: true
+    note: "SC-1/SC-2 scan target directory"
+  - file: ".opencode/guidelines/"
+    exists: true
+    note: "SC-1/SC-2 scan target directory"
+  - file: ".opencode/commands/"
+    exists: true
+    note: "SC-1/SC-2 scan target directory"
+  - file: "AGENTS.md"
+    exists: true
+    note: "SC-1/SC-2 scan target file"
+conclusion: PASS
