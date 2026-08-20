@@ -1,0 +1,28 @@
+---
+issue_number: 2306
+repo: .opencode
+artifact: testability-assessment
+---
+
+# Testability Assessment
+
+## Test Strategy Per Phase
+
+| Phase | Strategy | Type | Method |
+|-------|----------|------|--------|
+| Phase 1 | Verify task card text contains the required constraints | STRUCTURAL | Read the task card; assert presence of scope-bound, recursion prohibition, no-`--recursive` mirror, explicit per-submodule ops |
+| Phase 2 | Verify divergence block preserved + false-flag avoidance documented | STRUCTURAL | Read the task card; assert divergence block byte-identical; assert false-flag note present |
+
+## Evidence Type
+
+The change is a **documentation/instruction** change to a task card. It does NOT alter runtime git behavior — it alters the instructions an agent follows. Verification is structural (text presence/consistency), not behavioral (no runtime code path changes).
+
+## Testability Notes
+
+- The change is fully testable via structural text assertions on the task card.
+- No unit/integration/behavioral test harness is applicable because no executable code changes.
+- The authoritative cross-check is consistency with `060-tool-usage.md` §4 wording.
+
+## Risk
+
+Low — single-file documentation change with clear, verifiable text assertions.

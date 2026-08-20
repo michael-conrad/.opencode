@@ -1,0 +1,31 @@
+---
+issue_number: 2306
+repo: .opencode
+artifact: cross-cutting-matrix
+---
+
+# Cross-Cutting Matrix
+
+## Cross-Cutting Concerns
+
+| Concern | Phase 1 (text edits) | Phase 2 (verification) | Owner |
+|---------|----------------------|------------------------|-------|
+| No-`--recursive` constraint | Applied to task card Step 2 | Verified present and consistent with guideline | Task card |
+| Scope bounding to direct pointers | Applied to task card Step 2 | Verified | Task card |
+| Recursion/`foreach` prohibition | Applied to task card Step 2 | Verified | Task card |
+| Explicit per-submodule operations | Applied to task card Step 2 | Verified | Task card |
+| Divergence handling preservation | Preserved unchanged | Verified byte-identical | Task card |
+| False-pointer-flag avoidance | Documented in task card | Verified | Task card |
+
+## Matrix
+
+| Concern \ Phase | Phase 1 | Phase 2 |
+|-----------------|---------|---------|
+| No-`--recursive` | X | X |
+| Scope bounding | X | X |
+| Recursion prohibition | X | X |
+| Explicit per-submodule ops | X | X |
+| Divergence preservation | X | X |
+| False-flag avoidance | X | X |
+
+All cross-cutting concerns are confined to the single task card file and its verification. No concern spans multiple files.

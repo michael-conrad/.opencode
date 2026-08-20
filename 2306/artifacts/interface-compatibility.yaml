@@ -1,0 +1,27 @@
+---
+issue_number: 2306
+repo: .opencode
+artifact: interface-compatibility
+---
+
+# Interface Compatibility
+
+## Interfaces
+
+| Interface | Status | Compatibility | Notes |
+|-----------|--------|---------------|-------|
+| `submodule-sync.md` task card (the file itself) | MODIFIED | Backward compatible | Text-only change; no signature/interface change |
+| `git-workflow-branch/SKILL.md` dispatch prompt | UNCHANGED | Backward compatible | Still dispatches `submodule-sync.md` with `branch_name` + `submodule_paths` |
+| `submodule_paths` context variable | UNCHANGED | Backward compatible | Still carries direct submodule paths; task card now honors it explicitly |
+| `reference/submodule-divergence.md` | UNCHANGED | Backward compatible | Shared reference intact |
+| `060-tool-usage.md` §4 | UNCHANGED | Backward compatible | Authoritative source intact |
+| `trunk-tip-verification.md` | UNCHANGED | Backward compatible | Out of scope |
+
+## Summary
+
+- **Modified:** 1 (the task card)
+- **Unchanged:** 5 (skill dispatch, context var, reference, guideline, verification task)
+- **New:** 0
+- **Removed:** 0
+- **Breaking:** none — all interfaces remain backward compatible
+- **Internal only:** the change is internal to the `.opencode` skill deck; no external interface
