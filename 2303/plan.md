@@ -5,6 +5,13 @@ title: "Tighten requires-python constraint in .opencode/tools/plan to exclude CP
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 2
+dispatch:
+  - phase: 1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 2
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
 ---
 
 # Implementation Plan — #2303 — Tighten requires-python in .opencode/tools/plan
