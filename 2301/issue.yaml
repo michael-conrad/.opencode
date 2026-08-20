@@ -4,6 +4,7 @@ title: '[SPEC-FIX] import-remote must materialize missing mirror files instead o
 status: open
 labels:
 - spec-cleared
+- approved-for-for_pr
 created: 2026-08-19 10:50:00+00:00
 updated: 2026-08-19 10:50:00+00:00
 remote_issue: 2301
@@ -12,4 +13,4 @@ promoted_at: 2026-08-19 10:50:00+00:00
 promotion_type: retroactive_import
 last_sync: 2026-08-19 10:50:00+00:00
 author: michael-conrad
-updated_at: '2026-08-20T03:40:41+00:00'
+updated_at: '2026-08-20T03:40:48+00:00'
