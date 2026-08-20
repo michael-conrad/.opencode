@@ -42,7 +42,9 @@ author: michael-newsrx
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | The "Guard checks" docstring in `tools/session-init` no longer references a `dev branch` guard check or the `.worktrees/main/` bootstrap, and still references the `.env gitignore` guard check. | structural | `grep -n 'dev branch\|origin/dev\|worktrees/main' tools/session-init` returns no match in the docstring; `grep -n '.env gitignore' tools/session-init` still matches. | `tools/session-init` (source); commit bb2851f0; commit 77459166 |
+| SC-1 | The "Guard checks" docstring in `tools/session-init` no longer references a `dev branch` guard check or any `origin/dev` branch-creation behavior. | string | `grep -n 'dev branch\|origin/dev' tools/session-init` returns no match in the docstring. | `tools/session-init` (source); commit bb2851f0 |
+| SC-2 | The "Guard checks" docstring in `tools/session-init` no longer references the `.worktrees/main/` worktree bootstrap. | string | `grep -n 'worktrees/main' tools/session-init` returns no match in the docstring. | `tools/session-init` (source); commit 77459166 |
+| SC-3 | The "Guard checks" docstring in `tools/session-init` still references the `.env gitignore` guard check. | string | `grep -n '.env gitignore' tools/session-init` still matches. | `tools/session-init` (source) |
 
 ## 4. Requirements
 
@@ -54,11 +56,11 @@ author: michael-newsrx
 
 ## 5. Items
 
-### Item 1 (SC-1): Correct the stale 'Guard checks' docstring in tools/session-init
+### Item 1 (SC-1, SC-2, SC-3): Correct the stale 'Guard checks' docstring in tools/session-init
 
 - RED: Structural assertion that the docstring still contains `dev branch` or `origin/dev` (fails — the stale line is present).
 - GREEN: Edit the docstring to remove the stale `dev branch` and `.worktrees/main/` lines, preserving the `.env gitignore` line.
-- verify: `grep -n 'dev branch\|origin/dev\|worktrees/main' tools/session-init` returns no match; `grep -n '.env gitignore' tools/session-init` matches; run `uv run pytest .opencode/tests/` for regression.
+- verify: `grep -n 'dev branch\|origin/dev' tools/session-init` returns no match (SC-1); `grep -n 'worktrees/main' tools/session-init` returns no match (SC-2); `grep -n '.env gitignore' tools/session-init` matches (SC-3); run `uv run pytest .opencode/tests/` for regression.
 - commit: The docstring edit in `tools/session-init`.
 
 ## 6. Dependencies
@@ -71,9 +73,9 @@ author: michael-newsrx
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | Phase 1 |
-| R-2 | SC-1 | Phase 1 |
-| R-3 | SC-1 | Phase 1 |
-| R-4 | SC-1 | Phase 1 |
+| R-2 | SC-2 | Phase 1 |
+| R-3 | SC-3 | Phase 1 |
+| R-4 | SC-1, SC-2, SC-3 | Phase 1 |
 | R-5 | SC-1 | Phase 1 |
 
 ## 8. Documentation Sources
@@ -92,7 +94,7 @@ author: michael-newsrx
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Verifying the docstring no longer references removed guard checks costs one grep search. Skipping means the stale docstring misleads the next engineer into believing a dev-branch guard check exists, propagating the documentation defect into future work.
+- SC-1, SC-2, SC-3: Verifying the docstring no longer references removed guard checks and still references the current one costs three grep searches. Skipping means the stale docstring misleads the next engineer into believing a dev-branch guard check exists, propagating the documentation defect into future work.
 
 ## 11. Edge Cases
 
@@ -101,3 +103,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure modes:** If the edit accidentally removes the still-current `.env gitignore` line, the docstring would understate the actual guard checks. Mitigated by the structural assertion in SC-1.
 - **Concurrency:** Not applicable — docstring-only change, no shared state.
 - **Recovery:** If the edit is incorrect, the docstring can be reverted via git; no runtime impact.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-20 | Decomposed compound SC-1 into three independently verifiable SCs (SC-1: no `dev branch`/`origin/dev` reference; SC-2: no `.worktrees/main/` reference; SC-3: retains `.env gitignore` reference). Updated traceability, Items, and Cost Frame to match. | Validation finding: SC-1 was compound, bundling three independently verifiable claims joined by or/and. | Spec validation pipeline |
+| 2026-08-20 | Changed SC-1 evidence type from `structural` to `string`. | Validation finding: EVIDENCE_TYPE_MISMATCH — declared structural but verification is grep pattern matching, which is string evidence. | Spec validation pipeline |

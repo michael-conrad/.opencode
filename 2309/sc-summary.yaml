@@ -1,6 +1,14 @@
-sc_count: 1
+sc_count: 3
 scs:
   - id: "SC-1"
-    description: "Correct the stale 'Guard checks' docstring in tools/session-init to remove the non-existent 'dev branch' guard check and the stale '.worktrees/main/' line, preserving the still-current '.env gitignore' line."
-    evidence_type: "structural"
+    description: "The 'Guard checks' docstring in tools/session-init no longer references a 'dev branch' guard check or any 'origin/dev' branch-creation behavior."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The 'Guard checks' docstring in tools/session-init no longer references the '.worktrees/main/' worktree bootstrap."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-3"
+    description: "The 'Guard checks' docstring in tools/session-init still references the '.env gitignore' guard check."
+    evidence_type: "string"
     plan_item: 1
