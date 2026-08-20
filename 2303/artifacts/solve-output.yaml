@@ -1,0 +1,29 @@
+# Solve output — issue #2303
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+checks:
+  - name: model
+    status: SAT
+    query: "z3.Implies(phase_2, phase_1)"
+    model:
+      phase_1: False
+      phase_2: False
+  - name: check (preconditions)
+    status: SAT
+  - name: check (postconditions + invariants)
+    status: SAT
+
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  actions:
+    - tighten_constraint(S-1, S-2)
+    - verify_runtime(S-2, S-3)
+
+notes: |
+  model/check SAT confirms the dependency contract (phase_2 implies phase_1) is
+  satisfiable. The planner found a satisfiable 2-step plan matching the
+  state-analysis transitions: tighten constraint (SC-1), then verify runtime (SC-2).

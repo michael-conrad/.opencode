@@ -1,0 +1,27 @@
+# SC summary — issue #2301
+# Derived from spec in-scope bullets (no formal SC table) and analysis-summary.yaml.
+
+spec_path: .issues/2301/spec.md
+sc_count: 3
+
+scs:
+  - id: "SC1"
+    description: "Modify import-remote so that when the local issue directory exists, it checks ALL required mirror files (spec.md, comments.md, remote.md, state.md, frontmatter github_issue/remote_url) and materializes any that are missing rather than halting on directory existence alone."
+    evidence_type: "behavioral"
+    plan_item: 1
+    phase: 1
+  - id: "SC2"
+    description: "Add a behavioral/structural test proving a folder that exists without spec.md is completed (spec.md materialized) rather than halted."
+    evidence_type: "behavioral"
+    plan_item: 2
+    phase: 2
+  - id: "SC3"
+    description: "Update the Edge Cases table entry for 'Issue already imported' to reflect the new completeness-check behavior."
+    evidence_type: "structural"
+    plan_item: 3
+    phase: 3
+
+phase_sc_mapping:
+  "1": [SC1]
+  "2": [SC2]
+  "3": [SC3]

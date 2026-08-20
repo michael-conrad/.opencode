@@ -1,0 +1,26 @@
+# SC summary — issue #2302
+# Derived from spec Success Criteria (SC-1..SC-3) and analysis-summary.yaml.
+
+spec_path: .issues/2302/spec.md
+sc_count: 3
+
+scs:
+  - id: "SC-1"
+    description: "When a spec is revised, the linked plan (if it exists) is regenerated to match the revised spec's SC set."
+    evidence_type: "behavioral"
+    plan_item: 1
+    phase: 1
+  - id: "SC-2"
+    description: "Plan regeneration is an automatic consequence of spec revision, not a manual corrective step."
+    evidence_type: "behavioral"
+    plan_item: 2
+    phase: 1
+  - id: "SC-3"
+    description: "Under for_pr scope, spec revision + plan regeneration does not cause a premature halt before pr_created."
+    evidence_type: "behavioral"
+    plan_item: 3
+    phase: 2
+
+phase_sc_mapping:
+  "1": [SC-1, SC-2]
+  "2": [SC-3]

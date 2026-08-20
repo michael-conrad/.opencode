@@ -1,0 +1,37 @@
+artifact_name: concern-map
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "Map of concerns to phases for the spec-revision → plan-regeneration linkage change"
+  phases:
+    - phase: 1
+      name: "Spec-revision → plan-regeneration linkage"
+      concern: "Add the missing linkage in the spec-creation revision pipeline so a revised spec triggers plan regeneration"
+      scs:
+        - SC-1
+        - SC-2
+      dependencies: []
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "spec-creation revise task checks for existing linked plan after spec revision"
+        - "writing-plans revise task regenerates plan against revised spec's SC set"
+        - "Plan SC coverage always matches revised spec's SC set"
+    - phase: 2
+      name: "for_pr scope continuation"
+      concern: "Ensure for_pr scope spec-revision + plan-regeneration does not halt the pipeline before pr_created"
+      scs:
+        - SC-3
+      dependencies:
+        - "Phase 1 (plan-regeneration linkage exists)"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "approval-gate scope handling on spec revision allows pipeline continuation to pr_created"
+        - "No premature halt at plan-regeneration step under for_pr scope"
+  concern_to_phase_mapping:
+    "Spec-revision → plan-regeneration linkage": 1
+    "for_pr scope continuation": 2
+  phase_independence:
+    description: "Phase 2 depends on Phase 1 — the scope-continuation behavior requires the regeneration linkage to exist first"
+    independent_phases: []
+    prerequisite_phase: 1
+    dependent_phase: 2

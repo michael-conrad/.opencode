@@ -1,0 +1,42 @@
+# State Analysis
+# Backfilled from spec body for issue #2303.
+# Identifies state transitions required by each SC.
+
+states:
+  - id: S-1
+    name: unresolved
+    description: |
+      PEP 723 header declares `requires-python = "~=3.12"`. Under CPython 3.14,
+      pytamer has no cp314 wheels, so up-tamer>=1.1.0 is unsatisfiable and
+      dependency resolution fails.
+    entry_criteria: initial state
+
+  - id: S-2
+    name: constrained
+    description: |
+      PEP 723 header declares `requires-python = ">=3.12,<3.14"`, excluding 3.14.
+      uv selects an interpreter with available pytamer wheels.
+    entry_criteria: SC-1 applied (constraint tightened)
+
+  - id: S-3
+    name: verified
+    description: |
+      Tool invoked via `uv run --script` under CPython 3.12 completes dependency
+      resolution and executes with exit code 0 and no pytamer resolution error.
+    entry_criteria: SC-2 passes (behavioral verification)
+
+transitions:
+  - from: S-1
+    to: S-2
+    via: edit PEP 723 `requires-python` to `>=3.12,<3.14` (SC-1)
+
+  - from: S-2
+    to: S-3
+    via: invoke .opencode/tools/plan via `uv run --script` under CPython 3.12,
+         assert exit 0 and no resolution error (SC-2)
+
+notes:
+  - S-1 is the initial defect state (resolution failure).
+  - S-2 is the deterministic fix state reached by the single-line constraint change.
+  - S-3 is the verified final state.
+  - No other state transitions are in scope.

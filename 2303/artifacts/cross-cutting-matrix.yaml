@@ -1,0 +1,21 @@
+# Cross-Cutting Matrix
+# Backfilled from spec body for issue #2303.
+# Identifies SCs that span multiple concerns.
+
+matrix:
+  scs:
+    - id: SC-1
+      concerns: [constraint]
+      spans_multiple_concerns: false
+    - id: SC-2
+      concerns: [verification]
+      spans_multiple_concerns: false
+
+notes:
+  - No SC spans multiple concerns.
+  - SC-1 is confined to the constraint concern (PEP 723 header + usage note).
+  - SC-2 is confined to the verification concern (behavioral execution under 3.12).
+  - The two concerns are sequential (P2 depends on P1) but each SC is single-concern.
+  - The bash-guard integrity requirement is a cross-cutting constraint shared by
+    both SC-1 (edit must not break it) and SC-2 (execution depends on it), but it
+    is an invariant guard, not a separate concern that any SC spans.

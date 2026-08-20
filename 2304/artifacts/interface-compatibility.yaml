@@ -1,0 +1,76 @@
+# Interface Compatibility
+# Created for issue #2304 (documentation-only terminology sweep).
+# The spec change-control documents all 7 analytical artifacts as "not applicable"
+# to a documentation-only sweep; this artifact is created solely because the
+# writing-plans research task hard-requires the dependency_contract section.
+
+spec_path: .issues/2304/spec.md
+interface_boundaries:
+  - id: IF-1
+    boundary: skilldeck + guidelines prose → agent reading context
+    scs: [SC-1, SC-2]
+    current_state: unqualified branch-tip prose ("trunk tip", "dev tip", "feature-branch tip", hardcoded dev/master)
+    target_state: remote-qualified prose ("remote trunk tip", "remote $DEFAULT_BRANCH tip", "origin/$DEFAULT_BRANCH")
+    compatibility: Documentation-only prose rewrite; no command, config, or workflow behavior change (R-9). Enforcement logic in trunk-tip-verification.md Steps 3/6 remains byte-identical (R-8, SC-3).
+  - id: IF-2
+    boundary: trunk-tip-verification.md Steps 3/6 fetch+compare
+    scs: [SC-3]
+    current_state: compares against origin/$DEFAULT_BRANCH
+    target_state: unchanged (byte-identical)
+    compatibility: SC-3 structural guard proves no git command altered; only prose lines change.
+  - id: IF-3
+    boundary: behavioral test harness (with-test-home)
+    scs: [SC-4]
+    current_state: standard with-test-home opencode run harness
+    target_state: unchanged harness; new behavioral scenario asserting origin/$DEFAULT_BRANCH consultation
+    compatibility: New test 2304-*.sh uses the standard harness; no harness interface change.
+interface_summary: "All four SCs are independent leaf documentation edits with no inter-dependency. No interface is broken; the sweep is a pure prose rewrite across .opencode/skills/, .opencode/guidelines/, .opencode/commands/, and AGENTS.md."
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Structural scan gate — zero unqualified branch-tip references (SC-1)"
+    phase_2:
+      type: bool
+      description: "Standardize all 'trunk tip' prose to remote qualifier (SC-2)"
+    phase_3:
+      type: bool
+      description: "Verify trunk-tip-verification.md Steps 3/6 remain byte-identical (SC-3)"
+    phase_4:
+      type: bool
+      description: "Behavioral regression guard asserting origin/$DEFAULT_BRANCH consultation (SC-4)"
+  preconditions: []
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/
+        - .opencode/guidelines/
+        - .opencode/commands/
+        - AGENTS.md
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/skills/
+        - .opencode/guidelines/
+        - .opencode/commands/
+        - AGENTS.md
+      scs:
+        - SC-2
+    phase_3:
+      files:
+        - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+      scs:
+        - SC-3
+    phase_4:
+      files:
+        - .opencode/tests-v2/behaviors/2304-*.sh
+      scs:
+        - SC-4
+  edges: []
+  notes:
+    - "All four SCs are independent leaf documentation edits with no inter-dependency (SC-1 string scan, SC-2 string scan, SC-3 structural git diff guard, SC-4 behavioral). No preconditions; phases may proceed independently."
+    - "SC-3 is a guard on trunk-tip-verification.md (baseline for the byte-identical diff); SC-4 is a behavioral regression test. Neither depends on SC-1/SC-2 output."

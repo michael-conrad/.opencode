@@ -1,0 +1,40 @@
+# Dependency contract — issue #2301
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "import-remote completeness gate (SC1) — enumerate required mirror files and materialize missing ones"
+  phase_2:
+    type: bool
+    description: "Behavioral/structural test proving spec.md materialized for an existing dir lacking it (SC2)"
+  phase_3:
+    type: bool
+    description: "Edge Cases table update for 'Issue already imported' (SC3)"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    scs:
+      - SC1
+  phase_2:
+    files:
+      - .opencode/tests-v2/behaviors/2301-*.sh
+    scs:
+      - SC2
+  phase_3:
+    files:
+      - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    scs:
+      - SC3
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "The behavioral test (SC2) exercises the completeness gate (SC1); the gate must exist before a test can prove it materializes missing files."
+notes:
+  - "SC1 (completeness gate) is a prerequisite for SC2 (behavioral test proving spec.md materialized). SC3 (Edge Cases doc) is independent and documentation-only."
+  - "Phase 3 touches import-remote.md which Phase 1 also edits; it is sequenced after Phase 1 to avoid same-file edit conflicts, but has no logical dependency on the gate behavior."

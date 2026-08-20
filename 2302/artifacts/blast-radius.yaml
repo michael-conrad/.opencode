@@ -1,0 +1,41 @@
+artifact_name: blast-radius
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "All files and directories affected by the spec-revision → plan-regeneration linkage change"
+  affected_skill_directories:
+    - path: ".opencode/skills/spec-creation/"
+      change: "Add spec-revision → plan-regeneration linkage to the revision pipeline; when a spec revision is detected, check for an existing linked plan and regenerate it against the revised spec's SC set before any downstream gate runs"
+      verified: true
+    - path: ".opencode/skills/writing-plans/"
+      change: "Add plan-regeneration linkage so the plan is regenerated against the revised spec's SC set; preserve existing plan phases where still valid"
+      verified: true
+    - path: ".opencode/skills/approval-gate/"
+      change: "Scope handling on spec revision — ensure for_pr scope spec-revision + plan-regeneration does not halt the pipeline before pr_created"
+      verified: true
+  task_files_implicated:
+    spec_creation:
+      - path: ".opencode/skills/spec-creation/tasks/revise.md"
+        change: "Revision pipeline entry point — add plan-regeneration step after spec revision"
+      - path: ".opencode/skills/spec-creation/SKILL.md"
+        change: "Revise-an-existing-spec workflow — add plan-regeneration dispatch step"
+    writing_plans:
+      - path: ".opencode/skills/writing-plans/tasks/revise.md"
+        change: "Plan revision task — regenerate plan against revised spec's SC set"
+      - path: ".opencode/skills/writing-plans/SKILL.md"
+        change: "Revise-an-existing-plan workflow — ensure regeneration is automatic consequence of spec revision"
+    approval_gate:
+      - path: ".opencode/skills/approval-gate/SKILL.md"
+        change: "Scope handling on spec revision — ensure for_pr scope does not halt before pr_created"
+      - path: ".opencode/skills/approval-gate/tasks/resolve-scope.md"
+        change: "Scope resolution for spec-revision context (is_revision: true)"
+  preserved_unchanged_directories:
+    - path: ".opencode/skills/spec-creation/tasks/analyze.md"
+      reason: "Analysis pipeline unchanged — only revision path gains plan-regeneration linkage"
+    - path: ".opencode/skills/writing-plans/tasks/create.md"
+      reason: "Initial plan creation unchanged — only revision path gains regeneration"
+  total_file_count:
+    created: 0
+    modified: 6
+    deleted: 0
+    total_affected: 6

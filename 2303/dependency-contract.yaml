@@ -1,0 +1,32 @@
+# Dependency contract — issue #2303
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Tighten requires-python constraint in .opencode/tools/plan PEP 723 header to >=3.12,<3.14 (SC-1)"
+  phase_2:
+    type: bool
+    description: "Verify .opencode/tools/plan resolves and executes under CPython 3.12 (SC-2)"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/tools/plan
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/tools/plan
+    scs:
+      - SC-2
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "SC-2 (verify runs under 3.12) depends on SC-1 (tighten requires-python): the constraint must be in place before the resolution/execution behavior can be verified."
+notes:
+  - "SC-1 (tighten requires-python) is a prerequisite to SC-2 (verify runs under 3.12). The interface is .opencode/tools/plan PEP 723 header."
+  - "Both phases touch .opencode/tools/plan; Phase 2 is a verification pass sequenced after Phase 1's constraint change."

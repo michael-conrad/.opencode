@@ -1,0 +1,35 @@
+artifact: blast-radius
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+affected_files:
+  - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    exists: true
+    change_type: MODIFY
+    blast: DIRECT
+    note: Primary target. Replaces the directory-existence-only halt (Edge Cases "Issue already imported") with a completeness gate that materializes missing mirror files (spec.md, comments.md, remote.md, state.md, frontmatter fields).
+  - path: .opencode/tests-v2/behaviors/2301-*.sh
+    exists: false
+    change_type: CREATE
+    blast: DIRECT
+    note: New behavioral/structural test. No test file exists yet for this issue; naming follows the <issue>-sc<N>-<slug>.sh convention in the behaviors directory.
+  - path: .opencode/skills/issue-operations-sync/SKILL.md
+    exists: true
+    change_type: CHECK
+    blast: ADJACENT
+    note: Adjacent. Spec references the import-remote task only; SKILL.md is checked only if it duplicates the Edge Cases table or Exit Criteria for import-remote.
+unchanged_files:
+  - path: .opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md
+    reason: Explicitly out of scope in spec.
+  - path: .opencode/skills/issue-operations-sync/tasks/sync-from-remote.md
+    reason: Explicitly out of scope in spec.
+  - path: .opencode/tools/local-issues
+    reason: No change to .issues/ worktree tooling required by this spec.
+  - path: .opencode/skills/issue-operations-sync/tasks/retroactive-import.md
+    reason: Explicitly out of scope in spec (retroactive-import).
+remote_issue_out_of_scope:
+  - Remote issue import content (body, comments, frontmatter format) is out of scope.
+  - .counter advancement logic is out of scope.
+scope_notes:
+  - The change is confined to the issue-operations-sync skill deck and a new behavioral test under tests-v2/behaviors/.
+  - No shared library, no data layer, no external service contract is touched.

@@ -1,0 +1,31 @@
+# State Analysis
+# Created for issue #2304 (documentation-only terminology sweep).
+# The spec change-control documents analytical artifacts as "not applicable" to a
+# documentation-only sweep; this artifact is created solely because the writing-plans
+# research task step 11 (solve check --state-path) hard-requires it.
+
+spec_path: .issues/2304/spec.md
+state_transitions:
+  - id: ST-1
+    sc: SC-1
+    from_state: "unqualified branch-tip references present (trunk tip, dev tip, feature-branch tip, hardcoded dev/master)"
+    to_state: "zero unqualified branch-tip references remaining across .opencode/skills/, .opencode/guidelines/, .opencode/commands/, AGENTS.md"
+    trigger: "item 1 (RED: rg scan shows unqualified refs; GREEN: sweep completes; verify: rg returns zero; commit: scan assertion + sweep)"
+  - id: ST-2
+    sc: SC-2
+    from_state: "'trunk tip' prose unqualified"
+    to_state: "all 'trunk tip' prose remote-qualified ('remote trunk tip' / 'remote $DEFAULT_BRANCH tip')"
+    trigger: "item 2 (RED: rg 'trunk tip' returns unqualified sites; GREEN: remote-prefix all; verify: rg returns only remote-prefixed; commit: prose sweep)"
+  - id: ST-3
+    sc: SC-3
+    from_state: "trunk-tip-verification.md Steps 3/6 baseline (pre-sweep)"
+    to_state: "Steps 3/6 byte-identical to pre-change state (no git command altered)"
+    trigger: "item 3 (RED: assertion detects altered Steps 3/6; GREEN: byte-identical; verify: scoped git diff; commit: guard assertion)"
+  - id: ST-4
+    sc: SC-4
+    from_state: "agent may fall back to stale local branch tip"
+    to_state: "agent consults origin/$DEFAULT_BRANCH (behavioral regression guard)"
+    trigger: "item 4 (RED: behavioral scenario shows stale-local fallback; GREEN: stderr shows origin/$DEFAULT_BRANCH consultation; verify: with-test-home opencode run; commit: scenario + sweep)"
+state_machine_notes:
+  - "All four SCs are independent leaf documentation edits with no inter-dependency; each has a single RED→GREEN→verify→commit cycle per the per-SC decomposition mandate (091-incremental-build)."
+  - "The sweep is a pure prose rewrite (R-9); no runtime state machine change. SC-3 is a structural guard on trunk-tip-verification.md; SC-4 is a behavioral regression test."

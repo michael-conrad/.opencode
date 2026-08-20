@@ -1,0 +1,32 @@
+# Code Path Inventory
+# Backfilled from spec body for issue #2303.
+# Lists code paths implied by each success criterion.
+
+code_paths:
+  - sc_id: SC-1
+    file: .opencode/tools/plan
+    location: PEP 723 header (`# requires-python = ...` line)
+    path_detail: |
+      The `# requires-python = "~=3.12"` line in the PEP 723 script header.
+      Change to `# requires-python = ">=3.12,<3.14"`.
+    action: edit
+
+  - sc_id: SC-1
+    file: .opencode/tools/plan
+    location: usage note (usage note text)
+    path_detail: |
+      Add a usage note documenting `UV_PYTHON=3.12` as an optional workaround for
+      environments that do not adopt the tightened constraint.
+    action: add_documentation
+
+  - sc_id: SC-2
+    file: .opencode/tools/plan
+    location: tool invocation (whole script)
+    path_detail: |
+      Invoke via `uv run --script` under CPython 3.12. Dependency resolution must
+      complete (no pytamer resolution error) and the tool must exit 0.
+    action: verify_execution
+
+bash_guard_note: |
+  The bash guard at the top of the file (`"exec" "uv" "run" "--script" "$0" "$@"`)
+  MUST remain intact and appear before the PEP 723 header. The fix must not break it.

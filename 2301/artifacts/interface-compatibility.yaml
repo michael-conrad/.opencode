@@ -1,0 +1,77 @@
+artifact: interface-compatibility
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+interfaces:
+  - id: IF1
+    name: import-remote task file interface
+    path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    role: orchestrator task consumed via task() dispatch from issue-operations-sync SKILL.md
+    boundary: The completeness gate changes the import-remote procedure and Edge Cases but MUST NOT change the task's public interface (its purpose, entry criteria contract, or the task() dispatch string used by the orchestrator). The spec does not alter the dispatch surface.
+    compatible: true
+  - id: IF2
+    name: local-issues worktree tooling
+    path: .opencode/tools/local-issues
+    role: backend for .issues/ file materialization and git operations
+    boundary: import-remote materializes mirror files into .issues/ through local issue tooling. The spec does not change local-issues or the .issues/ worktree. No interface change.
+    compatible: true
+  - id: IF3
+    name: platform read interface (github-mcp / gitbucket-api / local)
+    path: .opencode/skills/issue-operations/platforms/
+    role: read remote issue body/comments/frontmatter used to materialize missing mirror files
+    boundary: The completeness gate may need to re-fetch remote body/comments/frontmatter for missing files. The spec requires NO direct github_*/gb calls outside issue-operations/platforms/ (per import-remote Context Required). The existing read-issue/read-comments task interfaces remain unchanged.
+    compatible: true
+  - id: IF4
+    name: mirror file set contract
+    path: .opencode/skills/issue-operations-sync/tasks/import-remote.md (Exit Criteria + Live Verification)
+    role: defines the required mirror file set that the completeness gate must align with
+    boundary: The completeness check's required-file set (spec.md, comments.md, remote.md, state.md, frontmatter fields) must match the Exit Criteria and Live Verification rows. Risk 2 mitigation in the spec requires this alignment; no format change to the files is introduced.
+    compatible: true
+  - id: IF5
+    name: behavioral test harness
+    path: .opencode/tests-v2/with-test-home
+    role: isolation + opencode run execution for the new behavioral test
+    boundary: The new test 2301-*.sh uses the standard with-test-home harness. No change to the harness interface required.
+    compatible: true
+summary:
+  - All interfaces remain compatible; no public contract (dispatch strings, task purpose, platform read interfaces, .issues/ tooling) is altered.
+  - The change is internal to import-remote.md behavior (completeness gate) plus a new isolated behavioral test file.
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "import-remote completeness gate (SC1) — enumerate required mirror files and materialize missing ones"
+    phase_2:
+      type: bool
+      description: "Behavioral/structural test proving spec.md materialized for an existing dir lacking it (SC2)"
+    phase_3:
+      type: bool
+      description: "Edge Cases table update for 'Issue already imported' (SC3)"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+      scs:
+        - SC1
+    phase_2:
+      files:
+        - .opencode/tests-v2/behaviors/2301-*.sh
+      scs:
+        - SC2
+    phase_3:
+      files:
+        - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+      scs:
+        - SC3
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "The behavioral test (SC2) exercises the completeness gate (SC1); the gate must exist before a test can prove it materializes missing files."
+  notes:
+    - "SC1 (completeness gate) is a prerequisite for SC2 (behavioral test proving spec.md materialized). SC3 (Edge Cases doc) is independent and documentation-only."
+    - "Phase 3 touches import-remote.md which Phase 1 also edits; it is sequenced after Phase 1 to avoid same-file edit conflicts, but has no logical dependency on the gate behavior."

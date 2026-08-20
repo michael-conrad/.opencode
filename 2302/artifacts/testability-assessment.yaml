@@ -1,0 +1,87 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "Test coverage assessment for the spec-revision → plan-regeneration linkage change"
+  behavioral_tests:
+    plan_regeneration:
+      count: 1
+      description: "SC-1 behavioral test — verify linked plan regenerated against revised spec's SC set"
+      phases:
+        - phase: 1
+          test: "opencode-cli run with a spec-revision prompt; assert_semantic verifies the linked plan is regenerated against the revised spec's SC set"
+          assertion: "assert_semantic that plan SC coverage matches revised spec's SC set"
+          scs:
+            - SC-1
+    automatic_regeneration:
+      count: 1
+      description: "SC-2 behavioral test — verify plan regeneration is automatic consequence of spec revision"
+      phases:
+        - phase: 1
+          test: "opencode-cli run with a spec-revision prompt; assert_semantic verifies plan regeneration occurs automatically without manual intervention"
+          assertion: "assert_semantic that plan regeneration is automatic, not a manual corrective step"
+          scs:
+            - SC-2
+    for_pr_scope_continuation:
+      count: 1
+      description: "SC-3 behavioral test — verify for_pr scope spec-revision + plan-regeneration does not cause premature halt before pr_created"
+      phases:
+        - phase: 2
+          test: "opencode-cli run with a for_pr scope spec-revision prompt; assert_semantic verifies pipeline continues to pr_created without premature halt"
+          assertion: "assert_semantic that pipeline continues to pr_created without premature halt"
+          scs:
+            - SC-3
+  content_verification_tests:
+    revision_pipeline_linkage:
+      count: 1
+      description: "Structural check — verify spec-creation revise task includes plan-regeneration step"
+      phases:
+        - phase: 1
+          test: "grep spec-creation/tasks/revise.md for plan-regeneration step"
+          assertion: "plan-regeneration step present in revise task"
+    plan_sc_coverage:
+      count: 1
+      description: "Structural check — verify writing-plans revise task regenerates plan against revised spec's SC set"
+      phases:
+        - phase: 1
+          test: "grep writing-plans/tasks/revise.md for SC-set regeneration logic"
+          assertion: "SC-set regeneration logic present in revise task"
+    approval_gate_scope_handling:
+      count: 1
+      description: "Structural check — verify approval-gate scope handling on spec revision allows for_pr continuation"
+      phases:
+        - phase: 2
+          test: "grep approval-gate/SKILL.md for for_pr scope continuation on spec revision"
+          assertion: "for_pr scope continuation logic present"
+  regression_tests:
+    existing_revision_pipeline:
+      count: 1
+      description: "Regression test — verify existing spec-creation revision pipeline (revise → validate) still works"
+      phases:
+        - phase: 1
+          test: "Run existing spec-creation revision workflow"
+          assertion: "revise → validate pipeline completes without regression"
+    existing_plan_revision:
+      count: 1
+      description: "Regression test — verify writing-plans revise task still handles direct plan revisions"
+      phases:
+        - phase: 1
+          test: "Run writing-plans revise task with direct revision request"
+          assertion: "direct plan revision still works"
+    authorization_scope_model:
+      count: 1
+      description: "Regression test — verify authorization scope model unchanged"
+      phases:
+        - phase: 2
+          test: "Verify approval-gate scope model table unchanged"
+          assertion: "scope model unchanged (out-of-scope per spec)"
+  test_suite_summary:
+    total_behavioral_tests: 3
+    total_content_verification_tests: 3
+    total_regression_tests: 3
+    total_tests: 9
+    test_execution_strategy:
+      - "Scope-limited testing (--tag) for RED/GREEN cycles per phase"
+      - "Full suite only when model speed permits (ollama-probe hw: VRAM ≥ 8 GB, local model ≥ 7B)"
+      - "Default to --changed when uncommitted guideline/skill changes"
+      - "Default to --tag matching current work concern when no changed files"

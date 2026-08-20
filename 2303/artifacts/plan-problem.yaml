@@ -1,0 +1,59 @@
+# Problem YAML for issue #2303 planner
+# Derived from state-analysis.yaml transitions.
+
+domain: requires-python-fix
+types:
+  - name: state
+  - name: sc
+objects:
+  - name: S-1
+    type: state
+  - name: S-2
+    type: state
+  - name: S-3
+    type: state
+  - name: SC-1
+    type: sc
+  - name: SC-2
+    type: sc
+fluents:
+  - name: in_state
+    params:
+      - name: s
+        type: state
+  - name: sc_complete
+    params:
+      - name: sc
+        type: sc
+actions:
+  - name: tighten_constraint
+    params:
+      - name: s1
+        type: state
+      - name: s2
+        type: state
+    preconditions:
+      - in_state(s1)
+    effects:
+      - in_state(s2)
+      - not in_state(s1)
+      - sc_complete(SC-1)
+  - name: verify_runtime
+    params:
+      - name: s2
+        type: state
+      - name: s3
+        type: state
+    preconditions:
+      - in_state(s2)
+      - sc_complete(SC-1)
+    effects:
+      - in_state(s3)
+      - not in_state(s2)
+      - sc_complete(SC-2)
+init:
+  - in_state(S-1)
+goals:
+  - in_state(S-3)
+  - sc_complete(SC-1)
+  - sc_complete(SC-2)

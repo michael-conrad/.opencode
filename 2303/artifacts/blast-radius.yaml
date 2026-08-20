@@ -1,0 +1,29 @@
+# Blast Radius Analysis
+# Backfilled from spec body for issue #2303 (retroactive plan creation)
+# Affected files extracted from spec, verified to exist in codebase.
+
+scope_summary: |
+  The fix is confined to a single file: the PEP 723 header of .opencode/tools/plan.
+  The change tightens the `requires-python` constraint and adds a usage note.
+  No other source files are affected.
+
+affected_files:
+  - path: .opencode/tools/plan
+    exists: true
+    change_type: modify
+    change_detail: |
+      PEP 723 header `requires-python` value changes from `~=3.12` to `>=3.12,<3.14`.
+      A usage note documenting `UV_PYTHON=3.12` as the optional workaround is added.
+    verification: |
+      Confirmed file exists (executable, 35417 bytes). PEP 723 header currently
+      declares `requires-python = "~=3.12"` with dependencies
+      unified-planning>=1.3.0, pyyaml>=6.0, networkx>=3.0, up-tamer>=1.1.0.
+
+out_of_scope:
+  - Building new pytamer wheels for cp314 (upstream dependency).
+  - Changing up-tamer/pytamer dependency resolution logic.
+
+risk_notes:
+  - Tightening the constraint could affect environments pinned to 3.13+.
+    Mitigation: all current usage targets 3.12; UV_PYTHON=3.12 covers edge cases.
+  - The bash guard at the top of the file MUST NOT be broken by the change.

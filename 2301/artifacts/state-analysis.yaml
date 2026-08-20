@@ -1,0 +1,37 @@
+artifact: state-analysis
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+state_machine:
+  entity: local issue mirror directory at .issues/{N}/
+  states:
+    - id: ABSENT
+      description: No local issue directory exists.
+      transition_to:
+        - INCOMPLETE
+      note: Existing Step 4 behavior creates the directory and mirrors files fresh.
+    - id: INCOMPLETE
+      description: Local issue directory exists but one or more required mirror files (spec.md, comments.md, remote.md, state.md, frontmatter fields) are absent.
+      transition_to:
+        - COMPLETE
+      note: NEW behavior introduced by SC1. The completeness gate detects missing files and materializes them instead of halting. This is the #2117-class failure currently looping the spec-creation revise pipeline.
+    - id: COMPLETE
+      description: All required mirror files are present. The directory is genuinely fully imported.
+      transition_to:
+        - INCOMPLETE
+      note: "On this state import-remote reports the issue as already imported and halts. (Risk 1 mitigation: only create files that are missing; never overwrite existing files, so COMPLETE content is preserved.)"
+state_transitions_by_sc:
+  SC1:
+    - ABSENT -> INCOMPLETE (existing import path unchanged)
+    - INCOMPLETE -> COMPLETE (NEW: completeness gate materializes missing files)
+    - COMPLETE -> HALT (existing already-imported halt retained for genuinely complete dirs)
+  SC2:
+    - Requires a pre-existing INCOMPLETE directory (created without spec.md) to transition to COMPLETE; test asserts spec.md is materialized (structural) and no HALT occurs (behavioral).
+  SC3:
+    - No state transition; documents the INCOMPLETE -> COMPLETE behavior in the Edge Cases table.
+invariant:
+  - Never overwrite existing files. The INCOMPLETE -> COMPLETE transition only creates absent files (Risk 1 mitigation).
+  - A directory transitions to COMPLETE only when ALL required mirror files are present.
+out_of_scope_state:
+  - .counter advancement logic is unchanged (explicitly out of scope).
+  - Remote issue content (body, comments, frontmatter format) is unchanged.

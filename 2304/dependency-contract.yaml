@@ -1,0 +1,50 @@
+# Dependency contract — issue #2304
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Structural scan gate — zero unqualified branch-tip references (SC-1)"
+  phase_2:
+    type: bool
+    description: "Standardize all 'trunk tip' prose to remote qualifier (SC-2)"
+  phase_3:
+    type: bool
+    description: "Verify trunk-tip-verification.md Steps 3/6 remain byte-identical (SC-3)"
+  phase_4:
+    type: bool
+    description: "Behavioral regression guard asserting origin/$DEFAULT_BRANCH consultation (SC-4)"
+preconditions: []
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/
+      - .opencode/guidelines/
+      - .opencode/commands/
+      - AGENTS.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/skills/
+      - .opencode/guidelines/
+      - .opencode/commands/
+      - AGENTS.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    scs:
+      - SC-3
+  phase_4:
+    files:
+      - .opencode/tests-v2/behaviors/2304-*.sh
+    scs:
+      - SC-4
+edges: []
+notes:
+  - "All four SCs are independent leaf documentation edits with no inter-dependency (SC-1 string scan, SC-2 string scan, SC-3 structural git diff guard, SC-4 behavioral). No preconditions; phases may proceed independently."
+  - "SC-3 is a guard on trunk-tip-verification.md (baseline for the byte-identical diff); SC-4 is a behavioral regression test. Neither depends on SC-1/SC-2 output."

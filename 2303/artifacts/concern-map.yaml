@@ -1,0 +1,40 @@
+# Concern Map
+# Backfilled from spec body for issue #2303.
+# Decomposes success criteria into concern groups, each mapped to a phase boundary.
+
+success_criteria:
+  - id: SC-1
+    concern_group: constraint
+    phase_boundary: P1
+  - id: SC-2
+    concern_group: verification
+    phase_boundary: P2
+
+concerns:
+  - id: constraint
+    name: requires-python constraint
+    description: |
+      Tighten the PEP 723 `requires-python` constraint in .opencode/tools/plan
+      from `~=3.12` to `>=3.12,<3.14`, excluding CPython 3.14.
+    related_scs: [SC-1]
+    phase_boundary: P1
+    dependency: none
+
+  - id: verification
+    name: CPython 3.12 resolution and execution verification
+    description: |
+      Invoke .opencode/tools/plan via `uv run --script` under CPython 3.12 and
+      verify dependency resolution completes with exit code 0 and no pytamer
+      resolution error.
+    related_scs: [SC-2]
+    phase_boundary: P2
+    dependency: [constraint]
+
+phase_ordering:
+  P1: constraint change (SC-1)
+  P2: verification under CPython 3.12 (SC-2) — depends on P1
+
+note: |
+  A single-concern (constraint) plus verification concern. P2 depends on P1
+  because the constraint must be in place before the resolution behavior can be
+  verified. SC-2 is behavioral (verification), SC-1 is structural.

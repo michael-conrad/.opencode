@@ -1,0 +1,45 @@
+artifact: code-path-inventory
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+success_criteria:
+  - id: SC1
+    text: Modify import-remote so that when the local issue directory exists, it checks ALL required mirror files (spec.md, comments.md, remote.md, state.md, frontmatter with github_issue/remote_url) and materializes any that are missing rather than halting on directory existence alone.
+    code_paths:
+      - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+        section: Step 4 Create Local Issue
+        description: Currently the procedure checks whether the local issue directory exists; this branch is where the completeness gate replaces the existence-only halt.
+      - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+        section: Edge Cases table
+        description: The "Issue already imported" row currently HALTs on matching remote_issue/directory existence. This row must change to enumerate and materialize missing mirror files.
+      - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+        section: Exit Criteria
+        description: Exit criteria define the required mirror file set (remote.md, spec.md, comments.md, frontmatter fields) that the completeness check must align with.
+      - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+        section: Live Verification table
+        description: Live verification rows enumerate the required mirror files and frontmatter fields; the completeness check's required-file set must align with these rows.
+  - id: SC2
+    text: Add a behavioral/structural test proving a folder that exists without spec.md is completed (spec.md materialized) rather than halted.
+    code_paths:
+      - path: .opencode/tests-v2/behaviors/2301-*.sh
+        section: new test script
+        description: Creates a pre-existing local issue directory lacking spec.md, runs import-remote, and asserts spec.md is materialized (not a HALT). Includes structural assertion (file existence) alongside behavioral assertion.
+      - path: .opencode/tests-v2/with-test-home
+        section: test harness
+        description: Provides the isolated test home and opencode run invocation used by the behavioral test per AGENTS.md test framework discipline.
+  - id: SC3
+    text: Update the Edge Cases table entry for "Issue already imported" to reflect the new completeness-check behavior.
+    code_paths:
+      - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+        section: Edge Cases table
+        description: The "Issue already imported" resolution text must be rewritten from HALT-on-existence to complete-incomplete-mirror behavior.
+orphaned_or_missing:
+  - path: .opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md
+    status: out-of-scope
+    note: Spec explicitly excludes changes to sync-pull-to-local.
+  - path: .opencode/skills/issue-operations-sync/tasks/sync-from-remote.md
+    status: out-of-scope
+    note: Spec explicitly excludes changes to sync-from-remote.
+  - path: .opencode/skills/issue-operations-sync/tasks/retroactive-import.md
+    status: out-of-scope
+    note: Spec explicitly excludes changes to other sync tasks (retroactive-import).

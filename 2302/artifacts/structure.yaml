@@ -1,0 +1,54 @@
+structure:
+  issue_number: 2302
+  spec_path: .opencode/.issues/2302/spec.md
+  methodology: "Per-SC decomposition — one implementation item per SC-ID, each with its own RED/GREEN/verify/commit cycle. Each item references exactly one SC-ID (atomicity)."
+
+  phases:
+    phase_1:
+      description: "Spec-revision -> plan-regeneration linkage — spec-creation revise triggers plan regeneration; writing-plans revise regenerates against revised SC set."
+      items:
+        - id: ITEM-1
+          sc_id: SC-1
+          description: "When a spec is revised, the linked plan (if it exists) is regenerated to match the revised spec's SC set."
+          evidence_type: behavioral
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add .opencode/skills/spec-creation/ .opencode/skills/writing-plans/ && git commit"
+        - id: ITEM-2
+          sc_id: SC-2
+          description: "Plan regeneration is an automatic consequence of spec revision, not a manual corrective step."
+          evidence_type: behavioral
+          skill_task_selection:
+            red: "task(..., prompt: \"execute the task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add .opencode/skills/spec-creation/ .opencode/skills/writing-plans/ && git commit"
+
+    phase_2:
+      description: "for_pr scope continuation — approval-gate scope handling allows pipeline to continue to pr_created without premature halt."
+      items:
+        - id: ITEM-3
+          sc_id: SC-3
+          description: "Under for_pr scope, spec revision + plan regeneration does not cause a premature halt before spec_pr_created."
+          evidence_type: behavioral
+          skill_task_selection:
+            red: "task(..., prompt: \"execute red task from test-driven-development\")"
+            green: "task(..., prompt: \"execute green task from test-driven-development\")"
+            verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+            commit: "orchestrator runs git add .opencode/skills/approval-gate/ && git commit"
+
+  dependency_dag:
+    edges:
+      - "phase_1 -> phase_2"
+      - "ITEM-1 (SC-1) and ITEM-2 (SC-2) are the same regeneration mechanism (coupled), both in phase_1."
+      - "ITEM-3 (SC-3) depends on ITEM-1/ITEM-2 (SC-1/SC-2): for_pr continuation only matters once regeneration is automatic."
+
+  triplet_co_location:
+    status: PASS
+    detail: "Every SC maps to exactly one item; each item's RED, GREEN, and COMMIT steps are assigned to the same phase. SC-1/SC-2 -> phase_1; SC-3 -> phase_2. No SC has steps split across phases."
+
+  cross_phase_dependency:
+    status: PASS
+    detail: "phase_1 items depend only on phase_1 SC outputs (committed within phase_1). phase_2 ITEM-3 (SC-3) depends on phase_1 SC-1/SC-2 output (Y < X, committed earlier) — a legitimate forward dependency, not a violation. No RED test in a later phase depends on SC output from a phase it cannot yet have committed."

@@ -1,0 +1,40 @@
+# Planning problem — issue #2301
+# 3 phases: phase_1 -> phase_2 dependency edge; phase_3 independent.
+domain: completeness-gate-plan
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run_p1
+    params: []
+    preconditions:
+      - not done(p1)
+    effects:
+      - done(p1)
+  - name: run_p2
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p2)
+    effects:
+      - done(p2)
+  - name: run_p3
+    params: []
+    preconditions:
+      - not done(p3)
+    effects:
+      - done(p3)
+init: []
+goals:
+  - done(p1)
+  - done(p2)
+  - done(p3)

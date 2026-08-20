@@ -1,0 +1,66 @@
+# Interface Compatibility
+# Backfilled from spec body for issue #2303.
+# Checks interface boundaries between affected modules.
+
+affected_interface: .opencode/tools/plan (PEP 723 script)
+interface_description: |
+  The tool is a PEP 723 inline-script metadata interface. Its interface surface
+  comprises the `requires-python` and `dependencies` fields in the script header,
+  plus the bash-guard invocation shim.
+
+checks:
+  - boundary: uv run --script invocation
+    check: |
+      The bash guard `"exec" "uv" "run" "--script" "$0" "$@"` must remain the
+      first executable lines. The PEP 723 header must remain after the guard.
+      Tightening `requires-python` does not alter the invocation contract.
+    status: compatible
+
+  - boundary: dependency resolution contract
+    check: |
+      `requires-python` change from `~=3.12` to `>=3.12,<3.14` constrains uv's
+      interpreter selection. `dependencies` (unified-planning>=1.3.0, pyyaml>=6.0,
+      networkx>=3.0, up-tamer>=1.1.0) are unchanged. The new bound excludes 3.14,
+      which is the only version lacking pytamer wheels.
+    status: compatible
+
+  - boundary: CPython 3.12 runtime
+    check: |
+      The tool targets 3.12. `>=3.12,<3.14` still selects 3.12 and 3.13, both of
+      which have pytamer wheels (cp36m..cp312 covers 3.12; 3.13 remains in range).
+    status: compatible
+
+out_of_scope_interface: |
+  No changes to up-tamer/pytamer resolution logic or to the Python module API
+  surface (argparse subcommands, unified-planning API usage).
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Tighten requires-python constraint in .opencode/tools/plan PEP 723 header to >=3.12,<3.14 (SC-1)"
+    phase_2:
+      type: bool
+      description: "Verify .opencode/tools/plan resolves and executes under CPython 3.12 (SC-2)"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/tools/plan
+      scs:
+        - SC-1
+    phase_2:
+      files:
+        - .opencode/tools/plan
+      scs:
+        - SC-2
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "SC-2 (verify runs under 3.12) depends on SC-1 (tighten requires-python): the constraint must be in place before the resolution/execution behavior can be verified."
+  notes:
+    - "SC-1 (tighten requires-python) is a prerequisite to SC-2 (verify runs under 3.12). The interface is .opencode/tools/plan PEP 723 header."
+    - "Both phases touch .opencode/tools/plan; Phase 2 is a verification pass sequenced after Phase 1's constraint change."

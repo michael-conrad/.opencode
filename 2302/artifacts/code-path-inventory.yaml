@@ -1,0 +1,36 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "All code paths affected by the spec-revision → plan-regeneration linkage change, organized by path type"
+  skill_pipeline_paths:
+    - path: ".opencode/skills/spec-creation/SKILL.md"
+      change: "Revise-an-existing-spec workflow — add plan-regeneration dispatch step after spec revision"
+      before: "revise → validate → (revise → validate)* → done"
+      after: "revise → plan-regeneration (if linked plan exists) → validate → (revise → validate)* → done"
+    - path: ".opencode/skills/spec-creation/tasks/revise.md"
+      change: "Add Step: check for existing linked plan and dispatch plan regeneration against revised spec's SC set"
+      before: "Read spec → apply revisions → update change control → regenerate exec-summary → write local spec → delete stale artifacts"
+      after: "Read spec → apply revisions → update change control → regenerate exec-summary → write local spec → delete stale artifacts → regenerate linked plan (if exists)"
+    - path: ".opencode/skills/writing-plans/SKILL.md"
+      change: "Revise-an-existing-plan workflow — ensure regeneration is automatic consequence of spec revision"
+      before: "handoff → revise → research → validate → (revise → validate)* → completion"
+      after: "handoff → revise (regenerate against revised spec's SC set) → research → validate → (revise → validate)* → completion"
+    - path: ".opencode/skills/writing-plans/tasks/revise.md"
+      change: "Regenerate plan against revised spec's SC set; preserve existing plan phases where still valid"
+      before: "Read plan → read dependency contract → apply revisions → write plan → write dependency contract"
+      after: "Read plan → read dependency contract → read revised spec's SC set → regenerate plan SC coverage → write plan → write dependency contract"
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      change: "Scope handling on spec revision — ensure for_pr scope does not halt before pr_created"
+      before: "Spec revision revokes plan approval per approval-gate-006; re-implementation workflow requires re-approval"
+      after: "for_pr scope spec-revision + plan-regeneration continues pipeline to pr_created without premature halt"
+    - path: ".opencode/skills/approval-gate/tasks/resolve-scope.md"
+      change: "Scope resolution for spec-revision context (is_revision: true)"
+      before: "Parse authorization text from chat message only"
+      after: "Parse authorization text from chat message only; handle is_revision context for scope continuation"
+  coherence_gate_path:
+    path: ".opencode/skills/spec-creation/SKILL.md"
+    change: "Coherence gate (plan/spec SC-count match) — the defect this spec fixes"
+    before: "Coherence gate detects plan/spec SC-count mismatch and reports BLOCKED"
+    after: "Plan regenerated against revised spec's SC set, so coherence gate passes"
+  deleted_directories: []

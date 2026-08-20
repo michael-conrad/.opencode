@@ -1,0 +1,39 @@
+artifact: concern-map
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+concerns:
+  - id: C1
+    name: import-remote completeness gate
+    description: Replace the directory-existence-only halt in import-remote with a completeness gate that enumerates required mirror files and materializes any missing ones.
+    success_criteria:
+      - SC1
+    phase_boundary: implementation
+    files:
+      - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+  - id: C2
+    name: behavioral test for incomplete-mirror completion
+    description: Add a behavioral/structural test proving a folder that exists without spec.md is completed (spec.md materialized) rather than halted.
+    success_criteria:
+      - SC2
+    phase_boundary: test
+    files:
+      - .opencode/tests-v2/behaviors/2301-*.sh
+  - id: C3
+    name: edge-case documentation update
+    description: Update the Edge Cases table entry for "Issue already imported" to reflect the new completeness-check behavior.
+    success_criteria:
+      - SC3
+    phase_boundary: documentation
+    files:
+      - .opencode/skills/issue-operations-sync/tasks/import-remote.md
+phase_ordering:
+  - phase: 1
+    concern: C1
+    reason: The completeness gate in import-remote.md is the core behavior change; it must exist before a behavioral test can exercise it.
+  - phase: 2
+    concern: C2
+    reason: The behavioral test (RED/GREEN) validates the completeness gate behavior and must follow the implementation it verifies.
+  - phase: 3
+    concern: C3
+    reason: The Edge Cases table update is documentation that reflects the final behavior; it is done last to match the implemented state.

@@ -1,0 +1,34 @@
+# Dependency contract — issue #2302
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Spec-revision → plan-regeneration linkage (SC-1, SC-2) — spec-creation revise triggers plan regeneration; writing-plans revise regenerates against revised SC set"
+  phase_2:
+    type: bool
+    description: "for_pr scope continuation (SC-3) — approval-gate scope handling allows pipeline to continue to pr_created"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/spec-creation/
+      - .opencode/skills/writing-plans/
+    scs:
+      - SC-1
+      - SC-2
+  phase_2:
+    files:
+      - .opencode/skills/approval-gate/
+    scs:
+      - SC-3
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "SC-3 (for_pr scope continuation) depends on the plan-regeneration linkage (SC-1/SC-2) existing first — the scope-continuation behavior requires the regeneration linkage to be in place before the pipeline can continue past it."
+notes:
+  - "SC-1 and SC-2 are closely coupled and both live in Phase 1 (the regeneration linkage and its automaticity are the same mechanism)."
+  - "SC-3 depends on both SC-1 and SC-2: the for_pr continuation only matters once regeneration is automatic."

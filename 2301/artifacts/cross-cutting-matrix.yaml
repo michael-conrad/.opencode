@@ -1,0 +1,25 @@
+artifact: cross-cutting-matrix
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+success_criteria:
+  - id: SC1
+    concern: C1
+    spans_multiple_concerns: false
+    note: SC1 is confined to the import-remote completeness gate; it does not span into the test or documentation concern beyond being the behavior those concerns verify and describe.
+  - id: SC2
+    concern: C2
+    spans_multiple_concerns: true
+    spans:
+      - C1
+      - C2
+    note: SC2 depends on the SC1 behavior (the test exercises the completeness gate) and lives in the test concern (C2). It is coupled to SC1 but is verified as a distinct concern boundary.
+  - id: SC3
+    concern: C3
+    spans_multiple_concerns: false
+    spans: []
+    note: SC3 updates the Edge Cases documentation; it describes SC1's behavior but does not implement or test it, so it is confined to the documentation concern.
+cross_cutting_summary:
+  - The only cross-cutting relationship is SC1 -> SC2 dependency: the behavioral test (SC2) verifies the completeness gate (SC1). SC3 is a downstream documentation reflection of SC1.
+  - No success criterion spans into out-of-scope areas (sync-pull-to-local, sync-from-remote, retroactive-import, .counter logic, import content format).
+  - No shared module or service spans SCs; all changes live in the issue-operations-sync skill deck plus one behavioral test file.

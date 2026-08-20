@@ -4,21 +4,34 @@ approval_label: approved-for-for_pr
 sc_count: 3
 sc_source: in-scope bullets (no formal SC table)
 artifacts:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
 scope_boundary_findings:
   - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
     exists: true
     note: primary target file referenced in spec
   - path: .opencode/tests-v2/behaviors/
     exists: true
-    note: behavioral test directory exists; no test file yet for this issue
+    note: behavioral test directory exists; no test file yet for this issue (SC2 creates it)
+  - path: .opencode/skills/issue-operations-sync/SKILL.md
+    exists: true
+    note: adjacent file checked in blast-radius; not a primary change target
 findings:
-  - All 7 analytical artifacts are missing. The artifacts/ directory did not exist and was created. Backfill is required before plan creation.
-  - Spec has no formal Success Criteria table; SCs are expressed as in-scope bullets. Plan writer must derive SCs from the in-scope section.
-  - The referenced import-remote.md task file exists and matches the spec's description of the directory-existence-only halt behavior.
+  - All 7 analytical artifacts were missing and have been backfilled from the spec body and the import-remote.md task file.
+  - Spec has no formal Success Criteria table; SCs derived from the in-scope section: SC1 (completeness gate), SC2 (behavioral/structural test), SC3 (Edge Cases doc update).
+  - Cross-cutting analysis identifies a single SC1 -> SC2 dependency (test verifies the gate); SC3 is documentation-only.
+  - State analysis surfaces the new INCOMPLETE -> COMPLETE transition that fixes the #2117-class incomplete-mirror failure.
+  - Testability: SC1 and SC2 are behavioral (with structural assertion for SC2 per spec Risk 3); SC3 is structural (doc edit).
+backfill_actions:
+  blast-radius.yaml: Backfilled - affected files verified against codebase; primary target import-remote.md exists.
+  concern-map.yaml: Backfilled - 3 concerns mapped to 3 phases with dependency ordering.
+  code-path-inventory.yaml: Backfilled - code paths enumerated per SC against import-remote.md sections.
+  cross-cutting-matrix.yaml: Backfilled - single SC1->SC2 dependency identified.
+  interface-compatibility.yaml: Backfilled - all interfaces verified compatible; no public contract changed.
+  state-analysis.yaml: Backfilled - ABSENT/INCOMPLETE/COMPLETE state machine with new transition.
+  testability-assessment.yaml: Backfilled - evidence types assigned per SC.

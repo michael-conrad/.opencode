@@ -1,0 +1,30 @@
+# Testability Assessment
+# Backfilled from spec body for issue #2303.
+# Assigns evidence types to each success criterion.
+
+assessments:
+  - sc_id: SC-1
+    criterion: |
+      The `requires-python` constraint in the PEP 723 header of .opencode/tools/plan
+      SHALL be set to the exact value `>=3.12,<3.14`, excluding CPython 3.14.
+    evidence_type: structural
+    verification_method: |
+      Inspect the `# requires-python` line in .opencode/tools/plan and confirm its
+      value is exactly `>=3.12,<3.14`.
+    testability: |
+      Directly verifiable via a single static read of the header line. Deterministic
+      — the expected value is pinned exactly, with no escape hatch.
+
+  - sc_id: SC-2
+    criterion: |
+      Invoking .opencode/tools/plan via `uv run --script` under a CPython 3.12
+      interpreter SHALL complete dependency resolution and execution with exit
+      code 0 and no pytamer resolution error in output.
+    evidence_type: behavioral
+    verification_method: |
+      Run .opencode/tools/plan via `uv run --script` under CPython 3.12; assert
+      exit code is 0 and the "No solution found when resolving script dependencies" /
+      up-tamer resolution error is absent from output.
+    testability: |
+      Behavioral execution. Pass/fail is defined by exit code 0 and absence of the
+      resolution error string. Requires a CPython 3.12 interpreter available to uv.

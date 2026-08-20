@@ -1,0 +1,41 @@
+artifact: testability-assessment
+issue: 2301
+spec_path: .issues/2301/spec.md
+backfilled: true
+success_criteria:
+  - id: SC1
+    text: Modify import-remote so that when the local issue directory exists, it checks ALL required mirror files and materializes any that are missing rather than halting on directory existence alone.
+    evidence_type: behavioral
+    test_kind: task-file-procedure
+    testable: true
+    notes:
+      - The change is a procedure change to a task file (import-remote.md), verified through a behavioral test that observes agent actions (whether the agent materializes missing files vs. halts on directory existence).
+      - stderr-based assertion required: assert the agent creates spec.md (and other missing mirror files) rather than halting with "already imported".
+    risk: low
+  - id: SC2
+    text: Add a behavioral/structural test proving a folder that exists without spec.md is completed (spec.md materialized) rather than halted.
+    evidence_type: behavioral
+    test_kind: behavioral-test
+    testable: true
+    notes:
+      - Primary evidence is the new behavioral test 2301-*.sh under .opencode/tests-v2/behaviors/.
+      - Spec Risk 3 mandates BOTH a structural assertion (file existence of spec.md after run) AND a behavioral assertion, to mitigate flakiness under model variance.
+      - The behavioral test is itself the deliverable of SC2.
+    risk: medium
+    mitigation: dual structural + behavioral assertion per spec Risk 3.
+  - id: SC3
+    text: Update the Edge Cases table entry for "Issue already imported" to reflect the new completeness-check behavior.
+    evidence_type: structural
+    test_kind: doc-edit
+    testable: true
+    notes:
+      - Verified structurally by reading the Edge Cases table in import-remote.md and confirming the "Issue already imported" row describes the completeness-check behavior (not existence-only halt).
+      - No runtime behavior change; documentation-only SC.
+    risk: low
+out_of_scope_testability:
+  - No tests for .counter logic (explicitly out of scope).
+  - No tests for import content format (explicitly out of scope).
+  - No tests for sync-pull-to-local / sync-from-remote / retroactive-import (explicitly out of scope).
+test_framework:
+  - Behavioral tests run via bash .opencode/tests-v2/with-test-home opencode run '<message>' per AGENTS.md mandatory test framework discipline.
+  - New test file follows the <issue>-sc<N>-<slug>.sh naming convention in .opencode/tests-v2/behaviors/.

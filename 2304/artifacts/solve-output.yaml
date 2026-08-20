@@ -1,0 +1,36 @@
+# Solve output — issue #2304 (documentation-only terminology sweep)
+# Results of Z3 constraint solving and planning verification.
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+model_query:
+  command: "./tools/solve model --contract-path .issues/2304/dependency-contract.yaml --query 'z3.And(phase_1, phase_2, phase_3, phase_4)'"
+  result: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+    phase_3: true
+    phase_4: true
+  note: "All four phase variables simultaneously satisfiable under contract preconditions+invariants (both empty)."
+
+check:
+  command: "./tools/solve check --contract-path .issues/2304/dependency-contract.yaml --state-path .issues/2304/artifacts/state-analysis.yaml"
+  result: SAT
+  note: "State analysis assignments satisfy contract preconditions+postconditions+invariants. Initial all-false state is valid; each phase may proceed to true."
+
+planner:
+  command: "./tools/plan plan --problem .issues/2304/artifacts/plan-problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 4
+  plan:
+    - complete_phase_2()
+    - complete_phase_4()
+    - complete_phase_3()
+    - complete_phase_1()
+  note: "Tamer engine produced a valid 4-action plan covering all four phase goals. No inter-phase ordering constraint (edges: []), so plan order is arbitrary."
+
+summary:
+  - "solve model: SAT — all four phases reachable simultaneously."
+  - "solve check: SAT — state analysis satisfies all contract constraints."
+  - "plan plan: SOLVED_SATISFICING: 4-step plan covers all phase goals."

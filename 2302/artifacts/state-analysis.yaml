@@ -1,0 +1,41 @@
+artifact_name: state-analysis
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "State transitions for all files affected by the spec-revision → plan-regeneration linkage change"
+  transitions:
+    - entity: ".opencode/skills/spec-creation/tasks/revise.md"
+      before: "Revision pipeline without plan-regeneration step — spec revised, plan left stale"
+      after: "Revision pipeline with plan-regeneration step — spec revised, linked plan regenerated against revised spec's SC set"
+      phase: 1
+    - entity: ".opencode/skills/spec-creation/SKILL.md"
+      before: "Revise-an-existing-spec workflow: revise → validate → (revise → validate)* → done"
+      after: "Revise-an-existing-spec workflow: revise → plan-regeneration (if linked plan exists) → validate → (revise → validate)* → done"
+      phase: 1
+    - entity: ".opencode/skills/writing-plans/tasks/revise.md"
+      before: "Plan revision from validation findings or direct revision request"
+      after: "Plan regeneration against revised spec's SC set; preserve existing plan phases where still valid"
+      phase: 1
+    - entity: ".opencode/skills/writing-plans/SKILL.md"
+      before: "Revise-an-existing-plan workflow: handoff → revise → research → validate → (revise → validate)* → completion"
+      after: "Revise-an-existing-plan workflow: handoff → revise (regenerate against revised spec's SC set) → research → validate → (revise → validate)* → completion"
+      phase: 1
+    - entity: ".opencode/skills/approval-gate/SKILL.md"
+      before: "Spec revision revokes plan approval per approval-gate-006; re-implementation workflow requires re-approval"
+      after: "for_pr scope spec-revision + plan-regeneration continues pipeline to pr_created without premature halt"
+      phase: 2
+    - entity: ".opencode/skills/approval-gate/tasks/resolve-scope.md"
+      before: "Scope resolution for authorization text from chat message only"
+      after: "Scope resolution for authorization text from chat message only; handle is_revision context for scope continuation"
+      phase: 2
+    - entity: "Linked plan (plan.md)"
+      before: "Stale — SC coverage does not match revised spec's SC set (e.g., 10 SCs vs 14 SCs in #2116)"
+      after: "Regenerated — SC coverage matches revised spec's SC set"
+      phase: 1
+  checkpoint_tags:
+    - tag: "feature/2302-plan-regeneration/checkpoint/phase-1-main"
+      phase: 1
+      description: "After spec-revision → plan-regeneration linkage: spec-creation revise task and writing-plans revise task updated"
+    - tag: "feature/2302-plan-regeneration/checkpoint/phase-2-main"
+      phase: 2
+      description: "After for_pr scope continuation: approval-gate scope handling updated, no premature halt before pr_created"

@@ -1,0 +1,29 @@
+# Analysis Summary
+# Backfilled for issue #2303 (retroactive plan creation).
+
+spec_path: .opencode/.issues/2303/spec.md
+issue_number: 2303
+sc_count: 2
+sc_ids: [SC-1, SC-2]
+
+scope_summary: |
+  Tighten the `requires-python` constraint in .opencode/tools/plan from `~=3.12`
+  to `>=3.12,<3.14` (excluding CPython 3.14), add a usage note documenting
+  `UV_PYTHON=3.12` as an optional workaround, and verify the tool resolves and
+  executes under CPython 3.12. Confined to .opencode/tools/plan.
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+affected_files:
+  - .opencode/tools/plan (exists: true)
+
+evidence_types:
+  SC-1: structural
+  SC-2: behavioral

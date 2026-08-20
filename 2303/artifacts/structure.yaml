@@ -1,0 +1,68 @@
+# Structure artifact — issue #2303
+# Phase decomposition, dependency DAG, skill+task selection.
+
+issue_number: 2303
+spec_path: .opencode/.issues/2303/spec.md
+
+phases:
+  phase_1:
+    scs: [SC-1]
+    description: |
+      Tighten the `requires-python` constraint in the PEP 723 header of
+      .opencode/tools/plan from `~=3.12` to `>=3.12,<3.14` (excluding CPython 3.14),
+      and add a usage note documenting `UV_PYTHON=3.12` as an optional workaround.
+    items:
+      - item: 1
+        sc_id: SC-1
+        cycle:
+          - red: 'task(..., prompt: "execute red task from test-driven-development")'
+          - green: 'task(..., prompt: "execute green task from test-driven-development")'
+          - commit: "orchestrator: git add .opencode/tools/plan && git commit"
+    skill_tasks:
+      red: test-driven-development
+      green: test-driven-development
+      verify: verification-before-completion
+      audit: audit
+      structural-checks: finishing-a-development-branch
+
+  phase_2:
+    scs: [SC-2]
+    description: |
+      Verify .opencode/tools/plan resolves and executes under CPython 3.12 via
+      `uv run --script`, asserting exit code 0 and no pytamer resolution error.
+    items:
+      - item: 2
+        sc_id: SC-2
+        cycle:
+          - red: 'task(..., prompt: "execute red task from test-driven-development")'
+          - green: 'task(..., prompt: "execute green task from test-driven-development")'
+          - commit: "orchestrator: git add <test> && git commit"
+    phase_tasks:
+      red: test-driven-development
+      green: test-driven-development
+      verify: verification-before-completion
+      audit: audit
+
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "SC-2 (verify runs under 3.12) depends on SC-1 (tighten requires-python): the constraint must be in place before resolution/execution behavior can be verified."
+
+triplet_colocation:
+  status: verified
+  notes: "SC-1 RED/GREEN/COMMIT all in phase_1; SC-2 RED/GREEN/COMMIT all in phase_2. No SC split across phases."
+
+cross_phase_dependency:
+  status: verified
+  notes: "SC-2 RED (phase_2) depends only on SC-1 output already committed in phase_1 (Y=1 < X=2). No cross-phase dependency violation."
+
+skill_task_selection:
+  - phase: phase_1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    evidence_type: structural
+  - phase: phase_2
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    evidence_type: behavioral

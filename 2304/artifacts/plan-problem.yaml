@@ -1,0 +1,35 @@
+# Planning problem for issue #2304 — documentation-only terminology sweep
+# Four independent leaf doc-edit phases; no inter-dependency (contract edges: [])
+domain: 2304-terminology-sweep
+fluents:
+  - name: phase_1_done
+    type: bool
+  - name: phase_2_done
+    type: bool
+  - name: phase_3_done
+    type: bool
+  - name: phase_4_done
+    type: bool
+actions:
+  - name: complete_phase_1
+    preconditions: []
+    effects:
+      - phase_1_done
+  - name: complete_phase_2
+    preconditions: []
+    effects:
+      - phase_2_done
+  - name: complete_phase_3
+    preconditions: []
+    effects:
+      - phase_3_done
+  - name: complete_phase_4
+    preconditions: []
+    effects:
+      - phase_4_done
+init: []
+goals:
+  - phase_1_done
+  - phase_2_done
+  - phase_3_done
+  - phase_4_done

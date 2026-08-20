@@ -1,0 +1,84 @@
+# Structure artifact — issue #2304 (documentation-only terminology sweep)
+# Phase decomposition, dependency DAG, and skill+task selection per writing-plans research task.
+
+spec_path: .issues/2304/spec.md
+sc_count: 4
+phase_count: 4
+
+phases:
+  - id: phase_1
+    sc: SC-1
+    plan_item: 1
+    description: "Structural scan gate — zero unqualified branch-tip references across .opencode/skills/, .opencode/guidelines/, .opencode/commands/, AGENTS.md"
+    evidence_type: structural
+    files:
+      - .opencode/skills/
+      - .opencode/guidelines/
+      - .opencode/commands/
+      - AGENTS.md
+    skill_tasks:
+      - red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      - green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      - verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+      - commit-inline: "orchestrator: git add + commit"
+
+  - id: phase_2
+    sc: SC-2
+    plan_item: 2
+    description: "Standardize all 'trunk tip' prose sites to remote qualifier ('remote trunk tip' / 'remote $DEFAULT_BRANCH tip')"
+    evidence_type: structural
+    files:
+      - .opencode/skills/
+      - .opencode/guidelines/
+      - .opencode/commands/
+      - AGENTS.md
+    skill_tasks:
+      - red: "task(execute red task from test-driven-development)"
+      - green: "task(execute green task from test-driven-development)"
+      - verify: "task(execute verify task from verification-before-completion)"
+      - commit-inline: "orchestrator: git add <files> && git commit"
+
+  - id: phase_3
+    sc: SC-3
+    plan_item: 3
+    description: "trunk-tip-verification.md Steps 3/6 remain byte-identical to pre-change state (no git command altered)"
+    evidence_type: structural
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    skill_tasks:
+      - red: "task(execute red task from test-driven-development)"
+      - green: "task(execute green task from test-driven-development)"
+      - verify: "task(execute verify task from verification-before-completion)"
+      - commit-inline: "orchestrator: git add && git commit"
+
+  - id: phase_4
+    sc: SC-4
+    plan_item: 4
+    description: "Behavioral regression guard asserting agent consults origin/$DEFAULT_BRANCH rather than stale local tip"
+    evidence_type: behavioral
+    files:
+      - .opencode/tests-v2/behaviors/2304-*.sh
+    skill_tasks:
+      - red: "task(execute red task from test-driven-development)"
+      - green: "task(execute green task from test-driven-development)"
+      - verify: "task(execute verify task from verification-before-completion)"
+      - commit-inline: "orchestrator: git add <files> && git commit"
+
+edges: []
+
+dependency_dag:
+  nodes:
+    - phase_1
+    - phase_2
+    - phase_3
+    - phase_4
+  edges: []
+  note: "All four SCs are independent leaf documentation edits with no inter-dependency (per dependency-contract.yaml edges: []). No preconditions; phases may proceed independently."
+
+triplet_co_location:
+  status: VERIFIED
+  note: "For each SC, RED/GREEN/COMMIT assigned to the same phase. No SC split across phases."
+
+cross_phase_dependency:
+  status: VERIFIED
+  note: "No RED test in any phase depends on SC output not yet committed in the same phase (no inter-phase edges)."

@@ -1,0 +1,71 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "Interface boundaries and backward compatibility analysis for the spec-revision → plan-regeneration linkage change"
+  regression_invariants:
+    - invariant: "Existing spec-creation revision pipeline (revise → validate) continues to work unchanged"
+      verification: "SC-1 behavioral test — spec revision still completes validation"
+    - invariant: "Existing writing-plans revise task continues to work for direct plan revisions"
+      verification: "Verify writing-plans revise task still handles direct revision requests"
+    - invariant: "Existing approval-gate scope model unchanged"
+      verification: "Spec explicitly out-of-scope: 'Changes to the authorization scope model itself'"
+    - invariant: "Plan regeneration preserves existing plan phases where still valid"
+      verification: "Spec Risk 3 mitigation — regenerate against revised spec's SC set while preserving existing plan phases"
+  interface_boundaries:
+    spec_creation_revision_pipeline:
+      status: "EXTENDED"
+      description: "spec-creation revise task gains a plan-regeneration step after spec revision"
+      rationale: "Adds the missing spec-revision → plan-regeneration linkage"
+      affected_skills:
+        - spec-creation
+        - writing-plans
+    writing_plans_revise_task:
+      status: "EXTENDED"
+      description: "writing-plans revise task regenerates plan against revised spec's SC set"
+      rationale: "Plan SC coverage must always match revised spec's SC set"
+    approval_gate_scope_handling:
+      status: "EXTENDED"
+      description: "approval-gate scope handling on spec revision allows for_pr pipeline continuation to pr_created"
+      rationale: "Prevents premature halt at plan-regeneration step under for_pr scope"
+    authorization_scope_model:
+      status: "UNCHANGED"
+      description: "Authorization scope model itself is unchanged"
+      rationale: "Spec explicitly out-of-scope: 'Changes to the authorization scope model itself'"
+    external_interface_impact:
+      skill_api: "NONE — skill() calls use original names"
+      task_api: "NONE — task() calls use original skill names in prompts"
+      user_facing: "NONE — no user-facing API changes"
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Spec-revision → plan-regeneration linkage (SC-1, SC-2) — spec-creation revise triggers plan regeneration; writing-plans revise regenerates against revised SC set"
+    phase_2:
+      type: bool
+      description: "for_pr scope continuation (SC-3) — approval-gate scope handling allows pipeline to continue to pr_created"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/spec-creation/
+        - .opencode/skills/writing-plans/
+      scs:
+        - SC-1
+        - SC-2
+    phase_2:
+      files:
+        - .opencode/skills/approval-gate/
+      scs:
+        - SC-3
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "SC-3 (for_pr scope continuation) depends on the plan-regeneration linkage (SC-1/SC-2) existing first — the scope-continuation behavior requires the regeneration linkage to be in place before the pipeline can continue past it."
+  notes:
+    - "SC-1 and SC-2 are closely coupled and both live in Phase 1 (the regeneration linkage and its automaticity are the same mechanism)."
+    - "SC-3 depends on both SC-1 and SC-2: the for_pr continuation only matters once regeneration is automatic."

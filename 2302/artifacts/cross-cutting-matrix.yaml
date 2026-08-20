@@ -1,0 +1,36 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-19
+source: "Spec #2302 (backfilled from spec body)"
+content:
+  description: "Cross-cutting concerns across the spec-revision → plan-regeneration linkage change, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1
+      name: "Plan regenerated to match revised spec's SC set"
+      evidence_type: behavioral
+      verification_method: "opencode-cli run with a spec-revision prompt; assert_semantic verifies the linked plan is regenerated against the revised spec's SC set"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Add plan-regeneration step to spec-creation revise task and writing-plans revise task"
+    - sc_id: SC-2
+      name: "Plan regeneration is automatic consequence of spec revision, not manual corrective step"
+      evidence_type: behavioral
+      verification_method: "opencode-cli run with a spec-revision prompt; assert_semantic verifies plan regeneration occurs automatically without manual intervention"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Wire plan-regeneration into the spec-creation revision pipeline as an automatic step"
+    - sc_id: SC-3
+      name: "for_pr scope spec-revision + plan-regeneration does not cause premature halt before pr_created"
+      evidence_type: behavioral
+      verification_method: "opencode-cli run with a for_pr scope spec-revision prompt; assert_semantic verifies pipeline continues to pr_created without premature halt"
+      phases_affected:
+        - 2
+      verification_gate: post-implementation
+      remediation: "Update approval-gate scope handling on spec revision to allow pipeline continuation to pr_created"
+  cross_cutting_verification_gates:
+    - gate: post-implementation
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3

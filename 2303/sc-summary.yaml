@@ -1,0 +1,21 @@
+# SC summary — issue #2303
+# Derived from spec Success Criteria table (SC-1, SC-2) and analysis-summary.yaml.
+
+spec_path: .opencode/.issues/2303/spec.md
+sc_count: 2
+
+scs:
+  - id: "SC-1"
+    description: "The requires-python constraint in the PEP 723 header of .opencode/tools/plan SHALL be set to the exact value >=3.12,<3.14, excluding CPython 3.14, so uv selects a Python version with available pytamer wheels."
+    evidence_type: "structural"
+    plan_item: 1
+    phase: 1
+  - id: "SC-2"
+    description: "Invoking .opencode/tools/plan via uv run --script under a CPython 3.12 interpreter SHALL complete dependency resolution and execution with exit code 0 and no pytamer resolution error in output."
+    evidence_type: "behavioral"
+    plan_item: 2
+    phase: 2
+
+phase_sc_mapping:
+  "1": [SC-1]
+  "2": [SC-2]
