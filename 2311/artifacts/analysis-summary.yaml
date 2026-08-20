@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+spec_path: .opencode/.issues/2311/spec.md
+approval_status: approved
+approval_labels:
+  - approved-for-plan
+success_criteria_count: 3
+success_criteria:
+  - SC-1: backfill.md step 4 includes dependency_contract section OR research.md derives it from existing keys
+  - SC-2: producer and consumer task files agree on interface-compatibility.yaml schema
+  - SC-3: plan creation works for retroactive backfill without DEPENDENCY_CONTRACT_NOT_FOUND
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary:
+  .opencode/skills/writing-plans/tasks/backfill.md: EXISTS
+  .opencode/skills/writing-plans/tasks/research.md: EXISTS
+notes:
+  - All 7 analytical artifacts missing; retroactive backfill will be required before plan creation.
+  - grep dependency_contract in research.md confirms lines 41 and 43 reference the section.
