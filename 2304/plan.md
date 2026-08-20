@@ -274,3 +274,7 @@ Documentation-only sweep. Affected impact zones: skilldeck prose, guideline pros
 ---
 
 🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+## Lifecycle Events
+
+- `2026-08-20T03:45:51Z` — **plan_created** — plan at `.issues/2304/plan.md`, 4 phases.
