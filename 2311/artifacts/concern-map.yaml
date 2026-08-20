@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2311/spec.md
+concerns:
+  - id: producer_contract
+    name: Producer Contract (backfill.md)
+    description: "backfill.md step 4 must instruct the sub-agent to produce an interface-compatibility.yaml schema the consumer can read (dependency_contract present or derivable)."
+    phase: 1
+    scs:
+      - SC-1
+  - id: consumer_contract
+    name: Consumer Contract (research.md)
+    description: "research.md step 9 must consume the schema the producer actually produces — either extract dependency_contract or derive it from interface_boundaries/compatibility/compatibility_conclusion."
+    phase: 1
+    scs:
+      - SC-1
+  - id: schema_agreement
+    name: Producer/Consumer Schema Agreement
+    description: "The interface-compatibility.yaml schema must be defined consistently in both task files so no producer/consumer mismatch remains."
+    phase: 1
+    scs:
+      - SC-2
+  - id: pipeline_integration
+    name: Retroactive Backfill Plan Pipeline
+    description: "Plan creation for an issue requiring retroactive backfill must complete without DEPENDENCY_CONTRACT_NOT_FOUND."
+    phase: 2
+    scs:
+      - SC-3
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: backfill.md and research.md agree on the interface-compatibility.yaml schema (dependency_contract produced or derived)
+    scs: [SC-1, SC-2]
+  phase_2:
+    entry: phase 1 complete
+    exit: plan created for a retroactive-backfill issue with no DEPENDENCY_CONTRACT_NOT_FOUND
+    scs: [SC-3]

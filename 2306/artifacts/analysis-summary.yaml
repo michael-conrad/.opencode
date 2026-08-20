@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2306/spec.md
+approval_status: approved
+approval_labels:
+- approved-for-plan
+sc_count: 0
+sc_present: false
+artifacts:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+scope_boundary_findings:
+- "spec.md contains frontmatter only; no affected-files section to verify against codebase"
+- "no success criteria defined in spec body"
+blockers:
+- "NO_SUCCESS_CRITERIA: spec body contains no success criteria table"

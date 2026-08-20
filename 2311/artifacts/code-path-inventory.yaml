@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2311/spec.md
+code_paths:
+  phase_1_contract_fix:
+    - path: ".opencode/skills/writing-plans/tasks/backfill.md -> step 4, interface-compatibility.yaml bullet"
+      sc: SC-1
+      description: "Add a dependency_contract section to the interface-compatibility.yaml backfill instruction so the producer emits the key research.md step 9 consumes."
+    - path: ".opencode/skills/writing-plans/tasks/research.md -> step 9"
+      sc: SC-1
+      description: "Update research.md step 9 to derive the dependency contract from the producer's actual keys (interface_boundaries/compatibility/compatibility_conclusion) if path (2) is chosen, so it no longer requires a section no producer creates."
+    - path: "Cross-file grep: `grep dependency_contract .opencode/skills/writing-plans/`"
+      sc: SC-2
+      description: "Verify the dependency_contract schema reference is consistent across backfill.md and research.md (agreement check)."
+    - path: "Cross-check against skills/writing-plans/contracts/solve-input-template.yaml and structure-output-template.yaml"
+      sc: SC-1
+      description: "Verify the dependency_contract schema matches the Z3 tools' (solve, plan) expected contract (Risk 1 mitigation)."
+  phase_2_pipeline_verification:
+    - path: "Run backfill.md -> research.md -> tools/solve model/check -> tools/plan plan for a retroactive-backfill issue"
+      sc: SC-3
+      description: "End-to-end plan creation must complete without DEPENDENCY_CONTRACT_NOT_FOUND."
+    - path: "Write {issues_prefix}/{N}/dependency-contract.yaml from research.md step 9 extraction"
+      sc: SC-3
+      description: "The extracted dependency contract must be produced for downstream solve/plan steps."

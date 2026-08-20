@@ -1,0 +1,17 @@
+spec_path: .opencode/.issues/2310/spec.md
+approval_status: approved-for-plan
+sc_count: 0
+artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+scope_boundary_findings:
+  - "spec.md contains only YAML frontmatter (retroactive_import) - no spec body with success criteria table"
+  - "Referenced file .opencode/scripts/session_context_triggers.py EXISTS and confirmed at line 70 with hardcoded 'origin/dev..HEAD'"
+  - "No artifacts directory exists at 2310/artifacts/"
+status: BLOCKED
+blocker_reason: "NO_SUCCESS_CRITERIA - spec.md for issue 2310 has no spec body; only frontmatter with labels: [] - no success criteria table present"

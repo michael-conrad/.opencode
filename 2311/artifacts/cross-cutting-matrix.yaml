@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2311/spec.md
+cross_cutting_concerns:
+  - concern: producer_consumer_coupling
+    description: "SC-1 spans both the producer (backfill.md step 4) and the consumer (research.md step 9). Fixing only one side leaves the mismatch in place — the fix is inherently two-sided."
+    affected_scs:
+      - SC-1
+    affected_phases:
+      - 1
+  - concern: schema_definition_consistency
+    description: "The interface-compatibility.yaml schema must be defined in one place and referenced consistently. SC-2 is the agreement gate spanning both task files."
+    affected_scs:
+      - SC-2
+    affected_phases:
+      - 1
+  - concern: downstream_z3_tool_contract
+    description: "The dependency_contract schema must match what the Z3 tools (solve, plan) and the solve-input-template/structure-output-template contracts expect (Risk 1 mitigation) — spans the schema fix and pipeline verification."
+    affected_scs:
+      - SC-1
+      - SC-3
+    affected_phases:
+      - 1
+      - 2
+  - concern: regression_guard_2232
+    description: "SC-3 guards against regression of the closed #2232 dependency-contract generation work. Scope stays limited to backfill.md/research.md."
+    affected_scs:
+      - SC-3
+    affected_phases:
+      - 2

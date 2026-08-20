@@ -1,0 +1,28 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  solve_model:
+    command: ".opencode/tools/solve model --contract-path .opencode/.issues/2311/dependency-contract.yaml --query <expr>"
+    status: SAT
+    note: "Literal `--query sat` (as in research.md step 10) is not a valid Z3 expression. Verified SAT with valid queries: `phase_2` -> phase_1=True, phase_2=True; `phase_1` -> phase_1=True, phase_2=False."
+    model:
+      phase_1: true
+      phase_2: true
+  solve_check:
+    command: ".opencode/tools/solve check --contract-path .opencode/.issues/2311/dependency-contract.yaml --state-path .opencode/.issues/2311/artifacts/state-analysis.yaml"
+    status: SAT
+    preconditions: SAT (phase_1=False, phase_2=False)
+    postconditions_invariants: SAT (phase_1=False, phase_2=False)
+  plan:
+    command: ".opencode/tools/plan plan --problem tmp/2311-problem.yaml"
+    status: SOLVED_SATISFICING
+    engine: tamer
+    plan_length: 2
+    note: "research.md step 12 literal command `plan plan --contract-path ... --output ...` does not match the tool's actual `--problem` interface. A problem file was built from the dependency contract DAG (phase_1 -> phase_2)."
+    plan:
+      - "run-phase-1()"
+      - "run-phase-2()"
+planner_result:
+  domain: writing-plans-backfill
+  status: SOLVED_SATISFICING
+  plan_length: 2

@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2311/spec.md
+phase_1_contract_fix:
+  affected_files:
+    - .opencode/skills/writing-plans/tasks/backfill.md
+    - .opencode/skills/writing-plans/tasks/research.md
+  description: "Align the interface-compatibility.yaml schema contract between the producer (backfill.md step 4) and the consumer (research.md step 9). Edit task-file prose only — no runtime behavior change."
+  risk: low
+  rollback: "Revert prose edits to backfill.md and/or research.md"
+phase_2_pipeline_verification:
+  affected_files:
+    - .opencode/skills/writing-plans/tasks/backfill.md
+    - .opencode/skills/writing-plans/tasks/research.md
+  description: "Verify plan creation succeeds for a retroactive-backfill issue end to end (backfill -> research -> solve -> plan) without DEPENDENCY_CONTRACT_NOT_FOUND."
+  risk: medium
+  rollback: "Re-run pipeline against original contract state"
+cross_repo_impact:
+  - repo: michael-conrad/opencode-config
+    impact: "None — both affected files live in the .opencode submodule. No root-repo files change."
+    affected_files: []

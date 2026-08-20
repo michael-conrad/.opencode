@@ -1,0 +1,61 @@
+spec_path: .opencode/.issues/2311/spec.md
+interfaces:
+  - name: interface_compatibility_yaml_schema
+    description: "The interface-compatibility.yaml analytical artifact — the shared contract between the producer (backfill.md step 4) and the consumer (research.md step 9)."
+    operations:
+      - "backfill.md step 4 writes interface-compatibility.yaml (interface_boundaries / compatibility / compatibility_conclusion)"
+      - "research.md step 9 reads interface-compatibility.yaml and extracts the dependency_contract section -> dependency-contract.yaml"
+    consumers:
+      - .opencode/skills/writing-plans/tasks/backfill.md (producer)
+      - .opencode/skills/writing-plans/tasks/research.md (consumer)
+      - .opencode/tools/solve (model/check) via dependency-contract.yaml
+      - .opencode/tools/plan via dependency-contract.yaml
+    compatibility: "The producer and consumer must agree on the schema. research.md step 9 requires a dependency_contract section that backfill.md step 4 never instructs the sub-agent to produce — this mismatch is the defect."
+  - name: dependency_contract_extraction
+    description: "The dependency_contract section extracted from interface-compatibility.yaml and persisted to dependency-contract.yaml by research.md step 9."
+    operations:
+      - "Extract dependency_contract from interface-compatibility.yaml"
+      - "Write to {issues_prefix}/{N}/dependency-contract.yaml"
+    consumers:
+      - .opencode/tools/solve model --contract-path .../dependency-contract.yaml --query sat
+      - .opencode/tools/solve check --contract-path .../dependency-contract.yaml --state-path .../artifacts/state-analysis.yaml
+      - .opencode/tools/plan plan --contract-path .../dependency-contract.yaml
+    compatibility: "If interface-compatibility.yaml has no dependency_contract section, research.md returns BLOCKED with DEPENDENCY_CONTRACT_NOT_FOUND — blocking plan creation for retroactive backfill."
+boundary_notes:
+  - scope_limit: "Both affected files live in the .opencode submodule. No root-repo (opencode-config) files change; no changes to any skill outside writing-plans."
+  - schema_location: "The dependency_contract schema is referenced only in research.md (lines 41, 43). backfill.md never produces it — the schema must be agreed and defined consistently in both task files."
+  - z3_contract: "The dependency_contract schema must match what solve/plan expect (cross-check against solve-input-template.yaml and structure-output-template.yaml, Risk 1 mitigation)."
+dependency_contract:
+  spec: .opencode/.issues/2311/spec.md
+  variables:
+    phase_1:
+      type: bool
+      description: "Align interface-compatibility.yaml schema contract between backfill.md (producer) and research.md (consumer) — SC-1, SC-2"
+    phase_2:
+      type: bool
+      description: "Verify end-to-end plan creation for retroactive backfill without DEPENDENCY_CONTRACT_NOT_FOUND — SC-3"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/writing-plans/tasks/backfill.md
+        - .opencode/skills/writing-plans/tasks/research.md
+      scs:
+        - SC-1
+        - SC-2
+    phase_2:
+      files:
+        - .opencode/skills/writing-plans/tasks/backfill.md
+        - .opencode/skills/writing-plans/tasks/research.md
+      scs:
+        - SC-3
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Plan creation for retroactive backfill (phase_2) depends on the producer/consumer schema agreement (phase_1)."
+  notes:
+    - "Phase 1 edits task-file prose to align the interface-compatibility.yaml schema. Phase 2 is an end-to-end verification gate proving plan creation works without DEPENDENCY_CONTRACT_NOT_FOUND."
+    - "Two viable paths per spec: (1) backfill.md step 4 instructs sub-agent to include dependency_contract; or (2) research.md step 9 derives the contract from interface_boundaries/compatibility/compatibility_conclusion. Either must be applied consistently."

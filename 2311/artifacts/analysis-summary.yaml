@@ -12,16 +12,17 @@ success_criteria:
   - SC-2: producer and consumer task files agree on interface-compatibility.yaml schema
   - SC-3: plan creation works for retroactive backfill without DEPENDENCY_CONTRACT_NOT_FOUND
 artifact_presence:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
 scope_boundary:
   .opencode/skills/writing-plans/tasks/backfill.md: EXISTS
   .opencode/skills/writing-plans/tasks/research.md: EXISTS
 notes:
-  - All 7 analytical artifacts missing; retroactive backfill will be required before plan creation.
-  - grep dependency_contract in research.md confirms lines 41 and 43 reference the section.
+  - All 7 analytical artifacts backfilled from the spec body (retroactive backfill).
+  - interface-compatibility.yaml includes a dependency_contract section (schema per issue 2134 reference) so research.md step 9 can extract it and write dependency-contract.yaml — resolving the DEPENDENCY_CONTRACT_NOT_FOUND contract the issue describes.
+  - Two-phase decomposition: phase_1 contract fix (SC-1, SC-2), phase_2 pipeline verification (SC-3).

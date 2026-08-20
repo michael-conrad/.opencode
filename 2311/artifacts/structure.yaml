@@ -1,0 +1,57 @@
+spec_path: .opencode/.issues/2311/spec.md
+phase_decomposition:
+  phase_1:
+    name: "Contract schema alignment (producer/consumer)"
+    scs:
+      - SC-1
+      - SC-2
+    items:
+      - item: item-1
+        sc_id: SC-1
+        red: "RED: enforcement test that backfill.md step 4 or research.md step 9 produces a dependency_contract section (or derives it) for interface-compatibility.yaml"
+        green: "GREEN: update backfill.md step 4 and/or research.md step 9 to produce/consume a consistent dependency_contract section"
+        commit: "COMMIT: test + task-file change committed atomically"
+      - item: item-2
+        sc_id: SC-2
+        red: "RED: consistency check that producer (backfill.md) and consumer (research.md) agree on interface-compatibility.yaml schema"
+        green: "GREEN: align schema contract text in both task files so producer contract matches consumer expectation"
+        commit: "COMMIT: test + task-file change committed atomically"
+    skill_task:
+      red: "execute red task from test-driven-development"
+      green: "execute green task from test-driven-development"
+      verify: "execute verify task from verification-before-completion"
+  phase_2:
+    name: "End-to-end plan creation verification for retroactive backfill"
+    scs:
+      - SC-3
+    items:
+      - item: item-3
+        sc_id: SC-3
+        red: "RED: enforcement test that plan creation for a retroactive-backfill issue never hits DEPENDENCY_CONTRACT_NOT_FOUND"
+        green: "GREEN: verify backfill+research pipeline produces a dependency_contract that solve model/check and plan plan can consume"
+        commit: "COMMIT: test + pipeline verification committed atomically"
+    skill_task:
+      red: "execute red task from test-driven-development"
+      green: "execute green task from test-driven-development"
+      verify: "execute verify task from verification-before-completion"
+dependency_dag:
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Plan creation for retroactive backfill (phase_2) depends on the producer/consumer schema agreement (phase_1)."
+skill_task_selection:
+  per_phase:
+    phase_1:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+    phase_2:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+triplet_co_location: verified
+cross_phase_dependency: verified
+notes:
+  - "No TRIPLET_SPLIT: each SC's RED/GREEN/COMMIT is co-located in its phase."
+  - "No CROSS_PHASE_DEP: no RED in a later phase depends on SC output not committed in an earlier phase (phase_2's RED depends only on phase_1 completion, which is satisfied by the DAG edge)."
+  - "Tool-interface observation (documented, not blocking): research.md step 10 literal `--query sat` is not a valid Z3 expression; `solve model` requires a real query (verified SAT via `phase_2`). research.md step 12 literal `plan plan --contract-path --output` does not match the actual `plan plan --problem` interface — the planner was run with a problem file built from the dependency contract. These are the same producer/consumer contract mismatch class the issue targets."

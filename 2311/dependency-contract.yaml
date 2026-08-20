@@ -1,0 +1,33 @@
+spec: .opencode/.issues/2311/spec.md
+variables:
+  phase_1:
+    type: bool
+    description: "Align interface-compatibility.yaml schema contract between backfill.md (producer) and research.md (consumer) — SC-1, SC-2"
+  phase_2:
+    type: bool
+    description: "Verify end-to-end plan creation for retroactive backfill without DEPENDENCY_CONTRACT_NOT_FOUND — SC-3"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/writing-plans/tasks/backfill.md
+      - .opencode/skills/writing-plans/tasks/research.md
+    scs:
+      - SC-1
+      - SC-2
+  phase_2:
+    files:
+      - .opencode/skills/writing-plans/tasks/backfill.md
+      - .opencode/skills/writing-plans/tasks/research.md
+    scs:
+      - SC-3
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Plan creation for retroactive backfill (phase_2) depends on the producer/consumer schema agreement (phase_1)."
+notes:
+  - "Phase 1 edits task-file prose to align the interface-compatibility.yaml schema. Phase 2 is an end-to-end verification gate proving plan creation works without DEPENDENCY_CONTRACT_NOT_FOUND."
+  - "Two viable paths per spec: (1) backfill.md step 4 instructs sub-agent to include dependency_contract; or (2) research.md step 9 derives the contract from interface_boundaries/compatibility/compatibility_conclusion. Either must be applied consistently."

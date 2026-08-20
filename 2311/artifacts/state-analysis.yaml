@@ -1,0 +1,41 @@
+spec_path: .opencode/.issues/2311/spec.md
+state_machine:
+  name: writing_plans_retroactive_backfill_pipeline
+  states:
+    - name: backfill_artifacts_complete
+      description: "All 7 analytical artifacts exist in {issues_prefix}/{N}/artifacts/, including interface-compatibility.yaml."
+      entry_action: "backfill.md step 5 writes each missing artifact"
+      applied_by:
+        - .opencode/skills/writing-plans/tasks/backfill.md
+    - name: dependency_contract_extracted
+      description: "interface-compatibility.yaml has a dependency_contract section and research.md step 9 wrote dependency-contract.yaml."
+      entry_action: "research.md step 9 extracts dependency_contract from interface-compatibility.yaml and writes dependency-contract.yaml"
+      applied_by:
+        - .opencode/skills/writing-plans/tasks/research.md
+    - name: contract_missing
+      description: "interface-compatibility.yaml has no dependency_contract section — research.md step 9 returns BLOCKED with DEPENDENCY_CONTRACT_NOT_FOUND."
+      entry_action: "research.md step 9 fails to find dependency_contract in interface-compatibility.yaml"
+      applied_by:
+        - .opencode/skills/writing-plans/tasks/research.md
+    - name: plan_created
+      description: "solve model/check returned SAT and plan plan returned SOLVED — plan output written."
+      entry_action: "research.md steps 10-13 run solve and plan against dependency-contract.yaml"
+      applied_by:
+        - .opencode/skills/writing-plans/tasks/research.md
+  transitions:
+    - from: backfill_artifacts_complete
+      to: dependency_contract_extracted
+      trigger: research.md step 9 extracts dependency_contract (SC-3)
+      action: "Write dependency-contract.yaml"
+    - from: backfill_artifacts_complete
+      to: contract_missing
+      trigger: research.md step 9 cannot find dependency_contract in interface-compatibility.yaml
+      action: "Return BLOCKED with DEPENDENCY_CONTRACT_NOT_FOUND"
+    - from: dependency_contract_extracted
+      to: plan_created
+      trigger: solve model SAT, solve check SAT, plan plan SOLVED
+      action: "Write solve-output.yaml, plan-output.yaml"
+  forbidden_states:
+    - description: "DEPENDENCY_CONTRACT_NOT_FOUND must never block plan creation for a retroactive-backfill issue (SC-3). The producer must emit a dependency_contract the consumer can extract, or the consumer must derive it from existing keys."
+  target_contract:
+    - "The interface-compatibility.yaml schema must be agreed between producer (backfill.md) and consumer (research.md) so the state machine never enters contract_missing (SC-2)."

@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2311/spec.md
+scs:
+  - id: SC-1
+    evidence_type: behavioral
+    verification_method: "opencode run with a retroactive-backfill prompt -> stderr shows backfill.md step 4 instructing inclusion of a dependency_contract section (path 1), or research.md step 9 deriving the contract from existing keys (path 2)"
+    testable: true
+    test_type: behavioral_opencode_run
+  - id: SC-2
+    evidence_type: structural
+    verification_method: "grep dependency_contract .opencode/skills/writing-plans/tasks/backfill.md .opencode/skills/writing-plans/tasks/research.md — confirm both files reference the same interface-compatibility.yaml schema consistently"
+    testable: true
+    test_type: grep
+  - id: SC-3
+    evidence_type: behavioral
+    verification_method: "opencode run full plan-creation pipeline (backfill -> research -> solve model/check -> plan plan) for a retroactive-backfill issue -> stderr shows no DEPENDENCY_CONTRACT_NOT_FOUND and plan output written"
+    testable: true
+    test_type: behavioral_opencode_run
+platform_testing_notes:
+  - "SC-1 and SC-3 are behavioral and require opencode run via the with-test-home wrapper per AGENTS.md."
+  - "SC-2 is structural (cross-file grep for schema agreement) but its truth depends on the behavioral resolution in SC-1 — the schema must be both stated and honored."
+  - "SC-3 is the strongest gate: it proves the producer/consumer mismatch is actually resolved end to end, not just documented."
+  - "Verification must be against the actual backfill.md/research.md content, not an assumption the dependency_contract section exists (as closed issue #2232 incorrectly assumed)."
