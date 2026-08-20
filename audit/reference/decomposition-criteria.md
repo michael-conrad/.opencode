@@ -55,7 +55,7 @@ Does the SC produce exactly one deliverable?
 └── NO → FAIL — SC produces zero or multiple deliverables
 ```
 
-**PASS example:** "Create `audit/reference/decomposition-criteria.md` with all 7 criteria headings."
+**PASS example:** "Create `audit/reference/decomposition-criteria.md` with all 9 criteria headings."
 **FAIL example:** "Create the reference file AND update the validation task file AND add a behavioral test."
 
 ---
@@ -114,14 +114,52 @@ Can the SC be delivered as a single, independently reviewable PR?
 
 Each spec is a **RED** — it defines what must be true. Each PR merge is a **GREEN** — it makes that truth permanent. An SC that requires multiple PR merges to satisfy is not PR-gate viable; it must be decomposed into sub-SCs, each with its own RED/GREEN cycle.
 
-**PASS example:** "Create `audit/reference/decomposition-criteria.md` with all 7 criteria headings." (One file, one PR, one RED/GREEN cycle.)
+**PASS example:** "Create `audit/reference/decomposition-criteria.md` with all 9 criteria headings." (One file, one PR, one RED/GREEN cycle.)
 **FAIL example:** "Implement the full decomposition audit chain across all 6 phases." (Spans multiple PRs and RED/GREEN cycles.)
+
+---
+
+### 5. Ceremony
+
+**Purpose:** Each SC must add verification signal over the union of prior SCs. An SC that repeats a prior SC's deliverable and verification method without adding a new requirement is ceremony — it adds dead weight to the spec and inflates review cost with no verification benefit.
+
+#### Decision Tree
+
+```
+Does the SC add any verification signal over the union of prior SCs?
+├── YES → PASS — SC adds a new verification signal
+└── NO → FAIL — SC is ceremony (same deliverable + same verification method, no new requirement)
+```
+
+**Scope of comparison:** The Ceremony criterion is computed as set-entailment over prior SCs only — the union of the deliverables and verification methods of all SCs that precede it in the spec. The Problem Statement / intent prose universe is explicitly OUT OF SCOPE because the Binary Verifiability criterion (criterion 3) forbids interpretation-dependent verdicts.
+
+**PASS example:** "The system validates email format on registration." followed by "The system sends a confirmation email on registration." (Second SC adds a new deliverable and verification method.)
+**FAIL example:** "The system validates email format on registration." followed by "The system validates email format on registration." (Identical deliverable and verification method — ceremony.)
+
+---
+
+### 6. Coverage / Covered-by-Prior
+
+**Purpose:** Each SC must add a requirement not already entailed by a prior SC. An SC whose requirement set is already entailed by a prior SC is redundant — it duplicates requirements and fragments the verification signal.
+
+#### Decision Tree
+
+```
+Is the SC's requirement set already entailed by a prior SC?
+├── NO → PASS — SC adds a requirement not entailed by any prior SC
+└── YES → FAIL — SC is covered by a prior SC (requirement set already entailed)
+```
+
+**Scope of comparison:** The Coverage criterion is computed as set-entailment over prior SCs only — the requirement set of each prior SC in the spec. The Problem Statement / intent prose universe is explicitly OUT OF SCOPE because the Binary Verifiability criterion (criterion 3) forbids interpretation-dependent verdicts.
+
+**PASS example:** "The system validates email format on registration." followed by "The system sends a confirmation email on registration." (Second SC's requirement set is not entailed by the first.)
+**FAIL example:** "The system validates email format on registration." followed by "The system validates email format on registration." (Second SC's requirement set is already entailed by the first.)
 
 ---
 
 ## Plan-Level Criteria
 
-### 5. Acyclic DAG
+### 7. Acyclic DAG
 
 **Purpose:** Phase dependencies must form a directed acyclic graph (DAG). Circular dependencies make it impossible to order phases deterministically.
 
@@ -140,7 +178,7 @@ Do the phase dependencies form a DAG?
 
 ---
 
-### 6. File Collision Freedom
+### 8. File Collision Freedom
 
 **Purpose:** No two phases may modify the same file. File collisions create merge conflicts and make phases non-independent.
 
@@ -159,7 +197,7 @@ Does each phase modify a unique set of files?
 
 ---
 
-### 7. Explicit Dependency Declaration
+### 9. Explicit Dependency Declaration
 
 **Purpose:** Every phase dependency must be explicitly declared. Implicit dependencies (e.g., "Phase 2 should come after Phase 1 because it makes sense") are not acceptable.
 
@@ -186,6 +224,8 @@ Are all phase dependencies explicitly declared?
 | 2 | Single Deliverable | Spec | ✅ | — |
 | 3 | Binary Verifiability | Spec | ✅ | either/or, alternatively, one of; should, could, ideally, as appropriate |
 | 4 | PR-Gate Viability | Spec | ✅ | RED/GREEN meta principle |
-| 5 | Acyclic DAG | Plan | ✅ | — |
-| 6 | File Collision Freedom | Plan | ✅ | — |
-| 7 | Explicit Dependency Declaration | Plan | ✅ | — |
+| 5 | Ceremony | Spec | ✅ | — |
+| 6 | Coverage / Covered-by-Prior | Spec | ✅ | — |
+| 7 | Acyclic DAG | Plan | ✅ | — |
+| 8 | File Collision Freedom | Plan | ✅ | — |
+| 9 | Explicit Dependency Declaration | Plan | ✅ | — |
