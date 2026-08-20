@@ -1,0 +1,19 @@
+issue_number: 2310
+repo: .opencode
+artifact: testability-assessment
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    test_strategy: behavioral
+    rationale: "The change affects runtime behavior (which branch the diff stat is computed against). Per the evidence-type classification gate, a runtime-behavioral change requires behavioral evidence, not structural/string evidence."
+    test_plan:
+      - type: behavioral
+        description: "Behavioral enforcement test via with-test-home: send a real-domain prompt in a pair-mode branch context; assert stderr shows the script resolves the trunk dynamically (no hardcoded 'origin/dev') and computes diff stat against the resolved trunk"
+        red: "Assert script does NOT resolve trunk dynamically (hardcoded 'origin/dev' present) -> FAIL"
+        green: "Assert script resolves trunk dynamically (uses resolved branch, no 'origin/dev') -> PASS"
+      - type: unit
+        description: "Optional unit test for get_default_branch() parsing 'HEAD branch:' from 'git remote show origin' output and 'main' fallback"
+        note: "Unit test is supplementary; behavioral test is the primary evidence"
+    verification_domain: behavioral
+    evidence_type: behavioral

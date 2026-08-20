@@ -1,0 +1,31 @@
+issue_number: 2310
+repo: .opencode
+decomposition_date: 2026-08-20
+
+decomposition_model: per-sc
+note: "Single-SC bug fix. Each item maps to exactly one SC-ID with its own RED/GREEN/verify/commit cycle."
+
+items:
+  - item_id: 1
+    sc_id: SC-1
+    title: "Resolve trunk branch dynamically in session_context_triggers.py diff stat"
+    interface:
+      inputs:
+        - "Current git repo state (remote HEAD branch)"
+      outputs:
+        - "diff_stat computed against resolved trunk branch instead of hardcoded 'origin/dev'"
+      invariants:
+        - "build_pair_mode_resume(branch: str) -> str signature unchanged"
+        - "run_git helper unchanged"
+        - "No external dependencies added"
+      failure_modes:
+        - "Remote HEAD branch unresolvable -> fallback to 'main'"
+        - "Local-only repo (no remote) -> diff stat omitted (run_git returns None)"
+        - "git command timeout -> run_git returns None, diff stat omitted"
+    verification_domain: behavioral
+    file_category: python-script
+    red_green_cycle:
+      red: "Behavioral test asserts script does NOT resolve trunk dynamically (hardcoded origin/dev present)"
+      green: "Implement get_default_branch() helper + use it in build_pair_mode_resume; behavioral test asserts dynamic resolution"
+      verify: "Run behavioral test via with-test-home; assert stderr shows dynamic trunk resolution"
+      commit: "Test + change committed as one working slice"

@@ -1,0 +1,52 @@
+issue_number: 2310
+repo: .opencode
+extraction_date: 2026-08-20
+
+explicit_requirements:
+  - id: REQ-1
+    text: "Resolve the trunk branch dynamically via $DEFAULT_BRANCH (git remote show origin HEAD branch), not hardcoded 'origin/dev'"
+    source: "Issue #2310 Expected section"
+    verification: "Confirmed line 70 hardcodes 'origin/dev..HEAD'; canonical pattern uses 'git remote show origin' HEAD branch"
+  - id: REQ-2
+    text: "The diff stat command must work against the actual trunk branch of the repo (e.g., 'master' for SEC-Filings-Scraper, 'main' for others)"
+    source: "Issue #2310 Summary/Expected"
+    verification: "Trunk-based development on 'master'/'main' confirmed; 'dev' branch removed"
+
+implicit_requirements:
+  - id: REQ-3
+    text: "Provide a fallback default branch when the remote HEAD branch cannot be resolved (e.g., 'main')"
+    source: "Canonical codebase pattern: 'if [ -z \"$DEFAULT_BRANCH\" ]; then DEFAULT_BRANCH=\"main\"; fi'"
+    verification: "Pattern present in 5 task files (completion-core, prepare, checklist, verify, pair-commit)"
+  - id: REQ-4
+    text: "Handle local-only repos (no remote) gracefully without crashing or producing a spurious diff stat"
+    source: "is_local_only_repo() exists in the script; run_git returns None on failure"
+    verification: "run_git returns None when returncode != 0; is_local_only_repo() checks 'git remote -v'"
+  - id: REQ-5
+    text: "Preserve existing pair-mode resume behavior: diff stat summary is appended only when a diff exists"
+    source: "build_pair_mode_resume() current logic"
+    verification: "summary only appended when diff_stat is non-empty"
+
+constraint_requirements:
+  - id: REQ-6
+    text: "Fix must follow the established codebase trunk-resolution pattern (git remote show origin HEAD branch)"
+    source: "Codebase convention"
+    verification: "Pattern used consistently across 5 task files"
+  - id: REQ-7
+    text: "Fix must not change the trigger structure (only pair_mode_resume and nested_opencode_fatal remain)"
+    source: "Script docstring: 'Purged per spec #426'"
+    verification: "Docstring confirms only pair_mode_resume and nested_opencode_fatal remain"
+  - id: REQ-8
+    text: "Fix must not introduce external dependencies (script is PEP 723 uv run --script with dependencies = [])"
+    source: "Script PEP 723 header"
+    verification: "dependencies = [] in PEP 723 header"
+
+non_requirements:
+  - id: NREQ-1
+    text: "No change to feedback boundary detection (check_feedback_in_recent_commits)"
+    source: "Out of scope for this bug"
+  - id: NREQ-2
+    text: "No change to nested_opencode_fatal detection"
+    source: "Out of scope for this bug"
+  - id: NREQ-3
+    text: "No change to the trigger emitter structure or exit codes"
+    source: "Out of scope for this bug"

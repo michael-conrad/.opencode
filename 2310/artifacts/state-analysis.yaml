@@ -1,0 +1,12 @@
+issue_number: 2310
+repo: .opencode
+artifact: state-analysis
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    state_machines:
+      - name: none
+        note: "build_pair_mode_resume and get_default_branch are stateless pure functions; no state machine transitions involved"
+    transitions: []
+    rationale: "The fix introduces no persistent state, no state machine, and no cross-call state dependencies"

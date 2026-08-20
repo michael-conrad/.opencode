@@ -1,0 +1,26 @@
+issue_number: 2310
+repo: .opencode
+artifact: code-path-inventory
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    code_paths:
+      - path: "main() -> build_pair_mode_resume(pair_branch)"
+        touched: true
+        change: "build_pair_mode_resume now calls get_default_branch() to resolve trunk before computing diff stat"
+      - path: "build_pair_mode_resume() -> run_git(['diff', '--stat', 'origin/dev..HEAD'])"
+        touched: true
+        change: "Replaced hardcoded 'origin/dev..HEAD' with resolved trunk ref (e.g., 'origin/master..HEAD' or 'origin/main..HEAD')"
+      - path: "NEW: get_default_branch() -> run_git(['remote', 'show', 'origin'])"
+        touched: true
+        change: "New helper parses 'HEAD branch:' from 'git remote show origin' output; returns 'main' fallback on failure"
+      - path: "run_git()"
+        touched: false
+        change: "Unchanged; reused for both remote inspection and diff stat"
+      - path: "check_feedback_in_recent_commits()"
+        touched: false
+        change: "Unchanged"
+      - path: "is_local_only_repo()"
+        touched: false
+        change: "Unchanged"

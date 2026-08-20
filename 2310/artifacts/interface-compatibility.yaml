@@ -1,0 +1,33 @@
+issue_number: 2310
+repo: .opencode
+artifact: interface-compatibility
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    interfaces:
+      - symbol: build_pair_mode_resume
+        status: modified
+        signature: "build_pair_mode_resume(branch: str) -> str (unchanged)"
+        compatibility: backward-compatible
+        scope: internal-only
+        change: "Internal logic resolves trunk dynamically; signature and return contract unchanged"
+      - symbol: get_default_branch
+        status: new
+        signature: "get_default_branch() -> str"
+        compatibility: new-internal
+        scope: internal-only
+        change: "New helper; returns resolved trunk branch name or 'main' fallback"
+      - symbol: run_git
+        status: unchanged
+        signature: "run_git(args: list[str]) -> str | None"
+        compatibility: backward-compatible
+        scope: internal-only
+        change: "None"
+      - symbol: main
+        status: unchanged
+        signature: "main() -> int"
+        compatibility: backward-compatible
+        scope: internal-only
+        change: "None"
+    summary: "No breaking interface changes; one new internal helper, one internal logic modification"

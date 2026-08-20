@@ -1,0 +1,6 @@
+sc_count: 1
+scs:
+  - id: "SC-1"
+    description: "Correct the stale 'Guard checks' docstring in tools/session-init to remove the non-existent 'dev branch' guard check and the stale '.worktrees/main/' line, preserving the still-current '.env gitignore' line."
+    evidence_type: "structural"
+    plan_item: 1

@@ -1,0 +1,14 @@
+issue_number: 2310
+repo: .opencode
+artifact: blast-radius
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    affected_components:
+      - .opencode/scripts/session_context_triggers.py (build_pair_mode_resume function, line 70)
+    ripple_effects:
+      - "Pair-mode resume trigger output: diff stat summary now computed against resolved trunk branch"
+      - "No other files affected; fix is localized to a single function"
+    blast_radius: low
+    rationale: "Single-function change in a standalone script; no shared modules, no callers outside main()"

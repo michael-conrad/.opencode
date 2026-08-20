@@ -1,0 +1,54 @@
+issue_number: 2310
+repo: .opencode
+target_file: .opencode/scripts/session_context_triggers.py
+inspection_date: 2026-08-20
+
+affected_files:
+  - path: .opencode/scripts/session_context_triggers.py
+    role: primary
+    change: Replace hardcoded 'origin/dev..HEAD' diff stat with dynamic trunk resolution
+    function: build_pair_mode_resume
+    line: 70
+
+existing_patterns:
+  - pattern: "DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')"
+    locations:
+      - .opencode/skills/completion-core/completion-core.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+      - .opencode/skills/git-workflow-commit/tasks/pair-commit.md
+    note: "Canonical trunk-resolution pattern: git remote show origin HEAD branch, fallback to 'main'"
+  - pattern: "if [ -z \"$DEFAULT_BRANCH\" ]; then DEFAULT_BRANCH=\"main\"; fi"
+    locations:
+      - .opencode/skills/completion-core/completion-core.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+      - .opencode/skills/git-workflow-commit/tasks/pair-commit.md
+    note: "Canonical fallback: 'main' when remote HEAD branch cannot be resolved"
+
+dependencies_and_callers:
+  - symbol: build_pair_mode_resume
+    callers:
+      - main() -> build_pair_mode_resume(pair_branch)
+    dependencies:
+      - run_git(["diff", "--stat", "origin/dev..HEAD"])
+      - get_current_branch()
+  - symbol: run_git
+    callers:
+      - get_current_branch()
+      - build_pair_mode_resume()
+      - check_feedback_in_recent_commits()
+      - is_local_only_repo()
+    note: "Generic git wrapper; returns stdout.strip() or None on failure/timeout"
+
+bug_confirmation:
+  - "Line 70 confirmed: diff_stat = run_git(['diff', '--stat', 'origin/dev..HEAD'])"
+  - "Hardcoded 'origin/dev' fails when repo uses trunk-based development on 'master' (SEC-Filings-Scraper) or 'main'"
+  - "run_git returns None on failure (returncode != 0), so the diff stat silently disappears rather than crashing"
+
+conventions:
+  - "Python 3.12, pathlib, f-strings, explicit type hints"
+  - "run_git helper centralizes all git subprocess calls with GIT_TIMEOUT=10"
+  - "Script is a PEP 723 uv run --script with no external dependencies"

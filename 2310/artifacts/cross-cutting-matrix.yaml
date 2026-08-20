@@ -1,0 +1,21 @@
+issue_number: 2310
+repo: .opencode
+artifact: cross-cutting-matrix
+date: 2026-08-20
+
+phases:
+  - phase: 1
+    cross_cutting_concerns:
+      - concern: git-subprocess-invocation
+        affected: true
+        handling: "Reuses existing run_git helper with GIT_TIMEOUT=10; no new subprocess handling"
+      - concern: error-handling
+        affected: true
+        handling: "get_default_branch() returns 'main' fallback on any failure (None output, timeout, OSError); diff stat omitted when trunk unresolvable"
+      - concern: no-external-dependencies
+        affected: true
+        handling: "Uses only stdlib (re, subprocess, sys, pathlib); PEP 723 dependencies=[] preserved"
+      - concern: trigger-structure
+        affected: false
+        handling: "Only pair_mode_resume and nested_opencode_fatal remain; unchanged"
+    matrix: "No cross-cutting concern spans multiple phases; single-phase fix"

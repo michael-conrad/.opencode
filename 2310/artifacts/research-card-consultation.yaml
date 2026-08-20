@@ -1,0 +1,20 @@
+issue_number: 2310
+repo: .opencode
+consultation_date: 2026-08-20
+
+cards_consulted:
+  - path: .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md
+    confidence: 0.7
+    relevance: tangential
+    findings:
+      - "Confirms trunk-based development directly on 'main'/'master' without an intermediate 'dev' branch"
+      - "Confirms 'dev' branch removal is an established pattern across repos in this ecosystem"
+      - "Does NOT address dynamic default-branch resolution; focuses on submodule pointer management"
+    incorporated: true
+
+cards_not_matching:
+  - note: "No research card directly addresses dynamic trunk resolution via 'git remote show origin' HEAD branch for diff stat computation"
+
+conclusion:
+  - "The canonical trunk-resolution pattern (git remote show origin HEAD branch, fallback 'main') is established in the codebase task files and should be mirrored in the Python script"
+  - "No research card provides additional requirements beyond the established codebase pattern"
