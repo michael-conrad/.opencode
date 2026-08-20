@@ -1,0 +1,12 @@
+cross_cutting_matrix:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  matrix:
+    - concern: trunk-reference terminology
+      phase_1: applied (5 replacements)
+      phase_2: N/A
+      phase_3: N/A
+  note: >
+    Single-phase, single-concern change. No cross-cutting concerns span multiple phases.
+    The terminology concern is fully contained within phase 1.

@@ -1,0 +1,11 @@
+state_analysis:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  phases:
+    - phase: 1
+      state_transitions: []
+      note: >
+        No state machine transitions. This is a static documentation/task-card
+        terminology change. The cleanup workflow's runtime state machine (verify-merge,
+        issue-closure, branch-cleanup, dev-tip verification) is unaffected.

@@ -1,0 +1,15 @@
+concern_map:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  concerns:
+    - concern: trunk-reference terminology
+      boundary: >
+        All trunk references in cleanup.md must resolve dynamically via $DEFAULT_BRANCH
+        or use neutral terminology. No hardcoded 'dev' branch name.
+      separation: >
+        Single concern, single file, single SC. No cross-cutting concerns introduced.
+  phases:
+    - phase: 1
+      concerns_handled:
+        - trunk-reference terminology

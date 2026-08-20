@@ -1,0 +1,24 @@
+interface_compatibility:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  analysis:
+    - interface: cleanup.md task-card content
+      status: MODIFIED (terminology only)
+      backward_compatible: true
+      breaking: false
+      internal_only: true
+      note: >
+        The task card is consumed by agents executing the cleanup workflow. Terminology
+        changes do not alter any interface contract, command, or routing. Fully backward
+        compatible.
+    - interface: DEFAULT_BRANCH resolution block
+      status: UNCHANGED
+      backward_compatible: true
+      breaking: false
+      internal_only: true
+    - interface: executable commands (git checkout/pull/rev-parse)
+      status: UNCHANGED
+      backward_compatible: true
+      breaking: false
+      internal_only: true

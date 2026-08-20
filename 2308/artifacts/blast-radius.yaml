@@ -1,0 +1,18 @@
+blast_radius:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  phases:
+    - phase: 1
+      affected_components:
+        - skills/git-workflow-cleanup/tasks/cleanup.md (5 residual 'dev' references)
+      ripple_effects:
+        - None functional. Terminology-only change confined to a single task card.
+      blast_radius: LOW
+      note: >
+        The change is confined to prose/labels in one file. No downstream consumers
+        depend on the 'dev' terminology. Executable commands are untouched.
+  related_files_not_modified:
+    - skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md (residual 'dev' refs at 66, 146 — out of scope)
+    - skills/git-workflow-cleanup/SKILL.md (no 'dev' refs)
+    - skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md (already uses $DEFAULT_BRANCH)

@@ -1,0 +1,31 @@
+pipeline_readiness:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  validations:
+    - check: atomicity
+      result: PASS
+      detail: >
+        Single SC (SC-1) maps to exactly one RED->GREEN->COMMIT cycle. No batching.
+    - check: dependency_ordering
+      result: PASS
+      detail: >
+        SC dependency DAG is acyclic — single node, no dependencies.
+    - check: single_concern
+      result: PASS
+      detail: >
+        SC-1 targets one file category (task-card .md) and one verification domain
+        (structural/string).
+    - check: phase_dependency
+      result: PASS
+      detail: >
+        Single-phase spec. Phase dependency graph is trivially acyclic.
+    - check: three_tier_structure
+      result: PASS
+      detail: >
+        Single-phase spec — pre/per-file/post structure not required. The change is a
+        single-file terminology fix.
+  overall: PASS
+  note: >
+    The spec is a minimal single-SC, single-phase documentation fix. All pipeline
+    readiness gates pass.

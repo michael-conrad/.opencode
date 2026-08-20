@@ -1,0 +1,12 @@
+research_card_consultation:
+  issue_number: 2308
+  consulted_cards:
+    - glob: .opencode/.issues/research-cards/*.md
+      result: no matching card found
+  matching_cards: []
+  note: >
+    No research card in .opencode/.issues/research-cards/ addresses the 'dev' trunk
+    reference remediation topic. The trunk-based-development model and $DEFAULT_BRANCH
+    dynamic resolution are already established conventions in the codebase (see
+    branch-cleanup.md, verify-merge.md, AGENTS.md). No external research required.
+  confidence: N/A

@@ -1,0 +1,17 @@
+code_path_inventory:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  phases:
+    - phase: 1
+      code_paths_touched:
+        - path: skills/git-workflow-cleanup/tasks/cleanup.md
+          lines: [109, 141, 146, 180, 327]
+          change: terminology-only replacement of 'dev' with $DEFAULT_BRANCH or neutral text
+      code_paths_untouched:
+        - path: skills/git-workflow-cleanup/tasks/cleanup.md
+          lines: [9, 10, 11, 12]
+          reason: DEFAULT_BRANCH resolution block — already correct, must not change
+        - path: skills/git-workflow-cleanup/tasks/cleanup.md
+          lines: [143, 148, 153, 158, 162]
+          reason: executable commands already use $DEFAULT_BRANCH

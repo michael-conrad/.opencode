@@ -1,0 +1,65 @@
+requirements:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  explicit_requirements:
+    - id: REQ-1
+      text: >
+        Replace hardcoded 'dev' trunk/tip references in cleanup.md with dynamic
+        $DEFAULT_BRANCH resolution.
+      verified: true
+      verification: >
+        Confirmed residual 'dev' references at lines 109, 141, 146, 180, 327 of
+        cleanup.md. $DEFAULT_BRANCH resolution pattern already present at line 10.
+  implicit_requirements:
+    - id: REQ-2
+      text: >
+        Trunk must be resolved dynamically via `git remote show origin` HEAD branch,
+        matching the trunk-based-development model (SEC-Filings-Scraper removed its
+        merged 'dev' branch in favor of master).
+      verified: true
+      verification: >
+        DEFAULT_BRANCH resolution block at cleanup.md lines 9-12 already implements
+        this. branch-cleanup.md and verify-merge.md use the same pattern.
+    - id: REQ-3
+      text: >
+        Prose labels and comments must not reference a non-existent 'dev' branch;
+        they should reference $DEFAULT_BRANCH or neutral terminology.
+      verified: true
+      verification: >
+        Residual references are prose/labels: "Switches to dev" (109), "Get local dev
+        HEAD" (141), "Get remote dev HEAD" (146), "ready for next dev cycle" (180),
+        "Local dev synced" (327).
+  constraint_requirements:
+    - id: REQ-4
+      text: >
+        Scope is documentation/task-card fix in the .opencode repo only. No functional
+        code change to SEC-Filings-Scraper.
+      verified: true
+      verification: >
+        Issue scope section states "Documentation/task-card fix in this repo. No
+        functional code change to SEC-Filings-Scraper."
+    - id: REQ-5
+      text: >
+        The fix must not alter the operational behavior of the cleanup task — only
+        terminology/labels.
+      verified: true
+      verification: >
+        All residual references are prose, comments, or table labels; none are
+        executable commands. Executable commands already use $DEFAULT_BRANCH.
+  non_requirements:
+    - id: REQ-6
+      text: >
+        No change to verify-merge.md residual 'dev' references (lines 66, 146) — outside
+        issue scope.
+      verified: true
+      verification: >
+        Issue title and scope target cleanup.md specifically. verify-merge.md noted as
+        related observation only.
+    - id: REQ-7
+      text: >
+        No functional/behavioral change to branch deletion, sync, or verification logic.
+      verified: true
+      verification: >
+        Issue is a documentation/task-card fix; executable logic already uses
+        $DEFAULT_BRANCH.

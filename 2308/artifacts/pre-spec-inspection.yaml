@@ -1,0 +1,52 @@
+pre_spec_inspection:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  inspection_date: 2026-08-20
+  summary: >
+    Issue #2308 reports hardcoded 'dev' trunk references in cleanup.md. Live inspection
+    reveals the file was ALREADY substantially remediated by commit 7c6f98d4 (#2304,
+    "Standardize remote branch-tip terminology"). The issue's cited evidence lines
+    (141, 166, 180, 329) now use $DEFAULT_BRANCH. Only residual prose/label 'dev'
+    references remain.
+  affected_files:
+    - path: skills/git-workflow-cleanup/tasks/cleanup.md
+      status: MODIFIED (residual references remain)
+      residual_dev_references:
+        - line: 109
+          text: "Switches to dev, syncs with remote, removes feature worktree..."
+          kind: prose
+        - line: 141
+          text: "a. Get local dev HEAD:"
+          kind: comment-label
+        - line: 146
+          text: "b. Get remote dev HEAD:"
+          kind: comment-label
+        - line: 180
+          text: "...ready for next dev cycle"
+          kind: prose-phrase
+        - line: 327
+          text: "| Local dev synced | ..."
+          kind: table-label
+  already_fixed_by_commit:
+    commit: 7c6f98d4
+    issue: "#2304 Standardize remote branch-tip terminology"
+    fixed_lines:
+      - "Submodule dev restored -> Submodule $DEFAULT_BRANCH restored"
+      - "repo is at dev tip -> repo is at remote $DEFAULT_BRANCH tip"
+      - "All repos at dev tip -> All repos at remote $DEFAULT_BRANCH tip"
+      - "Switch to dev and sync -> Switch to $DEFAULT_BRANCH and sync"
+      - "Verify dev sync -> Verify $DEFAULT_BRANCH sync"
+      - "All repos at dev tip (table) -> All repos at remote $DEFAULT_BRANCH tip"
+      - "Every repo's local dev HEAD matches origin/dev -> local $DEFAULT_BRANCH HEAD matches origin/$DEFAULT_BRANCH"
+  related_file_observation:
+    path: skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md
+    note: >
+      verify-merge.md also contains residual 'dev' references (line 66 "before switching
+      to dev ... onto the updated `dev` branch", line 146 "Sync dev, recheck"). These are
+      OUTSIDE the issue's stated scope (cleanup.md only) but noted for completeness.
+  conventions:
+    - Trunk resolved dynamically via DEFAULT_BRANCH=$(git remote show origin | sed -n 's/.*HEAD branch: //p')
+    - Fallback DEFAULT_BRANCH="main" when resolution fails
+    - branch-cleanup.md and verify-merge.md already use $DEFAULT_BRANCH and "trunk" terminology
+    - SKILL.md has no 'dev' references

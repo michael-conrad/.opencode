@@ -1,0 +1,41 @@
+decomposition:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  items:
+    - item: 1
+      sc_id: SC-1
+      title: Replace residual 'dev' trunk references with $DEFAULT_BRANCH
+      description: >
+        Replace the 5 residual hardcoded 'dev' references in cleanup.md with dynamic
+        $DEFAULT_BRANCH or neutral terminology:
+        - Line 109: "Switches to dev" -> "Switches to $DEFAULT_BRANCH"
+        - Line 141: "Get local dev HEAD:" -> "Get local $DEFAULT_BRANCH HEAD:"
+        - Line 146: "Get remote dev HEAD:" -> "Get remote $DEFAULT_BRANCH HEAD:"
+        - Line 180: "ready for next dev cycle" -> "ready for next cycle"
+        - Line 327: "Local dev synced" -> "Local $DEFAULT_BRANCH synced"
+      inputs:
+        - cleanup.md current content
+      outputs:
+        - cleanup.md with zero 'dev' trunk references
+      invariants:
+        - Executable commands unchanged (already use $DEFAULT_BRANCH)
+        - No behavioral change to cleanup operations
+        - $DEFAULT_BRANCH resolution block (lines 9-12) unchanged
+      failure_modes:
+        - Missed a residual 'dev' reference
+        - Altered executable command semantics
+      verification_domain: structural (string/terminology)
+      red_green_cycle: >
+        RED: grep cleanup.md for residual 'dev' trunk references -> present.
+        GREEN: replace references -> grep returns zero trunk 'dev' references.
+        COMMIT: single atomic commit.
+  dependency_dag:
+    - item: 1
+      depends_on: []
+  atomicity:
+    - Every SC maps to exactly one RED->GREEN->COMMIT cycle: true
+  single_concern:
+    - item: 1
+      file_category: task-card documentation (.md)
+      verification_domain: structural

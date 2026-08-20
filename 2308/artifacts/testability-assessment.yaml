@@ -1,0 +1,19 @@
+testability_assessment:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  phases:
+    - phase: 1
+      test_strategy: structural
+      test_method: >
+        grep-based structural verification: assert zero residual 'dev' trunk references
+        in cleanup.md after the change. RED: grep returns matches. GREEN: grep returns
+        zero matches.
+      behavioral_test_required: false
+      rationale: >
+        The change is a static terminology edit to a task card. It does not alter runtime
+        behavior (no executable command changes). Per the evidence-type taxonomy, a
+        structural/string verification is appropriate. No behavioral test needed.
+      verification_commands:
+        - grep -n "dev" skills/git-workflow-cleanup/tasks/cleanup.md
+        - grep -nE "origin/dev|local dev|at dev|to dev|dev tip|dev HEAD|dev synced" skills/git-workflow-cleanup/tasks/cleanup.md
