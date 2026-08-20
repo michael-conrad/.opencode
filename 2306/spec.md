@@ -47,11 +47,12 @@ author: michael-newsrx
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
 | SC-1 | The `submodule-sync.md` task card explicitly bounds scope to the parent repo's direct submodule pointers passed in `submodule_paths`. | structural | Read the task card; assert a scope-bound statement referencing `submodule_paths` and direct pointers | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` |
-| SC-2 | The task card explicitly forbids recursion into nested submodules and forbids `git submodule foreach` for the sync operation. | structural | Read the task card; assert recursion prohibition and `foreach` prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
-| SC-3 | The task card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md` §4. | structural | Read the task card; assert no-`--recursive` constraint consistent with guideline wording | `.opencode/guidelines/060-tool-usage.md` §4 |
-| SC-4 | The task card directs explicit per-submodule operations (not recursive/foreach iteration). | structural | Read the task card; assert explicit per-submodule `git -C <path>` operation directive | task card |
-| SC-5 | The task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag). | structural | Read the task card; assert false-pointer-flag avoidance note present | task card |
-| SC-6 | The existing `--ff-only` divergence handling and autonomous resolution logic is preserved unchanged. | structural | Read the task card; assert divergence block byte-identical to pre-change state | task card |
+| SC-2 | The task card explicitly forbids recursion into nested submodules. | structural | Read the task card; assert recursion prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-3 | The task card explicitly forbids `git submodule foreach` for the sync operation. | structural | Read the task card; assert `foreach` prohibition present | task card; `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-4 | The task card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md` §4. | structural | Read the task card; assert no-`--recursive` constraint consistent with guideline wording | `.opencode/guidelines/060-tool-usage.md` §4 |
+| SC-5 | The task card directs explicit per-submodule operations (not recursive/foreach iteration). | structural | Read the task card; assert explicit per-submodule `git -C <path>` operation directive | task card |
+| SC-6 | The task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag). | structural | Read the task card; assert false-pointer-flag avoidance note present | task card |
+| SC-7 | The existing `--ff-only` divergence handling and autonomous resolution logic is preserved unchanged. | structural | Read the task card; assert divergence block byte-identical to pre-change state | task card |
 
 ## 4. Requirements
 
@@ -74,33 +75,40 @@ author: michael-newsrx
 
 ### Item 2 (SC-2): Add explicit recursion prohibition to task card
 
-- RED: Enforcement test asserts the task card does not forbid recursion/`foreach`.
-- GREEN: Add recursion and `foreach` prohibition to Step 2.
-- verify: Read the task card; assert prohibitions present.
+- RED: Enforcement test asserts the task card does not forbid recursion into nested submodules.
+- GREEN: Add recursion prohibition to Step 2.
+- verify: Read the task card; assert recursion prohibition present.
 - commit: Task card text change.
 
-### Item 3 (SC-3): Mirror no-`--recursive` guideline language
+### Item 3 (SC-3): Add explicit `foreach` prohibition to task card
+
+- RED: Enforcement test asserts the task card does not forbid `git submodule foreach` for the sync operation.
+- GREEN: Add `foreach` prohibition to Step 2.
+- verify: Read the task card; assert `foreach` prohibition present.
+- commit: Task card text change.
+
+### Item 4 (SC-4): Mirror no-`--recursive` guideline language
 
 - RED: Enforcement test asserts the task card lacks the no-`--recursive` constraint.
 - GREEN: Add the no-`--recursive` constraint consistent with `060-tool-usage.md` §4.
 - verify: Read the task card; assert wording consistent with guideline.
 - commit: Task card text change.
 
-### Item 4 (SC-4): Direct explicit per-submodule operations
+### Item 5 (SC-5): Direct explicit per-submodule operations
 
 - RED: Enforcement test asserts the task card does not direct explicit per-submodule operations.
 - GREEN: Add explicit per-submodule `git -C <path>` operation directive.
 - verify: Read the task card; assert directive present.
 - commit: Task card text change.
 
-### Item 5 (SC-5): Document false-pointer-flag avoidance
+### Item 6 (SC-6): Document false-pointer-flag avoidance
 
 - RED: Enforcement test asserts the task card does not document false-flag avoidance.
 - GREEN: Add a note that syncing to trunk tip must not be reported as a parent pointer change.
 - verify: Read the task card; assert note present.
 - commit: Task card text change.
 
-### Item 6 (SC-6): Preserve `--ff-only` divergence handling
+### Item 7 (SC-7): Preserve `--ff-only` divergence handling
 
 - RED: Enforcement test asserts the divergence block differs from the pre-change state.
 - GREEN: Ensure the divergence block is unchanged.
@@ -119,16 +127,16 @@ author: michael-newsrx
 |-------------|-------|----------|
 | R-1 | SC-1 | Phase 1 |
 | R-2 | SC-2 | Phase 1 |
-| R-3 | SC-2 | Phase 1 |
-| R-4 | SC-3 | Phase 1 |
-| R-5 | SC-4 | Phase 1 |
-| R-6 | SC-5 | Phase 2 |
-| R-7 | SC-6 | Phase 2 |
+| R-3 | SC-3 | Phase 1 |
+| R-4 | SC-4 | Phase 1 |
+| R-5 | SC-5 | Phase 1 |
+| R-6 | SC-6 | Phase 2 |
+| R-7 | SC-7 | Phase 2 |
 
 ## 8. Documentation Sources
 
 | Source | Type | Location | Verification |
-|--------|------|----------|-------------|
+|--------|------|-------------|----------|
 | submodule-sync task card | code | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` | read |
 | no-`--recursive` guideline | code | `.opencode/guidelines/060-tool-usage.md` §4 | read |
 | git-workflow-branch SKILL | code | `.opencode/skills/git-workflow-branch/SKILL.md` | read |
@@ -142,11 +150,12 @@ author: michael-newsrx
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - SC-1: Verifying the scope-bound statement costs one read of the task card. Skipping means the task card still invites recursion and the regression ships unchanged.
-- SC-2: Verifying the recursion/`foreach` prohibition costs one read. Skipping means nested-submodule recursion continues, violating the guideline.
-- SC-3: Verifying the no-`--recursive` mirror costs one read against the guideline. Skipping means the task card wording diverges from the authoritative source.
-- SC-4: Verifying the explicit per-submodule directive costs one read. Skipping means the agent falls back to recursive iteration.
-- SC-5: Verifying the false-flag avoidance note costs one read. Skipping means false `+` pointer churn continues to corrupt branch/PR intent.
-- SC-6: Verifying the divergence block is byte-identical costs one read. Skipping means a correct feature regresses silently.
+- SC-2: Verifying the recursion prohibition costs one read. Skipping means nested-submodule recursion continues, violating the guideline.
+- SC-3: Verifying the `foreach` prohibition costs one read. Skipping means the sync operation can still recurse via `git submodule foreach`.
+- SC-4: Verifying the no-`--recursive` mirror costs one read against the guideline. Skipping means the task card wording diverges from the authoritative source.
+- SC-5: Verifying the explicit per-submodule directive costs one read. Skipping means the agent falls back to recursive iteration.
+- SC-6: Verifying the false-flag avoidance note costs one read. Skipping means false `+` pointer churn continues to corrupt branch/PR intent.
+- SC-7: Verifying the divergence block is byte-identical costs one read. Skipping means a correct feature regresses silently.
 
 ## 11. Edge Cases
 
@@ -155,3 +164,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure modes:** `--ff-only` pull fails due to divergence — the task card SHALL preserve the existing autonomous resolution logic (ahead/behind/rebase/escalate).
 - **Concurrency:** Multiple submodules synced sequentially — the task card SHALL operate on each direct path independently without cross-contamination.
 - **Recovery:** A failed sync on one submodule — the task card SHALL report the failure and continue with remaining direct submodules without recursing.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-20 | Decomposed compound SC-2 into two atomic SCs: SC-2 (recursion prohibition, R-2) and SC-3 (`foreach` prohibition, R-3). Renumbered subsequent SCs (SC-4..SC-7), Items (Item 3..Item 7), Traceability, and Cost Frame accordingly. | Validation finding: SC-2 was compound — bundled recursion prohibition and `foreach` prohibition (R-2 and R-3 both mapped to SC-2). | Pipeline validation gate |
