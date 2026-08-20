@@ -18,12 +18,13 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   - Tighten the `requires-python` constraint in `.opencode/tools/plan` from `~=3.12`
-  to `~=3.12,<3.14` (or `>=3.12,<3.14`) so uv selects a Python version with available
-  pytamer wheels.
+  to the exact constraint `>=3.12,<3.14` so uv selects a Python version with available
+  pytamer wheels. This is the sole deterministic requirement.
 
-  - Or document the `UV_PYTHON=3.12` workaround requirement.
+  - Add a usage note documenting `UV_PYTHON=3.12` as an optional workaround for environments
+  that do not adopt the tightened constraint.
 
-  - Verify the tool still runs under Python 3.12.
+  - Verify the tool still resolves and executes under Python 3.12.
 
 
   **Out of scope:**
@@ -39,66 +40,27 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   The PEP 723 header currently declares `requires-python = "~=3.12"` with dependencies
   `unified-planning>=1.3.0`, `pyyaml>=6.0`, `networkx>=3.0`, `up-tamer>=1.1.0`. The
   `~=3.12` constraint permits CPython 3.14, but `pytamer` only publishes wheels for
-  `cp36m..cp312`. The `up-tamer>=1.1.0` requirement therefore becomes unsatisfiable
-  under 3.14, producing the resolution error. Tightening the requires-python constraint
-  (or documenting `UV_PYTHON=3.12`) ensures uv selects a compatible interpreter. The
-  minimal fix is a one-line change to the PEP 723 header plus a doc note for the workaround.
+  `cp36m..cp312`, so `up-tamer>=1.1.0` is unsatisfiable under 3.14. Tightening the
+  `requires-python` constraint to the exact value `>=3.12,<3.14` ensures uv selects
+  a compatible interpreter. The minimal fix is a one-line change to the PEP 723 header
+  plus a usage note for the `UV_PYTHON` workaround.
 
 
   **Impact**
 
 
   - Risk: tightening the constraint could affect environments pinned to 3.13+; mitigation:
-  all current usage targets 3.12, and the `UV_PYTHON` override covers edge cases.
+  all current usage targets 3.12, and the `UV_PYTHON=3.12` override covers edge cases.
 
   - Dependency: `.opencode/tools/plan` is invoked via `uv run --script`; the fix must
   not break the bash guard at the top of the file.
 
-  - Call to action: apply the requires-python constraint change and add a usage note
-  documenting `UV_PYTHON=3.12` as the workaround.
-
-
-  Error for reference: "No solution found when resolving script dependencies: Because
-  pytamer==0.1.17 has no wheels with a matching Python ABI tag (e.g., cp314) and up-tamer==1.1.0
-  depends on pytamer==0.1.17, we can conclude that up-tamer==1.1.0 cannot be used."
-
-
-  **Success Criteria**
-
-
-  | ID | Criterion | Evidence Type | Verification Method |
-
-  |----|-----------|---------------|---------------------|
-
-  | SC-1 | The `requires-python` constraint in the PEP 723 header of `.opencode/tools/plan`
-  is tightened from `~=3.12` to exclude CPython 3.14 (e.g. `>=3.12,<3.14`) so uv selects
-  a Python version with available pytamer wheels. | structural | Inspect the `# requires-python`
-  line in `.opencode/tools/plan` and confirm the constraint excludes `3.14` (e.g.
-  `>=3.12,<3.14`). |
-
-  | SC-2 | The tool still runs successfully under Python 3.12 after the constraint
-  change. | behavioral | Invoke `.opencode/tools/plan` under Python 3.12 (via `uv
-  run --script`) and confirm it resolves dependencies and executes without the pytamer
-  resolution error. |
-
-
-  **Change Control**
-
-
-  - **Date:** 2026-08-19
-
-  - **What:** Added a Success Criteria section with an SC table (SC-1, SC-2) derived
-  from the existing Scope and Approach. No requirements, scope, or approach content
-  changed.
-
-  - **Why:** The writing-plans analyze gate returned BLOCKED with `NO_SUCCESS_CRITERIA`
-  because the spec body lacked a Success Criteria section.
-
-  - **Who authorized:** spec-creation `revise` pipeline dispatch (issue #2303).
+  - Call to action: apply the `requires-python` constraint change and add a usage
+  note documenting `UV_PYTHON=3.12` as the workaround.
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
   '
 created_at: '2026-08-20T02:24:31+00:00'
-updated_at: '2026-08-20T02:47:08+00:00'
+updated_at: '2026-08-20T02:52:32+00:00'
