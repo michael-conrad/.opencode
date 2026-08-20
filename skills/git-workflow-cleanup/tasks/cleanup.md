@@ -28,7 +28,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - Remote merged branch deleted (if applicable)
 - Stale remote references pruned
 - Working tree clean
-- Submodule dev restored inline by the cleanup executor (no nested `task()` dispatch)
+- Submodule $DEFAULT_BRANCH restored inline by the cleanup executor (no nested `task()` dispatch)
 
 ## Procedure
 
@@ -163,7 +163,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
       ```
 
    e. Compare local vs remote:
-      - If hashes match → repo is at dev tip
+      - If hashes match → repo is at remote $DEFAULT_BRANCH tip
       - If hashes differ → repo has diverged
 
 - [ ] 4. **Report results as a comparison table:**
@@ -177,7 +177,7 @@ Run AFTER all sub-tasks (verify-merge, issue-closure, branch-cleanup) AND all su
 
 - [ ] 5. **Outcome:**
 
-   - **All repos at dev tip:** Report "All repos at dev tip — ready for next dev cycle"
+   - **All repos at remote $DEFAULT_BRANCH tip:** Report "All repos at remote $DEFAULT_BRANCH tip — ready for next dev cycle"
    - **Any repo diverged:** Report which repo, the local vs remote hashes, and flag for human review:
 
      ```
@@ -205,8 +205,8 @@ After EVERY merged PR, cleanup is MANDATORY — no exceptions.
 
 ### ✅ ALWAYS DO — IMMEDIATELY After Merge Confirmation
 
-- [ ] 1. Switch to dev and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
-- [ ] 2. Verify dev sync: `git log --oneline -5` must show the merge commit
+- [ ] 1. Switch to $DEFAULT_BRANCH and sync: `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"`
+- [ ] 2. Verify $DEFAULT_BRANCH sync: `git log --oneline -5` must show the merge commit
 - [ ] 3. Delete local feature branch: `git branch -d <branch-name>`
 - [ ] 4. Delete remote branch: `git push origin --delete <branch-name>`
 - [ ] 5. Verify cleanup: `git branch -vv`
@@ -326,7 +326,7 @@ Each verification point requires a tool call for evidence. Assertions without to
 | PR merge status | `github_pull_request_read(method=get, ...)` | `merged_at` is not None | CONFLICTING → HALT |
 | Local dev synced | `git log --oneline -1 "$DEFAULT_BRANCH"` equals remote | Hashes match exactly | VERIFICATION-GAP → re-pull |
 | Sub-issues closed | `issue-operations -> read-sub-issues (github_issue_read(method=get_sub_issues, ...)` | All state=closed | VERIFICATION-GAP → close or investigate | <!-- Routes through issue-operations per SPEC #683 -->
-| All repos at dev tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local dev HEAD matches origin/dev | VERIFICATION-GAP → report which repo diverged, flag for human review |
+| All repos at remote $DEFAULT_BRANCH tip | `git -C $REPO_PATH rev-parse "$DEFAULT_BRANCH"` vs `rev-parse origin/"$DEFAULT_BRANCH"` for parent + each submodule | Every repo's local $DEFAULT_BRANCH HEAD matches origin/$DEFAULT_BRANCH | VERIFICATION-GAP → report which repo diverged, flag for human review |
 
 ## Sub-Task Files
 

@@ -1,7 +1,7 @@
 # Task: submodule-sync
 
 ## Purpose
-Sync dirty submodule pointers to latest trunk tip. Used for mid-feature submodule currency and user "sync submodules" requests.
+Sync dirty submodule pointers to latest remote trunk tip. Used for mid-feature submodule currency and user "sync submodules" requests.
 
 ## Entry Criteria
 - One or more submodules have dirty pointers in parent repo
@@ -42,7 +42,7 @@ Sync dirty submodule pointers to latest trunk tip. Used for mid-feature submodul
 - [ ] 4. Report: which submodules were synced successfully, which (if any) failed, which (if any) diverged and how they were resolved
 
 ## Exit Criteria
-All accessible submodules point to latest trunk tip. Failed submodules reported but do not block.
+All accessible submodules point to latest remote trunk tip. Failed submodules reported but do not block.
 
 ## Cross-References
 - Read [Tag Convention](skills/git-workflow/SKILL.md) — hash permanence tags preserve SHAs before sync

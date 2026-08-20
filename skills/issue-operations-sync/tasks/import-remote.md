@@ -75,7 +75,19 @@ Collect each comment's author, timestamp, and body text.
 
 If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
 
-### Step 4: Create Local Issue
+### Step 4: Completeness Gate
+
+When the local issue directory `.issues/{remote_number}/` already exists, do NOT halt on directory existence alone. Enumerate the required mirror files and materialize any that are missing rather than halting:
+
+- [ ] 1. Required mirror files: `spec.md`, `comments.md`, `remote.md`, `state.md`
+- [ ] 1. Required frontmatter fields: `github_issue`, `remote_url`
+- [ ] 1. For each required mirror file that is ABSENT, materialize it (fetch the remote body/comments/frontmatter as needed and write the file)
+- [ ] 1. For each required frontmatter field that is ABSENT, materialize it by writing the field into the file's frontmatter
+- [ ] 1. Only HALT when the directory is genuinely complete (all required mirror files and frontmatter fields present)
+
+**Never overwrite an existing file** — only create files that are missing. Materializing a missing file is the completeness-gate behavior; halting on directory existence alone is a defect.
+
+### Step 5: Create Local Issue
 
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
@@ -112,7 +124,7 @@ author: <remote_author>
 ---
 ```
 
-### Step 5: Import Comments
+### Step 6: Import Comments
 
 Write all fetched comments to `.issues/{remote_number}/comments.md`:
 
@@ -128,7 +140,7 @@ Write all fetched comments to `.issues/{remote_number}/comments.md`:
 
 Each comment gets its own `---` separator and timestamp header. Order by oldest first.
 
-### Step 6: Advance .counter
+### Step 7: Advance .counter
 
 Read `.issues/.counter`. If `counter <= remote_number`, advance the counter to `remote_number + 1` to prevent number collision:
 
@@ -138,7 +150,7 @@ echo $((remote_number + 1)) > .issues/.counter
 
 If `counter > remote_number`, leave the counter unchanged (local issues already exist beyond this number).
 
-### Step 7: Verify Import
+### Step 8: Verify Import
 
 Verify the full local mirror:
 
@@ -150,7 +162,7 @@ Verify the full local mirror:
 
 | Case | Resolution |
 | -- | -- |
-| Issue already imported (matching `remote_issue` found) | HALT — report already imported, provide path |
+| Issue already imported (matching `remote_issue` found) | Run the completeness gate — enumerate required mirror files (`spec.md`, `comments.md`, `remote.md`, `state.md`, frontmatter `github_issue`/`remote_url`) and materialize any that are missing; only HALT when the directory is genuinely complete |
 | Issue number conflicts with existing local issue | Use next available number, record remote_number in frontmatter |
 | Remote issue is closed | Import as closed: create at `.issues/{N}/` with `status: closed` |
 | Remote has zero comments | Write empty `comments.md` |
