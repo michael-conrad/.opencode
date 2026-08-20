@@ -126,6 +126,16 @@ When `approval-gate-006` fires (spec revision revokes plan approval):
 3. Present updated plan for developer approval
 4. On approval, re-enter the implementation pipeline
 
+#### `for_pr` Scope-Continuation Path
+
+Under `for_pr` scope (`halt_at: pr_created`), spec revision + plan regeneration does NOT halt for re-authorization. The scope authorization already extends to PR creation; a re-approval halt would be a premature halt that forces unnecessary re-authorization. Instead:
+
+1. Clear the revoked approval markers
+2. Regenerate the plan to match the revised spec (call `writing-plans`)
+3. **Continue the pipeline toward `pr_created`** — do not present the regenerated plan for re-approval and do not halt for re-authorization
+
+This path is gated by `approval-gate-014` (for_pr scope continuation) / `critical-rules-037`. It applies ONLY when the authorization scope is `for_pr` or `for_release_pr` (halt_at `pr_created`). Under any narrower scope, the standard Re-implementation Workflow applies — present the updated plan and wait for re-approval.
+
 ### Label Handling
 
 - **Apply label:** On authorization, apply `approved-for-<scope>` label to the issue

@@ -227,7 +227,7 @@ The orchestrator MUST call `skill({name: "git-workflow"})` -> `task("execute pre
 - Starting any file modification without first dispatching `git-workflow --task pre-work`
 - Working from a stale base branch (local `$DEFAULT_BRANCH` behind `origin/$DEFAULT_BRANCH`)
 - Starting work with dirty submodule state or uncommitted changes
-- Skipping trunk-tip verification (6-step gate: parent repo trunk tip, zero pending changes, remote tracking match, submodule trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match)
+- Skipping trunk-tip verification (6-step gate: parent repo remote trunk tip, zero pending changes, remote tracking match, submodule remote trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match)
 
 #### ✅ REQUIRED
 

@@ -104,13 +104,13 @@ git rebase origin/"$DEFAULT_BRANCH"
 
 ### Step 2.5: Trunk-Tip Verification
 
-**Before creating any feature branch, verify that the parent repo and all submodules are at trunk tip with clean working trees.** Dispatch trunk-tip verification to a sub-agent:
+**Before creating any feature branch, verify that the parent repo and all submodules are at remote trunk tip with clean working trees.** Dispatch trunk-tip verification to a sub-agent:
 
 ```bash
 task(subagent_type="general", prompt: "execute trunk-tip-verification from git-workflow-branch")
 ```
 
-The sub-agent independently runs the 7-step verification gate (parent repo trunk tip, zero pending changes, remote tracking match, submodule trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match).
+The sub-agent independently runs the 7-step verification gate (parent repo remote trunk tip, zero pending changes, remote tracking match, submodule remote trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match).
 
 **If trunk-tip verification returns BLOCKED:** Re-task with original scoped context. If second task() also fails, report the double-failure and HALT.
 
@@ -172,7 +172,7 @@ When submodules are detected via `git submodule status`, the dispatches a sub-ag
 
 ### Step 3: Submodule Work — All Submodule Operations Complete Before Main Repo Work Begins
 
-**All submodule work completes before any main repo work.** The main repo's submodule pointer is a committed SHA — syncing submodules to trunk tip updates the submodule working tree but does NOT update the main repo's gitlink entry. The main repo feature branch must be created AFTER the submodule pointer is updated to the tagged SHA.
+**All submodule work completes before any main repo work.** The main repo's submodule pointer is a committed SHA — syncing submodules to remote trunk tip updates the submodule working tree but does NOT update the main repo's gitlink entry. The main repo feature branch must be created AFTER the submodule pointer is updated to the tagged SHA.
 
 **If no submodules detected via `git submodule status`:** Skip this step and proceed to Step 4.
 
@@ -180,11 +180,11 @@ When submodules are detected via `git submodule status`, the dispatches a sub-ag
 
 - [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
-- [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
+- [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to remote trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
    - **HALT on failure:** If `git pull --ff-only` fails (non-ff or network error), the sub-agent MUST produce a structured divergence report. Do NOT fall back to merge or rebase — `--ff-only` is a hard gate that prevents accidental divergence from trunk.
    - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution per Read [the submodule divergence reference](reference/submodule-divergence.md).
 - [ ] 4. Logs submodule status (`git submodule status`)
-- [ ] 5. Tags each submodule at dev tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+- [ ] 5. Tags each submodule at remote $DEFAULT_BRANCH tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
 - [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
 
@@ -201,7 +201,7 @@ submodule_tags_created: <list of (path, tag_name)>
 
 **If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
 
-**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to dev tip. Pass `worktree_type: main` in the task context.
+**If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to remote $DEFAULT_BRANCH tip. Pass `worktree_type: main` in the task context.
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
 
@@ -266,7 +266,7 @@ git status --porcelain
 
 ### Step 5: Create Submodule Feature Branches
 
-**Submodule feature branch creation happens AFTER the parent repo feature branch is created and the submodule pointer is committed.** The submodule branches must reference the tagged commit (created in Step 3), not trunk tip, so the submodule branch is pinned to the same SHA the parent repo pointer references.
+**Submodule feature branch creation happens AFTER the parent repo feature branch is created and the submodule pointer is committed.** The submodule branches must reference the tagged commit (created in Step 3), not remote trunk tip, so the submodule branch is pinned to the same SHA the parent repo pointer references.
 
 **If no submodules were detected in Step 3:** Skip this step and proceed to Step 6.
 

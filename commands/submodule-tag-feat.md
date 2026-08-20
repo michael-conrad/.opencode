@@ -1,6 +1,6 @@
 # submodule-tag-feat
 
-Tag submodule feature-branch tip with `<parent-repo>/<issue-number>-<sub>` format.
+Tag submodule remote feature-branch tip with `<parent-repo>/<issue-number>-<sub>` format.
 
 ## Procedure
 

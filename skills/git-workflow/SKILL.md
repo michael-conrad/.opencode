@@ -23,16 +23,16 @@ This is a **dispatcher skill** that routes to 5 sub-skills. All original trigger
 
 ### Set up a feature branch
 
-When the agent needs to create a feature branch before implementation work, sync submodules, verify trunk tip, or set up a pair mode branch.
+When the agent needs to create a feature branch before implementation work, sync submodules, verify remote trunk tip, or set up a pair mode branch.
 
-- [ ] 1. **Verify trunk tip** — Verifies that parent repo and submodules are at trunk tip with clean working trees
+- [ ] 1. **Verify remote trunk tip** — Verifies that parent repo and submodules are at remote trunk tip with clean working trees
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify trunk-tip state](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
-- [ ] 2. **Submodule sync** — Syncs dirty submodule pointers to latest trunk tip
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync submodules to trunk tip](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: ", branch_name, ", submodule_paths: ", submodule_paths))`
+- [ ] 2. **Submodule sync** — Syncs dirty submodule pointers to latest remote trunk tip
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync submodules to remote trunk tip](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: ", branch_name, ", submodule_paths: ", submodule_paths))`
   - **Context passed:** `{branch_name, submodule_paths}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch

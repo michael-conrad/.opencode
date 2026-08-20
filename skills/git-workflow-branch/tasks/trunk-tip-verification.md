@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Verify that the parent repo and all submodules are at trunk tip with clean working trees before feature branch creation. This is the 7-step gate that prevents starting work from a stale or dirty base state.
+Verify that the parent repo and all submodules are at remote trunk tip with clean working trees before feature branch creation. This is the 7-step gate that prevents starting work from a stale or dirty base state.
 
 ## Entry Criteria
 
@@ -12,7 +12,7 @@ Verify that the parent repo and all submodules are at trunk tip with clean worki
 
 ## Procedure
 
-- [ ] 1. **Parent repo trunk tip:** Verify current branch is `$DEFAULT_BRANCH`:
+- [ ] 1. **Parent repo remote trunk tip:** Verify current branch is `$DEFAULT_BRANCH`:
       ```bash
       git branch --show-current | grep -q "^${DEFAULT_BRANCH}$" || echo "FAIL: Not on $DEFAULT_BRANCH"
       ```
@@ -34,7 +34,7 @@ Verify that the parent repo and all submodules are at trunk tip with clean worki
       fi
       ```
 
-- [ ] 4. **Submodule trunk tip:** For each submodule, verify it is on `$DEFAULT_BRANCH`:
+- [ ] 4. **Submodule remote trunk tip:** For each submodule, verify it is on `$DEFAULT_BRANCH`:
       ```bash
       git submodule foreach "
         DEFAULT_BRANCH=\$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
@@ -75,8 +75,8 @@ Verify that the parent repo and all submodules are at trunk tip with clean worki
 
 ## Exit Criteria
 
-- Parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote tracking tip
-- All submodules are on `$DEFAULT_BRANCH` with zero pending changes at remote tracking tip
+- Parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
+- All submodules are on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
 - Submodule pointers match committed SHAs
 - If ANY check fails: return BLOCKED with the specific failure
 
