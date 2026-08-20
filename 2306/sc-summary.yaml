@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Task card explicitly bounds scope to parent repo's direct submodule pointers passed in submodule_paths"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Task card explicitly forbids recursion into nested submodules and forbids git submodule foreach for sync"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Task card mirrors the standing no-`--recursive` guideline from 060-tool-usage.md §4"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Task card directs explicit per-submodule operations (not recursive/foreach iteration)"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false + flag)"
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Existing --ff-only divergence handling and autonomous resolution logic preserved unchanged"
+    evidence_type: "structural"
+    plan_item: 6
