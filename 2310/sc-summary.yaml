@@ -1,0 +1,6 @@
+sc_count: 1
+scs:
+  - id: "SC-1"
+    description: "build_pair_mode_resume() computes the diff stat against the dynamically resolved trunk branch, never the hardcoded 'origin/dev', with a 'main' fallback when the remote HEAD branch cannot be resolved."
+    evidence_type: "behavioral"
+    plan_item: 1

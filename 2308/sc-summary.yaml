@@ -1,0 +1,6 @@
+sc_count: 1
+scs:
+  - id: "SC-1"
+    description: "cleanup.md contains zero residual hardcoded 'dev' trunk/tip references; all 5 residual references replaced with $DEFAULT_BRANCH or neutral terminology"
+    evidence_type: "structural"
+    plan_item: 1
