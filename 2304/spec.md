@@ -45,8 +45,8 @@ promoted_at: '2026-08-19T22:58:42+00:00'
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | Structural scan across `.opencode/skills/`, `.opencode/guidelines/`, `.opencode/commands/`, and `AGENTS.md` returns zero unqualified branch-tip references remaining (`trunk tip`, `dev tip`, `feature-branch tip`, and hardcoded `dev`/`master` branch-tip names). | structural | `rg -i 'trunk tip|dev tip|feature-branch tip'` on the four directories, plus a `rg` assertion for hardcoded `dev`/`master` in branch-tip contexts; expect zero non-remote matches |
-| SC-2 | All `trunk tip` prose sites standardized to `remote trunk tip` / `remote $DEFAULT_BRANCH tip`. | structural | `rg -i 'remote .*trunk tip'` returns the full sweep set; `rg -i 'trunk tip'` returns only remote-qualified sites (no unqualified matches) |
+| SC-1 | Structural scan across `.opencode/skills/`, `.opencode/guidelines/`, `.opencode/commands/`, and `AGENTS.md` returns zero unqualified branch-tip references remaining (`trunk tip`, `dev tip`, `feature-branch tip`, and hardcoded `dev`/`master` branch-tip names). | string | `rg -i 'trunk tip|dev tip|feature-branch tip'` on the four directories, plus a `rg` assertion for hardcoded `dev`/`master` in branch-tip contexts; expect zero non-remote matches |
+| SC-2 | All `trunk tip` prose sites standardized to `remote trunk tip` / `remote $DEFAULT_BRANCH tip`. | string | `rg -i 'remote .*trunk tip'` returns the full sweep set; `rg -i 'trunk tip'` returns only remote-qualified sites (no unqualified matches) |
 | SC-3 | `trunk-tip-verification.md` Steps 3/6 fetch+compare against `origin/$DEFAULT_BRANCH` remain byte-identical to pre-change state. | structural | `git diff` of `trunk-tip-verification.md` scoped to prove only prose lines changed; assert Steps 3/6 git commands unchanged |
 | SC-4 | Behavioral tests-v2 scenario asserts the agent consults `origin/$DEFAULT_BRANCH` rather than a stale local tip. | behavioral | `bash .opencode/tests-v2/with-test-home opencode run '<real-domain prompt>'`; assert stderr shows agent consulting `origin/$DEFAULT_BRANCH` via `assert_stderr_pattern_present` |
 
@@ -64,6 +64,7 @@ R-9. The change SHALL be documentation-only; no code, config, or workflow behavi
 R-10. The parent `opencode-config` repo SHALL remain out of scope.
 R-11. No branch naming convention or git workflow behavior SHALL change.
 R-12. All changes SHALL belong to the `.opencode` repo, not the root repo.
+R-13. A behavioral regression test SHALL assert the agent consults `origin/$DEFAULT_BRANCH` rather than a stale local branch tip.
 
 ## 5. Items
 
@@ -117,6 +118,7 @@ R-12. All changes SHALL belong to the `.opencode` repo, not the root repo.
 | R-10 | SC-1 | Phase 1 |
 | R-11 | SC-1 | Phase 1 |
 | R-12 | SC-1 | Phase 1 |
+| R-13 | SC-4 | Phase 1 |
 
 ## 8. Documentation Sources
 
@@ -147,6 +149,13 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure modes:** A sweep site missed → SC-1 scan FAIL; the sweep re-scans and fixes. A prose edit accidentally alters a Step 3/6 command → SC-3 guard FAIL; revert the altered command.
 - **Concurrency:** no race conditions — prose-only edit, no concurrent state mutation.
 - **Recovery:** missed site → re-run the sweep and re-scan; altered gate → restore the byte-identical Steps 3/6 from the pre-change baseline.
+
+## 12. Change Control
+
+| Date | Authorized By | Change | Why |
+|------|---------------|--------|-----|
+| 2026-08-19 | Spec revision (traceability) | Added R-13 (behavioral regression test requirement) and mapped R-13 → SC-4 in Section 7 Traceability | Validation finding: SC-4 was orphaned (appeared in no Traceability table row); R-1..R-12 mapped only to SC-1/SC-2/SC-3, violating the "Every SC MUST trace to at least one requirement" standard |
+| 2026-08-19 | Spec revision (validation findings) | Changed SC-1 and SC-2 evidence type from `structural` to `string` to match their `rg` grep-pattern verification methods; documented why analytical artifacts are not required | Validation finding: EVIDENCE_TYPE_MISMATCH FAIL — the canonical evidence-type taxonomy classifies `rg` grep/pattern scans as `string`, not `structural`; SC-3 (`git-diff`, structural) and SC-4 (behavioral) left unchanged. WARNING: empty artifacts directory — analytical artifacts (blast-radius, concern-map, interface-compatibility, testability-assessment) are not applicable to a documentation-only terminology sweep |
 
 ---
 
