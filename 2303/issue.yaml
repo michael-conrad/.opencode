@@ -2,7 +2,7 @@ title: plan tool fails to resolve dependencies under CPython 3.14 (pytamer has n
   cp314 wheels)
 status: open
 labels:
-- approved-for-pr
+- spec-cleared
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2303/
 
 
@@ -63,4 +63,4 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-20T02:24:31+00:00'
-updated_at: '2026-08-20T02:52:32+00:00'
+updated_at: '2026-08-20T03:39:48+00:00'
