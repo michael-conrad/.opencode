@@ -26,4 +26,18 @@ The PEP 723 header currently declares `requires-python = "~=3.12"` with dependen
 
 Error for reference: "No solution found when resolving script dependencies: Because pytamer==0.1.17 has no wheels with a matching Python ABI tag (e.g., cp314) and up-tamer==1.1.0 depends on pytamer==0.1.17, we can conclude that up-tamer==1.1.0 cannot be used."
 
+**Success Criteria**
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | The `requires-python` constraint in the PEP 723 header of `.opencode/tools/plan` is tightened from `~=3.12` to exclude CPython 3.14 (e.g. `>=3.12,<3.14`) so uv selects a Python version with available pytamer wheels. | structural | Inspect the `# requires-python` line in `.opencode/tools/plan` and confirm the constraint excludes `3.14` (e.g. `>=3.12,<3.14`). |
+| SC-2 | The tool still runs successfully under Python 3.12 after the constraint change. | behavioral | Invoke `.opencode/tools/plan` under Python 3.12 (via `uv run --script`) and confirm it resolves dependencies and executes without the pytamer resolution error. |
+
+**Change Control**
+
+- **Date:** 2026-08-19
+- **What:** Added a Success Criteria section with an SC table (SC-1, SC-2) derived from the existing Scope and Approach. No requirements, scope, or approach content changed.
+- **Why:** The writing-plans analyze gate returned BLOCKED with `NO_SUCCESS_CRITERIA` because the spec body lacked a Success Criteria section.
+- **Who authorized:** spec-creation `revise` pipeline dispatch (issue #2303).
+
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
