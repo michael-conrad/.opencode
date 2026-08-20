@@ -62,6 +62,7 @@ Affected files and impact zones (from `blast-radius.yaml`):
 |-------|-------|
 | Skill | `test-driven-development` (red, green), `verification-before-completion` (verify) |
 | Target | `.opencode/skills/writing-plans/tasks/backfill.md` step 4; `.opencode/skills/writing-plans/tasks/research.md` step 9 |
+| Concern | `contract_alignment` (merges `producer_contract`, `consumer_contract`, `schema_agreement`) |
 | SCs | SC-1, SC-2 |
 | Depends On | — |
 
@@ -78,6 +79,17 @@ z3_contract_crosscheck:
   - .opencode/skills/writing-plans/contracts/structure-output-template.yaml
 ```
 
+**Procedure (steps 3–11):**
+- [ ] 3. **RED — item-1 (SC-1) (**sub-agent**).** Write an enforcement test asserting `backfill.md` step 4 instructs the sub-agent to include a `dependency_contract` section for `interface-compatibility.yaml`, **or** `research.md` step 9 derives the contract from the existing artifact keys. Test FAILS against the current task files. **→ SC-1**
+- [ ] 4. **GREEN — item-1 (SC-1) (**sub-agent**).** Update `backfill.md` step 4 and/or `research.md` step 9 so the producer produces a `dependency_contract` section or the consumer derives it. Apply exactly one of the resolution paths consistently. **→ SC-1**
+- [ ] 5. **Verify — item-1 (**clean-room**).** Verify SC-1 verdict against its evidence type (behavioral) via `verification-before-completion`. BLOCK on any FAIL or EVIDENCE_TYPE_MISMATCH. **→ SC-1**
+- [ ] 6. **COMMIT — item-1.** Commit the enforcement test and the task-file change atomically as one working slice. **→ SC-1**
+- [ ] 7. **RED — item-2 (SC-2) (**sub-agent**).** Write a consistency-check enforcement test asserting `backfill.md` (producer) and `research.md` (consumer) agree on the `interface-compatibility.yaml` schema. Test FAILS before alignment. **→ SC-2**
+- [ ] 8. **GREEN — item-2 (SC-2) (**sub-agent**).** Align the schema contract text in both task files so the producer contract matches the consumer expectation. **→ SC-2**
+- [ ] 9. **Verify — item-2 (**clean-room**).** Verify SC-2 verdict against its evidence type (structural) via `verification-before-completion`. BLOCK on any FAIL or EVIDENCE_TYPE_MISMATCH. **→ SC-2**
+- [ ] 10. **COMMIT — item-2.** Commit the consistency check and the schema-alignment change atomically. **→ SC-2**
+- [ ] 11. **Schema cross-check (Risk 1 mitigation) (**sub-agent**).** Cross-check the `dependency_contract` schema against `solve-input-template.yaml` and `structure-output-template.yaml`; reconcile if the Z3/planner expectation differs. **→ SC-1, SC-2**
+
 **Cost frame:** Verifying the schema agreement across both task files costs one cross-file grep and one read of each task file. Skipping the two-sided fix means the producer/consumer mismatch ships unchanged, and plan creation for any retroactive-backfill issue hits `DEPENDENCY_CONTRACT_NOT_FOUND` — a 1000× downstream death spiral each time the pipeline fails. Correctness is the only metric.
 
 ### Phase 2 — End-to-end plan creation verification
@@ -86,6 +98,7 @@ z3_contract_crosscheck:
 |-------|-------|
 | Skill | `test-driven-development` (red, green), `verification-before-completion` (verify) |
 | Target | backfill → research → solve model/check → plan plan pipeline for a retroactive-backfill issue |
+| Concern | `pipeline_integration` |
 | SCs | SC-3 |
 | Depends On | 1 |
 
@@ -100,6 +113,13 @@ pipeline_steps:
 retroactive_backfill_issue: "an issue requiring retroactive artifact backfill"
 expected_behavior: "plan creation completes without DEPENDENCY_CONTRACT_NOT_FOUND"
 ```
+
+**Procedure (steps 12–16):**
+- [ ] 12. **RED — item-3 (SC-3) (**sub-agent**).** Write an enforcement test asserting plan creation for a retroactive-backfill issue never hits `DEPENDENCY_CONTRACT_NOT_FOUND`. Test FAILS against the unaligned pipeline. **→ SC-3**
+- [ ] 13. **GREEN — item-3 (SC-3) (**sub-agent**).** Run the backfill → research → solve model/check → plan plan pipeline and confirm the `dependency_contract` produced by `backfill.md`/`research.md` is consumed by the Z3 tools without `DEPENDENCY_CONTRACT_NOT_FOUND`. **→ SC-3**
+- [ ] 14. **Verify — item-3 (**clean-room**).** Verify SC-3 verdict against its evidence type (behavioral) via `verification-before-completion`. BLOCK on any FAIL or EVIDENCE_TYPE_MISMATCH. **→ SC-3**
+- [ ] 15. **COMMIT — item-3.** Commit the enforcement test and the pipeline-verification evidence atomically. **→ SC-3**
+- [ ] 16. **Evidence cross-check (**sub-agent**).** Cross-check the produced `dependency-contract.yaml` against the structure artifact and exit-criteria C3 schema template. **→ SC-3**
 
 **Cost frame:** Running the end-to-end pipeline costs minutes of execution time. Skipping it means the mismatch is only documented, not proven resolved — the behavioral defect (plan creation blocked) ships to the next retroactive-backfill issue and costs 1000× more to fix when discovered in the field. Correctness is the only metric.
 
@@ -129,3 +149,8 @@ expected_behavior: "plan creation completes without DEPENDENCY_CONTRACT_NOT_FOUN
 ---
 
 *Co-authored with AI: OpenCode (deepseek-v4-flash)*
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-20T21:56:12Z | `plan_created` | Plan file: `.opencode/.issues/2311/plan.md`; phase count: 2 |

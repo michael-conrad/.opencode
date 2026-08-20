@@ -1,0 +1,91 @@
+# Validation findings for plan #2311
+# Regenerated at 2026-08-20 after plan.md revision (15:13)
+validator_scope: validate-task
+plan_file: .opencode/.issues/2311/plan.md
+dependency_contract: .opencode/.issues/2311/dependency-contract.yaml
+solve_output: .opencode/.issues/2311/artifacts/solve-output.yaml
+spec_file: .opencode/.issues/2311/spec.md
+concern_map: .opencode/.issues/2311/artifacts/concern-map.yaml
+
+entry_criteria:
+  issue_number: 2311
+  solve_status: SAT
+  met: true
+
+overall_status: PASS
+
+categories:
+  - id: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - check: "Phase table with required columns"
+        result: PASS
+        detail: "Phase Table has columns Phase, Skill, Task, Target, SCs, Depends On, Step Range, Dispatch."
+      - check: "Procedure sections with numbered steps"
+        result: PASS
+        detail: "Phase 1 'Procedure (steps 3-11)' steps 3-11; Phase 2 'Procedure (steps 12-16)' steps 12-16."
+      - check: "Exit criteria section with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria C1-C4 map to SC-1/SC-2/SC-3 and reference phases."
+
+  - id: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - check: "Every skill+task reference valid in implementation-workflow card"
+        result: PASS
+        detail: "red/green (test-driven-development), verify (verification-before-completion), commit-inline, structural-checks (finishing-a-development-branch), audit, review-prep (git-workflow-pr), exec-summary (completion-core) all present in reference card."
+
+  - id: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - check: "All SCs covered by exit criteria"
+        result: PASS
+        detail: "SC-1, SC-2 -> Phase 1 (C1, C3, C4); SC-3 -> Phase 2 (C2, C3, C4). No uncovered SC."
+      - check: "Triplet split detection (RED/GREEN/COMMIT co-located per phase)"
+        result: PASS
+        detail: "SC-1: RED(3)/GREEN(4)/COMMIT(6) all Phase 1. SC-2: RED(7)/GREEN(8)/COMMIT(10) all Phase 1. SC-3: RED(12)/GREEN(13)/COMMIT(15) all Phase 2. No TRIPLET_SPLIT."
+
+  - id: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - check: "Each phase addresses exactly one concern from concern-map"
+        result: PASS
+        detail: "Phase 1 -> contract_alignment (concern-map phase 1). Phase 2 -> pipeline_integration (concern-map phase 2)."
+      - check: "No two phases address the same concern"
+        result: PASS
+        detail: "contract_alignment and pipeline_integration are distinct; each maps to a unique phase."
+
+  - id: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - check: "Dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Single edge phase_1 -> phase_2; acyclic."
+      - check: "All phases reachable from start node"
+        result: PASS
+        detail: "phase_1 is start; phase_2 reachable via phase_1 -> phase_2."
+      - check: "No orphan phases"
+        result: PASS
+        detail: "phase_1 has outgoing edge; phase_2 has incoming edge. No orphans."
+
+  - id: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - check: "No TBD/TODO placeholders in plan body"
+        result: PASS
+        detail: "No TBD/TODO markers present."
+      - check: "All steps use checkbox format"
+        result: PASS
+        detail: "All procedure, pre/post-implementation, and exit-criteria steps use '- [ ]'."
+      - check: "Dispatch mode consistency"
+        result: PASS
+        detail: "Phase 1 (steps 3-11) and Phase 2 (steps 12-16) declared sub-agent/clean-room and all steps are sub-agent/clean-room. Pre-implementation steps 1-2 are inline and outside the phases."
+
+findings: []
+blocker_reason: null

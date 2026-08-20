@@ -1,22 +1,11 @@
 spec_path: .opencode/.issues/2311/spec.md
 concerns:
-  - id: producer_contract
-    name: Producer Contract (backfill.md)
-    description: "backfill.md step 4 must instruct the sub-agent to produce an interface-compatibility.yaml schema the consumer can read (dependency_contract present or derivable)."
+  - id: contract_alignment
+    name: Producer/Consumer Contract Alignment
+    description: "backfill.md step 4 must instruct the sub-agent to produce (or research.md step 9 must derive) a dependency_contract for interface-compatibility.yaml so the producer contract matches the consumer expectation. This single concern spans the producer side, the consumer side, and their agreement — SC-1 (single-side fix) and SC-2 (producer/consumer schema agreement)."
     phase: 1
     scs:
       - SC-1
-  - id: consumer_contract
-    name: Consumer Contract (research.md)
-    description: "research.md step 9 must consume the schema the producer actually produces — either extract dependency_contract or derive it from interface_boundaries/compatibility/compatibility_conclusion."
-    phase: 1
-    scs:
-      - SC-1
-  - id: schema_agreement
-    name: Producer/Consumer Schema Agreement
-    description: "The interface-compatibility.yaml schema must be defined consistently in both task files so no producer/consumer mismatch remains."
-    phase: 1
-    scs:
       - SC-2
   - id: pipeline_integration
     name: Retroactive Backfill Plan Pipeline
