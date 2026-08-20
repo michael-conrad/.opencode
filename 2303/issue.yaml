@@ -1,0 +1,8 @@
+title: plan tool fails to resolve dependencies under CPython 3.14 (pytamer has no
+  cp314 wheels)
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-20T02:24:31+00:00'
+updated_at: '2026-08-20T02:24:31+00:00'
