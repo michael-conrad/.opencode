@@ -84,3 +84,11 @@ evidence_type: behavioral
 - [ ] C2. Invoking `.opencode/tools/plan` via `uv run --script` under CPython 3.12 completes dependency resolution and execution with exit code 0 and no pytamer resolution error in output.
 - [ ] C3. The fix is confined to the PEP 723 header and an accompanying usage note; no `up-tamer`/`pytamer` resolution logic was modified and no cp314 wheels were built.
 - [ ] C4. The bash guard at the top of `.opencode/tools/plan` remains intact.
+
+---
+
+## Lifecycle Events
+
+| Timestamp (UTC) | Event | Details |
+|-----------------|-------|---------|
+| 2026-08-20T03:46:16Z | `plan_created` | Plan path: `.issues/2303/plan.md`; phase count: 2 |
