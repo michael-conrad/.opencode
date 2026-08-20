@@ -1,0 +1,55 @@
+# [SPEC-FIX] writing-plans backfill/research dependency_contract contract mismatch
+
+## Problem
+
+The `writing-plans` skill has a contract mismatch between two task files that blocks plan creation for any issue requiring retroactive artifact backfill.
+
+- `backfill.md` step 4 instructs `interface-compatibility.yaml` to contain only "interface boundaries between affected modules" (keys: `interface_boundaries`, `compatibility`, `compatibility_conclusion`). It never instructs the sub-agent to include a `dependency_contract` section.
+- `research.md` step 9 requires extracting a `dependency_contract` section from `interface-compatibility.yaml` and writes it to `{issues_prefix}/{N}/dependency-contract.yaml`. If the section is absent, it returns BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND`.
+
+The producer task (`backfill.md`) produces an artifact the consumer task (`research.md`) cannot consume. This blocks the entire plan-creation pipeline (steps 10-13 of research.md — solve model, solve check, plan plan — all depend on the dependency contract).
+
+## Scope
+
+- Fix the `interface-compatibility.yaml` schema contract mismatch between `backfill.md` (producer) and `research.md` (consumer).
+- Ensure retroactive backfill produces an artifact `research.md` can consume, so plan creation never hits `DEPENDENCY_CONTRACT_NOT_FOUND`.
+- Add a consistency check that producer and consumer task files agree on the `interface-compatibility.yaml` schema.
+
+**Out of scope:** changes to any skill outside `writing-plans`; behavioral changes to the Z3 constraint solving pipeline; the broader spec-is-not-tracking mandate audit covered by closed issue #2232.
+
+## Approach
+
+The root cause is a schema definition that exists in only one task file. The fix is to make `backfill.md` and `research.md` agree on the `interface-compatibility.yaml` schema. Two viable paths: (1) have `backfill.md` step 4 instruct the sub-agent to include a `dependency_contract` section in the backfilled artifact, or (2) update `research.md` step 9 to derive the dependency contract from the existing artifact keys (`interface_boundaries`/`compatibility`/`compatibility_conclusion`) rather than requiring a section no producer creates. Either path must be applied consistently so the producer contract and consumer expectation match, and verified against the actual `backfill.md`/`research.md` code rather than assuming the section exists (as closed issue #2232 incorrectly assumed).
+
+## Impact
+
+- **Risk 1:** Choosing path (1) may not capture the exact `dependency_contract` schema the Z3 tools (`solve`, `plan`) expect. *Mitigation:* cross-check against `skills/writing-plans/contracts/solve-input-template.yaml` and `structure-output-template.yaml` during implementation.
+- **Risk 2:** Fixing only one side without the other leaves the mismatch in place. *Mitigation:* SC-2 explicitly requires producer/consumer schema agreement.
+- **Risk 3:** Regression of the closed #2232 dependency-contract generation work. *Mitigation:* scope limited to `backfill.md`/`research.md`, which #2232 explicitly excluded from modification.
+
+**Call to action:** Approve this SPEC-FIX so plan creation works for issues requiring retroactive backfill.
+
+## Root Cause
+
+The `dependency_contract` section is referenced only in `research.md` (lines 41, 43) but is never produced by `backfill.md` or any other task. The artifact schema is not defined consistently across the two task files. `grep dependency_contract` across the writing-plans skill returns matches only in `research.md`.
+
+## Success Criteria
+
+- SC-1: `backfill.md` step 4 for `interface-compatibility.yaml` instructs the sub-agent to include a `dependency_contract` section (or the research task is updated to derive the contract from the existing artifact keys without requiring a section that is never produced).
+- SC-2: The producer and consumer task files agree on the `interface-compatibility.yaml` schema.
+- SC-3: A plan can be created for an issue requiring retroactive backfill without hitting `DEPENDENCY_CONTRACT_NOT_FOUND`.
+
+## Affected Files
+
+- `.opencode/skills/writing-plans/tasks/backfill.md`
+- `.opencode/skills/writing-plans/tasks/research.md`
+
+## Evidence
+
+- `grep dependency_contract .opencode/skills/writing-plans/` → matches only in `research.md` (lines 41, 43).
+- Backfilled `interface-compatibility.yaml` contains only `interface_boundaries`/`compatibility`/`compatibility_conclusion` keys.
+- research.md step 9 returns BLOCKED `DEPENDENCY_CONTRACT_NOT_FOUND` on the backfilled artifact.
+
+---
+
+*Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*
