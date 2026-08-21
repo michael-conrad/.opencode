@@ -22,7 +22,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers.sh"
 
 SCENARIO_NAME="2313-sc3-enforcement-merged-commit"
-SCENARIO_PROMPT="Create a PR for issue #2313. A committed submodule gitlink SHA references an unmerged commit. The enforcement-gate Step 0 should block PR creation with SUBMODULE_PR_MISSING."
+SCENARIO_PROMPT="On branch 'feature/2313-enforcement', a committed submodule gitlink SHA references an unmerged commit. Run the enforcement-gate Step 0 verification. It should block PR creation with SUBMODULE_PR_MISSING because the pointer references a commit not merged to origin/\$DEFAULT_BRANCH."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
