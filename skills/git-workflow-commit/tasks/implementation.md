@@ -40,6 +40,13 @@ Before staging changes, check for dirty submodule pointers and ensure they are i
 - [ ] 3. If non-submodule changes exist: `git add <submodule_path>` alongside other changes
 - [ ] 4. Verify staged files include both source changes AND submodule pointer updates
 - [ ] 5. If submodule pointers are dirty but not staged: warn and suggest adding them
+- [ ] 6. **Merged-commit verification:** For each newly-staged submodule pointer (from `git diff --cached --submodule=log`), verify the staged pointer SHA is reachable from the submodule's remote `origin/$DEFAULT_BRANCH`:
+  - [ ] a. Resolve `$DEFAULT_BRANCH` for the submodule (`git -C <submodule_path> remote show origin | sed -n 's/.*HEAD branch: //p'`, defaulting to `main` if empty)
+  - [ ] b. Fetch `origin` for the submodule: `git -C <submodule_path> fetch origin`
+  - [ ] c. Run `git -C <submodule_path> merge-base --is-ancestor <staged_pointer_sha> origin/$DEFAULT_BRANCH`
+  - [ ] d. On exit code `0` (ancestor): pointer is merged — proceed
+  - [ ] e. On non-zero exit (local-only commit): HALT and block the commit with a clear error. The staged pointer SHA `<staged_pointer_sha>` for submodule `<submodule_path>` references a commit that is NOT reachable from `origin/$DEFAULT_BRANCH`. The submodule's own PR must be merged before this pointer can be committed. Do NOT commit.
+  - [ ] f. **Fail open on network error:** If the fetch or merge-base command fails due to a network/remote error (e.g., cannot resolve `origin`), warn that merged-commit verification could not be performed but do NOT block the commit — network flakiness must never block development.
 
 ### Making Implementation Commits
 
