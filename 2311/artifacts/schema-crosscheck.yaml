@@ -1,0 +1,42 @@
+# Schema cross-check (Risk 1 mitigation) — plan step 11
+# SC-1 / SC-2 — dependency_contract schema vs Z3/planner expectation
+# Executed by GREEN sub-agent (test-driven-development green task)
+
+crosscheck_target:
+  plan_referenced_templates:
+    - .opencode/skills/writing-plans/contracts/solve-input-template.yaml
+    - .opencode/skills/writing-plans/contracts/structure-output-template.yaml
+  actual_contract_files:
+    - .opencode/skills/writing-plans/contracts/solve-input.yaml
+    - .opencode/skills/writing-plans/contracts/solve-output.yaml
+    - .opencode/skills/writing-plans/contracts/structure-input.yaml
+    - .opencode/skills/writing-plans/contracts/structure-output.yaml
+  finding: "The plan-referenced templates (solve-input-template.yaml, structure-output-template.yaml) DO NOT EXIST. The actual contract files are solve-input.yaml / solve-output.yaml / structure-input.yaml / structure-output.yaml, and these are metadata/result-contract templates (schema_version, issue_number, project_root, issues_prefix / status, artifact_path, finding_summary) that do NOT define the dependency_contract schema. The Risk 1 cross-check must be performed against the tools themselves, not the nonexistent templates. This is documentation drift in the plan/spec/interface-compatibility.yaml cross-check target."
+
+z3_solve_expectation:
+  tool: .opencode/tools/solve
+  consumes: "contract YAML with keys: variables (map name->{type}), preconditions, postconditions, invariants (lists of z3 expr strings)"
+  dependency_contract_schema_compatible: true
+  evidence:
+    - "solve model --contract-path .opencode/.issues/2311/dependency-contract.yaml --query phase_2 -> SAT (phase_1=True, phase_2=True), exit=0"
+    - "solve check --contract-path .opencode/.issues/2311/dependency-contract.yaml --state-path .opencode/.issues/2311/artifacts/state-analysis.yaml -> SAT, exit=0"
+  extra_keys_ignored: "spec, phases, edges, notes are ignored by solve (it reads only variables/preconditions/postconditions/invariants)"
+  reconciliation: "NONE REQUIRED — the dependency_contract schema matches the Z3 solve tool expectation."
+
+planner_expectation:
+  tool: .opencode/tools/plan
+  consumes: "PDDL-style problem schema via --problem: domain, types, objects, fluents, actions, init, goals"
+  accepts_contract_path: false
+  accepts_output_flag: false
+  dependency_contract_schema_compatible: false
+  evidence:
+    - "plan plan --help -> usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]"
+    - "plan plan --contract-path ... -> error: the following arguments are required: --problem/-p"
+  finding: "The plan tool does NOT consume a dependency_contract schema. research.md step 12 literal 'plan plan --contract-path ... --output ...' does not match the actual 'plan plan --problem <file>' interface. This is a research.md<->plan-tool interface mismatch — the same producer/consumer contract-mismatch class the issue targets, but NOT the backfill<->research dependency_contract mismatch (SC-1/SC-2 scope). Already documented as a non-blocking tool-interface observation in structure.yaml notes."
+  reconciliation: "OUT OF SCOPE for SC-1/SC-2 — the planner consumes a PDDL problem schema built from the dependency contract, not the dependency_contract schema itself. Does not affect the dependency_contract schema alignment (SC-1/SC-2)."
+
+verdict:
+  sc_1: "dependency_contract schema is compatible with the Z3 solve tool (verified SAT). No reconciliation needed."
+  sc_2: "producer (backfill.md) and consumer (research.md) agree on the dependency_contract schema; the schema matches the Z3 solve tool. No reconciliation needed."
+  risk_1_mitigation: "PASS — the dependency_contract schema cross-checks against the actual Z3 solve tool expectation. The plan-referenced templates are nonexistent (documentation drift); cross-check was performed against the tools themselves."
+  blocker: none

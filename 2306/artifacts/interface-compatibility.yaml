@@ -26,6 +26,79 @@ interfaces:
     compatible: true
     note: "Declared a non-modification target. The `--ff-only` divergence block (SC-7) is preserved byte-identical, so the shared divergence reference relationship is unaffected."
 
+# Concrete dependency data derived from the spec's affected files and success criteria.
+# research.md step 9 extracts this section into {issues_prefix}/{N}/dependency-contract.yaml
+# for the solve/plan tools. Real sources, real targets, real type constraints — not a schema template.
+dependency_contract:
+  schema_version: "1.0"
+  domain: "submodule-sync-task-card-scope-bound"
+  phases:
+    - id: 1
+      name: "Add scope-bound and recursion-forbidding instruction to the task card"
+      concern: "SC-1..SC-5: bound scope to direct submodule pointers, forbid recursion and `git submodule foreach`, mirror no-`--recursive` guideline, direct explicit per-submodule operations"
+      depends_on: []
+      files:
+        - ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      scs: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5"]
+    - id: 2
+      name: "Document false-flag avoidance and verify divergence preservation"
+      concern: "SC-6..SC-7: document that trunk-tip sync is not a parent pointer change; preserve `--ff-only` divergence block byte-identical"
+      depends_on: [1]
+      files:
+        - ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      scs: ["SC-6", "SC-7"]
+  dependencies:
+    - from: 2
+      to: 1
+      reason: "Phase 2 SC-6 (false-flag avoidance note) and SC-7 (preservation check) operate on the task card as modified in Phase 1. SC-7 requires the Phase 1-edited task card baseline to assert byte-identical preservation of the divergence block."
+  sources:
+    - path: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      role: "modification target — the sole file edited by this spec"
+      type: "task card (markdown)"
+      constraints:
+        - "Step 2 must bound scope to direct submodule pointers passed in `submodule_paths` (SC-1)"
+        - "Step 2 must forbid recursion into nested submodules (SC-2)"
+        - "Step 2 must forbid `git submodule foreach` for the sync operation (SC-3)"
+        - "Step 2 must mirror the no-`--recursive` constraint from 060-tool-usage.md Section 4 (SC-4)"
+        - "Step 2 must direct explicit per-submodule `git -C <path>` operations (SC-5)"
+        - "Must document that syncing a submodule to its own trunk tip is not a parent pointer change (SC-6)"
+        - "`--ff-only` divergence block must remain byte-identical to pre-change state (SC-7)"
+  targets:
+    - path: ".opencode/skills/git-workflow-branch/SKILL.md"
+      role: "dispatch source — passes `submodule_paths` context variable to the task card"
+      type: "skill card (markdown)"
+      constraint: "unchanged; the `submodule_paths` contract is the explicit scope bound for the sync operation"
+    - path: ".opencode/guidelines/060-tool-usage.md"
+      role: "authoritative no-`--recursive` constraint source (Section 4)"
+      type: "guideline (markdown)"
+      constraint: "read-only; mirrored one-way into the task card, never modified"
+    - path: ".opencode/skills/git-workflow-branch/reference/submodule-divergence.md"
+      role: "shared divergence reference"
+      type: "reference (markdown)"
+      constraint: "non-modification target; unaffected by the byte-identical divergence block preservation"
+  type_constraints:
+    - name: "submodule_paths"
+      type: "list[str]"
+      source: ".opencode/skills/git-workflow-branch/SKILL.md"
+      target: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      constraint: "direct submodule paths only; nested submodule paths are out of scope (SC-1, SC-2)"
+    - name: "no-recursive"
+      type: "constraint"
+      source: ".opencode/guidelines/060-tool-usage.md"
+      target: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      constraint: "no `--recursive` flag; no `git submodule foreach` for the sync operation (SC-3, SC-4)"
+    - name: "per-submodule-operation"
+      type: "constraint"
+      source: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      target: "each direct submodule path"
+      constraint: "explicit `git -C <path>` operation per direct path, no cross-contamination (SC-5)"
+    - name: "pointer-flag-reporting"
+      type: "constraint"
+      source: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+      target: "parent repo pointer state"
+      constraint: "syncing a submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag) (SC-6)"
+
 conclusions:
   - "No interface compatibility issues. The modification is a single-file documentation edit with read-only external references."
   - "The `submodule_paths` context contract between SKILL and task card is preserved and is the explicit scope bound for the sync operation."
+  - "The dependency contract is linear: Phase 1 (SC-1..SC-5) precedes Phase 2 (SC-6..SC-7), which depends on the Phase 1-edited task card baseline."

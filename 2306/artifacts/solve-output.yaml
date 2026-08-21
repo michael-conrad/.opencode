@@ -1,0 +1,32 @@
+# Solve output — issue #2306 (git-workflow-branch submodule-sync task card scope bound)
+# Results of Z3 constraint solving and planning verification.
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+model_query:
+  command: "./tools/solve model --contract-path .opencode/.issues/2306/dependency-contract.yaml --query 'z3.And(phase_1, phase_2)'"
+  result: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+  note: "Both phase variables simultaneously satisfiable under contract preconditions (phase_2 implies phase_1)."
+
+check:
+  command: "./tools/solve check --contract-path .opencode/.issues/2306/dependency-contract.yaml --state-path .opencode/.issues/2306/artifacts/state-analysis.yaml"
+  result: SAT
+  note: "State analysis assignments satisfy contract preconditions+postconditions+invariants. Initial all-false state is valid; each phase may proceed to true."
+
+planner:
+  command: "./tools/plan plan --problem .opencode/.issues/2306/artifacts/plan-problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  plan:
+    - run_p1()
+    - run_p2()
+  note: "Tamer engine produced a valid 2-action plan covering both phase goals. Ordering respects the phase_1 -> phase_2 dependency edge."
+
+summary:
+  - "solve model: SAT — both phases reachable simultaneously."
+  - "solve check: SAT — state analysis satisfies all contract constraints."
+  - "plan plan: SOLVED_SATISFICING: 2-step plan covers all phase goals."
