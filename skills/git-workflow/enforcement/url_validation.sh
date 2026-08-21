@@ -15,7 +15,7 @@ construct_compare_url() {
     local owner=""
     local repo=""
     local branch=""
-    local base="dev"
+    local base=""
     
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -30,6 +30,14 @@ construct_compare_url() {
     if [[ -z "$owner" || -z "$repo" || -z "$branch" ]]; then
         echo "ERROR: Missing required arguments for URL construction" >&2
         return 1
+    fi
+    
+    # Base resolution order: explicit --base override -> dynamic remote HEAD branch -> 'main' fallback
+    if [[ -z "$base" ]]; then
+        base="$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')"
+        if [[ -z "$base" ]]; then
+            base="main"
+        fi
     fi
     
     local url="https://github.com/${owner}/${repo}/compare/${base}...${branch}"
