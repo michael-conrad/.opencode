@@ -19,9 +19,23 @@ setup_sc3_enforcement_local_only_pointer() {
     git -C "$wd" config user.name "Test" 2>/dev/null || true
     git -C "$wd" checkout -b feature/2313-enforcement 2>/dev/null || true
 
-    # Create a local-only commit inside the .opencode submodule (NOT pushed to origin).
+    # Set up a bare remote for the submodule origin representing the MERGED state.
+    # The enforcement-gate reachability check runs
+    #   git -C <submodule> merge-base --is-ancestor <committed_sha> origin/$DEFAULT_BRANCH
+    # so the submodule MUST have an origin whose default branch does NOT contain the
+    # local-only commit. Push the submodule's current HEAD (the merged state) to the
+    # bare origin as the default branch BEFORE creating the local-only commit.
     git -C "$sub" config user.email "test@test.dev" 2>/dev/null || true
     git -C "$sub" config user.name "Test" 2>/dev/null || true
+    local sub_origin="$wd/../sub-origin.git"
+    git init --bare "$sub_origin" 2>/dev/null || true
+    # The submodule is cloned from the real remote, so origin already exists. Redirect
+    # it to the bare repo (set-url, not add) so the reachability check runs against the
+    # isolated merged state rather than the live remote.
+    git -C "$sub" remote set-url origin "$sub_origin" 2>/dev/null || true
+    git -C "$sub" push -q -u origin HEAD:main 2>/dev/null || true
+
+    # Create a local-only commit inside the .opencode submodule (NOT pushed to origin).
     local marker="$sub/SC3-LOCAL-ONLY-MARKER"
     echo "sc3 local-only commit $(date +%s)" > "$marker"
     git -C "$sub" add -A 2>/dev/null || true
