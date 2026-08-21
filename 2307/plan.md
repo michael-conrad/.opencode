@@ -140,3 +140,4 @@ See [`plan-02-url-construction-verification.md`](plan-02-url-construction-verifi
 
 - `2026-08-21T01:17:00Z` — **plan_created** — plan at `.opencode/.issues/2307/plan.md`, 1 phase.
 - `2026-08-21T01:28:00Z` — **plan_revised** — split single phase into Phase 1 (C1 base-branch resolution, SC-1..SC-3) and Phase 2 (C2 URL construction/verification, SC-4) to resolve concern-separation finding F1.
+- `2026-08-21T05:35:46Z` — **plan_created** — final plan verified at `.opencode/.issues/2307/plan.md`, 2 phases (Phase 1: base-branch resolution; Phase 2: URL construction/verification regression guard).
