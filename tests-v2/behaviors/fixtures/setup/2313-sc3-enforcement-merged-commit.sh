@@ -40,7 +40,10 @@ setup_sc3_enforcement_local_only_pointer() {
     # it to the bare repo (set-url, not add) so the reachability check runs against the
     # isolated merged state rather than the live remote.
     git -C "$sub" remote set-url origin "$sub_origin" 2>/dev/null || true
-    git -C "$sub" push -q -u origin HEAD:main 2>/dev/null || true
+    # HEAD is a detached HEAD (submodule checked out to a specific commit), so the
+    # refspec MUST be fully qualified (HEAD:refs/heads/main) — a bare HEAD:main fails
+    # with "not a full refname" on a detached HEAD.
+    git -C "$sub" push -q -u origin HEAD:refs/heads/main 2>/dev/null || true
 
     # Create a local-only commit inside the .opencode submodule (NOT pushed to origin).
     local marker="$sub/SC3-LOCAL-ONLY-MARKER"
