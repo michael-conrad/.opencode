@@ -19,6 +19,13 @@ setup_sc3_enforcement_local_only_pointer() {
     git -C "$wd" config user.name "Test" 2>/dev/null || true
     git -C "$wd" checkout -b feature/2313-enforcement 2>/dev/null || true
 
+    # Set up a bare remote for the PARENT repo origin so the enforcement-gate can
+    # resolve $DEFAULT_BRANCH via `git remote show origin` on the parent repo.
+    local parent_origin="$wd/../parent-origin.git"
+    git init --bare "$parent_origin" 2>/dev/null || true
+    git -C "$wd" remote add origin "$parent_origin" 2>/dev/null || true
+    git -C "$wd" push -q -u origin feature/2313-enforcement 2>/dev/null || true
+
     # Set up a bare remote for the submodule origin representing the MERGED state.
     # The enforcement-gate reachability check runs
     #   git -C <submodule> merge-base --is-ancestor <committed_sha> origin/$DEFAULT_BRANCH
