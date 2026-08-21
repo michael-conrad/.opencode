@@ -5,6 +5,11 @@ title: "Correct stale 'Guard checks' docstring in tools/session-init"
 authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 1
+lifecycle_events:
+  - timestamp: 2026-08-21T05:27:28Z
+    event: plan_created
+    plan_path: .opencode/.issues/2309/plan.md
+    phase_count: 1
 dispatch:
   - phase: 1
     skill: test-driven-development
