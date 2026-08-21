@@ -162,4 +162,12 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 ---
 
+## Lifecycle Events
+
+| Timestamp | Event | Detail |
+|-----------|-------|--------|
+| 2026-08-21T05:26:47Z | `plan_created` | Plan file: `.opencode/.issues/2310/plan.md`; phase count: 1 |
+
+---
+
 *Co-authored with AI: OpenCode (deepseek-v4-flash)*

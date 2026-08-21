@@ -183,4 +183,12 @@ test_prompt: "Create a PR for issue #2313. A committed submodule gitlink SHA ref
 
 ---
 
+## Lifecycle Events
+
+| Timestamp (UTC) | Event | Details |
+|-----------------|-------|---------|
+| 2026-08-21T05:26:39Z | `plan_created` | Plan file: `.opencode/.issues/2313/plan.md`; phase count: 3 |
+
+---
+
 *Co-authored with AI: OpenCode (deepseek-v4-flash)*

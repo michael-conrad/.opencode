@@ -1,0 +1,81 @@
+# Validate findings — issue #2310
+# Structural validation of plan.md against the 6 check categories.
+
+issue_number: 2310
+repo: .opencode
+artifact: validate-findings
+date: 2026-08-21
+
+solve_status: SAT
+
+categories:
+  category_1_structural:
+    status: PASS
+    checks:
+      - name: phase_table_columns
+        result: PASS
+        detail: "Phase table (plan.md lines 51-53) has columns Phase, Skill, Task, Target, SCs, Depends On — all required columns present."
+      - name: phase_procedure_steps
+        result: PASS
+        detail: "Phase 1 has a procedure section with numbered steps 3-9 (RED, GREEN, GREEN doublecheck, post-regression, verify, commit, VbC)."
+      - name: exit_criteria_sc_mapping
+        result: PASS
+        detail: "Exit Criteria section (lines 145-153) exists with SC-to-phase mapping; C3 explicitly references SC-1; Phase 1 Exit Conditions map to SC-1."
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - name: dispatch_references_valid
+        result: PASS
+        detail: "All skill+task references match valid entries in skills/writing-plans/reference/implementation-workflow.md. test-driven-development (red, green, post-regression), verification-before-completion (verify), audit (verification-audit), finishing-a-development-branch (checklist/structural-checks), git-workflow-pr (review-prep, create/create-pr), completion-core (completion/exec-summary) all map to valid reference-card entries."
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - name: sc_coverage
+        result: PASS
+        detail: "Spec SC-1 appears in Phase 1 exit conditions and global Exit Criteria C3. All spec SCs covered."
+      - name: triplet_split_detection
+        result: PASS
+        detail: "SC-1 RED (step 3), GREEN (steps 4-5), COMMIT (step 8) all reside in Phase 1 — no triplet split across phases. Post-implementation steps 10-17 are gates, not part of any SC RED/GREEN/COMMIT triplet."
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - name: phase_single_concern
+        result: PASS
+        detail: "Single phase (Phase 1) addresses the single 'dynamic trunk resolution' concern from concern-map.yaml. The two listed sub-concerns (trunk-branch-resolution, diff-stat-computation) are facets of this one concern; concern-map declares concern_separation: clean and rationale 'Single concern (dynamic trunk resolution)'."
+      - name: no_two_phases_same_concern
+        result: PASS
+        detail: "Only one phase exists — trivially no two phases address the same concern."
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - name: no_cycles
+        result: PASS
+        detail: "Dependency contract edges: [] — no cycles."
+      - name: all_phases_reachable
+        result: PASS
+        detail: "Single phase_1 is the start node and is reachable; solve-output confirms SAT and 1-action plan covers phase_1."
+      - name: no_orphan_phases
+        result: PASS
+        detail: "Single-phase graph: phase_1 is the root/start node, so it is reachable and not an orphan in the meaningful sense (no disconnected secondary phase can exist). Solver confirms complete coverage."
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - name: no_tbd_todo_placeholders
+        result: PASS
+        detail: "No TBD/TODO placeholders found in plan body."
+      - name: checkbox_format
+        result: PASS
+        detail: "All procedural steps (1-17) use '- [ ]' checkbox format."
+      - name: dispatch_mode_consistency
+        result: PASS
+        detail: "Phase 1 is a clean-room (dispatched) phase — implementation steps (RED step 3, GREEN step 4, post-regression step 6) are sub-agent dispatched as expected. The sole inline step (step 8 commit) is the reference-card-designated commit-inline orchestrator operation, consistent with the daisy-chain. Verify/VbC/pre-PR steps use clean-room dispatch per reference card. No dispatched step appears in an inline phase (there are no inline phases)."
+
+overall_status: PASS
+
+summary:
+  - "All 6 validation categories PASS. Plan is structurally valid, all skill+task references match the implementation-workflow reference card, SC-1 is fully covered with no triplet split, single-phase DAG is acyclic and fully reachable, concern separation is clean, and no holistic quality defects."
