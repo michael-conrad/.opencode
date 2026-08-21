@@ -33,7 +33,6 @@ BRANCH_NAME, WORKTREE_PATH, WORKTREE_FATAL
 Diagnostic and side-effect output goes to stderr — silent on success.
 
 Guard checks (auto-create missing files/branches/worktree):
-- dev branch: Create from origin/dev or main/master if missing
 - .worktrees/main/: Bootstrap worktree layout if not set up
 - .env gitignore: Warn if .env exists but is not in .gitignore
 
