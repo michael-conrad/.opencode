@@ -1,25 +1,28 @@
-status: BLOCKED
-blocker_reason: NO_SUCCESS_CRITERIA
+status: DONE
 spec_path: .opencode/.issues/2307/spec.md
 spec_exists: true
-spec_has_body: false
-spec_has_success_criteria: false
+spec_has_body: true
+spec_has_success_criteria: true
 approval_status:
   approved: true
-  label: approved-for-plan
+  label: approved-for-pr
   source: .opencode/.issues/2307/issue.yaml labels
-sc_count: 0
+sc_count: 4
 artifact_presence:
-  blast-radius.yaml: false
-  concern-map.yaml: false
-  code-path-inventory.yaml: false
-  cross-cutting-matrix.yaml: false
-  interface-compatibility.yaml: false
-  state-analysis.yaml: false
-  testability-assessment.yaml: false
+  blast-radius.yaml: true
+  concern-map.yaml: true
+  code-path-inventory.yaml: true
+  cross-cutting-matrix.yaml: true
+  interface-compatibility.yaml: true
+  state-analysis.yaml: true
+  testability-assessment.yaml: true
 scope_boundary_findings:
-  - "Spec has no 'affected files' section; body is empty (frontmatter only)."
-  - "remote.md summarizes issue: skills/git-workflow/enforcement/url_validation.sh line 18 hardcodes local base=\"dev\"; expected resolution via $DEFAULT_BRANCH."
+  - "Spec references .opencode/skills/git-workflow/enforcement/url_validation.sh — EXISTS."
+  - "Spec references .opencode/skills/git-workflow-branch/tasks/pre-work.md — EXISTS."
+  - "Spec references .opencode/skills/git-workflow-pr/tasks/pr-creation.md — EXISTS."
+  - "Spec references .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md — EXISTS."
+  - "All referenced scope files verified present in the codebase; no missing-file findings."
 notes:
-  - "spec.md contains only YAML frontmatter (number, title, status, labels, created, updated, remote metadata). No success criteria table exists."
-  - "Artifacts directory did not exist; created it and recorded all 7 analytical artifacts as missing."
+  - "Spec body is fully populated with 4 success criteria (SC-1..SC-4), all behavioral evidence type."
+  - "All 7 required analytical artifacts present in 2307/artifacts/."
+  - "Approval label is approved-for-pr (for_pr scope)."
