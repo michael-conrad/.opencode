@@ -24,6 +24,11 @@ dispatch:
   - phase: 1
     skill: git-workflow-pr
     task: create
+lifecycle_events:
+  - timestamp: "2026-08-21T05:35:32Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2308/plan.md"
+    phase_count: 1
 ---
 
 # Implementation Plan — #2308 — Replace Residual 'dev' Trunk References
@@ -39,9 +44,9 @@ dispatch:
 
 ## Pre-Implementation
 
-- [ ] **Coherence gate** — dispatch `coherence-extraction` from audit to verify spec/plan coherence before RED routing. (**sub-agent**)
+- [ ] **Pre-regression** — dispatch `phase-0` from test-driven-development to run regression test patterns before the RED phase. (**sub-agent**)
   - Context: `{issue_number: 2308}`
-- [ ] **Baseline check** — dispatch `pre-red-baseline` from implementation-pipeline to verify trunk tip, clean state, and submodule currency. (**sub-agent**)
+- [ ] **Pre-regression verify** — dispatch `verify` from verification-before-completion to confirm the pre-regression results. (**sub-agent**)
   - Context: `{issue_number: 2308}`
 
 ## Phase 1 — Replace residual 'dev' trunk references with $DEFAULT_BRANCH (SC-1)
@@ -64,7 +69,7 @@ Concern: Eliminate all 5 residual hardcoded `dev` trunk/tip references in `clean
   - Line 327: "Local dev synced" → "Local $DEFAULT_BRANCH synced"
   - Do NOT alter any executable command. Do NOT modify the `$DEFAULT_BRANCH` resolution block (lines 9-12). No scope creep. (**clean-room**)
   - Context: `{issue_number: 2308}`, `{sc: SC-1}`
-- [ ] **Post-regression** — run the regression test patterns to confirm no other `cleanup.md` behavior changed. (**sub-agent**)
+- [ ] **Post-regression** — dispatch `phase-4` from test-driven-development to run the regression test patterns confirming no other `cleanup.md` behavior changed. (**sub-agent**)
   - Context: `{issue_number: 2308}`
 - [ ] **Verify** — dispatch `verify` from verification-before-completion to confirm the grep pattern `origin/dev|local dev|at dev|to dev|dev tip|dev HEAD|dev synced` returns zero matches against `cleanup.md`. (**sub-agent**)
   - Context: `{issue_number: 2308}`, `{sc: SC-1}`
@@ -85,17 +90,13 @@ Concern: Eliminate all 5 residual hardcoded `dev` trunk/tip references in `clean
 
 - [ ] **Structural checks** — dispatch `checklist` from finishing-a-development-branch to run lint/typecheck/format checks. (**sub-agent**)
   - Context: `{issue_number: 2308}`
-- [ ] **Verification before completion** — dispatch `completion` from verification-before-completion to verify all SCs are satisfied. (**sub-agent**)
-  - Context: `{issue_number: 2308}`
 - [ ] **Pre-PR gate** — dispatch `verify` from verification-before-completion to check all SC verdicts — BLOCK if any FAIL. (**sub-agent**)
   - Context: `{issue_number: 2308}`
-- [ ] **Audit** — dispatch `verification-audit DiMo investigator` from audit (followed by validator, evaluator, arbiter in sequence) with `{spec_local_dir, artifact_evidence_dir}`. If non-clean-pass, remediate and restart. On clean PASS, collect artifact path for cross-validate. (**sub-agent**)
-  - Context: `{issue_number: 2308}`
-- [ ] **Cross-validate** — dispatch `cross-validate` from audit to produce consensus findings. (**clean-room**)
+- [ ] **Audit** — dispatch `verification-audit DiMo investigator` from audit (followed by validator, evaluator, arbiter in sequence) with `{spec_local_dir, artifact_evidence_dir}`. If non-clean-pass, remediate and restart. (**sub-agent**)
   - Context: `{issue_number: 2308}`
 - [ ] **Regression check** — dispatch `phase-4` from test-driven-development to run final regression test patterns. (**sub-agent**)
   - Context: `{issue_number: 2308}`
-- [ ] **Review prep** — dispatch `review-prep` from git-workflow to prepare PR review context. (**sub-agent**)
+- [ ] **Review prep** — dispatch `review-prep` from git-workflow-pr to prepare PR review context. (**sub-agent**)
   - Context: `{issue_number: 2308}`
 - [ ] **Create PR** — dispatch `create` from git-workflow-pr to create the pull request. (**sub-agent**)
   - Context: `{issue_number: 2308}`, `{authorization_scope}`, `{halt_at}`
