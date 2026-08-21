@@ -63,11 +63,20 @@ def is_pair_mode_branch() -> tuple[bool, str | None]:
         return True, branch
     return False, None
 
+def get_default_branch() -> str:
+    remote_show = run_git(["remote", "show", "origin"])
+    if remote_show:
+        match = re.search(r"HEAD branch:\s*(\S+)", remote_show)
+        if match:
+            return match.group(1)
+    return "main"
+
 def build_pair_mode_resume(branch: str) -> str:
     issue_match = re.search(r"/(\d+)[-/]", branch)
     issue_hint = f"\n- Related issue: #{issue_match.group(1)}" if issue_match else ""
 
-    diff_stat = run_git(["diff", "--stat", "origin/dev..HEAD"])
+    default_branch = get_default_branch()
+    diff_stat = run_git(["diff", "--stat", f"origin/{default_branch}..HEAD"])
     summary = ""
     if diff_stat:
         lines = diff_stat.strip().splitlines()
