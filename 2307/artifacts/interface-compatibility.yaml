@@ -25,3 +25,44 @@ interfaces:
     backward_compatible: true
     compatibility_notes: "Not modified by this fix (non-requirement R8)."
     sc_ids: []
+
+dependency_contract:
+  issue_number: 2307
+  repo: .opencode
+  source: .opencode/skills/git-workflow/enforcement/url_validation.sh
+  dependencies:
+    - name: base resolution order
+      type: variable-resolution
+      source: .opencode/skills/git-workflow/enforcement/url_validation.sh (construct_compare_url)
+      target: .opencode/skills/git-workflow/enforcement/url_validation.sh (base defaulting logic)
+      constraint: >
+        The base SHALL resolve in order: explicit --base override (R-4) -> dynamic
+        remote HEAD branch (R-2) -> 'main' fallback (R-). The resolution is confined
+        to the base defaulting logic in construct_compare_url(); the URL template
+        https://github.com/${owner}/${repo}/compare/${base}...${branch} is unchanged
+        (R-9).
+      direction: source -> target (read)
+    - name: DEFAULT_BRANCH resolution pattern
+      type: pattern-conformance
+      source: ..opencode/skills/git-workflow-branch/tasks/pre-work.md
+      target: .opencode/skills/git-workflow/enforcement/url_validation.sh
+      constraint: >
+        construct_compare_url() MUST reuse the established DEFAULT_BRANCH resolution
+        pattern verbatim: `git remote show origin 2>/dev/null | sed -n "s/.*HEAD
+        branch: //p"` with a 'main' fallback, to maintain consistency across the
+        skill deck (R-2, R-).
+      direction: reference (pattern source)
+    - name: URL format constraint
+      type: format-constraint
+      source: .opencode/skills/git-workflow/enforcement/url_validation.sh
+      target: compare URL output
+      constraint: >
+        The compare URL format SHALL NOT change beyond base branch resolution
+        (R-9). Only the base default value changes; the template and owner/repo
+        character-match verification remain intact (R-7).
+      direction: source -> target (emit)
+  type_constraints:
+    - base: string (branch name, e.g. "master" or "main")
+    - DEFAULT_BRANCH: string (branch name, empty when remote HEAD unresolvable)
+    - owner: string (must match URL character pattern)
+    - repo: string (must match URL character pattern)

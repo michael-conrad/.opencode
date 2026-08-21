@@ -1,0 +1,17 @@
+spec: .opencode/.issues/2309/spec.md
+code_paths:
+  - sc: SC-1
+    path: .opencode/tools/session-init
+    location: "Guard checks docstring (line 36)"
+    implied_change: "Remove the 'dev branch: Create from origin/dev or main/master if missing' line from the docstring."
+    verification: "grep -n 'dev branch\|origin/dev' tools/session-init returns no match in the docstring."
+  - sc: SC-2
+    path: .opencode/tools/session-init
+    location: "Guard checks docstring (line 37)"
+    implied_change: "Remove the '.worktrees/main/: Bootstrap worktree layout if not set up' line from the docstring."
+    verification: "grep -n 'worktrees/main' tools/session-init returns no match in the docstring."
+  - sc: SC-3
+    path: .opencode/tools/session-init
+    location: "Guard checks docstring (line 38)"
+    implied_change: "Preserve the '.env gitignore: Warn if .env exists but is not in .gitignore' line, as _check_credential_files_gitignored() still exists and is called by run_guard_checks()."
+    verification: "grep -n '.env gitignore' tools/session-init still matches."

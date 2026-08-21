@@ -1,0 +1,11 @@
+spec_path: .opencode/.issues/2309/spec.md
+sc_count: 3
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_summary: "Documentation-only correction to the 'Guard checks' docstring in .opencode/tools/session-init. Removes stale references to the removed 'dev branch' guard check (SC-1) and '.worktrees/main/' worktree bootstrap (SC-2), while preserving the still-current '.env gitignore' line (SC-3). Single affected file, single concern, single phase. No runtime behavior change. Out of scope: scripts/validate-submodule-refs.sh and scripts/session_context_triggers.py."

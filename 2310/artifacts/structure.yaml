@@ -1,0 +1,36 @@
+# Structure artifact — issue #2310 (dynamic trunk resolution in session_context_triggers.py)
+# Phase decomposition, dependency DAG, and skill+task selection per writing-plans research task.
+
+spec_path: .opencode/.issues/2310/spec.md
+sc_count: 1
+phase_count: 1
+
+phases:
+  - id: phase_1
+    sc: SC-1
+    plan_item: 1
+    description: "Dynamic trunk resolution in session_context_triggers.py — add get_default_branch() helper and use resolved trunk branch in build_pair_mode_resume() diff stat"
+    evidence_type: behavioral
+    files:
+      - .opencode/scripts/session_context_triggers.py
+    skill_tasks:
+      - red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      - green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      - verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - commit-inline: "orchestrator: git add <files> && git commit -m <message>"
+
+edges: []
+
+dependency_dag:
+  nodes:
+    - phase_1
+  edges: []
+  note: "Single phase (SC-1); no inter-phase dependency. All RED/GREEN/verify/commit for SC-1 live in phase_1."
+
+triplet_co_location:
+  status: VERIFIED
+  note: "SC-1 RED/GREEN/COMMIT all assigned to phase_1; no split across phases."
+
+cross_phase_dependency:
+  status: VERIFIED
+  note: "No RED test in any phase depends on SC output not yet committed in the same phase (single phase; no inter-phase edges)."

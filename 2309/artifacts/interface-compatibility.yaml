@@ -1,0 +1,26 @@
+spec: .opencode/.issues/2309/spec.md
+interface_boundaries:
+  - source: .opencode/tools/session-init
+    target: null
+    interface: "Guard checks docstring text"
+    compatibility: "No interface boundary crossed. The change is confined to a docstring within a single file. No function signatures, module imports, or cross-module contracts are affected."
+    notes: "The docstring documents run_guard_checks() behavior but does not define an interface consumed by other modules. No compatibility risk."
+dependency_contract:
+  - source: .opencode/tools/session-init
+    source_type: executable script
+    target: run_guard_checks()
+    target_type: function (internal to session-init)
+    constraint: "The docstring SHALL enumerate only the guard checks run_guard_checks() actually performs. _check_credential_files_gitignored() still exists and is called by run_guard_checks(), so the '.env gitignore' line SHALL be retained."
+    evidence: "grep -n '.env gitignore' tools/session-init matches (line 38); _check_credential_files_gitignored() referenced in spec R-3."
+  - source: .opencode/tools/session-init
+    source_type: executable script
+    target: _ensure_dev_branch()
+    target_type: function (removed)
+    constraint: "The docstring SHALL NOT reference a 'dev branch' guard check or any 'origin/dev' branch-creation behavior, because _ensure_dev_branch() was removed in commit bb2851f0 (#1657)."
+    evidence: "grep -n 'dev branch\|origin/dev' tools/session-init currently matches (line 36) — the stale line to remove; commit bb2851f0 removed the function."
+  - source: .opencode/tools/session-init
+    source_type: executable script
+    target: worktree bootstrap
+    target_type: behavior (removed)
+    constraint: "The docstring SHALL NOT reference the '.worktrees/main/' worktree bootstrap, because the worktree bootstrap was removed in commit 77459166 (#1659)."
+    evidence: "grep -n 'worktrees/main' tools/session-init currently matches (line 37) — the stale line to remove; commit 77459166 removed the bootstrap."

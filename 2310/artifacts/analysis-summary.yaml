@@ -1,17 +1,30 @@
 spec_path: .opencode/.issues/2310/spec.md
-approval_status: approved-for-plan
-sc_count: 0
+issue_number: 2310
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 1
+sc_ids:
+  - SC-1
 artifact_presence:
-  blast-radius.yaml: MISSING
-  concern-map.yaml: MISSING
-  code-path-inventory.yaml: MISSING
-  cross-cutting-matrix.yaml: MISSING
-  interface-compatibility.yaml: MISSING
-  state-analysis.yaml: MISSING
-  testability-assessment.yaml: MISSING
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
 scope_boundary_findings:
-  - "spec.md contains only YAML frontmatter (retroactive_import) - no spec body with success criteria table"
-  - "Referenced file .opencode/scripts/session_context_triggers.py EXISTS and confirmed at line 70 with hardcoded 'origin/dev..HEAD'"
-  - "No artifacts directory exists at 2310/artifacts/"
-status: BLOCKED
-blocker_reason: "NO_SUCCESS_CRITERIA - spec.md for issue 2310 has no spec body; only frontmatter with labels: [] - no success criteria table present"
+  - path: .opencode/scripts/session_context_triggers.py
+    status: exists
+  - path: .opencode/skills/completion-core/completion-core.md
+    status: exists
+  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    status: exists
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    status: exists
+  - path: .opencode/skills/verification-before-completion/tasks/verify.md
+    status: exists
+  - path: .opencode/skills/git-workflow-commit/tasks/pair-commit.md
+    status: exists
+missing_artifacts: []
+missing_scope_files: []

@@ -1,0 +1,53 @@
+status: DONE
+issue_number: 2307
+repo: .opencode
+finding_summary: >-
+  All 4 success criteria (SC-1..SC-4) concern the same function
+  construct_compare_url() in url_validation.sh and form a single implementation
+  phase. No cross-phase dependencies exist; the dependency DAG has no edges.
+  Each SC maps to one item with its own RED/GREEN/verify/commit cycle.
+
+phases:
+  - phase: 1
+    name: "Fix hardcoded 'dev' base branch in construct_compare_url()"
+    sc_ids: [SC-1, SC-2, SC-3, SC-4]
+    concern: >-
+      Base defaulting logic in construct_compare_url(). Replace static
+      'dev' with dynamic remote HEAD branch resolution, preserve --base
+      override, add 'main' fallback, and preserve verification/error paths.
+    skill_task_selection:
+      red: "task(..., prompt: \"execute red task from test-driven-development\")"
+      green: "task(..., prompt: \"execute green task from test-driven-development\")"
+      verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      commit: "orchestrator: git add <files> && git commit -m \"<message>\""
+    items:
+      - item: 1
+        sc_id: SC-1
+        description: "Resolve base from remote HEAD branch instead of hardcoded 'dev'"
+      - item: 2
+        sc_id: SC-2
+        description: "Preserve --base explicit override"
+      - item: 3
+        sc_id: SC-3
+        description: "Fallback to 'main' when remote HEAD branch is undeterminable"
+      - item: 4
+        sc_id: SC-4
+        description: "Preserve character-match verification and error handling"
+
+dependency_dag:
+  edges: []
+  notes: >-
+    Single phase; no phase depends on the output of another phase. No
+    cross-phase dependency edges.
+
+triplet_co_location:
+  status: PASS
+  notes: >-
+    All SCs (SC-1..SC-4) have their RED, GREEN, and COMMIT steps assigned to
+    the same phase (Phase 1). No SC has steps split across phases.
+
+cross_phase_dependency:
+  status: PASS
+  notes: >-
+    Single phase; no RED test depends on SC output from a later phase. No
+    cross-phase dependency violations.

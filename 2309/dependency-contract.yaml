@@ -1,0 +1,12 @@
+# Dependency contract for #2309: Correct stale 'Guard checks' docstring in tools/session-init
+# Single phase, single concern, single file. No cross-phase dependencies.
+variables:
+  phase_1_complete:
+    type: bool
+  pr_created:
+    type: bool
+preconditions:
+  # PR only after the single phase completes
+  - "z3.Implies(pr_created == z3.BoolVal(True), phase_1_complete == z3.BoolVal(True))"
+postconditions: []
+invariants: []

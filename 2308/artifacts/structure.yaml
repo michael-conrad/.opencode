@@ -1,0 +1,40 @@
+structure:
+  issue_number: 2308
+  repo: .opencode
+  target_file: skills/git-workflow-cleanup/tasks/cleanup.md
+  phases:
+    - phase: 1
+      title: Replace residual 'dev' trunk references with $DEFAULT_BRANCH
+      sc_assignments:
+        - SC-1
+      items:
+        - item: 1
+          sc_id: SC-1
+          red: >
+            grep -nE "origin/dev|local dev|at dev|to dev|dev tip|dev HEAD|dev synced"
+            skills/git-workflow-cleanup/tasks/cleanup.md returns matches
+          green: >
+            Replace the 5 residual references (lines 109, 141, 146, 180, 327) with
+            $DEFAULT_BRANCH or neutral terminology
+          verify: >
+            grep -nE "origin/dev|local dev|at dev|to dev|dev tip|dev HEAD|dev synced"
+            skills/git-workflow-cleanup/tasks/cleanup.md returns zero matches
+          commit: single atomic commit
+      skill_task_selection:
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        audit: task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first")
+        structural-checks: task(..., prompt: "execute checklist task from finishing-a-development-branch")
+        pre-pr-gate: task(..., prompt: "execute verify task from verification-before-completion")
+        create-pr: task(..., prompt: "execute create task from git-workflow-pr")
+  dependency_dag:
+    edges: []
+  triplet_co_location:
+    - sc_id: SC-1
+      phase: 1
+      red_phase: 1
+      green_phase: 1
+      commit_phase: 1
+      co_located: true
+  cross_phase_dependencies: []

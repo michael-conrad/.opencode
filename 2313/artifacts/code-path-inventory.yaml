@@ -1,0 +1,18 @@
+spec_path: .opencode/.issues/2313/spec.md
+code_paths:
+  - sc: SC-1
+    file: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    implied_path: Add 8th check after step 7 (pointer-match). For each submodule, resolve DEFAULT_BRANCH, fetch origin, run `git merge-base --is-ancestor <committed_pointer_sha> origin/$DEFAULT_BRANCH`; on non-zero exit report BLOCKED with SUBMODULE_UNMERGED_COMMIT.
+    existing_context: Steps 1-7 already verify parent/submodule trunk tip, clean trees, remote tracking match, and pointer match. New check extends the submodule verification sequence.
+  - sc: SC-2
+    file: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    implied_path: In the Pre-Commit Submodule Pointer Check section, after detecting dirty pointers, verify each newly-staged submodule pointer SHA is reachable from origin/$DEFAULT_BRANCH via `git merge-base --is-ancestor`; block commit with a clear error when a pointer references a local-only commit.
+    existing_context: Pre-Commit Submodule Pointer Check (lines 34-42) currently detects dirty pointers and gates staging. New check adds reachability verification of staged pointers.
+  - sc: SC-3
+    file: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    implied_path: In Step 0 Submodule PR Dependency Check, alongside the existing liveness check, verify every committed submodule gitlink SHA exists on origin/$DEFAULT_BRANCH; block PR creation with SUBMODULE_PR_MISSING when any pointer references an unmerged commit.
+    existing_context: Step 0 currently dispatches a sub-agent for report-only liveness verification comparing committed SHAs against remote trunk HEAD SHAs. New check adds merged-commit reachability verification.
+  - sc: SC-1, SC-2, SC-3
+    file: .opencode/tests-v2/behaviors/git-workflow/
+    implied_path: Create one behavioral test per SC under .opencode/tests-v2/behaviors/git-workflow/, each sending a real-domain prompt through opencode run and asserting stderr evidence of the verification action or block.
+    existing_context: Directory does not yet exist; follows the established behavioral test pattern in .opencode/tests-v2/behaviors/.

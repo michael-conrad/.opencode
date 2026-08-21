@@ -1,0 +1,35 @@
+# Dependency contract — issue #2313
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "pre-work merged-commit gate (SC-1) — trunk-tip-verification verifies committed submodule pointer SHA is ancestor of origin/$DEFAULT_BRANCH"
+  phase_2:
+    type: bool
+    description: "pre-commit merged-commit gate (SC-2) — implementation pre-commit section blocks commit when staged submodule pointer references a local-only commit"
+  phase_3:
+    type: bool
+    description: "enforcement-gate merged-commit check (SC-3) — PR creation Step 0 blocks PR when any committed submodule gitlink SHA is unmerged"
+preconditions: []
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+    scs:
+      - SC-2
+  phase_3:
+    files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    scs:
+      - SC-3
+edges: []
+notes:
+  - "Each SC fires at an independent workflow phase (pre-work, pre-commit, PR-creation). No phase depends on the output of another phase. All three share the same git merge-base --is-ancestor mechanism but operate on independent gate boundaries."

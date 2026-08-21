@@ -1,0 +1,11 @@
+spec: .opencode/.issues/2309/spec.md
+concerns:
+  - id: docstring-accuracy
+    name: "Guard checks docstring accuracy"
+    description: "The 'Guard checks' docstring in tools/session-init must accurately enumerate only the guard checks run_guard_checks() actually performs."
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    phase_boundary: Phase 1
+    notes: "All three SCs are a single concern: correcting the docstring to match current guard-check behavior. They are independently verifiable but share one edit and one phase."

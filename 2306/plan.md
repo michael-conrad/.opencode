@@ -59,6 +59,24 @@ no_recursive_mirror_source: ".opencode/guidelines/060-tool-usage.md §4"
 per_submodule_directive: "explicit git -C <path> operations"
 ```
 
+**Procedure:**
+- [ ] 3. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT contain a scope-bound statement referencing `submodule_paths` and direct pointers. **→ SC-1**
+- [ ] 4. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the scope-bound statement to Step 2 of the task card. **→ SC-1**
+- [ ] 5. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-1.
+- [ ] 6. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT forbid recursion into nested submodules. **→ SC-2**
+- [ ] 7. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the recursion prohibition to Step 2 of the task card. **→ SC-2**
+- [ ] 8. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-2.
+- [ ] 9. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT forbid `git submodule foreach` for the sync operation. **→ SC-3**
+- [ ] 10. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the `foreach` prohibition to Step 2 of the task card. **→ SC-3**
+- [ ] 11. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-3.
+- [ ] 12. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card lacks the no-`--recursive` constraint. **→ SC-4**
+- [ ] 13. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the no-`--recursive` constraint consistent with `060-tool-usage.md` §4 wording. **→ SC-4**
+- [ ] 14. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-4.
+- [ ] 15. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT direct explicit per-submodule operations. **→ SC-5**
+- [ ] 16. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add an explicit per-submodule `git -C <path>` operation directive to the task card. **→ SC-5**
+- [ ] 17. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-5.
+- [ ] 18. **VbC (**clean-room**).** Dispatch `execute verify task from verification-before-completion`. Read the task card and assert all five Phase 1 SCs (SC-1..SC-5) are satisfied. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+
 ### Phase 2 — False-flag avoidance and divergence preservation
 
 | Field | Value |
@@ -77,6 +95,27 @@ sc_ids: [SC-6, SC-7]
 false_flag_note: "syncing a submodule to its own trunk tip must not be reported as a parent pointer change"
 divergence_block: "preserve byte-identical from pre-change baseline"
 ```
+
+**Procedure:**
+- [ ] 19. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT document false-pointer-flag avoidance. **→ SC-6**
+- [ ] 20. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add a note that syncing a submodule to its own trunk tip must not be reported as a parent pointer change. **→ SC-6**
+- [ ] 21. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-6.
+- [ ] 22. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the `--ff-only` divergence block differs from the pre-change baseline. **→ SC-7**
+- [ ] 23. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Ensure the divergence block is unchanged (no-op if already preserved). **→ SC-7**
+- [ ] 24. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-7 (or no-op if already preserved).
+- [ ] 25. **VbC (**clean-room**).** Dispatch `execute verify task from verification-before-completion`. Read the task card and assert both Phase 2 SCs (SC-6, SC-7) are satisfied. **→ SC-6, SC-7**
+
+---
+
+## Post-Implementation
+
+- [ ] 26. **Structural checks (**sub-agent**).** Dispatch `execute checklist task from finishing-a-development-branch`. Run the finishing checklist (lint, typecheck, format) on the modified task card and confirm no regressions.
+- [ ] 27. **Verification (**clean-room**).** Dispatch `execute verify task from verification-before-completion`. Read all SC verdicts (SC-1..SC-7); BLOCK if any FAIL. Confirm all 7 SCs pass with string evidence.
+- [ ] 28. **Audit (**clean-room**).** Dispatch `execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first`, followed by validator, evaluator, arbiter in sequence. Adversarially audit the task card change against the spec.
+- [ ] 29. **Cross-validate (**clean-room**).** Independently re-verify the deliverable against the spec's success criteria, confirming SC-7's divergence block is byte-identical to the pre-change baseline.
+- [ ] 30. **Review-prep (**sub-agent**).** Dispatch `execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first`. Prepare PR review context.
+- [ ] 31. **Create PR (**sub-agent**).** Dispatch `execute create task from git-workflow-pr`. Create the pull request for the task card change.
+- [ ] 32. **Completion (**sub-agent**).** Dispatch `execute completion task from completion-core`. Generate the completion executive summary.
 
 ---
 

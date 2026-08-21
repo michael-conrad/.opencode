@@ -31,3 +31,51 @@ phases:
         scope: internal-only
         change: "None"
     summary: "No breaking interface changes; one new internal helper, one internal logic modification"
+
+dependency_contract:
+  issue_number: 2310
+  repo: .opencode
+  source: .opencode/scripts/session_context_triggers.py
+  dependencies:
+    - name: trunk branch resolution
+      type: variable-resolution
+      source: .opencode/scripts/session_context_triggers.py (build_pair_mode_resume, line 70)
+      target: .opencode/scripts/session_context_triggers.py (diff stat computation)
+      constraint: >
+        The diff stat SHALL be computed against the dynamically resolved trunk
+        branch via `git remote show origin` HEAD branch (R-1, R-2), never the
+        hardcoded `origin/dev`. When resolution fails, get_default_branch()
+        returns the 'main' fallback (R-3).
+      direction: source -> target (read)
+    - name: get_default_branch helper
+      type: new-function
+      source: .opencode/scripts/session_context_triggers.py (get_default_branch)
+      target: .opencode/scripts/session_context_triggers.py (build_pair_mode_resume)
+      constraint: >
+        New internal helper get_default_branch() -> str resolves the trunk branch
+        name and returns 'main' fallback. It reuses run_git() for remote inspection
+        and MUST NOT introduce external dependencies (R-8, PEP 723
+        dependencies = [] preserved).
+      direction: source -> target (call)
+    - name: canonical trunk-resolution pattern
+      type: pattern-conformance
+      source: .opencode/skills/completion-core/completion-core.md and 4 other task files
+      target: .opencode/scripts/session_context_triggers.py
+      constraint: >
+        The fix MUST mirror the established codebase trunk-resolution pattern
+        (`git remote show origin` HEAD branch, fallback 'main') present in the 5
+        referenced task files (R-6).
+      direction: reference (pattern source)
+    - name: local-only repo handling
+      type: graceful-degradation
+      source: .opencode/scripts/session_context_triggers.py (is_local_only_repo)
+      target: .opencode/scripts/session_context_triggers.py (build_pair_mode_resume)
+      constraint: >
+        For local-only repos (no remote), the script SHALL omit the diff stat
+        gracefully without crashing (R-4). The diff-stat summary is appended only
+        when a diff exists, preserving existing pair-mode resume behavior (R-5).
+      direction: source -> target (read)
+  type_constraints:
+    - get_default_branch: str (branch name, e.g. "master" or "main", else "main" fallback)
+    - run_git: str | None (None on failure triggers fallback)
+    - branch: str (build_pair_mode_resume input, unchanged signature)

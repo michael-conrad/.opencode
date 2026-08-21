@@ -1,0 +1,30 @@
+spec_path: .opencode/.issues/2313/spec.md
+affected_files:
+  - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    exists: true
+    change: Add 8th check after step 7 (pointer-match) verifying each submodule's committed pointer SHA is an ancestor of origin/$DEFAULT_BRANCH via git merge-base --is-ancestor
+    scs: [SC-1]
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    exists: true
+    change: Add merged-commit check in pre-commit section verifying each newly-staged submodule pointer SHA is reachable from origin/$DEFAULT_BRANCH
+    scs: [SC-2]
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    exists: true
+    change: Add merged-commit check alongside existing liveness check in Step 0, blocking PR creation with SUBMODULE_PR_MISSING when any pointer references an unmerged commit
+    scs: [SC-3]
+  - path: .opencode/tests-v2/behaviors/git-workflow/
+    exists: false
+    change: Add behavioral enforcement tests per SC (directory does not yet exist; created as part of implementation)
+    scs: [SC-1, SC-2, SC-3]
+scope_summary:
+  in_scope:
+    - merged-commit verification in trunk-tip-verification (pre-work)
+    - merged-commit verification in pre-commit section of implementation task
+    - merged-commit verification in enforcement-gate (PR creation Step 0)
+    - behavioral enforcement tests for all three gates
+  out_of_scope:
+    - automatic submodule PR creation or cleanup
+    - changes to submodule pointer scanning mechanism (git submodule status pattern stays)
+    - changes to any submodule's own git workflow
+    - verification gate at deploy time
+    - merge-commit verification for non-submodule dependencies

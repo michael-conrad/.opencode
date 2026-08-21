@@ -1,0 +1,18 @@
+spec_path: .opencode/.issues/2313/spec.md
+state_transitions:
+  - sc: SC-1
+    from: pre-work gate accepts submodule pointer (no merged-commit check)
+    to: pre-work gate verifies committed pointer SHA is ancestor of origin/$DEFAULT_BRANCH; BLOCKED with SUBMODULE_UNMERGED_COMMIT on local-only commit
+    trigger: feature branch creation (pre-work trunk-tip-verification)
+    guard: git merge-base --is-ancestor <committed_pointer_sha> origin/$DEFAULT_BRANCH
+  - sc: SC-2
+    from: pre-commit accepts staged submodule pointer (no reachability check)
+    to: pre-commit blocks commit when a staged pointer references a local-only commit
+    trigger: staging submodule pointer before commit (implementation pre-commit section)
+    guard: git merge-base --is-ancestor <staged_pointer_sha> origin/$DEFAULT_BRANCH
+  - sc: SC-3
+    from: enforcement-gate passes submodule PR with unmerged references
+    to: enforcement-gate blocks PR creation with SUBMODULE_PR_MISSING when any committed gitlink SHA is unmerged
+    trigger: PR creation (enforcement-gate Step 0)
+    guard: git merge-base --is-ancestor <committed_gitlink_sha> origin/$DEFAULT_BRANCH
+summary: Each SC introduces a single guard transition at its workflow phase boundary. All three transitions share the same reachability guard mechanism but fire at independent points (pre-work, pre-commit, PR-creation).

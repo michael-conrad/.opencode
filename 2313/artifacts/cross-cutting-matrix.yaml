@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2313/spec.md
+cross_cutting_scs:
+  - sc: SC-1
+    spans_concerns: [pre-work-gate]
+    notes: Confined to the pre-work gate; no cross-concern span.
+  - sc: SC-2
+    spans_concerns: [pre-commit-gate]
+    notes: Confined to the pre-commit gate; no cross-concern span.
+  - sc: SC-3
+    spans_concerns: [pr-creation-gate]
+    notes: Confined to the PR-creation gate; no cross-concern span.
+shared_concerns:
+  - concern: behavioral-tests
+    scs: [SC-1, SC-2, SC-3]
+    notes: The behavioral test concern spans all three SCs — each SC produces exactly one behavioral test. This is the only cross-cutting concern.
+  - concern: submodule-reachability-mechanism
+    scs: [SC-1, SC-2, SC-3]
+    notes: All three gates share the same underlying mechanism (`git merge-base --is-ancestor` against origin/$DEFAULT_BRANCH). The mechanism is shared but each gate is an independent verification point in a distinct workflow phase.
+summary: The three verification gates are independent per-phase concerns. The only cross-cutting concerns are the shared reachability mechanism and the behavioral test suite spanning all three SCs.

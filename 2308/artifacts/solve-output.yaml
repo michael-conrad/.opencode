@@ -1,0 +1,30 @@
+# Solve output — issue #2308 (replace residual 'dev' trunk references in cleanup.md)
+# Results of Z3 constraint solving and planning verification.
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+model_query:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2308/dependency-contract.yaml --query 'phase_1'"
+  result: SAT
+  assignment:
+    phase_1: true
+  note: "Single phase (SC-1) satisfiable under contract preconditions+invariants (both empty)."
+
+check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2308/dependency-contract.yaml --state-path .opencode/.issues/2308/artifacts/state-analysis.yaml"
+  result: SAT
+  note: "State analysis assignments satisfy contract preconditions+postconditions+invariants. No state machine transitions (documentation-only change); phase_1 proceeds to true."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2308/artifacts/plan-problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 1
+  plan:
+    - complete_phase_1()
+  note: "Tamer engine produced a valid 1-action plan covering the single phase goal. No inter-phase ordering constraint (edges: [])."
+
+summary:
+  - "solve model: SAT — phase_1 reachable."
+  - "solve check: SAT — state analysis satisfies all contract constraints."
+  - "plan plan: SOLVED_SATISFICING: 1-step plan covers the phase goal."

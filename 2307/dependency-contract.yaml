@@ -1,0 +1,23 @@
+# Dependency contract — issue #2307
+# Generated from interface-compatibility.yaml dependency_contract section
+# Z3-contract schema per prior-issue convention (#2133, #2245, #2249)
+
+variables:
+  phase_1:
+    type: bool
+    description: "Fix hardcoded 'dev' base branch in construct_compare_url() (SC-1..SC-4)"
+preconditions: []
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/git-workflow/enforcement/url_validation.sh
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+edges: []
+notes:
+  - "Single phase; all 4 SCs (SC-1..SC-4) concern the same function construct_compare_url() base defaulting logic. No phase depends on the output of another phase; the dependency DAG has no edges."

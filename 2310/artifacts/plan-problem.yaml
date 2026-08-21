@@ -1,0 +1,14 @@
+# Planning problem for issue #2310 — dynamic trunk resolution in session_context_triggers.py
+# Single phase (SC-1); no inter-dependency (contract edges: [])
+domain: 2310-dynamic-trunk-resolution
+fluents:
+  - name: phase_1_done
+    type: bool
+actions:
+  - name: complete_phase_1
+    preconditions: []
+    effects:
+      - phase_1_done
+init: []
+goals:
+  - phase_1_done

@@ -1,0 +1,25 @@
+spec: .opencode/.issues/2309/spec.md
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - action: model
+    query: "phase_1_complete == z3.BoolVal(True)"
+    result: SAT
+    model:
+      phase_1_complete: true
+      pr_created: false
+  - action: check
+    contract_path: .opencode/.issues/2309/dependency-contract.yaml
+    state_path: .opencode/.issues/2309/artifacts/state-analysis.yaml
+    result: SAT
+    model:
+      phase_1_complete: false
+      pr_created: false
+planner:
+  engine: tamer
+  problem_path: .opencode/.issues/2309/artifacts/problem.yaml
+  result: SOLVED_SATISFICING
+  plan_length: 1
+  plan:
+    - run_p1()
+notes: "Single phase, single concern, single file. No cross-phase dependencies. The task card's literal tool invocations (solve model --query sat; plan plan --contract-path) were defective against the actual tool interfaces; corrected to valid Z3 query and --problem invocation respectively."

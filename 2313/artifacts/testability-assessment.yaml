@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2313/spec.md
+testability:
+  - sc: SC-1
+    evidence_type: Behavioral
+    test_approach: Behavioral enforcement test under .opencode/tests-v2/behaviors/git-workflow/ sending a real-domain prompt through opencode run and asserting stderr evidence of the trunk-tip-verification merged-commit check or SUBMODULE_UNMERGED_COMMIT block.
+    testability_notes: Requires real opencode run with AI models; scoped-limited test suite; model speed assessment gates full runs.
+  - sc: SC-2
+    evidence_type: Behavioral
+    test_approach: Behavioral enforcement test under .opencode/tests-v2/behaviors/git-workflow/ sending a real-domain prompt through opencode run and asserting stderr evidence of the pre-commit merged-commit check blocking a local-only pointer.
+    testability_notes: Requires real opencode run with AI models; scoped-limited test suite.
+  - sc: SC-3
+    evidence_type: Behavioral
+    test_approach: Behavioral enforcement test under .opencode/tests-v2/behaviors/git-workflow/ sending a real-domain prompt through opencode run and asserting stderr evidence of the enforcement-gate SUBMODULE_PR_MISSING block.
+    testability_notes: Requires real opencode run with AI models; scoped-limited test suite.
+summary: All three SCs are Behavioral evidence type. Each SC produces exactly one behavioral test. Tests are scoped-limited (not full-suite) and gated by model speed assessment.

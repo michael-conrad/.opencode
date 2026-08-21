@@ -1,0 +1,12 @@
+spec: .opencode/.issues/2309/spec.md
+affected_files:
+  - path: .opencode/tools/session-init
+    exists: true
+    change_type: docstring-only
+    description: "The 'Guard checks' docstring section (line 36) references a removed 'dev branch' guard check and the removed '.worktrees/main/' worktree bootstrap. The docstring must be corrected to remove these stale lines while preserving the still-current '.env gitignore' line."
+    blast_radius: "Documentation-only. No runtime behavior, function signatures, or output format changes. The only consumer is the docstring text itself; run_guard_checks() behavior is unchanged."
+out_of_scope:
+  - path: .opencode/scripts/validate-submodule-refs.sh
+    reason: "Defaults BRANCH='dev' (line 9); separate file with same hardcoded-dev pattern but out of scope for #2309 per spec Not Included section."
+  - path: .opencode/scripts/session_context_triggers.py
+    reason: "Diffs against origin/dev..HEAD (line 70); separate file, out of scope per spec Not Included section."

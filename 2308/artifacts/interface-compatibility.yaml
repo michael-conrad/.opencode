@@ -22,3 +22,29 @@ interface_compatibility:
       backward_compatible: true
       breaking: false
       internal_only: true
+dependency_contract:
+  issue_number: 2308
+  repo: .opencode
+  source: skills/git-workflow-cleanup/tasks/cleanup.md
+  dependencies:
+    - name: DEFAULT_BRANCH resolution
+      type: variable-resolution
+      source: skills/git-workflow-cleanup/tasks/cleanup.md (lines 9-12)
+      target: skills/git-workflow-cleanup/tasks/cleanup.md (prose/label references at lines 109, 141, 146, 180, 327)
+      constraint: >
+        The $DEFAULT_BRANCH variable must resolve to the trunk branch name at runtime.
+        Fallback DEFAULT_BRANCH="main" applies when no remote is present. The resolution
+        block (lines 9-12) is UNCHANGED; only prose/label references consume the variable.
+      direction: source -> target (read)
+    - name: trunk-reference terminology pattern
+      type: pattern-conformance
+      source: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+      target: skills/git-workflow-cleanup/tasks/cleanup.md
+      constraint: >
+        cleanup.md must follow the same dynamic $DEFAULT_BRANCH / neutral-terminology
+        pattern already established in branch-cleanup.md and verify-merge.md. No hardcoded
+        'dev' branch name may remain.
+      direction: reference (pattern source)
+  type_constraints:
+    - DEFAULT_BRANCH: string (branch name, e.g. "master" or "main")
+    - residual_dev_references: integer (must be 0 after change)

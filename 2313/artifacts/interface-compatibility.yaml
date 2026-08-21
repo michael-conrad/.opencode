@@ -1,0 +1,33 @@
+spec_path: .opencode/.issues/2313/spec.md
+interface_boundaries:
+  - boundary: trunk-tip-verification.md -> git submodule status / git merge-base --is-ancestor
+    scs: [SC-1]
+    description: The task file invokes git commands against submodule remotes. No cross-module code interface; the interface is the git CLI contract (exit code of `git merge-base --is-ancestor`).
+    compatibility: Compatible — git CLI is stable and already used in steps 1-7 of the same file.
+  - boundary: implementation.md -> git submodule status / git merge-base --is-ancestor
+    scs: [SC-2]
+    description: The pre-commit section invokes git commands to verify staged submodule pointers. Interface is the git CLI contract.
+    compatibility: Compatible — git CLI is stable and already used in the existing Pre-Commit Submodule Pointer Check.
+  - boundary: enforcement-gate.md -> task(subagent_type=general) -> git merge-base --is-ancestor
+    scs: [SC-3]
+    description: The enforcement-gate dispatches a sub-agent that performs report-only verification. The interface is the sub-agent result contract (status/submodule_checks) plus the git CLI contract.
+    compatibility: Compatible — sub-agent dispatch and result contract schema already exist in Step 0; the new check extends the verification performed by the sub-agent.
+dependency_contract:
+  - sc: SC-1
+    source: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    target: submodule remote origin/$DEFAULT_BRANCH
+    operation: git merge-base --is-ancestor <committed_pointer_sha> origin/$DEFAULT_BRANCH
+    type_constraint: exit code 0 = ancestor (merged); non-zero = local-only commit -> BLOCKED with SUBMODULE_UNMERGED_COMMIT
+    failure_mode: network error -> gate fails open (warns, does not block)
+  - sc: SC-2
+    source: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    target: submodule remote origin/$DEFAULT_BRANCH
+    operation: git merge-base --is-ancestor <staged_pointer_sha> origin/$DEFAULT_BRANCH
+    type_constraint: exit code 0 = reachable (merged); non-zero = local-only pointer -> block commit with clear error
+    failure_mode: network error -> gate fails open (warns, does not block)
+  - sc: SC-3
+    source: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    target: submodule remote origin/$DEFAULT_BRANCH
+    operation: git merge-base --is-ancestor <committed_gitlink_sha> origin/$DEFAULT_BRANCH
+    type_constraint: exit code 0 = exists on remote trunk; non-zero = unmerged commit -> BLOCK PR creation with SUBMODULE_PR_MISSING
+    failure_mode: network error -> gate fails open (warns, does not block)

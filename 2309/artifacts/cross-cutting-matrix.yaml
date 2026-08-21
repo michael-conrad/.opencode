@@ -1,0 +1,6 @@
+spec: .opencode/.issues/2309/spec.md
+cross_cutting:
+  - scs: [SC-1, SC-2, SC-3]
+    concern: docstring-accuracy
+    spans_multiple_concerns: false
+    notes: "All three SCs target the same single concern (docstring accuracy) and the same single file (.opencode/tools/session-init). No SC spans multiple concerns or modules. No cross-cutting matrix entries required beyond this single-concern grouping."

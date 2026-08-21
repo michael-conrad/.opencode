@@ -1,0 +1,22 @@
+# Planning problem — issue #2309
+# Single phase: correct the stale 'Guard checks' docstring in tools/session-init.
+# No cross-phase dependencies.
+domain: docstring-correction-plan
+objects:
+  - name: p1
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run_p1
+    params: []
+    preconditions:
+      - not done(p1)
+    effects:
+      - done(p1)
+init: []
+goals:
+  - done(p1)

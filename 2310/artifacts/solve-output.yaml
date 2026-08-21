@@ -1,0 +1,34 @@
+# Solve output — issue #2310 (dynamic trunk resolution in session_context_triggers.py)
+# Results of Z3 constraint solving and planning verification.
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+model_query:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2310/dependency-contract.yaml --query 'phase_1'"
+  result: SAT
+  assignment:
+    phase_1: true
+    canonical_pattern: false
+    get_default_branch_helper: false
+    local_only_degradation: false
+    trunk_branch_resolution: false
+  note: "phase_1 satisfiable under contract preconditions+invariants (both empty). Other constraint variables free (assignment arbitrary); phase_1 is the phase-goal variable."
+
+check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2310/dependency-contract.yaml --state-path .opencode/.issues/2310/artifacts/state-analysis.yaml"
+  result: SAT
+  note: "State analysis (no persistent state / no state machine) satisfies contract preconditions+postconditions+invariants. Initial all-false state is valid; single phase may proceed to true."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2310/artifacts/plan-problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 1
+  plan:
+    - complete_phase_1()
+  note: "Tamer engine produced a valid 1-action plan covering the single phase_1 goal. No inter-phase ordering constraint (edges: [])."
+
+summary:
+  - "solve model: SAT — phase_1 reachable."
+  - "solve check: SAT — state analysis satisfies all contract constraints."
+  - "plan plan: SOLVED_SATISFICING: 1-step plan covers the single phase goal."

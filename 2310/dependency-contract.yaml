@@ -1,0 +1,32 @@
+# Dependency contract — issue #2310
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Dynamic trunk resolution in session_context_triggers.py — get_default_branch() helper + build_pair_mode_resume uses resolved trunk (SC-1)"
+  trunk_branch_resolution:
+    type: bool
+    description: "Diff stat computed against dynamically resolved trunk branch via git remote show origin, never hardcoded origin/dev (R-1, R-2, R-3)"
+  get_default_branch_helper:
+    type: bool
+    description: "New internal helper get_default_branch() -> str reuses run_git() for remote inspection, no external dependencies (R-8)"
+  canonical_pattern:
+    type: bool
+    description: "Fix mirrors the established codebase trunk-resolution pattern (git remote show origin HEAD branch, fallback 'main') (R-6)"
+  local_only_degradation:
+    type: bool
+    description: "Local-only repos omit the diff stat gracefully without crashing (R-4, R-5)"
+preconditions: []
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/scripts/session_context_triggers.py
+    scs:
+      - SC-1
+edges: []
+notes:
+  - "Single SC (SC-1) maps to a single phase (phase_1). SC-1 is behavioral (with-test-home opencode run) and its RED/GREEN/verify/commit cycle all live in phase_1."
+  - "The four dependency constraint variables (trunk_branch_resolution, get_default_branch_helper, canonical_pattern, local_only_degradation) model the interface-compatibility dependency_contract constraints that SC-1 must satisfy. All are internal-only; no cross-phase dependency exists."

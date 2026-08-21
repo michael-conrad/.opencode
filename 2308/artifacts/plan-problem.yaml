@@ -1,0 +1,14 @@
+# Planning problem for issue #2308 — replace residual 'dev' trunk references in cleanup.md
+# Single-phase documentation/task-card terminology change; no inter-phase dependency (contract edges: [])
+domain: 2308-dev-terminology-cleanup
+fluents:
+  - name: phase_1_done
+    type: bool
+actions:
+  - name: complete_phase_1
+    preconditions: []
+    effects:
+      - phase_1_done
+init: []
+goals:
+  - phase_1_done

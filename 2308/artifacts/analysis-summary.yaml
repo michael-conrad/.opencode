@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2308/spec.md
+approval_status: approved-for-pr
+sc_count: 1
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - file: skills/git-workflow-cleanup/tasks/cleanup.md
+    status: exists
+  - file: skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md
+    status: exists
+  - file: skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md
+    status: exists
+findings:
+  - artifact: interface-compatibility.yaml
+    action: backfilled
+    detail: >
+      Added the required dependency_contract section (DEFAULT_BRANCH resolution and
+      trunk-reference terminology pattern) derived from the spec's affected files and
+      success criteria. All other 6 artifacts were pre-existing and complete.

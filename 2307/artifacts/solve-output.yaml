@@ -1,0 +1,32 @@
+# Solve output — issue #2307
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "tools/solve model --contract-path .opencode/.issues/2307/dependency-contract.yaml --query phase_1"
+  status: SAT
+  assignment:
+    phase_1: true
+  interpretation: "Goal state (Phase 1 — fix hardcoded 'dev' base branch, SC-1..SC-4 — complete) is satisfiable under the contract. No preconditions or invariants constrain it; single phase with no dependency edges."
+
+solve_check:
+  command: "tools/solve check --contract-path .opencode/.issues/2307/dependency-contract.yaml --state-path .opencode/.issues/2307/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+  interpretation: "Initial state analysis (no persistent state machine; phase_1 unstarted, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "tools/plan plan --problem .opencode/.issues/2307/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 1
+  plan:
+    - run_p1()
+  interpretation: "Planner produced a valid 1-step sequential plan (run_p1) achieving the goal done(p1). Single phase with no dependency edges requires only the single action."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+notes:
+  - "Task-card CLI forms in writing-plans/tasks/research.md steps 10-12 do not match current solve/plan tool signatures. Resolved using actual tool interfaces per prior-issue convention (see #2133, #2245, #2249, #2301)."
+  - "solve model: --contract-path + --query <z3 expr> (not --query sat). solve check: --state-path + --contract-path. plan plan: --problem <problem.yaml> (no --contract-path/--output; emits to stdout)."
+  - "All 4 SCs (SC-1..SC-4) are single-phase; no cross-phase dependencies. solve model SAT, solve check SAT, plan SOLVED_SATISFICING."

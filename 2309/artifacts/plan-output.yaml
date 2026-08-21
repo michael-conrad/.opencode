@@ -1,0 +1,7 @@
+domain: docstring-correction-plan
+engine: tamer
+plan_length: 1
+status: SOLVED_SATISFICING
+actions:
+  - name: run_p1
+    parameters: []

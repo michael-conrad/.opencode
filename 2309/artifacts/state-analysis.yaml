@@ -1,0 +1,17 @@
+spec: .opencode/.issues/2309/spec.md
+state_transitions:
+  - sc: SC-1
+    from: "Docstring references a 'dev branch' guard check and 'origin/dev' branch-creation behavior."
+    to: "Docstring no longer references a 'dev branch' guard check or any 'origin/dev' branch-creation behavior."
+    trigger: "Edit removes the stale 'dev branch' line from the Guard checks docstring."
+    runtime_impact: "None. run_guard_checks() behavior is unchanged throughout."
+  - sc: SC-2
+    from: "Docstring references the '.worktrees/main/' worktree bootstrap."
+    to: "Docstring no longer references the '.worktrees/main/' worktree bootstrap."
+    trigger: "Edit removes the stale '.worktrees/main/' line from the Guard checks docstring."
+    runtime_impact: "None. run_guard_checks() behavior is unchanged throughout."
+  - sc: SC-3
+    from: "Docstring references the '.env gitignore' guard check."
+    to: "Docstring still references the '.env gitignore' guard check."
+    trigger: "Edit preserves the '.env gitignore' line while removing the stale lines."
+    runtime_impact: "None. run_guard_checks() behavior is unchanged throughout."

@@ -1,0 +1,19 @@
+# Dependency contract — issue #2308
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Replace residual 'dev' trunk references with $DEFAULT_BRANCH (SC-1)"
+preconditions: []
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    scs:
+      - SC-1
+edges: []
+notes:
+  - "Single-phase documentation/task-card terminology change. No inter-phase dependencies (edges: []). $DEFAULT_BRANCH resolution block (lines 9-12) is unchanged; only prose/label references consume the variable. No state machine transitions."

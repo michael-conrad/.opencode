@@ -1,0 +1,17 @@
+spec: .opencode/.issues/2309/spec.md
+testability:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: "grep -n 'dev branch\|origin/dev' tools/session-init returns no match in the docstring."
+    testable: true
+    notes: "String evidence — grep pattern matching against the docstring text."
+  - sc: SC-2
+    evidence_type: string
+    verification_method: "grep -n 'worktrees/main' tools/session-init returns no match in the docstring."
+    testable: true
+    notes: "String evidence — grep pattern matching against the docstring text."
+  - sc: SC-3
+    evidence_type: string
+    verification_method: "grep -n '.env gitignore' tools/session-init still matches."
+    testable: true
+    notes: "String evidence — grep pattern matching against the docstring text. Regression: run 'uv run pytest .opencode/tests/'."

@@ -1,0 +1,49 @@
+spec: .opencode/.issues/2309/spec.md
+phase_decomposition:
+  - phase: 1
+    name: "Correct stale 'Guard checks' docstring in tools/session-init"
+    concern: docstring-accuracy
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    items:
+      - item: 1
+        sc: SC-1
+        red: "Structural assertion that the docstring still contains 'dev branch' or 'origin/dev' (fails — the stale line is present)."
+        green: "Edit the docstring to remove the stale 'dev branch' line."
+        commit: "Docstring edit removing the 'dev branch' line in tools/session-init."
+      - item: 2
+        sc: SC-2
+        red: "Structural assertion that the docstring still contains '.worktrees/main/' (fails — the stale line is present)."
+        green: "Edit the docstring to remove the stale '.worktrees/main/' line."
+        commit: "Docstring edit removing the '.worktrees/main/' line in tools/session-init."
+      - item: 3
+        sc: SC-3
+        red: "Structural assertion that the docstring still contains '.env gitignore' (passes — the line is present and must be preserved)."
+        green: "Preserve the '.env gitignore' line while removing the stale lines."
+        commit: "Docstring edit preserving the '.env gitignore' line in tools/session-init."
+dependency_dag:
+  edges: []
+  notes: "Single phase, single concern, single file. No cross-phase dependencies. All three SCs share one docstring edit and one phase."
+skill_task_selection:
+  - phase: 1
+    red: "test-driven-development -> task(..., prompt: \"execute red task from test-driven-development\")"
+    green: "test-driven-development -> task(..., prompt: \"execute green task from test-driven-development\")"
+    verify: "verification-before-completion -> task(..., prompt: \"execute verify task from verification-before-completion\")"
+    commit: "(orchestrator) git add <files> && git commit -m \"<message>\""
+    post_regression: "test-driven-development -> task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+    audit: "audit -> task(..., prompt: \"execute verification-audit DiMo investigator from audit. Read \\`audit/tasks/verification-audit-investigator.md\\` first\")"
+    z3_check: "(orchestrator) .opencode/tools/solve check --state-path ... --contract-path ..."
+    structural_checks: "finishing-a-development-branch -> task(..., prompt: \"execute checklist task from finishing-a-development-branch\")"
+    pre_pr_gate: "verification-before-completion -> task(..., prompt: \"execute verify task from verification-before-completion\")"
+    regression_check: "test-driven-development -> task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+    review_prep: "git-workflow-pr -> task(..., prompt: \"execute review-prep from git-workflow-pr. Read \\`git-workflow-pr/tasks/review-prep.md\\` first\")"
+    create_pr: "git-workflow-pr -> task(..., prompt: \"execute create task from git-workflow-pr\")"
+    exec_summary: "completion-core -> task(..., prompt: \"execute completion task from completion-core\")"
+triplet_co_location:
+  status: OK
+  notes: "All SCs (SC-1, SC-2, SC-3) have their RED, GREEN, and COMMIT steps assigned to Phase 1. No triplet split."
+cross_phase_dependency:
+  status: OK
+  notes: "No cross-phase dependencies. Single phase; no RED test depends on SC output from a later phase."
