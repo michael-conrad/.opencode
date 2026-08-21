@@ -1,0 +1,63 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Concern map for issue 2306 — git-workflow-branch submodule-sync task card scope bound
+artifact: concern-map
+issue_number: 2306
+status: backfilled
+
+# SCs decomposed into concern groups, mapped to phase boundaries per spec Section 7 (Traceability).
+concern_groups:
+  - id: concern-scope-bound
+    name: "Bound sync scope to direct submodule pointers"
+    phase: Phase 1
+    scs: [SC-1]
+    requirement: R-1
+    description: "Task card Step 2 explicitly bounds scope to the parent repo's direct submodule pointers passed in `submodule_paths`."
+  - id: concern-recursion-prohibition
+    name: "Forbid recursion into nested submodules"
+    phase: Phase 1
+    scs: [SC-2]
+    requirement: R-2
+    description: "Task card explicitly forbids recursion into nested submodules."
+  - id: concern-foreach-prohibition
+    name: "Forbid git submodule foreach for sync"
+    phase: Phase 1
+    scs: [SC-3]
+    requirement: R-3
+    description: "Task card explicitly forbids `git submodule foreach` for the sync operation."
+  - id: concern-guideline-mirror
+    name: "Mirror standing no-`--recursive` guideline"
+    phase: Phase 1
+    scs: [SC-4]
+    requirement: R-4
+    description: "Task card mirrors the no-`--recursive` constraint from `060-tool-usage.md` Section 4 verbatim-consistent."
+  - id: concern-per-submodule-directive
+    name: "Direct explicit per-submodule operations"
+    phase: Phase 1
+    scs: [SC-5]
+    requirement: R-5
+    description: "Task card directs explicit per-submodule `git -C <path>` operations rather than recursive/foreach iteration."
+  - id: concern-false-flag-avoidance
+    name: "Document false pointer-flag avoidance"
+    phase: Phase 2
+    scs: [SC-6]
+    requirement: R-6
+    description: "Task card documents that syncing a submodule to its own trunk tip must not be reported as a parent pointer change (no false `+` flag)."
+  - id: concern-divergence-preservation
+    name: "Preserve existing --ff-only divergence handling"
+    phase: Phase 2
+    scs: [SC-7]
+    requirement: R-7
+    description: "Task card preserves the existing `--ff-only` divergence handling and autonomous resolution logic unchanged."
+
+phase_boundaries:
+  - phase: Phase 1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    concerns: [concern-scope-bound, concern-recursion-prohibition, concern-foreach-prohibition, concern-guideline-mirror, concern-per-submodule-directive]
+    theme: "Add all scope-bound and recursion-forbidding instruction to the task card."
+  - phase: Phase 2
+    scs: [SC-6, SC-7]
+    concerns: [concern-false-flag-avoidance, concern-divergence-preservation]
+    theme: "Document false-flag avoidance and verify preservation of the correct divergence feature."

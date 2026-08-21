@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Interface compatibility for issue 2306 — git-workflow-branch submodule-sync task card scope bound
+artifact: interface-compatibility
+issue_number: 2306
+status: backfilled
+
+# Checks interface boundaries between affected modules. The change is confined to one
+# documentation file with read-only references; no code interface is altered.
+interfaces:
+  - interface: "task card <-> orchestrator"
+    from: .opencode/skills/git-workflow-branch/SKILL.md
+    to: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    compatible: true
+    note: "The orchestrator dispatches the task card with the `submodule_paths` context variable. The spec (SC-1) bounds the task card to these direct paths; the SKILL dispatch contract is unchanged. No interface break."
+  - interface: "task card <-> authoritative guideline"
+    from: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    to: .opencode/guidelines/060-tool-usage.md
+    compatible: true
+    note: "The task card mirrors the no-`--recursive` constraint (SC-4) from guideline Section 4. The guideline is read-only; the mirror is one-way and consistent. No interface break."
+  - interface: "task card <-> shared divergence reference"
+    from: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    to: .opencode/skills/git-workflow-branch/reference/submodule-divergence.md
+    compatible: true
+    note: "Declared a non-modification target. The `--ff-only` divergence block (SC-7) is preserved byte-identical, so the shared divergence reference relationship is unaffected."
+
+conclusions:
+  - "No interface compatibility issues. The modification is a single-file documentation edit with read-only external references."
+  - "The `submodule_paths` context contract between SKILL and task card is preserved and is the explicit scope bound for the sync operation."

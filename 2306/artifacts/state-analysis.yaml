@@ -1,0 +1,58 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# State analysis for issue 2306 — git-workflow-branch submodule-sync task card scope bound
+artifact: state-analysis
+issue_number: 2306
+status: backfilled
+
+# Identifies state transitions required by each SC. The change is a documentation fix to a
+# task card; the state transitions it governs are submodule pointer states during sync.
+state_transitions:
+  - sc: SC-1
+    subject: "submodule pointer"
+    from: "dirty pointer (diverged from committed parent SHA)"
+    to: "latest remote trunk tip"
+    note: "Scope is bounded to direct submodule pointers passed in `submodule_paths`; nested submodule pointers are out of scope."
+  - sc: SC-2
+    subject: "nested submodule pointer"
+    from: "any state"
+    to: "unchanged"
+    note: "Recursion into nested submodules is forbidden; nested pointers are never synced by this operation."
+  - sc: SC-3
+    subject: "submodule iteration mechanism"
+    from: "recursive/foreach iteration"
+    to: "explicit per-submodule iteration"
+    note: "`git submodule foreach` is forbidden for the sync operation."
+  - sc: SC-4
+    subject: "task card instruction wording"
+    from: "lacking no-`--recursive` constraint"
+    to: "mirrors authoritative guideline Section 4"
+    note: "Documentation-only state change; no runtime state."
+  - sc: SC-5
+    subject: "submodule operation target"
+    from: "implied recursive iteration"
+    to: "explicit `git -C <path>` per-submodule operation"
+    note: "Each direct path operated on independently, no cross-contamination (spec Section 11 concurrency edge case)."
+  - sc: SC-6
+    subject: "parent pointer flag reporting"
+    from: "false `+` flag reported on submodule trunk-tip sync"
+    to: "no false pointer change reported"
+    note: "Syncing a submodule to its own trunk tip must not be reported as a parent pointer change."
+  - sc: SC-7
+    subject: "`--ff-only` divergence handling"
+    from: "existing autonomous resolution logic"
+    to: "unchanged (byte-identical)"
+    note: "Preserved. Failure modes and recovery per spec Section 11 remain intact: divergence resolution, ahead/behind/rebase/escalate."
+
+edge_case_states:
+  - condition: "empty `submodule_paths`"
+    behavior: "report no submodules to sync without error"
+    note: "Spec Section 11 input boundary."
+  - condition: "submodule pointer already at trunk tip"
+    behavior: "report as already current, not as a change"
+    note: "Spec Section 11 state transition."
+  - condition: "failed sync on one submodule"
+    behavior: "report failure and continue with remaining direct submodules without recursing"
+    note: "Spec Section 11 recovery."

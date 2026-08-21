@@ -1,0 +1,54 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Testability assessment for issue 2306 — git-workflow-branch submodule-sync task card scope bound
+artifact: testability-assessment
+issue_number: 2306
+status: backfilled
+
+# Assigns evidence types to each SC per the spec (all string evidence, corrected from structural
+# by the pipeline validation gate in spec Section 12 change control).
+assessments:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: "Read the task card; assert a scope-bound statement referencing `submodule_paths` and direct pointers."
+    testable: true
+    note: "String content-presence assertion. Does not affect runtime behavior."
+  - sc: SC-2
+    evidence_type: string
+    verification_method: "Read the task card; assert recursion prohibition present."
+    testable: true
+    note: "String content-presence assertion."
+  - sc: SC-3
+    evidence_type: string
+    verification_method: "Read the task card; assert `foreach` prohibition present."
+    testable: true
+    note: "String content-presence assertion."
+  - sc: SC-4
+    evidence_type: string
+    verification_method: "Read the task card; assert no-`--recursive` constraint consistent with guideline wording."
+    testable: true
+    note: "String content-presence assertion against guideline wording."
+  - sc: SC-5
+    evidence_type: string
+    verification_method: "Read the task card; assert explicit per-submodule `git -C <path>` operation directive present."
+    testable: true
+    note: "String content-presence assertion."
+  - sc: SC-6
+    evidence_type: string
+    verification_method: "Read the task card; assert false-pointer-flag avoidance note present."
+    testable: true
+    note: "String content-presence assertion."
+  - sc: SC-7
+    evidence_type: string
+    verification_method: "Read the task card; assert divergence block byte-identical to pre-change state."
+    testable: true
+    note: "String/diff assertion requiring a baseline of the pre-change task card state."
+
+summary:
+  total_scs: 7
+  string_evidence: 7
+  behavioral_evidence: 0
+  structural_evidence: 0
+  note: "All 7 SCs are documentation-content-presence assertions verified by reading the task card. None affects runtime behavior, so no behavioral evidence is required. SC-7 requires a pre-change baseline to assert byte-identical preservation."

@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Code path inventory for issue 2306 — git-workflow-branch submodule-sync task card scope bound
+artifact: code-path-inventory
+issue_number: 2306
+status: backfilled
+
+# Code paths implied by each success criterion. All SCs are string-evidence, documentation
+# changes verified by reading the task card. There is no executable code path change.
+code_paths:
+  - sc: SC-1
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "Step 2 scope-bound statement"
+    note: "Statement referencing `submodule_paths` and direct pointers."
+  - sc: SC-2
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "Step 2 recursion prohibition"
+    note: "Explicit language forbidding recursion into nested submodules."
+  - sc: SC-3
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "Step 2 foreach prohibition"
+    note: "Explicit language forbidding `git submodule foreach` for the sync operation."
+  - sc: SC-4
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "no-`--recursive` constraint"
+    note: "Mirrors `.opencode/guidelines/060-tool-usage.md` Section 4 wording."
+  - sc: SC-5
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "explicit per-submodule directive"
+    note: "Directs `git -C <path>` operations on each direct submodule path independently."
+  - sc: SC-6
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "false-pointer-flag avoidance note"
+    note: "Documents that syncing to trunk tip must not be reported as a parent pointer change."
+  - sc: SC-7
+    path: .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    implied_construct: "`--ff-only` divergence handling block"
+    note: "Preserved byte-identical (lines 15-39 of current task card); no change required."
+
+# Reference (read-only) paths implied by the SCs, not modification targets.
+reference_paths:
+  - path: .opencode/guidelines/060-tool-usage.md
+    section: "Section 4"
+    role: authoritative no-`--recursive` constraint source for SC-4
+  - path: .opencode/skills/git-workflow-branch/SKILL.md
+    role: dispatches the task card with `submodule_paths`; unchanged
