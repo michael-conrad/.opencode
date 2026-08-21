@@ -1,11 +1,17 @@
 # Dependency contract — issue #2307
 # Generated from interface-compatibility.yaml dependency_contract section
 # Z3-contract schema per prior-issue convention (#2133, #2245, #2249)
+# Revised 2026-08-21: split single phase into two phases (C1 base-branch
+# resolution SC-1..SC-3; C2 URL construction/verification SC-4) to resolve
+# concern-separation validation finding F1.
 
 variables:
   phase_1:
     type: bool
-    description: "Fix hardcoded 'dev' base branch in construct_compare_url() (SC-1..SC-4)"
+    description: "Dynamic base branch resolution (C1) — SC-1..SC-3"
+  phase_2:
+    type: bool
+    description: "URL construction and verification regression guard (C2) — SC-4"
 preconditions: []
 invariants: []
 postconditions: []
@@ -17,7 +23,17 @@ phases:
       - SC-1
       - SC-2
       - SC-3
+  phase_2:
+    files:
+      - .opencode/skills/git-workflow/enforcement/url_validation.sh
+    scs:
       - SC-4
-edges: []
+edges:
+  - from: phase_1
+    to: phase_2
 notes:
-  - "Single phase; all 4 SCs (SC-1..SC-4) concern the same function construct_compare_url() base defaulting logic. No phase depends on the output of another phase; the dependency DAG has no edges."
+  - >-
+    Two phases, one concern each. Phase 1 (C1) implements dynamic base branch
+    resolution covering SC-1..SC-3. Phase 2 (C2) is the URL construction and
+    verification regression guard covering SC-4, which must run after the Phase
+    1 base resolution change. The dependency DAG has one edge: phase_1 -> phase_2.
