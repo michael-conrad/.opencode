@@ -34,7 +34,7 @@ construct_compare_url() {
     
     # Base resolution order: explicit --base override -> dynamic remote HEAD branch -> 'main' fallback
     if [[ -z "$base" ]]; then
-        base="$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')"
+        base="$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')" || true
         if [[ -z "$base" ]]; then
             base="main"
         fi
