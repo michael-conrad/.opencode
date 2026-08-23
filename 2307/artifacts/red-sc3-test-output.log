@@ -1,0 +1,21 @@
+
+=== SC-3: construct_compare_url falls back to 'main' when remote HEAD branch is undeterminable ===
+
+Target file: /home/muksihs/git/opencode-config/.opencode/skills/git-workflow/enforcement/url_validation.sh
+
+  PASS: SC-3: sandbox work repo has no remote configured
+  (construct_compare_url output:  )
+  FAIL: SC-3: compare URL falls back to 'main' as base when no remote is configured — got '' (expected 'https://github.com/o/r/compare/main...b' — RED: 'main' fallback unreachable on direct invocation)
+  FAIL: SC-3: construct_compare_url exits 0 (does not abort on missing remote) — got '' (expected 'rc=0' — RED: set -e aborts on failing 'git remote show origin' before 'main' fallback)
+
+=== Results ===
+PASSED: 1
+FAILED: 2
+
+RED phase expected: SC-3 (fallback to 'main' when remote HEAD branch is undeterminable) not yet applied.
+With no remote configured, 'git remote show origin' exits non-zero (128), and under
+set -euo pipefail the command substitution aborts a direct construct_compare_url
+invocation before the 'main' fallback assignment is reached. The fallback must be
+made reachable so the function produces a URL with 'main' as base (exit 0) when
+no remote is configured.
+

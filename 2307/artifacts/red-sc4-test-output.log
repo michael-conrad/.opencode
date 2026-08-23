@@ -1,0 +1,48 @@
+=== SC-4: construct_compare_url preserves set -euo pipefail, character-match verification, and error returns ===
+
+Target file: /home/muksihs/git/opencode-config/.opencode/skills/git-workflow/enforcement/url_validation.sh
+
+  PASS: SC-4: 'set -euo pipefail' is retained in url_validation.sh
+  PASS: SC-4: missing required args produce exit 1
+  PASS: SC-4: missing required args emit ERROR message
+  FAIL: SC-4: owner/repo character-match mismatch produces exit 1 — got rc=0 (expected 1 — RED: character-match error return regressed)
+  FAIL: SC-4: owner/repo character-match mismatch emits ERROR message — got 'https://github.com/o/r with space/compare/main...b' (expected 'ERROR: URL does not contain expected repo' — RED: character-match error message regressed)
+
+=== Results ===
+PASSED: 3
+FAILED: 2
+
+=== RED ABORT — classification: ALREADY_GREEN ===
+
+The SC-4 regression guard cannot validly produce a confirmed-failing RED test.
+
+The genuine SC-4 behaviors are all present and correct in the current (post-Phase-1)
+source:
+
+  1. `set -euo pipefail` — retained (line 11). PASS.
+  2. Missing required args -> ERROR + exit 1 (lines 30-33). PASS.
+  3. Owner/repo character-match checks — present (lines 47-55), but they are a
+     TAUTOLOGY: the URL template (line 43) interpolates ${owner} and ${repo} directly
+     into the URL, so the URL ALWAYS contains the owner and repo strings. The check
+     `[[ "$url" != *"${owner}"* ]]` can never be true for a normal invocation, so it
+     cannot be behaviorally triggered to fail.
+
+The two FAIL lines above are NOT evidence of a regression. They are the result of a
+FALSE PREMISE in the test's assertion 3: I attempted to trigger the character-match
+mismatch by passing a repo value containing a space ("r with space"). Because the URL
+template interpolates the repo verbatim, the URL still contains "r with space", so the
+character-match check passes (rc=0) and no ERROR is emitted. The check is a tautology
+and cannot be behaviorally exercised to fail.
+
+The spec's SC-4 verification method ("with owner/repo not in URL") describes a
+scenario that does not correspond to actual system state — the URL always contains the
+owner/repo. This is a false premise in the verification method.
+
+Because the expected-failing behavior (regression of verification/error handling) is
+NOT present — the code is already correct — a valid failing RED test cannot be
+produced. Classification: ALREADY_GREEN.
+
+The valid SC-4 regression assertions (set -euo pipefail retained, missing-arg
+ERROR + exit 1) PASS against the current code. The character-match check is present
+and intact; it simply cannot be behaviorally triggered to fail because it is a
+tautology of the URL construction.

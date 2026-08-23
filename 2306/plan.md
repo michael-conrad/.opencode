@@ -9,9 +9,9 @@ phase_count: 2
 
 # Implementation Plan — #2306 — Bound submodule-sync task card scope to direct pointers and forbid recursion
 
-**Goal:** Modify the `submodule-sync.md` task card so it bounds scope to the parent repo's direct submodule pointers, forbids recursion and `git submodule foreach`, mirrors the standing no-`--recursive` guideline, directs explicit per-submodule operations, documents false-pointer-flag avoidance, and preserves the existing `--ff-only` divergence handling unchanged.
+**Goal:** Modify the `submodule-sync.md` task card so it bounds scope to the parent repo's direct submodule pointers, forbids recursion into nested submodules while permitting explicit per-submodule operations including non-recursive `git submodule foreach`, mirrors the standing no-`--recursive` guideline, directs explicit per-submodule operations, documents false-pointer-flag avoidance, and preserves the existing `--ff-only` divergence handling unchanged.
 
-**Architecture:** This is a documentation/instruction fix on a single file — `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`. No runtime code changes. Each success criterion is a string-evidence content-presence assertion verified by reading the task card. The authoritative no-`--recursive` wording is mirrored verbatim from `.opencode/guidelines/060-tool-usage.md` §4. The existing `--ff-only` divergence block is preserved byte-identical.
+**Architecture:** This is a documentation/instruction fix on a single file — `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`. No runtime code changes. Each success criterion is a string-evidence content-presence assertion verified by reading the task card. The authoritative no-`--recursive` wording is mirrored verbatim from `.opencode/guidelines/060-tool-usage.md` §4. Explicit per-submodule operations — including `git submodule foreach` without `--recursive` — are permitted under guideline §4 and MUST NOT be blanket-forbidden. The existing `--ff-only` divergence block is preserved byte-identical.
 
 **Files:**
 - `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` (modify)
@@ -54,7 +54,9 @@ files_to_modify:
 sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
 scope_bound: "parent repo direct submodule pointers passed in submodule_paths"
 recursion_forbidden: true
-foreach_forbidden: true
+explicit_per_submodule_permitted: true
+non_recursive_foreach_permitted: "git submodule foreach without --recursive"
+blanket_foreach_prohibition_forbidden: true
 no_recursive_mirror_source: ".opencode/guidelines/060-tool-usage.md §4"
 per_submodule_directive: "explicit git -C <path> operations"
 ```
@@ -66,8 +68,8 @@ per_submodule_directive: "explicit git -C <path> operations"
 - [ ] 6. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT forbid recursion into nested submodules. **→ SC-2**
 - [ ] 7. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the recursion prohibition to Step 2 of the task card. **→ SC-2**
 - [ ] 8. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-2.
-- [ ] 9. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT forbid `git submodule foreach` for the sync operation. **→ SC-3**
-- [ ] 10. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the `foreach` prohibition to Step 2 of the task card. **→ SC-3**
+- [ ] 9. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT permit explicit per-submodule operations including non-recursive `git submodule foreach`, or contains a blanket `foreach` prohibition. **→ SC-3**
+- [ ] 10. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add a statement permitting explicit per-submodule operations, including `git submodule foreach` without `--recursive`. **→ SC-3**
 - [ ] 11. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-3.
 - [ ] 12. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card lacks the no-`--recursive` constraint. **→ SC-4**
 - [ ] 13. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the no-`--recursive` constraint consistent with `060-tool-usage.md` §4 wording. **→ SC-4**
@@ -123,7 +125,7 @@ divergence_block: "preserve byte-identical from pre-change baseline"
 
 - [ ] C1. The task card explicitly bounds scope to the parent repo's direct submodule pointers passed in `submodule_paths` (SC-1).
 - [ ] C2. The task card explicitly forbids recursion into nested submodules (SC-2).
-- [ ] C3. The task card explicitly forbids `git submodule foreach` for the sync operation (SC-3).
+- [ ] C3. The task card permits explicit per-submodule operations, including `git submodule foreach` without `--recursive`, with no blanket `foreach` prohibition (SC-3).
 - [ ] C4. The task card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md` §4 (SC-4).
 - [ ] C5. The task card directs explicit per-submodule `git -C <path>` operations (SC-5).
 - [ ] C6. The task card documents that syncing a submodule to its own trunk tip must not be reported as a parent pointer change (SC-6).

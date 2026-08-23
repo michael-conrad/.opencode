@@ -1,4 +1,217 @@
 labels:
 - spec-cleared
 - approved-for-pr
-updated_at: '2026-08-21T04:23:27+00:00'
+updated_at: '2026-08-23T18:24:42+00:00'
+body: "---\nnumber: 2306\ntitle: \"git-workflow-branch submodule-sync task card invites\
+  \ submodule recursion, violating the standing no-`--recursive` guideline and producing\
+  \ false \\\"changed submodule\\\" flags\"\nstatus: open\nlabels: [needs-approval,\
+  \ spec-draft]\ncreated: 2026-08-20T02:19:08Z\nupdated: 2026-08-23T18:01:00Z\nremote_issue:\
+  \ 2306\nremote_url: \"https://github.com/michael-conrad/.opencode/issues/2306\"\n\
+  promoted_at: 2026-08-20T18:26:04Z\npromotion_type: retroactive_import\nlast_sync:\
+  \ 2026-08-20T18:26:04Z\nauthor: michael-newsrx\n---\n\n# Spec: Bound submodule-sync\
+  \ task card scope to direct pointers and forbid recursion\n\n## 1. Intent and Executive\
+  \ Summary\n\n1. **Problem Statement:** The task card `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`\
+  \ instructs syncing \"dirty submodule pointers to latest trunk tip\" but does not\
+  \ bound scope to the parent repo's direct submodule pointers or forbid recursion\
+  \ into nested submodules. A literal reading invites unbounded iteration that descends\
+  \ into nested submodules, which violates the standing no-`--recursive` guideline\
+  \ and produces false \"changed submodule\" (`+`) flags in the parent repo.\n\n2.\
+  \ **Root Cause / Motivation:** The task card's Step 2 iterates \"submodule paths\"\
+  \ without an explicit scope bound or recursion prohibition. The standing constraint\
+  \ already exists in `.opencode/guidelines/060-tool-usage.md` §4 but is not mirrored\
+  \ into the task card. Recursion causes the parent repo to see every submodule pointer\
+  \ diverge from the committed SHA, showing all as `M`/`+` — a false-changed-state\
+  \ that triggers needless re-pointer churn and can corrupt branch/PR intent.\n\n\
+  3. **Approach Chosen:** Modify the task card text to (a) explicitly bound scope\
+  \ to the parent repo's direct submodule pointers passed in `submodule_paths`, (b)\
+  \ forbid recursion into nested submodules while permitting explicit per-submodule\
+  \ operations, including `git submodule foreach` invoked without `--recursive`, (c)\
+  \ mirror the no-`--recursive` language from `060-tool-usage.md` §4, and (d) direct\
+  \ explicit per-submodule operations. Preserve the existing `--ff-only` divergence\
+  \ handling unchanged.\n\n4. **Alternatives Considered & Why Discarded:**\n   - *Modify\
+  \ `060-tool-usage.md` to add more language* — discarded: the guideline is already\
+  \ correct and authoritative; the defect is that the task card fails to mirror it.\n\
+  \   - *Change `trunk-tip-verification.md`'s `foreach` usage* — discarded: that is\
+  \ a separate read-only verification concern, out of scope.\n   - *Add a runtime\
+  \ guard/script* — discarded: this is a documentation/instruction defect; no runtime\
+  \ code path changes.\n\n5. **Key Design Decisions:**\n   - The task card operates\
+  \ only on the `submodule_paths` context variable passed by the orchestrator (already\
+  \ scoped to direct paths).\n   - The no-`--recursive` constraint is mirrored verbatim\
+  \ from the authoritative guideline to keep wording consistent.\n   - Explicit per-submodule\
+  \ operations — including `git submodule foreach` without `--recursive`, which iterates\
+  \ direct submodules only and never descends into nested ones — are legitimate under\
+  \ guideline §4 and MUST NOT be blanket-forbidden.\n   - The `--ff-only` divergence\
+  \ handling block is preserved byte-identical to avoid regressing a correct feature.\n\
+  \n6. **User Intent / Original Prompt:** The issue reports that an orchestrator acting\
+  \ on the task card (plus a \"do this for all submodules\" directive) attempted to\
+  \ recurse into nested submodules, violating the no-`--recursive` guideline and producing\
+  \ false \"changed submodule\" flags. The expected behavior is that the task card\
+  \ bounds scope to direct pointers and forbids recursion.\n\n## 2. Not Included\n\
+  \n- **`trunk-tip-verification.md`** — Its read-only use of `git submodule foreach`\
+  \ for verification is a separate concern and out of scope.\n- **`reference/submodule-divergence.md`**\
+  \ — The shared divergence reference is not a modification target.\n- **`060-tool-usage.md`**\
+  \ — The guideline is already correct; it is the authoritative source to mirror,\
+  \ not to change.\n- **Git behavior, config, or runtime** — This is a documentation/instruction\
+  \ fix; no executable code changes.\n\n## 3. Success Criteria\n\n| ID | Criterion\
+  \ | Evidence Type | Verification Method | Documentation Sources |\n|----|-----------|---------------|---------------------|----------------------|\n\
+  | SC-1 | The `submodule-sync.md` task card explicitly bounds scope to the parent\
+  \ repo's direct submodule pointers passed in `submodule_paths`. | behavioral | Behavioral\
+  \ RED/GREEN: `opencode run` real-domain prompt asserting the agent performs explicit\
+  \ per-submodule operations on `submodule_paths` without recursion; stderr assertions\
+  \ via `assert_stderr_pattern_present` for scope-bound operations, `assert_stderr_pattern_absent_all_models`\
+  \ for recursive descent | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md`\
+  \ |\n| SC-2 | The task card explicitly forbids recursion into nested submodules.\
+  \ | behavioral | Behavioral RED/GREEN: `opencode run` real-domain prompt asserting\
+  \ the agent refuses to recurse into nested submodules; stderr assertions for recursion\
+  \ prohibition enforcement | task card; `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 |\n| SC-3 | The task card permits explicit per-submodule operations for the\
+  \ sync operation, including `git submodule foreach` invoked without `--recursive`,\
+  \ and contains no blanket prohibition of `git submodule foreach`. | behavioral |\
+  \ Behavioral RED/GREEN: `opencode run` real-domain prompt asserting the agent uses\
+  \ explicit per-submodule `git -C <path>` operations and non-recursive `git submodule\
+  \ foreach`; stderr assertions for permitted operations and absence of blanket prohibition\
+  \ | task card; `.opencode/guidelines/060-tool-usage.md` §4 |\n| SC-4 | The task\
+  \ card mirrors the standing no-`--recursive` guideline from `060-tool-usage.md`\
+  \ §4 verbatim: **NEVER use `--recursive` with any git submodule command** (e.g.,\
+  \ `git submodule update --init --recursive`, `git clone --recursive`). The `--recursive`\
+  \ flag can pull in unintended nested submodules, cause unexpected network traffic,\
+  \ break reproducibility by implicitly resolving submodule chains, and conflict with\
+  \ explicit submodule management. Always use `git submodule update --init` (without\
+  \ `--recursive`) or explicit per-submodule operations. | behavioral | Behavioral\
+  \ RED/GREEN: `opencode run` real-domain prompt asserting the agent enforces the\
+  \ verbatim mirrored no-`--recursive` constraint; stderr assertions for verbatim\
+  \ wording enforcement | `.opencode/guidelines/060-tool-usage.md` §4 |\n| SC-5 |\
+  \ The task card directs explicit per-submodule operations (not recursive iteration).\
+  \ | behavioral | Behavioral RED/GREEN: `opencode run` real-domain prompt asserting\
+  \ the agent performs explicit `git -C <path>` operations per direct submodule; stderr\
+  \ assertions for explicit per-submodule directive compliance | task card |\n| SC-6\
+  \ | The task card documents that syncing each submodule to its own trunk tip must\
+  \ not be reported as a parent pointer change (no false `+` flag). | behavioral |\
+  \ Behavioral RED/GREEN: `opencode run` real-domain prompt asserting the agent avoids\
+  \ false pointer flags when syncing submodules to trunk tip; stderr assertions for\
+  \ false-flag avoidance | task card |\n| SC-7 | The existing `--ff-only` divergence\
+  \ handling and autonomous resolution logic is preserved unchanged. | string | Read\
+  \ the task card; assert divergence block byte-identical to pre-change state | task\
+  \ card |\n\n## 4. Requirements\n\n- R-1. The task card SHALL bound scope to the\
+  \ parent repo's direct submodule pointers passed in `submodule_paths`.\n- R-2. The\
+  \ task card SHALL forbid recursion into nested submodules.\n- R-3. The task card\
+  \ SHALL permit explicit per-submodule operations, including `git submodule foreach`\
+  \ invoked without `--recursive`, for the sync operation.\n- R-4. The task card SHALL\
+  \ mirror the no-`--recursive` constraint from `060-tool-usage.md` §4 verbatim.\n\
+  - R-5. The task card SHALL direct explicit per-submodule operations.\n- R-6. The\
+  \ task card SHALL document that syncing a submodule to its own trunk tip must not\
+  \ be reported as a parent pointer change.\n- R-7. The task card SHALL preserve the\
+  \ existing `--ff-only` divergence handling unchanged.\n\n## 5. Items\n\n### Item\
+  \ 1 (SC-1): Add explicit scope-bound statement to task card Step 2\n\n- RED: Behavioral\
+  \ enforcement test via `opencode run` asserts the agent does not perform explicit\
+  \ per-submodule operations on `submodule_paths` without recursion.\n- GREEN: Add\
+  \ the scope-bound statement to Step 2.\n- verify: Behavioral verification via `opencode\
+  \ run` asserting the agent performs explicit per-submodule operations on `submodule_paths`\
+  \ without recursion.\n- commit: Task card text change.\n\n### Item 2 (SC-2): Add\
+  \ explicit recursion prohibition to task card\n\n- RED: Behavioral enforcement test\
+  \ via `opencode run` asserts the agent does not forbid recursion into nested submodules.\n\
+  - GREEN: Add recursion prohibition to Step 2.\n- verify: Behavioral verification\
+  \ via `opencode run` asserting the agent refuses to recurse into nested submodules.\n\
+  - commit: Task card text change.\n\n### Item 3 (SC-3): Permit explicit per-submodule\
+  \ operations including non-recursive `foreach`\n\n- RED: Behavioral enforcement\
+  \ test via `opencode run` asserts the agent does not permit explicit per-submodule\
+  \ operations including non-recursive `git submodule foreach`, or contains a blanket\
+  \ `foreach` prohibition.\n- GREEN: Add a statement permitting explicit per-submodule\
+  \ operations, including `git submodule foreach` without `--recursive`.\n- verify:\
+  \ Behavioral verification via `opencode run` asserting the agent uses explicit per-submodule\
+  \ operations and non-recursive `git submodule foreach` with no blanket prohibition.\n\
+  - commit: Task card text change.\n\n### Item 4 (SC-4): Mirror no-`--recursive` guideline\
+  \ language verbatim\n\n- RED: Behavioral enforcement test via `opencode run` asserts\
+  \ the agent does not enforce the verbatim no-`--recursive` constraint from guideline\
+  \ §4.\n- GREEN: Add the verbatim no-`--recursive` constraint from `060-tool-usage.md`\
+  \ §4.\n- verify: Behavioral verification via `opencode run` asserting the agent\
+  \ enforces the verbatim mirrored wording.\n- commit: Task card text change.\n\n\
+  ### Item 5 (SC-5): Direct explicit per-submodule operations\n\n- RED: Behavioral\
+  \ enforcement test via `opencode run` asserts the agent does not direct explicit\
+  \ per-submodule operations.\n- GREEN: Add explicit per-submodule `git -C <path>`\
+  \ operation directive.\n- verify: Behavioral verification via `opencode run` asserting\
+  \ the agent performs explicit `git -C <path>` operations per direct submodule.\n\
+  - commit: Task card text change.\n\n### Item 6 (SC-6): Document false-pointer-flag\
+  \ avoidance\n\n- RED: Behavioral enforcement test via `opencode run` asserts the\
+  \ agent does not avoid false pointer flags when syncing submodules to trunk tip.\n\
+  - GREEN: Add a note that syncing to trunk tip must not be reported as a parent pointer\
+  \ change.\n- verify: Behavioral verification via `opencode run` asserting the agent\
+  \ avoids false pointer flags when syncing submodules to trunk tip.\n- commit: Task\
+  \ card text change.\n\n### Item 7 (SC-7): Preserve `--ff-only` divergence handling\n\
+  \n- RED: Enforcement test asserts the divergence block differs from the pre-change\
+  \ state.\n- GREEN: Ensure the divergence block is unchanged.\n- verify: Read the\
+  \ task card; assert divergence block byte-identical.\n- commit: Task card text change\
+  \ (or no-op if already preserved).\n\n## 6. Dependencies\n\n- **Reference:** `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 — Relationship: authoritative no-`--recursive` constraint to mirror verbatim\
+  \ — Status: satisfied.\n- **Reference:** `git-workflow-branch/SKILL.md` — Relationship:\
+  \ dispatches the task card with `submodule_paths`; unchanged — Status: satisfied.\n\
+  - **Reference:** `reference/submodule-divergence.md` — Relationship: shared divergence\
+  \ reference; unchanged — Status: satisfied.\n\n## 7. Traceability\n\n| Requirement\
+  \ | SC(s) | Phase(s) |\n|-------------|-------|----------|\n| R-1 | SC-1 | Phase\
+  \ 1 |\n| R-2 | SC-2 | Phase 1 |\n| R-3 | SC-3 | Phase 1 |\n| R-4 | SC-4 | Phase\
+  \ 1 |\n| R-5 | SC-5 | Phase 1 |\n| R-6 | SC-6 | Phase 2 |\n| R-7 | SC-7 | Phase\
+  \ 2 |\n\n## 8. Documentation Sources\n\n| Source | Type | Location | Verification\
+  \ |\n|--------|------|-------------|----------|\n| submodule-sync task card | code\
+  \ | `.opencode/skills/git-workflow-branch/tasks/submodule-sync.md` | behavioral\
+  \ read via `opencode run` |\n| no-`--recursive` guideline | code | `.opencode/guidelines/060-tool-usage.md`\
+  \ §4 | read |\n| git-workflow-branch SKILL | code | `.opencode/skills/git-workflow-branch/SKILL.md`\
+  \ | read |\n\n## 9. Enforcement Gate\n\n> **Enforcement gate:** All success criteria\
+  \ MUST pass before this spec is considered complete. Partial implementation is not\
+  \ permitted.\n\n## 10. Cost Frame\n\nCost is measured in defect-discovery-latency,\
+  \ not tool calls. Correctness is the only metric.\n\n- SC-1: Verifying the scope-bound\
+  \ statement costs one behavioral test run. Skipping means the task card still invites\
+  \ recursion and the regression ships unchanged.\n- SC-2: Verifying the recursion\
+  \ prohibition costs one behavioral test run. Skipping means nested-submodule recursion\
+  \ continues, violating the guideline.\n- SC-3: Verifying the explicit per-submodule\
+  \ permission (including non-recursive `git submodule foreach`) costs one behavioral\
+  \ test run. Skipping means the task card retains a blanket `foreach` prohibition\
+  \ that contradicts guideline §4.\n- SC-4: Verifying the verbatim no-`--recursive`\
+  \ mirror costs one behavioral test run against the guideline. Skipping means the\
+  \ task card wording diverges from the authoritative source.\n- SC-5: Verifying the\
+  \ explicit per-submodule directive costs one behavioral test run. Skipping means\
+  \ the agent falls back to recursive iteration.\n- SC-6: Verifying the false-flag\
+  \ avoidance note costs one behavioral test run. Skipping means false `+` pointer\
+  \ churn continues to corrupt branch/PR intent.\n- SC-7: Verifying the divergence\
+  \ block is byte-identical costs one read. Skipping means a correct feature regresses\
+  \ silently.\n\n## 11. Edge Cases\n\n- **Input boundaries:** Empty `submodule_paths`\
+  \ — the task card SHALL handle an empty list by reporting no submodules to sync\
+  \ without error.\n- **State transitions:** A submodule pointer that is already at\
+  \ trunk tip — the task card SHALL report it as already current, not as a change.\n\
+  - **Failure modes:** `--ff-only` pull fails due to divergence — the task card SHALL\
+  \ preserve the existing autonomous resolution logic (ahead/behind/rebase/escalate).\n\
+  - **Concurrency:** Multiple submodules synced sequentially — the task card SHALL\
+  \ operate on each direct path independently without cross-contamination.\n- **Recovery:**\
+  \ A failed sync on one submodule — the task card SHALL report the failure and continue\
+  \ with remaining direct submodules without recursing.\n\n## 12. Change Control\n\
+  \n| Date | Change | Reason | Authorized By |\n|------|--------|--------|---------------|\n\
+  | 2026-08-20 | Decomposed compound SC-2 into two atomic SCs: SC-2 (recursion prohibition,\
+  \ R-2) and SC-3 (`foreach` prohibition, R-3). Renumbered subsequent SCs (SC-4..SC-7),\
+  \ Items (Item 3..Item 7), Traceability, and Cost Frame accordingly. | Validation\
+  \ finding: SC-2 was compound — bundled recursion prohibition and `foreach` prohibition\
+  \ (R-2 and R-3 both mapped to SC-2). | Pipeline validation gate |\n| 2026-08-20\
+  \ | Corrected declared evidence type from `structural` to `string` for all 7 SCs\
+  \ (SC-1..SC-7). | Validation finding: EVIDENCE_TYPE_MISMATCH — all 7 SCs declared\
+  \ evidence type `structural` but their verification methods assert specific content\
+  \ presence (string evidence). | Pipeline validation gate |\n| 2026-08-23 | Revised\
+  \ SC-3 from a blanket `git submodule foreach` prohibition to a requirement to permit\
+  \ explicit per-submodule operations including non-recursive `foreach`. Updated Problem\
+  \ Statement, Approach Chosen, Key Design Decisions, R-3, Item 3, Cost Frame, and\
+  \ SC-5's parenthetical (\"not recursive/foreach iteration\" → \"not recursive iteration\"\
+  ). Evidence types unchanged (`string`). All other SCs preserved. | Developer-confirmed\
+  \ defect: guideline §4 forbids ONLY the `--recursive` flag with git submodule commands;\
+  \ `git submodule foreach` without `--recursive` iterates direct submodules only\
+  \ and never descends into nested ones — it is an authorized explicit per-submodule\
+  \ operation, and the developer ruled agents SHOULD use it. | Developer revision\
+  \ directive |\n| 2026-08-23 | Revised SC-1..SC-6 evidence types from `string` to\
+  \ `behavioral` with behavioral verification methods (opencode run real-domain prompts\
+  \ with stderr assertions). SC-7 preserved as `string` (preservation invariant —\
+  \ byte-diff content comparison is the only sound evidence class for absence-of-change;\
+  \ exempt from uplift per critical-rules-BEH-EV). SC-4 pinned with exact verbatim\
+  \ mirrored sentence from guideline §4. Added note on implementation-ahead-of-spec\
+  \ drift: the task card was modified in a prior implementation cycle without a corresponding\
+  \ spec revision, creating drift that this spec now corrects. | Validation finding:\
+  \ EVIDENCE_TYPE_MISMATCH — SC-1..SC-6 declared `string` but the change alters agent\
+  \ runtime behavior (submodule-sync command selection during git operations); per\
+  \ critical-rules-BEH-EV classification gate, declared string is automatically uplifted\
+  \ to behavioral regardless of author declaration, and read-and-assert-presence verification\
+  \ methods cannot produce behavioral evidence. | Pipeline validation gate |"

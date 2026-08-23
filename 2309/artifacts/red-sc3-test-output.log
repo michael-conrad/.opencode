@@ -1,0 +1,10 @@
+
+=== tools/session-init 'Guard checks' docstring -- SC-3 (#2309) ===
+
+36:- .env gitignore: Warn if .env exists but is not in .gitignore
+  PASS: SC-3: '.env gitignore' present in tools/session-init
+
+=== Results ===
+PASSED: 1
+FAILED: 0
+

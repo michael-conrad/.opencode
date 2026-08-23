@@ -16,7 +16,7 @@
 
 **Exit Conditions:**
 - The task card bounds scope to `submodule_paths` direct pointers
-- The task card forbids recursion and `git submodule foreach`
+- The task card forbids recursion into nested submodules and permits explicit per-submodule operations, including `git submodule foreach` without `--recursive`
 - The task card mirrors the no-`--recursive` guideline
 - The task card directs explicit per-submodule operations
 
@@ -30,8 +30,8 @@
 - [ ] 7. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the recursion prohibition to Step 2 of the task card. **→ SC-2**
 - [ ] 8. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-2.
 
-- [ ] 9. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT forbid `git submodule foreach` for the sync operation. **→ SC-3**
-- [ ] 10. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add the `foreach` prohibition to Step 2 of the task card. **→ SC-3**
+- [ ] 9. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card does NOT permit explicit per-submodule operations including non-recursive `git submodule foreach`, or contains a blanket `foreach` prohibition. **→ SC-3**
+- [ ] 10. **GREEN (**sub-agent**).** Dispatch `execute green task from test-driven-development`. Add a statement permitting explicit per-submodule operations, including `git submodule foreach` without `--recursive`. **→ SC-3**
 - [ ] 11. **Checkpoint commit (**inline**).** Stage and commit the task card text change for SC-3.
 
 - [ ] 12. **RED (**sub-agent**).** Dispatch `execute red task from test-driven-development`. Write a failing enforcement test asserting the task card lacks the no-`--recursive` constraint. **→ SC-4**
@@ -44,6 +44,6 @@
 
 #### Phase 1 VbC
 
-- [ ] 18. **VbC (**clean-room**).** Dispatch `execute verify task from verification-before-completion`. Read the task card and assert all five Phase 1 SCs (SC-1..SC-5) are satisfied: scope-bound statement, recursion prohibition, `foreach` prohibition, no-`--recursive` mirror, and explicit per-submodule directive. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
+- [ ] 18. **VbC (**clean-room**).** Dispatch `execute verify task from verification-before-completion`. Read the task card and assert all five Phase 1 SCs (SC-1..SC-5) are satisfied: scope-bound statement, recursion prohibition, explicit per-submodule permission including non-recursive `foreach` (no blanket `foreach` prohibition), no-`--recursive` mirror, and explicit per-submodule directive. **→ SC-1, SC-2, SC-3, SC-4, SC-5**
 
 **Concern transition:** Leaving scope-bound and recursion-forbidding instruction → entering false-flag avoidance and divergence preservation. Phase 2 depends on Phase 1's edited task card baseline.

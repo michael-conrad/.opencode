@@ -1,0 +1,18 @@
+
+=== SC-1: construct_compare_url resolves base from remote HEAD branch, not 'dev' ===
+
+Target file: /home/muksihs/git/opencode-config/.opencode/skills/git-workflow/enforcement/url_validation.sh
+
+  PASS: SC-1: sandbox remote HEAD branch resolves to 'master'
+  FAIL: SC-1: compare URL uses resolved default branch 'master' as base — got 'https://github.com/o/r/compare/dev...b' (expected 'https://github.com/o/r/compare/master...b' — RED: base hardcoded to 'dev')
+  FAIL: SC-1: compare URL does NOT use hardcoded 'dev' as base — got 'https://github.com/o/r/compare/dev...b' — base is still hardcoded to 'dev' (RED)
+
+=== Results ===
+PASSED: 1
+FAILED: 2
+
+RED phase expected: SC-1 (resolve base from remote HEAD branch) not yet applied.
+Line 18 of .opencode/skills/git-workflow/enforcement/url_validation.sh still
+hardcodes 'local base="dev"', so the compare URL targets the non-existent 'dev'
+branch instead of the remote HEAD branch (master).
+
