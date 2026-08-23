@@ -1,0 +1,39 @@
+# Solve output — issue #2306
+spec_id: "2306"
+title: "Bound submodule-sync task card scope to direct pointers and forbid recursion"
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+checks:
+  model_check:
+    query: "phase_1"
+    result: SAT
+    model:
+      phase_1: true
+      phase_2: false
+  state_check:
+    result: SAT
+    model:
+      phase_1: false
+      phase_2: false
+    postconditions_check: SAT
+    invariants_check: SAT
+
+planner_result:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  plan:
+    - execute_phase_1()
+    - execute_phase_2()
+
+triplet_verification:
+  triplet_split: false
+  details: "All 7 SCs have their RED, GREEN, and COMMIT steps within their assigned phase. SC-1..SC-5 in Phase 1, SC-6..SC-7 in Phase 2."
+
+cross_phase_dependency_check:
+  cross_phase_dep: false
+  details: "No RED test in Phase 1 depends on SC output from Phase 2. Phase 2 depends on Phase 1 (sequential), which is correct."
+
+structure_artifact_path: ".opencode/.issues/2306/artifacts/structure.yaml"

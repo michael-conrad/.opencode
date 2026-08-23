@@ -1,0 +1,115 @@
+# Structure artifact — issue #2306
+spec_id: "2306"
+title: "Bound submodule-sync task card scope to direct pointers and forbid recursion"
+
+# Phase decomposition
+phases:
+  - id: "phase_1"
+    name: "Sync Operations Modification"
+    description: "Add scope-bound, recursion-forbidding, non-recursive foreach permission, verbatim no-`--recursive` mirror, and explicit per-submodule directive to the task card"
+    scs:
+      - "SC-1"
+      - "SC-2"
+      - "SC-3"
+      - "SC-4"
+      - "SC-5"
+    concern: "sync_operations_modification"
+    files:
+      - ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+    skill_task: "git-workflow-branch --task submodule-sync"
+    items:
+      - item_id: "Item 1"
+        sc: "SC-1"
+        description: "Add explicit scope-bound statement to task card Step 2"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not perform explicit per-submodule operations on submodule_paths without recursion"
+        green: "Add the scope-bound statement to Step 2"
+        verify: "Behavioral verification via opencode run asserting the agent performs explicit per-submodule operations on submodule_paths without recursion"
+        commit: "Task card text change"
+      - item_id: "Item 2"
+        sc: "SC-2"
+        description: "Add explicit recursion prohibition to task card"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not forbid recursion into nested submodules"
+        green: "Add recursion prohibition to Step 2"
+        verify: "Behavioral verification via opencode run asserting the agent refuses to recurse into nested submodules"
+        commit: "Task card text change"
+      - item_id: "Item 3"
+        sc: "SC-3"
+        description: "Permit explicit per-submodule operations including non-recursive foreach"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not permit explicit per-submodule operations including non-recursive git submodule foreach, or contains a blanket foreach prohibition"
+        green: "Add a statement permitting explicit per-submodule operations, including git submodule foreach without --recursive"
+        verify: "Behavioral verification via opencode run asserting the agent uses explicit per-submodule operations and non-recursive git submodule foreach with no blanket prohibition"
+        commit: "Task card text change"
+      - item_id: "Item 4"
+        sc: "SC-4"
+        description: "Mirror no-`--recursive` guideline language verbatim"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not enforce the verbatim no-`--recursive` constraint from guideline §4"
+        green: "Add the verbatim no-`--recursive` constraint from 060-tool-usage.md §4"
+        verify: "Behavioral verification via opencode run asserting the agent enforces the verbatim mirrored wording"
+        commit: "Task card text change"
+      - item_id: "Item 5"
+        sc: "SC-5"
+        description: "Direct explicit per-submodule operations"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not direct explicit per-submodule operations"
+        green: "Add explicit per-submodule git -C <path> operation directive"
+        verify: "Behavioral verification via opencode run asserting the agent performs explicit git -C <path> operations per direct submodule"
+        commit: "Task card text change"
+
+  - id: "phase_2"
+    name: "Documentation and Preservation"
+    description: "Document false-flag avoidance and verify divergence preservation"
+    scs:
+      - "SC-6"
+      - "SC-7"
+    concern: "documentation_and_preservation"
+    files:
+      - ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+    skill_task: "git-workflow-branch --task submodule-sync"
+    items:
+      - item_id: "Item 6"
+        sc: "SC-6"
+        description: "Document false-pointer-flag avoidance"
+        red: "Behavioral enforcement test via opencode run asserts the agent does not avoid false pointer flags when syncing submodules to trunk tip"
+        green: "Add a note that syncing to trunk tip must not be reported as a parent pointer change"
+        verify: "Behavioral verification via opencode run asserting the agent avoids false pointer flags when syncing submodules to trunk tip"
+        commit: "Task card text change"
+      - item_id: "Item 7"
+        sc: "SC-7"
+        description: "Preserve --ff-only divergence handling"
+        red: "Enforcement test asserts the divergence block differs from the pre-change state"
+        green: "Ensure the divergence block is unchanged"
+        verify: "Read the task card; assert divergence block byte-identical"
+        commit: "Task card text change (or no-op if already preserved)"
+
+# Dependency DAG
+dependency_dag:
+  edges:
+    - from: "phase_1"
+      to: "phase_2"
+      type: "sequential"
+      rationale: "Phase 2 SC-6 (false-flag avoidance note) and SC-7 (preservation check) operate on the task card as modified in Phase 1. SC-7 requires the Phase 1-edited task card baseline to assert byte-identical preservation of the divergence block."
+  notes:
+    - "Phase 1 (SC-1..SC-5) precedes Phase 2 (SC-6..SC-7). Phase 2 depends on the Phase 1-edited task card baseline."
+    - "Evidence types: SC-1..SC-6 are behavioral (opencode run real-domain prompts with stderr assertions). SC-7 is string (byte-identical comparison)."
+
+# Skill+task selection per phase
+skill_task_selection:
+  phase_1:
+    skill: "git-workflow-branch"
+    task: "submodule-sync"
+    dispatch_string: "execute submodule-sync from git-workflow-branch"
+    rationale: "The submodule-sync task card is the primary artifact being modified. The git-workflow-branch skill dispatches this task card."
+  phase_2:
+    skill: "git-workflow-branch"
+    task: "submodule-sync"
+    dispatch_string: "execute submodule-sync from git-workflow-branch"
+    rationale: "Phase 2 continues modifying the same task card. The same skill/task combination applies."
+
+# Verification results
+verification:
+  triplet_co_location: PASS
+  triplet_split_details: "All SCs have RED, GREEN, COMMIT in same phase. No SC has steps split across phases."
+  cross_phase_dependency: PASS
+  cross_phase_details: "No RED test in earlier phase depends on SC output from later phase. Phase 2 depends on Phase 1 completion, which is correct sequential dependency."
+  model_check: SAT
+  state_check: SAT
+  planner_check: SOLVED_SATISFICING

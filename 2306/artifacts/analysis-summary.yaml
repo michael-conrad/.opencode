@@ -1,0 +1,48 @@
+# Analysis summary — issue #2306
+spec_id: "2306"
+title: "Bound submodule-sync task card scope to direct pointers and forbid recursion"
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "Task card explicitly bounds scope to parent repo's direct submodule pointers passed in submodule_paths"
+    evidence_type: "behavioral"
+    concern: "scope_bounding"
+  - id: "SC-2"
+    description: "Task card explicitly forbids recursion into nested submodules"
+    evidence_type: "behavioral"
+    concern: "recursion_prohibition"
+  - id: "SC-3"
+    description: "Task card permits explicit per-submodule operations including non-recursive git submodule foreach"
+    evidence_type: "behavioral"
+    concern: "foreach_permission"
+  - id: "SC-4"
+    description: "Task card mirrors the standing no-`--recursive` guideline from 060-tool-usage.md §4 verbatim"
+    evidence_type: "behavioral"
+    concern: "guideline_mirroring"
+  - id: "SC-5"
+    description: "Task card directs explicit per-submodule operations (not recursive iteration)"
+    evidence_type: "behavioral"
+    concern: "explicit_operations"
+  - id: "SC-6"
+    description: "Task card documents that syncing each submodule to its own trunk tip must not be reported as a parent pointer change (no false + flag)"
+    evidence_type: "behavioral"
+    concern: "false_flag_avoidance"
+  - id: "SC-7"
+    description: "Existing --ff-only divergence handling and autonomous resolution logic preserved unchanged"
+    evidence_type: "string"
+    concern: "divergence_preservation"
+concerns:
+  - scope_bounding
+  - recursion_prohibition
+  - foreach_permission
+  - guideline_mirroring
+  - explicit_operations
+  - false_flag_avoidance
+  - divergence_preservation
+phase_assignments:
+  phase_1:
+    scs: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5"]
+    concern: "sync_operations_modification"
+  phase_2:
+    scs: ["SC-6", "SC-7"]
+    concern: "documentation_and_preservation"

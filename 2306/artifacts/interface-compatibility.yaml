@@ -1,0 +1,102 @@
+# Interface compatibility analysis — issue #2306
+spec_id: "2306"
+title: "Bound submodule-sync task card scope to direct pointers and forbid recursion"
+
+# Interface compatibility findings
+concern_map:
+  scope_bounding:
+    description: "Explicit scope binding to submodule_paths parameter"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - submodule_paths parameter (list of direct submodule paths)
+      - git submodule sync operations
+  recursion_prohibition:
+    description: "Explicit prohibition of recursion into nested submodules"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - git submodule commands (foreach, update, init)
+  foreach_permission:
+    description: "Permission for non-recursive git submodule foreach"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - git submodule foreach (without --recursive)
+  guideline_mirroring:
+    description: "Verbatim mirror of no-`--recursive` guideline from 060-tool-usage.md §4"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - Guideline text from 060-tool-usage.md §4
+  explicit_operations:
+    description: "Direction for explicit per-submodule git -C operations"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - git -C <path> operations
+  false_flag_avoidance:
+    description: "Documentation that syncing to trunk tip must not produce false + flags"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - Parent repo submodule pointer state reporting
+  divergence_preservation:
+    description: "Preservation of existing --ff-only divergence handling"
+    affected_files:
+      - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+    interfaces:
+      - Divergence handling block (ahead/behind/rebase/escalate logic)
+
+# Cross-cutting matrix
+cross_cutting_matrix:
+  - concern: "scope_bounding"
+    intersects_with: ["recursion_prohibition", "explicit_operations"]
+    type: "co-location"
+  - concern: "recursion_prohibition"
+    intersects_with: ["foreach_permission", "guideline_mirroring"]
+    type: "constraint_alignment"
+  - concern: "divergence_preservation"
+    intersects_with: ["explicit_operations"]
+    type: "preservation"
+
+# Interface compatibility verdict
+verdict: COMPATIBLE
+notes: "All SCs modify the same task card file. Concerns are co-located or constraint-aligned. No interface conflicts detected."
+
+# Dependency contract
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Add scope-bound, recursion-forbidding, non-recursive foreach permission, verbatim no-`--recursive` mirror, and explicit per-submodule directive to the task card (SC-1..SC-5)"
+    phase_2:
+      type: bool
+      description: "Document false-flag avoidance and verify divergence preservation (SC-6..SC-7)"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+    phase_2:
+      files:
+        - .opencode/skills/git-workflow-branch/tasks/submodule-sync.md
+      scs:
+        - SC-6
+        - SC-7
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "Phase 2 SC-6 (false-flag avoidance note) and SC-7 (preservation check) operate on the task card as modified in Phase 1. SC-7 requires the Phase 1-edited task card baseline to assert byte-identical preservation of the divergence block."
+  notes:
+    - "Phase 1 (SC-1..SC-5) precedes Phase 2 (SC-6..SC-7). Phase 2 depends on the Phase 1-edited task card baseline."
+    - "Evidence types: SC-1..SC-6 are behavioral (opencode run real-domain prompts with stderr assertions). SC-7 is string (byte-identical comparison)."

@@ -4,7 +4,7 @@
 variables:
   phase_1:
     type: bool
-    description: "Add scope-bound and recursion-forbidding instruction to the task card (SC-1..SC-5)"
+    description: "Add scope-bound, recursion-forbidding, non-recursive foreach permission, verbatim no-`--recursive` mirror, and explicit per-submodule directive to the task card (SC-1..SC-5)"
   phase_2:
     type: bool
     description: "Document false-flag avoidance and verify divergence preservation (SC-6..SC-7)"
@@ -34,3 +34,4 @@ edges:
     rationale: "Phase 2 SC-6 (false-flag avoidance note) and SC-7 (preservation check) operate on the task card as modified in Phase 1. SC-7 requires the Phase 1-edited task card baseline to assert byte-identical preservation of the divergence block."
 notes:
   - "Phase 1 (SC-1..SC-5) precedes Phase 2 (SC-6..SC-7). Phase 2 depends on the Phase 1-edited task card baseline."
+  - "Evidence types: SC-1..SC-6 are behavioral (opencode run real-domain prompts with stderr assertions). SC-7 is string (byte-identical comparison)."

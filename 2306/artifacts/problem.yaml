@@ -1,0 +1,39 @@
+domain: submodule-sync-plan
+types:
+  - name: phase
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+fluents:
+  - name: phase_complete
+    params:
+      - name: p
+        type: phase
+  - name: phase_enabled
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_phase_1
+    params: []
+    preconditions:
+      - phase_enabled(phase_1)
+    effects:
+      - phase_complete(phase_1)
+      - phase_enabled(phase_2)
+      - not phase_enabled(phase_1)
+  - name: execute_phase_2
+    params: []
+    preconditions:
+      - phase_complete(phase_1)
+      - phase_enabled(phase_2)
+    effects:
+      - phase_complete(phase_2)
+      - not phase_enabled(phase_2)
+init:
+  - phase_enabled(phase_1)
+goals:
+  - phase_complete(phase_1)
+  - phase_complete(phase_2)

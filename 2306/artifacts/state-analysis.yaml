@@ -1,0 +1,58 @@
+# State analysis — issue #2306
+spec_id: "2306"
+title: "Bound submodule-sync task card scope to direct pointers and forbid recursion"
+
+# Current state of the task card (pre-change baseline)
+current_state:
+  file: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+  sc_coverage:
+    SC-1: MISSING  # No explicit scope bound to submodule_paths
+    SC-2: MISSING  # No explicit recursion prohibition
+    SC-3: CONFLICTING  # Current text may have blanket foreach prohibition
+    SC-4: MISSING  # No verbatim guideline mirror
+    SC-5: MISSING  # No explicit per-submodule git -C directive
+    SC-6: MISSING  # No false-flag avoidance documentation
+    SC-7: PRESENT  # Divergence handling block exists (to be preserved)
+
+# Phase 1 target state (after SC-1..SC-5)
+phase_1_target:
+  file: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+  sc_coverage:
+    SC-1: SATISFIED  # Explicit scope bound added
+    SC-2: SATISFIED  # Explicit recursion prohibition added
+    SC-3: SATISFIED  # Non-recursive foreach permission added, blanket prohibition removed
+    SC-4: SATISFIED  # Verbatim guideline mirror added
+    SC-5: SATISFIED  # Explicit per-submodule git -C directive added
+    SC-6: MISSING  # Not addressed in phase 1
+    SC-7: PRESERVED  # Divergence block unchanged
+
+# Phase 2 target state (after SC-6..SC-7)
+phase_2_target:
+  file: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+  sc_coverage:
+    SC-1: SATISFIED
+    SC-2: SATISFIED
+    SC-3: SATISFIED
+    SC-4: SATISFIED
+    SC-5: SATISFIED
+    SC-6: SATISFIED  # False-flag avoidance note added
+    SC-7: PRESERVED  # Divergence block byte-identical
+
+# Dependency edges between phases
+phase_dependencies:
+  - from: "phase_1"
+    to: "phase_2"
+    type: "sequential"
+    rationale: "Phase 2 operates on Phase 1-edited task card. SC-7 requires Phase 1 baseline for byte-identical comparison."
+
+# Z3 constraints for SAT verification
+constraints:
+  - "phase_1 => (SC-1 & SC-2 & SC-3 & SC-4 & SC-5)"
+  - "phase_2 => (SC-6 & SC-7_preserved)"
+  - "phase_2 => phase_1"
+  - "!(phase_1 & !phase_2) | phase_2"  # Phase 1 enables Phase 2, but Phase 1 alone is incomplete
+
+# Verification status
+verification:
+  phase_1: PENDING
+  phase_2: PENDING
