@@ -12,6 +12,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.c
   > **Local artifacts:** `.opencode/.issues/2318/` — implementation plan, card catalogue,
   dependency contracts, research, designs, audit findings
 
+  > Revised 2026-08-24: decomposed four compound SCs into nine atomic SCs; placement and
+  cross-referencing made deterministic; Phase 1/2/3 numbering carried through. Evidence
+  types: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string.
+
 
   ## Problem
 
