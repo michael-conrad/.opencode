@@ -2,6 +2,102 @@ title: '[SPEC-FIX] Audit arbiter false PASS for never-evaluated criteria'
 status: open
 labels:
 - needs-approval
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/N/
+
+
+  ## Problem
+
+
+  A session reported "The Arbiter filled in PASS for criteria that were never evaluated.
+  This is not a clean pass" — an attempt at a false PASS to bypass work. Root cause:
+  the `*-audit-arbiter` task cards aggregate `overall_verdict`/`all_criteria_pass`
+  over ONLY the `per_criterion`/`per_claim` set carried from `verdict.yaml`. An SC
+  absent from `verdict.yaml` (never evaluated) never enters the aggregate set, so
+  it cannot fail — the arbiter "fills in PASS" for it. The coverage/chain-integrity
+  flags collected in the cross-reference step (`MISSING_SC_COVERAGE`, `BROKEN_EVIDENCE_CHAIN`,
+  `coverage_complete`, `chain_complete`) are non-binding and never reach `overall_verdict`.
+  This is systemic across all 10 `*-audit-arbiter` cards, plus the evaluator cards
+  and the SKILL.md orchestrator workflow.
+
+
+  ## Scope
+
+
+  - Fully holistic fix of the entire audit chain — arbiter aggregation, evaluator
+  enumeration, and orchestrator workflow.
+
+  - **SC-1:** Aggregate over union of spec SC list + per_criterion; absent SC defaults
+  to FAIL (all 10 arbiters).
+
+  - **SC-2:** Independent hard flag-gate on the aggregate: coverage_complete AND chain_complete
+  must be true; any false → FAIL (closes fabricated-PASS-entry vector).
+
+  - **SC-3:** Verification behavioral-only via real `opencode run` audit dispatch,
+  stderr verdict observation; no static coded checks (they are worked around by hacking
+  mode).
+
+  - **SC-4:** Evaluators enumerate full spec SC list in per_criterion; no silent omission;
+  skipped SCs present with result FAIL + NOT_EVALUATED (defense-in-depth).
+
+  - **SC-5:** Any FAIL is a hard gate: remediate → re-audit until 100% compliance,
+  with explicit escalation exit (verified absent — "escalate" appears nowhere in audit
+  cards).
+
+  - **SC-6:** Reconcile `do NOT BLOCK` / `do NOT re-evaluate` error-table language
+  to bind to the FAIL gate.
+
+  - **SC-7:** Ticket-status/release handshake honors corrected aggregate; coverage-gap
+  FAIL keeps ticket unreleased.
+
+  - **SC-8:** Orchestrator MUST remediate-and-restart the audit at the point of any
+  non-clean phase, iterating until 100% clean, escalation the only exit (bind structurally
+  into SKILL.md workflow, not just prose).
+
+
+  **Out of scope:** Individual audit card content improvements unrelated to the aggregation/coverage
+  defect; non-audit skill chains.
+
+
+  ## Approach
+
+
+  Redefine the aggregate verdict so it is computed over the *union* of the spec SC
+  list and the evaluator''s per_criterion/per_claim set, defaulting any absent SC
+  to FAIL rather than silently inheriting a PASS. Add an independent hard flag-gate
+  in every arbiter that requires both coverage_complete and chain_complete to be true
+  before any aggregate can resolve to PASS — any false flag forces FAIL, closing the
+  fabricated-PASS-entry vector. Ensure evaluators enumerate the full spec SC list
+  with explicit NOT_EVALUATED markers so skipped criteria appear as FAIL and cannot
+  be omitted silently. Finally, bind the FAIL gate structurally into the SKILL.md
+  orchestrator workflow with a mandatory remediate-and-restart loop, making escalation
+  the only exit. Verification is behavioral-only through real `opencode run` audit
+  dispatch with stderr verdict observation.
+
+
+  ## Impact
+
+
+  - **Risk 1 (highest):** False PASS masks real audit defects and lets bad deliverables
+  through. *Mitigation:* independent flag-gate forces FAIL on any coverage/chain gap.
+
+  - **Risk 2:** Behavioral-only verification is heavier than static checks. *Mitigation:*
+  targeted `opencode run` dispatch against real audit scenarios, not a full-suite
+  run.
+
+  - **Risk 3:** Holistic change across 10 arbiters + evaluators + workflow risks regressions
+  in other audit paths. *Mitigation:* SC-3 behavioral verification gates the whole
+  chain before any completion claim.
+
+  - **Key dependency:** Real `opencode run` audit dispatch must be executable in the
+  test harness for SC-3.
+
+  - **Call to action:** Approve this spec to authorize the holistic audit-chain fix.
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
+
+  '
 created_at: '2026-08-24T15:23:03+00:00'
-updated_at: '2026-08-24T15:23:03+00:00'
+updated_at: '2026-08-24T15:23:12+00:00'
