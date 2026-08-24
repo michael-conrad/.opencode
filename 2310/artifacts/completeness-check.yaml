@@ -1,0 +1,8 @@
+status: DONE
+completeness_result: PASS
+findings:
+  - id: "F-1"
+    criterion: "SC-1"
+    severity: "present"
+    evidence: "Test script /home/muksihs/git/opencode-config/.opencode/tests-v2/test-2310-sc1-dynamic-trunk.sh passes (3/3 assertions PASS): sandbox remote HEAD branch resolves to 'master'; trigger includes diff-stat summary computed against resolved trunk; trigger does NOT reference hardcoded 'origin/dev'. Source file /home/muksihs/git/opencode-config/.opencode/scripts/session_context_triggers.py lines 66-79 show get_default_branch() resolving trunk via 'git remote show origin' HEAD branch with 'main' fallback, and build_pair_mode_resume() using it for diff stat."
+    description: "SC-1 fully addressed: build_pair_mode_resume() computes the diff stat against the dynamically resolved trunk branch (origin/master..HEAD or origin/main..HEAD), never the hardcoded origin/dev, with main fallback when remote HEAD branch cannot be resolved. Local-only repos omit diff stat gracefully via run_git() returning None."

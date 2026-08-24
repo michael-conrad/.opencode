@@ -1,0 +1,18 @@
+status: DONE
+completeness_result: PASS
+findings:
+  - id: "F-1"
+    criterion: "SC-1"
+    severity: "present"
+    evidence: "grep -n 'dev branch\|origin/dev' /home/muksihs/git/opencode-config/.opencode/tools/session-init returned no match"
+    description: "The 'Guard checks' docstring no longer references a dev branch guard check or origin/dev branch-creation behavior"
+  - id: "F-2"
+    criterion: "SC-2"
+    severity: "present"
+    evidence: "grep -n 'worktrees/main' /home/muksihs/git/opencode-config/.opencode/tools/session-init returned no match"
+    description: "The 'Guard checks' docstring no longer references the .worktrees/main/ worktree bootstrap"
+  - id: "F-3"
+    criterion: "SC-3"
+    severity: "present"
+    evidence: "grep -n '.env gitignore' /home/muksihs/git/opencode-config/.opencode/tools/session-init matches line 36"
+    description: "The 'Guard checks' docstring still references the .env gitignore guard check"
