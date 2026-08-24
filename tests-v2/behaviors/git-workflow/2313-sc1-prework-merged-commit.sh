@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers.sh"
 
 SCENARIO_NAME="2313-sc1-prework-merged-commit"
-SCENARIO_PROMPT="Setup a feature branch for issue #2313. The .opencode submodule pointer references a local-only commit. Run pre-work trunk-tip-verification. It should block branch creation with SUBMODULE_UNMERGED_COMMIT."
+SCENARIO_PROMPT="Set up a feature branch for issue #2313. The .opencode submodule already has a local-only commit that is NOT on the submodule's origin/main. Dispatch git-workflow pre-work (trunk-tip-verification) and let it decide whether branch creation is allowed."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
