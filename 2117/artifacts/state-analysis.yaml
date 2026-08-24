@@ -1,0 +1,61 @@
+# State Analysis — Issue #2117
+# Generated: retroactive backfill from spec.md
+
+spec_path: .opencode/.issues/2117/spec.md
+
+state_transitions:
+  - id: st-evaluator-inline
+    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08]
+    from: spec-audit-evaluator.md has zero decomposition content
+    to: spec-audit-evaluator.md contains full inline base-criteria checklist
+    trigger: Items 1-8 (RED/GREEN edits)
+    verification: grep each criterion name, PASS/FAIL branches, sub-checks, comment, skip condition
+
+  - id: st-evaluator-behavior-base
+    scs: [SC-09, SC-10]
+    from: evaluator verdicts unverified for base criteria
+    to: behavioral tests assert monolithic FAIL and atomic PASS
+    trigger: Items 9-10 (opencode run)
+    verification: stderr assertions
+
+  - id: st-master-verify
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15]
+    from: master redundancy section status unconfirmed
+    to: verified criteria 5-6 present, set-entailment, spec-level-only
+    trigger: Items 11-15 (grep verification, no code change)
+    verification: grep section heading + defect class names + declarations
+
+  - id: st-evaluator-redundancy
+    scs: [SC-16, SC-17, SC-18]
+    from: evaluator lacks Ceremony/Coverage inline copy; lockstep claim false
+    to: evaluator contains criteria 5-6 inline copies in lockstep with master
+    trigger: Items 16-18
+    verification: grep Ceremony/Coverage criterion + lockstep reconciliation clause
+
+  - id: st-evaluator-behavior-redundancy
+    scs: [SC-19, SC-20, SC-21]
+    from: redundancy verdicts unverified
+    to: coverage FAIL, ceremony FAIL, distinct-SC PASS all asserted behaviorally
+    trigger: Items 19-21 (opencode run)
+    verification: behavioral stderr assertions
+
+  - id: st-reference-links
+    scs: [SC-22, SC-23]
+    from: 34 bare reference/... links resolve to nonexistent directory
+    to: all corrected to .opencode/reference/... resolving to existing files
+    trigger: Items 22-23 (link correction)
+    verification: grep absence of bare patterns, presence of corrected paths
+
+  - id: st-maintainer-path
+    scs: [SC-24]
+    from: maintainer-note path audit/tasks/spec-audit-evaluator.md (incorrect)
+    to: maintainer-note path skills/audit/tasks/spec-audit-evaluator.md (correct)
+    trigger: Item 24
+    verification: grep corrected path in the maintainer note
+
+state_notes: >
+  All transitions are content-state transitions on markdown files within the
+  .opencode/audit and .opencode/reference trees. No persistent runtime data state
+  changes. The behavioral tests transition the evaluator's verdict output observable
+  in harness stderr. No rollback complexity: each file edit is independently
+  revertible via git.

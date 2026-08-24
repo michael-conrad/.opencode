@@ -1,0 +1,146 @@
+# Testability Assessment — Issue #2117
+# Generated: retroactive backfill from spec.md (current 25-SC schema)
+
+spec_path: .opencode/.issues/2117/spec.md
+sc_count: 25
+
+evidence_assignments:
+  - id: ev-01
+    sc: SC-01
+    evidence_type: string
+    verification_method: grep each base criterion name in spec-audit-evaluator.md
+    testability: high — deterministic grep for literal criterion names
+  - id: ev-02
+    sc: SC-02
+    evidence_type: string
+    verification_method: grep for PASS/FAIL branching in the inline checklist
+    testability: high — deterministic grep for PASS/FAIL
+  - id: ev-03
+    sc: SC-03
+    evidence_type: string
+    verification_method: grep for the trigger-word sub-check
+    testability: high — deterministic grep for and/or/comma-list trigger
+  - id: ev-04
+    sc: SC-04
+    evidence_type: string
+    verification_method: grep for the disjunctive sub-check
+    testability: high — deterministic grep for either/or/alternatively/one of
+  - id: ev-05
+    sc: SC-05
+    evidence_type: string
+    verification_method: grep for the vague-term sub-check
+    testability: high — deterministic grep for should/would/ideally/as appropriate
+  - id: ev-06
+    sc: SC-06
+    evidence_type: string
+    verification_method: grep for the RED/GREEN reference
+    testability: high — deterministic grep for RED/GREEN
+  - id: ev-07
+    sc: SC-07
+    evidence_type: string
+    verification_method: grep for the cross-reference comment
+    testability: high — deterministic grep for exact comment text
+  - id: ev-08
+    sc: SC-08
+    evidence_type: string
+    verification_method: grep for the skip trigger condition
+    testability: high — deterministic grep for single-SC skip condition
+  - id: ev-09
+    sc: SC-09
+    evidence_type: behavioral
+    verification_method: opencode run with stderr assertion (monolithic-SC FAIL)
+    testability: behavioral — requires with-test-home + real model; no structural substitute
+  - id: ev-10
+    sc: SC-10
+    evidence_type: behavioral
+    verification_method: opencode run with stderr assertion (atomic-SC PASS)
+    testability: behavioral — requires with-test-home + real model; no structural substitute
+  - id: ev-11
+    sc: SC-11
+    evidence_type: string
+    verification_method: grep `### 5. Ceremony` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-12
+    sc: SC-12
+    evidence_type: string
+    verification_method: grep `### 6. Coverage / Covered-by-Prior` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-13
+    sc: SC-13
+    evidence_type: string
+    verification_method: grep `set-entailment over prior SCs only` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-14
+    sc: SC-14
+    evidence_type: string
+    verification_method: grep `OUT OF SCOPE` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-15
+    sc: SC-15
+    evidence_type: string
+    verification_method: grep `same deliverable + same verification method, no new requirement` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-16
+    sc: SC-16
+    evidence_type: string
+    verification_method: grep `requirement set is already entailed by a prior SC` in the existing master reference
+    testability: high — deterministic grep on verify-only target
+  - id: ev-17
+    sc: SC-17
+    evidence_type: string
+    verification_method: grep the Ceremony criterion in spec-audit-evaluator.md
+    testability: high — deterministic grep for created criterion-5 copy
+  - id: ev-18
+    sc: SC-18
+    evidence_type: string
+    verification_method: grep the Coverage criterion in spec-audit-evaluator.md
+    testability: high — deterministic grep for created criterion-6 copy
+  - id: ev-19
+    sc: SC-19
+    evidence_type: string
+    verification_method: grep the exact lockstep-reconciliation clause in spec-audit-evaluator.md
+    testability: high — deterministic grep for exact clause text
+  - id: ev-20
+    sc: SC-20
+    evidence_type: behavioral
+    verification_method: opencode run with stderr assertion (coverage FAIL)
+    testability: behavioral — requires with-test-home + real model; no structural substitute
+  - id: ev-21
+    sc: SC-21
+    evidence_type: behavioral
+    verification_method: opencode run with stderr assertion (ceremony FAIL)
+    testability: behavioral — requires with-test-home + real model; no structural substitute
+  - id: ev-22
+    sc: SC-22
+    evidence_type: behavioral
+    verification_method: opencode run with stderr assertion (distinct-SC PASS)
+    testability: behavioral — requires with-test-home + real model; no structural substitute
+  - id: ev-23
+    sc: SC-23
+    evidence_type: string
+    verification_method: grep absence of each bare pattern across skills/audit/tasks/
+    testability: high — deterministic grep for absence
+  - id: ev-24
+    sc: SC-24
+    evidence_type: string
+    verification_method: grep presence of each corrected .opencode/reference/... path across skills/audit/tasks/
+    testability: high — deterministic grep for presence
+  - id: ev-25
+    sc: SC-25
+    evidence_type: string
+    verification_method: grep the corrected path in the maintainer note
+    testability: high — deterministic grep on verify-only target
+
+evidence_mix:
+  string: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-23, SC-24, SC-25]
+  behavioral: [SC-09, SC-10, SC-20, SC-21, SC-22]
+
+testability_notes: >
+  20 of 25 SCs are string (deterministic grep) evidence; 5 SCs are behavioral and MUST be
+  executed via the with-test-home opencode run harness against a real model. Per the
+  EVIDENCE_TYPE_MISMATCH gate, the 5 behavioral SCs MUST NOT be substituted with structural
+  or string checks — a grep for 'and' is not behavioral evidence that the evaluator renders
+  a FAIL verdict. The behavioral SCs are the runtime-observable verdict transitions of the
+  evaluator and are classified as runtime-behavioral changes requiring behavioral evidence.
+  Master-reference verify-only SCs (SC-11..SC-16, SC-25) are string because they assert
+  static content presence, which the EVIDENCE_TYPE_MISMATCH gate permits as string.

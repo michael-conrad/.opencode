@@ -1,0 +1,90 @@
+# Cross-Cutting Matrix — Issue #2117
+# Generated: retroactive backfill from spec.md
+
+spec_path: .opencode/.issues/2117/spec.md
+
+concerns:
+  - id: inline-base
+    name: Base-criteria inline checklist
+  - id: inline-redundancy
+    name: Ceremony/Coverage inline copy
+  - id: master-verify
+    name: Master-reference verification
+  - id: links
+    name: Reference link correction
+
+matrix:
+  - sc: SC-01
+    concerns: [inline-base]
+    note: Primary inline checklist criterion.
+  - sc: SC-02
+    concerns: [inline-base]
+  - sc: SC-03
+    concerns: [inline-base]
+    note: Atomicity trigger-word sub-check.
+  - sc: SC-04
+    concerns: [inline-base]
+    note: Binary-verifiability disjunctive sub-check.
+  - sc: SC-05
+    concerns: [inline-base]
+    note: Binary-verifiability vague-term sub-check.
+  - sc: SC-06
+    concerns: [inline-base]
+  - sc: SC-07
+    concerns: [inline-base]
+  - sc: SC-08
+    concerns: [inline-base]
+  - sc: SC-09
+    concerns: [inline-base, behavioral]
+  - sc: SC-10
+    concerns: [inline-base, behavioral]
+  - sc: SC-11
+    concerns: [master-verify, inline-redundancy]
+    note: Verifies master redundancy section; prerequisite for inline copy.
+  - sc: SC-12
+    concerns: [master-verify]
+  - sc: SC-13
+    concerns: [master-verify]
+  - sc: SC-14
+    concerns: [master-verify, inline-redundancy]
+    note: Ceremony FAIL definition governs inline criterion-5 copy.
+  - sc: SC-15
+    concerns: [master-verify, inline-redundancy]
+    note: Coverage FAIL definition governs inline criterion-6 copy.
+  - sc: SC-16
+    concerns: [inline-redundancy]
+  - sc: SC-17
+    concerns: [inline-redundancy]
+  - sc: SC-18
+    concerns: [inline-redundancy]
+  - sc: SC-19
+    concerns: [inline-redundancy, behavioral]
+  - sc: SC-20
+    concerns: [inline-redundancy, behavioral]
+  - sc: SC-21
+    concerns: [inline-redundancy, behavioral]
+  - sc: SC-22
+    concerns: [links]
+  - sc: SC-23
+    concerns: [links]
+  - sc: SC-24
+    concerns: [master-verify]
+    note: Maintainer-note path correction lives in the master reference.
+
+cross_cutting_scs:
+  - sc: SC-11
+    spans: [master-verify, inline-redundancy]
+  - sc: SC-14
+    spans: [master-verify, inline-redundancy]
+  - sc: SC-15
+    spans: [master-verify, inline-redundancy]
+  - sc: SC-16
+    spans: [inline-redundancy]
+  - sc: SC-17
+    spans: [inline-redundancy]
+
+summary: >
+  The master-verify SCs (SC-11, SC-14, SC-15) are the cross-cutting seams: they
+  verify content in the master reference that the inline-redundancy concern then
+  mirrors into the evaluator. SC-09/SC-10/SC-19/SC-20/SC-21 span the inline concerns
+  and behavioral verification. No SC depends on the link-fix concern's output.

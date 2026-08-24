@@ -1,0 +1,28 @@
+# Dependency Contract — Issue #2117
+# Extracted from interface-compatibility.yaml dependency_contract section (backfill)
+
+version: 1
+issue: 2117
+derived_from: spec.md (affected files + SCs)
+contracts:
+  - name: evaluator-inline-lockstep
+    source: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    target: .opencode/audit/reference/decomposition-criteria.md
+    direction: read-mirror
+    type_constraint: markdown text parity for criteria 1-6 and sub-checks
+    consumers: [spec-audit-evaluator task verdict rendering]
+    rationale: Maintainer note requires the inline copy in lockstep with the master.
+  - name: task-card-link-resolution
+    source: .opencode/skills/audit/tasks/*.md
+    target: .opencode/reference/{spec-structure-standards,plan-structure-standards,cost-model-standards}.md
+    direction: read
+    type_constraint: exact path string .opencode/reference/<name>.md must resolve to an existing file
+    consumers: [task-card execution, standards loading]
+    rationale: "Bare reference/ paths resolve to nonexistent directory; corrected path required."
+  - name: behavioral-harness
+    source: spec-audit-evaluator verdicts
+    target: with-test-home opencode run harness
+    direction: execute
+    type_constraint: behavioral evidence via stderr assertions only
+    consumers: [SC-09, SC-10, SC-19, SC-20, SC-21]
+    rationale: "Behavioral verdict evidence requires real opencode run per EVIDENCE_TYPE_MISMATCH gate."

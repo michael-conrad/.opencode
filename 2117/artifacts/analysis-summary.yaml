@@ -1,0 +1,43 @@
+# Analysis Summary — Issue #2117
+# Generated: retroactive backfill
+
+spec_path: .opencode/.issues/2117/spec.md
+sc_count: 24
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: |
+  Restore audit decomposition verification. Three coordinated edits confined to the
+  .opencode/audit skill tree:
+  (1) create the inline decomposition-criteria checklist in skills/audit/tasks/
+      spec-audit-evaluator.md (base criteria + Ceremony/Coverage + behavioral tests);
+  (2) correct 34 bare reference/... links across 18-19 audit task cards to
+      .opencode/reference/...;
+  (3) correct the maintainer-note path defect in audit/reference/decomposition-criteria.md.
+
+  The master reference already contains criteria 5-6 (Ceremony, Coverage) — the spec
+  verifies this (SC-11..SC-15) rather than re-adding them.
+
+  Affected files verified present on disk:
+  - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+  - .opencode/audit/reference/decomposition-criteria.md
+  - .opencode/reference/{cost-model-standards,spec-structure-standards,plan-structure-standards}.md
+  - .opencode/skills/audit/tasks/*.md (19 files carry bare reference links)
+
+  Dependency contract extracted to .opencode/.issues/2117/dependency-contract.yaml.
+
+  Evidence mix: 19 string SCs (grep), 5 behavioral SCs (opencode run via
+  with-test-home harness). Per EVIDENCE_TYPE_MISMATCH gate, behavioral SCs MUST NOT
+  be substituted with structural checks.
+
+phases:
+  Phase 1: [concern-base-inline-copy, concern-base-behavioral, concern-master-reference-verify]
+  Phase 2: [concern-inline-redundancy-copy]
+  Phase 3: [concern-reference-link-fix]

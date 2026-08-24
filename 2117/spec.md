@@ -7,7 +7,7 @@
 The audit skill's `spec-audit-evaluator` task does not independently verify SC decomposition quality. Specs with monolithic SCs pass audit and advance to plan creation, where defects are more expensive to fix. A path-defect investigation confirmed three concrete defects that break decomposition evaluation and reference resolution:
 
 1. `skills/audit/tasks/spec-audit-evaluator.md` contains **zero** decomposition-criteria content. It cannot independently render decomposition verdicts, so audit silently skips the decomposition quality gate that catches monolithic, ceremonial, or redundant SCs.
-2. 34 bare `reference/...` links across 18 audit task cards in `skills/audit/tasks/` resolve to the nonexistent `skills/audit/reference/` directory. They must resolve to `.opencode/reference/...` (the canonical reference directory) to load the standards documents the tasks depend on.
+2. 34 bare `reference/...` links across 18 audit task cards in `skills/audit/tasks/` resolve to the nonexistent `skills/audit/reference/` directory. They must resolve to `.opencode/reference/...` (the canonical reference directory) to load the standards documents the tasks depend on. The bare patterns are `reference/cost-model-standards.md` (19 occurrences), `reference/spec-structure-standards.md` (9 occurrences), and `reference/plan-structure-standards.md` (6 occurrences).
 3. The master reference maintainer note (`audit/reference/decomposition-criteria.md`) lists an incorrect path `audit/tasks/spec-audit-evaluator.md`; the correct path is `skills/audit/tasks/spec-audit-evaluator.md`.
 
 ### Root Cause / Motivation
@@ -52,20 +52,21 @@ A spec-creation holistic validation of `.opencode#2117` returned FAIL (holistic 
 | SC-08 | The decomposition check is skipped (not evaluated) when the spec has exactly 1 SC AND exactly 1 affected file | string | grep for the skip trigger condition |
 | SC-09 | Behavioral: a spec with a monolithic SC containing 'and' submitted to spec-audit returns FAIL with a decomposition reason | behavioral | opencode run with assertion |
 | SC-10 | Behavioral: a spec with a single atomic SC submitted to spec-audit returns PASS for the decomposition criteria | behavioral | opencode run with assertion |
-| SC-11 | `audit/reference/decomposition-criteria.md` contains a spec-level 'Redundancy Detection' section defining the Ceremony (criterion 5) and Coverage / Covered-by-Prior (criterion 6) defect classes | string | grep for the section heading and both defect class names in the existing master reference |
-| SC-12 | Both redundancy criteria are computed as set-entailment over all prior SCs only, and the Problem Statement / intent prose universe is explicitly OUT OF SCOPE | string | grep for the out-of-scope declaration in the existing master reference |
-| SC-13 | The redundancy section is spec-level only and independent of the plan-level criteria | string | grep for the spec-level-only declaration in the existing master reference |
-| SC-14 | The Ceremony check defines FAIL as an SC that adds zero verification signal over the union of prior SCs (same deliverable + same verification method, no new requirement) | string | grep for the Ceremony FAIL definition in the existing master reference |
-| SC-15 | The Coverage check defines FAIL as an SC whose requirement set is already entailed by a prior SC | string | grep for the Coverage FAIL definition in the existing master reference |
-| SC-16 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created to include the Ceremony (criterion 5) criterion in lockstep with the master reference | string | grep for the Ceremony criterion in spec-audit-evaluator.md |
-| SC-17 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created to include the Coverage (criterion 6) criterion in lockstep with the master reference | string | grep for the Coverage criterion in spec-audit-evaluator.md |
-| SC-18 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created, not merely checked, reconciling the maintainer-note lockstep claim with the current empty state | string | grep for the lockstep reconciliation clause in spec-audit-evaluator.md |
-| SC-19 | Behavioral: a spec where a later SC repeats an earlier SC's requirement set (Coverage) submitted to spec-audit returns FAIL with a coverage reason | behavioral | opencode run with assertion |
-| SC-20 | Behavioral: a spec where a later SC adds zero verification signal over prior SCs (Ceremony) submitted to spec-audit returns FAIL with a ceremony reason | behavioral | opencode run with assertion |
-| SC-21 | Behavioral: a spec where each SC adds a distinct requirement with a distinct verification method submitted to spec-audit returns PASS for the redundancy criteria | behavioral | opencode run with assertion |
-| SC-22 | The three bare `reference/...` link patterns (`reference/cost-model-standards.md`, `reference/spec-structure-standards.md`, `reference/plan-structure-standards.md`) are ABSENT from all audit task cards in `skills/audit/tasks/` | string | grep for absence of each bare pattern across skills/audit/tasks/ |
-| SC-23 | The corrected `.opencode/reference/...` paths are PRESENT across the audit task cards in `skills/audit/tasks/` | string | grep for presence of each corrected path across skills/audit/tasks/ |
-| SC-24 | The master reference maintainer note path `audit/tasks/spec-audit-evaluator.md` is corrected to `skills/audit/tasks/spec-audit-evaluator.md` | string | grep for the corrected path in the maintainer note |
+| SC-11 | `audit/reference/decomposition-criteria.md` contains the `### 5. Ceremony` criterion heading | string | grep for `### 5. Ceremony` in the existing master reference |
+| SC-12 | `audit/reference/decomposition-criteria.md` contains the `### 6. Coverage / Covered-by-Prior` criterion heading | string | grep for `### 6. Coverage / Covered-by-Prior` in the existing master reference |
+| SC-13 | Both redundancy criteria are computed as set-entailment over prior SCs only | string | grep for `set-entailment over prior SCs only` in the existing master reference |
+| SC-14 | The Problem Statement / intent prose universe is explicitly OUT OF SCOPE for both redundancy criteria | string | grep for `OUT OF SCOPE` in the existing master reference |
+| SC-15 | The Ceremony check defines FAIL as an SC that adds no new requirement (same deliverable + same verification method, no new requirement) | string | grep for `same deliverable + same verification method, no new requirement` in the existing master reference |
+| SC-16 | The Coverage check defines FAIL as an SC whose requirement set is already entailed by a prior SC | string | grep for `requirement set is already entailed by a prior SC` in the existing master reference |
+| SC-17 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created to include the Ceremony (criterion 5) criterion in lockstep with the master reference | string | grep for the Ceremony criterion in spec-audit-evaluator.md |
+| SC-18 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created to include the Coverage (criterion 6) criterion in lockstep with the master reference | string | grep for the Coverage criterion in spec-audit-evaluator.md |
+| SC-19 | The inline copy in `skills/audit/tasks/spec-audit-evaluator.md` is created, not merely checked, reconciling the maintainer-note lockstep claim with the current empty state, and contains the exact lockstep-reconciliation clause `This inline copy SHALL be kept in lockstep with the master reference audit/reference/decomposition-criteria.md.` | string | grep for the exact lockstep-reconciliation clause `This inline copy SHALL be kept in lockstep with the master reference audit/reference/decomposition-criteria.md.` in spec-audit-evaluator.md |
+| SC-20 | Behavioral: a spec where a later SC repeats an earlier SC's requirement set (Coverage) submitted to spec-audit returns FAIL with a coverage reason | behavioral | opencode run with assertion |
+| SC-21 | Behavioral: a spec where a later SC adds zero verification signal over prior SCs (Ceremony) submitted to spec-audit returns FAIL with a ceremony reason | behavioral | opencode run with assertion |
+| SC-22 | Behavioral: a spec where each SC adds a distinct requirement with a distinct verification method submitted to spec-audit returns PASS for the redundancy criteria | behavioral | opencode run with assertion |
+| SC-23 | The three bare reference patterns `reference/<name>.md` are ABSENT from all audit task cards in `skills/audit/tasks/` | string | grep for absence of each bare pattern (`reference/cost-model-standards.md`, `reference/spec-structure-standards.md`, `reference/plan-structure-standards.md`) across skills/audit/tasks/ |
+| SC-24 | The corrected `.opencode/reference/...` paths are PRESENT across the audit task cards in `skills/audit/tasks/` | string | grep for presence of each corrected path (`.opencode/reference/cost-model-standards.md`, `.opencode/reference/spec-structure-standards.md`, `.opencode/reference/plan-structure-standards.md`) across skills/audit/tasks/ |
+| SC-25 | The master reference maintainer note path `audit/tasks/spec-audit-evaluator.md` is corrected to `skills/audit/tasks/spec-audit-evaluator.md` | string | grep for the corrected path in the maintainer note |
 
 ## 4. Requirements
 
@@ -79,173 +80,180 @@ R-7. The inline copy SHALL include the cross-reference comment to the master ref
 R-8. The decomposition check SHALL be skipped when the spec has exactly one SC and exactly one affected file.
 R-9. The audit evaluator SHALL return FAIL for a spec containing a monolithic SC.
 R-10. The audit evaluator SHALL return PASS for the decomposition criteria on a spec of atomic SCs.
-R-11. The master reference SHALL contain a spec-level 'Redundancy Detection' section defining the Ceremony and Coverage defect classes.
-R-12. The redundancy criteria SHALL be computed as set-entailment over all prior SCs only, with the Problem Statement universe explicitly out of scope.
-R-13. The redundancy section SHALL be spec-level only and independent of plan-level criteria.
-R-14. The Ceremony check SHALL define FAIL as an SC adding zero verification signal over the union of prior SCs.
-R-15. The Coverage check SHALL define FAIL as an SC whose requirement set is already entailed by a prior SC.
-R-16. The evaluator SHALL include an inline copy of the Ceremony (criterion 5) criterion in lockstep with the master reference.
-R-17. The evaluator SHALL include an inline copy of the Coverage (criterion 6) criterion in lockstep with the master reference.
-R-18. The evaluator SHALL reconcile the maintainer-note lockstep claim with the current empty state by creating the inline criteria 5-6 copy, not merely checking for its presence.
-R-19. The evaluator SHALL render FAIL for coverage redundancy and ceremony redundancy in behavioral testing.
-R-20. The evaluator SHALL render PASS for a spec whose SCs each add distinct requirements and methods.
-R-21. All bare `reference/...` link patterns SHALL be absent from the audit task cards.
-R-22. The corrected `.opencode/reference/...` paths SHALL be present across the audit task cards.
-R-23. The master reference maintainer note SHALL use the corrected path `skills/audit/tasks/spec-audit-evaluator.md`.
+R-11. The master reference SHALL contain the `### 5. Ceremony` criterion heading.
+R-12. The master reference SHALL contain the `### 6. Coverage / Covered-by-Prior` criterion heading.
+R-13. The redundancy criteria SHALL be computed as set-entailment over prior SCs only.
+R-14. The Problem Statement / intent prose universe SHALL be explicitly OUT OF SCOPE for both redundancy criteria.
+R-15. The Ceremony check SHALL define FAIL as an SC that adds no new requirement (same deliverable + same verification method, no new requirement).
+R-16. The Coverage check SHALL define FAIL as an SC whose requirement set is already entailed by a prior SC.
+R-17. The evaluator SHALL include an inline copy of the Ceremony (criterion 5) criterion in lockstep with the master reference.
+R-18. The evaluator SHALL include an inline copy of the Coverage (criterion 6) criterion in lockstep with the master reference.
+R-19. The evaluator SHALL reconcile the maintainer-note lockstep claim with the current empty state by creating the inline criteria 5-6 copy, not merely checking for its presence.
+R-20. The evaluator SHALL render FAIL for coverage redundancy and ceremony redundancy in behavioral testing.
+R-21. The evaluator SHALL render PASS for a spec whose SCs each add distinct requirements and methods.
+R-22. All bare `reference/...` link patterns SHALL be absent from the audit task cards.
+R-23. The corrected `.opencode/reference/...` paths SHALL be present across the audit task cards.
+R-24. The master reference maintainer note SHALL use the corrected path `skills/audit/tasks/spec-audit-evaluator.md`.
 
 ## 5. Items
 
 ### Item 1 (SC-01): Add inline base-criteria checklist to the evaluator
-- RED: behavioral/string test asserts the checklist absent from spec-audit-evaluator.md
+- RED: enforcement test that fails because the inline checklist is absent from spec-audit-evaluator.md
 - GREEN: add the inline checklist for atomicity, single deliverable, binary verifiability, PR-gate viability
 - verify: grep each criterion name present
 - commit: checklist content
 
 ### Item 2 (SC-02): Add binary decision-tree format
-- RED: assert no PASS/FAIL branching in the inline checklist
+- RED: enforcement test that fails because the inline checklist has no PASS/FAIL branching
 - GREEN: convert each base criterion to imperative binary decision-tree with PASS/FAIL branches
 - verify: grep PASS/FAIL branches
 - commit: format
 
 ### Item 3 (SC-03): Add atomicity trigger-sub-check
-- RED: assert no trigger-sub-check in the atomicity criterion
+- RED: enforcement test that fails because the atomicity criterion lacks the trigger-sub-check
 - GREEN: add the `and`/`or`/comma-list sub-check
 - verify: grep sub-check
 - commit: sub-check content
 
 ### Item 4 (SC-04): Add disjunctive-pattern sub-check
-- RED: assert no disjunctive sub-check in the binary verifiability criterion
+- RED: enforcement test that fails because the binary verifiability criterion lacks the disjunctive sub-check
 - GREEN: add the `either/or`/`alternatively`/`one of` sub-check
 - verify: grep sub-check
 - commit: sub-check content
 
 ### Item 5 (SC-05): Add vague-term sub-check
-- RED: assert no vague-term sub-check present
+- RED: enforcement test that fails because the vague-term sub-check is absent
 - GREEN: add the `should`/`would`/`ideally`/`as appropriate` sub-check
 - verify: grep sub-check
 - commit: sub-check content
 
 ### Item 6 (SC-06): Add RED/GREEN reference to PR-gate criterion
-- RED: assert no RED/GREEN reference
+- RED: enforcement test that fails because the PR-gate criterion lacks the RED/GREEN reference
 - GREEN: add the meta RED/GREEN principle reference
 - verify: grep reference
 - commit: content
 
 ### Item 7 (SC-07): Add cross-reference comment
-- RED: assert no cross-reference comment
+- RED: enforcement test that fails because the cross-reference comment is absent
 - GREEN: add the 'See audit/reference/decomposition-criteria.md for master definition' comment
 - verify: grep comment
 - commit: content
 
 ### Item 8 (SC-08): Add single-spec skip condition
-- RED: assert no skip condition
+- RED: enforcement test that fails because the single-spec skip condition is absent
 - GREEN: add the skip logic for 1 SC + 1 affected file
 - verify: grep trigger condition
 - commit: content
 
 ### Item 9 (SC-09): Behavioral FAIL test for monolithic SC
-- RED: test asserts an 'and'-laden SC fails; run and observe
+- RED: enforcement test runs a monolithic SC and observes the decomposition FAIL
 - GREEN: (no code change beyond Item 1-8; test validates the implemented evaluator)
 - verify: opencode run with stderr assertion
 - commit: behavioral test
 
 ### Item 10 (SC-10): Behavioral PASS test for atomic SC
-- RED: test asserts atomic SC passes; run and observe
+- RED: enforcement test runs an atomic SC and observes the decomposition PASS
 - GREEN: (no additional code change)
 - verify: opencode run with stderr assertion
 - commit: behavioral test
 
-### Item 11 (SC-11): Verify master reference redundancy section
-- RED: assert the master reference lacks the section
+### Item 11 (SC-11): Verify master Ceremony heading
+- RED: enforcement test that fails because the master reference has no Ceremony heading
 - GREEN: none needed (verification item); if absent, block with BLOCKED
-- verify: grep section heading and both defect-class names in the existing master reference
+- verify: grep `### 5. Ceremony` in the existing master reference
 - commit: verification-only item
 
-### Item 12 (SC-12): Verify set-entailment / out-of-scope semantics
-- RED: assert absence of the out-of-scope declaration
+### Item 12 (SC-12): Verify master Coverage heading
+- RED: enforcement test that fails because the master reference has no Coverage heading
 - GREEN: none (verification)
-- verify: grep out-of-scope declaration in the existing master reference
+- verify: grep `### 6. Coverage / Covered-by-Prior` in the existing master reference
 - commit: verification-only item
 
-### Item 13 (SC-13): Verify spec-level-only scope
-- RED: assert absence of the spec-level-only declaration
+### Item 13 (SC-13): Verify set-entailment semantics
+- RED: enforcement test that fails because the master reference lacks the set-entailment-over-prior-SCs declaration
 - GREEN: none (verification)
-- verify: grep declaration in the existing master reference
+- verify: grep `set-entailment over prior SCs only` in the existing master reference
 - commit: verification-only item
 
-### Item 14 (SC-14): Verify Ceremony FAIL definition
-- RED: assert absence of the Ceremony FAIL definition
+### Item 14 (SC-14): Verify OUT-OF-SCOPE declaration
+- RED: enforcement test that fails because the master reference lacks the OUT OF SCOPE declaration
 - GREEN: none (verification)
-- verify: grep the Ceremony FAIL definition in the existing master reference
+- verify: grep `OUT OF SCOPE` in the existing master reference
 - commit: verification-only item
 
-### Item 15 (SC-15): Verify Coverage FAIL definition
-- RED: assert absence of the Coverage FAIL definition
+### Item 15 (SC-15): Verify Ceremony FAIL definition
+- RED: enforcement test that fails because the master reference lacks the Ceremony FAIL definition
 - GREEN: none (verification)
-- verify: grep the Coverage FAIL definition in the existing master reference
+- verify: grep `same deliverable + same verification method, no new requirement` in the existing master reference
 - commit: verification-only item
 
-### Item 16 (SC-16): Create inline Ceremony copy in the evaluator
-- RED: assert no Ceremony criterion content in spec-audit-evaluator.md
+### Item 16 (SC-16): Verify Coverage FAIL definition
+- RED: enforcement test that fails because the master reference lacks the Coverage FAIL definition
+- GREEN: none (verification)
+- verify: grep `requirement set is already entailed by a prior SC` in the existing master reference
+- commit: verification-only item
+
+### Item 17 (SC-17): Create inline Ceremony copy in the evaluator
+- RED: enforcement test that fails because the evaluator lacks the inline Ceremony criterion copy
 - GREEN: create the inline criterion-5 (Ceremony) copy matching the master reference
 - verify: grep the Ceremony criterion in spec-audit-evaluator.md
 - commit: inline copy
 
-### Item 17 (SC-17): Create inline Coverage copy in the evaluator
-- RED: assert no Coverage criterion content in spec-audit-evaluator.md
+### Item 18 (SC-18): Create inline Coverage copy in the evaluator
+- RED: enforcement test that fails because the evaluator lacks the inline Coverage criterion copy
 - GREEN: create the inline criterion-6 (Coverage) copy matching the master reference
 - verify: grep the Coverage criterion in spec-audit-evaluator.md
 - commit: inline copy
 
-### Item 18 (SC-18): Reconcile the maintainer-note lockstep claim
-- RED: assert the evaluator lacks the created criteria 5-6 inline copy
+### Item 19 (SC-19): Reconcile the maintainer-note lockstep claim
+- RED: enforcement test that fails because the evaluator lacks the created criteria 5-6 inline copy
 - GREEN: create the criteria 5-6 inline copy, reconciling the maintainer-note lockstep claim with the current empty state
-- verify: grep the lockstep reconciliation clause in spec-audit-evaluator.md
+- verify: grep the exact lockstep-reconciliation clause `This inline copy SHALL be kept in lockstep with the master reference audit/reference/decomposition-criteria.md.` in spec-audit-evaluator.md
 - commit: lockstep reconciliation
 
-### Item 19 (SC-19): Behavioral FAIL test for Coverage
-- RED: test asserts coverage-redundancy FAIL; run and observe
-- GREEN: none (implementation in Item 16-18)
+### Item 20 (SC-20): Behavioral FAIL test for Coverage
+- RED: enforcement test runs a coverage-redundant spec and observes the FAIL
+- GREEN: none (implementation in Item 17-19)
 - verify: opencode run with stderr assertion
 - commit: behavioral test
 
-### Item 20 (SC-20): Behavioral FAIL test for Ceremony
-- RED: test asserts ceremony FAIL; run and observe
-- GREEN: none (implementation in Item 16-18)
+### Item 21 (SC-21): Behavioral FAIL test for Ceremony
+- RED: enforcement test runs a ceremonial spec and observes the FAIL
+- GREEN: none (implementation in Item 17-19)
 - verify: opencode run with stderr assertion
 - commit: behavioral test
 
-### Item 21 (SC-21): Behavioral PASS test for distinct SCs
-- RED: test asserts distinct-SC PASS; run and observe
-- GREEN: none (implementation in Item 16-18)
+### Item 22 (SC-22): Behavioral PASS test for distinct SCs
+- RED: enforcement test runs a distinct-SC spec and observes the PASS
+- GREEN: none (implementation in Item 17-19)
 - verify: opencode run with stderr assertion
 - commit: behavioral test
 
-### Item 22 (SC-22): Remove bare reference patterns from audit cards
-- RED: assert each bare `reference/...` pattern present across skills/audit/tasks/
+### Item 23 (SC-23): Remove bare reference patterns from audit cards
+- RED: enforcement test that fails because a bare reference pattern is present across skills/audit/tasks/
 - GREEN: remove the bare `reference/...` patterns, replacing them with the corrected `.opencode/reference/...` path
 - verify: grep absence of each bare pattern across skills/audit/tasks/
 - commit: link correction
 
-### Item 23 (SC-23): Add corrected reference paths to audit cards
-- RED: assert the corrected `.opencode/reference/...` paths absent across skills/audit/tasks/
-- GREEN: add the corrected `.opencode/reference/...` paths (performed by the Item 22 link correction)
+### Item 24 (SC-24): Add corrected reference paths to audit cards
+- RED: enforcement test that fails because the corrected reference paths are absent across skills/audit/tasks/
+- GREEN: add the corrected `.opencode/reference/...` paths (performed by the Item 23 link correction)
 - verify: grep presence of each corrected path across skills/audit/tasks/
 - commit: link correction
 
-### Item 24 (SC-24): Correct maintainer path defect
-- RED: assert the incorrect `audit/tasks/spec-audit-evaluator.md` path
+### Item 25 (SC-25): Correct maintainer path defect
+- RED: enforcement test that fails because the maintainer note still contains the incorrect path
 - GREEN: correct the maintainer-note path to `skills/audit/tasks/spec-audit-evaluator.md`
 - verify: grep the corrected path in the maintainer note
 - commit: content
 
 ## 6. Dependencies
 
-- **Reference:** `skills/audit/tasks/spec-audit-evaluator.md` — Relationship: the file edited for Items 1-18 must exist and be readable. Status: satisfied (exists).
-- **Reference:** `audit/reference/decomposition-criteria.md` — Relationship: the master reference (criteria 5-6 already present; read for the inline copy). Status: satisfied (exists).
-- **Reference:** `.opencode/reference/` — Relationship: target directory for corrected links in Items 22-23; must contain cost-model-standards.md, spec-structure-standards.md, plan-structure-standards.md. Status: satisfied (directory exists; files referenced in the corrected paths).
-- **Reference:** `skills/audit/tasks/*.md` — Relationship: the audit cards edited in Items 22-23. Status: satisfied (18 files exist with bare `reference/` patterns).
-- **Reference:** `with-test-home` harness + qwen3.6:35b-256k — Relationship: required to run behavioral RED/GREEN tests in Items 9-10, 19-21. Status: satisfied (model verified available; behavioral evidence requires `opencode run`).
+- **Reference:** `skills/audit/tasks/spec-audit-evaluator.md` — Relationship: the file edited for Items 1-10, 17-19 exists and is readable.
+- **Reference:** `audit/reference/decomposition-criteria.md` — Relationship: the master reference (criteria 5-6 already present; read for the inline copy and verified in Items 11-16).
+- **Reference:** `.opencode/reference/` — Relationship: target directory for corrected links in Items 23-24; contains cost-model-standards.md, spec-structure-standards.md, plan-structure-standards.md.
+- **Reference:** `skills/audit/tasks/*.md` — Relationship: the audit cards edited in Items 23-24 (18 files carry 34 bare `reference/...` links: cost-model 19, spec-structure 9, plan-structure 6).
+- **Reference:** `with-test-home` harness + qwen3.6:35b-256k — Relationship: required to run behavioral RED/GREEN tests in Items 9-10, 20-22.
 
 ## 7. Traceability
 
@@ -261,19 +269,20 @@ R-23. The master reference maintainer note SHALL use the corrected path `skills/
 | R-8 | SC-08 | Phase 1 |
 | R-9 | SC-09 | Phase 1 |
 | R-10 | SC-10 | Phase 1 |
-| R-11 | SC-11, SC-14, SC-15 | Phase 1 |
+| R-11 | SC-11 | Phase 1 |
 | R-12 | SC-12 | Phase 1 |
 | R-13 | SC-13 | Phase 1 |
 | R-14 | SC-14 | Phase 1 |
 | R-15 | SC-15 | Phase 1 |
-| R-16 | SC-16 | Phase 2 |
+| R-16 | SC-16 | Phase 1 |
 | R-17 | SC-17 | Phase 2 |
 | R-18 | SC-18 | Phase 2 |
-| R-19 | SC-19, SC-20 | Phase 2 |
-| R-20 | SC-21 | Phase 2 |
-| R-21 | SC-22 | Phase 3 |
+| R-19 | SC-19 | Phase 2 |
+| R-20 | SC-20, SC-21 | Phase 2 |
+| R-21 | SC-22 | Phase 2 |
 | R-22 | SC-23 | Phase 3 |
 | R-23 | SC-24 | Phase 3 |
+| R-24 | SC-25 | Phase 3 |
 
 ## 8. Documentation Sources
 
@@ -281,7 +290,7 @@ R-23. The master reference maintainer note SHALL use the corrected path `skills/
 |--------|------|----------|-------------|
 | Decomposition criteria master reference | code | `.opencode/audit/reference/decomposition-criteria.md` | read + grep (verified criteria 5-6 present at lines 122-156) |
 | Audit evaluator task | code | `.opencode/skills/audit/tasks/spec-audit-evaluator.md` | read (verified zero decomposition content) |
-| Audit task cards | code | `.opencode/skills/audit/tasks/*.md` | grep (verified 34 bare `reference/` links across 18 files) |
+| Audit task cards | code | `.opencode/skills/audit/tasks/*.md` | grep (verified 34 bare `reference/` links across 18 files: cost-model 19, spec-structure 9, plan-structure 6) |
 | Spec structure standards | doc | `.opencode/reference/spec-structure-standards.md` | read (verified required sections) |
 | Canonical reference dir | code | `.opencode/reference/` | grep (verified files referenced by corrected paths exist) |
 
@@ -301,28 +310,29 @@ R-23. The master reference maintainer note SHALL use the corrected path `skills/
 - **SC-08:** Adding the skip condition costs minimal context. Skipping it over-flags valid single-SC specs. Correctness is the only metric.
 - **SC-09:** Behavioral atomicity FAIL test costs a real `opencode run` — the only valid evidence for verdict behavior. Skipping it substitutes grep for behavior, which is EVIDENCE_TYPE_MISMATCH. Correctness is the only metric.
 - **SC-10:** Behavioral atomic PASS test costs a real `opencode run`. Skipping it leaves the pass path unverified. Correctness is the only metric.
-- **SC-11:** Verifying the master redundancy section costs a grep. Skipping it risks re-adding existing criteria. Correctness is the only metric.
-- **SC-12:** Verifying set-entailment semantics costs a grep. Skipping it risks scope-creep from intent-prose comparisons. Correctness is the only metric.
-- **SC-13:** Verifying spec-level-only costs a grep. Skipping it risks conflating spec-level and plan-level checks. Correctness is the only metric.
-- **SC-14:** Verifying the Ceremony FAIL definition costs a grep. Skipping it risks an unenforced ceremony check. Correctness is the only metric.
-- **SC-15:** Verifying the Coverage FAIL definition costs a grep. Skipping it risks an unenforced coverage check. Correctness is the only metric.
-- **SC-16:** Adding the inline Ceremony criterion copy costs minimal context. Skipping it keeps the lockstep claim false and ceremonial SCs uncaught. Correctness is the only metric.
-- **SC-17:** Adding the inline Coverage criterion copy costs minimal context. Skipping it keeps redundant SCs uncaught. Correctness is the only metric.
-- **SC-18:** Reconciling the lockstep claim costs minimal context. Skipping it leaves the inline copy a checked-only artifact rather than a real deliverable. Correctness is the only metric.
-- **SC-19:** Behavioral Coverage FAIL test costs a real `opencode run`. Skipping it substitutes structural for behavioral evidence. Correctness is the only metric.
-- **SC-20:** Behavioral Ceremony FAIL test costs a real `opencode run`. Skipping it leaves the ceremony verdict unverified. Correctness is the only metric.
-- **SC-21:** Behavioral distinct-pass test costs a real `opencode run`. Skipping it leaves the pass path for redundancy unverified. Correctness is the only metric.
-- **SC-22:** Removing the bare reference patterns costs minimal context. Skipping it keeps broken references resolving to a nonexistent directory, breaking task execution. Correctness is the only metric.
-- **SC-23:** Adding the corrected reference paths costs minimal context. Skipping it leaves task cards pointing to nonexistent standards files. Correctness is the only metric.
-- **SC-24:** Correcting the maintainer path costs minimal context. Skipping it keeps the maintainer note pointing to the wrong file. Correctness is the only metric.
+- **SC-11:** Verifying the master Ceremony heading costs a grep. Skipping it risks re-adding existing criteria. Correctness is the only metric.
+- **SC-12:** Verifying the master Coverage heading costs a grep. Skipping it risks re-adding existing criteria. Correctness is the only metric.
+- **SC-13:** Verifying set-entailment semantics costs a grep. Skipping it risks scope-creep from intent-prose comparisons. Correctness is the only metric.
+- **SC-14:** Verifying the OUT-OF-SCOPE declaration costs a grep. Skipping it risks scope-creep from intent-prose comparisons. Correctness is the only metric.
+- **SC-15:** Verifying the Ceremony FAIL definition costs a grep. Skipping it risks an unenforced ceremony check. Correctness is the only metric.
+- **SC-16:** Verifying the Coverage FAIL definition costs a grep. Skipping it risks an unenforced coverage check. Correctness is the only metric.
+- **SC-17:** Adding the inline Ceremony criterion copy costs minimal context. Skipping it keeps the lockstep claim false and ceremonial SCs uncaught. Correctness is the only metric.
+- **SC-18:** Adding the inline Coverage criterion copy costs minimal context. Skipping it keeps redundant SCs uncaught. Correctness is the only metric.
+- **SC-19:** Reconciling the lockstep claim costs minimal context. Skipping it leaves the inline copy a checked-only artifact rather than a real deliverable. Correctness is the only metric.
+- **SC-20:** Behavioral Coverage FAIL test costs a real `opencode run`. Skipping it substitutes structural for behavioral evidence. Correctness is the only metric.
+- **SC-21:** Behavioral Ceremony FAIL test costs a real `opencode run`. Skipping it leaves the ceremony verdict unverified. Correctness is the only metric.
+- **SC-22:** Behavioral distinct-pass test costs a real `opencode run`. Skipping it leaves the pass path for redundancy unverified. Correctness is the only metric.
+- **SC-23:** Removing the bare reference patterns costs minimal context. Skipping it keeps broken references resolving to a nonexistent directory, breaking task execution. Correctness is the only metric.
+- **SC-24:** Adding the corrected reference paths costs minimal context. Skipping it leaves task cards pointing to nonexistent standards files. Correctness is the only metric.
+- **SC-25:** Correcting the maintainer path costs minimal context. Skipping it keeps the maintainer note pointing to the wrong file. Correctness is the only metric.
 
 ## 11. Edge Cases
 
 - **Condition:** Evaluator is loaded for a spec that is a skill-card audit. — **Expected behavior:** the inline decomposition checklist must still render; skill-card-specific SC-SEM handling is separate and unaffected. — **Resolution:** checklist is criteria-level, orthogonal to SC-SEM evaluation.
 - **Condition:** A spec has exactly one SC and one affected file. — **Expected behavior:** the decomposition check is skipped (SC-08). — **Resolution:** skip logic explicitly defined.
-- **Condition:** The master reference is edited after the inline copy is created (drift). — **Expected behavior:** the inline copy must be brought into lockstep per the maintainer note. — **Resolution:** maintainer note + SC-16/SC-17/SC-18 document the lockstep requirement; drift is flagged at audit time.
+- **Condition:** The master reference is edited after the inline copy is created (drift). — **Expected behavior:** the inline copy must be brought into lockstep per the maintainer note. — **Resolution:** maintainer note + SC-17/SC-18/SC-19 document the lockstep requirement; drift is flagged at audit time.
 - **Condition:** A behavioral test cannot run (model/tooling unavailable). — **Expected behavior:** FAIL is the only valid outcome per the test-integrity mandate; no structural substitute. — **Resolution:** diagnose and re-run; escalate only after remediation failure.
-- **Condition:** A bare `reference/` path also appears in a file not scanned by the SC-22/SC-23 grep. — **Expected behavior:** SC-22/SC-23 grep across all `skills/audit/tasks/*.md`. — **Resolution:** the grep scope is the full tasks directory; any residual bare pattern is a FAIL.
+- **Condition:** A bare `reference/` path also appears in a file not scanned by the SC-23/SC-24 grep. — **Expected behavior:** SC-23/SC-24 grep across all `skills/audit/tasks/*.md`. — **Resolution:** the grep scope is the full tasks directory; any residual bare pattern is a FAIL.
 
 ## Change Control
 
@@ -330,6 +340,9 @@ R-23. The master reference maintainer note SHALL use the corrected path `skills/
 - 2026-08-19 — Path-defect investigation: corrected affected-files path references, added SCs for the 34 broken bare `reference/` links and the maintainer-note path defect. Authorized by: spec-audit findings.
 - 2026-08-24 — SPEC-VALIDATION FAIL REVISION (iteration 1): Corrected the false central premise. The master reference already contains criteria 5 (Ceremony) and 6 (Coverage/Covered-by-Prior); the criteria-5/6 SCs were re-framed from add-work into verification-only SCs (string evidence: grep the existing master). Added an SC requiring the inline Ceremony/Coverage copy be CREATED in the evaluator and kept in lockstep. Split compound SCs into atomic, single-deliverable SCs; consolidated the near-duplicate bare-reference SCs into one SC correcting all three bare patterns. Added all mandatory structural sections (Requirements, Items, Traceability, Documentation Sources, Enforcement Gate, Cost Frame, Edge Cases, Not Included, Alternatives Considered, Key Design Decisions) and a per-SC cost frame. Authorized by: spec-creation holistic validation FAIL.
 - 2026-08-24 — SPEC-VALIDATION FAIL REVISION (iteration 2): Split the residual compound SCs. SC-16 was split into SC-16 (inline Ceremony criterion created), SC-17 (inline Coverage criterion created), and SC-18 (lockstep reconciliation clause created). SC-20 was split into SC-22 (bare `reference/...` patterns ABSENT) and SC-23 (corrected `.opencode/reference/...` paths PRESENT). Subsequent SCs were renumbered accordingly, and the SC table, Requirements, Items, Traceability, and Cost Frame were updated to match. Also normalized SC numbering to the zero-padded `SC-01..SC-24` convention and corrected the bare-reference card count from 21 to 18 files (verified via grep: 34 links across 18 files). Authorized by: spec-creation holistic validation FAIL (checks: compound_sc_detection, decomposition_criteria/atomicity).
+- 2026-08-24 — SPEC-AUDIT FAIL REVISION (4 narrow-criteria FAILs remediated): (1) SC-18 made deterministic by specifying the exact lockstep-reconciliation clause `This inline copy SHALL be kept in lockstep with the master reference audit/reference/decomposition-criteria.md.` as the grep target in both the criterion and its verification method (SC-DET); (2) removed the "satisfied" status markers from the Dependencies section, converting them to factual relationship descriptions (SC-TRACKING-LANG); (3) abstracted the exact-path enumeration in the SC-22/SC-23 criterion columns to `reference/<name>.md` / `.opencode/reference/...` while retaining the exact bare patterns in the verification-method columns for deterministic grep (SC-PRESCRIPTIVE-CODE). No SCs were removed, weakened, or deferred. Authorized by: spec-audit narrow-criteria FAIL.
+- 2026-08-24 — SPEC-VALIDATION FAIL REVISION (iteration 4): Aligned the verify-only SC targets to the content that ACTUALLY exists in the master reference. Split the compound SC-11 into two atomic SCs (SC-11 Ceremony heading, SC-12 Coverage heading) and renumbered SC-13..SC-25. Re-framed SC-13 (set-entailment over prior SCs only), SC-14 (OUT OF SCOPE declaration), SC-15 (Ceremony FAIL definition), and SC-16 (Coverage FAIL definition) to grep for the literal text present at lines 122-156 of the master reference, so each verify-only SC can reach PASS. Corrected the bare-reference counts to the live-verified values (34 links across 18 files; per-target cost-model 19, spec-structure 9, plan-structure 6) and removed the three nonexistent task files from the blast-radius artifact. No passing SCs were removed or weakened. Authorized by: spec-creation validation FAIL (iteration 4).
+- 2026-08-24 — SPEC-AUDIT FAIL REVISION (SC-PRESCRIPTIVE-CODE remediated): Reworded every Items (Section 5) RED line that used the imperative `assert` directive construct (19 instances) to the canonical descriptive RED format `RED: [enforcement test that fails]`. Each RED line now names the target area and describes the expected observed behavior (the enforcement test FAILS because the content is absent) instead of issuing an `assert no X present in the Y` directive. Behavioral RED lines were reworded from "test asserts ... fails; run and observe" to descriptive phrasing (e.g., "enforcement test runs a monolithic SC and observes the decomposition FAIL"). The `verify: opencode run with stderr assertion` lines were left unchanged as the canonical verification phrasing. No SCs were removed, weakened, or renumbered; the SC table, Requirements, and other passing sections were untouched. Authorized by: spec-audit FAIL (SC-PRESCRIPTIVE-CODE).
 
 ---
 

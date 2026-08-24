@@ -1,0 +1,103 @@
+# Concern Map — Issue #2117
+# Generated: retroactive backfill from spec.md (current 25-SC revision)
+
+spec_path: .opencode/.issues/2117/spec.md
+sc_count: 25
+
+concern_groups:
+  - id: inline-base
+    name: Base-criteria inline checklist
+    description: >
+      The inline decomposition-criteria checklist for the four base spec-level criteria
+      (atomicity, single deliverable, binary verifiability, PR-gate viability) added to
+      skills/audit/tasks/spec-audit-evaluator.md, with binary PASS/FAIL decision-tree
+      branches, trigger-word/disjunctive/vague-term sub-checks, RED/GREEN reference,
+      cross-reference comment, and single-SC skip condition.
+    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08]
+    phase_boundary: Phase 1
+    deliverable: inline base-criteria checklist in spec-audit-evaluator.md
+
+  - id: base-behavioral
+    name: Behavioral verification of base criteria
+    description: >
+      Behavioral RED/GREEN tests asserting the evaluator's base-criteria verdicts:
+      monolithic-SC FAIL and atomic-SC PASS, run via the with-test-home opencode run
+      harness.
+    scs: [SC-09, SC-10]
+    phase_boundary: Phase 1
+    files: with-test-home harness (behavioral evidence in stderr)
+
+  - id: master-verify
+    name: Master-reference verification
+    description: >
+      Verification-only SCs against the existing audit/reference/decomposition-criteria.md
+      master reference: criteria 5 (Ceremony) and 6 (Coverage) headings, set-entailment
+      over prior SCs only, OUT-OF-SCOPE declaration, and Ceremony/Coverage FAIL definitions.
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16]
+    phase_boundary: Phase 1
+    files: .opencode/audit/reference/decomposition-criteria.md
+
+  - id: inline-redundancy
+    name: Ceremony/Coverage inline copy and lockstep
+    description: >
+      Create the inline criteria 5 (Ceremony) and 6 (Coverage) copies in
+      spec-audit-evaluator.md in lockstep with the master reference, plus the exact
+      lockstep-reconciliation clause, reconciling the maintainer-note lockstep claim with
+      the current empty state.
+    scs: [SC-17, SC-18, SC-19]
+    phase_boundary: Phase 2
+    files: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+
+  - id: redundancy-behavioral
+    name: Behavioral verification of redundancy criteria
+    description: >
+      Behavioral RED/GREEN tests asserting the evaluator's redundancy verdicts: coverage
+      FAIL, ceremony FAIL, and distinct-SC PASS, run via the with-test-home opencode run
+      harness.
+    scs: [SC-20, SC-21, SC-22]
+    phase_boundary: Phase 2
+    files: with-test-home harness (behavioral test in stderr)
+
+  - id: links
+    name: Reference link correction
+    description: >
+      Correct 34 bare reference/... links across 18 audit task cards in
+      skills/audit/tasks/ to .opencode/reference/... (cost-model-standards 19,
+      spec-structure-standards 9, plan-structure-standards 6). Absence of bare patterns
+      and presence of corrected paths.
+    scs: [SC-23, SC-24]
+    phase_boundary: Phase 3
+    files: .opencode/skills/audit/tasks/*.md
+
+  - id: maintainer-path
+    name: Maintainer-note path correction
+    description: >
+      Correct the master reference maintainer-note path from
+      audit/tasks/spec-audit-evaluator.md to skills/audit/tasks/spec-audit-evaluator.md.
+    scs: [SC-25]
+    phase_boundary: Phase 3
+    files: .opencode/audit/reference/decomposition-criteria.md
+
+phase_map:
+  Phase 1:
+    concern_groups: [inline-base, base-behavioral, master-verify]
+    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08, SC-09, SC-10, SC-11, SC-12, SC-13, SC-14, SC-15, SC-16]
+    summary: >
+      Build the base inline checklist in the evaluator, verify base verdicts behaviorally,
+      and verify the master redundancy section exists (no re-add).
+  Phase 2:
+    concern_groups: [inline-redundancy, redundancy-behavioral]
+    scs: [SC-17, SC-18, SC-19, SC-20, SC-21, SC-22]
+    summary: >
+      Create the inline Ceremony/Coverage copies and lockstep reconciliation clause, then
+      verify redundancy verdicts behaviorally.
+  Phase 3:
+    concern_groups: [links, maintainer-path]
+    scs: [SC-23, SC-24, SC-25]
+    summary: [correct bare reference links to .opencode/reference/... and the maintainer-note path]
+
+summary: >
+  All SCs decompose into three phase boundaries mirroring the spec's Traceability table.
+  Phase 1 covers the base inline checklist and its master-reference prerequisites; Phase 2
+  covers the redundancy (Ceremony/Coverage) inline copies and behavioral verification;
+  Phase 3 covers the link and path corrections. No SC spans phases.

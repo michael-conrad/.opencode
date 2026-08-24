@@ -1,0 +1,45 @@
+# Code Path Inventory — Issue #2117
+# Generated: retroactive backfill from spec.md
+
+spec_path: .opencode/.issues/2117/spec.md
+
+code_paths:
+  - id: path-evaluator-inline
+    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08, SC-16, SC-17, SC-18]
+    file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    description: >
+      The spec-audit-evaluator task card. Contains the inline decomposition-criteria
+      checklist (base criteria + Ceremony + Coverage), binary PASS/FAIL decision-tree
+      branches, trigger-word/disjunctive/vague-term sub-checks, PR-gate RED/GREEN
+      reference, cross-reference comment, single-SC skip condition, and the lockstep
+      reconciliation clause.
+
+  - id: path-master-reference
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-24]
+    file: .opencode/audit/reference/decomposition-criteria.md
+    description: >
+      Master reference. Verify criteria 5 (Ceremony) and 6 (Coverage) exist at
+      lines 122-156, verify set-entailment out-of-scope semantics, verify spec-level-only
+      scope. Correct the maintainer-note path from audit/tasks/spec-audit-evaluator.md
+      to skills/audit/tasks/spec-audit-evaluator.md.
+
+  - id: path-audit-task-cards
+    scs: [SC-22, SC-23]
+    file: .opencode/skills/audit/tasks/*.md
+    description: >
+      18-19 audit task cards carrying 34 bare reference/... links. Each bare pattern
+      (reference/cost-model-standards.md, reference/spec-structure-standards.md,
+      reference/plan-structure-standards.md) is corrected to .opencode/reference/...
+
+  - id: path-reference-targets
+    scs: [SC-23]
+    file: .opencode/reference/{cost-model-standards,spec-structure-standards,plan-structure-standards}.md
+    description: >
+      Read-only reference targets. Must exist for the corrected .opencode/reference/...
+      links to resolve. Verified present.
+
+code_path_notes: >
+  No source (src/) or test code paths are implicated. All paths are within
+  .opencode/skills/audit/ and .opencode/reference/. The behavioral tests (SC-09,
+  SC-10, SC-19, SC-20, SC-21) exercise the evaluator's verdict rendering via the
+  with-test-home opencode run harness, not a code path of their own.

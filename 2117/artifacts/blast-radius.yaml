@@ -1,0 +1,52 @@
+# Blast Radius Analysis — Issue #2117
+# Generated: retroactive backfill from spec.md
+
+spec_path: .opencode/.issues/2117/spec.md
+
+affected_files:
+  - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    status: exists
+    change_type: modify
+    purpose: >
+      Primary deliverable. Add inline decomposition-criteria checklist (base criteria
+      atomicity/single-deliverable/binary-verifiability/PR-gate-viability, plus
+      Ceremony/Coverage), binary decision-tree PASS/FAIL branches, sub-checks,
+      skip condition, and lockstep reconciliation clause. Covers SC-01..SC-10,
+      SC-17..SC-22.
+  - path: .opencode/audit/reference/decomposition-criteria.md
+    status: exists
+    change_type: modify
+    purpose: >
+      Master reference. Correct the maintainer-note path defect from
+      audit/tasks/spec-audit-evaluator.md to skills/audit/tasks/spec-audit-evaluator.md.
+      Criteria 5-6 (Ceremony, Coverage) already present; only verification SC-11..SC-16.
+  - path: .opencode/skills/audit/tasks/*.md
+    status: exists
+    change_type: link-fix
+    purpose: >
+      18 audit task cards carry 34 bare reference/... links corrected to
+      .opencode/reference/... (SC-23, SC-24). Per-target: cost-model-standards 19,
+      spec-structure-standards 9, plan-structure-standards 6.
+  - path: .opencode/reference/spec-structure-standards.md
+    status: exists
+    change_type: read-only-dependency
+    purpose: Target referenced by corrected link reference/spec-structure-standards.md -> .opencode/reference/spec-structure-standards.md
+  - path: .opencode/reference/plan-structure-standards.md
+    status: exists
+    change_type: read-only-dependency
+    purpose: Target referenced by corrected link reference/plan-structure-standards.md.
+  - path: .opencode/reference/cost-model-standards.md
+    status: exists
+    change_type: read-only-dependency
+    purpose: Target referenced by corrected link reference/cost-model-standards.md.
+
+affected_skills:
+  - name: audit
+    impact: evaluator + 18 task cards link corrected
+    severity: moderate
+
+blast_radius_summary: |
+  Confined to the .opencode/audit skill tree. Primary deliverable is the
+  spec-audit-evaluator.md inline copy. The master reference is verify-only.
+  Reference links are corrected across 18 audit task cards. No changes to
+  src/, test/, or non-audit skills. Behavioral tests touch only the audit evaluator.

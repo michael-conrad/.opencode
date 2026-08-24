@@ -1,0 +1,115 @@
+# Interface Compatibility — Issue #2117
+# Generated: retroactive backfill from spec.md (current 25-SC schema)
+
+spec_path: .opencode/.issues/2117/spec.md
+sc_count: 25
+
+modules:
+  - id: evaluator
+    file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    role: primary deliverable — inline decomposition-criteria checklist
+  - id: master-reference
+    file: .opencode/audit/reference/decomposition-criteria.md
+    role: master criteria source (criteria 5-6 present); verify-only + maintainer-path fix
+  - id: audit-task-cards
+    file: .opencode/skills/audit/tasks/*.md
+    role: 18 task cards carrying 34 bare reference links
+  - id: reference-dir
+    file: .opencode/reference/{cost-model-standards,spec-structure-standards,plan-structure-standards}.md
+    role: canonical link-resolution targets for corrected paths
+
+interface_boundaries:
+  - id: if-evaluator-master
+    source: evaluator
+    target: master-reference
+    scs: [SC-07, SC-17, SC-18, SC-19]
+    description: >
+      The evaluator's inline copy must stay in lockstep with the master reference. The
+      cross-reference comment (SC-07) and the exact lockstep-reconciliation clause (SC-19)
+      define this boundary. The inline Ceremony/Coverage copies (SC-17, SC-18) must match
+      the master criteria 5-6 content at lines 122-156.
+    contract: inline copy SHALL mirror master criteria 5-6 and carry the lockstep clause
+
+  - id: if-taskcard-reference
+    source: audit-task-cards
+    target: reference-dir
+    scs: [SC-23, SC-24]
+    description: >
+      18 audit task cards resolve reference links to standards documents. The boundary is
+      the path transformation from bare reference/<name>.md to
+      .opencode/reference/<name>.md; SC-24 requires the corrected paths to resolve to
+      existing files in the canonical reference directory.
+    contract: every corrected .opencode/reference/<name>.md resolves to an existing file
+
+  - id: if-master-maintainer
+    source: master-reference
+    target: evaluator
+    scs: [SC-25]
+    description: >
+      The maintainer note in the master reference points to the evaluator file. The note
+      path must be corrected to skills/audit/tasks/spec-audit-evaluator.md so the lockstep
+      maintainer contract resolves to the actual file.
+    contract: maintainer-note path resolves to the existing evaluator file
+
+compatibility_findings:
+  - id: cf-lockstep
+    concern: inline-base, inline-redundancy
+    severity: compatible
+    scs: [SC-01, SC-02, SC-17, SC-18, SC-19]
+    finding: >
+      The evaluator inline copy and master reference are content-coupled by the lockstep
+      contract. Compatible because the inline copy is authored to mirror the master's
+      criteria 5/6 verbatim; no signature or format mismatch. Drift is flagged at audit
+      time per Edge Case "master reference is edited after inline copy is created".
+  - id: cf-links
+    concern: links
+    severity: compatible
+    scs: [SC-23, SC-24]
+    finding: >
+      The audit task cards reference read-only standards documents. All three referenced
+      files (cost-model-standards, spec-structure-standards, plan-structure-standards)
+      exist in .opencode/reference/. No interface type or format incompatibility.
+  - id: cf-behavior
+    concern: base-behavioral, redundancy-behavioral
+    severity: compatible
+    scs: [SC-09, SC-10, SC-20, SC-21, SC-22]
+    finding: >
+      Behavioral SCs exercise the evaluator verdict output via the with-test-home harness.
+      The harness reads the evaluator's rendered verdicts from stderr; interface is
+      behavioral-output-only, no structural coupling. No model-dispatched compatibility
+      risk beyond the harness's known availability.
+
+compatibility_summary: >
+  All interfaces are confined to the .opencode/audit skill tree and the canonical
+  .opencode/reference directory. The only genuinely coupled boundary is the evaluator-master
+  lockstep contract (evaluator inline copy vs. master reference), which is handled by the
+  lockstep clause and verify SCs. Link targets all exist. No cross-module type or schema
+  incompatibilities.
+
+dependency_contract:
+  type: content-lockstep (markdown criteria copy)
+  source: .opencode/audit/reference/decomposition-criteria.md
+  targets:
+    - source: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+      method: inline copy of criteria 5-6
+      constraint: >
+        Inline copy SHALL mirror the master criteria 5 (Ceremony) and 6 (Coverage) content
+        at master lines 122-166 and include the exact lockstep clause: 'This inline copy
+        SHALL be kept in lockstep with the master reference
+        audit/reference/decomposition-criteria.md.'
+      scs: [SC-17, SC-18, SC-19]
+  path_resolution:
+    source: .opencode/skills/audit/tasks/*.md
+    targets:
+      - .opencode/reference/cost-model-standards.md
+      - .opencode/reference/spec-structure-standards.md
+      - .opencode/reference/plan-structure-standards.md
+    method: link-path rewrite (bare reference/<name>.md -> .opencode/reference/<name>.md)
+    constraint: each target MUST exist on disk; absence = broken link (SC-23/SC-24 FAIL)
+    scs: [SC-23, SC-24]
+  maintainer_note:
+    source: .opencode/audit/reference/decomposition-criteria.md
+    target: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    method: path correction
+    constraint: note SHALL read 'skills/audit/tasks/spec-audit-evaluator.md' not 'audit/tasks/spec-audit-evaluator.md'
+    scs: [SC-25]
