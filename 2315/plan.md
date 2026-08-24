@@ -56,12 +56,21 @@ embedding:
   model: "<pinned default local embedding model>"
   external_api_dependency: false
 sources:
-  - one_config_section_per_reference_source_corpus
-  - isolated_index_namespace_per_source
-  - auto_sync_enabled_per_source
+  - id: one_config_section_per_reference_source_corpus
+    isolated_index_namespace: true
+    auto_sync: true
 review_checklist:
   enforces: per-source isolation
 ```
+
+**Procedure:**
+1. Run the coherence gate and baseline check (clean-room) to confirm the plan faithfully derives from the approved spec #2315 and the feature branch is at trunk-tip with `.opencode/opencode.jsonc` declaring no `ragsync` service.
+2. **Item 1 (SC-1)** — Pre-clean stale artifacts, then run RED (assert `ragsync` entry absent) → GREEN (add `ragsync` service entry with `type: local`, `stdio`, `enabled: true`) → post-regression → verify → commit the registration change.
+3. **Item 2 (SC-2)** — Pre-clean, then RED (assert pinned local fastembed config absent) → GREEN (configure fastembed with a pinned default local model, no external embedding API) → post-regression → verify → commit the embedding config.
+4. **Item 3 (SC-3)** — Pre-clean, then RED (assert no per-source config sections) → GREEN (declare one config section per source with isolated index namespaces) → post-regression → verify → commit the per-source isolation config.
+5. **Item 4 (SC-4)** — Pre-clean, then RED (assert review checklist absent) → GREEN (document review checklist enforcing per-source isolation) → post-regression → verify → commit the checklist.
+6. **Item 5 (SC-5)** — Pre-clean, then RED (assert auto-sync not enabled) → GREEN (enable auto-sync for each declared source) → post-regression → verify → commit the auto-sync config.
+7. Run the **Phase 1 VbC** (clean-room) verifying SC-1..SC-5 are all clean PASS.
 
 ### Phase 2 — Documentation work
 
@@ -83,6 +92,11 @@ documentation_topics:
   - validation_step
 ```
 
+**Procedure:**
+1. Confirm Phase 1 is complete and its VbC passed (SC-1..SC-5 clean PASS) before starting documentation work.
+2. **Item 6 (SC-6)** — Pre-clean stale artifacts, then run RED (assert RAGSync documentation file absent) → GREEN (write documentation covering service configuration, per-source layout, usage, offline/cache path, validation step) → post-regression → verify → commit the documentation change.
+3. Run the **Phase 2 VbC** (clean-room) verifying SC-6 is clean PASS.
+
 ---
 
 ## Exit Criteria
@@ -93,3 +107,11 @@ documentation_topics:
 - [ ] C4. SC-4 PASS: Review checklist documented in `.opencode` tree enforcing per-source isolation.
 - [ ] C5. SC-5 PASS: Auto-sync enabled for each declared source.
 - [ ] C6. SC-6 PASS: Documentation exists in `.opencode` tree covering config, per-source layout, usage, offline/cache path, validation.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-24T13:02:22Z | `plan_created` | Plan file `.opencode/.issues/2315/plan.md` verified, phase count = 2 |
