@@ -1,0 +1,34 @@
+sc_count: 8
+scs:
+  - id: "SC-1"
+    description: "Aggregate verdict computed over union of spec SC list + per_criterion; absent SC defaults to FAIL in all *-audit-arbiter cards."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Independent hard flag-gate requires coverage_complete AND chain_complete true before any aggregate resolves to PASS; any false flag forces FAIL."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Verification behavioral-only via real opencode run audit dispatch with stderr verdict observation; no static coded checks."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Evaluators enumerate full spec SC list in per_criterion; skipped SCs present with result FAIL + NOT_EVALUATED marker."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Any FAIL is a hard gate: remediate to re-audit until 100% compliance, with explicit escalation exit."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Reconcile 'do NOT BLOCK'/'do NOT re-evaluate' error-table language to bind to the FAIL gate."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Ticket-status/release handshake honors corrected aggregate; coverage-gap FAIL keeps ticket unreleased."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Orchestrator MUST remediate-and-restart at any non-clean phase, iterating until 100% clean, escalation the only exit, bound structurally in SKILL.md workflow."
+    evidence_type: "behavioral"
+    plan_item: 8
