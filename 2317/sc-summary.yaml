@@ -1,4 +1,4 @@
-sc_count: 8
+sc_count: 14
 scs:
   - id: "SC-1"
     description: "Aggregate verdict computed over union of spec SC list + per_criterion; absent SC defaults to FAIL in all *-audit-arbiter cards."
@@ -13,22 +13,46 @@ scs:
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "Evaluators enumerate full spec SC list in per_criterion; skipped SCs present with result FAIL + NOT_EVALUATED marker."
+    description: "Evaluators enumerate the full spec SC list in per_criterion/per_claim output; no silent omission."
     evidence_type: "behavioral"
     plan_item: 4
   - id: "SC-5"
-    description: "Any FAIL is a hard gate: remediate to re-audit until 100% compliance, with explicit escalation exit."
+    description: "Skipped SC present in evaluator output with result FAIL and NOT_EVALUATED marker; not silently omitted."
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "Reconcile 'do NOT BLOCK'/'do NOT re-evaluate' error-table language to bind to the FAIL gate."
+    description: "Any FAIL verdict is a hard gate that halts the deliverable until remediation."
     evidence_type: "behavioral"
     plan_item: 6
   - id: "SC-7"
-    description: "Ticket-status/release handshake honors corrected aggregate; coverage-gap FAIL keeps ticket unreleased."
+    description: "Agent remediates and re-audits until 100% compliance."
     evidence_type: "behavioral"
     plan_item: 7
   - id: "SC-8"
-    description: "Orchestrator MUST remediate-and-restart at any non-clean phase, iterating until 100% clean, escalation the only exit, bound structurally in SKILL.md workflow."
+    description: "Explicit escalation is the only exit from an unremediable FAIL."
     evidence_type: "behavioral"
     plan_item: 8
+  - id: "SC-9"
+    description: "Reconcile 'do NOT BLOCK'/'do NOT re-evaluate' error-table language to bind to the FAIL gate."
+    evidence_type: "behavioral"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Ticket-status/release handshake honors corrected aggregate; coverage-gap FAIL keeps ticket unreleased."
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "Orchestrator structurally remediates-and-restarts the audit at any non-clean phase."
+    evidence_type: "behavioral"
+    plan_item: 11
+  - id: "SC-12"
+    description: "Orchestrator remediate-and-restart loop iterates until 100% clean."
+    evidence_type: "behavioral"
+    plan_item: 12
+  - id: "SC-13"
+    description: "Escalation is the only exit from an unremediable non-clean phase in the orchestrator workflow."
+    evidence_type: "behavioral"
+    plan_item: 13
+  - id: "SC-14"
+    description: "Remediate-and-restart loop bound as a structural workflow step in audit/SKILL.md, not prose."
+    evidence_type: "behavioral"
+    plan_item: 14

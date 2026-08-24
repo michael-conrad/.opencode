@@ -17,7 +17,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   it cannot fail — the arbiter "fills in PASS" for it. The coverage/chain-integrity
   flags collected in the cross-reference step (`MISSING_SC_COVERAGE`, `BROKEN_EVIDENCE_CHAIN`,
   `coverage_complete`, `chain_complete`) are non-binding and never reach `overall_verdict`.
-  This is systemic across all 10 `*-audit-arbiter` cards, plus the evaluator cards
+  This is systemic across all `*-audit-arbiter` cards, plus the evaluator cards
   and the SKILL.md orchestrator workflow.
 
 
@@ -28,7 +28,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   enumeration, and orchestrator workflow.
 
   - **SC-1:** Aggregate over union of spec SC list + per_criterion; absent SC defaults
-  to FAIL (all 10 arbiters).
+  to FAIL (all `*-audit-arbiter` cards).
 
   - **SC-2:** Independent hard flag-gate on the aggregate: coverage_complete AND chain_complete
   must be true; any false → FAIL (closes fabricated-PASS-entry vector).
@@ -85,7 +85,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   targeted `opencode run` dispatch against real audit scenarios, not a full-suite
   run.
 
-  - **Risk 3:** Holistic change across 10 arbiters + evaluators + workflow risks regressions
+  - **Risk 3:** Holistic change across the `*-audit-arbiter` cards + evaluators + workflow risks regressions
   in other audit paths. *Mitigation:* SC-3 behavioral verification gates the whole
   chain before any completion claim.
 

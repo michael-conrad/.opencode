@@ -1,61 +1,69 @@
 # State Analysis — Issue #2117
-# Generated: retroactive backfill from spec.md
+# Generated: retroactive backfill from spec.md (current 25-SC revision)
 
 spec_path: .opencode/.issues/2117/spec.md
+sc_count: 25
 
 state_transitions:
-  - id: st-evaluator-inline
+  - id: st-evaluator-checklist
+    target_file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
     scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08]
-    from: spec-audit-evaluator.md has zero decomposition content
-    to: spec-audit-evaluator.md contains full inline base-criteria checklist
-    trigger: Items 1-8 (RED/GREEN edits)
-    verification: grep each criterion name, PASS/FAIL branches, sub-checks, comment, skip condition
-
-  - id: st-evaluator-behavior-base
-    scs: [SC-09, SC-10]
-    from: evaluator verdicts unverified for base criteria
-    to: behavioral tests assert monolithic FAIL and atomic PASS
-    trigger: Items 9-10 (opencode run)
-    verification: stderr assertions
-
-  - id: st-master-verify
-    scs: [SC-11, SC-12, SC-13, SC-14, SC-15]
-    from: master redundancy section status unconfirmed
-    to: verified criteria 5-6 present, set-entailment, spec-level-only
-    trigger: Items 11-15 (grep verification, no code change)
-    verification: grep section heading + defect class names + declarations
+    state_description: >
+      The evaluator transitions from 'no decomposition checklist' (current empty state) to
+      'full base-criteria inline checklist present' with binary PASS/FAIL decision-tree
+      branches, trigger-word/disjunctive/vague-term sub-checks, RED/GREEN reference,
+      cross-reference comment, and skip condition. Each SC-01..SC-08 is an atomic
+      content-addition that cumulatively builds the checklist.
 
   - id: st-evaluator-redundancy
-    scs: [SC-16, SC-17, SC-18]
-    from: evaluator lacks Ceremony/Coverage inline copy; lockstep claim false
-    to: evaluator contains criteria 5-6 inline copies in lockstep with master
-    trigger: Items 16-18
-    verification: grep Ceremony/Coverage criterion + lockstep reconciliation clause
+    target_file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    scs: [SC-17, SC-18, SC-19]
+    state_description: >
+      The evaluator transitions from base-checklist-only to including the inline criteria 5
+      (Ceremony) and 6 (Coverage) copies and the exact lockstep-reconciliation clause. SC-19
+      is the terminal state where the maintainer-note lockstep claim becomes TRUE (the inline
+      copy is created, not merely checked) against the current empty state.
 
-  - id: st-evaluator-behavior-redundancy
-    scs: [SC-19, SC-20, SC-21]
-    from: redundancy verdicts unverified
-    to: coverage FAIL, ceremony FAIL, distinct-SC PASS all asserted behaviorally
-    trigger: Items 19-21 (opencode run)
-    verification: behavioral stderr assertions
+  - id: st-master-verify
+    target_file: .opencode/audit/reference/decomposition-criteria.md
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16]
+    state_description: >
+      Verify-only state assertions. The master reference is already in the 'criteria 5-6
+      present' state; these SCs assert that state (headings, set-entailment, OUT-OF-SCOPE,
+      FAIL definitions) without mutating it. No state transition; PASS requires the existing
+      content to match the grep targets.
 
-  - id: st-reference-links
-    scs: [SC-22, SC-23]
-    from: 34 bare reference/... links resolve to nonexistent directory
-    to: all corrected to .opencode/reference/... resolving to existing files
-    trigger: Items 22-23 (link correction)
-    verification: grep absence of bare patterns, presence of corrected paths
+  - id: st-master-path
+    target_file: .opencode/audit/reference/decomposition-criteria.md
+    scs: [SC-25]
+    state_description: >
+      The maintainer-note path transitions from the incorrect 'audit/tasks/
+      spec-audit-evaluator.md' to the corrected 'skills/audit/tasks/spec-audit-evaluator.md'.
 
-  - id: st-maintainer-path
-    scs: [SC-24]
-    from: maintainer-note path audit/tasks/spec-audit-evaluator.md (incorrect)
-    to: maintainer-note path skills/audit/tasks/spec-audit-evaluator.md (correct)
-    trigger: Item 24
-    verification: grep corrected path in the maintainer note
+  - id: st-taskcard-links
+    target_file: .opencode/skills/audit/tasks/*.md
+    scs: [SC-23, SC-24]
+    state_description: >
+      18 audit task cards transition from carrying bare reference/<name>.md links (that
+      resolve to the nonexistent skills/audit/reference/ directory) to carrying the corrected
+      .opencode/reference/<name>.md paths. SC-23 asserts the ABSENT end-state of the bare
+      patterns; SC-24 asserts the PRESENT end-state of the corrected paths. Both must hold
+      simultaneously for the link rewrite to be complete.
 
-state_notes: >
-  All transitions are content-state transitions on markdown files within the
-  .opencode/audit and .opencode/reference trees. No persistent runtime data state
-  changes. The behavioral tests transition the evaluator's verdict output observable
-  in harness stderr. No rollback complexity: each file edit is independently
-  revertible via git.
+  - id: st-behavioral-verdict
+    target: with-test-home harness (opencode run, stderr)
+    scs: [SC-09, SC-10, SC-20, SC-21, SC-22]
+    state_description: >
+      Behavioral state transitions of the evaluator verdict output. From a given spec
+      submission, the evaluator transitions to FAIL (monolithic SC, SC-09; coverage
+      redundancy SC-20; ceremony redundancy SC-21) or PASS (atomic SC SC-10; distinct SCs
+      SC-22). These transitions are runtime-observable in stderr and are classified as
+      runtime-behavioral; per the EVIDENCE_TYPE_MISMATCH gate they require behavioral
+      evidence and MUST NOT be substituted with structural greps.
+
+state_summary: >
+  The evaluator undergoes a create-transition (empty -> base checklist via SC-01..SC-08,
+  then -> redundancy inline copy + lockstep clause via SC-17/SC-18/SC-19). The master
+  reference undergoes verify-only no-op states (SC-11..SC-16) plus a single path-mutation
+  (SC-25). The 18 task cards undergo a link state transition (bare -> corrected, SC-23/SC-24).
+  Five behavioral SCs exercise runtime verdict transitions through the with-test-home harness.

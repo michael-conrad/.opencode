@@ -1,45 +1,67 @@
 # Code Path Inventory — Issue #2117
-# Generated: retroactive backfill from spec.md
+# Generated: retroactive backfill from spec.md (current 25-SC revision)
 
 spec_path: .opencode/.issues/2117/spec.md
+sc_count: 25
 
 code_paths:
-  - id: path-evaluator-inline
-    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08, SC-16, SC-17, SC-18]
-    file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
-    description: >
-      The spec-audit-evaluator task card. Contains the inline decomposition-criteria
-      checklist (base criteria + Ceremony + Coverage), binary PASS/FAIL decision-tree
-      branches, trigger-word/disjunctive/vague-term sub-checks, PR-gate RED/GREEN
-      reference, cross-reference comment, single-SC skip condition, and the lockstep
-      reconciliation clause.
+  - id: cp-evaluator-inline
+    target_file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    scs: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08]
+    path_description: >
+      The evaluator task file gains an inline decomposition-criteria checklist. The path is
+      the file's content regions: the base-criteria section (atomicity, single deliverable,
+      binary verifiability, PR-gate viability) with imperative binary decision-tree PASS/FAIL
+      branches (SC-01, SC-02); the atomicity trigger-word sub-check for and/or/comma lists
+      (SC-03); the binary-verifiability disjunctive sub-check for either/or/alternatively/one
+      of (SC-04); the binary-verifiability vague-term sub-check for should/would/ideally/as
+      appropriate (SC-05); the PR-gate RED/GREEN reference (SC-06); the cross-reference
+      comment (SC-07); and the single-SC+single-file skip condition (SC-08).
 
-  - id: path-master-reference
-    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-24]
-    file: .opencode/audit/reference/decomposition-criteria.md
-    description: >
-      Master reference. Verify criteria 5 (Ceremony) and 6 (Coverage) exist at
-      lines 122-156, verify set-entailment out-of-scope semantics, verify spec-level-only
-      scope. Correct the maintainer-note path from audit/tasks/spec-audit-evaluator.md
-      to skills/audit/tasks/spec-audit-evaluator.md.
+  - id: cp-evaluator-redundancy
+    target_file: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    scs: [SC-17, SC-18, SC-19]
+    path_description: >
+      The same evaluator file gains the inline criteria 5 (Ceremony) and 6 (Coverage) copies
+      mirroring the master reference, plus the exact lockstep-reconciliation clause
+      'This inline copy SHALL be kept in lockstep with the master reference
+      audit/reference/decomposition-criteria.md.' (SC-19). These are created (not merely
+      checked) to reconcile the maintainer-note lockstep claim with the current empty state.
 
-  - id: path-audit-task-cards
-    scs: [SC-22, SC-23]
-    file: .opencode/skills/audit/tasks/*.md
-    description: >
-      18-19 audit task cards carrying 34 bare reference/... links. Each bare pattern
-      (reference/cost-model-standards.md, reference/spec-structure-standards.md,
-      reference/plan-structure-standards.md) is corrected to .opencode/reference/...
+  - id: cp-master-criteria
+    target_file: .opencode/audit/reference/decomposition-criteria.md
+    scs: [SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-25]
+    path_description: >
+      Verify-only path on the existing master reference. SC-11/SC-12 verify the '### 5.
+      Ceremony' and '### 6. Coverage / Covered-by-Prior' headings (already present, lines
+      122-156). SC-13/SC-14 verify the set-entailment-over-prior-SCs-only and OUT-OF-SCOPE
+      declarations. SC-15/SC-16 verify the Ceremony/Coverage FAIL definitions. SC-25
+      corrects the maintainer-note path from audit/tasks/spec-audit-evaluator.md to
+      skills/audit/tasks/spec-audit-evaluator.md.
 
-  - id: path-reference-targets
-    scs: [SC-23]
-    file: .opencode/reference/{cost-model-standards,spec-structure-standards,plan-structure-standards}.md
-    description: >
-      Read-only reference targets. Must exist for the corrected .opencode/reference/...
-      links to resolve. Verified present.
+  - id: cp-audit-task-cards
+    target_file: .opencode/skills/audit/tasks/*.md
+    scs: [SC-23, SC-24]
+    path_description: >
+      18 audit task cards carry 34 bare reference/<name>.md links. SC-23 removes the bare
+      patterns (reference/cost-model-standards.md x19, reference/spec-structure-standards.md
+      x9, reference/plan-structure-standards.md x6) — they resolve to the nonexistent
+      skills/audit/reference/ directory. SC-24 rewrites them to the canonical
+      .opencode/reference/... paths that exist on disk.
 
-code_path_notes: >
-  No source (src/) or test code paths are implicated. All paths are within
-  .opencode/skills/audit/ and .opencode/reference/. The behavioral tests (SC-09,
-  SC-10, SC-19, SC-20, SC-21) exercise the evaluator's verdict rendering via the
-  with-test-home opencode run harness, not a code path of their own.
+  - id: cp-behavioral-verdict
+    target: with-test-home harness (opencode run, stderr assertions)
+    scs: [SC-09, SC-10, SC-20, SC-21, SC-22]
+    path_description: >
+      Behavioral execution path: the evaluator renders decomposition and redundancy verdicts
+      to stderr when exercised by a real-domain spec submission. SC-09/SC-10 assert
+      monolithic-FAIL and atomic-PASS for base criteria. SC-20/SC-21/SC-22 assert coverage
+      FAIL, ceremony FAIL, and distinct-SC PASS for the redundancy criteria. These exercise
+      the runtime verdict-transition behavior of the evaluator, not static content.
+
+code_path_summary: >
+  Three file regions carry the implementation: the evaluator (base checklist + created
+  redundancy inline copy + lockstep clause), the master reference (verify-only + maintainer
+  path fix), and the 18 audit task cards (link rewrite). Behavioral paths exercise the
+  evaluator verdict transitions through the with-test-home harness. No src/ or test/ paths
+  are affected.
