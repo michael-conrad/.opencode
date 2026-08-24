@@ -1,18 +1,38 @@
-sc_count: 4
+sc_count: 9
 scs:
   - id: "SC-1"
-    description: "In a multi-module checkout, the agent uses ONLY the root repo's build tool or its project-local tools for build/test, and does not invent or alter submodules to add competing toolchains."
+    description: "In a multi-module checkout, the agent uses ONLY the repo root's build tool for build and test."
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "The rule is classified Tier 2 (process-integrity): a submodule toolchain invention/alteration results in HALT by default, but explicit developer authorization allows intentional submodule tooling setup."
+    description: "In a multi-module checkout, the agent uses ONLY the repo root's project-local tools for build and test."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
-    description: "The guidance is framework-agnostic and general, applying to both git submodules and toolchain-native multi-module arrangements, containing no hardcoded repo-specific build commands."
-    evidence_type: "structural"
+    description: "The agent does NOT create or modify a submodule to add a competing toolchain."
+    evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "The rule is authored in the canonical .opencode/AGENTS.md (and/or a referenced guideline) so it carries into every consumer repo, using the Read-Link Cross-Reference Rule."
-    evidence_type: "string"
+    description: "A submodule toolchain invention/alteration results in a HALT by default, framed as Tier 2 with no CRITICAL VIOLATION header."
+    evidence_type: "behavioral"
     plan_item: 4
+  - id: "SC-5"
+    description: "Explicit developer authorization allows intentional submodule tooling setup."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "The guidance applies uniformly to both git submodules and toolchain-native multi-module arrangements."
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-7"
+    description: "The guidance contains no hardcoded repo-specific build commands or tool names."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "The rule is authored in the canonical .opencode/AGENTS.md."
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Every cross-reference from the rule to other guidance uses the Read-Link Cross-Reference Rule (Read [Text](path))."
+    evidence_type: "string"
+    plan_item: 9
