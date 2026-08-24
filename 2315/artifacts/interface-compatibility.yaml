@@ -1,0 +1,98 @@
+# Interface Compatibility — Issue 2315
+# Checks interface boundaries between affected modules.
+# Mode: retroactive backfill
+
+spec_path: .opencode/.issues/2315/spec.md
+issue_number: 2315
+
+interface_boundaries:
+  - name: opencode-mcp-registration
+    description: >
+      The `.opencode/opencode.jsonc` `mcp` block is the interface between
+      opencode and the RAGSync MCP server. The `ragsync` entry must follow the
+      existing `type: local` / `stdio` / `uvx` pattern used by the-notebook-mcp,
+      srclight, and editor services.
+    compatibility: >
+      The new entry is additive and does not alter the existing service entries.
+      opencode's local-server registration capability is confirmed present in the
+      mcp block (spec Section 7, "Satisfied").
+    scs: [SC-1]
+
+  - name: ragsync-config-interface
+    description: >
+      The RAGSync config file is the interface between the RAGSync server and
+      its declared source corpora. It declares source directories, fastembed
+      embedding settings, auto-sync behavior, and per-source isolation.
+    compatibility: >
+      The config must be co-located with the opencode registration and validated
+      to mitigate config drift (CON-5). Per-source isolation requires exactly one
+      config section per source with isolated index namespaces (CON-6).
+    scs: [SC-2, SC-3, SC-5]
+
+  - name: embedding-runtime-interface
+    description: >
+      The fastembed embedding runtime is the interface between RAGSync and the
+      local embedding model. The model is pinned by default with a documented
+      offline/cache path (CON-7).
+    compatibility: >
+      No external embedding API dependency is declared. First-run model download
+      failure falls back to the documented offline/cache path.
+    scs: [SC-2]
+
+dependency_contract:
+  version: 1
+  description: >
+    Concrete dependency data derived from the spec's affected files and success
+    criteria. Real sources, real targets, real type constraints.
+  dependencies:
+    - id: dep-1
+      source: .opencode/opencode.jsonc (mcp block)
+      target: jsbroks/ragsync-mcp (external MCP server)
+      type: service-registration
+      constraint: >
+        `type: local`, `stdio` transport, `enabled: true`, `uvx` runner pattern.
+        Must be available and version-stable for the service to start.
+      scs: [SC-1]
+      status: pending-external
+
+    - id: dep-2
+      source: .opencode/ragsync-config.yaml
+      target: fastembed (local embedding runtime)
+      type: embedding-config
+      constraint: >
+        References `fastembed` with a pinned default local embedding model; no
+        external embedding API endpoint declared. Model downloaded on first run
+        with offline/cache path mitigation.
+      scs: [SC-2]
+      status: pending-external
+
+    - id: dep-3
+      source: .opencode/ragsync-config.yaml
+      target: reference source corpora (non-tracked)
+      type: per-source-isolation
+      constraint: >
+        Exactly one config section per reference source corpus with isolated
+        index namespaces. Copyright-sensitive corpus remains non-tracked and is
+        not ingested into the repository (CON-2).
+      scs: [SC-3]
+      status: pending
+
+    - id: dep-4
+      source: .opencode/ragsync-config.yaml
+      target: RAGSync index
+      type: auto-sync
+      constraint: >
+        Auto-sync enabled for each declared source so the index updates on source
+        file changes without manual re-indexing.
+      scs: [SC-5]
+      status: pending
+
+    - id: dep-5
+      source: .opencode/opencode.jsonc (mcp block)
+      target: existing MCP services (the-notebook-mcp, srclight, editor)
+      type: coexistence
+      constraint: >
+        Existing services MUST remain unmodified and continue to function
+        alongside the new `ragsync` service.
+      scs: [SC-1]
+      status: satisfied

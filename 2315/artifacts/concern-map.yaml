@@ -1,0 +1,69 @@
+# Concern Map — Issue 2315
+# Decomposes success criteria into concern groups mapped to phase boundaries.
+# Mode: retroactive backfill
+
+spec_path: .opencode/.issues/2315/spec.md
+issue_number: 2315
+
+concerns:
+  - id: concern-config-registration
+    name: MCP service registration
+    description: >
+      Register RAGSync as a default local stdio MCP service in
+      `.opencode/opencode.jsonc` following the existing `uvx` pattern.
+    scs: [SC-1]
+    phase: 1
+
+  - id: concern-embedding
+    name: Local embedding configuration
+    description: >
+      Configure RAGSync to use fastembed with a pinned default local embedding
+      model and no external embedding API dependency; document offline/cache path.
+    scs: [SC-2]
+    phase: 1
+
+  - id: concern-per-source-isolation
+    name: Per-source isolation configuration
+    description: >
+      Declare exactly one RAGSync config section per reference source corpus
+      with isolated index namespaces to prevent cross-source retrieval leakage.
+    scs: [SC-3]
+    phase: 1
+
+  - id: concern-review-checklist
+    name: Per-source isolation review checklist
+    description: >
+      Document a review checklist in the `.opencode` tree enforcing per-source
+      isolation, including empty-source handling.
+    scs: [SC-4]
+    phase: 1
+
+  - id: concern-auto-sync
+    name: Auto-sync enablement
+    description: >
+      Enable auto-sync for each declared source so the index updates on source
+      file changes without manual re-indexing.
+    scs: [SC-5]
+    phase: 1
+
+  - id: concern-documentation
+    name: Service configuration and usage documentation
+    description: >
+      Document service configuration, per-source layout, usage, offline/cache
+      path, and validation step in the `.opencode` skill/guideline tree.
+    scs: [SC-6]
+    phase: 2
+
+phase_boundaries:
+  - phase: 1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    concerns: [concern-config-registration, concern-embedding, concern-per-source-isolation, concern-review-checklist, concern-auto-sync]
+    description: >
+      Configuration and registration work: add the MCP service entry, configure
+      embeddings, per-source isolation, review checklist, and auto-sync.
+  - phase: 2
+    scs: [SC-6]
+    concerns: [concern-documentation]
+    description: >
+      Documentation work: write the service configuration and usage
+      documentation in the `.opencode` skill/guideline tree.

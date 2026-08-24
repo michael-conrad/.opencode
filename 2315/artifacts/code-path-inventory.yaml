@@ -1,0 +1,76 @@
+# Code Path Inventory — Issue 2315
+# Lists code paths implied by each success criterion.
+# Mode: retroactive backfill
+
+spec_path: .opencode/.issues/2315/spec.md
+issue_number: 2315
+
+code_paths:
+  - sc: SC-1
+    path: .opencode/opencode.jsonc
+    kind: config
+    description: >
+      `mcp` block gains a `ragsync` entry with `type: local`, `stdio` transport,
+      and `enabled: true`, following the existing `uvx` runner pattern.
+    verification: >
+      Config parses as valid JSONC; `ragsync` service listed and enabled in the
+      mcp block.
+
+  - sc: SC-2
+    path: .opencode/ragsync-config.yaml
+    kind: config
+    description: >
+      RAGSync config references `fastembed` and a pinned default local embedding
+      model; no external embedding API endpoint declared.
+    verification: >
+      Config inspection confirms fastembed reference and pinned local model.
+
+  - sc: SC-3
+    path: .opencode/ragsync-config.yaml
+    kind: config
+    description: >
+      One config section per reference source corpus with isolated index
+      namespaces.
+    verification: >
+      Config inspection confirms per-source sections with isolated index
+      namespaces.
+
+  - sc: SC-4
+    path: .opencode/guidelines/ragsync-review-checklist.md
+    kind: doc
+    description: >
+      Review checklist in the `.opencode` tree enforcing per-source isolation,
+      including empty-source handling.
+    verification: >
+      File read confirms checklist exists and covers per-source isolation
+      enforcement.
+
+  - sc: SC-5
+    path: .opencode/ragsync-config.yaml
+    kind: config
+    description: >
+      Auto-sync enabled for each declared source.
+    verification: >
+      Config inspection confirms auto-sync enabled per source.
+
+  - sc: SC-6
+    path: .opencode/skills/ragsync/SKILL.md
+    kind: doc
+    description: >
+      Documentation in the `.opencode` skill/guideline tree covering service
+      configuration, per-source layout, usage, offline/cache path, and
+      validation step.
+    verification: >
+      File read confirms documentation exists and covers the required topics.
+
+external_dependencies:
+  - name: jsbroks/ragsync-mcp
+    kind: external-tool
+    description: >
+      External MCP server adopted as-is (CON-1); must be available and
+      version-stable for the service to start.
+  - name: fastembed
+    kind: external-runtime
+    description: >
+      Local embedding runtime; model downloaded on first run with offline/cache
+      path mitigation (CON-7).

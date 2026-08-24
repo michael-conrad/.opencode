@@ -1,0 +1,60 @@
+# Cross-Cutting Matrix — Issue 2315
+# Identifies SCs that span multiple concerns.
+# Mode: retroactive backfill
+
+spec_path: .opencode/.issues/2315/spec.md
+issue_number: 2315
+
+cross_cutting:
+  - sc: SC-1
+    spans: [concern-config-registration]
+    description: >
+      Confined to the MCP registration concern. No cross-cutting span.
+
+  - sc: SC-2
+    spans: [concern-embedding]
+    description: >
+      Confined to the embedding configuration concern. No cross-cutting span.
+
+  - sc: SC-3
+    spans: [concern-per-source-isolation]
+    description: >
+      Confined to the per-source isolation configuration concern. No
+      cross-cutting span.
+
+  - sc: SC-4
+    spans: [concern-review-checklist]
+    description: >
+      Confined to the review checklist concern. No cross-cutting span.
+
+  - sc: SC-5
+    spans: [concern-auto-sync]
+    description: >
+      Confined to the auto-sync concern. No cross-cutting span.
+
+  - sc: SC-6
+    spans: [concern-documentation]
+    description: >
+      Confined to the documentation concern. No cross-cutting span.
+
+cross_cutting_observations:
+  - description: >
+      SC-3 (per-source isolation) and SC-4 (review checklist) are related but
+      atomic: SC-3 declares the config sections; SC-4 documents the enforcement
+      checklist. They were decomposed from a single compound SC per the spec
+      Change Control log. They share the per-source isolation concern but are
+      independently verifiable and map to distinct artifacts.
+    scs: [SC-3, SC-4]
+
+  - description: >
+      SC-2 (embedding) and SC-6 (documentation) both reference the offline/cache
+      path (CON-7). SC-2 configures the pinned model; SC-6 documents the
+      offline/cache path. The documentation concern depends on the embedding
+      configuration being defined.
+    scs: [SC-2, SC-6]
+
+  - description: >
+      SC-1 (registration) and SC-6 (documentation) both reference the validation
+      step (CON-5). SC-1 verifies JSONC validity; SC-6 documents the validation
+      step. The documentation concern depends on the registration being defined.
+    scs: [SC-1, SC-6]

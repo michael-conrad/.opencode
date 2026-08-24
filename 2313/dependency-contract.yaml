@@ -11,6 +11,9 @@ variables:
   phase_3:
     type: bool
     description: "enforcement-gate merged-commit check (SC-3) — PR creation Step 0 blocks PR when any committed submodule gitlink SHA is unmerged"
+  phase_4:
+    type: bool
+    description: "test-framework submodule provisioning (SC-4) — behavioral test framework provisions/references real test submodule repos (test-submodule-1 default branch dev, test-submodule-2 empty) as reachable remotes for the SC-1/SC-2/SC-3 reachability tests"
 preconditions: []
 invariants: []
 postconditions: []
@@ -30,6 +33,19 @@ phases:
       - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
     scs:
       - SC-3
-edges: []
+  phase_4:
+    files:
+      - .opencode/tests-v2/behaviors/helpers.sh
+      - .opencode/tests-v2/behaviors/fixtures/setup/
+    scs:
+      - SC-4
+edges:
+  - from: phase_4
+    to: phase_1
+  - from: phase_4
+    to: phase_2
+  - from: phase_4
+    to: phase_3
 notes:
-  - "Each SC fires at an independent workflow phase (pre-work, pre-commit, PR-creation). No phase depends on the output of another phase. All three share the same git merge-base --is-ancestor mechanism but operate on independent gate boundaries."
+  - "Phase 4 (SC-4) provisions the real test submodule repos as reachable remotes, which the SC-1/SC-2/SC-3 behavioral tests depend on to run `git merge-base --is-ancestor` against a genuine reachable origin/$DEFAULT_BRANCH. Phases 1-3 therefore depend on phase 4. Phases 1-3 remain independent of one another."
+  - "Each SC fires at an independent workflow phase (pre-work, pre-commit, PR-creation). All three share the same git merge-base --is-ancestor mechanism but operate on independent gate boundaries."

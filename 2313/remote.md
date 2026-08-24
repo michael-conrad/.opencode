@@ -30,6 +30,8 @@ The git-workflow pipeline creates and commits submodule pointer changes without 
 
 Three independent verification gates, one per workflow phase, each using `git merge-base --is-ancestor` to test submodule commit reachability against `origin/$DEFAULT_BRANCH`. The trunk-tip-verification gate runs during pre-work to catch stale pointers before development begins. The pre-commit gate catches freshly-staged pointers before they are committed. The enforcement-gate at PR time is the last line of defense — it rejects PRs whose committed submodule SHAs are not found on the submodule's remote trunk. Each gate is enforced by a behavioral test that sends a real-domain prompt through `opencode run` and asserts stderr evidence of the verification action or block.
 
+For the behavioral tests to exercise the reachability check against a genuine remote default branch, the test framework provisions and references the real test submodule repositories — `git@github.com:michael-conrad/test-submodule-1.git` (default branch `dev`, has commits) and `git@github.com:michael-conrad/test-submodule-2.git` (empty) — as reachable remotes in the test environment. This lets the agent execute `git merge-base --is-ancestor` against a real `origin/$DEFAULT_BRANCH` during the SC-1/SC-2/SC-3 behavioral tests instead of a synthetic or unreachable remote.
+
 ## Impact
 
 | Risk | Mitigation |
@@ -38,7 +40,7 @@ Three independent verification gates, one per workflow phase, each using `git me
 | Behavioral tests are expensive to run (require real `opencode run` with AI models) | Each SC produces exactly one behavioral test; test suite is scoped-limited (not full-suite); model speed assessment gates full runs. |
 | Submodule remote may be temporarily unreachable | Gate fails open (warns, does not block) on network error — network flakiness should never block development. |
 
-**Dependencies:** No external dependencies. Three task files to modify: `trunk-tip-verification.md`, `implementation.md`, `enforcement-gate.md`.
+**Dependencies:** No external dependencies. Three task files to modify: `trunk-tip-verification.md`, `implementation.md`, `enforcement-gate.md`. Test framework references the real test submodule repos `git@github.com:michael-conrad/test-submodule-1.git` (default branch `dev`, has commits) and `git@github.com:michael-conrad/test-submodule-2.git` (empty) as reachable remotes.
 
 **Call to action:** Review and approve this spec to add submodule merged-commit verification gates across the git-workflow pipeline.
 
@@ -49,12 +51,15 @@ Three independent verification gates, one per workflow phase, each using `git me
 | SC-1 | trunk-tip-verification (pre-work) SHALL verify each submodule's committed pointer SHA is an ancestor of the submodule's remote `origin/$DEFAULT_BRANCH` using `git merge-base --is-ancestor` and report BLOCKED with `SUBMODULE_UNMERGED_COMMIT` when a commit is local-only | Behavioral |
 | SC-2 | implementation (pre-commit) SHALL verify each newly-staged submodule pointer SHA is reachable from the submodule's remote `origin/$DEFAULT_BRANCH` and block commit with a clear error when a pointer references a local-only commit | Behavioral |
 | SC-3 | enforcement-gate (PR creation Step 0) SHALL verify every committed submodule gitlink SHA exists on the submodule's remote `origin/$DEFAULT_BRANCH` and block PR creation with `SUBMODULE_PR_MISSING` when any pointer references an unmerged commit | Behavioral |
+| SC-4 | The behavioral test framework SHALL provision and reference the real test submodule repositories — `git@github.com:michael-conrad/test-submodule-1.git` (default branch `dev`, has commits) and `git@github.com:michael-conrad/test-submodule-2.git` (empty) — as reachable remotes in the test environment, so the SC-1/SC-2/SC-3 behavioral tests can execute `git merge-base --is-ancestor` against a genuine reachable `origin/$DEFAULT_BRANCH` | Behavioral |
 
 SC-1 cost frame: A pre-work gate that accepts stale submodule pointers means every trunk-tip-verification pass is a lie — the developer starts work from an already-broken base.
 
 SC-2 cost frame: A pre-commit gate that accepts local-only submodule SHAs means every commit is a ticking time bomb — the commit looks clean but will break the deploy pipeline the moment someone tries to use it.
 
 SC-3 cost frame: An enforcement gate that passes submodule PRs with unmerged references means the deploy engineer discovers the break at deployment time, not at PR time — the most expensive point in the pipeline.
+
+SC-4 cost frame: A behavioral test framework that probes the reachability check against an unreachable or synthetic remote cannot demonstrate the merged-commit gate against a genuine remote default branch — every SC-1/SC-2/SC-3 behavioral run becomes an unverifiable simulation instead of a real reachability test.
 
 ### Documentation Sources
 
@@ -63,6 +68,7 @@ SC-3 cost frame: An enforcement gate that passes submodule PRs with unmerged ref
 | SC-1 | `.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md` (step 6-7 existing checks) |
 | SC-2 | `.opencode/skills/git-workflow-commit/tasks/implementation.md` (pre-commit pointer check lines 34-42) |
 | SC-3 | `.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md` (Step 0 Submodule PR Dependency Check) |
+| SC-4 | `.opencode/tests-v2/AGENTS.md` (step 12 remote-strategy flags, `BEHAVIOR_NEEDS_MULTI_SUBMODULES` provision) |
 
 ## Affected Files
 
@@ -70,3 +76,4 @@ SC-3 cost frame: An enforcement gate that passes submodule PRs with unmerged ref
 - `.opencode/skills/git-workflow-commit/tasks/implementation.md` — Add merged-commit check in pre-commit section
 - `.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md` — Add merged-commit check alongside existing liveness check
 - `.opencode/tests-v2/behaviors/git-workflow/` — Add behavioral enforcement tests per SC
+- `.opencode/tests-v2/behaviors/helpers.sh` and `.opencode/tests-v2/behaviors/fixtures/setup/` — Provision and reference the real test submodule repos (`test-submodule-1`, `test-submodule-2`) as reachable remotes for the SC-1/SC-2/SC-3 behavioral tests
