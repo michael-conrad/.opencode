@@ -1,0 +1,52 @@
+blast_radius:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:34:00Z"
+  phases:
+    - phase: "Phase 1 — Arbiter aggregation fix (SC-1, SC-2, SC-6)"
+      affected_components:
+        - ".opencode/skills/audit/tasks/verification-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/spec-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/guideline-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/content-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/test-quality-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/drift-detection-arbiter.md"
+        - ".opencode/skills/audit/tasks/concern-separation-arbiter.md"
+        - ".opencode/skills/audit/tasks/coherence-maintenance-arbiter.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+        - ".opencode/skills/audit/tasks/closure-verification-arbiter.md"
+      ripple_effects:
+        - "All audit DiMo chains that consume these arbiters now produce FAIL on coverage/chain gaps instead of false PASS."
+        - "Downstream pipeline stages (implementation, PR creation) are gated on the corrected aggregate."
+      risk: "HIGH — touching 10 arbiter cards risks regressions in other audit paths; mitigated by SC-3 behavioral verification."
+    - phase: "Phase 2 — Evaluator enumeration fix (SC-4)"
+      affected_components:
+        - ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+        - ".opencode/skills/audit/tasks/verification-audit-evaluator.md"
+        - "Other evaluator cards that enumerate per_criterion"
+      ripple_effects:
+        - "Evaluators now emit every spec SC in per_criterion with NOT_EVALUATED markers for skipped SCs."
+        - "Arbiters receive a complete per_criterion set, enabling the union aggregation."
+      risk: "MEDIUM — evaluator enumeration changes the per_criterion contract consumed by arbiters."
+    - phase: "Phase 3 — Orchestrator remediate-and-restart loop (SC-5, SC-8)"
+      affected_components:
+        - ".opencode/skills/audit/SKILL.md"
+      ripple_effects:
+        - "Orchestrator structurally remediates-and-restarts the audit at any non-clean phase until 100% clean."
+        - "Escalation becomes the only exit from an unremediable non-clean phase."
+      risk: "MEDIUM — workflow change affects all audit dispatches."
+    - phase: "Phase 4 — Release handshake gate (SC-7)"
+      affected_components:
+        - ".opencode/skills/release-promoter/tasks/operating-protocol.md"
+        - ".opencode/skills/release-promoter/tasks/tag.md"
+        - ".opencode/skills/release-promoter/tasks/create-release.md"
+        - ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+      ripple_effects:
+        - "Release promotion gated on the corrected aggregate; coverage-gap FAIL keeps the ticket unreleased."
+      risk: "MEDIUM — release workflow change; must not block legitimate releases."
+    - phase: "Phase 5 — Behavioral verification (SC-3)"
+      affected_components:
+        - ".opencode/tests-v2/behaviors/ (new behavioral test scripts)"
+        - ".opencode/tests-v2/behaviors/fixtures/ (fixture specs)"
+      ripple_effects:
+        - "Behavioral tests verify the whole chain via real opencode run audit dispatch."
+      risk: "LOW — test-only changes; no production behavior change."

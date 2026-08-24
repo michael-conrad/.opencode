@@ -1,0 +1,33 @@
+concern_map:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:35:00Z"
+  phases:
+    - phase: "Phase 1 — Arbiter aggregation fix (SC-1, SC-2, SC-6)"
+      concerns:
+        - "Aggregation correctness — union of spec SC list + per_criterion set."
+        - "Coverage/chain flag-gate independence — flags computed independently of evaluator verdicts."
+        - "Error-table language binding — 'do NOT BLOCK' reconciled to FAIL."
+      separation:
+        - "Arbiter cards own aggregation; evaluator cards own enumeration; orchestrator owns the loop."
+    - phase: "Phase 2 — Evaluator enumeration fix (SC-4)"
+      concerns:
+        - "Full SC enumeration — every spec SC in per_criterion."
+        - "NOT_EVALUATED marker discipline — skipped SCs marked FAIL + NOT_EVALUATED."
+      separation:
+        - "Evaluator cards own per_criterion enumeration; arbiters consume it."
+    - phase: "Phase 3 — Orchestrator remediate-and-restart loop (SC-5, SC-8)"
+      concerns:
+        - "Structural loop binding — remediate-and-restart as a workflow step, not prose."
+        - "Escalation exit — only exit from unremediable non-clean phase."
+      separation:
+        - "SKILL.md owns the orchestrator loop; task cards own role execution."
+    - phase: "Phase 4 — Release handshake gate (SC-7)"
+      concerns:
+        - "Release gating — coverage-gap FAIL keeps ticket unreleased."
+      separation:
+        - "release-promoter + git-workflow-cleanup own the release handshake; audit verdict is the gate input."
+    - phase: "Phase 5 — Behavioral verification (SC-3)"
+      concerns:
+        - "Behavioral-only verification — real opencode run audit dispatch."
+      separation:
+        - "Behavioral test scripts generate artifacts; clean-room sub-agents evaluate."

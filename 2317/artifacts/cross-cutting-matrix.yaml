@@ -1,0 +1,31 @@
+cross_cutting_matrix:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:37:00Z"
+  cross_cutting_concerns:
+    - concern: "Aggregation correctness (union of spec SC list + evaluated set)"
+      phases:
+        - "Phase 1 (SC-1)"
+        - "Phase 2 (SC-4)"
+      impact: "Every arbiter must compute the union; every evaluator must emit the full SC list."
+    - concern: "Coverage/chain flag-gate independence"
+      phases:
+        - "Phase 1 (SC-2)"
+      impact: "Flags computed independently of evaluator verdicts; any false flag forces FAIL."
+    - concern: "FAIL as hard gate"
+      phases:
+        - "Phase 1 (SC-6)"
+        - "Phase 3 (SC-5, SC-8)"
+        - "Phase 4 (SC-7)"
+      impact: "Coverage/chain gaps, any FAIL, and release handshake all bind to the FAIL gate."
+    - concern: "Behavioral-only verification"
+      phases:
+        - "Phase 5 (SC-3)"
+      impact: "Whole chain verified via real opencode run audit dispatch; no static coded checks."
+    - concern: "Escalation as explicit exit"
+      phases:
+        - "Phase 3 (SC-5, SC-8)"
+      impact: "Escalation added as the only exit from an unremediable non-clean phase."
+    - concern: "Ticket-status/release handshake"
+      phases:
+        - "Phase 4 (SC-7)"
+      impact: "Release promotion gated on corrected aggregate; coverage-gap FAIL keeps ticket unreleased."

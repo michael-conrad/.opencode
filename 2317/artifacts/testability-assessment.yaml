@@ -1,0 +1,34 @@
+testability_assessment:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:40:00Z"
+  phases:
+    - phase: "Phase 1 — Arbiter aggregation fix (SC-1, SC-2, SC-6)"
+      test_strategy: "behavioral"
+      description: "Real opencode run audit dispatch against a fixture spec; stderr verdict observation confirms absent SC yields FAIL (SC-1), coverage-gap yields FAIL (SC-2), and advisory language reconciled to FAIL (SC-6)."
+      test_artifacts:
+        - "session.yaml from real opencode run audit dispatch"
+      clean_room_evaluation: "Clean-room sub-agent reads session.yaml and confirms the arbiter produced FAIL for absent/coverage-gap SCs."
+    - phase: "Phase 2 — Evaluator enumeration fix (SC-4)"
+      test_strategy: "behavioral"
+      description: "Real opencode run audit dispatch; stderr verdict observation confirms evaluator enumerates full spec SC list with NOT_EVALUATED markers."
+      test_artifacts:
+        - "session.yaml from real opencode run audit dispatch"
+      clean_room_evaluation: "Clean-room sub-agent reads session.yaml and confirms full SC enumeration."
+    - phase: "Phase 3 — Orchestrator remediate-and-restart loop (SC-5, SC-8)"
+      test_strategy: "behavioral"
+      description: "Real opencode run audit dispatch; stderr verdict observation confirms orchestrator remediates-and-restarts at any non-clean phase and escalates as the only exit."
+      test_artifacts:
+        - "session.yaml from real opencode run audit dispatch"
+      clean_room_evaluation: "Clean-room sub-agent reads session.yaml and confirms the remediate-and-restart loop."
+    - phase: "Phase 4 — Release handshake gate (SC-7)"
+      test_strategy: "behavioral"
+      description: "Real opencode run audit dispatch; stderr verdict observation confirms coverage-gap FAIL keeps the ticket unreleased."
+      test_artifacts:
+        - "session.yaml from real opencode run audit dispatch"
+      clean_room_evaluation: "Clean-room sub-agent reads session.yaml and confirms release gating on corrected aggregate."
+    - phase: "Phase 5 — Behavioral verification (SC-3)"
+      test_strategy: "behavioral"
+      description: "Behavioral test scripts are artifact-only generators via behavior_run; evaluation via clean-room sub-agent on session.yaml. No static coded checks."
+      test_artifacts:
+        - "session.yaml, stdout.log, stderr.log, manifest.yaml, exit_code"
+      clean_room_evaluation: "Clean-room sub-agent evaluates session.yaml against the behavioral criterion."

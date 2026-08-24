@@ -1,0 +1,30 @@
+code_path_inventory:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:36:00Z"
+  phases:
+    - phase: "Phase 1 — Arbiter aggregation fix (SC-1, SC-2, SC-6)"
+      code_paths:
+        - "verification-audit-arbiter.md Step 4 (Cross-Reference Artifacts) -> Step 5 (Compute Aggregate Judgment) -> Step 6 (Assemble judgment.yaml)"
+        - "spec-audit-arbiter.md Step 5 (Synthesize Narrow Criteria Verdicts) -> Step 8 (Determine Final Judgment)"
+        - "guideline-audit-arbiter.md per_criterion_synthesis -> final_judgment"
+        - "content-audit-arbiter.md per_claim_synthesis -> final_judgment"
+        - "test-quality-audit-arbiter.md test_quality_synthesis + evidence_type_compliance_synthesis -> final_judgment"
+        - "drift-detection-arbiter.md per_criterion collection -> final_judgment"
+        - "concern-separation-arbiter.md per_criterion -> final_judgment"
+        - "coherence-maintenance-arbiter.md criteria -> final_judgment"
+        - "plan-fidelity-arbiter.md per_criterion -> final_judgment"
+        - "closure-verification-arbiter.md per_criterion -> final_judgment"
+    - phase: "Phase 2 — Evaluator enumeration fix (SC-4)"
+      code_paths:
+        - "spec-audit-evaluator.md Step 16 (Process Verdicts) -> per_criterion array"
+        - "verification-audit-evaluator.md Step 4 (Build Evaluation Criteria) -> Step 8 (Write verdict.yaml) per_criterion"
+    - phase: "Phase 3 — Orchestrator remediate-and-restart loop (SC-5, SC-8)"
+      code_paths:
+        - "audit/SKILL.md Mandatory Remediation Procedure -> Workflows section (Run an audit)"
+    - phase: "Phase 4 — Release handshake gate (SC-7)"
+      code_paths:
+        - "release-promoter/tasks/operating-protocol.md -> tag.md -> create-release.md"
+        - "git-workflow-cleanup/tasks/cleanup.md Step 1.5 (Post-Merge Release Detection)"
+    - phase: "Phase 5 — Behavioral verification (SC-3)"
+      code_paths:
+        - "tests-v2/behaviors/ new behavioral test scripts -> behavior_run -> session.yaml"

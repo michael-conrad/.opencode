@@ -1,0 +1,53 @@
+state_analysis:
+  issue_number: 2317
+  generated_at: "2026-08-24T15:39:00Z"
+  state_machines:
+    - machine: "Arbiter aggregate verdict"
+      states:
+        - "COLLECTING — reading verdict.yaml per_criterion/per_claim"
+        - "UNIONING — computing union of spec SC list + evaluated set (NEW)"
+        - "FLAG_GATING — checking coverage_complete AND chain_complete (NEW)"
+        - "AGGREGATING — computing overall_verdict over union"
+        - "JUDGING — writing final_judgment"
+      transitions:
+        - "COLLECTING -> UNIONING: after reading per_criterion/per_claim"
+        - "UNIONING -> FLAG_GATING: after computing union; absent SCs default to FAIL"
+        - "FLAG_GATING -> AGGREGATING: after checking flags; any false flag forces FAIL"
+        - "AGGREGATING -> JUDGING: after computing overall_verdict"
+      phases: ["Phase 1 (SC-1, SC-2)"]
+    - machine: "Evaluator per_criterion enumeration"
+      states:
+        - "ENUMERATING — building per_criterion from spec SC list (NEW)"
+        - "EVALUATING — rendering PASS/FAIL per criterion"
+        - "MARKING — marking skipped SCs FAIL + NOT_EVALUATED (NEW)"
+        - "WRITING — writing verdict.yaml"
+      transitions:
+        - "ENUMERATING -> EVALUATING: after building full SC list"
+        - "EVALUATING -> MARKING: after rendering verdicts; skipped SCs marked"
+        - "MARKING -> WRITING: after marking"
+      phases: ["Phase 2 (SC-4)"]
+    - machine: "Orchestrator remediate-and-restart loop"
+      states:
+        - "DISPATCHING — running audit DiMo chain"
+        - "CHECKING — evaluating aggregate verdict"
+        - "REMEDIATING — fixing non-clean phase (NEW structural step)"
+        - "RESTARTING — re-dispatching audit (NEW structural step)"
+        - "ESCALATING — only exit from unremediable non-clean phase (NEW)"
+      transitions:
+        - "DISPATCHING -> CHECKING: after audit completes"
+        - "CHECKING -> REMEDIATING: on any non-clean phase"
+        - "REMEDIATING -> RESTARTING: after remediation"
+        - "RESTARTING -> DISPATCHING: re-run audit"
+        - "CHECKING -> ESCALATING: on unremediable non-clean phase"
+      phases: ["Phase 3 (SC-5, SC-8)"]
+    - machine: "Release handshake"
+      states:
+        - "MERGE_DETECTED — release PR merged"
+        - "VERDICT_CHECKING — checking corrected aggregate (NEW)"
+        - "RELEASING — promoting release (tag + create-release)"
+        - "BLOCKED — coverage-gap FAIL keeps ticket unreleased (NEW)"
+      transitions:
+        - "MERGE_DETECTED -> VERDICT_CHECKING: after merge"
+        - "VERDICT_CHECKING -> RELEASING: on clean aggregate"
+        - "VERDICT_CHECKING -> BLOCKED: on coverage-gap FAIL"
+      phases: ["Phase 4 (SC-7)"]

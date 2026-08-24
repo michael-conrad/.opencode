@@ -156,7 +156,7 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 | Audit evaluator cards | skill code | `.opencode/skills/audit/tasks/*-audit-evaluator.md` | Read/grep of `per_criterion` enumeration |
 | Audit orchestrator | skill code | `.opencode/skills/audit/SKILL.md` | Read of Mandatory Remediation Procedure |
 | Release handshake | skill code | `.opencode/skills/release-promoter/tasks/{operating-protocol,tag,create-release}.md`, `git-workflow-cleanup/tasks/cleanup.md` | Read/grep of release gate |
-| Behavioral harness | config/test | `.opencode/tests-v2/AGENTS.md`, `tests-v2/behaviors/` | Existing audit behavioral tests confirmed feasible |
+| Behavioral harness | config/test | `.opencode/tests-v2/AGENTS.md`, `tests-v2/behaviors/` | Existing audit behavioral tests (`2254-sc33`, `2272-sc1`) demonstrate real `opencode run` dispatch |
 
 ## 10. Enforcement Gate
 
