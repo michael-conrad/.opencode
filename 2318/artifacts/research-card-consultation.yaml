@@ -1,0 +1,30 @@
+SPDX-FileCopyrightText: 2026 Michael Conrad
+SPDX-License-Identifier: MIT
+Provenance: AI-generated
+---
+scope: .opencode repo
+issue: 2318
+
+## Consultation
+Globbed .opencode/.issues/research-cards/*.md and root .issues/research-cards/*.md.
+Searched frontmatter for research questions matching 'submodule toolchain conflicts',
+'root-repo-only tooling', 'competing toolchains'.
+
+## Cards found (relevant or partial)
+1. multi-feature-branch-main-with-submodules.md
+   - confidence: 0.7
+   - Tags: branch-management, submodules, trunk-based-development, shared-dependencies
+   - Relevance: PARTIAL. Addresses submodule pointer discipline and trunk-based
+     development, NOT toolchain conflicts. Background context only for understanding
+     how submodules are consumed across parent repos (shared common code).
+   - Incorporated: none directly; informs the 'shared submodule' framing but does not
+     change the tooling rule design.
+
+## Cards not applicable
+- No research card addresses submodule toolchain invention/alteration or
+  root-repo-only build/test tooling. This is a gap the spec fills.
+
+## Decision
+No active card with confidence >= 0.7 directly matches the spec topic, so no cached
+findings are incorporated into the tooling rule design. The single partial card
+(multi-feature-branch-main-with-submodules) is documented for cross-reference only.

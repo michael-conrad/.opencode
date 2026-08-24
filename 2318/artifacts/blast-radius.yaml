@@ -1,0 +1,30 @@
+SPDX-FileCopyrightText: 2026 Michael Conrad
+SPDX-License-Identifier: MIT
+Provenance: AI-generated
+---
+scope: .opencode repo
+issue: 2318
+
+## Phase 1 — Author the Tier 2 root-repo-only tooling rule
+Affected components:
+- .opencode/AGENTS.md '## Boundaries (Critical)' — primary edit location.
+Ripple effects:
+- Consumer repos that load this AGENTS.md inherit the rule.
+- session-enforcement.ts plugin: NOT affected (Tier 2 is prose-level HALT; plugin only
+  builds Tier 1 blocks).
+- No change to any repo's build config (out of scope).
+
+## Phase 2 — Add cross-references to 060-tool-usage.md / 085-project-local-tools.md
+Affected components:
+- .opencode/AGENTS.md (cross-reference lines) and/or 060-tool-usage.md.
+Ripple effects:
+- Agents routing tool selection must consult the root-repo-only rule alongside the
+  five-tier hierarchy in 060-tool-usage.md.
+- 085-project-local-tools.md is referenced, not modified.
+
+## Phase 3 — Behavioral enforcement test for the rule
+Affected components:
+- .opencode/tests-v2/behaviors/<scenario>.sh (new behavioral test scenario).
+Ripple effects:
+- Test harness (tests-v2/with-test-home) runs the new scenario; no harness change.
+- The test asserts agent tool-selection behavior via opencode run stderr.

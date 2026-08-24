@@ -1,0 +1,57 @@
+SPDX-FileCopyrightText: 2026 Michael Conrad
+SPDX-License-Identifier: MIT
+Provenance: AI-generated
+---
+scope: .opencode repo
+target_file: AGENTS.md
+issue: 2318
+title: '[SPEC] Root-repo-only tooling in multi-module checkouts'
+
+## Affected files
+1. .opencode/AGENTS.md
+   - Canonical agent rules carried into every repo that consumes this config.
+   - '## Boundaries (Critical)' section (lines 297-327) is the natural home for an
+     ALWAYS/NEVER tooling rule. The submodule discipline block (lines 272-279) under
+     '## Direct-Branch Primary Workflow' documents submodule state handling but has
+     NO rule about submodule toolchain invention/alteration.
+2. .opencode/guidelines/060-tool-usage.md (Tier 1)
+   - Governs tool selection, path rules, command restrictions. Contains the existing
+     '--recursive' submodule prohibition (line 60). Natural home for a root-repo-only
+     build/test tooling directive.
+3. .opencode/guidelines/085-project-local-tools.md (Tier 2)
+   - Defines project-local tool installation (.tools/, .node/, .uv/, .jdk/). The rule
+     references this guideline for the 'root project-local tools' carve-out. It is the
+     referenced dependency for project-local tools per the issue's 'Dependencies'.
+
+## Existing patterns & conventions
+- Tier classification model in guidelines/000-critical-rules.md:
+  - Tier 1 Safety-Critical: HALT + 'CRITICAL VIOLATION' header, never authorizable.
+  - Tier 2 Process-Integrity: HALT (no 'CRITICAL VIOLATION'), confirmshaming identity
+    frame, developer-authorizable (yields to developer authorization, critical-rules-018).
+  - Tier 3 Workflow-Standard: FLAG only.
+- The spec explicitly requests Tier 2 (process-integrity): HALT by default on submodule
+  toolchain invention/alteration, with an explicit developer-authorized carve-out for
+  intentional submodule tooling. This maps to the existing Tier 2 interaction rule
+  'Dev auth + Tier 2 → dev auth wins' (critical-rules-018).
+- Rule authoring location convention: canonical rules live in AGENTS.md (carried into
+  all consumer repos). Detailed sub-guidance lives in guidelines/. A Tier 2 tooling rule
+  is best authored in AGENTS.md '## Boundaries (Critical)' with cross-reference (Read-link)
+  to 060-tool-usage.md / 085-project-local-tools.md. Per Read-Link Cross-Reference Rule,
+  any 'See file' reference must use 'Read [Text](path)' pattern.
+- The rule must be framework-agnostic and general (no hardcoded build commands, no
+  repo-specific tool names) per the spec.
+
+## Dependencies / callers
+- session-enforcement.ts plugin reads AGENTS.md Tier 1 blocks; Tier 2 rules are
+  prose-level (not plugin-enforced), consistent with the 'process-integrity HALT'
+  classification. No plugin change required for a Tier 2 rule.
+- Writing/editing any guideline requires a behavioral enforcement test per
+  critical-rules-009 (enforcement test mandate). A new rule that changes agent behavior
+  (dispatching different tool selection) is a runtime-behavioral change and requires a
+  behavioral test (EVIDENCE_TYPE_MISMATCH gate: runtime behavior change => behavioral SC).
+
+## Non-findings
+- No existing rule prohibits submodule toolchain creation/alteration (grep across
+  skills/, guidelines/, AGENTS.md returned no competing-toolchain rule).
+- research-cards/multi-feature-branch-main-with-submodules.md (confidence 0.7) covers
+  submodule pointer discipline, not toolchain conflicts. Partial relevance only.

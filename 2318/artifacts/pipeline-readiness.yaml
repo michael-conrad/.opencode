@@ -1,0 +1,37 @@
+SPDX-FileCopyrightText: 2026 Michael Conrad
+SPDX-License-Identifier: MIT
+Provenance: AI-generated
+---
+scope: .opencode repo
+issue: 2318
+
+## Validation
+
+### Atomicity
+- SC-1 → RED/GREEN/COMMIT cycle 1 (rule substance, root-tooling/no-invention).
+- SC-2 → RED/GREEN/COMMIT cycle 2 (Tier 2 HALT + dev-auth carve-out framing).
+- SC-3 → RED/GREEN/COMMIT cycle 3 (framework-agnostic phrasing).
+- SC-4 → RED/GREEN/COMMIT cycle 4 (canonical AGENTS.md placement + Read-link format).
+Each SC maps to exactly one cycle. PASS.
+
+### Dependency ordering (SC DAG)
+- SC-1 → SC-2 → SC-3 → SC-4. Acyclic. PASS.
+
+### Single concern
+- SC-1/SC-2: one file category (canonical AGENTS.md + behavioral test) + one
+  verification domain (behavioral). PASS.
+- SC-3/SC-4: one file category (AGENTS.md / guideline text); verification domain
+  (structural/string). PASS.
+
+### Phase dependency
+- Phase 1 (rule) → Phase 2 (cross-ref) → Phase 3 (test). Acyclic. PASS.
+
+### Three-tier structure
+- Multi-phase spec with pre (rule definition) / per (cross-ref + enforce) / post
+  (behavioral test) structure. The spec is small (single rule); the 3-phase structure
+  maps to author/refine/enforce. PASS.
+
+## Gate result
+PASS. The decomposed SCs satisfy atomicity, acyclic dependency ordering, single concern,
+acyclic phase dependency, and three-tier structure. All 7 analytical artifacts are
+present in tmp/2318/artifacts/.

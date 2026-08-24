@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "In a multi-module checkout, the agent uses ONLY the root repo's build tool or its project-local tools for build/test, and does not invent or alter submodules to add competing toolchains."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The rule is classified Tier 2 (process-integrity): a submodule toolchain invention/alteration results in HALT by default, but explicit developer authorization allows intentional submodule tooling setup."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "The guidance is framework-agnostic and general, applying to both git submodules and toolchain-native multi-module arrangements, containing no hardcoded repo-specific build commands."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The rule is authored in the canonical .opencode/AGENTS.md (and/or a referenced guideline) so it carries into every consumer repo, using the Read-Link Cross-Reference Rule."
+    evidence_type: "string"
+    plan_item: 4

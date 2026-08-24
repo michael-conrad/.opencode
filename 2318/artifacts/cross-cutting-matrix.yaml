@@ -1,0 +1,26 @@
+SPDX-FileCopyrightText: 2026 Michael Conrad
+SPDX-License-Identifier: MIT
+Provenance: AI-generated
+---
+scope: .opencode repo
+issue: 2318
+
+## Cross-cutting concerns matrix
+
+| Concern | AGENTS.md rule text (Ph1) | Cross-ref 060/085 (Ph2) | Behavioral test (Ph3) | Notes |
+|---------|--------------------------|--------------------------|-----------------------|-------|
+| Framework-agnostic phrasing | X | X | - | Must apply to git submodules AND toolchain-native multi-module; no repo-specific commands |
+| Tier 2 HALT classification | X | - | X | No 'CRITICAL VIOLATION' header; dev-authorizable |
+| Developer-authorization carve-out | X | X | X | Explicit path for intentional submodule tooling |
+| Read-Link cross-reference format | X | X | - | Mandatory Triple Co-Application (250/255/257) |
+| Root project-local tools allowed | X | X (references 085) | - | 085-project-local-tools.md is the authoritative source |
+| Root build tool allowed | X | X | - | Generic (e.g. gradlew/build.gradle), not hardcoded |
+| Competing-toolchain prohibition | X | X | X | Core rule substance |
+| Enforcement test presence | - | - | X | critical-rules-009 mandate; behavioral SC (runtime-behavioral) |
+
+## Concern conflicts / separation
+- Rule substance vs enforcement: the rule (Ph1) states the policy; the test (Ph3)
+  verifies agent behavior. Producer ≠ verifier (no self-verification).
+- 060-tool-usage (Tier 1) vs 085 (Tier 2): the new rule is Tier 2. It must not be
+  mis-authored into 060 as a Tier 1 'CRITICAL VIOLATION' — the spec explicitly
+  classifies as Tier 2.

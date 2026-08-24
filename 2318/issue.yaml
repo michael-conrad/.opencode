@@ -3,17 +3,23 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/N/
+body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2318)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2318/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
 
 
   ## Problem
 
 
-  In a multi-module checkout (git submodules or a toolchain''s native multi-module
-  arrangement), the AI agent invents and alters submodules to add dedicated tooling
-  (package.json/build.gradle/Node/gradle/etc.) that immediately conflicts with the
-  root repo''s existing toolkit and project-local tools. This produces competing toolchains,
-  wasted work, and build/test breakage.
+  In a multi-module checkout (git submodules or a toolchain-native multi-module arrangement),
+  the AI agent invents and alters submodules to add dedicated tooling (package.json/build.gradle/Node/gradle/etc.)
+  that immediately conflicts with the root repo''s existing toolkit and project-local
+  tools. This produces competing toolchains, wasted work, and build/test breakage.
 
 
   ## Scope
@@ -38,6 +44,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   **Out of scope:**
+
 
   - Any change to a specific repo''s build configuration or toolchain.
 
@@ -77,10 +84,10 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   referenced for project-local tools.
 
 
-  🤖 OpenCode (deepseek-v4-flash) created
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
   '
 created_at: '2026-08-24T17:10:45+00:00'
-updated_at: '2026-08-24T17:15:36+00:00'
+updated_at: '2026-08-24T17:16:35+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2318
 remote_url: https://github.com/michael-conrad/.opencode/issues/2318
