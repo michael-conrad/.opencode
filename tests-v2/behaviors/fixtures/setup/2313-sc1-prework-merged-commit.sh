@@ -48,6 +48,12 @@ setup_sc1_parent_origin() {
     # (local-only) commit.
     git -C "$wd" add .opencode 2>/dev/null || true
     git -C "$wd" commit -q -m "chore: point .opencode submodule to local-only commit for SC-1 trunk-tip gate" 2>/dev/null || true
+
+    # Push main to origin AFTER the pointer change so step 3 (parent remote tracking
+    # match) passes and the agent reaches step 8 (the merged-commit check). If main is
+    # pushed only before the pointer change, origin/main is stale relative to local main
+    # and step 3 blocks before step 8's merge-base check ever runs.
+    git -C "$wd" push -q origin main 2>/dev/null || true
 }
 
 setup_sc1_parent_origin "$1"
