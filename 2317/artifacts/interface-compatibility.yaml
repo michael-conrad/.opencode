@@ -6,27 +6,27 @@ interface_compatibility:
       status: "modified"
       compatibility: "backward compatible"
       description: "Evaluators add NOT_EVALUATED markers and full SC enumeration; existing per_criterion entries remain valid. Arbiters consume the enriched set."
-      phases: ["Phase 1 (SC-1)", "Phase 2 (SC-4)"]
+      phases: ["Phase 1 (SC-1)", "Phase 2 (SC-4, SC-5)"]
     - interface: "judgment.yaml final_judgment contract"
       status: "modified"
       compatibility: "backward compatible"
       description: "Arbiters add coverage_complete/chain_complete flags and union-based aggregate; existing final_judgment fields remain."
-      phases: ["Phase 1 (SC-1, SC-2)"]
+      phases: ["Phase 1 (SC-1, SC-2, SC-9)", "Phase 3 (SC-6)"]
     - interface: "audit/SKILL.md orchestrator workflow"
       status: "modified"
       compatibility: "backward compatible"
-      description: "Adds structural remediate-and-restart loop step; existing dispatch steps remain."
-      phases: ["Phase 3 (SC-8)"]
+      description: "Adds structural remediate-and-restart loop step and escalation exit; existing dispatch steps remain."
+      phases: ["Phase 3 (SC-8, SC-11, SC-12, SC-13, SC-14)"]
     - interface: "release-promoter workflow (operating-protocol, tag, create-release)"
       status: "modified"
       compatibility: "backward compatible"
       description: "Adds audit-verdict gate before release promotion; existing tag/release steps remain."
-      phases: ["Phase 4 (SC-7)"]
+      phases: ["Phase 4 (SC-10)"]
     - interface: "git-workflow-cleanup cleanup.md Step 1.5"
       status: "modified"
       compatibility: "backward compatible"
       description: "Adds audit-verdict check before dispatching release-promoter; existing cleanup steps remain."
-      phases: ["Phase 4 (SC-7)"]
+      phases: ["Phase 4 (SC-10)"]
     - interface: "Behavioral test harness (tests-v2/behaviors/)"
       status: "new"
       compatibility: "internal only"

@@ -2,46 +2,37 @@ blast_radius:
   issue_number: 2317
   generated_at: "2026-08-24T15:34:00Z"
   phases:
-    - phase: "Phase 1 — Arbiter aggregation fix (SC-1, SC-2, SC-6)"
+    - phase: "Phase 1 — Arbiter aggregation + flag-gate + advisory-language binding (SC-1, SC-2, SC-9)"
       affected_components:
-        - ".opencode/skills/audit/tasks/verification-audit-arbiter.md"
-        - ".opencode/skills/audit/tasks/spec-audit-arbiter.md"
-        - ".opencode/skills/audit/tasks/guideline-audit-arbiter.md"
-        - ".opencode/skills/audit/tasks/content-audit-arbiter.md"
-        - ".opencode/skills/audit/tasks/test-quality-audit-arbiter.md"
-        - ".opencode/skills/audit/tasks/drift-detection-arbiter.md"
-        - ".opencode/skills/audit/tasks/concern-separation-arbiter.md"
-        - ".opencode/skills/audit/tasks/coherence-maintenance-arbiter.md"
-        - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
-        - ".opencode/skills/audit/tasks/closure-verification-arbiter.md"
+        - ".opencode/skills/audit/tasks/*-audit-arbiter.md (12 wildcard cards)"
       ripple_effects:
-        - "All audit DiMo chains that consume these arbiters now produce FAIL on coverage/chain gaps instead of false PASS."
+        - "All audit DiMo chains that consume the arbiters now produce FAIL on coverage/chain gaps instead of false PASS."
         - "Downstream pipeline stages (implementation, PR creation) are gated on the corrected aggregate."
-      risk: "HIGH — touching 10 arbiter cards risks regressions in other audit paths; mitigated by SC-3 behavioral verification."
-    - phase: "Phase 2 — Evaluator enumeration fix (SC-4)"
+      risk: "HIGH — touching all 12 arbiter cards risks regressions in other audit paths; mitigated by SC-3 behavioral verification."
+    - phase: "Phase 2 — Evaluator enumeration + NOT_EVALUATED fix (SC-4, SC-5)"
       affected_components:
-        - ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
-        - ".opencode/skills/audit/tasks/verification-audit-evaluator.md"
-        - "Other evaluator cards that enumerate per_criterion"
+        - ".opencode/skills/audit/tasks/*-audit-evaluator.md (wildcard cards)"
       ripple_effects:
         - "Evaluators now emit every spec SC in per_criterion with NOT_EVALUATED markers for skipped SCs."
         - "Arbiters receive a complete per_criterion set, enabling the union aggregation."
       risk: "MEDIUM — evaluator enumeration changes the per_criterion contract consumed by arbiters."
-    - phase: "Phase 3 — Orchestrator remediate-and-restart loop (SC-5, SC-8)"
+    - phase: "Phase 3 — FAIL hard gate, remediate-and-re-audit, orchestrator loop (SC-6, SC-7, SC-8, SC-11, SC-12, SC-13, SC-14)"
       affected_components:
+        - ".opencode/skills/audit/tasks/*-audit-arbiter.md"
+        - ".opencode/skills/audit/tasks/*-audit-evaluator.md"
         - ".opencode/skills/audit/SKILL.md"
       ripple_effects:
-        - "Orchestrator structurally remediates-and-restarts the audit at any non-clean phase until 100% clean."
-        - "Escalation becomes the only exit from an unremediable non-clean phase."
+        - "FAIL is a hard gate that halts the deliverable until remediation and re-audit reach 100% compliance."
+        - "Orchestrator structurally remediates-and-restarts at any non-clean phase until 100% clean; escalation is the only exit from an unremediable non-clean phase."
       risk: "MEDIUM — workflow change affects all audit dispatches."
-    - phase: "Phase 4 — Release handshake gate (SC-7)"
+    - phase: "Phase 4 — Release handshake gate (SC-10)"
       affected_components:
         - ".opencode/skills/release-promoter/tasks/operating-protocol.md"
         - ".opencode/skills/release-promoter/tasks/tag.md"
         - ".opencode/skills/release-promoter/tasks/create-release.md"
         - ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
       ripple_effects:
-        - "Release promotion gated on the corrected aggregate; coverage-gap FAIL keeps the ticket unreleased."
+        - "Release promotion gated on the corrected aggregate; coverage-gap FAIL keeps the release pending."
       risk: "MEDIUM — release workflow change; must not block legitimate releases."
     - phase: "Phase 5 — Behavioral verification (SC-3)"
       affected_components:
