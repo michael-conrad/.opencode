@@ -30,7 +30,7 @@ Generates missing analytical artifacts from the spec body when spec-creation did
    - `concern-map.yaml`: Decompose SCs into concern groups, map each to a phase boundary.
    - `code-path-inventory.yaml`: List code paths implied by each SC.
    - `cross-cutting-matrix.yaml`: Identify SCs that span multiple concerns.
-   - `interface-compatibility.yaml`: Check interface boundaries between affected modules.
+   - `interface-compatibility.yaml`: Check interface boundaries between affected modules. Include a `dependency_contract` section populated with concrete dependency data derived from the spec's affected files and success criteria (real sources, real targets, real type constraints) — not a placeholder schema template. `research.md` step 9 extracts this section into `{issues_prefix}/{N}/dependency-contract.yaml` for the solve/plan tools.
    - `state-analysis.yaml`: Identify state transitions required by each SC.
    - `testability-assessment.yaml`: Assign evidence types to each SC.
 5. Write each backfilled artifact to `{issues_prefix}/{N}/artifacts/{name}.yaml`.

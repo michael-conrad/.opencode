@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Verify that the parent repo and all submodules are at remote trunk tip with clean working trees before feature branch creation. This is the 7-step gate that prevents starting work from a stale or dirty base state.
+Verify that the parent repo and all submodules are at remote trunk tip with clean working trees before feature branch creation. This is the 8-step gate that prevents starting work from a stale or dirty base state.
 
 ## Entry Criteria
 
@@ -73,11 +73,40 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
       # MUST be empty — no dirty submodule pointers
       ```
 
+- [ ] 8. **Submodule merged-commit check:** For each submodule, verify its committed pointer SHA is an ancestor of the submodule's remote trunk (`origin/$DEFAULT_BRANCH`) using `git merge-base --is-ancestor`. A pointer referencing a local-only commit means the submodule's own PR has not been merged — the build system would resolve it to a commit that does not exist on the remote. If ANY submodule pointer is local-only, return BLOCKED with `SUBMODULE_UNMERGED_COMMIT`:
+      ```bash
+      git submodule foreach "
+        DEFAULT_BRANCH=\$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+        git fetch origin \"\$DEFAULT_BRANCH\"
+        POINTER=\$(git rev-parse HEAD)
+        if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
+          echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
+          exit 1
+        fi
+      " || echo "SUBMODULE_UNMERGED_COMMIT: a submodule pointer references a local-only commit"
+      ```
+      **Fail open on network error:** If `git fetch` fails because the remote is unreachable, do NOT block — warn and continue. Network flakiness must never block development:
+      ```bash
+      git submodule foreach "
+        DEFAULT_BRANCH=\$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+        if ! git fetch origin \"\$DEFAULT_BRANCH\" 2>/dev/null; then
+          echo \"WARN: Submodule \$path remote unreachable — skipping merged-commit check\"
+          continue
+        fi
+        POINTER=\$(git rev-parse HEAD)
+        if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
+          echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
+          exit 1
+        fi
+      " || echo "SUBMODULE_UNMERGED_COMMIT: a submodule pointer references a local-only commit"
+      ```
+
 ## Exit Criteria
 
 - Parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
 - All submodules are on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
 - Submodule pointers match committed SHAs
+- All submodule pointer SHAs are ancestors of their submodule's remote `origin/$DEFAULT_BRANCH` (merged) — no local-only submodule commits
 - If ANY check fails: return BLOCKED with the specific failure
 
 ## Result Contract
@@ -92,6 +121,7 @@ checks:
   submodule_clean: PASS | FAIL
   submodule_remote_match: PASS | FAIL
   submodule_pointer_match: PASS | FAIL
+  submodule_merged_commit: PASS | FAIL | SKIP
 blocker_reason: "<description of which check failed and why>"
 ```
 

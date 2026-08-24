@@ -9,7 +9,7 @@ Sync dirty submodule pointers to latest remote trunk tip. Used for mid-feature s
 
 ## Procedure
 - [ ] 1. Detect submodules: read `.gitmodules` for `[submodule "..."]` paths
-- [ ] 2. For each submodule path:
+- [ ] 2. **Bound scope to the parent repo's direct submodule pointers passed in `submodule_paths`.** Operate only on the direct submodule paths in `submodule_paths` — never recurse into nested submodules. **Permit explicit per-submodule operations including non-recursive `git submodule foreach`** — it operates only on direct submodules and does not recurse. **NEVER use `--recursive` with any git submodule command** — the `--recursive` flag can pull in unintended nested submodules, cause unexpected network traffic, break reproducibility by implicitly resolving submodule chains, and conflict with explicit submodule management. Always use `git submodule update --init` (without `--recursive`) or explicit per-submodule operations. **Syncing a submodule to its own trunk tip is NOT a parent pointer change** — when a submodule is already at its trunk tip, report it as already current, not as a changed pointer. Do not report a false `+` flag for a submodule that was synced to its own trunk tip. For each direct submodule path in `submodule_paths`:
       - Resolve trunk branch: `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')`
       - `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH" --ff-only`
       - **On `--ff-only` failure (diverged history):** Agent autonomously analyzes and attempts resolution:

@@ -602,20 +602,32 @@ behavior_run() {
         # discover. Kept strictly inside the guard — the flag-off path provisions
         # only the single .opencode clone, preserving the default provisioning.
         if [ "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-0}" = "1" ]; then
-            local fixture_base="$(dirname "${BASH_SOURCE[0]}")/fixtures/submodules"
-            local submodule_index
-            for submodule_index in 1 2; do
-                local submodule_dir="$attempt_workdir/test-submodule-${submodule_index}"
-                git init -q "$submodule_dir" 2>/dev/null || true
-                if [ -d "$fixture_base/test-submodule-${submodule_index}" ]; then
-                    cp -r "$fixture_base/test-submodule-${submodule_index}/." "$submodule_dir/" 2>/dev/null || true
-                fi
-                git -C "$submodule_dir" config user.email "test@test.dev" 2>/dev/null || true
-                git -C "$submodule_dir" config user.name "Test" 2>/dev/null || true
-                git -C "$submodule_dir" add -A 2>/dev/null || true
-                git -C "$submodule_dir" commit -q --allow-empty -m "init submodule fixture" 2>/dev/null || true
-            done
-            echo "  [harness] multi-submodule fixtures provisioned (test-submodule-1, test-submodule-2)" >&2
+            # SC-4: Provision test-submodule-1 and test-submodule-2 as REACHABLE remotes
+            # referencing the real test repos. test-submodule-1
+            # (git@github.com:michael-conrad/test-submodule-1.git, default branch `dev`,
+            # has commits) is cloned so origin/dev is a genuine reachable ref; test-submodule-2
+            # (git@github.com:michael-conrad/test-submodule-2.git, empty) is initialized and
+            # wired to the real empty remote as origin. This lets the SC-1/SC-2/SC-3
+            # reachability checks run `git merge-base --is-ancestor` against a genuine
+            # reachable origin/$DEFAULT_BRANCH. Kept strictly inside the guard — the flag-off
+            # path provisions only the single .opencode clone, preserving the default provisioning.
+            local test_submodule_1_url="git@github.com:michael-conrad/test-submodule-1.git"
+            local test_submodule_2_url="git@github.com:michael-conrad/test-submodule-2.git"
+            local submodule_dir_1="$attempt_workdir/test-submodule-1"
+            local submodule_dir_2="$attempt_workdir/test-submodule-2"
+            # test-submodule-1: clone the real repo so origin/dev is a genuine reachable ref.
+            git clone -q "$test_submodule_1_url" "$submodule_dir_1" 2>/dev/null || {
+                git init -q "$submodule_dir_1" 2>/dev/null || true
+                git -C "$submodule_dir_1" remote add origin "$test_submodule_1_url" 2>/dev/null || true
+            }
+            git -C "$submodule_dir_1" config user.email "test@test.dev" 2>/dev/null || true
+            git -C "$submodule_dir_1" config user.name "Test" 2>/dev/null || true
+            # test-submodule-2: init + wire the real empty remote as origin.
+            git init -q "$submodule_dir_2" 2>/dev/null || true
+            git -C "$submodule_dir_2" remote add origin "$test_submodule_2_url" 2>/dev/null || true
+            git -C "$submodule_dir_2" config user.email "test@test.dev" 2>/dev/null || true
+            git -C "$submodule_dir_2" config user.name "Test" 2>/dev/null || true
+            echo "  [harness] multi-submodule fixtures provisioned as reachable remotes (test-submodule-1, test-submodule-2)" >&2
         fi
 
         if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then

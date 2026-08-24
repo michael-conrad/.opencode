@@ -8,6 +8,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- **Submodule merged-commit verification gate** (#2313) - Added a merged-commit verification gate to the implementation and PR-creation workflows so submodule pointers can only reference commits that exist on the submodule's remote default branch. Pre-work (trunk-tip-verification) verifies each committed pointer is an ancestor of `origin/$DEFAULT_BRANCH` and blocks with `SUBMODULE_UNMERGED_COMMIT` on local-only commits; the pre-commit hook verifies newly-staged pointers are reachable and blocks commit; the PR-creation enforcement gate verifies every committed gitlink exists on the remote and blocks with `SUBMODULE_PR_MISSING`. The behavioral test harness now provisions real test submodule repos as reachable remotes so these checks run against a genuine `origin/$DEFAULT_BRANCH`. Prevents deploy breaks caused by pointers to unmerged submodule commits.
+
+- **Bound submodule-sync task card scope and forbid recursion** (#2306) - Bound `git-workflow-branch` submodule-sync task card scope to direct pointer updates and forbade recursion (`--recursive` and `git submodule foreach`), consistent with the standing no-`--recursive` guideline, eliminating false "changed submodule" flags and recursive submodule traversal.
+
+- **Replace residual 'dev' trunk references** (#2308) - Replaced residual `dev` branch references in `git-workflow-cleanup` cleanup.md with the `$DEFAULT_BRANCH` trunk, so cleanup targets the actual default branch rather than the removed `dev` branch.
+
+### Fixed
+
+- **url_validation.sh hardcoded 'dev' base** (#2307) - Replaced the hardcoded `dev` base branch in `git-workflow/enforcement/url_validation.sh` with dynamic `$DEFAULT_BRANCH` (remote HEAD) resolution, with a fallback to `main` under `set -euo pipefail` and behavioral tests for base override and error paths.
+
+- **session-init 'dev' branch references** (#2309) - Corrected stale 'dev branch creation from origin/dev' references and the 'Guard checks' docstring in `tools/session-init`, removing residual `.worktrees/main` references and preserving `.env` gitignore.
+
+- **session_context_triggers hardcoded 'origin/dev'** (#2310) - Replaced hardcoded `origin/dev` in `scripts/session_context_triggers.py` diff-stat with dynamic trunk resolution.
+
+- **writing-plans dependency_contract contract mismatch** (#2311) - Fixed the contract mismatch between `writing-plans` backfill and research task files. `backfill.md` now instructs the sub-agent to include a `dependency_contract` section in `interface-compatibility.yaml`, which `research.md` step 9 extracts, so plans can be created for issues requiring retroactive artifact backfill without hitting `DEPENDENCY_CONTRACT_NOT_FOUND`.
+
 - **Classified-abort protocol for TDD RED/GREEN task cards** (#2298) - Added a classified-abort terminal state to `red.md` and `green.md` so a sub-agent that cannot complete a RED/GREEN cycle returns a classified `ABORT` (BLOCKED + blocker_reason) instead of looping or forcing an outcome. Added GREEN classifications (NO_PURPOSE, IMPOSSIBLE, BAD_TEST_NEEDS_REVISION), post-abort orchestrator routing, adjustment classification, and a retrigger ladder. Added behavioral enforcement tests for SC-1/2/3/5/10/11/12 covering immediate-abort-with-zero-further-analysis, ALREADY_GREEN classified abort, and orchestrator-only remediation.
 
 - **Prevent source/tests/fixtures in the .issues/ worktree** (#2295) - Enforced the `.issues/` content-type boundary so the worktree holds issue metadata only, never source/test/fixture code. Removed `.issues/{N}/tests/` as a valid test storage path from `red.md`, added the owning-repo test placement principle, clarified `implementation-workflow.md` Rule 1 to metadata-only retention, disambiguated `create.md` Step 6 copy target to analysis-artifacts-only, and removed the unconditional `.issues/` auto-commit from `review-prep.md` Step 0. Added behavioral enforcement tests asserting no `.issues/` test-file writes.

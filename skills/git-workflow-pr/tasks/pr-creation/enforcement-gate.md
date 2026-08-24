@@ -29,7 +29,20 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **If submodules detected:**
 
-The dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only liveness verification — it compares committed SHAs against remote trunk HEAD SHAs and returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+The dispatches a sub-agent via `task(subagent_type="general")`. The sub-agent performs a report-only verification — (a) liveness: compares committed SHAs against remote trunk HEAD SHAs, and (b) **merged-commit reachability**: for each committed submodule gitlink SHA, verifies it is an ancestor of the submodule's remote `origin/$DEFAULT_BRANCH` via `git merge-base --is-ancestor`. Returns PASS/FAIL per submodule. **NO auto-remediation. NO SHA bumps. NO commits.**
+
+**Merged-commit reachability check:** A committed gitlink SHA that references a local-only (unmerged) commit means the submodule's own PR has not been merged — the build system would resolve the pointer to a commit that does not exist on the remote. For each submodule, resolve `$DEFAULT_BRANCH`, fetch `origin`, and run:
+
+```bash
+DEFAULT_BRANCH=$(git -C <submodule_path> remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+git -C <submodule_path> fetch origin "$DEFAULT_BRANCH"
+git -C <submodule_path> merge-base --is-ancestor <committed_gitlink_sha> origin/$DEFAULT_BRANCH
+```
+
+On exit code `0` (ancestor): the pointer is merged — proceed. On non-zero exit (local-only commit): block PR creation with `SUBMODULE_PR_MISSING`.
+
+**Fail open on network error:** If the fetch or merge-base command fails because the remote is unreachable, do NOT block — warn and continue. Network flakiness must never block PR creation.
 
 #### Task Context
 
@@ -53,13 +66,14 @@ submodule_checks:
   - path: <submodule_path>
     committed_sha: <sha>
     remote_dev_sha: <sha>
+    merged: PASS | FAIL | SKIP
     result: PASS | FAIL
     detail: <optional explanation>
 summary: <text>
 ```
 
 **PASS →** Proceed to Step 0.5.
-**FAIL →** BLOCK PR creation. Report which submodules failed, with both SHAs. Do NOT create the PR. Do NOT auto-remediate. The developer must resolve submodule SHA mismatches manually.
+**FAIL →** BLOCK PR creation. Report which submodules failed, with both SHAs. If the failure is a local-only pointer (`merged: FAIL`), block with `SUBMODULE_PR_MISSING` — the committed gitlink SHA references an unmerged commit that must be merged to `origin/$DEFAULT_BRANCH` first. Do NOT create the PR. Do NOT auto-remediate. The developer must resolve submodule SHA mismatches manually.
 
 **There is NO `--force` override for submodule dependency gates.**
 
