@@ -1,0 +1,89 @@
+# Structure Artifact — Issue 2320
+# Phase decomposition, dependency DAG, and skill+task selection for plan creation.
+# Documentation-only change (R-1). All SCs are behavioral evidence type (R-8).
+
+spec_path: ".opencode/.issues/2320/spec.md"
+mode: "retroactive"
+
+phases:
+  - id: "Phase 1"
+    concern: "Submodule pointer rides alongside the next real root change — documentation guidance alignment across root AGENTS.md and 4 task files."
+    sc_ids: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+    items:
+      - sc_id: "SC-1"
+        phase: "Phase 1"
+        file: "AGENTS.md"
+        target_section: "§Submodule Pointer Updates"
+        skill: "test-driven-development"
+        task: "red/green"
+        evidence_type: "behavioral"
+      - sc_id: "SC-2"
+        phase: "Phase 1"
+        file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+        target_section: "Step 0.5"
+        skill: "test-driven-development"
+        task: "red/green"
+        evidence_type: "behavioral"
+      - sc_id: "SC-3a"
+        phase: "Phase 1"
+        file: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+        skill: "test-driven-development"
+        task: "red/green"
+        evidence_type: "behavioral"
+      - sc_id: "SC-3b"
+        phase: "Phase 1"
+        file: ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+        target_section: "§Pre-Push Submodule Pointer Verification"
+        skill: "test-driven-development"
+        task: "red/green"
+        evidence_type: "behavioral"
+      - sc_id: "SC-3c"
+        phase: "Phase 1"
+        file: ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+        target_section: "Step 1.7"
+        skill: "test-driven-development"
+        task: "red/green"
+        evidence_type: "behavioral"
+
+dependency_dag:
+  description: "Single phase; all dependencies are guidance-alignment edges from the root principle (AGENTS.md §Submodule Pointer Updates) to the four task files. No inter-phase ordering constraints."
+  edges:
+    - from: "AGENTS.md §Submodule Pointer Updates"
+      to: "enforcement-gate.md Step 0.5"
+      dep_id: "dep-root-to-enforcement-gate"
+      scs: ["SC-1", "SC-2"]
+    - from: "AGENTS.md §Submodule Pointer Updates"
+      to: "pre-commit-pointer-check.md"
+      dep_id: "dep-root-to-pre-commit"
+      scs: ["SC-1", "SC-3a"]
+    - from: "AGENTS.md §Submodule Pointer Updates"
+      to: "pr-creation.md §Pre-Push"
+      dep_id: "dep-root-to-pr-creation"
+      scs: ["SC-1", "SC-3b"]
+    - from: "AGENTS.md §Submodule Pointer Updates"
+      to: "branch-cleanup.md Step 1.7"
+      dep_id: "dep-root-to-cleanup"
+      scs: ["SC-1", "SC-3c"]
+
+skill_selection:
+  per_phase:
+    - phase: "Phase 1"
+      pre-implementation:
+        - "pre-regression": "test-driven-development"
+      implementation:
+        - "red": "test-driven-development"
+        - "green": "test-driven-development"
+      post-implementation:
+        - "verify": "verification-before-completion"
+        - "audit": "audit"
+        - "structural-checks": "finishing-a-development-branch"
+        - "pre-pr-gate": "verification-before-completion"
+        - "create-pr": "git-workflow-pr"
+
+triplet_co_location:
+  status: "verified"
+  note: "Each SC's RED/GREEN/COMMIT steps are assigned to the same phase (Phase 1). No TRIPLET_SPLIT detected."
+
+cross_phase_dependency:
+  status: "verified"
+  note: "Single phase; no RED test depends on SC output committed in a later phase. No CROSS_PHASE_DEP violation."

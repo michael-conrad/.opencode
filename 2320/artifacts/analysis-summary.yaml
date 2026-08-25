@@ -2,6 +2,8 @@
 # Backfill summary for retroactive plan creation.
 
 spec_path: ".opencode/.issues/2320/spec.md"
+approval_status: "approved"
+approval_label: "approved-for-pr"
 sc_count: 5
 sc_ids: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
 mode: "retroactive"

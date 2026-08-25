@@ -1,0 +1,40 @@
+# Dependency Contract — Issue 2320
+# Extracted from interface-compatibility.yaml (step 9 of research task).
+# Concrete dependency data derived from the spec's affected files and success criteria.
+# All dependencies are documentation-guidance contracts between the root principle and task files.
+
+version: 1
+description: "Concrete dependency data derived from the spec's affected files and success criteria. All dependencies are documentation-guidance contracts between the root principle and task files."
+dependencies:
+  - id: "dep-root-to-enforcement-gate"
+    source: "AGENTS.md §Submodule Pointer Updates"
+    target: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md Step 0.5"
+    type: "guidance-alignment"
+    constraint: "enforcement-gate.md Step 0.5 closure message MUST NOT imply the submodule merge resolves/drops the root pointer; it MUST state the pointer rides alongside the next real root change."
+    scs: ["SC-1", "SC-2"]
+    requirements: ["R-1", "R-2"]
+  - id: "dep-root-to-pre-commit"
+    source: "AGENTS.md §Submodule Pointer Updates"
+    target: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    type: "guidance-alignment"
+    constraint: "pre-commit-pointer-check.md MUST instruct staging/committing a dirty pointer alongside a real root change, never dropped and never standalone."
+    scs: ["SC-1", "SC-3a"]
+    requirements: ["R-1", "R-4", "R-6"]
+  - id: "dep-root-to-pr-creation"
+    source: "AGENTS.md §Submodule Pointer Updates"
+    target: ".opencode/skills/git-workflow-pr/tasks/pr-creation.md §Pre-Push"
+    type: "guidance-alignment"
+    constraint: "pr-creation.md §Pre-Push MUST state a merged submodule PR does NOT resolve the root pointer; the pointer rides alongside the next real root change."
+    scs: ["SC-1", "SC-3b"]
+    requirements: ["R-1", "R-4", "R-6"]
+  - id: "dep-root-to-cleanup"
+    source: "AGENTS.md §Submodule Pointer Updates"
+    target: ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md §Step 1.7"
+    type: "guidance-alignment"
+    constraint: "branch-cleanup.md Step 1.7 MUST state a dirty pointer during cleanup is expected, left uncommitted (cleanup exemption), and rides alongside the next real root change."
+    scs: ["SC-1", "SC-3c"]
+    requirements: ["R-1", "R-5", "R-6"]
+phase_ordering:
+  - phase: "Phase 1"
+    order: ["dep-root-to-enforcement-gate", "dep-root-to-pre-commit", "dep-root-to-pr-creation", "dep-root-to-cleanup"]
+    note: "All dependencies are documentation alignments to the same root principle; no ordering constraint between them. Single phase per §7 Traceability."
