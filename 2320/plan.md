@@ -363,3 +363,11 @@ Documentation-only change confined to five agent-facing guidance files. No sourc
 ## Concern Transition
 
 Single phase — no transition. The plan completes after the post-implementation steps and the phase completion block.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-25T16:02:44Z | plan_created | Plan file: `.opencode/.issues/2320/plan.md`; phase count: 1 |
