@@ -1,0 +1,35 @@
+testability_assessment:
+  issue: 2319
+  repo: .opencode
+  phases:
+    - phase: 1
+      sc: SC-1
+      test_strategy: structural
+      how: "Static review of token grammar definition; skildeck parse rule derives owner/repo/issue_number from a sample {owner}/{repo}#NNN token."
+      evidence: "Guideline/reference text defines grammar; parse test asserts correct field derivation."
+    - phase: 2
+      sc: SC-2
+      test_strategy: behavioral
+      how: "Dispatch a clean-room sub-agent with new context (issue_ref: 'owner/repo#NNN') and confirm it consumes issue_ref, not split three fields. Inspect stderr for task dispatch / field usage."
+      evidence: "Behavioral enforcement test asserting issue_ref consumption."
+    - phase: 3
+      sc: SC-3
+      test_strategy: behavioral
+      how: "Grep for github_issue_read(issue_number=N) in non-MCP task cards returns zero (structural gate). Behavioral: dispatch a non-MCP task card and confirm it delegates to issue-operations instead of calling github_issue_read directly."
+      evidence: "Grep result + behavioral dispatch stderr showing delegation."
+    - phase: 4
+      sc: SC-4
+      test_strategy: structural
+      how: "Guideline rule presence and wording verified; skildeck lint honors the spec_issue_number carve-out (does not flag derived-var usage)."
+      evidence: "skildeck lint run on a fixture with spec_issue_number yields no false positive."
+    - phase: 5
+      sc: SC-5
+      test_strategy: structural (lint rule)
+      how: "Run skildeck lint against fixture task cards: concrete bare #N and github_issue_read(issue_number=N) produce LintFinding error; issue_ref-compliant and spec_issue_number-derived content produce no finding."
+      evidence: "skildeck lint output with error findings on bare refs, clean on composite/derived."
+    - phase: 6
+      sc: SC-6
+      test_strategy: behavioral
+      how: "Dispatch each updated task card (audit, issue-operations, spec-creation, writing-plans) with issue_ref and confirm it derives owner/repo/issue_number and targets the correct {issues_prefix}/{N}/ path."
+      evidence: "Behavioral enforcement test stderr showing correct path resolution and issue_ref parsing."
+  mixed_note: "SC-1/SC-4/SC-5 are structural (lint rule + documentation). SC-2/SC-3/SC-6 are behavioral (agent routing/dispatch behavior)."

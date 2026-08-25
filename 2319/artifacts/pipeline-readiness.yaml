@@ -1,0 +1,21 @@
+pipeline_readiness:
+  issue: 2319
+  repo: .opencode
+  validation:
+    atomicity:
+      status: PASS
+      detail: "Each SC maps to exactly one item: SC-1→item1, SC-2→item2, SC-3→item3, SC-4→item4, SC-5→item5, SC-6→item6. Each item is a single RED→GREEN→COMMIT cycle."
+    dependency_ordering:
+      status: PASS
+      detail: "SC-1 defines the token grammar; SC-2, SC-3, SC-4, SC-5, SC-6 all consume it. No SC depends on a later SC. DAG: SC-1 → {SC-2, SC-3, SC-4, SC-5}, SC-6 after SC-1/SC-4. Acyclic."
+    single_concern:
+      status: PASS
+      detail: "Each SC targets one file category and one verification domain: SC-1 (definition), SC-2 (SKILL.md contracts), SC-3 (non-MCP task cards), SC-4 (guideline), SC-5 (skildeck tool), SC-6 (task cards)."
+    phase_dependency:
+      status: PASS
+      detail: "Phase dependency graph is acyclic. SC-1 (grammar) precedes SC-4 (guideline) and SC-5 (lint). SC-6 (consumption) follows SC-1. SC-2 (contracts) and SC-3 (call placement) are independent of each other but both depend on SC-1."
+    three_tier_structure:
+      status: PASS
+      detail: "The spec has a pre (define token SC-1, guideline SC-4) / per (contract changes SC-2, call-placement SC-3, task-card updates SC-6) / post (lint enforcement SC-5) structure. Multi-file deck change; the SCs are coherent pre/per-file/post phases."
+  blockers: []
+  note: "All 6 SCs are individually verifiable and atomic. The spec's evidence-type split (behavioral for routing-affecting changes SC-2/SC-3/SC-6; structural for lint/contract-shape SC-1/SC-4/SC-5) is respected."

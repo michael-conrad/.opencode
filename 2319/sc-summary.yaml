@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Composite issue reference form {owner}/{repo}#NNN defined as the single self-describing issue identity token used internally across the deck."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "All skill-card 'context passed' contracts passing { issue_number, github.owner, github.repo } as three separate fields are replaced with a single composite field issue_ref: '{owner}/{repo}#NNN'."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Direct platform API calls in task files carrying a bare issue number are removed from non-MCP task cards; such calls belong only in MCP / issue-operations platform task-card sets, consuming the qualified composite."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "A guideline rule is added defining the composite parse convention: sub-agents derive owner, repo, and issue_number from {owner}/{repo}#NNN. Permitted: local derived variables (spec_issue_number) for artifact path construction. Forbidden: concrete bare issue numbers referencing a real issue without repo qualification."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The skildeck semantic lint gains a rule flagging concrete bare issue references (#N, github_issue_read(issue_number=N), unconsumed issue tokens) in skill cards and task cards, permitting the derived-variable carve-out."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "The task files across audit, issue-operations, spec-creation, and writing-plans that currently consume bare issue numbers are updated to consume the composite."
+    evidence_type: "behavioral"
+    plan_item: 6

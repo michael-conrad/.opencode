@@ -1,0 +1,36 @@
+state_analysis:
+  issue: 2319
+  repo: .opencode
+  note: "This change is a static deck-wide convention shift; no runtime state machine is modified. State analysis covers the transition of how issue identity is carried in dispatch context."
+  state_transitions:
+    - phase: 1 (SC-1)
+      state: "unqualified-issue-identity"
+      to: "composite-token-defined"
+      transition: "Token grammar {owner}/{repo}#NNN defined in documentation."
+      guard: "Grammar carries owner/repo, no platform."
+    - phase: 2 (SC-2)
+      state: "three-field-context"
+      to: "composite-context"
+      transition: "SKILL.md context-passed contracts use single issue_ref field."
+      guard: "No SKILL.md passes the three separate fields."
+    - phase: 3 (SC-3)
+      state: "bare-platform-calls-in-non-mcp"
+      to: "platform-calls-scoped"
+      transition: "Direct github_issue_read(issue_number=N) removed from non-MCP task cards; delegated to issue-operations/platforms."
+      guard: "Non-MCP cards have no bare issue-number platform calls."
+    - phase: 4 (SC-4)
+      state: "no-parse-convention"
+      to: "parse-convention-defined"
+      transition: "Guideline defines derivation of owner/repo/issue_number from issue_ref; permits spec_issue_number derived var."
+      guard: "Rule present."
+    - phase: 5 (SC-5)
+      state: "lint-without-bare-ref-rule"
+      to: "lint-flags-bare-refs"
+      transition: "skildeck lint gains bare-issue-reference rule with derived-variable carve-out."
+      guard: "Lint flags concrete bare #N / github_issue_read(issue_number=N); permits spec_issue_number and issue_ref."
+    - phase: 6 (SC-6)
+      state: "task-cards-bare-issue-number"
+      to: "task-cards-consume-composite"
+      transition: "Task cards parse owner/repo/issue_number from issue_ref; use spec_issue_number for artifact paths."
+      guard: "Task cards no longer consume bare issue_number directly."
+  final_state: "Composite issue identity {owner}/{repo}#NNN carried uniformly across the deck; platform resolved by dispatcher."

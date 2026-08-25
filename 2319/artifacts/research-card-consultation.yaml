@@ -1,0 +1,12 @@
+research_card_consultation:
+  issue: 2319
+  search_paths:
+    - ".opencode/.issues/research-cards/*.md"
+    - ".issues/research-cards/*.md"
+  cards_checked:
+    - "cross-reference-form-comparison.md"
+  result: "No research card directly matches the composite issue-reference form question. cross-reference-form-comparison.md (confidence 0.95) concerns markdown link vs resolution-table access patterns for referencing files — adjacent but not dispositive for issue-identity tokens. It does support the general finding that inline, self-describing tokens (the composite {owner}/{repo}#NNN) are more reliably consumed than split/indirect references, which is consistent with SC-1."
+  findings_incorporated:
+    - "Self-describing inline tokens are more reliably consumed by agents than split or implicit references (cross-reference-form-comparison confidence 0.95)."
+  gap:
+    "No research card exists specifically evaluating composite issue-reference token consumption vs split three-field context passing. Recommend creating a research card during implementation if behavioral evidence is needed for SC-1 token-consumption reliability."
