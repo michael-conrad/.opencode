@@ -1,0 +1,7 @@
+actions:
+- name: do-phase-1
+  parameters: []
+domain: issue-2320-phase-dag
+engine: tamer
+plan_length: 1
+status: SOLVED_SATISFICING

@@ -1,0 +1,14 @@
+# Problem — Issue 2320: Submodule pointer rides alongside the next real root change
+# Models the phase dependency DAG from dependency-contract.yaml
+# Single phase (Phase 1); all dependencies are guidance-alignment edges to the root
+# principle with no inter-phase ordering constraints.
+domain: issue-2320-phase-dag
+fluents:
+  - name: phase_1
+actions:
+  - name: do-phase-1
+    effects:
+      - phase_1
+init: []
+goals:
+  - phase_1

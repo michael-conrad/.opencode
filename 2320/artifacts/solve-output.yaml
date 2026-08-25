@@ -15,12 +15,15 @@ solve_check:
   note: "State transitions satisfy all dependency contract preconditions, postconditions, and invariants."
 
 solve_status: "SAT"
-plan_status: "BLOCKED"
+plan_status: "SOLVED_SATISFICING"
 
 plan_result:
-  command: ".opencode/tools/plan plan --contract-path .opencode/.issues/2320/dependency-contract.yaml --output .opencode/.issues/2320/artifacts/plan-output.yaml"
-  outcome: "CLI_MISMATCH"
-  detail: "plan plan requires --problem (domain/problem/plan YAML). It does not accept --contract-path or --output. dependency-contract.yaml is not in the plan tool's expected problem format (domain/types/objects/fluents/actions/init/goals). No plan produced."
-  exit: 2
+  command: ".opencode/tools/plan plan --problem .opencode/.issues/2320/artifacts/phase-problem.yaml"
+  problem_file: ".opencode/.issues/2320/artifacts/phase-problem.yaml"
+  output_file: ".opencode/.issues/2320/artifacts/plan-output.yaml"
+  engine: "tamer"
+  plan_length: 1
+  outcome: "SOLVED_SATISFICING"
+  note: "Single phase (Phase 1) with no inter-phase ordering constraints. Problem file built from dependency-contract.yaml phase DAG per developer-authorized workaround for the defective step-12 CLI invocation (filed as .opencode#2322)."
 
-blocker_reason: "PLAN_TOOL_CLI_MISMATCH: research task step 12 specifies 'tools/plan plan --contract-path ... --output ...' but the plan tool CLI requires --problem (a domain/problem YAML) and has no contract-path/output flags. The dependency-contract.yaml is not consumable by plan plan without fabricating a problem file, which is prohibited."
+blocker_reason: ""

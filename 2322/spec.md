@@ -1,0 +1,34 @@
+> **Full spec and plan artifacts:** https://github.com/michael-conrad/.opencode/tree/issues-data/2322/
+>
+> **Local artifacts:** `.opencode/.issues/2322/`
+
+## Problem
+
+`.opencode/skills/writing-plans/tasks/research.md` step 12 (line 48) instructs `./.opencode/tools/plan plan --contract-path {issues_prefix}/{N}/dependency-contract.yaml --output {issues_prefix}/{N}/artifacts/plan-output.yaml`, but the `plan plan` subcommand requires `--problem <YAML>` and `--engine`, and has **NO** `--contract-path` or `--output` flags. Verified live: `./.opencode/tools/plan plan --help` shows only `--problem` and `--engine`. The `--contract-path` flag exists only on the `solve` tool and on `plan state update`, not on `plan plan`. This defect blocks the research step of the writing-plans pipeline for ALL plans (including `.opencode#2320`).
+
+## Scope
+
+- **In scope:** Fix step 12 in `.opencode/skills/writing-plans/tasks/research.md` to use the correct invocation pattern for the `plan plan` subcommand
+- **In scope:** Correct the invocation to build a `phase-problem.yaml` from the dependency-contract's phase DAG, then run `./.opencode/tools/plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml` and capture stdout to `plan-output.yaml`
+- **In scope:** Update the exit criterion at line 60 if needed to match the corrected invocation
+- **Out of scope:** Changes to the `solve` tool or its `--contract-path` model
+- **Out of scope:** Changes to `plan state update` semantics
+
+## Approach
+
+The task card wrongly applied the `solve` tool's `--contract-path` contract-file model to the `plan` tool. The `plan` tool's `plan plan` subcommand is problem-driven, not contract-driven: it takes a `--problem` YAML file describing the phase DAG and an `--engine` selector, and emits the plan to stdout. The corrected pattern — evidenced by resolved issues 2134 and 2166 — is to build a `phase-problem.yaml` from the dependency-contract's phase DAG, run `./.opencode/tools/plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml`, and capture stdout to `plan-output.yaml`.
+
+## Root Cause
+
+The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step. The defect has been present since the task card's first commit (6581901f, 2026-07-30) and was carried through later commits unchanged.
+
+## Impact
+
+- **Risk: research step remains blocked** — Mitigated by fixing the invocation to the verified working pattern
+- **Risk: wrong pattern copy-pasted elsewhere** — Mitigated by documenting the correct `plan plan --problem` pattern in the task card
+- **Risk: plan-output.yaml capture semantics ambiguous** — Mitigated by explicitly capturing stdout via redirect to the artifact path
+- **Dependencies:** None.
+- **Call to action:** Review the fix spec, approve for implementation.
+
+---
+🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
