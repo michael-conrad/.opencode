@@ -231,11 +231,16 @@ prose_validation:
   escape_hatches:
     validation_status: "corrected"
     evidence_count: 3
-    actual_count: 3
+    actual_count: 0
     missed_hatches: []
     false_hatches:
       - evidence_phrase: "rides ALONGSIDE the next real upstream change"
-        reason: "verbatim phrase not present in spec; actual wording is 'rides ALONGSIDE the next real root-repo change'. Conceptually valid, phrasing corrected."
+        reason: "false match. Verbatim phrase is absent from spec.md; the actual wording is 'rides ALONGSIDE the next real root-repo change'. More importantly, the phrase is a MANDATORY directive (SC-1, R-1, R-4), not an escape hatch: it grants no agent discretion. Category (discretion) is misapplied."
+      - evidence_phrase: "never dropped"
+        reason: "false match. Appears at SC-1 and R-1 as a PROHIBITION, not an escape hatch. It removes agent discretion rather than granting it, so it cannot be classified as a discretion-type escape hatch."
+      - evidence_phrase: "never committed standalone"
+        reason: "false match. Appears at SC-3a and R-3 as a PROHIBITION, not an escape hatch. It is a hard constraint that forbids a standalone pointer commit, the opposite of an optional/choice escape hatch."
+    no_escape_hatches_found_note: "Exhaustive grep of spec.md for discretionary/deferral/optional/TBD/choice markers (optionally, 'at discretion', 'if desired', 'when appropriate', 'TBD', 'should', 'may', 'could', 'if needed', 'as needed', 'not required', 'optional') returned zero genuine hits. The spec is uniformly prescriptive (SHALL/MUST in R-1..R-8, 'never dropped', 'never committed standalone'). No true escape hatches exist; all 3 evidence entries are false positives."
   tracking_language:
     validation_status: "corrected"
     evidence_count: 1

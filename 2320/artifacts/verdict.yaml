@@ -1,0 +1,423 @@
+# Verdict for Spec Audit — Issue 2320
+# Evaluator task: spec-audit-evaluator
+# Produced per-criterion PASS/FAIL judgments only; evidence collected by Investigator and validated by Validator.
+evaluator: spec-audit-evaluator
+issue_number: 2320
+generated_at: "2026-08-24T23:32:00-04:00"
+evidence_source: "/home/muksihs/git/opencode-config/.opencode/.issues/2320/artifacts/evidence.yaml"
+reasoning_source: "/home/muksihs/git/opencode-config/.opencode/.issues/2320/artifacts/reasoning.yaml"
+spec_local_dir: "/home/muksihs/git/opencode-config/.opencode/.issues/2320"
+
+holistic_evaluation:
+  status: "PASS"
+  dimensions:
+    - id: 1
+      name: "Implementability"
+      result: "PASS"
+      finding: "Single approach defined (revise agent-facing guidance text); 5 SCs all unambiguous; consistent output across implementors."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.implementability"
+    - id: 2
+      name: "Internal Consistency"
+      result: "PASS"
+      finding: "Preamble, SCs, and Requirements align to the problem statement; Approach Chosen matches Files Affected and Items; no contradictions (SC-1 vs R-3/R-5 are non-overlapping clauses, not a contradiction)."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.internal_consistency"
+    - id: 3
+      name: "Completeness"
+      result: "PASS"
+      finding: "No undefined terms, no TBD/TODO markers, no implicit dependencies."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.completeness"
+    - id: 4
+      name: "Scope Discipline"
+      result: "PASS"
+      finding: "Stated boundaries (Not Included) preserved; no scope creep elements; all SCs are documentation revisions."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.scope_discipline"
+    - id: 5
+      name: "Testability"
+      result: "PASS"
+      finding: "All 5 SCs have a verification method; 0 without; no subjective judgment SCs."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.testability"
+    - id: 6
+      name: "Escape Hatches"
+      result: "PASS"
+      finding: "Corrected to 0 genuine escape hatches. All 3 evidence entries (rides alongside/never dropped/never committed standalone) were false positives — they are MANDATORY directives and prohibitions, not discretionary language. Spec is uniformly prescriptive (SHALL/MUST in R-1..R-8)."
+      evidence_source: "reasoning.yaml -> prose_validation.escape_hatches"
+    - id: 7
+      name: "Provenance"
+      result: "PASS"
+      finding: "All 5 referenced documentation sources verified to exist in the codebase; 0 unsupported assertions."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.provenance"
+    - id: 8
+      name: "Feasibility"
+      result: "PASS"
+      finding: "All 5 affected files verified to exist (AGENTS.md, enforcement-gate.md, pre-commit-pointer-check.md, pr-creation.md, branch-cleanup.md)."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.feasibility"
+    - id: 9
+      name: "Safety"
+      result: "PASS"
+      finding: "No destructive operations, data loss scenarios, or security-relevant changes. Documentation-only change."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.safety"
+    - id: 10
+      name: "Traceability"
+      result: "PASS"
+      finding: "SC-1..SC-3c all map to Phase 1; 0 orphan SCs, 0 orphan phases; every requirement traces to >=1 SC."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.traceability"
+    - id: 11
+      name: "Correctness"
+      result: "PASS"
+      finding: "Problem statement, root cause, and fix approach align; fix addresses the pointer-drop ambiguity root cause, not a symptom."
+      evidence_source: "reasoning.yaml -> holistic_dimension_validation.correctness"
+
+summary:
+  total_criteria: 29
+  pass: 29
+  fail: 0
+  all_criteria_pass: true
+  remediation_required: false
+
+per_criterion:
+  - criterion_id: "SC-1"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation.sc_wording, evidence_type_declarations, verification_methods; prose_validation"
+    explanation: "SC-1 is deterministic and unambiguous, specifies a behavioral verification method (opencode run asserting the agent commits the pointer alongside a real root change and creates no pointer-only commit), has a documented cost frame, and declares behavioral evidence type which is correct for the runtime-behavior change. No critique or hedging."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-2"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation; prose_validation"
+    explanation: "SC-2 is deterministic and unambiguous, specifies a behavioral verification method, has a documented cost frame, and declares behavioral evidence type. Corrected evidence shows no escape hatches or tracking language. No critique or hedging."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-3a"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation; prose_validation"
+    explanation: "SC-3a is deterministic and unambiguous, specifies a behavioral verification method, has a documented cost frame, and declares behavioral evidence type. No critique or hedging."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-3b"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation; prose_validation"
+    explanation: "SC-3b is deterministic and unambiguous, specifies a behavioral verification method, has a documented cost frame, and declares behavioral evidence type. No critique or hedging."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-3c"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation; prose_validation"
+    explanation: "SC-3c is deterministic and unambiguous, specifies a behavioral verification method, has a documented cost frame, and declares behavioral evidence type. No critique or hedging."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-1-PREAMBLE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> spec_structure.required_sections '1. Intent and Executive Summary'"
+    explanation: "Preamble section present with all 6 required fields (Problem Statement, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions, User Intent/Original Prompt)."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-2-VERIFICATION-METHODS"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> determinism_evidence.verification_methods"
+    explanation: "All 5 SCs have a verification method; 0 SCs lack one. Each names the opencode run procedure."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-5-DEPENDENCIES"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> spec_structure.required_sections '6. Dependencies'"
+    explanation: "Dependencies section present with Reference, Relationship, Status columns; 5 rows all satisfied (existing guidance/task files)."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-9-DETERMINISM"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation.sc_wording"
+    explanation: "All 5 SCs deterministic and unambiguous; 0 fail patterns, 0 ambiguity markers after validation."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-11-DOC-SOURCES"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> spec_structure.required_sections '8. Documentation Sources'; documentation_source_evidence.urls"
+    explanation: "Documentation Sources section present with Source, Type, Location, Verification columns; all 5 sources verified present with referenced content found."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-12-PREAMBLE-FIELDS"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> spec_structure_validation.preamble"
+    explanation: "All 6 preamble fields present and validated (evidence_fields_present == actual_fields_present)."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-13-COST-FRAME"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> prose_evidence.cost_frame_language; spec.md Section 10"
+    explanation: "All 5 SCs have cost frames following the dark-prose-007 pattern: cost framed as defect-discovery-latency, action cost stated, skipping cost stated, correctness anchored. Section 10 opens with 'Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.'"
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-14-ENFORCEMENT-GATE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "evidence.yaml -> spec_structure.required_sections '9. Enforcement Gate'"
+    explanation: "Enforcement Gate present using canonical blockquote format: 'All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.'"
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-DET"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation.sc_wording, fail_patterns, ambiguity_markers"
+    explanation: "0 fail patterns and 0 ambiguity markers after validation. Each SC has an executable verification command (opencode run with assertion helpers). Two reasonable auditors would independently produce the same PASS/FAIL result for each SC."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-STRUCTURAL-FAIL"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation.evidence_type_declarations; testability-assessment.yaml"
+    explanation: "All 5 SCs describe runtime agent behavior and declare behavioral evidence type. No structural/string evidence is declared or acceptable. Verification methods specify behavioral execution via opencode run. No EVIDENCE_TYPE_MISMATCH."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-EVIDENCE-TYPE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> determinism_validation.evidence_type_declarations"
+    explanation: "All 5 SCs declare behavioral evidence type, the minimum acceptable method for runtime-behavior changes per the evidence-type taxonomy. Behavioral is the strongest acceptable tier and is correct here."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-TRACKING-LANG"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> prose_validation.tracking_language"
+    explanation: "Corrected to 0 tracking-language instances. The evidence token 'implemented' was a false positive (verified by grep: token absent; Change Control describes validation-driven decomposition, not status tracking). Spec uses only forward-looking MUST language."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read, bash]
+  - criterion_id: "SC-PRESCRIPTIVE-CODE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> prose_validation.prescriptive_code"
+    explanation: "Validated 1 prescriptive-code instance, which is the quoted enforcement-gate message 'Submodule SHA already updated...' in SC-2 and Section 1. This is an assertion/quotation of existing guidance being corrected, not prescriptive code imposing implementation details. It is a file-area reference, not a line-number/exact-import/assertion-code prescription."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-PIPELINE-GATES"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "spec.md Sections 5, 9; spec-structure-standards.md Format Requirements"
+    explanation: "Items use canonical checklist format (RED/GREEN/verify/commit sub-bullets); Enforcement Gate uses canonical blockquote format. No gate tables or shared cross-reference gate tables present."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-CANONICAL-PLAN-FORM"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "spec.md Section 5; spec-structure-standards.md Format Requirements"
+    explanation: "Spec defines per-SC item structure using canonical checklist format (RED/GREEN/verify/commit). No plan output format requirements specified via gate tables."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-REASONING"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> reasoning_validation"
+    explanation: "Causal chain valid: 1 root cause addressed by 1 fix approach (completeness + sufficiency); each SC traces to a root cause element; 1 alternative considered with documented discard reason; 5 edge cases documented; potential contradiction (SC-1 vs R-3/R-5) is a false contradiction (non-overlapping conditions). No orphan SCs, no untested root causes."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-CLAIM"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "reasoning.yaml -> documentation_source_validation"
+    explanation: "All 5 documentation sources verified present in the codebase with referenced content found. No fabricated claims, no negation assertions requiring exhaustive-search verification, no interface contract claims."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-BLAST-RADIUS"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.blast_radius; blast-radius.yaml"
+    explanation: "Blast radius artifact exists, non-empty, and covers all 5 files affected by the spec. Non-code impact (guideline/skill files) IS the change scope and is addressed across all 5 files. No missing dependents."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-CONCERN-MAP"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.concern_map; concern-map.yaml"
+    explanation: "Concern map exists, non-empty, and maps each SC to exactly one concern, all within Phase 1. 3 concerns cover all 5 SCs."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-CODE-PATH"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.code_path_inventory; code-path-inventory.yaml"
+    explanation: "Code path inventory exists, non-empty, and enumerates all 5 affected agent-facing guidance paths with implied behavior per SC."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-CROSS-CUTTING"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.cross_cutting_matrix; cross-cutting-matrix.yaml"
+    explanation: "Cross-cutting matrix exists, non-empty. Cross-cutting concerns (pointer-rides-alongside, submodule-bump-only prohibition, cleanup exemption) identified and mapped to SCs/requirements; divergence risk mitigated by R-6."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-INTERFACE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.interface_compatibility; interface-compatibility.yaml"
+    explanation: "Interface compatibility exists, non-empty. All interface boundaries between root principle and task files documented; all compatible; dependency contract present."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-STATE"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.state_analysis; state-analysis.yaml"
+    explanation: "State analysis exists, non-empty. State machine (DIRTY/CLEAN/POINTER_COMMITTED_ALONGSIDE/defect states) documented with transitions, triggers, guards; defect states (POINTER_DROPPED, POINTER_STANDALONE_COMMIT) prevented."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+  - criterion_id: "SC-TESTABILITY"
+    declared_evidence_type: "behavioral"
+    result: "PASS"
+    evidence: "analytical_artifact_validation.testability_assessment; testability-assessment.yaml"
+    explanation: "Testability assessment exists, non-empty. Test strategy (behavioral, with-test-home harness) exists for all 5 SCs."
+    remediation: "none"
+    next_step: "proceed"
+    tool_calls_made: [read]
+
+reasoning_soundness:
+  causal_chain:
+    status: "PASS"
+    findings: []
+  sc_traceability:
+    status: "PASS"
+    findings: []
+  contradictions:
+    status: "PASS"
+    findings: ["Potential contradiction SC-1 (pointer rides alongside) vs R-3/R-5 (prohibition + cleanup exemption) is a false contradiction — separate clauses covering non-overlapping conditions (feature-branch commit vs cleanup)."]
+
+claim_accuracy:
+  fabricated_claims:
+    - claim: "All 5 documentation sources (AGENTS.md, enforcement-gate.md, pre-commit-pointer-check.md, pr-creation.md, branch-cleanup.md)"
+      status: "PASS"
+      explanation: "All 5 files verified present in codebase via bash; referenced content found per validation."
+  negation_verifications:
+    - claim: "No code, hooks, or git tooling changes (R-7)"
+      status: "PASS"
+      finding: "Spec scope is documentation-only; consistent across preamble, Not Included, Files Affected, and blast radius artifact."
+  interface_verifications:
+    - claim: "No interface contract / function signature claims"
+      status: "PASS"
+      finding: "No API references, env variables, or library patterns in the spec."
+
+blast_radius:
+  impact_completeness:
+    status: "PASS"
+    findings: ["Blast radius artifact covers all 5 spec files; no missing dependents."]
+  non_code_impact:
+    status: "PASS"
+    findings: ["All affected files ARE .opencode/ guideline/skill guidance files; non-code impact is the full change scope and is addressed (R-7)."]
+
+research_adequacy:
+  evidence_provenance:
+    status: "PASS"
+    findings: ["All documentation source claims backed by file-existence + content verification."]
+  investigation_breadth:
+    status: "PASS"
+    findings: ["1 alternative (change the submodule-bump-only prohibition) considered and discarded with documented reason."]
+  edge_case_discovery:
+    status: "PASS"
+    findings: ["5 edge cases documented with Condition/Expected/Resolution."]
+  recency_check:
+    status: "PASS"
+    findings: ["Change is agent-facing documentation revision; no stale code-state claims requiring commit history review."]
+
+gap_analysis:
+  missing_coverage:
+    status: "PASS"
+    findings: ["Boundary conditions (dirty pointer with/without pending change, cleanup, submodule-bump-only branch) explicitly tested via 5 SCs."]
+  implicit_conditions:
+    status: "PASS"
+    findings: ["Preconditions (dirty pointer state, real root change pending, with-test-home harness) explicitly stated in SC verification methods."]
+
+scope_creep:
+  traceability_enforcement:
+    status: "PASS"
+    findings: ["Every fix element (5 task-file revisions) traces to a root cause; no untraced fix elements."]
+  proportionality:
+    status: "PASS"
+    findings: ["Fix scope (5 documentation revisions) aligns with blast radius (same 5 files); not disproportionate."]
+
+scope_narrowness:
+  root_cause_depth:
+    status: "PASS"
+    findings: ["Fix addresses the root cause (ambiguous pointer-drop guidance) not a symptom; identifies that all 5 locations describe the lifecycle inconsistently."]
+  systemic_implication:
+    status: "PASS"
+    findings: ["Systemic pattern (pointer lifecycle described inconsistently across AGENTS.md + 4 task files) is addressed by aligning all 5 locations (R-6)."]
+  minimum_viable_scope:
+    status: "PASS"
+    findings: ["Scope limited to the 5 files whose guidance is ambiguous; no over-scoping beyond the root cause."]
+
+cross_reference_completeness:
+  citation_completeness:
+    status: "PASS"
+    findings: ["All 5 documentation sources cited with complete locations (file path + section); no incomplete citations."]
+  reference_sufficiency:
+    status: "PASS"
+    findings: ["Each cited source is the actual file being revised; sources support the claims made."]
+
+analytical_artifact_evaluation:
+  blast_radius:
+    artifact_path: "artifacts/blast-radius.yaml"
+    status: "PASS"
+    findings: ["Covers all 5 affected files; documentation-only change kind; invariants preserved."]
+  concern_map:
+    artifact_path: "artifacts/concern-map.yaml"
+    status: "PASS"
+    findings: ["3 concerns map each SC to exactly one concern; all in Phase 1."]
+  code_path_inventory:
+    artifact_path: "artifacts/code-path-inventory.yaml"
+    status: "PASS"
+    findings: ["All 5 agent-facing guidance paths enumerated with implied behavior."]
+  cross_cutting_matrix:
+    artifact_path: "artifacts/cross-cutting-matrix.yaml"
+    status: "PASS"
+    findings: ["Cross-cutting concerns (pointer-rides-alongside, submodule-bump-only prohibition, cleanup exemption) identified and mapped to SCs/requirements; divergence risk mitigated by R-6."]
+  interface_compatibility:
+    artifact_path: "artifacts/interface-compatibility.yaml"
+    status: "PASS"
+    findings: ["All interface boundaries between root principle and task files documented; all compatible; dependency contract present."]
+  state_analysis:
+    artifact_path: "artifacts/state-analysis.yaml"
+    status: "PASS"
+    findings: ["State machine (DIRTY/CLEAN/POINTER_COMMITTED_ALONGSIDE/defect states) documented with transitions, triggers, guards; defect states prevented."]
+  testability_assessment:
+    artifact_path: "artifacts/testability-assessment.yaml"
+    status: "PASS"
+    findings: ["Test strategy (behavioral, with-test-home harness) exists for all 5 SCs."]
+
+bidirectional_findings: []
