@@ -78,15 +78,15 @@ All tasks run via `task(subagent_type="general")`. Standard context: `{ issue_nu
 
 ### Scope Values
 
-| Scope | HALT After | PR Strategy |
-|-------|-----------|-------------|
-| `for_review_prep` | review-prep | none |
-| `for_spec` | spec_created | none |
-| `for_plan` | plan_created | none |
-| `for_implementation` | verification_complete | none |
-| `for_pr` | pr_created | stacked |
-| `for_release_pr` | pr_created | stacked |
-| `for_analysis` | analysis_complete | none |
+| Scope | HALT After | PR Strategy | Pre-Flight | Pipeline |
+|-------|-----------|-------------|------------|----------|
+| `for_review_prep` | review-prep | none | - | - |
+| `for_spec` | spec_created | none | - | - |
+| `for_plan` | plan_created | none | - | - |
+| `for_implementation` | verification_complete | none | - | - |
+| `for_pr` | pr_created | stacked | auto-create spec + plan + auto-approve | execute plan via executing-plans |
+| `for_release_pr` | pr_created | stacked | auto-create spec + plan + auto-approve | execute plan via executing-plans |
+| `for_analysis` | analysis_complete | none | - | - |
 
 ### Verb-Prefix Parsing Table
 
@@ -135,6 +135,17 @@ Under `for_pr` scope (`halt_at: pr_created`), spec revision + plan regeneration 
 3. **Continue the pipeline toward `pr_created`** — do not present the regenerated plan for re-approval and do not halt for re-authorization
 
 This path is gated by `approval-gate-014` (for_pr scope continuation) / `critical-rules-037`. It applies ONLY when the authorization scope is `for_pr` or `for_release_pr` (halt_at `pr_created`). Under any narrower scope, the standard Re-implementation Workflow applies — present the updated plan and wait for re-approval.
+
+### Mandatory Routing Rule for `for_pr` (CRITICAL)
+
+**Under `for_pr` scope with an existing plan, the agent MUST dispatch `executing-plans` before any PR creation.** Direct PR creation without plan execution is a CRITICAL VIOLATION.
+
+The `for_pr` scope (`halt_at: pr_created`) authorizes progression through the full pipeline to PR creation. It does NOT authorize skipping plan execution. When an approved plan exists:
+
+1. The agent MUST call `executing-plans` to execute the plan to completion (implementing all SCs via per-SC RED/GREEN/verify/commit cycles).
+2. Only after plan execution completes verification may the agent proceed to `pr_created`.
+
+Direct PR creation without plan execution — creating a PR without first dispatching `executing-plans` to execute the plan — is a CRITICAL VIOLATION (critical-rules-XXX). The pipeline sequence spec → plan → implement → PR is invariant; `for_pr` scope authorizes proceeding through the sequence, never bypassing plan execution.
 
 ### Label Handling
 
