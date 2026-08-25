@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.2.0] - Unreleased
 
+### Added
+
+- **for_pr scope routes through executing-plans** (#1364) - Eliminated the for_pr gap-fill bypass where the agent jumped straight to PR creation without executing the plan. Added Pre-Flight + Pipeline columns to the Authorization Scope Model table, a mandatory executing-plans routing rule for `for_pr` scope with an existing plan, a new `executing-plans` skill with a plan-reading mandate, and behavioral enforcement tests verifying the agent routes through executing-plans (not direct PR creation).
+
 ### Changed
 
 - **Submodule merged-commit verification gate** (#2313) - Added a merged-commit verification gate to the implementation and PR-creation workflows so submodule pointers can only reference commits that exist on the submodule's remote default branch. Pre-work (trunk-tip-verification) verifies each committed pointer is an ancestor of `origin/$DEFAULT_BRANCH` and blocks with `SUBMODULE_UNMERGED_COMMIT` on local-only commits; the pre-commit hook verifies newly-staged pointers are reachable and blocks commit; the PR-creation enforcement gate verifies every committed gitlink exists on the remote and blocks with `SUBMODULE_PR_MISSING`. The behavioral test harness now provisions real test submodule repos as reachable remotes so these checks run against a genuine `origin/$DEFAULT_BRANCH`. Prevents deploy breaks caused by pointers to unmerged submodule commits.
