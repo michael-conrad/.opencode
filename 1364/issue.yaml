@@ -1,7 +1,7 @@
 labels:
-- approved-for-review
+- approved-for-pr
 number: 1364
 state: OPEN
 title: '[SPEC-FIX] for_pr scope model bypasses plan execution — gap-fill must"  route
   through executing-plans, not skip to PR'
-updated_at: '2026-08-25T08:09:22+00:00'
+updated_at: '2026-08-25T12:50:03+00:00'
