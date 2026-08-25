@@ -1,0 +1,30 @@
+# Concern Map — Issue 2320
+# Decomposes success criteria into concern groups and maps each to a phase boundary.
+# All SCs are documentation-revision concerns in Phase 1 (single-phase spec per §7 Traceability).
+
+spec_path: ".opencode/.issues/2320/spec.md"
+concerns:
+  - id: "concern-root-guidance"
+    name: "Root AGENTS.md pointer lifecycle guidance"
+    description: "The canonical pointer-rides-alongside principle in the root AGENTS.md §Submodule Pointer Updates."
+    scs: ["SC-1"]
+    phase: "Phase 1"
+    boundary: "Root guidance establishes the invariant; downstream task files align to it."
+  - id: "concern-enforcement-gate"
+    name: "Enforcement-gate closure message reconciliation"
+    description: "Reconcile the 'No parent PR needed' wording in enforcement-gate.md Step 0.5 so it cannot be misread as pointer-drop authorization."
+    scs: ["SC-2"]
+    phase: "Phase 1"
+    boundary: "Closure message clarifies the pointer still rides alongside the next real root change."
+  - id: "concern-task-file-alignment"
+    name: "Task-file pointer-rides-alongside language alignment"
+    description: "Align pre-commit-pointer-check.md, pr-creation.md §Pre-Push, and branch-cleanup.md Step 1.7 to consistent, unambiguous pointer-rides-alongside language."
+    scs: ["SC-3a", "SC-3b", "SC-3c"]
+    phase: "Phase 1"
+    boundary: "All three task files use identical pointer lifecycle language to prevent divergent agent behavior."
+
+phase_map:
+  - phase: "Phase 1"
+    concerns: ["concern-root-guidance", "concern-enforcement-gate", "concern-task-file-alignment"]
+    scs: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+    rationale: "All changes are documentation revisions to the same pointer lifecycle invariant; no code dependency ordering exists between them. Single phase per §7 Traceability."

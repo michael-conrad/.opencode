@@ -1,0 +1,45 @@
+# Blast Radius — Issue 2320
+# Affected files extracted from spec §3 Success Criteria and §8 Documentation Sources.
+# All changes are agent-facing documentation text; no code, hooks, or git tooling change (R-7).
+
+spec_path: ".opencode/.issues/2320/spec.md"
+affected_files:
+  - path: "AGENTS.md"
+    section: "§Submodule Pointer Updates"
+    scs: ["SC-1"]
+    exists_in_codebase: true
+    change_type: "doc-revision"
+    description: "Root guidance establishing the pointer-rides-alongside principle. SC-1 revises this section to state the pointer must be committed alongside the next real root-repo change, never dropped when a submodule PR merges."
+  - path: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+    section: "Step 0.5"
+    scs: ["SC-2"]
+    exists_in_codebase: true
+    change_type: "doc-revision"
+    description: "Closure message 'Submodule SHA already updated by submodule PR merge. No parent PR needed.' reconciled so it cannot be misread as permission to drop the root pointer."
+  - path: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    section: "full file"
+    scs: ["SC-3a"]
+    exists_in_codebase: true
+    change_type: "doc-revision"
+    description: "Aligns pointer-rides-alongside language: a dirty pointer is staged and committed alongside a real root change, never dropped and never committed standalone."
+  - path: ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+    section: "§Pre-Push Submodule Pointer Verification"
+    scs: ["SC-3b"]
+    exists_in_codebase: true
+    change_type: "doc-revision"
+    description: "Clarifies a merged submodule PR does NOT resolve the root pointer; the pointer rides alongside the next real root change."
+  - path: ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    section: "§Step 1.7"
+    scs: ["SC-3c"]
+    exists_in_codebase: true
+    change_type: "doc-revision"
+    description: "States a dirty pointer during post-merge cleanup is expected, left uncommitted (cleanup exemption), and rides alongside the next real root change."
+
+scope_summary:
+  change_kind: "documentation-only"
+  code_changes: 0
+  hook_changes: 0
+  git_tooling_changes: 0
+  invariant_preserved:
+    - "submodule-bump-only parent PR prohibition (R-3)"
+    - "dirty-pointer-cleanup-exemption (R-5)"

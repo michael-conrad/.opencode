@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "Root AGENTS.md §Submodule Pointer Updates states the pointer rides ALONGSIDE the next real root-repo change and is NOT dropped when a submodule PR merges."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "enforcement-gate.md Step 0.5 wording is reconciled so the closure message cannot be misread as permission to drop the root pointer."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3a"
+    description: "pre-commit-pointer-check.md uses unambiguous pointer-rides-alongside language: a dirty pointer is staged and committed alongside a real root change, never dropped and never committed standalone."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-3b"
+    description: "pr-creation.md §Pre-Push Submodule Pointer Verification uses unambiguous pointer-rides-alongside language: a merged submodule PR does NOT resolve the root pointer."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-3c"
+    description: "branch-cleanup.md Step 1.7 uses unambiguous pointer-rides-alongside language: a dirty pointer during post-merge cleanup is expected, left uncommitted, and rides alongside the next real root change."
+    evidence_type: "behavioral"
+    plan_item: 3

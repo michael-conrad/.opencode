@@ -1,0 +1,54 @@
+# State Analysis — Issue 2320
+# Identifies state transitions required by each SC.
+# The relevant state is the submodule pointer lifecycle state (DIRTY/CLEAN) and the
+# agent's understanding of the pointer lifecycle rule.
+
+spec_path: ".opencode/.issues/2320/spec.md"
+state_machine:
+  name: "submodule-pointer-lifecycle"
+  states:
+    - id: "CLEAN"
+      description: "Submodule pointer matches the committed SHA (no '+' prefix in `git submodule status`)."
+    - id: "DIRTY"
+      description: "Submodule pointer differs from the committed SHA (dirty pointer)."
+    - id: "POINTER_COMMITTED_ALONGSIDE"
+      description: "Dirty pointer staged and committed together with a real root-repo change on a feature branch."
+    - id: "POINTER_DROPPED"
+      description: "Dirty pointer left uncommitted and never committed alongside a real root change (defect state the spec prevents)."
+    - id: "POINTER_STANDALONE_COMMIT"
+      description: "Dirty pointer committed in a standalone parent-repo commit/PR (defect state the spec prevents, R-3)."
+
+transitions:
+  - sc: "SC-1"
+    from: "DIRTY"
+    to: "POINTER_COMMITTED_ALONGSIDE"
+    trigger: "A real root-repo change is committed on a feature branch while the pointer is dirty."
+    guard: "The pointer MUST be staged and committed alongside the real change; never dropped, never standalone (R-1, R-3, R-4)."
+  - sc: "SC-2"
+    from: "DIRTY"
+    to: "POINTER_COMMITTED_ALONGSIDE"
+    trigger: "A submodule-bump-only branch is closed per the enforcement gate."
+    guard: "The closure message MUST NOT imply the submodule merge resolves/drops the pointer; the pointer still rides alongside the next real root change (R-2)."
+  - sc: "SC-3a"
+    from: "DIRTY"
+    to: "POINTER_COMMITTED_ALONGSIDE"
+    trigger: "Pre-commit pointer check runs while a real root change is pending."
+    guard: "The dirty pointer is staged and committed alongside the real root change; never dropped, never standalone (R-4, R-6)."
+  - sc: "SC-3b"
+    from: "DIRTY"
+    to: "POINTER_COMMITTED_ALONGSIDE"
+    trigger: "Pre-push submodule pointer verification runs."
+    guard: "The agent verifies the pointer is committed alongside a real root change; does not treat the submodule merge as resolving it (R-4, R-6)."
+  - sc: "SC-3c"
+    from: "DIRTY"
+    to: "DIRTY"
+    trigger: "Post-merge cleanup observes a dirty submodule pointer."
+    guard: "The pointer is acknowledged as expected and left uncommitted (cleanup exemption, R-5); it rides alongside the next real root change."
+
+defect_states_prevented:
+  - state: "POINTER_DROPPED"
+    prevented_by: ["SC-1", "SC-2", "SC-3a", "SC-3b"]
+    description: "The pointer is never dropped when a submodule PR merges or a real root change is pending."
+  - state: "POINTER_STANDALONE_COMMIT"
+    prevented_by: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+    description: "The pointer is never committed in a standalone parent-repo commit/PR (R-3)."

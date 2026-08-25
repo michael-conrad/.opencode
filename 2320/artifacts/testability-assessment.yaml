@@ -1,0 +1,36 @@
+# Testability Assessment — Issue 2320
+# Assigns evidence types to each SC.
+# All SCs are behavioral per the spec (R-8): an agent must follow the updated guidance,
+# so structural/string evidence is EVIDENCE_TYPE_MISMATCH.
+
+spec_path: ".opencode/.issues/2320/spec.md"
+sc_testability:
+  - sc: "SC-1"
+    evidence_type: "behavioral"
+    verification_method: "`opencode run` with a sub-agent prompt where a root repo has a dirty pointer and a real root change pending; assert the agent stages and commits the pointer alongside the root change and does not create a pointer-only commit."
+    harness: "with-test-home"
+    rationale: "The change affects runtime agent behavior (how an agent handles a dirty pointer). Structural/string evidence is EVIDENCE_TYPE_MISMATCH."
+  - sc: "SC-2"
+    evidence_type: "behavioral"
+    verification_method: "`opencode run` with a sub-agent prompt describing a submodule-bump-only branch; assert the agent closes the branch per the gate AND records that the root pointer rides alongside the next real root change (does not claim the pointer was resolved/dropped by the submodule merge)."
+    harness: "with-test-home"
+    rationale: "The change affects runtime agent behavior (how an agent interprets the closure message)."
+  - sc: "SC-3a"
+    evidence_type: "behavioral"
+    verification_method: "`opencode run` with a sub-agent prompt where the agent reads pre-commit-pointer-check.md and a root repo has a dirty pointer plus a real root change; assert the agent stages and commits the pointer alongside the root change."
+    harness: "with-test-home"
+    rationale: "The change affects runtime agent behavior (how an agent applies the pre-commit pointer check)."
+  - sc: "SC-3b"
+    evidence_type: "behavioral"
+    verification_method: "`opencode run` with a sub-agent prompt where the agent reads pr-creation.md §Pre-Push and a root repo has a dirty pointer before pushing; assert the agent verifies the pointer is committed alongside a real root change and does not treat the submodule merge as resolving it."
+    harness: "with-test-home"
+    rationale: "The change affects runtime agent behavior (how an agent applies pre-push pointer verification)."
+  - sc: "SC-3c"
+    evidence_type: "behavioral"
+    verification_method: "`opencode run` with a sub-agent prompt where the agent reads branch-cleanup.md Step 1.7 and observes a dirty submodule pointer during cleanup; assert the agent leaves the pointer uncommitted and records that it rides alongside the next real root change."
+    harness: "with-test-home"
+    rationale: "The change affects runtime agent behavior (how an agent handles a dirty pointer during cleanup)."
+
+notes:
+  - "All 5 SCs are behavioral; no structural or string evidence is acceptable (R-8, spec §1 Key Design Decisions item 4)."
+  - "All behavioral tests run under the with-test-home harness per R-8."

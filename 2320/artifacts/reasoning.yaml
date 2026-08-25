@@ -1,0 +1,389 @@
+# Reasoning for Spec Audit — Issue 2320
+# Generator: spec-audit-generator
+# Validator task: spec-audit-validator
+# Validated evidence only — no PASS/FAIL judgments applied.
+knowledge_supporter: spec-audit-knowledge-supporter
+issue_number: 2320
+generated_at: "2026-08-24T23:30:00-04:00"
+evidence_source: "/home/muksihs/git/opencode-config/.opencode/.issues/2320/artifacts/evidence.yaml"
+spec_local_dir: "/home/muksihs/git/opencode-config/.opencode/.issues/2320"
+overall_validation_status: "corrected"
+
+spec_files_validation:
+  - path: "spec.md"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "body_length_chars"
+        evidence_value: "16561"
+        actual_value: "16465"
+    unvalidated_reason: null
+  - path: "issue.yaml"
+    validation_status: "validated"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: true
+    corrections: []
+    unvalidated_reason: null
+  - path: "sc-summary.yaml"
+    validation_status: "corrected"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: false
+    corrections:
+      - field: "body_length_chars"
+        evidence_value: "1281"
+        actual_value: "1279"
+    unvalidated_reason: null
+  - path: "comments.yaml"
+    validation_status: "validated"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: true
+    corrections: []
+    unvalidated_reason: null
+  - path: "links.yaml"
+    validation_status: "validated"
+    checks:
+      file_exists: true
+      size_match: true
+      frontmatter_match: true
+      frontmatter_keys_match: true
+      body_length_lines_match: true
+      body_length_chars_match: true
+    corrections: []
+    unvalidated_reason: null
+
+spec_structure_validation:
+  headings:
+    validation_status: "validated"
+    evidence_count: 18
+    actual_count: 18
+    mismatches: []
+  success_criteria:
+    validation_status: "validated"
+    evidence_row_count: 5
+    actual_row_count: 5
+    mismatches: []
+  phases:
+    validation_status: "section_missing"
+    evidence_count: 0
+    actual_count: 1
+    mismatches: ["evidence.yaml spec_structure does not include a phases field; spec defines Phase 1 for all items (validated in holistic traceability)."]
+  files_affected:
+    validation_status: "validated"
+    evidence_paths:
+      - "AGENTS.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+      - ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+      - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    actual_paths:
+      - "AGENTS.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+      - ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+      - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    mismatches: []
+  preamble:
+    validation_status: "validated"
+    evidence_fields_present: ["Problem Statement", "Root Cause / Motivation", "Approach Chosen", "Alternatives Considered & Why Discarded", "Key Design Decisions", "User Intent / Original Prompt"]
+    actual_fields_present: ["Problem Statement", "Root Cause / Motivation", "Approach Chosen", "Alternatives Considered & Why Discarded", "Key Design Decisions", "User Intent / Original Prompt"]
+    mismatches: []
+  documentation_sources:
+    validation_status: "validated"
+    evidence_sources:
+      - "Root AGENTS.md §Submodule Pointer Updates"
+      - "enforcement-gate.md Step 0.5"
+      - "pre-commit-pointer-check.md"
+      - "pr-creation.md §Pre-Push"
+      - "branch-cleanup.md §Step 1.7"
+    actual_sources:
+      - "Root AGENTS.md §Submodule Pointer Updates"
+      - "enforcement-gate.md Step 0.5"
+      - "pre-commit-pointer-check.md"
+      - "pr-creation.md §Pre-Push"
+      - "branch-cleanup.md §Step 1.7"
+    mismatches: []
+  status_marker:
+    validation_status: "section_missing"
+    evidence_value: null
+    actual_value: "No STATUS marker present in spec.md (validated — none exists; spec is not a tracking document)"
+  prose_elements:
+    validation_status: "corrected"
+    mismatches:
+      - element: "tables"
+        evidence_count: 10
+        actual_count: 6
+      - element: "code_blocks"
+        evidence_count: 0
+        actual_count: 0
+      - element: "ordered_lists"
+        evidence_count: 0
+        actual_count: 0
+      - element: "unordered_lists"
+        evidence_count: 2
+        actual_count: 9
+      - element: "blockquotes"
+        evidence_count: 2
+        actual_count: 2
+
+determinism_validation:
+  sc_wording:
+    validation_status: "corrected"
+    mismatches:
+      - sc_id: "SC-1"
+        field: "word_count"
+        evidence_text: "text matches verbatim; word_count recorded as 39 but actual criterion word count is 30"
+        actual_text: "word_count 30"
+      - sc_id: "SC-2"
+        field: "word_count"
+        evidence_text: "text matches verbatim; word_count 45 vs actual 42"
+        actual_text: "word_count 42"
+      - sc_id: "SC-3a"
+        field: "word_count"
+        evidence_text: "text matches verbatim; word_count 28 vs actual 23"
+        actual_text: "word_count 23"
+      - sc_id: "SC-3b"
+        field: "word_count"
+        evidence_text: "text matches verbatim; word_count 34 vs actual 28"
+        actual_text: "word_count 28"
+      - sc_id: "SC-3c"
+        field: "word_count"
+        evidence_text: "text matches verbatim; word_count 37 vs actual 27"
+        actual_text: "word_count 27"
+  fail_patterns:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_patterns: []
+    false_patterns: []
+  ambiguity_markers:
+    validation_status: "validated"
+    evidence_count: 0
+    actual_count: 0
+    missed_markers: []
+    false_markers: []
+  evidence_type_declarations:
+    validation_status: "validated"
+    mismatches: []
+  verification_methods:
+    validation_status: "validated"
+    mismatches: []
+  failure_description:
+    validation_status: "validated"
+    evidence_provided: false
+    actual_provided: false
+
+documentation_source_validation:
+  urls:
+    validation_status: "corrected"
+    mismatches:
+      - source: "AGENTS.md (root) — §Submodule Pointer Updates"
+        field: "http_status"
+        evidence_value: "200"
+        actual_value: "local read target — no HTTP status applicable; referenced content found"
+      - source: "enforcement-gate.md Step 0.5"
+        field: "http_status"
+        evidence_value: "200"
+        actual_value: "local read target — no HTTP status applicable; referenced content found"
+      - source: "pre-commit-pointer-check.md"
+        field: "http_status"
+        evidence_value: "200"
+        actual_value: "local read target — no HTTP status applicable; referenced content found"
+      - source: "pr-creation.md §Pre-Push"
+        field: "http_status"
+        evidence_value: "200"
+        actual_value: "local read target — no HTTP status applicable; referenced content found"
+      - source: "branch-cleanup.md §Step 1.7"
+        field: "http_status"
+        evidence_value: "200"
+        actual_value: "local read target — no HTTP status applicable; referenced content found"
+  api_references:
+    validation_status: "validated"
+    mismatches: []
+  env_variables:
+    validation_status: "validated"
+    mismatches: []
+  library_patterns:
+    validation_status: "validated"
+    mismatches: []
+
+prose_validation:
+  escape_hatches:
+    validation_status: "corrected"
+    evidence_count: 3
+    actual_count: 3
+    missed_hatches: []
+    false_hatches:
+      - evidence_phrase: "rides ALONGSIDE the next real upstream change"
+        reason: "verbatim phrase not present in spec; actual wording is 'rides ALONGSIDE the next real root-repo change'. Conceptually valid, phrasing corrected."
+  tracking_language:
+    validation_status: "corrected"
+    evidence_count: 1
+    actual_count: 0
+    missed_instances: []
+    false_instances:
+      - evidence_phrase: "implemented"
+        reason: "the token 'implemented' does not appear anywhere in spec.md (verified by grep). The Change Control table describes a validation-driven decomposition, not an implementation tracking marker. Removed as false match."
+  prescriptive_code:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    missed_instances: []
+    false_instances: []
+  cost_frame_language:
+    validation_status: "validated"
+    mismatches: []
+
+reasoning_validation:
+  root_causes:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  fix_approaches:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    mismatches: []
+  sc_to_root_cause:
+    validation_status: "validated"
+    mismatches: []
+  alternatives_considered:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    mismatches: []
+  edge_cases:
+    validation_status: "validated"
+    evidence_present: true
+    actual_present: true
+    evidence_count: 5
+    actual_count: 5
+    missed_cases: []
+  potential_contradictions:
+    validation_status: "validated"
+    evidence_count: 1
+    actual_count: 1
+    false_contradictions: []
+    missed_contradictions: []
+
+analytical_artifact_validation:
+  blast_radius:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  concern_map:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  code_path_inventory:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  cross_cutting_matrix:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  interface_compatibility:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  state_analysis:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+  testability_assessment:
+    validation_status: "validated"
+    evidence_provided: true
+    evidence_exists: true
+    actual_exists: true
+    mismatches: []
+
+holistic_dimension_validation:
+  implementability:
+    validation_status: "validated"
+    mismatches: []
+  internal_consistency:
+    validation_status: "validated"
+    mismatches: []
+  completeness:
+    validation_status: "validated"
+    mismatches: []
+    missed_undefined_terms: []
+    missed_implicit_dependencies: []
+  scope_discipline:
+    validation_status: "validated"
+    mismatches: []
+  testability:
+    validation_status: "validated"
+    mismatches: []
+  provenance:
+    validation_status: "validated"
+    mismatches: []
+  feasibility:
+    validation_status: "validated"
+    mismatches: []
+    missed_referenced_files: []
+    missed_referenced_functions: []
+  safety:
+    validation_status: "validated"
+    mismatches: []
+  traceability:
+    validation_status: "validated"
+    mismatches: []
+  correctness:
+    validation_status: "validated"
+    mismatches: []
+
+unvalidated_items:
+  - section: "spec_structure.phases"
+    item: "phases field absent from evidence.yaml"
+    reason: "evidence.yaml does not include a phases subsection under spec_structure; phase structure (Phase 1) validated via holistic_dimension traceability instead."
+  - section: "spec_structure.status_marker"
+    item: "status_marker field absent from evidence.yaml"
+    reason: "evidence.yaml does not include a status_marker field; spec contains no STATUS marker, consistent with non-tracking-document requirement."
+  - section: "documentation_source_evidence.urls"
+    item: "http_status for local file references"
+    reason: "URLs are local agent-facing files read via the read tool; no HTTP status is applicable. referenced_content_found verified for each local file."
+
+corrections_summary:
+  total_corrections: 8
+  sections_affected:
+    - "spec_files_validation"
+    - "spec_structure_validation.prose_elements"
+    - "determinism_validation.sc_wording"
+    - "documentation_source_validation.urls"
+    - "prose_validation.escape_hatches"
+    - "prose_validation.tracking_language"

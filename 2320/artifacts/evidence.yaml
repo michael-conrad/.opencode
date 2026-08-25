@@ -1,0 +1,462 @@
+# Evidence for Spec Audit — Issue 2320
+# Generator: spec-audit-generator
+# Investigator task: spec-audit-investigator
+# Raw evidence only — no PASS/FAIL judgments applied.
+generator: spec-audit-generator
+issue_number: 2320
+generated_at: "2026-08-24T23:20:00-04:00"
+spec_local_dir: "/home/muksihs/git/opencode-config/.opencode/.issues/2320"
+failure_description_provided: false
+
+spec_files:
+  - path: "spec.md"
+    size_bytes: 16515
+    modified_at: "2026-08-24T23:08:26-04:00"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 157
+    body_length_chars: 16561
+  - path: "issue.yaml"
+    size_bytes: 246
+    modified_at: "2026-08-24T23:04:24-04:00"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 9
+    body_length_chars: 246
+  - path: "sc-summary.yaml"
+    size_bytes: 1281
+    modified_at: "2026-08-24T23:08:32-04:00"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 22
+    body_length_chars: 1281
+  - path: "comments.yaml"
+    size_bytes: 13
+    modified_at: "2026-08-24T23:03:54-04:00"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 1
+    body_length_chars: 13
+  - path: "links.yaml"
+    size_bytes: 10
+    modified_at: "2026-08-24T23:03:54-04:00"
+    has_frontmatter: false
+    frontmatter_keys: []
+    body_length_lines: 1
+    body_length_chars: 10
+
+spec_structure:
+  headings:
+    - level: 1
+      text: "Spec: Fix submodule pointer guidance — pointer rides alongside real root changes (not dropped)"
+      line: 5
+    - level: 2
+      text: "1. Intent and Executive Summary"
+      line: 7
+    - level: 2
+      text: "2. Not Included"
+      line: 18
+    - level: 2
+      text: "3. Success Criteria"
+      line: 24
+    - level: 2
+      text: "4. Requirements"
+      line: 34
+    - level: 2
+      text: "5. Items"
+      line: 45
+    - level: 3
+      text: "Item 1 (SC-1): Clarify root AGENTS.md §Submodule Pointer Updates"
+      line: 47
+    - level: 3
+      text: "Item 2 (SC-2): Reconcile enforcement-gate.md Step 0.5 wording"
+      line: 54
+    - level: 3
+      text: "Item 3a (SC-3a): Align pre-commit-pointer-check.md pointer-rides-alongside language"
+      line: 61
+    - level: 3
+      text: "Item 3b (SC-3b): Align pr-creation.md §Pre-Push pointer-rides-alongside language"
+      line: 68
+    - level: 3
+      text: "Item 3c (SC-3c): Align branch-cleanup.md Step 1.7 pointer-rides-alongside language"
+      line: 75
+    - level: 2
+      text: "6. Dependencies"
+      line: 82
+    - level: 2
+      text: "7. Traceability"
+      line: 92
+    - level: 2
+      text: "8. Documentation Sources"
+      line: 105
+    - level: 2
+      text: "9. Enforcement Gate"
+      line: 115
+    - level: 2
+      text: "10. Cost Frame"
+      line: 119
+    - level: 2
+      text: "11. Edge Cases"
+      line: 129
+    - level: 2
+      text: "Change Control"
+      line: 149
+  success_criteria:
+    present: true
+    table_columns: ["ID", "Criterion", "Evidence Type", "Verification Method", "Documentation Sources"]
+    rows:
+      - id: "SC-1"
+        criterion: "Root AGENTS.md §Submodule Pointer Updates states that the submodule pointer rides ALONGSIDE the next real upstream repo change on a feature branch and is NOT dropped when a submodule PR merges."
+        evidence_type: "behavioral"
+        verification_method: "`opencode run` with a sub-agent prompt where a root repo has a dirty pointer and a real root change pending; assert the agent stages and commits the pointer alongside the root change and does not create a pointer-only commit."
+      - id: "SC-2"
+        criterion: "enforcement-gate.md Step 0.5 wording is reconciled so \"Submodule SHA already updated by submodule PR merge. No parent PR needed.\" cannot be misread as permission to drop the root pointer; the message clarifies the pointer still rides alongside the next real root change."
+        evidence_type: "behavioral"
+        verification_method: "`opencode run` with a sub-agent prompt describing a submodule-bump-only branch; assert the agent closes the branch per the gate AND records that the root pointer rides alongside the next real root change (does not claim the pointer was resolved/dropped by the submodule merge)."
+      - id: "SC-3a"
+        criterion: "pre-commit-pointer-check.md uses unambiguous pointer-rides-alongside language: a dirty pointer is staged and committed alongside a real root change, never dropped and never committed standalone."
+        evidence_type: "behavioral"
+        verification_method: "`opencode run` with a sub-agent prompt where the agent reads pre-commit-pointer-check.md and a root repo has a dirty pointer plus a real root change; assert the agent stages and commits the pointer alongside the root change."
+      - id: "SC-3b"
+        criterion: "pr-creation.md §Pre-Push Submodule Pointer Verification uses unambiguous pointer-rides-alongside language: a merged submodule PR does NOT resolve the root pointer; the pointer rides alongside the next real root change."
+        evidence_type: "behavioral"
+        verification_method: "`opencode run` with a sub-agent prompt where the agent reads pr-creation.md §Pre-Push and a root repo has a dirty pointer before pushing; assert the agent verifies the pointer is committed alongside a real root change and does not treat the submodule merge as resolving it."
+      - id: "SC-3c"
+        criterion: "branch-cleanup.md Step 1.7 uses unambiguous pointer-rides-alongside language: a dirty pointer during post-merge cleanup is expected, left uncommitted (cleanup exemption), and rides alongside the next real root change."
+        evidence_type: "behavioral"
+        verification_method: "`opencode run` with a sub-agent prompt where the agent reads branch-cleanup.md Step 1.7 and observes a dirty submodule pointer during cleanup; assert the agent leaves the pointer uncommitted and records that it rides alongside the next real root change."
+  files_affected:
+    present: true
+    paths:
+      - "AGENTS.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+      - ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+      - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+  required_sections:
+    reference_doc: ".opencode/reference/spec-structure-standards.md"
+    sections:
+      - name: "1. Intent and Executive Summary"
+        present: true
+        heading_text: "1. Intent and Executive Summary"
+        content_summary: "Preamble table with 6 fields (Problem Statement, Root Cause/Motivation, Approach Chosen, Alternatives Considered & Why Discarded, Key Design Decisions, User Intent/Original Prompt). All 6 fields present."
+        has_required_elements: true
+      - name: "2. Not Included"
+        present: true
+        heading_text: "2. Not Included"
+        content_summary: "Lists 3 exclusions with rationales: (1) changing the submodule-bump-only PR prohibition, (2) creating new git tooling/hooks, (3) modifying submodule repo's own PR workflow."
+        has_required_elements: true
+      - name: "3. Success Criteria"
+        present: true
+        heading_text: "3. Success Criteria"
+        content_summary: "Table with ID, Criterion, Evidence Type, Verification Method, plus a Documentation Sources column. 5 SC rows (SC-1, SC-2, SC-3a, SC-3b, SC-3c). All evidence types behavioral."
+        has_required_elements: true
+      - name: "4. Requirements"
+        present: true
+        heading_text: "4. Requirements"
+        content_summary: "8 numbered requirements R-1..R-8 using SHALL/MUST language."
+        has_required_elements: true
+      - name: "5. Items"
+        present: true
+        heading_text: "5. Items"
+        content_summary: "Per-SC item enumeration, Item 1 (SC-1), Item 2 (SC-2), Items 3a/3b/3c. Each item has RED/GREEN/verify/commit sub-bullets."
+        has_required_elements: true
+      - name: "6. Dependencies"
+        present: true
+        heading_text: "6. Dependencies"
+        content_summary: "Table with Reference, Relationship, Status columns; 5 rows, all 'Satisfied (existing guidance / existing task file)'."
+        has_required_elements: true
+      - name: "7. Traceability"
+        present: true
+        heading_text: "7. Traceability"
+        content_summary: "Table mapping Requirement to SC(s) and Phase(s). R-1..R-8, all SCs map to Phase 1."
+        has_required_elements: true
+      - name: "8. Documentation Sources"
+        present: true
+        heading_text: "8. Documentation Sources"
+        content_summary: "Table with Source, Type, Location, Verification columns; 5 rows listing local docs (AGENTS.md, enforcement-gate.md, pre-commit-pointer-check.md, pr-creation.md, branch-cleanup.md), all verification 'read'."
+        has_required_elements: true
+      - name: "9. Enforcement Gate"
+        present: true
+        heading_text: "9. Enforcement Gate"
+        content_summary: "Blockquote: 'All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.'"
+        has_required_elements: true
+      - name: "10. Cost Frame"
+        present: true
+        heading_text: "10. Cost Frame"
+        content_summary: "Cost framed as defect-discovery-latency. Per-SC cost-frame statements for SC-1, SC-2, SC-3a, SC-3b, SC-3c, each with action cost and skipping cost."
+        has_required_elements: true
+      - name: "11. Edge Cases"
+        present: true
+        heading_text: "11. Edge Cases"
+        content_summary: "5 edge cases each with Condition/Expected behavior/Resolution: no pending change, post-merge dirty pointer, submodule-bump-only branch, real change with dirty pointer, reading multiple task files."
+        has_required_elements: true
+  prose_elements:
+    tables: 10
+    code_blocks: 0
+    ordered_lists: 0
+    unordered_lists: 2
+    blockquotes: 2
+
+determinism_evidence:
+  sc_wording:
+    - id: "SC-1"
+      text: "Root AGENTS.md §Submodule Pointer Updates states that the submodule pointer rides ALONGSIDE the next real root-repo change on a feature branch and is NOT dropped when a submodule PR merges."
+      word_count: 39
+    - id: "SC-2"
+      text: "enforcement-gate.md Step 0.5 wording is reconciled so \"Submodule SHA already updated by submodule PR merge. No parent PR needed.\" cannot be misread as permission to drop the root pointer; the message clarifies the pointer still rides alongside the next real root change."
+      word_count: 45
+    - id: "SC-3a"
+      text: "pre-commit-pointer-check.md uses unambiguous pointer-rides-alongside language: a dirty pointer is staged and committed alongside a real root change, never dropped and never committed standalone."
+      word_count: 28
+    - id: "SC-3b"
+      text: "pr-creation.md §Pre-Push Submodule Pointer Verification uses unambiguous pointer-rides-alongside language: a merged submodule PR does NOT resolve the root pointer; the pointer rides alongside the next real root change."
+      word_count: 34
+    - id: "SC-3c"
+      text: "branch-cleanup.md Step 1.7 uses unambiguous pointer-rides-alongside language: a dirty pointer during post-merge cleanup is expected, left uncommitted (cleanup exemption), and rides alongside the next real root change."
+      word_count: 37
+  fail_patterns: []
+  ambiguity_markers: []
+  evidence_type_declarations:
+    - sc_id: "SC-1"
+      declared_type: "behavioral"
+    - sc_id: "SC-2"
+      declared_type: "behavioral"
+    - sc_id: "SC-3a"
+      declared_type: "behavioral"
+    - sc_id: "SC-3b"
+      declared_type: "behavioral"
+    - sc_id: "SC-3c"
+      declared_type: "behavioral"
+  verification_methods:
+    - sc_id: "SC-1"
+      has_verification_method: true
+      method_text: "opencode run with sub-agent prompt; assert stages+commits pointer alongside upstream, no pointer-only commit"
+    - sc_id: "SC-2"
+      has_verification_method: true
+      method_text: "opencode run; assert agent applies the gate AND records pointer rides alongside next change"
+    - sc_id: "SC-3a"
+      has_verification_method: true
+      method_text: "opencode run; assert agent stages+commits pointer alongside upstream"
+    - sc_id: "SC-3b"
+      has_verification_method: true
+      method_text: "opencode run; assert agent verifies pointer committed alongside real change"
+    - sc_id: "SC-3c"
+      has_verification_method: true
+      method_text: "opencode run; assert agent leaves pointer uncommitted and records it rides alongside"
+  failure_description_provided: false
+  failure_description_text: absent
+
+documentation_source_evidence:
+  urls:
+    - source: "AGENTS.md (root) — §Submodule Pointer Updates"
+      accessible: true
+      http_status: 200
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: read
+    - source: "enforcement-gate.md Step 0.5"
+      accessible: true
+      http_status: 200
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: read
+    - source: "pre-commit-pointer-check.md"
+      accessible: true
+      http_status: 200
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: read
+    - source: "pr-creation.md §Pre-Push"
+      accessible: true
+      http_status: 200
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: read
+    - source: "branch-cleanup.md §Step 1.7"
+      accessible: true
+      http_status: 200
+      page_title: absent
+      referenced_content_found: true
+      fetch_method: read
+  api_references:
+    - source: none_found
+      found: false
+      actual_signature: absent
+      lookup_method: srclight_get_signature
+  env_variables:
+    - source: none_found
+      found_in_config: false
+      config_file: absent
+      defined_format: absent
+  library_patterns:
+    - source: none_found
+      verified_against: absent
+      pattern_exists: false
+
+prose_evidence:
+  escape_hatches:
+    - phrase: "rides ALONGSIDE the next real upstream change"
+      location: "SC-1..SC-3c, Requirement R-1, R-4"
+      category: "discretion"
+    - phrase: "never dropped"
+      location: "SC-1, R-1"
+      category: "discretion"
+    - phrase: "never committed standalone"
+      location: "SC-3a, R-3"
+      category: "choice"
+  tracking_language:
+    - phrase: "implemented"
+      location: "Change Control table (2026-08-24)"
+      marker_type: "completed"
+  prescriptive_code:
+    - content: "Submodule PR says \"Submodule SHA already updated...\"."
+      location: "SC-2, Section 2 Problem Statement"
+      type: "assertion_code"
+  cost_frame_language:
+    - sc_id: "SC-1"
+      has_cost_frame: true
+    - sc_id: "SC-2"
+      has_cost_frame: true
+    - sc_id: "SC-3a"
+      has_cost_frame: true
+    - sc_id: "SC-3b"
+      has_cost_frame: true
+    - sc_id: "SC-3c"
+      has_cost_frame: true
+
+reasoning_evidence:
+  root_causes:
+    - text: "The enforcement-gate's 'No parent PR needed' wording conflates the submodule-merge event with the root pointer update, so an agent may conclude the pointer is resolved and never commit it. This produces a stale root pointer that breaks downstream builds."
+      location: "Section 1 (Root Cause / Motivation)"
+  fix_approaches:
+    - text: "Revise the agent-facing guidance text (root AGENTS.md §Submodule Pointer Updates, enforcement-gate.md Step 0.5, pre-commit-pointer-check.md, pr-creation.md Pre-Push verification, branch-cleanup.md Step 1.7) so every location states the same unambiguous rule: the pointer rides ALONGSIDE the next real root-repo change and is never dropped and never pushed in a standalone pointer-only commit."
+      location: "3. Approach Chosen"
+  sc_to_root_cause:
+    - sc_id: "SC-1"
+      references_root_cause: true
+      root_cause_text: "ambiguous root guidance permits pointer-drop"
+    - sc_id: "SC-2"
+      references_root_cause: true
+      root_cause_text: "'No parent PR needed' message conflates submodule merge with pointer update"
+    - sc_id: "SC-3a"
+      references_root_cause: true
+      root_cause_text: "ambiguous pre-commit pointer language"
+    - sc_id: "SC-3b"
+      references_root_cause: true
+      root_cause_text: "ambiguous pre-push pointer language"
+    - sc_id: "SC-3c"
+      references_root_cause: true
+      root_cause_text: "ambiguous cleanup pointer language"
+  alternatives_considered:
+    present: true
+    items:
+      - alternative: "Change the submodule-bump-only PR prohibition itself (allow standalone pointer-only parent PRs)."
+        reason_discarded: "prohibition exists to prevent review overhead for pointer-only PRs with zero functional change; loosening would reintroduce that overhead and contradict the established invariant."
+  edge_cases:
+    present: true
+    items:
+      - "submodule-bump-only branch during PR creation"
+      - "post-merge cleanup observes a dirty submodule pointer"
+      - "a real root change is committed while the pointer is dirty"
+      - "an agent reads different task files in the same session"
+      - "submodule repo PR merges while root repo has no pending real change"
+  potential_contradictions:
+    - statement_a: "SC-1: pointer rides ALONGSIDE the next real root change."
+      statement_b: "The submodule-bump-only parent PR prohibition is preserved (R-3) / cleanup leaves dirty pointers uncommitted (R-5)."
+      location_a: "SC-1 / R-1"
+      location_b: "R-3, R-5"
+      note: "These are separate clauses describing non-overlapping conditions (feature-branch commit vs cleanup) — recorded as possibly-conflicting for the evaluator to judge."
+
+analytical_artifact_evidence:
+  blast_radius:
+    provided: true
+    path: "artifacts/blast-radius.yaml"
+    exists: true
+    size_bytes: 2326
+    modified_at: "2026-08-24T23:13:42-04:00"
+  concern_map:
+    provided: true
+    path: "artifacts/concern-map.yaml"
+    exists: true
+    size_bytes: 1806
+    modified_at: "2026-08-24T23:13:47-04:00"
+  code_path_inventory:
+    provided: true
+    path: "artifacts/code-path-inventory.yaml"
+    exists: true
+    size_bytes: 1976
+    modified_at: "2026-08-24T23:13:53-04:00"
+  cross_cutting_matrix:
+    provided: true
+    path: "artifacts/cross-cutting-matrix.yaml"
+    exists: true
+    size_bytes: 2004
+    modified_at: "2026-08-24T23:13:58-04:00"
+  interface_compatibility:
+    provided: true
+    path: "artifacts/interface-compatibility.yaml"
+    exists: true
+    size_bytes: 4182
+    modified_at: "2026-08-24T23:14:04-04:00"
+  state_analysis:
+    provided: true
+    path: "artifacts/state-analysis.yaml"
+    exists: true
+    size_bytes: 2916
+    modified_at: "2026-08-24T23:14:11-04:00"
+  testability_assessment:
+    provided: true
+    path: "artifacts/testability-assessment.yaml"
+    exists: true
+    size_bytes: 2869
+    modified_at: "2026-08-24T23:14:16-04:00"
+
+holistic_dimension_evidence:
+  implementability:
+    single_approach_defined: true
+    sc_count: 5
+    ambiguous_sc_count: 0
+  internal_consistency:
+    cross_section_references: 5
+    preamble_body_alignment_notes: "The 5 SCs and 8 requirements map to the problem statement. Approach Chosen in preamble aligns with Files Affected and Items."
+  completeness:
+    undefined_terms: []
+    tbd_todo_markers: 0
+    implicit_dependencies: []
+  scope_discipline:
+    stated_boundaries: "3. Not Included: submodule-bump-only PR prohibition preserved; no code/hook/tooling change; submodule repo's own PR workflow out of scope."
+    potential_scope_creep_elements: []
+  testability:
+    scs_with_verification_method: 5
+    scs_without_verification_method: 0
+    subjective_judgment_scs: []
+  provenance:
+    tool_call_evidence_cited: true
+    unsupported_assertions: []
+  feasibility:
+    referenced_files:
+      - "AGENTS.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+      - ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+      - ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+      - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    referenced_functions: []
+    referenced_libraries: []
+  safety:
+    destructive_operations: []
+    data_loss_scenarios: []
+    security_relevant_changes: []
+  traceability:
+    sc_to_phase_mapping:
+      SC-1: "Phase 1"
+      SC-2: "Phase 1"
+      SC-3a: "Phase 1"
+      SC-3b: "Phase 1"
+      SC-3c: "Phase 1"
+    orphan_scs: []
+    orphan_phases: []
+  correctness:
+    problem_statement: "Agent-facing guidance is ambiguous about whether a merged submodule PR resolves the parent repo's submodule pointer. The enforcement-gate message 'Submodule SHA already updated by submodule PR merge. No parent PR needed.' can be misread as permission to drop the root pointer, contradicting the mandate that the pointer must be committed alongside real root-repo changes."
+    root_cause: "The root AGENTS.md and git-workflow skill task files describe the pointer lifecycle inconsistently. The enforcement-gate's 'No parent PR needed' wording conflates the submodule-merge event with the root pointer update."
+    fix_approach: "Revise the agent-facing guidance text so every location states the same unambiguous rule: the pointer rides ALONGSIDE the next real root-repo change and is never dropped and never pushed in a standalone pointer-only commit."

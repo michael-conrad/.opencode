@@ -1,0 +1,30 @@
+# Code Path Inventory — Issue 2320
+# Lists the code paths (agent-facing guidance paths) implied by each SC.
+# These are documentation/guidance paths, not executable code paths.
+
+spec_path: ".opencode/.issues/2320/spec.md"
+code_paths:
+  - sc: "SC-1"
+    path: "AGENTS.md"
+    section: "§Submodule Pointer Updates"
+    implied_behavior: "Agent reads root guidance and commits the submodule pointer alongside the next real root-repo change on a feature branch; never drops it when a submodule PR merges; never creates a pointer-only commit."
+  - sc: "SC-2"
+    path: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+    section: "Step 0.5"
+    implied_behavior: "Agent closes a submodule-bump-only branch per the gate AND records that the root pointer rides alongside the next real root change; does not claim the pointer was resolved/dropped by the submodule merge."
+  - sc: "SC-3a"
+    path: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    section: "full file"
+    implied_behavior: "Agent reads pre-commit-pointer-check.md and stages/commits a dirty pointer alongside a real root change; never drops it and never commits it standalone."
+  - sc: "SC-3b"
+    path: ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+    section: "§Pre-Push Submodule Pointer Verification"
+    implied_behavior: "Agent verifies the pointer is committed alongside a real root change before pushing; does not treat the submodule merge as resolving the root pointer."
+  - sc: "SC-3c"
+    path: ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+    section: "§Step 1.7"
+    implied_behavior: "Agent observes a dirty submodule pointer during post-merge cleanup, leaves it uncommitted (cleanup exemption), and records that it rides alongside the next real root change."
+
+notes:
+  - "All paths are agent-facing documentation files verified to exist in the codebase."
+  - "No executable code paths are modified (R-7)."

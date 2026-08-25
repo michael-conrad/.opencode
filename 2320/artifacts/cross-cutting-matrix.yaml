@@ -1,0 +1,43 @@
+# Cross-Cutting Matrix — Issue 2320
+# Identifies SCs that span multiple concerns and the shared invariant they enforce.
+
+spec_path: ".opencode/.issues/2320/spec.md"
+cross_cutting_scs:
+  - sc: "SC-1"
+    concerns: ["concern-root-guidance"]
+    spans_multiple: false
+    note: "SC-1 is the root principle; it is the anchor the other SCs align to, but it lives in a single concern."
+  - sc: "SC-2"
+    concerns: ["concern-enforcement-gate"]
+    spans_multiple: false
+    note: "SC-2 reconciles the enforcement-gate closure message only."
+  - sc: "SC-3a"
+    concerns: ["concern-task-file-alignment"]
+    spans_multiple: false
+    note: "SC-3a aligns pre-commit-pointer-check.md only."
+  - sc: "SC-3b"
+    concerns: ["concern-task-file-alignment"]
+    spans_multiple: false
+    note: "SC-3b aligns pr-creation.md §Pre-Push only."
+  - sc: "SC-3c"
+    concerns: ["concern-task-file-alignment"]
+    spans_multiple: false
+    note: "SC-3c aligns branch-cleanup.md Step 1.7 only."
+
+shared_invariants:
+  - invariant: "pointer-rides-alongside"
+    description: "The submodule pointer rides ALONGSIDE the next real root-repo change on a feature branch; never dropped, never committed standalone."
+    scs: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+    requirements: ["R-1", "R-2", "R-3", "R-4", "R-6"]
+  - invariant: "submodule-bump-only-prohibition"
+    description: "A parent-repo submodule-pointer-only PR is blocked; the pointer MUST NOT be committed in a standalone parent-repo commit/PR."
+    scs: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+    requirements: ["R-3"]
+  - invariant: "dirty-pointer-cleanup-exemption"
+    description: "During post-merge cleanup, dirty submodule pointers are acknowledged as expected and left uncommitted."
+    scs: ["SC-3c"]
+    requirements: ["R-5"]
+
+cross_concern_risk:
+  - risk: "Divergent language across task files"
+    mitigation: "R-6 requires consistent, unambiguous pointer-rides-alongside language across all three task files; SC-3a/3b/3c each verify one file."

@@ -1,0 +1,36 @@
+# Analysis Summary — Issue 2320
+# Backfill summary for retroactive plan creation.
+
+spec_path: ".opencode/.issues/2320/spec.md"
+sc_count: 5
+sc_ids: ["SC-1", "SC-2", "SC-3a", "SC-3b", "SC-3c"]
+mode: "retroactive"
+
+artifact_status:
+  blast-radius.yaml: "backfilled"
+  concern-map.yaml: "backfilled"
+  code-path-inventory.yaml: "backfilled"
+  cross-cutting-matrix.yaml: "backfilled"
+  interface-compatibility.yaml: "backfilled"
+  state-analysis.yaml: "backfilled"
+  testability-assessment.yaml: "backfilled"
+
+scope_summary:
+  change_kind: "documentation-only"
+  affected_files: 5
+  affected_file_paths:
+    - "AGENTS.md"
+    - ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md"
+    - ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+    - ".opencode/skills/git-workflow-pr/tasks/pr-creation.md"
+    - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md"
+  phases: ["Phase 1"]
+  evidence_types: ["behavioral"]
+  invariants_preserved:
+    - "submodule-bump-only parent PR prohibition (R-3)"
+    - "dirty-pointer-cleanup-exemption (R-5)"
+
+notes:
+  - "All 7 analytical artifacts were missing and backfilled from the spec body."
+  - "All 5 affected files verified to exist in the codebase."
+  - "All SCs are behavioral evidence type; structural/string evidence is EVIDENCE_TYPE_MISMATCH (R-8)."
