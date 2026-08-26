@@ -1,0 +1,60 @@
+# Blast radius — issue #2317
+# Affected components and ripple effects per phase
+# All affected files verified live in codebase 2026-08-25 (ls/glob evidence in analysis-summary.yaml)
+
+## Phase 1: arbiter union aggregation + independent flag-gate + advisory-language reconciliation (SC-1, SC-2, SC-9)
+affected:
+  - .opencode/skills/audit/tasks/content-audit-arbiter.md (redefine aggregate over spec ∪ evaluated set; add flag-gate; reconcile do-NOT-BLOCK error-table rows)
+  - .opencode/skills/audit/tasks/guideline-audit-arbiter.md (same three changes)
+  - .opencode/skills/audit/tasks/plan-fidelity-arbiter.md (same three changes)
+  - .opencode/skills/audit/tasks/spec-audit-arbiter.md (same three changes)
+  - .opencode/skills/audit/tasks/test-quality-audit-arbiter.md (same three changes)
+  - .opencode/skills/audit/tasks/verification-audit-arbiter.md (same three changes — matches wildcard *-audit-arbiter.md glob frame of 5 cards)
+ripple:
+  - Every audit consumer that trusts overall_verdict/all_criteria_pass: completeness-gate,
+    verification-before-completion, review-prep, ticket lifecycle routing.
+  - Verdicts that previously passed via absent-SC inheritance will now FAIL — downstream
+    pipelines see more FAILs until evaluators enumerate fully (Phase 2 dependency).
+
+## Phase 2: evaluator full enumeration + NOT_EVALUATED markers (SC-4, SC-5)
+affected:
+  - .opencode/skills/audit/tasks/content-audit-evaluator.md (enumerate every spec SC in per_criterion/per_claim)
+  - .opencode/skills/audit/tasks/guideline-audit-evaluator.md (same)
+  - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md (same)
+  - .opencode/skills/audit/tasks/spec-audit-evaluator.md (same)
+  - .opencode/skills/audit/tasks/test-quality-audit-evaluator.md (same)
+  - .opencode/skills/audit/tasks/verification-audit-evaluator.md (same)
+ripple:
+  - verdict.yaml grows to carry one entry per spec SC (including NOT_EVALUATED rows);
+    arbiter aggregation input shape changes accordingly.
+
+## Phase 3: FAIL hard gate + remediate-and-restart loop + escalation exit in arbiter/evaluator/orchestrator (SC-6, SC-7, SC-8, SC-11, SC-12, SC-13, SC-14)
+affected:
+  - .opencode/skills/audit/SKILL.md (bind structural remediate-and-restart loop as workflow step / dispatch gate; escalation as only unremediable exit)
+  - .opencode/skills/audit/tasks/*-audit-arbiter.md (FAIL halts deliverable; R-13 termination condition; escalation exit)
+  - .opencode/skills/audit/tasks/*-audit-evaluator.md (FAIL semantics feed the hard gate)
+ripple:
+  - Orchestrator workflows that dispatch audits must tolerate re-dispatch cycles;
+    session momentum can no longer advance past a non-clean phase.
+
+## Phase 4: release handshake aggregate-consumption gate (SC-10)
+affected:
+  - .opencode/skills/release-promoter/tasks/operating-protocol.md (NEW gate logic consuming corrected aggregate)
+  - .opencode/skills/release-promoter/tasks/tag.md (NEW gate logic)
+  - .opencode/skills/release-promoter/tasks/create-release.md (NEW gate logic)
+  - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md (NEW gate logic)
+ripple:
+  - Release promotion becomes gated on clean audit aggregate; coverage-gap FAIL keeps ticket
+    unreleased. Live keyword scan 2026-08-25 confirmed zero existing verdict/aggregate tokens
+    in these files — the gate is purely additive.
+
+## Phase 5: behavioral-only verification harness (SC-3)
+affected:
+  - .opencode/tests-v2/behaviors/ (new audit-chain behavioral test scripts + fixtures)
+  - .opencode/tests-v2/AGENTS.md (documentation touchpoint if harness conventions change)
+ripple:
+  - Existing audit behaviorals (2254-sc33-audit-dimo-chain.sh, 2272-sc1-audit-status-reconciliation.sh)
+    demonstrate dispatch feasibility; new tests follow their stderr-verdict observation pattern.
+
+## Cross-repo
+  - All affected files live in the .opencode submodule. A submodule pointer update accompanies any parent-repo change.
