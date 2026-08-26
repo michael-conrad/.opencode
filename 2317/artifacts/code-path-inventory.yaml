@@ -1,0 +1,49 @@
+# Code path inventory — issue #2317
+# Code paths implied by each success criterion
+
+## SC-1 — union-based aggregate in arbiter cards
+paths:
+  - .opencode/skills/audit/tasks/content-audit-arbiter.md → overall_verdict / all_criteria_pass aggregation block
+  - .opencode/skills/audit/tasks/guideline-audit-arbiter.md → same aggregation block
+  - .opencode/skills/audit/tasks/plan-fidelity-arbiter.md → same aggregation block
+  - .opencode/skills/audit/tasks/spec-audit-arbiter.md → same aggregation block
+  - .opencode/skills/audit/tasks/test-quality-audit-arbiter.md → same aggregation block
+  - .opencode/skills/audit/tasks/verification-audit-arbiter.md → same aggregation block
+note: Aggregation input = spec SC list ∪ per_criterion/per_claim carried from verdict.yaml; absent SC → FAIL.
+
+## SC-2 — independent hard flag-gate
+paths:
+  - each *-audit-arbiter.md → coverage_complete / chain_complete computation (spec SC list vs evidence.yaml + reasoning.yaml + verdict.yaml)
+  - each *-audit-arbiter.md → aggregate resolution rule gated on both flags true
+
+## SC-3 — behavioral-only verification harness
+paths:
+  - .opencode/tests-v2/behaviors/ → new audit-chain scenario scripts
+  - .opencode/tests-v2/with-test-home → opencode run isolation wrapper used by every dispatch
+  - .opencode/tests-v2/AGENTS.md → harness conventions reference
+
+## SC-4 / SC-5 — evaluator enumeration and NOT_EVALUATED markers
+paths:
+  - .opencode/skills/audit/tasks/*-audit-evaluator.md → per_criterion/per_claim emission loop over full spec SC list
+  - skipped-SC branch → FAIL result + NOT_EVALUATED marker row in verdict.yaml
+
+## SC-6 / SC-7 / SC-8 — FAIL hard gate, remediate-and-re-audit, escalation exit
+paths:
+  - each *-audit-arbiter.md → FAIL verdict handling: halt deliverable, remediate-and-re-audit until R-13 condition, escalation as sole unremediable exit
+  - each *-audit-evaluator.md → FAIL semantics feeding the arbiter gate
+
+## SC-9 — advisory-language reconciliation
+paths:
+  - each *-audit-arbiter.md → error-table rows currently carrying do NOT BLOCK / do NOT re-evaluate language for MISSING_SC_COVERAGE / BROKEN_EVIDENCE_CHAIN; rebound to force FAIL
+
+## SC-10 — release handshake gate (NEW logic)
+paths:
+  - .opencode/skills/release-promoter/tasks/operating-protocol.md → NEW audit-aggregate consumption gate before promotion steps
+  - .opencode/skills/release-promoter/tasks/tag.md → NEW gate check prior to tag creation
+  - .opencode/skills/release-promoter/tasks/create-release.md → NEW gate check prior to release creation
+  - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md → NEW gate consuming corrected aggregate during post-merge cleanup
+note: Live keyword scan 2026-08-25 returned zero verdict/aggregate tokens in these files — all paths above are additive.
+
+## SC-11 / SC-12 / SC-13 / SC-14 — orchestrator structural loop
+paths:
+  - .opencode/skills/audit/SKILL.md → orchestrator workflow section: remediate-and-restart step bound at any non-clean phase (dispatch-gate structure), iteration until R-13 termination, escalation as only exit
