@@ -2,6 +2,7 @@ title: '[SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flag
 status: open
 labels:
 - needs-approval
+- spec-passed-review
 body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.opencode/tree/issues-data/2322/
 
   >
