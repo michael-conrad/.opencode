@@ -1,26 +1,26 @@
 sc_count: 6
 scs:
   - id: "SC-1"
-    description: "Composite issue reference form {owner}/{repo}#NNN defined as the single self-describing issue identity token used internally across the deck."
+    description: "Composite issue reference form {owner}/{repo}#NNN defined in .opencode/guidelines/118-issue-reference-qualification.md as the single self-describing issue identity token used for all internal handoffs across the deck."
     evidence_type: "structural"
     plan_item: 1
   - id: "SC-2"
-    description: "All skill-card 'context passed' contracts passing { issue_number, github.owner, github.repo } as three separate fields are replaced with a single composite field issue_ref: '{owner}/{repo}#NNN'."
+    description: "Every split-identity Context-passed contract enumerated in the spec's Affected Files carries issue identity only through the single composite field issue_ref: '{owner}/{repo}#NNN'; separate identity fields no longer appear in those contracts."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
-    description: "Direct platform API calls in task files carrying a bare issue number are removed from non-MCP task cards; such calls belong only in MCP / issue-operations platform task-card sets, consuming the qualified composite."
+    description: "Direct platform API calls carrying bare issue numbers are removed from every non-platform task card enumerated in Affected Files; such calls exist only in the platform task-card set and consume the qualified composite."
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "A guideline rule is added defining the composite parse convention: sub-agents derive owner, repo, and issue_number from {owner}/{repo}#NNN. Permitted: local derived variables (spec_issue_number) for artifact path construction. Forbidden: concrete bare issue numbers referencing a real issue without repo qualification."
-    evidence_type: "structural"
+    description: "Guideline rule at .opencode/guidelines/118-issue-reference-qualification.md defines the composite parse convention: sub-agents derive owner, repo, and issue_number from {owner}/{repo}#NNN. Permitted: derived-variable carve-out for artifact-path construction. Forbidden: concrete bare issue references to real issues without repo qualification."
+    evidence_type: "behavioral"
     plan_item: 4
   - id: "SC-5"
-    description: "The skildeck semantic lint gains a rule flagging concrete bare issue references (#N, github_issue_read(issue_number=N), unconsumed issue tokens) in skill cards and task cards, permitting the derived-variable carve-out."
-    evidence_type: "structural"
+    description: "skildeck semantic lint (.opencode/tools/skildeck lint, implemented in .opencode/tools/impl/skildeck/skildeck-lint) flags concrete bare issue references (#N, issue_number=N call arguments, unconsumed issue tokens) in skill cards and task cards while permitting the derived-variable carve-out."
+    evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "The task files across audit, issue-operations, spec-creation, and writing-plans that currently consume bare issue numbers are updated to consume the composite."
+    description: "Task files in the audit, issue-operations, spec-creation, and writing-plans families enumerated in Affected Files consume the composite: instructions, path construction, and API dispatch start from the qualified token rather than a bare number."
     evidence_type: "behavioral"
     plan_item: 6
