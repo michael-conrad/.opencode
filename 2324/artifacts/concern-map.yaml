@@ -1,0 +1,35 @@
+# Concern Map — Issue 2324
+# Decomposes success criteria into concern groups and maps each to a phase boundary.
+# Phase structure follows the spec §Traceability table: SC-1/SC-2 -> Phase 1,
+# SC-3 -> Phase 2. Phase 2 has a hard dependency on Phase 1 success.
+
+spec_path: ".opencode/.issues/2324/spec.md"
+concerns:
+  - id: "concern-runtime-registry-diagnosis"
+    name: "Fresh-runtime registry reproduction and branch decision"
+    description: "Run an isolated opencode session through with-test-home against the current checkout; observe whether <available_skills> includes executing-plans. Decide Branch A (host-process stale snapshot -> restart/remediate operationally) vs Branch B (runtime scanner defect -> execute R-4 upstream defect report, report BLOCKED)."
+    scs: ["SC-1"]
+    phase: "Phase 1"
+    boundary: "Registry inclusion restored (or Branch B BLOCKED recorded); no repo-content edits permitted in either branch."
+  - id: "concern-skill-load-restoration"
+    name: "skill() load verification against restored registry entry"
+    description: "With SC-1 restored, verify skill({name: \"executing-plans\"}) resolves and returns the full card body rather than a missing-skill error, isolating any load-layer failure for the R-4 report if it persists."
+    scs: ["SC-2"]
+    phase: "Phase 1"
+    boundary: "Card load proven end-to-end through the same probe artifact set as SC-1."
+  - id: "concern-forpr-gate-execution"
+    name: "for_pr Mandatory Routing Rule execution"
+    description: "Under for_pr authorization scope with an existing approved plan, the agent dispatches executing-plans before any PR creation, verified by re-running the existing 1364-sc1 behavioral scenario unchanged."
+    scs: ["SC-3"]
+    phase: "Phase 2"
+    boundary: "The approval-gate mandatory dispatch target resolves at runtime; silent PR-first bypasses become detectable."
+
+phase_map:
+  - phase: "Phase 1"
+    concerns: ["concern-runtime-registry-diagnosis", "concern-skill-load-restoration"]
+    scs: ["SC-1", "SC-2"]
+    rationale: "Diagnosis and restoration of runtime registry state plus load verification. Under Branch B this phase ends BLOCKED pending the upstream fix (R-4); no workaround is permitted."
+  - phase: "Phase 2"
+    concerns: ["concern-forpr-gate-execution"]
+    scs: ["SC-3"]
+    rationale: "Gate-execution verification requires BOTH SC-1 (registry lists card) and SC-2 (skill() loads card) to be green first; hard ordering constraint on Phase 1."

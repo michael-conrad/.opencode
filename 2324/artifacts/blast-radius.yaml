@@ -1,0 +1,46 @@
+# Blast Radius — Issue 2324
+# Affected files extracted from the spec body (Intent, Approach, Items, Not Included).
+# This is a diagnose-before-modify spec: the defect locus is RUNTIME registry state,
+# not repository content. Zero production code/config/hook files are modified.
+# The only repo-side writes are issue-local evidence records and tmp evidence artifacts.
+
+spec_path: ".opencode/.issues/2324/spec.md"
+affected_files:
+  - path: ".opencode/.issues/2324/research/"
+    section: "diagnostic evidence + resolution record (new files)"
+    scs: ["SC-1", "SC-2"]
+    exists_in_codebase: false
+    change_type: "new-evidence-files"
+    description: "Diagnostic evidence from the fresh-runtime reproduction (probe session.yaml exports, precondition-elimination record) and the operational resolution record are committed here per Item 1/Item 2 commit steps. Directory does not exist yet; created by this spec's execution."
+
+scope_summary:
+  change_kind: "diagnostic-and-runtime-remediation"
+  code_changes: 0
+  hook_changes: 0
+  git_tooling_changes: 0
+  generated_artifacts_retained:
+    - path: "tmp/behavioral-evidence-*"
+      scs: ["SC-3"]
+      description: "Behavioral evidence artifacts produced by the 1364-sc1 scenario run; preserved under retention policy until PR merge cleanup."
+  invariant_preserved:
+    - "escalation-before-workaround (R-4): Branch B files the upstream report and reports BLOCKED; no workaround change of any kind"
+    - "gate-no-bypass: for_pr plans always execute before PR creation; bypass is a CRITICAL VIOLATION"
+    - "diagnose-before-modify: exhaustive precondition elimination precedes any remediation"
+
+untouched_verified_dependencies:
+  - path: ".opencode/skills/executing-plans/SKILL.md"
+    scs: ["SC-1", "SC-2"]
+    exists_in_codebase: true
+    note: "Verified present with tasks/read-plan.md and tasks/dispatch-phase.md; frontmatter valid. Explicitly NOT modified (Not Included). The restoration TARGET, never an edit target."
+  - path: ".opencode/skills/approval-gate/SKILL.md"
+    scs: ["SC-3"]
+    exists_in_codebase: true
+    note: "Mandatory Routing Rule text verified correct; explicitly NOT modified (Not Included). Defines the behavior SC-3 verifies."
+  - path: ".opencode/tests-v2/with-test-home"
+    scs: ["SC-1", "SC-2", "SC-3"]
+    exists_in_codebase: true
+    note: "Isolation harness used as-is for all probes/scenario runs."
+  - path: ".opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh"
+    scs: ["SC-3"]
+    exists_in_codebase: true
+    note: "Existing behavioral scenario reused unchanged for SC-3 verification (companion 1364-sc2-for-pr-missing-plan-auto-create-execute.sh also verified present)."

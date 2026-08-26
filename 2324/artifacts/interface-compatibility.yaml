@@ -1,0 +1,74 @@
+# Interface Compatibility — Issue 2324
+# Checks interface boundaries between affected modules. The interfaces here are the
+# runtime discovery contract, the skill-tool resolution contract, and the harness/
+# scenario evidence contracts. No executable interface is modified.
+
+spec_path: ".opencode/.issues/2324/spec.md"
+interface_boundaries:
+  - source: "opencode runtime skills discovery (filesystem scan of .opencode/skills/*/SKILL.md per live docs)"
+    target: ".opencode/skills/executing-plans/SKILL.md"
+    relationship: "Runtime consumes card frontmatter to build <available_skills>."
+    compatibility: "defect-at-runtime-boundary"
+    note: "On-disk contract is satisfied (name matches directory, name pattern valid, description present and within length limit); the runtime fails to surface the single card. This boundary is the defect locus under diagnosis; SC-1 establishes which side of the boundary is broken (host snapshot vs scanner)."
+  - source: ".opencode/skills/approval-gate/SKILL.md Mandatory Routing Rule"
+    target: "executing-plans skill resolution at runtime"
+    relationship: "Rule text mandates dispatching executing-plans before PR creation under for_pr scope with an approved plan."
+    compatibility: "compatible-once-SC-1-restored"
+    note: "Rule text verified correct and explicitly NOT modified (Not Included). Its executability depends entirely on the dispatch target resolving at runtime (R-3)."
+  - source: ".opencode/tests-v2/with-test-home"
+    target: "exported session.yaml consumed via .opencode/tools/session-to-timeline"
+    relationship: "Harness isolates XDG state and exports session artifacts used as behavioral evidence."
+    compatibility: "compatible"
+    note: "SC-1/SC-2 evidence reads registry content and skill-tool result parts from this export; existing harness contract reused unchanged."
+  - source: ".opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh"
+    target: "runtime registry + skill() resolution"
+    relationship: "Scenario asserts the agent dispatches executing-plans before PR creation."
+    compatibility: "compatible-once-SC-1-and-SC-2-restored"
+    note: "Scenario reused unchanged (Dependencies table: MUST exist as merged — verified). Its dispatch assertion currently cannot pass solely because its target skill is unavailable at runtime."
+
+dependency_contract:
+  version: 1
+  description: "Concrete dependency data derived from the spec's affected files and success criteria (real sources, real targets, real type constraints) — extracted by research.md step 9 into .opencode/.issues/2324/dependency-contract.yaml for the solve/plan tools."
+  dependencies:
+    - id: "dep-runtime-discovery-to-card"
+      source: "opencode runtime skills discovery (.opencode/skills/*/SKILL.md scan)"
+      target: ".opencode/skills/executing-plans/SKILL.md"
+      type: "registry-discovery"
+      constraint: "The executing-plans card MUST appear in <available_skills> for every session opened against this checkout (R-1); discovery must succeed with zero frontmatter/config changes on disk."
+      scs: ["SC-1"]
+      requirements: ["R-1"]
+    - id: "dep-skill-tool-to-card-body"
+      source: "skill({name: \"executing-plans\"}) invocation"
+      target: "executing-plans card content (Overview heading present)"
+      type: "dispatch-target-resolution"
+      constraint: "The tool result part MUST contain the full card body rather than a missing-skill error (R-2)."
+      scs: ["SC-2"]
+      requirements: ["R-2"]
+    - id: "dep-routing-rule-to-runtime-target"
+      source: ".opencode/skills/approval-gate/SKILL.md Mandatory Routing Rule"
+      target: "executing-plans dispatch target at runtime"
+      type: "rule-executability"
+      constraint: "The rule executes AS WRITTEN (zero text modifications): its mandated dispatch target resolves whenever for_pr scope coexists with an approved plan (R-3)."
+      scs: ["SC-3"]
+      requirements: ["R-3"]
+    - id: "dep-harness-to-evidence-export"
+      source: ".opencode/tests-v2/with-test-home probe/scenario runs"
+      target: "session.yaml exports inspected via .opencode/tools/session-to-timeline"
+      type: "evidence-artifact"
+      constraint: "Every SC verdict derives from exported session artifacts (registry content for SC-1, skill-tool result part for SC-2, dispatch sequence for SC-3); structural substitutes are EVIDENCE_TYPE_MISMATCH since all SCs are behavioral."
+      scs: ["SC-1", "SC-2", "SC-3"]
+      requirements: ["R-1", "R-2", "R-3"]
+    - id: "dep-upstream-report-gate"
+      source: "Branch B diagnosis outcome"
+      target: "R-4 upstream defect report recorded on issue #2324"
+      type: "escalation-contract"
+      constraint: "If Branch B holds, the report URL MUST exist on #2324 BEFORE any other action; no workaround may be applied while BLOCKED pending upstream."
+      scs: ["SC-1"]
+      requirements: ["R-4"]
+  phase_ordering:
+    - phase: "Phase 1"
+      order: ["dep-runtime-discovery-to-card", "dep-skill-tool-to-card-body", "dep-harness-to-evidence-export", "dep-upstream-report-gate"]
+      note: "Diagnosis precedes load verification; the upstream-report gate fires only on Branch B and terminates Phase 1 as BLOCKED."
+    - phase: "Phase 2"
+      order: ["dep-routing-rule-to-runtime-target", "dep-harness-to-evidence-export"]
+      note: "Hard dependency: Phase 2 requires Phase 1's dep-runtime-discovery-to-card AND dep-skill-tool-to-card-body both green (spec Items 3 RED/GREEN)."

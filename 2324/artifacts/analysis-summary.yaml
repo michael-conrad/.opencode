@@ -1,0 +1,45 @@
+# Analysis Summary — Issue 2324
+# Backfill summary for retroactive plan creation.
+
+spec_path: ".opencode/.issues/2324/spec.md"
+approval_status: "needs-approval"
+approval_label: "needs-approval"
+sc_count: 3
+sc_ids: ["SC-1", "SC-2", "SC-3"]
+mode: "retroactive"
+
+artifact_status:
+  blast-radius.yaml: "backfilled"
+  concern-map.yaml: "backfilled"
+  code-path-inventory.yaml: "backfilled"
+  cross-cutting-matrix.yaml: "backfilled"
+  interface-compatibility.yaml: "backfilled"
+  state-analysis.yaml: "backfilled"
+  testability-assessment.yaml: "backfilled"
+
+scope_summary:
+  change_kind: "diagnostic-and-runtime-remediation"
+  affected_files: 1
+  affected_file_paths:
+    - ".opencode/.issues/2324/research/"
+  generated_artifact_paths:
+    - "tmp/behavioral-evidence-*"
+  untouched_verified_dependencies:
+    - ".opencode/skills/executing-plans/SKILL.md"
+    - ".opencode/skills/approval-gate/SKILL.md"
+    - ".opencode/tests-v2/with-test-home"
+    - ".opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh"
+  phases: ["Phase 1", "Phase 2"]
+  phase_dependency: "Phase 2 (SC-3) requires Phase 1 (SC-1 AND SC-2) green; Branch B terminates Phase 1 as BLOCKED pending upstream fix."
+  evidence_types: ["behavioral"]
+  invariants_preserved:
+    - "escalation-before-workaround (R-4)"
+    - "diagnose-before-modify"
+    - "gate-no-bypass / plan-executes-before-PR (R-3)"
+
+notes:
+  - "All 7 analytical artifacts were missing and backfilled from the spec body."
+  - "Zero production source/config/hook changes: the defect locus is runtime registry state, not repository content (Not Included section)."
+  - "All read-only dependencies verified to exist in the codebase (executing-plans SKILL.md + both task cards, approval-gate SKILL.md, with-test-home harness, 1364-sc1 scenario and companion 1364-sc2 scenario)."
+  - "All SCs are behavioral evidence type; structural/string evidence is EVIDENCE_TYPE_MISMATCH."
+  - "dependency_contract section in interface-compatibility.yaml is populated with concrete dependency data for research.md step 9 extraction into dependency-contract.yaml."
