@@ -1,0 +1,9 @@
+title: '[BUG] spec-creation self-contradiction: revise Step 7 deletes analytical artifacts
+  that validate.md requires and specs legitimately cite (live data loss on #2327)'
+status: open
+labels:
+- needs-approval
+- bug
+body: ''
+created_at: '2026-08-26T05:19:30+00:00'
+updated_at: '2026-08-26T05:19:30+00:00'

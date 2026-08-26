@@ -1,0 +1,40 @@
+# Interface Compatibility — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+interface_boundaries:
+  - boundary: plan-plan-cli-invocation-contract
+    file: .opencode/tools/plan (subcommand `plan plan`)
+    status: INCOMPATIBLE-CURRENTLY-CORRECTED-BY-SPEC
+    notes: "Live-verified contract (D-1): `usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]` — `--problem/-p` required, `--engine/-e` optional defaulting to `tamer`. The task card's step-12 invocation passes solve-style `--contract-path` and `--output` flags, which this subcommand does not accept — argument-parsing failure hard-blocks the research step for ALL plans. R-1 corrects the invocation to the problem-driven pattern."
+  - boundary: contract-to-problem-artifact-handoff
+    file: "{issues_prefix}/{N}/dependency-contract.yaml -> {issues_prefix}/{N}/artifacts/phase-problem.yaml -> {issues_prefix}/{N}/artifacts/plan-output.yaml"
+    status: COMPATIBLE-VIA-SPECIFIED-MAPPING
+    notes: "The handoff is defined in spec §Definitions and evidenced end-to-end by resolved issue .opencode#2134 (D-4): fluents per contract `variables` keys, actions per phase with preconditions from `preconditions`/`edges`, `init: []`, all phase fluents under `goals`, `domain: issue-{N}-phase-dag`. On success stdout carries summary + `---` separator + YAML document (`domain`, `engine`, `status`, `plan_length`, `actions`) per D-3; non-zero exit signals planner failure per D-2."
+  - boundary: exit-criterion-status-name-consistency
+    file: .opencode/skills/writing-plans/tasks/research.md line 60
+    status: COMPATIBLE-NO-CHANGE
+    notes: "Line 60 requires `SOLVED_SATISFICING or SOLVED_OPTIMALLY` — exactly the two success statuses `_action_plan` emits (D-2, D-6). Asserted no-change determination backed by live verification; not an implementor decision."
+  - boundary: solve-tool-and-plan-state-update
+    file: .opencode/tools/solve; `.opencode/tools/plan state update`
+    status: NOT-MODIFIED
+    notes: "Explicitly out of scope. The `--contract-path` flag legitimately exists on these tools; the defect was applying that model to `plan plan`."
+compatibility_conclusions:
+  - Single-file documentation edit; no code interface changes.
+  - Only compatibility constraint is that step 12's documented invocation must exactly match the live `plan plan` CLI contract, with the construction handoff preceding it.
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Fix research.md step 12 invocation, document dependency-contract-to-phase-problem handoff, live smoke verification — SC-1, SC-2, SC-3"
+  preconditions: []
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/writing-plans/tasks/research.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+  edges: []

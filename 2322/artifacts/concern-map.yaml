@@ -1,0 +1,20 @@
+# Concern Map — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+concern_groups:
+  - id: concern-corrected-invocation
+    name: Corrected step-12 plan plan invocation
+    phase: 1
+    scs: [SC-1]
+    description: "Replace the defective '--contract-path'/'--output' invocation at step 12 (line 48) with the corrected problem-driven invocation — 'plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml' with stdout captured to '{issues_prefix}/{N}/artifacts/plan-output.yaml' — containing neither forbidden flag."
+  - id: concern-construction-handoff
+    name: Dependency-contract-to-phase-problem construction handoff
+    phase: 1
+    scs: [SC-2]
+    description: "Document in step 12 how 'phase-problem.yaml' is built from 'dependency-contract.yaml' per the §Definitions mapping (fluent per contract phase variable; action per phase with preconditions from contract preconditions/edges; empty init; all phase fluents as goals)."
+  - id: concern-live-execution
+    name: Live smoke verification of the corrected pattern
+    phase: 1
+    scs: [SC-3]
+    description: "Prove the documented pattern executes against the live tool — a minimal two-phase 'phase-problem.yaml' constructed per the §Definitions mapping solves with exit code 0 and stdout YAML carrying 'status: SOLVED_SATISFICING' or 'status: SOLVED_OPTIMALLY'."
+phase_boundary_map:
+  - {phase: 1, concerns: [concern-corrected-invocation, concern-construction-handoff, concern-live-execution]}

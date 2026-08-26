@@ -1,0 +1,98 @@
+artifact: concern-map
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode)
+upstream_source: .opencode/.issues/2319/spec.md (Success Criteria, Items, Dependencies sections)
+verification_status: concern decomposition derived from the six spec Items; phase boundaries match Item numbering 1-6 per spec Traceability section
+
+concerns:
+  - id: C1
+    name: token-definition-authority
+    description: >-
+      A single authority must define the {owner}/{repo}#NNN composite grammar as the sole
+      internal issue-identity form for owner/repo-resolvable handoffs, with Edge Case 5 governing
+      identity_source: local. Without one definition site, every consumer invents its own
+      qualification dialect — the exact divergence the spec's Cost Frame (SC-1) predicts.
+    affected_surfaces:
+      - .opencode/guidelines/118-issue-reference-qualification.md (created Item 1; extended Item 4)
+    problem_class: STRUCTURE-GAP
+    phases: [1, 4]
+  - id: C2
+    name: registration-discoverability
+    description: >-
+      A guideline that never loads into agent sessions cannot govern behavior. Registration spans
+      two independent surfaces: the INDEX.md progressive-disclosure slot row and the
+      opencode.jsonc instructions-array tier decision. Verified absent live (no 118 row; index
+      jumps 117 -> 130). Gates SC-4 behavioral verification structurally.
+    affected_surfaces:
+      - .opencode/guidelines/INDEX.md (slot-118 row)
+      - .opencode/opencode.jsonc (instructions array tier decision)
+    problem_class: WIRING-GAP
+    phases: [1]
+  - id: C3
+    name: contract-shape-replacement
+    description: >-
+      Issue identity crosses skill boundaries as split fields (dropped-field or tri-field forms,
+      both live per Definitions 2). Each hop re-derives repo identity from ambient context and
+      has guessed wrong on record (session-2026-06-20 lesson 4; issue 1308 incident). Fix binds
+      repo identity to the number at handoff via the single composite field.
+    affected_surfaces:
+      - 10 enumerated SKILL.md contract sites (workflow payloads 19+7+3+1+4+1; TDT rows 10+2+1+1)
+    problem_class: CONTRACT-VIOLATION
+    phases: [2]
+  - id: C4
+    name: platform-call-concentration
+    description: >-
+      Non-platform task cards issue direct GitHub MCP calls carrying bare issue numbers,
+      bypassing the platform-aware dispatcher and inheriting the wrong-repository hazard. Direct
+      calls concentrate in the platform task-card set, which consumes the qualified composite.
+    affected_surfaces:
+      - 21 enumerated non-platform task cards (github_issue_[a-z_]+ token predicate)
+      - issue-operations dispatcher routing (read-issue path) as the sanctioned route
+    problem_class: ROUTING-VIOLATION
+    phases: [3]
+  - id: C5
+    name: mechanical-enforcement
+    description: >-
+      Documented lessons without enforcement gates do not prevent recurrence (lessons-learned
+      Key Principle 3, cited by spec Alternative 1 discard rationale). The skildeck semantic lint
+      converts the convention from advisory to mechanical: flag concrete bare references
+      (#N, issue_number=N arguments, unconsumed tokens) while permitting the derived-variable
+      carve-out exactly as Definition 6 scopes it.
+    affected_surfaces:
+      - .opencode/tools/skildeck lint action
+      - .opencode/tools/impl/skildeck/skildeck-lint
+      - "./tmp/issue-2319/lint-fixture/ (created and removed within Item 5)"
+    problem_class: ENFORCEMENT-GAP
+    phases: [5]
+  - id: C6
+    name: consumer-migration
+    description: >-
+      Task files that construct artifact paths and dispatch API calls from bare dispatched
+      numbers keep the hazard alive downstream even after cards qualify their contracts. The four
+      enumerated families must derive owner/repo/number from the composite locally (carve-out)
+      rather than consume ambient identity.
+    affected_surfaces:
+      - audit/tasks/ (27 files), spec-creation/tasks/ (5), writing-plans/tasks/ (8 of 9),
+        issue-operations-core/tasks/ (7), io-comments (1), io-sub-issues (2), io-sync (2)
+    problem_class: CONSUMER-DRIFT
+    phases: [6]
+  - id: C7
+    name: evidence-integrity-constraint
+    description: >-
+      Four of six SCs verify behaviorally through with-test-home opencode runs (stderr /
+      session.yaml assertions). Model availability is a runtime precondition; when unavailable
+      those methods report FAIL — static sweeps substitute never (Definition 10 RED/GREEN
+      support; test-integrity law). Cross-cutting constraint on Phases 2, 3, 4, 6, not an item.
+    affected_surfaces:
+      - .opencode/tests-v2/with-test-home (consumed)
+      - local model availability (checked at each run)
+    problem_class: VERIFICATION-PRECONDITION
+    phases: [2, 3, 4, 6]
+
+phase_boundary_map:
+  Phase 1 (Item 1, SC-1): C1 definition slice + C2 registration — one commit slice
+  Phase 2 (Item 2, SC-2): C3 card-level replacement — one commit slice
+  Phase 3 (Item 3, SC-3): C4 routing rewrite — one commit slice
+  Phase 4 (Item 4, SC-4): C1 rule slice (parse convention, carve-out, prohibition)
+  Phase 5 (Item 5, SC-5): C5 lint rule + fixture lifecycle
+  Phase 6 (Item 6, SC-6): C6 per-family consumer slices

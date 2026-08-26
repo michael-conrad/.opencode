@@ -1,0 +1,16 @@
+# Blast Radius — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+affected_files:
+  - path: .opencode/skills/writing-plans/tasks/research.md
+    action: edit-step-12
+    verified: EXISTS
+    impact: "Primary deliverable — replace the defective 'plan plan' invocation at step 12 (line 48, verified present live) with the problem-driven pattern ('--problem' + stdout redirect) and document the dependency-contract-to-phase-problem construction handoff. Exit criterion at line 60 is an asserted NO-CHANGE determination backed by live verification (D-2/D-6)."
+no_other_affected_files:
+  - "Note: Spec explicitly excludes changes to the solve tool or its --contract-path model."
+  - "Note: Spec explicitly excludes changes to plan state update semantics."
+  - "Note: .opencode/tools/plan is invoked but NOT modified — it is the verified-correct execution target ('plan plan --help' verified live 2026-08-25, D-1)."
+  - "Note: Downstream consumer .opencode/.issues/2320/ (blocked plan pipeline) is read-only context, not modified by this fix."
+scope:
+  type: single-file task-card documentation fix
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  concern: Correct CLI invocation contract for the writing-plans research step so the planner stage stops hard-failing on argument parsing for every plan

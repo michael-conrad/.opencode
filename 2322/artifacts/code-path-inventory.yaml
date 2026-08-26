@@ -1,0 +1,18 @@
+# Code Path Inventory — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+code_paths_implied_by_sc:
+  - sc: SC-1
+    target_file: .opencode/skills/writing-plans/tasks/research.md
+    path: Step 12 `plan plan` invocation line (line 48, verified live)
+    action: replace
+    evidence: "grep -n 'contract-path\\|--output' .opencode/skills/writing-plans/tasks/research.md shows no match within step 12's `plan plan` invocation; grep -n 'plan plan --problem' matches inside step 12"
+  - sc: SC-2
+    target_file: .opencode/skills/writing-plans/tasks/research.md
+    path: Step 12 build sub-step — dependency-contract.yaml to phase-problem.yaml construction handoff preceding the invocation
+    action: add
+    evidence: "grep -n 'phase-problem.yaml' matches inside step 12 together with a `dependency-contract` reference establishing the build order"
+  - sc: SC-3
+    target_file: ./.opencode/tools/plan
+    path: Execution path — `./.opencode/tools/plan plan --problem ./tmp/<file>` on a two-phase linear-chain problem built per the §Definitions mapping
+    action: execute-and-assert
+    evidence: "exit code 0 and stdout YAML contains `status: SOLVED_SATISFICING` or `status: SOLVED_OPTIMALLY`; throwaway file removed from ./tmp/ afterward (behavioral-evidence retention rules excepted)"

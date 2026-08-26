@@ -1,0 +1,47 @@
+artifact: analysis-summary
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode)
+spec_path: .opencode/.issues/2319/spec.md
+sc_count: 6
+sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled (includes dependency_contract section for research.md step 9 extraction)
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+pre_existing_count: 0
+backfilled_count: 7
+
+scope_summary: >-
+  Spec qualifies every internal issue reference as {owner}/{repo}#NNN across the agent deck:
+  one new guideline (.opencode/guidelines/118-issue-reference-qualification.md) defining token +
+  parse convention + derived-variable carve-out + bare-reference prohibition, registered via
+  INDEX.md slot-118 row and an opencode.jsonc instructions-array tier decision; replacement of
+  ten enumerated split-identity Context-passed contract sites with a single issue_ref composite
+  field; removal of direct platform API calls carrying bare numbers from 21 enumerated
+  non-platform task cards (routing concentrates behind issue-operations -> read-issue consuming
+  the composite); a new skildeck semantic-lint rule flagging concrete bare references while
+  permitting carve-outs; and consumer migration of four task-file families (audit 27 files,
+  spec-creation 5, writing-plans 8 of 9, issue-operations-* 12). Six phases match Items 1-6.
+  Evidence mix: SC-1 structural; SC-2/3/4/6 behavioral via with-test-home opencode runs;
+  SC-5 behavioral via lint fixture execution. Out of scope: platform dispatch mechanism and
+  platform sub-skill routing logic.
+
+live_verification_performed_this_session:
+  - guideline 118 absent; INDEX.md has no slot-118 row (jumps 117 -> 130)
+  - skildeck executable; .opencode/tools/impl/skildeck/skildeck-lint present
+  - .opencode/tests-v2/with-test-home present
+  - 51 SKILL.md cards counted (matches spec Definition 1)
+  - all 10 contract-site SKILL.md files carry issue-identity tokens
+  - family counts spot-checked (audit tasks 50 md incl. subdirs; writing-plans 9; spec-creation 5)
+  - 5 of 21 non-platform task-card sites spot-verified present
+
+worktree_notes: >-
+  Artifacts written into .opencode/.issues worktree working tree but NOT committed or pushed:
+  local-issues sync-file performs a bare git commit that would sweep unrelated staged files for
+  issue 2327 already present in the worktree index. Commit/push deferred to orchestrator once the
+  2327 staging situation is resolved.

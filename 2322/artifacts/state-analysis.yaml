@@ -1,0 +1,19 @@
+# State Analysis — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+state_transitions_required_by_sc:
+  - sc: SC-1
+    from: "Step 12 (line 48) instructs `plan plan --contract-path ... --output ...` — flags the subcommand does not accept (argument-parsing failure every run)"
+    to: "Step 12 instructs `plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml` with stdout captured to `{issues_prefix}/{N}/artifacts/plan-output.yaml`; neither `--contract-path` nor `--output` appears in the step-12 `plan plan` invocation"
+  - sc: SC-2
+    from: "No documented construction handoff — implementor must reverse-engineer the contract-to-problem mapping from #2134 artifacts or guess"
+    to: "Step 12 documents building `phase-problem.yaml` from `dependency-contract.yaml` before invoking `plan plan`, per the §Definitions mapping"
+  - sc: SC-3
+    from: "Documented pattern unverified — the same trust failure that shipped the original defective flags (6581901f)"
+    to: "Two-phase example problem built per §Definitions solves live via the corrected invocation: exit code 0, stdout YAML `status` ∈ {SOLVED_SATISFICING, SOLVED_OPTIMALLY}; throwaway file removed from ./tmp/ afterward"
+asserted_no_change_states:
+  - target: research.md line 60 (exit criterion)
+    state: unchanged
+    basis: "Already states exactly the two success status names the live tool emits (D-2, D-6); asserted-no-change backed by live verification, not an implementor decision"
+terminal_state:
+  description: "SC-1..SC-3 all PASS; writing-plans research step executes the planner stage without argument-parsing failure for all plans (including blocked consumer .opencode#2320)."
+  gate: "SC Enforcement Gate — all SCs (SC-1 through SC-3) MUST pass; a single FAIL blocks the entire spec; partial implementation is not permitted."
