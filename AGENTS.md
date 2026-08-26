@@ -137,6 +137,17 @@ Guidelines are pruned to the absolute minimum. See `.opencode/guidelines/` for:
 
 **Isolated test environment:** The `with-test-home` wrapper isolates opencode XDG state into a project-relative temporary home (`./opencode/tmp/test-home-<timestamp>`), eliminating SQLite session conflicts with the desktop app. This allows skill enforcement tests to run from within an active opencode session. When a test session fails, see the Session Failure Diagnosis section in `tests-v2/AGENTS.md` for a diagnostic checklist covering model availability, artifact integrity, lock contention, and test home cleanup — the 6-check table and 5 common root causes cover the vast majority of harness failures.
 
+### Submodule Pointer Updates
+
+The parent repo's submodule pointer rides ALONGSIDE the next real parent-repo change on a feature branch. When a `.opencode` submodule PR merges, the parent repo's submodule pointer is NOT dropped and is NOT resolved by that merge — it stays DIRTY and is committed alongside the next real parent-repo change in the same commit. Submodule-only pushes are blocked by pre-push hooks, so the pointer must never be committed in a standalone parent-repo commit/PR.
+
+```bash
+git add .opencode
+# Include in a commit with the next real parent-repo change — never standalone
+```
+
+**Do NOT fabricate parent-repo edits to bypass the submodule-only push gate.** If there are no parent-repo changes to make alongside the pointer update, the pointer update waits until the next real change. The gate exists to prevent review overhead for pointer-only PRs — do not create useless edits to work around it, and do not drop the pointer.
+
 ### Testing Lessons Learned — Failure Patterns
 
 **Stale lock files:** `tmp/.behavior-run.lock` persists after killed test runs. Always run `rm -f tmp/.behavior-run.lock` before re-running. See `.opencode/tests-v2/AGENTS.md §10.1`.
