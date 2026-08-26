@@ -1,7 +1,7 @@
-> Problem decomposition output for .opencode#2325
+> Problem decomposition output for .opencode#2334
 
 meta:
-  issue: ".opencode#2325"
+  issue: ".opencode#2334"
   decomposed: "2026-08-26"
   method: >
     Requirements mapped to candidate SC-IDs. Spec SCs do not exist yet; the

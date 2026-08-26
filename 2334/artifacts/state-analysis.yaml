@@ -1,7 +1,7 @@
-> State analysis for .opencode#2325
+> State analysis for .opencode#2334
 
 meta:
-  issue: ".opencode#2325"
+  issue: ".opencode#2334"
   generated: "2026-08-26"
   note: >
     No runtime state machines are modified. States below describe agent

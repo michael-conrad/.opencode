@@ -1,0 +1,133 @@
+title: '[SPEC-FIX] Built-in glob silent failures - document limitations and remediate
+  broken invocations across agent deck'
+status: open
+labels:
+- needs-approval
+- spec-draft
+- spec-fix
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2334/
+
+
+  # SPEC-FIX: Built-in glob silent failures — document limitations and remediate broken
+  invocations across agent deck
+
+
+  ## Problem
+
+
+  The agent deck instructs agents to invoke the built-in glob tool in shapes that
+  empirically cannot succeed at 4 sites and can silently mislead at 28 more — 32 fragile
+  invocation locations total, all counted by the reproducible enumeration method specified
+  in the spec — while zero documentation of the tool''s failure modes exists anywhere
+  under `.opencode/**/*.md`. Live probing this session reproduced all six failure
+  modes: hidden-directory traversal skip, gitignore filtering during traversal, silent-empty
+  conflation of five distinct causes behind one "No files found" output, files-only
+  matching that makes directory patterns structurally unmatchable, absolute-pattern
+  rejection, and an opaque error for nonexistent path parameters.
+
+
+  **Root cause:** deck authors wrote glob invocations assuming find-like traversal
+  semantics. The built-in tool silently skips dot-prefixed and gitignored directories
+  during pattern-from-CWD scanning and returns one identical output for every failure
+  cause, so defective invocation shapes pass unnoticed until an agent acts on a false
+  empty result. The entire agent deck lives under `.opencode/` — every session that
+  loads the deck propagates either the defect or the fix.
+
+
+  ## Scope
+
+
+  In scope: documentation of all six limitations plus remediation of every fragile
+  invocation site across sre-runbook, verification-before-completion, the complete
+  27-file audit task family (SC-6 Invocation-Site Inventory), and the research-card
+  catalogue instruction in `.opencode/guidelines/020-go-prohibitions.md`.
+
+
+  Out of scope: the platform glob tool implementation (outside repository control);
+  wholesale glob-to-find replacement (glob remains Tier-1 primary); tests-v2 harness
+  scripts'' internal usage; the AGENTS.md forbidden-patterns anti-example; parent-repo
+  files (all changes land in the `.opencode` submodule).
+
+
+  ## Success Criteria — 8 total (6 structural, 2 behavioral)
+
+
+  | ID | Deliverable | Evidence |
+
+  |----|-------------|----------|
+
+  | SC-1 | "Built-in glob: verified semantics and silent-failure modes" anchor section
+  in `.opencode/guidelines/060-tool-usage.md` covering LIM-1 through LIM-6, the canonical
+  path-parameter invocation idiom, and the empty-result disambiguation rule | structural
+  |
+
+  | SC-2 | sre-runbook generate.md runbook-base-path discovery: directory-only glob
+  pattern removed, working mechanism whose fallback terminates at docs/runbooks/,
+  citing the SC-1 section via Read-link | structural |
+
+  | SC-3 | sre-runbook generate.md format-matching dual-pattern gate uses path-parameter
+  form with bracketed placeholders plus an empty-result disambiguation step, preserving
+  both stamp checks | structural |
+
+  | SC-4 | verification-before-completion completion.md evidence-artifact existence
+  check detects files under gitignored tmp/ artifact directories, citing the SC-1
+  section | behavioral |
+
+  | SC-5 | verification-before-completion collect.md report-existence check receives
+  the same working-form remediation, preserving MISSING-ELEMENT classification semantics
+  | behavioral |
+
+  | SC-6 | All 27 audit task files use plain-string path-parameter invocations with
+  bracketed placeholders and contain empty-result guards wherever a directory listing
+  feeds downstream logic; role contracts unchanged | structural |
+
+  | SC-7 | Research-card catalogue instruction specifies the path-parameter form such
+  that literal translation cannot produce a silently-empty call; confidence-skip logic
+  unchanged | structural |
+
+  | SC-8 | Registered behavioral enforcement test proves via stderr assertions that
+  an agent instructed to enumerate files under `.opencode/` emits a working invocation
+  action instead of concluding nonexistence from a silent-empty result | behavioral
+  |
+
+
+  ## Phases
+
+
+  1. **Phase 1 — Guideline anchor:** verified-semantics section in `.opencode/guidelines/060-tool-usage.md`
+  (SC-1) as the single source of truth for LIM-1 through LIM-6 and the canonical idiom.
+
+  2. **Phase 2 — Invocation remediation:** normalize every fragile site (SC-2 through
+  SC-7), each citing the Phase 1 anchor via Read-link rather than restating semantics
+  inline; SC-6 commits family-atomic across all 27 inventoried audit files.
+
+  3. **Phase 3 — Behavioral proof:** one stderr-based enforcement scenario through
+  the with-test-home harness (SC-8), exercising the fully remediated deck after all
+  fixes land.
+
+
+  ## Key Design Decisions
+
+
+  - Definition-lives-once: the disambiguation rule and canonical idiom are defined
+  only in the SC-1 section; every remediated site cites it via Read-link.
+
+  - Behavioral test last (SC-8): one opencode-run scenario exercises the fully remediated
+  deck after all fixes land.
+
+  - Family-atomic commit for SC-6: all 27 inventoried audit files normalize in one
+  TDD slice.
+
+  - RB_PATH contract preserved: the discovery mechanism changes; the terminal fallback
+  state does not.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+  '
+created_at: '2026-08-26T03:22:03+00:00'
+updated_at: '2026-08-26T05:21:44+00:00'
+github_url: michael-conrad/.opencode#2334
+remote_url: https://github.com/michael-conrad/.opencode/issues/2334

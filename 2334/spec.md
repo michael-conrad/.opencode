@@ -1,6 +1,6 @@
-> **Full spec and artifacts: [`.opencode/.issues/2325/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2325/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+> **Full spec and artifacts: [`.opencode/.issues/2334/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2334/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.opencode/.issues/2325/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `.opencode/.issues/2334/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
 # SPEC-FIX: Built-in glob silent failures — document limitations and remediate broken invocations across agent deck
 
@@ -24,7 +24,7 @@
 3. Family-atomic commit for SC-6: all 27 inventoried audit files normalize in one TDD slice. Tradeoff: consistent family state versus finer-grained rollback granularity.
 4. RB_PATH contract preserved: the discovery mechanism changes; the terminal fallback state does not. Tradeoff: downstream consumer stability versus a simpler rewrite.
 
-**User Intent / Original Prompt:** Issue `.opencode#2325`, title only (body empty, no comments): "[SPEC-FIX] Built-in glob silent failures - document limitations and remediate broken invocations across agent deck".
+**User Intent / Original Prompt:** Issue `.opencode#2334`, title only (body empty, no comments): "[SPEC-FIX] Built-in glob silent failures - document limitations and remediate broken invocations across agent deck".
 
 ## Not Included
 
@@ -186,7 +186,7 @@ The per-SC decomposition constraint binds structurally: each SC maps to exactly 
 
 | Reference | Relationship | Status |
 |-----------|--------------|--------|
-| Analysis artifacts (pre-spec-inspection, requirements, decomposition, 7 analytical artifacts) | empirical grounding consulted during implementation | copied to `.opencode/.issues/2325/artifacts/` |
+| Analysis artifacts (pre-spec-inspection, requirements, decomposition, 7 analytical artifacts) | empirical grounding consulted during implementation | copied to `.opencode/.issues/2334/artifacts/` |
 | `spec-structure-standards.md`, `cost-model-standards.md` | read via Read-link during creation | loaded this session |
 | Reference cards 250/255/257 | MUST be loaded before authoring any changed agent-facing text | required at implementation time |
 | tests-v2 harness (with-test-home wrapper, test-enforcement.sh registration conventions) | hosts the SC-8 scenario | existing infrastructure |

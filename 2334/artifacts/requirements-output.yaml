@@ -1,9 +1,9 @@
-> Requirements extraction output for .opencode#2325
+> Requirements extraction output for .opencode#2334
 > Source of problem statement: issue TITLE ONLY (body empty, no comments, no links)
 > Title: "[SPEC-FIX] Built-in glob silent failures - document limitations and remediate broken invocations across agent deck"
 
 meta:
-  issue: ".opencode#2325"
+  issue: ".opencode#2334"
   extracted: "2026-08-26"
   statement_completeness: "title-only; requirements below are derived from title plus live codebase verification per 015-pre-spec-inspection"
 
