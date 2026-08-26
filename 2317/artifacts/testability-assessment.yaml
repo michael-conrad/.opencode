@@ -1,0 +1,55 @@
+# Testability assessment — issue #2317
+# Test strategy per phase
+# Spec declares evidence type: behavioral for ALL SCs (SC-1..SC-14). Static/string substitution is EVIDENCE_TYPE_MISMATCH.
+
+## Phase 1: arbiter union aggregation + flag-gate + advisory reconciliation (SC-1, SC-2, SC-9)
+test_strategy: behavioral (real opencode run audit dispatch; stderr verdict observation)
+how:
+  - Fixture spec with a deliberately absent SC dispatched via bash .opencode/tests-v2/with-test-home opencode run '<audit prompt>'.
+  - RED: assert absent SC yields PASS under current carried-set aggregation / advisory flag.
+  - GREEN: assert absent SC yields FAIL via union default and/or false coverage_complete flag.
+  - Coverage-gap fixture asserts FAIL, not advisory MISSING_SC_COVERAGE (SC-2, SC-9).
+verification:
+  - Clean-room sub-agent reads session.yaml stderr (behavior_run export) and confirms FAIL resolution.
+  - bash tool timeout >= 600000ms.
+pass_definition:
+  - Absent SC resolves FAIL (SC-1).
+  - Any false flag forces aggregate FAIL independent of evaluator verdicts (SC-2).
+  - Coverage gap produces FAIL rather than advisory flag (SC-9).
+
+## Phase 2: evaluator enumeration + NOT_EVALUATED markers (SC-4, SC-5)
+test_strategy: behavioral (evaluator output observed in dispatch stderr/session.yaml)
+how:
+  - Dispatch audit on a multi-SC fixture spec where one SC is skipped by design.
+  - RED: assert evaluator output omits the skipped SC.
+  - GREEN: assert full spec SC list present; skipped SC appears as FAIL + NOT_EVALUATED marker.
+verification:
+  - Clean-room sub-agent asserts full enumeration against the fixture's SC list.
+pass_definition:
+  - Every spec SC present in per_criterion/per_claim output (SC-4).
+  - Skipped SC = FAIL row with explicit NOT_EVALUATED token (SC-5).
+
+## Phase 3: hard gate + remediate-and-restart loop + escalation (SC-6, SC-7, SC-8, SC-11, SC-12, SC-13, SC-14)
+test_strategy: behavioral (multi-dispatch scenario observing halt/restart/escalation behavior)
+how:
+  - FAIL-fixture dispatch: assert deliverable does not advance after FAIL (SC-6); assert agent remediates then re-audits (SC-7); loop continues until R-13 condition — aggregate PASS, both flags true, zero FAIL or NOT_EVALUATED rows within a single dispatch (SC-12).
+  - Unremediable fixture: assert escalation fires as the only exit for task-level (SC-8) and orchestrator-level (SC-13) non-clean states; no infinite loop.
+  - Structural-binding assertion (SC-14): observed restart occurs as a workflow-step dispatch, distinguishable from prose-only guidance by the re-dispatch visible in stderr tool calls.
+verification:
+  - Clean-room sub-agent evaluates session.yaml across the dispatch sequence.
+pass_definition:
+  - FAIL halts deliverable (SC-6); remediate-and-re-audit until R-13 holds (SC-7); escalation sole unremediable exit (SC-8); orchestrator restarts at any non-clean phase (SC-11), iterates until clean (SC-12), escalates when unremediable (SC-13), loop structurally bound (SC-14).
+
+## Phase 4: release handshake gate (SC-10)
+test_strategy: behavioral (release-promotion dispatch with coverage-gap FAIL fixture)
+how:
+  - RED: assert release promotion proceeds despite coverage-gap FAIL (no gate exists today).
+  - GREEN: assert newly added gates in operating-protocol.md/tag.md/create-release.md and git-workflow-cleanup/cleanup.md block promotion on non-clean aggregate.
+verification:
+  - Clean-room sub-agent observes blocked promotion path in session.yaml stderr.
+pass_definition:
+  - Coverage-gap FAIL keeps ticket unreleased through the new gate.
+
+## Evidence type note
+  - Spec §3 declares evidence type behavioral for every SC. Per CON-4/R-12, no static coded checks substitute.
+  - If opencode run cannot execute, the affected SC is FAIL — no structural downgrade (EVIDENCE_TYPE_MISMATCH).
