@@ -4,24 +4,40 @@
 
 ## Intent and Executive Summary
 
-BLUF: Fix one broken CLI invocation in `.opencode/skills/writing-plans/tasks/research.md` step 12 so the writing-plans research step stops hard-failing on argument parsing for every plan. The task card passes `solve`-style flags (`--contract-path`, `--output`) to the `plan plan` subcommand, which accepts neither. The correction replaces them with the problem-driven pattern (`--problem` + stdout redirect) evidenced by resolved issue `.opencode#2134`.
+- **Problem Statement:** Fix one broken CLI invocation in `.opencode/skills/writing-plans/tasks/research.md` step 12 — the writing-plans research step hard-fails on argument parsing for every plan because the task card passes `solve`-style flags (`--contract-path`, `--output`) to the `plan plan` subcommand, which accepts neither.
+- **Root Cause / Motivation:** Tool-model conflation: the task card applied the `solve` tool's `--contract-path` contract-file model to the problem-driven `plan plan` interface. It must be solved now because the defect blocks the research step of the writing-plans pipeline for ALL plans.
+- **Approach Chosen:** Replace the defective flags with the problem-driven pattern evidenced by resolved issue `.opencode#2134`: build `phase-problem.yaml` from the dependency-contract's phase DAG per the mapping in §Definitions, then run the corrected invocation (`--problem` + stdout redirect capturing to `plan-output.yaml`).
+- **Alternatives Considered & Why Discarded:** (1) Keep the contract-driven invocation and adapt the `plan` tool to accept `--contract-path`/`--output` — discarded: it accommodates the misapplied invocation instead of fixing the misuse; the subcommand's designed contract is problem-driven (D-1), and tool-surface changes are excluded (see Not Included). (2) Cite resolved issue `.opencode#2166` as the precedent — discarded: its artifacts use a different filename (`plan-problem.yaml`, D-5), so its linkage to this exact pattern is not identical.
+- **Key Design Decisions:** (1) The contract→problem construction is fixed in this spec (five numbered mapping steps in §Definitions) — tradeoff: longer spec vs. deterministic implementation with zero implementor inference. (2) Output capture is stdout redirection to `plan-output.yaml` — tradeoff: couples capture to shell semantics vs. matching the tool's stdout-emitting contract (D-3). (3) The step-12 exit criterion is asserted NO-change backed by live verification (D-2, D-6) — tradeoff: smaller diff vs. relying on upstream text staying correct. (4) Precedent citation restricted to `.opencode#2134` — tradeoff: fewer precedents vs. identical-pattern evidence integrity (D-4/D-5).
+- **User Intent / Original Prompt:** Developer report that the writing-plans research step hard-fails on argument parsing for every plan, blocking `.opencode#2320`; this fix spec was created from that report via the spec-creation pipeline (details in §Problem).
 
 ## Problem
 
-`.opencode/skills/writing-plans/tasks/research.md` step 12 (line 48) instructs `./.opencode/tools/plan plan --contract-path {issues_prefix}/{N}/dependency-contract.yaml --output {issues_prefix}/{N}/artifacts/plan-output.yaml`, but the `plan plan` subcommand takes a required `--problem <YAML>` and an *optional* `--engine <NAME>` (default `tamer`), and has **NO** `--contract-path` or `--output` flags. Verified live 2026-08-25: `./.opencode/tools/plan plan --help` prints `usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]`. The `--contract-path` flag exists only on the `solve` tool and on `plan state update`, not on `plan plan`. This defect blocks the research step of the writing-plans pipeline for ALL plans (including `.opencode#2320`).
+`.opencode/skills/writing-plans/tasks/research.md` step 12 instructs `./.opencode/tools/plan plan --contract-path {issues_prefix}/{N}/dependency-contract.yaml --output {issues_prefix}/{N}/artifacts/plan-output.yaml`, but the `plan plan` subcommand takes a required `--problem <YAML>` and an *optional* `--engine <NAME>` (default `tamer`), and has **NO** `--contract-path` or `--output` flags. Verified live 2026-08-25: `./.opencode/tools/plan plan --help` prints `usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]`. The `--contract-path` flag exists only on the `solve` tool and on `plan state update`, not on `plan plan` (full subcommand-surface verification of both tools 2026-08-26; D-7). This defect blocks the research step of the writing-plans pipeline for ALL plans.
 
 ## Documentation Sources
 
-All facts below were verified live on 2026-08-25 in the implementing session.
+All facts below were verified live in the implementing sessions — D-1..D-6 on 2026-08-25, D-7 on 2026-08-26.
 
-| # | Source | Verified Fact |
-|---|--------|---------------|
-| D-1 | `./.opencode/tools/plan plan --help` (live execution) | `usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]`; `--problem/-p` is required ("path to YAML problem file"); `--engine/-e` is optional ("planning engine name (default: tamer)") |
-| D-2 | `.opencode/tools/plan` source, function `_action_plan` | Engine default resolves as `args.engine or "tamer"`; success statuses are `SOLVED_SATISFICING` and `SOLVED_OPTIMALLY`; failure statuses (`UNSOLVABLE_PROVEN`, `UNSOLVABLE_INCOMPLETELY`, `TIMEOUT`, `MEMOUT`) exit non-zero via `_die` |
-| D-3 | `.opencode/tools/plan` source, `_action_plan` output block | On success, stdout contains a human-readable summary, then a `---` separator, then a YAML document with keys `domain`, `engine`, `status`, `plan_length`, `actions` |
-| D-4 | `.opencode#2134` local artifacts: `dependency-contract.yaml`, `artifacts/phase-problem.yaml`, `artifacts/plan-output.yaml` | Fully evidenced identical-pattern precedent: contract phases map to problem fluents/actions/goals; `plan-output.yaml` holds the captured stdout YAML (`status: SOLVED_SATISFICING`) |
-| D-5 | `.opencode#2166` local artifacts listing | Uses filename `artifacts/plan-problem.yaml` (not `phase-problem.yaml`) — different artifact naming; NOT cited as an identical-pattern precedent |
-| D-6 | `.opencode/skills/writing-plans/tasks/research.md` lines 48 and 60 (read live) | Line 48 is the defective step-12 invocation; line 60 exit criterion reads "`tools/plan plan` returned SOLVED_SATISFICING or SOLVED_OPTIMALLY" — exactly matching the success status names emitted by the live tool (D-2) |
+| ID | Source | Type | Location | Verification |
+|----|--------|------|----------|--------------|
+| D-1 | `plan plan --help` output | API | `.opencode/tools/plan`, subcommand `plan plan` | Live CLI execution |
+| D-2 | `plan` tool source, function `_action_plan` | code | `.opencode/tools/plan`, `_action_plan` | Source read |
+| D-3 | `plan` tool source, `_action_plan` output block | code | `.opencode/tools/plan`, `_action_plan` output block | Source read |
+| D-4 | Resolved issue `.opencode#2134` local artifacts: `dependency-contract.yaml`, `artifacts/phase-problem.yaml`, `artifacts/plan-output.yaml` | doc | `.opencode/.issues/2134/` | Artifact file read |
+| D-5 | Resolved issue `.opencode#2166` local artifacts listing | doc | `.opencode/.issues/2166/` | Artifact listing read |
+| D-6 | `research.md` step 12 invocation and exit criterion | doc | `.opencode/skills/writing-plans/tasks/research.md`, step 12 | File read |
+| D-7 | Live CLI help inspection of both tools' complete subcommand surfaces: `./.opencode/tools/solve {check,model,prove,state} --help` and `./.opencode/tools/plan {plan,validate,ground,pddl,discover,help} --help` plus `./.opencode/tools/plan state {init,update,status} --help` | API | `.opencode/tools/solve` (all four subcommands); `.opencode/tools/plan` (all seven subcommands incl. the three `state` sub-subcommands) | Live CLI execution 2026-08-26 |
+
+Verified facts:
+
+- **D-1:** `usage: plan plan [-h] --problem PROBLEM [--engine ENGINE]`; `--problem/-p` is required ("path to YAML problem file"); `--engine/-e` is optional ("planning engine name (default: tamer)")
+- **D-2:** Engine default resolves as `args.engine or "tamer"`; success statuses are `SOLVED_SATISFICING` and `SOLVED_OPTIMALLY`; failure statuses (`UNSOLVABLE_PROVEN`, `UNSOLVABLE_INCOMPLETELY`, `TIMEOUT`, `MEMOUT`) exit non-zero via `_die`
+- **D-3:** On success, stdout contains a human-readable summary, then a `---` separator, then a YAML document with keys `domain`, `engine`, `status`, `plan_length`, `actions`
+- **D-4:** Fully evidenced identical-pattern precedent: contract phases map to problem fluents/actions/goals; `plan-output.yaml` holds the captured stdout YAML (`status: SOLVED_SATISFICING`)
+- **D-5:** Uses filename `artifacts/plan-problem.yaml` (not `phase-problem.yaml`) — different artifact naming; NOT cited as an identical-pattern precedent
+- **D-6:** The step-12 invocation is the defective call; the step's exit criterion reads "`tools/plan plan` returned SOLVED_SATISFICING or SOLVED_OPTIMALLY" — exactly matching the success status names emitted by the live tool (D-2)
+- **D-7:** `--contract-path` appears on all four `solve` subcommands (`check`/`model`/`prove`: required; `state`: optional) and on `plan state update` only (`--contract-path CONTRACT_PATH, -c`, "path to contract YAML for type/domain validation"); it is absent from every other `plan` subcommand, including `plan plan` (which takes only `--problem` and `--engine`)
 
 ## Definitions
 
@@ -43,19 +59,31 @@ The implementor SHALL construct `phase-problem.yaml` from `dependency-contract.y
 4. Set `init: []` (no phase starts complete) and list every `phase_<k>` fluent under `goals`.
 5. Set `domain: issue-{N}-phase-dag`.
 
-## Preconditions
+## Dependencies
 
-- **P-1**: `{issues_prefix}/{N}/dependency-contract.yaml` exists — produced by research.md steps 9–11 (extraction from `interface-compatibility.yaml`, then `solve model` and `solve check` SAT gates).
-- **P-2**: `{issues_prefix}/{N}/artifacts/interface-compatibility.yaml` exists with a non-empty `dependency_contract` section (step 9 fails BLOCKED otherwise).
-- **P-3**: The implementor has access to `.opencode/tools/plan`; the unified-planning problem-YAML schema it consumes is defined in this spec (§Definitions) and by `./.opencode/tools/plan help`.
+- **P-1**
+  - **Reference:** `{issues_prefix}/{N}/dependency-contract.yaml`
+  - **Relationship:** Sole structured input to the §Definitions contract→problem mapping consumed by the corrected invocation; without it the phase DAG cannot be constructed. Produced by research.md steps 9–11 (extraction from `interface-compatibility.yaml`, then `solve model` and `solve check` SAT gates).
+  - **Status:** satisfied at step-12 entry time — generated by the immediately preceding pipeline steps on every plan run; artifact pattern evidenced end-to-end by D-4
+- **P-2**
+  - **Reference:** `{issues_prefix}/{N}/artifacts/interface-compatibility.yaml`
+  - **Relationship:** Upstream source of the `dependency_contract` section extracted at research.md step 9; must exist with a non-empty `dependency_contract` section (step 9 fails BLOCKED otherwise).
+  - **Status:** satisfied at step-12 entry time — same generation chain as P-1; the non-empty-section requirement is enforced upstream by the step-9 BLOCKED gate
+- **P-3**
+  - **Reference:** `.opencode/tools/plan`
+  - **Relationship:** Executes the corrected invocation; the unified-planning problem-YAML schema it consumes is defined in this spec (§Definitions) and by `./.opencode/tools/plan help`.
+  - **Status:** satisfied — live access verified 2026-08-25 by CLI execution (D-1) and source read (D-2)
 
 ## Scope
 
 - **In scope:** Fix step 12 in `.opencode/skills/writing-plans/tasks/research.md` to use the correct invocation pattern for the `plan plan` subcommand
 - **In scope:** Correct the invocation to build a `phase-problem.yaml` from the dependency-contract's phase DAG per the mapping in §Definitions, then run the corrected invocation (§Definitions) capturing stdout to `plan-output.yaml`
-- **In scope:** Record the exit-criterion determination: line 60 requires **NO change** — it already states exactly the two success status names the live tool emits (`SOLVED_SATISFICING`, `SOLVED_OPTIMALLY`; D-2, D-6). This is an asserted-no-change determination backed by live verification, not an implementor decision.
-- **Out of scope:** Changes to the `solve` tool or its `--contract-path` model
-- **Out of scope:** Changes to `plan state update` semantics
+- **In scope:** Record the exit-criterion determination: the step-12 exit criterion requires **NO change** — it already states exactly the two success status names the live tool emits (`SOLVED_SATISFICING`, `SOLVED_OPTIMALLY`; D-2, D-6). This is an asserted-no-change determination backed by live verification, not an implementor decision.
+
+## Not Included
+
+- **Changes to the `solve` tool or its `--contract-path` model** — Rationale: the defect is the writing-plans task card's misuse of solve-style flags, not the `solve` tool itself; correcting the misuse in the task card resolves the failure without touching working tool surfaces.
+- **Changes to `plan state update` semantics** — Rationale: the broken surface is exclusively the research.md step-12 `plan plan` invocation (§Problem); altering unrelated subcommand semantics expands blast radius with no bearing on the defect.
 
 ## Approach
 
@@ -63,7 +91,7 @@ The task card wrongly applied the `solve` tool's `--contract-path` contract-file
 
 ## Root Cause
 
-The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step.
+The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file (D-7); `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step.
 
 ## Impact
 
@@ -79,7 +107,7 @@ R-1. research.md step 12 SHALL invoke `plan plan` problem-driven: `--problem {is
 
 R-2. research.md step 12 SHALL specify how `phase-problem.yaml` is constructed from `dependency-contract.yaml` per the mapping in §Definitions (fluent per contract phase variable; action per phase with preconditions from contract preconditions/edges; empty init; all phase fluents as goals).
 
-R-3. The corrected pattern SHALL execute successfully against the live tool: a `phase-problem.yaml` built per the §Definitions mapping solves with exit code 0 and stdout YAML carrying `status: SOLVED_SATISFICING` or `SOLVED_OPTIMALLY` — the same status names the unchanged exit criterion at line 60 requires.
+R-3. The corrected pattern SHALL execute successfully against the live tool: a `phase-problem.yaml` built per the §Definitions mapping solves with exit code 0 and stdout YAML carrying `status: SOLVED_SATISFICING` or `SOLVED_OPTIMALLY` — the same status names the unchanged step-12 exit criterion requires.
 
 ## Success Criteria
 
@@ -117,7 +145,7 @@ Fix Approach element → SC:
 |----------------------|--------------|
 | Build `phase-problem.yaml` from the dependency-contract phase DAG | SC-1, SC-2 |
 | Run `plan plan --problem …` capturing stdout to `plan-output.yaml` | SC-1, SC-3 |
-| Exit criterion line 60 determination | Asserted no change required (D-2/D-6 factual basis); SC-3 independently confirms the status names line 60 states are the ones the tool emits |
+| Exit-criterion determination | Asserted no change required (D-2/D-6 factual basis); SC-3 independently confirms the status names the exit criterion states are the ones the tool emits |
 
 ## Cost Frame
 
@@ -169,9 +197,19 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; Requirements, Success Criteria, Items, Traceability, Cost Frame, Documentation Sources, and all other sections unchanged.
 - **Date:** 2026-08-26
 - **What changed:** Deleted the Cost Frame SC-3 bullet's origin-attribution clause ("the same trust failure that shipped the original defective flags (6581901f)") and replaced it with the present-state equivalent grounded in live Documentation Sources (D-1, D-6): "the identical trust failure that left the defective flags sitting in the current task card (D-6) undetected until live CLI verification (D-1) exposed them." Exhaustive whole-spec sweep for the 6581901f git-history claim found no other live occurrence: the remaining mentions sit inside the Change Control audit trail (cycle-2/cycle-3 entries quoting previously deleted sentences as revision records, backed by their cited verdict artifacts). No other section touched.
-- **Why:** Spec-audit cycle-4 verdict — sole FAIL HOLISTIC-7 Provenance: the Cost Frame SC-3 bullet (line 128) cited commit 6581901f as origin of the defective flags with zero supporting Documentation Sources row covering git history (D-1..D-6 cover CLI help, tool source facts, precedent inventories, and research.md lines only); the identical claim class was classified FABRICATED and deleted from Root Cause in cycle 3, and this sole occurrence survived. Revision Option A selected — the anchor is non-load-bearing for the cost frame, mirroring the cycle-3 Option A rationale (D-1/D-6 establish the defect against current state live); adding a D-7 git-history row would require an investigation step outside the revise task card constraints (rejected in cycles 2-3 for exactly that reason). Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7 FAIL).
+- **Why:** Spec-audit cycle-4 verdict — sole FAIL HOLISTIC-7 Provenance: the Cost Frame SC-3 bullet cited commit 6581901f as origin of the defective flags with zero supporting Documentation Sources row covering git history (D-1..D-6 cover CLI help, tool source facts, precedent inventories, and research.md lines only); the identical claim class was classified FABRICATED and deleted from Root Cause in cycle 3, and this sole occurrence survived. Revision Option A selected — the anchor is non-load-bearing for the cost frame, mirroring the cycle-3 Option A rationale (D-1/D-6 establish the defect against current state live); adding a D-7 git-history row would require an investigation step outside the revise task card constraints (rejected in cycles 2-3 for exactly that reason). Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7 FAIL).
 - **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-4 remediation).
 - **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; Requirements, Success Criteria, Items, Traceability, Documentation Sources, and all other sections unchanged except the single Cost Frame SC-3 bullet.
+- **Date:** 2026-08-26
+- **What changed:** Four structural remediations from the spec-audit cycle-5 verdict: (1) restructured P-1..P-3 under the canonical `Dependencies` heading, each entry gaining explicit Reference/Relationship/Status fields; (2) rebuilt the Documentation Sources table into the canonical Source/Type/Location/Verification column set, moving each D-row's verified facts beneath the table — facts preserved verbatim (D-6 restated with stable anchors in place of line numbers); (3) expanded `Intent and Executive Summary` into the six mandated labeled fields — adding Alternatives Considered & Why Discarded, Key Design Decisions, and User Intent / Original Prompt derived from existing §Approach/§Problem content — and added the mandated `Not Included` section with per-exclusion rationales (the two out-of-scope bullets moved there from `Scope`); (4) replaced all six file-path+line-number locators with stable anchors (step numbers / named sections): Problem, D-6, Scope, R-3, Traceability, and this section's cycle-4 entry. No other sections touched: Requirements, Success Criteria table, SC Enforcement Gate, Items, Traceability mappings, and Cost Frame unchanged.
+- **Why:** Spec-audit cycle-5 verdict — holistic gate PASS; four narrow criteria FAIL: SC-5 (Dependencies entries lacked Status fields; section title deviated from canonical), SC-11 (Documentation Sources used non-canonical columns), SC-12 (preamble lacked the six mandated fields; `Not Included` section absent), SC-PRESCRIPTIVE-CODE (six path+line-number locators violating Prohibited Content Patterns). Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml`.
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-5 remediation).
+- **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; all verification methods, evidence types, and Items TDD cycles unchanged.
+- **Date:** 2026-08-26
+- **What changed:** Remediated the two HOLISTIC-7 unsupported assertions flagged by spec-audit cycle 6. (1) Added Documentation Sources row D-7 with its verified fact — live 2026-08-26 CLI inspection of both tools' complete subcommand surfaces confirming `--contract-path` appears on all four `solve` subcommands (`check`/`model`/`prove` required; `state` optional) and on `plan state update` only (optional `-c`), absent from every other `plan` subcommand including `plan plan` — and cited D-7 at the §Problem exclusivity sentence and the Root Cause echo; updated the section's verification-date preamble to cover both dates. (2) Deleted the present-tense blocking parentheticals "(including `.opencode#2320`)" from the preamble Root Cause / Motivation bullet and the §Problem final sentence — live `gh api repos/michael-conrad/.opencode/issues/2320` verification 2026-08-26 returned state=closed with zero comments, so no current blocking-state assertion is supportable; the User Intent field retains the historical developer-report framing of that impact. No other sections touched: Definitions, Dependencies, Scope, Not Included, Approach, Impact, Requirements, Success Criteria, SC Enforcement Gate, Traceability, Cost Frame, Items unchanged.
+- **Why:** Spec-audit cycle-6 verdict — sole FAIL HOLISTIC-7 Provenance with two unsupported live-body factual assertions: (a) the solve-tool conjunct of the `--contract-path` exclusivity sentence had no Documentation Sources row covering the solve-tool binary; (b) the `.opencode#2320` blocking-impact assertion appeared at three locations with no D-row evidencing that issue's state. Dispatch authorized live self-verification first: claim (a) held under full-surface inspection → revision Option B applied (D-7 added with verification date and method); claim (b) failed against live issue state → Option A applied (asserted issue-state claims deleted). This closes the recurring fabricated-claim class from cycles 3–6. Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7 FAIL; bidirectional finding SPEC_INCOMPLETE).
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-6 remediation).
+- **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; all evidence types, verification methods, Items TDD cycles, Traceability mappings, and Cost Frame unchanged.
 
 ---
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
