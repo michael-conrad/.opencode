@@ -1,0 +1,43 @@
+# Concern map — issue #2317
+# Concern boundaries and separation per phase
+
+## Phase 1: arbiter verdict correctness (concern: aggregation + flag-gate + advisory binding)
+concerns:
+  - Union aggregation: compute overall_verdict over spec SC list ∪ evaluator per_criterion/per_claim set; absent SC defaults FAIL (SC-1).
+  - Independent flag-gate: coverage_complete AND chain_complete computed from spec list vs the three upstream artifacts (evidence.yaml, reasoning.yaml, verdict.yaml), independent of evaluator verdicts; any false flag forces FAIL (SC-2).
+  - Advisory reconciliation: do NOT BLOCK / do NOT re-evaluate error-table language bound to the FAIL gate (SC-9).
+boundary:
+  - Phase 1 touches ONLY *-audit-arbiter.md cards (5 cards per wildcard glob). No evaluator, orchestrator, or release changes.
+
+## Phase 2: evaluator completeness (concern: full SC enumeration)
+concerns:
+  - Full enumeration: evaluator output carries every spec SC in per_criterion/per_claim — no silent omission (SC-4).
+  - Skipped-SC semantics: skipped SC emitted as FAIL with NOT_EVALUATED marker (SC-5).
+boundary:
+  - Phase 2 touches ONLY *-audit-evaluator.md cards. Depends on Phase 1's union shape but edits disjoint files.
+
+## Phase 3: workflow gating structure (concern: hard gate, loop, escalation)
+concerns:
+  - FAIL as hard gate halting the deliverable until remediation (SC-6).
+  - Remediate-and-re-audit loop iterating until R-13 termination condition (SC-7); orchestrator restart at any non-clean phase (SC-11) iterating until 100% clean (SC-12).
+  - Escalation as only exit from unremediable FAIL / non-clean phase (SC-8, SC-13).
+  - Structural binding: loop is a workflow step (dispatch gate) in audit/SKILL.md, not prose (SC-14).
+boundary:
+  - Phase 3 spans audit/SKILL.md plus the arbiter/evaluator cards from Phases 1-2 — same-file overlap with earlier phases; sequenced after them to avoid edit conflicts.
+
+## Phase 4: release handshake gating (concern: aggregate consumption at promotion)
+concerns:
+  - NEW gate logic in release-promoter tasks consuming the corrected aggregate; coverage-gap FAIL keeps ticket unreleased (SC-10).
+boundary:
+  - Phase 4 touches ONLY release-promoter tasks + git-workflow-cleanup/cleanup.md. File-disjoint from Phases 1-3.
+
+## Phase 5: verification harness (concern: behavioral-only evidence)
+concerns:
+  - Behavioral test scripts + fixtures under tests-v2/behaviors/ exercising the full chain via real opencode run dispatch (SC-3); no static coded checks.
+boundary:
+  - Phase 5 touches ONLY tests-v2/. Evidence for ALL other phases flows through this harness.
+
+separation:
+  - Arbiter concern (Phase 1) vs evaluator concern (Phase 2) split by card role — producer
+    enumeration vs consumer aggregation. Workflow-gating concern (Phase 3) layered on top;
+    release-handshake concern (Phase 4) isolated downstream; harness concern (Phase 5) supplies evidence for all.
