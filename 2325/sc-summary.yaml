@@ -25,7 +25,7 @@ scs:
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "All 13 audit task files use plain-string path-parameter invocations with bracketed placeholders and empty-result guards where listings feed downstream logic; role contracts unchanged"
+    description: "All 27 audit task files enumerated in the spec SC-6 Invocation-Site Inventory use plain-string path-parameter invocations with bracketed placeholders and empty-result guards where listings feed downstream logic; role contracts unchanged"
     evidence_type: "structural"
     plan_item: 6
   - id: "SC-7"

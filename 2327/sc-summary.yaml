@@ -1,30 +1,34 @@
-sc_count: 7
+sc_count: 8
 scs:
-  - id: "SC-1"
-    description: "Single canonical behavioral-evidence convention documented across four surfaces; conflicting spellings removed; VbC working-copy prefix renamed away from collision"
-    evidence_type: "behavioral"
+  - id: "SC-1a"
+    description: "Single canonical behavioral-evidence convention documented across four agent-facing surfaces; zero residual conflicting spellings"
+    evidence_type: "hybrid — structural for completeness + behavioral for compliance"
     plan_item: 1
+  - id: "SC-1b"
+    description: "VbC working-copy pattern renamed away from the behavioral-evidence prefix so working copies cannot collide with harness output"
+    evidence_type: "behavioral"
+    plan_item: 2
   - id: "SC-2"
     description: "Durable-anchor citation rule with claim-vs-procedure distinction defined in the verification-honesty guideline"
     evidence_type: "behavioral"
-    plan_item: 2
+    plan_item: 3
   - id: "SC-3"
     description: "Spec templates steer evidence-location fields toward durable anchors referencing SC-2 class definitions"
     evidence_type: "behavioral"
-    plan_item: 3
+    plan_item: 4
   - id: "SC-4"
     description: "Deterministic reference-classifier check inside the audit cycle using repo-aware queries only, never filesystem presence checks"
     evidence_type: "behavioral"
-    plan_item: 4
+    plan_item: 5
   - id: "SC-5"
     description: "VbC persists durable per-SC verdict records into .issues/{N}/artifacts/ classified as analysis content with tmp working copies retained"
     evidence_type: "behavioral"
-    plan_item: 5
+    plan_item: 6
   - id: "SC-6"
     description: "Retention/cleanup policies for every ephemeral class wired into the cleanup contract with directory-aware merge-gated removal"
     evidence_type: "behavioral"
-    plan_item: 6
+    plan_item: 7
   - id: "SC-7"
     description: "Fix spec obeys its own durable-anchor rule; classifier run against final spec returns zero flags"
     evidence_type: "behavioral"
-    plan_item: 7
+    plan_item: 8

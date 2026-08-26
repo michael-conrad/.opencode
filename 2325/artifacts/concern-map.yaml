@@ -28,7 +28,38 @@ concerns:
 
   - concern: audit-invocation-hygiene
     owner_phase: 2 (SC-6)
-    files: [".opencode/skills/audit/tasks/*.md"]
+    files:
+      # 27 files — complete verified enumeration; authoritative list and counting
+      # methods (M-1/M-2) live in spec.md §SC-6 Invocation-Site Inventory.
+      # 2026-08-26 revision: was "*.md" glob contradicting the spec's 13-file claim;
+      # synced to the spec inventory per validation findings.
+      - .opencode/skills/audit/tasks/coherence-maintenance-investigator.md
+      - .opencode/skills/audit/tasks/coherence-maintenance-validator.md
+      - .opencode/skills/audit/tasks/concern-separation-arbiter.md
+      - .opencode/skills/audit/tasks/concern-separation-evaluator.md
+      - .opencode/skills/audit/tasks/concern-separation-investigator.md
+      - .opencode/skills/audit/tasks/concern-separation-validator.md
+      - .opencode/skills/audit/tasks/content-audit-investigator.md
+      - .opencode/skills/audit/tasks/drift-detection-arbiter.md
+      - .opencode/skills/audit/tasks/drift-detection-evaluator.md
+      - .opencode/skills/audit/tasks/drift-detection-investigator.md
+      - .opencode/skills/audit/tasks/drift-detection-validator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-arbiter.md
+      - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-investigator.md
+      - .opencode/skills/audit/tasks/plan-fidelity-validator.md
+      - .opencode/skills/audit/tasks/spec-audit-arbiter.md
+      - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+      - .opencode/skills/audit/tasks/spec-audit-investigator.md
+      - .opencode/skills/audit/tasks/spec-audit-validator.md
+      - .opencode/skills/audit/tasks/test-quality-audit-arbiter.md
+      - .opencode/skills/audit/tasks/test-quality-audit-evaluator.md
+      - .opencode/skills/audit/tasks/test-quality-audit-investigator.md
+      - .opencode/skills/audit/tasks/test-quality-audit-validator.md
+      - .opencode/skills/audit/tasks/verification-audit-arbiter.md
+      - .opencode/skills/audit/tasks/verification-audit-evaluator.md
+      - .opencode/skills/audit/tasks/verification-audit-investigator.md
+      - .opencode/skills/audit/tasks/verification-audit-validator.md
     boundary: >
       Owns syntax normalization and empty-result guards across the audit family.
       Role contracts, verdicts, and evidence schemas explicitly OUT of scope.

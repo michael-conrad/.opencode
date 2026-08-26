@@ -17,7 +17,7 @@ phase_2_sc_2_to_7_deck_fixes:
     - .opencode/skills/sre-runbook/tasks/generate.md
     - .opencode/skills/verification-before-completion/tasks/completion.md
     - .opencode/skills/verification-before-completion/tasks/collect.md
-    - .opencode/skills/audit/tasks/*.md (13 files)
+    - .opencode/skills/audit/tasks/*.md (27 files — complete verified list in spec §SC-6 Invocation-Site Inventory; 2026-08-26 revision, was 13)
     - .opencode/guidelines/020-go-prohibitions.md
   ripple:
     - "sre-runbook RB_PATH consumers downstream in same task card (write/env-search steps) - contract preserved, only discovery mechanism changes"
@@ -25,7 +25,13 @@ phase_2_sc_2_to_7_deck_fixes:
     - "verification-before-completion pipeline stages upstream/downstream of the two table rows unchanged"
     - "behavioral test scenarios referencing these files may need scenario-map updates in tests-v2/test-enforcement.sh FILE_SCENARIO_MAP"
   blast_radius_class: MODERATE
-  rationale: "17 files across 3 skills + 1 guideline; all edits confined to invocation syntax and guards; zero semantic protocol changes"
+  rationale: >
+    31 files across 3 skills + 1 guideline (27-file audit inventory + generate.md +
+    completion.md + collect.md + 020-go-prohibitions.md); with phase-1's
+    060-tool-usage.md the deck-wide direct total is 32 files, plus 2 harness files
+    for SC-8. All edits confined to invocation syntax and guards; zero semantic
+    protocol changes. Counts reconciled to spec counting methods M-1/M-2 on
+    2026-08-26 (was: '17 files', understating the live deck).
 
 phase_3_sc_8_behavioral_test:
   direct: [".opencode/tests-v2/behaviors/<new-scenario>.sh", ".opencode/tests-v2/test-enforcement.sh (scenario registration)"]
