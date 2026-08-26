@@ -10,7 +10,7 @@ variables:
     description: "Cross-referencing — Read-Link to 060-tool-usage / 085-project-local-tools (SC-9)"
   phase_3:
     type: bool
-    description: "Behavioral enforcement test — agent behavior change (SC-4, SC-5)"
+    description: "Behavioral enforcement test — agent behavior change; behavioral verification of root tooling exclusivity (SC-1, SC-2), submodule prohibition (SC-3), Tier 2 HALT framing (SC-4), carve-out (SC-5)"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
   - "z3.Implies(phase_3, phase_1)"
@@ -34,9 +34,15 @@ phases:
       - SC-9
   phase_3:
     files:
+      - .opencode/tests-v2/behaviors/2318-sc1-root-build-tool.sh
+      - .opencode/tests-v2/behaviors/2318-sc2-root-project-local-tools.sh
+      - .opencode/tests-v2/behaviors/2318-sc3-submodule-toolchain-prohibition.sh
       - .opencode/tests-v2/behaviors/2318-sc4-tier2-halt-framing.sh
       - .opencode/tests-v2/behaviors/2318-sc5-dev-authorization-carveout.sh
     scs:
+      - SC-1
+      - SC-2
+      - SC-3
       - SC-4
       - SC-5
 edges:
@@ -47,5 +53,5 @@ edges:
     to: phase_3
     rationale: "The SC-4 HALT-framing and SC-5 carve-out behavioral tests exercise the rule authored in Phase 1; the rule must exist before the tests can drive agent behavior."
 notes:
-  - "Phase 1 authors the Tier 2 root-repo-only tooling rule text (SC-1..SC-8 substance). Phase 2 adds Read-Link cross-references to 060-tool-usage.md and 085-project-local-tools.md (SC-9). Phase 3 adds the SC-4/SC-5 behavioral enforcement scenarios that exercise the Phase 1 rule. Phase 2 and Phase 3 both depend on Phase 1 rule text."
+  - "Phase 1 authors the Tier 2 root-repo-only tooling rule text (SC-1..SC-8 substance) AND the RED behavioral scenarios 2318-sc1/2318-sc2/2318-sc3. Phase 2 adds Read-Link cross-references to 060-tool-usage.md and 085-project-local-tools.md (SC-9). Phase 3 executes all five behavioral enforcement scenarios (2318-sc1..2318-sc5) exercising the Phase 1 rule: SC-1/SC-2 root tooling exclusivity, SC-3 submodule prohibition, SC-4 Tier 2 HALT framing, SC-5 carve-out. Phase 2 and Phase 3 both depend on Phase 1 rule text. Phase 3 SC scope [SC-1..SC-5] matches concern-map phase_3 scs."
   - "Dependency contract extracted from interface-compatibility.yaml 'dependency_contract' section per writing-plans research task step 9."

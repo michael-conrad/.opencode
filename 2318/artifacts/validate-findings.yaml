@@ -1,0 +1,100 @@
+# Validation findings — issue #2318
+# Writing-plans validate task — 6-category structural plan validation
+# Revised validation against current plan.md (post plan_revised lifecycle event 2026-08-26T18:20:00Z)
+
+issue: 2318
+schema: writing-plans-validate-findings-v1
+overall_status: DONE
+
+solve_status: SAT
+solve_reference: artifacts/solve-output.yaml
+
+plan_reference: plan.md
+dependency_contract_reference: dependency-contract.yaml
+concern_map_reference: artifacts/concern-map.yaml
+
+categories:
+
+  - id: 1
+    name: Structural validation
+    result: PASS
+    checks:
+      - id: phase-table
+        result: PASS
+        detail: "plan.md has a phase table with all required columns Phase, Skill, Task, Target, SCs, Depends On."
+      - id: phase-procedure-numbered-steps
+        result: PASS
+        detail: "Each phase has a Procedure section with numbered steps. Phase 1 has steps 1-27; Phase 2 has steps 1-4; Phase 3 has steps 1-20."
+      - id: exit-criteria-sc-to-phase-mapping
+        result: PASS
+        detail: "Exit Criteria section maps each criterion C1-C9 to its phase: C1-C5 (Phase 3), C6-C8 (Phase 1), C9 (Phase 2)."
+
+  - id: 2
+    name: Skill+task validity
+    result: PASS
+    checks:
+      - id: skill-task-references
+        result: PASS
+        detail: "All phase skill+task references ('test-driven-development'/'red') match valid entries in the implementation-workflow reference card. All dispatched sub-agent steps use canonical dispatch strings from the reference card: red/green from test-driven-development, verify from verification-before-completion, checklist from finishing-a-development-branch, phase-4 from test-driven-development, audit from audit, review-prep and create from git-workflow-pr, completion from completion-core. Inline steps (commits, Z3 check) match orchestrator-owned steps per the reference card. No invalid reference found."
+
+  - id: 3
+    name: SC coverage
+    result: PASS
+    checks:
+      - id: sc-presence-in-exit-criteria
+        result: PASS
+        detail: "All nine SCs (SC-1..SC-9) appear in exit criteria C1-C9. Phase table maps SC-1,2,3,6,7,8 -> Phase 1; SC-9 -> Phase 2; SC-1,2,3,4,5 (behavioral verification) -> Phase 3."
+      - id: triplet-split-detection
+        result: PASS
+        detail: "No SC has its RED/GREEN/COMMIT steps split across phases. SC-1,2,3 RED/GREEN/commit authored together in Phase 1; SC-6,7,8 in Phase 1; SC-9 in Phase 2; SC-4,5 in Phase 3. No TRIPLET_SPLIT detected."
+      - id: sc-123-behavioral-test-enumeration
+        result: PASS
+        detail: "SC-1, SC-2, SC-3 behavioral test scenario files are enumerated in both Phase 1 target (2318-sc1-root-build-tool.sh, 2318-sc2-root-project-local-tools.sh, 2318-sc3-submodule-toolchain-prohibition.sh) and Phase 3 target (all five 2318-sc*.sh scenarios). Phase 3 steps 9-11 execute the SC-1/SC-2/SC-3 behavioral verification per spec Section 7 traceability note."
+
+  - id: 4
+    name: Concern separation
+    result: PASS
+    checks:
+      - id: phase-to-concern-alignment
+        result: PASS
+        detail: "Plan Phase 1 scs [SC-1,2,3,6,7,8] match concern-map phase_1 scs; Plan Phase 2 scs [SC-9] match concern-map phase_2 scs; Plan Phase 3 scs [SC-1,2,3,4,5] match concern-map phase_3 scs. SC-1/SC-2/SC-3 behavioral verification is scoped to Phase 3 as assigned by the concern-map (their rule-text concerns remain in Phase 1). No misalignment."
+      - id: no-two-phases-same-concern
+        result: PASS
+        detail: "Each concern in concern-map.yaml maps to exactly one phase's substantive scope; no two phases address the same concern in conflict. Concern-map phase_1 legitimately groups multiple concerns (root_tooling_exclusivity, submodule_prohibition, framework_agnosticism, canonical_placement) per the spec."
+
+  - id: 5
+    name: DAG validation
+    result: PASS
+    checks:
+      - id: no-cycles
+        result: PASS
+        detail: "Dependency contract edges phase_1->phase_2 and phase_1->phase_3 form no cycle."
+      - id: all-phases-reachable
+        result: PASS
+        detail: "phase_2 and phase_3 both depend on phase_1; all three phases reachable from start node phase_1."
+      - id: no-orphan-phases
+        result: PASS
+        detail: "phase_1 has outgoing edges; phase_2 and phase_3 have incoming edges from phase_1. No orphan phase."
+      - id: solve-status
+        result: PASS
+        detail: "solve-output.yaml reports solve_status SAT for both model and check; planner produced SOLVED_SATISFICING 3-step plan run_p1 -> run_p2 -> run_p3. State-analysis is consistent with the contract (initial all-false assignment SAT)."
+
+  - id: 6
+    name: Holistic quality
+    result: PASS
+    checks:
+      - id: no-tbd-todo
+        result: PASS
+        detail: "No TBD/TODO/FIXME placeholder tokens present in the plan body."
+      - id: checkbox-steps
+        result: PASS
+        detail: "Exit criteria C1-C9 use checkbox format '- [ ]'."
+      - id: dispatch-mode-consistency
+        result: PASS
+        detail: "All phases use dispatched sub-agent/clean-room steps; inline steps (commit, Z3 check) are orchestrator-owned per the implementation-workflow reference card commit-inline/z3-check entries. No inline phase contains dispatched steps and no clean-room-only phase contains inline dispatch. Mode consistent."
+
+overall_findings:
+  - "All six validation categories PASS against the current plan."
+  - "Prior findings (missing numbered procedure steps, missing exit-criteria SC-to-phase mapping, un-enumerated SC-1/2/3 behavioral scenarios, Phase 3 SC scope divergence) were resolved in the plan_revised lifecycle (2026-08-26T18:20:00Z)."
+
+recommendation: "Plan is structurally valid and ready for implementation dispatch."
