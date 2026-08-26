@@ -1,25 +1,49 @@
-cross_cutting_matrix:
-  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
-  issue_number: 2324
-  generated: "2026-08-26"
-  mode: retroactive_backfill
-  cross_cutting_scs:
-    - sc: SC-2
-      spans_concerns: [C1-registration-integrity, C2-load-verification]
-      coupling: "Load is impossible before registration — hard dependency, sequential not parallel"
-    - sc: SC-3
-      spans_concerns: [C1-registration-integrity, C3-routing-dispatchability]
-      coupling: "Dispatch target must exist in the registry before the approval-gate routing rule can resolve it — hard dependency on SC-1"
-  dependency_order:
-    - "SC-1 (registration) precedes SC-2 (load) and SC-3 (routing)"
-    - "SC-2 and SC-3 are independent of each other once SC-1 holds; both gate the restored for_pr pipeline"
-  deck_wide_concerns:
-    - concern: "Registration-gap audit across full skill deck (spec Impact #2 mitigation)"
-      spans_all_concerns: true
-      current_evidence: >
-        Live-session registry comparison on 2026-08-26 shows exactly one gap (executing-plans) among
-        48 top-level skill directories; .opencode/skills/reference/ has no SKILL.md and is correctly
-        unregistered. No second gap found.
-  shared_mechanisms:
-    - mechanism: "YAML frontmatter self-discovery (single registration mechanism per spec Approach)"
-      used_by: [SC-1, SC-2, SC-3]
+# Analytical artifact: cross-cutting-matrix — backfilled retroactively from spec body
+# Identifies SCs that span multiple concerns
+artifact: cross-cutting-matrix
+spec_path: .opencode/.issues/2324/spec.md
+generated_by: 'writing-plans/tasks/backfill.md (retroactive mode)'
+generated_at: 2026-08-26
+
+cross_cutting_scs:
+  - sc: SC-1
+    spans:
+      - concern: runtime-state diagnosis (fresh-runtime reproduction through with-test-home isolation)
+      - concern: operational remediation (Branch A — host runtime process restart / registry refresh)
+      - concern: upstream escalation protocol (Branch B — R-4 evidence-backed defect report, BLOCKED reporting)
+    coupling_note: >-
+      The diagnosis branch decision (A vs B) determines whether Phase 1 completes normally or
+      the entire spec enters BLOCKED-pending-upstream state; both branches are inside Item 1.
+
+  - sc: SC-2
+    spans:
+      - concern: skill-tool invocation layer (skill({name}) resolution)
+      - concern: registry state produced by SC-1 (resolution requires the SC-1 outcome)
+    coupling_note: >-
+      Edge case "partial restoration" makes this span explicit — if the registry lists the
+      card but skill() load still fails, Item 2 isolates the load-layer failure and its
+      artifacts attach to the R-4 report to localize the defect for upstream.
+
+  - sc: SC-3
+    spans:
+      - concern: approval-gate routing-rule executability (Mandatory Routing Rule text, unchanged)
+      - concern: registry layer (SC-1 outcome is a precondition)
+      - concern: load layer (SC-2 outcome is a precondition)
+      - concern: behavioral evidence pipeline (scenario run + clean-room sub-agent evaluation + tmp/behavioral-evidence-* retention)
+    coupling_note: >-
+      SC-3 GREEN explicitly requires "SC-1 and SC-2 restored" per Items section; it cannot be
+      verified independently of either prior concern.
+
+requirement_level_spans:
+  - requirement: R-4
+    spans: [SC-1 Branch B handling, SC-2 partial-restoration edge case]
+    note: >-
+      R-4's escalation output (upstream defect report) consumes diagnostic artifacts from both
+      probe layers when restoration is only partial.
+
+matrix_summary:
+  single_concern_scs: []
+  multi_concern_scs: [SC-1, SC-2, SC-3]
+  rationale: >-
+    All three SCs sit on one dependency chain across two runtime layers (registry, load) plus
+    the gate layer; the spec's own Items sequence encodes this as strict ordering.

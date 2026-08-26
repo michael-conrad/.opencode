@@ -1,36 +1,69 @@
-code_path_inventory:
-  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
-  issue_number: 2324
-  generated: "2026-08-26"
-  mode: retroactive_backfill
-  paths_by_sc:
-    - sc: SC-1
-      code_paths:
-        - path: "opencode runtime skill scan"
-          detail: "Runtime scans .opencode/skills/*/SKILL.md, parses YAML frontmatter, populates <available_skills> per reference/skill-card-schema.md ('Derived from the opencode binary')"
-        - path: ".opencode/opencode.jsonc"
-          detail: "Verified: no skill registry key exists; instructions array is guidelines-only — rules out config-based registration as the mechanism"
-        - path: ".opencode/plugins/session-enforcement.ts"
-          detail: "Verified: zero skill-registration references — plugin is not the registration layer"
-        - path: ".opencode/tools/skildeck"
-          detail: "Verified via --help: lint/analyze/export/verify actions only — analysis CLI, not registration"
-        - path: ".opencode/skills/reference/"
-          detail: "Directory without SKILL.md (verified) — correctly excluded from registry; confirms scan filters on SKILL.md presence plus frontmatter validity"
-    - sc: SC-2
-      code_paths:
-        - path: "skill() loader"
-          detail: "skill({name}) resolves name against <available_skills> registry keys; on match loads .opencode/skills/executing-plans/SKILL.md into orchestrator context"
-        - path: ".opencode/skills/executing-plans/SKILL.md frontmatter"
-          detail: "Byte-verified clean: name executing-plans matches directory and regex ^[a-z0-9]+(-[a-z0-9]+)*$; description 246 chars (< 1024 hard-fail limit)"
-    - sc: SC-3
-      code_paths:
-        - path: ".opencode/skills/approval-gate/SKILL.md:87-88"
-          detail: "TDT rows for_pr / for_release_pr -> 'execute plan via executing-plans'"
-        - path: ".opencode/skills/approval-gate/SKILL.md:141-148"
-          detail: "Mandatory Routing Rule: for_pr with existing plan MUST dispatch executing-plans before PR creation; direct PR creation is a CRITICAL VIOLATION"
-        - path: ".opencode/skills/executing-plans/tasks/read-plan.md + dispatch-phase.md"
-          detail: "Task cards consumed by the dispatched plan-execution workflow (both exist, verified)"
-  root_cause_location: >
-    Registration/discovery layer of the opencode runtime. The card passes every documented hard-fail
-    constraint, all consumers reference the correct name, and no repo-side registry file exists to be
-    stale — the runtime failed to surface the re-added card after commit 64446452 restored it.
+# Analytical artifact: code-path-inventory — backfilled retroactively from spec body
+# Lists code paths implied by each SC
+artifact: code-path-inventory
+spec_path: .opencode/.issues/2324/spec.md
+generated_by: 'writing-plans/tasks/backfill.md (retroactive mode)'
+generated_at: 2026-08-26
+
+sc_code_paths:
+  SC-1:
+    paths:
+      - entry: bash .opencode/tests-v2/with-test-home opencode run '<probe>'
+        description: >-
+          Isolated-runtime probe. Harness builds a test home (XDG-isolated), copies the
+          standalone binary, seeds model config via seed_model_config(), and clones the
+          checkout at the pinned submodule HEAD so mid-probe deck edits cannot contaminate
+          observations.
+      - name: runtime_skill_discovery_scan
+        description: >-
+          Opencode runtime scans .opencode/skills/*/SKILL.md (plus global/compatible
+          locations) at session start and generates the <available_skills> registry.
+          Defect locus per spec: runtime registry state, not repository content.
+      - evidence_export: .opencode/tools/session-to-timeline
+        description: >-
+          Exports the probe session's SQLite state to session.yaml timeline; registry
+          content presented to the model is inspected there for executing-plans presence.
+
+  SC-2:
+    paths:
+      - entry: same probe artifacts as SC-1 (identical probe prompt includes the skill() invocation)
+        description: >-
+          Probe prompt instructs skill({name: "executing-plans"}); the skill-tool result part
+          in session.yaml is inspected for card body (Overview heading present) versus a
+          missing-skill error.
+      - name: skill_invocation_resolution
+        description: >-
+          Runtime resolves the requested name against the generated registry; resolution
+          requires the registry entry produced by the SC-1 path.
+
+  SC-3:
+    paths:
+      - entry: bash .opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh
+        description: >-
+          Existing behavioral scenario (reused unchanged) driving an agent under for_pr
+          scope with an existing approved plan; bash tool timeout >= 600 seconds.
+      - name: routing_rule_execution
+        description: >-
+          approval-gate SKILL.md "Mandatory Routing Rule for `for_pr`" section — agent must
+          dispatch executing-plans before any PR creation; direct PR creation without plan
+          execution is a CRITICAL VIOLATION.
+      - name: dispatched_card_task_cards
+        description: >-
+          On successful dispatch, executing-plans reads tasks/read-plan.md then sequences
+          tasks/dispatch-phase.md through implementation phases.
+      - evaluation: clean-room sub-agent two-SC pattern
+        description: >-
+          Independent sub-agent reads scenario session.yaml artifacts and evaluates the
+          dispatch sequence; artifact generation plus independent evaluation; orchestrator
+          records verdict; behavioral evidence preserved under tmp/behavioral-evidence-*.
+
+shared_infrastructure_paths:
+  - .opencode/tests-v2/with-test-home (SC-1, SC-3)
+  - session-to-timeline export of session.yaml (SC-1, SC-2)
+  - .opencode/tools/schema-version / lock hygiene per tests-v2 AGENTS.md §10 conventions
+
+no_modification_paths:
+  note: >-
+    No production code path is modified by any branch. The inventory above covers execution
+    and observation paths only; writes land in .opencode/.issues/2324/research/,
+    tmp/behavioral-evidence-*, and (Branch B) the upstream issue tracker.

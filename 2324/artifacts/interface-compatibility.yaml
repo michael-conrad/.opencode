@@ -1,58 +1,72 @@
-interface_compatibility:
-  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
-  issue_number: 2324
-  generated: "2026-08-26"
-  mode: retroactive_backfill
-  boundaries:
-    - boundary: B1-discovery-to-registry
-      producer: ".opencode/skills/executing-plans/SKILL.md frontmatter"
-      consumer: "opencode runtime skill scan -> <available_skills> registry"
-      contract_source: "reference/skill-card-schema.md (binary hard-fail constraints)"
-      compatibility_status: satisfied_verified
-      evidence: >
-        name 'executing-plans': matches directory, regex ^[a-z0-9]+(-[a-z0-9]+)*$, 16 chars (limit 64);
-        description present, 246 chars (limit 1024); frontmatter byte-clean (no BOM/CRLF); unknown key
-        'provenance' is silently ignored per schema — not a rejection cause.
-    - boundary: B2-skill-call-to-loader
-      producer: "skill({name: \"executing-plans\"}) invocation"
-      consumer: "skill card loader"
-      contract: "exact string match between requested name and registry key; loader returns card content into orchestrator context"
-      compatibility_status: blocked_by_registration_gap
-      evidence: "Live session 2026-08-26: executing-plans absent from <available_skills>; all other valid cards registered"
-    - boundary: B3-routing-rule-to-dispatch
-      producer: "approval-gate for_pr Mandatory Routing Rule"
-      consumer: "task() dispatch referencing executing-plans and its task cards"
-      contract_source: ".opencode/skills/approval-gate/SKILL.md:87-88,141-148"
-      compatibility_status: text_intact_target_unresolvable
-      evidence: "Rule text references the correct name; dispatch fails only because the registry entry is missing"
-  dependency_contract:
-    - consumer: "approval-gate for_pr / for_release_pr TDT rows + Mandatory Routing Rule"
-      consumer_path: ".opencode/skills/approval-gate/SKILL.md"
-      provider: "skill registry entry"
-      target_key: "executing-plans"
-      type_constraint: "exact string match on registry key; no transformation permitted between rule text and key"
-    - consumer: "plan skill related-skills reference"
-      consumer_path: ".opencode/skills/plan/SKILL.md:122"
-      provider: "skill registry entry"
-      target_key: "executing-plans"
-      type_constraint: "string reference must resolve to a registered skill name"
-    - consumer: "verification-before-completion chain documentation"
-      consumer_path: ".opencode/skills/verification-before-completion/tasks/collect.md:135"
-      provider: "skill registry entry"
-      target_key: "executing-plans"
-      type_constraint: "pipeline-chain step name must resolve to registered skill"
-    - consumer: "using-git-worktrees REQUIRED-before list"
-      consumer_path: ".opencode/skills/using-git-worktrees/tasks/reference.md:61"
-      provider: "skill registry entry"
-      target_key: "executing-plans"
-      type_constraint: "REQUIRED marker must point at loadable skill"
-    - source_card: ".opencode/skills/executing-plans/SKILL.md frontmatter"
-      fields:
-        - {field: name, value: "executing-plans", constraint: "required; regex ^[a-z0-9]+(-[a-z0-9]+)*$; equals directory name"}
-        - {field: description, value_len: 246, constraint: "required; 1-1024 chars"}
-        - {field: license, value: "MIT", constraint: "optional free-form (project standard)"}
-        - {field: compatibility, value: "opencode", constraint: "optional free-form (project standard)"}
-        - {field: provenance, value: "AI-generated", constraint: "unknown field — ignored by binary per schema"}
-  backward_compatibility: >
-    Adding one registry entry changes no existing keys, no consumer text, and no card content.
-    Existing sessions are unaffected until restart; new sessions gain the additional skill only.
+# Analytical artifact: interface-compatibility — backfilled retroactively from spec body
+# Interface boundaries between affected modules + dependency_contract for solve/plan tools
+artifact: interface-compatibility
+spec_path: .opencode/.issues/2324/spec.md
+generated_by: 'writing-plans/tasks/backfill.md (retroactive mode)'
+generated_at: 2026-08-26
+
+interface_boundaries:
+  - boundary: skill-deck-filesystem_vs_runtime-discovery-scanner
+    producer: '.opencode/skills/executing-plans/SKILL.md frontmatter fields: name, description, license, compatibility, provenance'
+    consumer: opencode runtime skill discovery scanner (generates <available_skills> at session start)
+    contract: >-
+      Scanner requires SKILL.md per .opencode/skills/<name>/ with frontmatter name matching the
+      directory name, description present within documented length limit. Verified satisfied on
+      disk live this spec's authoring cycle; no repo-side edit permitted by scope.
+    compatibility_status: satisfied-on-disk / defective-at-runtime
+
+  - boundary: agent_vs_skill-tool
+    producer: 'agent probe prompt instructing skill({name: "executing-plans"})'
+    consumer: runtime skill() tool
+    contract: >-
+      Invocation with a registry-present name MUST return the full card body; invocation with a
+      registry-absent name yields a missing-skill error part. SC-2 asserts the former post-fix.
+    compatibility_status: blocked until SC-1 restored
+
+  - boundary: approval-gate-routing-rule_vs_dispatch-target
+    producer: .opencode/skills/approval-gate/SKILL.md — "Mandatory Routing Rule for `for_pr`" section
+    consumer: executing-plans skill card as dispatch target
+    contract: >-
+      Rule text mandates dispatching `executing-plans` under for_pr scope before any PR creation;
+      the name string must resolve at runtime via skill(). Zero modifications to rule text permitted.
+    compatibility_status: unexecutable until SC-1/SC-2 restored
+
+  - boundary: test-harness_vs_session-artifact-format
+    producer: probe/scenario sessions run through bash .opencode/tests-v2/with-test-home
+    consumer: .opencode/tools/session-to-timeline (and clean-room evaluation sub-agent for SC-3)
+    contract: >-
+      Session state exported to session.yaml in the timeline format session-to-timeline parses;
+      model-facing parts expose the registry listing and tool results needed by all three SC verifications.
+    compatibility_status: satisfied (harness and export tool both present)
+
+dependency_contract:
+  - source: .opencode/skills/approval-gate/SKILL.md ("Mandatory Routing Rule for `for_pr`")
+    target: .opencode/skills/executing-plans/SKILL.md
+    constraint: >-
+      Dispatch target string "executing-plans" MUST exactly equal the card's frontmatter
+      name field value; runtime must resolve it through skill({name: "executing-plans"}).
+      Type constraint: exact string equality, no aliasing.
+    status: disk-satisfied; runtime-blocked pending remediation
+  - source: opencode runtime discovery scanner
+    target: .opencode/skills/executing-plans/SKILL.md frontmatter
+    constraint: >-
+      Required fields name (string, matches directory, passes documented name pattern) and
+      description (string, within documented length limit); no permission.skill deny entry in
+      project or global config may hide it; no competing definition in other discovery locations.
+    status: verified-satisfied (live checks recorded in spec Documentation Sources)
+  - source: .opencode/tests-v2/with-test-home harness
+    target: .opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh
+    constraint: >-
+      Scenario executes opencode run inside an isolated test home; harness must exist at its
+      fixed relative path and support >=600s runs (bash tool timeout parameter, never GNU timeout).
+    status: satisfied (both files exist)
+  - source: probe/scenario session.yaml exports
+    target: .opencode/tools/session-to-timeline
+    constraint: >-
+      Exported YAML timeline must be parseable by session-to-timeline; registry listing and
+      skill-tool result parts observable for assertion.
+    status: satisfied (tool exists)
+
+compatibility_risks:
+  - risk: Branch B leaves the routing-rule boundary permanently unexecutable in-repo
+    mitigation: R-4 upstream report + BLOCKED reporting; no workaround permitted by Enforcement Gate.

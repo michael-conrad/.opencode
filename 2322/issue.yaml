@@ -12,14 +12,11 @@ body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.op
   ## Problem
 
 
-  `.opencode/skills/writing-plans/tasks/research.md` step 12 (line 48) instructs `./.opencode/tools/plan
-  plan --contract-path {issues_prefix}/{N}/dependency-contract.yaml --output {issues_prefix}/{N}/artifacts/plan-output.yaml`,
-  but the `plan plan` subcommand requires `--problem <YAML>` and `--engine`, and has
-  **NO** `--contract-path` or `--output` flags. Verified live: `./.opencode/tools/plan
-  plan --help` shows only `--problem` and `--engine`. The `--contract-path` flag exists
-  only on the `solve` tool and on `plan state update`, not on `plan plan`. This defect
-  blocks the research step of the writing-plans pipeline for ALL plans (including
-  `.opencode#2320`).
+  `.opencode/skills/writing-plans/tasks/research.md` step 12 passes solve-style flags
+  (`--contract-path`, `--output`) to the `plan plan` subcommand, which accepts only
+  a required `--problem <YAML>` and an optional `--engine` (default `tamer`) — verified
+  live against `./.opencode/tools/plan plan --help`. The argument-parsing failure
+  hard-blocks the writing-plans research step for ALL plans (including `.opencode#2320`).
 
 
   ## Scope
@@ -29,11 +26,13 @@ body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.op
   to use the correct invocation pattern for the `plan plan` subcommand
 
   - **In scope:** Correct the invocation to build a `phase-problem.yaml` from the
-  dependency-contract''s phase DAG, then run `./.opencode/tools/plan plan --problem
-  {issues_prefix}/{N}/artifacts/phase-problem.yaml` and capture stdout to `plan-output.yaml`
+  dependency-contract''s phase DAG per the mapping defined in the full spec (§Definitions),
+  run `./.opencode/tools/plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml
+  > {issues_prefix}/{N}/artifacts/plan-output.yaml`
 
-  - **In scope:** Update the exit criterion at line 60 if needed to match the corrected
-  invocation
+  - **In scope:** Exit-criterion determination recorded: line 60 requires NO change
+  — it already names exactly the success statuses the tool emits (`SOLVED_SATISFICING`
+  / `SOLVED_OPTIMALLY`)
 
   - **Out of scope:** Changes to the `solve` tool or its `--contract-path` model
 
@@ -43,40 +42,30 @@ body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.op
   ## Approach
 
 
-  The task card wrongly applied the `solve` tool''s `--contract-path` contract-file
-  model to the `plan` tool. The `plan` tool''s `plan plan` subcommand is problem-driven,
-  not contract-driven: it takes a `--problem` YAML file describing the phase DAG and
-  an `--engine` selector, and emits the plan to stdout. The corrected pattern — evidenced
-  by resolved issues 2134 and 2166 — is to build a `phase-problem.yaml` from the dependency-contract''s
-  phase DAG, run `./.opencode/tools/plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml`,
-  and capture stdout to `plan-output.yaml`.
-
-
-  ## Root Cause
-
-
-  The task card conflated two distinct tools with different invocation contracts.
-  `solve` (and `plan state update`) take a `--contract-path` contract file; `plan
-  plan` takes a `--problem` file and emits output to stdout (captured via redirect).
-  Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing
-  failure, hard-blocking the research step. The defect has been present since the
-  task card''s first commit (6581901f, 2026-07-30) and was carried through later commits
-  unchanged.
+  The task card conflated the `solve` tool''s contract-driven model (`--contract-path`)
+  with the `plan` tool''s problem-driven model (`--problem`). The corrected pattern
+  — evidenced by resolved issue `.opencode#2134` (`dependency-contract.yaml` → `artifacts/phase-problem.yaml`
+  → `artifacts/plan-output.yaml`) — builds a phase-problem from the dependency-contract''s
+  phase DAG (fluent per phase variable, action per phase ordered by contract preconditions/edges,
+  empty init, all phases as goals) and captures stdout. Issue `.opencode#2166` is
+  deliberately not cited as precedent: its artifact uses a different filename (`plan-problem.yaml`),
+  so its linkage is not identical-pattern.
 
 
   ## Impact
 
 
   - **Risk: research step remains blocked** — Mitigated by fixing the invocation to
-  the verified working pattern
+  the live-verified working pattern
 
   - **Risk: wrong pattern copy-pasted elsewhere** — Mitigated by documenting the correct
-  `plan plan --problem` pattern in the task card
+  `plan plan --problem` pattern and the contract→problem mapping in the task card
 
   - **Risk: plan-output.yaml capture semantics ambiguous** — Mitigated by explicitly
-  capturing stdout via redirect to the artifact path
+  defining capture (stdout redirect) and content (summary + YAML result document)
 
-  - **Dependencies:** None.
+  - **Dependencies:** `dependency-contract.yaml` and `interface-compatibility.yaml`
+  — upstream products of research.md steps 9–11.
 
   - **Call to action:** Review the fix spec, approve for implementation.
 
@@ -85,8 +74,10 @@ body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.op
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
+  🤖 Co-authored with AI: OpenCode (x-preview-f-free)
+
   '
 created_at: '2026-08-25T14:01:27+00:00'
-updated_at: '2026-08-25T14:01:46+00:00'
+updated_at: '2026-08-26T08:24:44+00:00'
 github_url: '2322'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2322

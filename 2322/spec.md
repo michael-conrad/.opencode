@@ -63,7 +63,7 @@ The task card wrongly applied the `solve` tool's `--contract-path` contract-file
 
 ## Root Cause
 
-The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step. The defect has been present since the task card's first commit (6581901f, 2026-07-30).
+The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step.
 
 ## Impact
 
@@ -125,7 +125,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 - **SC-1:** Verifying the corrected invocation costs one grep. Skipping means the defective flags survive undetected and the research step keeps hard-failing on argument parsing for every plan.
 - **SC-2:** Verifying the construction handoff is documented costs one grep. Skipping means the next implementor must reverse-engineer the contract→problem mapping from `.opencode#2134` artifacts — or guess and reintroduce a divergent, untested construction.
-- **SC-3:** Running the live smoke verification costs one tool invocation on a throwaway file. Skipping means the documented pattern is trusted without proof it executes — the same trust failure that shipped the original defective flags (6581901f).
+- **SC-3:** Running the live smoke verification costs one tool invocation on a throwaway file. Skipping means the documented pattern is trusted without proof it executes — the identical trust failure that left the defective flags sitting in the current task card (D-6) undetected until live CLI verification (D-1) exposed them.
 
 ## Items
 
@@ -162,6 +162,16 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Why:** Spec-audit cycle-2 verdict — sole FAIL HOLISTIC-7 Provenance: the diff-range assertion ("carried through later commits unchanged") had no documented verification anywhere in Documentation Sources; only the initial-commit anchor (6581901f, 2026-07-30) is cited. Revision Option B selected per the revise task card's prohibition on analysis/verification steps within this task — Option A (adding a D-7 git-history source) would require live git-history verification that this task does not perform. Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7, bidirectional finding SPEC_INCOMPLETE).
 - **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-2 remediation).
 - **Constraint honored:** No success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched.
+- **Date:** 2026-08-26
+- **What changed:** Deleted the final Root Cause sentence asserting the defect's origin commit ("The defect has been present since the task card's first commit (6581901f, 2026-07-30)."). Root Cause now consists solely of live-verifiable present-state facts — the tool-contract conflation and its argument-parsing failure hard-blocking the research step — each backed by Documentation Sources live verification (D-1, D-2, D-6). No other section touched.
+- **Why:** Spec-audit cycle-3 verdict — sole FAIL HOLISTIC-7 Provenance: the first-commit anchor had zero supporting evidence in Documentation Sources (no git-history verification row among D-1..D-6); evaluator classified it FABRICATED under the factual-claim-without-source meta-rule. Revision Option A selected — delete the non-load-bearing anchor (D-1/D-6 establish the defect against current state live) — over adding a D-7 git-history row, which would require an investigation step outside the revise task card's constraints. Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7 FAIL; bidirectional finding SPEC_INCOMPLETE).
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-3 remediation).
+- **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; Requirements, Success Criteria, Items, Traceability, Cost Frame, Documentation Sources, and all other sections unchanged.
+- **Date:** 2026-08-26
+- **What changed:** Deleted the Cost Frame SC-3 bullet's origin-attribution clause ("the same trust failure that shipped the original defective flags (6581901f)") and replaced it with the present-state equivalent grounded in live Documentation Sources (D-1, D-6): "the identical trust failure that left the defective flags sitting in the current task card (D-6) undetected until live CLI verification (D-1) exposed them." Exhaustive whole-spec sweep for the 6581901f git-history claim found no other live occurrence: the remaining mentions sit inside the Change Control audit trail (cycle-2/cycle-3 entries quoting previously deleted sentences as revision records, backed by their cited verdict artifacts). No other section touched.
+- **Why:** Spec-audit cycle-4 verdict — sole FAIL HOLISTIC-7 Provenance: the Cost Frame SC-3 bullet (line 128) cited commit 6581901f as origin of the defective flags with zero supporting Documentation Sources row covering git history (D-1..D-6 cover CLI help, tool source facts, precedent inventories, and research.md lines only); the identical claim class was classified FABRICATED and deleted from Root Cause in cycle 3, and this sole occurrence survived. Revision Option A selected — the anchor is non-load-bearing for the cost frame, mirroring the cycle-3 Option A rationale (D-1/D-6 establish the defect against current state live); adding a D-7 git-history row would require an investigation step outside the revise task card constraints (rejected in cycles 2-3 for exactly that reason). Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7 FAIL).
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-4 remediation).
+- **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched; Requirements, Success Criteria, Items, Traceability, Documentation Sources, and all other sections unchanged except the single Cost Frame SC-3 bullet.
 
 ---
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)

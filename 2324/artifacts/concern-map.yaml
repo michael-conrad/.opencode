@@ -1,32 +1,57 @@
-concern_map:
-  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
-  issue_number: 2324
-  generated: "2026-08-26"
-  mode: retroactive_backfill
-  success_criteria:
-    - id: SC-1
-      text: "executing-plans is registered in the skilldeck discovery mechanism so it appears in <available_skills>"
-      source: "spec Scope bullet 1"
-    - id: SC-2
-      text: "skill({name: \"executing-plans\"}) loads successfully"
-      source: "spec Scope bullet 2"
-    - id: SC-3
-      text: "the approval-gate for_pr routing rule can dispatch executing-plans"
-      source: "spec Scope bullet 3"
-  concern_groups:
-    - concern: C1-registration-integrity
-      description: "Discovery/registration layer state must include the executing-plans entry so the runtime surfaces the card"
-      maps_to_scs: [SC-1]
-      phase_boundary: "P1: registration present and surfaced in a fresh session's <available_skills>"
-    - concern: C2-load-verification
-      description: "skill() invocation resolves the registry key and returns the executing-plans skill card content"
-      maps_to_scs: [SC-2]
-      phase_boundary: "P2: successful load evidenced by returned card content"
-    - concern: C3-routing-dispatchability
-      description: "approval-gate for_pr Mandatory Routing Rule (skills/approval-gate/SKILL.md:141-148, TDT rows :87-88) can resolve its dispatch target through the registry"
-      maps_to_scs: [SC-3]
-      phase_boundary: "P3: for_pr-scoped dispatch path resolvable end-to-end"
-  out_of_scope_constraints:
-    - "No changes to executing-plans SKILL.md content or task cards (spec Out of scope)"
-    - "No changes to approval-gate routing rule text (spec Out of scope)"
-    - "No behavioral test authoring — tracked separately (spec Out of scope)"
+# Analytical artifact: concern-map — backfilled retroactively from spec body
+# Decomposes SCs into concern groups, maps each to a phase boundary
+artifact: concern-map
+spec_path: .opencode/.issues/2324/spec.md
+generated_by: 'writing-plans/tasks/backfill.md (retroactive mode)'
+generated_at: 2026-08-26
+
+concern_groups:
+  - group: runtime-registry-restoration
+    concern: The opencode runtime must present executing-plans in <available_skills> for sessions opened against this checkout.
+    scs: [SC-1]
+    requirements: [R-1]
+    escalation_requirement: R-4 (Branch B failure handling)
+    phase_boundary: Phase 1
+    item: Item 1
+
+  - group: skill-load-resolution
+    concern: 'The skill({name: "executing-plans"}) invocation must return the full card content without a missing-skill error.'
+    scs: [SC-2]
+    requirements: [R-2]
+    phase_boundary: Phase 1
+    item: Item 2
+
+  - group: for-pr-gate-executability
+    concern: Under for_pr scope with an existing approved plan, the approval-gate Mandatory Routing Rule dispatches executing-plans before any PR creation.
+    scs: [SC-3]
+    requirements: [R-3]
+    phase_boundary: Phase 2
+    item: Item 3
+
+phase_boundaries:
+  - phase: Phase 1
+    items: [Item 1, Item 2]
+    concern_groups: [runtime-registry-restoration, skill-load-resolution]
+    exit_condition: >-
+      SC-1 and SC-2 pass via fresh-runtime probe evidence (session.yaml shows registry
+      inclusion and card-content resolution), or Branch B is declared with the R-4 report
+      URL recorded and the issue reported BLOCKED pending upstream.
+
+  - phase: Phase 2
+    items: [Item 3]
+    concern_groups: [for-pr-gate-executability]
+    entry_condition: SC-1 and SC-2 restored (Phase 1 complete)
+    exit_condition: >-
+      Existing behavioral scenario 1364-sc1-for-pr-existing-plan-executing-plans.sh completes
+      with the agent dispatching executing-plans before any PR creation; clean-room sub-agent
+      evaluation verdict recorded.
+
+dependency_ordering:
+  - skill-load-resolution depends on runtime-registry-restoration (a card absent from the registry cannot load; Item 2 RED presupposes the pre-fix state produced by Item 1's diagnosis)
+  - for-pr-gate-executability depends on both prior concerns (SC-3 GREEN requires SC-1 and SC-2 restored per Items section)
+
+cross_group_escalation:
+  - requirement: R-4
+    trigger: Branch B (fresh runtime also omits the card while all documented preconditions hold on disk)
+    action: File evidence-backed upstream defect report, record URL on #2324, report BLOCKED — no workaround permitted
+    mapped_sc: SC-1

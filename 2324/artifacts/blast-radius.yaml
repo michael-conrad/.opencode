@@ -1,68 +1,76 @@
-blast_radius:
-  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
-  issue_number: 2324
-  generated: "2026-08-26"
-  mode: retroactive_backfill
-  analysis: >
-    Fix is confined to the skilldeck registration/discovery layer that populates <available_skills>.
-    The skill card itself is verified valid against every hard-fail constraint in
-    reference/skill-card-schema.md (name 'executing-plans' matches directory, regex-conformant,
-    description 246 of 1024 chars, no BOM/CRLF anomalies) — so the defect is NOT in the card.
-    Verified timeline: skill deleted in aa349d18, re-added 2026-08-25 08:49 EDT in 64446452 (PR #2321,
-    issue #1364); submodule HEAD 3e69570a contains it; working tree clean — ruling out stale checkout.
-    Live-session registry comparison (2026-08-26): all 47 other top-level skills with SKILL.md are
-    registered; exactly one gap — executing-plans.
-  affected_components:
-    - path: ".opencode/skills/executing-plans/SKILL.md"
-      status: exists_verified
-      change_class: read-only_reference
-      note: "Out of scope per spec — card content must not change"
-    - path: ".opencode/skills/executing-plans/tasks/read-plan.md"
-      status: exists_verified
-      change_class: read-only_reference
-      note: "Out of scope per spec"
-    - path: ".opencode/skills/executing-plans/tasks/dispatch-phase.md"
-      status: exists_verified
-      change_class: read-only_reference
-      note: "Out of scope per spec"
-    - path: ".opencode/opencode.jsonc"
-      status: exists_verified_no_skill_registry
-      change_class: investigation_surface
-      note: "Verified: instructions array holds guidelines only; no skill listing key exists — native frontmatter self-discovery is the registration mechanism"
-    - path: ".opencode/plugins/session-enforcement.ts"
-      status: exists_verified_no_skill_refs
-      change_class: investigation_surface
-      note: "Verified: no skill-registration references"
-    - path: ".opencode/tools/skildeck"
-      status: exists_verified_analysis_only
-      change_class: investigation_surface
-      note: "Verified via --help: lint/analyze/export actions only — not a registration path"
-    - path: ".opencode/skills/approval-gate/SKILL.md"
-      status: exists_verified_consumer
-      change_class: read-only_consumer
-      note: "TDT rows :87-88 (for_pr, for_release_pr -> 'execute plan via executing-plans'); Mandatory Routing Rule :141-148"
-    - path: ".opencode/skills/plan/SKILL.md"
-      status: exists_verified_consumer
-      change_class: read-only_consumer
-      note: ":122 references executing-plans as related skill"
-    - path: ".opencode/skills/verification-before-completion/tasks/collect.md"
-      status: exists_verified_consumer
-      change_class: read-only_consumer
-      note: ":135 chain 'executing-plans -> verification-before-completion'"
-    - path: ".opencode/skills/using-git-worktrees/tasks/reference.md"
-      status: exists_verified_consumer
-      change_class: read-only_consumer
-      note: ":61 marks executing-plans REQUIRED before executing any tasks"
-    - path: ".opencode/README.md"
-      status: exists_verified_consumer
-      change_class: read-only_consumer
-      note: ":100 lists executing-plans in Workflow skill row"
-  ripple_effects:
-    - "Registration restores the approval-gate for_pr mandatory plan-execution gate; consumers already reference the correct name so no consumer text changes are required"
-    - "Runtime behavior change limited to available_skills population; sessions started before the fix keep the old registry until restarted"
-    - "Deck-wide audit mitigation (spec Impact #2): current-session evidence shows exactly one registration gap, lowering risk of follow-on fixes"
-  risk: LOW
-  risk_rationale: >
-    No production code paths touched. Change adds a registry entry for a card that already passes all
-    binary hard-fail constraints; consumers are read-only and already consistent. Residual risk is
-    discovery-mechanism timing (registration visible only to sessions started after the fix).
+# Analytical artifact: blast-radius — backfilled retroactively from spec body
+# Spec: [SPEC-FIX] executing-plans skill present on disk but not registered in available_skills
+artifact: blast-radius
+spec_path: .opencode/.issues/2324/spec.md
+generated_by: 'writing-plans/tasks/backfill.md (retroactive mode)'
+generated_at: 2026-08-26
+
+scope_note: >-
+  This is a diagnosis-before-modify spec. No source files, skill cards, or routing-rule text
+  are modified in any branch. The only filesystem writes are diagnostic/resolution records
+  under .opencode/.issues/2324/research/ and behavioral evidence artifacts under tmp/.
+  Branch A remediation is operational (host runtime process restart), not a file change.
+
+affected_files_verified:
+  - path: .opencode/skills/executing-plans/SKILL.md
+    role: defect-target
+    exists: true
+    modified_by_spec: false
+    note: Frontmatter verified valid (name matches directory, required fields present); content changes excluded by Not Included.
+  - path: .opencode/skills/executing-plans/tasks/read-plan.md
+    role: dependency-read-only
+    exists: true
+    modified_by_spec: false
+  - path: .opencode/skills/executing-plans/tasks/dispatch-phase.md
+    role: dependency-read-only
+    exists: true
+    modified_by_spec: false
+  - path: .opencode/tests-v2/with-test-home
+    role: verification-harness
+    exists: true
+    modified_by_spec: false
+    note: Required execution environment for SC-1/SC-2 probes.
+  - path: .opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh
+    role: verification-scenario
+    exists: true
+    modified_by_spec: false
+    note: Reused unchanged for SC-3 per Dependencies table.
+  - path: .opencode/tests-v2/behaviors/1364-sc2-for-pr-missing-plan-auto-create-execute.sh
+    role: companion-scenario
+    exists: true
+    modified_by_spec: false
+  - path: .opencode/skills/approval-gate/SKILL.md
+    role: rule-definition-read-only
+    exists: true
+    modified_by_spec: false
+    note: 'Mandatory Routing Rule for `for_pr` (CRITICAL) section defines the behavior SC-3 verifies; rule text changes excluded by Not Included.'
+  - path: .opencode/opencode.jsonc
+    role: config-checked-read-only
+    exists: true
+    modified_by_spec: false
+    note: Verified to contain no permission block and no skill exclusion entries.
+  - path: .opencode/tools/session-to-timeline
+    role: evidence-export-tool
+    exists: true
+    modified_by_spec: false
+
+write_targets_created:
+  - path: .opencode/.issues/2324/research/
+    role: diagnostic-evidence-and-resolution-record
+    created_by_items: [1, 2]
+    committed: true
+  - path: tmp/behavioral-evidence-*
+    role: behavioral-evidence-artifacts
+    created_by_items: [3]
+    retention: preserved until PR merge cleanup per tool-usage policy
+
+external_writes:
+  - target: upstream opencode runtime project defect report (Branch B only)
+    requirement: R-4
+    recorded_on: issue #2324 (report URL)
+
+blast_radius_classification: minimal-by-design
+rationale: >-
+  All repo-side discovery preconditions verified satisfied on disk; the spec relocates the
+  defect locus to runtime registry state. Remediation is either an operational process restart
+  (Branch A) or an upstream escalation report (Branch B) — neither touches repository content.
