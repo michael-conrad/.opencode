@@ -1,8 +1,7 @@
 title: '[SPEC] Root-repo-only tooling in multi-module checkouts'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-for_pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2318)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -12,9 +11,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.c
   > **Local artifacts:** `.opencode/.issues/2318/` — implementation plan, card catalogue,
   dependency contracts, research, designs, audit findings
 
-  > Revised 2026-08-24: decomposed four compound SCs into nine atomic SCs; placement and
-  cross-referencing made deterministic; Phase 1/2/3 numbering carried through. Evidence
-  types: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string.
+  > Revised 2026-08-24: decomposed four compound SCs into nine atomic SCs; placement
+  and cross-referencing made deterministic; Phase 1/2/3 numbering carried through.
+  Evidence types: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string.
 
 
   ## Problem
@@ -92,6 +91,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.c
 
   '
 created_at: '2026-08-24T17:10:45+00:00'
-updated_at: '2026-08-24T17:16:35+00:00'
+updated_at: '2026-08-26T18:06:12+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2318
 remote_url: https://github.com/michael-conrad/.opencode/issues/2318
