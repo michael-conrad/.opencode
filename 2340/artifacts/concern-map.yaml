@@ -1,0 +1,31 @@
+# Concern Map — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Concern Boundaries and Separation
+
+### Concern 1: Checkout acquisition
+- Item 1 (SC-1): shallow clone of root repo at release commit.
+- Boundary: produces a clean, shallow, pinned-SHA checkout. No build/test logic here.
+
+### Concern 2: Submodule resolution
+- Item 2 (SC-2): submodule init at gitlink-pinned SHAs.
+- Boundary: resolves submodules to pinned SHAs. No drift checking here (separate concern).
+
+### Concern 3: Drift assertion
+- Item 3 (SC-3): assert resolved SHA == pinned SHA.
+- Boundary: verifies submodule integrity. No build/test execution here.
+
+### Concern 4: Build/test execution
+- Item 4 (SC-4): discover and execute declared canonical build/test commands.
+- Boundary: build-system-agnostic execution. No checkout/submodule logic here.
+
+### Concern 5: Promotion gating
+- Item 5 (SC-5): PASS/FAIL gate blocks release promotion.
+- Boundary: integrates the gate into release-promoter workflow. No build logic here.
+
+## Separation Rationale
+- Each concern is a single independently verifiable claim (per decompose-output.yaml).
+- Checkout, submodule resolution, drift assertion, build/test, and gating are separated
+  so each can be tested in isolation and fail independently.
+- The build step is deliberately decoupled from the checkout/submodule steps to preserve
+  build-system-agnosticism.

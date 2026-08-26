@@ -1,0 +1,26 @@
+# Cross-Cutting Matrix — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Cross-Cutting Concerns
+
+| Concern | Item 1 (checkout) | Item 2 (submodule) | Item 3 (drift) | Item 4 (build/test) | Item 5 (gating) |
+|---------|-------------------|--------------------|----------------|---------------------|-----------------|
+| Submodule discipline | Uses pinned SHA | Resolves to pinned SHA | Asserts pinned SHA | N/A | N/A |
+| Build-system-agnostic | N/A | N/A | N/A | Reads repo's declared commands | N/A |
+| Determinism (non-zero = FAIL) | clone fail = FAIL | init fail = FAIL | drift = FAIL | cmd fail = FAIL | blocks on FAIL |
+| Testability | unit (clone) | unit (submodule) | unit (SHA compare) | integration (cmd exec) | behavioral (gate blocks) |
+| Release discipline (post-merge only) | at release commit | N/A | N/A | N/A | runs once per release |
+| No --remote/--recursive | N/A | enforced | N/A | N/A | N/A |
+
+## Cross-Cutting Concern: Determinism
+- Every item produces a deterministic PASS/FAIL. Non-zero exit or drift = FAIL. This is
+  the unifying invariant across all items (per skill-card architecture research card).
+
+## Cross-Cutting Concern: Submodule Discipline
+- Items 1-3 all operate on the pinned-SHA submodule model. The drift assertion (Item 3)
+  is the integrity backstop for Items 1-2.
+
+## Cross-Cutting Concern: Testability
+- Items 1-3 are unit-testable (git operations, SHA comparison).
+- Item 4 is integration-testable (command execution against a real checkout).
+- Item 5 is behaviorally testable (gate blocks promotion on FAIL).

@@ -1,0 +1,36 @@
+# Blast Radius — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Affected Components and Ripple Effects
+
+### Primary (directly modified)
+- .opencode/skills/release-promoter/SKILL.md — skill card; may need a new task entry in
+  Trigger Dispatch Table and Invocation for the verification gate.
+- .opencode/skills/release-promoter/tasks/tag.md — gate runs before tag creation; tag.md
+  may reference the gate as a prerequisite.
+- .opencode/skills/release-promoter/tasks/create-release.md — release creation depends on
+  tag; gate blocks promotion so create-release is downstream.
+- .opencode/skills/release-promoter/tasks/operating-protocol.md — documents the gate.
+
+### New (created by this spec)
+- .opencode/skills/release-promoter/tasks/verify-build.md (or equivalent) — the new
+  verification gate task.
+
+### Downstream / Ripple
+- version-manager — determines next_version; unaffected (gate runs after version determined).
+- changelog-generator — produces changelog body; unaffected.
+- git-workflow-pr — release PR creation; unaffected (out of scope).
+- Root repo (opencode-config) — the gate operates on a temp-copy of the root repo; the
+  root repo's AGENTS.md build/test commands are consumed, not modified.
+
+## Ripple Effects
+- Any release promotion now requires a passing build/test gate. A release with a broken
+  build is blocked at the gate instead of after tagging.
+- The gate reads the repo's declared build/test commands; if those commands change, the
+  gate behavior changes (build-system-agnostic by design).
+- Submodule drift is caught at release time (drift assertion), preventing a green build
+  of the wrong tree.
+
+## Risk
+- Low blast radius: the gate is additive to release-promoter; it does not modify the
+  feature-merge CI pipeline or submodule pinning logic (out of scope).

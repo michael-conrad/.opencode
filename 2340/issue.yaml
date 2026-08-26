@@ -44,7 +44,7 @@ body: '---
   repo at the release commit, initializes submodules at their gitlink-pinned SHAs
   (shallow per submodule), asserts resolved SHA == pinned SHA with a hard fail on
   drift, then discovers and executes the repository''s declared canonical build and
-  test commands from the repo''s AGENTS.md (or equivalent build manifest), asserting
+  test commands from the repo''s AGENTS.md, asserting
   zero failures (non-zero exit = FAIL, blocks promotion). The gate runs once per release
   and blocks promotion on any failure. The checkout must use `git submodule update
   --init --depth 1` (honoring pinned SHAs), never `--remote` or `--recursive`. The

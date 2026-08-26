@@ -1,0 +1,45 @@
+# Interface Compatibility — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Interface Compatibility Analysis
+
+### release-promoter/SKILL.md
+- Status: MODIFIED
+- Change: add `verify-build` task to Trigger Dispatch Table and Invocation.
+- Compatibility: BACKWARD COMPATIBLE — existing `tag`, `create-release`, `completion`
+  dispatch strings unchanged. New task is additive.
+
+### release-promoter/tasks/tag.md
+- Status: MODIFIED
+- Change: add verify-build gate as a prerequisite before tag creation.
+- Compatibility: BACKWARD COMPATIBLE — existing tag creation steps unchanged; gate is
+  a new prerequisite step.
+
+### release-promoter/tasks/create-release.md
+- Status: MODIFIED
+- Change: reference the gate as a downstream dependency (release creation blocked if gate FAILs).
+- Compatibility: BACKWARD COMPATIBLE — existing release creation steps unchanged.
+
+### release-promoter/tasks/operating-protocol.md
+- Status: MODIFIED
+- Change: document the verification gate.
+- Compatibility: BACKWARD COMPATIBLE — documentation only.
+
+### release-promoter/tasks/verify-build.md (NEW)
+- Status: NEW
+- Change: new task file for the verification gate.
+- Compatibility: N/A (new interface).
+
+### release-promoter/tasks/completion.md
+- Status: UNCHANGED (pre-existing defect)
+- Note: referenced in SKILL.md but file does not exist. Not modified by this spec.
+
+### version-manager, changelog-generator, git-workflow-pr
+- Status: UNCHANGED
+- Compatibility: N/A — out of scope.
+
+## Summary
+- No BREAKING or REMOVED interfaces.
+- All changes are BACKWARD COMPATIBLE and additive.
+- One NEW interface (verify-build task).
+- One pre-existing defect (missing completion.md) noted but not in scope.

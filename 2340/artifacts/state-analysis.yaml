@@ -1,0 +1,40 @@
+# State Analysis — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## State Machine Transitions
+
+### Release Promotion State Machine (with gate)
+
+States:
+- RELEASE_PR_MERGED — release PR has merged, next_version determined.
+- CHECKOUT_ACQUIRED — shallow temp-copy of root repo at release commit obtained.
+- SUBMODULES_RESOLVED — submodules initialized at gitlink-pinned SHAs.
+- DRIFT_VERIFIED — resolved SHAs == pinned SHAs (no drift).
+- BUILD_TEST_PASSED — declared build/test commands all exited zero.
+- BUILD_TEST_FAILED — a build/test command exited non-zero, or drift detected.
+- TAG_CREATED — annotated tag created and pushed.
+- RELEASE_CREATED — GitHub Release created from tag.
+
+Transitions:
+- RELEASE_PR_MERGED → CHECKOUT_ACQUIRED (Item 1: shallow clone succeeds)
+- CHECKOUT_ACQUIRED → SUBMODULES_RESOLVED (Item 2: submodule init succeeds)
+- SUBMODULES_RESOLVED → DRIFT_VERIFIED (Item 3: resolved SHA == pinned SHA)
+- DRIFT_VERIFIED → BUILD_TEST_PASSED (Item 4: all commands exit zero)
+- DRIFT_VERIFIED → BUILD_TEST_FAILED (Item 4: any command non-zero exit)
+- SUBMODULES_RESOLVED → BUILD_TEST_FAILED (Item 3: drift detected)
+- BUILD_TEST_PASSED → TAG_CREATED (Item 5: gate PASS, promotion proceeds)
+- BUILD_TEST_FAILED → (terminal) (Item 5: gate FAIL, promotion BLOCKED)
+- TAG_CREATED → RELEASE_CREATED (create-release)
+
+## Invariants
+- The gate runs once per release.
+- Promotion (TAG_CREATED) is only reachable from BUILD_TEST_PASSED.
+- BUILD_TEST_FAILED is a terminal state — promotion is blocked.
+- No transition bypasses the gate (no path from RELEASE_PR_MERGED directly to TAG_CREATED).
+
+## Failure Modes
+- Clone failure → gate FAILs (no CHECKOUT_ACQUIRED).
+- Submodule init failure → gate FAILs (no SUBMODULES_RESOLVED).
+- Drift → gate FAILs (BUILD_TEST_FAILED).
+- Build/test non-zero exit → gate FAILs (BUILD_TEST_FAILED).
+- Gate not wired → promotion proceeds unverified (defect; must be caught by Item 5 test).

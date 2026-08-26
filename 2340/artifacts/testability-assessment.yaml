@@ -1,0 +1,46 @@
+# Testability Assessment — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Test Strategy Per Item
+
+### Item 1 (SC-1): Shallow temp-copy checkout
+- Type: UNIT
+- Test: verify `git clone --depth 1` produces a shallow checkout at the release commit.
+- Assertion: clone succeeds; checkout is shallow (depth 1); HEAD == release commit.
+
+### Item 2 (SC-2): Submodule resolution
+- Type: UNIT
+- Test: verify `git submodule update --init --depth 1` resolves submodules to pinned SHAs.
+- Assertion: submodules present; resolved SHAs match gitlink-pinned SHAs; command never
+  uses `--remote` or `--recursive`.
+
+### Item 3 (SC-3): Drift assertion
+- Type: UNIT
+- Test: compare resolved submodule SHAs vs pinned SHAs.
+- Assertion: PASS when all match; FAIL when any drift (hard fail).
+
+### Item 4 (SC-4): Build/test execution
+- Type: INTEGRATION
+- Test: read repo's declared build/test commands from AGENTS.md, execute each against a
+  real checkout.
+- Assertion: zero failures = PASS; any non-zero exit = FAIL. Build-system-agnostic
+  (reads repo's declared commands, not hardcoded).
+
+### Item 5 (SC-5): Promotion gating
+- Type: BEHAVIORAL
+- Test: dispatch release-promoter with a failing gate; verify promotion is blocked.
+- Assertion: gate FAIL blocks tag creation / release creation; gate PASS allows promotion.
+- Behavioral evidence: agent actions visible in stderr (skill dispatch, gate execution,
+  promotion block).
+
+## Testability Notes
+- Items 1-3 are unit-testable with git operations against a fixture repo.
+- Item 4 requires a real checkout (integration) — uses the repo's actual declared commands.
+- Item 5 is behaviorally testable via `opencode run` (per test framework discipline in
+  .opencode/AGENTS.md — must use `with-test-home`).
+- The gate's determinism (non-zero exit = FAIL) makes it directly testable.
+
+## Evidence Type
+- Items 1-3: structural/unit evidence (git command output).
+- Item 4: integration evidence (command execution results).
+- Item 5: behavioral evidence (agent dispatch + promotion block in stderr).

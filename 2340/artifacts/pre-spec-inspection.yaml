@@ -1,0 +1,56 @@
+# Pre-Spec Inspection — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+# Repo: .opencode (michael-conrad/.opencode)
+
+topic: "Shallow temp-copy build/test gate for release verification"
+repo: .opencode
+issue_number: 2340
+
+## Affected Files
+
+The spec targets the release-promoter skill in the .opencode submodule. The release
+verification gate would be added to the release-promoter workflow.
+
+- .opencode/skills/release-promoter/SKILL.md
+  - Skill card. Trigger Dispatch Table lists `tag`, `create-release`, `completion` tasks.
+  - The verification gate is a new step that must run before tag creation/promotion.
+- .opencode/skills/release-promoter/tasks/tag.md
+  - Creates annotated tag on merge commit. Step 1 verifies merge state. The build/test
+    gate would be inserted here (before tag creation) or as a new prerequisite task.
+- .opencode/skills/release-promoter/tasks/create-release.md
+  - Creates GitHub Release from tag. Depends on tag existing.
+- .opencode/skills/release-promoter/tasks/operating-protocol.md
+  - Documents tag format, annotated tags, post-merge-only rule. Would document the gate.
+- .opencode/skills/release-promoter/tasks/completion.md
+  - REFERENCED in SKILL.md (lines 35, 43, 53) but the file DOES NOT EXIST.
+  - This is a pre-existing defect (critical-rules-074: missing task card). Not in scope
+    for this spec but noted as a finding.
+
+## Existing Patterns and Conventions
+
+- release-promoter uses sub-agent dispatch via task() with canonical dispatch strings.
+- Each task file has Purpose / Prerequisites / Steps / Exit Criteria structure.
+- Operating protocol documents release discipline (post-merge only, v prefix, annotated).
+- The build/test command set is declared in .opencode/AGENTS.md "Build / Lint / Test Commands"
+  table (uv sync, uv run pytest, ruff, pyright, etc.).
+- The root repo (opencode-config) has a single submodule `.opencode` pinned via gitlink.
+  `git submodule status` shows `+2b1cffb0...` (dirty pointer, expected on feature branch).
+
+## Dependencies and Callers
+
+- release-promoter is invoked after a release PR merges (per AGENTS.md and git-workflow).
+- version-manager determines next_version; changelog-generator produces changelog body.
+- git-workflow-pr handles release PR creation with `is_release` flag.
+- The gate depends on the repo's declared canonical build/test command set (AGENTS.md).
+
+## Key Findings
+
+1. The release-promoter skill currently tags and promotes WITHOUT verifying the release
+   tree builds/tests. This is the gap the spec addresses.
+2. The build/test commands are declared in .opencode/AGENTS.md, not hardcoded in the skill.
+   The gate must be build-system-agnostic and read the repo's declared commands.
+3. Submodule resolution: the root repo pins `.opencode` via gitlink. The gate must use
+   `git submodule update --init --depth 1` (honoring pinned SHAs), never `--remote`/`--recursive`.
+4. A drift assertion (resolved SHA == pinned SHA) is required to prevent a green build of
+   the wrong tree.
+5. Pre-existing defect: release-promoter/tasks/completion.md is referenced but missing.

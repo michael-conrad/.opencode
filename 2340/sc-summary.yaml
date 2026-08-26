@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Shallow temp-copy checkout at release commit"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Submodule resolution to gitlink-pinned SHAs"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Drift assertion (resolved SHA == pinned SHA)"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Discover and execute declared canonical build/test commands"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "PASS/FAIL gate runs once per release"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "PASS/FAIL gate blocks release promotion"
+    evidence_type: "behavioral"
+    plan_item: 6

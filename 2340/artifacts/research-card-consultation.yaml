@@ -1,0 +1,35 @@
+# Research Card Consultation — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Cards Consulted
+
+Searched .opencode/.issues/research-cards/*.md and .issues/research-cards/*.md for
+frontmatter matching the spec topic (release verification, build/test gate, submodule
+pinned-SHA checkout, shallow clone).
+
+### multi-feature-branch-main-with-submodules.md
+- confidence: 0.7
+- Relevant: submodule pointer management, trunk-based development, submodule drift.
+- Finding: submodule pointers are the most frequently conflicted merge target; drift
+  between branches is a known risk. Supports the spec's drift-assertion mitigation.
+- Incorporated: the SHA==pinned assertion directly addresses the documented submodule
+  drift risk.
+
+### spec-writing-ai-agents-opencode-skill-architecture.md
+- confidence: 0.90
+- Relevant: skill card structure, task card structure, deterministic/testable rules.
+- Finding: every rule must be deterministic and testable; each maps to an acceptance
+  criterion. Supports the spec's PASS/FAIL gate design.
+- Incorporated: the gate must be deterministic (non-zero exit = FAIL) and testable.
+
+## Cards NOT Found
+
+No research card directly addresses "shallow temp-copy build/test gate for release
+verification" or "release build verification before promotion". No card covers the
+specific mechanism (shallow clone at release commit + submodule init at pinned SHA +
+build/test execution + drift assertion). This is a novel mechanism for this repo.
+
+## Conclusion
+
+Two cards provide supporting context (submodule drift risk, deterministic gate design)
+but no card covers the exact mechanism. No cached findings to reuse for the core mechanism.

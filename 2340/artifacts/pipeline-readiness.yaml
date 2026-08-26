@@ -1,0 +1,37 @@
+# Pipeline Readiness Gate — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Validation
+
+### Atomicity
+- PASS: Every SC maps to exactly one RED→GREEN→COMMIT cycle.
+  - SC-1 → Item 1, SC-2 → Item 2, SC-3 → Item 3, SC-4 → Item 4, SC-5 → Item 5.
+  - No SC is split across items; no item covers multiple SCs.
+
+### Dependency Ordering
+- PASS: SC dependency DAG is acyclic.
+  - SC-1 → SC-2 → SC-3 → SC-4 → SC-5 (linear chain, no cycles).
+
+### Single Concern
+- PASS: Every SC targets one file category (release-promoter skill files) and one
+  verification domain (release build/test verification).
+  - No SC spans multiple file categories or verification domains.
+
+### Phase Dependency
+- PASS: Phase dependency graph is acyclic.
+  - Single-phase spec (the gate is one cohesive addition to release-promoter).
+
+### Three-Tier Structure
+- PASS (N/A): Multi-phase specs require pre/per-file/post structure. This is a
+  single-phase spec, so the three-tier structure is not required.
+
+## Result
+- Pipeline readiness: PASS
+- The decomposition is atomic, acyclic, single-concern, and ready for plan creation.
+
+## Notes
+- The spec does not yet contain a formal SC table. The SCs in decompose-output.yaml are
+  derived from the explicit requirements (REQ-1 through REQ-13). The create task should
+  formalize these into the spec's success criteria table.
+- Pre-existing defect flagged: release-promoter/tasks/completion.md is referenced in
+  SKILL.md but the file does not exist. Not in scope for this spec.

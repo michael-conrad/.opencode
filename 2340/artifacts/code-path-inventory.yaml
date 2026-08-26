@@ -1,0 +1,37 @@
+# Code Path Inventory — Issue 2340
+# Shallow temp-copy build/test gate for release verification
+
+## Code Paths Touched by Each Item
+
+### Item 1 (SC-1): Shallow temp-copy checkout
+- Path: release-promoter verify-build task → `git clone --depth 1 <root-repo-url> <temp-dir>`
+- Touches: new verify-build task file; git clone command.
+- No existing code path modified.
+
+### Item 2 (SC-2): Submodule resolution
+- Path: verify-build task → `git submodule update --init --depth 1` in temp checkout.
+- Touches: new verify-build task file; git submodule command.
+- Reads .gitmodules (gitlink-pinned SHAs).
+
+### Item 3 (SC-3): Drift assertion
+- Path: verify-build task → compare `git submodule status` resolved SHAs vs pinned SHAs.
+- Touches: new verify-build task file; git submodule status parsing.
+
+### Item 4 (SC-4): Build/test execution
+- Path: verify-build task → read repo AGENTS.md build/test commands → execute each.
+- Touches: new verify-build task file; AGENTS.md parsing; command execution.
+- Reads .opencode/AGENTS.md "Build / Lint / Test Commands" table.
+
+### Item 5 (SC-5): Promotion gating
+- Path: release-promoter SKILL.md → tag.md/create-release.md → verify-build gate.
+- Touches: SKILL.md (Trigger Dispatch Table, Invocation), tag.md (prerequisite),
+  create-release.md (downstream), operating-protocol.md (documentation).
+
+## Existing Code Paths Modified
+- release-promoter/SKILL.md — add verify-build task to Trigger Dispatch Table and Invocation.
+- release-promoter/tasks/tag.md — add gate as prerequisite before tag creation.
+- release-promoter/tasks/create-release.md — reference gate (downstream dependency).
+- release-promoter/tasks/operating-protocol.md — document the gate.
+
+## New Code Paths Created
+- release-promoter/tasks/verify-build.md — the verification gate task.
