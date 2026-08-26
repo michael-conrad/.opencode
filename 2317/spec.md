@@ -27,7 +27,7 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 ## 2. Not Included
 
 - **Individual audit card content improvements unrelated to the aggregation/coverage defect** — each arbiter is only touched to fix the union aggregation, flag-gate, and advisory-language binding, not for unrelated content quality.
-- **Non-audit skill chains** — the change is scoped to the audit skill chain (`*-audit-arbiter`, `*-audit-evaluator`, `audit/SKILL.md`) and the release handshake that consumes the aggregate.
+- **Non-audit skill chains** — the change is scoped to the audit skill chain (`*-audit-arbiter`, `*-audit-evaluator`, `audit/SKILL.md`) and the release handshake, where Item 10 adds the missing aggregate-consumption gate logic (a live keyword scan on 2026-08-25 confirms none of the four named handshake files currently reads the audit aggregate).
 - **Re-architecting the audit DiMo chain** — the producer/verifier separation and artifact format remain; only the aggregation correctness, flag binding, and loop structure change.
 
 ## 3. Success Criteria
@@ -40,12 +40,12 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 | SC-4 | Each `*-audit-evaluator` card SHALL enumerate the full spec SC list in its `per_criterion`/`per_claim` output, with no silent omission. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the full spec SC list appears in the evaluator output. | `.opencode/skills/audit/tasks/*-audit-evaluator.md` |
 | SC-5 | A skipped SC SHALL be present in the evaluator output with result FAIL and a `NOT_EVALUATED` marker; it SHALL NOT be silently omitted. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts a skipped SC appears as FAIL with a `NOT_EVALUATED` marker. | `.opencode/skills/audit/tasks/*-audit-evaluator.md` |
 | SC-6 | Any FAIL verdict SHALL be a hard gate that halts the deliverable until remediation. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts a FAIL verdict halts the deliverable and does not advance it. | `.opencode/skills/audit/tasks/*-audit-arbiter.md`, `*-audit-evaluator.md`, `audit/SKILL.md` |
-| SC-7 | The agent SHALL remediate and re-audit until 100% compliance. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the agent remediates and re-audits after a FAIL until 100% compliance. | `.opencode/skills/audit/tasks/*-audit-arbiter.md`, `*-audit-evaluator.md`, `audit/SKILL.md` |
+| SC-7 | The agent SHALL remediate and re-audit until 100% compliance as defined in R-13. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the agent remediates and re-audits after a FAIL until the R-13 termination condition holds. | `.opencode/skills/audit/tasks/*-audit-arbiter.md`, `*-audit-evaluator.md`, `audit/SKILL.md` |
 | SC-8 | An explicit escalation SHALL be the only exit from an unremediable FAIL. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts escalation is the only exit from an unremediable FAIL (no infinite loop). | `.opencode/skills/audit/tasks/*-audit-arbiter.md`, `*-audit-evaluator.md`, `audit/SKILL.md` |
 | SC-9 | The `do NOT BLOCK` / `do NOT re-evaluate` error-table language in the arbiter cards SHALL be reconciled so that coverage/chain gaps bind to the FAIL gate rather than being advisory flags. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts a coverage-gap yields FAIL, not an advisory `MISSING_SC_COVERAGE` flag. | `.opencode/skills/audit/tasks/*-audit-arbiter.md` |
-| SC-10 | The ticket-status/release handshake SHALL honor the corrected aggregate; a coverage-gap FAIL SHALL keep the ticket unreleased. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts a coverage-gap FAIL blocks release promotion. | `.opencode/skills/release-promoter/tasks/operating-protocol.md`, `tag.md`, `create-release.md`; `git-workflow-cleanup/tasks/cleanup.md` |
+| SC-10 | The ticket-status/release handshake files SHALL be extended with NEW gate logic consuming the corrected audit aggregate — no such consumption exists today (live keyword scan, 2026-08-25, returned zero verdict/aggregate tokens) — such that a coverage-gap FAIL keeps the ticket unreleased. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts a coverage-gap FAIL blocks release promotion through the newly added gate. | `.opencode/skills/release-promoter/tasks/operating-protocol.md`, `tag.md`, `create-release.md`; `git-workflow-cleanup/tasks/cleanup.md` |
 | SC-11 | The `audit/SKILL.md` orchestrator SHALL structurally remediate-and-restart the audit at any non-clean phase. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the orchestrator remediates-and-restarts at a non-clean phase. | `.opencode/skills/audit/SKILL.md` |
-| SC-12 | The orchestrator remediate-and-restart loop SHALL iterate until 100% clean. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the orchestrator iterates the loop until the audit is 100% clean. | `.opencode/skills/audit/SKILL.md` |
+| SC-12 | The orchestrator remediate-and-restart loop SHALL iterate until 100% clean as defined in R-13. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the orchestrator iterates the loop until the R-13 termination condition holds (the audit is 100% clean). | `.opencode/skills/audit/SKILL.md` |
 | SC-13 | Escalation SHALL be the only exit from an unremediable non-clean phase in the orchestrator workflow. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the orchestrator escalates as the only exit from an unremediable non-clean phase. | `.opencode/skills/audit/SKILL.md` |
 | SC-14 | The remediate-and-restart loop SHALL be bound as a structural workflow step in `audit/SKILL.md`, not prose. | behavioral | Real `opencode run` audit dispatch; clean-room sub-agent asserts the loop is a structural workflow step (dispatch gate), not prose guidance. | `.opencode/skills/audit/SKILL.md` |
 
@@ -59,12 +59,13 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 - R-4. The aggregate SHALL resolve to PASS only when both `coverage_complete` AND `chain_complete` are true; any false flag SHALL force FAIL.
 - R-5. Each `*-audit-evaluator` card SHALL enumerate the full spec SC list in its `per_criterion`/`per_claim` output.
 - R-6. A skipped SC SHALL be present in the evaluator output with result FAIL and a `NOT_EVALUATED` marker; it SHALL NOT be silently omitted.
-- R-7. Any FAIL verdict SHALL be a hard gate that halts the deliverable until remediation and re-audit achieve 100% compliance.
+- R-7. Any FAIL verdict SHALL be a hard gate that halts the deliverable until remediation and re-audit achieve 100% compliance (termination condition defined in R-13).
 - R-8. The audit workflow SHALL provide an explicit escalation exit as the only way out of an unremediable FAIL.
 - R-9. The `do NOT BLOCK` / `do NOT re-evaluate` error-table language in the arbiter cards SHALL be reconciled so coverage/chain gaps force FAIL rather than being advisory.
-- R-10. The ticket-status/release handoff (release-promoter and git-workflow-cleanup) SHALL gate release promotion on the corrected aggregate; a coverage-gap FAIL SHALL keep the ticket unreleased.
+- R-10. The ticket-status/release handoff files (release-promoter tasks and git-workflow-cleanup cleanup.md), which today contain NO logic consuming the audit aggregate — a live keyword scan on 2026-08-25 returned zero verdict/aggregate/coverage tokens in `operating-protocol.md`, `tag.md`, and `create-release.md`, and only an unrelated behavioral-artifact-cleanup mention in `cleanup.md` — SHALL be extended with new gate logic so release promotion is gated on the corrected aggregate; a coverage-gap FAIL SHALL keep the ticket unreleased.
 - R-11. The `audit/SKILL.md` orchestrator SHALL bind a structural remediate-and-restart loop into its workflow, remediating and re-dispatching the audit at any non-clean phase.
 - R-12. Verification of this fix SHALL use behavioral evidence via real `opencode run` audit dispatch; static coded checks SHALL NOT substitute.
+- R-13. Operational definition of loop termination: "100% compliance" and "100% clean" mean that, within a single audit dispatch, every success criterion in the audited spec's SC list has resolved to PASS under the R-1/R-2 union aggregation AND the R-3/R-4 flag-gate holds (`coverage_complete` = true AND `chain_complete` = true) — equivalently, the arbiter's aggregate verdict is PASS with zero criteria FAIL or NOT_EVALUATED. SC-7 and SC-12 iterate remediate-and-re-audit / remediate-and-restart cycles until this condition is first satisfied.
 
 ### Constraints
 
@@ -123,8 +124,8 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 ### Item 7 (SC-7): Remediate-and-re-audit until 100% compliance
 
 - RED: A behavioral test asserts the agent does not re-audit after a FAIL.
-- GREEN: Enforce remediation followed by re-audit until 100% compliance.
-- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts the agent remediates and re-audits to 100%.
+- GREEN: Enforce remediation followed by re-audit until the R-13 termination condition holds (100% compliance).
+- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts the agent remediates and re-audits until the R-13 condition is satisfied.
 - commit: Remediate-and-re-audit loop enforcement.
 
 ### Item 8 (SC-8): Escalation as the only exit
@@ -143,10 +144,10 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 
 ### Item 10 (SC-10): Release handshake gate
 
-- RED: A behavioral test asserts a coverage-gap FAIL keeps the ticket unreleased.
-- GREEN: Gate release promotion (release-promoter, git-workflow-cleanup) on the corrected aggregate.
-- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts coverage-gap FAIL blocks release.
-- commit: Release handshake gate.
+- RED: A behavioral test asserts release promotion proceeds despite a coverage-gap FAIL — today nothing in the release handoff reads the audit aggregate, so no gate can block it.
+- GREEN: ADD new gate logic in release-promoter (`operating-protocol.md`, `tag.md`, `create-release.md`) and git-workflow-cleanup (`cleanup.md`) that consumes the corrected aggregate and blocks promotion on any non-clean verdict.
+- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts coverage-gap FAIL blocks release via the newly added gate.
+- commit: Release handshake gate (new aggregate-consumption logic).
 
 ### Item 11 (SC-11): Structural remediate-and-restart loop
 

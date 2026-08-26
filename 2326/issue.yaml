@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] 22 dangling references to removed spec-auditor skill across 12
+  files (referers not updated after #469 consolidation)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-08-26T03:24:21+00:00'
+updated_at: '2026-08-26T03:24:21+00:00'

@@ -35,11 +35,11 @@ Each success criterion is a single atomic, independently verifiable claim (one c
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | In a multi-module checkout, the agent uses ONLY the repo root's build tool for build and test. | behavioral | Behavioral enforcement test via `opencode run` (with-test-home, >=600s timeout); assert stderr shows root build-tool selection; no structural substitution |
-| SC-2 | In a multi-module checkout, the agent uses ONLY the repo root's project-local tools for build and test. | behavioral | Behavioral enforcement test via `opencode run` (with-test-home, >=600s timeout); assert stderr shows root project-local-tool selection; no structural substitution |
-| SC-3 | The agent does NOT create or modify a submodule to add a competing toolchain. | behavioral | Behavioral enforcement test via `opencode run` (with-test-home, >=600s timeout); assert stderr shows no submodule toolchain creation/alteration; no structural substitution |
-| SC-4 | A submodule toolchain invention/alteration results in a HALT by default, framed as Tier 2 with no `CRITICAL VIOLATION` header. | behavioral | Behavioral enforcement test via `opencode run` (with-test-home, >=600s timeout); assert stderr shows HALT-without-`CRITICAL VIOLATION` framing; no structural substitution |
-| SC-5 | Explicit developer authorization allows intentional submodule tooling setup. | behavioral | Behavioral enforcement test via `opencode run` (with-test-home, >=600s timeout); assert the developer-authorization carve-out path is honored; no structural substitution |
+| SC-1 | In a multi-module checkout, the agent uses ONLY the repo root's build tool for build and test. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); behavioral evaluation of the exported `session.yaml` (SQLite event-table export) via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, asserting root build-tool selection in recorded agent actions; no structural substitution |
+| SC-2 | In a multi-module checkout, the agent uses ONLY the repo root's project-local tools for build and test. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); behavioral evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, asserting root project-local-tool selection in recorded agent actions; no structural substitution |
+| SC-3 | The agent does NOT create or modify a submodule to add a competing toolchain. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); behavioral evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, asserting absence of submodule toolchain creation/alteration in recorded agent actions; no structural substitution |
+| SC-4 | A submodule toolchain invention/alteration results in a HALT by default, framed as Tier 2 with no `CRITICAL VIOLATION` header. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); behavioral evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, evaluating HALT-without-`CRITICAL VIOLATION` framing from the session record; no structural substitution |
+| SC-5 | Explicit developer authorization allows intentional submodule tooling setup. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); behavioral evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, evaluating that the developer-authorization carve-out path is honored in the session record; no structural substitution |
 
 ### Phase 1 — Rule text substance (structural)
 
@@ -83,23 +83,23 @@ Per-SC item enumeration. Each SC maps to exactly one item; each item maps to exa
 
 #### Item 1 (SC-1): Root build tool only
 
-- RED: Behavioral enforcement test asserting stderr does NOT show submodule build-tool usage and DOES show root build-tool selection (currently absent).
+- RED: Behavioral enforcement test asserting via `session.yaml` clean-room sub-agent inspection the absence of submodule-local build-tool usage and the presence of exclusive root build-tool selection in recorded agent actions (currently fails — rule absent).
 - GREEN: Author the rule in `.opencode/AGENTS.md` requiring root-repo-only build tooling in multi-module checkouts.
-- verify: Behavioral test passes (assert_stderr_pattern_present/absent).
+- verify: Behavioral test passes via `session.yaml` clean-room sub-agent inspection.
 - commit: Rule text in `.opencode/AGENTS.md` + behavioral test scenario.
 
 #### Item 2 (SC-2): Root project-local tools only
 
-- RED: Behavioral enforcement test asserting stderr shows root project-local-tool selection (currently absent).
+- RED: Behavioral enforcement test asserting via `session.yaml` clean-room sub-agent inspection the presence of root project-local-tool selection in recorded agent actions (currently fails — rule absent).
 - GREEN: Ensure the rule text covers root project-local tools per `085-project-local-tools.md`.
-- verify: Behavioral test passes (assert_stderr_pattern_present).
+- verify: Behavioral test passes via `session.yaml` clean-room sub-agent inspection.
 - commit: Project-local-tools coverage in rule text + behavioral test scenario.
 
 #### Item 3 (SC-3): No submodule toolchain invention/alteration
 
-- RED: Behavioral enforcement test asserting stderr does NOT show submodule toolchain creation/alteration (currently absent).
+- RED: Behavioral enforcement test asserting via `session.yaml` clean-room sub-agent inspection the absence of submodule toolchain creation/alteration in recorded agent actions (currently fails — rule absent).
 - GREEN: Author the rule text prohibiting submodule toolchain invention/alteration.
-- verify: Behavioral test passes (assert_stderr_pattern_absent).
+- verify: Behavioral test passes via `session.yaml` clean-room sub-agent inspection.
 - commit: Prohibition text + behavioral test scenario.
 
 #### Item 6 (SC-6): Framework-agnostic phrasing
@@ -138,7 +138,7 @@ Per-SC item enumeration. Each SC maps to exactly one item; each item maps to exa
 
 - RED: Behavioral test asserting HALT-without-`CRITICAL VIOLATION` framing on a violation (currently absent).
 - GREEN: Author the rule with Tier 2 HALT framing (no `CRITICAL VIOLATION` header) on submodule toolchain invention/alteration.
-- verify: Behavioral test passes on HALT framing.
+- verify: Behavioral test passes on HALT framing via `session.yaml` clean-room sub-agent inspection.
 - commit: Tier 2 HALT framing text.
 
 #### Item 5 (SC-5): Developer-authorization carve-out
