@@ -83,58 +83,66 @@ dependency_contract:
     p_phase_5_done: {type: bool, description: "skildeck bare-reference rule implemented; fixture verified then removed"}
     p_phase_6_done: {type: bool, description: "four consuming families derive from composite"}
     sc_pass_all: {type: bool, description: "all six success criteria verified PASS"}
+    sat: {type: bool, description: "query variable — solve model --query sat asks whether all contract constraints admit a satisfying assignment"}
+    direct_bare_calls_outside_platform_set:
+      type: bool
+      description: >-
+        true while any github_issue_* token carrying a bare number remains outside the platform
+        set; must be false after Phase 3 (zero direct callers outside platform task-card set)
+    single_identity_field_per_contract:
+      type: bool
+      description: >-
+        every enumerated Context-passed contract carries exactly one identity field (issue_ref);
+        must hold after Phase 2 — no separate issue_number/spec_issue_number/github.owner/github.repo
+        identity fields remain
   preconditions:
-    - "Implies(p_phase_4_done, p_phase_1_done)"
-    - "Implies(p_phase_5_done, p_phase_4_done)"
-    - "Implies(p_phase_2_done, p_phase_1_done)"
-    - "Implies(p_phase_3_done, p_phase_2_done)"
-    - "Implies(p_phase_6_done, p_phase_2_done)"
-    - "Implies(p_phase_6_done, p_phase_4_done)"
-    - "Implies(sc_pass_all, And(p_phase_1_done, p_phase_2_done, p_phase_3_done, p_phase_4_done, p_phase_5_done, p_phase_6_done))"
+    - "z3.Implies(p_phase_4_done, p_phase_1_done)"
+    - "z3.Implies(p_phase_5_done, p_phase_4_done)"
+    - "z3.Implies(p_phase_2_done, p_phase_1_done)"
+    - "z3.Implies(p_phase_3_done, p_phase_2_done)"
+    - "z3.Implies(p_phase_6_done, p_phase_2_done)"
+    - "z3.Implies(p_phase_6_done, p_phase_4_done)"
+    - "z3.Implies(sc_pass_all, z3.And(p_phase_1_done, p_phase_2_done, p_phase_3_done, p_phase_4_done, p_phase_5_done, p_phase_6_done))"
   postconditions:
     - "sc_pass_all"
   invariants:
-    - >-
-      Implies(p_phase_3_done, Not(direct_bare_calls_outside_platform_set)) — zero github_issue_*
-      tokens carrying bare numbers outside the platform set after Phase 3
-    - >-
-      Implies(p_phase_2_done, single_identity_field_per_contract) — no split identity fields in
-      any enumerated contract
+    - "z3.Implies(p_phase_3_done, z3.Not(direct_bare_calls_outside_platform_set))"
+    - "z3.Implies(p_phase_2_done, single_identity_field_per_contract)"
 
-phase_edges:
-  - phase: 1
-    produces:
-      - ".opencode/guidelines/118-issue-reference-qualification.md (token grammar section)"
-      - ".opencode/guidelines/INDEX.md slot-118 row"
-      - ".opencode/opencode.jsonc instructions-array decision record"
-    consumed_by:
-      - {phase: 4, reason: "SC-4 behavioral verification requires the registered guideline to load into sessions"}
-      - {phase: 2, reason: "composite field syntax cites the token grammar authority"}
-      - {phase: 3, reason: "routing rewrites reference qualified token form"}
-      - {phase: 5, reason: "lint flags violations of the defined grammar"}
-      - {phase: 6, reason: "consumers parse the defined composite"}
-  - phase: 2
-    produces:
-      - "issue_ref composite payloads in 10 SKILL.md sites"
-    consumed_by:
-      - {phase: 6, reason: "task files consume what cards emit; P6 depends_on P2"}
-  - phase: 3
-    produces:
-      - "dispatcher-routed instruction text in 21 non-platform task cards"
-    depends_on: [1, 2]
-  - phase: 4
-    produces:
-      - "parse-convention + derived-variable carve-out + prohibition rule in guideline 118"
-    depends_on: [1]
-    consumed_by:
-      - {phase: 5, reason: "carve-out Definition 6 is the lint exclusion vocabulary"}
-      - {phase: 6, reason: "derivation convention governs consumer edits"}
-  - phase: 5
-    produces:
-      - ".opencode/tools/impl/skildeck/skildeck-lint bare-reference rule"
-      - "./tmp/issue-2319/lint-fixture/ (created and removed within phase)"
-    depends_on: [1, 4]
-  - phase: 6
-    produces:
-      - "qualified consumption in audit/spec-creation/writing-plans/issue-operations-* task files"
-    depends_on: [1, 2, 4]
+  phase_edges:
+    - phase: 1
+      produces:
+        - ".opencode/guidelines/118-issue-reference-qualification.md (token grammar section)"
+        - ".opencode/guidelines/INDEX.md slot-118 row"
+        - ".opencode/opencode.jsonc instructions-array decision record"
+      consumed_by:
+        - {phase: 4, reason: "SC-4 behavioral verification requires the registered guideline to load into sessions"}
+        - {phase: 2, reason: "composite field syntax cites the token grammar authority"}
+        - {phase: 3, reason: "routing rewrites reference qualified token form"}
+        - {phase: 5, reason: "lint flags violations of the defined grammar"}
+        - {phase: 6, reason: "consumers parse the defined composite"}
+    - phase: 2
+      produces:
+        - "issue_ref composite payloads in 10 SKILL.md sites"
+      consumed_by:
+        - {phase: 6, reason: "task files consume what cards emit; P6 depends_on P2"}
+    - phase: 3
+      produces:
+        - "dispatcher-routed instruction text in 21 non-platform task cards"
+      depends_on: [1, 2]
+    - phase: 4
+      produces:
+        - "parse-convention + derived-variable carve-out + prohibition rule in guideline 118"
+      depends_on: [1]
+      consumed_by:
+        - {phase: 5, reason: "carve-out Definition 6 is the lint exclusion vocabulary"}
+        - {phase: 6, reason: "derivation convention governs consumer edits"}
+    - phase: 5
+      produces:
+        - ".opencode/tools/impl/skildeck/skildeck-lint bare-reference rule"
+        - "./tmp/issue-2319/lint-fixture/ (created and removed within phase)"
+      depends_on: [1, 4]
+    - phase: 6
+      produces:
+        - "qualified consumption in audit/spec-creation/writing-plans/issue-operations-* task files"
+      depends_on: [1, 2, 4]
