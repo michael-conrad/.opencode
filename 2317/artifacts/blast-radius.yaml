@@ -11,8 +11,8 @@ affected:
   - .opencode/skills/audit/tasks/test-quality-audit-arbiter.md (same three changes)
   - .opencode/skills/audit/tasks/verification-audit-arbiter.md (same three changes — matches wildcard *-audit-arbiter.md glob frame of 5 cards)
 ripple:
-  - Every audit consumer that trusts overall_verdict/all_criteria_pass: completeness-gate,
-    verification-before-completion, review-prep, ticket lifecycle routing.
+  - "Every audit consumer that trusts overall_verdict / all_criteria_pass: completeness-gate,
+    verification-before-completion, review-prep, ticket lifecycle routing."
   - Verdicts that previously passed via absent-SC inheritance will now FAIL — downstream
     pipelines see more FAILs until evaluators enumerate fully (Phase 2 dependency).
 
