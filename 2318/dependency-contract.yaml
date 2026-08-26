@@ -1,0 +1,51 @@
+# Dependency contract — issue #2318
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Rule substance — author Tier 2 root-repo-only tooling rule in .opencode/AGENTS.md (SC-1, SC-2, SC-3, SC-6, SC-7, SC-8)"
+  phase_2:
+    type: bool
+    description: "Cross-referencing — Read-Link to 060-tool-usage / 085-project-local-tools (SC-9)"
+  phase_3:
+    type: bool
+    description: "Behavioral enforcement test — agent behavior change (SC-4, SC-5)"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/AGENTS.md
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-6
+      - SC-7
+      - SC-8
+  phase_2:
+    files:
+      - .opencode/AGENTS.md
+    scs:
+      - SC-9
+  phase_3:
+    files:
+      - .opencode/tests-v2/behaviors/2318-sc4-tier2-halt-framing.sh
+      - .opencode/tests-v2/behaviors/2318-sc5-dev-authorization-carveout.sh
+    scs:
+      - SC-4
+      - SC-5
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "The Read-Link cross-references (SC-9) are added to the rule authored in Phase 1; Phase 2 is sequenced after Phase 1 to avoid same-file edit conflicts on .opencode/AGENTS.md and depends on the rule text existing."
+  - from: phase_1
+    to: phase_3
+    rationale: "The SC-4 HALT-framing and SC-5 carve-out behavioral tests exercise the rule authored in Phase 1; the rule must exist before the tests can drive agent behavior."
+notes:
+  - "Phase 1 authors the Tier 2 root-repo-only tooling rule text (SC-1..SC-8 substance). Phase 2 adds Read-Link cross-references to 060-tool-usage.md and 085-project-local-tools.md (SC-9). Phase 3 adds the SC-4/SC-5 behavioral enforcement scenarios that exercise the Phase 1 rule. Phase 2 and Phase 3 both depend on Phase 1 rule text."
+  - "Dependency contract extracted from interface-compatibility.yaml 'dependency_contract' section per writing-plans research task step 9."

@@ -1,16 +1,21 @@
 spec_path: .opencode/.issues/2318/spec.md
 mode: retroactive
-generated_by: "writing-plans/tasks/backfill.md (retroactive mode)"
+generated_by: "writing-plans/tasks/analyze.md (verify plan preconditions)"
 sc_count: 9
 sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+approval_status:
+  issue_yaml: .opencode/.issues/2318/issue.yaml
+  labels_present:
+    - approved-for-for_pr
+  approved: true
 artifact_status:
-  blast-radius.yaml: backfilled
-  concern-map.yaml: backfilled
-  code-path-inventory.yaml: backfilled
-  cross-cutting-matrix.yaml: backfilled
-  interface-compatibility.yaml: backfilled
-  state-analysis.yaml: backfilled
-  testability-assessment.yaml: backfilled
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
 pre_existing_artifacts: []
 scope_summary:
   intent: "Tier 2 (process-integrity) rule in canonical .opencode/AGENTS.md '## Boundaries (Critical)' requiring agents to use ONLY the repo root's build tool or root project-local tools for build/test in multi-module checkouts, prohibiting submodule toolchain invention/alteration, with HALT-by-default and an explicit developer-authorization carve-out"
@@ -19,6 +24,7 @@ scope_summary:
     - .opencode/guidelines/060-tool-usage.md
     - .opencode/guidelines/085-project-local-tools.md
     - .opencode/guidelines/000-critical-rules.md
+    - .opencode/guidelines/080-code-standards.md
   new_files_created_by_spec: ".opencode/tests-v2/behaviors/2318-sc1..sc5 behavioral scenarios (5 files)"
   phases:
     - "Phase 1: rule substance (SC-1, SC-2, SC-3 text; SC-6, SC-7, SC-8 verified here)"
@@ -28,13 +34,12 @@ scope_summary:
     behavioral: 5
     structural: 2
     string: 2
-dependency_contract_note: "'dependency_contract' section present in interface-compatibility.yaml with concrete entries; research.md step 9 extracts it to .opencode/.issues/2318/dependency-contract.yaml for solve/plan tools"
+dependency_contract_note: "'dependency_contract' section present in interface-compatibility.yaml; extracted to .opencode/.issues/2318/dependency-contract.yaml"
 file_existence_verification:
-  method: "filesystem checks executed this session (bash ls / grep)"
+  method: "filesystem checks executed this session (bash ls / glob)"
   results:
     .opencode/AGENTS.md: exists
     .opencode/guidelines/060-tool-usage.md: exists
     .opencode/guidelines/085-project-local-tools.md: exists
     .opencode/guidelines/000-critical-rules.md: exists
-    .opencode/tests-v2/with-test-home: exists
-    .opencode/tests-v2/AGENTS.md: exists
+    .opencode/guidelines/080-code-standards.md: exists
