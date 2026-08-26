@@ -1,0 +1,30 @@
+# Concern Map — Issue 2322: Fix research.md step 12 plan-plan invocation
+# Backfilled retroactively from spec body by writing-plans/tasks/backfill.md
+issue: .opencode#2322
+spec_path: .opencode/.issues/2322/spec.md
+concerns:
+  - name: cli-invocation-correctness
+    description: >-
+      Step-12 invocation must match the live plan plan CLI surface:
+      --problem required, --engine optional (default tamer); no --contract-path/--output.
+    scs: [SC-1]
+  - name: construction-handoff-documentation
+    description: >-
+      Step 12 must document building phase-problem.yaml from dependency-contract.yaml
+      per the spec Definitions mapping (fluent per phase variable; action per phase with
+      preconditions from preconditions/edges; empty init; all phase fluents as goals)
+      before invoking plan plan.
+    scs: [SC-2]
+  - name: live-execution-proof
+    description: >-
+      The corrected pattern must execute against the live tool: a minimal two-phase
+      phase-problem.yaml solves with exit code 0 and stdout YAML status in
+      {SOLVED_SATISFICING, SOLVED_OPTIMALLY}.
+    scs: [SC-3]
+phase_boundaries:
+  - phase: 1
+    concerns: [cli-invocation-correctness, construction-handoff-documentation, live-execution-proof]
+    rationale: "Spec Traceability table assigns R-1/R-2/R-3 (SC-1/SC-2/SC-3) all to Phase 1."
+decomposition_note: >-
+  Per-SC decomposition holds inside Phase 1 as Items 1-3, one RED/GREEN/verify/commit
+  cycle per SC; Item 3 GREEN depends on Items 1-2 landed (see cross-cutting-matrix.yaml).
