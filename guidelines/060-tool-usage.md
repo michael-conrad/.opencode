@@ -37,6 +37,64 @@ When a platform has a dedicated API client (e.g., `gitbucket-api` CLI tool at `.
 3. Include byline
 4. Do NOT bypass the client with raw `requests` calls or `python -c` inline scripts
 
+## 2. Built-in glob: verified semantics and silent-failure modes
+
+This section is the single authoritative source for the built-in glob tool's verified semantics, its six silent-failure modes, the canonical path-parameter invocation idiom, and the empty-result disambiguation rule. Every agent-facing remediation site across the deck cites this section via Read-link rather than restating the semantics inline — the definition lives here once.
+
+### 2.1 Verified limitations (LIM-1 through LIM-6)
+
+Live probing (2026-08-26, against this repository) confirmed six distinct failure modes of the built-in glob tool:
+
+| ID | Limitation | Detail |
+|----|-----------|--------|
+| **LIM-1** | Hidden-directory traversal skip | Traversal never enters dot-prefixed directories (`.opencode`, `.issues`, `.github`) when scanning via a pattern-from-CWD. Any pattern requiring descent into a dot-dir returns empty. The entire agent deck lives under `.opencode/`. |
+| **LIM-2** | Gitignore filtering during traversal | Gitignored directories (`tmp/`, `.issues/`) are excluded from traversal. `tmp/` is where all pipeline artifacts live (`{project_root}/tmp/{issue}/...`). |
+| **LIM-3** | Silent-empty conflation | "No files found" is returned identically for no-match, wrong-pattern, hidden-dir-skip, gitignore-skip, and absolute-pattern-rejection. No error, no reason, no distinction. |
+| **LIM-4** | Files-only matching | Directory entries are never returned. Patterns ending in `/` (e.g. `**/runbooks/`) structurally cannot match anything. |
+| **LIM-5** | Absolute-pattern rejection | Absolute paths embedded in the pattern parameter silently return empty. Only relative-to-CWD patterns or the path-parameter form work. |
+| **LIM-6** | Opaque nonexistent-path error | A nonexistent path parameter yields "ripgrep execution failed" without naming the missing path or cause. Not silent, but cryptic. |
+
+### 2.2 Canonical path-parameter invocation idiom
+
+The only reliable invocation form, verified to reach hidden directories (`.opencode/.issues/`, `.issues/research-cards/`), gitignored directories, and normal tracked directories, is the path-parameter form:
+
+```text
+glob(pattern=<pattern-relative-to-path>, path=<target-dir-absolute-or-relative>)
+```
+
+- `pattern` holds a pattern **relative to** the `path` argument — never an absolute path and never a CWD-anchored dot-prefix chain (LIM-1, LIM-5).
+- `path` holds the target directory as an **absolute or relative** value; passing the target directory explicitly bypasses both the hidden-directory skip (LIM-1) and the gitignore skip (LIM-2).
+- Directory-only patterns (`path/` suffixes) are never valid — glob is files-only (LIM-4).
+
+**Examples — verified working:**
+
+```text
+glob(pattern="*.md", path=".issues/research-cards")            # hidden dir target — works
+glob(pattern="src/**/*.py", path="<worktree.path>")            # absolute/relative path target
+glob(pattern="**/*.md", path="<spec_local_dir>")               # placeholder path target
+```
+
+**Forbidden — silently empty shapes:**
+
+```text
+glob(pattern=".issues/research-cards/*.md")                    # LIM-1 dot-prefix pattern-from-CWD
+glob(pattern="**/runbooks/")                                    # LIM-4 directory-only pattern
+glob(pattern="/abs/path/docs/**/*.md")                          # LIM-5 absolute pattern
+glob(pattern="{project_root}/tmp/{issue}/artifacts/verification-*")  # LIM-2 gitignored + LIM-5 absolute
+```
+
+### 2.3 Empty-result disambiguation rule
+
+A silent "No files found" result is **not evidence of absence**. Because LIM-3 conflates five distinct causes behind one identical output, the agent MUST NOT conclude that a file or directory does not exist from an empty glob result alone.
+
+**Rule:** Before any absence conclusion (e.g. "no existing runbooks", "zero spec files", "verification evidence missing"), the agent MUST disambiguate the empty result:
+
+1. Confirm the invocation used the canonical path-parameter form with a bracketed placeholder (not an f-string, unbracketed placeholder, absolute pattern, directory suffix, or CWD dot-prefix chain).
+2. Confirm the target directory exists and is reachable as a `path` parameter (not silently skipped by LIM-1/LIM-2).
+3. Only when the invocation shape is confirmed correct AND the path is confirmed reachable may a remaining empty result be treated as a true empty — an absence conclusion.
+
+This rule is the verification-signal discipline for glob: an empty result is a signal that requires tool-call evidence of a correct invocation before it becomes an absence claim. An agent that treats a silent-empty result as proof of nonexistence has concluded from a defect, not from data.
+
 ## 3. Temp Files & Cleanliness
 
 ### ✅ ALWAYS DO
