@@ -1,0 +1,37 @@
+# Solve output — issue #2334
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "tools/solve model --contract-path .opencode/.issues/2334/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+    phase_3: true
+  interpretation: "Goal state (all 3 phases complete) is satisfiable under the dependency preconditions phase_2 -> phase_1 and phase_3 -> phase_2."
+
+solve_check:
+  command: "tools/solve check --contract-path .opencode/.issues/2334/dependency-contract.yaml --state-path .opencode/.issues/2334/artifacts/state.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+    phase_2: false
+    phase_3: false
+  interpretation: "Initial state analysis (all phases false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "tools/plan plan --problem .opencode/.issues/2334/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 3
+  plan:
+    - run_p1()
+    - run_p2()
+    - run_p3()
+  interpretation: "Planner produced a valid 3-step sequential plan enforcing the phase_1 -> phase_2 -> phase_3 dependency chain. run_p1 precedes run_p2 precedes run_p3."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+notes:
+  - "Task-card CLI forms in writing-plans/tasks/research.md steps 10-12 do not match current solve/plan tool signatures. Resolved using actual tool interfaces per prior-issue convention (see #2301)."
+  - "solve model: --contract-path + --query <z3 expr> (not --query sat). solve check: --state-path + --contract-path (state must be machine-readable; state-analysis.yaml carries a non-machine-readable folded-scalar header and a per-SC narrative form, so a machine-readable state.yaml was generated reflecting the same initial closed-world state). plan plan: --problem <problem.yaml> (no --contract-path/--output; emits to stdout)."

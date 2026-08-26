@@ -1,0 +1,54 @@
+spec_path: .opencode/.issues/2334/spec.md
+issue_number: 2334
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 8
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+backfill_actions:
+  interface-compatibility.yaml: "added mandatory dependency_contract section (was surfaces-only); populated with 8 concrete dependency contracts derived from spec SC-1..SC-8 affected files"
+artifact_presence_note:
+  "All 7 analytical artifacts existed. Only backfill required was the dependency_contract section in interface-compatibility.yaml per backfill task step 4."
+scope_boundary_findings:
+  all_referenced_files_exist: true
+  missing_files: []
+  verified_file_count: 32
+  verified_files:
+    - guidelines/060-tool-usage.md
+    - skills/sre-runbook/tasks/generate.md
+    - skills/verification-before-completion/tasks/completion.md
+    - skills/verification-before-completion/tasks/collect.md
+    - guidelines/020-go-prohibitions.md
+    - skills/audit/tasks/coherence-maintenance-investigator.md
+    - skills/audit/tasks/coherence-maintenance-validator.md
+    - skills/audit/tasks/concern-separation-arbiter.md
+    - skills/audit/tasks/concern-separation-evaluator.md
+    - skills/audit/tasks/concern-separation-investigator.md
+    - skills/audit/tasks/concern-separation-validator.md
+    - skills/audit/tasks/content-audit-investigator.md
+    - skills/audit/tasks/drift-detection-arbiter.md
+    - skills/audit/tasks/drift-detection-evaluator.md
+    - skills/audit/tasks/drift-detection-investigator.md
+    - skills/audit/tasks/drift-detection-validator.md
+    - skills/audit/tasks/plan-fidelity-arbiter.md
+    - skills/audit/tasks/plan-fidelity-evaluator.md
+    - skills/audit/tasks/plan-fidelity-investigator.md
+    - skills/audit/tasks/plan-fidelity-validator.md
+    - skills/audit/tasks/spec-audit-arbiter.md
+    - skills/audit/tasks/spec-audit-evaluator.md
+    - skills/audit/tasks/spec-audit-investigator.md
+    - skills/audit/tasks/spec-audit-validator.md
+    - skills/audit/tasks/test-quality-audit-arbiter.md
+    - skills/audit/tasks/test-quality-audit-evaluator.md
+    - skills/audit/tasks/test-quality-audit-investigator.md
+    - skills/audit/tasks/test-quality-audit-validator.md
+    - skills/audit/tasks/verification-audit-arbiter.md
+    - skills/audit/tasks/verification-audit-evaluator.md
+    - skills/audit/tasks/verification-audit-investigator.md
+    - skills/audit/tasks/verification-audit-validator.md

@@ -1,0 +1,54 @@
+# Dependency contract — issue #2334
+# Generated from interface-compatibility.yaml dependency_contract section
+
+variables:
+  phase_1:
+    type: bool
+    description: "Glob verified-semantics anchor documentation (SC-1) — add Built-in glob verified-semantics section to 060-tool-usage.md covering LIM-1..LIM-6, canonical path-parameter idiom, empty-result disambiguation rule"
+  phase_2:
+    type: bool
+    description: "Remediate broken invocation sites across agent deck (SC-2..SC-7) — runbook discovery (SC-2), format-matching gate (SC-3), v-b-c evidence existence (SC-4, SC-5), audit invocation hygiene (SC-6), research-card catalogue clause (SC-7); each site cites SC-1 via Read-link"
+  phase_3:
+    type: bool
+    description: "Behavioral enforcement test (SC-8) — registered stderr-based test proving an agent enumerating files under .opencode/ emits a working invocation instead of concluding nonexistence from a silent-empty result"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/guidelines/060-tool-usage.md
+    scs:
+      - SC-1
+  phase_2:
+    files:
+      - .opencode/skills/sre-runbook/tasks/generate.md
+      - .opencode/skills/verification-before-completion/tasks/completion.md
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+      - .opencode/skills/audit/tasks/*.md
+      - .opencode/guidelines/020-go-prohibitions.md
+    scs:
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-6
+      - SC-7
+  phase_3:
+    files:
+      - .opencode/tests-v2/behaviors/2334-*.sh
+    scs:
+      - SC-8
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Definition-lives-once: SC-2..SC-7 application sites cite the SC-1 verified-semantics section (LIM-1..LIM-6, canonical idiom, disambiguation rule) via Read-link; SC-1 is the single source of truth they reference, so it must land first."
+  - from: phase_2
+    to: phase_3
+    rationale: "SC-8 behavioral scenario exercises the fully remediated deck after all fixes land; the enforcement test proves an agent emits a working invocation, which requires the deck remediation to be committed first."
+notes:
+  - "SC-1 (anchor documentation) is the prerequisite source of truth for all remediation sites in Phase 2 (SC-2..SC-7), which must cite it via Read-link rather than restate semantics inline."
+  - "SC-8 (behavioral test) runs against the fully remediated deck, so it is sequenced after Phase 2."
+  - "terminal states unchanged: FALLBACK_DOCS_RUNBOOKS (SC-2), DECIDE_FORMAT (SC-3), ABSENT_CONFIRMED/PROCEED_ON_LIST evidence verdicts (SC-4/5/6), confidence-skip (SC-7)."
