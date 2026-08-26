@@ -22,7 +22,8 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   **In scope:**
 
   - Define `{owner}/{repo}#NNN` as the single self-describing internal issue identity
-  token across the skill/task card deck.
+  token for every internal handoff whose repository resolves to an owner/repo pair
+  (Edge Case 5 governs identity form under `identity_source: local`).
 
   - Replace all enumerated split-identity Context-passed contracts with the composite
   `issue_ref` field.
@@ -31,7 +32,9 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   task cards; such calls concentrate in the platform task-card set consuming the composite.
 
   - Add guideline `.opencode/guidelines/118-issue-reference-qualification.md` defining
-  the parse convention (derived-variable carve-out; bare-reference prohibition).
+  the parse convention (derived-variable carve-out; bare-reference prohibition), including
+  its registration (INDEX.md slot-118 row plus opencode.jsonc instructions-array tier
+  decision) so it loads into agent sessions.
 
   - Extend the skildeck semantic lint (`.opencode/tools/impl/skildeck/skildeck-lint`)
   to flag concrete bare issue references.
@@ -72,18 +75,20 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   - **Risk:** Verification scope spans behavioral evidence for routing changes — mitigation:
   per-SC verification methods are declared in the spec''s Success Criteria table;
-  behavioral runs go through `.opencode/tests-v2/with-test-home`.
+  behavioral runs go through `.opencode/tests-v2/with-test-home` and report FAIL (no
+  static substitution) when no model is available.
 
   - **Key dependency:** session-init Repo Information supplies authoritative owner/repo
   values; under `identity_source: local` no composite is fabricated (edge case documented
-  in the spec).
+  in the spec). Guideline registration (INDEX.md slot-118 + opencode.jsonc instructions-array
+  decision) is a required GREEN-phase step.
 
 
-  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-25 — spec-audit
-  DRAFT remediation
+  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-26 — spec-audit
+  cycle-2 remediation
 
   '
 created_at: '2026-08-24T21:53:55+00:00'
-updated_at: '2026-08-26T03:36:30+00:00'
+updated_at: '2026-08-26T05:02:30+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2319
 github_url: '2319'
