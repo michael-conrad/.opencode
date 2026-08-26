@@ -1,0 +1,63 @@
+# State analysis — issue #2317
+# State transitions required by each success criterion
+
+## SC-1 — union aggregate
+states:
+  - verdict aggregation input: "{evaluated-set-only} → {spec-SC-list ∪ evaluated-set}"
+  - absent-SC resolution: "implicit-PASS → explicit-FAIL"
+transitions:
+  - Arbiter reads spec SC list (new input state) alongside verdict.yaml.
+  - For each spec SC not in evaluated set: state becomes FAIL with NOT_EVALUATED marker.
+
+## SC-2 — independent flag-gate
+states:
+  - flag computation: "{advisory, derived-from-evaluator-context} → {binding, computed-from-spec-list-vs-three-upstream-artifacts}"
+  - aggregate resolution: "PASS-eligible-on-verdicts-only → PASS-eligible-only-if coverage_complete ∧ chain_complete"
+transitions:
+  - Any false flag: aggregate state forced to FAIL regardless of per-criterion values.
+
+## SC-3 — behavioral-only verification
+states:
+  - verification evidence: "{static/string substitution permitted} → {behavioral opencode run stderr observation only}"
+transitions:
+  - Harness scenario scripts under tests-v2/behaviors/ enter the test inventory.
+  - Non-executable behavioral test → SC state = FAIL (EVIDENCE_TYPE_MISMATCH guard).
+
+## SC-4 / SC-5 — evaluator enumeration + NOT_EVALUATED
+states:
+  - per_criterion/per_claim output: "{partial set, silent omission} → {full spec SC list}"
+  - skipped-SC row: "{absent} → {FAIL + NOT_EVALUATED marker}"
+transitions:
+  - Evaluator iterates every spec SC; each resolves to a verdict row or NOT_EVALUATED row. No row may be omitted.
+
+## SC-6 / SC-7 / SC-8 — hard gate, remediate-and-re-audit loop, escalation exit
+states:
+  - deliverable status on FAIL: "{advances to review/merge} → {halted pending remediation}"
+  - audit cycle on FAIL: "{single-shot} → {remediate → re-audit loop until R-13 condition}"
+  - unremediable FAIL exit: "{undefined/loop-forever} → {explicit escalation only}"
+transitions:
+  - FAIL ⇒ deliverable-halted.
+  - Remediation applied ⇒ re-audit dispatched ⇒ either R-13 termination (aggregate clean) or another cycle.
+  - Unremediable ⇒ escalation (terminal state).
+
+## SC-9 — advisory language reconciliation
+states:
+  - "MISSING_SC_COVERAGE / BROKEN_EVIDENCE_CHAIN flags: {non-blocking advisory} → {FAIL-gate inputs}"
+transitions:
+  - Error-table rows rewritten so gap states route into the same FAIL gate as SC-2.
+
+## SC-10 — release handshake gate
+states:
+  - release promotion eligibility: "{ungated on audit aggregate} → {gated on corrected aggregate}"
+transitions:
+  - Coverage-gap FAIL ⇒ ticket remains unreleased (promotion blocked).
+  - Clean aggregate ⇒ promotion proceeds (existing flow unchanged).
+
+## SC-11 / SC-12 / SC-13 / SC-14 — orchestrator structural loop
+states:
+  - orchestrator phase on non-clean result: "{advance} → {remediate-and-restart (structural step)}"
+  - loop iteration: "{single pass} → {iterate until 100% clean per R-13}"
+  - unremediable phase exit: "{none} → {escalation only}"
+  - loop binding form: "{prose guidance} → {workflow step / dispatch gate in SKILL.md}"
+transitions:
+  - Any non-clean phase result triggers the restart transition; session momentum cannot skip it because it is structural.
