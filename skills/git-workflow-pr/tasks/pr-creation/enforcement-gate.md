@@ -97,6 +97,12 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
   echo ""
   echo "  'Submodule SHA already updated by submodule PR merge. No parent PR needed.'"
   echo ""
+  echo "Note: the submodule PR merge does NOT resolve the parent repo's"
+  echo "submodule pointer. The root pointer is NOT dropped — it remains"
+  echo "dirty and rides ALONGSIDE the next real root-repo change on a"
+  echo "feature branch. It is never committed in a standalone pointer-only"
+  echo "commit/PR."
+  echo ""
   echo "Then delete the branch and close any associated issue with"
   echo "state_reason=completed."
 ```

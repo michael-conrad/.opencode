@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Detect dirty submodule pointers before commit and ensure they are staged alongside non-submodule changes. Prevents the recurring pattern of submodule pointer drift requiring separate "pin" commits.
+Detect dirty submodule pointers before commit and ensure they are staged AND COMMITTED alongside non-submodule changes in the same commit. Prevents the recurring pattern of submodule pointer drift requiring separate "pin" commits.
+
+The submodule pointer rides ALONGSIDE the next real root-repo change on a feature branch — it is staged and committed together with the real change in the same commit, is never DROPPED, and is never committed in a standalone pointer-only commit/PR.
 
 ## Entry Criteria
 

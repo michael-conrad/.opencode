@@ -47,6 +47,8 @@ task() sub-agent for report-only SHA verification (no auto-remediation). Then ve
 
 ### Pre-Push Submodule Pointer Verification
 
+A merged `.opencode` submodule PR does NOT resolve the parent repo's submodule pointer and does NOT drop it. The pointer stays DIRTY and rides ALONGSIDE the next real root-repo change on a feature branch — it is committed together with the real change in the same commit, never dropped, and never committed in a standalone pointer-only commit/PR. Submodule-only pushes are blocked by pre-push hooks, so a pointer-only parent PR is FORBIDDEN.
+
 Before squash and push, verify dirty submodule pointers are included in staged changes ONLY alongside real code changes:
 
 - [ ] 1. Run `git submodule status | grep '^ '` to detect dirty submodule pointers
