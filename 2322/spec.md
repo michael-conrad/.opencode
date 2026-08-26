@@ -80,6 +80,14 @@ The implementor SHALL construct `phase-problem.yaml` from `dependency-contract.y
   - **Relationship:** Executes the corrected invocation; the unified-planning problem-YAML schema it consumes is defined in this spec (§Definitions) and by `./.opencode/tools/plan help` (D-9).
   - **Status:** satisfied — live access verified 2026-08-25 by CLI execution (D-1) and source read (D-2)
 
+## Preconditions
+
+The following runtime/environment preconditions MUST hold for the corrected step-12 invocation to execute; the implementor MUST NOT guess at these or treat their absence as a step-12 failure to remediate.
+
+- **P-PRE-1 (unified-planning `tamer` engine):** The `tamer` planning engine must be available in the runtime hosting `./.opencode/tools/plan`. The corrected invocation relies on `--engine` defaulting to `tamer` (D-1); if the engine is unavailable on the host, the step-12 run fails at planner resolution, not at argument parsing. Declared here so an engine gap is recognized as an environment precondition, not an invocation defect.
+- **P-PRE-2 (Python/uv runtime):** `./.opencode/tools/plan` and `./.opencode/tools/solve` execute under the project's Python/uv runtime. Both tools must be invocable per the project tool-run convention; the corrected invocation assumes this runtime is available where the tools execute (P-3, D-1, D-9).
+- **P-PRE-3 (z3 availability for upstream steps 10–11):** The upstream `solve model` (step 10) and `solve check` (step 11) gates run `solve`'s z3-backed SAT checks, which must pass before step 12 entry. A missing z3 dependency would fail these upstream steps before step 12 executes (D-8); it is stated here so the implementor recognizes an upstream z3 absence as an environment precondition rather than a step-12 concern.
+
 ## Scope
 
 - **In scope:** Fix step 12 in `.opencode/skills/writing-plans/tasks/research.md` to use the correct invocation pattern for the `plan plan` subcommand
@@ -161,6 +169,19 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-2:** Verifying the construction handoff is documented costs one grep. Skipping means the next implementor must reverse-engineer the contract→problem mapping from `.opencode#2134` artifacts — or guess and reintroduce a divergent, untested construction.
 - **SC-3:** Running the live smoke verification costs one tool invocation on a throwaway file. Skipping means the documented pattern is trusted without proof it executes — the identical trust failure that left the defective flags sitting in the current task card (D-6) undetected until live CLI verification (D-1) exposed them.
 
+## Edge Cases
+
+The edge cases below enumerate the input boundaries, failure modes, and recovery paths for the corrected step-12 invocation and its upstream gating steps. These conditions are fully documented in the spec body (§Definitions, D-8); this section consolidates them with explicit Condition/Expected behavior/Resolution entries.
+
+| Condition | Expected behavior | Resolution |
+|-----------|-------------------|------------|
+| `dependency-contract.yaml` or its `dependency_contract` section is missing at step-9 entry | research.md step 9 returns BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND` before step 12 executes (D-8) | No step-12 run occurs; the pipeline halts at the step-9 gate until the upstream artifact is produced |
+| `solve model` (step 10) or `solve check` (step 11) returns UNSAT | The affected step blocks with UNSAT before step 12 executes (D-8) | No step-12 run occurs; the pipeline halts until the phase DAG's unsatisfiable constraint is resolved upstream |
+| The corrected `plan plan` invocation (step 12) returns UNSOLVABLE (`UNSOLVABLE_PROVEN`/`UNSOLVABLE_INCOMPLETELY`), `TIMEOUT`, or `MEMOUT` | The tool exits non-zero via `_die` (D-2) | The non-zero exit signals planner failure; the step-12 exit criterion (success statuses `SOLVED_SATISFICING`/`SOLVED_OPTIMALLY`) fails closed — no PASS is claimed on a non-zero exit |
+| `plan-output.yaml` capture semantics — stdout carries summary, `---` separator, and YAML result document (D-3), while the cited precedent artifact holds only the YAML document (D-4) | The corrected invocation uses raw stdout redirect; the full stdout is captured | Downstream consumers (research.md step 13, D-8) key on the YAML result-document portion of the captured output, per §Definitions `plan-output.yaml` |
+| SC-3 throwaway smoke-test file left in `./tmp/` | The file is created under `./tmp/` for the live verification only | The throwaway file is removed from `./tmp/` after verification (Item 3 verify), subject to behavioral-evidence retention exemptions |
+| `./.opencode/tools/plan` not available at the corrected-invocation site | The corrected invocation cannot execute; step 12 fails at tool resolution | Tool availability is a stated runtime precondition (see §Dependencies P-3 and §Preconditions) that must be satisfied before the step-12 run |
+
 ## Items
 
 ### Item 1 (SC-1): Corrected step-12 invocation
@@ -221,6 +242,11 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Why:** Spec-audit cycle-8 structural diagnostic — four consecutive HOLISTIC-7 FAILs shared one root cause set: reactive per-section remediation never swept the whole body for checkable assertions; D-6's step-12-only scope structurally excluded all steps 9–11/13 claims; §Definitions/§Dependencies carried pre-discipline legacy process narrative born without sourcing obligations; and no prior cycle cross-checked claim text against the content of cited evidence artifacts (the C-16 contradiction). Dispatch instructed one-pass remediation of the entire enumeration with per-claim live re-verification.
 - **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Tier-2 structural remediation following four consecutive HOLISTIC-7 Provenance FAILs).
 - **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3, R-1..R-3, Items TDD cycles, Traceability mappings, Cost Frame, Scope, Not Included, and SC Enforcement Gate unchanged; revisions confined to the provenance/content-description finding class.
+- **Date:** 2026-08-26
+- **What changed:** Remediated the two narrow-criterion FAILs from the spec-audit cycle-8 remediation (holistic gate PASS; SC-EDGE-CASES and SC-IMPLICIT-PRECONDITIONS FAIL). (1) Added the canonical `## Edge Cases` section (after `## Cost Frame`, before `## Items`) per spec-structure-standards §11, with Condition/Expected behavior/Resolution entries covering: step-9 `DEPENDENCY_CONTRACT_NOT_FOUND` BLOCKED mode; step-10/11 UNSAT gating; step-12 UNSOLVABLE/TIMEOUT/MEMOUT non-zero-exit handling; `plan-output.yaml` capture-semantics ambiguity (full stdout vs YAML-only precedent, D-3/D-4); SC-3 throwaway-file cleanup; and tool-availability precondition. (2) Added the `## Preconditions` section (after `## Dependencies`, before `## Scope`) declaring the three previously implicit runtime preconditions: P-PRE-1 unified-planning `tamer` engine availability, P-PRE-2 Python/uv runtime for `./.opencode/tools/plan` and `solve`, P-PRE-3 z3 availability for the upstream step-10/11 SAT gates. No other sections touched: Requirements, Success Criteria table, SC Enforcement Gate, Items, Traceability, Cost Frame, Documentation Sources, Definitions, Dependencies, Scope, Not Included, Approach, Impact, Intent unchanged.
+- **Why:** Spec-audit cycle-8 verdict — holistic gate PASS; two narrow criteria FAIL, both SPEC_INCOMPLETE: SC-EDGE-CASES (spec lacked the canonical Edge Cases section mandated by spec-structure-standards §11, despite related risk bullets living in §Impact and D-8 BLOCKED modes) and SC-IMPLICIT-PRECONDITIONS (three runtime preconditions — tamer engine, Python/uv runtime, z3 — used without being stated). Both revision options from the verdict applied as specified; nothing beyond these findings changed. Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml`.
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-8 remediation — holistic gate PASS; SC-EDGE-CASES and SC-IMPLICIT-PRECONDITIONS FAIL).
+- **Constraint honored:** No valid success criterion weakened or removed — SC-1..SC-3, R-1..R-3, Items TDD cycles, Traceability mappings, Cost Frame, and SC Enforcement Gate unchanged; revisions confined to the two SPEC_INCOMPLETE findings (added Edge Cases section; stated implicit preconditions).
 
 ---
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)

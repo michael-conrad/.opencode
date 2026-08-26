@@ -1,0 +1,95 @@
+artifact: code-path-inventory
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode — prior artifact set deleted in commit 90cc3d02 after cycle-3 spec revision; regenerated against post-cycle-4 spec)
+upstream_source: .opencode/.issues/2319/spec.md (Approach, Items, Edge Cases sections)
+verification_status: flows derived from spec Items and Edge Cases; all named executables and harness verified present live this session
+
+flows:
+  - flow_id: CF-1
+    description: Orchestrator-to-sub-agent identity handoff (the defect site)
+    current_path: >-
+      orchestrator loads skill() -> reads TDT canonical dispatch string -> task() context
+      payload carries {issue_number} or {issue_number, github.owner, github.repo} or
+      {spec_issue_number, github.owner, ...} across 10 SKILL.md sites -> sub-agent re-derives
+      repo from ambient session context (failure on record: session-2026-06-20 lesson 4;
+      AGENTS.md wrong-repo catalog entry)
+    target_path: >-
+      same skill() -> task() boundary; payload carries single issue_ref "{owner}/{repo}#NNN"
+      composite; sub-agents parse and derive locals locally
+    sc_targets: [SC-2]
+    surfaces:
+      - writing-plans/SKILL.md (19 rows), spec-creation/SKILL.md (7), approval-gate/SKILL.md (3),
+        completion-core/SKILL.md (1), audit/SKILL.md (4), programming-principles/SKILL.md (1),
+        issue-operations-core/SKILL.md TDT (10), io-sync TDT (2), io-comments TDT (1),
+        io-sub-issues TDT (1)
+  - flow_id: CF-2
+    description: Non-platform issue read/dispatch flow (the bypass site)
+    current_path: >-
+      non-platform task card instructs direct github_issue_read(issue_number=N) /
+      github_issue_* calls with bare numbers across 21 enumerated files (predicate
+      github_issue_[a-z_]+ sweep reproduced live this session)
+    target_path: >-
+      task card routes through issue-operations -> read-issue consuming the qualified
+      composite; platform resolution stays inside the platform-aware dispatcher; direct calls
+      survive only in the platform task-card set consuming the composite
+    sc_targets: [SC-3]
+  - flow_id: CF-3
+    description: Parse-and-derive flow (the derived-variable carve-out)
+    path_steps:
+      - receive issue_ref "{owner}/{repo}#NNN" at sub-agent entry
+      - parse into owner, repo, number locals (Definition 6 derived variables)
+      - resolve issues prefix from session-init Repo Information ({path}/.issues/{N}/)
+      - construct artifact paths solely beneath the resolved prefix
+    validation_gates: >-
+      Edge Cases 1-4 bind grammar: bare digits fail at consumption point identifying token +
+      source contract; degenerate numbers (0, negative, non-digit) rejected before any path
+      construction or API call; stale composite after renumbering hard-fails as dangling
+      reference (silent rewriting of historical artifacts prohibited); unknown repository
+      hard-fails requesting developer guidance (guessing prohibited by repo-routing law)
+    sc_targets: [SC-4]
+  - flow_id: CF-4
+    description: Guideline registration/loading flow (the discoverability gate)
+    current_path: >-
+      guidelines load via two surfaces — opencode.jsonc instructions array (twelve guideline
+      entries at lines 79-90 plus INDEX.md line 91) and INDEX.md progressive disclosure; no 118
+      entry exists on either surface (index jumps 117 -> 130)
+    target_path: >-
+      slot-118 row present in INDEX.md between existing entries; instructions-array tier
+      decision recorded (Tier 1 upfront vs Tier 2 INDEX-only) during Item 1 GREEN so the
+      guideline actually loads into agent sessions
+    sc_targets: [SC-1]
+  - flow_id: CF-5
+    description: Lint detection flow (the mechanical enforcement)
+    current_path: >-
+      skildeck lint executes over the deck (.opencode/tools/skildeck -> impl/skildeck/
+      skildeck-lint); no rule inspects issue-reference form (verified: zero issue_ref/bare-ref
+      mentions in the lint module)
+    target_path: >-
+      lint flags concrete bare references (#N, issue_number=N call arguments, unconsumed issue
+      tokens per Definition 5/7) in skill and task cards while excluding derived-variable
+      carve-out sites (Definition 6); false-positive recovery rewrites to composite form
+      (Edge Case 7)
+    fixture_lifecycle: ./tmp/issue-2319/lint-fixture/ created then removed within Item 5
+    sc_targets: [SC-5]
+  - flow_id: CF-6
+    description: Consumer path-construction flow inside family task files
+    current_path: >-
+      audit/spec-creation/writing-plans/issue-operations-* task files construct artifact paths
+      from a bare dispatched number plus issues_prefix (family counts verified live: audit 27,
+      spec-creation 5, writing-plans 8 of 9, io-core 7, io-comments 1, io-sub-issues 2,
+      io-sync 2)
+    target_path: >-
+      same files start from the qualified composite; instructions, path construction, and API
+      dispatch all derive from {owner}/{repo}#NNN parsed locally
+    sc_targets: [SC-6]
+
+sub_issue_flow:
+  description: Edge Case 8 — nested sub-issue numbers follow identical qualification; each link carries its own composite
+  sc_targets: [SC-4, SC-6]
+
+local_platform_flow:
+  description: >-
+    Edge Case 5 — under identity_source: local no owner/repo pair exists; composite construction
+    MUST NOT fabricate values; identity remains directory-scoped beneath the issues prefix and
+    routes through platforms/local/
+  sc_targets: [SC-1]

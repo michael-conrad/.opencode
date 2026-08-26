@@ -1,0 +1,19 @@
+# Testability Assessment — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+evidence_types:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: grep for 'contract-path\|--output' in .opencode/skills/writing-plans/tasks/research.md shows no match within step 12's `plan plan` invocation; grep for 'plan plan --problem' matches inside step 12
+    cost_frame: two grep calls
+  - sc: SC-2
+    evidence_type: string
+    verification_method: grep for 'phase-problem.yaml' in .opencode/skills/writing-plans/tasks/research.md matches inside step 12 together with a `dependency-contract` reference establishing the build order
+    cost_frame: one grep call
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: write the two-phase problem file under ./tmp/, run `./.opencode/tools/plan plan --problem ./tmp/<file>`, assert exit code 0 and stdout YAML contains `status: SOLVED_SATISFICING` or `status: SOLVED_OPTIMALLY`
+    cost_frame: one tool invocation on a throwaway file
+notes:
+  - String SCs (SC-1, SC-2) cost one or two grep calls each.
+  - Behavioral SC (SC-3) requires a live tool invocation against the `plan plan` subcommand; the throwaway file is removed from ./tmp/ after verification (subject to behavioral-evidence retention exemptions).
+  - The unchanged step-12 exit criterion (success statuses SOLVED_SATISFICING/SOLVED_OPTIMALLY) is independently confirmed by SC-3 against the live tool (D-2, D-6).

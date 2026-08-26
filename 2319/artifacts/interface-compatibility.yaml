@@ -1,0 +1,152 @@
+artifact: interface-compatibility
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode — prior artifact set deleted in commit 90cc3d02 after cycle-3 spec revision; regenerated against post-cycle-4 spec)
+upstream_source: .opencode/.issues/2319/spec.md (Approach, Key Design Decisions, Not Included, Edge Cases)
+scope_note: >-
+  Affected surface is agent-deck documentation and tooling contracts, not application code APIs.
+  "Interface" here means documented contracts between pipeline components: dispatch context
+  payloads, routing instructions, lint CLI behavior, guideline loading wiring, and identity-token
+  semantics.
+
+interfaces:
+  - name: Context-passed dispatch contract (orchestrator -> sub-agent)
+    producer: 10 enumerated SKILL.md sites (workflow Context passed payloads; TDT context columns)
+    consumer: dispatched sub-agents across all skills consuming issue identity
+    change: REPLACED
+    compatibility: >-
+      drop-in at the same boundary — composite field replaces tri-field/dropped-field forms in
+      the identical payload position (Key Design Decision 3); consumers updated in Phase 6 same
+      change-set scope; per-slice internal consistency maintained between commits
+  - name: platform API call boundary in non-platform task cards
+    producer: 21 enumerated non-platform task cards issuing github_issue_* directly
+    consumer: GitHub MCP tools (direct today)
+    change: REMOVED (relocated)
+    compatibility: >-
+      calls move behind issue-operations -> read-issue dispatcher consuming the qualified
+      composite; gh-cli/gb-cli wrapper decks excluded as functional platform surface; zero
+      direct callers remain outside the platform set after Phase 3
+  - name: skildeck CLI lint surface
+    producer: .opencode/tools/skildeck lint action
+    consumer: agents/developers running deck validation at commit time
+    change: EXTENDED
+    compatibility: additive — new bare-reference rule added to impl/skildeck/skildeck-lint;
+      existing rules and action vocabulary unchanged (wrapper action list verified live)
+  - name: guideline loading pipeline (INDEX.md + opencode.jsonc instructions array)
+    producer: .opencode/guidelines/INDEX.md progressive-disclosure index; opencode.jsonc upfront-load list
+    consumer: session-init context assembly loading guidelines into agent sessions
+    change: EXTENDED
+    compatibility: additive — slot-118 row inserted between existing 117 and 130 entries (gap
+      verified at lines 31-32); tier decision (array entry vs INDEX-only) recorded in Item 1
+      GREEN; no existing rows altered
+  - name: derived-variable carve-out convention (artifact-path construction inside sub-agents)
+    producer: sub-agent local parsing of issue_ref composite
+    consumer: artifact-path construction beneath resolved issues prefix ({path}/.issues/{N}/)
+    change: PRESERVED semantics, new feed source
+    compatibility: >-
+      local variables such as spec_issue_number remain legal for path construction only — they
+      are now derived from the parsed composite instead of ambient context; never transmitted
+      across a skill boundary as identity
+  - name: platforms/local/ directory-scoped identity form
+    producer: orchestrator under identity_source local
+    consumer: platforms/local/ task-card set
+    change: UNCHANGED
+    compatibility: >-
+      Edge Case 5 governs — no fabricated owner/repo values; issues-prefix path identity
+      supplied instead of composite; routing internals of platforms/* untouched (Not Included)
+  - name: sc-summary.yaml evidence reconciliation coupling
+    producer: spec-creation / backfill analytical-artifact regeneration
+    consumer: plan writers reading evidence types; auditors reconciling declarations
+    change: UNCHANGED
+    compatibility: >-
+      sc-summary.yaml verified in agreement this session (SC-1 structural;
+      SC-2/SC-3/SC-4/SC-5/SC-6 behavioral; plan_items 1-6); Definition 9 regeneration coupling
+      satisfied by this artifact set
+
+removed_interfaces:
+  - direct platform API calls carrying bare issue numbers from non-platform task cards (21 sites)
+
+breaking_changes_summary:
+  count: 0 external
+  detail: >-
+    No runtime API, harness, or platform-routing interface breaks. The single replaced interface
+    (dispatch context payload shape) changes atomically per card site with its drop-in
+    composite, and its consumers migrate within the same authorization scope. Not-Included
+    boundaries (platform dispatch mechanism, platform routing logic) are untouched by design.
+
+dependency_contract:
+  description: >-
+    Six sequential phases matching Items 1-6. Ordering is driven by three hard edges:
+    registration (P1) gates behavioral verification of SC-4; token definition (P1) feeds every
+    rewrite; carve-out text (P4) feeds lint vocabulary (P5). Composite contracts (P2) precede
+    consumer migration (P6).
+  variables:
+    p_phase_1_done: {type: bool, description: "guideline 118 created with token grammar; INDEX slot-118 row added; opencode.jsonc tier decision recorded"}
+    p_phase_2_done: {type: bool, description: "10 SKILL.md contract sites carry issue_ref composite only"}
+    p_phase_3_done: {type: bool, description: "21 non-platform task cards route through dispatcher"}
+    p_phase_4_done: {type: bool, description: "parse convention + carve-out + prohibition rule present in guideline 118"}
+    p_phase_5_done: {type: bool, description: "skildeck bare-reference rule implemented; fixture verified then removed"}
+    p_phase_6_done: {type: bool, description: "four consuming families derive from composite"}
+    sc_pass_all: {type: bool, description: "all six success criteria verified PASS"}
+    sat: {type: bool, description: "query variable — solve model --query sat asks whether all contract constraints admit a satisfying assignment"}
+    direct_bare_calls_outside_platform_set:
+      type: bool
+      description: >-
+        true while any github_issue_* token carrying a bare number remains outside the platform
+        set; must be false after Phase 3 (zero direct callers outside platform task-card set)
+    single_identity_field_per_contract:
+      type: bool
+      description: >-
+        every enumerated Context-passed contract carries exactly one identity field (issue_ref);
+        must hold after Phase 2 — no separate issue_number/spec_issue_number/github.owner/
+        github.repo identity fields remain
+  preconditions:
+    - "z3.Implies(p_phase_4_done, p_phase_1_done)"
+    - "z3.Implies(p_phase_5_done, p_phase_4_done)"
+    - "z3.Implies(p_phase_2_done, p_phase_1_done)"
+    - "z3.Implies(p_phase_3_done, p_phase_2_done)"
+    - "z3.Implies(p_phase_6_done, p_phase_2_done)"
+    - "z3.Implies(p_phase_6_done, p_phase_4_done)"
+    - "z3.Implies(sc_pass_all, z3.And(p_phase_1_done, p_phase_2_done, p_phase_3_done, p_phase_4_done, p_phase_5_done, p_phase_6_done))"
+  postconditions:
+    - "sc_pass_all"
+  invariants:
+    - "z3.Implies(p_phase_3_done, z3.Not(direct_bare_calls_outside_platform_set))"
+    - "z3.Implies(p_phase_2_done, single_identity_field_per_contract)"
+
+  phase_edges:
+    - phase: 1
+      produces:
+        - ".opencode/guidelines/118-issue-reference-qualification.md (token grammar section)"
+        - ".opencode/guidelines/INDEX.md slot-118 row"
+        - ".opencode/opencode.jsonc instructions-array tier decision record"
+      consumed_by:
+        - {phase: 4, reason: "SC-4 behavioral verification requires the registered guideline to load into sessions"}
+        - {phase: 2, reason: "composite field syntax cites the token grammar authority"}
+        - {phase: 3, reason: "routing rewrites reference qualified token form"}
+        - {phase: 5, reason: "lint flags violations of the defined grammar"}
+        - {phase: 6, reason: "consumers parse the defined composite"}
+    - phase: 2
+      produces:
+        - "issue_ref composite payloads in 10 SKILL.md sites"
+      consumed_by:
+        - {phase: 6, reason: "task files consume what cards emit; P6 depends_on P2"}
+    - phase: 3
+      produces:
+        - "dispatcher-routed instruction text in 21 non-platform task cards"
+      depends_on: [1, 2]
+    - phase: 4
+      produces:
+        - "parse-convention + derived-variable carve-out + prohibition rule in guideline 118"
+      depends_on: [1]
+      consumed_by:
+        - {phase: 5, reason: "carve-out Definition 6 is the lint exclusion vocabulary"}
+        - {phase: 6, reason: "derivation convention governs consumer edits"}
+    - phase: 5
+      produces:
+        - ".opencode/tools/impl/skildeck/skildeck-lint bare-reference rule"
+        - "./tmp/issue-2319/lint-fixture/ (created and removed within phase)"
+      depends_on: [1, 4]
+    - phase: 6
+      produces:
+        - "qualified consumption in audit/spec-creation/writing-plans/issue-operations-* task files"
+      depends_on: [1, 2, 4]

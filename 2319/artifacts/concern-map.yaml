@@ -1,0 +1,101 @@
+artifact: concern-map
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode — prior artifact set deleted in commit 90cc3d02 after cycle-3 spec revision; regenerated against post-cycle-4 spec)
+upstream_source: .opencode/.issues/2319/spec.md (Success Criteria, Items, Dependencies sections)
+verification_status: concern decomposition derived from the six spec Items; phase boundaries match Item numbering 1-6 per spec Traceability section
+
+concerns:
+  - id: C1
+    name: token-definition-authority
+    description: >-
+      A single authority must define the {owner}/{repo}#NNN composite grammar as the sole
+      internal issue-identity form for owner/repo-resolvable handoffs, with Edge Case 5
+      governing identity_source: local. Without one definition site, every consumer invents its
+      own qualification dialect — the divergence the spec Cost Frame SC-1 bullet predicts.
+    affected_surfaces:
+      - .opencode/guidelines/118-issue-reference-qualification.md (created Item 1; extended Item 4)
+    problem_class: STRUCTURE-GAP
+    phases: [1, 4]
+  - id: C2
+    name: registration-discoverability
+    description: >-
+      A guideline that never loads into agent sessions cannot govern behavior. Registration
+      spans two independent surfaces: the INDEX.md progressive-disclosure slot row and the
+      opencode.jsonc instructions-array tier decision. Verified absent live this session
+      (no 118 row; index jumps 117 -> 130 at lines 31-32). Gates SC-4 behavioral verification
+      structurally (spec Dependencies row).
+    affected_surfaces:
+      - .opencode/guidelines/INDEX.md (slot-118 row)
+      - .opencode/opencode.jsonc (instructions array tier decision)
+    problem_class: WIRING-GAP
+    phases: [1]
+  - id: C3
+    name: contract-shape-replacement
+    description: >-
+      Issue identity crosses skill boundaries as split fields (dropped-field or tri-field
+      forms, both live per Definitions 2). Each hop re-derives repo identity from ambient
+      context and has guessed wrong on record (session-2026-06-20 lesson 4; issue 1308
+      incident). Fix binds repo identity to the number at handoff via the single composite
+      field, drop-in at the existing Context-passed boundary.
+    affected_surfaces:
+      - 10 enumerated SKILL.md contract sites (workflow payload rows 19+7+3+1+4+1; TDT rows 10+2+1+1)
+    problem_class: CONTRACT-VIOLATION
+    phases: [2]
+  - id: C4
+    name: platform-call-concentration
+    description: >-
+      Non-platform task cards issue direct GitHub MCP calls carrying bare issue numbers,
+      bypassing platform-aware routing. Fix routes those instruction sites through
+      issue-operations -> read-issue consuming the qualified composite; direct calls survive
+      only in the platform task-card set. Exclusions preserved: gh-cli/gb-cli wrapper decks,
+      cleanup/issue-closure.md routing-only text.
+    affected_surfaces:
+      - 21 enumerated non-platform task cards (predicate github_issue_[a-z_]+ sweep)
+    problem_class: ARCHITECTURE-VIOLATION
+    phases: [3]
+  - id: C5
+    name: lint-enforcement
+    description: >-
+      Documentation without enforcement is decoration (lessons-learned Key Principle 3). The
+      skildeck semantic lint gains a rule flagging concrete bare issue references (#N,
+      issue_number=N call arguments, unconsumed tokens) while excluding the derived-variable
+      carve-out (Definition 6). Lint false-positive recovery rewrites the reference to composite
+      form; silencing the rule is prohibited (Edge Case 7).
+    affected_surfaces:
+      - .opencode/tools/impl/skildeck/skildeck-lint (rule added)
+      - ./tmp/issue-2319/lint-fixture/ (fixture deck lifecycle confined to Item 5)
+    problem_class: ENFORCEMENT-GAP
+    phases: [5]
+  - id: C6
+    name: consumer-migration
+    description: >-
+      Cards can emit qualified composites while downstream task files still construct paths and
+      dispatch calls from bare numbers — mixed conventions defeat qualification at the first
+      unqualified hop. Fix derives owner/repo/number from the parsed composite inside every
+      enumerated family task file, constructing artifact paths solely beneath the resolved
+      issues prefix.
+    affected_surfaces:
+      - audit/tasks (27 files), spec-creation tasks (5), writing-plans/tasks (8 of 9),
+        issue-operations-core/tasks (7), issue-operations-comments/tasks (1),
+        issue-operations-sub-issues/tasks (2), issue-operations-sync/tasks (2)
+    problem_class: CONSISTENCY-GAP
+    phases: [6]
+  - id: C7
+    name: behavioral-evidence-integrity
+    description: >-
+      Contract-shape, routing, parse-convention, and lint changes alter runtime behavior;
+      structural substitution is prohibited (test-integrity law, Definition 10). Every
+      behavioral method runs through .opencode/tests-v2/with-test-home; static sweeps are
+      RED/GREEN support only; model-unavailable yields FAIL, never substitution.
+    affected_surfaces:
+      - verification methods of SC-2, SC-3, SC-4, SC-5, SC-6 (spec Success Criteria table)
+    problem_class: VERIFICATION-GAP
+    phases: [2, 3, 4, 5, 6]
+
+phase_boundary_map:
+  phase_1: [C1, C2]
+  phase_2: [C3]
+  phase_3: [C4]
+  phase_4: [C1]
+  phase_5: [C5]
+  phase_6: [C6]

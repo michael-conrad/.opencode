@@ -1,0 +1,108 @@
+artifact: blast-radius
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode — prior artifact set deleted in commit 90cc3d02 after cycle-3 spec revision; regenerated against post-cycle-4 spec)
+upstream_source: .opencode/.issues/2319/spec.md (Affected Files + Definitions sections, live-reverified this session)
+verification_status: >-
+  all glob targets and named surfaces re-verified live this session: guideline 118 absent,
+  INDEX.md jumps 117 -> 130 with no slot-118 row (lines 31-32), opencode.jsonc carries twelve
+  guideline entries at lines 79-90 plus INDEX.md (matches cycle-3-corrected count),
+  skildeck executable and skildeck-lint contains no bare-reference rule, with-test-home harness
+  present, 51 SKILL.md cards counted (matches Definition 1), all 10 contract-site SKILL.md files
+  present with identity tokens (raw hits: wp 38, sc 14, ag 14, cc 2, audit 9, pp 1, ioc 11,
+  ios 2, iocm 1, iosi 1), SC-3 sweep predicate reproduces exactly the 21-file inventory,
+  SC-6 family counts reproduce (audit 27, spec-creation 5, writing-plans 8 of 9 via
+  issues_prefix, io-core 7, io-comments 1, io-sub-issues 2, io-sync 2)
+
+affected_files:
+  - path: .opencode/guidelines/118-issue-reference-qualification.md
+    change_type: CREATE
+    blast: DIRECT
+    sc_targets: [SC-1, SC-4]
+    note: >-
+      New file. Definition site for the {owner}/{repo}#NNN token grammar (Item 1 GREEN) and the
+      parse convention / derived-variable carve-out / bare-reference prohibition (Item 4 GREEN).
+      Verified absent live this session. Two items touch one file — sequenced Item 1 before
+      Item 4, never parallel-edited.
+  - path: .opencode/guidelines/INDEX.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-1]
+    note: >-
+      Slot-118 row inserted between existing entries at lines 31-32 (117-session-trigger-behavior
+      then 130-authority-source; gap verified live). Registration makes the guideline discoverable
+      through progressive disclosure; prerequisite for SC-4 behavioral verification because an
+      unregistered guideline never loads into agent sessions.
+  - path: .opencode/opencode.jsonc
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-1]
+    note: >-
+      Instructions-array tier decision recorded during Item 1 GREEN: Tier 1 upfront-load entry
+      alongside the twelve currently loaded guidelines (verified lines 79-90) plus INDEX.md
+      (line 91), OR Tier 2 progressive disclosure via INDEX-only. Decision deferred to
+      implementation per spec Dependencies.
+  - path: ".opencode/skills/{writing-plans,spec-creation,approval-gate,completion-core,audit,programming-principles,issue-operations-core,issue-operations-sync,issue-operations-comments,issue-operations-sub-issues}/SKILL.md"
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-2]
+    note: >-
+      Ten enumerated split-identity Context-passed contract sites (spec Affected Files extent
+      table: 19+7+3+1+4+1 workflow payload rows, 10+2+1+1 TDT context-column rows). All ten
+      files verified present live; raw identity-token counts recorded in verification_status.
+      Drop-in composite replacement at the existing Context-passed boundary.
+  - path: ".opencode/skills/{audit/tasks/drift-detection-investigator,audit/tasks/plan-fidelity-investigator,audit/tasks/plan-fidelity-validator,brainstorming/tasks/enforcement,conflict-resolution/tasks/classify-and-resolve,correspondence/tasks/draft,engineering-approach/tasks/verify-understanding,git-workflow-branch/tasks/pre-work,git-workflow-cleanup/tasks/cleanup,git-workflow-cleanup/tasks/cleanup/issue-closure-sweep,git-workflow-cleanup/tasks/cleanup/verify-merge,git-workflow-conflict/tasks/rebase-pending,git-workflow-pr/tasks/pr-creation/create-pr,issue-review/tasks/analyze-and-spec,issue-review/tasks/audit,issue-review/tasks/qa,pre-analysis/tasks/analyze,sre-runbook/tasks/track,sync-guidelines/tasks/sync-pull,sync-guidelines/tasks/sync-push,verification-before-completion/tasks/operating-protocol}.md"
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-3]
+    note: >-
+      21 enumerated non-platform task cards carrying github_issue_[a-z_]+ tokens. The spec's
+      extraction predicate was re-run live this session and reproduces exactly these 21 files.
+      Documented exclusions hold: gh-cli/gb-cli wrapper decks (functional platform surface) and
+      git-workflow-cleanup/tasks/cleanup/issue-closure.md (dispatcher-routing-only text, zero
+      direct calls).
+  - path: .opencode/tools/impl/skildeck/skildeck-lint
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-5]
+    note: >-
+      Lint-rule implementation surface for the bare-reference flag with derived-variable
+      carve-out exclusion. Wrapper .opencode/tools/skildeck lint action unchanged (additive
+      extension). Verified live: zero existing issue_ref/bare-ref mentions in the lint module.
+  - path: ".opencode/skills/{audit/tasks (27 files referencing issue_number|spec_issue_number),spec-creation tasks (5),writing-plans/tasks (8 of 9 via issues_prefix),issue-operations-core/tasks (7),issue-operations-comments/tasks (1),issue-operations-sub-issues/tasks (2),issue-operations-sync/tasks (2)}"
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC-6]
+    note: >-
+      Consuming task-file families per spec Affected Files. Every family count re-derived live
+      this session and matches the spec exactly. Overlap with the SC-3 list is resolved by the
+      spec scope note: one contract change per card site, one consumption change per task file —
+      not double-counted work items.
+
+glob_targets:
+  - .opencode/skills/audit/tasks/*.md
+  - .opencode/skills/issue-operations*/**/SKILL.md and tasks/*.md
+  - .opencode/skills/spec-creation/**/tasks/*.md
+  - .opencode/skills/writing-plans/**/tasks/*.md
+  - .opencode/guidelines/*.md
+  - .opencode/tools/skildeck
+
+indirect_blast:
+  - path: .opencode/.issues/2319/sc-summary.yaml
+    relationship: COUPLED
+    note: >-
+      Definition 9 — regenerated whenever analytical artifacts are regenerated. Evidence types
+      verified in agreement with the current spec this session (SC-1 structural;
+      SC-2/SC-3/SC-4/SC-5/SC-6 behavioral); no revision required by this backfill.
+  - path: .opencode/tests-v2/
+    relationship: CONSUMER
+    note: >-
+      Behavioral verification methods for SC-2/SC-3/SC-4/SC-6 execute through
+      .opencode/tests-v2/with-test-home (verified present); new scenarios are authored during
+      implementation RED phases rather than pre-existing files being modified.
+
+blast_summary:
+  create_count: 1
+  modify_direct_surfaces: 10 card sites + 21 task cards + 52 family task files + 2 registration surfaces + 1 lint module
+  out_of_scope_untouched:
+    - platform dispatch mechanism
+    - platforms/github-mcp/, platforms/gitbucket-api/, platforms/local/ routing internals

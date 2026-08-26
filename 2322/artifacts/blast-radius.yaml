@@ -1,0 +1,13 @@
+# Blast Radius — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+affected_files:
+  - path: .opencode/skills/writing-plans/tasks/research.md
+    action: edit
+    verified: EXISTS
+    impact: Primary deliverable — correct step 12's `plan plan` invocation to the problem-driven pattern and document the phase-problem construction handoff.
+no_other_affected_files:
+  - Note: Spec explicitly excludes changes to the `solve` tool or its `--contract-path` model, and changes to `plan state update` semantics (Not Included section). The `plan` and `solve` tools are referenced as runtime dependencies (P-3) but are NOT modified.
+scope:
+  type: single-file task-card invocation fix
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  concern: Correct the writing-plans research step-12 invocation to the problem-driven `plan plan --problem` pattern

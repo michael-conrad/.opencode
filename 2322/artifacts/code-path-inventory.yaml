@@ -1,0 +1,18 @@
+# Code Path Inventory — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+code_paths_implied_by_sc:
+  - sc: SC-1
+    target_file: .opencode/skills/writing-plans/tasks/research.md
+    path: step 12 `plan plan` invocation line
+    action: edit
+    evidence: grep for 'plan plan --problem' matching inside step 12; grep for 'contract-path\|--output' showing no match within step 12's `plan plan` invocation
+  - sc: SC-2
+    target_file: .opencode/skills/writing-plans/tasks/research.md
+    path: step 12 construction handoff sub-step (building `phase-problem.yaml` from `dependency-contract.yaml`)
+    action: edit
+    evidence: grep for 'phase-problem.yaml' matching inside step 12 together with a `dependency-contract` reference establishing build order
+  - sc: SC-3
+    target_file: .opencode/tools/plan
+    path: `plan plan` subcommand execution (runtime dependency, NOT modified)
+    action: execute
+    evidence: write two-phase problem file under ./tmp/, run `./.opencode/tools/plan plan --problem ./tmp/<file>`, assert exit code 0 and stdout YAML `status` in {SOLVED_SATISFICING, SOLVED_OPTIMALLY}

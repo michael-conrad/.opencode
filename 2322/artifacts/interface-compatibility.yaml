@@ -1,0 +1,47 @@
+# Interface Compatibility — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+interface_boundaries:
+  - boundary: research.md-step-12-invocation
+    file: .opencode/skills/writing-plans/tasks/research.md
+    status: INCOMPATIBLE
+    notes: Step 12 currently invokes `plan plan --contract-path ... --output ...`, but the `plan plan` subcommand accepts only `--problem` (required) and `--engine` (optional, default tamer). The `--contract-path`/`--output` flags are rejected at argument parsing with exit code 2 (D-1). The corrected invocation must use `--problem` with stdout redirect.
+  - boundary: plan-plan-subcommand-surface
+    file: .opencode/tools/plan
+    status: COMPATIBLE
+    notes: `plan plan` takes `--problem <YAML>` (required) and `--engine <NAME>` (optional, default tamer); emits plan to stdout (D-1, D-2, D-3). The corrected invocation matches this surface. Tool is a runtime dependency (P-3), NOT modified.
+  - boundary: solve-tool-contract-model
+    file: .opencode/tools/solve
+    status: NON-OVERLAPPING
+    notes: `--contract-path` exists on all four `solve` subcommands and on `plan state update` only (D-7). The `solve` tool's contract model is NOT changed; the fix corrects the task card's misuse of solve-style flags on `plan plan` (Not Included).
+  - boundary: dependency-contract-input
+    file: .opencode/.issues/{N}/dependency-contract.yaml
+    status: COMPATIBLE
+    notes: Sole structured input to the §Definitions contract→problem mapping (P-1). Produced by research.md steps 9-11 (extraction from interface-compatibility.yaml, then solve model/check SAT gates; D-8). Must exist with a non-empty `dependency_contract` section at step-12 entry.
+  - boundary: interface-compatibility-artifact
+    file: .opencode/.issues/{N}/artifacts/interface-compatibility.yaml
+    status: COMPATIBLE
+    notes: Upstream source of the `dependency_contract` section extracted at research.md step 9 (P-2). Must exist with a non-empty `dependency_contract` section; step 9 fails BLOCKED otherwise (D-8).
+compatibility_conclusions:
+  - The fix is confined to the research.md step-12 task-card text; no tool source changes.
+  - The only compatibility constraint is that the corrected invocation match the `plan plan` subcommand's problem-driven surface (`--problem` + stdout redirect) and reference the phase-problem construction handoff.
+
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Correct step-12 invocation + document construction handoff + live smoke verify — SC-1, SC-2, SC-3"
+  preconditions: []
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/writing-plans/tasks/research.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+  edges: []
+  notes:
+    - "Single-phase contract: all three SCs (SC-1, SC-2, SC-3) map to Phase 1 per the spec's Traceability table (R-1→SC-1, R-2→SC-2, R-3→SC-3 all Phase 1). No phase ordering constraints exist."
+    - "The dependency contract is derived from the spec's Traceability table and the single-phase decomposition in concern-map.yaml."

@@ -1,0 +1,73 @@
+artifact: cross-cutting-matrix
+issue: .opencode#2319
+generated_by: writing-plans backfill sub-agent (retroactive mode — prior artifact set deleted in commit 90cc3d02 after cycle-3 spec revision; regenerated against post-cycle-4 spec)
+upstream_source: .opencode/.issues/2319/spec.md (Success Criteria, Items, Affected Files scope-relationship note)
+verification_status: matrix derived from concern-map.yaml C1-C7; tensions grounded in spec text
+
+axes:
+  rows: success criteria SC-1..SC-6
+  columns: concerns C1-C7 (concern-map.yaml, this artifact set)
+legend: {PRIMARY: SC owns resolution, SECONDARY: SC stays consistent, TENSION: explicit sequencing or spec decision required}
+
+matrix:
+  - sc: SC-1 canonical token definition + registration (guideline file created)
+    C1: PRIMARY
+    C2: PRIMARY (registration is part of Item 1 GREEN — INDEX row + jsonc tier decision recorded same slice)
+    C3: SECONDARY (definition feeds every contract rewrite)
+    C4: SECONDARY (routing rewrites reference the qualified form)
+    C5: SECONDARY (lint flags violations of this definition)
+    C6: SECONDARY
+    load_bearing_element: >-
+      token grammar {owner}/{repo}#NNN designated sole internal form for owner/repo-resolvable
+      handoffs; Edge Case 5 carve-out for identity_source local referenced, not duplicated
+  - sc: SC-2 composite-only Context-passed contracts (10 card sites)
+    C1: SECONDARY
+    C3: PRIMARY
+    C6: PRIMARY (cards emit what consumers parse — spec scope note resolves the overlap as one contract change here, one consumption change in Phase 6, not double-counted work items)
+    C7: PRIMARY (behavioral stderr evidence required)
+    tension_note: >-
+      transient mixed forms between Phase 2 commits and Phase 6 commits are acceptable because
+      each family slice is internally self-consistent; spec records drop-in replacement at the
+      existing boundary as the compatibility strategy (Key Design Decision 3)
+  - sc: SC-3 dispatcher-routed non-platform cards (21 files)
+    C1: SECONDARY
+    C4: PRIMARY
+    C6: SECONDARY (routing instructions rewritten inside task files = consumption-side text)
+    C7: PRIMARY (behavioral scenario required; static sweep demoted to RED/GREEN support per Definition 10 — never sole evidence)
+  - sc: SC-4 parse-convention rule in guideline 118
+    C1: PRIMARY (same file as SC-1 — double-touch sequenced Item 1 before Item 4)
+    C2: TENSION resolved by sequencing (unregistered guideline never loads; registration landed in Phase 1 per Dependencies row)
+    C5: SECONDARY (carve-out Definition 6 becomes lint exclusion vocabulary in Phase 5)
+    C6: SECONDARY (derivation convention governs consumer edits in Phase 6)
+    C7: PRIMARY (behavioral variant per incremental-build discipline)
+  - sc: SC-5 skildeck bare-reference lint rule
+    C1: SECONDARY
+    C5: PRIMARY
+    C7: PRIMARY (fixture execution with output inspection; Edge Case 7 recovery converts references rather than weakening the rule)
+    tension_note: >-
+      fixture deck lifecycle is confined to ./tmp/issue-2319/lint-fixture/ created and removed
+      within Item 5 (project tmp discipline); lint vocabulary depends on Phase 4 carve-out text
+  - sc: SC-6 consuming task files qualify identity (four families)
+    C1: SECONDARY
+    C2: SECONDARY (registered guideline supplies the convention consumers follow)
+    C6: PRIMARY
+    C7: PRIMARY (behavioral re-dispatch, one representative flow per family)
+
+cross_cutting_tensions:
+  - id: T-1
+    elements: [SC-2, SC-6]
+    resolution: >-
+      spec Affected Files scope-relationship note — a site appearing in both lists receives one
+      contract change (card) and one consumption change (task files), never double-counted;
+      per-family slice consistency maintained between commits
+  - id: T-2
+    elements: [SC-1, SC-4]
+    resolution: >-
+      both touch .opencode/guidelines/118-issue-reference-qualification.md — sequenced Item 1
+      then Item 4, never parallel-edited
+  - id: T-3
+    elements: [SC-4, SC-5]
+    resolution: >-
+      Phase ordering P4 -> P5 — the derived-variable carve-out definition (Definition 6) is the
+      lint exclusion vocabulary; implementing the rule before the convention text exists would
+      hard-code an unratified boundary

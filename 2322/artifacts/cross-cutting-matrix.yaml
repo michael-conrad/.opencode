@@ -1,0 +1,18 @@
+# Cross-Cutting Matrix — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+cross_cutting_scs:
+  - sc: SC-1
+    spans: [concern-corrected-invocation]
+    notes: The corrected invocation is the primary deliverable; SC-2's construction handoff is a prerequisite sub-step that SC-1's invocation depends on (the `--problem` file must be built before the invocation runs).
+  - sc: SC-2
+    spans: [concern-construction-handoff]
+    notes: Documents the build order that SC-1's invocation consumes; the handoff references `dependency-contract.yaml` and the §Definitions mapping.
+  - sc: SC-3
+    spans: [concern-live-smoke]
+    notes: Independently confirms the status names the unchanged step-12 exit criterion states are the ones the live tool emits; exercises the corrected pattern end-to-end.
+phase_crossing_notes:
+  - All three SCs (SC-1, SC-2, SC-3) live in Phase 1 per the spec's Traceability table (R-1→SC-1, R-2→SC-2, R-3→SC-3 all map to Phase 1). No cross-phase dependencies exist.
+single_concern_scs:
+  - SC-1
+  - SC-2
+  - SC-3

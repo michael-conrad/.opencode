@@ -1,0 +1,30 @@
+# Analysis Summary — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+spec_path: .opencode/.issues/2322/spec.md
+approval_status: pending
+approval_label: spec
+sc_count: 3
+phase_count: 1
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_summary: >
+  Single-file task-card invocation fix in .opencode/skills/writing-plans/tasks/research.md step 12.
+  One phase: (1) correct the step-12 `plan plan` invocation to the problem-driven pattern
+  (`--problem {issues_prefix}/{N}/artifacts/phase-problem.yaml` with stdout redirected to
+  `{issues_prefix}/{N}/artifacts/plan-output.yaml`, no `--contract-path`/`--output` flag);
+  (2) document the dependency-contract-to-phase-problem construction handoff per the §Definitions
+  mapping; (3) live smoke-verify the corrected pattern against the `plan plan` subcommand.
+  3 success criteria total: SC-1, SC-2 are string-verified via grep; SC-3 is behaviorally verified
+  via a live tool invocation. Ownership: .opencode repo. No tool source changes; the `plan` and
+  `solve` tools are runtime dependencies only (P-3).
+scope_boundary_findings:
+  - affected_file: .opencode/skills/writing-plans/tasks/research.md
+    exists: true
+    note: Single affected file, present in codebase. The `plan` and `solve` tools are referenced as runtime dependencies (P-3) but are NOT modified (Not Included).
+analyze_timestamp: 2026-08-26

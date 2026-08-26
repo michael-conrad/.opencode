@@ -1,0 +1,15 @@
+# State Analysis — Issue 2322: Fix broken plan plan invocation in research.md step 12
+spec: .opencode/.issues/2322/spec.md
+state_transitions_required_by_sc:
+  - sc: SC-1
+    from: research.md step 12 invokes `plan plan --contract-path ... --output ...` (defective, rejected at argument parsing with exit code 2)
+    to: research.md step 12 invokes `plan plan --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml` with stdout redirected to `{issues_prefix}/{N}/artifacts/plan-output.yaml`, containing no `--contract-path` or `--output` flag
+  - sc: SC-2
+    from: step 12 lacks construction handoff (no `phase-problem.yaml` build reference tied to `dependency-contract.yaml`)
+    to: step 12 documents the dependency-contract-to-phase-problem construction handoff (building `phase-problem.yaml` from `dependency-contract.yaml` per the §Definitions mapping before invoking `plan plan`)
+  - sc: SC-3
+    from: corrected pattern not yet executed against the live tool (unproven)
+    to: a minimal two-phase `phase-problem.yaml` built per the §Definitions mapping solves live via the corrected invocation with exit code 0 and stdout YAML `status` in {SOLVED_SATISFICING, SOLVED_OPTIMALLY}
+terminal_state:
+  description: All SC-1..SC-3 PASS; research.md step 12 uses the corrected problem-driven `plan plan --problem` invocation with the construction handoff documented, and the pattern is proven to execute against the live tool.
+  gate: SC Enforcement Gate — a single FAIL blocks the entire spec; partial implementation not permitted.
