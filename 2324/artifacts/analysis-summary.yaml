@@ -1,0 +1,55 @@
+artifact: analysis-summary
+issue: 2324
+spec_path: .opencode/.issues/2324/spec.md
+backfilled: true
+generated_at: 2026-08-25
+source: "Spec #2324 (executing-plans present on disk but not registered in available_skills)"
+content:
+  spec_path: ".opencode/.issues/2324/spec.md"
+  sc_count: 3
+  sc_source: >-
+    Spec has no explicit Success Criteria section; SCs extracted from the Scope section:
+    SC-1 register executing-plans so it appears in <available_skills>; SC-2 verify
+    skill({name: "executing-plans"}) loads successfully; SC-3 verify the approval-gate for_pr
+    routing rule can dispatch executing-plans.
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: |
+    Spec #2324 fixes a skilldeck registration gap: the executing-plans skill exists on disk
+    with valid YAML frontmatter (re-added by merged PR #2321 / issue #1364) but is absent
+    from the runtime <available_skills> registry, so the approval-gate Mandatory Routing Rule
+    for for_pr scope references a skill that cannot be dispatched — blocking plan execution
+    for all for_pr-scoped work. 3 SCs, all behavioral (registry visibility, skill() load,
+    end-to-end for_pr routing). Out of scope: SKILL.md/task-card content changes,
+    approval-gate rule text changes, new behavioral test authoring.
+  live_verification_performed_during_backfill:
+    - "Card on disk verified byte-clean via od dump; frontmatter fields name/description/license/compatibility/provenance."
+    - "Task cards tasks/read-plan.md and tasks/dispatch-phase.md exist (ls)."
+    - "Registry absence observed in current session <available_skills> (engineering-approach -> finishing-a-development-branch jump)."
+    - "Deck audit: 49 entries under .opencode/skills/ (48 skills + non-skill reference/); exactly ONE registration gap — executing-plans. No other gaps (spec Impact #2 audit satisfied)."
+    - "No in-repo registration manifest exists: .opencode/dispatch-table.yaml is DEPRECATED/historical ('DO NOT USE FOR ACTIVATION'); .opencode/plugins/session-enforcement.ts is 84 lines with NO skill-injection logic (grep available_skills|frontmatter|SKILL.md -> attribution comments only)."
+    - "Global ~/.config/opencode/opencode.jsonc contains no skill-related keys."
+    - "approval-gate routing rule text present and verified (Scope Values Pipeline column + Mandatory Routing Rule block); tests-v2/behaviors/1364-sc1 and 1364-sc2 scenarios exist as verification vehicles."
+    - "Issue comments read via local-issues read-comments --number .opencode#2324: zero comments."
+  dependencies_noted: |
+    - ROOT CAUSE IS PROBABLY RUNTIME/ENVIRONMENTAL, NOT REPO CONTENT: discovery is native
+      opencode directory scanning (self-discovery pattern); every repo-local candidate is
+      verified clean or absent. Plan Phase 1 MUST start with a diagnosis step (fresh-session
+      rescan observation) before any file edit; if the cause is internal to the running
+      binary (e.g., stale scan cache), the fix is operational (restart/new session) rather
+      than a code change.
+    - STALE DOC CLAIM: dispatch-table.yaml header asserts the session-enforcement plugin
+      reads skill frontmatter at startup — verified false today. Do not treat it as the
+      registration mechanism.
+    - STRICT CHAIN: SC-1 -> SC-2 -> SC-3. C1 repair is a hard prerequisite for both
+      verification concerns; no independent fix path exists for SC-2/SC-3.
+    - skildeck lint emits cosmetic warnings on the card (unknown-field provenance — shared
+      by registered peers gb-cli/gh-cli/git-workflow, therefore non-blocking;
+      non-canonical-prompt on the dispatch-phase Invocation line). Not defects per peer
+      comparison; out of scope to change.

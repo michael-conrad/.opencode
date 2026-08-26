@@ -1,0 +1,39 @@
+artifact: testability-assessment
+issue: 2324
+spec_path: .opencode/.issues/2324/spec.md
+backfilled: true
+generated_at: 2026-08-25
+source: "Spec #2324 (executing-plans present on disk but not registered in available_skills)"
+content:
+  description: "Evidence type and verification method assignment for each SC"
+  assignments:
+    - sc_id: SC-1
+      criterion: "executing-plans appears in <available_skills> after registration/discovery repair"
+      evidence_type: behavioral
+      verification_method: >-
+        Start a fresh opencode session against this project and inspect the system-prompt
+        <available_skills> block (or the skill tool's listing) for an executing-plans entry.
+        The registry is runtime state — grep/static analysis cannot observe it. Structural
+        substitutes (file-existence checks) are forbidden as PASS evidence for this SC.
+      note: >-
+        If a fresh session still omits the entry while the card is verified conforming,
+        the defect is inside the runtime/environment — report FAIL, do not substitute.
+    - sc_id: SC-2
+      criterion: "skill({name: \"executing-plans\"}) loads successfully"
+      evidence_type: behavioral
+      verification_method: >-
+        In a fresh session where SC-1 passes, invoke skill({name: "executing-plans"}) and
+        observe successful card load (no resolution error; SKILL.md content returned).
+      note: >-
+        Hard prerequisite: SC-1 registry entry must exist first (dependency chain C1 -> C2).
+    - sc_id: SC-3
+      criterion: "approval-gate for_pr routing rule can dispatch executing-plans (mandatory plan-execution gate restored)"
+      evidence_type: behavioral
+      verification_method: >-
+        Reuse existing scenarios via bash .opencode/tests-v2/with-test-home:
+        tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh and
+        1364-sc2-for-pr-missing-plan-auto-create-execute.sh; assert stderr shows
+        executing-plans dispatch before any PR action.
+      note: >-
+        Spec Out of scope: behavioral test AUTHORING (tracked separately). Reusing existing
+        #1364 scenarios is verification execution, not authoring — permitted and required.

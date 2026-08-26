@@ -1,0 +1,47 @@
+artifact: cross-cutting-matrix
+issue: 2324
+spec_path: .opencode/.issues/2324/spec.md
+backfilled: true
+generated_at: 2026-08-25
+source: "Spec #2324 (executing-plans present on disk but not registered in available_skills)"
+content:
+  description: "Cross-cutting concerns spanning multiple SCs"
+  cross_cutting_concerns:
+    - concern: "Single registry defect is the shared root cause of all three SCs"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+      description: >-
+        One absence — executing-plans missing from the runtime <available_skills> registry —
+        simultaneously causes: (a) the registration gap itself (SC-1), (b) skill() resolution
+        failure (SC-2), and (c) the for_pr mandatory gate being undispatchable (SC-3). The
+        concerns form a strict dependency chain; C1 repair is a hard prerequisite for both
+        verification concerns. No independent fixes exist for C2/C3.
+      shared_files:
+        - ".opencode/skills/executing-plans/SKILL.md"
+    - concern: "Diagnosis spans repo-local AND environmental surfaces"
+      scs:
+        - SC-1
+      description: >-
+        Repo-local candidates are verified clean (frontmatter byte-clean and shape-identical
+        to registered peers; no manifest exists; session-enforcement.ts has no injection code;
+        dispatch-table.yaml is deprecated). The remaining cause space is runtime/environmental
+        (binary scan cache, session-start timing, global config). The diagnosis step must
+        cover both surfaces before any file edit is attempted, otherwise implementation risks
+        editing files that are provably not the blocker.
+      shared_files:
+        - ".opencode/skills/executing-plans/SKILL.md"
+        - ".opencode/plugins/session-enforcement.ts"
+    - concern: "Verification reuses existing #1364 behavioral harness"
+      scs:
+        - SC-2
+        - SC-3
+      description: >-
+        Both verification SCs observe behavior through channels already exercised by the #1364
+        scenarios (skill dispatch visible in stderr / live skill() call). Spec forbids new
+        behavioral test authoring; verification MUST reuse tests-v2/behaviors/1364-* scenarios
+        via with-test-home rather than creating new test files.
+      shared_files:
+        - ".opencode/tests-v2/behaviors/1364-sc1-for-pr-existing-plan-executing-plans.sh"
+        - ".opencode/tests-v2/behaviors/1364-sc2-for-pr-missing-plan-auto-create-execute.sh"

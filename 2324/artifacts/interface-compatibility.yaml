@@ -1,0 +1,54 @@
+artifact: interface-compatibility
+issue: 2324
+spec_path: .opencode/.issues/2324/spec.md
+backfilled: true
+generated_at: 2026-08-25
+source: "Spec #2324 (executing-plans present on disk but not registered in available_skills)"
+content:
+  description: "Interface boundaries and dependency contracts between affected modules"
+  interface_boundaries:
+    - boundary: "opencode runtime skill scan <-> SKILL.md YAML frontmatter (self-discovery contract)"
+      status: "CONFORMING CARD / ABSENT REGISTRY ENTRY"
+      description: >-
+        The card satisfies the self-discovery input contract (parseable frontmatter with
+        name/description/license/compatibility/provenance; byte-clean; shape-identical to
+        registered peers approval-gate and writing-plans). The runtime output side is
+        defective: the entry is absent from <available_skills> in a session started after
+        the card was committed (PR #2321 merged 2026-08-25 08:49 -0400; files present on
+        disk since 09:47). Contract repair = registry entry appearing at next session start.
+      sc: SC-1
+    - boundary: "approval-gate skill -> executing-plans skill dispatch"
+      status: "PRESENT BUT UNUSABLE"
+      description: >-
+        Routing rule text exists and is verified (approval-gate/SKILL.md Scope Values table
+        Pipeline column 'execute plan via executing-plans'; Mandatory Routing Rule block:
+        for_pr MUST dispatch executing-plans before any PR creation). The dispatch target is
+        unresolvable while SC-1 is open, so the mandatory gate cannot fire — this is the
+        blocking defect described in the spec Problem.
+      sc: SC-3
+    - boundary: "executing-plans Invocation -> task cards"
+      status: "INTACT"
+      description: >-
+        tasks/read-plan.md and tasks/dispatch-phase.md exist on disk. skildeck lint flags a
+        cosmetic non-canonical-prompt warning on the dispatch-phase prompt prefix; no
+        functional boundary break. Out of scope to modify.
+      sc: SC-2
+  dependency_contract:
+    description: "Concrete dependency data derived from spec #2324 affected files and success criteria — real sources, real targets, real type constraints"
+    entries:
+      - source: "opencode runtime scanner (.opencode/skills/*/SKILL.md frontmatter)"
+        target: "<available_skills> system-prompt injection"
+        type: "registry injection"
+        constraint: "every conforming SKILL.md under .opencode/skills/ MUST appear as an entry {name, description, location} at session start; executing-plans currently violates this invariant despite conforming input"
+      - source: "skill({name: string}) tool"
+        target: "executing-plans SKILL.md card load"
+        type: "skill resolution"
+        constraint: "resolution succeeds only for names present in <available_skills>; name literal must equal frontmatter 'name: executing-plans'"
+      - source: "approval-gate/SKILL.md Mandatory Routing Rule (authorization_scope == for_pr AND approved plan exists)"
+        target: "executing-plans dispatch"
+        type: "routing dispatch"
+        constraint: "agent MUST dispatch executing-plans before any PR creation; direct PR creation without plan execution is a critical violation — dispatch requires SC-1 registry entry to exist"
+      - source: "executing-plans/SKILL.md Invocation section"
+        target: "tasks/read-plan.md then tasks/dispatch-phase.md"
+        type: "sub-agent task dispatch"
+        constraint: "orchestrator dispatches task cards with parameters {issue_number, plan_path, project_root} and per-phase {phase, phase_order}; cards exist and are unchanged by this spec"
