@@ -1,0 +1,25 @@
+cross_cutting_matrix:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  cross_cutting_scs:
+    - sc: SC-2
+      spans_concerns: [C1-registration-integrity, C2-load-verification]
+      coupling: "Load is impossible before registration — hard dependency, sequential not parallel"
+    - sc: SC-3
+      spans_concerns: [C1-registration-integrity, C3-routing-dispatchability]
+      coupling: "Dispatch target must exist in the registry before the approval-gate routing rule can resolve it — hard dependency on SC-1"
+  dependency_order:
+    - "SC-1 (registration) precedes SC-2 (load) and SC-3 (routing)"
+    - "SC-2 and SC-3 are independent of each other once SC-1 holds; both gate the restored for_pr pipeline"
+  deck_wide_concerns:
+    - concern: "Registration-gap audit across full skill deck (spec Impact #2 mitigation)"
+      spans_all_concerns: true
+      current_evidence: >
+        Live-session registry comparison on 2026-08-26 shows exactly one gap (executing-plans) among
+        48 top-level skill directories; .opencode/skills/reference/ has no SKILL.md and is correctly
+        unregistered. No second gap found.
+  shared_mechanisms:
+    - mechanism: "YAML frontmatter self-discovery (single registration mechanism per spec Approach)"
+      used_by: [SC-1, SC-2, SC-3]

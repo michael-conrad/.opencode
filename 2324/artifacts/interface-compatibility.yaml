@@ -1,0 +1,58 @@
+interface_compatibility:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  boundaries:
+    - boundary: B1-discovery-to-registry
+      producer: ".opencode/skills/executing-plans/SKILL.md frontmatter"
+      consumer: "opencode runtime skill scan -> <available_skills> registry"
+      contract_source: "reference/skill-card-schema.md (binary hard-fail constraints)"
+      compatibility_status: satisfied_verified
+      evidence: >
+        name 'executing-plans': matches directory, regex ^[a-z0-9]+(-[a-z0-9]+)*$, 16 chars (limit 64);
+        description present, 246 chars (limit 1024); frontmatter byte-clean (no BOM/CRLF); unknown key
+        'provenance' is silently ignored per schema — not a rejection cause.
+    - boundary: B2-skill-call-to-loader
+      producer: "skill({name: \"executing-plans\"}) invocation"
+      consumer: "skill card loader"
+      contract: "exact string match between requested name and registry key; loader returns card content into orchestrator context"
+      compatibility_status: blocked_by_registration_gap
+      evidence: "Live session 2026-08-26: executing-plans absent from <available_skills>; all other valid cards registered"
+    - boundary: B3-routing-rule-to-dispatch
+      producer: "approval-gate for_pr Mandatory Routing Rule"
+      consumer: "task() dispatch referencing executing-plans and its task cards"
+      contract_source: ".opencode/skills/approval-gate/SKILL.md:87-88,141-148"
+      compatibility_status: text_intact_target_unresolvable
+      evidence: "Rule text references the correct name; dispatch fails only because the registry entry is missing"
+  dependency_contract:
+    - consumer: "approval-gate for_pr / for_release_pr TDT rows + Mandatory Routing Rule"
+      consumer_path: ".opencode/skills/approval-gate/SKILL.md"
+      provider: "skill registry entry"
+      target_key: "executing-plans"
+      type_constraint: "exact string match on registry key; no transformation permitted between rule text and key"
+    - consumer: "plan skill related-skills reference"
+      consumer_path: ".opencode/skills/plan/SKILL.md:122"
+      provider: "skill registry entry"
+      target_key: "executing-plans"
+      type_constraint: "string reference must resolve to a registered skill name"
+    - consumer: "verification-before-completion chain documentation"
+      consumer_path: ".opencode/skills/verification-before-completion/tasks/collect.md:135"
+      provider: "skill registry entry"
+      target_key: "executing-plans"
+      type_constraint: "pipeline-chain step name must resolve to registered skill"
+    - consumer: "using-git-worktrees REQUIRED-before list"
+      consumer_path: ".opencode/skills/using-git-worktrees/tasks/reference.md:61"
+      provider: "skill registry entry"
+      target_key: "executing-plans"
+      type_constraint: "REQUIRED marker must point at loadable skill"
+    - source_card: ".opencode/skills/executing-plans/SKILL.md frontmatter"
+      fields:
+        - {field: name, value: "executing-plans", constraint: "required; regex ^[a-z0-9]+(-[a-z0-9]+)*$; equals directory name"}
+        - {field: description, value_len: 246, constraint: "required; 1-1024 chars"}
+        - {field: license, value: "MIT", constraint: "optional free-form (project standard)"}
+        - {field: compatibility, value: "opencode", constraint: "optional free-form (project standard)"}
+        - {field: provenance, value: "AI-generated", constraint: "unknown field — ignored by binary per schema"}
+  backward_compatibility: >
+    Adding one registry entry changes no existing keys, no consumer text, and no card content.
+    Existing sessions are unaffected until restart; new sessions gain the additional skill only.

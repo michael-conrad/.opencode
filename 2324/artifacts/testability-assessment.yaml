@@ -1,0 +1,38 @@
+testability_assessment:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  analysis: >
+    All three SCs verify RUNTIME registration behavior, so runtime-behavioral evidence is required —
+    structural checks (file existence, frontmatter validity) are necessary preconditions but NOT
+    sufficient. Per spec Out-of-scope, behavioral test authoring is tracked separately; verification
+    at implementation time uses live isolated-session evidence until the dedicated scenario exists.
+  scs:
+    - sc: SC-1
+      requirement: "executing-plans appears in <available_skills>"
+      type: behavioral
+      method: >
+        Start an isolated session via `bash .opencode/tests-v2/with-test-home opencode run '<probe>'`
+        and inspect the session's <available_skills> (or have the probe call skill() and report).
+        PASS requires executing-plans listed alongside the other registered skills.
+      structural_precondition: "grep frontmatter of .opencode/skills/executing-plans/SKILL.md passes schema hard-fail constraints"
+    - sc: SC-2
+      requirement: "skill({name: \"executing-plans\"}) loads successfully"
+      type: behavioral
+      method: >
+        Live tool-call evidence: skill() invocation returns the executing-plans skill card content
+        (routing metadata visible in orchestrator context). Absence from <available_skills> or a
+        load error is FAIL.
+      structural_precondition: "registry key string equals 'executing-plans' exactly"
+    - sc: SC-3
+      requirement: "approval-gate for_pr routing rule can dispatch executing-plans"
+      type: behavioral
+      method: >
+        Isolated for_pr-scoped run asserting the plan-execution dispatch path resolves (stderr shows
+        plan read + phase dispatch rather than direct PR creation). Dedicated behavioral scenario is
+        deferred per spec Out-of-scope; manual isolated-run evidence acceptable for this fix's SC.
+      structural_precondition: "approval-gate SKILL.md :87-88,:141-148 unchanged and referencing 'executing-plans'"
+  evidence_integrity_notes:
+    - "Runtime-behavioral changes cannot be evidenced by grep/metadata substitution — EVIDENCE_TYPE_MISMATCH applies"
+    - "Behavioral runs use with-test-home isolation per AGENTS.md Test Framework Discipline; timeout >= 600s for model inference"

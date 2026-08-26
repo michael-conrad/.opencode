@@ -1,0 +1,32 @@
+concern_map:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  success_criteria:
+    - id: SC-1
+      text: "executing-plans is registered in the skilldeck discovery mechanism so it appears in <available_skills>"
+      source: "spec Scope bullet 1"
+    - id: SC-2
+      text: "skill({name: \"executing-plans\"}) loads successfully"
+      source: "spec Scope bullet 2"
+    - id: SC-3
+      text: "the approval-gate for_pr routing rule can dispatch executing-plans"
+      source: "spec Scope bullet 3"
+  concern_groups:
+    - concern: C1-registration-integrity
+      description: "Discovery/registration layer state must include the executing-plans entry so the runtime surfaces the card"
+      maps_to_scs: [SC-1]
+      phase_boundary: "P1: registration present and surfaced in a fresh session's <available_skills>"
+    - concern: C2-load-verification
+      description: "skill() invocation resolves the registry key and returns the executing-plans skill card content"
+      maps_to_scs: [SC-2]
+      phase_boundary: "P2: successful load evidenced by returned card content"
+    - concern: C3-routing-dispatchability
+      description: "approval-gate for_pr Mandatory Routing Rule (skills/approval-gate/SKILL.md:141-148, TDT rows :87-88) can resolve its dispatch target through the registry"
+      maps_to_scs: [SC-3]
+      phase_boundary: "P3: for_pr-scoped dispatch path resolvable end-to-end"
+  out_of_scope_constraints:
+    - "No changes to executing-plans SKILL.md content or task cards (spec Out of scope)"
+    - "No changes to approval-gate routing rule text (spec Out of scope)"
+    - "No behavioral test authoring — tracked separately (spec Out of scope)"

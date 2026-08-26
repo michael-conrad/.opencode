@@ -1,0 +1,36 @@
+code_path_inventory:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  paths_by_sc:
+    - sc: SC-1
+      code_paths:
+        - path: "opencode runtime skill scan"
+          detail: "Runtime scans .opencode/skills/*/SKILL.md, parses YAML frontmatter, populates <available_skills> per reference/skill-card-schema.md ('Derived from the opencode binary')"
+        - path: ".opencode/opencode.jsonc"
+          detail: "Verified: no skill registry key exists; instructions array is guidelines-only — rules out config-based registration as the mechanism"
+        - path: ".opencode/plugins/session-enforcement.ts"
+          detail: "Verified: zero skill-registration references — plugin is not the registration layer"
+        - path: ".opencode/tools/skildeck"
+          detail: "Verified via --help: lint/analyze/export/verify actions only — analysis CLI, not registration"
+        - path: ".opencode/skills/reference/"
+          detail: "Directory without SKILL.md (verified) — correctly excluded from registry; confirms scan filters on SKILL.md presence plus frontmatter validity"
+    - sc: SC-2
+      code_paths:
+        - path: "skill() loader"
+          detail: "skill({name}) resolves name against <available_skills> registry keys; on match loads .opencode/skills/executing-plans/SKILL.md into orchestrator context"
+        - path: ".opencode/skills/executing-plans/SKILL.md frontmatter"
+          detail: "Byte-verified clean: name executing-plans matches directory and regex ^[a-z0-9]+(-[a-z0-9]+)*$; description 246 chars (< 1024 hard-fail limit)"
+    - sc: SC-3
+      code_paths:
+        - path: ".opencode/skills/approval-gate/SKILL.md:87-88"
+          detail: "TDT rows for_pr / for_release_pr -> 'execute plan via executing-plans'"
+        - path: ".opencode/skills/approval-gate/SKILL.md:141-148"
+          detail: "Mandatory Routing Rule: for_pr with existing plan MUST dispatch executing-plans before PR creation; direct PR creation is a CRITICAL VIOLATION"
+        - path: ".opencode/skills/executing-plans/tasks/read-plan.md + dispatch-phase.md"
+          detail: "Task cards consumed by the dispatched plan-execution workflow (both exist, verified)"
+  root_cause_location: >
+    Registration/discovery layer of the opencode runtime. The card passes every documented hard-fail
+    constraint, all consumers reference the correct name, and no repo-side registry file exists to be
+    stale — the runtime failed to surface the re-added card after commit 64446452 restored it.

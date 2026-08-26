@@ -1,0 +1,32 @@
+analysis_summary:
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive
+  spec_path: ".opencode/.issues/2324/spec.md"
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  spec_verified: true
+  sc_count: 3
+  success_criteria:
+    - SC-1
+    - SC-2
+    - SC-3
+  artifact_status:
+    blast-radius.yaml: backfilled
+    concern-map.yaml: backfilled
+    code-path-inventory.yaml: backfilled
+    cross-cutting-matrix.yaml: backfilled
+    interface-compatibility.yaml: backfilled
+    state-analysis.yaml: backfilled
+    testability-assessment.yaml: backfilled
+  pre_existing_artifacts: none
+  scope_summary: >
+    Register the existing, frontmatter-valid executing-plans skill card in the skilldeck discovery
+    mechanism so the runtime surfaces it in <available_skills>, then verify skill() load (SC-2) and
+    approval-gate for_pr dispatch resolvability (SC-3). Card content, task cards, and approval-gate
+    rule text are explicitly out of scope; behavioral test authoring is deferred to a separate track.
+  key_findings:
+    - "Card passes every hard-fail constraint in reference/skill-card-schema.md (name/directory match, regex, description 246/1024 chars, byte-clean frontmatter)"
+    - "Re-add commit 64446452 (2026-08-25) predates the verifying session (2026-08-26); HEAD 3e69570a clean — defect is runtime registration, not stale checkout or invalid card"
+    - "No repo-side registry file exists (opencode.jsonc instructions-only; plugins and skildeck uninvolved) — native frontmatter self-discovery is the mechanism per spec Approach"
+    - "Exactly one registration gap among 48 top-level skill directories; consumers already reference the correct name"
+  dependency_order: "SC-1 -> {SC-2, SC-3}; SC-2 and SC-3 mutually independent once SC-1 holds"

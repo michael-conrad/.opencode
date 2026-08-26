@@ -1,0 +1,37 @@
+state_analysis:
+  spec_title: "[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate"
+  issue_number: 2324
+  generated: "2026-08-26"
+  mode: retroactive_backfill
+  current_state:
+    filesystem: ".opencode/skills/executing-plans/{SKILL.md,tasks/read-plan.md,tasks/dispatch-phase.md} present at submodule HEAD 3e69570a; working tree clean (verified 2026-08-26)"
+    git_history: "deleted in aa349d18; re-added in 64446452 (2026-08-25 08:49 EDT, PR #2321, issue #1364)"
+    runtime_registry: "executing-plans ABSENT from <available_skills> in live session started 2026-08-26 01:16 EDT — after the re-add, ruling out stale-session cause"
+    consumer_state: "approval-gate routing rule text intact and referencing the correct name; dispatch target unresolvable"
+  target_state:
+    runtime_registry: "executing-plans present in <available_skills>"
+    load_path: "skill({name: \"executing-plans\"}) returns card content"
+    routing_path: "for_pr-scoped plan execution dispatch resolves through the registry"
+  state_transitions:
+    - id: T1
+      from: registry-absent
+      to: registry-present
+      required_by: SC-1
+      trigger: "registration entry added via discovery mechanism; visible to sessions started after fix"
+    - id: T2
+      from: load-fails
+      to: load-succeeds
+      required_by: SC-2
+      trigger: "T1 complete; skill() key resolution succeeds"
+    - id: T3
+      from: for_pr-dispatch-blocked
+      to: for_pr-dispatch-resolvable
+      required_by: SC-3
+      trigger: "T1 complete; approval-gate routing rule finds its target"
+  persistence_and_migration:
+    scope: session-scoped
+    detail: >
+      Registry is derived at session start from on-disk frontmatter. No data migration, no persisted
+      state file to update; once registration holds, every new session picks it up automatically.
+      In-flight sessions require restart to observe the change.
+  rollback: "Remove the registration entry; no other state is mutated by this fix"
