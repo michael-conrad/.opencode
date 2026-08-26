@@ -1,0 +1,134 @@
+> Problem decomposition output for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  decomposed: "2026-08-26"
+  method: >
+    Requirements mapped to candidate SC-IDs. Spec SCs do not exist yet; the
+    SC-IDs below are proposed for adoption by the create task's success-criteria
+    table. Each item is a single independently verifiable claim with its own
+    RED/GREEN/verify/commit cycle per 091-incremental-build.
+
+units:
+  - item: ITEM-1
+    sc_id: SC-1
+    claim: >
+      060-tool-usage.md contains a "Built-in glob: verified semantics and
+      silent-failure modes" section documenting LIM-1..LIM-6, the canonical
+      path-param invocation idiom, and the empty-result disambiguation rule.
+    interface: {input: verified limitation evidence, output: guideline section}
+    invariant: "section follows Read-link rule; no line-number references; triple co-application applied"
+    failure_modes: [section omits a verified limitation, uses forbidden cross-reference style]
+    tdd_cycle: {red: "grep 060-tool-usage.md for section heading fails", green: "add section", verify: "structural grep + markdown lint", commit: "one slice"}
+
+  - item: ITEM-2
+    sc_id: SC-2
+    claim: >
+      sre-runbook/tasks/generate.md runbooks/-discovery (lines ~184-191) no longer
+      uses directory-only glob patterns; discovery uses a working mechanism
+      (bash `find -type d -name runbooks` fallback or path-param glob on docs/)
+      and cites SC-1 guidance via Read-link.
+    interface: {input: generate.md task card, output: corrected discovery procedure}
+    invariant: "RB_PATH resolution still terminates at docs/runbooks/ fallback; no directory-glob remains"
+    failure_modes: [replacement mechanism also silently empties, RB_PATH contract broken]
+    tdd_cycle: {red: "grep for '**/runbooks/' pattern in generate.md succeeds", green: "replace mechanism", verify: "grep absent + manual probe of new mechanism", commit: "one slice"}
+
+  - item: ITEM-3
+    sc_id: SC-3
+    claim: >
+      sre-runbook/tasks/generate.md format-matching dual-glob (lines ~120-158)
+      rewritten to path-param form with explicit placeholders and an
+      empty-result disambiguation step before concluding 'no existing runbooks'.
+    interface: {input: format-matching gate text, output: hardened gate}
+    invariant: "dual-pattern requirement preserved; both stamps still checked"
+    failure_modes: [placeholder ambiguity increases, gate loses dual-pattern mandate]
+    tdd_cycle: {red: "grep shows bare <RB_PATH>/** pattern form present", green: "rewrite", verify: "grep + structural review", commit: "one slice"}
+
+  - item: ITEM-4
+    sc_id: SC-4
+    claim: >
+      verification-before-completion/tasks/completion.md evidence-artifact check
+      (line 67) replaced with an existence-check mechanism that works against
+      gitignored tmp/ (path-param glob or read/file-exists), citing SC-1.
+    interface: {input: live-verification table row, output: working tool call cell}
+    invariant: "VERIFICATION-GAP classification semantics unchanged"
+    failure_modes: [replacement cannot see gitignored artifacts]
+    tdd_cycle: {red: "cell contains gitignored-target pattern-form glob", green: "replace", verify: "probe replacement form against real artifacts dir", commit: "one slice"}
+
+  - item: ITEM-5
+    sc_id: SC-5
+    claim: >
+      verification-before-completion/tasks/collect.md report-existence check
+      (line 241) receives the same remediation as ITEM-4.
+    interface: {input: staleness table row, output: working tool call cell}
+    invariant: "MISSING-ELEMENT classification unchanged"
+    failure_modes: [same as ITEM-4]
+    tdd_cycle: same structure as ITEM-4
+
+  - item: ITEM-6
+    sc_id: SC-6
+    claim: >
+      All 13 audit task files normalize glob invocations to the canonical shape:
+      plain string path param (no f-string pseudo-syntax), bracketed placeholder
+      convention, and an empty-result guard instruction where a directory listing
+      feeds downstream logic.
+    interface: {input: audit task cards, output: normalized invocation blocks}
+    invariant: "audit role contracts unchanged; only invocation syntax + guards change"
+    failure_modes: [normalization drifts role-specific semantics, missed file in family]
+    tdd_cycle: {red: "grep counts files matching f-string/unguarded shape > 0", green: "normalize all 13", verify: "grep count == 0 + spot probe", commit: "one slice"}
+
+  - item: ITEM-7
+    sc_id: SC-7
+    claim: >
+      guidelines/020-go-prohibitions.md research-card catalogue instruction
+      (line 278) restated to specify the path-param form so naive translation
+      cannot produce a silently-empty invocation.
+    interface: {input: prose instruction, output: unambiguous invocation text}
+    invariant: "research-card confidence>=0.7 skip logic unchanged"
+    failure_modes: [rewording alters catalogue protocol semantics]
+    tdd_cycle: {red: "text lacks explicit path-param form", green: "clarify", verify: "structural review", commit: "one slice"}
+
+  - item: ITEM-8
+    sc_id: SC-8
+    claim: >
+      A behavioral enforcement test exists demonstrating that an agent instructed
+      to enumerate files under .opencode/ uses a working invocation form
+      (path-param) rather than concluding nonexistence from a silent-empty
+      pattern-from-root result.
+    interface: {input: opencode run scenario, output: stderr-based behavioral assertion}
+    invariant: "uses with-test-home wrapper; asserts actions not prose recall"
+    failure_modes: [test asserts stdout prose instead of stderr actions]
+    tdd_cycle: {red: "run against pre-change deck fails assertion", green: "passes post-change", verify: "behavioral run", commit: "one slice"}
+
+dependency_dag:
+  edges:
+    - {from: SC-1, to: SC-2}
+    - {from: SC-1, to: SC-3}
+    - {from: SC-1, to: SC-4}
+    - {from: SC-1, to: SC-5}
+    - {from: SC-1, to: SC-6}
+    - {from: SC-1, to: SC-7}
+    - {from: SC-2, to: SC-8}
+    - {from: SC-3, to: SC-8}
+    - {from: SC-4, to: SC-8}
+    - {from: SC-5, to: SC-8}
+    - {from: SC-6, to: SC-8}
+    - {from: SC-7, to: SC-8}
+  acyclic: true
+  rationale: >
+    SC-1 is the documentation anchor all fixes cite. Behavioral test SC-8 runs
+    last against the fully remediated deck.
+
+phase_structure:
+  pre_phase: "baseline inventory (this analysis artifacts)"
+  per_file_phases:
+    - phase: 1
+      items: [SC-1]
+      category: guideline
+    - phase: 2
+      items: [SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+      category: skill-task-cards
+  post_phase:
+    items: [SC-8]
+    category: behavioral-test
+  three_tier_satisfied: true

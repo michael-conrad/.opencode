@@ -1,0 +1,55 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+cross_cutting_concerns:
+  - concern: tier2_framing_consistency
+    description: "The HALT-without-CRITICAL-VIOLATION framing must be consistent between the prohibition sentence (SC-3) and the classification sentence (SC-4). Any CRITICAL VIOLATION header leaking into the rule block misclassifies it as Tier 1, which never yields to developer authorization — breaking SC-5."
+    affected_scs:
+      - SC-3
+      - SC-4
+      - SC-5
+    affected_phases:
+      - 1
+      - 3
+  - concern: carveout_default_boundary
+    description: "The developer-authorization carve-out (SC-5) is the ONLY transition out of the default HALT (SC-4). Wording must keep the default and the exception separable: carve-out present must not void the prohibition (SC-3), and prohibition must not make the carve-out unreachable."
+    affected_scs:
+      - SC-3
+      - SC-4
+      - SC-5
+    affected_phases:
+      - 1
+      - 3
+  - concern: framework_agnostic_generality
+    description: "SC-6/SC-7 constrain the wording of EVERY rule sentence — prohibition (SC-3), HALT framing (SC-4), and carve-out (SC-5) must all stay framework-agnostic. Behavioral test prompts (Phase 3) must likewise avoid repo-specific tool names or they pre-bake the answer."
+    affected_scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-6
+      - SC-7
+    affected_phases:
+      - 1
+      - 3
+  - concern: canonical_inheritance
+    description: "Placement in canonical .opencode/AGENTS.md (SC-8) governs whether every other SC reaches consumer repos at all. A rule authored anywhere else satisfies its wording checks but fails its purpose (R-7)."
+    affected_scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+      - SC-9
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: evidence_type_integrity
+    description: "SC-1..SC-5 are behavioral by declaration AND by substrate (agent runtime tool-selection behavior). Per critical-rules-BEH-EV, structural/string substitution is EVIDENCE_TYPE_MISMATCH with FAIL verdict — Phase 3 verification method wording must remain session.yaml-based with no structural fallback."
+    affected_scs:
+      - SC-1
+      - SC-2
+      - SC-3
+      - SC-4
+      - SC-5
+    affected_phases:
+      - 3

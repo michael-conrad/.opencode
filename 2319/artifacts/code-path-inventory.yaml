@@ -1,0 +1,78 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "Code paths implied by each SC"
+  code_paths:
+    - sc_id: SC-1
+      path: "Guideline definition site (new file)"
+      description: ".opencode/guidelines/118-issue-reference-qualification.md exists and designates the token grammar {owner}/{repo}#NNN as the sole internal issue identity form. Verified structurally by reading the file."
+      files:
+        - ".opencode/guidelines/118-issue-reference-qualification.md"
+    - sc_id: SC-2
+      path: "Orchestrator dispatch handoff path"
+      description: "Orchestrator loads a skill card TDT -> composes dispatch context carrying issue_ref: '{owner}/{repo}#NNN' -> sub-agent receives and consumes the qualified composite at handoff. Behavioral: stderr shows the composite crossing the boundary and no unqualified issue token."
+      files:
+        - ".opencode/skills/writing-plans/SKILL.md"
+        - ".opencode/skills/spec-creation/SKILL.md"
+        - ".opencode/skills/approval-gate/SKILL.md"
+        - ".opencode/skills/completion-core/SKILL.md"
+        - ".opencode/skills/audit/SKILL.md"
+        - ".opencode/skills/programming-principles/SKILL.md"
+        - ".opencode/skills/issue-operations-core/SKILL.md"
+        - ".opencode/skills/issue-operations-sync/SKILL.md"
+        - ".opencode/skills/issue-operations-comments/SKILL.md"
+        - ".opencode/skills/issue-operations-sub-issues/SKILL.md"
+    - sc_id: SC-3
+      path: "Non-platform card read path rerouted through dispatcher"
+      description: "Non-platform task-card instruction -> issue-operations -> read-issue -> platform subset, consuming the composite. Direct github_issue_read(issue_number=N)-style calls absent outside skills/issue-operations/. Behavioral run asserts routed behavior; static sweep (zero bare-numbered call args outside platform set) recorded as RED/GREEN support only."
+      files:
+        - ".opencode/skills/audit/tasks/drift-detection-investigator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-investigator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+        - ".opencode/skills/brainstorming/tasks/enforcement.md"
+        - ".opencode/skills/conflict-resolution/tasks/classify-and-resolve.md"
+        - ".opencode/skills/correspondence/tasks/draft.md"
+        - ".opencode/skills/engineering-approach/tasks/verify-understanding.md"
+        - ".opencode/skills/git-workflow-branch/tasks/pre-work.md"
+        - ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+        - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/issue-closure-sweep.md"
+        - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/verify-merge.md"
+        - ".opencode/skills/git-workflow-conflict/tasks/rebase-pending.md"
+        - ".opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md"
+        - ".opencode/skills/issue-review/tasks/analyze-and-spec.md"
+        - ".opencode/skills/issue-review/tasks/audit.md"
+        - ".opencode/skills/issue-review/tasks/qa.md"
+        - ".opencode/skills/pre-analysis/tasks/analyze.md"
+        - ".opencode/skills/sre-runbook/tasks/track.md"
+        - ".opencode/skills/sync-guidelines/tasks/sync-pull.md"
+        - ".opencode/skills/sync-guidelines/tasks/sync-push.md"
+        - ".opencode/skills/verification-before-completion/tasks/operating-protocol.md"
+        - ".opencode/skills/issue-operations-core/tasks/read-issue.md"
+    - sc_id: SC-4
+      path: "Sub-agent parse-and-derive consumption point"
+      description: "Agent receives unqualified reference alongside a qualified composite -> derives owner, repo, issue_number from the composite -> constructs artifact paths beneath the resolved issues prefix using carve-out locals (e.g. spec_issue_number); performs no wrong-repo resolution on the bare token. Behavioral variant per incremental-build discipline via with-test-home stderr assertions."
+      files:
+        - ".opencode/guidelines/118-issue-reference-qualification.md"
+        - ".opencode/skills/spec-creation/tasks/create.md"
+        - ".opencode/skills/writing-plans/tasks/backfill.md"
+    - sc_id: SC-5
+      path: "skildeck CLI lint pipeline"
+      description: ".opencode/tools/skildeck lint -> .opencode/tools/impl/skildeck/skildeck-lint executes against a fixture deck with planted bare references and carve-out sites; flag output lists every planted violation and excludes every carve-out site. Test execution with output inspection."
+      files:
+        - ".opencode/tools/skildeck"
+        - ".opencode/tools/impl/skildeck/skildeck-lint"
+    - sc_id: SC-6
+      path: "Per-family task-file internal flow"
+      description: "Within audit, issue-operations, spec-creation, and writing-plans task files: step instructions resolve paths and API calls from the dispatched composite rather than a bare number. One representative behavioral re-dispatch per family via with-test-home; stderr confirms qualified path construction and dispatch."
+      files:
+        - ".opencode/skills/audit/tasks/*.md (27 files referencing issue_number/spec_issue_number)"
+        - ".opencode/skills/spec-creation/tasks/*.md (5 files)"
+        - ".opencode/skills/writing-plans/tasks/*.md (8 of 9 construct paths via issues_prefix)"
+        - ".opencode/skills/issue-operations-core/tasks/*.md (7 files)"
+        - ".opencode/skills/issue-operations-comments/tasks/comment.md"
+        - ".opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md"
+        - ".opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md"
+        - ".opencode/skills/issue-operations-sync/tasks/import-remote.md"
+        - ".opencode/skills/issue-operations-sync/tasks/sync-from-remote.md"

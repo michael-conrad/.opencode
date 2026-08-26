@@ -1,0 +1,39 @@
+> Cross-cutting matrix for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+
+matrix:
+  - concern: attribution-byline
+    applies_to: [SC-1..SC-7]
+    rule: "080-code-standards - preserve existing bylines; append only if substantive new creative content"
+    handling: "edits are targeted clause/section changes; existing Co-authored lines preserved verbatim"
+  - concern: triple-co-application
+    applies_to: [SC-1, SC-7]
+    rule: "250/255/257 reference cards consulted before authoring agent-facing text"
+    handling: "create-phase sub-agents must load all three cards; flagged in plan execution context"
+  - concern: read-link-cross-references
+    applies_to: [ALL]
+    rule: "Read [Text](path) pattern mandatory; 'See file' forbidden"
+    handling: "fix sites cite SC-1 section via Read-link, never bare mentions"
+  - concern: numbering
+    applies_to: [SC-1]
+    rule: "numbered lists start at 1 (080-code-standards)"
+    handling: "limitation list numbered from LIM-1 already compliant"
+  - concern: behavioral-test-mandate
+    applies_to: [SC-8]
+    rule: "critical-rules-009 + tests-v2 framework discipline (with-test-home, >=600s timeout, no GNU timeout)"
+    handling: "scenario registered via test-enforcement.sh conventions; stderr assertions only"
+  - concern: markdown-lint-format
+    applies_to: [SC-1, SC-7]
+    rule: "pymarkdownlnt + mdformat --check on guidelines/"
+    handling: "verification step runs both commands on touched guideline files"
+  - concern: yaml-standard
+    applies_to: [analysis artifacts, not deck]
+    rule: "LLM-to-LLM data uses YAML"
+    handling: "this artifact set is YAML-compliant"
+  - concern: submodule-pointer-discipline
+    applies_to: [commit phase]
+    rule: "all changes inside .opencode submodule; parent pointer rides with next real parent change"
+    handling: "no parent-repo edits fabricated; pointer update deferred per AGENTS.md"

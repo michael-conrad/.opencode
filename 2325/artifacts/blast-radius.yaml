@@ -1,0 +1,39 @@
+> Blast radius artifact for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+
+phase_1_sc_1_guideline_documentation:
+  direct: [.opencode/guidelines/060-tool-usage.md]
+  ripple:
+    - ".opencode/guidelines/INDEX.md trigger-pattern row if new section keywords warrant index update"
+    - "agents relying on naive pattern-from-root glob will now find documented prohibition; no runtime code affected"
+  blast_radius_class: NARROW
+  rationale: "additive section in one Tier-1 guideline; no existing rule text modified"
+
+phase_2_sc_2_to_7_deck_fixes:
+  direct:
+    - .opencode/skills/sre-runbook/tasks/generate.md
+    - .opencode/skills/verification-before-completion/tasks/completion.md
+    - .opencode/skills/verification-before-completion/tasks/collect.md
+    - .opencode/skills/audit/tasks/*.md (13 files)
+    - .opencode/guidelines/020-go-prohibitions.md
+  ripple:
+    - "sre-runbook RB_PATH consumers downstream in same task card (write/env-search steps) - contract preserved, only discovery mechanism changes"
+    - "audit role chains (investigator->evaluator->arbiter) consume normalized invocation output; result contracts unchanged"
+    - "verification-before-completion pipeline stages upstream/downstream of the two table rows unchanged"
+    - "behavioral test scenarios referencing these files may need scenario-map updates in tests-v2/test-enforcement.sh FILE_SCENARIO_MAP"
+  blast_radius_class: MODERATE
+  rationale: "17 files across 3 skills + 1 guideline; all edits confined to invocation syntax and guards; zero semantic protocol changes"
+
+phase_3_sc_8_behavioral_test:
+  direct: [".opencode/tests-v2/behaviors/<new-scenario>.sh", ".opencode/tests-v2/test-enforcement.sh (scenario registration)"]
+  ripple: ["none beyond harness registration"]
+  blast_radius_class: NARROW
+
+cross_phase_regressions:
+  - risk: "deck-wide grep for remaining broken shapes misses prose-only references"
+    mitigation: "post-phase regression grep includes prose patterns ('glob ... in <hidden-dir>')"
+  - risk: "normalizing audit f-string pseudo-syntax changes meaning agents derive"
+    mitigation: "per-file diff review against invariant 'role contracts unchanged'"

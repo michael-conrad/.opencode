@@ -1,0 +1,79 @@
+> Requirements extraction output for .opencode#2325
+> Source of problem statement: issue TITLE ONLY (body empty, no comments, no links)
+> Title: "[SPEC-FIX] Built-in glob silent failures - document limitations and remediate broken invocations across agent deck"
+
+meta:
+  issue: ".opencode#2325"
+  extracted: "2026-08-26"
+  statement_completeness: "title-only; requirements below are derived from title plus live codebase verification per 015-pre-spec-inspection"
+
+explicit_requirements:
+  - id: R1
+    text: "Document the built-in glob tool's limitations in agent-facing text"
+    source: "title clause 'document limitations'"
+    verification: >
+      Verified gap exists: no guideline or skill documents the six confirmed
+      limitations (LIM-1..LIM-6). grep across .opencode/**/*.md for glob-tool
+      semantics documentation returned only the tool-hierarchy table in
+      060-tool-usage.md, which contains zero failure-mode content.
+  - id: R2
+    text: "Remediate broken glob invocations across the agent deck"
+    source: "title clause 'remediate broken invocations across agent deck'"
+    verification: >
+      Verified inventory: 4 structurally broken invocation sites
+      (sre-runbook generate.md x2 patterns/3 call sites,
+      verification-before-completion completion.md:67, collect.md:241) plus
+      14 fragile sites in audit task family and 1 ambiguous prose site in
+      020-go-prohibitions.md:278. Every 'broken' classification is backed by a
+      reproduced probe showing silent-empty for that invocation shape.
+
+implicit_requirements:
+  - id: R3
+    text: "Standardize the reliable invocation idiom (path-parameter form) as the documented canonical shape"
+    rationale: "Documentation without a canonical replacement shape leaves agents to re-derive working forms; every remediated site should cite one idiom."
+    verification: "path-param form empirically verified working against hidden, nested-hidden, and tracked targets (4 probes)."
+  - id: R4
+    text: "Provide empty-result handling guidance distinguishing 'no matches' from 'wrong invocation'"
+    rationale: "LIM-3 conflation is the root harm; even correct-shaped invocations can hit mistyped paths. Agents need a disambiguation step when an empty result is unexpected."
+    verification: "content-audit-investigator.md:337 shows current deck treats empty-glob as data with no guard; probes show five distinct causes share one output."
+  - id: R5
+    text: "Remediation scope covers skills/, guidelines/, and AGENTS.md instruction blocks within the .opencode submodule"
+    rationale: "'agent deck' denotes agent-facing instruction files; all identified sites fall under these three categories."
+    verification: "Full-deck grep enumerated all 17 concrete invocation-syntax sites; all reside in .opencode/skills/ or .opencode/guidelines/ (plus parent AGENTS.md anti-example which needs no fix)."
+
+constraint_requirements:
+  - id: C1
+    text: "All changes land in the .opencode submodule repo, not the parent repo"
+    source: "repo routing: affected paths prefix .opencode/"
+  - id: C2
+    text: "No platform-side tool modification is in scope; built-in glob implementation is not part of this repository"
+    source: "remediation is documentation + invocation fixes only"
+  - id: C3
+    text: "Agent-facing text changes must follow skill-card/guideline standards: Read-link cross-references, triple co-application of reference cards 250/255/257, numbering rules"
+    source: "080-code-standards Mandatory Triple Co-Application; Read-link rule in AGENTS.md"
+  - id: C4
+    text: "Guideline/skill changes require behavioral enforcement tests, not just structural checks"
+    source: "critical-rules-009 enforcement-test-updates mandate"
+  - id: C5
+    text: "Per-SC decomposition: each SC maps to exactly one RED/GREEN/verify/commit cycle targeting one file category and one verification domain"
+    source: "091-incremental-build.md; analyze.md Step 6 atomicity gate"
+
+non_requirements:
+  - id: N1
+    text: "Modifying the opencode platform glob tool implementation"
+    reason: "outside this repository's control"
+  - id: N2
+    text: "Wholesale replacement of glob with bash find/ls across the deck"
+    reason: "glob remains Tier-1 primary; remediation is targeted at broken shapes only"
+  - id: N3
+    text: "tests-v2 shell scripts' internal rg/find usage"
+    reason: "harness scripts are not agent-facing instruction text"
+  - id: N4
+    text: "Fixing the AGENTS.md forbidden-patterns table entry"
+    reason: "intentional anti-example documenting a prohibited pattern"
+
+open_questions:
+  - id: Q1
+    text: "Should the limitations document live as a new section in 060-tool-usage.md or a standalone guideline file?"
+    proposed_resolution: "New section in 060-tool-usage.md - it already owns built-in tool hierarchy; avoids INDEX.md churn and keeps single file category per SC-1."
+    decision_owner: spec-creation create task / developer

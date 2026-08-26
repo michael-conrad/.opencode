@@ -1,0 +1,54 @@
+> Interface compatibility analysis for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+
+surfaces:
+  - interface: "060-tool-usage.md guideline content consumed by every session via instructions array"
+    change: NEW_SECTION_ONLY
+    compatibility: backward_compatible
+    breaking: false
+    detail: "additive section; existing tier table untouched"
+
+  - interface: "sre-runbook RB_PATH contract (variable consumed by generate.md steps)"
+    change: UNCHANGED_SEMANTICS_NEW_RESOLUTION_MECHANISM
+    compatibility: backward_compatible
+    breaking: false
+    detail: "RB_PATH still resolves to a runbooks directory path or docs/runbooks/ fallback; consumers unchanged"
+
+  - interface: "format-matching dual-pattern mandate"
+    change: MODIFIED_INVOCATION_FORM_SAME_MANDATE
+    compatibility: backward_compatible
+    breaking: false
+    detail: "both stamp patterns still required; empty-result conclusion now gated"
+
+  - interface: "verification-before-completion live-verification table schema"
+    change: CELL_VALUE_ONLY
+    compatibility: internal_only
+    breaking: false
+
+  - interface: "audit task role contracts (investigator/evaluator/arbiter result YAML schemas)"
+    change: UNCHANGED
+    compatibility: unchanged
+    breaking: false
+    detail: "only invocation syntax and guard steps normalized"
+
+  - interface: "research-card catalogue protocol (glob -> frontmatter grep -> confidence skip)"
+    change: CLARIFIED_INVOCATION_FORM
+    compatibility: backward_compatible
+    breaking: false
+
+  - interface: "tests-v2 scenario registration surface"
+    change: NEW_SCENARIO
+    compatibility: backward_compatible
+    breaking: false
+
+removed_interfaces: []
+new_interfaces:
+  - "canonical glob invocation idiom documented in SC-1 (documentation-level interface)"
+
+summary:
+  backward_compatible: true
+  breaking_changes: 0
+  external_consumers_affected: 0

@@ -1,0 +1,63 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+state_machine:
+  name: multi_module_build_tooling
+  source: "Spec Section 11 'State transitions' — ROOT_TOOLING and SUBMODULE_AUTHORIZED inline-defined at first use"
+  states:
+    - name: ROOT_TOOLING
+      description: "Default allowed state — build/test executes exclusively through the repo root's build tool or the repo root's project-local tools (.tools/<tool>/ per guidelines/085-project-local-tools.md)"
+      entry_action: "agent needs a build/test step in a multi-module checkout; no authorization required (default path)"
+      scs:
+        - SC-1
+        - SC-2
+    - name: SUBMODULE_AUTHORIZED
+      description: "Exception state — intentional submodule tooling setup proceeds only after explicit developer authorization ('approved'/'go')"
+      entry_action: "explicit developer authorization grants carve-out (R-4)"
+      scs:
+        - SC-5
+    - name: HALTED
+      description: "Violation state — agent attempts (or is positioned to attempt) submodule toolchain invention/alteration without authorization; agent HALTs with Tier 2 framing, no CRITICAL VIOLATION header"
+      entry_action: "submodule toolchain invention/alteration attempted by default (R-2, R-3)"
+      scs:
+        - SC-3
+        - SC-4
+  transitions:
+    - from: ROOT_TOOLING
+      to: SUBMODULE_AUTHORIZED
+      trigger: explicit developer authorization for intentional submodule tooling setup
+      action: "carve-out honored; submodule tooling work proceeds under authorization scope"
+    - from: ROOT_TOOLING
+      to: HALTED
+      trigger: "agent creates/modifies a submodule to add a competing toolchain (or is asked to) without authorization"
+      action: "HALT by default, Tier 2 framing (no CRITICAL VIOLATION header)"
+    - from: HALTED
+      to: SUBMODULE_AUTHORIZED
+      trigger: developer grants explicit authorization after halt
+      action: "work resumes in SUBMODULE_AUTHORIZED under developer authorization"
+    - from: HALTED
+      to: ROOT_TOOLING
+      trigger: developer redirects to root build tool / root project-local tools instead
+      action: "build/test re-routed through root tooling; no submodule touched"
+  forbidden_states:
+    - description: "Submodule-local toolchain creation or alteration without developer authorization (package.json/build.gradle/Node/gradle or equivalent invented inside a submodule)"
+    - description: "Automatic remediation of pre-existing conflicting submodule toolchains (explicitly out of scope — no migration/cleanup path exists in this spec)"
+    - description: "Tier 1 framing of the rule (CRITICAL VIOLATION header) — misclassification breaks the authorization carve-out model"
+  per_sc_state_relevance:
+    - sc: SC-1
+      relevance: "ROOT_TOOLING restricted to repo root's build tool only"
+    - sc: SC-2
+      relevance: "ROOT_TOOLING includes repo root's project-local tools as valid execution path"
+    - sc: SC-3
+      relevance: "Defines the transition into HALTED (no invention/alteration)"
+    - sc: SC-4
+      relevance: "Defines HALTED exit framing (Tier 2, default halt)"
+    - sc: SC-5
+      relevance: "Defines the sole authorized ROOT_TOOLING -> SUBMODULE_AUTHORIZED edge"
+    - sc: SC-6
+      relevance: "Both input-boundary arrangements (git-submodule-only, toolchain-native) enter ROOT_TOOLING identically"
+    - sc: SC-7
+      relevance: "No state text hardcodes repo-specific commands"
+    - sc: SC-8
+      relevance: "State machine text lives in canonical .opencode/AGENTS.md"
+    - sc: SC-9
+      relevance: "State references cite 060/085 via Read [Text](path)"

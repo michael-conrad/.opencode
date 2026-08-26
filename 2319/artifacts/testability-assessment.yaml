@@ -1,0 +1,36 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "Evidence type and verification method assignment for each SC (mirrors the spec Success Criteria table and sc-summary.yaml — already reconciled in-spec)"
+  assignments:
+    - sc_id: SC-1
+      criterion: "Composite form {owner}/{repo}#NNN defined in guidelines/118-issue-reference-qualification.md as the single self-describing issue identity token"
+      evidence_type: structural
+      verification_method: "Read .opencode/guidelines/118-issue-reference-qualification.md; confirm file exists and designates the token grammar {owner}/{repo}#NNN as the sole internal issue identity form"
+    - sc_id: SC-2
+      criterion: "Every enumerated split-identity Context-passed contract carries identity only via the composite field issue_ref; separate identity fields absent"
+      evidence_type: behavioral
+      verification_method: "bash .opencode/tests-v2/with-test-home opencode run '<dispatch scenario>': stderr shows the dispatched sub-agent receiving and consuming the qualified composite at handoff, and no unqualified issue token crossing a skill boundary"
+    - sc_id: SC-3
+      criterion: "Direct platform API calls with bare issue numbers absent from every enumerated non-platform task card; calls exist only in the platform set consuming the composite"
+      evidence_type: behavioral
+      verification_method: "Behavioral run asserting a non-platform sub-agent routes issue reads through issue-operations -> read-issue rather than issuing direct github_issue_read(issue_number=N); static sweep excluding skills/issue-operations/ recorded as RED/GREEN support, never sole evidence"
+    - sc_id: SC-4
+      criterion: "Guideline defines composite parse convention with derived-variable carve-out and bare-reference prohibition"
+      evidence_type: behavioral
+      verification_method: "Behavioral variant per incremental-build discipline: bash .opencode/tests-v2/with-test-home opencode run with a prompt carrying an unqualified reference alongside a qualified composite; stderr assertions confirm agent derives owner/repo/number from the composite and performs no wrong-repo resolution on the bare token"
+    - sc_id: SC-5
+      criterion: "skildeck lint flags concrete bare issue references while permitting the derived-variable carve-out"
+      evidence_type: behavioral
+      verification_method: "Execute .opencode/tools/skildeck lint against a fixture deck containing planted bare references and carved-out derived-variable sites; inspect flag output — every planted violation listed, every carve-out site excluded (test execution with output inspection)"
+    - sc_id: SC-6
+      criterion: "Task files in audit, issue-operations, spec-creation, writing-plans families consume the composite for instructions, path construction, and API dispatch"
+      evidence_type: behavioral
+      verification_method: "Behavioral re-dispatch of one representative flow per family via bash .opencode/tests-v2/with-test-home opencode run; stderr evidence confirms task-card steps resolve paths and calls from the composite"
+  notes:
+    - "Evidence-type reconciliation: SC-2 and SC-6 behavioral (contract-shape replacement alters runtime routing); SC-4 and SC-5 behavioral (guideline governs parsing behavior per Enforcement Test Mandate; lint verification is execution with output inspection); SC-1 remains structural (definition-site existence and content). Declared identically in spec and sc-summary.yaml."
+    - "Five of six SCs are behavioral — every behavioral run MUST go through .opencode/tests-v2/with-test-home (verified present this session). Behavioral runs require >=600s bash tool timeout; rm -f tmp/.behavior-run.lock before re-runs."
+    - "Functional/behavioral test substitution prohibition applies: if a behavioral run cannot execute, the SC is FAIL — grep/static sweeps support but never substitute."
+    - "SC-5 requires creating a fixture deck with planted violations plus carve-out sites before GREEN can be observed."

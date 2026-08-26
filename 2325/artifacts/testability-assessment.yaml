@@ -1,0 +1,66 @@
+> Testability assessment for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+
+per_phase:
+
+  phase_1_sc_1:
+    strategy: structural_plus_markdown_lint
+    unit: "grep assertions for required section heading and LIM-1..LIM-6 coverage in 060-tool-usage.md"
+    integration: "pymarkdownlnt scan + mdformat --check on the file"
+    behavioral: "deferred to SC-8 (deck-wide behavior)"
+    red_example: "grep '^## Built-in glob' fails pre-change"
+    green_example: "grep succeeds; lint clean"
+    evidence_type: structural
+
+  phase_2_sc_2_sc_3:
+    strategy: structural_plus_live_probe
+    unit: "grep asserts '**/runbooks/' absent; canonical form present"
+    integration: "manually execute replacement discovery snippet against this repo (has no runbooks/ -> fallback) and a synthetic tmp fixture dir (match case)"
+    behavioral: none
+    evidence_type: structural
+    note: >
+      Live probe of the replacement mechanism IS executable cheaply (bash find /
+      one glob call); counts as functional verification of the mechanism shape.
+
+  phase_2_sc_4_sc_5:
+    strategy: live_probe
+    unit: "invoke the replacement tool-call cell against real {project_root}/tmp/<issue>/artifacts/ content and assert detection works"
+    integration: "none beyond probe"
+    evidence_type: behavioral_partial
+    justification: >
+      The defect class is 'documented call cannot see its target'; proving the
+      replacement sees a real artifact file is runtime-functional, though not a
+      full opencode-run behavioral session.
+
+  phase_2_sc_6:
+    strategy: structural_sweep
+    unit: "grep count across audit/tasks/*.md: f-string pseudo-syntax == 0, unbracketed placeholder == 0, empty-guard keyword present where listing feeds logic"
+    evidence_type: structural
+
+  phase_2_sc_7:
+    strategy: structural
+    unit: "read-back review asserting explicit path-param phrasing present; catalogue protocol clauses intact"
+    evidence_type: structural
+
+  phase_3_sc_8:
+    strategy: behavioral
+    unit: >
+      bash .opencode/tests-v2/with-test-home opencode run '<prompt asking agent
+      to enumerate task cards under .opencode/skills>' ; stderr asserted for
+      path-param-form glob action; absence of false nonexistence conclusion.
+    timeout: ">=600000ms bash-tool timeout; no GNU timeout"
+    evidence_type: behavioral
+    red_green: >
+      RED against pre-fix deck: agent emits naive pattern-from-root call then
+      concludes files absent. GREEN post-fix: agent uses path-param form.
+
+framework_requirements:
+  wrapper: ".opencode/tests-v2/with-test-home"
+  registration: "test-enforcement.sh scenario map entry"
+  lockfile_precaution: "rm -f tmp/.behavior-run.lock before reruns"
+
+coverage_gaps:
+  - "no automated check that future deck additions use canonical form - regression grep script optional post-phase step"

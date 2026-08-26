@@ -1,0 +1,48 @@
+> Concern map artifact for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+
+concerns:
+  - concern: tool-semantics-documentation
+    owner_phase: 1 (SC-1)
+    files: [".opencode/guidelines/060-tool-usage.md"]
+    boundary: >
+      Owns WHAT the built-in glob does and does not do. Contains no
+      site-specific fixes. Other phases reference it via Read-link only.
+    separation_violation_risk: "fix phases duplicating limitation prose inline instead of Read-linking SC-1"
+
+  - concern: runbook-discovery-mechanics
+    owner_phase: 2 (SC-2, SC-3)
+    files: [".opencode/skills/sre-runbook/tasks/generate.md"]
+    boundary: "Owns RB_PATH discovery and format-matching gate internals only."
+    separation_violation_risk: "leaking guideline prose into task card instead of citing SC-1"
+
+  - concern: verification-evidence-existence
+    owner_phase: 2 (SC-4, SC-5)
+    files:
+      - .opencode/skills/verification-before-completion/tasks/completion.md
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+    boundary: "Owns the two live-verification table cells only; classification semantics out of scope."
+
+  - concern: audit-invocation-hygiene
+    owner_phase: 2 (SC-6)
+    files: [".opencode/skills/audit/tasks/*.md"]
+    boundary: >
+      Owns syntax normalization and empty-result guards across the audit family.
+      Role contracts, verdicts, and evidence schemas explicitly OUT of scope.
+
+  - concern: research-catalogue-instruction-clarity
+    owner_phase: 2 (SC-7)
+    files: [".opencode/guidelines/020-go-prohibitions.md"]
+    boundary: "Owns one instruction clause; catalogue skip/confidence logic untouched."
+
+  - concern: behavioral-enforcement
+    owner_phase: 3 (SC-8)
+    files: ["tests-v2 harness"]
+    boundary: "Owns proving agent behavior change; may not modify deck content."
+
+single_concern_per_sc: true
+shared_no_mans_land:
+  - "empty-result disambiguation rule appears in SC-1 (definition) and SC-6 sites (application) - definition lives ONLY in SC-1, applications Read-link it"

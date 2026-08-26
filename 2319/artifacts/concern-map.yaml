@@ -1,0 +1,47 @@
+artifact_name: concern-map
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "Concern decomposition of the 6 SCs, mapped to phase boundaries (phase numbering matches Item numbering 1-6 per spec Traceability)"
+  concerns:
+    - id: C1
+      name: "Canonical token definition and parse-convention guideline"
+      description: "Create .opencode/guidelines/118-issue-reference-qualification.md designating {owner}/{repo}#NNN as the single self-describing internal issue identity token (SC-1) and defining the parse convention: local derivation of owner/repo/issue_number, derived-variable carve-out, prohibition on concrete bare references (SC-4)"
+      scs:
+        - SC-1
+        - SC-4
+      phase_boundary: "Guideline slices — Phase 1 (token definition) and Phase 4 (parse convention) both land in the same new file; co-located edits applied sequentially with distinct anchors"
+    - id: C2
+      name: "Composite-only Context-passed contracts"
+      description: "Replace split identity fields (issue_number / spec_issue_number / github.owner / github.repo) with the single composite field issue_ref at the 10 enumerated SKILL.md contract sites"
+      scs:
+        - SC-2
+      phase_boundary: "Phase 2 — one enumerated SKILL.md contract slice (behavioral stderr evidence at handoff)"
+    - id: C3
+      name: "Platform-call concentration behind the issue-operations dispatcher"
+      description: "Remove direct platform API calls carrying bare issue numbers from the 21 enumerated non-platform task cards; such calls route through issue-operations -> read-issue consuming the composite"
+      scs:
+        - SC-3
+      phase_boundary: "Phase 3 — non-platform task-card slice (behavioral routed-read evidence; static sweep as RED/GREEN support only)"
+    - id: C4
+      name: "Mechanical enforcement via skildeck semantic lint"
+      description: "Extend skildeck-lint to flag concrete bare issue references (#N, issue_number=N call arguments, unconsumed tokens) in skill/task cards while excluding derived-variable carve-out sites"
+      scs:
+        - SC-5
+      phase_boundary: "Phase 5 — lint rule plus fixture-deck slice (fixture execution with output inspection)"
+    - id: C5
+      name: "Consumer-side qualification in task-file families"
+      description: "Update audit, issue-operations, spec-creation, and writing-plans task files so instructions, artifact-path construction, and API dispatch start from the qualified token rather than a bare number"
+      scs:
+        - SC-6
+      phase_boundary: "Phase 6 — per-family task-file slices (one representative behavioral re-dispatch per family)"
+  scs_per_concern:
+    C1: [SC-1, SC-4]
+    C2: [SC-2]
+    C3: [SC-3]
+    C4: [SC-5]
+    C5: [SC-6]
+  notes:
+    - "Every SC maps to exactly one primary concern and one phase; no item covers multiple SCs (per-SC decomposition preserved)."
+    - "C1 spans two phases because definition and convention are separate items targeting the same new file — sequencing within one file is a plan-ordering constraint, not a concern overlap."

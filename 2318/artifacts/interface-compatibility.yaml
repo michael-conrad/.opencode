@@ -1,0 +1,60 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+interfaces:
+  - name: agents_md_boundaries_section
+    description: "Canonical agent-rules document; the new rule joins the existing '## Boundaries (Critical)' section (line 308) alongside ALWAYS/NEVER tables"
+    files:
+      - .opencode/AGENTS.md
+    consumers:
+      - "All AI agents in every repo consuming michael-conrad/.opencode"
+      - "session-enforcement.ts identity/echo pipeline reads AGENTS.md conventions (no code change required — Tier 2 is prose-level HALT per spec Not Included)"
+    compatibility: "Prose addition only — no schema, no frontmatter, no tooling parse dependency. Must not introduce repo-specific build commands (SC-7)."
+  - name: read_link_reference_pattern
+    description: "Cross-reference interface from the rule block to guideline files using the mandatory Read [Text](path) pattern"
+    operations:
+      - "Read [Text](guidelines/060-tool-usage.md)"
+      - "Read [Text](guidelines/085-project-local-tools.md)"
+    consumers:
+      - .opencode/AGENTS.md
+      - .opencode/guidelines/060-tool-usage.md
+      - .opencode/guidelines/085-project-local-tools.md
+    compatibility: "Relative path form 'guidelines/<file>.md' matches the convention already used inside .opencode/AGENTS.md (e.g. 'Read [010-approval-gate.md](guidelines/010-approval-gate.md)'). Both targets verified present this session. 085 is referenced, NOT modified (spec Not Included)."
+  - name: behavioral_test_harness_interface
+    description: "tests-v2 harness contract presupposed by all five behavioral verification methods"
+    operations:
+      - "bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+      - "__export_sqlite_to_yaml() -> session.yaml export"
+      - "clean-room sub-agent inspection of session.yaml per .opencode/tests-v2/AGENTS.md"
+    consumers:
+      - .opencode/tests-v2/behaviors/2318-sc1-root-build-tool-only.sh
+      - .opencode/tests-v2/behaviors/2318-sc2-root-project-local-tools.sh
+      - .opencode/tests-v2/behaviors/2318-sc3-no-submodule-toolchain-invention.sh
+      - .opencode/tests-v2/behaviors/2318-sc4-tier2-halt-framing.sh
+      - .opencode/tests-v2/behaviors/2318-sc5-dev-authorization-carveout.sh
+    compatibility: "Requires with-test-home isolation (verified present), >=600s bash-tool timeout convention, session.yaml as PRIMARY evidence source, no structural substitution on test failure (critical-rules-060). Scenario naming follows observed '<issue>-sc<N>-<slug>.sh' convention."
+boundary_notes:
+  - rule_vs_guideline_authority: "The rule lives in canonical AGENTS.md (R-7); guidelines 060 and 085 remain the authoritative definitions of tier hierarchy/tool selection and project-local tools respectively. The rule cites them — it does not restate or override them."
+  - tier_model_dependency: "Tier 2 classification inherits semantics from 000-critical-rules.md critical-rules-018 (process-integrity: HALT, no CRITICAL VIOLATION header, yields to developer authorization). The rule text must not redefine tiering."
+dependency_contract:
+  description: "Concrete dependency data derived from spec #2318 affected files and success criteria — real sources, real targets, real type constraints (consumed by research.md step 9 extraction into dependency-contract.yaml for solve/plan tools)"
+  entries:
+    - source: ".opencode/AGENTS.md '## Boundaries (Critical)' new rule block (SC-1..SC-9)"
+      target: "agent runtime build/test tool-selection behavior in multi-module checkouts"
+      type: "prose enforcement rule (Tier 2 process-integrity)"
+      constraint: "agent SHALL use only repo root's build tool or root project-local tools for build/test; SHALL NOT create/modify a submodule to add a competing toolchain; violation produces HALT by default without CRITICAL VIOLATION header; explicit developer authorization ('approved'/'go') permits intentional submodule tooling setup"
+    - source: ".opencode/AGENTS.md rule block cross-references (SC-9, R-8)"
+      target: ".opencode/guidelines/060-tool-usage.md and .opencode/guidelines/085-project-local-tools.md"
+      type: "Read-Link citation (Read [Text](path))"
+      constraint: "exact pattern 'Read [Text](<relative-path>)'; paths resolve from .opencode/ as 'guidelines/<file>.md'; both target files exist (verified); 085 referenced-not-modified"
+    - source: ".opencode/guidelines/000-critical-rules.md critical-rules-018 (Tier 2 model)"
+      target: "classification wording of the new rule block (SC-4)"
+      type: "classification constraint"
+      constraint: "HALT framing with no CRITICAL VIOLATION header; developer authorization overrides default halt; classification must match spec Approach field 3"
+    - source: "behavioral scenarios 2318-sc1..sc5 (.opencode/tests-v2/behaviors/) (SC-1..SC-5)"
+      target: ".opencode/tests-v2/with-test-home wrapper + exported session.yaml + clean-room sub-agent inspector"
+      type: "executable behavioral assertion"
+      constraint: "opencode run wrapped by with-test-home; bash-tool timeout >=600s; session.yaml (SQLite event-table export) is PRIMARY evaluation source per tests-v2/AGENTS.md; assertions evaluate recorded agent actions; on unexecutable test the ONLY valid outcome is FAIL — no structural substitution (critical-rules-060)"
+    - source: "spec Section 11 state model (ROOT_TOOLING / SUBMODULE_AUTHORIZED)"
+      target: "rule block carve-out sentence (SC-5) and HALT sentence (SC-4)"
+      type: "state-transition constraint"
+      constraint: "default state ROOT_TOOLING requires zero authorization; transition to SUBMODULE_AUTHORIZED fires ONLY on explicit developer authorization; no automatic remediation path exists for already-invented submodule toolchains (out of scope)"

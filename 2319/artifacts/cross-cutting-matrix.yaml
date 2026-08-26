@@ -1,0 +1,64 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "Concerns spanning multiple SCs and the shared surfaces that create sequencing or consistency constraints"
+  cross_cutting_concerns:
+    - concern: "Composite token grammar is the shared primitive for every SC"
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+        - SC-6
+      description: "All six SCs consume or enforce the same {owner}/{repo}#NNN grammar defined in SC-1. If Phase 1 lands with a divergent dialect (e.g. including platform), every downstream phase inherits the divergence — Phase 1 is a hard prerequisite for Phases 2 through 6."
+      shared_files:
+        - ".opencode/guidelines/118-issue-reference-qualification.md"
+    - concern: "Guideline 118 is written by two separate phases"
+      scs:
+        - SC-1
+        - SC-4
+      description: "SC-1 (token definition) and SC-4 (parse convention, carve-out, prohibition) both edit the same new file. Co-located edits must apply sequentially with distinct anchors; the second slice must not weaken or restate the first."
+      shared_files:
+        - ".opencode/guidelines/118-issue-reference-qualification.md"
+    - concern: "Carve-out boundary expressed twice — prose and mechanical rule must agree"
+      scs:
+        - SC-4
+        - SC-5
+      description: "The derived-variable carve-out is defined in prose by the guideline (SC-4) and policed mechanically by skildeck-lint (SC-5). A carve-out accepted by one and rejected by the other is an internal-consistency defect; both implementations must reference the same boundary definition."
+      shared_files:
+        - ".opencode/guidelines/118-issue-reference-qualification.md"
+        - ".opencode/tools/impl/skildeck/skildeck-lint"
+    - concern: "Contract replacement and consumer update form one atomic convention shift"
+      scs:
+        - SC-2
+        - SC-6
+      description: "SKILL.md contracts stop carrying split identity fields (SC-2) at exactly the boundary where consuming task files start parsing the composite (SC-6). An intermediate state where contracts changed but consumers did not — or vice versa — leaves families reading identity fields that no longer exist. Phase ordering must complete each family's consumer updates adjacent to the contract change."
+      shared_files:
+        - ".opencode/skills/writing-plans/SKILL.md"
+        - ".opencode/skills/spec-creation/SKILL.md"
+        - ".opencode/skills/audit/SKILL.md"
+        - ".opencode/skills/issue-operations-core/SKILL.md"
+        - ".opencode/skills/audit/tasks/"
+        - ".opencode/skills/spec-creation/tasks/"
+        - ".opencode/skills/writing-plans/tasks/"
+        - ".opencode/skills/issue-operations-core/tasks/"
+    - concern: "Shared behavioral verification harness"
+      scs:
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-6
+      description: "Four behavioral SCs run through bash .opencode/tests-v2/with-test-home opencode run with stderr assertions. Harness availability, model availability, and lock hygiene (tmp/.behavior-run.lock) are shared prerequisites; a harness failure fails all four identically and must be diagnosed once, not per-SC."
+      shared_files:
+        - ".opencode/tests-v2/with-test-home"
+    - concern: "SC-3 reroute depends on the platform set consuming the composite"
+      scs:
+        - SC-2
+        - SC-3
+      description: "Non-platform cards route reads through issue-operations -> read-issue (SC-3); that dispatcher path only resolves correctly once its own contract column carries the composite (SC-2 covers issue-operations-core/SKILL.md). Sequencing SC-2 before SC-3 avoids routing through a half-migrated boundary."
+      shared_files:
+        - ".opencode/skills/issue-operations-core/SKILL.md"
+        - ".opencode/skills/issue-operations-core/tasks/read-issue.md"

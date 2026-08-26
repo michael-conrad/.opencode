@@ -1,0 +1,61 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+concerns:
+  - id: root_tooling_exclusivity
+    name: Root Tooling Exclusivity
+    description: "Agent build/test in a multi-module checkout uses ONLY the repo root's build tool or repo root's project-local tools (R-1)"
+    phase: 1
+    scs:
+      - SC-1
+      - SC-2
+  - id: submodule_prohibition
+    name: Submodule Toolchain Prohibition
+    description: "No creating or modifying a submodule to add a competing toolchain (R-2)"
+    phase: 1
+    scs:
+      - SC-3
+  - id: framework_agnosticism
+    name: Framework-Agnostic Generality
+    description: "Guidance covers git submodules AND toolchain-native multi-module arrangements with no hardcoded repo-specific commands (R-5, R-6)"
+    phase: 1
+    scs:
+      - SC-6
+      - SC-7
+  - id: canonical_placement
+    name: Canonical Placement
+    description: "Rule authored in canonical .opencode/AGENTS.md so it carries into every consumer repo (R-7)"
+    phase: 1
+    scs:
+      - SC-8
+  - id: read_link_references
+    name: Read-Link Cross-Referencing
+    description: "Every cross-reference from the rule uses the Read [Text](path) pattern, targeting 060-tool-usage.md and 085-project-local-tools.md (R-8)"
+    phase: 2
+    scs:
+      - SC-9
+  - id: halt_classification_framing
+    name: Tier 2 HALT Classification Framing
+    description: "Submodule toolchain invention/alteration produces HALT by default, Tier 2 framing, no CRITICAL VIOLATION header (R-3); verified behaviorally"
+    phase: 3
+    scs:
+      - SC-4
+  - id: dev_authorization_carveout
+    name: Developer-Authorization Carve-Out
+    description: "Explicit developer authorization permits intentional submodule tooling setup (R-4); verified behaviorally"
+    phase: 3
+    scs:
+      - SC-5
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: "Rule text present in '## Boundaries (Critical)' of .opencode/AGENTS.md satisfying SC-1, SC-2, SC-3, SC-6, SC-7, SC-8; structural checks for SC-6/SC-7 pass"
+    scs: [SC-1, SC-2, SC-3, SC-6, SC-7, SC-8]
+  phase_2:
+    entry: phase 1 complete
+    exit: "Read [Text](path) references from the rule to guidelines/060-tool-usage.md and guidelines/085-project-local-tools.md verified (SC-9)"
+    scs: [SC-9]
+  phase_3:
+    entry: phase 2 complete
+    exit: "All five behavioral enforcement scenarios pass via session.yaml clean-room sub-agent inspection — root tooling selection observed (SC-1, SC-2), no submodule toolchain invention (SC-3), Tier 2 HALT framing without CRITICAL VIOLATION header (SC-4), carve-out honored under authorization (SC-5)"
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+phase_note: "Phase numbering carried from spec Section 5: Phase 1 = rule substance, Phase 2 = cross-referencing, Phase 3 = behavioral enforcement test. SC-1..SC-3 text is authored in Phase 1 but their verification methods are behavioral and execute in Phase 3 (per spec Section 7 traceability note)."

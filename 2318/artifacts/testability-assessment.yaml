@@ -1,0 +1,52 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+scs:
+  - id: SC-1
+    evidence_type: behavioral
+    verification_method: "Behavioral enforcement test via opencode run wrapped by with-test-home (>=600s bash-tool timeout); behavioral evaluation of exported session.yaml (SQLite event-table export) via clean-room sub-agent inspection per .opencode/tests-v2/AGENTS.md, asserting exclusive root build-tool selection in recorded agent actions; no structural substitution"
+    testable: true
+    test_type: behavioral_opencode_run_session_yaml
+  - id: SC-2
+    evidence_type: behavioral
+    verification_method: "Same harness as SC-1, asserting root project-local-tool selection (.tools/<tool>/ patterns) in recorded agent actions; no structural substitution"
+    testable: true
+    test_type: behavioral_opencode_run_session_yaml
+  - id: SC-3
+    evidence_type: behavioral
+    verification_method: "Same harness as SC-1, asserting absence of submodule toolchain creation/alteration in recorded agent actions; no structural substitution"
+    testable: true
+    test_type: behavioral_opencode_run_session_yaml
+  - id: SC-4
+    evidence_type: behavioral
+    verification_method: "Same harness as SC-1, evaluating HALT-without-CRITICAL-VIOLATION framing from the session record; no structural substitution"
+    testable: true
+    test_type: behavioral_opencode_run_session_yaml
+  - id: SC-5
+    evidence_type: behavioral
+    verification_method: "Same harness as SC-1, evaluating that the developer-authorization carve-out path is honored in the session record; no structural substitution"
+    testable: true
+    test_type: behavioral_opencode_run_session_yaml
+  - id: SC-6
+    evidence_type: structural
+    verification_method: "Structural inspection of authored rule text for framework-agnostic coverage of both git submodules and toolchain-native multi-module arrangements"
+    testable: true
+    test_type: structural_inspection
+  - id: SC-7
+    evidence_type: structural
+    verification_method: "Structural inspection of authored rule text for absence of hardcoded repo-specific command names/tool names outside generic e.g. illustration"
+    testable: true
+    test_type: structural_inspection
+  - id: SC-8
+    evidence_type: string
+    verification_method: "String/file-location verification that the rule exists in canonical .opencode/AGENTS.md ('## Boundaries (Critical)')"
+    testable: true
+    test_type: file_location_string_check
+  - id: SC-9
+    evidence_type: string
+    verification_method: "Cross-reference-format verification of 'Read [Text](path)' references in the rule block targeting guidelines/060-tool-usage.md and guidelines/085-project-local-tools.md"
+    testable: true
+    test_type: cross_reference_format_check
+evidence_integrity_notes:
+  - "SC-1..SC-5 substrate is agent runtime behavior (tool selection, halt framing, authorization handling) — declared behavioral type matches substrate; automatic uplift rule satisfied with no reclassification needed"
+  - "If a behavioral scenario cannot execute (model unavailable, timeout, infrastructure failure), the ONLY valid outcome is FAIL followed by remediation — grep/string/metadata substitution is EVIDENCE_TYPE_MISMATCH (critical-rules-060)"
+  - "Phase 3 scenarios require >=600s bash-tool timeout (35B-model inference convention per tests-v2/AGENTS.md); stale tmp/.behavior-run.lock must be removed before re-runs"

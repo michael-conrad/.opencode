@@ -1,0 +1,39 @@
+> Research card consultation artifact for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  consulted: "2026-08-26"
+  catalogue_path: ".issues/research-cards/"
+
+scan:
+  cards_found: 14
+  method: "listed *.md via ls; grepped frontmatter question/confidence fields"
+
+cards:
+  - name: agent-config-path-rules.md
+    question: "Do public agent configuration decks include path resolution rules like 'no absolute paths', 'no cd', worktree path tables?"
+    confidence: 0.9
+    relevance: PARTIAL
+    applicability: >
+      Covers path-resolution conventions in agent decks, adjacent to but not
+      covering glob-tool failure semantics. Usable as stylistic precedent if the
+      spec adds invocation-shape rules; does not answer the silent-failure question.
+  - name: thinking-block-verification-checkpoint.md
+    question: "What text-only mechanism prevents agents from making unverified factual claims?"
+    confidence: 0.9
+    relevance: TANGENTIAL
+  - remaining_11_cards:
+    questions_span: "authorization scope, DIMO role chains, imperative verbs, markdown links, per-SC decomposition, self-attribution bias, skill architecture, writing-plans flattening/contradiction, for_analysis scope, audit defects"
+    relevance: NONE
+
+conclusion:
+  matching_card_exists: false
+  best_partial: "agent-config-path-rules.md (confidence 0.9, PARTIAL relevance)"
+  gap: >
+    No research card covers built-in glob tool failure semantics or
+    silent-empty-result handling in agent decks.
+  mitigation: >
+    Gap closed directly by live empirical probing recorded in
+    pre-spec-inspection.yaml (14 probes, all reproduced in-session).
+    Recommend a new research card be filed post-spec capturing the verified
+    glob semantics table so future specs reuse it.

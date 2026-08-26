@@ -1,0 +1,52 @@
+> Pipeline readiness gate for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  evaluated: "2026-08-26"
+
+gates:
+  atomicity:
+    check: "Every SC maps to exactly one RED/GREEN/verify/commit cycle"
+    result: PASS
+    evidence: "decompose-output.yaml defines ITEM-1..ITEM-8, one per SC-ID, each with its own tdd_cycle block; no item spans multiple SCs"
+  dependency_ordering:
+    check: "SC dependency DAG is acyclic"
+    result: PASS
+    evidence: "edges SC-1->{2..7}, {2..7}->SC-8 form a two-layer DAG; topological order exists (1, then 2-7 any order, then 8); no back edges"
+  single_concern:
+    check: "Every SC targets one file category and one verification domain"
+    result: PASS
+    evidence: >
+      SC-1 guideline/documentation; SC-2+SC-3 sre-runbook mechanics;
+      SC-4+SC-5 vbc verification tables; SC-6 audit family syntax sweep;
+      SC-7 guideline clause clarity; SC-8 behavioral harness.
+      concern-map.yaml records zero shared-no-mans-land overlaps beyond the
+      documented define-vs-cite split between SC-1 and applications.
+  phase_dependency:
+    check: "Phase dependency graph is acyclic"
+    result: PASS
+    evidence: "phase 1 -> phase 2 -> phase 3 strictly ordered by documentation-anchor and behavioral-test-last rationale"
+  three_tier_structure:
+    check: "Multi-phase specs have pre/per-file/post structure"
+    result: PASS
+    evidence: "pre = baseline inventory artifacts (this analysis); per-file = phases 1-2; post = SC-8 behavioral test + regression grep"
+
+blockers: []
+
+advisory_findings:
+  - id: ADV-1
+    text: >
+      Issue body is empty; requirements were extracted from title plus live
+      codebase inspection. The create task should carry the verified limitation
+      table into the spec body so approval reviewers see empirical grounding,
+      not just title paraphrase.
+  - id: ADV-2
+    text: >
+      Open question Q1 (section placement in 060-tool-usage.md vs standalone
+      file) is proposed as section-in-060 but remains a create-task decision.
+  - id: ADV-3
+    text: >
+      Recommend filing a research card post-merge capturing the verified glob
+      semantics so future specs reuse the evidence instead of re-probing.
+
+verdict: READY

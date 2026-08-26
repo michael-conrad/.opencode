@@ -1,0 +1,44 @@
+> State analysis for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+  note: >
+    No runtime state machines are modified. States below describe agent
+    decision states at the affected instruction points.
+
+state_transitions:
+
+  sc_2_rbpath_discovery:
+    before:
+      states: [SCAN_ROOT_WITH_DIR_GLOB, ALWAYS_EMPTY, FALLBACK_DOCS_RUNBOOKS]
+      defect: "state machine always routes through ALWAYS_EMPTY to fallback; discovery dead code"
+    after:
+      states: [DISCOVER_VIA_WORKING_MECHANISM, MATCH_FOUND_SET_RB_PATH, NO_MATCH_FALLBACK_DOCS_RUNBOOKS]
+      invariant: "fallback terminal state preserved for repos without runbooks/"
+
+  sc_3_format_matching_gate:
+    before:
+      states: [DUAL_GLOB_BARE_PATTERN, RESULTS_MAYBE_FALSE_EMPTY, DECIDE_FORMAT]
+      defect: "FALSE_EMPTY reachable silently -> wrongly concludes no proven format exists"
+    after:
+      states: [DUAL_GLOB_PATH_PARAM, EMPTY_DISAMBIGUATION_CHECK, RESULTS_VERIFIED, DECIDE_FORMAT]
+      new_state: EMPTY_DISAMBIGUATION_CHECK
+      transition_added: "RESULTS_MAYBE_FALSE_EMPTY -> verify via alternate mechanism before concluding absence"
+
+  sc_4_sc_5_evidence_existence:
+    before:
+      states: [PATTERN_GLOB_TMP_TARGET, SILENT_EMPTY, FALSE_MISSING_ELEMENT]
+      defect: "gitignore traversal-skip makes VERIFIED_PRESENT unreachable via documented call"
+    after:
+      states: [WORKING_EXISTENCE_CHECK, PRESENT, ABSENT_CONFIRMED]
+      invariant: "ABSENT_CONFIRMED reachable only after a form that can actually see gitignored artifacts"
+
+  sc_6_audit_listing:
+    before:
+      states: [F_STRING_PSEUDO_CALL, LIST_RETURNED_OR_SILENT_EMPTY_UNGUARDED, PROCEED_ON_LIST]
+    after:
+      states: [CANONICAL_CALL, EMPTY_GUARD_CHECK, LIST_VERIFIED_NONEMPTY_OR_BLOCKED_NOTE, PROCEED_ON_LIST]
+      new_state: EMPTY_GUARD_CHECK
+
+terminal_states_unchanged: [DECIDE_FORMAT, FALLBACK_DOCS_RUNBOOKS, PROCEED_ON_LIST, evidence verdicts]

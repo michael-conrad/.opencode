@@ -1,0 +1,48 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+phase_1_rule_substance:
+  affected_files:
+    - .opencode/AGENTS.md
+  file_verification:
+    - path: .opencode/AGENTS.md
+      exists: true
+      evidence: "verified present via filesystem check this session"
+      insertion_point: "'## Boundaries (Critical)' section (line 308 of .opencode/AGENTS.md)"
+  description: "Author the Tier 2 root-repo-only tooling rule in canonical .opencode/AGENTS.md covering SC-1 (root build tool only), SC-2 (root project-local tools only), SC-3 (no submodule toolchain invention/alteration), SC-6 (framework-agnostic phrasing), SC-7 (no hardcoded repo-specific commands), SC-8 (canonical placement)."
+  risk: medium
+  risk_note: "Canonical AGENTS.md propagates to every consumer repo — wording defects ship everywhere. Mitigated by SC-6/SC-7 structural checks before commit."
+  rollback: "Remove the added rule block from '## Boundaries (Critical)' in .opencode/AGENTS.md"
+phase_2_cross_referencing:
+  affected_files:
+    - .opencode/AGENTS.md
+  description: "Add Read-Link cross-references (SC-9) from the rule to guidelines/060-tool-usage.md and guidelines/085-project-local-tools.md using the required 'Read [Text](path)' pattern. Same file as Phase 1 — sequential edit, separate commit."
+  risk: low
+  rollback: "Remove the Read-Link lines from the rule block"
+phase_3_behavioral_enforcement_tests:
+  affected_files: []
+  created_files:
+    - .opencode/tests-v2/behaviors/2318-sc1-root-build-tool-only.sh
+    - .opencode/tests-v2/behaviors/2318-sc2-root-project-local-tools.sh
+    - .opencode/tests-v2/behaviors/2318-sc3-no-submodule-toolchain-invention.sh
+    - .opencode/tests-v2/behaviors/2318-sc4-tier2-halt-framing.sh
+    - .opencode/tests-v2/behaviors/2318-sc5-dev-authorization-carveout.sh
+  description: "New behavioral enforcement test scenarios following the existing '<issue>-sc<N>-<slug>.sh' convention observed in .opencode/tests-v2/behaviors/. Each wraps opencode run via with-test-home (>=600s bash-tool timeout) and evaluates exported session.yaml via clean-room sub-agent inspection per .opencode/tests-v2/AGENTS.md."
+  risk: low
+  risk_note: "Test-only additions; no production rule text modified. Long runtime (>=600s per scenario) is an execution-cost fact, not a skip justification (cost-blind verification mandate)."
+  rollback: "Delete the five new scenario scripts"
+referenced_not_modified:
+  - path: .opencode/guidelines/060-tool-usage.md
+    role: "Read-Link citation target; provides the --recursive submodule prohibition analog (line 60)"
+    exists: true
+  - path: .opencode/guidelines/085-project-local-tools.md
+    role: "Read-Link citation target; authoritative definition of allowed root project-local tools (.tools/<tool>/ pattern)"
+    exists: true
+  - path: .opencode/guidelines/000-critical-rules.md
+    role: "Defines the Tier 2 process-integrity model (critical-rules-018) classifying the new rule"
+    exists: true
+  - path: .opencode/tests-v2/with-test-home
+    role: "Isolated opencode run wrapper presupposed by all Phase 3 verification methods"
+    exists: true
+inherited_scope:
+  - repo: "every consumer repo of michael-conrad/.opencode"
+    impact: "The rule rides the canonical AGENTS.md into all consumer repos (R-7 intent). No consumer-repo build files are touched — Not Included section excludes changes to any repo's build configuration or toolchain."

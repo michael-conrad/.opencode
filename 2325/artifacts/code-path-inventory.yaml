@@ -1,0 +1,48 @@
+> Code path inventory for .opencode#2325
+
+meta:
+  issue: ".opencode#2325"
+  generated: "2026-08-26"
+  note: >
+    No executable source paths are touched. Paths below are agent-execution
+    paths (instruction-following flows) through deck files.
+
+sc_1:
+  files: [.opencode/guidelines/060-tool-usage.md]
+  agent_paths:
+    - "session start loads 060-tool-usage.md via instructions array -> agent consults hierarchy before file search -> NEW: reads glob semantics section before choosing invocation form"
+
+sc_2_sc_3:
+  files: [.opencode/skills/sre-runbook/tasks/generate.md]
+  agent_paths:
+    - "Format-Matching Glob gate (~line 120-129): dual-pattern search -> results collected -> format decision"
+    - "File-Replace-on-Revision pre-generation check (~147-158): dual-glob -> OLD_FILE identification"
+    - "Agent-Detected Runbook Base Path (~179-195): **/runbooks/ scan -> RB_PATH resolution -> all subsequent file ops base off RB_PATH"
+  changed_segments: ["all three segments change invocation form; decision logic order preserved"]
+
+sc_4_sc_5:
+  files:
+    - .opencode/skills/verification-before-completion/tasks/completion.md
+    - .opencode/skills/verification-before-completion/tasks/collect.md
+  agent_paths:
+    - "Live Verification table row executed during completion claim checks -> tool call cell -> evidence recorded"
+  changed_segments: ["tool-call column cells only"]
+
+sc_6:
+  files: [".opencode/skills/audit/tasks/*.md (13 files)"]
+  agent_paths:
+    - "spec_local_dir listing step -> spec_files collection -> per-file read loop"
+    - "plan_local_dir listing step (validator/investigator variants)"
+    - "evidence-artifact existence checks (verification-audit-validator, test-quality-audit-validator)"
+  changed_segments: ["invocation block syntax + added guard step before empty-list conclusions"]
+
+sc_7:
+  files: [.opencode/guidelines/020-go-prohibitions.md]
+  agent_paths:
+    - "research dispatch decision point: catalogue consultation step -> glob *.md -> frontmatter grep"
+  changed_segments: ["catalogue consultation sentence specifies path-param form"]
+
+sc_8:
+  files: [".opencode/tests-v2/behaviors/<new>.sh", ".opencode/tests-v2/test-enforcement.sh"]
+  agent_paths:
+    - "with-test-home opencode run '<search prompt>' -> stderr captured -> assert_stderr_pattern_* on actions"

@@ -1,0 +1,40 @@
+artifact_name: state-analysis
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "State transitions required by each SC"
+  transitions:
+    - entity: ".opencode/guidelines/118-issue-reference-qualification.md"
+      sc: SC-1
+      before: "File does not exist; no deck-wide designation of an internal issue identity token"
+      after: "File exists and designates {owner}/{repo}#NNN as the single self-describing internal issue identity token used for all internal issue-identity handoffs"
+    - entity: "10 enumerated SKILL.md Context-passed contracts / TDT context columns"
+      sc: SC-2
+      before: "Split identity carried as separate fields: issue_number / spec_issue_number with repo omitted (dropped-field form) or plus github.owner / github.repo (tri-field form)"
+      after: "Identity carried only as issue_ref: \"{owner}/{repo}#NNN\"; separate identity fields absent from those contracts"
+    - entity: "21 enumerated non-platform task cards — platform call instructions"
+      sc: SC-3
+      before: "Cards instruct direct platform API calls carrying bare issue numbers (e.g. github_issue_read(issue_number=N))"
+      after: "Cards instruct reads routed through issue-operations -> read-issue consuming the qualified composite; zero bare-numbered platform call arguments outside skills/issue-operations/"
+    - entity: "Agent parse behavior at issue-identity consumption point (runtime state)"
+      sc: SC-4
+      before: "Agent receiving a bare #N resolves repository from ambient session context — wrong-repo resolution possible on record (session-2026-06-20 lesson 4; AGENTS.md wrong-repo catalog entry)"
+      after: "Agent derives owner/repo/issue_number from the composite; bare tokens to real issues are prohibited; carve-out locals construct artifact paths beneath the resolved issues prefix without crossing a skill boundary"
+    - entity: ".opencode/tools/impl/skildeck/skildeck-lint rule set"
+      sc: SC-5
+      before: "No semantic rule for issue-reference qualification; concrete bare references pass lint silently"
+      after: "Lint flags #N tokens, issue_number=N call arguments, and unconsumed issue tokens in skill/task cards while excluding derived-variable carve-out sites; flagged references are resolved by rewriting to composite form, never by weakening the rule"
+    - entity: "Consuming task files in audit / issue-operations / spec-creation / writing-plans families"
+      sc: SC-6
+      before: "Instructions, path construction ({issues_prefix}/{N}/...), and API dispatch start from an unqualified dispatched number"
+      after: "Same steps start from the qualified token; owner/repo/issue_number derived locally per the documented convention"
+  validation_states_introduced:
+    - state: "Unqualified token rejection"
+      description: "Bare digits without repository prefix fail validation at the consumption point with a hard fail identifying the token and source contract (spec Edge Case 1); degenerate numbers (0, negative, non-digit) reject before any path construction or API call (Edge Case 2)"
+    - state: "Stale-composite dangling reference"
+      description: "Resolution of a composite whose N was renumbered hard-fails; re-issue via issue tooling; silent rewriting of historical artifacts prohibited (Edge Case 3)"
+    - state: "Unknown repository failure"
+      description: "Composite naming a repository absent from session-init Repo Information hard-fails requesting developer guidance; guessing prohibited (Edge Case 4)"
+    - state: "Local-platform identity fallback"
+      description: "Under identity_source: local no owner/repo pair exists; composite construction MUST NOT fabricate values — identity remains directory-scoped beneath the issues prefix routing through platforms/local/ (Edge Case 5)"

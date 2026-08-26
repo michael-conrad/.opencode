@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive
+generated_by: "writing-plans/tasks/backfill.md (retroactive mode)"
+sc_count: 9
+sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+pre_existing_artifacts: []
+scope_summary:
+  intent: "Tier 2 (process-integrity) rule in canonical .opencode/AGENTS.md '## Boundaries (Critical)' requiring agents to use ONLY the repo root's build tool or root project-local tools for build/test in multi-module checkouts, prohibiting submodule toolchain invention/alteration, with HALT-by-default and an explicit developer-authorization carve-out"
+  primary_modified_file: .opencode/AGENTS.md
+  referenced_not_modified:
+    - .opencode/guidelines/060-tool-usage.md
+    - .opencode/guidelines/085-project-local-tools.md
+    - .opencode/guidelines/000-critical-rules.md
+  new_files_created_by_spec: ".opencode/tests-v2/behaviors/2318-sc1..sc5 behavioral scenarios (5 files)"
+  phases:
+    - "Phase 1: rule substance (SC-1, SC-2, SC-3 text; SC-6, SC-7, SC-8 verified here)"
+    - "Phase 2: Read-Link cross-referencing to 060/085 (SC-9)"
+    - "Phase 3: behavioral enforcement tests via with-test-home + session.yaml clean-room inspection (SC-1..SC-5 verification)"
+  evidence_type_distribution:
+    behavioral: 5
+    structural: 2
+    string: 2
+dependency_contract_note: "'dependency_contract' section present in interface-compatibility.yaml with concrete entries; research.md step 9 extracts it to .opencode/.issues/2318/dependency-contract.yaml for solve/plan tools"
+file_existence_verification:
+  method: "filesystem checks executed this session (bash ls / grep)"
+  results:
+    .opencode/AGENTS.md: exists
+    .opencode/guidelines/060-tool-usage.md: exists
+    .opencode/guidelines/085-project-local-tools.md: exists
+    .opencode/guidelines/000-critical-rules.md: exists
+    .opencode/tests-v2/with-test-home: exists
+    .opencode/tests-v2/AGENTS.md: exists

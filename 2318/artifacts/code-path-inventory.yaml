@@ -1,0 +1,55 @@
+spec_path: .opencode/.issues/2318/spec.md
+mode: retroactive_backfill
+code_paths:
+  rule_authoring:
+    - path: ".opencode/AGENTS.md -> '## Boundaries (Critical)' section (line 308) -> append root-repo-only tooling rule block"
+      sc: SC-8
+      description: "Canonical placement of the Tier 2 rule (string verification: file-location check)"
+    - path: ".opencode/AGENTS.md -> rule block wording -> generic multi-module phrasing ('git submodules' and 'toolchain-native multi-module arrangements', e.g. gradlew/build.gradle as illustration only)"
+      sc: SC-6
+      description: "Framework-agnostic coverage verified by structural inspection of authored text"
+    - path: ".opencode/AGENTS.md -> rule block wording -> absence scan for repo-specific build commands/tool names outside e.g. illustrations"
+      sc: SC-7
+      description: "No hardcoded repo-specific commands, verified by structural inspection"
+    - path: ".opencode/AGENTS.md -> rule block -> prohibition sentence on creating/modifying submodules to add competing toolchains"
+      sc: SC-3
+      description: "Prohibition text authored in Phase 1; runtime behavior verified in Phase 3"
+    - path: ".opencode/AGENTS.md -> rule block -> HALT-by-default sentence with Tier 2 framing (no CRITICAL VIOLATION header)"
+      sc: SC-4
+      description: "Tier 2 classification text authored per critical-rules-018 model"
+    - path: ".opencode/AGENTS.md -> rule block -> developer-authorization carve-out sentence for intentional submodule tooling"
+      sc: SC-5
+      description: "Carve-out text authored; carve-out path behavior verified in Phase 3"
+  cross_referencing:
+    - path: ".opencode/AGENTS.md -> rule block -> Read [Text](guidelines/060-tool-usage.md) citation (tier hierarchy + --recursive submodule analog at line 60)"
+      sc: SC-9
+      description: "Read-Link reference to tool-usage guideline; path form matches existing AGENTS.md convention 'Read [010-approval-gate.md](guidelines/010-approval-gate.md)'"
+    - path: ".opencode/AGENTS.md -> rule block -> Read [Text](guidelines/085-project-local-tools.md) citation (.tools/<tool>/ project-local pattern)"
+      sc: SC-9
+      description: "Read-Link reference to project-local-tools guideline; referenced, not modified"
+  behavioral_enforcement:
+    - path: "bash .opencode/tests-v2/with-test-home opencode run '<multi-module build/test prompt>' (>=600s bash-tool timeout)"
+      sc: SC-1
+      description: "Isolated agent run asserting exclusive root build-tool selection"
+    - path: "bash .opencode/tests-v2/with-test-home opencode run '<project-local tools prompt>' (>=600s)"
+      sc: SC-2
+      description: "Isolated agent run asserting root project-local-tool selection per guidelines/085-project-local-tools.md patterns (.tools/<tool>/)"
+    - path: "bash .opencode/tests-v2/with-test-home opencode run '<submodule tooling temptation prompt>' (>=600s)"
+      sc: SC-3
+      description: "Isolated agent run asserting absence of submodule creation/modification for toolchain purposes"
+    - path: "__export_sqlite_to_yaml() session export -> session.yaml -> clean-room sub-agent inspection per .opencode/tests-v2/AGENTS.md"
+      sc: SC-1
+      description: "PRIMARY evidence source: SQLite event-table export evaluated for recorded agent actions; applies to SC-1..SC-5"
+    - path: "bash .opencode/tests-v2/behaviors/<scenario>.sh (five new scenarios named 2318-sc<N>-<slug>.sh)"
+      sc: SC-4
+      description: "Scenario entry points following the existing naming convention observed in .opencode/tests-v2/behaviors/"
+verification_only_paths:
+  - path: "grep/read of authored rule text in .opencode/AGENTS.md"
+    sc: SC-6
+    description: "Structural inspection — no behavioral run required"
+  - path: "file-existence/location check of rule within .opencode/AGENTS.md"
+    sc: SC-8
+    description: "String/file-location verification"
+  - path: "cross-reference format scan for 'Read [Text](path)' occurrences in the rule block"
+    sc: SC-9
+    description: "String/cross-reference-format verification"

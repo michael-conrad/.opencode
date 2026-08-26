@@ -1,0 +1,67 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-26
+source: "Spec #2319 (Qualify issue references as owner/repo#NNN across the agent deck)"
+mode: retroactive
+content:
+  description: "Interface boundaries and dependency contracts between affected modules"
+  interface_boundaries:
+    - boundary: "Orchestrator -> sub-agent dispatch handoff (Context-passed contracts)"
+      status: "CHANGED"
+      description: "Contract shape changes from split identity fields ({issue_number, github.owner, github.repo} or bare {issue_number}) to a single composite field issue_ref: \"{owner}/{repo}#NNN\". Drop-in replacement at the same boundary — no new transport layer. Consumed by all task files in the four enumerated families."
+      scs:
+        - SC-2
+        - SC-6
+    - boundary: "Non-platform task card -> issue-operations dispatcher"
+      status: "NEW ROUTING DEPENDENCY"
+      description: "21 non-platform cards stop calling platform APIs directly and route issue reads through issue-operations -> read-issue, which forwards to the platform subset (github-mcp / gitbucket-api / local). The dispatcher path must already consume the composite for routed calls to resolve (sequencing constraint with SC-2)."
+      scs:
+        - SC-3
+    - boundary: "issue-operations platform task-card set input contract"
+      status: "CHANGED"
+      description: "Platform task cards receive the qualified composite instead of a bare number; platform resolution remains the dispatcher's responsibility — the token deliberately does not carry platform."
+      scs:
+        - SC-2
+        - SC-3
+    - boundary: "Guideline 118 parse convention -> all consumers"
+      status: "ADDED"
+      description: "New authority defining derivation of owner/repo/issue_number from the composite, the derived-variable carve-out (locals used solely for artifact-path construction beneath the resolved issues prefix), and the prohibition on concrete bare references to real issues."
+      scs:
+        - SC-4
+    - boundary: "skildeck lint rule surface"
+      status: "ADDED"
+      description: "New semantic rule in .opencode/tools/impl/skildeck/skildeck-lint flags #N tokens, issue_number=N call arguments, and unconsumed issue tokens; excludes carve-out sites; fail-fast recovery rewrites the reference rather than weakening the rule."
+      scs:
+        - SC-5
+    - boundary: "session-init Repo Information -> composite construction"
+      status: "UNCHANGED (authoritative input)"
+      description: "Per-repo owner/repo entries in session-init ## Repo Information remain the sole authoritative source of qualification values composed into {owner}/{repo}#NNN at handoff. Under identity_source: local, no composite is fabricated."
+      scs:
+        - SC-1
+        - SC-4
+  dependency_contract:
+    description: "Concrete dependency data derived from spec #2319 affected files and success criteria — real sources, real targets, real type constraints (extractable by research.md step 9 into dependency-contract.yaml)"
+    entries:
+      - source: "session-init Repo Information (per-repo owner/repo entries keyed by repo path)"
+        target: "orchestrator composing issue_ref at dispatch time"
+        type: "data binding (string token grammar)"
+        constraint: "owner and repo values MUST match the session-init entry whose path prefix covers the affected file set; token form is exactly '{owner}/{repo}#{digits}'; under identity_source == 'local' the composite MUST NOT be fabricated — identity stays directory-scoped beneath the issues prefix"
+      - source: "skill-card Context-passed contract (10 enumerated SKILL.md sites)"
+        target: "consuming sub-agents in audit, spec-creation, writing-plans, and issue-operations families"
+        type: "dispatch context field (string)"
+        constraint: "field name issue_ref carrying '{owner}/{repo}#NNN'; separate identity fields issue_number, spec_issue_number, github.owner, github.repo MUST be absent from those contracts after replacement"
+      - source: "non-platform task-card instruction (21 enumerated cards)"
+        target: "issue-operations-core/tasks/read-issue.md dispatch"
+        type: "routing dispatch"
+        constraint: "zero direct platform API call arguments of the form issue_number=N outside skills/issue-operations/**; reads route through issue-operations -> read-issue consuming the composite"
+      - source: "derived-variable carve-out local (e.g. spec_issue_number parsed from issue_ref)"
+        target: "artifact-path construction beneath resolved issues prefix ('{issues_prefix}/{N}/...')"
+        type: "locally scoped derived variable"
+        constraint: "assigned only by parsing a qualified composite; used solely for artifact-path construction; never transmitted across a skill boundary as identity"
+      - source: ".opencode/tools/impl/skildeck/skildeck-lint new semantic rule (SC-5)"
+        target: "deck markdown sources (.opencode/skills/**/SKILL.md and tasks/*.md)"
+        type: "static analysis rule (flag output)"
+        constraint: "flags concrete bare issue references (#N, issue_number=N call arguments, unconsumed issue tokens) and excludes derived-variable carve-out sites; flagged references are remediated by rewriting to composite form — silencing or weakening the rule is prohibited (test-integrity law)"
+      - source: "behavioral verification scenarios (SC-2, SC-3, SC-4, SC-6)"
+        target: "bash .opencode/tests-v2/with-test-home opencode run stderr stream"
+        type: "observable assertion (stderr pattern)"
+        constraint: "stderr shows qualified composite consumption at handoff, routed reads through the dispatcher, derivation from the composite, and composite-derived path/call construction; unqualified issue tokens crossing skill boundaries are absent; static sweeps are RED/GREEN support only, never sole evidence"
