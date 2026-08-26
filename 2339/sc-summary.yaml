@@ -1,4 +1,4 @@
-sc_count: 5
+sc_count: 6
 scs:
   - id: "SC-1"
     description: "Every SKILL.md in .opencode/skills/ contains a pre-flight guard that detects sub-agent context and returns BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD before any routing metadata is consumed."
@@ -6,17 +6,21 @@ scs:
     plan_item: 1
   - id: "SC-2"
     description: "The linting/validation tools (skildeck-lint, validate_skill_cards.py) flag a SKILL.md that lacks the pre-flight guard."
-    evidence_type: "behavioral"
+    evidence_type: "unit"
     plan_item: 2
   - id: "SC-3"
-    description: "The skill card requirements documentation mandates the guard and defines a single canonical guard definition consistent across all reference documents."
+    description: "The skill card requirements documentation mandates the pre-flight guard."
     evidence_type: "string"
     plan_item: 3
   - id: "SC-4"
     description: "The skill card template generator (init_skill.py) includes the pre-flight guard in the generated SKILL_TEMPLATE so new cards are born with the guard."
-    evidence_type: "behavioral"
+    evidence_type: "unit"
     plan_item: 4
   - id: "SC-5"
     description: "The critical-rules-XXX rule (dispatching SKILL.md to sub-agents) references the pre-flight guard as the defensive backstop."
     evidence_type: "string"
     plan_item: 5
+  - id: "SC-6"
+    description: "The skill card requirements documentation defines a single canonical guard definition consistent across all reference documents."
+    evidence_type: "string"
+    plan_item: 3
