@@ -68,7 +68,7 @@ missing: "./tmp/{issue-N}/artifacts/verification-audit/reasoning.yaml"
 remediation: "reasoning.yaml is required for verification-audit-evaluator. The upstream reasoning role must produce reasoning.yaml before the Evaluator can produce verdicts."
 ```
 
-- [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 5. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 6. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

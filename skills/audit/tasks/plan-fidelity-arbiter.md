@@ -46,7 +46,7 @@ Validate that all required inputs are present before proceeding:
 - [ ] 1. Verify `evidence.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/evidence.yaml`
 - [ ] 2. Verify `reasoning.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/reasoning.yaml`
 - [ ] 3. Verify `verdict.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/plan-fidelity/verdict.yaml`
-- [ ] 4. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 4. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 5. If `evidence.yaml` is missing, return BLOCKED:
 
 ```yaml

@@ -41,7 +41,7 @@ Collect raw evidence for verification-audit. Reads spec success criteria and beh
 
 Validate that all required inputs are present before proceeding:
 
-- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 2. Verify `artifact_evidence_dir` is present and non-empty — glob for evidence files
 
 If `spec_local_dir` is missing or empty, return BLOCKED:

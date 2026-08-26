@@ -62,9 +62,11 @@ This checkpoint catches direct API calls that bypassed the `issue-operations` sk
 
 **Before claiming verification complete, verify claims against actual evidence.**
 
+The evidence-artifact existence check uses the canonical path-parameter glob form so it reaches gitignored `tmp/` content (a pattern-from-CWD or absolute-pattern form silently cannot reach `{project_root}/tmp/` — LIM-2, LIM-5). Read [the canonical glob semantics](guidelines/060-tool-usage.md) for the full limitation set.
+
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Verification completed" | Verify evidence artifacts exist | `glob(pattern="{project_root}/tmp/{issue-N}/artifacts/verification-*")` | VERIFICATION-GAP |
+| "Verification completed" | Verify evidence artifacts exist | `glob(pattern="verification-*", path="{project_root}/tmp/{issue-N}/artifacts")` | VERIFICATION-GAP |
 | "All criteria passed" | Verify each criterion has PASS evidence | Read collection output | MISSING-ELEMENT |
 
 **Evidence artifact:** File existence check or collection output confirming verification was performed.

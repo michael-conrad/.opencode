@@ -238,7 +238,7 @@ Each entry in the evidence file includes:
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
 | "Evidence collected" | Verify tool-call artifacts exist for each criterion | Check tool-call records in collection output | MISSING-ELEMENT |
-| "Verification report exists" | Verify report file in `{project_root}/tmp/{issue-N}/artifacts/` | `glob(pattern="{project_root}/tmp/{issue-N}/artifacts/verification-*")` | MISSING-ELEMENT |
+| "Verification report exists" | Verify report file in `{project_root}/tmp/{issue-N}/artifacts/` | `glob(pattern="verification-*", path="{project_root}/tmp/{issue-N}/artifacts")` | MISSING-ELEMENT |
 | "All criteria have evidence" | Verify no criterion lacks tool-call proof | Cross-reference criteria list with evidence list | VERIFICATION-GAP |
 
 **Evidence artifact:** Tool call results confirming each evidence item is genuine and complete.

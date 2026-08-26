@@ -71,7 +71,7 @@ missing: "reasoning.yaml"
 remediation: "reasoning.yaml is required for drift-detection-evaluator. The orchestrator must ensure the upstream reasoning role completed successfully and wrote reasoning.yaml before dispatching the Evaluator."
 ```
 
-- [ ] 5. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 5. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 6. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

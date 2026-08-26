@@ -41,7 +41,7 @@ Validate that all required inputs are present before proceeding:
 
 - [ ] 1. Verify `evidence.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/concern-separation/evidence.yaml`
 - [ ] 2. Verify `reasoning.yaml` exists at `{project_root}/tmp/{issue-N}/artifacts/concern-separation/reasoning.yaml`
-- [ ] 3. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 3. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 4. If any criterion fails, return BLOCKED:
 
 ```yaml
@@ -85,7 +85,10 @@ Extract all validation sections from `reasoning.yaml`:
 Load spec files for direct reference during evaluation:
 
 ```python
-spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_files = glob(pattern="**/*.md", path="<spec_local_dir>")
+if not spec_files:
+    return BLOCKED(error="MISSING_REQUIRED_INPUT", missing="spec files",
+                   detail="Disambiguate the empty glob result per the empty-result rule before concluding absence")
 for f in spec_files:
     read(filePath=f)
 ```

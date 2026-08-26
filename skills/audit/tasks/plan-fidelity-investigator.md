@@ -39,7 +39,7 @@ Collect raw evidence about how faithfully the plan implements the spec. Reads th
 
 Validate that all required inputs are present before proceeding:
 
-- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

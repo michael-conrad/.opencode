@@ -80,7 +80,7 @@ missing: "verdict.yaml"
 remediation: "No verdict.yaml found in {artifact_evidence_dir}/. Run drift-detection-evaluator first to produce verdicts."
 ```
 
-- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 8. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

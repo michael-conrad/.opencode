@@ -78,7 +78,7 @@ missing: "verdict.yaml"
 remediation: "verdict.yaml is required for spec-audit-path-provider. The orchestrator must ensure the Evaluator completed successfully and wrote verdict.yaml before dispatching the Arbiter."
 ```
 
-- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 8. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

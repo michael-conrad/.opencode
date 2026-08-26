@@ -54,7 +54,7 @@ missing: "./tmp/{issue-N}/artifacts/verification-audit/evidence.yaml"
 remediation: "evidence.yaml is required for verification-audit-knowledge-supporter. The Investigator must produce evidence.yaml before the Validator can validate it."
 ```
 
-- [ ] 3. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 3. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 4. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

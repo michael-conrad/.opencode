@@ -122,9 +122,13 @@ For configuration changes and scheduled procedures, the operator needs "just do 
 Before generating any runbook content, search for existing runbooks using a dual-pattern glob that matches BOTH date-stamp and cadence conventions:
 
 ```
-glob(pattern="<RB_PATH>/**/*_<YYYY-MM-DD>_issue-*.md")  — date-stamp pattern (one-off-config, troubleshooting, incident-response)
-glob(pattern="<RB_PATH>/**/*_<cadence>_issue-*.md")     — cadence pattern (periodic-procedure)
+glob(pattern="**/*_<YYYY-MM-DD>_issue-*.md", path="<RB_PATH>")  — date-stamp pattern (one-off-config, troubleshooting, incident-response)
+glob(pattern="**/*_<cadence>_issue-*.md", path="<RB_PATH>")     — cadence pattern (periodic-procedure)
 ```
+
+The dual-pattern search MUST be run using the canonical path-parameter invocation form — `pattern` relative to the `<RB_PATH>` directory passed as `path`. Do NOT use a bare `<RB_PATH>/**` pattern-from-CWD (LIM-1/LIM-5) or a directory-suffix form. Read [the canonical glob semantics](guidelines/060-tool-usage.md) for the full limitation set.
+
+**Empty-result disambiguation:** Before concluding "no existing runbooks", disambiguate the empty result per the empty-result rule — confirm the invocation used the canonical path-parameter form with bracketed placeholders AND that `<RB_PATH>` is a reachable `path` parameter (not skipped by hidden-dir/gitignore filters). Only then may an empty result be treated as a true absence.
 
 The dual-pattern search MUST be run. Do NOT run only one pattern and assume the other has no results.
 
@@ -147,7 +151,7 @@ After collecting results:
 **Pre-generation check:**
 
 ```
-1. Run the dual-pattern glob (date-stamp and cadence patterns) against <RB_PATH>/
+1. Run the dual-pattern glob (date-stamp and cadence patterns) against <RB_PATH>/ using the canonical path-parameter form above
 2. For each existing file, parse the filename to extract: domain, scenario, cadence_or_date, issue_number
 3. Compare the proposed runbook's (domain, scenario, issue_number) against existing files:
    a. If an existing file matches on domain + scenario + issue_number:
@@ -181,12 +185,12 @@ Before collecting environment context or writing any runbook content, call `veri
 Before collecting environment context, resolve the runbook output directory dynamically from the repository structure:
 
 ```
-1. Run glob(pattern="**/runbooks/") across the entire repository
+1. Discover runbooks/ directories using a working mechanism. The built-in glob tool is files-only and a pattern ending in `/` (e.g. `**/runbooks/`) structurally cannot match directories (LIM-4). Use `bash` directory discovery instead: `find . -type d -name runbooks`. Read [the canonical glob semantics](guidelines/060-tool-usage.md) for the full limitation set.
 2. If any runbooks/ directories exist:
    a. Select the runbooks/ directory closest to the domain's context (e.g., if "DNS" runbooks exist under docs/runbooks/, use that path)
    b. Set RB_PATH = "<discovered_path>/"
 3. If no runbooks/ directory found:
-   a. Run glob(pattern="**/runbooks/") restricted to docs/
+   a. Run directory discovery restricted to docs/: `find docs -type d -name runbooks`
    b. If found, set RB_PATH = "<docs_path>/"
 4. Fallback: RB_PATH = "docs/runbooks/"
 5. All subsequent file operations (glob, write, environment search) use RB_PATH as the base directory
