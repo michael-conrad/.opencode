@@ -1,6 +1,6 @@
-timestamp: '2026-08-26T00:00:00+00:00'
+timestamp: '2026-08-26T16:45:00-04:00'
 variables:
-  current_phase: '0'
-  phase_1: false
-  phase_2: false
-  phase_3: false
+  current_phase: '3'
+  phase_1: true
+  phase_2: true
+  phase_3: true

@@ -2,7 +2,7 @@ title: '[SPEC-FIX] Built-in glob silent failures - document limitations and reme
   broken invocations across agent deck'
 status: open
 labels:
-- approved-for-review
+- approved-for-pr
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2334/
 
 
@@ -126,6 +126,6 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-26T03:22:03+00:00'
-updated_at: '2026-08-26T16:37:47+00:00'
+updated_at: '2026-08-26T17:20:50+00:00'
 github_url: michael-conrad/.opencode#2334
 remote_url: https://github.com/michael-conrad/.opencode/issues/2334
