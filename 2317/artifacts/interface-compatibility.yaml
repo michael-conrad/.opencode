@@ -1,0 +1,155 @@
+# Interface compatibility — issue #2317
+# Interface compatibility analysis per phase
+spec: .opencode/.issues/2317/spec.md
+generated: 2026-08-25
+
+## Phase 1: arbiter union aggregation + flag-gate + advisory reconciliation
+interfaces:
+  - name: arbiter cards <-> verdict.yaml (upstream artifact consumed)
+    classification: MODIFIED (aggregation input becomes spec SC list ∪ evaluated set; flags computed from spec list vs evidence/reasoning/verdict trio)
+    backward_compatible: NO for fabricated-clean verdicts (previously-passing absent-SC verdicts now FAIL) — intentional semantic fix
+    breaking: YES at the verdict-semantics level; no artifact format change required
+    internal_only: YES
+  - name: arbiter error tables <-> MISSING_SC_COVERAGE / BROKEN_EVIDENCE_CHAIN flags
+    classification: MODIFIED (advisory → binding FAIL gate)
+    backward_compatible: YES (flag names retained; semantics strengthened)
+    breaking: NO
+
+## Phase 2: evaluator full enumeration + NOT_EVALUATED markers
+interfaces:
+  - name: evaluator cards <-> verdict.yaml per_criterion/per_claim output shape
+    classification: MODIFIED (one entry per spec SC; skipped SC = FAIL + NOT_EVALUATED row instead of silent omission)
+    backward_compatible: YES for consumers that iterate entries; row count grows to match spec SC list
+    breaking: NO
+  - name: evaluator NOT_EVALUATED token <-> arbiter union aggregation (Phase 1 consumer)
+    classification: NEW cross-card contract
+    backward_compatible: YES (new marker only appears when a skip occurs, which previously vanished silently)
+    breaking: NO
+
+## Phase 3: hard gate + structural loop + escalation in orchestrator workflow
+interfaces:
+  - name: audit/SKILL.md orchestrator workflow <-> arbiter/evaluator dispatch steps
+    classification: MODIFIED (remediate-and-restart bound as structural workflow step / dispatch gate; escalation as sole unremediable exit)
+    backward_compatible: YES for clean audits (single-pass path unchanged); non-clean audits now loop instead of advancing
+    breaking: NO
+    internal_only: YES
+
+## Phase 4: release handshake aggregate-consumption gate (NEW logic)
+interfaces:
+  - name: release-promoter tasks (operating-protocol/tag/create-release) <-> audit aggregate verdict
+    classification: "NEW (live keyword scan 2026-08-25: zero existing verdict/aggregate consumption in these files)"
+    backward_compatible: YES (purely additive gate; clean aggregates proceed unchanged)
+    breaking: NO
+  - name: git-workflow-cleanup cleanup.md <-> audit aggregate verdict
+    classification: NEW gate added alongside existing behavioral-artifact-cleanup step (L198)
+    backward_compatible: YES
+    breaking: NO
+
+dependency_contract:
+  variables:
+    phase_1_arbiter_union_flaggate:
+      type: bool
+      description: "Arbiter union aggregation + independent flag-gate + advisory binding — SC-1, SC-2, SC-9"
+    phase_2_evaluator_enumeration:
+      type: bool
+      description: "Evaluator full enumeration + NOT_EVALUATED markers — SC-4, SC-5"
+    phase_3_workflow_gating:
+      type: bool
+      description: "FAIL hard gate, remediate-and-restart loop, escalation exit — SC-6..SC-8, SC-11..SC-14"
+    phase_4_release_gate:
+      type: bool
+      description: "Release handshake aggregate-consumption gate — SC-10"
+    phase_5_behavioral_harness:
+      type: bool
+      description: "Behavioral-only verification harness — SC-3"
+  preconditions:
+    - "z3.Implies(phase_3_workflow_gating, phase_1_arbiter_union_flaggate)"
+    - "z3.Implies(phase_3_workflow_gating, phase_2_evaluator_enumeration)"
+    - "z3.Implies(phase_4_release_gate, phase_1_arbiter_union_flaggate)"
+    - "phase_5_behavioral_harness provides verification for all phases"
+  invariants:
+    - "NOT_EVALUATED marker token identical across evaluator emission (SC-5) and arbiter aggregation (SC-1)"
+    - "R-13 termination predicate shared verbatim by SC-7 and SC-12 loops"
+  postconditions:
+    - "aggregate PASS requires zero criteria FAIL or NOT_EVALUATED AND coverage_complete AND chain_complete"
+    - "coverage-gap FAIL keeps ticket unreleased via Phase 4 gates"
+  phases:
+    phase_1:
+      files:
+        - .opencode/skills/audit/tasks/content-audit-arbiter.md
+        - .opencode/skills/audit/tasks/guideline-audit-arbiter.md
+        - .opencode/skills/audit/tasks/plan-fidelity-arbiter.md
+        - .opencode/skills/audit/tasks/spec-audit-arbiter.md
+        - .opencode/skills/audit/tasks/test-quality-audit-arbiter.md
+        - .opencode/skills/audit/tasks/verification-audit-arbiter.md
+      scs:
+        - SC-1
+        - SC-2
+        - SC-9
+    phase_2:
+      files:
+        - .opencode/skills/audit/tasks/content-audit-evaluator.md
+        - .opencode/skills/audit/tasks/guideline-audit-evaluator.md
+        - .opencode/skills/audit/tasks/plan-fidelity-evaluator.md
+        - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+        - .opencode/skills/audit/tasks/test-quality-audit-evaluator.md
+        - .opencode/skills/audit/tasks/verification-audit-evaluator.md
+      scs:
+        - SC-4
+        - SC-5
+    phase_3:
+      files:
+        - .opencode/skills/audit/SKILL.md
+        - .opencode/skills/audit/tasks/*-audit-arbiter.md
+        - .opencode/skills/audit/tasks/*-audit-evaluator.md
+      scs:
+        - SC-6
+        - SC-7
+        - SC-8
+        - SC-11
+        - SC-12
+        - SC-13
+        - SC-14
+    phase_4:
+      files:
+        - .opencode/skills/release-promoter/tasks/operating-protocol.md
+        - .opencode/skills/release-promoter/tasks/tag.md
+        - .opencode/skills/release-promoter/tasks/create-release.md
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      scs:
+        - SC-10
+    phase_5:
+      files:
+        - .opencode/tests-v2/behaviors/
+        - .opencode/tests-v2/AGENTS.md
+      scs:
+        - SC-3
+  edges:
+    - from: phase_2
+      to: phase_1
+      rationale: "Arbiter aggregation consumes the evaluator's enumerated per_criterion/per_claim set; enumeration shape (SC list-sized output with NOT_EVALUATED rows) defines what the union merges against."
+    - from: phase_1
+      to: phase_3
+      rationale: "Hard gate and loop operate on the corrected aggregate + flag values produced by Phase 1."
+    - from: phase_2
+      to: phase_3
+      rationale: "FAIL semantics emitted by evaluators feed the Phase 3 hard gate."
+    - from: phase_1
+      to: phase_4
+      rationale: "Release gate consumes the same corrected aggregate; without Phase 1 there is no trustworthy aggregate to gate on."
+    - from: phase_5
+      to: phase_1
+      rationale: "Behavioral harness supplies RED/GREEN evidence for arbiter changes."
+    - from: phase_5
+      to: phase_2
+      rationale: "Behavioral harness supplies RED/GREEN evidence for evaluator changes."
+    - from: phase_5
+      to: phase_3
+      rationale: "Behavioral harness supplies RED/GREEN evidence for loop/gate/escalation."
+    - from: phase_5
+      to: phase_4
+      rationale: "Behavioral harness supplies RED/GREEN evidence for the release gate."
+  notes:
+    - "Phases 1 and 2 touch disjoint file sets (arbiter vs evaluator cards); their ordering edge is a data-contract dependency, not a file conflict."
+    - "Phase 3 overlaps file sets with Phases 1-2 (same arbiter/evaluator cards) plus audit/SKILL.md — sequenced last among skill edits to avoid same-file churn."
+    - "Phase 4 is file-disjoint from Phases 1-3 and depends only on the aggregate contract."
