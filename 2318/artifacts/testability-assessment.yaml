@@ -1,0 +1,43 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  description: "Evidence type and verification method assignment for each SC"
+  assignments:
+    - sc_id: SC-1
+      criterion: "In a multi-module checkout, the agent uses ONLY the repo root's build tool for build and test"
+      evidence_type: behavioral
+      verification_method: "Behavioral enforcement test via opencode run (with-test-home, >=600s timeout); assert stderr shows root build-tool selection; no structural substitution"
+    - sc_id: SC-2
+      criterion: "In a multi-module checkout, the agent uses ONLY the repo root's project-local tools for build and test"
+      evidence_type: behavioral
+      verification_method: "Behavioral enforcement test via opencode run (with-test-home, >=600s timeout); assert stderr shows root project-local-tool selection; no structural substitution"
+    - sc_id: SC-3
+      criterion: "The agent does NOT create or modify a submodule to add a competing toolchain"
+      evidence_type: behavioral
+      verification_method: "Behavioral enforcement test via opencode run (with-test-home, >=600s timeout); assert stderr shows no submodule toolchain creation/alteration; no structural substitution"
+    - sc_id: SC-4
+      criterion: "A submodule toolchain invention/alteration results in a HALT by default, framed as Tier 2 with no CRITICAL VIOLATION header"
+      evidence_type: behavioral
+      verification_method: "Behavioral enforcement test via opencode run (with-test-home, >=600s timeout); assert stderr shows HALT-without-CRITICAL VIOLATION framing; no structural substitution"
+    - sc_id: SC-5
+      criterion: "Explicit developer authorization allows intentional submodule tooling setup"
+      evidence_type: behavioral
+      verification_method: "Behavioral enforcement test via opencode run (with-test-home, >=600s timeout); assert the developer-authorization carve-out path is honored; no structural substitution"
+    - sc_id: SC-6
+      criterion: "The guidance applies uniformly to both git submodules and toolchain-native multi-module arrangements"
+      evidence_type: structural
+      verification_method: "Structural inspection of the authored text for framework-agnostic coverage of both arrangements"
+    - sc_id: SC-7
+      criterion: "The guidance contains no hardcoded repo-specific build commands or tool names"
+      evidence_type: structural
+      verification_method: "Structural inspection of the authored text for absence of hardcoded repo-specific command names"
+    - sc_id: SC-8
+      criterion: "The rule is authored in the canonical .opencode/AGENTS.md"
+      evidence_type: string
+      verification_method: "String/file-location verification that the rule exists in .opencode/AGENTS.md"
+    - sc_id: SC-9
+      criterion: "Every cross-reference from the rule to other guidance uses the Read-Link Cross-Reference Rule (Read [Text](path))"
+      evidence_type: string
+      verification_method: "String/file-location + cross-reference-format verification of Read [Text](path) references in the rule"
+  note: "Evidence types are declared in the spec §3 tables: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string. Behavioral SCs require opencode run through with-test-home with >=600s bash timeout asserting on stderr — if a behavioral test cannot execute, FAIL is the only valid outcome per critical-rules-060. The substrate classification gate uplifts any runtime-behavioral change to behavioral evidence regardless of declared type."

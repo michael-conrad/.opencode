@@ -1,0 +1,22 @@
+artifact_name: blast-radius
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  description: "All files affected by the root-repo-only tooling rule in multi-module checkouts"
+  affected_files:
+    - path: ".opencode/AGENTS.md"
+      change: "Author the Tier 2 process-integrity rule in the '## Boundaries (Critical)' section (line 308): build/test in a multi-module checkout MUST use ONLY the repo root's build tool or its project-local tools; submodule toolchain invention/alteration prohibited; HALT by default with developer-authorization carve-out. Verified absent today via grep — no existing multi-module/competing-toolchain rule."
+      exists: true
+    - path: ".opencode/tests-v2/behaviors/"
+      change: "Add 5 behavioral enforcement test scenarios named per convention <issue>-sc<N>-<slug>.sh covering SC-1 through SC-5 (root build tool, root project-local tools, no submodule toolchain, Tier 2 HALT framing, dev-authorization carve-out), each via opencode run with-test-home at >=600s timeout asserting on stderr"
+      exists: true
+  referenced_not_modified:
+    - path: ".opencode/guidelines/060-tool-usage.md"
+      change: "Referenced from the new rule via Read-Link pattern for tool-selection tier hierarchy and the existing --recursive submodule prohibition analog; content unchanged"
+      exists: true
+    - path: ".opencode/guidelines/085-project-local-tools.md"
+      change: "Referenced from the new rule via Read-Link pattern as the authoritative project-local tools definition; explicitly NOT modified per spec 'Not Included'"
+      exists: true
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      change: "Source of the Tier 2 process-integrity classification model (critical-rules-018) that frames the new rule; unchanged"
+      exists: true

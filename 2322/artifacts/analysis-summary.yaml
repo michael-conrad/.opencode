@@ -1,0 +1,40 @@
+# Analysis Summary — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+spec_path: .opencode/.issues/2322/spec.md
+approval_status: needs-approval
+approval_label: needs-approval
+mode: retroactive
+sc_count: 3
+phase_count: 3
+sc_derivation_note: >
+  Spec has no explicit numbered Success Criteria section; SC-1..SC-3 derived 1:1 from the three
+  In-scope scope bullets in spec.md.
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_summary: >
+  Single-file task-card invocation fix in .opencode/skills/writing-plans/tasks/research.md.
+  Three phases: (1) rewrite step 12 (line 48) to the verified problem-driven pattern — build
+  phase-problem.yaml from the dependency-contract phase DAG, run './.opencode/tools/plan plan
+  --problem {issues_prefix}/{N}/artifacts/phase-problem.yaml', capture stdout to plan-output.yaml;
+  (2) align the Exit Criteria planner-success bullet with corrected semantics if needed;
+  (3) verify all SCs via grep plus live flag cross-check. Out of scope: solve tool --contract-path
+  model, plan state update semantics. Ownership: .opencode repo. Unblocks the research step for
+  ALL plans including .opencode#2320.
+scope_boundary_findings:
+  - affected_file: .opencode/skills/writing-plans/tasks/research.md
+    exists: true
+    note: Single affected file, present in codebase; defective line verified live at line 48.
+live_verification_evidence:
+  - claim: step 12 (line 48) contains invalid --contract-path/--output flags
+    evidence: sed -n '40,70p' .opencode/skills/writing-plans/tasks/research.md — line 48 shows 'plan plan --contract-path ... --output ...'
+  - claim: plan plan accepts only --problem and --engine
+    evidence: "./.opencode/tools/plan plan --help — options: --problem/-p, --engine/-e (default tamer)"
+  - claim: solve retains contract-file model (conflation root cause)
+    evidence: "./.opencode/tools/solve --help — subcommands check/model/prove/state"
+analyze_timestamp: 2026-08-25

@@ -1,0 +1,18 @@
+# Blast Radius — Issue 2322: [SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags
+spec: .opencode/.issues/2322/spec.md
+affected_files:
+  - path: .opencode/skills/writing-plans/tasks/research.md
+    action: fix-step-12-invocation-and-exit-criterion
+    anchors: "step 12 (line 48); exit criterion bullet (line ~60)"
+    verified: EXISTS
+    verification_evidence: "sed -n '40,70p' confirmed step 12 at line 48 contains 'plan plan --contract-path ... --output ...'; exit bullet at ~line 60 requires 'plan plan returned SOLVED_SATISFICING or SOLVED_OPTIMALLY'"
+    impact: Primary deliverable — replace invalid flags with the verified problem-driven invocation (--problem + stdout capture to plan-output.yaml).
+no_other_affected_files:
+  - path: .opencode/tools/plan
+    reason: Read-only reference. Spec marks changes OUT OF SCOPE; live check confirms 'plan plan --help' accepts only --problem/--engine.
+  - path: .opencode/tools/solve
+    reason: Read-only reference. Spec preserves the solve --contract-path model OUT OF SCOPE.
+scope:
+  type: single-file task-card invocation fix
+  ownership_repo: .opencode (github.com/michael-conrad/.opencode)
+  concern: research step of the writing-plans pipeline hard-blocks on argparse failure for ALL plans (including .opencode#2320)

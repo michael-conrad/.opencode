@@ -1,0 +1,37 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  spec_path: ".opencode/.issues/2318/spec.md"
+  sc_count: 9
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: |
+    Spec #2318 adds a Tier 2 (process-integrity) rule to the canonical .opencode/AGENTS.md
+    '## Boundaries (Critical)' section requiring agents, in a multi-module checkout (git
+    submodules OR toolchain-native multi-module), to use ONLY the repo root's build tool or
+    the repo root's project-local tools (per guideline 085-project-local-tools.md) for build
+    and test — and prohibiting creation or modification of submodules to add competing
+    toolchains. Violations HALT by default with no CRITICAL VIOLATION header; an explicit
+    developer-authorization carve-out permits intentional submodule tooling setup. The rule
+    cross-references 060-tool-usage.md and 085-project-local-tools.md via Read [Text](path).
+    Guidance stays framework-agnostic with no hardcoded repo-specific commands.
+    9 SCs across three phases: Phase 1 authors rule substance (SC-1..SC-3, SC-6..SC-8),
+    Phase 2 adds Read-Link cross-references (SC-9), Phase 3 runs behavioral enforcement
+    tests for SC-4 and SC-5 (with SC-1..SC-3 also verified behaviorally per their declared
+    evidence types). Single modified file: .opencode/AGENTS.md; behavioral test scenarios
+    added under .opencode/tests-v2/behaviors/.
+  dependencies_noted: |
+    - All rule text lands in one section ('## Boundaries (Critical)', line 308 of
+      .opencode/AGENTS.md) — co-located edits need sequential application with distinct anchors.
+    - Behavioral SCs (SC-1..SC-5) share one harness dependency: opencode run through
+      .opencode/tests-v2/with-test-home at >=600s timeout with stderr assertions; harness
+      unavailability fails all five together and admits no structural substitution.
+    - Referenced guidelines (060, 085) and tier-model source (000-critical-rules.md) verified
+      present in the codebase on 2026-08-25; none are modified by this spec.

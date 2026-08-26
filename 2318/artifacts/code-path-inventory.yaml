@@ -1,0 +1,60 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  description: "Code paths implied by each SC"
+  code_paths:
+    - sc_id: SC-1
+      path: "Agent build-tool selection path in multi-module checkouts (rule ingestion via canonical AGENTS.md)"
+      description: "When a build/test step is needed in a multi-module checkout, the agent selects ONLY the repo root's build tool. Verified behaviorally via stderr showing root build-tool selection."
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/tests-v2/behaviors/"
+    - sc_id: SC-2
+      path: "Agent project-local-tools selection path (rule ingestion via canonical AGENTS.md)"
+      description: "When a build/test step is needed in a multi-module checkout, the agent uses the repo root's project-local tools per 085-project-local-tools.md. Verified behaviorally via stderr."
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/guidelines/085-project-local-tools.md"
+        - ".opencode/tests-v2/behaviors/"
+    - sc_id: SC-3
+      path: "Submodule mutation gate (prohibition clause)"
+      description: "The agent does NOT create or modify a submodule to add a competing toolchain. Verified behaviorally via absence of submodule toolchain creation/alteration in stderr."
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/tests-v2/behaviors/"
+    - sc_id: SC-4
+      path: "Violation handling path (Tier 2 HALT)"
+      description: "Submodule toolchain invention/alteration triggers HALT by default, framed as Tier 2 process-integrity with no CRITICAL VIOLATION header. Verified behaviorally in stderr."
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/guidelines/000-critical-rules.md"
+        - ".opencode/tests-v2/behaviors/"
+    - sc_id: SC-5
+      path: "Authorization carve-out path (SUBMODULE_AUTHORIZED transition)"
+      description: "Explicit developer authorization permits intentional submodule tooling setup — the only authorized exception to the prohibition. Verified behaviorally in stderr."
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/tests-v2/behaviors/"
+    - sc_id: SC-6
+      path: "Rule text coverage inspection (framework-agnostic phrasing)"
+      description: "Authored text covers both git submodules and toolchain-native multi-module arrangements uniformly; structural inspection only"
+      files:
+        - ".opencode/AGENTS.md"
+    - sc_id: SC-7
+      path: "Rule text hygiene inspection (no hardcoded commands)"
+      description: "Authored text contains no repo-specific build commands or tool names; gradlew/build.gradle appear only as illustrative e.g.; structural inspection only"
+      files:
+        - ".opencode/AGENTS.md"
+    - sc_id: SC-8
+      path: "Canonical placement verification"
+      description: "Rule exists in canonical .opencode/AGENTS.md so every consumer repo inherits it; string/file-location verification"
+      files:
+        - ".opencode/AGENTS.md"
+    - sc_id: SC-9
+      path: "Cross-reference format verification"
+      description: "Cross-references from the rule to other guidance use Read [Text](path) pattern per Read-Link Cross-Reference Rule; string verification"
+      files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/guidelines/060-tool-usage.md"
+        - ".opencode/guidelines/085-project-local-tools.md"

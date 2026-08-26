@@ -1,0 +1,54 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  description: "Interface boundaries and dependency contracts between affected modules"
+  interface_boundaries:
+    - boundary: "canonical .opencode/AGENTS.md -> every consumer repo"
+      status: "CHANGED"
+      description: "The '## Boundaries (Critical)' section gains the root-repo-only tooling rule; consumer repos that ingest this config inherit the constraint automatically. Placement in the canonical file is itself an SC (SC-8)."
+      sc: SC-8
+    - boundary: "new rule -> 060-tool-usage.md / 085-project-local-tools.md"
+      status: "ADDED (references only)"
+      description: "The rule cross-references both guidelines via the Read-Link Cross-Reference Rule pattern. Neither guideline's content changes — 085 remains the authoritative project-local tools definition, explicitly not modified per spec 'Not Included'."
+      sc: SC-9
+    - boundary: "new rule -> Tier 2 model in 000-critical-rules.md"
+      status: "CLASSIFICATION DEPENDENCY"
+      description: "Rule framing must conform to the existing critical-rules-018 Tier 2 process-integrity model: HALT by default, no CRITICAL VIOLATION header, developer-authorizable. No change to 000-critical-rules.md itself."
+      sc: SC-4
+    - boundary: "behavioral tests -> opencode run harness"
+      status: "ADDED"
+      description: "Five new behavioral scenarios under .opencode/tests-v2/behaviors/ named <issue>-sc<N>-<slug>.sh, executed through .opencode/tests-v2/with-test-home with >=600s bash timeout and stderr assertions."
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-4
+        - SC-5
+  dependency_contract:
+    description: "Concrete dependency data derived from spec #2318 affected files and success criteria — real sources, real targets, real type constraints"
+    entries:
+      - source: ".opencode/AGENTS.md '## Boundaries (Critical)' (root-repo-only tooling rule, SC-1/SC-2)"
+        target: "agent build/test tool selection in multi-module checkouts"
+        type: "process-integrity mandate"
+        constraint: "build and test use ONLY the repo root's build tool or the repo root's project-local tools per 085-project-local-tools.md; applies to git submodules AND toolchain-native multi-module arrangements"
+      - source: ".opencode/AGENTS.md '## Boundaries (Critical)' (prohibition clause, SC-3)"
+        target: "submodule create/modify operations"
+        type: "process-integrity prohibition"
+        constraint: "agent MUST NOT create or modify a submodule to add a competing toolchain; no auto-remediation of pre-existing conflicts"
+      - source: ".opencode/AGENTS.md '## Boundaries (Critical)' (HALT framing, SC-4)"
+        target: "000-critical-rules.md critical-rules-018 Tier 2 model"
+        type: "tier classification"
+        constraint: "violation produces HALT by default with NO CRITICAL VIOLATION header; yields only to explicit developer authorization"
+      - source: ".opencode/AGENTS.md '## Boundaries (Critical)' (carve-out clause, SC-5)"
+        target: "developer authorization flow"
+        type: "authorization carve-out"
+        constraint: "explicit developer authorization ('approved'/'go') permits intentional submodule tooling setup; implicit or rhetorical permission does NOT"
+      - source: ".opencode/AGENTS.md rule text (SC-9)"
+        target: ".opencode/guidelines/060-tool-usage.md, .opencode/guidelines/085-project-local-tools.md"
+        type: "Read-Link cross-reference"
+        constraint: "every cross-reference uses Read [Text](path) format; no 'See FILE §section' citations"
+      - source: "behavioral tests SC-1..SC-5"
+        target: ".opencode/tests-v2/behaviors/ scenarios run via .opencode/tests-v2/with-test-home"
+        type: "observable assertion"
+        constraint: "assert_stderr_pattern_present/assert_stderr_pattern_absent on opencode run stderr at >=600s timeout; behavioral test cannot execute means FAIL — no structural substitution (critical-rules-060)"

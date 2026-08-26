@@ -1,0 +1,34 @@
+artifact_name: state-analysis
+generated_at: 2026-08-25
+source: "Spec #2318 (retroactive backfill for pre-existing spec)"
+content:
+  description: "State transitions required by each SC"
+  transitions:
+    - entity: ".opencode/AGENTS.md '## Boundaries (Critical)' section"
+      sc: SC-8
+      before: "Section governs submodule pointer discipline, branch/PR rules, and approval boundaries; no root-repo-only tooling rule exists (verified absent via grep for multi-module/competing-toolchain/root-repo-only on 2026-08-25)"
+      after: "Section contains the Tier 2 root-repo-only tooling rule placed in canonical .opencode/AGENTS.md so every consumer repo inherits it"
+    - entity: "agent build/test tool selection (behavioral state)"
+      scs:
+        - SC-1
+        - SC-2
+      before: "Agent defaults to inventing submodule-local tooling (package.json/build.gradle/Node/gradle) when a build/test step is needed in a multi-module checkout"
+      after: "Agent transitions to ROOT_TOOLING — uses the repo root's build tool or the repo root's project-local tools exclusively"
+    - entity: "submodule mutation permission (behavioral state)"
+      sc: SC-3
+      before: "No rule prevents creating or altering submodules to add dedicated toolchains"
+      after: "Creating or modifying a submodule to add a competing toolchain is prohibited"
+    - entity: "violation handling path"
+      sc: SC-4
+      before: "Submodule toolchain invention/alteration has no defined halt behavior"
+      after: "Violation triggers HALT by default with Tier 2 process-integrity framing — no CRITICAL VIOLATION header"
+    - entity: "SUBMODULE_AUTHORIZED transition"
+      sc: SC-5
+      before: "No authorized path exists for intentional submodule tooling setup"
+      after: "Explicit developer authorization is the only transition to SUBMODULE_AUTHORIZED, permitting intentional submodule tooling setup"
+    - entity: "rule phrasing generality"
+      scs:
+        - SC-6
+        - SC-7
+      before: "N/A — new text; constraints apply at authoring time rather than as a migration from prior text"
+      after: "Text uniformly covers git submodules and toolchain-native multi-module arrangements with zero hardcoded repo-specific build commands or tool names"
