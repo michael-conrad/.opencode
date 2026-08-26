@@ -1,0 +1,22 @@
+# Cross-Cutting Matrix — Issue 2322: Fix research.md step 12 plan-plan invocation
+# Backfilled retroactively from spec body by writing-plans/tasks/backfill.md
+issue: .opencode#2322
+spec_path: .opencode/.issues/2322/spec.md
+matrix:
+  - scs: [SC-1, SC-2]
+    shared_dimension: same-file-region-edit
+    description: >-
+      Both SCs modify the same step-12 block of research.md.
+      Sequenced Items 1 -> 2 (separate commits) prevent edit conflicts and keep
+      each TDD cycle atomic.
+  - scs: [SC-3]
+    depends_on: [SC-1, SC-2]
+    coupling_type: sequential-runtime-dependency
+    description: >-
+      SC-3's GREEN asserts execution of the pattern documented by SC-1/SC-2;
+      Item 3 requires Items 1-2 landed per spec Items section.
+module_spanning_scs: []
+repo_spanning_scs: []
+notes: >-
+  No SC spans multiple modules or repositories. Blast radius confined to one
+  task-card file (.opencode submodule) plus throwaway evidence under project-root tmp/.
