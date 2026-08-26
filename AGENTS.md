@@ -326,6 +326,15 @@ When parent issue has sub-issues, authorization cascades to ALL sub-issues:
 
 **Exception:** User explicitly names a phase (e.g., "approved: Phase 2 only") → complete that phase ONLY, then HALT
 
+**✅ Multi-Module Checkout — Root-Repo-Only Build Tooling:**
+In a multi-module checkout (git submodules or a toolchain-native multi-module arrangement), use ONLY the repo root's build tool for build and test. Do not reach into a submodule to run or build tests with that submodule's tooling. Likewise, use ONLY the repo root's project-local tools (Read [085-project-local-tools.md](guidelines/085-project-local-tools.md), Read [060-tool-usage.md](guidelines/060-tool-usage.md)) for tooling such as `PATH=.tools/bin:$PATH`, `.node/`, `.uv/`, or `.jdk/` invocations — do not reach into a submodule's project-local tooling.
+
+**🚫 Submodule Toolchain Preservation:**
+In a multi-module checkout, the agent MUST NOT invent or alter a submodule's toolchain. Do not create new build tooling inside a submodule (no new `pyproject.toml`, `package.json`, build scripts, tooling configs, or project-local tool installations within a submodule), and do not modify a submodule's existing tooling. A submodule's build tooling is owned by that submodule's repository — do not create or alter it from the parent checkout.
+
+**✅ Developer-Authorization Carve-Out (Tier 2):**
+The above prohibition yields to explicit developer authorization. Intentional submodule tooling setup — creating or modifying a submodule's toolchain for a purpose the developer explicitly requests or approves — is permitted when the developer explicitly authorizes it. The default is still HALT: without explicit developer authorization, submodule toolchain invention/alteration does not proceed. Explicit authorization is a clear, direct instruction to set up or change the submodule's tooling for a named purpose — never an interpretive inference, a rhetorical question, or "why is X" phrasing. This carve-out permits intentional, developer-authorized submodule tooling setup only; it does not authorize unrelated changes to a submodule's existing tooling.
+
 **🚫 NEVER:**
 - Write code/notebooks/configs/tests without approved spec
 - Interpret questions as authorization
