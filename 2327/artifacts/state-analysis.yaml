@@ -1,0 +1,69 @@
+artifact: state-analysis
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 5, formalized from brainstorming preliminary artifact)
+upstream_source: tmp/brainstorm-spec-artifacts/state-analysis.yaml
+verification_status: live counts refreshed this session (deltas noted inline)
+
+state_inventory:
+  - state_id: S-1
+    name: parent-repo tmp/ evidence corpus
+    location: /home/muksihs/git/opencode-config/tmp/
+    git_status: untracked/ignored (.gitignore:66; outside .opencode repo)
+    live_counts_verified: '460 behavior-test-* dirs, 277 behavioral-evidence-* dirs (this session)'
+    mutation_by_change: SC6 adds retention classes + directory-aware cleanup wiring; SC1 declares never-citable-for-claims. NO retro-deletion by spec itself — one-time purge is plan-phase policy decision.
+    risk: high — accreting unmanaged; no owner in any tracked file
+  - state_id: S-2
+    name: submodule tmp/ test homes
+    location: /home/muksihs/git/opencode-config/.opencode/tmp/test-home-*
+    git_status: untracked/ignored
+    live_counts_verified: 0 right now (was 9 earlier same day — volatility is the finding)
+    mutation_by_change: SC6 retention policy covers orphaned homes class-wise (count-independent); --clean/--clean-all remain manual levers
+    risk: medium
+  - state_id: S-3
+    name: flock lock file
+    location: tmp/.behavior-run.lock (helpers.sh:493)
+    git_status: untracked; PRESENT at analysis time
+    lifecycle: held during behavior_run; stale after SIGTERM kill — remediation documented AGENTS.md §10.1
+    mutation_by_change: SC6 formalizes stale-lock sweep into cleanup contract
+    risk: low (documented) but manual-only today
+  - state_id: S-4
+    name: issues-data branch worktrees (.issues/)
+    location: '.git/worktrees/-issues/ (parent); .opencode/.issues/ (submodule)'
+    git_status: gitignored worktrees of separate orphan-branch repos (.gitignore:42)
+    persistence: DURABLE when pushed to origin (local-issues _push_orphan_if_needed → WORKTREE_BRANCH=issues-data); skipped only for HTTPS remotes lacking credential helper
+    mutation_by_change: SC5 writes vbc verdict records here (after metadata-only resolution); SC1 requires verify-push-state qualifier for anchor validity
+    risk: low-medium — durability conditional on push having occurred
+  - state_id: S-5
+    name: GitHub issue bodies/comments (remote durable store)
+    location: github.com/michael-conrad/.opencode issues
+    persistence: fully durable, API-readable
+    mutation_by_change: SC3 classifier reads via API (never filesystem); SC2 template steers evidence fields toward this class
+    risk: none
+  - state_id: S-6
+    name: git-tracked trees (both repos)
+    location: committed SHAs of .opencode submodule tree + parent repo tree
+    persistence: durable once committed+pushed
+    mutation_by_change: SC1 allowlist root #1; classifier resolves via per-repo git ls-files
+    risk: none
+  - state_id: S-7
+    name: observe/* scratch branches
+    location: git refs
+    lifecycle: MUST discard before HALT under for_analysis (010:159,179; 020:175-176)
+    mutation_by_change: listed as never-citable class in SC1 rule text — consistent with existing mandate
+    risk: none
+  - state_id: S-8
+    name: audit tmp artifact chain
+    location: ./tmp/{issue-N}/artifacts/{task-name}/ (audit/SKILL.md:101)
+    persistence: EPHEMERAL by current design — consumed within single audit session
+    mutation_by_change: >-
+      SC5 pattern extension candidate: arbiter judgment mirroring into .issues/{N}/artifacts/.
+      SCOPE DECISION flagged for spec — minimum viable scope keeps audit chain tmp-side but makes
+      its CITATIONS point at durable targets instead.
+    risk: medium — cross-session audit traceability currently impossible post-cleanup
+
+invariants_to_preserve:
+  - Harness output layout (AGENTS.md §2 dir structure incl. session.yaml PRIMARY) is CORRECT — canonicalization adopts it
+  - Preservation-until-merge rule stays — cleanup timing unchanged; path canonicalization + record persistence added
+  - Cleanup remains ONLY authorized deletion point for preserved evidence
+  - with-test-home isolation mandate untouched — homes stay ephemeral infrastructure, just managed
+  - Metadata-only constraint honored via explicit classification, never silent violation

@@ -1,0 +1,47 @@
+artifact: pipeline-readiness
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 6)
+gate_checks:
+  - check: atomicity
+    verdict: PASS
+    evidence: >-
+      7 SCs <-> 7 implementation items bijection in decompose-output.yaml; each item defines exactly
+      one RED→GREEN→verify→COMMIT cycle with a named atomic commit; no item covers multiple SCs.
+  - check: dependency_ordering
+    verdict: PASS
+    evidence: >-
+      DAG SC4 → {SC1} → {SC2, SC3}; {SC1,SC4} → SC5, SC6; {SC3,SC5} → SC7 — acyclic (no back edges;
+      verified by inspection of decompose-output dependency_dag). Foundation decision (canonical
+      spelling) strictly precedes all consumers of that spelling.
+  - check: single_concern
+    verdict: PASS_WITH_NOTE
+    evidence: >-
+      Every SC targets one file category (documentation/skill-deck text) and one verification domain.
+      NOTE: SC4 spans four documents but ONE concern domain (path-convention consistency) with one
+      verification domain (single-canonical-pattern invariant) — accepted as single-concern because
+      splitting it would leave the repo in a state where documents contradict mid-sequence, violating
+      interface-compatibility's no-contradiction-window requirement.
+  - check: phase_dependency
+    verdict: PASS
+    evidence: pre_foundation(SC4) → per_surface(SC1-SC6 internal order per DAG) → post_self_application(SC7); graph acyclic.
+  - check: three_tier_structure
+    verdict: PASS
+    evidence: multi-phase spec maps to pre/per-file/post structure — foundation decision, surface changes, self-application meta-check.
+
+tensions_requiring_explicit_spec_decisions:
+  - TENSION_1_metadata_only: create.md:132 constraint vs SC5 verdict records — resolve via explicit analysis-content classification or same-change amendment (interface-compatibility.yaml conditional-breaking entry)
+  - TENSION_2_cleanup_invariant: expand owned classes WITHOUT touching only-authorized-deletion-point timing
+  - TENSION_3_self_reference: spec cites only durable anchors; tolerates preliminary-path variance (observed brainstorm-spec-artifacts deviation)
+
+open_items_for_create_phase:
+  - host decision for SC1 rule text (extend guidelines/065-verification-honesty.md vs new guideline file + INDEX.md row)
+  - classifier insertion level for SC3 (audit SKILL.md gate vs investigator task card)
+  - collect.md issue-scoped pattern rename choice under SC4 (must not collide with harness behavioral-evidence-* prefix)
+  - verdict-record classification wording under SC5 (analysis-content classification vs constraint amendment)
+  - dangling 'spec-auditor' concept name in issue-operations-core completion card — reference audit skill card only, or flag
+
+research_card_inputs_applied:
+  - cross-reference-lobotomization.md (0.85): Read [Text](path) form mandated in rule text
+  - cross-reference-form-comparison.md (0.95): inline links highest agent-access rate
+
+verdict: GATE_PASSED — ready for create task consumption

@@ -1,0 +1,64 @@
+artifact: interface-compatibility
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 5 — the 7th analytical artifact, absent from upstream handoff, derived from verified surfaces)
+scope_note: >-
+  Affected surface is documentation/skill contracts, not code APIs. "Interface" here means
+  documented contracts between pipeline components: rule texts, task-card output contracts,
+  context-param semantics, and store schemas.
+
+interfaces:
+  - name: harness artifact layout contract
+    producer: tests-v2/behaviors/helpers.sh behavior_run()
+    consumer: VbC collect/verify tasks; audit roles via vbc_artifact_path; finishing checklist
+    change: UNCHANGED
+    compatibility: backward compatible — canonicalization ADOPTS this layout (test-sc4-exit0-artifact.sh keeps passing)
+  - name: behavioral-evidence documentation convention
+    documented_in: [060-tool-usage.md, collect.md, tests-v2/AGENTS.md, checklist.md]
+    change: MODIFIED
+    compatibility: internal-only text change; four documents converge to one canonical spelling; stale flat-file and issue-scoped spellings removed in same change set that introduces canonical form — no window where docs contradict
+  - name: VbC collection procedure contract
+    producer: verification-before-completion/tasks/collect.md
+    consumer: verify task, audit validator role, finishing checklist row
+    change: EXTENDED
+    compatibility: additive — tmp working copies continue exactly as before (preservation invariant intact); NEW durable verdict record added alongside; existing consumers see a superset of prior outputs
+  - name: durable artifacts store schema (.issues/{N}/artifacts/)
+    owner: spec-creation create.md Step 6 + local-issues push machinery
+    consumer: writing-plans create.md Step 4a validation; audit artifact checks; SC3 classifier
+    change: MODIFIED (constraint resolution)
+    compatibility: >-
+      conditional-breaking — metadata-only constraint at create.md:132 currently excludes verdict
+      records as 'non-analysis content'. Spec must either classify per-SC verdict records as analysis
+      content (no constraint edit needed) or amend the constraint line in the same change. Decision is
+      IN SPEC TEXT before SC5 GREEN. Downstream consumers (Step 4a) validate only the 7 named
+      analytical artifacts, so additional record types do not break them.
+  - name: audit DiMo dispatch contracts
+    producer: audit/SKILL.md lines 78-97
+    consumer: investigator/validator/evaluator/arbiter task cards
+    change: EXTENDED
+    compatibility: additive — existing context params unchanged; classifier check adds a step/output to Evidence-or-Validator role contract (or pre-audit gate). vbc_artifact_path semantics WIDENED to accept durable-store paths alongside tmp paths — widening, not breaking.
+  - name: cleanup task deletion contract
+    producer: git-workflow-cleanup/tasks/cleanup.md Step 2.9
+    consumer: post-merge lifecycle; preservation invariant (060-tool-usage NEVER list)
+    change: MODIFIED
+    compatibility: behavior-extending — same authorized timing (post-merge only), MORE classes covered, mechanism upgraded file-glob → directory-aware. Negative-case assertion preserves the not-before-merge ordering.
+  - name: spec template evidence-field guidance
+    documented_in: [143-planning-spec-templates.md, 144-planning-spec-examples.md]
+    consumer: spec-creation pipeline (spec authors)
+    change: NEW guidance section
+    compatibility: purely additive — templates gain steering language referencing SC1 class definitions; no existing template field removed or renamed
+  - name: reference-classifier vocabulary
+    producer: SC1 rule text (class definitions)
+    consumer: SC3 classifier check
+    change: NEW
+    compatibility: new interface defined once (single-source-of-truth theme); no prior vocabulary existed
+
+removed_interfaces: none
+
+breaking_changes_summary:
+  count: 0 external / 1 conditional-internal
+  detail: >-
+    No runtime API or harness interface breaks. The single conditional item is the create.md
+    metadata-only constraint interaction (SC5) which MUST be resolved explicitly inside the spec —
+    tracked as TENSION_1 in cross-cutting-matrix.yaml.
+
+backward_compatibility_verdict: all changes internal to agent-facing documents/skill decks; additive-first strategy throughout

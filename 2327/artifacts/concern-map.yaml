@@ -1,0 +1,86 @@
+artifact: concern-map
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 5, formalized from brainstorming preliminary artifact)
+upstream_source: tmp/brainstorm-spec-artifacts/concern-map.yaml
+verification_status: all surfaces re-verified; count deltas recorded (test-homes 9→0 within hours)
+
+concerns:
+  - id: C1
+    name: evidence-citation-integrity
+    description: >-
+      Agent-facing documents cite filesystem paths as evidence. Ephemeral targets (gitignored tmp/**,
+      test homes, lock files, scratch branches) break citations by design; filesystem checks cannot
+      detect the breakage (targets invisible to git tracking and validation). Core defect class:
+      CONFLATING a procedure ("write artifacts here") with a claim ("evidence lives here").
+    affected_surfaces:
+      - .opencode/guidelines/060-tool-usage.md (Temp Files & Cleanliness ALWAYS/NEVER lists)
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md:48
+      - .opencode/skills/verification-before-completion/tasks/collect.md (Preservation protocol; Evidence Storage)
+      - .opencode/skills/finishing-a-development-branch/tasks/completion.md (lifecycle.yaml checks)
+      - .opencode/skills/completion-core/tasks/completion.md (lifecycle append)
+      - .opencode/skills/issue-operations-core/tasks/completion.md (auditor checks reading tmp/)
+    partial_precedent: writing-plans/reference/implementation-workflow.md already declares tmp artifacts ephemeral and forbids unresolved references in lifecycle manifest
+    problem_class: STRUCTURE-VIOLATION
+  - id: C2
+    name: behavioral-evidence-path-convention-conflict
+    description: Three mutually incompatible documented locations for behavioral-evidence; harness matches exactly one.
+    verified_conflicts:
+      - document: .opencode/guidelines/060-tool-usage.md:47,52
+        convention: '{project_root}/tmp/behavioral-evidence-*.{log,json} flat FILES'
+        status: conflicts with actual output
+      - document: .opencode/skills/verification-before-completion/tasks/collect.md:18,248-255
+        convention: '{project_root}/tmp/{issue-N}/behavioral-evidence-*.{log,json} issue-scoped FILES'
+        status: conflicts with actual output
+      - document: .opencode/tests-v2/AGENTS.md:105
+        convention: ./tmp/behavioral-evidence-<SCENARIO>-<PHASE>-<model>/ DIRECTORIES
+        status: MATCHES harness (helpers.sh:380 base= line read directly)
+    downstream_damage: cleanup.md Step 2.9 rm -f '*.{log,json}' cannot match directories — silent no-op against real artifacts; primary cause of 460-dir accretion (count verified live)
+    problem_class: CONFLICTING
+  - id: C3
+    name: retention-cleanup-contract-gaps
+    description: Every ephemeral class needs owner + mechanism + timing; several have none or mismatched ones.
+    classes_and_gaps:
+      - {class: 'tmp/{issue-N}/* and flat behavioral-evidence-*', documented_owner: 'git-workflow --task cleanup Step 2.9', gap: 'mechanism cannot see dirs (C2)'}
+      - {class: 'tmp/behavior-test-* dirs', documented_owner: NONE, gap: '460 live, zero cleanup reference anywhere'}
+      - {class: '.opencode/tmp/test-home-*', documented_owner: 'with-test-home --clean/--clean-all (manual)', gap: 'not wired into any pipeline gate'}
+      - {class: 'tmp/.behavior-run.lock', documented_owner: 'manual rm per AGENTS.md §10.1', gap: post-kill manual recovery only}
+      - {class: 'tmp/capability-snapshot.json', documented_owner: probe refresh (rm -f), gap: TTL-stale entries linger, uncited}
+      - {class: 'tmp/{issue-N}/artifacts/ stage artifacts', documented_owner: 'implementation-workflow.md stage-cleanup table', gap: same visibility question as C2}
+    problem_class: MISSING-ELEMENT
+  - id: C4
+    name: audit-cycle-ephemeral-evidence
+    description: Audit pipeline composes/consumes evidence exclusively under ephemeral tmp paths; verdicts cite storage destroyed by next cleanup pass.
+    affected_surfaces:
+      - '.opencode/skills/audit/SKILL.md:101 (Artifact directory: ./tmp/{issue-N}/artifacts/{task-name}/)'
+      - .opencode/skills/verification-before-completion/tasks/structural-verify.md:38 (vbc_artifact_path default)
+    durable_counterpart: .issues/{N}/artifacts/ via spec-creation create.md Step 6 copy — ONLY verified durable store (dirs verified on issues-data for 2166/1542/2162/2153/2086)
+    constraint_discovered: create.md:132 metadata-only store — verdict records need explicit analysis-content classification or constraint amendment
+    problem_class: STRUCTURE-VIOLATION
+  - id: C5
+    name: spec-template-evidence-steering
+    description: Templates steer toward stable CODE anchors but say nothing about evidence-path durability.
+    affected_surfaces:
+      - .opencode/guidelines/143-planning-spec-templates.md (zero evidence refs — grep-verified)
+      - .opencode/guidelines/144-planning-spec-examples.md (no evidence-location guidance)
+      - .opencode/guidelines/140-planning-spec-creation.md (no artifact/evidence-path refs)
+      - .opencode/guidelines/080-code-standards.md:442 Cross-Reference Standards (doctrine to EXTEND not duplicate)
+    problem_class: MISSING-ELEMENT
+  - id: C6
+    name: gitignore-agnostic-validation-mechanism
+    description: Classifier cannot use filesystem presence — tmp/ gitignored (.gitignore:66), .issues/ a gitignored worktree of a SEPARATE repo (.gitignore:42); parent-repo ls-files sees neither.
+    mechanism_requirements: pattern-classification vocabulary + repo-aware queries (per-repo git ls-files; GitHub API reads; local-issues reads for pushed issues-data membership); NEVER glob/read existence on cited path
+    affected_surfaces: [audit/SKILL.md DiMo chain, guidelines/065-verification-honesty.md evidence forms]
+    problem_class: VERIFICATION-GAP
+  - id: C7
+    name: cross-repo-consistency
+    description: Fix spans two repos — parent holds runtime tmp state; submodule holds ALL rule text and durable store. Spec filed against michael-conrad/.opencode; parent touchpoints governed-not-edited.
+    problem_class: STRUCTURE-VIOLATION (routing risk if mis-filed)
+
+observed_routing_deviation:
+  detail: brainstorming exploration-workflow.md expects preliminary artifacts at tmp/{issue-N}/artifacts/preliminary/<name>.md; this session used ./tmp/brainstorm-spec-artifacts/<name>.yaml. Both ephemeral; SC7 self-application must tolerate legitimate preliminary-location variance rather than hardcode one path.
+  classification: FLAG (Tier 3)
+
+stale_count_lesson: test-home count changed 9→0 between two same-day sessions — retention policies MUST be count-independent (class-based windows, not snapshot counts).
+
+non_goal_surfaces_checked:
+  - skills/spec-auditor/ DOES NOT EXIST (ls verified) — issue-operations-core completion card references it as dangling concept; spec references audit skill card only

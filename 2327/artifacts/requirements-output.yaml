@@ -1,0 +1,106 @@
+artifact: requirements-output
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 3)
+sources:
+  - issue body (.opencode#2327, read via local-issues this session)
+  - brainstorming handoff payload (6 preliminary artifacts, tmp/brainstorm-spec-artifacts/)
+  - developer-confirmed subject from routing context
+
+explicit_requirements:
+  - id: REQ-E1
+    text: Specs and agent-facing documents must cite only durable anchors for evidence/verification claims
+    source: issue title + problem statement ('cite ephemeral artifact paths ... breaking citations')
+    verified_against: >-
+      Defect instances verified live — audit/SKILL.md:101 cites ./tmp/{issue-N}/artifacts/{task-name}/
+      (ephemeral by design); cleanup.md:195 deletes cited evidence at merge; tmp/ gitignored
+      (.gitignore:66) so citations die silently
+  - id: REQ-E2
+    text: Rule text must distinguish claims from procedures (writing TO ephemeral paths stays legal; CITING them as durable evidence becomes prohibited)
+    source: draft SC1 (handoff)
+    verified_against: 060-tool-usage.md Temp Files section MANDATES writing to {project_root}/tmp/ — rule cannot prohibit the write without contradicting a Tier-1 guideline; only the citation act is new-prohibited
+  - id: REQ-E3
+    text: Spec templates must steer evidence fields toward durable anchors
+    source: draft SC2
+    verified_against: grep of 143-planning-spec-templates.md for 'evidence|artifact' returned zero hits — steering gap confirmed
+  - id: REQ-E4
+    text: Deterministic reference-classifier check inside the audit cycle (behavioral change)
+    source: draft SC3
+    verified_against: audit/SKILL.md DiMo chain (lines 78-97) carries artifact_evidence_dir/vbc_artifact_path context params — insertion points exist; no classifier check exists today
+  - id: REQ-E5
+    text: Reconcile behavioral-evidence path conventions across 060-tool-usage.md, collect.md, tests-v2/AGENTS.md into one canonical form
+    source: issue problem statement ('Three conflicting documented conventions ... vs actual harness output')
+    verified_against: three conflicting spellings quoted verbatim this session (060-tool-usage:47 flat files; collect.md:248 issue-nested files; tests-v2/AGENTS.md:105 directories); ground truth helpers.sh:380 produces extensionless DIRECTORIES
+  - id: REQ-E6
+    text: VbC persists durable per-SC verdict records into .issues/{N}/artifacts/
+    source: draft SC5
+    verified_against: durable store exists and is populated (issues-data dirs for 2166/1542/2162/2153/2086); VbC verdicts currently live only in ephemeral tmp (structural-verify.md:38 vbc_artifact_path defaults to tmp/{issue-N}/artifacts/)
+  - id: REQ-E7
+    text: Retention/cleanup policies for every ephemeral class wired into git-workflow --task cleanup contract
+    source: draft SC6
+    verified_against: ownership gaps verified — behavior-test-* dirs (460 live, zero cleanup reference anywhere); test homes manual-only levers; stale lock manual rm only; cleanup mechanism cannot match directories
+  - id: REQ-E8
+    text: The fix spec itself obeys its own durable-anchor rule
+    source: draft SC7
+    verified_against: brainstorming preliminary artifacts currently at ./tmp/brainstorm-spec-artifacts/ (ephemeral) — self-compliance requires final spec cite only post-copy .issues/{N}/artifacts/ + tracked-tree anchors
+
+implicit_requirements:
+  - id: REQ-I1
+    text: Canonical convention MUST adopt the harness directory layout (not reshape harness output)
+    derivation: >-
+      helpers.sh:380 IS the producer; test-sc4-exit0-artifact.sh asserts that layout and passes;
+      changing harness invalidates a passing test and contradicts state-analysis invariant S-1
+  - id: REQ-I2
+    text: Metadata-only constraint on .issues/{N}/artifacts/ must be explicitly resolved for verdict records
+    derivation: create.md:132 forbids 'any other non-analysis content'; silent violation unacceptable — spec must classify verdict records as analysis content or amend constraint in same change
+  - id: REQ-I3
+    text: Classifier validation must never use filesystem presence checks
+    derivation: tmp/ gitignored (.gitignore:66), .issues/ gitignored worktree of separate repo (.gitignore:42) — glob/grep/read are blind to both by construction; classification needs pattern classes + repo-aware queries (per-repo ls-files, API reads)
+  - id: REQ-I4
+    text: Single source of truth for path-class definitions
+    derivation: cross-cutting-matrix theme 1 — four SCs touch path spellings; without one definition site, drift reintroduces the C2 conflict
+  - id: REQ-I5
+    text: All rule/task-card edits land in michael-conrad/.opencode submodule
+    derivation: owning-repo principle — every affected file path resolves under .opencode/
+  - id: REQ-I6
+    text: Rule text cross-references use Read [Text](path) inline-link form
+    derivation: research cards (0.85 + 0.95 confidence) — prose 'See X §Y' forms are not loaded by agents
+
+constraint_requirements:
+  - id: REQ-C1
+    text: Preservation-until-merge invariant for behavioral evidence stays intact
+    boundary: 060-tool-usage.md NEVER list; collect.md forbidden-deletion; cleanup remains ONLY authorized deletion point
+  - id: REQ-C2
+    text: Cleanup removal must become directory-aware (rm -f '*.{log,json}' cannot match extensionless dirs)
+    boundary: verified mechanism gap at cleanup.md:195 vs helpers.sh output shape
+  - id: REQ-C3
+    text: Behavioral-evidence requirement per substrate-determined taxonomy (5 of 7 SCs runtime-behavioral)
+    boundary: testability-assessment summary verdict — no SC is structurally-only
+  - id: REQ-C4
+    text: Behavioral tests execute via with-test-home wrapper with >=600s timeout; stale-lock pre-clear
+    boundary: tests-v2 AGENTS.md mandates; AGENTS.md §10.1-10.2 failure patterns
+  - id: REQ-C5
+    text: LLM-to-LLM artifacts use YAML standard
+    boundary: 080-code-standards YAML Standard section
+
+non_requirements:
+  - id: NR1
+    excluded: Retro-deletion of existing 460 behavior-test-* / 277 behavioral-evidence-* dirs BY THE SPEC ITSELF
+    reason: one-time purge of accumulated state is a plan-phase policy decision; spec defines forward policy only
+  - id: NR2
+    excluded: Modifying harness output layout (helpers.sh, with-test-home)
+    reason: layout is canonical ground truth; existing passing test asserts it
+  - id: NR3
+    excluded: Restructuring spec-creation pipeline mechanics
+    reason: SC2 modifies template guidance consumed BY the pipeline; pipeline itself unchanged
+  - id: NR4
+    excluded: Parent-repo text edits
+    reason: parent repo holds runtime data (tmp/, .gitignore) — governed, not edited; all edits in submodule
+  - id: NR5
+    excluded: Changing observe/* discard mandate
+    reason: already correct; listed as precedent never-citable class only
+
+requirement_verification_note: >-
+  Every explicit/implicit/constraint requirement above cites a file:line or live observation
+  re-verified THIS session. Upstream handoff claim deltas found during verification:
+  (a) test-home count 9 -> 0 within hours (ephemeral volatility confirmed);
+  (b) all other upstream claims reproduced verbatim.

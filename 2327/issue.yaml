@@ -4,29 +4,88 @@ labels:
 - needs-approval
 - spec
 - spec-draft
-body: '## Problem
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2327/
 
 
-  Specs and agent-facing documents cite ephemeral artifact paths (`tmp/**` behavioral-evidence
-  and behavior-test dirs, test homes, lock files) that vanish by design at merge cleanup
-  or accrete unmanaged, breaking citations. Filesystem checks cannot detect this because
-  glob/grep are blind to gitignored paths. Three conflicting documented conventions
-  exist for behavioral-evidence locations vs actual harness output.
+  ## Problem
 
 
-  ## Note
+  Agent-facing documents cite ephemeral artifact paths — gitignored tmp trees, isolated
+  test homes, lock files — as evidence locations; citations break silently at merge
+  cleanup, and no validation can detect the breakage because standard tooling is blind
+  to gitignored targets. Three conflicting documented conventions for behavioral-evidence
+  locations disagree with actual harness output, and orphaned evidence directories
+  accrete unowned.
 
 
-  Full spec body (problem statement, success criteria, approach, affected files) is
-  being authored via the spec-creation pipeline from completed preliminary analytical
-  artifacts; this shell exists as the issue-binding anchor and will be superseded
-  by the formal body.
+  ## Scope
+
+
+  - Canonicalize the harness directory layout as the single documented behavioral-evidence
+  convention across all four agent-facing surfaces
+
+  - Author a durable-anchor citation rule (claim-vs-procedure distinction; citable
+  vs never-citable classes) extending the verification-honesty guideline
+
+  - Steer spec templates toward durable evidence anchors and insert a deterministic
+  reference-classifier gate into the audit cycle using repo-aware queries only
+
+  - Persist durable per-SC verification verdict records into the issues-data artifact
+  store as analysis content
+
+  - Wire retention/cleanup policies for every ephemeral class into the cleanup contract
+  with directory-aware, merge-gated removal
+
+
+  **Out of scope:** retro-deletion of accumulated tmp state; harness output changes;
+  spec-creation pipeline restructuring; parent-repo text edits; observe/* mandate
+  changes; the dangling spec-auditor reference fix.
+
+
+  ## Approach
+
+
+  The harness output shape is ground truth and becomes canonical — documentation converges
+  to it rather than the reverse. A durable-anchor rule extends the existing verification-honesty
+  guideline, defining once which path classes may back evidentiary claims while keeping
+  procedural writes to tmp fully legal. The audit cycle gains a deterministic classifier
+  gate resolving cited-path validity through repo-aware queries (tracked-tree membership,
+  GitHub API reads, pushed issues-data membership), never filesystem presence checks,
+  which are blind to gitignored targets by construction. Verification-before-completion
+  persists per-SC verdict records into the issues-data artifact store; the cleanup
+  contract gains owner/mechanism/timing coverage for every ephemeral class behind
+  the existing merge-gated deletion invariant. Self-compliance closes the loop: the
+  finished spec is itself classified, expecting zero flags.
+
+
+  ## Impact
+
+
+  - Risk: classifier false positives on legitimate procedural mentions of tmp paths
+  → mitigation: mandatory positive-case procedural-mention assertion in the classifier
+  fixture tests
+
+  - Risk: collection-card rewrite breaks downstream verification flows other scenarios
+  depend on → mitigation: full --changed behavioral sweep post-implementation, never
+  spot-checks
+
+  - Risk: cleanup expansion weakens evidence preservation timing → mitigation: negative-case
+  assertion that no deletion fires during verification or review-prep stages
+
+
+  Dependencies: the existing harness-artifact exit-0 test constrains canonicalization
+  to the harness layout; the local-issues push machinery provides issues-data durability;
+  research findings mandate inline-link cross-reference form for all rule text.
+
+
+  Action required: developer approval of this spec advances it to plan creation per
+  the standard pipeline.
 
 
   🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
 
   '
 created_at: '2026-08-26T03:40:32+00:00'
-updated_at: '2026-08-26T03:43:09+00:00'
+updated_at: '2026-08-26T04:14:33+00:00'
 github_url: '2327'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2327

@@ -1,0 +1,67 @@
+artifact: testability-assessment
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 5, formalized from brainstorming preliminary artifact)
+upstream_source: tmp/brainstorm-spec-artifacts/testability-assessment.yaml
+verification_status: existing-coverage files verified present; evidence-type classifications re-derived per substrate-determined taxonomy
+
+existing_coverage:
+  - {path: .opencode/tests-v2/test-sc4-exit0-artifact.sh, covers: harness produces artifact dir under $PROJECT_DIR/tmp/behavioral-evidence-<scenario>-*, note: stays valid because canonicalization adopts harness layout}
+  - {path: .opencode/tests-v2/test-skill-deck-completeness.sh, covers: deck file presence, gap: no cited-path validity checking inside decks}
+  - {path: .opencode/tests-v2/behaviors/ per-issue scenarios, covers: guideline enforcement via opencode run + session.yaml evaluation, gap: no scenario for citation-anchor discipline or cleanup retention classes}
+
+per_sc_assessment:
+  - sc: SC1 durable-anchor rule text
+    change_question: 'Does the change affect runtime behavior? YES — agents reading rule text route citation decisions differently'
+    evidence_type: behavioral (uplifted regardless of declaration)
+    red: agent asked to record verification evidence cites tmp path without flagging (session.yaml shows no anchor-class reasoning)
+    green: session.yaml asserts agent anchors claims to tracked-tree/API/pushed-issues-data locations and treats tmp/**, test homes, locks as non-citable for CLAIMS while writing TO tmp/ procedurally
+    feasibility: high — matches existing behavioral scenario patterns
+  - sc: SC2 spec template updates
+    change_question: 'YES via downstream pipeline behavior (templates consumed by spec-creation at runtime)'
+    evidence_type: hybrid — structural for template-text presence + behavioral for downstream spec evidence fields
+    plan: structural grep for steering language in expected sections; behavioral assertion that spec created from template cites durable anchors
+    feasibility: high
+  - sc: SC3 reference-classifier check in audit cycle
+    change_question: 'YES — classifier flag/no-flag outcomes are observable system output'
+    evidence_type: behavioral PRIMARY + structural fixtures
+    red: planted bad citation (tmp/behavioral-evidence-x/session.yaml) passes audit UNFLAGGED
+    green: bad citation FLAGGED; durable citation (.issues/N/artifacts/x.yaml) PASSES; legitimate procedural mention PASSES (claim-vs-procedure honored)
+    key_design_note: >-
+      mechanism requirement directly assertable from session.yaml — ABSENCE of glob/grep-on-cited-path
+      calls PLUS PRESENCE of git ls-files / API reads in tool-call trace
+    feasibility: high
+  - sc: SC4 convention reconciliation
+    change_question: 'Documentation consistency; downstream runtime effect = agents follow ONE convention'
+    evidence_type: structural for completeness + behavioral for compliance
+    structural_checks: automated grep invariant — exactly one canonical pattern across all four documents, zero residual variants
+    behavioral_check: agent citing evidence location produces canonical form
+    feasibility: high — structural portion fully automatable
+  - sc: SC5 VbC durable verdict record
+    change_question: 'YES — VbC writes an additional persistent artifact'
+    evidence_type: behavioral
+    red: VbC run leaves NO verdict record under .issues/{N}/artifacts/
+    green: post-VbC vbc-verdict-* exists with per-SC entries tracing to actual test output; tmp copies still present (preservation intact)
+    infrastructure_note: MANDATORY with-test-home wrapper; >=600s bash timeout; stale-lock pre-clear (tmp/.behavior-run.lock present right now)
+    feasibility: medium-high — live model run required; cost-blind mandate applies, no substitution
+  - sc: SC6 retention/cleanup policies
+    change_question: 'YES — cleanup performs new deletions at merge time'
+    evidence_type: behavioral for execution + structural for policy-table completeness
+    red: fixture tmp tree with ALL ephemeral classes survives cleanup unchanged
+    green: cleanup removes exactly policy-covered classes via directory-aware removal; preserved-evidence deletion gated behind merge confirmation
+    safety_assertion_required: cleanup MUST NOT delete pre-merge (Step 2.9 gate ordering preserved) — negative-case mandatory
+    feasibility: high — deterministic shell fixtures
+  - sc: SC7 self-compliance
+    change_question: Meta — spec's own artifacts obey SC1 rules
+    evidence_type: structural self-audit + demonstrated by construction
+    check: every path cited in final spec resolves to a durable class; brainstorm artifacts land in .issues/2327/artifacts/ via create.md Step 6 copy (durable by construction once pushed); preliminary-path variance tolerated
+    feasibility: high
+
+regression_risks:
+  - collect.md rewrite may break VbC flows other behavioral scenarios depend on → full --changed sweep post-implementation, never spot-checks
+  - cleanup extension must not fire during VbC/verification stages → negative-case test mandatory
+  - classifier false positives on legitimate procedural mentions → positive-case procedural-mention test mandatory
+
+summary_verdict: >-
+  All 7 draft SCs testable. 5 of 7 require behavioral evidence (substrate-determined);
+  SC2 and SC4 carry legitimate structural components but each warrants >=1 behavioral
+  assertion. No SC is structurally-only.
