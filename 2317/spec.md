@@ -159,8 +159,8 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 ### Item 12 (SC-12): Iterate until 100% clean
 
 - RED: A behavioral test asserts the orchestrator loop does not iterate until clean (it stops at a non-clean phase).
-- GREEN: Make the orchestrator loop iterate until the audit is 100% clean.
-- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts the loop iterates until 100% clean.
+- GREEN: Make the orchestrator loop iterate until the R-13 termination condition holds (the audit is 100% clean).
+- verify: Real `opencode run` audit dispatch; clean-room sub-agent asserts the loop iterates until the R-13 condition is satisfied.
 - commit: Orchestrator loop iteration enforcement.
 
 ### Item 13 (SC-13): Orchestrator escalation exit
@@ -200,6 +200,7 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 | R-9 | SC-9 | Phase 1 |
 | R-10 | SC-10 | Phase 4 |
 | R-11 | SC-11, SC-12, SC-13, SC-14 | Phase 3 |
+| R-13 | SC-7, SC-12 | Phase 3 |
 
 ## 8. Documentation Sources
 
@@ -225,12 +226,12 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-4:** Enumerating the full spec SC list costs one real audit dispatch. Skipping means a silently-omitted SC inherits PASS — the vector that lets never-evaluated criteria pass.
 - **SC-5:** Emitting a skipped SC as FAIL + `NOT_EVALUATED` costs one real audit dispatch. Skipping means a skipped SC is silently omitted and inherits PASS.
 - **SC-6:** Enforcing FAIL as a hard gate costs one real audit dispatch. Skipping means a bad deliverable advances to review/merge before the audit defect is found.
-- **SC-7:** Remediating and re-auditing until 100% costs one real audit dispatch. Skipping means a partially-fixed deliverable is accepted as complete.
+- **SC-7:** Remediating and re-auditing until the R-13 termination condition costs one real audit dispatch. Skipping means a partially-fixed deliverable is accepted as complete.
 - **SC-8:** Adding the escalation exit costs one real audit dispatch. Skipping means an unremediable FAIL has no exit and loops forever.
 - **SC-9:** Reconciling advisory language costs one real audit dispatch. Skipping means the coverage gap is reported as an advisory flag, still letting the unaudited deliverable through.
 - **SC-10:** Gating release on the aggregate costs one real audit dispatch. Skipping means a coverage-gap FAIL is released to the ticket, shipping an unaudited change.
 - **SC-11:** Structurally remediating-and-restarting at a non-clean phase costs one real audit dispatch. Skipping means the audit stays non-clean and the deliverable advances anyway.
-- **SC-12:** Iterating the loop until 100% clean costs one real audit dispatch. Skipping means a non-clean audit is accepted as complete.
+- **SC-12:** Iterating the loop until the R-13 termination condition costs one real audit dispatch. Skipping means a non-clean audit is accepted as complete.
 - **SC-13:** Binding escalation as the only orchestrator exit costs one real audit dispatch. Skipping means an unremediable non-clean phase has no exit.
 - **SC-14:** Binding the loop as a structural workflow step costs one real audit dispatch. Skipping means a session-momentum skip leaves the loop unexecuted.
 

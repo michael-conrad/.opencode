@@ -3,6 +3,99 @@ title: '[SPEC-FIX] 22 dangling references to removed spec-auditor skill across 1
 status: open
 labels:
 - needs-approval
-body: ''
+body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2326/\n\
+  \n## Problem\n\nA skill named `spec-auditor` is referenced 22 times across 12 files\
+  \ in the agent deck, but no such skill exists on disk. It was deleted in commit\
+  \ `8feba0ad92060319ee11d62fc9906e674b0fafdf` (\"feat(adversarial-audit): Consolidate\
+  \ auditor skills into unified architecture (#469)\"), which replaced `skills/spec-auditor/`,\
+  \ `skills/coherence-auditor/`, and `skills/concern-separation-auditor/` with task\
+  \ cards under `skills/adversarial-audit/`; the successor was then renamed `adversarial-audit`\
+  \ → `audit` in commit `5bc22ae6`. The consolidation commits did not update the referring\
+  \ files, so agents following these references attempt to invoke a nonexistent skill,\
+  \ and pipeline gates that name `spec-auditor` as their audit entry point cannot\
+  \ be satisfied as written.\n\n## Scope\n\n- Remediate 18 live references across\
+  \ 9 files (dispatch entry points, Tier 1 guideline, README quality-skills table,\
+  \ skill lists)\n- Repoint each live referer to the current on-disk dispatch target:\
+  \ the `audit` skill / `audit/tasks/spec-audit-{investigator,validator,evaluator,arbiter}.md`\
+  \ role chain — verifying intended semantics per site\n- Treat the Quality-skills\
+  \ table in `.opencode/README.md` holistically: it lists four potentially stale entries\
+  \ on one row (`spec-auditor`, `guideline-auditor`, `coherence-auditor` from the\
+  \ same deletion; verify `code-size-enforcement`, `plan-fidelity-auditor` existence\
+  \ separately)\n- Leave CHANGELOG.md historical entries unchanged (append-only log)\n\
+  \n**Out of scope:** redesigning the audit pipeline architecture; content improvements\
+  \ to the successor cards themselves (tracked separately, e.g. #1365, #751); rewriting\
+  \ or reorganizing CHANGELOG history; changes to `docs/` historical records.\n\n\
+  ## Approach\n\nUpdate each live referer to point at the verified on-disk successor\
+  \ — the `audit` skill with its `tasks/spec-audit-*` DiMo role-chain cards — choosing\
+  \ per-site semantics: invocation sites (e.g. `issue-operations-core/tasks/post-creation.md`,\
+  \ which invokes `spec-auditor --issue <number>` as the single audit entry point)\
+  \ get working dispatch strings, while listing/table sites get corrected names. Every\
+  \ replacement path must be existence-checked at fix time. Historical-record mentions\
+  \ (CHANGELOG.md, `docs/audit-sc6959-verification.md`) stay untouched.\n\n## Impact\n\
+  \n| Risk | Mitigation |\n|------|------------|\n| Live pipeline gates unfulfillable\
+  \ — e.g. post-creation audit invokes a nonexistent skill | Repoint to paths whose\
+  \ on-disk existence is verified during the fix (SC-2) |\n| Mechanical rename breaks\
+  \ site intent — some sites mean \"run a spec audit\", others merely list skills\
+  \ | Per-site semantic review before each edit |\n| Scope creep into adjacent stale\
+  \ names sharing the README row | Bundle only same-row stale entries; verify each\
+  \ directory independently |\n\nKey dependencies: none external — all affected files\
+  \ live in this repository. Call to action: fix-scoping pass over the inventory below,\
+  \ then per-file remediation against the success criteria.\n\n## Removal History\
+  \ (verified)\n\nDeleted in commit `8feba0ad` (#469): `skills/spec-auditor/`, `skills/coherence-auditor/`,\
+  \ `skills/concern-separation-auditor/` → replaced by task cards under `skills/adversarial-audit/`\
+  \ (including `tasks/spec-audit.md`). Renamed `adversarial-audit` → `audit` in commit\
+  \ `5bc22ae6`. Functional successor today: the DiMo role-chain cards `skills/audit/tasks/spec-audit-{investigator,validator,evaluator,arbiter}.md`.\
+  \ CHANGELOG.md documents the skill's former capabilities (`principles` subtask via\
+  \ #791/#792/#793), consistent with removal-without-referer-update.\n\n## Verified\
+  \ Reference Inventory (22 occurrences, 12 files)\n\nLive referers requiring remediation\
+  \ (18 refs, 9 files):\n\n| File | Lines (at triage) | Nature |\n|------|-------|--------|\n\
+  | `.opencode/README.md` | 102 | Quality-skills table lists `spec-auditor` (also\
+  \ lists removed `guideline-auditor`, `coherence-auditor` from same deletion) |\n\
+  | `.opencode/guidelines/000-critical-rules.md` | 260 | Names `spec-auditor` as a\
+  \ quality gate of the spec-creation pipeline (Tier 1 guideline) |\n| `.opencode/skills/issue-operations-core/tasks/post-creation.md`\
+  \ | 20, 27, 30, 42, 47, 57, 83 | Invokes `spec-auditor --issue <number>` as single\
+  \ audit entry point |\n| `.opencode/skills/issue-operations-core/tasks/completion.md`\
+  \ | 24, 32, 34, 93 | Auditor-invoked check + invocation instructions |\n| `.opencode/skills/issue-operations-core/tasks/pre-creation.md`\
+  \ | 266 | Related-skills list |\n| `.opencode/skills/issue-review/tasks/completion.md`\
+  \ | 23 | Evidence check that spec-auditor was invoked |\n| `.opencode/skills/verification/tasks/verify.md`\
+  \ | 105 | Listed as invoker of modality-aware verification |\n| `.opencode/skills/audit/SKILL.md`\
+  \ | 114 | Prose reference to spec-auditor findings channel |\n| `.opencode/skills/sre-runbook/SKILL.md`\
+  \ | 121 | Skills list |\n\nHistorical-record mentions (arguably legitimate; assess\
+  \ during fix scoping) — 4 refs, 3 files:\n\n| File | Lines (at triage) |\n|------|-------|\n\
+  | `.opencode/CHANGELOG.md` | 118, 121, 122 |\n| `.opencode/docs/audit-sc6959-verification.md`\
+  \ | 21 |\n\n## Root Cause\n\nCommit `8feba0ad` (#469) consolidated three auditor\
+  \ skills into `adversarial-audit` but did not update cross-references in the 9 live\
+  \ referer files. The subsequent rename to `audit` (`5bc22ae6`) compounded drift\
+  \ for any referer updated toward `adversarial-audit` paths.\n\n## Success Criteria\n\
+  \n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1\
+  \ | `grep -rn \"spec-auditor\" --include=\"*.md\"` over `.opencode/` returns zero\
+  \ hits outside CHANGELOG.md and docs/ historical records | string |\n| SC-2 | Every\
+  \ remediated referer points to an on-disk skill/task path (existence verified at\
+  \ fix time) | string |\n| SC-3 | README Quality row contains only skills whose directories\
+  \ exist under `.opencode/skills/` | string |\n\n## Dedup Evidence (pre-creation\
+  \ Step 0.5)\n\n```\nCheck: Title dedup gate for \"[SPEC-FIX] 22 dangling references\
+  \ to removed spec-auditor skill...\"\nTool: gh search issues --repo michael-conrad/.opencode\
+  \ (\"spec-auditor\" open+closed;\n       \"dangling OR nonexistent OR missing-skill\"\
+  ; \"skill directory missing\")\nRemote: 30 open + 30 closed candidates scanned.\
+  \ Closest candidates classified:\n  - #2254 (closed) internal-consistency remediation\
+  \ of spec-creation/audit decks\n    → RELATED-BUT-DISTINCT (residual create.md format\
+  \ gap + E2E verification;\n      does not track dangling spec-auditor referers)\n\
+  \  - #1365 (open) spec-audit task card missing codebase-accuracy/feasibility criteria\n\
+  \    → improves EXISTING successor card; not about the missing skill/referers\n\
+  \    → RELATED-BUT-DISTINCT\n  - #751 (open) \"Phase 5: Update spec-auditor with\
+  \ SC-12 criterion\"\n    → body targets successor card update, itself partially\
+  \ stale post-rename;\n      not a dangling-reference tracker → RELATED-BUT-DISTINCT\n\
+  Local: git grep over .opencode/.issues worktree → #1834 ([SPEC] Holistic Fix Spec\
+  \ for\n  spec-creation Skill) and #2254 mention spec-auditor in passing → RELATED-BUT-DISTINCT.\n\
+  \  (local-issues search CLI unavailable: crashes on pre-existing malformed YAML\
+  \ in an\n  unrelated issue record; git grep fallback used.)\nClassification: No\
+  \ EXACT-DUPLICATE / NEAR-DUPLICATE / CLOSED-IN-ERROR match found.\nAction: proceed\
+  \ — defect is genuinely untracked.\n```\n\nOverlap check (pre-creation Step 1):\
+  \ open spec issues #928, #972, #975, #1641, #2099 concern auditor-model swaps, agent\
+  \ cards, semantic depth, and dispatch behavior — none cover missing-skill/dangling-reference\
+  \ remediation. Classification: INDEPENDENT.\n\n---\n\n\U0001F916 OpenCode (opencode/x-preview-f-free)\
+  \ created\n"
 created_at: '2026-08-26T03:24:21+00:00'
-updated_at: '2026-08-26T03:24:21+00:00'
+updated_at: '2026-08-26T03:24:43+00:00'
+github_url: '2326'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2326

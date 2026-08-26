@@ -145,7 +145,7 @@ Per-SC item enumeration. Each SC maps to exactly one item; each item maps to exa
 
 - RED: Behavioral test asserting the developer-authorization carve-out path is honored (currently absent).
 - GREEN: Author the explicit developer-authorization carve-out for intentional submodule tooling setup.
-- verify: Behavioral test passes on the carve-out path.
+- verify: Behavioral test passes on the carve-out path via `session.yaml` clean-room sub-agent inspection.
 - commit: Carve-out text.
 
 ## 6. Dependencies
@@ -157,6 +157,7 @@ Per-SC item enumeration. Each SC maps to exactly one item; each item maps to exa
 | `060-tool-usage.md` | Governs tool selection tier hierarchy; provides the existing `--recursive` submodule prohibition analog | Satisfied (present) |
 | `000-critical-rules.md` | Defines the Tier 2 process-integrity model (critical-rules-018) that classifies the new rule | Satisfied (present) |
 | Behavioral enforcement test (critical-rules-009) | Mandate requiring a behavioral test for any rule that changes agent runtime behavior | Pending (created in Phase 3) |
+| Behavioral enforcement test harness (`.opencode/tests-v2`) | Infrastructure presupposed by all five Phase 3 verification methods: `with-test-home`-wrapped `opencode run`, `session.yaml` export as PRIMARY evaluation source, clean-room sub-agent inspection, >=600s bash-tool timeout convention | Satisfied (present) |
 
 ## 7. Traceability
 
