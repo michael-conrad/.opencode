@@ -1,0 +1,47 @@
+# Code Path Inventory — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+
+artifact_date: 2026-08-26
+issue_number: 2339
+repo: .opencode
+
+## Code Paths Touched by Each Phase
+
+### Phase 1: Canonical guard definition (Item 3)
+- `.opencode/reference/skill-card-schema.md` — Project Conventions section
+- `.opencode/reference/skill-card-description-standards.md` — skill()/task() pipeline section
+- `.opencode/skills/skill-creator/reference/skill-card-spec.md` — Required Sections table
+- `.opencode/skills/skill-creator/reference/routing-only-template.md` — Template + Placement Rules
+
+### Phase 2: Apply guard to all skill cards (Item 1)
+- `.opencode/skills/*/SKILL.md` — all 51 cards
+- `.opencode/skills/*/platforms/*/SKILL.md` — platform sub-skill cards
+- Each card gains a pre-flight guard section (e.g., `## Pre-Flight Gate`) before the
+  Workflows section.
+
+### Phase 3: Linting enforcement (Item 2)
+- `.opencode/tools/impl/skildeck/skildeck-lint` — add a lint function (e.g.,
+  `lint_skill_preflight_guard`) and register it in `main()`.
+- `.opencode/skills/skill-creator/scripts/validate_skill_cards.py` — add a REQ rule
+  (e.g., `validate_req7`) and register it in `validate_card()`.
+
+### Phase 4: Template generator (Item 4)
+- `.opencode/skills/skill-creator/scripts/init_skill.py` — SKILL_TEMPLATE string gains
+  the pre-flight guard section.
+
+### Phase 5: Critical rule reference (Item 5)
+- `.opencode/guidelines/000-critical-rules.md` — critical-rules-XXX section
+  (dispatching SKILL.md to sub-agents) gains a reference to the guard.
+
+## Code Path Dependencies
+
+- Phase 3 lint rule reads the SKILL.md body to detect the guard marker — depends on
+  Phase 1 (canonical marker) and Phase 2 (guard present in cards).
+- Phase 4 template includes the guard — depends on Phase 1 (canonical marker).
+- Phase 5 critical rule references the guard — depends on Phase 1 (canonical marker).
+
+## Entry Points
+
+- `skildeck-lint` main() → lint_skill_preflight_guard (new)
+- `validate_skill_cards.py` validate_card() → validate_req7 (new)
+- `init_skill.py` main() → SKILL_TEMPLATE (modified)

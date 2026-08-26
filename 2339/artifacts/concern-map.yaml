@@ -1,0 +1,50 @@
+# Concern Map — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+
+artifact_date: 2026-08-26
+issue_number: 2339
+repo: .opencode
+
+## Concern Boundaries and Separation per Phase
+
+### Phase 1: Canonical guard definition (Item 3)
+- Concern: Define the guard's canonical wording and behavior.
+- Boundary: Documentation only — no code, no card content changes.
+- Separation: The canonical definition lives in the requirements documentation and is
+  the single source of truth for the guard's wording.
+
+### Phase 2: Apply guard to all skill cards (Item 1)
+- Concern: Add the pre-flight guard to every SKILL.md.
+- Boundary: Skill card content only — no task cards, no linting tools, no docs.
+- Separation: Each card gains the guard as a pre-flight entry check before the
+  Workflows/routing sections.
+
+### Phase 3: Linting enforcement (Item 2)
+- Concern: Enforce the guard's presence mechanically.
+- Boundary: Linting/validation tools only — no card content, no docs.
+- Separation: `skildeck-lint` and `validate_skill_cards.py` each gain a rule that
+  flags a missing guard.
+
+### Phase 4: Template generator (Item 4)
+- Concern: Ensure new cards are born with the guard.
+- Boundary: Template generator script only.
+- Separation: `init_skill.py` SKILL_TEMPLATE includes the guard.
+
+### Phase 5: Critical rule reference (Item 5)
+- Concern: Tie the guard to the normative critical rule.
+- Boundary: Guideline only.
+- Separation: The critical-rules-XXX section references the guard as the defensive
+  backstop.
+
+## Concern Separation Matrix
+
+| Concern | Phase | File Category | Verification Domain |
+|---------|-------|---------------|---------------------|
+| Canonical guard definition | 1 | Reference docs | string |
+| Apply guard to cards | 2 | SKILL.md files | string/lint |
+| Linting enforcement | 3 | Python lint scripts | unit |
+| Template generator | 4 | Python script | unit |
+| Critical rule reference | 5 | Guideline | string |
+
+Each concern is isolated to one file category and one verification domain. No concern
+spans multiple phases or file categories.

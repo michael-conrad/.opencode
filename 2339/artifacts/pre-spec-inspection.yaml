@@ -1,0 +1,98 @@
+# Pre-Spec Inspection — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+# Repo: .opencode (michael-conrad/.opencode)
+
+inspection_date: 2026-08-26
+issue_number: 2339
+repo: .opencode
+
+## Affected Files
+
+### Skill cards (all 51 SKILL.md files)
+- Path: `.opencode/skills/*/SKILL.md` and `.opencode/skills/*/platforms/*/SKILL.md`
+- Change: Add a pre-flight guard that detects sub-agent context and returns
+  `BLOCKED` + `ORCHESTRATOR_ONLY_SKILL_CARD` before any routing metadata is consumed.
+- Current state: 0 of 51 cards contain any pre-flight guard or
+  `ORCHESTRATOR_ONLY_SKILL_CARD` marker (verified by grep).
+- Existing pattern: Cards use `## Workflows` numbered-checkbox dispatch steps with
+  sub-bullet contracts (Prompt, Context, Returns, Execution mode). No card currently
+  has a `## Pre-Flight Gate` section.
+
+### Linting enforcement
+- Path: `.opencode/tools/impl/skildeck/skildeck-lint`
+- Change: Add a lint rule enforcing the guard's presence on every SKILL.md.
+- Current state: `lint_skill_frontmatter`, `lint_skill_deck_completeness`,
+  `lint_skill_card_format_rules`, `lint_task_card_links`, `lint_task_card_frontmatter`,
+  `lint_dispatch_contract_completeness` are the existing lint functions. No rule
+  currently checks for a pre-flight guard.
+
+### Validation enforcement
+- Path: `.opencode/skills/skill-creator/scripts/validate_skill_cards.py`
+- Change: Add a REQ rule enforcing the guard's presence.
+- Current state: REQ-1 (frontmatter), REQ-2 (placeholders), REQ-3 (worktree mode),
+  REQ-5 (Mandatory Task Discipline), REQ-6 (Workflows), CONDENSATION-001. No rule
+  currently checks for a pre-flight guard.
+
+### Requirements documentation
+- Path: `.opencode/reference/skill-card-schema.md`
+- Change: Mandate the pre-flight guard in the project conventions section.
+- Current state: Documents binary constraints (name, description, license,
+  compatibility, metadata) and project conventions (Workflows section, license/compat,
+  SPDX/provenance, byline). No pre-flight guard mandate.
+
+### Skill card requirements documentation
+- Path: `.opencode/reference/skill-card-description-standards.md`
+- Change: Mandate the pre-flight guard.
+- Current state: Documents description-as-semantic-router, persona framing,
+  skill()/task() pipeline, Workflows section format. No pre-flight guard mandate.
+
+### Skill card structure reference
+- Path: `.opencode/skills/skill-creator/reference/skill-card-spec.md`
+- Change: Mandate the pre-flight guard in the required sections table.
+- Current state: Defines Mandatory Task Discipline, Workflows, Cross-References as
+  required sections. No pre-flight guard.
+
+### Canonical template
+- Path: `.opencode/skills/skill-creator/reference/routing-only-template.md`
+- Change: Add the pre-flight guard to the canonical template.
+- Current state: Template has frontmatter, Overview, Mandatory Task Discipline,
+  Workflows, Cross-References. No pre-flight guard.
+
+### Template generator
+- Path: `.opencode/skills/skill-creator/scripts/init_skill.py`
+- Change: Add the pre-flight guard to the generated SKILL_TEMPLATE.
+- Current state: SKILL_TEMPLATE has frontmatter, Overview, Mandatory Task Discipline,
+  Trigger Dispatch Table, Invocation, Sub-Agent Routing, Cross-References. No pre-flight guard.
+
+### Critical rule reference
+- Path: `.opencode/guidelines/000-critical-rules.md`
+- Change: Reference the guard in the critical-rules-XXX (dispatching SKILL.md to
+  sub-agents) section.
+- Current state: Documents the category error of dispatching SKILL.md to sub-agents.
+  No explicit guard marker.
+
+## Existing Patterns and Conventions
+
+- Skill cards use `## Workflows` numbered-checkbox dispatch steps with sub-bullet
+  contracts (Prompt, Context, Returns, Execution mode).
+- The `## Mandatory Task Discipline` section (5-item checklist) is inserted after
+  Overview, before Workflows.
+- The `## Pre-Flight Gate` concept was introduced in issue #2052 (canonical skill card
+  structure template) but was NOT implemented — 0 cards currently have it.
+- The `ORCHESTRATOR_ONLY_SKILL_CARD` reason string does not exist anywhere in the deck.
+
+## Dependencies and Callers
+
+- `skildeck-lint` is invoked via `.opencode/tools/skildeck lint` (dispatcher).
+- `validate_skill_cards.py` is invoked via `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py`.
+- `init_skill.py` generates new skill cards from SKILL_TEMPLATE.
+- The critical-rules-XXX rule (dispatching SKILL.md to sub-agents) is the normative
+  basis for the guard.
+
+## Related Issues
+
+- #2052 (canonical skill card structure template — pre-flight gate) — closed/completed;
+  introduced the Pre-Flight Gate concept but it was not implemented in cards.
+- #1992 (task() prohibition in task cards) — complements this spec.
+- #2339 (this spec) — out of scope: task card structure, behavioral enforcement test
+  authoring, canonical template redesign (tracked in #2052).

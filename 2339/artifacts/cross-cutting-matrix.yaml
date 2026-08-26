@@ -1,0 +1,35 @@
+# Cross-Cutting Matrix — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+
+artifact_date: 2026-08-26
+issue_number: 2339
+repo: .opencode
+
+## Cross-Cutting Concerns Matrix
+
+| Concern | Phase 1 (canonical def) | Phase 2 (apply guard) | Phase 3 (lint) | Phase 4 (template) | Phase 5 (critical rule) |
+|---------|------------------------|----------------------|----------------|--------------------|-------------------------|
+| Canonical guard wording | Defines it | Uses it | Detects it | Includes it | References it |
+| Context detection (orchestrator vs sub-agent) | Specifies it | Implements it | — | Includes it | References it |
+| ORCHESTRATOR_ONLY_SKILL_CARD reason | Defines it | Uses it | Detects it | Includes it | References it |
+| Guard fires before routing metadata | Specifies it | Implements it | — | Includes it | References it |
+| Lint/validation enforcement | — | — | Enforces it | — | — |
+| Documentation mandate | Mandates it | — | — | — | — |
+
+## Cross-Cutting Concern: Canonical Guard Definition
+
+The canonical guard definition (wording + behavior + `ORCHESTRATOR_ONLY_SKILL_CARD`
+reason) is the single cross-cutting concern. It is defined once in Phase 1 and consumed
+by Phases 2, 3, 4, and 5. Consistency of this definition across all phases is the
+primary cross-cutting risk.
+
+## Cross-Cutting Concern: Context Detection
+
+The guard's context detection (distinguishing orchestrator from sub-agent) is specified
+in Phase 1 and implemented in Phase 2. It must not fire in legitimate orchestrator
+context (false-positive mitigation per the spec's Impact section).
+
+## Cross-Cutting Concern: Enforcement
+
+Linting/validation enforcement (Phase 3) is the mechanical backstop that ensures the
+guard is present. It is the only phase that enforces rather than defines/uses the guard.

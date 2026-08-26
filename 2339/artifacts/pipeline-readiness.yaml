@@ -1,0 +1,64 @@
+# Pipeline Readiness Gate — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+
+gate_date: 2026-08-26
+issue_number: 2339
+repo: .opencode
+
+## Validation
+
+### Atomicity
+- Every SC maps to exactly one RED→GREEN→COMMIT cycle.
+- SC-1 (apply guard to cards) → Item 1
+- SC-2 (lint enforcement) → Item 2
+- SC-3 (docs mandate) → Item 3
+- SC-4 (template generator) → Item 4
+- SC-5 (critical rule reference) → Item 5
+- Result: PASS — each SC maps to exactly one item.
+
+### Dependency Ordering
+- SC dependency DAG is acyclic:
+  ```
+  SC-3 → SC-1 → SC-2
+  SC-3 → SC-4
+  SC-3 → SC-5
+  ```
+- Result: PASS — the DAG is acyclic (SC-3 is the root; no cycles).
+
+### Single Concern
+- Every SC targets one file category and one verification domain:
+  - SC-1: SKILL.md files / string-lint
+  - SC-2: Python lint scripts / unit
+  - SC-3: reference docs / string
+  - SC-4: Python script / unit
+  - SC-5: guideline / string
+- Result: PASS — each SC targets one file category and one verification domain.
+
+### Phase Dependency
+- Phase dependency graph is acyclic:
+  ```
+  Phase 1 (canonical def) → Phase 2 (apply guard) → Phase 3 (lint)
+  Phase 1 → Phase 4 (template)
+  Phase 1 → Phase 5 (critical rule)
+  ```
+- Result: PASS — the phase dependency graph is acyclic.
+
+### Three-Tier Structure
+- Multi-phase specs have pre/per-file/post structure.
+- This spec has 5 phases. The structure is:
+  - Pre: Phase 1 (canonical guard definition — the prerequisite)
+  - Per-file: Phase 2 (apply guard to each card), Phase 3 (lint each card),
+    Phase 4 (template), Phase 5 (critical rule)
+  - Post: None (no post-processing phase)
+- Result: PASS — the spec has a pre (canonical definition) / per-file (apply + enforce)
+  structure. No post phase is required.
+
+## Gate Verdict
+
+- Atomicity: PASS
+- Dependency ordering: PASS
+- Single concern: PASS
+- Phase dependency: PASS
+- Three-tier structure: PASS
+
+Overall: PASS — the pipeline is ready for plan creation.

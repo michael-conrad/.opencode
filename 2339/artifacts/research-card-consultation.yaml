@@ -1,0 +1,65 @@
+# Research Card Consultation — Issue 2339
+# Skill card pre-flight guard for sub-agent dispatch
+
+consultation_date: 2026-08-26
+issue_number: 2339
+
+## Cards Consulted
+
+### spec-writing-ai-agents-opencode-skill-architecture (confidence: 0.90)
+- Path: `.opencode/.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md`
+- Status: active
+- Relevance: HIGH — directly addresses the skill-card-as-orchestrator-only architecture.
+
+#### Findings Incorporated
+
+1. **`skill()` is orchestrator-only.** The `skill()` tool loads SKILL.md content into
+   the orchestrator's context. There is no way to call `skill()` from within a
+   sub-agent. This is the architectural invariant the pre-flight guard protects.
+
+2. **Skill card vs task card — distinct consumers.** The skill card (SKILL.md) is
+   consumed by the orchestrator (routing metadata); the task card (tasks/<name>.md)
+   is consumed by the sub-agent (execution procedure). Dispatching the skill card to
+   a sub-agent is a category error because the sub-agent cannot act on routing
+   metadata.
+
+3. **No sub-skill concept.** A skill is a directory with a SKILL.md. There is no
+   hierarchical resolution. Each SKILL.md is independently loadable.
+
+4. **The correct pattern:** One skill card that dispatches directly to task cards via
+   `task()`. The sub-agent receives only the task card path and routing context —
+   never the skill card content.
+
+#### Implication for the Guard
+
+The pre-flight guard must detect sub-agent context and return
+`BLOCKED` + `ORCHESTRATOR_ONLY_SKILL_CARD` before any routing metadata is consumed.
+The guard is the defensive backstop for the architectural invariant that sub-agents
+cannot call `skill()` or `task()` in the orchestrator's sense. It complements the
+critical-rules-XXX rule (dispatching SKILL.md to sub-agents is a category error).
+
+### pre-response-gate-skill-description-design (confidence: 0.9)
+- Path: `.opencode/.issues/research-cards/pre-response-gate-skill-description-design.md`
+- Status: active
+- Relevance: LOW-MEDIUM — addresses description-as-semantic-router and gating.
+  Not directly about the pre-flight guard, but confirms the description field is the
+  Level 1 classifier and skill cards are routing metadata.
+
+## Cards Not Consulted (no match)
+
+- create-md-remote-format-defect.md — unrelated (remote issue body format)
+- cross-reference-form-comparison.md — unrelated (Read-link cross-reference forms)
+- local-issues-discover-repos-worktree-filter.md — unrelated (local-issues tool)
+- multi-feature-branch-main-with-submodules.md — unrelated (git branch/submodule)
+- plan-fidelity-auditor-authoritative-sources.md — unrelated (plan audit)
+- plan-fidelity-sc-coverage-gate.md — unrelated (plan SC coverage)
+- searxng-mcp-search-alternatives.md — unrelated (search tool)
+- spec-creation-state.md — unrelated (spec-creation pipeline state)
+- wiki-operations-agent-tools-survey.md — unrelated (wiki tools)
+
+## Conclusion
+
+The `spec-writing-ai-agents-opencode-skill-architecture` card (confidence 0.90)
+provides the architectural basis for the pre-flight guard. Its findings are
+incorporated into the requirements extraction and decomposition below. No new
+research dispatch is required.
