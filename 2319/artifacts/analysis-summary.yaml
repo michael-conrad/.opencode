@@ -41,7 +41,10 @@ live_verification_performed_this_session:
   - 5 of 21 non-platform task-card sites spot-verified present
 
 worktree_notes: >-
-  Artifacts written into .opencode/.issues worktree working tree but NOT committed or pushed:
-  local-issues sync-file performs a bare git commit that would sweep unrelated staged files for
-  issue 2327 already present in the worktree index. Commit/push deferred to orchestrator once the
-  2327 staging situation is resolved.
+  Shared-worktree race during backfill: a concurrent session's local-issues auto-commit
+  (auto: create #.opencode#2333 chain) swept these untracked artifacts into a commit and pushed
+  them to origin/issues-data; sync-file was deliberately avoided because its bare git commit would
+  have swept the unrelated staged issue-2327 files. Follow-up commit 2a935add fixed
+  interface-compatibility.yaml (phase_edges nested into dependency_contract; z3.-qualified
+  expressions verified SAT via .opencode/tools/solve). All eight artifacts live at HEAD of
+  origin/issues-data.
