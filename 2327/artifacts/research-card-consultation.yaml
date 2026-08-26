@@ -1,0 +1,45 @@
+artifact: research-card-consultation
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent
+method: >-
+  Enumerated .issues/research-cards/*.md (parent worktree) and
+  .opencode/.issues/research-cards/*.md (submodule worktree) via bash ls;
+  grep -li 'citation|anchor|durable|ephemeral' over both sets.
+
+cards_found: 25 total across both worktrees
+
+matching_cards:
+  - card: cross-reference-lobotomization.md
+    location: .issues/research-cards/ (parent repo issues-data)
+    confidence: 0.85 (>= 0.7 threshold — INCORPORATED)
+    question: What form should cross-reference load directives take in the opencode deck?
+    applicable_findings:
+      - 'See `FILE.md` §SECTION prose citations are treated as decorative and never loaded — defective form'
+      - 'Read [Text](path) pattern is the required load-directive form'
+    application_to_spec: >-
+      SC1 rule text and SC2 template steering language MUST use Read [Text](path)
+      when directing agents to the canonical class definitions; single-source-of-truth
+      theme requires that references actually load, not decorate.
+  - card: cross-reference-form-comparison.md
+    location: .opencode/.issues/research-cards/ (submodule issues-data)
+    confidence: 0.95 (>= 0.7 threshold — INCORPORATED)
+    question: Inline markdown links vs symbol-only refs with resolution table — which loads reliably?
+    applicable_findings:
+      - 'Form A (inline link): 100% Tier-1 access rate; best-performing form'
+      - 'Resolution-table forms range 42-83%'
+    application_to_spec: >-
+      Confirms card #1 quantitatively: SC1/SC2 cross-references to canonical
+      definitions should be inline links for maximum agent compliance.
+
+non_matching_but_reviewed:
+  - imperative-verb-forms-load-directives.md — matched grep on 'anchor' only in unrelated sense; no durable-anchor content
+  - authorization-session-vs-workflow-state.md — matched 'citation' in unrelated context; not applicable
+  - audit-skill-dimo-role-chain-defects.md — DiMo chain defects relevant to SC3 insertion point choice but no confidence-bearing finding on citation classification; consulted, not incorporated
+
+gap_report:
+  no_card_exists_for: ephemeral-artifact durability classes themselves
+  conclusion: >-
+    No cached findings cover the core research question (which path classes are durable
+    and how to classify references deterministically). The spec's class taxonomy derives
+    from this session's codebase verification instead. No new research card created by
+    this task (analyze does not author cards; flagging gap for create phase).

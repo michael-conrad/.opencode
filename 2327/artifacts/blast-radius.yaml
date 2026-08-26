@@ -1,0 +1,100 @@
+artifact: blast-radius
+issue: .opencode#2327
+generated_by: spec-creation analyze sub-agent (Step 5, formalized from brainstorming preliminary artifact)
+upstream_source: tmp/brainstorm-spec-artifacts/blast-radius.yaml
+verification_status: all affected-file claims re-verified live this session; counts refreshed
+
+affected_files:
+  - path: .opencode/guidelines/060-tool-usage.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC1, SC4]
+    note: >-
+      Temp Files & Cleanliness section (lines 47, 52 verified verbatim) holds flat-files convention +
+      preservation exemption + NEVER-delete rule. Two SCs touch one section — sequenced via DAG
+      (SC4 before SC1) to avoid double-rewrite.
+  - path: .opencode/skills/verification-before-completion/tasks/collect.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC4, SC5]
+    note: lines 18, 248-255 hold issue-nested conflicting convention; SC5 adds durable verdict-record persistence alongside tmp working copies.
+  - path: .opencode/tests-v2/AGENTS.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC4]
+    note: §2 line 105 documents ACTUAL harness layout (authoritative reference); wording aligned to canonical statement, layout unchanged.
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC4]
+    note: line 48 fourth variant ('or equivalent artifact path') reconciled to canonical form / durable verdict record.
+  - path: .opencode/guidelines/143-planning-spec-templates.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC2]
+    note: steering language into Content Coverage Checklist and/or Self-Containment Rules; zero evidence refs currently (grep-verified).
+  - path: .opencode/guidelines/144-planning-spec-examples.md
+    change_type: MODIFY
+    blast: ADJACENT
+    sc_targets: [SC2]
+    note: at least one example must demonstrate a durable evidence anchor once template gains steering language.
+  - path: .opencode/skills/audit/SKILL.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC3, SC7]
+    note: line 101 ephemeral artifact-dir statement is itself a live violation instance; classifier gate hooks DiMo chain (lines 78-97 context params).
+  - path: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    change_type: CHECK
+    blast: ADJACENT
+    sc_targets: [SC3]
+    note: alternative insertion site if classifier runs investigator-level rather than SKILL-level gate.
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC6]
+    note: Step 2.9 line 195 file-glob replaced by directory-aware removal + retention classes table.
+  - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+    change_type: CHECK
+    blast: ADJACENT
+    sc_targets: [SC6]
+    note: routing rows updated only if new entry triggers added.
+  - path: .opencode/guidelines/065-verification-honesty.md
+    change_type: CHECK
+    blast: DIRECT
+    sc_targets: [SC1]
+    note: candidate host for rule text (host decision at create phase; INDEX.md row required if NEW file chosen instead).
+  - path: .opencode/guidelines/INDEX.md
+    change_type: CHECK
+    blast: ADJACENT
+    sc_targets: [SC1]
+    note: required only for new-guideline-file option.
+  - path: .opencode/skills/spec-creation/tasks/create.md
+    change_type: MODIFY
+    blast: DIRECT
+    sc_targets: [SC5]
+    note: line 132 metadata-only constraint explicitly resolved (classification amendment or constraint edit) IN SPEC TEXT before SC5 GREEN.
+  - path: .opencode/tests-v2/behaviors/{new}-sc{N}-ephemeral-citation.sh (per item)
+    change_type: CREATE
+    blast: DIRECT
+    sc_targets: [SC3, SC1, SC6]
+    note: behavioral scenarios follow <issue>-sc<N>-<slug>.sh naming observed in behaviors/.
+
+unchanged_files:
+  - .opencode/tests-v2/behaviors/helpers.sh — harness ground truth becomes canonical; lock stays
+  - .opencode/tests-v2/with-test-home — --clean/--clean-all already sufficient as manual levers
+  - .opencode/tools/local-issues — push machinery provides durability; cited not changed
+  - .opencode/guidelines/010-approval-gate.md, 020-go-prohibitions.md — observe/* rules correct; cross-referenced only
+  - .opencode/tests-v2/test-sc4-exit0-artifact.sh — stays passing because canonicalization adopts harness layout
+
+ripple_effects:
+  - 'SC4 rewrite of collect.md touches VbC flow other behavioral scenarios depend on → full --changed sweep recommended post-implementation'
+  - 'cleanup extension must NOT fire during VbC/verification stages (negative-case test mandatory)'
+  - 'classifier false-positive risk on legitimate procedural mentions → claim-vs-procedure positive-case test mandatory'
+
+sequencing_dependency: >-
+  SC4 precedes SC1/SC2/SC5/SC6 — otherwise downstream text bakes in a spelling that could flip;
+  encoded in decompose-output dependency_dag.
+
+self_compliance_note: >-
+  Investigation evidence recorded here survives via create.md Step 6 copy into
+  .issues/2327/artifacts/ (durable issues-data branch); spec body cites only that durable copy.

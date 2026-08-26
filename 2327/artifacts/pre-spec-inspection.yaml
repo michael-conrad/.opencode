@@ -1,0 +1,116 @@
+artifact: pre-spec-inspection
+issue: .opencode#2327
+title: '[SPEC] Durable-anchor citation rule: specs must not reference ephemeral artifacts'
+generated_by: spec-creation analyze sub-agent
+verified_session: '2026-08-25'
+verification_method: >-
+  Direct reads + grep over tracked .opencode/ surfaces + bash ls on gitignored tmp/
+  (glob tool blind to gitignored paths) + live counts + issues-data worktree inspection.
+  srclight unavailable in this dispatch context AND affected surface is markdown/scripts
+  (srclight indexes Python symbols only) — built-in search is the correct modality here.
+
+binding_verification:
+  issue_bound: true
+  remote_stub: https://github.com/michael-conrad/.opencode/issues/2327
+  local_mirror: .opencode/.issues/2327/ (labels: needs-approval, spec, spec-draft)
+  comments_read: 0 comments exist (read-comments returned empty — nothing to miss)
+
+affected_files:
+  - path: .opencode/guidelines/060-tool-usage.md
+    exists: true (lines 47, 52 read verbatim this session)
+    current_state: flat-files convention `{project_root}/tmp/behavioral-evidence-*.{log,json}` +
+      preservation-until-merge exemption + NEVER-delete rule
+    change_type: MODIFY
+    sc_targets: [SC1, SC4]
+  - path: .opencode/skills/verification-before-completion/tasks/collect.md
+    exists: true (lines 18, 248-255 read verbatim)
+    current_state: issue-nested convention `{project_root}/tmp/{issue-N}/behavioral-evidence-*.{log,json}`
+      + forbidden-deletion rule; conflicts with BOTH other documented conventions
+    change_type: MODIFY
+    sc_targets: [SC4, SC5]
+  - path: .opencode/tests-v2/AGENTS.md
+    exists: true (line 105 + 194/360/370/556/566/603/608/627 grep-verified)
+    current_state: directory layout `./tmp/behavioral-evidence-<SCENARIO>-<PHASE>-<model>/` with
+      manifest.yaml, session.yaml (PRIMARY), stdout.log, stderr.log, exit_code — MATCHES actual harness
+    change_type: MODIFY (canonical reference; wording alignment only)
+    sc_targets: [SC4]
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    exists: true (lines 380, 493 read)
+    current_state: GROUND TRUTH producer — base="$PARENT_REPO_DIR/tmp/behavioral-evidence-${scenario_name}-${phase}-${slug}"
+      (extensionless DIRECTORIES); lock at $PARENT_REPO_DIR/tmp/.behavior-run.lock
+    change_type: NONE (unchanged — canonicalization adopts harness layout)
+  - path: .opencode/tests-v2/test-sc4-exit0-artifact.sh
+    exists: true
+    current_state: asserts current dir layout — stays valid iff canonicalization adopts harness layout
+    change_type: NONE
+  - path: .opencode/tests-v2/with-test-home
+    exists: true (TMP_DIR=$PROJECT_DIR/tmp line 50; --clean/--clean-all lines 77-78)
+    current_state: isolated test homes under tmp/, manual clean levers only
+    change_type: NONE
+  - path: .opencode/skills/audit/SKILL.md
+    exists: true (line 101 read verbatim; DiMo chain lines 78-97 grep-verified)
+    current_state: 'Artifact directory: ./tmp/{issue-N}/artifacts/{task-name}/' — EPHEMERAL audit
+      evidence store; DiMo context params carry artifact_evidence_dir + vbc_artifact_path
+    change_type: MODIFY
+    sc_targets: [SC3, SC7]
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    exists: true (Step 2.9 line 195 read verbatim)
+    current_state: 'rm -f ...behavioral-evidence-*.{log,json} ...' — file glob CANNOT match
+      extensionless directories (silent no-op against real harness output; primary accretion cause)
+    change_type: MODIFY
+    sc_targets: [SC6]
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    exists: true (line 48 read verbatim)
+    current_state: fourth variant 'tmp/behavioral-evidence-* or equivalent artifact path'
+    change_type: MODIFY
+    sc_targets: [SC4]
+  - path: .opencode/guidelines/065-verification-honesty.md
+    exists: true (full read — Pre-Response Factual Claim Gate governs claim verification;
+      What COUNTS as Evidence section lists tool-call evidence forms)
+    candidate_role: host-or-neighbor for SC1 rule text (claim-vs-procedure anchor classes)
+    change_type: CHECK (host decision deferred to create phase)
+  - path: .opencode/guidelines/080-code-standards.md
+    exists: true ('Cross-Reference Standards' section at line 442 — stable-anchor doctrine
+      for code references; forbids line-number anchors)
+    candidate_role: doctrine SC1 EXTENDS (evidence-location anchors) rather than duplicates
+    change_type: CHECK
+  - path: .opencode/guidelines/143-planning-spec-templates.md
+    exists: true (grep -i 'evidence|artifact' returned ZERO hits — confirmed empty)
+    current_state: templates steer code anchors only; no evidence-anchor guidance
+    change_type: MODIFY
+    sc_targets: [SC2]
+  - path: .opencode/guidelines/140-planning-spec-creation.md
+    exists: true (grep returned no artifact/evidence-path guidance)
+    change_type: CHECK (alternative host for SC2 steering language)
+  - path: .opencode/skills/spec-creation/tasks/create.md
+    exists: true (Step 6 line 132 read verbatim)
+    current_state: METADATA-ONLY constraint — '.issues/{N}/artifacts/ ... MUST NOT receive source
+      code, test files, test fixtures, or any other non-analysis content'
+    change_type: CONSTRAINT-SOURCE (SC5 must classify verdict records as analysis content in spec
+      text, or amend this line in same change)
+  - path: .opencode/.issues/{N}/artifacts/ (issues-data branch)
+    exists: true (dirs verified for 2166, 1542, 2162, 2153, 2086; branch log shows backfill commits)
+    current_state: ONLY verified durable artifact store; pushed to origin via local-issues
+      _push_orphan_if_needed (WORKTREE_BRANCH=issues-data)
+    change_type: WRITE-TARGET (SC5) / ANCHOR-CLASS (SC1)
+
+live_state_counts:
+  parent_tmp_behavior_test_dirs: 460 (re-verified this session)
+  parent_tmp_behavioral_evidence_dirs: 277 (re-verified this session)
+  opencode_tmp_test_homes: 0 (upstream claimed 9 earlier 2026-08-25 — STALE within hours;
+    independent confirmation that ephemeral counts drift and policies must be count-independent)
+  lock_file_present: tmp/.behavior-run.lock exists right now
+
+existing_patterns:
+  - 'Durable analytical artifacts land in .issues/{N}/artifacts/ via spec-creation create.md Step 6 copy'
+  - 'observe/* branches = already-enforced ephemeral class (discard before HALT) — precedent for never-citable listing'
+  - '080-code-standards Cross-Reference Standards = existing stable-anchor doctrine to extend'
+  - 'cleanup.md Step 2.9 acknowledges BOTH flat and issue-nested patterns, canonicalizes neither'
+
+unchanged_files:
+  - path: .opencode/tools/local-issues
+    reason: push machinery (_push_orphan_if_needed) already provides durability; SC1 cites it, does not change it
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    reason: harness layout is ground truth and becomes canonical
+  - path: .opencode/tests-v2/with-test-home
+    reason: --clean/--clean-all already exist; SC6 wires retention into cleanup contract, not harness
