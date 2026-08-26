@@ -1,0 +1,38 @@
+# Cross-cutting matrix — issue #2317
+# SCs spanning multiple concerns/phases
+
+## Cross-cutting SCs
+
+### SC-3 (behavioral-only verification) — spans Phases 1, 2, 3, 4
+spans:
+  - Phase 1 (arbiter aggregation + flag-gate): verified via SC-3 harness dispatch.
+  - Phase 2 (evaluator enumeration): verified via SC-3 harness dispatch.
+  - Phase 3 (hard gate / loop / escalation): verified via SC-3 harness dispatch.
+  - Phase 4 (release handshake): verified via SC-3 harness dispatch.
+resolution: Harness (Phase 5) is sequenced to provide evidence for all other phases; each phase's verify step routes through it.
+
+### SC-6 / SC-7 / SC-8 (FAIL gate, remediate-and-re-audit, escalation) — spans arbiter cards and audit/SKILL.md
+spans:
+  - Arbiter cards define FAIL verdict handling at task level.
+  - audit/SKILL.md binds the structural loop/escalation at orchestrator level.
+  - Evaluator cards supply the FAIL semantics the gate consumes.
+resolution: Sequenced in Phase 3 after Phases 1-2 so same-file edits do not conflict.
+
+### R-13 termination condition — spans SC-7 and SC-12
+spans:
+  - SC-7 (task-level remediate-and-re-audit until R-13 condition).
+  - SC-12 (orchestrator-level loop iteration until R-13 condition).
+resolution: R-13 is a single shared operational definition; both levels must terminate on the identical predicate (aggregate PASS with zero criteria FAIL or NOT_EVALUATED within a single dispatch).
+
+### NOT_EVALUATED marker — spans evaluator emission (SC-5) and arbiter aggregation (SC-1)
+spans:
+  - Evaluator emits skipped SC as FAIL + NOT_EVALUATED (Phase 2).
+  - Arbiter union aggregation treats absent/marker SC as FAIL (Phase 1); R-13 requires zero NOT_EVALUATED rows for PASS.
+resolution: Marker format is a cross-phase contract; Phase 1 and Phase 2 must agree on the exact token.
+
+## Non-cross-cutting
+non_cross_cutting:
+  - "SC-4 / SC-5: confined to evaluator cards (Phase 2 only)."
+  - "SC-9: confined to arbiter error tables (Phase 1 only)."
+  - "SC-10: confined to release handshake files (Phase 4 only), though its evidence flows through the Phase 5 harness."
+  - "SC-14: confined to audit/SKILL.md structure (Phase 3 only)."
