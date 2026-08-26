@@ -1,0 +1,39 @@
+# Code Path Inventory — Issue 2322: Fix research.md step 12 plan-plan invocation
+# Backfilled retroactively from spec body by writing-plans/tasks/backfill.md
+issue: .opencode#2322
+spec_path: .opencode/.issues/2322/spec.md
+paths_per_sc:
+  SC-1:
+    - path: .opencode/skills/writing-plans/tasks/research.md
+      location: "step 12 (line 48)"
+      role: edit target — replace defective plan plan invocation with corrected problem-driven form
+    - path: .opencode/tools/plan
+      entry_point: "_action_plan (line 504); parser registration with required --problem/-p"
+      role: CLI subcommand whose accepted flags define the corrected invocation (--problem PROBLEM [--engine ENGINE])
+      verified_live: true
+  SC-2:
+    - path: .opencode/skills/writing-plans/tasks/research.md
+      location: "step 12 block"
+      role: add dependency-contract to phase-problem construction handoff text
+    - path: "{issues_prefix}/{N}/dependency-contract.yaml"
+      role: input schema consumed by the documented construction mapping (variables, preconditions, phases, edges)
+    - path: "{issues_prefix}/{N}/artifacts/phase-problem.yaml"
+      role: output artifact produced by the documented construction before invoking plan plan
+  SC-3:
+    - path: ./tmp/
+      role: location of throwaway two-phase problem file during live smoke verification
+    - path: .opencode/tools/plan
+      entry_point: "_action_plan stdout block"
+      role: assertions — exit code 0; stdout YAML status in {SOLVED_SATISFICING, SOLVED_OPTIMALLY}
+precedent_evidence:
+  issue: .opencode#2134
+  artifacts_verified_present:
+    - .opencode/.issues/2134/artifacts/phase-problem.yaml
+    - .opencode/.issues/2134/artifacts/plan-output.yaml
+  note: >-
+    Identical-pattern precedent for the contract-to-problem-to-output chain (spec D-4).
+    .opencode#2166 deliberately excluded — different artifact naming (plan-problem.yaml, spec D-5).
+exit_criterion_alignment:
+  research_md_line: 60
+  statement: "tools/plan plan returned SOLVED_SATISFICING or SOLVED_OPTIMALLY"
+  determination: no_change_required — status names match live tool success statuses (spec D-2/D-6)
