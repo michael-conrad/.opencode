@@ -63,7 +63,7 @@ The task card wrongly applied the `solve` tool's `--contract-path` contract-file
 
 ## Root Cause
 
-The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step. The defect has been present since the task card's first commit (6581901f, 2026-07-30) and was carried through later commits unchanged.
+The task card conflated two distinct tools with different invocation contracts. `solve` (and `plan state update`) take a `--contract-path` contract file; `plan plan` takes a `--problem` file and emits output to stdout (captured via redirect). Writing `--contract-path` and `--output` on `plan plan` produces an argument-parsing failure, hard-blocking the research step. The defect has been present since the task card's first commit (6581901f, 2026-07-30).
 
 ## Impact
 
@@ -157,6 +157,11 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Why:** Spec-audit DRAFT verdict — 6 of 11 holistic dimensions FAIL (HOLISTIC-1 Implementability, HOLISTIC-3 Completeness, HOLISTIC-5 Testability, HOLISTIC-6 Escape Hatches, HOLISTIC-7 Provenance, HOLISTIC-10 Traceability) with six bidirectional findings (five SPEC_INCOMPLETE, one SPEC_AMBIGUOUS) recorded in `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` and `judgment.yaml`; the gate-block note additionally required Success Criteria, Requirements, Items, Traceability, Documentation Sources, Enforcement Gate, Cost Frame, and preamble sections before re-audit.
 - **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit DRAFT verdict remediation).
 - **Constraint honored:** No valid success criterion was weakened or removed — the prior spec version contained zero SCs; all SCs in this revision are additions.
+- **Date:** 2026-08-26
+- **What changed:** Restricted the Root Cause history claim to the anchored first-commit fact — dropped the unsupported clause "and was carried through later commits unchanged" from the final sentence. No other section touched: Requirements, Success Criteria, Items, Traceability, Cost Frame, Documentation Sources, and all other sections unchanged.
+- **Why:** Spec-audit cycle-2 verdict — sole FAIL HOLISTIC-7 Provenance: the diff-range assertion ("carried through later commits unchanged") had no documented verification anywhere in Documentation Sources; only the initial-commit anchor (6581901f, 2026-07-30) is cited. Revision Option B selected per the revise task card's prohibition on analysis/verification steps within this task — Option A (adding a D-7 git-history source) would require live git-history verification that this task does not perform. Finding detail: `tmp/issue-2322/artifacts/spec-audit/verdict.yaml` (HOLISTIC-7, bidirectional finding SPEC_INCOMPLETE).
+- **Who authorized:** Orchestrator dispatch of the spec-creation `revise` task for issue 2322 (revision_reason: Spec-audit cycle-2 remediation).
+- **Constraint honored:** No success criterion weakened or removed — SC-1..SC-3 and R-1..R-3 untouched.
 
 ---
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
