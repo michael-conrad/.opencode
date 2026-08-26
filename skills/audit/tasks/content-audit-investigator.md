@@ -99,7 +99,7 @@ claims:
 
 Read source data files from `source_data_paths`:
 
-- [ ] 1. Glob `**/*` in each `source_data_paths` directory via `glob` tool
+- [ ] 1. List each `source_data_paths` directory using the canonical path-parameter glob form: `glob(pattern="**/*", path="<source_data_dir>")`. An empty result MUST be disambiguated per the empty-result rule before recording the directory as empty. Read [the canonical glob semantics](guidelines/060-tool-usage.md).
 - [ ] 2. For each discovered file, record: path, size, modification timestamp
 - [ ] 3. Read relevant files — spec files, project files, evidence artifacts, config files
 - [ ] 4. For each file, record its structure: frontmatter presence, section headings, key-value pairs, table structure
@@ -334,7 +334,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | GitHub routing fields present | Return BLOCKED with PRELOADED_CONTEXT_REJECTED |
 | Source data file not found | Record `exists: false` for affected claims — do NOT BLOCK |
 | `srclight_get_signature` fails | Record `found: false` for affected claims — do NOT BLOCK |
-| `glob` returns empty for a source path | Record directory as empty — do NOT BLOCK |
+| `glob` returns empty for a source path | Disambiguate per the empty-result rule (confirm canonical path-parameter form and reachable `path`); only then record directory as empty — do NOT BLOCK |
 | Write permission denied | Return BLOCKED — cannot write evidence.yaml |
 
 ## Cross-References

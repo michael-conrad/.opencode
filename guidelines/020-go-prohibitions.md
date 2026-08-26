@@ -275,7 +275,7 @@ The verb-prefix parsing table in `approval-gate` skill → Authorization Scope M
 - Decompose multi-topic messages into single-topic turns.
 - Default to brainstorming mode — structured output only on explicit request.
 - Dispatch research sub-agents during active discussions without halting.
-- **Research card catalogue — `.issues/research-cards/`**: Before dispatching research, glob `*.md` in `.issues/research-cards/`, grep frontmatter for the exact research question. If an active card exists with acceptable confidence (`confidence >= 0.7`), skip the research dispatch and return cached findings. If no matching card or stale/insufficient confidence, dispatch research. After research, create or update the card with new findings, confidence score, source URLs, and tags.
+- **Research card catalogue — `.issues/research-cards/`**: Before dispatching research, list the cards using the canonical path-parameter glob form — `glob(pattern="*.md", path=".issues/research-cards")` — then grep frontmatter for the exact research question. Do NOT use a pattern-from-CWD form (e.g. `glob(pattern=".issues/research-cards/*.md")`), which silently cannot reach the hidden `.issues/` directory (LIM-1). Read [the canonical glob semantics](guidelines/060-tool-usage.md) for the full limitation set. If an active card exists with acceptable confidence (`confidence >= 0.7`), skip the research dispatch and return cached findings. If no matching card or stale/insufficient confidence, dispatch research. After research, create or update the card with new findings, confidence score, source URLs, and tags.
 
 ## 2. Iterative Feedback & Plan Revision
 

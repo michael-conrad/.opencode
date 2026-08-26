@@ -49,7 +49,7 @@ Produce `evidence.yaml` with raw evidence about test coverage and quality by rea
 
 Validate that all required inputs are present before proceeding:
 
-- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

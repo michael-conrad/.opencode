@@ -78,7 +78,7 @@ missing: "./tmp/{issue-N}/artifacts/verification-audit/verdict.yaml"
 remediation: "verdict.yaml is required for verification-audit-path-provider. The Evaluator must produce verdict.yaml before the Arbiter can synthesize the final judgment."
 ```
 
-- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 7. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 8. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml

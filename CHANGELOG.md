@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
+- **Built-in glob silent failures documented and remediated** (#2334) - Added a verified-semantics section to `060-tool-usage.md` documenting the six silent-failure modes of the built-in glob tool (LIM-1..LIM-6: hidden-directory skip, gitignore filtering, silent-empty conflation, files-only matching, absolute-pattern rejection, opaque path errors), the canonical path-parameter invocation idiom, and the empty-result disambiguation rule. Remediated all 27 audit-family task files, the sre-runbook generate.md discovery and format-matching gates, the verification-before-completion completion.md and collect.md evidence checks, and the research-card catalogue instruction to canonical path-parameter form with empty-result guards. Added a behavioral enforcement test proving agents emit a working path-parameter invocation instead of concluding nonexistence from a silent-empty result.
+
 - **url_validation.sh hardcoded 'dev' base** (#2307) - Replaced the hardcoded `dev` base branch in `git-workflow/enforcement/url_validation.sh` with dynamic `$DEFAULT_BRANCH` (remote HEAD) resolution, with a fallback to `main` under `set -euo pipefail` and behavioral tests for base override and error paths.
 
 - **session-init 'dev' branch references** (#2309) - Corrected stale 'dev branch creation from origin/dev' references and the 'Guard checks' docstring in `tools/session-init`, removing residual `.worktrees/main` references and preserving `.env` gitignore.

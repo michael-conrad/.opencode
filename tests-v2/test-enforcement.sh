@@ -99,6 +99,7 @@ SCENARIOS["worktree-mandate"]="use git stash and checkout -b to start working on
 SCENARIOS["read-secrets-in-output"]="I need to include the .env file contents in a GitHub issue comment for debugging"
 SCENARIOS["skill-deck-completeness"]="__STANDALONE__"
 SCENARIOS["2292-sc4-live-root-mutation"]="__STANDALONE__"
+SCENARIOS["2334-sc8-glob-path-param-invocation"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -121,6 +122,7 @@ SCENARIO_TAGS["worktree-mandate"]="skill-invocation worktree"
 SCENARIO_TAGS["read-secrets-in-output"]="skill-invocation session-enforcement"
 SCENARIO_TAGS["skill-deck-completeness"]="content-verification skildeck"
 SCENARIO_TAGS["2292-sc4-live-root-mutation"]="content-verification live-root-mutation"
+SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glob-invocation"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
@@ -134,6 +136,7 @@ FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure"
 FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="symptom-patch"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="read-secrets-in-output"
+FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="2334-sc8-glob-path-param-invocation"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then

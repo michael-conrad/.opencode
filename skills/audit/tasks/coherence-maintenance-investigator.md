@@ -44,7 +44,7 @@ Produce `evidence.yaml` with raw evidence about the baseline coherence state and
 
 Validate that all required inputs are present before proceeding:
 
-- [ ] 1. Verify baseline file exists — glob `baseline-*.json` in `{project_root}/tmp/{issue-N}/artifacts/`
+- [ ] 1. Verify a baseline file exists using the canonical path-parameter form: `glob(pattern="baseline-*.json", path="{project_root}/tmp/{issue-N}/artifacts")`. An empty result MUST be disambiguated per the empty-result rule before concluding absence. Read [the canonical glob semantics](guidelines/060-tool-usage.md).
 - [ ] 2. If no baseline found, return BLOCKED:
 
 ```yaml
@@ -62,7 +62,7 @@ remediation: "No baseline-*.json found in {project_root}/tmp/{issue-N}/artifacts
 
 Find and load the latest baseline coherence file:
 
-- [ ] 1. Glob `baseline-*.json` in `{project_root}/tmp/{issue-N}/artifacts/`
+- [ ] 1. Glob `baseline-*.json` in `{project_root}/tmp/{issue-N}/artifacts/` using the canonical path-parameter form: `glob(pattern="baseline-*.json", path="{project_root}/tmp/{issue-N}/artifacts")`
 - [ ] 2. Select the latest baseline by filename date
 - [ ] 3. Read and parse the baseline JSON
 - [ ] 4. Record baseline metadata: version, generated_at, file path, file size

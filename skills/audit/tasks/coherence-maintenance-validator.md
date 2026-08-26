@@ -62,7 +62,7 @@ remediation: "No evidence.yaml found in {artifact_evidence_dir}/. Run coherence-
 
 - [ ] 3. Verify `.opencode/guidelines/` exists and contains `.md` files
 - [ ] 4. Verify `.opencode/skills/` exists and contains `SKILL.md` files
-- [ ] 5. Verify baseline file exists — glob `baseline-*.json` in `{project_root}/tmp/{issue-N}/artifacts/`
+- [ ] 5. Verify a baseline file exists using the canonical path-parameter form: `glob(pattern="baseline-*.json", path="{project_root}/tmp/{issue-N}/artifacts")`. An empty result MUST be disambiguated per the empty-result rule before concluding absence. Read [the canonical glob semantics](guidelines/060-tool-usage.md).
 - [ ] 6. Verify `artifact_evidence_dir` is writable
 
 ### Step 2: Load evidence.yaml

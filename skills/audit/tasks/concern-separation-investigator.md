@@ -42,7 +42,7 @@ Collect raw evidence about concern boundaries and scope isolation from spec and 
 
 Validate that all required inputs are present before proceeding:
 
-- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob `**/*.md` in `<spec_local_dir>/`
+- [ ] 1. Verify `spec_local_dir` is present and non-empty — glob(pattern="**/*.md", path="<spec_local_dir>")
 - [ ] 2. If `spec_local_dir` is missing or empty, return BLOCKED:
 
 ```yaml
@@ -59,7 +59,10 @@ remediation: "spec_local_dir is required for concern-separation-generator. The o
 `spec_local_dir` is REQUIRED. Investigator BLOCKs if absent.
 
 ```python
-spec_files = glob(pattern="**/*.md", path=f"<spec_local_dir>")
+spec_files = glob(pattern="**/*.md", path="<spec_local_dir>")
+if not spec_files:
+    return BLOCKED(error="MISSING_REQUIRED_INPUT", missing="spec files",
+                   detail="Disambiguate the empty glob result per the empty-result rule before concluding absence")
 for f in spec_files:
     read(filePath=f)
 ```
@@ -77,7 +80,10 @@ Extract from each spec file:
 If `plan_local_dir` is provided and non-empty:
 
 ```python
-plan_files = glob(pattern="**/*.md", path=f"<plan_local_dir>")
+plan_files = glob(pattern="**/*.md", path="<plan_local_dir>")
+if not plan_files:
+    return BLOCKED(error="MISSING_REQUIRED_INPUT", missing="plan files",
+                   detail="Disambiguate the empty glob result per the empty-result rule before concluding absence")
 for f in plan_files:
     read(filePath=f)
 ```
