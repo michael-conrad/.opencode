@@ -6,7 +6,7 @@ labels:
 - needs-approval
 - spec-draft
 created: 2026-08-24T15:23:03Z
-updated: 2026-08-24T15:23:12Z
+updated: 2026-08-26T03:23:30Z
 remote_issue: 2317
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 ---
@@ -209,7 +209,7 @@ remote_url: "https://github.com/michael-conrad/.opencode/issues/2317"
 | Audit arbiter cards | skill code | `.opencode/skills/audit/tasks/*-audit-arbiter.md` | Read/grep of aggregation logic |
 | Audit evaluator cards | skill code | `.opencode/skills/audit/tasks/*-audit-evaluator.md` | Read/grep of `per_criterion` enumeration |
 | Audit orchestrator | skill code | `.opencode/skills/audit/SKILL.md` | Read of Mandatory Remediation Procedure |
-| Release handshake | skill code | `.opencode/skills/release-promoter/tasks/{operating-protocol,tag,create-release}.md`, `git-workflow-cleanup/tasks/cleanup.md` | Read/grep of release gate |
+| Release handshake | skill code | `.opencode/skills/release-promoter/tasks/{operating-protocol,tag,create-release}.md`, `git-workflow-cleanup/tasks/cleanup.md` | Live grep 2026-08-25: zero verdict/aggregate/coverage tokens in all three release-promoter tasks; `cleanup.md` matches only an unrelated behavioral-artifact-cleanup line (L198) — Item 10 adds the gate |
 | Behavioral harness | config/test | `.opencode/tests-v2/AGENTS.md`, `tests-v2/behaviors/` | Existing audit behavioral tests (`2254-sc33`, `2272-sc1`) demonstrate real `opencode run` dispatch |
 
 ## 9. Enforcement Gate
@@ -241,7 +241,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Coverage gap (flag-gate):** If `coverage_complete` is false (an SC not covered by any evaluator), the aggregate MUST be FAIL regardless of evaluator verdicts.
 - **Broken evidence chain (flag-gate):** If `chain_complete` is false, the aggregate MUST be FAIL.
 - **Skipped SC (evaluator):** An evaluator that skips a spec item MUST emit it as FAIL + `NOT_EVALUATED`, not omit it.
-- **Unremediable FAIL (orchestrator):** If remediation cannot achieve 100% compliance, the orchestrator MUST escalate — the explicit exit, never an infinite loop.
+- **Unremediable FAIL (orchestrator):** If remediation cannot reach the R-13 termination condition, the orchestrator MUST escalate — the explicit exit, never an infinite loop.
 - **Release handshake (release):** A coverage-gap FAIL MUST keep the ticket unreleased; release promotion only proceeds on a clean aggregate.
 - **Behavioral test not executable:** If `opencode run` cannot run, the SC is FAIL — no static/string substitution is permitted (EVIDENCE_TYPE_MISMATCH).
 
@@ -250,7 +250,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-24 | Decomposed compound SCs into atomic sub-SCs (SC count 8 → 14). Split SC-4 → SC-4/SC-5; SC-5 → SC-6/SC-7/SC-8; SC-8 → SC-11/SC-12/SC-13/SC-14. Updated Items, Traceability, sc-summary.yaml, and Cost Frame to match. Aligned section numbering with canonical ordering (Cost Frame at §10, Edge Cases at §11) by folding Constraints into the Requirements section. | Compound-SC structure validation FAIL; section-numbering format-drift warning. | spec-creation revise pipeline |
-| 2026-08-24 | Corrected the unsupported arbiter card count: replaced "all 10 `*-audit-arbiter` cards" and "all 10 arbiter cards" with the accurate `*-audit-arbiter` wildcard reference (live verification confirms 12 arbiter cards). Restored the missing analytical artifacts directory (7 artifacts: blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) into `.opencode/.issues/2317/artifacts/`. | Re-validation FAIL (factual provenance: incorrect arbiter card count) and warning (missing analytical artifacts directory). | spec-creation revise pipeline |
+| 2026-08-24 | Corrected the unsupported arbiter card count: replaced "all 10 `*-audit-arbiter` cards" and "all 10 arbiter cards" with the accurate `*-audit-arbiter` wildcard reference (live verification, restated 2026-08-25 under the explicit glob frame: wildcard glob `*-audit-arbiter.md` returns 5 arbiter cards; a broader `-arbiter.md` suffix scan additionally returns 7 coordination arbiter cards outside the audited set, totaling 12). Restored the missing analytical artifacts directory (7 artifacts: blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) into `.opencode/.issues/2317/artifacts/`. | Re-validation FAIL (factual provenance: incorrect arbiter card count) and warning (missing analytical artifacts directory). | spec-creation revise pipeline |
+| 2026-08-26 | Remediated spec-audit DRAFT verdict (tmp/issue-2317/artifacts/spec-audit/verdict.yaml, judgment.yaml): (1) Completeness FAIL — added R-13 operationally defining "100% compliance"/"100% clean" (union-aggregate PASS with both flags true, zero criteria FAIL or NOT_EVALUATED, within a single audit dispatch) and anchored SC-7, SC-12, R-7, Items 7/12, Cost Frame SC-7/SC-12, and Edge Cases to it; added traceability row R-13 → SC-7, SC-12. (2) Provenance FAIL finding 1 — restated Change Control row 2's arbiter-count claim under the explicit glob frame, re-verified live (`*-audit-arbiter.md` = 5; `-arbiter.md` suffix scan = 12 incl. 7 coordination cards outside the audited set). (3) Provenance FAIL finding 2 — revised R-10, SC-10, Item 10, §2 Not Included, and §8 Documentation Sources to scope the release handshake as NEW aggregate-consumption gate logic, recording live keyword-scan evidence that no handshake file currently reads the audit aggregate. No success criteria weakened or removed; SC count remains 14. | Spec-audit DRAFT verdict — Holistic dimension 3 (Completeness) and dimension 7 (Provenance) FAIL remediation. | spec-creation revise pipeline (spec-audit DRAFT remediation) |
 
 ---
 

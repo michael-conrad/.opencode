@@ -172,7 +172,7 @@ Per-SC item enumeration. Each SC maps to exactly one item; each item maps to exa
 | R-7 | SC-8 | Phase 1 |
 | R-8 | SC-9 | Phase 2 |
 
-Note: R-1 and R-2 govern agent build/test behavior and are verified behaviorally; their enforcement tests live in Phase 3 even though the rule text is authored in Phase 1. R-3 through R-5 similarly verify runtime behavior via the Phase 3 test harness. R-5 through R-8 verify static text properties and are checked in the phase where the text is produced (Phase 1 for the rule body, Phase 2 for cross-references).
+Note: R-1 and R-2 govern agent build/test behavior and are verified behaviorally; their enforcement tests live in Phase 3 even though the rule text is authored in Phase 1. R-3 (SC-4) and R-4 (SC-5) likewise verify runtime behavior via the Phase 3 test harness. R-5 through R-8 verify static text properties and are checked in the phase where the text is produced (Phase 1 for the rule body, Phase 2 for cross-references).
 
 ## 8. Documentation Sources
 
@@ -182,7 +182,7 @@ Note: R-1 and R-2 govern agent build/test behavior and are verified behaviorally
 | `060-tool-usage.md` | guideline | `.opencode/guidelines/060-tool-usage.md` | Read during pre-spec inspection |
 | `085-project-local-tools.md` | guideline | `.opencode/guidelines/085-project-local-tools.md` | Read during pre-spec inspection |
 | `000-critical-rules.md` | guideline | `.opencode/guidelines/000-critical-rules.md` | Read during pre-spec inspection |
-| critical-rules-009 (enforcement test mandate) | guideline | `000-critical-rules.md` | Read during pre-spec inspection |
+| critical-rules-009 (enforcement test mandate) | guideline | `.opencode/guidelines/080-code-standards.md` | Read during pre-spec inspection |
 
 ## 9. Enforcement Gate
 
@@ -212,18 +212,18 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 ### State transitions
 
 - **Condition:** Agent needs a build/test step in a multi-module checkout.
-- **Expected behavior:** Agent transitions to ROOT_TOOLING (allowed) — uses repo root build tool or root project-local tools.
+- **Expected behavior:** Agent transitions to ROOT_TOOLING — the default allowed state in which build/test executes exclusively through the repo root's build tool or the repo root's project-local tools.
 - **Resolution:** Default path under the rule.
 
 - **Condition:** Agent attempts to invent/alter a submodule toolchain without developer authorization.
 - **Expected behavior:** HALT (default), Tier 2 framing.
-- **Resolution:** Dev-authorization carve-out is the only transition to SUBMODULE_AUTHORIZED.
+- **Resolution:** Dev-authorization carve-out is the only transition to SUBMODULE_AUTHORIZED — the exception state in which intentional submodule tooling setup proceeds only after explicit developer authorization (R-4).
 
 ### Failure modes
 
 - **Condition:** Rule is too vague to trigger HALT.
 - **Expected behavior:** HALT does not fire; the rule fails its enforcement purpose.
-- **Resolution:** Concrete Tier 2 gate + explicit carve-out wording (per Impact mitigation).
+- **Resolution:** Concrete Tier 2 gate + explicit carve-out wording (R-3, R-4), verified behaviorally by SC-4 and SC-5.
 
 - **Condition:** Rule over-reaches and blocks intentional submodule tooling.
 - **Expected behavior:** Intentional setup is blocked.
@@ -250,6 +250,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Revision | Authorizer | What Changed | Why |
 |------|----------|------------|--------------|-----|
 | 2026-08-24 | v2 | spec-creation validation | Decomposed four compound SCs into nine atomic SCs; removed `and/or` and `as the sub-agent determines` from SC-4 placement; made SC-4/SC-8 deterministic and consistent with R-7's absolute SHALL; split SC-1 into atomic root-build-tool and project-local-tools SCs; carried the Phase 1/2/3 numbering (behavioral enforcement test as distinct Phase 3) through Success Criteria, Items, and Traceability. | Holistic validation findings: (1) SC-4 determinism/escape-hatch, (2) compound SCs, (3) `or`/`and-or` binary verifiability, (4) phase-numbering inconsistency. Evidence types preserved: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string. Tier 2 process-integrity classification and framework-agnostic phrasing preserved. |
+| 2026-08-25 | v3 | spec-audit DRAFT verdict remediation | Rewrote SC-1..SC-5 Verification Methods and Items 1–5 RED/verify entries from forbidden stderr-grep helpers (`assert_stderr_pattern_*`) to `session.yaml` clean-room sub-agent evaluation per `.opencode/tests-v2/AGENTS.md`; fixed the Section 7 traceability note so R-5 appears exclusively in the static-text group (matching the R-5 → SC-6 → Phase 1 table row); replaced the dangling "(per Impact mitigation)" reference with self-contained wording; inline-defined ROOT_TOOLING and SUBMODULE_AUTHORIZED at first use in Edge Cases State transitions; added a Dependencies row for the behavioral enforcement test harness (`with-test-home`, `session.yaml`, clean-room inspection, >=600s timeout); corrected the critical-rules-009 enforcement-test-mandate anchor location to `.opencode/guidelines/080-code-standards.md`. | Spec-audit holistic FAIL dimensions: Internal Consistency, Completeness, Testability, Provenance, Feasibility (verdict.yaml / judgment.yaml, `tmp/issue-2318/artifacts/spec-audit/`). No success criterion weakened or removed (SC-lobotomy prohibition); all nine SCs and their evidence types preserved. |
 
 ---
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
