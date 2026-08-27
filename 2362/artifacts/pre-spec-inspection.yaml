@@ -1,0 +1,79 @@
+issue: 2362
+issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
+artifact: pre-spec-inspection
+source_file: .opencode/guidelines/080-code-standards.md
+inspection_date: 2026-08-27
+
+scope:
+  in:
+    - ".opencode/reference/code-standards-shared.md (new)"
+    - "mandatory Read-links added to consuming skill cards"
+  out:
+    - "Re-inlining content into each skill card"
+
+source_file_structure:
+  procedural_sections_candidate_for_extraction:
+    - "Typing"
+    - "Design Principles (project-specific conventions)"
+    - "Modern Python"
+    - "Libraries & Packages"
+    - "Dependency Injection"
+    - "Dependency Injection (generic mandate)"
+    - "Print Statements & Output"
+    - "Tool Selection by File Type"
+    - "Numbering — ENFORCED"
+    - "Cross-Reference Standards"
+    - "YAML Standard for LLM-to-LLM Data Transfers"
+  enforcement_core_sections_retained_in_080:
+    - "Enforcement Test Mandate"
+    - "critical-rules-XXX blocks (derivation provenance, evidence-type classification gate)"
+    - "critical-rules-009/042/test-integrity/BEH-EV blocks"
+
+consuming_skill_cards_identified:
+  - name: programming-principles
+    path: .opencode/skills/programming-principles/SKILL.md
+    current_reference: "Self-described as 'master source' of 20 engineering principles; 080 holds 'project-specific conventions only'"
+    relationship_to_080: "Consumes design-principles conventions and cross-reference/YAML/numbering standards"
+  - name: skill-creator
+    path: .opencode/skills/skill-creator/SKILL.md
+    current_reference: "Cross-References lists '080-code-standards.md'; references skill-card-schema, skill-card-description-standards"
+    relationship_to_080: "Consumes attribution/byline + provenance-header requirements for card validation"
+  - name: test-driven-development
+    path: .opencode/skills/test-driven-development/SKILL.md
+    current_reference: "Contains Enforcement Test Mandate; referenced by 080's Enforcement Test Mandate section"
+    relationship_to_080: "Consumes enforcement-test mandate + behavioral-test-substitution prohibition + YAML standard"
+  - name: engineering-approach
+    path: .opencode/skills/engineering-approach/SKILL.md
+    current_reference: "Cross-References: 000-critical-rules.md, 010-approval-gate.md"
+    relationship_to_080: "Consumes tool-selection-by-file-type, numbering, DI conventions indirectly"
+
+existing_reference_pattern:
+  reference_dir: .opencode/reference/
+  examples:
+    - plan-structure-standards.md
+    - cost-model-standards.md
+    - skill-card-description-standards.md
+    - skill-card-schema.md
+    - task-card-structure-standards.md
+    - spec-structure-standards.md
+  readlink_convention: "Consumers use `Read [Text](path)` / `Read [Text](reference/...)` to load reference docs"
+  header_convention: "SPDX-FileCopyrightText + SPDX-License-Identifier + Provenance header + AI byline"
+
+config_preload_status:
+  file: .opencode/opencode.jsonc
+  instructions_entry: ".opencode/guidelines/080-code-standards.md"
+  note: "080 is currently preloaded at full cost (~14.2k tokens per #2352)"
+
+dependencies:
+  - issue_2352: "080 condensation — this shared ref is a prerequisite for condensing 080"
+  - issue_2367: "test-driven-development Read-links code-standards-shared"
+  - issue_2368: "skill-creator Read-links code-standards-shared + attribution-provenance"
+  - issue_2369: "programming-principles Read-links code-standards-shared + data-integrity-shared"
+  - issue_2365: "engineering-approach Read-links data-integrity-shared + code-standards-shared"
+
+findings:
+  - "080-code-standards.md is Tier 1 preloaded in opencode.jsonc instructions; it is 663 lines."
+  - "The procedural sections (typing, design prose, DI, print rules, tool-selection, numbering, cross-reference, YAML) are candidate extraction targets per the issue."
+  - "Four consuming skill cards (programming-principles, skill-creator, test-driven-development, engineering-approach) are named in the issue as consumers."
+  - "Existing .opencode/reference/*.md files establish the shared-reference pattern with SPDX/Provenance headers and Read-link consumption."
+  - "This issue is part of a cluster (#2352, #2365, #2367, #2368, #2369) — #2352 is the parent condensation effort; this issue creates the shared reference that the skill-update issues consume."
