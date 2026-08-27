@@ -1,0 +1,34 @@
+# Testability Assessment: issue .opencode#2366
+
+phases:
+  - phase: 1
+    strategy: structural
+    type: grep-based verification
+    detail: >
+      After edit, grep 010-approval-gate.md for "for_review_prep\|for_spec\|for_plan\|for_implementation\|for_pr\|for_release_pr\|for_analysis".
+      Verify only remaining instances are in the pre-existing Read-link reference (line 9 or near top),
+      not in a duplicated table body.
+    behavioral: false
+
+  - phase: 2
+    strategy: structural
+    type: grep-based verification
+    detail: >
+      After edit, grep 020-go-prohibitions.md for the verb-prefix inline values.
+      Verify they are replaced with Read-links.
+    behavioral: false
+
+  - phase: 3
+    strategy: structural
+    type: grep-based verification
+    detail: >
+      After edit, grep approval-gate SKILL.md for "orchestrator context discipline"
+      and "discussion mode mandates" — verify both Read-links exist.
+    behavioral: false
+
+combined:
+  strategy: structural
+  behavioral: false
+  note: >
+    This is a content reorganization spec with no behavioral change to agent dispatch behavior.
+    All SCs are verifiable through grep/file-read structural checks. No `opencode run` needed.

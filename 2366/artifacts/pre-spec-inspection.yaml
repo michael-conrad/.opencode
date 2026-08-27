@@ -1,0 +1,52 @@
+# Pre-Spec Inspection: issue .opencode#2366
+# Findings for: [SPEC] Update approval-gate skill — anchor scope model, add Read-links
+
+## Affected Files
+
+### Target files (primary modification targets):
+- .opencode/skills/approval-gate/SKILL.md — skill card to become the authoritative home
+- .opencode/guidelines/010-approval-gate.md — scope model sections to remove/replace with Read-links
+- .opencode/guidelines/020-go-prohibitions.md — verb-prefix references to remove/replace with Read-links
+
+### Reference files (illustrate current state):
+- .opencode/guidelines/000-critical-rules.md — references scope model at critical-rules-018
+
+## Existing Patterns
+
+### Scope model locations (duplicate — must consolidate):
+1. skills/approval-gate/SKILL.md:
+   - Authorization Scope Model table (§ "Authorization Scope Model" line 85-97)
+   - Verb-Prefix Parsing Table (§ "Verb-Prefix Parsing Table" line 99-109)
+   - Spec-to-Plan Approval Cascade (§ line 111-127)
+   - Re-implementation Workflow (§ line 129-146)
+   - Mandatory Routing Rule for for_pr (§ line 147-156)
+   - Label Handling (§ line 158-163)
+   - Bug Discovery Protocol (§ line 165-171)
+
+2. guidelines/010-approval-gate.md:
+   - Authorization Scope section (line 81-93, including canonical auth state note)
+   - Key Scope Values table (line 98-109)
+   - Scope-Dependent PR Strategy (line 111-114)
+   - Authorization Scope Is Permission section (line 116-126)
+   - Multi-Task Plan Authorization (line 128-132)
+   - Authorization Set Carry-Forward (line 134-136)
+   - Revision Revokes Approval (line 138-146)
+   - Action Authorization Classification table (line 152-166)
+   - for_analysis Scope Allowlist/Blocklist (line 168-190)
+   - Key Edge Cases table (line 192-205)
+
+3. guidelines/020-go-prohibitions.md:
+   - Reference to verb-prefix table at line 191: "Scope detection via the verb-prefix parsing table is NEVER ambiguous"
+   - Reference at line 232: "The verb-prefix parsing table in approval-gate skill → Authorization Scope Model is the single source of truth"
+   - Reference at line 234: "Scope detection via the verb-prefix parsing table is NEVER ambiguous"
+   - Reference at line 250: Read-links to approval-gate skill scope model
+   - Line 198: "Parse authorization phrases for scope" with inlined values
+
+### Context Discipline references (will become Read-links):
+- 020-go-prohibitions.md §1.1 "Orchestrator Context Discipline" (lines 84-139)
+- 020-go-prohibitions.md §1.6 "Discussion Mode Mandates" (lines 252-278)
+
+## Dependencies
+- No code-level dependencies — this is a content reorganization/documentation change only
+- Changes to 010-approval-gate.md and 020-go-prohibitions.md must NOT break pre-load semantics
+- The approval-gate skill SKILL.md must be self-contained as the authoritative source

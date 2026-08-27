@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "010-approval-gate.md SHALL NOT contain duplicated Authorization Scope Model table"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "020-go-prohibitions.md SHALL replace inline verb-prefix values with Read-links"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "SKILL.md Cross-References SHALL include Read-link to 020 §1.1 orchestrator context discipline"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "SKILL.md Cross-References SHALL include Read-link to 020 §1.6 discussion mode mandates"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "SKILL.md frontmatter description SHALL reflect scope model authority"
+    evidence_type: "string"
+    plan_item: 5

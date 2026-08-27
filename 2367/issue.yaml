@@ -1,7 +1,9 @@
 number: 2367
 title: '[SPEC] Update test-driven-development skill — anchor per-item TDD cycle'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Per-item TDD cycle detail from 091-incremental-build.md will be removed from preload;
@@ -28,7 +30,7 @@ body: '## Problem
   Enables 091 + 080 condensation. Risk: losing behavioral-test mandate. Mitigation:
   tdd card is authoritative. Depends on 091/080. Action: approve.'
 created_at: '2026-08-27T03:14:49Z'
-updated_at: '2026-08-27T03:14:49Z'
+updated_at: '2026-08-27T21:23:01+00:00'
 remote_issue: 2367
 remote_url: https://github.com/michael-conrad/.opencode/issues/2367
 promoted_at: '2026-08-27T03:25:12.690433+00:00'

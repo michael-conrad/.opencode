@@ -1,0 +1,25 @@
+# Concern Map: issue .opencode#2366
+
+concerns:
+  - concern: Scope model authority
+    boundary: >
+      approval-gate SKILL.md is the authoritative source for the Authorization Scope Model table
+      and verb-prefix parsing table. 010-approval-gate.md and 020-go-prohibitions.md reference it
+      via Read-links but do not duplicate the table.
+    separation: >
+      Phase 1 and Phase 2 handle this. Content moves from guidelines to skill card;
+      guidelines become Read-link wrappers.
+
+  - concern: Context references
+    boundary: >
+      Shared context discipline and discussion mode mandates live in 020-go-prohibitions.md.
+      The approval-gate skill card links to them via Read-links but does not duplicate them.
+    separation: >
+      Phase 3 handles this. Purely additive — no content moves out of 020.
+
+  - concern: Routing integrity
+    boundary: >
+      The approval-gate skill's Trigger Dispatch Table, Invocation, DISPATCH_GATE, and
+      Pre-Flight Guard are NOT affected by this spec. Routing is structural and unchanged.
+    separation: >
+      No phase touches routing metadata. Monitor for accidental edits.

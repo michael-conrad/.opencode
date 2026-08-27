@@ -1,0 +1,26 @@
+# Interface Compatibility: issue .opencode#2366
+
+interfaces:
+  - file: .opencode/guidelines/010-approval-gate.md
+    type: guideline (Tier 1, preloaded)
+    change: Content reduction — remove duplicated scope model table
+    classification: internal only, backward compatible
+    rationale: >
+      The Authorization Scope Model section content is replaced with a shorter Read-link.
+      Preloaded content shrinks but sub-agents can still follow Read-links. No contracts broken.
+
+  - file: .opencode/guidelines/020-go-prohibitions.md
+    type: guideline (Tier 1, preloaded)
+    change: Content reduction — replace inline scope values with Read-links
+    classification: internal only, backward compatible
+    rationale: >
+      Inline verb-prefix values replaced with Read-links. Sub-agents must follow links for
+      complete table, but that is the mandatory cross-reference standard.
+
+  - file: .opencode/skills/approval-gate/SKILL.md
+    type: skill card (orchestrator routing metadata)
+    change: Content addition — new Cross-References and References sections
+    classification: internal only, backward compatible
+    rationale: >
+      New sections are additive. Existing routing metadata (Trigger Dispatch Table, Invocation,
+      DISPATCH_GATE, Pre-Flight Guard, Authorization Scope Model) is unchanged.

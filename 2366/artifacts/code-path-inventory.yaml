@@ -1,0 +1,20 @@
+# Code Path Inventory: issue .opencode#2366
+
+phases:
+  - phase: 1
+    files_touched:
+      - .opencode/guidelines/010-approval-gate.md (edit)
+    symbols_read: []
+    dependencies: none
+
+  - phase: 2
+    files_touched:
+      - .opencode/guidelines/020-go-prohibitions.md (edit)
+    symbols_read: []
+    dependencies: none
+
+  - phase: 3
+    files_touched:
+      - .opencode/skills/approval-gate/SKILL.md (edit — add Cross-References content)
+    symbols_read: []
+    dependencies: none

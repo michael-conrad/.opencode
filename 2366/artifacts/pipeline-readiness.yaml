@@ -1,0 +1,37 @@
+# Pipeline Readiness Gate: issue .opencode#2366
+
+gate_checks:
+  - check: Atomicity — every SC maps to exactly one RED→GREEN→COMMIT cycle
+    status: PASS
+    detail: >
+      5 items → 5 SCs. Each item touches a distinct file or set of concerns:
+      Item 1 → 010-approval-gate.md (scope model removal + Read-link)
+      Item 2 → 020-go-prohibitions.md (verb-prefix reference replacement)
+      Item 3 → SKILL.md (add orchestrator-context-discipline Read-link)
+      Item 4 → SKILL.md (add discussion-mode-mandates Read-link)
+      Item 5 → SKILL.md (verify description accuracy)
+      Items 3 and 4 can be merged into a single commit since they both modify SKILL.md.
+
+  - check: Dependency ordering — SC dependency DAG is acyclic
+    status: PASS
+    detail: >
+      Item 1, 2 are independent (different files). Items 3+4 modify SKILL.md and are independent
+      of 1 and 2. No dependencies between phases. DAG is trivially acyclic.
+
+  - check: Single concern — every SC targets one file category and one verification domain
+    status: PASS
+    detail: >
+      All SCs target markdown files (.md) in guidelines/ or skills/. Verification domain is
+      structural (content correctness via grep/file-read).
+
+  - check: Phase dependency — phase dependency graph is acyclic
+    status: PASS
+    detail: >
+      All phases are independent. No phase depends on another phase's output.
+      Can be executed in any order.
+
+  - check: Three-tier structure — multi-phase specs have pre/per-file/post structure
+    status: NOT_APPLICABLE
+    detail: >
+      Not a multi-phase spec in the sense of pre-processing/file-edit/post-processing phases.
+      The items are independent file edits with no structural tiers.

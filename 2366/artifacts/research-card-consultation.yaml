@@ -1,0 +1,6 @@
+# Research Card Consultation: issue .opencode#2366
+
+search_method: glob(pattern="*.md", path=".issues/research-cards")
+status: NO_MATCHING_CARD
+confidence: N/A
+finding: No research card found matching "approval-gate scope model" or "approval-gate skill Read-links" or "scope model consolidation". No existing card covers this spec topic.

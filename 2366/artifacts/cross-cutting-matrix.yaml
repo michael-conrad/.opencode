@@ -1,0 +1,20 @@
+# Cross-Cutting Matrix: issue .opencode#2366
+
+matrix:
+  - concern: Preload stability
+    phase_1: 010 preload content changes — scope model section replaced with shorter Read-link
+    phase_2: 020 preload content changes — fewer inline values, more Read-links
+    phase_3: No effect on preload
+    risk: low — preload content size decreases, cannot break
+
+  - concern: Agent routing
+    phase_1: Sub-agents loading 010 will see Read-link instead of table — must follow it for details
+    phase_2: Sub-agents loading 020 will see Read-link instead of inline values — must follow for table
+    phase_3: Orchestrators loading skill card will see Read-links to 020 — should load them
+    risk: low — Read [Text](path) pattern is mandatory per cross-reference standard
+
+  - concern: Guideline INDEX.md
+    phase_1: No change needed — INDEX.md references 010-approval-gate.md, content still valid
+    phase_2: No change needed — INDEX.md references 020-go-prohibitions.md, content still valid
+    phase_3: No change needed
+    risk: none

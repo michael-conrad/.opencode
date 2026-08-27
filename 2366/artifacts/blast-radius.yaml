@@ -1,0 +1,29 @@
+# Blast Radius: issue .opencode#2366
+
+phases:
+  - phase: 1
+    name: Consolidate scope model into skill card
+    affected_components:
+      - .opencode/guidelines/010-approval-gate.md (remove duplicate, add Read-link)
+      - .opencode/skills/approval-gate/SKILL.md (minor enrichment — no structural change)
+    ripple_effects:
+      - Sub-agents reading 010-approval-gate.md will need to follow Read-link to skill card for full scope model
+    risk: low — 010 is a guideline, skill card is re-routed to for procedure; sub-agents already use both
+
+  - phase: 2
+    name: Consolidate verb-prefix references from 020-go-prohibitions.md
+    affected_components:
+      - .opencode/guidelines/020-go-prohibitions.md (replace inline values with Read-links)
+      - .opencode/skills/approval-gate/SKILL.md (no change — table already exists)
+    ripple_effects:
+      - Sub-agents reading 020-go-prohibitions.md will need to follow Read-link to skill card for complete table
+    risk: low — 020 references already point to skill card; consolidation makes them more consistent
+
+  - phase: 3
+    name: Add Read-links in skill card Cross-References
+    affected_components:
+      - .opencode/skills/approval-gate/SKILL.md (add Cross-References section content)
+      - .opencode/guidelines/020-go-prohibitions.md (target of Read-links, no change)
+    ripple_effects:
+      - Orchestrators loading approval-gate skill will see Read-links and load referenced content
+    risk: low — Read-links are additive, not destructive

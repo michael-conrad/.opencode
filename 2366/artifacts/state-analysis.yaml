@@ -1,0 +1,27 @@
+# State Analysis: issue .opencode#2366
+
+states:
+  - phase: 1
+    action: Edit 010-approval-gate.md — replace scope model table with Read-link
+    pre: 010 contains duplicate scope model table + Read-link to skill card at line 9
+    post: 010 Read-link replaces table; 010 no longer has inline scope model table
+    transition: >
+      Delete lines 94-126 (Key Scope Values table, Scope-Dependent PR Strategy,
+      Authorization Scope Is Permission section). Retain Read-link at line 9 that already
+      points to skill card. Ensure line 9 Read-link covers the removed content.
+
+  - phase: 2
+    action: Edit 020-go-prohibitions.md — replace inline verb-prefix values with Read-links
+    pre: 020 contains inline verb-prefix values at lines 191, 198, 232, 234, 250
+    post: 020 references replaced with Read-links to skill card Authorization Scope Model
+    transition: >
+      Replace inline scope value lists with Read [approval-gate skill → Authorization Scope Model](...)
+
+  - phase: 3
+    action: Edit approval-gate SKILL.md — add Read-links to Cross-References
+    pre: Cross-References section exists (line 210) with link to "020-go-prohibitions.md"
+    post: Cross-References section also has explicit Read-links to §1.1 and §1.6
+    transition: >
+      Expand Cross-References section to include:
+      Read [orchestrator context discipline](guidelines/020-go-prohibitions.md)
+      Read [discussion mode mandates](guidelines/020-go-prohibitions.md)
