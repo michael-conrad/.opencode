@@ -1,0 +1,25 @@
+issue: 2362
+issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
+artifact: state-analysis
+per_phase:
+  phase: 1
+  state: "code-standards-shared.md absent -> present"
+  transition: "create file with extracted procedural sections"
+  pre_condition: "080-code-standards.md contains the procedural sections; no shared ref exists"
+  post_condition: "code-standards-shared.md exists and is the canonical source for procedural standards"
+  failure_state: "File missing / empty / missing header -> cannot serve as shared source"
+
+  phase: 2
+  state: "consuming cards without Read-link -> with Read-link"
+  transition: "each of the 4 consuming cards gains a mandatory Read [Text](path) link"
+  pre_condition: "code-standards-shared.md exists (phase 1 complete)"
+  post_condition: "all 4 consuming cards reference code-standards-shared.md via Read-link; content preserved when 080 later condenses"
+  failure_state: "A card lacks the Read-link -> content loss risk when 080 condenses (#2352)"
+
+state_machine:
+  states: [absent, created, linked, condensed]
+  initial: absent
+  terminal: condensed
+  notes:
+    - "condensed is achieved by #2352 after this issue establishes created+linked"
+    - "This issue reaches created (phase 1) and linked (phase 2); condensed is out of scope"
