@@ -2,7 +2,8 @@ number: 2362
 title: '[SPEC] Create shared ref: code-standards-shared.md'
 status: open
 labels:
-- needs-approval,spec-draft
+- needs-approval
+- spec-draft
 body: '## Problem
 
   `.opencode/guidelines/080-code-standards.md` procedural sections (typing/design
@@ -30,7 +31,7 @@ body: '## Problem
   Mitigation: mandatory Read-link convention. Depends on 080 condensation. Action:
   approve.'
 created_at: '2026-08-27T03:14:38Z'
-updated_at: '2026-08-27T05:10:00+00:00'
+updated_at: '2026-08-27T05:10:19+00:00'
 remote_issue: 2362
 remote_url: https://github.com/michael-conrad/.opencode/issues/2362
 promoted_at: '2026-08-27T03:25:12.681174+00:00'
