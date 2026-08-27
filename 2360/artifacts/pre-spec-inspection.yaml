@@ -1,0 +1,39 @@
+pre_spec_inspection:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  affected_files:
+    - path: .opencode/reference/attribution-provenance.md
+      action: create
+      description: New canonical reference document consolidating the attribution/byline and provenance-header sections currently in 080-code-standards.md
+    - path: .opencode/guidelines/080-code-standards.md
+      action: condense
+      description: Remove the AI Co-Authored Attribution and Provenance Headers sections, replacing with a Read-link to the new shared reference (enables 080 condensation)
+    - path: .opencode/skills/skill-creator/SKILL.md
+      action: add-read-link
+      description: Consuming skill card — add mandatory Read-link to attribution-provenance.md
+    - path: .opencode/skills/spec-creation/SKILL.md
+      action: add-read-link
+      description: Consuming skill card — add mandatory Read-link to attribution-provenance.md
+    - path: .opencode/skills/issue-operations-comments/SKILL.md
+      action: add-read-link
+      description: Consuming skill card — add mandatory Read-link to attribution-provenance.md
+  existing_patterns:
+    - pattern: "Reference documents in .opencode/reference/ carry SPDX + Provenance headers and a Co-authored with AI byline"
+      evidence: "skill-card-schema.md, task-card-structure-standards.md, skill-card-description-standards.md, cost-model-standards.md, plan-structure-standards.md, spec-structure-standards.md all follow this format"
+    - pattern: "Reference documents are consumed via Read [Text](path) pattern"
+      evidence: "cost-model-standards.md, spec-structure-standards.md, plan-structure-standards.md state 'read this document via Read [Text](path)'; task-card-structure-standards.md §7 Dynamic Loading mandates Read [Text](path) for reference-dependent criteria"
+    - pattern: "Consuming skill cards list reference documents in a Cross-References section"
+      evidence: "skill-creator/SKILL.md lines 138-141 list reference/skill-card-description-standards.md, task-card-structure-standards.md, skill-card-schema.md"
+    - pattern: "080-code-standards.md is preloaded in opencode.jsonc instructions array (line 86)"
+      evidence: ".opencode/opencode.jsonc instructions array includes .opencode/guidelines/080-code-standards.md"
+  dependencies:
+    - "080 condensation is a dependency — the shared reference extraction enables 080 condensation"
+    - "Consuming cards (skill-creator, spec-creation, issue-operations-comments) currently reference 080-code-standards.md in their Cross-References"
+  consumers:
+    - skill-creator: "validate.md line 49 references attribution format; operating-protocol.md line 16 requires provenance frontmatter; validate_skill_cards.py ATTRIBUTION_EXEMPT regex (line 49) and REQ-2 placeholder checks"
+    - spec-creation: "SKILL.md line 98 references 080-code-standards.md (evidence type taxonomy); spec bodies carry AI bylines per 080"
+    - issue-operations-comments: "comment.md Step 3.5 Byline Verification (MANDATORY) enforces byline format; SKILL.md line 30 'byline format'"
+  risk:
+    - "Losing co-author attribution requirement if consuming cards do not Read-link the shared ref"
+    - "Mitigation: consuming cards MUST add mandatory Read-links to attribution-provenance.md"

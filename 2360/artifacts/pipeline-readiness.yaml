@@ -1,0 +1,22 @@
+pipeline_readiness:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  validation:
+    atomicity:
+      status: PASS
+      detail: "Each SC maps to exactly one RED→GREEN→COMMIT cycle. ITEM-1 (SC-1) creates the reference; ITEM-2/3/4 (SC-2/3/4) add Read-links; ITEM-5 (SC-5) condenses 080. No SC spans multiple items."
+    dependency_ordering:
+      status: PASS
+      detail: "SC dependency DAG is acyclic: SC-1 (create reference) → SC-2/3/4 (Read-links) → SC-5 (080 condensation). No cycles."
+    single_concern:
+      status: PASS
+      detail: "Each SC targets one file category and one verification domain. SC-1 targets the reference file (structural); SC-2/3/4 target consuming SKILL.md files (structural); SC-5 targets 080-code-standards.md (structural)."
+    phase_dependency:
+      status: PASS
+      detail: "Phase dependency graph is acyclic: Phase 1 (create reference) → Phase 2 (Read-links) → Phase 3 (080 condensation)."
+    three_tier_structure:
+      status: PASS
+      detail: "Multi-phase spec has pre/per-file/post structure: Phase 1 creates the shared reference (pre), Phase 2 adds Read-links to consuming cards (per-file), Phase 3 condenses 080 (post)."
+  overall_status: PASS
+  notes: "All pipeline readiness checks pass. The spec is atomic, dependency-ordered, single-concern, and has a valid three-tier structure."

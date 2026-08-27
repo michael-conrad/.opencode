@@ -1,0 +1,25 @@
+cross_cutting_matrix:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  cross_cutting_concerns:
+    - concern: "Co-author attribution requirement preservation"
+      phases: [1, 2, 3]
+      sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5]
+      impact: "The mandatory co-author attribution requirement must survive extraction — consuming cards Read-link the shared ref to preserve it"
+      handling: "Shared reference retains all attribution rules; consuming cards Read-link it"
+    - concern: "Read [Text](path) pattern compliance"
+      phases: [2, 3]
+      sc_ids: [SC-2, SC-3, SC-4, SC-5]
+      impact: "All references to the shared ref must use the Read [Text](path) pattern per task-card-structure-standards.md §7"
+      handling: "Consuming cards and 080 use Read [Text](.opencode/reference/attribution-provenance.md)"
+    - concern: "Reference file format consistency"
+      phases: [1]
+      sc_ids: [SC-1]
+      impact: "The new reference must follow the existing .opencode/reference/ format (SPDX + Provenance headers, Co-authored with AI byline)"
+      handling: "attribution-provenance.md follows the established reference file format"
+    - concern: "No re-inlining"
+      phases: [2, 3]
+      sc_ids: [SC-2, SC-3, SC-4, SC-5]
+      impact: "Consuming cards and 080 must NOT re-inline the attribution/provenance content"
+      handling: "All consumers use Read-links, not inline copies"

@@ -1,0 +1,36 @@
+interface_compatibility:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  interfaces:
+    - interface: ".opencode/reference/attribution-provenance.md"
+      change: new
+      backward_compatible: true
+      breaking: false
+      scope: internal
+      description: "New canonical reference document — no existing consumers, additive"
+    - interface: ".opencode/guidelines/080-code-standards.md"
+      change: modified
+      backward_compatible: true
+      breaking: false
+      scope: internal
+      description: "AI Co-Authored Attribution and Provenance Headers sections replaced with Read-link to attribution-provenance.md. Content preserved via the reference — no semantic loss."
+    - interface: ".opencode/skills/skill-creator/SKILL.md"
+      change: modified
+      backward_compatible: true
+      breaking: false
+      scope: internal
+      description: "Adds Read-link to attribution-provenance.md in Cross-References. Existing 080 reference retained."
+    - interface: ".opencode/skills/spec-creation/SKILL.md"
+      change: modified
+      backward_compatible: true
+      breaking: false
+      scope: internal
+      description: "Adds Read-link to attribution-provenance.md in Cross-References. Existing 080 reference retained."
+    - interface: ".opencode/skills/issue-operations-comments/SKILL.md"
+      change: modified
+      backward_compatible: true
+      breaking: false
+      scope: internal
+      description: "Adds Read-link to attribution-provenance.md in Cross-References."
+  compatibility_notes: "All changes are backward compatible and internal-only. No external API or interface changes. The co-author attribution requirement is preserved via the shared reference."

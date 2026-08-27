@@ -1,0 +1,55 @@
+decompose_output:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  decomposition_units:
+    - id: ITEM-1
+      sc_id: SC-1
+      description: "Create .opencode/reference/attribution-provenance.md containing the extracted AI Co-Authored Attribution and Provenance Headers content from 080-code-standards.md, following the existing reference file format (SPDX + Provenance headers, Co-authored with AI byline)"
+      interface:
+        inputs: "Content of 080-code-standards.md AI Co-Authored Attribution (lines 164-349) and Provenance Headers (lines 351-437) sections"
+        outputs: ".opencode/reference/attribution-provenance.md"
+        invariants: "All attribution/byline rules and provenance header formats preserved verbatim; co-author attribution requirement retained"
+        failure_modes: "Missing content, altered semantics, missing SPDX/Provenance headers, missing byline"
+      verification_domain: structural
+    - id: ITEM-2
+      sc_id: SC-2
+      description: "Add mandatory Read-link to attribution-provenance.md in skill-creator/SKILL.md Cross-References section"
+      interface:
+        inputs: "skill-creator/SKILL.md"
+        outputs: "skill-creator/SKILL.md with Read [Text](.opencode/reference/attribution-provenance.md) link"
+        invariants: "Read-link uses Read [Text](path) pattern; no inline re-inlining of attribution content"
+        failure_modes: "Missing Read-link, wrong path, inline content added"
+      verification_domain: structural
+    - id: ITEM-3
+      sc_id: SC-3
+      description: "Add mandatory Read-link to attribution-provenance.md in spec-creation/SKILL.md Cross-References section"
+      interface:
+        inputs: "spec-creation/SKILL.md"
+        outputs: "spec-creation/SKILL.md with Read [Text](.opencode/reference/attribution-provenance.md) link"
+        invariants: "Read-link uses Read [Text](path) pattern; no inline re-inlining of attribution content"
+        failure_modes: "Missing Read-link, wrong path, inline content added"
+      verification_domain: structural
+    - id: ITEM-4
+      sc_id: SC-4
+      description: "Add mandatory Read-link to attribution-provenance.md in issue-operations-comments/SKILL.md Cross-References section"
+      interface:
+        inputs: "issue-operations-comments/SKILL.md"
+        outputs: "issue-operations-comments/SKILL.md with Read [Text](.opencode/reference/attribution-provenance.md) link"
+        invariants: "Read-link uses Read [Text](path) pattern; no inline re-inlining of attribution content"
+        failure_modes: "Missing Read-link, wrong path, inline content added"
+      verification_domain: structural
+    - id: ITEM-5
+      sc_id: SC-5
+      description: "Condense 080-code-standards.md by replacing the AI Co-Authored Attribution and Provenance Headers sections with a Read-link to attribution-provenance.md"
+      interface:
+        inputs: "080-code-standards.md"
+        outputs: "080-code-standards.md with extracted sections replaced by Read-link to attribution-provenance.md"
+        invariants: "Co-author attribution requirement preserved via Read-link; no content loss; remaining 080 sections intact"
+        failure_modes: "Content loss, broken Read-link, attribution requirement dropped"
+      verification_domain: structural
+  dependency_order:
+    - "ITEM-1 (create reference) must precede ITEM-2/3/4 (Read-links) and ITEM-5 (080 condensation) — the reference must exist before cards link to it"
+    - "ITEM-2, ITEM-3, ITEM-4 are independent of each other and can be done in any order after ITEM-1"
+    - "ITEM-5 (080 condensation) depends on ITEM-1 (reference exists)"
+  dependency_dag_acyclic: true

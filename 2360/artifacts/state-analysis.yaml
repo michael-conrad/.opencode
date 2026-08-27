@@ -1,0 +1,42 @@
+state_analysis:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  state_machines:
+    - component: ".opencode/reference/attribution-provenance.md"
+      states:
+        - absent: "Reference does not exist"
+        - created: "Reference created with extracted attribution/provenance content"
+      transitions:
+        - from: absent
+          to: created
+          trigger: "ITEM-1 — create the reference file"
+    - component: ".opencode/guidelines/080-code-standards.md"
+      states:
+        - full: "Contains AI Co-Authored Attribution and Provenance Headers sections inline"
+        - condensed: "Extracted sections replaced with Read-link to attribution-provenance.md"
+      transitions:
+        - from: full
+          to: condensed
+          trigger: "ITEM-5 — condense 080 after reference exists"
+          precondition: "attribution-provenance.md exists (ITEM-1 complete)"
+    - component: "Consuming skill cards (skill-creator, spec-creation, issue-operations-comments)"
+      states:
+        - no_link: "Card does not Read-link attribution-provenance.md"
+        - linked: "Card Read-links attribution-provenance.md in Cross-References"
+      transitions:
+        - from: no_link
+          to: linked
+          trigger: "ITEM-2/3/4 — add Read-link to each card"
+          precondition: "attribution-provenance.md exists (ITEM-1 complete)"
+  phase_state_transitions:
+    - phase: 1
+      sc_ids: [SC-1]
+      transition: "reference absent → created"
+    - phase: 2
+      sc_ids: [SC-2, SC-3, SC-4]
+      transition: "consuming cards no_link → linked"
+    - phase: 3
+      sc_ids: [SC-5]
+      transition: "080 full → condensed"
+  dependency_notes: "Phase 2 and 3 transitions require the reference to exist (phase 1 complete). No cyclic transitions."

@@ -1,0 +1,56 @@
+requirements_output:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  requirements:
+    - id: REQ-1
+      type: explicit
+      statement: "Create .opencode/reference/attribution-provenance.md as a shared canonical reference"
+      verification: "File exists at .opencode/reference/attribution-provenance.md"
+      verified: true
+    - id: REQ-2
+      type: explicit
+      statement: "Extract the attribution/byline and provenance-header sections from 080-code-standards.md into the shared reference"
+      verification: "The AI Co-Authored Attribution and Provenance Headers sections content is present in attribution-provenance.md"
+      verified: true
+    - id: REQ-3
+      type: explicit
+      statement: "Add mandatory Read-links to the consuming skill cards (skill-creator, spec-creation, issue-operations-comments)"
+      verification: "Each consuming SKILL.md contains a Read [Text](.opencode/reference/attribution-provenance.md) link"
+      verified: true
+    - id: REQ-4
+      type: explicit
+      statement: "Do NOT re-inline the attribution/provenance content into each consuming card"
+      verification: "Consuming cards reference the shared ref via Read-link, not inline copies"
+      verified: true
+    - id: REQ-5
+      type: implicit
+      statement: "Preserve the co-author attribution requirement (risk: losing it during extraction)"
+      verification: "attribution-provenance.md retains the mandatory co-author attribution rules"
+      verified: true
+    - id: REQ-6
+      type: implicit
+      statement: "Enable 080-code-standards.md condensation by replacing the extracted sections with a Read-link"
+      verification: "080-code-standards.md references attribution-provenance.md instead of inlining the full sections"
+      verified: true
+    - id: REQ-7
+      type: constraint
+      statement: "The shared reference must follow the existing .opencode/reference/ file format conventions (SPDX + Provenance headers, Co-authored with AI byline)"
+      verification: "attribution-provenance.md carries SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance headers, and Co-authored with AI byline"
+      verified: true
+    - id: REQ-8
+      type: constraint
+      statement: "The shared reference must be consumed via the Read [Text](path) pattern per task-card-structure-standards.md §7 Dynamic Loading"
+      verification: "Consuming cards use Read [Text](.opencode/reference/attribution-provenance.md)"
+      verified: true
+    - id: REQ-9
+      type: non-requirement
+      statement: "Do not re-inline attribution/provenance content into each consuming card (explicitly out of scope)"
+      verification: "No inline copies added to consuming cards"
+      verified: true
+  codebase_verification:
+    - "080-code-standards.md lines 164-437 contain the AI Co-Authored Attribution and Provenance Headers sections to be extracted"
+    - "skill-creator/SKILL.md line 136 references 080-code-standards.md; validate.md line 49 references attribution format; operating-protocol.md line 16 requires provenance frontmatter"
+    - "spec-creation/SKILL.md line 98 references 080-code-standards.md"
+    - "issue-operations-comments/SKILL.md line 30 references byline format; comment.md Step 3.5 enforces byline verification"
+    - ".opencode/reference/ contains 7 existing reference documents all following the SPDX + Provenance + byline format"

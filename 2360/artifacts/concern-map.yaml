@@ -1,0 +1,21 @@
+concern_map:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  concerns:
+    - concern: "Canonical attribution/provenance standards"
+      phase: 1
+      sc_ids: [SC-1]
+      boundary: "The shared reference document holds the single source of truth for AI co-author attribution and provenance header rules"
+      separation: "Extracted from 080-code-standards.md into .opencode/reference/attribution-provenance.md"
+    - concern: "Consuming card Read-links"
+      phase: 2
+      sc_ids: [SC-2, SC-3, SC-4]
+      boundary: "Each consuming skill card (skill-creator, spec-creation, issue-operations-comments) Read-links the shared reference"
+      separation: "Cards reference the shared ref via Read [Text](path) — no inline copies"
+    - concern: "080 condensation"
+      phase: 3
+      sc_ids: [SC-5]
+      boundary: "080-code-standards.md replaces extracted sections with a Read-link to the shared reference"
+      separation: "080 retains its other standards (typing, DI, linting, numbering, cross-reference) while delegating attribution/provenance to the reference"
+  separation_notes: "Each concern maps to exactly one phase and one file category — no concern spans multiple phases."

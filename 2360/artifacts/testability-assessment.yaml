@@ -1,0 +1,25 @@
+testability_assessment:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  phases:
+    - phase: 1
+      sc_ids: [SC-1]
+      test_strategy: structural
+      description: "Verify .opencode/reference/attribution-provenance.md exists and contains the extracted attribution/provenance content following the reference file format (SPDX + Provenance headers, Co-authored with AI byline)"
+      evidence_type: structural
+      verification_method: "File existence + content inspection against 080-code-standards.md source sections"
+    - phase: 2
+      sc_ids: [SC-2, SC-3, SC-4]
+      test_strategy: structural
+      description: "Verify each consuming skill card (skill-creator, spec-creation, issue-operations-comments) contains a Read [Text](.opencode/reference/attribution-provenance.md) link in its Cross-References section"
+      evidence_type: structural
+      verification_method: "Grep each SKILL.md for the Read-link to attribution-provenance.md"
+    - phase: 3
+      sc_ids: [SC-5]
+      test_strategy: structural
+      description: "Verify 080-code-standards.md has the AI Co-Authored Attribution and Provenance Headers sections replaced with a Read-link to attribution-provenance.md, with no content loss"
+      evidence_type: structural
+      verification_method: "Inspect 080-code-standards.md for the Read-link and confirm extracted content is preserved in the reference"
+  overall_test_strategy: structural
+  notes: "All SCs are structural — the change is documentation/reference consolidation with no runtime behavior change. No behavioral or integration tests required. The skill enforcement test (test-enforcement.sh) may be run to confirm skill cards remain valid after Read-link additions."

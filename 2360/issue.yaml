@@ -4,33 +4,80 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> **Full spec and artifacts: [`.opencode/.issues/2360/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2360)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
-  `.opencode/guidelines/080-code-standards.md` attribution/byline + provenance-header
-  sections are consumed by skill-creator, spec-creation, issue-operations-comments,
-  currently preloaded.
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2360/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  The AI Co-Authored Attribution and Provenance Headers sections of `.opencode/guidelines/080-code-standards.md`
+  are consumed by three skill cards (skill-creator, spec-creation, issue-operations-comments)
+  that currently rely on 080 being preloaded. This couples attribution/provenance
+  standards to a single preloaded guideline and prevents 080 condensation.
 
 
   ## Scope
 
-  - **In:** Create `.opencode/reference/attribution-provenance.md`; add mandatory
-  Read-links to the consuming skill cards.
 
-  - **Out:** Re-inlining into each card.
+  - **In:** Create `.opencode/reference/attribution-provenance.md` as a shared canonical
+  reference containing the extracted AI Co-Authored Attribution and Provenance Headers
+  content from 080-code-standards.md.
+
+  - **In:** Add mandatory Read-links to the three consuming skill cards (skill-creator,
+  spec-creation, issue-operations-comments).
+
+  - **In:** Condense 080-code-standards.md by replacing the extracted sections with
+  a Read-link to the shared reference.
+
+  - **Out:** Re-inlining attribution/provenance content into each consuming card.
+
+  - **Out:** Modifying opencode.jsonc preload behavior.
+
+  - **Out:** Modifying skill-creator task files or validate_skill_cards.py.
 
 
   ## Approach
 
-  Extract the attribution/provenance sections of 080-code-standards into a shared
-  canonical reference.
+
+  Extract the attribution/byline and provenance-header sections of 080-code-standards
+  into a shared canonical reference following the existing `.opencode/reference/`
+  file format (SPDX + Provenance headers, Co-authored with AI byline). All consumers
+  use the Read [Text](path) pattern — no inline copies. The co-author attribution
+  requirement is preserved verbatim in the reference. 080 is condensed to delegate
+  attribution/provenance to the reference while retaining its other standards.
 
 
   ## Impact
 
-  Enables 080 condensation. Risk: losing co-author attribution requirement. Mitigation:
-  consuming cards Read-link the shared ref. Depends on 080 condensation. Action: approve.'
+
+  - **Risk 1:** Losing the co-author attribution requirement during extraction. *Mitigation:*
+  consuming cards Read-link the shared ref; the reference retains all attribution
+  rules.
+
+  - **Risk 2:** A consuming card fails to Read-link the reference, losing attribution
+  enforcement. *Mitigation:* mandatory Read-links added to all three cards.
+
+  - **Risk 3:** 080 condensation loses content. *Mitigation:* extracted content preserved
+  verbatim in the reference; verify no content loss.
+
+  - **Dependencies:** 080 condensation (SC-5) depends on the reference existing (SC-1).
+  All changes are backward-compatible and internal-only.
+
+  - **Action:** Approve this spec to proceed with implementation.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-08-27T03:14:37Z'
-updated_at: '2026-08-27T04:55:23+00:00'
+updated_at: '2026-08-27T04:56:16+00:00'
 remote_issue: 2360
 remote_url: https://github.com/michael-conrad/.opencode/issues/2360
 promoted_at: '2026-08-27T03:25:12.677158+00:00'

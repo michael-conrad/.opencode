@@ -1,0 +1,40 @@
+code_path_inventory:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  phases:
+    - phase: 1
+      sc_ids: [SC-1]
+      code_paths:
+        - path: ".opencode/reference/attribution-provenance.md"
+          action: create
+          description: "New canonical reference document"
+    - phase: 2
+      sc_ids: [SC-2, SC-3, SC-4]
+      code_paths:
+        - path: ".opencode/skills/skill-creator/SKILL.md"
+          action: modify
+          description: "Add Read-link to attribution-provenance.md in Cross-References"
+        - path: ".opencode/skills/spec-creation/SKILL.md"
+          action: modify
+          description: "Add Read-link to attribution-provenance.md in Cross-References"
+        - path: ".opencode/skills/issue-operations-comments/SKILL.md"
+          action: modify
+          description: "Add Read-link to attribution-provenance.md in Cross-References"
+    - phase: 3
+      sc_ids: [SC-5]
+      code_paths:
+        - path: ".opencode/guidelines/080-code-standards.md"
+          action: modify
+          description: "Replace AI Co-Authored Attribution and Provenance Headers sections with Read-link to attribution-provenance.md"
+  related_paths:
+    - path: ".opencode/opencode.jsonc"
+      description: "Preloads 080-code-standards.md (line 86) — not modified by this spec but relevant to how attribution content is loaded"
+    - path: ".opencode/skills/skill-creator/tasks/validate.md"
+      description: "Line 49 references attribution format — may need to point to shared ref"
+    - path: ".opencode/skills/skill-creator/tasks/operating-protocol.md"
+      description: "Line 16 requires provenance frontmatter — may need to point to shared ref"
+    - path: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+      description: "ATTRIBUTION_EXEMPT regex (line 49) and REQ-2 placeholder checks — not modified but consumes attribution format"
+    - path: ".opencode/skills/issue-operations-comments/tasks/comment.md"
+      description: "Step 3.5 Byline Verification enforces byline format — may need to point to shared ref"

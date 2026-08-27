@@ -1,0 +1,19 @@
+research_card_consultation:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  cards_consulted:
+    - path: .opencode/.issues/research-cards/create-md-remote-format-defect.md
+      relevance: "Documents that STATUS/CREATED/License/Provenance preamble belongs in local spec.md only — confirms provenance header handling is a distinct concern from remote issue bodies"
+      confidence: 0.8
+      incorporated: true
+    - path: .issues/research-cards/self-attribution-bias-independent-verification.md
+      relevance: "Self-attribution bias research grounds the requirement that attribution/byline must be preserved and independently verifiable — supports the co-author attribution requirement being a canonical reference"
+      confidence: 0.7
+      incorporated: true
+  findings:
+    - "Provenance headers and AI co-author bylines are distinct but related concerns — both are extracted from 080-code-standards.md into the shared reference"
+    - "The shared reference must preserve the co-author attribution requirement (risk identified in the spec: 'Risk: losing co-author attribution requirement')"
+    - "No existing research card directly addresses creating a shared attribution-provenance reference; the two consulted cards provide supporting context on provenance handling and attribution integrity"
+  gaps:
+    - "No research card specifically covers the consolidation of attribution/provenance standards into a shared reference document"

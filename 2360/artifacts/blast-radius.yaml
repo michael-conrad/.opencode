@@ -1,0 +1,33 @@
+blast_radius:
+  issue_number: 2360
+  repo: .opencode
+  topic: "Create shared reference: attribution-provenance.md"
+  phases:
+    - phase: 1
+      sc_ids: [SC-1]
+      affected_components:
+        - ".opencode/reference/attribution-provenance.md (new file)"
+      ripple_effects:
+        - "None — new file, no existing consumers yet"
+      risk: low
+    - phase: 2
+      sc_ids: [SC-2, SC-3, SC-4]
+      affected_components:
+        - ".opencode/skills/skill-creator/SKILL.md"
+        - ".opencode/skills/spec-creation/SKILL.md"
+        - ".opencode/skills/issue-operations-comments/SKILL.md"
+      ripple_effects:
+        - "Consuming cards now Read-link the shared reference instead of relying on 080 preload"
+        - "skill-creator validate.md and operating-protocol.md continue to reference attribution/provenance — these may need to point to the shared ref"
+      risk: low
+    - phase: 3
+      sc_ids: [SC-5]
+      affected_components:
+        - ".opencode/guidelines/080-code-standards.md"
+      ripple_effects:
+        - "080 condensation — the extracted sections are replaced by a Read-link"
+        - "Any agent-facing text that referenced 080's attribution/provenance sections must now Read-link the shared reference"
+        - "opencode.jsonc preloads 080 (line 86) — the condensed 080 still loads, but attribution content now lives in the reference"
+      risk: medium
+  overall_risk: low
+  notes: "The change is additive (new reference) plus condensation (080). The primary risk is losing the co-author attribution requirement if consuming cards do not Read-link the shared ref — mitigated by mandatory Read-links."
