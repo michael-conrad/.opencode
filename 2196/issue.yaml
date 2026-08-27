@@ -2,6 +2,177 @@ title: '[SPEC] Merge upstream research methodology into existing research skill'
 status: open
 labels:
 - needs-approval
-body: ''
+body: '---
+
+  number: 2196
+
+  title: "[SPEC] Merge upstream research methodology into existing research skill"
+
+  status: draft
+
+  phase: planning
+
+  ---
+
+
+  ## Problem
+
+
+  The existing `research` skill is a modality-aware dispatch wrapper with no research
+  methodology. It tells the agent *which model to use* but not *how to research*.
+  The `research.md` task file is ~100 lines of "detect modality → dispatch to model
+  → return JSON" with no search strategy, source evaluation, cross-referencing, or
+  report structure.
+
+
+  The upstream `0-research` skill from the [claude-skill-registry](https://github.com/majiayu000/claude-skill-registry/blob/main/skills/data/0-research/SKILL.md)
+  (MIT license) has a structured 4-phase methodology that fills this gap.
+
+
+  Additionally, the SKILL.md `description` field is written as user-utterance triggers
+  ("Load via skill() when discovering information...", "User phrases: research, investigate...")
+  rather than as an agent-intent semantic router. Per the [skill-card-description-standards](../../reference/skill-card-description-standards.md),
+  the description must describe what the skill accomplishes in terms of agent task
+  intent, not what the user says.
+
+
+  ## Approach
+
+
+  Keep the existing skill''s infrastructure. Replace the methodology in the task files
+  with the upstream''s 4-phase methodology, report template, quality standards, and
+  cross-reference validation. Rewrite the SKILL.md description to describe agent task
+  intent rather than user utterances.
+
+
+  ### Preserve (existing infrastructure)
+
+
+  - Modality-aware dispatch via `multimodal-dispatch`
+
+  - Pipeline integration (DISPATCH_GATE, sub-agent routing, completion task)
+
+  - `research-multi` for cross-modality coordination
+
+  - `ResearchResult` schema with status/gaps/source_attribution
+
+  - `completion.md` task
+
+
+  ### Replace/Enhance (in task files)
+
+
+  - `research.md`: Add 4-phase methodology, search strategy, cross-reference validation,
+  report template, quality standards, domain-specific guidance
+
+  - `research-multi.md`: Incorporate methodology for each per-modality sub-research
+
+  - `completion.md`: Add report artifact generation to documented output
+
+
+  ### Fix (SKILL.md)
+
+
+  - Rewrite `description` field to describe agent task intent (what the skill accomplishes)
+  — not user utterances or "Load via skill() when..." meta-instructions
+
+  - Import upstream methodology content into the SKILL.md Overview section as a reference
+  summary
+
+
+  ## Affected Files
+
+
+  - `.opencode/skills/research/tasks/research.md` — primary target: add 4-phase methodology,
+  search strategy, cross-reference validation, report template, quality standards,
+  domain-specific guidance
+
+  - `.opencode/skills/research/tasks/research-multi.md` — secondary target: incorporate
+  methodology for each per-modality sub-research
+
+  - `.opencode/skills/research/tasks/completion.md` — minor update: add report artifact
+  generation
+
+  - `.opencode/skills/research/SKILL.md` — fix description field (agent-intent format),
+  import upstream methodology as reference summary in Overview
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `research.md` includes 4-phase methodology (Scope Definition → Systematic
+  Information Gathering → Analysis & Synthesis → Report Generation) | `string` | grep
+  for phase headers in research.md |
+
+  | SC-2 | `research.md` includes systematic multi-source search strategy with cross-reference
+  validation (verify across multiple independent sources) | `string` | grep for cross-reference
+  validation language |
+
+  | SC-3 | `research.md` includes comprehensive report template with sections: Executive
+  Summary, Key Findings, Comparative Analysis, Implementation Recommendations, Resources
+  & References, Appendices | `string` | grep for section headers |
+
+  | SC-4 | `research.md` includes quality standards (Accuracy, Currency, Completeness,
+  Actionability, Clarity, Attribution) | `string` | grep for quality standard terms
+  |
+
+  | SC-5 | `research.md` includes domain-specific research guidance (CVEs, benchmarks,
+  community adoption, API verification, deprecation warnings) | `string` | grep for
+  domain guidance terms |
+
+  | SC-6 | `research.md` requires unresolved questions and actionable next steps in
+  output | `string` | grep for "unresolved questions" and "next steps" |
+
+  | SC-7 | Existing infrastructure (modality-aware dispatch, `multimodal-dispatch`
+  routing, `ResearchResult` schema, pipeline integration) is preserved | `string`
+  | grep for multimodal-dispatch, ResearchResult, DISPATCH_GATE references |
+
+  | SC-8 | `research-multi.md` updated to incorporate methodology for each per-modality
+  sub-research | `string` | grep for methodology references in research-multi.md |
+
+  | SC-9 | `completion.md` updated to include report artifact generation in documented
+  output | `string` | grep for report artifact generation in completion.md |
+
+  | SC-10 | SKILL.md `description` field describes agent task intent (what the skill
+  accomplishes) — no "Load via skill() when...", no "User phrases:", no "Also load
+  when..." meta-instructions | `string` | grep description field in SKILL.md frontmatter;
+  verify absence of "Load via skill()", "User phrases", "Also load" |
+
+  | SC-11 | SKILL.md Overview section includes upstream methodology as a reference
+  summary (4-phase structure, quality standards, report template) | `string` | grep
+  for phase names and quality standards in Overview |
+
+  | SC-12 | Behavioral enforcement test verifies agent follows 4-phase methodology
+  when dispatched | `behavioral` | `opencode run` with research prompt → stderr assertions
+  for phase dispatch |
+
+
+  ## Out of Scope
+
+
+  - Creating a separate "remediation researcher" skill (covered by #909/#913)
+
+  - Changes to `multimodal-dispatch` skill
+
+  - Changes to `verification` or `verification-enforcement` skills
+
+  - Non-technical research methodology (business, personal, creative, academic, events)
+
+
+  ## Dependencies
+
+
+  - None — this is a self-contained task file rewrite
+
+  - Upstream skill is MIT licensed — compatible with this repo''s license
+
+
+  Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-07-30T05:19:50+00:00'
-updated_at: '2026-07-30T05:19:50+00:00'
+updated_at: '2026-07-30T05:22:07Z'

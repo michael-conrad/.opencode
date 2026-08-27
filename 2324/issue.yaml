@@ -3,98 +3,115 @@ title: '[SPEC-FIX] executing-plans skill present on disk but not registered in a
 status: open
 labels:
 - needs-approval
-body: '---
+body: '> **Full spec and plan artifacts: [`.issues/2324/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2324/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
-  title: ''[SPEC-FIX] executing-plans skill present on disk but not registered in
-  available_skills — blocks for_pr plan-execution gate''
+  >
 
-  status: open
-
-  labels:
-
-  - needs-approval
-
-  remote_issue: 2324
-
-  remote_url: https://github.com/michael-conrad/.opencode/issues/2324
-
-  ---
-
-
-  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2324/
+  > **Local artifacts:** `.opencode/.issues/2324/` — implementation plan, research
+  records, dependency contracts, audit findings
 
 
   ## Problem
 
 
-  The `executing-plans` skill exists on disk at `.opencode/skills/executing-plans/SKILL.md`
-  (with `tasks/read-plan.md` and `tasks/dispatch-phase.md`), is tracked in git, and
-  has valid YAML frontmatter (`name: executing-plans`, `description`, `license: MIT`,
-  `provenance: AI-generated`). However, it is NOT present in the agent''s `<available_skills>`
-  list. The approval-gate skill''s Mandatory Routing Rule for `for_pr` scope requires
-  dispatching `executing-plans` before PR creation, but the skill cannot be loaded
-  via `skill({name: "executing-plans"})` because it is absent from the available skills
-  registry. This blocks the mandatory plan-execution gate for all `for_pr`-scoped
-  work.
-
-
-  ## Root Cause
-
-
-  The skill is missing from the skilldeck registration/discovery mechanism that populates
-  `<available_skills>`. The SKILL.md file itself is valid — the defect is in the discovery/registration
-  layer, not the skill card content. The skill was re-added by merged PR #2321 (issue
-  #1364), but the discovery mechanism has not registered it, so the runtime never
-  surfaces it to the agent.
+  The `executing-plans` skill exists on disk with frontmatter satisfying every discovery
+  rule the opencode runtime documents, yet it is missing from the live `<available_skills>`
+  registry: the registry presents 51 entries whose set differs from the 51-card disk
+  deck by one swap — built-in `customize-opencode` present, `executing-plans` absent.
+  Because approval-gate''s Mandatory Routing Rule requires dispatching `executing-plans`
+  under `for_pr` scope before PR creation, the mandatory plan-execution gate is unexecutable
+  for all `for_pr`-scoped work. There is no repo-side registration manifest to edit
+  — the registry is generated solely by runtime filesystem scan — so the defect locus
+  is runtime registry state, established by exhaustive live elimination of all documented
+  failure causes.
 
 
   ## Scope
 
 
-  - Register `executing-plans` in the skilldeck discovery mechanism so it appears
-  in `<available_skills>`
+  - Reproduce the registry omission in a fresh isolated opencode runtime (`with-test-home`)
+  using the exact probe prompt specified in SC-1, separating repository state from
+  long-running host-process state
 
-  - Verify `skill({name: "executing-plans"})` loads successfully
+  - Branch A — fresh runtime lists the card: apply the registry-refresh remediation
+  (host process restart), record the operational resolution
 
-  - Verify the approval-gate `for_pr` routing rule can dispatch `executing-plans`
+  - Branch B — fresh runtime also omits the card: file an evidence-backed defect report
+  against the upstream opencode runtime and record its URL here (R-4); no workaround
+  is permitted
+
+  - Verify `skill({name: "executing-plans"})` loads the card content in a fresh session
+
+  - Verify the approval-gate `for_pr` routing rule dispatches `executing-plans` using
+  the existing #1364 behavioral scenarios
 
 
   **Out of scope:**
 
-  - Changes to the `executing-plans` SKILL.md content or task cards
 
-  - Changes to the approval-gate routing rule text
+  - Changes to the `executing-plans` SKILL.md content or task cards — frontmatter
+  verified valid; card content is not the defect locus
 
-  - Behavioral test authoring (tracked separately)
+  - Changes to the approval-gate routing rule text — rule text verified correct
+
+  - Behavioral test authoring — existing #1364 scenarios cover SC-3; tracked separately
+
+  - Full-skill-deck registration-gap audit — exceeds single-skill scope; tracked separately
+
+  - Source changes to the opencode runtime project — different repository; addressed
+  via the R-4 upstream defect report
 
 
   ## Approach
 
 
-  Identify the skilldeck registration/discovery mechanism that populates `<available_skills>`
-  and add the `executing-plans` entry. The discovery is driven by YAML frontmatter
-  self-discovery per `.opencode/AGENTS.md` "Skill Self-Discovery" section. The fix
-  registers the existing skill card so the runtime surfaces it to the agent, restoring
-  the mandatory plan-execution gate for `for_pr`-scoped work.
+  Diagnose-before-modify: a fresh-runtime reproduction decides between two branches.
+  Branch A treats the omission as stale host-process snapshot state and remediates
+  operationally; Branch B escalates upstream with a complete evidence package (disk
+  state, frontmatter validation, permission-config absence, competing-definition absence,
+  registry observation, runtime version) and reports BLOCKED pending the upstream
+  fix — no workaround is permitted. Restoration is then verified in sequence: registry
+  presence (SC-1), successful `skill()` load (SC-2), and `for_pr` dispatch routing
+  through `executing-plans` via the existing behavioral scenario (SC-3). The escalation-before-workaround
+  decision guarantees the gate is never bypassed to fake completion.
 
 
   ## Impact
 
 
-  1. **Risk:** `for_pr`-scoped work proceeds to PR creation without executing the
-  plan. **Mitigation:** Register the skill so the mandatory gate fires.
+  1. **Risk:** Misdiagnosing the defect locus produces another wrong-locus edit. **Mitigation:**
+  exhaustive precondition elimination plus isolated-runtime reproduction before any
+  change.
 
-  2. **Risk:** Other skills may also be missing from the registry. **Mitigation:**
-  Audit the full skill deck for registration gaps.
+  2. **Risk:** Branch B leaves the `for_pr` gate blocked on an upstream fix. **Mitigation:**
+  evidence-backed upstream report per R-4 with honest BLOCKED status on this issue
+  — no workaround, no silent bypass.
 
-  3. **Dependency:** Requires the skilldeck discovery mechanism to pick up the registration.
-  **Call to action:** Register `executing-plans` and verify `skill()` loads it.
+  3. **Risk:** A restored registry entry that still fails at load or dispatch would
+  fake success. **Mitigation:** three-stage verification chain (SC-1 presence, SC-2
+  load, SC-3 dispatch) with behavioral evidence artifacts.
+
+
+  **Dependencies:** merged state of #1364 / PR #2321; `with-test-home` harness; existing
+  `1364-sc1`/`1364-sc2` behavioral scenarios; approval-gate Mandatory Routing Rule
+  as the SC-3 oracle.
+
+
+  **Call to action:** Run the fresh-runtime diagnosis, apply the indicated branch,
+  and restore the mandatory plan-execution gate for `for_pr`-scoped work.
+
+
+  ---
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
+  🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
   '
 created_at: '2026-08-25T16:12:45+00:00'
-updated_at: '2026-08-25T16:14:09+00:00'
+updated_at: '2026-08-26T07:47:25Z'
 github_url: '2324'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2324

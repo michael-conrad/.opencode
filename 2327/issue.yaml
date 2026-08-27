@@ -22,7 +22,9 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   - Canonicalize the harness directory layout as the single documented behavioral-evidence
-  convention across all four agent-facing surfaces
+  convention across all four agent-facing surfaces, and rename the VbC working-copy
+  pattern out of the behavioral-evidence namespace so staging copies cannot collide
+  with harness output
 
   - Author a durable-anchor citation rule (claim-vs-procedure distinction; citable
   vs never-citable classes) extending the verification-honesty guideline
@@ -46,7 +48,9 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   The harness output shape is ground truth and becomes canonical — documentation converges
-  to it rather than the reverse. A durable-anchor rule extends the existing verification-honesty
+  to it rather than the reverse, and the verification-before-completion working-copy
+  prefix moves out of the behavioral-evidence namespace so staging copies cannot collide
+  with harness output. A durable-anchor rule extends the existing verification-honesty
   guideline, defining once which path classes may back evidentiary claims while keeping
   procedural writes to tmp fully legal. The audit cycle gains a deterministic classifier
   gate resolving cited-path validity through repo-aware queries (tracked-tree membership,
@@ -86,6 +90,6 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-26T03:40:32+00:00'
-updated_at: '2026-08-26T04:14:33+00:00'
+updated_at: '2026-08-26T04:42:23Z'
 github_url: '2327'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2327

@@ -3,91 +3,112 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2317
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2317/
 
 
   ## Problem
 
 
   A session reported "The Arbiter filled in PASS for criteria that were never evaluated.
-  This is not a clean pass" — an attempt at a false PASS to bypass work. Root cause:
-  the `*-audit-arbiter` task cards aggregate `overall_verdict`/`all_criteria_pass`
-  over ONLY the `per_criterion`/`per_claim` set carried from `verdict.yaml`. An SC
-  absent from `verdict.yaml` (never evaluated) never enters the aggregate set, so
-  it cannot fail — the arbiter "fills in PASS" for it. The coverage/chain-integrity
-  flags collected in the cross-reference step (`MISSING_SC_COVERAGE`, `BROKEN_EVIDENCE_CHAIN`,
-  `coverage_complete`, `chain_complete`) are non-binding and never reach `overall_verdict`.
-  This is systemic across all `*-audit-arbiter` cards, plus the evaluator cards
-  and the SKILL.md orchestrator workflow.
+  This is not a clean pass" — an attempt at a false PASS to bypass audit work. Root
+  cause: the `*-audit-arbiter` task cards aggregate `overall_verdict`/`all_criteria_pass`
+  over ONLY the `per_criterion`/`per_claim` set carried from `verdict.yaml`, so an
+  SC absent from that set silently inherits PASS, while the coverage/chain-integrity
+  flags (`coverage_complete`, `chain_complete`) remain advisory and never reach `overall_verdict`.
+  The defect is systemic across all five `*-audit-arbiter` cards (wildcard glob `*-audit-arbiter.md`;
+  a broader `-arbiter.md` suffix scan adds seven coordination arbiter cards outside
+  the audited set), plus the evaluator cards and the SKILL.md orchestrator workflow.
 
 
   ## Scope
 
 
-  - Fully holistic fix of the entire audit chain — arbiter aggregation, evaluator
-  enumeration, and orchestrator workflow.
+  Holistic fix of the entire audit chain — arbiter aggregation, evaluator enumeration,
+  orchestrator workflow, and the release handoff gate. Success criteria (14 atomic,
+  independently verifiable):
 
-  - **SC-1:** Aggregate over union of spec SC list + per_criterion; absent SC defaults
-  to FAIL (all `*-audit-arbiter` cards).
+
+  - **SC-1:** Aggregate over union of spec SC list + per_criterion/per_claim set;
+  absent SC defaults to FAIL (all `*-audit-arbiter` cards).
 
   - **SC-2:** Independent hard flag-gate on the aggregate: coverage_complete AND chain_complete
-  must be true; any false → FAIL (closes fabricated-PASS-entry vector).
+  true before PASS; any false flag forces FAIL.
 
   - **SC-3:** Verification behavioral-only via real `opencode run` audit dispatch,
-  stderr verdict observation; no static coded checks (they are worked around by hacking
-  mode).
+  stderr verdict observation; no static coded checks.
 
-  - **SC-4:** Evaluators enumerate full spec SC list in per_criterion; no silent omission;
-  skipped SCs present with result FAIL + NOT_EVALUATED (defense-in-depth).
+  - **SC-4:** Evaluators enumerate the full spec SC list in per_criterion/per_claim
+  output; no silent omission.
 
-  - **SC-5:** Any FAIL is a hard gate: remediate → re-audit until 100% compliance,
-  with explicit escalation exit (verified absent — "escalate" appears nowhere in audit
-  cards).
+  - **SC-5:** A skipped SC appears in evaluator output as FAIL + NOT_EVALUATED marker;
+  never silently omitted.
 
-  - **SC-6:** Reconcile `do NOT BLOCK` / `do NOT re-evaluate` error-table language
-  to bind to the FAIL gate.
+  - **SC-6:** Any FAIL verdict is a hard gate that halts the deliverable until remediation.
 
-  - **SC-7:** Ticket-status/release handshake honors corrected aggregate; coverage-gap
-  FAIL keeps ticket unreleased.
+  - **SC-7:** Agent remediates and re-audits until 100% compliance as defined in R-13.
 
-  - **SC-8:** Orchestrator MUST remediate-and-restart the audit at the point of any
-  non-clean phase, iterating until 100% clean, escalation the only exit (bind structurally
-  into SKILL.md workflow, not just prose).
+  - **SC-8:** Explicit escalation is the only exit from an unremediable FAIL.
+
+  - **SC-9:** Reconcile `do NOT BLOCK` / `do NOT re-evaluate` error-table language
+  to bind coverage/chain gaps to the FAIL gate.
+
+  - **SC-10:** Release-handshake files extended with NEW gate logic consuming the
+  corrected aggregate — none exists today (verified by live keyword scan) — so a coverage-gap
+  FAIL keeps the ticket unreleased.
+
+  - **SC-11:** Orchestrator structurally remediates-and-restarts the audit at any
+  non-clean phase.
+
+  - **SC-12:** Orchestrator remediate-and-restart loop iterates until 100% clean as
+  defined in R-13.
+
+  - **SC-13:** Escalation is the only exit from an unremediable non-clean phase in
+  the orchestrator workflow.
+
+  - **SC-14:** Remediate-and-restart loop bound as a structural workflow step in audit/SKILL.md,
+  not prose.
 
 
   **Out of scope:** Individual audit card content improvements unrelated to the aggregation/coverage
-  defect; non-audit skill chains.
+  defect; non-audit skill chains beyond the release-handshake gate added by Item 10;
+  re-architecting the audit DiMo producer/verifier separation or artifact formats.
 
 
   ## Approach
 
 
   Redefine the aggregate verdict so it is computed over the *union* of the spec SC
-  list and the evaluator''s per_criterion/per_claim set, defaulting any absent SC
-  to FAIL rather than silently inheriting a PASS. Add an independent hard flag-gate
-  in every arbiter that requires both coverage_complete and chain_complete to be true
-  before any aggregate can resolve to PASS — any false flag forces FAIL, closing the
-  fabricated-PASS-entry vector. Ensure evaluators enumerate the full spec SC list
-  with explicit NOT_EVALUATED markers so skipped criteria appear as FAIL and cannot
-  be omitted silently. Finally, bind the FAIL gate structurally into the SKILL.md
-  orchestrator workflow with a mandatory remediate-and-restart loop, making escalation
-  the only exit. Verification is behavioral-only through real `opencode run` audit
-  dispatch with stderr verdict observation.
+  list and the evaluator''s emitted set, defaulting any absent SC to FAIL rather than
+  silently inheriting PASS. Add an independent hard flag-gate in every arbiter — computed
+  from the spec SC list versus the three upstream artifacts, not from evaluator verdicts
+  — requiring both coverage_complete and chain_complete to be true before any aggregate
+  resolves to PASS. Ensure evaluators enumerate the full spec SC list with explicit
+  NOT_EVALUATED markers, and reconcile the advisory `do NOT BLOCK` error-table language
+  so coverage/chain gaps force FAIL. Bind the remediate-and-restart loop structurally
+  into the SKILL.md orchestrator workflow, iterating until the R-13 termination condition
+  holds (every criterion PASS under the union aggregation with both flags true, within
+  a single audit dispatch), with escalation as the only exit from an unremediable
+  state. Finally, add new aggregate-consumption gate logic to the release-promoter
+  tasks and git-workflow-cleanup so release promotion is blocked by any non-clean
+  verdict. Verification is behavioral-only through real `opencode run` audit dispatch
+  with stderr verdict observation.
 
 
   ## Impact
 
 
   - **Risk 1 (highest):** False PASS masks real audit defects and lets bad deliverables
-  through. *Mitigation:* independent flag-gate forces FAIL on any coverage/chain gap.
+  through. *Mitigation:* independent flag-gate forces FAIL on any coverage/chain gap;
+  union aggregation defaults absent SCs to FAIL.
 
-  - **Risk 2:** Behavioral-only verification is heavier than static checks. *Mitigation:*
-  targeted `opencode run` dispatch against real audit scenarios, not a full-suite
-  run.
+  - **Risk 2:** Release-handshake integration is greenfield — no file currently reads
+  the audit aggregate, so Item 10 creates new consumption points. *Mitigation:* RED
+  step first asserts today''s absence of gating, then behavioral verification proves
+  the new gate blocks promotion on a coverage-gap FAIL.
 
-  - **Risk 3:** Holistic change across the `*-audit-arbiter` cards + evaluators + workflow risks regressions
-  in other audit paths. *Mitigation:* SC-3 behavioral verification gates the whole
-  chain before any completion claim.
+  - **Risk 3:** Holistic change across arbiters + evaluators + orchestrator workflow
+  risks regressions in other audit paths. *Mitigation:* SC-3 behavioral verification
+  gates the whole chain before any completion claim.
 
   - **Key dependency:** Real `opencode run` audit dispatch must be executable in the
   test harness for SC-3.
@@ -97,9 +118,10 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   ---
 
-  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
+  🤖 Co-authored with AI: OpenCode (x-preview-f-free)
 
   '
 created_at: '2026-08-24T15:23:03+00:00'
-updated_at: '2026-08-24T15:35:35+00:00'
+updated_at: '2026-08-26T04:37:48Z'

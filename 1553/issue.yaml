@@ -2,7 +2,36 @@ title: '[SPEC-FIX] Remove ''use judgment'' git hook bypass escape hatch in criti
 status: open
 labels:
 - spec-fix
-body: ''
+body: '## Executive Summary
+
+
+  **Finding:** C2 — `000-critical-rules.md:92` states "The agent is NOT an enforcement
+  robot for hook scripts — use judgment."
+
+
+  **Problem:** The "use judgment" language authorizes the agent to self-diagnose a
+  pre-commit hook failure as a "false positive" and use `--no-verify` to bypass it.
+  This directly conflicts with `critical-rules-026` (Tier 1) which requires explicit
+  authorization for `git commit --no-verify`. The agent decides when a hook violation
+  is "legitimate" vs. "false positive" and grants itself permission to bypass.
+
+
+  **Fix:** Remove "The agent is NOT an enforcement robot for hook scripts — use judgment."
+  Replace with: "Pre-commit hook output is binding. If a hook blocks a commit, fix
+  the violation. `--no-verify` is FORBIDDEN regardless of hook output content."
+
+
+  **Files affected:**
+
+  - `.opencode/guidelines/000-critical-rules.md` lines 90-92 — remove "use judgment"
+  language
+
+
+  **Behavioral test needed:** Prompt agent with a pre-commit hook that blocks with
+  a "false positive" message. Assert agent fixes the violation, does not use `--no-verify`.
+
+
+  **Dependencies:** None'
 created_at: '2026-06-29T02:35:18Z'
-updated_at: '2026-06-29T02:35:18Z'
+updated_at: '2026-07-04T21:35:33Z'
 remote_url: https://github.com/michael-conrad/.opencode/issues/1553
