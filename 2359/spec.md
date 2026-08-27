@@ -37,7 +37,8 @@ labels: [needs-approval, spec-draft]
 | SC-1c | The reference file contains the extracted §1.1 **sub-agent-context-generosity** mandate. | string | `grep` for `sub-agent-context-generosity` in the reference file |
 | SC-1d | The reference file contains the extracted §1.1 **result-contract-frugality** mandate. | string | `grep` for `result-contract-frugality` in the reference file |
 | SC-1e | The reference file contains the extracted §1.1 **allocation-by-context-cost** model. | string | `grep` for `allocation-by-context-cost` in the reference file |
-| SC-1f | The reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline') and does not regress to 'context budget'/'context cost'/'context awareness'. | string | `grep` the reference file for the standardized vocabulary terms; `grep` confirms absence of the regression terms |
+| SC-1f | The reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline'). | string | `grep` the reference file for the standardized vocabulary terms |
+| SC-1g | The reference file does not regress to 'context budget'/'context cost'/'context awareness'. | string | `grep` the reference file confirms absence of the regression terms |
 | SC-2a | The **approval-gate** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` approval-gate's Cross-References section for the `Read [Text](path)` link to the reference |
 | SC-2b | The **spec-creation** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` spec-creation's Cross-References section for the `Read [Text](path)` link to the reference |
 | SC-2c | The **writing-plans** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` writing-plans's Cross-References section for the `Read [Text](path)` link to the reference |
@@ -58,7 +59,7 @@ labels: [needs-approval, spec-draft]
 
 ## 5. Items
 
-### Item 1 (SC-1a, SC-1b, SC-1c, SC-1d, SC-1e, SC-1f): Create orchestrator-context-discipline.md reference file
+### Item 1 (SC-1a, SC-1b, SC-1c, SC-1d, SC-1e, SC-1f, SC-1g): Create orchestrator-context-discipline.md reference file
 
 - RED (SC-1a): Enforcement test that asserts the reference file does not yet exist at `.opencode/reference/orchestrator-context-discipline.md`.
 - GREEN (SC-1a): Create `.opencode/reference/orchestrator-context-discipline.md` with the extracted §1.1 content, preserving the standardized vocabulary and following reference file conventions.
@@ -85,10 +86,15 @@ labels: [needs-approval, spec-draft]
 - verify (SC-1e): `grep` the reference file for `allocation-by-context-cost`.
 - commit (SC-1e): The reference file.
 
-- RED (SC-1f): Enforcement test that asserts the standardized vocabulary terms are absent and the regression terms are present.
-- GREEN (SC-1f): Ensure the reference file preserves 'orchestrator context'/'sub-agent context'/'orchestrator context discipline' and does not use 'context budget'/'context cost'/'context awareness'.
-- verify (SC-1f): `grep` the reference file for the standardized vocabulary terms; `grep` confirms absence of the regression terms.
+- RED (SC-1f): Enforcement test that asserts the standardized vocabulary terms are absent.
+- GREEN (SC-1f): Ensure the reference file preserves 'orchestrator context'/'sub-agent context'/'orchestrator context discipline'.
+- verify (SC-1f): `grep` the reference file for the standardized vocabulary terms.
 - commit (SC-1f): The reference file.
+
+- RED (SC-1g): Enforcement test that asserts the regression terms ('context budget'/'context cost'/'context awareness') are present.
+- GREEN (SC-1g): Ensure the reference file does not use the regression terms.
+- verify (SC-1g): `grep` the reference file confirms absence of the regression terms.
+- commit (SC-1g): The reference file.
 
 ### Item 2 (SC-2a, SC-2b, SC-2c, SC-2d, SC-2e): Add mandatory Read [Text](path) links to consuming skill cards
 
@@ -141,7 +147,7 @@ labels: [needs-approval, spec-draft]
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1a, SC-1b, SC-1c, SC-1d, SC-1e | Phase 1 |
-| R-2 | SC-1f | Phase 1 |
+| R-2 | SC-1f, SC-1g | Phase 1 |
 | R-3 | SC-1a | Phase 1 |
 | R-4 | SC-2a, SC-2b, SC-2c, SC-2d, SC-2e | Phase 2 |
 | R-5 | SC-2a, SC-2b, SC-2c, SC-2d, SC-2e | Phase 2 |
@@ -169,23 +175,25 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 - **SC-1a:** Verifying the reference file exists costs one file-existence check. Skipping means the reference is never created, leaving the content stranded in the preloaded guideline.
 - **SC-1b, SC-1c, SC-1d, SC-1e:** Verifying each of the four mandates is present in the reference costs one grep search each (four total). Skipping means a missing mandate isn't caught until the first spec created from it fails audit — a death-spiral start.
-- **SC-1f:** Verifying the standardized vocabulary is preserved and regression terms are absent costs two grep searches. Skipping means a vocabulary-regressed reference isn't caught until downstream agents misroute content.
+- **SC-1f:** Verifying the standardized vocabulary is preserved costs one grep search. Skipping means a vocabulary-regressed reference isn't caught until downstream agents misroute content.
+- **SC-1g:** Verifying the regression terms are absent costs one grep search. Skipping means a vocabulary-regressed reference isn't caught until downstream agents misroute content.
 - **SC-2a, SC-2b, SC-2c, SC-2d, SC-2e:** Verifying each of the 5 consuming cards carries the imperative Read-link costs one grep search per card (five total). Skipping means a card misses the link, content loss propagates, and orchestrators never load the reference — the exact defect this spec exists to prevent.
 - **SC-3:** Verifying the AGENTS.md index row costs one grep search. Skipping means the reference is undiscoverable, reducing adoption and leaving the content stranded in the preloaded guideline.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** The reference file must be created even if some consuming cards already contain partial content — the Read-link is additive, never destructive.
-- **State transitions:** ABSENT → CREATED (Phase 1, SC-1a) → MANDATE-PRESENT (Phase 1, SC-1b..SC-1e) → VOCAB-PRESERVED (Phase 1, SC-1f) → LINKED (Phase 2, SC-2a..SC-2e) → INDEXED (Phase 3, SC-3). Each transition is triggered by its SC and is independently verifiable.
-- **Failure modes:** If a consuming card already uses a non-imperative citation form, the Read-link is added alongside it — existing content is not removed. If the reference file already exists, each of SC-1b..SC-1f is verified for the individual mandate/vocabulary presence rather than the file being recreated.
+- **State transitions:** ABSENT → CREATED (Phase 1, SC-1a) → MANDATE-PRESENT (Phase 1, SC-1b..SC-1e) → VOCAB-PRESERVED (Phase 1, SC-1f) → REGRESSION-ABSENT (Phase 1, SC-1g) → LINKED (Phase 2, SC-2a..SC-2e) → INDEXED (Phase 3, SC-3). Each transition is triggered by its SC and is independently verifiable.
+- **Failure modes:** If a consuming card already uses a non-imperative citation form, the Read-link is added alongside it — existing content is not removed. If the reference file already exists, each of SC-1b..SC-1g is verified for the individual mandate/vocabulary/regression presence rather than the file being recreated.
 - **Concurrency:** No runtime concurrency — this is a documentation-only change. File writes are sequential per phase.
-- **Recovery:** If a Read-link is missing from a card, the corresponding SC-2x is re-verified and the link added. If a specific mandate is missing from the reference, the corresponding SC-1x is re-verified and the mandate added. If the reference content is incomplete, it is revised to include all four mandates (SC-1b..SC-1e).
+- **Recovery:** If a Read-link is missing from a card, the corresponding SC-2x is re-verified and the link added. If a specific mandate is missing from the reference, the corresponding SC-1x is re-verified and the mandate added. If the reference content is incomplete, it is revised to include all four mandates (SC-1b..SC-1e), the preserved vocabulary (SC-1f), and absence of regression terms (SC-1g).
 
 ## 12. Change Control
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-27 | Decomposed compound SCs into atomic SCs: SC-1 split into SC-1a (file exists), SC-1b..SC-1e (four mandates), SC-1f (vocabulary preservation); SC-2 split into SC-2a..SC-2e (one per consuming skill card). Updated sc-summary.yaml, Items, Traceability, Cost Frame, and Edge Cases to match the decomposed SC set. | Validation finding: Aggregate FAIL due to compound SCs bundling multiple verification targets via "and"/comma-list phrasing. | Validation pipeline (sub-agent revision) |
+| 2026-08-27 | Split compound SC-1f into two atomic SCs: SC-1f (standardized vocabulary preserved) and SC-1g (regression terms absent). Updated sc-summary.yaml (sc_count 12→13), Items, Traceability, Cost Frame, and Edge Cases to match. | Validation finding: Aggregate FAIL — SC-1f bundled two distinct verification targets (vocabulary present + regression terms absent) via "and", violating the atomic-SC rule. | Validation pipeline (sub-agent revision) |
 
 ---
 

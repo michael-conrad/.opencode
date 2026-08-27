@@ -1,4 +1,4 @@
-sc_count: 12
+sc_count: 13
 scs:
   - id: "SC-1a"
     description: "Create orchestrator-context-discipline.md reference file exists"
@@ -21,7 +21,11 @@ scs:
     evidence_type: "string"
     plan_item: 1
   - id: "SC-1f"
-    description: "Reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline') and does not regress to 'context budget'/'context cost'/'context awareness'"
+    description: "Reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline')"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-1g"
+    description: "Reference file does not regress to 'context budget'/'context cost'/'context awareness'"
     evidence_type: "string"
     plan_item: 1
   - id: "SC-2a"

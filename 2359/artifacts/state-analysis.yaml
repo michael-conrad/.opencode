@@ -1,0 +1,31 @@
+state_analysis:
+  issue: ".opencode#2359"
+  topic: "Create shared reference: orchestrator-context-discipline.md"
+  state_machine:
+    description: "Documentation-only change; no runtime state machine transitions. The 'state' here is the file-system state of the reference and consuming cards."
+    states:
+      - state: "ABSENT"
+        description: "orchestrator-context-discipline.md does not exist; §1.1 content lives only in 020-go-prohibitions.md"
+        phase: 0
+      - state: "CREATED"
+        description: "orchestrator-context-discipline.md exists with extracted content; consuming cards not yet linked"
+        phase: 1
+      - state: "LINKED"
+        description: "All 5 consuming skill cards have Read [Text](path) links to the reference"
+        phase: 2
+      - state: "INDEXED"
+        description: "Reference added to AGENTS.md Reference Documents table"
+        phase: 3
+    transitions:
+      - from: "ABSENT"
+        to: "CREATED"
+        trigger: "Phase 1 — create reference file"
+      - from: "CREATED"
+        to: "LINKED"
+        trigger: "Phase 2 — add Read-links to consuming cards"
+      - from: "LINKED"
+        to: "INDEXED"
+        trigger: "Phase 3 — index in AGENTS.md"
+  invariants:
+    - "Content is never duplicated across files — it lives only in the reference"
+    - "Each consuming card transitions from unlinked to linked exactly once"
