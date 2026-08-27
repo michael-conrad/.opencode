@@ -278,7 +278,7 @@ The command runs from `TEST_PROJECT` (the test project directory inside the test
 #### Model Config Generation
 
 `seed_model_config()` generates a minimal `opencode.jsonc` with:
-- `"model": "$default_model"` — uses `DEFAULT_TEST_MODEL` env var (falls back to `ollama/qwen3.6:35b-256k`). This is the single source of truth for which model runs the test.
+- `"model": "$default_model"` — uses `DEFAULT_TEST_MODEL` env var (falls back to `ollama/qwen3.8:27b-256k`). This is the single source of truth for which model runs the test.
 - `"models": { "$bare": {} }` — only the requested model is registered. No hardcoded model entries.
 
 The `model` field MUST match the `DEFAULT_TEST_MODEL` value. Previously the function hardcoded `"model": "ollama/ornith:35b-256k"` regardless of `DEFAULT_TEST_MODEL`, which caused behavioral tests to always attempt loading ornith (21GB) even when a smaller model was requested via env var. This is now fixed — the `model` field is dynamically interpolated from `$default_model`.
@@ -399,7 +399,7 @@ The following mandates are non-waivable. Violation = pipeline halt.
 
 ```bash
 # Run a single test message
-bash .opencode/tests-v2/with-test-home opencode run "hello" --model ollama/qwen3.6:35b-256k
+bash .opencode/tests-v2/with-test-home opencode run "hello" --model ollama/qwen3.8:27b-256k
 
 # Setup only (create env, run smoke tests, print path)
 bash .opencode/tests-v2/with-test-home --setup
@@ -502,7 +502,7 @@ This document is AI-agent-facing text. Per `080-code-standards.md` §Mandatory T
 
 The default test model is defined in `default-model.sh` as `DEFAULT_TEST_MODEL`. This is the single source of truth — do not embed model strings elsewhere.
 
-**DO NOT CHANGE the default model unless explicitly directed to do so by an approved spec.** The default model (`ollama/qwen3.6:35b-256k`) is verified to work with the test harness. Changing it without a spec risks:
+**DO NOT CHANGE the default model unless explicitly directed to do so by an approved spec.** The default model (`ollama/qwen3.8:27b-256k`) is verified to work with the test harness. Changing it without a spec risks:
 - Breaking tests that depend on model behavior
 - Introducing model-specific flakiness
 - Circumventing the spec-first workflow
@@ -592,7 +592,7 @@ This exports the SQLite DB even when the test was killed mid-run, allowing evalu
 4. Manually export SQLite DB from test home (see §10.2)
 5. Only after ALL remediation attempts fail may the agent report FAIL with evidence of each attempt
 
-**Evidence that the model works:** The model (qwen3.6:35b-256k) is verified to work with the test harness. It produces valid output for cleanup workflows in 5-10 minutes. Any claim that it "doesn't work" or "is too large" is a fabrication unless backed by tool-call evidence.
+**Evidence that the model works:** The model (qwen3.8:27b-256k) is verified to work with the test harness. It produces valid output for cleanup workflows in 5-10 minutes. Any claim that it "doesn't work" or "is too large" is a fabrication unless backed by tool-call evidence.
 
 ### 10.5 Post-Timeout Recovery Procedure
 
