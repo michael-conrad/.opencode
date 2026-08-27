@@ -1,7 +1,6 @@
 labels:
-- spec-cleared
-- approved-for-for_pr
+- approved-for-review
 number: 2376
 state: OPEN
 title: '[SPEC] Update default test model for opencode run framework to qwen3.8:27b-256k'
-updated_at: '2026-08-27T04:35:51+00:00'
+updated_at: '2026-08-27T04:57:39+00:00'
