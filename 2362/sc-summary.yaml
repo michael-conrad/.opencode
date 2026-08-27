@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "code-standards-shared.md exists with all eleven procedural sections and headers"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "programming-principles SKILL.md Read-links code-standards-shared, no 'See' form"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "skill-creator SKILL.md Read-links code-standards-shared, no 'See' form"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "test-driven-development SKILL.md Read-links code-standards-shared, no 'See' form"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "engineering-approach SKILL.md Read-links code-standards-shared, no 'See' form"
+    evidence_type: "string"
+    plan_item: 5
