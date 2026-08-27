@@ -1,31 +1,72 @@
 number: 2368
 title: '[SPEC] Update skill-creator skill — Read-link code-standards & attribution-provenance'
 status: open
-labels: []
-body: '## Problem
+labels:
+- needs-approval,spec-draft
+body: '> **Full spec and artifacts: [`.opencode/.issues/2368/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2368)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
-  Attribution/byline + provenance-header + code-standards procedural content moves
-  to shared references; skill-creator consumes them for skill-card validation.
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2368/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  The skill-creator skill card lacks mandatory `Read [Text](path)` links to `code-standards-shared.md`
+  (created by #2362) and `attribution-provenance.md` (created by #2360). Without these
+  links, sub-agents dispatched to validate skill cards cannot access the extracted
+  procedural standards and attribution/provenance rules after 080 condensation removes
+  them from preloaded context.
 
 
   ## Scope
 
-  - **In:** Add mandatory Read [Text](path) links to code-standards-shared.md and
-  attribution-provenance.md in the skill-creator skill card.
 
-  - **Out:** Losing the attribution/provenance requirements.
+  **In scope:**
+
+  - Add `Read [Text](reference/code-standards-shared.md)` link to skill-creator SKILL.md
+
+  - Add `Read [Text](reference/attribution-provenance.md)` link to skill-creator SKILL.md
+
+  - Use condensed link text (purpose-as-subject, not path restatement)
+
+
+  **Out of scope:** Modifying task files or `validate_skill_cards.py`. Re-inlining
+  content. Condensing 080 itself (#2352). Creating shared refs (#2362, #2360).
 
 
   ## Approach
 
-  Anchor the shared references via mandatory Read-links.
+
+  Add the Read-links as new numbered rules in the Operating Protocol section (after
+  rule 5), with condensed link text. Each link is a mandate that validation sub-agents
+  encounter before executing tasks.
 
 
   ## Impact
 
-  Enables 080 condensation. Risk: low. Depends on shared refs + 080. Action: approve.'
+
+  - **Risk 1 — missing link:** Without the Read-link, validation runs without canonical
+  standards. *Mitigation:* verified by grep (SC-1, SC-2).
+
+  - **Risk 2 — path-restatement text:** Fails CONDENSATION-001 gate. *Mitigation:*
+  explicitly verified (SC-3).
+
+  - **Risk 3 — collateral damage:** Spec alters existing content. *Mitigation:* diff-checked
+  (SC-4).
+
+  - **Dependencies:** #2362, #2360 (must be implemented first so referenced files
+  exist).
+
+  - **Action:** Approve this spec.
+
+  '
 created_at: '2026-08-27T03:14:49Z'
-updated_at: '2026-08-27T03:14:49Z'
+updated_at: '2026-08-27T21:55:57+00:00'
 remote_issue: 2368
 remote_url: https://github.com/michael-conrad/.opencode/issues/2368
 promoted_at: '2026-08-27T03:25:12.692291+00:00'
