@@ -1,0 +1,26 @@
+spec_topic: Extract §1.6 Discussion Mode Mandates into a shared canonical reference
+affected_files:
+  - path: .opencode/reference/discussion-mode-mandates.md
+    status: NEW (target deliverable — canonical shared reference)
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    status: MODIFIED (source — §1.6 extracted, replaced with Read-link per condensation)
+  - path: .opencode/skills/brainstorming/SKILL.md
+    status: MODIFIED (add mandatory Read-link to shared reference)
+  - path: .opencode/skills/approval-gate/SKILL.md
+    status: MODIFIED (add mandatory Read-link to shared reference)
+existing_patterns:
+  - The .opencode/reference/ directory holds canonical shared reference documents consumed via `Read [Text](path)` links (e.g., cost-model-standards.md, skill-card-description-standards.md, task-card-structure-standards.md).
+  - cost-model-standards.md states its consumers read via `Read [Text](path)` — the canonical cross-reference form mandated by AGENTS.md "Read-Link Cross-Reference Rule".
+  - §1.6 Discussion Mode Mandates currently lives inline in 020-go-prohibitions.md (lines 252-278), preloaded in the instructions array.
+dependencies_and_consumers:
+  - 020-go-prohibitions.md is a Tier 1 guideline preloaded via .opencode/opencode.jsonc instructions array (line 80). Extracting §1.6 reduces its preloaded token burden.
+  - brainstorming SKILL.md describes a "Conversational-first exploration workflow" (Overview, line 12) — the discussion-mode mandates govern conversational behavior, hence the consumer link.
+  - approval-gate SKILL.md governs authorization routing and scope — the "No skill-routing solicitation after authorization" mandate (§1.6 NEVER DO final bullet) is approval-gate-relevant, hence the consumer link.
+  - Reference documents must be loaded via `Read [Text](path)` per AGENTS.md — the Read-link form is the reliable pattern (100% Tier 1 access rate per cross-reference-form-comparison research card).
+constraints:
+  - The new reference file MUST follow the .opencode/reference/ doc format (title + prose, SPDX/provenance per code standards where applicable).
+  - The Read-link form MUST use the mandatory `Read [Text](path)` pattern — NOT "see" or symbol-only refs (per AGENTS.md Read-Link Cross-Reference Rule).
+  - Do NOT re-inline the content into each skill card (explicit Out-of-scope).
+  - Issue lives in .opencode repo (owner michael-concord, repo .opencode); paths resolved as .opencode/.
+research_notes:
+  - cross-reference-form-comparison card (confidence 0.95) confirms inline link form is the only viable pattern at 100% Tier 1 access. "Load" verb triggered file access; "See" treated as informational. The spec's mandatory Read-links must use the Read/load pattern.

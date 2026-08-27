@@ -1,0 +1,25 @@
+name: blast-radius
+phases:
+  - phase: 1
+    description: Create shared reference file
+    affected_components:
+      - .opencode/reference/discussion-mode-mandates.md (NEW)
+    ripple_effects:
+      - None until links are added — the file is inert on its own.
+  - phase: 2
+    description: Add Read-links to skill cards
+    affected_components:
+      - .opencode/skills/brainstorming/SKILL.md (MODIFIED)
+      - .opencode/skills/approval-gate/SKILL.md (MODIFIED)
+    ripple_effects:
+      - Orchestrators loading these skill cards will load the reference via Read-link, increasing per-skill context by the reference size but removing the §1.6 procedural content from the preloaded 020 guideline (net context reduction).
+      - skill-creator validation and spec-audit may flag broken/unresolvable Read-links if the target is missing.
+  - phase: 3
+    description: Verify single-source + link integrity
+    affected_components:
+      - All three files
+    ripple_effects:
+      - None — verification-only phase.
+external_dependencies:
+  - 020 condensation issue (dependent — the full condensation removes §1.6 from 020). This spec creates the shared reference that condensation consumes. Risk: low (declared).
+overall_risk: low

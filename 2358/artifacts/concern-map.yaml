@@ -1,0 +1,17 @@
+name: concern-map
+concerns:
+  - concern: Content ownership (single source of truth)
+    phase: 1
+    components: [.opencode/reference/discussion-mode-mandates.md]
+    separation: The reference file is the sole canonical owner of the §1.6 discussion-mode mandates content.
+  - concern: Consumption (mandatory Read-links)
+    phase: 2
+    components: [brainstorming/SKILL.md, approval-gate/SKILL.md]
+    separation: Skill cards are consumers that reference — they do not own or duplicate content.
+  - concern: Source condensation (020)
+    phase: 3 (dependent)
+    components: [020-go-prohibitions.md]
+    separation: The 020 guideline retains its safety-critical Tier 1 core; only the procedural §1.6 content moves out. This is the dependent 020 condensation scope, not modified by this spec directly.
+boundaries:
+  - The reference file does not inline into cards; cards do not duplicate reference content.
+  - This spec does NOT itself rewrite 020-go-prohibitions.md (the condensation is a separate dependent change).

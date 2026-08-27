@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: ".opencode/reference/discussion-mode-mandates.md exists and its content is a content-preserving extraction of the §1.6 Discussion Mode Mandates source in 020-go-prohibitions.md."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "brainstorming/SKILL.md contains a Read [Text](.opencode/reference/discussion-mode-mandates.md) link using the imperative form; the link target resolves to the created file."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "approval-gate/SKILL.md contains a Read [Text](.opencode/reference/discussion-mode-mandates.md) link using the imperative form; the link target resolves to the created file."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The §1.6 content appears exactly once in the deck — in the reference file, not duplicated into either skill card — and all Read-links resolve."
+    evidence_type: "structural"
+    plan_item: 4
