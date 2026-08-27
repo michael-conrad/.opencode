@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "Create orchestrator-context-discipline.md reference file with extracted §1.1 content preserving standardized vocabulary"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Add mandatory Read [Text](path) links to the 5 consuming skill cards' Cross-References sections"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Index the reference in AGENTS.md Reference Documents table with a Purpose entry"
+    evidence_type: "string"
+    plan_item: 3

@@ -18,7 +18,7 @@ artifacts:
   concern-map.yaml: present
   code-path-inventory.yaml: present
   cross-cutting-matrix.yaml: present
-  interface-compatibility.yaml: present
+  interface-compatibility.yaml: backfilled (dependency_contract section added)
   state-analysis.yaml: present
   testability-assessment.yaml: present
 missing_artifacts: []
@@ -35,5 +35,6 @@ scope_findings:
 - All scope boundary files referenced in the spec exist in the codebase.
 - 3 success criteria defined (SC-1, SC-2, SC-3); each is structural/string verifiable.
 - Out-of-scope files explicitly excluded: .opencode/opencode.jsonc and .opencode/docs/audit-sc6959-verification.md.
+- interface-compatibility.yaml backfilled with dependency_contract section derived from live source inspection of default-model.sh and with-test-home (lines 135, 264).
 
 Co-authored with AI: OpenCode (deepseek-v4-flash)

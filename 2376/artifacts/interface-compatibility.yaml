@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
 issue: 2376
 
 interfaces:
@@ -26,3 +29,58 @@ summary: |
   No interface added, removed, or broken. Three runtime-visible interfaces (DEFAULT_TEST_MODEL,
   seed_model_config, isolation-model) are modified with backward-compatible default value changes.
   Documentation references are internal-only.
+
+dependency_contract:
+  source_of_truth:
+    file: .opencode/tests-v2/default-model.sh
+    element: DEFAULT_TEST_MODEL
+    declaration: 'DEFAULT_TEST_MODEL="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"'
+    current_value: ollama/qwen3.6:35b-256k
+    target_value: ollama/qwen3.8:27b-256k
+    type: string literal (env var fallback)
+    consumers:
+      - .opencode/tests-v2/with-test-home (seed_model_config, sources default-model.sh)
+      - .opencode/tests-v2/with-test-home (isolation-model warmup, sources default-model.sh)
+      - behavioral test scripts via $DEFAULT_TEST_MODEL env var
+  harness_fallback_seed_model_config:
+    file: .opencode/tests-v2/with-test-home
+    function: seed_model_config()
+    line: 135
+    declaration: 'local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"'
+    current_value: ollama/qwen3.6:35b-256k
+    target_value: ollama/qwen3.8:27b-256k
+    type: string literal (env var fallback)
+    note: Does NOT consume DEFAULT_TEST_MODEL variable; hardcoded literal must be updated manually.
+  harness_fallback_isolation_model:
+    file: .opencode/tests-v2/with-test-home
+    function: do_setup() warmup smoke test
+    line: 264
+    declaration: 'default_model="ollama/qwen3.6:35b-256k"'
+    current_value: ollama/qwen3.6:35b-256k
+    target_value: ollama/qwen3.8:27b-256k
+    type: string literal (hardcoded fallback)
+    note: Does NOT consume DEFAULT_TEST_MODEL variable; hardcoded literal must be updated manually.
+  documentation_references:
+    files:
+      - .opencode/AGENTS.md
+      - .opencode/docs/model-dependency.md
+      - .opencode/README.md
+      - .opencode/tests-v2/AGENTS.md
+      - AGENTS.md
+    current_value: ollama/qwen3.6:35b-256k
+    target_value: ollama/qwen3.8:27b-256k
+    type: string literal (documentation)
+    note: SC-3 greps all five files for zero occurrences of the old default-model literal.
+  out_of_scope:
+    - .opencode/opencode.jsonc (model list references qwen3.6:35b, no -256k suffix; excluded)
+    - .opencode/docs/audit-sc6959-verification.md (historical audit record, no -256k suffix; excluded)
+  constraints:
+    - R-4: change SHALL NOT modify opencode.jsonc, model availability, ollama-probe, or harness isolation logic.
+    - R-5: change SHALL NOT modify .opencode/docs/audit-sc6959-verification.md.
+    - R-6: tests consuming $DEFAULT_TEST_MODEL SHALL propagate the new value automatically from default-model.sh without per-test edits.
+  type_constraints:
+    - All three runtime-visible interfaces are string literals of the form ollama/<model>:<tag>; the substitution preserves the ollama/ prefix and the -256k suffix.
+    - The env var fallback pattern (${VAR:-literal}) is preserved; only the literal value changes.
+    - No function signature, argument list, or return type changes across any interface.
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)
