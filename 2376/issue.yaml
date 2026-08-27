@@ -1,6 +1,7 @@
 labels:
-- needs-approval,spec-draft
+- needs-approval
+- spec-draft
 number: 2376
 state: OPEN
 title: '[SPEC] Update default test model for opencode run framework to qwen3.8:27b-256k'
-updated_at: '2026-08-27T04:16:54+00:00'
+updated_at: '2026-08-27T04:17:02+00:00'
