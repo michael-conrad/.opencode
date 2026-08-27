@@ -27,6 +27,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -120,5 +128,3 @@ Skills: `verification-enforcement`. Guidelines: `000-critical-rules.md` (audienc
 
 ### [critical-rules-009] Audience Separation — leaking internal artifacts to stakeholders
 Leaking internal audit findings and raw status into stakeholder communications damages trust. Drafting tools and delivery channels are separate concerns — professional communicators maintain audience separation. Read [correspondence skill](skills/correspondence/SKILL.md) → "Audience Separation Principle".
-
-

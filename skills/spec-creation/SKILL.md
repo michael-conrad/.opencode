@@ -20,6 +20,14 @@ The orchestrator dispatches each step as a clean-room `task()` call. The orchest
 analyze → create → validate → (revise → validate)* → done
 ```
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Workflows
 
 **The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
@@ -155,5 +163,3 @@ When auditing or updating any plan, strictly follow the mandatory code deep dive
 ---
 
 *Co-authored with AI: OpenCode (deepseek-v4-flash)*
-
-

@@ -60,6 +60,14 @@ When any audit produces a FAIL verdict, the following remediation procedure MUST
 4. **Escalate** — If the FAIL cannot be remediated (e.g., the deliverable's core design is structurally unsound, or required analytical artifacts cannot be generated without developer input), escalate to the developer with: the specific SC(s) that failed, the root cause, what the developer must do to resolve, and the recommended action.
 5. **Never proceed past FAIL** — A deliverable with any unremediated FAIL must NOT advance to the next pipeline stage. The audit verdict is the gate, not a suggestion.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Workflows
 
 **The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
@@ -140,5 +148,3 @@ ALL failures are agent-owned. Remediation is the default action. Escalation is o
 8. **No "pre-existing failure" rationalization** — test infrastructure is part of the ship condition. An agent MUST NOT use "pre-existing failure", "already broken before my change", "baseline failure", or any equivalent rationalization to justify proceeding past a test failure, verification mismatch, or pipeline gate FAIL. The agent owns the pipeline state at entry; any failure present at entry must be remediated before proceeding.
 
 All failures are agent-owned. Remediation is the default action. Escalation is only permitted after verified remediation failure — never as a first response, never as a shortcut.
-
-

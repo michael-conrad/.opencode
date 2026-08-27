@@ -18,6 +18,7 @@ Validates SKILL.md files per spec #2076:
   REQ-3: Worktree Mode section requirement for skills with bash/git/file ops
   REQ-4: Mandatory Task Discipline admonishment presence (5-item checklist)
   REQ-6: Workflows section presence and structure (replaces old DISPATCH_GATE)
+  REQ-7: Pre-flight guard presence (ORCHESTRATOR_ONLY_SKILL_CARD marker)
 
 Usage:
     uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py           # validate
@@ -438,6 +439,22 @@ def validate_condensation(name: str, body: str, file_path: str) -> list[Violatio
             )
     return violations
 
+GUARD_MARKER = "ORCHESTRATOR_ONLY_SKILL_CARD"
+
+def validate_req_skill_preflight_guard(name: str, body: str, file_path: str) -> list[Violation]:
+    violations: list[Violation] = []
+    if GUARD_MARKER not in body:
+        violations.append(
+            Violation(
+                "REQ",
+                name,
+                "skill-preflight-guard-missing",
+                f"Missing pre-flight guard (marker {GUARD_MARKER})",
+                file_path=file_path,
+            )
+        )
+    return violations
+
 ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
 WORKFLOWS_HEADING_RE = re.compile(
     r"^##\s+Workflows", re.MULTILINE
@@ -539,6 +556,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req5(name, body, rel_path))
     violations.extend(validate_req6(name, body, rel_path))
     violations.extend(validate_condensation(name, body, rel_path))
+    violations.extend(validate_req_skill_preflight_guard(name, body, rel_path))
     return violations
 
 def violation_to_dict(v: Violation) -> dict:

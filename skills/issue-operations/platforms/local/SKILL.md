@@ -194,6 +194,14 @@ When `github.platform` is NOT `local` (remote available), local issues can be pr
 
 `.issues/` (root repo) or `{project_root}/{path}/.issues/` (submodule/sub-repo) files are non-behavioral metadata. Exempt from worktree requirement per `060-tool-usage.md` §Worktree Exemption, but NOT exempt from branching requirement (no direct commits to `$DEFAULT_BRANCH`/`main`).
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Sub-Agent Tasks
 
 ### Task Routing
@@ -284,4 +292,3 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | Worktree exemption | `060-tool-usage.md` §Worktree Exemption                                   |
 | Critical rules     | `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories |
 | Card-020           | `.issues/979/cards/card-020-local-skill-capability-contract.md`           |
-
