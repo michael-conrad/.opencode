@@ -1,0 +1,46 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+state_transitions:
+  - concern: card_received boundary
+    initial_state: card_received
+    guard_run:
+      event: sub-agent context detection
+      orchestrator_context:
+        next_state: consume_routing_metadata
+      sub_agent_context:
+        next_state: blocked
+        reason: ORCHESTRATOR_ONLY_SKILL_CARD
+    terminal_state: guard MUST fire before any routing metadata is consumed
+    scs: [SC-1]
+  - concern: lint enforcement
+    initial_state: card_present
+    lint_eval:
+      guard_present:
+        next_state: no_finding
+      guard_absent:
+        next_state: finding_reported
+        reason: lint_skill_preflight_guard finding
+    idempotent: a card already containing a guard must not be double-guarded
+    scs: [SC-2]
+  - concern: validation enforcement
+    initial_state: card_present
+    validation_eval:
+      guard_present:
+        next_state: no_finding
+      guard_absent:
+        next_state: finding_reported
+        reason: REQ rule finding
+    scs: [SC-3]
+  - concern: template generation
+    initial_state: generation_invoked
+    template_output:
+      next_state: card_with_guard
+    scs: [SC-6]
+  - concern: guard regression recovery
+    initial_state: unguarded_card_in_deck
+    recovery_action:
+      next_state: guarded_card
+      via: lint/validation finding (SC-2/SC-3 backstop) resolved by adding the canonical guard
+    concurrency: no shared mutable state; per-file and independent detection
+    scs: [SC-2, SC-3]

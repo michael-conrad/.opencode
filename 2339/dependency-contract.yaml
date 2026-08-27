@@ -1,0 +1,109 @@
+# Dependency contract — issue #2339
+# Generated from interface-compatibility.yaml dependency_contract section.
+# Phase ordering resolves the cross-cutting-matrix dependency notes:
+#   - SC-4 (mandate) must precede SC-5 (canonical definition) — share the same four docs, mandate first.
+#   - SC-5 (canonical definition) must precede SC-1 (per-card wording) — cards cite the canonical wording.
+#   - SC-5 precedes SC-2/SC-3/SC-6/SC-7 — lint/validation/template/critical-rule all reference the canonical guard marker.
+
+variables:
+  phase_1:
+    type: bool
+    description: "Requirements documentation guard mandate (SC-4) — add guard mandate to skill-card-schema.md, skill-card-description-standards.md, skill-card-spec.md, routing-only-template.md"
+  phase_2:
+    type: bool
+    description: "Canonical guard definition (SC-5) — define the single canonical guard wording consistently in the four reference documents"
+  phase_3:
+    type: bool
+    description: "Apply pre-flight guard to all 51 skill cards (SC-1) — canonical wording from SC-5 added to .opencode/skills/*/SKILL.md incl. platforms/*/SKILL.md"
+  phase_4:
+    type: bool
+    description: "skildeck-lint enforcement (SC-2) — lint_skill_preflight_guard flags cards lacking the canonical guard marker"
+  phase_5:
+    type: bool
+    description: "validate_skill_cards.py enforcement (SC-3) — REQ rule flags cards lacking the canonical guard marker"
+  phase_6:
+    type: bool
+    description: "Template generator guard (SC-6) — init_skill.py SKILL_TEMPLATE embeds the canonical guard so new cards are born guarded"
+  phase_7:
+    type: bool
+    description: "Critical rule references the guard (SC-7) — critical-rules-XXX in 000-critical-rules.md references the guard as defensive backstop"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+  - "z3.Implies(phase_4, phase_3)"
+  - "z3.Implies(phase_5, phase_3)"
+  - "z3.Implies(phase_6, phase_2)"
+  - "z3.Implies(phase_7, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/reference/skill-card-schema.md
+      - .opencode/reference/skill-card-description-standards.md
+      - .opencode/skills/skill-creator/reference/skill-card-spec.md
+      - .opencode/skills/skill-creator/reference/routing-only-template.md
+    scs:
+      - SC-4
+  phase_2:
+    files:
+      - .opencode/reference/skill-card-schema.md
+      - .opencode/reference/skill-card-description-standards.md
+      - .opencode/skills/skill-creator/reference/skill-card-spec.md
+      - .opencode/skills/skill-creator/reference/routing-only-template.md
+    scs:
+      - SC-5
+  phase_3:
+    files:
+      - .opencode/skills/*/SKILL.md
+      - .opencode/skills/*/platforms/*/SKILL.md
+    scs:
+      - SC-1
+  phase_4:
+    files:
+      - .opencode/tools/impl/skildeck/skildeck-lint
+    scs:
+      - SC-2
+  phase_5:
+    files:
+      - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    scs:
+      - SC-3
+  phase_6:
+    files:
+      - .opencode/skills/skill-creator/scripts/init_skill.py
+    scs:
+      - SC-6
+  phase_7:
+    files:
+      - .opencode/guidelines/000-critical-rules.md
+    scs:
+      - SC-7
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "SC-4 (mandate) and SC-5 (canonical definition) share the same four reference docs; the mandate must be sequenced before the canonical definition to avoid file conflicts."
+  - from: phase_2
+    to: phase_3
+    rationale: "SC-1 applies the canonical guard wording to all 51 cards; the canonical definition finalized in SC-5 is the single source of truth the per-card wording must match."
+  - from: phase_2
+    to: phase_4
+    rationale: "skildeck-lint (SC-2) must reference the canonical guard marker from SC-5 to flag cards lacking it."
+  - from: phase_2
+    to: phase_5
+    rationale: "validate_skill_cards.py (SC-3) must reference the canonical guard marker from SC-5."
+  - from: phase_2
+    to: phase_6
+    rationale: "init_skill.py SKILL_TEMPLATE (SC-6) embeds the canonical guard wording from SC-5 so new cards are born guarded."
+  - from: phase_2
+    to: phase_7
+    rationale: "critical-rules-XXX (SC-7) references the guard as defensive backstop, grounding on the canonical guard defined in SC-5."
+  - from: phase_3
+    to: phase_4
+    rationale: "skildeck-lint (SC-4) is the mechanical backstop over the guarded deck; the deck content (SC-1) must be committed before the lint rule asserts no guard finding on the real cards."
+  - from: phase_3
+    to: phase_5
+    rationale: "validate_skill_cards.py (SC-5) independently enforces the guarded deck; depends on the deck content from SC-1."
+notes:
+  - "Phase ordering departs from the nominal concern-map phase numbering (which listed SC-1 as phase 1) to satisfy the cross-cutting dependency constraints: the canonical guard definition (SC-4 then SC-5) must land before any card is edited (SC-1), and lint/validation/template/critical-rule (SC-2/3/6/7) reference that canonical marker."
+  - "All dependencies are backward (later phase consumes earlier phase output); no forward cross-phase dependency exists."

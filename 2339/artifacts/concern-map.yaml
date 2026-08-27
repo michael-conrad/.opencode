@@ -1,0 +1,54 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+concern_groups:
+  - concern: skill-card-content
+    label: Content guard applied to all skill cards
+    scs:
+      - SC-1
+    phase_boundary: Phase 1
+    rationale: Applying the pre-flight guard section to all 51 SKILL.md files is a mechanical, content-level change to the deck.
+  - concern: linting
+    label: skildeck-lint enforcement
+    scs:
+      - SC-2
+    phase_boundary: Phase 2
+    rationale: Adding lint_skill_preflight_guard to skildeck-lint makes the guard a mechanically enforced requirement.
+  - concern: validation
+    label: validate_skill_cards.py enforcement
+    scs:
+      - SC-3
+    phase_boundary: Phase 3
+    rationale: Adding a REQ rule to validate_skill_cards.py independently enforces the guard.
+  - concern: documentation-mandate
+    label: Requirements documentation mandates the guard
+    scs:
+      - SC-4
+    phase_boundary: Phase 4
+    rationale: The four reference documents must mandate the guard as a normative requirement.
+  - concern: canonical-definition
+    label: Single canonical guard definition in documentation
+    scs:
+      - SC-5
+    phase_boundary: Phase 5
+    rationale: The four reference documents must define one consistent canonical guard definition.
+  - concern: template-generator
+    label: Template generator emits the guard
+    scs:
+      - SC-6
+    phase_boundary: Phase 6
+    rationale: init_skill.py SKILL_TEMPLATE must include the guard so new cards are born guarded.
+  - concern: normative-basis
+    label: Critical rule references the guard
+    scs:
+      - SC-7
+    phase_boundary: Phase 7
+    rationale: The critical-rules-XXX section must reference the guard as the defensive backstop.
+phase_to_concern:
+  1: skill-card-content
+  2: linting
+  3: validation
+  4: documentation-mandate
+  5: canonical-definition
+  6: template-generator
+  7: normative-basis

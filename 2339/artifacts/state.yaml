@@ -1,0 +1,9 @@
+timestamp: '2026-08-26T22:45:00-04:00'
+variables:
+  phase_1: false
+  phase_2: false
+  phase_3: false
+  phase_4: false
+  phase_5: false
+  phase_6: false
+  phase_7: false

@@ -1,0 +1,29 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+sc_to_code_paths:
+  SC-1:
+    - ".opencode/skills/*/SKILL.md and .opencode/skills/*/platforms/*/SKILL.md: add pre-flight guard section"
+    - "grep across all 51 SKILL.md files for the guard marker"
+    - "skildeck lint run to confirm no guard finding"
+  SC-2:
+    - ".opencode/tools/impl/skildeck/skildeck-lint: lint_skill_preflight_guard rule"
+    - "Unit/behavioral run of skildeck-lint against a guarded and an unguarded card"
+  SC-3:
+    - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py: REQ rule for the guard"
+    - "Run validate_skill_cards.py against a guarded and an unguarded card"
+  SC-4:
+    - ".opencode/reference/skill-card-schema.md: guard mandate"
+    - ".opencode/reference/skill-card-description-standards.md: guard mandate"
+    - ".opencode/skills/skill-creator/reference/skill-card-spec.md: guard mandate"
+    - ".opencode/skills/skill-creator/reference/routing-only-template.md: guard mandate"
+  SC-5:
+    - ".opencode/reference/skill-card-schema.md: canonical guard definition"
+    - ".opencode/reference/skill-card-description-standards.md: canonical guard definition"
+    - ".opencode/skills/skill-creator/reference/skill-card-spec.md: canonical guard definition"
+    - ".opencode/skills/skill-creator/reference/routing-only-template.md: canonical guard definition"
+  SC-6:
+    - ".opencode/skills/skill-creator/scripts/init_skill.py: SKILL_TEMPLATE pre-flight guard section"
+    - "Generate a card from the template and confirm the guard is present"
+  SC-7:
+    - ".opencode/guidelines/000-critical-rules.md: critical-rules-XXX section references the guard"

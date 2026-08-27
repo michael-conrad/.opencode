@@ -1,0 +1,54 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+affected_files:
+  - path: .opencode/skills/*/SKILL.md
+    exists: true
+    scope: all 51 skill cards under .opencode/skills/ including .opencode/skills/*/platforms/*/SKILL.md
+    change: add pre-flight guard section
+  - path: .opencode/tools/impl/skildeck/skildeck-lint
+    exists: true
+    scope: add lint_skill_preflight_guard rule
+    change: flag SKILL.md lacking the guard
+  - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    exists: true
+    scope: add REQ rule for the pre-flight guard
+    change: flag SKILL.md lacking the guard
+  - path: .opencode/reference/skill-card-schema.md
+    exists: true
+    scope: document guard mandate and canonical definition
+    change: add guard mandate + canonical definition
+  - path: .opencode/reference/skill-card-description-standards.md
+    exists: true
+    scope: document guard mandate and canonical definition
+    change: add guard mandate + canonical definition
+  - path: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    exists: true
+    scope: document guard mandate and canonical definition
+    change: add guard mandate + canonical definition
+  - path: .opencode/skills/skill-creator/reference/routing-only-template.md
+    exists: true
+    scope: document guard mandate and canonical definition
+    change: add guard mandate + canonical definition
+  - path: .opencode/skills/skill-creator/scripts/init_skill.py
+    exists: true
+    scope: SKILL_TEMPLATE string
+    change: add pre-flight guard section to template
+  - path: .opencode/guidelines/000-critical-rules.md
+    exists: true
+    scope: critical-rules-XXX section
+    change: reference the pre-flight guard as defensive backstop
+verified_files:
+  - .opencode/tools/impl/skildeck/skildeck-lint
+  - .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+  - .opencode/reference/skill-card-schema.md
+  - .opencode/reference/skill-card-description-standards.md
+  - .opencode/skills/skill-creator/reference/skill-card-spec.md
+  - .opencode/skills/skill-creator/reference/routing-only-template.md
+  - .opencode/skills/skill-creator/scripts/init_skill.py
+  - .opencode/guidelines/000-critical-rules.md
+skill_card_count: 51
+out_of_scope:
+  - task cards (tasks/*.md)
+  - behavioral enforcement test authoring
+  - canonical skill card template redesign (#2052)

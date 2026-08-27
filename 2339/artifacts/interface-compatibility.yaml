@@ -1,0 +1,69 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+interface_boundaries:
+  - boundary: SKILL.md <-> sub-agent dispatch
+    producer: orchestrator (skill-card content consumer)
+    consumer: sub-agent (must NOT consume skill-card routing metadata)
+    contract: sub-agent receiving a skill card MUST halt BLOCKED with ORCHESTRATOR_ONLY_SKILL_CARD before consuming routing metadata.
+    constraint: guard MUST fire before any routing metadata (Trigger Dispatch Table, DISPATCH_GATE, Invocation) is consumed.
+    scs: [SC-1]
+  - boundary: skildeck-lint <-> SKILL.md
+    producer: skildeck-lint (lint tool)
+    consumer: SKILL.md deck
+    contract: skildeck-lint MUST flag a card lacking the guard and NOT flag a card with the guard (idempotent, no double-guard finding).
+    constraint: lint rule reads the guard marker; additive, does not alter frontmatter or Workflows dispatch contract.
+    scs: [SC-2]
+  - boundary: validate_skill_cards.py <-> SKILL.md
+    producer: validate_skill_cards.py (validation script)
+    consumer: SKILL.md deck
+    contract: validate_skill_cards.py MUST flag a card lacking the guard via a REQ rule.
+    constraint: independent enforcement backstop parallel to skildeck-lint.
+    scs: [SC-3]
+  - boundary: init_skill.py <-> generated SKILL.md
+    producer: init_skill.py (template generator)
+    consumer: newly generated SKILL.md cards
+    contract: the generated SKILL_TEMPLATE MUST include the pre-flight guard so new cards are born guarded.
+    constraint: template change is additive; generated card passes lint/validation.
+    scs: [SC-6]
+dependency_contract:
+  - name: skill-card-schema.md
+    source: .opencode/reference/skill-card-schema.md
+    target: skill cards (SC-1), skildeck-lint (SC-2), validate_skill_cards.py (SC-3)
+    type: reference-doc -> content/enforcement
+    constraint: mandates the pre-flight guard (SC-4) and the single canonical guard definition (SC-5).
+  - name: skill-card-description-standards.md
+    source: .opencode/reference/skill-card-description-standards.md
+    target: skill cards (SC-1)
+    type: reference-doc -> content
+    constraint: mandates the guard and the canonical guard definition (SC-4, SC-5).
+  - name: skill-card-spec.md
+    source: .opencode/skills/skill-creator/reference/skill-card-spec.md
+    target: skill cards (SC-1), init_skill.py template (SC-6)
+    type: reference-doc -> content/template
+    constraint: mandates the guard and the canonical guard definition (SC-4, SC-5).
+  - name: routing-only-template.md
+    source: .opencode/skills/skill-creator/reference/routing-only-template.md
+    target: skill cards (SC-1), init_skill.py template (SC-6)
+    type: reference-doc -> content/template
+    constraint: mandates the guard and the canonical guard definition (SC-4, SC-5).
+  - name: skildeck-lint
+    source: .opencode/tools/impl/skildeck/skildeck-lint
+    target: SKILL.md deck
+    type: code -> content
+    constraint: lint_skill_preflight_guard flags cards lacking the guard (SC-2).
+  - name: validate_skill_cards.py
+    source: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    target: SKILL.md deck
+    type: code -> content
+    constraint: REQ rule flags cards lacking the guard (SC-3).
+  - name: init_skill.py
+    source: .opencode/skills/skill-creator/scripts/init_skill.py
+    target: generated SKILL.md
+    type: code -> content
+    constraint: SKILL_TEMPLATE includes the pre-flight guard (SC-6).
+  - name: 000-critical-rules.md
+    source: .opencode/guidelines/000-critical-rules.md
+    target: skill cards (SC-1)
+    type: guideline -> normative basis
+    constraint: critical-rules-XXX references the guard as the defensive backstop (SC-7).

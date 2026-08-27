@@ -1,0 +1,28 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+cross_cutting_scs:
+  - sc: SC-4
+    spans_concerns: [documentation-mandate, canonical-definition]
+    rationale: SC-4 (mandate) and SC-5 (canonical definition) both touch the same four reference documents; the mandate and the definition must coexist consistently.
+  - sc: SC-5
+    spans_concerns: [documentation-mandate, canonical-definition]
+    rationale: SC-5's canonical definition is consumed by SC-4's mandate and by SC-1's per-card wording, coupling documentation and content.
+  - sc: SC-1
+    spans_concerns: [skill-card-content, canonical-definition]
+    rationale: The per-card guard wording in SC-1 must match the canonical definition mandated by SC-5 to avoid divergent variants.
+  - sc: SC-2
+    spans_concerns: [linting, skill-card-content]
+    rationale: skildeck-lint (SC-2) flags cards from SC-1 that lack the guard, coupling the lint rule with the content change.
+  - sc: SC-3
+    spans_concerns: [validation, skill-card-content]
+    rationale: validate_skill_cards.py (SC-3) independently flags the same SC-1 cards.
+  - sc: SC-7
+    spans_concerns: [normative-basis, skill-card-content]
+    rationale: critical-rules-XXX (SC-7) is the normative basis for the guard applied to cards in SC-1.
+non_cross_cutting_scs:
+  - SC-6
+  - SC-7
+dependency_notes:
+  - SC-4 and SC-5 share the same four files and must be sequenced (mandate first, then canonical definition) to avoid conflicts.
+  - SC-1 wording depends on the canonical definition finalized in SC-5.

@@ -1,0 +1,39 @@
+spec: .opencode/.issues/2339/spec.md
+issue: 2339
+backfilled: 2026-08-26
+sc_testability:
+  - sc: SC-1
+    evidence_type: string
+    classification: structural/content
+    method: grep across all 51 SKILL.md files for the guard marker; skildeck lint run with no guard findings
+    rationale: Verifying every card carries the guard is a static content assertion; not an agent-behavioral test.
+  - sc: SC-2
+    evidence_type: behavioral
+    classification: tool-run output inspection
+    method: Run skildeck-lint against a card with and without the guard; assert finding when guard missing, absent when present
+    rationale: Executing the lint tool and inspecting its output is test execution with observable behavior; mapped by the canonical taxonomy to behavioral.
+  - sc: SC-3
+    evidence_type: behavioral
+    classification: tool-run output inspection
+    method: Run validate_skill_cards.py against a card with and without the guard; assert finding when guard missing, absent when present
+    rationale: Executing the validation script and inspecting its output is test execution with observable behavior; mapped by the canonical taxonomy to behavioral.
+  - sc: SC-4
+    evidence_type: string
+    classification: structural/content
+    method: Read the four reference documents; confirm the guard mandate is present in all
+    rationale: Verifying the documentation contains the mandate is a static content assertion.
+  - sc: SC-5
+    evidence_type: string
+    classification: structural/content
+    method: Read the four reference documents; confirm a single consistent canonical guard definition is present
+    rationale: Verifying consistency of the canonical definition across documents is a static content assertion.
+  - sc: SC-6
+    evidence_type: behavioral
+    classification: tool-run output inspection
+    method: Run the template generator on init_skill.py and inspect output; generate a card from the template and assert the guard is present
+    rationale: Executing the template generator and inspecting the generated output is test execution with observable behavior; mapped by the canonical taxonomy to behavioral.
+  - sc: SC-7
+    evidence_type: string
+    classification: structural/content
+    method: Read the critical-rules-XXX section in 000-critical-rules.md; assert the guard reference is present
+    rationale: Verifying the critical rule references the guard is a static content assertion.
