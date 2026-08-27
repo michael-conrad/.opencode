@@ -1,0 +1,37 @@
+issue: 2362
+issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
+artifact: code-path-inventory
+per_phase:
+  phase: 1
+  code_paths:
+    - path: ".opencode/reference/code-standards-shared.md"
+      action: create
+      purpose: "Canonical shared reference for procedural code standards"
+  code_path_detail: "No application source code (.py) is touched. This is a documentation/reference artifact within the .opencode submodule."
+
+  phase: 2
+  code_paths:
+    - path: ".opencode/skills/programming-principles/SKILL.md"
+      action: edit (add Read-link)
+    - path: ".opencode/skills/skill-creator/SKILL.md"
+      action: edit (add Read-link)
+    - path: ".opencode/skills/test-driven-development/SKILL.md"
+      action: edit (add Read-link)
+    - path: ".opencode/skills/engineering-approach/SKILL.md"
+      action: edit (add Read-link)
+  code_path_detail: "Each card gains a mandatory Read [Text](path) link to code-standards-shared.md. No functional logic changes."
+
+source_extraction:
+  - source: ".opencode/guidelines/080-code-standards.md"
+    sections_extracted:
+      - "Typing"
+      - "Design Principles (project-specific conventions)"
+      - "Modern Python"
+      - "Libraries & Packages"
+      - "Dependency Injection"
+      - "Dependency Injection (generic mandate)"
+      - "Print Statements & Output"
+      - "Tool Selection by File Type"
+      - "Numbering — ENFORCED"
+      - "Cross-Reference Standards"
+      - "YAML Standard for LLM-to-LLM Data Transfers"
