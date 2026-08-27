@@ -1,0 +1,60 @@
+# State Analysis — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+initial_state:
+  - .opencode/reference/data-integrity-shared.md: Does not exist
+  - .opencode/skills/engineering-approach: No Read-link to data-integrity-shared.md
+  - .opencode/skills/programming-principles: No Read-link to data-integrity-shared.md
+  - .opencode/guidelines/090-data-integrity.md: Contains all sections including the seven procedural sections (preloaded)
+  - .opencode/opencode.jsonc: 12 Tier 1 guidelines preloaded; 090 included
+
+phase_transitions:
+  - phase: 1
+    action: Create .opencode/reference/data-integrity-shared.md
+    from_state: File does not exist
+    to_state: File exists containing the seven procedural sections verbatim
+    scs: [SC-1]
+
+  - phase: 2
+    action: Add Read-link to engineering-approach skill card/task files
+    from_state: No Read-link in engineering-approach
+    to_state: Read [data-integrity-shared.md](reference/data-integrity-shared.md) present
+    scs: [SC-2]
+
+  - phase: 3
+    action: Add Read-link to programming-principles skill card/task files
+    from_state: No Read-link in programming-principles
+    to_state: Read [data-integrity-shared.md](reference/data-integrity-shared.md) present
+    scs: [SC-3]
+
+  - phase: 4
+    action: Verify no re-inlining of procedural content into consuming cards
+    from_state: (verification only — no state change)
+    to_state: Confirmed no duplicated procedural content in cards
+    scs: [SC-4]
+
+  - phase: 5
+    action: Verify 090-data-integrity.md unchanged
+    from_state: (verification only — no state change)
+    to_state: Confirmed 090 unchanged via git diff
+    scs: [SC-5]
+
+state_invariants:
+  - invariant: Reference file content matches 090 source verbatim
+    holds_after: Phase 1 (and re-verified Phase 4)
+  - invariant: No re-inlined content in consuming cards
+    holds_after: Phase 2, Phase 3 (verified Phase 4)
+  - invariant: 090-data-integrity.md unmodified
+    holds_after: All phases (verified Phase 5)
+  - invariant: opencode.jsonc instructions array unchanged
+    holds_after: All phases
+  - invariant: All Read-links use the Read [Text](path) form
+    holds_after: Phase 2, Phase 3
+
+final_state:
+  - .opencode/reference/data-integrity-shared.md: EXISTS with seven procedural sections verbatim
+  - engineering-approach: LINKED to shared reference
+  - programming-principles: LINKED to shared reference
+  - 090-data-integrity.md: UNCHANGED (still preloaded)
+  - opencode.jsonc: UNCHANGED

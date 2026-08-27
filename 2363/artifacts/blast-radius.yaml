@@ -1,0 +1,63 @@
+# Blast Radius — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+affected_files:
+  new:
+    - .opencode/reference/data-integrity-shared.md
+  modified:
+    - .opencode/skills/engineering-approach/SKILL.md
+    - .opencode/skills/programming-principles/SKILL.md
+  modified_as_needed:
+    - .opencode/skills/engineering-approach/tasks/verify-before-complete.md
+    - .opencode/skills/programming-principles/tasks/principles.md
+  read_only_source_not_modified:
+    - .opencode/guidelines/090-data-integrity.md
+
+affected_skills:
+  - engineering-approach (add Read-link to shared reference)
+  - programming-principles (add Read-link to shared reference)
+
+affected_systems:
+  - Reference doc system (new canonical reference for data-integrity procedural content)
+  - Consumer skill routing (engineering-approach, programming-principles Read-links)
+
+impact_zones:
+  - zone: reference-creation
+    description: Create data-integrity-shared.md holding the seven procedural sections verbatim
+    files:
+      - .opencode/reference/data-integrity-shared.md
+    ripple: None — new file, additive, no existing consumer references it yet
+
+  - zone: engineering-approach-consumer
+    description: Add mandatory Read-link to engineering-approach skill card/task files
+    files:
+      - .opencode/skills/engineering-approach/SKILL.md
+      - .opencode/skills/engineering-approach/tasks/verify-before-complete.md
+    ripple: Sub-agents executing engineering-approach tasks load the shared reference on demand
+
+  - zone: programming-principles-consumer
+    description: Add mandatory Read-link to programming-principles skill card/task files
+    files:
+      - .opencode/skills/programming-principles/SKILL.md
+      - .opencode/skills/programming-principles/tasks/principles.md
+    ripple: Sub-agents executing principles task load the shared reference on demand
+
+  - zone: scope-guards
+    description: Verify no re-inlining into cards and no 090 modification
+    files:
+      - (verification only — no file changes)
+
+unaffected:
+  - .opencode/opencode.jsonc (preload array unchanged)
+  - .opencode/guidelines/090-data-integrity.md (not modified by this spec)
+  - .opencode/reference/*.md (existing reference files unchanged)
+
+dependencies:
+  - dependent_issue: 090-data-integrity condensation
+    relationship: This spec PREPARES for condensation by adding Read-links; the condensation itself is a separate downstream issue
+    direction: this-spec → downstream-condensation
+
+risk_assessment:
+  level: LOW
+  rationale: Additive change (new reference file + Read-links). No content removed, no preload modified, no semantic change.

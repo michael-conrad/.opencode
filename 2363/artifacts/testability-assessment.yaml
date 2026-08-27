@@ -1,0 +1,66 @@
+# Testability Assessment — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+sc_testability:
+  - id: SC-1
+    description: .opencode/reference/data-integrity-shared.md exists and contains the seven procedural sections verbatim
+    evidence_type: structural
+    verification_method: file existence + grep section headers + diff content against 090 source
+    test_approach: |
+      Verify data-integrity-shared.md exists.
+      Grep for all seven section headers: Batch Operations, Long-Running Tasks,
+      Serialization Integrity, Data Classification, Migration Integrity, Audit Trail,
+      Data Retention. Compare each section's body verbatim against the corresponding
+      090-data-integrity.md section.
+    cost: file read + grep per section
+    risk_if_skipped: Missing section or semantic drift not caught until downstream consumers rely on the reference
+
+  - id: SC-2
+    description: engineering-approach skill card/task files contain mandatory Read-link to data-integrity-shared.md
+    evidence_type: structural
+    verification_method: grep for Read [data-integrity-shared.md](reference/data-integrity-shared.md) in engineering-approach files
+    test_approach: |
+      Grep engineering-approach/SKILL.md and task files for the canonical Read-link form.
+      Verify the link uses Read [Text](path), not See §section.
+    cost: grep
+    risk_if_skipped: Consumer does not load the shared reference after 090 condensation
+
+  - id: SC-3
+    description: programming-principles skill card/task files contain mandatory Read-link to data-integrity-shared.md
+    evidence_type: structural
+    verification_method: grep for Read [data-integrity-shared.md](reference/data-integrity-shared.md) in programming-principles files
+    test_approach: |
+      Grep programming-principles/SKILL.md and task files for the canonical Read-link form.
+      Verify the link uses Read [Text](path), not See §section.
+    cost: grep
+    risk_if_skipped: Consumer does not load the shared reference after 090 condensation
+
+  - id: SC-4
+    description: No re-inlining of procedural content into consuming cards (Scope Out respected)
+    evidence_type: structural
+    verification_method: grep for duplicated procedural content in consuming cards
+    test_approach: |
+      Grep engineering-approach and programming-principles files for the seven section
+      headers / distinctive procedural phrases (e.g., "POSTGRESQL PARAMETER LIMIT",
+      "tqdm", "VERSION ALL SERIALIZED FORMATS"). Verify none are duplicated inline.
+    cost: grep
+    risk_if_skipped: Scope creep — content re-inlined, defeating the shared reference purpose
+
+  - id: SC-5
+    description: 090-data-integrity.md is NOT modified by this spec
+    evidence_type: structural
+    verification_method: git diff shows no changes to 090-data-integrity.md
+    test_approach: |
+      Run git diff and verify .opencode/guidelines/090-data-integrity.md has no changes
+      in this branch's changeset.
+    cost: git diff
+    risk_if_skipped: Scope creep into the condensation concern (a separate dependent issue)
+
+testability_notes:
+  - All SCs are structural and directly verifiable via static inspection of agent-facing files.
+  - This is a content-move / reference-link change. It does not alter runtime behavior of the
+    agent pipeline in a behaviorally-testable way — it moves static content and adds static
+    Read-links. Per the evidence-type taxonomy, structural SCs are verified structurally.
+  - Behavioral validation of Read-link efficacy belongs to the downstream 090 condensation
+    issue, not this spec.

@@ -1,0 +1,75 @@
+# Interface Compatibility — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+interfaces:
+  - id: reference-doc-to-consumers
+    type: read-only-input
+    description: data-integrity-shared.md is a read-only canonical reference consumed by skill cards via Read [Text](path)
+    direction: reference-doc → consumer-skill-cards
+    consumers:
+      - .opencode/skills/engineering-approach/SKILL.md
+      - .opencode/skills/programming-principles/SKILL.md
+    producers:
+      - .opencode/reference/data-integrity-shared.md (new)
+    compatibility_concerns:
+      - Reference doc content must be preserved verbatim from 090 to avoid semantic drift
+      - Relative path from consumer task file to reference doc must be correct
+      - Reference doc must exist before Read-links point to it (Phase 1 before Phases 2-3)
+    backward_compat: none needed — reference doc is a new file
+
+  - id: 090-guideline
+    type: source-content
+    description: 090-data-integrity.md remains the preloaded Tier 1 guideline holding the non-procedural sections plus the seven procedural sections (unchanged by this spec)
+    direction: 090 → reference-doc (verbatim copy for the shared reference)
+    consumers:
+      - (orchestrator preload via opencode.jsonc instructions)
+    producers:
+      - .opencode/guidelines/090-data-integrity.md (unchanged)
+    compatibility_concerns:
+      - 090 must remain preloaded (12 Tier 1 guidelines, per #497)
+      - 090 must NOT be modified by this spec (condensation is a separate dependent issue)
+    backward_compat: fully backward compatible — 090 content unchanged
+
+  - id: skill-card-to-task
+    type: routing
+    description: Skill cards (engineering-approach, programming-principles) route to task files via the Trigger Dispatch Table; Read-links added to cards/task files point to the shared reference
+    direction: skill-card → task-file → reference-doc
+    consumers:
+      - .opencode/skills/engineering-approach/tasks/*.md
+      - .opencode/skills/programming-principles/tasks/principles.md
+    producers:
+      - .opencode/skills/engineering-approach/SKILL.md (modified)
+      - .opencode/skills/programming-principles/SKILL.md (modified)
+    compatibility_concerns:
+      - Read-links must use the canonical Read [Text](path) form
+      - No re-inlining of content into cards/tasks
+    backward_compat: fully backward compatible — Read-links are additive
+
+  - id: preload-config
+    type: config
+    description: opencode.jsonc instructions array is unchanged
+    direction: config → orchestrator-context
+    consumers:
+      - (orchestrator system prompt)
+    producers:
+      - .opencode/opencode.jsonc (unchanged)
+    compatibility_concerns:
+      - Reference files are NOT added to the preload array; they are read on demand
+    backward_compat: fully backward compatible — config unchanged
+
+compatibility_verdicts:
+  - interface: 090-data-integrity.md
+    verdict: UNCHANGED — backward compatible
+  - interface: data-integrity-shared.md
+    verdict: NEW — internal only (referenced by agent-facing Read-links)
+  - interface: engineering-approach
+    verdict: MODIFIED — backward compatible (additive Read-link)
+  - interface: programming-principles
+    verdict: MODIFIED — backward compatible (additive Read-link)
+  - interface: opencode.jsonc
+    verdict: UNCHANGED — backward compatible
+
+breaking_change_assessment:
+  has_breaking_changes: false
+  rationale: All modifications are additive (new file + new Read-links). No interfaces removed, no signatures changed, no behavior altered.

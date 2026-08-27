@@ -1,0 +1,55 @@
+# Research Card Consultation — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+consultation_scope: |
+  Consulted .opencode/.issues/research-cards/*.md for cards matching the spec topic:
+  shared reference file extraction, data-integrity content sharing, Read-link
+  cross-reference conventions, reference-file condensation.
+
+cards_examined:
+  - card: cross-reference-form-comparison.md
+    relevance: HIGH - establishes that inline markdown links (Read [Text](path)) are the reliable cross-reference form for agent access
+    confidence: 0.95
+    incorporated: YES
+  - card: spec-writing-ai-agents-opencode-skill-architecture.md
+    relevance: MEDIUM - skill architecture, semantic dispatch; background only
+    confidence: not stated
+    incorporated: partial (context)
+  - card: pre-response-gate-skill-description-design.md
+    relevance: LOW - skill description design; not directly relevant
+    confidence: not stated
+    incorporated: NO
+  - card: spec-creation-state.md
+    relevance: LOW - spec-creation pipeline state; not directly relevant
+    confidence: not stated
+    incorporated: NO
+  - card: other-cards
+    relevance: NOT relevant to reference-file extraction (create-md-remote-format, local-issues, multi-feature-branch, plan-fidelity, searxng, wiki-operations)
+    confidence: n/a
+    incorporated: NO
+
+key_incorporated_finding:
+  source: cross-reference-form-comparison.md (source #1988, 78 runs across 2 tiers, confidence 0.95)
+  finding: |
+    Inline markdown links (Read [Text](path)) more reliably cause an AI agent to access
+    referenced files than symbol-only refs with a resolution table.
+  implication: |
+    The new data-integrity-shared.md reference MUST be consumed via
+    Read [Text](reference/data-integrity-shared.md) inline links in the consuming skill
+    cards/task files - not via 'See section' citations or resolution tables.
+
+no_matching_card_for_core_topic: |
+  No research card directly addresses 'extract procedural sections of a guideline into
+  a shared reference file' or 'data-integrity shared reference'. The closest applicable
+  convention knowledge (Read-link form) is covered above. No additional research dispatch
+  is required; the extraction is a mechanical content-move following the established
+  reference/*.md convention.
+
+confidence_assessment:
+  - aspect: Read-link convention
+    confidence: HIGH (0.95 card + AGENTS.md mandate + verified consumer examples)
+  - aspect: Extraction scope (which sections)
+    confidence: HIGH (explicitly enumerated in issue Scope)
+  - aspect: Consumer identification (engineering-approach, programming-principles)
+    confidence: HIGH (stated in issue Problem statement)

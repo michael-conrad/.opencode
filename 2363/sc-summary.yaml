@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: ".opencode/reference/data-integrity-shared.md exists and contains the seven procedural sections verbatim from 090-data-integrity.md"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "engineering-approach skill card/task files contain mandatory Read-link to data-integrity-shared.md"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "programming-principles skill card/task files contain mandatory Read-link to data-integrity-shared.md"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "No re-inlining of procedural content into consuming cards (Scope Out respected)"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "090-data-integrity.md is not modified by this spec"
+    evidence_type: "structural"
+    plan_item: 5

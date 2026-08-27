@@ -1,0 +1,53 @@
+# Concern Map — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+concerns:
+  - id: canonical-data-integrity-content
+    description: Single source of truth for the seven procedural data-integrity sections
+    phases: [1]
+    affected_components:
+      - .opencode/reference/data-integrity-shared.md (new)
+    scs: [SC-1]
+    requirements: [REQ-1, REQ-2]
+
+  - id: engineering-approach-consumer-access
+    description: engineering-approach must Read-link to the shared reference so procedural content remains available on demand
+    phases: [2]
+    affected_components:
+      - .opencode/skills/engineering-approach/SKILL.md (modified)
+      - .opencode/skills/engineering-approach/tasks/verify-before-complete.md (modified, as needed)
+    scs: [SC-2]
+    requirements: [REQ-3, REQ-7]
+
+  - id: programming-principles-consumer-access
+    description: programming-principles must Read-link to the shared reference
+    phases: [3]
+    affected_components:
+      - .opencode/skills/programming-principles/SKILL.md (modified)
+      - .opencode/skills/programming-principles/tasks/principles.md (modified, as needed)
+    scs: [SC-3]
+    requirements: [REQ-3, REQ-7]
+
+  - id: scope-guards
+    description: Verify no re-inlining into cards and no 090 modification
+    phases: [4, 5]
+    affected_components:
+      - (verification only — no file changes)
+    scs: [SC-4, SC-5]
+    requirements: [REQ-4, NREQ-2]
+
+  - id: guideline-retention
+    description: 090-data-integrity.md keeps its non-procedural sections and stays preloaded
+    phases: [all]
+    affected_components:
+      - .opencode/guidelines/090-data-integrity.md (unchanged)
+      - .opencode/opencode.jsonc (unchanged)
+    scs: [SC-5]
+    requirements: [REQ-8, REQ-9, REQ-10]
+
+separation:
+  - The reference file (content) is cleanly separated from the consumers (links).
+  - Each phase addresses exactly one concern (reference creation / consumer A link /
+    consumer B link / guards).
+  - No phase mixes content extraction with content inlining.

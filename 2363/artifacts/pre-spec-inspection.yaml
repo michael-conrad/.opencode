@@ -1,0 +1,64 @@
+# Pre-Spec Inspection — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+inspection_summary: |
+  The spec requests extraction of seven procedural sections from
+  .opencode/guidelines/090-data-integrity.md into a new shared canonical reference
+  .opencode/reference/data-integrity-shared.md, plus mandatory Read-links in the
+  consuming skill cards (engineering-approach, programming-principles).
+
+affected_files:
+  source_to_extract:
+    - file: .opencode/guidelines/090-data-integrity.md
+      sections_to_extract:
+        - "## Batch Operations (lines 78-84)"
+        - "## Long-Running Tasks (lines 86-88)"
+        - "## Serialization Integrity (lines 101-106)"
+        - "## Data Classification (lines 108-113)"
+        - "## Migration Integrity (lines 115-120)"
+        - "## Audit Trail (lines 122-126)"
+        - "## Data Retention (lines 128-131)"
+      sections_not_in_scope:
+        - Global Absolute Prohibition
+        - Fail-Fast
+        - Verify Before Recommend
+        - No Unauthorized Semantic Changes
+        - Production Data Protection
+        - No Hardcoded Entity IDs
+        - Data Validation at System Boundaries
+        - Cross-References
+  new_file:
+    - .opencode/reference/data-integrity-shared.md
+  consumers_readlinks:
+    - .opencode/skills/engineering-approach/SKILL.md (and/or task files)
+    - .opencode/skills/programming-principles/SKILL.md (and/or task files)
+
+existing_patterns:
+  reference_file_convention:
+    description: Reference files live in .opencode/reference/*.md; consumed via Read [Text](path) inline links
+    verified_examples:
+      - "Read [cost-model-standards.md](reference/cost-model-standards.md) in writing-plans/tasks/create.md:58"
+      - "Read [cost-model-standards.md](reference/cost-model-standards.md) in audit/tasks/guideline-audit-*.md"
+      - "Read [plan-structure-standards.md](reference/plan-structure-standards.md) in audit/tasks/plan-fidelity-evaluator.md"
+    not_preloaded: Reference files are NOT in the opencode.jsonc instructions array; they are read on demand
+
+  preload_mechanism:
+    description: 090-data-integrity.md is preloaded as one of the 12 Tier 1 guidelines in opencode.jsonc instructions array (line 87)
+    constraint: The 12 Tier 1 guidelines MUST stay preloaded (see WARNING comment lines 69-76 referencing #497). This spec does NOT remove 090 from the instructions array.
+
+  read_link_rule:
+    description: AGENTS.md Read-Link Cross-Reference Rule mandates the Read [Text](path) pattern; 'See file section' is FORBIDDEN
+    research_card: cross-reference-form-comparison.md (confidence 0.95) confirms inline markdown links are the reliable form
+
+dependencies_and_callers:
+  - 090-data-integrity.md is referenced by:
+      - .opencode/skills/programming-principles/tasks/principles.md:350 (defensive programming enforcement)
+      - opencode.jsonc instructions array (orchestrator preload)
+  - No other guideline/skill inlines the seven procedural sections (verified via grep)
+
+risks:
+  - risk: Content loss if consuming cards don't Read-link
+    mitigation: Mandatory Read-link convention
+  - risk: 090 condensation is a separate dependent concern — this spec does NOT perform it
+    note: This spec prepares for condensation by adding Read-links

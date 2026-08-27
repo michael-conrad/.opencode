@@ -1,0 +1,50 @@
+# Cross-Cutting Matrix — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+cross_cutting_concerns:
+  - concern: content-fidelity
+    description: The seven procedural sections must be preserved verbatim from 090-data-integrity.md into the shared reference — no semantic drift
+    affected_phases: [1, 4]
+    affected_scs: [SC-1, SC-4]
+    risk: Content loss or semantic change during extraction violates 090's own no-unauthorized-semantic-changes rule and 130-authority-source.md
+    mitigation: Extract verbatim; verify against source in Phase 4 guard
+
+  - concern: read-link-convention
+    description: All Read-links must use the canonical Read [Text](path) inline form, not See §section or resolution tables
+    affected_phases: [2, 3]
+    affected_scs: [SC-2, SC-3]
+    risk: Wrong cross-reference form (See §section) is treated as citation and ignored by agents
+    mitigation: Use Read [Text](reference/data-integrity-shared.md) form per AGENTS.md Read-Link Cross-Reference Rule and research card (confidence 0.95)
+
+  - concern: no-reinline-scope
+    description: The procedural content must NOT be re-inlined into the consuming cards (Scope Out)
+    affected_phases: [2, 3, 4]
+    affected_scs: [SC-2, SC-3, SC-4]
+    risk: Re-inlining duplicates content and defeats the purpose of the shared reference
+    mitigation: Phase 4 guard verifies no duplication; cards only get Read-links, not content
+
+  - concern: 090-non-modification
+    description: 090-data-integrity.md must not be modified by this spec (condensation is a separate dependent issue)
+    affected_phases: [all]
+    affected_scs: [SC-5]
+    risk: Scope creep into the condensation concern
+    mitigation: Phase 5 guard verifies 090 unchanged via git diff
+
+  - concern: preload-stability
+    description: The opencode.jsonc instructions array (12 Tier 1 guidelines) must remain unchanged
+    affected_phases: [all]
+    affected_scs: [SC-5]
+    risk: Removing 090 from preload would cause the #497 safety regression
+    mitigation: No modification to opencode.jsonc; reference file is not preloaded
+
+  - concern: repo-routing
+    description: All changed files live in .opencode/ and must be routed to the .opencode repo, not the root repo
+    affected_phases: [all]
+    affected_scs: [SC-1, SC-2, SC-3]
+    risk: Changes filed/routed to the wrong repository
+    mitigation: Repo Information path .opencode → owner michael-conrad, repo .opencode
+
+cross_phase_dependencies:
+  - Phase 1 (ref create) is a prerequisite for Phase 2 and Phase 3 (the reference file must exist before Read-links point to it)
+  - Phase 4 and Phase 5 are independent verification guards, verifiable at any point

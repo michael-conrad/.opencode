@@ -1,0 +1,62 @@
+# Code Path Inventory — .opencode#2363
+# Sub-agent: analyze task (spec-creation pipeline)
+# Spec: Create shared ref: data-integrity-shared.md
+
+code_paths:
+  - id: create-data-integrity-shared
+    file: .opencode/reference/data-integrity-shared.md
+    location: (new file)
+    current_behavior: File does not exist
+    target_behavior: Contains the seven procedural sections (Batch Operations, Long-Running Tasks, Serialization Integrity, Data Classification, Migration Integrity, Audit Trail, Data Retention) preserved verbatim from 090-data-integrity.md
+    change_type: add-new-file
+    phases: [1]
+    scs: [SC-1]
+
+  - id: engineering-approach-skill-card
+    file: .opencode/skills/engineering-approach/SKILL.md
+    location: Cross-References / Operating Protocol section
+    current_behavior: No reference to data-integrity-shared.md
+    target_behavior: Add Read [data-integrity-shared.md](reference/data-integrity-shared.md) link
+    change_type: add-read-link
+    phases: [2]
+    scs: [SC-2]
+
+  - id: engineering-approach-verify-before-complete
+    file: .opencode/skills/engineering-approach/tasks/verify-before-complete.md
+    location: verification steps where data integrity is relevant
+    current_behavior: No reference to data-integrity-shared.md
+    target_behavior: Add Read [data-integrity-shared.md](reference/data-integrity-shared.md) link (as needed)
+    change_type: add-read-link
+    phases: [2]
+    scs: [SC-2]
+
+  - id: programming-principles-skill-card
+    file: .opencode/skills/programming-principles/SKILL.md
+    location: Relationship / Cross-References section
+    current_behavior: No reference to data-integrity-shared.md
+    target_behavior: Add Read [data-integrity-shared.md](reference/data-integrity-shared.md) link
+    change_type: add-read-link
+    phases: [3]
+    scs: [SC-3]
+
+  - id: programming-principles-principles-task
+    file: .opencode/skills/programming-principles/tasks/principles.md
+    location: Defensive Programming enforcement (line ~350)
+    current_behavior: Cites 090-data-integrity.md for enforcement
+    target_behavior: Add Read [data-integrity-shared.md](reference/data-integrity-shared.md) link (as needed)
+    change_type: add-read-link
+    phases: [3]
+    scs: [SC-3]
+
+  - id: 090-data-integrity
+    file: .opencode/guidelines/090-data-integrity.md
+    location: (entire file)
+    current_behavior: Contains all sections including the seven procedural sections
+    target_behavior: UNCHANGED by this spec (condensation is a separate dependent issue)
+    change_type: no-change (guard)
+    phases: [5]
+    scs: [SC-5]
+
+not_touched:
+  - .opencode/opencode.jsonc (preload array unchanged)
+  - Other reference files in .opencode/reference/
