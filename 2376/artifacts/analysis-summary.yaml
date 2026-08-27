@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+spec_path: .opencode/.issues/2376/spec.md
+issue_number: 2376
+repo: .opencode
+approval_status: approved
+approval_scope: for_pr
+labels:
+- approved-for-for_pr
+success_criteria_count: 3
+sc_ids:
+- SC-1
+- SC-2
+- SC-3
+artifacts:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+missing_artifacts: []
+scope_boundary:
+  .opencode/tests-v2/default-model.sh: present
+  .opencode/tests-v2/with-test-home: present
+  .opencode/AGENTS.md: present
+  .opencode/docs/model-dependency.md: present
+  .opencode/README.md: present
+  .opencode/tests-v2/AGENTS.md: present
+  AGENTS.md: present
+missing_scope_files: []
+scope_findings:
+- All scope boundary files referenced in the spec exist in the codebase.
+- 3 success criteria defined (SC-1, SC-2, SC-3); each is structural/string verifiable.
+- Out-of-scope files explicitly excluded: .opencode/opencode.jsonc and .opencode/docs/audit-sc6959-verification.md.
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)
