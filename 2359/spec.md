@@ -32,8 +32,17 @@ labels: [needs-approval, spec-draft]
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `.opencode/reference/orchestrator-context-discipline.md` exists and contains the extracted §1.1 content (orchestrator-context-lean, sub-agent-context-generosity, result-contract-frugality, allocation-by-context-cost), preserving the standardized vocabulary. | string | `grep` for the four mandate names and standardized vocabulary terms in the reference file |
-| SC-2 | Each of the 5 consuming skill cards (approval-gate, spec-creation, writing-plans, executing-plans, git-workflow) contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` each consuming card's Cross-References section for the `Read [Text](path)` link to the reference |
+| SC-1a | `.opencode/reference/orchestrator-context-discipline.md` exists as a file. | string | `grep` for the file existence / `file-exists` check on `.opencode/reference/orchestrator-context-discipline.md` |
+| SC-1b | The reference file contains the extracted §1.1 **orchestrator-context-lean** mandate. | string | `grep` for `orchestrator-context-lean` in the reference file |
+| SC-1c | The reference file contains the extracted §1.1 **sub-agent-context-generosity** mandate. | string | `grep` for `sub-agent-context-generosity` in the reference file |
+| SC-1d | The reference file contains the extracted §1.1 **result-contract-frugality** mandate. | string | `grep` for `result-contract-frugality` in the reference file |
+| SC-1e | The reference file contains the extracted §1.1 **allocation-by-context-cost** model. | string | `grep` for `allocation-by-context-cost` in the reference file |
+| SC-1f | The reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline') and does not regress to 'context budget'/'context cost'/'context awareness'. | string | `grep` the reference file for the standardized vocabulary terms; `grep` confirms absence of the regression terms |
+| SC-2a | The **approval-gate** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` approval-gate's Cross-References section for the `Read [Text](path)` link to the reference |
+| SC-2b | The **spec-creation** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` spec-creation's Cross-References section for the `Read [Text](path)` link to the reference |
+| SC-2c | The **writing-plans** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` writing-plans's Cross-References section for the `Read [Text](path)` link to the reference |
+| SC-2d | The **executing-plans** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` executing-plans's Cross-References section for the `Read [Text](path)` link to the reference |
+| SC-2e | The **git-workflow** skill card contains a `Read [Text](path)` link to `orchestrator-context-discipline.md` in its Cross-References section, using the imperative inline-link form. | string | `grep` git-workflow's Cross-References section for the `Read [Text](path)` link to the reference |
 | SC-3 | The AGENTS.md Reference Documents table contains a row for `orchestrator-context-discipline.md` with a Purpose entry. | string | `grep` the AGENTS.md Reference Documents table for the reference filename |
 
 ## 4. Requirements
