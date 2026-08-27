@@ -59,76 +59,98 @@ labels: [needs-approval, spec-draft]
 
 ## 5. Items
 
-### Item 1 (SC-1a, SC-1b, SC-1c, SC-1d, SC-1e, SC-1f, SC-1g): Create orchestrator-context-discipline.md reference file
+Each item maps to exactly one success criterion (1:1 item-SC mapping), giving each SC its own RED/GREEN/verify/commit cycle.
+
+### Item 1 (SC-1a): Create orchestrator-context-discipline.md reference file
 
 - RED (SC-1a): Enforcement test that asserts the reference file does not yet exist at `.opencode/reference/orchestrator-context-discipline.md`.
 - GREEN (SC-1a): Create `.opencode/reference/orchestrator-context-discipline.md` with the extracted §1.1 content, preserving the standardized vocabulary and following reference file conventions.
 - verify (SC-1a): Confirm the reference file exists.
 - commit (SC-1a): The new reference file.
 
+### Item 2 (SC-1b): Include the orchestrator-context-lean mandate
+
 - RED (SC-1b): Enforcement test that asserts the reference file does not contain the orchestrator-context-lean mandate.
 - GREEN (SC-1b): Ensure the reference file contains the orchestrator-context-lean mandate content.
 - verify (SC-1b): `grep` the reference file for `orchestrator-context-lean`.
 - commit (SC-1b): The reference file.
+
+### Item 3 (SC-1c): Include the sub-agent-context-generosity mandate
 
 - RED (SC-1c): Enforcement test that asserts the reference file does not contain the sub-agent-context-generosity mandate.
 - GREEN (SC-1c): Ensure the reference file contains the sub-agent-context-generosity mandate content.
 - verify (SC-1c): `grep` the reference file for `sub-agent-context-generosity`.
 - commit (SC-1c): The reference file.
 
+### Item 4 (SC-1d): Include the result-contract-frugality mandate
+
 - RED (SC-1d): Enforcement test that asserts the reference file does not contain the result-contract-frugality mandate.
 - GREEN (SC-1d): Ensure the reference file contains the result-contract-frugality mandate content.
 - verify (SC-1d): `grep` the reference file for `result-contract-frugality`.
 - commit (SC-1d): The reference file.
+
+### Item 5 (SC-1e): Include the allocation-by-context-cost model
 
 - RED (SC-1e): Enforcement test that asserts the reference file does not contain the allocation-by-context-cost model.
 - GREEN (SC-1e): Ensure the reference file contains the allocation-by-context-cost model content.
 - verify (SC-1e): `grep` the reference file for `allocation-by-context-cost`.
 - commit (SC-1e): The reference file.
 
+### Item 6 (SC-1f): Preserve the standardized vocabulary
+
 - RED (SC-1f): Enforcement test that asserts the standardized vocabulary terms are absent.
 - GREEN (SC-1f): Ensure the reference file preserves 'orchestrator context'/'sub-agent context'/'orchestrator context discipline'.
 - verify (SC-1f): `grep` the reference file for the standardized vocabulary terms.
 - commit (SC-1f): The reference file.
+
+### Item 7 (SC-1g): Exclude the regression terms
 
 - RED (SC-1g): Enforcement test that asserts the regression terms ('context budget'/'context cost'/'context awareness') are present.
 - GREEN (SC-1g): Ensure the reference file does not use the regression terms.
 - verify (SC-1g): `grep` the reference file confirms absence of the regression terms.
 - commit (SC-1g): The reference file.
 
-### Item 2 (SC-2a, SC-2b, SC-2c, SC-2d, SC-2e): Add mandatory Read [Text](path) links to consuming skill cards
+### Item 8 (SC-2a): Add Read [Text](path) link to approval-gate skill card
 
 - RED (SC-2a): Enforcement test that asserts the approval-gate skill card does not contain a `Read [Text](path)` link to the reference.
 - GREEN (SC-2a): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the approval-gate skill card.
 - verify (SC-2a): `grep` approval-gate's Cross-References section for the imperative inline-link form.
 - commit (SC-2a): The approval-gate skill card.
 
+### Item 9 (SC-2b): Add Read [Text](path) link to spec-creation skill card
+
 - RED (SC-2b): Enforcement test that asserts the spec-creation skill card does not contain a `Read [Text](path)` link to the reference.
 - GREEN (SC-2b): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the spec-creation skill card.
 - verify (SC-2b): `grep` spec-creation's Cross-References section for the imperative inline-link form.
 - commit (SC-2b): The spec-creation skill card.
+
+### Item 10 (SC-2c): Add Read [Text](path) link to writing-plans skill card
 
 - RED (SC-2c): Enforcement test that asserts the writing-plans skill card does not contain a `Read [Text](path)` link to the reference.
 - GREEN (SC-2c): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the writing-plans skill card.
 - verify (SC-2c): `grep` writing-plans's Cross-References section for the imperative inline-link form.
 - commit (SC-2c): The writing-plans skill card.
 
+### Item 11 (SC-2d): Add Read [Text](path) link to executing-plans skill card
+
 - RED (SC-2d): Enforcement test that asserts the executing-plans skill card does not contain a `Read [Text](path)` link to the reference.
 - GREEN (SC-2d): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the executing-plans skill card.
 - verify (SC-2d): `grep` executing-plans's Cross-References section for the imperative inline-link form.
 - commit (SC-2d): The executing-plans skill card.
+
+### Item 12 (SC-2e): Add Read [Text](path) link to git-workflow skill card
 
 - RED (SC-2e): Enforcement test that asserts the git-workflow skill card does not contain a `Read [Text](path)` link to the reference.
 - GREEN (SC-2e): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the git-workflow skill card.
 - verify (SC-2e): `grep` git-workflow's Cross-References section for the imperative inline-link form.
 - commit (SC-2e): The git-workflow skill card.
 
-### Item 3 (SC-3): Index the reference in AGENTS.md Reference Documents table
+### Item 13 (SC-3): Index the reference in AGENTS.md Reference Documents table
 
-- RED: Enforcement test that asserts the AGENTS.md Reference Documents table does not yet contain a row for the reference.
-- GREEN: Add a row for `orchestrator-context-discipline.md` with a Purpose entry to the AGENTS.md Reference Documents table.
-- verify: `grep` the AGENTS.md Reference Documents table for the reference filename.
-- commit: The modified AGENTS.md.
+- RED (SC-3): Enforcement test that asserts the AGENTS.md Reference Documents table does not yet contain a row for the reference.
+- GREEN (SC-3): Add a row for `orchestrator-context-discipline.md` with a Purpose entry to the AGENTS.md Reference Documents table.
+- verify (SC-3): `grep` the AGENTS.md Reference Documents table for the reference filename.
+- commit (SC-3): The modified AGENTS.md.
 
 ## 6. Dependencies
 
@@ -194,6 +216,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |------|--------|--------|---------------|
 | 2026-08-27 | Decomposed compound SCs into atomic SCs: SC-1 split into SC-1a (file exists), SC-1b..SC-1e (four mandates), SC-1f (vocabulary preservation); SC-2 split into SC-2a..SC-2e (one per consuming skill card). Updated sc-summary.yaml, Items, Traceability, Cost Frame, and Edge Cases to match the decomposed SC set. | Validation finding: Aggregate FAIL due to compound SCs bundling multiple verification targets via "and"/comma-list phrasing. | Validation pipeline (sub-agent revision) |
 | 2026-08-27 | Split compound SC-1f into two atomic SCs: SC-1f (standardized vocabulary preserved) and SC-1g (regression terms absent). Updated sc-summary.yaml (sc_count 12→13), Items, Traceability, Cost Frame, and Edge Cases to match. | Validation finding: Aggregate FAIL — SC-1f bundled two distinct verification targets (vocabulary present + regression terms absent) via "and", violating the atomic-SC rule. | Validation pipeline (sub-agent revision) |
+| 2026-08-27 | Restructured Items section to a 1:1 item-SC mapping: Item 1 (SC-1a) through Item 13 (SC-3), one RED/GREEN/verify/commit cycle per SC. Updated sc-summary.yaml plan_item numbering (1:1), and kept Traceability/Cost Frame/Edge Cases consistent (they reference Phase/SC, not item numbers). | Validation finding: Aggregate FAIL — Items grouped multiple SCs per item (Item 1 bundled SC-1a..SC-1g = 7 SCs; Item 2 bundled SC-2a..SC-2e = 5 SCs), violating the "no item may cover multiple SCs" rule from spec-structure-standards.md §5. | Validation pipeline (sub-agent revision) |
 
 ---
 

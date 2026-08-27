@@ -7,48 +7,48 @@ scs:
   - id: "SC-1b"
     description: "Reference file contains the extracted §1.1 orchestrator-context-lean mandate"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 2
   - id: "SC-1c"
     description: "Reference file contains the extracted §1.1 sub-agent-context-generosity mandate"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 3
   - id: "SC-1d"
     description: "Reference file contains the extracted §1.1 result-contract-frugality mandate"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 4
   - id: "SC-1e"
     description: "Reference file contains the extracted §1.1 allocation-by-context-cost model"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 5
   - id: "SC-1f"
     description: "Reference file preserves the standardized vocabulary ('orchestrator context', 'sub-agent context', 'orchestrator context discipline')"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 6
   - id: "SC-1g"
     description: "Reference file does not regress to 'context budget'/'context cost'/'context awareness'"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 7
   - id: "SC-2a"
     description: "approval-gate skill card contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 8
   - id: "SC-2b"
     description: "spec-creation skill card contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 9
   - id: "SC-2c"
     description: "writing-plans skill card contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 10
   - id: "SC-2d"
     description: "executing-plans skill card contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 11
   - id: "SC-2e"
     description: "git-workflow skill card contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 12
   - id: "SC-3"
     description: "AGENTS.md Reference Documents table contains a row for orchestrator-context-discipline.md with a Purpose entry"
     evidence_type: "string"
-    plan_item: 3
+    plan_item: 13

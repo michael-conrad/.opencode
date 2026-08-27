@@ -1,0 +1,9 @@
+sc: SC-2
+phase: "Phase 2: with-test-home hardcoded fallbacks"
+verdict: PASS
+evidence:
+  - "RED test .opencode/tests-v2/test-2376-sc2-red.sh fails at baseline (2 FAIL, exit 1)"
+  - "GREEN: both hardcoded fallback literals in with-test-home updated to ollama/qwen3.8:27b-256k"
+  - "RED test passes after GREEN (2 PASS, exit 0)"
+  - "grep confirms with-test-home lines 135 and 264 equal ollama/qwen3.8:27b-256k"
+commit: b5120972

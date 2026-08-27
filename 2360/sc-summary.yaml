@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "Create .opencode/reference/attribution-provenance.md with extracted attribution/provenance content following reference file format"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Add Read-link to attribution-provenance.md in skill-creator/SKILL.md Cross-References"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Add Read-link to attribution-provenance.md in spec-creation/SKILL.md Cross-References"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Add Read-link to attribution-provenance.md in issue-operations-comments/SKILL.md Cross-References"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Condense 080-code-standards.md by replacing AI Co-Authored Attribution and Provenance Headers sections with Read-link to attribution-provenance.md"
+    evidence_type: "structural"
+    plan_item: 5

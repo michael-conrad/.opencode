@@ -1,7 +1,8 @@
 number: 2360
 title: '[SPEC] Create shared ref: attribution-provenance.md'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   `.opencode/guidelines/080-code-standards.md` attribution/byline + provenance-header
@@ -28,7 +29,7 @@ body: '## Problem
   Enables 080 condensation. Risk: losing co-author attribution requirement. Mitigation:
   consuming cards Read-link the shared ref. Depends on 080 condensation. Action: approve.'
 created_at: '2026-08-27T03:14:37Z'
-updated_at: '2026-08-27T03:14:37Z'
+updated_at: '2026-08-27T04:54:49+00:00'
 remote_issue: 2360
 remote_url: https://github.com/michael-conrad/.opencode/issues/2360
 promoted_at: '2026-08-27T03:25:12.677158+00:00'
