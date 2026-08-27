@@ -1,0 +1,21 @@
+state_analysis:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  states:
+    initial_state:
+      label: "No Read-links in engineering-approach"
+      files:
+        ".opencode/skills/engineering-approach/SKILL.md": "No data-integrity/code-standards/dv references"
+        ".opencode/skills/engineering-approach/tasks/operating-protocol.md": "No shared ref Read-links; step 5 references live-doc verification inline"
+      transitions:
+        - to: "Read-links-added"
+          via: "Add mandatory Read-links to SKILL.md and operating-protocol.md"
+        - to: "rejected"
+          via: "PR not approved / shared refs not created"
+
+    read_links_added:
+      label: "Read-links present in engineering-approach"
+      files:
+        ".opencode/skills/engineering-approach/SKILL.md": "Read-links to data-integrity-shared.md and code-standards-shared.md"
+        ".opencode/skills/engineering-approach/tasks/operating-protocol.md": "Read-links to shared refs + docs-verification source-priority anchor"

@@ -1,0 +1,33 @@
+concern_map:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  concerns:
+    - concern: "Read-link cross-references"
+      boundaries:
+        - "Add Read-links to engineering-approach skill files ONLY"
+        - "Do NOT add Read-links to other skill card files or guidelines"
+      files:
+        - ".opencode/skills/engineering-approach/SKILL.md"
+        - ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+
+    - concern: "Docs-verification source-priority anchoring"
+      boundaries:
+        - "Source-priority list from 075 §Verification Sources (Priority Order) must be accessible via Read-link"
+        - "List itself stays in 075 until #2353 condensations"
+      files:
+        - ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+
+    - concern: "No side-effect modification"
+      boundaries:
+        - "090-data-integrity.md, 080-code-standards.md, 075-docs-verification.md MUST NOT be modified"
+        - "opencode.jsonc preload array MUST NOT be modified"
+      files: []
+
+    - concern: "Shared reference consumption pattern"
+      boundaries:
+        - "All Read-links use the mandatory Read [Text](path) form"
+        - "No inline copy of procedural content from shared refs"
+      files:
+        - ".opencode/skills/engineering-approach/SKILL.md"
+        - ".opencode/skills/engineering-approach/tasks/operating-protocol.md"

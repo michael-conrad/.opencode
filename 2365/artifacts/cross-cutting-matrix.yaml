@@ -1,0 +1,19 @@
+cross_cutting_matrix:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  matrix:
+    - concern: "Read-link format consistency"
+      phases_affected: [1, 2]
+      description: "All Read-links must use Read [Text](path) form per AGENTS.md mandate"
+      mitigation: "Use exact pattern from AGENTS.md §Read-Link Cross-Reference Rule"
+
+    - concern: "Prerequisite dependency"
+      phases_affected: [1, 2]
+      description: "Shared reference files do not yet exist — Read-links reference forthcoming files"
+      mitigation: "Read-links will resolve after #2362 and #2363 are implemented; no runtime dependency"
+
+    - concern: "No guideline modification"
+      phases_affected: [3]
+      description: "Guard against accidental modification of 090, 080, 075 guideline files"
+      mitigation: "SC-5 git-diff verification guard"

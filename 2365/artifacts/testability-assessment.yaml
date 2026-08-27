@@ -1,0 +1,34 @@
+testability_assessment:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  phases:
+    phase_1:
+      description: "Add Read-links for shared references"
+      test_strategy: "structural"
+      verification:
+        - "grep for 'Read.*reference/data-integrity-shared.md' in SKILL.md and operating-protocol.md"
+        - "grep for 'Read.*reference/code-standards-shared.md' in SKILL.md and operating-protocol.md"
+      behavioral: false
+      rationale: "Read-link presence is a string-matchable structural property"
+
+    phase_2:
+      description: "Anchor docs-verification source-priority list"
+      test_strategy: "structural"
+      verification:
+        - "grep for 'Read.*075-docs-verification' or 'source-priority' in operating-protocol.md"
+      behavioral: false
+      rationale: "Read-link presence is structural"
+
+    phase_3:
+      description: "Verify no side-effect modifications"
+      test_strategy: "structural"
+      verification:
+        - "git diff --stat to confirm 090, 080, 075 are unmodified"
+      behavioral: false
+      rationale: "Git diff is structural verification"
+
+  overall_assessment:
+    testability: "high"
+    complexity: "low"
+    risks: []

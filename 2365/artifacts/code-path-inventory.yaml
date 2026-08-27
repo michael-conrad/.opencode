@@ -1,0 +1,35 @@
+code_path_inventory:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  phases:
+    phase_1:
+      description: "Add Read-links for shared references"
+      touched_files:
+        - ".opencode/skills/engineering-approach/SKILL.md"
+        - ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+      operations:
+        - type: "edit — add Read [data-integrity-shared.md](reference/data-integrity-shared.md)"
+        - type: "edit — add Read [code-standards-shared.md](reference/code-standards-shared.md)"
+      entry_points: []
+      exit_points: []
+
+    phase_2:
+      description: "Anchor docs-verification source-priority list"
+      touched_files:
+        - ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+      operations:
+        - type: "edit — add Read [075-docs-verification.md §Verification Sources](guidelines/075-docs-verification.md) reference"
+      entry_points: []
+      exit_points: []
+
+    phase_3:
+      description: "Verify no side-effect modifications"
+      touched_files:
+        - ".opencode/guidelines/090-data-integrity.md"
+        - ".opencode/guidelines/080-code-standards.md"
+        - ".opencode/guidelines/075-docs-verification.md"
+      operations:
+        - type: "verify — git diff confirms unmodified"
+      entry_points: []
+      exit_points: []

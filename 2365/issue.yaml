@@ -1,8 +1,7 @@
 number: 2365
 title: '[SPEC] Update engineering-approach skill — Read-link docs-verification & data-integrity'
 status: open
-labels:
-- needs-approval,spec-draft
+labels: [needs-approval, spec-draft]
 body: '## Problem
 
   Docs-verification source-priority list (075) and data-integrity procedural content

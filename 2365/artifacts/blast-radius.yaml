@@ -1,0 +1,23 @@
+blast_radius:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  primary_components:
+    - component: ".opencode/skills/engineering-approach/SKILL.md"
+      change: "Add mandatory Read-links to reference/data-integrity-shared.md and reference/code-standards-shared.md"
+      ripple_effects:
+        - "None — Read-links are additive, no existing content removed"
+        - "Pipeline sub-agents executing engineering-approach tasks will load shared ref content when dispatched"
+
+    - component: ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+      change: "Add Read-links to data-integrity-shared.md and code-standards-shared.md; anchor docs-verification source-priority list"
+      ripple_effects:
+        - "Step 5 (pre-implementation verification) will reference live-docs-verification source-priority order from the shared reference"
+        - "Sub-agents following operating-protocol steps will have Read-link access to data-integrity and code-standards procedural content"
+
+  no_ripple:
+    - ".opencode/guidelines/090-data-integrity.md — NOT modified (SC-5 guard)"
+    - ".opencode/guidelines/080-code-standards.md — NOT modified (SC-5 guard)"
+    - ".opencode/guidelines/075-docs-verification.md — NOT modified (SC-5 guard)"
+    - ".opencode/reference/ — NOT created or modified (handled by #2362, #2363)"
+    - "Other skill cards (programming-principles, skill-creator, etc.) — NOT affected"

@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: SC-1
+    description: "SKILL.md Cross-References section SHALL contain a Read-link to reference/data-integrity-shared.md"
+    evidence_type: structural
+    plan_item: 1
+  - id: SC-2
+    description: "SKILL.md Cross-References section SHALL contain a Read-link to reference/code-standards-shared.md"
+    evidence_type: structural
+    plan_item: 1
+  - id: SC-3
+    description: "operating-protocol.md Shared Reference Consumption section SHALL contain Read-links to both shared references"
+    evidence_type: structural
+    plan_item: 2
+  - id: SC-4
+    description: "operating-protocol.md step 5 SHALL anchor the docs-verification source-priority list via Read-link"
+    evidence_type: structural
+    plan_item: 3
+  - id: SC-5
+    description: "Guidelines 090, 080, 075 SHALL NOT be modified"
+    evidence_type: structural
+    plan_item: 4

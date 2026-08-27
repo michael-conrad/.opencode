@@ -1,0 +1,7 @@
+research_card_consultation:
+  issue: ".opencode#2365"
+  consulted_at: "2026-08-27T20:42:30Z"
+  root_repo_cards_checked: 14
+  submodule_repo_cards_checked: 11
+  matching_cards: []
+  finding_summary: "No existing research cards match the topic of adding Read-links to engineering-approach for docs-verification/data-integrity shared references."

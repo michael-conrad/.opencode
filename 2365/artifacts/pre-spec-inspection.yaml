@@ -1,0 +1,34 @@
+pre_spec_inspection:
+  issue: ".opencode#2365"
+  title: "[SPEC] Update engineering-approach skill — Read-link docs-verification & data-integrity"
+  inspected_at: "2026-08-27T20:42:00Z"
+
+  affected_files:
+    - path: ".opencode/skills/engineering-approach/SKILL.md"
+      reason: "Primary target — add mandatory Read-links to shared references and anchor docs-verification source-priority list"
+    - path: ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+      reason: "Task file containing the procedural steps where verification sources and data-integrity procedural content are referenced"
+    - path: ".opencode/skills/engineering-approach/tasks/verify-before-complete.md"
+      reason: "Task file that references verification — may need Read-link to docs-verification or shared refs"
+    - path: ".opencode/skills/engineering-approach/tasks/design-before-code.md"
+      reason: "May need Read-link to shared refs for design discipline"
+    - path: ".opencode/skills/engineering-approach/tasks/verify-understanding.md"
+      reason: "May need Read-link to shared refs"
+
+  existing_patterns:
+    - pattern: "Read [Text](.opencode/path)"
+      locations:
+        - ".opencode/guidelines/075-docs-verification.md (Related Guidelines section)"
+        - ".opencode/guidelines/130-authority-source.md (Documentation Drift Protocol)"
+
+  prerequisite_issues:
+    - "#2363: Create reference/data-integrity-shared.md — seven procedural sections from 090"
+    - "#2362: Create reference/code-standards-shared.md — eleven procedural sections from 080"
+    - "#2353: Condense 075-docs-verification.md after #2365 completes"
+
+  key_findings:
+    - "Shared reference files do not yet exist (prerequisite issues are OPEN)"
+    - "engineering-approach SKILL.md has no existing references to docs-verification or data-integrity"
+    - "operating-protocol.md step 5 says 'verify API signatures, env vars, config formats against live docs' — this is where the docs-verification source-priority list should anchor"
+    - "verify-before-complete.md already reads from docs-verification implicitly; needs explicit Read-link"
+    - "The spec calls for adding Read-links to forthcoming shared refs at reference/data-integrity-shared.md and reference/code-standards-shared.md"

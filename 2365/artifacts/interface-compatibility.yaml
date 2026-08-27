@@ -1,0 +1,31 @@
+interface_compatibility:
+  issue: ".opencode#2365"
+  analyzed_at: "2026-08-27T20:45:00Z"
+
+  interfaces:
+    - component: ".opencode/skills/engineering-approach/SKILL.md"
+      change_type: "modified"
+      backward_compatible: true
+      interface: "SKILL.md frontmatter (name, description, license, compatibility) — unchanged"
+      details: "Read-links added to body sections; Trigger Dispatch Table, Invocation, and routing unchanged"
+
+    - component: ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+      change_type: "modified"
+      backward_compatible: true
+      interface: "Procedure steps — unchanged; Read-links added as additional reference material"
+      details: "Sub-agents following protocol will load additional context via Read-links"
+
+    - component: ".opencode/guidelines/090-data-integrity.md"
+      change_type: "unchanged"
+      backward_compatible: true
+      interface: "Full guideline — not modified"
+
+    - component: ".opencode/guidelines/080-code-standards.md"
+      change_type: "unchanged"
+      backward_compatible: true
+      interface: "Full guideline — not modified"
+
+    - component: ".opencode/guidelines/075-docs-verification.md"
+      change_type: "unchanged"
+      backward_compatible: true
+      interface: "Full guideline — not modified"
