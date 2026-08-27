@@ -1,0 +1,10 @@
+sc_count: 2
+scs:
+  - id: "SC-1"
+    description: "SKILL.md contains a ## Per-Item TDD Cycle section with RED/GREEN/REFACTOR/COMMIT phase table and behavioral variant"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "SKILL.md contains a Read link to code-standards-shared.md"
+    evidence_type: "string"
+    plan_item: 2
