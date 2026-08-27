@@ -1,0 +1,40 @@
+number: 1152
+title: '[SPEC] issue-operations --task locate: local-first routing gate for issue
+  resolution'
+status: open
+labels:
+- spec
+body: '> **Full spec and artifacts: [`.issues/1152/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1152)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.issues/1152/spec-artifacts/` — implementation plan, card
+  catalogue, dependency contracts, research, designs, audit findings
+
+
+  Add `issue-operations --task locate` — a routing gate that calls `local-issues locate`
+  first, then falls through to `import-remote` from GitHub/GitBucket on local miss,
+  or returns "not found" when no remote exists.
+
+
+  depends-on: #1151
+
+
+  SC-1: locate with local issue returns spec artifact path
+
+  SC-2: locate with remote-only issue imports and returns local path
+
+  SC-3: locate with no local and no remote returns "not found"
+
+  SC-4: Agent uses locate before direct github_issue_read when resolving repo#N (carried
+  forward from #1151 SC-7)'
+created_at: '2026-06-13T03:02:37Z'
+updated_at: '2026-06-13T03:23:33Z'
+remote_issue: 1152
+remote_url: https://github.com/michael-conrad/.opencode/issues/1152
+promoted_at: '2026-08-27T03:25:12.568205+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.568205+00:00'
+author: michael-conrad

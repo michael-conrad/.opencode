@@ -1,0 +1,224 @@
+number: 629
+title: '[BUG] session-enforcement.ts has no abort/retry recovery — sibling flooding
+  + no execSync timeout resubmit'
+status: open
+labels:
+- bug
+- needs-approval
+body: '# [BUG] session-enforcement.ts has no abort/retry recovery — sibling flooding
+  + no execSync timeout resubmit
+
+
+  ## Root Cause (Single Class)
+
+
+  The plugin''s `messages.transform` hook has **no recovery protocol for interrupted
+  operations**. Two distinct symptoms from the same gap:
+
+
+  ### Symptom A: User Abort → Sibling Flood
+
+
+  When the user hits abort during an assistant response, the platform creates a new
+  assistant **sibling** under the same parent user message. The plugin''s `messages.transform`
+  runs on the growing `output.messages` array but never trims aborted siblings. This
+  was confirmed via SQLite DB analysis of session `ses_1ced512c1ffe1376zIyZJx0Z1l`:
+
+
+  - 10 assistant siblings sharing `parentID: msg_e312c6e47001UT6dGIkV4ViahI`
+
+  - Input tokens grew from 95,612 → 121,142 across retries (+27% bloat)
+
+  - Total waste: ~893K input tokens across all resubmits
+
+  - Each sibling includes growing reasoning text (220 → 2,984 chars) and tool call
+  parts that never completed
+
+
+  ### Symptom B: execSync Timeout → No Resubmit
+
+
+  When `execSync` calls inside the plugin hit their timeout (5s or 30s), the hook
+  fails silently. The platform gets no result or an error, and **nobody triggers a
+  retry**. The session becomes unresponsive.
+
+
+  This symptom was originally misdiagnosed as a "plugin crash" — the plugin doesn''t
+  crash, it just doesn''t complete and nothing retries it.
+
+
+  **All `execSync` call sites (10 total):**
+
+
+  | # | Function | Command | Timeout | Line |
+
+  |---|----------|---------|---------|------|
+
+  | 1 | `captureGitConfigBaseline` | `git config --local --list` | 5s | 89 |
+
+  | 2 | `captureGitConfigBaseline` | `git remote -v` | 5s | 103 |
+
+  | 3 | `resolveGitDir` | `git rev-parse --git-dir` | 5s | 299 |
+
+  | 4 | `runSessionInit` | `./.opencode/tools/session-init` | 30s | 371 |
+
+  | 5 | `runSessionContextTriggers` | `./.opencode/scripts/session_context_triggers.py`
+  | 30s | 437 |
+
+  | 6 | `getCurrentBranch` | `git branch --show-current` | 5s | 761 |
+
+  | 7 | `getWorkingTreeStatus` | `git status --short` | 5s | 783 |
+
+  | 8 | Plugin startup — `baselineLocalConfig` | `git config --local --list` | 5s
+  | 867 |
+
+  | 9 | Config mutation watchdog | `git config --local --list` | 5s | 1062 |
+
+  | 10 | No-verify detection | `git remote -v` | 5s | 1100 |
+
+
+  **Zero retry logic at any of these 10 sites.** All catch blocks only log diagnostics
+  and return empty/fallback values.
+
+
+  ## Success Criteria
+
+
+  ### SC-1: Sibling Flood Prevention (Fix 1)
+
+  Verifiable condition: After implementing Fix 1, on session resubmit with aborted
+  siblings present, `messages.transform` detects siblings with `finish=tool-calls`
+  and zero tool responses, removes them from `output.messages`, and the LLM receives
+  only the user message + current retry. Verified by: grep for parentID/finish/tool-responses
+  filtering logic in `messages.transform`.
+
+
+  ### SC-2: execSync Retry Coverage (Fix 2)
+
+  Verifiable condition: All 10 execSync call sites (lines 89, 103, 299, 371, 437,
+  761, 783, 867, 1062, 1100) are wrapped with retry logic implementing exponential
+  backoff (baseDelay=1000ms, multiplier=2, maxAttempts=3, jitter=±250ms). Verified
+  by: grep for `retryCount`/`backoff`/`exponential` at each of the 10 line numbers.
+
+
+  ### SC-3: Fail-Safe Behavior
+
+  Verifiable condition: After all retry attempts exhaust at any execSync site, the
+  plugin disables enforcement for the current turn, logs a warning via `writeDiagnostic`,
+  and permits the session to continue. Verified by: catch block contains a fail-safe
+  path with diagnostic write and a non-blocking return.
+
+
+  ## Evidence
+
+
+  **Symptom A evidence:** SQLite `message` table for session `ses_1ced512c1ffe1376zIyZJx0Z1l`
+  shows 10 siblings, all with `finish=tool-calls` and zero tool responses. Token accumulation
+  grows monotonically across siblings. Verified by live source inspection of `messages.transform`
+  — no abort detection or sibling trimming logic exists.
+
+
+  **Symptom B evidence:** All 10 `execSync` call sites in `session-enforcement.ts`
+  have timeout parameters but zero retry logic. Live grep for `retry` and `backoff`
+  across the entire file returns zero matches (excluding false positives in prose
+  strings).
+
+
+  ## Documentation Sources
+
+
+  | Claim | Verification Source | Tool/Reference |
+
+  |-------|-------------------|----------------|
+
+  | 10 siblings in session `ses_1ced512c1ffe1376zIyZJx0Z1l` | SQLite `message` table
+  | `SELECT count(*) FROM message WHERE session_id = ''ses_1ced512...''` |
+
+  | All siblings share parentID | SQLite `message` table | `SELECT parentID, count(*)
+  FROM message WHERE session_id = ''ses_1ced512...'' GROUP BY parentID` |
+
+  | Token growth 95,612→121,142 | SQLite `message` table | `SELECT tokens_input FROM
+  message WHERE session_id = ''ses_1ced512...''` |
+
+  | 10 execSync call sites | Source file `session-enforcement.ts` | `grep -n execSync`
+  — 11 matches (1 import + 10 calls) |
+
+  | Zero retry logic | Source file `session-enforcement.ts` | `grep -i ''retry\|backoff\|exponential''`
+  — zero matches |
+
+  | Zero sibling trimming | Source file `session-enforcement.ts` | Read `messages.transform`
+  (lines 950-1227) — no parentID/finish/tool-responses filtering |
+
+
+  ## Fix Requirements
+
+
+  ### Fix 1: Abort-Aware Trimming (messages.transform)
+
+
+  The plugin has `input.client` (SDK → SQLite DB). On each `messages.transform` invocation:
+
+
+  1. Inspect `output.messages` for multiple assistant siblings under the same parent
+  user message
+
+  2. Query the `message` table via `input.client` to detect which siblings were aborted
+  (finish=tool-calls, no tool responses, or error present)
+
+  3. **Remove all aborted siblings** from `output.messages` before they reach the
+  LLM — keep only the user message + the current retry
+
+  4. This eliminates the 27%+ context bloat on every retry
+
+
+  **Note:** The trimming occurs *inside* the transform callback itself, before it
+  returns — the platform waits for the transform promise to settle, so no ordering
+  issue exists. However, if implementation defers mutation to an external handler,
+  the ordering concern would apply.
+
+
+  ### Fix 2: execSync Timeout Retry (All 10 Sites)
+
+
+  Add retry logic to ALL 10 `execSync` call sites:
+
+
+  1. Catch child process timeout errors (err.killed, SIGTERM, timeout)
+
+  2. Implement exponential backoff retry: baseDelay=1000ms, multiplier=2, maxAttempts=3,
+  jitter=±250ms, maxDelay=10000ms
+
+  3. If all retries fail, fail safe — disable plugin enforcement for this turn, log
+  warning via `writeDiagnostic`, let session continue
+
+  4. Never leave the hook in a hanging or partially-complete state
+
+
+  ### Fix API Consideration
+
+
+  Achievable with current API surface through `output.messages` mutation. A dedicated
+  abort handler hook would be cleaner but is not required.
+
+
+  ## Environment
+
+
+  - Platform: Linux
+
+  - opencode CLI session (not desktop app)
+
+  - Plugin: session-enforcement.ts
+
+  - SQLite DB at `~/.local/share/opencode/opencode.db`
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-16T14:39:34Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 629
+remote_url: https://github.com/michael-conrad/.opencode/issues/629
+promoted_at: '2026-08-27T03:25:11.873884+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.873884+00:00'
+author: michael-conrad

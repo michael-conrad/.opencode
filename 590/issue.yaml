@@ -1,0 +1,93 @@
+number: 590
+title: '[SPEC] brainstorming — terminal state is user-approved, not auto-detected'
+status: open
+labels:
+- needs-approval
+- spec
+- skill-deck
+body: '# SPEC: brainstorming — Terminal State Is User-Approved
+
+
+  Parent plan: #587
+
+
+  ## Problem
+
+
+  `skills/brainstorming/SKILL.md` Operating Protocol §5 says "Terminal state invokes
+  spec-creation" — implying the orchestrator autonomously detects when exploration
+  is done. Terminal state cannot be auto-detected because the user decides when brainstorming
+  is complete.
+
+
+  ## Success Criteria
+
+
+  ### SC-1: Terminal state defined as user-approved
+
+
+  `skills/brainstorming/SKILL.md` Operating Protocol §5 updated. When the brainstorming
+  session appears concluded, the orchestrator provides a detailed executive summary
+  (concise, not flooding chat). The user decides: continue discussion, write the spec,
+  defer to later, or discard.
+
+
+  No `question` tool usage — the summary is the deliverable, and the user responds
+  naturally. Terminal transition (to spec-creation, deferral, or discard) is a natural
+  response, not a prompted choice.
+
+
+  ### SC-2: Explore task reflects user-approved terminal state
+
+
+  `skills/brainstorming/tasks/explore.md` updated — if the explore task sub-agent
+  detects saturation (no new user information, user confirms/agrees), it returns a
+  result contract indicating the session may be concluded. The orchestrator then produces
+  the executive summary for user approval.
+
+
+  ### SC-3: Completion task updated
+
+
+  `skills/brainstorming/tasks/completion.md` — the pipeline signal output should reflect
+  the three possible user outcomes: `CONTINUE: spec-creation`, `CONTINUE: defer`,
+  or `HALT` (for discard). Currently only `CONTINUE: spec-creation` is hardcoded.
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |---|---|
+
+  | `skills/brainstorming/SKILL.md` | §5 rewrite |
+
+  | `skills/brainstorming/tasks/explore.md` | Saturation detection in result contract
+  |
+
+  | `skills/brainstorming/tasks/completion.md` | Pipeline signal for three outcomes
+  |
+
+
+  ## Out of Scope
+
+
+  - Explore task Q&A protocol (already correct — one question at a time)
+
+  - Pre-spec inspection or cross-spec scope search behavior
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-15T05:29:16Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 590
+remote_url: https://github.com/michael-conrad/.opencode/issues/590
+promoted_at: '2026-08-27T03:25:11.765166+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.765166+00:00'
+author: michael-conrad

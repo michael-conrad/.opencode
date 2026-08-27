@@ -1,0 +1,235 @@
+number: 837
+title: '[SPEC] Remove commit-per-issue enforcement from pre-push hook — defer to PR-time
+  enforcement'
+status: open
+labels:
+- needs-approval
+- spec
+body: '## Intent and Executive Summary
+
+
+  **Problem Statement:** The pre-push hook (`.opencode/hooks/pre-push`, Gate 2, lines
+  106-158) enforces a "single commit per push" invariant for non-work branches. This
+  forces all non-work branches to squash to exactly 1 commit before pushing, which
+  is incorrect for multi-issue feature branches that should have N commits (one per
+  spec/issue). The hook''s detection of work branches relies only on `tmp/work-*.md`
+  files, missing the `work-state-*.yaml` format, and has no mechanism for multi-issue
+  branches without work state files.
+
+
+  **Root Cause / Motivation:** The commit-per-issue invariant is already enforced
+  at the correct stage — PR creation time — by `pr-creation/enforcement-gate.md` Step
+  1.2 (Commit Count Verification). The pre-push hook duplicates this enforcement at
+  the wrong stage (push time), blocking legitimate pushes during implementation when
+  WIP commits are normal.
+
+
+  **Approach Chosen:** Remove Gate 2 (commit count check) entirely from the pre-push
+  hook. Commit structure enforcement belongs at PR creation time, not push time. During
+  implementation, developers and agents need to push WIP commits freely; squash happens
+  at PR creation via `pr-creation/squash-push.md`.
+
+
+  **Alternatives Considered & Why Discarded:**
+
+  1. **Fix detection (check both .md and .yaml):** Would still block non-work multi-issue
+  branches. Doesn''t address the fundamental problem that push time is wrong for commit
+  structure enforcement.
+
+  2. **Change from block to warn:** Keeps dead code, creates noise, and warning about
+  something that will be caught at PR time is redundant.
+
+  3. **Parse branch name for issue count:** Fragile regex on branch names, doesn''t
+  handle branches with non-standard naming.
+
+
+  **Key Design Decisions:**
+
+  - Gate 0 (protected branch protection) and Gate 1 (merged branch detection) are
+  kept — they are push-time concerns.
+
+  - No SKIP_COMMIT_COUNT_CHECK env var needed — the entire gate is removed.
+
+  - The `work-*.md` / `work-state-*.yaml` detection code in Gate 2 is removed along
+  with it.
+
+
+  ## Objective
+
+
+  Remove the commit-per-issue enforcement gate (Gate 2) from the pre-push hook, leaving
+  commit structure enforcement solely at PR creation time where it belongs.
+
+
+  ## Problem
+
+
+  The pre-push hook blocks pushes to non-work branches that have more than 1 commit
+  ahead of `origin/dev`. This:
+
+
+  1. **Blocks multi-issue feature branches** that legitimately have N commits (one
+  per spec/issue)
+
+  2. **Blocks WIP pushes during implementation** when developers need to push incremental
+  progress
+
+  3. **Duplicates enforcement** already handled at PR creation time by `pr-creation/enforcement-gate.md`
+  Step 1.2
+
+  4. **Has fragile detection** — only checks `work-*.md` format, not `work-state-*.yaml`
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method | Remediation |
+
+  |----|-----------|---------------|---------------------|-------------|
+
+  | SC-1 | Gate 2 (commit count check, lines 106-158) is removed from `.opencode/hooks/pre-push`
+  — no trace of `SKIP_COMMIT_COUNT_CHECK`, `COMMIT_COUNT`, `work-*.md` detection,
+  or "commit-per-issue invariant" text remains in the hook | `string` | `grep -c ''COMMIT_COUNT\|SKIP_COMMIT_COUNT\|work-\*\.md\|commit-per-issue''
+  .opencode/hooks/pre-push` returns 0 | Remove remaining Gate 2 code |
+
+  | SC-2 | Gate 0 (protected branch protection) and Gate 1 (merged branch detection)
+  still function correctly after Gate 2 removal | `behavioral` | `bash .opencode/tests/test-enforcement.sh
+  --scenario pre-push-protected-branch` confirms the hook still blocks direct pushes
+  to main/dev | Fix any regression in Gate 0 or Gate 1 logic |
+
+  | SC-3 | Pushing a branch with N>1 commits succeeds without `SKIP_COMMIT_COUNT_CHECK=1`
+  | `behavioral` | `bash .opencode/tests/behaviors/.sh` — create a test branch with
+  2+ commits, push succeeds without SKIP env var | Restore any accidental blocking
+  of multi-commit pushes |
+
+  | SC-4 | `pr-creation/enforcement-gate.md` Step 1.2 still documents commit count
+  verification as the sole enforcement point | `string` | `grep -c ''commit-per-issue\|commit
+  count'' .opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md` returns
+  ≥1 | Ensure enforcement gate documentation is intact |
+
+  | SC-5 | Behavioral test exists in `.opencode/tests/behaviors/` that verifies a
+  multi-commit push is not blocked by the pre-push hook | `behavioral` | `ls .opencode/tests/behaviors/commit-count-push*.sh`
+  or equivalent test file exists and passes | Create the behavioral test |
+
+
+  ## Behavioral Test Mandate
+
+
+  Before any implementation, write behavioral enforcement tests in `.opencode/tests/behaviors/`
+  that verify:
+
+  1. **RED state:** A push of >1 commits to a non-work branch is currently blocked
+  (before Gate 2 removal) — test confirms the block message appears
+
+  2. **GREEN state:** After Gate 2 removal, the same push succeeds — test confirms
+  no block message and successful push
+
+
+  Cost-frame: A test that doesn''t execute is a defect undiscovered. Running the behavioral
+  test costs minutes; skipping it costs the full rework pipeline when the hook silently
+  breaks multi-issue workflows.
+
+
+  ## Edge Cases
+
+
+  | Edge Case | Handling |
+
+  |-----------|----------|
+
+  | Single-issue branch with 1 commit | Still works — no enforcement at push time,
+  1 commit is fine |
+
+  | Multi-issue branch with N commits | Now allowed — will be enforced at PR creation
+  time |
+
+  | Work branch with N commits | Always allowed — Gate 2 wasn''t blocking these anyway,
+  and Gate 2 is now removed |
+
+  | Developer tries to push to main/dev | Still blocked by Gate 0 |
+
+  | Already-merged branch push | Still blocked by Gate 1 |
+
+  | SKIP_COMMIT_COUNT_CHECK env var in scripts | No longer referenced; safe to remove
+  from any scripts that set it |
+
+
+  ## Affected Files
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `.opencode/hooks/pre-push` | Remove Gate 2 (lines 106-158), remove `SKIP_COMMIT_COUNT_CHECK`
+  variable, remove `ALLOWED` variable if only used by Gate 2, simplify the while loop
+  |
+
+  | `.opencode/skills/git-workflow/SKILL.md` | Verify no references to pre-push commit
+  count enforcement |
+
+  | `.opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md` | Verify
+  Step 1.2 remains as sole enforcement point |
+
+  | `.opencode/skills/git-workflow/tasks/pr-creation/squash-push.md` | Verify no references
+  to pre-push commit count check |
+
+  | `.opencode/skills/git-workflow/tasks/review-prep.md` | Verify commit-per-issue
+  references point to PR-time enforcement only |
+
+  | `.opencode/tests/behaviors/` | Add behavioral test for pre-push hook |
+
+
+  ## Documentation Sources
+
+
+  | Source Category | What Was Consulted | Purpose |
+
+  |----------------|---------------------|---------|
+
+  | Direct source search | `.opencode/hooks/pre-push` full file read | Understand
+  current Gate 2 logic |
+
+  | Direct source search | `.opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md`
+  | Verify PR-time enforcement exists |
+
+  | Direct source search | `.opencode/skills/git-workflow/tasks/pr-creation/squash-push.md`
+  | Verify squash workflow documentation |
+
+  | Direct source search | `.opencode/skills/git-workflow/tasks/commit-prep.md` |
+  Verify commit policy references |
+
+  | Direct source search | `000-critical-rules.md` §critical-rules-040 (Un-Squashed
+  PR) | Verify tier 3 rule reference |
+
+  | Direct source search | `tmp/work-state-691-816.yaml`, `tmp/work-691-816-content-gate-local-issues.md`
+  | Understand work state file formats |
+
+
+  ## Non-Requirements
+
+
+  - Removing Gate 0 (protected branch protection) or Gate 1 (merged branch detection)
+  — these are correct push-time concerns
+
+  - Changing the commit-per-issue enforcement at PR creation time — that enforcement
+  is correct
+
+  - Adding new pre-push enforcement gates
+
+  - Changing the `assemble-work` work state file format
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)
+
+
+  *Migrated from michael-conrad/opencode-config#130 — the affected files live in the
+  `.opencode` submodule.*'
+created_at: '2026-05-23T06:30:09Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 837
+remote_url: https://github.com/michael-conrad/.opencode/issues/837
+promoted_at: '2026-08-27T03:25:12.159289+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.159289+00:00'
+author: michael-conrad

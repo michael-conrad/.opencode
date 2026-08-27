@@ -1,0 +1,8 @@
+comments:
+- body: 'Partially superseded by #762 — Hard Failure Discipline. The behavioral test
+    (Change 2) is absorbed into SC-8. The content-verification snapshot (Change 1)
+    and commit message convention (Change 3) are retained in this issue — they address
+    re-loss prevention, not FAIL discipline, and remain independently valid. Retaining
+    this issue open for the content-verification snapshot scope.'
+  created_at: '2026-05-20T18:30:19Z'
+  user: michael-conrad

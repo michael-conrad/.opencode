@@ -1,0 +1,32 @@
+number: 900
+title: 'Phase 3: GREEN/structural verification — SC-1 through SC-6'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: "Parent: #897\n\n## Concern\nStructural verification that Gate 4 implementation\
+  \ matches spec requirements, plus combined test script.\n\n## Success Criteria\n\
+  - SC-3: Gate 4 error message lists the actual changed submodule paths from `git\
+  \ diff --cached --name-only`\n- SC-4: Gate 4 reads submodule paths from `git submodule\
+  \ status`, not hardcoded values\n- Cross-validate all 6 SCs\n\n## Files\n- `tests/behaviors/gate4-green-verification.sh`\
+  \ (create)\n- `hooks/pre-commit` (verify only — Gate 4 already implemented at lines\
+  \ 84-135)\n\n## TDD Items\n\n**Item 4: Structural verification (SC-3, SC-4)**\n\
+  1. Read Gate 4 source at `hooks/pre-commit` lines 84-135\n2. Confirm dynamic path\
+  \ detection via `git submodule status` — SC-4\n3. Confirm error message shows dynamic\
+  \ file list with `echo \"  - $f\"` — SC-3\n4. Confirm no hardcoded submodule paths\
+  \ — SC-4\n5. Confirm exact path match (`=`) not substring match — SC-4\n6. Confirm\
+  \ `.gitmodules` skip guard — SC-6\n7. Record structural findings in verification\
+  \ script\n8. Commit\n\n**Item 5: Combined verification test script**\n1. Create\
+  \ `tests/behaviors/gate4-green-verification.sh` with:\n   - Structural grep assertions\
+  \ for SC-3, SC-4\n   - `behavior_run` + `assert_semantic` for SC-1, SC-2, SC-5,\
+  \ SC-6\n2. Run — verify all PASS\n3. Commit\n\n## Dependencies\nPhases 1 and 2 complete\
+  \ (test scripts exist as verification targets).\n\n\U0001F916 Co-authored with AI:\
+  \ deepseek-v4-flash-free (opencode/deepseek-v4-flash-free)"
+created_at: '2026-05-25T19:13:09Z'
+updated_at: '2026-06-12T03:45:34Z'
+remote_issue: 900
+remote_url: https://github.com/michael-conrad/.opencode/issues/900
+promoted_at: '2026-08-27T03:25:12.279843+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.279843+00:00'
+author: michael-conrad

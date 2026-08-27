@@ -1,0 +1,145 @@
+number: 1008
+title: '[BUG] review-prep mandatory chat output format lost after Phase 5 skill decomposition
+  — orchestrator doesn''t read sub-task, sub-agent doesn''t produce chat output'
+status: open
+labels:
+- bug
+- needs-approval
+body: '## Bug
+
+
+  After Phase 5 skill decomposition (commit `2d43630`), the mandatory review-prep
+  chat output format (summary → outcome → URL → byline) was moved from `review-prep.md`
+  into a sub-task file `review-prep/report-url.md`.
+
+
+  The parent task `review-prep.md` now reads at line 84-88:
+
+
+  ```
+
+  ### Steps 3-5: Generate URL, Report, HALT
+
+
+  **Route to:** `review-prep/report-url`
+
+  ```
+
+
+  This creates a crack where neither agent produces the format:
+
+
+  - **Orchestrator** skips reading `report-url.md` — per DISPATCH_GATE protocol, orchestrators
+  must NOT pre-load sub-agent task files. It only sees "Route to: review-prep/report-url"
+  and tasks a sub-agent.
+
+
+  - **Sub-agent** reads `report-url.md`, executes the format specification... but
+  produces a **result contract** back to the orchestrator, not **chat output**. The
+  mandatory format (exec summary, outcome, VbC table, URL, byline) is specified for
+  chat output, but neither agent prints it to chat.
+
+
+  ## Observed Symptoms (from this session, issue #40 on viewport-editor)
+
+
+  1. Orchestrator tasked a sub-agent with "execute review-prep task from git-workflow"
+
+  2. Sub-agent returned a bare result contract with no mandatory output format
+
+  3. Developer requested the mandatory output 4+ times across multiple exchanges
+
+  4. Orchestrator accepted the sub-agent''s internal contract and echoed it as chat
+  without the format
+
+  5. Only after being told to read `report-url.md` directly did the orchestrator produce
+  the correct format — but the format still lacked VbC table and was missing verification
+  checklist items
+
+  6. The behavioral test `review-prep-task-decomposition.sh` only verifies that the
+  agent names the two subtasks — it does NOT verify the chat output format
+
+
+  ## Root Cause
+
+
+  **Decomposition gap:** When the mandatory output format was extracted into `report-url.md`,
+  no task was created for the orchestrator to produce it. Every agent in the chain
+  assumes the other agent produces the chat output:
+
+
+  | Agent | Reads | Produces |
+
+  |-------|-------|----------|
+
+  | Orchestrator | `review-prep.md` (line 86: "Route to: report-url") | Task() dispatch
+  to sub-agent |
+
+  | Sub-agent | `report-url.md` (mandatory format spec) | Result contract back to
+  orchestrator |
+
+  | Orchestrator | Sub-agent result contract (bare YAML) | Chat output (missing format)
+  |
+
+
+  The format falls through: it''s specified in a file no agent is responsible for
+  executing as chat output.
+
+
+  ## Impact
+
+
+  - Every review-prep invocation produces incomplete chat output
+
+  - Developer must repeatedly request the format
+
+  - VbC table, executive summary, mandatory ordering, and verification checklist are
+  all skipped
+
+  - Behavioral test for review-prep only checks subtask naming, not output format
+
+
+  ## Fix Options
+
+
+  **Option A:** Re-inline the mandatory chat output format into `review-prep.md` so
+  the orchestrator sees it when routing to the sub-task, plus produce it in its own
+  chat output after the sub-agent returns.
+
+
+  **Option B:** After the sub-agent returns the result contract, the orchestrator
+  must read `report-url.md`, extract the mandatory format spec, and produce it in
+  chat — effectively treating the sub-agent result as data to be formatted.
+
+
+  **Option C:** Keep the format in `report-url.md` but add a routing step that tells
+  the orchestrator explicitly: "After sub-agent returns, read report-url.md Step 4
+  and produce the mandatory chat output format."
+
+
+  ## Success Criteria
+
+
+  - [ ] SC-1: review-prep chat output always contains executive summary as first element
+
+  - [ ] SC-2: review-prep chat output always contains VbC table (per-SC evidence)
+
+  - [ ] SC-3: Format order is always: summary → outcome → VbC table → blockers → URL
+  → byline
+
+  - [ ] SC-4: All 7 format verification checklist items from `report-url.md` line
+  63 pass
+
+  - [ ] SC-5: Behavioral test exists that verifies the chat output format, not just
+  subtask naming
+
+  - [ ] SC-6: Fix does not violate DISPATCH_GATE protocol (orchestrator still does
+  NOT pre-load sub-agent task files for execution context)'
+created_at: '2026-06-04T03:09:14Z'
+updated_at: '2026-06-12T03:45:29Z'
+remote_issue: 1008
+remote_url: https://github.com/michael-conrad/.opencode/issues/1008
+promoted_at: '2026-08-27T03:25:12.499545+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.499545+00:00'
+author: michael-conrad

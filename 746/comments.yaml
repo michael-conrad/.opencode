@@ -1,0 +1,26 @@
+comments:
+- body: 'Superseded by more recent work: Dark prose-007 pattern exists in `250-dark-prose-reference.md`
+    (3 matches), and `020-go-prohibitions.md` contains cost-frame reformation language
+    ("defect-discovery-latency"). The cost-frame concepts from #746 are partially
+    or fully implemented. Parent plan #746 and its sub-issues should be reviewed individually.'
+  created_at: '2026-05-21T15:21:50Z'
+  user: michael-conrad
+- body: 'Partially implemented: Phase 1 (dark-prose-007 definition) exists in 250-dark-prose-reference.md
+    (3 matches). Phase 2 (cost-frame in go-prohibitions) has "defect-discovery-latency"
+    and cost-blindness language (4 matches in 020-go-prohibitions.md). Phases 3-5
+    (spec-creation, writing-plans, spec-auditor) may still need updates. Sub-issues
+    #747-#755 still open. Leaving parent open for remaining phases.'
+  created_at: '2026-05-21T15:24:49Z'
+  user: michael-conrad
+- body: "## Dependency Chain\n\n```\nprev: #860 → #836 (phases 5-6 share files with\
+    \ #836 pass)\n      nothing (phases 7-9 independent — complementary sections,\
+    \ no conflict)\nnext: (none — terminal work unit)\n```\n\n**Phases 5-6 (spec-audit.md\
+    \ SC-12, plan-fidelity.md PF-7):**\n- Depends on: #836 — shares spec-audit.md\
+    \ and plan-fidelity.md, same implementation pass required with #836's uplift checks\n\
+    \n**Phases 7-8 (verify.md, collect.md):**\n- Depends on: nothing — #836's changes\
+    \ are in different sections (classification gate vs artifact table), complementary\
+    \ not conflicting\n- Independent — any order relative to #836\n\n**Phase 9 (engineering-approach):**\n\
+    - Depends on: phases 7-8 (artifact concept established)\n- No file overlap with\
+    \ any other issue\n\n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash-free)\n"
+  created_at: '2026-05-30T17:20:51Z'
+  user: michael-conrad

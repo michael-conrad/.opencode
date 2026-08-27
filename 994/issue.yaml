@@ -1,0 +1,18 @@
+number: 994
+title: '[Phase 1.8] read-sub-issues command: YAML from links.yaml'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '**Parent Plan:** #985
+
+
+  Phase 1.8 — read-sub-issues command: YAML from links.yaml'
+created_at: '2026-06-02T05:10:16Z'
+updated_at: '2026-06-12T03:45:31Z'
+remote_issue: 994
+remote_url: https://github.com/michael-conrad/.opencode/issues/994
+promoted_at: '2026-08-27T03:25:12.470351+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.470351+00:00'
+author: michael-conrad

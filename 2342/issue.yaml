@@ -1,0 +1,40 @@
+number: 2342
+title: '[BUG] writing-plans create Step 9 replaces the local labels array with spec-cleared,
+  wiping approved-for-* authorization labels'
+status: open
+labels: []
+body: "## Problem\n\n`writing-plans/tasks/create.md` Step 9 writes `spec-cleared`\
+  \ via `local-issues update <repo>#<N> --labels spec-cleared`. The `local-issues\
+  \ update` command REPLACES the issue.yaml labels array outright (verified in `.opencode/tools/local-issues`\
+  \ cmd_update: `issue[key] = val` — no merge with existing labels). Because the local\
+  \ issue.yaml labels array is the canonical authorization source (approval-gate),\
+  \ Step 9 drops the `approved-for-*` authorization label from the canonical record.\n\
+  \n## Observed live incident (2026-08-26, SHARED-DAO#35)\n\n- `tmp/issue-35/apply-label.yaml`\
+  \ records `approved-for-pr` written to local issue.yaml (status DONE).\n- SHARED-DAO/.issues\
+  \ worktree history shows the wipe and restore:\n  - `e8e89fc auto: update #SHARED-DAO#35`\
+  \ (15:47:35) → labels: [spec-cleared] — `approved-for-pr` GONE\n  - `cd00c36 auto:\
+  \ update #SHARED-DAO#35` (15:47:45) → labels: [spec-cleared, approved-for-pr] —\
+  \ manual re-apply 10 seconds later\n- Downstream effect: writing-plans handoff gate\
+  \ (`analyze.md` / `handoff.md` read `approved-for-*` from issue.yaml labels) returned\
+  \ SPEC_NOT_APPROVED until the authorization label was manually restored. Local-issue.yaml\
+  \ is the canonical authorization source, so remote label state did not compensate.\n\
+  \n## Expected vs actual\n\n- Expected: Step 9's label write is additive — `spec-cleared`\
+  \ appended to the existing label set, preserving `approved-for-*`.\n- Actual: Step\
+  \ 9's `--labels spec-cleared` replaces the entire array, silently dropping the authorization\
+  \ label.\n\n## Evidence\n\n- Task card: `.opencode/skills/writing-plans/tasks/create.md`\
+  \ lines 63-66 (Step 9), line 73 (exit criterion).\n- Tool semantics: `.opencode/tools/local-issues`\
+  \ cmd_update (labels assignment replaces array; argparse `--labels` nargs='*').\n\
+  - Incident: `tmp/issue-35/apply-label.yaml`, `tmp/issue-35/resolve-scope.yaml` (scope\
+  \ for_pr); SHARED-DAO/.issues git history commits `e8e89fc` (wipe) / `cd00c36` (manual\
+  \ restore) on 35/issue.yaml.\n\n## Related\n\n- #2241 / #2259 (closed) — canonical-local-label\
+  \ design; this bug is a consequence of the design not being respected by create.md\
+  \ Step 9.\n- #2331 — remote GitBucket label wipe (different route, same label-loss\
+  \ symptom class).\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-08-26T22:12:22Z'
+updated_at: '2026-08-26T22:12:22Z'
+remote_issue: 2342
+remote_url: https://github.com/michael-conrad/.opencode/issues/2342
+promoted_at: '2026-08-27T03:25:12.637972+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.637972+00:00'
+author: michael-newsrx

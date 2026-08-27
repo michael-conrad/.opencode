@@ -1,0 +1,339 @@
+number: 599
+title: '[SPEC-FIX] approval-gate scope-parsing fails on preposition-first authorization
+  phrases ("approved for pr #N")'
+status: open
+labels:
+- needs-approval
+- spec-fix
+- critical-rules
+- approval-gate
+body: '## Problem
+
+
+  The approval-gate skill''s scope-parsing table in `enforcement/scope-parsing.md`
+  and the condensed table in `tasks/verify-authorization/scope-auto-resolve.md` only
+  match authorization phrases where the issue number precedes the scope qualifier
+  (`"approved #N for pr"`). They do NOT match the equally natural preposition-first
+  word order (`"approved for pr #N"`), causing a real authorization failure.
+
+
+  When the developer said **"approved for pr 578"**, the agent:
+
+  1. Failed to parse the scope from the phrase (no table entry matched)
+
+  2. Fell through to `standard` scope (incorrect — should be `for_review_prep` per
+  #527)
+
+  3. Asked a confirmation question using the `question` tool
+
+  4. Violated `020-go-prohibitions.md` §1.5 — "Soliciting Authorization for Already-Authorized
+  Phrases — CRITICAL VIOLATION"
+
+
+  **Depends on:** #527 (Authorization Scope Model Overhaul) MUST be implemented first.
+  This issue references the new `for_review_prep` scope name throughout. If #527 has
+  not been implemented, replace `for_review_prep` with `standard` in the patterns
+  below.
+
+
+  ## Defect Analysis
+
+
+  ### Defect 1: Scope-parsing table word-order gap
+
+
+  **File: `approval-gate/enforcement/scope-parsing.md`**
+
+
+  The Verb-Prefix Parsing Table only has patterns where `#N` precedes the qualifier:
+
+
+  | Pattern Present | Pattern Missing |
+
+  |---|---|
+
+  | `"approved #N to PR"` | `"approved for pr #N"` |
+
+  | `"approved #N for implementation"` | `"approved for implementation #N"` |
+
+  | `"approved #N for plan"` | `"approved for plan #N"` |
+
+  | `"approved #N for spec"` | `"approved for spec #N"` |
+
+  | `"approved #N for review"` | `"approved for review #N"` |
+
+
+  Every qualifier has a missing preposition-first variant.
+
+
+  ### Defect 2: Condensed table ambiguity
+
+
+  **File: `approval-gate/tasks/verify-authorization/scope-auto-resolve.md` line 20**
+
+
+  ```
+
+  | "approved #N to PR" / "for PR" | `for_pr` |
+
+  ```
+
+
+  The shorthand `"for PR"` is ambiguous — it doesn''t specify word order relative
+  to `#N`. An LLM reading this table could interpret `"for PR"` as:
+
+  - A suffix: `"approved #N for PR"` (matches table structure)
+
+  - A standalone phrase: `"approved for pr #N"` (what the user actually said)
+
+  - Either order (the correct interpretation, but not explicit)
+
+
+  ### Defect 3: `020-go-prohibitions.md` §1.5 examples incomplete
+
+
+  The REQUIRED/FORBIDDEN examples in §1.5 only show qualifier-after-number:
+
+
+  > ✅ "approved for pr" — unambiguous, parse
+
+
+  But without regex patterns for preposition-first order, the claim "Scope detection
+  via the verb-prefix parsing table is NEVER ambiguous" is false — the table has coverage
+  gaps.
+
+
+  ### Defect 4: No behavioral test for preposition-first authorization phrases
+
+
+  There is no behavioral enforcement test that verifies the agent correctly parses
+  `"approved for pr #N"`, `"approved for implementation #N"`, etc. The existing tests
+  presumably only cover the `"approved #N for X"` word order.
+
+
+  ### Defect 5: Missing intelligence fallback rule (root cause)
+
+
+  `scope-auto-resolve.md` line 26 gives exactly two options: exact table match, or
+  default to `standard` (soon `for_review_prep` per #527). There is no third path
+  for "near match — resolve using language understanding." This makes the agent a
+  dumb terminal for scope detection — match or default — instead of an intelligent
+  agent that can resolve obvious near-matches like "approved for pr 578" → `for_pr`.
+
+
+  Three rules say "resolve autonomously" (`critical-rules-006`, `020-go-prohibitions.md`
+  §1.5, `scope-auto-resolve.md` line 11) but the fallback instruction contradicts
+  them by providing no way to resolve near-matches. The defect is in the instruction
+  layer, not the model.
+
+
+  ### Defect 6: `standard` scope name is a misnomer (covered by #527)
+
+
+  Every scope except `standard` is named after its halt point. `standard` halts at
+  `review_prep` but is named after a vague concept ("the default one"). This encourages
+  falling back to it as a "safe default" instead of recognizing it as a specific,
+  constrained pipeline stage. #527 renames `standard` → `for_review_prep`. This issue
+  depends on that rename.
+
+
+  ## Proposed Architecture
+
+
+  ### Fix 1: `enforcement/scope-parsing.md` — Add preposition-first patterns
+
+
+  Add regex patterns for the reverse word order to every scope entry. After #527 lands,
+  these reference `for_review_prep` instead of `standard`:
+
+
+  | Current Pattern | New Pattern | Scope |
+
+  |---|---|---|
+
+  | `"approved #N to PR"` | `"approved for (pr|PR) #?(?P<num>\d+)"` | `for_pr` |
+
+  | `"approved #N for implementation"` | `"approved for (implementation|impl) #?(?P<num>\d+)"`
+  | `for_implementation` |
+
+  | `"approved #N for plan"` | `"approved for (plan|planning) #?(?P<num>\d+)"` | `for_plan`
+  |
+
+  | `"approved #N for spec"` | `"approved for (spec|specification) #?(?P<num>\d+)"`
+  | `for_spec` |
+
+  | `"approved #N for review"` | `"approved for (review|code review) #?(?P<num>\d+)"`
+  | `for_code_review` → `for_review_prep` (per #527) |
+
+  | `"approved #N"` (no qualifier) | `"approved #?(?P<num>\d+)"` | `for_review_prep`
+  (renamed from `standard` per #527) |
+
+
+  Also add a general catch-all rule: if `"approved"` + any known scope qualifier appears
+  in an authorization phrase, regardless of word order, the qualifier determines scope.
+  Number position is irrelevant to scope determination.
+
+
+  ### Fix 2: `tasks/verify-authorization/scope-auto-resolve.md` — Intelligence fallback
+  rule
+
+
+  Add a mandatory intelligence fallback rule AFTER the parsing table:
+
+
+  > **Intelligence Fallback (MANDATORY):** When the verb-prefix parsing table has
+  no exact match for an authorization phrase, but the phrase unambiguously contains:
+
+  > 1. An authorization keyword ("approved", "go", "authorized"), AND
+
+  > 2. A scope qualifier ("pr", "implementation", "plan", "spec", "review", "code
+  review", "review prep")
+
+  >
+
+  > The agent MUST resolve the scope using language understanding — NOT default to
+  `for_review_prep` (no-qualifier default) and NOT ask the user for clarification.
+  The qualifier keyword determines scope, not word order. "Approved for pr 578", "578
+  approved to PR", and "approved 578 for PR" all resolve to `for_pr`.
+
+  >
+
+  > If the phrase contains an authorization keyword but NO identifiable scope qualifier,
+  then default to `for_review_prep` with `scope_source = "default"`. If the phrase
+  is genuinely ambiguous (multiple conflicting qualifiers), set `scope_source = "ambiguous"`
+  and use best-match reasoning — still do NOT ask the user.
+
+
+  Also replace the condensed table with explicit multi-pattern entries showing both
+  word orders:
+
+
+  ```markdown
+
+  | "approved #N to PR" / "approved #N for PR" / "approved for PR #N" | `for_pr` |
+
+  | "approved #N for implementation" / "approved for implementation #N" | `for_implementation`
+  |
+
+  | (same pattern for all scopes) | |
+
+  ```
+
+
+  ### Fix 3: `020-go-prohibitions.md` §1.5 — Add preposition-first examples
+
+
+  Add to the REQUIRED column:
+
+
+  ```
+
+  | Parse "approved for pr #N" as for_pr scope, proceed | Same pattern, both word
+  orders work |
+
+  | Parse "approved for implementation #N" as for_implementation | No clarification
+  needed for any word order |
+
+  ```
+
+
+  ### Fix 4: Add behavioral test for preposition-first scope parsing
+
+
+  Create `.opencode/tests/behaviors/approval-gate-scope-parsing.sh` that tests the
+  agent correctly parses and auto-dispatches for:
+
+  - `"approved for pr 578"` → `for_pr`
+
+  - `"approved for implementation 100"` → `for_implementation`
+
+  - `"approved for plan 42"` → `for_plan`
+
+  - `"approved for spec 7"` → `for_spec`
+
+  - `"approved for review 200"` → `for_review_only`
+
+  - `"approved 578"` (no qualifier) → `for_review_prep` (per #527)
+
+
+  Each test MUST assert the agent does NOT use the `question` tool.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Verification |
+
+  |----|-----------|-------------|
+
+  | SC-1 | `enforcement/scope-parsing.md` contains regex patterns for preposition-first
+  word order for every scope | `grep -c "approved for" .opencode/skills/approval-gate/enforcement/scope-parsing.md`
+  ≥ 5 (one per scope) |
+
+  | SC-2 | `scope-auto-resolve.md` table has explicit multi-pattern entries showing
+  both word orders | `grep "approved for.*#" .opencode/skills/approval-gate/tasks/verify-authorization/scope-auto-resolve.md`
+  returns matches |
+
+  | SC-3 | `020-go-prohibitions.md` §1.5 REQUIRED column includes preposition-first
+  authorization examples | `grep "approved for.*#" .opencode/guidelines/020-go-prohibitions.md`
+  returns matches |
+
+  | SC-4 | Behavioral test `approval-gate-scope-parsing.sh` exists and passes for
+  both word orders | `bash .opencode/tests/behaviors/approval-gate-scope-parsing.sh`
+  exits 0 |
+
+  | SC-5 | The phrase `"approved for pr 578"` resolves to `for_pr` scope without soliciting
+  confirmation | Behavioral test assertion: agent does not use `question` tool when
+  receiving preposition-first authorization |
+
+  | SC-6 | `scope-auto-resolve.md` contains a mandatory intelligence fallback rule
+  for near-match resolution | `grep -n ''Intelligence Fallback\|qualifier.*determines.*scope\|language.*understanding''
+  .opencode/skills/approval-gate/tasks/verify-authorization/scope-auto-resolve.md`
+  returns match |
+
+  | SC-7 | `scope-auto-resolve.md` contains a catch-all rule that number position
+  is irrelevant to scope determination | `grep -n ''number.*position.*irrelevant\|word.*order.*irrelevant''
+  .opencode/skills/approval-gate/tasks/verify-authorization/scope-auto-resolve.md`
+  returns match |
+
+  | SC-8 | All scope references use `for_review_prep` (not `standard`) after #527
+  is implemented | Verification tied to #527 SC-1/SC-14 |
+
+
+  ## Dependency
+
+
+  **Depends on:** #527 (Authorization Scope Model Overhaul) — must be implemented
+  first so that all scope references use `for_review_prep` instead of `standard`.
+  If #527 has not landed, patterns in this spec should reference `standard` temporarily
+  and be updated when #527 lands.
+
+
+  ## Related Issues
+
+
+  - #527 — Authorization Scope Model Overhaul (dependency — `standard` → `for_review_prep`
+  rename must land first)
+
+  - #578 — Where the authorization failure occurred (adversarial audit dispatch chain
+  fix)
+
+  - #526 — Terminology standardization (context)
+
+  - `020-go-prohibitions.md` §1.5 — The rule that was violated by asking for confirmation
+
+  - `approval-gate/enforcement/scope-parsing.md` — The table with the gap
+
+  - `approval-gate/tasks/verify-authorization/scope-auto-resolve.md` — The condensed
+  table with ambiguous shorthand
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-15T14:09:43Z'
+updated_at: '2026-06-12T03:45:43Z'
+remote_issue: 599
+remote_url: https://github.com/michael-conrad/.opencode/issues/599
+promoted_at: '2026-08-27T03:25:11.786031+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.786031+00:00'
+author: michael-conrad

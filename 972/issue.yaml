@@ -1,0 +1,213 @@
+number: 972
+title: '[SPEC-FIX] Auditor agent cards unconditionally require behavioral evidence,
+  blocking spec-phase audits'
+status: open
+labels:
+- needs-approval
+- '[SPEC-FIX]'
+body: '## Intent and Executive Summary
+
+
+  ### Problem Statement
+
+  During `audit_phase: spec_creation`, all 4 auditor agent cards unconditionally require
+  `artifact_evidence_dir` and BLOCK with `MISSING_EVIDENCE` if no behavioral evidence
+  artifacts exist for behavioral SCs. Since spec creation happens before implementation,
+  no behavioral evidence can exist — the auditor can never complete a spec-phase audit
+  of any spec whose SCs declare behavioral evidence type.
+
+
+  ### Root Cause / Motivation
+
+  The auditor agent cards (deepseek-flash, gemma4, mistral-large, qwen3.5) hardcode
+  two unconditional gates that don''t account for audit phase:
+
+
+  1. **Mandatory Input Pre-Check** (line 46 in each): `artifact_evidence_dir` is REQUIRED
+  regardless of phase. If absent or empty, BLOCKs immediately with `MISSING_EVIDENCE_DIR`.
+
+
+  2. **A1a: Validate Behavioral Evidence** (lines 184-196): Scans behavioral SCs and
+  BLOCKs if no corresponding evidence artifacts exist in `artifact_evidence_dir`.
+  No phase check — applies to spec creation and implementation verification identically.
+
+
+  These gates were designed for post-implementation verification audits (where behavioral
+  evidence DAGs legitimately exist). They were never made conditional on `audit_phase`,
+  so they fire during spec creation where evidence cannot exist.
+
+
+  ### Approach Chosen
+
+  Add an `audit_phase` conditional guard to both gates. During `spec_creation`, the
+  auditor skips the `artifact_evidence_dir` requirement and the A1a behavioral evidence
+  check entirely. During any other phase (`implementation`, `verification`, etc.),
+  the existing behavior is preserved unchanged.
+
+
+  The spec-phase auditor still evaluates SC evidence type correctness (SC-STRUCTURAL-FAIL,
+  SC-EVIDENCE-TYPE) against the spec''s declared verification plan — it just doesn''t
+  demand execution artifacts from a phase that cannot produce them.
+
+
+  ### Alternatives Considered & Why Discarded
+
+  - **Make `artifact_evidence_dir` optional globally**: Would weaken the validation
+  for post-implementation audits where evidence dir is critical. Discarded because
+  it removes a necessary safety gate for the wrong phase.
+
+  - **Create separate spec-phase auditor cards**: Too much duplication. The only difference
+  is the evidence dir check; 95% of the card is identical. Discarded due to maintenance
+  burden.
+
+  - **Default to string evidence type during spec phase**: Silicon solution — makes
+  behavioral SC declarations meaningless for spec reviews. Discarded because SCs should
+  declare their true type regardless of audit phase.
+
+
+  ### Key Design Decisions
+
+  1. **Phase guard at the pre-check level** — `artifact_evidence_dir` is only REQUIRED
+  when `audit_phase != spec_creation`
+
+  2. **Phase guard at A1a** — the behavioral evidence validation only runs when `audit_phase
+  != spec_creation`
+
+  3. **No behavioral SC downgrade** — SCs still declare `behavioral` evidence type
+  during spec creation; the auditor just doesn''t require execution artifacts for
+  them. The SC''s declared type is validated as a plan, not as executed evidence
+
+  4. **All 4 auditor cards get the same fix** — identical change across all 4 files
+
+
+  ## Specification
+
+
+  ### Scope
+
+  Modify 4 auditor agent card files in `.opencode/agents/`:
+
+  - `auditor-deepseek-flash.md`
+
+  - `auditor-gemma4.md`
+
+  - `auditor-mistral-large.md`
+
+  - `auditor-qwen3.5.md`
+
+
+  ### Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | Mandatory Input Pre-Check makes `artifact_evidence_dir` conditional: REQUIRED
+  when `audit_phase != spec_creation`, OPTIONAL when `audit_phase == spec_creation`
+  | `string` | grep for phase-conditional language in each card |
+
+  | SC-2 | A1a behavioral evidence validation is phase-guarded: runs only when `audit_phase
+  != spec_creation` | `string` | grep for phase guard before behavioral evidence scan
+  in each card |
+
+  | SC-3 | All 4 auditor cards receive identical edits (same change across all files)
+  | `string` | diff verification across all 4 files |
+
+  | SC-4 | During `spec_creation` phase without `artifact_evidence_dir`, auditor does
+  NOT return BLOCKED — proceeds to evaluation | `behavioral` | `opencode-cli run`
+  dispatching auditor with `audit_phase: spec_creation` and no `artifact_evidence_dir`,
+  verify it does not BLOCK |
+
+  | SC-5 | During `verification` phase without `artifact_evidence_dir`, auditor still
+  BLOCKs | `behavioral` | `opencode-cli run` dispatching auditor with `audit_phase:
+  verification` and no `artifact_evidence_dir`, verify it BLOCKs with MISSING_EVIDENCE_DIR
+  |
+
+  | SC-6 | Spec-phase auditor still evaluates SC evidence type correctness (SC-EVIDENCE-TYPE,
+  SC-STRUCTURAL-FAIL) against the spec''s declared types | `behavioral` | `opencode-cli
+  run` dispatching auditor with `audit_phase: spec_creation` and a spec containing
+  a behavioral SC declared as `structural`, verify it flags EVIDENCE_TYPE_MISMATCH
+  |
+
+
+  ### Phases
+
+
+  #### Phase 1: Edit 4 auditor agent cards
+
+  Add phase-conditional guards. For each of the 4 files:
+
+
+  **Change 1 — Mandatory Input Pre-Check (line ~46):**
+
+  Replace:
+
+  ```
+
+  2. **`artifact_evidence_dir`** — REQUIRED. MUST be present and non-empty.
+
+  ```
+
+  With:
+
+  ```
+
+  2. **`artifact_evidence_dir`** — REQUIRED when `audit_phase != spec_creation`. MUST
+  be present and non-empty during non-spec phases. When `audit_phase == spec_creation`,
+  this field is OPTIONAL — the auditor proceeds without behavioral evidence evaluation.
+
+  ```
+
+
+  **Change 2 — A1a behavioral evidence validation (line ~178):**
+
+  Add phase guard at the top of section A1a:
+
+  ```
+
+  ### A1a: Validate Behavioral Evidence in artifact_evidence_dir
+
+
+  **Phase guard:** This section applies ONLY when `audit_phase != spec_creation`.
+
+  When `audit_phase == spec_creation`, skip A1a entirely and proceed to A2.
+
+
+  When active:
+
+  ```
+
+
+  #### Phase 2: Behavioral enforcement tests
+
+  Write scope-filtered behavioral tests for SC-4, SC-5, SC-6.
+
+
+  #### Phase 3: Commit
+
+  Both files changes and tests committed together.
+
+
+  ### Known Risks / Open Questions
+
+  - None identified — change is additive (adds phase guards, removes no existing behavior)
+
+
+  ### Cross-References
+
+  - `.opencode/agents/auditor-deepseek-flash.md`
+
+  - `.opencode/agents/auditor-gemma4.md`
+
+  - `.opencode/agents/auditor-mistral-large.md`
+
+  - `.opencode/agents/auditor-qwen3.5.md`'
+created_at: '2026-06-01T04:08:04Z'
+updated_at: '2026-06-12T03:45:32Z'
+remote_issue: 972
+remote_url: https://github.com/michael-conrad/.opencode/issues/972
+promoted_at: '2026-08-27T03:25:12.428345+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.428345+00:00'
+author: michael-conrad

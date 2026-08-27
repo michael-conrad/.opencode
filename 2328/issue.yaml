@@ -1,0 +1,82 @@
+number: 2328
+title: '[BUG] Four mandatory reference docs cited by spec-creation/tasks/validate.md
+  do not exist anywhere (spec-structure-standards.md, holistic-dimensions.yaml, cost-model-standards.md,
+  audit/reference/decomposition-criteria.md)'
+status: open
+labels: []
+body: "# [BUG] Four mandatory reference documents cited by spec-creation/tasks/validate.md\
+  \ do not exist anywhere\n\n## Problem\n\n`.opencode/skills/spec-creation/tasks/validate.md`\
+  \ mandates loading four reference documents that do not exist in the working tree,\
+  \ on `origin/main`, or anywhere in git history. Because the task card explicitly\
+  \ forbids hardcoding their content (\"the 11 dimensions are NOT hardcoded here —\
+  \ they are loaded dynamically from `reference/holistic-dimensions.yaml`, the single\
+  \ source of truth\"), every `validate` dispatch hits the missing-file condition.\
+  \ Per critical-rules-074 (missing skill deck files → investigation report + fatal\
+  \ HALT), agents must NOT infer the content from memory — so the validation step\
+  \ cannot complete.\n\n## Missing Files and Their Citations\n\n| # | Missing path\
+  \ | Cited at | Role |\n|---|--------------|----------|------|\n| 1 | `skills/spec-creation/reference/spec-structure-standards.md`\
+  \ | validate.md Steps 1.2, 3.1, 3.2 | Required-section inventory + format-level\
+  \ conformance rules + determinism prohibited-patterns; section list explicitly \"\
+  NOT hardcoded — it is loaded from the reference document\" |\n| 2 | `skills/spec-creation/reference/holistic-dimensions.yaml`\
+  \ | validate.md Steps 2.1, 2.2 | Declares the 11 holistic dimensions (`spec_dimensions`\
+  \ list); \"single source of truth\", explicitly not hardcoded in the task card |\n\
+  | 3 | `skills/spec-creation/reference/cost-model-standards.md` | validate.md Step\
+  \ 3.5 | Evidence-type taxonomy via the \"Tiered Cost Table by Evidence Type\" section\
+  \ listing the four valid types |\n| 4 | `skills/audit/reference/decomposition-criteria.md`\
+  \ | validate.md Step 3.7 | Master decomposition-criteria definition. **Partially\
+  \ mitigated**: the binary decision trees are inlined in the task card; only the\
+  \ master reference's numbered-heading format and lockstep maintainer note are lost\
+  \ |\n\nNote on directory state: upstream `skills/spec-creation/reference/` contains\
+  \ ONLY `sc-table-columns.md`; `skills/audit/reference/` does not exist at all.\n\
+  \n## Verification Evidence\n\nAll commands run 2026-08-26 against local checkout\
+  \ `.opencode` @ `80f494fc` and upstream `michael-conrad/.opencode` @ `main` (`3e69570a`):\n\
+  \n```text\n$ glob .opencode/skills/spec-creation/reference/**        -> No files\
+  \ found\n$ glob .opencode/skills/audit/reference/**                -> No files found\n\
+  \n$ gh api repos/michael-conrad/.opencode/contents/skills/spec-creation/reference?ref=main\
+  \ --jq '.[].name'\nsc-table-columns.md                                        #\
+  \ only file — none of the three present\n\n$ gh api repos/michael-conrad/.opencode/contents/skills/audit/reference?ref=main\n\
+  {\"message\":\"Not Found\"}                                    # HTTP 404 — directory\
+  \ absent upstream\n\n$ git -C .opencode log --all --oneline -- skills/spec-creation/reference/spec-structure-standards.md\
+  \ \\\n    skills/spec-creation/reference/holistic-dimensions.yaml \\\n    skills/spec-creation/reference/cost-model-standards.md\
+  \ \\\n    skills/audit/reference/decomposition-criteria.md       # zero commits\
+  \ across ALL refs ever touched these paths\n```\n\nCitations re-verified in the\
+  \ live tree:\n\n```text\n$ grep -n \"spec-structure-standards\\|holistic-dimensions\\\
+  |cost-model-standards\" .opencode/skills/spec-creation/tasks/validate.md\nvalidate.md:24,34,40\
+  \   -> spec-structure-standards.md\nvalidate.md:28,30      -> holistic-dimensions.yaml\n\
+  validate.md:72         -> cost-model-standards.md (\"Tiered Cost Table by Evidence\
+  \ Type\")\n$ grep -rn \"decomposition-criteria\" .opencode/skills/\nvalidate.md:97\
+  \         -> audit/reference/decomposition-criteria.md (master definition)\n```\n\
+  \nLocal checkout being behind `origin/main` (`80f494fc` vs `3e69570a`) is ruled\
+  \ out as cause: pulling does not restore the files — they are absent upstream too.\n\
+  \nRelated closed history (not duplicates of this defect): #2118 was a spec to CREATE\
+  \ `audit/reference/decomposition-criteria.md`; #2210/#2211 were specs to extract\
+  \ auditor criteria into `spec-structure-standards.md` / plan equivalent; #2225 covered\
+  \ validate/create defects incl. reference-document loading rules. All are CLOSED\
+  \ yet the files never landed on main — either the work targeted other paths, was\
+  \ reverted, or closed without implementation. Related-but-different open issues:\
+  \ #2039 (28 missing **task cards** under `tasks/`, different artifact class) and\
+  \ #916 (evidence cost model framing in guidelines, not this reference doc).\n\n\
+  ## Impact\n\nAny dispatch of `spec-creation` → `validate` returns BLOCKED/INCONCLUSIVE:\n\
+  \n- critical-rules-074 forbids inferring missing skill-deck content (dimension list,\
+  \ structure standards, evidence taxonomy) from memory or placeholders.\n- Observed\
+  \ live during spec validation of NewSRX-Tech-LLC/xBaseJ#63 on 2026-08-26.\n\n##\
+  \ Workaround Currently In Use\n\nDocumented substitutions against live in-tree authorities:\n\
+  \n- Dimension definitions ← audit-chain task-card dimension definitions\n- Structure/format\
+  \ rules ← `skills/spec-creation/reference/sc-table-columns.md`\n- Evidence-type\
+  \ taxonomy ← `test-driven-development/SKILL.md` §Evidence Type Taxonomy\n\nThese\
+  \ are substitutions, not compliance — validate.md declares the missing files to\
+  \ be the single sources of truth.\n\n## Suggested Remediation (any one)\n\n1. Restore/create\
+  \ the four files as the declared single sources of truth (consistent with the closed\
+  \ specs #2118/#2210 intent).\n2. Inline their content into `validate.md` and remove\
+  \ the external citations (contradicts current single-source-of-truth design).\n\
+  3. Repoint the citations at existing authoritative files (e.g., TDD SKILL.md taxonomy)\
+  \ so no dangling reference remains.\n\nOption 1 preserves the declared architecture\
+  \ and is recommended.\n\n\U0001F916 Co-authored with AI: OpenCode (ox-alpha / x-preview-f-free)\n"
+created_at: '2026-08-26T04:57:19Z'
+updated_at: '2026-08-26T09:14:31Z'
+remote_issue: 2328
+remote_url: https://github.com/michael-conrad/.opencode/issues/2328
+promoted_at: '2026-08-27T03:25:12.590090+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.590090+00:00'
+author: michael-newsrx

@@ -1,0 +1,50 @@
+number: 2346
+title: '[SPEC] Condense 000-critical-rules.md — retain safety-critical cores only'
+status: open
+labels: []
+body: '> Full spec and artifacts will be linked once local setup is complete.
+
+
+  ## Problem
+
+  `.opencode/guidelines/000-critical-rules.md` is fully preloaded into orchestrator
+  context via `.opencode/opencode.jsonc`. It costs ~8.3k tokens (~10% of the preloaded
+  guideline burden) before the user''s first prompt, yet ~10% of its content is procedural
+  (cross-reference tables, mandate-tiering prose, channel-routing table) that duplicates
+  skill-card content.
+
+
+  ## Scope
+
+  - **In scope:** Slim `000-critical-rules.md` to its safety-critical Tier 1 mandate
+  cores; relocate procedural sections (cross-reference tables, mandate-tiering prose,
+  channel-routing table) to skill cards via mandatory `Read [Text](path)` links; retain
+  ALL `critical-rules-XXX` blocks intact.
+
+  - **Out of scope:** Removing any safety-critical core. Changing the human-only-merge
+  or no-self-authorization rules. Relying on INDEX.md as the fallback.
+
+
+  ## Approach
+
+  Keep the file essentially fully preloaded (it is the #497 regression-proof file),
+  but strip its movable procedural scaffolding to a shared canonical reference, leaving
+  a leaner safety-critical mandate core.
+
+
+  ## Impact
+
+  - Risk: losing the rules whose absence caused #497 (PR-merge regression). Mitigation:
+  retain all critical-rules-XXX blocks verbatim in orchestrator context.
+
+  - Depends on: shared-reference creation, `opencode.jsonc` instructions array update.
+
+  - Action: approve to enable the condensation spec pipeline.'
+created_at: '2026-08-27T03:13:52Z'
+updated_at: '2026-08-27T03:13:52Z'
+remote_issue: 2346
+remote_url: https://github.com/michael-conrad/.opencode/issues/2346
+promoted_at: '2026-08-27T03:25:12.649724+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.649724+00:00'
+author: michael-conrad

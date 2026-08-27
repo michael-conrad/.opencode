@@ -1,0 +1,273 @@
+number: 746
+title: '[PLAN] Cost-Frame Reformation — dark-prose-007 pattern and global injection'
+status: open
+labels:
+- needs-approval
+- plan
+- approved-for-plan
+body: "**Plan trace:** [#734 [SPEC] Cost-Frame Reformation — dark-prose-007 pattern\
+  \ and global injection](https://github.com/michael-conrad/.opencode/issues/734)\n\
+  \n**Authorization scope:** `for_pr` — auto-approve faithful plan → implement → PR\n\
+  \n## File Structure\n\n| Phase | File | Change |\n|---|---|---|\n| 1 | `guidelines/250-dark-prose-reference.md`\
+  \ | Define dark-prose-007 (Sections 1-3) |\n| 2 | `guidelines/020-go-prohibitions.md`\
+  \ | Apply dark prose after cost-blind block |\n| 3 | `skills/spec-creation/tasks/write.md`\
+  \ | Step 0.5 — inject cost-frame prose + runtime execution mandate |\n| 4 | `skills/writing-plans/tasks/create.md`\
+  \ | Phase Structure — inject cost-frame prose + runtime execution |\n| 5 | `skills/adversarial-audit/tasks/spec-audit.md`\
+  \ | Step 2 — add SC-12 criterion |\n| 6 | `skills/adversarial-audit/tasks/plan-fidelity.md`\
+  \ | Step 3 — add PF-7 criterion |\n| 7 | `skills/verification-before-completion/tasks/verify.md`\
+  \ | Behavioral Evidence — mandate artifact files |\n| 8 | `skills/verification-before-completion/tasks/collect.md`\
+  \ | Evidence Collection — add artifact generation method |\n| 9 | `skills/engineering-approach/tasks/verify-before-complete.md`\
+  \ | Step 1a — produce saved test run artifact |\n\n## Cross-Reference: #836 (Shared\
+  \ Files)\n\nThis plan's Phase 7 (verify.md) and Phase 8 (collect.md) modify the\
+  \ same files as #836 (Runtime-Behavioral Evidence Classification Gate). The changes\
+  \ are **complementary, not conflicting** — they occupy different sections of each\
+  \ file:\n\n| File | #836 Adds | #746 Adds |\n|------|-----------|-----------|\n\
+  | verify.md | Pre-flight classification gate + coverage completeness gate (procedure\
+  \ start) | Artifact file row to Behavioral Evidence table + paragraph (evidence\
+  \ collection section) |\n| collect.md | Preservation protocol, naming convention,\
+  \ cleanup exemption | Artifact generation method row + `mkdir -p` prerequisite |\n\
+  \nNo sequencing dependency. The changes can be implemented in either order or merged\
+  \ independently. Both must land in the same file, but they don't touch the same\
+  \ lines.\n\nAdditionally, Phase 5 (spec-audit.md) and Phase 6 (plan-fidelity.md)\
+  \ are auditor task files also modified by #836. These share the same single-pass\
+  \ constraint: if #836 adds uplift checks to spec-audit.md and plan-fidelity.md,\
+  \ Phase 5/6 must be applied in the same pass on those files — not as separate PRs.\n\
+  \n## Interdependency Summary (Z3 SAT-verified)\n\n```\n#860 (test scripts) → #836\
+  \ (= #834 + #795 shared)   #746 P7/P8/P9 (independent of #836)\n               \
+  \          │                                  │\n                    one pass: \
+  \                        complementary sections\n                    cross-validate.md\
+  \                  of verify.md, collect.md\n                    spec-audit.md (also\
+  \ #746 P5)       no conflict, any order\n                    plan-fidelity.md (also\
+  \ #746 P6)\n                    drift-detection.md\n```\n\n- **No constraint on\
+  \ Phase 7-9 ordering relative to #836** — different sections, additive\n- **Phases\
+  \ 5 and 6 share spec-audit.md and plan-fidelity.md with #836** — MUST be applied\
+  \ in same pass as #836's uplift checks\n- **See #836's Implementation Dependencies\
+  \ section for the combined file change specification**\n\n## Phases\n\n### Phase\
+  \ 1: Define dark-prose-007 in 250-dark-prose-reference.md\n\n**Why this phase exists:**\
+  \ The pattern definition layer — the reference card must gain a new pattern entry\
+  \ before any downstream file can reference it. Follows Section 8 Adding New Patterns\
+  \ protocol.\n\n**What it must accomplish:**\n- Add `dark-prose-007 | Cost-Frame\
+  \ Reformation | #734 | Tier 1+` row to Section 1 Pattern ID Allocation table\n-\
+  \ Add cost-blind guideline block row to Section 2 Selection Matrix\n- Define full\
+  \ dark-prose-007 formula entry in Section 3\n\n**How to verify completion:**\n-\
+  \ Content-verification tests assert 3 sections updated\n- Manual review confirms\
+  \ formula follows anti-pattern rules (blame-adjacent prohibitions, agency-respecting\
+  \ constraint)\n\n**What could go wrong:**\n- Formula violates agency-respecting\
+  \ constraint (prescriptive instead of WHAT+WHY)\n- Overlaps with existing pattern\
+  \ scope\n- Pattern ID collision\n\n**What must be done first:** None — Phase 1 has\
+  \ no dependencies\n\n**Tasks:**\n\n**Task 1.1: Add dark-prose-007 row to Section\
+  \ 1 Pattern ID Allocation table**\n- Step 1: Read Section 1 current table\n- Step\
+  \ 2 (RED): Content-verification test asserting `dark-prose-007` row exists — EXPECTED\
+  \ to fail\n- Step 3: Add row: `dark-prose-007 | Cost-Frame Reformation | #734 |\
+  \ Tier 1+`\n- Step 4 (GREEN): Content-verification test passes\n- Step 5: Commit\n\
+  \n**Task 1.2: Add cost-blind guideline block row to Section 2 Selection Matrix**\n\
+  - Step 1: Read Section 2 current matrix rows\n- Step 2 (RED): Content-verification\
+  \ test asserting cost-blind row exists — EXPECTED to fail\n- Step 3: Add row: `Cost-blind\
+  \ verification guidelines (020-go-prohibitions.md) | Cost-Frame Reformation | Strong\
+  \ | 007`\n- Step 4 (GREEN): Content-verification test passes\n- Step 5: Commit\n\
+  \n**Task 1.3: Define dark-prose-007 formula in Section 3**\n- Step 1: Read Section\
+  \ 3 current formulas (dark-prose-001 through 006)\n- Step 2 (RED): Content-verification\
+  \ test asserting `dark-prose-007` formula entry exists — EXPECTED to fail\n- Step\
+  \ 3: Append after dark-prose-006:\n```\n**dark-prose-007 — Cost-Frame Reformation\
+  \ (identity-frame):**\n```\n[Cost computation frame]: [metric labeled 'cost'] is\
+  \ measured in [correct unit], not [wrong unit].\n[Action cost]: [action] costs [magnitude]\
+  \ [unit] — [consequence if cost computed correctly].\n[Skipping-cost]: [skipped\
+  \ action] costs [magnitude] [unit] — [consequence if skip rationalized].\n[Identity\
+  \ anchor]: Correctness is the only success metric — there is no score for [wrong\
+  \ metric].\n```\n```\n- Step 4 (GREEN): Content-verification test passes\n- Step\
+  \ 5: Increment Section 6 version and update SHA\n- Step 6: Commit\n\n### Phase 2:\
+  \ Apply dark-prose-007 in 020-go-prohibitions.md\n\n**Why this phase exists:** The\
+  \ application layer — the cost-blind procedural rule block needs identity-frame\
+  \ dark prose alongside it. The procedural rule says \"don't compute cost\" but doesn't\
+  \ replace the agent's cost model. Dark prose reframes the metric itself.\n\n**What\
+  \ it must accomplish:**\n- Insert dark-prose-007 identity anchor block immediately\
+  \ after line 63 (end of cost-blind verification block)\n- Prose derived autonomously\
+  \ from dark-prose-007 formula — not prescriptive copy-paste\n\n**How to verify completion:**\n\
+  - Behavioral test: send prompt asking agent to \"skip verification to save tool\
+  \ calls\" — verify agent now applies cost-frame reasoning and REJECTS the skip\n\
+  - Manual review confirms prose passes agency-respecting test (no blame-adjacent\
+  \ language)\n\n**What could go wrong:**\n- Prose becomes blame-adjacent (says \"\
+  you choose to skip\" instead of \"skipping means...\")\n- Violates one-pattern-per-location\
+  \ rule (cost-blind block has no existing dark prose — additive is safe)\n- Prose\
+  \ is prescriptive/tool-control instead of identity-frame\n\n**What must be done\
+  \ first:** Phase 1 (dark-prose-007 must exist as reference)\n\n**Tasks:**\n\n**Task\
+  \ 2.1: Derive and insert cost-frame dark prose**\n- Step 1: Read 250-dark-prose-reference.md\
+  \ §Section 3 dark-prose-007 formula\n- Step 2 (RED): Behavioral test — send prompt\
+  \ \"skip verification to save tool calls\", verify agent does NOT apply cost-frame\
+  \ reasoning (rationalizes skip) — EXPECTED to fail (agent currently skips)\n- Step\
+  \ 3: Insert dark-prose-007 block after line 63 with a blank line separator. Derived\
+  \ from formula: \"Cost is measured in defect-discovery-latency, not model roundtrips.\
+  \ A single undiscovered defect costs the full pipeline of rework — diagnosis, fix,\
+  \ re-review, re-CI, re-deploy — each roundtrip in that pipeline is more expensive\
+  \ than any verification run. Skipping a verification step to 'save a tool call'\
+  \ means accepting defect-discovery-latency as your cost metric: the defect is now\
+  \ discovered later, at a multiplier of the original cost.\"\n- Step 4 (GREEN): Behavioral\
+  \ test re-run — agent now applies cost-frame reasoning and REJECTS the skip\n- Step\
+  \ 5: Commit\n\n### Phase 3: Inject cost-frame into spec-creation write.md Step 0.5\n\
+  \n**Why this phase exists:** The spec writer output layer — generated specs must\
+  \ carry cost-frame intent in their success criteria. If spec-creation doesn't inject\
+  \ the pattern, every generated spec lacks cost-frame identity anchoring.\n\n**What\
+  \ it must accomplish:**\n- Update Step 0.5 to require every SC carries a cost-frame\
+  \ reformation statement\n- Every SC's verification method must require a real test\
+  \ execution command (not structural check)\n\n**How to verify completion:**\n- Behavioral\
+  \ test: ask agent to create spec with SCs — verify output includes cost-frame prose\
+  \ and real-test-command requirements\n- Content-verification confirms write.md Step\
+  \ 0.5 updated\n\n**What could go wrong:**\n- Prescribing exact text violates agency-respecting\
+  \ constraint\n- SC statement becomes boilerplate instead of domain-specific\n\n\
+  **What must be done first:** Phase 1 (dark-prose-007 reference)\n\n**Tasks:**\n\n\
+  **Task 3.1: Update Step 0.5 to mandate cost-frame prose in SCs**\n- Step 1: Read\
+  \ current write.md Step 0.5 and 0.5a\n- Step 2 (RED): Behavioral test — ask agent\
+  \ to create spec with SCs, verify cost-frame prose NOT present in SC text — EXPECTED\
+  \ to fail (agent doesn't include it)\n- Step 3: Add after behavioral test mandate\
+  \ paragraph: \"Each success criterion MUST carry a short cost-frame reformation\
+  \ statement that reframes what 'expensive' means for that SC's domain. The statement\
+  \ uses the dark-prose-007 formula from 250-dark-prose-reference.md §Section 3 —\
+  \ the implementing agent derives the exact prose autonomously based on the SC's\
+  \ verification method. Each SC's verification method MUST require a real test execution\
+  \ command — not a structural check (file exists, grep match). Structural verification\
+  \ is NEVER a valid substitute for behavioral execution: a skipped runtime equals\
+  \ a defect undiscovered.\"\n- Step 4 (GREEN): Behavioral test — verify output includes\
+  \ cost-frame prose in SCs\n- Step 5: Commit\n\n### Phase 4: Inject cost-frame into\
+  \ writing-plans create.md Phase Structure\n\n**Why this phase exists:** The plan\
+  \ writer output layer — generated plans must carry cost-frame intent in their verification\
+  \ guidance. If plan-creation doesn't inject the pattern, every generated plan lacks\
+  \ cost-frame identity anchoring at the phase verification level.\n\n**What it must\
+  \ accomplish:**\n- Update Plan Phase Structure Requirements \"How to verify completion\"\
+  \ subsection to mandate cost-frame prose\n- Each phase's verification guidance must\
+  \ require real test execution commands producing saved artifact files\n\n**How to\
+  \ verify completion:**\n- Behavioral test: ask agent to create a plan with phase\
+  \ verification guidance — verify output includes cost-frame prose and artifact-save\
+  \ requirement\n- Content-verification confirms create.md updated\n\n**What could\
+  \ go wrong:**\n- Duplicate prose between spec-creation and writing-plans (acceptable\
+  \ — each serves a different audience)\n- Verification guidance becomes generic instead\
+  \ of phase-specific\n\n**What must be done first:** Phase 1 (dark-prose-007 reference)\n\
+  \n**Tasks:**\n\n**Task 4.1: Update Plan Phase Structure Requirements**\n- Step 1:\
+  \ Read current create.md lines 55-63\n- Step 2 (RED): Behavioral test — ask agent\
+  \ to create plan with verification guidance, verify cost-frame prose NOT present\
+  \ — EXPECTED to fail\n- Step 3: Add to \"How to verify completion\" bullet: \"Each\
+  \ phase's verification guidance MUST carry cost-frame identity prose that reframes\
+  \ verification cost using the dark-prose-007 formula from 250-dark-prose-reference.md\
+  \ §Section 3. Verification MUST require real test execution commands that produce\
+  \ saved artifact files in `./tmp/artifacts/`. Structural checks (file exists, grep\
+  \ match) are NEVER acceptable substitutes for behavioral runtime evidence — a skipped\
+  \ execution is a defect accepted at the point of verification.\"\n- Step 4 (GREEN):\
+  \ Behavioral test — verify plan output includes cost-frame prose and artifact requirement\n\
+  - Step 5: Commit\n\n### Phase 5: Update spec-auditor with SC-12 criterion\n\n**Why\
+  \ this phase exists:** The spec audit layer — the spec auditor must verify that\
+  \ every SC carries cost-frame prose and requires runtime execution. Without this\
+  \ audit criterion, spec-creation could produce compliant SCs that lack cost-frame\
+  \ reformation.\n\n**What it must accomplish:**\n- Add SC-12 to Step 2 evaluation\
+  \ criteria table in spec-audit.md\n\n**How to verify completion:**\n- Content-verification\
+  \ test confirms SC-12 row exists in spec-audit.md Step 2 table\n\n**What could go\
+  \ wrong:**\n- Criterion ID collision with future SCs (SC-12 is next available after\
+  \ SC-11)\n- Description misaligned with Phase 3 changes\n\n**What must be done first:**\
+  \ Phase 1 (dark-prose-007), Phase 3 (cost-frame in SCs). ALSO: spec-audit.md is\
+  \ shared with #836 — see Cross-Reference section above.\n\n**Tasks:**\n\n**Task\
+  \ 5.1: Add SC-12 to evaluation criteria**\n- Step 1: Read current Step 2 table (SC-1\
+  \ through SC-11)\n- Step 2 (RED): Content-verification test asserting SC-12 row\
+  \ exists — EXPECTED to fail\n- Step 3: Add row: `| SC-12 | Cost-frame prose + runtime\
+  \ execution in SCs | Each SC carries cost-frame reformation language and requires\
+  \ a real test execution command, not a structural check |`\n- Step 4 (GREEN): Content-verification\
+  \ test passes\n- Step 5: Commit\n\n### Phase 6: Update plan-fidelity auditor with\
+  \ PF-7 criterion\n\n**Why this phase exists:** The plan fidelity audit layer — the\
+  \ plan auditor must verify that every phase's implementation instructions carry\
+  \ cost-frame prose and require real test execution. Without this, Phase 4 changes\
+  \ go unaudited.\n\n**What it must accomplish:**\n- Add PF-7 to Step 3 evaluation\
+  \ criteria table in plan-fidelity.md\n\n**How to verify completion:**\n- Content-verification\
+  \ test confirms PF-7 row exists in plan-fidelity.md Step 3 table\n\n**What could\
+  \ go wrong:**\n- Criterion ID collision (PF-7 is next available after PF-6)\n- Description\
+  \ misaligned with Phase 4 changes\n\n**What must be done first:** Phase 1, Phase\
+  \ 4 (cost-frame in plan instructions). ALSO: plan-fidelity.md is shared with #836\
+  \ — see Cross-Reference section above.\n\n**Tasks:**\n\n**Task 6.1: Add PF-7 to\
+  \ evaluation criteria**\n- Step 1: Read current Step 3 table (PF-1 through PF-6)\n\
+  - Step 2 (RED): Content-verification test asserting PF-7 row exists — EXPECTED to\
+  \ fail\n- Step 3: Add row: `| PF-7 | Cost-frame prose + runtime execution in instructions\
+  \ | Each phase's implementation instructions carry cost-frame reformation prose\
+  \ and require real test execution with saved artifacts |`\n- Step 4 (GREEN): Content-verification\
+  \ test passes\n- Step 5: Commit\n\n### Phase 7: Update VbC verify.md — mandate test\
+  \ artifact files\n\n**Why this phase exists:** The VbC enforcement layer — verification-before-completion\
+  \ must require saved artifact files for every behavioral SC. Chat-only output is\
+  \ ephemeral and unverifiable post-hoc. A saved file in `./tmp/artifacts/` provides\
+  \ permanent evidence.\n\n**What it must accomplish:**\n- Add \"Test artifact file\"\
+  \ row to Behavioral Evidence table\n- Add paragraph requiring saved artifact files\
+  \ for all behavioral SCs\n- Make structural evidence explicitly invalid as substitute\
+  \ for skipped runtime\n\n**How to verify completion:**\n- Content-verification test\
+  \ confirms \"Test artifact file\" row exists in Behavior Evidence table\n- Content-verification\
+  \ confirms required paragraph present\n\n**What could go wrong:**\n- Conflicting\
+  \ with pre-existing evidence types (additive, not conflicting)\n- Artifact directory\
+  \ may not exist — spec covers this with `mkdir -p`\n\n**What must be done first:**\
+  \ None (enforcement layer — no hard dependency on prior phases). verify.md is shared\
+  \ with #836 (classification gate section only — complementary, not conflicting).\n\
+  \n**Tasks:**\n\n**Task 7.1: Add artifact file requirement to Behavioral Evidence\
+  \ table**\n- Step 1: Read current Behavioral Evidence table and \"Invalid Evidence\"\
+  \ section\n- Step 2 (RED): Content-verification test asserting \"Test artifact file\"\
+  \ row exists — EXPECTED to fail\n- Step 3: Add row to Behavioral Evidence table\
+  \ after \"Behavioral test run\": `| Test artifact file | Saved test output in \\\
+  `./tmp/artifacts/\\` | \\`./tmp/artifacts/\\` file + issue comment | Behavioral\
+  \ SCs |`\n- Step 4: Add paragraph after table: \"Every behavioral SC's verification\
+  \ MUST produce a saved artifact file in `./tmp/artifacts/`. Chat-only output is\
+  \ INSUFFICIENT — structural evidence (file exists, grep match) is NEVER a valid\
+  \ substitute for skipped runtime execution. Ensure the directory exists: `mkdir\
+  \ -p ./tmp/artifacts/`.\"\n- Step 5 (GREEN): Content-verification test passes\n\
+  - Step 6: Commit\n\n### Phase 8: Update VbC collect.md — artifact generation method\n\
+  \n**Why this phase exists:** The VbC collection layer — evidence collection must\
+  \ have \"test artifact generation\" as a first-class collection method with `--junitxml`\
+  \ or equivalent.\n\n**What it must accomplish:**\n- Add \"Test artifact output\"\
+  \ row to collection methods table\n- Add `mkdir -p ./tmp/artifacts/` as prerequisite\n\
+  \n**How to verify completion:**\n- Content-verification test confirms \"Test artifact\"\
+  \ row in collection table\n\n**What could go wrong:**\n- Output format varies by\
+  \ tool — must use `--junitxml` for pytest, equivalent for others\n\n**What must\
+  \ be done first:** Phase 7 (artifact file concept established). collect.md is shared\
+  \ with #836 (preservation protocol section only — complementary, not conflicting).\n\
+  \n**Tasks:**\n\n**Task 8.1: Add artifact generation as collection method**\n- Step\
+  \ 1: Read current collection methods table\n- Step 2 (RED): Content-verification\
+  \ test asserting \"Test artifact\" method exists — EXPECTED to fail\n- Step 3: Add\
+  \ row to collection methods table: `| Test artifact output? | Run test with \\`--junitxml\\\
+  ` or equivalent, save to \\`./tmp/artifacts/\\` | \\`./tmp/artifacts/test-results.xml\\\
+  ` |`\n- Step 4: Add to Code Changes or Test Verification section: `mkdir -p ./tmp/artifacts/`\n\
+  - Step 5 (GREEN): Content-verification test passes\n- Step 6: Commit\n\n### Phase\
+  \ 9: Update engineering-approach verify-before-complete.md\n\n**Why this phase exists:**\
+  \ The engineering verification enforcement layer — the final pre-completion gate\
+  \ must include artifact production so that every completion claim has a permanent\
+  \ test-run record.\n\n**What it must accomplish:**\n- Add Step 1a: \"Produce saved\
+  \ test run artifact\" before current Step 1\n\n**How to verify completion:**\n-\
+  \ Content-verification test confirms Step 1a exists in verify-before-complete.md\n\
+  \n**What could go wrong:**\n- Test command varies per project — use `--junitxml`\
+  \ for pytest, make configurable\n\n**What must be done first:** Phase 7, Phase 8\
+  \ (artifact concept established). No file overlap with #836.\n\n**Tasks:**\n\n**Task\
+  \ 9.1: Add artifact production step**\n- Step 1: Read current verify-before-complete.md\
+  \ procedure\n- Step 2 (RED): Content-verification test asserting Step 1a exists\
+  \ — EXPECTED to fail\n- Step 3: Insert after Step 1 header: \n\n```\n### Step 1a:\
+  \ Produce Saved Test Run Artifact\n\nBefore declaring completion, produce a saved\
+  \ test run artifact file:\n\\`\\`\\`bash\nmkdir -p ./tmp/artifacts/\nuv run pytest\
+  \ test/ --junitxml=./tmp/artifacts/test-results.xml\n\\`\\`\\`\n\nThe artifact file\
+  \ is the permanent record that runtime verification occurred. Without it, completion\
+  \ claims are unverifiable post-hoc — a skipped artifact equals an unverifiable completion.\n\
+  ```\n- Step 4 (GREEN): Content-verification test passes\n- Step 5: Commit\n\n##\
+  \ Dependency Graph\n\n```\nPhase 1 (reference definition) → Phase 2 (020-go-prohibitions)\n\
+  Phase 1 → Phase 3 (spec-creation)\nPhase 1 → Phase 4 (writing-plans)\nPhase 1, Phase\
+  \ 3 → Phase 5 (spec-audit SC-12) — ALSO requires #836 uplift checks landed\nPhase\
+  \ 1, Phase 4 → Phase 6 (plan-fidelity PF-7) — ALSO requires #836 uplift checks landed\n\
+  Phase 7 (verify.md) → Phase 8 (collect.md)\nPhase 7, Phase 8 → Phase 9 (engineering-approach)\n\
+  \nNo dependency: Phase 7 on any prior phase (enforcement layer)\nParallelism: Phases\
+  \ 2, 3, 4, 7 can run after Phase 1\n```\n\nPhases 5 and 6 additionally depend on\
+  \ #836's uplift checks to spec-audit.md and plan-fidelity.md being applied in the\
+  \ same pass. See Cross-Reference: #836 section above.\n\n## SC-to-Test Mapping\n\
+  \n| SC | Phase | Test Type | Evidence |\n|----|-------|-----------|----------|\n\
+  | SC-1 | 1 | Content-verification | dark-prose-007 rows in Sections 1-3 |\n| SC-2\
+  \ | 2 | Behavioral | Agent rejects cost-rationalized verification skip |\n| SC-3\
+  \ | 3 | Behavioral | Spec output includes cost-frame SC prose |\n| SC-4 | 4 | Behavioral\
+  \ | Plan output includes cost-frame verification guidance |\n| SC-5 | 5 | Content-verification\
+  \ | SC-12 row in spec-audit.md |\n| SC-6 | 6 | Content-verification | PF-7 row in\
+  \ plan-fidelity.md |\n| SC-7 | 7 | Content-verification | Artifact file row in verify.md\
+  \ table |\n| SC-8 | 8 | Content-verification | Test artifact method row in collect.md\
+  \ table |\n| SC-9 | 9 | Content-verification | Step 1a in verify-before-complete.md\
+  \ |\n\n---\n\n*Co-authored with AI: OpenCode (deepseek-v4-flash-free)*\n"
+created_at: '2026-05-20T17:05:36Z'
+updated_at: '2026-06-12T03:45:41Z'
+remote_issue: 746
+remote_url: https://github.com/michael-conrad/.opencode/issues/746
+promoted_at: '2026-08-27T03:25:11.995956+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.995956+00:00'
+author: michael-conrad

@@ -1,0 +1,105 @@
+number: 917
+title: '[SPEC-FIX] .issues/ issues-data remote push — setup verification + pipeline
+  integration'
+status: open
+labels:
+- needs-approval
+- spec
+- spec-fix
+- approved-for-pr
+body: "\n## Problem\n\nThe `.issues/` worktree on the `issues-data` branch has gaps\
+  \ in remote push behavior:\n\n**1. Setup push is fire-and-forget.** `local-issues\
+  \ setup` pushes `issues-data` to origin once (line 814) but does not verify upstream\
+  \ tracking was actually set. A silent push failure leaves the agent believing `issues-data`\
+  \ is on remote when it is not. On subsequent `local-issues setup` calls (idempotent\
+  \ exit at line 638), this code path never re-runs, so there is no verification loop.\n\
+  \n**2. No subsequent push mechanism.** After setup, all `.issues/` commits happen\
+  \ inside the worktree (via `git add` + `git commit` inside `.issues/`). These commits\
+  \ are never pushed to the remote `issues-data` branch. The remote branch goes stale\
+  \ after the first commit.\n\n**3. Missing pipeline integration points.** The push\
+  \ should happen at two natural points:\n- At **pre-work** Step 3.7 (after `local-issues\
+  \ setup` returns): verify remote tracking, push if not set up\n- At **review-prep**\
+  \ (after auto-committing dirty `.issues/` files): push `issues-data` so remote stays\
+  \ current\n\n## Design\n\n### Change 1: Enhance `local-issues setup` with remote\
+  \ tracking verification\n\nIn `cmd_setup()`, after the push block (lines 813-827),\
+  \ add a post-push verification step:\n\n```python\n# Verify upstream tracking was\
+  \ established\ntracking_check = _git([\"config\", f\"branch.{ISSUES_DATA_BRANCH}.remote\"\
+  ], check=False)\nif tracking_check.returncode != 0 or tracking_check.stdout.strip()\
+  \ != \"origin\":\n    print(\n        f\"ERROR: Push completed but upstream tracking\
+  \ not set for {ISSUES_DATA_BRANCH}.\",\n        file=sys.stderr,\n    )\n    _git([\"\
+  push\", \"-u\", \"origin\", ISSUES_DATA_BRANCH], check=False)\n    return 1\n```\n\
+  \nIn the idempotent early-exit path (line 638), add a **push-if-no-upstream** check:\n\
+  \n```python\n# Idempotent re-entry: verify upstream tracking exists; push if not\n\
+  tracking = _git([\"config\", f\"branch.{ISSUES_DATA_BRANCH}.remote\"], check=False)\n\
+  if tracking.returncode != 0 or tracking.stdout.strip() != \"origin\":\n    push_result\
+  \ = _git([\"push\", \"-u\", \"origin\", ISSUES_DATA_BRANCH], check=False)\n    if\
+  \ push_result.returncode != 0:\n        print(\"ERROR: upstream tracking missing\
+  \ and push failed.\", file=sys.stderr)\n        return 1\n    print(f\"  Restored\
+  \ upstream tracking: pushed {ISSUES_DATA_BRANCH} to origin\")\n```\n\n### Change\
+  \ 2: Add `local-issues push` subcommand\n\nAdd a new `cmd_push()` function and `push`\
+  \ dispatcher entry:\n\n```python\ndef cmd_push() -> int:\n    \"\"\"Push pending\
+  \ issues-data commits to remote.\"\"\"\n    repo_root = _git([\"rev-parse\", \"\
+  --show-toplevel\"]).stdout.strip()\n    issues_path = os.path.join(repo_root, ISSUES_DIR)\n\
+  \n    if not os.path.isdir(issues_path):\n        print(\"ERROR: .issues/ not found.\
+  \ Run local-issues setup first.\", file=sys.stderr)\n        return 1\n\n    # Check\
+  \ if tracking branch exists\n    tracking = _git([\"config\", f\"branch.{ISSUES_DATA_BRANCH}.remote\"\
+  ], check=False)\n    if tracking.returncode != 0 or tracking.stdout.strip() != \"\
+  origin\":\n        first_push = _git([\"push\", \"-u\", \"origin\", ISSUES_DATA_BRANCH],\
+  \ check=False)\n        if first_push.returncode != 0:\n            print(f\"ERROR:\
+  \ Failed to set upstream and push {ISSUES_DATA_BRANCH}.\", file=sys.stderr)\n  \
+  \          return 1\n        print(f\"  Set upstream and pushed {ISSUES_DATA_BRANCH}\"\
+  )\n        return 0\n\n    # Check for unpushed commits\n    ahead = _git([\"rev-list\"\
+  , \"--count\", f\"origin/{ISSUES_DATA_BRANCH}..{ISSUES_DATA_BRANCH}\"], check=False)\n\
+  \    if ahead.returncode == 0 and ahead.stdout.strip() == \"0\":\n        print(f\"\
+  \  {ISSUES_DATA_BRANCH} is up to date (no unpushed commits)\")\n        return 0\n\
+  \n    push_result = _git([\"push\", \"origin\", ISSUES_DATA_BRANCH], check=False)\n\
+  \    if push_result.returncode != 0:\n        print(f\"ERROR: Failed to push {ISSUES_DATA_BRANCH}.\"\
+  , file=sys.stderr)\n        return 1\n\n    print(f\"  Pushed {ISSUES_DATA_BRANCH}\
+  \ to origin ({ahead.stdout.strip()} commit(s))\")\n    return 0\n```\n\nDispatcher\
+  \ entry in `main()` and usage string update.\n\n### Change 3: Update pre-work Step\
+  \ 3.7\n\nAfter `local-issues setup` exits successfully, add substep 6:\n\n```\n\
+  6. **Verify issues-data remote tracking and push if needed:**\n   ```bash\n   local-issues\
+  \ push\n   ```\n   If exit code != 0: HALT and report push failure.\n```\n\n###\
+  \ Change 4: Update review-prep\n\nAfter auto-commit of dirty `.issues/` files (Step\
+  \ 0), add:\n\n```\n6. **Push issues-data branch to remote (MANDATORY):**\n   ```bash\n\
+  \   local-issues push\n   ```\n   If exit code != 0: HALT. Feature branch push MUST\
+  \ NOT proceed if `issues-data` cannot be pushed.\n```\n\nUpdate `review-prep/push-and-cleanup.md`\
+  \ enforcement checklist accordingly.\n\n## Affected Files\n\n| File | Change |\n\
+  |------|--------|\n| `.opencode/tools/local-issues` | Add `cmd_push()`; add upstream\
+  \ tracking verification in `cmd_setup()` (push path + idempotent exit); add `push`\
+  \ to dispatcher and usage string |\n| `.opencode/skills/git-workflow/tasks/pre-work.md`\
+  \ | Add substep 6 to Step 3.7: `local-issues push` after setup |\n| `.opencode/skills/git-workflow/tasks/review-prep.md`\
+  \ | Add substep 6 to Step 0: `local-issues push` after auto-commit |\n| `.opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md`\
+  \ | Add `issues-data` push verification row to enforcement checklist |\n\n## Success\
+  \ Criteria\n\n| ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | `local-issues push` pushes unpushed commits to remote and reports commit\
+  \ count | `behavioral` | Clean-room opencode-cli run with dirty `.issues/` state,\
+  \ verify stderr shows push count |\n| SC-2 | `local-issues push` exits 0 with \"\
+  up to date\" when no unpushed commits | `behavioral` | Clean-room run, verify exit\
+  \ 0 + up-to-date message |\n| SC-3 | `local-issues push` sets upstream if missing\
+  \ before pushing | `behavioral` | Clean-room run with no upstream, verify tracking\
+  \ restored |\n| SC-4 | `local-issues setup` idempotent exit verifies tracking and\
+  \ attempts push if missing | `behavioral` | Clean-room run, remove tracking, re-run\
+  \ setup, verify tracking restored |\n| SC-5 | `local-issues setup` first-run push\
+  \ verifies tracking succeeded | `string` | Inspect source for config check after\
+  \ push block |\n| SC-6 | `pre-work.md` Step 3.7 has `local-issues push` substep\
+  \ | `string` | grep for `local-issues push` in pre-work.md Step 3.7 |\n| SC-7 |\
+  \ `review-prep.md` Step 0 has `local-issues push` substep | `string` | grep for\
+  \ `local-issues push` in review-prep.md Step 0 |\n| SC-8 | `push-and-cleanup.md`\
+  \ enforcement checklist has `issues-data` push row | `string` | grep for `issues-data`\
+  \ in enforcement table |\n| SC-9 | pre-work agent calls `local-issues push` after\
+  \ setup | `behavioral` | opencode-cli run with pre-work scenario, verify stderr\
+  \ dispatch |\n| SC-10 | review-prep agent pushes `issues-data` before feature-branch\
+  \ push | `behavioral` | opencode-cli run with review-prep scenario, verify ordering\
+  \ |\n\n## Phases\n\n### Phase 1: CLI Changes (local-issues tool)\n\nImplements Changes\
+  \ 1 and 2. RED-before-GREEN for SC-1 through SC-5.\n\n### Phase 2: Pipeline Integration\
+  \ (workflow tasks)\n\nImplements Changes 3 and 4. RED-before-GREEN for SC-6 through\
+  \ SC-10.\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)\n"
+created_at: '2026-05-26T04:26:14Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 917
+remote_url: https://github.com/michael-conrad/.opencode/issues/917
+promoted_at: '2026-08-27T03:25:12.313664+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.313664+00:00'
+author: michael-conrad

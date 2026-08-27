@@ -1,0 +1,181 @@
+number: 851
+title: '[SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output Touchpoints
+  with Dark Prose and Distribution-Shifting Patterns'
+status: open
+labels:
+- needs-approval
+- spec
+body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output Touchpoints
+
+
+  ### Prerequisites
+
+
+  - #848 (255-distribution-shifting-reference card must exist)
+
+  - #849 (mandatory co-application policy must be in place)
+
+
+  ### Problem
+
+
+  Even with the distribution-shifting card (#848) and co-application policy (#849)
+  in place, existing AI-agent-facing text across 19+ skill cards, guideline enforcement
+  blocks, task file enforcement gates, and the system prompt still uses mean-tail
+  framing. New text will be expert-framed, but all existing text remains in the mean
+  of the training distribution.
+
+
+  Research shows context drift causes models to revert toward the mean. The highest-impact
+  intervention is **re-priming at enforcement gates** (dist-shift-003). The second
+  is **persona descriptor stacking** (dist-shift-005) — most SKILL.md personas use
+  1-2 descriptors where 4-5 are needed.
+
+
+  ### Solution
+
+
+  Systematic backfill of all AI-agent-facing output touchpoints, ordered by impact:
+
+
+  **Priority 1: Re-Priming at Enforcement Gates (Highest Impact)**
+
+  Add dist-shift-003 (re-priming anchor) at enforcement gates in task files:
+
+  - verification-before-completion/tasks/verify.md
+
+  - adversarial-audit/tasks/spec-audit.md, plan-fidelity.md, coherence-maintenance.md
+
+  - git-workflow/tasks/pr-creation.md
+
+  - approval-gate/tasks/verify-authorization.md
+
+  - divide-and-conquer/tasks/assemble-work.md
+
+
+  Pattern: Single sentence restating core identity + key constraint at every enforcement
+  gate.
+
+
+  **Priority 2: Persona Descriptor Stacking (High Impact)**
+
+  Update all 19+ SKILL.md Persona sections from 1-2 descriptors to 4-5 descriptor
+  clusters using dist-shift-005 formula:
+
+  ```
+
+  [Role]. Focus: [expert 1], [expert 2], [expert 3], [expert 4].
+
+  The mean response is [mean behavior]; the professional response is [expert behavior].
+
+  [Identity anchor] — [consequence of mean behavior].
+
+  ```
+
+
+  Highest priority: systematic-debugging (most vulnerable to mean-convergence — "vibe
+  debugging" is the training-data mean).
+
+
+  **Priority 3: Tier 1 Guideline Anti-Mean Additions (Medium Impact)**
+
+  Add dist-shift-002 contrast pairs and dist-shift-004 anti-hedging to:
+
+  - 000-critical-rules.md
+
+  - 010-approval-gate.md
+
+  - 020-go-prohibitions.md
+
+  - 060-tool-usage.md
+
+  - 065-verification-honesty.md
+
+  - 080-code-standards.md
+
+
+  **Priority 4: Bright-Line Rule Contrast Pairs (Medium Impact)**
+
+  Add dist-shift-002 contrast pairs to the most critical bright-line rules in 000-critical-rules.md.
+
+
+  **Priority 5: System Prompt Update (Lower per-unit, high cumulative)**
+
+  Update default.txt with dist-shift-001 descriptor cluster and dist-shift-004 anti-consensus.
+
+
+  ### Implementation Order
+
+
+  | Phase | Priority | Files | Effort |
+
+  |-------|----------|-------|--------|
+
+  | 1 | Re-Priming at Enforcement Gates | 6-8 task files | Low |
+
+  | 2 | Persona Descriptor Stacking | 19+ SKILL.md files | Medium |
+
+  | 3 | Tier 1 Guideline Anti-Mean | 6 guideline files | Medium |
+
+  | 4 | Bright-Line Rule Updates | 000-critical-rules.md | Medium |
+
+  | 5 | System Prompt Update | default.txt | Low |
+
+
+  ### Success Criteria
+
+
+  | SC-ID | Criterion | Evidence Type | Verification Method |
+
+  |-------|-----------|--------------|---------------------|
+
+  | SC-1 | All 6-8 Priority 1 task files contain dist-shift-003 re-priming anchors
+  | string | grep in each task file |
+
+  | SC-2 | All 19+ SKILL.md files have Persona sections with 4-5 descriptor clusters
+  | structural | Read each SKILL.md Persona section |
+
+  | SC-3 | All 6 Tier 1 guidelines have at least one dist-shift-002 contrast pair
+  | structural | grep for "The mean response is" |
+
+  | SC-4 | 000-critical-rules.md has contrast pairs on 5+ bright-line rules | structural
+  | grep for "The mean response is" |
+
+  | SC-5 | default.txt has descriptor cluster and anti-consensus template | structural
+  | Read default.txt |
+
+  | SC-6 | No SKILL.md Persona section has fewer than 4 descriptors | string | Count
+  descriptors in each Persona |
+
+  | SC-7 | systematic-debugging Persona specifically addresses "vibe debugging" as
+  the mean response | string | grep for "vibe" or "symptom" |
+
+  | SC-8 | verification-before-completion Persona addresses "reporting done without
+  verification" as mean response | string | grep for "unverified" |
+
+  | SC-9 | Behavioral test: agent with updated persona produces expert-tail framing
+  | behavioral | opencode-cli run, assert_semantic |
+
+
+  ### References
+
+
+  - #848 — Distribution-Shifting Reference Card (prerequisite)
+
+  - #849 — Mandatory Co-Application Policy (prerequisite)
+
+  - guidelines/250-dark-prose-reference.md — Dark Prose Reference Card
+
+  - guidelines/255-distribution-shifting-reference.md — Distribution-Shifting Reference
+  Card
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-23T16:11:27Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 851
+remote_url: https://github.com/michael-conrad/.opencode/issues/851
+promoted_at: '2026-08-27T03:25:12.194400+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.194400+00:00'
+author: michael-conrad

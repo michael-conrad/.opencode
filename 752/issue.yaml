@@ -1,0 +1,44 @@
+number: 752
+title: 'Phase 6: Update plan-fidelity auditor with PF-7 criterion'
+status: open
+labels:
+- needs-approval
+- plan
+- sub-issue
+body: 'Parent: #746
+
+
+  ## Concern
+
+  Plan fidelity audit layer — plan auditor must verify that every phase''s implementation
+  instructions carry cost-frame prose and require real test execution.
+
+
+  ## Files
+
+  - `skills/adversarial-audit/tasks/plan-fidelity.md` (Step 3 evaluation criteria
+  table)
+
+
+  ## Tasks
+
+  1. Read current Step 3 table
+
+  2. Write content-verification test (RED) — PF-7 row absent
+
+  3. Add PF-7 row to evaluation criteria
+
+  4. Confirm content-verification test passes (GREEN)
+
+
+  ## Dependencies
+
+  - Phase 1, Phase 4 complete'
+created_at: '2026-05-20T17:05:54Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 752
+remote_url: https://github.com/michael-conrad/.opencode/issues/752
+promoted_at: '2026-08-27T03:25:12.026217+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.026217+00:00'
+author: michael-conrad

@@ -1,0 +1,36 @@
+number: 2371
+title: '[SPEC] Update brainstorming skill — Read-link discussion-mode-mandates'
+status: open
+labels: []
+body: '## Problem
+
+  Discussion-mode mandates from 020-go-prohibitions.md §1.6 move to a shared reference;
+  brainstorming consumes them.
+
+
+  ## Scope
+
+  - **In:** Add mandatory Read [Text](path) link to discussion-mode-mandates.md in
+  the brainstorming skill card.
+
+  - **Out:** Losing the discussion-mode mandates (no question tool, no pigeon-holing,
+  single-topic).
+
+
+  ## Approach
+
+  Anchor the shared discussion-mode reference via mandatory Read-link.
+
+
+  ## Impact
+
+  Enables 020 condensation. Risk: low. Depends on discussion-mode-mandates ref + 020.
+  Action: approve.'
+created_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-27T03:14:57Z'
+remote_issue: 2371
+remote_url: https://github.com/michael-conrad/.opencode/issues/2371
+promoted_at: '2026-08-27T03:25:12.697294+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.697294+00:00'
+author: michael-conrad

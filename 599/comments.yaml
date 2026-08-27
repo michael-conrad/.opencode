@@ -1,0 +1,177 @@
+comments:
+- body: "## Deeper Defect: Missing Intelligence Fallback Rule\n\nThe table gap is\
+    \ only half the problem. The other half is a **philosophical contradiction in\
+    \ the skill deck** about what happens when the table has no exact match.\n\n###\
+    \ The Contradiction\n\nThree rules say \"resolve this autonomously\":\n\n1. **`critical-rules-006`**:\
+    \ \"Pushing Agent Intelligence Decisions to the User\" — structural decisions\
+    \ auto-resolved by agent\n2. **`020-go-prohibitions.md` §1.5**: \"Soliciting Authorization\
+    \ for Already-Authorized Phrases — CRITICAL VIOLATION\" — never ask for confirmation\
+    \ when authorization is present\n3. **`scope-auto-resolve.md` line 11**: \"Under\
+    \ NO circumstances does the agent ask the user to classify scope\"\n\nBut the\
+    \ fallback instruction in **`scope-auto-resolve.md` line 26** says:\n\n> If no\
+    \ qualifier matches, set `authorization_scope = \"standard\"` with `scope_source\
+    \ = \"default\"`.\n\nThis gives the agent exactly two options: **exact table match**\
+    \ or **default to standard**. There is no third option for \"near match — use\
+    \ intelligence to resolve.\"\n\n### What Happened\n\nWhen I received \"approved\
+    \ for pr 578\":\n\n1. No table entry matched (word order gap)\n2. The fallback\
+    \ says: default to `standard`\n3. I knew `standard` was wrong — \"approved for\
+    \ pr\" clearly means `for_pr`\n4. But the rules didn't give me a way to use intelligence\
+    \ to bridge the gap\n5. So I asked the user — violating §1.5\n\nThe table made\
+    \ me a dumb terminal: match or no-match. No room for the language understanding\
+    \ that \"approved for pr\" obviously maps to `for_pr` scope regardless of where\
+    \ the number appears.\n\n### The Missing Rule: Intelligence Fallback for Scope\
+    \ Parsing\n\nWhat's needed is an explicit rule in `scope-auto-resolve.md` (and\
+    \ cross-referenced in `020-go-prohibitions.md`) that says:\n\n> **Intelligence\
+    \ Fallback:** When the verb-prefix parsing table has no exact match for an authorization\
+    \ phrase, but the phrase unambiguously contains an authorization keyword (\"approved\"\
+    , \"go\", etc.) and a scope qualifier (\"pr\", \"implementation\", \"plan\", \"\
+    spec\", \"review\", \"code review\"), the agent MUST resolve the scope using language\
+    \ understanding — NOT default to `standard` and NOT solicit user confirmation.\n\
+    > \n> The qualifier keyword determines scope, not word order. \"Approved for pr\
+    \ 578\", \"578 approved to PR\", and \"approved 578 for PR\" all resolve to `for_pr`.\
+    \ The number's position in the phrase is irrelevant to scope determination.\n\
+    >\n> If the phrase contains an authorization keyword but NO identifiable scope\
+    \ qualifier, then default to `standard` scope. If the phrase is genuinely ambiguous\
+    \ (multiple conflicting qualifiers), set `scope_source = \"ambiguous\"` and use\
+    \ best-match reasoning — still do NOT ask the user.\n\nThis rule makes the parsing\
+    \ table a **primary heuristic** with an **intelligence fallback** for near-matches,\
+    \ instead of a rigid binary (match/standard) that turns the agent into a dumb\
+    \ matcher.\n\n### Impact Without This Fix\n\nEven after adding the missing table\
+    \ entries, any future phrase that doesn't exactly match a table pattern will hit\
+    \ the same failure mode. The real fix is the intelligence fallback principle —\
+    \ the table is a fast-path, not a straitjacket.\n\n\U0001F916 Co-authored with\
+    \ AI: OpenCode (ollama-cloud/glm-5.1)"
+  created_at: '2026-05-15T14:12:19Z'
+  user: michael-conrad
+- body: '## Additional Defect: `standard` scope name is a misnomer
+
+
+    The scope value `standard` is a third defect in the same system. Every other scope
+    is named after its **halt point**:
+
+
+    | Scope | HALT After |
+
+    |---|---|
+
+    | `for_spec` | spec_created |
+
+    | `for_plan` | plan_created |
+
+    | `for_implementation` | implementation_complete |
+
+    | `for_code_review` | code_review_ready |
+
+    | `for_pr` | pr_created |
+
+    | `pr_only` | pr_created |
+
+    | `review_only` | code_review_ready |
+
+    | **`standard`** | **review_prep** |
+
+
+    `standard` is the only scope NOT named after its halt point. It halts at `review_prep`,
+    but you''d never know that from the name. The corresponding label is `approved-for-review-prep`
+    — which DOES use the halt-point convention.
+
+
+    This creates three problems:
+
+
+    1. **Semantically opaque**: "standard" tells you nothing about what the pipeline
+    does. Every other scope name is self-documenting (`for_pr`, `for_implementation`).
+    `standard` requires you to look up a table to understand what happens.
+
+
+    2. **Fallback naming encourages dumb-terminal behavior**: `scope-auto-resolve.md`
+    line 26 says "If no qualifier matches, set `authorization_scope = "standard"`
+    with `scope_source = "default"`." The name `standard` sounds like a safe default
+    — a sensible fallback — when actually it''s the review-prep halt point with zero
+    gap-fill. The naming subtly validates the "fall through to default" behavior instead
+    of flagging it as "the pipeline halts at review-prep with no auto-fill" — which
+    is a very specific, very constrained scope.
+
+
+    3. **Three names, one concept**: The label says `approved-for-review-prep`, the
+    halt point says `review_prep`, but the scope key says `standard`. The agent has
+    to mentally map three different names for one concept. Every other scope has two
+    names that align: `for_pr` ↔ `approved-for-pr`, `for_implementation` ↔ `approved-for-implementation`.
+
+
+    **Proposed fix**: Rename `standard` → `for_review_prep` everywhere. The scope-parsing
+    table becomes:
+
+
+    ```
+
+    | "approved #N" (no qualifier) | for_review_prep | review_prep | None | individual
+    |
+
+    ```
+
+
+    This aligns with:
+
+    - The halt point: `review_prep`
+
+    - The label: `approved-for-review-prep` (already uses this convention)
+
+    - Every other scope''s naming: `for_<stage>`
+
+    - The intelligence fallback: "no qualifier" doesn''t mean "default" — it means
+    "halt at review-prep, no auto-fill"
+
+
+    **Files requiring update:**
+
+    - `approval-gate/enforcement/scope-parsing.md`
+
+    - `approval-gate/enforcement/auto-dispatch-table.md`
+
+    - `approval-gate/tasks/verify-authorization/scope-auto-resolve.md`
+
+    - `approval-gate/tasks/verify-authorization/gap-fill-cascade.md`
+
+    - `approval-gate/tasks/verify-authorization.md`
+
+    - `010-approval-gate.md` (Authorization Scope Model table)
+
+    - `020-go-prohibitions.md` (scope parsing examples)
+
+    - `000-critical-rules.md` (scope references)
+
+    - `issue-operations/platforms/github-mcp/SKILL.md` (label mapping)
+
+    - `issue-operations/platforms/local/SKILL.md` (label mapping)
+
+    - `issue-operations/platforms/gitbucket-api/SKILL.md` (label mapping)
+
+    - `divide-and-conquer/tasks/orchestrate.md` (default context)
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+  created_at: '2026-05-15T14:13:37Z'
+  user: michael-conrad
+- body: '**Dependency:** #527 (Authorization Scope Model Overhaul) must be implemented
+    first. This issue references `for_review_prep` throughout — if #527 has not landed,
+    replace `for_review_prep` with `standard` in the patterns above.
+
+
+    #527 was re-opened on 2026-05-15 after verification showed it was closed without
+    implementation (all files still contain `standard` instead of `for_review_prep`).
+
+
+    The three defects documented here and in the #527 comment:
+
+    1. **Word-order gap** — scope-parsing table only matches number-first patterns
+
+    2. **Missing intelligence fallback** — no path between "exact match" and "default
+    to standard"
+
+    3. **`standard` misnomer** — #527''s SC-1 (renamed to `for_review_prep`)
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+  created_at: '2026-05-15T14:20:24Z'
+  user: michael-conrad

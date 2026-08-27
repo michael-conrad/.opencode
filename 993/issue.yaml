@@ -1,0 +1,18 @@
+number: 993
+title: '[Phase 1.7] read-labels command: YAML frontmatter extraction'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '**Parent Plan:** #985
+
+
+  Phase 1.7 — read-labels command: YAML frontmatter extraction'
+created_at: '2026-06-02T05:10:10Z'
+updated_at: '2026-06-12T03:45:30Z'
+remote_issue: 993
+remote_url: https://github.com/michael-conrad/.opencode/issues/993
+promoted_at: '2026-08-27T03:25:12.469135+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.469135+00:00'
+author: michael-conrad

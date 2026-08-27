@@ -1,0 +1,96 @@
+number: 952
+title: '[SPEC] solve tool enforcement tests, docs, and submodule update'
+status: open
+labels:
+- needs-approval
+- spec
+- tools
+body: '
+
+  # [SPEC] solve tool enforcement tests, docs, and submodule update
+
+
+  **Prerequisites:** #872 (solve tool), #951 (skill task integration)
+
+
+  ## Z3-Verified Placement
+
+
+  This spec is in **Phase 3** of the 909 cluster ordering. Depends on #951 (Phase
+  2), which depends on #915 (Phase 1).
+
+
+  ### Dependency Graph (encoded in `.issues/909/909-phase-contract.yaml`)
+
+
+  ```
+
+  #915 (Phase 1) ──> #951 (Phase 2) ──> #952 (Phase 3)
+
+  ```
+
+
+  Verified SAT by Z3. Enforcement tests can only be written after the solve gate integration
+  (#951) exists in skill task files. 3-phase minimum is proven (UNSAT for 2).
+
+
+  ## Problem
+
+
+  The `solve` tool and its skill task integration have been implemented, but:
+
+  1. No behavioral enforcement tests verify the agent actually uses `solve check`
+  and `solve state update` in workflows
+
+  2. No documentation describes how to write contracts, use the tool, or interpret
+  UNSAT results
+
+  3. The parent submodule pointer hasn''t been updated
+
+
+  ## Scope
+
+
+  1. Write behavioral enforcement tests for the `solve` tool and its skill integration
+
+  2. Write documentation (usage, contract authoring, troubleshooting)
+
+  3. Tag submodule and update parent pointer
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |---|---|---|
+
+  | SC-1 | Behavioral test verifies agent runs `solve check` pre-dispatch | behavioral
+  |
+
+  | SC-2 | Behavioral test verifies agent runs `solve state update` post-dispatch
+  | behavioral |
+
+  | SC-3 | Documentation at `.opencode/tools/solve/README.md` exists | structural
+  |
+
+  | SC-4 | Submodule tagged and parent pointer updated | structural |
+
+
+  ### Z3 Model Reference
+
+
+  Ordering model: `.issues/909/909-phase-contract.yaml`
+
+  State assignment: `.issues/909/state-3-phase.yaml`
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)'
+created_at: '2026-05-30T00:38:10Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 952
+remote_url: https://github.com/michael-conrad/.opencode/issues/952
+promoted_at: '2026-08-27T03:25:12.406741+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.406741+00:00'
+author: michael-conrad

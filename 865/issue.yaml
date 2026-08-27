@@ -1,0 +1,141 @@
+number: 865
+title: '[PLAN] #864: Canonical DISPATCH_GATE across all skills'
+status: open
+labels:
+- needs-approval
+- plan
+body: "Spec: #864 (https://github.com/michael-conrad/.opencode/issues/864)\n\nAuthorization\
+  \ context: Approved for plan on 2026-05-24 by michael-conrad. Authorization scope:\
+  \ `for_plan` — plan auto-approved via pipeline scope.\n\n---\n\n## Goal\n\nAdd a\
+  \ canonical DISPATCH_GATE section to every SKILL.md that enforces sender-side orchestrator\
+  \ constraints (forbidden pattern table, must_receive/must_not_receive contract,\
+  \ sub-agent rejection criteria), eliminating the orchestrator-bias-injection vulnerability\
+  \ present in 35 receiver-only skills.\n\n## Architecture\n\nEach SKILL.md receives\
+  \ the same canonical ~400-word DISPATCH_GATE block (template defined in spec §Interfaces)\
+  \ inserted into its Sub-Agent Routing section. Each batch is independent — no cross-file\
+  \ coordination required beyond the template being consistent.\n\n## Tech Stack\n\
+  \n- Files modified: `.opencode/skills/*/SKILL.md` (35 files — adversarial-audit\
+  \ pre-existing)\n- Template source: `adversarial-audit/SKILL.md` (existing DISPATCH_GATE,\
+  \ not modified)\n- Verification: structural grep + behavioral opencode-cli run (model:\
+  \ `ollama/qwen3.6:35b-256k`)\n\n## File Structure\n\n| File | Responsibility |\n\
+  |------|---------------|\n| `.opencode/skills/{skill}/SKILL.md` (×35) | Receive\
+  \ canonical DISPATCH_GATE insertion |\n| `.opencode/tests/behaviors/dispatch-gate-rejection.sh`\
+  \ | Behavioral test for SC-5 (model: `ollama/qwen3.6:35b-256k`) |\n| `.opencode/tests/behaviors/helpers.sh`\
+  \ | Assertion helpers (existing, no change) |\n\n---\n\n### Phase 0: RED Behavioral\
+  \ Test (SC-5 RED) + First DISPATCH_GATE GREEN\n\n**Why:** The RED test must target\
+  \ a skill WITHOUT DISPATCH_GATE. If all 35 skills receive DISPATCH_GATE first (Phases\
+  \ 1-9), no unmodified skill remains to test the RED (before) state — the test would\
+  \ PASS instead of FAIL. Fix: run RED against approval-gate BEFORE it receives DISPATCH_GATE,\
+  \ then immediately apply DISPATCH_GATE to approval-gate for the GREEN.\n\n**What:**\n\
+  1. Write behavioral test at `.opencode/tests/behaviors/dispatch-gate-rejection.sh`\n\
+  2. RED — Run against approval-gate (which does NOT have DISPATCH_GATE yet):\n  \
+  \ - `behavior_run \"dispatch-gate-rejection\" \"preloaded prompt\" \"ollama/qwen3.6:35b-256k`\n\
+  \   - Assert sub-agent returns BLOCKED via `assert_semantic`\n   - Test FAILS because\
+  \ sub-agent does not reject preloaded prompts when DISPATCH_GATE is absent ← **RED\
+  \ confirmed**\n3. GREEN — Insert canonical DISPATCH_GATE block into `.opencode/skills/approval-gate/SKILL.md`:\n\
+  \   - Insert after last paragraph of Sub-Agent Routing section, before Cross-References\n\
+  4. REFACTOR — `grep -c \"DISPATCH_GATE\" .opencode/skills/approval-gate/SKILL.md`\
+  \ returns ≥1\n5. Re-run behavioral test — sub-agent now returns BLOCKED. Test PASSES\
+  \ ← **GREEN confirmed**\n6. COMMIT — approval-gate SKILL.md change + behavioral\
+  \ test\n\n**SC coverage:** SC-1 (approval-gate), SC-2, SC-3, SC-4, SC-5\n\n**How\
+  \ to verify:** `bash .opencode/tests/behaviors/dispatch-gate-rejection.sh` — returns\
+  \ exit 0\n\n**What could go wrong:** Behavioral test cannot execute (model `ollama/qwen3.6:35b-256k`\
+  \ unavailable). Mitigation: increase timeout and retry. If still cannot execute,\
+  \ structural grep suffices for SC-1/2/3/4; SC-5 must fall back to manual verification.\n\
+  \n**Dependencies:** None — this is the first phase.\n\n---\n\n### Phase 1: Batch\
+  \ 1 — Pipeline Core Skills (remaining 3)\n\n**Why:** These skills have the highest\
+  \ dispatch frequency. approval-gate already done in Phase 0.\n\n**What:** Insert\
+  \ canonical DISPATCH_GATE block (from spec §Interfaces) into:\n- `.opencode/skills/divide-and-conquer/SKILL.md`\n\
+  - `.opencode/skills/verification-before-completion/SKILL.md`\n- `.opencode/skills/executing-plans/SKILL.md`\n\
+  \n**SC coverage:** SC-1, SC-2, SC-3, SC-4\n\n**TDD per-file:**\n\n1. Insert canonical\
+  \ DISPATCH_GATE block after last paragraph of Sub-Agent Routing section\n2. `grep\
+  \ -c \"DISPATCH_GATE\" .opencode/skills/{skill}/SKILL.md` returns ≥1\n3. COMMIT\
+  \ — SKILL.md change committed\n\n**How to verify:** `grep -c \"DISPATCH_GATE\" .opencode/skills/divide-and-conquer/SKILL.md`\
+  \ — returns ≥1\n\n**What could go wrong:** Template text pushes SKILL.md past word\
+  \ limit. Mitigation: truncate if needed — template is ~400 words, most SKILL.md\
+  \ files have room.\n\n**Must be done first:** Phase 0 completes (approval-gate template\
+  \ validated).\n\n---\n\n### Phase 2: Batch 2 — Git/PR/Dispatch Flow Skills\n\n**Why:**\
+  \ These skills control git operations, PR creation, and issue tracking — the most\
+  \ common orchestrator→sub-agent dispatch targets where preloading is most likely.\n\
+  \n**What:** Insert DISPATCH_GATE into:\n- `.opencode/skills/git-workflow/SKILL.md`\n\
+  - `.opencode/skills/issue-operations/SKILL.md`\n- `.opencode/skills/pr-creation-workflow/SKILL.md`\n\
+  - `.opencode/skills/finishing-a-development-branch/SKILL.md`\n\n**SC coverage:**\
+  \ SC-1, SC-2, SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle as Phase 1.\n\n\
+  **How to verify:** `grep -c \"DISPATCH_GATE\" .opencode/skills/git-workflow/SKILL.md`\
+  \ — returns ≥1\n\n**Dependencies:** None on Phase 1 — can run in parallel.\n\n---\n\
+  \n### Phase 3: Batch 3 — Spec/Plan/Design Skills\n\n**Why:** Spec, plan, and engineering-approach\
+  \ skills are the spec-authoring pipeline. Their DISPATCH_GATE prevents orchestrator\
+  \ from preloading design decisions into spec/plan sub-agents.\n\n**What:** Insert\
+  \ DISPATCH_GATE into:\n- `.opencode/skills/brainstorming/SKILL.md`\n- `.opencode/skills/spec-creation/SKILL.md`\n\
+  - `.opencode/skills/writing-plans/SKILL.md`\n- `.opencode/skills/engineering-approach/SKILL.md`\n\
+  \n**SC coverage:** SC-1, SC-2, SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle.\n\
+  \n**How to verify:** `grep -c \"DISPATCH_GATE\" .opencode/skills/brainstorming/SKILL.md`\
+  \ — returns ≥1\n\n**Dependencies:** None — can run in parallel.\n\n---\n\n### Phase\
+  \ 4: Batch 4 — Investigation/Review Skills\n\n**Why:** Systematic-debugging, conflict-resolution,\
+  \ code review skills, and issue-review receive preloaded diagnoses and expected\
+  \ outcomes more than other skill types.\n\n**What:** Insert DISPATCH_GATE into:\n\
+  - `.opencode/skills/systematic-debugging/SKILL.md`\n- `.opencode/skills/conflict-resolution/SKILL.md`\n\
+  - `.opencode/skills/receiving-code-review/SKILL.md`\n- `.opencode/skills/requesting-code-review/SKILL.md`\n\
+  - `.opencode/skills/issue-review/SKILL.md`\n\n**SC coverage:** SC-1, SC-2, SC-3,\
+  \ SC-4\n\n**TDD pattern:** Same per-file cycle.\n\n**Dependencies:** None — can\
+  \ run in parallel.\n\n---\n\n### Phase 5: Batch 5 — Research/Dispatch/Meta Skills\n\
+  \n**Why:** Research, multimodal-dispatch, pre-analysis, and mcp-tool-usage are orchestrator-adjacent\
+  \ skills — high risk of bias injection.\n\n**What:** Insert DISPATCH_GATE into:\n\
+  - `.opencode/skills/research/SKILL.md`\n- `.opencode/skills/multimodal-dispatch/SKILL.md`\n\
+  - `.opencode/skills/mcp-tool-usage/SKILL.md`\n- `.opencode/skills/pre-analysis/SKILL.md`\n\
+  \n**SC coverage:** SC-1, SC-2, SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle.\n\
+  \n**Dependencies:** None — can run in parallel.\n\n---\n\n### Phase 6: Batch 6 —\
+  \ Output/Completion Skills\n\n**Why:** Changelog, correspondence, completion-core,\
+  \ and completeness-gate produce external output — biased sub-agents would directly\
+  \ impact deliverable quality.\n\n**What:** Insert DISPATCH_GATE into:\n- `.opencode/skills/changelog-generator/SKILL.md`\n\
+  - `.opencode/skills/completeness-gate/SKILL.md`\n- `.opencode/skills/completion-core/SKILL.md`\n\
+  - `.opencode/skills/correspondence/SKILL.md`\n\n**SC coverage:** SC-1, SC-2, SC-3,\
+  \ SC-4\n\n**TDD pattern:** Same per-file cycle. For completion-core (no existing\
+  \ Sub-Agent Routing section): create the section before inserting the DISPATCH_GATE\
+  \ block. Verify `grep -c \"## Sub-Agent Routing\" .opencode/skills/completion-core/SKILL.md`\
+  \ returns ≥1.\n\n**Dependencies:** None — can run in parallel.\n\n---\n\n### Phase\
+  \ 7: Batch 7 — Operations/Quality Skills\n\n**What:** Insert DISPATCH_GATE into:\n\
+  - `.opencode/skills/sre-runbook/SKILL.md`\n- `.opencode/skills/sync-guidelines/SKILL.md`\n\
+  - `.opencode/skills/test-driven-development/SKILL.md`\n- `.opencode/skills/skill-creator/SKILL.md`\n\
+  \n**SC coverage:** SC-1, SC-2, SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle.\n\
+  \n**Dependencies:** None — can run in parallel.\n\n---\n\n### Phase 8: Batch 8 —\
+  \ Design/Infrastructure Skills\n\n**What:** Insert DISPATCH_GATE into:\n- `.opencode/skills/programming-principles/SKILL.md`\n\
+  - `.opencode/skills/ui-design/SKILL.md`\n- `.opencode/skills/ui-engineer/SKILL.md`\n\
+  - `.opencode/skills/using-git-worktrees/SKILL.md`\n\n**SC coverage:** SC-1, SC-2,\
+  \ SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle.\n\n**Dependencies:** None\
+  \ — can run in parallel.\n\n---\n\n### Phase 9: Batch 9 — Verification Skills\n\n\
+  **Why:** verification and verification-enforcement are the most audit-critical skills.\
+  \ Their DISPATCH_GATE ensures verification sub-agents are never preloaded with expected\
+  \ outcomes.\n\n**What:** Insert DISPATCH_GATE into:\n- `.opencode/skills/verification/SKILL.md`\n\
+  - `.opencode/skills/verification-enforcement/SKILL.md`\n\n**SC coverage:** SC-1,\
+  \ SC-2, SC-3, SC-4\n\n**TDD pattern:** Same per-file cycle.\n\n**Dependencies:**\
+  \ None — can run in parallel.\n\n---\n\n## Verification Summary\n\n| SC | Evidence\
+  \ Type | Verification Method | Phase |\n|----|--------------|-------------------|-------|\n\
+  | SC-1 | `string` | `grep -c \"DISPATCH_GATE\" .opencode/skills/*/SKILL.md` ≥1 for\
+  \ 35 modified files (adversarial-audit pre-existing). For completion-core additionally:\
+  \ `grep -c \"## Sub-Agent Routing\"` returns ≥1. | 0-9 |\n| SC-2 | `string` | `grep\
+  \ -c \"Forbidden operations in orchestrator context\" .opencode/skills/*/SKILL.md`\
+  \ ≥1 for 35 modified files | 0-9 |\n| SC-3 | `string` | Each SKILL.md has yaml+symbolic\
+  \ `must_receive`/`must_not_receive` | 0-9 |\n| SC-4 | `string` | Each SKILL.md has\
+  \ sub-agent rejection wording | 0-9 |\n| SC-5 | `behavioral` | `behavior_run \"\
+  dispatch-gate-rejection\" \"preloaded prompt\" \"ollama/qwen3.6:35b-256k\"` + `assert_semantic`\
+  \ — RED against approval-gate (before DISPATCH_GATE), GREEN after DISPATCH_GATE\
+  \ inserted | 0 |\n\n## Dependency Graph\n\n```\nPhase 0 (RED test + approval-gate\
+  \ DISPATCH_GATE)\n  │\n  ├──▶ Phase 1 (divide-and-conquer, vbc, executing-plans)\n\
+  \  ├──▶ Phase 2 (git/PR/dispatch flow)\n  ├──▶ Phase 3 (spec/plan/design)\n  ├──▶\
+  \ Phase 4 (investigation/review — includes issue-review)\n  ├──▶ Phase 5 (research/meta/dispatch)\n\
+  \  ├──▶ Phase 6 (output/completion — includes completion-core section creation)\n\
+  \  ├──▶ Phase 7 (operations/quality)\n  ├──▶ Phase 8 (design/infrastructure)\n \
+  \ └──▶ Phase 9 (verification skills)\n```\n\nPhase 0 must complete first. Phases\
+  \ 1-9 are fully parallel.\n\n## Approval Status\n\n**Status:** Plan auto-approved\
+  \ via pipeline scope `for_plan`. Authorization: `for_plan` (halt at plan_created).\
+  \ No implementation authorization granted — separate authorization required for\
+  \ for_implementation."
+created_at: '2026-05-24T17:31:47Z'
+updated_at: '2026-07-11T14:38:58Z'
+remote_issue: 865
+remote_url: https://github.com/michael-conrad/.opencode/issues/865
+promoted_at: '2026-08-27T03:25:12.223882+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.223882+00:00'
+author: michael-conrad

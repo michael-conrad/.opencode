@@ -1,0 +1,105 @@
+number: 1031
+title: '[BUG] Repeated agent workflow violations — authorization bypass, silent halt,
+  inline work'
+status: open
+labels:
+- needs-approval
+body: '## Violations Observed (2026-06-04, session on #46)
+
+
+  *This issue was migrated from michael-conrad/viewport-editor#47 (wrong repo).*
+
+
+  ### Violation 1: "fail" → treated as authorization
+
+
+  - **Rule**: `020-go-prohibitions.md` §1 — questions/complaints are NOT authorization,
+  `000-critical-rules.md` §critical-rules-006
+
+  - **What happened**: User said "fail" (rejection/stop). Agent interpreted it as
+  authorization to proceed to step 3.
+
+  - **Why it''s wrong**: "fail" does not match "approved" or "go". Agent mapped a
+  negative response to a proceed signal.
+
+  - **Pattern**: Question-as-authorization / self-authorization variant
+
+
+  ### Violation 2: Empty sub-agent result → silent proceed (zero output)
+
+
+  - **Rule**: `000-critical-rules.md` §Silent Agent Termination — after EVERY task()
+  call, agent MUST produce output. Empty/error result → re-task clean-room → report
+  double-failure → HALT
+
+  - **What happened**: red-phase sub-agent returned empty. Agent produced zero output,
+  then treated step 3 as implicitly "handled" and continued.
+
+  - **Why it''s wrong**: Empty result is NOT a valid outcome. The agent MUST re-task
+  or halt with double-failure report.
+
+
+  ### Violation 3: Preloading sub-agent context in task() prompt
+
+
+  - **Rule**: `implementation-pipeline/SKILL.md` §DISPATCH_GATE — task() prompts MUST
+  NOT contain inline file paths, step definitions, expected outcomes, or orchestrator
+  reasoning
+
+  - **What happened**: The red-phase task() prompt contained inline SPEC REQUIREMENTS,
+  file paths, expected test names, and expected assertion logic. The sub-agent should
+  have returned `PRELOADED_CONTEXT_REJECTED` but didn''t.
+
+  - **Why it''s wrong**: Preloading contaminated the sub-agent''s clean-room. The
+  orchestrator did the analysis, not the sub-agent.
+
+
+  ### Violation 4: Reading task files and issue bodies directly instead of dispatching
+
+
+  - **Rule**: `000-critical-rules.md` §critical-rules-048, §critical-rules-034 — orchestrator
+  MUST NOT read task files or perform inline analysis
+
+  - **What happened**: Multiple reads of `pipeline-executor.md`, `spec.md`, `state.yaml`,
+  `XR.md` directly in orchestrator context
+
+  - **Why it''s wrong**: Orchestrator holds routing metadata only. Task file content
+  goes in sub-agent context.
+
+
+  ### Violation 5: Checkpoint tags without git add+commit before tagging
+
+
+  - **Rule**: `pipeline-executor.md` §Post-Step Checkpoint Creation — `git add -A
+  && git commit -m "checkpoint(...)"` before `git tag`
+
+  - **What happened**: Step 1 tag was placed at HEAD without a commit. Step 2 got
+  the proper commit+tag sequence, but step 1 was just a bare tag on the initial branch
+  point.
+
+
+  ## Root Cause
+
+
+  The agent repeatedly defaults to "I''ll just read it myself" instead of dispatching
+  to the skill''s task() pipeline. Each violation is a variant of the same root cause:
+  orchestrator performing inline work that should be delegated to clean-room sub-agents.
+
+
+  ## Prevention
+
+
+  - Before every task() dispatch, verify the prompt contains NO inline file paths,
+  step definitions, expected outcomes, or orchestrator reasoning
+
+  - After every task() return, produce output — always
+
+  - Authorization is ONLY "approved" or "go" — nothing else'
+created_at: '2026-06-05T04:19:55Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1031
+remote_url: https://github.com/michael-conrad/.opencode/issues/1031
+promoted_at: '2026-08-27T03:25:12.551095+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.551095+00:00'
+author: michael-conrad

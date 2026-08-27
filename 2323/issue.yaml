@@ -1,0 +1,33 @@
+number: 2323
+title: '[BUG] local-issues list crashes on malformed issue.yaml title with unquoted
+  double-quotes'
+status: open
+labels: []
+body: "## Bug\n\n`local-issues list` crashes with a YAML `ParserError` when any issue's\
+  \ `issue.yaml` contains a title with unquoted double-quotes.\n\n## Root cause\n\n\
+  The title field in `.opencode/.issues/1204/issue.yaml` contains an unquoted `\"\
+  agent MUST\"`:\n\n```yaml\nnumber: 1204\ntitle: \"[SPEC] convert self-policing \"\
+  agent MUST\" rules to dispatch-table SCs verified by clean-room VbC sub-agent\"\n\
+  state: OPEN\nlabels: '[]'\n```\n\nThe inner `\"agent MUST\"` is not escaped/quoted,\
+  \ so `yaml.safe_load` fails at line 2 column 39:\n\n```\nyaml.parser.ParserError:\
+  \ while parsing a block mapping\n  in \"<unicode string>\", line 1, column 1:\n\
+  \    number: 1204\n    ^\nexpected <block end>, but found '<scalar>'\n```\n\n##\
+  \ Impact\n\n`local-issues list` (and any command that iterates all issues) aborts\
+  \ on this single malformed file, blocking all issue listing across every repo.\n\
+  \n## Evidence\n\n- File: `.opencode/.issues/1204/issue.yaml`\n- `python3 -c \"import\
+  \ yaml; yaml.safe_load(open('.opencode/.issues/1204/issue.yaml'))\"` → `ParserError`\n\
+  - GitHub issue #1204 exists and is open: https://github.com/michael-conrad/.opencode/issues/1204\n\
+  \n## Suggested fix\n\nQuote the title correctly (escape the inner quotes):\n\n```yaml\n\
+  title: \"[SPEC] convert self-policing \\\"agent MUST\\\" rules to dispatch-table\
+  \ SCs verified by clean-room VbC sub-agent\"\n```\n\nOr use single-quoted YAML with\
+  \ the inner double-quotes preserved.\n\n## Note\n\nThis is a data defect in the\
+  \ local issue mirror, not a branch-structure problem. The `.opencode` worktree itself\
+  \ is structurally clean (0 contamination)."
+created_at: '2026-08-25T15:21:31Z'
+updated_at: '2026-08-25T15:21:31Z'
+remote_issue: 2323
+remote_url: https://github.com/michael-conrad/.opencode/issues/2323
+promoted_at: '2026-08-27T03:25:12.587351+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.587351+00:00'
+author: michael-newsrx

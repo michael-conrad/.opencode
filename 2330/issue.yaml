@@ -1,0 +1,87 @@
+number: 2330
+title: '[BUG] spec-creation revise task omits sibling artifact drift sweep (sc-summary.yaml
+  staleness)'
+status: open
+labels: []
+body: '## Problem
+
+
+  The spec-creation `revise` task card has no exit criterion to sweep or sync sibling
+  local-issue artifacts after spec content changes. When revision rewords SCs, adjacent
+  files such as `sc-summary.yaml` retain superseded wording and silently contradict
+  the revised spec until a validator catches them — costing an extra remediation dispatch
+  round-trip.
+
+
+  Discovered during today''s spec-audit/revise session on NewSRX-Tech-LLC/xBaseJ#64.
+
+
+  ## Evidence (xBaseJ#64, revision iteration 2)
+
+
+  The revision updated `xBaseJ/.issues/64/spec.md` across ~11 sections, including
+  a decided resolution changing SC-1 to HIDDEN-column handling. The sibling `xBaseJ/.issues/64/sc-summary.yaml`
+  was left carrying superseded SC-1 wording ("Expose it as a distinct system column"),
+  directly contradicting the decided resolution. The validator caught the drift as
+  finding W2; remediation required an extra dispatch that the revise task itself should
+  have made unnecessary.
+
+
+  ## Gap verification (local checkout, verified 2026-08-26)
+
+
+  `.opencode/skills/spec-creation/tasks/revise.md` post-revision steps cover exactly
+  two sibling classes and nothing else:
+
+
+  - **Step 7** — delete stale analytical artifacts: `rm -rf {project_root}/{path}/.issues/{N}/artifacts/`
+
+  - **Step 8** — regenerate the linked `plan.md` if one exists
+
+
+  Exit Criteria mirror only those two plus change-control/exec-summary/local-spec
+  items. There is no sweep of other adjacent local-issue artifacts.
+
+
+  `sc-summary.yaml` is written by `create.md` Step 2.1 to `{project_root}/{path}/.issues/{N}/sc-summary.yaml`
+  — **outside** the `artifacts/` directory, so Step 7''s wholesale deletion cannot
+  cover it. Grep across `revise.md` for `sibling`/`sc-summary` returns no matches.
+
+
+  ## Not covered by existing issues (dedup checked)
+
+
+  Searched `gh issue list` (all states) plus targeted `gh search issues` queries ("sibling
+  artifact", "sc-summary"):
+
+
+  - #2167 (closed) — auto-delete/backfill of stale analytical **artifacts/** after
+  revision; implemented as revise Step 7. Does not extend to non-artifact siblings
+  like `sc-summary.yaml`.
+
+  - #2023 (open) — local **spec.md mirror** drift after revision; different artifact
+  class, different fix surface.
+
+
+  Neither addresses non-artifact sibling artifact sync after content changes.
+
+
+  ## Suggested fix
+
+
+  Add an exit criterion to `revise.md`: after any content change, sweep adjacent local-issue
+  artifacts for consistency with the revised spec — at minimum `sc-summary.yaml` (sync
+  SC wording/resolutions) — so staleness cannot survive the revision step.
+
+
+  🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+  '
+created_at: '2026-08-26T05:06:26Z'
+updated_at: '2026-08-26T05:06:26Z'
+remote_issue: 2330
+remote_url: https://github.com/michael-conrad/.opencode/issues/2330
+promoted_at: '2026-08-27T03:25:12.605723+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.605723+00:00'
+author: michael-newsrx

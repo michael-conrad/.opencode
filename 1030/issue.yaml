@@ -1,0 +1,138 @@
+number: 1030
+title: '[SPEC-FIX] verification-audit task card: auditors write verdicts to wrong
+  directory with status-leaking filenames — need opaque filenames in ./tmp/verdicts/{issue}/'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  The `verification-audit` task card tells auditors to write verdict YAMLs but does
+  not specify:
+
+  1. Where to write them (`./tmp/verdicts/{issue}/` vs `./tmp/artifacts/` vs any other
+  location)
+
+  2. What naming convention to use (currently leaks PASS/FAIL/status in slug)
+
+
+  During viewport-editor #46 step 10.2, `auditor-qwen3.5` wrote its verdict to:
+
+  ```
+
+  ./tmp/artifacts/pipeline-46-audit-verification-audit-FAIL-2026-06-05T00-00-00.yaml
+
+  ```
+
+
+  This violates three requirements from spec #1028:
+
+  - Verdicts go in `./tmp/verdicts/{issue}/`, not `./tmp/artifacts/`
+
+  - Filenames must be opaque — no PASS/FAIL/status in slug
+
+  - Directory trees must remain separate
+
+
+  ## Root Cause
+
+
+  The verification-audit task card (`adversarial-audit/tasks/verification-audit.md`)
+  includes an output path step that defaults to `./tmp/artifacts/` with a status-including
+  slug pattern. It has no awareness of the directory tree separation required by the
+  adversarial-audit dispatch contract.
+
+
+  ## Requirements
+
+
+  ### R1: Verdict output path is fixed and opaque
+
+
+  The verification-audit task card MUST specify:
+
+
+  > Write verdict to `./tmp/verdicts/{issue}/auditor1.yaml`
+
+  > or `./tmp/verdicts/{issue}/auditor2.yaml`
+
+
+  The orchestrator sets which filename each auditor uses via the dispatch contract.
+  The auditor does NOT choose its own filename. If the orchestrator does not specify
+  a target, the auditor MUST NOT default to `./tmp/artifacts/` — it MUST return `BLOCKED`
+  with `reason: MISSING_VERDICT_TARGET`.
+
+
+  ### R2: No status metadata in filenames
+
+
+  Verdict filenames MUST be opaque. No PASS, FAIL, BLOCKED, DONE, timestamp, or model
+  name in the slug. The filename is `auditor1.yaml` or `auditor2.yaml` — nothing else.
+
+
+  Status is conveyed in the YAML content and the frugal result contract, never in
+  the path.
+
+
+  ### R3: Frugal contract must not duplicate verdict content
+
+
+  The previous pattern had auditors writing full verdict YAMLs AND returning all fields
+  in the result contract. The result contract should be frugal: status, artifact_path,
+  and 1-3 sentence summary only. The full verdict lives in the YAML file.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | verification-audit task specifies `./tmp/verdicts/{issue}/auditor1.yaml`
+  or `auditor2.yaml` as write target | `string` |
+
+  | SC-2 | Auditor returns BLOCKED with MISSING_VERDICT_TARGET if no target supplied
+  | `behavioral` |
+
+  | SC-3 | Verdict filename is opaque — no PASS/FAIL/timestamp/model in slug | `string`
+  |
+
+  | SC-4 | Frugal contract contains only: status, artifact_path, finding_summary |
+  `string` |
+
+
+  ## Affected Files
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `adversarial-audit/tasks/verification-audit.md` | Replace artifact output step
+  with verdicts dir path + opaque filename. Add MISSING_VERDICT_TARGET guard. Trim
+  result contract. |
+
+  | `adversarial-audit/SKILL.md` | §Blind Dispatch: document verdict output convention
+  |
+
+
+  ## Related
+
+
+  - #1028 — parent spec for directory tree separation (evidence, verdicts, artifacts,
+  state)
+
+  - #1025 — spec_local_dir and artifact_evidence_dir must be local filesystem paths
+
+
+  🤖 OpenCode (deepseek-v4-flash)'
+created_at: '2026-06-05T04:11:18Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1030
+remote_url: https://github.com/michael-conrad/.opencode/issues/1030
+promoted_at: '2026-08-27T03:25:12.548169+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.548169+00:00'
+author: michael-conrad

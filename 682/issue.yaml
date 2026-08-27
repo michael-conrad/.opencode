@@ -1,0 +1,230 @@
+number: 682
+title: '[SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP dispatch
+  contracts'
+status: open
+labels:
+- needs-approval
+- spec
+body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP
+  dispatch contracts
+
+
+  **Canonical spec:** `.issues/682/spec.md` in the parent repo (local tracking mirror)
+
+  **Branch:** feature/624-tier-recalibration
+
+
+  ## Summary
+
+
+  Re-architect the `git-workflow` skill from Junie-era procedural runbooks (pseudo-code,
+  bash blocks, numbered steps) to MCP dispatch contracts. Task files become purpose/entry/exit-only
+  contracts that sub-agents fulfill autonomously. The SKILL.md card is redesigned
+  with dark prose, composition chains, and no protocol/word-count sections.
+
+
+  ## What Changes
+
+
+  **9 entry-point tasks** (5 renamed, 3 new, old ones stripped, `release` removed):
+
+
+  | Task | Source | Function |
+
+  |------|--------|----------|
+
+  | `setup-feature` | pre-work (renamed) | Branch, sync submodules, init .issues/
+  |
+
+  | `sync-branch` | NEW | Mid-feature trunk sync |
+
+  | `stage-pr` | review-prep (renamed) | Push, verify, generate URL |
+
+  | `create-pr` | pr-creation (kept) | Create PR |
+
+  | `amend-pr` | NEW | Review feedback → re-push |
+
+  | `check-pull-requests` | check-pr (renamed) | Query PRs, trigger cleanup |
+
+  | `post-merge-cleanup` | cleanup (renamed) | Verify merge → clean → close |
+
+  | `investigate` | NEW | Investigate/ branch lifecycle |
+
+  | `completion` | kept | Terminal on every skill exit |
+
+
+  **What is removed:**
+
+  - `release` task (dev→main promotion is defunct under trunk-based development)
+
+  - `implementation` (code edits → divide-and-conquer, not git ops)
+
+  - 5 pair task files (branch prefix served no enforcement purpose)
+
+  - `commit-prep` (read-only, no dispatch)
+
+  - `pre-merge-verification` (subsumed by verify-merge)
+
+  - Word counts from SKILL.md card
+
+
+  **What is kept:**
+
+  - Direct-branch universal default; worktrees handled internally by `setup-feature`
+
+  - Internal subtasks (verify-merge, branch-cleanup, etc.) remain as files but NOT
+  independently dispatchable — reachable only through parent chains
+
+
+  ## Chains
+
+
+  ```
+
+  Feature:  setup-feature → [divide-and-conquer] → stage-pr → create-pr
+
+  Post-merge: check-pull-requests → post-merge-cleanup
+
+  ```
+
+
+  ## SKILL.md Card
+
+
+  Redesigned to contain only: Overview (dark-prose-001), Task Card with chains, Dispatch
+  Enforcement (dark-prose-003), Sub-Agent Routing table, Cross-References. No Operating
+  Protocol, no word counts, no bash/pseudo-code.
+
+
+  ## Supersedes
+
+
+  This spec supersedes issues #232, #269, #591, #597, #598, #604, #606 — each was
+  a patch to the broken architecture; the architectural fix renders each unnecessary.
+
+
+  ## Scope Gaps (Amendment)
+
+
+  After reviewing the superseded issues and the rollback history, the following gaps
+  exist in this spec''s current scope. Each must be incorporated into the relevant
+  task contracts below.
+
+
+  ### Gap 1 (Critical): `check-pull-requests` Missing Submodule PR Status Check
+
+
+  **Source:** Rollback casualty from #232. Step 3.5 (submodule PR status check) was
+  lost in commit `6db0610d` (Apr 29) and never restored.
+
+
+  The `check-pull-requests` task contract must include a submodule PR status check.
+  Currently, `check-pr.md` Step 3 evaluates only parent-repo branches. Without a submodule
+  PR query, merged submodule PRs with uncleaned branches are never detected, so submodule
+  cleanup is never triggered. The `post-merge-cleanup` task already has submodule
+  handling (Steps 0, 1.9, 4) — the gap is in the trigger, not the handler.
+
+
+  **Required in contract:**
+
+  - Query submodule repos (parsed from `.gitmodules` at project root) for merged PRs
+  with uncleaned branches
+
+  - If found, cascade to submodule cleanup as part of the post-merge chain
+
+  - The submodule path routing context (owner/repo per submodule path) must be built
+  identically to `post-merge-cleanup` Step 0
+
+
+  ### Gap 2 (Moderate): `post-merge-cleanup` Authorization Boundaries for Destructive
+  Ops
+
+
+  **Source:** #604
+
+
+  The `post-merge-cleanup` task contract must explicitly document which operations
+  are auto-authorized on non-protected branches during cleanup:
+
+
+  | Operation | Non-protected branches | Protected branches (main/master) |
+
+  |-----------|----------------------|----------------------------------|
+
+  | `git push --force` | Auto-authorized | Requires explicit auth per critical-rules-026
+  |
+
+  | `git push origin --delete` | Auto-authorized | Requires explicit auth per critical-rules-026
+  |
+
+
+  Protected branch list: `main`, `master`. Any branch not in this list is non-protected.
+  (`dev` is not a protected branch under trunk-based development.)
+
+
+  ### Gap 3 (Minor): `sync-branch` Conflict Detection Protocol
+
+
+  **Source:** #591
+
+
+  The new `sync-branch` task (mid-feature trunk sync) must include an explicit conflict
+  detection precondition. Conflict detection mechanisms:
+
+  - Failed `git rebase`/`git merge` exit codes (non-zero)
+
+  - `CONFLICT` markers in working tree (`git diff --check`)
+
+  - If conflicts detected → route to `conflict-resolution` before continuing
+
+  - If no conflicts → proceed with sync
+
+
+  ### Gap 4 (Moderate): `post-merge-cleanup` No-PR Scenario
+
+
+  **Source:** #606 (partial)
+
+
+  When `post-merge-cleanup` runs and there is no PR body (e.g., `for_implementation`
+  scope that halted at `implementation_complete`, documentation-only changes), the
+  issue-closure path currently cannot discover closure candidates because it depends
+  entirely on PR body parsing.
+
+
+  The contract must include an alternative entry path for no-PR scenarios:
+
+  1. Build closure candidate list from GitHub Issue state: open issues with `approved-for-*`
+  labels and verified-complete phase markers
+
+  2. Scan for stale issues (100% DONE markers or all `- [x]` checked but still OPEN)
+
+  3. Present findings to developer — do NOT close without verification
+
+  4. If no candidates found: report "No issues found needing closure" and HALT
+
+
+  ## Interdependencies
+
+
+  | Issue | Relationship | Action |
+
+  |-------|-------------|--------|
+
+  | **#580** (PR staleness verification) | HIGH | #580 adds a staleness check to `pr-creation/enforcement-gate.md`.
+  Since this spec renames `pr-creation` → `create-pr`, #580 should be sequenced after
+  this spec to avoid modifying files that will be relocated. |
+
+
+  ---
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+created_at: '2026-05-18T02:19:13Z'
+updated_at: '2026-07-11T14:37:15Z'
+remote_issue: 682
+remote_url: https://github.com/michael-conrad/.opencode/issues/682
+promoted_at: '2026-08-27T03:25:11.902088+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.902088+00:00'
+author: michael-conrad

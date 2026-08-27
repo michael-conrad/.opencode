@@ -1,0 +1,126 @@
+number: 1016
+title: '[SPEC-FIX] Pre-commit Gate 4 blocks legitimate checkpoint commits on feature
+  branches'
+status: open
+labels:
+- bug
+- needs-approval
+- spec-fix
+body: "## Intent and Executive Summary\n\n**Problem Statement:** Pre-commit hook Gate\
+  \ 4 (submodule-pointer-only commit blocker) blocks ALL commits where every staged\
+  \ file is a submodule pointer. This includes legitimate pipeline checkpoint commits\
+  \ on `feature/*` branches (e.g., `checkpoint(#884): step-3 red-phase complete`).\
+  \ The hook is over-restrictive — it was designed to prevent submodule-pointer-only\
+  \ PRs, but it also blocks intermediate WIP tracking commits on work branches that\
+  \ will be squashed before PR.\n\n**Root Cause / Motivation:** Gate 4 (lines 83-131)\
+  \ has no branch exemption list. Unlike Gate 3 (submodule-bump commit, lines 36-80)\
+  \ which exempts `pair-*|rollback/*|hotfix/*|main|dev`, Gate 4 applies unconditionally\
+  \ to all branches. Per `000-critical-rules.md` §Hook Output Is Advisory, Not Absolute,\
+  \ the hook should evaluate intent. A checkpoint commit on a `feature/*` branch is\
+  \ not a PR — it is pipeline progress tracking that will be squashed before merge.\
+  \ Blocking it forces `--no-verify` workarounds.\n\n**Approach Chosen:** Add `feature/*`\
+  \ and `spec/*` branch exemptions to Gate 4, consistent with Gate 3's existing branch-pattern\
+  \ exemption pattern. On `feature/*` and `spec/*` branches, submodule-pointer-only\
+  \ intermediates are legitimate checkpoint commits that will be squashed. On `dev`\
+  \ and `main`, the gate still applies.\n\n**Alternatives Considered & Why Discarded:**\n\
+  1. **`SKIP_SUBMODULE_POINTER_GATE` env var:** Requires workflow change to set the\
+  \ env var on every checkpoint commit. Adds complexity for something that is the\
+  \ default expected behavior on work branches.\n2. **Commit message pattern match:**\
+  \ Fragile — pattern-dependent, breaks if commit message format changes. Also requires\
+  \ parsing, which is slower.\n3. **Exempt all but `main` and `dev`:** Too permissive.\
+  \ Kept `pair-*` and `hotfix/*` exemptions from Gate 3 as well.\n4. **Leave as-is\
+  \ + just use `--no-verify`:** Per the existing intent statement in `000-critical-rules.md`,\
+  \ this warrants a spec fix, not a permanent workaround.\n\n**Key Design Decision:**\
+  \ Mirror Gate 3's exact branch exemption format for consistency. This keeps the\
+  \ two gates (both submodule-related) aligned in their behavioral scope.\n\n## Objective\n\
+  \nPre-commit hook Gate 4 should block submodule-pointer-only commits on integration/protected\
+  \ branches (`dev`, `main`) and allow them on work branches (`feature/*`, `spec/*`,\
+  \ `pair-*`, `hotfix/*`, `rollback/*`), matching Gate 3's existing exemption scope.\n\
+  \n## Problem\n\n### Current Behavior\n\nGate 4 (lines 83-131 in `.opencode/hooks/pre-commit`):\n\
+  \n```bash\n# --- Gate 4: Submodule-pointer-only commit blocker ---\n(\n  if [ !\
+  \ -f \".gitmodules\" ]; then\n    exit 0\n  fi\n  ...\n  if [ \"$ALL_SUBMODULE_POINTERS\"\
+  \ = \"1\" ]; then\n    echo \"ERROR: Submodule-pointer-only commit blocked.\"\n\
+  \    ...\n    exit 1\n  fi\n  exit 0\n)\n```\n\nNo branch exemptions. ANY submodule-pointer-only\
+  \ commit is blocked on ANY branch.\n\n### Desired Behavior\n\nGate 4 should skip\
+  \ (exit 0) when on known work branches where checkpoint commits are legitimate:\n\
+  \n```bash\ncase \"$CURRENT_BRANCH\" in\n  pair-*|rollback/*|hotfix/*|feature/*|spec/*|main|dev)\n\
+  \    exit 0\n    ;;\nesac\n```\n\nOn `main` and `dev`, the gate activates — submodule-pointer-only\
+  \ commits are blocked (as designed). On `feature/*`, `spec/*`, `pair-*`, `hotfix/*`,\
+  \ and `rollback/*`, the gate is skipped — intermediate checkpoint commits flow freely.\n\
+  \n### What Change? (Summary)\n\n1. Add a branch-check `case` statement to Gate 4\
+  \ (before the staged-files check), mirroring Gate 3's pattern at lines 43-47.\n\
+  2. Exempted branches: `pair-*`, `rollback/*`, `hotfix/*`, `feature/*`, `spec/*`,\
+  \ `main`, `dev`\n3. Non-exempted branches: any other branch (including detached\
+  \ HEAD, `observe/*`, etc.) — gate still applies.\n\n### Why `main` and `dev` Are\
+  \ Exempted\n\nIf the branch IS `main` or `dev`, the commit should be blocked by\
+  \ Gate 1 (branch protection) before Gate 4 ever fires. Including them in the exemption\
+  \ is a failsafe — if Gate 1 somehow passes, Gate 4 won't duplicatively block. But\
+  \ the real intent is: on `main` and `dev`, submodule-pointer-only commits are already\
+  \ policy violations via Gate 1.\n\n### Consistency with Gate 3\n\n| Gate | Current\
+  \ Exemptions | After Fix |\n|------|-------------------|-----------|\n| Gate 3 (submodule\
+  \ bump) | `pair-*\\|rollback/*\\|hotfix/*\\|main\\|dev` | Same (unchanged) |\n|\
+  \ Gate 4 (submodule pointer) | (none) | `pair-*\\|rollback/*\\|hotfix/*\\|feature/*\\\
+  |spec/*\\|main\\|dev` |\n\n## Context\n\n### Pipeline Checkpoint Flow\n\nDuring\
+  \ pipeline execution on `feature/884-orphaned-opencode-cli-processes`:\n\n```\n\
+  Authorization → pre-work (feature branch from dev)\n  → RED phase (write tests in\
+  \ .opencode/ — submodule change)\n    → implementation commit: checkpoint(#884):\
+  \ step-3 red-phase complete\n      ← GATE 4 BLOCKS: all staged files are .opencode/\
+  \ (submodule pointer)\n```\n\nThe commit contains test files inside `.opencode/`\
+  \ — which is a submodule. To git's staging perspective, this looks like a submodule-pointer\
+  \ change. The actual content change is inside the submodule, tracked through the\
+  \ pointer update.\n\nThis is fundamentally different from a \"standalone submodule-pointer-only\
+  \ PR\" — it is a WIP checkpoint that will be squashed before the feature branch\
+  \ merges to `dev`.\n\n### Risk Analysis\n\n| Risk | Likelihood | Impact | Mitigation\
+  \ |\n|------|-----------|--------|------------|\n| Accidental submodule-pointer-only\
+  \ PR slips through on feature branch | Low — PRs target `dev`, where Gate 1 `main/dev`\
+  \ protection applies. Squash merge means checkpoint commits collapse into real commits.\
+  \ | Low | PR review catches missing source changes |\n| Policy evasion via feature\
+  \ branch | Low | Low | Gate 4 still applies to branches NOT in exemption list |\n\
+  | Developer creates submodule-only PR from feature branch | Very Low — requires\
+  \ bypassing PR review, squash merge, and branch protection | Low | `critical-rules-049`\
+  \ already prohibits this behaviorally |\n\n## Success Criteria\n\n| ID | Criterion\
+  \ | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | Gate 4 exempts `feature/*` branches — submodule-pointer-only commit on\
+  \ feature branch passes | `behavioral` | Create test commit touching `.opencode/`\
+  \ on `feature/test-branch` → pre-commit hook exits 0 |\n| SC-2 | Gate 4 exempts\
+  \ `spec/*` branches — same behavior as SC-1 for spec branches | `behavioral` | Create\
+  \ test commit touching `.opencode/` on `spec/test-branch` → pre-commit hook exits\
+  \ 0 |\n| SC-3 | Gate 4 still blocks submodule-pointer-only commits on unprotected\
+  \ non-feature branches | `behavioral` | Create test commit touching `.opencode/`\
+  \ on `test-branch` (no prefix) → pre-commit hook exits 1 with error message |\n\
+  | SC-4 | Gate 4 still blocks submodule-pointer-only commits on dev branch (redundant\
+  \ with Gate 1, but should not silently pass) | `string` | Grep: exempted branch\
+  \ list includes `dev` — gate skips before staged-file check |\n\n## Edge Cases\n\
+  \n1. **Detached HEAD**: Not in exemption list → gate applies (blocks submodule-pointer-only\
+  \ commits). Correct — detached HEAD should not receive submodule-pointer commits.\n\
+  2. **`observe/*` branches**: Not exempted. These are throwaway branches that should\
+  \ not accumulate checkpoint history. Blocking is correct.\n3. **Branch name containing\
+  \ `feature/` as substring but not a prefix**: `case` pattern `feature/*` matches\
+  \ only prefix. A branch named `notfeature/test` would NOT be exempted. Correct behavior.\n\
+  4. **No `.gitmodules` file**: Gate 4 already exits 0 early. No change needed.\n\
+  5. **Feature branch with both submodule-pointer AND source changes**: Gate 4 already\
+  \ passes (not ALL files are submodule pointers). No change needed.\n\n## Dependencies\n\
+  \nNone. Single file change to `.opencode/hooks/pre-commit`.\n\n## Decision Rationale\n\
+  \n- **Branch-pattern exemption over env var override**: Consistent with Gate 3's\
+  \ existing pattern. No new environment variable contract needed. The branch name\
+  \ IS the intent signal.\n- **Mirror Gate 3 exemptions plus `feature/*` `spec/*`**:\
+  \ Gate 3 already covers `pair-*|rollback/*|hotfix/*|main|dev`. Adding `feature/*`\
+  \ and `spec/*` for Gate 4 makes it strictly more permissive than Gate 3, which is\
+  \ correct because Gate 4 guards a different (and more frequent) checkpoint pattern.\n\
+  - **No commit-message-based exemption**: Adds parsing complexity and fragility.\
+  \ Branch name is available and unambiguous.\n\n## Documentation Sources\n\n| Source\
+  \ | What Was Consulted |\n|--------|-------------------|\n| `.opencode/hooks/pre-commit`\
+  \ | Full file read — verified Gate 4 structure and Gate 3 branch exemption pattern\
+  \ |\n| `000-critical-rules.md` §Hook Output Is Advisory | Confirmed the policy supports\
+  \ `--no-verify` for this use case but warrants a structural fix |\n| `000-critical-rules.md`\
+  \ §critical-rules-049 | Confirmed submodule-pointer-only PR prohibition — this fix\
+  \ does NOT weaken that rule, only allows WIP checkpoints on work branches |\n\n\U0001F916\
+  \ Co-authored with AI: OpenCode (deepseek-v4-flash) created"
+created_at: '2026-06-04T22:43:40Z'
+updated_at: '2026-06-12T03:45:28Z'
+remote_issue: 1016
+remote_url: https://github.com/michael-conrad/.opencode/issues/1016
+promoted_at: '2026-08-27T03:25:12.521465+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.521465+00:00'
+author: michael-conrad

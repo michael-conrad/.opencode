@@ -1,0 +1,38 @@
+number: 2364
+title: '[SPEC] Update mcp-tool-usage skill — anchor five-tier hierarchy & glob semantics'
+status: open
+labels: []
+body: '## Problem
+
+  The five-tier tool hierarchy and glob LIM-1..6 semantics currently live in the preloaded
+  060-tool-usage.md guideline and will be removed from preload. mcp-tool-usage must
+  become the single canonical home.
+
+
+  ## Scope
+
+  - **In:** Make mcp-tool-usage the authoritative source for the five-tier hierarchy
+  + glob semantics; add mandatory Read [Text](path) links for any consuming cards.
+
+  - **Out:** Duplicating the content elsewhere.
+
+
+  ## Approach
+
+  Consolidate tool-hierarchy + glob semantics into the mcp-tool-usage skill card as
+  the single source of truth.
+
+
+  ## Impact
+
+  Enables 060 condensation (~2.9k savings). Risk: tool-misrouting if hierarchy lost.
+  Mitigation: mcp-tool-usage is authoritative. Depends on 060 condensation. Action:
+  approve.'
+created_at: '2026-08-27T03:14:48Z'
+updated_at: '2026-08-27T03:14:48Z'
+remote_issue: 2364
+remote_url: https://github.com/michael-conrad/.opencode/issues/2364
+promoted_at: '2026-08-27T03:25:12.684857+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.684857+00:00'
+author: michael-conrad

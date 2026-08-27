@@ -1,0 +1,268 @@
+number: 800
+title: '[SPEC] Path-coverage audit: flag structural-only test sequences as FAIL'
+status: open
+labels:
+- needs-approval
+- spec
+body: "## Intent and Executive Summary\n\n**Problem Statement:** The adversarial-audit\
+  \ skill's `test-quality-audit` task has a weak criterion 1 (\"Assertion Plausibility\"\
+  ) that only catches tautological assertions (`assert True`, `assert result is not\
+  \ None`). It misses a broader class of defects: tests that appear to verify behavior\
+  \ but exercise no meaningful code paths. These structural-only tests produce false-positive\
+  \ PASS results — the suite passes without validating the spec's required behaviors.\n\
+  \n**Root Cause / Motivation:** A test suite that passes 100% but doesn't exercise\
+  \ the code paths that implement the spec's success criteria is a false PASS. The\
+  \ current audit criteria don't catch:\n- Import-only tests (import the module, never\
+  \ call functions)\n- Scaffold tests (create objects, never assert computed output)\n\
+  - Always-pass assertions (`assert func() or True`, blanket exception catch)\n- Detached\
+  \ assertions (assert a value not produced by the function under test)\n- No-path-coverage\
+  \ tests (call function, discard return, assert something unrelated)\n\nThese defects\
+  \ let improperly implemented code changes pass verification because the tests were\
+  \ never exercising the relevant code paths in the first place.\n\n**Approach Chosen:**\
+  \ Add a new `path-coverage-audit` task to the adversarial-audit skill that evaluates\
+  \ whether tests actually exercise the code paths specified in the spec's success\
+  \ criteria. This task supersedes `test-quality-audit` criterion 1 (Assertion Plausibility)\
+  \ with a comprehensive anti-pattern list. The new task produces binary verdicts\
+  \ (PASS/FAIL only, consistent with #799's binary enforcement model) and scopes per-issue\
+  \ within the assemble-work pipeline (#794).\n\n**Alternatives Considered & Why Discarded:**\n\
+  - **Expand criterion 1 in existing test-quality-audit:** Would make the task file\
+  \ exceed 3000 words and mix structural quality checks with behavioral path coverage\
+  \ checks — different concerns should be separate tasks.\n- **Add a \"criterion 6\"\
+  \ to test-quality-audit:** Doesn't resolve the overlap with criterion 1. Path coverage\
+  \ subsumes assertion plausibility — tautological assertions are a subset of structural-only\
+  \ tests.\n- **No audit for path coverage, rely on VbC:** VbC verifies evidence against\
+  \ spec SCs; it doesn't evaluate whether the test suite itself exercises meaningful\
+  \ paths. A test that imports a module and asserts `True` would pass VbC if the SC\
+  \ says \"module loaded\" but misses that the SC actually requires behavioral verification.\n\
+  \n## Objective\n\nAdd a `path-coverage-audit` task to the adversarial-audit skill\
+  \ that flags six anti-patterns of structural-only test sequences as FAIL, superseding\
+  \ `test-quality-audit` criterion 1, and aligned with #799's binary verification\
+  \ enforcement and #794's redesigned pipeline.\n\n## Problem\n\n### Current Coverage\
+  \ Gaps\n\n| Anti-Pattern | Example | Current Coverage |\n|---|---|---|\n| Tautological\
+  \ assertions | `assert True`, `assert result is not None` | Criterion 1 (weak —\
+  \ only catches obvious tautologies) |\n| Import-only tests | `import module` — never\
+  \ calls functions | Not covered |\n| Scaffold tests | Creates objects, never asserts\
+  \ computed output | Not covered |\n| Always-pass assertions | `assert func() or\
+  \ True`, blanket `except: pass` | Not covered |\n| Detached assertions | Asserts\
+  \ a value not produced by the function under test | Not covered |\n| No-path-coverage\
+  \ tests | Calls function, discards return, asserts unrelated value | Not covered\
+  \ |\n\n### Why This Matters\n\nThese anti-patterns create false-positive PASS results:\n\
+  - During RED phase: structural-only tests can't fail against non-existent implementation,\
+  \ so RED verification is meaningless.\n- During GREEN phase: structural-only tests\
+  \ pass without exercising the spec's required behaviors, so GREEN verification is\
+  \ a false positive.\n- During VbC: evidence tables show \"PASS\" for SCs that were\
+  \ never actually verified.\n- During adversarial audit: the audit approves tests\
+  \ that don't test what they claim to test.\n\nThis directly violates `critical-rules-060`\
+  \ (functional/behavioral test substitution prohibition), `critical-rules-047` (VbC\
+  \ fabricated PASS — reporting file existence as verified behavioral evidence), and\
+  \ `critical-rules-020` (soft-passing verification mismatches).\n\n## Context\n\n\
+  ### Relationship to #794 (Divide-and-Conquer Redesign)\n\nThe redesigned `assemble-work.md`\
+  \ pipeline (#794) invokes adversarial-audit at steps 3d and 3h for each issue in\
+  \ dependency order. Path-coverage-audit should be invocable as part of this audit\
+  \ step, scoped per-issue.\n\nThe per-issue scope is critical: tests for issue A\
+  \ that don't exercise issue A's spec SCs are false positives, even if they pass\
+  \ structurally for unrelated reasons.\n\n### Relationship to #799 (Binary Verification\
+  \ Enforcement)\n\n#799 establishes that ALL non-PASS statuses are FAIL. This applies\
+  \ directly to path-coverage audit:\n\n| Path-Coverage Verdict | Classification |\
+  \ Rationale |\n|---|---|---|\n| PASS (all anti-patterns absent, tests exercise spec\
+  \ paths) | PASS | Tests genuinely verify spec behaviors |\n| Anti-pattern detected\
+  \ | FAIL | Structural-only test = FAIL by definition |\n| \"Inconclusive\" | FAIL\
+  \ | Not conclusive = FAIL per #799 |\n| \"Partial coverage\" | FAIL | Partial =\
+  \ not verified = FAIL per #799 |\n\n### Relationship to #762 (Hard Failure Discipline)\n\
+  \n#762 already enforces binary verdicts for auditor outputs. Path-coverage-audit\
+  \ extends this to a new criterion: the auditor's path-coverage verdict MUST be binary\
+  \ (PASS/FAIL), no third-category statuses.\n\n### Success Criteria for #794 SC-14\
+  \ Connection\n\n#794 SC-14 tests that the agent dispatches sub-agents for RED, GREEN,\
+  \ VbC, and adversarial-audit rather than performing inline file edits. A structural-only\
+  \ test for this SC (e.g., \"check that the skill routing table entry exists\") would\
+  \ pass without actually verifying that the dispatch happens. Path-coverage-audit\
+  \ catches this class of defect: the test doesn't exercise the actual dispatch path.\n\
+  \n## Fix Approach\n\n### New Task: `path-coverage-audit`\n\n**Location:** `.opencode/skills/adversarial-audit/tasks/path-coverage-audit.md`\n\
+  \n**Purpose:** Evaluate whether test sequences exercise meaningful code paths that\
+  \ correspond to the spec's success criteria. Flag structural-only test anti-patterns\
+  \ as FAIL.\n\n**Entry Criteria:**\n- VbC evidence artifact completed\n- Spec success\
+  \ criteria available\n- Test file paths known\n\n**Task Context:**\n```json\n{\n\
+  \  \"spec_success_criteria\": \"<SC list from spec>\",\n  \"file_paths_changed\"\
+  : [\"<path1>\", \"<path2>\", ...],\n  \"vbc_artifact_path\": \"<path to VbC artifact>\"\
+  ,\n  \"worktree.path\": \"<worktree.path>\",\n  \"github.owner\": \"<github.owner>\"\
+  ,\n  \"github.repo\": \"<github.repo>\"\n}\n```\n\n**Anti-Pattern Criteria (6 checks,\
+  \ superseding test-quality-audit criterion 1):**\n\n#### 1. Tautological Assertions\n\
+  Are there assertions that always pass regardless of implementation?\n\n- PASS: All\
+  \ assertions reference specific expected values from spec SCs and exercise actual\
+  \ computation\n- FAIL: Any assertion is tautological (`assert True`, bare `assert\
+  \ result is not None` without computed value check, `assert func() or True`)\n\n\
+  #### 2. Import-Only Detection\nDoes the test file import the module under test but\
+  \ never call any of its functions?\n\n- PASS: At least one test function calls a\
+  \ function or method from the module under test\n- FAIL: All tests import but never\
+  \ invoke any function from the module; test body contains only import statements\
+  \ and assertions on unrelated values\n\n#### 3. Scaffold Detection\nAre test fixtures\
+  \ created without asserting their computed output?\n\n- PASS: After object creation,\
+  \ at least one assertion verifies a computed/transformed value produced by the object,\
+  \ not just its existence or type\n- FAIL: All tests create objects but only assert\
+  \ existence, type, or attribute assignment — never assert computed behavior\n\n\
+  #### 4. Always-Pass Detection\nAre there test constructs that cannot fail by construction?\n\
+  \n- PASS: Every test has at least one assertion that can fail against a spec-defined\
+  \ expected value\n- FAIL: Any test uses blanket exception catch (`except: pass`,\
+  \ `except Exception: pass`), logical tautologies (`assert func() or True`), or conditional\
+  \ assertions that always evaluate to truthy regardless of implementation\n\n####\
+  \ 5. Detached Assertions\nDo assertions verify values produced by the function under\
+  \ test?\n\n- PASS: All assertion values are derived from the function output being\
+  \ tested\n- FAIL: Any assertion verifies a value that was not produced by the function/method\
+  \ under test (hard-coded expected values not traceable to spec SCs, assertions on\
+  \ globals or constants unrelated to the function output)\n\n#### 6. Path Coverage\n\
+  Does at least one test exercise each spec SC's required behavior?\n\n- PASS: For\
+  \ each spec SC with behavioral requirements, at least one test calls the relevant\
+  \ function with inputs that exercise the SC's required behavior and asserts on the\
+  \ output\n- FAIL: Any spec SC with behavioral requirements has no test that exercises\
+  \ its required path through the implementation\n\n**Exit Criteria:**\n- All six\
+  \ anti-pattern criteria evaluated with PASS or FAIL (no INCONCLUSIVE per #799 binary\
+  \ model)\n- Verdict produced in standard YAML block format per criterion\n- Remediation\
+  \ recommended as FIX_TEST, FIX_CODE, or SPEC_GAP\n\n**Result Contract:**\n```json\n\
+  {\n  \"status\": \"DONE\",\n  \"audit_type\": \"path-coverage-audit\",\n  \"overall\"\
+  : \"PASS | FAIL\",\n  \"criteria\": [\n    {\n      \"criterion\": \"tautological_assertions\"\
+  ,\n      \"result\": \"PASS | FAIL\",\n      \"evidence\": \"<tool-call reference\
+  \ or file path>\",\n      \"remediation\": \"FIX_TEST | FIX_CODE | SPEC_GAP\",\n\
+  \      \"recommendation\": \"<prose description>\"\n    },\n    {\n      \"criterion\"\
+  : \"import_only_detection\",\n      \"result\": \"PASS | FAIL\",\n      \"evidence\"\
+  : \"<tool-call reference>\",\n      \"remediation\": \"FIX_TEST\",\n      \"recommendation\"\
+  : \"<prose>\"\n    },\n    {\n      \"criterion\": \"scaffold_detection\",\n   \
+  \   \"result\": \"PASS | FAIL\",\n      \"evidence\": \"<tool-call reference>\"\
+  ,\n      \"remediation\": \"FIX_TEST | FIX_CODE\",\n      \"recommendation\": \"\
+  <prose>\"\n    },\n    {\n      \"criterion\": \"always_pass_detection\",\n    \
+  \  \"result\": \"PASS | FAIL\",\n      \"evidence\": \"<tool-call reference>\",\n\
+  \      \"remediation\": \"FIX_TEST\",\n      \"recommendation\": \"<prose>\"\n \
+  \   },\n    {\n      \"criterion\": \"detached_assertions\",\n      \"result\":\
+  \ \"PASS | FAIL\",\n      \"evidence\": \"<tool-call reference>\",\n      \"remediation\"\
+  : \"FIX_TEST\",\n      \"recommendation\": \"<prose>\"\n    },\n    {\n      \"\
+  criterion\": \"path_coverage\",\n      \"result\": \"PASS | FAIL\",\n      \"evidence\"\
+  : \"<tool-call reference>\",\n      \"remediation\": \"FIX_TEST | FIX_CODE | SPEC_GAP\"\
+  ,\n      \"recommendation\": \"<prose>\"\n    }\n  ],\n  \"supersedes\": \"test-quality-audit\
+  \ criterion 1 (assertion_plausibility)\",\n  \"exec_summary\": \"Path-coverage audit:\
+  \ {pass_count}/{total} anti-pattern criteria passed.\"\n}\n```\n\n**Note on result\
+  \ contract alignment with #794:** Uses DONE/DONE_WITH_CONCERNS/BLOCKED/OVERFLOW/FAIL\
+  \ status values consistent with assemble-work result contract. Per #799, no INCONCLUSIVE\
+  \ status — all criteria produce binary PASS or FAIL.\n\n### Update: `test-quality-audit`\
+  \ Criterion 1 Superseded\n\n**File:** `.opencode/skills/adversarial-audit/tasks/test-quality-audit.md`\n\
+  \nReplace criterion 1 (Assertion Plausibility) with a reference to the new task:\n\
+  \n```markdown\n#### 1. Assertion Plausibility — SUPERSEDED\n\nThis criterion is\
+  \ superseded by `path-coverage-audit` criterion 1 (Tautological Assertions). The\
+  \ new task provides a comprehensive anti-pattern evaluation that subsumes this check.\
+  \ When both tasks are invoked, use the `path-coverage-audit` result for assertion\
+  \ quality — do not double-count.\n```\n\n### Update: `adversarial-audit/SKILL.md`\n\
+  \nAdd `path-coverage-audit` to the task context table and routing rules:\n\n```markdown\n\
+  | `path-coverage-audit` | `{ spec_success_criteria, file_paths_changed, vbc_artifact_path,\
+  \ worktree.path, github.owner, github.repo }` | Implementation context, agent memory,\
+  \ implementation details |\n```\n\nAdd cross-reference to #799's binary enforcement\
+  \ model in the SKILL.md overview or rules section.\n\n### Update: Symbolic Rules\n\
+  \nAdd to `000-critical-rules.md` and `adversarial-audit/SKILL.md`:\n\n```yaml\n\
+  - id: adversarial-audit-024\n  tier: 2\n  title: \"Path-coverage audit mandatory\
+  \ when tests are evaluated — structural-only tests are FAIL\"\n  conditions:\n \
+  \   all:\n      - \"test_evaluation_requested == true\"\n      - \"path_coverage_audit_performed\
+  \ == false\"\n    actions:\n      - HALT\n      - REQUIRE_PATH_COVERAGE_AUDIT\n\
+  \  triggers: [adversarial-audit, verification-before-completion]\n  source: \"adversarial-audit/tasks/path-coverage-audit.md\"\
+  \n```\n\n### Behavioral Enforcement Test\n\n**File:** `.opencode/tests/behaviors/path-coverage-audit-structural-only-fail.sh`\n\
+  \nTest scenarios:\n1. Agent presented with tautological assertions → must classify\
+  \ as FAIL, not accept as valid verification\n2. Agent presented with import-only\
+  \ tests → must classify as FAIL, not accept as valid verification\n3. Agent presented\
+  \ with scaffold tests (create objects, no computed assertions) → must classify as\
+  \ FAIL\n4. Agent presented with always-pass constructs → must classify as FAIL\n\
+  5. Agent presented with detached assertions → must classify as FAIL\n6. Agent presented\
+  \ with no-path-coverage tests → must classify as FAIL\n\nEach scenario uses `assert_semantic`\
+  \ to verify the agent semantically rejects structural-only evidence as PASS.\n\n\
+  ### Content-Verification Test\n\n**File:** `.opencode/tests/test-enforcement.sh`\
+  \ (add scenario)\n\nVerify:\n- `path-coverage-audit.md` exists and contains all\
+  \ six criteria\n- `adversarial-audit/SKILL.md` task table includes `path-coverage-audit`\n\
+  - `test-quality-audit.md` criterion 1 references supersession\n- `000-critical-rules.md`\
+  \ contains symbolic rule `adversarial-audit-024`\n\n## Success Criteria\n\n| ID\
+  \ | Criterion | Verification Method | Remediation |\n|----|-----------|---------------------|-------------|\n\
+  | SC-1 | `path-coverage-audit.md` exists with all six anti-pattern criteria (tautological\
+  \ assertions, import-only detection, scaffold detection, always-pass detection,\
+  \ detached assertions, path coverage) and binary PASS/FAIL verdicts | `cat .opencode/skills/adversarial-audit/tasks/path-coverage-audit.md`\
+  \ — all six criteria present, no INCONCLUSIVE verdict format | Write the task file\
+  \ |\n| SC-2 | `path-coverage-audit.md` result contract uses DONE/DONE_WITH_CONCERNS/BLOCKED/OVERFLOW/FAIL\
+  \ status values (aligned with #794 assemble-work result contract), includes `supersedes`\
+  \ field referencing test-quality-audit criterion 1, and produces only PASS or FAIL\
+  \ per criterion (no third-category statuses, aligned with #799 binary enforcement)\
+  \ | `grep -E \"DONE|DONE_WITH_CONCERNS|BLOCKED|OVERFLOW|FAIL\" path-coverage-audit.md`\
+  \ matches all 5 status values AND `grep \"supersedes\" path-coverage-audit.md` matches\
+  \ test-quality-audit AND no INCONCLUSIVE anywhere in the file | Update result contract\
+  \ |\n| SC-3 | `test-quality-audit.md` criterion 1 references supersession by `path-coverage-audit`\
+  \ | `grep -i \"superseded\\|supersession\" .opencode/skills/adversarial-audit/tasks/test-quality-audit.md`\
+  \ matches `path-coverage-audit` | Edit criterion 1 text |\n| SC-4 | `adversarial-audit/SKILL.md`\
+  \ task context table includes `path-coverage-audit` entry with correct context fields\
+  \ | `grep \"path-coverage-audit\" .opencode/skills/adversarial-audit/SKILL.md` matches\
+  \ task context entry | Add to task table |\n| SC-5 | `000-critical-rules.md` contains\
+  \ symbolic rule `adversarial-audit-024` for path-coverage audit mandatory enforcement\
+  \ | `grep \"adversarial-audit-024\" .opencode/guidelines/000-critical-rules.md`\
+  \ matches the rule | Add symbolic rule |\n| SC-6 | `adversarial-audit/SKILL.md`\
+  \ symbolic rules include `adversarial-audit-024` | `grep \"adversarial-audit-024\"\
+  \ .opencode/skills/adversarial-audit/SKILL.md` matches the rule | Add symbolic rule\
+  \ to SKILL.md |\n| SC-7 | `path-coverage-audit.md` scopes evaluation per-issue (aligned\
+  \ with #794 single-branch dependency-ordered pipeline) | `grep -i \"per.issue\\\
+  |per issue\\|dependency order\\|issue scope\" path-coverage-audit.md` matches at\
+  \ least one | Add per-issue scope language |\n| SC-8 | `path-coverage-audit.md`\
+  \ references #799 binary enforcement model as authority for PASS/FAIL-only verdicts\
+  \ | `grep \"799\\|binary\" path-coverage-audit.md` matches binary enforcement reference\
+  \ | Add reference |\n| SC-9 | Behavioral test `path-coverage-audit-structural-only-fail.sh`\
+  \ exists and tests all six anti-pattern scenarios | `ls .opencode/tests/behaviors/path-coverage-audit-structural-only-fail.sh`\
+  \ succeeds AND `grep -c \"assert_semantic\" path-coverage-audit-structural-only-fail.sh`\
+  \ ≥ 6 | Write behavioral test |\n| SC-10 | Behavioral test RED: at least one scenario\
+  \ FAILs before implementation (anti-pattern not yet flagged by agent) | `bash .opencode/tests/with-test-home\
+  \ opencode-cli run \"<anti-pattern prompt>\"` → agent does NOT classify structural-only\
+  \ test as FAIL | Run behavioral test |\n| SC-11 | Content-verification test scenario\
+  \ added for path-coverage-audit files and references | `bash .opencode/tests/test-enforcement.sh\
+  \ --scenario path-coverage-audit` passes | Add content-verification test |\n\n##\
+  \ Edge Cases\n\n1. **Single-function modules**: Import-only detection must not flag\
+  \ a test that imports a module and calls a function from it — only flag if the import\
+  \ is the ONLY action.\n2. **Setup/teardown fixtures**: Scaffold detection must not\
+  \ flag legitimate `setUp`/`setUpClass` methods that create objects later asserted\
+  \ on — only flag if the test NEVER asserts computed behavior.\n3. **Exception testing**:\
+  \ Always-pass detection must not flag `assertRaises` patterns that test for expected\
+  \ exceptions — only flag blanket catches and tautological conditions.\n4. **Constant\
+  \ assertions**: Detached assertions must not flag assertions on known-constant values\
+  \ that ARE defined by the spec (e.g., `assert MAX_RETRIES == 3` where spec says\
+  \ max retries is 3) — only flag values not traceable to spec SCs.\n5. **Multiple\
+  \ SCs per test function**: Path coverage detection should count a test as covering\
+  \ an SC if it exercises any behavior required by that SC, even if the test covers\
+  \ multiple SCs.\n6. **Non-behavioral SCs**: Some SCs are structural (e.g., \"file\
+  \ exists\", \"license header present\"). Path coverage only applies to behavioral\
+  \ SCs — structural SCs are verified by the completeness-gate, not path-coverage-audit.\n\
+  \n## Dependencies\n\n- **#794** (divide-and-conquer redesign): Pipeline flow and\
+  \ per-issue scoping\n- **#799** (binary verification enforcement): Binary PASS/FAIL\
+  \ model for verdicts\n- **#762** (hard failure discipline): FAIL is a hard gate,\
+  \ never reclassifiable\n- **`critical-rules-060`**: Functional/behavioral test substitution\
+  \ prohibition\n- **`critical-rules-047`**: VbC fabricated PASS — reporting file\
+  \ existence as verified behavioral evidence\n- **`critical-rules-020`**: Soft-passing\
+  \ verification mismatches\n- **`080-code-standards.md`**: Behavioral RED/GREEN as\
+  \ primary enforcement gate\n\n## Decision Rationale\n\n- **New task over expanded\
+  \ criterion**: The anti-pattern list is a different concern from the structural\
+  \ quality checks in test-quality-audit (cross-boundary, edge-case, weakening, RED\
+  \ evidence). Separating them keeps both tasks under 3000 words and maintains single-concern\
+  \ principle.\n- **Binary verdicts**: Consistent with #799's universal binary verification\
+  \ gate. No \"inconclusive\" or \"partial\" — the test either exercises the path\
+  \ or it doesn't.\n- **Per-issue scope**: Consistent with #794's dependency-ordered\
+  \ pipeline. Each issue gets its own path-coverage assessment.\n- **Supersede criterion\
+  \ 1**: Path-coverage subsumes assertion plausibility. Tautological assertions are\
+  \ a subset of the tautological-assertions anti-pattern. Running both would double-count\
+  \ the same defect.\n- **Six anti-patterns as separate criteria**: Each anti-pattern\
+  \ catches a distinct failure mode. Combining them into one criterion would make\
+  \ remediation guidance vague (\"fix your structural-only tests\") — separate criteria\
+  \ produce specific remediation (FIX_TEST for import-only, FIX_TEST for scaffold,\
+  \ etc.).\n\n## Documentation Sources\n\n| Source Category | What Was Consulted |\
+  \ Purpose |\n|---|---|---|\n| Direct source | `adversarial-audit/tasks/test-quality-audit.md`\
+  \ | Current criterion 1 to supersede |\n| Direct source | `adversarial-audit/SKILL.md`\
+  \ | Task context table, routing rules, symbolic rules |\n| Direct source | `000-critical-rules.md`\
+  \ | Symbolic rules for enforcement |\n| Direct source | `080-code-standards.md`\
+  \ | Behavioral RED/GREEN enforcement gate |\n| Direct source | `020-go-prohibitions.md`\
+  \ | Cost-blind verification mandate |\n| Cross-reference | #794 (this repo) | Pipeline\
+  \ flow, per-issue scoping |\n| Cross-reference | #799 (this repo) | Binary verification\
+  \ enforcement model |\n| Cross-reference | #762 | Hard failure discipline for auditor\
+  \ verdicts |\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)"
+created_at: '2026-05-21T20:10:10Z'
+updated_at: '2026-06-12T03:45:39Z'
+remote_issue: 800
+remote_url: https://github.com/michael-conrad/.opencode/issues/800
+promoted_at: '2026-08-27T03:25:12.075134+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.075134+00:00'
+author: michael-conrad

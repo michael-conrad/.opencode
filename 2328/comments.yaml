@@ -1,0 +1,167 @@
+comments:
+- body: 'Dedup result from today''s independent triage (spec-audit/revise session
+    on NewSRX-Tech-LLC/xBaseJ#64): this issue **covers** the defect found — commenting
+    here rather than filing a duplicate.
+
+
+    ## Updated evidence (2026-08-26, local checkout mirrors upstream)
+
+
+    The premise has shifted since this issue was filed: the three reference documents
+    now exist, but at the repo root, not in the skill directory — so the live failure
+    mode is **path resolution**, not missing files.
+
+
+    Verified locally just now:
+
+
+    ```text
+
+    $ ls .opencode/reference/
+
+    cost-model-standards.md
+
+    holistic-dimensions.yaml
+
+    plan-structure-standards.md
+
+    skill-card-description-standards.md
+
+    skill-card-schema.md
+
+    spec-structure-standards.md
+
+    task-card-structure-standards.md
+
+
+    $ ls .opencode/skills/spec-creation/reference/
+
+    sc-table-columns.md        # still the only file — none of the three cited docs
+    present
+
+    ```
+
+
+    ## Unresolvable citations confirmed
+
+
+    `validate.md` cites skill-relative `reference/` paths (resolving against `.opencode/skills/spec-creation/`)
+    that do not resolve there:
+
+
+    | Citation | Location |
+
+    |---|---|
+
+    | `reference/spec-structure-standards.md` | `skills/spec-creation/tasks/validate.md`
+    Step 1.2 |
+
+    | `reference/holistic-dimensions.yaml` | `skills/spec-creation/tasks/validate.md`
+    Steps 2.1, 2.2 |
+
+    | `reference/cost-model-standards.md` | `skills/spec-creation/tasks/validate.md`
+    Step 3.5 |
+
+    | `audit/reference/decomposition-criteria.md` | `skills/spec-creation/tasks/validate.md`
+    Step 3.7 |
+
+
+    Canonical copies of the first three live at `.opencode/reference/`.
+
+
+    ## Additional scope found today: create.md is affected too
+
+
+    `skills/spec-creation/tasks/create.md` carries the same unresolvable pattern:
+
+
+    ```text
+
+    create.md:43  Read [spec-structure-standards.md](reference/spec-structure-standards.md)
+
+    create.md:45  Read [cost-model-standards.md](reference/cost-model-standards.md)
+
+    ```
+
+
+    ## Suggested fix (unchanged in substance)
+
+
+    Repoint the citations to `.opencode/reference/` (repo-root-relative), or vendor
+    canonical copies into each consuming skill''s own `reference/` directory — applied
+    to both `validate.md` and `create.md`.
+
+
+    🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+    '
+  created_at: '2026-08-26T05:06:26Z'
+  user: michael-newsrx
+- body: '**Summary:**
+
+
+    Correction to this issue''s core premise: all four reference documents exist at
+    canonical locations — the defect is citation-path drift in `validate.md`, not
+    file loss.
+
+
+    **Outcome:** Diagnosis changes from "missing files anywhere" to "wrong relative
+    paths"; remediation Option 3 (repoint citations) is strengthened, and new behavioral
+    evidence shows the current state causes nondeterministic halt-vs-pass outcomes.
+
+
+    ---
+
+
+    The claim that the four mandatory reference documents "do not exist anywhere"
+    is factually wrong. Direct filesystem inspection this session confirms all four
+    exist, just not at the paths the citations assume:
+
+
+    - `.opencode/reference/spec-structure-standards.md`
+
+    - `.opencode/reference/holistic-dimensions.yaml`
+
+    - `.opencode/reference/cost-model-standards.md`
+
+    - `.opencode/audit/reference/decomposition-criteria.md`
+
+
+    Each is a substantive authority, not a stub: `holistic-dimensions.yaml` carries
+    the `spec_dimensions` list validate.md Step 2 expects, `cost-model-standards.md`
+    contains the exact "Tiered Cost Table by Evidence Type" section Step 3.5 loads
+    its taxonomy from, and `spec-structure-standards.md` is a complete standards document.
+    What is genuinely missing is only what the citations resolve to: lines 24, 28,
+    30, 34, 40, and 72 of `validate.md` cite `reference/...` relative to the skill
+    directory, but `skills/spec-creation/reference/` contains only `sc-table-columns.md`,
+    and line 97''s `audit/reference/decomposition-criteria.md` has no counterpart
+    under `skills/audit/`. The real files sit one level up, at repo-level `.opencode/reference/`
+    and `.opencode/audit/reference/`.
+
+
+    New behavioral evidence from this session raises the severity beyond dangling
+    links. During spec validation of NewSRX-Tech-LLC/xBaseJ#62, identical canonical
+    `validate` dispatches produced divergent clean-room outcomes: one validator silently
+    resolved the references from the canonical location and returned an aggregate
+    PASS, while a later validator searched only the cited skill-relative paths, found
+    nothing, and returned BLOCKED with a critical-rules-074 fatal investigation report
+    demanding developer restoration of files that exist elsewhere. Nondeterministic
+    halt-versus-pass across identical dispatches means validation results depend on
+    which path-resolution strategy an individual clean-room validator happens to choose
+    — arguably worse than deterministic failure, since a PASS can silently mask dimensions
+    that were never evaluated against their declared source of truth.
+
+
+    This evidence strengthens remediation Option 3 over the others: repointing the
+    five citations at the existing authoritative files eliminates both the dangling
+    references and the nondeterminism without duplicating content or contradicting
+    the single-source-of-truth design that Options 1 and 2 would disturb. Sibling
+    task cards citing these same canonical documents should be audited for the identical
+    citation-path pattern.
+
+
+    🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+    '
+  created_at: '2026-08-26T09:14:31Z'
+  user: michael-newsrx

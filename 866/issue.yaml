@@ -1,0 +1,228 @@
+number: 866
+title: '[PLAN] #863: Remove task() from sub-agent-readable task files'
+status: open
+labels:
+- needs-approval
+- plan
+body: "## Plan: Remove `task()` from sub-agent-readable task files\n\n**Spec:** [#863](https://github.com/michael-conrad/.opencode/issues/863)\
+  \ — `[SPEC-FIX] Sub-Agent Routing-Bypass: remove task() instructions from sub-agent-readable\
+  \ task files`\n**Authorization:** Approved for plan on 2026-05-24 by michael-conrad\
+  \ (scope: `for_plan`)\n**Status:** Auto-approved via pipeline scope (`for_plan`)\n\
+  \n### Goal\n\nEliminate the structural contradiction where sub-agent-readable task\
+  \ files contain `task()` dispatch instructions, causing sub-agents to rationalize\
+  \ routing-bypass. Replace with orchestrator-routing markers + result contract fragments.\n\
+  \n### Architecture\n\n1. **Task files** hold execution steps, entry/exit criteria,\
+  \ and context schemas — no dispatch instructions\n2. **SKILL.md routing tables**\
+  \ hold dispatch logic (orchestrator domain)\n3. **Sub-agent configs** under `.opencode/agents/`\
+  \ define submodule sub-agents the orchestrator dispatches\n4. **Enforcement tests**\
+  \ prevent regression\n\n### Files to Modify\n\n| File | Responsibility |\n|------|---------------|\n\
+  | `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` | Replace `task()`\
+  \ with orchestrator-routing marker |\n| `.opencode/skills/git-workflow/tasks/pre-work.md`\
+  \ | Replace 2 `task()` calls |\n| `.opencode/skills/git-workflow/tasks/review-prep/push-and-cleanup.md`\
+  \ | Replace `task()` |\n| `.opencode/skills/git-workflow/tasks/pr-creation/enforcement-gate.md`\
+  \ | Replace `task()` |\n| `.opencode/skills/verification-before-completion/tasks/verify.md`\
+  \ | Replace `task()` |\n| `.opencode/skills/research/tasks/research-multi.md` |\
+  \ Replace `task()` |\n| `.opencode/skills/multimodal-dispatch/tasks/dispatch-multi.md`\
+  \ | Replace `task()` |\n| `.opencode/skills/changelog-generator/tasks/since-last-release.md`\
+  \ | Replace `task()` |\n| `.opencode/agents/submodule-dev-restore.jsonc` | New sub-agent\
+  \ config |\n| `.opencode/agents/submodule-tag-prework.jsonc` | New sub-agent config\
+  \ |\n| `.opencode/agents/submodule-feature-push.jsonc` | New sub-agent config |\n\
+  | `.opencode/agents/submodule-liveness-check.jsonc` | New sub-agent config |\n|\
+  \ `.opencode/tests/task-routing-test.sh` | Content-verification enforcement test\
+  \ |\n| `.opencode/tests/behaviors/sub-agent-no-dispatch.sh` | Behavioral enforcement\
+  \ test (model: `ollama/qwen3.6:35b-256k`) |\n| `.opencode/skills/git-workflow/SKILL.md`\
+  \ | Update routing table to reference agent configs |\n\n---\n\n### Phase 1: Audit\
+  \ — Identify all `task()` calls in task files\n\n**Why this phase exists:** The\
+  \ known list of affected files may be incomplete. A comprehensive grep-based audit\
+  \ establishes the ground truth before any edits begin. This phase must complete\
+  \ before any file is modified — edits based on an incomplete list risk missing affected\
+  \ files.\n\n**What it must accomplish:**\n- Run `grep -rn &#34;task()&#34; .opencode/skills/*/tasks/`\
+  \ to produce definitive list of every `task()` call in sub-agent-readable task files\n\
+  - Compare results against the spec&#39;s affected files table; flag discrepancies\n\
+  - Store the audit output as an evidence artifact\n\n**How to verify completion:**\n\
+  - Evidence artifact saved to `./tmp/artifacts/task-calls-audit.txt` containing the\
+  \ full grep output\n- A documented comparison: spec&#39;s table vs actual results,\
+  \ with any discrepancies flagged\n- Cost-frame: &#34;Skipping a grep audit to save\
+  \ three seconds costs the full cycle of re-audit, re-edit, re-review, and re-test\
+  \ when a missed file surfaces in CI — three seconds of grep saves three hours of\
+  \ rework. A skipped audit is a defect accepted at the point of shortcut.&#34;\n\n\
+  **What could go wrong:** Grep may match false positives (e.g., `task()` in comments\
+  \ or prose examples). Each match must be verified by reading the file context.\n\
+  \n**What must be done first:** Spec read (done). This phase has no dependencies.\n\
+  \n**TDD Items (Item 1):**\n  - Step 1: Write grep command and save audit output\n\
+  \  - Step 2: Verify output against known list ← RED CHECKPOINT: compare results\n\
+  \  - Step 3: Document any discrepancies\n  - Step 4: Commit audit artifact\n\n---\n\
+  \n### Phase 2: Edit Task Files — Replace `task()` with orchestrator-routing markers\n\
+  \n**Why this phase exists:** The 8 task files with `task()` instructions are the\
+  \ direct cause of the routing-bypass rationalization. Removing the dispatch instructions\
+  \ from sub-agent-readable content eliminates the structural contradiction at its\
+  \ source. Each file is a single concern — replace `task()` with orchestrator-routing\
+  \ language, add result contract fragments, and preserve the dispatch intent for\
+  \ the orchestrator.\n\n**What it must accomplish:**\n- For each affected file, replace\
+  \ every `task()` call with:\n  1. Description of what the orchestrator dispatches\n\
+  \  2. `must_receive`/`must_not_receive` context schema for the sub-agent\n  3. Result\
+  \ contract fragment the sub-agent returns\n- Preserve all execution steps, commands,\
+  \ and criteria — only dispatch instructions change\n- Concern boundary: leaving\
+  \ Phase 1 (audit/analysis) → entering Phase 2 (architectural remediation). Handoff:\
+  \ Phase 1 produces the definitive list of files and `task()` locations. Phase 2\
+  \ consumes these locations and applies the replacement pattern uniformly.\n\n**How\
+  \ to verify completion:**\n- `grep -rn &#34;task()&#34; .opencode/skills/*/tasks/`\
+  \ returns zero matches in the edited files\n- Each edited section is reviewed for:\
+  \ `must_receive`/`must_not_receive` present, result contract fragment present\n\
+  - Cost-frame: &#34;Skipping the post-edit grep to save one tool call costs the full\
+  \ pipeline of re-audit, re-edit, and re-review when the next PR reveals a missed\
+  \ `task()` call — thirty seconds of verification saves hours of rework. A skipped\
+  \ grep is a defect accepted at edit time.&#34;\n\n**What could go wrong:**\n- A\
+  \ file is missed due to incomplete audit (Phase 1 mitigates this)\n- Replacement\
+  \ loses semantic intent — preserving dispatch intent in orchestrator-routing language\
+  \ is critical\n\n**What must be done first:** Phase 1 (audit) must complete — edits\
+  \ reference audit results.\n\n**TDD Items (Items 2-9):**\n\n**Item 2: `cleanup/branch-cleanup.md`**\n\
+  \  - Step 1: Remove `task()` call, add orchestrator-routing marker + `must_receive`/`must_not_receive`\
+  \ + result contract\n  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm\
+  \ RED (no matches) ← RED CHECKPOINT\n  - Step 3: Verify the orchestrator-routing\
+  \ marker preserves dispatch intent\n  - Step 4: Commit\n\n**Item 3: `pre-work.md`**\
+  \ (2 `task()` locations)\n  - Step 1: Replace first `task()` with orchestrator-routing\
+  \ marker + result contract + context schema\n  - Step 2: Run `grep &#34;task()&#34;`\
+  \ on edited file, confirm 1 remaining ← RED CHECKPOINT\n  - Step 3: Replace second\
+  \ `task()` with same pattern\n  - Step 4: Run `grep &#34;task()&#34;` on edited\
+  \ file, confirm RED (zero matches) ← RED CHECKPOINT\n  - Step 5: Verify both markers\
+  \ preserve dispatch intent\n  - Step 6: Commit\n\n**Item 4: `review-prep/push-and-cleanup.md`**\n\
+  \  - Step 1: Replace `task()` with orchestrator-routing marker + context schema\
+  \ + result contract\n  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm\
+  \ RED (no matches) ← RED CHECKPOINT\n  - Step 3: Verify dispatch intent preserved\n\
+  \  - Step 4: Commit\n\n**Item 5: `pr-creation/enforcement-gate.md`**\n  - Step 1:\
+  \ Replace `task()` with orchestrator-routing marker + context schema + result contract\n\
+  \  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm RED (no matches)\
+  \ ← RED CHECKPOINT\n  - Step 3: Verify dispatch intent preserved\n  - Step 4: Commit\n\
+  \n**Item 6: `verification-before-completion/tasks/verify.md`**\n  - Step 1: Replace\
+  \ `task()` with orchestrator-routing marker + context schema + result contract\n\
+  \  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm RED (no matches)\
+  \ ← RED CHECKPOINT\n  - Step 3: Verify dispatch intent preserved\n  - Step 4: Commit\n\
+  \n**Item 7: `research/tasks/research-multi.md`**\n  - Step 1: Replace `task()` with\
+  \ orchestrator-routing marker + context schema + result contract\n  - Step 2: Run\
+  \ `grep &#34;task()&#34;` on edited file, confirm RED (no matches) ← RED CHECKPOINT\n\
+  \  - Step 3: Verify dispatch intent preserved\n  - Step 4: Commit\n\n**Item 8: `multimodal-dispatch/tasks/dispatch-multi.md`**\n\
+  \  - Step 1: Replace `task()` with orchestrator-routing marker + context schema\
+  \ + result contract\n  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm\
+  \ RED (no matches) ← RED CHECKPOINT\n  - Step 3: Verify dispatch intent preserved\n\
+  \  - Step 4: Commit\n\n**Item 9: `changelog-generator/tasks/since-last-release.md`**\n\
+  \  - Step 1: Replace `task()` with orchestrator-routing marker + context schema\
+  \ + result contract\n  - Step 2: Run `grep &#34;task()&#34;` on edited file, confirm\
+  \ RED (no matches) ← RED CHECKPOINT\n  - Step 3: Verify dispatch intent preserved\n\
+  \  - Step 4: Commit\n\n---\n\n### Phase 3: Create Sub-Agent Configs\n\n**Why this\
+  \ phase exists:** The orchestrator needs sub-agent configs to dispatch the 4 submodule\
+  \ sub-agents that git-workflow references. Without these configs, the orchestrator-routing\
+  \ markers in Phase 2 reference non-existent agents — creating a new class of broken\
+  \ cross-references.\n\n**What it must accomplish:**\n- Create 4 agent config files\
+  \ under `.opencode/agents/`\n- Each config covers: name, type, description, model,\
+  \ tools, `dispatch_context` (`must_receive`/`must_not_receive`), boundary\n- Concern\
+  \ boundary: leaving Phase 2 (task file edits) → entering Phase 3 (agent configs).\
+  \ Handoff: Phase 2 produces the orchestrator-routing markers that reference these\
+  \ sub-agents. Phase 3 creates the configs those markers need.\n\n**How to verify\
+  \ completion:**\n- `ls .opencode/agents/submodule-*` returns 4+ files\n- Each config\
+  \ file is valid JSON with the required fields\n- Cost-frame: &#34;Skipping a config\
+  \ check to save two tool calls costs the full cycle of dispatch failures, debugging,\
+  \ and re-configuration when the orchestrator tries to dispatch a non-existent sub-agent\
+  \ — a config ls is thirty seconds; the debugging session it prevents is hours.&#34;\n\
+  \n**What could go wrong:** Config format may differ from expected schema; verify\
+  \ against existing agent configs for the correct format.\n\n**What must be done\
+  \ first:** Phase 2 creates the routing references; Phase 3 creates the configs those\
+  \ references point to.\n\n**TDD Items (Items 10-13):**\n\n**Item 10: `submodule-dev-restore`\
+  \ agent config**\n  - Step 1: Read an existing agent config for format reference\n\
+  \  - Step 2: Write config to `.opencode/agents/submodule-dev-restore.jsonc` ← RED\
+  \ CHECKPOINT: file does not exist yet\n  - Step 3: Verify file exists and contains\
+  \ required fields\n  - Step 4: Commit\n\n**Item 11: `submodule-tag-prework` agent\
+  \ config**\n  - Step 1: Write config to `.opencode/agents/submodule-tag-prework.jsonc`\
+  \ ← RED CHECKPOINT: file does not exist yet\n  - Step 2: Verify file exists and\
+  \ contains required fields\n  - Step 3: Commit\n\n**Item 12: `submodule-feature-push`\
+  \ agent config**\n  - Step 1: Write config to `.opencode/agents/submodule-feature-push.jsonc`\
+  \ ← RED CHECKPOINT: file does not exist yet\n  - Step 2: Verify file exists and\
+  \ contains required fields\n  - Step 3: Commit\n\n**Item 13: `submodule-liveness-check`\
+  \ agent config**\n  - Step 1: Write config to `.opencode/agents/submodule-liveness-check.jsonc`\
+  \ ← RED CHECKPOINT: file does not exist yet\n  - Step 2: Verify file exists and\
+  \ contains required fields\n  - Step 3: Commit\n\n---\n\n### Phase 4: Create Enforcement\
+  \ Tests\n\n**Why this phase exists:** Without enforcement tests, the fix is text-only\
+  \ — and spec analysis (confirmed by the spec body) has shown that text-only fixes\
+  \ are bypassed by sub-agents. The content-verification test prevents structural\
+  \ regression; the behavioral test verifies the sub-agent actually behaves differently\
+  \ after the change. Both are required for a complete enforcement gate.\n\n**What\
+  \ it must accomplish:**\n- Create content-verification test: `grep -rn &#34;task()&#34;\
+  \ .opencode/skills/*/tasks/` returns zero\n- Create behavioral test: dispatch sub-agent\
+  \ to affected task, verify no inline routing\n- Concern boundary: leaving Phase\
+  \ 3 (agent configs) → entering Phase 4 (tests). Handoff: Phase 3 completes the agent\
+  \ infrastructure; Phase 4 verifies the entire system works correctly.\n\n**How to\
+  \ verify completion:**\n- Content-verification test passes (grep returns zero)\n\
+  - Behavioral test dispatches sub-agent to affected task file and verifies stderr\
+  \ contains no forbidden patterns\n- Cost-frame: &#34;Skipping either test to save\
+  \ execution time costs the full rework cycle when the next spec creates a new task\
+  \ file with a `task()` call and the old files have regressed — test execution is\
+  \ minutes; the regression it catches would cost hours of diagnosis and re-remediation.&#34;\n\
+  \n**What could go wrong:**\n- Behavioral test may not execute (RISK-1) — scope-limited\
+  \ behavioral testing is the default\n- ⚠️ **RISK FLAG (SC-5):** Behavioral test\
+  \ requires `opencode-cli run` with sub-agent dispatch using model `ollama/qwen3.6:35b-256k`.\
+  \ If the model does not support sub-agent dispatch, the test cannot execute. **Mitigation:**\
+  \ Default to scope-limited behavioral testing. If behavioral test cannot execute,\
+  \ content-verification (SC-4) provides structural enforcement. Behavioral RED before\
+  \ GREEN is mandatory where feasible.\n\n**What must be done first:** Phases 1-3\
+  \ must complete — tests verify the changes made in those phases.\n\n**TDD Items\
+  \ (Items 14-15):**\n\n**Item 14: Content-verification enforcement test**\n  - Step\
+  \ 1: Write test script at `.opencode/tests/task-routing-test.sh` that runs `grep\
+  \ -rn &#34;task()&#34; .opencode/skills/*/tasks/` and exits non-zero on match\n\
+  \  - Step 2: Run test — it SHOULD FAIL (RED) because task files still have `task()`\
+  \ calls ← RED CHECKPOINT: verify test exits with error\n  - Step 3: After Phase\
+  \ 2 edits, re-run test — it should PASS (GREEN) ← actually this test is structural,\
+  \ the RED phase is before implementation\n  - Actually for this structural test:\
+  \ Step 2 is not applicable since the test verifies absence. The TDD for this is:\
+  \ write test, verify it detects violations when present (RED by running against\
+  \ current state which has matches), then commit. The GREEN phase is the edits in\
+  \ Phase 2.\n  - Step 4: Commit\n\n**Item 15: Behavioral enforcement test** (model:\
+  \ `ollama/qwen3.6:35b-256k`)\n  - Step 1: Write behavioral test at `.opencode/tests/behaviors/sub-agent-no-dispatch.sh`\
+  \ using `assert_stderr_pattern_absent` helpers. Use `behavior_run \"sub-agent-no-dispatch\"\
+  \ \"instructions\" \"ollama/qwen3.6:35b-256k\"`\n  - Step 2: Run behavioral test\
+  \ — it SHOULD FAIL (RED) because sub-agent still encounters `task()` in task files\
+  \ ← RED CHECKPOINT: verify test fails with evidence\n  - Step 3: After Phase 2 edits,\
+  \ re-run behavioral test — it should PASS (GREEN)\n  - Step 4: Commit\n\n---\n\n\
+  ### Phase 5: Update SKILL.md Routing Table\n\n**Why this phase exists:** The git-workflow\
+  \ SKILL.md routing table must link to the agent configs created in Phase 3. Without\
+  \ this update, the orchestrator can reference sub-agent names but the skill&#39;s\
+  \ routing table won&#39;t map them — creating a silent miss in the dispatch layer.\n\
+  \n**What it must accomplish:**\n- Update `git-workflow/SKILL.md` routing table to\
+  \ reference the 4 sub-agent configs\n- Verify each reference points to an existing\
+  \ file\n- Concern boundary: leaving Phase 4 (tests) → entering Phase 5 (SKILL.md\
+  \ update). Handoff: Phase 4 verifies the enforcement; Phase 5 updates the routing\
+  \ metadata to complete the integration.\n\n**How to verify completion:**\n- Each\
+  \ sub-agent name in the routing table links to `.opencode/agents/.jsonc`\n- `grep`\
+  \ confirms each config file exists\n\n**What could go wrong:** Routing table may\
+  \ have changed during the session; re-read before editing.\n\n**What must be done\
+  \ first:** Phase 3 creates the config files; Phase 5&#39;s routing references depend\
+  \ on those files existing.\n\n**TDD Items (Item 16):**\n  - Step 1: Read current\
+  \ `git-workflow/SKILL.md` routing table\n  - Step 2: Add routing entries for the\
+  \ 4 submodule sub-agents ← RED CHECKPOINT: verify routing table does NOT yet reference\
+  \ these configs\n  - Step 3: Verify each routing entry links to a verified existing\
+  \ config file\n  - Step 4: Commit\n\n---\n\n### Dependency Graph\n\n```\nPhase 1\
+  \ (Audit)\n  │\n  ▼\nPhase 2 (Task File Edits: Items 2-9)\n  │\n  ├──▶ Phase 3 (Agent\
+  \ Configs: Items 10-13) — no dependency on Phase 2\n  │\n  ▼\nPhase 4 (Tests: Items\
+  \ 14-15) — depends on Phase 2 (for RED→GREEN cycle)\n  │\n  ▼\nPhase 5 (SKILL.md:\
+  \ Item 16) — depends on Phase 3 (config files must exist)\n```\n\nItems 2-9 (Phase\
+  \ 2) and Items 10-13 (Phase 3) are parallelizable — task file edits and agent config\
+  \ creation have no mutual dependency.\n\n### Risks\n\n- **RISK-1 (SC-5):** Behavioral\
+  \ test requires `opencode-cli run` with sub-agent dispatch using model `ollama/qwen3.6:35b-256k`.\
+  \ If the model does not support sub-agent dispatch or is unavailable, the test cannot\
+  \ execute. Mitigation: scope-limited behavioral testing. If behavioral cannot execute,\
+  \ content-verification (SC-4) provides structural enforcement. Behavioral RED before\
+  \ GREEN mandatory where feasible.\n\n### Verification Summary\n\n| SC | Evidence\
+  \ Type | Verification Method | Phase |\n|----|--------------|-------------------|-------|\n\
+  | SC-1 | `string` | `grep -rn &#34;task()&#34; .opencode/skills/*/tasks/` returns\
+  \ zero | 2 |\n| SC-2 | `string` | Each edited file: `must_receive`/`must_not_receive`\
+  \ + result contract present | 2 |\n| SC-3 | `structural` | `ls .opencode/agents/submodule-*`\
+  \ returns 4+ files | 3 |\n| SC-4 | `string` | Content-verification test passes:\
+  \ `grep` returns zero | 4 |\n| SC-5 | `behavioral` | `behavior_run \"sub-agent-no-dispatch\"\
+  \ \"instructions\" \"ollama/qwen3.6:35b-256k\"` + `assert_semantic` | 4 |\n"
+created_at: '2026-05-24T17:32:31Z'
+updated_at: '2026-06-12T03:45:36Z'
+remote_issue: 866
+remote_url: https://github.com/michael-conrad/.opencode/issues/866
+promoted_at: '2026-08-27T03:25:12.236419+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.236419+00:00'
+author: michael-conrad

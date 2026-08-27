@@ -1,0 +1,44 @@
+number: 1185
+title: '[BUG] "check prs" loops indefinitely instead of proceeding to cleanup autonomously'
+status: open
+labels: []
+body: '## Bug Report
+
+
+  **Observed behavior:** When a user types "check prs", the agent repeatedly re-runs
+  the check-pr task and reports the same results to the user over and over, waiting
+  for explicit authorization to proceed with cleanup — even after the user has repeated
+  the command 7+ times.
+
+
+  **Expected behavior:** Per `000-critical-rules.md` §critical-rules-041, "check prs"
+  = cleanup trigger → `git-workflow --task check-pr`. Once merged PRs are found, the
+  agent should autonomously proceed to cleanup (delete merged branches, close associated
+  issues, sync dev) without prompting for re-authorization at each step.
+
+
+  **Root cause:** The agent incorrectly classified "check prs" as an informational
+  query requiring repeated re-authorization, rather than as a workflow trigger that
+  activates the full check-pr → cleanup pipeline.
+
+
+  **Evidence:** 7 consecutive "check prs" commands from the user produced 7 identical
+  check-pr sub-agent dispatches with zero progression to cleanup. The agent treated
+  the repeated command as fresh queries instead of recognizing the uncleaned state
+  and proceeding autonomously.
+
+
+  **Related rule:** `000-critical-rules.md` §critical-rules-041:
+
+  > "check prs" = cleanup trigger → `git-workflow --task check-pr`.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)'
+created_at: '2026-06-14T06:35:26Z'
+updated_at: '2026-06-14T06:35:26Z'
+remote_issue: 1185
+remote_url: https://github.com/michael-conrad/.opencode/issues/1185
+promoted_at: '2026-08-27T03:25:12.585170+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.585170+00:00'
+author: michael-conrad

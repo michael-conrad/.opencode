@@ -1,0 +1,37 @@
+number: 2351
+title: '[SPEC] Condense 067-context-completeness.md — move staleness detail to issue-review
+  skill'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/067-context-completeness.md` costs ~1.9k tokens.
+  ~40% procedural (staleness-rule detail, de-minimis bound, single-exchange window,
+  examples) that overlaps issue-review / issue-operations.
+
+
+  ## Scope
+
+  - **In:** Relocate staleness/deminimis/examples to issue-review skill; retain the
+  zero-tolerance read-all-comments-before-acting core.
+
+  - **Out:** Removing the read-all-comments core.
+
+
+  ## Approach
+
+  Move the duplicated procedural detail to issue-review; keep the context-completeness
+  core preloaded.
+
+
+  ## Impact
+
+  ~0.7k savings. Risk: low. Depends on issue-review update + config. Action: approve.'
+created_at: '2026-08-27T03:14:08Z'
+updated_at: '2026-08-27T03:14:08Z'
+remote_issue: 2351
+remote_url: https://github.com/michael-conrad/.opencode/issues/2351
+promoted_at: '2026-08-27T03:25:12.660366+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.660366+00:00'
+author: michael-conrad

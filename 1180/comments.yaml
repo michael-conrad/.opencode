@@ -1,0 +1,32 @@
+comments:
+- body: '## Verification: Fix Already Applied
+
+
+    The fix for this issue was already implemented in commit `328c77d7` (merged via
+    PR #1181 into `dev`). All 28 affected SKILL.md files now have quoted `description:`
+    values.
+
+
+    **Evidence:**
+
+    - Fix commit: `328c77d7` — "Fix SKILL.md YAML frontmatter: quote description fields
+    (33 files)"
+
+    - Merged via: PR #1181 (`feature/1165-skill-yaml-quote-fix`) into `dev`
+
+    - Verified: `grep ''^description: '' skills/*/SKILL.md` shows all descriptions
+    are double-quoted
+
+
+    **Parent repo pointer:** The `opencode-config` parent repo has a staged submodule
+    pointer update pointing to `1fe8c95e` (which includes this fix), but the pre-commit
+    hook correctly blocks submodule-pointer-only commits per policy. The pointer will
+    update automatically when the next feature PR merges to `dev`.
+
+
+    **Status:** ✅ Complete — no further action needed.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-06-14T06:43:47Z'
+  user: michael-conrad

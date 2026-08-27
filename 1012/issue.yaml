@@ -1,0 +1,70 @@
+number: 1012
+title: '[BUG] completion-core exec-summary posts non-substantive comments — substantiveness
+  gate not enforced in sub-agent dispatch'
+status: open
+labels:
+- bug
+- needs-approval
+- sub-agent
+body: "## Bug\n\nIn a pipeline session on `viewport-editor` (issue #41), step 2.14\
+  \ dispatched a `general` sub-agent to execute the `exec-summary` task from `completion-core`.\
+  \ The sub-agent posted the execution summary as an issue comment on #41 without\
+  \ passing the substantiveness gate.\n\nThe comment was verbose, contained no stakeholder-meaningful\
+  \ information beyond what was already in chat, and was immediately deleted by the\
+  \ developer.\n\n## Root Cause\n\nThe `completion-core` skill requires a substantiveness\
+  \ gate before posting issue comments:\n\n> **Substantive Comment Gate:**\n> ONLY\
+  \ post if the comment conveys stakeholder-meaningful information\n\nThe sub-agent\
+  \ either:\n1. Did not evaluate the substantiveness gate at all\n2. Evaluated it\
+  \ incorrectly and classified a non-substantive update as substantive\n\nA status-tracker\
+  \ comment (\"fix applied, pyright reports 0 errors\") is not stakeholder-meaningful\
+  \ — it's implementation noise. The developer already saw all results in chat.\n\n\
+  ## Impact\n\n- Issue pollution with non-substantive comments\n- Developer must manually\
+  \ delete garbage comments\n- Erodes trust in sub-agent output\n- Pattern suggests\
+  \ `general` sub-agents executing `completion-core` are skipping or mis-evaluating\
+  \ the substantiveness gate\n\n## Reproduction\n\n1. Dispatch: `task(..., prompt:\
+  \ \"execute completion task from completion-core\")`\n2. Sub-agent posts execution\
+  \ summary as issue comment\n3. Comment adds zero value beyond what was already reported\
+  \ in chat\n\n## Expected Behavior\n\nPer `completion-core` §3:\n\n> **Post Status\
+  \ Comment (Substantive Only)**\n> ONLY post if the comment conveys stakeholder-meaningful\
+  \ information\n> If is_substantive → post, else → skip posting, progress goes to\
+  \ chat only\n\nThe sub-agent MUST evaluate whether the comment is substantive. If\
+  \ not, skip the post call entirely.\n\n## Fix Suggestions\n\n1. Replace the current\
+  \ prose-only substantiveness gate with a structured pre-post card that the sub-agent\
+  \ MUST fill out before posting any issue comment. The card requires explicit fields:\n\
+  \   - New stakeholder-meaningful information:\n   - Already visible in chat? yes\
+  \ / no\n   - Best placement: chat / issue comment / local handoff / no post\n  \
+  \ - Decision: POST / HOLD / SKIP\n   POST is valid only when new information is\
+  \ concrete AND \"already visible in chat\" is no.\n\n2. Embed the structured gate\
+  \ in the skill and task files themselves — not just the issue spec — so it fires\
+  \ on every dispatch:\n   - `completion-core/SKILL.md` routing section (mandatory\
+  \ pre-condition in dispatch table)\n   - `completion-core/tasks/exec-summary.md`\
+  \ entry criteria (non-skippable step)\n   - `completion-core/tasks/completion.md`\
+  \ entry criteria (non-skippable step)\n\n3. The sub-agent must evaluate: \"Does\
+  \ this comment contain information the stakeholder needs that they don't already\
+  \ have from chat?\" If no — skip.\n\n## Success Criteria\n\n| ID | Criterion | Evidence\
+  \ Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | `completion-core` task includes a structured pre-post substantiveness gate\
+  \ (card format) that the sub-agent MUST fill out before posting any issue comment.\
+  \ The card requires explicit fields: new stakeholder-meaningful information, already\
+  \ visible in chat (yes/no), best placement (chat/issue comment/local handoff/no\
+  \ post), and decision (POST/HOLD/SKIP). POST is valid only when new information\
+  \ is concrete AND \"already visible in chat\" is no. | `behavioral` | `opencode-cli\
+  \ run` → sub-agent produces completion output with non-substantive content → verify\
+  \ sub-agent fills out card and selects HOLD/SKIP, does not call `github_add_issue_comment`\
+  \ |\n| SC-2 | The structured substantiveness gate is embedded in `completion-core/SKILL.md`\
+  \ routing section as a mandatory pre-condition in the dispatch table. | `string`\
+  \ | grep for card fields in SKILL.md |\n| SC-3 | The structured substantiveness\
+  \ gate is embedded in `completion-core/tasks/exec-summary.md` entry criteria as\
+  \ a non-skippable step. | `string` | grep for card fields in exec-summary.md |\n\
+  | SC-4 | The structured substantiveness gate is embedded in `completion-core/tasks/completion.md`\
+  \ entry criteria as a non-skippable step. | `string` | grep for card fields in completion.md\
+  \ |\n\n## Labels\n\n`bug`, `sub-agent`, `completion-core`, `substantiveness-gate`\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)"
+created_at: '2026-06-04T05:02:19Z'
+updated_at: '2026-06-26T03:21:58Z'
+remote_issue: 1012
+remote_url: https://github.com/michael-conrad/.opencode/issues/1012
+promoted_at: '2026-08-27T03:25:12.504960+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.504960+00:00'
+author: michael-conrad

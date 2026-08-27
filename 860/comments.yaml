@@ -1,0 +1,71 @@
+comments:
+- body: Closed via parent PR michael-conrad/opencode-config#142.
+  created_at: '2026-05-24T16:46:00Z'
+  user: michael-conrad
+- body: '## Spec-Fix: Remediation — SC-6 and SC-7 Not Fully Implemented
+
+
+    Issue #860 was closed as merged but SC-6 and SC-7 (zero `assert_semantic` across
+    all behavioral test scripts) were never fully met. The infrastructure was updated
+    (helpers.sh, AGENTS.md, capture_and_cleanup), but 71+ test scripts still contain
+    `assert_semantic` calls to a function that no longer exists.
+
+
+    ### Current State
+
+
+    - helpers.sh: `assert_semantic` removed, `capture_and_cleanup` added — **done**
+
+    - AGENTS.md: defines artifact-only generator paradigm — **done**
+
+    - 71+ behavioral test scripts: still call removed `assert_semantic` function —
+    **not done**
+
+
+    ### What Needs to Happen
+
+
+    Mechanical migration per-file: replace `assert_semantic "$SC" "..."` with `capture_and_cleanup
+    "$SCENARIO_NAME"` after `behavior_run`. No architectural decisions, no new rules.
+    The pattern is already documented in AGENTS.md and demonstrated by the migrated
+    842-*.sh scripts.
+
+
+    ### Dependency Position
+
+
+    This migration is Phase 0 of the verification pipeline: it blocks #836 (runtime-behavioral
+    classification gate), #746 phases 7-9 (artifact file mandates), and every behavioral
+    test that relies on clean infrastructure. No new behavioral tests can verify correctly
+    until the scripts stop referencing removed functions.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+
+    '
+  created_at: '2026-05-30T15:53:10Z'
+  user: michael-conrad
+- body: '## Dependency Chain
+
+
+    ```
+
+    prev: (none — root of the chain)
+
+    next: #836 — requires clean test infrastructure before behavioral tests can run
+
+    ```
+
+
+    **Required by:**
+
+    - #836: Runtime-Behavioral Evidence Classification Gate — SC-6 behavioral tests
+    require `capture_and_cleanup` infrastructure working across all 142 test scripts
+    before they can run correctly
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+
+    '
+  created_at: '2026-05-30T17:18:04Z'
+  user: michael-conrad

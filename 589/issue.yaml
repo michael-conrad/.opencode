@@ -1,0 +1,121 @@
+number: 589
+title: '[SPEC] spec-creation SKILL.md — PR merge boundaries, Mermaid diagrams, Separation
+  of Concerns guard'
+status: open
+labels:
+- needs-approval
+- spec
+- skill-deck
+body: '# SPEC: spec-creation SKILL.md — CONDITIONAL-VAGUE Remediation
+
+
+  Parent plan: #587
+
+
+  ## Success Criteria
+
+
+  ### SC-1: PR Merge Boundary Definition
+
+
+  `skills/spec-creation/SKILL.md` Operating Protocol §7 updated. Current text:
+
+
+  > "PR merge boundaries required when dependencies exist."
+
+
+  Replace with definition: A PR merge boundary exists when subsequent work depends
+  on code changes from an unmerged PR being present in the target branch. Examples
+  include skill deck edits (which do not take effect until PR merge + agent reload)
+  and cross-phase file dependencies where Phase N+1 requires Phase N''s changes to
+  be in `dev`.
+
+
+  ### SC-2: Two Mermaid Diagrams
+
+
+  `skills/spec-creation/SKILL.md` Operating Protocol §8 updated. Current text:
+
+
+  > "Mermaid diagram required for multi-phase specs (approved structure only, no workflow
+  state)."
+
+
+  Replace to require two diagrams for multi-phase specs:
+
+
+  - **Structure diagram** (`stateDiagram-v2`): phase architecture, artifacts per phase,
+  PR merge boundaries, file handoffs. Static design artifact — shows what the phases
+  are and how they connect.
+
+  - **Flow diagram** (`flowchart TD`): routing design, decision gates, conditional
+  dispatch branches. Static design artifact — shows the intentional routing design,
+  not transient pipeline state.
+
+
+  The "no workflow state" constraint applies to both: neither diagram shows CI status,
+  sub-agent dispatch logs, completion percentages, or any transient pipeline state.
+
+
+  **Auto-remediation guard (SC-4):** A content-verification test must verify that
+  the flow diagram in the spec issue body matches the routing documented in SKILL.md
+  Operating Protocols. If mismatch is detected, the diagram is auto-updated to match
+  the SKILL.md source of truth.
+
+
+  ### SC-3: Separation of Concerns Guard
+
+
+  `skills/spec-creation/SKILL.md` Operating Protocol §9 updated. Current text:
+
+
+  > "Concern enumeration guard: enumerate single concerns before writing."
+
+
+  Replace to explicitly reference `critical-rules-042` (Single Concern Principle)
+  and `programming-principles` (Separation of Concerns). The guard asks: does the
+  proposed spec touch more than one distinct behavioral change or file group? If yes,
+  decompose into sub-issues — one per concern.
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |---|---|
+
+  | `skills/spec-creation/SKILL.md` | Operating Protocols §7, §8, §9 wording updates
+  |
+
+  | `skills/spec-creation/tasks/write.md` | Add SoC guard procedural step referencing
+  critical-rules-042 |
+
+  | `skills/spec-creation/tasks/diagram.md` | Update to produce two Mermaid diagram
+  types |
+
+  | (new) test file | Mermaid flow diagram drift guard — compare against SKILL.md
+  routing |
+
+
+  ## Out of Scope
+
+
+  - Other spec-creation task content outside the affected tasks
+
+  - Changes to other skills'' Operating Protocols
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-15T05:28:46Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 589
+remote_url: https://github.com/michael-conrad/.opencode/issues/589
+promoted_at: '2026-08-27T03:25:11.761259+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.761259+00:00'
+author: michael-conrad

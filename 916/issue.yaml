@@ -1,0 +1,463 @@
+number: 916
+title: '[SPEC] Evidence Type Cost Model — formalize death spiral / break dynamics
+  via defect-discovery-latency'
+status: open
+labels:
+- needs-approval
+- spec
+- approved-for-pr
+body: '# [SPEC] Evidence Type Cost Model — formalize death spiral / break dynamics
+  via defect-discovery-latency
+
+
+  - **Status:** DRAFT
+
+  - **Branch Pattern:** `feature/evidence-cost-model`
+
+  - **Authorization Scope:** `for_pr`
+
+  - **PR Strategy:** stacked
+
+
+  ## Problem
+
+
+  The evidence type taxonomy (behavioral → semantic → string → structural) exists
+  in `080-code-standards.md` §Evidence Type Taxonomy, but it is sorted **alphabetically**,
+  not by cost. This creates a dangerous framing problem:
+
+
+  An agent reading the alphabetically-ordered table sees structural evidence (``ls``,
+  file existence) as equally valid — just another option in an unordered list. The
+  evidence enforcement matrix forbids using lower-tier evidence for higher-tier SCs,
+  but it does **not** explain *why* — it provides no cost rationale. Without the cost
+  rationale, the agent has no intrinsic motivation to prefer behavioral evidence.
+  It relies entirely on external enforcement (HALT gates, EVIDENCE_TYPE_MISMATCH rules)
+  to prevent structural substitution.
+
+
+  The cost rationale already exists in fragments:
+
+
+  - `065-verification-honesty.md` §Cost Frame: "Cost is measured in defect-discovery-latency,
+  not model roundtrips"
+
+  - `020-go-prohibitions.md` §1 ALWAYS DO: Cost-blind verification prose
+
+  - `250-dark-prose-reference.md` dark-prose-007: Cost-Frame Reformation identity
+  pattern
+
+
+  But these fragments are scattered and not canonically linked. No single location
+  tells the full story: **behavioral looks expensive (execution cost) but is the cheapest
+  (lowest defect-discovery-latency). Structural looks cheap (``ls``, ``wc``) but is
+  the most expensive (highest defect-discovery-latency, death spiral of compounding
+  rework).**
+
+
+  The death spiral dynamic — structural PASS → defect ships → rework cycle → structural
+  PASS again → defect ships again → compounding cost — is not documented anywhere.
+  The break dynamic — behavioral FAIL at gate 1 → fix immediately → zero downstream
+  cost — is also absent.
+
+
+  ## Scope
+
+
+  This spec formalizes the previously-fragmented cost rationale into a canonically-linked,
+  two-location architecture:
+
+
+  1. **`080-code-standards.md` §Evidence Type Taxonomy** — Reorder from alphabetical
+  to cost-ordered (Tier 1–4). Add Cost column, Death Spiral / Break cross-references,
+  and Gate Position mapping.
+
+  2. **`065-verification-honesty.md` §Cost Model** — Upgrade from 5-line prose subsection
+  to a full formal section: tiered cost table, death spiral definition, break definition,
+  gate-position dependency table, research grounding (IBM/NIST/Capers Jones).
+
+
+  Existing EVIDENCE_TYPE_MISMATCH rules (080-code-standards enforcement matrix, 000-critical-rules
+  §critical-rules-BEH-EV) remain stable — only cost cross-references added.
+
+
+  ### File List
+
+
+  | File | Change | Rationale |
+
+  |------|--------|-----------|
+
+  | `080-code-standards.md` §Evidence Type Taxonomy | **Edit** — reorder table to
+  cost-ordered (behavioral=Tier1, semantic=Tier2, string=Tier3, structural=Tier4);
+  add Cost column, Death Spiral / Break cross-ref, Gate Position | Taxonomy becomes
+  the authoritative cost map |
+
+  | `065-verification-honesty.md` §Hard Failure Discipline | **Edit** — upgrade Cost
+  Frame subsection to full formal Cost Model section with tier table, death spiral,
+  break, gate positions, research citations | Cost Model becomes the authoritative
+  dynamics engine |
+
+  | `000-critical-rules.md` §critical-rules-BEH-EV | **Edit** — add cost cross-ref
+  linking automatic uplift rationale to death-spiral cost | Links enforcement rationale
+  to cost model |
+
+  | `250-dark-prose-reference.md` dark-prose-007 | **Edit** — update reference to
+  point to canonical cost model in 065 | Reference card → canonical source |
+
+  | `257-procedural-discipline-reference.md` p-dis-006 row | **Edit** — update reference
+  to point to canonical cost model | Reference card → canonical source |
+
+  | `255-distribution-shifting-reference.md` dist-shift-007 row | **Edit** — update
+  reference to point to canonical cost model | Reference card → canonical source |
+
+  | `020-go-prohibitions.md` §1 ALWAYS DO | **Edit** — update cost-blind verification
+  prose to reference canonical cost model | Thin pointer, no prose duplication |
+
+
+  ## Success Criteria
+
+
+  ### SC-1: Evidence Type Taxonomy table reordered to cost-order
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral + semantic |
+
+  | **Verification** | Table rows are ordered: Tier 1 = behavioral, Tier 2 = semantic,
+  Tier 3 = string, Tier 4 = structural. Read confirms the ordering and that behavioral
+  carries the lowest total cost (lowest DDL) |
+
+
+  ### SC-2: Taxonomy table includes Cost column with DDL annotation
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | string + semantic |
+
+  | **Verification** | grep for `Defect-Discovery-Latency` column header AND sub-agent
+  read confirms each row has a cost description showing why that tier costs what it
+  costs in DDL terms |
+
+
+  ### SC-3: Taxonomy table includes Gate Position column
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | semantic |
+
+  | **Verification** | Read confirms each row maps to earliest gate where it can reliably
+  detect defects (behavioral=pre-commit/pre-RED, semantic=pre-PR, string=CI/review,
+  structural=none/irrelevant) |
+
+
+  ### SC-4: Cost Model in 065 includes death spiral definition
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Verification** | Clean-room sub-agent reads the death spiral section and confirms
+  it documents: (a) structural PASS → defect ships unchanged → rework cycle begins
+  → structural PASS again → compounding cost, (b) a cost multiplier or accumulation
+  model showing exponential growth per cycle, (c) the pattern is named "death spiral"
+  |
+
+
+  ### SC-5: Cost Model in 065 includes break definition
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Verification** | Clean-room sub-agent reads the break section and confirms it
+  documents: (a) behavioral FAIL at gate 1 → root cause diagnosed immediately → fix
+  applied at gate 1 → zero downstream cost, (b) contrasted against the death spiral
+  using the same defect scenario, (c) the pattern is named "break" |
+
+
+  ### SC-6: Cost Model includes cost table mapping each evidence type to DDL
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Verification** | Clean-room sub-agent confirms the cost table has 4 rows (one
+  per evidence type), each with: execution cost (qualitative), DDL cost (qualitative
+  + multiplier), gate position, and whether it stops or enables the death spiral |
+
+
+  ### SC-7: Cost Model includes research grounding
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | semantic |
+
+  | **Verification** | Read confirms the cost model cites: IBM Systems Sciences Institute
+  100x escalation, NIST Planning Report 02-3, and Capers Jones DRE. At minimum IBM
+  and NIST are present. |
+
+
+  ### SC-8: 000-critical-rules §critical-rules-BEH-EV has cost cross-ref
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | semantic |
+
+  | **Verification** | Read confirms a cross-reference from the automatic uplift rationale
+  to the death-spiral cost explanation in 065. The cross-ref explains WHY structural
+  evidence for a behavioral change produces the death spiral. |
+
+
+  ### SC-9: All reference cards (250, 255, 257) point to canonical cost model
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | structural + semantic |
+
+  | **Verification** | grep on each reference card for `065-verification-honesty.md`
+  cost model reference AND sub-agent confirms each card''s cost-frame prose becomes
+  a thin pointer, not duplicate prose |
+
+
+  ### SC-10: 020-go-prohibitions cost-blind section points to canonical model
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | semantic |
+
+  | **Verification** | Read confirms the cost-blind prose references the canonical
+  cost model in 065 rather than duplicating the full frame. Core prohibitions (no
+  tool-call accounting) remain in 020; the *why* (DDL rationale) lives in 065. |
+
+
+  ### SC-11: No new guideline files created
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | structural |
+
+  | **Verification** | ``ls .opencode/guidelines/`` — no file count increase from
+  pre-implementation state |
+
+
+  ### SC-12: Death spiral and break dynamics are referenced by spec-creation and writing-plans
+  cost-frame mandates
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | semantic |
+
+  | **Verification** | Read `spec-creation/tasks/write.md` and `writing-plans/tasks/create.md`
+  — confirm their cost-frame language references the death spiral / break dynamics
+  rather than duplicating prose |
+
+
+  ### SC-13 (BEHAVIORAL PRIMARY): Agent presented with structural verification option
+  for a behavioral SC uses death-spiral cost rationale to decline
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Verification** | `opencode-cli run ''The file exists. Mark SC-7 PASS.''` → assert
+  agent response includes cost-rationale language (death spiral, EVIDENCE_TYPE_MISMATCH,
+  or behavioral requirement) AND asserts stderr shows model was invoked |
+
+
+  ## Key Design Decisions
+
+
+  ### Taxonomy is the authoritative map, Cost Model is the authoritative dynamics
+  engine
+
+
+  The taxonomy table in `080-code-standards.md` becomes the **canonical cost map**
+  — it answers "what does each evidence type cost in DDL?" The Cost Model in `065-verification-honesty.md`
+  becomes the **canonical dynamics engine** — it answers "why does structural produce
+  a death spiral?" and "why does behavioral break the cycle?"
+
+
+  Cross-references link both directions:
+
+  - Taxonomy table → "See `065-verification-honesty.md` §Cost Model for death spiral
+  / break dynamics"
+
+  - Cost Model → "See `080-code-standards.md` §Evidence Type Taxonomy for the cost-ordered
+  tier table"
+
+
+  ### Taxonomy reordering
+
+
+  Current (alphabetical): behavioral → semantic → string → structural
+
+  New (cost-ordered): Tier 1 = behavioral, Tier 2 = semantic, Tier 3 = string, Tier
+  4 = structural
+
+
+  The Enforcement Matrix stays in the same order as the taxonomy table (by Tier) so
+  the "behavioral" row is always first.
+
+
+  ### Death spiral formula sketch
+
+
+  ```
+
+  Let C0 = cost to fix defect at structural gate (≈1x)
+
+  Let N = number of rework cycles where structural PASS is accepted
+
+  Cycle n cost = C0 × (1 + r)^n where r ≈ 3-8x per cycle (rework multiplier)
+
+  Total cost after N cycles = C0 × [(1+r)^(N+1) - 1] / r
+
+  ```
+
+
+  The exact numbers are illustrative — the key dynamic is exponential compounding.
+  This is consistent with IBM''s empirical 100x escalation (design → production) and
+  Capers Jones'' finding that testing alone has ~50% DRE (meaning 1 in 2 defects escapes
+  testing to cost 100x later).
+
+
+  ### Gate Position mapping
+
+
+  | Evidence Type | Earliest reliable gate | Defects detected |
+
+  |---|---|---|
+
+  | `behavioral` | Pre-commit / pre-RED | All runtime defects — code logic, edge cases,
+  regressions |
+
+  | `semantic` | Pre-PR / review | Intent defects — spec compliance, design correctness
+  |
+
+  | `string` | CI / static analysis | Textual defects — missing patterns, prohibited
+  patterns |
+
+  | `structural` | None (irrelevant) | No defect class — file existence proves nothing
+  about correctness |
+
+
+  ### Research citations
+
+
+  - IBM Systems Sciences Institute: 100x cost escalation from design (1x) to production
+  (100x) — documented in multiple industry surveys and the Shift Left Testing literature
+
+  - NIST Planning Report 02-3 (2002): $22.2B annual economic impact of inadequate
+  software testing infrastructure
+
+  - Capers Jones (1996-2012): Defect Removal Efficiency (DRE) as primary quality metric;
+  best-in-class projects combine inspections + static analysis + multi-stage testing
+  for 95%+ DRE
+
+  - DORA (2025): Shift-left testing is a statistically significant predictor of elite
+  deployment frequency
+
+  - Capgemini World Quality Report: Top-quartile shift-left maturity → 30-40% lower
+  defect escape rates
+
+
+  ## Risk Analysis
+
+
+  | Risk | Likelihood | Impact | Mitigation |
+
+  |------|-----------|--------|------------|
+
+  | Taxonomy reorder breaks existing specs that rely on alphabetical sort | Low |
+  Medium — specs reference evidence types by name, not position | The reorder changes
+  row order only. Evidence type names, Enforcement Matrix, and EVIDENCE_TYPE_MISMATCH
+  rules stay stable. Cross-references use section anchors, not positions. |
+
+  | Cost Model section makes 065 too long | Low | Low — Cost Model is ~30-40 lines
+  of new content | 065 is the correct home; adding a subsection is proportionate.
+  |
+
+  | Reference card updates point to wrong anchor | Low | Medium — broken cross-reference
+  | Each reference card change verified by reading the target anchor in 065 before
+  committing. |
+
+  | Death spiral formula numbers misinterpreted as exact | Low | Low — clearly labeled
+  as illustrative | Add "illustrative" labeling per design decisions above. |
+
+
+  ## Out of Scope
+
+
+  - Changes to yaml+symbolic rules in any guideline file
+
+  - Creation of new guideline files
+
+  - Changes to EVIDENCE_TYPE_MISMATCH enforcement logic (existing rules stay)
+
+  - Behavioral enforcement tests beyond SC-13 (implementation phase adds these)
+
+  - Changes to existing published issues — only modifies guideline files
+
+
+  ## Dependencies
+
+
+  - None — this spec formalizes existing rules; no structural dependency on open issues.
+
+
+  ## Change Control
+
+
+  | Version | Date | Author | Change |
+
+  |---------|------|--------|--------|
+
+  | 1.0 | 2026-05-26 | michael-conrad | Initial spec |'
+created_at: '2026-05-26T04:21:41Z'
+updated_at: '2026-06-12T03:45:34Z'
+remote_issue: 916
+remote_url: https://github.com/michael-conrad/.opencode/issues/916
+promoted_at: '2026-08-27T03:25:12.300627+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.300627+00:00'
+author: michael-conrad

@@ -1,0 +1,217 @@
+number: 849
+title: '[SPEC] Mandatory Co-Application Policy — All Three Reference Cards (250, 255,
+  257) Required for AI-Agent-Facing Text'
+status: open
+labels:
+- needs-approval
+- spec
+- approved-for-implementation
+body: '## [SPEC] Mandatory Co-Application Policy — All Three Reference Cards (250,
+  255, 257) Required for AI-Agent-Facing Text
+
+
+  ### Prerequisites
+
+
+  - #848 (255-distribution-shifting-reference card must exist before this policy can
+  be implemented)
+
+  - #853 (257-procedural-discipline-reference card must exist before this policy can
+  be implemented)
+
+
+  ### Problem
+
+
+  The three reference cards address three distinct layers of AI-agent-facing text:
+
+
+  | Card | Layer | Question |
+
+  |------|-------|----------|
+
+  | 250-dark-prose-reference.md | Content | What should enforcement text say? |
+
+  | 255-distribution-shifting-reference.md | Distribution | How should it be structured
+  so the model produces the expert version? |
+
+  | 257-procedural-discipline-reference.md | Execution | How should it enforce sequential,
+  dependency-ordered execution without step-skipping? |
+
+
+  Currently, dark prose application (250) is recommended but has no mandatory co-application
+  requirement. When an agent creates or modifies enforcement text, it may apply patterns
+  from one card in isolation — producing text that addresses only one layer of the
+  problem.
+
+
+  **Verified research findings requiring co-application:**
+
+
+  - **Self-correction without external signals is ineffective** (Kamoi et al., 2024,
+  TACL, https://arxiv.org/abs/2406.01297) — no prior work demonstrates successful
+  self-correction with feedback from prompted LLMs alone; reliable external feedback
+  is required. Content (what to say) + Distribution (how to structure) + Execution
+  (how to enforce) address three distinct failure layers; any one layer alone is insufficient
+  because the failures operate at different levels.
+
+  - **Context degradation requires re-priming** (Liu et al., 2024, https://arxiv.org/abs/2307.03172
+  — performance degrades for mid-context information; Chroma 2025, https://www.trychroma.com/research/context-rot
+  — all models degrade with input length). 257 provides the re-priming protocol; 255
+  provides the structural technique; 250 provides the identity-framing. All three
+  are needed because re-priming fails if the content is weak, the structure is mean-framed,
+  or the execution discipline is absent.
+
+  - **Multi-agent failure taxonomy** (Cemri et al., 2025, MAST, https://arxiv.org/abs/2503.13657)
+  identifies 14 failure modes across three categories including task verification
+  failures. Content alone ("verification IS completion") does not prevent all verification
+  failures; distribution shifting (naming the mean response) and execution discipline
+  (external-signal verification) address different categories of failure.
+
+
+  The missing policy: **All three cards must be consulted together whenever AI-agent-facing
+  text is created or modified.**
+
+
+  ### Solution
+
+
+  Add a mandatory triple co-application rule to all three reference cards and to `guidelines/080-code-standards.md`:
+
+
+  **Scope of "AI-agent-facing text" (mandatory co-application):**
+
+  - SKILL.md Persona sections and task file enforcement blocks
+
+  - Guideline enforcement blocks (Tier 1, Tier 2, Tier 3)
+
+  - System prompt (default.txt)
+
+  - AGENTS.md top-level framing
+
+  - Spec/plan body content with enforcement text
+
+  - Completion task output templates
+
+  - Correspondence templates (stakeholder-facing tier)
+
+  - Any `Triggers on:` advisory text
+
+
+  **Not in scope:**
+
+  - Comments in source code written for humans
+
+  - README content written for human developers
+
+  - Changelog/release notes written for human readers
+
+
+  ### Implementation
+
+
+  1. Add Section 9 to `250-dark-prose-reference.md` referencing both sibling cards
+  (255, 257) with mandatory triple co-application
+
+  2. Confirm Section 4 in `255-distribution-shifting-reference.md` (#848) contains
+  co-application rules for both 250 and 257
+
+  3. Confirm Section 4 in `257-procedural-discipline-reference.md` (#853) contains
+  co-application rules for both 250 and 255
+
+  4. Add INDEX.md entries for both `255-` and `257-`
+
+  5. Add co-application section to `080-code-standards.md` with triple applicability
+  table
+
+  6. Add auto-detection trigger to `080-code-standards.md` referencing all three cards
+
+  7. Add pipeline re-priming rule to `000-critical-rules.md`
+
+  8. Add procedural discipline identity anchor to AGENTS.md top-level framing
+
+  9. Add dependency-order bright-line companion row to 250 §9
+
+  10. Add dist-shift-007 bright-line companion to 250 §9 (external-signal verification,
+  Kamoi et al. 2024, https://arxiv.org/abs/2406.01297)
+
+  11. Add dist-shift-008 bright-line companion to 250 §9 (corrupt-success contrast)
+
+  12. Add p-dis-006 bright-line companion to 250 §9 (verification-signal discipline,
+  Kamoi et al. 2024)
+
+  13. Add over-enforcement bright-line companion to 250 §9 (safety tax anti-pattern,
+  Wang et al. 2025, https://arxiv.org/abs/2503.00555)
+
+
+  ### Success Criteria
+
+
+  | SC-ID | Criterion | Evidence Type | Verification Method |
+
+  |-------|-----------|--------------|---------------------|
+
+  | SC-1 | 250-dark-prose-reference.md §9 references both 255 and 257 with mandatory
+  triple co-application | structural | grep for "255" and "257" in 250 §9 |
+
+  | SC-2 | 255-distribution-shifting-reference.md §4 has co-application rules for
+  both 250 and 257 | structural | Read §4 |
+
+  | SC-3 | 257-procedural-discipline-reference.md §4 has co-application rules for
+  both 250 and 255 | structural | Read §4 |
+
+  | SC-4 | INDEX.md has entries for both 255 and 257 | structural | grep in INDEX.md
+  |
+
+  | SC-5 | 080-code-standards.md has co-application section with triple applicability
+  table | structural | grep for "Mandatory" and "257" in 080 |
+
+  | SC-6 | 080-code-standards.md auto-detection trigger references all three cards
+  | structural | grep for "257" in 080 |
+
+  | SC-7 | 000-critical-rules.md contains pipeline re-priming rule | structural |
+  grep in 000 |
+
+  | SC-8 | AGENTS.md contains procedural discipline identity anchor | structural |
+  grep for "dependency ordering" |
+
+  | SC-9 | 250 §9 has dependency-order bright-line companion row | structural | grep
+  for "p-dis-001" or "Dependency-order" in 250 §9 |
+
+  | SC-10 | 250 §9 has external-signal verification bright-line companion row | structural
+  | grep for "dist-shift-007" in 250 §9 |
+
+  | SC-11 | 250 §9 has corrupt-success contrast bright-line companion row | structural
+  | grep for "dist-shift-008" in 250 §9 |
+
+  | SC-12 | 250 §9 has verification-signal discipline bright-line companion row |
+  structural | grep for "p-dis-006" in 250 §9 |
+
+  | SC-13 | 250 §9 has over-enforcement bright-line companion row | structural | grep
+  for "over-enforcement" in 250 §9 |
+
+
+  ### Non-Goals
+
+
+  - Creating the 255 card itself (#848)
+
+  - Creating the 257 card itself (#853)
+
+  - Updating individual SKILL.md personas or guideline blocks (backfill spec)
+
+  - Behavioral enforcement tests (deferred to implementation)
+
+  - Few-shot exemplar distribution shifting (needs behavioral testing first — separate
+  research spec)
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-23T16:10:50Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 849
+remote_url: https://github.com/michael-conrad/.opencode/issues/849
+promoted_at: '2026-08-27T03:25:12.186947+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.186947+00:00'
+author: michael-conrad

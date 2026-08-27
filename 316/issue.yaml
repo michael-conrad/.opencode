@@ -1,0 +1,273 @@
+number: 316
+title: '[SPEC] Sub-Agent Role Taxonomy — Per-Role Curated Skill Visibility via Markdown
+  Agent Files'
+status: open
+labels:
+- needs-approval
+- '[SPEC]'
+- blocked-on:294
+body: '## Why
+
+
+  Every sub-agent in the dispatch chain is `task(subagent_type="general")` — an implementer,
+  a verifier, and an auditor all boot with the same 45-skill universe and 258 overlapping
+  trigger keywords. This amplifies every other architectural gap: trigger ambiguity,
+  cross-role skill conflicts, clean-room violations, and context bloat.
+
+
+  The OpenCode platform already supports per-agent `permission.skill` allowlists via
+  `.opencode/agents/<role>.md` markdown files. This lets us curate which skills each
+  sub-agent type can see, reducing deliberation space and making cross-role conflicts
+  structurally impossible.
+
+
+  ## What
+
+
+  A parent spec defining 14 sub-agent role types, each as a markdown agent file with
+  curated `permission.skill` blocks. Each role gets its own sub-spec. The dispatch
+  layer in `divide-and-conquer` is updated to dispatch named types instead of `general`.
+
+
+  ## Taxonomy
+
+
+  See [unix-philosophy-skilldeck paper](https://github.com/michael-conrad/opencode-config/blob/dev/docs/unix-philosophy-skilldeck/unix-philosophy-skilldeck.pdf)
+  §5.2 Gap 8 for the full analysis.
+
+
+  Each role has a markdown file at `.opencode/agents/<role>.md` with:
+
+  - `mode: subagent` (for roles the orchestrator dispatches to)
+
+  - `mode: primary` (for roles the user directly invokes)
+
+  - `permission.skill` allow/deny block with `"*": deny` default + explicit allowlist
+
+
+  ### Pipeline Orchestrators (primary agents — user-facing)
+
+
+  | Role | Type | Visible to |
+
+  |------|------|------------|
+
+  | `build` | primary (exists, unmodified) | User + orchestrator |
+
+  | `plan` | primary (exists, unmodified) | User + orchestrator |
+
+
+  ### Pipeline Workers (sub-agents — dispatched)
+
+
+  | Role | Mode | Skills Visible | Reduction |
+
+  |------|------|----------------|-----------|
+
+  | `spec-explorer` | subagent | `brainstorming`, `spec-creation`, `verification-enforcement`,
+  `research`, `issue-operations` | 7.4× |
+
+  | `plan-writer` | subagent | `writing-plans`, `issue-operations` | 21.5× |
+
+  | `pre-worker` | subagent | `git-workflow`, `using-git-worktrees`, `conflict-resolution`,
+  `issue-operations` | 11.7× |
+
+  | `pre-analyzer` | subagent | `pre-analysis`, `research`, `issue-operations` | 43×
+  |
+
+  | `implementer` | subagent | `test-driven-development`, `code-size-enforcement`,
+  `engineering-approach`, `programming-principles`, `mcp-tool-usage`, `notebook-operations`,
+  `issue-operations` | 4.4× |
+
+  | `verifier` | subagent | `verification-before-completion`, `verification-enforcement`,
+  `verification`, `issue-operations` | 10.7× |
+
+  | `auditor` | subagent | `spec-auditor`, `coherence-auditor`, `guideline-auditor`,
+  `concern-separation-auditor`, `plan-fidelity-auditor`, `issue-operations` | 6.1×
+  |
+
+  | `pr-creator` | subagent | `pr-creation-workflow`, `git-workflow`(pr-creation),
+  `changelog-generator`, `finishing-a-development-branch`, `issue-operations` | 10.3×
+  |
+
+  | `correspondent` | subagent | `correspondence`, `verification-enforcement`, `issue-operations`
+  | 18.4× |
+
+  | `runbooker` | subagent | `sre-runbook`, `verification-enforcement`, `research`,
+  `issue-operations` | 14.3× |
+
+  | `debugger` | subagent | `systematic-debugging`, `issue-review`, `issue-operations`
+  | 12.9× |
+
+  | `reviewer` | subagent | `requesting-code-review`, `receiving-code-review`, `issue-operations`
+  | 21.5× |
+
+  | `ui-builder` | subagent | `ui-design`, `ui-engineer`, `issue-operations` | 18.4×
+  |
+
+  | `skill-builder` | subagent | `skill-creator`, `spec-auditor`, `issue-operations`
+  | 12.9× |
+
+
+  ### Universal skills (every agent sees)
+
+
+  | Skill | Why |
+
+  |-------|-----|
+
+  | `issue-operations` | All sub-agents may need to comment on issues (e.g., reporting
+  findings) |
+
+
+  ### Orchestrator-only skills (ONLY the primary agent sees)
+
+
+  | Skill | Why |
+
+  |-------|-----|
+
+  | `approval-gate` | Scope parsing, authorization — never relevant to a worker sub-agent
+  |
+
+  | `divide-and-conquer` | Context management, work decomposition — sub-agents don''t
+  decompose their own work |
+
+  | `executing-plans` | Dispatch routing layer |
+
+
+  ## Success Criteria
+
+
+  ### SC-1: Agent files exist
+
+  For each of the 14 sub-agent role types, a `.opencode/agents/<role>.md` file exists
+  with valid YAML frontmatter containing `mode`, `description`, and `permission.skill`
+  block. The `permission.skill` block uses `"*": deny` as default with explicit `allow`
+  entries for the curated skillset.
+
+
+  ### SC-2: Skill tool not visible to inappropriate roles
+
+  The `implementer` agent cannot see or invoke `verification-before-completion` or
+  `approval-gate` skills. The `verifier` agent cannot see or invoke `divide-and-conquer`
+  or `writing-plans` skills. Verified via behavioral test dispatching each agent type
+  and checking available skill set.
+
+
+  ### SC-3: Trigger keyword overlap reduction measured
+
+  Per-agent trigger-keyword collision count is measured and verified at or below the
+  target reduction factor for each role. Baseline: 258 keywords for `general` agent.
+  Verify `pre-analyzer` ≤6 keywords, `verifier` ≤24 keywords, `implementer` ≤58 keywords.
+
+
+  ### SC-4: Dispatch layer updated
+
+  The dispatch entry points in `divide-and-conquer/tasks/dispatch.md` and `assemble-work.md`
+  reference named agent types (`implementer`, `verifier`, `pre-analyzer`, `auditor`,
+  etc.) instead of defaulting to `general`. The routing table maps pipeline stages
+  to agent types.
+
+
+  ### SC-5: Existing dispatch chain behavior preserved
+
+  All 45 skills remain invocable by the primary agent (orchestrator). No existing
+  workflow breaks. Current behavioral test suite passes with the new agent files present.
+  The changes are additive — they narrow sub-agent visibility but don''t remove any
+  orchestrator capability.
+
+
+  ### SC-6: `opencode.jsonc` agent block
+
+  An `agent` block is added to `.opencode/opencode.jsonc` defining role entries that
+  override the `general` agent''s permissions. Or: if markdown files are the preferred
+  source, document that in the spec and ensure the markdown files suffice.
+
+
+  ### SC-7: Clean-room isolation strengthened
+
+  Verification behavioral test: dispatch a `verifier`-type sub-agent and confirm it
+  cannot invoke `writing-plans` (the skill is simply not available). Implementer agent
+  dispatched and confirms it cannot invoke `verification-before-completion`. Cross-role
+  access is structurally impossible.
+
+
+  ### SC-8: Context reduction verified
+
+  Measure `<available_skills>` token count per agent type. Baseline: `general` agent
+  has ~1,350 words across 45 descriptor entries. Verify that `verifier` agent has
+  ≤210 words, `pre-analyzer` ≤90 words.
+
+
+  ### SC-9: Sub-agent dispatch audit table updated
+
+  Each affected skill''s SKILL.md dispatch audit table is updated to reflect the named
+  agent type used for its sub-agent dispatches. The `pre-analysis` skill entry in
+  divide-and-conquer mentions `subagent_type="pre-analyzer"`.
+
+
+  ### SC-10: Paper gap traceability
+
+  This spec is traceable to the Unix philosophy paper Gap 8 (identical sub-agent types),
+  Shift 6 (sub-agent role taxonomy), and remediation plan Step 8.
+
+
+  ## Plan Notes
+
+
+  Sub-issues at PHASE level under the plan. One sub-spec per role for independent
+  implementation + verification:
+
+  1. Phase 1: `build`/`plan` (existing — verify config, no changes needed)
+
+  2. Phase 2: `spec-explorer` + `plan-writer` (content generation pair)
+
+  3. Phase 3: `pre-worker` + `pre-analyzer` (pre-implementation pair)
+
+  4. Phase 4: `implementer` (code generation — largest skill set)
+
+  5. Phase 5: `verifier` (verification — most critical for clean-room)
+
+  6. Phase 6: `auditor` (quality assurance)
+
+  7. Phase 7: `pr-creator` (PR workflow)
+
+  8. Phase 8: `correspondent` + `runbooker` (communication pair)
+
+  9. Phase 9: `debugger` + `reviewer` (diagnostic pair)
+
+  10. Phase 10: `ui-builder` + `skill-builder` (specialized creation)
+
+  11. Phase 11: Dispatch layer update (all task files referencing `general` → named
+  types)
+
+  12. Phase 12: Behavioral verification (per-SC-2, SC-3, SC-7, SC-8 tests)
+
+
+  ## Labels
+
+
+  `[SPEC]`, `blocked-on:294`
+
+
+  ## Blockers
+
+
+  Issue #294 (test harness model config seeding) must be resolved before behavioral
+  verification (SC-2, SC-3, SC-7, SC-8) of any agent type can proceed. Without working
+  behavioral tests, we cannot verify that skills are correctly hidden.
+
+
+  ---
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-pro)'
+created_at: '2026-05-02T12:34:08Z'
+updated_at: '2026-06-12T03:45:49Z'
+remote_issue: 316
+remote_url: https://github.com/michael-conrad/.opencode/issues/316
+promoted_at: '2026-08-27T03:25:11.742682+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.742682+00:00'
+author: michael-conrad

@@ -1,0 +1,308 @@
+number: 929
+title: '[SPEC] Refactor Behavioral Test Scripts — Artifact-Only Generators with Clean-Room
+  AI Evaluation'
+status: open
+labels:
+- needs-approval
+- spec
+- '[SPEC]'
+- approved-for-pr
+body: "## Summary\n\nCurrent behavioral test scripts in `.opencode/tests/behaviors/`\
+  \ conflate two concerns: (1) generating model-output artifacts, and (2) evaluating\
+  \ those artifacts with inline regex/semantic assertions. This refactoring strips\
+  \ evaluation out of test scripts entirely, making them pure artifact generators.\
+  \ The scripts NEVER dispatch auditors or evaluations — they only run the model against\
+  \ a prompt, dump all collected data into `./tmp/`, write a `manifest.yaml`, and\
+  \ exit 0. The orchestrator is solely responsible for dispatching clean-room sub-agents\
+  \ to audit the generated artifacts later.\n\n`run-all.sh` is removed with no replacement.\
+  \ No backward compatibility. All references to `run-all.sh` in other files (AGENTS.md,\
+  \ README, docs, CI configs) are purged alongside it. Each script runs independently.\n\
+  \nThe test harness documentation (`tests/README.md`) is renamed to `tests/AGENTS.md`\
+  \ and rewritten to describe the artifact-only paradigm. Every test script gets a\
+  \ header comment cross-referencing the AGENTS.md. This prevents AI agents from ignoring\
+  \ documentation they can't see.\n\nThe revised AGENTS.md MUST apply the Mandatory\
+  \ Triple Co-Application (guidelines 250-dark-prose-reference, 255-distribution-shifting-reference,\
+  \ 257-procedural-discipline-reference) since it is AI-agent-facing text consumed\
+  \ by agents creating and modifying test scripts.\n\nThe existing script `issue-operations-dispatch-instead-of-inline.sh`\
+  \ serves as the reference pattern for artifact-only generators.\n\n## Problem\n\n\
+  Today's scripts mix two concerns per file:\n\n1. **Generation phase**: `behavior_run`\
+  \ — runs model against prompt, collects stdout/stderr\n2. **Evaluation phase**:\
+  \ `assert_*` calls — evaluates artifacts within the script\n\nThis means model runs\
+  \ and eval are coupled, multi-model comparison requires re-running, and the script\
+  \ should never know about evaluation — that is the orchestrator's job.\n\nAnd the\
+  \ test harness documentation (`tests/README.md`) describes the old paradigm (assertions,\
+  \ run-all.sh, behavioral TDD with inline eval). It is named `README.md` so AI agents\
+  \ ignore it (agents read `AGENTS.md`, not `README.md`). There is no cross-reference\
+  \ from test scripts to the documentation, so even if the docs were correct, agents\
+  \ creating new tests would never encounter them.\n\n## Out of Scope\n\nThe following\
+  \ are explicitly NOT addressed by this spec:\n- CI/CD pipeline configuration files\
+  \ outside `.opencode/` (e.g., GitHub Actions workflows, Jenkinsfiles) — the spec\
+  \ purges `run-all.sh` references from files within `.opencode/` only; external CI\
+  \ configs require separate updates\n- The `test-enforcement.sh` content-verification\
+  \ test runner — it is not impacted by this refactoring\n- `behavior_adversarial_eval`\
+  \ and the semantic inspector pattern — those are removed as evaluation functions;\
+  \ their functionality is replaced by orchestrator-level clean-room sub-agent dispatch\
+  \ (see Orchestrator's Role section)\n- `with-test-home` script — unchanged, still\
+  \ valid\n\n## Fix Approach\n\n### Phase 0: Pre-Implementation Verification\n\nBefore\
+  \ any changes are made, verify the current state:\n\n1. **Grep the entire `.opencode/tests/`\
+  \ directory for `assert_*` callers** — produce a list of every script that calls\
+  \ any `assert_*` function. This list defines the conversion scope beyond the 5 primary\
+  \ scripts. Scripts that call `behavior_adversarial_eval` (e.g., `phase3-auditor-infra-fix.sh`,\
+  \ `correctness-over-economy-behavioral-audit.sh`) are included in this sweep and\
+  \ become secondary conversion targets.\n2. **Grep the entire `.opencode/` for `run-all.sh`\
+  \ references** — produce a list of every file containing this string, for purge\
+  \ in Phase 2.\n3. **Verify the `helpers.sh` assert_* function count** — confirm\
+  \ the exact line range to remove in Phase 3.\n\nThese verification steps ensure\
+  \ no orphaned callers are left behind when functions are removed.\n\n**Rollback\
+  \ mechanism:** If after Phase 1 or Phase 3 unexpected `assert_*` callers are discovered\
+  \ that were missed by Phase 0 (e.g., scripts outside the sweep scope), restore the\
+  \ original `helpers.sh` from git (`git checkout -- tests/behaviors/helpers.sh`)\
+  \ and halt. Do not proceed until the missed callers are either converted or explicitly\
+  \ excluded.\n\n### Phase 1: Convert 5 Primary Scripts to Artifact-Only Generators\n\
+  \nEach script calls `behavior_run` only, contains ZERO assertions or evaluation\
+  \ logic, and exits 0. The `OVERALL_RESULT` variable, `OVERALL_RESULT=0`, and `exit\
+  \ $OVERALL_RESULT` patterns must also be removed — only `exit 0` remains.\n\nEach\
+  \ script header includes a comment block cross-referencing the harness documentation:\n\
+  \n```bash\n#!/bin/bash\n# Behavioral test: <scenario-name>\n# See .opencode/tests/AGENTS.md\
+  \ for the test harness specification and paradigm.\n# This script is an artifact-only\
+  \ generator — it does NOT evaluate model output.\n#\n# Generated artifacts go to:\n\
+  # ./tmp/behavioral-evidence-<scenario>-<BEHAVIOR_PHASE>-<model-slug>/\n```\n\n|\
+  \ Script | SCENARIO_NAME |\n|--------|---------------|\n| `orchestrator-context-size.sh`\
+  \ | orchestrator-context-size |\n| `pre-analysis-orchestrator-context-index-only.sh`\
+  \ | pre-analysis-orchestrator-context-index-only |\n| `orchestrator-no-preload.sh`\
+  \ | orchestrator-no-preload |\n| `no-inline-work.sh` | no-inline-work |\n| `cost-blind-verification.sh`\
+  \ | cost-blind-verification |\n\n### Phase 2: Remove run-all.sh and All References\n\
+  \nDelete `.opencode/tests/behaviors/run-all.sh`. Also purge every reference to `run-all.sh`\
+  \ in the codebase including but not limited to:\n- `.opencode/AGENTS.md` — remove\
+  \ the command line\n- `.opencode/tests/` — any stray references\n- `.opencode/tests/behaviors/helpers.sh`\
+  \ — if it references run-all\n- All files identified in Phase 0 pre-implementation\
+  \ verification\n\nNo replacement. No backward compatibility.\n\n### Phase 3: Remove\
+  \ assert_* Functions from helpers.sh\n\nRemove ALL `assert_*` functions and `behavior_adversarial_eval`.\
+  \ Also remove `__semantic_inspector_prompt`. Use the Phase 0 caller list to confirm\
+  \ no orphaned dependencies. Remove even if no callers remain — evaluation is the\
+  \ orchestrator's job.\n\nKept:\n- `behavior_run` (with artifact-preservation logic\
+  \ added in Phase 4)\n- `behavior_run_pool`\n- Helper variables (BEHAVIOR_TIMEOUT,\
+  \ BEHAVIOR_MODEL, etc.)\n- Model pool setup\n\nThe `OVERALL_RESULT` pattern and\
+  \ `exit $OVERALL_RESULT` logic at the end of kept functions is also removed — all\
+  \ remaining functions exit 0 unconditionally.\n\n### Phase 4: Add Artifact-Preservation\
+  \ Logic to behavior_run\n\nAfter the model run completes, `behavior_run` automatically:\n\
+  \n1. Copies stdout and stderr to the artifact directory\n2. Writes `exit_code` and\
+  \ `manifest.yaml`\n3. Exports the test-home SQLite database to YAML\n4. Collects\
+  \ stdout.raw, stderr.raw, timing.log when available\n\n**SQLite DB discovery algorithm:**\n\
+  ```\n1. Check XDG_DATA_HOME/opencode/opencode.sqlite3\n2. Check XDG_STATE_HOME/opencode/opencode.sqlite3\n\
+  3. Check ~/.local/share/opencode/opencode.sqlite3\n4. Check ~/.config/opencode/opencode.sqlite3\n\
+  5. If none exist: write session.yaml with source_db: null\n6. If found: use `PRAGMA\
+  \ table_info(<table>)` per table to discover columns — do not hardcode schema.\n\
+  \   Export discovered columns to YAML. Refer to existing ./tmp/* artifacts from\
+  \ prior runs for\n   the expected shape if cross-version compatibility is needed.\n\
+  ```\n\nThe implementer does NOT need to document the full SQLite schema in this\
+  \ spec. The export function discovers columns at runtime via `PRAGMA table_info`.\
+  \ An example reference artifact is expected at `./tmp/behavioral-evidence-*-*/session.yaml`\
+  \ after the first successful run for debugging and cross-version comparison.\n\n\
+  **`harness_version` field:** Every `manifest.yaml` includes `harness_version: 1`.\
+  \ If the SQLite export table names or column structure change across opencode versions,\
+  \ incrementing this version field signals format evolution. Future readers compare\
+  \ `harness_version` against expected format.\n\n**Backward-compatibility test:**\
+  \ After Phase 4 implementation, run the artifact-generation pipeline once with the\
+  \ current opencode version. Verify that `session.yaml` is parseable YAML and contains\
+  \ at minimum `source_db` and `messages` or `source_db: null`. This test ensures\
+  \ the export function works against the real opencode SQLite schema before any scripts\
+  \ are converted.\n\n**Dry-run:** Before proceeding to Phase 5 (template.sh), run\
+  \ the converted `orchestrator-context-size.sh` against any available model. Verify\
+  \ that `./tmp/behavioral-evidence-orchestrator-context-size-*-*/manifest.yaml` and\
+  \ `session.yaml` are well-formed. Fix any YAML formatting or column-mapping issues\
+  \ found. Only after the dry-run passes may Phase 5 begin.\n\n**Model-slug collision\
+  \ guard:** Before creating the artifact directory, check if the directory already\
+  \ exists. If so, append a numeric suffix (`-1`, `-2`, etc.) to prevent overwriting\
+  \ artifacts from a previous run.\n\n**Graceful degradation:** `behavior_run` NEVER\
+  \ fails if SQLite DB absent. Artifact directory always produced. `session.yaml`\
+  \ always exists — either with full data or a marker indicating the DB wasn't found.\n\
+  \n**Artifact directory:**\n```\n./tmp/behavioral-evidence-<scenario>-<phase>-<model-slug>/\n\
+  ├── manifest.yaml              # generation metadata (MANDATORY)\n├── stdout.log\
+  \                 # agent prose response (MANDATORY)\n├── stderr.log           \
+  \      # tool dispatch trace (MANDATORY)\n├── exit_code                  # numeric\
+  \ exit code (MANDATORY)\n├── session.yaml               # SQLite DB → YAML export\
+  \ (MANDATORY)\n├── stdout.raw                 # raw model output (when available)\n\
+  ├── stderr.raw                 # raw stderr (when available)\n├── session-context.yaml\
+  \       # captured context (when available)\n└── timing.log                 # wall-clock\
+  \ timing (when available)\n```\n\n**Naming:** `<phase>` = RED/GREEN (from `BEHAVIOR_PHASE`),\
+  \ `<model-slug>` = model with `/` `:` `@` → `-`.\n\n### Phase 5: Update template.sh\n\
+  \nReplace with minimal artifact-generator template. Must include the cross-reference\
+  \ header comment and only `exit 0` (no OVERALL_RESULT):\n\n```bash\n#!/bin/bash\n\
+  # Behavioral test: <scenario-name>\n# See .opencode/tests/AGENTS.md for the test\
+  \ harness specification and paradigm.\n# This script is an artifact-only generator\
+  \ — it does NOT evaluate model output.\n\nset -euo pipefail\nSCRIPT_DIR=\"$(cd \"\
+  $(dirname \"${BASH_SOURCE[0]}\")\" && pwd)\"\nsource \"$SCRIPT_DIR/helpers.sh\"\n\
+  \nSCENARIO_NAME=\"<scenario-name>\"\nSCENARIO_PROMPT=\"<prompt>\"\n\nbehavior_run\
+  \ \"$SCENARIO_NAME\" \"$SCENARIO_PROMPT\"\nexit 0\n```\n\n### Phase 6: Rename and\
+  \ Rewrite Test Harness Documentation\n\nRename `.opencode/tests/README.md` → `.opencode/tests/AGENTS.md`.\
+  \ Rewrite the content to describe the artifact-only paradigm (no assertions, no\
+  \ run-all, orchestrator handles evaluation via clean-room sub-agents).\n\n**Mandatory\
+  \ Triple Co-Application:** The rewritten AGENTS.md is AI-agent-facing text consumed\
+  \ by agents creating and modifying test scripts. The agent writing it MUST consult\
+  \ all three reference cards before producing output:\n\n| Card | Layer | Applies\
+  \ To |\n|------|-------|------------|\n| `250-dark-prose-reference.md` | Identity\
+  \ — dark prose patterns, authority frame, agency-respecting prose | The rules, prohibitions,\
+  \ and required behaviors section |\n| `255-distribution-shifting-reference.md` |\
+  \ Signal — distribution shifting, contrastive decoding, external-signal verification\
+  \ | Preventing agents from treating the docs as suggestions; framing must resist\
+  \ mean-response drift |\n| `257-procedural-discipline-reference.md` | Structure\
+  \ — dependency order, controlled vocabulary, verification signal, positional enforcement\
+  \ | The artifact naming, phase ordering, required-vs-optional fields |\n\n### Phase\
+  \ 7: Add Cross-Reference Header to All Test Scripts\n\nEvery `.sh` file in `.opencode/tests/behaviors/`\
+  \ that calls `behavior_run` gets a header comment block:\n\n```bash\n# See .opencode/tests/AGENTS.md\
+  \ for the test harness specification and paradigm.\n# This script is an artifact-only\
+  \ generator — it does NOT evaluate model output.\n```\n\nThe list of affected scripts\
+  \ is **discovered dynamically in Phase 0** — no hard count is specified here. The\
+  \ Phase 0 grep for `behavior_run` callers defines the scope.\n\nThis applies to:\n\
+  - The 5 primary scripts being converted (Phase 1 does this already)\n- All other\
+  \ scripts discovered by Phase 0 grep\n- template.sh (Phase 5 does this already)\n\
+  \n## Orchestrator's Role\n\nThe orchestrator handles all evaluation using the artifact\
+  \ directories:\n\n1. Locate `./tmp/behavioral-evidence-<scenario>-<phase>-<model-slug>/`\n\
+  2. Dispatch clean-room sub-agents with artifact path + SC list from the spec\n3.\
+  \ Sub-agents read `session.yaml` (full tool trace), `stdout.log` (prose), `stderr.log`\
+  \ (raw dispatch), and `manifest.yaml` (metadata)\n4. Sub-agents return per-SC verdict\
+  \ JSON with evidence citations from the session transcript\n5. Orchestrator aggregates\
+  \ verdicts across models/phases\n\n**End-to-end verification:** After generating\
+  \ artifact directories from the 5 primary scripts, the orchestrator copies the relevant\
+  \ `./tmp/behavioral-evidence-*` directories to `./tmp/behavioral-test-outputs/`\
+  \ and dispatches a clean-room sub-agent with the artifact path and SC list. The\
+  \ sub-agent returns structured verdict JSON. This validates that the artifact directories\
+  \ are consumable by the evaluation pipeline — the gap between \"scripts have no\
+  \ assertions\" (SC-1) and \"evaluation works end-to-end\" is closed.\n\n**Dispatch\
+  \ context:**\n```\ndispatch_context:\n  must_receive:\n    - artifact_directory\
+  \ path\n    - SC list with evidence type declarations\n    - evaluation criteria\
+  \ per SC\n  must_not_receive:\n    - any prior model's verdict\n    - orchestrator's\
+  \ own analysis\n    - expected outcomes\n    - cached results from other phases\n\
+  \  task:\n    description: \"Evaluate scenario <X> against its SCs by reading artifact\
+  \ directory <path>\"\n    audit_phase: behavioral_testing\n```\n\n## Triple Co-Application\
+  \ Requirement for AGENTS.md\n\nPer `080-code-standards.md` §Mandatory Triple Co-Application,\
+  \ the rewritten AGENTS.md is AI-agent-facing text — its primary consumer will be\
+  \ AI agents creating and modifying test scripts. The agent producing AGENTS.md MUST\
+  \ consult all three reference cards before writing:\n\n| Card | What It Governs\
+  \ in AGENTS.md |\n|------|------------------------------|\n| `250-dark-prose-reference.md`\
+  \ | Identity — rules must use authority frame, not confirmshaming. Forbidden patterns\
+  \ (e.g. \"agents who skip this produce broken tests\") must be replaced with direct\
+  \ mandates (\"MANDATORY: every script must include a cross-reference header\").\
+  \ The document speaks as the project's test specification, not as a nagging peer.\
+  \ |\n| `255-distribution-shifting-reference.md` | Signal — the document must resist\
+  \ mean-response drift. Agents should not be able to read it and conclude \"this\
+  \ is optional, I can skip it\". Required vs optional fields must be explicitly marked.\
+  \ The artifact directory structure must use MANDATORY/when available distinction\
+  \ that an agent cannot rationalize away. |\n| `257-procedural-discipline-reference.md`\
+  \ | Structure — procedural gates that agents must follow. Artifact naming conventions,\
+  \ required fields in manifest.yaml, and the protocol for what constitutes a valid\
+  \ test submission must be specified with controlled vocabulary and positional enforcement\
+  \ (required items at top, optional below). |\n\n## Risks and Mitigations\n\n| Risk\
+  \ | Severity | Mitigation |\n|------|----------|------------|\n| Other scripts beyond\
+  \ the 5 primary ones call `assert_*` functions — removing them in Phase 3 breaks\
+  \ those scripts | High | Phase 0 pre-implementation verification greps entire codebase\
+  \ for `assert_*` callers. Rollback mechanism: if missed callers discovered post-refactoring,\
+  \ restore helpers.sh from git and halt. |\n| `run-all.sh` is referenced in CI configs\
+  \ or pipeline definitions outside `.opencode/` | Medium | Spec documents this as\
+  \ explicit Out of Scope. The implementer is responsible for flagging remaining references\
+  \ in external CI configs after Phase 0 sweep. |\n| SQLite database schema changes\
+  \ across opencode versions — `session.yaml` export reads specific tables that may\
+  \ not exist | Medium | PRAGMA-based column discovery at runtime (no hardcoded schema).\
+  \ `harness_version` in manifest.yaml for format evolution. Backward-compatibility\
+  \ test verifies export works against current DB before full conversion. Fallback\
+  \ paths for DB location. |\n| Artifact directory naming collision — two models produce\
+  \ the same slug | Low | Collision guard: if artifact directory already exists, append\
+  \ numeric suffix (`-1`, `-2`). Prevents silent overwrite. |\n| Triple Co-Application\
+  \ for AGENTS.md is complex — the agent writing it may miss a reference card | Low\
+  \ | SC-7 verifies all three card references are present via grep. The Triple Co-Application\
+  \ section explicitly lists all three cards with per-card mappings. |\n| `with-test-home`\
+  \ behavior changes may break existing usage | Low | `with-test-home` is explicitly\
+  \ unchanged by this spec (listed in Out of Scope). Only helpers.sh, behavior_run,\
+  \ and test scripts are modified. |\n| `phase3-auditor-infra-fix.sh` and `correctness-over-economy-behavioral-audit.sh`\
+  \ call `behavior_adversarial_eval` — removing it in Phase 3 breaks these scripts\
+  \ | Medium | Phase 0 sweep discovers these as secondary conversion targets. The\
+  \ `behavior_adversarial_eval` function is removed regardless; these scripts become\
+  \ artifact-only generators in the secondary conversion pass. |\n\n## Affected Files\n\
+  \n- `.opencode/tests/behaviors/orchestrator-context-size.sh` — Strip assertions\
+  \ and OVERALL_RESULT, add AGENTS.md cross-ref header\n- `.opencode/tests/behaviors/pre-analysis-orchestrator-context-index-only.sh`\
+  \ — Strip assertions and OVERALL_RESULT, add cross-ref header\n- `.opencode/tests/behaviors/orchestrator-no-preload.sh`\
+  \ — Strip assertions and OVERALL_RESULT, add cross-ref header\n- `.opencode/tests/behaviors/no-inline-work.sh`\
+  \ — Strip assertions and OVERALL_RESULT, add cross-ref header\n- `.opencode/tests/behaviors/cost-blind-verification.sh`\
+  \ — Strip assertions and OVERALL_RESULT, add cross-ref header\n- `.opencode/tests/behaviors/helpers.sh`\
+  \ — Add artifact-copying + PRAGMA-based SQLite-to-YAML export to behavior_run; remove\
+  \ assert_* functions and OVERALL_RESULT pattern\n- `.opencode/tests/behaviors/run-all.sh`\
+  \ — DELETE (no replacement)\n- `.opencode/tests/behaviors/template.sh` — Update\
+  \ to minimal template with cross-ref header, exit 0 only\n- `.opencode/tests/README.md`\
+  \ — RENAME to AGENTS.md, rewrite for artifact-only paradigm (Triple Co-Application)\n\
+  - `.opencode/tests/AGENTS.md` — NEW (renamed from README.md, rewritten with Triple\
+  \ Co-Application)\n- `.opencode/AGENTS.md` — Purge `run-all.sh` reference\n- All\
+  \ other `.opencode/tests/behaviors/*.sh` that call behavior_run — Add cross-ref\
+  \ header comment (scope discovered dynamically in Phase 0)\n- `.opencode/tests/behaviors/phase3-auditor-infra-fix.sh`\
+  \ — Secondary conversion target (discovered in Phase 0)\n- `.opencode/tests/behaviors/correctness-over-economy-behavioral-audit.sh`\
+  \ — Secondary conversion target (discovered in Phase 0)\n\n## Single Concern\n\n\
+  Artifact generation is the script's only job. Evaluation is the orchestrator's job.\
+  \ The model-run harness, fixture setup, retry logic, and timeout handling are preserved\
+  \ unchanged.\n\nDocumentation is renamed from README to AGENTS so AI agents find\
+  \ it, rewritten to describe the new paradigm with Triple Co-Application (dark prose,\
+  \ distribution shifting, procedural discipline), and cross-referenced from every\
+  \ test script's header. This prevents drift between documentation and practice.\n\
+  \n## Success Criteria\n\n| SC# | Criterion | Evidence Type | Verification Method\
+  \ |\n|-----|-----------|---------------|---------------------|\n| SC-1 | 5 primary\
+  \ scripts contain no `assert_*` or `behavior_adversarial_eval`, no `OVERALL_RESULT`\
+  \ variable, no `exit $OVERALL_RESULT` | `string` | `grep -c \"assert_\\|behavior_adversarial_eval\\\
+  |OVERALL_RESULT\" <script>.sh` returns 0 for each primary script; `grep \"exit [^0]\"\
+  \ <script>.sh` returns 0 |\n| SC-2 | Each primary script header contains cross-reference\
+  \ to `tests/AGENTS.md` | `string` | `grep \"AGENTS.md\" <script>.sh` returns non-zero\
+  \ for each primary script |\n| SC-3 | `run-all.sh` is deleted | `structural` | `git\
+  \ ls-files .opencode/tests/behaviors/run-all.sh` empty |\n| SC-4 | No remaining\
+  \ references to `run-all.sh` in `.opencode/AGENTS.md` or `.opencode/tests/` | `string`\
+  \ | `grep -r \"run-all\" .opencode/AGENTS.md .opencode/tests/` returns 0 |\n| SC-5\
+  \ | `tests/README.md` is renamed to `tests/AGENTS.md` | `structural` | `ls .opencode/tests/README.md`\
+  \ returns error; `ls .opencode/tests/AGENTS.md` succeeds |\n| SC-6 | `tests/AGENTS.md`\
+  \ describes artifact-only paradigm (no assertions, no run-all, orchestrator evaluates)\
+  \ | `string` | grep confirms AGENTS.md references artifact-only generators and does\
+  \ NOT reference assert_* or run-all |\n| SC-7 | `tests/AGENTS.md` references all\
+  \ three Triple Co-Application cards AND applies their patterns correctly (authority\
+  \ frame for rules, MANDATORY/when available distinction for fields, controlled vocabulary\
+  \ for naming) | `string + behavioral` | `grep` for each card reference returns non-zero.\
+  \ AI inspector reads AGENTS.md and verifies: (a) rules use authority frame not confirmshaming,\
+  \ (b) artifact fields use MANDATORY/when available labels, (c) naming conventions\
+  \ use controlled vocabulary |\n| SC-8 | template.sh contains behavior_run + exit\
+  \ 0 + cross-ref header — no assertions, no OVERALL_RESULT | `string` | `grep -c\
+  \ \"assert_\\|OVERALL_RESULT\\|exit [^0]\" template.sh` returns 0; `grep \"AGENTS.md\"\
+  \ template.sh` non-zero |\n| SC-9 | assert_* functions and behavior_adversarial_eval\
+  \ removed from helpers.sh | `string` | `grep -c \"assert_\\|behavior_adversarial\"\
+  \ .opencode/tests/behaviors/helpers.sh` returns 0 |\n| SC-10 | stdout.log, stderr.log,\
+  \ exit_code, session.yaml present in artifact directory after run | `structural`\
+  \ | Run each primary script; `ls` confirms all four files exist |\n| SC-11 | session.yaml\
+  \ contains usable data or `source_db: null` marker (graceful degradation) | `behavioral`\
+  \ | Run with and without SQLite DB; both cases produce valid session.yaml, both\
+  \ exit 0 |\n| SC-12 | Dry-run: first converted script produces well-formed manifest.yaml\
+  \ and session.yaml before Phase 5 begins | `behavioral` | Run the first converted\
+  \ script; verify manifest.yaml is parseable YAML with all required fields; session.yaml\
+  \ is parseable YAML with source_db present or null |\n| SC-13 | Orchestrator can\
+  \ dispatch clean-room sub-agent with artifact directory path, sub-agent returns\
+  \ valid verdict JSON | `behavioral` | Copy artifact directory to `./tmp/behavioral-test-outputs/`;\
+  \ dispatch clean-room sub-agent with path + SC list; sub-agent returns structured\
+  \ JSON with per-SC PASS/FAIL |\n\n## PR Merge Boundaries\n\nNone. Standalone.\n\n\
+  ## Revision Notes\n\n- **v1.0** — Initial creation\n- **v2.0** — Removed evaluate-only,\
+  \ eval scripts dir. run-all.sh generate-only.\n- **v3.0** — Scripts never dispatch\
+  \ auditors. Added Orchestrator's Role section.\n- **v4.0** — run-all.sh deleted,\
+  \ not modified. Added run-all.sh deletion phase, template update.\n- **v5.0** —\
+  \ run-all.sh removal promoted to Phase 2 required deliverable.\n- **v6.0** — Added\
+  \ session.yaml (SQLite DB → YAML export) as mandatory artifact.\n- **v7.0** — Revised\
+  \ per first adversarial audit. Added SQLite DB discovery algorithm, graceful degradation.\
+  \ Purged run-all.sh references codebase-wide.\n- **v8.0** — Added Phase 6: Rename\
+  \ tests/README.md → tests/AGENTS.md. Added Phase 7: Cross-ref headers.\n- **v9.0**\
+  \ — Added Triple Co-Application requirement for AGENTS.md.\n- **v10.0** — Added\
+  \ Phase 0, Out of Scope, Risks and Mitigations table.\n- **v11.0** — Revised per\
+  \ third adversarial audit. Phase 4 SQLite uses PRAGMA-based column discovery (no\
+  \ hardcoded schema). Phase 7 scope is \"discovered dynamically\" (no count). SC-11\
+  \ reclassified to `behavioral`. SC-12 added for end-to-end orchestrator evaluation.\
+  \ Added explicit OVERALL_RESULT removal to all conversion instructions. Added two\
+  \ meta-test scripts to Affected Files and Risks table.\n\nCo-authored with AI: OpenCode\
+  \ (deepseek-v4-flash)"
+created_at: '2026-05-27T02:38:11Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 929
+remote_url: https://github.com/michael-conrad/.opencode/issues/929
+promoted_at: '2026-08-27T03:25:12.352753+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.352753+00:00'
+author: michael-conrad

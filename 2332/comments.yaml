@@ -1,0 +1,33 @@
+comments:
+- body: 'Session evidence (spec audit xBaseJ#60, 2026-08-26): live reproduction of
+    this defect.
+
+
+    During spec-audit of Patents repo submodule xBaseJ#60, the DiMo chain ran validator
+    → evaluator → arbiter. The validator task applied the `spec-passed-review` label
+    (Step 0.1 in spec-audit-validator.md) and reported final labels `needs-approval,
+    spec-passed-review`. The evaluator then produced a **FAIL** verdict on the Provenance
+    (dimension 7) holistic gate, and the arbiter returned `final_judgment: DRAFT`,
+    `next_step: remediate_holistic`. The `spec-passed-review` marker was therefore
+    present on an issue whose audit verdict was DRAFT/FAIL — the review-passed marker
+    was not removed or held back.
+
+
+    Repro sequence:
+
+    1. validator: label applied (unconditional, Step 0.1)
+
+    2. evaluator: holistic FAIL (Provenance), verdict DRAFT
+
+    3. arbiter: DRAFT, remediation_required: true
+
+    4. Issue carries `spec-passed-review` despite FAIL
+
+
+    Root cause matches the issue premise: label ownership is assigned to the validator
+    (pre-judgment) rather than gated on the final overall_verdict==PASS in the arbiter.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-08-26T14:20:36Z'
+  user: michael-newsrx

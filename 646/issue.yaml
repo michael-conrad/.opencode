@@ -1,0 +1,195 @@
+number: 646
+title: '[SPEC] Cross-Repo Dark Prose Sync — propagation strategy for consumer repositories'
+status: open
+labels:
+- needs-approval
+- spec
+body: '# [SPEC] Cross-Repo Dark Prose Sync — propagation strategy for consumer repositories
+
+
+  ## Prerequisites
+
+
+  - **#627** — Dark Prose Reference Card
+
+  - **#645** — Human-vs-Agent Output Boundary (defines which content gets the weave)
+
+
+  ## Problem
+
+
+  `.opencode/` is a git submodule shared across multiple repositories. The `sync-guidelines`
+  skill pushes guideline changes from source repo (michael-conrad/.opencode) to consumer
+  repos (michael-conrad/opencode-config, etc.).
+
+
+  Currently, dark prose is deployed in:
+
+  - **Source repo (.opencode):** routing, skill bodies, guidelines, spec/plan templates,
+  dispatch prompts — full weave
+
+  - **Consumer repo (opencode-config):** receives guidelines via sync, but its own
+  files (routing layer in the consumer repo''s own default.txt, AGENTS.md, SKILL.md
+  files) do NOT carry the weave
+
+
+  This creates an inconsistency: an agent in opencode-config loads identity-framed
+  guidelines from the synced .opencode submodule, then reads the consumer repo''s
+  own AGENTS.md which has neutral procedural prose. The frame collapses at the consumer''s
+  own routing boundary.
+
+
+  Additionally, when sync-guidelines pushes a guideline that was rewritten with authority-frame
+  prose (#640), the consumer repo receives the rewritten guideline but its AGENTS.md
+  Guidelines Structure table may not have the matching 250-259 Reference row.
+
+
+  ## Solution
+
+
+  Define a sync strategy that handles three layers of dark prose propagation:
+
+
+  ### Layer 1: Guideline Content (always syncs)
+
+
+  Guideline files (.opencode/guidelines/*.md) are synced verbatim. When #640 rewrites
+  000-critical-rules.md with authority-frame prose, the rewrite is received by all
+  consumer repos on the next sync. No action needed — the guideline content carries
+  the weave.
+
+
+  ### Layer 2: Reference Material (syncs with verification)
+
+
+  INDEX.md, AGENTS.md Guidelines Structure table, and SKILL.md description fields
+  are synced when they reference dark prose infrastructure. When #627 adds the 250-259
+  Reference row to AGENTS.md, the sync must verify:
+
+  - The 250-dark-prose-reference.md file actually exists in the submodule before adding
+  the row
+
+  - The INDEX.md entry has matching trigger keywords
+
+
+  This is handled by an additional validation step in sync-guidelines: after syncing
+  reference material, verify that all referenced files exist and the registry entries
+  are consistent.
+
+
+  ### Layer 3: Consumer-Specific Routing (NOT synced)
+
+
+  Each consumer repo has its own `default.txt`, `AGENTS.md` routing layer, and potentially
+  its own skills. These carry the weave only if the consumer repo independently implements
+  the dark prose specs. The sync does NOT push routing-layer dark prose to consumers
+  because:
+
+  - Consumer repos may have different agent configurations
+
+  - The routing layer is repo-specific (github.owner, github.repo, etc.)
+
+  - Pushing routing changes would overwrite consumer-specific configurations
+
+
+  **Current state:** No consumer repo has implemented any dark prose spec. The weave
+  exists only in the submodule source.
+
+
+  ### Action Items
+
+
+  1. **sync-guidelines skill** — Add a validation step after sync that verifies AGENTS.md
+  Guidelines Structure table references exist as actual files and INDEX.md entries
+  have matching files
+
+  2. **Consumer repo documentation** — Document which specs a consumer repo should
+  implement to get the full weave. Consumer repos that want the routing layer weave
+  must implement #622 independently.
+
+  3. **Drift detection** — Add a check that compares the submodule''s AGENTS.md Guidelines
+  Structure table against the consumer repo''s AGENTS.md and flags discrepancies
+
+
+  ## Files Changed
+
+
+  - `.opencode/skills/sync-guidelines/SKILL.md` — Add verification step reference
+
+  - `.opencode/skills/sync-guidelines/tasks/sync.md` — Add post-sync validation for
+  AGENTS.md and INDEX.md references
+
+
+  ## Success Criteria
+
+
+  | SC-ID | Criterion | Verification |
+
+  |-------|-----------|-------------|
+
+  | SC-1 | sync-guidelines tasks/sync.md includes post-sync validation that verifies
+  AGENTS.md Guidelines Structure table rows reference existing files in the submodule
+  | Read sync.md -- contains validation step |
+
+  | SC-2 | Post-sync validation checks INDEX.md entries reference existing files |
+  Read validation step -- checks INDEX.md |
+
+  | SC-3 | If validation fails, sync reports which references are broken and halts
+  -- does not proceed with broken registry | Read error handling in validation step
+  |
+
+  | SC-4 | Consumer documentation notes that #622 (routing layer weave) must be implemented
+  independently per consumer repo | Read Prerequisites or Notes section of #622 --
+  or verify it''s documented in .opencode/AGENTS.md boundaries section |
+
+  | SC-5 | Drift detection: sync-guidelines has a --check-drift flag that compares
+  submodule AGENTS.md Guidelines table against consumer AGENTS.md without modifying
+  either | Run `sync-guidelines --check-drift` → produces diff, no file modifications
+  |
+
+  | SC-6 | No blame-adjacent patterns in any sync-guidelines task file | grep returns
+  0 |
+
+
+  ## Risk Analysis
+
+
+  | Risk | Likelihood | Impact | Mitigation |
+
+  |------|-----------|--------|------------|
+
+  | Consumer repo has custom AGENTS.md entries that conflict with synced dark prose
+  rows | Medium | Medium | Post-sync validation checks for conflicts and reports them.
+  The sync does not auto-resolve conflicts -- it reports and halts. |
+
+  | Consumer repo does not implement #622 -> routing layer lacks weave but submodule
+  guidelines have it -- inconsistent frame | High | Low | This is by design. Consumer
+  repos opt into routing-layer weave independently. The inconsistency is cosmetic,
+  not functional. |
+
+  | sync-guidelines validation blocks legitimate syncs due to false positive | Low
+  | Medium | Validation checks exact file existence, not prose content. False positive
+  rate should be near zero. |
+
+
+  ## Out of Scope
+
+
+  - Implementing #622 in consumer repos -- each repo independently decides
+
+  - Backfilling consumer-specific files -- consumer repos handle their own routing
+  layer
+
+  - Automatic conflict resolution -- validation reports conflicts and halts; human
+  resolves
+
+
+  Co-authored with AI: OpenCode (deepseek-v4-flash)'
+created_at: '2026-05-17T01:21:26Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 646
+remote_url: https://github.com/michael-conrad/.opencode/issues/646
+promoted_at: '2026-08-27T03:25:11.894633+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.894633+00:00'
+author: michael-conrad

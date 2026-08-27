@@ -1,0 +1,92 @@
+number: 802
+title: '[SPEC-FIX] #794 SC-1/SC-11 verification commands produce false positives on
+  English word substrings'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  The verification commands for SC-1 and SC-11 in spec #794 use grep patterns that
+  match English word substrings rather than task file references:
+
+
+  - **SC-1**: `grep -cE "orchestrate|dispatch|merge|completion|assess|decompose|implementer-prompt|spec-reviewer-prompt|code-quality-reviewer-prompt|purification"`
+  matches "orchestration", "orchestrator", and "PR merge boundary" which are NOT references
+  to deleted task files
+
+  - **SC-11**: `grep -E "assess|decompose|dispatch|merge|completion|orchestrate"`
+  matches `is_orchestrator` (a symbolic rule schema field) and `required_pr_not_merged`
+  (a condition), which are NOT references to the deleted tasks `orchestrate.md` or
+  `merge.md`
+
+
+  This caused auditor-kimi-k2 (using the spec''s verification commands literally)
+  to report FAIL, while auditor-mistral-large (using refined patterns) reported PASS
+  — creating a DISAGREE that the cross-validate sub-agent incorrectly resolved as
+  PASS.
+
+
+  ## Root Cause
+
+
+  The SC verification commands use bare substring matching (`grep -E "merge"`) instead
+  of context-aware patterns that distinguish task file references from English words.
+
+
+  ## Corrected Patterns
+
+
+  | SC | Spec Pattern (over-broad) | Corrected Pattern |
+
+  |----|---------------------------|-------------------|
+
+  | SC-1 | `grep -cE "orchestrate\|dispatch\|merge\|..."` | `grep -cE "\-\-task orchestrate\|\-task
+  dispatch\|tasks/merge\|tasks/completion\|tasks/assess\|tasks/decompose\|tasks/implementer-prompt\|tasks/spec-reviewer-prompt\|tasks/code-quality-reviewer-prompt\|tasks/purification"`
+  |
+
+  | SC-11 | `grep -E "assess\|decompose\|dispatch\|merge\|completion\|orchestrate"`
+  (in symbolic rules) | `grep -E "\-\-task assess\|\-\-task decompose\|\-\-task dispatch\|\-\-task
+  merge\|\-\-task completion\|\-\-task orchestrate\|tasks/orchestrate\|tasks/dispatch\|tasks/merge\|tasks/completion\|tasks/assess\|tasks/decompose"`
+  |
+
+
+  The existing content-verification test (`794-dc-redesign-content.sh`) already uses
+  the corrected patterns for SC-1 and SC-11 and passes correctly. The spec''s verification
+  commands need to match.
+
+
+  ## Fix
+
+
+  Update spec #794''s SC-1 and SC-11 Verification Method columns to use context-aware
+  patterns that match task file references specifically (with `--task` prefix or `tasks/`
+  path prefix) rather than bare English word substrings.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Verification Method |
+
+  |----|-----------|---------------------|
+
+  | SC-1-fix | Spec #794 SC-1 verification command uses `--task` prefix or `tasks/`
+  path prefix patterns instead of bare English word substrings | Read spec #794 body,
+  verify SC-1 Verification Method column contains `--task` or `tasks/` prefixes |
+
+  | SC-11-fix | Spec #794 SC-11 verification command uses `--task` prefix or `tasks/`
+  path prefix patterns instead of bare English word substrings | Read spec #794 body,
+  verify SC-11 Verification Method column contains `--task` or `tasks/` prefixes |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-21T20:18:38Z'
+updated_at: '2026-06-12T03:45:39Z'
+remote_issue: 802
+remote_url: https://github.com/michael-conrad/.opencode/issues/802
+promoted_at: '2026-08-27T03:25:12.097539+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.097539+00:00'
+author: michael-conrad

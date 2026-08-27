@@ -1,0 +1,17 @@
+comments:
+- body: '**Interdependency notice from #587 (Skill Deck CONDITIONAL-VAGUE remediation)**
+
+
+    #587''s Operating Protocol changes modify multiple SKILL.md files that #958''s
+    workflow checklist audit also targets. Both add/modify Operating Protocol sections
+    in the same files.
+
+
+    **Sequencing guidance:** Apply #587''s CONDITIONAL-VAGUE remediation FIRST, then
+    #958''s checklist additions. This ensures the Operating Protocol content is correct
+    before checklist items are added.
+
+
+    🤖 OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-07-11T14:38:58Z'
+  user: michael-conrad

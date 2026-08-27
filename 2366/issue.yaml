@@ -1,0 +1,39 @@
+number: 2366
+title: '[SPEC] Update approval-gate skill — anchor scope model, add Read-links'
+status: open
+labels: []
+body: '## Problem
+
+  The authorization scope model + verb-prefix parsing table live in the preloaded
+  010-approval-gate.md and 020-go-prohibitions.md, and will be removed from preload.
+  The approval-gate skill card must become the authoritative home and Read-link the
+  shared context-discipline/discussion references.
+
+
+  ## Scope
+
+  - **In:** Make approval-gate skill the single source of truth for the scope model
+  + verb-prefix table; add mandatory Read [Text](path) links to orchestrator-context-discipline.md
+  and discussion-mode-mandates.md.
+
+  - **Out:** Losing the scope-parsing table.
+
+
+  ## Approach
+
+  Consolidate the scope model + verb-prefix table into the approval-gate skill card;
+  Read-link shared references.
+
+
+  ## Impact
+
+  Enables 010 + 020 condensation. Risk: scope-parsing regression. Mitigation: approval-gate
+  is authoritative. Depends on 010/020 condensation. Action: approve.'
+created_at: '2026-08-27T03:14:49Z'
+updated_at: '2026-08-27T03:14:49Z'
+remote_issue: 2366
+remote_url: https://github.com/michael-conrad/.opencode/issues/2366
+promoted_at: '2026-08-27T03:25:12.688452+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.688452+00:00'
+author: michael-conrad

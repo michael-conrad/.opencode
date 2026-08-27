@@ -1,0 +1,35 @@
+number: 2372
+title: '[SPEC] Update verification skill — anchor verification-honesty & docs-verification'
+status: open
+labels: []
+body: '## Problem
+
+  Verification-honesty evidence examples (065) and docs-verification detail (075)
+  move out of preload; the verification skill is the canonical home.
+
+
+  ## Scope
+
+  - **In:** Make verification skill the authoritative source for evidence-requirement
+  examples + session-scoped verification detail; add mandatory Read [Text](path) link
+  to the authority-source shared content.
+
+  - **Out:** Losing the verification-honesty core.
+
+
+  ## Approach
+
+  Consolidate the evidence/detail content into the verification skill card.
+
+
+  ## Impact
+
+  Enables 065 + 075 condensation. Risk: low. Depends on 065/075. Action: approve.'
+created_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-27T03:14:57Z'
+remote_issue: 2372
+remote_url: https://github.com/michael-conrad/.opencode/issues/2372
+promoted_at: '2026-08-27T03:25:12.698965+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.698965+00:00'
+author: michael-conrad

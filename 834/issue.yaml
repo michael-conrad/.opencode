@@ -1,0 +1,116 @@
+number: 834
+title: '[SPEC-FIX] Auditor cross-validation must validate evidence type labels — not
+  just verdict agreement'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  The adversarial-audit cross-validation step confirms that auditor verdicts agree
+  (PASS/PASS or FAIL/FAIL consensus), but does **not** validate that the evidence
+  type label on a success criterion matches the verification method actually used.
+
+
+  ## Dependency Chain
+
+
+  ```
+
+  prev: #836 — shares cross-validate.md, same implementation pass required
+
+  next: (none — folded into #836''s pass)
+
+  ```
+
+
+  **Depends on:**
+
+  - #836: Runtime-Behavioral Evidence Classification Gate — pre-inspection classification
+  gate must exist in cross-validate.md before Step 3 evidence type validation can
+  be added
+
+
+  **Applied in:** Same implementation pass as #836. See #836''s Implementation Dependencies
+  for the combined cross-validate.md change specification.
+
+
+  ## Root Cause
+
+
+  The `cross-validate.md` task evaluates verdict agreement and remediation recommendation,
+  but does not evaluate evidence type label correctness. When an auditor verifies
+  "file exists" and marks it as `behavioral` because the SC says `behavioral`, cross-validation
+  confirms PASS/PASS consensus — but the classification was EVIDENCE_TYPE_MISMATCH
+  from the start.
+
+
+  ## Changes
+
+
+  ### 1. Evidence type validation table in cross-validate.md
+
+
+  Add Step 3 to `cross-validate.md` validating declared evidence type against verification
+  method.
+
+
+  | Declared Evidence Type | Valid Verification Methods | EVIDENCE_TYPE_MISMATCH If
+  Verified By |
+
+  |---|---|---|
+
+  | `behavioral` | `opencode-cli run`, `pytest`, test execution | `ls`, `wc`, `grep`,
+  `file exists`, metadata checks |
+
+  | `semantic` | Sub-agent read + analytical judgment | `ls`, `grep` pattern matching,
+  metadata |
+
+  | `string` | `grep`, pattern matching | `ls`, `wc` (file size only) |
+
+  | `structural` | `ls`, `wc`, file existence | (all methods valid for structural)
+  |
+
+
+  ### 2. Cross-validate FAIL produces pipeline artifact + researcher remediation
+
+
+  FAIL writes `./tmp/artifacts/pipeline-*-cross-validate-FAIL-*.yaml` and routes through
+  researcher remediation (not halt).
+
+
+  ## Success Criteria
+
+
+  | SC | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | cross-validate.md contains Step 3 evidence type validation | string |
+
+  | SC-2 | adversarial-audit-025 symbolic rule in SKILL.md | string |
+
+  | SC-3 | critical-rules-062 symbolic rule in 000-critical-rules.md | string |
+
+  | SC-4 | 080-code-standards.md cross-reference | string |
+
+  | SC-5 | Cross-validate FAIL produces pipeline artifact | behavioral |
+
+  | SC-6 | Cross-validate FAIL routes to researcher remediation | behavioral |
+
+  | SC-7 | Clean evidence types produce PASS with no researcher dispatch | behavioral
+  |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-23T02:19:13Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 834
+remote_url: https://github.com/michael-conrad/.opencode/issues/834
+promoted_at: '2026-08-27T03:25:12.154794+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.154794+00:00'
+author: michael-conrad

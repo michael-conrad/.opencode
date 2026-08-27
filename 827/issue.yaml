@@ -1,0 +1,73 @@
+number: 827
+title: '[PLAN] Remove useless pre-commit Gate 2 (work state file dispatch evidence
+  check)'
+status: open
+labels:
+- needs-approval
+- '[PLAN]'
+body: 'STATUS: 1.0
+
+  PARENT: #810
+
+
+  ## Implementation Items
+
+
+  ### Item 1: Remove Gate 2 from pre-commit hook
+
+  - File: `.opencode/hooks/pre-commit`
+
+  - Action: Remove lines 78-204 (Gate 2)
+
+
+  ### Item 2: Update gate output summary
+
+  - File: `.opencode/hooks/pre-commit`
+
+  - Action: Update per-gate status reporting to only list Gates 1 and 3
+
+
+  ### Item 3: Verify Gates 1 and 3 still function
+
+  - Verification: Test Gate 1 (branch protection) and Gate 3 (submodule bump) still
+  fire independently
+
+
+  ### Item 4: Verify work state file references remain in skill tasks
+
+  - Verification: grep for work state file references in skill task files — confirm
+  they still exist
+
+
+  ## TDD Order
+
+
+  1. Remove Gate 2 — Item 1
+
+  2. Update output summary — Item 2
+
+  3. Verify remaining gates — Item 3
+
+  4. Verify task file references — Item 4
+
+  5. COMMIT
+
+
+  ## Dependencies
+
+  - Items 1, 2: Sequential (update summary after removal)
+
+  - Items 3, 4: Verification only (can be parallel)
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-22T21:06:04Z'
+updated_at: '2026-06-12T03:45:39Z'
+remote_issue: 827
+remote_url: https://github.com/michael-conrad/.opencode/issues/827
+promoted_at: '2026-08-27T03:25:12.135787+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.135787+00:00'
+author: michael-conrad

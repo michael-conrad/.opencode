@@ -1,0 +1,122 @@
+number: 1041
+title: '[BUG] local-issues WORKTREE_BRANCH "issues" mismatches actual orphan branch
+  "issues-data"'
+status: open
+labels:
+- bug
+- needs-approval
+- spec-fix
+body: '## Summary
+
+
+  The `local-issues` tool at `tools/local-issues:41` hardcodes `WORKTREE_BRANCH =
+  "issues"`, but the orphan branch created and pushed to `.opencode/` remote is named
+  `issues-data`. The tool will never find the existing orphan branch via `_ensure_worktree()`
+  and will silently create a new redundant `issues` branch if invoked.
+
+
+  ## Root Cause
+
+
+  Line 41 of `tools/local-issues`:
+
+  ```python
+
+  WORKTREE_BRANCH = "issues"
+
+  ```
+
+
+  The actual orphan branch on the remote (and locally):
+
+  ```
+
+  remotes/origin/issues-data
+
+  ```
+
+
+  The `_ensure_worktree()` function at line 183 scans `git worktree list` for a branch
+  named `[issues]`. Since the branch is `issues-data`, it never matches, and the tool
+  either creates a new orphan `issues` branch or falls back to plain-file mode — defeating
+  the worktree isolation purpose.
+
+
+  ## Impact
+
+
+  - Any `local-issues` mutation (create, update, close) operating in the `.opencode/`
+  submodule will write to the `.issues/` directory tracked in `dev` rather than on
+  the orphan branch
+
+  - File tracking in `dev` was fixed by adding `/.issues/` to `.gitignore` (commit
+  `37dbbeb`), but already-tracked files remain in the git index — the gitignore only
+  prevents NEW files from being tracked (see #794/#801/#804)
+
+
+  ## Remediation Required
+
+
+  Two-part fix in `.opencode/`:
+
+
+  ### Part A — Bug Fix: Align WORKTREE_BRANCH
+
+
+  Change `tools/local-issues:41`:
+
+  ```python
+
+  WORKTREE_BRANCH = "issues-data"
+
+  ```
+
+
+  This makes `_ensure_worktree()` detect the existing orphan branch and create a worktree
+  from it at `.issues/`.
+
+
+  ### Part B — Remediation: Stop Tracking .issues/ in dev
+
+
+  ```bash
+
+  git rm --cached -r .issues/
+
+  git commit -m "fix: stop tracking .issues/ in dev — managed via issues-data orphan
+  worktree"
+
+  ```
+
+
+  This removes the 26 already-tracked files from the git index while preserving them
+  on disk. The `.gitignore` entry (`/.issues/`) prevents re-addition. Subsequent `local-issues`
+  tool invocations will then correctly route through the worktree to the `issues-data`
+  branch.
+
+
+  ## Verification
+
+
+  After Part A + B:
+
+  1. `git -C .opencode ls-files .issues/` → empty (no files tracked in dev)
+
+  2. `git -C .opencode worktree list` → shows `.issues/` as linked to `[issues-data]`
+
+  3. `.opencode/tools/local-issues create --title "test"` → writes to worktree, commit
+  on `issues-data` branch
+
+
+  ## Labels
+
+
+  `BUG`, `SPEC-FIX`'
+created_at: '2026-06-06T04:38:32Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1041
+remote_url: https://github.com/michael-conrad/.opencode/issues/1041
+promoted_at: '2026-08-27T03:25:12.559144+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.559144+00:00'
+author: michael-conrad

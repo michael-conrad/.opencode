@@ -1,0 +1,84 @@
+comments:
+- body: 'Hi — this issue seems to name the key boundary clearly: “task completed”
+    and “worth posting as an external issue comment” are separate decisions.
+
+
+    One small guard that might make the gate harder for a sub-agent to skip is a tiny
+    pre-post card:
+
+
+    ```text
+
+    External comment gate:
+
+    - New stakeholder-meaningful information:
+
+    - Already visible in chat? yes / no
+
+    - Best placement: chat / issue comment / local handoff / no post
+
+    - Decision: POST / HOLD / SKIP
+
+    ```
+
+
+    Then make `POST` valid only when the first line is concrete and “already visible
+    in chat” is `no`.
+
+
+    I use a similar pattern in LoopKit for separating completion from next/external
+    action:
+
+    https://github.com/shin4141/decision-os-v13-loopkit/blob/main/copy-paste/next-action-confidence-check.md
+
+
+    No need to import the whole pattern — the useful bit here may just be making “completion
+    happened” separate from “external comment is justified.”
+
+    '
+  created_at: '2026-06-25T23:57:02Z'
+  user: shin4141
+- body: '@shin4141 — the structured pre-post card is a concrete improvement over the
+    current prose-only gate. Forcing the sub-agent to enumerate its reasoning field-by-field
+    before posting is harder to skip than "ONLY post if substantive."
+
+
+    I initially considered routing the substantiveness check as a separate sub-agent
+    dispatch. That doesn''t work: a clean-room sub-agent has no access to chat history,
+    so it can''t evaluate "already visible in chat" without the orchestrator leaking
+    context — violating context lean (critical-rules-063). The card approach avoids
+    this because the same sub-agent that produced the output also has the task context
+    to evaluate it.
+
+
+    The card also needs to be embedded in the skill and task files themselves — not
+    just the issue spec — so it fires on every dispatch regardless of whether the
+    sub-agent reads the issue.
+
+
+    🤖 on behalf of: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-06-26T02:36:56Z'
+  user: michael-conrad
+- body: 'Thanks — that distinction makes sense.
+
+
+    I agree that putting the card only in the issue spec would be too weak. If the
+    dispatch path can skip or fail to read the issue, the gate needs to live closer
+    to the skill/task files where the sub-agent is actually invoked.
+
+
+    The clean-room point is useful too: a separate reviewer sub-agent would not know
+    whether something is already visible in chat without extra context leakage. Having
+    the same sub-agent fill the pre-post card keeps the decision local to the task
+    context.
+
+
+    The main boundary I was trying to capture is exactly this:
+
+
+    `task completed` does not automatically mean `external comment is justified`.
+
+
+    Glad the small card framing was useful.'
+  created_at: '2026-06-26T03:21:58Z'
+  user: shin4141

@@ -1,0 +1,9 @@
+comments:
+- body: 'Superseded by #762 — Hard Failure Discipline. The INCONCLUSIVE removal (SPC-9)
+    is absorbed into SC-3 (binary-only across all auditor tasks). The test dimension
+    coverage criteria (SPC-1 through SPC-11) are a separate concern retained in this
+    issue for future consideration. Marking as superseded for the verdict-format portion;
+    the dimension-coverage portion is out of scope for #762 and remains open for separate
+    implementation.'
+  created_at: '2026-05-20T18:30:19Z'
+  user: michael-conrad

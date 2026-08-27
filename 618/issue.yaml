@@ -1,0 +1,128 @@
+number: 618
+title: '[SPEC] P4: Add re-loss prevention — content-verification snapshot + FAIL gate
+  behavioral test'
+status: open
+labels:
+- needs-approval
+- spec
+body: '> **SCOPE NARROWED by [#762](https://github.com/michael-conrad/.opencode/issues/762)**
+  — Hard Failure Discipline. Change 2 (FAIL Gate Behavioral Test) is absorbed into
+  #762 SC-8. #615 is closed as superseded — update dependency chain. Change 3 (Commit
+  Message Convention) retains standalone validity. **Do NOT implement Change 2 — belongs
+  to #762 SC-8 now.**
+
+
+  ## Problem
+
+
+  PR #484 destroyed 18 of 18 approved content items from PR #372 with zero detection.
+  PR #485 restored the wrong set. The root cause is structural: there was no mechanism
+  to detect that substantive content disappeared.
+
+
+  ## Fix Approach
+
+
+  Two independent mechanisms:
+
+
+  ### Change 1: Content-Verification Snapshot Test
+
+
+  Add a content-verification test to `tests/test-enforcement.sh` that checks for the
+  presence of key marker phrases from the restored content. This prevents another
+  compression PR from silently dropping critical sections.
+
+
+  Test scenarios:
+
+
+  | Scenario | File | Marker Phrase |
+
+  |----------|------|--------------|
+
+  | `guideline-archive` | `065-verification-honesty.md` | "Hard Failure Discipline
+  — Universal Invariant" |
+
+  | `guideline-archive` | `000-critical-rules.md` | "critical-rules-hard-fail" (Tier
+  2 section) |
+
+  | `guideline-archive` | `020-go-prohibitions.md` | "Cost is measured in defect-discovery-latency"
+  |
+
+  | `guideline-archive` | `010-approval-gate.md` | "verification_complete" (replaces
+  implementation_complete) |
+
+  | `enforcement-fail-gate` | `skills/divide-and-conquer/tasks/dispatch.md` | "Verify-Before-Acceptance
+  Protocol" |
+
+  | `enforcement-fail-gate` | `skills/divide-and-conquer/enforcement/completion-checkpoint.md`
+  | "verify-before-acceptance protocol" |
+
+  | `enforcement-fail-gate` | `skills/divide-and-conquer/enforcement/result-validation.md`
+  | "FAIL Result Validation Protocol" |
+
+
+  ### Change 3: Commit Message Convention
+
+
+  For this PR and any future restoration-related work, require:
+
+  - `RESTORE:` prefix in commit title for any restoration of previously-shipped content
+
+  - A summary line showing the content being restored
+
+
+  This makes restoration visible in the git log and easier to audit.
+
+
+  ## Success Criteria
+
+
+  1. Content-verification test catches absence of any restored marker phrase — fails
+  if content is dropped
+
+  2. Commit message convention documented in AGENTS.md or equivalent
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `tests/test-enforcement.sh` | NEW content-verification scenarios (or add tag)
+  |
+
+
+  ## Out of Scope
+
+
+  - FAIL Gate Behavioral Test (absorbed into #762 SC-8)
+
+  - Behavioral tests for dual-auditor or Unix philosophy
+
+
+  ## Related Issues
+
+
+  | Issue | Relationship |
+
+  |-------|-------------|
+
+  | #614 | Parent recovery spec |
+
+  | #762 | Absorbed the FAIL gate behavioral test; content-verification snapshot retained
+  here |
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)'
+created_at: '2026-05-16T03:27:13Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 618
+remote_url: https://github.com/michael-conrad/.opencode/issues/618
+promoted_at: '2026-08-27T03:25:11.865328+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.865328+00:00'
+author: michael-conrad

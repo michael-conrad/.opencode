@@ -1,0 +1,67 @@
+number: 616
+title: '[SPEC] P1: Restore dual-auditor invariant to 065-verification-honesty.md +
+  Unix philosophy to 000-critical-rules.md and 091-incremental-build.md'
+status: open
+labels:
+- needs-approval
+- spec
+body: "## Problem\n\nPR #372 shipped three guideline items that were destroyed by\
+  \ PR #484 (#242 compression) and never restored by PR #485:\n1. Dual-auditor architectural\
+  \ invariant (`verification-honesty-008` in `065-verification-honesty.md`)\n2. Unix\
+  \ philosophy \"Do One Thing Well\" Tier 1 mandate (`000-critical-rules.md` Tier\
+  \ 1 table)\n3. Unix philosophy extension for scripts/functions/harnesses (`091-incremental-build.md`)\n\
+  \nNone were restored by #485 and none exist in current HEAD.\n\n## Fix Approach\n\
+  \nRe-add the approved content from commit `50cfa081`, adapted to current deck state:\n\
+  - Terminology from #526/#581 (call/dispatch instead of invoke/load)\n- Current skill\
+  \ names after consolidations\n- Formatting consistent with restored #242 guidelines\n\
+  \n### Change 1: `guidelines/000-critical-rules.md` — Tier 1 Mandate Entry\n\nAdd\
+  \ to Tier 1 table after the existing \"Correctness over economy\" row:\n\n```\n\
+  | Unix philosophy \"Do One Thing Well\" — every artifact (script/executable, function,\
+  \ test harness, sub-agent task, document section, implementation step) must address\
+  \ exactly one concern: (1) scripts perform exactly one operation — iterate externally\
+  \ never internally, hard cap ≤150 lines; (2) functions have exactly one purpose\
+  \ with ≤3 discrete operations — no multi-phase orchestration in a single function;\
+  \ (3) test harnesses test exactly one scenario — per-model per-probe, not batch\
+  \ iteration; (4) no uber-scripts, no uber-functions, no uber-sub-agent-tasks — decomposition\
+  \ is mandatory at all artifact levels, not just code commits | Uber-artifacts combine\
+  \ multiple concerns into single units creating hidden coupling points where one\
+  \ concern's failure blocks all others. The Unix philosophy applies universally to\
+  \ scripts, functions, tests, tooling, and prose — not just code commits. |\n```\n\
+  \n### Change 2: `guidelines/065-verification-honesty.md` — Dual-Auditor Invariant\n\
+  \nAdd yaml+symbolic rule block (adapted to current naming):\n\n```yaml\n  - id:\
+  \ verification-honesty-008\n    title: \"Dual-auditor evaluation required — no grep-only\
+  \ behavioral assessment\"\n    conditions:\n      any:\n        - \"behavioral_evaluation_performed_via_grep\
+  \ == true\"\n        - \"same_model_used_for_production_and_evaluation == true\"\
+  \n        - \"content_verification_reported_as_behavioral == true\"\n    actions:\n\
+  \      - HALT\n      - DISPATCH(second AI model in clean-room isolation)\n    conflicts_with:\
+  \ []\n    requires: []\n    triggers: [verification-before-completion, spec-auditor,\
+  \ behavioral-testing]\n    source: \"065-verification-honesty.md §Architectural\
+  \ Invariant: Dual-Auditor Evaluation\"\n```\n\nAlso add prose section \"Architectural\
+  \ Invariant: Dual-Auditor Evaluation for Model Output\" in the Verification Comparison\
+  \ Semantics area.\n\n### Change 3: `guidelines/091-incremental-build.md` — Unix\
+  \ Philosophy Extension\n\nRestore the \"Unix Philosophy Extension — Scripts, Functions,\
+  \ and Tooling\" section with:\n- Script Decomposition rules table (≤150 lines, one\
+  \ operation per script)\n- Function Decomposition rules table (≤3 discrete operations)\
+  \ \n- Test Harness Decomposition rules table (one scenario per file)\n- Reference\
+  \ to the Tier 1 mandate in 000\n\n## Success Criteria\n\n1. `000-critical-rules.md`\
+  \ Tier 1 table has 10 entries including Unix philosophy row with all four directives\n\
+  2. `065-verification-honesty.md` contains \"Architectural Invariant\" prose section\
+  \ + `verification-honesty-008` symbolic rule\n3. `091-incremental-build.md` contains\
+  \ \"Unix Philosophy Extension\" section with three rule tables\n4. All restored\
+  \ content uses current terminology (call/dispatch, current skill names)\n\n## Files\
+  \ Affected\n\n- `guidelines/000-critical-rules.md` — +1 Tier 1 table row\n- `guidelines/065-verification-honesty.md`\
+  \ — +~30 lines (prose section + symbolic rule)\n- `guidelines/091-incremental-build.md`\
+  \ — +~45 lines (Unix Philosophy Extension section)\n\n## Out of Scope\n\n- Changes\
+  \ to enforcement files (sub-issue P2)\n- Changes to SKILL.md correctness lines (sub-issue\
+  \ P3)\n- Prevention tests (sub-issue P4)\n\n## Related Issues\n\n| Issue | Relationship\
+  \ |\n|-------|-------------|\n| #614 | Parent recovery spec |\n| #365 | Original\
+  \ spec (dual-auditor invariant) |\n| #366 | Original spec (Unix philosophy mandate)\
+  \ |\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-05-16T03:26:29Z'
+updated_at: '2026-06-12T03:45:43Z'
+remote_issue: 616
+remote_url: https://github.com/michael-conrad/.opencode/issues/616
+promoted_at: '2026-08-27T03:25:11.859594+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.859594+00:00'
+author: michael-conrad

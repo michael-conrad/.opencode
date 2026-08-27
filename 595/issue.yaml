@@ -1,0 +1,19 @@
+number: 595
+title: 'ai agent bypass opportunity: manual completion is a narrow exception (see
+  SKILL.md Recovery Mode for conditions'
+status: open
+labels:
+- needs-approval
+body: 'ai agent bypass opportunity: manual completion is a narrow exception (see SKILL.md
+  Recovery Mode for conditions
+
+
+  remove this loophole'
+created_at: '2026-05-15T06:38:52Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 595
+remote_url: https://github.com/michael-conrad/.opencode/issues/595
+promoted_at: '2026-08-27T03:25:11.784676+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.784676+00:00'
+author: michael-conrad

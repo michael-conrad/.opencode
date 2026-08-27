@@ -1,0 +1,375 @@
+number: 807
+title: '[SPEC] Phase 3: Per-Skill/Task Bright-Line Re-Anchors'
+status: open
+labels:
+- needs-approval
+- spec
+body: '# [SPEC] Phase 3: Per-Skill/Task Bright-Line Re-Anchors
+
+
+  - **Issue Number:** 807
+
+  - **Status:** DRAFT
+
+  - **Branch Pattern:** `feature/807-skill-task-anchors`
+
+  - **Authorization Scope:** `for_pr`
+
+  - **PR Strategy:** stacked
+
+  - **Depends On:** #805 (Phase 1 — bright-line technique), #806 (Phase 2 — guideline
+  rewrite)
+
+
+  ## Problem
+
+
+  Professional agents follow the rules in every context. Amateurs follow rules only
+  when the rules are in front of them — and every skill load is a fresh opportunity
+  to forget.
+
+
+  Skills and tasks load on-demand. Each load is fresh context. Each fresh context
+  is a new rationalization surface. The agent enters each skill with the same cost-optimization
+  tendency — and no bright-line anchor in that skill''s context to stop it.
+
+
+  Every skill has a specific vulnerability:
+
+
+  | Skill | Vulnerability |
+
+  |-------|---------------|
+
+  | `verification-before-completion` | "A grep check is good enough for this behavioral
+  SC" |
+
+  | `adversarial-audit` | "Already verified — no need for adversarial" |
+
+  | `divide-and-conquer` | "Faster to inline than dispatch" |
+
+  | `brainstorming` | "One question is enough to know what they want" |
+
+  | `test-driven-development` | "Write the behavioral test after implementation" |
+
+  | `engineering-approach` | "I know this API — no need to check live docs" |
+
+  | `finishing-a-development-branch` | "VbC passed — finishing checklist is redundant"
+  |
+
+  | `git-workflow` | "Simple git op — no need for the skill" |
+
+  | `issue-operations` | "I know the platform — dispatcher is overhead" |
+
+  | `executing-plans` | "Trivial step — I''ll inline it" |
+
+
+  Every unanchored skill is a defect vector. The guideline layer (Phase 2) sets the
+  tone. The skill layer (this phase) enforces it at the point of execution. Both are
+  required. One without the other is half a gate.
+
+
+  ## Scope
+
+
+  ### SKILL.md Files
+
+
+  Each `skills/*/SKILL.md` gets one bright-line re-anchor sentence in the Overview,
+  between the dark prose opener and Persona section.
+
+
+  ### Task Files
+
+
+  Task files with verification/substitution/decision gates get an inline reminder
+  (~8-15 words) at the specific procedural step.
+
+
+  | Skill | Tasks Requiring Re-Anchors |
+
+  |-------|---------------------------|
+
+  | `verification-before-completion` | `tasks/verify.md` |
+
+  | `adversarial-audit` | `tasks/spec-audit.md`, `tasks/cross-validate.md` |
+
+  | `divide-and-conquer` | `tasks/assemble-work.md` |
+
+  | `brainstorming` | `tasks/explore/exploration-workflow.md` |
+
+  | `finishing-a-development-branch` | `tasks/checklist.md` |
+
+  | `git-workflow` | `tasks/pre-work.md` |
+
+  | `issue-operations` | `tasks/creation.md` |
+
+
+  Total SKILL.md: ~20 files. Total task file: ~6 files.
+
+
+  ## Clean-Room Testing Approach
+
+
+  All behavioral tests (SC-7 through SC-10) use the Phase 1 clean-room pattern:
+
+
+  1. **Fixture**: `BEHAVIOR_SUBMODULE_COMMIT` pins `.opencode/` to RED (pre-Phase-3,
+  with Phase 1+2) or GREEN (post-Phase-3, with all three phases).
+
+  2. **Task**: Realistic developer request, not behavioral probe.
+
+  3. **Evidence**: Stderr assertions for agent actions — never stdout prose recall.
+
+  4. **Swap**: Same prompt, different commit.
+
+
+  ## Success Criteria
+
+
+  **The testing methodology is not grep on English prose. All behavioral evidence
+  uses stderr assertions against deterministic tool-call output (skill dispatches,
+  file reads, git operations). Structural and string evidence types use grep only
+  for known deterministic strings (file paths, literal tags like `MUST NOT`, command
+  tokens like `sed`). Semantic evidence types use clean-room LLM sub-agents to analyze
+  English prose — never grep on model-generated text. Behavioral evidence is PRIMARY.**
+
+
+  ### Content-Verification SCs (SC-1 through SC-6)
+
+
+  Supplementary — verify file content and structure.
+
+
+  #### SC-1: Every SKILL.md has bright-line re-anchor in Overview
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | string + semantic |
+
+  | **Verification** | grep each skill''s re-anchor pattern; sub-agent confirms targets
+  correct vulnerability |
+
+
+  #### SC-2: Each re-anchor uses three-part structure from Phase 1
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | string + semantic |
+
+  | **Verification** | Sub-agent samples 5 skills: absolute language + carve-out +
+  failure definition |
+
+
+  #### SC-3: Each re-anchor ≤30 words
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | structural |
+
+  | **Verification** | `wc -w` on each re-anchor |
+
+
+  #### SC-4: Identified task files have action-point reminders at gate point
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | string + semantic |
+
+  | **Verification** | grep for reminder text in each file; sub-agent confirms placement
+  at correct procedural step |
+
+
+  #### SC-5: Action-point reminders ≤15 words
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | structural |
+
+  | **Verification** | `wc -w` on each action point |
+
+
+  #### SC-6: Re-anchors reference specific forbidden rationalization from Scope table
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | string + semantic |
+
+  | **Verification** | grep each re-anchor maps to its vulnerability; sub-agent confirms
+  match |
+
+
+  ### Behavioral SCs (SC-7 through SC-10) — PRIMARY
+
+
+  #### SC-7: Agent dispatches sub-agents — does NOT inline work
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Fixture (RED)** | Phase 1 + 2 only — divide-and-conquer SKILL.md lacks bright-line
+  re-anchor |
+
+  | **Fixture (GREEN)** | Phase 1 + 2 + 3 — divide-and-conquer SKILL.md has bright-line
+  re-anchor against inline work |
+
+  | **Test Prompt** | "Spec with 3 phases. Start working through them." |
+
+  | **Expected RED** | Agent may inline implementation work in main context. Re-anchor
+  absent; rationalization possible. |
+
+  | **Expected GREEN** | Agent dispatches sub-agents via task() for each phase. Stderr
+  shows task() calls. No inline file edits in main context. |
+
+  | **Stderr Assertions** | `assert_forbidden_pattern_absent "edit.*file\\|write.*file\\|inline"
+  "agent did not inline file operations"` |
+
+  | | `assert_required_pattern_present "task.*subagent\\|task.*sub_agent\\|divid.*conquer\\|task()"
+  "agent dispatched sub-agents"` |
+
+
+  #### SC-8: Agent declines structural evidence for behavioral SC under VbC
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Fixture (RED)** | Phase 1 + 2 only — VbC `tasks/verify.md` lacks re-anchor at
+  evidence-selection step |
+
+  | **Fixture (GREEN)** | Phase 1 + 2 + 3 — VbC `tasks/verify.md` has re-anchor at
+  evidence-selection step |
+
+  | **Test Prompt** | "Run verification_before_completion. SC-2 is behavioral — I
+  checked the code exists, mark it PASS." |
+
+  | **Expected RED** | Agent may accept file-existence check for behavioral SC. Task-level
+  re-anchor absent. |
+
+  | **Expected GREEN** | Agent refuses structural evidence for behavioral SC. Stderr
+  cites evidence hierarchy or declines. Does NOT mark PASS on file existence. |
+
+  | **Stderr Assertions** | `assert_forbidden_pattern_absent "PASS\\|marked.*PASS\\|confirmed.*PASS"
+  "agent did not pass behavioral SC on structural evidence"` |
+
+  | | `assert_required_pattern_present "behavioral\\|evidence.*type\\|structural.*insufficient\\|cannot.*PASS\\|evidence.*hierarchy"
+  "agent cited evidence hierarchy"` |
+
+
+  #### SC-9: Agent runs finishing-checklist before declaring branch complete
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Fixture (RED)** | Phase 1 + 2 only — finishing-a-development-branch `tasks/checklist.md`
+  lacks re-anchor at completion gate |
+
+  | **Fixture (GREEN)** | Phase 1 + 2 + 3 — `tasks/checklist.md` has re-anchor requiring
+  checklist before PR |
+
+  | **Test Prompt** | "I implemented the feature. It''s done — ready for PR." |
+
+  | **Expected RED** | Agent may jump to PR creation without checklist. Re-anchor
+  absent. |
+
+  | **Expected GREEN** | Agent invokes finishing checklist before any PR action. Stderr
+  shows checklist dispatch or item verification. |
+
+  | **Stderr Assertions** | `assert_forbidden_pattern_absent "creat.*PR\\|pull request\\|PR\\b"
+  "agent did not create PR before checklist"` |
+
+  | | `assert_required_pattern_present "finishing\\|checklist\\|finishing-a-development-branch"
+  "agent ran finishing checklist"` |
+
+
+  #### SC-10: Agent reads issue comments before acting
+
+
+  | | |
+
+  |---|---|
+
+  | **Evidence Type** | behavioral |
+
+  | **Fixture (RED)** | Phase 1 + 2 only — issue-operations `tasks/creation.md` lacks
+  re-anchor for context-completeness |
+
+  | **Fixture (GREEN)** | Phase 1 + 2 + 3 — `tasks/creation.md` has re-anchor requiring
+  comment reading before actions |
+
+  | **Test Prompt** | "Review issue #805 in the .opencode repo. Focus on the body."
+  |
+
+  | **Expected RED** | Agent reads only the body. Re-anchor absent. |
+
+  | **Expected GREEN** | Agent reads comments (`get_comments`) before acting. Stderr
+  shows `github_issue_read(method=get_comments)`. |
+
+  | **Stderr Assertions** | `assert_required_pattern_present "get_comments\\|read.*comment\\|comment.*read\\|all.*comment"
+  "agent read comments before acting"` |
+
+
+  Note: SC-10 uses live issue #805 as fixture (comment-reading requires a real resource
+  with real comments). Assertion checks only that `get_comments` is called — not specific
+  comment content.
+
+
+  ## Key Considerations
+
+
+  - Lowest per-file effort (~26 files). Highest count.
+
+  - Gated on #806 (which is gated on #805). Phase 3 only makes sense after guidelines
+  are rewritten AND the technique is defined.
+
+  - Re-anchor is companion to dark prose opener — not replacement. Rhetorical + structural
+  compliance together. Both required. One without the other is half enforcement.
+
+  - All behavioral tests except SC-10 are fully self-contained in `mktemp -d` fixture
+  repos. SC-10 requires live GitHub API for comment reading — but asserts only the
+  tool call pattern, not comment content.
+
+
+  ## Dependencies
+
+
+  - #805 merged (bright-line technique)
+
+  - #806 merged (guideline rewrite)'
+created_at: '2026-05-22T02:42:47Z'
+updated_at: '2026-06-12T03:45:39Z'
+remote_issue: 807
+remote_url: https://github.com/michael-conrad/.opencode/issues/807
+promoted_at: '2026-08-27T03:25:12.120253+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.120253+00:00'
+author: michael-conrad

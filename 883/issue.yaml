@@ -1,0 +1,213 @@
+number: 883
+title: '[PLAN] #862: Adversarial Auditor Dispatch — Reference-Based Context, SC Conflict
+  Detection'
+status: open
+labels:
+- needs-approval
+- plan
+body: "## Plan: Adversarial Auditor Dispatch — Reference-Based Context, SC Conflict\
+  \ Detection\n\n**Spec:** [#862](https://github.com/michael-conrad/.opencode/issues/862)\
+  \ — `[SPEC-FIX] Minimal Adversarial Auditor Dispatch — Reference-Based Context,\
+  \ SC Conflict Detection`\n**Authorization:** Approved for plan on 2026-05-24 by\
+  \ michael-conrad (scope: `for_plan`)\n**Status:** Auto-approved via pipeline scope\
+  \ (`for_plan`)\n\n### Goal\n\nReplace inline data-passing (`spec_body`, `evaluation_criteria`,\
+  \ plan text) in adversarial auditor dispatch with reference-based dispatch (issue\
+  \ numbers + \"go fetch independently\"). Add SC_CONFLICT detection: when a caller\
+  \ provides SCs that contradict the spec, the auditor returns BLOCKED.\n\n### Architecture\n\
+  \n1. **SKILL.md dispatch contract** — `must_receive`/`must_not_receive` updated:\
+  \ remove `spec_body`, `evaluation_criteria`, add `spec_issue_number`\n2. **Cross-validate\
+  \ entry** — fetch spec independently via GitHub API instead of receiving pre-digested\
+  \ payload\n3. **Task files** — replace inline `evidence_payload` with `spec_issue_number`\
+  \ + `github.owner` + `github.repo` references\n4. **Auditor agent cards** — add\
+  \ SC_CONFLICT detection + superset SC acceptance\n5. **Critical rules** — add `critical-rules-062`\
+  \ for SC conflict detection\n6. **Enforcement tests** — behavioral tests for SC-9,\
+  \ SC-10, SC-11; content-verification for contract changes\n\n### Tech Stack\n\n\
+  - Files modified: `skills/adversarial-audit/SKILL.md`, 7 task files, 9 agent cards,\
+  \ `000-critical-rules.md`, `tests/behaviors/*.sh`, `tests/test-enforcement.sh`\n\
+  - Verification: structural grep + behavioral opencode-cli run\n\n### File Structure\n\
+  \n| File | Responsibility |\n|------|---------------|\n| `skills/adversarial-audit/SKILL.md`\
+  \ | Update `must_receive`/`must_not_receive`, add SC_CONFLICT mandate, update task\
+  \ context audit entries |\n| `skills/adversarial-audit/tasks/cross-validate.md`\
+  \ | Replace `evidence_payload` entry criterion with `spec_issue_number` + `github.owner`\
+  \ + `github.repo`. Add Step 0: fetch spec independently. Update Evidence Type Gate\
+  \ to read from fetched spec. |\n| `skills/adversarial-audit/tasks/spec-audit.md`\
+  \ | Replace `evidence_payload: <inline>` and `evaluation_criteria: <inline>` with\
+  \ `spec_issue_number` reference in Step 3 cross-validate dispatch |\n| `skills/adversarial-audit/tasks/plan-fidelity.md`\
+  \ | Replace inline plan body references with `plan_issue_number` in dispatch template\
+  \ |\n| `skills/adversarial-audit/tasks/concern-separation.md` | Replace phase analyses\
+  \ JSON inline data with `spec_issue_number` + `plan_issue_number` references |\n\
+  | `skills/adversarial-audit/tasks/coherence-maintenance.md` | Replace summary inline\
+  \ data with reference-based dispatch (baseline file path + spec issue) |\n| `skills/adversarial-audit/tasks/drift-detection.md`\
+  \ | Replace requirements + scan inline data with spec issue + impl file path references\
+  \ |\n| `skills/adversarial-audit/tasks/spec-summary.md` | Replace spec + PR sections\
+  \ inline with `spec_issue_number` + `pr_number` references |\n| `skills/adversarial-audit/tasks/closure-verification.md`\
+  \ | Replace PR + spec + SCs inline with `pr_number` + `spec_issue_number` references\
+  \ |\n| `skills/adversarial-audit/tasks/guideline-audit.md` | Replace FILE + CONTENT\
+  \ inline with `target_file_path` reference only |\n| `agents/auditor-*.md` (×9)\
+  \ | Add SC_CONFLICT detection, extend CONTEXT_TAINTED with SC_CONFLICT violation\
+  \ type, accept superset SCs |\n| `guidelines/000-critical-rules.md` | Add `critical-rules-062`:\
+  \ SC conflict detection violation |\n| `tests/behaviors/auditor-sc-conflict-refusal.sh`\
+  \ | NEW — behavioral test for SC-9 |\n| `tests/behaviors/auditor-superset-scs.sh`\
+  \ | NEW — behavioral test for SC-10 |\n| `tests/behaviors/auditor-no-inline-scs.sh`\
+  \ | NEW — behavioral test for SC-11 |\n| `tests/test-enforcement.sh` | Add content-verification\
+  \ for SC-1, SC-2, SC-4, SC-8 |\n\n---\n\n### Phase 1: Update adversarial-audit/SKILL.md\
+  \ dispatch contract\n\n**Why this phase exists:** The SKILL.md dispatch contract\
+  \ is the authoritative source for what auditors receive. Changing it first establishes\
+  \ the new reference-based paradigm before any task file or agent card edits.\n\n\
+  **What:**\n1. Update `must_receive`: remove `spec_body`, `evaluation_criteria`;\
+  \ add `spec_issue_number` as primary\n2. Update `must_not_receive`: add `spec_body`\
+  \ and `evaluation_criteria` as forbidden fields\n3. Add SC_CONFLICT mandate to Dispatch\
+  \ Context Contract section\n4. Update all task context audit entries to reflect\
+  \ removal of inline spec_body/evaluation_criteria from dispatch scope\n\n**SC coverage:**\
+  \ SC-1, SC-2, SC-4, SC-8, SC-12\n\n**How to verify:** `grep -c \"spec_issue_number\"\
+  \ skills/adversarial-audit/SKILL.md` returns ≥1. `grep -c \"spec_body\" skills/adversarial-audit/SKILL.md`\
+  \ returns 0 in `must_receive` context (should only appear in `must_not_receive`).\n\
+  \n**What could go wrong:** Template text pushes SKILL.md past word limit — but changes\
+  \ are replacements, not insertions, so word count stays roughly constant.\n\n**Must\
+  \ be done first:** None — this is the first phase.\n\n**TDD (Items 1-2):**\n- Item\
+  \ 1: Edit SKILL.md `must_receive`/`must_not_receive` contract. Verify structural\
+  \ grep.\n- Item 2: Edit task context audit entries. Verify all entries updated.\n\
+  \n---\n\n### Phase 2: Update cross-validate.md for reference-based dispatch\n\n\
+  **Why this phase exists:** cross-validate.md is the single entry point for all evidence\
+  \ type checks. It must independently fetch the spec instead of receiving it pre-digested.\
+  \ This is the bottleneck phase — all task files feed into cross-validate, so fixing\
+  \ cross-validate first means subsequent task file changes target a correctly updated\
+  \ receiver.\n\n**What:**\n1. Replace `evidence_payload` entry criterion with `spec_issue_number`\
+  \ + `github.owner` + `github.repo`\n2. Add Step 0: fetch spec via `github_issue_read(method=\"\
+  get\", owner=, repo=, issue_number=)`\n3. Update Evidence Type Gate to read SC declarations\
+  \ from fetched spec body\n\n**SC coverage:** SC-3 (cross-validate), SC-7\n\n**How\
+  \ to verify:** `grep -c \"spec_issue_number\" skills/adversarial-audit/tasks/cross-validate.md`\
+  \ returns ≥1. `grep -c \"evidence_payload\" skills/adversarial-audit/tasks/cross-validate.md`\
+  \ returns 0.\n\n**What could go wrong:** The independent fetch step adds ~200ms\
+  \ per dispatch. Acceptable per risk analysis.\n\n**Must be done first:** Phase 1\
+  \ (SKILL.md contract defines the new paradigm cross-validate implements).\n\n---\n\
+  \n### Phase 3: Update spec-audit.md, plan-fidelity.md task files\n\n**Why this phase\
+  \ exists:** spec-audit and plan-fidelity are the two most frequently dispatched\
+  \ audit task files. Updating them after cross-validate ensures their dispatch templates\
+  \ target the updated receiver.\n\n**What:**\n1. `spec-audit.md` Step 3: Replace\
+  \ `evidence_payload: <spec body>` and `evaluation_criteria: <SCs>` with `spec_issue_number:\
+  \ ` + `github.owner: ` + `github.repo: `\n2. `plan-fidelity.md`: Replace inline\
+  \ plan body references with `plan_issue_number` in dispatch template\n\n**SC coverage:**\
+  \ SC-3 (spec-audit, plan-fidelity)\n\n**How to verify:** `grep -c \"spec_issue_number\"\
+  \ skills/adversarial-audit/tasks/spec-audit.md` returns ≥1. `grep -c \"plan_issue_number\"\
+  \ skills/adversarial-audit/tasks/plan-fidelity.md` returns ≥1.\n\n**What could go\
+  \ wrong:** spec-audit's Step 3 dispatch template references cross-validate — if\
+  \ cross-validate signature changed unexpectedly, the template must match.\n\n**Must\
+  \ be done first:** Phase 2 (cross-validate receiver must be updated before its callers).\n\
+  \n---\n\n### Phase 4: Update remaining task files\n\n**Why this phase exists:**\
+  \ The remaining 5 task files (concern-separation, coherence-maintenance, drift-detection,\
+  \ spec-summary, closure-verification, guideline-audit) each pass different inline\
+  \ data types. Each follows the same reference-based pattern.\n\n**What:**\n1. `concern-separation.md`:\
+  \ Replace phase analyses JSON inline with `spec_issue_number` + `plan_issue_number`\n\
+  2. `coherence-maintenance.md`: Replace summary inline data with reference-based\
+  \ (baseline file path + spec issue)\n3. `drift-detection.md`: Replace requirements\
+  \ + scan inline with spec issue + impl file path references\n4. `spec-summary.md`:\
+  \ Replace spec + PR sections inline with `spec_issue_number` + `pr_number`\n5. `closure-verification.md`:\
+  \ Replace PR + spec + SCs inline with `pr_number` + `spec_issue_number`\n6. `guideline-audit.md`:\
+  \ Replace FILE + CONTENT inline with `target_file_path` reference only\n\n**SC coverage:**\
+  \ SC-3 (all remaining task files)\n\n**How to verify:** Each file: `grep -c \"spec_issue_number\"\
+  ` returns ≥1. No file contains inline spec body text in dispatch templates.\n\n\
+  **What could go wrong:** guideline-audit passes full file content — changing to\
+  \ path-only requires the auditor to read the file independently. Ensure the auditor\
+  \ has read permission.\n\n**Must be done first:** Phase 1 (SKILL.md defines the\
+  \ reference-based paradigm). These task files are parallelizable with Phases 2-3.\n\
+  \n---\n\n### Phase 5: Update all 9 auditor agent cards with SC_CONFLICT detection\n\
+  \n**Why this phase exists:** The agent cards are the enforcement layer — they receive\
+  \ the dispatch and must independently detect caller bias via SC_CONFLICT.\n\n**What:**\n\
+  1. For each `agents/auditor-*.md`: Add SC_CONFLICT detection logic\n   - Fetch spec\
+  \ via `github_issue_read(method=\"get\", owner=, repo=, issue_number=)`\n   - Extract\
+  \ spec-declared SCs from issue body\n   - Compare caller-provided SCs against spec-declared\
+  \ SCs\n   - If conflict: return `BLOCKED` with `reason: SC_CONFLICT` + citing sources\n\
+  \   - If superset (no conflict): proceed, evaluate all\n   - If no inline SCs: use\
+  \ spec's own SCs only\n2. Extend CONTEXT_TAINTED violation signals with SC_CONFLICT\
+  \ as specific violation type\n\n**SC coverage:** SC-5, SC-6, SC-8\n\n**How to verify:**\
+  \ `grep -c \"SC_CONFLICT\" agents/auditor-*.md` returns 9 (one per card). `grep\
+  \ -c \"superset\" agents/auditor-*.md` returns 9.\n\n**What could go wrong:** False-positive\
+  \ conflict detection (word choice variance flagged as contradiction). Mitigation:\
+  \ strict threshold — only clear semantic contradiction triggers BLOCKED, per spec\
+  \ risk analysis.\n\n**Must be done first:** Phase 1 (SKILL.md defines SC_CONFLICT\
+  \ mandate). Phase 2 (cross-validate reference fetching pattern established).\n\n\
+  ---\n\n### Phase 6: Add critical-rules-062 to 000-critical-rules.md\n\n**Why this\
+  \ phase exists:** A critical rule codifies the SC conflict detection as a Tier 2\
+  \ process-integrity violation — the rule must exist before behavioral tests verify\
+  \ it.\n\n**What:**\n1. Add `critical-rules-062` to `guidelines/000-critical-rules.md`:\n\
+  \   - Title: \"SC conflict detection — caller providing SCs that conflict with spec\
+  \ is a context contamination violation\"\n   - Tier: 2\n   - Conditions: \"caller_scs_conflict_with_spec\
+  \ == true\"\n   - Actions: HALT, BLOCKED with SC_CONFLICT reason\n\n**SC coverage:**\
+  \ SC-8 (critical rule text exists)\n\n**How to verify:** `grep -c \"critical-rules-062\"\
+  \ guidelines/000-critical-rules.md` returns ≥1.\n\n**What could go wrong:** Rule\
+  \ inserted in wrong location (not under Tier 2 section). Verify placement.\n\n**Must\
+  \ be done first:** Independent — can run parallel with Phases 1-5.\n\n---\n\n###\
+  \ Phase 7: Create behavioral tests (RED phase)\n\n**Why this phase exists:** Behavioral\
+  \ tests must exist and FAIL before the GREEN changes in Phases 1-6. This is the\
+  \ TDD RED gate for SC-9, SC-10, SC-11.\n\n**What:**\n1. `.opencode/tests/behaviors/auditor-sc-conflict-refusal.sh`\
+  \ (SC-9): Dispatch auditor with conflicting SCs, assert `BLOCKED` + `SC_CONFLICT`\
+  \ via `assert_semantic`. RED: test FAILS because auditor doesn't detect conflicts\
+  \ yet.\n2. `.opencode/tests/behaviors/auditor-superset-scs.sh` (SC-10): Dispatch\
+  \ auditor with superset SCs, assert audit proceeds. RED: test FAILS because auditor\
+  \ may reject additional SCs.\n3. `.opencode/tests/behaviors/auditor-no-inline-scs.sh`\
+  \ (SC-11): Dispatch auditor with NO inline SCs, assert auditor fetches spec and\
+  \ uses spec's own SCs. RED: test FAILS because auditor currently expects inline\
+  \ SCs.\n\n**SC coverage:** SC-9, SC-10, SC-11 (RED phase)\n\n**How to verify:**\
+  \ Each test: `bash .opencode/tests/behaviors/<name>.sh` returns exit 1 (FAIL) —\
+  \ RED confirmed.\n\n**What could go wrong:** Model/opencode-cli unavailability.\
+  \ Mitigation: scope-limited testing, timeout increase.\n\n**Must be done first:**\
+  \ None — tests written before changes. RED phase must complete before GREEN.\n\n\
+  ---\n\n### Phase 8: Update content-verification tests\n\n**Why this phase exists:**\
+  \ Content-verification tests confirm structural rule text exists. They supplement\
+  \ the behavioral tests with fast grep-based regression detection.\n\n**What:**\n\
+  1. Add scenarios to `.opencode/tests/test-enforcement.sh` for:\n   - SC-1: `must_receive`\
+  \ removes `spec_body`/`evaluation_criteria`, adds `spec_issue_number`\n   - SC-2:\
+  \ `must_not_receive` adds `spec_body`/`evaluation_criteria`\n   - SC-4: Task context\
+  \ audit entries updated\n   - SC-8: `critical-rules-062` text exists\n\n**SC coverage:**\
+  \ SC-1, SC-2, SC-4, SC-8 (content-verification)\n\n**How to verify:** `bash .opencode/tests/test-enforcement.sh\
+  \ --tag sc-conflict-refusal` returns exit 0 (content-verification PASS).\n\n**Must\
+  \ be done first:** Phase 6 must complete (critical-rules-062 must exist for content-verification\
+  \ to find it). Phases 1-5 must complete (SKILL.md and task file changes must exist\
+  \ for content-verification to find them).\n\n### Dependency Graph\n\n```\nPhase\
+  \ 1 (SKILL.md dispatch contract)\n  │\n  ├──▶ Phase 2 (cross-validate.md) — depends\
+  \ on Phase 1\n  │     │\n  │     ├──▶ Phase 3 (spec-audit, plan-fidelity) — depends\
+  \ on Phase 2\n  │     │\n  │     └──▶ Phase 4 (remaining task files) — depends on\
+  \ Phase 2\n  │\n  ├──▶ Phase 5 (agent cards) — depends on Phase 1\n  │\n  ├──▶ Phase\
+  \ 6 (critical-rules-062) — independent, parallel with 1-5\n  │\n  ├──▶ Phase 7 (behavioral\
+  \ tests — RED) — independent, before GREEN\n  │\n  └──▶ Phase 8 (content-verification)\
+  \ — depends on Phases 1, 6\n```\n\nPhase 7 (RED tests) must complete before GREEN\
+  \ implementation. Phases 1-6 (GREEN) can proceed in parallel after Phase 1 completes,\
+  \ with the constraint that Phase 2 must complete before Phases 3-4.\n\n### Risks\n\
+  \n| Risk | Mitigation |\n|------|------------|\n| Behavioral tests cannot execute\
+  \ (model unavailable) | Scope-limited testing default. Increase timeout and retry.\
+  \ If still unexecutable, content-verification provides structural enforcement. Behavioral\
+  \ RED before GREEN mandatory where feasible. |\n| False-positive SC_CONFLICT (word\
+  \ choice variance) | Strict threshold: only exact semantic contradiction triggers\
+  \ BLOCKED. Slight wording variance (e.g., \"≥ 90%\" vs \"≥90%\") is not a conflict.\
+  \ |\n| Spec body length exceeds GitHub API response limits | `github_issue_read`\
+  \ returns full body; no truncation risk for typical spec bodies. |\n| Auditor agent\
+  \ cards inconsistent (some updated, some missed) | Phase 5 targets all 9 cards.\
+  \ Verify: `ls agents/auditor-*.md | wc -l` returns 9, `grep -c \"SC_CONFLICT\" agents/auditor-*.md`\
+  \ returns 9. |\n\n### Verification Summary\n\n| SC | Evidence Type | Verification\
+  \ Method | Phase |\n|----|--------------|-------------------|-------|\n| SC-1 |\
+  \ `string` | `grep \"spec_issue_number\" skills/adversarial-audit/SKILL.md` — `must_receive`\
+  \ contains `spec_issue_number` | 1 |\n| SC-2 | `string` | `grep \"spec_body\" skills/adversarial-audit/SKILL.md`\
+  \ — appears in `must_not_receive`, not `must_receive` | 1 |\n| SC-3 | `behavioral`\
+  \ | Dispatch adversarial auditor with a spec, verify dispatch template omits inline\
+  \ spec body. `opencode-cli run` → stderr assertions. | 2-4 |\n| SC-4 | `string`\
+  \ | Task context audit entries in SKILL.md updated. Grep for removal of `spec_body`/`evaluation_criteria`\
+  \ from audit scope. | 1 |\n| SC-5 | `behavioral` | Dispatch auditor with conflicting\
+  \ SCs → BLOCKED with `SC_CONFLICT` reason | 7 |\n| SC-6 | `behavioral` | Dispatch\
+  \ auditor with superset SCs → audit proceeds, no BLOCKED | 7 |\n| SC-7 | `behavioral`\
+  \ | Dispatch cross-validate without `spec_body` but with spec issue ref → verifies\
+  \ it fetches spec | 2 |\n| SC-8 | `string` | `grep \"critical-rules-062\" guidelines/000-critical-rules.md`\
+  \ returns ≥1 | 6 |\n| SC-9 | `behavioral` | Behavioral test: conflicting SCs → BLOCKED\
+  \ with SC_CONFLICT | 7 |\n| SC-10 | `behavioral` | Behavioral test: superset SCs\
+  \ → all evaluated, no BLOCKED | 7 |\n| SC-11 | `behavioral` | Behavioral test: no\
+  \ inline SCs → spec's own SCs used | 7 |\n| SC-12 | `string` | Task context audit\
+  \ tables updated — inline spec_body/evaluation_criteria removed from dispatch scope\
+  \ | 1 |\n"
+created_at: '2026-05-25T04:01:16Z'
+updated_at: '2026-06-12T03:45:34Z'
+remote_issue: 883
+remote_url: https://github.com/michael-conrad/.opencode/issues/883
+promoted_at: '2026-08-27T03:25:12.257891+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.257891+00:00'
+author: michael-conrad

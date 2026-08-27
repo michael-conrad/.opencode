@@ -1,0 +1,88 @@
+number: 860
+title: '[SPEC] Behavioral Test Infrastructure: Remove Inline assert_semantic, Add
+  auditor dispatch + capture_and_cleanup'
+status: open
+labels:
+- needs-approval
+- spec
+body: '## Objective
+
+
+  Restructure the behavioral test infrastructure so that inline semantic inspection
+  (`assert_semantic`) is replaced by auditor sub-agent dispatch. The bash-based test
+  runner captures raw output and cleans up the test environment; the orchestrator
+  evaluates semantic correctness via a clean-room `auditor-*` sub-agent `task()` call.
+  This eliminates the dual-`opencode-cli run` pattern from bash functions and moves
+  semantic verification to the orchestrator layer where it belongs.
+
+
+  ## Dependency Chain
+
+
+  ```
+
+  prev: (none — root of the chain)
+
+  next: #836 — requires clean test infrastructure before behavioral tests can run
+
+  ```
+
+
+  **Required by:**
+
+  - #836: Runtime-Behavioral Evidence Classification Gate — SC-6 behavioral tests
+  require `capture_and_cleanup` infrastructure working across all 142 test scripts
+
+
+  ## Problem Statement
+
+
+  The current behavioral test infrastructure uses `assert_semantic()` — a bash function
+  that runs a second `opencode-cli run` with a separate inspector model. This pattern
+  has several issues:
+
+
+  1. **Architectural layering violation**: Semantic evaluation of agent output is
+  an orchestrator-level concern, not a bash-level concern. Embedding it in bash functions
+  mixes concerns and makes the verification pipeline harder to debug and extend.
+
+
+  2. **Dual model dispatch**: Every behavioral test that needs semantic evaluation
+  runs `opencode-cli run` twice — once for the test subject and once for the inspector.
+  This doubles test time and resource usage.
+
+
+  3. **Non-determinism**: The inline inspector model selection (`BEHAVIOR_SEMANTIC_INSPECTOR_MODEL`)
+  is a bash variable with no guarantee the model is available or appropriate for the
+  specific semantic task.
+
+
+  4. **No test home cleanup**: The test home directory (`with-test-home`) accumulates
+  files across test runs, eventually consuming disk space. There was no cleanup mechanism
+  — every test run left artifacts behind.
+
+
+  ## Context
+
+
+  - **Affected files:** `.opencode/tests/behaviors/helpers.sh` (core helper functions),
+  28 test scripts, `.opencode/tests/with-test-home`
+
+  - **SC-6/SC-7 not fully implemented:** 71+ test scripts still use `assert_semantic`
+  — requires mechanical migration to `capture_and_cleanup`
+
+  - **Evidence preservation:** `./tmp/behavioral-evidence-*` artifacts are exempt
+  from mandatory cleanup per `060-tool-usage.md` §3
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+
+  '
+created_at: '2026-05-24T06:19:44Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 860
+remote_url: https://github.com/michael-conrad/.opencode/issues/860
+promoted_at: '2026-08-27T03:25:12.218621+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.218621+00:00'
+author: michael-conrad

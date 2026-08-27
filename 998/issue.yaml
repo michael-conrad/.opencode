@@ -1,0 +1,18 @@
+number: 998
+title: '[Phase 1.13] push-body / pull-body: Remote API sync (gh + gitbucket-api)'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '**Parent Plan:** #985
+
+
+  Phase 1.13 — push-body / pull-body: Remote API sync (gh + gitbucket-api)'
+created_at: '2026-06-02T05:10:44Z'
+updated_at: '2026-06-12T03:45:30Z'
+remote_issue: 998
+remote_url: https://github.com/michael-conrad/.opencode/issues/998
+promoted_at: '2026-08-27T03:25:12.474061+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.474061+00:00'
+author: michael-conrad

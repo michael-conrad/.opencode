@@ -1,0 +1,39 @@
+number: 2357
+title: '[SPEC] Condense 090-data-integrity.md — move batch/retention/classification
+  to shared ref'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/090-data-integrity.md` costs ~5.5k tokens. ~50%
+  procedural (batch operations, long-running tasks, serialization integrity, data
+  classification, migration integrity, audit trail, retention).
+
+
+  ## Scope
+
+  - **In:** Relocate batch/serialization/classification/migration/retention to a shared
+  data-integrity reference; retain global no-synthetic-data, no-false-data, no-default-data,
+  hard-fail-on-missing-data, no-unauthorized-semantic-change cores.
+
+  - **Out:** Removing any data-integrity zero-tolerance core.
+
+
+  ## Approach
+
+  Move procedural sections to shared data-integrity reference loaded via mandatory
+  Read-links; retain the no-synthetic-data cores preloaded.
+
+
+  ## Impact
+
+  ~2.7k savings. Risk: losing no-synthetic-data prohibition. Mitigation: retain those
+  cores verbatim. Depends on shared ref + config. Action: approve.'
+created_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-27T03:14:22Z'
+remote_issue: 2357
+remote_url: https://github.com/michael-conrad/.opencode/issues/2357
+promoted_at: '2026-08-27T03:25:12.671383+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.671383+00:00'
+author: michael-conrad

@@ -1,0 +1,100 @@
+number: 2329
+title: '[BUG] spec validation passes specs carrying Status/pending markers instead
+  of failing them'
+status: open
+labels: []
+body: '## Problem
+
+
+  The spec-creation pipeline ratifies specs that carry Status/pending tracking markers
+  instead of failing them. A spec revised into a non-compliant state passed holistic
+  validation with an aggregate PASS; removing the marker required manual developer
+  correction.
+
+
+  Discovered during today''s spec-audit/revise session on NewSRX-Tech-LLC/xBaseJ#64.
+
+
+  ## Rule violated
+
+
+  `.opencode/AGENTS.md` — "Specs and plans are NOT Tracking Documents":
+
+
+  > Any STATUS field, completion marker, pending indicator, or progress tracker in
+  a spec or plan is a defect.
+
+
+  Developer confirmed the same rule today in-session: "specs can''t have SCs as pending."
+
+
+  ## Evidence chain (xBaseJ#64)
+
+
+  1. Revise iteration 1 authored a tracking marker into `xBaseJ/.issues/64/spec.md`:
+  "**Status: PENDING RETROACTIVE BACKFILL (spec-audit finding F2 — MISSING_ANALYTICAL_ARTIFACTS).**"
+
+  2. Holistic validate iteration 2 returned aggregate **PASS**, logging the marker
+  only as WARNING W1 — verbatim from the validate sub-agent report: "Logged as warning
+  per task Step 3.6, not FAIL".
+
+  3. Removal of the marker required manual developer correction.
+
+
+  ## Gap verification (local checkout, verified 2026-08-26)
+
+
+  - No tracking-marker prohibition exists anywhere in `.opencode/skills/spec-creation/tasks/create.md`,
+  `revise.md`, or `validate.md` — grep for status/pending/tracking-document patterns
+  across all three returns only unrelated matches (`status:` result-contract keys).
+
+  - `validate.md`''s structural checks (Steps 3.1–3.7) detect SHALL-language, dark-prose,
+  determinism, compound-SC, causal-chain, evidence-type, artifact-cross-reference,
+  and decomposition defects — none detects STATUS/pending/completion markers in normative
+  sections.
+
+  - The card''s only warnings-not-FAIL precedent (Step 3.6: "Any discrepancies are
+  flagged as warnings (not hard FAIL...)") applies to artifact alignment, which is
+  how the marker escaped with an aggregate PASS in practice.
+
+
+  ## Not covered by existing issues (dedup checked)
+
+
+  Searched `gh issue list` (all states) plus targeted `gh search issues` queries.
+  Related but distinct:
+
+
+  - #1197 — removes legacy STATUS-marker infrastructure in approval-gate/brainstorming/writing-plans
+  tasks; does not touch spec-creation create/revise prohibitions or validate FAIL
+  semantics.
+
+  - #1014 — guidelines (142/140 templates) prescribing status markers; source-of-template
+  problem, not validator enforcement gap.
+
+  - #2232 (closed) — writing-plans side of the spec-is-not-tracking mandate; spec-creation
+  side uncovered.
+
+
+  ## Suggested fix
+
+
+  - `validate.md`: add a zero-tolerance structural check — **FAIL** when any current-state
+  marker (STATUS field, completion marker, pending indicator, progress tracker) appears
+  in normative sections; Change Control history entries exempt.
+
+  - `create.md` / `revise.md`: add matching prohibitions so markers are never authored
+  in the first place.
+
+
+  🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+  '
+created_at: '2026-08-26T05:06:26Z'
+updated_at: '2026-08-26T05:06:26Z'
+remote_issue: 2329
+remote_url: https://github.com/michael-conrad/.opencode/issues/2329
+promoted_at: '2026-08-27T03:25:12.601826+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.601826+00:00'
+author: michael-newsrx

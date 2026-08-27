@@ -1,0 +1,155 @@
+number: 795
+title: '[SPEC] Adversarial Auditor Artifact Pre-Check and Clean FAIL on Missing Artifacts'
+status: open
+labels:
+- needs-approval
+- spec
+body: "# [SPEC] Adversarial Auditor Artifact Pre-Check and Clean FAIL on Missing Artifacts\n\
+  \n## Problem\n\nWhen a sub-agent (e.g., divide-and-conquer or verification-before-completion)\
+  \ dispatches an adversarial-audit sub-agent, the artifacts may not exist yet on\
+  \ the filesystem at dispatch time — the producer sub-agent may still be writing\
+  \ them, or the file paths in the dispatch context may be stale/wrong. When an auditor\
+  \ encounters missing artifacts:\n\n1. **It tries to run tests directly** (`bash`,\
+  \ `uv run pytest`) — auditors have no authority to execute code\n2. **It dispatches\
+  \ sub-agents via `task()` to produce missing artifacts** — auditors have no authority\
+  \ to dispatch production work\n3. **It returns unstructured BLOCKED** without distinguishing\
+  \ \"artifacts missing\" from \"auditor cannot evaluate\" — the orchestrator cannot\
+  \ route recovery\n4. **It returns PASS** without evidence of actual tests being\
+  \ performed or artifacts being inspected by using inspection of code instead of\
+  \ proof of actual tests being perfomred.\n\nThis means missing artifacts produce\
+  \ unstructured noise or cause defects to accumulate in the code base causing excessive\
+  \ token usage and expense as the work has to be discarded and redone instead of\
+  \ a clean, LLM-parseable FAIL that the orchestrator can act on.\n\n## Implementation\
+  \ Dependencies\n\nThis spec's changes span two delivery groups with different dependency\
+  \ positions:\n\n### Group A: SKILL.md + 3 shared auditor files (tied to #836)\n\n\
+  | File | Action |\n|------|--------|\n| `adversarial-audit/SKILL.md` | Add adversarial-audit-024,\
+  \ adversarial-audit-025, Encapsulation Rules, DISPATCH_GATE Artifact Pre-Check,\
+  \ Re-Audit Restart Protocol sections |\n| `spec-audit.md` | Add Step 0 + FORBIDDEN\
+  \ in same pass as #836's uplift checks |\n| `plan-fidelity.md` | Add Step 0 + FORBIDDEN\
+  \ in same pass as #836's uplift checks |\n| `drift-detection.md` | Add Step 0 +\
+  \ FORBIDDEN in same pass as #836's uplift checks |\n\nThese MUST be applied in the\
+  \ same implementation pass as #836, not as separate PRs.\n\n### Group B: 7 standalone\
+  \ auditor files (independent, no dependency)\n\n| File | Action |\n|------|--------|\n\
+  | `test-quality-audit.md` | Add Step 0 + FORBIDDEN section |\n| `concern-separation.md`\
+  \ | Add Step 0 + FORBIDDEN section |\n| `coherence-extraction.md` | Add Step 0 +\
+  \ FORBIDDEN section |\n| `coherence-maintenance.md` | Add Step 0 + FORBIDDEN section\
+  \ |\n| `guideline-audit.md` | Add Step 0 + FORBIDDEN section |\n| `spec-summary.md`\
+  \ | Add Step 0 + FORBIDDEN section |\n| `closure-verification.md` | Add Step 0 +\
+  \ FORBIDDEN section |\n\nThese 7 files have no file overlap with any other open\
+  \ issue. They can be implemented independently at any time — before, during, or\
+  \ after #836. No sequencing constraint.\n\n### Cross-validate.md\n\n`cross-validate.md`\
+  \ is listed as \"no changes needed\" — #834's Step 3 changes (applied in same pass\
+  \ as #836) already serve the artifact existence check purpose.\n\n### Full sequence\n\
+  \n```\n#860 → #836 (= #834 + #795 Group A)\n  │\n  ├── #836's implementation pass\
+  \ adds cross-validate.md gate + #834 Step 3\n  ├── #836's implementation pass adds\
+  \ uplift + #795 Step 0 to 3 shared auditor files\n  ├── #836's implementation pass\
+  \ adds #795 rules to SKILL.md\n  │\n  └── #795 Group B (7 standalone files) — independent,\
+  \ any time\n```\n\n### Issue cross-references\n\n- #836: Shared file targets spec-audit.md,\
+  \ plan-fidelity.md, drift-detection.md — combined pass required\n- #834: Complementary\
+  \ changes to cross-validate.md (evidence type validation)\n- #860: Pre-requisite\
+  \ — test scripts must be clean before #836's behavioral tests run\n\n## Desired\
+  \ Behavior\n\n### 1. Mandatory Artifact Pre-Check (Step 0) in Every Auditor Task\n\
+  \nEvery auditor task file MUST include a Step 0 that:\n\n- Enumerates ALL expected\
+  \ input artifacts (file paths from dispatch context)\n- Verifies each artifact exists\
+  \ AND has non-zero size on the filesystem\n- If ANY artifact is missing or empty:\
+  \ return structured result contract immediately with `fail_type: MISSING_ARTIFACTS`\
+  \ listing the missing paths\n- If ALL artifacts exist: proceed to evaluation\n\n\
+  **Empty file (0 bytes) is NOT MISSING_ARTIFACTS** — it is a structural deficiency\
+  \ the auditor should evaluate and report as a criterion FAIL, not bail on.\n\n###\
+  \ 2. FORBIDDEN Actions for Auditors\n\nEvery auditor task file MUST include a FORBIDDEN\
+  \ section:\n\n```yaml\nFORBIDDEN:\n  - Run any bash command (bash tool)\n  - Dispatch\
+  \ sub-agents (task tool)\n  - Execute tests (uv run pytest, etc.)\n  - Produce artifacts\
+  \ (write tool on src/test paths)\n  - Modify files in the repository\n```\n\nAuthority:\
+  \ read-evaluate only. If the auditor cannot evaluate because artifacts are missing,\
+  \ it returns `MISSING_ARTIFACTS` — it does NOT attempt to produce them.\n\n### 3.\
+  \ MISSING_ARTIFACTS Result Contract\n\nWhen Step 0 detects missing artifacts, the\
+  \ auditor returns:\n\n```yaml\nstatus: FAIL\nfail_type: MISSING_ARTIFACTS\nmissing_artifacts:\n\
+  \  - path: /path/to/missing/artifact1\n    expected: test output or behavioral evidence\n\
+  \  - path: /path/to/missing/artifact2\n    expected: spec document\nauditor_model:\
+  \ \nauditor_family: \n```\n\nThis is distinct from BLOCKED (which means the auditor\
+  \ cannot evaluate even though artifacts exist). MISSING_ARTIFACTS enables LLM-parseable\
+  \ recovery routing.\n\n### 4. Orchestrator Recovery Protocol\n\nWhen the orchestrator\
+  \ receives a `MISSING_ARTIFACTS` result from any auditor:\n\n1. Re-produce the missing\
+  \ artifacts (re-dispatch the producer sub-agent)\n2. Restart VbC before moving on\
+  \ to resolve-models with fresh dual cross-family auditors\n3. Do NOT re-dispatch\
+  \ the same auditors — fresh model selection is mandatory\n\n**All re-audits, regardless\
+  \ of trigger reason (MISSING_ARTIFACTS, BLOCKED, FAIL → remediation, auditor error),\
+  \ restart from VbC before moving on to resolve-models with fresh dual cross-family\
+  \ auditors.** This is the universal default, not a special case.\n\n### 5. Error\
+  \ Handling Update\n\nCurrent auditor task files use a generic `BLOCKED` status for\
+  \ missing prerequisites. This spec introduces `MISSING_ARTIFACTS` as a distinct\
+  \ fail type:\n\n| Condition | Result Contract | Recovery |\n|-----------|----------------|----------|\n\
+  | Artifacts missing or zero-byte | `status: FAIL`, `fail_type: MISSING_ARTIFACTS`\
+  \ | Re-produce artifacts, restart full cycle from resolve-models |\n| Artifacts\
+  \ exist but auditor cannot evaluate | `status: BLOCKED` | Investigate blockage,\
+  \ may restart cycle |\n| Artifacts exist, auditor evaluates and finds defects |\
+  \ `status: FAIL`, `fail_type: AUDIT_FINDING` | Remediate findings |\n| Artifacts\
+  \ exist, auditor finds no defects | `status: PASS` | Continue pipeline |\n\n## Affected\
+  \ Files\n\n### SKILL.md\n- `.opencode/skills/adversarial-audit/SKILL.md`:\n  - Add\
+  \ symbolic rule `adversarial-audit-024` (artifact pre-check enforcement)\n  - Add\
+  \ symbolic rule `adversarial-audit-025` (universal re-audit restart from resolve-models)\n\
+  \  - Add \"Encapsulation Rules\" section with FORBIDDEN list for auditors\n  - Add\
+  \ \"DISPATCH_GATE Artifact Pre-Check\" section describing Step 0 requirement\n \
+  \ - Add \"Re-Audit Restart Protocol\" section describing universal restart-from-resolve-models\n\
+  \n### Auditor Task Files (all need Step 0 + FORBIDDEN section)\n\n| File | Delivery\
+  \ Group | Dependency |\n|------|----------------|------------|\n| `spec-audit.md`\
+  \ | Group A (shared with #836) | MUST be same pass as #836 |\n| `plan-fidelity.md`\
+  \ | Group A (shared with #836) | MUST be same pass as #836 |\n| `drift-detection.md`\
+  \ | Group A (shared with #836) | MUST be same pass as #836 |\n| `test-quality-audit.md`\
+  \ | Group B (standalone) | No dependency — any time |\n| `concern-separation.md`\
+  \ | Group B (standalone) | No dependency — any time |\n| `coherence-extraction.md`\
+  \ | Group B (standalone) | No dependency — any time |\n| `coherence-maintenance.md`\
+  \ | Group B (standalone) | No dependency — any time |\n| `guideline-audit.md` |\
+  \ Group B (standalone) | No dependency — any time |\n| `spec-summary.md` | Group\
+  \ B (standalone) | No dependency — any time |\n| `closure-verification.md` | Group\
+  \ B (standalone) | No dependency — any time |\n\n### Reference Files (no changes\
+  \ needed)\n- `.opencode/skills/adversarial-audit/tasks/cross-validate.md` — artifact\
+  \ pre-check satisfied by #834's Step 3 (applied in same pass as #836)\n- `.opencode/skills/adversarial-audit/tasks/resolve-models.md`\n\
+  - `.opencode/skills/adversarial-audit/tasks/completion.md`\n\n## Success Criteria\n\
+  \n- [SC-1] Every auditor task file includes a Step 0 artifact pre-check that enumerates\
+  \ expected artifacts, verifies existence and non-zero size, and returns `MISSING_ARTIFACTS`\
+  \ immediately if any are missing with no further deliberation or inspection. This\
+  \ should be an immediate BLOCK and HALT.\n- [SC-2] Every auditor task file includes\
+  \ a FORBIDDEN section listing: bash execution, task() dispatch, test execution,\
+  \ artifact production, file modification\n- [SC-3] SKILL.md includes symbolic rule\
+  \ adversarial-audit-024 enforcing artifact pre-check as mandatory gate before evaluation\
+  \ in all auditor task files\n- [SC-4] SKILL.md includes symbolic rule adversarial-audit-025\
+  \ mandating all re-audits restart from resolve-models with fresh dual cross-family\
+  \ auditors, regardless of trigger reason\n- [SC-5] MISSING_ARTIFACTS result contract\
+  \ is distinct from BLOCKED, enabling LLM-parseable recovery routing by the orchestrator\n\
+  - [SC-6] Orchestrator recovery protocol: on MISSING_ARTIFACTS, re-produce artifacts\
+  \ then restart VbC and full adversarial cycle from resolve-models — never re-dispatch\
+  \ same auditors\n- [SC-7] Behavioral enforcement test: auditor sub-agent returns\
+  \ MISSING_ARTIFACTS instead of attempting test execution or sub-agent dispatch when\
+  \ artifacts are missing\n\n## Phase Structure\n\nTwo delivery phases, no mutual\
+  \ ordering constraint:\n\n**Phase A: #836 pass (SKILL.md + 3 shared files).** Applied\
+  \ as part of #836's implementation. SKILL.md gets the symbolic rules and Encapsulation\
+  \ Rules sections. The 3 shared auditor files get Step 0 + FORBIDDEN in the same\
+  \ edit that adds #836's uplift checks.\n\n**Phase B: 7 standalone files.** Independent\
+  \ implementation task. Each file gets Step 0 + FORBIDDEN section. Can be done before,\
+  \ after, or concurrently with Phase A. No spec changes needed — the pattern is defined\
+  \ above and applies identically to all 10 auditor files.\n\n## Cross-References\n\
+  \n- `adversarial-audit/SKILL.md` — existing symbolic rules adversarial-audit-008\
+  \ through adversarial-audit-012\n- `divide-and-conquer/SKILL.md` — orchestrator\
+  \ that dispatches auditors\n- `verification-before-completion/SKILL.md` — verification\
+  \ pipeline that dispatches auditors\n- `000-critical-rules.md` — critical-rules-016\
+  \ (skipping mandatory skill calls), critical-rules-034 (orchestrator inline work)\n\
+  - #836 — Shared file targets spec-audit.md, plan-fidelity.md, drift-detection.md\
+  \ — combined pass required\n- #834 — Complementary changes to cross-validate.md\
+  \ (evidence type validation)\n- #860 — Pre-requisite: test script migration before\
+  \ #836's behavioral tests can run\n\n## Interdependencies\n\n| Issue | Concern |\
+  \ Action |\n|-------|---------|--------|\n| **`.opencode#1645` — Baseline generation\
+  \ for audit** | Both deal with audit artifact lifecycle. #1645 creates baseline\
+  \ artifacts; this spec checks for missing artifacts. Baseline artifacts must be\
+  \ included in this spec's artifact pre-check scope. | Add interdependency marker.\
+  \ Coordinate during implementation: #1645's baseline artifacts are input artifacts\
+  \ that #795's Step 0 must verify exist. |\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (deepseek-v4-flash-free)\n"
+created_at: '2026-05-21T13:12:14Z'
+updated_at: '2026-07-10T03:25:36Z'
+remote_issue: 795
+remote_url: https://github.com/michael-conrad/.opencode/issues/795
+promoted_at: '2026-08-27T03:25:12.034938+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.034938+00:00'
+author: michael-conrad

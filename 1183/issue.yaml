@@ -1,0 +1,35 @@
+number: 1183
+title: '[BUG] local-issues PEP 723 bash guard in non-standard position'
+status: open
+labels:
+- bug
+- pep-723
+body: "## Bug Description\n\nThe `local-issues` PEP 723 script (`tools/local-issues`)\
+  \ has a non-standard layout that deviates from all other PEP 723 scripts in this\
+  \ repository.\n\n### Issue 1: Bash guard on line 14 instead of line 3\n\nOther PEP\
+  \ 723 tools (e.g., `tools/md`, `tools/guidelines`) follow this standard pattern:\n\
+  \n```\nLine 1:  #!/usr/bin/env -S uv run --script\nLine 2:  # fmt: off\nLine 3:\
+  \  \"exec\" \"uv\" \"run\" \"--script\" \"$0\" \"$@\"  # bash guard\nLine 4:  (blank)\n\
+  Line 5:  # PEP 723 HEADER MUST BE AFTER BASH GUARD\nLine 6:  # /// script\n```\n\
+  \nIn `local-issues`, the layout is:\n\n```\nLine 1:  #!/usr/bin/env -S uv run --script\n\
+  Line 2:  # /// pyproject.toml\nLine 3:  # [project]\n  ...    (PEP 723 header spans\
+  \ lines 2-12)\nLine 12: # ///\nLine 13: # fmt: off\nLine 14: \"exec\" \"uv\" \"\
+  run\" \"--script\" \"$0\" \"$@\"  # bash guard\n```\n\nThe `pyproject.toml`-style\
+  \ PEP 723 header (lines 2-12) precedes the bash guard. While this still works functionally,\
+  \ it deviates from the standard pattern used by all other tools.\n\n### Issue 2:\
+  \ Incorrect `requires-python` version specifier\n\nLine 6 has `requires-python =\
+  \ \">=3.12\"` instead of `requires-python = \"~=3.12\"`. The `~=` (compatible release)\
+  \ specifier is the convention used by all other PEP 723 scripts in this repository.\n\
+  \n### Impact\n\n- **Maintenance risk**: The non-standard layout introduces inconsistency.\
+  \ A developer reading `local-issues` and comparing it to other tools might assume\
+  \ the guard-on-line-3 pattern is optional, or might not realize the PEP 723 header\
+  \ must come after the guard.\n- **Version specifier inconsistency**: Using `>=3.12`\
+  \ (instead of `~=3.12`) deviates from the established convention.\n"
+created_at: '2026-06-14T06:18:48Z'
+updated_at: '2026-06-14T06:18:48Z'
+remote_issue: 1183
+remote_url: https://github.com/michael-conrad/.opencode/issues/1183
+promoted_at: '2026-08-27T03:25:12.582553+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.582553+00:00'
+author: michael-conrad

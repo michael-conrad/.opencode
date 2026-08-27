@@ -1,0 +1,120 @@
+number: 1166
+title: '[SPEC] Fix Spec 2: Consolidate duplicate research/researcher skills'
+status: open
+labels:
+- needs-approval
+- '[SPEC]'
+- consolidation
+body: '## Overview
+
+
+  Two skill directories — `research/` and `researcher/` — have identical descriptions
+  and trigger patterns but divergent task file sets. The `researcher/` skill is a
+  duplicate entry with no reason to remain. Eliminate it entirely: merge any unique
+  task content into `research/`, then delete `researcher/`.
+
+
+  ## Current State
+
+
+  | Aspect | `research/` | `researcher/` |
+
+  |--------|-----------|-------------|
+
+  | Frontmatter name | `research` | `researcher` |
+
+  | Description | Identical: "Use when discovering information using appropriate modalities,
+  producing findings with source attribution and explicit gap reporting. Triggers
+  on: research, discover, investigate, find information, multimodal research, information
+  discovery." | Identical |
+
+  | Task files | `research.md`, `research-multi.md`, `completion.md` | `investigate.md`,
+  `findings.md` |
+
+  | Task file content | task definitions | `investigate.md` has provenance headers,
+  `findings.md` is a bash script |
+
+
+  ## Specification
+
+
+  1. **Merge unique task content** — `investigate.md` and `findings.md` from `researcher/tasks/`
+  have different content from the `research/` task files. Integrate any unique content
+  into `research/` task files where applicable. If the content is already covered,
+  discard.
+
+  2. **Delete `researcher/` directory** — `rm -rf .opencode/skills/researcher/`. No
+  redirect file, no legacy SKILL.md, nothing.
+
+  3. **Update references** — find all hardcoded `researcher` references in pipeline
+  files, task files, and config files across `.opencode/`. Change them to `research`.
+
+  4. **The `researcher` sub-agent type** in the agent tool configuration will be removed
+  (it is a distinct agent type, not just a skill). The user will need to verify whether
+  the `researcher` sub-agent type from `researcher` skill has any unique purpose the
+  `general` or `explore` agent types cannot cover.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | `.opencode/skills/researcher/` does not exist | `structural` — `ls` returns
+  no directory |
+
+  | SC-2 | All unique content from `researcher/` task files is accessible under `research/`
+  or deliberately discarded | `semantic` — read both old and new task file sets, confirm
+  no content loss |
+
+  | SC-3 | No references to `researcher` skill name remain in any `.opencode/` file
+  (skills, guidelines, config) | `string` — grep for `researcher` returns zero matches
+  outside git history |
+
+  | SC-4 | `<available_skills>` no longer lists `researcher` at session start | `behavioral`
+  — opencode-cli run, inspect tool description |
+
+  | SC-5 | All enforcement tests referencing `researcher` pass after migration | `behavioral`
+  — test suite passes |
+
+  | SC-6 | The `researcher` sub-agent type is removed from the agent tool configuration
+  | `structural` — agent config has no `researcher` sub-agent entry |
+
+
+  ## Dependencies
+
+
+  - Fix Spec 1 (YAML quoting, #1165) should land first — both files are among the
+  33 unquoted, and touching them twice is wasteful
+
+
+  ## Implementation Notes
+
+
+  - This is not a rename — it is a deletion with upstream content merge. Git history
+  will retain the old `researcher/` content for reference.
+
+  - Pipeline reference audit is critical: `researcher` appears in the implementation
+  pipeline''s remediation dispatching. Do not leave stale agent type references.
+
+
+  ## Labels
+
+
+  `[SPEC]`, `consolidation`, `cleanup`, `needs-approval`
+
+
+  ---
+
+
+  *🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)*'
+created_at: '2026-06-13T18:45:53Z'
+updated_at: '2026-06-13T18:47:53Z'
+remote_issue: 1166
+remote_url: https://github.com/michael-conrad/.opencode/issues/1166
+promoted_at: '2026-08-27T03:25:12.571511+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.571511+00:00'
+author: michael-conrad

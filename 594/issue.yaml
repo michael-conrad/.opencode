@@ -1,0 +1,274 @@
+number: 594
+title: '[SPEC] Phase-level plans with TDD as mandate (not micromanagement script)'
+status: open
+labels:
+- needs-approval
+- spec
+- writing-plans
+- plan-autonomy
+body: '## Objective
+
+
+  Shift the `writing-plans` skill from producing micromanaging per-step implementation
+  instructions (&#34;exact code, exact commands, exact file paths&#34;, &#34;2-5 minutes
+  per step&#34;) to producing phase-level outcome-focused plans. The TDD cycle per
+  item (RED→GREEN→adversarial audit) remains a **structural mandate** — it is a non-waivable
+  verification protocol, not a script the implementing agent must follow keystroke-by-keystroke.
+
+
+  ## Problem
+
+
+  The writing-plans skill currently enforces that plans contain:
+
+
+  - &#34;Exact code, exact commands, exact file paths&#34; — `plan-structure.md` Step
+  5
+
+  - &#34;Each step is one action (2-5 minutes)&#34; — `plan-structure.md` Step 5
+
+  - Rejection of abstract-but-legitimate guidance like &#34;Add validation&#34;, &#34;Handle
+  edge cases&#34;, &#34;Add appropriate error handling&#34; as plan failures — `validate.md`
+  Lines 34-38
+
+
+  This treats the implementing agent as a script runner that must be told exactly
+  what to type, not as an intelligent engineer. The result: plans are over-prescriptive,
+  fragile (any deviation breaks the &#34;exact&#34; instructions), and waste effort
+  on specifying keystrokes instead of outcomes.
+
+
+  Meanwhile, the TDD mandate per `091-incremental-build.md` already correctly defines
+  the principle-level requirement: RED before GREEN, decomposition, verification evidence.
+  The problem is that writing-plans re-implements this as a rigid script.
+
+
+  ## Scope
+
+
+  **In scope:**
+
+  - `skills/writing-plans/SKILL.md` — overview line, operating protocol points 3 and
+  4
+
+  - `skills/writing-plans/tasks/create/plan-structure.md` — Step 5 rewrite, add Plan
+  Autonomy Gate
+
+  - `skills/writing-plans/tasks/create/create-and-validate.md` — update references
+  to match
+
+  - `skills/writing-plans/tasks/validate.md` — relax abstract-guidance rejection patterns
+
+  - `tests/behaviors/plan-autonomy-gate.sh` — new behavioral enforcement test
+
+
+  **Out of scope:**
+
+  - `guidelines/091-incremental-build.md` — no change needed (already principle-level)
+
+  - `skills/spec-creation/` — already correctly WHAT-level
+
+  - `skills/brainstorming/` — already correctly WHAT-level
+
+  - `skills/executing-plans/` — thin routing layer, no substantive change needed
+
+
+  ## Approach
+
+
+  ### Phase 1: Revise `plan-structure.md`
+
+
+  **Step 5 rewrite:** Replace micromanagement requirements with phase-level item definitions:
+
+
+  - Items define **what concern they address** and **what verification outcomes prove
+  success**
+
+  - Per-item TDD cycle kept as verification protocol reference (not implementation
+  recipe): &#34;Every item must have a test written before implementation code (RED)
+  and pass after implementation (GREEN)&#34;
+
+  - No &#34;exact code, exact commands, exact file paths&#34; — the agent determines
+  HOW to implement
+
+  - No &#34;2-5 minutes per step&#34; — the agent organizes its own work
+
+
+  **Add Step 3.6 Plan Autonomy Gate:**
+
+
+  Analogous to the spec''s boundary check. Question: *&#34;Could two implementing
+  agents produce valid but different implementations from this plan?&#34;* If no —
+  if the plan only permits one exact implementation — it is too prescriptive. Items
+  must be reworded to outcomes.
+
+
+  ### Phase 2: Revise `validate.md`
+
+
+  **Relax abstract-guidance rejection:**
+
+
+  Remove from plan-failure list:
+
+  - &#34;Add appropriate error handling&#34; → legitimate phase-level guidance
+
+  - &#34;Add validation&#34; / &#34;Handle edge cases&#34; → legitimate phase-level
+  guidance
+
+  - &#34;Must specify actual code&#34; → the plan is not a code editor
+
+  - &#34;Steps describing what to do without showing how&#34; → &#34;what to do&#34;
+  IS the plan''s job
+
+
+  Reclassify these from `VERIFICATION-GAP / flag-for-review` to advisory (plan author
+  may choose to be more specific, but it''s not a validation failure).
+
+
+  **Keep:** Placeholder detection (TBD/TODO), symbol consistency, spec reference check,
+  testability requirement (SCs with executable commands), file structure completeness,
+  sub-issue parent check.
+
+
+  ### Phase 3: Revise `writing-plans/SKILL.md`
+
+
+  - **Overview line:** Remove &#34;Every step is one action (2-5 min)&#34;
+
+  - **Protocol pt 3:** Change &#34;TDD steps mandatory: each step is RED→GREEN→REFACTOR
+  within tasks&#34; to &#34;TDD cycle mandatory per item: RED test before GREEN implementation,
+  adversarial audit verification&#34;
+
+  - **Protocol pt 4:** Change &#34;No placeholders: exact file paths, exact function/class
+  names, exact commands&#34; to &#34;No placeholders: phase concerns, deliverables,
+  and verification outcomes must be concrete&#34;
+
+
+  ### Phase 4: Behavioral Enforcement Test
+
+
+  Create `tests/behaviors/plan-autonomy-gate.sh`:
+
+
+  **RED scenario:** A plan containing &#34;Add validation for edge cases&#34; without
+  specifying exact code paths should pass validation (not be rejected as &#34;must
+  specify actual code&#34;). Test verifies the validate task does not flag abstract-but-legitimate
+  phase-level guidance as a plan failure.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Verification |
+
+  |----|-----------|-------------|
+
+  | SC-1 | Plans no longer require &#34;exact code, exact commands, exact file paths&#34;
+  per item | No occurrence of &#34;exact code&#34; or &#34;exact commands&#34; in
+  writing-plans task files |
+
+  | SC-2 | Plans no longer mandate &#34;2-5 minutes per step&#34; granularity | No
+  occurrence of &#34;2-5 minutes&#34; in writing-plans task files |
+
+  | SC-3 | Plan Autonomy Gate exists: plans that permit only one implementation path
+  are flagged | `plan-structure.md` contains &#34;Plan Autonomy Gate&#34; section
+  with autonomy question |
+
+  | SC-4 | Validate no longer rejects &#34;Add validation&#34;, &#34;Handle edge cases&#34;,
+  &#34;Add appropriate error handling&#34; as plan failures | `validate.md` removes
+  these from the FAIL patterns table (may reclassify to advisory) |
+
+  | SC-5 | TDD mandate remains structurally enforced per `091-incremental-build.md`
+  | RED before GREEN requirement still referenced; no language weakening TDD as principle
+  |
+
+  | SC-6 | Behavioral test exists that verifies validate gate accepts abstract phase-level
+  guidance | `tests/behaviors/plan-autonomy-gate.sh` passes with phase-level plan
+  content |
+
+  | SC-7 | SKILL.md overview and protocol updated to remove micromanagement language
+  | No &#34;2-5 min&#34; or &#34;exact code/commands&#34; in SKILL.md |
+
+
+  ## Edge Cases and Risks
+
+
+  | Case | Risk | Mitigation |
+
+  |------|------|-----------|
+
+  | Overcorrection — plans become too vague to act on | Plan Autonomy Gate checks
+  that items have concrete verification outcomes and file structure boundaries | Keep
+  file structure mapping, SC testability requirement, item decomposition |
+
+  | Validate gate allows genuinely incomplete plans | The relaxations are narrow (abstract-guidance
+  patterns only) — placeholder detection, spec reference, and SC testability remain
+  strict | Narrow scope of relaxation explicitly documented |
+
+  | TDD structural mandate perceived as weakened | The change removes the *script*
+  around TDD but reinforces the *principle* | `091-incremental-build.md` references
+  preserved; adversarial audit call remains mandatory |
+
+  | Existing tests rely on old validate behavior | Existing behavioral tests may expect
+  rejected patterns | Update or remove affected test assertions; add new autonomy-gate
+  test |
+
+
+  ## Accountability Model Alignment (per #763)
+
+
+  This spec intersects with #763 (Accountability/Remediation Ownership Model) Principle
+  3: "Defective spec/plan is on the agent — agent owns defects, remediates."
+
+
+  **Principle P3 alignment (defective plan is on the agent):**
+
+
+  This spec identifies that writing-plans produces over-prescriptive plans (exact
+  code, exact commands, 2-5 minute granularity). Under #763''s ownership model, when
+  a plan is too prescriptive, the agent that produced it owns the defect and must
+  autonomously remediate — revising the plan to be outcome-focused rather than step-by-step
+  micromanagement.
+
+
+  **Required amendment to the spec''s remediation approach:**
+
+
+  Current approach: Change templates and validation to produce phase-level outcomes.
+  The Plan Autonomy Gate checks whether plans permit only one implementation path.
+
+
+  Under #763: The fix remains the same, but the **remediation model changes**. When
+  validation flags a plan as too prescriptive, the producing agent rewrites it autonomously
+  — no developer escalation needed for a fixable defect.
+
+
+  **Impact on Success Criteria:**
+
+  - SC-1 through SC-7: No structural changes to requirements
+
+  - Implicit addition: When a plan fails the Plan Autonomy Gate (SC-3), the producing
+  agent must autonomously revise the plan to be outcome-focused rather than escalating
+  to the developer for plan revision approval
+
+
+  **Note on plan-prescriptiveness as agent-owned defect:** Under #763, over-prescriptive
+  plans are not a "developer should give better instructions" problem — they are an
+  agent output quality problem. The agent produced a low-quality artifact and must
+  fix it, just as it must fix any other defect in its own output.
+
+
+  ## Dependencies
+
+
+  - No external dependencies — all files are in `michael-conrad/.opencode`'
+created_at: '2026-05-15T05:47:12Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 594
+remote_url: https://github.com/michael-conrad/.opencode/issues/594
+promoted_at: '2026-08-27T03:25:11.774777+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.774777+00:00'
+author: michael-conrad

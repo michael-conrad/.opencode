@@ -1,0 +1,29 @@
+comments:
+- body: '## Dependency Chain
+
+
+    ```
+
+    prev: #836 — shares cross-validate.md, same implementation pass required
+
+    next: (none — folded into #836''s pass)
+
+    ```
+
+
+    **Depends on:**
+
+    - #836: Runtime-Behavioral Evidence Classification Gate — pre-inspection classification
+    gate must exist in cross-validate.md before Step 3 evidence type validation can
+    be added
+
+
+    **Applied in:** Same implementation pass as #836. See #836''s Implementation Dependencies
+    section for the combined cross-validate.md change specification.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+
+    '
+  created_at: '2026-05-30T17:19:47Z'
+  user: michael-conrad

@@ -1,0 +1,43 @@
+number: 754
+title: 'Phase 8: Update VbC collect.md — artifact generation method'
+status: open
+labels:
+- needs-approval
+- plan
+- sub-issue
+body: 'Parent: #746
+
+
+  ## Concern
+
+  VbC collection layer — evidence collection must have "test artifact generation"
+  as a first-class collection method.
+
+
+  ## Files
+
+  - `skills/verification-before-completion/tasks/collect.md`
+
+
+  ## Tasks
+
+  1. Read current collection methods table
+
+  2. Write content-verification test (RED) — artifact method absent
+
+  3. Add "Test artifact output" row + mkdir prerequisite
+
+  4. Confirm content-verification test passes (GREEN)
+
+
+  ## Dependencies
+
+  - Phase 7 complete'
+created_at: '2026-05-20T17:05:57Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 754
+remote_url: https://github.com/michael-conrad/.opencode/issues/754
+promoted_at: '2026-08-27T03:25:12.029592+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.029592+00:00'
+author: michael-conrad

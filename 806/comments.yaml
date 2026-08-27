@@ -1,0 +1,39 @@
+comments:
+- body: 'Phase 2 of 3. Rewrite all ~30 guideline files from advisory prose to bright-line
+    rules.
+
+
+    Dependencies:
+
+    - ⬆️ Depends on: #805 (Phase 1 — defines bright-line technique)
+
+
+    Depended on by:
+
+    - ⬇️ #807 (Phase 3)'
+  created_at: '2026-05-22T02:44:17Z'
+  user: michael-conrad
+- body: "## Scope Expansion: Repo-Agnosticism Absorbed from #514\n\n**Supersedes #514\
+    \ (stale cross-repo references).** The repo-agnosticism intent from #514 is now\
+    \ part of this spec's scope.\n\n### What Changed\n\n- **SC-10** (content-verification):\
+    \ No instructional references to project-specific classes/files/directories\n\
+    - **SC-11** (content-verification): All notebook/pgserver/NLP rules conditionalized\
+    \ with applicability guards\n- **SC-12** (content-verification): Cross-reference\
+    \ examples in instructional contexts use generic names\n- **SC-13** (behavioral):\
+    \ Agent does NOT reference nonexistent infrastructure when following a rule\n\
+    - **SC-14** (behavioral): Agent conditionalizes notebook rules when project has\
+    \ no notebooks\n- **SC-15** (behavioral): Agent does NOT mandate NLTK for non-NLP\
+    \ projects\n\n### Rationale for Absorption\n\n#514 and this spec share the same\
+    \ file scope (all guideline files). Executing #514 as a standalone targeted cleanup\
+    \ would create merge conflicts with this spec's rewrite. The efficient path is\
+    \ to apply both treatments in one pass: every file gets bright-line conversion\
+    \ AND repo-agnostic generalization simultaneously.\n\n### What Was Not Absorbed\n\
+    \n- **Category A2 (Illustrative references)** — Acceptable to keep. The pattern\
+    \ is what matters, not the example name. No SC needed.\n- **Priority ordering\
+    \ (P1-P7)** — This spec already processes all files. Priority is implicit in the\
+    \ rewrite order.\n\n### Dependency Graph Update\n\n```\n#805 (Phase 1 — bright-line\
+    \ technique) [COMPLETED]\n  └── #806 (Phase 2 — guideline rewrite + repo-agnosticism)\
+    \ [THIS ISSUE]\n        └── #807 (Phase 3 — per-skill/task re-anchors)\n```\n\n\
+    \U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)"
+  created_at: '2026-07-02T02:30:41Z'
+  user: michael-conrad

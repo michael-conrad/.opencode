@@ -1,0 +1,74 @@
+number: 1168
+title: '[BUG] solve state init rejects --var-name/--var-value — requires two-step
+  init+update dance'
+status: open
+labels:
+- bug
+body: '## Bug
+
+
+  `solve state init` CLI rejects `--var-name`/`--var-value` flags with "init does
+  not accept any arguments", forcing a two-step workflow (`solve state init` then
+  `solve state update`) to create a state file with initial variables.
+
+
+  ### Reproduction
+
+
+  ```bash
+
+  solve state init ./tmp/state/ --var-name current_step --var-value pre-red-baseline
+
+  # Error: init does not accept any arguments
+
+
+  # Must do instead:
+
+  solve state init ./tmp/state/
+
+  solve state update ./tmp/state/ --var-name current_step --var-value pre-red-baseline
+
+  ```
+
+
+  ### Expected Behavior
+
+
+  `--var-name`/`--var-value` should be accepted on `state init`, so a single call
+  creates a state file with the specified initial variables. The values should be
+  validated against `--contract-path` just like `state update` does.
+
+
+  ### Impact
+
+
+  - Forces two-step dance in scripts and pipeline automation
+
+  - Inconsistent CLI — `state update` accepts `--var-name`/`--var-value` but `state
+  init` doesn''t
+
+  - Every pipeline step that creates a new state file needs an extra tool call
+
+
+  ### Tool
+
+
+  `.opencode/tools/solve` — `state init` action handler
+
+
+  ### Workaround
+
+
+  `solve state init <path>` then `solve state update <path> --var-name X --var-value
+  Y` in two calls.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)'
+created_at: '2026-06-13T19:15:35Z'
+updated_at: '2026-06-13T19:15:35Z'
+remote_issue: 1168
+remote_url: https://github.com/michael-conrad/.opencode/issues/1168
+promoted_at: '2026-08-27T03:25:12.575194+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.575194+00:00'
+author: michael-conrad

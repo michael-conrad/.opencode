@@ -1,0 +1,71 @@
+number: 2335
+title: '[BUG] critical-rules-070 session-survival closure rule over-broad — should
+  apply only to work-performed-no-PR closures, not verified-moot/duplicate issues'
+status: open
+labels: []
+body: '## Problem
+
+
+  The rule in `.opencode/skills/git-workflow-cleanup/SKILL.md:84` states "Issues created
+  by the agent in a session MUST survive at least one session boundary before closure."
+  It is over-broad: it applies uniformly to ALL issues created in-session, including
+  those verified as moot/duplicate/already-implemented with zero remaining work. Example:
+  WeekliesPDFs#52 (created this session, a spec for an IntegerField.get() fix) was
+  a verified duplicate of xBaseJ#68 (merged, approved-for-pr, fix present at xBaseJ@385f091).
+  It had zero remaining work, yet the blanket session-survival rule forced it to remain
+  open, creating cleanup debt.
+
+
+  ## Root cause
+
+
+  The rule''s origin (`.opencode#1335`) targeted a specific anti-pattern — an agent
+  creating bug issues, fixing them, and closing them all in one session BEFORE any
+  PR merged, severing the audit trail between report and resolution. But the rule
+  text as written is a blanket time-based constraint ("survive one session boundary")
+  with no carve-out for verified-moot/duplicate/already-implemented issues, where
+  no audit trail is severed because no work remains or the work was already delivered
+  upstream.
+
+
+  ## Scope
+
+
+  Narrow the session-survival rule to apply ONLY when the closure would sever an audit
+  trail — i.e., the issue had work performed on it but no PR was merged to deliver
+  that work. Verified-moot/duplicate/already-implemented issues (with tool-call evidence)
+  MAY be closed in-session.
+
+
+  ## Approach
+
+
+  Amend critical-rules-070 in git-workflow-cleanup/SKILL.md: "Issues created by the
+  agent in a session MUST survive at least one session boundary before closure when
+  the closure would sever an audit trail — i.e., when work was performed on the issue
+  but no PR was merged to deliver it. This does NOT apply to issues verified as moot,
+  duplicate, or already-implemented (with tool-call evidence), which may be closed
+  in-session."
+
+
+  ## Impact
+
+
+  Prevents completed/moot/duplicate tickets from lingering open across sessions (reducing
+  cleanup debt) while preserving the audit-trail protection for genuine work-performed-no-PR
+  closures. Risk: low — the exemption requires verification evidence (duplicate of
+  merged fix, or already-implemented), so it does not weaken premature-closure protection
+  for legitimate in-flight work.
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) created
+
+  '
+created_at: '2026-08-26T15:58:43Z'
+updated_at: '2026-08-26T16:22:11Z'
+remote_issue: 2335
+remote_url: https://github.com/michael-conrad/.opencode/issues/2335
+promoted_at: '2026-08-27T03:25:12.624134+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.624134+00:00'
+author: michael-newsrx

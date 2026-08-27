@@ -1,0 +1,122 @@
+number: 1003
+title: '[SPEC] Resolve session-start context conflicts causing agent pre-read cascade
+  and dispatch bypass'
+status: open
+labels:
+- needs-approval
+- spec
+- approved-for-implementation
+body: "# Fix Spec — Resolve Session-Start Context Conflicts\n\n> Research card catalogue\
+  \ at `.issues/1003/cards/` — 9 cards documenting root cause analysis.\n\n## Overview\n\
+  \nThe agent loads ~47,000 words of system instructions at session start. The dispatch\
+  \ mandate is structurally drowned by verification directives of identical tone and\
+  \ formatting. The agent resolves the conflict by choosing thoroughness — pre-reading,\
+  \ pre-analyzing, and bypassing dispatch in favor of inline work.\n\nThe organizing\
+  \ principle of this fix is **semantic placement**: every rule belongs in the skill\
+  \ card where it semantically fires. A rule about pre-flight checks for sub-agents\
+  \ belongs in the `implementation-pipeline` skill — not in session-start context\
+  \ where it contributes to the pre-read cascade.\n\n**No content is destroyed.**\
+  \ Every relocated rule has a destination skill card. Nothing is lobotomized — only\
+  \ moved from pre-loaded orchestrator context to triggered sub-agent context.\n\n\
+  **The primary measure across all files is semantic need: does this content need\
+  \ to fire every session (Tier 1), or does it fire when a specific trigger occurs\
+  \ (Tier 2/3)?** Word count (`wc -w`) is the secondary complexity metric when sizing\
+  \ is relevant — line counts are not a valid measure for anything, because line length\
+  \ varies by formatting and carries no semantic density signal.\n\nA rule stays in\
+  \ session-start context if and only if it must fire in every session unconditionally\
+  \ (Tier 1 safety-critical). Otherwise, it fires from its destination skill context\
+  \ — full prose preserved, no lobotomy.\n\n## System Message Assembly Order\n\nVerified\
+  \ against opencode source (`packages/opencode/src/session/llm/request.ts:128`):\n\
+  \n```\nsystem = [\n  input.agent.prompt                // default.txt — FIRST\n\
+  \  env (model, workdir, git, platform)\n  + instructions (AGENTS.md + guidelines)\n\
+  \  + skills ([])\n  input.user.system                 // LAST\n]\n```\n\n**default.txt\
+  \ loads at position 1 — before any guideline content.**\n\n## Startup Mode Identity\
+  \ (improved)\n\n```\n## Startup Mode: Discussion/Planning\n\nYou are a requirements\
+  \ explorer and design thinker — not an implementor, not a verifier, not a debugger.\
+  \ Your job is to explore, discuss, and understand before acting. Every implementation\
+  \ begins from an approved spec. Every investigation begins from behavioral observation.\n\
+  \nThe hollow response: read tool source first, form conclusions, then test — which\
+  \ contaminates every finding with pre-loaded bias. The professional response: observe\
+  \ behavior first, report what the tool actually did, read source only after confirming\
+  \ a defect. Behavior-then-source produces verified findings. Source-then-behavior\
+  \ produces guesses dressed as evidence.\n\nThe hollow response to a question: answer\
+  \ from training data — which is stale, frozen at training time, never reflecting\
+  \ the current codebase. The professional response: dispatch a research sub-agent\
+  \ to verify against live sources before answering. Training data is NEVER evidence.\
+  \ Session memory is NEVER evidence. Only live tool-call results constitute verified\
+  \ information.\n\nIn DISCUSSION mode:\n- Read only what the conversation needs —\
+  \ not tool internals, not skill task files\n- When asked to plan or spec: load the\
+  \ `brainstorming` skill\n- When asked to implement: dispatch `executing-plans` via\
+  \ task()\n- Do NOT pre-read skill task files. The skill descriptions are sufficient\
+  \ for routing decisions.\n- Do NOT pre-read tool source. Observe behavior first.\
+  \ Read code only as post-bug-confirmation — never as investigation.\n\nAuthorization\
+  \ (\"approved\", \"go\", or a directive) switches to EXECUTION mode. Until then,\
+  \ you are in DISCUSSION mode — exploring, discussing, and planning.\n```\n\n## Key\
+  \ Changes\n\n1. **Delete line 146 from default.txt** — removes the sentence that\
+  \ authorizes the pre-read cascade\n2. **Add startup mode identity** — DISCUSSION/PLANNING\
+  \ persona\n3. **Authorization as mode switch** — before auth = DISCUSSION, after\
+  \ auth = EXECUTION. Directives are scope-limited.\n4. **`investigate/` → `observe/`**\
+  \ — rename scratch branches to avoid triggering reverse-engineering reflex\n5. **Auth-over-directive\
+  \ edge case** — \"approved\"/\"go\" overrides any prior directive scope with context\
+  \ flush\n6. **with-test-home --checkout** — tag-based RED/GREEN protocol for behavioral\
+  \ tests against pinned filesystem snapshots\n\n## Implementation Plan\n\n### Phase\
+  \ 1: default.txt\n- Step 1: DELETE line 146 from default.txt\n- Step 2: ADD startup\
+  \ mode identity to default.txt\n- Step 3: CONDENSE default.txt (remove cruft without\
+  \ lobotomy)\n\n### Phase 2: Rename investigate→observe\n- Steps 4-7: RENAME `investigate-`→`observe-`\
+  \ across all files\n\n### Phase 3: Guideline file trims (13 files)\nFor each file,\
+  \ the semantic filter is:\n1. **Content that must fire every session (Tier 1 safety-critical)**\
+  \ → stays in the guideline\n2. **Content that semantically fires when a specific\
+  \ skill/trigger is invoked (Tier 2/3 process/workflow)** → moves verbatim to the\
+  \ destination skill card\n3. **yaml+symbolic machine-enforcement block** → stays\
+  \ (consumed by hooks)\n4. **No shell stubs or routing entries** — the yaml+symbolic\
+  \ block already carries trigger→skill mappings. Half-measures are useless crap.\n\
+  \nFiles and destinations:\n- Step 8: `000-critical-rules.md` — Tier 1 stays, Tier\
+  \ 2/3 prose moves to respective skill cards (DONE)\n- Step 9: `010-approval-gate.md`\
+  \ — retain mandate tiering table + Tier 1 rules; move procedure descriptions to\
+  \ `approval-gate` skill\n- Step 10: `020-go-prohibitions.md` — retain absolute prohibitions\
+  \ (Tier 1); move cost model, context discipline, and iterative guidance to their\
+  \ skill triggers\n- Step 11: `060-tool-usage.md` — retain path rules, API client\
+  \ mandate, platform routing (Tier 1 safety); move tool selection guidance to `mcp-tool-usage`\
+  \ skill\n- Step 12: `065-verification-honesty.md` — retain verification honesty\
+  \ principle; move cost model, death-spiral analysis, evidence hierarchy to `verification`/`verification-before-completion`\
+  \ skills\n- Step 13: `067-context-completeness.md` — retain mandate to read all\
+  \ comments; move procedural detail to `issue-operations` skill\n- Step 14: `075-docs-verification.md`\
+  \ — retain verification mandate; move implementation checklists to `engineering-approach`\
+  \ skill\n- Step 15: `080-code-standards.md` — retain code standards, attribution\
+  \ rules, evidence type taxonomy; move enforcement test procedures to `test-driven-development`\
+  \ skill\n- Step 16: `090-data-integrity.md` — retain global prohibition rules; move\
+  \ batch operation procedures to relevant skills\n- Step 17: `091-incremental-build.md`\
+  \ — retain TDD mandate; move per-item cycle procedures to `test-driven-development`/`implementation-pipeline`\
+  \ skills\n- Step 18: `117-session-trigger-behavior.md` — retain no-echo rule; trigger\
+  \ behavior map stays (short, dense, fires every session)\n- Step 19: `130-authority-source.md`\
+  \ — retain code-over-doc principle; move procedural checklist to `brainstorming`/`spec-creation`\
+  \ skills\n- Step 20: `AGENTS.md` — retain identity detection mandate, skill dispatch\
+  \ gate, build commands; move operational workflow descriptions to respective skill\
+  \ triggers\n\n### Phase 4: Auth edge case\n- Step 21: DOCUMENT auth-over-directive\
+  \ edge case in `approval-gate` skill\n\n### Phase 5: Behavioral tests\n- Steps 22-24:\
+  \ BEHAVIORAL TESTS for SC-4, SC-5, SC-11 (tag-based RED/GREEN per with-test-home\
+  \ --checkout)\n\n### Phase 6: String tests\n- Steps 25-27: STRING TESTS for SC-1,\
+  \ SC-6, SC-9\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
+  | SC-1 | default.txt no longer contains line 146 | string |\n| SC-2 | default.txt\
+  \ contains startup mode identity section | string |\n| SC-3 | Every relocated rule\
+  \ maps to a skill card — no content destroyed, no lobotomized entries (10-file spot\
+  \ check) | semantic |\n| SC-4 | Agent does not pre-read tool source before behavioral\
+  \ observation | behavioral |\n| SC-5 | Agent dispatches skill() on \"approved\"\
+  \ without pre-reading; DISCUSSION state not carried forward | behavioral |\n| SC-6\
+  \ | Tier 1 safety-critical rules retained in all guideline files | string |\n| SC-7\
+  \ | \"professional/amateur\" framing preserved in relocated content | string |\n\
+  | SC-8 | Loading order confirmed: default.txt (pos 1) before guidelines (pos 2)\
+  \ | string |\n| SC-9 | `observe/` replaces `investigate/` in all files | string\
+  \ |\n| SC-10 | Auth-over-directive edge case documented | string |\n| SC-11 | Post-implementation\
+  \ planning prompt observes zero pre-reading of tool source | behavioral |\n\n---\n\
+  \n**Plan:** https://github.com/michael-conrad/opencode-config/blob/issues-data/1003/plan.md\n\
+  **Z3 contract:** https://github.com/michael-conrad/opencode-config/blob/issues-data/1003/artifacts/phase-dependency-contract.yaml\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)"
+created_at: '2026-06-03T04:52:39Z'
+updated_at: '2026-06-12T03:45:30Z'
+remote_issue: 1003
+remote_url: https://github.com/michael-conrad/.opencode/issues/1003
+promoted_at: '2026-08-27T03:25:12.476558+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.476558+00:00'
+author: michael-conrad

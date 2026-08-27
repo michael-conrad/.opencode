@@ -1,0 +1,53 @@
+comments:
+- body: 'All 10 sub-issues created and linked:
+
+
+    | Sub-issue | Phase | Batch / Description |
+
+    |-----------|-------|--------------------|
+
+    | #873 | Phase 0 | RED Behavioral Test + approval-gate DISPATCH_GATE |
+
+    | #874 | Phase 1 | Batch 1 — Pipeline Core Skills (divide-and-conquer, vbc, executing-plans)
+    |
+
+    | #876 | Phase 2 | Batch 2 — Git/PR/Dispatch Flow Skills |
+
+    | #875 | Phase 3 | Batch 3 — Spec/Plan/Design Skills |
+
+    | #880 | Phase 4 | Batch 4 — Investigation/Review Skills |
+
+    | #877 | Phase 5 | Batch 5 — Research/Dispatch/Meta Skills |
+
+    | #881 | Phase 6 | Batch 6 — Output/Completion Skills |
+
+    | #879 | Phase 7 | Batch 7 — Operations/Quality Skills |
+
+    | #878 | Phase 8 | Batch 8 — Design/Infrastructure Skills |
+
+    | #882 | Phase 9 | Batch 9 — Verification Skills |
+
+
+    Parent plan #865 now has complete sub-issue structure. Execution blocker resolved.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-05-25T03:13:39Z'
+  user: michael-conrad
+- body: '**Interdependency notice from #587 (Skill Deck CONDITIONAL-VAGUE remediation)**
+
+
+    #587''s Operating Protocol changes (spec-creation §7/§8/§9, brainstorming §5,
+    executing-plans §3, conflict-resolution trigger, git-workflow conflict detection,
+    adversarial-audit dispatch format) modify the same SKILL.md files that #865''s
+    Canonical DISPATCH_GATE insertion targets.
+
+
+    **Sequencing guidance:** Apply #587''s Operating Protocol changes FIRST, then
+    #865''s DISPATCH_GATE insertion. This prevents DISPATCH_GATE format changes from
+    overwriting the CONDITIONAL-VAGUE remediation.
+
+
+    🤖 OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-07-11T14:38:58Z'
+  user: michael-conrad

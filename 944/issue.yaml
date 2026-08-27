@@ -1,0 +1,108 @@
+number: 944
+title: '[SPEC-FIX] "approved #N" (no qualifier) maps to for_analysis — should map
+  to for_implementation'
+status: open
+labels:
+- needs-approval
+- spec-fix
+- critical
+body: '## Problem
+
+
+  The scope-parsing dispatch table in `020-go-prohibitions.md` (lines 119, 126, 153)
+  and `approval-gate/enforcement/scope-parsing.md` define that `"approved #N"` with
+  **no qualifier** resolves to `for_analysis` scope — meaning the agent treats a bare
+  "approved #98" as read-only investigation, halting after analysis.
+
+
+  This contradicts the project convention where `approved #NN` means the developer
+  explicitly approved the issue for **implementation**. A developer who says "approved
+  #98" has already read the issue body, understands the requirements, and wants it
+  implemented — not just analyzed.
+
+
+  The mapping creates real workflow friction: every `approved #N` authorization requires
+  the developer to add a qualifier (`"approved #98 for implementation"`) to get the
+  expected behavior.
+
+
+  ## Root Cause
+
+
+  The `for_analysis` default was designed as the agent''s **self-assignment** scope
+  (for questions, bug reports, investigation requests where no authorization was given).
+  But it was incorrectly applied to the parsing path where a developer explicitly
+  says "approved #N" — which is clearly an authorization event, not an investigation
+  request.
+
+
+  The two paths are:
+
+
+  | Path | Source | Correct Default |
+
+  |------|--------|-----------------|
+
+  | **Self-assignment** | No authorization language in user message (question, bug
+  report, etc.) | `for_analysis` ✅ |
+
+  | **Developer authorization** | User says "approved #N" | `for_implementation` ❌
+  (currently `for_analysis`) |
+
+
+  The dispatch table conflates these two paths.
+
+
+  ## Fix Required
+
+
+  Change the following locations from `for_analysis` to `for_implementation` for the
+  "no qualifier" authorization case:
+
+
+  1. **`020-go-prohibitions.md` lines 119, 126, 153** — `"Approved #N" (no scope qualifier)
+  = for_analysis` → `"Approved #N" (no scope qualifier) = for_implementation`
+
+  2. **`approval-gate/enforcement/scope-parsing.md` line 11** — the `"#N approved"`
+  and `"approved #N"` (no qualifier) row should map to `for_implementation`, not `for_analysis`
+
+  3. **`approval-gate/tasks/verify-authorization/scope-auto-resolve.md`** — the table
+  row for unqualified approval
+
+  4. **`010-approval-gate.md` line 105** — default scope row
+
+  5. **`approval-gate/enforcement/auto-dispatch-table.md`** — any default scope references
+
+
+  Note: The `for_analysis` self-assignment path (when user message contains **no**
+  authorization language) must remain as `for_analysis` — that path is correct. Only
+  the developer-authorization-no-qualifier path needs fixing.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Verification |
+
+  |----|-----------|-------------|
+
+  | SC-1 | `"approved #N"` (no qualifier) resolves to `for_implementation` scope |
+  grep for `"approved #N"` + `for_implementation` in all affected files |
+
+  | SC-2 | Self-assignment path (no authorization language) still resolves to `for_analysis`
+  | Verify `for_analysis` remains as default for non-authorization messages |
+
+  | SC-3 | Behavioral test verifies agent parses `"approved #98"` → dispatches implementation
+  pipeline | `opencode-cli run ''approved #98''` → stderr shows implementation dispatch
+  |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-29T02:55:08Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 944
+remote_url: https://github.com/michael-conrad/.opencode/issues/944
+promoted_at: '2026-08-27T03:25:12.393015+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.393015+00:00'
+author: michael-conrad

@@ -1,0 +1,42 @@
+number: 2352
+title: '[SPEC] Condense 080-code-standards.md — move DI/provenance/attribution to
+  skill cards'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/080-code-standards.md` costs ~14.2k tokens (~21%
+  of burden, 2nd largest). ~65% procedural (typing/design prose, DI mandate, print
+  rules, tool-selection-by-file-type, numbering, attribution/byline, provenance headers,
+  cross-reference standards, YAML standard, triple co-application).
+
+
+  ## Scope
+
+  - **In:** Relocate the procedural sections to programming-principles / skill-creator
+  / test-driven-development; retain enforcement-test mandate, behavioral-test-substitution
+  prohibition, and the critical-rules-XXX blocks (derivation provenance, evidence-type
+  classification gate).
+
+  - **Out:** Removing any enforcement core.
+
+
+  ## Approach
+
+  Move procedural sections to shared references (code-standards-shared, attribution-provenance)
+  loaded via mandatory Read-links; retain the enforcement cores preloaded.
+
+
+  ## Impact
+
+  ~9.2k savings — 2nd biggest single win. Risk: losing enforcement-test mandate. Mitigation:
+  retain enforcement cores verbatim. Depends on shared refs + skill updates + config.
+  Action: approve.'
+created_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-27T03:14:22Z'
+remote_issue: 2352
+remote_url: https://github.com/michael-conrad/.opencode/issues/2352
+promoted_at: '2026-08-27T03:25:12.662123+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.662123+00:00'
+author: michael-conrad

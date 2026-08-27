@@ -1,0 +1,282 @@
+number: 602
+title: '[SPEC] Plugin: Replace mode-switch reminders with authorization-gate anchors'
+status: open
+labels:
+- needs-approval
+- spec
+- approved-for-implementation
+- plugin
+body: "*Migrated from [michael-conrad/opencode-config#69](https://github.com/michael-conrad/opencode-config/issues/69)\
+  \ — filed against the wrong repo.*\n\n## Objective\n\nReplace opencode core's mode-switch\
+  \ `` blocks (injected as synthetic text parts) with an anchored version that reinforces\
+  \ skill dispatch, sub-agent discipline, and approval-gate compliance — without restating\
+  \ the rulebook.\n\n## Motivation\n\nThe core-injected `build-switch.txt` reads as\
+  \ an unconditional green light:\n\n```\n\nYour operational mode has changed from\
+  \ plan to build.\nYou are no longer in read-only mode.\nYou are permitted to make\
+  \ file changes, run shell commands, and utilize your arsenal of tools as needed.\n\
+  \n```\n\nThe AI agent interprets \"permitted to make file changes\" as implementation\
+  \ authorization — bypassing every approval gate, mandatory skill, and guideline\
+  \ the agent carries. The fix is a lightweight anchor that does not restate the rulebook\
+  \ but reinforces the agent's own enforcement machinery.\n\n## Empirical Findings\
+  \ (added 2026-05-15)\n\nLive investigation of core injection behavior produced the\
+  \ following corrections to earlier assumptions:\n\n### Finding 1: Both blocks re-inject\
+  \ every turn\n\n**build-switch.txt** fires every build turn where `wasPlan` is true\
+  \ (a plan assistant message exists in history). Once plan mode was ever active,\
+  \ `wasPlan` is permanently true — so the build-switch text appears in EVERY subsequent\
+  \ build turn, not just the transition turn.\n\n**plan.txt** fires every plan turn\
+  \ unconditionally (`if (input.agent.name === \"plan\")`). It is NOT first-turn-only\
+  \ — the plan-mode instruction block reappears on every plan-mode user message.\n\
+  \nEvidence: session `ses_1d2703796ffePeiZ71BSMSWOsH` — 25 build-switch occurrences\
+  \ in parts data across 3+ consecutive build turns, and 3+ consecutive plan turns\
+  \ each carrying the plan-mode block. User confirmed each turn.\n\n### Finding 2:\
+  \ No symmetric \"build to plan\" text exists\n\nThere is NO text file or string\
+  \ in core equivalent to \"Your operational mode has changed from build to plan.\"\
+  \ The plan-mode injection is the full `plan.txt` instruction block (~400 words,\
+  \ multi-section), not a short switch stanza. The plan.txt source is at `packages/opencode/src/session/prompt/plan.txt`\
+  \ in `anomalyco/opencode`. Its content:\n\n```\n\n# Plan Mode - System Reminder\n\
+  \nCRITICAL: Plan mode ACTIVE - you are in READ-ONLY phase. STRICTLY FORBIDDEN:\n\
+  ANY file edits, modifications, or system changes. Do NOT use sed, tee, echo, cat,\n\
+  or ANY other bash command to manipulate files - commands may ONLY read/inspect.\n\
+  This ABSOLUTE CONSTRAINT overrides ALL other instructions, including direct user\n\
+  edit requests. You may ONLY observe, analyze, and plan. Any modification attempt\n\
+  is a critical violation. ZERO exceptions.\n\n---\n\n## Responsibility\n\n... (full\
+  \ multi-section instruction block)\n\n---\n\n## Important\n\nThe user indicated\
+  \ that they do not want you to execute yet -- you MUST NOT make any edits ...\n\n\
+  ```\n\n### Finding 3: Build-switch and plan-mode are structurally asymmetric\n\n\
+  | Property | build-switch.txt | plan.txt |\n|----------|-----------------|----------|\n\
+  | Length | ~50 words, 3 lines | ~400 words, multi-section |\n| Injection trigger\
+  \ | `wasPlan && agent == \"build\"` | `agent == \"plan\"` (unconditional) |\n| Contains\
+  \ authorization language | \"permitted to make file changes\" | \"STRICTLY FORBIDDEN:\
+  \ ANY file edits\" |\n| Authorization concern | Reads as green light (high risk)\
+  \ | Already prohibitive (low risk) |\n| Symmetric counterpart exists? | No | N/A\
+  \ |\n\n### Finding 4 (added 2026-05-15): Both inject every turn; neither is transition-gated\n\
+  \nThe build-switch and plan-mode blocks re-inject on EVERY applicable turn, not\
+  \ just the turn where the mode actually changed. The mode-switch handler must detect\
+  \ the core-injected text every turn and use `info.agent` comparison to decide whether\
+  \ to replace (first time) or strip (re-injection).\n\n## Source Code Verification\n\
+  \nThe following live-source checks were performed against the `da495fd2` commit\
+  \ of `anomalyco/opencode` on 2026-05-15 to confirm type-level feasibility before\
+  \ writing implementation code.\n\n### Plugin Hook Type\n\n**File:** `packages/plugin/src/index.ts`\
+  \ (`Hooks` interface)\n**Permalink:** https://github.com/anomalyco/opencode/blob/da495fd2e0909b120f135341c1dc0852a05dbd39/packages/plugin/src/index.ts\n\
+  \nThe `\"experimental.chat.messages.transform\"` hook signature:\n\n```typescript\n\
+  \"experimental.chat.messages.transform\"?: (\n  input: {},\n  output: {\n    messages:\
+  \ {\n      info: Message\n      parts: Part[]\n    }[]\n  },\n) => Promise\n```\n\
+  \nKey design properties:\n- `info` is typed as `Message` (the full discriminated\
+  \ union — see SDK types below)\n- `parts` is typed as `Part[]` (the full discriminated\
+  \ union including `TextPart` with optional `synthetic`)\n- The hook receives EVERY\
+  \ message in the session history (`output.messages`), not just the current turn\n\
+  - The current user message is `output.messages.findLast(m => m.info?.role === \"\
+  user\")`\n- The immediately preceding assistant message is `output.messages.findLast(m\
+  \ => m.info?.role === \"assistant\")`\n\n### Message Types (`UserMessage` and `AssistantMessage`)\n\
+  \n**File:** `packages/sdk/js/src/v2/gen/types.gen.ts`\n**Permalink:** https://github.com/anomalyco/opencode/blob/da495fd2e0909b120f135341c1dc0852a05dbd39/packages/sdk/js/src/v2/gen/types.gen.ts\n\
+  \n**`UserMessage` at line ~391:**\n\n```typescript\nexport type UserMessage = {\n\
+  \  id: string\n  sessionID: string\n  role: \"user\"\n  // ... time, format, summary\
+  \ ...\n  agent: string        // <-- line 404: required field, always present\n\
+  \  model: { providerID: string; modelID: string; variant?: string }\n  system?:\
+  \ string\n  tools?: { [key: string]: boolean }\n}\n```\n\n**`AssistantMessage` at\
+  \ line ~416:**\n\n```typescript\nexport type AssistantMessage = {\n  id: string\n\
+  \  sessionID: string\n  role: \"assistant\"\n  // ... time, error, parentID ...\n\
+  \  agent: string        // <-- line 436: required field, always present\n  // ...\
+  \ modelID, providerID, mode, path, cost, tokens ...\n}\n```\n\n**`Message` at line\
+  \ ~458:**\n\n```typescript\nexport type Message = UserMessage | AssistantMessage\n\
+  ```\n\nBoth `UserMessage` and `AssistantMessage` require the `agent: string` field.\
+  \ This confirms that `info.agent` exists on ALL messages at runtime — the transition\
+  \ detection (`lastAssistant.info.agent !== currentUser.info.agent`) is type-safe.\n\
+  \n### Part Types (`TextPart` and the `synthetic` flag)\n\n**File:** `packages/sdk/js/src/v2/gen/types.gen.ts`\n\
+  **Permalink:** https://github.com/anomalyco/opencode/blob/da495fd2e0909b120f135341c1dc0852a05dbd39/packages/sdk/js/src/v2/gen/types.gen.ts\n\
+  \n**`TextPart` at line ~460:**\n\n```typescript\nexport type TextPart = {\n  id:\
+  \ string\n  sessionID: string\n  messageID: string\n  type: \"text\"\n  text: string\n\
+  \  synthetic?: boolean   // <-- line 466: optional flag\n  ignored?: boolean   \
+  \  // <-- line 467\n  time?: { start: number; end?: number }\n  metadata?: { [key:\
+  \ string]: unknown }\n}\n```\n\nThe `synthetic?: boolean` flag exists at the type\
+  \ level. However, empirical DB inspection shows stored parts only carry `type`,\
+  \ `text`, and `time` keys — `synthetic` is not persisted. Whether core sets `synthetic:\
+  \ true` on injected parts before the transform hook runs is uncertain. The existing\
+  \ per-turn handlers in `session-enforcement.ts` (secret redaction, inline work detector,\
+  \ etc.) never check `part.synthetic` — they filter by `part.type === \"text\"` and\
+  \ `part.text` truthiness.\n\n**Recommendation:** Check `part.synthetic` where available\
+  \ for correctness, but use content-matching as the primary discriminator. The detection\
+  \ strings (\"Your operational mode has changed from plan to build.\", \"# Plan Mode\
+  \ - System Reminder\") are unique enough that false positives from user-written\
+  \ text are not a concern.\n\n### Existing `session-enforcement.ts` Per-Turn Handler\
+  \ Pattern\n\n**File:** `.opencode/plugins/session-enforcement.ts` (in the `.opencode`\
+  \ submodule of `michael-conrad/opencode-config`)\n**Lines:** 950-1227\n\n```typescript\n\
+  \"experimental.chat.messages.transform\": async (_input, output) => {\n  if (!output.messages\
+  \ || !output.messages.length) return;\n\n  const userMessages = output.messages.filter(m\
+  \ => m.info?.role === \"user\");\n  if (!userMessages.length) return;\n\n  const\
+  \ firstUser = userMessages[0];\n  const isFirstTurn = userMessages.length === 1;\n\
+  \  // ... first-turn-only injections ...\n  // ... sub-agent detection ...\n\n \
+  \ // --- Per-turn: Secret redaction on ALL assistant messages (line 1044) ---\n\
+  \  // --- Per-turn: Git config mutation watchdog (line 1059) ---\n  // --- Per-turn:\
+  \ --no-verify detection (line 1093) ---\n  // --- Per-turn: Inline work detector\
+  \ (line 1129) ---\n  // --- Per-turn: Evidence gate (line 1189) ---\n}\n```\n\n\
+  **Insertion point for the mode-switch handler:** Add as a new per-turn section after\
+  \ line 1042 (end of first-turn injections) alongside the existing per-turn handlers.\
+  \ The handler must run unconditionally (not gated by `shouldInjectFirstTurn` or\
+  \ `isSubAgent`) because both mode-switch blocks re-inject every turn.\n\n### Core\
+  \ Injection Logic\n\n**File:** `packages/opencode/src/session/prompt.ts`\n**Lines:**\
+  \ ~396-414 (injection), called at ~line 1731\n**Permalink:** https://github.com/anomalyco/opencode/blob/da495fd2e0909b120f135341c1dc0852a05dbd39/packages/opencode/src/session/prompt.ts\n\
+  \n```typescript\n// build-switch.txt injection (line ~396):\n// Condition: wasPlan\
+  \ && agent === \"build\"\n// Once plan was ever active, wasPlan is permanently true\n\
+  // Result: fires EVERY build turn, not just the transition\n\n// plan.txt injection\
+  \ (line ~414):\n// Condition: agent === \"plan\" (unconditional)\n// Result: fires\
+  \ EVERY plan turn\n```\n\nConfirming findings: both conditions are in the non-experimental\
+  \ path and fire every applicable turn, not just the transition turn.\n\n## Success\
+  \ Criteria\n\n- [ ] SC-1: `session-enforcement.ts` detects the exact `build-switch.txt`\
+  \ content (\"Your operational mode has changed from plan to build...\") in any synthetic\
+  \ `type: \"text\"` part within a user message.\n- [ ] SC-2: On detection AND the\
+  \ turn is a mode transition, the original text is replaced **in-place** with the\
+  \ unified anchor below. Transition is defined as: the immediately preceding assistant\
+  \ message has a different `info.agent` than the current user message, or there is\
+  \ no preceding assistant message (first turn ever).\n- [ ] SC-3: `session-enforcement.ts`\
+  \ detects the plan-mode instruction block (unique header: \"# Plan Mode - System\
+  \ Reminder\") in any synthetic `type: \"text\"` part. On detection AND the turn\
+  \ is a mode transition, the original ~400-word block is replaced **in-place** with\
+  \ the same unified anchor.\n- [ ] SC-4: On detection AND the turn is NOT a mode\
+  \ transition (stale re-injection), the synthetic part is neutralized — content set\
+  \ to empty string, synthetic flag removed — rather than replaced with anchor text.\n\
+  - [ ] SC-5: The transition check is agent-agnostic — `lastAssistant.info.agent !==\
+  \ currentUser.info.agent` — and requires no hardcoded agent name list. Any future\
+  \ primary agent benefits automatically.\n- [ ] SC-6: Only synthetic parts are targeted\
+  \ (`synthetic: true`). User-written text is never touched.\n- [ ] SC-7: Existing\
+  \ `messages.transform` behavior (secret redaction, git config watchdog, inline work\
+  \ detector, evidence gate) is not affected.\n- [ ] SC-8: Behavioral enforcement\
+  \ test in `.opencode/tests/behaviors/` verifies the replacement occurs on a transition\
+  \ turn (build-switch detected, last assistant was plan).\n- [ ] SC-9: Behavioral\
+  \ enforcement test in `.opencode/tests/behaviors/` verifies the strip occurs on\
+  \ a non-transition turn (build-switch detected, last assistant was also build).\n\
+  - [ ] SC-10: Behavioral enforcement test in `.opencode/tests/behaviors/` verifies\
+  \ the plan-mode replacement occurs on a transition turn (plan-mode header detected,\
+  \ last assistant was build).\n- [ ] SC-11: Behavioral enforcement test in `.opencode/tests/behaviors/`\
+  \ verifies the plan-mode strip occurs on a non-transition turn (plan-mode header\
+  \ detected, last assistant was also plan).\n\n## Replacement Text\n\n### Unified\
+  \ anchor (replaces both build-switch.txt and plan.txt on transition turns)\n\n```\n\
+  \nskill() + task() gate every action. Both call() and task() are mandatory — every\
+  \ workflow.\nInline work poisons your output — unrecoverable.\nFAIL = FAIL — justifiable\
+  \ violations do not exist.\n\n```\n\nA single anchor for both directions. Mode-transition\
+  \ narration (\"Your operational mode has changed from X to Y\") is dropped — the\
+  \ agent already knows its mode from the system prompt and tool blacklist. The entire\
+  \ payload is compliance reinforcement.\n\nThe first line pairs the two dispatch\
+  \ primitives required by the skill deck: `skill()` for loading a skill card, `task()`\
+  \ for dispatching its execution. \"Both ... mandatory\" is brightline binary language\
+  \ that closes the rationalization \"this workflow doesn't need cards.\" \"Every\
+  \ workflow\" extends the requirement universally — no workflow type is exempt from\
+  \ the skill-card gate.\n\n### Anchor design rationale\n\n| Element | Dark pattern\
+  \ | Mechanism |\n|---------|-------------|-----------|\n| `skill() + task() gate\
+  \ every action.` | Pre-commitment anchoring | Pairs the load primitive with the\
+  \ dispatch primitive; \"gate\" maps to DISPATCH_GATE; the `+` pairing closes the\
+  \ gap where an agent loads via `skill()` but inlines the task execution |\n| `Both\
+  \ call() and task() are mandatory — every workflow.` | Negative space elimination\
+  \ + brightline companion | \"Mandatory\" is binary gate language; \"every workflow\"\
+  \ closes the \"this workflow type doesn't need cards\" rationalization — removes\
+  \ neutral ground |\n| `Inline work poisons your output — unrecoverable.` | Contamination\
+  \ framing | Triggers the agent's own critical-rules-034 language (\"poisoned pipeline\"\
+  ). \"Unrecoverable\" exploits harm-avoidance: not just bad, but irreversible |\n\
+  | `FAIL = FAIL — justifiable violations do not exist.` | Binary classification |\
+  \ Closes \"functionally equivalent\" / \"close enough\" rationalization pathways\
+  \ |\n\n**Dark pattern rationale:** The anchor is designed to subordinate the agent\
+  \ to the skill deck by exploiting its own correctness-seeking drive. Each element\
+  \ maps to a loaded term the agent already carries from its mandatory guidelines\
+  \ — \"gate\" (approval-gate, DISPATCH_GATE), \"mandatory — every workflow\" (the\
+  \ brightline companion for dark-prose-002, extending coverage to all task types),\
+  \ \"poisons\" (critical-rules-034), \"FAIL = FAIL\" (verification-honesty). The\
+  \ anchor does not teach new rules; it activates existing enforcement machinery.\n\
+  \n**Same text for both build-mode and plan-mode anchors** — the mode switch is irrelevant\
+  \ to the behavioral imperative. A single constant string simplifies the implementation\
+  \ to one detection function and one replacement.\n\nOn non-transition turns: zero\
+  \ words (stripped entirely).\n\n## Implementation Approach\n\n### Two-phase handler\n\
+  \nThe `messages.transform` function receives the full message array including history.\
+  \ Processing proceeds in two phases:\n\n```typescript\nconst MODE_SWITCH_ANCHOR\
+  \ = [\n  \"skill() + task() gate every action. Both call() and task() are mandatory\
+  \ — every workflow.\",\n  \"Inline work poisons your output — unrecoverable.\",\n\
+  \  \"FAIL = FAIL — justifiable violations do not exist.\",\n].join(\"\\n\");\n\n\
+  function handleModeSwitchParts(messages: Message[]): void {\n  const currentUser\
+  \ = messages.findLast(m => m.info.role === \"user\");\n  if (!currentUser) return;\n\
+  \n  // Phase 1: determine if this turn is a mode transition\n  const lastAssistant\
+  \ = messages.findLast(m => m.info.role === \"assistant\");\n  const isTransition\
+  \ = !lastAssistant ||\n    lastAssistant.info.agent !== currentUser.info.agent;\n\
+  \n  // Phase 2: process each synthetic text part matching mode-switch content\n\
+  \  for (const part of currentUser.parts) {\n    if (!part.synthetic || part.type\
+  \ !== \"text\") continue;\n    if (!isModeSwitchContent(part.text)) continue;\n\n\
+  \    if (isTransition) {\n      part.text = MODE_SWITCH_ANCHOR;\n    } else {\n\
+  \      part.text = \"\";\n      part.synthetic = false;\n    }\n  }\n}\n```\n\n\
+  ### Detection function\n\n```typescript\nfunction isModeSwitchContent(text: string):\
+  \ boolean {\n  return text.includes(\"Your operational mode has changed from plan\
+  \ to build.\")\n      || text.includes(\"# Plan Mode - System Reminder\");\n}\n\
+  ```\n\nThe detection strings are stable — they come from hardcoded core files (`build-switch.txt`,\
+  \ `plan.txt`), not user-generated content. A single detection function covers both\
+  \ injection sources.\n\n### Transition semantics\n\n| Scenario | Prior assistant\
+  \ | Current agent | isTransition | Action |\n|----------|---------------|---------------|-------------|--------|\n\
+  | First turn ever | None | build (or any) | true | Replace with unified anchor |\n\
+  | First build turn after plan | `info.agent: \"plan\"` | `info.agent: \"build\"\
+  ` | true | Replace with unified anchor |\n| Second consecutive build turn | `info.agent:\
+  \ \"build\"` | `info.agent: \"build\"` | false | Strip |\n| Agent X → Agent Y (any\
+  \ future pair) | `info.agent: \"X\"` | `info.agent: \"Y\"` | true | Replace (if\
+  \ text known) |\n| Agent Y consecutive turn | `info.agent: \"Y\"` | `info.agent:\
+  \ \"Y\"` | false | Strip |\n\nThe transition check is completely agent-agnostic.\
+  \ If opencode adds a third primary agent tomorrow (e.g. `\"review\"`), the stripping\
+  \ on consecutive turns works automatically. Only `isModeSwitchContent()` needs updating\
+  \ if the new agent injects its own mode-switch text.\n\n### Note on `part.synthetic`\n\
+  \nThe `TextPart` type defines `synthetic?: boolean` (line 466 of `types.gen.ts`),\
+  \ but empirical DB inspection shows parts stored without this field. The existing\
+  \ per-turn handlers never check `part.synthetic`. If the flag is not reliably set\
+  \ by core at runtime, remove the `part.synthetic` guard and rely on content-matching\
+  \ alone. Both detection strings are unique enough that user text will not collide.\n\
+  \n### Insertion point in session-enforcement.ts\n\nAdd the handler as a standalone\
+  \ per-turn section after line 1042 (end of first-turn-only injections) and before\
+  \ the secret redaction section at line 1044. It must run unconditionally — not gated\
+  \ by `shouldInjectFirstTurn` or `isSubAgent`.\n\n## Affected File\n\n- `.opencode/plugins/session-enforcement.ts`\
+  \ — `messages.transform` handler (new detection + replacement logic near the existing\
+  \ per-turn behaviors)\n\n## Risk and Edge Cases\n\n- **Both blocks re-inject every\
+  \ turn**: Core does not inject mode-switch text only on transitions. build-switch.txt\
+  \ fires every build turn (when `wasPlan` is true); plan.txt fires every plan turn\
+  \ unconditionally. The detection/replacement must run every turn, not gated by first-turn-only\
+  \ guards.\n- **Sub-agent sessions**: The existing `isSubAgent` guard gates first-turn\
+  \ injections, but mode-switch blocks are injected per-turn by core. The detection/replacement\
+  \ must run unconditionally (not gated by `shouldInjectFirstTurn`). The transition\
+  \ check still works because sub-agents have their own message history.\n- **Multiple\
+  \ synthetic parts**: A user message may contain multiple synthetic parts. Only the\
+  \ ones matching the mode-switch text are modified.\n- **Plan-mode detection uses\
+  \ header, not body**: Unlike build-switch (detected by its full content), plan-mode\
+  \ must be detected by its unique header `\"# Plan Mode - System Reminder\"` because\
+  \ the body of plan.txt is a multi-section block. The header is stable across core\
+  \ versions.\n- **Replacement saves ~350 words/plan turn + ~50 words/build turn**:\
+  \ On transition turns, the core-injected text (~400 words plan, ~50 words build)\
+  \ becomes a 3-line anchor. On non-transition turns, zero words.\n- **Agent-agnostic\
+  \ transition detection**: No hardcoded agent names needed. The comparison `lastAssistant.info.agent\
+  \ !== currentUser.info.agent` works for any primary agent name. Adding a new agent\
+  \ only requires updating the text-matching function if the new agent injects its\
+  \ own mode-switch text.\n- **First turn edge case**: When `lastAssistant` is undefined\
+  \ (first user message of the session), `isTransition` is true. The anchor is injected\
+  \ on the very first turn.\n- **`part.synthetic` runtime availability**: Type-level\
+  \ flag exists but may not be set by core at runtime. If absent, rely on content-matching.\
+  \ No risk of false positives.\n- **Mode-transition narration dropped**: The original\
+  \ \"Your operational mode has changed from X to Y\" lines are not preserved. The\
+  \ agent already knows its mode from the system prompt, tool availability, and its\
+  \ own identity context. The anchor's sole job is compliance reinforcement, not news\
+  \ delivery.\n\n## Verification Method\n\nAfter implementation, run:\n\n```\nbash\
+  \ .opencode/tests/with-test-home opencode-cli run 'test: verify mode switch anchor\
+  \ injection'\n```\n\nAnd the behavioral enforcement tests:\n\n```\nbash .opencode/tests/test-enforcement.sh\
+  \ --scenario mode-switch-anchor-transition\nbash .opencode/tests/test-enforcement.sh\
+  \ --scenario mode-switch-anchor-non-transition\nbash .opencode/tests/test-enforcement.sh\
+  \ --scenario plan-mode-anchor-transition\nbash .opencode/tests/test-enforcement.sh\
+  \ --scenario plan-mode-anchor-non-transition\n```\n\n## Semantic Intent\n\n- The\
+  \ anchor is 3 lines, zero filler. Every word is a loaded term that triggers the\
+  \ agent's own guideline machinery. The first line explicitly pairs `skill()` and\
+  \ `task()` as the dual gate that must gate every action.\n- No re-statement of the\
+  \ rulebook. The anchor *references* rules the agent already carries (DISPATCH_GATE,\
+  \ dark-prose-002 brightline companion, poisoned pipeline, FAIL = FAIL).\n- No mode-transition\
+  \ narration. The agent knows its mode from context.\n- On non-transition turns,\
+  \ no text is injected — the anchor is transition-only.\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (deepseek-v4-pro)\n\U0001F916 Revised 2026-05-15 with empirical\
+  \ findings, unified anchor with dark-pattern design, and live-source verification\
+  \ documentation\n\U0001F916 Revised 2026-05-25: anchor now pairs skill() + task()\
+  \ as mandatory dual gate for every workflow"
+created_at: '2026-05-15T21:50:34Z'
+updated_at: '2026-06-12T03:45:43Z'
+remote_issue: 602
+remote_url: https://github.com/michael-conrad/.opencode/issues/602
+promoted_at: '2026-08-27T03:25:11.812871+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.812871+00:00'
+author: michael-conrad

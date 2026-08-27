@@ -1,0 +1,80 @@
+number: 592
+title: '[SPEC] executing-plans — progress tracking means verifiable artifacts, not
+  cached metadata'
+status: open
+labels:
+- needs-approval
+- spec
+- skill-deck
+body: '# SPEC: executing-plans — Progress Tracking Means Verifiable Artifacts
+
+
+  Parent plan: #587
+
+
+  ## Problem
+
+
+  `skills/executing-plans/SKILL.md` Operating Protocol §3 says "Track phase progress
+  against plan sub-issues" — the orchestrator has no definition of what "track progress"
+  means procedurally (format, storage, consumer), and cached metadata cannot be trusted
+  on restart.
+
+
+  ## Success Criteria
+
+
+  ### SC-1: Progress tracking defined as artifact production
+
+
+  `skills/executing-plans/SKILL.md` Operating Protocol §3 updated. Progress tracking
+  means each phase produces verifiable artifacts — test output, audit verdicts, completion
+  evidence. These are written to `./tmp/artifacts/` (standardized path per #529 SC-6).
+
+
+  On restart, the orchestrator does NOT read cached metadata or progress flags. It
+  dispatches adversarial auditors against the plan''s spec SCs to determine what''s
+  done. The artifact trail + auditor verification is the truth.
+
+
+  ### SC-2: execute task updated
+
+
+  `skills/executing-plans/tasks/execute.md` — if any, update to reflect artifact production
+  as the tracking mechanism rather than metadata recording.
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |---|---|
+
+  | `skills/executing-plans/SKILL.md` | §3 rewrite |
+
+  | `skills/executing-plans/tasks/execute.md` | Update if references progress tracking
+  |
+
+
+  ## Out of Scope
+
+
+  - Phase sub-issue structure (already defined by plan)
+
+  - Authorization gate behavior
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-15T05:29:16Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 592
+remote_url: https://github.com/michael-conrad/.opencode/issues/592
+promoted_at: '2026-08-27T03:25:11.768291+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.768291+00:00'
+author: michael-conrad

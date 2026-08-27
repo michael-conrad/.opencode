@@ -1,0 +1,562 @@
+number: 985
+title: '[PLAN] Phase 1: Rewrite local-issues CLI tool'
+status: open
+labels:
+- needs-approval
+- plan
+body: 'Spec: #981
+
+  File: `.opencode/tools/local-issues`
+
+  Authorization: `for_implementation` (auto-approved)
+
+
+  ---
+
+
+  ## Phase 1.1 — Scaffold
+
+
+  **Why:** Foundation for all subsequent phases — PEP 723 script header, constants,
+  helper imports, argument parser, and main dispatcher.
+
+
+  **What:** `local-issues` script with shebang, dependency annotations, constants
+  (`ISSUES_DIR=".issues"`, `WORKTREE_BRANCH="issues"`), helpers (`read_file`, `write_file`,
+  `yaml_dump`), `argparse` subparser registration, and `def main()` dispatcher.
+
+
+  **Verification:**
+
+  - Run `uv run .opencode/tools/local-issues --help` and confirm expected subcommands
+  listed in output
+
+  - Saved artifact: `./tmp/artifacts/phase-1.1-help-output.txt`
+
+
+  **What could go wrong:** PEP 723 metadata block parser may reject certain annotations;
+  test after writing.
+
+
+  **Dependencies:** None (foundation phase)
+
+
+  **TDD:**
+
+  1. RED: Write stub file, run `--help` → fails (file absent or incomplete)
+
+  2. GREEN: Create scaffold with all placeholders
+
+  3. REFACTOR: Verify `--help` output shows all 14 subcommands
+
+
+  ---
+
+
+  ## Phase 1.2 — `_ensure_worktree()`
+
+
+  **Why:** Transparent worktree management — detect stale worktrees, auto-create on
+  first mutation, migrate existing `.issues/`, fall back to plain files if worktree
+  creation fails.
+
+
+  **What:** Function detecting worktree state, remediating stale entries (prune +
+  recreate), creating from scratch, migrating existing `.issues/` content, and graceful
+  `.issues/` fallback when worktree unavailable.
+
+
+  **Verification:**
+
+  - RED test: Invoke mutation without worktree → `_ensure_worktree()` creates one,
+  verify with `git worktree list`
+
+  - Clean-room assertion in `./tmp/artifacts/phase-1.2-ensure-worktree.log`
+
+
+  **What could go wrong:** Stale worktree entries requiring `git worktree prune`;
+  race conditions on concurrent sessions.
+
+
+  **Dependencies:** Phase 1.1 (needs scaffold)
+
+
+  **TDD:**
+
+  1. RED: Run function without worktree → confirm worktree absent
+
+  2. GREEN: Implement detection → creation → migration → fallback
+
+  3. REFACTOR: Test stale detection and fallback paths
+
+
+  ---
+
+
+  ## Phase 1.3 — Auto-commit
+
+
+  **Why:** Every mutation must atomically commit to the `.issues` branch after completion
+  — ensures rollback safety and push-readiness.
+
+
+  **What:** `_auto_commit()` called after every mutation (create/update/comment/close/delete).
+  Detects worktree state, stages `.issues/` changes, commits with descriptive message.
+
+
+  **Verification:**
+
+  - Run mutation command, check `git log` for auto-commit presence → `./tmp/artifacts/phase-1.3-auto-commit.log`
+
+
+  **What could go wrong:** Empty commits when no changes detected; commit message
+  format inconsistencies.
+
+
+  **Dependencies:** Phase 1.2 (needs worktree)
+
+
+  **TDD:**
+
+  1. RED: Run mutation, check no auto-commit exists
+
+  2. GREEN: Implement `_auto_commit()` with staged changes
+
+  3. REFACTOR: Verify commit message format and skip-empty logic
+
+
+  ---
+
+
+  ## Phase 1.4 — `create` command
+
+
+  **Why:** Create a new local issue with `--number`, `--title`, `--labels`. Implicitly
+  sets up worktree on first call.
+
+
+  **What:** `create` subcommand creating `.issues/NNN/issue.yaml` with frontmatter,
+  `.issues/NNN/comments.yaml`, `.issues/NNN/links.yaml`. Calls `_ensure_worktree()`
+  + `_auto_commit()`.
+
+
+  **Verification:**
+
+  - Run `create --number 1 --title "Test" --labels bug` → verify `.issues/1/issue.yaml`
+  exists with correct YAML → `./tmp/artifacts/phase-1.4-create-output.yaml`
+
+
+  **What could go wrong:** Number collision detection; malformed YAML frontmatter.
+
+
+  **Dependencies:** Phase 1.2, 1.3
+
+
+  **TDD:**
+
+  1. RED: Create issue, verify file does not exist yet
+
+  2. GREEN: Implement create with file writes
+
+  3. REFACTOR: Test duplicate-number rejection
+
+
+  ---
+
+
+  ## Phase 1.5 — `read` command
+
+
+  **Why:** Read issue data as YAML with `--type full|comments|labels|links|all`.
+
+
+  **What:** `read` subcommand loading issue files and outputting structured YAML via
+  `yaml_dump()`.
+
+
+  **Verification:**
+
+  - Run `read --number 1 --type full` → verify correct YAML output → `./tmp/artifacts/phase-1.5-read-output.yaml`
+
+
+  **What could go wrong:** Missing issue files produce informative error; YAML formatting
+  edge cases.
+
+
+  **Dependencies:** Phase 1.4 (needs created issue to read)
+
+
+  **TDD:**
+
+  1. RED: Run read on non-existent issue → error expected
+
+  2. GREEN: Implement read with file loading
+
+  3. REFACTOR: Test all `--type` variants
+
+
+  ---
+
+
+  ## Phase 1.6 — `read-comments` command
+
+
+  **Why:** YAML pass-through of `.issues/NNN/comments.yaml`.
+
+
+  **What:** Thin subcommand reading comments file and dumping as YAML.
+
+
+  **Verification:**
+
+  - Run `read-comments --number 1` → verify YAML matches file → `./tmp/artifacts/phase-1.6-comments.yaml`
+
+
+  **What could go wrong:** Empty comments file producing empty but valid YAML.
+
+
+  **Dependencies:** Phase 1.4
+
+
+  **TDD:**
+
+  1. RED: Read comments on issue with none → expect empty YAML
+
+  2. GREEN: Implement comments loader
+
+  3. REFACTOR: Add comment then re-read to verify
+
+
+  ---
+
+
+  ## Phase 1.7 — `read-labels` command
+
+
+  **Why:** YAML frontmatter label extraction from `.issues/NNN/issue.yaml`.
+
+
+  **What:** Subcommand parsing `labels` field from issue.yaml frontmatter and outputting
+  as YAML list.
+
+
+  **Verification:**
+
+  - Run `read-labels --number 1` → verify YAML list output → `./tmp/artifacts/phase-1.7-labels.yaml`
+
+
+  **What could go wrong:** Missing labels field producing empty list vs error.
+
+
+  **Dependencies:** Phase 1.4
+
+
+  **TDD:**
+
+  1. RED: Labels absent → expect empty list
+
+  2. GREEN: Implement label extraction
+
+  3. REFACTOR: Create issue with multiple labels, verify output
+
+
+  ---
+
+
+  ## Phase 1.8 — `read-sub-issues` command
+
+
+  **Why:** YAML output from `.issues/NNN/links.yaml` showing sub-issue relationships.
+
+
+  **What:** Subcommand reading links.yaml and outputting as YAML.
+
+
+  **Verification:**
+
+  - Run `read-sub-issues --number 1` → verify YAML output → `./tmp/artifacts/phase-1.8-sub-issues.yaml`
+
+
+  **What could go wrong:** Malformed links.yaml; issue has no sub-issues (empty links).
+
+
+  **Dependencies:** Phase 1.4
+
+
+  **TDD:**
+
+  1. RED: Read sub-issues on issue with none → expect empty
+
+  2. GREEN: Implement links parser
+
+  3. REFACTOR: Link an issue then re-read
+
+
+  ---
+
+
+  ## Phase 1.9 — `update` command
+
+
+  **Why:** Modify issue fields: `--title`, `--status`, `--phase`, `--labels`, `--body`,
+  `--github`, `--remote-url`.
+
+
+  **What:** Subcommand reading issue.yaml, applying in-memory modifications, writing
+  back, and auto-committing.
+
+
+  **Verification:**
+
+  - Run `update --number 1 --title "New Title"` → verify issue.yaml title changed
+  → `./tmp/artifacts/phase-1.9-update.yaml`
+
+
+  **What could go wrong:** Partial update losing unmodified fields; `--github` requiring
+  remote validation.
+
+
+  **Dependencies:** Phase 1.4, 1.3
+
+
+  **TDD:**
+
+  1. RED: Update non-existent field → expect error
+
+  2. GREEN: Implement full update with field merging
+
+  3. REFACTOR: Test each flag combination
+
+
+  ---
+
+
+  ## Phase 1.10 — `comment` command
+
+
+  **Why:** Add comments with `--type internal|stakeholder` and auto-push on stakeholder
+  type.
+
+
+  **What:** Subcommand appending to `.issues/NNN/comments.yaml`. Stakeholder type
+  triggers `push-body` automatically.
+
+
+  **Verification:**
+
+  - Add internal comment, verify it appears in comments.yaml → `./tmp/artifacts/phase-1.10-comment-internal.yaml`
+
+  - Add stakeholder comment, verify push was triggered in log → `./tmp/artifacts/phase-1.10-comment-stakeholder.log`
+
+
+  **What could go wrong:** Timestamp format inconsistencies; stakeholder-type auto-push
+  failure.
+
+
+  **Dependencies:** Phase 1.6, 1.13 (push-body)
+
+
+  **TDD:**
+
+  1. RED: Comment absent → add and confirm
+
+  2. GREEN: Implement comment appending with type-aware push
+
+  3. REFACTOR: Test both types
+
+
+  ---
+
+
+  ## Phase 1.11 — `close` command
+
+
+  **Why:** Close an issue with `--reason completed|not_planned|duplicate`.
+
+
+  **What:** Subcommand updating `issue.yaml` status field and marking as closed. Supports
+  duplicate linking via `--duplicate-of`.
+
+
+  **Verification:**
+
+  - Run `close --number 1 --reason completed` → verify status in YAML → `./tmp/artifacts/phase-1.11-close.yaml`
+
+
+  **What could go wrong:** Closing already-closed issue; duplicate-of referencing
+  non-existent issue.
+
+
+  **Dependencies:** Phase 1.9
+
+
+  **TDD:**
+
+  1. RED: Close fails before implementation
+
+  2. GREEN: Implement close with status update
+
+  3. REFACTOR: Test all three reasons and duplicate-of
+
+
+  ---
+
+
+  ## Phase 1.12 — `delete` command
+
+
+  **Why:** Delete issue with `--force` guard for linked issues. Refuses without `--force`
+  if links exist.
+
+
+  **What:** Subcommand checking links.yaml for dependencies. If non-empty and no `--force`,
+  abort with error.
+
+
+  **Verification:**
+
+  - Create linked issue, delete without `--force` → verify error message → `./tmp/artifacts/phase-1.12-delete-guard.log`
+
+
+  **What could go wrong:** Race condition — link added between check and delete; directory
+  cleanup.
+
+
+  **Dependencies:** Phase 1.4, 1.8
+
+
+  **TDD:**
+
+  1. RED: Delete without force → expect error
+
+  2. GREEN: Implement force-guarded delete
+
+  3. REFACTOR: Test linked and unlinked deletion
+
+
+  ---
+
+
+  ## Phase 1.13 — `push-body` / `pull-body` commands
+
+
+  **Why:** Remote API sync with GitHub (`gh`) and GitBucket (`gitbucket-api`). Bidirectional
+  body propagation.
+
+
+  **What:** `push-body` reads local issue body → pushes to remote via platform client.
+  `pull-body` fetches remote body → updates local issue.yaml.
+
+
+  **Verification:**
+
+  - Run `push-body --number 1` (dry-run) → verify platform client invoked → `./tmp/artifacts/phase-1.13-push.log`
+
+  - Run `pull-body --number 1` (dry-run) → verify local file updated → `./tmp/artifacts/phase-1.13-pull.log`
+
+
+  **What could go wrong:** Platform client unavailable; body conflict between local
+  and remote.
+
+
+  **Dependencies:** Phase 1.9, platform API clients
+
+
+  **TDD:**
+
+  1. RED: Push/pull fail (no implementation)
+
+  2. GREEN: Implement push with gh/gitbucket-api dispatch
+
+  3. REFACTOR: Implement pull, test round-trip on accessible repo
+
+
+  ---
+
+
+  ## Phase 1.14 — `search` / `list` / `link` / `renumber` / `promote` commands
+
+
+  **Why:** Bulk operations — search by query, list all issues, link sub-issues, renumber
+  issues, promote to remote.
+
+
+  **What:**
+
+  - `search`: Query `.issues/` YAML files by keywords
+
+  - `list`: List all issues as YAML array
+
+  - `link`: Add entry to links.yaml
+
+  - `renumber`: Move `.issues/NNN/` to `.issues/MMM/`
+
+  - `promote`: Push local issue tree to remote as full GitHub issue
+
+
+  **Verification:**
+
+  - Run `list` → verify YAML array output → `./tmp/artifacts/phase-1.14-list.yaml`
+
+  - Run `link --number 1 --sub 2` → verify links.yaml → `./tmp/artifacts/phase-1.14-link.yaml`
+
+
+  **What could go wrong:** Renumber collision; promote losing local-only fields.
+
+
+  **Dependencies:** All prior phases
+
+
+  **TDD:**
+
+  1. RED: Each command unimplemented → error expected
+
+  2. GREEN: Implement all five commands
+
+  3. REFACTOR: Test interoperation (link → list → search)
+
+
+  ---
+
+
+  ## Success Criteria (from #981)
+
+
+  | ID | Criterion | Evidence |
+
+  |----|-----------|----------|
+
+  | SC-1 | All CLI commands exist and produce YAML output | `--help` shows 14 subcommands;
+  each produces valid YAML |
+
+  | SC-2 | `_ensure_worktree()` detects stale worktree and auto-remediates | Behavioral:
+  inject stale entry → verify prune + recreate |
+
+  | SC-3 | `_ensure_worktree()` creates worktree on first mutation if absent | Behavioral:
+  run create → verify `git worktree list` |
+
+  | SC-4 | `_ensure_worktree()` falls back to plain files if worktree creation fails
+  | Behavioral: simulate failure → verify `.issues/` operations |
+
+  | SC-5 | Auto-commit occurs after every mutation when worktree active | String:
+  `git log` shows auto-commit after mutation |
+
+  | SC-6 | `push-body` works for both GitHub and GitBucket | Behavioral: dry-run with
+  both platform clients |
+
+  | SC-7 | `pull-body` works for both GitHub and GitBucket | Behavioral: dry-run with
+  both platform clients |
+
+  | SC-8 | `delete --force` refuses without `--force` for linked issues | Behavioral:
+  linked issue delete → error without force |
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-06-02T05:04:47Z'
+updated_at: '2026-06-12T03:45:32Z'
+remote_issue: 985
+remote_url: https://github.com/michael-conrad/.opencode/issues/985
+promoted_at: '2026-08-27T03:25:12.447654+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.447654+00:00'
+author: michael-conrad

@@ -1,0 +1,100 @@
+number: 731
+title: '[SPEC] Exploration as default floor mode — agent defaults to discuss/explore
+  when intent is ambiguous'
+status: open
+labels:
+- needs-approval
+- spec
+- brainstorming
+- default-behavior
+body: "## Problem\n\nThe agent does not default to a brainstorm/discussion mode as\
+  \ its baseline posture. When a user message is ambiguous — a question, a complaint,\
+  \ a vague observation — the agent maps it through the skill dispatch gate to an\
+  \ execution path (implementation, fix, PR) rather than routing to brainstorming\
+  \ for conversational exploration.\n\nThe agent's tone and style instructions in\
+  \ `default.txt` reinforce execution over exploration — \"default to concise,\" \"\
+  target under 50 words for simple answers\" — which conflicts with any pause-and-explore\
+  \ behavior.\n\nTwo concrete failure modes:\n1. Low-specificity requests route to\
+  \ execution or halt, not `brainstorming --task explore`\n2. Discussion questions\
+  \ during mid-implementation gaps are taken as directives or produce halts, not treated\
+  \ as conversational pauses\n\n## Design\n\n### Default.txt changes\n\n**Invert the\
+  \ brevity posture.** Current default is \"be concise, provide detail when asked.\"\
+  \ Flip to: \"default to thorough exploration, be concise only when the query is\
+  \ obviously one-shot and unambiguous.\"\n\nFour specific changes:\n\n**1. Tone section\
+  \ — replace the brevity default (line 59 currently).**\n\nReplace:\n> Target under\
+  \ 50 words for simple answers, under 150 words for detailed responses. Provide detail\
+  \ when asked; default to concise.\n\nWith:\n> Default to thorough exploration. When\
+  \ the user asks something, assume they want to discuss and understand — not just\
+  \ a one-line answer. Err on the side of depth, context, and verification over speed.\
+  \ Exception: purely factual lookups with no ambiguity (e.g. \"what is 2+2\", \"\
+  what command lists files\") get concise responses. When in doubt, explore.\n\n**2.\
+  \ Tone section — add exploration cue (new line).**\n\n> When intent is unclear,\
+  \ default to exploring the topic conversationally rather than jumping to an answer.\n\
+  \n**3. Action discipline — replace brainstorming carve-out (line 127 currently).**\n\
+  \nReplace:\n> When a question suggests the user needs to think through an approach,\
+  \ automatically invoke the brainstorming skill — it is non-destructive and does\
+  \ not require user approval.\n\nWith:\n> A question is never a directive. It means\
+  \ the user wants to explore, discuss, or understand — not that the agent should\
+  \ act. Respond to the question, not to what you imagine the user wants done.\n>\
+  \ \n> When intent is ambiguous, the response depends on pipeline state:\n> - **No\
+  \ active implementation pipeline:** route to `skill({name: \"brainstorming\"})`\
+  \ for conversational exploration\n> - **Active implementation pipeline:** pause,\
+  \ discuss conversationally in context, then resume. Do not abort the pipeline.\n\
+  \n**4. Action discipline — add multi-item discussion decomposition (new line after\
+  \ the above).**\n\n> When a discussion involves multiple items, decompose them into\
+  \ concrete units ordered by dependency. Discuss one unit at a time — resolve it\
+  \ before moving to the next. Do not bundle items, propose solutions for multiple\
+  \ things at once, or advance to a dependent item before its prerequisite is settled.\n\
+  \n### AGENTS.md changes\n\nPre-Response Gate: add pipeline-state-aware ambiguity\
+  \ classification step that routes to `brainstorming` when no pipeline is active\
+  \ and intent is low-specificity.\n\n### 020-go-prohibitions.md changes\n\nAdd positive\
+  \ alternative for question handling: question → brainstorming (pipeline inactive)\
+  \ or conversational pause (pipeline active), not halt.\n\n### Brainstorming SKILL.md\
+  \ changes\n\nThe brainstorming skill currently has a single mode with a hard terminal\
+  \ state (spec-creation). Ambiguity routing from #731 needs a non-terminating discussion\
+  \ mode — the user may just want to talk, not produce a spec.\n\n**Add dual-mode\
+  \ design to SKILL.md:**\n\n> **Modes:**\n> - **Discussion mode** (entered from #731\
+  \ ambiguity routing): conversational, no terminal state, no push toward spec-creation.\
+  \ Stays in discussion until the user signals they're done or pivots to an actionable\
+  \ request. Use `explore` task in open-ended loop.\n> - **Exploration mode** (existing\
+  \ behavior): requirements gathering, one-question-at-a-time, terminates at spec-creation.\
+  \ Use `explore` task with progression toward terminal state.\n\nThe entry point\
+  \ (which mode) is determined by how the skill was invoked:\n- `skill({name: \"brainstorming\"\
+  })` from #731 ambiguity routing → **discussion mode**\n- `skill({name: \"brainstorming\"\
+  })` from explicit request (\"let's brainstorm X\") → **exploration mode**\n\nAlso\
+  \ broaden Triggers on: to include ambiguity patterns — vague, unclear, question,\
+  \ discuss, talk through, what about, how would, should we, maybe, i wonder, complaint,\
+  \ observation, problem with.\n\n## Scope\n\n**In scope:**\n- `.opencode/prompts/default.txt`\
+  \ — four changes above\n- `.opencode/AGENTS.md` — Pre-Response Gate: add pipeline-state-aware\
+  \ ambiguity classification\n- `.opencode/guidelines/020-go-prohibitions.md` — add\
+  \ positive alternative for question handling\n- `.opencode/skills/brainstorming/SKILL.md`\
+  \ — dual-mode design + broaden Triggers on:\n\n**Out of scope:**\n- Individual task\
+  \ files within brainstorming (mode routing is handled by SKILL.md, not per-task)\n\
+  - Behavioral enforcement tests (defined during plan execution)\n- Research dispatch\
+  \ (see `.opencode#732`) — this spec is unit 1 and must be implemented before unit\
+  \ 2\n\n## Success Criteria\n\n| ID | Criterion | Verification |\n|----|-----------|-------------|\n\
+  | SC-1 | Agent routes ambiguous messages to `brainstorming` when pipeline is inactive\
+  \ | Behavioral test: vague query at session start → assert `skill({name: \"brainstorming\"\
+  })` called, no file edits |\n| SC-2 | Agent pauses in-context for ambiguous mid-implementation\
+  \ questions, does not abort pipeline | Behavioral test: agent mid-implementation,\
+  \ user asks question → no `brainstorming` call, no file edits, conversational response,\
+  \ pipeline resumes |\n| SC-3 | Agent continues to route clear implementation requests\
+  \ normally | Behavioral test: \"implement spec #N\" → normal pipeline |\n| SC-4\
+  \ | `default.txt` has inverted brevity posture (explore-first, concise-only-for-factuals)\
+  \ | Read file |\n| SC-5 | `default.txt` action discipline has pipeline-state-aware\
+  \ routing with positive alternative | Read file |\n| SC-6 | `default.txt` has multi-item\
+  \ discussion decomposition instruction | Read file |\n| SC-7 | `AGENTS.md` Pre-Response\
+  \ Gate has pipeline-state-aware ambiguity classification | Read file |\n| SC-8 |\
+  \ `020-go-prohibitions.md` §1 has positive alternative (question → brainstorming\
+  \ or pause per pipeline state) | Read file |\n| SC-9 | `brainstorming/SKILL.md`\
+  \ has dual-mode design (discussion vs exploration) with entry-point determination\
+  \ | Read SKILL.md Modes section |\n| SC-10 | `brainstorming/SKILL.md` triggers include\
+  \ ambiguity patterns | Read SKILL.md Triggers on: line |\n"
+created_at: '2026-05-20T05:26:26Z'
+updated_at: '2026-06-12T03:45:41Z'
+remote_issue: 731
+remote_url: https://github.com/michael-conrad/.opencode/issues/731
+promoted_at: '2026-08-27T03:25:11.984339+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.984339+00:00'
+author: michael-conrad

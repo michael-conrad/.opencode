@@ -1,0 +1,91 @@
+number: 614
+title: '[SPEC] Recovery: Restore PR #372 Content Destroyed by #242 Compression (Four-Phase
+  Recovery)'
+status: open
+labels:
+- needs-approval
+- spec
+body: "## Problem\n\nPR #372 (commit `50cfa081`, shipped May 3 2026) implemented issues\
+  \ **#359, #361, #365, #366** — four approved specs adding dual-auditor architectural\
+  \ invariants, Unix philosophy mandates, verify-before-acceptance FAIL gates, and\
+  \ correctness-over-speed SKILL.md reinforcement. PR #484 (`ec1bbebd`, shipped May\
+  \ 9 2026, for #242 aggressive guidelines compression) **destroyed 18 of 18 content\
+  \ items from #372**. PR #485 (`7b499c93`), the follow-up restore, restored only\
+  \ pre-#372 content (URL sourcing rules, git config auth, dispatch/output guarantees)\
+  \ — **zero items from PR #372 were restored**.\n\nThe deck now has:\n- No dual-auditor\
+  \ invariant in `065-verification-honesty.md` (approved as #365)\n- No Unix philosophy\
+  \ \"Do One Thing Well\" Tier 1 mandate (approved as #366)  \n- No verify-before-acceptance\
+  \ FAIL protocol in enforcement files (approved as #359)\n- Zero of 32 SKILL.md files\
+  \ with the correctness-over-speed line (approved as #361)\n- Three skills deleted\
+  \ entirely (`code-size-enforcement`, `fragment-manager`, `notebook-operations`)\n\
+  \n**The content was paid for and approved. It must be re-delivered, adapted to the\
+  \ current deck state (+30 merges since May 3), and protected against re-loss.**\n\
+  \n## Root Cause\n\nPR #484 (#242 compression) was a single massive PR that compressed\
+  \ guidelines from ~2,144 lines down, deleted 3 skills (~1,371 lines), and rewrote\
+  \ enforcement files. The author did not audit which content was substantive (approved\
+  \ by prior issues) vs. structural (formatting, templating). The restore PR (#485)\
+  \ targeted only pre-#372 collateral damage, not the #372-specific feature work.\n\
+  \n## Scope\n\n**Covers:** Full restoration of all 18 content items from PR #372,\
+  \ adapted to current deck state, plus re-loss prevention mechanisms.\n\n**Does NOT\
+  \ cover:**\n- Re-creating the 3 deleted skills (`code-size-enforcement`, `fragment-manager`,\
+  \ `notebook-operations`). These are explicitly out of scope — document the decision\
+  \ and skip.\n- Implementation of #362, #364, #370, or #405 (separate concerns, never\
+  \ shipped).\n- Re-opening the substance of #359, #361, #365, #366 — the content\
+  \ was already approved.\n\n## Fix Approach\n\nFour independent sub-specs with dependency\
+  \ ordering:\n\n```\nP1: Guidelines\n    ├──→ P2: Enforcement (references P1's critical\
+  \ violation)\n    ├──→ P3: SKILL.md lines (independent of P1/P2)\n    └──→ P4: Prevention\
+  \ tests (validates P1 + P2 content)\n```\n\nEach sub-spec takes the approved content\
+  \ from PR #372, adapts it to current deck state (terminology from #526/#581, current\
+  \ skill names after consolidations), and delivers it as a verifiable artifact.\n\
+  \n### Dependency graph\n\n```mermaid\ngraph LR\n    M[Master Spec] --> S1[Sub-1:\
+  \ Guidelines]\n    M --> S2[Sub-2: Enforcement]\n    M --> S3[Sub-3: SKILL.md lines]\n\
+  \    M --> S4[Sub-4: Prevention]\n    S1 --> S2\n    S1 --> S4\n    S2 --> S4\n\
+  \    S3 --> S4\n```\n\n## Success Criteria\n\n| SC# | Criterion | Source Issue |\n\
+  |-----|-----------|-------------|\n| SC-1 | `065-verification-honesty.md` contains\
+  \ dual-auditor invariance prohibition as a permanent section | #365 |\n| SC-2 |\
+  \ `000-critical-rules.md` Tier 1 table includes Unix philosophy \"Do One Thing Well\"\
+  \ mandate | #366 |\n| SC-3 | `091-incremental-build.md` includes Unix philosophy\
+  \ extension for scripts/functions/harnesses | #366 |\n| SC-4 | `000-critical-rules.md`\
+  \ contains verify-before-acceptance critical violation | #359 |\n| SC-5 | `divide-and-conquer/enforcement/completion-checkpoint.md`\
+  \ has FAIL status + verify-before-acceptance protocol | #359 |\n| SC-6 | `divide-and-conquer/enforcement/result-validation.md`\
+  \ has FAIL step + error_output field | #359 |\n| SC-7 | `divide-and-conquer/tasks/dispatch.md`\
+  \ has FAIL status enum + verify-before-acceptance protocol | #359 |\n| SC-8 | `divide-and-conquer/tasks/assemble-work.md`\
+  \ references FAIL protocol | #359 |\n| SC-9 | 32 surviving SKILL.md files contain\
+  \ the correctness-over-speed line in Operating Protocol | #361 |\n| SC-10 | Content-verification\
+  \ snapshot test prevents re-loss without explicit audit | Prevention |\n| SC-11\
+  \ | Behavioral test: orchestrator re-dispatches on FAIL with fabricated error, does\
+  \ NOT accept at face value | #359 |\n\n## Deliverables\n\n| Item | Sub-Spec | File\
+  \ |\n|------|----------|------|\n| Dual-auditor section in 065 | S1 | `guidelines/065-verification-honesty.md`\
+  \ |\n| Unix philosophy Tier 1 entry | S1 | `guidelines/000-critical-rules.md` |\n\
+  | Unix philosophy extenssion | S1 | `guidelines/091-incremental-build.md` |\n| FAIL\
+  \ status + protocol in completion-checkpoint | S2 | `skills/divide-and-conquer/enforcement/completion-checkpoint.md`\
+  \ |\n| FAIL step + error_output in result-validation | S2 | `skills/divide-and-conquer/enforcement/result-validation.md`\
+  \ |\n| FAIL enum + protocol in dispatch | S2 | `skills/divide-and-conquer/tasks/dispatch.md`\
+  \ |\n| FAIL reference in assemble-work | S2 | `skills/divide-and-conquer/tasks/assemble-work.md`\
+  \ |\n| Correctness-over-speed line (×32) | S3 | All 32 `skills/*/SKILL.md` |\n|\
+  \ Content-verification snapshot test | S4 | `tests/test-enforcement.sh` update |\n\
+  | FAIL gate behavioral test | S4 | `tests/behaviors/fail-gate-verify-before-accept.sh`\
+  \ |\n\n## Out of Scope\n\n- Re-creating deleted skills (`code-size-enforcement`,\
+  \ `fragment-manager`, `notebook-operations`)\n- Implementing #362 (spec/plan template\
+  \ audit awareness — separate spec)\n- Implementing #364 (content generation audit\
+  \ — separate spec)\n- Implementing #370 (enforcement gate meta-audit — separate\
+  \ spec)\n- Implementing #405 (semantic audit depth — separate spec)\n- Re-opening\
+  \ the substance of #359, #361, #365, #366\n\n## Related Issues\n\n| Issue | Repo\
+  \ | Relationship |\n|-------|------|-------------|\n| #359 | .opencode | Verify-before-acceptance\
+  \ gate (content destroyed by #242, needs restoration) |\n| #361 | .opencode | SKILL.md\
+  \ correctness line (content destroyed by #242, needs restoration) |\n| #365 | .opencode\
+  \ | Dual-auditor invariant (content destroyed by #242, needs restoration) |\n| #366\
+  \ | .opencode | Unix philosophy mandate (content destroyed by #242, needs restoration)\
+  \ |\n| #360 | .opencode | Core correctness mandate (survived #242 — close as done)\
+  \ |\n| #363 | .opencode | Implementation plan for #360 (obsolete — close as done)\
+  \ |\n| #242 | .opencode | Compression PR that caused the destruction |\n\n## Revision\
+  \ Notes\n\n- **v1.0** — Initial creation from deep analysis of #242 wreckage vs\
+  \ PR #372 content\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-05-16T03:25:33Z'
+updated_at: '2026-06-12T03:45:43Z'
+remote_issue: 614
+remote_url: https://github.com/michael-conrad/.opencode/issues/614
+promoted_at: '2026-08-27T03:25:11.851867+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.851867+00:00'
+author: michael-conrad

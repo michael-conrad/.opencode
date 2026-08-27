@@ -1,0 +1,118 @@
+number: 828
+title: '[PLAN] Eliminate individual PR strategy — stacked is the only valid organization'
+status: open
+labels:
+- needs-approval
+- '[PLAN]'
+body: 'STATUS: 1.0
+
+  PARENT: #826
+
+
+  ## Implementation Items
+
+
+  ### Item 1: Remove `individual` from pr_strategy type definition
+
+  - File: `skills/pr-creation-workflow/SKILL.md`
+
+  - Action: Remove `individual` from pr_strategy type definition, leaving only `none`
+  and `stacked`
+
+
+  ### Item 2: Update scope-parsing table
+
+  - File: `skills/approval-gate/enforcement/scope-parsing.md`
+
+  - Action: Replace all 5 `individual` entries with `none` in PR Strategy column
+
+
+  ### Item 3: Update 010-approval-gate.md PR Strategy table
+
+  - File: `guidelines/010-approval-gate.md`
+
+  - Action: Remove `individual` row, update scope table entries for for_review_prep,
+  for_implementation, for_review_only, for_next_phase, for_phase_N
+
+
+  ### Item 4: Simplify squash-push.md
+
+  - File: `skills/git-workflow/tasks/pr-creation/squash-push.md`
+
+  - Action: Remove "Single-issue branch" row, simplify to single strategy
+
+
+  ### Item 5: Simplify create-pr.md
+
+  - File: `skills/git-workflow/tasks/pr-creation/create-pr.md`
+
+  - Action: Remove `individual` row from strategy table
+
+
+  ### Item 6: Simplify prepare.md
+
+  - File: `skills/finishing-a-development-branch/tasks/prepare.md`
+
+  - Action: Change conditional from `NOT "stacked"` to `none`
+
+
+  ### Item 7: Simplify sub-issue-collection.md
+
+  - File: `skills/pr-creation-workflow/tasks/sub-issue-collection.md`
+
+  - Action: Remove `individual` conditional
+
+
+  ### Item 8: Add critical rule to 000-critical-rules.md
+
+  - File: `guidelines/000-critical-rules.md`
+
+  - Action: Add critical-rules-PR-ORG with symbolic and prose + bright-line companion
+
+
+  ### Item 9: Update 010-approval-gate.md scope table entries
+
+  - File: `guidelines/010-approval-gate.md`
+
+  - Action: Change `individual` to `none` for scopes that halt before PR creation
+
+
+  ### Item 10: Add behavioral enforcement test
+
+  - File: `tests/behaviors/stacked-pr-organization.sh`
+
+  - Action: Create new behavioral test verifying single-branch creation
+
+
+  ## TDD Order
+
+
+  1. Write behavioral test (RED) — Item 10
+
+  2. Make all string-pattern changes — Items 1-9
+
+  3. Verify behavioral test passes (GREEN)
+
+  4. REFACTOR: verify content-verification passes
+
+  5. COMMIT
+
+
+  ## Dependencies
+
+  - Items 1, 2, 3, 4, 5, 6, 7, 8, 9: Independent (can be parallel)
+
+  - Item 10 (behavioral test) must be RED before Items 1-9 are GREEN
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-22T21:06:04Z'
+updated_at: '2026-06-12T03:45:39Z'
+remote_issue: 828
+remote_url: https://github.com/michael-conrad/.opencode/issues/828
+promoted_at: '2026-08-27T03:25:12.138258+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.138258+00:00'
+author: michael-conrad

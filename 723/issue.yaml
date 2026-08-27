@@ -1,0 +1,213 @@
+number: 723
+title: '[SPEC] Fix Phased Spec Branch Lifecycle for Cumulative Work'
+status: open
+labels:
+- needs-approval
+body: '# Spec: Fix Phased Spec Branch Lifecycle for Cumulative Work
+
+
+  STATUS: draft
+
+  CREATED: 2026-05-19
+
+  MIGRATED-FROM: NewsRx/newsrx-genai-python#304
+
+
+  ## Objective
+
+
+  Fix a critical gap where the agent incorrectly creates a new branch for each phase
+  of a multi-phase spec, discarding prior phase work instead of accumulating commits
+  cumulatively on a single branch.
+
+
+  ## Problem Statement
+
+
+  **Current Behavior (INCORRECT):**
+
+  - The `git-workflow` skill''s pre-work task creates a new branch on every invocation
+
+  - Phase 0 (Pre-Work Verification) creates a new branch from main
+
+  - This happens for EVERY phase, even Phase 2 or Phase 3 of the SAME spec
+
+  - Prior phase work is effectively discarded
+
+
+  **User Expectation:**
+
+  - ONE branch per spec (not per phase)
+
+  - Phases are cumulative — Phase 2 builds on Phase 1
+
+  - Commits accumulate across phases
+
+  - ONE PR at the end
+
+  - Squash only at final PR creation
+
+
+  ## Live Codebase Audit (2026-05-19)
+
+
+  | Original Spec File | Current Status | Notes |
+
+  |---------------------|----------------|-------|
+
+  | `.opencode/guidelines/110-git-branch-first.md` | ❌ Does not exist | Consolidated
+  into `git-workflow` skill and `000-critical-rules.md`/`060-tool-usage.md` |
+
+  | `.opencode/guidelines/113-git-pr-workflow.md` | ❌ Does not exist | PR workflow
+  consolidated into `git-workflow` skill |
+
+  | `.opencode/skills/git-workflow/SKILL.md` | ✅ Exists | Has NO continuation detection
+  or spec lifecycle logic |
+
+  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | References `spec/*` branches
+  but no continuation/reuse rules |
+
+  | `AGENTS.md` | ✅ Exists | Direct-branch default defined, no branch reuse rules
+  for multi-phase work |
+
+
+  **Key finding:** The `git-workflow` skill''s `pre-work` task has a collision detection
+  step ("If found, report collision and HALT — do not reuse another branch''s worktree")
+  but NO logic for detecting "am I already on the right branch for this spec?" and
+  continuing on it. The `approval-gate` skill''s "Unified Pipeline Path" authorizes
+  all sub-issues in sequence but doesn''t specify branch reuse behavior.
+
+
+  ## Proposed Change
+
+
+  ### 1. Update `.opencode/skills/git-workflow/tasks/pre-work.md`
+
+
+  Add "Continuation Detection" section:
+
+  - Before branch creation, check if current branch matches the spec/issue being worked
+
+  - If already on the correct `feature/*` or `spec/*` branch → skip branch creation,
+  continue work
+
+  - If on wrong branch → create branch (existing behavior)
+
+  - If on `dev` or `main` → create branch (existing behavior)
+
+
+  ### 2. Update `.opencode/skills/git-workflow/SKILL.md`
+
+
+  Add "Branch and Submodule State Model" section documenting:
+
+  - Branch creation: first approval of spec
+
+  - Continuation: subsequent approvals of same spec → reuse existing branch
+
+  - PR creation: explicit user instruction after all phases
+
+  - Branch cleanup: after PR merge
+
+
+  ### 3. Update `.opencode/guidelines/010-approval-gate.md`
+
+
+  Add cross-reference in the "Multi-Task Plan Authorization" section:
+
+  - When authorization cascades to sub-issues, branch continuation is implicit
+
+  - Each sub-issue inherits the parent''s branch, not a new branch per sub-issue
+
+
+  ### 4. Update `AGENTS.md`
+
+
+  Add "Branch and Submodule State Model" subsection to the Direct-Branch Primary Workflow
+  section:
+
+  - One branch per spec, not per phase
+
+  - Commits accumulate across phases
+
+  - Squash only at final PR creation
+
+
+  ### Files NOT being modified (no longer exist):
+
+
+  - ~~`.opencode/guidelines/110-git-branch-first.md`~~ — consolidated, not needed
+
+  - ~~`.opencode/guidelines/113-git-pr-workflow.md`~~ — consolidated, not needed
+
+
+  ## Success Criteria
+
+
+  1. ✅ Git-workflow pre-work task includes continuation detection logic
+
+  2. ✅ Agent reuses existing spec branch when continuing a multi-phase spec
+
+  3. ✅ Agent accumulates commits across phases (no squash between phases)
+
+  4. ✅ Agent correctly identifies "new spec" vs "continuation" scenarios
+
+  5. ✅ Approval-gate documents that sub-issue authorization implies branch continuation
+
+  6. ✅ AGENTS.md documents the spec branch lifecycle model
+
+  7. ✅ Behavioral test: agent on existing spec branch does NOT create new branch
+
+  8. ✅ Behavioral test: agent on dev/main DOES create new branch
+
+
+  ## Phases
+
+
+  ### Phase 1: Implementation
+
+  1. ☐ Add continuation detection to `git-workflow/tasks/pre-work.md`
+
+  2. ☐ Add "Branch and Submodule State Model" section to `git-workflow/SKILL.md`
+
+  3. ☐ Update `010-approval-gate.md` with branch continuation cross-reference
+
+  4. ☐ Update `AGENTS.md` Direct-Branch section with spec lifecycle model
+
+  5. ☐ Verify all guideline files load correctly
+
+
+  ### Phase 2: Testing
+
+  1. ☐ Verify agent on existing spec branch does NOT create new branch (behavioral
+  test)
+
+  2. ☐ Verify agent on dev/main DOES create new branch (behavioral test)
+
+  3. ☐ Verify squash only at PR creation, not between phases
+
+  4. ☐ Verify guidelines search finds new content
+
+
+  ### Phase 3: Review
+
+  1. ☐ Human review of all changes
+
+  2. ☐ Approve or request revisions
+
+
+  ## Downstream Cross-Reference
+
+
+  - Original issue: https://github.com/NewsRx/newsrx-genai-python/issues/304
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)'
+created_at: '2026-05-19T18:56:35Z'
+updated_at: '2026-06-12T03:45:41Z'
+remote_issue: 723
+remote_url: https://github.com/michael-conrad/.opencode/issues/723
+promoted_at: '2026-08-27T03:25:11.947705+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.947705+00:00'
+author: michael-newsrx

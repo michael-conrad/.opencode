@@ -1,0 +1,47 @@
+number: 620
+title: '[PLAN] adversarial-audit-022 + dark pattern prose for complete workflow execution'
+status: open
+labels:
+- needs-approval
+- plan
+body: "# [PLAN] adversarial-audit-022 + dark pattern prose — Implementation Plan\n\
+  \n**Parent Spec:** #619\n**Authorization:** `for_pr` — auto-approve per approval-gate\
+  \ cascade (faithful plan)\n\n## Files Changed\n\n- `.opencode/skills/adversarial-audit/SKILL.md`\n\
+  \n## Items (Single Task — exempt from sub-issue requirement per single-concern rule)\n\
+  \n### Item 1: Change 1 — Prose paragraph + symbolic rule adversarial-audit-022\n\
+  \n**Insert prose paragraph before the symbolic rules block (line 56):**\n\n> The\
+  \ orchestrator MUST call `resolve-models` on EVERY audit iteration — initial audit,\
+  \ re-audit after revision, and every subsequent re-audit. Historical auditor selections\
+  \ from any prior iteration MUST NOT be cached, reused, or considered. The orchestrator\
+  \ MUST NOT refuse to dispatch auditors based on prior iteration history — a fresh\
+  \ `resolve-models` call is the sole authority for auditor selection in each iteration.\
+  \ On re-audit, the orchestrator discards all prior `resolve-models` result contracts\
+  \ before calling `resolve-models` again. The `excluded_pair` and `re_task` parameters\
+  \ are NOT used for iteration-based re-audit — they exist only for within-iteration\
+  \ retry (e.g., task() failure recovery). Each iteration is independent: the set\
+  \ of available auditors, their availability, and the selection outcome are all re-determined\
+  \ from scratch.\n\n**Add symbolic rule to the yaml+symbolic block (before the closing\
+  \ ``` on line 206):**\n\n```yaml\n  - id: adversarial-audit-022\n    title: \"resolve-models\
+  \ MUST be called on EVERY audit iteration — no historical caching\"\n    conditions:\n\
+  \      all: [\"audit_iteration > 1\", \"resolve_models_called == false\"]\n    actions:\
+  \ [HALT, CALL(resolve-models)]\n    source: \"adversarial-audit/SKILL.md\"\n```\n\
+  \n### Item 2: Change 2 — Dark pattern prose in Overview and Persona\n\n**Insert\
+  \ identity binding prose into Overview (lines 11-13):** Add a sentence after the\
+  \ existing Overview text about identity binding for fresh resolve-models.\n\n**Insert\
+  \ completion compulsion + consequence framing + momentum chain into Persona (lines\
+  \ 15-17):** Add sentences weaving the four patterns into the persona description.\n\
+  \n**Constraints verified:** No urgency, no shame/insults, no patronizing language.\
+  \ Prose reads as natural professional standards.\n\n## SC Mapping\n\n| SC | Item\
+  \ | Verification |\n|----|------|-------------|\n| SC-1 | Item 1 prose | resolve-models\
+  \ called on every iteration |\n| SC-2 | Item 1 prose | prior result contracts discarded\
+  \ |\n| SC-3 | Item 1 prose | no refusal based on history |\n| SC-4 | Item 2 | dark\
+  \ pattern prose present in Overview/Persona |\n| SC-5 | Item 2 | no urgency/shame/patronizing\
+  \ in prose |\n\nCo-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)\n"
+created_at: '2026-05-16T03:43:55Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 620
+remote_url: https://github.com/michael-conrad/.opencode/issues/620
+promoted_at: '2026-08-27T03:25:11.869867+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.869867+00:00'
+author: michael-conrad

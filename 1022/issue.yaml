@@ -1,0 +1,100 @@
+number: 1022
+title: '[BUG] Step 10.2 dispatch contaminated with preloaded context — sub-agent received
+  branch name, HEAD sha, artifact path, expected outcome structure, and orchestrator
+  reasoning'
+status: open
+labels:
+- bug
+- needs-approval
+body: '## Summary
+
+
+  During viewport-editor #46 step 10.2, the orchestrator dispatched `auditor-mistral-large`
+  with preloaded context violating the DISPATCH_GATE protocol in `020-go-prohibitions.md`
+  §1.1.
+
+
+  ## Contaminated Dispatch Text
+
+
+  ```
+
+  You are auditor_1 (Mistral Large) in a dual-auditor cross-family adversarial audit.
+
+
+  ## Task
+
+  Audit issue #46 Card 1... The implementation is on branch `feature/46-card1-dependency-switch`...,
+  HEAD 2b7e475.
+
+  ...
+
+  Write your findings to a YAML file in `./tmp/artifacts/` with a filename like `auditor_1_mistral_46_DONE_*.yaml`.
+
+  Return your structured result contract.
+
+  ```
+
+
+  ## Violations Identified
+
+
+  | Violation | Text | Rule |
+
+  |-----------|------|------|
+
+  | Preloaded identity | "You are auditor_1 (Mistral Large) in a dual-auditor cross-family
+  adversarial audit" | Orchestrator reasoning / identity labeling |
+
+  | Preloaded file path | "branch `feature/46-card1-dependency-switch`" | Preloaded
+  file ref — sub-agent should discover branch independently |
+
+  | Preloaded context | "HEAD 2b7e475" | Orchestrator context leaked into clean room
+  |
+
+  | Preloaded artifact path | "Write your findings to a YAML file in `./tmp/artifacts/`
+  with a filename like `auditor_1_mistral_46_DONE_*.yaml`" | Pre-determined output
+  structure |
+
+  | Expected outcome structure | "Return your structured result contract" | Expected
+  return schema — sub-agent defines its own |
+
+
+  ## Root Cause
+
+
+  The implementation-pipeline SKILL.md §Invocation says:
+
+
+  > Any dispatch step → `task(..., prompt: "execute <step_label> from implementation-pipeline")`
+
+
+  This template is too minimal — it doesn''t tell the orchestrator WHAT to include
+  in the prompt. The orchestrator is left to improvise. Without explicit instructions
+  for what the dispatch prompt should contain, the orchestrator fills in context from
+  its own accumulated knowledge.
+
+
+  ## Resolution Needed
+
+
+  The pipeline SKILL.md must specify exact dispatch prompt templates per step. For
+  step 10.2, the template should be:
+
+
+  > `"Execute verification-audit from adversarial-audit for issue #NNN in owner/repo"`
+
+
+  And the DISPATCH_GATE must clarify: branch names, SHAs, artifact paths, and orchestrator
+  reasoning are NEVER part of a dispatch prompt.
+
+
+  🤖 OpenCode (deepseek-v4-flash)'
+created_at: '2026-06-05T02:41:08Z'
+updated_at: '2026-06-12T03:45:28Z'
+remote_issue: 1022
+remote_url: https://github.com/michael-conrad/.opencode/issues/1022
+promoted_at: '2026-08-27T03:25:12.531859+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.531859+00:00'
+author: michael-conrad

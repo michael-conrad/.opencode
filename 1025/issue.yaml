@@ -1,0 +1,138 @@
+number: 1025
+title: '[SPEC-FIX] adversarial-audit dispatch: spec_local_dir and artifact_evidence_dir
+  MUST be local filesystem paths only — reject URLs, GitHub issue refs, and other
+  non-local references'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  The `verification-audit` task in adversarial-audit accepts `spec_local_dir` and
+  `artifact_evidence_dir` as dispatch fields. But nothing in the task cards, SKILL.md,
+  or dispatch contract mandates that these MUST be local filesystem paths. The orchestrator
+  can pass a GitHub issue URL as `spec_local_dir` (which happened during viewport-editor
+  #46 step 10.2), or pass any other non-local reference.
+
+
+  Auditors need local filesystem access — nothing else is valid.
+
+
+  ## Root Cause
+
+
+  The adversarial-audit SKILL.md §Blind Dispatch says:
+
+
+  > Auditors independently discover SCs and evidence from `spec_local_dir` and `artifact_evidence_dir`
+
+
+  But does not define:
+
+  1. What these fields must contain (local paths only, no URLs)
+
+  2. What happens when they receive non-local values
+
+  3. How the orchestrator must populate them before dispatch
+
+
+  The verification-audit task card (`tasks/verification-audit.md`) references these
+  fields but doesn''t enforce the local-only constraint.
+
+
+  ## Requirements
+
+
+  ### R1: Dispatch contract MUST specify local-only paths
+
+
+  The SKILL.md §Blind Dispatch or §DISPATCH_GATE must state:
+
+
+  > `spec_local_dir` and `artifact_evidence_dir` MUST be local filesystem paths (no
+  URLs, no GitHub issue refs, no remote URIs). The orchestrator MUST create and populate
+  both directories before dispatching auditors.
+
+
+  ### R2: Auditors MUST reject non-local paths
+
+
+  If `spec_local_dir` or `artifact_evidence_dir` is:
+
+  - A URL (http://, https://)
+
+  - A GitHub issue number without a local path
+
+  - Any path outside the project''s allowed filesystem roots
+
+  - Empty or nonexistent
+
+
+  The auditor MUST return `BLOCKED` with `reason: INVALID_LOCAL_PATH` and the specific
+  field name.
+
+
+  ### R3: Orchestrator prerequisites enumerated
+
+
+  The implementation-pipeline SKILL.md must include pre-audit steps (mirror spec to
+  local, collect evidence artifacts) in the dispatch routing table, with clear instructions
+  for how to populate each directory.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `spec_local_dir` and `artifact_evidence_dir` defined as local-only in SKILL.md
+  §Dispatch fields | `string` | grep for "MUST be local filesystem path" in SKILL.md
+  |
+
+  | SC-2 | Auditor returns BLOCKED with INVALID_LOCAL_PATH when given a URL as spec_local_dir
+  | `behavioral` | Dispatch auditor with URL, verify BLOCKED response |
+
+  | SC-3 | Auditor returns BLOCKED with INVALID_LOCAL_PATH when artifact_evidence_dir
+  is empty/nonexistent | `behavioral` | Dispatch auditor with missing dir, verify
+  BLOCKED response |
+
+  | SC-4 | Auditor proceeds normally when both paths are valid local directories |
+  `behavioral` | Dispatch auditor with populated local dirs, verify audit completes
+  |
+
+  | SC-5 | Pipeline dispatch table includes pre-audit spec-mirror and evidence-collection
+  steps | `string` | grep pipeline SKILL.md for pre-audit steps |
+
+
+  ## Affected Files
+
+
+  | File | Impact |
+
+  |------|--------|
+
+  | `adversarial-audit/SKILL.md` | §Blind Dispatch — add local-only path constraint
+  to dispatch fields |
+
+  | `adversarial-audit/tasks/verification-audit.md` | Add entry check for path validity
+  |
+
+  | `implementation-pipeline/SKILL.md` | Add pre-audit prerequisite steps to dispatch
+  table |
+
+
+  ## Byline
+
+
+  🤖 OpenCode (deepseek-v4-flash)'
+created_at: '2026-06-05T03:03:54Z'
+updated_at: '2026-06-12T03:45:28Z'
+remote_issue: 1025
+remote_url: https://github.com/michael-conrad/.opencode/issues/1025
+promoted_at: '2026-08-27T03:25:12.539840+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.539840+00:00'
+author: michael-conrad

@@ -1,0 +1,119 @@
+number: 1004
+title: '[SPEC-FIX] Canonicalize all local-issues CLI references to .opencode/tools/local-issues'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  Every task card and skill card referencing the `local-issues` tool uses bare `local-issues`
+  as the invocation command. This is ambiguous — agents attempt `python3 local-issues`,
+  `uv run local-issues`, or `local-issues` with incorrect working directories, all
+  of which fail on a PEP 723 shebang script.
+
+
+  The canonical invocation is `./.opencode/tools/local-issues` — works from any working
+  directory within the repo, the `./` prefix forces direct-execution mental model
+  (not interpreter prefix).
+
+
+  ## Affected Files
+
+
+  All `.opencode/skills/issue-operations/platforms/local/tasks/*.md` files — ~100+
+  references across 15 task files using bare `local-issues` instead of the canonical
+  path.
+
+
+  ## Fix
+
+
+  Replace every bare `local-issues` reference in the platform task files with `./.opencode/tools/local-issues`.
+
+
+  | Before | After |
+
+  |--------|-------|
+
+  | `local-issues create --title T` | `./.opencode/tools/local-issues create --title
+  T` |
+
+  | `local-issues read N` | `./.opencode/tools/local-issues read N` |
+
+  | `local-issues update N --body X` | `./.opencode/tools/local-issues update N --body
+  X` |
+
+  | `local-issues close N` | `./.opencode/tools/local-issues close N` |
+
+  | (etc for all 14 command references) | |
+
+
+  Also added bash guard to `tools/local-issues` (line 2: `"exec" "uv" "run" "--script"
+  "$0" "$@"` matching session-init pattern) to re-exec via uv run --script on direct
+  invocation.
+
+
+  ## SCOPE-CONTROLLED
+
+
+  Affected files:
+
+  - `platforms/local/tasks/creation.md`
+
+  - `platforms/local/tasks/read.md`
+
+  - `platforms/local/tasks/update.md`
+
+  - `platforms/local/tasks/comment.md`
+
+  - `platforms/local/tasks/close.md`
+
+  - `platforms/local/tasks/delete.md`
+
+  - `platforms/local/tasks/search.md`
+
+  - `platforms/local/tasks/list.md`
+
+  - `platforms/local/tasks/link.md`
+
+  - `platforms/local/tasks/promote.md`
+
+  - `platforms/local/tasks/push-body.md`
+
+  - `platforms/local/tasks/pull-body.md`
+
+  - `platforms/local/tasks/body-edit.md`
+
+
+  **NOT in scope:**
+
+  - Dispatcher-level `issue-operations/tasks/*.md` — already updated in Phase 3 to
+  route through platform sub-skills, and any remaining CLI references there are verification
+  commands (read operations), not invocation points
+
+  - `git-workflow/tasks/*.md` — already cleaned in Phase 3, no remaining tool invocations
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | All bare `local-issues` references replaced with `./.opencode/tools/local-issues`
+  in platform task files | string |
+
+  | SC-2 | bash guard added to `tools/local-issues` line 2 | string |
+
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash) updated'
+created_at: '2026-06-03T05:21:41Z'
+updated_at: '2026-06-12T03:45:29Z'
+remote_issue: 1004
+remote_url: https://github.com/michael-conrad/.opencode/issues/1004
+promoted_at: '2026-08-27T03:25:12.486580+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.486580+00:00'
+author: michael-conrad

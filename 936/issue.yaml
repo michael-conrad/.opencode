@@ -1,0 +1,185 @@
+number: 936
+title: '[SPEC] Deterministic consensus gate — split cross-validate into consensus
+  tool + bounded semantic pass'
+status: open
+labels:
+- needs-approval
+- spec
+body: "## Problem\n\nThe cross-validate sub-agent computes auditor verdict consensus\
+  \ through an LLM-mediated prose table lookup (cross-validate.md Steps 4–5). This\
+  \ is an LLM interpreting a deterministic switch/case through natural language reasoning\
+  \ — an architectural mismatch that produces false-PASS rationalizations.\n\n**Concrete\
+  \ failure (Gemma4 → cross-validate):**\n- Gemma4 auditor returned `UNVERIFIED` for\
+  \ an SC — not in the allowed result enum `{PASS, FAIL, AUDIT_FAIL, LIMITED-EVIDENCE,\
+  \ FABRICATED}`\n- Cross-validator had no catch-all rule for unknown result values\n\
+  - Instead of FAIL per the missing-enum catch-all that should exist, it rationalized:\
+  \ \"Gemma4 may have encountered a tool-context error, but Devstral returned PASS,\
+  \ so consensus is PASS\"\n- **Result: UNVERIFIED → PASS** — a false PASS that bypassed\
+  \ the failure gate\n\n**Root cause:** Mixing deterministic work (YAML parsing, enum\
+  \ enforcement, consensus lookup) with semantic work (dark pattern detection, evidence\
+  \ type classification, self-consistency checks) in the same LLM sub-agent. The LLM\
+  \ applies natural-language reasoning even to operations that should be hardcoded.\n\
+  \nFive structural issues in current cross-validate.md:\n\n| Issue | Location | Detail\
+  \ |\n|-------|----------|--------|\n| 1. UNVERIFIED not in consensus table | Step\
+  \ 4 table | Only PASS/FAIL/AUDIT_FAIL/LIMITED-EVIDENCE/FABRICATED handled — UNVERIFIED\
+  \ falls through to LLM reasoning |\n| 2. No catch-all for unknown result | Step\
+  \ 4 logic | No `else → FAIL` default for unrecognized result values |\n| 3. Same-LLM\
+  \ self-correction (anti-pattern) | Steps 5.5, 5.7 | LLM self-checking its own output\
+  \ for violations — the jingu-trust-gate finding: \"The gate executes policy — it\
+  \ does not reason, interpret, or fill in gaps\" |\n| 4. Rationalization table incomplete\
+  \ | Step 4 table | Enumerated patterns don't cover \"unknown enum value\" rationalization\
+  \ |\n| 5. Result contract still JSON | Step 7 | Line 296: ````json` — contradicts\
+  \ #932 SC-9 (YAML only) |\n\n## Position vs. Existing Specs\n\n| Spec | Scope |\
+  \ Relationship |\n|------|-------|-------------|\n| [#834](https://github.com/michael-conrad/.opencode/issues/834)\
+  \ | Evidence type validation as cross-validate Step 3 | **Subsumed by #932** — #932\
+  \ already adds evidence type validation |\n| [#913](https://github.com/michael-conrad/.opencode/issues/913)\
+  \ Merge Group B Phase 6 | #834 alignment (evidence type validation) | **Subsumed\
+  \ by #932** — same scope |\n| [#932](https://github.com/michael-conrad/.opencode/issues/932)\
+  \ | Auditor Disk-Offload — YAML artifacts on disk, frugal contracts | **Foundation\
+  \ dependency** — this spec depends on #932's auditor YAML artifact conventions (naming\
+  \ schema, YAML format, disk paths) |\n| **This spec** | Deterministic consensus-gate\
+  \ tool + bounded semantic cross-validate | **Builds on #932** — consensus-gate reads\
+  \ #932's auditor YAMLs; cross-validate keeps only semantic checks |\n\n## Dependencies\n\
+  \n**Hard dependency on #932.** The consensus-gate tool reads auditor YAML artifacts\
+  \ written to `./tmp/artifacts/pipeline-{issue}-audit-*.yaml` per #932's naming convention.\
+  \ Without #932's disk-offload, the tool would need inline auditor verdicts in its\
+  \ context — defeating the purpose.\n\nImplementation must wait until #932's PR is\
+  \ merged.\n\n## Changes\n\n### 1. New: `.opencode/tools/consensus-gate` (deterministic\
+  \ shell tool)\n\nA bash script (using `yq` for YAML parsing) that implements the\
+  \ consensus lookup as a deterministic switch/case:\n\n```\nconsensus-gate --auditor-1\
+  \ <path> --auditor-2 <path> --spec <path> --output <path>\n```\n\n**Inputs:**\n\
+  - Two auditor YAML artifact paths (per #932 naming convention)\n- Spec SC definitions\
+  \ (fetched from GitHub or local `.issues/`)\n\n**Output:** `consensus.yaml` written\
+  \ to `./tmp/artifacts/pipeline-{issue}-consensus-{STATUS}-{timestamp}.yaml`\n\n\
+  **Consensus rules (hardcoded, no LLM interpretation):**\n\n```\nFor each criterion:\n\
+  \  a1 = result from auditor 1\n  a2 = result from auditor 2\n\n  if a1 == \"PASS\"\
+  \ and a2 == \"PASS\":\n    consensus = \"PASS\"\n  elif a1 == \"FAIL\" or a2 ==\
+  \ \"FAIL\":\n    consensus = \"FAIL\"\n  elif a1 in {AUDIT_FAIL, LIMITED-EVIDENCE,\
+  \ FABRICATED} or a2 in {AUDIT_FAIL, LIMITED-EVIDENCE, FABRICATED}:\n    consensus\
+  \ = \"BLOCKED\"\n  elif a1 == \"\" or a2 == \"\" (missing verdict):\n    consensus\
+  \ = \"FAIL\"\n  else:\n    consensus = \"FAIL\"   ← CATCH-ALL: any unrecognized\
+  \ result → FAIL\n```\n\n**The catch-all is the key fix.** Unlike the LLM-mediated\
+  \ table lookup that can rationalize UNVERIFIED→PASS, the tool has no reasoning capability.\
+  \ Unknown value → FAIL. Period.\n\n**Evidence type validation** (from #834/#932):\
+  \ If both auditors used wrong evidence type for a behavioral SC → `EVIDENCE_TYPE_MISMATCH`\
+  \ flag in consensus.yaml. This is implementable as a deterministic field comparison.\n\
+  \n**Consensus YAML schema:**\n\n```yaml\nstatus: \"PASS|FAIL|BLOCKED\"\nissue_number:\
+  \ 928\ngenerated_at: \"2026-05-27T03:00:00Z\"\nartifact: \"consensus-gate\"\nper_criterion:\n\
+  \  - criterion_id: \"SC-1\"\n    auditor_1_result: \"PASS\"\n    auditor_2_result:\
+  \ \"PASS\"\n    consensus: \"PASS\"\n    agreement: true\n    evidence_type_mismatch:\
+  \ false\n  - criterion_id: \"SC-6\"\n    auditor_1_result: \"PASS\"\n    auditor_2_result:\
+  \ \"UNVERIFIED\"\n    consensus: \"FAIL\"\n    agreement: false\n    evidence_type_mismatch:\
+  \ false\n    catch_all_reason: \"auditor_2_result 'UNVERIFIED' not in allowed enum\"\
+  \nsummary:\n  total_criteria: 11\n  pass: 9\n  fail: 2\n  evidence_type_mismatches:\
+  \ 0\n```\n\n### 2. Restructure `cross-validate.md` — Remove deterministic steps,\
+  \ scope to semantic checks\n\nCurrent cross-validate.md Steps 4–5 (consensus computation)\
+  \ and Step 5.5/5.7 (self-consistency gates) are moved into the deterministic tool.\
+  \ Cross-validate keeps:\n\n| Step | Stays in cross-validate? | Rationale |\n|------|-------------------------|-----------|\n\
+  | Step 0 (Fetch spec) | ✅ YES | Fetching spec from GitHub requires web access |\n\
+  | Step 1-2 (Validate inputs) | ✅ YES | File validation is reasonable here |\n| Step\
+  \ 3 (Read auditor YAMLs) | ✅ YES | Cross-validate still reads auditor output for\
+  \ semantic inspection |\n| Step 4 (Cross-reference verdicts) | ❌ MOVED to consensus-gate\
+  \ | Deterministic switch/case, not LLM work |\n| Step 5 (Aggregate consensus) |\
+  \ ❌ MOVED to consensus-gate | Pure math — any FAIL = overall FAIL |\n| Step 5.5\
+  \ (Self-consistency gate) | ❌ MOVED to orchestrator | Orchestrator enforces monotonicity\
+  \ by design — no sub-agent self-check needed |\n| Step 5.7 (Output-integrity self-check)\
+  \ | ❌ REMOVED | Same-LLM self-check anti-pattern eliminated |\n| Step 6 (Dark pattern\
+  \ enforcement) | ✅ YES | Semantic — requires LLM judgment |\n| Step 7 (Build result\
+  \ contract) | ❌ MOVED to orchestrator | Orchestrator reads consensus.yaml + cross-validate\
+  \ findings.yaml → builds contract |\n\n**Cross-validate after restructure:**\n1.\
+  \ Fetch spec from GitHub\n2. Validate inputs (artifact paths, spec)\n3. Read auditor\
+  \ YAMLs from disk\n4. (new) Read consensus from consensus.yaml (produced by consensus-gate)\n\
+  5. Dark pattern enforcement — scan auditor explanations for dark patterns\n6. Semantic\
+  \ evidence quality check — flag low-quality evidence patterns\n7. Write findings\
+  \ YAML to `./tmp/artifacts/pipeline-{issue}-cross-validate-findings-{timestamp}.yaml`\n\
+  8. Return frugal result contract: `{ status, overall_consensus, artifact_path, summary\
+  \ }`\n\n**Critical restriction: Cross-validate CANNOT downgrade FAIL to PASS.**\
+  \ It can only:\n- Confirm FAIL (findings agree with consensus)\n- Add FAIL (finds\
+  \ dark patterns the consensus tool missed)\n- Flag concerns (non-blocking warnings)\n\
+  \n### 3. Orchestrator routing change\n\nBetween auditor dispatch and cross-validate\
+  \ dispatch, the orchestrator runs `consensus-gate`:\n\n```\n1. Resolve models\n\
+  2. Dispatch auditor 1 → auditor writes YAML to disk\n3. Dispatch auditor 2 → auditor\
+  \ writes YAML to disk\n4. Run consensus-gate → writes consensus.yaml\n5. If consensus.yaml.status\
+  \ == \"FAIL\" or \"BLOCKED\":\n     Skip cross-validate (no semantic checks needed\
+  \ on a failed audit)\n     Route directly to remediation\n6. If consensus.yaml.status\
+  \ == \"PASS\":\n     Dispatch restricted cross-validate for semantic checks only\n\
+  \     Cross-validate reads consensus.yaml + auditor YAMLs\n     Cross-validate writes\
+  \ findings.yaml\n7. Read findings.yaml for report content\n```\n\n**Rationale for\
+  \ skipping cross-validate on FAIL:** If consensus-gate already computed FAIL, there's\
+  \ no need for semantic dark pattern analysis — the pipeline routes to remediation\
+  \ immediately. Cross-validate only fires when consensus is PASS, as an additional\
+  \ safety net for undetected semantic issues.\n\n### 4. Remove Steps 5.5 and 5.7\
+  \ (same-LLM self-check anti-pattern)\n\nThe orchestrator enforces monotonicity by\
+  \ design:\n- Cross-validate receives only PASS consensus (FAIL/ BLOCKED pipelines\
+  \ skip cross-validate entirely)\n- Cross-validate cannot downgrade FAILs — it has\
+  \ nothing to downgrade from\n- Orchestrator reads both consensus.yaml and cross-validate\
+  \ findings.yaml → builds final contract\n- If cross-validate finds dark patterns\
+  \ on a PASS consensus, orchestrator downgrades to FAIL — this is the orchestrator's\
+  \ job, not the sub-agent's\n\n## Files Affected\n\n| File | Change |\n|------|--------|\n\
+  | `.opencode/tools/consensus-gate` | NEW — deterministic bash script using yq for\
+  \ YAML parsing, switch/case consensus lookup with catch-all |\n| `.opencode/skills/adversarial-audit/tasks/cross-validate.md`\
+  \ | REMOVE Steps 4–5.7 (move to consensus-gate), scope to semantic checks only,\
+  \ remove JSON result contract, add Step 4.5 (read consensus.yaml), new Step 7 (write\
+  \ findings YAML) |\n| `.opencode/skills/adversarial-audit/SKILL.md` | Update DISPATCH_GATE\
+  \ to describe orchestrator-run consensus-gate step between auditor dispatch and\
+  \ cross-validate |\n| `.opencode/skills/adversarial-audit/tasks/resolve-models.md`\
+  \ | No change (model selection unaffected) |\n| `.opencode/skills/adversarial-audit/tasks/completion.md`\
+  \ | Update to read consensus.yaml + cross-validate findings.yaml from disk |\n|\
+  \ `.opencode/tests/enforcement/consensus-gate-basic.sh` | NEW — content-verification\
+  \ test: consensus-gate returns correct verdict for each combination |\n| `.opencode/tests/enforcement/consensus-gate-unknown.sh`\
+  \ | NEW — content-verification test: unknown result value → FAIL |\n| `.opencode/tests/behaviors/consensus-gate-unknown-result.sh`\
+  \ | NEW — behavioral test: agent pipeline with unknown auditor result → FAIL consensus\
+  \ |\n\n## PR Merge Boundaries\n\n**Depends on #932 being merged first.** This spec\
+  \ shares cross-validate.md as an affected file. Implementation order: #932 PR merges\
+  \ → consensus-gate spec branch starts.\n\n## Transition Plan\n\nNo backwards compatibility\
+  \ shim. The consensus-gate tool is added as a new file. Cross-validate.md is reworked\
+  \ atomically (Steps 4–5 removed, Step 4.5 and new Step 7 added). The orchestrator's\
+  \ routing logic changes in the same commit. During implementation, existing pipeline\
+  \ (LLM-mediated lookup) still works until final commit.\n\n## Success Criteria\n\
+  \n| ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | `consensus-gate` tool exists at `.opencode/tools/consensus-gate` and is\
+  \ executable | `structural` | `ls .opencode/tools/consensus-gate && test -x` |\n\
+  | SC-2 | Consensus-gate returns FAIL for any result value not in `{PASS, FAIL, AUDIT_FAIL,\
+  \ LIMITED-EVIDENCE, FABRICATED}` | `string` | Pipe YAML with `UNVERIFIED` → assert\
+  \ stderr contains \"FAIL\" |\n| SC-3 | Consensus-gate returns PASS only when both\
+  \ results are PASS | `behavioral` | `consensus-gate --auditor-1 PASS --auditor-2\
+  \ PASS → PASS exit 0` |\n| SC-4 | Consensus-gate returns FAIL when either result\
+  \ is FAIL | `behavioral` | `consensus-gate --auditor-1 PASS --auditor-2 FAIL → FAIL`\
+  \ |\n| SC-5 | Consensus-gate returns BLOCKED when result is AUDIT_FAIL/LIMITED-EVIDENCE/FABRICATED\
+  \ | `behavioral` | Each non-PASS/non-FAIL enum value → BLOCKED |\n| SC-6 | Cross-validate.md\
+  \ no longer contains Steps 4–5, 5.5, 5.7 | `string` | `grep` for \"Step 4:\", \"\
+  Step 5.5:\", \"Step 5.7:\" → 0 matches |\n| SC-7 | Cross-validate.md reads consensus.yaml\
+  \ from disk (not LLM verdict table) | `string` | `grep` for `consensus.yaml` in\
+  \ cross-validate.md → ≥1 match |\n| SC-8 | Cross-validate returns YAML result contract\
+  \ (not JSON) | `string` | `grep` for ```````json` in cross-validate.md → 0 matches\
+  \ |\n| SC-9 | Cross-validate CANNOT downgrade FAIL to PASS — receives only PASS\
+  \ consensus (FAIL/BLOCKED skips cross-validate) | `behavioral` | `opencode-cli run`\
+  \ with FAIL consensus → stderr shows no cross-validate dispatch, direct remediation\
+  \ route |\n| SC-10 | Orchestrator runs consensus-gate between auditor dispatch and\
+  \ cross-validate | `behavioral` | `opencode-cli run` → stderr shows \"consensus-gate\"\
+  \ dispatch between auditor completion and cross-validate start |\n| SC-11 | Evidence\
+  \ type mismatch detected by consensus-gate produces EVIDENCE_TYPE_MISMATCH flag\
+  \ in consensus.yaml | `behavioral` | Misclassify evidence → consensus.yaml contains\
+  \ `evidence_type_mismatch: true` |\n| SC-12 | No `UNVERIFIED` → `PASS` path exists\
+  \ in the pipeline | `behavioral` | Return `UNVERIFIED` → pipeline reports FAIL,\
+  \ not PASS |\n\n## Risk Analysis\n\n| Risk | Mitigation |\n|------|------------|\n\
+  | yq not available on system | Consensus-gate detects missing yq and shells out\
+  \ to Python `yaml` stdlib as fallback — or specifies yq as prerequisite |\n| Consensus-gate\
+  \ skips cross-validate on FAIL — may miss dark patterns in FAIL auditor output |\
+  \ FAIL means the pipeline halts for remediation anyway — dark patterns in FAIL output\
+  \ are moot. If needed, a separate \"auditor quality review\" step could inspect\
+  \ FAIL auditor output, but that's a separate concern |\n| Orchestrator routing change\
+  \ (skip cross-validate on FAIL) is a behavioral change — existing behavior always\
+  \ runs cross-validate | This is intentional: if consensus is already FAIL, running\
+  \ semantic checks adds latency with no routing impact. The pipeline halts either\
+  \ way |\n| Consensus-gate adds pipeline latency (subprocess call + YAML parsing)\
+  \ | Negligible — subprocess + yq/YAML parse is <100ms vs. LLM sub-agent dispatch\
+  \ (~30-60s) |\n\n\U0001F916 Co-authored with AI: DeepSeek V4 Flash (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-05-27T13:49:22Z'
+updated_at: '2026-06-15T03:29:30Z'
+remote_issue: 936
+remote_url: https://github.com/michael-conrad/.opencode/issues/936
+promoted_at: '2026-08-27T03:25:12.377616+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.377616+00:00'
+author: michael-conrad

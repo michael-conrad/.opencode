@@ -1,0 +1,33 @@
+comments:
+- body: '## Dependency Chain
+
+
+    ```
+
+    prev: #860 (Group A indirect — #836 pass) or independent (Group B)
+
+    next: (none — terminal work units)
+
+    ```
+
+
+    **Group A (SKILL.md + 3 shared files):**
+
+    - Depends on: #836 — shares spec-audit.md, plan-fidelity.md, drift-detection.md,
+    same pass required
+
+    - Applied in: #836''s implementation pass
+
+
+    **Group B (7 standalone files):**
+
+    - Depends on: nothing — no file overlap with any issue
+
+    - Independent — can be implemented at any time
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)
+
+    '
+  created_at: '2026-05-30T17:20:29Z'
+  user: michael-conrad

@@ -1,0 +1,105 @@
+number: 1024
+title: '[BUG] implementation-pipeline step 10 missing prerequisite: spec_local_dir
+  and artifact_evidence_dir not created before audit dispatch'
+status: open
+labels:
+- bug
+- needs-approval
+body: '## Summary
+
+
+  The implementation-pipeline SKILL.md defines step 10 as `adversarial-audit --task
+  verification-audit` but does not specify that the orchestrator must create `spec_local_dir`
+  and `artifact_evidence_dir` before dispatching auditors. The adversarial-audit skill''s
+  `verification-audit` task requires both directories populated — the pipeline provides
+  no prerequisite step for this.
+
+
+  ## Root Cause
+
+
+  The pipeline dispatch table says:
+
+
+  ```
+
+  | adversarial-audit | adversarial-audit --task verification-audit | dual-auditor
+  YAML verdicts |
+
+  ```
+
+
+  But the adversarial-audit `verification-audit` task mandates:
+
+
+  | Field | Requirement |
+
+  |-------|-------------|
+
+  | `spec_local_dir` | Path to local Markdown spec files (mirrored from GitHub Issue)
+  |
+
+  | `artifact_evidence_dir` | Path to behavioral evidence artifacts |
+
+  | `audit_phase` | verification_audit |
+
+
+  The pipeline SKILL.md has no mention of these prerequisites. The orchestrator is
+  not told to:
+
+  1. Fetch the issue and write a local `.md` spec to a known directory
+
+  2. Run behavioral tests and capture evidence artifacts
+
+  3. Pass these directory paths in the dispatch context
+
+
+  ## Evidence
+
+
+  During viewport-editor #46 step 10.2, the `auditor-qwen3.5` sub-agent correctly
+  rejected the dispatch:
+
+
+  ```
+
+  MISSING_EVIDENCE — artifact_evidence_dir (./tmp/artifacts/) is empty
+
+  MISSING — spec_local_dir path
+
+  ```
+
+
+  The auditor behavior was correct. The pipeline lacked the prerequisite steps to
+  populate these directories.
+
+
+  ## Resolution Needed
+
+
+  The pipeline dispatch table must add pre-audit steps:
+
+
+  ```
+
+  | pre-audit-spec-mirror | orchestrator: fetch issue #N, write spec_local_dir locally
+  | spec_local_dir populated |
+
+  | pre-audit-evidence | orchestrator: collect behavioral evidence artifacts | artifact_evidence_dir
+  populated |
+
+  | adversarial-audit | dispatch with spec_local_dir + artifact_evidence_dir | dual-auditor
+  YAML verdicts |
+
+  ```
+
+
+  🤖 OpenCode (deepseek-v4-flash)'
+created_at: '2026-06-05T02:59:44Z'
+updated_at: '2026-06-12T03:45:28Z'
+remote_issue: 1024
+remote_url: https://github.com/michael-conrad/.opencode/issues/1024
+promoted_at: '2026-08-27T03:25:12.535194+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.535194+00:00'
+author: michael-conrad

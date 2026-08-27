@@ -1,0 +1,11 @@
+comments:
+- body: 'Phase 3 of 3. Add per-skill/task bright-line re-anchors across ~26 files.
+
+
+    Dependencies:
+
+    - ⬆️ Depends on: #805 (Phase 1 — defines bright-line technique)
+
+    - ⬆️ Depends on: #806 (Phase 2 — consistent bright-line language from guidelines)'
+  created_at: '2026-05-22T02:44:17Z'
+  user: michael-conrad

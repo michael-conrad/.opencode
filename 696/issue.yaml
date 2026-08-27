@@ -1,0 +1,119 @@
+number: 696
+title: '[SPEC] cleanup/branch-cleanup.md: missing dev-parking precondition gate'
+status: open
+labels:
+- bug
+- '[SPEC]'
+- git-workflow
+body: "## Problem\n\n`cleanup/branch-cleanup.md` has no entry precondition ensuring\
+  \ the repo switches to `dev`. The task reads as a \"delete merged branches\" procedure.\
+  \ When dispatched outside a post-merge context (e.g., \"clean up the repo\"), sub-agents\
+  \ find zero merged branches at Step 4, short-circuit with \"no cleanup needed,\"\
+  \ and never execute Step 1 (`git checkout dev`). Both parent and submodule repos\
+  \ remain on their feature branches, unreported.\n\nBug #683 demonstrated this concretely:\
+  \ three sequential task() dispatches reported \"All repos at dev tip\" while both\
+  \ repos remained on `feature/683-content-classification-gate`. The sub-agent verified\
+  \ `dev` hash matches `origin/dev` (Step 1.5) but never switched the working checkout.\n\
+  \n## Dependencies\n\n### DEP-1: cleanup/branch-cleanup.md Task File\nThe target\
+  \ file at `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` (402 words,\
+  \ 402 lines) currently has Step 1 (Switch to Dev and Sync) that runs AFTER submodule\
+  \ and parent context detection. When sub-agents find no merged branches at Step\
+  \ 4, they short-circuit before Step 1 executes. The spec adds a Step 0 precondition\
+  \ gate before all existing logic.\n\n**Current state (short-circuit point):** Line\
+  \ 361-367 — Step 4 finds merged branches via `git branch --merged dev`. If no branches\
+  \ found, the sub-agent reports \"no cleanup needed\" and exits without ever checking\
+  \ which branch it's on.\n\n### DEP-2: No External Spec Dependencies\nThis spec modifies\
+  \ a single task file. No other specs need to be implemented first.\n\n### DEP-3:\
+  \ Bug #683 Root Cause\nBug #683 showed the concrete failure: cleanup sub-agent verified\
+  \ dev hash equality but never switched branches. Adding Step 0 as unconditional\
+  \ entry precondition resolves this by forcing branch switch BEFORE any merged-branch\
+  \ detection.\n\n## Documentation Sources\n\n- `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ — target task file (402 lines, full content above)\n- `.opencode/guidelines/000-critical-rules.md`\
+  \ §Content Verification Before Branch Deletion — cross-reference for Step 3 content\
+  \ gate\n- `.opencode/AGENTS.md` — cleanup pipeline references\n- `.opencode/tests/behaviors/helpers.sh`\
+  \ — assertion helpers for enforcement tests (`assert_required_pattern_present`,\
+  \ `assert_tool_calls_made`)\n\n## Requirements\n\n1. **Step 0 precondition gate**\
+  \ — mandatory entry step that forces `git checkout dev && git pull origin dev --ff-only`\
+  \ unconditionally, regardless of whether merged branches exist. This must execute\
+  \ BEFORE Step 1's existing sync logic. The gate MUST handle dirty-working-tree failure:\
+  \ if `git checkout dev` fails due to uncommitted changes, the sub-agent MUST stash\
+  \ (`git stash push -m \"cleanup-autostash-<timestamp>\"`), retry checkout, and pop\
+  \ the stash after cleanup completes (`git stash pop || true`). If stash fails, the\
+  \ sub-agent MUST HALT and report: \"Cannot switch to dev — uncommitted changes in\
+  \ working tree.\"\n\n2. **Exit criteria addition** — Step 5 must add `git branch\
+  \ --show-current returns dev` as an exit criterion alongside existing `git status\
+  \ --porcelain` and `git branch -vv`.\n\n3. **Distinguish \"already on dev\" vs \"\
+  switched to dev\"** — Step 1 should differentiate between:\n   - Already on dev:\
+  \ just `git pull origin dev --ff-only`\n   - On feature branch: `git checkout dev\
+  \ && git pull origin dev --ff-only`\n   The verification evidence should reflect\
+  \ which path was taken.\n\n4. **Remove step numbering ambiguity** — The current\
+  \ numbering has Step 1 (switch to dev), Step 1.5 (dev sync gate), Step 1.7 (parent\
+  \ parking), Step 1.9 (submodule descent). Step 0 should be inserted cleanly — renumber\
+  \ to accommodate.\n\n## Success Criteria\n\n### SC-1: Step 0 Precondition Gate Exists\n\
+  \n**Given:** The `cleanup/branch-cleanup.md` task file\n**When:** The file is read\n\
+  **Then:** A heading `### Step 0:` appears before the existing `### Step 1:` heading\n\
+  \n**Verification — Structural (deterministic):**\n- `grep -n \"Step 0:\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ returns non-empty line with Step 0 heading\n- `grep -n \"Step [0-9]\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ — first match is Step 0, second is Step 1\n\n**Verification — Enforcement test\
+  \ (deterministic assertion helpers):**\n```bash\nbash .opencode/tests/with-test-home\
+  \ opencode-cli run 'read cleanup/branch-cleanup.md Step 0 content' 2>&1\nassert_required_pattern_present\
+  \ \"Step 0\" \"Step 0 precondition gate present\"\n```\n\n### SC-2: `git checkout\
+  \ dev` Runs Unconditionally\n\n**Given:** Step 0 script block\n**When:** The script\
+  \ block is read\n**Then:** `git checkout dev && git pull origin dev --ff-only` appears\
+  \ with no conditional guard (no `if`, no `--merged` gate)\n\n**Verification — Structural\
+  \ (deterministic):**\n- `grep -A5 \"Step 0:\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md\
+  \ | grep \"git checkout dev\"` returns non-empty\n- The grep result is NOT preceded\
+  \ by `if` within the Step 0 block\n\n### SC-3: Dirty-Working-Tree Handling\n\n**Given:**\
+  \ Step 0 script block includes dirty-working-tree handling\n**When:** The script\
+  \ block is read\n**Then:** Contains `git stash push -m \"cleanup-autostash-\"` for\
+  \ checkout failure, a retry of `git checkout dev`, and `git stash pop || true` after\
+  \ cleanup. Contains a separate error path for stash failure with a HALT message.\n\
+  \n**Verification — Structural (deterministic):**\n- `grep \"git stash push -m\"\
+  \ .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` returns non-empty\
+  \ with `cleanup-autostash-` pattern\n- `grep \"git stash pop\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ returns non-empty\n- `grep -i \"Cannot switch to dev\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ returns non-empty\n\n### SC-4: Step 5 Exit Criteria Includes Branch Check\n\n\
+  **Given:** Step 5 verification block\n**When:** The block is read\n**Then:** Contains\
+  \ `git branch --show-current` alongside existing `git status --porcelain` and `git\
+  \ branch -vv`\n\n**Verification — Structural (deterministic):**\n- `grep -A10 \"\
+  Step 5:\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md | grep \"\
+  branch --show-current\"` returns non-empty\n- `grep -A10 \"Step 5:\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md\
+  \ | grep \"git status\"` returns non-empty\n\n### SC-5: Distinguish \"Already on\
+  \ dev\" vs \"Switched to dev\"\n\n**Given:** Step 1 script block has a conditional\
+  \ path\n**When:** The block is read\n**Then:** One message for \"already on dev\"\
+  \ (pull only) and a different message for \"switched to dev\" (checkout + pull)\n\
+  \n**Verification — Structural (deterministic):**\n- `grep -i \"already on dev\"\
+  \ .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md` returns non-empty\n\
+  - `grep -i \"switched to dev\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ or similar variant returns non-empty\n\n### SC-6: Sequential Step Numbering\n\n\
+  **Given:** Task file step headings\n**When:** Step numbers are extracted\n**Then:**\
+  \ Sequentially numbered starting from 0 (Step 0, Step 1, Step 1.5, Step 1.7, Step\
+  \ 1.9, Step 2...). No duplicate numbers, no gaps.\n\n**Verification — Structural\
+  \ (deterministic):**\n- `grep -o \"Step [0-9.]*:\" .opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ produces ordered list starting from `Step 0:`\n- Verify no gap: after Step 0,\
+  \ the next number is Step 1 (not Step 2)\n\n## Affected Files\n\n- `.opencode/skills/git-workflow/tasks/cleanup/branch-cleanup.md`\n\
+  \n## Implementation Strategy\n\nSingle-item RED/GREEN/REFACTOR cycle. One sub-agent\
+  \ task to modify the task file. Behavioral RED test: dispatch cleanup with current\
+  \ branch on a feature branch, verify agent switches to dev before reporting \"no\
+  \ cleanup needed.\"\n\n## Risk Analysis\n\nLow risk. Adds a mandatory precondition\
+  \ to an existing task. No behavioral change for post-merge cleanup — Step 1 already\
+  \ checked out dev, the gate just moves that check earlier and makes it unconditional.\
+  \ The risk is a sub-agent that was already on dev and just ran `git pull` — the\
+  \ gate handles this via the \"already on dev\" distinction. The dirty-working-tree\
+  \ handling adds a second failure mode: stash failure is rare but must HALT cleanly\
+  \ rather than continue on the wrong branch.\n\n## Change Control\n\n### Status History\n\
+  \n| Version | Date | Status | Change |\n|---------|------|--------|--------|\n|\
+  \ 1.0 | 2026-05-18 | DRAFT | Initial specification |\n| 2.0 | 2026-05-18 | REVISED\
+  \ | Added Dependencies (DEP-1 through DEP-3) and Documentation Sources sections;\
+  \ split each SC verification into Structural (deterministic grep) and Enforcement\
+  \ test (helpers.sh assertions) per SC-DET gate; confirmed dirty-working-tree handling\
+  \ already present in Requirement 1 |\n\n---\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-05-18T16:49:25Z'
+updated_at: '2026-07-11T16:02:44Z'
+remote_issue: 696
+remote_url: https://github.com/michael-conrad/.opencode/issues/696
+promoted_at: '2026-08-27T03:25:11.924255+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.924255+00:00'
+author: michael-conrad

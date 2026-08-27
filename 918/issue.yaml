@@ -1,0 +1,178 @@
+number: 918
+title: '[SPEC] Meta-prompt test audit — remove prose-recall tests, codify behavioral
+  mandate'
+status: open
+labels:
+- needs-approval
+body: "## Problem\n\nThe behavioral test suite contains ~30+ tests (~15-20% of 193\
+  \ test files) that use **meta-prompt patterns** — prompts that ask the agent to\
+  \ describe, reason, evaluate, or advise rather than **perform an action**. These\
+  \ tests are not valid behavioral tests by the project's own definitions: they verify\
+  \ prose recall (what the agent **says** it would do), not actual behavioral output\
+  \ (what the agent **does** as visible in stderr tool-call evidence).\n\n## What\
+  \ a Meta-Prompt Test Is\n\nA meta-prompt test uses one of these prompt patterns:\n\
+  \n| Pattern | Example | Why Faulty |\n|---------|---------|------------|\n| \"Tell\
+  \ me what you would do\" | `\"Tell me what you would do step by step if...\"` |\
+  \ Agent narrates intent, does not execute. Stdout prose ≠ behavior. |\n| \"Should\
+  \ I...\" / \"What should I do\" | `\"Should I close the parent plan issue?\"` |\
+  \ Advisory Q — agent advises rather than acting. Tests reasoning, not execution.\
+  \ |\n| \"Evaluate this scenario\" | `\"Evaluate this sub-agent dispatch scenario:\
+  \ ... Determine how the sub-agent should respond.\"` | Role-play meta-evaluation.\
+  \ Agent classifies a hypothetical, not a real action. |\n| \"Explain how to...\"\
+  \ | `\"Explain how to use the git-workflow skill...\"` | Pure prose recall. Tests\
+  \ whether the agent can describe a process, not follow it. |\n| \"You are an adversarial\
+  \ auditor...\" | `\"You are an adversarial auditor reviewing...\"` | Role-play framing.\
+  \ The agent reasons in-character rather than dispatching tools. |\n\n## Why Meta-Prompt\
+  \ Tests Are Faulty — Cost Analysis\n\nBehavioral tests exist to catch defects at\
+  \ the **earliest possible gate**. Meta-prompt tests subvert this by producing a\
+  \ false PASS signal — the test passes on prose recall but tells you nothing about\
+  \ whether the agent actually follows the rule in practice.\n\n| Tier | Type | Principle\
+  \ | Why (Cost in Defect-Discovery-Latency) |\n|------|------|-----------|----------------------------------------|\n\
+  | 1 (lowest total cost) | `behavioral` | Verify runtime behavior by executing code\
+  \ and observing output | Catches defects at the earliest possible gate — the behavioral\
+  \ test. Zero downstream rework. The one-time execution cost is bounded; the cost\
+  \ of an undiscovered defect is unbounded. |\n| 2 | `semantic` | Verify intent and\
+  \ correctness by AI agent read + analytical judgment | Defect may be missed or hallucinated\
+  \ away — introduces downstream risk. More expensive than behavioral because a missed\
+  \ defect compounds. |\n| 3 | `string` | Verify content by grep / pattern matching\
+  \ | Brittle — grep matches text, not behavior. A passing grep tells you nothing\
+  \ about correctness. High defect latency. |\n| 4 (highest total cost) | `structural`\
+  \ | Verify existence by `ls` / file presence | Proves the artifact was created,\
+  \ not that it works. False PASS here is the most expensive outcome — it creates\
+  \ a downstream defect that will require full rework: diagnosis, fix, re-review,\
+  \ re-CI, re-deploy. |\n\nA meta-prompt test occupies a **phantom 5th tier below\
+  \ structural** — it doesn't verify any of the four recognized evidence types. It\
+  \ produces prose recall (stdout), not behavioral evidence (stderr tool-call dispatch),\
+  \ and the result is a false PASS that gives zero confidence the agent follows the\
+  \ rule in practice. The total cost is **unbounded**: the false PASS masks real defects\
+  \ that surface in CI, requiring diagnosis, fix, re-review, re-CI, re-deploy.\n\n\
+  Compare: a genuine behavioral test costs one bounded `opencode-cli run` execution\
+  \ and produces actionable PASS/FAIL. A meta-prompt test costs the same execution\
+  \ but produces a meaningless PASS — same runtime cost, zero signal.\n\n## How Meta-Prompt\
+  \ Tests Differ from Structural-Only Tests\n\n**Critical architectural context:**\
+  \ Per #860 (CLOSED), the behavioral test infrastructure now uses a two-tier verification\
+  \ architecture:\n\n1. **Bash level**: `behavior_run` → `capture_and_cleanup` — captures\
+  \ stdout/stderr to `./tmp/behavioral-evidence-*/`, removes test home. Remaining\
+  \ bash assertions (`assert_stderr_pattern_*`, `assert_required_pattern_present`,\
+  \ etc.) are **secondary structural corroboration**, not the primary gate.\n2. **Orchestrator\
+  \ level**: Clean-room adversarial auditors dispatched via `task()` read captured\
+  \ artifacts → PASS/FAIL verdicts. This is the primary behavioral gate.\n\nThis distinction\
+  \ determines which tests are salvageable and which must be removed:\n\n| Classification\
+  \ | Prompt | Captured Output | Salvageable? |\n|---------------|--------|----------------|--------------|\n\
+  | **Meta-prompt** | Agent asked to describe/reason/advise | Prose recall. No behavioral\
+  \ signal. | **NO** — broken at the prompt level. The captured output is meaningless\
+  \ regardless of who evaluates it. |\n| **Real-domain prompt, structural-string assertions**\
+  \ | Agent told to DO something | Genuine behavioral output (tool dispatches, actions\
+  \ in stderr). | **YES** — the prompt produces valid behavioral evidence. Orchestrator\
+  \ auditor evaluates it. The bash-level assertions are secondary corroboration. |\n\
+  | **Real-domain prompt, no assertions (no-op)** | Agent told to DO something | Genuine\
+  \ behavioral output captured and stored at `./tmp/behavioral-evidence-*/`. | **YES**\
+  \ — these are not \"incomplete.\" They generate artifacts for orchestrator-level\
+  \ VbC and auditor evaluation. This is the intended post-#860 pattern. |\n\nA meta-prompt\
+  \ test is **fundamentally unsalvageable** because the prompt itself poisons the\
+  \ output. Even with the perfect orchestrator auditor, the captured evidence contains\
+  \ the agent describing what it WOULD do — not evidence of it DOING it. The same\
+  \ runtime cost as a real behavioral test, zero signal.\n\nIn contrast, a real-domain\
+  \ prompt test with only secondary bash assertions still produces valid captured\
+  \ evidence for the orchestrator. The bash-level assertions are a documentation concern\
+  \ — they can be upgraded or removed without changing the test's validity.\n\n**Strong\
+  \ removal-first stance:** Most of these tests have always been wrong. They were\
+  \ created under a flawed understanding of behavioral testing. Rather than rewriting\
+  \ prompts to be \"kinda behavioral,\" the default action should be **remove**. Only\
+  \ keep a test if:\n1. The SC it tests is genuinely important, AND\n2. The SC can\
+  \ be tested with a real-domain action prompt, AND\n3. No existing behavioral test\
+  \ already covers the same SC\n\n## Scope of Work\n\n### Phase 1: Audit — Classify\
+  \ Every Test File\n\nAudit all test files in `.opencode/tests/behaviors/` and classify\
+  \ each prompt with TWO dimensions:\n\n**Dimension A: Prompt Type**\n\n| Classification\
+  \ | Definition | Action |\n|---------------|------------|--------|\n| **META-PROMPT**\
+  \ | Agent asked to describe/reason/evaluate/advise rather than act | **Remove**\
+  \ — test is fundamentally unsalvageable |\n| **REAL-DOMAIN** | Agent told to DO\
+  \ something (implement, audit, verify, create branch, check state) | **Evaluate**\
+  \ — check Dimension B |\n| **BORDERLINE** | Prompt is ambiguous | Reviewer judgment\
+  \ |\n\n**Dimension B: Assertion Quality (REAL-DOMAIN only)**\n\n| Classification\
+  \ | Definition | Action |\n|---------------|------------|--------|\n| **CAPTURE-ONLY**\
+  \ | behavior_run + capture_and_cleanup, zero bash assertions | **Preserve** — this\
+  \ is the intended post-#860 pattern. Evidence produced for orchestrator. |\n| **SECONDARY-ASSERTED**\
+  \ | behavior_run + capture_and_cleanup + structural/string bash assertions | **Evaluate**\
+  \ — prompt is valid, but redundant bash assertions should be removed as tech debt\
+  \ |\n| **NO-CAPTURE** | behavior_run but no capture_and_cleanup | **Fix** — add\
+  \ capture_and_cleanup so artifacts reach orchestrator |\n\n**Minimum 5 samples from\
+  \ each classification category shall be verified by a second auditor** (cross-validation).\n\
+  \n### Phase 2: Remove Meta-Prompt Tests\n\nFor each META-PROMPT test:\n\n1. **Default\
+  \ action: Remove the test file.** Most of these have always been faulty — they were\
+  \ created under a flawed understanding of what behavioral testing requires. Prompting\
+  \ the agent to describe/reason/advise produces prose recall, not evidence of behavior.\n\
+  2. **Exceptionally preserve only if ALL of:**\n   - The SC it tests is genuinely\
+  \ important AND not covered by any existing behavioral test\n   - The SC CAN be\
+  \ tested with a real-domain action prompt\n   - The rewritten prompt would not be\
+  \ \"kinda meta\" in new clothes\n3. **Document removals** in the audit report with\
+  \ the reason (which meta-prompt pattern, why the SC is either tested elsewhere or\
+  \ unverifiable)\n\n### Phase 3: Strengthen Testing Guidelines\n\nUpdate the following\
+  \ files to explicitly prohibit meta-prompt testing:\n\n1. **`.opencode/guidelines/080-code-standards.md`**\
+  \ — Add a dedicated \"Meta-Prompt Test Prohibition\" section:\n   - Definition of\
+  \ meta-prompt tests (include the 5 prompt patterns table)\n   - Why they are faulty\
+  \ (include cost analysis table)\n   - Why they are unsalvageable — the prompt poisons\
+  \ the output, no downstream evaluation can recover it\n   - Explicit prohibition:\
+  \ \"A test that asks the agent to describe, reason, evaluate, or advise about behavior\
+  \ — rather than perform an action — is NOT a valid behavioral test. Such tests MUST\
+  \ NOT be added to the suite. Existing meta-prompt tests MUST be removed.\"\n   -\
+  \ Structural-test distinction note: tests with real-domain prompts but structural\
+  \ bash-level assertions are NOT meta-prompt tests. They produce valid captured evidence\
+  \ for orchestrator evaluation. The bash-level assertions are secondary corroboration,\
+  \ not the primary gate.\n\n2. **`.opencode/tests/README.md`** — Expand the existing\
+  \ \"Prose-recall prohibition\" paragraph:\n   - Rename to \"Meta-Prompt Test Prohibition\
+  \ (formerly Prose-Recall)\"\n   - Include cost analysis table\n   - Add the prompt\
+  \ pattern table and the removal-first stance\n   - Note that `capture_and_cleanup`-only\
+  \ tests (no bash assertions) are valid — they produce evidence for the orchestrator\n\
+  \   - Add the salvageability matrix (meta-prompt vs real-domain)\n   - Cross-reference\
+  \ #860 for the two-tier architecture\n\n3. **`.opencode/guidelines/000-critical-rules.md`**\
+  \ — Add a Tier 2 rule classifying introduction of new meta-prompt tests as a process-integrity\
+  \ violation\n\n### Phase 4: Clean Up Redundant Bash Assertions (Tech Debt)\n\nAfter\
+  \ meta-prompt tests are removed:\n- For remaining REAL-DOMAIN/CAPTURE-ONLY tests:\
+  \ no changes needed — they are correct as-is\n- For remaining REAL-DOMAIN/SECONDARY-ASSERTED\
+  \ tests: optionally remove redundant bash assertions as pure tech debt cleanup.\
+  \ These assertions are harmless (they don't interfere with capture_and_cleanup)\
+  \ but they add maintenance burden. The orchestrator auditor is the primary gate.\n\
+  \n### Phase 5: Behavioral Enforcement\n\nAfter guidelines are updated:\n- Add a\
+  \ behavioral enforcement test that verifies the agent recognizes a meta-prompt as\
+  \ invalid behavioral testing\n- Add a content-verification test checking the new\
+  \ prohibition section exists\n\n## Success Criteria\n\n| ID | Criterion | Evidence\
+  \ Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | All test files classified with audit trail including both dimensions (prompt\
+  \ type + assertion quality) | `structural` | Audit report file exists at `tmp/meta-prompt-audit-<date>.md`\
+  \ |\n| SC-2 | All META-PROMPT tests removed. No test file contains a meta-prompt\
+  \ pattern as its primary prompt. | `string` | grep for meta-prompt patterns across\
+  \ all test files — zero matches |\n| SC-3 | Documented rationale for each removal:\
+  \ which meta-prompt pattern, why the SC is either covered elsewhere or genuinely\
+  \ unverifiable | `structural` | Audit report contains removal-justification column\
+  \ |\n| SC-4 | `080-code-standards.md` contains Meta-Prompt Test Prohibition section\
+  \ with cost analysis table and salvageability matrix | `string` | grep for section\
+  \ header and cost table |\n| SC-5 | `tests/README.md` contains expanded prohibition\
+  \ with prompt pattern table + removal-first stance + #860 cross-reference | `string`\
+  \ | grep for \"Meta-Prompt Test Prohibition\" and \"salvageable\" and \"#860\" |\n\
+  | SC-6 | `000-critical-rules.md` has Tier 2 rule for meta-prompt test introduction\
+  \ | `string` | grep for \"meta-prompt\" in critical-rules |\n| SC-7 | Behavioral\
+  \ enforcement test verifies agent recognizes meta-prompt as invalid | `behavioral`\
+  \ | `opencode-cli run` with meta-prompt prompt → stderr evidence of recognition/refusal\
+  \ |\n| SC-8 | Remaining behavioral tests that are capture-and-cleanup-only run without\
+  \ error and produce evidence artifacts | `behavioral` | Run a sample of capture-only\
+  \ tests; confirm exit 0 and `./tmp/behavioral-evidence-*/` artifacts exist |\n|\
+  \ SC-9 | No test file has a behavior_run without a corresponding capture_and_cleanup\
+  \ call | `string` | grep for behavior_run → verify paired with capture_and_cleanup\
+  \ |\n\n## Pre-Implementation Inspection\n\nBefore implementation begins, the auditor\
+  \ MUST:\n1. Re-read all comments on this issue (authorization may live in comments)\n\
+  2. Search for superseding open issues that may overlap or conflict\n3. Verify the\
+  \ audit tooling works against all 193 test files\n4. Confirm which test files in\
+  \ the audit are capture-and-cleanup-only (the intended post-#860 pattern) vs those\
+  \ with inline assertions vs those that are meta-prompt\n\n## Labels\n\n`[SPEC]`,\
+  \ `testing`, `behavioral-tests`\n\n<!-- SPDX-FileCopyrightText: 2026 Michael Conrad\
+  \ -->\n<!-- SPDX-License-Identifier: MIT -->\n<!-- Provenance: AI-generated -->\n\
+  \nCo-authored with AI: OpenCode (deepseek-v4-flash)"
+created_at: '2026-05-26T13:49:47Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 918
+remote_url: https://github.com/michael-conrad/.opencode/issues/918
+promoted_at: '2026-08-27T03:25:12.321055+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.321055+00:00'
+author: michael-conrad

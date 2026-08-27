@@ -1,0 +1,49 @@
+number: 2344
+title: '[BUG] executing-plans dispatch-phase returns after the RED sub-step only —
+  phase GREEN/verify/commit never executed nor reported, stranding the orchestrator'
+status: open
+labels: []
+body: "## Problem\n\nThe executing-plans dispatch-phase task card documents routing\
+  \ only (per task discipline 'Do not dispatch sub-agents from within this task' it\
+  \ cannot execute a phase's RED/GREEN/verify/commit cycle itself), yet the SKILL.md\
+  \ Workflow and the task's exit criteria treat a DONE return as 'the phase has been\
+  \ dispatched through the implementation pipeline'. Observed live 2026-08-26 (DaoCore2#17):\
+  \ repeated dispatch-phase dispatches returned after only the RED pre-step — the\
+  \ phase's GREEN/verify/commit steps were never executed or returned in the result\
+  \ contract, leaving the phase half-executed with the orchestrator unable to continue\
+  \ (user had to cancel and re-dispatch repeatedly).\n\n## Repro context\n\n- Pipeline\
+  \ step: executing-plans → dispatch-phase (plan execution under for_pr scope, per\
+  \ #1364).\n- Evidence artifacts under the session workdir (tmp/DaoCore2#17/):\n\
+  \  - dispatch-phase-1.yaml — status DONE, but dispatch_mode records 'sub-agent (orchestrator\
+  \ dispatches per plan steps 5-29; this task documents routing only)' — routing documentation\
+  \ only, zero implementation\n  - dispatch-phase-1-evidence.yaml — BLOCKED: 'Phase\
+  \ 1 entry criteria (Pre-implementation steps 1-4 green) are NOT fully met... no\
+  \ pre-regression dispatch record and no pre-regression verify artifact'\n  - dispatch-phase-2.yaml\
+  \ — BLOCKED: 'Phase 1 completion is NOT verified... dispatch-phase-1.yaml documents\
+  \ routing only — it is not evidence of Phase 1 implementation'\n- The orchestrator\
+  \ received DONE for phase dispatch, but the phase's GREEN/verify/commit steps were\
+  \ neither executed nor reported; subsequent dispatches BLOCKED on the unexecuted\
+  \ phase.\n\n## Expected vs actual\n\n- Expected: dispatch-phase dispatches the phase\
+  \ through the full implementation pipeline (RED → GREEN → verify → commit per the\
+  \ plan's daisy chain) and the result contract reflects the phase outcome; a DONE\
+  \ return means the phase is implemented and verified.\n- Actual: dispatch-phase\
+  \ returns DONE after a routing-only sub-step; the phase body steps (GREEN/verify/commit)\
+  \ are left unexecuted, producing BLOCKED loops on subsequent phases and requiring\
+  \ user intervention (cancel + re-dispatch).\n\n## Evidence\n\n- Task cards: .opencode/skills/executing-plans/tasks/dispatch-phase.md\
+  \ (entry/exit criteria, result contract); .opencode/skills/executing-plans/SKILL.md\
+  \ (Workflows: 'Dispatch phases in sequence').\n- Artifacts: tmp/DaoCore2#17/dispatch-phase-1.yaml,\
+  \ dispatch-phase-1-evidence.yaml, dispatch-phase-1-evidence-2.yaml, dispatch-phase-2.yaml,\
+  \ dispatch-phase-3.yaml.\n\n## Related\n\n- #2324 (OPEN) — executing-plans registration\
+  \ gap (different defect; the card was in the registry for this session).\n- #1364\
+  \ / #2321 (closed) — for_pr routing through executing-plans; this defect makes the\
+  \ routed gate half-execute phases.\n- #1894 (closed) — implementation-pipeline step-level\
+  \ dispatch mandate; the same phase-level batching defect class.\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-08-26T22:13:56Z'
+updated_at: '2026-08-26T22:14:15Z'
+remote_issue: 2344
+remote_url: https://github.com/michael-conrad/.opencode/issues/2344
+promoted_at: '2026-08-27T03:25:12.645409+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.645409+00:00'
+author: michael-newsrx

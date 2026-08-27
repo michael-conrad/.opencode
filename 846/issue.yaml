@@ -1,0 +1,105 @@
+number: 846
+title: '[PLAN-842] Phase 4: Verification Integration'
+status: open
+labels:
+- needs-approval
+- task
+body: 'Phase 4 of #842
+
+
+  ## Objective
+
+
+  Wire verification-gate into the pipeline as a mandatory prerequisite. Update enforcement-gate
+  (add artifact re-verification and evidence chain), create-pr (remove redundant Step
+  4.5), and review-prep (add verification-gate prerequisite).
+
+
+  **TDD discipline enforced per `091-incremental-build.md`:** Each sub-task has a
+  structural RED test (grep returns 0 for absent pattern) that must fail before GREEN
+  implementation makes it pass.
+
+
+  ## Sub-Task Breakdown
+
+
+  ### Sub-task 4.1: Update enforcement-gate.md (SC-11)
+
+
+  **RED:** `grep "verification-.*\.yaml\|audit-cross-validate-.*\.yaml\|behavioral-evidence\|evidence
+  chain\|evidence_chain_integrity" tasks/pr-creation/enforcement-gate.md` — must find
+  references (currently returns 0). Test MUST fail because enforcement-gate doesn''t
+  mention VbC/audit artifacts yet.
+
+
+  **GREEN:** Add new step to enforcement-gate.md: re-verify VbC/audit YAML artifacts
+  exist, report clean PASS, and verify evidence chain integrity. Reference `./tmp/artifacts/verification-*.yaml`,
+  `./tmp/artifacts/audit-cross-validate-*.yaml`, `./tmp/behavioral-evidence-SC-*.log`.
+  Use dark-prose-003 for HALT messages.
+
+
+  **REFACTOR:** Verify enforcement-gate still performs all existing checks (submodule
+  liveness, commit counts, etc.) in addition to new verification checks.
+
+
+  ### Sub-task 4.2: Update create-pr.md (SC-12)
+
+
+  **RED:** `grep -c "dispatch log" tasks/pr-creation/create-pr.md` — must return 0
+  after removing Step 4.5. Currently returns >0. Test MUST fail because dispatch log
+  check still exists.
+
+
+  **GREEN:** Remove Step 4.5 (dispatch log check — redundant after verification-gate).
+  Keep Step 4.75 (final content validation as belt-and-suspenders). Update any JSON→YAML
+  artifact format references.
+
+
+  **REFACTOR:** Verify remaining steps renumber correctly (no Step 4.5 gap, no Step
+  4.75 partial numbering).
+
+
+  ### Sub-task 4.3: Update review-prep.md (SC-13)
+
+
+  **RED:** `grep "verification-gate" tasks/review-prep.md` — must find prerequisite
+  reference (currently returns 0). Test MUST fail because review-prep doesn''t reference
+  verification-gate yet.
+
+
+  **GREEN:** Add verification-gate as prerequisite in review-prep Entry Criteria with
+  dark-prose-002: "Verification-gate clean PASS IS the prerequisite for push. review-prep
+  IS NOT a bypass — it IS the step after verification-gate." Enforce that review-prep
+  MUST NOT proceed unless verification-gate returned DONE with clean PASS and confirmed
+  evidence chain integrity.
+
+
+  **REFACTOR:** Verify dark-prose-002 wording uses IS/IS NOT pattern.
+
+
+  ## Success Criteria
+
+
+  - SC-11: `grep "verification-.*\.yaml\|audit-cross-validate-.*\.yaml\|behavioral-evidence\|evidence
+  chain\|evidence_chain_integrity" tasks/pr-creation/enforcement-gate.md` finds references
+
+  - SC-12: `grep -c "dispatch log" tasks/pr-creation/create-pr.md` returns 0
+
+  - SC-13: `grep "verification-gate" tasks/review-prep.md` finds prerequisite reference
+
+
+  ## Dependencies
+
+
+  Phase 1 must be complete — verification-gate task must exist before referenced.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-23T15:15:59Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 846
+remote_url: https://github.com/michael-conrad/.opencode/issues/846
+promoted_at: '2026-08-27T03:25:12.183011+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.183011+00:00'
+author: michael-conrad

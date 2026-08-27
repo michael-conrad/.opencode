@@ -1,0 +1,245 @@
+number: 947
+title: '[SPEC] Discussion-First Protocol — Replace pidgeon-hole question tool patterns
+  with open-ended discussion'
+status: open
+labels:
+- needs-approval
+- spec
+- brainstorming
+- discussion-reform
+- question-tool
+body: '## Summary
+
+
+  The `question` tool is used as the primary mechanism for exploratory discussion
+  across multiple skill and guideline files. This forces the AI agent to pre-define
+  answer options, lobotomizing requirements, and treating the user as a survey respondent
+  rather than a discussion partner. Replace all discussion-facing `question` tool
+  usage with a plain-language, open-ended, full-reasoning discussion protocol.
+
+
+  ## Context / Problem
+
+
+  ### Root Cause
+
+
+  The `question` tool (available as a tool in the agent''s toolbox) accepts `questions[]`
+  with `label` (≤5 words), `description`, and `options[]`. This is a forced-choice
+  instrument designed for binary decisions and selection — not for exploration. When
+  used for discussion:
+
+
+  1. **The agent must pre-digest complexity into 5-word labels.** This is lobotomization
+  — real exploratory topics cannot be captured in such constraints.
+
+  2. **The agent must commit to an answer set before the user responds.** The user
+  can only pick from what the agent pre-selected. If the right answer isn''t there,
+  the user has no path within the tool''s format to express it.
+
+  3. **The agent provides zero reasoning in the question.** The tool has no field
+  for context, uncertainty, trade-offs, or deliberation. The user never sees the agent''s
+  thinking — only the packaged output.
+
+  4. **The agent uses constrained output to self-justify.** When specs or plans have
+  gaps, the agent can say "the user chose option B" — treating the forced choice as
+  comprehensive input.
+
+
+  ### Defective Locations
+
+
+  | Location | Line | Pattern | Defect |
+
+  |----------|------|---------|--------|
+
+  | `guidelines/045-open-questions.md` | 14, 28-31 | Mandatory a/b/c "interviewer
+  format" with "Custom answer" fig leaf | Forces agent to predefine answer space;
+  custom option is a fig leaf |
+
+  | `skills/brainstorming/tasks/explore/exploration-workflow.md` | 55 | "Prefer multiple
+  choice when possible" | Directly instructs agent to use forced-choice for exploration
+  |
+
+  | `skills/brainstorming/SKILL.md` | 14, 18, 46 | "One question at a time" — frames
+  discussion as interrogation | Agent asks, user answers — never a bidirectional discussion
+  |
+
+  | `skills/issue-review/tasks/qa.md` | 48-58 | Pre-written scope questions, "Ask
+  ONE question at a time" | Agent reads from a script; no room for open-ended exploration
+  |
+
+  | `guidelines/140-planning-spec-creation.md` | 57 | "Use the `question` tool with
+  a list of available specs" | Selection tool prevents natural meta-discussion about
+  specs |
+
+  | `skills/issue-review/tasks/qa.md` | 62-66 | "Ask in chat → Wait → Move to next
+  question" | Pure interrogation script, zero agent reasoning provided |
+
+
+  ### Already-Correct Locations (No Change Needed)
+
+
+  These already prohibit `question` tool for certain contexts and should remain:
+
+
+  - `guidelines/000-critical-rules.md` — Blocks `question` tool for structural decisions
+  under `for_pr` scope (critical-rules-037)
+
+  - `guidelines/020-go-prohibitions.md` §1.6 — Prohibits skill-routing solicitation
+  after any authorization (not just `for_pr`), with prohibited pattern table and behavioral
+  test at `tests/behaviors/prohibit-skill-routing-solicitation.sh`
+
+  - `tests/behaviors/for-pr-gap-fill.sh` — Tests the for_pr gap-fill behavior
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | `guidelines/045-open-questions.md` replaces a/b/c forced-choice format
+  with open-ended discussion protocol | `string` |
+
+  | SC-2 | `skills/brainstorming/tasks/explore/exploration-workflow.md` removes "Prefer
+  multiple choice" directive; replaces with "Agent MUST provide full reasoning and
+  context with each discussion turn" | `string` |
+
+  | SC-3 | `skills/brainstorming/SKILL.md` updates persona from "Requirements Explorer"
+  to "Discussion Partner"; operating protocol reflects discussion-first, not question-first
+  | `string` |
+
+  | SC-4 | `skills/issue-review/tasks/qa.md` replaces pre-set question script with
+  open-ended exploration; agent MUST provide reasoning behind each topic raised |
+  `string` |
+
+  | SC-5 | `guidelines/140-planning-spec-creation.md` replaces `question` tool for
+  spec listing with natural language offering | `string` |
+
+  | SC-6 | New section added to `020-go-prohibitions.md` (or a cross-reference) codifying:
+  `question` tool is ONLY permitted for binary/known-fork decisions where the answer
+  set is genuinely known in advance; FORBIDDEN for exploratory discussion. MUST cross-reference
+  the existing §1.6 skill-routing prohibition to avoid redundancy. | `string` |
+
+  | SC-7 | `skills/brainstorming/tasks/enforcement.md` updates batch-dump detection
+  and enforcement messages to reflect discussion protocol, not Q&A interrogation |
+  `string` |
+
+  | SC-8 | Behavioral test exists verifying agent uses open-ended discussion (not
+  `question` tool) when asked an exploratory question | `behavioral` |
+
+  | SC-9 | Before each discussion turn, agent MUST self-check whether any claim needs
+  live-source verification (codebase, docs, web). If verification is possible and
+  the claim is not session-confirmed, agent MUST verify before presenting. Internal
+  check — no explicit announcement required. | `behavioral` |
+
+  | SC-10 | `skills/brainstorming/SKILL.md` Operating Protocol specifies that developer
+  "too much" feedback means "go deeper on fewer items," not "compress the same items"
+  (absorbed from #406 SC-2) | `string` |
+
+  | SC-11 | Behavioral enforcement test: dispatch agent with brainstorming trigger,
+  present a multi-item problem, verify agent presents first item only (not full list),
+  waits for developer feedback before proceeding to next item (absorbed from #406
+  SC-4) | `behavioral` |
+
+
+  ## Self-Verification Gate (SC-9 Detail)
+
+
+  The discussion protocol is incomplete without a guard against stale training data
+  and false memory. SC-9 enforces that before each discussion turn, the agent performs
+  an internal self-check:
+
+
+  > "Does any claim I''m about to make need verification against live sources (codebase,
+  docs, web)?"
+
+
+  If the answer is yes — the claim touches code behavior, API signatures, configuration,
+  library versions, or any domain knowledge that could be stale — the agent performs
+  verification against live sources before presenting. If the answer is no (the claim
+  has already been confirmed in-session), the agent proceeds without noise.
+
+
+  No explicit announcement of "no verification needed" — the check is internal and
+  silent unless verification is actually performed.
+
+
+  ## Non-Goals
+
+
+  - Removing the `question` tool entirely. It remains valid for: binary deployment
+  decisions, selecting from a known list where quick response is appropriate, and
+  other situations where the answer set is genuinely known in advance.
+
+  - Changing `tests/behaviors/prohibit-skill-routing-solicitation.sh` or `tests/behaviors/for-pr-gap-fill.sh`
+  — these test correct existing prohibitions.
+
+  - Requiring the agent to announce "no verification needed" on every turn (that would
+  be noise).
+
+
+  ## Risks
+
+
+  | Risk | Likelihood | Mitigation |
+
+  |------|-----------|------------|
+
+  | Agents may ask zero questions at all (swing too far) | Medium | Discussion protocol
+  requires at least 1 turn of agent-led context-sharing, not "just implement" |
+
+  | Agents may dump reasoning dumps without engaging | Medium | Each turn must end
+  with an explicit invitation for user input |
+
+  | Agents discuss confidently from stale training data | Medium | SC-9 self-verification
+  gate forces live-source check before factual claims |
+
+  | `question` tool used incorrectly despite guideline | Medium | Behavioral test
+  SC-8 catches this |
+
+  | Self-verification gate is skipped (internal, hard to detect) | Medium | Behavioral
+  test SC-9 must use a scenario where stale training data would produce wrong claims
+  — verify agent performs live check instead |
+
+  | Agent batch-dumps full enumeration instead of discussing one item at a time |
+  Medium | Behavioral test SC-11 catches this; SC-10 provides the "too much → go deeper"
+  rule |
+
+
+  ## Open Questions
+
+
+  All resolved during brainstorming exploration.
+
+
+  ## Revision Notes
+
+
+  - **v1.0 → v1.1 (2026-07-01):** Updated "Already-Correct Locations" to reflect that
+  `020-go-prohibitions.md` §1.6 already contains the skill-routing solicitation prohibition
+  (applies to ALL authorization modes, not just `for_pr`). Updated SC-6 to require
+  cross-reference with existing §1.6 to avoid redundancy. Triggered by #348 review:
+  #348''s deliverables (rule text + behavioral test) were confirmed present in the
+  codebase; #348 closed as completed.
+
+
+  ---
+
+
+  **Absorbed from #406:** SC-10 (too-much/go-deeper rule) and SC-11 (item-by-item
+  behavioral test) were originally filed as #406. That issue is closed as superseded
+  by this spec.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+created_at: '2026-05-29T15:27:50Z'
+updated_at: '2026-07-01T16:15:39Z'
+remote_issue: 947
+remote_url: https://github.com/michael-conrad/.opencode/issues/947
+promoted_at: '2026-08-27T03:25:12.397250+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.397250+00:00'
+author: michael-conrad

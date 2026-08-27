@@ -1,0 +1,43 @@
+number: 2347
+title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & discussion
+  mandates'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/020-go-prohibitions.md` costs ~19.8k tokens — the
+  single largest preloaded guideline (~30% of burden). ~60% is procedural (orchestrator
+  context discipline §1.1, discussion-mode mandates §1.6, iterative-feedback prose,
+  project-local tool install rules, dark-prose patterns).
+
+
+  ## Scope
+
+  - **In:** Relocate §1.1 context discipline, §1.6 discussion mandates, iterative-feedback
+  prose, project-local tool rules to shared references/skill cards; retain the GO-prohibition
+  core (no GO token, no solicitation, no offer-to-edit, no self-authorization, no
+  question-as-authorization, no why-question modification).
+
+  - **Out:** Removing any anti-self-authorization core.
+
+
+  ## Approach
+
+  Move procedural sections to shared canonical references loaded via mandatory Read-links
+  from approval-gate/mcp-tool-usage/skill-creator; retain the safety-critical prohibition
+  core preloaded.
+
+
+  ## Impact
+
+  Biggest single win (~11.9k token savings). Risk: losing no-self-auth rules. Mitigation:
+  retain prohibition core verbatim. Depends on shared references + config. Action:
+  approve.'
+created_at: '2026-08-27T03:14:08Z'
+updated_at: '2026-08-27T03:14:08Z'
+remote_issue: 2347
+remote_url: https://github.com/michael-conrad/.opencode/issues/2347
+promoted_at: '2026-08-27T03:25:12.652239+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.652239+00:00'
+author: michael-conrad

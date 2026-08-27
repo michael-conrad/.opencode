@@ -1,0 +1,76 @@
+comments:
+- body: '## Additional Evidence from Actual Pipeline Run
+
+
+    This bug was confirmed during viewport-editor #46 step 10.2. The pipeline produced
+    green-phase, green-doublecheck, and green-vbc result contracts containing size-delta
+    data (text in YAML), but no `.log` or `.json` file was ever written to `artifact_evidence_dir`.
+    The auditor correctly returned SC-6 FAIL with `MISSING_EVIDENCE`.
+
+
+    ### Specific Failures Traced
+
+
+    | Evidence Type | What Was Produced | What Was Missing |
+
+    |--------------|-------------------|------------------|
+
+    | SC-1 (structural) | `from fastmcp import FastMCP` present in server.py | No
+    `behavioral-evidence-SC-1.log` confirming import resolution |
+
+    | SC-5 (behavioral) | Test suite output captured to `./tmp/evidence/46/` | ✅ Correctly
+    captured (the only one) |
+
+    | SC-6 (structural) | Size delta mentioned in pipeline YAML contracts | No `behavioral-evidence-SC-6.log`
+    file on disk |
+
+
+    ### Root Cause Trace
+
+
+    | Pipeline Step | What It Did | Evidence Dir? |
+
+    |--------------|-------------|---------------|
+
+    | green-phase | Implementation only. Wrote test evidence per task instructions
+    | Partial — SC-5 only |
+
+    | green-doublecheck | Verified SCs, captured `pip show` data in result contract
+    text | No disk write |
+
+    | green-vbc | Compiled VbC artifact from result contract data | No evidence dir
+    population |
+
+    | adversarial-audit | Auditor found evidence dir empty for SC-6 | ❌ BLOCKED |
+
+
+    ### Structural Fix Required
+
+
+    The pipeline needs a **pre-audit-evidence-collection** step between green-vbc
+    and adversarial-audit that:
+
+
+    1. Maps SC evidence types to capture commands
+
+    2. For each structural SC: runs the command, writes `behavioral-evidence-SC-{N}.log`
+
+    3. For each behavioral SC: copies test output to evidence dir
+
+    4. Verifies every SC has at least one evidence artifact before audit dispatch
+
+
+    Without this step, the auditors'' `spec_local_dir` and `artifact_evidence_dir`
+    requirements can never be satisfied by the current pipeline.
+
+
+    ### One-Off Workaround
+
+
+    The immediate fix for viewport-editor #46 was to manually write the missing evidence
+    files and re-dispatch. This unblocks the current run but does not fix the pipeline.
+
+
+    🤖 OpenCode (deepseek-v4-flash)'
+  created_at: '2026-06-05T03:32:19Z'
+  user: michael-conrad

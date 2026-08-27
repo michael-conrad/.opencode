@@ -1,0 +1,166 @@
+number: 1028
+title: '[SPEC-FIX] artifact_evidence_dir MUST contain raw evidence only — no prior
+  auditor verdicts, YAML contracts, or pipeline artifacts'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  The `artifact_evidence_dir` passed to adversarial auditors can contain prior auditor
+  verdict files, pipeline YAML contracts, and other non-evidence artifacts. A clean-room
+  auditor reading these files inherits another auditor''s findings, destroying cross-family
+  independence.
+
+
+  This was confirmed during viewport-editor #46 step 10.3 prep: the evidence dir at
+  `./tmp/evidence/46/` was clean (3 raw evidence files), but the parent `./tmp/artifacts/`
+  contained 3 prior auditor verdicts and pipeline contracts that a misconfigured auditor
+  could access.
+
+
+  ## Requirements
+
+
+  ### R1: Separate directory trees from inception — never mix
+
+
+  The pipeline MUST maintain separate directory trees from the start:
+
+
+  | Directory | Content | Examples |
+
+  |-----------|---------|----------|
+
+  | `./tmp/evidence/{issue}/` | Raw evidence only | `behavioral-evidence-SC-5.log`,
+  `behavioral-evidence-SC-6.log` |
+
+  | `./tmp/state/{issue}/` | Z3 state machine, pipeline position | state files |
+
+  | `./tmp/artifacts/pipeline-{issue}/` | Step contracts | `pipeline-46-green-phase-DONE.yaml`
+  |
+
+  | `./tmp/verdicts/{issue}/` | Auditor verdict YAMLs | `auditor1.yaml`, `auditor2.yaml`
+  |
+
+
+  These are distinct directory trees. They never share a parent.
+
+
+  ### R2: `artifact_evidence_dir` points to evidence tree only
+
+
+  The `artifact_evidence_dir` field in the auditor dispatch contract MUST always point
+  to `./tmp/evidence/{issue}/`. The auditor never receives any other directory.
+
+
+  ### R3: Auditors write-only to verdicts dir, never read it
+
+
+  Auditors write their verdict to `./tmp/verdicts/{issue}/` using an opaque filename
+  that does NOT leak status metadata:
+
+
+  | File | Convention |
+
+  |------|-----------|
+
+  | auditor_1 verdict | `./tmp/verdicts/{issue}/auditor1.yaml` |
+
+  | auditor_2 verdict | `./tmp/verdicts/{issue}/auditor2.yaml` |
+
+
+  Filenames are opaque — no PASS/FAIL/STATUS marker in the slug. No model identity
+  in the filename. The orchestrator reads both files after both auditors return. No
+  auditor reads the other''s verdict.
+
+
+  Auditor read access is limited to `spec_local_dir` and `artifact_evidence_dir` per
+  the dispatch contract. Verdicts dir is write-only from the auditor''s perspective.
+
+
+  ### R4: Orchestrator verifies separation before dispatch
+
+
+  Before dispatching any auditor, the orchestrator MUST verify evidence and verdict
+  dirs are separate from the artifacts tree.
+
+
+  ### R5: Pipeline pre-audit step populates evidence dir
+
+
+  A pre-audit step collects captured evidence from completed pipeline stages and writes
+  it to `./tmp/evidence/{issue}/`. This is an orchestrator-controlled step, not delegated
+  to sub-agents.
+
+
+  ### R6: Auditors reject cross-directory evidence paths
+
+
+  If an auditor receives `artifact_evidence_dir` that overlaps with `./tmp/artifacts/`,
+  it MUST return `BLOCKED` with `reason: EVIDENCE_DIR_CROSS_CONTAMINATED`.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | `./tmp/evidence/`, `./tmp/state/`, `./tmp/artifacts/pipeline-{issue}/`,
+  `./tmp/verdicts/` are separate directory trees per SKILL.md | `string` |
+
+  | SC-2 | Auditor verdict filenames are opaque (`auditor1.yaml`, `auditor2.yaml`)
+  — no PASS/FAIL/model-name in slug | `string` |
+
+  | SC-3 | Auditor returns BLOCKED with EVIDENCE_DIR_CROSS_CONTAMINATED if evidence
+  dir overlaps with artifacts dir | `behavioral` |
+
+  | SC-4 | Pre-audit-evidence step writes all SC evidence to `./tmp/evidence/{issue}/`
+  before auditor dispatch | `behavioral` |
+
+  | SC-5 | Auditors log forbidding file enumeration outside `spec_local_dir` and `artifact_evidence_dir`
+  | `string` |
+
+
+  ## Affected Files
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `implementation-pipeline/SKILL.md` | §State Management: change artifact path to
+  `./tmp/artifacts/pipeline-{issue}/`. Add evidence, state, verdicts dir trees. Document
+  naming convention. |
+
+  | `implementation-pipeline/SKILL.md` | Add pre-audit-evidence step to dispatch routing
+  table |
+
+  | `adversarial-audit/SKILL.md` | Add EVIDENCE_DIR_CROSS_CONTAMINATED check. Define
+  verdict filename convention. Clarify read scope. |
+
+  | `adversarial-audit/tasks/verification-audit.md` | Add directory separation check,
+  opaque filename requirement |
+
+
+  ## Related
+
+
+  - #1024 — prerequisite step to populate evidence dir (where evidence comes from)
+
+  - #1025 — spec_local_dir and artifact_evidence_dir must be local filesystem paths
+  (foundation)
+
+
+  🤖 OpenCode (deepseek-v4-flash)'
+created_at: '2026-06-05T03:49:02Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1028
+remote_url: https://github.com/michael-conrad/.opencode/issues/1028
+promoted_at: '2026-08-27T03:25:12.542954+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.542954+00:00'
+author: michael-conrad

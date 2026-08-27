@@ -1,0 +1,50 @@
+number: 732
+title: '[SPEC] Brainstorming skill proactive research gate — inline per-turn research
+  dispatch'
+status: open
+labels:
+- needs-approval
+- spec
+- brainstorming
+- research
+body: "## Problem\n\nThe brainstorming skill's `explore` task has no research dispatch.\
+  \ During exploration the agent relies on training data for all external-facing claims.\
+  \ This produces wrong information about APIs, library versions, schemas, GitHub\
+  \ bot requirements, infrastructure instructions — anything outside the codebase\
+  \ that has changed since the model's training cutoff.\n\n## Dependency\n\nThis spec\
+  \ depends on `.opencode#731` (ambiguity routing). The research gate lives inside\
+  \ the brainstorming skill — if ambiguity does not route to brainstorming via #731,\
+  \ the research gate never fires. Implement #731 first, then this spec.\n\n## Design\
+  \ Constraints\n\n- **Proactive only** — reactive research (stating claim first,\
+  \ verifying later) injects false information into context and confuses the user\n\
+  - **Inline per-turn** — research interleaves within each conversation turn, not\
+  \ batch-deferred to the end\n  - User makes statement/asks question\n  - Agent identifies\
+  \ external claims in it\n  - Agent researches those claims in the *same response\
+  \ cycle* (web fetch, tool calls)\n  - Agent responds with verified claims only\n\
+  - **Research fails = agent declines to state** — no training-data fallback for external\
+  \ claims (per `065-verification-honesty.md`)\n- **Lag is acceptable** — latency\
+  \ is the cost of correctness\n\n## Scope\n\n**In scope:**\n- `.opencode/skills/brainstorming/tasks/explore.md`\
+  \ — add per-turn research dispatch step\n- `.opencode/skills/brainstorming/tasks/explore/exploration-workflow.md`\
+  \ — add research gate at start of procedure\n- `.opencode/skills/brainstorming/SKILL.md`\
+  \ — add Research Gate section defining when research IS and ISN'T required\n\n**Out\
+  \ of scope:**\n- Changes to the `research` skill itself\n- Adding research to non-brainstorming\
+  \ skills\n- Behavioral enforcement tests (defined during plan execution)\n\n## Success\
+  \ Criteria\n\n| ID | Criterion | Verification |\n|----|-----------|-------------|\n\
+  | SC-1 | `explore.md` has per-turn research dispatch step | Read procedure |\n|\
+  \ SC-2 | `exploration-workflow.md` references research gate at start | Read file\
+  \ |\n| SC-3 | `brainstorming/SKILL.md` has Research Gate section with constraints\
+  \ | Read SKILL.md |\n| SC-4 | Agent researches external claims inline during brainstorming\
+  \ before stating them | Behavioral test: external API question → assert research\
+  \ skill/tool calls before any claim presented |\n| SC-5 | Agent does NOT research\
+  \ internal codebase claims (covered by pre-spec inspection) | Behavioral test: internal\
+  \ codebase question → no research dispatch |\n| SC-6 | Research fails → agent declines\
+  \ to state, no training-data fallback | Behavioral test: unverifiable external claim\
+  \ → assert \"cannot find current information\" pattern |\n"
+created_at: '2026-05-20T05:26:26Z'
+updated_at: '2026-06-12T03:45:41Z'
+remote_issue: 732
+remote_url: https://github.com/michael-conrad/.opencode/issues/732
+promoted_at: '2026-08-27T03:25:11.992105+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.992105+00:00'
+author: michael-conrad

@@ -1,0 +1,202 @@
+comments:
+- body: '## Research Findings — Pipeline Orchestration Patterns in Literature and
+    Practice
+
+
+    Exhaustive search across academic papers, industry patterns repositories, and
+    production systems. Key findings mapped to this spec.
+
+
+    ### 1. Piskala (arXiv:2601.11672) — Unix Philosophy for Agentic AI
+
+
+    **"From Everything-is-a-File to Files-Are-All-You-Need"** maps Unix''s uniform
+    interface principle to agent systems. Three emerging patterns:
+
+    - Conversation history as files — agents persist context to searchable files
+
+    - Context retrieval via files — agents traverse filesystems interleaving search
+    with targeted reads
+
+    - Skills as files — markdown files describing capabilities replace programmatic
+    tool definitions
+
+
+    🔗 **To this spec:** The result contract schema between pipeline stages is a file-based
+    interface. Each sub-agent produces a file (evidence artifact, decision log, VbC
+    report), the next sub-agent reads it. This mirrors Piskala''s "file- and code-centric
+    interaction models" as the path to maintainable, auditable systems.
+
+
+    ### 2. Adimulam et al. (arXiv:2601.13671) — Orchestration of Multi-Agent Systems
+
+
+    Defines a unified orchestration layer with four pillars: **planning, policy enforcement,
+    state management, and quality operations.** Communication via MCP (tool access)
+    and A2A (peer coordination).
+
+
+    🔗 **To this spec:** The orchestrator''s gate checkpoints (steps 0-9) are the "quality
+    operations" pillar. Our remediation scope decision protocol (impl/plan+impl/spec+plan+impl)
+    is "policy enforcement." The work state file tracking which step each issue is
+    in is "state management."
+
+
+    ### 3. AgentPatterns.ai — Pipeline Pattern with Quality Gates
+
+
+    Defines the **Pipeline** pattern as: "Sequential stages with quality gates — chains
+    with explicit validation at each boundary."
+
+
+    Key finding — **silent drift warning:** "Each downstream agent treats the previous
+    agent''s output as ground truth without validating it against the original task
+    spec. A subtly wrong artifact at step 1 compounds through step N before any human
+    notices. Add a reconciliation step that validates each handoff against the original
+    brief."
+
+
+    🔗 **To this spec:** The cross-validation step (step 8 in our pipeline, checking
+    VbC evidence against audit findings) directly addresses this drift. The regression
+    check (step 9, comparing against baseline from step 1) catches drift that occurs
+    across the entire pipeline.
+
+
+    ### 4. Encyclopedia of Agentic Coding Patterns — Checkpoint Pattern
+
+
+    Defines the **Checkpoint** pattern: "A checkpoint is a gate in an agentic workflow
+    where the agent pauses, verifies that conditions are met, and proceeds only if
+    they pass."
+
+
+    Three outcomes per checkpoint: **proceed, retry, or stop.** Also emphasizes: **commit-after-checkpoint**:
+    "save state at gates, verify before advancing."
+
+
+    🔗 **To this spec:** Our doublecheck steps (3, 5) are explicit checkpoints. Our
+    checkpoint commit (step 4a) matches the "commit-after-checkpoint" recommendation.
+    The three outcomes map to our PASS/re-task-with-evidence/HALT protocol.
+
+
+    ### 5. Azure Architecture Center — Sequential Pipeline Pattern
+
+
+    Requires **strict inter-stage contracts**: "Pipeline systems require strict inter-stage
+    contracts — structured schemas defining exactly what each stage produces and what
+    the next stage expects."
+
+
+    Recommends **shared state object** approach: "Each agent reads from and writes
+    to specific sections of this state object. This makes the full pipeline state
+    inspectable at any point."
+
+
+    🔗 **To this spec:** Our result contract schema (status, task, concerns, blocker,
+    evidence) is the inter-stage contract. The work state file tracks which steps
+    have been completed per issue.
+
+
+    ### 6. Agentic Workflow Orchestra (PeterOla, GitHub)
+
+
+    Production framework with phase model: **Plan → Skeleton (contract gate) → Core
+    Flow (integration gate) → Expand (production gate) → Ship.**
+
+
+    🔗 **To this spec:** Our 11-step pipeline is more granular than their 5-phase model,
+    but the pattern is consistent: sequential stages with explicit gates before advancing.
+
+
+    ### 7. Erik Lieben — Quality Gates in Agentic Workflow
+
+
+    Runs **all verification phases before stopping**: "It runs every phase, builds
+    a complete picture, then presents you with a numbered list and a fix menu." Also:
+    **re-check loop after fixes**.
+
+
+    🔗 **To this spec:** Our approach is opposite — we gate at each step rather than
+    collecting all results. For an orchestrator pipeline where each step depends on
+    prior step correctness, per-step gating is the correct choice to prevent compounding
+    errors.
+
+
+    ### 8. Databricks — Agent System Design Patterns
+
+
+    Complexity continuum: **LLM+prompt → Deterministic chain → Single-agent system
+    → Multi-agent system.** Recommends: "start simple, introduce agentic behaviors
+    when truly needed."
+
+
+    🔗 **To this spec:** Our 11-step pipeline is closer to a deterministic chain than
+    a true multi-agent system — the orchestrator follows a predefined workflow with
+    explicit gates. This is intentional: the pipeline is the predictable skeleton;
+    agent autonomy lives inside each sub-agent''s scope.
+
+
+    ### Summary — Design Implications
+
+
+    | Research Source | Key Design Implication for This Spec |
+
+    |----------------|--------------------------------------|
+
+    | Piskala (Unix) | File-based result contracts as uniform stage interface |
+
+    | Adimulam (MAS) | Gate checkpoints = quality operations pillar |
+
+    | AgentPatterns.ai | Cross-validation step to prevent silent drift |
+
+    | Checkpoint Pattern | Commit-after-checkpoint, three-outcome gates |
+
+    | Azure Architecture | Strict inter-stage contracts (result contract schema) |
+
+    | PeterOla | Phase model with contract gates at boundaries |
+
+    | Erik Lieben | Re-check loop after fixes (our remediation protocol) |
+
+    | Databricks | Deterministic pipeline skeleton, agent autonomy inside stages |
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-05-26T01:48:49Z'
+  user: michael-conrad
+- body: '## GAP 3: Coordination with #951/#952/#954 (identified by Z3 constraint analysis
+    in #954)
+
+
+    Current sub-issues: #872 (merged), #915, #913, #932, #912.
+
+
+    #951 (solve gates), #952 (solve tests), and #954 (skill inventory) all modify
+    the same 36 skill task files that the 14-step pipeline architecture targets, but
+    none are sub-issues of #909. This means two uncoordinated workflows may modify
+    the same files.
+
+
+    ### Options (pick one)
+
+
+    **A)** Add #951, #952, #954 as 909 sub-issues with explicit scope carve-outs.
+    They target "pre-#909 task files" and are superseded when the renamed files land.
+    This makes the rework explicit but tracked.
+
+
+    **B)** Document confirmed non-overlap — show that #951/#952/#954 modify adversarial-audit,
+    verification-before-completion, and other skills that are NOT replaced by #909''s
+    pipeline (which replaces only divide-and-conquer). If confirmed, no coordination
+    needed.
+
+
+    **C)** Block #951/#952/#954 until #909 lands. Cleanest architecture but highest
+    latency.
+
+
+    See #954 Z3 analysis for the full constraint model.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-30T15:41:19Z'
+  user: michael-conrad

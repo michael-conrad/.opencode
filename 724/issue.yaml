@@ -1,0 +1,219 @@
+number: 724
+title: '[SPEC] Phases Should Represent Dependency-Ordered Implementation Groups'
+status: open
+labels:
+- needs-approval
+body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
+
+
+  STATUS: draft
+
+  CREATED: 2026-05-19
+
+  MIGRATED-FROM: NewsRx/newsrx-genai-python#291
+
+
+  ## Objective
+
+
+  Update spec planning guidelines to require that phases represent actual implementation
+  phases based on dependency relationships between code changes, using a flexible
+  dependency-graph-driven approach rather than a fixed template.
+
+
+  ## Problem Statement
+
+
+  Guidelines prescribe a fixed "Implementation → Testing → Review" phase structure.
+  This template approach:
+
+  1. Ignores actual code dependencies — forces all implementation into one massive
+  phase
+
+  2. Hides dependency violations in flat task lists
+
+  3. Encourages monolithic phases instead of logical, layered stages
+
+  4. Makes incremental review and rollback harder
+
+
+  ## Live Codebase Audit (2026-05-19)
+
+
+  | Original Spec File | Current Status | Notes |
+
+  |---------------------|----------------|-------|
+
+  | `.opencode/guidelines/141-planning-status-tracking.md` | ✅ Exists | Has phase
+  numbering and STATUS tracking, but NO dependency-driven phase design requirement
+  |
+
+  | `.opencode/guidelines/142-planning-archive-workflow.md` | ✅ Exists | Has spec
+  template with phase naming quality rules (§8), but NO dependency graph analysis
+  requirement |
+
+  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists | Has spec creation
+  workflow, references investigation/planning phases, but NO dependency analysis step
+  |
+
+  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | Has sub-issue structure
+  and multi-task authorization, but NO phase-level dependency enforcement |
+
+  | `docs/specs/spec-flow-control.md` | ❌ Does not exist | Already removed |
+
+  | `docs/specs/spec-flow-control-design.md` | ❌ Does not exist | Already removed
+  |
+
+  | `docs/specs/spec-flow-control-implementation.md` | ❌ Does not exist | Already
+  removed |
+
+
+  **Key finding:** Phase naming quality rules (boilerplate prohibition) exist in `142-planning-archive-workflow.md`
+  §8, but the critical dependency analysis step — "analyze dependencies before defining
+  phases" — is completely absent. The fixed 3-phase template (Implementation/Testing/Review)
+  is no longer explicitly prescribed, but there is no alternative dependency-driven
+  guidance replacing it.
+
+
+  ## Proposed Change
+
+
+  ### 1. Update `.opencode/guidelines/141-planning-status-tracking.md`
+
+
+  Add **"Phase Design Process"** section requiring:
+
+  - Mandatory dependency analysis before phase definition
+
+  - Dependency graph → topological layers → phases
+
+  - Phase count determined by dependency depth, not template
+
+  - Dependency depth ordering rule
+
+  - Name phases after deliverables, not generic activities
+
+
+  ### 2. Update `.opencode/guidelines/142-planning-archive-workflow.md`
+
+
+  Update spec template to include:
+
+  - **Prerequisites** section (inter-spec dependencies)
+
+  - **Dependency Graph** section (internal dependency mapping)
+
+  - Per-phase **Dependencies** headers within phases
+
+  - Guidance on when to split into multiple specs (>7 phases)
+
+
+  ### 3. Update `.opencode/guidelines/010-approval-gate.md`
+
+
+  Add to the "Multi-Task Plan Authorization" section:
+
+  - Phase-level dependency ordering requirement
+
+  - Cross-reference to the phase design process in `141-planning-status-tracking.md`
+
+
+  ### 4. Update `.opencode/guidelines/140-planning-spec-creation.md`
+
+
+  Add dependency analysis step before spec creation:
+
+  - Map all codebase changes needed
+
+  - Identify dependency relationships
+
+  - Group by dependency depth before phase definition
+
+
+  ### Files NOT being modified (no longer exist):
+
+  - ~~`docs/specs/spec-flow-control.md`~~ — already removed
+
+  - ~~`docs/specs/spec-flow-control-design.md`~~ — already removed
+
+  - ~~`docs/specs/spec-flow-control-implementation.md`~~ — already removed
+
+
+  ## Success Criteria
+
+
+  1. ✅ `141-planning-status-tracking.md` includes mandatory "Phase Design Process"
+  requiring dependency analysis
+
+  2. ✅ `142-planning-archive-workflow.md` spec template includes Prerequisites and
+  Dependency Graph sections
+
+  3. ✅ `010-approval-gate.md` references phase-level dependency ordering
+
+  4. ✅ `140-planning-spec-creation.md` includes dependency analysis step
+
+  5. ✅ Phase count is dynamic (1 phase for simple fix, many phases for complex feature)
+
+  6. ✅ Boilerplate phase names prohibited, deliverable names required
+
+  7. ✅ Inter-spec dependency modeling documented with prerequisites section
+
+  8. ✅ Guidelines load correctly with `./opencode/tools/guidelines`
+
+
+  ## Phases
+
+
+  ### Phase 1: Implementation
+
+  1. ☐ Add "Phase Design Process" section to `141-planning-status-tracking.md`
+
+  2. ☐ Update spec template in `142-planning-archive-workflow.md` with Prerequisites
+  and Dependency Graph
+
+  3. ☐ Add phase-level dependency ordering to `010-approval-gate.md`
+
+  4. ☐ Add dependency analysis step to `140-planning-spec-creation.md`
+
+  5. ☐ Verify guidelines load and search finds new content
+
+
+  ### Phase 2: Testing
+
+  1. ☐ Verify `guidelines read 141-planning-status-tracking` shows dependency design
+  process
+
+  2. ☐ Verify `guidelines read 142-planning-archive-workflow` shows dependency graph
+  template
+
+  3. ☐ Verify `guidelines search "dependency"` returns updated files
+
+  4. ☐ Verify behavioral enforcement: agent creates dependency-ordered phases in new
+  specs
+
+
+  ### Phase 3: Review
+
+  1. ☐ Human review of changes
+
+  2. ☐ Approve or request revisions
+
+
+  ## Downstream Cross-Reference
+
+
+  - Original issue: https://github.com/NewsRx/newsrx-genai-python/issues/291
+
+  - Related: #290 (nested sub-issues) — both modify planning guidelines, coordinate
+  implementation
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)'
+created_at: '2026-05-19T18:58:31Z'
+updated_at: '2026-06-12T03:45:41Z'
+remote_issue: 724
+remote_url: https://github.com/michael-conrad/.opencode/issues/724
+promoted_at: '2026-08-27T03:25:11.953165+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.953165+00:00'
+author: michael-newsrx

@@ -1,0 +1,18 @@
+number: 987
+title: '[Phase 1.11] close command: --reason completed|not_planned|duplicate'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '**Parent Plan:** #985
+
+
+  Phase 1.11 — close command: --reason completed|not_planned|duplicate'
+created_at: '2026-06-02T05:09:10Z'
+updated_at: '2026-06-12T03:45:31Z'
+remote_issue: 987
+remote_url: https://github.com/michael-conrad/.opencode/issues/987
+promoted_at: '2026-08-27T03:25:12.461568+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.461568+00:00'
+author: michael-conrad

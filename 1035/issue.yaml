@@ -1,0 +1,93 @@
+number: 1035
+title: '[SPEC-FIX] Clean auditor verdict artifacts from ./tmp/artifacts/ at start
+  of each audit cycle'
+status: open
+labels:
+- bug
+- needs-approval
+- '[SPEC-FIX]'
+- adversarial-audit
+body: "## Problem\n\n`./tmp/artifacts/` accumulates verdict YAML files from every\
+  \ audit run with no automated cleanup. Each audit type writes timestamped files\
+  \ that are never garbage-collected:\n\n| Audit Type | Verdict File Pattern |\n|---|---|\n\
+  | spec-audit | `pipeline-{issue}-audit-spec-audit-{STATUS}-{ts}.yaml` |\n| plan-fidelity\
+  \ | `pipeline-{issue}-audit-plan-fidelity-{STATUS}-{ts}.yaml` |\n| verification-audit\
+  \ | `pipeline-{issue}-audit-verification-audit-{STATUS}-{ts}.yaml` |\n| concern-separation\
+  \ | `pipeline-{issue}-audit-concern-separation-{STATUS}-{ts}.yaml` |\n| guideline-audit\
+  \ | `pipeline-{issue}-audit-guideline-audit-{STATUS}-{ts}.yaml` + `audit-guideline-{issue}.md`\
+  \ |\n| closure-verification | `pipeline-{issue}-audit-closure-verification-{STATUS}-{ts}.yaml`\
+  \ |\n| test-quality-audit | `pipeline-{issue}-audit-test-quality-{STATUS}-{ts}.yaml`\
+  \ |\n| cross-validate | `pipeline-{issue}-cross-validate-{STATUS}-{ts}.yaml` |\n\
+  | coherence-extraction | `baseline-coherence-{issue}.json`, `coherence-*-fail-{issue}.json`\
+  \ |\n\nWhen an audit cycle is restarted (after remediation → re-audit, or across\
+  \ different pipeline phases on the same issue), stale verdict files remain on disk.\
+  \ This creates three classes of failure:\n\n1. **False PASS from stale verdicts**:\
+  \ If a sub-agent globs `./tmp/artifacts/` without filtering by issue number and\
+  \ pipeline phase, it may find a prior cycle's PASS verdict and skip re-auditing\n\
+  2. **Blocked audits from INSUFFICIENT_ARTIFACTS**: Cross-validate counts YAML files\
+  \ in the evidence dir — if old artifacts from a different issue or phase push the\
+  \ count above/below the threshold, cross-validate blocks with `INSUFFICIENT_ARTIFACTS`\
+  \ or reads the wrong files\n3. **Cross-contamination between concurrent phases**:\
+  \ Artifacts from `spec-audit` (pre-implementation) and `verification-audit` (post-implementation)\
+  \ for the same issue coexist, creating evidence-type confusion\n\n## Root Cause\n\
+  \nNo cleanup step exists anywhere in the audit cycle. The `git-workflow cleanup`\
+  \ task only removes `./tmp/behavioral-evidence-*.{log,json}` — it explicitly does\
+  \ NOT cover `./tmp/artifacts/`. The `resolve-models` task (canonical audit cycle\
+  \ entry point) has no pre-flight cleanup.\n\n## Solution\n\nInject a pre-flight\
+  \ directory cleanup at the start of every audit cycle. The cleanup targets `./tmp/artifacts/`\
+  \ and scopes deletion to files matching the current issue number.\n\n### Changes\
+  \ Required\n\n| File | Modification |\n|---|---|\n| `adversarial-audit/tasks/resolve-models.md`\
+  \ | Add Step 0: clean stale verdicts for current issue from `./tmp/artifacts/` before\
+  \ resolving auditor models |\n\n### Step 0 Implementation\n\n```python\n# Step 0:\
+  \ Clean stale artifacts for current issue\nimport glob, os\n\nartifact_dir = \"\
+  ./tmp/artifacts\"\nissue = \"<issue_number>\"\n\n# Remove all artifact files matching\
+  \ the current issue number\npatterns = [\n    f\"pipeline-{issue}-audit-*.yaml\"\
+  ,\n    f\"pipeline-{issue}-cross-validate-*.yaml\",\n    f\"audit-guideline-{issue}.md\"\
+  ,\n    f\"baseline-coherence-{issue}.json\",\n    f\"coherence-z3-fail-{issue}.json\"\
+  ,\n    f\"coherence-evidence-mismatch-{issue}.json\",\n]\nfor pattern in patterns:\n\
+  \    for f in glob.glob(f\"{artifact_dir}/{pattern}\"):\n        os.remove(f)\n\
+  ```\n\nThis MUST execute before `resolve-models` dispatches auditor selection. It\
+  \ is a pre-flight step analogous to the checkpoint rollback cleanup in `020-go-prohibitions.md`\
+  \ §6.\n\n### Why resolve-models, not individual audit tasks\n\n`resolve-models`\
+  \ is the single canonical entry point per `adversarial-audit/SKILL.md` and `resolve-models.md`\
+  \ (\"resolve-models is the ONLY authorized entry point for auditor model resolution\"\
+  ). Placing cleanup here guarantees it runs exactly once per audit cycle, regardless\
+  \ of which audit type (`spec-audit`, `plan-fidelity`, `verification-audit`, etc.)\
+  \ follows.\n\n### Why issue-scoped, not full wipe\n\nCleaning only files matching\
+  \ the current issue number prevents race conditions with parallel orchestrator sessions.\
+  \ A full `rm -rf ./tmp/artifacts/` would destroy artifacts for concurrently running\
+  \ audits on different issues.\n\n## Success Criteria\n\n| ID | Criterion | Evidence\
+  \ Type |\n|---|---|---|\n| SC-1 | `resolve-models` Step 0 removes all `pipeline-{issue}-audit-*.yaml`\
+  \ files for the current issue before auditor resolution | structural — file-existence\
+  \ check before/after |\n| SC-2 | `resolve-models` Step 0 removes `pipeline-{issue}-cross-validate-*.yaml`\
+  \ for current issue | structural |\n| SC-3 | `resolve-models` Step 0 removes `audit-guideline-{issue}.md`\
+  \ for current issue | structural |\n| SC-4 | Stale verdict files from other issue\
+  \ numbers are preserved (no cross-issue contamination) | structural — glob count\
+  \ before/after |\n| SC-5 | A new audit cycle on the same issue starts with an empty\
+  \ artifacts directory (no false PASS from stale artifacts) | behavioral — `opencode-cli\
+  \ run` with re-audit scenario |\n\n## Risk Analysis\n\n| Risk | Likelihood | Impact\
+  \ | Mitigation |\n|---|---|---|---|\n| Cleanup removes in-progress artifacts from\
+  \ same issue being written by parallel sub-agent | Low (serial orchestrator dispatch)\
+  \ | Artifact lost, auditor retry | Orchestrator serializes audit steps; cleanup\
+  \ runs before sub-agents execute |\n| Glob pattern misses a new verdict file type\
+  \ | Medium | Stale artifact survives cleanup | Cleanup pattern list is audited as\
+  \ part of skill changes; new audit types must add their pattern |\n| Permission\
+  \ error on `./tmp/artifacts/` | Low | Cleanup fails silently | Add `mkdir -p ./tmp/artifacts/`\
+  \ to ensure directory exists; cleanup failure is non-fatal (logged warning) |\n\n\
+  ## Dependencies\n\n- `adversarial-audit/tasks/resolve-models.md` — single file change\n\
+  - No changes to individual audit task files or cross-validate\n\n## Cross-References\n\
+  \n- `adversarial-audit/tasks/resolve-models.md` — entry point for cleanup injection\n\
+  - `adversarial-audit/tasks/cleanup.md` (does not exist) — no existing cleanup task,\
+  \ this spec creates the pattern within resolve-models\n- `git-workflow/tasks/cleanup.md`\
+  \ Step 2.9 — existing `./tmp/behavioral-evidence-*` cleanup (does not cover `./tmp/artifacts/`)\n\
+  - `adversarial-audit/SKILL.md` — \"resolve-models is the ONLY authorized entry point\"\
+  \n- `065-verification-honesty.md` §Plan ≠ Execution Evidence Rule — stale artifacts\
+  \ = false evidence\n\n---\n\n\U0001F916 OpenCode (deepseek-v4-flash) working"
+created_at: '2026-06-05T06:04:14Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1035
+remote_url: https://github.com/michael-conrad/.opencode/issues/1035
+promoted_at: '2026-08-27T03:25:12.553978+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.553978+00:00'
+author: michael-conrad

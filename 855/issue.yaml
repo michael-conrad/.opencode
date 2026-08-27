@@ -1,0 +1,218 @@
+number: 855
+title: '[SPEC] Reference Card Research Topics — Future Pattern Investigation'
+status: open
+labels:
+- needs-approval
+body: '## [SPEC] Reference Card Research Topics — Future Pattern Investigation
+
+
+  ### Prerequisites
+
+  - None (research only — no code changes until validated)
+
+
+  ### Problem
+
+
+  Exhaustive research during the 3-card reference architecture design (#848, #853,
+  #849) identified topic areas not covered by the current 250/255/257 architecture
+  that may warrant future pattern investigation. These require behavioral testing
+  before becoming card patterns.
+
+
+  ### Research Topics
+
+
+  #### Topic 1: Few-Shot Exemplar Effects as Distribution Shifting
+
+
+  **Research basis:**
+
+  - Brown et al. (2020), "Language Models are Few-Shot Learners" — https://arxiv.org/abs/2005.14165
+
+  - Zhao et al. (2021), "Calibrate Before Use: Improving Few-Shot Performance of Language
+  Models" — https://arxiv.org/abs/2102.09690
+
+
+  **Key finding:** Few-shot exemplars shift distributions more reliably than directive-only
+  patterns for many tasks.
+
+
+  **Assessment:** Recognized distribution-shifting technique. Belongs in `dist-shift-009`
+  (future pattern) pending behavioral testing for the agent enforcement domain.
+
+
+  **Proposed action:** Add "Future Patterns" section to 255 §8 noting few-shot exemplars
+  as a recognized but unvalidated technique.
+
+
+  #### Topic 2: Multi-Agent Context Contamination
+
+
+  **Research basis:**
+
+  - Cemri et al. (2025), "MAST" — https://arxiv.org/abs/2503.13657
+
+  - Zhu et al. (2025), "AgentErrorTaxonomy" — https://arxiv.org/abs/2509.25370
+
+  - Anthropic (Dec 2024) — https://www.anthropic.com/research/building-effective-agents
+
+
+  **Key finding:** Critical-rules-034 (inline work prohibition) and clean-room task()
+  mandates address context contamination procedurally, but no distribution-shifting
+  pattern targets sub-agent bias inheritance.
+
+
+  **Assessment:** Crosses 255 (contamination-resistance) and 257 (clean-room procedural
+  discipline). Needs behavioral testing.
+
+
+  **Proposed action:** Investigate as future pattern pair: `dist-shift-009` and `p-dis-007`.
+
+
+  #### Topic 3: Tool Call Calibration as Distribution Problem
+
+
+  **Research basis:**
+
+  - Xu et al. (2024), "Reducing Tool Hallucination via Reliability Alignment" — ICML
+  2024, https://arxiv.org/abs/2412.04141
+
+
+  **Key finding:** Tool hallucination is a distribution problem — models lean toward
+  over-tooling or under-tooling.
+
+
+  **Assessment:** Domain-specific application. The mcp-tool-usage skill is the correct
+  home, not the card architecture.
+
+
+  **Proposed action:** Consider tool-call calibration as a future addition to the
+  mcp-tool-usage skill.
+
+
+  #### Topic 4: Self-Correction Ineffectiveness (PARTIALLY ADDRESSED)
+
+
+  **Research basis:**
+
+  - Kamoi et al. (2024), "When Can LLMs Actually Correct Their Own Mistakes?" — TACL
+  2024, https://arxiv.org/abs/2406.01297
+
+  - Kim (2025), "Does Metacognition Improve LLM Performance?" — https://github.com/kimjune01/metacognition
+
+  - CorrectBench (Tie et al., 2024/2025) — https://correctbench.github.io
+
+
+  **Status:** PARTIALLY ADDRESSED by `dist-shift-007` (#848) and `p-dis-006` (#853).
+
+
+  **Remaining gap:** Enforcement architecture relies on "telling the agent to verify."
+  Research says this only works with external tool calls. Needs behavioral testing
+  to confirm our enforcement produces external tool calls, not internal reasoning.
+
+
+  **Proposed action:** Behavioral enforcement test verifying verification-before-completion
+  produces tool calls, not "thinking harder."
+
+
+  #### Topic 5: Model-Specific Adaptation
+
+
+  **Research basis:**
+
+  - Sahoo et al. (2024), "A Systematic Survey of Prompt Engineering" — https://arxiv.org/abs/2402.07927
+
+
+  **Key finding:** Distribution-shifting patterns have different effectiveness across
+  model families, but direction of shift is consistent.
+
+
+  **Assessment:** Cross-model portability is operational deployment guidance, not
+  card content.
+
+
+  **Proposed action:** Add portability section to 255: "High: identity-frame, authority-frame.
+  Medium: anti-consensus framing. Low: descriptor cluster sizing."
+
+
+  #### Topic 6: Enforcement Text Placement and Format
+
+
+  **Research basis:**
+
+  - Liu et al. (2024), "Lost in the Middle" — TACL 2024, https://arxiv.org/abs/2307.03172
+
+  - Chroma Context Rot (Hong et al., 2025) — https://www.trychroma.com/research/context-rot
+
+
+  **Status:** PARTIALLY ADDRESSED by p-dis-003 positional strategy in #853.
+
+
+  **Remaining gap:** No research validates yaml+symbolic format over prose-only enforcement.
+
+
+  **Proposed action:** Behavioral test comparing compliance rates for yaml+symbolic
+  vs. prose-only enforcement.
+
+
+  #### Topic 7: Graduated Enforcement / Tier Effectiveness
+
+
+  **Research basis:**
+
+  - Wang et al. (2025), "Safety Tax: Safety alignment makes reasoning models less
+  reasonable" — https://arxiv.org/abs/2503.00555
+
+  - Anonto et al. (2025), "When Safety Blocks Sense: Measuring Semantic Confusion
+  in LLM Refusals" — https://arxiv.org/abs/2512.01037
+
+  - OWASP LLM Top 10:2025 — https://owasp.org/www-project-top-10-for-large-language-model-applications/
+
+
+  **Status:** PARTIALLY ADDRESSED by over-enforcement vocabulary row in #853.
+
+
+  **Remaining gap:** No research validates whether agents distinguish HALT (Tier 1/2)
+  from FLAG (Tier 3) in practice.
+
+
+  **Proposed action:** Behavioral enforcement test for HALT vs. FLAG discrimination.
+
+
+  ### Success Criteria
+
+
+  | SC-ID | Criterion | Evidence Type | Verification Method |
+
+  |-------|-----------|--------------|---------------------|
+
+  | SC-1 | Issue exists with all 7 research topics documented | structural | ls (issue
+  exists) |
+
+  | SC-2 | Each topic lists ONLY verified research URLs with correct author names
+  | structural | Verify each resolves; spot-check author attributions |
+
+  | SC-3 | Each topic has assessment and proposed action | structural | Read topic
+  assessments |
+
+
+  ### Non-Goals
+
+  - Implementing any research topic as card patterns (requires behavioral testing
+  first)
+
+  - Modifying any existing card files (separate implementation spec)
+
+  - Creating behavioral tests (separate implementation spec per topic)
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-23T23:09:54Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 855
+remote_url: https://github.com/michael-conrad/.opencode/issues/855
+promoted_at: '2026-08-27T03:25:12.199786+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.199786+00:00'
+author: michael-conrad

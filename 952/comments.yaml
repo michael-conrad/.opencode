@@ -1,0 +1,49 @@
+comments:
+- body: '## Status Update — Partially shipped, remaining work
+
+
+    Dependency #951 shipped (absorbed into #912/PR #973 and #915/PR #965). #872 (solve
+    tool) shipped via PR #953.
+
+
+    ### SC Assessment
+
+
+    | SC | Status | Evidence |
+
+    |----|--------|----------|
+
+    | SC-1 | ⚠️ **PARTIAL** | 915-solve-check-valid.sh and 915-solve-check-invalid.sh
+    exist but prompt asks about "how to run validation" — not a pre-dispatch workflow
+    behavioral test. The agent is not prompted to dispatch a sub-agent through a skill
+    task workflow and verify `solve check` fires before dispatch. |
+
+    | SC-2 | ⚠️ **PARTIAL** | 915-solve-state-init.sh and 915-solve-state-update.sh
+    exist but test the solve tool commands directly, not the post-dispatch pipeline
+    position recording workflow. |
+
+    | SC-3 | ❌ **NOT SHIPPED** | No `README.md` at `.opencode/tools/solve/README.md`
+    |
+
+    | SC-4 | ❌ **NOT SHIPPED** | Submodule not tagged with `<parent>/<issue>` format;
+    parent pointer not updated |
+
+
+    ### Remaining Work
+
+
+    1. **SC-1/2**: Write artifact-only generator behavioral tests that prompt the
+    agent to execute the pipeline executor workflow and verify stderr shows `solve
+    check` and `solve state update` invocations — distinct from the existing 915-*
+    tests which test the solve tool directly
+
+    2. **SC-3**: Create `tools/solve/README.md` with usage, contract authoring, and
+    UNSAT troubleshooting
+
+    3. **SC-4**: Tag .opencode submodule, update parent pointer (requires non-pointer-only
+    commit)
+
+
+    🤖 OpenCode (deepseek-v4-flash)'
+  created_at: '2026-06-01T17:18:55Z'
+  user: michael-conrad

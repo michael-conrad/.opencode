@@ -1,0 +1,14 @@
+comments:
+- body: 'Authorization received: `for_pr` scope. PR creation authorized.
+
+
+    🤖 Co-authored with AI: DeepSeek V4 Flash (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-05-27T05:23:43Z'
+  user: michael-conrad
+- body: 'Stacked PR authorization received. Stacked with #928, #932, #929, #917 on
+    single branch → one PR to dev.
+
+
+    🤖 Co-authored with AI: DeepSeek V4 Flash (ollama-cloud/deepseek-v4-flash)'
+  created_at: '2026-05-27T05:25:02Z'
+  user: michael-conrad

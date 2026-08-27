@@ -1,0 +1,44 @@
+number: 2343
+title: '[BUG] writing-plans create→validate contract mismatch: validate requires a
+  numbered-step Procedure section per phase, create produces none'
+status: open
+labels: []
+body: "## Problem\n\nwriting-plans validate.md Category 1 requires every phase to\
+  \ have a `Procedure` section with numbered steps ('Verify each phase has a procedure\
+  \ section with numbered steps'), but create.md's plan-body spec does not produce\
+  \ one: create.md Step 5 requires per-item daisy-chain steps and a three-tier layout,\
+  \ and the plan format is governed by the runtime-loaded reference card — no Phase\
+  \ Procedure section is defined. The pipeline's own create→validate contract is therefore\
+  \ inconsistent: the first validation of any create-produced plan FAILS with 'no\
+  \ phase body has a Procedure section with numbered steps', forcing a manual revise\
+  \ cycle to add the sections.\n\n## Repro context\n\n- Pipeline step: writing-plans\
+  \ create → writing-plans validate (observed live 2026-08-26 during plan creation\
+  \ for SHARED-DAO#35; the validate dispatch returned the Procedure-section FAIL and\
+  \ required a revise pass).\n- Verified current task-card state:\n  - validate.md\
+  \ Category 1: 'Verify each phase has a procedure section with numbered steps' (also\
+  \ 'phase table with all required columns', 'exit criteria section with SC-to-phase\
+  \ mapping')\n  - create.md: Step 4/5/8 specify frontmatter, three-tier body, per-item\
+  \ daisy chain, dispatch indicators, admonishments — no step requiring or producing\
+  \ a per-phase Procedure section; Step 1 defers step enumeration to `skills/writing-plans/reference/implementation-workflow.md`,\
+  \ which defines the per-task RED→GREEN→COMMIT cycle, not a phase Procedure section\n\
+  \n## Expected vs actual\n\n- Expected: create.md (and/or its workflow reference\
+  \ card) and validate.md agree on the phase-body structural contract, so the first\
+  \ validate pass of a freshly created plan succeeds.\n- Actual: create and validate\
+  \ disagree — first validation FAIL is structural and unavoidable, requiring a manual\
+  \ revise to add content the creator was never told to produce.\n\n## Evidence\n\n\
+  - Task cards: `.opencode/skills/writing-plans/tasks/create.md` (Steps 1, 4, 5, 7,\
+  \ 8); `.opencode/skills/writing-plans/tasks/validate.md` (Category 1); `.opencode/skills/writing-plans/reference/implementation-workflow.md`\
+  \ (per-task cycle only).\n- Result contracts recording the first-validation FAIL\
+  \ and the revise: SHARED-DAO/.issues/35 artifacts and `tmp/issue-35/` result contracts\
+  \ under the session workdir.\n\n## Related\n\n- #1459 / #1994 / #2000 (closed) —\
+  \ earlier plan-format defect families; #2000 is closed and predates the current\
+  \ flat create.md, so this specific create→validate Procedure mismatch is untracked.\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-08-26T22:13:44Z'
+updated_at: '2026-08-26T22:13:44Z'
+remote_issue: 2343
+remote_url: https://github.com/michael-conrad/.opencode/issues/2343
+promoted_at: '2026-08-27T03:25:12.641517+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.641517+00:00'
+author: michael-newsrx

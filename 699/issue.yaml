@@ -1,0 +1,155 @@
+number: 699
+title: '[PLAN] fix(#695): resolve-models invalid auditor names — restore cards + scanner'
+status: open
+labels:
+- needs-approval
+- plan
+body: '## Plan: fix(#695) — resolve-models invalid auditor names
+
+
+  **Parent spec:** #695
+
+  **Authorization scope:** `for_pr`
+
+  **HALT at:** `pr_created`
+
+
+  ---
+
+
+  ### Phase 1: Restore auditor cards (7 files)
+
+
+  Restore frontmatter + full body from commit `738b1de6`. Preserve `glm-5.md` YAML
+  output format.
+
+
+  | Task | Files | SC Coverage | Action |
+
+  |------|-------|-------------|--------|
+
+  | P1-T1 | `agents/auditor-deepseek-flash.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  (103 lines) |
+
+  | P1-T2 | `agents/auditor-deepseek-v3.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  |
+
+  | P1-T3 | `agents/auditor-glm-5.md` | SC-1, SC-2, SC-7, SC-8 | Restore frontmatter
+  + body from 738b1de6; preserve YAML output format from current |
+
+  | P1-T4 | `agents/auditor-glm-5.1.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  |
+
+  | P1-T5 | `agents/auditor-kimi-k2.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  |
+
+  | P1-T6 | `agents/auditor-mistral-large.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  |
+
+  | P1-T7 | `agents/auditor-qwen3.5.md` | SC-1, SC-2, SC-7 | Restore from 738b1de6
+  |
+
+
+  **SC verification per card:**
+
+  - `head -15` of each card contains `mode: subagent`, `model: ollama/`, 6 allow +
+  5 deny permissions (SC-1)
+
+  - `model:` field cross-referenced against 738b1de6 (SC-2)
+
+  - Content contains `CONTEXT_TAINTED`, `clean_room`, and Semantic Depth Mandate sections
+  (SC-7)
+
+
+  ---
+
+
+  ### Phase 2: Scanner-based name resolution
+
+
+  Replace algorithmic name derivation in `resolve-models` with scanner-based mapping
+  from `agents/auditor-*.md` filenames or explicit mapping in pool file.
+
+
+  | Task | Files | SC Coverage | Action |
+
+  |------|-------|-------------|--------|
+
+  | P2-T1 | `tools/resolve-models` | SC-3, SC-4, SC-5 | Replace `sed`-based name derivation
+  (lines 60-68) with scanner that reads `agents/auditor-*.md` filenames OR explicit
+  mapping from pool file |
+
+  | P2-T2 | `tests/qualification/qualified-auditor-pool.sh` | SC-6 | Optionally extend
+  format to carry explicit card-name→model mapping (e.g., `auditor-deepseek-flash:deepseek-v4-flash:cloud`)
+  |
+
+  | P2-T3 | `tools/resolve-models` | SC-5 | Add validation gate: missing card → resolve-models
+  errors with specific missing card name |
+
+  | P2-T4 | `tools/resolve-models` | SC-6 | Verify cross-family selection still produces
+  `family_1 != family_2` |
+
+
+  **SC verification:**
+
+  - Run `resolve-models --orchestrator-model <model>` 10 times; verify `auditor_1`/`auditor_2`
+  match `ls agents/auditor-*.md` filenames minus `.md` (SC-3)
+
+  - No `sed` stripping of version numbers in resolve-models (SC-4)
+
+  - Delete one card → resolve-models errors (SC-5)
+
+  - 10 runs: `family_1 != family_2` each time (SC-6)
+
+
+  ---
+
+
+  ### Final Verification (SC-9)
+
+
+  ```bash
+
+  bash .opencode/tests/test-enforcement.sh && \
+
+  bash .opencode/tests/behaviors/run-all.sh
+
+  ```
+
+
+  All existing behavioral and content-verification tests must pass before PR creation.
+
+
+  ---
+
+
+  ### Out of Scope
+
+
+  - Changes to behavioral test infrastructure (`helpers.sh`, `with-test-home`)
+
+  - Changes to `adversarial-audit` skill files
+
+  - Issue #683 (content classification gate)
+
+
+  ### Dependencies
+
+
+  None. Self-contained fix — no other issue must merge first.
+
+
+  ---
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
+created_at: '2026-05-18T17:49:25Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 699
+remote_url: https://github.com/michael-conrad/.opencode/issues/699
+promoted_at: '2026-08-27T03:25:11.936466+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.936466+00:00'
+author: michael-conrad

@@ -1,0 +1,135 @@
+number: 858
+title: '[SPEC-FIX] Prohibit post-hoc cost/duration commentary — existing rules only
+  cover justification-to-skip'
+status: open
+labels:
+- needs-approval
+- '[SPEC-FIX]'
+body: '## Problem
+
+
+  The existing cost-blind verification mandates (in `020-go-prohibitions.md` §1 ALWAYS
+  DO, `default.txt` Bright-Line Mandates, and #805 SC-14 behavioral test) only forbid
+  using cost/speed/duration to *justify skipping* verification. The prohibited patterns
+  all require a "justification → skip" structure:
+
+
+  - "Verification is taking too long" → skip it
+
+  - "This would take too many tool calls" → skip the step
+
+  - "Running the sub-agent costs too many tokens" → skip the dispatch
+
+
+  They do not forbid **post-hoc cost/duration commentary** — volunteered observations
+  about how long a test took, why it was slow, or any unsolicited duration analysis.
+  This is a distinct pattern:
+
+
+  | Pattern | Existing Coverage | Example |
+
+  |---------|------------------|---------|
+
+  | Cost as justification to skip | ✅ Covered by #805 SC-14 | "Verification is taking
+  too long — skip it" |
+
+  | Post-hoc duration commentary | ❌ NOT covered | "The SC-22 test still takes long
+  because it''s a complex end-to-end behavioral scenario" |
+
+
+  ### Why Post-Hoc Commentary Is Also Harmful
+
+
+  Per the user''s characterization: *"any type of post-hoc cost analysis pollutes
+  the context window with potential mis-directs that can cause shortcutting."* The
+  concern is not that the agent will skip — it''s that:
+
+
+  1. **Narrative contamination**: The agent frames normal operational cost as noteworthy,
+  lowering the bar for future shortcut rationalization
+
+  2. **Attention misdirection**: The developer reads a status update and now thinks
+  about duration instead of correctness
+
+  3. **Self-reinforcing pattern**: Post-hoc commentary normalizes cost-awareness in
+  agent output, making the leap to cost-justified-skipping shorter
+
+
+  ## Root Cause
+
+
+  The bright-line mandates and SC-14 test were designed to catch the "I''m going to
+  skip because of cost" pattern. The "I''m observing that this cost is high" pattern
+  was never explicitly enumerated as a prohibited output class.
+
+
+  ## Fix
+
+
+  ### Affected Files
+
+
+  | File | Change |
+
+  |------|--------|
+
+  | `020-go-prohibitions.md` §1 ALWAYS DO (cost-blind block) | Add bullet: "Post-hoc
+  cost/duration commentary is prohibited" |
+
+  | `tests/behaviors/805-sc14-cost-rationalization.sh` | Add assertion: agent does
+  NOT volunteer duration/cost analysis unprompted |
+
+  | Optionally: `default.txt` Bright-Line Mandates | Add: "Observing cost is not analysis
+  — it is contamination. Do not volunteer duration commentary." |
+
+
+  ### Scope Boundaries
+
+
+  - **IN SCOPE**: The prohibition on volunteered cost/duration commentary in agent
+  chat output
+
+  - **IN SCOPE**: Behavioral test enhancement to SC-14 to verify agent does not volunteer
+  such commentary
+
+  - **NOT IN SCOPE**: The `BEHAVIOR_TIMEOUT` default model change (separate concern,
+  issue #856)
+
+  - **NOT IN SCOPE**: Test infrastructure performance — this is about agent output
+  behavior, not infra
+
+  - **NOT IN SCOPE**: The existing cost-blind mandate language (it''s correct for
+  its scope, just incomplete)
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `020-go-prohibitions.md` explicitly prohibits post-hoc cost/duration commentary
+  in agent output | string | `grep` for "post-hoc" or "commentary" or similar language
+  in the cost-blind section |
+
+  | SC-2 | A behavioral test verifies the agent does NOT volunteer duration/cost analysis
+  in its output | behavioral | `opencode-cli run` with a scenario that would trigger
+  commentary; `assert_semantic` confirms no duration/cost observations |
+
+  | SC-3 | SC-14 test updated with the new behavioral assertion — existing SC-14 assertions
+  preserved | structural + behavioral | Assertions are additive; existing skip-justification
+  tests still pass |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-23T23:53:44Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 858
+remote_url: https://github.com/michael-conrad/.opencode/issues/858
+promoted_at: '2026-08-27T03:25:12.214132+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.214132+00:00'
+author: michael-conrad

@@ -1,0 +1,47 @@
+number: 2341
+title: '[BUG] spec-creation validate/create task-card relative references (reference/...)
+  resolve to skills/spec-creation/reference/ which lacks the files — the cited docs
+  live at repo-root .opencode/reference/'
+status: open
+labels: []
+body: "## Problem\n\nThe spec-creation task cards cite reference documents via skill-relative\
+  \ paths (`reference/spec-structure-standards.md`, `reference/holistic-dimensions.yaml`,\
+  \ `reference/cost-model-standards.md`, `audit/reference/decomposition-criteria.md`),\
+  \ so a sub-agent resolves them inside the skill directory (`skills/spec-creation/reference/`).\
+  \ That directory contains ONLY `sc-table-columns.md`; the four cited files exist\
+  \ at the repo-root `.opencode/reference/` instead. Observed live 2026-08-26: the\
+  \ validate sub-agent reported `reference docs located at .opencode/reference/, not\
+  \ under the skill dir as the task path suggests`.\n\n## Repro context\n\n- Pipeline\
+  \ step: spec-creation → validate (also create.md steps 43/45 cite the same relative\
+  \ paths).\n- Verified current state:\n  - `skills/spec-creation/reference/` = only\
+  \ `sc-table-columns.md`\n  - `.opencode/reference/` = cost-model-standards.md, holistic-dimensions.yaml,\
+  \ plan-structure-standards.md, skill-card-schema.md, skill-card-description-standards.md,\
+  \ spec-structure-standards.md, task-card-structure-standards.md (verified via `git\
+  \ ls-tree origin/main`)\n  - `skills/audit/reference/` does not exist anywhere (master\
+  \ `decomposition-criteria.md` genuinely missing; validate.md Step 3.7 cites it)\n\
+  \  - Audit task cards also cite `.opencode/reference/holistic-dimensions.yaml` and\
+  \ `reference/cost-model-standards.md` with the same relative-vs-root ambiguity\n\
+  \n## Expected vs actual\n\n- Expected: relative `reference/...` links in task cards\
+  \ resolve to files inside the skill's reference directory (or the deck's canonical\
+  \ reference location).\n- Actual: they resolve to `skills/spec-creation/reference/`,\
+  \ which lacks the files — sub-agents must discover the real location at `.opencode/reference/`\
+  \ via repo precedent, or HALT per critical-rules-074 (missing skill-deck files).\n\
+  \n## Evidence\n\n- Task cards: `.opencode/skills/spec-creation/tasks/validate.md`\
+  \ lines 24, 28, 30, 72, 97; `.opencode/skills/spec-creation/tasks/create.md` lines\
+  \ 43, 45; `.opencode/skills/audit/tasks/spec-audit-validator.md` lines 640-641.\n\
+  - Artifacts recording sub-agent findings: `tmp/issue-35/` and `tmp/revise-85/revise-evidence.yaml`\
+  \ under the session workdir.\n\n## Related\n\n- #2328 (OPEN) claims these files\
+  \ `do not exist anywhere` — that premise is partially incorrect: three of the four\
+  \ exist at `.opencode/reference/` (verified against origin/main). The real defect\
+  \ is path resolution, not file absence; `skills/audit/reference/decomposition-criteria.md`\
+  \ alone is genuinely absent. Fixing #2328 by creating files under the skill dir\
+  \ would duplicate the existing repo-root files.\n\n\U0001F916 Co-authored with AI:\
+  \ OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-08-26T22:12:09Z'
+updated_at: '2026-08-26T22:12:09Z'
+remote_issue: 2341
+remote_url: https://github.com/michael-conrad/.opencode/issues/2341
+promoted_at: '2026-08-27T03:25:12.633934+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.633934+00:00'
+author: michael-newsrx

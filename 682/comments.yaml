@@ -1,0 +1,404 @@
+comments:
+- body: "## Decomposition and Chain Analysis\n\nAs part of spec definition, the current\
+    \ 28 task files were analyzed for natural decomposition boundaries.\n\n### Current\
+    \ Task Architecture\n\n| Layer | Count | Examples |\n|-------|-------|---------|\n\
+    | Entry-point (callable from orchestrator) | 9 | pre-work, check-pr, cleanup,\
+    \ implementation, review-prep, pr-creation, release-promotion, provenance, completion\
+    \ |\n| Internal subtask (called by parent task) | 13 | verify-merge, branch-cleanup,\
+    \ issue-closure, pre-merge-verification, push-and-cleanup, report-url, squash-push,\
+    \ enforcement-gate, create-pr, platform-detection, dev-push-provenance, promotion-provenance,\
+    \ commit-prep |\n| Dual-role (entrypoint AND internal) | 1 | rebase-pending |\n\
+    | Standalone | 5 | pair-* tasks |\n| Orphan/stub | 1 | pre-merge-verification\
+    \ (67 words, subsumed by verify-merge) |\n\n### Structural Problems Found\n\n\
+    1. **pre-work.md exceeds 3,000-word limit** (3,345 words) — violates `091-incremental-build.md`\
+    \ atomic task file limit. Needs splitting.\n2. **rebase-pending.md has dual role**\
+    \ — called both as an entry-point task and internally by verify-merge Step 2.\
+    \ This creates a circular dependency risk.\n3. **cleanup/pre-merge-verification.md\
+    \ (67 words) is an orphan** — verify-merge.md has its own full merge verification.\
+    \ This file's single API read is subsumed.\n4. **SKILL.md word counts are uniformly\
+    \ stale** — pre-work claimed 480w (actual 3,345), cleanup claimed 950w (actual\
+    \ 1,805), etc. Every estimate is wrong.\n5. **Pair tasks have zero cross-references**\
+    \ — no chain links to autonomous tasks, suggesting they operate in a fully parallel,\
+    \ disconnected mode.\n\n### Proposed Decomposition (7 entry-point + chains)\n\n\
+    The decomposition follows one rule: a task is an entry-point if and only if the\
+    \ orchestrator needs to dispatch it independently. Everything else is an internal\
+    \ subtask reachable only through a parent task's chain.\n\n| Entry-Point | Composes\
+    \ Into |\n|-------------|---------------|\n| **pre-work** | → sync dev → create\
+    \ branch → sync submodules → init .issues/ |\n| **implementation** | → execute\
+    \ plan on branch (no subtask chain) |\n| **review-prep** | → push-and-cleanup\
+    \ → report-url |\n| **pr-creation** | → enforcement-gate → squash-push → create-pr\
+    \ |\n| **check-pr** | → [query PRs] → [decision: cleanup or HALT] |\n| **cleanup**\
+    \ | → verify-merge → branch-cleanup → issue-closure → rebase-pending |\n| **release-promotion**\
+    \ | → dev→main PR (no subtask chain) |\n\n### Chains (How the SKILL.md Card Shows\
+    \ Recomposed Workflows)\n\n```\nStandard feature workflow:\n  pre-work → implementation\
+    \ → review-prep → pr-creation\n\nPost-merge:\n  check-pr → cleanup\n\nRelease:\n\
+    \  release-promotion\n\nStandalone:\n  rebase-pending   (callable standalone or\
+    \ as cleanup tail)\n  completion       (terminal — every skill exit)\n  provenance\
+    \       (conditional — submodule tag tracking verification)\n\nPair-mode (parallel\
+    \ set, active when branch name starts with pair-):\n  pair-pre-work → pair-commit\
+    \ → pair-pr-creation → pair-cleanup → pair-mode-resume\n```\n\n### Removed Tasks\n\
+    \n| Task | Reason |\n|------|--------|\n| `pre-merge-verification` | Orphan —\
+    \ subsumed by verify-merge |\n| `commit-prep` | Read-only — no dispatchable behavior;\
+    \ commit validation belongs inline in implementation/review-prep |\n| `provenance/provenance.md`\
+    \ as entrypoint | Provenance is a conditional sub-contract of pre-work/cleanup,\
+    \ not a standalone orchestrator dispatch |\n\n### What This Means for the SKILL.md\
+    \ Card\n\nThe card's Task section collapses from 15 listed tasks to 7 entry-point\
+    \ tasks + 5 pair-mode tasks + 2 standalone tasks. Each entry-point shows its chain\
+    \ in a Chain column. Internal subtasks (verify-merge, branch-cleanup, etc.) do\
+    \ NOT appear in the card — they are documented only in their parent task's contract.\n\
+    \nThe agent routes by chain, not by individual task selection. When the orchestrator\
+    \ knows it needs to \"set up for implementation,\" it dispatches `pre-work` —\
+    \ pre-work autonomously decides whether to invoke `provenance` internally based\
+    \ on submodule state. The orchestrator never needs to know.\n\n\U0001F916 Co-authored\
+    \ with AI: OpenCode (deepseek-v4-flash)"
+  created_at: '2026-05-18T02:33:36Z'
+  user: michael-conrad
+- body: "## Correction and Revised Decomposition\n\n### `implementation` removed from\
+    \ git-workflow\n\n`implementation` is code edits, not git operations. It has been\
+    \ removed from the git-workflow task set. The chain now routes cleanly: `setup-feature`\
+    \ → `develop` — where `develop` is NOT a git-workflow task, it is dispatched through\
+    \ `divide-and-conquer` which is the correct orchestrator for code work.\n\n###\
+    \ Revised Entry-Point Tasks\n\n| Task | Former Name | Function |\n|------|-------------|----------|\n\
+    | `setup-feature` | pre-work | Create branch, sync submodules, init .issues/ |\n\
+    | `develop` | — | **NOT in git-workflow** — dispatched via divide-and-conquer\
+    \ |\n| `sync-branch` | **NEW** | Mid-feature dev sync (rebase/merge) |\n| `stage-pr`\
+    \ | review-prep | Push, verify readiness, generate URL |\n| `create-pr` | pr-creation\
+    \ | Create PR in GitHub |\n| `amend-pr` | **NEW** | Respond to review feedback,\
+    \ re-push |\n| `check-pull-requests` | check-pr | Query PR state, trigger cleanup\
+    \ |\n| `post-merge-cleanup` | cleanup | Verify merge → clean branches → close\
+    \ issues |\n| `release` | release-promotion | Promote dev → main |\n| `investigate`\
+    \ | **NEW** | Investigate/ branch lifecycle |\n| `completion` | completion | Terminal\
+    \ — every skill exit |\n\n### Revised Standard Chains (git-workflow only)\n\n\
+    ```\nFeature setup:\n  setup-feature  →  [divide-and-conquer: develop]  →  stage-pr\
+    \  →  create-pr\n\nMid-feature sync:\n  sync-branch  (standalone, dispatch during\
+    \ develop when dev diverges)\n\nReview feedback cycle:\n  amend-pr  (standalone\
+    \ — make changes, re-push to existing PR branch)\n\nPost-merge:\n  check-pull-requests\
+    \  →  post-merge-cleanup\n\nRelease:\n  release\n\nInvestigation:\n  investigate\n\
+    ```\n\nThe `completion` task is terminal for skill exit — called by any task when\
+    \ the skill workflow finishes.\n\n### Semantic Renames Applied\n\nAll renamed\
+    \ tasks use action-verb + object format for better semantic matching between agent\
+    \ intent and available dispatch routes.\n\n### Pair Tasks Removed as Duplicates\n\
+    \nPair tasks are parameterized into the autonomous tasks via `pair_mode: true/false`\
+    \ context parameter. The five pair-specific files are consolidated into parameter\
+    \ checks within the six main tasks.\n\n### Word Counts Removed from SKILL.md Card\n\
+    \nWord counts have no relevance to dispatching agents. Removed from the card.\
+    \ The `091-incremental-build.md` limit applies to file authors, not dispatchers.\n\
+    \n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)"
+  created_at: '2026-05-18T02:41:30Z'
+  user: michael-conrad
+- body: '## Correction: Execution Mode Architecture
+
+
+    ### Direct-branch is the universal default
+
+
+    Both **standard workflow** (`feature/*`) and **pair mode** (`pair-*`) use direct-branch
+    — working in the main repo directory. The only difference is metadata:
+
+
+    | Aspect | Standard | Pair Mode |
+
+    |--------|----------|-----------|
+
+    | Execution model | Direct-branch (main repo) | Direct-branch (main repo) |
+
+    | Branch prefix | `feature/`, `spec/` | `pair-` |
+
+    | Commit trailers | Standard | `[pair-mode]` co-author |
+
+    | File path behavior | Relative paths | Relative paths |
+
+    | Isolation mechanism | Branch isolation | Branch isolation (same as standard)
+    |
+
+
+    **Worktrees** (`.worktrees/`) are a separate opt-in execution model for special
+    circumstances when `WORKTREE_REQUIRED` is set — NOT the pair-mode alternative.
+
+
+    ### Impact on task decomposition
+
+
+    The pair task files are **not structural duplicates** — there is no structural
+    difference to parameterize. The only difference is:
+
+
+    1. `pair-pre-work` creates `pair-` prefixed branches instead of `feature/` or
+    `spec/`
+
+    2. `pair-commit` adds `[pair-mode]` trailer
+
+    3. `pair-pr-creation` uses pair-mode PR template
+
+    4. `pair-cleanup` also cleans stashes
+
+    5. `pair-mode-resume` detects pair session on startup
+
+
+    These are thin wrappers that could be absorbed into the autonomous tasks via a
+    `pair_mode` flag. For example:
+
+    - `setup-feature` checks `context.pair_mode` → branch prefix changes, rest is
+    identical
+
+    - `develop` checks `context.pair_mode` → commit trailer changes, rest is identical
+
+    - `stage-pr`/`create-pr` unaffected (PR body doesn''t change)
+
+    - `post-merge-cleanup` also cleans stashes when pair_mode
+
+
+    ### Proposed file consolidation
+
+
+    | Current Pair Files | Absorbed Into |
+
+    |-------------------|---------------|
+
+    | `pair-pre-work` | `setup-feature` — pair_mode flag changes branch prefix |
+
+    | `pair-commit` | `setup-feature` or `develop` — commit trailer via pair_mode
+    |
+
+    | `pair-pr-creation` | `create-pr` — not materially different, remove file |
+
+    | `pair-cleanup` | `post-merge-cleanup` — adds stash cleanup when pair_mode |
+
+    | `pair-mode-resume` | Session-init — not a task dispatch at all |
+
+
+    ### Impact on the SKILL.md card
+
+
+    No separate pair-mode task section needed. The card shows 10 entry-point tasks.
+    The `pair_mode` context parameter is documented in the Sub-Agent Routing section,
+    not in the task table.
+
+
+    ### Worktree mode impact
+
+
+    Worktrees (when `WORKTREE_REQUIRED`) are handled by `setup-feature` autonomously
+    dispatching `using-git-worktrees` if the flag is set. No separate task or chain
+    entry needed — this is an implementation detail of `setup-feature`.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-18T02:44:34Z'
+  user: michael-conrad
+- body: '## Correction: Pair Branches Eliminated
+
+
+    Pair branches (`pair-*`) are a redundant concept. The branch prefix adds no behavioral
+    enforcement that the conversation context doesn''t already provide. An agent working
+    alongside a developer on a `feature/` branch behaves identically to one on a `pair-`
+    branch — the difference was notional.
+
+
+    **Impact on the spec:**
+
+
+    - All 5 `pair_` task files are removed — they are not absorbed, not parameterized,
+    just deleted
+
+    - No `pair_mode` context flag anywhere
+
+    - No pair-mode detection in session-init or session triggers
+
+    - No pair-mode section in the SKILL.md card
+
+    - The `pair-mode-resume` trigger is eliminated (already purged per #426)
+
+    - Session triggers for pair mode: none
+
+
+    **Impact on task count:**
+
+
+    | Previous | Revised | Change |
+
+    |----------|---------|--------|
+
+    | 28 total task files | 23 total | -5 pair files |
+
+    | 14 entry-point + pair | 10 entry-point | -4 pair entry-point |
+
+    | 13 internal subtasks | 13 internal | unchanged |
+
+
+    Standard workflow chain remains untouched — it was always direct-branch, same
+    as pair mode. The only thing lost is a naming convention that served no enforcement
+    purpose.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-18T02:46:22Z'
+  user: michael-conrad
+- body: 'Thank you for the history — that confirms the conclusion.
+
+
+    **Pair mode''s lineage:**
+
+    1. Worktrees were the original isolation mechanism
+
+    2. Worktrees caused dev issues → pair mode became the alternative (same isolation
+    model, different branch prefix, no worktree overhead)
+
+    3. Dev decided worktrees aren''t normally worth it → pair mode''s reason for existing
+    evaporates
+
+
+    **What remains:** Standard direct-branch (`feature/*`, `spec/*`) — which IS what
+    pair mode was functionally doing, just without the `pair-` prefix and co-author
+    trailers. There''s nothing left that a standard branch doesn''t handle equally
+    well.
+
+
+    The elimination stands:
+
+    - No pair task files
+
+    - No pair mode context flag
+
+    - No pair-mode detection in session-init or session triggers
+
+    - Standard chain: `setup-feature → [divide-and-conquer: develop] → stage-pr →
+    create-pr`
+
+
+    Worktrees remain as a special-case opt-in (via `WORKTREE_REQUIRED`), handled internally
+    by `setup-feature` dispatching `using-git-worktrees` when set.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-18T02:47:14Z'
+  user: michael-conrad
+- body: '## Amendment: Scope Gaps from Superseded Issues
+
+
+    Per investigation of the five superseded issues (#591, #597, #598, #604, #606)
+    and the rollback casualty in `check-pr.md` (Step 3.5 lost in `6db0610d`), the
+    following gaps exist in this spec''s current scope:
+
+
+    ### Gap 1 (Critical): `check-pull-requests` Missing Submodule PR Status Check
+
+
+    **Source:** Rollback casualty from #232 (commit `315adb06`, lost in `6db0610d`)
+
+
+    The renamed `check-pull-requests` task contract must include a submodule PR status
+    check. Currently, `check-pr.md` Step 3 evaluates only parent-repo branches. Without
+    a submodule PR query, merged submodule PRs with uncleaned branches are never detected,
+    so submodule cleanup is never triggered. The `post-merge-cleanup` task already
+    has submodule handling (Steps 0, 1.9, 4) — the gap is in the trigger, not the
+    handler.
+
+
+    **Required amendment to the spec:**
+
+    - `check-pull-requests` contract must include: query submodule repos (from `.gitmodules`)
+    for merged PRs with uncleaned branches; if found, cascade to submodule cleanup
+    as part of the post-merge chain
+
+
+    ### Gap 2 (Moderate): `post-merge-cleanup` Authorization Boundaries for Destructive
+    Ops
+
+
+    **Source:** #604
+
+
+    The restructured `post-merge-cleanup` task contract should explicitly document
+    which operations are auto-authorized on non-protected branches during cleanup:
+
+    - `git push --force` (squash push) on feature/ branches
+
+    - `git push origin --delete` (remote branch deletion) on feature/ branches
+
+    - Protected branches: `main`, `master`, `dev` — these still require authorization
+    per critical-rules-026
+
+
+    Without this, sub-agents dispatched during cleanup halt to ask for permission
+    on every force push.
+
+
+    **Required amendment to the spec:**
+
+    - `post-merge-cleanup` contract must include an "Authorization Boundaries" section
+    documenting auto-authorized destructive ops on non-protected branches
+
+
+    ### Gap 3 (Minor): `sync-branch` Conflict Detection Protocol
+
+
+    **Source:** #591
+
+
+    The new `sync-branch` task (mid-feature dev sync) needs an explicit conflict detection
+    protocol. Currently, no defined mechanism exists for the orchestrator to detect
+    git conflicts — neither in SKILL.md nor in any operating protocol. Conflicts are
+    detected via:
+
+    - Failed `git rebase`/`git merge` exit codes (non-zero)
+
+    - `CONFLICT` markers in working tree (`git diff --check`)
+
+
+    The `sync-branch` contract should document that conflict detection is its precondition
+    — if conflicts are found, it routes to `conflict-resolution` before continuing.
+
+
+    **Required amendment to the spec:**
+
+    - `sync-branch` contract must include conflict detection as a precondition step,
+    with routing to `conflict-resolution` on detection
+
+
+    ### Gap 4 (Moderate): `post-merge-cleanup` No-PR Scenario
+
+
+    **Source:** #606 (partial)
+
+
+    When `post-merge-cleanup` runs and there is no PR body (e.g., `for_implementation`
+    scope that halted at `implementation_complete`, documentation-only changes, config
+    changes), the current issue-closure path cannot discover closure candidates —
+    it depends entirely on PR body parsing.
+
+
+    The restructured `post-merge-cleanup` should include an alternative entry path
+    for no-PR scenarios:
+
+    - Build closure candidate list from issue state (open issues with `approved-for-*`
+    labels, verified-complete phase markers)
+
+    - Scan for stale issues (100% DONE but still open)
+
+    - Present findings; do NOT close without verification
+
+
+    **Required amendment to the spec:**
+
+    - `post-merge-cleanup` contract must include a no-PR alternative candidate discovery
+    path
+
+
+    ### Non-Gaps (Naturally Resolved)
+
+
+    - **#597/#598 (tag references):** These dangling `AGENTS.md` references exist
+    in files that will be rewritten by this restructure. No separate amendment needed
+    — the rewrite eliminates them by construction.
+
+    - **#606 adversarial re-verification:** Crosses into `approval-gate` skill scope,
+    not git-workflow. Out of scope for this spec.
+
+
+    ---
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-20T16:09:08Z'
+  user: michael-conrad

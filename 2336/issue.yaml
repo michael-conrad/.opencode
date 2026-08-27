@@ -1,0 +1,81 @@
+number: 2336
+title: '[SPEC-FIX] Narrow critical-rules-070 session-survival closure rule to work-performed-no-PR
+  closures only'
+status: open
+labels: []
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2336/
+
+
+  ## Problem
+
+
+  `critical-rules-070` in `.opencode/skills/git-workflow-cleanup/SKILL.md` states
+  "Issues created by the agent in a session MUST survive at least one session boundary
+  before closure." This is over-broad: it applies uniformly to ALL issues created
+  in-session, including issues verified as moot/duplicate/already-implemented with
+  zero remaining work. This forces completed tickets to linger open across sessions,
+  creating cleanup debt. See `.opencode#2335` (the bug report documenting the over-application,
+  with WeekliesPDFs#52 as the concrete example).
+
+
+  ## Scope
+
+
+  - Amend `critical-rules-070` so the session-survival requirement applies ONLY when
+  the closure would sever an audit trail — i.e., when WORK WAS PERFORMED on the issue
+  but NO PR was merged to deliver it.
+
+  - Verified-moot/duplicate/already-implemented issues (with tool-call evidence) MAY
+  be closed in-session.
+
+  - Add a behavioral enforcement test covering both the permitted in-session closure
+  and the still-blocked audit-trail severance case.
+
+
+  **Out of scope:** Changing the cleanup workflow as the sole authorized closure path.
+  Changing `critical-rules-070`''s direct-API-closure prohibition. Weakening PR-merge
+  verification or body-preservation safeguards.
+
+
+  ## Approach
+
+
+  1. Amend the rule text in `git-workflow-cleanup/SKILL.md` (line 83) to: "Issues
+  created by the agent in a session MUST survive at least one session boundary before
+  closure when the closure would sever an audit trail — i.e., when work was performed
+  on the issue but no PR was merged to deliver that work. This does NOT apply to issues
+  verified as moot, duplicate, or already-implemented (with tool-call evidence), which
+  may be closed in-session."
+
+  2. Add a behavioral enforcement test asserting the agent CLOSES a verified-moot/duplicate
+  issue in-session (routes through the cleanup/close workflow with evidence), and
+  still DECLINES to close an issue with work-performed-but-no-PR (audit-trail case).
+  Follow the behavioral-test harness pattern in `.opencode/tests-v2/behaviors/` (see
+  existing `1188-sc3-already-implemented-closure-routing.sh` for the pattern).
+
+
+  ## Impact
+
+
+  - Preserves the rule''s original protective intent (blocking the work-performed-no-PR
+  audit-trail severance anti-pattern from `.opencode#1335`) while eliminating the
+  cleanup debt from verified-moot/duplicate closures.
+
+  - Risk: low — the exemption requires verification evidence (duplicate of merged
+  fix, or already-implemented), so premature-closure protection for legitimate in-flight
+  work is unchanged.
+
+  - Call to action: review and approve.
+
+
+  🤖 OpenCode (deepseek-v4-flash) created
+
+  '
+created_at: '2026-08-26T16:25:37Z'
+updated_at: '2026-08-26T16:25:49Z'
+remote_issue: 2336
+remote_url: https://github.com/michael-conrad/.opencode/issues/2336
+promoted_at: '2026-08-27T03:25:12.627593+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.627593+00:00'
+author: michael-newsrx

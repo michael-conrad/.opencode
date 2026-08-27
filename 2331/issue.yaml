@@ -1,0 +1,170 @@
+number: 2331
+title: '[SPEC-FIX] Undocumented GitBucket REST label/body update deviations cause
+  silent data loss and dead ends'
+status: open
+labels: []
+body: '# DEFECT — Undocumented GitBucket REST deviations in gb-cli / gitbucket-api
+  skill docs cause silent data loss and dead ends
+
+
+  > **Reporting only.** This issue documents defects observed via live tool calls.
+  No documentation or code changes have been made, and nothing here authorizes implementation.
+
+
+  ## Problem
+
+
+  The `gb-cli` and `gitbucket-api` platform skill decks omit two GitBucket REST deviations
+  from GitHub-standard behavior. An agent following standard GitHub label/body update
+  patterns — warned nowhere in the deck — can **silently destroy issue metadata**
+  (Deviation 1) or hit undocumented dead ends (Deviation 2). All observations are
+  live tool-call evidence gathered this session against the GitBucket instance `tomcat-0002.newsrx.com`
+  during NewSRX-Tech-LLC/xBaseJ#62 operations.
+
+
+  **Severity classification:** Deviation 1 is **destructive / data-loss class**. Deviation
+  2 is functional dead-end class.
+
+
+  ## Deviation 1 — Issue-label route: destructive payload-form behavior (SEVERITY:
+  DATA LOSS)
+
+
+  Route: `/repos/{owner}/{repo}/issues/{number}/labels` on GitBucket (tomcat-0002.newsrx.com).
+
+
+  | Payload form | Observed behavior (exact outcome) |
+
+  |---|---|
+
+  | GitHub object-form POST (`{"labels": [...]}`) | Rejected with **HTTP 500** |
+
+  | Raw-array body (`["label-a", ...]`) | **Silently wipes ALL existing labels** off
+  the issue — no error surfaced; loss is discoverable only via label readback |
+
+  | Object-form PUT (`{"labels": [...]}`) | Works — used to restore the wiped label
+  state |
+
+
+  The docs currently mark post-creation labels as a blanket "✅ WORKING" (gitbucket-api
+  SKILL.md, capability manifest row "Post-creation labels") and direct agents to `gb
+  issue edit` for labels (gb-cli SKILL.md, "Edit and close issues"), but the `gb`
+  client''s web fallback **cannot edit labels at all** — leaving **object-form PUT
+  as the only safe path**, which neither card states.
+
+
+  ### Data-loss incident narrative
+
+
+  While diagnosing label updates on xBaseJ#62, a raw-array body was sent to the label
+  route. The call surfaced no error, but readback showed every existing label had
+  been wiped — including the `needs-approval` authorization label. Label state was
+  restored in the same session via an object-form PUT carrying the intended label
+  set. Permanent loss was avoided only because the wipe was caught and reversed immediately;
+  an agent without readback discipline would have silently destroyed the issue''s
+  remote authorization record.
+
+
+  ## Deviation 2 — Issue-body REST PATCH returns 404
+
+
+  REST `PATCH` on the issue-body route returns **HTTP 404** on this instance. The
+  `gb` client''s built-in `gb issue edit` web fallback **does** work for body edits.
+  Agents following GitHub-standard PATCH-based body edits hit an unexplained 404 with
+  no documented pointer to the working fallback.
+
+
+  ## Affected documentation (verified current state)
+
+
+  | File | Gap |
+
+  |---|---|
+
+  | `.opencode/skills/gb-cli/SKILL.md` | "Edit and close issues" workflow directs
+  agents to `gb issue edit` "for labels/assignees" — false for labels (web fallback
+  cannot edit them); "Manage labels" carries only a vague "(post-creation label mutation
+  documented limitation)" without naming the destructive payload forms |
+
+  | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` | Capability
+  manifest row "Post-creation labels" marked blanket "✅ WORKING" via `gb api` passthrough
+  — no payload-form hazard, no object-POST→500, no array-wipe warning; "Edit issue"
+  row advertises `[--add-label ...]` via web fallback; no PATCH-404 note for body
+  edits |
+
+
+  ## Relation to prior work
+
+
+  michael-conrad/.opencode#2257 (closed) empirically validated label operations against
+  a **local test instance**, where the bare-array form behaved as a benign no-op and
+  the object-form PUT worked. This session''s production-instance evidence is strictly
+  more dangerous: raw-array **destroys existing labels**, object-form POST hard-fails
+  with 500, and the body route rejects PATCH with 404 — none covered there. Related-but-distinct;
+  not a duplicate.
+
+
+  ## Scope
+
+
+  In scope:
+
+  - Document both deviations (payload-form table, exact HTTP outcomes, severity) in
+  `.opencode/skills/gb-cli/SKILL.md` and `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
+
+  - Document the safe patterns below wherever GitBucket label/body mutation is described
+
+  - Add readback-after-write guidance for any GitBucket label mutation
+
+
+  **Out of scope:** modifying the `gb` CLI source (external dependency); server-side
+  GitBucket changes; revisiting #2257''s local-instance findings; anything beyond
+  documentation.
+
+
+  ## Safe-pattern guidance to be documented
+
+
+  1. **Labels — object-form PUT only.** Mutate labels exclusively via object-form
+  PUT (`{"labels": [...]}`) on `/repos/{owner}/{repo}/issues/{number}/labels`. Never
+  POST the object form (500 rejection); never send raw arrays (wipes all existing
+  labels). Read labels back after every write to verify intent.
+
+  2. **Bodies — `gb issue edit` fallback.** Do not use REST PATCH on the body route
+  (404 on this instance); use the `gb issue edit` built-in web fallback for body edits.
+
+
+  ## Impact
+
+
+  Top risks and mitigations:
+
+  1. **Silent destruction of issue authorization labels** (`needs-approval` / `approved-for-*`)
+  by agents sending GitHub-standard array payloads — mitigation: mandate object-form
+  PUT + post-write readback in both skill cards.
+
+  2. **Unexplained 404 dead ends on body edits** stall pipelines mid-flight — mitigation:
+  document `gb issue edit` as the sanctioned body-edit path.
+
+  3. **Remote/local authorization-record drift** when remote labels are wiped while
+  local `issue.yaml` stays canonical — mitigation: pair the docs fix with readback
+  verification guidance.
+
+
+  Dependencies: none blocking; documentation-only change. Recommended handling: convert
+  into a documentation-fix spec for the two affected cards.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
+
+  '
+created_at: '2026-08-26T05:07:13Z'
+updated_at: '2026-08-26T05:07:13Z'
+remote_issue: 2331
+remote_url: https://github.com/michael-conrad/.opencode/issues/2331
+promoted_at: '2026-08-27T03:25:12.609107+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.609107+00:00'
+author: michael-newsrx

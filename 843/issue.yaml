@@ -1,0 +1,164 @@
+number: 843
+title: '[PLAN-842] Phase 1: Verification-Gate Task'
+status: open
+labels:
+- needs-approval
+- task
+body: 'Phase 1 of #842
+
+
+  ## Objective
+
+
+  Create the verification-gate task with dark prose BLOCKED messages, bright-line
+  enforcement rules, PASS-clean-only gate logic, and evidence chain integrity verification.
+
+
+  **TDD discipline enforced per `091-incremental-build.md`:** Every sub-task follows
+  RED (behavioral test fails) → GREEN (implementation makes test pass) → REFACTOR
+  → COMMIT. Behavioral tests are written BEFORE implementation, not after.
+
+
+  ## Sub-Task Breakdown
+
+
+  ### Sub-task 1.1: PASS_WITH_CAVEATS / INCONCLUSIVE / FUNCTIONALLY_EQUIVALENT → FAIL
+  (SC-2, SC-20)
+
+
+  **RED:** Create `.opencode/tests/behaviors/verification-gate-pass-with-caveats-is-fail.sh`
+  — sends agent prompt with mock VbC YAML containing `result: PASS_WITH_CAVEATS`,
+  `result: INCONCLUSIVE`, `result: FUNCTIONALLY_EQUIVALENT`. Assert agent HALTs with
+  BLOCKED for each. Test MUST fail because verification-gate.md doesn''t exist yet.
+
+
+  **GREEN:** Write `tasks/verification-gate.md` with procedure that classifies any
+  non-`PASS` result as FAIL. Re-run test — all three non-PASS results produce BLOCKED.
+
+
+  ### Sub-task 1.2: Audit DISAGREE / FAIL → BLOCKED (SC-3, SC-6)
+
+
+  **RED:** Create `.opencode/tests/behaviors/verification-gate-audit-disagree-is-blocked.sh`
+  — sends agent prompt with mock audit cross-validation YAML containing `consensus:
+  DISAGREE` and auditor verdict `FAIL`. Assert agent HALTs with BLOCKED. Test MUST
+  fail because verification-gate.md doesn''t parse audit YAML yet.
+
+
+  **GREEN:** Update `tasks/verification-gate.md` with audit cross-validation parsing
+  and classification. Re-run test — DISAGREE and FAIL produce BLOCKED.
+
+
+  ### Sub-task 1.3: Missing artifacts → BLOCKED (SC-4)
+
+
+  **RED:** Create `.opencode/tests/behaviors/verification-gate-artifacts-missing-is-blocked.sh`
+  — sends agent prompt with no mock artifacts at expected paths. Assert agent HALTs
+  with BLOCKED and reports missing artifacts. Test MUST fail because verification-gate.md
+  doesn''t check artifact existence yet.
+
+
+  **GREEN:** Update `tasks/verification-gate.md` with artifact existence check and
+  BLOCKED result for missing artifacts. Re-run test — missing artifacts produce BLOCKED
+  with remediation instructions.
+
+
+  ### Sub-task 1.4: FAIL / INCONCLUSIVE / MISSING_EVIDENCE SC rows → BLOCKED (SC-5)
+
+
+  **RED:** Create `.opencode/tests/behaviors/verification-gate-fail-sc-rows-is-blocked.sh`
+  — sends agent prompt with mock VbC YAML containing `result: FAIL`, `result: INCONCLUSIVE`,
+  `result: MISSING_EVIDENCE`. Assert agent HALTs with BLOCKED for each. Test MUST
+  fail because verification-gate.md doesn''t classify these yet.
+
+
+  **GREEN:** Update `tasks/verification-gate.md` with complete SC row classification.
+  Re-run test — all non-PASS results produce BLOCKED.
+
+
+  ### Sub-task 1.5: Broken evidence chain → BLOCKED (SC-21)
+
+
+  **RED:** Create `.opencode/tests/behaviors/verification-gate-evidence-chain-broken-is-blocked.sh`
+  — sends agent prompt with mock VbC YAML referencing `./tmp/behavioral-evidence-SC-3.log`
+  that doesn''t exist on disk. Assert agent HALTs with BLOCKED and reports broken
+  evidence chain. Test MUST fail because verification-gate.md doesn''t verify evidence
+  on disk yet.
+
+
+  **GREEN:** Update `tasks/verification-gate.md` with evidence chain integrity check.
+  Re-run test — missing evidence produces BLOCKED.
+
+
+  ### Sub-task 1.6: Add verification-gate to SKILL.md routing table (SC-1 partial)
+
+
+  **GREEN-verify:** Add verification-gate row to SKILL.md task table and invocation
+  table with dark-prose-003 purpose line: "Unverified code MUST NOT reach review-prep.
+  Verification artifacts that don''t exist produce defects that reach production uncaught."
+
+
+  **REFACTOR:** Verify no word counts in entry. Verify Purpose uses IS/IS NOT pattern
+  per dark-prose-002.
+
+
+  ### Sub-task 1.7: Structural verification (SC-1, SC-14, SC-16, SC-19)
+
+
+  **GREEN-verify:** Verify with grep:
+
+  - `ls tasks/verification-gate.md` (SC-1)
+
+  - `grep "issue:\|phase:\|success_criteria:\|consensus:\|evidence_path:\|evidence_exists:"
+  tasks/verification-gate.md` finds YAML format and chain docs (SC-14)
+
+  - `grep -c "should\|please\|recommended\|make sure" tasks/verification-gate.md`
+  returns 0 (SC-16)
+
+  - `grep "RULE:\|EXCEPTION:\|FAILURE:\|REMEDIATION:" tasks/verification-gate.md`
+  finds bright-line components (SC-19)
+
+
+  ## Success Criteria
+
+
+  - SC-1: `tasks/verification-gate.md` exists with entry/exit criteria, YAML artifact
+  parsing, evidence chain verification, BLOCKED result contract
+
+  - SC-2: Agent classifies PASS_WITH_CAVEATS, INCONCLUSIVE, FUNCTIONALLY_EQUIVALENT
+  as FAIL
+
+  - SC-3: Agent validates audit result correctly
+
+  - SC-4: Agent HALTs with BLOCKED when artifacts missing
+
+  - SC-5: Agent HALTs with BLOCKED for FAIL/INCONCLUSIVE/MISSING_EVIDENCE SC rows
+
+  - SC-6: Agent HALTs with BLOCKED for audit DISAGREE/FAIL
+
+  - SC-14: YAML format and evidence chain fields documented
+
+  - SC-16: No advisory language in verification-gate.md
+
+  - SC-19: Bright-line RULE/EXCEPTION/FAILURE/REMEDIATION/PROCEED format present
+
+  - SC-20: Behavioral test confirms non-PASS results treated as FAIL
+
+  - SC-21: Behavioral test confirms evidence chain integrity check
+
+
+  ## Dependencies
+
+
+  None — Phase 1 is foundational.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-23T15:15:51Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 843
+remote_url: https://github.com/michael-conrad/.opencode/issues/843
+promoted_at: '2026-08-27T03:25:12.168243+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.168243+00:00'
+author: michael-conrad

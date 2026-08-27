@@ -1,0 +1,76 @@
+number: 1042
+title: '[BUG] local-issues _ensure_worktree() silently degrades to plain-file mode
+  when .issues/ already exists'
+status: open
+labels:
+- bug
+- needs-approval
+- spec-fix
+body: '## Summary
+
+
+  `_ensure_worktree()` in `tools/local-issues` has a silent exception handler that
+  masks worktree creation failures. When `.issues/` already exists as a plain directory
+  on disk (e.g., from `git checkout` restoring it after `git rm --cached`), the function
+  silently returns plain-file mode with zero warning to the user.
+
+
+  ## Root Cause
+
+
+  The broad `except Exception` at line 323 catches the `git worktree add` failure
+  (fatal: already exists) and returns `False`. The caller has no way to distinguish
+  "worktree created successfully" from "worktree creation failed, operating in degraded
+  mode."
+
+
+  ## Affected Path
+
+
+  1. `.issues/` exists as a plain directory (from checkout, clone, or previous plain-file
+  use)
+
+  2. `_ensure_worktree()` saves content and removes directory (lines 282-299) — BUT
+  only if `has_existing` is True
+
+  3. If `has_existing` is False (directory exists but wasn''t created by the tool),
+  save is skipped
+
+  4. Plain directory is not removed, so `git worktree add .issues issues-data` fails
+
+  5. Silent `except Exception` handler returns False with zero diagnostic output
+
+  6. Tool continues in plain-file mode — user sees output but data is NOT on the orphan
+  branch
+
+
+  ## Reproduction
+
+
+  Within a fresh `.opencode/` checkout (where `.issues/` was previously `git rm --cached`d
+  and `.gitignore`d but the directory persists on disk):
+
+
+  ```bash
+
+  ls .issues/  # directory exists (from checkout)
+
+  ./tools/local-issues list  # lists issues — appears to work
+
+  git worktree list  # no .issues/ worktree shown — silently degraded
+
+  ```
+
+
+  ## Labels
+
+
+  `BUG`, `SPEC-FIX`'
+created_at: '2026-06-06T04:48:01Z'
+updated_at: '2026-06-12T03:45:27Z'
+remote_issue: 1042
+remote_url: https://github.com/michael-conrad/.opencode/issues/1042
+promoted_at: '2026-08-27T03:25:12.562475+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.562475+00:00'
+author: michael-conrad

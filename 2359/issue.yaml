@@ -1,0 +1,41 @@
+number: 2359
+title: '[SPEC] Create shared ref: orchestrator-context-discipline.md'
+status: open
+labels: []
+body: '## Problem
+
+  `.opencode/guidelines/020-go-prohibitions.md` §1.1 Orchestrator Context Discipline
+  is procedural content that must be removed from the preloaded guideline but is referenced
+  by multiple skill cards (approval-gate, spec-creation, writing-plans, executing-plans,
+  git-workflow).
+
+
+  ## Scope
+
+  - **In:** Create `.opencode/reference/orchestrator-context-discipline.md` as the
+  single canonical home for orchestrator-context-lean, sub-agent-context-generosity,
+  result-contract-frugality, and the allocation-by-context-cost model. Add mandatory
+  Read [Text](path) links to the consuming skill cards.
+
+  - **Out:** Re-inlining the content into each card (duplication avoided).
+
+
+  ## Approach
+
+  Extract §1.1 from 020-go-prohibitions into a shared canonical reference. Consuming
+  cards get a mandatory Read-link per the Read-Link Cross-Reference Rule.
+
+
+  ## Impact
+
+  Enables 020-go-prohibitions condensation. Risk: content loss if cards don''t Read-link.
+  Mitigation: mandatory Read-link convention (060-tool-usage §2). Depends on 020 condensation.
+  Action: approve.'
+created_at: '2026-08-27T03:14:37Z'
+updated_at: '2026-08-27T03:14:37Z'
+remote_issue: 2359
+remote_url: https://github.com/michael-conrad/.opencode/issues/2359
+promoted_at: '2026-08-27T03:25:12.675017+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.675017+00:00'
+author: michael-conrad

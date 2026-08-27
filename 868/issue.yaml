@@ -1,0 +1,47 @@
+number: 868
+title: '[PHASE] #866: Audit — Identify all task() calls in task files'
+status: open
+labels:
+- needs-approval
+- plan-phase
+body: '## Phase 1: Audit — Identify all `task()` calls in task files
+
+
+  **Parent plan:** [#866](https://github.com/michael-conrad/.opencode/issues/866)
+
+  **Items:** Item 1
+
+
+  ### What must be accomplished
+
+  - Run `grep -rn "task()" .opencode/skills/*/tasks/` to produce definitive list
+
+  - Compare results against spec''s affected files table; flag discrepancies
+
+  - Store audit output as evidence artifact
+
+
+  ### Success criteria
+
+  - Evidence artifact saved to `./tmp/artifacts/task-calls-audit.txt`
+
+  - Documented comparison: spec table vs actual results
+
+
+  ### Dependencies
+
+  - None — this phase runs first
+
+
+  ### Risk
+
+  - Grep may match false positives (comments, prose examples) — each match verified
+  by reading file context'
+created_at: '2026-05-24T17:35:44Z'
+updated_at: '2026-06-12T03:45:36Z'
+remote_issue: 868
+remote_url: https://github.com/michael-conrad/.opencode/issues/868
+promoted_at: '2026-08-27T03:25:12.254372+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.254372+00:00'
+author: michael-conrad

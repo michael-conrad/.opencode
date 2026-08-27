@@ -1,0 +1,89 @@
+number: 845
+title: '[PLAN-842] Phase 3: SKILL.md Routing Table Rewrite'
+status: open
+labels:
+- needs-approval
+- task
+body: 'Phase 3 of #842
+
+
+  ## Objective
+
+
+  Rewrite SKILL.md routing table with dark prose patterns (001 for Overview, 002 for
+  Purpose), no word counts, and accurate entries including verification-gate, commit-prep,
+  and individual pre-work sub-tasks.
+
+
+  **TDD discipline enforced per `091-incremental-build.md`:** Behavioral test for
+  routing completeness (SC-8, SC-9, SC-23) written RED before implementation GREEN.
+  Dark prose pattern tests (SC-17, SC-18) verified with string assertions.
+
+
+  ## Sub-Task Breakdown
+
+
+  ### Sub-task 3.1: Behavioral test — SKILL.md routing completeness (SC-8, SC-9, SC-23)
+
+
+  **RED:** Create behavioral test that sends agent git-workflow prompt — verify agent
+  sees verification-gate, commit-prep, and all five pre-work sub-tasks in routing
+  (SC-9, SC-23). Verify no word counts in task table (SC-8). Test MUST fail because
+  current SKILL.md doesn''t have these entries.
+
+
+  **GREEN:** Add missing entries to SKILL.md: verification-gate (dark-prose-003 purpose),
+  commit-prep (dark-prose-002 purpose), five pre-work sub-tasks (dark-prose-002 purposes
+  each). Remove all `≈` word counts.
+
+
+  **REFACTOR:** Verify each entry has Purpose with IS/IS NOT binary definition (SC-18).
+
+
+  ### Sub-task 3.2: Rewrite SKILL.md Overview with dark-prose-001 (SC-17)
+
+
+  **RED:** Create string test that Overview contains identity-anchoring language per
+  dark-prose-001 formula — confirmatory identity frame, not procedural description.
+  Test MUST fail because current Overview uses procedural language.
+
+
+  **GREEN:** Rewrite SKILL.md Overview using dark-prose-001 (confirmshaming identity-frame).
+  "Professional engineers verify before they push. Amateurs trust their memory and
+  skip gates."
+
+
+  **REFACTOR:** Verify `Use when` trigger pattern is preserved (required by SKILL.md
+  frontmatter spec). Verify no advisory language in Overview.
+
+
+  ## Success Criteria
+
+
+  - SC-8: `grep -c "≈" SKILL.md` returns 0 for task table
+
+  - SC-9: `grep "commit-prep" SKILL.md` finds the entry
+
+  - SC-17: Overview contains dark-prose-001 identity-anchoring language
+
+  - SC-18: Task table Purpose entries contain IS/IS NOT binary definitions
+
+  - SC-23: Individual pre-work sub-tasks listed in SKILL.md routing table
+
+
+  ## Dependencies
+
+
+  Phases 1 and 2 must be complete — verification-gate and pre-work sub-tasks must
+  exist before the routing table references them.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-23T15:15:57Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 845
+remote_url: https://github.com/michael-conrad/.opencode/issues/845
+promoted_at: '2026-08-27T03:25:12.179679+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.179679+00:00'
+author: michael-conrad

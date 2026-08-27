@@ -1,0 +1,154 @@
+number: 920
+title: '[SPEC] Sycophancy Audit: remediate AI agent-facing text that drives false-PASS
+  bias'
+status: open
+labels:
+- needs-approval
+- spec
+- sycophancy
+body: "## Intent and Executive Summary\n\n### Problem Statement\n\nThe agent currently\
+  \ biases toward false-PASS verdicts — producing PASS on code, specs, and plans that\
+  \ contain actual defects. Research into LLM sycophancy (Anthropic 2024, SycEval\
+  \ 2025, Stanford Science 2026) confirms this is the default sycophancy mode: RLHF-trained\
+  \ models prioritize user agreement (PASS = agreeable) over accurate assessment (FAIL\
+  \ = confrontational). The current dark prose patterns (confirmshaming identity-frames,\
+  \ goal hijacking, authority framing) may be *amplifying* this bias rather than correcting\
+  \ it.\n\n### Root Cause / Motivation\n\nThe identity-frame prose used throughout\
+  \ guidelines and skill descriptions — \"Professional engineers X — amateurs Y\"\
+  \ — creates social pressure to *appear* verified. The sycophantic response is not\
+  \ to verify more thoroughly but to report PASS (the low-effort, agreeable conclusion).\
+  \ The existing clean-room and cross-family mitigations are structurally correct\
+  \ but do not address the directional priming embedded in the personas and task descriptions\
+  \ themselves.\n\n### Approach Chosen\n\nTwo-phase approach:\n1. **Audit phase**:\
+  \ Map every agent-facing text location in `.opencode/guidelines/` and `.opencode/skills/`\
+  \ for sycophancy-drivable language — persona descriptions, identity-frame prose,\
+  \ consequence assertions, expected-outcome framing that signals a preferred verdict\
+  \ direction.\n2. **Remediation phase**: Revise the three reference cards (250-dark-prose-reference,\
+  \ 255-distribution-shifting-reference, 257-procedural-discipline-reference) to add\
+  \ a sycophancy-awareness layer, and apply targeted revisions to the highest-ROI\
+  \ locations in skill/guideline text.\n\n### Alternatives Considered & Why Discarded\n\
+  \n| Alternative | Why Discarded |\n|---|---|\n| Only add post-hoc sycophancy detection\
+  \ to cross-validate | Already exists (cross-validate.md Step 6 has \"sycophancy\
+  \ exploitation\" detection) — this addresses symptoms, not the root cause in the\
+  \ prompts |\n| Full rewrite of all identity-frame prose to remove it entirely |\
+  \ Identity-frame prose is structurally valuable (250-dark-prose-reference §1, dark-prose-006);\
+  \ the goal is to make it sycophancy-aware, not eliminate it |\n| Behavioral enforcement\
+  \ tests only, no text changes | Behavioral tests catch the symptom (false-PASS)\
+  \ but not the mechanism — the prompts themselves would still produce biased output\
+  \ with every model generation |\n\n### Key Design Decisions\n\n| Decision | Rationale\
+  \ |\n|---|---|\n| Sycophancy-awareness layer goes into reference cards, not separate\
+  \ guideline | Reference cards already govern agent-facing text creation; integrating\
+  \ sycophancy into all three prevents fragmentation |\n| Audit first, remediate second\
+  \ | Without the audit map, remediation is speculative — we need the specific locations\
+  \ before drafting changes |\n| High-ROI targets first: auditor personas, task purpose\
+  \ statements, cross-validate Step 6 expansion | These are the text components that\
+  \ directly feed the agent's output distribution before verdict generation |\n\n\
+  ---\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type | Verification Method\
+  \ |\n|----|-----------|--------------|--------------------|\n| SC-1 | Sycophancy\
+  \ audit map exists covering all agent-facing text in guidelines/ and skills/ with\
+  \ per-location risk classification (HIGH/MEDIUM/LOW) | `behavioral` | Sub-agent\
+  \ completes audit; map artifact saved to `./tmp/sycophancy-audit-map.json` with\
+  \ verified file reads for each location |\n| SC-2 | 250-dark-prose-reference.md\
+  \ updated with dark-prose-009 (Sycophancy-Awareness Layer) including: mechanism\
+  \ description, canonical formula, selection matrix entries, prohibition of directional\
+  \ priming in identity-frame prose | `string` | grep for \"dark-prose-009\" in 250-dark-prose-reference.md\
+  \ |\n| SC-3 | 255-distribution-shifting-reference.md updated with dist-shift-009\
+  \ (Sycophancy-Direction Neutralizer) that structurally biases completion distribution\
+  \ toward evidence-based verdicts regardless of implied user preference | `string`\
+  \ | grep for \"dist-shift-009\" in 255-distribution-shifting-reference.md |\n| SC-4\
+  \ | 257-procedural-discipline-reference.md updated with bright-line companion for\
+  \ sycophancy-aware persona construction — personas MUST NOT contain directional\
+  \ priming toward PASS or FAIL | `string` | grep for sycophancy-awareness language\
+  \ matching p-dis-007 in 257-procedural-discipline-reference.md |\n| SC-5 | At least\
+  \ 3 HIGH-risk sycophancy locations (personas, task purpose statements, auditor routing\
+  \ descriptions) remediated per audit map findings | `behavioral` | Sub-agent verifies\
+  \ original HIGH-risk content replaced with sycophancy-neutral verbiage; diff confirmed\
+  \ |\n| SC-6 | cross-validate.md Step 6 sycophancy exploitation detection expanded\
+  \ to cover auditor persona context as a sycophancy vector (not just verdict output)\
+  \ | `string` | grep for sycophancy vector detection in cross-validate.md |\n| SC-7\
+  \ | Behavioral enforcement test exists: auditor presented with identity-frame prose\
+  \ produces calibration (correct PASS/FAIL ratio) that is not statistically different\
+  \ from a neutral-framed baseline | `behavioral` | Clean-room `opencode-cli run`\
+  \ test with two prompt variants — identity-framed vs neutral — comparing PASS rate;\
+  \ Chi-square p > 0.05 required |\n\n---\n\n## Phases\n\n### Phase 1: Audit — Sycophancy\
+  \ Map (Estimated: 1 session)\n\nTasks:\n1. Read all guideline files in `.opencode/guidelines/`\
+  \ — extract every persona description, identity-frame sentence, consequence-assertion,\
+  \ and expected-outcome clause\n2. Read all SKILL.md files in `.opencode/skills/*/`\
+  \ — extract the Overview, Persona, and Purpose sections\n3. Read all task files\
+  \ in `.opencode/skills/*/tasks/` — extract Purpose statements and routing descriptions\n\
+  4. Classify each location: HIGH (directly feeds verdict-generating agent), MEDIUM\
+  \ (routing layer), LOW (documentation)\n5. Produce `./tmp/sycophancy-audit-map.json`\
+  \ with locations, current text, risk classification, and recommended remediation\
+  \ pattern\n\nDependencies: None (pure read-only)\n\n### Phase 2: Reference Card\
+  \ Updates — Sycophancy-Awareness Layer (Estimated: 1 session)\n\nTasks:\n1. Add\
+  \ **dark-prose-009 (Sycophancy-Awareness Layer)** to `250-dark-prose-reference.md`:\n\
+  \   - Mechanism: identity-frame prose creates directional priming that RLHF agreement-bias\
+  \ amplifies toward PASS\n   - Formula (proposed):\n     ```\n     [Identity-frame]\
+  \ WITHOUT [sycophancy guard] means [defect type].\n     [Sycophancy vector]: [specific\
+  \ text pattern] primes for [direction] bias.\n     [Guard]: [professional standard]\
+  \ means [evidence-anchored output], NOT [preferred-verdict output].\n     [Bright-line]:\
+  \ Persona text MUST NOT signal a preferred verdict direction. If a persona description\
+  \ reads as implying \"you should find X,\" it IS a sycophancy vector.\n     ```\n\
+  \   - Selection matrix rows for: persona creation, skill Overview/Persona, task\
+  \ Purpose, guideline enforcement blocks\n   - Anti-pattern: directional priming\
+  \ — text that signals a preferred PASS or FAIL outcome\n\n2. Add **dist-shift-009\
+  \ (Sycophancy-Direction Neutralizer)** to `255-distribution-shifting-reference.md`:\n\
+  \   - Mechanism: pairs every identity-frame statement with a calibration clause\
+  \ that equalizes perplexity of PASS and FAIL completions\n   - Formula (proposed):\n\
+  \     ```\n     [Persona/identity statement] — this defines [role standard], NOT\
+  \ [preferred output direction].\n     [Neutralizer clause]: Evidence determines\
+  \ verdict, not [implied preference from role].\n     [Perplexity guard]: A [PASS\
+  \ completion] and a [FAIL completion] must have equal structural fluency in this\
+  \ context. If one is structurally easier, the persona is directionally primed.\n\
+  \     ```\n   - Selection matrix rows: persona sections, skill Overview, task Purpose,\
+  \ guideline enforcement blocks\n   - Anti-pattern: structural asymmetry where PASS\
+  \ is a shorter/more natural completion than FAIL\n\n3. Add **p-dis-007 (Sycophancy-Vector\
+  \ Detection)** to `257-procedural-discipline-reference.md`:\n   - Mechanism: procedural\
+  \ gate that prevents directional priming in persona/identity construction\n   -\
+  \ Formula (proposed):\n     ```\n     [Location]: [persona/identity section] MUST\
+  \ pass the sycophancy-direction test.\n     [Direction test]: Replace the persona\
+  \ with its opposite (adversarial→lenient, strict→permissive, gatekeeper→facilitator).\
+  \ If the output would shift predictably, the original is directionally primed.\n\
+  \     [Correction]: [neutralized persona that defines role standard without verdict\
+  \ preference].\n     ```\n   - Controlled vocabulary additions: \"directionally\
+  \ primed\" (prohibited pattern), \"sycophancy-neutral\" (mandatory standard)\n \
+  \  - Selection matrix rows: any location using persona or identity-frame construction\n\
+  \n4. Update 250 §2 Pattern Selection Matrix, 255 §2 Pattern Selection Matrix, 257\
+  \ §2 Pattern Selection Matrix\n\nDependencies: Phase 1 complete\n\n### Phase 3:\
+  \ Remediation — High-ROI Targets (Estimated: 1 session per target)\n\nPriority targets\
+  \ from audit map — apply reference card patterns:\n1. **Auditor personas** (`adversarial-audit/SKILL.md`\
+  \ Persona section): Replace directional priming (\"adversarial\" implies \"find\
+  \ failures\") with sycophancy-neutral role definition\n2. **Verification-before-completion\
+  \ SKILL.md** Persona: \"Verification Gatekeeper\" persona implies blocking — may\
+  \ prime toward unnecessary FAIL; evaluate and remediate\n3. **cross-validate.md\
+  \ Step 6**: Expand sycophancy exploitation detection to cover persona-context-as-vector\n\
+  4. **Task and SKILL.md purpose statements**: Review for consequence-assertion clauses\
+  \ that imply preferred verdict direction\n\nDependencies: Phase 2 complete\n\n###\
+  \ Phase 4: Behavioral Enforcement Tests (Estimated: 1 session)\n\n1. Create test\
+  \ scenario with two prompt variants:\n   - **Identity-framed**: Current persona\
+  \ text (\"You are an adversarial auditor...\")\n   - **Neutral**: Same task but\
+  \ persona replaced with neutral description\n2. Run both variants through clean-room\
+  \ `opencode-cli run` with a test codebase containing known defects\n3. Compare PASS/FAIL\
+  \ ratio: if identity-framed variant produces significantly different calibration,\
+  \ remediation is incomplete\n4. Assertion: Chi-square test p > 0.05 (no significant\
+  \ difference)\n\nDependencies: Phase 3 complete\n\n---\n\n## Documentation Sources\n\
+  \n- `https://arxiv.org/abs/2310.13548` — Anthropic: Discovering Language Model Behaviors\
+  \ with Model-Written Evaluations (sycophancy baseline)\n- `https://arxiv.org/abs/2502.08177`\
+  \ — SycEval: Evaluating LLM Sycophancy (27k interactions, 58% capitulation rate)\n\
+  - `https://www.science.org/doi/10.1126/science.aec8352` — Stanford/MIT: Sycophantic\
+  \ AI decreases prosocial intentions (March 2026, AI endorses user positions 49%\
+  \ more than humans)\n- `https://tianpan.co/blog/2026-04-20-sycophancy-trap-ai-validation`\
+  \ — The Sycophancy Trap: AI validation tools agreeing when they should push back\n\
+  - `https://inspectagents.com/blog/ai-sycophancy-agreement-bias/` — AI Sycophancy:\
+  \ When Your AI Agent Agrees With Wrong Answers\n\n---\n\n## SC Enforcement Gate\n\
+  \n**This spec requires ALL success criteria to pass before implementation is complete.**\
+  \ Any single FAIL blocks the gate. Remediation must re-verify against all SCs. No\
+  \ partial delivery.\n\n<br>\n\n\U0001F916 Co-authored with AI: OpenCode (deepseek-v4-flash)"
+created_at: '2026-05-26T17:38:03Z'
+updated_at: '2026-08-25T06:47:15Z'
+remote_issue: 920
+remote_url: https://github.com/michael-conrad/.opencode/issues/920
+promoted_at: '2026-08-27T03:25:12.334300+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.334300+00:00'
+author: michael-conrad

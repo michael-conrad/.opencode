@@ -1,0 +1,91 @@
+number: 889
+title: '[SPEC-FIX] Agent failed to install project-local tooling per 085 mandate'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## [SPEC-FIX] Agent failed to install project-local tooling per 085 mandate
+
+
+  ### Problem
+
+
+  When needing Node.js to write a TypeScript unit test for a plugin change, the agent
+  deliberated about whether to install Node.js project-locally instead of just doing
+  it. The agent asked the user "how should we proceed?" — treating the install as
+  a decision to escalate instead of an already-authorized action.
+
+
+  `085-project-local-tools.md` explicitly permits project-local Node.js at `.tools/node/`
+  per `020-go-prohibitions.md` §4.5. The agent''s own guidelines already authorize
+  this action — no escalation was needed.
+
+
+  ### Root Cause
+
+
+  The agent''s decision-heuristic treats any technical action that is "not explicitly
+  in the current task" as requiring escalation. The mandate in `085-project-local-tools.md`
+  and `020-go-prohibitions.md` §4.5 is clear ("the agent MAY install them project-locally")
+  but the agent does not integrate this authorization into its task-execution model
+  when facing an unfamiliar constraint (no existing `.tools/node/`).
+
+
+  ### Fix
+
+
+  Two changes needed:
+
+
+  **A) `085-project-local-tools.md` — Add brightline: "Agent MUST NOT deliberate about
+  installing permitted project-local tools. If a tool is needed for the current task
+  and permitted by this guideline, install it immediately. Escalation is for infrastructure
+  failures, not authorization gaps."**
+
+
+  **B) `020-go-prohibitions.md` §4.5 (or cross-reference) — Add an ALWAYS DO entry:
+  "When a project-local tool is needed for the current task and is permitted by 085,
+  install it immediately. Do NOT ask for permission."**
+
+
+  ### Success Criteria
+
+
+  - SC-1: `085-project-local-tools.md` contains brightline language stating the agent
+  MUST NOT deliberate about installing permitted project-local tools — install immediately.
+
+  - SC-2: `020-go-prohibitions.md` §4.5 (or related section) contains ALWAYS DO entry
+  confirming project-local tool install is authorization-free.
+
+
+  ### Evidence
+
+
+  Behavior: During spec #602 (RED phase), the agent had Node.js absent, recognized
+  it needed `tsc` for unit tests, then asked "how should we proceed?" The user had
+  to explicitly direct the agent to install it.
+
+
+  Root: The agent treated the install as a decision to escalate, not a pre-authorized
+  action per `085-project-local-tools.md`.
+
+
+  ### Non-Goals
+
+
+  - Changing the global Node.js prohibition (020 §4)
+
+  - Adding behavioral enforcement tests (deferred to GREEN phase)
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
+created_at: '2026-05-25T15:46:48Z'
+updated_at: '2026-06-12T03:45:34Z'
+remote_issue: 889
+remote_url: https://github.com/michael-conrad/.opencode/issues/889
+promoted_at: '2026-08-27T03:25:12.272857+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.272857+00:00'
+author: michael-conrad

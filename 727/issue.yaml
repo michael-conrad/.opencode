@@ -1,0 +1,240 @@
+number: 727
+title: '[SPEC-FIX] Skill card validator overhaul: metadata fields, online schema ref,
+  dark prose descriptions, semantic audit'
+status: open
+labels:
+- spec-fix
+body: "## Problem\n\nThe skill card validation infrastructure (`validate_skill_cards.py`\
+  \ + `skill-creator validate` task) has four intersecting defects:\n\n**Defect A\
+  \ — Invalid top-level YAML fields.** opencode.ai/docs/skills/ recognizes only `name`,\
+  \ `description`, `license`, `compatibility`, and `metadata` (string-to-string map)\
+  \ at the YAML frontmatter level. Unknown fields are silently ignored. The validator\
+  \ enforces `type` and `provenance` as top-level fields — which opencode ignores.\
+  \ Git-workflow has `provenance: AI-generated (feature-branch push + tip tag context...)`\
+  \ which is an invalid enum value and should live in `metadata` where arbitrary string\
+  \ values are accepted.\n\n**Defect B — No online schema verification.** The validator\
+  \ and validate task never fetch opencode.ai/docs/skills/ to verify what opencode\
+  \ recognizes. The opencode team could add, remove, or rename frontmatter fields\
+  \ and the validator would drift silently. Every validation run should compare against\
+  \ the live schema.\n\n**Defect C — No semantic validation.** Phase 1 of the validate\
+  \ task runs the mechanical script; Phases 3-5 describe agent-driven semantic analysis\
+  \ (cross-skill conflict detection, within-skill consistency, ambiguity detection).\
+  \ Semantic checks exist only as described in the validate.md task file — the script\
+  \ and task do not actually dispatch AI agent auditors to perform semantic analysis\
+  \ of skill cards. Descriptions with wrong intent, conflicting triggers, or misclassified\
+  \ types go undetected until a human reviews.\n\n**Defect D — Descriptions lack identity-framing\
+  \ prose.** Skill descriptions are flat trigger-condition lists. Per 250-dark-prose-reference.md\
+  \ Section 2, routing-layer descriptions should carry goal-hijacking (consequence-assertion)\
+  \ prose to entice the AI agent into using the skill instead of doing work inline.\
+  \ Current descriptions describe *what* the skill does but don't anchor *why* skipping\
+  \ the skill produces defects.\n\n**Defect E — No invocation redirect in SKILL.md\
+  \ body or task cards.** When an agent reads a task card or SKILL.md body directly\
+  \ (bypassing `skill()` or `task()` dispatch), nothing in the content redirects it\
+  \ back to the correct invocation path. The agent proceeds to execute steps inline\
+  \ — defeating orchestration entirely. The redirect must be the first thing the agent\
+  \ reads after the heading, before any procedure content.\n\n## Scope\n\n| Concern\
+  \ | Affected | Change |\n|---------|----------|--------|\n| `type` → `metadata.type`\
+  \ | 35 SKILL.md + ~112 `tasks/*.md` + 3 `reference/*.md` = **~150 files** | Field\
+  \ move |\n| `provenance` → `metadata.provenance` | Same ~150 files | Field move\
+  \ |\n| `metadata.worktree_mode` addition | Same ~150 files | Field addition |\n\
+  | Online schema reference in validator | `validate_skill_cards.py` + `validate.md`\
+  \ | New validation step |\n| Semantic audit phase | `validate.md` (Phases 3-5) +\
+  \ script | New sub-agent dispatch |\n| Description dark prose (routing layer) |\
+  \ All 35 SKILL.md `description` fields | Rewrite per dark-prose-003 |\n| SKILL.md\
+  \ body invocation redirect | All 35 SKILL.md body — first paragraph after heading\
+  \ | New dark-prose redirect prose |\n| Task card body invocation redirect | All\
+  \ ~112 `tasks/*.md` — first paragraph after heading | New dark-prose redirect prose\
+  \ |\n| `metadata:` block addition | All ~150 files | Add `metadata:` block |\n\n\
+  ## Changes Required\n\n### 1. Validator script (`scripts/validate_skill_cards.py`)\n\
+  \n- REQ-1: Remove `type`, `license`, `compatibility` as top-level required fields.\
+  \ opencode docs say `license` and `compatibility` are optional — keep as optional\
+  \ checks but do not flag missing.\n- REQ-1: Add check for `metadata:` block — any\
+  \ extra fields MUST be under `metadata:` not top-level. Flag top-level unknown fields.\n\
+  - REQ-1: Validate `metadata.type`, `metadata.provenance`, `metadata.worktree_mode`\
+  \ against their vocabs if present in metadata.\n- **Discovery scope:** Expand `discover_skill_cards()`\
+  \ to include `tasks/*.md` and `reference/*.md` alongside `*/SKILL.md` and `*/platforms/*/SKILL.md`.\n\
+  - REQ-3: Remove body section check (`## Worktree Mode` heading). Replace with `metadata.worktree_mode`\
+  \ check against `required|optional|not_applicable`.\n- REQ-4: Fold into REQ-1. Remove\
+  \ as separate violation type.\n- REQ-5 (NEW): Fetch opencode.ai/docs/skills/ via\
+  \ HTTP. Parse the **Write Frontmatter** section to determine the recognized field\
+  \ set. Flag drift if the live docs disagree with the validator's hardcoded field\
+  \ set.\n- REQ-6 (NEW): Validate SKILL.md description uses dark-prose-003 consequence-assertion\
+  \ pattern per 250-dark-prose-reference.md §3. Task/reference cards have no `description`\
+  \ field — SC-DESC is NOT_APPLICABLE for them.\n- REQ-7 (NEW): Validate SKILL.md\
+  \ body and task card body begins with invocation redirect prose (not procedure content).\
+  \ The first paragraph after the heading must contain a consequence assertion and\
+  \ an explicit invocation string.\n\n### 2. Validate task (`tasks/validate.md`)\n\
+  \n- **Phase 1** (mechanical): Run validate_skill_cards.py as before. Collect violations\
+  \ in YAML.\n- **Phase 2** (content fix): Fix mechanical violations (metadata field\
+  \ moves, worktree_mode values, invocation redirect presence).\n- **Phase 3** (online\
+  \ schema fetch): Before mechanical checks, fetch opencode.ai/docs/skills/. Cache\
+  \ result for the run.\n- **Phase 4** (semantic audit — NEW): Dispatch AI agent sub-agents\
+  \ to read each skill card and verify semantic criteria (SC-DESC through SC-CONSISTENT\
+  \ below). Produce structured YAML verdicts per card (not JSON). SC-DESC is NOT_APPLICABLE\
+  \ for task/reference cards (no description field).\n- **Phases 5-7** (existing Phases\
+  \ 3-5 renumbered): Cross-skill conflict detection, within-skill conflict detection,\
+  \ ambiguity detection — unchanged in structure, but their findings are now informed\
+  \ by Phase 4's semantic verdicts. All result contracts in YAML.\n- **Phase 8** (presentation):\
+  \ Auto-fix mechanical findings immediately. Present semantic findings (conflicts,\
+  \ ambiguities, dark prose failures, missing invocation redirects) to developer one\
+  \ at a time per existing protocol.\n\n### 3. Semantic audit result contract format\
+  \ (YAML, not JSON)\n\nAll result contracts between the validate task and its sub-agents\
+  \ MUST use YAML, not JSON. This includes:\n\n- Semantic audit verdicts per card\n\
+  - Cross-skill conflict detection findings\n- Within-skill conflict findings\n- Ambiguity\
+  \ detection findings\n- Phase 8 presentation data\n\n**YAML contract format for\
+  \ semantic audit verdicts:**\n\n```yaml\nskill_name: adversarial-audit\nfile_path:\
+  \ skills/adversarial-audit/SKILL.md\nresult: PASS\ncriteria:\n  - id: SC-DESC\n\
+  \    result: PASS\n    note: \"Description uses dark-prose-003 identity-anchoring\
+  \ with consequence assertion\"\n  - id: SC-TRIGGER\n    result: PASS\n    note:\
+  \ \"Trigger keywords match skill body — adversarial audit, audit, spec audit, cross-validate\"\
+  \n  - id: SC-TYPE\n    result: PASS\n    note: \"metadata.type: discipline-enforcing\
+  \ — correct for an enforcement skill\"\n  - id: SC-WORKTREE\n    result: FAIL\n\
+  \    note: \"metadata.worktree_mode: required — skill uses sub-agent task() dispatch\
+  \ but no local file ops; should be optional\"\n  - id: SC-UNIQUE\n    result: PASS\n\
+  \    note: \"No overlap with other audit skills — only adversarial auditor in deck\"\
+  \n  - id: SC-CONSISTENT\n    result: PASS\n    note: \"Overview, tasks, and protocol\
+  \ all consistent\"\n  - id: SC-INVOCATION\n    result: PASS\n    note: \"SKILL.md\
+  \ body has invocation redirect prose with consequence assertion and explicit skill()\
+  \ invocation\"\n```\n\n**YAML contract format for cross-skill conflicts:**\n\n```yaml\n\
+  conflict_type: TRIGGER_OVERLAP\nskills:\n  - writing-plans\n  - spec-creation\n\
+  shared_triggers:\n  - spec\n  - plan\ndifferentiation: \"writing-plans triggers\
+  \ on approved plan; spec-creation triggers on spec creation\"\nseverity: medium\n\
+  resolution: \"Narrow spec-creation to trigger only on spec creation events, not\
+  \ plan events\"\n```\n\nThe `--json` flag on the validator script changes to `--yaml`.\
+  \ The validator's exit codes remain: 0 = all pass, 1 = any fail, 2 = script error.\n\
+  \n### 4. SKILL.md frontmatter migration (all ~35 SKILL.md + ~112 tasks/*.md + 3\
+  \ reference/*.md)\n\nCurrent (SKILL.md):\n```yaml\ntype: discipline-enforcing\n\
+  license: MIT\nprovenance: AI-generated\ncompatibility: opencode\n```\n\nCurrent\
+  \ (tasks/*.md):\n```yaml\ntype: discipline-enforcing\n```\n\nNew (all cards):\n\
+  ```yaml\nmetadata:\n  type: \"discipline-enforcing\"\n  provenance: \"AI-generated\"\
+  \n  worktree_mode: \"required\"\n```\n\nThe `metadata:` block uses YAML inline mapping\
+  \ with quoted string values. The `type`, `provenance`, and `worktree_mode` keys\
+  \ are local taxonomy fields that live inside the opencode-recognized `metadata`\
+  \ container.\n\nSkills that already have `license`, `compatibility` at top level\
+  \ → keep them (opencode recognizes them). Task/reference cards rarely have these\
+  \ — no action needed.\n\n### 5. Description dark prose (35 SKILL.md only — NOT task/reference\
+  \ cards)\n\nPer 250-dark-prose-reference.md §2 Pattern Selection Matrix row \"Routing\
+  \ layer descriptions (skills INDEX.md)\":\n\n**Pattern:** Goal hijacking — consequence-assertion\
+  \ variant (dark-prose-003), strong intensity.\n\n**Formula (dark-prose-003):**\n\
+  ```\n[Action without gate] produces [defect type].\n[Defect type] means [impact\
+  \ on consumer].\nEvery [artifact] without [gate] carries [defect characterization].\n\
+  ```\n\nThe task implementor reads 250-dark-prose-reference.md §3 for the full formula\
+  \ and §2 for routing-layer selection. Each description must:\n1. Name the trigger\
+  \ condition (\"Use when ...\")\n2. Assert consequence of bypass — what defect the\
+  \ agent produces by doing the work inline instead of calling the skill\n3. Anchor\
+  \ professional identity — what the agent is when it uses the skill vs. what it produces\
+  \ when it doesn't\n\nThe implementing agent derives exact prose per skill autonomously\
+  \ — no copy-paste templates.\n\n### 6. SKILL.md body invocation redirect (all 35\
+  \ SKILL.md)\n\nThe body of every SKILL.md must begin with invocation redirect prose\
+  \ as the **first paragraph after the heading**, before any Overview, Persona, Tasks\
+  \ table, or procedure content. This ensures the agent reads the redirect signal\
+  \ before any executable instructions.\n\n**Pattern:** dark-prose-003 consequence-assertion\
+  \ + identity anchor + explicit invocation.\n\n**Template:**\n```\n# Skill Name\n\
+  \nEvery [skill action performed outside] a [invocation method call] means every\
+  \ [verification gate] in the pipeline was bypassed — [impact]. Professional agents\
+  \ [correct action]; amateurs [bypass action].\n\nInvocation: `skill({name: \"<skill-name>\"\
+  })`\n```\n\n**Example for spec-creation:**\n```markdown\n# Spec Creation\n\nEvery\
+  \ spec written outside a `skill()` call means every verification gate\nin the creation\
+  \ pipeline was bypassed — unverified specs become plans that\nimplement wrong solutions.\
+  \ Professional agents load skills; amateurs inline.\n\nInvocation: `skill({name:\
+  \ \"spec-creation\"})`\n```\n\n**Example for git-workflow:**\n```markdown\n# Skill:\
+  \ git-workflow\n\nEvery branch operation performed outside a `skill()` call means\
+  \ pre-work checks,\nsubmodule state verification, and branch enforcement gates are\
+  \ all bypassed —\nuntracked state enters the repo undetected. Professional engineers\
+  \ invoke skills;\namateurs skip gates.\n\nInvocation: `skill({name: \"git-workflow\"\
+  })`\n```\n\nThe implementing agent derives exact prose per skill autonomously from\
+  \ the dark-prose-003 formula — no copy-paste templates.\n\n### 7. Task card body\
+  \ invocation redirect (all ~112 tasks/*.md)\n\nThe body of every task card must\
+  \ begin with invocation redirect prose as the **first paragraph after the heading**,\
+  \ before any procedure content. This addresses the scenario where an agent reads\
+  \ the task file directly instead of being dispatched via `task()`.\n\n**Pattern:**\
+  \ dark-prose-003 consequence-assertion + confirmshaming identity anchor + explicit\
+  \ invocation.\n\n**Template:**\n```\n# Task Name\n\nEvery [task-name] performed\
+  \ outside a `task()` dispatch means every verification gate\nin the pipeline downstream\
+  \ was silently bypassed — [impact]. Professional orchestrators\ndispatch; amateurs\
+  \ inline.\n\nDo not execute these steps inline. Return a structured result contract\
+  \ via YAML.\nInvocation: `task(subagent_type=\"general\", prompt=\"execute <task-name>\
+  \ task from <skill-name>\")`\n```\n\n**Example for spec-creation decompose:**\n\
+  ```markdown\n# Decompose\n\nEvery decomposed task read outside a `task()` dispatch\
+  \ means every verification gate\nin the pipeline downstream was bypassed — undetected\
+  \ decomposition defects propagate\ninto plans that build on wrong abstractions.\
+  \ Professional orchestrators dispatch;\namateurs inline.\n\nDo not execute these\
+  \ steps inline. Return a structured result contract via YAML.\nInvocation: `task(subagent_type=\"\
+  general\", prompt=\"execute decompose task from spec-creation\")`\n```\n\nTask cards\
+  \ that reference external steps or tools should also include a `worktree_mode` note\
+  \ in the invocation prose if the parent skill needs it.\n\n### 8. Semantic audit\
+  \ criteria (NEW)\n\n| Criterion | Applies To | PASS Condition |\n|-----------|-----------|---------------|\n\
+  | SC-DESC | SKILL.md only | Description uses dark-prose-003 identity-anchoring (not\
+  \ flat noun phrase). Task/reference cards: NOT_APPLICABLE |\n| SC-TRIGGER | All\
+  \ | Trigger keywords accurately reflect card's actual purpose (reading content,\
+  \ not guessing) |\n| SC-TYPE | All | `metadata.type` value correctly classifies\
+  \ the card's concern |\n| SC-WORKTREE | All | `metadata.worktree_mode` correctly\
+  \ reflects whether card does file/bash/git ops |\n| SC-UNIQUE | All | No other card\
+  \ has overlapping trigger keywords without differentiation |\n| SC-CONSISTENT |\
+  \ All | Overview, tasks, and operating protocol don't contradict each other |\n\
+  | SC-INVOCATION | SKILL.md + task cards (not reference) | Body begins with invocation\
+  \ redirect prose containing consequence assertion + explicit invocation string.\
+  \ Reference cards (reference/*.md): NOT_APPLICABLE |\n\nSemantic audit findings\
+  \ are structured YAML (PASS/FAIL per criterion per card). Auto-fixable findings\
+  \ (wrong type, missing worktree_mode) are applied immediately. Conflicts and ambiguities\
+  \ are presented to developer per existing Phase 6 protocol.\n\n### 9. Online schema\
+  \ reference\n\nAdd to validate.md Phase 3: Before any mechanical checks:\n1. Fetch\
+  \ `https://opencode.ai/docs/skills/` via HTTP\n2. Parse the **Write Frontmatter**\
+  \ section for list of recognized fields\n3. Compare against validator's known field\
+  \ set\n4. Flag drift:\n   - If live docs recognize fewer fields than validator expects\
+  \ → REMOVED-FIELD warning\n   - If live docs recognize more fields than validator\
+  \ knows → NEW-FIELD info\n5. Cache the result for the run (don't re-fetch per card)\n\
+  \nNetwork fetch failure is non-fatal — skip the check and continue with hardcoded\
+  \ set.\n\n### 10. Enforcement test updates\n\n- Add behavioral tests for new validator\
+  \ features (REQ-5, REQ-6, REQ-7)\n- Add content-verification test for metadata field\
+  \ structure\n- Add behavioral test for invocation redirect presence in SKILL.md\
+  \ body and task cards\n\n## Success Criteria\n\n| SC | Criterion | Verification\
+  \ |\n|----|-----------|-------------|\n| SC-1 | Validator no longer flags top-level\
+  \ `type`/`provenance` as required | Run on current cards → 0 REQ-1 violations for\
+  \ missing type/provenance |\n| SC-2 | Validator accepts `metadata.type`/`metadata.provenance`/`metadata.worktree_mode`\
+  \ | Run on migrated card → PASS |\n| SC-3 | Validator fetches opencode.ai/docs/skills/\
+  \ and compares field set | Run with network → logs field set; run without → graceful\
+  \ skip (not failure) |\n| SC-4 | Semantic audit produces structured YAML FAIL for\
+  \ non-dark-prose descriptions | Run semantic audit phase → at least 1 FAIL per non-compliant\
+  \ description in YAML output |\n| SC-5 | All ~150 files have `metadata:` block with\
+  \ at least `type` and `worktree_mode` | `grep -c '^metadata:' .opencode/skills/*/SKILL.md\
+  \ .opencode/skills/*/tasks/*.md .opencode/skills/*/reference/*.md` = ~150 |\n| SC-6\
+  \ | Each SKILL.md description contains dark-prose-003 consequence-assertion | Semantic\
+  \ audit SC-DESC passes for each SKILL.md |\n| SC-7 | All result contracts use YAML,\
+  \ not JSON | No `.json` extension, no `json.dumps`, no `--json` flag — only `.yaml`\
+  \ / `yaml.dump` / `--yaml` |\n| SC-8 | Each SKILL.md body begins with invocation\
+  \ redirect prose | Semantic audit SC-INVOCATION passes for each SKILL.md |\n| SC-9\
+  \ | Each task card body begins with invocation redirect prose | Semantic audit SC-INVOCATION\
+  \ passes for each task card |\n| SC-10 | Validator discovers tasks/ and reference/\
+  \ alongside SKILL.md | `discover_skill_cards()` returns .md files from all three\
+  \ locations |\n\n## Risk Analysis\n\n| Risk | Likelihood | Mitigation |\n|------|-----------|------------|\n\
+  | opencode schema changes mid-work | Low | Online fetch catches drift immediately\
+  \ |\n| YAML `metadata:` key nesting not parsed by opencode skill loader | Low |\
+  \ opencode docs confirm `metadata` is string-to-string map; YAML parsing handles\
+  \ this. Test with one card before bulk apply |\n| ~300 files modified across 150\
+  \ cards + invocation redirect creates merge conflicts | High | Batch into atomic\
+  \ items: one item per skill (SKILL.md + its task cards), single stacked commit per\
+  \ item. Do NOT parallelize across branches |\n| Semantic audit produces false positives\
+  \ on initial pass | Medium | Initial pass is informational — semantic findings presented\
+  \ to developer, not auto-fixed |\n| Description dark prose rewrite changes discoverability\
+  \ | Medium | Keep `Use when...` trigger phrase in every description; dark prose\
+  \ is added to the existing trigger text, not replacing it |\n| Invocation redirect\
+  \ adds noise to task cards for skilled agents | Low | The redirect is a single paragraph\
+  \ — negligible overhead for correct usage, critical redirect for bypass scenarios\
+  \ |\n| YAML dep in PEP 723 script (`PyYAML` or `ruamel.yaml`) | Low | Add to `dependencies\
+  \ = []` in script header; `PyYAML` is pure Python and widely available |\n| git-workflow\
+  \ provenance value has parenthetical context | Low | Move to `metadata.provenance_context:\
+  \ \"feature-branch push + tip tag context; tag layers: <parent>/<issue>...\"` separate\
+  \ from the enum value |\n\n## Exclusions\n\n- `080-code-standards.md` references\
+  \ to `type`/`provenance` fields — update as admin sync per authority-source-003\
+  \ (docs follow code)\n- Non-skill-card file validation (guidelines, config files)\n\
+  - Guideline file (`guidelines/*.md`) frontmatter — different schema, not part of\
+  \ skill deck\n"
+created_at: '2026-05-19T19:31:16Z'
+updated_at: '2026-07-01T16:13:03Z'
+remote_issue: 727
+remote_url: https://github.com/michael-conrad/.opencode/issues/727
+promoted_at: '2026-08-27T03:25:11.964380+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.964380+00:00'
+author: michael-conrad

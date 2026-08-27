@@ -1,0 +1,18 @@
+number: 991
+title: '[Phase 1.5] read command: YAML output with --type full|comments|labels|links|all'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '**Parent Plan:** #985
+
+
+  Phase 1.5 — read command: YAML output with --type full|comments|labels|links|all'
+created_at: '2026-06-02T05:09:54Z'
+updated_at: '2026-06-12T03:45:31Z'
+remote_issue: 991
+remote_url: https://github.com/michael-conrad/.opencode/issues/991
+promoted_at: '2026-08-27T03:25:12.466642+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.466642+00:00'
+author: michael-conrad

@@ -1,0 +1,43 @@
+number: 2361
+title: '[SPEC] Condense opencode.jsonc — remove procedural files from instructions
+  array'
+status: open
+labels: []
+body: '## Problem
+
+  `.opencode/opencode.jsonc` instructions array preloads 12 Tier 1 guideline files
+  + AGENTS.md + INDEX.md into orchestrator context (~54k-80k tokens) before the user''s
+  first prompt. After per-guideline condensation, the array must reference only the
+  slimmed safety-critical cores.
+
+
+  ## Scope
+
+  - **In:** Remove the 12 guideline files from the instructions array after each is
+  slimmed; replace with the retained safety-critical cores (which stay in the same
+  files). Update the WARNING comment to reflect the condensed set.
+
+  - **Out:** Removing 000-critical-rules.md (stays preloaded). Relying on INDEX.md
+  alone.
+
+
+  ## Approach
+
+  After each guideline condensation spec merges, prune the corresponding entry from
+  the instructions array. The array retains the safety-critical cores of 000-critical-rules
+  + the slimmed cores of the other 11. INDEX.md remains Tier 2+ routing only.
+
+
+  ## Impact
+
+  Risk: #497 regression if cores removed from orchestrator context. Mitigation: cores
+  stay preloaded; this spec only removes the procedural sections already relocated
+  to skill cards. Depends on all 12 guideline condensation specs. Action: approve.'
+created_at: '2026-08-27T03:14:37Z'
+updated_at: '2026-08-27T03:14:37Z'
+remote_issue: 2361
+remote_url: https://github.com/michael-conrad/.opencode/issues/2361
+promoted_at: '2026-08-27T03:25:12.678924+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.678924+00:00'
+author: michael-conrad

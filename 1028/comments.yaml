@@ -1,0 +1,82 @@
+comments:
+- body: '## Cross-Validator Impact Assessment
+
+
+    The cross-validate step (step 11) reads both auditor verdicts and produces a consensus
+    finding. With the new directory layout, it needs the following changes:
+
+
+    ### Current Behavior
+
+
+    The cross-validate step reads auditor YAML verdicts — likely from whatever path
+    they were written to. There is no standard convention today for where those verdicts
+    live or how cross-validate discovers them.
+
+
+    ### Required Changes
+
+
+    **1. Verdict discovery path**
+
+    Cross-validate MUST read from `./tmp/verdicts/{issue}/auditor1.yaml` and `./tmp/verdicts/{issue}/auditor2.yaml`.
+    These are the fixed, opaque filenames. No globbing, no enumeration, no model-name
+    matching.
+
+
+    **2. Consensus output location**
+
+    The cross-validate step MUST write its consensus finding to `./tmp/verdicts/{issue}/consensus.yaml`.
+    This preserves the verdicts directory as the single source of post-audit truth.
+
+
+    **3. Read scope**
+
+    Cross-validate MUST read ONLY from `./tmp/verdicts/{issue}/`. It should NOT read
+    from `./tmp/evidence/`, `./tmp/artifacts/pipeline-{issue}/`, or `./tmp/state/`.
+    The consensus is based strictly on reconciling two auditor judgments.
+
+
+    **4. No evidence collection**
+
+    Unlike adversarial auditors, cross-validate does NOT receive `artifact_evidence_dir`
+    or `spec_local_dir`. It only needs the two verdict files and the spec (for reference
+    in case of DISAGREE).
+
+
+    **5. Consensus file naming convention**
+
+    Consensus files use opaque names with no status metadata in the slug:
+
+
+    | File | Convention |
+
+    |------|-----------|
+
+    | Consensus verdict | `./tmp/verdicts/{issue}/consensus.yaml` |
+
+
+    No PASS/FAIL/DISAGREE in filename.
+
+
+    **6. If auditor verdicts not found**
+
+    If `./tmp/verdicts/{issue}/` does not exist, or either `auditor1.yaml`/`auditor2.yaml`
+    is missing, cross-validate MUST return `BLOCKED` with `reason: MISSING_AUDITOR_VERDICTS`.
+
+
+    ### Affected File
+
+
+    | File | Change |
+
+    |------|--------|
+
+    | `adversarial-audit/tasks/cross-validate.md` | Update verdict read paths. Document
+    read scope. Define consensus output path and naming convention. Add MISSING_AUDITOR_VERDICTS
+    check. |
+
+
+    🤖 OpenCode (deepseek-v4-flash)'
+  created_at: '2026-06-05T03:57:01Z'
+  user: michael-conrad

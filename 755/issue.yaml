@@ -1,0 +1,43 @@
+number: 755
+title: 'Phase 9: Update engineering-approach verify-before-complete.md'
+status: open
+labels:
+- needs-approval
+- plan
+- sub-issue
+body: 'Parent: #746
+
+
+  ## Concern
+
+  Engineering verification enforcement layer — final pre-completion gate must include
+  artifact production.
+
+
+  ## Files
+
+  - `skills/engineering-approach/tasks/verify-before-complete.md`
+
+
+  ## Tasks
+
+  1. Read current procedure
+
+  2. Write content-verification test (RED) — Step 1a absent
+
+  3. Insert Step 1a: "Produce saved test run artifact"
+
+  4. Confirm content-verification test passes (GREEN)
+
+
+  ## Dependencies
+
+  - Phase 7, Phase 8 complete'
+created_at: '2026-05-20T17:05:58Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 755
+remote_url: https://github.com/michael-conrad/.opencode/issues/755
+promoted_at: '2026-08-27T03:25:12.031238+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.031238+00:00'
+author: michael-conrad

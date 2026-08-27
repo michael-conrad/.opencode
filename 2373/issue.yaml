@@ -1,0 +1,35 @@
+number: 2373
+title: '[SPEC] Update git-workflow skill — Read-link orchestrator-context-discipline'
+status: open
+labels: []
+body: '## Problem
+
+  Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to
+  a shared reference; git-workflow consumes it.
+
+
+  ## Scope
+
+  - **In:** Add mandatory Read [Text](path) link to orchestrator-context-discipline.md
+  in the git-workflow skill card.
+
+  - **Out:** Losing the context-discipline rules.
+
+
+  ## Approach
+
+  Anchor the shared context-discipline reference via mandatory Read-link.
+
+
+  ## Impact
+
+  Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline
+  ref + 020. Action: approve.'
+created_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-27T03:14:57Z'
+remote_issue: 2373
+remote_url: https://github.com/michael-conrad/.opencode/issues/2373
+promoted_at: '2026-08-27T03:25:12.700721+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.700721+00:00'
+author: michael-conrad

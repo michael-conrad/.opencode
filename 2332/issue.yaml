@@ -1,0 +1,86 @@
+number: 2332
+title: '[SPEC-FIX] Audit DiMo chain conflicting spec-passed-review label ownership
+  leaves review-passed marker on DRAFT/FAIL specs'
+status: open
+labels: []
+body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2332/\n\
+  \n## Problem\n\nThe `audit` skill's spec-audit DiMo chain (Investigator → Validator\
+  \ → Evaluator → Arbiter) has conflicting ownership of the `spec-passed-review` label:\
+  \ the Validator applies it **before any audit verdict exists**, the Evaluator applies\
+  \ it only on its all-PASS branch and treats an already-present one as foreign stale\
+  \ state on its DRAFT branch, and no role in the chain removes it when the final\
+  \ judgment is DRAFT or FAIL. Net effect: a spec that FAILED holistic audit carries\
+  \ a review-passed marker through remediation, poisoning the authorization-state\
+  \ signal the label is supposed to provide.\n\nObserved live this session during\
+  \ spec-audit of NewSRX-Tech-LLC/xBaseJ#62.\n\n## Observed Behavior\n\nLive evidence\
+  \ from the xBaseJ#62 spec-audit run, with card-level confirmation:\n\n1. **Validator\
+  \ applies the label pre-verdict.** `.opencode/skills/audit/tasks/spec-audit-validator.md`\
+  \ Step 0.1 instructs: \"When validation completes successfully, apply the `spec-passed-review`\
+  \ label and remove `spec-under-review`\" — with \"The `spec-passed-review` label\
+  \ indicates the spec has passed audit review\". The Validator runs before the Evaluator\
+  \ produces any verdict; the label was observed on the ticket via live API GET before\
+  \ a verdict existed.\n\n2. **Evaluator returns DRAFT and disowns the label.** The\
+  \ spec-audit-evaluator returned DRAFT (2 holistic FAILs) and reported verbatim:\n\
+  \   > \"`spec-passed-review` NOT applied per DRAFT branch; a pre-existing stale\
+  \ `spec-passed-review` label was observed and left untouched (outside this task's\
+  \ DRAFT-branch contract)\"\n   \n   The evaluator treats the label the Validator\
+  \ just applied as pre-existing stale state. Card-level confirmation: in `spec-audit-evaluator.md`,\
+  \ label transitions exist only in Step 0.1 (apply `spec-under-review`) and the all-11-dimensions-PASS\
+  \ branch (apply `spec-passed-review`, remove `spec-under-review`); the dimension-FAIL\
+  \ path records `holistic_status: DRAFT` with **no** label action.\n\n3. **Arbiter\
+  \ leaves non-PASS tickets unchanged.** The spec-audit-arbiter reported verbatim:\n\
+  \   > \"A FAIL verdict leaves the ticket unchanged pending remediation\"\n   \n\
+  \   `spec-audit-arbiter.md` contains no label operations at all — no role removes\
+  \ `spec-passed-review` on DRAFT/FAIL.\n\n**Net effect:** after the chain completes\
+  \ with final judgment DRAFT, the ticket holds `spec-passed-review` — applied by\
+  \ the Validator, never removed by anyone — while every downstream reader of the\
+  \ label believes review passed.\n\n## Scope\n\n- Reassign single ownership of `spec-passed-review`\
+  \ / `spec-under-review` transitions across the three spec-audit DiMo task cards,\
+  \ keyed on final verdict\n- Add explicit removal behavior for non-PASS terminal\
+  \ states (DRAFT/FAIL) so no review-passed marker survives into remediation\n- Remove\
+  \ the Validator's premature pre-verdict application (Step 0.1 of `spec-audit-validator.md`)\n\
+  - Align the Arbiter result contract so the final judgment drives exactly one authoritative\
+  \ label-transition directive\n- Behavioral enforcement coverage for the corrected\
+  \ label-state machine\n\n**Out of scope:**\n- Implementing the fix (this issue reports\
+  \ the defect and records direction only)\n- Remediation of NewSRX-Tech-LLC/xBaseJ#62\
+  \ itself (handled separately)\n- Label taxonomy renaming or new label definitions\n\
+  - Changes to approval-gate skill logic or the verb-prefix parsing table\n- Mechanical\
+  \ sweep of sibling audit chains sharing the same validator/evaluator template (noted\
+  \ as risk under Impact; separate issue if confirmed)\n\n## Approach\n\nMake the\
+  \ **final verdict the single key** for label transitions. Exactly one owner performs\
+  \ each transition: the Validator's Step 0.1 pre-verdict application is removed (the\
+  \ Validator validates evidence; it does not pass anything to review); `spec-passed-review`\
+  \ is applied only by the Evaluator's all-PASS branch as today; and the DRAFT/FAIL\
+  \ terminal paths gain an explicit removal step for any present `spec-passed-review`.\
+  \ The Arbiter — which already synthesizes the final judgment (`PASS|DRAFT|FAIL`)\
+  \ — emits a label-transition directive in its result contract derived from that\
+  \ judgment, giving downstream automation one authoritative signal instead of three\
+  \ roles making independent assumptions. This direction is recorded for a future\
+  \ SPEC-FIX cycle; nothing is implemented here.\n\n## Impact\n\nTop risks if left\
+  \ unfixed:\n\n1. **Misleading authorization-state signal** — agents and humans routing\
+  \ work by labels see \"review passed\" on specs whose audit verdict was DRAFT/FAIL,\
+  \ enabling wrong approve/implement decisions. *Mitigation until fixed:* treat issue\
+  \ labels as advisory during audits; verify against the arbiter artifact (`final_judgment`\
+  \ field).\n2. **Compounding stale state across remediation loops** — each re-audit\
+  \ re-runs the Validator, re-applying `spec-passed-review` before the next verdict\
+  \ exists, deepening divergence between label state and reality on every cycle. *Mitigation:*\
+  \ manually strip `spec-passed-review` from known affected tickets (xBaseJ#62 today)\
+  \ before their remediation cycles.\n3. **Template-propagated pattern risk** — the\
+  \ same Validator/Evaluator template backs 11+ other audit chains under `.opencode/skills/audit/tasks/`;\
+  \ the premature-application pattern may exist there too. *Mitigation:* audit sweep\
+  \ for `spec-passed-review` / analogous markers across chains during the fix.\n\n\
+  Dependencies: none blocking — the change is confined to `.opencode` deck files plus\
+  \ behavioral tests.\n\nCall to action: triage as SPEC-FIX against the `audit` skill\
+  \ deck.\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
+  \ — Step 0.1 applies `spec-passed-review` pre-verdict\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`\
+  \ — Step 0.1 and PASS-branch transitions; DRAFT branch lacks removal\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md`\
+  \ — non-PASS handling leaves ticket unchanged; no label contract\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (opencode/x-preview-f-free)\n"
+created_at: '2026-08-26T05:10:04Z'
+updated_at: '2026-08-26T14:20:37Z'
+remote_issue: 2332
+remote_url: https://github.com/michael-conrad/.opencode/issues/2332
+promoted_at: '2026-08-27T03:25:12.615659+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.615659+00:00'
+author: michael-newsrx

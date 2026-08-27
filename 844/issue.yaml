@@ -1,0 +1,146 @@
+number: 844
+title: '[PLAN-842] Phase 2: Pre-Work Decomposition'
+status: open
+labels:
+- needs-approval
+- task
+body: 'Phase 2 of #842
+
+
+  ## Objective
+
+
+  Decompose the 3,622-word pre-work monolith into atomic sub-tasks under 3,000 words
+  each. Rewrite pre-work.md as a sequence reference file for orchestrator dispatch
+  (no task() calls). Reconcile submodule references.
+
+
+  **TDD discipline enforced per `091-incremental-build.md`:** Where behavioral tests
+  apply (SC-22: no task() calls in pre-work.md), RED test first. Structural changes
+  (creating task files) use file-existence and grep verification.
+
+
+  ## Sub-Task Breakdown
+
+
+  ### Sub-task 2.1: Create `tasks/pre-work/verify-auth.md` (SC-7)
+
+
+  **GREEN-verify:** Create the file. Write verify-auth.md with dark-prose-002 Purpose:
+  "Authorization verification IS the gate between authorized and unauthorized work.
+  Work without authorization IS unauthorized — period." Entry/exit criteria, procedure,
+  explicit auth check steps.
+
+
+  **REFACTOR:** Verify cross-references align with parent pre-work.md. Verify `wc
+  -w` ≤ 3,000.
+
+
+  ### Sub-task 2.2: Create `tasks/pre-work/sync-dev.md` (SC-7)
+
+
+  **GREEN-verify:** Create the file. Write sync-dev.md with dark-prose-002 Purpose:
+  "Branch sync IS the foundation of clean merges. Stale branches produce merge conflicts
+  — every merge conflict starts with a stale branch." Entry/exit criteria, procedure
+  for syncing dev and submodules.
+
+
+  **REFACTOR:** Verify no stale references to pre-work monolith step numbers. Verify
+  `wc -w` ≤ 3,000.
+
+
+  ### Sub-task 2.3: Create `tasks/pre-work/create-branch.md` (SC-7)
+
+
+  **GREEN-verify:** Create the file. Write create-branch.md with dark-prose-002 Purpose:
+  "Branch creation IS the first implementation act. Code without a branch IS code
+  on the wrong foundation." Entry/exit criteria, procedure for branch creation, naming
+  conventions, submodule tagging.
+
+
+  **REFACTOR:** Verify naming conventions match `115-branch-naming.md` and pair-mode
+  section. Verify `wc -w` ≤ 3,000.
+
+
+  ### Sub-task 2.4: Create `tasks/pre-work/init-env.md` (SC-7)
+
+
+  **GREEN-verify:** Create the file. Write init-env.md with dark-prose-002 Purpose:
+  "Environment initialization IS the prerequisite for reproducible work. Uninitialized
+  submodules produce phantom file states." Entry/exit criteria, procedure for submodule
+  init, dependency setup, srclight index.
+
+
+  **REFACTOR:** Verify submodule commands use `--init` (not `--recursive`) per `060-tool-usage.md`.
+  Verify `wc -w` ≤ 3,000.
+
+
+  ### Sub-task 2.5: Create `tasks/pre-work/report-ready.md` (SC-7)
+
+
+  **GREEN-verify:** Create the file. Write report-ready.md with dark-prose-002 Purpose:
+  "Ready reporting IS the handoff between setup and implementation. Silent starts
+  produce untracked state." Entry/exit criteria, procedure for reporting branch state,
+  submodule status, authorization scope.
+
+
+  **REFACTOR:** Verify report format outputs match what divide-and-conquer expects.
+  Verify `wc -w` ≤ 3,000.
+
+
+  ### Sub-task 2.6: Rewrite pre-work.md as sequence reference file (SC-22, SC-23)
+
+
+  **RED:** Create content-verification test that `grep -c "task(" tasks/pre-work.md`
+  returns 0 and `grep -c "dispatch\|sub-agent\|call task" tasks/pre-work.md` returns
+  0 (SC-22). Test MUST fail because current pre-work.md contains dispatch instructions.
+
+
+  **GREEN:** Rewrite tasks/pre-work.md as a sequence reference file — lists dispatch
+  order and sub-task descriptions, NO `task()` calls, NO dispatch instructions, NO
+  sub-agent invocation language. Orchestrator reads this file for sequence, then dispatches
+  each sub-task individually.
+
+
+  **REFACTOR:** Verify SKILL.md lists each pre-work sub-task individually (SC-23).
+  Verify orchestrator can dispatch each sub-task via separate `task()` calls.
+
+
+  ### Sub-task 2.7: Reconcile submodule sub-agent task references (SC-10)
+
+
+  **GREEN-verify:** Identify all submodule references in SKILL.md that point to non-existent
+  files. Update references to match actual file locations or accurately describe command
+  locations.
+
+
+  **REFACTOR:** Verify no stale references remain with follow-up grep.
+
+
+  ## Success Criteria
+
+
+  - SC-7: Each sub-task file ≤ 3,000 words
+
+  - SC-10: Submodule references match actual file locations
+
+  - SC-22: `grep -c "task(" tasks/pre-work.md` returns 0
+
+  - SC-23: SKILL.md lists individual pre-work sub-tasks
+
+
+  ## Dependencies
+
+
+  None, but ideally after Phase 1 so SKILL.md changes batch.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
+created_at: '2026-05-23T15:15:53Z'
+updated_at: '2026-06-12T03:45:38Z'
+remote_issue: 844
+remote_url: https://github.com/michael-conrad/.opencode/issues/844
+promoted_at: '2026-08-27T03:25:12.174403+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.174403+00:00'
+author: michael-conrad

@@ -1,0 +1,35 @@
+number: 2369
+title: '[SPEC] Update programming-principles skill — Read-link code-standards-shared'
+status: open
+labels: []
+body: '## Problem
+
+  Procedural content from 080-code-standards.md and 090-data-integrity.md will move
+  to shared references; programming-principles consumes them.
+
+
+  ## Scope
+
+  - **In:** Add mandatory Read [Text](path) links to code-standards-shared.md and
+  data-integrity-shared.md in the programming-principles skill card.
+
+  - **Out:** Losing the design/DI/integrity standards.
+
+
+  ## Approach
+
+  Anchor the shared references via mandatory Read-links.
+
+
+  ## Impact
+
+  Enables 080 + 090 condensation. Risk: low. Depends on shared refs + 080/090. Action:
+  approve.'
+created_at: '2026-08-27T03:14:49Z'
+updated_at: '2026-08-27T03:14:49Z'
+remote_issue: 2369
+remote_url: https://github.com/michael-conrad/.opencode/issues/2369
+promoted_at: '2026-08-27T03:25:12.693962+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.693962+00:00'
+author: michael-conrad

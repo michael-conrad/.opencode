@@ -1,0 +1,109 @@
+number: 833
+title: '[SPEC-FIX] Submodule-bump-only PRs are expensive — strengthen prohibition
+  with cost-frame dark prose'
+status: open
+labels:
+- needs-approval
+- spec
+- spec-fix
+body: "## Problem\n\nThe agent created two standalone submodule-bump-only PRs (#129,\
+  \ #131) in the parent repo (`opencode-config`). Each was rejected by the developer.\
+  \ The agent then created another one after being told not to.\n\nThe existing prohibition\
+  \ against submodule-bump-only PRs is scattered across 5 locations but framed as\
+  \ a procedural \"workflow violation\" — a Tier 3 FLAG with no cost explanation.\
+  \ The agent treats it as a mild convention, not a hard gate. The result: expensive\
+  \ PRs that waste reviewer time, CI minutes, and merge coordination for what amounts\
+  \ to a pointer update that dev absorbs naturally when the submodule PR merges.\n\
+  \n**Root cause:** The enforcement exists but lacks two things:\n1. **Tier upgrade**\
+  \ — Tier 3 (FLAG) is too weak. The agent correctly identified the rule and created\
+  \ the PRs anyway because FLAG doesn't halt.\n2. **Cost-frame dark prose** — The\
+  \ rule says \"workflow violation\" but never explains WHY these PRs are expensive.\
+  \ Without the cost-frame, the agent treats the rule as bureaucratic rather than\
+  \ consequential.\n\n## Proposed Changes\n\n### 1. Upgrade `critical-rules-049` from\
+  \ Tier 3 to Tier 2\n\nFile: `guidelines/000-critical-rules.md`\n\nCurrent Tier 3\
+  \ prose:\n> Standalone Submodule-Only PR Creation During Cleanup — Creating a PR\
+  \ whose sole purpose is to update a submodule pointer during the cleanup pipeline\
+  \ stage.\n\nChange to Tier 2 with cost-frame dark prose (dark-prose-007 Cost-Frame\
+  \ Reformation + dark-prose-003 consequence-assertion):\n\n> **Submodule-Bump-Only\
+  \ PRs Are Expensive** — Creating a parent repo PR that only updates a submodule\
+  \ SHA wastes reviewer time, CI minutes, and merge coordination on a change the submodule\
+  \ PR already delivered. The parent repo absorbs the pointer update naturally when\
+  \ dev merges the submodule PR — no separate PR needed. A submodule-only PR costs\
+  \ the full review pipeline for a one-line diff that corrects itself on the next\
+  \ dev merge. Professional engineers carry the pointer on feature branches during\
+  \ pre-work, not in standalone PRs.\n\n### 2. Strengthen the symbolic rule in `000-critical-rules.md`\n\
+  \nUpdate the existing `critical-rules-049` symbolic rule:\n\n```yaml\n- id: critical-rules-049\n\
+  \  tier: 2  # UPGRADED from Tier 3\n  title: \"Submodule-bump-only PRs are expensive\
+  \ — HALT on parent repo PR with only submodule pointer changes\"\n  conditions:\n\
+  \    all:\n      - \"pipeline_stage in ['pr_creation', 'cleanup']\"\n      - \"\
+  pr_changes_only_submodule == true\"\n      - \"parent_repo_context == true\"\n \
+  \ actions:\n    - HALT\n    - CLOSE_BRANCH_WITH_COMMENT\n    - DELETE_BRANCH\n \
+  \ conflicts_with: [critical-rules-048]\n  requires: []\n  triggers: [git-workflow,\
+  \ pr-creation-workflow]\n  source: \"000-critical-rules.md §critical-rules-049\"\
+  \n```\n\n### 3. Strengthen enforcement gate Step 0.5 (`pr-creation/enforcement-gate.md`)\n\
+  \nCurrent Step 0.5 lacks cost-frame reasoning. Replace the block message with cost-frame\
+  \ dark prose:\n\n```\necho \"BLOCKED: Submodule-bump-only PRs are expensive — HALTed.\"\
+  \necho \"\"\necho \"A parent repo PR that only updates a submodule SHA wastes reviewer\"\
+  \necho \"time, CI minutes, and merge coordination on a change the submodule\"\n\
+  echo \"PR already delivered. The parent repo absorbs the pointer update\"\necho\
+  \ \"naturally when dev merges the submodule PR.\"\necho \"\"\necho \"Submodule pointer\
+  \ updates travel on feature branches during pre-work,\"\necho \"not in standalone\
+  \ PRs. Professional engineers carry the pointer —\"\necho \"they don't ship it in\
+  \ a separate, reviewable unit.\"\necho \"\"\necho \"Close this branch with: 'Submodule\
+  \ SHA already updated by submodule\"\necho \"PR merge. No parent PR needed.' Then\
+  \ delete the branch.\"\n```\n\n### 4. Strengthen `pr-creation-workflow/SKILL.md`\
+  \ line 8\n\nCurrent:\n> **Submodule-bump-only PR block (MANDATORY — parent repo\
+  \ context):** Before creating any PR, check whether the diff contains changes outside\
+  \ `.opencode/`. In a parent repo with `.gitmodules`, a PR that only changes `.opencode/`\
+  \ (submodule pointer bump) is BLOCKED by enforcement gate `pr-workflow-003`. The\
+  \ agent MUST NOT create, propose, or assist in creating a submodule-bump-only PR.\
+  \ This is a CRITICAL GUIDELINE VIOLATION — bypassing this gate results in a HALT.\n\
+  \nReplace with cost-frame dark prose:\n> **Submodule-bump-only PR block (MANDATORY\
+  \ — parent repo context):** Submodule-bump-only PRs are expensive — they waste reviewer\
+  \ time, CI minutes, and merge coordination on a one-line diff that the parent repo\
+  \ absorbs naturally when dev merges the submodule PR. Before creating any PR in\
+  \ a parent repo with `.gitmodules`, check whether the diff contains changes outside\
+  \ the submodule path. If only the submodule pointer changed → HALT. Do NOT create,\
+  \ propose, or assist in creating a submodule-bump-only PR. The pointer update travels\
+  \ on feature branches during pre-work, not in standalone PRs. Professional engineers\
+  \ carry the pointer — they don't ship it separately.\n\n### 5. Strengthen `cleanup/branch-cleanup.md`\
+  \ Step 1.7\n\nCurrent:\n> \U0001F6AB FORBIDDEN: Creating a PR whose sole purpose\
+  \ is to update a submodule pointer (submodule-only PR)\n\nReplace with cost-frame\
+  \ dark prose:\n> \U0001F6AB FORBIDDEN: Creating a submodule-bump-only PR — Submodule-only\
+  \ PRs are expensive. They waste reviewer time, CI minutes, and merge coordination\
+  \ on a change the parent repo absorbs naturally when dev merges the submodule PR.\
+  \ The pointer update travels on feature branches during pre-work, not in standalone\
+  \ reviewable units.\n\n### 6. Add dark prose reference entry (`250-dark-prose-reference.md`)\n\
+  \nIn Section 2 Pattern Selection Matrix, add row:\n\n| Content Being Created/Modified\
+  \ | Apply Pattern(s) | Intensity | Pattern ID |\n|-------------------------------|-----------------|-----------|------------|\n\
+  | Submodule-bump-only PR prohibition (guidelines, enforcement gates, skill task\
+  \ files) | Cost-Frame Reformation | Strong | 007 |\n\n## Affected Files\n\n| File\
+  \ | Change |\n|------|--------|\n| `guidelines/000-critical-rules.md` | Upgrade\
+  \ critical-rules-049 to Tier 2, cost-frame prose |\n| `guidelines/250-dark-prose-reference.md`\
+  \ | Add Pattern Selection Matrix row for submodule-bump PR prohibition |\n| `skills/git-workflow/tasks/pr-creation/enforcement-gate.md`\
+  \ | Replace Step 0.5 block message with cost-frame dark prose |\n| `skills/pr-creation-workflow/SKILL.md`\
+  \ | Replace line 8 with cost-frame dark prose version |\n| `skills/git-workflow/tasks/cleanup/branch-cleanup.md`\
+  \ | Replace Step 1.7 prohibition line with cost-frame dark prose |\n\n## Success\
+  \ Criteria\n\n| ID | Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | critical-rules-049 is Tier 2 with HALT action | string | `grep` for tier\
+  \ change in symbolic rule |\n| SC-2 | critical-rules-049 prose contains cost-frame\
+  \ language (\"reviewer time\", \"CI minutes\", \"merge coordination\", \"absorbs\
+  \ naturally\") | string | `grep` in 000-critical-rules.md |\n| SC-3 | enforcement\
+  \ gate Step 0.5 block message contains cost-frame reasoning | string | `grep` in\
+  \ enforcement-gate.md |\n| SC-4 | pr-creation-workflow SKILL.md line 8 contains\
+  \ cost-frame reasoning (\"expensive\", \"absorbs naturally\") | string | `grep`\
+  \ in SKILL.md |\n| SC-5 | cleanup branch-cleanup Step 1.7 contains cost-frame reasoning\
+  \ | string | `grep` in branch-cleanup.md |\n| SC-6 | 250-dark-prose-reference.md\
+  \ has submodule-bump PR row in Pattern Selection Matrix | string | `grep` in 250-dark-prose-reference.md\
+  \ |\n| SC-7 | Behavioral test: agent declines to create submodule-bump-only PR with\
+  \ cost-frame reasoning | behavioral | `opencode-cli run` scenario |\n\n## Dependencies\n\
+  \nNone — this is a self-contained spec-fix.\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (ollama-cloud/glm-5.1)"
+created_at: '2026-05-23T02:15:13Z'
+updated_at: '2026-07-01T18:11:41Z'
+remote_issue: 833
+remote_url: https://github.com/michael-conrad/.opencode/issues/833
+promoted_at: '2026-08-27T03:25:12.144603+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.144603+00:00'
+author: michael-conrad

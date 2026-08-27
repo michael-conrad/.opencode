@@ -1,0 +1,387 @@
+number: 799
+title: '[SPEC] Binary verification enforcement — no non-PASS statuses across RED/GREEN/VbC/Audit'
+status: open
+labels:
+- needs-approval
+- spec
+body: '## Problem
+
+
+  During RED phase verification for #794 (divide-and-conquer redesign), the behavioral
+  test for SC-14 was written and committed but never executed. The content-verification
+  test was run multiple times; the behavioral test was silently skipped. The agent
+  presented "16 FAIL, 3 PASS, 1 not yet run" as if that was acceptable RED verification
+  — but "not yet run" means unverified, not RED.
+
+
+  This is not a RED-phase-specific problem. The same binary enforcement gap exists
+  at every pipeline stage:
+
+
+  - **RED phase**: Tests must be executed and FAIL (behavior doesn''t exist yet).
+  "Not yet run" is not a RED result — it''s an unverified claim.
+
+  - **GREEN phase**: Tests must PASS with clean behavioral evidence. "Passes on my
+  machine", "passes with infrastructure workaround", "passes with manual override"
+  are not GREEN results — they''re conditional passes that mask defects.
+
+  - **VbC (verification-before-completion)**: Every SC in the evidence table must
+  be PASS or FAIL with remediation. "Not yet run", "skipped", "infrastructure issue",
+  "timeout", "model unavailable", "deferred", "N/A", "inconclusive" are not verification
+  results — they''re FAIL with a different label.
+
+  - **Audits**: Already covered by #762''s hard-fail discipline for auditor verdicts,
+  but the evidence tables auditors review must also enforce binary — no third-category
+  statuses in SC evidence cells.
+
+
+  This violates:
+
+  1. **`critical-rules-060`** — Functional/behavioral test substitution prohibition:
+  no substituting any non-PASS status for PASS/FAIL
+
+  2. **Cost-blind verification mandate** (`020-go-prohibitions.md` §1 ALWAYS DO) —
+  treating test execution as optional/expensive to skip
+
+  3. **`verification-before-completion`** — claiming phase completion without verified
+  evidence for all SCs
+
+  4. **`critical-rules-hard-fail`** — FAIL is a hard gate, never reclassifiable to
+  INCONCLUSIVE, "functionally equivalent", or any other third category
+
+  5. **`080-code-standards.md` §Behavioral RED/GREEN as Primary Enforcement Gate**
+  — behavioral evidence is PRIMARY, structural is SECONDARY
+
+
+  The root causes are:
+
+  - No procedural gate enforces "ALL tests must produce PASS or FAIL before ANY phase
+  is declared complete"
+
+  - The agent treated behavioral test execution as optional at every phase, not just
+  RED
+
+  - The behavioral test prompt for SC-14 doesn''t reliably trigger `divide-and-conquer`
+  skill dispatch — the agent performed a single-file edit inline instead of routing
+  through the skill
+
+  - Verification evidence tables allow non-binary statuses like "not yet run", "skipped",
+  "N/A", "inconclusive" — all of which are FAIL by another name
+
+
+  ## Solution
+
+
+  ### Change 1: Universal Binary Verification Gate — No Non-PASS Statuses
+
+
+  Add an explicit gate across ALL pipeline phases: every test must produce a clean
+  PASS or FAIL result. No intermediate status is valid at any phase completion boundary.
+
+
+  **Binary Enforcement Model:**
+
+
+  There are exactly two valid SC verification states: **clean PASS** and **FAIL with
+  remediation**.
+
+
+  | Status | Classification | Rationale |
+
+  |--------|---------------|-----------|
+
+  | PASS (clean) | PASS | Verified behavioral evidence |
+
+  | "not yet run" | FAIL | Unverified = FAIL by definition |
+
+  | "skipped" | FAIL | Skipped = FAIL by definition |
+
+  | "infrastructure issue" | FAIL | Infrastructure is the agent''s responsibility
+  |
+
+  | "timeout" | FAIL | Timeout = the test didn''t pass |
+
+  | "model unavailable" | FAIL | Model unavailability = the test didn''t pass |
+
+  | "deferred" | FAIL | Deferred = not verified = FAIL |
+
+  | "N/A" | FAIL | Not applicable = not verified = FAIL |
+
+  | "inconclusive" | FAIL | Inconclusive = not conclusive = FAIL |
+
+  | "functionally equivalent" | FAIL | Not an exact match = FAIL |
+
+  | Any status other than clean PASS | FAIL | By definition |
+
+
+  FAIL requires remediation attempt before escalation — per `critical-rules-accountability-ownership`.
+
+
+  **Phase-specific application:**
+
+
+  | Phase | Gate Requirement | What FAIL Means |
+
+  |-------|-----------------|-----------------|
+
+  | RED | All behavioral tests executed and FAIL | Behavior not implemented yet (expected)
+  |
+
+  | GREEN | All behavioral tests executed and PASS with clean evidence | Behavior
+  now works correctly |
+
+  | VbC | Every SC in evidence table is PASS or FAIL with remediation | No unverified
+  claims at completion |
+
+  | Audit | Auditor verdicts are PASS or FAIL (no INCONCLUSIVE) per #762 | Hard-fail
+  discipline enforced |
+
+
+  **File:** `.opencode/skills/verification-before-completion/tasks/verify.md`
+
+
+  Insert a new section "Universal Binary Verification Gate" after the existing verification
+  rule section.
+
+
+  **File:** `.opencode/skills/test-driven-development/SKILL.md` (or task file for
+  RED/GREEN phases)
+
+
+  Add gate language to both RED and GREEN phase descriptions:
+
+  - RED: "All behavioral tests must be executed and FAIL. A behavioral test that has
+  been written but not yet run is NOT a RED result — it is an unverified claim."
+
+  - GREEN: "All behavioral tests must be executed and PASS with clean behavioral evidence.
+  A test that ''passes on my machine'' or ''passes with manual override'' is NOT a
+  GREEN result — it is a conditional pass that masks defects."
+
+
+  **File:** `.opencode/skills/adversarial-audit/SKILL.md` (or relevant task file)
+
+
+  Add cross-reference: evidence tables in audit results enforce binary PASS/FAIL —
+  no SC cell may contain any status other than PASS or FAIL (with remediation). This
+  is consistent with #762''s hard-fail discipline for auditor verdicts and extends
+  it to the evidence artifacts themselves.
+
+
+  **File:** `.opencode/guidelines/080-code-standards.md`
+
+
+  Update the "Behavioral RED/GREEN as Primary Enforcement Gate" section to reference
+  the universal binary gate, not just RED phase.
+
+
+  ### Change 2: Behavioral Test Prompt Guidance
+
+
+  **File:** `.opencode/tests/behaviors/README.md` (or a new section in the behavioral
+  test template)
+
+
+  Add guidance for writing effective behavioral test prompts:
+
+
+  ```
+
+  #### Prompt Design for Skill Dispatch Tests
+
+
+  To reliably trigger skill dispatch, prompts must describe a MULTI-STEP task that
+  maps to the skill''s trigger patterns — not a single-file edit that the agent can
+  inline.
+
+
+  **Effective prompts (trigger skill dispatch):**
+
+  - "Implement the divide-and-conquer pipeline for spec #N with 3 phases" (multi-issue,
+  multi-step)
+
+  - "Orchestrate implementation of the approved plan in #N" (orchestration trigger)
+
+  - "Execute the approved plan for #N, starting with Phase 1" (execution trigger)
+
+
+  **Ineffective prompts (agent may inline):**
+
+  - "Update the SKILL.md description for divide-and-conquer" (single-file edit, no
+  dispatch needed)
+
+  - "Rewrite section X of file Y" (inline edit by nature)
+
+
+  Rule: If the prompt describes work that could be done by a single agent in a single
+  file, it will NOT trigger dispatch. Design prompts that REQUIRE orchestration.
+
+  ```
+
+
+  ### Change 3: SC-14 Behavioral Test Prompt Fix
+
+
+  **File:** `.opencode/tests/behaviors/794-dc-redesign-orchestration.sh`
+
+
+  Update the test prompt from a single-file edit description to a multi-step orchestration
+  trigger:
+
+
+  Before (doesn''t reliably trigger dispatch):
+
+  ```
+
+  "You are working on the opencode-config project. Update the divide-and-conquer SKILL.md
+  to reflect the new redesign where orchestration is the primary routing mechanism
+  and sub-agents handle all file modifications."
+
+  ```
+
+
+  After (reliably triggers dispatch):
+
+  ```
+
+  "You are working on the opencode-config project. A developer has approved spec #794
+  for implementation through PR. The spec requires reorganizing the divide-and-conquer
+  skill files: deleting 11 task files, moving context-passing.md to enforcement/,
+  and rewriting SKILL.md. There are multiple phases with separate concerns. Begin
+  implementation."
+
+  ```
+
+
+  ## Success Criteria
+
+
+  | SC-ID | Criterion | Verification |
+
+  |-------|-----------|-------------|
+
+  | SC-1 | `verify.md` contains a section titled "Universal Binary Verification Gate"
+  that enumerates all non-PASS statuses as FAIL | `grep -c "not yet run" verify.md`
+  after section insertion |
+
+  | SC-2 | `verify.md` gate section enforces exactly two valid SC verification states
+  (clean PASS and FAIL with remediation), classifying all non-PASS statuses as FAIL:
+  "not yet run" = FAIL, "skipped" = FAIL, "infrastructure issue" = FAIL, "timeout"
+  = FAIL, "model unavailable" = FAIL, "deferred" = FAIL, "N/A" = FAIL, "inconclusive"
+  = FAIL, "functionally equivalent" = FAIL, any other = FAIL | Read section content
+  — must enumerate ALL non-PASS statuses as FAIL |
+
+  | SC-3 | `test-driven-development` skill contains gate language for both RED phase
+  (all tests must be executed and FAIL) and GREEN phase (all tests must be executed
+  and PASS with clean evidence) | `grep` for phase-specific gate text |
+
+  | SC-4 | `tests/behaviors/README.md` contains "Prompt Design for Skill Dispatch
+  Tests" section | `grep -c "Prompt Design for Skill Dispatch Tests" README.md` |
+
+  | SC-5 | README.md guidance includes both "Effective prompts" and "Ineffective prompts"
+  examples | Read section content |
+
+  | SC-6 | README.md guidance includes the design rule about single-file edits vs
+  multi-step orchestration | `grep -c "single-file edit" README.md` |
+
+  | SC-7 | `794-dc-redesign-orchestration.sh` prompt describes multi-step orchestration,
+  not single-file edit | Read prompt variable |
+
+  | SC-8 | Behavioral test `794-dc-redesign-orchestration.sh` FAILs on RED (skill
+  dispatch not yet implemented) | `bash .opencode/tests/behaviors/794-dc-redesign-orchestration.sh`
+  |
+
+  | SC-9 | `020-go-prohibitions.md` cost-blind verification section cross-references
+  the universal binary verification gate | `grep` for cross-reference |
+
+  | SC-10 | No SC verification result cell in any evidence table may contain any string
+  other than PASS or FAIL — all intermediate statuses enumerated in Change 1 are classified
+  as FAIL in the verification evidence table | Grep verify.md for the binary enforcement
+  model; verify no third-category status strings are permitted |
+
+  | SC-11 | `adversarial-audit` skill (or relevant task file) contains cross-reference
+  to binary gate for audit evidence tables — consistent with #762 hard-fail discipline
+  | `grep` for binary gate cross-reference in audit files |
+
+  | SC-12 | `080-code-standards.md` "Behavioral RED/GREEN as Primary Enforcement Gate"
+  section references the universal binary gate, not just RED phase | Read section
+  content |
+
+  | SC-13 | GREEN phase gate language explicitly rejects "passes on my machine", "passes
+  with manual override", "passes with infrastructure workaround" as valid GREEN results
+  | `grep` for conditional-pass rejection in TDD skill file |
+
+
+  ## Non-Goals
+
+
+  - Changes to the `794-dc-redesign-content.sh` content-verification test
+
+  - Changes to the divide-and-conquer skill implementation itself (that''s #794)
+
+  - Changes to `with-test-home`, `helpers.sh`, or test infrastructure files
+
+  - Creating new behavioral test scenarios beyond the README guidance
+
+
+  ## Risk Analysis
+
+
+  | Risk | Likelihood | Impact | Mitigation |
+
+  |------|-----------|--------|------------|
+
+  | TDD skill task file location differs from assumed path | Medium | Low — search
+  for actual RED/GREEN phase locations before implementation | Verify file locations
+  before editing |
+
+  | `794-dc-redesign-orchestration.sh` prompt still doesn''t trigger dispatch after
+  update | Medium | Medium — test FAILs as expected in RED, but may need further prompt
+  tuning in GREEN | Monitor GREEN phase test results |
+
+  | RED gate language is too proscriptive for general TDD cycles | Low | Medium —
+  may need refinement for non-behavioral SCs | Gate applies specifically to behavioral
+  SCs, not content-verification |
+
+  | Scope expansion to GREEN/VbC/Audit may overlap with #762 hard-fail discipline
+  | Medium | Low — #762 covers auditor verdict formats; #799 covers evidence table
+  cells and phase gate language | Ensure #799 SCs reference #762''s verdict-level
+  enforcement and add cell-level enforcement as complementary |
+
+
+  ## References
+
+
+  - #794 — divide-and-conquer redesign (parent implementation spec)
+
+  - #762 — Hard Failure Discipline (covers auditor verdict binary enforcement; #799
+  extends to evidence tables and phase gates)
+
+  - #800 — Path-coverage audit (complementary: catches structural-only tests that
+  produce false-positive PASS)
+
+  - `020-go-prohibitions.md` §1 — Cost-blind verification mandate
+
+  - `080-code-standards.md` §Enforcement Test Mandate — behavioral RED/GREEN as primary
+  gate
+
+  - `critical-rules-060` — Functional/behavioral test substitution prohibition (already
+  referenced, now covers ALL phases)
+
+  - `critical-rules-accountability-ownership` — Remediation-first protocol for FAIL
+  states
+
+  - `critical-rules-hard-fail` — FAIL is a hard gate, never reclassifiable
+
+  - Session context: working branch `feature/794-dc-redesign`, behavioral test was
+  written but not run during RED verification
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-21T18:31:27Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 799
+remote_url: https://github.com/michael-conrad/.opencode/issues/799
+promoted_at: '2026-08-27T03:25:12.061623+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.061623+00:00'
+author: michael-conrad

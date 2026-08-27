@@ -1,0 +1,249 @@
+number: 928
+title: '[SPEC] Auditor Swap: Remove 4 auditors, add 3 new model auditors'
+status: open
+labels:
+- needs-approval
+- spec
+- '[SPEC]'
+- approved-for-pr
+body: '## Problem
+
+
+  The current auditor pool has 7 models across 5 families. Four auditors need to be
+  removed (deepseek-v3, glm-5.1, glm-5, kimi-k2) and three new cloud model auditors
+  added (devstral-small-2, gemma4, gpt-oss) to refresh the pool with newer models
+  offering different capability profiles.
+
+
+  Additionally, `opencode.jsonc` has a static model list under `provider.ollama.models`
+  — the three new cloud model auditors are not yet registered there, so opencode won''t
+  be able to select them via the local ollama provider. The 4 removed auditors'' model
+  entries must also be cleaned up to avoid stale config.
+
+
+  ## Rationale (Research Findings)
+
+
+  ### New Models
+
+
+  **devstral-small-2:24b-cloud** (Mistral AI, Apache 2.0)
+
+  - 24B parameters, 256K context, ollama cloud usage level: **low**
+
+  - SWE-bench Verified: **65.8%** — purpose-built agentic coding model (tool use,
+  codebase exploration, multi-file edits)
+
+  - Source: ollama.com/library/devstral-small-2:24b-cloud
+
+
+  **gemma4:31b-cloud** (Google DeepMind, Apache 2.0)
+
+  - 31B dense parameters, 256K context, ollama cloud usage level: **medium**
+
+  - AIME 2026 (no tools): **89.2%** — frontier-level math reasoning
+
+  - LiveCodeBench v6: **80.0%**, GPQA Diamond: **84.3%**, Tau2 agentic: **76.9%**
+
+  - Ranks #3 on Arena AI text leaderboard among open models
+
+  - Source: ollama.com/library/gemma4:31b-cloud, Google DeepMind model card
+
+
+  **gpt-oss:20b-cloud** (OpenAI, Apache 2.0)
+
+  - 20B MoE (MXFP4 quantized), 128K context, ollama cloud usage level: **low**
+
+  - Configurable reasoning effort (low/medium/high), native tool calling and agentic
+  capabilities
+
+  - Source: ollama.com/library/gpt-oss:20b-cloud, openai.com/index/introducing-gpt-oss
+
+
+  ### Models Being Removed
+
+
+  **deepseek-v3 (v3.2:cloud)** — The `auditor-deepseek-v3` card uses `deepseek-v3.2:cloud`.
+  The `auditor-deepseek-flash` card uses `deepseek-v4-flash:cloud` (newer generation),
+  which stays. Removing v3 keeps deepseek family in the pool via v4.
+
+
+  **glm-5:cloud and glm-5.1:cloud** — The glm family is entirely removed.
+
+
+  **kimi-k2.6:cloud** — Removed. No kimi-family substitute.
+
+
+  ## Scope
+
+
+  **Remove** (delete agent card + pool + test + config entries):
+
+  - `auditor-deepseek-v3` (model: `ollama/deepseek-v3.2:cloud`, family: `deepseek`)
+
+  - `auditor-glm-5.1` (model: `ollama/glm-5.1:cloud`, family: `glm`)
+
+  - `auditor-glm-5` (model: `ollama/glm-5:cloud`, family: `glm`)
+
+  - `auditor-kimi-k2` (model: `ollama/kimi-k2.6:cloud`, family: `kimi`)
+
+  - Stale `opencode.jsonc` entries: `deepseek-v3.2:cloud`, `glm-5:cloud`, `glm-5.1:cloud`,
+  `kimi-k2.6:cloud`
+
+
+  **Add** (create agent card + pool + test entries + model config):
+
+  - `auditor-devsstral-small-2` (model: `ollama/devstral-small-2:24b-cloud`, family:
+  `devstral`)
+
+  - `auditor-gemma4` (model: `ollama/gemma4:31b-cloud`, family: `gemma`)
+
+  - `auditor-gpt-oss` (model: `ollama/gpt-oss:20b-cloud`, family: `gpt`)
+
+
+  Resulting pool: 6 models across 6 families (deepseek, devstral, gemma, gpt, mistral,
+  qwen).
+
+
+  ## Files to Modify
+
+
+  | File | Action |
+
+  |------|--------|
+
+  | `.opencode/agents/auditor-deepseek-v3.md` | DELETE |
+
+  | `.opencode/agents/auditor-glm-5.1.md` | DELETE |
+
+  | `.opencode/agents/auditor-glm-5.md` | DELETE |
+
+  | `.opencode/agents/auditor-kimi-k2.md` | DELETE |
+
+  | `.opencode/agents/auditor-devsstral-small-2.md` | CREATE |
+
+  | `.opencode/agents/auditor-gemma4.md` | CREATE |
+
+  | `.opencode/agents/auditor-gpt-oss.md` | CREATE |
+
+  | `.opencode/tests/qualification/qualified-auditor-pool.sh` | Remove 4 entries;
+  add 3 entries |
+
+  | `.opencode/tests/enforcement/agents-content/test-all-auditor-agents.sh` | Remove
+  4 from MODELS array; add 3; update EXPECTED_COUNT |
+
+  | `.opencode/opencode.jsonc` | Remove 4 stale entries (`deepseek-v3.2:cloud`, `glm-5:cloud`,
+  `glm-5.1:cloud`, `kimi-k2.6:cloud`); add 3 new entries (`devstral-small-2:24b-cloud`,
+  `gemma4:31b-cloud`, `gpt-oss:20b-cloud`) |
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | `auditor-deepseek-v3.md` no longer exists in `.opencode/agents/` | `structural`
+  |
+
+  | SC-2 | `auditor-glm-5.1.md` no longer exists in `.opencode/agents/` | `structural`
+  |
+
+  | SC-3 | `auditor-glm-5.md` no longer exists in `.opencode/agents/` | `structural`
+  |
+
+  | SC-4 | `auditor-kimi-k2.md` no longer exists in `.opencode/agents/` | `structural`
+  |
+
+  | SC-5 | `auditor-devsstral-small-2.md` exists with correct frontmatter (mode: subagent,
+  model: ollama/devstral-small-2:24b-cloud, 6 allow + 5 deny) | `structural` |
+
+  | SC-6 | `auditor-gemma4.md` exists with correct frontmatter (mode: subagent, model:
+  ollama/gemma4:31b-cloud, permission block) | `structural` |
+
+  | SC-7 | `auditor-gpt-oss.md` exists with correct frontmatter (mode: subagent, model:
+  ollama/gpt-oss:20b-cloud, permission block) | `structural` |
+
+  | SC-8 | `qualified-auditor-pool.sh` no longer contains old 4 entries; contains
+  3 new entries | `string` |
+
+  | SC-9 | `test-all-auditor-agents.sh` MODELS array updated (removed 4, added 3,
+  EXPECTED_COUNT=6) | `string` |
+
+  | SC-10 | `opencode.jsonc` no longer contains stale entries (`deepseek-v3.2:cloud`,
+  `glm-5:cloud`, `glm-5.1:cloud`, `kimi-k2.6:cloud`); contains new entries (`devstral-small-2:24b-cloud`,
+  `gemma4:31b-cloud`, `gpt-oss:20b-cloud`) | `string` |
+
+  | SC-11 | `resolve-models` returns auditors from new pool (no errors, 2 auditors
+  from different families) | `behavioral` |
+
+
+  ## Implementation Plan
+
+
+  ### Phase 1: Delete old auditor cards
+
+  1. Delete 4 files from `.opencode/agents/`
+
+
+  ### Phase 2: Create new auditor cards (template-based)
+
+  For each new auditor, copy the canonical template from an existing auditor (e.g.,
+  `auditor-deepseek-flash.md`) and replace:
+
+  - Frontmatter `model:` field
+
+  - First line of description
+
+
+  ### Phase 3: Update qualification gate
+
+  Edit `qualified-auditor-pool.sh`: replace 4 old entries with 3 new entries
+
+
+  ### Phase 4: Update content-verification test
+
+  Edit `test-all-auditor-agents.sh`: update MODELS array, update EXPECTED_COUNT
+
+
+  ### Phase 5: Update model provider config
+
+  Edit `opencode.jsonc`: remove 4 stale entries (`deepseek-v3.2:cloud`, `glm-5:cloud`,
+  `glm-5.1:cloud`, `kimi-k2.6:cloud`), add 3 new entries (`devstral-small-2:24b-cloud`,
+  `gemma4:31b-cloud`, `gpt-oss:20b-cloud`)
+
+
+  ### Phase 6: Verify
+
+  1. `bash .opencode/tests/enforcement/agents-content/test-all-auditor-agents.sh`
+  → PASS
+
+  2. `.opencode/tools/resolve-models --orchestrator-model "ollama/deepseek-v4-flash:cloud"`
+  → selects 2 from different families
+
+  3. `grep` on `opencode.jsonc` confirms stale entries removed and new entries present
+
+
+  ## Sub-issues
+
+  - #932 — [SPEC] Auditor Disk-Offload — YAML artifacts on disk, frugal result contracts
+  (stacked on same branch)
+
+
+  ## Labels
+
+  `[SPEC]`, `spec`
+
+
+  🤖 Co-authored with AI: DeepSeek V4 Flash (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-27T02:28:22Z'
+updated_at: '2026-06-12T03:45:33Z'
+remote_issue: 928
+remote_url: https://github.com/michael-conrad/.opencode/issues/928
+promoted_at: '2026-08-27T03:25:12.345743+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.345743+00:00'
+author: michael-conrad

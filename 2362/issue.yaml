@@ -1,0 +1,38 @@
+number: 2362
+title: '[SPEC] Create shared ref: code-standards-shared.md'
+status: open
+labels: []
+body: '## Problem
+
+  `.opencode/guidelines/080-code-standards.md` procedural sections (typing/design
+  prose, DI mandate, print rules, tool-selection-by-file-type, numbering, cross-reference
+  standards, YAML standard) are consumed by programming-principles, skill-creator,
+  test-driven-development, engineering-approach, currently preloaded.
+
+
+  ## Scope
+
+  - **In:** Create `.opencode/reference/code-standards-shared.md`; add mandatory Read-links
+  to the consuming skill cards.
+
+  - **Out:** Re-inlining into each card.
+
+
+  ## Approach
+
+  Extract the procedural sections of 080-code-standards into a shared canonical reference.
+
+
+  ## Impact
+
+  Enables 080 condensation (~9.2k savings). Risk: content loss if cards don''t Read-link.
+  Mitigation: mandatory Read-link convention. Depends on 080 condensation. Action:
+  approve.'
+created_at: '2026-08-27T03:14:38Z'
+updated_at: '2026-08-27T03:14:38Z'
+remote_issue: 2362
+remote_url: https://github.com/michael-conrad/.opencode/issues/2362
+promoted_at: '2026-08-27T03:25:12.681174+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.681174+00:00'
+author: michael-conrad

@@ -1,0 +1,387 @@
+number: 642
+title: '[SPEC] Dark Prose Effectiveness Measurement — behavioral test suite and session
+  analytics'
+status: open
+labels:
+- needs-approval
+- spec
+body: '# [SPEC] Dark Prose Effectiveness Measurement — behavioral test suite and session
+  analytics
+
+
+  ## Prerequisites
+
+
+  - **#627** — Dark Prose Reference Card (defines pattern taxonomy for test assertions)
+
+  - **#641** — Dark Prose Compliance Gate (structural enforcement task)
+
+
+  All pattern-deployment specs (#622, #624, #625, #626, #633, #634, #635, #640) must
+  be implemented first — the measurement suite validates deployed prose, not spec
+  content.
+
+
+  ## Problem
+
+
+  The dark prose weave spans 8+ specs and ~50 files. Behavioral tests exist as success
+  criteria in each spec (SC-8 family, SC-10/14/15/16/17 in #627, etc.) but are written
+  ad-hoc with inconsistent formats, prompts, and assertion patterns. There is no centralized
+  regression suite that proves the weave is working across all domains simultaneously.
+
+
+  Additionally, there is no real-world measurement. The behavioral tests verify synthetic
+  scenarios (prompt → assert response), but they cannot detect:
+
+  - Whether the weave degrades over time as files are edited
+
+  - Whether a new deployment caused unintended regression in a different domain
+
+  - Whether agents actually follow the weave in production sessions versus test scenarios
+
+
+  The opencode SQLite database already logs every session — tool calls, skill dispatches,
+  chat messages, verifications. This data can answer "does the agent follow the weave
+  in practice?" but no tool exists to query it.
+
+
+  ## Solution
+
+
+  Deliver two components in a single spec:
+
+
+  ### Component A: Behavioral Test Suite
+
+
+  A standardized regression test suite under `.opencode/tests/behaviors/dark-prose/`
+  with one test file per behavioral domain, using the existing `helpers.sh` assertion
+  library.
+
+
+  #### Test Registry
+
+
+  Every behavioral SC from every dark prose spec maps to exactly one named test file:
+
+
+  | Test File | Maps To | What It Verifies |
+
+  |-----------|---------|------------------|
+
+  | `01-skill-dispatch.sh` | #622 SC-6 | Agent calls skill() instead of inlining |
+
+  | `02-identity-framed-persona.sh` | #625 SC-5 | Skill description uses identity-frame
+  language |
+
+  | `03-verify-is-completion-decline.sh` | #626 SC-8 | Agent declines to mark complete
+  without verification |
+
+  | `04-halt-at-verify.sh` | #626 SC-8b | Agent runs verification before halting at
+  verify=complete |
+
+  | `05-completion-core-blocked.sh` | #626 SC-8c | Agent blocked from completing without
+  verification PASS |
+
+  | `06-spec-sc-quality.sh` | #633 SC-9 | Spec writing produces PASS/FAIL criteria,
+  not vague lang |
+
+  | `07-ref-card-load-on-skill-edit.sh` | #627 SC-10, SC-15 | Loads reference card
+  before editing skill/guideline |
+
+  | `08-blame-rejection.sh` | #627 SC-14 | Refuses second-person negative characterization
+  |
+
+  | `09-ref-card-on-task-header-edit.sh` | #627 SC-16 | Loads reference card before
+  editing task file header |
+
+  | `10-ref-card-on-tier1-guideline.sh` | #627 SC-17 | Loads reference card before
+  editing Tier 1 guideline |
+
+  | `11-guideline-authority-frame.sh` | #640 SC-1-4 | Guideline prose uses authority
+  frame, not confirmshaming |
+
+  | `12-compliance-gate-fires.sh` | #641 SC-1-10 | Compliance gate task correctly
+  PASS/FAILs known scenarios |
+
+  | `13-no-blame-adjacent-regression.sh` | All specs SC-7 | grep for blame patterns
+  across all deployed files returns 0 |
+
+
+  #### Test Template
+
+
+  Each test file follows the standard format from `.opencode/tests/behaviors/README.md`:
+
+
+  ```bash
+
+  #!/usr/bin/env bash
+
+  source "$(dirname "$0")/../helpers.sh"
+
+
+  OVERALL_RESULT=0
+
+
+  # SC-X: [description]
+
+  test_result=$(bash "$(dirname "$0")/../with-test-home" opencode-cli run ''<prompt>'')
+
+  assert_required_pattern_present "<expected string>" "$test_result" || OVERALL_RESULT=1
+
+  assert_forbidden_pattern_absent "<forbidden string>" "$test_result" || OVERALL_RESULT=1
+
+
+  exit $OVERALL_RESULT
+
+  ```
+
+
+  #### Runner: `run-dark-prose-suite.sh`
+
+
+  A shell script that:
+
+  1. Runs all 13 test files sequentially
+
+  2. Reports PASS/FAIL per test with timing
+
+  3. Exits with non-zero if any test fails
+
+  4. Optionally writes results to `./tmp/dark-prose-suite-results.json` for CI consumption
+
+
+  #### Baseline
+
+
+  The baseline is 100% pass rate across all 13 tests. Any regression means one or
+  more deployed files drifted from the dark prose standard. Investigation protocol:
+
+  - Identify which test(s) failed → identifies which behavioral domain regressed
+
+  - Check recent commits to the target files → identifies which change caused the
+  regression
+
+  - Fix the prose and re-run the suite
+
+
+  ### Component B: Session Analytics Script
+
+
+  A Python script at `.opencode/tools/dark-prose-analytics.py` that queries the opencode
+  SQLite database and reports real-world compliance metrics.
+
+
+  #### Queries
+
+
+  | Metric | What It Measures | SQL Scope |
+
+  |--------|-----------------|-----------|
+
+  | Skill dispatch compliance | % of messages where skill() was called before tool
+  execution | Join messages → tool_calls; check skill() appears before first non-skill
+  tool call |
+
+  | Verification frequency | % of completion events that are preceded by verification-before-completion
+  calls | Search for "verification" in tool calls preceding "complete" or "DONE" in
+  chat output |
+
+  | Blame-adjacent patterns | Count of chat output messages containing blame-adjacent
+  language patterns per #627 SC-11 regex | grep chat_message.content for `(you are
+  (a |an )?...` |
+
+  | Halt compliance | % of HALT messages that include verification evidence or blocked-reason
+  | Count HALT messages that contain evidence artifacts vs bare "HALT" |
+
+  | Identity-frame presence | % of skill-load events where the loaded skill''s Persona
+  contains identity-frame language | Cross-reference loaded skill files against Persona
+  text corpus |
+
+  | Regression trend | Week-over-week change in all metrics above | Group by date
+  range and compare |
+
+
+  #### Output
+
+
+  The script produces:
+
+  1. Summary report (stdout): per-metric compliance percentage and trend
+
+  2. Detailed JSON (`./tmp/dark-prose-analytics.json`): raw query results for CI consumption
+
+  3. On regression detection (any metric drops >10% week-over-week), exit code non-zero
+  with alert message
+
+
+  #### Usage
+
+
+  ```bash
+
+  uv run python .opencode/tools/dark-prose-analytics.py                   # Full report
+
+  uv run python .opencode/tools/dark-prose-analytics.py --metric dispatch  # Single
+  metric
+
+  uv run python .opencode/tools/dark-prose-analytics.py --days 30         # Last 30
+  days only
+
+  uv run python .opencode/tools/dark-prose-analytics.py --trend           # Week-over-week
+  trend
+
+  ```
+
+
+  #### DB Access
+
+
+  The SQLite database path is resolved via XDG state:
+
+  - Primary: `$XDG_STATE_HOME/opencode/opencode.db` (default: `~/.local/share/opencode/opencode.db`)
+
+  - Override: `OPENCODE_DB_PATH` environment variable
+
+
+  The script reads only — no mutations. Queries are SELECT-only with no INSERT/UPDATE/DELETE.
+
+
+  ## Files Changed
+
+
+  New files:
+
+  - `.opencode/tests/behaviors/dark-prose/01-skill-dispatch.sh` — Component A
+
+  - `.opencode/tests/behaviors/dark-prose/02-identity-framed-persona.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/03-verify-is-completion-decline.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/04-halt-at-verify.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/05-completion-core-blocked.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/06-spec-sc-quality.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/07-ref-card-load-on-skill-edit.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/08-blame-rejection.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/09-ref-card-on-task-header-edit.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/10-ref-card-on-tier1-guideline.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/11-guideline-authority-frame.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/12-compliance-gate-fires.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/13-no-blame-adjacent-regression.sh`
+
+  - `.opencode/tests/behaviors/dark-prose/run-dark-prose-suite.sh` — suite runner
+
+  - `.opencode/tools/dark-prose-analytics.py` — Component B
+
+
+  ## Success Criteria
+
+
+  | SC-ID | Criterion | Verification |
+
+  |-------|-----------|-------------|
+
+  | SC-1 | All 13 behavioral test files exist under `.opencode/tests/behaviors/dark-prose/`
+  | glob for `*.sh` returns count >= 13 |
+
+  | SC-2 | Each test file uses helpers.sh assertions (`assert_required_pattern_present`,
+  `assert_forbidden_pattern_absent`) — not bare opencode-cli calls | grep each file
+  for `assert_` usage |
+
+  | SC-3 | `run-dark-prose-suite.sh` exists, is executable, runs all 13 tests, exits
+  non-zero on any failure | `bash run-dark-prose-suite.sh` runs without error; introduce
+  intentional fail → exits non-zero |
+
+  | SC-4 | `run-dark-prose-suite.sh` supports `--json` flag for CI output to `./tmp/`
+  | `bash run-dark-prose-suite.sh --json` produces valid JSON at `./tmp/dark-prose-suite-results.json`
+  |
+
+  | SC-5 | `dark-prose-analytics.py` exists at `.opencode/tools/dark-prose-analytics.py`
+  | glob confirms file exists |
+
+  | SC-6 | `dark-prose-analytics.py --help` prints usage with all flags (`--metric`,
+  `--days`, `--trend`) | `uv run python .opencode/tools/dark-prose-analytics.py --help`
+  produces output containing all 3 flags |
+
+  | SC-7 | `dark-prose-analytics.py` produces summary report with at least 4 of the
+  6 defined metrics | `uv run python .opencode/tools/dark-prose-analytics.py` outputs
+  metric names and percentages |
+
+  | SC-8 | `dark-prose-analytics.py` is read-only — no INSERT/UPDATE/DELETE statements
+  in source | grep for INSERT/UPDATE/DELETE returns 0 |
+
+  | SC-9 | `dark-prose-analytics.py --trend` produces week-over-week comparison output
+  | `uv run python .opencode/tools/dark-prose-analytics.py --trend` produces output
+  containing "week" or "trend" |
+
+  | SC-10 | All deployed dark prose files pass the blame-adjacent regression check
+  (SC-13 equivalent) | `bash .opencode/tests/behaviors/dark-prose/13-no-blame-adjacent-regression.sh`
+  returns 0 |
+
+
+  ## Risk Analysis
+
+
+  | Risk | Likelihood | Impact | Mitigation |
+
+  |------|-----------|--------|------------|
+
+  | SQLite DB schema changes break analytics script | Medium | Medium — script produces
+  empty results | Queries use schema introspection (PRAGMA table_info) to verify expected
+  columns exist before querying |
+
+  | Behavioral tests fail due to model response variance (LLM non-determinism) | High
+  | Medium — flaky tests produce false regressions | Each test runs 3 times with majority-vote
+  pass logic. `run-dark-prose-suite.sh` supports `--tolerance N` flag for permitted
+  retry count. |
+
+  | SQLite DB path differs across platforms | Low | Medium — script can''t find DB
+  | Support `OPENCODE_DB_PATH` env override; search XDG default paths on multiple
+  platforms; graceful failure with path hint |
+
+  | New dark prose specs added without corresponding behavioral test | Medium | Medium
+  — test coverage drifts from deployed weave | `run-dark-prose-suite.sh --check-coverage`
+  compares spec list against test file count and warns if new specs lack test coverage
+  |
+
+  | Analytics requires sensitive session data | Low | Medium — privacy concern | Script
+  only queries aggregated metrics (counts, percentages, trends). No individual session
+  content or user-identifiable data is extracted. All queries use COUNT(*) or AVG()
+  aggregates. |
+
+
+  ## Out of Scope
+
+
+  - CI integration for the test suite or analytics script — deployment-specific concern
+
+  - Real-time monitoring or alerting — the suite is invoked on-demand or scheduled
+
+  - Dashboard or visualization — raw JSON + stdout report is sufficient for initial
+  deployment
+
+  - Behavioral test creation for non-dark-prose domains — this is dark-prose-specific
+
+  - Pre-weave baseline data extraction — historical data format may differ from current
+  schema; the script measures post-deployment only
+
+  - Automated fix of detected violations — the suite detects; humans fix'
+created_at: '2026-05-17T00:56:20Z'
+updated_at: '2026-06-12T03:45:43Z'
+remote_issue: 642
+remote_url: https://github.com/michael-conrad/.opencode/issues/642
+promoted_at: '2026-08-27T03:25:11.881771+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.881771+00:00'
+author: michael-conrad

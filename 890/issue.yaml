@@ -1,0 +1,128 @@
+number: 890
+title: '[SPEC-FIX] Mandate install of project-local tooling when needed for proper
+  test execution'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: '## Problem
+
+
+  `085-project-local-tools.md` uses permissive language:
+
+
+  > the agent MAY install them project-locally
+
+
+  This creates a gap: when the only valid test infrastructure requires a tool not
+  on the host (e.g., Node.js for TypeScript unit tests, Java for JVM plugin tests),
+  the agent falls back to grep or `behavior_run` — neither of which exercises the
+  actual code path. The root cause is not malice but that the guideline permits skipping
+  tool installation.
+
+
+  Real-world trigger: spec #602 requires testing a `session-enforcement.ts` plugin
+  function (`handleModeSwitchParts`) that runs inside opencode''s `messages.transform`
+  hook. This is deterministic TypeScript code — `behavior_run` (single-turn isolated
+  CLI) cannot trigger the hook, and grep doesn''t test the code path. The only valid
+  test is a TypeScript unit test that calls the function with mock parts. Node.js
+  was available as a project-local install (`.tools/node/`) but was never installed
+  because the guideline says "MAY" not "MUST."
+
+
+  ## Solution
+
+
+  Two changes:
+
+
+  ### 1. Change `085-project-local-tools.md` from permissive to conditional-mandatory
+
+
+  **New rule:** When the only valid test infrastructure for a change requires a tool
+  not present on the host system, the agent MUST install that tool project-locally
+  (per the existing installation rules in 085) and write a proper test that exercises
+  the code path. The agent MUST NOT fall back to grep, string-matching, or structural-only
+  verification for code-path behavior.
+
+
+  **Scope:** Applies to any change where:
+
+  - The change modifies deterministic code (TypeScript plugin, Python function, shell
+  script) with an independently testable code path
+
+  - No existing test infrastructure on the host can execute that code path
+
+  - A project-local tool installation would enable proper execution
+
+
+  **Exemptions:** Not required for:
+
+  - Purely structural changes (file layout, naming)
+
+  - Changes where tool installation would take longer than implementation AND a behavioral
+  test via `behavior_run` exercises the same code path (e.g., plugin code called through
+  opencode-cli in multi-turn sessions)
+
+
+  ### 2. Update `spec-creation` and `writing-plans` skills to account for tooling
+
+
+  Rather than injecting a static text block into every SPEC/PLAN (which agents habituate
+  to), fix the **workflow** that produces them:
+
+
+  - **`spec-creation` → verification-method section**: Before declaring how to verify
+  each SC, check whether the method requires tooling not on the host. If yes, note
+  the tooling prerequisite in the verification approach section of the spec.
+
+  - **`writing-plans` → per-item decomposition**: For any verification step requiring
+  host-absent tooling, prepend a project-local tool installation step in the execution
+  sequence before the verification step.
+
+
+  This way every spec and plan implicitly accounts for tooling needs through the workflow
+  that produces them, without static text injection.
+
+
+  ## Affected Files
+
+
+  - `.opencode/guidelines/085-project-local-tools.md` — change MAY to conditional
+  MUST, add new mandatory-install rule
+
+  - `.opencode/skills/spec-creation/` — add tooling-availability check to verification-method
+  section
+
+  - `.opencode/skills/writing-plans/` — add tooling prerequisite step to per-item
+  decomposition
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type |
+
+  |----|-----------|--------------|
+
+  | SC-1 | `085-project-local-tools.md` adds conditional-mandatory rule for testing
+  tool installation | structural |
+
+  | SC-2 | `spec-creation` verification-method section includes tooling-availability
+  check | structural |
+
+  | SC-3 | `writing-plans` per-item decomposition includes tooling prerequisite step
+  | structural |
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
+created_at: '2026-05-25T15:52:13Z'
+updated_at: '2026-06-12T03:45:34Z'
+remote_issue: 890
+remote_url: https://github.com/michael-conrad/.opencode/issues/890
+promoted_at: '2026-08-27T03:25:12.275855+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.275855+00:00'
+author: michael-conrad

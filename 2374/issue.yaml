@@ -1,0 +1,35 @@
+number: 2374
+title: '[SPEC] Update issue-review skill — anchor context-completeness staleness detail'
+status: open
+labels: []
+body: '## Problem
+
+  Context-completeness staleness/deminimis/single-exchange-window detail (067) moves
+  out of preload; issue-review is the canonical home.
+
+
+  ## Scope
+
+  - **In:** Make issue-review the authoritative source for the staleness rule, de-minimis
+  bound, and single-exchange window; add mandatory Read [Text](path) link to any shared
+  content.
+
+  - **Out:** Losing the read-all-comments core.
+
+
+  ## Approach
+
+  Consolidate the context-completeness detail into the issue-review skill card.
+
+
+  ## Impact
+
+  Enables 067 condensation. Risk: low. Depends on 067. Action: approve.'
+created_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-27T03:14:57Z'
+remote_issue: 2374
+remote_url: https://github.com/michael-conrad/.opencode/issues/2374
+promoted_at: '2026-08-27T03:25:12.702384+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.702384+00:00'
+author: michael-conrad

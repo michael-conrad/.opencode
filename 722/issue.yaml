@@ -1,0 +1,187 @@
+number: 722
+title: '[SPEC] Add q/a command documentation and Q/A workflow skill'
+status: open
+labels:
+- needs-approval
+body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
+
+
+  STATUS: draft
+
+  CREATED: 2026-05-19
+
+  MIGRATED-FROM: NewsRx/newsrx-genai-python#314
+
+
+  ## Objective
+
+
+  Add documentation for the `q/a` command (question/answer mode for spec creation,
+  revision, and closure) and create a `qa-workflow` skill that implements the interactive
+  spec workflow.
+
+
+  ## Problem Statement
+
+
+  The `q/a` command exists as a user directive but is not documented in any guideline
+  or skill. There is no dedicated skill implementing the Q/A workflow. Agents and
+  users need to know how to trigger it, what it does, and how multi-spec handling
+  works.
+
+
+  ## Live Codebase Audit (2026-05-19)
+
+
+  | File Referenced in Original Spec | Current Status |
+
+  |----------------------------------|----------------|
+
+  | `.opencode/skills/qa-workflow/SKILL.md` | ❌ Does not exist |
+
+  | `.opencode/guidelines/000-session-init.md` | ❌ Does not exist — session-init is
+  a tool (`tools/session-init`), not a guideline |
+
+  | `.opencode/guidelines/045-open-questions.md` | ✅ Exists, no Q/A section |
+
+  | `.opencode/guidelines/120-github-issue-first.md` | ❌ Does not exist — issue-first
+  workflow is in `issue-operations` skill |
+
+  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists, no Q/A invocation
+  |
+
+  | `.opencode/guidelines/INDEX.md` | ✅ Exists, no `q/a` or `qa-workflow` reference
+  |
+
+
+  **No `q/a` references exist anywhere** in guidelines, skills, or session-init output.
+
+
+  The `brainstorming` skill partially covers spec creation Q&A but is not invoked
+  by a `q/a` command and does not document the command syntax.
+
+
+  ## Proposed Change
+
+
+  ### New File: `.opencode/skills/qa-workflow/SKILL.md`
+
+
+  Create a Q/A workflow skill with:
+
+  1. Skill metadata (name, description, license, compatibility)
+
+  2. Automatic invocation triggers: `q/a`, `q/a <context>`, `q/a revise <spec>`, `q/a
+  close <spec>`, `q/a replace <spec>`
+
+  3. Phase-based workflow for Q/A interactions
+
+  4. Four modes: creation, revision, closure, replacement
+
+  5. Adherence to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility
+  clause
+
+  6. Integration with `brainstorming` skill for spec creation phases
+
+
+  ### Update: `.opencode/guidelines/INDEX.md`
+
+
+  Add `qa-workflow` to the skill index and add trigger patterns: `q/a, qa workflow,
+  question/answer, interactive spec`.
+
+
+  ### Update: `.opencode/guidelines/045-open-questions.md`
+
+
+  Add §0: Q/A Command Mode section documenting the command, modes, automatic invocation,
+  and exit conditions.
+
+
+  ### Update: `.opencode/guidelines/140-planning-spec-creation.md`
+
+
+  Add Q/A skill invocation option for new spec creation at §0.
+
+
+  ### Update: `.opencode/AGENTS.md`
+
+
+  Add `qa-workflow` to the Skill Index table with trigger keywords.
+
+
+  ## Success Criteria
+
+
+  1. `qa-workflow` skill created at `.opencode/skills/qa-workflow/SKILL.md` with full
+  workflow implementation
+
+  2. Skill adheres to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility
+  clause
+
+  3. Skill includes automatic invocation rules in its SKILL.md
+
+  4. Q/A Command Mode section added to `045-open-questions.md` at §0
+
+  5. `140-planning-spec-creation.md` updated with Q/A skill invocation option
+
+  6. `INDEX.md` updated with `qa-workflow` entry and trigger patterns
+
+  7. All four modes documented with examples: creation, revision, closure, replacement
+
+  8. Guidelines load correctly with `./opencode/tools/guidelines`
+
+  9. Documentation passes markdown lint checks
+
+
+  ## Phases
+
+
+  ### Phase 1: Implementation
+
+  1. ☐ Create `.opencode/skills/qa-workflow/SKILL.md` with full Q/A workflow
+
+  2. ☐ Add Q/A Command Mode section to `045-open-questions.md` at §0
+
+  3. ☐ Update `140-planning-spec-creation.md` §0 with Q/A skill invocation option
+
+  4. ☐ Update `INDEX.md` with `qa-workflow` entry and trigger patterns
+
+  5. ☐ Verify skill is discoverable and guidelines load correctly
+
+
+  ### Phase 2: Testing
+
+  1. ☐ Verify `guidelines read 045-open-questions` shows new section
+
+  2. ☐ Verify `guidelines read 140-planning-spec-creation` shows Q/A invocation
+
+  3. ☐ Verify `guidelines search "q/a"` returns updated files
+
+  4. ☐ Verify all four modes documented
+
+  5. ☐ Verify skill loads and references spec discipline document
+
+
+  ### Phase 3: Review
+
+  1. ☐ Human review of changes
+
+  2. ☐ Approve or request revisions
+
+
+  ## Downstream Cross-Reference
+
+
+  - Original issue: https://github.com/NewsRx/newsrx-genai-python/issues/314
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)'
+created_at: '2026-05-19T18:55:19Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 722
+remote_url: https://github.com/michael-conrad/.opencode/issues/722
+promoted_at: '2026-08-27T03:25:11.942798+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.942798+00:00'
+author: michael-newsrx

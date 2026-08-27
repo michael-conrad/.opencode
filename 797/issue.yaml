@@ -1,0 +1,152 @@
+number: 797
+title: '[SPEC] tmp/ Cleanup in PR Merge Workflow and Age-Based Sweep'
+status: open
+labels:
+- needs-approval
+- spec
+body: "---\ntype: SPEC\nstatus: DRAFT\nversion: 1.0\ncreated: 2026-05-21\nlabels:\
+  \ [SPEC, cleanup, git-workflow]\npriority: medium\n---\n\n# [SPEC] tmp/ Cleanup\
+  \ in PR Merge Workflow and Age-Based Sweep\n\n## Problem Statement\n\nThe `tmp/`\
+  \ directory accumulates artifacts across sessions — behavioral test homes, enforcement\
+  \ test directories, issue-specific scratch files, debug output, and one-off scripts.\
+  \ The git-workflow cleanup task (`cleanup.md`) handles branches, issues, and submodule\
+  \ state but has no tmp/ cleanup step, leaving a growing artifact grave that wastes\
+  \ disk space and creates confusion about what is still relevant.\n\nCurrent `tmp/`\
+  \ breakdown (from parent repo sample):\n- 193 `behavior-isolated-*` directories\
+  \ (218-837 MB each)\n- 140 `test-home-*` directories (710-1500 MB each)\n- 61 `behavior-test-*`\
+  \ directories\n- 50 `enforcement-test-*` directories\n- Various stale issue-specific\
+  \ files (`627-anti-pattern.md`, `spec714_body.md`, `vbc-494/`, etc.)\n\n## Concern\
+  \ Enumeration (Single Concern Principle)\n\n✅ **IN SCOPE:**\n- Adding a `cleanup/tmp-cleanup`\
+  \ sub-task to the git-workflow cleanup pipeline\n- Two-trigger model: PR-merge relevance-based\
+  \ cleanup and 14-day age-based sweep\n- AI-agent-gated classification of tmp/ artifacts\
+  \ (safe-delete / preserve / review-needed)\n- Integrating tmp/ cleanup into the\
+  \ existing `cleanup.md` Step 3.5 position\n- 14-day age-based sweep triggered at\
+  \ session start (pre-work)\n\n❌ **OUT OF SCOPE (separate concerns requiring separate\
+  \ specs):**\n- Changes to the `with-test-home` test runner or behavioral test infrastructure\n\
+  - Changes to the `070-environment.md` cleanup rules (those govern per-session cleanup;\
+  \ this spec governs lifecycle cleanup)\n- Changes to `.gitignore` (tmp/ is already\
+  \ gitignored)\n- Adding tmp/ size monitoring or alerting\n\n## Success Criteria\n\
+  \n### SC-1: `cleanup/tmp-cleanup` Sub-Task Exists and Is Invoked\n\n**Given:** A\
+  \ PR merges and the cleanup pipeline runs\n**When:** The cleanup task reaches Step\
+  \ 3.5\n**Then:** `cleanup/tmp-cleanup` is invoked between branch-cleanup and dev-tip\
+  \ verification\n\n**Verification:**\n- [ ] File `.opencode/skills/git-workflow/tasks/cleanup/tmp-cleanup.md`\
+  \ exists\n- [ ] `cleanup.md` references `cleanup/tmp-cleanup` as Step 3.5\n- [ ]\
+  \ Behavioral test confirms tmp-cleanup runs during cleanup pipeline\n\n### SC-2:\
+  \ PR-Merge Trigger Cleans Issue-Relevant Artifacts\n\n**Given:** PR #123 merges,\
+  \ closing issues #456 and #789\n**When:** `cleanup/tmp-cleanup` runs with `closed_issues=[456,\
+  \ 789]`\n**Then:** Files matching `tmp/{issue_number}-*` for closed issues are classified\
+  \ as safe-delete and removed; files for open issues are preserved\n\n**Verification:**\n\
+  - [ ] Files matching `tmp/456-*` and `tmp/789-*` are deleted\n- [ ] Files matching\
+  \ `tmp/999-*` (issue #999 still open) are preserved\n- [ ] Behavioral test confirms\
+  \ issue-number-based classification\n\n### SC-3: 14-Day Age-Based Sweep Cleans Stale\
+  \ Artifacts\n\n**Given:** Artifacts in `tmp/` older than 14 days\n**When:** The\
+  \ age-based sweep triggers (at pre-work or explicit request)\n**Then:** AI agent\
+  \ evaluates each stale artifact and classifies as safe-delete / preserve / review-needed\n\
+  \n**Verification:**\n- [ ] `behavior-isolated-*` directories older than 14 days\
+  \ are classified as safe-delete\n- [ ] `test-home-*` directories older than 14 days\
+  \ are classified as safe-delete\n- [ ] `enforcement-test-*` directories older than\
+  \ 14 days are classified as safe-delete\n- [ ] `.db`, `.log`, and hidden files are\
+  \ classified as preserve regardless of age\n- [ ] Behavioral test confirms age-based\
+  \ classification\n\n### SC-4: AI Agent Classification Logic\n\n**Given:** A candidate\
+  \ artifact from `tmp/`\n**When:** The classification algorithm runs\n**Then:** Each\
+  \ artifact receives one of three classifications based on deterministic rules:\n\
+  \n| Classification | Criteria | Action |\n|---|---|---|\n| safe-delete | Matches\
+  \ closed issue number; is a test-run directory; is a debug/output file; is a one-off\
+  \ script; is older than 14 days and not a persistent type | Delete |\n| preserve\
+  \ | Is a `.db`/`.log`/hidden file per `070-environment.md`; is clearly still-relevant\
+  \ working file for an open issue; is explicitly marked for retention | Keep |\n\
+  | review-needed | Ambiguous — could be in-progress work for an open issue; large\
+  \ artifacts with unclear provenance | Report to developer, do not delete |\n\n**Verification:**\n\
+  - [ ] Classification decision tree is documented in task file\n- [ ] Behavioral\
+  \ test confirms correct classification for each category\n- [ ] Behavioral test\
+  \ confirms review-needed items are NOT deleted\n\n### SC-5: `cleanup.md` Step Numbering\
+  \ Updated\n\n**Given:** Current cleanup pipeline has Steps 0-4\n**When:** `tmp-cleanup`\
+  \ is inserted as Step 3.5\n**Then:** Post-cleanup dev-tip verification becomes Step\
+  \ 4 (unchanged position), cleanup.md Step 3 references tmp-cleanup\n\n**Verification:**\n\
+  - [ ] `cleanup.md` Step 3 references `cleanup/tmp-cleanup` between branch-cleanup\
+  \ and dev-tip verification\n- [ ] Step 4 (dev-tip verification) is unchanged\n-\
+  \ [ ] Sub-task table in `cleanup.md` updated with new row for `tmp-cleanup`\n\n\
+  ### SC-6: 14-Day Sweep Integration in `pre-work.md`\n\n**Given:** Agent starts a\
+  \ session or runs pre-work\n**When:** Pre-work tasks execute\n**Then:** A sweep\
+  \ check for stale `tmp/` artifacts (older than 14 days) is offered as an optional\
+  \ step\n\n**Verification:**\n- [ ] `pre-work.md` includes a tmp/ staleness check\
+  \ step\n- [ ] Step is advisory (not blocking) — reports findings but does not HALT\n\
+  - [ ] Behavioral test confirms sweep check runs during pre-work\n\n## Architecture\n\
+  \n### Task Structure\n\n```\ngit-workflow/tasks/cleanup/\n├── verify-merge.md  \
+  \     (existing)\n├── issue-closure.md      (existing)\n├── branch-cleanup.md  \
+  \  (existing)\n├── tmp-cleanup.md        (NEW — this spec)\n└── pre-merge-verification.md\
+  \  (existing)\n```\n\n### Classification Decision Tree\n\n```mermaid\ngraph TD\n\
+  \    Start[Enumerate tmp/ contents] --> Age{Older than 14 days?}\n    Age -->|No|\
+  \ IssueMatch{Matches closed issue number?}\n    Age -->|Yes| Type{Is persistent\
+  \ type?}\n    \n    Type -->|.db/.log/hidden| Preserve[PRESERVE]\n    Type -->|Test\
+  \ directory| SafeDelete[SAFE-DELETE]\n    Type -->|Other| IssueCheck{Matches any\
+  \ issue number?}\n    \n    IssueCheck -->|Open issue| Review[REVIEW-NEEDED]\n \
+  \   IssueCheck -->|Closed/No match| SafeDelete\n    \n    IssueMatch -->|Yes| SafeDelete\n\
+  \    IssueMatch -->|No| RecentWork{Recent modification?}\n    \n    RecentWork -->|Last\
+  \ 3 days| Review\n    RecentWork -->|Older| SafeDelete\n    \n    Preserve --> Report[Report\
+  \ preserved items]\n    SafeDelete --> Delete[Delete and report]\n    Review -->\
+  \ ReportDev[Report to developer, do NOT delete]\n```\n\n### Two-Trigger Model\n\n\
+  | Trigger | When | Candidate Set | Context |\n|---|---|---|---|\n| PR merge | After\
+  \ branch-cleanup, before dev-tip verification | Files matching closed issue numbers\
+  \ + all dirs matching `behavior-isolated-*`, `test-home-*`, `enforcement-test-*`,\
+  \ `behavior-test-*` | `closed_issues` list from PR body |\n| 14-day sweep | At pre-work\
+  \ or explicit request | All `tmp/` entries with modification time > 14 days | Session\
+  \ context |\n\n### Pipeline Position\n\n```\nStep 0:  Detect submodules\nStep 1:\
+  \  Verify PR merge\nStep 2:  Issue closure\nStep 3:  Branch cleanup and sync\nStep\
+  \ 3.5: tmp/ cleanup (NEW) ←── AI-gated cleanup with classification\nStep 4:  Dev-tip\
+  \ verification\n```\n\nPositioned after branch-cleanup (closed issues known, branches\
+  \ deleted) and before dev-tip verification (final clean-state check). This ensures\
+  \ the agent knows which issues are closed before deciding what to delete.\n\n##\
+  \ Constraints\n\n### CONS-1: Never Delete Persistent Temp Files\n\nFiles classified\
+  \ as persistent per `070-environment.md` (.db, .log, hidden files, `archive/` directory)\
+  \ MUST NOT be deleted regardless of age or issue relevance. The AI agent classification\
+  \ logic MUST check file type before classification.\n\n### CONS-2: Review-Needed\
+  \ Items Are Never Auto-Deleted\n\nItems classified as review-needed MUST be reported\
+  \ to the developer and MUST NOT be deleted. The agent explicitly asks the developer\
+  \ to decide on these items. This prevents accidental data loss for ambiguous artifacts.\n\
+  \n### CONS-3: Classification Is Deterministic, Not Heuristic\n\nThe decision tree\
+  \ uses deterministic rules (file extension, age threshold, issue number match, directory\
+  \ name pattern). The AI agent applies these rules but does NOT use judgment calls\
+  \ for classification boundaries. Ambiguous cases fall into review-needed by default.\n\
+  \n### CONS-4: 14-Day Threshold Is Non-Negotiable for Automation\n\nThe 14-day age\
+  \ threshold for automated sweep is a fixed default. Artifacts younger than 14 days\
+  \ are NEVER auto-deleted by the age sweep (only by the PR-merge trigger with issue-number\
+  \ matching). This gives developers a reasonable working window.\n\n### CONS-5: tmp/\
+  \ Cleanup Is Non-Blocking\n\nIf tmp/ cleanup encounters errors (permission denied,\
+  \ files in use), it reports the error and continues with the pipeline. It does NOT\
+  \ HALT the cleanup process. The pipeline continues to dev-tip verification regardless\
+  \ of tmp/ cleanup outcome.\n\n## Risks\n\n### RISK-1: Accidental Deletion of In-Progress\
+  \ Work\n\n**Likelihood:** Low | **Impact:** High\n\n**Scenario:** An agent deletes\
+  \ a tmp/ file that another agent is actively using in a parallel worktree.\n\n**Mitigation:**\n\
+  - Review-needed classification for files modified in the last 3 days\n- 14-day sweep\
+  \ only targets files older than 14 days\n- PR-merge trigger only targets files matching\
+  \ closed issue numbers\n- Files currently in use (open file handles) will fail to\
+  \ delete on Linux — the error is caught and reported\n\n### RISK-2: Classification\
+  \ False Positives\n\n**Likelihood:** Low | **Impact:** Medium\n\n**Scenario:** A\
+  \ file named `tmp/123-*.md` matches issue #123, but issue #123 is still open. The\
+  \ PR-merge trigger wouldn't delete it, but the 14-day sweep might if it's old enough.\n\
+  \n**Mitigation:**\n- Issue-number matching checks issue state (open vs closed) before\
+  \ classifying\n- The 3-day recent-modification window catches recently active files\n\
+  - Review-needed classification for ambiguous cases prevents auto-deletion\n\n###\
+  \ RISK-3: Large Disk Usage Before First Cleanup\n\n**Likelihood:** High | **Impact:**\
+  \ Low\n\n**Scenario:** Existing tmp/ has accumulated artifacts. First run will delete\
+  \ a large amount but takes time.\n\n**Mitigation:**\n- First run reports total size\
+  \ before and after\n- Deletion is incremental (one file/directory at a time with\
+  \ progress reporting)\n- No HALT on partial failure — continues deleting what it\
+  \ can\n\n## Dependencies\n\n### DEP-1: git-workflow cleanup pipeline\n\nThis spec\
+  \ modifies the existing `cleanup.md` task to add `Step 3.5: tmp/ cleanup`. It requires\
+  \ the `cleanup/` sub-task directory structure already in place.\n\n### DEP-2: 070-environment.md\
+  \ persistent file rules\n\nThis spec depends on the persistent file classification\
+  \ from `070-environment.md` (the `.db`, `.log`, hidden files rules). Changes to\
+  \ those rules must be reflected in the tmp-cleanup classification logic.\n\n## Change\
+  \ Control\n\n### Status History\n\n| Version | Date | Status | Change |\n|---------|------|--------|--------|\n\
+  | 1.0 | 2026-05-21 | DRAFT | Initial specification |\n\n### Revision Notes\n\nNone\
+  \ — initial version.\n\n---\n\n\U0001F916 Co-authored with AI: OpenCode (ollama-cloud/glm-5)"
+created_at: '2026-05-21T14:32:35Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 797
+remote_url: https://github.com/michael-conrad/.opencode/issues/797
+promoted_at: '2026-08-27T03:25:12.048519+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.048519+00:00'
+author: michael-conrad

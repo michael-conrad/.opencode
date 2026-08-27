@@ -1,0 +1,38 @@
+number: 2363
+title: '[SPEC] Create shared ref: data-integrity-shared.md'
+status: open
+labels: []
+body: '## Problem
+
+  `.opencode/guidelines/090-data-integrity.md` procedural sections (batch operations,
+  long-running tasks, serialization integrity, data classification, migration integrity,
+  audit trail, retention) are consumed by engineering-approach, programming-principles,
+  currently preloaded.
+
+
+  ## Scope
+
+  - **In:** Create `.opencode/reference/data-integrity-shared.md`; add mandatory Read-links
+  to the consuming skill cards.
+
+  - **Out:** Re-inlining into each card.
+
+
+  ## Approach
+
+  Extract the procedural sections of 090-data-integrity into a shared canonical reference.
+
+
+  ## Impact
+
+  Enables 090 condensation (~2.7k savings). Risk: content loss if cards don''t Read-link.
+  Mitigation: mandatory Read-link convention. Depends on 090 condensation. Action:
+  approve.'
+created_at: '2026-08-27T03:14:38Z'
+updated_at: '2026-08-27T03:14:38Z'
+remote_issue: 2363
+remote_url: https://github.com/michael-conrad/.opencode/issues/2363
+promoted_at: '2026-08-27T03:25:12.683030+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.683030+00:00'
+author: michael-conrad

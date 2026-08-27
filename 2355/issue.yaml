@@ -1,0 +1,38 @@
+number: 2355
+title: '[SPEC] Condense 091-incremental-build.md — move per-item TDD detail to tdd
+  skill'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/091-incremental-build.md` costs ~1.0k tokens. ~60%
+  procedural (per-item TDD cycle detail, scope classification table, anti-patterns)
+  that overlaps test-driven-development.
+
+
+  ## Scope
+
+  - **In:** Relocate per-item TDD detail + scope table + anti-patterns to test-driven-development;
+  retain the mandate that all implementation follows top-down decomposition → bottom-up
+  design → per-item TDD cycle.
+
+  - **Out:** Removing the incremental-build mandate.
+
+
+  ## Approach
+
+  Move the already-duplicated TDD detail to test-driven-development; keep the decomposition
+  mandate preloaded.
+
+
+  ## Impact
+
+  ~0.6k savings. Risk: low. Depends on tdd skill update + config. Action: approve.'
+created_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-27T03:14:22Z'
+remote_issue: 2355
+remote_url: https://github.com/michael-conrad/.opencode/issues/2355
+promoted_at: '2026-08-27T03:25:12.667848+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.667848+00:00'
+author: michael-conrad

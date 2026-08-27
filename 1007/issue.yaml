@@ -1,0 +1,310 @@
+number: 1007
+title: '[SPEC] Re-evaluate and replace authorization scope model'
+status: open
+labels:
+- needs-approval
+- '[SPEC]'
+body: '## Problem Statement
+
+
+  The current `for_*` authorization scope model was derived from a defunct implementation
+  workflow. Key problems:
+
+
+  1. `for_review_prep` is the DEFAULT for bare `"approved #N"` — inverted from natural
+  developer intent
+
+  2. `for_review_prep` and `for_review_only` occupy the same conceptual space
+
+  3. Halt_at values don''t correspond to actual pipeline stage boundaries
+
+  4. No scopes for cleanup or release workflows
+
+  5. No scopes for pre-work (branch creation, submodule init)
+
+  6. Gap-fill cascades skip real gates (spec-to-plan fidelity, audit)
+
+  7. The flat enum can''t express "approve through RED only, stop before GREEN"
+
+  8. **Gap-fill cascades bypass plan execution entirely** — when spec and plan already
+  exist, the agent interprets "auto-PR" as a standalone action and skips directly
+  to git operations (commit, push, create PR) without ever reading or executing the
+  plan. This was demonstrated in #1346: the agent committed dirty submodule changes
+  and created a PR without executing any of the 5 plan phases or 21 success criteria.
+
+
+  ## Proposed Solution
+
+
+  Replace the flat `for_*` enum with a hierarchical dotted-scope model that mirrors
+  the actual workflow structure. `stacked` is the only valid PR strategy — not tracked
+  as a variable.
+
+
+  ### Scope Domain
+
+
+  **analysis** — investigation, reading, issue creation. Halt: analysis_complete
+
+
+  **spec** — create a spec issue. Halt: spec_created
+
+
+  **plan** — create a plan from a spec. Halt: plan_created
+
+
+  **prework** (and sub-stages):
+
+  - prework.TRUNK_VERIFY — verify trunk exists and is up to date
+
+  - prework.BRANCH — create feature branch
+
+  - prework.SUBMODULE — init and tag submodules
+
+  - prework.VERIFY — verify branch environment
+
+  - prework.REPORT — report ready state
+
+
+  **implementation** (22 sub-stages):
+
+  - implementation.BASELINE — pre-RED capture
+
+  - implementation.COHERENCE — spec/plan checked against codebase
+
+  - implementation.RED — RED tests written
+
+  - implementation.RED_CHECK — RED-side verification
+
+  - implementation.GREEN — implementation written
+
+  - implementation.COMMIT — checkpoint commit
+
+  - implementation.STRUCTURAL — lint/typecheck/format
+
+  - implementation.GREEN_CHECK — GREEN-side verification
+
+  - implementation.VBC — verification before completion
+
+  - implementation.AUDIT — adversarial audit
+
+  - implementation.CROSS — cross-validate audit results
+
+  - implementation.REGRESSION — regression test pass
+
+  - implementation.SUBMODULE_PUSH — push submodule changes
+
+  - implementation.TEMP_CLEAN — clean temp files
+
+  - implementation.REBASE — rebase on current trunk
+
+  - implementation.PUSH_VERIFY — verify branch push
+
+  - implementation.WORKTREE_HANDOFF — worktree cleanup
+
+  - implementation.URL — generate compare URL
+
+  - implementation.PREP_REPORT — report and halt
+
+  - implementation.SUMMARY — exec summary + issue comment
+
+
+  **pr** (and sub-stages):
+
+  - pr.GATE — enforcement gate + liveness check
+
+  - pr.SQUASH — squash+rebase+push
+
+  - pr.CREATE — PR body writing + API call
+
+  - pr_only — PR only, assuming branch exists
+
+  - stacked PR is the only valid strategy — hardcoded, not a variable
+
+
+  **cleanup** (and sub-stages):
+
+  - cleanup.DETECT — detect submodules
+
+  - cleanup.VERIFY_MERGE — verify PR merge
+
+  - cleanup.CLOSE — close sub-issues
+
+  - cleanup.PARENT_CLOSE — close parent plan
+
+  - cleanup.BRANCH — delete branches
+
+  - cleanup.EVIDENCE — clean evidence artifacts
+
+  - cleanup.VERIFY — post-cleanup trunk-tip verify
+
+
+  **tag** (and sub-stages):
+
+  - tag.ROUTE — route submodule/non-submodule
+
+  - tag.LOCK — lock submodule SHAs
+
+  - tag.VALIDATE — validate tags
+
+  - tag.POST_PUSH — push tags
+
+  - tag.POST_RELEASE — create platform release
+
+
+  ### Default Behavior Change
+
+
+  Bare `"approved #N"` (no qualifier) → `implementation` scope (full pipeline). This
+  matches natural intent.
+
+
+  ### Gap-Fill Rules
+
+
+  Gap-fill creates missing artifacts (spec, plan) but does NOT authorize skipping
+  plan execution. After gap-fill completes, the agent MUST route through the plan
+  execution pipeline — never skip directly to the final deliverable.
+
+
+  | Scope | Gap-Fill Creates | Then Routes To |
+
+  |-------|-----------------|----------------|
+
+  | `analysis` | None | analysis tasks |
+
+  | `spec` | None | spec-creation |
+
+  | `plan` | spec (if missing) | writing-plans |
+
+  | `prework` | spec+plan (if missing) | prework sub-stages |
+
+  | `implementation` | spec+plan (if missing) | executing-plans → implementation sub-stages
+  |
+
+  | `pr` | spec+plan (if missing) | executing-plans → implementation sub-stages →
+  pr sub-stages |
+
+  | `pr_only` | None | pr sub-stages (assumes branch exists) |
+
+  | `cleanup` | None | cleanup sub-stages |
+
+  | `tag` | None | tag sub-stages |
+
+
+  **Critical rule:** When spec and plan already exist under `implementation` or `pr`
+  scope, the agent MUST route through `executing-plans` to execute the plan. Direct
+  PR creation without plan execution is a critical violation. This prevents the bypass
+  demonstrated in #1346 where the agent committed and pushed without executing any
+  plan phases.
+
+
+  ### Pipeline Execution Mandate
+
+
+  Every scope that includes implementation work (`implementation`, `pr`, and any scope
+  whose `halt_at` exceeds `plan_created`) MUST route through `executing-plans` after
+  gap-fill. The `executing-plans` skill MUST:
+
+
+  1. Read the plan file and discover all phases
+
+  2. Dispatch each phase through `implementation-pipeline` in dependency order
+
+  3. Execute all success criteria and verification gates per phase
+
+  4. Only after all phases complete: proceed to the scope''s `halt_at` boundary
+
+
+  This replaces the current pattern where gap-fill cascades treat "auto-PR" as a standalone
+  action rather than the output of plan execution.
+
+
+  ### Behavioral Enforcement Test
+
+
+  A behavioral test MUST verify that `implementation` and `pr` scopes route through
+  `executing-plans` when spec and plan already exist:
+
+
+  1. Create a spec + plan with multiple phases
+
+  2. Authorize `implementation` or `pr` scope
+
+  3. Verify the agent dispatches `executing-plans` and reads the plan — not directly
+  creating a PR or committing changes
+
+
+  ## Files to Change
+
+
+  1. `skills/approval-gate/enforcement/scope-parsing.md`
+
+  2. `skills/approval-gate/enforcement/auto-dispatch-table.md`
+
+  3. `skills/approval-gate/tasks/verify-authorization/scope-auto-resolve.md`
+
+  4. `skills/approval-gate/tasks/verify-authorization/gap-fill-cascade.md`
+
+  5. `skills/approval-gate/SKILL.md`
+
+  6. `guidelines/010-approval-gate.md`
+
+  7. `guidelines/000-critical-rules.md` — remove obsolete scope references
+
+  8. `skills/implementation-pipeline/SKILL.md` — update template
+
+  9. `skills/executing-plans/SKILL.md` — add plan-reading mandate
+
+  10. All skill task files with boilerplate authorization_scope/halt_at templates
+  (~40+ files) — remove pr_strategy
+
+  11. `tests/behaviors/` — add behavioral enforcement test for plan-execution routing
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | Hierarchical dotted-scope model replaces flat `for_*` enum | `string` |
+  grep for dotted scope patterns in scope-parsing.md |
+
+  | SC-2 | Bare `"approved #N"` defaults to `implementation` scope | `behavioral`
+  | `opencode-cli run` → stderr shows implementation sub-stage dispatch |
+
+  | SC-3 | Gap-fill creates missing artifacts then routes through executing-plans
+  | `behavioral` | `opencode-cli run` → stderr shows executing-plans dispatch after
+  gap-fill |
+
+  | SC-4 | `implementation` and `pr` scopes with existing plan route through executing-plans,
+  not direct PR | `behavioral` | `opencode-cli run` → stderr shows executing-plans
+  dispatch, no direct `github_create_pull_request` |
+
+  | SC-5 | Direct PR creation without plan execution is a critical violation | `behavioral`
+  | `opencode-cli run` → agent declines to create PR without executing plan |
+
+  | SC-6 | `stacked` is the only valid PR strategy — not tracked as a variable | `string`
+  | grep confirms pr_strategy removed from all templates |
+
+  | SC-7 | All scope domains defined with sub-stages and halt boundaries | `string`
+  | grep for each domain in scope-parsing.md |
+
+  | SC-8 | executing-plans skill has plan-reading mandate | `string` | grep for plan-reading
+  step in executing-plans/SKILL.md |
+
+  | SC-9 | Behavioral enforcement test exists for plan-execution routing | `structural`
+  | test file exists at `tests/behaviors/` |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-06-03T22:53:23Z'
+updated_at: '2026-07-11T14:03:19Z'
+remote_issue: 1007
+remote_url: https://github.com/michael-conrad/.opencode/issues/1007
+promoted_at: '2026-08-27T03:25:12.490216+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.490216+00:00'
+author: michael-conrad

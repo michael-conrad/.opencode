@@ -1,0 +1,37 @@
+number: 2354
+title: '[SPEC] Condense 117-session-trigger-behavior.md — move suppression detail'
+status: open
+labels: []
+body: '## Problem
+
+  Preloaded `.opencode/guidelines/117-session-trigger-behavior.md` costs ~1.9k tokens.
+  ~30% procedural (self-simulation prohibition prose, trigger behavior map, suppression
+  rule).
+
+
+  ## Scope
+
+  - **In:** Relocate self-simulation prose + trigger map + suppression detail; retain
+  the nested_opencode_fatal hard-halt core and the no-echo mandate.
+
+  - **Out:** Removing the nested-opencode-fatal hard halt.
+
+
+  ## Approach
+
+  Move the procedural detail to the session-enforcement plugin / git-workflow; keep
+  the hard-halt core preloaded.
+
+
+  ## Impact
+
+  ~0.6k savings. Risk: losing the nested_opencode_fatal halt. Mitigation: retain that
+  core verbatim. Depends on config. Action: approve.'
+created_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-27T03:14:22Z'
+remote_issue: 2354
+remote_url: https://github.com/michael-conrad/.opencode/issues/2354
+promoted_at: '2026-08-27T03:25:12.666072+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.666072+00:00'
+author: michael-conrad

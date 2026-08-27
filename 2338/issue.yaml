@@ -1,0 +1,64 @@
+number: 2338
+title: '[BUG] local-issues duplicate guard checks issue numbers globally instead of
+  per-repo namespace'
+status: open
+labels: []
+body: '## Problem
+
+
+  The `.opencode/tools/local-issues` CLI tool has a global duplicate guard that mis-scopes
+  issue numbers. When creating a local issue entry, the guard refuses a create if
+  the same issue NUMBER already exists in ANY other repo''s `.issues/` namespace,
+  rather than scoping the uniqueness check to the target repo''s own namespace.
+
+
+  ## Reproduction
+
+
+  Concretely observed on 2026-08-26:
+
+
+  1. `local-issues create CrossrefApi#6` was BLOCKED because the root repo `CrossrefAbstracts#6`
+  (an unrelated gradle9 issue) exists — the guard conflated the CrossrefApi submodule
+  namespace with the root repo namespace.
+
+  2. `local-issues create CrossrefAbstracts#22` was BLOCKED because `NewsRxUI#22`
+  (a different repo entirely) exists.
+
+
+  ## Expected Behavior
+
+
+  Issue numbers are scoped per-repo on GitBucket (and GitHub). The duplicate guard
+  must check uniqueness within the TARGET repo''s own `.issues/{N}` namespace only,
+  not globally across all repos in the multi-repo workspace.
+
+
+  ## Actual Behavior
+
+
+  The global check blocks valid creates across unrelated repos.
+
+
+  ## Workaround
+
+
+  `git -C <worktree>/.issues/` direct git operations (the documented fallback) succeeded,
+  but this guard misfire forces a manual bypass and can mask real collisions.
+
+
+  ---
+
+
+  Discovered while working CrossrefAbstracts#22 and CrossrefApi#6.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-08-26T17:55:40Z'
+updated_at: '2026-08-26T17:55:40Z'
+remote_issue: 2338
+remote_url: https://github.com/michael-conrad/.opencode/issues/2338
+promoted_at: '2026-08-27T03:25:12.631321+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.631321+00:00'
+author: michael-newsrx

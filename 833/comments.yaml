@@ -1,0 +1,30 @@
+comments:
+- body: '## Supersession note — #468 closed, pre-remediation applied
+
+
+    #468 has been closed as superseded by this issue. The following pre-remediation
+    was applied during closure:
+
+
+    **`dev...HEAD` → `origin/main...HEAD` (conflict with #1540 trunk-based development):**
+
+    - `enforcement-gate.md` Step 0.5: `git diff --stat dev...HEAD` → `origin/main...HEAD`
+
+    - `enforcement-gate.md` Step 1.2: `git log origin/dev..HEAD` → `origin/main..HEAD`,
+    `git reset --soft origin/dev` → `origin/main`
+
+    - `branch-cleanup.md` Step 3: `origin/dev...HEAD` → `origin/main...HEAD`
+
+    - `branch-cleanup.md` Step 0 content verification: `origin/dev` → `origin/main`
+
+    - `check-pr.md` Phase 5: `origin/dev` → `origin/main`
+
+
+    These are the specific `dev...HEAD` references that would conflict with #833''s
+    Step 0.5 cost-frame prose changes. The broader `dev` → `main` migration in `branch-cleanup.md`
+    (Steps 1.5, 1.7, etc.) is tracked under #1540.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-07-01T18:11:41Z'
+  user: michael-conrad

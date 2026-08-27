@@ -1,0 +1,133 @@
+comments:
+- body: '## Z3 Gap Analysis Results
+
+
+    A Z3 constraint model of all relevant spec dependencies identified 6 gaps. Two
+    have been resolved:
+
+
+    ### Resolved
+
+
+    **GAP 1: contract.yaml ownership** → Created #955 as sub-spec. #954 Phase 1 now
+    includes "produce contract.yaml per skill" as an explicit output. #955 formalizes
+    the contract schema, principles, and ownership.
+
+
+    **GAP 6: solve gate vs disk-offload semantics** → The two are complementary:
+
+    - **solve check** (#951): Verifies pre/post conditions of dispatch (state-level:
+    "is it safe to dispatch?" / "did it succeed?")
+
+    - **disk-offload YAML artifact** (#932): Stores full evidence content for sub-agents
+    to consume (evidence-level: "here''s what happened")
+
+
+    They operate at different layers and are not duplicative. See #955 for the reconciled
+    contract schema.
+
+
+    ### Remaining Gaps (need resolution before implementation)
+
+
+    | Gap | Issue | Status |
+
+    |-----|-------|--------|
+
+    | GAP 2: 915 aspirational Z3 text | 915 Phase 2 describes solve tracking as "not
+    yet implemented" | Needs 915 comment |
+
+    | GAP 3: 909 doesn''t coordinate 951/952/954 | 909 sub-issues exclude 951/952/954;
+    all modify task files | Needs 909 comment |
+
+    | GAP 4: 405 blocked on #397 | External dependency | Flagged |
+
+    | GAP 5: 951/952 SCs are structural only | No behavioral tests for solve gate
+    execution | Needs 951 comment |
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-30T15:40:23Z'
+  user: michael-conrad
+- body: '## Dependency: #915 must land before Phase 2 and Phase 3
+
+
+    Per Z3-optimized ordering in #909 (Status 0.4), #954 must land at or after #915
+    (rename + YAML contract infra). This prevents file-overwrite rework: #915 renames
+    divide-and-conquer → implementation-pipeline, and #954''s inventory changes go
+    directly into the new files.
+
+
+    **Implication:**
+
+    - **Phase 1** (classification audit) is read-only → can start before #915
+
+    - **Phase 2** (disk-offload pattern on Tier A files) depends on #515''s new directory
+    structure
+
+    - **Phase 3** (solve gates on all tiers) depends on #915 and #951
+
+    - **Phase 4** (behavioral tests) depends on everything above
+
+
+    Added as sub-issue of #909 (Merge Group A-Adjacent).
+
+
+    See #909 for the full dependency table.
+
+
+    🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
+  created_at: '2026-05-30T16:40:03Z'
+  user: michael-conrad
+- body: '## Status: Not shipped
+
+
+    The 36-file inventory classification table specified in this spec was never created.
+    No classification (A/B/C), no disk-offload pattern across Tier A files, no solve
+    gate integration across individual skill task files.
+
+
+    ### SCs vs Shipped Code
+
+
+    | SC | Wording | Status | Evidence |
+
+    |----|---------|--------|----------|
+
+    | SC-1 | All 36 skills have verified classification (A/B/C) | ❌ **NOT SHIPPED**
+    | No inventory table exists |
+
+    | SC-2 | All Tier A files implement disk-offload pattern | ❌ **NOT SHIPPED** |
+    Only `cross-validate.md` and `pipeline-executor.md` have disk-offload |
+
+    | SC-3 | All Tier A files dispatch remediator on FAIL | ❌ **NOT SHIPPED** | Only
+    `pipeline-executor.md` has remediation routing |
+
+    | SC-4 | All dispatching task files have pre-dispatch `solve check` | ❌ **NOT
+    SHIPPED** | Only `pipeline-executor.md` has `solve check` |
+
+    | SC-5 | All dispatching task files have post-return `solve check` | ❌ **NOT SHIPPED**
+    | Only `pipeline-executor.md` |
+
+    | SC-6 | Tier 1 sub-agents advance pipeline position via `solve state update`
+    | ❌ **NOT SHIPPED** | Only `pipeline-executor.md` and `completion-core.md` |
+
+    | SC-7 | Tier 2 orchestrator advances pipeline position | ❌ **NOT SHIPPED** |
+    Not implemented |
+
+    | SC-8 | Orchestrator never reads artifact content during routing | ❌ **NOT SHIPPED**
+    | No enforcement exists |
+
+    | SC-9 | All disk artifacts follow #932 naming convention | ⚠️ **PARTIAL** | Convention
+    documented in `pipeline-executor.md` but not applied across 36 files |
+
+    | SC-10 | All B/C files have solve gates where applicable | ❌ **NOT SHIPPED**
+    | Solve gates exist only in 3 files |
+
+
+    Zero SCs fully satisfied. Work remains entirely pending.
+
+
+    🤖 OpenCode (deepseek-v4-flash)'
+  created_at: '2026-06-01T17:19:57Z'
+  user: michael-conrad

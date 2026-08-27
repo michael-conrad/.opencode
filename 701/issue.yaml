@@ -1,0 +1,52 @@
+number: 701
+title: 'Phase 2: Scanner-based name resolution in resolve-models'
+status: open
+labels:
+- needs-approval
+- sub-issue
+body: '## Phase 2: Scanner-based name resolution in resolve-models
+
+
+  Part of [plan #699](https://github.com/michael-conrad/.opencode/issues/699).
+
+
+  Replace algorithmic name derivation in `tools/resolve-models` with scanner-based
+  approach that reads agent cards from `agents/` directory directly.
+
+
+  ### Tasks
+
+
+  1. Modify `tools/resolve-models` to scan `agents/auditor-*.md` files and extract
+  card names
+
+  2. Add validation gate: missing card → error with specific missing card name
+
+  3. Optionally extend `tests/qualification/qualified-auditor-pool.sh` format
+
+  4. Verify cross-family selection still works (SC-6)
+
+  5. Run enforcement tests (SC-9)
+
+
+  ### SC Coverage
+
+  - SC-3: resolve-models outputs card names matching actual filenames
+
+  - SC-4: No algorithmic name derivation
+
+  - SC-5: Validation gate on missing card
+
+  - SC-6: Cross-family selection works
+
+  - SC-9: All tests pass
+
+  '
+created_at: '2026-05-18T17:49:39Z'
+updated_at: '2026-06-12T03:45:42Z'
+remote_issue: 701
+remote_url: https://github.com/michael-conrad/.opencode/issues/701
+promoted_at: '2026-08-27T03:25:11.940705+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.940705+00:00'
+author: michael-conrad

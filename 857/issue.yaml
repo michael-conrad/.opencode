@@ -1,0 +1,102 @@
+number: 857
+title: '[SPEC] Mandatory Claim-Verification Gate — Research-to-Spec Pipeline Fix'
+status: open
+labels:
+- needs-approval
+body: "## [SPEC] Mandatory Claim-Verification Gate — Research-to-Spec Pipeline Fix\n\
+  \n### Prerequisites\n- None\n\n### Problem\n\nDuring the 3-card reference architecture\
+  \ design (#848, #853, #849), research sub-agents produced findings with fabricated\
+  \ author names, unverifiable citations, and claims that did not match their cited\
+  \ sources. These hallucinated claims flowed unchecked through the pipeline:\n\n\
+  ```\nresearch ──CONTINUE──> spec-creation ──> GitHub Issue\n```\n\nAt no point were\
+  \ the claims re-verified against their cited sources before becoming spec content.\n\
+  \n**Root cause:** Three gaps in the pipeline:\n\n1. **Research produces unverified\
+  \ claims.** The `research` task (research.md Step 3) collects findings with self-attributed\
+  \ `confidence: high|medium|low`. Medium/low findings enter the pipeline as model\
+  \ output with zero live-source verification. The `source_attribution` is a self-reporting\
+  \ mechanism, not a verification gate.\n\n2. **Research completion has no filter.**\
+  \ `research/tasks/completion.md` routes directly to `CONTINUE: spec-creation` with\
+  \ no step to verify medium/low findings before handoff.\n\n3. **Spec-creation verification\
+  \ starts from scratch.** `spec-creation/tasks/write.md` has a `verification-enforcement\
+  \ --task verify` gate, but it tasks sub-agents to \"verify all factual claims that\
+  \ will appear in this section\" — the sub-agents must independently identify research-origin\
+  \ claims. If a research finding arrived as an accepted fact (not flagged as `⚠️\
+  \ UNVERIFIED`), the verification pass may never re-verify it.\n\n### Solution\n\n\
+  Insert a mandatory claim-verification gate at the research completion boundary.\
+  \ Three injection points:\n\n**Injection A — Research step (`research/tasks/research.md`):**\
+  \ Ensure the research result explicitly tags findings by verification status.\n\n\
+  **Injection B — Research completion (`research/tasks/completion.md`):** Before routing\
+  \ to `spec-creation`, invoke the `verification` skill on all findings with `confidence:\
+  \ medium` or `confidence: low`. Only findings that PASS verification or are explicitly\
+  \ flagged as gaps route through.\n\n**Injection C — Spec-creation requirements (`spec-creation/tasks/requirements.md`):**\
+  \ Add a step that flags research-derived claims for re-verification before they\
+  \ enter the spec body.\n\n**Injection D — SKILL.md rules:** Add symbolic rules to\
+  \ both `research/SKILL.md` and `spec-creation/SKILL.md` that enforce the verification\
+  \ gate.\n\n**Injection E — default.txt anchor:** Add a bright-line rule that establishes\
+  \ \"claim with verified source citation\" as a binary gate.\n\n### Implementation\n\
+  \n1. **Update `research/tasks/research.md`** — Expand Step 3 confidence levels to\
+  \ require specific evidence per level:\n   - `high`: \"Finding verified against\
+  \ a live source (tool call, documentation lookup URL fetched and confirmed)\"\n\
+  \   - `medium`: **Removed from acceptable output.** Findings must be either `high`\
+  \ (verified) or `low` (gap). Remove `medium`. If a finding came from model output\
+  \ with no live-source verification, it MUST be classified as `low` (gap), not `medium`.\n\
+  \   - `low`: \"Finding is inconclusive, based on unverifiable information, or derived\
+  \ from model output without live-source confirmation — treated as a gap, not as\
+  \ evidence\"\n\n2. **Update `research/tasks/completion.md`** — Insert Step 1.5:\n\
+  \   - \"Before routing to spec-creation, invoke the `verification` skill on each\
+  \ finding classified as `low`. For each finding, verify the claim against the cited\
+  \ source URL (if any).\"\n   - \"Findings that PASS verification reclassify to `high`.\"\
+  \n   - \"Findings that FAIL verification are stripped from the research output and\
+  \ added to `gaps`.\"\n   - \"Pipeline signal: `CONTINUE: verification(medium+low)\
+  \ → spec-creation`\"\n\n3. **Update `research/SKILL.md`** — Add symbolic rule:\n\
+  \   ```yaml\n   - id: research-002\n     title: \"Research findings must be verified\
+  \ before pipeline exit\"\n     conditions:\n       all: [\"pipeline_signal == spec-creation\"\
+  , \"any_finding_confidence_low == true\"]\n     actions: [CALL_VERIFICATION, REQUIRE_PASS_BEFORE_ROUTE]\n\
+  \     source: \"research/SKILL.md\"\n   ```\n\n4. **Update `spec-creation/tasks/requirements.md`**\
+  \ — After Step 2 (Identify Implicit Requirements), insert:\n   - \"Step 2.5: Flag\
+  \ research-origin claims. If the investigation input includes findings from the\
+  \ `research` skill, identify each such claim as potentially unverified. Task the\
+  \ `verification` skill on claims that reference external sources (URLs, papers,\
+  \ documentation) — verify the source URL resolves AND that the claim matches the\
+  \ source content.\"\n   - \"Claims that fail this check MUST be excluded from the\
+  \ spec or marked `⚠️ UNVERIFIED`.\"\n\n5. **Update `spec-creation/SKILL.md`** —\
+  \ Add symbolic rule:\n   ```yaml\n   - id: spec-creation-010\n     title: \"Research-derived\
+  \ claims must be re-verified before spec inclusion\"\n     conditions:\n       all:\
+  \ [\"research_findings_consumed == true\", \"research_claim_verification_performed\
+  \ == false\"]\n     actions: [HALT, CALL(verification --task verify on research\
+  \ claims)]\n     source: \"spec-creation/SKILL.md\"\n   ```\n\n6. **Update `default.txt`**\
+  \ — Add to Bright-Line Mandates section:\n   ```\n   - \"A research finding without\
+  \ a verified source citation is a speculation\"\n   - \"A citation without a resolved\
+  \ URL confirming the claim is not a citation\"\n   ```\n\n7. **Update `verification`\
+  \ skill** if needed to handle URL+claim verification pairs (verify that URL resolves\
+  \ AND claim matches source content).\n\n### Success Criteria\n\n| SC-ID | Criterion\
+  \ | Evidence Type | Verification Method |\n|-------|-----------|--------------|---------------------|\n\
+  | SC-1 | `research/tasks/research.md` Step 3 confidence levels updated: `medium`\
+  \ removed, `high` requires live-source evidence, `low` is gap classification | structural\
+  \ | grep in research.md for `confidence: \"high\"` and absence of `medium` in confidence\
+  \ levels |\n| SC-2 | `research/tasks/completion.md` has Step 1.5 calling verification\
+  \ skill on low-confidence findings before routing to spec-creation | structural\
+  \ | grep for `verification` in completion.md |\n| SC-3 | `research/SKILL.md` has\
+  \ symbolic rule research-002 enforcing verification before pipeline exit | structural\
+  \ | grep for `research-002` in SKILL.md |\n| SC-4 | `research/tasks/completion.md`\
+  \ pipeline signal includes verification step | structural | grep for `verification`\
+  \ in completion.md pipeline section |\n| SC-5 | `spec-creation/tasks/requirements.md`\
+  \ has Step 2.5 for flagging and verifying research-derived claims | structural |\
+  \ grep for `research` and `verification` in requirements.md |\n| SC-6 | `spec-creation/SKILL.md`\
+  \ has symbolic rule spec-creation-010 enforcing research-claim re-verification |\
+  \ structural | grep for `spec-creation-010` in SKILL.md |\n| SC-7 | `default.txt`\
+  \ has bright-line rules: \"A research finding without a verified source citation\
+  \ is a speculation\" | structural | grep for `speculation` in default.txt |\n\n\
+  ### Non-Goals\n\n- Rewriting the `verification` skill (its existing PASS/FAIL/UNVERIFIED\
+  \ per-claim mechanism is sufficient)\n- Adding behavioral enforcement tests (deferred\
+  \ to implementation phase)\n- Modifying the `brainstorming` skill (developer intent\
+  \ confirmation is a separate concern from factual verification)\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (ollama-cloud/deepseek-v4-flash)"
+created_at: '2026-05-23T23:48:54Z'
+updated_at: '2026-06-12T03:45:37Z'
+remote_issue: 857
+remote_url: https://github.com/michael-conrad/.opencode/issues/857
+promoted_at: '2026-08-27T03:25:12.206209+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.206209+00:00'
+author: michael-conrad

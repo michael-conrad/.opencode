@@ -1,0 +1,175 @@
+number: 1180
+title: 28 of 39 SKILL.md files fail to load due to unquoted YAML descriptions containing
+  colon-space
+status: open
+labels:
+- bug
+- skills
+body: '## Summary
+
+
+  28 of 39 SKILL.md files under `.opencode/skills/` are silently skipped by opencode''s
+  skill loader because their `description:` YAML frontmatter values are unquoted and
+  contain `Triggers on:` — a pattern with `: ` (colon followed by space). OpenCode''s
+  `ConfigMarkdown.parse()` interprets the colon-space as a YAML key-value separator,
+  causing parse errors. Skills that fail parsing are silently discarded.
+
+
+  ## Root Cause
+
+
+  Standard YAML parsers treat `: ` (colon + space) as a mapping key-value separator.
+  When an unquoted description like:
+
+
+  ```yaml
+
+  description: Use when creating a spec... Triggers on: spec, plan, feature...
+
+  ```
+
+
+  is parsed, YAML sees `Triggers on:` as the start of a new mapping entry, producing
+  invalid structure and a parse error.
+
+
+  ## Affected Skills (28)
+
+
+  Skills NOT in `<available_skills>` — all have unquoted descriptions with `Triggers
+  on:`:
+
+
+  - brainstorming
+
+  - changelog-generator
+
+  - conflict-resolution
+
+  - correspondence
+
+  - engineering-approach
+
+  - executing-plans
+
+  - finishing-a-development-branch
+
+  - git-workflow
+
+  - implementation-pipeline
+
+  - issue-operations
+
+  - issue-review
+
+  - mcp-tool-usage
+
+  - multimodal-dispatch
+
+  - plan
+
+  - pre-analysis
+
+  - pr-creation-workflow
+
+  - programming-principles
+
+  - receiving-code-review
+
+  - requesting-code-review
+
+  - research
+
+  - researcher
+
+  - skill-creator
+
+  - solve
+
+  - sync-guidelines
+
+  - systematic-debugging
+
+  - test-driven-development
+
+  - ui-design
+
+  - ui-engineer
+
+  - verification
+
+  - verification-before-completion
+
+  - verification-enforcement
+
+
+  ## Skills That Load Correctly (11)
+
+
+  | Skill | Description Format | Why It Works |
+
+  |-------|-------------------|--------------|
+
+  | adversarial-audit | Quoted `"..."` | Colon-space is literal inside quotes |
+
+  | approval-gate | Quoted `"..."` | Same |
+
+  | completeness-gate | Quoted `"..."` | Same |
+
+  | completion-core | Quoted `"..."` | Same |
+
+  | customize-opencode | Built-in (not on disk) | N/A |
+
+  | gitbucket-api | Unquoted, no colons | No colon-space in text |
+
+  | github-mcp | Unquoted, no colons | No colon-space in text |
+
+  | spec-creation | Quoted `"..."` | Colon-space is literal inside quotes |
+
+  | sre-runbook | Quoted `"..."` | Same |
+
+  | using-git-worktrees | Quoted `"..."` | Same |
+
+  | writing-plans | Quoted `"..."` | Same |
+
+
+  ## Fix
+
+
+  Wrap `description:` values in all 28 affected SKILL.md files with double quotes
+  (`"..."`). The two unquoted skills without colons (`gitbucket-api`, `github-mcp`)
+  can optionally be left unquoted or quoted for consistency.
+
+
+  ## Evidence
+
+
+  - opencode source: `packages/opencode/src/skill/index.ts` uses `ConfigMarkdown.parse()`
+  for frontmatter parsing
+
+  - `isSkillFrontmatter()` requires `typeof data.description === "string"` (or undefined)
+
+  - Failed parses are caught and silently discarded per `Effect.catch()` in the `add()`
+  function
+
+  - Only skills with `name` + valid `description` survive to `<available_skills>`
+
+
+  ## Environment
+
+
+  - opencode build agent (ollama-cloud/deepseek-v4-flash)
+
+  - Repo: `snea-shoebox-editor` (`.opencode` submodule at `michael-conrad/.opencode`)
+
+  - Branch: `feature/1299-fts-entries`
+
+  '
+created_at: '2026-06-14T04:50:25Z'
+updated_at: '2026-06-14T06:43:48Z'
+remote_issue: 1180
+remote_url: https://github.com/michael-conrad/.opencode/issues/1180
+promoted_at: '2026-08-27T03:25:12.577379+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.577379+00:00'
+author: michael-conrad

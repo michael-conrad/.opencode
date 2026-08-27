@@ -1,0 +1,58 @@
+number: 869
+title: '[PHASE] #866: Edit Task Files — Replace task() with orchestrator-routing markers'
+status: open
+labels:
+- needs-approval
+- plan-phase
+body: '## Phase 2: Edit Task Files — Replace `task()` with orchestrator-routing markers
+
+
+  **Parent plan:** [#866](https://github.com/michael-conrad/.opencode/issues/866)
+
+  **Items:** Items 2-9
+
+
+  ### What must be accomplished
+
+  For each of 8 affected files, replace every `task()` with orchestrator-routing language
+  including `must_receive`/`must_not_receive` context schema and result contract fragment.
+
+
+  Affected files:
+
+  - `git-workflow/tasks/cleanup/branch-cleanup.md`
+
+  - `git-workflow/tasks/pre-work.md` (2 locations)
+
+  - `git-workflow/tasks/review-prep/push-and-cleanup.md`
+
+  - `git-workflow/tasks/pr-creation/enforcement-gate.md`
+
+  - `verification-before-completion/tasks/verify.md`
+
+  - `research/tasks/research-multi.md`
+
+  - `multimodal-dispatch/tasks/dispatch-multi.md`
+
+  - `changelog-generator/tasks/since-last-release.md`
+
+
+  ### Success criteria
+
+  - `grep -rn "task()" .opencode/skills/*/tasks/` returns zero matches
+
+  - Each edited section has `must_receive`/`must_not_receive` and result contract
+  fragment
+
+
+  ### Dependencies
+
+  - Phase 1 (audit results used as the definitive target list)'
+created_at: '2026-05-24T17:35:44Z'
+updated_at: '2026-06-12T03:45:36Z'
+remote_issue: 869
+remote_url: https://github.com/michael-conrad/.opencode/issues/869
+promoted_at: '2026-08-27T03:25:12.256001+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.256001+00:00'
+author: michael-conrad

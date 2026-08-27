@@ -1,0 +1,43 @@
+number: 753
+title: 'Phase 7: Update VbC verify.md — mandate test artifact files'
+status: open
+labels:
+- needs-approval
+- plan
+- sub-issue
+body: 'Parent: #746
+
+
+  ## Concern
+
+  VbC enforcement layer — verification-before-completion must require saved artifact
+  files for every behavioral SC.
+
+
+  ## Files
+
+  - `skills/verification-before-completion/tasks/verify.md` (Behavioral Evidence section)
+
+
+  ## Tasks
+
+  1. Read current Behavioral Evidence table
+
+  2. Write content-verification test (RED) — artifact file row absent
+
+  3. Add "Test artifact file" row to table + paragraph
+
+  4. Confirm content-verification test passes (GREEN)
+
+
+  ## Dependencies
+
+  - None (enforcement layer)'
+created_at: '2026-05-20T17:05:56Z'
+updated_at: '2026-06-12T03:45:40Z'
+remote_issue: 753
+remote_url: https://github.com/michael-conrad/.opencode/issues/753
+promoted_at: '2026-08-27T03:25:12.027903+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.027903+00:00'
+author: michael-conrad

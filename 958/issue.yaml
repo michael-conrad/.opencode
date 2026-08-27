@@ -1,0 +1,72 @@
+number: 958
+title: '[SPEC] Audit skill deck: add workflow checklist to all skill cards'
+status: open
+labels:
+- needs-approval
+- spec
+- '[SPEC]'
+body: '## Problem
+
+
+  The auditor agent cards now have a 10-step workflow checklist (`- [ ] N. Description`)
+  at the top that provides a quick mental model of the full pipeline. Other skill
+  cards (SKILL.md files) lack this checklist pattern, making it harder for agents
+  to orient themselves when dispatched.
+
+
+  ## Scope
+
+
+  Audit all SKILL.md files in `.opencode/skills/*/` and add a workflow checklist where
+  applicable (cards with sequential multi-step procedures). Exclude single-step or
+  reference-only skills where a checklist adds no value.
+
+
+  ## Pattern
+
+
+  ```
+
+  ## Workflow Checklist
+
+
+  - [ ] 1. ...
+
+  - [ ] 2. ...
+
+  - [ ] 3. ...
+
+  ...
+
+  ```
+
+
+  Checklist items map to the skill''s procedural steps. The number of items depends
+  on the skill''s complexity.
+
+
+  ## Audit Criteria
+
+
+  | SC | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | All multi-step skill cards have a workflow checklist after the YAML frontmatter
+  | `structural` |
+
+  | SC-2 | Checklist uses `- [ ] N. Description` format | `string` |
+
+  | SC-3 | Checklist items match the skill''s actual procedural steps | `semantic`
+  |
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
+created_at: '2026-05-31T02:29:43Z'
+updated_at: '2026-07-11T14:38:58Z'
+remote_issue: 958
+remote_url: https://github.com/michael-conrad/.opencode/issues/958
+promoted_at: '2026-08-27T03:25:12.425342+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:12.425342+00:00'
+author: michael-conrad

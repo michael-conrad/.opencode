@@ -1,0 +1,84 @@
+number: 588
+title: '[SPEC] Remove evidence gate from session-enforcement plugin — false positives,
+  no value'
+status: open
+labels:
+- needs-approval
+- spec
+- session-enforcement
+body: '# SPEC: Remove evidence gate from session-enforcement plugin
+
+
+  ## Problem
+
+
+  The session-enforcement plugin contains an evidence gate that detects `github_issue_write`
+  calls with `state=closed` and injects a warning block requiring per-SC verification
+  evidence.
+
+
+  This gate produces false positives (triggering on issue creation, which is `state=open`,
+  not `state=closed`), adds noise without preventing actual unauthorized closures,
+  and the session-enforcement plugin should not be in the business of auditing verification
+  completeness — that''s the `verification-before-completion` skill''s job. The plugin
+  should focus on git config mutation, no-verify detection, inline work detection,
+  and secret redaction.
+
+
+  ## Fix
+
+
+  Remove the evidence gate detection logic and the `buildEvidenceGateBlock()` function
+  from `plugins/session-enforcement.ts`.
+
+
+  ## Success Criteria
+
+
+  - SC-1: `plugins/session-enforcement.ts` no longer contains `buildEvidenceGateBlock`
+  function
+
+  - SC-2: `plugins/session-enforcement.ts` no longer contains evidence gate detection
+  logic that scans assistant messages for `state=closed` patterns
+
+  - SC-3: Issue creation (`method=create`, `state=open`) no longer triggers any enforcement
+  injection
+
+  - SC-4: No false-positive evidence warnings appear in normal workflow
+
+
+  ## Files Affected
+
+
+  | File | Change |
+
+  |---|---|
+
+  | `plugins/session-enforcement.ts` | Remove `buildEvidenceGateBlock()` function
+  and the evidence gate detection loop |
+
+
+  ## Out of Scope
+
+
+  - No behavioral test changes — the gate removal is a subtraction, not a behavioral
+  change
+
+  - No other session-enforcement functions or detection logic touched
+
+  - Verification completeness remains the responsibility of `verification-before-completion`
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/deepseek-v4-flash)
+
+  '
+created_at: '2026-05-15T05:11:31Z'
+updated_at: '2026-06-12T03:45:44Z'
+remote_issue: 588
+remote_url: https://github.com/michael-conrad/.opencode/issues/588
+promoted_at: '2026-08-27T03:25:11.758082+00:00'
+promotion_type: retroactive_import
+last_sync: '2026-08-27T03:25:11.758082+00:00'
+author: michael-conrad
