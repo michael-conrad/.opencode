@@ -1,0 +1,18 @@
+concern_map:
+  issue: ".opencode#2359"
+  topic: "Create shared reference: orchestrator-context-discipline.md"
+  concerns:
+    - concern: "Reference content creation"
+      phase: 1
+      boundary: "Extract §1.1 content into a standalone canonical reference file; do not re-inline into consuming cards"
+      separation: "Content lives in one place (the reference); consuming cards only link to it"
+    - concern: "Cross-reference wiring"
+      phase: 2
+      boundary: "Add Read [Text](path) links to the 5 consuming skill cards' Cross-References sections"
+      separation: "Links are additive; no existing card content is removed or altered"
+    - concern: "Reference discoverability"
+      phase: 3
+      boundary: "Index the reference in AGENTS.md Reference Documents table"
+      separation: "Documentation index update; no behavioral change"
+  separation_notes:
+    - "The reference file (phase 1) is the single source of truth; the Read-links (phase 2) are consumers; the index (phase 3) is discoverability. Each concern is independently verifiable."

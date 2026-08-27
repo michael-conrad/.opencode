@@ -1,0 +1,21 @@
+testability_assessment:
+  issue: ".opencode#2359"
+  topic: "Create shared reference: orchestrator-context-discipline.md"
+  phases:
+    - phase: 1
+      name: "Create reference file"
+      test_strategy: "string"
+      detail: "Verify the reference file exists at .opencode/reference/orchestrator-context-discipline.md and contains the extracted §1.1 content (orchestrator-context-lean, sub-agent-context-generosity, result-contract-frugality, allocation-by-context-cost). Verify standardized vocabulary is preserved."
+      evidence_type: "string"
+    - phase: 2
+      name: "Add Read-links to consuming skill cards"
+      test_strategy: "string"
+      detail: "Verify each of the 5 consuming skill cards (approval-gate, spec-creation, writing-plans, executing-plans, git-workflow) contains a Read [Text](path) link to orchestrator-context-discipline.md in its Cross-References section. Verify the link uses the imperative inline-link form."
+      evidence_type: "string"
+    - phase: 3
+      name: "Index reference in AGENTS.md"
+      test_strategy: "string"
+      detail: "Verify AGENTS.md Reference Documents table contains a row for orchestrator-context-discipline.md with a Purpose entry."
+      evidence_type: "string"
+  overall_note:
+    - "This is a documentation-only change. All SCs are verifiable via string/structural checks (file existence, link presence, table row). No behavioral testing is required because the change does not alter runtime agent behavior — it relocates reference content and adds cross-reference links."

@@ -1,0 +1,50 @@
+decompose_output:
+  issue: ".opencode#2359"
+  topic: "Create shared reference: orchestrator-context-discipline.md"
+  decomposition_notes:
+    - "The spec body does not yet contain a formal success criteria (SC) table — the analyze task decomposes the problem into implementation items, each referencing exactly one SC-ID."
+    - "The spec's Scope/Approach/Impact sections define the required deliverables. Each item below is a single independently verifiable claim."
+  items:
+    - id: ITEM-1
+      sc_id: SC-1
+      title: "Create orchestrator-context-discipline.md reference file"
+      description: "Create .opencode/reference/orchestrator-context-discipline.md as the single canonical home for orchestrator-context-lean, sub-agent-context-generosity, result-contract-frugality, and the allocation-by-context-cost model, extracted from 020-go-prohibitions.md §1.1 (lines 84-139)."
+      inputs:
+        - "020-go-prohibitions.md §1.1 Orchestrator Context Discipline (lines 84-139)"
+        - "Existing reference file conventions (SPDX header, byline, Overview)"
+      outputs:
+        - ".opencode/reference/orchestrator-context-discipline.md"
+      invariants:
+        - "Content is extracted, not re-inlined into consuming cards"
+        - "Standardized vocabulary preserved (orchestrator context, sub-agent context, orchestrator context discipline)"
+        - "File follows existing reference conventions"
+      failure_modes:
+        - "Content loss during extraction (mitigated by Read-link convention)"
+        - "Vocabulary regression to 'context budget'/'context cost'"
+    - id: ITEM-2
+      sc_id: SC-2
+      title: "Add mandatory Read [Text](path) links to consuming skill cards"
+      description: "Add mandatory Read [Text](path) links to the orchestrator-context-discipline.md reference in the Cross-References sections of the 5 consuming skill cards: approval-gate, spec-creation, writing-plans, executing-plans, git-workflow."
+      inputs:
+        - "5 consuming skill cards (approval-gate, spec-creation, writing-plans, executing-plans, git-workflow)"
+        - "Read-Link Cross-Reference Rule (AGENTS.md)"
+      outputs:
+        - "Read [Text](path) links added to each consuming card's Cross-References section"
+      invariants:
+        - "Links use the imperative Read [Text](path) inline-link form (not 'See' citations, not resolution tables)"
+        - "Each of the 5 consuming cards gets a link"
+      failure_modes:
+        - "A consuming card misses the Read-link (content loss risk)"
+        - "Link uses a non-imperative form (See/§Name) that agents treat as decorative"
+    - id: ITEM-3
+      sc_id: SC-3
+      title: "Index the reference in AGENTS.md Reference Documents table"
+      description: "Add orchestrator-context-discipline.md to the AGENTS.md Reference Documents table (lines 83-89) with a Purpose column entry."
+      inputs:
+        - "AGENTS.md Reference Documents table (lines 83-89)"
+      outputs:
+        - "New row in AGENTS.md Reference Documents table"
+      invariants:
+        - "Table format preserved (Document | Purpose)"
+      failure_modes:
+        - "Reference not indexed, reducing discoverability"

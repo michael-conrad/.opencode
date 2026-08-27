@@ -1,0 +1,93 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue: 2376
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1]
+    concern: "default-model.sh DEFAULT_TEST_MODEL fallback literal"
+    files:
+      - .opencode/tests-v2/default-model.sh
+    description: "Update the DEFAULT_TEST_MODEL fallback literal in default-model.sh to ollama/qwen3.8:27b-256k (single source of truth)."
+    skill_task:
+      red: "execute red task from test-driven-development"
+      green: "execute green task from test-driven-development"
+      verify: "execute verify task from verification-before-completion"
+      commit: "orchestrator inline (git add + commit)"
+
+  - phase: 2
+    sc_ids: [SC-2]
+    concern: "with-test-home hardcoded fallback literals (seed_model_config + isolation-model)"
+    files:
+      - .opencode/tests-v2/with-test-home
+    description: "Update the two hardcoded fallback literals in with-test-home (seed_model_config line 135, isolation-model line 264) to ollama/qwen3.8:27b-256k."
+    skill_task:
+      red: "execute red task from test-driven-development"
+      green: "execute green task from test-driven-development"
+      verify: "execute verify task from verification-before-completion"
+      commit: "orchestrator inline (git add + commit)"
+
+  - phase: 3
+    sc_ids: [SC-3]
+    concern: "documentation model references"
+    files:
+      - .opencode/AGENTS.md
+      - .opencode/docs/model-dependency.md
+      - .opencode/README.md
+      - .opencode/tests-v2/AGENTS.md
+      - AGENTS.md
+    description: "Update the model literal across the five documentation files and assert zero occurrences of ollama/qwen3.6:35b-256k."
+    skill_task:
+      red: "execute red task from test-driven-development"
+      green: "execute green task from test-driven-development"
+      verify: "execute verify task from verification-before-completion"
+      commit: "orchestrator inline (git add + commit)"
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "No hard output dependency — independent literal substitutions; with-test-home literals edited separately from the variable source of truth."
+    - from: 1
+      to: 3
+      reason: "Documentation must match the source-of-truth value updated in phase 1."
+    - from: 2
+      to: 3
+      reason: "Documentation consistency is validated after all runtime literals are updated."
+  notes:
+    - "All three phases are independent single-literal substitutions with no shared state or cross-phase output consumption."
+    - "The DAG is linear (1 -> 2 -> 3) for clarity; each phase's RED test depends only on committed output within the same phase."
+
+skill_task_selection:
+  - phase: 1
+    steps: [red, green, verify, commit]
+    skill_map:
+      red: test-driven-development
+      green: test-driven-development
+      verify: verification-before-completion
+      commit: orchestrator
+  - phase: 2
+    steps: [red, green, verify, commit]
+    skill_map:
+      red: test-driven-development
+      green: test-driven-development
+      verify: verification-before-completion
+      commit: orchestrator
+  - phase: 3
+    steps: [red, green, verify, commit]
+    skill_map:
+      red: test-driven-development
+      green: test-driven-development
+      verify: verification-before-completion
+      commit: orchestrator
+
+triplet_co_location:
+  status: VERIFIED
+  detail: "Each SC's RED/GREEN/COMMIT steps are assigned to the same phase. SC-1 in phase 1, SC-2 in phase 2, SC-3 in phase 3. No triplet split detected."
+
+cross_phase_dependency:
+  status: VERIFIED
+  detail: "No RED test depends on SC output not yet committed in the same phase. Each phase is a self-contained literal substitution with no cross-phase output consumption."
+
+Co-authored with AI: OpenCode (deepseek-v4-flash)
