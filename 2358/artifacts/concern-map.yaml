@@ -1,0 +1,56 @@
+spec_path: .opencode/.issues/2358/spec.md
+concerns:
+  - id: reference_creation
+    name: Shared Reference Creation
+    description: Create the canonical discussion-mode-mandates reference file as a content-preserving extraction of §1.6
+    phase: 1
+    scs:
+      - SC-1a
+      - SC-1b
+  - id: brainstorming_link
+    name: Brainstorming Card Read-link
+    description: Add the mandatory imperative Read-link to the brainstorming skill card
+    phase: 2
+    scs:
+      - SC-2a
+      - SC-2b
+  - id: approval_gate_link
+    name: Approval-gate Card Read-link
+    description: Add the mandatory imperative Read-link to the approval-gate skill card
+    phase: 3
+    scs:
+      - SC-3a
+      - SC-3b
+  - id: single_source_integrity
+    name: Single-Source Integrity
+    description: Verify §1.6 content appears exactly once in the deck, not duplicated into either card
+    phase: 4
+    scs:
+      - SC-4a
+  - id: deck_wide_link_integrity
+    name: Deck-Wide Link Integrity
+    description: Verify every Read-link to the reference file across the whole deck resolves
+    phase: 5
+    scs:
+      - SC-4b
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: reference/discussion-mode-mandates.md exists and preserves §1.6 content
+    scs: [SC-1a, SC-1b]
+  phase_2:
+    entry: phase 1 complete
+    exit: brainstorming/SKILL.md carries the imperative Read-link and its target resolves
+    scs: [SC-2a, SC-2b]
+  phase_3:
+    entry: phase 2 complete
+    exit: approval-gate/SKILL.md carries the imperative Read-link and its target resolves
+    scs: [SC-3a, SC-3b]
+  phase_4:
+    entry: phase 3 complete
+    exit: §1.6 content appears exactly once in the deck
+    scs: [SC-4a]
+  phase_5:
+    entry: phase 4 complete
+    exit: every Read-link to the reference file across the deck resolves
+    scs: [SC-4b]

@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2358/spec.md
+item_1_reference_creation:
+  affected_files:
+    - reference/discussion-mode-mandates.md (new file)
+  affected_consumers:
+    - skills/brainstorming/SKILL.md (via Read-link)
+    - skills/approval-gate/SKILL.md (via Read-link)
+  description: "Create the canonical shared reference file holding the extracted §1.6 Discussion Mode Mandates content. No existing file is modified."
+  risk: low
+  rollback: "Delete reference/discussion-mode-mandates.md"
+item_2_brainstorming_link:
+  affected_files:
+    - skills/brainstorming/SKILL.md
+  description: "Add a mandatory Read [Text](.opencode/reference/discussion-mode-mandates.md) link to the brainstorming skill card's Cross-References section."
+  risk: low
+  rollback: "Remove the added Read-link from skills/brainstorming/SKILL.md"
+item_3_approval_gate_link:
+  affected_files:
+    - skills/approval-gate/SKILL.md
+  description: "Add a mandatory Read [Text](.opencode/reference/discussion-mode-mandates.md) link to the approval-gate skill card's Cross-References section."
+  risk: low
+  rollback: "Remove the added Read-link from skills/approval-gate/SKILL.md"
+item_4_single_source_verification:
+  affected_files: []
+  description: "Verification-only — confirm §1.6 content appears exactly once in the deck (in the reference file, not duplicated into either skill card)."
+  risk: none
+  rollback: "No code change"
+item_5_deck_wide_link_verification:
+  affected_files: []
+  description: "Verification-only — confirm every Read-link to the reference file across the whole deck resolves."
+  risk: none
+  rollback: "No code change"
+cross_repo_impact:
+  - repo: michael-conrad/opencode-config
+    impact: "None — this spec lives in the .opencode submodule and touches only .opencode/ files."
+    affected_files: []

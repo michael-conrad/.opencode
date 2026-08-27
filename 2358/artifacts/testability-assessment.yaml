@@ -1,0 +1,46 @@
+spec_path: .opencode/.issues/2358/spec.md
+scs:
+  - id: SC-1a
+    evidence_type: structural
+    verification_method: "ls .opencode/reference/discussion-mode-mandates.md succeeds"
+    testable: true
+    test_type: file_existence
+  - id: SC-1b
+    evidence_type: string
+    verification_method: "diff the reference file against the §1.6 source block to confirm no mandate was dropped or altered"
+    testable: true
+    test_type: diff
+  - id: SC-2a
+    evidence_type: string
+    verification_method: "grep brainstorming/SKILL.md for the imperative Read-link form"
+    testable: true
+    test_type: grep
+  - id: SC-2b
+    evidence_type: structural
+    verification_method: "resolve the target path from the brainstorming/SKILL.md Read-link and assert it exists"
+    testable: true
+    test_type: path_resolution
+  - id: SC-3a
+    evidence_type: string
+    verification_method: "grep approval-gate/SKILL.md for the imperative Read-link form"
+    testable: true
+    test_type: grep
+  - id: SC-3b
+    evidence_type: structural
+    verification_method: "resolve the target path from the approval-gate/SKILL.md Read-link and assert it exists"
+    testable: true
+    test_type: path_resolution
+  - id: SC-4a
+    evidence_type: string
+    verification_method: "grep the codebase to confirm the §1.6 content is not duplicated into brainstorming/SKILL.md or approval-gate/SKILL.md"
+    testable: true
+    test_type: grep
+  - id: SC-4b
+    evidence_type: string
+    verification_method: "scan the whole deck for any Read-link to the reference file and assert each target resolves; run skildeck validation on all modified cards (if available)"
+    testable: true
+    test_type: deck_wide_scan
+platform_testing_notes:
+  - "SC-1a is structural (file existence); SC-2b/SC-3b are structural (path resolution)."
+  - "SC-1b, SC-2a, SC-3a, SC-4a, SC-4b are string-grade (diff/grep/scan) — declared as string per the evidence type taxonomy."
+  - "No behavioral tests required — this spec is a content-extraction and link-insertion change with no runtime behavior modification."

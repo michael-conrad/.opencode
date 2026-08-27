@@ -1,0 +1,28 @@
+issue: 2376
+
+code_paths:
+  - phase: 1
+    path: .opencode/tests-v2/default-model.sh
+    detail: DEFINES DEFAULT_TEST_MODEL env var with fallback. Tests source this file or read the env var. No other code path reads the literal.
+  - phase: 2
+    path: .opencode/tests-v2/with-test-home
+    detail: seed_model_config() (line 135) reads DEFAULT_TEST_MODEL with fallback; isolation-model (line 264) hardcodes fallback literal. Both interpolate model into opencode.jsonc.
+  - phase: 3
+    path: .opencode/AGENTS.md
+    detail: Documentation reference in Fabricated model excuses section.
+  - phase: 3
+    path: .opencode/docs/model-dependency.md
+    detail: Documentation tables describing default test model.
+  - phase: 3
+    path: .opencode/README.md
+    detail: Documentation tables describing default test model.
+  - phase: 3
+    path: .opencode/tests-v2/AGENTS.md
+    detail: Documentation references across §5 infrastructure, §9 change control, §10 lessons learned.
+  - phase: 3
+    path: AGENTS.md (root)
+    detail: Documentation reference in Fabricated model excuses section.
+
+runtime_path_note: |
+  Only default-model.sh (via $DEFAULT_TEST_MODEL) and with-test-home (two literal fallbacks) affect runtime
+  model selection. Documentation files have zero runtime effect.

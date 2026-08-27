@@ -1,0 +1,15 @@
+issue: 2376
+
+cross_cutting_matrix:
+  concern: model-literal-consistency
+  phases_affected: [1, 2, 3]
+  detail: All three phases change the same literal (ollama/qwen3.6:35b-256k -> ollama/qwen3.8:27b-256k) across different file categories. The literal is the single cross-cutting element.
+  management: Change the literal consistently across all affected files in dependency order; no logic coupling between phases beyond the shared literal value.
+  concern: no-behavioral-change
+  phases_affected: [1, 2, 3]
+  detail: This is a pure string-value substitution with zero logic change. Runtime behavior is identical except which model name is used.
+  management: Structural verification suffices; no behavioral test required. EVIDENCE_TYPE structural/string is appropriate.
+
+summary: |
+  Single cross-cutting concern: the model literal value. It is changed consistently across
+  source-of-truth, harness fallbacks, and documentation. No logic or behavioral coupling beyond the shared string.

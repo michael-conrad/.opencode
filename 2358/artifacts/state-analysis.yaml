@@ -1,0 +1,57 @@
+spec_path: .opencode/.issues/2358/spec.md
+state_machine:
+  name: discussion_mode_mandates_reference
+  states:
+    - name: reference_absent
+      description: "reference/discussion-mode-mandates.md does not exist"
+      entry_action: "none (initial state)"
+      applied_by: []
+    - name: reference_created
+      description: "reference/discussion-mode-mandates.md exists with content-preserving §1.6 extraction"
+      entry_action: "write the extracted §1.6 content to the reference file"
+      applied_by:
+        - Item 1 (SC-1a, SC-1b)
+    - name: brainstorming_linked
+      description: "brainstorming/SKILL.md carries the imperative Read-link and its target resolves"
+      entry_action: "add Read [Text](.opencode/reference/discussion-mode-mandates.md) to brainstorming Cross-References"
+      applied_by:
+        - Item 2 (SC-2a, SC-2b)
+    - name: approval_gate_linked
+      description: "approval-gate/SKILL.md carries the imperative Read-link and its target resolves"
+      entry_action: "add Read [Text](.opencode/reference/discussion-mode-mandates.md) to approval-gate Cross-References"
+      applied_by:
+        - Item 3 (SC-3a, SC-3b)
+    - name: single_source_verified
+      description: "§1.6 content appears exactly once in the deck"
+      entry_action: "grep the codebase to confirm no duplication into either skill card"
+      applied_by:
+        - Item 4 (SC-4a)
+    - name: deck_wide_links_verified
+      description: "every Read-link to the reference file across the deck resolves"
+      entry_action: "scan the whole deck and assert each target resolves; run skildeck validation"
+      applied_by:
+        - Item 5 (SC-4b)
+  transitions:
+    - from: reference_absent
+      to: reference_created
+      trigger: Item 1 GREEN
+      action: "write the extracted §1.6 content to the reference file"
+    - from: reference_created
+      to: brainstorming_linked
+      trigger: Item 2 GREEN
+      action: "add the imperative Read-link to brainstorming/SKILL.md"
+    - from: brainstorming_linked
+      to: approval_gate_linked
+      trigger: Item 3 GREEN
+      action: "add the imperative Read-link to approval-gate/SKILL.md"
+    - from: approval_gate_linked
+      to: single_source_verified
+      trigger: Item 4 verify
+      action: "grep the codebase to confirm single-source integrity"
+    - from: single_source_verified
+      to: deck_wide_links_verified
+      trigger: Item 5 verify
+      action: "scan the deck and assert all Read-link targets resolve"
+  forbidden_states:
+    - description: "No duplication of §1.6 content into either skill card (SC-4a)"
+    - description: "No broken Read-link to the reference file anywhere in the deck (SC-4b)"

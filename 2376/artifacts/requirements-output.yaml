@@ -1,0 +1,61 @@
+issue: 2376
+repo: .opencode
+requirements:
+
+  # --- Explicit requirements ---
+  - id: REQ-1
+    type: explicit
+    description: Update DEFAULT_TEST_MODEL fallback in .opencode/tests-v2/default-model.sh (single source of truth) from ollama/qwen3.6:35b-256k to ollama/qwen3.8:27b-256k
+    verified_by: read default-model.sh line 4 — DEFAULT_TEST_MODEL="${DEFAULT_TEST_MODEL:-ollama/qwen3.6:35b-256k}"
+    verification_status: verified
+  - id: REQ-2
+    type: explicit
+    description: Update the two hardcoded fallback literals in .opencode/tests-v2/with-test-home (lines 135 and 264) to ollama/qwen3.8:27b-256k
+    verified_by: grep found ollama/qwen3.6:35b-256k at with-test-home lines 135 and 264
+    verification_status: verified
+  - id: REQ-3
+    type: explicit
+    description: Update documentation references in .opencode/AGENTS.md, .opencode/docs/model-dependency.md, .opencode/README.md, .opencode/tests-v2/AGENTS.md, and root AGENTS.md
+    verified_by: grep found qwen3.6:35b-256k at .opencode/AGENTS.md:159, .opencode/docs/model-dependency.md:14/15/34, .opencode/README.md:39/40/59, .opencode/tests-v2/AGENTS.md:281/402/505/595, root AGENTS.md:86
+    verification_status: verified
+
+  # --- Implicit requirements ---
+  - id: REQ-4
+    type: implicit
+    description: The new model ollama/qwen3.8:27b-256k must be available locally for tests to run
+    verified_by: ollama-probe list returns qwen3.8:27b-256k (also qwen3.8:27b and qwen3.6:35b-256k)
+    verification_status: verified
+  - id: REQ-5
+    type: implicit
+    description: Tests that consume $DEFAULT_TEST_MODEL variable propagate automatically when the single source of truth is updated — no per-test edits required
+    verified_by: default-model.sh is the single source; tests source it via helpers.sh; with-test-home reads DEFAULT_TEST_MODEL env var
+    verification_status: verified
+  - id: REQ-6
+    type: implicit
+    description: Consistency between the single source of truth (default-model.sh), the with-test-home hardcoded fallbacks, and all documentation references must be maintained in the same change
+    verified_by: all occurrences of the old literal identified across the repo via grep
+    verification_status: verified
+
+  # --- Constraint requirements ---
+  - id: REQ-7
+    type: constraint
+    description: No changes to model availability, ollama-probe, or the opencode.jsonc model list (out of scope)
+    verified_by: opencode.jsonc line 19 references qwen3.6:35b — must NOT be touched; spec explicitly excludes it
+    verification_status: verified
+  - id: REQ-8
+    type: constraint
+    description: The default model change requires an approved spec per .opencode/tests-v2/AGENTS.md §9 Change Control
+    verified_by: tests-v2/AGENTS.md §9 states DO NOT CHANGE default model unless explicitly directed by approved spec; issue 2376 carries spec + needs-approval labels
+    verification_status: verified
+  - id: REQ-9
+    type: constraint
+    description: Do not modify .opencode/docs/audit-sc6959-verification.md (references qwen3.6:35b, not the -256k default literal; historical audit record, not in spec scope)
+    verified_by: grep shows audit-sc6959-verification.md references qwen3.6:35b (no -256k suffix); not listed in spec scope
+    verification_status: verified
+
+  # --- Non-requirements ---
+  - id: REQ-10
+    type: non-requirement
+    description: No change to model availability, ollama-probe, opencode.jsonc model list, or the harness isolation logic beyond literal replacement
+    verified_by: spec Scope section "Out of scope" lists these as excluded
+    verification_status: verified

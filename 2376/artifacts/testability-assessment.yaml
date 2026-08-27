@@ -1,0 +1,23 @@
+issue: 2376
+
+testability_assessment:
+  - phase: 1
+    strategy: structural
+    method: grep/read default-model.sh line 4 asserts DEFAULT_TEST_MODEL fallback equals ollama/qwen3.8:27b-256k
+    rationale: Pure string substitution in a single source-of-truth variable; no logic, no runtime behavior change beyond model name.
+  - phase: 2
+    strategy: structural
+    method: grep with-test-home lines 135 and 264 asserts both literals equal ollama/qwen3.8:27b-256k
+    rationale: Pure literal substitution; no logic change.
+  - phase: 3
+    strategy: structural (string)
+    method: grep across all 5 doc files asserts no remaining ollama/qwen3.6:35b-256k default-model references
+    rationale: Documentation consistency check; zero runtime effect.
+  - phase: runtime-smoke (advisory)
+    strategy: behavioral (optional)
+    method: A full behavioral test via with-test-home would confirm the new model runs, but is not required for a literal-value change
+    rationale: Per 080-code-standards critical-rules-BEH-EV, this change does NOT alter runtime behavior semantics — only the model identifier string. Structural evidence type is appropriate.
+
+verification_note: |
+  All three phases are structural/string verifiable. No behavioral test is required because
+  the change is a pure model-identifier substitution with no logic, routing, or behavioral-semantics alteration.

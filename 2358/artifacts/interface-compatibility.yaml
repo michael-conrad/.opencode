@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2358/spec.md
+interfaces:
+  - name: reference_file
+    description: "The canonical shared reference file .opencode/reference/discussion-mode-mandates.md"
+    operations:
+      - "Read [Text](.opencode/reference/discussion-mode-mandates.md) — imperative Read-link form"
+    consumers:
+      - skills/brainstorming/SKILL.md
+      - skills/approval-gate/SKILL.md
+    compatibility: "Must follow .opencode/reference/ format conventions (title + prose) with provenance per code standards"
+  - name: skill_card_cross_references
+    description: "Cross-References sections of the two consuming skill cards"
+    files:
+      - skills/brainstorming/SKILL.md
+      - skills/approval-gate/SKILL.md
+    consumers:
+      - Agents loading the brainstorming and approval-gate skill cards
+    compatibility: "Adding the Read-link must not break the card's frontmatter or dispatch-table structure; link goes in the existing Cross-References section"
+  - name: source_guideline
+    description: "The §1.6 Discussion Mode Mandates source block in the preloaded 020 guideline"
+    files:
+      - guidelines/020-go-prohibitions.md
+    consumers:
+      - Item 1 extraction (SC-1b content-preserving diff)
+    compatibility: "Extraction is content-preserving — no mandate added, removed, or reworded"
+boundary_notes:
+  - reference_creation_order: "The reference file must be created (Item 1) before the Read-links are added (Items 2-3), so link targets resolve — enforced by the dependency DAG."
+  - no_020_rewrite: "This spec does not modify guidelines/020-go-prohibitions.md — removing §1.6 from the preloaded 020 is the separate dependent 020 condensation scope."

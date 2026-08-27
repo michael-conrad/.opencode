@@ -1,0 +1,30 @@
+spec_path: .opencode/.issues/2358/spec.md
+approval_status: needs-approval
+sc_count: 8
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: reference/discussion-mode-mandates.md
+    status: NOT_EXISTS
+    role: SC-1a/SC-1b — deliverable to create (content-preserving §1.6 extraction)
+  - file: skills/brainstorming/SKILL.md
+    status: EXISTS
+    role: SC-2a/SC-2b — add imperative Read-link to Cross-References
+  - file: skills/approval-gate/SKILL.md
+    status: EXISTS
+    role: SC-3a/SC-3b — add imperative Read-link to Cross-References
+  - file: guidelines/020-go-prohibitions.md
+    status: EXISTS
+    role: SC-1b — §1.6 source block for content-preserving extraction (not modified by this spec)
+backfill_notes:
+  - All 7 analytical artifacts were missing and have been backfilled from the spec body.
+  - Artifacts reflect 5 items, 8 SCs, 1 new reference file, 2 modified skill cards.
+  - SC-1b, SC-2a, SC-3a, SC-4a, SC-4b are declared string-grade (diff/grep/scan); SC-1a, SC-2b, SC-3b are structural (file existence / path resolution).
+  - SC-4b is a deck-wide link-integrity invariant, distinct from the per-card SC-2b/SC-3b.
+  - No behavioral tests required — content-extraction and link-insertion change with no runtime behavior modification.

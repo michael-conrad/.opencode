@@ -1,0 +1,28 @@
+issue: 2376
+
+interfaces:
+  - element: DEFAULT_TEST_MODEL env var
+    phase: 1
+    classification: modified
+    compatibility: backward-compatible
+    detail: default-model.sh sets DEFAULT_TEST_MODEL with new fallback. Consumers read the env var, so the interface is unchanged; only the default value changes. Existing overrides still work.
+  - element: seed_model_config() in with-test-home
+    phase: 2
+    classification: modified
+    compatibility: backward-compatible
+    detail: Function reads DEFAULT_TEST_MODEL with new fallback literal. Function signature unchanged; only default literal value changes.
+  - element: isolation-model default in with-test-home
+    phase: 2
+    classification: modified
+    compatibility: backward-compatible
+    detail: Hardcoded fallback literal updated. No interface change.
+  - element: documentation model references
+    phase: 3
+    classification: modified
+    compatibility: internal-only (no interface)
+    detail: Documentation literal updates only; no functional interface.
+
+summary: |
+  No interface added, removed, or broken. Three runtime-visible interfaces (DEFAULT_TEST_MODEL,
+  seed_model_config, isolation-model) are modified with backward-compatible default value changes.
+  Documentation references are internal-only.

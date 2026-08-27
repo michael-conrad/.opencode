@@ -1,0 +1,19 @@
+issue: 2376
+
+concerns:
+  - concern: single-source-of-truth
+    phase: 1
+    boundary: default-model.sh owns the DEFAULT_TEST_MODEL variable; tests consume the variable, not literal strings
+    separation: no other file embeds the model string as the authoritative definition
+  - concern: harness-hardcoded-fallbacks
+    phase: 2
+    boundary: with-test-home has two literal fallbacks that do NOT consume DEFAULT_TEST_MODEL; must be updated manually for consistency
+    separation: isolated from default-model.sh; only literal-string coupling
+  - concern: documentation
+    phase: 3
+    boundary: docs reference the model literal for human/agent consumption; updated to match source of truth
+    separation: documentation layer, no runtime effect
+
+separation_summary: |
+  Three distinct concerns: source-of-truth variable (phase 1), harness fallback literals (phase 2),
+  documentation references (phase 3). Each maps to one file category and one verification domain (structural).

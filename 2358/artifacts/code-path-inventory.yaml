@@ -1,0 +1,34 @@
+spec_path: .opencode/.issues/2358/spec.md
+code_paths:
+  phase_1_reference_creation:
+    - path: "reference/discussion-mode-mandates.md (create)"
+      sc: SC-1a
+      description: "Create the canonical shared reference file"
+    - path: "diff reference/discussion-mode-mandates.md against §1.6 source block in guidelines/020-go-prohibitions.md"
+      sc: SC-1b
+      description: "Verify content-preserving extraction — no mandate dropped or altered"
+  phase_2_brainstorming_link:
+    - path: "skills/brainstorming/SKILL.md → Cross-References section: add Read [Text](.opencode/reference/discussion-mode-mandates.md)"
+      sc: SC-2a
+      description: "Add the imperative Read-link to the brainstorming card"
+    - path: "resolve target path from brainstorming/SKILL.md Read-link and assert it exists"
+      sc: SC-2b
+      description: "Verify the brainstorming Read-link target resolves to the created file"
+  phase_3_approval_gate_link:
+    - path: "skills/approval-gate/SKILL.md → Cross-References section: add Read [Text](.opencode/reference/discussion-mode-mandates.md)"
+      sc: SC-3a
+      description: "Add the imperative Read-link to the approval-gate card"
+    - path: "resolve target path from approval-gate/SKILL.md Read-link and assert it exists"
+      sc: SC-3b
+      description: "Verify the approval-gate Read-link target resolves to the created file"
+  phase_4_single_source_verification:
+    - path: "grep the codebase for §1.6 content in skills/brainstorming/SKILL.md and skills/approval-gate/SKILL.md"
+      sc: SC-4a
+      description: "Verify §1.6 content is not duplicated into either skill card"
+  phase_5_deck_wide_link_verification:
+    - path: "scan the whole deck (all skill cards, guidelines, references) for Read-links to the reference file and assert each target resolves"
+      sc: SC-4b
+      description: "Verify every Read-link to the reference file across the deck resolves"
+    - path: "skildeck validation on all modified cards (if available)"
+      sc: SC-4b
+      description: "Verify modified cards retain valid structure"

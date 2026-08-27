@@ -1,0 +1,50 @@
+inspection_date: 2026-08-27
+issue: 2376
+repo: .opencode
+topic: Update default test model for opencode run framework to qwen3.8:27b-256k
+
+affected_files:
+  - path: .opencode/tests-v2/default-model.sh
+    role: single source of truth
+    detail: DEFINES DEFAULT_TEST_MODEL env var with fallback to ollama/qwen3.6:35b-256k (line 4)
+    change: replace fallback literal with ollama/qwen3.8:27b-256k
+  - path: .opencode/tests-v2/with-test-home
+    role: hardcoded fallback literals
+    detail: line 135 seed_model_config fallback; line 264 isolation-model fallback; both ollama/qwen3.6:35b-256k
+    change: replace both literals with ollama/qwen3.8:27b-256k
+  - path: .opencode/AGENTS.md
+    role: documentation reference
+    detail: line 159 Fabricated model excuses references qwen3.6:35b-256k
+    change: update model literal to qwen3.8:27b-256k
+  - path: .opencode/docs/model-dependency.md
+    role: documentation reference
+    detail: lines 14, 15, 34 reference ollama/qwen3.6:35b-256k as default test model
+    change: update all three occurrences
+  - path: .opencode/README.md
+    role: documentation reference
+    detail: lines 39, 40, 59 reference ollama/qwen3.6:35b-256k as default test model
+    change: update all three occurrences
+  - path: .opencode/tests-v2/AGENTS.md
+    role: documentation reference
+    detail: lines 281, 402, 505, 595 reference qwen3.6:35b-256k
+    change: update all four occurrences
+  - path: AGENTS.md (root)
+    role: documentation reference
+    detail: line 86 Fabricated model excuses references qwen3.6:35b-256k
+    change: update model literal to qwen3.8:27b-256k
+
+out_of_scope_verified:
+  - .opencode/opencode.jsonc line 19 references qwen3.6:35b in model list — EXCLUDED per spec (out of scope: opencode.jsonc model list)
+  - .opencode/docs/audit-sc6959-verification.md references qwen3.6:35b (not -256k suffix) — historical audit record, not the default-model literal; NOT listed in spec scope
+
+propagation_notes:
+  - Tests reference $DEFAULT_TEST_MODEL variable from default-model.sh, so updating the variable propagates automatically.
+  - with-test-home has TWO independent hardcoded literals (line 135 seed_model_config, line 264 isolation-model) that do NOT consume DEFAULT_TEST_MODEL and must be updated manually.
+  - Doc files contain literal model strings that must be updated to match.
+
+model_verification:
+  model: ollama/qwen3.8:27b-256k
+  available: true
+  evidence: ollama-probe list returns qwen3.8:27b-256k, qwen3.8:27b, qwen3.6:35b-256k
+  old_model: ollama/qwen3.6:35b-256k
+  old_model_available: true

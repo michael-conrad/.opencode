@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2358/spec.md
+cross_cutting_concerns:
+  - concern: single_source_of_truth
+    description: "The reference file must be the sole canonical owner of §1.6 content — no duplication into either skill card. SC-1b (content-preserving extraction) and SC-4a (appears exactly once) jointly enforce this."
+    affected_scs:
+      - SC-1b
+      - SC-4a
+    affected_phases:
+      - 1
+      - 4
+  - concern: imperative_read_link_form
+    description: "Both skill cards must use the exact imperative Read [Text](path) form, not 'see' or symbol-only refs. SC-2a and SC-3a enforce the same form across two cards."
+    affected_scs:
+      - SC-2a
+      - SC-3a
+    affected_phases:
+      - 2
+      - 3
+  - concern: link_target_resolution
+    description: "Every Read-link to the reference file must resolve. SC-2b/SC-3b cover the two modified cards; SC-4b extends the invariant deck-wide."
+    affected_scs:
+      - SC-2b
+      - SC-3b
+      - SC-4b
+    affected_phases:
+      - 2
+      - 3
+      - 5
+  - concern: reference_format_conventions
+    description: "The new reference file must follow .opencode/reference/ format conventions and carry provenance per code standards (R-5)."
+    affected_scs:
+      - SC-1a
+      - SC-1b
+    affected_phases:
+      - 1

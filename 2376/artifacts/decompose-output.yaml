@@ -1,0 +1,28 @@
+issue: 2376
+repo: .opencode
+
+items:
+  - id: ITEM-1
+    sc_id: SC-1
+    description: Update DEFAULT_TEST_MODEL fallback in .opencode/tests-v2/default-model.sh from ollama/qwen3.6:35b-256k to ollama/qwen3.8:27b-256k
+    file_category: single-source-of-truth script
+    verification_domain: structural (file content)
+    red_green_commit_cycle: 1
+    depends_on: []
+  - id: ITEM-2
+    sc_id: SC-2
+    description: Update the two hardcoded fallback literals in .opencode/tests-v2/with-test-home (lines 135 and 264) to ollama/qwen3.8:27b-256k
+    file_category: harness script
+    verification_domain: structural (file content)
+    red_green_commit_cycle: 2
+    depends_on: [ITEM-1]
+  - id: ITEM-3
+    sc_id: SC-3
+    description: Update documentation references to the old model in .opencode/AGENTS.md, .opencode/docs/model-dependency.md, .opencode/README.md, .opencode/tests-v2/AGENTS.md, and root AGENTS.md to ollama/qwen3.8:27b-256k
+    file_category: documentation
+    verification_domain: structural (file content)
+    red_green_commit_cycle: 3
+    depends_on: [ITEM-1, ITEM-2]
+
+dependency_dag: acyclic
+dependency_order: ITEM-1 -> ITEM-2 -> ITEM-3

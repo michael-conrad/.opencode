@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "The DEFAULT_TEST_MODEL fallback literal in .opencode/tests-v2/default-model.sh is ollama/qwen3.8:27b-256k."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The two hardcoded fallback literals in .opencode/tests-v2/with-test-home (seed_model_config and isolation-model) are both ollama/qwen3.8:27b-256k."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "No default-model reference to ollama/qwen3.6:35b-256k remains in .opencode/AGENTS.md, .opencode/docs/model-dependency.md, .opencode/README.md, .opencode/tests-v2/AGENTS.md, or root AGENTS.md."
+    evidence_type: "string"
+    plan_item: 3

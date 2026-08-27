@@ -1,0 +1,16 @@
+consultation_date: 2026-08-27
+issue: 2376
+repo: .opencode
+
+method:
+  glob_path: .opencode/.issues/research-cards
+  cards_scanned: 24
+  matching_cards: none
+  search_terms: [qwen3.8, qwen3.6, default model, test model, DEFAULT_TEST_MODEL, opencode run framework]
+
+result: NO_MATCH
+confidence_threshold: 0.7
+
+finding_summary: |
+  No research card exists matching the spec topic "update default test model for opencode run framework".
+  Model availability was verified directly via ollama-probe list (qwen3.8:27b-256k present).

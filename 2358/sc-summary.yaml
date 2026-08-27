@@ -1,4 +1,4 @@
-sc_count: 9
+sc_count: 8
 scs:
   - id: "SC-1a"
     description: ".opencode/reference/discussion-mode-mandates.md exists."
@@ -6,11 +6,11 @@ scs:
     plan_item: 1
   - id: "SC-1b"
     description: "The reference file's content is a content-preserving extraction of the §1.6 Discussion Mode Mandates source in 020-go-prohibitions.md."
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 1
   - id: "SC-2a"
     description: "brainstorming/SKILL.md contains a Read [Text](.opencode/reference/discussion-mode-mandates.md) link using the imperative form."
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-2b"
     description: "The brainstorming/SKILL.md Read-link target resolves to the created file."
@@ -18,7 +18,7 @@ scs:
     plan_item: 2
   - id: "SC-3a"
     description: "approval-gate/SKILL.md contains a Read [Text](.opencode/reference/discussion-mode-mandates.md) link using the imperative form."
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 3
   - id: "SC-3b"
     description: "The approval-gate/SKILL.md Read-link target resolves to the created file."
@@ -26,9 +26,9 @@ scs:
     plan_item: 3
   - id: "SC-4a"
     description: "The §1.6 content appears exactly once in the deck — in the reference file, not duplicated into either skill card."
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 4
   - id: "SC-4b"
-    description: "All Read-links to the reference file resolve to the created file."
-    evidence_type: "structural"
+    description: "Every Read [Text](.opencode/reference/discussion-mode-mandates.md) link across the entire deck resolves to the created file — a deck-wide link-integrity check not limited to the two modified cards."
+    evidence_type: "string"
     plan_item: 5

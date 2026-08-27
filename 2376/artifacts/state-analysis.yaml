@@ -1,0 +1,25 @@
+issue: 2376
+
+state_transitions:
+  - phase: 1
+    element: DEFAULT_TEST_MODEL value
+    transition: ollama/qwen3.6:35b-256k -> ollama/qwen3.8:27b-256k (default fallback)
+    states: [old-default, new-default]
+    trigger: default-model.sh literal edit
+    risk: none — value substitution, no state machine
+  - phase: 2
+    element: with-test-home seed_model_config + isolation-model literals
+    transition: old-literal -> new-literal
+    states: [old-fallback, new-fallback]
+    trigger: with-test-home literal edits
+    risk: none — value substitution
+  - phase: 3
+    element: documentation references
+    transition: old-reference -> new-reference
+    states: [stale-doc, current-doc]
+    trigger: doc edits
+    risk: stale-doc state is the failure mode being prevented
+
+summary: |
+  No state machine exists in this change. All phases are single-step literal value substitutions.
+  The only meaningful "state" is documentation currency — stale references are the risk the spec mitigates.

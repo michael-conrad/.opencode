@@ -1,0 +1,30 @@
+issue: 2376
+phase_1_blast_radius:
+  change: default-model.sh DEFAULT_TEST_MODEL fallback literal
+  affected_components:
+    - .opencode/tests-v2/default-model.sh (single source of truth)
+  ripple_effects:
+    - Any test sourcing default-model.sh or reading DEFAULT_TEST_MODEL sees the new model
+    - with-test-home seed_model_config consumes DEFAULT_TEST_MODEL env var when set
+  risk: low — literal string change, no logic change
+
+phase_2_blast_radius:
+  change: with-test-home two hardcoded fallback literals
+  affected_components:
+    - .opencode/tests-v2/with-test-home (lines 135, 264)
+  ripple_effects:
+    - seed_model_config default model fallback
+    - isolation-model default fallback
+  risk: low — literal string change, no logic change
+
+phase_3_blast_radius:
+  change: documentation references
+  affected_components:
+    - .opencode/AGENTS.md
+    - .opencode/docs/model-dependency.md
+    - .opencode/README.md
+    - .opencode/tests-v2/AGENTS.md
+    - AGENTS.md (root)
+  ripple_effects:
+    - Agents and humans reading docs see the correct default model
+  risk: none — documentation only
