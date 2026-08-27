@@ -58,19 +58,64 @@ labels: [needs-approval, spec-draft]
 
 ## 5. Items
 
-### Item 1 (SC-1): Create orchestrator-context-discipline.md reference file
+### Item 1 (SC-1a, SC-1b, SC-1c, SC-1d, SC-1e, SC-1f): Create orchestrator-context-discipline.md reference file
 
-- RED: Enforcement test that asserts the reference file does not yet exist at `.opencode/reference/orchestrator-context-discipline.md`.
-- GREEN: Create `.opencode/reference/orchestrator-context-discipline.md` with the extracted §1.1 content, preserving the standardized vocabulary and following reference file conventions.
-- verify: `grep` the reference file for the four mandate names and standardized vocabulary terms.
-- commit: The new reference file.
+- RED (SC-1a): Enforcement test that asserts the reference file does not yet exist at `.opencode/reference/orchestrator-context-discipline.md`.
+- GREEN (SC-1a): Create `.opencode/reference/orchestrator-context-discipline.md` with the extracted §1.1 content, preserving the standardized vocabulary and following reference file conventions.
+- verify (SC-1a): Confirm the reference file exists.
+- commit (SC-1a): The new reference file.
 
-### Item 2 (SC-2): Add mandatory Read [Text](path) links to consuming skill cards
+- RED (SC-1b): Enforcement test that asserts the reference file does not contain the orchestrator-context-lean mandate.
+- GREEN (SC-1b): Ensure the reference file contains the orchestrator-context-lean mandate content.
+- verify (SC-1b): `grep` the reference file for `orchestrator-context-lean`.
+- commit (SC-1b): The reference file.
 
-- RED: Enforcement test that asserts none of the 5 consuming skill cards contains a `Read [Text](path)` link to the reference.
-- GREEN: Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of each of the 5 consuming skill cards.
-- verify: `grep` each consuming card's Cross-References section for the imperative inline-link form.
-- commit: The 5 modified skill cards.
+- RED (SC-1c): Enforcement test that asserts the reference file does not contain the sub-agent-context-generosity mandate.
+- GREEN (SC-1c): Ensure the reference file contains the sub-agent-context-generosity mandate content.
+- verify (SC-1c): `grep` the reference file for `sub-agent-context-generosity`.
+- commit (SC-1c): The reference file.
+
+- RED (SC-1d): Enforcement test that asserts the reference file does not contain the result-contract-frugality mandate.
+- GREEN (SC-1d): Ensure the reference file contains the result-contract-frugality mandate content.
+- verify (SC-1d): `grep` the reference file for `result-contract-frugality`.
+- commit (SC-1d): The reference file.
+
+- RED (SC-1e): Enforcement test that asserts the reference file does not contain the allocation-by-context-cost model.
+- GREEN (SC-1e): Ensure the reference file contains the allocation-by-context-cost model content.
+- verify (SC-1e): `grep` the reference file for `allocation-by-context-cost`.
+- commit (SC-1e): The reference file.
+
+- RED (SC-1f): Enforcement test that asserts the standardized vocabulary terms are absent and the regression terms are present.
+- GREEN (SC-1f): Ensure the reference file preserves 'orchestrator context'/'sub-agent context'/'orchestrator context discipline' and does not use 'context budget'/'context cost'/'context awareness'.
+- verify (SC-1f): `grep` the reference file for the standardized vocabulary terms; `grep` confirms absence of the regression terms.
+- commit (SC-1f): The reference file.
+
+### Item 2 (SC-2a, SC-2b, SC-2c, SC-2d, SC-2e): Add mandatory Read [Text](path) links to consuming skill cards
+
+- RED (SC-2a): Enforcement test that asserts the approval-gate skill card does not contain a `Read [Text](path)` link to the reference.
+- GREEN (SC-2a): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the approval-gate skill card.
+- verify (SC-2a): `grep` approval-gate's Cross-References section for the imperative inline-link form.
+- commit (SC-2a): The approval-gate skill card.
+
+- RED (SC-2b): Enforcement test that asserts the spec-creation skill card does not contain a `Read [Text](path)` link to the reference.
+- GREEN (SC-2b): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the spec-creation skill card.
+- verify (SC-2b): `grep` spec-creation's Cross-References section for the imperative inline-link form.
+- commit (SC-2b): The spec-creation skill card.
+
+- RED (SC-2c): Enforcement test that asserts the writing-plans skill card does not contain a `Read [Text](path)` link to the reference.
+- GREEN (SC-2c): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the writing-plans skill card.
+- verify (SC-2c): `grep` writing-plans's Cross-References section for the imperative inline-link form.
+- commit (SC-2c): The writing-plans skill card.
+
+- RED (SC-2d): Enforcement test that asserts the executing-plans skill card does not contain a `Read [Text](path)` link to the reference.
+- GREEN (SC-2d): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the executing-plans skill card.
+- verify (SC-2d): `grep` executing-plans's Cross-References section for the imperative inline-link form.
+- commit (SC-2d): The executing-plans skill card.
+
+- RED (SC-2e): Enforcement test that asserts the git-workflow skill card does not contain a `Read [Text](path)` link to the reference.
+- GREEN (SC-2e): Add a `Read [Text](path)` link to `orchestrator-context-discipline.md` in the Cross-References section of the git-workflow skill card.
+- verify (SC-2e): `grep` git-workflow's Cross-References section for the imperative inline-link form.
+- commit (SC-2e): The git-workflow skill card.
 
 ### Item 3 (SC-3): Index the reference in AGENTS.md Reference Documents table
 
@@ -95,14 +140,14 @@ labels: [needs-approval, spec-draft]
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | Phase 1 |
-| R-2 | SC-1 | Phase 1 |
-| R-3 | SC-1 | Phase 1 |
-| R-4 | SC-2 | Phase 2 |
-| R-5 | SC-2 | Phase 2 |
+| R-1 | SC-1a, SC-1b, SC-1c, SC-1d, SC-1e | Phase 1 |
+| R-2 | SC-1f | Phase 1 |
+| R-3 | SC-1a | Phase 1 |
+| R-4 | SC-2a, SC-2b, SC-2c, SC-2d, SC-2e | Phase 2 |
+| R-5 | SC-2a, SC-2b, SC-2c, SC-2d, SC-2e | Phase 2 |
 | R-6 | SC-3 | Phase 3 |
-| R-7 | SC-1 | Phase 1 |
-| R-8 | SC-1, SC-2 | Phases 1-2 |
+| R-7 | SC-1a | Phase 1 |
+| R-8 | SC-1a, SC-1b, SC-1c, SC-1d, SC-1e, SC-2a, SC-2b, SC-2c, SC-2d, SC-2e | Phases 1-2 |
 
 ## 8. Documentation Sources
 
