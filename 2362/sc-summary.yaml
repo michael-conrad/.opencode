@@ -1,22 +1,50 @@
-sc_count: 5
+sc_count: 12
 scs:
-  - id: "SC-1"
-    description: "code-standards-shared.md exists with all eleven procedural sections and headers"
+  - id: "SC-1a"
+    description: "code-standards-shared.md exists"
     evidence_type: "structural"
-    plan_item: 1
-  - id: "SC-2"
-    description: "programming-principles SKILL.md Read-links code-standards-shared, no 'See' form"
+    plan_item: 1a
+  - id: "SC-1b"
+    description: "code-standards-shared.md is non-empty (non-zero bytes)"
+    evidence_type: "structural"
+    plan_item: 1b
+  - id: "SC-1c"
+    description: "code-standards-shared.md contains all eleven extracted procedural section headers"
     evidence_type: "string"
-    plan_item: 2
-  - id: "SC-3"
-    description: "skill-creator SKILL.md Read-links code-standards-shared, no 'See' form"
+    plan_item: 1c
+  - id: "SC-1d"
+    description: "code-standards-shared.md carries SPDX/Provenance headers and AI byline"
     evidence_type: "string"
-    plan_item: 3
-  - id: "SC-4"
-    description: "test-driven-development SKILL.md Read-links code-standards-shared, no 'See' form"
+    plan_item: 1d
+  - id: "SC-2a"
+    description: "programming-principles SKILL.md Read-links code-standards-shared"
     evidence_type: "string"
-    plan_item: 4
-  - id: "SC-5"
-    description: "engineering-approach SKILL.md Read-links code-standards-shared, no 'See' form"
+    plan_item: 2a
+  - id: "SC-2b"
+    description: "programming-principles SKILL.md has no 'See' citation form"
     evidence_type: "string"
-    plan_item: 5
+    plan_item: 2b
+  - id: "SC-3a"
+    description: "skill-creator SKILL.md Read-links code-standards-shared"
+    evidence_type: "string"
+    plan_item: 3a
+  - id: "SC-3b"
+    description: "skill-creator SKILL.md has no 'See' citation form"
+    evidence_type: "string"
+    plan_item: 3b
+  - id: "SC-4a"
+    description: "test-driven-development SKILL.md Read-links code-standards-shared"
+    evidence_type: "string"
+    plan_item: 4a
+  - id: "SC-4b"
+    description: "test-driven-development SKILL.md has no 'See' citation form"
+    evidence_type: "string"
+    plan_item: 4b
+  - id: "SC-5a"
+    description: "engineering-approach SKILL.md Read-links code-standards-shared"
+    evidence_type: "string"
+    plan_item: 5a
+  - id: "SC-5b"
+    description: "engineering-approach SKILL.md has no 'See' citation form"
+    evidence_type: "string"
+    plan_item: 5b

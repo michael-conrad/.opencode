@@ -1,0 +1,34 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  spec_path: ".opencode/.issues/2362/spec.md"
+  sc_count: 12
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: |
+    Spec #2362 creates a shared canonical reference .opencode/reference/code-standards-shared.md
+    containing the eleven procedural sections extracted verbatim from 080-code-standards.md
+    (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages,
+    Dependency Injection, Dependency Injection generic mandate, Print Statements & Output,
+    Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard), carrying
+    the SPDX/Provenance/byline header block. It then anchors the four consuming skill cards
+    (programming-principles, skill-creator, test-driven-development, engineering-approach) to the
+    reference via mandatory Read [Text](path) links, ensuring no forbidden 'See ...' citation form.
+    080 is NOT modified (R-7); condensation is deferred to #2352. 12 SCs: SC-1a/SC-1b are structural
+    (file existence, non-emptiness), SC-1c/SC-1d and SC-2a..SC-5b are string (grep for section
+    headers, header block, Read-link presence, 'See' form absence).
+  dependencies_noted: |
+    - 080-code-standards.md is the source of the eleven procedural sections; it must be read before
+      the reference is authored. It is NOT modified by this issue.
+    - The existing .opencode/reference/*.md pattern establishes the header and Read-link conventions.
+    - #2352 (parent 080-condensation) consumes this shared ref after the four cards Read-link; token
+      savings realized only after #2352 condenses 080.
+    - Sibling issues #2365, #2367, #2368, #2369 may touch overlapping cards; coordinate Read-link
+      additions to avoid edit conflicts.

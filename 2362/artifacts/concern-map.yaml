@@ -1,23 +1,49 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: concern-map
-per_phase:
-  phase: 1
-  concern: "Reference-authoring"
-  separation: "Create the shared reference file; no consuming-card changes in this phase"
-  files_touched: [".opencode/reference/code-standards-shared.md"]
-  distinct_from: "Phase 2 (consuming-card updates) — each phase touches a different file category"
-
-  phase: 2
-  concern: "Consumer-anchoring"
-  separation: "Add mandatory Read-links to the 4 consuming skill cards; the reference file is already in place"
-  files_touched:
-    - ".opencode/skills/programming-principles/SKILL.md"
-    - ".opencode/skills/skill-creator/SKILL.md"
-    - ".opencode/skills/test-driven-development/SKILL.md"
-    - ".opencode/skills/engineering-approach/SKILL.md"
-  distinct_from: "Phase 1 (reference creation) — separate file category (skills/ vs reference/)"
-
-concern_boundary_rule:
-  - "Reference file content lives ONLY in .opencode/reference/ — never re-inlined into skill cards (issue Scope Out)"
-  - "Each consuming card adds exactly one mandatory Read-link per shared reference it consumes"
+artifact_name: concern-map
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "Concern decomposition of the 12 SCs, mapped to phases"
+  concerns:
+    - id: C1
+      name: "Shared reference authoring"
+      description: "Create .opencode/reference/code-standards-shared.md with the eleven extracted procedural sections preserved verbatim, non-empty, and carrying the SPDX/Provenance/byline header block"
+      scs:
+        - SC-1a
+        - SC-1b
+        - SC-1c
+        - SC-1d
+      phase_boundary: "Phase 1 — reference file creation (Items 1a-1d)"
+    - id: C2
+      name: "programming-principles consumer anchoring"
+      description: "Add mandatory Read [Text](path) link to code-standards-shared.md in programming-principles/SKILL.md; ensure no forbidden 'See ...' citation form"
+      scs:
+        - SC-2a
+        - SC-2b
+      phase_boundary: "Phase 2 — consumer anchoring (Item 2a, 2b)"
+    - id: C3
+      name: "skill-creator consumer anchoring"
+      description: "Add mandatory Read [Text](path) link to code-standards-shared.md in skill-creator/SKILL.md; ensure no forbidden 'See ...' citation form"
+      scs:
+        - SC-3a
+        - SC-3b
+      phase_boundary: "Phase 2 — consumer anchoring (Item 3a, 3b)"
+    - id: C4
+      name: "test-driven-development consumer anchoring"
+      description: "Add mandatory Read [Text](path) link to code-standards-shared.md in test-driven-development/SKILL.md; ensure no forbidden 'See ...' citation form"
+      scs:
+        - SC-4a
+        - SC-4b
+      phase_boundary: "Phase 2 — consumer anchoring (Item 4a, 4b)"
+    - id: C5
+      name: "engineering-approach consumer anchoring"
+      description: "Add mandatory Read [Text](path) link to code-standards-shared.md in engineering-approach/SKILL.md; ensure no forbidden 'See ...' citation form"
+      scs:
+        - SC-5a
+        - SC-5b
+      phase_boundary: "Phase 2 — consumer anchoring (Item 5a, 5b)"
+  scs_per_concern:
+    C1: [SC-1a, SC-1b, SC-1c, SC-1d]
+    C2: [SC-2a, SC-2b]
+    C3: [SC-3a, SC-3b]
+    C4: [SC-4a, SC-4b]
+    C5: [SC-5a, SC-5b]

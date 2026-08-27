@@ -1,25 +1,54 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: state-analysis
-per_phase:
-  phase: 1
-  state: "code-standards-shared.md absent -> present"
-  transition: "create file with extracted procedural sections"
-  pre_condition: "080-code-standards.md contains the procedural sections; no shared ref exists"
-  post_condition: "code-standards-shared.md exists and is the canonical source for procedural standards"
-  failure_state: "File missing / empty / missing header -> cannot serve as shared source"
-
-  phase: 2
-  state: "consuming cards without Read-link -> with Read-link"
-  transition: "each of the 4 consuming cards gains a mandatory Read [Text](path) link"
-  pre_condition: "code-standards-shared.md exists (phase 1 complete)"
-  post_condition: "all 4 consuming cards reference code-standards-shared.md via Read-link; content preserved when 080 later condenses"
-  failure_state: "A card lacks the Read-link -> content loss risk when 080 condenses (#2352)"
-
-state_machine:
-  states: [absent, created, linked, condensed]
-  initial: absent
-  terminal: condensed
-  notes:
-    - "condensed is achieved by #2352 after this issue establishes created+linked"
-    - "This issue reaches created (phase 1) and linked (phase 2); condensed is out of scope"
+artifact_name: state-analysis
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "State transitions required by each SC"
+  transitions:
+    - entity: "code-standards-shared.md"
+      sc: SC-1a
+      before: "File does not exist at .opencode/reference/"
+      after: "File exists at .opencode/reference/code-standards-shared.md"
+    - entity: "code-standards-shared.md"
+      sc: SC-1b
+      before: "File absent or zero bytes"
+      after: "File is non-zero bytes"
+    - entity: "code-standards-shared.md"
+      sc: SC-1c
+      before: "Some of the eleven required section headers absent"
+      after: "All eleven extracted procedural section headers present (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages, Dependency Injection, Dependency Injection generic mandate, Print Statements & Output, Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard)"
+    - entity: "code-standards-shared.md"
+      sc: SC-1d
+      before: "SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, or Co-authored with AI byline absent"
+      after: "All four header elements present"
+    - entity: "programming-principles/SKILL.md"
+      sc: SC-2a
+      before: "No Read [Text](path) link to code-standards-shared.md"
+      after: "Mandatory Read [Text](path) link to code-standards-shared.md present"
+    - entity: "programming-principles/SKILL.md"
+      sc: SC-2b
+      before: "Forbidden 'See ...' citation form referencing code-standards-shared.md present"
+      after: "No forbidden 'See ...' citation form referencing code-standards-shared.md"
+    - entity: "skill-creator/SKILL.md"
+      sc: SC-3a
+      before: "No Read [Text](path) link to code-standards-shared.md"
+      after: "Mandatory Read [Text](path) link to code-standards-shared.md present"
+    - entity: "skill-creator/SKILL.md"
+      sc: SC-3b
+      before: "Forbidden 'See ...' citation form referencing code-standards-shared.md present"
+      after: "No forbidden 'See ...' citation form referencing code-standards-shared.md"
+    - entity: "test-driven-development/SKILL.md"
+      sc: SC-4a
+      before: "No Read [Text](path) link to code-standards-shared.md"
+      after: "Mandatory Read [Text](path) link to code-standards-shared.md present"
+    - entity: "test-driven-development/SKILL.md"
+      sc: SC-4b
+      before: "Forbidden 'See ...' citation form referencing code-standards-shared.md present"
+      after: "No forbidden 'See ...' citation form referencing code-standards-shared.md"
+    - entity: "engineering-approach/SKILL.md"
+      sc: SC-5a
+      before: "No Read [Text](path) link to code-standards-shared.md"
+      after: "Mandatory Read [Text](path) link to code-standards-shared.md present"
+    - entity: "engineering-approach/SKILL.md"
+      sc: SC-5b
+      before: "Forbidden 'See ...' citation form referencing code-standards-shared.md present"
+      after: "No forbidden 'See ...' citation form referencing code-standards-shared.md"

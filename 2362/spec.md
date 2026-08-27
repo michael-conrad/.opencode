@@ -55,11 +55,18 @@ The user requested creating a shared reference file `code-standards-shared.md` f
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | `.opencode/reference/code-standards-shared.md` exists, is non-empty, and contains all eleven extracted procedural sections (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages, Dependency Injection, Dependency Injection generic mandate, Print Statements & Output, Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard) plus the SPDX/Provenance headers and AI byline. | structural + string | `ls`/read the file for existence and non-emptiness; grep for each required section header and for SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and `Co-authored with AI` byline. | `.opencode/reference/code-standards-shared.md` (new), `.opencode/guidelines/080-code-standards.md` (source) |
-| SC-2 | `.opencode/skills/programming-principles/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`, and contains no forbidden "See ..." citation form referencing it. | string | Grep the SKILL.md for `Read [` form referencing `code-standards-shared`; assert present; grep for `See ...` form referencing it; assert absent. | `.opencode/skills/programming-principles/SKILL.md` |
-| SC-3 | `.opencode/skills/skill-creator/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`, and no forbidden "See ..." citation form. | string | Grep the SKILL.md for `Read [` form referencing `code-standards-shared`; assert present; grep for `See ...` form; assert absent. | `.opencode/skills/skill-creator/SKILL.md` |
-| SC-4 | `.opencode/skills/test-driven-development/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`, and no forbidden "See ..." citation form. | string | Grep the SKILL.md for `Read [` form referencing `code-standards-shared`; assert present; grep for `See ...` form; assert absent. | `.opencode/skills/test-driven-development/SKILL.md` |
-| SC-5 | `.opencode/skills/engineering-approach/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`, and no forbidden "See ..." citation form. | string | Grep the SKILL.md for `Read [` form referencing `code-standards-shared`; assert present; grep for `See ...` form; assert absent. | `.opencode/skills/engineering-approach/SKILL.md` |
+| SC-1a | `.opencode/reference/code-standards-shared.md` exists. | structural | `ls`/read the file; assert existence. | `.opencode/reference/code-standards-shared.md` (new) |
+| SC-1b | `.opencode/reference/code-standards-shared.md` is non-empty (non-zero bytes). | structural | `ls -l`/`wc -c`; assert non-zero byte count. | `.opencode/reference/code-standards-shared.md` (new) |
+| SC-1c | `.opencode/reference/code-standards-shared.md` contains all eleven extracted procedural section headers (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages, Dependency Injection, Dependency Injection generic mandate, Print Statements & Output, Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard). | string | grep for each of the eleven required section headers; assert all present. | `.opencode/reference/code-standards-shared.md` (new), `.opencode/guidelines/080-code-standards.md` (source) |
+| SC-1d | `.opencode/reference/code-standards-shared.md` carries the SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and `Co-authored with AI` byline. | string | grep for SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and `Co-authored with AI` byline; assert each present. | `.opencode/reference/code-standards-shared.md` (new) |
+| SC-2a | `.opencode/skills/programming-principles/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`. | string | Grep the SKILL.md for the `Read [` form referencing `code-standards-shared`; assert present. | `.opencode/skills/programming-principles/SKILL.md` |
+| SC-2b | `.opencode/skills/programming-principles/SKILL.md` contains no forbidden "See ..." citation form referencing `code-standards-shared.md`. | string | Grep the SKILL.md for the `See ...` form referencing `code-standards-shared`; assert absent. | `.opencode/skills/programming-principles/SKILL.md` |
+| SC-3a | `.opencode/skills/skill-creator/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`. | string | Grep the SKILL.md for the `Read [` form referencing `code-standards-shared`; assert present. | `.opencode/skills/skill-creator/SKILL.md` |
+| SC-3b | `.opencode/skills/skill-creator/SKILL.md` contains no forbidden "See ..." citation form referencing `code-standards-shared.md`. | string | Grep the SKILL.md for the `See ...` form referencing `code-standards-shared`; assert absent. | `.opencode/skills/skill-creator/SKILL.md` |
+| SC-4a | `.opencode/skills/test-driven-development/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`. | string | Grep the SKILL.md for the `Read [` form referencing `code-standards-shared`; assert present. | `.opencode/skills/test-driven-development/SKILL.md` |
+| SC-4b | `.opencode/skills/test-driven-development/SKILL.md` contains no forbidden "See ..." citation form referencing `code-standards-shared.md`. | string | Grep the SKILL.md for the `See ...` form referencing `code-standards-shared`; assert absent. | `.opencode/skills/test-driven-development/SKILL.md` |
+| SC-5a | `.opencode/skills/engineering-approach/SKILL.md` contains a mandatory `Read [Text](path)` link to `code-standards-shared.md`. | string | Grep the SKILL.md for the `Read [` form referencing `code-standards-shared`; assert present. | `.opencode/skills/engineering-approach/SKILL.md` |
+| SC-5b | `.opencode/skills/engineering-approach/SKILL.md` contains no forbidden "See ..." citation form referencing `code-standards-shared.md`. | string | Grep the SKILL.md for the `See ...` form referencing `code-standards-shared`; assert absent. | `.opencode/skills/engineering-approach/SKILL.md` |
 
 ## Requirements
 
@@ -74,39 +81,88 @@ The user requested creating a shared reference file `code-standards-shared.md` f
 
 ## Items
 
-### Item 1 (SC-1): Create code-standards-shared.md
+### Item 1a (SC-1a): Verify code-standards-shared.md exists
 
 - RED: `ls .opencode/reference/code-standards-shared.md` — file does not exist.
-- GREEN: Create the file with the eleven extracted procedural sections and the SPDX/Provenance/byline header block.
-- verify: `ls` for existence/non-emptiness; grep for each required section header and header markers.
+- GREEN: Create the file (with the eleven extracted procedural sections and the SPDX/Provenance/byline header block, per Items 1b/1c/1d).
+- verify: `ls .opencode/reference/code-standards-shared.md` — assert existence.
 - commit: `.opencode/reference/code-standards-shared.md`.
 
-### Item 2 (SC-2): Anchor programming-principles SKILL.md
+### Item 1b (SC-1b): Verify code-standards-shared.md is non-empty
+
+- RED: `wc -c .opencode/reference/code-standards-shared.md` — zero bytes (or file absent).
+- GREEN: Populate the file so it is non-zero bytes.
+- verify: `wc -c .opencode/reference/code-standards-shared.md` — assert non-zero byte count.
+- commit: `.opencode/reference/code-standards-shared.md`.
+
+### Item 1c (SC-1c): Verify code-standards-shared.md contains all eleven sections
+
+- RED: Grep `.opencode/reference/code-standards-shared.md` — some of the eleven required section headers absent.
+- GREEN: Add each missing section (the eleven extracted procedural sections preserved verbatim from 080).
+- verify: Grep for each of the eleven required section headers; assert all present.
+- commit: `.opencode/reference/code-standards-shared.md`.
+
+### Item 1d (SC-1d): Verify code-standards-shared.md carries SPDX/Provenance/byline headers
+
+- RED: Grep `.opencode/reference/code-standards-shared.md` — SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, or `Co-authored with AI` byline absent.
+- GREEN: Add the missing header lines.
+- verify: Grep for SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and `Co-authored with AI` byline; assert each present.
+- commit: `.opencode/reference/code-standards-shared.md`.
+
+### Item 2a (SC-2a): Anchor programming-principles SKILL.md (Read-link)
 
 - RED: Grep `.opencode/skills/programming-principles/SKILL.md` — no `Read [` link referencing `code-standards-shared`.
 - GREEN: Add a mandatory `Read [Text](reference/code-standards-shared.md)` link.
-- verify: Grep for `Read [` form present; grep for `See ...` form absent.
+- verify: Grep for `Read [` form referencing `code-standards-shared`; assert present.
 - commit: `.opencode/skills/programming-principles/SKILL.md`.
 
-### Item 3 (SC-3): Anchor skill-creator SKILL.md
+### Item 2b (SC-2b): programming-principles SKILL.md has no "See" form
+
+- RED: Grep `.opencode/skills/programming-principles/SKILL.md` — a `See ...` citation form referencing `code-standards-shared` exists.
+- GREEN: Replace any `See ...` citation with the mandatory `Read [Text](path)` form.
+- verify: Grep for `See ...` form referencing `code-standards-shared`; assert absent.
+- commit: `.opencode/skills/programming-principles/SKILL.md`.
+
+### Item 3a (SC-3a): Anchor skill-creator SKILL.md (Read-link)
 
 - RED: Grep `.opencode/skills/skill-creator/SKILL.md` — no `Read [` link referencing `code-standards-shared`.
 - GREEN: Add a mandatory `Read [Text](reference/code-standards-shared.md)` link.
-- verify: Grep for `Read [` form present; grep for `See ...` form absent.
+- verify: Grep for `Read [` form referencing `code-standards-shared`; assert present.
 - commit: `.opencode/skills/skill-creator/SKILL.md`.
 
-### Item 4 (SC-4): Anchor test-driven-development SKILL.md
+### Item 3b (SC-3b): skill-creator SKILL.md has no "See" form
+
+- RED: Grep `.opencode/skills/skill-creator/SKILL.md` — a `See ...` citation form referencing `code-standards-shared` exists.
+- GREEN: Replace any `See ...` citation with the mandatory `Read [Text](path)` form.
+- verify: Grep for `See ...` form referencing `code-standards-shared`; assert absent.
+- commit: `.opencode/skills/skill-creator/SKILL.md`.
+
+### Item 4a (SC-4a): Anchor test-driven-development SKILL.md (Read-link)
 
 - RED: Grep `.opencode/skills/test-driven-development/SKILL.md` — no `Read [` link referencing `code-standards-shared`.
 - GREEN: Add a mandatory `Read [Text](reference/code-standards-shared.md)` link.
-- verify: Grep for `Read [` form present; grep for `See ...` form absent.
+- verify: Grep for `Read [` form referencing `code-standards-shared`; assert present.
 - commit: `.opencode/skills/test-driven-development/SKILL.md`.
 
-### Item 5 (SC-5): Anchor engineering-approach SKILL.md
+### Item 4b (SC-4b): test-driven-development SKILL.md has no "See" form
+
+- RED: Grep `.opencode/skills/test-driven-development/SKILL.md` — a `See ...` citation form referencing `code-standards-shared` exists.
+- GREEN: Replace any `See ...` citation with the mandatory `Read [Text](path)` form.
+- verify: Grep for `See ...` form referencing `code-standards-shared`; assert absent.
+- commit: `.opencode/skills/test-driven-development/SKILL.md`.
+
+### Item 5a (SC-5a): Anchor engineering-approach SKILL.md (Read-link)
 
 - RED: Grep `.opencode/skills/engineering-approach/SKILL.md` — no `Read [` link referencing `code-standards-shared`.
 - GREEN: Add a mandatory `Read [Text](reference/code-standards-shared.md)` link.
-- verify: Grep for `Read [` form present; grep for `See ...` form absent.
+- verify: Grep for `Read [` form referencing `code-standards-shared`; assert present.
+- commit: `.opencode/skills/engineering-approach/SKILL.md`.
+
+### Item 5b (SC-5b): engineering-approach SKILL.md has no "See" form
+
+- RED: Grep `.opencode/skills/engineering-approach/SKILL.md` — a `See ...` citation form referencing `code-standards-shared` exists.
+- GREEN: Replace any `See ...` citation with the mandatory `Read [Text](path)` form.
+- verify: Grep for `See ...` form referencing `code-standards-shared`; assert absent.
 - commit: `.opencode/skills/engineering-approach/SKILL.md`.
 
 ## Dependencies
@@ -128,14 +184,14 @@ The user requested creating a shared reference file `code-standards-shared.md` f
 
 | Requirement | SC(s) | Item(s) |
 |-------------|-------|---------|
-| R-1 | SC-1 | Item 1 |
-| R-2 | SC-1 | Item 1 |
-| R-3 | SC-1 | Item 1 |
-| R-4 | SC-2, SC-3, SC-4, SC-5 | Item 2, Item 3, Item 4, Item 5 |
-| R-5 | SC-2, SC-3, SC-4, SC-5 | Item 2, Item 3, Item 4, Item 5 |
-| R-6 | SC-1 | Item 1 |
-| R-7 | SC-1 | Item 1 |
-| R-8 | SC-2, SC-3, SC-4, SC-5 | Item 2, Item 3, Item 4, Item 5 |
+| R-1 | SC-1a, SC-1b | Item 1a, Item 1b |
+| R-2 | SC-1c | Item 1c |
+| R-3 | SC-1d | Item 1d |
+| R-4 | SC-2a, SC-3a, SC-4a, SC-5a | Item 2a, Item 3a, Item 4a, Item 5a |
+| R-5 | SC-2b, SC-3b, SC-4b, SC-5b | Item 2b, Item 3b, Item 4b, Item 5b |
+| R-6 | SC-1c | Item 1c |
+| R-7 | SC-1c | Item 1c |
+| R-8 | SC-2a, SC-3a, SC-4a, SC-5a | Item 2a, Item 3a, Item 4a, Item 5a |
 
 ## Documentation Sources
 
@@ -157,17 +213,28 @@ The user requested creating a shared reference file `code-standards-shared.md` f
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- **SC-1:** Verifying the shared ref exists and carries all eleven sections plus headers costs one `ls` and a grep pass. Skipping means a missing or incomplete reference is not caught until a consuming skill card fails to load it after 080 condenses in #2352 — deferring discovery to the condensation step.
-- **SC-2/SC-3/SC-4/SC-5:** Verifying each card's Read-link costs one grep per card. Skipping means a card that lacks the Read-link silently loses the procedural standards when 080 condenses — content loss that is only discovered when an agent routing through that card fails to find the standards it needs.
+- **SC-1a/SC-1b:** Verifying the shared ref exists and is non-empty costs one `ls`/`wc -c`. Skipping means a missing or zero-byte reference is not caught until a consuming skill card fails to load it after 080 condenses in #2352 — deferring discovery to the condensation step.
+- **SC-1c/SC-1d:** Verifying all eleven sections and the header block costs a grep pass. Skipping means an incomplete reference (missing section or missing SPDX/Provenance/byline header) is not caught until a consuming skill card fails to load the content it needs after 080 condenses.
+- **SC-2a/SC-3a/SC-4a/SC-5a:** Verifying each card's Read-link costs one grep per card. Skipping means a card that lacks the Read-link silently loses the procedural standards when 080 condenses — content loss that is only discovered when an agent routing through that card fails to find the standards it needs.
+- **SC-2b/SC-3b/SC-4b/SC-5b:** Verifying the absence of the forbidden "See ..." citation form costs one grep per card. Skipping means a card that uses the citation form would not force the agent to load the reference, defeating the Read-link convention without detection.
 
 ## Edge Cases
 
-- **Input boundary — empty reference file:** SC-1 requires the file be non-empty; a zero-byte or header-only file fails the non-emptiness and section-header checks.
-- **State transition — shared ref absent → present:** Phase 1 establishes the file; Phase 2 anchors consumers. A card cannot Read-link a non-existent file, so the phases are dependency-ordered (Phase 1 precedes Phase 2).
-- **Failure mode — a consuming card lacks the Read-link:** When 080 condenses in #2352, that card loses the procedural standards. SC-2..SC-5 each grep the specific card to flag any missing link before condensation proceeds.
-- **Failure mode — forbidden "See ..." citation used:** A card using the citation form would not force the agent to load the reference, defeating the Read-link convention. Each SC asserts the "See ..." form is absent.
+- **Input boundary — empty reference file:** SC-1b requires the file be non-empty; a zero-byte or header-only file fails the non-emptiness (SC-1b) and section-header (SC-1c) checks.
+- **State transition — shared ref absent → present:** Phase 1 (Items 1a-1d) establishes the file; Phase 2 (Items 2-5) anchors consumers. A card cannot Read-link a non-existent file, so the phases are dependency-ordered (Phase 1 precedes Phase 2).
+- **Failure mode — a consuming card lacks the Read-link:** When 080 condenses in #2352, that card loses the procedural standards. SC-2a/SC-3a/SC-4a/SC-5a each grep the specific card to flag any missing link before condensation proceeds.
+- **Failure mode — forbidden "See ..." citation used:** A card using the citation form would not force the agent to load the reference, defeating the Read-link convention. SC-2b/SC-3b/SC-4b/SC-5b each assert the "See ..." form is absent.
 - **Concurrency:** This is a documentation/reference-only change with no shared state or transaction; no race condition or resource contention applies. Sibling issues #2365/#2367/#2368/#2369 may touch overlapping cards, so implementation should coordinate Read-link additions to avoid edit conflicts.
 - **Recovery:** Because each SC is a single file edit, a failed or partial change is repaired by re-running the corresponding item's GREEN edit; no state machine or rollback path is required.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-27 | Decomposed all 5 compound SCs into 12 atomic SCs (SC-1a..SC-1d, SC-2a/SC-2b, SC-3a/SC-3b, SC-4a/SC-4b, SC-5a/SC-5b); each atomic SC bundles a single independently verifiable claim. | Validation finding: Compound-SC decomposition — each original SC bundled multiple independently verifiable claims joined by "and". | Validation findings (orchestrator) |
+| 2026-08-27 | Changed SC-1 evidence type from "structural + string" to single canonical types (SC-1a/SC-1b/SC-1c = structural; SC-1d = string). | Validation finding: EVIDENCE_TYPE_MISMATCH — "structural + string" is not one of the four valid canonical evidence types. | Validation findings (orchestrator) |
+| 2026-08-27 | Updated Items (1:1 item-SC mapping: Items 1a-1d, 2a/2b, 3a/3b, 4a/4b, 5a/5b), Traceability table, Cost Frame, and Edge Cases to match the decomposed atomic SC set. | Consequence of SC decomposition — downstream sections must reference the atomic SC set. | Validation findings (orchestrator) |
+| 2026-08-27 | Changed SC-1c evidence type from "structural" to "string" to match its grep verification method (grep for the eleven section headers). Updated sc-summary.yaml SC-1c evidence_type accordingly. | Validation finding: EVIDENCE_TYPE_MISMATCH — SC-1c declared "structural" but its verification method is grep, which is "string" per the canonical taxonomy. | Validation findings (orchestrator) |
 
 ---
 

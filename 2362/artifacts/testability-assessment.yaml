@@ -1,34 +1,55 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: testability-assessment
-per_phase:
-  phase: 1
-  test_strategy: structural + string
-  tests:
-    - id: T1
-      type: structural
-      verification: "ls .opencode/reference/code-standards-shared.md — file exists, non-empty, correct name"
-    - id: T2
-      type: string
-      verification: "grep for each required section header (Typing, Design Principles, DI, Print, Tool Selection, Numbering, Cross-Reference, YAML) — all present"
-    - id: T3
-      type: string
-      verification: "grep for SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header — present"
-    - id: T4
-      type: string
-      verification: "grep for AI byline (Co-authored with AI) — present"
-
-  phase: 2
-  test_strategy: string (per consuming card)
-  tests:
-    - id: T5
-      type: string
-      verification: "grep each of the 4 SKILL.md for Read [Text](path) form referencing code-standards-shared.md — present"
-    - id: T6
-      type: string
-      verification: "grep each SKILL.md for forbidden 'See ...' citation form referencing code-standards-shared.md — absent (verifies Read-link convention, not 'See' pattern)"
-
-notes:
-  - "This is a documentation/reference change in the .opencode submodule. No Python source, so ruff/pyright/vulture do not apply."
-  - "Markdown files should pass pymarkdownlnt and mdformat --check per 080 Tool Selection rules."
-  - "No behavioral (opencode run) test required for a pure reference-file creation; the content-verification (string/structural) evidence suffices for these SCs. Behavioral tests apply to guideline/skill RULE changes that alter agent behavior at runtime; the reference-file creation itself does not change runtime dispatch behavior until 080 condenses (#2352)."
+artifact_name: testability-assessment
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "Evidence type and verification method assignment for each SC"
+  assignments:
+    - sc_id: SC-1a
+      criterion: "code-standards-shared.md exists"
+      evidence_type: structural
+      verification_method: "ls/read the file; assert existence"
+    - sc_id: SC-1b
+      criterion: "code-standards-shared.md is non-empty (non-zero bytes)"
+      evidence_type: structural
+      verification_method: "ls -l/wc -c; assert non-zero byte count"
+    - sc_id: SC-1c
+      criterion: "code-standards-shared.md contains all eleven extracted procedural section headers"
+      evidence_type: string
+      verification_method: "grep for each of the eleven required section headers; assert all present"
+    - sc_id: SC-1d
+      criterion: "code-standards-shared.md carries SPDX/Provenance headers and AI byline"
+      evidence_type: string
+      verification_method: "grep for SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and Co-authored with AI byline; assert each present"
+    - sc_id: SC-2a
+      criterion: "programming-principles SKILL.md Read-links code-standards-shared"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the Read [ form referencing code-standards-shared; assert present"
+    - sc_id: SC-2b
+      criterion: "programming-principles SKILL.md has no 'See' citation form"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the See ... form referencing code-standards-shared; assert absent"
+    - sc_id: SC-3a
+      criterion: "skill-creator SKILL.md Read-links code-standards-shared"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the Read [ form referencing code-standards-shared; assert present"
+    - sc_id: SC-3b
+      criterion: "skill-creator SKILL.md has no 'See' citation form"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the See ... form referencing code-standards-shared; assert absent"
+    - sc_id: SC-4a
+      criterion: "test-driven-development SKILL.md Read-links code-standards-shared"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the Read [ form referencing code-standards-shared; assert present"
+    - sc_id: SC-4b
+      criterion: "test-driven-development SKILL.md has no 'See' citation form"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the See ... form referencing code-standards-shared; assert absent"
+    - sc_id: SC-5a
+      criterion: "engineering-approach SKILL.md Read-links code-standards-shared"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the Read [ form referencing code-standards-shared; assert present"
+    - sc_id: SC-5b
+      criterion: "engineering-approach SKILL.md has no 'See' citation form"
+      evidence_type: string
+      verification_method: "grep the SKILL.md for the See ... form referencing code-standards-shared; assert absent"
+  note: "SC-1a and SC-1b are declared as `structural` evidence (file existence and non-emptiness). SC-1c and SC-1d are declared as `string` evidence (grep for section headers and header block). SC-2a through SC-5b are declared as `string` evidence (grep for Read-link presence / 'See' form absence). All SCs are documentation/reference-only changes verified via ls/wc/grep — no behavioral (opencode run) verification is required."

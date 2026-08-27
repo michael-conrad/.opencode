@@ -1,37 +1,67 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: code-path-inventory
-per_phase:
-  phase: 1
+artifact_name: code-path-inventory
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "Code paths implied by each SC"
   code_paths:
-    - path: ".opencode/reference/code-standards-shared.md"
-      action: create
-      purpose: "Canonical shared reference for procedural code standards"
-  code_path_detail: "No application source code (.py) is touched. This is a documentation/reference artifact within the .opencode submodule."
-
-  phase: 2
-  code_paths:
-    - path: ".opencode/skills/programming-principles/SKILL.md"
-      action: edit (add Read-link)
-    - path: ".opencode/skills/skill-creator/SKILL.md"
-      action: edit (add Read-link)
-    - path: ".opencode/skills/test-driven-development/SKILL.md"
-      action: edit (add Read-link)
-    - path: ".opencode/skills/engineering-approach/SKILL.md"
-      action: edit (add Read-link)
-  code_path_detail: "Each card gains a mandatory Read [Text](path) link to code-standards-shared.md. No functional logic changes."
-
-source_extraction:
-  - source: ".opencode/guidelines/080-code-standards.md"
-    sections_extracted:
-      - "Typing"
-      - "Design Principles (project-specific conventions)"
-      - "Modern Python"
-      - "Libraries & Packages"
-      - "Dependency Injection"
-      - "Dependency Injection (generic mandate)"
-      - "Print Statements & Output"
-      - "Tool Selection by File Type"
-      - "Numbering — ENFORCED"
-      - "Cross-Reference Standards"
-      - "YAML Standard for LLM-to-LLM Data Transfers"
+    - sc_id: SC-1a
+      path: "reference file existence"
+      description: "code-standards-shared.md exists at .opencode/reference/"
+      files:
+        - ".opencode/reference/code-standards-shared.md"
+    - sc_id: SC-1b
+      path: "reference file non-emptiness"
+      description: "code-standards-shared.md is non-zero bytes"
+      files:
+        - ".opencode/reference/code-standards-shared.md"
+    - sc_id: SC-1c
+      path: "reference file section headers"
+      description: "code-standards-shared.md contains all eleven extracted procedural section headers (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages, Dependency Injection, Dependency Injection generic mandate, Print Statements & Output, Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard)"
+      files:
+        - ".opencode/reference/code-standards-shared.md"
+        - ".opencode/guidelines/080-code-standards.md"
+    - sc_id: SC-1d
+      path: "reference file header block"
+      description: "code-standards-shared.md carries SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and Co-authored with AI byline"
+      files:
+        - ".opencode/reference/code-standards-shared.md"
+    - sc_id: SC-2a
+      path: "programming-principles Read-link"
+      description: "programming-principles/SKILL.md contains mandatory Read [Text](path) link to code-standards-shared.md"
+      files:
+        - ".opencode/skills/programming-principles/SKILL.md"
+    - sc_id: SC-2b
+      path: "programming-principles no 'See' form"
+      description: "programming-principles/SKILL.md has no forbidden 'See ...' citation form referencing code-standards-shared.md"
+      files:
+        - ".opencode/skills/programming-principles/SKILL.md"
+    - sc_id: SC-3a
+      path: "skill-creator Read-link"
+      description: "skill-creator/SKILL.md contains mandatory Read [Text](path) link to code-standards-shared.md"
+      files:
+        - ".opencode/skills/skill-creator/SKILL.md"
+    - sc_id: SC-3b
+      path: "skill-creator no 'See' form"
+      description: "skill-creator/SKILL.md has no forbidden 'See ...' citation form referencing code-standards-shared.md"
+      files:
+        - ".opencode/skills/skill-creator/SKILL.md"
+    - sc_id: SC-4a
+      path: "test-driven-development Read-link"
+      description: "test-driven-development/SKILL.md contains mandatory Read [Text](path) link to code-standards-shared.md"
+      files:
+        - ".opencode/skills/test-driven-development/SKILL.md"
+    - sc_id: SC-4b
+      path: "test-driven-development no 'See' form"
+      description: "test-driven-development/SKILL.md has no forbidden 'See ...' citation form referencing code-standards-shared.md"
+      files:
+        - ".opencode/skills/test-driven-development/SKILL.md"
+    - sc_id: SC-5a
+      path: "engineering-approach Read-link"
+      description: "engineering-approach/SKILL.md contains mandatory Read [Text](path) link to code-standards-shared.md"
+      files:
+        - ".opencode/skills/engineering-approach/SKILL.md"
+    - sc_id: SC-5b
+      path: "engineering-approach no 'See' form"
+      description: "engineering-approach/SKILL.md has no forbidden 'See ...' citation form referencing code-standards-shared.md"
+      files:
+        - ".opencode/skills/engineering-approach/SKILL.md"

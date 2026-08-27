@@ -1,34 +1,49 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: interface-compatibility
-interfaces:
-  - component: ".opencode/reference/code-standards-shared.md"
-    status: new
-    backward_compatible: n/a
-    compatibility_class: internal_only
-    detail: "New reference file; no existing consumers to break. Downstream skill cards (phase 2) become new consumers via Read-link."
-  - component: ".opencode/skills/programming-principles/SKILL.md"
-    status: modified
-    backward_compatible: true
-    compatibility_class: internal_only
-    detail: "Adds a Read-link; existing routing metadata and dispatch behavior unchanged."
-  - component: ".opencode/skills/skill-creator/SKILL.md"
-    status: modified
-    backward_compatible: true
-    compatibility_class: internal_only
-    detail: "Adds a Read-link; existing validation logic unchanged."
-  - component: ".opencode/skills/test-driven-development/SKILL.md"
-    status: modified
-    backward_compatible: true
-    compatibility_class: internal_only
-    detail: "Adds a Read-link; existing TDD cycle definitions unchanged."
-  - component: ".opencode/skills/engineering-approach/SKILL.md"
-    status: modified
-    backward_compatible: true
-    compatibility_class: internal_only
-    detail: "Adds a Read-link; existing engineering discipline tasks unchanged."
-  - component: ".opencode/guidelines/080-code-standards.md"
-    status: unchanged (this issue)
-    backward_compatible: true
-    compatibility_class: internal_only
-    detail: "080 condensation is a separate issue (#2352). This issue does not modify 080 directly."
+artifact_name: interface-compatibility
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "Interface boundaries and dependency contracts between affected modules"
+  interface_boundaries:
+    - boundary: "080-code-standards.md → code-standards-shared.md"
+      status: "NEW EXTRACTION DEPENDENCY"
+      description: "The eleven procedural sections are extracted verbatim from 080 into the shared reference. 080 is NOT modified by this issue (R-7); the extraction is a copy, not a move. The shared reference must preserve the sections verbatim (SC-1c)."
+      sc: SC-1c
+    - boundary: "code-standards-shared.md → consuming skill cards"
+      status: "NEW READ-LINK DEPENDENCY"
+      description: "Each of the four consuming skill cards (programming-principles, skill-creator, test-driven-development, engineering-approach) gains a mandatory Read [Text](path) link to the shared reference. The reference must exist and be complete before any card anchors to it (Phase 1 precedes Phase 2)."
+      scs:
+        - SC-2a
+        - SC-3a
+        - SC-4a
+        - SC-5a
+    - boundary: "code-standards-shared.md header block"
+      status: "ADDED"
+      description: "The shared reference carries SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and Co-authored with AI byline per the existing reference convention. SC-1d verifies via grep."
+      sc: SC-1d
+  dependency_contract:
+    description: "Concrete dependency data derived from spec #2362 affected files and success criteria — real sources, real targets, real type constraints"
+    entries:
+      - source: "080-code-standards.md (eleven procedural sections)"
+        target: "code-standards-shared.md"
+        type: "content extraction"
+        constraint: "the eleven procedural sections (Typing, Design Principles project-specific conventions, Modern Python, Libraries & Packages, Dependency Injection, Dependency Injection generic mandate, Print Statements & Output, Tool Selection by File Type, Numbering, Cross-Reference Standards, YAML Standard) are preserved verbatim; 080 is NOT modified (R-7)"
+      - source: "code-standards-shared.md"
+        target: "programming-principles/SKILL.md"
+        type: "Read-link"
+        constraint: "programming-principles/SKILL.md MUST contain a mandatory Read [Text](path) link to code-standards-shared.md and MUST NOT use the forbidden 'See ...' citation form (SC-2a, SC-2b)"
+      - source: "code-standards-shared.md"
+        target: "skill-creator/SKILL.md"
+        type: "Read-link"
+        constraint: "skill-creator/SKILL.md MUST contain a mandatory Read [Text](path) link to code-standards-shared.md and MUST NOT use the forbidden 'See ...' citation form (SC-3a, SC-3b)"
+      - source: "code-standards-shared.md"
+        target: "test-driven-development/SKILL.md"
+        type: "Read-link"
+        constraint: "test-driven-development/SKILL.md MUST contain a mandatory Read [Text](path) link to code-standards-shared.md and MUST NOT use the forbidden 'See ...' citation form (SC-4a, SC-4b)"
+      - source: "code-standards-shared.md"
+        target: "engineering-approach/SKILL.md"
+        type: "Read-link"
+        constraint: "engineering-approach/SKILL.md MUST contain a mandatory Read [Text](path) link to code-standards-shared.md and MUST NOT use the forbidden 'See ...' citation form (SC-5a, SC-5b)"
+      - source: "code-standards-shared.md (header block)"
+        target: "reference convention"
+        type: "header conformance"
+        constraint: "the shared reference carries SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and Co-authored with AI byline (SC-1d)"

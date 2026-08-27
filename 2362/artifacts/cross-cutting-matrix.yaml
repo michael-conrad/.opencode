@@ -1,22 +1,56 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: cross-cutting-matrix
-concerns:
-  - concern: "Read-link convention (Read [Text](path) form)"
-    phase_1: "n/a — no consumer cards in phase 1"
-    phase_2: "ALL 4 consuming cards must use the mandatory Read [Text](path) form, not forbidden 'See ...' citation form"
-  - concern: "Reference header pattern (SPDX + Provenance + byline)"
-    phase_1: "code-standards-shared.md MUST carry SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and AI byline per existing reference pattern"
-    phase_2: "n/a"
-  - concern: "Content preservation (no content loss)"
-    phase_1: "Extracted procedural sections preserved verbatim in shared ref"
-    phase_2: "Read-links guarantee consumers load the shared ref, preventing content loss when 080 condenses (#2352)"
-  - concern: "Submodule ownership"
-    phase_1: "All writes in .opencode submodule (owner: michael-conrad, repo: .opencode)"
-    phase_2: "Same — skill cards are in .opencode submodule"
-  - concern: "Enforcement-core separation"
-    phase_1: "Do NOT extract the enforcement-test mandate, behavioral-test-substitution prohibition, or critical-rules blocks into the shared ref — these stay in 080 (#2352)"
-    phase_2: "n/a"
-  - concern: "Scope containment (no re-inlining)"
-    phase_1: "Shared ref is single canonical source"
-    phase_2: "Cards reference the shared ref; content is never re-inlined into cards (issue Scope Out)"
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "Cross-cutting concerns spanning multiple SCs"
+  cross_cutting_concerns:
+    - concern: "Single canonical source, never re-inlined"
+      scs:
+        - SC-1a
+        - SC-1b
+        - SC-1c
+        - SC-1d
+      description: "The shared reference is the single canonical source (R-8). All four consumer cards Read-link to it rather than duplicating content. The reference must be complete (all eleven sections, SC-1c) and correctly headed (SC-1d) before any consumer anchors to it — Phase 1 precedes Phase 2."
+      shared_files:
+        - ".opencode/reference/code-standards-shared.md"
+    - concern: "Read-link convention across all four consumer cards"
+      scs:
+        - SC-2a
+        - SC-3a
+        - SC-4a
+        - SC-5a
+      description: "Each of the four consuming skill cards must contain a mandatory Read [Text](path) link to code-standards-shared.md. The same Read-link form is applied across all four cards; a card missing the link loses the procedural standards when 080 condenses in #2352."
+      shared_files:
+        - ".opencode/skills/programming-principles/SKILL.md"
+        - ".opencode/skills/skill-creator/SKILL.md"
+        - ".opencode/skills/test-driven-development/SKILL.md"
+        - ".opencode/skills/engineering-approach/SKILL.md"
+    - concern: "Forbidden 'See ...' citation form absence across all four consumer cards"
+      scs:
+        - SC-2b
+        - SC-3b
+        - SC-4b
+        - SC-5b
+      description: "Each of the four consuming skill cards must NOT use the forbidden 'See ...' citation form referencing code-standards-shared.md. A card using the citation form would not force the agent to load the reference, defeating the Read-link convention."
+      shared_files:
+        - ".opencode/skills/programming-principles/SKILL.md"
+        - ".opencode/skills/skill-creator/SKILL.md"
+        - ".opencode/skills/test-driven-development/SKILL.md"
+        - ".opencode/skills/engineering-approach/SKILL.md"
+    - concern: "080 condensation dependency"
+      scs:
+        - SC-1a
+        - SC-1b
+        - SC-1c
+        - SC-1d
+        - SC-2a
+        - SC-2b
+        - SC-3a
+        - SC-3b
+        - SC-4a
+        - SC-4b
+        - SC-5a
+        - SC-5b
+      description: "The token savings are realized only after #2352 condenses 080. This issue establishes the shared reference and anchors consumers; the actual condensation is deferred. All SCs here are prerequisites for #2352."
+      shared_files:
+        - ".opencode/guidelines/080-code-standards.md"

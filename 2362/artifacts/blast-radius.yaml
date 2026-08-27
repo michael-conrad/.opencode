@@ -1,29 +1,25 @@
-issue: 2362
-issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
-artifact: blast-radius
-per_phase:
-  phase: 1
-  items: [ITEM-1]
-  description: "Create .opencode/reference/code-standards-shared.md"
-  affected_components:
-    - ".opencode/reference/code-standards-shared.md (new file)"
-  ripple_effects:
-    - "Establishes canonical source for procedural code standards"
-    - "Enables future 080 condensation (#2352) once all consumers Read-link"
-    - "No functional code change; documentation/reference-only"
-
-  phase: 2
-  items: [ITEM-2, ITEM-3, ITEM-4, ITEM-5]
-  description: "Add mandatory Read-links to code-standards-shared.md in 4 consuming skill cards"
-  affected_components:
-    - ".opencode/skills/programming-principles/SKILL.md"
-    - ".opencode/skills/skill-creator/SKILL.md"
-    - ".opencode/skills/test-driven-development/SKILL.md"
-    - ".opencode/skills/engineering-approach/SKILL.md"
-  ripple_effects:
-    - "Agents routing through these skills will load code-standards-shared.md via Read-link"
-    - "Behavioral change: skill dispatch now pulls procedural standards from the shared ref instead of (future) preload"
-    - "Risk: if a card fails to Read-link, content is lost when 080 condenses (per issue Impact)"
-  cross_repo:
-    - "All changes are in .opencode submodule (owner: michael-conrad, repo: .opencode)"
-    - "Parent repo pointer will need update alongside next real change (submodule pointer discipline)"
+artifact_name: blast-radius
+generated_at: 2026-08-27
+source: "Spec #2362 (Create shared ref: code-standards-shared.md)"
+content:
+  description: "All files affected by creating the shared code-standards reference and anchoring its consumers"
+  affected_files:
+    - path: ".opencode/reference/code-standards-shared.md"
+      change: "Create the shared reference containing the eleven extracted procedural sections from 080, preserved verbatim, with SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and AI byline (SC-1a, SC-1b, SC-1c, SC-1d)"
+      exists: false
+    - path: ".opencode/skills/programming-principles/SKILL.md"
+      change: "Add mandatory Read [Text](path) link to code-standards-shared.md; ensure no forbidden 'See ...' citation form (SC-2a, SC-2b)"
+      exists: true
+    - path: ".opencode/skills/skill-creator/SKILL.md"
+      change: "Add mandatory Read [Text](path) link to code-standards-shared.md; ensure no forbidden 'See ...' citation form (SC-3a, SC-3b)"
+      exists: true
+    - path: ".opencode/skills/test-driven-development/SKILL.md"
+      change: "Add mandatory Read [Text](path) link to code-standards-shared.md; ensure no forbidden 'See ...' citation form (SC-4a, SC-4b)"
+      exists: true
+    - path: ".opencode/skills/engineering-approach/SKILL.md"
+      change: "Add mandatory Read [Text](path) link to code-standards-shared.md; ensure no forbidden 'See ...' citation form (SC-5a, SC-5b)"
+      exists: true
+  related_files_not_modified:
+    - path: ".opencode/guidelines/080-code-standards.md"
+      change: "Source of the eleven procedural sections; NOT modified by this issue (R-7) — condensation deferred to #2352"
+      exists: true
