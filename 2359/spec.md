@@ -167,17 +167,25 @@ labels: [needs-approval, spec-draft]
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- **SC-1:** Verifying the reference file exists and preserves the standardized vocabulary costs one grep search. Skipping means a structurally wrong or vocabulary-regressed reference isn't caught until the first spec created from it fails audit — a death-spiral start.
-- **SC-2:** Verifying each of the 5 consuming cards carries the imperative Read-link costs five grep searches. Skipping means a card misses the link, content loss propagates, and orchestrators never load the reference — the exact defect this spec exists to prevent.
+- **SC-1a:** Verifying the reference file exists costs one file-existence check. Skipping means the reference is never created, leaving the content stranded in the preloaded guideline.
+- **SC-1b, SC-1c, SC-1d, SC-1e:** Verifying each of the four mandates is present in the reference costs one grep search each (four total). Skipping means a missing mandate isn't caught until the first spec created from it fails audit — a death-spiral start.
+- **SC-1f:** Verifying the standardized vocabulary is preserved and regression terms are absent costs two grep searches. Skipping means a vocabulary-regressed reference isn't caught until downstream agents misroute content.
+- **SC-2a, SC-2b, SC-2c, SC-2d, SC-2e:** Verifying each of the 5 consuming cards carries the imperative Read-link costs one grep search per card (five total). Skipping means a card misses the link, content loss propagates, and orchestrators never load the reference — the exact defect this spec exists to prevent.
 - **SC-3:** Verifying the AGENTS.md index row costs one grep search. Skipping means the reference is undiscoverable, reducing adoption and leaving the content stranded in the preloaded guideline.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** The reference file must be created even if some consuming cards already contain partial content — the Read-link is additive, never destructive.
-- **State transitions:** ABSENT → CREATED (Phase 1) → LINKED (Phase 2) → INDEXED (Phase 3). Each transition is triggered by its phase and is independently verifiable.
-- **Failure modes:** If a consuming card already uses a non-imperative citation form, the Read-link is added alongside it — existing content is not removed. If the reference file already exists, it is verified for content completeness rather than recreated.
+- **State transitions:** ABSENT → CREATED (Phase 1, SC-1a) → MANDATE-PRESENT (Phase 1, SC-1b..SC-1e) → VOCAB-PRESERVED (Phase 1, SC-1f) → LINKED (Phase 2, SC-2a..SC-2e) → INDEXED (Phase 3, SC-3). Each transition is triggered by its SC and is independently verifiable.
+- **Failure modes:** If a consuming card already uses a non-imperative citation form, the Read-link is added alongside it — existing content is not removed. If the reference file already exists, each of SC-1b..SC-1f is verified for the individual mandate/vocabulary presence rather than the file being recreated.
 - **Concurrency:** No runtime concurrency — this is a documentation-only change. File writes are sequential per phase.
-- **Recovery:** If a Read-link is missing from a card, the card is re-verified and the link added. If the reference content is incomplete, it is revised to include all four mandates.
+- **Recovery:** If a Read-link is missing from a card, the corresponding SC-2x is re-verified and the link added. If a specific mandate is missing from the reference, the corresponding SC-1x is re-verified and the mandate added. If the reference content is incomplete, it is revised to include all four mandates (SC-1b..SC-1e).
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-27 | Decomposed compound SCs into atomic SCs: SC-1 split into SC-1a (file exists), SC-1b..SC-1e (four mandates), SC-1f (vocabulary preservation); SC-2 split into SC-2a..SC-2e (one per consuming skill card). Updated sc-summary.yaml, Items, Traceability, Cost Frame, and Edge Cases to match the decomposed SC set. | Validation finding: Aggregate FAIL due to compound SCs bundling multiple verification targets via "and"/comma-list phrasing. | Validation pipeline (sub-agent revision) |
 
 ---
 
