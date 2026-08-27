@@ -45,10 +45,14 @@ The motivating request: extract §1.1 Discussion Mode Mandates from the preloade
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | `.opencode/reference/discussion-mode-mandates.md` exists and its content is a content-preserving extraction of the §1.6 Discussion Mode Mandates source in `020-go-prohibitions.md` (the NEVER DO / ALWAYS DO bullets and the skill-routing table). | structural | `ls .opencode/reference/discussion-mode-mandates.md`; diff against the §1.6 source block to confirm no mandate was dropped or altered. | `.opencode/guidelines/020-go-prohibitions.md` (source) |
-| SC-2 | `brainstorming/SKILL.md` contains a `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link using the imperative form; the link target resolves to the created file. | structural | grep `brainstorming/SKILL.md` for the imperative Read-link form; resolve the target path and assert it exists. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
-| SC-3 | `approval-gate/SKILL.md` contains a `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link using the imperative form; the link target resolves to the created file. | structural | grep `approval-gate/SKILL.md` for the imperative Read-link form; resolve the target path and assert it exists. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
-| SC-4 | The §1.6 content appears exactly once in the deck — in the reference file, not duplicated into either skill card — and all Read-links resolve. | structural | grep the codebase to confirm the §1.6 content is not duplicated into `brainstorming/SKILL.md` or `approval-gate/SKILL.md`; run skildeck validation on both modified cards (if available). | `.opencode/reference/spec-structure-standards.md` |
+| SC-1a | `.opencode/reference/discussion-mode-mandates.md` exists. | structural | `ls .opencode/reference/discussion-mode-mandates.md` succeeds. | `.opencode/guidelines/020-go-prohibitions.md` (source) |
+| SC-1b | The reference file's content is a content-preserving extraction of the §1.6 Discussion Mode Mandates source in `020-go-prohibitions.md` (the NEVER DO / ALWAYS DO bullets and the skill-routing table). | structural | diff the reference file against the §1.6 source block to confirm no mandate was dropped or altered. | `.opencode/guidelines/020-go-prohibitions.md` (source) |
+| SC-2a | `brainstorming/SKILL.md` contains a `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link using the imperative form. | structural | grep `brainstorming/SKILL.md` for the imperative Read-link form. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
+| SC-2b | The `brainstorming/SKILL.md` Read-link target resolves to the created file. | structural | resolve the target path from the `brainstorming/SKILL.md` Read-link and assert it exists. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
+| SC-3a | `approval-gate/SKILL.md` contains a `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link using the imperative form. | structural | grep `approval-gate/SKILL.md` for the imperative Read-link form. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
+| SC-3b | The `approval-gate/SKILL.md` Read-link target resolves to the created file. | structural | resolve the target path from the `approval-gate/SKILL.md` Read-link and assert it exists. | `AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/reference/spec-structure-standards.md` |
+| SC-4a | The §1.6 content appears exactly once in the deck — in the reference file, not duplicated into either skill card. | structural | grep the codebase to confirm the §1.6 content is not duplicated into `brainstorming/SKILL.md` or `approval-gate/SKILL.md`. | `.opencode/reference/spec-structure-standards.md` |
+| SC-4b | All Read-links to the reference file resolve to the created file. | structural | resolve each `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link target and assert it exists; run skildeck validation on both modified cards (if available). | `.opencode/reference/spec-structure-standards.md` |
 
 ## Requirements
 
@@ -57,35 +61,43 @@ The motivating request: extract §1.1 Discussion Mode Mandates from the preloade
 - **R-3.** `approval-gate/SKILL.md` SHALL contain a `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link using the imperative Read [Text](path) form.
 - **R-4.** The §1.6 content SHALL appear only once in the deck — in the reference file — and SHALL NOT be re-inlined into either skill-card body.
 - **R-5.** The reference file SHALL follow the `.opencode/reference/` format conventions and SHALL carry provenance per code standards where applicable.
+- **R-6.** All `Read [Text](.opencode/reference/discussion-mode-mandates.md)` links in the deck SHALL resolve to the created reference file.
 
 ## Items
 
-### Item 1 (SC-1): Create the canonical shared reference file
+### Item 1 (SC-1a, SC-1b): Create the canonical shared reference file
 
 - RED: `ls .opencode/reference/discussion-mode-mandates.md` fails (file does not exist).
 - GREEN: Write `.opencode/reference/discussion-mode-mandates.md` with the extracted §1.6 content.
-- verify: File exists, non-empty, and content matches the §1.6 source block.
+- verify: File exists (SC-1a), non-empty, and content matches the §1.6 source block (SC-1b).
 - commit: The new reference file.
 
-### Item 2 (SC-2): Add mandatory Read-link in brainstorming SKILL.md
+### Item 2 (SC-2a, SC-2b): Add mandatory Read-link in brainstorming SKILL.md
 
 - RED: grep `brainstorming/SKILL.md` finds no imperative Read-link to the reference.
 - GREEN: Add the `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link to the Cross-References section.
-- verify: grep confirms the imperative form; target path resolves.
+- verify: grep confirms the imperative form (SC-2a); target path resolves (SC-2b).
 - commit: `brainstorming/SKILL.md`.
 
-### Item 3 (SC-3): Add mandatory Read-link in approval-gate SKILL.md
+### Item 3 (SC-3a, SC-3b): Add mandatory Read-link in approval-gate SKILL.md
 
 - RED: grep `approval-gate/SKILL.md` finds no imperative Read-link to the reference.
 - GREEN: Add the `Read [Text](.opencode/reference/discussion-mode-mandates.md)` link to the Cross-References section.
-- verify: grep confirms the imperative form; target path resolves.
+- verify: grep confirms the imperative form (SC-3a); target path resolves (SC-3b).
 - commit: `approval-gate/SKILL.md`.
 
-### Item 4 (SC-4): Verify single-source integrity
+### Item 4 (SC-4a): Verify single-source integrity
 
-- RED: grep confirms §1.6 content is duplicated into a skill-card body or a Read-link is broken.
+- RED: grep confirms §1.6 content is duplicated into a skill-card body.
 - GREEN: No implementation change; verification-only.
-- verify: grep confirms content appears once; all Read-links resolve; skildeck validation passes.
+- verify: grep confirms content appears once.
+- commit: No code change.
+
+### Item 5 (SC-4b): Verify Read-link resolution
+
+- RED: a Read-link to the reference file is broken (target does not resolve).
+- GREEN: No implementation change; verification-only.
+- verify: all Read-links resolve; skildeck validation passes.
 - commit: No code change.
 
 ## Dependencies
@@ -107,8 +119,9 @@ The motivating request: extract §1.1 Discussion Mode Mandates from the preloade
 | R-1 | SC-1 | Item 1 |
 | R-2 | SC-2 | Item 2 |
 | R-3 | SC-3 | Item 3 |
-| R-4 | SC-1, SC-4 | Item 1, Item 4 |
-| R-5 | SC-1 | Item 1 |
+| R-4 | SC-1a, SC-1b, SC-4a | Item 1, Item 4 |
+| R-5 | SC-1a, SC-1b | Item 1 |
+| R-6 | SC-4b | Item 5 |
 
 ## Documentation Sources
 
@@ -127,19 +140,29 @@ The motivating request: extract §1.1 Discussion Mode Mandates from the preloade
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- **SC-1:** Verifying the reference file exists and preserves §1.6 content costs one `ls` plus a diff against the source. Skipping means a missing or corrupted reference isn't caught until the condensation runs against a file that does not hold the mandates.
-- **SC-2:** Verifying the brainstorming Read-link costs one grep of `brainstorming/SKILL.md` and a target-path resolution. Skipping means the brainstorming card silently loses its discussion-mode gate until a later spec is created without the mandates.
-- **SC-3:** Verifying the approval-gate Read-link costs one grep of `approval-gate/SKILL.md` and a target-path resolution. Skipping means the approval-gate card silently loses its no-skill-routing-solicitation mandate.
-- **SC-4:** Verifying single-source and link integrity costs a codebase grep and skildeck validation. Skipping means a duplicated or broken link ships, and the deck regresses to two copies that drift.
+- **SC-1a/SC-1b:** Verifying the reference file exists and preserves §1.6 content costs one `ls` plus a diff against the source. Skipping means a missing or corrupted reference isn't caught until the condensation runs against a file that does not hold the mandates.
+- **SC-2a/SC-2b:** Verifying the brainstorming Read-link costs one grep of `brainstorming/SKILL.md` and a target-path resolution. Skipping means the brainstorming card silently loses its discussion-mode gate until a later spec is created without the mandates.
+- **SC-3a/SC-3b:** Verifying the approval-gate Read-link costs one grep of `approval-gate/SKILL.md` and a target-path resolution. Skipping means the approval-gate card silently loses its no-skill-routing-solicitation mandate.
+- **SC-4a:** Verifying single-source integrity costs a codebase grep. Skipping means a duplicated copy ships, and the deck regresses to two copies that drift.
+- **SC-4b:** Verifying Read-link resolution costs a target-path resolution plus skildeck validation. Skipping means a broken link ships and a card silently loses its discussion-mode gate.
 
 ## Edge Cases
 
-- **Input boundary — empty reference file:** If `discussion-mode-mandates.md` is written empty or truncated, the diff against the §1.6 source fails, so SC-1 catches it at creation.
-- **Link form misuse:** If either card uses a "see" or symbol-only reference instead of the imperative `Read [Text](path)` form, SC-2/SC-3's grep asserts the imperative form, and the card is not accepted.
-- **Link target missing:** If a Read-link is added before the reference file exists, SC-1/SC-2/SC-3 path resolution fails, so item ordering (reference before links) is enforced by the dependency DAG.
-- **Duplicate content:** If §1.6 content is inlined into a skill card, SC-4's single-source grep flags the duplication.
-- **Broken link after move:** If the reference file is later moved/renamed, SC-2/SC-3 path resolution re-fails, triggering repair.
-- **Skill-card structural break:** If adding the Read-link breaks the skill card's frontmatter/dispatch-table structure, skildeck validation in SC-4 flags it; the link goes in the existing Cross-References section to avoid this.
+- **Input boundary — empty reference file:** If `discussion-mode-mandates.md` is written empty or truncated, the diff against the §1.6 source fails, so SC-1b catches it at creation.
+- **Link form misuse:** If either card uses a "see" or symbol-only reference instead of the imperative `Read [Text](path)` form, SC-2a/SC-3a's grep asserts the imperative form, and the card is not accepted.
+- **Link target missing:** If a Read-link is added before the reference file exists, SC-1a/SC-2b/SC-3b path resolution fails, so item ordering (reference before links) is enforced by the dependency DAG.
+- **Duplicate content:** If §1.6 content is inlined into a skill card, SC-4a's single-source grep flags the duplication.
+- **Broken link after move:** If the reference file is later moved/renamed, SC-4b path resolution re-fails, triggering repair.
+- **Skill-card structural break:** If adding the Read-link breaks the skill card's frontmatter/dispatch-table structure, skildeck validation in SC-4b flags it; the link goes in the existing Cross-References section to avoid this.
+
+---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-27 | Decomposed SC-4 into SC-4a (content-appears-once) and SC-4b (links-resolve); updated Items 4-5, Traceability, Cost Frame, and Edge Cases accordingly. | Validation finding: SC-4 was a compound, verification-only SC bundling two independently verifiable targets (non-duplication + global Read-link resolution), failing Atomicity, Single Deliverable, and PR-Gate Viability. | Validation pipeline |
+| 2026-08-27 | Decomposed SC-1 into SC-1a (file exists) and SC-1b (content-preserving extraction); SC-2 into SC-2a (imperative link present) and SC-2b (link target resolves); SC-3 into SC-3a (imperative link present) and SC-3b (link target resolves). Added R-6 (all Read-links SHALL resolve) tracing to SC-4b. Updated Items 1-3, Traceability, Cost Frame, and Edge Cases accordingly. | Validation finding: SC-1/SC-2/SC-3 were compound SCs bundling two independently verifiable targets each, failing Atomicity; SC-4b was an orphan SC with no tracing requirement. | Validation pipeline |
 
 ---
 
