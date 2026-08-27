@@ -4,33 +4,121 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
-
-  Per-item TDD cycle detail from 091-incremental-build.md will be removed from preload;
-  test-driven-development is the canonical home.
-
-
-  ## Scope
-
-  - **In:** Make test-driven-development the authoritative source for the per-item
-  RED/GREEN/REFACTOR/COMMIT cycle; add mandatory Read [Text](path) link to code-standards-shared.md
-  (enforcement-test mandate + behavioral-test-substitution prohibition).
-
-  - **Out:** Losing the TDD cycle or enforcement mandate.
-
-
-  ## Approach
-
-  Consolidate the per-item TDD cycle + enforcement mandate into the test-driven-development
-  skill card.
-
-
-  ## Impact
-
-  Enables 091 + 080 condensation. Risk: losing behavioral-test mandate. Mitigation:
-  tdd card is authoritative. Depends on 091/080. Action: approve.'
+body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2367/\n\
+  \n## Problem\n\nThe test-driven-development SKILL.md lacks a dedicated Per-Item\
+  \ TDD Cycle section, requiring agents to reference this detail from `.opencode/guidelines/091-incremental-build.md`\
+  \ instead of finding it in the skill card that governs TDD execution. This creates\
+  \ a separation between the rule and its usage context, forcing agents to cross-reference\
+  \ two documents for fundamental TDD cycle guidance.\n\n## Scope\n\n**In scope:**\n\
+  - Add a Per-Item TDD Cycle section to `.opencode/skills/test-driven-development/SKILL.md`\
+  \ describing the RED → GREEN → REFACTOR → COMMIT cycle per item\n- Add a `Read [Text](path)`\
+  \ link to `.opencode/reference/code-standards-shared.md` within or adjacent to the\
+  \ new section\n- The new section covers the same content currently in `.opencode/guidelines/091-incremental-build.md`\
+  \ §Per-Item TDD Cycle, adapted for skill card context\n\n**Out of scope:**\n- Removing\
+  \ the Per-Item TDD Cycle section from `091-incremental-build.md` — this will be\
+  \ handled by a separate spec\n- Creating `code-standards-shared.md` — this reference\
+  \ file does not yet exist; the Read link will be a dangling reference until it is\
+  \ created by a separate specification\n- Modifying the Trigger Dispatch Table, Invocation,\
+  \ tasks, routing tables, or any structural/schema-level content in the SKILL.md\n\
+  - Any changes to guideline files or other skill files\n\n## Approach\n\nAdd a new\
+  \ section `## Per-Item TDD Cycle` to the test-driven-development SKILL.md, placed\
+  \ after the `## Five Core Principles` section and before the `## Worktree Mode`\
+  \ section, mirroring the content from `091-incremental-build.md` §Per-Item TDD Cycle\
+  \ in adaptation for the skill card audience. Include the RED/GREEN/REFACTOR/COMMIT\
+  \ phase table, the behavioral variant note for rule/guideline items, and the behavioral\
+  \ evidence definition (stderr actions, not prose recall). Add a `Read [.opencode/guidelines/091-incremental-build.md](guidelines/091-incremental-build.md)`\
+  \ cross-reference and a `Read [.opencode/reference/code-standards-shared.md](reference/code-standards-shared.md)`\
+  \ link. The content is adapted from the guideline's existing Per-Item TDD Cycle\
+  \ section, rewritten in skill-card voice (authority frame, identity-anchored).\n\
+  \n## Impact\n\n**Top risks:**\n1. **Dangling Read link** — The `Read [Text](path)`\
+  \ link to `code-standards-shared.md` will fail to resolve until that reference file\
+  \ exists. *Mitigation:* This is a known and accepted limitation; a separate spec\
+  \ will create the reference file.\n2. **Content duplication** — The per-item TDD\
+  \ cycle content will exist in both `091-incremental-build.md` and the SKILL.md until\
+  \ the guideline is cleaned up. *Mitigation:* A separate spec tracks the removal\
+  \ from the guideline; the SKILL.md becomes the canonical home.\n3. **Placement mismatch**\
+  \ — The new section content may not align with existing Five Core Principles or\
+  \ Persona. *Mitigation:* Pre-spec inspection confirmed no structural changes to\
+  \ routing tables or TDT; content addition only.\n\n**Key dependency:** `.opencode/reference/code-standards-shared.md`\
+  \ must exist before the Read link resolves. This is tracked separately and does\
+  \ not block this spec.\n\n## Not Included\n\n- **[code-standards-shared.md]** —\
+  \ A separate spec will create this reference file; the Read link in this change\
+  \ will be a known temporary dangling reference\n\n## Success Criteria\n\n| ID |\
+  \ Criterion | Evidence Type | Verification Method |\n|----|-----------|---------------|---------------------|\n\
+  | SC-1 | The SKILL.md contains a `## Per-Item TDD Cycle` section that describes\
+  \ the RED → GREEN → REFACTOR → COMMIT cycle per spec SC, including the behavioral\
+  \ variant for rule/guideline items and the behavioral evidence definition | `string`\
+  \ | `grep` for the section header `## Per-Item TDD Cycle` and the phase table in\
+  \ `.opencode/skills/test-driven-development/SKILL.md` |\n| SC-2 | The SKILL.md contains\
+  \ a `Read [Text](path)` link pointing to `.opencode/reference/code-standards-shared.md`\
+  \ within or adjacent to the Per-Item TDD Cycle section | `string` | `grep` for the\
+  \ Read link pattern pointing to `code-standards-shared.md` in the SKILL.md |\n\n\
+  ## Requirements\n\nR-1. The SKILL.md SHALL contain a `## Per-Item TDD Cycle` section\
+  \ with a RED/GREEN/REFACTOR/COMMIT phase table.\nR-2. The section SHALL include\
+  \ a behavioral variant note describing how rule/guideline items use `opencode run`\
+  \ with stderr-based assertions.\nR-3. The section SHALL include the behavioral evidence\
+  \ definition: \"agent actions visible in stderr (skill dispatches, file reads, sub-agent\
+  \ task() calls, tool invocations). Prose recall is NOT behavioral evidence.\"\n\
+  R-4. The SKILL.md SHALL contain a `Read [Text](path)` link to `.opencode/reference/code-standards-shared.md`.\n\
+  R-5. The Read link SHOULD be placed within or immediately adjacent to the Per-Item\
+  \ TDD Cycle section.\nR-6. The section SHALL include a `Read [.opencode/guidelines/091-incremental-build.md](guidelines/091-incremental-build.md)`\
+  \ cross-reference to the guideline that currently holds this content.\n\n## Items\n\
+  \n### Item 1 (SC-1): Add Per-Item TDD Cycle section\n\n- RED: behavioral test via\
+  \ `opencode run` — verify agent does NOT have \"Per-Item TDD Cycle\" section (stderr\
+  \ search); content-verification test via grep confirms section absent\n- GREEN:\
+  \ Add the `## Per-Item TDD Cycle` section with RED/GREEN/REFACTOR/COMMIT phase table\
+  \ to `.opencode/skills/test-driven-development/SKILL.md`\n- verify: grep for `##\
+  \ Per-Item TDD Cycle` header and phase table in SKILL.md\n- commit: SKILL.md edit\
+  \ only\n\n### Item 2 (SC-2): Add Read link to code-standards-shared.md\n\n- RED:\
+  \ grep confirms no Read link to `code-standards-shared.md` exists; behavioral test\
+  \ confirms agent does not follow the link pattern\n- GREEN: Add `Read [.opencode/reference/code-standards-shared.md](reference/code-standards-shared.md)`\
+  \ within or adjacent to the Per-Item TDD Cycle section\n- verify: grep for the Read\
+  \ link pattern `code-standards-shared.md` in SKILL.md\n- commit: SKILL.md edit (same\
+  \ commit as Item 1 or separate per dependency ordering)\n\n## Dependencies\n\n-\
+  \ **Reference:** `.opencode/reference/code-standards-shared.md`\n  - **Relationship:**\
+  \ The Read link added by this spec depends on this file existing; if it does not\
+  \ exist, the link is a known temporary dangling reference\n  - **Status:** PENDING\
+  \ — will be created by a separate specification\n- **Reference:** `.opencode/guidelines/091-incremental-build.md`\n\
+  \  - **Relationship:** Contains the current per-item TDD cycle content that is duplicated\
+  \ by this spec; removal tracked by separate spec\n  - **Status:** SATISFIED — content\
+  \ exists and will remain until separate removal spec\n\n## Traceability\n\n| Requirement\
+  \ | SC(s) | Phase(s) |\n|-------------|-------|----------|\n| R-1 | SC-1 | Phase\
+  \ 1 |\n| R-2 | SC-1 | Phase 1 |\n| R-3 | SC-1 | Phase 1 |\n| R-4 | SC-2 | Phase\
+  \ 1 |\n| R-5 | SC-2 | Phase 1 |\n| R-6 | SC-1 | Phase 1 |\n\n## Documentation Sources\n\
+  \n| Source | Type | Location | Verification |\n|--------|------|----------|-------------|\n\
+  | test-driven-development SKILL.md | code | `.opencode/skills/test-driven-development/SKILL.md`\
+  \ | Read tool — confirmed current state has no Per-Item TDD Cycle section |\n| 091-incremental-build.md\
+  \ | guideline | `.opencode/guidelines/091-incremental-build.md` | Read tool — confirmed\
+  \ existing Per-Item TDD Cycle section starting at line 24 |\n| Spec structure standards\
+  \ | doc | `.opencode/reference/spec-structure-standards.md` | Read tool — confirmed\
+  \ required sections |\n\n## Enforcement Gate\n\n> **Enforcement gate:** All success\
+  \ criteria MUST pass before this spec is considered complete. Partial implementation\
+  \ is not permitted.\n\n## Cost Frame\n\nCost is measured in defect-discovery-latency,\
+  \ not tool calls. Correctness is the only metric.\n\n- SC-1: Verifying the section\
+  \ header and phase table exist costs one grep command. Skipping means the skill\
+  \ card lacks its fundamental TDD cycle guidance, forcing agents to cross-reference\
+  \ a separate guideline for the core TDD workflow — increasing cognitive overhead\
+  \ and routing risk per dispatch.\n- SC-2: Verifying the Read link exists costs one\
+  \ grep command. Skipping means anyone reading the Per-Item TDD Cycle section cannot\
+  \ navigate to the shared code standards reference — the link was documented but\
+  \ never added, producing a documentation-vs-code drift that accumulates over subsequent\
+  \ edits.\n\n## Edge Cases\n\n- **Read link to nonexistent file:** The link to `code-standards-shared.md`\
+  \ will be dangling until that file is created. No system behavior change — Read\
+  \ links are advisory cross-references, not runtime dependencies. An agent loading\
+  \ the skill and encountering a dangling link will produce a BLOCKED status if the\
+  \ file is missing, but this is the expected and accepted behavior until the reference\
+  \ file exists.\n- **Duplicate content period:** Both `091-incremental-build.md`\
+  \ and this SKILL.md will contain the Per-Item TDD Cycle content until the guideline\
+  \ is cleaned up. Duplicate content is acceptable during this transition period —\
+  \ the SKILL.md is the canonical home; the guideline retains the content as a backup\
+  \ reference until the removal spec is implemented. No behavioral conflict: both\
+  \ sources describe the same procedure.\n- **Placement within SKILL.md:** The new\
+  \ section is placed after Five Core Principles and before Worktree Mode. If future\
+  \ sections are added or reordered, the Per-Item TDD Cycle section should maintain\
+  \ its position relative to principles (before workflow/operational sections), not\
+  \ relative to fixed line numbers.\n"
 created_at: '2026-08-27T03:14:49Z'
-updated_at: '2026-08-27T21:23:01+00:00'
+updated_at: '2026-08-27T21:24:45+00:00'
 remote_issue: 2367
 remote_url: https://github.com/michael-conrad/.opencode/issues/2367
 promoted_at: '2026-08-27T03:25:12.690433+00:00'
