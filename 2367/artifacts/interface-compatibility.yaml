@@ -1,0 +1,9 @@
+interfaces:
+  - name: test-driven-development SKILL.md routing surface
+    status: unchanged
+    analysis: "Trigger Dispatch Table, Invocation, and task names unchanged. Only content sections added — no routing changes."
+  - name: Read link to code-standards-shared.md
+    status: new
+    classification: internal only
+    backward_compatible: true
+    analysis: "New cross-reference from tdd skill card to reference file. Does not affect any task dispatch, sub-agent routing, or existing functionality."

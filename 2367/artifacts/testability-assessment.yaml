@@ -1,0 +1,11 @@
+phases:
+  - phase: 1
+    test_strategy: mixed
+    unit: false
+    integration: false
+    behavioral: true
+    content_verification: true
+    details:
+      - "Content-verification test: grep for 'Per-Item TDD Cycle' section header in SKILL.md (string evidence)"
+      - "Content-verification test: grep for Read link pattern pointing to code-standards-shared.md (string evidence)"
+      - "Behavioral test: dispatch opencode run with prompt that triggers the per-item TDD cycle behavior, verify agent actions in stderr (behavioral evidence)"

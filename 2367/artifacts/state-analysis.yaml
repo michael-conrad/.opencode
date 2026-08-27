@@ -1,0 +1,10 @@
+state_machine:
+  initial: "SKILL.md without per-item TDD cycle section / without Read link to code-standards-shared.md"
+  transitions:
+    - phase: 1
+      trigger: "Edit SKILL.md — add Per-Item TDD Cycle section"
+      to: "SKILL.md with per-item TDD cycle section / still without Read link"
+    - phase: 1
+      trigger: "Edit SKILL.md — add Read [Text](path) link"
+      to: "SKILL.md with both per-item TDD cycle section and Read link (DONE)"
+  terminal_state: "SKILL.md containing authoritative per-item TDD cycle content + Read link to code-standards-shared.md"

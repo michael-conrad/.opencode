@@ -1,0 +1,11 @@
+concerns:
+  - name: content-addition
+    phase: 1
+    files:
+      - .opencode/skills/test-driven-development/SKILL.md
+    separation: "All changes to a single SKILL.md file — no cross-file concern contamination"
+  - name: cross-reference
+    phase: 1
+    files:
+      - .opencode/skills/test-driven-development/SKILL.md
+    separation: "Read link addition is part of content-addition concern — added in the same file"

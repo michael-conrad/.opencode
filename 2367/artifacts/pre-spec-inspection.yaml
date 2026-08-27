@@ -1,0 +1,41 @@
+inspection_timestamp: "2026-08-27T17:17:00Z"
+affected_files:
+  - path: .opencode/skills/test-driven-development/SKILL.md
+    reason: Target skill card — needs per-item TDD cycle section + Read link to code-standards-shared.md
+    existing_patterns:
+      - Has "Five Core Principles" section with 6 principles
+      - Has "Enforcement Test Mandate for Guideline and Skill Changes" section starting at line 187
+      - Has "Behavioral RED/GREEN as Primary Enforcement Gate" section
+      - Has "Evidence Type Taxonomy" section
+      - Has "Test Integrity Mandate" section
+      - No dedicated "Per-Item TDD Cycle" section exists yet
+    conventions:
+      - YAML frontmatter with name, description, license, compatibility
+      - Sections use ## Heading level
+      - Mandatory Task Discipline section
+      - Read [Text](path) pattern for cross-references
+      - Pre-Flight Guard (Mandatory)
+      - Trigger Dispatch Table
+      - Sub-Agent Routing with DISPATCH_GATE
+      - Operating Protocol section
+
+  - path: .opencode/guidelines/091-incremental-build.md
+    reason: Currently holds per-item TDD cycle detail that will be removed to tdd skill
+    existing_content:
+      - Line 26-37: Per-Item TDD Cycle section with RED/GREEN/REFACTOR/COMMIT table
+      - Line 35: Behavioral variant note for rule/guideline items
+      - Line 37: Behavioral evidence definition (stderr actions, not prose recall)
+
+  - path: .opencode/reference/code-standards-shared.md
+    reason: Does NOT exist yet — spec says add mandatory Read link to it from the tdd skill card
+    status: MISSING — will be created in a separate spec or as part of this change scope
+    note: "In scope per spec — add Read link to code-standards-shared.md from tdd skill card"
+
+  - path: .opencode/guidelines/080-code-standards.md
+    reason: Currently has Enforcement Test Mandate section (line 438-440) with Read link to tdd SKILL.md
+    cross_references:
+      - Line 440: Read [the Enforcement Test Mandate in test-driven-development/SKILL.md]
+
+dependencies:
+  - spec-creation: needs to create code-standards-shared.md reference file before this spec can fully link to it
+  - 080-code-standards.md: its Enforcement Test Mandate section already redirects to tdd SKILL.md via Read link

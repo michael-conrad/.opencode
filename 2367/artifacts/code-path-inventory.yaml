@@ -1,0 +1,31 @@
+phase: 1
+code_paths:
+  - file: .opencode/skills/test-driven-development/SKILL.md
+    sections_touched:
+      - "Per-Item TDD Cycle" (new section — placed after "Five Core Principles" or before "Enforcement Test Mandate")
+      - Read link to code-standards-shared.md (added within or adjacent to new section)
+    not_touched:
+      - YAML frontmatter
+      - Persona
+      - Five Core Principles
+      - Worktree Mode
+      - Mandatory Task Discipline
+      - Pre-Flight Guard
+      - Trigger Dispatch Table
+      - TDD Heading Format Requirement
+      - ASCII Cycle Diagram
+      - Tasks table
+      - Invocation
+      - Gate Descriptions
+      - Cycle-Reset Discipline
+      - Sub-Agent Routing
+      - DISPATCH_GATE
+      - Authorization Context
+      - Routing Rules
+      - Operating Protocol
+      - Enforcement Test Mandate (entire section)
+      - Evidence Type Taxonomy
+      - RED-Phase Ordering
+      - Behavioral RED/GREEN as Primary Enforcement Gate
+      - Test Integrity Mandate
+      - Provenance

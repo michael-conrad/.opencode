@@ -1,0 +1,10 @@
+cross_cutting_concerns:
+  - concern: content-standards
+    phases_affected: [1]
+    impact: "The new section and Read link must follow existing SKILL.md conventions (markdown formatting, section headers, Read pattern)"
+  - concern: cross-reference-integrity
+    phases_affected: [1]
+    impact: "Read link to code-standards-shared.md will be dangling if the reference file does not exist when this change is implemented"
+  - concern: duplicate-content
+    phases_affected: [1]
+    impact: "091-incremental-build.md retains its Per-Item TDD Cycle section until a separate spec removes it — brief period of duplicate content"

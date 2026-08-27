@@ -1,0 +1,15 @@
+phase: 1
+affected_components:
+  - file: .opencode/skills/test-driven-development/SKILL.md
+    change: Add per-item TDD cycle section + Read link
+    ripple:
+      - None direct — content addition only, no structural changes to routing tables or TDT
+  - file: .opencode/reference/code-standards-shared.md
+    change: Must exist before Read link resolves (created by separate spec or pipeline)
+    ripple:
+      - If not yet created, the Read link will be a dangling reference until the reference file is created
+  - file: .opencode/guidelines/091-incremental-build.md
+    change: Its per-item TDD cycle content will be removed from preload (separate spec)
+    ripple:
+      - Removes duplicate content source
+      - tdd SKILL.md becomes the canonical home
