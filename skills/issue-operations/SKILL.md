@@ -22,6 +22,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -213,5 +221,3 @@ The `issue-operations` dispatcher resolves platform selection automatically base
 
 ### [critical-rules-011] Bug Reports Without Fix Spec
 Reporting a bug without a fix spec means you are asking the developer to guess what happened. Professional engineers always create a fix spec with every bug report — amateurs file half-baked tickets and expect someone else to figure them out.
-
-

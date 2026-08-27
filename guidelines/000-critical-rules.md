@@ -187,6 +187,8 @@ Dispatching SKILL.md content (the skill card) to a sub-agent via `task()` is a c
 
 The skill card (SKILL.md) tells the orchestrator WHAT to dispatch. The task card (tasks/<name>.md) tells the sub-agent HOW to execute. Dispatching the skill card to a sub-agent means the sub-agent receives instructions about dispatching — which it cannot do.
 
+**Defensive backstop — the pre-flight guard.** Every SKILL.md carries a pre-flight guard (see the canonical definition in the skill card requirements documentation) that detects sub-agent context and returns `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` before any routing metadata is consumed. If a skill card is nonetheless dispatched to a sub-agent, the guard halts the sub-agent immediately rather than allowing it to consume orchestrator-level routing metadata it cannot execute. This guard is the defensive backstop for this rule — it is enforced mechanically by `skildeck-lint` and `validate_skill_cards.py`.
+
 | Artifact | File | Consumer | Content | Action |
 |----------|------|----------|---------|--------|
 | Skill Card | SKILL.md | Orchestrator | Routing metadata (Trigger Dispatch Table, Invocation, DISPATCH_GATE) | Load via skill(), read in own context, do NOT dispatch |

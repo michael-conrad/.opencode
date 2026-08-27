@@ -293,6 +293,43 @@ def lint_progressive_disclosure(base_dir: Path) -> list[LintFinding]:
 
     return findings
 
+
+GUARD_MARKER = "ORCHESTRATOR_ONLY_SKILL_CARD"
+
+
+def lint_skill_preflight_guard(base_dir: Path) -> list[LintFinding]:
+    """Flag SKILL.md cards lacking the canonical pre-flight guard.
+
+    SC-2 (.opencode#2339): every SKILL.md under skills/ (including
+    platforms/*/SKILL.md) MUST carry the pre-flight guard that returns
+    BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD before routing metadata is
+    consumed. The guard is additive; a card with the guard produces no
+    finding (idempotent — no double-guard finding).
+    """
+    findings: list[LintFinding] = []
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        skmd = skill_dir / "SKILL.md"
+        if not skmd.exists():
+            continue
+        rel = str(skmd.relative_to(base_dir))
+        text = skmd.read_text()
+        if GUARD_MARKER not in text:
+            findings.append(LintFinding(
+                severity="error", category="skill-preflight-guard",
+                source=rel, rule_id="skill-preflight-guard-missing",
+                message=f"SKILL.md missing pre-flight guard (marker {GUARD_MARKER})"
+            ))
+
+    return findings
+
+
 def lint_all(
     scan_dir: Path,
     skill_filter: str = "",
@@ -1249,6 +1286,7 @@ def main() -> None:
     base_dir = scan_dir.parent if scan_dir.name == "skills" else scan_dir
     findings.extend(lint_progressive_disclosure(base_dir))
     findings.extend(lint_skill_frontmatter(base_dir))
+    findings.extend(lint_skill_preflight_guard(base_dir))
     findings.extend(lint_skill_deck_completeness(base_dir))
     findings.extend(lint_skill_workflows_prompts(base_dir))
     findings.extend(lint_skill_card_format_rules(base_dir))

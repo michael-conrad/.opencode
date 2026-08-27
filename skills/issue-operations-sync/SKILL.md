@@ -11,6 +11,14 @@ provenance: AI-generated
 
 Issue synchronization between remote platforms and local `.issues/` tracking. Handles reconciling remote issues against local state, mirroring remote issue bodies to local spec files, and retroactively importing pre-existing remote issues.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |

@@ -12,6 +12,14 @@ provenance: AI-generated
 
 Generate and validate implementation plans from approved specs. Flat architecture — no sub-skills, 7 task files. The orchestrator sequences a clean-room pipeline: HANDOFF (authorization verification) → ANALYZE (entry gates) → RESEARCH (scope discovery, structure, Z3 solving) → CREATE (plan writing) → VALIDATE (structural validation, holistic check) → (revise loop) → COMPLETION (lifecycle event). Each sub-agent receives only its scoped context — no preloaded reasoning, no orchestrator conclusions.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Workflows
 
 ### Create a plan from an approved spec

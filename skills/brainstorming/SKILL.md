@@ -25,6 +25,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **Preliminary analytical artifact production required before spec-creation handoff.** Artifact requirements are conditional: blast-radius always required; concern-map required for multi-concern specs; code-path-inventory required when spec touches existing code; cross-cutting-matrix required for multi-concern specs; interface-compatibility required when spec modifies public APIs; state-analysis required when spec modifies stateful components; testability-assessment required when spec has behavioral SCs.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -146,5 +154,3 @@ When brainstorming specs, if a proposed change affects runtime behavior, its SCs
 ## Cross-References
 
 Skills: `spec-creation`, `writing-plans`. Guidelines: `015-pre-spec-inspection.md`.
-
-

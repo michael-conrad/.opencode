@@ -70,6 +70,14 @@ See `gitbucket-api/tasks/tool-detection.md` for tool detection and version check
 | Create repo | ✅ | `gb repo create <name> [-g group]` |
 | API passthrough | ✅ | `gb api <endpoint> [-X method] [--input ...]` |
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Tasks
 
 | Task | Purpose |

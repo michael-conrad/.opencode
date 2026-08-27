@@ -29,6 +29,14 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **Analytical artifact cross-reference required before completion claim.** Each analytical artifact must be verified against actual implementation evidence. Contradictions between analytical artifacts and implementation evidence produce HALT. Unverified artifacts produce HALT with the specific artifact name.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -165,5 +173,3 @@ Reporting that a file exists as evidence that behavior is correct is what amateu
 
 ### [critical-rules-039] Process Gaps Are Bugs — completed issues not auto-closed
 Read [verify-already-implemented skill](skills/verification-before-completion/SKILL.md) → Auto-Close Procedure.
-
-

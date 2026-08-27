@@ -96,6 +96,14 @@ See `github-mcp/tasks/spec-mirror.md` for the full spec mirror sync procedure, f
 - Router: `../SKILL.md` (issue-operations)
 - Related platform: `../gitbucket-api/SKILL.md`
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Sub-Agent Tasks
 
 ### Task Routing

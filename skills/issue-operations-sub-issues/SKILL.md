@@ -11,6 +11,14 @@ provenance: AI-generated
 
 Sub-issue management for parent-child issue relationships. Handles linking sub-issues to parent plan issues and reading sub-issue structures for authorization cascade and closure order verification.
 
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+
 ## Trigger Dispatch Table
 
 | User says / Context | Task | Dispatch | Context passed |
@@ -69,5 +77,3 @@ Phases require sub-issue linkage. Read [issue-operations skill](skills/issue-ope
 
 ### [critical-rules-018] Sub-issue Linkage Verification — phase count mismatch
 Read [approval-gate --task verify-authorization](skills/approval-gate/SKILL.md) Step 5.
-
-

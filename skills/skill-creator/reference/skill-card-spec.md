@@ -6,6 +6,26 @@
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)
 
+## Pre-Flight Guard Mandate (Required)
+
+Every SKILL.md MUST carry a pre-flight guard that detects sub-agent context and returns `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` before any routing metadata is consumed. The guard is positioned as a pre-flight entry check ahead of the Workflows/routing sections. A sub-agent that receives a skill card cannot act on orchestrator-level routing metadata (sub-agents cannot call `task()`), so it must halt immediately rather than attempt to follow orchestrator-level instructions.
+
+The guard is additive — it does not alter frontmatter or the Workflows dispatch contract. The canonical guard definition is defined once in the requirements documentation and applied verbatim to every skill card. Linting (`skildeck-lint`) and validation (`validate_skill_cards.py`) enforce the guard's presence mechanically.
+
+## Canonical Guard Definition (Single Source of Truth)
+
+Every SKILL.md MUST carry the following pre-flight guard section verbatim, positioned as the first section after the YAML frontmatter and Overview, immediately before the Workflows/routing sections. This is the single canonical definition — apply it verbatim, do not invent variants.
+
+```markdown
+## Pre-Flight Guard (Mandatory)
+
+**This skill card is orchestrator-only routing metadata.**
+
+If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
+
+If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+```
+
 ## Mandatory Task Discipline Admonishment
 
 ### SKILL.md Version (5 items)
