@@ -1,0 +1,34 @@
+# Requirements extraction for #2364
+# Source: issue.yaml body, verified against codebase
+
+## Explicit requirements (stated directly in issue body)
+1. "mcp-tool-usage must become the single canonical home" for the five-tier tool hierarchy
+2. "mcp-tool-usage must become the single canonical home" for glob semantics (LIM-1..LIM-6, canonical path-parameter form, empty-result disambiguation)
+3. Add mandatory Read [Text](path) links for any consuming cards
+
+## Implicit requirements (inferred from context)
+4. mcp-tool-usage SKILL.md must contain a glob semantics section with LIM-1..LIM-6 table
+5. mcp-tool-usage SKILL.md must contain the canonical path-parameter invocation form
+6. mcp-tool-usage SKILL.md must contain the empty-result disambiguation rule
+7. mcp-tool-usage SKILL.md must contain examples of forbidden shapes
+8. Consuming cards that currently Read-link to 060-tool-usage.md §2 must be updated to Read-link to mcp-tool-usage SKILL.md
+9. mcp-tool-usage tasks/selection-guide.md must be updated to reference glob semantics
+10. The five-tier hierarchy in mcp-tool-usage must be the canonical version; 060-tool-usage.md §1 should condense to a Read-link
+
+## Constraint requirements (boundary conditions)
+11. The mcp-tool-usage skill card already has a dispatchable task (selection-guide) — the glob semantics content must be added to SKILL.md (not just the task file) since consuming cards Read-link to the skill card itself
+12. All consuming cards' Read-links must be updated synchronously — consumers break if they link to 060 §2 while 060 still says "authoritative source"
+13. 060-tool-usage.md condensation is a separate issue (#2364's scope is mcp-tool-usage only, not 060-tool-usage)
+14. The glob section must be added between the five-tier hierarchy and the Critical Rules / .ipynb mandate at the end
+
+## Non-requirements (explicitly excluded)
+- No duplication of glob semantics elsewhere (Out)
+- No condensation of 060-tool-usage.md (Out — this is a separate concern)
+- No changes to consuming cards' Read-links (Out — done as part of the 060 condensation issue, not this one)
+
+## Verification against codebase
+- Confirmed: mcp-tool-usage/SKILL.md has five-tier hierarchy at lines 117-163 but NO glob semantics section
+- Confirmed: 060-tool-usage.md §2 at lines 40-96 is the sole authoritative source for glob semantics
+- Confirmed: 7 consuming task files Read-link to 060-tool-usage.md §2 for glob semantics
+- Confirmed: mcp-tool-usage description references "tool selection guide" and "five-tier priority hierarchy" but NOT glob semantics
+- Confirmed: mcp-tool-usage tasks/selection-guide.md has NO glob semantics content

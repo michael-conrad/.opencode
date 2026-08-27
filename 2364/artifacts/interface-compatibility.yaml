@@ -1,0 +1,24 @@
+# Interface compatibility analysis for #2364
+
+## Phase 1: Five-tier hierarchy consolidation
+| Interface | Status | Type |
+|-----------|--------|------|
+| skill({name: "mcp-tool-usage"}) dispatch | Unchanged | Backward compatible |
+| task(selection-guide) dispatch | Unchanged | Backward compatible |
+
+## Phase 2: Glob semantics section addition
+| Interface | Status | Type |
+|-----------|--------|------|
+| SKILL.md §2 glob section | New content | Internal only (additive, sub-agents Read-link) |
+| description field | Modified (add glob trigger) | Backward compatible |
+
+## Phase 3: selection-guide task update
+| Interface | Status | Type |
+|-----------|--------|------|
+| task execution contract | Unchanged | Backward compatible |
+
+## Phase 4: Consuming cards Read-links update
+| Interface | Status | Type |
+|-----------|--------|------|
+| 7 task file Read-links | Modified (060 → mcp-tool-usage) | Backward compatible — links resolve in both locations |
+| 020-go-prohibitions.md Read-link | Modified (060 → mcp-tool-usage) | Backward compatible |

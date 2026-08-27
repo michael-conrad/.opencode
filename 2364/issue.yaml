@@ -2,8 +2,7 @@ number: 2364
 title: '[SPEC] Update mcp-tool-usage skill — anchor five-tier hierarchy & glob semantics'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- needs-approval,spec-draft
 body: '## Problem
 
   The five-tier tool hierarchy and glob LIM-1..6 semantics currently live in the preloaded
@@ -31,7 +30,7 @@ body: '## Problem
   Mitigation: mcp-tool-usage is authoritative. Depends on 060 condensation. Action:
   approve.'
 created_at: '2026-08-27T03:14:48Z'
-updated_at: '2026-08-27T17:15:28+00:00'
+updated_at: '2026-08-27T18:13:40+00:00'
 remote_issue: 2364
 remote_url: https://github.com/michael-conrad/.opencode/issues/2364
 promoted_at: '2026-08-27T03:25:12.684857+00:00'

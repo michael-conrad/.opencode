@@ -1,0 +1,28 @@
+# Testability assessment for #2364
+
+## Phase 1: Five-tier hierarchy consolidation
+| Dimension | Assessment |
+|-----------|------------|
+| Test type | Structural (content verification) |
+| How | Compare mcp-tool-usage hierarchy content against 060 §1. Verify srclight note, PROHIBITED section, API Client section are present. |
+| Enforcer | skildeck-lint validates SKILL.md structure |
+
+## Phase 2: Glob semantics section addition
+| Dimension | Assessment |
+|-----------|------------|
+| Test type | Structural (content verification) |
+| How | Verify LIM-1..LIM-6 table, canonical path-parameter form, empty-result disambiguation rule, forbidden shapes examples all present in SKILL.md |
+| Enforcer | skildeck-lint + manual content inspection |
+
+## Phase 3: selection-guide task update
+| Dimension | Assessment |
+|-----------|------------|
+| Test type | Structural (content verification) |
+| How | Verify task file contains reference to glob semantics section |
+
+## Phase 4: Consuming cards Read-links update
+| Dimension | Assessment |
+|-----------|------------|
+| Test type | String (grep-based verification) |
+| How | Grep `060-tool-usage.md` in consuming cards — expect 0 matches for glob-related Read-links. Grep `mcp-tool-usage` — expect matches. |
+| Risk | Link updates are 1:1 replacements; low risk of link rot since both paths exist in same repo |

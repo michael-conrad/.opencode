@@ -1,0 +1,52 @@
+# Problem decomposition for #2364
+
+## Success Criteria
+
+### SC-1: Five-tier hierarchy anchored in mcp-tool-usage
+The mcp-tool-usage SKILL.md must be the canonical anchor for the five-tier tool hierarchy. The existing hierarchy content must be verified to be complete (matches 060-tool-usage.md §1) and structurally sound.
+
+### SC-2: Glob semantics section added to mcp-tool-usage SKILL.md
+The glob semantics content (LIM-1..LIM-6, canonical path-parameter form, empty-result disambiguation rule, examples, forbidden shapes) must be added to the SKILL.md between the five-tier hierarchy and the Critical Rules section.
+
+### SC-3: selection-guide task updated
+The selection-guide task card must be updated to reference the new glob semantics section in the skill card and serve as the task-level tool selection guide that covers glob tool semantics.
+
+### SC-4: Consuming cards' Read-links updated
+All consuming cards that Read-link to 060-tool-usage.md §2 for glob semantics must be updated to Read-link to mcp-tool-usage SKILL.md. This depends on 060-tool-usage.md condensation issue — for now (in spec scope), we document the consuming cards but do NOT change their links (Out of scope per issue body).
+
+Wait — re-reading the issue: "add mandatory Read [Text](path) links for any consuming cards." This means mcp-tool-usage itself adds the Read-links to tell consuming cards where to look. But actually "consuming cards" are the cards that USE this content. Let me re-read:
+
+"**In:** Make mcp-tool-usage the authoritative source for the five-tier hierarchy + glob semantics; add mandatory Read [Text](path) links for any consuming cards."
+
+This means: the mcp-tool-usage skill card should have Read [Text](path) links that point back TO itself from the consuming cards? No — this means the consuming cards should have Read-links TO mcp-tool-usage. Let me re-interpret:
+
+The issue says the consuming cards should get mandatory Read [Text](path) links pointing to mcp-tool-usage. This IS in scope.
+
+## Items (per-SC RED/GREEN/verify/commit)
+
+### Item 1 [SC-1]: Anchor five-tier hierarchy verification
+- Verify the five-tier hierarchy in mcp-tool-usage SKILL.md matches 060-tool-usage.md §1 content
+- Add any missing elements (srclight note, PROHIBITED section, API Client Mandatory) if they belong in the skill
+- RED: Does mcp-tool-usage lack elements present in 060 §1?
+- GREEN: Add missing elements
+- Domain: structural/content
+
+### Item 2 [SC-2]: Add glob semantics section to SKILL.md
+- Add §2 glob semantics from 060-tool-usage.md to mcp-tool-usage SKILL.md between five-tier hierarchy and Critical Rules
+- Includes: LIM table, canonical path-parameter form, examples, forbidden shapes, empty-result disambiguation rule
+- RED: Does mcp-tool-usage lack a glob semantics section?
+- GREEN: Add the section
+- Domain: structural/content
+
+### Item 3 [SC-3]: Update selection-guide task
+- Add glob semantics reference to the selection-guide task
+- RED: Does selection-guide lack glob semantics content?
+- GREEN: Add glob tool guidance
+- Domain: structural/content
+
+### Item 4 [SC-4]: Add Read-links from consuming cards
+- Update all consuming task cards' Read-links from 060-tool-usage.md §2 to mcp-tool-usage SKILL.md
+- Affected files: 7 task files (listed in pre-spec-inspection)
+- RED: Do consuming cards still link to 060 §2?
+- GREEN: Update links to mcp-tool-usage
+- Domain: structural/content

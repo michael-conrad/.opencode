@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "Five-tier hierarchy in mcp-tool-usage SKILL.md complete relative to 060-tool-usage.md §1 (tier summary, srclight note, PROHIBITED list, API Client Mandatory mandate)"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Glob semantics section (LIM-1..6 table, canonical path-parameter idiom, forbidden shapes, empty-result disambiguation rule) added to SKILL.md between hierarchy and Critical Rules; frontmatter description routes glob triggers"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "selection-guide task card references SKILL.md glob semantics section with task-level glob tool guidance"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Zero glob-semantics Read-links to 060-tool-usage.md remain; all consuming cards Read-link to mcp-tool-usage SKILL.md (pattern-defined grep criterion)"
+    evidence_type: "string"
+    plan_item: 4

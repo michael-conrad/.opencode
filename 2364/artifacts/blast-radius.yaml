@@ -1,0 +1,25 @@
+# Blast radius analysis for #2364
+
+## Phase 1: Five-tier hierarchy consolidation
+| Component | Ripple effect | Severity |
+|-----------|---------------|----------|
+| mcp-tool-usage/SKILL.md | Updated hierarchy section (add missing elements) | Low — additive only |
+| 060-tool-usage.md §1 | No change (already redirects to mcp-tool-usage) | None — stays as is |
+
+## Phase 2: Glob semantics section addition
+| Component | Ripple effect | Severity |
+|-----------|---------------|----------|
+| mcp-tool-usage/SKILL.md | New §2 glob semantics section added | Low — additive only |
+| 060-tool-usage.md §2 | No change in this issue (060 condensation is separate) | None — stays as is |
+| validation (skildeck-lint) | SKILL.md structural validation passes | None — standard YAML frontmatter |
+
+## Phase 3: selection-guide task update
+| Component | Ripple effect | Severity |
+|-----------|---------------|----------|
+| tasks/selection-guide.md | Updated with glob semantics reference | Low — additive only |
+
+## Phase 4: Consuming cards Read-links update
+| Component | Ripple effect | Severity |
+|-----------|---------------|----------|
+| 7 consuming task files | Read-links change from 060 §2 to mcp-tool-usage | Low — link-only change |
+| 060-tool-usage.md | Loses consuming card references (expected — condensation prep) | Low — preparatory |

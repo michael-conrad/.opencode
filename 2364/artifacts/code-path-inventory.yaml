@@ -1,0 +1,26 @@
+# Code path inventory for #2364
+
+## Phase 1: Five-tier hierarchy consolidation
+| Path | Action | Lines affected |
+|------|--------|----------------|
+| .opencode/skills/mcp-tool-usage/SKILL.md | Verify/update hierarchy | ~10 lines (add PROHIBITED, API Client sections if missing) |
+
+## Phase 2: Glob semantics section addition
+| Path | Action | Lines affected |
+|------|--------|----------------|
+| .opencode/skills/mcp-tool-usage/SKILL.md | Add §2 glob semantics | ~40 lines (new section between hierarchy and Critical Rules) |
+
+## Phase 3: selection-guide task update
+| Path | Action | Lines affected |
+|------|--------|----------------|
+| .opencode/skills/mcp-tool-usage/tasks/selection-guide.md | Add glob tool reference | ~5 lines |
+
+## Phase 4: Consuming cards Read-links update
+| Path | Action | Lines affected |
+|------|--------|----------------|
+| .opencode/skills/audit/tasks/content-audit-investigator.md | Update Read-link | 1 line (line 102) |
+| .opencode/skills/audit/tasks/coherence-maintenance-investigator.md | Update Read-link | 1 line (line 47) |
+| .opencode/skills/audit/tasks/coherence-maintenance-validator.md | Update Read-link | 1 line (line 65) |
+| .opencode/skills/verification-before-completion/tasks/completion.md | Update Read-link | 1 line (line 65) |
+| .opencode/skills/sre-runbook/tasks/generate.md | Update Read-links | 4 lines (129, 131, 154, 188) |
+| .opencode/guidelines/020-go-prohibitions.md | Update Read-link | 1 line (line 278) |

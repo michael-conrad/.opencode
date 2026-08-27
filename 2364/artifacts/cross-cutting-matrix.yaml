@@ -1,0 +1,9 @@
+# Cross-cutting concerns matrix for #2364
+
+| Concern | Phase 1 | Phase 2 | Phase 3 | Phase 4 |
+|----------|---------|---------|---------|---------|
+| Read-link integrity | None | None | None | HIGH — all 7 consuming links must be updated synchronously |
+| YAML frontmatter validity | None | Verify description updates | None | None |
+| SKILL.md structural validity | — | skildeck-lint must pass | — | — |
+| Content duplication | Verify no duplicate with 060 §1 | Verify no duplicate with 060 §2 | — | — |
+| CI compatibility | — | — | — | Link updates are content-only, no CI impact |

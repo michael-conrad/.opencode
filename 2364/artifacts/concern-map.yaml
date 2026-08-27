@@ -1,0 +1,15 @@
+# Concern map for #2364
+
+## Concern boundaries
+
+| Concern | Files | Boundary |
+|---------|-------|----------|
+| Five-tier hierarchy | mcp-tool-usage/SKILL.md | SKILL.md §1 hierarchy content. Separate from glob semantics (§2). |
+| Glob semantics | mcp-tool-usage/SKILL.md | SKILL.md §2 glob content. Separate from hierarchy (§1). Must not overlap. |
+| Tool selection guidance | tasks/selection-guide.md | Task-level guidance. References SKILL.md content via Read-link. |
+| Consuming card routing | 7 task files in audit/, vbc/, sre-runbook/ | Read-links only — no content duplication |
+
+## Separation rationale
+- SKILL.md: Canonical anchor for both hierarchy and glob semantics. Sub-agents Read-link here.
+- Task file: Execution-level guidance for tool selection. References SKILL.md.
+- Consuming cards: Read-link to the canonical anchor — never duplicate content.

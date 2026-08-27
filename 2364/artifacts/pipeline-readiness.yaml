@@ -1,0 +1,39 @@
+# Pipeline readiness gate for #2364
+
+## Atomicity
+| SC-ID | Item | Maps 1:1? | RDY→GRN→VER→CMT? |
+|-------|------|-----------|-------------------|
+| SC-1 | Item 1 | Yes | Yes |
+| SC-2 | Item 2 | Yes | Yes |
+| SC-3 | Item 3 | Yes | Yes |
+| SC-4 | Item 4 | Yes | Yes |
+
+✅ All SCs map to exactly one RED/GREEN/verify/commit cycle.
+
+## Dependency ordering
+```
+SC-1 (hierarchy) → SC-2 (glob section) → SC-3 (task update) → SC-4 (Read-links)
+```
+✅ Dependency DAG is acyclic.
+
+## Single concern
+| SC-ID | File category | Verification domain |
+|-------|---------------|---------------------|
+| SC-1 | SKILL.md (§1) | structural |
+| SC-2 | SKILL.md (§2) | structural |
+| SC-3 | task file | structural |
+| SC-4 | 8 consuming files | string (grep) |
+
+✅ Every SC targets one file category and one verification domain.
+
+## Phase dependency
+```
+Phase 1 (SC-1) → Phase 2 (SC-2) → Phase 3 (SC-3) → Phase 4 (SC-4)
+```
+✅ Phase dependency graph is acyclic.
+
+## Three-tier structure
+Not applicable — single-file spec with 4 sequential SCs. No pre/per-file/post structure needed (this skill update doesn't have a multi-file deployment pattern).
+
+## Overall verdict
+✅ PASS — pipeline readiness gate passed.

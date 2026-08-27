@@ -1,0 +1,46 @@
+# Pre-spec inspection findings for #2364
+# Topic: Update mcp-tool-usage skill — anchor five-tier hierarchy & glob semantics
+
+## Affected files
+
+### Primary (mcp-tool-usage skill)
+- `.opencode/skills/mcp-tool-usage/SKILL.md` — Contains the five-tier hierarchy (lines 117-163) but NO glob semantics section. Currently has TIM tier table with per-tier breakouts.
+- `.opencode/skills/mcp-tool-usage/tasks/selection-guide.md` — Currently covers srclight troubleshooting and file-type tool boundaries only. No glob semantics content.
+
+### Source authority (060-tool-usage.md §2)
+- `.opencode/guidelines/060-tool-usage.md` — Contains the authoritative glob semantics section (§2, lines 40-96): LIM-1..LIM-6 table, canonical path-parameter idiom, examples, empty-result disambiguation rule. This content will be removed from 060 preload and anchor in mcp-tool-usage.
+
+### Consuming cards (reference Read [Text](path) links to glob semantics)
+- `.opencode/guidelines/060-tool-usage.md` — §2 is the "single authoritative source" per its own prose. All consuming cards Read-link here.
+- `.opencode/guidelines/020-go-prohibitions.md` line 278 — Contains inline glob example `glob(pattern="*.md", path=".issues/research-cards")` + Read-link to 060.
+- `.opencode/skills/audit/tasks/content-audit-investigator.md` line 102 — Read-link to 060 §2.
+- `.opencode/skills/audit/tasks/coherence-maintenance-investigator.md` line 47 — Read-link to 060 §2.
+- `.opencode/skills/audit/tasks/coherence-maintenance-validator.md` line 65 — Read-link to 060 §2.
+- `.opencode/skills/verification-before-completion/tasks/completion.md` line 65 — Read-link to 060 §2.
+- `.opencode/skills/sre-runbook/tasks/generate.md` lines 129, 131, 154, 188 — Read-link to 060 §2.
+
+### References to mcp-tool-usage (Read-links to the skill)
+- `.opencode/AGENTS.md` line 314 — Read [mcp-tool-usage skill]
+- `.opencode/guidelines/060-tool-usage.md` line 11 — Read [the mcp-tool-usage skill] for complete hierarchy
+- `.opencode/guidelines/210-scripting.md` line 78 — Read [060-tool-usage.md] and [the mcp-tool-usage skill]
+- `.opencode/dispatch-table.yaml` line 300 — references mcp-tool-usage skill
+- `.opencode/prompts/default.txt` line 205 — references mcp-tool-usage for tool selection
+
+## Existing patterns and conventions
+
+### Five-tier hierarchy (currently duplicated)
+1. **mcp-tool-usage/SKILL.md** (lines 117-163): Full hierarchy with per-tier tables, 5 tiers + notebook exception
+2. **060-tool-usage.md** §1 (lines 15-24): Condensed tier summary with srclight note + redirect to mcp-tool-usage
+3. **060-tool-usage.md** §1.1 (lines 26-29): PROHIBITED section
+4. **060-tool-usage.md** §1.2 (lines 31-38): API Client Mandatory section (not in mcp-tool-usage)
+
+### Glob semantics (currently only in 060-tool-usage.md §2)
+- LIM-1..LIM-6 table with ID, Limitation, Detail columns
+- Canonical path-parameter invocation form
+- Forbidden shapes (LIM-1/4/5 examples)
+- Empty-result disambiguation rule with 3-step check
+
+## Dependencies and relationships
+- When 060 condensation removes §2, consuming cards' Read-links must point to mcp-tool-usage instead of 060
+- The mcp-tool-usage skill must become the canonical anchor before 060 removes its glob section
+- The dispatch table and prompts/default.txt already reference mcp-tool-usage

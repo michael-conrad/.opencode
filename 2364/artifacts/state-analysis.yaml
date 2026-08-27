@@ -1,0 +1,21 @@
+# State analysis for #2364
+
+## States
+| State | Description |
+|-------|-------------|
+| S0 | Current state: Five-tier hierarchy in both 060 §1 (summary) + mcp-tool-usage (full). Glob semantics only in 060 §2. Consuming cards link to 060. |
+| S1 | Hierarchy consolidated: mcp-tool-usage is canonical. 060 §1 remains as-is (already redirects). |
+| S2 | Glob semantics added: New §2 in mcp-tool-usage with LIM table, path-parameter form, empty-result disambiguation. |
+| S3 | selection-guide updated: Task file references glob semantics. |
+| S4 | Consuming cards updated: All 8 Read-links point to mcp-tool-usage instead of 060. |
+
+## Transitions
+| From | To | Trigger | Verification |
+|------|----|---------|--------------|
+| S0 | S1 | Edit SKILL.md hierarchy section | SKILL.md content complete |
+| S1 | S2 | Add §2 glob section | Section present and structurally correct |
+| S2 | S3 | Edit selection-guide.md | Task file references glob section |
+| S3 | S4 | Update 8 Read-links | All links verified to point to mcp-tool-usage |
+
+## Dependency DAG
+S1 → S2 → S3 → S4 (sequential — each phase depends on prior completion)
