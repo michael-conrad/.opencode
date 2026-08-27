@@ -1,0 +1,34 @@
+issue: 2362
+issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
+artifact: interface-compatibility
+interfaces:
+  - component: ".opencode/reference/code-standards-shared.md"
+    status: new
+    backward_compatible: n/a
+    compatibility_class: internal_only
+    detail: "New reference file; no existing consumers to break. Downstream skill cards (phase 2) become new consumers via Read-link."
+  - component: ".opencode/skills/programming-principles/SKILL.md"
+    status: modified
+    backward_compatible: true
+    compatibility_class: internal_only
+    detail: "Adds a Read-link; existing routing metadata and dispatch behavior unchanged."
+  - component: ".opencode/skills/skill-creator/SKILL.md"
+    status: modified
+    backward_compatible: true
+    compatibility_class: internal_only
+    detail: "Adds a Read-link; existing validation logic unchanged."
+  - component: ".opencode/skills/test-driven-development/SKILL.md"
+    status: modified
+    backward_compatible: true
+    compatibility_class: internal_only
+    detail: "Adds a Read-link; existing TDD cycle definitions unchanged."
+  - component: ".opencode/skills/engineering-approach/SKILL.md"
+    status: modified
+    backward_compatible: true
+    compatibility_class: internal_only
+    detail: "Adds a Read-link; existing engineering discipline tasks unchanged."
+  - component: ".opencode/guidelines/080-code-standards.md"
+    status: unchanged (this issue)
+    backward_compatible: true
+    compatibility_class: internal_only
+    detail: "080 condensation is a separate issue (#2352). This issue does not modify 080 directly."
