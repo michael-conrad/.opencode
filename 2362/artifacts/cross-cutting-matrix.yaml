@@ -1,0 +1,22 @@
+issue: 2362
+issue_title: "[SPEC] Create shared ref: code-standards-shared.md"
+artifact: cross-cutting-matrix
+concerns:
+  - concern: "Read-link convention (Read [Text](path) form)"
+    phase_1: "n/a — no consumer cards in phase 1"
+    phase_2: "ALL 4 consuming cards must use the mandatory Read [Text](path) form, not forbidden 'See ...' citation form"
+  - concern: "Reference header pattern (SPDX + Provenance + byline)"
+    phase_1: "code-standards-shared.md MUST carry SPDX-FileCopyrightText, SPDX-License-Identifier, Provenance header, and AI byline per existing reference pattern"
+    phase_2: "n/a"
+  - concern: "Content preservation (no content loss)"
+    phase_1: "Extracted procedural sections preserved verbatim in shared ref"
+    phase_2: "Read-links guarantee consumers load the shared ref, preventing content loss when 080 condenses (#2352)"
+  - concern: "Submodule ownership"
+    phase_1: "All writes in .opencode submodule (owner: michael-conrad, repo: .opencode)"
+    phase_2: "Same — skill cards are in .opencode submodule"
+  - concern: "Enforcement-core separation"
+    phase_1: "Do NOT extract the enforcement-test mandate, behavioral-test-substitution prohibition, or critical-rules blocks into the shared ref — these stay in 080 (#2352)"
+    phase_2: "n/a"
+  - concern: "Scope containment (no re-inlining)"
+    phase_1: "Shared ref is single canonical source"
+    phase_2: "Cards reference the shared ref; content is never re-inlined into cards (issue Scope Out)"
