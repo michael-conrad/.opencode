@@ -1,0 +1,80 @@
+# Validation findings — issue #2376
+# Structural validation of plan.md against 6 check categories
+
+issue: 2376
+overall_status: PASS
+
+categories:
+  - id: 1
+    name: structural
+    status: PASS
+    checks:
+      - check: "phase table with all required columns"
+        status: PASS
+        detail: "Phase table (lines 53-57) has Phase, Name, Concern, SCs, Dependencies, Dispatch columns."
+      - check: "each phase has numbered procedure steps"
+        status: PASS
+        detail: "Phase 1, 2, 3 each have a Step-by-step section with numbered steps 1-4."
+      - check: "exit criteria section with SC-to-phase mapping"
+        status: PASS
+        detail: "Exit Criteria (lines 61-67) maps C1->SC-1, C2->SC-2, C3->SC-3."
+
+  - id: 2
+    name: skill-task-validity
+    status: PASS
+    checks:
+      - check: "all skill+task references valid against implementation-workflow reference card"
+        status: PASS
+        detail: "red/green/phase-4 (test-driven-development), verify (verification-before-completion), verification-audit DiMo investigator (audit), checklist (finishing-a-development-branch), review-prep/create (git-workflow-pr), completion (completion-core) all match canonical dispatch strings. Commit and z3-check are canonically inline per reference card."
+
+  - id: 3
+    name: sc-coverage
+    status: PASS
+    checks:
+      - check: "every SC appears in at least one phase exit criteria"
+        status: PASS
+        detail: "SC-1 in Phase 1 (C1), SC-2 in Phase 2 (C2), SC-3 in Phase 3 (C3). All 3 SCs covered."
+      - check: "no triplet split (RED/GREEN/COMMIT in same phase per SC)"
+        status: PASS
+        detail: "SC-1: RED/GREEN/COMMIT all in Phase 1. SC-2: all in Phase 2. SC-3: all in Phase 3. No TRIPLET_SPLIT."
+
+  - id: 4
+    name: concern-separation
+    status: PASS
+    checks:
+      - check: "each phase addresses exactly one concern from concern-map"
+        status: PASS
+        detail: "Phase 1 -> single-source-of-truth, Phase 2 -> harness-hardcoded-fallbacks, Phase 3 -> documentation."
+      - check: "no two phases address the same concern"
+        status: PASS
+        detail: "Three distinct concerns, one per phase, no duplication."
+
+  - id: 5
+    name: dag-validation
+    status: PASS
+    checks:
+      - check: "dependency contract DAG has no cycles"
+        status: PASS
+        detail: "Edges phase_1->phase_2, phase_1->phase_3, phase_2->phase_3 form a linear acyclic DAG."
+      - check: "all phases reachable from start node"
+        status: PASS
+        detail: "phase_2 reachable via phase_1->phase_2; phase_3 reachable via phase_1->phase_3."
+      - check: "no orphan phases"
+        status: PASS
+        detail: "phase_1 has outgoing edges, phase_2 has incoming+outgoing, phase_3 has incoming. No orphans."
+
+  - id: 6
+    name: holistic-quality
+    status: PASS
+    checks:
+      - check: "no TBD/TODO placeholders in plan body"
+        status: PASS
+        detail: "No TBD/TODO placeholders found."
+      - check: "all steps use checkbox format"
+        status: PASS
+        detail: "All steps use '- [ ]' checkbox format."
+      - check: "dispatch mode consistency"
+        status: PASS
+        detail: "Inline steps (commit, z3-check) match reference card's canonically-inline steps; dispatched steps (red/green/verify/audit/checklist/review-prep/create/completion) match canonical dispatch strings."
+
+findings: []

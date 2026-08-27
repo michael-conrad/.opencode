@@ -71,14 +71,14 @@ The change touches the test-harness model default and its documentation. Affecte
 # Pre-Implementation (Tier 1 — once per plan)
 
 - [ ] 1. **Coherence gate.**
-  - Confirm the plan covers every SC from the spec: SC-1 in Phase 1, SC-2 in Phase 2, SC-3 in Phase 3.
-  - Confirm the phase DAG is acyclic and linear (1 -> 2 -> 3).
-  - Confirm no item covers more than one SC-ID.
-  - Confirm all phase and post-phase dispatch skills are loaded and available.
+    - Confirm the plan covers every SC from the spec: SC-1 in Phase 1, SC-2 in Phase 2, SC-3 in Phase 3.
+    - Confirm the phase DAG is acyclic and linear (1 -> 2 -> 3).
+    - Confirm no item covers more than one SC-ID.
+    - Confirm all phase and post-phase dispatch skills are loaded and available.
 - [ ] 2. **Baseline check.**
-  - Read the current `DEFAULT_TEST_MODEL` fallback in `.opencode/tests-v2/default-model.sh` and confirm it equals `ollama/qwen3.6:35b-256k`.
-  - Grep `.opencode/tests-v2/with-test-home` and confirm both hardcoded fallback literals equal `ollama/qwen3.6:35b-256k`.
-  - Grep the five documentation files and confirm at least one `ollama/qwen3.6:35b-256k` default-model reference remains.
+    - Read the current `DEFAULT_TEST_MODEL` fallback in `.opencode/tests-v2/default-model.sh` and confirm it equals `ollama/qwen3.6:35b-256k`.
+    - Grep `.opencode/tests-v2/with-test-home` and confirm both hardcoded fallback literals equal `ollama/qwen3.6:35b-256k`.
+    - Grep the five documentation files and confirm at least one `ollama/qwen3.6:35b-256k` default-model reference remains.
 
 ---
 
@@ -297,3 +297,11 @@ No state machine exists. The change is a set of text edits committed together.
 - [ ] 8. **Completion summary** (`(**sub-agent**)`)
     - Dispatch `execute completion task from completion-core`.
     - Generate the completion executive summary.
+
+---
+
+# Lifecycle Events
+
+| Event | Timestamp (UTC) | Plan File | Phase Count |
+|-------|-----------------|-----------|-------------|
+| `plan_created` | 2026-08-27T04:38:06Z | `.opencode/.issues/2376/plan.md` | 3 |
