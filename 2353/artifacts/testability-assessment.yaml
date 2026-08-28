@@ -1,0 +1,54 @@
+issue_number: 2353
+repo: .opencode
+artifact: testability-assessment
+date: 2026-08-28
+
+# 7. Testability assessment — Test strategy per phase
+
+phases:
+  - phase: 1
+    sc: SC-1
+    test_strategy: structural
+    detail: >-
+      Verify the source-priority list content is present in engineering-approach operating-protocol
+      step 5. Assert the list items (official docs, source code/type hints, example files, config
+      files) are inline.
+    verification_method: file-content assertion (grep/read)
+
+  - phase: 2
+    sc: SC-2
+    test_strategy: structural
+    detail: >-
+      Verify the checklist and examples are present in verification-enforcement. Assert the
+      code-review checklist items and example content are present.
+    verification_method: file-content assertion (grep/read)
+
+  - phase: 3
+    sc: SC-3
+    test_strategy: structural
+    detail: >-
+      Verify 075-docs-verification.md retains the core (Zero Tolerance Rule, Rule, critical-rules-008)
+      and no longer contains the relocated procedural sections (Verification Sources, Code Review
+      Checklist, Examples).
+    verification_method: file-content assertion (grep/read)
+
+  - phase: 4
+    sc: SC-4
+    test_strategy: structural
+    detail: >-
+      Verify no dangling references to relocated sections remain; all cross-references to the
+      retained core use inline Read-link form.
+    verification_method: cross-reference scan (grep for section names + Read-link form)
+
+  - phase: 5
+    sc: SC-5
+    test_strategy: structural
+    detail: >-
+      Measure the condensed guideline size and confirm ~1.1k token savings relative to the
+      original 5253 bytes / 183 lines.
+    verification_method: size measurement (wc)
+
+summary: >-
+  All SCs are documentation/guideline restructures with structural (file-content) verification.
+  No behavioral testing is required because no runtime behavior or code symbols change. The
+  verification is structural evidence of content relocation and size reduction.

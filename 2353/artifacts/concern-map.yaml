@@ -1,0 +1,56 @@
+issue_number: 2353
+repo: .opencode
+artifact: concern-map
+date: 2026-08-28
+
+# 2. Concern map — Concern boundaries and separation per phase
+
+concerns:
+  - id: C1
+    name: live-docs-verification-core
+    owner: .opencode/guidelines/075-docs-verification.md
+    description: >-
+      The zero-tolerance verify-against-live-docs-before-implementing mandate, including the
+      critical-rules-008 enforcement block. This is the retained core and remains preloaded.
+    phases: [3]
+
+  - id: C2
+    name: pre-implementation-verification-source-priority
+    owner: .opencode/skills/engineering-approach/tasks/operating-protocol.md
+    description: >-
+      The source-priority order for verifying API signatures, env vars, and config formats
+      against live docs before implementation. Relocated here (SC-1).
+    phases: [1]
+
+  - id: C3
+    name: content-generation-verification-checklist
+    owner: .opencode/skills/verification-enforcement/
+    description: >-
+      The code-review checklist and illustrative examples (what COUNTS as verification, prohibited
+      patterns) that reinforce the content-generation verification gate. Relocated here (SC-2).
+    phases: [2]
+
+  - id: C4
+    name: cross-reference-integrity
+    owner: cross-cutting
+    description: >-
+      Ensures all agent-facing references to the retained core use inline Read-link form and
+      remain valid after relocation (SC-4).
+    phases: [4]
+
+  - id: C5
+    name: token-cost-reduction
+    owner: cross-cutting
+    description: >-
+      Measures the token savings from condensing the preloaded guideline (SC-5).
+    phases: [5]
+
+separation:
+  - >-
+    Concern C1 (core) is separated from C2/C3 (procedural relocation targets). The core stays in
+    the preloaded guideline; the procedural detail moves to the skills that consume it at
+    implementation/verification time.
+  - >-
+    C2 (engineering-approach) and C3 (verification-enforcement) are separate concerns because
+    engineering-approach handles pre-implementation verification while verification-enforcement
+    handles content-generation verification.

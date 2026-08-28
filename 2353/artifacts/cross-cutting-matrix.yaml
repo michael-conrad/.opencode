@@ -1,0 +1,47 @@
+issue_number: 2353
+repo: .opencode
+artifact: cross-cutting-matrix
+date: 2026-08-28
+
+# 4. Cross-cutting matrix — Cross-cutting concerns matrix
+
+cross_cutting_concerns:
+  - concern: cross-reference-form
+    description: >-
+      All agent-facing references to the retained core must use inline `Read [Text](path)` form
+      (AGENTS.md Read-Link rule + cross-reference-form-comparison research card, confidence 0.95).
+    affected_phases: [1, 2, 3, 4]
+    handling: >-
+      SC-4 verifies cross-reference integrity across all phases. Relocated content in SC-1/SC-2
+      uses inline Read-links back to the retained core.
+
+  - concern: token-cost
+    description: >-
+      The primary motivation is reducing preloaded token cost (~1.1k savings) by removing
+      procedural sections from the Tier 1 preloaded guideline.
+    affected_phases: [3, 5]
+    handling: >-
+      SC-3 removes the procedural sections; SC-5 measures the savings.
+
+  - concern: tier-1-preload-integrity
+    description: >-
+      opencode.jsonc requires all 12 Tier 1 guidelines preloaded. The core must remain preloaded;
+      the file must not be removed from the instructions array.
+    affected_phases: [3]
+    handling: >-
+      SC-3 retains the core, keeping the file in the instructions array.
+
+  - concern: content-preservation
+    description: >-
+      Relocated content must not be lost during the move — it must exist in the target skill
+      before it is removed from the guideline.
+    affected_phases: [1, 2, 3]
+    handling: >-
+      Dependency DAG orders SC-1/SC-2 (relocate) before SC-3 (remove).
+
+  - concern: no-code-symbol-impact
+    description: >-
+      This is a documentation/guideline restructure; no source code symbols are affected.
+    affected_phases: [all]
+    handling: >-
+      All affected files are .md. No runtime behavior changes.

@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Verification-source priority list inlined into engineering-approach operating-protocol step 5"
+    evidence_type: structural
+    plan_item: 1
+  - id: "SC-2"
+    description: "Code-review checklist relocated to verification-enforcement"
+    evidence_type: structural
+    plan_item: 2
+  - id: "SC-3"
+    description: "Illustrative examples relocated to verification-enforcement"
+    evidence_type: structural
+    plan_item: 3
+  - id: "SC-4"
+    description: "075-docs-verification.md condensed to retain only the zero-tolerance core"
+    evidence_type: structural
+    plan_item: 4
+  - id: "SC-5"
+    description: "All cross-references to the retained core remain valid and use inline Read-link form"
+    evidence_type: structural
+    plan_item: 5
+  - id: "SC-6"
+    description: "Condensed guideline achieves ~1.1k token savings while remaining preloaded"
+    evidence_type: structural
+    plan_item: 6

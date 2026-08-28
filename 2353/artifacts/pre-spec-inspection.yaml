@@ -1,0 +1,126 @@
+issue_number: 2353
+repo: .opencode
+spec_topic: "Condense 075-docs-verification.md — move source-priority list to engineering-approach"
+inspection_date: 2026-08-28
+
+# Step 1.1 — Affected files, patterns, conventions
+
+affected_files:
+  - path: .opencode/guidelines/075-docs-verification.md
+    role: primary_target
+    current_size_bytes: 5253
+    current_lines: 183
+    note: >-
+      Tier 1 guideline preloaded via opencode.jsonc instructions array. The issue
+      proposes condensing it by relocating procedural sections (source-priority list,
+      checklist, examples) to engineering-approach / verification-enforcement skills,
+      retaining the zero-tolerance live-docs core.
+
+  - path: .opencode/skills/engineering-approach/tasks/operating-protocol.md
+    role: relocation_target
+    note: >-
+      Step 5 already references the source-priority order from 075-docs-verification.md
+      §Verification Sources (Priority Order). This is the natural home for the relocated
+      source-priority list. Currently uses a Read-link to the guideline; relocation would
+      inline the list here.
+
+  - path: .opencode/skills/verification-enforcement/SKILL.md
+    role: relocation_target
+    note: >-
+      Content-generation verification gate. Natural home for the checklist and examples
+      (what COUNTS as verification, prohibited patterns, code-review checklist).
+
+  - path: .opencode/opencode.jsonc
+    role: config
+    note: >-
+      instructions array preloads 075-docs-verification.md. The issue notes "Depends on
+      engineering-approach update + config." Condensing the guideline does not require
+      removing it from the array (core retained), so config change is limited to ensuring
+      the guideline remains preloaded.
+
+  - path: .opencode/guidelines/INDEX.md
+    role: index
+    note: >-
+      INDEX.md lists 075-docs-verification.md as Tier 1 with trigger pattern
+      "documentation, docs, live doc, API doc, verify doc". Retained as-is since the file
+      remains.
+
+# Cross-references to 075-docs-verification.md (consumers that must remain valid)
+cross_references:
+  - path: .opencode/skills/gh-cli/SKILL.md
+    line: 263
+    form: "Guidelines: ... 075-docs-verification.md (verify `gh <command> --help` before using flags)"
+    impact: reference_only
+  - path: .opencode/skills/gb-cli/SKILL.md
+    line: 152
+    form: "Guidelines: ... 075-docs-verification.md (verify `gb <command> --help` before using flags)"
+    impact: reference_only
+  - path: .opencode/skills/engineering-approach/tasks/operating-protocol.md
+    line: 21
+    form: "Read [075-docs-verification.md §Verification Sources (Priority Order)](guidelines/075-docs-verification.md)"
+    impact: relocation_anchor
+  - path: .opencode/guidelines/067-context-completeness.md
+    form: references 075-docs-verification.md in Related Guidelines
+    impact: reference_only
+  - path: .opencode/guidelines/INDEX.md
+    form: Tier 1 index entry
+    impact: reference_only
+
+# Existing patterns / conventions
+conventions:
+  - name: cross-reference-form
+    detail: >-
+      Research card cross-reference-form-comparison.md (confidence 0.95) establishes that
+      inline link form `See [file](path)` is the ONLY viable cross-reference form (100% Tier 1
+      access rate). Resolution tables achieve only 42-58%. Relocated content that references the
+      retained core MUST use inline `Read [Text](path)` form.
+  - name: read-link-cross-reference-rule
+    detail: >-
+      AGENTS.md mandates the `Read [Text](path)` pattern for agent-facing cross-references.
+      "See `file` §section" is FORBIDDEN. Relocated content must use the Read-link form.
+  - name: tier-1-preload
+    detail: >-
+      opencode.jsonc WARNING comment: all 12 Tier 1 guidelines MUST be loaded. Removing
+      075-docs-verification.md from instructions caused a safety regression precedent (#497).
+      The core must remain preloaded.
+  - name: shared-reference-consumption
+    detail: >-
+      engineering-approach operating-protocol already consumes shared references
+      (data-integrity-shared, code-standards-shared) via Read-links. The relocated source-priority
+      list fits this pattern.
+
+# Dependencies / callers of affected symbols
+dependencies:
+  - The relocation target (engineering-approach operating-protocol step 5) already references the
+    source-priority list, so inlining it there is a natural extension, not a new dependency.
+  - verification-enforcement SKILL.md is a content-generation gate; adding the checklist/examples
+    there does not create new callers.
+  - No code symbols are affected — this is a documentation/guideline restructure.
+
+# Findings
+findings:
+  - id: F1
+    severity: info
+    detail: >-
+      engineering-approach operating-protocol step 5 already reads the source-priority order
+      from 075-docs-verification.md via Read-link. Relocating the list into operating-protocol
+      inlines what is currently a cross-file reference, reducing the guideline's size without
+      losing the content.
+  - id: F2
+    severity: info
+    detail: >-
+      The issue scope names "source-priority list + checklist + examples". The "What Must Be
+      Verified" table and "What COUNTS as Verification" sections are also procedural and overlap
+      verification-enforcement, but are NOT explicitly named in the issue scope. They are
+      candidates, not mandated.
+  - id: F3
+    severity: info
+    detail: >-
+      The critical-rules-008 block (lines 162-181) is the enforcement core and MUST be retained
+      in 075-docs-verification.md alongside the Zero Tolerance Rule.
+  - id: F4
+    severity: info
+    detail: >-
+      The sre-runbook generate.md has its own domain-specific "Verification Sources (in priority
+      order)" table (lines 425-434). It is runbook-specific, NOT a duplicate of the generic
+      guideline content, and does not need to change.

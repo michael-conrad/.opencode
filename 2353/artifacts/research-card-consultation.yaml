@@ -1,0 +1,39 @@
+issue_number: 2353
+repo: .opencode
+consultation_date: 2026-08-28
+
+# Step 2.1 — Research card consultation
+
+cards_consulted:
+  - path: .opencode/.issues/research-cards/cross-reference-form-comparison.md
+    confidence: 0.95
+    relevance: HIGH
+    findings_incorporated:
+    - >-
+      Inline link form `See [file](path)` achieves 100% Tier 1 access rate; resolution tables
+      achieve only 42-58%. The relocated content in engineering-approach / verification-enforcement
+      that references the retained core MUST use the inline `Read [Text](path)` form.
+    - >-
+      Verb sub-test: "Load" was the only verb that triggered file access AND correct application.
+      "Read" was a false positive (listed directory). Use explicit action verbs in cross-references.
+
+  - path: .opencode/.issues/research-cards/pre-response-gate-skill-description-design.md
+    confidence: 0.9
+    relevance: LOW
+    findings_incorporated:
+    - >-
+      Skill description design is tangential. Not directly relevant to guideline condensing, but
+      confirms that skill description routing (engineering-approach, verification-enforcement)
+      remains the correct dispatch target for relocated procedural content.
+
+cards_with_no_direct_match:
+  - note: >-
+      No research card directly addresses guideline token-cost condensing or docs-verification
+      relocation. The cross-reference-form-comparment card is the most relevant (confidence 0.95)
+      and is incorporated above.
+
+# Step 2.2 — Findings written
+conclusion: >-
+  The cross-reference-form-comparison card (confidence 0.95) is directly applicable: relocated
+  content must use inline Read-link cross-reference form to ensure the retained core in
+  075-docs-verification.md remains accessible to agents. No other card directly matches the topic.

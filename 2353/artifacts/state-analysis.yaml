@@ -1,0 +1,79 @@
+issue_number: 2353
+repo: .opencode
+artifact: state-analysis
+date: 2026-08-28
+
+# 6. State analysis — State machine transitions per phase
+
+# The "state" here is the distribution of the live-docs-verification content across files.
+states:
+  - id: S0
+    name: initial
+    description: >-
+      All live-docs-verification content (core + procedural) resides in the preloaded
+      075-docs-verification.md. engineering-approach Read-links to it; verification-enforcement
+      does not contain the checklist/examples.
+    phase: pre
+
+  - id: S1
+    name: source-priority-relocated
+    description: >-
+      After SC-1, the source-priority list is inlined into engineering-approach operating-protocol.
+      The guideline still contains it (not yet removed).
+    phase: 1
+
+  - id: S2
+    name: checklist-examples-relocated
+    description: >-
+      After SC-2, the checklist/examples are added to verification-enforcement. The guideline
+      still contains them (not yet removed).
+    phase: 2
+
+  - id: S3
+    name: guideline-condensed
+    description: >-
+      After SC-3, 075-docs-verification.md retains only the core (Zero Tolerance Rule, Rule,
+      critical-rules-008). Procedural sections removed. The file remains preloaded.
+    phase: 3
+
+  - id: S4
+    name: cross-references-verified
+    description: >-
+      After SC-4, all cross-references to the retained core are confirmed valid and use inline
+      Read-link form.
+    phase: 4
+
+  - id: S5
+    name: savings-verified
+    description: >-
+      After SC-5, the token savings (~1.1k) from condensing are confirmed.
+    phase: 5
+
+transitions:
+  - from: S0
+    to: S1
+    trigger: SC-1 (relocate source-priority list to engineering-approach)
+    invariant: >-
+      Content is preserved (list exists in engineering-approach before removal from guideline).
+  - from: S1
+    to: S2
+    trigger: SC-2 (relocate checklist/examples to verification-enforcement)
+    invariant: >-
+      Content is preserved (checklist/examples exist in verification-enforcement before removal).
+  - from: S2
+    to: S3
+    trigger: SC-3 (condense guideline to core)
+    invariant: >-
+      Core (Zero Tolerance Rule, Rule, critical-rules-008) retained; file remains preloaded.
+  - from: S3
+    to: S4
+    trigger: SC-4 (verify cross-references)
+    invariant: >-
+      No dangling references; inline Read-link form used.
+  - from: S4
+    to: S5
+    trigger: SC-5 (verify token savings)
+    invariant: >-
+      ~1.1k token savings achieved.
+
+terminal_state: S5
