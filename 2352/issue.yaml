@@ -72,7 +72,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   - **Risk:** Losing the enforcement-test mandate during condensation. **Mitigation:**
-  Retain enforcement cores verbatim; verify behaviorally (SC-7) that the behavioral-test-substitution
+  Retain enforcement cores verbatim; verify behaviorally (SC-12) that the behavioral-test-substitution
   prohibition is still enforced.
 
 
