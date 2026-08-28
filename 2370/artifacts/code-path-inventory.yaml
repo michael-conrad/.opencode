@@ -1,0 +1,22 @@
+issue: .opencode#2370
+task: analyze
+step: 5.1 - analytical artifact 3 of 7
+artifact: code-path-inventory
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1]
+    code_paths_touched:
+      - path: .opencode/skills/writing-plans/SKILL.md
+        section: '"## Cross-References" (lines 185-187)'
+        action: "insert mandatory Read [Text](path) link to orchestrator-context-discipline.md"
+        read_consumers:
+          - "Orchestrator loads the card via skill({name: \"writing-plans\"}) and reads the Cross-References section; the Read-link instructs it to load the reference."
+    related_files_consulted:
+      - .opencode/reference/orchestrator-context-discipline.md (link target — created by #2359, not modified here)
+      - .opencode/guidelines/020-go-prohibitions.md §1.1 (source content — condensed separately, not modified here)
+      - .opencode/skills/engineering-approach/SKILL.md (Read-link pattern reference)
+    files_not_touched:
+      - .opencode/skills/writing-plans/tasks/*.md
+      - .opencode/skills/writing-plans/contracts/*
+      - .opencode/skills/writing-plans/reference/*

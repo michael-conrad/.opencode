@@ -1,0 +1,28 @@
+issue: .opencode#2370
+task: analyze
+step: 5.1 - analytical artifact 1 of 7
+artifact: blast-radius
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1]
+    affected_components:
+      - component: .opencode/skills/writing-plans/SKILL.md
+        change: "Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in Cross-References section"
+        ripple: |
+          Orchestrators that load the writing-plans skill card will now read the
+          orchestrator-context-discipline reference during plan creation. This is an
+          additive content change — no existing instruction is altered or removed.
+    ripple_effects:
+      - "Orchestrator context: gains the context-discipline rules (orchestrator-context-lean, sub-agent-context-generosity, result-contract-frugality, allocation-by-context-cost) when dispatching writing-plans tasks."
+      - "No code, task file, contract, or guideline file is modified by this issue."
+      - "Downstream: writing-plans task cards (handoff/analyze/research/create/validate/revise/completion) are unaffected — the change is confined to the card."
+    external_dependencies:
+      - ".opencode/reference/orchestrator-context-discipline.md must exist (created by #2359) for the link to resolve."
+      - "020-go-prohibitions.md §1.1 condensation must be complete for the link to be the canonical home of the content."
+    risk_assessment:
+      overall: low
+      rationale: |
+        Single-file additive content change to a skill card. No behavioral logic change.
+        The only risk is a broken link if #2359 has not landed, which is a sequencing
+        dependency, not a content risk.

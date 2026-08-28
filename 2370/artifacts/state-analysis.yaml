@@ -1,0 +1,20 @@
+issue: .opencode#2370
+task: analyze
+step: 5.1 - analytical artifact 6 of 7
+artifact: state-analysis
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1]
+    state_machine_transitions:
+      - none
+    detail: |
+      This is a static content change to a skill card. There is no runtime state machine,
+      no data persistence, no mutable state, and no state transition introduced or altered
+      by this issue. The writing-plans pipeline's state model (work state files, lifecycle
+      manifests) is unaffected.
+    behavioral_state_note: |
+      The only "state" affected is orchestrator context: after the change, an orchestrator
+      loading the writing-plans card will additionally load the orchestrator-context-discipline
+      reference into its context. This is a context-loading effect, not a state-machine
+      transition.

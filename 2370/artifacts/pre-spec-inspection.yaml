@@ -1,0 +1,54 @@
+issue: .opencode#2370
+task: analyze
+step: 1 - pre-spec inspection
+inspected_at: "2026-08-27T20:11:00Z"
+
+affected_files:
+  - path: .opencode/skills/writing-plans/SKILL.md
+    role: primary target
+    change: Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in the Cross-References section
+    current_state: |
+      SKILL.md is a flat skill card (no sub-skills, 7 task files). It contains a
+      "## Cross-References" section (lines 185-187) listing consuming skills and
+      guidelines. No Read-link to orchestrator-context-discipline.md currently exists.
+
+dependencies:
+  - issue: .opencode#2359
+    role: upstream dependency
+    description: Creates .opencode/reference/orchestrator-context-discipline.md — the link target for this issue.
+    status: open, labels [needs-approval, spec-draft]
+    note: The reference file does NOT yet exist in .opencode/reference/. This issue must not be implemented before #2359 lands.
+
+  - issue: 020-go-prohibitions.md §1.1
+    role: upstream condensation
+    description: Orchestrator Context Discipline content moves out of the preloaded guideline into the shared reference.
+    note: The §1.1 content (Orchestrator Context Lean, Sub-Agent Context Generosity, Result Contract Frugality, allocation-by-context-cost) is currently present at lines 84-128 and 207-209 of 020-go-prohibitions.md.
+
+existing_patterns:
+  - pattern: Read [Text](path) inline-link cross-reference
+    evidence: |
+      engineering-approach/SKILL.md lines 125-127:
+        Read [data-integrity-shared reference](reference/data-integrity-shared.md) ...
+        Read [code-standards-shared reference](reference/code-standards-shared.md) ...
+      executing-plans/SKILL.md lines 59-60:
+        Read [skill-card-schema.md](.opencode/reference/skill-card-schema.md) ...
+    conclusion: The canonical Read-link form for shared references in .opencode/reference/ is
+      `Read [<label>](reference/<file>.md)` placed in the Cross-References section.
+
+  - pattern: Read-Link Cross-Reference Rule (000-critical-rules.md)
+    evidence: |
+      The rule mandates the `Read [Text](path)` pattern as the ONLY reliable cross-reference
+      form. "See `file` §section" is forbidden. This is a Tier 1 mandate.
+
+research_card_consultation:
+  - card: cross-reference-form-comparison.md
+    confidence: 0.95
+    finding: |
+      Inline-link form (Form A) achieves 100% Tier 1 access rate — the only viable pattern.
+      The resolution-table + admonition pattern achieves only 42-58%. Confirms the
+      `Read [Text](path)` inline-link approach in this spec.
+
+conventions:
+  - Skill cards place shared-reference Read-links in the "## Cross-References" section.
+  - Link paths are relative to .opencode/ (e.g., reference/orchestrator-context-discipline.md).
+  - The link must be mandatory (Read [Text](path)), not advisory ("See ...").

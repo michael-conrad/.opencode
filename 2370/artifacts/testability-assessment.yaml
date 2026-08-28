@@ -1,0 +1,40 @@
+issue: .opencode#2370
+task: analyze
+step: 5.1 - analytical artifact 7 of 7
+artifact: testability-assessment
+
+phases:
+  - phase: 1
+    sc_ids: [SC-1]
+    test_strategy:
+      type: behavioral
+      rationale: |
+        The change affects runtime behavior — whether an orchestrator loading the
+        writing-plans skill card reads the orchestrator-context-discipline reference.
+        Per the Runtime-Behavioral Evidence Classification Gate, a change that alters
+        WHAT a system DOES at runtime (orchestrator dispatch/context-loading behavior)
+        demands behavioral evidence, not structural/string evidence.
+    behavioral_test:
+      - name: writing-plans-reads-context-discipline-reference
+        description: |
+          Dispatch writing-plans via opencode run against a real AI model and inspect
+          stderr for a read tool call targeting orchestrator-context-discipline.md.
+        red_assertion: |
+          Before the change, assert the agent does NOT read orchestrator-context-discipline.md
+          (no Read-link present). Uses stderr-based helper assert_stderr_pattern_absent on
+          the reference path.
+        green_assertion: |
+          After adding the Read-link, assert the agent DOES read orchestrator-context-discipline.md
+          (assert_stderr_pattern_present on the reference path / a read tool call targeting it).
+    structural_supplement:
+      - name: read-link-presence-check
+        type: structural (supplementary only, NOT a substitute for behavioral)
+        assertion: |
+          Verify writing-plans/SKILL.md contains `Read [orchestrator-context-discipline`
+          in the Cross-References section with a resolvable path to
+          reference/orchestrator-context-discipline.md.
+        note: |
+          This structural check confirms the link exists but is NOT sufficient evidence
+          for the behavioral SC. The behavioral test above is the primary evidence.
+    dependency_for_test:
+      - "The behavioral GREEN test requires .opencode/reference/orchestrator-context-discipline.md to exist (created by #2359). If #2359 has not landed, the behavioral test cannot pass and the SC is FAIL until the dependency resolves."
