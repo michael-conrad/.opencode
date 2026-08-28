@@ -1,39 +1,56 @@
-issue: .opencode#2347
-task: analyze
-step: 5.1 - interface compatibility
-generated_at: "2026-08-28T00:00:00Z"
-
-interface_compatibility:
-  interfaces:
-    - interface: "guidelines/020-go-prohibitions.md (preloaded guideline)"
-      change: "MODIFIED — §1.1, §1.6, §2, §4 removed/condensed; §1 core + anti-self-auth blocks retained"
-      compatibility: "BACKWARD COMPATIBLE"
-      detail: "The GO-prohibition core (the safety-critical interface) is unchanged. The removed sections are procedural and relocated to shared references reachable via Read-links."
-    - interface: "reference/orchestrator-context-discipline.md"
-      change: "NEW (created by #2359, consumed by this issue)"
-      compatibility: "INTERNAL ONLY"
-      detail: "Canonical home for §1.1 context-discipline content. Consuming cards Read-link it."
-    - interface: "skills/approval-gate/SKILL.md"
-      change: "MODIFIED — Cross-References Read-link added"
-      compatibility: "BACKWARD COMPATIBLE"
-      detail: "Adds a mandatory Read-link; existing routing unchanged."
-    - interface: "skills/mcp-tool-usage/SKILL.md"
-      change: "MODIFIED — Cross-References Read-link added"
-      compatibility: "BACKWARD COMPATIBLE"
-    - interface: "skills/skill-creator/SKILL.md"
-      change: "MODIFIED — Cross-References Read-link added"
-      compatibility: "BACKWARD COMPATIBLE"
-    - interface: "skills/brainstorming/SKILL.md"
-      change: "MODIFIED — Cross-References Read-link added (discussion-mandates reference)"
-      compatibility: "BACKWARD COMPATIBLE"
-    - interface: "guidelines/085-project-local-tools.md"
-      change: "MODIFIED — de-circularize back-reference to 020 §4"
-      compatibility: "BACKWARD COMPATIBLE"
-      detail: "085 remains the canonical project-local tool rules reference; only its back-reference to 020 §4 is removed."
-    - interface: ".opencode/opencode.jsonc instructions array"
-      change: "UNCHANGED"
-      compatibility: "BACKWARD COMPATIBLE"
-      detail: "020-go-prohibitions.md remains preloaded at line 81; only its content shrinks."
-
-breaking_changes:
-  - "None — all changes are backward compatible. The safety-critical GO-prohibition core and anti-self-auth blocks are unchanged."
+spec_path: .opencode/.issues/2347/spec.md
+interfaces:
+  - name: orchestrator_context_discipline_reference
+    description: "The canonical shared reference file .opencode/reference/orchestrator-context-discipline.md (created by #2359)"
+    operations:
+      - "Read [Text](.opencode/reference/orchestrator-context-discipline.md) — imperative Read-link form"
+    consumers:
+      - guidelines/020-go-prohibitions.md (SC-1c)
+      - skills/approval-gate/SKILL.md (SC-9a)
+      - skills/mcp-tool-usage/SKILL.md (SC-9b)
+      - skills/skill-creator/SKILL.md (SC-9c)
+      - skills/brainstorming/SKILL.md (SC-9d)
+    compatibility: "Must follow .opencode/reference/ format conventions with provenance per code standards"
+  - name: discussion_mode_mandates_reference
+    description: "The canonical shared reference file .opencode/reference/discussion-mode-mandates.md (created by #2358)"
+    operations:
+      - "Read [Text](.opencode/reference/discussion-mode-mandates.md) — imperative Read-link form"
+    consumers:
+      - skills/brainstorming/SKILL.md (SC-2c)
+    compatibility: "Must follow .opencode/reference/ format conventions with provenance per code standards"
+  - name: plan_revision_reference
+    description: "The canonical shared reference file .opencode/reference/plan-revision.md (created by this issue or a companion)"
+    operations:
+      - "Read [Text](.opencode/reference/plan-revision.md) — imperative Read-link form"
+    consumers:
+      - guidelines/020-go-prohibitions.md (SC-3c)
+    compatibility: "Must follow .opencode/reference/ format conventions with provenance per code standards"
+  - name: project_local_tools_guideline
+    description: "The canonical project-local tool rules guideline .opencode/guidelines/085-project-local-tools.md"
+    operations:
+      - "Read [Text](.opencode/guidelines/085-project-local-tools.md) — imperative Read-link form"
+    consumers:
+      - guidelines/020-go-prohibitions.md (SC-4a-2)
+    compatibility: "Existing file; back-reference to 020 §4 must be de-circularized (SC-4b)"
+  - name: source_guideline
+    description: "The preloaded 020 guideline .opencode/guidelines/020-go-prohibitions.md"
+    files:
+      - guidelines/020-go-prohibitions.md
+    consumers:
+      - §1.1/§1.6/§2/§4 removal (SC-1a/SC-2a/SC-3a/SC-4a-1)
+      - Read-link insertion (SC-1c/SC-3c/SC-4a-2)
+      - core retention (SC-5/SC-6)
+    compatibility: "GO-prohibition core and anti-self-auth blocks retained verbatim; procedural sections condensed to Read-links"
+  - name: skill_card_cross_references
+    description: "Cross-References sections of the four consuming skill cards"
+    files:
+      - skills/approval-gate/SKILL.md
+      - skills/mcp-tool-usage/SKILL.md
+      - skills/skill-creator/SKILL.md
+      - skills/brainstorming/SKILL.md
+    consumers:
+      - Agents loading the skill cards
+    compatibility: "Adding Read-links must not break the card's frontmatter or dispatch-table structure; links go in the existing Cross-References section"
+boundary_notes:
+  - reference_creation_order: "Reference files must exist before their Read-links are added so link targets resolve — enforced by the dependency DAG (BLOCKER-1 #2359, BLOCKER-2 #2358, BLOCKER-3 plan-revision)."
+  - no_020_rewrite_of_core: "020 retains its GO-prohibition core and anti-self-auth blocks verbatim; only the procedural sections are condensed to Read-links."

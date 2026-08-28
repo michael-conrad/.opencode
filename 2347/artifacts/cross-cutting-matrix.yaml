@@ -1,45 +1,69 @@
-issue: .opencode#2347
-task: analyze
-step: 5.1 - cross-cutting matrix
-generated_at: "2026-08-28T00:00:00Z"
-
-cross_cutting_matrix:
-  cross_cutting_concerns:
-    - concern: "Mandatory Read-link convention (Read [Text](path))"
-      applies_to: [SC-1, SC-2, SC-3, SC-4, SC-9]
-      impact: "Every relocated section must be reachable via a mandatory Read-link, not 'See' or resolution tables. Enforced by 000-critical-rules.md Read-Link rule."
-    - concern: "Content-loss prevention"
-      applies_to: [SC-1, SC-2, SC-3, SC-4, SC-7]
-      impact: "Relocated rules must be preserved in their canonical home — none silently deleted. Anti-self-auth core (SC-5, SC-6) retained verbatim."
-    - concern: "Token-burden reduction"
-      applies_to: [SC-1, SC-2, SC-3, SC-4, SC-8]
-      impact: "Each relocation reduces the preloaded 020 size. Net effect measured in SC-8."
-    - concern: "Preloaded guideline integrity"
-      applies_to: [SC-5, SC-6]
-      impact: "The GO-prohibition core must remain preloaded (opencode.jsonc line 81) and functionally intact after condensation."
-    - concern: "Cross-repo boundary"
-      applies_to: [all SCs]
-      impact: "All changes confined to .opencode/ files. No parent-repo (opencode-config) changes."
-
-matrix:
-  - row: "Read-link convention"
-    SC-1: "REQUIRED"
-    SC-2: "REQUIRED"
-    SC-3: "REQUIRED"
-    SC-4: "REQUIRED"
-    SC-9: "REQUIRED"
-  - row: "Content preservation"
-    SC-1: "REQUIRED"
-    SC-2: "REQUIRED"
-    SC-3: "REQUIRED"
-    SC-4: "REQUIRED"
-    SC-7: "REQUIRED"
-  - row: "Token reduction"
-    SC-1: "REQUIRED"
-    SC-2: "REQUIRED"
-    SC-3: "REQUIRED"
-    SC-4: "REQUIRED"
-    SC-8: "REQUIRED"
-  - row: "Core retention"
-    SC-5: "REQUIRED"
-    SC-6: "REQUIRED"
+spec_path: .opencode/.issues/2347/spec.md
+cross_cutting_concerns:
+  - concern: single_source_of_truth
+    description: "Each relocated concern must map to exactly one named canonical home — §1.1 → orchestrator-context-discipline.md, §1.6 → discussion-mode-mandates.md, §2 → plan-revision.md, §4 → 085-project-local-tools.md. No duplication into 020 or any consuming card."
+    affected_scs:
+      - SC-1b
+      - SC-2b
+      - SC-3b
+      - SC-4a-2
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: imperative_read_link_form
+    description: "All Read-links must use the exact imperative Read [Text](path) form, not 'see' or symbol-only refs. Enforced uniformly across 020 (SC-1c/SC-3c/SC-4a-2) and the consuming cards (SC-2c/SC-9a/SC-9b/SC-9c/SC-9d)."
+    affected_scs:
+      - SC-1c
+      - SC-2c
+      - SC-3c
+      - SC-4a-2
+      - SC-9a
+      - SC-9b
+      - SC-9c
+      - SC-9d
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: link_target_resolution
+    description: "Every Read-link to a shared reference must resolve to an existing file. SC-1b/SC-2b/SC-3b confirm the reference files exist; SC-1c/SC-2c/SC-3c/SC-4a-2/SC-9a/SC-9b/SC-9c/SC-9d confirm the links point to them."
+    affected_scs:
+      - SC-1b
+      - SC-2b
+      - SC-3b
+      - SC-1c
+      - SC-2c
+      - SC-3c
+      - SC-4a-2
+      - SC-9a
+      - SC-9b
+      - SC-9c
+      - SC-9d
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: reference_format_conventions
+    description: "New reference files must follow .opencode/reference/ format conventions and carry provenance per code standards."
+    affected_scs:
+      - SC-1b
+      - SC-2b
+      - SC-3b
+    affected_phases:
+      - 1
+      - 2
+      - 3
+  - concern: core_retention
+    description: "The GO-prohibition core and anti-self-auth blocks must remain verbatim in 020 while procedural content is removed. SC-5 (behavioral) and SC-6 (structural) jointly enforce this."
+    affected_scs:
+      - SC-5
+      - SC-6
+    affected_phases:
+      - 4
+  - concern: no_rule_loss
+    description: "No context-discipline critical-rules block may be silently deleted. SC-7 enforces relocation of every block to the reference file."
+    affected_scs:
+      - SC-7
+    affected_phases:
+      - 1

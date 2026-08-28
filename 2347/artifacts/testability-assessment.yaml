@@ -1,37 +1,106 @@
-issue: .opencode#2347
-task: analyze
-step: 5.1 - testability assessment
-generated_at: "2026-08-28T00:00:00Z"
-
-testability_assessment:
-  phases:
-    - phase: PHASE-1
-      sc_ids: [SC-1, SC-7, SC-9]
-      strategy: "mixed"
-      tests:
-        - "SC-1: BEHAVIORAL — opencode run with a context-discipline routing prompt; inspect session.yaml for Read-link to orchestrator-context-discipline.md and absence of §1.1 prose in 020."
-        - "SC-7: STRUCTURAL — read/grep confirms each context-discipline enforcement block is relocated or Read-linked, none lost."
-        - "SC-9: STRUCTURAL — read/grep confirms consuming cards have mandatory Read-links to orchestrator-context-discipline.md."
-    - phase: PHASE-2
-      sc_ids: [SC-2]
-      strategy: "behavioral"
-      tests:
-        - "SC-2: BEHAVIORAL — opencode run with a discussion-mode prompt; inspect session.yaml for brainstorming Read-link to discussion-mandates reference and absence of §1.6 prose in 020."
-    - phase: PHASE-3
-      sc_ids: [SC-3, SC-4]
-      strategy: "structural"
-      tests:
-        - "SC-3: STRUCTURAL — read confirms §2 removed from 020 and present in shared plan-revision reference."
-        - "SC-4: STRUCTURAL — read confirms §4 condensed to Read-link to 085 and 085 back-reference de-circularized."
-    - phase: PHASE-4
-      sc_ids: [SC-5, SC-6, SC-8]
-      strategy: "mixed"
-      tests:
-        - "SC-5: BEHAVIORAL — opencode run with a self-authorization solicitation prompt; inspect session.yaml for absence of self-authorization (core retained and enforced)."
-        - "SC-6: STRUCTURAL — read confirms critical-rules-028/009/027 blocks remain in 020."
-        - "SC-8: STRUCTURAL — byte/line count of 020 after condensation confirms substantial reduction."
-
-  testability_notes:
-    - "Behavioral tests require the canonical test framework: bash .opencode/tests-v2/with-test-home opencode run '<prompt>' with >=600s timeout."
-    - "Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, Read-link calls). Prose recall is NOT behavioral evidence."
-    - "Structural tests use read/grep on the modified guideline and reference files."
+spec_path: .opencode/.issues/2347/spec.md
+scs:
+  - id: SC-1a
+    evidence_type: structural
+    verification_method: "read/grep 020-go-prohibitions.md to confirm §1.1 prose absent"
+    testable: true
+    test_type: grep
+  - id: SC-1b
+    evidence_type: structural
+    verification_method: "read reference/orchestrator-context-discipline.md to confirm §1.1 content present"
+    testable: true
+    test_type: file_existence
+  - id: SC-1c
+    evidence_type: structural
+    verification_method: "read 020-go-prohibitions.md to confirm the mandatory Read [Text](.opencode/reference/orchestrator-context-discipline.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-2a
+    evidence_type: structural
+    verification_method: "read/grep 020-go-prohibitions.md to confirm §1.6 prose absent"
+    testable: true
+    test_type: grep
+  - id: SC-2b
+    evidence_type: structural
+    verification_method: "read reference/discussion-mode-mandates.md to confirm §1.6 content present"
+    testable: true
+    test_type: file_existence
+  - id: SC-2c
+    evidence_type: structural
+    verification_method: "read skills/brainstorming/SKILL.md to confirm the mandatory Read [Text](.opencode/reference/discussion-mode-mandates.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-3a
+    evidence_type: structural
+    verification_method: "read/grep 020-go-prohibitions.md to confirm §2 prose absent"
+    testable: true
+    test_type: grep
+  - id: SC-3b
+    evidence_type: structural
+    verification_method: "read reference/plan-revision.md to confirm §2 prose present"
+    testable: true
+    test_type: file_existence
+  - id: SC-3c
+    evidence_type: structural
+    verification_method: "read 020-go-prohibitions.md to confirm the mandatory Read [Text](.opencode/reference/plan-revision.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-4a-1
+    evidence_type: structural
+    verification_method: "read/grep 020-go-prohibitions.md to confirm §4 prose absent"
+    testable: true
+    test_type: grep
+  - id: SC-4a-2
+    evidence_type: structural
+    verification_method: "read 020-go-prohibitions.md to confirm the mandatory Read [Text](.opencode/guidelines/085-project-local-tools.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-4b
+    evidence_type: structural
+    verification_method: "read 085-project-local-tools.md to confirm no back-reference to 020 §4"
+    testable: true
+    test_type: grep
+  - id: SC-5
+    evidence_type: behavioral
+    verification_method: "opencode run with a self-authorization solicitation prompt; clean-room sub-agent inspects session.yaml for evidence the agent does NOT self-authorize"
+    testable: true
+    test_type: behavioral
+  - id: SC-6
+    evidence_type: structural
+    verification_method: "read 020-go-prohibitions.md to confirm critical-rules-028/009/027 blocks present"
+    testable: true
+    test_type: grep
+  - id: SC-7
+    evidence_type: structural
+    verification_method: "read/grep reference/orchestrator-context-discipline.md to confirm every context-discipline block (034, 035, 042, 048, 044, 043, 063, 065, 066, 071, 072, dispatch-gate-canonical) present"
+    testable: true
+    test_type: grep
+  - id: SC-8
+    evidence_type: structural
+    verification_method: "byte/line count of 020-go-prohibitions.md after condensation (target < ~50% of 53,468 bytes)"
+    testable: true
+    test_type: byte_count
+  - id: SC-9a
+    evidence_type: structural
+    verification_method: "read/grep skills/approval-gate/SKILL.md to confirm the mandatory Read [Text](.opencode/reference/orchestrator-context-discipline.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-9b
+    evidence_type: structural
+    verification_method: "read/grep skills/mcp-tool-usage/SKILL.md to confirm the mandatory Read [Text](.opencode/reference/orchestrator-context-discipline.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-9c
+    evidence_type: structural
+    verification_method: "read/grep skills/skill-creator/SKILL.md to confirm the mandatory Read [Text](.opencode/reference/orchestrator-context-discipline.md) link present"
+    testable: true
+    test_type: grep
+  - id: SC-9d
+    evidence_type: structural
+    verification_method: "read/grep skills/brainstorming/SKILL.md to confirm the mandatory Read [Text](.opencode/reference/orchestrator-context-discipline.md) link present"
+    testable: true
+    test_type: grep
+platform_testing_notes:
+  - "SC-1a/1b/1c, SC-2a/2b/2c, SC-3a/3b/3c, SC-4a-1/4a-2, SC-4b, SC-6, SC-7, SC-8, SC-9a/9b/9c/9d are structural (file existence / path resolution / grep / byte count)."
+  - "SC-5 is behavioral — verified via opencode run against a real AI model in clean-room isolation."
+  - "No behavioral tests required for the relocation SCs — content-extraction and link-insertion changes with no runtime behavior modification; the GO-prohibition core retention (SC-5) is the sole behavioral SC."

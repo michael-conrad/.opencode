@@ -1,38 +1,82 @@
-sc_count: 9
+sc_count: 20
 scs:
-  - id: "SC-1"
-    description: "§1.1 Orchestrator Context Discipline content is removed from the preloaded 020-go-prohibitions.md and relocated to the shared reference orchestrator-context-discipline.md, with 020 retaining only a mandatory Read-link."
-    evidence_type: "behavioral"
+  - id: "SC-1a"
+    description: "§1.1 Orchestrator Context Discipline content is removed from the preloaded 020-go-prohibitions.md."
+    evidence_type: "structural"
     plan_item: 1
-  - id: "SC-2"
-    description: "§1.6 Discussion Mode Mandates content is removed from 020-go-prohibitions.md and relocated to a shared reference loaded via mandatory Read-link from the brainstorming skill."
-    evidence_type: "behavioral"
+  - id: "SC-1b"
+    description: "§1.1 Orchestrator Context Discipline content is present in reference/orchestrator-context-discipline.md."
+    evidence_type: "structural"
     plan_item: 2
-  - id: "SC-3"
-    description: "§2 Iterative Feedback & Plan Revision prose is removed from 020-go-prohibitions.md and relocated to a shared reference."
+  - id: "SC-1c"
+    description: "020-go-prohibitions.md retains only a mandatory Read-link to reference/orchestrator-context-discipline.md for §1.1."
     evidence_type: "structural"
     plan_item: 3
-  - id: "SC-4"
-    description: "§4 Project-Local Tool Installation content is removed from 020-go-prohibitions.md and replaced with a mandatory Read-link to 085-project-local-tools.md; the circular back-reference in 085 is de-circularized."
+  - id: "SC-2a"
+    description: "§1.6 Discussion Mode Mandates content is removed from 020-go-prohibitions.md."
     evidence_type: "structural"
     plan_item: 4
+  - id: "SC-2b"
+    description: "§1.6 Discussion Mode Mandates content is present in reference/discussion-mode-mandates.md."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-2c"
+    description: "skills/brainstorming/SKILL.md has a mandatory Read-link to reference/discussion-mode-mandates.md."
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-3a"
+    description: "§2 Iterative Feedback & Plan Revision prose is removed from 020-go-prohibitions.md."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-3b"
+    description: "§2 Iterative Feedback & Plan Revision prose is present in reference/plan-revision.md."
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-3c"
+    description: "020-go-prohibitions.md has a mandatory Read-link to reference/plan-revision.md for §2."
+    evidence_type: "structural"
+    plan_item: 9
+  - id: "SC-4a-1"
+    description: "§4 Project-Local Tool Installation content is removed from 020-go-prohibitions.md."
+    evidence_type: "structural"
+    plan_item: 10
+  - id: "SC-4a-2"
+    description: "020-go-prohibitions.md has a mandatory Read-link to 085-project-local-tools.md for §4."
+    evidence_type: "structural"
+    plan_item: 11
+  - id: "SC-4b"
+    description: "The circular back-reference in 085-project-local-tools.md to 020 §4 is de-circularized."
+    evidence_type: "structural"
+    plan_item: 12
   - id: "SC-5"
     description: "The GO-prohibition core (no GO token, no solicitation, no offer-to-edit, no self-authorization, no question-as-authorization, no why-question modification) is retained verbatim in the preloaded 020-go-prohibitions.md."
     evidence_type: "behavioral"
-    plan_item: 5
+    plan_item: 13
   - id: "SC-6"
     description: "The anti-self-authorization critical-rules enforcement blocks (028, 009, 027) are retained in 020-go-prohibitions.md."
     evidence_type: "structural"
-    plan_item: 6
+    plan_item: 14
   - id: "SC-7"
-    description: "The context-discipline critical-rules enforcement blocks (034, 035, 042, 048, 044, 043, 063, 065, 066, 071, 072, dispatch-gate-canonical) are relocated to the shared reference or converted to Read-links — none are lost."
+    description: "The context-discipline critical-rules enforcement blocks (034, 035, 042, 048, 044, 043, 063, 065, 066, 071, 072, dispatch-gate-canonical) are relocated to reference/orchestrator-context-discipline.md — none are lost."
     evidence_type: "structural"
-    plan_item: 7
+    plan_item: 15
   - id: "SC-8"
-    description: "The preloaded token burden of 020-go-prohibitions.md is reduced (issue Impact target ~11.9k token savings)."
+    description: "The preloaded token burden of 020-go-prohibitions.md is reduced to a hard numeric threshold: post-condensation byte count < 26,734 bytes (< 50% of the original 53,468 bytes)."
     evidence_type: "structural"
-    plan_item: 8
-  - id: "SC-9"
-    description: "Consuming skill cards (approval-gate, mcp-tool-usage, skill-creator, and any other card referencing §1.1) load the shared context-discipline reference via mandatory Read-link."
+    plan_item: 16
+  - id: "SC-9a"
+    description: "skills/approval-gate/SKILL.md has a mandatory Read-link to reference/orchestrator-context-discipline.md."
     evidence_type: "structural"
-    plan_item: 9
+    plan_item: 17
+  - id: "SC-9b"
+    description: "skills/mcp-tool-usage/SKILL.md has a mandatory Read-link to reference/orchestrator-context-discipline.md."
+    evidence_type: "structural"
+    plan_item: 18
+  - id: "SC-9c"
+    description: "skills/skill-creator/SKILL.md has a mandatory Read-link to reference/orchestrator-context-discipline.md."
+    evidence_type: "structural"
+    plan_item: 19
+  - id: "SC-9d"
+    description: "skills/brainstorming/SKILL.md has a mandatory Read-link to reference/orchestrator-context-discipline.md."
+    evidence_type: "structural"
+    plan_item: 20

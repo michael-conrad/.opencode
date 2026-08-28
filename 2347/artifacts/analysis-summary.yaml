@@ -1,0 +1,45 @@
+spec_path: .opencode/.issues/2347/spec.md
+approval_status: needs-approval
+sc_count: 20
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - file: guidelines/020-go-prohibitions.md
+    status: EXISTS
+    role: source guideline — §1.1/§1.6/§2/§4 content removed (SC-1a/SC-2a/SC-3a/SC-4a-1), Read-links added (SC-1c/SC-3c/SC-4a-2), core retained (SC-5/SC-6)
+  - file: reference/orchestrator-context-discipline.md
+    status: NOT_EXISTS
+    role: SC-1b/SC-7 — relocation target for §1.1 and context-discipline blocks (created by #2359)
+  - file: reference/discussion-mode-mandates.md
+    status: NOT_EXISTS
+    role: SC-2b — relocation target for §1.6 (created by #2358)
+  - file: reference/plan-revision.md
+    status: NOT_EXISTS
+    role: SC-3b — relocation target for §2 (created by this issue or a companion)
+  - file: guidelines/085-project-local-tools.md
+    status: EXISTS
+    role: SC-4a-2/SC-4b — §4 relocation target and de-circularization
+  - file: skills/brainstorming/SKILL.md
+    status: EXISTS
+    role: SC-2c/SC-9d — add Read-links to discussion-mode-mandates.md and orchestrator-context-discipline.md
+  - file: skills/approval-gate/SKILL.md
+    status: EXISTS
+    role: SC-9a — add Read-link to orchestrator-context-discipline.md
+  - file: skills/mcp-tool-usage/SKILL.md
+    status: EXISTS
+    role: SC-9b — add Read-link to orchestrator-context-discipline.md
+  - file: skills/skill-creator/SKILL.md
+    status: EXISTS
+    role: SC-9c — add Read-link to orchestrator-context-discipline.md
+backfill_notes:
+  - All 7 analytical artifacts were missing and have been backfilled from the revised spec body.
+  - Artifacts reflect 20 items, 20 SCs, 3 new reference files (orchestrator-context-discipline.md, discussion-mode-mandates.md, plan-revision.md), 1 modified guideline (020), 1 modified guideline (085), and 4 modified skill cards (brainstorming, approval-gate, mcp-tool-usage, skill-creator).
+  - SC-1a/1b/1c, SC-2a/2b/2c, SC-3a/3b/3c, SC-4a-1/4a-2, SC-4b, SC-6, SC-7, SC-8, SC-9a/9b/9c/9d are structural (file existence / path resolution / grep / diff).
+  - SC-5 is behavioral — verified via opencode run self-authorization solicitation prompt.
+  - No behavioral tests required for the relocation SCs — content-extraction and link-insertion changes with no runtime behavior modification; the GO-prohibition core retention (SC-5) is the sole behavioral SC.

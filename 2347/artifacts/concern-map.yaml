@@ -1,32 +1,74 @@
-issue: .opencode#2347
-task: analyze
-step: 5.1 - concern map
-generated_at: "2026-08-28T00:00:00Z"
-
-concern_map:
-  concerns:
-    - concern: "GO-prohibition core (anti-self-authorization)"
-      phase: PHASE-4
-      files: ["guidelines/020-go-prohibitions.md"]
-      separation: "RETAINED in 020 — safety-critical, must stay preloaded. Not relocated."
-    - concern: "Orchestrator context discipline"
-      phase: PHASE-1
-      files: ["guidelines/020-go-prohibitions.md", "reference/orchestrator-context-discipline.md", "skills/approval-gate/SKILL.md", "skills/mcp-tool-usage/SKILL.md", "skills/skill-creator/SKILL.md"]
-      separation: "RELOCATED to shared reference; consuming cards Read-link. Separate from the GO-prohibition core."
-    - concern: "Discussion-mode mandates"
-      phase: PHASE-2
-      files: ["guidelines/020-go-prohibitions.md", "skills/brainstorming/SKILL.md"]
-      separation: "RELOCATED to shared reference; brainstorming skill Read-links."
-    - concern: "Plan revision rules"
-      phase: PHASE-3
-      files: ["guidelines/020-go-prohibitions.md"]
-      separation: "RELOCATED to shared plan-revision reference (already in approval-gate)."
-    - concern: "Project-local tool installation"
-      phase: PHASE-3
-      files: ["guidelines/020-go-prohibitions.md", "guidelines/085-project-local-tools.md"]
-      separation: "CONDENSED to Read-link to 085-project-local-tools.md (canonical home)."
-
-separation_rules:
-  - "The GO-prohibition core and the procedural context-discipline content are distinct concerns. The core stays preloaded; the procedural content moves to shared references."
-  - "Each relocated concern maps to exactly one canonical home (reference file or existing guideline), avoiding duplication."
-  - "Consuming skill cards Read-link the shared reference rather than re-inlining content."
+spec_path: .opencode/.issues/2347/spec.md
+concerns:
+  - id: context_discipline_relocation
+    name: §1.1 Context Discipline Relocation
+    description: Remove §1.1 content from 020, confirm presence in orchestrator-context-discipline.md, add Read-link in 020
+    phase: 1
+    scs:
+      - SC-1a
+      - SC-1b
+      - SC-1c
+  - id: context_discipline_blocks
+    name: Context-Discipline Critical-Rules Block Relocation
+    description: Relocate context-discipline enforcement blocks to orchestrator-context-discipline.md
+    phase: 1
+    scs:
+      - SC-7
+  - id: consuming_card_links
+    name: Consuming-Card Read-links
+    description: Add orchestrator-context-discipline.md Read-links to approval-gate, mcp-tool-usage, skill-creator, brainstorming
+    phase: 1
+    scs:
+      - SC-9a
+      - SC-9b
+      - SC-9c
+      - SC-9d
+  - id: discussion_mode_relocation
+    name: §1.6 Discussion Mode Relocation
+    description: Remove §1.6 content from 020, confirm presence in discussion-mode-mandates.md, add Read-link in brainstorming
+    phase: 2
+    scs:
+      - SC-2a
+      - SC-2b
+      - SC-2c
+  - id: plan_revision_relocation
+    name: §2 Plan Revision Relocation
+    description: Remove §2 prose from 020, confirm presence in plan-revision.md, add Read-link in 020
+    phase: 3
+    scs:
+      - SC-3a
+      - SC-3b
+      - SC-3c
+  - id: project_local_tools_condensation
+    name: §4 Project-Local Tool Condensation
+    description: Remove §4 content from 020, add Read-link to 085, de-circularize 085 back-reference
+    phase: 3
+    scs:
+      - SC-4a-1
+      - SC-4a-2
+      - SC-4b
+  - id: core_retention
+    name: GO-Prohibition Core Retention
+    description: Verify GO-prohibition core and anti-self-auth blocks retained verbatim; measure token burden
+    phase: 4
+    scs:
+      - SC-5
+      - SC-6
+      - SC-8
+phase_boundaries:
+  phase_1:
+    entry: spec approved
+    exit: §1.1 and context-discipline blocks relocated to orchestrator-context-discipline.md; all four consuming cards carry the Read-link
+    scs: [SC-1a, SC-1b, SC-1c, SC-7, SC-9a, SC-9b, SC-9c, SC-9d]
+  phase_2:
+    entry: phase 1 complete
+    exit: §1.6 relocated to discussion-mode-mandates.md; brainstorming carries the Read-link
+    scs: [SC-2a, SC-2b, SC-2c]
+  phase_3:
+    entry: phase 2 complete
+    exit: §2 relocated to plan-revision.md; §4 condensed to 085 Read-link; 085 de-circularized
+    scs: [SC-3a, SC-3b, SC-3c, SC-4a-1, SC-4a-2, SC-4b]
+  phase_4:
+    entry: phase 3 complete
+    exit: GO core and anti-self-auth blocks retained; token burden reduced
+    scs: [SC-5, SC-6, SC-8]
