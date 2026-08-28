@@ -1,22 +1,26 @@
-sc_count: 5
+sc_count: 6
 scs:
   - id: "SC-1"
-    description: "The verification skill (verify/verify-single task cards, or a shared reference consumed via Read-link) SHALL contain the consolidated evidence-requirement examples + session-scoped verification detail currently in 065-verification-honesty.md, establishing the skill as the authoritative source."
+    description: "The verification skill (verify/verify-single task cards) SHALL contain the consolidated evidence-requirement examples currently in 065-verification-honesty.md, establishing the skill as the authoritative source."
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "The verification skill SHALL contain a mandatory Read [Text](path) link to the authority-source shared content, using the imperative form."
+    description: "The verification skill (verify/verify-single task cards) SHALL contain the session-scoped verification detail currently in 065-verification-honesty.md, establishing the skill as the authoritative source."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
-    description: "The existing defective 'per 065-verification-honesty.md' citation in verify.md SHALL be converted to the imperative Read-link form (or otherwise resolved) so the skill consumes the consolidated content via the canonical pattern."
-    evidence_type: "string"
+    description: "The verification skill SHALL contain a mandatory Read [Text](path) link to the authority-source shared content, using the imperative form."
+    evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "The verification skill's Trigger Dispatch Table, Invocation, and routing metadata SHALL remain unchanged (no routing regression)."
-    evidence_type: "structural"
+    description: "The existing defective 'per 065-verification-honesty.md' citation in verify.md SHALL be converted to the imperative Read-link form referencing the consolidated content anchored in the verify/verify-single task cards, so the skill consumes the consolidated content via the canonical pattern."
+    evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
-    description: "The verification-honesty zero-tolerance core SHALL NOT be lost (no content removal from 065 beyond what the condensation spec 2349 authorizes)."
+    description: "The verification skill's Trigger Dispatch Table, Invocation, and routing metadata SHALL remain unchanged (no routing regression)."
     evidence_type: "structural"
     plan_item: 5
+  - id: "SC-6"
+    description: "The verification-honesty zero-tolerance core (never-rely-on-memory + pre-response factual-claim gate) SHALL NOT be lost; this spec MUST NOT modify 065-verification-honesty.md."
+    evidence_type: "structural"
+    plan_item: 6

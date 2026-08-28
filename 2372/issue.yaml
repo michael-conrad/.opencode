@@ -4,7 +4,9 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2372/
+
+  ## Problem
 
   Verification-honesty evidence examples (065) and docs-verification detail (075)
   move out of preload; the verification skill is the canonical home.
@@ -13,15 +15,17 @@ body: '## Problem
   ## Scope
 
   - **In:** Make verification skill the authoritative source for evidence-requirement
-  examples + session-scoped verification detail; add mandatory Read [Text](path) link
-  to the authority-source shared content.
+  examples + session-scoped verification detail (anchored in the verify/verify-single
+  task cards); add mandatory Read [Text](path) link to the authority-source shared
+  content; convert the defective "per 065" citation to the imperative Read-link form.
 
-  - **Out:** Losing the verification-honesty core.
+  - **Out:** Losing the verification-honesty core; modifying 065/075/130.
 
 
   ## Approach
 
-  Consolidate the evidence/detail content into the verification skill card.
+  Anchor the evidence/detail content into the verification skill task cards and add
+  the imperative authority-source Read-link.
 
 
   ## Impact
