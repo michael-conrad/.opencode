@@ -3,7 +3,8 @@ title: '[SPEC] Condense 080-code-standards.md — move DI/provenance/attribution
   skill cards'
 status: open
 labels:
-- needs-approval,spec-draft
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/080-code-standards.md` costs ~14.2k tokens (~21%
@@ -34,7 +35,7 @@ body: '## Problem
   retain enforcement cores verbatim. Depends on shared refs + skill updates + config.
   Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-28T17:24:42+00:00'
+updated_at: '2026-08-28T17:24:54+00:00'
 remote_issue: 2352
 remote_url: https://github.com/michael-conrad/.opencode/issues/2352
 promoted_at: '2026-08-27T03:25:12.662123+00:00'
