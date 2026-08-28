@@ -1,0 +1,44 @@
+# Blast Radius — .opencode#2372
+# Topic: Update verification skill — anchor verification-honesty & docs-verification
+
+issue_number: 2372
+
+## Affected Components
+
+- **Primary (modified):** `.opencode/skills/verification/SKILL.md` — add mandatory
+  authority-source Read-link (and a Cross-References section if needed).
+- **Primary (modified):** `.opencode/skills/verification/tasks/verify.md` — anchor the
+  consolidated evidence-requirement examples + session-scoped verification detail; convert the
+  defective "per 065" citation to the imperative Read-link form.
+- **Primary (modified, secondary):** `.opencode/skills/verification/tasks/verify-single.md` —
+  candidate secondary home for the consolidated evidence-requirement detail.
+- **Dependency (referenced, not modified):** authority-source shared content (deliverable of
+  the 130 condensation `.opencode#2356`) — the Read-link target; may not yet exist.
+- **Dependency (referenced, not modified):** `065-verification-honesty.md` — the source of the
+  evidence-requirement examples + session-scoped detail being consolidated into the skill.
+
+## Ripple Effects
+
+- **Downstream consumers (indirect):** `verification-before-completion` and
+  `verification-enforcement` reference `065-verification-honesty.md` and consume
+  verification-honesty content. After the skill becomes the authoritative source, these
+  consumers' references must continue to resolve (REQ-10). This is a consistency requirement,
+  not a code change to those skills in this spec.
+- **Downstream (dependency enablement):** Enables the 065 condensation (`.opencode#2349`) and
+  130-authority-source condensation (`.opencode#2356`) by establishing the verification skill's
+  consumption of the consolidated content + authority-source reference.
+
+## Per-Phase Blast Radius
+
+- **Phase 1 (Item 1, SC-1):** `.opencode/skills/verification/tasks/verify.md` (+
+  `verify-single.md` and/or a shared reference file).
+- **Phase 2 (Item 2, SC-2):** `.opencode/skills/verification/SKILL.md` (+ `verify.md`).
+- **Phase 3 (Item 3, SC-3):** `.opencode/skills/verification/tasks/verify.md`.
+- **Phase 4 (Item 4, SC-4):** Verification only — no file modification.
+- **Phase 5 (Item 5, SC-5):** Verification only — no file modification.
+
+## Conclusion
+
+Blast radius is contained to the verification skill surface (SKILL.md + verify/verify-single task
+cards) plus the authority-source shared-reference dependency existence check. No cross-file
+ripple beyond the verification skill; downstream consumers are consistency-checked, not modified.

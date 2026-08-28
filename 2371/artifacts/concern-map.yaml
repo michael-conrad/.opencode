@@ -1,0 +1,26 @@
+# Concern Map — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Concern Boundaries
+
+- **Concern A — Skill-card cross-reference routing:** Adding the imperative Read-link to the
+  brainstorming skill card so the discussion-mode mandates are consumed via the canonical
+  Read-link form. This is the single concern of this spec.
+
+## Separation Per Phase
+
+- **Phase 1 (Item 1, SC-1):** Concern A — edit the brainstorming skill card Cross-References
+  section.
+- **Phase 2 (Item 2, SC-2):** Concern A (verification) — confirm the link target resolves.
+
+## Multi-Concern Assessment
+
+- This is a **single-concern** spec. No multi-concern separation is required. The concern map
+  is trivial: one concern, two phases (edit + verify).
+
+## Conclusion
+
+Single concern, single file. The concern map does not require decomposition into multiple
+concern boundaries.

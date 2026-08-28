@@ -1,0 +1,35 @@
+# Research Card Consultation — .opencode#2371
+# Topic: Read-link form for discussion-mode-mandates in brainstorming skill card
+
+issue_number: 2371
+
+## Cards Consulted
+
+### cross-reference-form-comparison.md
+- Path: `.opencode/.issues/research-cards/cross-reference-form-comparison.md`
+- Confidence: 0.95
+- Relevance: HIGH — directly governs which cross-reference form this spec's Read-link must use.
+
+### Findings Incorporated
+
+- **Form A (inline link)** achieves 100% Tier 1 access rate — the only viable pattern.
+- The resolution-table + admonition pattern achieves only 42-58% — the agent reads the table
+  as text but does not follow links. Not a viable replacement.
+- Verb sub-test: "Read" is the canonical imperative verb. "See" causes the agent to treat
+  content as informational (accesses but does not apply). The imperative `Read [Text](path)`
+  form is the required pattern.
+- **Conclusion for this spec**: The brainstorming skill card MUST use the imperative
+  `Read [Text](.opencode/reference/discussion-mode-mandates.md)` form — not a bare "see"
+  citation and not a resolution table.
+
+## Cards Not Applicable
+
+- `plan-fidelity-sc-coverage-gate.md` — mentions Read-link but governs plan SC coverage, not
+  the skill-card cross-reference form. Not incorporated.
+
+## Consultation Conclusion
+
+The research card (confidence 0.95) confirms the imperative `Read [Text](path)` form is the
+only reliable cross-reference pattern. This directly constrains the spec: the brainstorming
+skill card's discussion-mode link MUST use the imperative form, and the target MUST resolve
+to the created reference file.

@@ -1,0 +1,41 @@
+# Pipeline Readiness Gate — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Validation
+
+### Atomicity
+
+- SC-1 maps to exactly one RED→GREEN→COMMIT cycle (Item 1).
+- SC-2 maps to exactly one RED→GREEN→verify cycle (Item 2, verification only).
+- PASS — every SC maps to exactly one cycle.
+
+### Dependency Ordering
+
+- SC-1 (link presence) and SC-2 (target resolution) are independent claims; SC-2 verification
+  depends on the reference file existing (dependency `.opencode#2358`), not on SC-1.
+- SC dependency DAG is acyclic. PASS.
+
+### Single Concern
+
+- SC-1 and SC-2 both target one file category (`.opencode/skills/brainstorming/SKILL.md` +
+  its reference target) and one verification domain (cross-reference routing).
+- PASS — single concern.
+
+### Phase Dependency
+
+- Phase 1 (edit) precedes Phase 2 (verify) — sequential, acyclic. PASS.
+
+### Three-Tier Structure
+
+- This is a single-phase, two-item spec. The pre/per-file/post structure is not applicable
+  (single file, single concern). Not required for a single-concence spec.
+
+## Gate Verdict
+
+- **PASS** (with dependency note): The spec is pipeline-ready. Item 2 (SC-2) verification is
+  blocked until the dependency reference file `.opencode/reference/discussion-mode-mandates.md`
+  exists (deliverable of `.opencode#2358`). The create task must record this dependency so the
+  executor either creates the reference file in the same change set or gates SC-2 on the
+  dependency being delivered first.

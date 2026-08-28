@@ -1,0 +1,30 @@
+# Blast Radius — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Affected Components
+
+- **Primary (modified):**: `.opencode/skills/brainstorming/SKILL.md` — add one imperative
+  Read-link to the Cross-References section.
+- **Dependency (referenced, not modified):**: `.opencode/reference/discussion-mode-mandates.md`
+  — the Read-link target; deliverable of `.opencode#2358`, does not yet exist.
+
+## Ripple Effects
+
+- **None within this spec**: The change is a single-file, single-concern static edit. No other
+  skill card, guideline, or task file is modified.
+- **Downstream (indirect)**: Enables the 020 condensation effort by establishing the
+  brainstorming card's consumption of the shared reference via Read-link. This is a
+  dependency enablement, not a ripple effect of this change.
+
+## Per-Phase Blast Radius
+
+- **Phase 1 (Item 1, SC-1):** Only `.opencode/skills/brainstorming/SKILL.md`.
+- **Phase 2 (Item 2, SC-2):** Verification only — touches the resolved target path
+  `.opencode/reference/discussion-mode-mandates.md` (existence check).
+
+## Conclusion
+
+Blast radius is minimal and fully contained to the brainstorming skill card plus the
+dependency reference file's existence check. No cross-file ripple.

@@ -1,0 +1,53 @@
+# Pre-Spec Inspection — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+# Analyzed: 2026-08-27
+
+issue_number: 2371
+repo: .opencode
+title: "[SPEC] Update brainstorming skill — Read-link discussion-mode-mandates"
+
+## Affected Files
+
+- `.opencode/skills/brainstorming/SKILL.md` — the sole file to be modified by this spec.
+  The Cross-References section (lines 154-156) currently lists Skills: `spec-creation`,
+  `writing-plans`; Guidelines: `015-pre-spec-inspection.md`. It does NOT currently contain
+  any `Read [Text](...)` link to a discussion-mode reference. This is the insertion point.
+
+## Existing Patterns and Conventions
+
+- **Read-Link Cross-Reference Rule** (AGENTS.md): agent-facing text MUST use the imperative
+  `Read [Text](path)` form for cross-references. Bare "see" citations are forbidden.
+- **Reference directory**: `.opencode/reference/` is the canonical home for shared reference
+  documents consumed via `Read [Text](path)` links (e.g. `cost-model-standards.md`,
+  `spec-structure-standards.md`, `skill-card-description-standards.md`).
+- **Skill card Cross-References section**: The standard location for skill cards to anchor
+  shared references and related guidelines. The brainstorming card's Cross-References section
+  is the natural insertion point for the discussion-mode-mandates Read-link.
+
+## Dependencies and Callers of Affected Symbols
+
+- The brainstorming skill card is loaded via `skill({name: "brainstorming"})` by the
+  orchestrator. Its task cards (`explore.md`, `top-down-analysis.md`, `enforcement.md`,
+  `cross-scope.md`, `completion.md`) are dispatched to sub-agents via `task()`.
+- **Dependency (upstream)**: `.opencode/reference/discussion-mode-mandates.md` does NOT
+  currently exist in the repo. It is the deliverable of issue `.opencode#2358` (open,
+  `needs-approval`). The Read-link target MUST resolve to that file, so this spec's
+  verification depends on the reference file existing (either created first, or verified
+  as a dependency).
+- **Dependency (downstream)**: The 020 condensation effort depends on this reference existing
+  and being consumed via Read-links.
+
+## Current State Verification
+
+- `find` for `discussion-mode-mandates.md`: NOT FOUND (file does not exist yet).
+- `grep` for `discussion-mode|question tool|pigeon-hol|single-topic|1.6` in
+  `.opencode/skills/brainstorming/`: NO matches — the brainstorming card currently has no
+  inline discussion-mode mandates content; it consumes §1.6 via the preloaded 020 guideline.
+- `grep` `Read [Text]|discussion-mode` in `.opencode/skills/approval-gate/SKILL.md`: only the
+  `## Cross-References` heading at line 209; no discussion-mode Read-link yet.
+
+## Inspection Conclusion
+
+Single-file, single-concern change: add one imperative `Read [Text](...)` link to the
+brainstorming skill card's Cross-References section. The change is small and localized.
+The only external dependency is the existence of the discussion-mode-mandates reference file.

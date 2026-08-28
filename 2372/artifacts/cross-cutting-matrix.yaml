@@ -1,0 +1,36 @@
+# Cross-Cutting Matrix — .opencode#2372
+# Topic: Update verification skill — anchor verification-honesty & docs-verification
+
+issue_number: 2372
+
+## Cross-Cutting Concerns
+
+The spec has two primary concerns (content anchoring, cross-reference routing) plus a
+non-regression concern. The cross-cutting interactions are limited to the shared file
+`verify.md` (touched by both Concern A and Concern B/SC-3) and the shared content source
+`065-verification-honesty.md` (read by both the consolidation and the downstream consumers).
+
+## Matrix
+
+| Concern | File(s) | Cross-cutting interaction |
+|---------|---------|--------------------------|
+| Content anchoring (SC-1, SC-3) | `verification/tasks/verify.md`, `verify-single.md` | verify.md is also the site of the SC-3 citation conversion — both edits target the same file and must be coordinated to avoid conflicting edits |
+| Cross-reference routing (SC-2) | `verification/SKILL.md`, `verification/tasks/verify.md` | The authority-source Read-link may be added to both SKILL.md and verify.md; verify.md is shared with Concern A |
+| Non-regression (SC-4, SC-5) | verification skill surface + 065 | Verify routing unchanged and 065 core preserved — verification-only, no edit conflict |
+| Downstream consistency (REQ-10) | `verification-before-completion`, `verification-enforcement` | These reference 065; after consolidation their references must still resolve — checked, not modified |
+
+## Interaction Resolution
+
+- **verify.md shared by SC-1 and SC-3:** Both edits to verify.md are additive/non-conflicting
+  (SC-1 adds a consolidated content block; SC-3 converts a single citation line). They can be
+  sequenced in dependency order (SC-1 then SC-3) without conflict.
+- **SKILL.md vs verify.md for the Read-link (SC-2):** The authority-source Read-link placement
+  is a create-task decision; if placed in both, the edits are independent files and do not
+  conflict.
+
+## Conclusion
+
+Cross-cutting interactions are minimal and confined to the shared `verify.md` file and the
+shared 065 content source. They are resolved by sequencing edits in dependency order and by
+treating downstream consumers as consistency-checks rather than modifications. The create task
+should NOT fabricate cross-cutting interactions beyond these.

@@ -1,0 +1,20 @@
+# Cross-Cutting Matrix — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Cross-Cutting Concerns
+
+This is a single-concern, single-file spec. There are no multiple concerns whose interactions
+require a cross-cutting matrix.
+
+## Matrix
+
+| Concern | File(s) | Cross-cutting interaction |
+|---------|---------|--------------------------|
+| Skill-card cross-reference routing | `.opencode/skills/brainstorming/SKILL.md` | None — isolated to one file |
+
+## Conclusion
+
+No cross-cutting concerns. The cross-cutting matrix is not applicable (single concern). The
+create task should NOT fabricate cross-cutting interactions where none exist.

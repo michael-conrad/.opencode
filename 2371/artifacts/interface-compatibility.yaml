@@ -1,0 +1,25 @@
+# Interface Compatibility — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Interface Analysis
+
+| Interface | Status | Compatibility |
+|-----------|--------|---------------|
+| Brainstorming skill card Trigger Dispatch Table | Unchanged | Internal only |
+| Brainstorming skill card Invocation / task() dispatch strings | Unchanged | Internal only |
+| Brainstorming skill card frontmatter (name, description, license, compatibility) | Unchanged | Internal only |
+| Brainstorming task cards (`tasks/*.md`) | Unchanged | Internal only |
+| `discussion-mode-mandates.md` reference file | New (dependency, `.opencode#2358`) | Internal only — consumed via Read-link |
+
+## Compatibility Verdict
+
+- **No public API change.** No interface is modified, removed, or broken.
+- **No new public interface.** The Read-link references an internal shared reference file.
+- **Backward compatible:** Existing brainstorming skill behavior and routing are unchanged.
+- **Breaking changes:** None.
+
+## Conclusion
+
+Interface compatibility is fully preserved. The change is internal-only and non-breaking.

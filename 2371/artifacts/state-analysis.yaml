@@ -1,0 +1,19 @@
+# State Analysis — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Stateful Components
+
+- None. This spec modifies a static skill-card markdown file. There are no stateful
+  components, state machines, or state transitions involved.
+
+## State Transitions Per Phase
+
+- **Phase 1 (Item 1, SC-1):** No state transition — static file edit.
+- **Phase 2 (Item 2, SC-2):** No state transition — verification only.
+
+## Conclusion
+
+State analysis is not applicable. No stateful component is modified. The create task should NOT
+fabricate state transitions where none exist.

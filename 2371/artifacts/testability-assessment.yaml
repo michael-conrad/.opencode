@@ -1,0 +1,27 @@
+# Testability Assessment — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Test Strategy Per Phase
+
+| Phase | SC | Verification Domain | Test Strategy | Method |
+|-------|-----|--------------------|---------------|--------|
+| Phase 1 (Item 1) | SC-1 | Link presence + imperative form | string | grep `.opencode/skills/brainstorming/SKILL.md` for the imperative `Read [Text](...)` form |
+| Phase 2 (Item 2) | SC-2 | Link target resolution | structural | resolve the Read-link target path and assert it exists |
+
+## Behavioral Testability Note
+
+Per the substrate-determined classification (critical-rules-BEH-EV), the change affects
+runtime behavior — an agent loading the brainstorming skill now reads the reference file. The
+declared evidence type for SC-1/SC-2 SHOULD therefore be uplifted to `behavioral`, verified
+via `opencode run` that loads the brainstorming skill and asserts the agent reads
+`discussion-mode-mandates.md`. If behavioral uplift is adopted, the test strategy for both SCs
+becomes behavioral (`opencode run` via the `with-test-home` harness), with string/structural
+checks as supplementary evidence.
+
+## Conclusion
+
+Primary test strategy is string (SC-1) + structural (SC-2), with a behavioral uplift option per
+the BEH-EV substrate classification. The testability assessment is straightforward — the change
+is small and directly verifiable.

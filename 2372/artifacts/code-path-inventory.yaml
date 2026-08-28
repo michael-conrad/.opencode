@@ -1,0 +1,57 @@
+# Code Path Inventory — .opencode#2372
+# Topic: Update verification skill — anchor verification-honesty & docs-verification
+
+issue_number: 2372
+
+## Code Paths Touched by Each Phase
+
+### Phase 1 (Item 1, SC-1): Anchor evidence-requirement content
+
+- **File:** `.opencode/skills/verification/tasks/verify.md`
+- **Section:** Procedure / Step 3 (Collect ClaimResults) and the FAIL-never-downgraded note
+  (line 65).
+- **Path:** Add the consolidated evidence-requirement examples (What COUNTS as Evidence /
+  NOT Evidence) + session-scoped verification detail as a dedicated section, establishing the
+  skill as the authoritative source. Secondary: `verify-single.md` Step 3 (line 62) for the
+  single-claim invariant.
+
+### Phase 2 (Item 2, SC-2): Add authority-source Read-link
+
+- **File:** `.opencode/skills/verification/SKILL.md`
+- **Section:** Add a `## Cross-References` section (or extend an existing reference grouping)
+  with the mandatory `Read [Text](path)` link to the authority-source shared content.
+- **Path:** Insert the imperative Read-link; optionally mirror in `verify.md`.
+
+### Phase 3 (Item 3, SC-3): Convert defective 065 citation
+
+- **File:** `.opencode/skills/verification/tasks/verify.md`
+- **Section:** Line 65 "(per 065-verification-honesty.md)".
+- **Path:** Convert the citation to the imperative `Read [Text](...)` form referencing the
+  consolidated content (or the 065 guideline).
+
+### Phase 4 (Item 4, SC-4): Verify no routing regression
+
+- **Path:** Capture and diff the Trigger Dispatch Table / Invocation before/after — no file
+  modification.
+
+### Phase 5 (Item 5, SC-5): Verify verification-honesty core preserved
+
+- **Path:** Confirm `065-verification-honesty.md` core (never-rely-on-memory + pre-response
+  gate) is not removed and this spec does not modify 065 — no file modification.
+
+## Code Paths NOT Touched
+
+- `.opencode/skills/verification/tasks/completion.md` — unchanged (not a primary insertion
+  point).
+- `.opencode/guidelines/065-verification-honesty.md` — unchanged (separate 2349 condensation).
+- `.opencode/guidelines/075-docs-verification.md` — unchanged (separate 2353 condensation).
+- `.opencode/guidelines/130-authority-source.md` — unchanged (separate 2356 condensation).
+- `.opencode/skills/verification-before-completion/` and
+  `.opencode/skills/verification-enforcement/` — unchanged (consistency-checked only).
+- `opencode.jsonc` preload array — unchanged (separate config scope).
+
+## Conclusion
+
+The code path inventory is minimal: the verification skill card (SKILL.md) and the
+verify/verify-single task cards are edited; the remaining phases are verification-only.
+Guidelines and downstream skills are not modified.

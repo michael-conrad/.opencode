@@ -1,0 +1,32 @@
+# Code Path Inventory — .opencode#2371
+# Topic: Add mandatory Read-link to discussion-mode-mandates.md in brainstorming skill card
+
+issue_number: 2371
+
+## Code Paths Touched by Each Phase
+
+### Phase 1 (Item 1, SC-1): Add imperative Read-link
+
+- **File:** `.opencode/skills/brainstorming/SKILL.md`
+- **Section:** `## Cross-References` (lines 154-156)
+- **Path:** Read the the Cross-References section, add the line
+  `Read [Text](.opencode/reference/discussion-mode-mandates.md)` to the shared-references
+  grouping, preserving existing Skills and Guidelines references.
+
+### Phase 2 (Item 2, SC-2): Verify target resolution
+
+- **Path:** Resolve the link target `.opencode/reference/discussion-mode-mandates.md` and
+  assert the file exists.
+
+## Code Paths NOT Touched
+
+- `.opencode/skills/brainstorming/tasks/*.md` (explore, top-down-analysis, enforcement,
+  cross-scope, completion) — unchanged.
+- `.opencode/skills/approval-gate/SKILL.md` — unchanged (its own discussion-mode link is the
+  scope of `.opencode#2366`/`.opencode#2358`).
+- `.opencode/guidelines/020-go-prohibitions.md` — unchanged (separate 020 condensation scope).
+
+## Conclusion
+
+The code path inventory is minimal: one section of one file is edited, plus one existence check
+on the dependency reference file.

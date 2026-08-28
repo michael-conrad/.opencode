@@ -1,0 +1,81 @@
+# Pre-Spec Inspection — .opencode#2372
+# Topic: Update verification skill — anchor verification-honesty & docs-verification
+# Analyzed: 2026-08-27
+
+issue_number: 2372
+repo: .opencode
+title: "[SPEC] Update verification skill — anchor verification-honesty & docs-verification"
+
+## Affected Files
+
+- `.opencode/skills/verification/SKILL.md` — the verification skill card. It currently
+  contains routing metadata (Trigger Dispatch Table, Invocation, Sub-Agent Routing,
+  DISPATCH_GATE) but has NO `## Cross-References` section. This is a candidate insertion
+  point for the mandatory authority-source Read-link.
+- `.opencode/skills/verification/tasks/verify.md` — the multi-claim verification task. It
+  currently references `065-verification-honesty.md` at line 65 ("FAIL is never downgraded
+  to PASS (per 065-verification-honesty.md)"). This is the candidate home for the
+  evidence-requirement examples + session-scoped verification detail consolidated from 065.
+- `.opencode/skills/verification/tasks/verify-single.md` — single-claim verification task.
+  Contains the FAIL-never-downgraded invariant (line 62). Candidate secondary home for
+  consolidated evidence-requirement detail.
+- `.opencode/skills/verification/tasks/completion.md` — completion task. Not a primary
+  insertion point; may receive a cross-reference to the consolidated content.
+
+## Existing Patterns and Conventions
+
+- **Read-Link Cross-Reference Rule** (AGENTS.md): agent-facing text MUST use the imperative
+  `Read [Text](path)` form for cross-references. Bare "see" citations are forbidden.
+- **Reference directory**: `.opencode/reference/` is the canonical home for shared reference
+  documents consumed via `Read [Text](path)` links (e.g. `cost-model-standards.md`,
+  `spec-structure-standards.md`, `skill-card-description-standards.md`).
+- **Related condensation specs** (same change family): `.opencode#2349` (condense 065,
+  move evidence examples + session-scoped detail to verification skills), `.opencode#2353`
+  (condense 075, move source-priority list to engineering-approach), `.opencode#2356`
+  (condense 130-authority-source, move drift protocol to engineering-approach/verification),
+  `.opencode#2365` (update engineering-approach skill — Read-link docs-verification &
+  data-integrity). Issue 2372 is the verification-skill companion to these.
+- **Skill card Cross-References section**: The standard location for skill cards to anchor
+  shared references and related guidelines (see engineering-approach 2365 pattern). The
+  verification skill card currently lacks this section.
+
+## Dependencies and Callers of Affected Symbols
+
+- The verification skill card is loaded via `skill({name: "verification"})` by the
+  orchestrator. Its task cards (`verify.md`, `verify-single.md`, `completion.md`) are
+  dispatched to sub-agents via `task()`.
+- **Dependency (downstream consumers)**: `verification-before-completion` and
+  `verification-enforcement` skills both reference `065-verification-honesty.md` and consume
+  verification-honesty content. The verification skill becoming the canonical home for the
+  evidence-requirement examples + session-scoped detail must not break these consumers.
+- **Dependency (upstream)**: `.opencode#2349` (065 condensation) and `.opencode#2356`
+  (130-authority-source condensation) depend on the verification skill being updated first
+  (this spec). The authority-source shared content that 2372 Read-links is the deliverable
+  of the 130 condensation effort (2356) — a dependency relationship.
+
+## Current State Verification
+
+- `read` of `.opencode/skills/verification/SKILL.md`: NO `## Cross-References` section exists.
+  The card has Overview, Worktree Mode, Mandatory Task Discipline, Pre-Flight Guard, Trigger
+  Dispatch Table, Persona, Tasks, ClaimResult Schema, Invocation, Sub-Agent Routing,
+  DISPATCH_GATE. No authority-source Read-link present.
+- `read` of `.opencode/skills/verification/tasks/verify.md`: references
+  `065-verification-honesty.md` at line 65 via a "per 065" citation (non-imperative). No
+  consolidated evidence-requirement examples or session-scoped verification detail block.
+- `grep` for `authority-source|authority_source|130-authority-source` in
+  `.opencode/skills/verification/`: NO matches — the verification skill has no authority-source
+  reference today.
+- `find` for `authority-source-shared.md` / `reference/*authority*` in `.opencode/reference/`:
+  NOT FOUND — no authority-source shared reference file exists yet. It is a deliverable of the
+  130 condensation effort (`.opencode#2356`).
+
+## Inspection Conclusion
+
+Multi-file, single-concern change within the verification skill: (1) make the verification
+skill the authoritative source for the 065 evidence-requirement examples + session-scoped
+verification detail (anchored in the verify/verify-single task cards, and/or a shared
+reference consumed via Read-link), and (2) add a mandatory `Read [Text](path)` link to the
+authority-source shared content. The change is contained to the verification skill surface.
+External dependencies: the 065 condensation (2349) and 130-authority-source condensation (2356)
+which this spec enables, and the authority-source shared reference file (2356 deliverable) that
+the Read-link targets.
