@@ -1,0 +1,16 @@
+concern_map:
+  issue: 2369
+  concerns:
+    - concern: "Consumer Read-link wiring"
+      phase: 1
+      separation: "The programming-principles SKILL.md independently Read-links both shared references. No card inlines the content."
+      boundaries:
+        - "The skill card references the shared references — it does not duplicate their content."
+        - "The shared references are the single canonical source; this card is one of several independent consumers."
+    - concern: "Concern boundary (no guideline modification)"
+      phase: 1
+      separation: "The change is limited to the programming-principles SKILL.md. Guidelines 080 and 090 are untouched."
+      boundaries:
+        - "080-code-standards.md and 090-data-integrity.md are NOT modified by this spec."
+        - "Guideline condensation is sibling work (#2352 for 080, #2363 for 090)."
+  separation_principle: "Single source of truth (shared references) + dynamic loading (Read [Text](path)) — no content duplication across cards, and no guideline modification in the consumer-anchoring spec."

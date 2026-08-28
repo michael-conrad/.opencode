@@ -1,0 +1,18 @@
+consultation_timestamp: "2026-08-27T20:00:00Z"
+issue: 2369
+research_cards_consulted:
+  - name: cross-reference-form-comparison
+    path: ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
+    confidence: 0.95
+    relevance: "Directly relevant — the spec mandates Read [Text](path) links on the programming-principles skill card. The card proves the inline-link form is the only viable cross-reference pattern (100% Tier 1 access rate vs 42-58% for resolution-table forms)."
+    findings_incorporated:
+      - "Use the inline `Read [Text](path)` form for the mandatory Read-links — never a resolution table or bare §Name reference."
+      - "The verb 'Read' in the Read [Text](path) pattern is the mandated form per the Read-Link Cross-Reference Rule in AGENTS.md."
+  - name: spec-writing-ai-agents-opencode-skill-architecture
+    path: ".opencode/.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md"
+    confidence: 0.90
+    relevance: "General skill-card architecture context — confirms skill card vs task card division and that shared references are consumed via Read-link."
+    findings_incorporated:
+      - "Shared reference documents live in .opencode/reference/ and are consumed via Read [Text](path) — never re-inlined."
+no_matching_card: false
+finding: "cross-reference-form-comparison (confidence 0.95) directly supports the spec's Read-link approach. No additional research dispatch needed."

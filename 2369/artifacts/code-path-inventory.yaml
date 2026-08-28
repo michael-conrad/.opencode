@@ -1,0 +1,15 @@
+code_path_inventory:
+  issue: 2369
+  phases:
+    - phase: 1
+      name: "Add Read-links to programming-principles SKILL.md"
+      code_paths:
+        - path: ".opencode/skills/programming-principles/SKILL.md"
+          action: "modify (add Read-links to code-standards-shared.md and data-integrity-shared.md, following the engineering-approach ## Cross-References pattern)"
+  related_paths_not_modified:
+    - ".opencode/skills/engineering-approach/SKILL.md (reference pattern only — not modified by this spec)"
+    - ".opencode/reference/code-standards-shared.md (created by #2362, not this spec)"
+    - ".opencode/reference/data-integrity-shared.md (created by #2363, not this spec)"
+    - ".opencode/guidelines/080-code-standards.md (condensation is #2352, not this spec)"
+    - ".opencode/guidelines/090-data-integrity.md (condensation is sibling work, not this spec)"
+    - ".opencode/opencode.jsonc (preload array unchanged by this spec)"

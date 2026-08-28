@@ -1,0 +1,10 @@
+testability_assessment:
+  issue: 2369
+  phases:
+    - phase: 1
+      name: "Add Read-links to programming-principles SKILL.md"
+      test_strategy: "structural"
+      verification_method: "Grep the programming-principles SKILL.md for the Read [Text](reference/code-standards-shared.md) and Read [Text](reference/data-integrity-shared.md) links. Grep for the forbidden 'See ...' form to assert absence."
+      test_type: "structural"
+      rationale: "The deliverable is a static Read-link addition to a skill card. Verification is string grep for the link presence and the absence of the forbidden 'See ...' form — no runtime behavior."
+  overall: "Both SCs (SC-1, SC-2) are structural string greps. SC-3 is a git-diff verification of the concern boundary. No behavioral or integration testing required — the change is a static documentation reference addition."

@@ -1,0 +1,12 @@
+blast_radius:
+  issue: 2369
+  phases:
+    - phase: 1
+      name: "Add Read-links to programming-principles SKILL.md"
+      affected_components:
+        - ".opencode/skills/programming-principles/SKILL.md"
+      ripple_effects:
+        - "Sub-agents dispatched to programming-principles tasks gain on-demand access to code-standards-shared.md and data-integrity-shared.md procedural content"
+        - "SKILL.md gains an explicit dependency on the two shared references"
+      risk: "Low — additive Read-link additions; no content removal or reorganization"
+  overall_blast_radius: "Confined to .opencode/skills/programming-principles/SKILL.md. No source code, tests, runtime behavior, or other skill cards affected. The shared reference files (code-standards-shared.md, data-integrity-shared.md) are created by sibling specs #2362/#2363 and are not modified here."
