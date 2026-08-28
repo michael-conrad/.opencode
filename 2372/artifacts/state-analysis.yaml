@@ -1,0 +1,45 @@
+artifact_name: state-analysis
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "State transitions for files affected by the verification skill content anchoring"
+  transitions:
+    - entity: ".opencode/skills/verification/tasks/verify.md"
+      before: "No consolidated evidence-requirement examples or session-scoped verification detail; defective 'per 065-verification-honesty.md' citation at line 65"
+      after: "Contains consolidated evidence-requirement examples (SC-1) + session-scoped verification detail (SC-2); defective citation converted to the imperative Read-link form (SC-4)"
+      phase: 1
+    - entity: ".opencode/skills/verification/tasks/verify-single.md"
+      before: "No consolidated evidence-requirement examples or session-scoped verification detail"
+      after: "Contains consolidated evidence-requirement examples (SC-1) + session-scoped verification detail (SC-2)"
+      phase: 1
+    - entity: ".opencode/skills/verification/SKILL.md"
+      before: "No authority-source Read-link in Cross-References; routing metadata as-is"
+      after: "Contains mandatory Read [Text](path) link to the authority-source shared content (SC-3); routing metadata unchanged (SC-5)"
+      phase: 2
+    - entity: ".opencode/reference/authority-source.md"
+      before: "Does not exist (created by issue #2356)"
+      after: "Exists (created by #2356) — the link target; this spec does not create it"
+      phase: 2
+      dependency: ".opencode#2356"
+    - entity: ".opencode/guidelines/065-verification-honesty.md"
+      before: "Contains evidence-requirement examples + session-scoped detail + zero-tolerance core"
+      after: "Unchanged by this spec (R-11); zero-tolerance core intact (SC-6). Content may later be condensed by #2349."
+      phase: 3
+  checkpoint_tags:
+    - tag: "feature/2372-verification-anchor/checkpoint/phase-1-main"
+      phase: 1
+      description: "After the consolidated 065 content is anchored in verify/verify-single task cards"
+    - tag: "feature/2372-verification-anchor/checkpoint/phase-2-main"
+      phase: 2
+      description: "After the authority-source Read-link is added and the defective citation is converted"
+  solve_state:
+    state_file: "{project_root}/tmp/2372/state/"
+    contract_path: "skills/implementation-pipeline/pipeline-state-machine.yaml"
+    phase_variables:
+      - name: phase_1
+        value: pending
+      - name: phase_2
+        value: pending
+      - name: phase_3
+        value: pending
+    verification: "solve check after phase update"

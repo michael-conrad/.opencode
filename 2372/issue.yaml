@@ -1,5 +1,6 @@
 number: 2372
-title: '[SPEC] Update verification skill — anchor verification-honesty & docs-verification'
+title: '[SPEC] Update verification skill — anchor verification-honesty & authority-source
+  link'
 status: open
 labels:
 - needs-approval
@@ -32,7 +33,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   Enables 065 + 075 condensation. Risk: low. Depends on 065/075. Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-28T02:21:58+00:00'
+updated_at: '2026-08-28T02:33:48+00:00'
 remote_issue: 2372
 remote_url: https://github.com/michael-conrad/.opencode/issues/2372
 promoted_at: '2026-08-27T03:25:12.698965+00:00'

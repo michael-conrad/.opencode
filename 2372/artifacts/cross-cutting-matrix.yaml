@@ -1,0 +1,68 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "Cross-cutting concerns across the phases, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1
+      name: "The verification skill (verify/verify-single task cards) contains the consolidated evidence-requirement examples currently in 065-verification-honesty.md"
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home dispatching the verification skill, asserting the agent reads the consolidated evidence-requirement examples; supplementary grep for the consolidated evidence block in verify.md"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Add the consolidated evidence-requirement examples to the verify/verify-single task cards"
+    - sc_id: SC-2
+      name: "The verification skill (verify/verify-single task cards) contains the session-scoped verification detail currently in 065-verification-honesty.md"
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home dispatching the verification skill, asserting the agent reads the session-scoped verification detail; supplementary grep for the session-scoped block in verify.md"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Add the session-scoped verification detail to the verify/verify-single task cards"
+    - sc_id: SC-3
+      name: "The verification skill contains a mandatory Read [Text](path) link to the authority-source shared content, using the imperative form"
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home asserting the agent reads the authority-source shared content; supplementary grep for Read.*authority-source in SKILL.md"
+      phases_affected:
+        - 2
+      verification_gate: post-implementation
+      remediation: "Add the mandatory Read [Text](path) link to the authority-source shared content"
+    - sc_id: SC-4
+      name: "The defective 'per 065-verification-honesty.md' citation in verify.md is converted to the imperative Read-link form referencing the consolidated content"
+      evidence_type: string
+      verification_method: "grep verify.md for the imperative Read [Text](...) form replacing the 'per 065' citation"
+      phases_affected:
+        - 2
+      verification_gate: pre-commit
+      remediation: "Convert the citation to the imperative Read-link form"
+    - sc_id: SC-5
+      name: "The verification skill's Trigger Dispatch Table, Invocation, and routing metadata remain unchanged"
+      evidence_type: structural
+      verification_method: "diff the Trigger Dispatch Table / Invocation before/after the edits"
+      phases_affected:
+        - 3
+      verification_gate: post-implementation
+      remediation: "Revert any routing-metadata change and re-apply additive-only edits"
+    - sc_id: SC-6
+      name: "The verification-honesty zero-tolerance core is not lost; this spec does not modify 065-verification-honesty.md"
+      evidence_type: structural
+      verification_method: "confirm the 065 core (never-rely-on-memory + pre-response gate) is intact and 065 is not modified by this spec"
+      phases_affected:
+        - 3
+      verification_gate: post-implementation
+      remediation: "Do not modify 065 (owned by the 2349 condensation scope)"
+  cross_cutting_verification_gates:
+    - gate: pre-commit
+      scs:
+        - SC-4
+    - gate: post-implementation
+      scs:
+        - SC-1
+        - SC-2
+        - SC-3
+        - SC-5
+        - SC-6
+  dependency_gate:
+    description: "SC-1/SC-2 depend on issue #2349 not having removed the 065 content before the skill anchors it. SC-3 depends on issue #2356 delivering the authority-source shared reference (or it is created in the same change set). Until these land, the affected SCs are FAIL."
+    dependency: ".opencode#2349, .opencode#2356"

@@ -1,0 +1,52 @@
+artifact_name: concern-map
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "Concern-to-phase mapping for the verification skill content anchoring"
+  phases:
+    - phase: 1
+      name: "Anchor evidence-requirement examples + session-scoped verification detail in verify/verify-single task cards"
+      concern: "Make the verification skill the authoritative source for 065 evidence content"
+      scs:
+        - SC-1
+        - SC-2
+      dependencies:
+        - "Issue #2349 (065 condensation) must not have removed the content before the skill anchors it"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "Consolidated evidence-requirement examples present in verify/verify-single task cards"
+        - "Session-scoped verification detail present in verify/verify-single task cards"
+    - phase: 2
+      name: "Add mandatory authority-source Read-link + convert defective citation"
+      concern: "Wire the authority-source (130) shared content via the imperative Read-link form"
+      scs:
+        - SC-3
+        - SC-4
+      dependencies:
+        - "Issue #2356 (130 condensation) must deliver the authority-source shared reference, or it is created in the same change set"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "Mandatory Read [Text](path) link to authority-source shared content present"
+        - "Defective 'per 065' citation converted to the imperative Read-link form"
+    - phase: 3
+      name: "Verify routing metadata preserved and verification-honesty core intact"
+      concern: "Regression guards for routing metadata and zero-tolerance core"
+      scs:
+        - SC-5
+        - SC-6
+      dependencies:
+        - "None"
+      dispatch: "step-level (verification only)"
+      key_deliverables:
+        - "Trigger Dispatch Table / Invocation unchanged"
+        - "065 zero-tolerance core intact; 065 not modified"
+  concern_to_phase_mapping:
+    "065 content anchoring": 1
+    "authority-source Read-link": 2
+    "citation conversion": 2
+    "regression guards": 3
+  phase_independence:
+    description: "Phase 1 and Phase 2 are sequential (Phase 2's citation conversion references the consolidated content anchored in Phase 1). Phase 3 is verification-only."
+    independent_phases: []
+    prerequisite_phase: "Phase 1 before Phase 2"
+    dependent_phase: "Phase 2 depends on Phase 1"

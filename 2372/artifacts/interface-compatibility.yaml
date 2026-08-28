@@ -1,0 +1,33 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "Interface boundaries and compatibility analysis for the verification skill content anchoring"
+  regression_invariants:
+    - invariant: "The verification skill's Trigger Dispatch Table, Invocation, and routing metadata are UNCHANGED"
+      verification: "Structural diff (SC-5) — edits are additive-only"
+    - invariant: "The verification-honesty zero-tolerance core (never-rely-on-memory + pre-response gate) is NOT lost"
+      verification: "Structural check (SC-6) — 065 is not modified by this spec"
+    - invariant: "065, 075, and 130 guidelines are NOT modified by this spec (separate condensation scopes 2349/2353/2356)"
+      verification: "R-11 — out-of-scope boundary"
+    - invariant: "The authority-source Read-link uses the imperative Read [Text](path) form"
+      verification: "SC-3 grep for Read.*authority-source"
+  interface_boundaries:
+    skill_calls:
+      status: "UNCHANGED"
+      description: "skill({name: 'verification'}) continues to work — the content anchoring is additive, not structural"
+    task_calls:
+      status: "UNCHANGED"
+      description: "task(..., prompt: 'execute <task> from verification') continues to work — routing metadata preserved (SC-5)"
+    downstream_consumers:
+      status: "CONSISTENCY-CHECKED (not modified)"
+      description: "verification-before-completion / verification-enforcement must continue to resolve their 065 references after content relocation (R-10)"
+    reference_link:
+      status: "NEW (additive)"
+      description: "Cross-References section gains a mandatory Read [Text](path) link to the authority-source shared content"
+      dependency: "Issue #2356 must deliver the authority-source shared reference before the link resolves"
+    external_interface_impact:
+      skill_api: "NONE — skill() calls unchanged"
+      task_api: "NONE — task() calls unchanged"
+      cross_references: "ADDITIVE — one new authority-source Read-link + consolidated content in task cards"
+      user_facing: "NONE — no user-facing API changes"

@@ -1,0 +1,35 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  spec_path: ".opencode/.issues/2372/spec.md"
+  sc_count: 6
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: |
+    Spec #2372 makes the verification skill (.opencode/skills/verification/) the
+    authoritative source for the verification-honesty (065) evidence-requirement
+    examples and session-scoped verification detail by anchoring that content in the
+    verify/verify-single task cards (SC-1, SC-2). It adds a mandatory Read [Text](path)
+    link to the authority-source (130) shared content (SC-3), converts the defective
+    "per 065-verification-honesty.md" citation in verify.md to the imperative Read-link
+    form (SC-4), and preserves the skill's routing metadata (SC-5) and the
+    verification-honesty zero-tolerance core (SC-6). 075-docs-verification is explicitly
+    out of scope (Not Included, R-11) — no SC anchors 075 content. 6 SCs: SC-1/SC-2/SC-3
+    behavioral, SC-4 string, SC-5/SC-6 structural.
+  dependencies_noted: |
+    - .opencode#2349 (065-verification-honesty condensation): SC-1/SC-2 content anchoring
+      is gated on the 065 condensation not having already removed the content before the
+      skill anchors it.
+    - .opencode#2356 (130-authority-source condensation): SC-3's Read-link targets the
+      authority-source shared content deliverable of this condensation. SC-3 verification
+      is blocked until the shared reference exists, or the reference is created in the
+      same change set.
+    - .opencode#2353 (075-docs-verification condensation): related change family; not
+      directly modified by this spec.

@@ -1,0 +1,51 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "Code paths implied by each SC"
+  sc_1_paths:
+    - path: ".opencode/skills/verification/tasks/verify.md"
+      section: "task card"
+      change: "Add consolidated evidence-requirement examples (What COUNTS as Evidence / NOT Evidence)"
+      verification: "opencode run behavioral test dispatching the verification skill; grep for the consolidated evidence block in verify.md"
+    - path: ".opencode/skills/verification/tasks/verify-single.md"
+      section: "task card"
+      change: "Add consolidated evidence-requirement examples"
+      verification: "grep for the consolidated evidence block in verify-single.md"
+  sc_2_paths:
+    - path: ".opencode/skills/verification/tasks/verify.md"
+      section: "task card"
+      change: "Add session-scoped verification detail (Session-Scoped Verification section)"
+      verification: "opencode run behavioral test dispatching the verification skill; grep for the session-scoped block in verify.md"
+    - path: ".opencode/skills/verification/tasks/verify-single.md"
+      section: "task card"
+      change: "Add session-scoped verification detail"
+      verification: "grep for the session-scoped block in verify-single.md"
+  sc_3_paths:
+    - path: ".opencode/skills/verification/SKILL.md"
+      section: "Cross-References"
+      change: "Add mandatory Read [Text](path) link to the authority-source shared content"
+      verification: "opencode run behavioral test asserting the agent reads the authority-source shared content; grep for Read.*authority-source in SKILL.md"
+    - path: ".opencode/reference/authority-source.md"
+      section: "link target"
+      change: "Created by issue #2356 — must exist for the link to resolve"
+      verification: "path-resolution check confirms link resolves to this file"
+  sc_4_paths:
+    - path: ".opencode/skills/verification/tasks/verify.md"
+      section: "line 65"
+      change: "Convert the defective 'per 065-verification-honesty.md' citation to the imperative Read [Text](...) form"
+      verification: "grep verify.md for the imperative Read [Text](...) form replacing the 'per 065' citation"
+  sc_5_paths:
+    - path: ".opencode/skills/verification/SKILL.md"
+      section: "Trigger Dispatch Table / Invocation"
+      change: "Unchanged (additive-only edits; no routing regression)"
+      verification: "structural diff of Trigger Dispatch Table / Invocation before/after"
+  sc_6_paths:
+    - path: ".opencode/guidelines/065-verification-honesty.md"
+      section: "zero-tolerance core"
+      change: "Unchanged — this spec MUST NOT modify 065; core (never-rely-on-memory + pre-response gate) intact"
+      verification: "structural check confirms 065 core intact and 065 not modified"
+  authority_source:
+    path: ".opencode/guidelines/130-authority-source.md"
+    section: "dual-authority / code-as-authoritative-source"
+    role: "Source of the authority-source shared content the Read-link targets (SC-3)"

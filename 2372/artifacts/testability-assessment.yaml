@@ -1,0 +1,31 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-27
+source: "Spec #2372"
+content:
+  description: "Evidence type and verification method assignment for each SC"
+  assignments:
+    - sc_id: SC-1
+      criterion: "The verification skill (verify/verify-single task cards) contains the consolidated evidence-requirement examples currently in 065-verification-honesty.md, establishing the skill as the authoritative source."
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home dispatching the verification skill, asserting the agent reads the consolidated evidence-requirement examples; supplementary grep for the consolidated evidence block in verify.md"
+    - sc_id: SC-2
+      criterion: "The verification skill (verify/verify-single task cards) contains the session-scoped verification detail currently in 065-verification-honesty.md, establishing the skill as the authoritative source."
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home dispatching the verification skill, asserting the agent reads the session-scoped verification detail; supplementary grep for the session-scoped block in verify.md"
+    - sc_id: SC-3
+      criterion: "The verification skill contains a mandatory Read [Text](path) link to the authority-source shared content, using the imperative form."
+      evidence_type: behavioral
+      verification_method: "opencode run via with-test-home asserting the agent reads the authority-source shared content; supplementary grep for Read.*authority-source in SKILL.md"
+    - sc_id: SC-4
+      criterion: "The defective 'per 065-verification-honesty.md' citation in verify.md is converted to the imperative Read-link form referencing the consolidated content anchored in the verify/verify-single task cards."
+      evidence_type: string
+      verification_method: "grep verify.md for the imperative Read [Text](...) form replacing the 'per 065' citation"
+    - sc_id: SC-5
+      criterion: "The verification skill's Trigger Dispatch Table, Invocation, and routing metadata remain unchanged (no routing regression)."
+      evidence_type: structural
+      verification_method: "diff the Trigger Dispatch Table / Invocation before/after the edits"
+    - sc_id: SC-6
+      criterion: "The verification-honesty zero-tolerance core (never-rely-on-memory + pre-response factual-claim gate) is not lost; this spec does not modify 065-verification-honesty.md."
+      evidence_type: structural
+      verification_method: "confirm the 065 core (never-rely-on-memory + pre-response gate) is intact and 065 is not modified by this spec"
+  note: "SC-1/SC-2/SC-3 are `behavioral` and require opencode run with stderr assertion. SC-4 is `string` (grep/pattern-matching for content presence). SC-5/SC-6 are `structural` (diff / file-existence checks). SC-1/SC-2 have a hard prerequisite: the 065 content must still exist (issue #2349 must not have removed it before the skill anchors it). SC-3 has a hard prerequisite: the authority-source shared reference must exist (issue #2356), or it is created in the same change set."

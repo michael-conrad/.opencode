@@ -1,4 +1,4 @@
-# [SPEC] Update verification skill — anchor verification-honesty & docs-verification
+# [SPEC] Update verification skill — anchor verification-honesty & authority-source link
 
 > **Full spec and artifacts: [`.issues/2372/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2372/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
@@ -32,7 +32,7 @@ Make the verification skill the authoritative source for the 065 evidence-requir
 
 ### User Intent / Original Prompt
 
-Update the verification skill to anchor verification-honesty (065) and docs-verification (075) content, making the skill the canonical home and adding the mandatory authority-source Read-link, as the companion to the 065/075/130 condensation specs (2349, 2353, 2356).
+Update the verification skill to anchor verification-honesty (065) content, making the skill the canonical home and adding the mandatory authority-source (130) Read-link, as the companion to the 065/130 condensation specs (2349, 2356).
 
 ## 2. Not Included
 
@@ -214,6 +214,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-27 | Decomposed SC-1 into atomic SC-1 (evidence-requirement examples) and SC-2 (session-scoped verification detail); pinned the anchoring location to the `verify`/`verify-single` task cards (removed the "or a shared reference" open option); renumbered downstream SCs (SC-3 authority-source Read-link, SC-4 citation conversion, SC-5 routing metadata, SC-6 core preservation). Removed the "or otherwise resolved" escape hatch from the citation SC and pinned its resolution to the consolidated content anchored in the task cards. Defined the SC-6 zero-tolerance boundary in-spec (never-rely-on-memory + pre-response gate; this spec MUST NOT modify 065) instead of referencing external spec 2349. Updated Items, Traceability, Cost Frame, Edge Cases, and Invariants to match the revised atomic SC set. | Validation findings: Aggregate FAIL on determinism/escape-hatch/compound-SC grounds — (1) SC-1 anchoring location open + bundled content items; (2) SC-3 resolution open + second consumption target; (3) SC-5 external-authorization boundary not in-spec. | spec-creation validation gate (pipeline-initiated non-substantive revision) |
+| 2026-08-27 | Removed the docs-verification (075) anchoring claim from the spec title and User Intent. The title and User Intent previously claimed the spec anchors 075 content, but no SC delivers 075 anchoring — SC-1/SC-2 anchor 065 content only, SC-3 adds the authority-source (130) Read-link, and 075 is explicitly out of scope (Not Included, R-11). The intent now accurately reflects what the SCs deliver: 065 anchoring + 130 authority-source link. | Validation findings: Aggregate FAIL on the Correctness dimension — preamble/intent-vs-SCs mismatch (075 anchoring claimed but not delivered by any SC). Resolved via option (a): remove the 075 claim from title and User Intent to match actual scope. | spec-creation validation gate (pipeline-initiated non-substantive revision) |
 
 ---
 
