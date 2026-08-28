@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "000-critical-rules.md condensed by removing movable standalone procedural sections and replacing with Read [Text](path) links, with all critical-rules-XXX blocks byte-identical"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Mandate-tiering content hosted canonically in approval-gate skill card, referenced via Read [Text](path) link"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Channel-routing content hosted canonically in issue-operations-comments skill card, referenced via Read [Text](path) link"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "000-critical-rules.md remains in opencode.jsonc instructions array; human-only-merge and no-self-authorization rules unchanged"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Behavioral enforcement test confirms agent enforces retained safety cores and loads relocated content via Read-link"
+    evidence_type: "behavioral"
+    plan_item: 5

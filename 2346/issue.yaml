@@ -1,7 +1,9 @@
 number: 2346
 title: '[SPEC] Condense 000-critical-rules.md — retain safety-critical cores only'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '> Full spec and artifacts will be linked once local setup is complete.
 
 
@@ -41,7 +43,7 @@ body: '> Full spec and artifacts will be linked once local setup is complete.
 
   - Action: approve to enable the condensation spec pipeline.'
 created_at: '2026-08-27T03:13:52Z'
-updated_at: '2026-08-27T03:13:52Z'
+updated_at: '2026-08-28T03:37:28+00:00'
 remote_issue: 2346
 remote_url: https://github.com/michael-conrad/.opencode/issues/2346
 promoted_at: '2026-08-27T03:25:12.649724+00:00'
