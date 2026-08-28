@@ -1,4 +1,4 @@
-sc_count: 13
+sc_count: 15
 scs:
   - id: "SC-1"
     description: "Retain zero-tolerance core (Zero Tolerance Rule unchanged in substance)"
@@ -29,26 +29,34 @@ scs:
     evidence_type: "string"
     plan_item: 7
   - id: "SC-5c"
-    description: "Remove '🚫 FORBIDDEN' and '✅ REQUIRED' lists from guideline"
+    description: "Remove '🚫 FORBIDDEN' lists from guideline"
     evidence_type: "string"
     plan_item: 8
+  - id: "SC-5d"
+    description: "Remove '✅ REQUIRED' lists from guideline"
+    evidence_type: "string"
+    plan_item: 9
   - id: "SC-6"
     description: "Verification skill contains relocated evidence examples/detail (single canonical home: .opencode/skills/verification/SKILL.md)"
     evidence_type: "string"
-    plan_item: 9
+    plan_item: 10
   - id: "SC-7"
     description: "Add Read [Text](path) links from guideline to verification skills"
     evidence_type: "string"
-    plan_item: 10
+    plan_item: 11
   - id: "SC-8"
     description: "Enforcement test test-verification-honesty.sh still passes static checks"
     evidence_type: "string"
-    plan_item: 11
+    plan_item: 12
   - id: "SC-9"
     description: "Achieve token savings of at least 0.7k tokens (explicit minimum reduction threshold)"
     evidence_type: "string"
-    plan_item: 12
+    plan_item: 13
   - id: "SC-10"
     description: "Agents still follow the honesty core behaviorally after condensation"
     evidence_type: "behavioral"
-    plan_item: 13
+    plan_item: 14
+  - id: "SC-11"
+    description: "opencode.jsonc instructions array entry for the guideline remains unchanged (config preload retention)"
+    evidence_type: "string"
+    plan_item: 15

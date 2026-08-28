@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Five-tier hierarchy relocated out of guideline §1 to Read-link; skill card is single source of truth; behavioral test proves routing."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Glob semantics (LIM-1..6, path-parameter idiom, empty-result rule) relocated to a sub-agent-readable file (task card or dedicated reference), NOT the SKILL.md card; guideline §2 condensed to pointer; behavioral test proves canonical glob invocation."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "All zero-tolerance safety cores retained verbatim in guideline; opencode.jsonc array entry unchanged."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Measurable token reduction of guideline from ~4.1k toward ~1.2k while retaining safety cores."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "All 8 downstream Read-links updated to new glob-semantics location; zero stale references."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Behavioral enforcement test proves relocated tool routing still works (RED/GREEN); Triple Co-Application compliance for edited agent-facing text."
+    evidence_type: "behavioral"
+    plan_item: 6

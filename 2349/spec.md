@@ -38,12 +38,14 @@
 | SC-4 | The guideline SHALL remove the inline 'What COUNTS as Evidence' ✅/❌ tables. | string | grep the 'What COUNTS as Evidence' table headers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
 | SC-5a | The guideline SHALL remove the '## Evidence Requirement' bullets that are not part of the retained core or gate. | string | grep '## Evidence Requirement' markers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
 | SC-5b | The guideline SHALL remove the '## No Exceptions' section that is not part of the retained core or gate. | string | grep '## No Exceptions' markers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
-| SC-5c | The guideline SHALL remove the '🚫 FORBIDDEN' and '✅ REQUIRED' lists that are not part of the retained core or gate. | string | grep '🚫 FORBIDDEN' and '✅ REQUIRED' list markers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
+| SC-5c | The guideline SHALL remove the '🚫 FORBIDDEN' lists that are not part of the retained core or gate. | string | grep '🚫 FORBIDDEN' list markers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
+| SC-5d | The guideline SHALL remove the '✅ REQUIRED' lists that are not part of the retained core or gate. | string | grep '✅ REQUIRED' list markers absent from the guideline | `.opencode/guidelines/065-verification-honesty.md` |
 | SC-6 | The verification skill SHALL contain the relocated evidence examples/detail (single canonical home: `.opencode/skills/verification/SKILL.md`). | string | grep evidence examples present in `.opencode/skills/verification/SKILL.md` | `.opencode/skills/verification/SKILL.md` |
 | SC-7 | The guideline SHALL use mandatory `Read [Text](path)` links to the verification skills for relocated detail. | string | grep 'Read [' in guideline pointing to verification skills | `.opencode/guidelines/065-verification-honesty.md` |
 | SC-8 | The enforcement test `.opencode/tests-v2/test-verification-honesty.sh` SHALL still pass its static content checks (SC-001..SC-005). | string | run static grep checks of test-verification-honesty.sh | `.opencode/tests-v2/test-verification-honesty.sh` |
 | SC-9 | The guideline token/line count SHALL be reduced by at least 0.7k tokens (explicit minimum reduction threshold). | string | measure token count before vs after; assert reduction ≥ 0.7k tokens | `.opencode/guidelines/065-verification-honesty.md` |
 | SC-10 | Agents SHALL still follow the honesty core (never-rely-on-memory) after condensation. | behavioral | behavioral scenario via opencode run (with-test-home harness) asserting honesty compliance on a real-domain prompt | `.opencode/guidelines/065-verification-honesty.md`, `.opencode/tests-v2/` |
+| SC-11 | The opencode.jsonc instructions array entry for the guideline SHALL remain unchanged (config preload retention). | string | grep the guideline's instructions-array entry unchanged in opencode.jsonc | `.opencode/opencode.jsonc` |
 
 ## 4. Requirements
 
@@ -108,47 +110,61 @@
 - verify: grep the '## No Exceptions' markers absent from the guideline.
 - commit: guideline edit.
 
-### Item 8 (SC-5c): Remove FORBIDDEN/REQUIRED lists
+### Item 8 (SC-5c): Remove FORBIDDEN lists
 
-- RED: grep asserts the '🚫 FORBIDDEN' and '✅ REQUIRED' lists are no longer inline — fails if retained.
-- GREEN: remove the '🚫 FORBIDDEN' and '✅ REQUIRED' lists from the guideline, preserving the retained core and gate.
-- verify: grep the '🚫 FORBIDDEN' and '✅ REQUIRED' markers absent from the guideline.
+- RED: grep asserts the '🚫 FORBIDDEN' lists are no longer inline — fails if retained.
+- GREEN: remove the '🚫 FORBIDDEN' lists from the guideline, preserving the retained core and gate.
+- verify: grep the '🚫 FORBIDDEN' markers absent from the guideline.
 - commit: guideline edit.
 
-### Item 9 (SC-6): Add relocated evidence content to the verification skill
+### Item 9 (SC-5d): Remove REQUIRED lists
+
+- RED: grep asserts the '✅ REQUIRED' lists are no longer inline — fails if retained.
+- GREEN: remove the '✅ REQUIRED' lists from the guideline, preserving the retained core and gate.
+- verify: grep the '✅ REQUIRED' markers absent from the guideline.
+- commit: guideline edit.
+
+### Item 10 (SC-6): Add relocated evidence content to the verification skill
 
 - RED: grep relocated evidence examples present in `.opencode/skills/verification/SKILL.md` — fails if absent.
 - GREEN: add the relocated evidence examples/detail to the verification skill card (single canonical home).
 - verify: grep evidence examples present in `.opencode/skills/verification/SKILL.md`.
 - commit: skill card edit.
 
-### Item 10 (SC-7): Add Read-links from guideline to verification skills
+### Item 11 (SC-7): Add Read-links from guideline to verification skills
 
 - RED: grep 'Read [' in the guideline pointing to verification skills — fails if absent or wrong form.
 - GREEN: add `Read [Text](path)` links from the guideline to the verification skills for relocated detail.
 - verify: grep 'Read [' in guideline pointing to verification skills.
 - commit: guideline edit.
 
-### Item 11 (SC-8): Enforcement test still passes
+### Item 12 (SC-8): Enforcement test still passes
 
 - RED: run static grep checks of test-verification-honesty.sh — fails if any check breaks.
 - GREEN: condensation preserves all static content checks (SC-001..SC-005).
 - verify: run static grep checks of `.opencode/tests-v2/test-verification-honesty.sh`.
 - commit: no test change (or reconciled test update only if conflict C7 forces it).
 
-### Item 12 (SC-9): Achieve token savings ≥ 0.7k
+### Item 13 (SC-9): Achieve token savings ≥ 0.7k
 
 - RED: measure guideline token count — fails if not reduced by at least 0.7k tokens.
 - GREEN: condensation reduces the guideline size by ≥ 0.7k tokens while retaining the honesty core.
 - verify: measure token count before vs after; assert reduction ≥ 0.7k tokens.
 - commit: guideline edit.
 
-### Item 13 (SC-10): Behavioral honesty compliance
+### Item 14 (SC-10): Behavioral honesty compliance
 
 - RED: behavioral scenario (opencode run via with-test-home) shows an agent failing to follow the never-rely-on-memory core after condensation — fails.
 - GREEN: condensation preserves agent behavioral compliance with the honesty core.
 - verify: run behavioral scenario via opencode run (with-test-home) and inspect stderr for honesty-compliance agent actions.
 - commit: no source change (behavioral verification of retained core).
+
+### Item 15 (SC-11): Config preload retention
+
+- RED: grep asserts the guideline's opencode.jsonc instructions-array entry is unchanged — fails if the entry was removed or altered.
+- GREEN: leave the guideline's opencode.jsonc instructions-array entry unchanged.
+- verify: grep the guideline's instructions-array entry unchanged in opencode.jsonc.
+- commit: no config change.
 
 ## 6. Dependencies
 
@@ -163,11 +179,11 @@
 | R-1 | SC-9 | Phase 1 |
 | R-2 | SC-1, SC-10 | Phase 1, 3 |
 | R-3 | SC-2a, SC-2b | Phase 1 |
-| R-4 | SC-4, SC-5a, SC-5b, SC-5c | Phase 1 |
+| R-4 | SC-4, SC-5a, SC-5b, SC-5c, SC-5d | Phase 1 |
 | R-5 | SC-6 | Phase 2 |
 | R-6 | SC-3 | Phase 1 |
 | R-7 | SC-7 | Phase 2 |
-| R-8 | SC-1 | Phase 1 |
+| R-8 | SC-11 | Phase 1 |
 | R-9 | SC-8 | Phase 3 |
 
 ## 8. Documentation Sources
@@ -196,18 +212,20 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-4:** Verifying the evidence tables are removed costs one grep read. Skipping means the condensation is a no-op for the tables.
 - **SC-5a:** Verifying the Evidence Requirement bullets are removed costs one grep read. Skipping means the condensation is a no-op for the Evidence Requirement bullets.
 - **SC-5b:** Verifying the No Exceptions section is removed costs one grep read. Skipping means the condensation is a no-op for the No Exceptions section.
-- **SC-5c:** Verifying the FORBIDDEN/REQUIRED lists are removed costs one grep read. Skipping means no token savings and the condensation is a no-op for the FORBIDDEN/REQUIRED lists.
+- **SC-5c:** Verifying the FORBIDDEN lists are removed costs one grep read. Skipping means no token savings and the condensation is a no-op for the FORBIDDEN lists.
+- **SC-5d:** Verifying the REQUIRED lists are removed costs one grep read. Skipping means no token savings and the condensation is a no-op for the REQUIRED lists.
 - **SC-6:** Verifying the verification skill contains relocated content costs one grep read. Skipping means the detail is lost entirely (violates I1).
 - **SC-7:** Verifying the Read-links costs one grep read. Skipping means relocated detail is unreachable.
 - **SC-8:** Running the enforcement test costs minutes. Skipping means a regression in the honesty enforcement ships to production and costs 1000× more to fix.
 - **SC-9:** Verifying token savings costs one measurement. Skipping means the preload budget is not reclaimed.
 - **SC-10:** Running the behavioral honesty scenario costs minutes (with-test-home harness). Skipping means behavioral compliance with the retained honesty core is unverified — the static grep checks alone cannot confirm agents still follow the rule.
+- **SC-11:** Verifying the config preload entry is unchanged costs one grep read. Skipping means the preload mechanism is silently altered and the honesty core is no longer always-available.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** Empty guideline (nothing to condense) — not applicable; the guideline has substantive content.
-- **State transitions:** AS-IS → CONDENSED (SC-001..SC-005 must still pass; SC-4/SC-5a/SC-5b/SC-5c/SC-9 verify removal and savings); CONDENSED → SKILLS-UPDATED (relocated content present in the verification skill + Read-links); SKILLS-UPDATED → VERIFIED (enforcement test passes + behavioral honesty compliance).
-- **Failure modes:** If condensation removes the Session-Scoped Verification subsection → SC-004 FAIL (conflict C7). If skills updated without Read-links → relocated detail unreachable (SC-7 FAIL). If relocated detail lands in the wrong skill (not the canonical verification skill) → SC-6 FAIL. If token reduction is below the 0.7k minimum threshold → SC-9 FAIL (condensation incomplete). If behavioral honesty regresses after condensation → SC-10 FAIL.
+- **State transitions:** AS-IS → CONDENSED (SC-001..SC-005 must still pass; SC-4/SC-5a/SC-5b/SC-5c/SC-5d/SC-9 verify removal and savings); CONDENSED → SKILLS-UPDATED (relocated content present in the verification skill + Read-links); SKILLS-UPDATED → VERIFIED (enforcement test passes + behavioral honesty compliance).
+- **Failure modes:** If condensation removes the Session-Scoped Verification subsection → SC-004 FAIL (conflict C7). If skills updated without Read-links → relocated detail unreachable (SC-7 FAIL). If relocated detail lands in the wrong skill (not the canonical verification skill) → SC-6 FAIL. If token reduction is below the 0.7k minimum threshold → SC-9 FAIL (condensation incomplete). If behavioral honesty regresses after condensation → SC-10 FAIL. If the config preload entry is altered → SC-11 FAIL (preload mechanism changed).
 - **Concurrency:** No concurrent state; single-file documentation condensation.
 - **Recovery:** If a static check fails, restore the affected section; the enforcement test is the gate. If the behavioral honesty check fails, restore the procedural detail that supports the core until compliance is re-established.
 
@@ -215,6 +233,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 - **2026-08-28 — Revision (validation findings from spec validation):** Decomposed compound SC-4 into atomic SC-4 (remove evidence tables) + SC-5 (remove procedural detail); changed all grep-based SC evidence types from `structural` to `string`; made SC-6 deterministic (single canonical home: `.opencode/skills/verification/SKILL.md` instead of "at least one of"); defined explicit ≥0.7k minimum reduction threshold for token-savings SC-9; added behavioral SC-10 for the Tier 1 honesty core; added R-9 requirement tracing the enforcement-test SC (fixes orphan SC); updated Items (1:1 item-SC mapping, 10 items), Traceability, Cost Frame, and Edge Cases to match. Authorized by: spec-validation findings (aggregate FAIL on traceability, evidence-type, testability/determinism, and compound-SC defects).
 - **2026-08-28 — Revision (validation findings — compound-SC/atomicity):** Decomposed compound SC-2 into atomic SC-2a (retain Pre-Response Factual Claim Gate numbered procedure) + SC-2b (retain Halt Condition subsection); decomposed compound SC-5 into atomic SC-5a (remove Evidence Requirement bullets) + SC-5b (remove No Exceptions section) + SC-5c (remove FORBIDDEN/REQUIRED lists); updated sc-summary.yaml, Items (1:1 item-SC mapping, 13 items), Traceability (R-3→SC-2a/SC-2b, R-4→SC-4/SC-5a/SC-5b/SC-5c), Cost Frame, and Edge Cases to match the decomposed atomic SC set; ensured the analytical artifacts directory `.opencode/.issues/2349/artifacts/` is present. Authorized by: spec-validation findings (aggregate FAIL on compound-SC/atomicity).
+- **2026-08-28 — Revision (validation findings — traceability + compound-SC):** (1) Fixed R-8 traceability: added atomic SC-11 (opencode.jsonc instructions-array entry unchanged) as the faithful trace target for R-8, replacing the weak R-8→SC-1 mapping (SC-1 verifies the zero-tolerance core, not the config); updated sc-summary.yaml, Items (added Item 15), Traceability (R-8→SC-11), Cost Frame, and Edge Cases. (2) Decomposed compound SC-5c into atomic SC-5c (remove FORBIDDEN lists) + SC-5d (remove REQUIRED lists); updated sc-summary.yaml, Items (added Item 9), Traceability (R-4→SC-4/SC-5a/SC-5b/SC-5c/SC-5d), Cost Frame, and Edge Cases to match. Authorized by: spec-validation findings (aggregate FAIL on traceability and compound-SC defects).
 
 ---
 

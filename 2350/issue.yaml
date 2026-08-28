@@ -1,7 +1,8 @@
 number: 2350
 title: '[SPEC] Condense 060-tool-usage.md — move five-tier hierarchy & glob semantics'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/060-tool-usage.md` costs ~4.1k tokens. ~70% is procedural
@@ -29,7 +30,7 @@ body: '## Problem
   ~2.9k token savings. Risk: tool-hierarchy misrouting. Mitigation: mcp-tool-usage
   already carries the full hierarchy verbatim. Depends on config update. Action: approve.'
 created_at: '2026-08-27T03:14:09Z'
-updated_at: '2026-08-27T03:14:09Z'
+updated_at: '2026-08-28T15:49:25+00:00'
 remote_issue: 2350
 remote_url: https://github.com/michael-conrad/.opencode/issues/2350
 promoted_at: '2026-08-27T03:25:12.658431+00:00'
