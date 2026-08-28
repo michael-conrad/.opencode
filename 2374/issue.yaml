@@ -4,31 +4,66 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2374/
 
-  Context-completeness staleness/deminimis/single-exchange-window detail (067) moves
-  out of preload; issue-review is the canonical home.
+
+  ## Problem
+
+
+  Context-completeness staleness/de-minimis/single-exchange-window detail (067) moves
+  out of preload; issue-review is the canonical home. Anchoring it now enables the
+  067 condensation in #2351 without content loss.
 
 
   ## Scope
 
-  - **In:** Make issue-review the authoritative source for the staleness rule, de-minimis
-  bound, and single-exchange window; add mandatory Read [Text](path) link to any shared
-  content.
 
-  - **Out:** Losing the read-all-comments core.
+  - **In:** Make issue-review the authoritative source for the staleness rule, de-minimis
+  bound, and single-exchange window; keep the detail single-sourced (absent from task
+  files).
+
+  - **In:** Add mandatory Read [Text](path) cross-references for shared content in
+  both issue-review/SKILL.md and 067-context-completeness.md.
+
+  - **In:** Preserve the zero-tolerance read-all-comments core in 067 and the SKILL.md
+  description assertion (verification guardrails).
+
+
+  **Out of scope:**
+
+  - 067 condensation (removal of staleness detail + preload change) — issue #2351
+
+  - opencode.jsonc preload array modification — #2351
+
+  - issue-review dispatch behavior / description semantic router modification
+
+  - issue-operations-core/read-comments.md and analyze-and-spec.md/audit.md task changes
 
 
   ## Approach
 
-  Consolidate the context-completeness detail into the issue-review skill card.
+
+  Consolidate the context-completeness staleness detail into the issue-review skill
+  card as the authoritative source, single-sourced (no duplication in task files).
+  Add mandatory Read [Text](path) cross-references for all shared content between
+  issue-review and 067 per the AGENTS.md Read-Link Cross-Reference Rule. Keep the
+  read-all-comments core in 067 unchanged.
 
 
   ## Impact
 
-  Enables 067 condensation. Risk: low. Depends on 067. Action: approve.'
+
+  Enables 067 condensation (#2351). Risks: (1) frontmatter invalidation — validate
+  against skill-card-schema before commit; (2) content duplication into task files
+  — enforce single-source; (3) #2351 landing before the anchor — coordinate at merge.
+  Depends on 067. Action: approve.
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-28T02:55:38+00:00'
+updated_at: '2026-08-28T03:02:04+00:00'
 remote_issue: 2374
 remote_url: https://github.com/michael-conrad/.opencode/issues/2374
 promoted_at: '2026-08-27T03:25:12.702384+00:00'
