@@ -1,0 +1,42 @@
+sc_count: 10
+scs:
+  - id: "SC-1"
+    description: "Retain zero-tolerance core (Zero Tolerance Rule unchanged in substance)"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Retain Pre-Response Factual Claim Gate with numbered procedure + halt condition"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Retain condensed Session-Scoped Verification subsection (header + one-line definition)"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Remove inline 'What COUNTS as Evidence' tables from guideline"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Remove surrounding procedural detail (Evidence Requirement bullets, No Exceptions, FORBIDDEN/REQUIRED lists) from guideline"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Verification skill contains relocated evidence examples/detail (single canonical home: .opencode/skills/verification/SKILL.md)"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Add Read [Text](path) links from guideline to verification skills"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Enforcement test test-verification-honesty.sh still passes static checks"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Achieve token savings of at least 0.7k tokens (explicit minimum reduction threshold)"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Agents still follow the honesty core behaviorally after condensation"
+    evidence_type: "behavioral"
+    plan_item: 10
