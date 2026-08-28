@@ -1,0 +1,35 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - cross-cutting matrix
+generated_at: "2026-08-28T16:57:00Z"
+
+cross_cutting_matrix:
+  cross_cutting_concerns:
+    - concern: "Content-loss prevention (coupled relocation)"
+      applies_to: [SC-1, SC-2]
+      impact: "The staleness detail must not be removed from 067 (SC-1) until it is relocated to issue-review (SC-2). Implement SC-2 before SC-1 or atomically together to avoid content loss."
+    - concern: "Cross-reference preservation (065 Single Exchange Window)"
+      applies_to: [SC-2, SC-5]
+      impact: "067 line 70 references 065-verification-honesty.md's Single Exchange Window. The relocated content must preserve this cross-reference."
+    - concern: "Read-all-comments core integrity"
+      applies_to: [SC-3]
+      impact: "The zero-tolerance core must remain preloaded and functionally intact after condensation."
+    - concern: "Token-burden reduction"
+      applies_to: [SC-1, SC-4]
+      impact: "Removing the staleness detail reduces the preloaded 067 size. Net effect measured in SC-4."
+    - concern: "Cross-repo boundary"
+      applies_to: [all SCs]
+      impact: "All changes confined to .opencode/ files. No parent-repo (opencode-config) changes."
+
+matrix:
+  - row: "Content preservation (relocation pairing)"
+    SC-1: "REQUIRED (paired with SC-2)"
+    SC-2: "REQUIRED (paired with SC-1)"
+  - row: "065 cross-reference preservation"
+    SC-2: "REQUIRED"
+    SC-5: "REQUIRED"
+  - row: "Core retention"
+    SC-3: "REQUIRED"
+  - row: "Token reduction"
+    SC-1: "REQUIRED"
+    SC-4: "REQUIRED"

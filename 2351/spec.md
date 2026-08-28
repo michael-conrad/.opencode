@@ -57,8 +57,8 @@ The issue body requested: "Relocate staleness/deminimis/examples to issue-review
 | SC-1 | The staleness procedural detail (Staleness Rule, Significant Actions Requiring Re-Read, De Minimis Bound + examples, Single Exchange Window) is removed from the preloaded `.opencode/guidelines/067-context-completeness.md`. | structural | Read 067-context-completeness.md and confirm the Staleness Rule section (the re-read / de-minimis / single-exchange-window content) is absent while the retained core sections (Zero Tolerance, Scope, When This Applies, Evidence, FORBIDDEN, REQUIRED) remain. | `.opencode/guidelines/067-context-completeness.md` (source) |
 | SC-2 | The staleness/deminimis/single-exchange detail is relocated INLINE into the `issue-review` gather task card (`.opencode/skills/issue-review/tasks/gather.md`), reachable from the existing Step 6.3 staleness hook — NOT to a separate reference file. | structural | Read gather.md and confirm the relocated staleness detail (re-read before significant actions, de-minimis bound, single-exchange window, 065 cross-reference) is present inline in the task card, associated with the Step 6.3 staleness-assessment hook. | `.opencode/skills/issue-review/tasks/gather.md` (source) |
 | SC-3 | The zero-tolerance read-all-comments-before-acting core (Zero Tolerance Rule, Scope of Resources, When This Applies, Evidence Requirement, FORBIDDEN, REQUIRED, Related Guidelines, critical-rules-012 blocks) is retained in 067-context-completeness.md. | behavioral | Run `opencode run` with a prompt triggering read-all-comments-before-acting; a clean-room sub-agent inspects the session stderr for evidence the agent reads ALL comments before acting on a resource (core retained and enforced). | `.opencode/guidelines/067-context-completeness.md` (source) |
-| SC-4 | The preloaded token burden of 067-context-completeness.md is reduced (issue Impact target ~0.7k token savings). | structural | Measure the post-condensation byte/line count of 067-context-completeness.md and confirm a substantial reduction (the ~40% procedural staleness detail removed from the ~1.9k-token preload). | `.opencode/guidelines/067-context-completeness.md` (source) |
-| SC-5 | The issue-review skill's staleness assessment (just-review path) remains functional after the relocation — the relocated detail is reachable from the gather task card, and the 065 Single Exchange Window cross-reference is preserved. | behavioral | Run `opencode run` invoking the issue-review gather task on a just-review candidate; a clean-room sub-agent inspects the session stderr for evidence the gather task assesses staleness using the relocated detail and preserves the 065 cross-reference. | `.opencode/skills/issue-review/tasks/gather.md` (source), `.opencode/guidelines/065-verification-honesty.md` (source) |
+| SC-5a | The issue-review skill's staleness assessment (just-review path) remains functional after the relocation — the relocated detail is reachable from the gather task card. | behavioral | Run `opencode run` invoking the issue-review gather task on a just-review candidate; a clean-room sub-agent inspects the session stderr for evidence the gather task assesses staleness using the relocated detail. | `.opencode/skills/issue-review/tasks/gather.md` (source) |
+| SC-5b | The 065-verification-honesty.md Single Exchange Window cross-reference is preserved in the relocated staleness detail. | behavioral | Run `opencode run` invoking the issue-review gather task; a clean-room sub-agent inspects the session stderr for evidence the relocated content preserves the 065-verification-honesty.md Single Exchange Window cross-reference. | `.opencode/skills/issue-review/tasks/gather.md` (source), `.opencode/guidelines/065-verification-honesty.md` (source) |
 
 ## Requirements
 
@@ -93,18 +93,18 @@ The issue body requested: "Relocate staleness/deminimis/examples to issue-review
 - verify: `opencode run` with the read-all-comments prompt; clean-room sub-agent inspects session stderr for evidence the agent reads ALL comments before acting.
 - commit: no file change (verification item on 067).
 
-### Item 4 (SC-4): Measure the post-condensation token burden of 067
-
-- RED: Record the pre-condensation byte/line count of 067-context-completeness.md.
-- GREEN: No code change — this item measures the post-condensation burden after Item 2.
-- verify: Measure the post-condensation byte/line count and confirm a substantial reduction (~40% of the ~1.9k-token preload removed).
-- commit: no file change (measurement item on 067).
-
-### Item 5 (SC-5): Verify the issue-review staleness path is functional after relocation
+### Item 4 (SC-5a): Verify the issue-review staleness path is functional after relocation
 
 - RED: Run the issue-review gather staleness behavioral prompt against the pre-relocation gather task; verify the baseline.
 - GREEN: No code change — this item verifies the relocated gather task after Item 1.
-- verify: `opencode run` invoking issue-review gather on a just-review candidate; clean-room sub-agent inspects session stderr for evidence the gather task assesses staleness using the relocated detail and preserves the 065 cross-reference.
+- verify: `opencode run` invoking issue-review gather on a just-review candidate; clean-room sub-agent inspects session stderr for evidence the gather task assesses staleness using the relocated detail.
+- commit: no file change (verification item on gather.md).
+
+### Item 5 (SC-5b): Verify the 065 Single Exchange Window cross-reference is preserved
+
+- RED: Confirm the 065-verification-honesty.md Single Exchange Window cross-reference is present in the pre-relocation 067; verify the baseline.
+- GREEN: No code change — this item verifies the relocated gather task after Item 1.
+- verify: `opencode run` invoking issue-review gather; clean-room sub-agent inspects session stderr for evidence the relocated content preserves the 065-verification-honesty.md Single Exchange Window cross-reference.
 - commit: no file change (verification item on gather.md).
 
 ## Dependencies
@@ -131,8 +131,8 @@ The issue body requested: "Relocate staleness/deminimis/examples to issue-review
 |-------------|-------|---------|
 | R-1 | SC-3 | Item 3 |
 | R-2 | SC-1 | Item 2 |
-| R-3 | SC-2 | Item 1 |
-| R-4 | SC-2, SC-5 | Item 1, Item 5 |
+| R-3 | SC-2, SC-5a | Item 1, Item 4 |
+| R-4 | SC-2, SC-5b | Item 1, Item 5 |
 | R-5 | all SCs | all items |
 | R-6 | SC-3 | Item 3 |
 | R-7 | SC-2 | Item 1 |
@@ -145,8 +145,8 @@ The issue body requested: "Relocate staleness/deminimis/examples to issue-review
 | `gather.md` | task card | `.opencode/skills/issue-review/tasks/gather.md` | read Step 6.3 + relocated staleness detail |
 | `065-verification-honesty.md` | guideline | `.opencode/guidelines/065-verification-honesty.md` | read Single Exchange Window (cross-reference preserved) |
 | `opencode.jsonc` | config | `.opencode/opencode.jsonc` | read instructions array (067 still preloaded) |
-| `pre-spec-inspection.yaml` | analysis artifact | `.opencode/tmp/2351/artifacts/pre-spec-inspection.yaml` | read section inventory and relocation target |
-| `pipeline-readiness.yaml` | analysis artifact | `.opencode/tmp/2351/artifacts/pipeline-readiness.yaml` | read BLOCKER-1/BLOCKER-2 resolution |
+| `pre-spec-inspection.yaml` | analysis artifact | `.opencode/.issues/2351/artifacts/pre-spec-inspection.yaml` | read section inventory and relocation target |
+| `pipeline-readiness.yaml` | analysis artifact | `.opencode/.issues/2351/artifacts/pipeline-readiness.yaml` | read BLOCKER-1/BLOCKER-2 resolution |
 
 ## Enforcement Gate
 
@@ -159,17 +159,25 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-1:** Verifying the staleness detail is removed from 067 costs one read of the guideline. Skipping means the duplicated procedural detail stays in the always-on preload, wasting ~0.7k tokens per session and deferring the condensation benefit indefinitely.
 - **SC-2:** Verifying the staleness detail is relocated inline into the gather task card costs one read of gather.md. Skipping means the relocation orphaned the Step 6.3 staleness hook or the detail was lost entirely — a content-loss defect discovered only when the just-review path fails to assess staleness.
 - **SC-3:** Running the behavioral read-all-comments test costs minutes of execution time. Skipping means the condensation could accidentally strip the safety-critical core, and the defect ships as a silent enforcement gap in every downstream agent session.
-- **SC-4:** Measuring the post-condensation byte/line burden costs one measurement. Skipping means the claimed ~0.7k token savings is unverified, and the condensation may have delivered no real preload reduction.
-- **SC-5:** Running the behavioral issue-review gather staleness test costs minutes of execution time. Skipping means the relocated staleness path could be broken and the 065 cross-reference lost, deferring discovery to a production issue-review failure.
+- **SC-5a:** Running the behavioral issue-review gather staleness test costs minutes of execution time. Skipping means the relocated staleness path could be broken, deferring discovery to a production issue-review failure.
+- **SC-5b:** Running the behavioral 065 cross-reference preservation check costs minutes of execution time. Skipping means the relocated Single Exchange Window could drop the 065-verification-honesty.md reference, losing the cross-repo link in the relocated content.
 
 ## Edge Cases
 
 - **Input boundary — empty relocated content:** If the staleness detail were relocated but contained nothing new (the Step 6.3 hook already assesses staleness), SC-2 requires the relocated re-read / de-minimis / single-exchange / 065-cross-reference content to be present inline, so an empty relocation fails.
 - **State transition — relocation ordering:** SC-2 (relocation) MUST complete before SC-1 (removal from 067) to avoid content loss; the items are ordered accordingly, and the coupling is declared in the dependencies.
 - **Failure mode — core accidentally removed:** If the condensation removes more than the staleness sections, SC-3's behavioral test flags the missing core and the change is rejected.
-- **Failure mode — cross-reference lost:** If the relocated Single Exchange Window drops the 065 reference, SC-5 flags the loss and the change is rejected.
+- **Failure mode — cross-reference lost:** If the relocated Single Exchange Window drops the 065 reference, SC-5b flags the loss and the change is rejected.
 - **Concurrency:** This is a content relocation with no shared runtime state; no race condition or resource contention applies.
 - **Recovery:** Because SC-1 and SC-2 are a paired relocation, a partial change is repaired by completing the missing half — either re-inlining the detail (SC-2) or removing it from 067 (SC-1) — with no state machine rollback required.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-28 | Removed SC-4 (token-burden reduction) as redundant with SC-1 — removing the staleness detail necessarily reduces token count, and SC-4 had no dedicated requirement or hard threshold. | Validation finding: SC-4 fails determinism, binary-verifiability, coverage, and traceability. | spec-creation validation pipeline |
+| 2026-08-28 | Decomposed SC-5 into SC-5a (staleness-path-functional) and SC-5b (065-cross-reference-preserved); updated Items (4/5), Traceability (R-3/R-4), Cost Frame, and Edge Cases to match the 1:1 item-SC mapping. | Validation finding: SC-5 was compound, bundling two behaviors via "and". | spec-creation validation pipeline |
+| 2026-08-28 | Fixed Documentation Sources artifact paths from the gitignored `.opencode/tmp/2351/artifacts/` to the canonical `.opencode/.issues/2351/artifacts/`. | Validation finding: Documentation Sources used a non-canonical, gitignored path. | spec-creation validation pipeline |
 
 ---
 

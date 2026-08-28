@@ -1,0 +1,36 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - state analysis
+generated_at: "2026-08-28T16:57:00Z"
+
+state_analysis:
+  state_machine: "067-context-completeness.md content disposition"
+  states:
+    - state: "UNCONDENSED"
+      description: "Full 100-line / 4,994-byte preloaded guideline with staleness procedural detail inline."
+      transition_to: "CONDENSED"
+      trigger: "PHASE-1 relocation edits"
+    - state: "CONDENSED"
+      description: "067 retains only the read-all-comments core (Zero Tolerance, Scope, When This Applies, Evidence, FORBIDDEN, REQUIRED, Related, critical-rules-012); staleness detail relocated to issue-review gather task."
+      invariant: "Read-all-comments core verbatim; critical-rules-012 blocks present; no staleness rule lost (relocated to issue-review)."
+      transition_to: "VERIFIED"
+      trigger: "PHASE-2 verification (SC-3, SC-4, SC-5)"
+    - state: "VERIFIED"
+      description: "Condensation complete; token burden reduced; core retained; issue-review staleness path functional."
+      invariant: "SC-1 through SC-5 all PASS."
+
+  phase_transitions:
+    - phase: PHASE-1
+      from: "UNCONDENSED"
+      to: "CONDENSED"
+      sc_ids: [SC-1, SC-2]
+    - phase: PHASE-2
+      from: "CONDENSED"
+      to: "VERIFIED"
+      sc_ids: [SC-3, SC-4, SC-5]
+
+  invariants:
+    - "The read-all-comments core (Zero Tolerance, Scope, When This Applies, Evidence, FORBIDDEN, REQUIRED, Related, critical-rules-012) is never modified."
+    - "No staleness rule is lost — every relocated rule has a canonical home in the issue-review gather task."
+    - "The 065 Single Exchange Window cross-reference is preserved in the relocated content."
+    - "067-context-completeness.md remains in the opencode.jsonc instructions array."

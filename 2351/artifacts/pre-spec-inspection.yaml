@@ -1,0 +1,90 @@
+issue: .opencode#2351
+task: analyze
+step: 1 - pre-spec inspection
+inspected_at: "2026-08-28T16:55:00Z"
+
+primary_target:
+  path: .opencode/guidelines/067-context-completeness.md
+  size: "100 lines, 4,994 bytes"
+  role: preloaded Tier 1 guideline (opencode.jsonc instructions array)
+  token_burden_claim: "~1.9k tokens, ~40% procedural (per issue body)"
+
+section_inventory:
+  - section: "## Zero Tolerance Rule"
+    lines: "9-13"
+    disposition: RETAIN
+    rationale: "Read-all-comments-before-acting core. Safety-critical zero-tolerance rule. Must stay preloaded."
+  - section: "## Scope of Resources"
+    lines: "15-21"
+    disposition: RETAIN
+    rationale: "Defines which resources (issues, PRs, discussions) require reading all comments. Core scope definition."
+  - section: "## When This Applies"
+    lines: "23-25"
+    disposition: RETAIN
+    rationale: "Core applicability rule (before any action; passive reading exception)."
+  - section: "## Evidence Requirement"
+    lines: "27-33"
+    disposition: RETAIN
+    rationale: "Core evidence-showing requirement (reference specific comments, count, highlight)."
+  - section: "## Staleness Rule"
+    lines: "35-41"
+    disposition: RELOCATE
+    target: "skills/issue-review/tasks/gather.md (or a reference loaded by issue-review)"
+    rationale: "Procedural staleness detail (re-read before significant actions). Overlaps issue-review gather/just-review staleness assessment."
+  - section: "### Significant Actions Requiring Re-Read"
+    lines: "43-52"
+    disposition: RELOCATE
+    target: "skills/issue-review/tasks/gather.md"
+    rationale: "Procedural list of significant actions requiring re-read. Part of staleness detail."
+  - section: "### De Minimis Bound"
+    lines: "54-64"
+    disposition: RELOCATE
+    target: "skills/issue-review/tasks/gather.md"
+    rationale: "Procedural de-minimis bound + examples table. Part of staleness detail."
+  - section: "## Single Exchange Window"
+    lines: "66-70"
+    disposition: RELOCATE
+    target: "skills/issue-review/tasks/gather.md"
+    rationale: "Procedural single-exchange-window rule. Part of staleness detail."
+  - section: "## FORBIDDEN"
+    lines: "72-79"
+    disposition: RETAIN
+    rationale: "Core prohibitions (acting on body only, skipping comment reads, caching comment state)."
+  - section: "## REQUIRED"
+    lines: "81-87"
+    disposition: RETAIN
+    rationale: "Core required actions (read ALL comments, show evidence, re-read before significant actions, use get_comments)."
+  - section: "## Related Guidelines"
+    lines: "89-94"
+    disposition: RETAIN
+    rationale: "Cross-references to 065, 000, 075, 130. Keep for navigation."
+  - section: "critical-rules-012 enforcement blocks"
+    blocks: ["critical-rules-012 (Acting on Resources Without Reading All Comments)", "critical-rules-012 (Ignoring Issue Comments)"]
+    lines: "96-100"
+    disposition: RETAIN
+    rationale: "Zero-tolerance enforcement for the read-all-comments core. Must stay."
+
+consuming_skill_cards_with_staleness_overlap:
+  - "skills/issue-review/SKILL.md (gather task Step 2 reads all comments; Step 6.3 'Last audit timestamp' used by just-review path to assess staleness)"
+  - "skills/issue-operations/SKILL.md (comment routing; sync-from-remote staleness detection)"
+  - "skills/issue-operations-comments/tasks/comment.md (comment posting gate)"
+
+existing_patterns:
+  - pattern: "Relocation to a skill task via content move"
+    evidence: |
+      issue-review/tasks/gather.md already contains the staleness hook:
+        Step 6.3 'Last audit timestamp' — 'Used by just-review path to assess staleness' (line 89)
+      The staleness rule detail from 067 naturally extends this existing hook.
+    conclusion: "The issue-review gather task is the canonical relocation target for the staleness detail."
+  - pattern: "Shared canonical references in .opencode/reference/"
+    evidence: "reference/ contains cost-model-standards.md, plan-structure-standards.md, spec-structure-standards.md, skill-card-*.md — consumed via mandatory Read-links."
+    conclusion: "If a reference file is chosen over inlining into gather.md, it must live in .opencode/reference/ and be loaded via a mandatory Read-link from the gather task."
+
+dependencies:
+  - guideline: "guidelines/067-context-completeness.md"
+    role: primary target (condensed)
+  - skill: "skills/issue-review/tasks/gather.md"
+    role: relocation target for staleness detail
+  - guideline: "guidelines/065-verification-honesty.md"
+    role: referenced by 067 Single Exchange Window ('consistent with the Single Exchange Window defined in 065')
+    note: "067 line 70 references 065's Single Exchange Window. Relocation must preserve this cross-reference."

@@ -1,0 +1,30 @@
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "Create code-standards-shared reference holding relocated procedural sections verbatim"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Create attribution-provenance reference holding AI Co-Authored Attribution and Provenance Headers verbatim"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Condense 080-code-standards.md: replace procedural sections with mandatory Read-links, retain enforcement cores verbatim, keep 080 in instructions array"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Align design/DI authority to programming-principles skill as master source with no reversed reference"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Wire retained enforcement cores in 080 to canonical test-driven-development/SKILL.md sections"
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Verify preloaded token burden of 080 substantially reduced relative to ~14.2k baseline with no enforcement core lost"
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Behavioral enforcement: agent consuming condensed 080 still enforces behavioral-test-substitution prohibition (no regression)"
+    evidence_type: "behavioral"
+    plan_item: 7

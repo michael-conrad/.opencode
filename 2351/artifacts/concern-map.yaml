@@ -1,0 +1,20 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - concern map
+generated_at: "2026-08-28T16:57:00Z"
+
+concern_map:
+  concerns:
+    - concern: "Read-all-comments-before-acting core (zero-tolerance)"
+      phase: PHASE-2
+      files: ["guidelines/067-context-completeness.md"]
+      separation: "RETAINED in 067 — safety-critical, must stay preloaded. Not relocated."
+    - concern: "Staleness procedural detail (re-read before significant actions, de-minimis bound, single-exchange window)"
+      phase: PHASE-1
+      files: ["guidelines/067-context-completeness.md", "skills/issue-review/tasks/gather.md"]
+      separation: "RELOCATED to issue-review gather task. Distinct from the read-all-comments core."
+
+separation_rules:
+  - "The read-all-comments core (zero-tolerance, must-read-before-acting) and the staleness procedural detail (when to re-read, de-minimis bound) are distinct concerns. The core stays preloaded; the staleness detail moves to the issue-review gather task where comment reading and staleness assessment occur."
+  - "The relocated staleness detail maps to exactly one canonical home (issue-review gather task), avoiding duplication."
+  - "The issue-review gather task already owns the staleness-assessment hook (Step 6.3), making it the natural canonical home."

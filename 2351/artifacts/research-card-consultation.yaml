@@ -1,0 +1,27 @@
+issue: .opencode#2351
+task: analyze
+step: 2 - research card consultation
+consulted_at: "2026-08-28T16:55:00Z"
+
+method: "Globbed .opencode/.issues/research-cards/*.md and .issues/research-cards/*.md; grepped frontmatter for research questions matching the spec topic (condensing 067-context-completeness.md, relocating staleness detail to issue-review)."
+
+cards_consulted:
+  - path: ".opencode/.issues/research-cards/"
+    result: "No card matches the spec topic. Cards present: create-md-remote-format-defect, cross-reference-form-comparison, local-issues-discover-repos-worktree-filter, multi-feature-branch-main-with-submodules, plan-fidelity-auditor-authoritative-sources, plan-fidelity-sc-coverage-gate, pre-response-gate-skill-description-design, searxng-mcp-search-alternatives, spec-creation-state, spec-writing-ai-agents-opencode-skill-architecture, wiki-operations-agent-tools-survey."
+  - path: ".issues/research-cards/"
+    result: "No card matches the spec topic. Cards present: agent-config-path-rules, audit-skill-dimo-role-chain-defects, authorization-session-vs-workflow-state, cross-reference-lobotomization, dimo-same-model-auditor-divergence, for_analysis-scope-investigation, imperative-verb-forms-load-directives, microsoft-markdown-link-patterns, per-sc-decomposition-industry-standards, self-attribution-bias-independent-verification, spec-writing-ai-agents-opencode-skill-architecture, thinking-block-verification-checkpoint, writing-plans-flattening, writing-plans-skill-contradiction."
+
+findings:
+  - id: CARD-1
+    card: "cross-reference-form-comparison.md (in .opencode/.issues/research-cards/)"
+    confidence: "0.95 (from card frontmatter)"
+    relevance: "Indirect — governs the Read [Text](path) cross-reference form. If the staleness detail is relocated to a shared reference file rather than inlined into gather.md, the mandatory Read-link form must be used. Not a direct match for the condensation topic."
+    incorporated: true
+
+  - id: CARD-2
+    card: "per-sc-decomposition-industry-standards.md (in .issues/research-cards/)"
+    confidence: "high"
+    relevance: "Indirect — governs per-SC decomposition (one SC → one RED/GREEN/verify/commit cycle). Applied in the decompose-output.yaml step."
+    incorporated: true
+
+conclusion: "No research card directly covers the 067-context-completeness condensation topic. Two cards (cross-reference-form-comparison, per-sc-decomposition-industry-standards) provide indirect governing conventions that are incorporated. No card with confidence >= 0.7 directly answers the spec topic; the analysis proceeds from live codebase inspection."

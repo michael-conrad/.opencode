@@ -1,0 +1,34 @@
+issue: .opencode#2351
+task: analyze
+step: 6 - pipeline readiness gate
+generated_at: "2026-08-28T16:58:00Z"
+
+pipeline_readiness:
+  atomicity:
+    status: PASS
+    detail: "Every SC maps to exactly one RED→GREEN→COMMIT cycle. 5 SCs → 5 items. No SC spans multiple items; no item covers multiple SCs."
+  dependency_ordering:
+    status: PASS
+    detail: "SC dependency DAG is acyclic. SC-1/SC-2 are a coupled relocation pair (SC-2 before SC-1 to avoid content loss). SC-3/SC-4 (core retention + token measurement) are independent. SC-5 depends on SC-2 (verifies the relocation is functional). No cyclic SC dependencies."
+  single_concern:
+    status: PASS
+    detail: "Each SC targets one file category (guideline vs issue-review task) and one verification domain (behavioral vs structural). SC-1/SC-2/SC-4 are structural; SC-3/SC-5 are behavioral."
+  phase_dependency:
+    status: PASS
+    detail: "Phase dependency graph is acyclic: PHASE-1 (relocation) → PHASE-2 (verification). Sequential, no cycles."
+  three_tier_structure:
+    status: PASS
+    detail: "Multi-phase spec has per-file/post structure: PHASE-1 is the per-file relocation (067 → issue-review gather); PHASE-2 is the post-condensation verification (core retention, token measurement, staleness-path functionality)."
+
+  blockers:
+    - id: BLOCKER-1
+      severity: MEDIUM
+      description: "SC-1/SC-2 are a coupled relocation pair. If the staleness detail is removed from 067 (SC-1) before it is relocated to issue-review (SC-2), the content is lost."
+      action: "The create task must specify SC-2 (relocation) before SC-1 (removal), or implement them atomically in the same commit. The plan must not sequence SC-1 before SC-2."
+    - id: BLOCKER-2
+      severity: LOW
+      description: "The relocation target form is not fully determined: inline into gather.md vs a shared reference in .opencode/reference/ loaded via mandatory Read-link. The issue body says 'move staleness detail to issue-review skill' without specifying the form."
+      action: "The create task must decide the relocation form. If a shared reference file is chosen, it must live in .opencode/reference/ and be loaded via a mandatory Read-link from the gather task (per the Read-Link Cross-Reference Rule)."
+
+  gate_verdict: PASS_WITH_BLOCKERS
+  detail: "Pipeline structure is sound (atomic, acyclic, single-concern, three-tier). Two implementation-detail decisions (BLOCKER-1: relocation ordering; BLOCKER-2: relocation form) must be resolved by the create/plan stage. These are implementation decisions, not structural defects — the readiness gate passes with these declared."

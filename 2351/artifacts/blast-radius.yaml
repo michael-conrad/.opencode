@@ -1,0 +1,32 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - blast radius
+generated_at: "2026-08-28T16:57:00Z"
+
+blast_radius:
+  phases:
+    - phase: PHASE-1
+      sc_ids: [SC-1, SC-2]
+      description: "Relocate the staleness/deminimis/single-exchange detail from 067-context-completeness.md to the issue-review skill (gather task)."
+      affected_components:
+        - "guidelines/067-context-completeness.md (Staleness Rule lines 35-70 — removed)"
+        - "skills/issue-review/tasks/gather.md (Step 6.3 staleness hook extended with relocated detail)"
+      ripple_effects:
+        - "Agents loading issue-review gather now get the staleness rule detail at the point of comment gathering."
+        - "The preloaded 067 no longer carries the staleness procedural detail — token burden drops ~0.7k."
+        - "Risk: if the relocation omits the 065 Single Exchange Window cross-reference, that link is lost. Mitigated by preserving it in the relocated content (SC-5)."
+    - phase: PHASE-2
+      sc_ids: [SC-3, SC-4, SC-5]
+      description: "Verify the read-all-comments core retained in 067; measure token reduction; verify issue-review staleness path functional."
+      affected_components:
+        - "guidelines/067-context-completeness.md (core sections retained)"
+        - "skills/issue-review/tasks/gather.md (staleness assessment functional)"
+      ripple_effects:
+        - "No behavioral change to the read-all-comments-before-acting enforcement (core retained)."
+        - "Token-burden reduction confirmed by measurement."
+        - "just-review path continues to assess staleness via the relocated detail."
+
+out_of_scope:
+  - "Removing the read-all-comments core from 067."
+  - "Parent-repo (opencode-config) AGENTS.md or config changes."
+  - "Re-inlining the staleness detail into other skill cards (issue-operations, issue-operations-comments)."

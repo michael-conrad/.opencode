@@ -1,0 +1,30 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - interface compatibility
+generated_at: "2026-08-28T16:57:00Z"
+
+interface_compatibility:
+  interfaces:
+    - interface: "guidelines/067-context-completeness.md (preloaded guideline)"
+      change: "MODIFIED — Staleness Rule / Significant Actions / De Minimis / Single Exchange Window removed; read-all-comments core retained"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "The read-all-comments core (the safety-critical interface) is unchanged. The removed sections are procedural staleness detail relocated to issue-review."
+    - interface: "skills/issue-review/tasks/gather.md"
+      change: "MODIFIED — Step 6.3 staleness hook extended with relocated staleness detail"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "Extends the existing staleness-assessment hook (line 89); existing gather procedure unchanged."
+    - interface: "guidelines/065-verification-honesty.md"
+      change: "UNCHANGED"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "067's Single Exchange Window cross-reference to 065 is preserved in the relocated content."
+    - interface: ".opencode/opencode.jsonc instructions array"
+      change: "UNCHANGED"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "067-context-completeness.md remains preloaded; only its content shrinks."
+    - interface: "skills/issue-operations/SKILL.md, skills/issue-operations-comments/tasks/comment.md"
+      change: "UNCHANGED"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "Not modified by this spec — the staleness detail is relocated to issue-review only, not re-inlined into issue-operations."
+
+breaking_changes:
+  - "None — all changes are backward compatible. The safety-critical read-all-comments core is unchanged; the relocated staleness detail is reachable from the issue-review gather task."

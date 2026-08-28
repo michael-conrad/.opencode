@@ -12,11 +12,11 @@ scs:
     description: "The zero-tolerance read-all-comments-before-acting core is retained in 067-context-completeness.md."
     evidence_type: "behavioral"
     plan_item: 3
-  - id: "SC-4"
-    description: "The preloaded token burden of 067-context-completeness.md is reduced (~0.7k token savings)."
-    evidence_type: "structural"
+  - id: "SC-5a"
+    description: "The issue-review staleness assessment (just-review path) remains functional after relocation, with the relocated detail reachable from the gather task card."
+    evidence_type: "behavioral"
     plan_item: 4
-  - id: "SC-5"
-    description: "The issue-review staleness assessment (just-review path) remains functional after relocation, preserving the 065 cross-reference."
+  - id: "SC-5b"
+    description: "The 065-verification-honesty.md Single Exchange Window cross-reference is preserved in the relocated staleness detail."
     evidence_type: "behavioral"
     plan_item: 5

@@ -1,0 +1,25 @@
+issue: .opencode#2351
+task: analyze
+step: 5.1 - testability assessment
+generated_at: "2026-08-28T16:57:00Z"
+
+testability_assessment:
+  phases:
+    - phase: PHASE-1
+      sc_ids: [SC-1, SC-2]
+      strategy: "structural"
+      tests:
+        - "SC-1: STRUCTURAL — read confirms the Staleness Rule / Significant Actions / De Minimis / Single Exchange Window sections (lines 35-70) are removed from 067-context-completeness.md and the core sections remain."
+        - "SC-2: STRUCTURAL — read confirms the staleness detail is present in issue-review (gather.md or a reference it loads via mandatory Read-link), reachable from the Step 6.3 staleness hook."
+    - phase: PHASE-2
+      sc_ids: [SC-3, SC-4, SC-5]
+      strategy: "mixed"
+      tests:
+        - "SC-3: BEHAVIORAL — opencode run with a prompt triggering read-all-comments-before-acting; clean-room sub-agent inspects session.yaml for evidence the agent reads ALL comments before acting (core retained and enforced)."
+        - "SC-4: STRUCTURAL — byte/line count of 067 after condensation confirms substantial reduction (~40% of ~1.9k-token preload removed)."
+        - "SC-5: BEHAVIORAL — opencode run issue-review gather on a just-review candidate; clean-room sub-agent inspects session.yaml for evidence the gather task assesses staleness using the relocated detail and preserves the 065 cross-reference."
+
+  testability_notes:
+    - "Behavioral tests require the canonical test framework: bash .opencode/tests-v2/with-test-home opencode run '<prompt>' with >=600s timeout."
+    - "Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, Read-link calls). Prose recall is NOT behavioral evidence."
+    - "Structural tests use read/grep on the modified guideline and issue-review task files."
