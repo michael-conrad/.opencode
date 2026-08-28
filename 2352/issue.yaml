@@ -5,37 +5,92 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2352/
+
+
+  ## Problem
+
 
   Preloaded `.opencode/guidelines/080-code-standards.md` costs ~14.2k tokens (~21%
-  of burden, 2nd largest). ~65% procedural (typing/design prose, DI mandate, print
-  rules, tool-selection-by-file-type, numbering, attribution/byline, provenance headers,
-  cross-reference standards, YAML standard, triple co-application).
+  of the agent''s preload burden, the 2nd largest single file). Roughly 65% is procedural
+  prose (typing, design rules, DI mandate, print rules, tool-selection-by-file-type,
+  numbering, attribution/byline, provenance headers, cross-reference standards, YAML
+  standard, triple co-application) that agents only need on-demand — preloading it
+  taxes every session''s system context.
 
 
   ## Scope
 
-  - **In:** Relocate the procedural sections to programming-principles / skill-creator
-  / test-driven-development; retain enforcement-test mandate, behavioral-test-substitution
-  prohibition, and the critical-rules-XXX blocks (derivation provenance, evidence-type
-  classification gate).
 
-  - **Out:** Removing any enforcement core.
+  - **In:** Relocate the procedural sections to shared references (code-standards-shared,
+  attribution-provenance) loaded via mandatory Read-links.
+
+  - **In:** Align design/DI authority to the `programming-principles` skill (master
+  source) and wire the retained enforcement cores to the `test-driven-development`
+  skill (canonical source).
+
+  - **In:** Retain the enforcement-test mandate, the behavioral-test-substitution
+  prohibition, and the critical-rules-XXX blocks (derivation provenance, evidence-type
+  classification gate) verbatim in 080.
+
+  - **In:** Keep 080 in the Tier 1 `instructions[]` array — condensation only, not
+  removal from preload.
+
+
+  **Out of scope:**
+
+  - Removing any enforcement core.
+
+  - Altering the preload mechanism or removing 080 from the `instructions[]` array.
+
+  - Changing enforcement semantics — this is a structural (token-burden) change, not
+  a semantic one.
 
 
   ## Approach
 
-  Move procedural sections to shared references (code-standards-shared, attribution-provenance)
-  loaded via mandatory Read-links; retain the enforcement cores preloaded.
+
+  Relocate the procedural sections of 080 into shared references loaded via mandatory
+  Read-links, so the on-demand content no longer sits in the always-loaded preload.
+  080 remains preloaded but holds only the condensed enforcement core plus Read-links
+  to the relocated procedural content. Design/DI authority stays with the `programming-principles`
+  skill (already the master source), and the retained enforcement cores wire to the
+  canonical `test-driven-development` skill definitions. This preserves enforcement
+  behavior while cutting the preloaded token burden.
 
 
   ## Impact
 
-  ~9.2k savings — 2nd biggest single win. Risk: losing enforcement-test mandate. Mitigation:
-  retain enforcement cores verbatim. Depends on shared refs + skill updates + config.
-  Action: approve.'
+
+  - **Risk:** Losing the enforcement-test mandate during condensation. **Mitigation:**
+  Retain enforcement cores verbatim; verify behaviorally (SC-7) that the behavioral-test-substitution
+  prohibition is still enforced.
+
+  - **Risk:** Broken stable anchors referenced by other files (critical-rules-023,
+  critical-rules-060, programming-principles line 68). **Mitigation:** Preserve or
+  re-point stable anchors to the shared references.
+
+  - **Risk:** Reversed skill authority (080 as master source). **Mitigation:** Keep
+  programming-principles / test-driven-development as the master/canonical sources;
+  080 links to them, never the reverse.
+
+
+  **Dependencies:** shared references (code-standards-shared, attribution-provenance),
+  programming-principles skill, test-driven-development skill, `opencode.jsonc` instructions
+  array.
+
+
+  **Action:** Approve to proceed with implementation.
+
+
+  ---
+
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-28T17:24:54+00:00'
+updated_at: '2026-08-28T17:25:52+00:00'
 remote_issue: 2352
 remote_url: https://github.com/michael-conrad/.opencode/issues/2352
 promoted_at: '2026-08-27T03:25:12.662123+00:00'
