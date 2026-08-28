@@ -1,0 +1,27 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue: 2349
+
+testability_assessment:
+  - phase: 1
+    strategy: string
+    method: grep the condensed guideline for retained elements (Zero Tolerance Rule SC-1, Pre-Response Factual Claim Gate numbered procedure SC-2a, Halt Condition SC-2b, Session-Scoped Verification SC-3) and absence of removed elements (What COUNTS as Evidence tables SC-4, Evidence Requirement bullets SC-5a, No Exceptions SC-5b, FORBIDDEN/REQUIRED lists SC-5c)
+    rationale: Each retention/removal target is an independently verifiable string presence/absence claim; decomposition into atomic SCs makes each grep a discrete pass/fail gate.
+  - phase: 2
+    strategy: string
+    method: grep .opencode/skills/verification/SKILL.md for relocated evidence examples (SC-6) and grep the guideline for Read [Text](path) links to verification skills (SC-7)
+    rationale: Presence of relocated content in the canonical home and presence of reachable Read-links are string-verifiable.
+  - phase: 3
+    strategy: string
+    method: run static grep checks of .opencode/tests-v2/test-verification-honesty.sh (SC-8); measure guideline token count before vs after asserting reduction >= 0.7k (SC-9)
+    rationale: Enforcement test static checks and token-count measurement are deterministically verifiable.
+  - phase: 3
+    strategy: behavioral
+    method: behavioral scenario via opencode run with-test-home harness, asserting honesty compliance (never-rely-on-memory) on a real-domain prompt (SC-10)
+    rationale: Whether agents still follow the honesty core is a runtime-behavioral question; only a behavioral test with a real model can verify it. Static grep cannot confirm agents still follow the rule.
+
+verification_note: |
+  String/structural evidence verifies the guideline's static content (what it contains) and the skill's relocation
+  (SC-1..SC-9). SC-10 is a runtime-behavioral change (agent dispatch/enforcement of the honesty core), so it is
+  correctly classified behavioral and verified via the with-test-home harness — never substituted with grep.

@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue: 2349
+
+concerns:
+  - concern: retain-core
+    phase: 1
+    boundary: Zero Tolerance Rule (never-rely-on-memory) and Pre-Response Factual Claim Gate (numbered procedure + Halt Condition) MUST remain preloaded and unchanged in substance; enforced by SC-1, SC-2a, SC-2b
+    separation: Retention concerns are distinct from removal concerns; each retained element is independently verifiable
+  - concern: retain-session-scoped
+    phase: 1
+    boundary: Condensed 'Session-Scoped Verification' subsection (header + one-line definition) retained per enforcement SC-004; surrounding detail relocated
+    separation: Constrained by enforcement test SC-004 (conflict C7); independent of the removal concerns
+  - concern: remove-inline-detail
+    phase: 1
+    boundary: Inline evidence tables (SC-4), Evidence Requirement bullets (SC-5a), No Exceptions section (SC-5b), FORBIDDEN/REQUIRED lists (SC-5c) removed from the guideline
+    separation: Each removal target is an independently verifiable atomic SC — no compound SC bundles multiple removal targets
+  - concern: relocate-to-skill
+    phase: 2
+    boundary: Relocated evidence detail lives in the single canonical home .opencode/skills/verification/SKILL.md (SC-6) and is reachable via mandatory Read-links (SC-7)
+    separation: Skill-card concern is distinct from guideline condensation; depends on #2372
+  - concern: enforcement-verification
+    phase: 3
+    boundary: Enforcement test static checks still pass (SC-8), token savings >= 0.7k (SC-9), behavioral honesty compliance (SC-10)
+    separation: Verification concern is distinct from content concerns; measured after condensation
+
+separation_summary: |
+  Five distinct concerns: retain core (SC-1/SC-2a/SC-2b), retain condensed session-scoped subsection (SC-3),
+  remove inline detail as atomic targets (SC-4/SC-5a/SC-5b/SC-5c), relocate to skill (SC-6/SC-7), and
+  enforcement verification (SC-8/SC-9/SC-10). Each SC is atomic and maps 1:1 to a plan item.
