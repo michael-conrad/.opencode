@@ -1,0 +1,6 @@
+sc_count: 1
+scs:
+  - id: "SC-1"
+    description: "The writing-plans SKILL.md Cross-References section contains a mandatory Read [Text](path) link to orchestrator-context-discipline.md resolving to .opencode/reference/orchestrator-context-discipline.md, and an orchestrator dispatching the writing-plans skill loads that reference into its context during plan creation."
+    evidence_type: "behavioral"
+    plan_item: 1

@@ -1,7 +1,8 @@
 number: 2370
 title: '[SPEC] Update writing-plans skill — Read-link orchestrator-context-discipline'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to
@@ -26,7 +27,7 @@ body: '## Problem
   Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline
   ref + 020. Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-28T01:45:58+00:00'
 remote_issue: 2370
 remote_url: https://github.com/michael-conrad/.opencode/issues/2370
 promoted_at: '2026-08-27T03:25:12.695628+00:00'
