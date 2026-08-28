@@ -26,13 +26,13 @@
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | The authorization scope-model table (Key Scope Values + Scope-Dependent PR Strategy) is removed from the preloaded `010-approval-gate.md`; the `approval-gate` skill card is the single source of truth. | structural | read/grep confirms 010 no longer contains the scope-model table and `approval-gate/SKILL.md` retains it verbatim. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
-| SC-2 | The verb-prefix parsing table is not duplicated in the preloaded `010-approval-gate.md`; it lives only in the `approval-gate` skill card. | structural | read/grep confirms no verb-prefix scope-mapping table in 010; `approval-gate/SKILL.md` retains it. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
-| SC-3 | The decision table (Authorization + File Modifications) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | structural | read/grep confirms the decision table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
-| SC-4 | The edge-case table (Key Edge Cases) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card, reconciled with the existing Edge Cases table. | structural | read/grep confirms edge-case content is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
-| SC-5 | The action-classification table (Action Authorization Classification) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | structural | read/grep confirms the action-classification table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
+| SC-1 | The authorization scope-model table (Key Scope Values + Scope-Dependent PR Strategy) is removed from the preloaded `010-approval-gate.md`; the `approval-gate` skill card is the single source of truth. | string | read/grep confirms 010 no longer contains the scope-model table and `approval-gate/SKILL.md` retains it verbatim. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
+| SC-2 | The verb-prefix parsing table is not duplicated in the preloaded `010-approval-gate.md`; it lives only in the `approval-gate` skill card. | string | read/grep confirms no verb-prefix scope-mapping table in 010; `approval-gate/SKILL.md` retains it. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
+| SC-3 | The decision table (Authorization + File Modifications) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | string | read/grep confirms the decision table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
+| SC-4 | The edge-case table (Key Edge Cases) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card, reconciled with the existing Edge Cases table. | string | read/grep confirms edge-case content is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
+| SC-5 | The action-classification table (Action Authorization Classification) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | string | read/grep confirms the action-classification table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
 | SC-6 | The safety-critical authorization cores (spec-before-code, plan-before-implementation, explicit-authorization, human-only-merge, bug-discovery-does-not-authorize) are retained verbatim in the preloaded `010-approval-gate.md`. | behavioral | `opencode run` with a self-authorization / bug-discovery prompt; clean-room sub-agent inspects session.yaml for evidence the agent does NOT self-authorize and does NOT fix a discovered bug. | `.opencode/guidelines/010-approval-gate.md` |
-| SC-7 | The preloaded `010-approval-gate.md` retains a mandatory Read-link to the `approval-gate` skill card so relocated procedural content remains reachable. | structural | read confirms 010's cross-reference note has a `Read [approval-gate skill](skills/approval-gate/SKILL.md)` link. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/reference/cross-reference-form-comparison.md` |
+| SC-7 | The preloaded `010-approval-gate.md` retains a mandatory Read-link to the `approval-gate` skill card so relocated procedural content remains reachable. | string | read confirms 010's cross-reference note has a `Read [approval-gate skill](skills/approval-gate/SKILL.md)` link. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/reference/cross-reference-form-comparison.md` |
 | SC-8 | The preloaded token/byte burden of `010-approval-gate.md` is reduced to < 8,466 bytes (< 55% of the original 15,393 bytes). | structural | byte/line count of `010-approval-gate.md` after condensation is < 8,466 bytes. | `.opencode/guidelines/010-approval-gate.md` |
 | SC-9 | Scope-parsing behavior is not regressed — the `approval-gate` skill card remains the authoritative scope parser and the verb-prefix table is present. | behavioral | `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parates scope. | `.opencode/skills/approval-gate/SKILL.md`; `.opencode/skills/approval-gate/tasks/resolve-scope.md` |
 
@@ -195,6 +195,14 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** A safety-critical core is accidentally removed during condensation.
   - **Expected behavior:** The agent self-authorizes or fixes a discovered bug — a Tier 1 violation.
   - **Resolution:** SC-6 behavioral test fails; the core is restored verbatim before completion.
+
+---
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-28 | Corrected declared evidence type of SC-1..SC-5 and SC-7 from `structural` to `string` to match their read/grep content-presence verification methods. Updated `sc-summary.yaml` `evidence_type` for these SCs accordingly. | Validation finding: EVIDENCE_TYPE_MISMATCH — read/grep content-presence checks are `string` evidence per the canonical cost-model taxonomy, not `structural`. | Validation pipeline (spec-creation revise) |
 
 ---
 
