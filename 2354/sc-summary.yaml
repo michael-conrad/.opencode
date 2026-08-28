@@ -2,43 +2,43 @@ sc_count: 13
 scs:
   - id: "SC-1"
     description: "Condensed guideline SHALL NOT contain the Self-Simulation Prohibition section"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 1
   - id: "SC-2"
     description: "Condensed guideline SHALL NOT contain the Trigger Behavior Map section"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
     description: "Condensed guideline SHALL NOT contain the Suppression Rule section"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 3
   - id: "SC-4"
     description: "Condensed guideline SHALL retain the Session Trigger No-Echo section"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
     description: "Condensed guideline SHALL retain the nested_opencode_fatal hard-halt section"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 5
   - id: "SC-6"
-    description: "Self-simulation prohibition detail SHALL be preserved in the session-enforcement plugin or companion artifact"
-    evidence_type: "structural"
+    description: "Self-simulation prohibition detail SHALL be preserved in .opencode/plugins/session-enforcement.ts"
+    evidence_type: "string"
     plan_item: 6
   - id: "SC-7"
-    description: "Suppression rule detail SHALL be preserved in the session-enforcement plugin or companion artifact"
-    evidence_type: "structural"
+    description: "Suppression rule detail SHALL be preserved in .opencode/plugins/session-enforcement.ts"
+    evidence_type: "string"
     plan_item: 7
   - id: "SC-8"
     description: "pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 8
   - id: "SC-9"
-    description: "116-pair-mode.md line 76 cross-reference SHALL point to the relocated trigger behavior map home"
+    description: "Pair Mode Suggestion Protocol section of 116-pair-mode.md cross-reference SHALL point to git-workflow-branch/tasks/pair-mode-resume.md"
     evidence_type: "string"
     plan_item: 9
   - id: "SC-10"
     description: "Condensed guideline SHALL be at least 0.6k tokens smaller than the original"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 10
   - id: "SC-11"
     description: "test-2134-sc*.sh content-verification suite SHALL pass against the condensed guideline with zero failures"

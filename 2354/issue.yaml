@@ -2,7 +2,8 @@ number: 2354
 title: '[SPEC] Condense 117-session-trigger-behavior.md — move suppression detail'
 status: open
 labels:
-- needs-approval,spec-draft
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/117-session-trigger-behavior.md` costs ~1.9k tokens.

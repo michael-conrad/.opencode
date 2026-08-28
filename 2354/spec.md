@@ -14,7 +14,7 @@ The guideline was written as a single always-preloaded document, mixing two dist
 
 ## Approach Chosen
 
-Condense `.opencode/guidelines/117-session-trigger-behavior.md` to retain only the enforcement core (nested_opencode_fatal hard-halt and no-echo mandate), and relocate the procedural detail to its owning components: the self-simulation prohibition prose and suppression rule move to the `session-enforcement` plugin (or a companion artifact referenced from it), and the pair_mode_resume trigger behavior map moves to the `git-workflow` pair-mode-resume task. The hard-halt core is preserved verbatim so the always-required enforcement signal is never weakened. Cross-references are updated to point to the relocated homes, and the existing `test-2134-sc*.sh` content-verification tests that assert the removed content are reconciled so the enforcement suite continues to pass.
+Condense `.opencode/guidelines/117-session-trigger-behavior.md` to retain only the enforcement core (nested_opencode_fatal hard-halt and no-echo mandate), and relocate the procedural detail to its owning components: the self-simulation prohibition prose and suppression rule move to `.opencode/plugins/session-enforcement.ts`, and the pair_mode_resume trigger behavior map moves to the `git-workflow` pair-mode-resume task. The hard-halt core is preserved verbatim so the always-required enforcement signal is never weakened. Cross-references are updated to point to the relocated homes, and the existing `test-2134-sc*.sh` content-verification tests that assert the removed content are reconciled so the enforcement suite continues to pass.
 
 ## Alternatives Considered & Why Discarded
 
@@ -42,16 +42,16 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | The condensed guideline `.opencode/guidelines/117-session-trigger-behavior.md` SHALL NOT contain the Self-Simulation Prohibition section. | structural | `grep -q "Self-Simulation"` returns no match in the guideline |
-| SC-2 | The condensed guideline SHALL NOT contain the Trigger Behavior Map section. | structural | `grep -q "Trigger Behavior Map"` returns no match in the guideline |
-| SC-3 | The condensed guideline SHALL NOT contain the Suppression Rule section. | structural | `grep -q "Suppression Rule"` returns no match in the guideline |
-| SC-4 | The condensed guideline SHALL retain the Session Trigger No-Echo section. | structural | `grep -q "No-Echo"` returns a match in the guideline |
-| SC-5 | The condensed guideline SHALL retain the nested_opencode_fatal hard-halt section. | structural | `grep -q "nested_opencode_fatal"` returns a match in the guideline |
-| SC-6 | The self-simulation prohibition detail SHALL be preserved in the session-enforcement plugin (or a companion artifact it references). | structural | `grep -q "Self-Simulation"` returns a match in the plugin or referenced companion artifact |
-| SC-7 | The suppression rule detail SHALL be preserved in the session-enforcement plugin (or a companion artifact it references). | structural | `grep -q "Suppression"` returns a match in the plugin or referenced companion artifact |
-| SC-8 | The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task. | structural | `grep -q "pair_mode_resume"` returns a match in `git-workflow-branch/tasks/pair-mode-resume.md` |
-| SC-9 | The cross-reference in `.opencode/guidelines/116-pair-mode.md` line 76 SHALL point to the relocated trigger behavior map home. | string | `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to a Read-link to the relocated home, not to 117 |
-| SC-10 | The condensed guideline SHALL be at least 0.6k tokens smaller than the original 117-session-trigger-behavior.md. | structural | token-count comparison of the condensed vs. original guideline |
+| SC-1 | The condensed guideline `.opencode/guidelines/117-session-trigger-behavior.md` SHALL NOT contain the Self-Simulation Prohibition section. | string | `grep -q "Self-Simulation"` returns no match in the guideline |
+| SC-2 | The condensed guideline SHALL NOT contain the Trigger Behavior Map section. | string | `grep -q "Trigger Behavior Map"` returns no match in the guideline |
+| SC-3 | The condensed guideline SHALL NOT contain the Suppression Rule section. | string | `grep -q "Suppression Rule"` returns no match in the guideline |
+| SC-4 | The condensed guideline SHALL retain the Session Trigger No-Echo section. | string | `grep -q "No-Echo"` returns a match in the guideline |
+| SC-5 | The condensed guideline SHALL retain the nested_opencode_fatal hard-halt section. | string | `grep -q "nested_opencode_fatal"` returns a match in the guideline |
+| SC-6 | The self-simulation prohibition detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Self-Simulation"` returns a match in `.opencode/plugins/session-enforcement.ts` |
+| SC-7 | The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Suppression"` returns a match in `.opencode/plugins/session-enforcement.ts` |
+| SC-8 | The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task. | string | `grep -q "pair_mode_resume"` returns a match in `git-workflow-branch/tasks/pair-mode-resume.md` |
+| SC-9 | The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`. | string | `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to a Read-link to `git-workflow-branch/tasks/pair-mode-resume.md`, not to 117 |
+| SC-10 | The condensed guideline SHALL be at least 0.6k tokens smaller than the original 117-session-trigger-behavior.md. | string | token-count comparison of the condensed vs. original guideline |
 | SC-11 | The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures. | behavioral | run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0 |
 | SC-12 | A behavioral run with a NESTED_OPENCODE_FATAL block in the first user message SHALL produce a HALT. | behavioral | `with-test-home opencode run` against a real model, assert HALT via stderr evidence |
 | SC-13 | A behavioral run with a SESSION_TRIGGERS block SHALL NOT echo the trigger content verbatim. | behavioral | `with-test-home opencode run` against a real model, assert no verbatim echo via stderr evidence |
@@ -63,10 +63,10 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 - R-3. The condensed guideline SHALL NOT contain the Suppression Rule section.
 - R-4. The condensed guideline SHALL retain the Session Trigger No-Echo section.
 - R-5. The condensed guideline SHALL retain the nested_opencode_fatal hard-halt section.
-- R-6. The self-simulation prohibition detail SHALL be preserved in the session-enforcement plugin or a companion artifact it references.
-- R-7. The suppression rule detail SHALL be preserved in the session-enforcement plugin or a companion artifact it references.
+- R-6. The self-simulation prohibition detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`.
+- R-7. The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`.
 - R-8. The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task.
-- R-9. The cross-reference in `.opencode/guidelines/116-pair-mode.md` line 76 SHALL point to the relocated trigger behavior map home.
+- R-9. The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`.
 - R-10. The condensed guideline SHALL be at least 0.6k tokens smaller than the original guideline.
 - R-11. The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures.
 - R-12. The condensed guideline SHALL NOT cross-reference `.py` or `.ts` source files.
@@ -111,16 +111,16 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 
 ### Item 6 (SC-6): Preserve self-simulation prohibition detail in the plugin
 
-- RED: `grep -q "Self-Simulation"` in the plugin/companion returns no match (detail absent)
-- GREEN: add the self-simulation prohibition detail to the session-enforcement plugin or a companion artifact it references
-- verify: `grep -q "Self-Simulation"` returns a match in the plugin/companion; `tsc --noEmit` passes
+- RED: `grep -q "Self-Simulation"` in `.opencode/plugins/session-enforcement.ts` returns no match (detail absent)
+- GREEN: add the self-simulation prohibition detail to `.opencode/plugins/session-enforcement.ts`
+- verify: `grep -q "Self-Simulation"` returns a match in the plugin; `tsc --noEmit` passes
 - commit: relocation slice
 
 ### Item 7 (SC-7): Preserve suppression rule detail in the plugin
 
-- RED: `grep -q "Suppression"` in the plugin/companion returns no match (detail absent)
-- GREEN: add the suppression rule detail to the session-enforcement plugin or a companion artifact it references
-- verify: `grep -q "Suppression"` returns a match in the plugin/companion; `tsc --noEmit` passes
+- RED: `grep -q "Suppression"` in `.opencode/plugins/session-enforcement.ts` returns no match (detail absent)
+- GREEN: add the suppression rule detail to `.opencode/plugins/session-enforcement.ts`
+- verify: `grep -q "Suppression"` returns a match in the plugin; `tsc --noEmit` passes
 - commit: relocation slice
 
 ### Item 8 (SC-8): Relocate the pair_mode_resume trigger behavior map to git-workflow
@@ -133,8 +133,8 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 ### Item 9 (SC-9): Update the 116-pair-mode.md cross-reference
 
 - RED: `grep -n "trigger behavior map"` in 116-pair-mode.md still points to 117
-- GREEN: update line 76 to point to the relocated trigger behavior map home
-- verify: `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to the relocated home
+- GREEN: update the `Pair Mode Suggestion Protocol` section reference to point to `git-workflow-branch/tasks/pair-mode-resume.md`
+- verify: `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to `git-workflow-branch/tasks/pair-mode-resume.md`
 - commit: reference-update slice
 
 ### Item 10 (SC-10): Verify token reduction
@@ -172,7 +172,7 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 | `.opencode/guidelines/117-session-trigger-behavior.md` | The file being condensed; must be read before implementation | Satisfied |
 | `.opencode/plugins/session-enforcement.ts` | Destination for relocated self-simulation/suppression detail; must be TypeScript-valid after change | Satisfied |
 | `.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md` | Destination for relocated pair_mode_resume trigger map | Satisfied |
-| `.opencode/guidelines/116-pair-mode.md` | Cross-reference source whose line 76 must be updated | Satisfied |
+| `.opencode/guidelines/116-pair-mode.md` | Cross-reference source whose `Pair Mode Suggestion Protocol` section must be updated | Satisfied |
 | `.opencode/tests-v2/test-2134-sc*.sh` (10 scripts) | Content-verification tests that must be reconciled | Satisfied |
 
 ## Traceability
@@ -216,10 +216,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-3: Verifying the Suppression Rule is removed costs one grep. Skipping leaves the suppression detail preloaded, defeating the condensation.
 - SC-4: Verifying the No-Echo section is retained costs one grep. Skipping risks the no-echo mandate being lost in the condensation.
 - SC-5: Verifying the hard-halt section is retained costs one grep. Skipping risks the nested_opencode_fatal HALT being lost — the single most safety-critical behavior.
-- SC-6: Verifying the self-simulation detail is preserved in the plugin costs one grep plus tsc. Skipping loses the prohibition detail and regresses behavioral enforcement.
-- SC-7: Verifying the suppression rule is preserved in the plugin costs one grep plus tsc. Skipping loses the suppression guidance and regresses enforcement.
+- SC-6: Verifying the self-simulation detail is preserved in `.opencode/plugins/session-enforcement.ts` costs one grep plus tsc. Skipping loses the prohibition detail and regresses behavioral enforcement.
+- SC-7: Verifying the suppression rule is preserved in `.opencode/plugins/session-enforcement.ts` costs one grep plus tsc. Skipping loses the suppression guidance and regresses enforcement.
 - SC-8: Verifying the trigger map is preserved in the pair-mode-resume task costs one grep. Skipping loses the pair_mode_resume routing behavior.
-- SC-9: Verifying the 116 cross-reference resolves to the relocated home costs one grep. Skipping leaves a dangling reference that routes agents to removed content.
+- SC-9: Verifying the 116 cross-reference resolves to `git-workflow-branch/tasks/pair-mode-resume.md` costs one grep. Skipping leaves a dangling reference that routes agents to removed content.
 - SC-10: Verifying token reduction costs a token-count comparison. Skipping means the per-session token cost persists without confirmation the goal was met.
 - SC-11: Verifying the 2134 suite passes costs running the scripts. Skipping means the enforcement suite breaks on the condensed guideline, producing false FAILs.
 - SC-12: Verifying the HALT behavior costs a behavioral run. Skipping means a weakened hard-halt ships and costs 1000× more when the violation surfaces in production.
@@ -228,10 +228,17 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 ## Edge Cases
 
 - **Input boundary — empty condensed guideline:** If the condensation removes all sections, the guideline is empty and SC-4/SC-5 fail. Resolution: retain the No-Echo and nested_opencode_fatal sections as the non-negotiable core.
-- **State transition — relocation destination missing:** If the plugin or pair-mode-resume task lacks the destination file, SC-6/SC-7/SC-8 fail. Resolution: create or reference the companion artifact before marking relocation complete.
+- **State transition — relocation destination missing:** If `.opencode/plugins/session-enforcement.ts` or the pair-mode-resume task lacks the destination file, SC-6/SC-7/SC-8 fail. Resolution: create the destination file before marking relocation complete.
 - **Failure mode — 2134 tests assert removed content:** If tests are not reconciled, SC-11 fails and the suite breaks. Resolution: update or retire each affected test to assert the relocated destination or retained core.
 - **Concurrency — plugin grows with relocated prose:** If the plugin change breaks TypeScript validity, SC-6/SC-7 fail. Resolution: run `tsc --noEmit` to verify the plugin remains valid.
-- **Recovery — stale cross-reference:** If 116-pair-mode.md line 76 still points to 117, SC-9 fails. Resolution: update the reference to the relocated home and re-grep for dangling references.
+- **Recovery — stale cross-reference:** If the `Pair Mode Suggestion Protocol` section of 116-pair-mode.md still points to 117, SC-9 fails. Resolution: update the reference to `git-workflow-branch/tasks/pair-mode-resume.md` and re-grep for dangling references.
+
+## Change Control
+
+| Date | What Changed | Why | Authorized By |
+|------|--------------|-----|---------------|
+| 2026-08-28 | Corrected SC-1..SC-8 evidence types from `structural` to `string`; pinned SC-6/SC-7 relocation destination to `.opencode/plugins/session-enforcement.ts`; named SC-9 concrete path `git-workflow-branch/tasks/pair-mode-resume.md`; updated R-6/R-7/R-9, Items 6/7/9, Cost Frame, and Edge Cases accordingly. | Validation findings: EVIDENCE_TYPE_MISMATCH (grep-pattern verification is string evidence), DETERMINISM/ESCAPE-HATCH (disjunctive "or a companion artifact" and vague "relocated home" targets), ATOMICITY (disjunctive "or" fails atomicity). | Validation pipeline |
+| 2026-08-28 | Corrected SC-10 evidence type from `structural` to `string` (token-count comparison is string evidence, not file-existence/structural evidence); replaced the "line 76" line-number reference with the stable `Pair Mode Suggestion Protocol` section heading across SC-9, R-9, Item 9, Dependencies, and Edge Cases. | Validation findings: EVIDENCE_TYPE_MISMATCH (SC-10 declares structural but verifies via token-count comparison), LINE-NUMBER REFERENCE (SC-9/R-9/Item 9/Edge Cases cite "116-pair-mode.md line 76", violating spec-structure-standards §Prohibited Content Patterns). | Validation pipeline |
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->

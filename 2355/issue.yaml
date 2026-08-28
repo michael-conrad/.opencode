@@ -2,7 +2,9 @@ number: 2355
 title: '[SPEC] Condense 091-incremental-build.md — move per-item TDD detail to tdd
   skill'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/091-incremental-build.md` costs ~1.0k tokens. ~60%
@@ -29,7 +31,7 @@ body: '## Problem
 
   ~0.6k savings. Risk: low. Depends on tdd skill update + config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-28T21:25:34+00:00'
 remote_issue: 2355
 remote_url: https://github.com/michael-conrad/.opencode/issues/2355
 promoted_at: '2026-08-27T03:25:12.667848+00:00'
