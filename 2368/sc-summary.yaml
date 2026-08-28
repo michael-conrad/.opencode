@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "code-standards-shared Read-link added to skill-creator SKILL.md"
+    evidence_type: string
+    plan_item: 1
+  - id: "SC-2"
+    description: "attribution-provenance Read-link added to skill-creator SKILL.md"
+    evidence_type: string
+    plan_item: 2
+  - id: "SC-3"
+    description: "Link text is condensation (not path restatement)"
+    evidence_type: string
+    plan_item: 3
+  - id: "SC-4"
+    description: "Existing skill-creator content preserved"
+    evidence_type: structural
+    plan_item: 4
