@@ -1,7 +1,8 @@
 number: 2348
 title: '[SPEC] Condense 010-approval-gate.md — move scope model to approval-gate skill'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/010-approval-gate.md` costs ~5.7k tokens before
@@ -31,7 +32,7 @@ body: '## Problem
   verb-prefix table already there. Depends on shared-reference + config update. Action:
   approve.'
 created_at: '2026-08-27T03:14:08Z'
-updated_at: '2026-08-27T03:14:08Z'
+updated_at: '2026-08-28T13:44:25+00:00'
 remote_issue: 2348
 remote_url: https://github.com/michael-conrad/.opencode/issues/2348
 promoted_at: '2026-08-27T03:25:12.654443+00:00'

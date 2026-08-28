@@ -1,0 +1,38 @@
+sc_count: 9
+scs:
+  - id: "SC-1"
+    description: "Authorization scope-model table removed from 010; approval-gate skill card is single source of truth."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Verb-prefix parsing table not duplicated in 010; lives only in the approval-gate skill card."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Decision table (Authorization + File Modifications) relocated to the approval-gate skill card."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Edge-case table (Key Edge Cases) relocated to the approval-gate skill card, reconciled."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Action-classification table relocated to the approval-gate skill card."
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Safety-critical authorization cores retained verbatim in the preloaded 010-approval-gate.md."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "010 retains a mandatory Read-link to the approval-gate skill card; consumers resolve relocated rules."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Preload byte burden of 010 reduced to < 8,466 bytes (< 55% of original)."
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Scope-parsing behavior not regressed; approval-gate skill card remains authoritative scope parser."
+    evidence_type: "behavioral"
+    plan_item: 9
