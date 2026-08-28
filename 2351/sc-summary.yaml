@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "The staleness procedural detail is removed from the preloaded 067-context-completeness.md."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-2"
+    description: "The staleness/deminimis/single-exchange detail is relocated inline into the issue-review gather task card, reachable from the Step 6.3 staleness hook — NOT a separate reference file."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-3"
+    description: "The zero-tolerance read-all-comments-before-acting core is retained in 067-context-completeness.md."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The preloaded token burden of 067-context-completeness.md is reduced (~0.7k token savings)."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The issue-review staleness assessment (just-review path) remains functional after relocation, preserving the 065 cross-reference."
+    evidence_type: "behavioral"
+    plan_item: 5

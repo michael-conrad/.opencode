@@ -4,32 +4,36 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> **Full spec and artifacts: [`.opencode/.issues/2350/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2350/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+  >
+  > **Local artifacts:** `.opencode/.issues/2350/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-  Preloaded `.opencode/guidelines/060-tool-usage.md` costs ~4.1k tokens. ~70% is procedural
-  (five-tier hierarchy, glob LIM-1..6 semantics, temp-file rules, command restrictions,
-  identity-source semantics) that the mcp-tool-usage skill card already contains.
+  ## Problem
 
+  The preloaded `.opencode/guidelines/060-tool-usage.md` guideline costs ~4.1k tokens of orchestrator context at every session start. ~70% is procedural content — the five-tier tool priority hierarchy (already duplicated verbatim in the `mcp-tool-usage` skill card) and the glob semantics (LIM-1..6, canonical path-parameter idiom, empty-result rule, which exist only in the guideline) — that a skill load or task-card Read-link could provide on demand. This spec condenses the guideline to its zero-tolerance safety cores without removing it from the `opencode.jsonc` instructions array.
 
   ## Scope
 
-  - **In:** Relocate five-tier hierarchy + glob semantics to mcp-tool-usage skill
-  (single source of truth); retain zero-tolerance .ipynb mandate, API-client-mandatory
-  rule, project_root/tmp-only rule.
-
-  - **Out:** Removing any data-loss-prevention rule.
-
+  - **In:** Relocate the five-tier hierarchy out of guideline §1 (already in the `mcp-tool-usage` skill card) and condense §1 to a Read-link.
+  - **In:** Relocate glob semantics (LIM-1..6, canonical path-parameter idiom, empty-result rule) out of guideline §2 into the `mcp-tool-usage/tasks/selection-guide.md` task card (the pinned sub-agent-readable target) and condense §2 to a pointer.
+  - **In:** Update all 6 downstream glob-semantics Read-links to the new location in lockstep.
+  - **In:** Retain all zero-tolerance safety cores verbatim (`.ipynb` mandate, API-client-mandatory, `project_root/tmp`-only, command restrictions, identity-source semantics, linter advisory-only).
+  - **In:** Verify token reduction against a hard ≤1.2k threshold and add behavioral enforcement coverage.
+  - **Out of scope:** Removing any data-loss-prevention rule; removing `060-tool-usage.md` from the `opencode.jsonc` instructions array; relocating glob semantics to the SKILL.md card (sub-agent-unreadable) or to a separate reference file; duplicating glob semantics in more than one location.
 
   ## Approach
 
-  Move the already-duplicated tool-hierarchy content to mcp-tool-usage; keep the zero-tolerance
-  tooling cores preloaded.
-
+  Relocate the five-tier hierarchy out of guideline §1 (the `mcp-tool-usage` skill card already carries it verbatim and becomes the single source of truth). Relocate the glob semantics out of guideline §2 into the `mcp-tool-usage/tasks/selection-guide.md` task card — the pinned sub-agent-readable target — because skill cards are orchestrator-only routing metadata loaded via `skill()` and cannot be Read-linked by sub-agents; relocating glob semantics to the SKILL.md card would break the 6 downstream Read-links. Condense guideline §2 to a pointer, update all 6 Read-links in lockstep, retain the zero-tolerance safety cores verbatim, and add behavioral enforcement coverage proving the relocated routing still works.
 
   ## Impact
 
-  ~2.9k token savings. Risk: tool-hierarchy misrouting. Mitigation: mcp-tool-usage
-  already carries the full hierarchy verbatim. Depends on config update. Action: approve.'
+  - **Risk 1:** Glob-semantics relocation target lands in a sub-agent-unreadable location (SKILL.md) → breaks 6 Read-links. Mitigation: SC-2a pins the relocation target to the `mcp-tool-usage/tasks/selection-guide.md` task card, not the SKILL.md card.
+  - **Risk 2:** Read-links dangle if condensation lands before link updates. Mitigation: SC-5a is bundled with SC-2a in the same phase.
+  - **Risk 3:** A zero-tolerance safety core is dropped during condensation. Mitigation: SC-3a structurally verifies every retained section verbatim and SC-3b verifies the unchanged `opencode.jsonc` array entry.
+  - **Dependencies:** Issue #2364 (anchors `mcp-tool-usage` as canonical home for hierarchy + glob semantics) — must be reconciled on the relocation target before implementation.
+  - **Call to action:** Approve the spec for plan creation.
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
 created_at: '2026-08-27T03:14:09Z'
 updated_at: '2026-08-28T15:49:39+00:00'
 remote_issue: 2350

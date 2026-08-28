@@ -1,26 +1,50 @@
-sc_count: 6
+sc_count: 12
 scs:
-  - id: "SC-1"
-    description: "Five-tier hierarchy relocated out of guideline §1 to Read-link; skill card is single source of truth; behavioral test proves routing."
-    evidence_type: "behavioral"
-    plan_item: 1
-  - id: "SC-2"
-    description: "Glob semantics (LIM-1..6, path-parameter idiom, empty-result rule) relocated to a sub-agent-readable file (task card or dedicated reference), NOT the SKILL.md card; guideline §2 condensed to pointer; behavioral test proves canonical glob invocation."
-    evidence_type: "behavioral"
-    plan_item: 2
-  - id: "SC-3"
-    description: "All zero-tolerance safety cores retained verbatim in guideline; opencode.jsonc array entry unchanged."
+  - id: "SC-1a"
+    description: "Five-tier hierarchy removed from guideline §1 and replaced with a Read-link to the mcp-tool-usage skill."
     evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-1b"
+    description: "Five-tier hierarchy remains present verbatim in mcp-tool-usage/SKILL.md as the single source of truth."
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-1c"
+    description: "Behavioral enforcement test proves relocated five-tier hierarchy routing still works (RED/GREEN), agent dispatches the mcp-tool-usage skill."
+    evidence_type: "behavioral"
     plan_item: 3
-  - id: "SC-4"
-    description: "Measurable token reduction of guideline from ~4.1k toward ~1.2k while retaining safety cores."
+  - id: "SC-2a"
+    description: "Glob semantics (LIM-1..6, path-parameter idiom, empty-result rule) relocated from guideline §2 into the mcp-tool-usage/tasks/selection-guide.md task card, NOT the SKILL.md card."
     evidence_type: "structural"
     plan_item: 4
-  - id: "SC-5"
-    description: "All 8 downstream Read-links updated to new glob-semantics location; zero stale references."
+  - id: "SC-2b"
+    description: "Guideline §2 condensed to a pointer to the new glob-semantics location (mcp-tool-usage/tasks/selection-guide.md)."
     evidence_type: "structural"
     plan_item: 5
-  - id: "SC-6"
-    description: "Behavioral enforcement test proves relocated tool routing still works (RED/GREEN); Triple Co-Application compliance for edited agent-facing text."
+  - id: "SC-2c"
+    description: "Behavioral enforcement test proves relocated glob-semantics routing still works (RED/GREEN), agent emits a canonical path-parameter glob invocation for a hidden/gitignored target, no false absence conclusion."
     evidence_type: "behavioral"
     plan_item: 6
+  - id: "SC-3a"
+    description: "All zero-tolerance safety cores retained verbatim in guideline."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-3b"
+    description: "060-tool-usage.md remains in the opencode.jsonc instructions array."
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-4"
+    description: "Condensed guideline token count ≤ 1,200 (hard threshold) while retaining all safety cores."
+    evidence_type: "structural"
+    plan_item: 9
+  - id: "SC-5a"
+    description: "All 6 downstream glob-semantics Read-link sites updated to point at the new glob-semantics location (mcp-tool-usage/tasks/selection-guide.md)."
+    evidence_type: "structural"
+    plan_item: 10
+  - id: "SC-5b"
+    description: "Zero stale references to the old glob-semantics location remain across .opencode/**/*.md."
+    evidence_type: "structural"
+    plan_item: 11
+  - id: "SC-6b"
+    description: "All edited agent-facing text complies with Mandatory Triple Co-Application (250/255/257)."
+    evidence_type: "semantic"
+    plan_item: 12
