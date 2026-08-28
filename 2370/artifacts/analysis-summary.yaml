@@ -1,0 +1,29 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  spec_path: ".opencode/.issues/2370/spec.md"
+  sc_count: 2
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: |
+    Spec #2370 adds a mandatory Read [Text](path) link to the shared
+    orchestrator-context-discipline reference (.opencode/reference/orchestrator-context-discipline.md,
+    created by issue #2359) in the writing-plans SKILL.md Cross-References section.
+    The change is confined to the SKILL.md card — no task file, contract, or reference
+    file under the skill is modified. 2 SCs: SC-1 is string (grep for the Read-link
+    content pattern in the Cross-References section + path-resolution check), SC-2 is
+    behavioral (opencode run test verifying the orchestrator loads the reference into
+    context during plan creation).
+  dependencies_noted: |
+    - .opencode/reference/orchestrator-context-discipline.md does not exist yet — it is
+      created by issue #2359. SC-1 (path resolution) and SC-2 (behavioral load) are FAIL
+      until that dependency lands. Implementation MUST NOT begin until #2359 resolves.
+    - 020-go-prohibitions.md §1.1 condensation must be complete before the link is the
+      canonical home of the context-discipline rules.

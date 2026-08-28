@@ -1,20 +1,26 @@
-issue: .opencode#2370
-task: analyze
-step: 5.1 - analytical artifact 6 of 7
-artifact: state-analysis
-
-phases:
-  - phase: 1
-    sc_ids: [SC-1]
-    state_machine_transitions:
-      - none
-    detail: |
-      This is a static content change to a skill card. There is no runtime state machine,
-      no data persistence, no mutable state, and no state transition introduced or altered
-      by this issue. The writing-plans pipeline's state model (work state files, lifecycle
-      manifests) is unaffected.
-    behavioral_state_note: |
-      The only "state" affected is orchestrator context: after the change, an orchestrator
-      loading the writing-plans card will additionally load the orchestrator-context-discipline
-      reference into its context. This is a context-loading effect, not a state-machine
-      transition.
+artifact_name: state-analysis
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  description: "State transitions for files affected by the Read-link addition"
+  transitions:
+    - entity: ".opencode/skills/writing-plans/SKILL.md"
+      before: "Cross-References section has no Read [Text](path) link to orchestrator-context-discipline.md"
+      after: "Cross-References section contains a mandatory Read [Text](path) link to orchestrator-context-discipline.md resolving to .opencode/reference/orchestrator-context-discipline.md"
+      phase: 1
+    - entity: ".opencode/reference/orchestrator-context-discipline.md"
+      before: "Does not exist (created by issue #2359)"
+      after: "Exists (created by #2359) — the link target; this spec does not create it"
+      phase: 1
+      dependency: ".opencode#2359"
+  checkpoint_tags:
+    - tag: "feature/2370-read-link/checkpoint/phase-1-main"
+      phase: 1
+      description: "After the Read-link is added to writing-plans SKILL.md Cross-References section"
+  solve_state:
+    state_file: "{project_root}/tmp/2370/state/"
+    contract_path: "skills/implementation-pipeline/pipeline-state-machine.yaml"
+    phase_variables:
+      - name: phase_1
+        value: pending
+    verification: "solve check after phase update"

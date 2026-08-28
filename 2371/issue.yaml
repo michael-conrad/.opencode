@@ -1,7 +1,9 @@
 number: 2371
 title: '[SPEC] Update brainstorming skill — Read-link discussion-mode-mandates'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Discussion-mode mandates from 020-go-prohibitions.md §1.6 move to a shared reference;
@@ -27,7 +29,7 @@ body: '## Problem
   Enables 020 condensation. Risk: low. Depends on discussion-mode-mandates ref + 020.
   Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-28T02:11:58+00:00'
 remote_issue: 2371
 remote_url: https://github.com/michael-conrad/.opencode/issues/2371
 promoted_at: '2026-08-27T03:25:12.697294+00:00'

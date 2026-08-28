@@ -1,31 +1,28 @@
-issue: .opencode#2370
-task: analyze
-step: 5.1 - analytical artifact 5 of 7
-artifact: interface-compatibility
-
-phases:
-  - phase: 1
-    sc_ids: [SC-1]
-    interface_analysis:
-      - interface: writing-plans/SKILL.md content
-        status: modified
-        compatibility: backward compatible
-        scope: internal only
-        detail: |
-          The Cross-References section gains one Read-link. No existing instruction,
-          workflow step, or dispatch string is changed. The skill's external contract
-          (name, description, task-card set, dispatch strings) is unchanged.
-      - interface: writing-plans task cards (handoff/analyze/research/create/validate/revise/completion)
-        status: unchanged
-        compatibility: backward compatible
-        scope: internal only
-      - interface: .opencode/reference/orchestrator-context-discipline.md
-        status: new (created by #2359, referenced here)
-        compatibility: n/a (not created by this issue)
-        scope: internal only
-      - interface: 020-go-prohibitions.md §1.1
-        status: modified (condensed separately)
-        compatibility: n/a (not modified by this issue)
-    summary: |
-      No breaking interface changes. Single additive content modification to the
-      writing-plans skill card. Backward compatible, internal only.
+artifact_name: interface-compatibility
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  description: "Interface boundaries and compatibility analysis for the Read-link addition"
+  regression_invariants:
+    - invariant: "The writing-plans SKILL.md card continues to route to the same task files — no task file, contract, or reference file under the skill is modified"
+      verification: "Structural check — only the Cross-References section of SKILL.md changes"
+    - invariant: "Existing skill({name: 'writing-plans'}) dispatch behavior is unchanged"
+      verification: "SC-2 behavioral test — dispatch still works; the Read-link is additive"
+    - invariant: "The orchestrator-context-discipline rules are NOT duplicated inline in the writing-plans card"
+      verification: "grep — no inline copy of the context-discipline content; only a Read-link reference"
+  interface_boundaries:
+    skill_calls:
+      status: "UNCHANGED"
+      description: "skill({name: 'writing-plans'}) continues to work — the Read-link is additive, not structural"
+    task_calls:
+      status: "UNCHANGED"
+      description: "task(..., prompt: 'execute <task> from writing-plans') continues to work — no task file modified"
+    reference_link:
+      status: "NEW (additive)"
+      description: "Cross-References section gains a mandatory Read [Text](path) link to .opencode/reference/orchestrator-context-discipline.md"
+      dependency: "Issue #2359 must create the reference file before the link resolves"
+    external_interface_impact:
+      skill_api: "NONE — skill() calls unchanged"
+      task_api: "NONE — task() calls unchanged"
+      cross_references: "ADDITIVE — one new Read-link in the Cross-References section"
+      user_facing: "NONE — no user-facing API changes"

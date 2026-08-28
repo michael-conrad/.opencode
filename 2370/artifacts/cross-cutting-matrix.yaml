@@ -1,31 +1,32 @@
-issue: .opencode#2370
-task: analyze
-step: 5.1 - analytical artifact 4 of 7
-artifact: cross-cutting-matrix
-
-phases:
-  - phase: 1
-    sc_ids: [SC-1]
-    cross_cutting_concerns:
-      - concern: Read-Link Cross-Reference Rule (Tier 1 mandate)
-        impact: |
-          The added link MUST use the `Read [Text](path)` form. This is a cross-cutting
-          rule enforced across all skill cards and guidelines (000-critical-rules.md).
-        affected_by_this_issue: writing-plans/SKILL.md only
-        coordinated_with: |
-          #2359 adds Read-links to all consuming cards (approval-gate, spec-creation,
-          writing-plans, executing-plans, git-workflow). This issue is the writing-plans
-          slice of that coordinated effort.
-      - concern: Skill-card description as semantic router
-        impact: |
-          The description field is unchanged. The Read-link lives in the Cross-References
-          section, not the description. No description-field impact.
-        affected_by_this_issue: none
-      - concern: Skill-card schema (frontmatter binary constraints)
-        impact: |
-          No frontmatter (name/description/license) change. The Read-link is body content.
-        affected_by_this_issue: none
-    coordination_notes: |
-      The cross-cutting Read-link pattern is shared across multiple skill cards. Each card
-      is updated by its own issue to keep changes atomic and reviewable. This issue owns
-      only the writing-plans card.
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  description: "Cross-cutting concerns across the single phase, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1
+      name: "Mandatory Read [Text](path) link present in writing-plans SKILL.md Cross-References section, resolving to .opencode/reference/orchestrator-context-discipline.md"
+      evidence_type: string
+      verification_method: "grep for the Read [Text](path) link in the Cross-References section; path-resolution check"
+      phases_affected:
+        - 1
+      verification_gate: pre-commit
+      remediation: "Add the link to the Cross-References section; correct the path to resolve to .opencode/reference/orchestrator-context-discipline.md"
+    - sc_id: SC-2
+      name: "Orchestrator loads orchestrator-context-discipline reference into context during plan creation"
+      evidence_type: behavioral
+      verification_method: "opencode run behavioral test writing-plans-reads-context-discipline-reference — inspect stderr for a read tool call targeting orchestrator-context-discipline.md (assert_stderr_pattern_present)"
+      phases_affected:
+        - 1
+      verification_gate: post-implementation
+      remediation: "Ensure the Read-link is mandatory and placed so the orchestrator loads the reference during plan creation"
+  cross_cutting_verification_gates:
+    - gate: pre-commit
+      scs:
+        - SC-1
+    - gate: post-implementation
+      scs:
+        - SC-2
+  dependency_gate:
+    description: "Both SCs depend on issue #2359 creating .opencode/reference/orchestrator-context-discipline.md. Until it lands, SC-1 (path resolution) and SC-2 (behavioral load) are FAIL."
+    dependency: ".opencode#2359"

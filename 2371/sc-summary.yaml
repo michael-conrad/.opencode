@@ -1,0 +1,10 @@
+sc_count: 2
+scs:
+  - id: "SC-1"
+    description: "The brainstorming skill card's Cross-References section SHALL contain an imperative Read [Text](.opencode/reference/discussion-mode-mandates.md) link to the discussion-mode-mandates reference."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The Read-link target .opencode/reference/discussion-mode-mandates.md SHALL resolve to an existing file."
+    evidence_type: "behavioral"
+    plan_item: 2

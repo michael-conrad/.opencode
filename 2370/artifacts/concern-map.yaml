@@ -1,24 +1,27 @@
-issue: .opencode#2370
-task: analyze
-step: 5.1 - analytical artifact 2 of 7
-artifact: concern-map
-
-phases:
-  - phase: 1
-    sc_ids: [SC-1]
-    concern_boundaries:
-      - concern: Skill-card cross-reference anchoring
-        owner: writing-plans/SKILL.md Cross-References section
-        separation: |
-          The concern is strictly limited to adding a Read-link to the shared
-          orchestrator-context-discipline reference. It does NOT overlap with:
-          - reference-file creation (#2359)
-          - 020 §1.1 condensation (separate issue)
-          - writing-plans task-card content
-          - any other skill card (approval-gate, spec-creation, executing-plans, git-workflow
-            each have their own Read-link issues: #2359 adds links to all consuming cards;
-            this issue is scoped to writing-plans only)
-    separation_notes: |
-      Single concern, single file, single SC. No cross-concern coupling introduced.
-      The Read-link pattern is cross-cutting across skill cards, but each card's link
-      is a separate, independent concern owned by its own issue.
+artifact_name: concern-map
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  description: "Concern-to-phase mapping for the single-phase Read-link addition"
+  phases:
+    - phase: 1
+      name: "Add mandatory Read-link to writing-plans SKILL.md"
+      concern: "Anchor the shared orchestrator-context-discipline reference via a mandatory Read [Text](path) link"
+      scs:
+        - SC-1
+        - SC-2
+      dependencies:
+        - "Issue #2359 creates .opencode/reference/orchestrator-context-discipline.md (link target)"
+        - "020-go-prohibitions.md §1.1 condensation complete"
+      dispatch: "step-level (per-item)"
+      key_deliverables:
+        - "Mandatory Read [Text](path) link present in writing-plans SKILL.md Cross-References section"
+        - "Link path resolves to .opencode/reference/orchestrator-context-discipline.md"
+        - "Orchestrator loads the reference into context during plan creation (behavioral)"
+  concern_to_phase_mapping:
+    "Read-link anchoring": 1
+  phase_independence:
+    description: "Single phase — no parallelization applicable"
+    independent_phases: []
+    prerequisite_phase: null
+    dependent_phase: null

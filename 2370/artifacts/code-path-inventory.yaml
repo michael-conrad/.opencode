@@ -1,22 +1,23 @@
-issue: .opencode#2370
-task: analyze
-step: 5.1 - analytical artifact 3 of 7
-artifact: code-path-inventory
-
-phases:
-  - phase: 1
-    sc_ids: [SC-1]
-    code_paths_touched:
-      - path: .opencode/skills/writing-plans/SKILL.md
-        section: '"## Cross-References" (lines 185-187)'
-        action: "insert mandatory Read [Text](path) link to orchestrator-context-discipline.md"
-        read_consumers:
-          - "Orchestrator loads the card via skill({name: \"writing-plans\"}) and reads the Cross-References section; the Read-link instructs it to load the reference."
-    related_files_consulted:
-      - .opencode/reference/orchestrator-context-discipline.md (link target — created by #2359, not modified here)
-      - .opencode/guidelines/020-go-prohibitions.md §1.1 (source content — condensed separately, not modified here)
-      - .opencode/skills/engineering-approach/SKILL.md (Read-link pattern reference)
-    files_not_touched:
-      - .opencode/skills/writing-plans/tasks/*.md
-      - .opencode/skills/writing-plans/contracts/*
-      - .opencode/skills/writing-plans/reference/*
+artifact_name: code-path-inventory
+generated_at: 2026-08-27
+source: "Spec #2370"
+content:
+  description: "Code paths implied by each SC"
+  sc_1_paths:
+    - path: ".opencode/skills/writing-plans/SKILL.md"
+      section: "Cross-References"
+      change: "Add mandatory Read [Text](path) link to orchestrator-context-discipline.md"
+      verification: "grep for the Read [Text](path) link in the Cross-References section; path-resolution check that it resolves to .opencode/reference/orchestrator-context-discipline.md"
+    - path: ".opencode/reference/orchestrator-context-discipline.md"
+      section: "link target"
+      change: "Created by issue #2359 — must exist for the link to resolve"
+      verification: "path-resolution check confirms link resolves to this file"
+  sc_2_paths:
+    - path: ".opencode/skills/writing-plans/SKILL.md"
+      section: "Cross-References"
+      change: "The Read-link instructs the orchestrator to load the reference into context during plan creation"
+      verification: "opencode run behavioral test writing-plans-reads-context-discipline-reference — inspect stderr for a read tool call targeting orchestrator-context-discipline.md"
+  authority_source:
+    path: ".opencode/guidelines/000-critical-rules.md"
+    section: "Read-Link Cross-Reference Rule"
+    role: "Tier 1 mandate requiring the Read [Text](path) form — the authority for the link form used in this change"

@@ -34,7 +34,8 @@ labels: [needs-approval, spec-draft]
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | The writing-plans SKILL.md Cross-References section SHALL contain a mandatory `Read [Text](path)` link to orchestrator-context-discipline.md whose path resolves to `.opencode/reference/orchestrator-context-discipline.md`, and an orchestrator dispatching the writing-plans skill SHALL load that reference into its context during plan creation. | behavioral | `opencode run` behavioral test `writing-plans-reads-context-discipline-reference` — dispatch writing-plans against a real AI model and inspect stderr for a read tool call targeting orchestrator-context-discipline.md (assert_stderr_pattern_present). Supplementary structural check confirms the Read-link presence in the Cross-References section. | `.opencode/skills/writing-plans/SKILL.md` (Cross-References section); `.opencode/reference/orchestrator-context-discipline.md` (link target, created by #2359); `.opencode/guidelines/000-critical-rules.md` (Read-Link rule) |
+| SC-1 | The writing-plans SKILL.md Cross-References section SHALL contain a mandatory `Read [Text](path)` link to orchestrator-context-discipline.md whose path resolves to `.opencode/reference/orchestrator-context-discipline.md`. | string | grep verification of the writing-plans SKILL.md Cross-References section for the `Read [Text](path)` link to orchestrator-context-discipline.md, and path-resolution check confirming the link resolves to `.opencode/reference/orchestrator-context-discipline.md`. | `.opencode/skills/writing-plans/SKILL.md` (Cross-References section); `.opencode/reference/orchestrator-context-discipline.md` (link target, created by #2359); `.opencode/guidelines/000-critical-rules.md` (Read-Link rule) |
+| SC-2 | An orchestrator dispatching the writing-plans skill SHALL load the orchestrator-context-discipline reference into its context during plan creation. | behavioral | `opencode run` behavioral test `writing-plans-reads-context-discipline-reference` — dispatch writing-plans against a real AI model and inspect stderr for a read tool call targeting orchestrator-context-discipline.md (assert_stderr_pattern_present). | `.opencode/skills/writing-plans/SKILL.md` (Cross-References section); `.opencode/reference/orchestrator-context-discipline.md` (link target, created by #2359); `.opencode/guidelines/000-critical-rules.md` (Read-Link rule) |
 
 ## 4. Requirements
 
@@ -51,10 +52,17 @@ labels: [needs-approval, spec-draft]
 
 ### Item 1 (SC-1): Add mandatory Read-link to orchestrator-context-discipline.md in writing-plans SKILL.md
 
-- RED: Behavioral enforcement test asserts the orchestrator does NOT currently load orchestrator-context-discipline.md when dispatching writing-plans (no Read-link present) — assert_stderr_pattern_absent on the reference path.
+- RED: String grep check asserts the writing-plans SKILL.md Cross-References section does NOT currently contain a `Read [Text](path)` link to orchestrator-context-discipline.md.
 - GREEN: Add the mandatory `Read [Text](path)` link to orchestrator-context-discipline.md in the writing-plans SKILL.md Cross-References section.
+- verify: Re-run the string grep check — assert the link is present in the Cross-References section and its path resolves to `.opencode/reference/orchestrator-context-discipline.md`.
+- commit: Single atomic commit for the SKILL.md change + string check.
+
+### Item 2 (SC-2): Behavioral verification that the orchestrator loads the reference during plan creation
+
+- RED: Behavioral enforcement test asserts the orchestrator does NOT currently load orchestrator-context-discipline.md when dispatching writing-plans (no Read-link present) — assert_stderr_pattern_absent on the reference path.
+- GREEN: No additional code change — this item's GREEN is satisfied by the same SKILL.md link added in Item 1, verified behaviorally.
 - verify: Re-run the behavioral test — assert the orchestrator DOES load orchestrator-context-discipline.md (assert_stderr_pattern_present on the reference path / a read tool call targeting it).
-- commit: Single atomic commit for the SKILL.md change + behavioral test.
+- commit: Single atomic commit for the behavioral test (bundled with the Item 1 SKILL.md change).
 
 ## 6. Dependencies
 
@@ -68,13 +76,13 @@ labels: [needs-approval, spec-draft]
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | Phase 1 |
+| R-1 | SC-1, SC-2 | Phase 1 |
 | R-2 | SC-1 | Phase 1 |
 | R-3 | SC-1 | Phase 1 |
 | R-4 | SC-1 | Phase 1 |
-| R-5 | SC-1 | Phase 1 |
+| R-5 | SC-2 | Phase 1 |
 | R-6 | SC-1 | Phase 1 |
-| R-C1 | SC-1 | Phase 1 |
+| R-C1 | SC-1, SC-2 | Phase 1 |
 | R-N1 | SC-1 | Phase 1 |
 
 ## 8. Documentation Sources
@@ -94,12 +102,20 @@ labels: [needs-approval, spec-draft]
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Running the behavioral test costs minutes of execution time — a bounded delay that surfaces the context-loading defect at the earliest gate. Skipping it means an orchestrator that fails to load the context-discipline reference ships unchanged; the defect is discovered only when a plan is created without the discipline rules, costing the full rework cycle (diagnose + fix + re-CI + re-deploy) at 1000× the bounded test cost.
+- SC-1: The string grep check costs seconds — a bounded check that surfaces a missing or mis-resolved link at the earliest gate. Skipping it means a malformed or unresolved link ships; the defect is discovered only when an orchestrator cannot resolve the reference, costing the full rework cycle at 1000× the bounded check cost.
+- SC-2: Running the behavioral test costs minutes of execution time — a bounded delay that surfaces the context-loading defect at the earliest gate. Skipping it means an orchestrator that fails to load the context-discipline reference ships unchanged; the defect is discovered only when a plan is created without the discipline rules, costing the full rework cycle (diagnose + fix + re-CI + re-deploy) at 1000× the bounded test cost.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** Not applicable — this is a static content change to a skill card; no runtime input surface exists.
 - **State transitions:** The only affected "state" is orchestrator context — after the change, an orchestrator loading the writing-plans card additionally loads the orchestrator-context-discipline reference. No state-machine transition is introduced.
-- **Failure modes:** If `.opencode/reference/orchestrator-context-discipline.md` does not exist (issue #2359 not landed), the link resolves to a nonexistent file and the behavioral GREEN test cannot pass. Resolution: implementation MUST NOT begin until the dependency resolves; the SC is FAIL until then.
+- **Failure modes:** If `.opencode/reference/orchestrator-context-discipline.md` does not exist (issue #2359 not landed), the link resolves to a nonexistent file: SC-1 (path resolution) and SC-2 (behavioral load) both FAIL until then. Resolution: implementation MUST NOT begin until the dependency resolves; both SCs are FAIL until then.
 - **Concurrency:** Not applicable — single-file additive content change; no shared mutable state.
 - **Recovery:** If the dependency is unresolved, block implementation and re-dispatch after #2359 lands. No rollback path is needed beyond reverting the single additive link.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-27 | Decomposed SC-1 into two atomic SCs: SC-1 (structural — link presence with resolvable path, grep verification) and SC-2 (behavioral — orchestrator loads reference into context during plan creation, opencode run verification). Updated Items, Traceability, Cost Frame, and Edge Cases to match the decomposed SC set. | Aggregate FAIL on Compound-SC detection — SC-1 bundled two distinct verification targets joined by "and". | spec-creation validation |
+| 2026-08-27 | Corrected SC-1 declared evidence type from `structural` to `string`. SC-1's verification method is grep for the `Read [Text](path)` link pattern, which is `string` evidence per the canonical Evidence Type Taxonomy (grep/pattern-matching = string; structural = file existence/`ls`/`wc`). Updated Item 1 wording (structural grep check → string grep check) and `sc-summary.yaml` evidence_type for SC-1 accordingly. | Aggregate FAIL on EVIDENCE_TYPE_MISMATCH — SC-1 declared `structural` but its verification method is grep (string evidence). | spec-creation validation |
