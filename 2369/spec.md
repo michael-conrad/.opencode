@@ -26,8 +26,8 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | The `programming-principles` SKILL.md SHALL contain a `Read [Text](path)` link to `reference/code-standards-shared.md` using the `Read [code-standards-shared reference](reference/code-standards-shared.md)` form. | structural | Grep `.opencode/skills/programming-principles/SKILL.md` for the link `Read [code-standards-shared reference](reference/code-standards-shared.md)`. |
-| SC-2 | The `programming-principles` SKILL.md SHALL contain a `Read [Text](path)` link to `reference/data-integrity-shared.md` using the `Read [data-integrity-shared reference](reference/data-integrity-shared.md)` form. | structural | Grep `.opencode/skills/programming-principles/SKILL.md` for the link `Read [data-integrity-shared reference](reference/data-integrity-shared.md)`. |
+| SC-1 | The `programming-principles` SKILL.md SHALL contain a `Read [Text](path)` link to `reference/code-standards-shared.md` using the `Read [code-standards-shared reference](reference/code-standards-shared.md)` form. | string | Grep `.opencode/skills/programming-principles/SKILL.md` for the link `Read [code-standards-shared reference](reference/code-standards-shared.md)`. |
+| SC-2 | The `programming-principles` SKILL.md SHALL contain a `Read [Text](path)` link to `reference/data-integrity-shared.md` using the `Read [data-integrity-shared reference](reference/data-integrity-shared.md)` form. | string | Grep `.opencode/skills/programming-principles/SKILL.md` for the link `Read [data-integrity-shared reference](reference/data-integrity-shared.md)`. |
 | SC-3 | The guidelines `080-code-standards.md` and `090-data-integrity.md` SHALL remain unmodified by this change. | structural | `git diff` against the pre-change commit for `.opencode/guidelines/080-code-standards.md` and `.opencode/guidelines/090-data-integrity.md` shows no changes. |
 
 ## 4. Requirements
@@ -92,6 +92,12 @@
 ## 9. Enforcement Gate
 
 > **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
+
+## Change Control
+
+| Date | Change | Reason | Author |
+|------|--------|--------|--------|
+| 2026-08-27 | Corrected evidence type of SC-1 and SC-2 from `structural` to `string` | Validation finding: SC-1/SC-2 verification method is grep for the link pattern, which is `string` evidence per the canonical taxonomy — declared type was `structural` (EVIDENCE_TYPE_MISMATCH) | Pipeline validation |
 
 ## 10. Cost Frame
 

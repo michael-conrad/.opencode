@@ -2,11 +2,11 @@ sc_count: 3
 scs:
   - id: "SC-1"
     description: "programming-principles SKILL.md contains a Read [Text](path) link to reference/code-standards-shared.md"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 1
   - id: "SC-2"
     description: "programming-principles SKILL.md contains a Read [Text](path) link to reference/data-integrity-shared.md"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
     description: "guidelines 080-code-standards.md and 090-data-integrity.md remain unmodified"
