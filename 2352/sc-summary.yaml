@@ -1,30 +1,50 @@
-sc_count: 7
+sc_count: 12
 scs:
   - id: "SC-1"
     description: "Create code-standards-shared reference holding relocated procedural sections verbatim"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 1
   - id: "SC-2"
     description: "Create attribution-provenance reference holding AI Co-Authored Attribution and Provenance Headers verbatim"
-    evidence_type: "structural"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
-    description: "Condense 080-code-standards.md: replace procedural sections with mandatory Read-links, retain enforcement cores verbatim, keep 080 in instructions array"
-    evidence_type: "structural"
+    description: "Every relocated procedural section in condensed 080 replaced with a mandatory Read-link; no relocated section body remains inline"
+    evidence_type: "string"
     plan_item: 3
   - id: "SC-4"
-    description: "Align design/DI authority to programming-principles skill as master source with no reversed reference"
-    evidence_type: "structural"
+    description: "Enforcement cores (Enforcement Test Mandate + critical-rules blocks) retained verbatim in condensed 080"
+    evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
-    description: "Wire retained enforcement cores in 080 to canonical test-driven-development/SKILL.md sections"
-    evidence_type: "structural"
+    description: "080-code-standards.md remains present in the instructions[] array of opencode.jsonc"
+    evidence_type: "string"
     plan_item: 5
   - id: "SC-6"
-    description: "Verify preloaded token burden of 080 substantially reduced relative to ~14.2k baseline with no enforcement core lost"
-    evidence_type: "structural"
+    description: "Design/DI authority aligns to programming-principles skill as master source via mandatory Read-link, with no reversed reference"
+    evidence_type: "string"
     plan_item: 6
   - id: "SC-7"
+    description: "Condensed 080 contains no duplicated design/DI authority definitions inline"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8a"
+    description: "Retained enforcement cores in 080 Read-link to canonical test-driven-development/SKILL.md sections"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-8b"
+    description: "The test-driven-development/SKILL.md sections linked from 080 (Enforcement Test Mandate, Evidence Type Taxonomy, Behavioral RED/GREEN gate, Test Integrity Mandate) exist in the skill"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-9"
+    description: "Condensed 080 contains no stale or duplicated enforcement-core definitions inline"
+    evidence_type: "string"
+    plan_item: 10
+  - id: "SC-10"
+    description: "Preloaded token burden of 080 reduced by at least 40% relative to documented ~14.2k baseline (chars/2.7 proxy: 38,456/2.7 ≈ 14,243 tokens; post-condensation count ≤ 8,500 tokens)"
+    evidence_type: "structural"
+    plan_item: 11
+  - id: "SC-12"
     description: "Behavioral enforcement: agent consuming condensed 080 still enforces behavioral-test-substitution prohibition (no regression)"
     evidence_type: "behavioral"
-    plan_item: 7
+    plan_item: 12

@@ -12,11 +12,12 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
 
   Preloaded `.opencode/guidelines/080-code-standards.md` costs ~14.2k tokens (~21%
-  of the agent''s preload burden, the 2nd largest single file). Roughly 65% is procedural
-  prose (typing, design rules, DI mandate, print rules, tool-selection-by-file-type,
-  numbering, attribution/byline, provenance headers, cross-reference standards, YAML
-  standard, triple co-application) that agents only need on-demand — preloading it
-  taxes every session''s system context.
+  of the agent''s preload burden, the 2nd largest single file). The ~14.2k token baseline
+  is measured with the **chars/2.7 prose-dense proxy**: the file is 663 lines / 38,456
+  chars, and 38,456 / 2.7 ≈ 14,243 tokens. Roughly 65% is procedural prose (typing,
+  design rules, DI mandate, print rules, tool-selection-by-file-type, numbering, attribution/byline,
+  provenance headers, cross-reference standards, YAML standard, triple co-application)
+  that agents only need on-demand — preloading it taxes every session''s system context.
 
 
   ## Scope
@@ -25,13 +26,16 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   - **In:** Relocate the procedural sections to shared references (code-standards-shared,
   attribution-provenance) loaded via mandatory Read-links.
 
+
   - **In:** Align design/DI authority to the `programming-principles` skill (master
   source) and wire the retained enforcement cores to the `test-driven-development`
   skill (canonical source).
 
+
   - **In:** Retain the enforcement-test mandate, the behavioral-test-substitution
   prohibition, and the critical-rules-XXX blocks (derivation provenance, evidence-type
   classification gate) verbatim in 080.
+
 
   - **In:** Keep 080 in the Tier 1 `instructions[]` array — condensation only, not
   removal from preload.
@@ -39,9 +43,12 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   **Out of scope:**
 
+
   - Removing any enforcement core.
 
+
   - Altering the preload mechanism or removing 080 from the `instructions[]` array.
+
 
   - Changing enforcement semantics — this is a structural (token-burden) change, not
   a semantic one.
@@ -56,7 +63,9 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   to the relocated procedural content. Design/DI authority stays with the `programming-principles`
   skill (already the master source), and the retained enforcement cores wire to the
   canonical `test-driven-development` skill definitions. This preserves enforcement
-  behavior while cutting the preloaded token burden.
+  behavior while cutting the preloaded token burden. Success is measured via the documented
+  chars/2.7 prose-dense proxy (38,456 / 2.7 ≈ 14,243 baseline): the post-condensation
+  count must be ≤ 8,500 tokens (≥40% reduction).
 
 
   ## Impact
@@ -66,31 +75,19 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   Retain enforcement cores verbatim; verify behaviorally (SC-7) that the behavioral-test-substitution
   prohibition is still enforced.
 
+
   - **Risk:** Broken stable anchors referenced by other files (critical-rules-023,
   critical-rules-060, programming-principles line 68). **Mitigation:** Preserve or
   re-point stable anchors to the shared references.
+
 
   - **Risk:** Reversed skill authority (080 as master source). **Mitigation:** Keep
   programming-principles / test-driven-development as the master/canonical sources;
   080 links to them, never the reverse.
 
-
-  **Dependencies:** shared references (code-standards-shared, attribution-provenance),
-  programming-principles skill, test-driven-development skill, `opencode.jsonc` instructions
-  array.
-
-
-  **Action:** Approve to proceed with implementation.
-
-
-  ---
-
-
-  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
-
   '
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-28T17:25:52+00:00'
+updated_at: '2026-08-28T18:01:57+00:00'
 remote_issue: 2352
 remote_url: https://github.com/michael-conrad/.opencode/issues/2352
 promoted_at: '2026-08-27T03:25:12.662123+00:00'
