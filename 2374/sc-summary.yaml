@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "issue-review SKILL.md is the authoritative source for the staleness rule, de-minimis bound, and single-exchange window; detail absent from task files (single-source)"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Shared content between issue-review and 067 cross-referenced using mandatory Read [Text](path) form; no See-file/bare-symbol forms"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Zero-tolerance read-all-comments-before-acting core remains intact in 067; SKILL.md description still asserts all comments must be read"
+    evidence_type: "behavioral"
+    plan_item: 3
