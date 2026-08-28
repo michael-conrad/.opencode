@@ -1,0 +1,36 @@
+# Code Path Inventory — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Code Paths Touched by Each Phase
+
+This is a prose/content change to guidelines and a skill task file — not
+executable code. The "code paths" are the instruction-loading and skill-dispatch
+paths the content flows through at runtime.
+
+phase: 1
+  - name: "Condense guideline + relocate drift protocol"
+    paths:
+      - "opencode.jsonc instructions array → loads
+        130-authority-source.md into orchestrator system prompt at session start"
+        effect: "Condensed file loaded — fewer tokens, core rules still present."
+      - "skill({engineering-approach}) → task() → sub-agent reads
+        operating-protocol.md during implementation"
+        effect: "Sub-agent now also reads drift-protocol prose in
+        operating-protocol.md."
+
+phase: 2
+  - name: "Consistency verification (INDEX.md / opencode.jsonc)"
+    paths:
+      - "opencode.jsonc instructions array → 130-authority-source.md"
+        effect: "Retained (no change to this path)."
+      - "guidelines/INDEX.md → sub-agent Tier 2+ routing"
+        effect: "Row wording may be reviewed for accuracy; no structural path
+        change."
+
+## Behavioral vs Structural
+
+This change does NOT alter any runtime branching, tool selection, or decision
+logic. It alters the CONTENT that flows through existing preloading and skill
+dispatch paths. Verification evidence is therefore semantic/structural (prose
+read + file/content comparison), NOT behavioral. Per 080-code-standards.md, a
+prose-only change uses semantic intent verification by AI read — not grep.

@@ -1,0 +1,48 @@
+# Concern Map — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Concern Boundaries and Separation
+
+The change separates two distinct concerns currently bundled in the preloaded
+guideline:
+
+concerns:
+  - concern: "Dual-authority core (spec for intent, code for state)"
+    location_after: ".opencode/guidelines/130-authority-source.md (preloaded)"
+    rationale: "Safety-relevant normative rule — MUST stay in orchestrator system
+      context per #497 preloading mandate. Concern: what the spec/code authority
+      relationship IS."
+    separation: RETAINED preloaded. Not relocated.
+
+  - concern: "Documentation-drift protocol (procedural response when spec and
+    code diverge)"
+    location_after: ".opencode/skills/engineering-approach/tasks/operating-protocol.md"
+    rationale: "Procedural how-to (update spec, admin sync, STOP and report) —
+      only needed during implementation when drift is detected. Concern: HOW to
+      respond to divergence. Belongs with the design/verify procedural discipline."
+    separation: RELOCATED to engineering-approach. Not preloaded.
+
+  - concern: "Suppression of reactive remediation (do not change code to match a
+    wrong spec)"
+    location_after: ".opencode/guidelines/130-authority-source.md (preloaded)"
+    rationale: "Normative boundary rule paired with the dual-authority core —
+      explicit scope 'In'. Must stay preloaded."
+    separation: RETAINED preloaded. Not relocated.
+
+## Separation Table
+
+| Concern | Preloaded? | Moved? | Home |
+|---------|-----------|--------|------|
+| Dual-authority core | Yes | No | 130-authority-source.md |
+| Spec-before-code | Yes | No | 130-authority-source.md |
+| Spec revision revokes plan | Yes | No | 130-authority-source.md |
+| Suppression of reactive remediation | Yes | No | 130-authority-source.md |
+| Verification against spec | Yes | No | 130-authority-source.md |
+| Documentation-drift protocol | No (after change) | Yes | engineering-approach operating-protocol |
+
+## Boundary Check
+
+The separation keeps normative (what-IS / safety) content preloaded and moves
+procedural (how-to-respond) content to the skill that governs implementation-time
+discipline. This matches the established #2135 pattern of relocating procedural
+content out of preloaded guidelines.

@@ -1,0 +1,45 @@
+# Research Card Consultation — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Search Method
+
+Searched both research card catalogues:
+- Root repo: .issues/research-cards/*.md (14 cards)
+- .opencode repo: .opencode/.issues/research-cards/*.md (11 cards)
+
+## Cards Inspected (grep for relevant topics: drift, guideline, condensation, token, authority, documentation)
+
+cards_reviewed:
+  - .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+  - .issues/research-cards/writing-plans-flattening.md
+  - .issues/research-cards/cross-reference-lobotomization.md
+  - .opencode/.issues/research-cards/plan-fidelity-auditor-authoritative-sources.md
+  - .opencode/.issues/research-cards/cross-reference-form-comparison.md
+
+## Matching Card Result
+
+matching_card: NONE
+confidence: N/A
+finding: No research card addresses the specific topic of condensing the
+  130-authority-source.md guideline or relocating the documentation-drift
+  protocol to engineering-approach. The cards cover adjacent topics
+  (cross-reference forms, plan-fidelity authoritative sources, spec-writing
+  architecture) but none directly inform this condensation/relocation change.
+
+## Incorporated Findings
+
+No research-card findings are incorporated. The analysis proceeds on
+first-principles inspection of the live codebase and the issue body.
+
+## Relevant Adjacent Knowledge (from live codebase inspection, not a research card)
+
+- CHANGELOG #2135 documents a prior precedent: 130-authority-source.md was
+  already condensed once (dual-authority rewrite + relocation of 3 superseded
+  sections to spec-creation SKILL.md and 065-verification-honesty.md).
+  This issue continues that pattern: relocate remaining procedural prose
+  (drift protocol) to engineering-approach.
+- This prior relocation established the convention that procedural content is
+  moved OUT of the preloaded guideline into skills to save orchestrator tokens.
+- Cross-reference-lobotomization.md card (root) is relevant as a caution: the
+  relocation must preserve semantic meaning and not create empty content-free
+  section headers (SC-12 precedent from #2135).

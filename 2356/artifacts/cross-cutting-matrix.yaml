@@ -1,0 +1,23 @@
+# Cross-Cutting Matrix — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Cross-Cutting Concerns Matrix
+
+This change is small (2-3 prose files) and does not touch executable code. The
+cross-cutting concerns that span the affected files are content-integrity
+properties.
+
+| Cross-Cutting Concern | 130-authority-source.md | engineering-approach operating-protocol.md | INDEX.md | Verification Method |
+|-----------------------|------------------------|-------------------------------------------|----------|---------------------|
+| Semantic preservation (no content loss) | High — core must stay intact | High — drift protocol must be preserved | n/a | Two-file semantic comparison (Item 4 / SC-4) |
+| Token reduction target (~0.4k) | High — must condense | n/a (gains content) | n/a | Read condensed file; estimate removed prose |
+| Cross-reference stability (file path unchanged) | High — path must not change | Low — no path impact | n/a | grep references to 130-authority-source.md |
+| No content-free section headers | High — precedent #2135 SC-12 | Low | n/a | Read for empty headers |
+| #497 preloading safety mandate | High — must remain preloaded | n/a | n/a | opencode.jsonc instructions array check |
+| No compaction-metric phrasing | High — precedent #2135 SC-12 | n/a | n/a | Absence grep for compaction phrases |
+
+## Single-Concern Check
+
+Each implementation item targets one file category (guideline vs skill task)
+and one verification domain (semantic/structural). No item combines executable
+code changes with prose changes.

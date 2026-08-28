@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1"
+    description: "Rule 3 (Documentation Drift Protocol) procedural prose is removed from .opencode/guidelines/130-authority-source.md."
+    evidence_type: "semantic"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The documentation-drift protocol prose is present in .opencode/skills/engineering-approach/tasks/operating-protocol.md."
+    evidence_type: "semantic"
+    plan_item: 2
+  - id: "SC-3"
+    description: "130-authority-source.md remains present in the .opencode/opencode.jsonc instructions array."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The INDEX.md row for 130-authority-source.md accurately reflects the condensed guideline's scope."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The retained core rules (Principle, Rules 1, 2, 4, 5, 6, critical-rules-010) in the condensed guideline are semantically equivalent to the original."
+    evidence_type: "semantic"
+    plan_item: 5
+  - id: "SC-6"
+    description: "The relocated documentation-drift protocol in operating-protocol.md is semantically equivalent to the original Rule 3."
+    evidence_type: "semantic"
+    plan_item: 6

@@ -1,0 +1,35 @@
+# State Analysis — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## State Machine Transitions Per Phase
+
+This change does not introduce any new state machine or alter executable state
+transitions. The only "state" affected is the content-state of two files
+(guideline and skill task) across the implementation phases.
+
+| Phase | From State | Transition | To State |
+|-------|-----------|-----------|----------|
+| 1 | 130-authority-source.md: full 32 lines incl. Rule 3 | Remove Rule 3 prose (relocated to engineering-approach) | 130-authority-source.md: condensed, core retained |
+| 1 | engineering-approach operating-protocol.md: current 6 procedural steps | Add drift-protocol prose | engineering-approach operating-protocol.md: 6 steps + drift protocol |
+| 2 | INDEX.md: row "Documentation drift" load trigger | Review/adjust row wording | INDEX.md: row accurately reflects retained scope |
+| 2 | opencode.jsonc: 130 in instructions | No change (retained) | opencode.jsonc: unchanged |
+| 3 (verification) | Condensed + relocated files | Semantic comparison vs original | VERIFIED (semantic equivalence) or FAIL (remediate) |
+
+## State Invariants
+
+- 130-authority-source.md MUST remain present in opencode.jsonc instructions
+  (never transition to removed).
+- Dual-authority core + suppression-of-reactive-remediation MUST remain present
+  in the guideline (never transition to removed).
+- Drift protocol MUST remain present somewhere in the deck (relocated, never
+  deleted) — content-loss invariant.
+- No content-free section headers may be introduced (precedent #2135 SC-12).
+
+## Failure States
+
+| Failure | Detection |
+|---------|-----------|
+| Core removed during condensation | Semantic read of condensed file → FAIL (scope "Out" violation) |
+| Drift protocol deleted (not relocated) | Grep both files for drift protocol → absent → FAIL |
+| opencode.jsonc drops 130 | Instructions array check → FAIL (REQ-5/#497) |
+| Semantic meaning altered | Two-file comparison → FAIL (SC-4) |

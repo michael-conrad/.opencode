@@ -5,31 +5,34 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '## Problem
+body: '> Full spec and artifacts: [`.opencode/.issues/2355/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2355) — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+>
+> **Local artifacts:** `.opencode/.issues/2355/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
-  Preloaded `.opencode/guidelines/091-incremental-build.md` costs ~1.0k tokens. ~60%
-  procedural (per-item TDD cycle detail, scope classification table, anti-patterns)
-  that overlaps test-driven-development.
+## Problem
 
+Preloaded `.opencode/guidelines/091-incremental-build.md` (50 lines, ~1.0k tokens) is ~60% procedural detail (per-item TDD cycle, scope classification table, anti-patterns) that duplicates the `test-driven-development` skill, and it carries two stale cross-references on line 9. This wastes ~0.6k tokens of preload per session and routes agents to content that no longer exists.
 
-  ## Scope
+## Scope
 
-  - **In:** Relocate per-item TDD detail + scope table + anti-patterns to test-driven-development;
-  retain the mandate that all implementation follows top-down decomposition → bottom-up
-  design → per-item TDD cycle.
+- **In:** Relocate the per-item TDD detail, scope classification table, and anti-patterns to the `test-driven-development` skill.
+- **In:** Retain the decomposition mandate (top-down decomposition → bottom-up design → per-item TDD cycle) in a condensed 091, kept preloaded.
+- **In:** Remove the two stale cross-references from 091 line 9.
+- **In:** Add a behavioral enforcement test verifying the mandate is still followed after the condense.
+- **Out:** Removing the incremental-build mandate.
+- **Out:** Changing the preloading mechanism (091 stays preloaded).
 
-  - **Out:** Removing the incremental-build mandate.
+## Approach
 
+Condense 091 to retain only the decomposition mandate and remove the procedural overlap. Relocate the scope classification table, per-item TDD cycle detail, behavioral variant, and anti-patterns to the `test-driven-development` skill (the on-demand home for TDD procedure), ensuring lossless relocation. Remove the two stale cross-references. Per the tdd Enforcement Test Mandate, add a behavioral test (via `with-test-home` `opencode run`) proving the agent still follows the decomposition mandate after the change. The mandate remains Tier-1 preloaded; only the duplicated procedure moves.
 
-  ## Approach
+## Impact
 
-  Move the already-duplicated TDD detail to test-driven-development; keep the decomposition
-  mandate preloaded.
-
-
-  ## Impact
-
-  ~0.6k savings. Risk: low. Depends on tdd skill update + config. Action: approve.'
+- **Risk 1 — Content loss during relocation:** Mitigated by explicit SCs requiring the scope table, behavioral variant/evidence definition, and anti-patterns to be present in tdd after relocation.
+- **Risk 2 — Mandate accidentally removed:** Mitigated by Scope: Out and SC-1a requiring the mandate text to remain.
+- **Risk 3 — Behavioral test not RED-before-GREEN:** Mitigated by SC-8 requiring RED before change, GREEN after, via `with-test-home`.
+- **Key dependencies:** tdd skill update (#2367) as the canonical home for per-item TDD cycle; `opencode.jsonc` preload retention; `with-test-home` harness.
+- **Action:** Approve to proceed with implementation.'
 created_at: '2026-08-27T03:14:22Z'
 updated_at: '2026-08-28T21:25:34+00:00'
 remote_issue: 2355

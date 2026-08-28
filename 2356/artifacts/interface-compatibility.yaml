@@ -1,0 +1,33 @@
+# Interface Compatibility — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Interface Compatibility Analysis
+
+The "interfaces" here are the file paths and cross-reference anchors that
+consumers depend on. Since this is a content/prose change, interface
+compatibility focuses on path stability and reference validity.
+
+| Interface (path/anchor) | Status | Classification | Consumers |
+|-------------------------|--------|----------------|-----------|
+| .opencode/guidelines/130-authority-source.md | UNCHANGED (path) | Backward compatible | opencode.jsonc instructions, INDEX.md, 065/067/075 guidelines, audit drift-detection tasks, issue-operations-core |
+| Rule 1/2/4/6 + Principle + critical-rules-010 in 130-authority-source.md | MODIFIED (content condensed) | Backward compatible (semantically retained) | Orchestrator system prompt, any agent citing dual-authority |
+| Rule 3 (Documentation Drift Protocol) in 130-authority-source.md | REMOVED from guideline | Backward compatible (relocated, not deleted) | Agents referencing drift protocol |
+| .opencode/skills/engineering-approach/tasks/operating-protocol.md | MODIFIED (gains drift-protocol prose) | Backward compatible (additive) | engineering-approach sub-agents during implementation |
+| .opencode/guidelines/INDEX.md | MODIFIED (row wording review) | Backward compatible | Sub-agent Tier 2+ routing |
+| .opencode/opencode.jsonc instructions array | UNCHANGED (130 retained) | Backward compatible | Session-start preloading |
+
+## Analysis
+
+- No interface is removed or renamed; all existing cross-references to
+  130-authority-source.md remain valid because the file path is unchanged.
+- The only content-level change is Rule 3 moving from the guideline to
+  engineering-approach operating-protocol. This is a relocation, not a deletion
+  (backward compatible — semantic meaning preserved).
+- opencode.jsonc instructions array retains the file (REQ-5), preserving the
+  #497 preloading safety mandate.
+
+## Breaking/Internal Classification
+
+- No breaking changes.
+- Internal-only changes: the Rule 3 relocation and operating-protocol addition
+  are internal to the .opencode agent deck.

@@ -1,0 +1,47 @@
+# Blast Radius — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Affected Components and Ripple Effects
+
+phases:
+  - phase: 1
+    name: "Condense guideline + relocate drift protocol"
+    affected_components:
+      - .opencode/guidelines/130-authority-source.md (condense — remove Rule 3)
+      - .opencode/skills/engineering-approach/tasks/operating-protocol.md
+        (add drift-protocol prose)
+    ripple_effects:
+      - Orchestrator system context at session start: reduced by ~0.4k tokens
+        (the intended benefit) because Rule 3 procedural prose no longer loaded.
+      - engineering-approach sub-agents during implementation: now receive the
+        drift-protocol guidance when loaded.
+      - No change to runtime safety: the dual-authority core (safety-relevant)
+        remains preloaded.
+
+  - phase: 2
+    name: "Consistency verification (INDEX.md / opencode.jsonc)"
+    affected_components:
+      - .opencode/guidelines/INDEX.md (row wording review)
+      - .opencode/opencode.jsonc (instructions array — retained, no removal)
+    ripple_effects:
+      - None functional; config/index consistency only.
+
+## Ripple Effects on Downstream Consumers
+
+consumers:
+  - consumer: "Orchestrator system prompt (session start)"
+    impact: "Reduced token load — the intended benefit. Drift protocol still
+      reachable via engineering-approach skill when implementation starts."
+    unchanged: "Core dual-authority rules still loaded preloaded."
+  - consumer: "engineering-approach skill"
+    impact: "Gains the drift-protocol prose in its operating-protocol."
+  - consumer: "Cross-referencing guidelines (065, 067, 075) and audit tasks"
+    impact: "NONE — they reference 130-authority-source.md by path, which is
+      unchanged. Core retained, so their 'code as authoritative source' citations
+      remain accurate."
+
+## Risk Profile
+
+risk: LOW (per issue body)
+highest_risk: "Semantic loss during condensation/relocation — mitigated by
+  semantic-preservation verification gate (Item 4 / SC-4)."

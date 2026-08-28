@@ -1,0 +1,34 @@
+# Testability Assessment — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Test Strategy Per Phase
+
+This is a prose/content change to a preloaded guideline and a skill task file.
+Per 080-code-standards.md and 091-incremental-build.md, prose-only changes use
+semantic intent verification by direct AI read — NOT grep/pattern matching and
+NOT behavioral test execution (no executable runtime behavior changes).
+
+| Phase / Item | Change Type | Evidence Type | Test Strategy | Method |
+|--------------|------------|---------------|---------------|--------|
+| Item 1 (condense guideline) | Prose (non-executable) | semantic | Semantic intent verification | Clean-room AI read of condensed 130-authority-source.md: verify Rules 1,2,4,5,6 + Principle + critical-rules-010 retained; Rule 3 removed; no empty headers |
+| Item 2 (relocate drift protocol) | Prose (non-executable) | semantic | Semantic intent verification | Clean-room AI read of engineering-approach operating-protocol.md: verify drift-protocol prose present and semantically preserved |
+| Item 3 (INDEX/opencode.jsonc consistency) | Config/index (non-executable) | structural | File presence + row wording check | Read opencode.jsonc instructions array (130 retained) and INDEX.md row |
+| Item 4 (semantic preservation gate) | Prose (non-executable) | semantic | Two-file semantic comparison | Clean-room comparison of original (git main) vs condensed+relocated content; verify no semantic loss, no compaction-metric phrases |
+
+## Testability Note
+
+- **Behavioral tests NOT applicable:** This change does not modify runtime
+  behavior (no dispatch decisions, tool selection, or branching logic changes).
+  Per critical-rules-BEH-EV, the substrate classification is NO (prose-only), so
+  evidence type remains semantic, not behavioral.
+- **Grep is FORBIDDEN as sole evidence** for prose SCs (per verify.md exception
+  section: semantic intent verification by AI read, not grep).
+- **Structural evidence** (file presence, INDEX row, opencode.jsonc retention) is
+  acceptable for the config-consistency SC (Item 3) since those are non-semantic
+  existence checks.
+
+## Coverage
+
+Every changed file (130-authority-source.md, engineering-approach
+operating-protocol.md) has at least one SC (Items 1-4). INDEX.md and
+opencode.jsonc are covered by Item 3. No orphan changes.

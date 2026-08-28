@@ -1,0 +1,101 @@
+# Pre-Spec Inspection — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+#
+# Inspected: .opencode/guidelines/130-authority-source.md (32 lines), the
+# engineering-approach skill deck, verification-before-completion skill deck,
+# opencode.jsonc instructions array, guidelines INDEX.md, and all cross-references
+# to 130-authority-source.md.
+
+## Target File (the file being condensed)
+
+path: .opencode/guidelines/130-authority-source.md
+current_length: 32 lines / ~1.1k tokens (per issue body)
+purpose: Preloaded Tier 1 guideline defining the dual-authority model (spec for
+  intent, code for state) and the documentation-drift protocol.
+role: Loaded into orchestrator system context at session start via
+  opencode.jsonc "instructions" array (line 90).
+
+## Current Rule Inventory (from live read of the file)
+
+rules:
+  - rule: 1. Spec for intent, code for state
+    classification: CORE (retain)
+  - rule: 2. Spec before code
+    classification: CORE (retain)
+  - rule: 3. Documentation Drift Protocol
+    classification: PROCEDURAL (relocate to engineering-approach)
+  - rule: 4. Spec revision revokes plan approval
+    classification: CORE (retain)
+  - rule: 5. Suppression of Reactive Remediation
+    classification: CORE (retain — explicitly named in issue scope "In")
+  - rule: 6. Verification against spec
+    classification: CORE (retain)
+  - critical-rules-010 block (Implementing Stale or Superseded Specs)
+    classification: CORE (retain — enforcement block)
+
+## Affected Files (per issue scope)
+
+affected:
+  - file: .opencode/guidelines/130-authority-source.md
+    action: CONDENSE — remove Rule 3 (Documentation Drift Protocol) procedural
+      prose; retain dual-authority core (Rules 1,2,4,5,6 + critical-rules-010).
+  - file: .opencode/skills/engineering-approach/tasks/operating-protocol.md
+    action: RELOCATION TARGET — receive the drift-protocol prose (documentation
+      drift protocol: when spec and code diverge, update spec; admin sync; STOP
+      and report). engineering-approach is the natural home because it already
+      governs the understand/design/verify discipline and is loaded during
+      implementation where drift detection applies.
+  - file: .opencode/guidelines/INDEX.md
+    action: REVIEW — trigger/load_when for 130-authority-source may need
+      adjustment if prose relocation changes the "Documentation drift" load
+      trigger. Row currently: | 130-authority-source.md | 1 | authority,
+      authoritative, source of truth, code over doc | Documentation drift |.
+  - file: .opencode/opencode.jsonc
+    action: REVIEW — 130-authority-source.md remains in instructions array
+      (core retained). No removal. Savings from prose condensation within the
+      file, not from removal.
+
+## Unaffected Reference Files (cross-references that stay valid)
+
+unchanged_references:
+  - .opencode/guidelines/065-verification-honesty.md (line 90 references
+    "Drift Protocol" trigger condition — retained since drift protocol concept
+    remains, relocated)
+  - .opencode/guidelines/067-context-completeness.md (line 94 cites
+    130-authority-source.md as "code as authoritative source" — core retained)
+  - .opencode/guidelines/075-docs-verification.md (line 160 cites
+    130-authority-source.md as "code as authoritative source" — core retained)
+  - .opencode/skills/audit/tasks/drift-detection-*.md (reference
+    130-authority-source.md as code-as-authoritative-source — core retained)
+  - .opencode/skills/issue-operations-core/tasks/search-issues.md (line 52
+    references spec/plan overlap detection — core retained)
+
+## Key Observation: Duplication with Audit Drift-Detection
+
+The audit skill already has a dedicated drift-detection role chain
+(drift-detection-investigator/evaluator/validator/arbiter). The documentation
+drift protocol in 130-authority-source.md overlaps with this existing
+drift-detection machinery. Relocating the drift protocol prose to
+engineering-approach (rather than audit) aligns with the issue's stated scope
+("engineering-approach / verification") and keeps audit's dedicated chain
+intact. No cross-reference to audit drift-detection tasks needs to change.
+
+## Existing Patterns / Conventions
+
+- Preloaded Tier 1 guidelines live in opencode.jsonc instructions array with a
+  comment block explaining they MUST be loaded for orchestrator safety (#497).
+- Guideline files use YAML frontmatter: trigger_on, tier, load_when.
+- Procedural content in guidelines is routinely relocated to skills to save
+  orchestrator context tokens (see CHANGELOG #2135 which relocated 3 superseded
+  sections out of 130-authority-source.md to spec-creation SKILL.md and
+  065-verification-honesty.md).
+- engineering-approach/tasks/operating-protocol.md already holds the
+  understand/design/verify procedural steps — the natural relocation target.
+
+## Risk Assessment
+
+- Low risk per issue body. Drift protocol is procedural, non-safety-critical.
+- The dual-authority core (spec-for-intent/code-for-state) is the safety-relevant
+  part and is retained preloaded.
+- Drift protocol relocation must preserve semantic meaning (per
+  130-authority-source.md rules and 090-data-integrity.md no-semantic-change).

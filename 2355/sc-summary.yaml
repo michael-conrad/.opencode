@@ -1,38 +1,55 @@
-sc_count: 9
+---
+sc_count: 13
 scs:
-  - id: "SC-1"
-    description: "091 retains decomposition mandate and drops procedural sections"
+  - id: "SC-1a"
+    description: "091 retains the decomposition mandate (top-down → bottom-up → per-item TDD cycle)"
     evidence_type: "string"
     plan_item: 1
+  - id: "SC-1b1"
+    description: "091 no longer contains the scope classification table section"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-1b2"
+    description: "091 no longer contains the per-item TDD cycle detail section"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-1b3"
+    description: "091 no longer contains the behavioral variant section"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-1b4"
+    description: "091 no longer contains the anti-patterns sections"
+    evidence_type: "string"
+    plan_item: 5
   - id: "SC-2"
     description: "091 has no cross-reference to 000-critical-rules.md Monolithic Implementation"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 6
   - id: "SC-3"
     description: "091 has no cross-reference to tier1-mandate-enforcement.sh"
     evidence_type: "string"
-    plan_item: 2
+    plan_item: 7
   - id: "SC-4"
     description: "tdd skill contains scope classification table with GREENFIELD/NEW_FEATURE/FIX/ENHANCEMENT"
     evidence_type: "string"
-    plan_item: 3
-  - id: "SC-5"
-    description: "091 no longer contains scope classification table terms"
-    evidence_type: "string"
-    plan_item: 3
-  - id: "SC-6"
-    description: "tdd skill preserves behavioral variant and behavioral evidence definition"
+    plan_item: 8
+  - id: "SC-6a"
+    description: "tdd skill preserves the behavioral variant (stderr-based helpers)"
     evidence_type: "semantic"
-    plan_item: 4
+    plan_item: 9
+  - id: "SC-6b"
+    description: "tdd skill preserves the behavioral evidence definition (prose-recall prohibition)"
+    evidence_type: "semantic"
+    plan_item: 10
   - id: "SC-7"
     description: "tdd anti-patterns.md preserves the five incremental-build anti-patterns"
     evidence_type: "string"
-    plan_item: 5
+    plan_item: 11
   - id: "SC-8"
     description: "Behavioral enforcement test verifies the decomposition mandate is followed"
     evidence_type: "behavioral"
-    plan_item: 6
+    plan_item: 12
   - id: "SC-9"
     description: "opencode.jsonc retains the 091 preload entry"
     evidence_type: "string"
-    plan_item: 7
+    plan_item: 13

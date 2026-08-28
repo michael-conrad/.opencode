@@ -26,12 +26,16 @@
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|-----------------------|
-| SC-1 | The `.opencode/guidelines/091-incremental-build.md` file SHALL retain the decomposition mandate text (top-down decomposition → bottom-up design → per-item TDD cycle) and SHALL no longer contain the scope classification table, the per-item TDD cycle detail, the behavioral variant, or the anti-patterns sections. | string | `grep` the condensed 091 for the mandate text (present) and for `Scope Classification`, `Per-Item TDD Cycle`, `Anti-Patterns` (absent) | `.opencode/guidelines/091-incremental-build.md` |
+| SC-1a | The `.opencode/guidelines/091-incremental-build.md` file SHALL retain the decomposition mandate text (top-down decomposition → bottom-up design → per-item TDD cycle). | string | `grep` the condensed 091 for the mandate text (present) | `.opencode/guidelines/091-incremental-build.md` |
+| SC-1b1 | The condensed `.opencode/guidelines/091-incremental-build.md` file SHALL no longer contain the scope classification table section. | string | `grep` the condensed 091 for `Scope Classification` (absent) | `.opencode/guidelines/091-incremental-build.md` |
+| SC-1b2 | The condensed `.opencode/guidelines/091-incremental-build.md` file SHALL no longer contain the per-item TDD cycle detail section. | string | `grep` the condensed 091 for `Per-Item TDD Cycle` (absent) | `.opencode/guidelines/091-incremental-build.md` |
+| SC-1b3 | The condensed `.opencode/guidelines/091-incremental-build.md` file SHALL no longer contain the behavioral variant section. | string | `grep` the condensed 091 for `Behavioral variant` (absent) | `.opencode/guidelines/091-incremental-build.md` |
+| SC-1b4 | The condensed `.opencode/guidelines/091-incremental-build.md` file SHALL no longer contain the anti-patterns sections. | string | `grep` the condensed 091 for `Anti-Patterns` (absent) | `.opencode/guidelines/091-incremental-build.md` |
 | SC-2 | The condensed `.opencode/guidelines/091-incremental-build.md` SHALL NOT contain a cross-reference to `000-critical-rules.md` section `Monolithic Implementation`. | string | `grep -n "Monolithic Implementation"` on 091 returns no match | `.opencode/guidelines/091-incremental-build.md` |
 | SC-3 | The condensed `.opencode/guidelines/091-incremental-build.md` SHALL NOT contain a cross-reference to the file `tests-v2/behaviors/tier1-mandate-enforcement.sh`. | string | `grep -n "tier1-mandate-enforcement.sh"` on 091 returns no match | `.opencode/guidelines/091-incremental-build.md` |
 | SC-4 | The `.opencode/skills/test-driven-development` skill SHALL contain the scope classification table with the four scope terms `GREENFIELD`, `NEW_FEATURE`, `FIX`, and `ENHANCEMENT`. | string | `grep` the tdd skill files for each scope term (all present) | `.opencode/skills/test-driven-development/SKILL.md`, `.opencode/skills/test-driven-development/tasks/` |
-| SC-5 | The condensed 091 SHALL NOT contain the scope classification table terms `GREENFIELD`, `NEW_FEATURE`, `FIX`, or `ENHANCEMENT` in the scope-classification context. | string | `grep` 091 for the four scope terms returns no match | `.opencode/guidelines/091-incremental-build.md` |
-| SC-6 | The `.opencode/skills/test-driven-development` skill SHALL preserve the behavioral variant and behavioral evidence definition (stderr-based helpers, prose-recall prohibition) relocated from 091. | semantic | Clean-room sub-agent reads the tdd SKILL.md and confirms the behavioral variant and behavioral evidence definition are present and intact | `.opencode/skills/test-driven-development/SKILL.md` |
+| SC-6a | The `.opencode/skills/test-driven-development` skill SHALL preserve the behavioral variant (stderr-based helpers) relocated from 091. | semantic | Clean-room sub-agent reads the tdd SKILL.md and confirms the behavioral variant is present and intact | `.opencode/skills/test-driven-development/SKILL.md` |
+| SC-6b | The `.opencode/skills/test-driven-development` skill SHALL preserve the behavioral evidence definition (prose-recall prohibition) relocated from 091. | semantic | Clean-room sub-agent reads the tdd SKILL.md and confirms the behavioral evidence definition is present and intact | `.opencode/skills/test-driven-development/SKILL.md` |
 | SC-7 | The `.opencode/skills/test-driven-development/tasks/anti-patterns.md` SHALL preserve the incremental-build anti-patterns (Monolithic implementation, Code-first, Batching items, Merging without tests, Phase-scoped over-verification). | string | `grep` anti-patterns.md for each of the five incremental-build anti-pattern names (all present) | `.opencode/skills/test-driven-development/tasks/anti-patterns.md` |
 | SC-8 | A behavioral enforcement test SHALL exist that verifies the agent follows the decomposition mandate (top-down decomposition → bottom-up design → per-item TDD cycle) after the condense. | behavioral | Run the behavioral test via `bash .opencode/tests-v2/with-test-home opencode run '<prompt>'` and assert RED before the change, GREEN after, using stderr-based assertion helpers on the exported session.yaml | `.opencode/tests-v2/behaviors/` |
 | SC-9 | The `opencode.jsonc` instructions array SHALL retain the preload entry for `.opencode/guidelines/091-incremental-build.md`. | string | `grep -n "091-incremental-build"` on `opencode.jsonc` returns the preload entry | `.opencode/opencode.jsonc` |
@@ -49,52 +53,94 @@
 
 ## 5. Items
 
-### Item 1 (SC-1): Condense 091-incremental-build.md to retain only the decomposition mandate
+### Item 1 (SC-1a): Condense 091 to retain the decomposition mandate
 
-- RED: Grep the current 091 and confirm the mandate text is present (it is); this test targets the post-condense absence of the procedural sections, which currently exist (RED).
-- GREEN: Reduce 091 to the mandate plus minimal framing; remove the scope classification table, per-item TDD cycle detail, behavioral variant, and anti-patterns sections; retain Tier-1 frontmatter.
-- verify: `grep` 091 for the mandate text (present) and for the procedural section headers (absent).
+- RED: Grep the current 091 and confirm the mandate text (top-down decomposition → bottom-up design → per-item TDD cycle) is present (it is); this is the pre-condense baseline assertion (RED).
+- GREEN: Reduce 091 to the mandate plus minimal framing; retain Tier-1 frontmatter.
+- verify: `grep` 091 for the mandate text (present).
 - commit: Commit the condensed `091-incremental-build.md`.
 
-### Item 2 (SC-2, SC-3): Remove stale cross-references from 091 line 9
+### Item 2 (SC-1b1): Remove the scope classification table from 091
 
-- RED: Grep 091 line 9 for `Monolithic Implementation` and `tier1-mandate-enforcement.sh` — both matches exist (RED).
-- GREEN: Remove or re-point both stale references so no dead links remain in the condensed 091.
-- verify: `grep -n` for `Monolithic Implementation` and `tier1-mandate-enforcement.sh` on 091 returns no match.
+- RED: Grep the current 091 for the `Scope Classification` section header — present (RED).
+- GREEN: Remove the scope classification table section from 091.
+- verify: `grep` 091 for `Scope Classification` (absent).
+- commit: Commit the scope classification table removal with the 091 condense.
+
+### Item 3 (SC-1b2): Remove the per-item TDD cycle detail from 091
+
+- RED: Grep the current 091 for the `Per-Item TDD Cycle` section header — present (RED).
+- GREEN: Remove the per-item TDD cycle detail section from 091.
+- verify: `grep` 091 for `Per-Item TDD Cycle` (absent).
+- commit: Commit the per-item TDD cycle detail removal with the 091 condense.
+
+### Item 4 (SC-1b3): Remove the behavioral variant from 091
+
+- RED: Grep the current 091 for the `Behavioral variant` section — present (RED).
+- GREEN: Remove the behavioral variant section from 091.
+- verify: `grep` 091 for `Behavioral variant` (absent).
+- commit: Commit the behavioral variant removal with the 091 condense.
+
+### Item 5 (SC-1b4): Remove the anti-patterns sections from 091
+
+- RED: Grep the current 091 for the `Anti-Patterns` section header — present (RED).
+- GREEN: Remove the anti-patterns sections from 091.
+- verify: `grep` 091 for `Anti-Patterns` (absent).
+- commit: Commit the anti-patterns removal with the 091 condense.
+
+### Item 6 (SC-2): Remove the Monolithic Implementation cross-reference from 091
+
+- RED: Grep 091 for `Monolithic Implementation` — match exists (RED).
+- GREEN: Remove or re-point the stale reference to `000-critical-rules.md` section `Monolithic Implementation` so no dead link remains in the condensed 091.
+- verify: `grep -n "Monolithic Implementation"` on 091 returns no match.
 - commit: Commit the reference cleanup with the 091 condense.
 
-### Item 3 (SC-4, SC-5): Relocate scope classification table to test-driven-development skill
+### Item 7 (SC-3): Remove the tier1-mandate-enforcement.sh cross-reference from 091
+
+- RED: Grep 091 for `tier1-mandate-enforcement.sh` — match exists (RED).
+- GREEN: Remove or re-point the stale reference to `tests-v2/behaviors/tier1-mandate-enforcement.sh` so no dead link remains in the condensed 091.
+- verify: `grep -n "tier1-mandate-enforcement.sh"` on 091 returns no match.
+- commit: Commit the reference cleanup with the 091 condense.
+
+### Item 8 (SC-4): Relocate scope classification table to test-driven-development skill
 
 - RED: Grep the tdd skill for the four scope terms — absent (RED); 091 currently contains them.
 - GREEN: Add the scope classification table to the tdd skill and remove it from 091.
 - verify: `grep` the tdd skill for `GREENFIELD`, `NEW_FEATURE`, `FIX`, `ENHANCEMENT` (present); `grep` 091 for the same (absent).
 - commit: Commit the scope table relocation.
 
-### Item 4 (SC-6): Relocate per-item TDD cycle detail to test-driven-development skill
+### Item 9 (SC-6a): Preserve the behavioral variant in the tdd skill
 
-- RED: Semantic read of the tdd skill confirms the behavioral variant and behavioral evidence definition are not fully present (RED).
-- GREEN: Reconcile the tdd skill (SKILL.md / operating-protocol.md) so the behavioral variant and behavioral evidence definition are present without loss.
-- verify: Clean-room sub-agent semantic read confirms no content loss.
-- commit: Commit the per-item TDD relocation.
+- RED: Semantic read of the tdd skill confirms the behavioral variant (stderr-based helpers) is not fully present (RED).
+- GREEN: Reconcile the tdd skill (SKILL.md / operating-protocol.md) so the behavioral variant is present without loss.
+- verify: Clean-room sub-agent semantic read confirms the behavioral variant is present and intact.
+- commit: Commit the behavioral variant relocation.
 
-### Item 5 (SC-7): Relocate anti-patterns to test-driven-development skill
+### Item 10 (SC-6b): Preserve the behavioral evidence definition in the tdd skill
+
+- RED: Semantic read of the tdd skill confirms the behavioral evidence definition (prose-recall prohibition) is not fully present (RED).
+- GREEN: Reconcile the tdd skill (SKILL.md / operating-protocol.md) so the behavioral evidence definition is present without loss.
+- verify: Clean-room sub-agent semantic read confirms the behavioral evidence definition is present and intact.
+- commit: Commit the behavioral evidence definition relocation.
+
+### Item 11 (SC-7): Relocate anti-patterns to test-driven-development skill
 
 - RED: Grep anti-patterns.md for the five incremental-build anti-pattern names — absent (RED).
 - GREEN: Reconcile the five incremental-build anti-patterns into anti-patterns.md alongside the existing generic TDD anti-patterns, preserving the critical-rules-042 framing.
 - verify: `grep` anti-patterns.md for each of the five anti-pattern names (all present).
 - commit: Commit the anti-patterns relocation.
 
-### Item 6 (SC-8): Add behavioral enforcement test for the condensed mandate
+### Item 12 (SC-8): Add behavioral enforcement test for the condensed mandate
 
 - RED: Run the behavioral test against the pre-condense state; the agent may follow the mandate but the test asserts the post-condense behavior (RED before the change).
 - GREEN: Create the behavioral test scenario in `tests-v2/behaviors/` and run it against the condensed state via `with-test-home` `opencode run`; assert the agent follows the decomposition mandate using stderr-based helpers.
 - verify: `assert_stderr_pattern_present` for tdd skill dispatch / tool invocations in the exported session.yaml; the test must be behavioral (not prose-recall).
 - commit: Commit the behavioral test.
 
-### Item 7 (SC-9): Verify 091 preload retention in opencode.jsonc
+### Item 13 (SC-9): Verify 091 preload retention in opencode.jsonc
 
-- RED: Confirm the preload entry currently exists (it does) — no RED test; this item verifies retention.
-- GREEN: No source change expected; verify the `opencode.jsonc` preload entry for 091 remains in the instructions array.
+- RED: Grep `opencode.jsonc` for the 091 preload entry and assert it currently exists (match present); this is the pre-condense baseline precondition (RED).
+- GREEN: No source change expected; verify the `opencode.jsonc` preload entry for 091 remains in the instructions array after the condense.
 - verify: `grep -n "091-incremental-build"` on `opencode.jsonc` returns the preload entry.
 - commit: No commit expected unless `opencode.jsonc` is touched.
 
@@ -111,13 +157,13 @@
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | Phase 1 |
-| R-2 | SC-1 | Phase 1 |
+| R-1 | SC-1a | Phase 1 |
+| R-2 | SC-1b1, SC-1b2, SC-1b3, SC-1b4 | Phase 1 |
 | R-3 | SC-2, SC-3 | Phase 1 |
-| R-4 | SC-4, SC-5 | Phase 2 |
-| R-5 | SC-6 | Phase 2 |
+| R-4 | SC-4 | Phase 2 |
+| R-5 | SC-6a, SC-6b | Phase 2 |
 | R-6 | SC-7 | Phase 2 |
-| R-7 | SC-9 | Phase 1 |
+| R-7 | SC-9 | Phase 3 |
 | R-8 | SC-8 | Phase 3 |
 
 ## 8. Documentation Sources
@@ -140,12 +186,16 @@
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Grepping the condensed 091 for mandate presence and procedural-section absence costs seconds. Skipping it ships a 091 that either drops the mandate or retains the duplicated procedure, reintroducing the token-cost defect at the next session preload.
+- SC-1a: Grepping the condensed 091 for mandate presence costs seconds. Skipping it ships a 091 that drops the decomposition mandate, reintroducing the token-cost defect at the next session preload.
+- SC-1b1: Grepping the condensed 091 for `Scope Classification` absence costs seconds. Skipping it retains the scope classification table in 091, reintroducing the content-ownership overlap the issue removes.
+- SC-1b2: Grepping the condensed 091 for `Per-Item TDD Cycle` absence costs seconds. Skipping it retains the per-item TDD cycle detail in 091, reintroducing the content-ownership overlap the issue removes.
+- SC-1b3: Grepping the condensed 091 for `Behavioral variant` absence costs seconds. Skipping it retains the behavioral variant in 091, reintroducing the content-ownership overlap the issue removes.
+- SC-1b4: Grepping the condensed 091 for `Anti-Patterns` absence costs seconds. Skipping it retains the anti-patterns sections in 091, reintroducing the content-ownership overlap the issue removes.
 - SC-2: Grepping 091 for `Monolithic Implementation` costs one search. Skipping it leaves a dead link that routes agents to a section that does not exist, wasting every agent that follows it.
 - SC-3: Grepping 091 for `tier1-mandate-enforcement.sh` costs one search. Skipping it leaves a dead reference to a file that does not exist, misleading agents about where the incremental-build discipline is enforced.
 - SC-4: Grepping the tdd skill for the four scope terms costs seconds. Skipping it loses the scope classification table during relocation, a content-loss defect.
-- SC-5: Grepping 091 for the four scope terms costs seconds. Skipping it leaves the scope table duplicated in both files, reintroducing the content-ownership overlap the issue removes.
-- SC-6: A clean-room sub-agent semantic read of the tdd skill costs minutes. Skipping it risks losing the behavioral variant or behavioral evidence definition, a content-loss defect that silently weakens TDD enforcement.
+- SC-6a: A clean-room sub-agent semantic read of the tdd skill costs minutes. Skipping it risks losing the behavioral variant (stderr-based helpers), a content-loss defect that silently weakens TDD enforcement.
+- SC-6b: A clean-room sub-agent semantic read of the tdd skill costs minutes. Skipping it risks losing the behavioral evidence definition (prose-recall prohibition), a content-loss defect that silently weakens TDD enforcement.
 - SC-7: Grepping anti-patterns.md for the five anti-pattern names costs seconds. Skipping it risks dropping incremental-build anti-pattern guidance during the reconcile.
 - SC-8: Running the behavioral test via `with-test-home` costs minutes of execution time. Skipping it means a guideline change ships without behavioral enforcement, violating the Enforcement Test Mandate and masking whether the mandate is still followed.
 - SC-9: Grepping `opencode.jsonc` for the 091 preload entry costs one search. Skipping it risks dropping the preload, which would remove the decomposition mandate from every session.
@@ -154,6 +204,13 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 - **Input boundaries:** The condensed 091 must not be empty — the mandate text must remain non-empty and the frontmatter intact. An empty 091 is a defect.
 - **State transitions:** 091 transitions from FULL to CONDENSED only when the mandate is retained. If the condense removes the mandate, the transition violates Scope: Out and is BLOCKED.
-- **Failure modes:** If the scope table or anti-patterns are dropped during relocation (not preserved in tdd), the relocation is non-lossless and SC-4/SC-6/SC-7 fail. If the preload entry is dropped from `opencode.jsonc`, SC-9 fails.
+- **Failure modes:** If the scope table or anti-patterns are dropped during relocation (not preserved in tdd), the relocation is non-lossless and SC-4/SC-6a/SC-6b/SC-7 fail. If the preload entry is dropped from `opencode.jsonc`, SC-9 fails.
 - **Concurrency:** The behavioral test (SC-8) must run via `with-test-home` isolation to avoid SQLite session conflicts; a stale `tmp/.behavior-run.lock` must be removed before re-running.
 - **Recovery:** If the behavioral test cannot execute, remediation (alternative model selection, infrastructure check) must be attempted before escalation; the test must be behavioral (not prose-recall), and a RED-before-GREEN ordering must be preserved.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-28 | Decomposed compound SCs into atomic SCs: SC-1 → SC-1a/SC-1b, SC-6 → SC-6a/SC-6b; audited all SCs for atomicity (11 atomic SCs final). Split Item 2 into separate items so each SC has a 1:1 item mapping (Items 1-11); gave SC-9's item (Item 11) a RED test. Aligned phase assignments (SC-9 in Phase 3; Phase 1 = 091 edits Items 1-4, Phase 2 = relocations Items 5-9, Phase 3 = config + behavioral test Items 10-11). Synced sc-summary.yaml, Cost Frame (SC-6 → SC-6a/SC-6b), and Edge Cases (SC-6 → SC-6a/SC-6b) to the final atomic SC set. | Validation FAIL: COMPOUND-SC, TRACEABILITY/ITEM MAPPING, PHASE-BOUNDARY | spec-creation validation pipeline |
+| 2026-08-28 | Decomposed compound SC-1b into four atomic removal-target SCs (SC-1b1 scope table removed, SC-1b2 per-item TDD cycle detail removed, SC-1b3 behavioral variant removed, SC-1b4 anti-patterns removed). Removed SC-5 (scope terms absent) as redundant — it is entailed by SC-1b1 (scope table removed), so its distinct signal adds no coverage. Renumbered Items to preserve 1:1 item-SC mapping (Items 1-13, 13 atomic SCs final). Synced sc-summary.yaml (13 SCs), Traceability (R-2 → SC-1b1/1b2/1b3/1b4; R-4 → SC-4 only), and Cost Frame (SC-1b split into four, SC-5 removed) to the final atomic SC set. | Validation FAIL: COMPOUND-SC, COVERED-BY-PRIOR | spec-creation validation pipeline |

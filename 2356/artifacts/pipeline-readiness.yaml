@@ -1,0 +1,54 @@
+# Pipeline Readiness Gate — Issue .opencode#2356
+# Condense 130-authority-source.md — move drift protocol to engineering-approach
+
+## Validation
+
+atomicity:
+  status: PASS
+  detail: "Every SC maps to exactly one RED→GREEN→COMMIT cycle. SC-1 (condense
+    guideline), SC-2 (relocate to engineering-approach), SC-3 (INDEX/opencode
+    consistency), SC-4 (semantic preservation). Each is independently
+    verifiable."
+
+dependency_ordering:
+  status: PASS
+  detail: "SC dependency DAG is acyclic. SC-1 and SC-2 are coupled (relocate
+    before/with remove). SC-3 depends on SC-1/SC-2. SC-4 (verification) depends
+    on SC-1/SC-2. No cycles."
+
+single_concern:
+  status: PASS
+  detail: "Each SC targets one file category and one verification domain. SC-1:
+    guideline + semantic. SC-2: skill task + semantic. SC-3: config/index +
+    structural. SC-4: cross-file + semantic. No SC mixes executable code with
+    prose changes."
+
+phase_dependency:
+  status: PASS
+  detail: "Phase dependency graph is acyclic. Phase 1 (condense+relocate) → Phase
+    2 (consistency) → Phase 3 (verification/semantic preservation)."
+
+three_tier_structure:
+  status: PASS
+  detail: "The spec has a pre/per/post structure: pre = inspect current
+    guideline + engineering-approach; per = condense 130-authority-source.md and
+    add drift protocol to operating-protocol; post = INDEX/opencode consistency
+    + semantic preservation verification."
+
+## Gates
+
+- [x] Atomicity: every SC → one RED/GREEN/COMMIT cycle
+- [x] Dependency ordering: SC DAG acyclic
+- [x] Single concern: one file category + one verification domain per SC
+- [x] Phase dependency: acyclic
+- [x] Three-tier structure: pre/per/post present
+
+pipeline_ready: TRUE
+
+## Notes
+
+- This is a prose/content change; behavioral evidence is NOT required (no
+  runtime-behavioral change per critical-rules-BEH-EV substrate classification).
+  Semantic evidence is the correct type for prose SCs.
+- The change is low risk and tightly scoped (2-3 files), consistent with the
+  issue's stated impact.
