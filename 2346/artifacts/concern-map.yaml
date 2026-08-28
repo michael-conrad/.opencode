@@ -1,0 +1,63 @@
+artifact_name: concern-map
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "Map of SCs to concerns for the condensation implementation"
+  concerns:
+    - concern: "Section removal and Read-link replacement"
+      scs:
+        - SC-1a
+      items:
+        - Item 1
+      target: ".opencode/guidelines/000-critical-rules.md"
+    - concern: "Byte-identity retention of safety-critical cores"
+      scs:
+        - SC-1b
+      items:
+        - Item 2
+      target: ".opencode/guidelines/000-critical-rules.md"
+    - concern: "Mandate-tiering content relocation to approval-gate skill card"
+      scs:
+        - SC-2a
+        - SC-2b
+      items:
+        - Item 3
+        - Item 4
+      targets:
+        - ".opencode/skills/approval-gate/SKILL.md"
+        - ".opencode/guidelines/000-critical-rules.md"
+    - concern: "Channel-routing content relocation to issue-operations-comments skill card"
+      scs:
+        - SC-3a
+        - SC-3b
+      items:
+        - Item 5
+        - Item 6
+      targets:
+        - ".opencode/skills/issue-operations-comments/SKILL.md"
+        - ".opencode/guidelines/000-critical-rules.md"
+    - concern: "Preload preservation (#497 regression-proof)"
+      scs:
+        - SC-4a
+      items:
+        - Item 7
+      target: ".opencode/opencode.jsonc"
+    - concern: "Behavioral verification of retained safety cores"
+      scs:
+        - SC-5a
+      items:
+        - Item 8
+      target: ".opencode/tests-v2/behaviors/"
+    - concern: "Behavioral verification of Read-link content loading"
+      scs:
+        - SC-5b
+      items:
+        - Item 9
+      target: ".opencode/tests-v2/behaviors/"
+  dependency_order:
+    description: "Relocation targets must host content before the Read links are placed"
+    order:
+      - "SC-1a (remove sections) → SC-2a/SC-3a (host content in skill cards) → SC-2b/SC-3b (place Read links)"
+      - "SC-1b (byte-identity) is independent of relocation ordering"
+      - "SC-4a (preload preservation) is verification-only"
+      - "SC-5a/SC-5b (behavioral) run after the structural changes"

@@ -2,7 +2,9 @@ number: 2347
 title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & discussion
   mandates'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/020-go-prohibitions.md` costs ~19.8k tokens — the
@@ -34,7 +36,7 @@ body: '## Problem
   retain prohibition core verbatim. Depends on shared references + config. Action:
   approve.'
 created_at: '2026-08-27T03:14:08Z'
-updated_at: '2026-08-27T03:14:08Z'
+updated_at: '2026-08-28T04:04:27+00:00'
 remote_issue: 2347
 remote_url: https://github.com/michael-conrad/.opencode/issues/2347
 promoted_at: '2026-08-27T03:25:12.652239+00:00'

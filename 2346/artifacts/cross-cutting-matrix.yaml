@@ -1,0 +1,39 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "Cross-cutting concerns across the condensation change, mapped to SCs and verification gates"
+  cross_cutting_concerns:
+    - sc_id: SC-1b
+      name: "Byte-identity retention of all critical-rules-XXX blocks"
+      evidence_type: structural
+      verification_method: "Diff the critical-rules-XXX blocks against the pre-condensation baseline and assert byte-identical"
+      spans: "All critical-rules-XXX blocks in 000-critical-rules.md, including the two named safety cores critical-rules-merge and critical-rules-006"
+      verification_gate: post-implementation
+      remediation: "Restore any drifted block to the baseline before proceeding"
+    - sc_id: SC-5a
+      name: "Behavioral complement to SC-1b — retained safety cores still fire"
+      evidence_type: behavioral
+      verification_method: "Run bash .opencode/tests-v2/with-test-home opencode run '<message>'; assert via stderr-based helpers (assert_stderr_pattern_present / assert_stderr_pattern_absent_all_models) that the agent enforces the retained safety cores (no self-authorization, human-only-merge)"
+      spans: "No self-authorization (critical-rules-006) and human-only-merge (critical-rules-merge) enforcement"
+      verification_gate: post-implementation
+      remediation: "Restore the affected critical-rules-XXX block to baseline and re-run the behavioral test"
+    - sc_id: SC-5b
+      name: "Behavioral complement to SC-2b/SC-3b — Read-links load relocated content"
+      evidence_type: behavioral
+      verification_method: "Run bash .opencode/tests-v2/with-test-home opencode run '<message>'; assert via stderr-based helpers that the agent loads the relocated content via the Read-link"
+      spans: "Both Read [Text](path) links (mandate-tiering and channel-routing)"
+      verification_gate: post-implementation
+      remediation: "Fix the broken Read-link resolution and re-run the behavioral test"
+  cross_cutting_verification_gates:
+    - gate: post-implementation
+      scs:
+        - SC-1a
+        - SC-1b
+        - SC-2a
+        - SC-2b
+        - SC-3a
+        - SC-3b
+        - SC-4a
+        - SC-5a
+        - SC-5b

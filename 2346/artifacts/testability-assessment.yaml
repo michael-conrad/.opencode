@@ -1,0 +1,84 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "Test coverage assessment for the condensation change"
+  sc_evidence_type_mapping:
+    - sc: SC-1a
+      evidence_type: structural
+      verification: "Read 000-critical-rules.md; assert the two movable sections are removed and replaced with Read [Text](path) links"
+    - sc: SC-1b
+      evidence_type: structural
+      verification: "Diff the critical-rules-XXX blocks against the pre-condensation baseline and assert byte-identical"
+    - sc: SC-2a
+      evidence_type: structural
+      verification: "Read the approval-gate skill card and assert the mandate-tiering content is present"
+    - sc: SC-2b
+      evidence_type: structural
+      verification: "Assert the Read [Text](path) link in 000-critical-rules.md resolves to the approval-gate skill card"
+    - sc: SC-3a
+      evidence_type: structural
+      verification: "Read the issue-operations-comments skill card and assert the channel-routing content is present"
+    - sc: SC-3b
+      evidence_type: structural
+      verification: "Assert the Read [Text](path) link in 000-critical-rules.md resolves to the issue-operations-comments skill card"
+    - sc: SC-4a
+      evidence_type: structural
+      verification: "Read .opencode/opencode.jsonc instructions array and assert 000-critical-rules.md is present"
+    - sc: SC-5a
+      evidence_type: behavioral
+      verification: "Run bash .opencode/tests-v2/with-test-home opencode run '<message>'; assert via stderr-based helpers (assert_stderr_pattern_present / assert_stderr_pattern_absent_all_models) that the agent enforces the retained safety cores (no self-authorization, human-only-merge)"
+    - sc: SC-5b
+      evidence_type: behavioral
+      verification: "Run bash .opencode/tests-v2/with-test-home opencode run '<message>'; assert via stderr-based helpers that the agent loads the relocated content via the Read-link"
+  behavioral_tests:
+    retained_safety_cores:
+      count: 1
+      description: "SC-5a behavioral test — condensed 000-critical-rules.md still causes the agent to enforce the retained safety-critical cores"
+      assertion: "assert_stderr_pattern_present / assert_stderr_pattern_absent_all_models"
+      prompt: "Real-domain prompt (via opencode run) that would trigger self-authorization or human-only-merge enforcement"
+      scs:
+        - SC-5a
+    read_link_loading:
+      count: 1
+      description: "SC-5b behavioral test — Read [Text](path) links cause the agent to load the relocated skill content"
+      assertion: "assert_stderr_pattern_present"
+      prompt: "Real-domain prompt (via opencode run) that would require the relocated mandate-tiering or channel-routing content"
+      scs:
+        - SC-5b
+  structural_tests:
+    section_removal:
+      count: 1
+      description: "SC-1a — movable sections removed and replaced with Read links"
+      assertion: "Read 000-critical-rules.md"
+    byte_identity:
+      count: 1
+      description: "SC-1b — critical-rules-XXX blocks byte-identical against baseline"
+      assertion: "diff against pre-condensation baseline"
+    mandate_tiering_hosting:
+      count: 1
+      description: "SC-2a — mandate-tiering content present in approval-gate skill card"
+      assertion: "Read approval-gate SKILL.md"
+    mandate_tiering_link:
+      count: 1
+      description: "SC-2b — Read link resolves to approval-gate skill card"
+      assertion: "link-resolution check"
+    channel_routing_hosting:
+      count: 1
+      description: "SC-3a — channel-routing content present in issue-operations-comments skill card"
+      assertion: "Read issue-operations-comments SKILL.md"
+    channel_routing_link:
+      count: 1
+      description: "SC-3b — Read link resolves to issue-operations-comments skill card"
+      assertion: "link-resolution check"
+    preload_preservation:
+      count: 1
+      description: "SC-4a — 000-critical-rules.md remains in opencode.jsonc instructions array"
+      assertion: "Read opencode.jsonc instructions array"
+  test_suite_summary:
+    total_behavioral_tests: 2
+    total_structural_tests: 7
+    total_tests: 9
+    test_execution_strategy:
+      - "Behavioral tests run via bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+      - "Scope-limited execution (--changed / --tag) by default per cost-blind discipline"

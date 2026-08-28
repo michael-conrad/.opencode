@@ -1,0 +1,27 @@
+artifact_name: blast-radius
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "All files and directories affected by the condensation change"
+  primary_source_file:
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      change: "Remove the two movable standalone procedural sections (## Mandate Tiering, ### Channel-Routing Table — Issue Comments vs. Chat Output) and replace them with mandatory Read [Text](path) links to the relocation targets; ALL critical-rules-XXX blocks remain byte-identical"
+  relocation_targets:
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      change: "Host the mandate-tiering content (Mandate Tiering table, Interaction Rule table, three-tier prose) canonically"
+    - path: ".opencode/skills/issue-operations-comments/SKILL.md"
+      change: "Host the channel-routing content (Action to Channel table) canonically"
+  config_verification_only:
+    - path: ".opencode/opencode.jsonc"
+      change: "Verify 000-critical-rules.md remains in the instructions array (SC-4a preservation); no edit required unless the file was dropped"
+  behavioral_test_harness:
+    - path: ".opencode/tests-v2/behaviors/"
+      change: "Add behavioral enforcement tests (SC-5a retained safety cores fire; SC-5b Read-link loads relocated content) via with-test-home opencode run"
+  unchanged_files:
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      reason: "All critical-rules-XXX blocks retained byte-identical (SC-1b); only the two movable standalone sections are removed"
+  total_affected:
+    modified: 1
+    added: 2
+    verified: 1
+    behavioral_tests_added: 2

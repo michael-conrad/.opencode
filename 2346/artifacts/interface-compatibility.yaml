@@ -1,0 +1,59 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "Interface boundaries and compatibility analysis for the condensation change"
+  regression_invariants:
+    - invariant: "All critical-rules-XXX blocks in 000-critical-rules.md remain byte-identical (no safety-critical core altered)"
+      verification: "SC-1b structural diff against pre-condensation baseline"
+    - invariant: "The no-self-authorization rule (critical-rules-006) and human-only-merge rule (critical-rules-merge) remain intact and enforced"
+      verification: "SC-1b byte-identity + SC-5a behavioral test"
+    - invariant: "000-critical-rules.md remains preloaded in the opencode.jsonc instructions array (#497 regression-proof)"
+      verification: "SC-4a structural read of opencode.jsonc"
+    - invariant: "Relocated procedural content remains accessible to the orchestrator via the canonical Read [Text](path) inline-link form"
+      verification: "SC-2b/SC-3b link-resolution + SC-5b behavioral test"
+  interface_boundaries:
+    preload_interface:
+      status: "UNCHANGED"
+      description: "000-critical-rules.md stays in the opencode.jsonc instructions array (preloaded into orchestrator context)"
+      rationale: "#497 regression-proof — the file MUST remain preloaded"
+    skill_card_interface:
+      status: "EXTENDED"
+      description: "approval-gate and issue-operations-comments skill cards gain canonical hosting of the relocated procedural content"
+      rationale: "Relocation targets are the existing skill cards, not a new shared reference file — no opencode.jsonc edit required"
+    read_link_interface:
+      status: "NEW"
+      description: "000-critical-rules.md references the relocated content via mandatory Read [Text](path) links resolving to the skill cards"
+      rationale: "Validated at 100% Tier 1 access rate by the cross-reference-form-comparison research card (confidence 0.95)"
+    git_config_tables:
+      status: "RETAINED"
+      description: "The git-config authorization tables inside critical-rules-026 remain in 000-critical-rules.md"
+      rationale: "They are procedural but reside inside the block and are retained verbatim per the retain-intact mandate"
+  dependency_contract:
+    description: "Concrete dependency data derived from the spec's affected files and success criteria"
+    dependencies:
+      - name: "000-critical-rules.md source"
+        path: ".opencode/guidelines/000-critical-rules.md"
+        type: "guideline source"
+        status: "satisfied"
+        constraint: "Must be read before condensation; movable sections identified by section name"
+      - name: "approval-gate skill card"
+        path: ".opencode/skills/approval-gate/SKILL.md"
+        type: "relocation target"
+        status: "satisfied"
+        constraint: "Must host mandate-tiering content before the Read link is placed (SC-1a → SC-2a → SC-2b)"
+      - name: "issue-operations-comments skill card"
+        path: ".opencode/skills/issue-operations-comments/SKILL.md"
+        type: "relocation target"
+        status: "satisfied"
+        constraint: "Must host channel-routing content before the Read link is placed (SC-1a → SC-3a → SC-3b)"
+      - name: "opencode.jsonc preload array"
+        path: ".opencode/opencode.jsonc"
+        type: "config"
+        status: "satisfied"
+        constraint: "Must keep 000-critical-rules.md in the instructions array (SC-4a preservation)"
+      - name: "cross-reference-form-comparison research card"
+        path: ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
+        type: "research"
+        status: "satisfied"
+        constraint: "Validates the Read [Text](path) link form at 100% Tier 1 access rate (confidence 0.95)"

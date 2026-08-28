@@ -1,0 +1,42 @@
+issue: .opencode#2347
+task: analyze
+step: 2 - research card consultation
+consulted_at: "2026-08-27T23:58:00Z"
+
+method: "Globbed .opencode/.issues/research-cards/*.md and grepped frontmatter for research questions matching the 020-go-prohibitions condensation topic (token burden, guideline condensation, context-discipline relocation, Read-link pattern)."
+
+cards_consulted:
+  - card: cross-reference-form-comparison.md
+    confidence: 0.95
+    relevance: HIGH
+    finding: |
+      Inline-link form (Form A, `Read [Text](path)`) achieves 100% Tier 1 access rate — the only
+      viable cross-reference pattern. The resolution-table + admonition pattern achieves only 42-58%.
+      Confirms the mandatory Read-link approach for relocating §1.1/§1.6/§2/§4 content to shared
+      references.
+  - card: pre-response-gate-skill-description-design.md
+    confidence: 0.9
+    relevance: MEDIUM
+    finding: |
+      Skill descriptions are semantic routers — the agent evaluates its OWN intent against the
+      description. Relevant to ensuring the relocated §1.6 discussion mandates are still reachable
+      via the brainstorming skill description after relocation.
+  - card: spec-creation-state.md
+    confidence: 0.9
+    relevance: LOW
+    finding: "Documents spec-creation skill state; not directly about 020 condensation."
+  - card: spec-writing-ai-agents-opencode-skill-architecture.md
+    confidence: 0.90
+    relevance: LOW
+    finding: "Skill card vs task card architecture; background only."
+  - card: multi-feature-branch-main-with-submodules.md
+    confidence: 0.7
+    relevance: LOW
+    finding: "Branch/submodule mechanics; not directly relevant."
+
+no_direct_card:
+  - "No research card directly addresses the 020-go-prohibitions.md token-burden condensation. The closest is cross-reference-form-comparison.md (conf 0.95), which validates the Read-link relocation mechanism."
+
+conclusion:
+  - "The Read-link relocation approach in the issue body is validated by cross-reference-form-comparison.md (conf 0.95): mandatory `Read [Text](path)` inline links achieve 100% Tier 1 access, ensuring relocated rules are still loaded into agent context."
+  - "No card conflicts with the condensation approach. No additional research dispatch required."

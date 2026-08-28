@@ -1,22 +1,38 @@
-sc_count: 5
+sc_count: 9
 scs:
-  - id: "SC-1"
-    description: "000-critical-rules.md condensed by removing movable standalone procedural sections and replacing with Read [Text](path) links, with all critical-rules-XXX blocks byte-identical"
+  - id: "SC-1a"
+    description: "000-critical-rules.md movable standalone procedural sections (## Mandate Tiering, ### Channel-Routing Table — Issue Comments vs. Chat Output) removed and replaced with mandatory Read [Text](path) links"
     evidence_type: "structural"
     plan_item: 1
-  - id: "SC-2"
-    description: "Mandate-tiering content hosted canonically in approval-gate skill card, referenced via Read [Text](path) link"
+  - id: "SC-1b"
+    description: "All critical-rules-XXX blocks in 000-critical-rules.md remain byte-identical against the pre-condensation baseline"
     evidence_type: "structural"
     plan_item: 2
-  - id: "SC-3"
-    description: "Channel-routing content hosted canonically in issue-operations-comments skill card, referenced via Read [Text](path) link"
+  - id: "SC-2a"
+    description: "Mandate-tiering content hosted canonically in the approval-gate skill card"
     evidence_type: "structural"
     plan_item: 3
-  - id: "SC-4"
-    description: "000-critical-rules.md remains in opencode.jsonc instructions array; human-only-merge and no-self-authorization rules unchanged"
+  - id: "SC-2b"
+    description: "000-critical-rules.md references mandate-tiering content via a Read [Text](path) link resolving to the approval-gate skill card"
     evidence_type: "structural"
     plan_item: 4
-  - id: "SC-5"
-    description: "Behavioral enforcement test confirms agent enforces retained safety cores and loads relocated content via Read-link"
-    evidence_type: "behavioral"
+  - id: "SC-3a"
+    description: "Channel-routing content hosted canonically in the issue-operations-comments skill card"
+    evidence_type: "structural"
     plan_item: 5
+  - id: "SC-3b"
+    description: "000-critical-rules.md references channel-routing content via a Read [Text](path) link resolving to the issue-operations-comments skill card"
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-4a"
+    description: "000-critical-rules.md remains in the opencode.jsonc instructions array (still preloaded into orchestrator context)"
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-5a"
+    description: "Behavioral enforcement test confirms the agent enforces the retained safety cores (no self-authorization, human-only-merge)"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-5b"
+    description: "Behavioral enforcement test confirms the Read [Text](path) links cause the agent to load the relocated skill content"
+    evidence_type: "behavioral"
+    plan_item: 9

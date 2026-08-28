@@ -1,0 +1,34 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "All code/config paths affected by the condensation change, organized by path type"
+  guideline_paths:
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      change: "Remove ## Mandate Tiering and ### Channel-Routing Table — Issue Comments vs. Chat Output sections; replace with mandatory Read [Text](path) links; retain all critical-rules-XXX blocks byte-identical"
+      before: "398 lines, ~8.3k tokens preloaded, includes movable procedural scaffolding"
+      after: "Two movable standalone sections removed (~33 lines), replaced with Read [Text](path) links; all critical-rules-XXX blocks byte-identical"
+  skill_card_paths:
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      change: "Add canonical mandate-tiering content (Mandate Tiering table, Interaction Rule table, three-tier prose)"
+      before: "No mandate-tiering content"
+      after: "Hosts mandate-tiering content canonically (SC-2a)"
+    - path: ".opencode/skills/issue-operations-comments/SKILL.md"
+      change: "Add canonical channel-routing content (Action to Channel table)"
+      before: "Enforces substantive comment gate; no channel-routing table"
+      after: "Hosts channel-routing content canonically (SC-3a)"
+  config_paths:
+    - path: ".opencode/opencode.jsonc"
+      change: "Verification-only — assert 000-critical-rules.md remains in the instructions array (SC-4a); no edit required"
+      before: "000-critical-rules.md present in instructions array (line 79)"
+      after: "000-critical-rules.md remains present (SC-4a preservation)"
+  behavioral_test_paths:
+    - path: ".opencode/tests-v2/behaviors/<scenario>.sh"
+      change: "Add SC-5a behavioral test (agent enforces retained safety cores: no self-authorization, human-only-merge) and SC-5b behavioral test (agent loads relocated content via Read-link)"
+      before: "No condensation-specific behavioral test"
+      after: "Two behavioral enforcement tests added (SC-5a, SC-5b)"
+  read_link_resolution_paths:
+    - path: ".opencode/guidelines/000-critical-rules.md → .opencode/skills/approval-gate/SKILL.md"
+      change: "Mandatory Read [Text](path) link for mandate-tiering content (SC-2b)"
+    - path: ".opencode/guidelines/000-critical-rules.md → .opencode/skills/issue-operations-comments/SKILL.md"
+      change: "Mandatory Read [Text](path) link for channel-routing content (SC-3b)"

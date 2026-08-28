@@ -1,0 +1,39 @@
+issue: .opencode#2347
+task: analyze
+step: 5.1 - interface compatibility
+generated_at: "2026-08-28T00:00:00Z"
+
+interface_compatibility:
+  interfaces:
+    - interface: "guidelines/020-go-prohibitions.md (preloaded guideline)"
+      change: "MODIFIED — §1.1, §1.6, §2, §4 removed/condensed; §1 core + anti-self-auth blocks retained"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "The GO-prohibition core (the safety-critical interface) is unchanged. The removed sections are procedural and relocated to shared references reachable via Read-links."
+    - interface: "reference/orchestrator-context-discipline.md"
+      change: "NEW (created by #2359, consumed by this issue)"
+      compatibility: "INTERNAL ONLY"
+      detail: "Canonical home for §1.1 context-discipline content. Consuming cards Read-link it."
+    - interface: "skills/approval-gate/SKILL.md"
+      change: "MODIFIED — Cross-References Read-link added"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "Adds a mandatory Read-link; existing routing unchanged."
+    - interface: "skills/mcp-tool-usage/SKILL.md"
+      change: "MODIFIED — Cross-References Read-link added"
+      compatibility: "BACKWARD COMPATIBLE"
+    - interface: "skills/skill-creator/SKILL.md"
+      change: "MODIFIED — Cross-References Read-link added"
+      compatibility: "BACKWARD COMPATIBLE"
+    - interface: "skills/brainstorming/SKILL.md"
+      change: "MODIFIED — Cross-References Read-link added (discussion-mandates reference)"
+      compatibility: "BACKWARD COMPATIBLE"
+    - interface: "guidelines/085-project-local-tools.md"
+      change: "MODIFIED — de-circularize back-reference to 020 §4"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "085 remains the canonical project-local tool rules reference; only its back-reference to 020 §4 is removed."
+    - interface: ".opencode/opencode.jsonc instructions array"
+      change: "UNCHANGED"
+      compatibility: "BACKWARD COMPATIBLE"
+      detail: "020-go-prohibitions.md remains preloaded at line 81; only its content shrinks."
+
+breaking_changes:
+  - "None — all changes are backward compatible. The safety-critical GO-prohibition core and anti-self-auth blocks are unchanged."

@@ -1,0 +1,38 @@
+sc_count: 9
+scs:
+  - id: "SC-1"
+    description: "§1.1 Orchestrator Context Discipline content is removed from the preloaded 020-go-prohibitions.md and relocated to the shared reference orchestrator-context-discipline.md, with 020 retaining only a mandatory Read-link."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "§1.6 Discussion Mode Mandates content is removed from 020-go-prohibitions.md and relocated to a shared reference loaded via mandatory Read-link from the brainstorming skill."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "§2 Iterative Feedback & Plan Revision prose is removed from 020-go-prohibitions.md and relocated to a shared reference."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "§4 Project-Local Tool Installation content is removed from 020-go-prohibitions.md and replaced with a mandatory Read-link to 085-project-local-tools.md; the circular back-reference in 085 is de-circularized."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The GO-prohibition core (no GO token, no solicitation, no offer-to-edit, no self-authorization, no question-as-authorization, no why-question modification) is retained verbatim in the preloaded 020-go-prohibitions.md."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "The anti-self-authorization critical-rules enforcement blocks (028, 009, 027) are retained in 020-go-prohibitions.md."
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-7"
+    description: "The context-discipline critical-rules enforcement blocks (034, 035, 042, 048, 044, 043, 063, 065, 066, 071, 072, dispatch-gate-canonical) are relocated to the shared reference or converted to Read-links — none are lost."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "The preloaded token burden of 020-go-prohibitions.md is reduced (issue Impact target ~11.9k token savings)."
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Consuming skill cards (approval-gate, mcp-tool-usage, skill-creator, and any other card referencing §1.1) load the shared context-discipline reference via mandatory Read-link."
+    evidence_type: "structural"
+    plan_item: 9

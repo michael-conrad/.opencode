@@ -1,0 +1,32 @@
+issue: .opencode#2347
+task: analyze
+step: 5.1 - concern map
+generated_at: "2026-08-28T00:00:00Z"
+
+concern_map:
+  concerns:
+    - concern: "GO-prohibition core (anti-self-authorization)"
+      phase: PHASE-4
+      files: ["guidelines/020-go-prohibitions.md"]
+      separation: "RETAINED in 020 — safety-critical, must stay preloaded. Not relocated."
+    - concern: "Orchestrator context discipline"
+      phase: PHASE-1
+      files: ["guidelines/020-go-prohibitions.md", "reference/orchestrator-context-discipline.md", "skills/approval-gate/SKILL.md", "skills/mcp-tool-usage/SKILL.md", "skills/skill-creator/SKILL.md"]
+      separation: "RELOCATED to shared reference; consuming cards Read-link. Separate from the GO-prohibition core."
+    - concern: "Discussion-mode mandates"
+      phase: PHASE-2
+      files: ["guidelines/020-go-prohibitions.md", "skills/brainstorming/SKILL.md"]
+      separation: "RELOCATED to shared reference; brainstorming skill Read-links."
+    - concern: "Plan revision rules"
+      phase: PHASE-3
+      files: ["guidelines/020-go-prohibitions.md"]
+      separation: "RELOCATED to shared plan-revision reference (already in approval-gate)."
+    - concern: "Project-local tool installation"
+      phase: PHASE-3
+      files: ["guidelines/020-go-prohibitions.md", "guidelines/085-project-local-tools.md"]
+      separation: "CONDENSED to Read-link to 085-project-local-tools.md (canonical home)."
+
+separation_rules:
+  - "The GO-prohibition core and the procedural context-discipline content are distinct concerns. The core stays preloaded; the procedural content moves to shared references."
+  - "Each relocated concern maps to exactly one canonical home (reference file or existing guideline), avoiding duplication."
+  - "Consuming skill cards Read-link the shared reference rather than re-inlining content."

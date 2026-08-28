@@ -1,0 +1,15 @@
+artifact_name: analysis-summary
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  spec_path: ".opencode/.issues/2346/spec.md"
+  sc_count: 9
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: "Condense .opencode/guidelines/000-critical-rules.md to its safety-critical Tier 1 mandate cores: remove the two movable standalone procedural sections (## Mandate Tiering, ### Channel-Routing Table — Issue Comments vs. Chat Output) and replace them with mandatory Read [Text](path) links to the approval-gate and issue-operations-comments skill cards; retain all critical-rules-XXX blocks byte-identical; keep the file preloaded in opencode.jsonc; add behavioral enforcement tests for retained safety cores and Read-link loading."

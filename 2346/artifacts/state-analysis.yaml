@@ -1,0 +1,44 @@
+artifact_name: state-analysis
+generated_at: 2026-08-27
+source: "Spec #2346 (Condense 000-critical-rules.md — retain safety-critical cores only)"
+content:
+  description: "State transitions for all files affected by the condensation change"
+  transitions:
+    - entity: ".opencode/guidelines/000-critical-rules.md"
+      before: "Contains ## Mandate Tiering and ### Channel-Routing Table — Issue Comments vs. Chat Output standalone procedural sections (~33 lines); all critical-rules-XXX blocks present"
+      after: "Two movable standalone sections removed and replaced with mandatory Read [Text](path) links; all critical-rules-XXX blocks byte-identical"
+      sc: SC-1a, SC-1b
+      item: Item 1, Item 2
+    - entity: ".opencode/skills/approval-gate/SKILL.md"
+      before: "No mandate-tiering content"
+      after: "Hosts mandate-tiering content (Mandate Tiering table, Interaction Rule table, three-tier prose) canonically"
+      sc: SC-2a
+      item: Item 3
+    - entity: ".opencode/guidelines/000-critical-rules.md (mandate-tiering Read link)"
+      before: "No Read [Text](path) link to approval-gate skill card"
+      after: "Read [Text](path) link resolving to the approval-gate skill card"
+      sc: SC-2b
+      item: Item 4
+    - entity: ".opencode/skills/issue-operations-comments/SKILL.md"
+      before: "No channel-routing content"
+      after: "Hosts channel-routing content (Action to Channel table) canonically"
+      sc: SC-3a
+      item: Item 5
+    - entity: ".opencode/guidelines/000-critical-rules.md (channel-routing Read link)"
+      before: "No Read [Text](path) link to issue-operations-comments skill card"
+      after: "Read [Text](path) link resolving to the issue-operations-comments skill card"
+      sc: SC-3b
+      item: Item 6
+    - entity: ".opencode/opencode.jsonc"
+      before: "000-critical-rules.md present in instructions array (line 79)"
+      after: "000-critical-rules.md remains present (SC-4a preservation; verification-only, no edit)"
+      sc: SC-4a
+      item: Item 7
+    - entity: ".opencode/tests-v2/behaviors/<scenario>.sh"
+      before: "No condensation-specific behavioral test"
+      after: "SC-5a behavioral test (retained safety cores fire) and SC-5b behavioral test (Read-link loads relocated content) added"
+      sc: SC-5a, SC-5b
+      item: Item 8, Item 9
+  recovery:
+    description: "Every SC is a reversible, git-tracked file edit; a failed or partial change is repaired by re-running the corresponding item's GREEN edit"
+    no_state_machine: true

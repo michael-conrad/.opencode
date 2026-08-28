@@ -1,0 +1,85 @@
+issue: .opencode#2347
+task: analyze
+step: 1 - pre-spec inspection
+inspected_at: "2026-08-27T23:58:00Z"
+
+primary_target:
+  path: .opencode/guidelines/020-go-prohibitions.md
+  size: "533 lines, 53,468 bytes"
+  role: preloaded Tier 1 guideline (opencode.jsonc instructions array line 81)
+  token_burden_claim: "~19.8k tokens, ~30% of preloaded burden (per issue body)"
+
+section_inventory:
+  - section: "§1 What GO Is Not & Self-Authorization Prohibitions"
+    lines: "9-79"
+    disposition: RETAIN (GO-prohibition core)
+    rationale: "Anti-self-authorization core — no GO token, no solicitation, no offer-to-edit, no self-authorization, no question-as-authorization, no why-question modification. Safety-critical, must stay preloaded."
+  - section: "§1.1 Orchestrator Context Discipline"
+    lines: "84-250"
+    disposition: RELOCATE
+    target: "reference/orchestrator-context-discipline.md (created by #2359)"
+    rationale: "Procedural context-management content. Already duplicated across approval-gate/mcp-tool-usage/skill-creator/brainstorming/writing-plans/executing-plans/git-workflow cards as DISPATCH_GATE + context-cost-frame blocks."
+  - section: "§1.6 Discussion Mode Mandates"
+    lines: "252-278"
+    disposition: RELOCATE
+    target: "shared reference loaded via mandatory Read-link from brainstorming skill"
+    rationale: "Discussion-mode procedural mandates (no question tool, no pigeon-holing, live-tool-call-before-claim). Belongs to brainstorming/discussion workflow, not the preloaded GO-prohibition core."
+  - section: "§2 Iterative Feedback & Plan Revision"
+    lines: "280-286"
+    disposition: RELOCATE
+    target: "shared reference (plan-revision rules, already present in approval-gate SKILL.md)"
+    rationale: "Plan revision invalidation rules duplicate approval-gate content."
+  - section: "§3 Specialized Execution Gates"
+    lines: "288"
+    disposition: REMOVE
+    rationale: "Empty section — no content."
+  - section: "§4 Project-Local Tool Installation"
+    lines: "290-303"
+    disposition: CONDENSE to Read-link
+    target: "guidelines/085-project-local-tools.md (already the canonical full rules)"
+    rationale: "085-project-local-tools.md already contains the full rules and is Tier 2 load-when-sub-agent. §4 is a redundant summary. Note: 085 references back to 020 §4 (circular) — must be de-circularized."
+  - section: "critical-rules enforcement blocks (anti-self-auth)"
+    blocks: ["critical-rules-028", "critical-rules-009", "critical-rules-027"]
+    lines: "307-321, 323-361, 356-358"
+    disposition: RETAIN
+    rationale: "Anti-self-authorization enforcement. Part of GO-prohibition core."
+  - section: "critical-rules enforcement blocks (context-discipline)"
+    blocks: ["critical-rules-034", "critical-rules-035", "critical-rules-042", "critical-rules-048", "critical-rules-044", "critical-rules-043", "critical-rules-063", "critical-rules-065", "critical-rules-066", "critical-rules-071", "critical-rules-072", "critical-rules-dispatch-gate-canonical"]
+    lines: "352-353, 360-394, 397-412, 415-419, 422-423, 426-427, 430-431, 434-444, 447-448, 451-452, 455-461, 463-485, 487-505, 508-527, 530-531"
+    disposition: RELOCATE with §1.1
+    rationale: "These enforcement blocks enforce the §1.1 context-discipline rules. They must move to the shared reference or become Read-links so the rules are not lost."
+
+consuming_skill_cards_with_duplicated_context_discipline:
+  - "skills/approval-gate/SKILL.md (DISPATCH_GATE, Orchestrator Entry Criteria, context-cost frame)"
+  - "skills/mcp-tool-usage/SKILL.md (DISPATCH_GATE, context-cost frame)"
+  - "skills/skill-creator/SKILL.md (DISPATCH_GATE, context-cost frame)"
+  - "skills/brainstorming/SKILL.md (DISPATCH_GATE, context-cost frame)"
+  - "skills/writing-plans/SKILL.md (Cross-References)"
+  - "skills/executing-plans/SKILL.md"
+  - "skills/git-workflow/SKILL.md"
+
+existing_patterns:
+  - pattern: "Read [Text](path) mandatory cross-reference link"
+    evidence: |
+      engineering-approach/SKILL.md lines 125-127:
+        Read [data-integrity-shared reference](reference/data-integrity-shared.md)
+      executing-plans/SKILL.md lines 59-60:
+        Read [skill-card-schema.md](.opencode/reference/skill-card-schema.md)
+    conclusion: "Canonical form for shared-reference Read-links is `Read [<label>](reference/<file>.md)` in the Cross-References section."
+  - pattern: "Shared canonical references in .opencode/reference/"
+    evidence: "reference/ contains cost-model-standards.md, plan-structure-standards.md, spec-structure-standards.md, skill-card-*.md, task-card-structure-standards.md — all consumed via mandatory Read-links by producers and auditors."
+  - pattern: "085-project-local-tools.md is the canonical project-local tool rules reference"
+    evidence: "guidelines/085-project-local-tools.md (Tier 2, load_when: sub-agent) contains the full rules; 020 §4 is a redundant summary."
+
+dependencies:
+  - issue: .opencode#2359
+    role: upstream dependency
+    description: "Creates .opencode/reference/orchestrator-context-discipline.md — the relocation target for §1.1."
+    status: open, labels [needs-approval, spec-draft]
+    note: "reference/orchestrator-context-discipline.md does NOT currently exist (verified: reference/ listing has no such file). #2347 must not remove §1.1 until the shared reference exists."
+  - issue: .opencode#2370
+    role: related
+    description: "Adds Read-link to orchestrator-context-discipline.md in writing-plans SKILL.md. Depends on #2359."
+  - guideline: "guidelines/085-project-local-tools.md"
+    role: relocation target for §4
+    note: "Contains a circular back-reference to 020 §4 that must be de-circularized when §4 is condensed."
