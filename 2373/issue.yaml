@@ -1,7 +1,9 @@
 number: 2373
 title: '[SPEC] Update git-workflow skill — Read-link orchestrator-context-discipline'
 status: open
-labels: []
+labels:
+- needs-approval
+- spec-draft
 body: '## Problem
 
   Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to
@@ -26,7 +28,7 @@ body: '## Problem
   Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline
   ref + 020. Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-27T03:14:57Z'
+updated_at: '2026-08-28T02:45:29+00:00'
 remote_issue: 2373
 remote_url: https://github.com/michael-conrad/.opencode/issues/2373
 promoted_at: '2026-08-27T03:25:12.700721+00:00'
