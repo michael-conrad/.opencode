@@ -36,18 +36,15 @@ labels: [needs-approval, spec-draft]
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|--------------|---------------------|----------------------|
-| SC-1.1 | The `issue-review` SKILL.md SHALL be the authoritative source for the staleness rule, the de-minimis bound, and the single-exchange window (consolidated from the `067-context-completeness.md` "Staleness Rule", "Significant Actions Requiring Re-Read", "De Minimis Bound", and "Single Exchange Window" sections). | behavioral | Dispatch the `issue-review` gather task via `opencode run` and assert (stderr) the agent consults the `issue-review` authoritative staleness source when deciding whether to re-read comments before a significant action; assert the agent applies the de-minimis bound and single-exchange window. | `.opencode/skills/issue-review/SKILL.md`; `.opencode/guidelines/067-context-completeness.md`; `.opencode/reference/skill-card-schema.md` |
-| SC-1.2 | The staleness/de-minimis/single-exchange detail SHALL be absent from `issue-review` task files (single-source). | structural | Grep `issue-review` task files for the staleness/de-minimis/single-exchange text; assert it is absent. | `.opencode/skills/issue-review/` task files |
-| SC-2.1 | `issue-review/SKILL.md` SHALL cross-reference its shared content (the 067 read-all-comments core) using the mandatory `Read [Text](path)` form per the AGENTS.md Read-Link Cross-Reference Rule, with no `See file §section` or bare-symbol cross-reference forms introduced. | structural | Grep `issue-review/SKILL.md` for `Read [Text](path)` links on shared content; assert no `See file §section` or bare-symbol patterns. | `.opencode/AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/.issues/research-cards/cross-reference-form-comparison.md` |
-| SC-2.2 | `067-context-completeness.md` SHALL cross-reference its shared content (the `issue-review` staleness authoritative source) using the mandatory `Read [Text](path)` form per the AGENTS.md Read-Link Cross-Reference Rule, with no `See file §section` or bare-symbol cross-reference forms introduced. | structural | Grep `067-context-completeness.md` for `Read [Text](path)` links on shared content; assert no `See file §section` or bare-symbol patterns. | `.opencode/AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/.issues/research-cards/cross-reference-form-comparison.md` |
-| SC-3.1 | The zero-tolerance read-all-comments-before-acting core SHALL remain intact and unchanged in `067-context-completeness.md` (Zero Tolerance Rule, Scope of Resources, When This Applies, Evidence Requirement, FORBIDDEN, REQUIRED). | structural | Assert the read-all-comments core text remains in `067-context-completeness.md`. | `.opencode/guidelines/067-context-completeness.md` |
-| SC-3.2 | The `issue-review` SKILL.md description SHALL still assert "All comments MUST be read before acting on any issue". | structural | Assert the SKILL.md description still asserts all comments must be read. | `.opencode/skills/issue-review/SKILL.md` |
+| SC-1 | The `issue-review` SKILL.md SHALL be the authoritative source for the staleness rule, the de-minimis bound, and the single-exchange window (consolidated from the `067-context-completeness.md` "Staleness Rule", "Significant Actions Requiring Re-Read", "De Minimis Bound", and "Single Exchange Window" sections), single-sourced so the detail is absent from `issue-review` task files, with the SKILL.md description assertion preserved. | behavioral | Dispatch the `issue-review` gather task via `opencode run` and assert (stderr) the agent consults the `issue-review` authoritative staleness source when deciding whether to re-read comments before a significant action; assert the agent applies the de-minimis bound and single-exchange window. Structural verification methods: (a) grep `issue-review` task files and assert the staleness/de-minimis/single-exchange detail is absent (single-source); (b) assert the `issue-review` SKILL.md description still asserts "All comments MUST be read before acting on any issue"; (c) frontmatter binary-validity check. | `.opencode/skills/issue-review/SKILL.md`; `.opencode/guidelines/067-context-completeness.md`; `.opencode/reference/skill-card-schema.md` |
+| SC-2 | `issue-review/SKILL.md` SHALL cross-reference its shared content (the 067 read-all-comments core) using the mandatory `Read [Text](path)` form per the AGENTS.md Read-Link Cross-Reference Rule, with no `See file §section` or bare-symbol cross-reference forms introduced. | structural | Grep `issue-review/SKILL.md` for `Read [Text](path)` links on shared content; assert no `See file §section` or bare-symbol patterns. | `.opencode/AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/.issues/research-cards/cross-reference-form-comparison.md` |
+| SC-3 | `067-context-completeness.md` SHALL cross-reference its shared content (the `issue-review` staleness authoritative source) using the mandatory `Read [Text](path)` form per the AGENTS.md Read-Link Cross-Reference Rule, with no `See file §section` or bare-symbol cross-reference forms introduced, while the zero-tolerance read-all-comments-before-acting core remains intact and unchanged. | structural | Grep `067-context-completeness.md` for `Read [Text](path)` links on shared content; assert no `See file §section` or bare-symbol patterns; assert the read-all-comments core text (Zero Tolerance Rule, Scope of Resources, When This Applies, Evidence Requirement, FORBIDDEN, REQUIRED) remains in `067-context-completeness.md`. | `.opencode/AGENTS.md` Read-Link Cross-Reference Rule; `.opencode/.issues/research-cards/cross-reference-form-comparison.md`; `.opencode/guidelines/067-context-completeness.md` |
 
 ## 4. Requirements
 
 R-1. The `issue-review` SKILL.md SHALL be the authoritative source for the staleness rule, the de-minimis bound, and the single-exchange window.
 
-R-2. The consolidated staleness detail SHALL be relocated (not duplicated) from `067-context-completeness.md` into `issue-review/SKILL.md`, with no copy remaining in `issue-review` task files.
+R-2. The consolidated staleness detail SHALL be anchored (not duplicated) in `issue-review/SKILL.md` as the authoritative source, with no copy remaining in `issue-review` task files; the removal of the detail from `067-context-completeness.md` is deferred to issue #2351.
 
 R-3. The `issue-review` SKILL.md frontmatter (name, description, license) SHALL remain binary-valid per `skill-card-schema.md`.
 
@@ -65,49 +62,30 @@ R-9. The `issue-review` gather task and operating protocol SHOULD route re-read 
 
 R-10. The change SHOULD coordinate with issue #2351 so the staleness detail is neither lost nor duplicated across the two issues.
 
+R-11. The `issue-review` SKILL.md description SHALL continue to assert "All comments MUST be read before acting on any issue".
+
 ## 5. Items
 
-### Item 1 (SC-1.1): Anchor staleness/de-minimis/single-exchange detail in issue-review skill card
+### Item 1 (SC-1): Anchor staleness/de-minimis/single-exchange detail in issue-review skill card
 
 - RED: Behavioral enforcement test dispatches the `issue-review` gather task and asserts (stderr) the agent does NOT yet consult the `issue-review` authoritative staleness source (detail absent from SKILL.md).
-- GREEN: Add the consolidated staleness rule, de-minimis bound, and single-exchange window to `issue-review/SKILL.md` (e.g., a "Context-Completeness Staleness" section under Operating Protocol).
-- verify: Behavioral `opencode run` assertion that the agent consults the authoritative source; frontmatter binary-validity check.
+- GREEN: Add the consolidated staleness rule, de-minimis bound, and single-exchange window to `issue-review/SKILL.md` (e.g., a "Context-Completeness Staleness" section under Operating Protocol). No content is added to `issue-review` task files; the SKILL.md description is left unchanged.
+- verify: (a) Behavioral `opencode run` assertion that the agent consults the authoritative source and applies the de-minimis bound and single-exchange window; (b) structural grep asserting the staleness/de-minimis/single-exchange detail is absent from `issue-review` task files (single-source); (c) structural assertion the SKILL.md description still asserts "All comments MUST be read before acting on any issue"; (d) frontmatter binary-validity check.
 - commit: `issue-review/SKILL.md` staleness section.
 
-### Item 2 (SC-1.2): Enforce single-source — detail absent from task files
-
-- RED: Grep asserts the staleness/de-minimis/single-exchange text is present in `issue-review` task files (or would be duplicated during implementation).
-- GREEN: No content added to task files; task files reference the SKILL.md authoritative source via `Read [Text](path)` only.
-- verify: Structural grep asserts the staleness/de-minimis/single-exchange detail is absent from `issue-review` task files.
-- commit: No task-file content change; verification evidence only.
-
-### Item 3 (SC-2.1): Add mandatory Read [Text](path) cross-reference in issue-review/SKILL.md
+### Item 2 (SC-2): Add mandatory Read [Text](path) cross-reference in issue-review/SKILL.md
 
 - RED: Grep asserts no `Read [Text](path)` link on shared content exists yet in `issue-review/SKILL.md`.
 - GREEN: Add the `Read [Text](path)` link in `issue-review/SKILL.md` → `067-context-completeness.md` (read-all-comments core).
 - verify: Structural grep for the `Read [Text](path)` link and absence of `See file §section`/bare-symbol forms in `issue-review/SKILL.md`.
 - commit: Cross-reference link in `issue-review/SKILL.md`.
 
-### Item 4 (SC-2.2): Add mandatory Read [Text](path) cross-reference in 067-context-completeness.md
+### Item 3 (SC-3): Add mandatory Read [Text](path) cross-reference in 067-context-completeness.md, preserving the read-all-comments core
 
 - RED: Grep asserts no `Read [Text](path)` link on shared content exists yet in `067-context-completeness.md`.
-- GREEN: Add the `Read [Text](path)` link in `067-context-completeness.md` → `issue-review/SKILL.md` (staleness authoritative source).
-- verify: Structural grep for the `Read [Text](path)` link and absence of `See file §section`/bare-symbol forms in `067-context-completeness.md`.
+- GREEN: Add the `Read [Text](path)` link in `067-context-completeness.md` → `issue-review/SKILL.md` (staleness authoritative source), leaving the read-all-comments core intact and unchanged.
+- verify: (a) Structural grep for the `Read [Text](path)` link and absence of `See file §section`/bare-symbol forms in `067-context-completeness.md`; (b) structural assertion the read-all-comments core text (Zero Tolerance Rule, Scope of Resources, When This Applies, Evidence Requirement, FORBIDDEN, REQUIRED) remains in `067-context-completeness.md`.
 - commit: Cross-reference link in `067-context-completeness.md`.
-
-### Item 5 (SC-3.1): Preserve the read-all-comments core in 067 (verification item)
-
-- RED: Behavioral enforcement test dispatches the `issue-review` gather task and asserts (stderr) the read-all-comments-before-triage behavior is present (core intact); this FAILS if the core was weakened during consolidation.
-- GREEN: No content change — this is a verification guardrail; confirm the core remains in 067.
-- verify: Behavioral `opencode run` assertion the agent reads ALL comments before any triage decision; structural assertion the core text remains in 067.
-- commit: No content change; verification evidence only.
-
-### Item 6 (SC-3.2): Preserve the SKILL.md description assertion (verification item)
-
-- RED: Assert the `issue-review` SKILL.md description asserts "All comments MUST be read before acting on any issue"; this FAILS if the description was altered during consolidation.
-- GREEN: No content change — this is a verification guardrail; confirm the description still asserts all comments must be read.
-- verify: Structural assertion the SKILL.md description still asserts "All comments MUST be read before acting on any issue".
-- commit: No content change; verification evidence only.
 
 ## 6. Dependencies
 
@@ -122,16 +100,17 @@ R-10. The change SHOULD coordinate with issue #2351 so the staleness detail is n
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1.1 | Phase 1 |
-| R-2 | SC-1.1, SC-1.2 | Phase 1 |
-| R-3 | SC-1.1 | Phase 1 |
-| R-4 | SC-1.1 | Phase 1 |
-| R-5 | SC-2.1, SC-2.2 | Phase 2 |
-| R-6 | SC-2.2 | Phase 2 |
-| R-7 | SC-2.1 | Phase 2 |
-| R-8 | SC-3.1 | Phase 3 |
-| R-9 | SC-1.1, SC-2.1 | Phase 1, Phase 2 |
-| R-10 | SC-2.1, SC-2.2 | Phase 2 |
+| R-1 | SC-1 | Phase 1 |
+| R-2 | SC-1 | Phase 1 |
+| R-3 | SC-1 | Phase 1 |
+| R-4 | SC-1 | Phase 1 |
+| R-5 | SC-2, SC-3 | Phase 2, Phase 3 |
+| R-6 | SC-3 | Phase 3 |
+| R-7 | SC-2 | Phase 2 |
+| R-8 | SC-3 | Phase 3 |
+| R-9 | SC-1, SC-2 | Phase 1, Phase 2 |
+| R-10 | SC-2, SC-3 | Phase 2, Phase 3 |
+| R-11 | SC-1 | Phase 1 |
 
 ## 8. Documentation Sources
 
@@ -151,12 +130,9 @@ R-10. The change SHOULD coordinate with issue #2351 so the staleness detail is n
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1.1: Running the behavioral `opencode run` gather-task assertion costs minutes of execution time — a bounded delay that surfaces a missing authoritative source before the detail is lost. Skipping it means the staleness detail is not anchored, the #2351 condensation removes it from 067, and the detail is silently lost — a defect that ships and costs 1000× more to rediscover.
-- SC-1.2: Running the structural grep for the detail's absence from task files costs seconds. Skipping it means the detail is duplicated into `gather.md`/`operating-protocol.md`, violating single-source and defeating the condensation savings — a defect that ships silently.
-- SC-2.1: Running the structural grep for the `Read [Text](path)` link in `issue-review/SKILL.md` costs seconds. Skipping it means a `See file §section` or bare-symbol reference is introduced, the agent never accesses the referenced file (42-58% access), and the shared content is lost during #2351 condensation — a death-spiral defect.
-- SC-2.2: Running the structural grep for the `Read [Text](path)` link in `067-context-completeness.md` costs seconds. Skipping it means 067 lacks the link to the issue-review authoritative source, and the staleness detail is lost during #2351 condensation — a death-spiral defect.
-- SC-3.1: Running the behavioral `opencode run` read-all-comments assertion costs minutes of execution time. Skipping it means the zero-tolerance read-all-comments core is weakened or removed during consolidation, and agents act on partial context — a behavioral defect that ships and costs 1000× more to fix.
-- SC-3.2: Running the structural description assertion costs seconds. Skipping it means the SKILL.md description is altered during consolidation, breaking the semantic-router assertion that all comments must be read — a routing defect that ships silently.
+- SC-1: Running the behavioral `opencode run` gather-task assertion costs minutes of execution time — a bounded delay that surfaces a missing authoritative source before the detail is lost. The companion structural checks (single-source absence from task files, description assertion, frontmatter validity) cost seconds. Skipping them means the staleness detail is not anchored, the #2351 condensation removes it from 067, and the detail is silently lost — a defect that ships and costs 1000× more to rediscover.
+- SC-2: Running the structural grep for the `Read [Text](path)` link in `issue-review/SKILL.md` costs seconds. Skipping it means a `See file §section` or bare-symbol reference is introduced, the agent never accesses the referenced file (42-58% access), and the shared content is lost during #2351 condensation — a death-spiral defect.
+- SC-3: Running the structural grep for the `Read [Text](path)` link in `067-context-completeness.md` and the core-intact assertion costs seconds. Skipping them means 067 lacks the link to the issue-review authoritative source (staleness detail lost during #2351 condensation) or the zero-tolerance read-all-comments core is weakened during consolidation — death-spiral and behavioral defects that ship.
 
 ## 11. Edge Cases
 
@@ -164,18 +140,19 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |-----------|------------------|------------|
 | **Input boundary: empty staleness detail source** | If the staleness detail source text in 067 (the "Staleness Rule", "Significant Actions Requiring Re-Read", "De Minimis Bound", and "Single Exchange Window" sections) is missing or malformed at implementation time, the anchor cannot proceed. | HALT and report — the source content must be present before consolidation. |
 | **State transition: ownership of staleness detail** | The detail transitions from sole ownership in 067 to authoritative ownership in issue-review. | Ensure single authoritative owner; 067 links via `Read [Text](path)`, does not re-state. |
-| **Failure mode: frontmatter invalidated** | If adding the staleness section invalidates the `issue-review/SKILL.md` frontmatter (name/description/license), the skill becomes invisible. | Validate frontmatter against `skill-card-schema.md` before commit; fail-fast on invalid (SC-1.1). |
-| **Failure mode: content duplicated across task files** | If the detail is duplicated into `gather.md`/`operating-protocol.md` instead of single-sourced in SKILL.md. | Enforce single-source; task files reference via `Read [Text](path)` only (SC-1.2). |
+| **Failure mode: frontmatter invalidated** | If adding the staleness section invalidates the `issue-review/SKILL.md` frontmatter (name/description/license), the skill becomes invisible. | Validate frontmatter against `skill-card-schema.md` before commit; fail-fast on invalid (SC-1). |
+| **Failure mode: content duplicated across task files** | If the detail is duplicated into `gather.md`/`operating-protocol.md` instead of single-sourced in SKILL.md. | Enforce single-source; task files reference via `Read [Text](path)` only (SC-1). |
 | **Failure mode: #2351 lands before #2374** | If the 067 condensation (removal) lands before the issue-review anchor, the detail is lost. | Coordinate at PR/merge time; #2374 must land before or with #2351. |
 | **Concurrency: parallel edits to issue-review/SKILL.md** | Concurrent edits to the skill card could conflict. | Rebase-always hygiene; resolve conflicts per `conflict-resolution` skill. |
-| **Recovery: read-all-comments core weakened** | If the consolidation weakens the zero-tolerance core. | SC-3.1 verification guardrail detects and blocks the regression; revert to the intact core. |
-| **Recovery: SKILL.md description altered** | If the consolidation alters the SKILL.md description assertion. | SC-3.2 verification guardrail detects and blocks the regression; restore the description. |
+| **Recovery: read-all-comments core weakened** | If the consolidation weakens the zero-tolerance core. | SC-3 core-intact verification method detects and blocks the regression; revert to the intact core. |
+| **Recovery: SKILL.md description altered** | If the consolidation alters the SKILL.md description assertion. | SC-1 description-assertion verification method detects and blocks the regression; restore the description. |
 
 ## Change Control
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-27 | Decomposed the three compound SCs into six atomic sub-SCs: SC-1 → SC-1.1 (authoritative source) + SC-1.2 (single-source absence from task files); SC-2 → SC-2.1 (SKILL.md cross-ref) + SC-2.2 (067 cross-ref), split into single-file SCs; SC-3 → SC-3.1 (067 core intact) + SC-3.2 (SKILL.md description assertion), restructured as verification items. Updated Items (1:1 item-SC mapping), Traceability, Cost Frame, and Edge Cases to match. Replaced the line-number reference "lines 35-70" with stable section anchors (Staleness Rule, Significant Actions Requiring Re-Read, De Minimis Bound, Single Exchange Window). | Validation finding: Aggregate FAIL on SC decomposition — compound SCs, cross-file SC-2, zero-content-deliverable SC-3, and line-number reference. | Spec-creation pipeline (revise task) |
+| 2026-08-27 | Merged the three zero-content-deliverable verification-only SCs (SC-1.2, SC-3.1, SC-3.2) into the content-producing SCs as verification methods: SC-1.2 → SC-1 (single-source absence from task files), SC-3.2 → SC-1 (description assertion), SC-3.1 → SC-3 (067 core intact). Renumbered to SC-1/SC-2/SC-3 (one content deliverable per SC). Updated Items (1:1 item-SC mapping, 3 items), Traceability (added R-11 for the description assertion, remapped R-8 to SC-3), Cost Frame, and Edge Cases to match. Fixed R-2 to state the detail is anchored in the skill card while 067 removal is deferred to #2351 (resolving the contradiction with Section 2 Not Included). Eliminated the standalone Item 2 (SC-1.2) whose GREEN/commit contradicted (task files referencing SKILL.md vs no task-file content change). Created the analytical artifacts directory. | Validation finding: Aggregate FAIL on three defects — (1) SC-3.2 orphan in Traceability; (2) R-2 internal-consistency contradiction with Section 2 Not Included + Item 2 GREEN/commit contradiction; (3) SC-1.2/SC-3.1/SC-3.2 zero-content-deliverable verification-only items + missing artifacts directory. | Spec-creation pipeline (revise task) |
 
 ---
 

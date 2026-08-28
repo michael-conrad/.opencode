@@ -1,0 +1,28 @@
+artifact_name: concern-map
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "Concern decomposition of the 3 SCs, mapped to phases"
+  concerns:
+    - id: C1
+      name: "Anchor staleness detail in issue-review skill card"
+      description: "Add the consolidated staleness rule, de-minimis bound, and single-exchange window to issue-review/SKILL.md as the authoritative source; keep the detail single-sourced (absent from task files) and preserve the SKILL.md description assertion"
+      scs:
+        - SC-1
+      phase_boundary: "Additive content change to issue-review/SKILL.md (Operating Protocol section)"
+    - id: C2
+      name: "issue-review SKILL.md cross-reference to 067 core"
+      description: "Add mandatory Read [Text](path) link in issue-review/SKILL.md to the 067 read-all-comments core"
+      scs:
+        - SC-2
+      phase_boundary: "Additive content change to issue-review/SKILL.md (cross-reference link)"
+    - id: C3
+      name: "067 cross-reference to issue-review source, core intact"
+      description: "Add mandatory Read [Text](path) link in 067-context-completeness.md to the issue-review staleness authoritative source; leave the read-all-comments core intact and unchanged"
+      scs:
+        - SC-3
+      phase_boundary: "Additive content change to 067-context-completeness.md (cross-reference link)"
+  scs_per_concern:
+    C1: [SC-1]
+    C2: [SC-2]
+    C3: [SC-3]

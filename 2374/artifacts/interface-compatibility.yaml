@@ -1,0 +1,41 @@
+artifact_name: interface-compatibility
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "Interface boundaries and dependency contracts between affected modules"
+  interface_boundaries:
+    - boundary: "issue-review SKILL.md → 067-context-completeness.md (read-all-comments core)"
+      status: "ADDED CROSS-REFERENCE"
+      description: "issue-review/SKILL.md adds a Read [Text](path) link to the 067 read-all-comments core for shared content (SC-2). The 067 core is not modified."
+      sc: SC-2
+    - boundary: "067-context-completeness.md → issue-review SKILL.md (staleness authoritative source)"
+      status: "ADDED CROSS-REFERENCE"
+      description: "067-context-completeness.md adds a Read [Text](path) link to issue-review as the authoritative source for the staleness detail (SC-3). The 067 read-all-comments core remains intact."
+      sc: SC-3
+    - boundary: "issue-review SKILL.md frontmatter"
+      status: "UNCHANGED (VALIDATED)"
+      description: "The SKILL.md frontmatter (name, description, license) must remain binary-valid per skill-card-schema.md and the description must continue to assert all comments must be read (SC-1 verification methods)."
+      sc: SC-1
+    - boundary: "issue-review task files"
+      status: "UNCHANGED (SINGLE-SOURCE)"
+      description: "Task files must not contain the staleness detail; they reference the SKILL.md authoritative source via Read [Text](path) only (SC-1 verification method)."
+      sc: SC-1
+  dependency_contract:
+    description: "Concrete dependency data derived from spec #2374 affected files and success criteria"
+    entries:
+      - source: "issue-review/SKILL.md (staleness section, SC-1)"
+        target: "issue-review gather/operating-protocol decision points"
+        type: "authoritative source"
+        constraint: "the staleness rule, de-minimis bound, and single-exchange window live in SKILL.md; re-read decisions route to this source via Read [Text](path)"
+      - source: "issue-review/SKILL.md (cross-reference, SC-2)"
+        target: "067-context-completeness.md read-all-comments core"
+        type: "Read [Text](path) cross-reference"
+        constraint: "shared content cross-referenced via Read [Text](path); no See/bare-symbol forms"
+      - source: "067-context-completeness.md (cross-reference, SC-3)"
+        target: "issue-review/SKILL.md staleness authoritative source"
+        type: "Read [Text](path) cross-reference"
+        constraint: "067 links to issue-review for the staleness detail; read-all-comments core remains intact and unchanged"
+      - source: "issue #2351 (067 condensation)"
+        target: "067-context-completeness.md"
+        type: "deferred removal"
+        constraint: "#2374 anchors the detail so #2351 can remove it from 067 without loss; #2374 must land before or with #2351"

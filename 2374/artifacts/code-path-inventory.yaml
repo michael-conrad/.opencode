@@ -1,0 +1,23 @@
+artifact_name: code-path-inventory
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "Code paths implied by each SC"
+  code_paths:
+    - sc_id: SC-1
+      path: "issue-review SKILL.md staleness authoritative section"
+      description: "The consolidated staleness rule, de-minimis bound, and single-exchange window are added under Operating Protocol. Behavioral verification asserts the gather task consults this source; structural verification asserts the detail is absent from task files and the description assertion is preserved."
+      files:
+        - ".opencode/skills/issue-review/SKILL.md"
+        - ".opencode/skills/issue-review/tasks/gather.md"
+        - ".opencode/skills/issue-review/tasks/operating-protocol.md"
+    - sc_id: SC-2
+      path: "issue-review SKILL.md cross-reference link"
+      description: "A Read [Text](path) link to the 067 read-all-comments core is added in issue-review/SKILL.md. Structural grep verifies the link form and absence of See/bare-symbol forms."
+      files:
+        - ".opencode/skills/issue-review/SKILL.md"
+    - sc_id: SC-3
+      path: "067-context-completeness.md cross-reference link"
+      description: "A Read [Text](path) link to the issue-review staleness authoritative source is added in 067-context-completeness.md, while the read-all-comments core remains intact. Structural grep verifies the link form and core-intact assertion."
+      files:
+        - ".opencode/guidelines/067-context-completeness.md"

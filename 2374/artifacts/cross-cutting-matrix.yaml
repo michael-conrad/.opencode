@@ -1,0 +1,30 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "Cross-cutting concerns spanning multiple SCs and the two affected files"
+  cross_cutting_concerns:
+    - concern: "Single-source discipline spans SC-1 and SC-2"
+      scs:
+        - SC-1
+        - SC-2
+      description: "SC-1 anchors the staleness detail in SKILL.md and asserts it is absent from task files; SC-2 adds the Read [Text](path) cross-reference in SKILL.md. Both operate on issue-review/SKILL.md and the task files, sharing the single-source constraint — the detail lives in SKILL.md only, and task files reference it via Read [Text](path)."
+      shared_files:
+        - ".opencode/skills/issue-review/SKILL.md"
+        - ".opencode/skills/issue-review/tasks/gather.md"
+        - ".opencode/skills/issue-review/tasks/operating-protocol.md"
+    - concern: "Read [Text](path) cross-reference form spans SC-2 and SC-3"
+      scs:
+        - SC-2
+        - SC-3
+      description: "Both SC-2 (issue-review/SKILL.md) and SC-3 (067-context-completeness.md) add mandatory Read [Text](path) cross-references for shared content. They share the same cross-reference-form verification (no See/bare-symbol forms) and the AGENTS.md Read-Link Cross-Reference Rule authority."
+      shared_files:
+        - ".opencode/AGENTS.md"
+        - ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
+    - concern: "067 is both a source and a target"
+      scs:
+        - SC-1
+        - SC-3
+      description: "067 is the source of the staleness detail being anchored (SC-1) and the file gaining a cross-reference link (SC-3). The anchor must not duplicate the detail back into 067, and the core must remain intact while the link is added."
+      shared_files:
+        - ".opencode/guidelines/067-context-completeness.md"

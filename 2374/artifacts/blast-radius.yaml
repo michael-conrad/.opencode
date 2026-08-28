@@ -1,0 +1,25 @@
+artifact_name: blast-radius
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "All files affected by anchoring the staleness/de-minimis/single-exchange detail into issue-review"
+  affected_files:
+    - path: ".opencode/skills/issue-review/SKILL.md"
+      change: "Add consolidated staleness rule, de-minimis bound, and single-exchange window as an authoritative section (under Operating Protocol); add Read [Text](path) cross-reference to 067 read-all-comments core; leave description and frontmatter unchanged (SC-1, SC-2)"
+      exists: true
+    - path: ".opencode/guidelines/067-context-completeness.md"
+      change: "Add Read [Text](path) cross-reference to issue-review as the authoritative source for the staleness detail; leave the read-all-comments core intact and unchanged (SC-3)"
+      exists: true
+    - path: ".opencode/skills/issue-review/tasks/"
+      change: "No content change — task files reference the SKILL.md authoritative source via Read [Text](path) only; the detail must remain absent (single-source, SC-1 verification method)"
+      exists: true
+    - path: ".opencode/reference/skill-card-schema.md"
+      change: "Read-only reference for frontmatter binary-validity validation (SC-1 verification method); no content change"
+      exists: true
+  unchanged_files:
+    - path: ".opencode/AGENTS.md"
+      change: "Read-Link Cross-Reference Rule is the authority for the Read [Text](path) form; no content change"
+    - path: ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
+      change: "Research card confirming the Read [Text](path) form; no content change"
+    - path: ".opencode/opencode.jsonc"
+      change: "Preload array modification is #2351's scope, not #2374"

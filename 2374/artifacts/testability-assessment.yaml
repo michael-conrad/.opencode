@@ -1,0 +1,19 @@
+artifact_name: testability-assessment
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "Evidence type and verification method assignment for each SC"
+  assignments:
+    - sc_id: SC-1
+      criterion: "issue-review SKILL.md is the authoritative source for the staleness rule, de-minimis bound, and single-exchange window, single-sourced (absent from task files), with the SKILL.md description assertion preserved"
+      evidence_type: behavioral
+      verification_method: "Dispatch the issue-review gather task via opencode run; assert (stderr) the agent consults the issue-review authoritative staleness source and applies the de-minimis bound and single-exchange window. Companion structural checks: (a) grep issue-review task files asserting the detail is absent (single-source); (b) assert the SKILL.md description still asserts 'All comments MUST be read before acting on any issue'; (c) frontmatter binary-validity check per skill-card-schema.md"
+    - sc_id: SC-2
+      criterion: "issue-review/SKILL.md cross-references shared content (067 read-all-comments core) using Read [Text](path) form; no See/bare-symbol forms"
+      evidence_type: structural
+      verification_method: "Grep issue-review/SKILL.md for Read [Text](path) links on shared content; assert no See file §section or bare-symbol patterns"
+    - sc_id: SC-3
+      criterion: "067-context-completeness.md cross-references shared content (issue-review staleness source) using Read [Text](path) form; no See/bare-symbol forms; read-all-comments core remains intact and unchanged"
+      evidence_type: structural
+      verification_method: "Grep 067-context-completeness.md for Read [Text](path) links on shared content; assert no See file §section or bare-symbol patterns; assert the read-all-comments core text (Zero Tolerance Rule, Scope of Resources, When This Applies, Evidence Requirement, FORBIDDEN, REQUIRED) remains in 067-context-completeness.md"
+  note: "SC-1 is declared `behavioral` (primary) with companion structural verification methods; SC-2 and SC-3 are `structural`. SC-1's behavioral assertion has a hard prerequisite: the issue-review gather task must dispatch observably in stderr and consult the authoritative source; if the anchor is absent, the behavioral test cannot pass (FAIL is the only valid outcome)."

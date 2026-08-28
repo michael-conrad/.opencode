@@ -1,0 +1,22 @@
+artifact_name: state-analysis
+generated_at: 2026-08-27
+source: "Spec #2374 (anchor context-completeness staleness detail in issue-review skill)"
+content:
+  description: "State transitions required by each SC"
+  transitions:
+    - entity: "issue-review/SKILL.md — staleness detail ownership"
+      sc: SC-1
+      before: "The staleness rule, de-minimis bound, and single-exchange window live only in 067-context-completeness.md; issue-review/SKILL.md has no authoritative staleness section"
+      after: "issue-review/SKILL.md is the authoritative source for the staleness detail (under Operating Protocol); the detail is absent from issue-review task files; the SKILL.md description still asserts all comments must be read"
+    - entity: "issue-review/SKILL.md — cross-reference to 067 core"
+      sc: SC-2
+      before: "No Read [Text](path) link on shared content (067 read-all-comments core) in issue-review/SKILL.md"
+      after: "Read [Text](path) link present in issue-review/SKILL.md to the 067 read-all-comments core; no See/bare-symbol forms"
+    - entity: "067-context-completeness.md — cross-reference to issue-review source"
+      sc: SC-3
+      before: "No Read [Text](path) link on shared content (issue-review staleness source) in 067-context-completeness.md; the read-all-comments core is present"
+      after: "Read [Text](path) link present in 067-context-completeness.md to the issue-review staleness authoritative source; the read-all-comments core remains intact and unchanged"
+    - entity: "issue #2351 — 067 condensation"
+      sc: SC-1
+      before: "#2351 cannot safely remove the staleness detail from 067 (no authoritative home)"
+      after: "#2351 can remove the staleness detail from 067 without content loss because issue-review/SKILL.md is the authoritative source"

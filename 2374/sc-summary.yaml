@@ -1,26 +1,14 @@
-sc_count: 6
+sc_count: 3
 scs:
-  - id: "SC-1.1"
-    description: "issue-review SKILL.md is the authoritative source for the staleness rule, de-minimis bound, and single-exchange window (consolidated from 067)"
+  - id: "SC-1"
+    description: "issue-review SKILL.md is the authoritative source for the staleness rule, de-minimis bound, and single-exchange window (consolidated from 067), single-sourced so the detail is absent from task files, with the SKILL.md description assertion preserved"
     evidence_type: "behavioral"
     plan_item: 1
-  - id: "SC-1.2"
-    description: "Staleness/de-minimis/single-exchange detail absent from issue-review task files (single-source)"
-    evidence_type: "structural"
-    plan_item: 2
-  - id: "SC-2.1"
+  - id: "SC-2"
     description: "issue-review/SKILL.md cross-references shared content (067 read-all-comments core) using Read [Text](path) form; no See/bare-symbol forms"
     evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "067-context-completeness.md cross-references shared content (issue-review staleness source) using Read [Text](path) form; no See/bare-symbol forms; read-all-comments core remains intact and unchanged"
+    evidence_type: "structural"
     plan_item: 3
-  - id: "SC-2.2"
-    description: "067-context-completeness.md cross-references shared content (issue-review staleness source) using Read [Text](path) form; no See/bare-symbol forms"
-    evidence_type: "structural"
-    plan_item: 4
-  - id: "SC-3.1"
-    description: "Zero-tolerance read-all-comments-before-acting core remains intact and unchanged in 067 (verification item)"
-    evidence_type: "structural"
-    plan_item: 5
-  - id: "SC-3.2"
-    description: "issue-review SKILL.md description still asserts all comments must be read (verification item)"
-    evidence_type: "structural"
-    plan_item: 6
