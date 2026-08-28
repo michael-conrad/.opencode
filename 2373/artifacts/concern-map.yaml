@@ -1,0 +1,37 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: concern-map
+generated_at: 2026-08-27T22:39:00Z
+
+concerns:
+  - concern: skill-card-routing-metadata
+    owner: git-workflow SKILL.md (unchanged)
+    note: >
+      TDT, Invocation, Pre-Flight Guard, Workflows sections are NOT touched. Routing
+      is structural and unchanged.
+
+  - concern: shared-reference-consumption
+    owner: Cross-References section (modified)
+    note: >
+      The Read-link is the single concern of this change — anchoring the shared
+      orchestrator-context-discipline reference so it is loaded during git-workflow
+      dispatch.
+
+  - concern: reference-content-authority
+    owner: .opencode/reference/orchestrator-context-discipline.md (#2359)
+    note: >
+      Content authority lives in the reference file, not in the git-workflow card.
+      This spec adds the link, never the content (single-source-of-truth).
+
+  - concern: guideline-condensation
+    owner: 020-go-prohibitions.md §1.1 (downstream, separate issue)
+    note: >
+      Out of scope for this spec. This spec's Read-link is a prerequisite enabler for
+      the condensation.
+
+per_phase_separation:
+  - phase: Phase 1 (SC-1)
+    concern: shared-reference-consumption (link presence + path resolution)
+  - phase: Phase 2 (SC-2)
+    concern: behavioral verification of reference loading

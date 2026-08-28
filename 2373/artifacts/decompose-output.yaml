@@ -1,0 +1,71 @@
+issue: .opencode#2373
+task: analyze
+step: 4-problem-decomposition
+decomposed_at: 2026-08-27T22:39:00Z
+
+decomposition_model: >
+  Each success criterion maps to exactly one implementation item with its own
+  RED/GREEN/verify/commit cycle. Items are numbered sequentially. Each item
+  references exactly one SC-ID. This mirrors the sibling consuming-card spec
+  (#2370 writing-plans) decomposition.
+
+items:
+  - item_id: 1
+    sc_id: SC-1
+    evidence_type: string
+    description: >
+      Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in
+      the git-workflow SKILL.md Cross-References section, with a path that resolves to
+      .opencode/reference/orchestrator-context-discipline.md.
+    red: >
+      String grep check asserts the git-workflow SKILL.md Cross-References section does
+      NOT currently contain a Read [Text](path) link to orchestrator-context-discipline.md.
+    green: >
+      Add the mandatory Read [Text](path) link to orchestrator-context-discipline.md in
+      the git-workflow SKILL.md Cross-References section.
+    verify: >
+      Re-run the string grep check — assert the link is present in the Cross-References
+      section and its path resolves to .opencode/reference/orchestrator-context-discipline.md.
+    commit: >
+      Single atomic commit for the SKILL.md change + string check.
+
+  - item_id: 2
+    sc_id: SC-2
+    evidence_type: behavioral
+    description: >
+      An orchestrator dispatching the git-workflow skill SHALL load the
+      orchestrator-context-discipline reference into its context during dispatch.
+    red: >
+      Behavioral enforcement test asserts the orchestrator does NOT currently load
+      orchestrator-context-discipline.md when dispatching git-workflow (no Read-link
+      present) — assert_stderr_pattern_absent on the reference path.
+    green: >
+      No additional code change — this item's GREEN is satisfied by the same SKILL.md
+      link added in Item 1, verified behaviorally.
+    verify: >
+      Re-run the behavioral test — assert the orchestrator DOES load
+      orchestrator-context-discipline.md (assert_stderr_pattern_present on the reference
+      path / a read tool call targeting it).
+    commit: >
+      Single atomic commit for the behavioral test (bundled with the Item 1 SKILL.md
+      change).
+
+dependency_dag:
+  - edge: "Item 1 -> Item 2"
+    reason: >
+      Item 2's GREEN depends on the SKILL.md link added in Item 1. Item 1 must land
+      first; Item 2 verifies the behavioral effect of the same change.
+    acyclic: true
+
+dependency_on_external:
+  - issue: .opencode#2359
+    relationship: >
+      Creates .opencode/reference/orchestrator-context-discipline.md — the link target.
+      MUST be merged before this change lands and before the behavioral GREEN test can
+      pass.
+    status: pending (open, [needs-approval, spec-draft])
+  - reference: 020-go-prohibitions.md §1.1
+    relationship: >
+      The §1.1 content must be condensed into the shared reference before the link is
+      the canonical home of the rules.
+    status: pending (separate condensation issue)

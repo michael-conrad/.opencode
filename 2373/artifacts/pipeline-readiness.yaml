@@ -1,0 +1,54 @@
+issue: .opencode#2373
+task: analyze
+step: 6-pipeline-readiness-gate
+validated_at: 2026-08-27T22:39:00Z
+
+checks:
+  - check: atomicity
+    status: PASS
+    detail: >
+      Every SC maps to exactly one RED/GREEN/verify/commit cycle. SC-1 -> Item 1,
+      SC-2 -> Item 2. 1:1 item-SC mapping.
+
+  - check: dependency-ordering
+    status: PASS
+    detail: >
+      SC dependency DAG is acyclic: SC-1 (link present) precedes SC-2 (behavioral
+      load). Item 2's GREEN depends on Item 1's link. No cycles.
+
+  - check: single-concern
+    status: PASS
+    detail: >
+      Every SC targets one file category and one verification domain. SC-1 targets
+      the git-workflow SKILL.md Cross-References section (string domain). SC-2 targets
+      orchestrator context-loading (behavioral domain). No SC spans multiple file
+      categories or verification domains.
+
+  - check: phase-dependency
+    status: PASS
+    detail: >
+      Phase dependency graph is acyclic: Phase 1 (SC-1, link) precedes Phase 2 (SC-2,
+      behavioral verification). Single linear dependency.
+
+  - check: three-tier-structure
+    status: PASS
+    detail: >
+      This is a two-phase spec (link + behavioral verification), not a multi-phase
+      pre/per-file/post structure. The three-tier pre/per-file/post structure applies
+      to multi-phase specs with file-level decomposition; this spec's two phases are
+      link-addition then behavioral-verification, which is a valid linear structure
+      for a single-file additive change. No pre/per-file/post tiers are required.
+
+external_dependency_gate:
+  - dependency: .opencode#2359 (reference file creation)
+    status: PENDING
+    impact: >
+      Implementation MUST NOT begin until the reference file exists and the
+      020-go-prohibitions.md §1.1 condensation is complete (R-C1). Until then,
+      SC-1 (path resolution) and SC-2 (behavioral load) both FAIL.
+
+overall_status: PASS_WITH_EXTERNAL_DEPENDENCY
+summary: >
+  Pipeline readiness gate passed. The spec is atomic, dependency-ordered, single-concern,
+  and acyclic. Implementation is blocked on the external dependency #2359 (reference
+  file creation) and the 020 condensation.

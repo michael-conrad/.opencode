@@ -1,0 +1,27 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: state-analysis
+generated_at: 2026-08-27T22:39:00Z
+
+state_machine_transitions:
+  - phase: Phase 1 (SC-1)
+    from_state: UNLINKED
+    to_state: LINKED
+    trigger: >
+      Mandatory Read [Text](path) link added to git-workflow SKILL.md Cross-References
+      section, path resolving to .opencode/reference/orchestrator-context-discipline.md.
+    verifiable: true (string grep check)
+
+  - phase: Phase 2 (SC-2)
+    from_state: NOT-LOADED
+    to_state: LOADED
+    trigger: >
+      Orchestrator dispatching git-workflow loads orchestrator-context-discipline.md
+      into context (read tool call targeting the path).
+    verifiable: true (behavioral opencode run test)
+
+state_notes: >
+  The only affected "state" is orchestrator context — after the change, an orchestrator
+  loading the git-workflow card additionally loads the orchestrator-context-discipline
+  reference. No runtime state-machine transition is introduced in application code.

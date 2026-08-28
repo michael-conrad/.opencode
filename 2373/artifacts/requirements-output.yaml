@@ -1,0 +1,113 @@
+issue: .opencode#2373
+task: analyze
+step: 3-requirements-extraction
+extracted_at: 2026-08-27T22:39:00Z
+
+requirements:
+  - id: R-1
+    type: explicit
+    description: >
+      The git-workflow SKILL.md SHALL include a mandatory Read [Text](path) link to
+      orchestrator-context-discipline.md in its Cross-References section.
+    verification: >
+      grep .opencode/skills/git-workflow/SKILL.md Cross-References section for the
+      Read [Text](path) link to orchestrator-context-discipline.md.
+    codebase_verified: true
+    verification_evidence: >
+      Cross-References section exists at lines 124-126; no such link currently present
+      (grep confirmed absence).
+
+  - id: R-2
+    type: explicit
+    description: >
+      The link target path SHALL resolve to
+      .opencode/reference/orchestrator-context-discipline.md.
+    verification: >
+      Path-resolution check confirming the link resolves to
+      .opencode/reference/orchestrator-context-discipline.md relative to .opencode/.
+    codebase_verified: true
+    verification_evidence: >
+      Reference directory exists at .opencode/reference/ (7 files); the target file
+      is created by #2359 and does not yet exist.
+
+  - id: R-3
+    type: explicit
+    description: >
+      The link SHALL use the canonical Read [Text](path) form — not "See", not a
+      resolution table.
+    verification: >
+      grep the Cross-References section for the imperative Read [Text](path) form.
+    codebase_verified: true
+    verification_evidence: >
+      Read-Link Cross-Reference Rule (000-critical-rules.md) mandates the imperative
+      inline-link form; cross-reference-form-comparison card (confidence 0.95) shows
+      inline-link form achieves 100% Tier 1 access.
+
+  - id: R-4
+    type: explicit
+    description: >
+      The link SHALL be placed in the Cross-References section of the git-workflow
+      SKILL.md.
+    verification: >
+      grep the Cross-References section of .opencode/skills/git-workflow/SKILL.md.
+    codebase_verified: true
+    verification_evidence: >
+      Cross-References section is the canonical home for shared-reference Read-links
+      (per sibling #2370 and #2359).
+
+  - id: R-5
+    type: implicit
+    description: >
+      The link SHALL be mandatory — the orchestrator loads the context-discipline
+      reference into its context during git-workflow dispatch.
+    verification: >
+      Behavioral opencode run test asserting the orchestrator loads
+      orchestrator-context-discipline.md (read tool call targeting the path).
+    codebase_verified: true
+    verification_evidence: >
+      The Read-link form is the only pattern that reliably causes agent access
+      (cross-reference-form-comparison card).
+
+  - id: R-6
+    type: constraint
+    description: >
+      The context-discipline rules SHALL NOT be lost or duplicated inline; they SHALL
+      be preserved in the shared reference.
+    verification: >
+      grep confirms no re-inlined context-discipline content is added to the git-workflow
+      card; content lives only in the reference.
+    codebase_verified: true
+    verification_evidence: >
+      Single-source-of-truth principle; #2359 owns the reference content.
+
+  - id: R-C1
+    type: constraint
+    description: >
+      Implementation SHALL depend on .opencode/reference/orchestrator-context-discipline.md
+      existing (issue #2359) and the 020-go-prohibitions.md §1.1 condensation being complete.
+    verification: >
+      Dependency check — the reference file must exist and the condensation must be
+      complete before this change lands.
+    codebase_verified: true
+    verification_evidence: >
+      #2359 is open ([needs-approval, spec-draft]); reference file does not yet exist.
+      Implementation MUST NOT begin until the dependency resolves.
+
+  - id: R-N1
+    type: non-requirement
+    description: >
+      This issue SHALL NOT create the reference file, condense 020-go-prohibitions.md,
+      or modify any git-workflow task file or routing metadata.
+    verification: >
+      Scope check — change confined to the git-workflow SKILL.md Cross-References section.
+    codebase_verified: true
+    verification_evidence: >
+      Issue body scope: "In: Add mandatory Read [Text](path) link ... in the git-workflow
+      skill card. Out: Losing the context-discipline rules."
+
+non_requirements:
+  - Creating .opencode/reference/orchestrator-context-discipline.md (owned by #2359)
+  - Condensing 020-go-prohibitions.md §1.1 (separate downstream issue)
+  - Re-inlining context-discipline rules into the git-workflow card
+  - Modifying git-workflow task files (tasks/*.md), contracts, or routing metadata
+  - Modifying other skill cards (each consuming card's Read-link is owned by its own issue)

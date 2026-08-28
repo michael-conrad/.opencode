@@ -1,0 +1,64 @@
+issue: .opencode#2373
+task: analyze
+step: 1-pre-spec-inspection
+inspected_at: 2026-08-27T22:39:00Z
+
+affected_files:
+  - path: .opencode/skills/git-workflow/SKILL.md
+    role: primary-modification-target
+    section: Cross-References (lines 124-126)
+    change: Add mandatory Read [Text](path) link to orchestrator-context-discipline.md
+    current_state: >
+      Cross-References section currently lists sub-skills, related skills, and
+      guidelines (010-approval-gate.md, 000-critical-rules.md). It does NOT
+      contain any Read [Text](path) link to orchestrator-context-discipline.md.
+      Verified via grep: the only `Read [` occurrence in the file is a
+      self-reference to the git-workflow skill at line 129.
+
+dependencies:
+  - path: .opencode/reference/orchestrator-context-discipline.md
+    role: link-target
+    status: NOT_YET_CREATED
+    owner: .opencode#2359
+    note: >
+      The reference file is created by issue #2359. This spec (2373) only adds
+      the Read-link; it does not create the reference. The link path must
+      resolve to reference/orchestrator-context-discipline.md relative to
+      .opencode/.
+
+conventions:
+  - source: .opencode/guidelines/000-critical-rules.md
+    rule: Read-Link Cross-Reference Rule
+    form: Read [Text](path) — imperative inline-link form
+    note: >
+      "See `file` §section" and "See `SKILLNAME` skill" patterns are FORBIDDEN.
+      Only the imperative Read [Text](path) form produces reliable agent
+      behavior.
+
+  - source: .opencode/.issues/research-cards/cross-reference-form-comparison.md
+    rule: Inline-link form (Form A) is the only viable pattern
+    finding: >
+      Form A (inline link) achieves 100% Tier 1 access rate vs 42-58% for
+      resolution-table forms. Confidence 0.95.
+
+  - source: .opencode/.issues/2370/spec.md
+    rule: Sibling consuming-card spec pattern (writing-plans)
+    note: >
+      Issue #2370 (writing-plans) follows the identical pattern: add a mandatory
+      Read [Text](path) link to orchestrator-context-discipline.md in the
+      SKILL.md Cross-References section. This spec (2373) is the git-workflow
+      analog.
+
+  - source: .opencode/skills/git-workflow/SKILL.md
+    rule: Existing Cross-References style
+    note: >
+      The Cross-References section uses a single prose paragraph grouping
+      sub-skills, skills, and guidelines. The new Read-link should be appended
+      to this section following the imperative Read [Text](path) form.
+
+scope_boundary:
+  - in: Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in the git-workflow skill card.
+  - out: >
+      Losing the context-discipline rules. This spec does NOT create the
+      reference file (#2359), does NOT condense 020-go-prohibitions.md §1.1,
+      and does NOT modify any git-workflow task file or routing metadata.

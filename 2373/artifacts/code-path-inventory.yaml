@@ -1,0 +1,27 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: code-path-inventory
+generated_at: 2026-08-27T22:39:00Z
+
+code_paths_touched:
+  - phase: Phase 1 (SC-1)
+    path: .opencode/skills/git-workflow/SKILL.md
+    section: Cross-References (lines 124-126)
+    action: append mandatory Read [Text](path) link to orchestrator-context-discipline.md
+    consumers: >
+      Orchestrators loading the git-workflow skill card via skill({name: "git-workflow"}).
+      The Cross-References section is read by the orchestrator to route to sub-skills
+      and load shared references.
+
+  - phase: Phase 2 (SC-2)
+    path: .opencode/tests-v2/ (behavioral test harness)
+    section: behavioral enforcement test (e.g., git-workflow-reads-context-discipline-reference)
+    action: opencode run behavioral test asserting read tool call targeting orchestrator-context-discipline.md
+    consumers: Test harness inspecting stderr for agent actions.
+
+not_touched:
+  - .opencode/skills/git-workflow/tasks/*.md (task files)
+  - .opencode/skills/git-workflow-branch/, -commit/, -pr/, -cleanup/, -conflict/ (sub-skills)
+  - .opencode/reference/orchestrator-context-discipline.md (owned by #2359)
+  - .opencode/guidelines/020-go-prohibitions.md (downstream condensation)

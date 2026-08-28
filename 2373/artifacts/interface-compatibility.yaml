@@ -1,0 +1,40 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: interface-compatibility
+generated_at: 2026-08-27T22:39:00Z
+
+interfaces:
+  - interface: git-workflow SKILL.md Cross-References section
+    status: MODIFIED (additive)
+    compatibility: backward-compatible
+    detail: >
+      A Read [Text](path) link is appended to the existing Cross-References section.
+      Existing sub-skill, skill, and guideline references are preserved. No existing
+      content is removed or altered.
+
+  - interface: git-workflow skill routing metadata (TDT, Invocation, Pre-Flight Guard, Workflows)
+    status: UNCHANGED
+    compatibility: backward-compatible
+    detail: >
+      Routing metadata is not touched. No behavioral change to agent dispatch.
+
+  - interface: git-workflow task files (tasks/*.md)
+    status: UNCHANGED
+    compatibility: backward-compatible
+    detail: >
+      No task file is modified. The change is confined to the SKILL.md card.
+
+  - interface: .opencode/reference/orchestrator-context-discipline.md
+    status: NEW (external dependency, owned by #2359)
+    compatibility: internal-only
+    detail: >
+      This spec consumes the reference as a link target but does not create it. The
+      reference is internal to .opencode/ and read by orchestrators only.
+
+  - interface: .opencode/guidelines/020-go-prohibitions.md
+    status: UNCHANGED by this spec
+    compatibility: backward-compatible
+    detail: >
+      Downstream condensation is a separate issue. This spec only enables it via the
+      Read-link.

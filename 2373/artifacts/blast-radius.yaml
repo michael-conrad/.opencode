@@ -1,0 +1,39 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: blast-radius
+generated_at: 2026-08-27T22:39:00Z
+
+affected_components:
+  - component: .opencode/skills/git-workflow/SKILL.md
+    change: Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in Cross-References section
+    ripple_effect: >
+      Orchestrators loading the git-workflow skill card will additionally load the
+      orchestrator-context-discipline reference into context. No routing metadata,
+      task files, or dispatch behavior change.
+
+  - component: .opencode/reference/orchestrator-context-discipline.md
+    change: Link target (created by #2359, NOT by this spec)
+    ripple_effect: >
+      This spec makes the reference reachable from the git-workflow workflow. The
+      reference file itself is owned by #2359.
+
+  - component: .opencode/guidelines/020-go-prohibitions.md
+    change: None directly (downstream condensation is separate)
+    ripple_effect: >
+      Enables the 020 condensation — once git-workflow links the shared reference, the
+      §1.1 content can be removed from the preloaded guideline without losing reachability.
+
+per_phase_ripple:
+  - phase: Phase 1 (SC-1)
+    affected: git-workflow SKILL.md Cross-References section only
+    ripple: Single-file additive content change; no cross-file ripple.
+  - phase: Phase 2 (SC-2)
+    affected: Behavioral test harness
+    ripple: Behavioral enforcement test runs via opencode run; no production file ripple.
+
+risk_assessment: LOW
+risk_rationale: >
+  Single additive Read-link in one skill card's Cross-References section. No removal,
+  no routing change, no task-file change. The only external dependency is the reference
+  file existence (#2359).

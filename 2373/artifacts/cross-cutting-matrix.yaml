@@ -1,0 +1,44 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: cross-cutting-matrix
+generated_at: 2026-08-27T22:39:00Z
+
+cross_cutting_concerns:
+  - concern: Read-Link Cross-Reference Rule (Tier 1)
+    applies_to: Phase 1 (SC-1)
+    impact: >
+      The link MUST use the imperative Read [Text](path) form per 000-critical-rules.md.
+      "See" and resolution-table forms are FORBIDDEN.
+    owner: 000-critical-rules.md
+
+  - concern: Standardized vocabulary
+    applies_to: Phase 1 (SC-1)
+    impact: >
+      The link text references orchestrator-context-discipline; the reference preserves
+      the standardized vocabulary ('orchestrator context', 'sub-agent context',
+      'orchestrator context discipline'). No regression to 'context budget'/'context
+      cost'/'context awareness'.
+    owner: #2359 (reference content)
+
+  - concern: Single-source-of-truth
+    applies_to: Phase 1 (SC-1)
+    impact: >
+      The context-discipline content lives only in the shared reference. The git-workflow
+      card adds a link, never re-inlined content.
+    owner: #2359
+
+  - concern: Behavioral verification (cost-blind)
+    applies_to: Phase 2 (SC-2)
+    impact: >
+      SC-2 is behavioral — MUST run via opencode run against a real AI model. Structural
+      substitution (grep/metadata) is FORBIDDEN per the functional/behavioral test
+      substitution prohibition.
+    owner: 080-code-standards.md / test-driven-development
+
+  - concern: Orchestrator-only reference (NOT sub-agent dispatch)
+    applies_to: Phase 1 (SC-1)
+    impact: >
+      orchestrator-context-discipline.md is a reference document read by orchestrators,
+      never dispatched to sub-agents. The Read-link targets the orchestrator.
+    owner: #2359 / skill-card-standards

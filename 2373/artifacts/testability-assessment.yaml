@@ -1,0 +1,30 @@
+issue: .opencode#2373
+task: analyze
+step: 5-analytical-artifacts
+artifact: testability-assessment
+generated_at: 2026-08-27T22:39:00Z
+
+test_strategy:
+  - phase: Phase 1 (SC-1)
+    test_type: string
+    method: >
+      grep verification of the git-workflow SKILL.md Cross-References section for the
+      Read [Text](path) link to orchestrator-context-discipline.md, plus path-resolution
+      check confirming the link resolves to .opencode/reference/orchestrator-context-discipline.md.
+    assertion: link present in Cross-References section with resolvable path
+
+  - phase: Phase 2 (SC-2)
+    test_type: behavioral
+    method: >
+      opencode run behavioral test (e.g., git-workflow-reads-context-discipline-reference)
+      — dispatch git-workflow against a real AI model and inspect stderr for a read tool
+      call targeting orchestrator-context-discipline.md (assert_stderr_pattern_present).
+    assertion: orchestrator loads the reference into context during dispatch
+
+testability_notes: >
+  >
+  SC-1 is a static string check (grep). SC-2 is behavioral and MUST run via opencode
+  run against a real AI model per the functional/behavioral test substitution
+  prohibition — grep/metadata/structural substitution for SC-2 is FORBIDDEN. The
+  behavioral test is gated on the reference file existing (#2359) and the condensation
+  being complete (R-C1).

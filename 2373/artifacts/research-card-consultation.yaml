@@ -1,0 +1,41 @@
+issue: .opencode#2373
+task: analyze
+step: 2-research-card-consultation
+consulted_at: 2026-08-27T22:39:00Z
+
+research_question:
+  - Which cross-reference form reliably causes an AI agent to access the referenced
+    orchestrator-context-discipline.md file when the git-workflow skill card is loaded?
+
+cards_consulted:
+  - path: .opencode/.issues/research-cards/cross-reference-form-comparison.md
+    confidence: 0.95
+    relevance: HIGH
+    finding: >
+      Inline-link form (Form A) achieves 100% Tier 1 access rate. Resolution-table
+      forms (B1/B2/B3) achieve only 42-58%. The imperative Read [Text](path)
+      inline-link is the only viable pattern. This directly justifies the Read-link
+      approach for this spec.
+
+  - path: .opencode/.issues/research-cards/cross-reference-lobotomization.md
+    confidence: (not re-read; referenced by sibling #2359)
+    relevance: MEDIUM
+    finding: >
+      'See' citations fail as load directives — agents treat them as informational
+      text rather than instructions to read. Reinforces the imperative Read
+      [Text](path) form.
+
+  - path: .opencode/.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+    confidence: (not re-read; referenced by sibling #2359)
+    relevance: MEDIUM
+    finding: >
+      Reference files are consumed via Read-links by orchestrators, not dispatched
+      to sub-agents. orchestrator-context-discipline.md is a reference document, not
+      a task card.
+
+no_matching_card: false
+incorporation: >
+  The cross-reference-form-comparison card (confidence 0.95 >= 0.7) is incorporated:
+  the Read-link MUST use the imperative Read [Text](path) inline-link form, which is
+  the canonical form per the Read-Link Cross-Reference Rule (Tier 1) and the research
+  evidence.
