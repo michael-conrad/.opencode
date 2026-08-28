@@ -1,7 +1,8 @@
 number: 2354
 title: '[SPEC] Condense 117-session-trigger-behavior.md — move suppression detail'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/117-session-trigger-behavior.md` costs ~1.9k tokens.
@@ -28,7 +29,7 @@ body: '## Problem
   ~0.6k savings. Risk: losing the nested_opencode_fatal halt. Mitigation: retain that
   core verbatim. Depends on config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-28T20:49:00+00:00'
 remote_issue: 2354
 remote_url: https://github.com/michael-conrad/.opencode/issues/2354
 promoted_at: '2026-08-27T03:25:12.666072+00:00'

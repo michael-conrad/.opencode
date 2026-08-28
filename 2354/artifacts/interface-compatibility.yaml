@@ -1,0 +1,61 @@
+interface_compatibility:
+  issue: 2354
+  analysis:
+    - interface: 117-session-trigger-behavior.md (preloaded guideline)
+      status: modified
+      compatibility: breaking (internal only)
+      detail: |
+        The guideline body is condensed. The always-preloaded content shrinks from
+        ~1.9k to ~1.3k tokens. The no-echo mandate and nested_opencode_fatal
+        hard-halt interfaces (the normative instructions agents must follow) are
+        retained. The self-simulation prose, trigger map, and suppression rule are
+        removed from the preloaded interface and relocated. This is an internal
+        interface change - agents that always had this content preloaded must now
+        load the relocated procedural detail on demand.
+    - interface: session-enforcement.ts (plugin)
+      status: modified (new)
+      compatibility: backward compatible, internal only
+      detail: |
+        The plugin gains the relocated self-simulation prohibition + suppression
+        rule detail (or references a companion artifact). Existing plugin behavior
+        (session-init injection, mode-switch stripping) is unchanged. TypeScript
+        interface must remain valid.
+    - interface: git-workflow-branch/tasks/pair-mode-resume.md (task)
+      status: modified
+      compatibility: backward compatible, internal only
+      detail: |
+        The task gains the pair_mode_resume trigger behavior map. Existing task
+        behavior (pair-mode detection/reporting) unchanged. Result contract
+        interface unchanged.
+    - interface: 116-pair-mode.md (guideline cross-reference)
+      status: modified
+      compatibility: breaking (internal only)
+      detail: |
+        Line 76 cross-reference to the trigger behavior map is updated to point to
+        the relocated home. This is a reference change, not a behavior change.
+    - interface: INDEX.md (guideline index)
+      status: unchanged (verify)
+      compatibility: backward compatible, internal only
+      detail: |
+        117 entry trigger patterns likely unchanged. Verify no update needed.
+    - interface: scripts/session_context_triggers.py (data source)
+      status: unchanged
+      compatibility: backward compatible
+      detail: |
+        Emits pair_mode_resume and nested_opencode_fatal triggers. No change.
+    - interface: .opencode/tests-v2/test-2134-sc*.sh (content-verification tests)
+      status: modified (breaking)
+      compatibility: breaking (internal only)
+      detail: |
+        The 10 content-verification tests assert the content being removed
+        (self-simulation section, trigger behavior map, suppression rule, No-Echo's
+        Self-Simulation framing). They MUST be updated to assert the relocated
+        destinations or retired. sc6/sc7/sc8 constrain the condensed guideline's
+        structure. This is the largest interface impact and was previously
+        unaccounted for.
+  summary: |
+    All interface changes are internal to the .opencode submodule. No external
+    API, application interface, or data contract is affected. The only breaking
+    internal change is the preloaded guideline content reduction - which is the
+    intended purpose (token savings) and is mitigated by relocating (not deleting)
+    the procedural content.

@@ -1,0 +1,61 @@
+pipeline_readiness:
+  issue: 2354
+  validation:
+    atomicity:
+      status: PASS
+      detail: |
+        Every SC maps to exactly one RED→GREEN→COMMIT cycle. SC-1 (condense core),
+        SC-2 (relocate to plugin), SC-3 (relocate trigger map to git-workflow),
+        SC-4 (update cross-references), SC-5 (token + hard-halt verification),
+        SC-6 (reconcile 2134 tests), SC-7 (behavioral regression) are each a single
+        independently verifiable claim.
+    dependency_ordering:
+      status: PASS
+      detail: |
+        SC dependency DAG is acyclic: SC-1 (condense) is the root; SC-2/SC-3
+        depend on SC-1 (relocate removed content); SC-4 depends on SC-2/SC-3
+        (references follow relocation); SC-5 depends on SC-1; SC-6 depends on
+        SC-1/SC-2/SC-3 (tests match post-relocation state); SC-7 depends on
+        SC-1/SC-2/SC-3 (behavioral regression after content moves). No cycles.
+    single_concern:
+      status: PASS
+      detail: |
+        Every SC targets one file category and one verification domain. SC-1/SC-5
+        target the guideline (structural/behavioral); SC-2 targets the plugin
+        (structural + tsc); SC-3 targets git-workflow (structural/behavioral);
+        SC-4 targets cross-references (structural); SC-6 targets test files
+        (structural/behavioral); SC-7 targets behavior (behavioral).
+    phase_dependency:
+      status: PASS
+      detail: |
+        Phase dependency graph is acyclic: condense → relocate → reference-update
+        → test-reconcile → verify. test-reconcile depends on condense+relocate;
+        verify depends on all prior phases.
+    three_tier_structure:
+      status: PASS
+      detail: |
+        The spec is a single-phase guideline condensation (not multi-phase
+        pre/per-file/post). The three-tier pre/per-file/post structure is not
+        applicable; the decomposition provides per-SC items which satisfies the
+        per-SC decomposition mandate.
+  test_conflict_gate:
+    status: BLOCKED_WITH_FINDINGS
+    detail: |
+      The pipeline is not ready for implementation until the test-conflict concern
+      is resolved. The 10 existing test-2134-sc*.sh content-verification tests
+      assert the content this spec removes. The plan MUST include a test-reconcile
+      phase (SC-6) and a behavioral regression gate (SC-7). Without these, the
+      existing test suite breaks on the condensed guideline.
+    required_before_implementation:
+      - SC-6 reconciles the 2134 tests (update to relocated destinations or retire)
+      - SC-7 behavioral regression confirms hard-halt + no-echo still enforced
+      - sc7 constraint honored: condensed guideline avoids .py/.ts cross-references
+      - sc6 #4 honored: every retained guideline section has a normative instruction
+  summary: |
+    Pipeline readiness is PASS on structure (atomicity, dependency ordering,
+    single concern, phase dependency, three-tier applicability) but the
+    implementation is gated on the test-conflict concern. The spec's success
+    criteria MUST include SC-6 (test reconciliation) and SC-7 (behavioral
+    regression) or the pipeline will produce a broken test suite. This is a
+    BLOCKED_WITH_FINDINGS gate - the analysis is complete but the plan must
+    account for the existing enforcement tests.

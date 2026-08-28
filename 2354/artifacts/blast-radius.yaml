@@ -1,0 +1,60 @@
+blast_radius:
+  issue: 2354
+  overview: |
+    The change condenses one preloaded Tier 1 guideline (117-session-trigger-behavior.md)
+    and relocates procedural content to the session-enforcement plugin and git-workflow
+    skill. Blast radius is confined to the .opencode submodule. No application code,
+    tests, or data are affected.
+  affected_components:
+    - component: .opencode/guidelines/117-session-trigger-behavior.md
+      phase: all
+      change: condensed - remove procedural blocks, retain hard-halt core + no-echo
+      ripple: primary deliverable
+    - component: .opencode/plugins/session-enforcement.ts
+      phase: relocate
+      change: absorb self-simulation prose + suppression rule detail (or companion file)
+      ripple: plugin behavior may grow; tsc must pass
+    - component: .opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md
+      phase: relocate
+      change: absorb pair_mode_resume trigger behavior map
+      ripple: task content expands
+    - component: .opencode/skills/git-workflow/SKILL.md
+      phase: relocate
+      change: may reference trigger behavior map / pair mode routing
+      ripple: dispatcher doc
+    - component: .opencode/guidelines/116-pair-mode.md
+      phase: reference-update
+      change: line 76 cross-reference updated to new trigger-map home
+      ripple: doc reference only
+    - component: .opencode/guidelines/INDEX.md
+      phase: reference-update
+      change: 117 entry trigger patterns likely unchanged; verify
+      ripple: minimal
+    - component: .opencode/scripts/session_context_triggers.py
+      phase: none
+      change: NO change - data source unaffected
+      ripple: none
+    - component: .opencode/tests-v2/test-2134-sc*.sh (10 scripts)
+      phase: test-reconcile
+      change: |
+        CRITICAL - these content-verification tests assert the exact content being
+        removed. sc1, sc2, sc4, sc5, sc9, sc10 assert removed sections; sc3 asserts
+        No-Echo's Self-Simulation framing; sc6/sc7/sc8 constrain the condensed
+        guideline's structure. MUST be updated/retired to match post-relocation state.
+      ripple: |
+        If not updated, the test suite FAILS on the condensed guideline. The
+        enforcement signal for the relocated content must be preserved in the new
+        destination files.
+  ripple_effects:
+    - Agents' preloaded context is reduced by ~0.6k tokens per session (positive)
+    - Agents that previously relied on the preloaded trigger behavior map must now
+      load it from the relocated destination (git-workflow / plugin) when needed
+    - The no-echo mandate and nested_opencode_fatal hard-halt remain enforced preloaded
+    - The 10 existing test-2134-sc*.sh content-verification tests are affected and
+      must be reconciled (updated or retired) - this is the largest ripple, previously
+      unaccounted for
+  non_affected:
+    - src/ application code (none in this repo)
+    - test/ (no application test changes)
+    - .opencode/scripts/session_context_triggers.py (data source)
+    - .opencode/hooks/ (no hook changes)

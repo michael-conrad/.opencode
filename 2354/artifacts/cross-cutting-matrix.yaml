@@ -1,0 +1,61 @@
+cross_cutting_matrix:
+  issue: 2354
+  matrix:
+    concern: Token-cost reduction
+    affected_phases:
+      condense: yes - primary goal
+      relocate: yes - content preserved in new homes
+      reference-update: yes - refs follow content
+      verify: yes - token reduction + hard-halt regression check
+    affected_components:
+      - 117-session-trigger-behavior.md
+      - session-enforcement.ts
+      - git-workflow-branch/tasks/pair-mode-resume.md
+      - 116-pair-mode.md
+      - INDEX.md
+    concern: Behavioral enforcement (hard-halt)
+    affected_phases:
+      condense: yes - core retained verbatim
+      relocate: no - hard-halt stays preloaded
+      reference-update: no
+      verify: yes - behavioral test confirms HALT still fires
+    affected_components:
+      - 117-session-trigger-behavior.md (retained core)
+    concern: Cross-reference integrity
+    affected_phases:
+      condense: yes - removed content may leave dangling refs
+      relocate: yes - new homes must be referenced
+      reference-update: yes - update 116 line 76
+      verify: yes - grep for stale refs
+    affected_components:
+      - 116-pair-mode.md
+      - INDEX.md
+    concern: Plugin TypeScript validity
+    affected_phases:
+      condense: no
+      relocate: yes - plugin grows
+      reference-update: no
+      verify: yes - tsc --noEmit
+    affected_components:
+      - session-enforcement.ts
+    concern: Existing enforcement test integrity
+    affected_phases:
+      condense: yes - removed content breaks tests that assert it
+      relocate: yes - tests must point to new destinations
+      reference-update: yes
+      test-reconcile: yes - primary phase
+      verify: yes - 2134 suite must pass against new state
+    affected_components:
+      - .opencode/tests-v2/test-2134-sc*.sh (10 scripts)
+  cross_cutting_notes: |
+    The dominant cross-cutting concern is that the condensation touches the same
+    guideline that other files cross-reference. Every relocation must be paired
+    with a reference update to avoid dangling references. The hard-halt core is
+    the non-negotiable invariant that must survive all phases.
+
+    CRITICAL ADDITION: The condensation also touches the 10 existing
+    test-2134-sc*.sh content-verification tests that assert the removed content.
+    These tests MUST be reconciled (updated/retired) as part of the change, or
+    the enforcement suite breaks. The sc7 constraint (no .py/.ts cross-references
+    in the guideline) also constrains how the relocation is referenced from the
+    condensed guideline.

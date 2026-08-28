@@ -1,0 +1,82 @@
+code_path_inventory:
+  issue: 2354
+  code_paths:
+    - phase: condense
+      path: .opencode/guidelines/117-session-trigger-behavior.md
+      touched: yes - full rewrite of the guideline body
+      detail: remove lines 11-36 (self-simulation prose), 49-56 (trigger map), 69-73 (suppression); retain lines 38-47 (no-echo) and 58-67 (nested_opencode_fatal hard-halt)
+    - phase: relocate
+      path: .opencode/plugins/session-enforcement.ts
+      touched: yes - add self-simulation prohibition + suppression detail (or companion file referenced from plugin)
+      detail: plugin currently 83 lines, handles session-init + mode-switch strip; grows with relocated procedural content
+    - phase: relocate
+      path: .opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md
+      touched: yes - add pair_mode_resume trigger behavior map
+      detail: task currently documents pair-mode resume detection/reporting; absorbs trigger behavior
+    - phase: relocate
+      path: .opencode/skills/git-workflow/SKILL.md
+      touched: yes (or no) - may add reference to trigger behavior map in pair mode section
+      detail: dispatcher doc; verify whether a reference is needed
+    - phase: reference-update
+      path: .opencode/guidelines/116-pair-mode.md
+      touched: yes - line 76 reference to 117 trigger behavior map updated
+      detail: currently 'Read [117-session-trigger-behavior.md](117-session-trigger-behavior.md) for the complete trigger behavior map'
+    - phase: reference-update
+      path: .opencode/guidelines/INDEX.md
+      touched: verify - 117 entry trigger patterns
+      detail: trigger patterns (session trigger, trigger, trigger warning, SESSION_TRIGGER) likely unchanged
+    - phase: none
+      path: .opencode/scripts/session_context_triggers.py
+      touched: no
+      detail: data source unchanged
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc1-self-simulation-section.sh
+      touched: yes - asserts 'Self-Simulation' present; breaks if section removed
+      detail: update to assert relocated location or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc2-mechanisms-carveout.sh
+      touched: yes - asserts Self-Simulation mechanisms/carveout; breaks if section removed
+      detail: update to assert relocated location or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc3-no-echo-narrowed.sh
+      touched: yes - asserts No-Echo references 'Self-Simulation|specific case'; breaks if Self-Simulation removed
+      detail: update framing or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc4-trigger-map-narrowed.sh
+      touched: yes - asserts Trigger Behavior Map present; breaks if map moved
+      detail: update to assert relocated map location or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc5-suppression-preserved.sh
+      touched: yes - asserts Suppression Rule section present; breaks if moved
+      detail: update to assert relocated location or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc6-no-non-actionable-records.sh
+      touched: verify - asserts absence of purged triggers/#426/per-turn + every section has normative instruction
+      detail: likely survives; condensed guideline must keep normative instructions in every section
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc7-no-stale-cross-references.sh
+      touched: verify - asserts NO session_context_triggers.py / session-enforcement.ts / .py|.ts cross-refs in guideline
+      detail: constrains relocation; condensed guideline must avoid .ts/.py cross-refs or sc7 updated
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc8-no-standalone-critical-rules-reference.sh
+      touched: verify - asserts no 000-critical-rules.md reference
+      detail: likely survives
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc9-semantic-preservation.sh
+      touched: yes - asserts No-Echo/Map/Suppression preserved in guideline; breaks if all moved
+      detail: update to assert preservation in relocated destinations or retire
+    - phase: test-reconcile
+      path: .opencode/tests-v2/test-2134-sc10-carveout-coverage.sh
+      touched: yes - asserts Self-Simulation block contains carveouts; breaks if section removed
+      detail: update to assert relocated location or retire
+  callers_of_affected_symbols:
+    - symbol: 117-session-trigger-behavior.md (guideline)
+      callers:
+        - opencode.jsonc instructions array (preloads it)
+        - 116-pair-mode.md line 76 (cross-reference)
+        - INDEX.md (routing index)
+      impact: preload reduced; cross-reference updated
+    - symbol: pair-mode-resume task
+      callers:
+        - git-workflow/SKILL.md (dispatcher routing)
+      impact: task content grows with trigger map

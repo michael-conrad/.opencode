@@ -1,0 +1,63 @@
+testability_assessment:
+  issue: 2354
+  test_strategies:
+    - phase: condense
+      strategy: mixed (structural + behavioral)
+      unit: |
+        Structural: assert condensed 117-session-trigger-behavior.md no longer
+        contains the self-simulation prohibition prose, trigger behavior map, or
+        suppression rule; assert it retains the nested_opencode_fatal hard-halt
+        core and no-echo mandate.
+      behavioral: |
+        Behavioral: run opencode with a NESTED_OPENCODE_FATAL block in the first
+        user message and assert the agent HALTs (does not continue operations).
+        Also assert the no-echo mandate holds (agent does not echo SESSION_TRIGGERS
+        verbatim). These confirm the retained core still enforces.
+    - phase: relocate
+      strategy: mixed (structural + behavioral)
+      unit: |
+        Structural: assert the relocated content (self-simulation prose, suppression
+        rule, trigger behavior map) exists in the new destination files (plugin /
+        git-workflow) and is not deleted.
+      behavioral: |
+        Behavioral: assert an agent that loads the git-workflow pair-mode-resume
+        task / session-enforcement plugin receives the relocated procedural detail.
+        For plugin: tsc --noEmit passes (structural TypeScript validity).
+    - phase: reference-update
+      strategy: structural
+      unit: |
+        Structural: grep for stale references to removed 117 content (e.g., the old
+        trigger behavior map location). Assert 116-pair-mode.md line 76 points to the
+        relocated home. Assert no dangling Read [Text](path) references.
+    - phase: test-reconcile
+      strategy: mixed (structural + behavioral)
+      unit: |
+        Structural: assert the 10 existing test-2134-sc*.sh scripts no longer
+        assert removed content (or are updated to assert the relocated location).
+        Assert the relocated content exists in the new destination files.
+      behavioral: |
+        Behavioral: assert the relocated content (self-simulation prohibition,
+        suppression rule, trigger behavior map) is preserved and loadable at the
+        destination. Assert the enforcement signal is not lost.
+    - phase: verify
+      strategy: mixed (structural + behavioral)
+      unit: |
+        Structural: measure token reduction of the condensed guideline vs. the
+        original (~0.6k target). Assert the 2134 test suite passes against the
+        new state.
+      behavioral: |
+        Behavioral: full regression - assert nested_opencode_fatal HALT still fires
+        and no-echo mandate still enforced after all changes. MUST run via
+        with-test-home opencode run against a real model - NOT grep substitution.
+  testability_notes: |
+    The change is highly testable. The hard-halt and no-echo behaviors are
+    behavioral test targets (must run via with-test-home opencode run against a
+    real model). The token reduction and content relocation are structural
+    assertions. The primary testability risk is two-fold:
+    1. The 10 existing test-2134-sc*.sh content-verification tests assert the
+       content being removed - they MUST be reconciled (updated/retired) or the
+       suite breaks. This is the dominant testability concern.
+    2. Behavioral tests for the hard-halt require real model execution - these
+       MUST run, not substituted with grep. Per the Behavioral/Functional Test
+       Substitution Prohibition, a hard-halt regression check cannot be replaced
+       with a grep for "HALT" text.
