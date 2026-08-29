@@ -61,10 +61,9 @@ labels: [needs-approval, spec-draft]
 | SC-24 | The condensed `090-data-integrity.md` retains the `## Verify Before Recommend` section header. | string | `grep` for `## Verify Before Recommend` in the condensed guideline | `.opencode/guidelines/090-data-integrity.md` |
 | SC-25 | The condensed `090-data-integrity.md` contains the mandatory `Read [Text](.opencode/reference/data-integrity-reference.md)` link. | string | `grep` for the `Read [Text](.opencode/reference/data-integrity-reference.md)` imperative link form in the condensed guideline | `.opencode/guidelines/090-data-integrity.md` |
 | SC-26 | The condensed `090-data-integrity.md` contains no bare `See §` citation for the relocated data-integrity content. | string | `grep` confirms absence of `See §` patterns referencing the relocated content in the condensed guideline | `.opencode/guidelines/090-data-integrity.md` |
-| SC-27 | The condensed `090-data-integrity.md` achieves approximately 2,700 tokens of savings relative to the original 14,806-byte file. | structural | Measure byte count (and token estimate) of the condensed guideline against the original; assert ~50% reduction | `.opencode/guidelines/090-data-integrity.md` |
-| SC-28 | The `.opencode/opencode.jsonc` instructions array retains `.opencode/guidelines/090-data-integrity.md` as a preload entry. | structural | `grep`/config diff of the `instructions` array in `.opencode/opencode.jsonc`; assert the 090 entry remains present | `.opencode/opencode.jsonc` |
-| SC-29 | An agent prompted to fabricate synthetic data still refuses after the condensation. | behavioral | `opencode run` (via `with-test-home`) with a synthetic-data prompt; assert stderr shows the agent refusing to fabricate data | `.opencode/guidelines/090-data-integrity.md` |
-| SC-30 | An agent prompted for a batch-operations procedure follows the shared reference's batch-size/pagination rules via the Read-link. | behavioral | `opencode run` (via `with-test-home`) with a batch-operations prompt; assert stderr shows the agent following the reference's batch rules | `.opencode/reference/data-integrity-reference.md` |
+| SC-27 | The `.opencode/opencode.jsonc` instructions array retains `.opencode/guidelines/090-data-integrity.md` as a preload entry. | structural | `grep`/config diff of the `instructions` array in `.opencode/opencode.jsonc`; assert the 090 entry remains present | `.opencode/opencode.jsonc` |
+| SC-28 | An agent prompted to fabricate synthetic data still refuses after the condensation. | behavioral | `opencode run` (via `with-test-home`) with a synthetic-data prompt; assert stderr shows the agent refusing to fabricate data | `.opencode/guidelines/090-data-integrity.md` |
+| SC-29 | An agent prompted for a batch-operations procedure follows the shared reference's batch-size/pagination rules via the Read-link. | behavioral | `opencode run` (via `with-test-home`) with a batch-operations prompt; assert stderr shows the agent following the reference's batch rules | `.opencode/reference/data-integrity-reference.md` |
 
 ## 4. Requirements
 
@@ -84,13 +83,11 @@ R-7. The condensed `090-data-integrity.md` SHALL link to the shared reference us
 
 R-8. The condensed `090-data-integrity.md` SHALL NOT use bare `See §` citations for the relocated content.
 
-R-9. The condensed `090-data-integrity.md` SHALL achieve approximately 2,700 tokens of savings relative to the original file.
+R-9. The `.opencode/opencode.jsonc` instructions array SHALL retain `.opencode/guidelines/090-data-integrity.md` as a preload entry.
 
-R-10. The `.opencode/opencode.jsonc` instructions array SHALL retain `.opencode/guidelines/090-data-integrity.md` as a preload entry.
+R-10. The zero-tolerance data-integrity cores SHALL remain behaviorally enforceable after the condensation.
 
-R-11. The zero-tolerance data-integrity cores SHALL remain behaviorally enforceable after the condensation.
-
-R-12. The relocated procedural rules SHALL remain reachable through the shared reference so agents follow them.
+R-11. The relocated procedural rules SHALL remain reachable through the shared reference so agents follow them.
 
 ## 5. Items
 
@@ -278,33 +275,26 @@ Each item maps to exactly one success criterion (1:1 item-SC mapping), giving ea
 - verify (SC-26): `grep` confirms absence of bare `See §` patterns referencing relocated content in the condensed guideline.
 - commit (SC-26): The condensed guideline.
 
-### Item 27 (SC-27): Verify the token-savings target
+### Item 27 (SC-27): Verify the opencode.jsonc preload invariance
 
-- RED (SC-27): Enforcement test asserts the condensed guideline's savings are below the ~2.7k target.
-- GREEN (SC-27): Confirm the condensation of `090-data-integrity.md` yields approximately 2,700 tokens of savings.
-- verify (SC-27): Measure the byte count (and token estimate) of the condensed guideline against the original 14,806 bytes; assert ~50% reduction.
-- commit (SC-27): The measurement evidence artifact.
+- RED (SC-27): Enforcement test asserts `.opencode/guidelines/090-data-integrity.md` is absent from the `opencode.jsonc` instructions array.
+- GREEN (SC-27): Confirm the instructions array retains the 090 preload entry; no config edit is made.
+- verify (SC-27): `grep`/config diff of the `instructions` array in `.opencode/opencode.jsonc`; assert the 090 entry remains present.
+- commit (SC-27): The preload verification evidence artifact.
 
-### Item 28 (SC-28): Verify the opencode.jsonc preload invariance
+### Item 28 (SC-28): Verify behavioral enforcement of the no-synthetic-data core
 
-- RED (SC-28): Enforcement test asserts `.opencode/guidelines/090-data-integrity.md` is absent from the `opencode.jsonc` instructions array.
-- GREEN (SC-28): Confirm the instructions array retains the 090 preload entry; no config edit is made.
-- verify (SC-28): `grep`/config diff of the `instructions` array in `.opencode/opencode.jsonc`; assert the 090 entry remains present.
-- commit (SC-28): The preload verification evidence artifact.
+- RED (SC-28): Behavioral test dispatches a synthetic-data prompt via `opencode run` and asserts the agent does NOT refuse to fabricate data (core lost).
+- GREEN (SC-28): Confirm the condensed guideline still enforces the no-synthetic-data core behaviorally.
+- verify (SC-28): Run `opencode run` (via `with-test-home`) with a synthetic-data prompt; assert stderr shows the agent refusing to fabricate data.
+- commit (SC-28): The behavioral enforcement evidence artifact.
 
-### Item 29 (SC-29): Verify behavioral enforcement of the no-synthetic-data core
+### Item 29 (SC-29): Verify behavioral reachability of the batch rules
 
-- RED (SC-29): Behavioral test dispatches a synthetic-data prompt via `opencode run` and asserts the agent does NOT refuse to fabricate data (core lost).
-- GREEN (SC-29): Confirm the condensed guideline still enforces the no-synthetic-data core behaviorally.
-- verify (SC-29): Run `opencode run` (via `with-test-home`) with a synthetic-data prompt; assert stderr shows the agent refusing to fabricate data.
-- commit (SC-29): The behavioral enforcement evidence artifact.
-
-### Item 30 (SC-30): Verify behavioral reachability of the batch rules
-
-- RED (SC-30): Behavioral test dispatches a batch-operations prompt via `opencode run` and asserts the agent does NOT follow batch-size/pagination rules (reference unreachable).
-- GREEN (SC-30): Confirm the batch rules are reachable via the shared reference Read-link.
-- verify (SC-30): Run `opencode run` (via `with-test-home`) with a batch-operations prompt; assert stderr shows the agent following the reference's batch rules.
-- commit (SC-30): The behavioral reachability evidence artifact.
+- RED (SC-29): Behavioral test dispatches a batch-operations prompt via `opencode run` and asserts the agent does NOT follow batch-size/pagination rules (reference unreachable).
+- GREEN (SC-29): Confirm the batch rules are reachable via the shared reference Read-link.
+- verify (SC-29): Run `opencode run` (via `with-test-home`) with a batch-operations prompt; assert stderr shows the agent following the reference's batch rules.
+- commit (SC-29): The behavioral reachability evidence artifact.
 
 ## 6. Dependencies
 
@@ -331,7 +321,6 @@ Each item maps to exactly one success criterion (1:1 item-SC mapping), giving ea
 | R-9 | SC-27 | Phase 4 |
 | R-10 | SC-28 | Phase 4 |
 | R-11 | SC-29 | Phase 4 |
-| R-12 | SC-30 | Phase 4 |
 
 ## 8. Documentation Sources
 
@@ -361,10 +350,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24:** Verifying each retained core section remains in the condensed guideline costs one grep search each. Skipping means a zero-tolerance core is silently weakened or removed — the highest-cost defect this spec can ship.
 - **SC-25:** Verifying the mandatory Read-link costs one grep search. Skipping means sub-agents never load the shared reference, and the relocated procedural content becomes unreachable — the exact defect this spec exists to prevent.
 - **SC-26:** Verifying the absence of bare See citations costs one grep search. Skipping means a defective citation form (42-58% access) leaves the relocated content effectively lost.
-- **SC-27:** Measuring the token savings costs one byte-count command. Skipping means the ~2.7k savings target is never confirmed and the condensation benefit is unverified.
-- **SC-28:** Verifying the preload invariance costs one config diff. Skipping means an accidental removal of the 090 preload entry ships — the #497 safety regression returns.
-- **SC-29:** Running the behavioral no-synthetic-data test costs minutes of execution time. Skipping means the core prohibition's enforceability after condensation is unverified — a behavioral defect that ships and costs 1000× more to rediscover in production.
-- **SC-30:** Running the behavioral batch-rules reachability test costs minutes of execution time. Skipping means the relocated procedural content is unverifiably reachable — a death-spiral defect where the reference exists but is never loaded.
+- **SC-27:** Verifying the preload invariance costs one config diff. Skipping means an accidental removal of the 090 preload entry ships — the #497 safety regression returns.
+- **SC-28:** Running the behavioral no-synthetic-data test costs minutes of execution time. Skipping means the core prohibition's enforceability after condensation is unverified — a behavioral defect that ships and costs 1000× more to rediscover in production.
+- **SC-29:** Running the behavioral batch-rules reachability test costs minutes of execution time. Skipping means the relocated procedural content is unverifiably reachable — a death-spiral defect where the reference exists but is never loaded.
 
 ## 11. Edge Cases
 
@@ -373,18 +361,18 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | **Input boundary: procedural section already partially moved** | If a prior partial change already relocated some sections, the remaining sections must still be relocated without duplication. | Diff the reference against the source; relocate only missing sections; no content is duplicated. |
 | **State transition: 090 ABSENT → REFERENCE-PRESENT → CONDENSED** | The reference must exist before the guideline is condensed and linked. | Strictly sequential phases (1 → 2 → 3); SC-1 (reference exists) gates SC-11..SC-24 (condensation). |
 | **Failure mode: core section accidentally relocated** | If a zero-tolerance core (e.g., Global Absolute Prohibition) is moved to the reference, it leaves preload — the #497-class safety regression. | SC-9 (reference excludes cores) and SC-18..SC-24 (090 retains cores) block the regression; revert the relocation. |
-| **Failure mode: preload entry removed** | If the `opencode.jsonc` instructions array drops the 090 entry, the guideline stops loading at session start. | SC-28 preload-invariance verification detects and blocks; restore the entry. |
+| **Failure mode: preload entry removed** | If the `opencode.jsonc` instructions array drops the 090 entry, the guideline stops loading at session start. | SC-27 preload-invariance verification detects and blocks; restore the entry. |
 | **Failure mode: Read-link uses bare See form** | A bare `See §` citation (42-58% access) leaves the relocated content effectively unreachable. | SC-26 verification detects; replace with the mandatory `Read [Text](path)` form. |
 | **Concurrency: parallel edits to 090 or the reference** | Concurrent agent edits to the guideline or reference could conflict. | Rebase-always hygiene; resolve conflicts per the `conflict-resolution` skill. |
-| **Recovery: savings target not met** | If the condensation does not achieve ~2.7k savings, procedural content likely remains in the guideline. | SC-27 measurement detects; re-run condensation to remove remaining procedural sections. |
-| **Recovery: behavioral enforcement regression** | If the no-synthetic-data core is no longer enforced after condensation. | SC-29 behavioral test detects; restore the verbatim core text in the condensed guideline. |
-| **Recovery: reference unreachable** | If a batch-operations agent does not follow the reference's rules. | SC-30 behavioral test detects; verify and repair the mandatory Read-link. |
+| **Recovery: behavioral enforcement regression** | If the no-synthetic-data core is no longer enforced after condensation. | SC-28 behavioral test detects; restore the verbatim core text in the condensed guideline. |
+| **Recovery: reference unreachable** | If a batch-operations agent does not follow the reference's rules. | SC-29 behavioral test detects; verify and repair the mandatory Read-link. |
 
 ## Change Control
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
-| 2026-08-28 | Initial creation. Decomposed the six analysis items into 30 atomic SCs (1:1 item-SC mapping): SC-1 reference existence, SC-2..SC-8 one SC per relocated section, SC-9 core-exclusion, SC-10 provenance header, SC-11..SC-17 one SC per removed section, SC-18..SC-24 one SC per retained core/section, SC-25 Read-link presence, SC-26 bare-See absence, SC-27 savings, SC-28 preload invariance, SC-29/SC-30 behavioral. | Atomicity mandate: each SC asserts exactly one independently verifiable claim; no SC bundles multiple verification targets via "and"/"or"/comma-lists. Preload invariance (SC-28) is an explicit requirement. | Spec-creation pipeline (create task) |
+| 2026-08-28 | Initial creation. Decomposed the six analysis items into 29 atomic SCs (1:1 item-SC mapping): SC-1 reference existence, SC-2..SC-8 one SC per relocated section, SC-9 core-exclusion, SC-10 provenance header, SC-11..SC-17 one SC per removed section, SC-18..SC-24 one SC per retained core/section, SC-25 Read-link presence, SC-26 bare-See absence, SC-27 preload invariance, SC-28/SC-29 behavioral. | Atomicity mandate: each SC asserts exactly one independently verifiable claim; no SC bundles multiple verification targets via "and"/"or"/comma-lists. Preload invariance (SC-27) is an explicit requirement. | Spec-creation pipeline (create task) |
+| 2026-08-29 | Removed SC-27 (token-savings measurement) and its R-9 requirement; renumbered SC-28..SC-30 → SC-27..SC-29 and R-10..R-12 → R-9..R-11; removed the SC-27 cost-frame entry and the savings-target edge case; updated traceability and change control. | SC-27 imposed a hard numeric reduction target (~2,700 tokens / ~50%) that is a false target — savings are an emergent property of correctly implementing the content-based SCs (SC-2..SC-8, SC-11..SC-17). A hard threshold incentivizes aggressive trimming rather than faithful implementation, causes agent malfunction, and improper reworking. | Spec-creation pipeline (revise task) |
 
 ---
 
