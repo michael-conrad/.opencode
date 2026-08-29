@@ -33,7 +33,7 @@
 | SC-5 | The action-classification table (Action Authorization Classification) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | string | read/grep confirms the action-classification table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
 | SC-6 | The safety-critical authorization cores (spec-before-code, plan-before-implementation, explicit-authorization, human-only-merge, bug-discovery-does-not-authorize) are retained verbatim in the preloaded `010-approval-gate.md`. | behavioral | `opencode run` with a self-authorization / bug-discovery prompt; clean-room sub-agent inspects session.yaml for evidence the agent does NOT self-authorize and does NOT fix a discovered bug. | `.opencode/guidelines/010-approval-gate.md` |
 | SC-7 | The preloaded `010-approval-gate.md` retains a mandatory Read-link to the `approval-gate` skill card so relocated procedural content remains reachable. | string | read confirms 010's cross-reference note has a `Read [approval-gate skill](skills/approval-gate/SKILL.md)` link. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/reference/cross-reference-form-comparison.md` |
-| SC-8 | Scope-parsing behavior is not regressed — the `approval-gate` skill card remains the authoritative scope parser and the verb-prefix table is present. | behavioral | `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parates scope. | `.opencode/skills/approval-gate/SKILL.md`; `.opencode/skills/approval-gate/tasks/resolve-scope.md` |
+| SC-8 | Scope-parsing behavior is not regressed — the `approval-gate` skill card remains the authoritative scope parser. | behavioral | `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parses scope. | `.opencode/skills/approval-gate/SKILL.md`; `.opencode/skills/approval-gate/tasks/resolve-scope.md` |
 
 ## 4. Requirements
 
@@ -109,7 +109,7 @@
 ### Item 8 (SC-8): Behavioral enforcement test for scope-parsing regression
 
 - RED: Behavioral test with an authorization-scope prompt asserts the agent does NOT dispatch `approval-gate resolve-scope` or mis-parses scope (fails because scope parsing is unregressed).
-- GREEN: Run a behavioral enforcement test asserting scope parsing is not regressed: the `approval-gate` skill remains the authoritative scope parser with the verb-prefix table present.
+- GREEN: Run a behavioral enforcement test asserting scope parsing is not regressed: the `approval-gate` skill remains the authoritative scope parser.
 - verify: `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parses scope.
 - commit: No content change; behavioral verification slice.
 
@@ -178,7 +178,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
   - **Resolution:** SC-7 + R-14 verify consumer reachability; a broken reference is fixed in the consumer before completion.
 - **Condition:** The scope-parsing behavioral test fails (agent mis-parses an authorization scope).
   - **Expected behavior:** Scope parsing regressed; the named risk materialized.
-  - **Resolution:** SC-8 fails; remediation restores the verb-prefix table / skill-card authority before completion.
+  - **Resolution:** SC-8 fails; remediation restores skill-card authority before completion.
 - **Condition:** A safety-critical core is accidentally removed during condensation.
   - **Expected behavior:** The agent self-authorizes or fixes a discovered bug — a Tier 1 violation.
   - **Resolution:** SC-6 behavioral test fails; the core is restored verbatim before completion.
@@ -189,8 +189,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
+| 2026-08-29 | Fixed compound-SC defect in SC-8: removed the verb-prefix-table-presence clause (already entailed by SC-2) from SC-8's criterion, leaving the authoritative-scope-parser behavior as a single atomic clause. Updated Item 8 GREEN and the SC-8 edge-case resolution accordingly; SC count unchanged at 8. | Validation finding: COMPOUND_SC — SC-8's criterion joined two independently verifiable claims ("skill card remains the authoritative scope parser" and "verb-prefix table is present") with "and"; the latter is entailed by SC-2. | Validation pipeline (spec-creation revise) |
+| 2026-08-28 | Removed SC-8 (hard byte-count target), renumbered SC-9→SC-8, removed Item 8 and corresponding traceability/cost-frame/edge-case entries. Updated "parates"→"parses" typo. | Audit finding: false-target SC — condensation savings are an emergent property of content-based SCs, not a hard threshold. | Spec revision sub-agent |
 | 2026-08-28 | Corrected declared evidence type of SC-1..SC-5 and SC-7 from `structural` to `string` to match their read/grep content-presence verification methods. Updated `sc-summary.yaml` `evidence_type` for these SCs accordingly. | Validation finding: EVIDENCE_TYPE_MISMATCH — read/grep content-presence checks are `string` evidence per the canonical cost-model taxonomy, not `structural`. | Validation pipeline (spec-creation revise) |
-| 2026-08-29 | Removed SC-8 (preload byte burden threshold < 8,466 bytes / < 55% of original) and its Item 8, traceability row, cost frame entry, and edge case. Renumbered SC-9→SC-8 (Item 9→Item 8, plus traceability, cost frame, and edge-case references). Updated `sc-summary.yaml` `sc_count` to 8 and removed/renumbered SC entries accordingly. No requirement removal was needed — no requirement carried the byte-count threshold. | Revision reason: Remove the false-target SC imposing a hard byte-count reduction threshold — condensation savings are an emergent property of correctly implementing the content-based SCs; a hard numeric threshold incentivizes aggressive trimming rather than faithful implementation, causes agent malfunction, and improper reworking. | Orchestrator (spec-creation revise) |
 
 ---
 
