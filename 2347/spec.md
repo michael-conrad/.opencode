@@ -51,7 +51,6 @@ title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & dis
 | SC-4b | The circular back-reference in 085-project-local-tools.md to 020 §4 is de-circularized. | structural | read confirms 085 no longer references 020 §4. | `.opencode/guidelines/085-project-local-tools.md` |
 | SC-5 | The GO-prohibition core (no GO token, no solicitation, no offer-to-edit, no self-authorization, no question-as-authorization, no why-question modification) is retained verbatim in the preloaded 020-go-prohibitions.md. | behavioral | `opencode run` with a self-authorization solicitation prompt; clean-room sub-agent inspects session.yaml for evidence the agent does NOT self-authorize (core retained and enforced). | `.opencode/guidelines/020-go-prohibitions.md` |
 | SC-6 | The anti-self-authorization critical-rules enforcement blocks (028, 009, 027) are retained in 020-go-prohibitions.md. | structural | read confirms critical-rules-028/009/027 blocks remain in 020. | `.opencode/guidelines/020-go-prohibitions.md` |
-| SC-8 | The preloaded token burden of 020-go-prohibitions.md is reduced to a hard numeric threshold: post-condensation byte count < 26,734 bytes (< 50% of the original 53,468 bytes). | structural | byte count of 020-go-prohibitions.md after condensation is < 26,734 bytes — a binary PASS/FAIL against the hard threshold (no open-ended quality term). | `.opencode/guidelines/020-go-prohibitions.md` |
 
 ## 4. Requirements
 
@@ -61,7 +60,6 @@ title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & dis
 - R-4. The system SHALL condense §4 Project-Local Tool Installation content in 020-go-prohibitions.md to a mandatory `Read [Text](path)` link to 085-project-local-tools.md, and SHALL de-circularize the back-reference in 085-project-local-tools.md.
 - R-5. The system SHALL retain the GO-prohibition core (§1) verbatim in the preloaded 020-go-prohibitions.md.
 - R-6. The system SHALL retain the anti-self-authorization critical-rules enforcement blocks (028, 009, 027) in 020-go-prohibitions.md.
-- R-7. The system SHALL reduce the preloaded token burden of 020-go-prohibitions.md to a post-condensation byte count below 26,734 bytes (i.e. < 50% of its original 53,468 bytes).
 
 ## 5. Items
 
@@ -135,13 +133,6 @@ title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & dis
 - verify: read confirms the blocks remain in 020.
 - commit: `guidelines/020-go-prohibitions.md`
 
-### Item 11 (SC-8): Measure post-condensation token burden
-
-- RED: byte count of 020 after condensation is not < 26,734 bytes.
-- GREEN: Confirm the post-condensation 020-go-prohibitions.md byte count is < 26,734 bytes (< 50% of the original 53,468 bytes).
-- verify: byte count confirms 020 is < 26,734 bytes (binary PASS/FAIL against the hard threshold).
-- commit: `guidelines/020-go-prohibitions.md`
-
 ## 6. Dependencies
 
 - **#2359** (orchestrator-context-discipline.md reference) — creates `reference/orchestrator-context-discipline.md`, the relocation target for §1.1. Relationship: must be merged before SC-1c (020's Read-link to it). Status: pending (open, [needs-approval, spec-draft]).
@@ -159,7 +150,6 @@ title: '[SPEC] Condense 020-go-prohibitions.md — move context-discipline & dis
 | R-4 | SC-4a-1, SC-4a-2, SC-4b | Phase 3 |
 | R-5 | SC-5 | Phase 4 |
 | R-6 | SC-6 | Phase 4 |
-| R-7 | SC-8 | Phase 4 |
 
 ## 8. Documentation Sources
 
@@ -188,7 +178,6 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-4b:** Verifying the de-circularization costs one read. Skipping means a circular reference remains between 085 and 020 — a structural defect that surfaces at the next tool-installation decision.
 - **SC-5:** Running the behavioral test costs minutes of execution time. Skipping means the GO-prohibition core is accidentally weakened and agents self-authorize — a safety-critical defect that costs 1000× more to fix.
 - **SC-6:** Verifying the anti-self-auth blocks remain costs one read. Skipping means an anti-self-authorization enforcement block is silently lost — a structural defect that weakens the safety-critical core.
-- **SC-8:** Measuring the post-condensation burden costs one byte count. Skipping means the condensation ships without confirming the hard threshold (post-condensation < 26,734 bytes, < 50% of the original 53,468 bytes) was met — a structural defect that defeats the issue's purpose.
 
 ## 11. Edge Cases
 
@@ -207,9 +196,6 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** The 085 back-reference to 020 §4 is not de-circularized.
   - **Expected behavior:** A circular reference remains between 085 and 020.
   - **Resolution:** SC-4b verifies the back-reference is removed.
-- **Condition:** The post-condensation 020-go-prohibitions.md byte count does not fall below the hard threshold (≥ 26,734 bytes, i.e. ≥ 50% of the original 53,468 bytes).
-  - **Expected behavior:** The token-burden reduction target is not met.
-  - **Resolution:** SC-8 verifies the byte count is < 26,734 bytes as a binary PASS/FAIL; a count at or above the threshold is a FAIL, regardless of how "substantially" the file appears reduced.
 
 ## 12. Change Control
 
@@ -217,5 +203,5 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |------|--------|--------|---------------|
 | 2026-08-28 | Removed exact line-range references from the Items section (Items 1-3, 6) and Documentation Sources, replacing them with stable section/heading references; decomposed SC-4 into SC-4a (condense §4) and SC-4b (de-circularize 085), each with its own item/RED-GREEN cycle; updated Traceability, Cost Frame, Edge Cases, Dependencies, and sc-summary.yaml to match. | Validation findings: (1) prescriptive content — exact line numbers are forbidden per spec-structure-standards §Prohibited Content Patterns; (2) SC-4 is a compound SC bundling two distinct deliverables/verification targets. | spec-creation revise pipeline |
 | 2026-08-28 | Decomposed SC-1/SC-2/SC-3/SC-4a into atomic SCs (content-removed, content-present, Read-link-present) per the remove+relocate "and" compound defect; unified SC-2's §1.6 target to the named `reference/discussion-mode-mandates.md` from #2358 across criterion/dependency/item; named SC-3's §2 target as `reference/plan-revision.md` and declared its dependency (BLOCKER-3); pinned SC-7 to a single mechanism (relocate to `reference/orchestrator-context-discipline.md`) removing the disjunctive "or"; enumerated SC-9's consuming cards to the exact set (approval-gate, mcp-tool-usage, skill-creator, brainstorming) and split into single-deliverable SC-9a/9b/9c/9d; updated Items (1:1 item-SC mapping, 20 items), Traceability, Cost Frame, Edge Cases, Dependencies, sc-summary.yaml, and regenerated the analytical artifacts directory. | Validation findings: Aggregate FAIL on determinism, compound-SC, and decomposition — (1) unnamed SC-3 relocation target; (2) inconsistent SC-2 target naming; (3) SC-7 disjunctive escape hatch; (4) SC-9 open-ended escape hatch; (5) SC-1/2/3/4a compound remove+relocate; (6) SC-2/SC-9 span multiple deliverables. | spec-creation revise pipeline |
-| 2026-08-28 | Pinned SC-8 to a hard numeric threshold: post-condensation byte count < 26,734 bytes (< 50% of the original 53,468 bytes). Replaced the open-ended quality term "substantially reduced" and soft threshold "target < ~50%" in the SC-8 criterion and verification method with the binary PASS/FAIL threshold; updated R-8, Item 16 (RED/GREEN/verify), Cost Frame, and added an SC-8 Edge Case; updated sc-summary.yaml SC-8 description. | Validation findings: Aggregate FAIL on determinism/binary-verifiability — SC-8 used "substantially reduced" (open-ended quality term) and "target < ~50%" (soft/approximate threshold), so the token-burden reduction SC could not be verified as a clean binary PASS/FAIL. | spec-creation revise pipeline |
 | 2026-08-28 | Restructured #2347 to a PURE CONSUMER scope per the Tier 2 structural diagnostic (producer/consumer role conflation). Removed producer-type SCs and re-wiring SCs that belong to other issues: SC-1b, SC-2b, SC-7 (content-present checks for references owned by #2358/#2359 — folded into the dependency gate, where producers verify their own deliverables), and SC-2c, SC-9a/9b/9c/9d (consuming-card link SCs — duplicate #2358/#2359 wiring or orphaned scope; the 020 condensation only adds 020's OWN Read-links). Resolved SC-3: companion producer issue #2393 (reference/plan-revision.md) created; SC-3a/3c now declare #2393 as a blocker dependency. Updated sc-summary.yaml (11 SCs), Items (1:1 item-SC mapping, 11 items), Requirements, Traceability, Cost Frame, Edge Cases, Dependencies, and ensured the analytical artifacts directory is present. | Validation findings: Tier 2 structural diagnostic — producer/consumer role conflation (root cause of 4 consecutive validation failures). | spec-creation revise pipeline |
+| 2026-08-29 | Removed SC-8 (hard numeric byte-count reduction threshold), R-7, Item 11, its traceability row, cost-frame entry, and edge case. Condensation savings are now verified solely by the content-based SCs (removal/Read-link/retention); the hard threshold was a false target that incentivized aggressive trimming rather than faithful implementation. Updated sc-summary.yaml (10 SCs) and Change Control. | Revision reason: remove the false-target SC that imposes a hard byte-count reduction threshold — a hard numerical threshold incentivizes aggressive trimming to hit a number rather than faithful implementation, causes agent malfunction, and improper reworking. | spec-creation revise pipeline |

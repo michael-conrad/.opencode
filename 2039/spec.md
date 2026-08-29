@@ -4,23 +4,24 @@
 
 ## Problem
 
-28 task cards are referenced in SKILL.md Trigger Dispatch Tables but do not exist as `.md` files in the corresponding `tasks/` directories. When the orchestrator dispatches these tasks via `task()`, the sub-agent has no task file to execute.
+Spec #2039 was filed 2026-07-21 claiming "28 task cards referenced in Trigger Dispatch Tables are missing." Since then the skill deck has been substantially restructured: two skills (`approval-gate-scope`, `plan-creation-pipeline`) were merged or deleted, and several skills were consolidated into flat architectures. A live research analysis (2026-08-29, see `tmp/opencode-2039-card-analysis.md`) confirmed that only **10** of the 28 cards are still genuinely missing. The other 18 are stale: 3 already exist, 12 are obsolete (skills merged/deleted, functionality folded), and 3 were renamed/folded.
+
+The durable requirement is **TDT-reference integrity** — no Trigger Dispatch Table or Invocation references a non-existent task card. This spec is re-scoped to the 10 confirmed STILL-MISSING cards plus the two special-case dangling references that require explicit resolution.
 
 ## Affected Skills
 
+The 10 STILL-MISSING cards, grouped by current skill names:
+
 | Skill | Missing Task Cards |
 |-------|-------------------|
-| `approval-gate-scope` | `spec-to-plan-cascade`, `approval-cascade`, `check-halt-boundary`, `apply-label`, `revision-revocation`, `bug-discovery-protocol` |
 | `brainstorming` | `top-down-analysis`, `cross-scope` — see [§Brainstorming Task Card Requirements](#brainstorming-task-card-requirements) |
-| `executing-plans` | `execute`, `tdd-cycle-enforcement` |
-| `playwright-cli` | `browse`, `test` |
-| `programming-principles` | `principles`, `check-limits`, `decompose` |
+| `programming-principles` | `check-limits`, `decompose` |
 | `skill-creator` | `init`, `package`, `fragment-management` |
-| `multimodal-dispatch` | `route` |
 | `using-git-worktrees` | `verify-worktree` |
-| `plan-creation-pipeline` | `plan-creation`, `completion` |
-| `issue-operations-core` | `push-artifacts` |
-| `writing-plans` | `create`, `update`, `retroactive`, `holistic-self-check` |
+| `issue-operations-core` | `push-artifacts` (special case — see [§Special-Case Decisions](#special-case-decisions)) |
+| `multimodal-dispatch` | `route` (special case — see [§Special-Case Decisions](#special-case-decisions)) |
+
+**Out of scope:** The original 28-card list included 3 already-existing cards (`apply-label`, `principles`, `create`), 12 obsolete cards from the merged/deleted `approval-gate-scope` and `plan-creation-pipeline` skills (functionality folded into surviving skills), and 3 renamed/folded cards (`browse`/`test` → `commands-reference`, `update` → `revise`, `retroactive` → `backfill`). These 18 cards are intentionally NOT in scope — creating them would duplicate existing or obsolete functionality.
 
 ## Brainstorming Task Card Requirements
 
@@ -91,27 +92,55 @@
 
 **Context passed from TDT:** `{issue_number}`
 
+## Special-Case Decisions
+
+Two of the 10 STILL-MISSING cards require an explicit resolution decision during implementation because their dangling references may be better resolved by TDT cleanup than by card creation. **SC-4 requires** that whichever decision is made, no dangling reference remains.
+
+### `multimodal-dispatch/tasks/route.md`
+
+The routing function is fully implemented by `dispatch.md` + `resolve.md`. The `route` TDT row and Invocation in `multimodal-dispatch/SKILL.md` are stale dangling references — no `route.md` file exists, and the skill operates correctly via `dispatch`/`dispatch-multi`/`resolve`.
+
+**Recommended fix: remove the stale `route` TDT row and Invocation, rerouting the `"route" / "route task" / "dispatch to model"` triggers to `dispatch`** — rather than creating a redundant card that duplicates `dispatch.md`.
+
+**Decision required:** remove the stale `route` TDT row + Invocation (recommended), OR create a thin alias card that reads modality, resolves the model via `resolve.md`, and calls the model.
+
+### `issue-operations-core/tasks/push-artifacts.md`
+
+The platform sub-skill card EXISTS at `issue-operations/platforms/local/tasks/push-artifacts.md`, and `issue-operations/SKILL.md` already routes `push-artifacts` correctly to that platform-level card. The core-level card is absent; `issue-operations-core/SKILL.md` has a stale TDT row + Invocation referencing the non-existent `issue-operations-core/tasks/push-artifacts.md`.
+
+**Recommended fix: create a thin core dispatcher card** that resolves the target platform (`github.platform`) and routes to the platform sub-skill implementation, capturing the returned `artifact_url` for the documented `spec-creation/tasks/reconcile-push.md` consumer.
+
+**Decision required:** create a thin core dispatcher card (recommended), OR remove the stale core-level TDT row + Invocation and rely on the platform-level card (as `issue-operations` already does).
+
 ## Root Cause
 
-Trigger Dispatch Tables were written with task references before the corresponding task card files were created.
+Trigger Dispatch Tables were written with task references before the corresponding task card files were created. Since the spec was filed, the skill deck was restructured, making 18 of the original 28 references stale (cards already created, skills merged/deleted, or cards renamed/folded). The remaining 10 references are genuine dangling references.
 
 ## Fix
 
-For each missing task card, create a `.md` file in the skill's `tasks/` directory with entry criteria, inline-only steps, and exit criteria.
+1. Create the 10 confirmed STILL-MISSING task cards as `.md` files in their respective `tasks/` directories, each with entry criteria, inline-only steps, and exit criteria.
+2. Resolve the two special-case decisions (`route`, `push-artifacts`): either remove the stale TDT row + Invocation, or create a thin card — such that no dangling TDT reference remains (SC-3, SC-4).
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | All 28 missing task cards exist as `.md` files | `string` | Verify each file exists |
+| SC-1 | The 10 confirmed STILL-MISSING task cards exist as `.md` files (or, for the two special cases, the dangling reference is resolved per SC-4) | `string` | Verify each file exists, or TDT row removed |
 | SC-1.1 | Brainstorming task cards (`top-down-analysis.md`, `cross-scope.md`) contain all required procedure per §Brainstorming Task Card Requirements | `string` | Verify both files exist and contain the required sections |
-| SC-2 | Each new task card has entry criteria, inline steps, exit criteria | `string` | Sample audit of 5 new task cards |
+| SC-2 | Each of the 10 new task cards has entry criteria, inline steps, exit criteria | `string` | Sample audit of the new task cards |
 | SC-3 | No TDT references a non-existent task card | `string` | Cross-reference all TDTs against filesystem |
+| SC-4 | The two special-case decisions (`route`, `push-artifacts`) are resolved — either the stale TDT row is removed OR a thin card is created, with no dangling reference remaining | `string` | Verify the `route` and `push-artifacts` TDT rows/Invocation reference an existing card or are removed |
 
 ## Anti-Lobotomization
 
 Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. Load [Test Integrity Mandate](guidelines/080-code-standards.md).
 
 After this spec is approved, invoke `writing-plans` to create `.issues/2039/plan.md` before implementation begins.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-29 | Re-scoped from 28 cards to the 10 STILL-MISSING cards; updated Affected Skills table; added Special-Case Decisions section; rewrote SC-1 and SC-2; added SC-4 | Live research analysis (`tmp/opencode-2039-card-analysis.md`) confirmed 18 of the original 28 cards are stale (3 exist, 12 obsolete, 3 renamed/folded) | Developer (revision request) |
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)

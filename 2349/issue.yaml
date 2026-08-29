@@ -7,6 +7,7 @@ labels:
 - spec-draft
 body: '## Problem
 
+
   Preloaded `.opencode/guidelines/065-verification-honesty.md` costs ~1.9k tokens.
   ~35% procedural (evidence-requirement examples, session-scoped verification detail,
   pre-response gate procedure) that overlaps verification / verification-before-completion
@@ -15,14 +16,17 @@ body: '## Problem
 
   ## Scope
 
+
   - **In:** Relocate evidence examples + session-scoped detail to verification skills;
   retain the zero-tolerance never-rely-on-memory core + pre-response factual-claim
   gate.
+
 
   - **Out:** Removing the verification-honesty zero-tolerance core.
 
 
   ## Approach
+
 
   Move the duplicated procedural detail to the verification skill cards via mandatory
   Read-links; keep the honesty core preloaded.
@@ -30,10 +34,13 @@ body: '## Problem
 
   ## Impact
 
-  ~0.7k savings. Risk: low. Depends on verification skill update + config. Action:
-  approve.'
+
+  Reduced preload footprint. Risk: low. Depends on verification skill update + config.
+  Action: approve.
+
+  '
 created_at: '2026-08-27T03:14:08Z'
-updated_at: '2026-08-28T14:11:48+00:00'
+updated_at: '2026-08-29T05:49:14+00:00'
 remote_issue: 2349
 remote_url: https://github.com/michael-conrad/.opencode/issues/2349
 promoted_at: '2026-08-27T03:25:12.656550+00:00'

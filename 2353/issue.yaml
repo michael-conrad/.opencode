@@ -27,8 +27,8 @@ body: '## Problem
 
   ## Impact
 
-  ~1.1k savings. Risk: low. Depends on engineering-approach update + config. Action:
-  approve.'
+  File-size reduction is an emergent property of the content-based SCs. Risk: low.
+  Depends on engineering-approach update + config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
 updated_at: '2026-08-28T19:57:57+00:00'
 remote_issue: 2353

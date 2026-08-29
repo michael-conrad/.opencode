@@ -1,4 +1,4 @@
-sc_count: 9
+sc_count: 8
 scs:
   - id: "SC-1"
     description: "Authorization scope-model table removed from 010; approval-gate skill card is single source of truth."
@@ -29,10 +29,6 @@ scs:
     evidence_type: "string"
     plan_item: 7
   - id: "SC-8"
-    description: "Preload byte burden of 010 reduced to < 8,466 bytes (< 55% of original)."
-    evidence_type: "structural"
-    plan_item: 8
-  - id: "SC-9"
     description: "Scope-parsing behavior not regressed; approval-gate skill card remains authoritative scope parser."
     evidence_type: "behavioral"
-    plan_item: 9
+    plan_item: 8

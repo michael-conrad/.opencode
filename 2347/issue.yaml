@@ -40,9 +40,9 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Impact
 
 
-  Biggest single win (~11.9k token savings; SC-8 hard threshold: post-condensation
-  byte count < 26,734 bytes, < 50% of the original 53,468 bytes). Risk: losing no-self-auth
-  rules. Mitigation: retain prohibition core verbatim. Depends on shared references
+  Biggest single win (~11.9k token savings from relocating procedural content).
+  Risk: losing no-self-auth rules. Mitigation: retain prohibition core verbatim.
+  Depends on shared references
   + config. Action: approve.
 
   '

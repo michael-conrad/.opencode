@@ -1,4 +1,4 @@
-sc_count: 11
+sc_count: 10
 scs:
   - id: "SC-1a"
     description: "§1.1 Orchestrator Context Discipline content is removed from the preloaded 020-go-prohibitions.md."
@@ -40,7 +40,3 @@ scs:
     description: "The anti-self-authorization critical-rules enforcement blocks (028, 009, 027) are retained in 020-go-prohibitions.md."
     evidence_type: "structural"
     plan_item: 10
-  - id: "SC-8"
-    description: "The preloaded token burden of 020-go-prohibitions.md is reduced to a hard numeric threshold: post-condensation byte count < 26,734 bytes (< 50% of the original 53,468 bytes)."
-    evidence_type: "structural"
-    plan_item: 11

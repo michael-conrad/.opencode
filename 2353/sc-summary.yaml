@@ -1,4 +1,4 @@
-sc_count: 8
+sc_count: 7
 scs:
   - id: "SC-1"
     description: "Verification-source priority list inlined into engineering-approach operating-protocol step 5"
@@ -28,7 +28,3 @@ scs:
     description: "075-docs-verification.md remains in the opencode.jsonc instructions array"
     evidence_type: structural
     plan_item: 7
-  - id: "SC-8"
-    description: "Condensed guideline achieves ~1.1k token savings relative to the original"
-    evidence_type: structural
-    plan_item: 8

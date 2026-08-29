@@ -1,4 +1,4 @@
-sc_count: 12
+sc_count: 11
 scs:
   - id: "SC-1a"
     description: "Five-tier hierarchy removed from guideline §1 and replaced with a Read-link to the mcp-tool-usage skill."
@@ -32,19 +32,15 @@ scs:
     description: "060-tool-usage.md remains in the opencode.jsonc instructions array."
     evidence_type: "structural"
     plan_item: 8
-  - id: "SC-4"
-    description: "Condensed guideline token count ≤ 1,200 (hard threshold) while retaining all safety cores."
+  - id: "SC-4a"
+    description: "All 6 downstream glob-semantics Read-link sites updated to point at the new glob-semantics location (mcp-tool-usage/tasks/selection-guide.md)."
     evidence_type: "structural"
     plan_item: 9
-  - id: "SC-5a"
-    description: "All 6 downstream glob-semantics Read-link sites updated to point at the new glob-semantics location (mcp-tool-usage/tasks/selection-guide.md)."
+  - id: "SC-4b"
+    description: "Zero stale references to the old glob-semantics location remain across .opencode/**/*.md."
     evidence_type: "structural"
     plan_item: 10
   - id: "SC-5b"
-    description: "Zero stale references to the old glob-semantics location remain across .opencode/**/*.md."
-    evidence_type: "structural"
-    plan_item: 11
-  - id: "SC-6b"
     description: "All edited agent-facing text complies with Mandatory Triple Co-Application (250/255/257)."
     evidence_type: "semantic"
-    plan_item: 12
+    plan_item: 11

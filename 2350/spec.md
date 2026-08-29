@@ -10,7 +10,7 @@
 |---|-------|-------------|
 | 1 | **Problem Statement** | The preloaded `.opencode/guidelines/060-tool-usage.md` guideline costs ~4.1k tokens of orchestrator context at every session start. Roughly 70% of its content — the five-tier tool priority hierarchy and the built-in glob semantics (LIM-1..6, canonical path-parameter idiom, empty-result disambiguation rule) — is procedural content that is either already duplicated in the `mcp-tool-usage` skill card (five-tier hierarchy) or belongs in a sub-agent-readable location (glob semantics). This spec condenses the guideline to its zero-tolerance safety cores, relocating the procedural content to its authoritative home, without removing the guideline from the `opencode.jsonc` instructions array. |
 | 2 | **Root Cause / Motivation** | The guideline was written as a monolithic preloaded Tier 1 file before the skill-card/task-card architecture matured. The five-tier hierarchy is already duplicated verbatim in `mcp-tool-usage/SKILL.md` (line 115), making the guideline's copy redundant. The glob semantics (LIM-1..6) exist ONLY in the guideline §2 — they are not yet present in the skill — and 6 downstream task/guideline files Read-link to `guidelines/060-tool-usage.md` for the canonical glob semantics. Every session start pays ~4.1k tokens to preload content that a skill load or a task-card Read-link could provide on demand. Condensing now reduces orchestrator context load without losing enforcement. |
-| 3 | **Approach Chosen** | Relocate the five-tier hierarchy out of the guideline §1 (it already lives verbatim in the `mcp-tool-usage` skill card) and condense §1 to a Read-link. Relocate the glob semantics (LIM-1..6, canonical path-parameter idiom, empty-result rule) out of guideline §2 into the `mcp-tool-usage/tasks/selection-guide.md` task card — the pinned, sub-agent-readable relocation target — and condense §2 to a pointer. Update all 6 downstream glob-semantics Read-links in lockstep. Retain all zero-tolerance safety cores (`.ipynb` mandate, API-client-mandatory, `project_root/tmp`-only, command restrictions, identity-source semantics, linter advisory-only) verbatim in the guideline. Verify the token reduction against a hard ≤1.2k threshold and add behavioral enforcement coverage. |
+| 3 | **Approach Chosen** | Relocate the five-tier hierarchy out of the guideline §1 (it already lives verbatim in the `mcp-tool-usage` skill card) and condense §1 to a Read-link. Relocate the glob semantics (LIM-1..6, canonical path-parameter idiom, empty-result rule) out of guideline §2 into the `mcp-tool-usage/tasks/selection-guide.md` task card — the pinned, sub-agent-readable relocation target — and condense §2 to a pointer. Update all 6 downstream glob-semantics Read-links in lockstep. Retain all zero-tolerance safety cores (`.ipynb` mandate, API-client-mandatory, `project_root/tmp`-only, command restrictions, identity-source semantics, linter advisory-only) verbatim in the guideline. Add behavioral enforcement coverage. |
 | 4 | **Alternatives Considered & Why Discarded** | **Relocate glob semantics to the SKILL.md card (as proposed by prerequisite #2364):** Discarded. Skill cards are orchestrator-only routing metadata loaded via `skill()` — sub-agents cannot call `skill()` and cannot Read-link a skill card. The 6 downstream task files that Read-link to the guideline for glob semantics would break if the semantics moved to a card sub-agents cannot read. The relocation target MUST be a sub-agent-readable file. **Relocate glob semantics to a dedicated reference file instead of the `selection-guide.md` task card:** Discarded. The `selection-guide.md` task card is the natural home because it already carries file-type tool boundary guidance and is Read-linkable by sub-agents; a separate reference file would add a location without benefit. The relocation target is pinned to `mcp-tool-usage/tasks/selection-guide.md`. |
 | 5 | **Key Design Decisions** | **Glob-semantics relocation target is the `mcp-tool-usage/tasks/selection-guide.md` task card (pinned single target), NOT the SKILL.md card and NOT a separate reference file.** This decision is forced by the Read-link cross-reference rule: content referenced via `Read [Text](path)` must exist at a path sub-agents can read. The `mcp-tool-usage/tasks/selection-guide.md` task card already carries file-type tool boundary guidance and is Read-linkable by sub-agents. Tradeoff: glob semantics move out of preload (saving tokens) but require all 6 Read-links to be updated in lockstep to avoid link rot. |
 | 6 | **User Intent / Original Prompt** | Condense `060-tool-usage.md` — move the five-tier hierarchy and glob semantics to their authoritative homes while retaining the zero-tolerance safety cores and preserving the guideline's membership in the `opencode.jsonc` instructions array. |
@@ -36,10 +36,9 @@
 | SC-2c | A behavioral enforcement test proves relocated glob-semantics routing still works: RED before the change (agent does not emit a canonical path-parameter invocation), GREEN after (agent emits a canonical path-parameter invocation for a hidden/gitignored target, no false absence conclusion). | behavioral | `opencode run` behavioral enforcement test (existing from #2334) with RED/GREEN assertion helpers on stderr asserting the agent emits a canonical path-parameter glob invocation for a hidden/gitignored target. | `.opencode/tests-v2/behaviors/` test scenario |
 | SC-3a | All zero-tolerance safety cores are retained verbatim in `060-tool-usage.md` (`.ipynb` mandate, API-client-mandatory rule, `project_root/tmp`-only rule, command restrictions, identity-source semantics, linter advisory-only rule). | structural | File reads confirming each retained section is present verbatim. | `.opencode/guidelines/060-tool-usage.md` §1 PROHIBITED + API Client Mandatory, §3, §4, §9, linter advisory-only |
 | SC-3b | `060-tool-usage.md` remains in the `opencode.jsonc` instructions array. | structural | Read of `opencode.jsonc` confirming the array entry for `060-tool-usage.md` is unchanged. | `.opencode/opencode.jsonc` instructions array |
-| SC-4 | The condensed `060-tool-usage.md` has a token count ≤ 1,200 (hard threshold) while retaining all safety cores. | structural | Token-count measurement (`wc -w` or tokenizer) of the guideline after condensation. | `.opencode/guidelines/060-tool-usage.md` (whole-file token count) |
-| SC-5a | All 6 downstream glob-semantics Read-link sites are updated to point at the new sub-agent-readable glob-semantics location (`mcp-tool-usage/tasks/selection-guide.md`). | structural | Grep across `.opencode/**/*.md` confirming all 6 known sites point at the new location. | 6 Read-link sites: `verification-before-completion/tasks/completion.md`, `sre-runbook/tasks/generate.md`, `audit/tasks/coherence-maintenance-validator.md`, `audit/tasks/coherence-maintenance-investigator.md`, `audit/tasks/content-audit-investigator.md`, `020-go-prohibitions.md` |
-| SC-5b | Zero stale references to the old glob-semantics location remain across `.opencode/**/*.md`. | structural | Grep across `.opencode/**/*.md` for stale references to the old glob-semantics location; confirm zero. | `.opencode/**/*.md` (grep) |
-| SC-6b | All edited agent-facing text complies with Mandatory Triple Co-Application (250/255/257). | semantic | Triple Co-Application (250/255/257) reference-card consultation for every edited agent-facing file. | `.opencode/guidelines/250-dark-prose-reference.md`, `255-distribution-shifting-reference.md`, `257-procedural-discipline-reference.md` |
+| SC-4a | All 6 downstream glob-semantics Read-link sites are updated to point at the new sub-agent-readable glob-semantics location (`mcp-tool-usage/tasks/selection-guide.md`). | structural | Grep across `.opencode/**/*.md` confirming all 6 known sites point at the new location. | 6 Read-link sites: `verification-before-completion/tasks/completion.md`, `sre-runbook/tasks/generate.md`, `audit/tasks/coherence-maintenance-validator.md`, `audit/tasks/coherence-maintenance-investigator.md`, `audit/tasks/content-audit-investigator.md`, `020-go-prohibitions.md` |
+| SC-4b | Zero stale references to the old glob-semantics location remain across `.opencode/**/*.md`. | structural | Grep across `.opencode/**/*.md` for stale references to the old glob-semantics location; confirm zero. | `.opencode/**/*.md` (grep) |
+| SC-5b | All edited agent-facing text complies with Mandatory Triple Co-Application (250/255/257). | semantic | Triple Co-Application (250/255/257) reference-card consultation for every edited agent-facing file. | `.opencode/guidelines/250-dark-prose-reference.md`, `255-distribution-shifting-reference.md`, `257-procedural-discipline-reference.md` |
 
 ## 4. Requirements
 
@@ -50,7 +49,6 @@
 - R-5. The system SHALL keep `060-tool-usage.md` in the `opencode.jsonc` instructions array; condensation modifies the file's content only, not its array membership.
 - R-6. The system SHALL update all 6 downstream glob-semantics Read-link sites that referenced `guidelines/060-tool-usage.md` for glob semantics to point at the new sub-agent-readable location (`mcp-tool-usage/tasks/selection-guide.md`).
 - R-7. The system SHALL apply Mandatory Triple Co-Application (250/255/257 reference cards) to every edited agent-facing file.
-- R-8. The system SHALL achieve a token count of `060-tool-usage.md` ≤ 1,200 tokens after condensation (down from the ~4.1k baseline) while retaining all safety cores.
 
 ## 5. Items
 
@@ -110,28 +108,21 @@
 - verify: Read of `opencode.jsonc` confirms the array entry for `060-tool-usage.md` is unchanged.
 - commit: Verification evidence only (no content change).
 
-### Item 9 (SC-4): Token savings measurement
-
-- RED: N/A (measurement).
-- GREEN: Measure token count of condensed guideline.
-- verify: `wc -w` or tokenizer measurement confirms the condensed guideline is ≤ 1,200 tokens.
-- commit: Measurement evidence only.
-
-### Item 10 (SC-5a): Update 6 Read-links
+### Item 9 (SC-4a): Update 6 Read-links
 
 - RED: N/A (link updates).
 - GREEN: Update all 6 downstream glob-semantics Read-link sites to point at `mcp-tool-usage/tasks/selection-guide.md`.
 - verify: Grep across `.opencode/**/*.md` confirms all 6 known sites point at the new location.
 - commit: Read-link updates.
 
-### Item 11 (SC-5b): Zero stale references
+### Item 10 (SC-4b): Zero stale references
 
 - RED: N/A (link updates).
-- GREEN: No additional change beyond Item 10; confirm no stale references remain.
+- GREEN: No additional change beyond Item 9; confirm no stale references remain.
 - verify: Grep across `.opencode/**/*.md` for stale references to the old glob-semantics location; confirm zero.
 - commit: Verification evidence only (no content change).
 
-### Item 12 (SC-6b): Triple Co-Application compliance
+### Item 11 (SC-5b): Triple Co-Application compliance
 
 - RED: N/A (compliance check).
 - GREEN: Apply Triple Co-Application (250/255/257) to every edited agent-facing file.
@@ -162,9 +153,8 @@
 | R-3 | SC-2b | Phase 2 |
 | R-4 | SC-3a | Phase 3 |
 | R-5 | SC-3b | Phase 3 |
-| R-6 | SC-5a, SC-5b | Phase 5 |
-| R-7 | SC-6b | Phase 6 |
-| R-8 | SC-4 | Phase 4 |
+| R-6 | SC-4a, SC-4b | Phase 5 |
+| R-7 | SC-5b | Phase 6 |
 
 ## 8. Documentation Sources
 
@@ -193,19 +183,17 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-2c:** Verifying the relocated glob-semantics routing behaviorally (RED/GREEN) costs one behavioral test run. Skipping means a hidden-dir lookup fails in production with a false absence conclusion.
 - **SC-3a:** Verifying the retention of safety cores costs a few file reads. Skipping means a zero-tolerance rule (`.ipynb` mandate, API-client-mandatory, `project_root/tmp`-only) is silently dropped during condensation — a data-loss-prevention regression that ships unchanged.
 - **SC-3b:** Verifying the `opencode.jsonc` array entry costs one file read. Skipping means the guideline could be dropped from preload, losing the safety cores at session start.
-- **SC-4:** Verifying the token reduction costs one measurement command. Skipping means the condensation's benefit (reduced orchestrator context load) is unproven — the change ships with no evidence it achieved its ≤1.2k purpose.
-- **SC-5a:** Verifying the 6 Read-link updates costs one grep. Skipping means stale Read-links point at a condensed guideline lacking the glob definition — every downstream agent that follows the stale link operates without the canonical semantics.
-- **SC-5b:** Verifying zero stale references costs one grep. Skipping means a leftover stale link silently routes agents to a location that no longer carries the glob definition.
-- **SC-6b:** Verifying Triple Co-Application compliance costs reference-card consultation. Skipping means edited agent-facing text may contain dark-prose or distribution-shifting defects that degrade downstream agent behavior.
+- **SC-4a:** Verifying the 6 Read-link updates costs one grep. Skipping means stale Read-links point at a condensed guideline lacking the glob definition — every downstream agent that follows the stale link operates without the canonical semantics.
+- **SC-4b:** Verifying zero stale references costs one grep. Skipping means a leftover stale link silently routes agents to a location that no longer carries the glob definition.
+- **SC-5b:** Verifying Triple Co-Application compliance costs reference-card consultation. Skipping means edited agent-facing text may contain dark-prose or distribution-shifting defects that degrade downstream agent behavior.
 
 ## 11. Edge Cases
 
 - **Input boundaries — empty glob result:** An agent given a glob task with a hidden/gitignored target MUST NOT conclude absence from a silent-empty result. The relocated glob semantics must preserve the empty-result disambiguation rule (LIM-3): a silent-empty glob is not evidence of absence until the invocation shape is confirmed correct and the target path is reachable.
-- **State transitions — condensation mid-flight:** If `060-tool-usage.md` §2 is condensed to a pointer before the 6 Read-links are updated (SC-5a not bundled with SC-2a), the Read-links dangle at the condensed guideline. Mitigation: SC-5a is bundled with SC-2a in the same phase so the relocation and link updates land together.
+- **State transitions — condensation mid-flight:** If `060-tool-usage.md` §2 is condensed to a pointer before the 6 Read-links are updated (SC-4a not bundled with SC-2a), the Read-links dangle at the condensed guideline. Mitigation: SC-4a is bundled with SC-2a in the same phase so the relocation and link updates land together.
 - **Failure modes — prerequisite #2364 divergence:** If #2364 relocates glob semantics to the SKILL.md card (sub-agent-unreadable), this spec's SC-2a relocation target conflicts. Mitigation: reconcile with #2364 before implementation; the pinned `mcp-tool-usage/tasks/selection-guide.md` relocation target is authoritative per the Read-link rule.
 - **Concurrency — parallel skill-card edits:** If #2364 and this spec both edit `mcp-tool-usage` files concurrently, edits may conflict. Mitigation: dependency ordering — #2364 anchors the skill, this spec condenses the guideline; implement after #2364 or in a coordinated branch.
 - **Recovery — stale Read-link discovery:** If a stale Read-link is found post-merge, the fix is a targeted Read-link update to the new glob-semantics location (`mcp-tool-usage/tasks/selection-guide.md`), verified by grep.
-- **Measurement boundary — token threshold:** SC-4 uses a hard ≤1.2k token threshold. If the condensed guideline cannot reach ≤1.2k while retaining all safety cores verbatim, the threshold is the binding constraint — the condensation is not complete until the measurement passes, or the retained safety-core set is re-scoped through spec revision.
 
 ---
 
@@ -216,6 +204,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-28 | Corrected SC-5 Read-link count from 8 to 6 (removed `collect.md`, whose `060-tool-usage.md` references are temp-files/cleanup, not glob semantics) and fixed the site enumeration to the 6 verified glob-semantics Read-link files. Decomposed compound SC-1/SC-2/SC-3/SC-5/SC-6 into atomic SCs (13 total: SC-1a/b/c, SC-2a/b/c, SC-3a/b, SC-4, SC-5a/b, SC-6a/b). Pinned the glob-semantics relocation target to `mcp-tool-usage/tasks/selection-guide.md` (removed the "or a dedicated reference file" escape hatch). Gave SC-4 a hard ≤1.2k token threshold (replaced "toward ~1.2k"). Updated Items (1:1 item-SC mapping, 13 items), Traceability, Cost Frame, Edge Cases, sc-summary.yaml, and the exec-summary remote body to match. | Validation findings: (1) factually wrong hard-coded Read-link count (8 → 6); (2) compound SCs bundling multiple independently verifiable claims; (3) non-deterministic targets (SC-2 either/or relocation, SC-4 no hard threshold). | Validation pipeline (spec revision) |
 | 2026-08-28 | Pinned SC-1c to a single deterministic assertion: the criterion and verification method now assert the agent dispatches the `mcp-tool-usage` skill (removed the either/or "/" alternative "resolves via the five-tier hierarchy"). Reclassified SC-6b evidence type from `structural` to `semantic` (judgment-based Triple Co-Application compliance review). The `.opencode/.issues/2350/artifacts/` directory was NOT created — the 7 canonical analytical artifacts (blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility, state-analysis, testability-assessment) are absent from this spec. Updated Items (Item 3), Cost Frame (SC-1c), and sc-summary.yaml (SC-1c description, SC-6b evidence type) to match. | Validation findings: (1) SC-1c either/or "/" ambiguity in criterion and verification method — not a single deterministic assertion; (2) SC-6b evidence-type mismatch — declared "structural" but verified by judgment-based compliance review; (3) artifacts directory `.opencode/.issues/2350/artifacts/` absent — the Change Control entry falsely claimed the directory was created with the analytical artifacts; corrected to accurately state the artifacts are absent. | Validation pipeline (spec revision) |
 | 2026-08-28 | Decomposed compound SC-6a by folding (Option B): the five-tier-hierarchy RED/GREEN proof folded into SC-1c and the glob-semantics RED/GREEN proof folded into SC-2c; SC-6a removed entirely (12 SCs total, down from 13). Updated the SC-1c and SC-2c criteria, verification methods, and evidence descriptions to carry the folded RED/GREEN routing proofs. Removed R-7 (renumbered R-8→R-7, R-9→R-8), removed Item 12 (SC-6a), renumbered Item 13 (SC-6b)→Item 12, and updated Traceability, Cost Frame, and sc-summary.yaml (sc_count 13→12, SC-1c/SC-2c descriptions, SC-6b plan_item 13→12) to match. | Validation findings: Aggregate FAIL on a single compound-SC defect — SC-6a bundled two distinct routing concerns (five-tier hierarchy routing AND glob-semantics routing) via "and", violating atomic-SC decomposition; each concern must have its own item/RED-GREEN cycle. | Validation pipeline (spec revision) |
+| 2026-08-29 | Removed the false-target SC-4 (hard ≤1,200 token-count threshold) and all its coupled artifacts: the SC-4 row from Success Criteria, R-8 from Requirements, Item 9 (SC-4) from Items, the R-8 traceability row (Phase 4), the SC-4 Cost Frame entry, and the "Measurement boundary — token threshold" edge case. Removed the "Verify the token reduction against a hard ≤1.2k threshold" clause from the Approach Chosen. Renumbered subsequent elements to close the gap: SC-5a→SC-4a, SC-5b→SC-4b, SC-6b→SC-5b; Item 10→Item 9, Item 11→Item 10 (its GREEN now references Item 9), Item 12→Item 11; Traceability (R-6 → SC-4a/SC-4b, R-7 → SC-5b) and Cost Frame (SC-4a/SC-4b/SC-5b) updated to match. Updated sc-summary.yaml (sc_count 12→11, SC-4 removed, plan_item renumbering) to match. The condensation savings are now an emergent property of correctly implementing the content-based SCs, not a hard numerical target. | Revision reason: SC-4 imposed a hard token-count threshold. Condensation savings are an emergent property of correctly implementing the content-based SCs — a hard numerical threshold incentivizes aggressive trimming to hit a number rather than faithful implementation, causes agent malfunction, and improper reworking. | Spec revision (orchestrator dispatch) |
 
 ---
 

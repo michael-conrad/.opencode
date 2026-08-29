@@ -13,7 +13,7 @@
 | 3 | **Approach Chosen** | Relocate the three procedural content blocks to their consuming skills before removing them from the preloaded guideline: (1) inline the verification-source priority list into `engineering-approach/tasks/operating-protocol.md` step 5, (2) relocate the code-review checklist to `verification-enforcement`, (3) relocate the illustrative examples to `verification-enforcement`. Then condense `075-docs-verification.md` to retain only the zero-tolerance verify-against-live-docs core (Zero Tolerance Rule, Rule, critical-rules-008 enforcement block). The guideline remains preloaded; the file is not removed from the instructions array. |
 | 4 | **Alternatives Considered & Why Discarded** | **Remove the guideline entirely and rely on the skills.** Discarded: `075-docs-verification.md` is a Tier 1 zero-tolerance rule that MUST remain preloaded — removing it from the instructions array caused a safety regression precedent (#497). The core mandate must be visible to every agent, not only those who load `engineering-approach` or `verification-enforcement`. |
 | 5 | **Key Design Decisions** | **Relocate-before-remove ordering.** The source-priority list, checklist, and examples must exist in their target skill before they are removed from the guideline, guaranteeing content preservation (dependency DAG: SC-1/SC-2/SC-3 → SC-4). **Core retention with preload intact.** The condensed guideline keeps the Zero Tolerance Rule, the Rule, and the critical-rules-008 block, so the `opencode.jsonc` instructions array entry stays and all 12 Tier 1 guidelines remain loaded. **Inline Read-link cross-reference form.** Relocated content that references the retained core uses the inline `Read [Text](path)` form per AGENTS.md and the cross-reference-form-comparison research card (confidence 0.95), ensuring 100% Tier 1 access. |
-| 6 | **User Intent / Original Prompt** | Condense `.opencode/guidelines/075-docs-verification.md` by moving the source-priority list to `engineering-approach`, achieving ~1.1k token savings while retaining the zero-tolerance verify-against-live-docs-before-implementing core. |
+| 6 | **User Intent / Original Prompt** | Condense `.opencode/guidelines/075-docs-verification.md` by moving the source-priority list to `engineering-approach`, retaining the zero-tolerance verify-against-live-docs-before-implementing core. The reduction in file size is an emergent property of correctly implementing the content-based SCs, not a hard target. |
 
 ## 2. Not Included
 
@@ -33,7 +33,6 @@
 | SC-5 | All agent-facing cross-references to the retained live-docs core in `gh-cli/SKILL.md`, `gb-cli/SKILL.md`, `067-context-completeness.md`, `INDEX.md`, and `engineering-approach/tasks/operating-protocol.md` resolve to the retained core without dangling references. | structural | Grep the cross-reference sites for `075-docs-verification` and assert each reference still resolves to the retained core (no reference to a removed section). |
 | SC-6 | Any relocated content in `engineering-approach` or `verification-enforcement` that references the retained core uses the inline `Read [Text](path)` cross-reference form. | structural | Grep the relocated content in `engineering-approach` and `verification-enforcement` for references to the retained core and assert each uses the inline Read-link form (not "See `file` §section"). |
 | SC-7 | `075-docs-verification.md` remains present in the `opencode.jsonc` instructions array after condensing. | structural | Read `opencode.jsonc` and assert the `075-docs-verification.md` entry remains in the instructions array. |
-| SC-8 | The condensed `075-docs-verification.md` achieves the ~1.1k token savings target relative to the original 5253 bytes / 183 lines. | structural | Measure the condensed file size with `wc -c` and `wc -l` and assert the reduction is consistent with ~1.1k token savings. |
 
 ## 4. Requirements
 
@@ -44,7 +43,6 @@
 - R-5. `075-docs-verification.md` SHALL remain in the `opencode.jsonc` instructions array after condensing.
 - R-6a. All agent-facing cross-references to the retained live-docs core SHALL remain valid (resolve without dangling references).
 - R-6b. Relocated content that references the retained live-docs core SHALL use the inline `Read [Text](path)` cross-reference form.
-- R-7. The condensed guideline SHALL achieve a token savings of approximately 1.1k tokens relative to the original file.
 
 ## 5. Items
 
@@ -97,13 +95,6 @@
 - verify: Read `opencode.jsonc` and confirm the `075-docs-verification.md` entry remains in the instructions array.
 - commit: No separate commit (verification-only item); evidence captured in the verification artifact.
 
-### Item 8 (SC-8): Verify token savings
-
-- RED: Measure the current condensed guideline size and confirm it has NOT yet reached the target reduction.
-- GREEN: (No source change — verification gate.) Confirm the condensed guideline achieves ~1.1k token savings.
-- verify: Run `wc -c` and `wc -l` on `075-docs-verification.md` and confirm the reduction is consistent with ~1.1k token savings.
-- commit: No separate commit (verification-only item); evidence captured in the verification artifact.
-
 ## 6. Dependencies
 
 | Reference | Relationship | Status |
@@ -125,7 +116,6 @@
 | R-6a | SC-5 | Phase 5 |
 | R-6b | SC-6 | Phase 6 |
 | R-5 | SC-7 | Phase 7 |
-| R-7 | SC-8 | Phase 8 |
 
 ## 8. Documentation Sources
 
@@ -153,7 +143,6 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-5: Verifying cross-reference validity costs one grep across the reference sites. Skipping means a dangling reference to a removed section leaves agents unable to reach the retained core — an access regression with compounding cost.
 - SC-6: Verifying the inline Read-link form costs one grep of the relocated content. Skipping means a "See `file` §section" reference is treated as a citation and never read, leaving the retained core unreachable — an access regression.
 - SC-7: Verifying preload retention costs one read of `opencode.jsonc`. Skipping means the guideline could be dropped from the instructions array, breaking the all-12-Tier-1-loaded invariant — a safety regression.
-- SC-8: Measuring token savings costs one `wc` call. Skipping means the primary motivation (token reduction) is unverified, and the condensing could ship without achieving its stated purpose.
 
 ## 11. Edge Cases
 
@@ -164,6 +153,12 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure mode — verification source differs from target:** If a cross-reference uses a form other than the inline Read-link (e.g., "See `file` §section"), SC-6 MUST flag it as a defect per AGENTS.md Read-Link Cross-Reference Rule and require the inline form.
 - **Concurrency — no runtime state:** This is a documentation/guideline restructure; no source code symbols or runtime state change. There is no concurrency-sensitive code path.
 - **Recovery:** Each item's verification gate re-reads the target file and asserts the expected content. If verification fails, the item is remediated (content re-relocated or re-condensed) before the next item proceeds; no partial condensing ships.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-29 | Removed SC-8 (hard file-size reduction target), R-7, Item 8, the SC-8 traceability row, the SC-8 cost frame entry, and the related size-reduction references from the Executive Summary. Spec now has 7 SCs (SC-1..SC-7), 6 requirements (R-1..R-6b), 7 items (Item 1..Item 7), and 7 phases. | Revision request — the file-size reduction is an emergent property of correctly implementing the content-based SCs; a hard numerical target incentivizes aggressive trimming rather than faithful implementation | Spec revision pipeline |
 
 ---
 

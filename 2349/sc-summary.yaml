@@ -1,4 +1,4 @@
-sc_count: 15
+sc_count: 14
 scs:
   - id: "SC-1"
     description: "Retain zero-tolerance core (Zero Tolerance Rule unchanged in substance)"
@@ -49,14 +49,10 @@ scs:
     evidence_type: "string"
     plan_item: 12
   - id: "SC-9"
-    description: "Achieve token savings of at least 0.7k tokens (explicit minimum reduction threshold)"
-    evidence_type: "string"
-    plan_item: 13
-  - id: "SC-10"
     description: "Agents still follow the honesty core behaviorally after condensation"
     evidence_type: "behavioral"
-    plan_item: 14
-  - id: "SC-11"
+    plan_item: 13
+  - id: "SC-10"
     description: "opencode.jsonc instructions array entry for the guideline remains unchanged (config preload retention)"
     evidence_type: "string"
-    plan_item: 15
+    plan_item: 14

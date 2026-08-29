@@ -33,8 +33,7 @@
 | SC-5 | The action-classification table (Action Authorization Classification) is relocated out of the preloaded `010-approval-gate.md` to the `approval-gate` skill card. | string | read/grep confirms the action-classification table is removed from 010 and present in `approval-gate/SKILL.md`. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/skills/approval-gate/SKILL.md` |
 | SC-6 | The safety-critical authorization cores (spec-before-code, plan-before-implementation, explicit-authorization, human-only-merge, bug-discovery-does-not-authorize) are retained verbatim in the preloaded `010-approval-gate.md`. | behavioral | `opencode run` with a self-authorization / bug-discovery prompt; clean-room sub-agent inspects session.yaml for evidence the agent does NOT self-authorize and does NOT fix a discovered bug. | `.opencode/guidelines/010-approval-gate.md` |
 | SC-7 | The preloaded `010-approval-gate.md` retains a mandatory Read-link to the `approval-gate` skill card so relocated procedural content remains reachable. | string | read confirms 010's cross-reference note has a `Read [approval-gate skill](skills/approval-gate/SKILL.md)` link. | `.opencode/guidelines/010-approval-gate.md`; `.opencode/reference/cross-reference-form-comparison.md` |
-| SC-8 | The preloaded token/byte burden of `010-approval-gate.md` is reduced to < 8,466 bytes (< 55% of the original 15,393 bytes). | structural | byte/line count of `010-approval-gate.md` after condensation is < 8,466 bytes. | `.opencode/guidelines/010-approval-gate.md` |
-| SC-9 | Scope-parsing behavior is not regressed — the `approval-gate` skill card remains the authoritative scope parser and the verb-prefix table is present. | behavioral | `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parates scope. | `.opencode/skills/approval-gate/SKILL.md`; `.opencode/skills/approval-gate/tasks/resolve-scope.md` |
+| SC-8 | Scope-parsing behavior is not regressed — the `approval-gate` skill card remains the authoritative scope parser and the verb-prefix table is present. | behavioral | `opencode run` with an authorization-scope prompt; clean-room sub-agent inspects session.yaml for evidence the agent dispatches `approval-gate resolve-scope` and correctly parates scope. | `.opencode/skills/approval-gate/SKILL.md`; `.opencode/skills/approval-gate/tasks/resolve-scope.md` |
 
 ## 4. Requirements
 
@@ -107,14 +106,7 @@
 - verify: read confirms 010's cross-reference note has the Read-link; consumer reachability (R-14) verified for read-labels, close, read-sub-issues, triage-issues, 020, 140.
 - commit: Add the Read-link to the guideline.
 
-### Item 8 (SC-8): Measure post-condensation byte burden
-
-- RED: Enforcement check that the byte count is >= 8,466 (fails because it should be below).
-- GREEN: Measure the post-condensation byte/line burden of `010-approval-gate.md`.
-- verify: byte/line count of `010-approval-gate.md` is < 8,466 bytes (< 55% of original 15,393 bytes).
-- commit: No content change; measurement slice confirming token reduction.
-
-### Item 9 (SC-9): Behavioral enforcement test for scope-parsing regression
+### Item 8 (SC-8): Behavioral enforcement test for scope-parsing regression
 
 - RED: Behavioral test with an authorization-scope prompt asserts the agent does NOT dispatch `approval-gate resolve-scope` or mis-parses scope (fails because scope parsing is unregressed).
 - GREEN: Run a behavioral enforcement test asserting scope parsing is not regressed: the `approval-gate` skill remains the authoritative scope parser with the verb-prefix table present.
@@ -147,8 +139,7 @@
 | R-5 | SC-5 | Structural relocation |
 | R-6, R-7, R-8, R-9, R-10, R-11 | SC-6 | Behavioral verification |
 | R-13, R-14 | SC-7 | Structural relocation |
-| R-1, C-1 | SC-8 | Structural relocation |
-| R-15, C-2 | SC-9 | Behavioral verification |
+| R-15, C-2 | SC-8 | Behavioral verification |
 
 ## 8. Documentation Sources
 
@@ -175,8 +166,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-5:** Verifying the action-classification table is relocated costs one read/grep pass. Skipping means the action-classification matrix is orphaned and authorization scope classification loses its source.
 - **SC-6:** Running the behavioral core-retention test costs minutes of execution time. Skipping means a safety-critical authorization core is silently dropped and the agent self-authorizes or fixes discovered bugs — a 1000× production defect.
 - **SC-7:** Verifying the Read-link is present and consumers resolve costs one read/grep pass. Skipping means relocated rules are orphaned and consumers silently lose the scope model — a reachability defect caught only when a consumer fails.
-- **SC-8:** Measuring the post-condensation byte count costs one byte/line count. Skipping means the token-reduction claim is unverified and the preload burden may not actually drop.
-- **SC-9:** Running the behavioral scope-parsing test costs minutes of execution time. Skipping means the named scope-parsing regression risk ships unverified — the exact risk the issue Impact section calls out, at 1000× downstream cost.
+- **SC-8:** Running the behavioral scope-parsing test costs minutes of execution time. Skipping means the named scope-parsing regression risk ships unverified — the exact risk the issue Impact section calls out, at 1000× downstream cost.
 
 ## 11. Edge Cases
 
@@ -186,12 +176,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** A consumer (read-labels, close, read-sub-issues, triage-issues, 020, 140) still Read-links 010 for a relocated table.
   - **Expected behavior:** The relocated rule remains reachable via the skill card; no orphaned reference.
   - **Resolution:** SC-7 + R-14 verify consumer reachability; a broken reference is fixed in the consumer before completion.
-- **Condition:** The preload token burden does not drop below 8,466 bytes after condensation.
-  - **Expected behavior:** The token-reduction claim is unverified; the condensation goal fails.
-  - **Resolution:** SC-8 measures the byte count; if above threshold, additional procedural content is relocated.
 - **Condition:** The scope-parsing behavioral test fails (agent mis-parses an authorization scope).
   - **Expected behavior:** Scope parsing regressed; the named risk materialized.
-  - **Resolution:** SC-9 fails; remediation restores the verb-prefix table / skill-card authority before completion.
+  - **Resolution:** SC-8 fails; remediation restores the verb-prefix table / skill-card authority before completion.
 - **Condition:** A safety-critical core is accidentally removed during condensation.
   - **Expected behavior:** The agent self-authorizes or fixes a discovered bug — a Tier 1 violation.
   - **Resolution:** SC-6 behavioral test fails; the core is restored verbatim before completion.
@@ -203,6 +190,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-28 | Corrected declared evidence type of SC-1..SC-5 and SC-7 from `structural` to `string` to match their read/grep content-presence verification methods. Updated `sc-summary.yaml` `evidence_type` for these SCs accordingly. | Validation finding: EVIDENCE_TYPE_MISMATCH — read/grep content-presence checks are `string` evidence per the canonical cost-model taxonomy, not `structural`. | Validation pipeline (spec-creation revise) |
+| 2026-08-29 | Removed SC-8 (preload byte burden threshold < 8,466 bytes / < 55% of original) and its Item 8, traceability row, cost frame entry, and edge case. Renumbered SC-9→SC-8 (Item 9→Item 8, plus traceability, cost frame, and edge-case references). Updated `sc-summary.yaml` `sc_count` to 8 and removed/renumbered SC entries accordingly. No requirement removal was needed — no requirement carried the byte-count threshold. | Revision reason: Remove the false-target SC imposing a hard byte-count reduction threshold — condensation savings are an emergent property of correctly implementing the content-based SCs; a hard numeric threshold incentivizes aggressive trimming rather than faithful implementation, causes agent malfunction, and improper reworking. | Orchestrator (spec-creation revise) |
 
 ---
 

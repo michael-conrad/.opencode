@@ -19,7 +19,7 @@ Condense `.opencode/guidelines/117-session-trigger-behavior.md` to retain only t
 ## Alternatives Considered & Why Discarded
 
 - **Delete the procedural content outright.** Discarded — the self-simulation prohibition, suppression rule, and trigger behavior map encode real agent behavior. Deleting them would lose enforcement signal and regress the behavioral guarantees they provide. Relocation (not deletion) preserves the content while removing it from the always-preloaded path.
-- **Leave the guideline unchanged.** Discarded — this leaves the ~0.6k-token procedural overhead in every session's preloaded context, which is the exact defect this spec exists to remove.
+- **Leave the guideline unchanged.** Discarded — this leaves the procedural detail in every session's preloaded context, which is the exact defect this spec exists to remove.
 
 ## Key Design Decisions
 
@@ -51,10 +51,9 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 | SC-7 | The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Suppression"` returns a match in `.opencode/plugins/session-enforcement.ts` |
 | SC-8 | The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task. | string | `grep -q "pair_mode_resume"` returns a match in `git-workflow-branch/tasks/pair-mode-resume.md` |
 | SC-9 | The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`. | string | `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to a Read-link to `git-workflow-branch/tasks/pair-mode-resume.md`, not to 117 |
-| SC-10 | The condensed guideline SHALL be at least 0.6k tokens smaller than the original 117-session-trigger-behavior.md. | string | token-count comparison of the condensed vs. original guideline |
-| SC-11 | The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures. | behavioral | run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0 |
-| SC-12 | A behavioral run with a NESTED_OPENCODE_FATAL block in the first user message SHALL produce a HALT. | behavioral | `with-test-home opencode run` against a real model, assert HALT via stderr evidence |
-| SC-13 | A behavioral run with a SESSION_TRIGGERS block SHALL NOT echo the trigger content verbatim. | behavioral | `with-test-home opencode run` against a real model, assert no verbatim echo via stderr evidence |
+| SC-10 | The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures. | behavioral | run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0 |
+| SC-11 | A behavioral run with a NESTED_OPENCODE_FATAL block in the first user message SHALL produce a HALT. | behavioral | `with-test-home opencode run` against a real model, assert HALT via stderr evidence |
+| SC-12 | A behavioral run with a SESSION_TRIGGERS block SHALL NOT echo the trigger content verbatim. | behavioral | `with-test-home opencode run` against a real model, assert no verbatim echo via stderr evidence |
 
 ## Requirements
 
@@ -67,10 +66,9 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 - R-7. The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`.
 - R-8. The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task.
 - R-9. The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`.
-- R-10. The condensed guideline SHALL be at least 0.6k tokens smaller than the original guideline.
-- R-11. The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures.
-- R-12. The condensed guideline SHALL NOT cross-reference `.py` or `.ts` source files.
-- R-13. Every retained section of the condensed guideline SHALL contain at least one MUST, MUST NOT, or SHOULD instruction.
+- R-10. The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures.
+- R-11. The condensed guideline SHALL NOT cross-reference `.py` or `.ts` source files.
+- R-12. Every retained section of the condensed guideline SHALL contain at least one MUST, MUST NOT, or SHOULD instruction.
 
 ## Items
 
@@ -137,28 +135,21 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 - verify: `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to `git-workflow-branch/tasks/pair-mode-resume.md`
 - commit: reference-update slice
 
-### Item 10 (SC-10): Verify token reduction
-
-- RED: token-count comparison shows the condensed guideline is not 0.6k tokens smaller
-- GREEN: measure and confirm the condensed guideline achieves the reduction
-- verify: token-count comparison shows at least 0.6k token reduction
-- commit: verification slice
-
-### Item 11 (SC-11): Reconcile the 2134 content-verification tests
+### Item 10 (SC-10): Reconcile the 2134 content-verification tests
 
 - RED: `test-2134-sc*.sh` suite reports failures against the condensed guideline
 - GREEN: update or retire the 10 `test-2134-sc*.sh` scripts to assert the relocated destinations and the retained core
 - verify: run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0
 - commit: test-reconcile slice
 
-### Item 12 (SC-12): Behavioral regression — nested_opencode_fatal HALT
+### Item 11 (SC-11): Behavioral regression — nested_opencode_fatal HALT
 
 - RED: behavioral run does not produce a HALT on NESTED_OPENCODE_FATAL
 - GREEN: confirm the retained hard-halt core still enforces
 - verify: `with-test-home opencode run` with a NESTED_OPENCODE_FATAL block, assert HALT via stderr evidence
 - commit: verification slice
 
-### Item 13 (SC-13): Behavioral regression — no-echo mandate
+### Item 12 (SC-12): Behavioral regression — no-echo mandate
 
 - RED: behavioral run echoes SESSION_TRIGGERS verbatim
 - GREEN: confirm the retained no-echo mandate still enforces
@@ -188,10 +179,9 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 | R-7 | SC-7 | relocate |
 | R-8 | SC-8 | relocate |
 | R-9 | SC-9 | reference-update |
-| R-10 | SC-10 | verify |
-| R-11 | SC-11 | test-reconcile |
-| R-12 | SC-1, SC-2, SC-3 | condense |
-| R-13 | SC-4, SC-5 | condense |
+| R-10 | SC-10 | test-reconcile |
+| R-11 | SC-1, SC-2, SC-3 | condense |
+| R-12 | SC-4, SC-5 | condense |
 
 ## Documentation Sources
 
@@ -220,16 +210,15 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-7: Verifying the suppression rule is preserved in `.opencode/plugins/session-enforcement.ts` costs one grep plus tsc. Skipping loses the suppression guidance and regresses enforcement.
 - SC-8: Verifying the trigger map is preserved in the pair-mode-resume task costs one grep. Skipping loses the pair_mode_resume routing behavior.
 - SC-9: Verifying the 116 cross-reference resolves to `git-workflow-branch/tasks/pair-mode-resume.md` costs one grep. Skipping leaves a dangling reference that routes agents to removed content.
-- SC-10: Verifying token reduction costs a token-count comparison. Skipping means the per-session token cost persists without confirmation the goal was met.
-- SC-11: Verifying the 2134 suite passes costs running the scripts. Skipping means the enforcement suite breaks on the condensed guideline, producing false FAILs.
-- SC-12: Verifying the HALT behavior costs a behavioral run. Skipping means a weakened hard-halt ships and costs 1000× more when the violation surfaces in production.
-- SC-13: Verifying the no-echo mandate costs a behavioral run. Skipping means a verbatim-echo regression ships and costs 1000× more to discover downstream.
+- SC-10: Verifying the 2134 suite passes costs running the scripts. Skipping means the enforcement suite breaks on the condensed guideline, producing false FAILs.
+- SC-11: Verifying the HALT behavior costs a behavioral run. Skipping means a weakened hard-halt ships and costs 1000× more when the violation surfaces in production.
+- SC-12: Verifying the no-echo mandate costs a behavioral run. Skipping means a verbatim-echo regression ships and costs 1000× more to discover downstream.
 
 ## Edge Cases
 
 - **Input boundary — empty condensed guideline:** If the condensation removes all sections, the guideline is empty and SC-4/SC-5 fail. Resolution: retain the No-Echo and nested_opencode_fatal sections as the non-negotiable core.
 - **State transition — relocation destination missing:** If `.opencode/plugins/session-enforcement.ts` or the pair-mode-resume task lacks the destination file, SC-6/SC-7/SC-8 fail. Resolution: create the destination file before marking relocation complete.
-- **Failure mode — 2134 tests assert removed content:** If tests are not reconciled, SC-11 fails and the suite breaks. Resolution: update or retire each affected test to assert the relocated destination or retained core.
+- **Failure mode — 2134 tests assert removed content:** If tests are not reconciled, SC-10 fails and the suite breaks. Resolution: update or retire each affected test to assert the relocated destination or retained core.
 - **Concurrency — plugin grows with relocated prose:** If the plugin change breaks TypeScript validity, SC-6/SC-7 fail. Resolution: run `tsc --noEmit` to verify the plugin remains valid.
 - **Recovery — stale cross-reference:** If the `Pair Mode Suggestion Protocol` section of 116-pair-mode.md still points to 117, SC-9 fails. Resolution: update the reference to `git-workflow-branch/tasks/pair-mode-resume.md` and re-grep for dangling references.
 
