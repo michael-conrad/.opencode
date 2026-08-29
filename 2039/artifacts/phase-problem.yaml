@@ -4,7 +4,6 @@ domain: issue-2039-phase-dag
 fluents:
   - name: phase_1
   - name: phase_2
-  - name: phase_3
 actions:
   - name: do-phase-1
     effects:
@@ -14,14 +13,7 @@ actions:
       - phase_1
     effects:
       - phase_2
-  - name: do-phase-3
-    preconditions:
-      - phase_1
-      - phase_2
-    effects:
-      - phase_3
 init: []
 goals:
   - phase_1
   - phase_2
-  - phase_3

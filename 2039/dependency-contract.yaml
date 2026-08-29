@@ -7,14 +7,9 @@ variables:
     description: "Create the 10 STILL-MISSING task cards with required procedure — SC-1, SC-1.1, SC-2"
   phase_2:
     type: bool
-    description: "Resolve the two special-case dangling references (route, push-artifacts) — SC-4"
-  phase_3:
-    type: bool
-    description: "Verify no TDT references a non-existent task card — SC-3"
+    description: "Resolve the two special-case dangling references (route, push-artifacts) and verify deck-wide TDT-reference integrity — SC-4, SC-3"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
-  - "z3.Implies(phase_3, phase_1)"
-  - "z3.Implies(phase_3, phase_2)"
 invariants: []
 postconditions: []
 phases:
@@ -39,24 +34,14 @@ phases:
       - .opencode/skills/multimodal-dispatch/SKILL.md
       - .opencode/skills/issue-operations-core/SKILL.md
       - .opencode/skills/issue-operations-core/tasks/push-artifacts.md
-    scs:
-      - SC-4
-  phase_3:
-    files:
       - .opencode/skills/**/SKILL.md
     scs:
+      - SC-4
       - SC-3
 edges:
   - from: phase_1
     to: phase_2
-    rationale: "Phase 2 resolves the two special-case dangling references against the cards created in Phase 1"
-  - from: phase_1
-    to: phase_3
-    rationale: "Phase 3 cross-references all TDTs against the filesystem, covering the cards created in Phase 1"
-  - from: phase_2
-    to: phase_3
-    rationale: "Phase 3 integrity check covers the TDT rows modified/resolved in Phase 2"
+    rationale: "Phase 2 resolves the two special-case dangling references and verifies deck-wide TDT integrity against the cards created in Phase 1"
 notes:
   - "Phase 1 creates the 10 STILL-MISSING task cards (SC-1), the two brainstorming cards with full procedure content (SC-1.1), and the canonical entry/inline-steps/exit structure on all 10 (SC-2)."
-  - "Phase 2 resolves the special cases: remove the stale route TDT row + Invocation (rerouting triggers to dispatch.md) and create the thin push-artifacts core dispatcher (SC-4)."
-  - "Phase 3 is a verification-only gate over the entire skill deck that confirms no TDT references a non-existent task card (SC-3)."
+  - "Phase 2 resolves the special cases (SC-4): remove the stale route TDT row + Invocation (rerouting triggers to dispatch.md) and create the thin push-artifacts core dispatcher. It then runs a verification-only gate over the entire skill deck confirming no TDT references a non-existent task card (SC-3). Phase 2 maps the single CONCERN-2 boundary."

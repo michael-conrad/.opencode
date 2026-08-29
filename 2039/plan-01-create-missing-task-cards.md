@@ -70,4 +70,4 @@
 
 - [ ] 18. **VbC (**clean-room**).** Verify SC-1, SC-1.1, SC-2 all PASS against the present deliverables: all 10 task card files exist; the two brainstorming cards carry the full required procedure; all 10 carry the canonical entry/inline/exit structure. Any non-clean verdict coerces to FAIL per the reference card's Coercion Rules. **→ SC-1, SC-1.1, SC-2**
 
-**Concern transition:** Leaving task-card creation → entering special-case resolution. Phase 2 depends on Phase 1's created cards (especially the `push-artifacts` scaffold and the `route` decision target).
+**Concern transition:** Leaving CONCERN-1 (Card Creation) → entering CONCERN-2 (TDT Reference Integrity). Phase 2 depends on Phase 1's created cards (especially the `push-artifacts` scaffold and the `route` decision target).

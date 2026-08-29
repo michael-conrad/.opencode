@@ -9,21 +9,18 @@ checks:
     model:
       phase_1: false
       phase_2: false
-      phase_3: false
   check:
     status: SAT
     state_path: .opencode/.issues/2039/artifacts/state-analysis.yaml
     model:
       phase_1: false
       phase_2: false
-      phase_3: false
     postconditions_invariants: SAT
 planner:
   engine: tamer
   status: SOLVED_SATISFICING
-  plan_length: 3
+  plan_length: 2
   plan:
     - do-phase-1
     - do-phase-2
-    - do-phase-3
   output_path: .opencode/.issues/2039/artifacts/plan-output.yaml
