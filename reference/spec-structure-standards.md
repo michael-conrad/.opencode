@@ -179,6 +179,9 @@ Each edge case MUST include:
 - Only forward-looking "MUST be" language is permitted
 - **Prescriptive code:** exact file paths with line numbers, exact import strings, exact assertion code → FAIL
 - Specs should use file area references only (e.g., "the producer template" not "line 42 of create.md")
+- **False numerical reduction targets:** hard byte-count, token-count, percentage, or line-count reduction thresholds as PASS/FAIL criteria in specs → FAIL. SCs define WHAT to move/retain/remove; savings are an emergent property of correctly implementing content-based SCs — a hard numerical threshold is a FAIL.
+  - Incorrect: "the post-condensation byte count is < N bytes" as a PASS/FAIL SC.
+  - Correct: "the guideline retains the Zero Tolerance Rule verbatim; the relocated section is replaced with a Read-link" as a PASS/FAIL SC.
 
 ## Format Requirements
 
