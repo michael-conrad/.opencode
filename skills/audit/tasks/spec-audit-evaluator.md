@@ -274,6 +274,10 @@ Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Form
 
 Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Format Requirements and verify any plan output format requirements use the canonical checklist format.
 
+#### Step 5i: Evaluate SC-NUMERICAL-TARGET
+
+Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Prohibited Content Patterns and verify the spec contains no false numerical reduction targets (hard byte-count, token-count, percentage, or line-count reduction thresholds as PASS/FAIL criteria).
+
 ### Step 6: Evaluate Reasoning Soundness (A1)
 
 Evaluate the spec's causal reasoning, SC traceability, and internal consistency using validated evidence:
