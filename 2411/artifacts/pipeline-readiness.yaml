@@ -1,0 +1,30 @@
+# Pipeline readiness gate for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+atomicity:
+  status: PASS
+  detail: "Every SC maps to exactly one RED→GREEN→COMMIT cycle: SC-1 (reference entry) → item-1; SC-2 (examples) → item-2; SC-3 (audit criterion) → item-3; SC-4 (behavioral generation) → item-4; SC-5 (clean-room evaluation) → item-5. No SC spans multiple items."
+
+dependency_ordering:
+  status: PASS
+  detail: "SC dependency DAG is acyclic: SC-1 → SC-2; SC-1 → SC-3; SC-1, SC-3 → SC-4; SC-4 → SC-5. Chain: 1 → {2, 3} → 4 → 5. No cycles."
+
+single_concern:
+  status: PASS
+  detail: "Each SC targets one file category and one verification domain: SC-1/SC-2 → reference file (structural/string); SC-3 → audit task file (structural); SC-4/SC-5 → behavioral test (behavioral). No SC mixes domains."
+
+phase_dependency:
+  status: PASS
+  detail: "Phase dependency graph is acyclic: Phase 1 (reference) → Phase 2 (audit criterion) → Phase 3 (behavioral test). Each phase's items depend only on prior phases."
+
+three_tier_structure:
+  status: PASS
+  detail: "Multi-phase spec with pre/per-file/post structure: pre (reference rule + examples) → per-file (audit criterion enforcement) → post (behavioral verification)."
+
+warnings:
+  - id: WARN-1
+    text: "validate.md step 3.2 determinism check has a hardcoded prohibited-pattern list; the new rule is visible to validate via the dynamic reference read (step 1.2) but not auto-added to the determinism list. Whether to extend the determinism list is a create-time design decision (DD-1), not a pipeline gate failure."
+  - id: WARN-2
+    text: "The behavioral test (SC-4/SC-5) requires the two-SC pattern; if the spec declares only one behavioral SC covering both generation and evaluation, the gate must be revisited (EVIDENCE_TYPE_MISMATCH risk)."
+
+overall_readiness: PASS

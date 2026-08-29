@@ -1,0 +1,25 @@
+# Research card consultation for issue 2411
+# Topic: Prohibiting false numerical reduction targets in condensation specs
+
+consultation_date: 2026-08-29
+
+method: glob + frontmatter grep across both research-card catalogues
+
+catalogues_searched:
+  - path: .opencode/.issues/research-cards/
+    glob_used: glob(pattern="*.md", path=".opencode/.issues/research-cards")
+    cards_found: 12
+  - path: .issues/research-cards/
+    glob_used: glob(pattern="*.md", path=".issues/research-cards")
+    cards_found: 14
+
+matching_cards:
+  found: false
+  detail: no card frontmatter or body references condensation, numerical reduction targets, byte/token-count thresholds, or false numerical targets as PASS/FAIL criteria
+
+cards_considered_nearest:
+  - spec-creation-state.md (confidence 0.9) — describes spec-creation pipeline state; does not cover numerical reduction targets
+  - cross-reference-form-comparison.md (confidence 0.95) — covers Read-link form, not the false-target rule
+  - per-sc-decomposition-industry-standards.md — covers SC decomposition; relevant to how the new rule SCs should be decomposed but not the rule content itself
+
+conclusion: no research card provides cached findings for this topic; analysis proceeds from live codebase inspection only

@@ -1,0 +1,32 @@
+# Interface compatibility for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+interfaces:
+  - interface: "Prohibited Content Patterns section of spec-structure-standards.md"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "A new bullet entry is added to the section. Existing entries unchanged. Consumers that Read-link the section (create.md, validate.md, spec-audit-investigator.md, spec-audit-evaluator.md) see an additional entry — no breaking change."
+  - interface: "spec-audit-evaluator.md Step 5 narrow criteria"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "A new narrow criterion (SC-NUMERICAL-TARGET) is added. Existing criteria (SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, etc.) unchanged. The evaluator sub-agent's output contract is unchanged — a new check contributes to the same aggregate PASS/FAIL verdict."
+  - interface: "tests-v2/behaviors/ scenario surface"
+    kind: new
+    compatibility: backward_compatible
+    phases: [3]
+    detail: "A new behavioral scenario script is added. test-enforcement.sh discovery (--changed/--tag) and the harness (with-test-home) are unchanged. The two-SC pattern (generation + clean-room evaluation) follows the established template."
+  - interface: "opencode.jsonc preload mechanism"
+    kind: unchanged
+    compatibility: not_applicable
+    phases: []
+    detail: "explicitly out of scope — the instructions array is not altered"
+  - interface: "Evidence type taxonomy (cost-model-standards.md / spec-structure-standards.md §Evidence Type Taxonomy)"
+    kind: unchanged
+    compatibility: not_applicable
+    phases: []
+    detail: "explicitly out of scope — the taxonomy is not altered"
+
+removed_interfaces: []
+breaking_changes: []

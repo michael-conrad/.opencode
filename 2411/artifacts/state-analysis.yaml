@@ -1,0 +1,37 @@
+# State analysis for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+state_machines:
+  - machine: "Prohibited Content Patterns section content"
+    phases: [1]
+    transitions:
+      - from: "section without the false-numerical-target entry"
+        to: "section with the entry (prohibition + emergent-property principle + correct/incorrect examples)"
+        trigger: "item-1/item-2 RED→GREEN commit"
+        invariant: "existing entries (tracking/status, prescriptive code) unchanged; entry format matches the bullet style"
+        failure_mode: "entry added to the wrong section, or wording omits the emergent-property principle"
+  - machine: "spec-audit evaluator narrow-criteria set"
+    phases: [2]
+    transitions:
+      - from: "criteria set {SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE, ...}"
+        to: "criteria set + {SC-NUMERICAL-TARGET}"
+        trigger: "item-3 RED→GREEN commit"
+        invariant: "each criterion independently Read-links §Prohibited Content Patterns; aggregate PASS/FAIL verdict preserved"
+        failure_mode: "new criterion not Read-linked, or numbering/structure inconsistent with siblings"
+  - machine: "behavioral evidence lifecycle"
+    phases: [3]
+    transitions:
+      - from: "no scenario script"
+        to: "scenario script produces tmp/behavioral-evidence-<scenario>-<phase>-<model>/ artifacts (manifest.yaml, session.yaml, stdout.log, stderr.log, exit_code)"
+        trigger: "item-4 RED→GREEN commit + behavioral test run"
+        invariant: "artifact-only generator (no assertions); session.yaml is the primary evaluation source"
+        failure_mode: "session.yaml missing (source_db: MISSING), or script contains assertion helpers"
+      - from: "artifacts generated"
+        to: "clean-room evaluation verdict (PASS/FAIL on agent flagging/refusing the false numerical target)"
+        trigger: "item-5 clean-room sub-agent evaluation of session.yaml"
+        invariant: "evaluation receives only artifact path + SC criterion"
+        failure_mode: "evaluation contaminated by orchestrator preload, or agent accepted the false target without flagging"
+  - machine: "existing condensation specs (#2347-#2357)"
+    phases: []
+    transitions: []
+    invariant: "unchanged — remediation is explicitly out of scope; rule applies to new/revised specs only"

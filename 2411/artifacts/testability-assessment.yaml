@@ -1,0 +1,39 @@
+# Testability assessment for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+test_strategy:
+  - item: item-1
+    sc_id: SC-1
+    evidence_type: structural
+    test_strategy: unit/string — read/grep the Prohibited Content Patterns section for the new entry and the emergent-property wording
+    test_script: "content-verification (test-enforcement.sh) or direct grep during verification"
+    notes: "RED: entry absent. GREEN: entry present."
+  - item: item-2
+    sc_id: SC-2
+    evidence_type: string
+    test_strategy: string — grep for the correct/incorrect example markers in the entry
+    test_script: "grep for both example markers"
+    notes: "RED: examples absent. GREEN: both examples present; correct example carries no numerical threshold."
+  - item: item-3
+    sc_id: SC-3
+    evidence_type: structural
+    test_strategy: unit/string — read/grep spec-audit-evaluator.md for the new narrow criterion Read-linking §Prohibited Content Patterns
+    test_script: "grep for SC-NUMERICAL-TARGET (or chosen name) and the Read-link"
+    notes: "RED: criterion absent. GREEN: criterion present with Read-link."
+  - item: item-4
+    sc_id: SC-4
+    evidence_type: behavioral
+    test_strategy: behavioral — artifact-only generator run via with-test-home (opencode run), producing session.yaml + manifest
+    test_script: "bash .opencode/tests-v2/behaviors/<scenario>.sh (bash tool timeout >= 600s)"
+    notes: "RED/GREEN assessed via artifacts produced; assertion of behavior deferred to item-5 clean-room evaluation"
+  - item: item-5
+    sc_id: SC-5
+    evidence_type: behavioral
+    test_strategy: behavioral — clean-room sub-agent reads session.yaml and evaluates whether the agent flagged/refused the false numerical target
+    test_script: "clean-room evaluation sub-agent per tests-v2/AGENTS.md §6a (artifact path + SC criterion only)"
+    notes: "primary evidence source is session.yaml (SQLite DB export); stdout.log is secondary; assertion helpers forbidden"
+
+testability_risks:
+  - "Behavioral tests require a real model run (>=600s); stale lock (tmp/.behavior-run.lock) must be cleaned before re-runs"
+  - "If the scenario prompt references issue content, fixture issues MUST exist at behaviors/fixtures/issues/{N}/"
+  - "Prompt MUST be a real-domain task, not prose-recall (tests-v2/AGENTS.md §11)"

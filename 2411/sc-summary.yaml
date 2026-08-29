@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "Prohibited Content Patterns entry in spec-structure-standards.md prohibits hard byte-count/token-count/percentage/line-count reduction thresholds as PASS/FAIL criteria and states the emergent-property principle."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Rule entry includes a correct/incorrect example pair (incorrect numerical-threshold SC vs compliant content-based SC)."
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "spec-audit-evaluator.md gains narrow criterion SC-NUMERICAL-TARGET Read-linking Prohibited Content Patterns and verifying absence of false numerical reduction targets."
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Behavioral test scenario script (artifact-only generator) with real-domain spec-creation prompt containing a false numerical target; no assertion helpers."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Clean-room sub-agent evaluates session.yaml from item-4 artifacts; agent flagged/refused the false numerical target rather than silently accepting it."
+    evidence_type: "behavioral"
+    plan_item: 5

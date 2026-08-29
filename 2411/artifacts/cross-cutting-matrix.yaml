@@ -1,0 +1,24 @@
+# Cross-cutting matrix for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+cross_cutting_concerns:
+  - concern: "Reference Read-link consistency"
+    phases: [1, 2]
+    detail: "The rule lives in §Prohibited Content Patterns; all consumers (create, validate, audit investigator, audit evaluator) Read-link that section. The audit evaluator's new narrow criterion must Read-link the same section anchor to stay consistent."
+    impact: "low — all consumers already Read-link the section; no new cross-reference wiring needed for phase 1"
+  - concern: "Prohibited Content Patterns entry format consistency"
+    phases: [1]
+    detail: "The new entry must match the existing bullet format ('pattern -> FAIL') and the section's authority-frame prose. Entries are consumer-neutral — they are read by both producers and auditors."
+    impact: "low — format is established"
+  - concern: "Behavioral test two-SC pattern (generation + clean-room evaluation)"
+    phases: [3]
+    detail: "item-4 (generation) and item-5 (evaluation) must be separate SCs with separate evidence types; the evaluation sub-agent receives only artifact path + SC criterion (no orchestrator preload)."
+    impact: "medium — the two-SC split is mandatory per tests-v2/AGENTS.md §6a; violating it produces EVIDENCE_TYPE_MISMATCH"
+  - concern: "Mandatory Triple Co-Application (250/255/257)"
+    phases: [1, 2]
+    detail: "spec-structure-standards.md and spec-audit-evaluator.md are AI-agent-facing text; edits must consult the three reference cards (identity, signal, structure)."
+    impact: "low — process gate, applies to all edited agent-facing files"
+  - concern: "Cost-frame / determinism interplay"
+    phases: [1]
+    detail: "The rule does not ban content-based measurable SCs; it bans reduction thresholds as PASS/FAIL targets. The correct-example SC must remain deterministic (verifiable PASS/FAIL) while carrying no numerical reduction threshold."
+    impact: "low — the emergent-property wording distinguishes savings (emergent) from content (required)"

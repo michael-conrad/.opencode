@@ -1,0 +1,36 @@
+# Blast radius for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+phases:
+  - phase: 1
+    items: [item-1, item-2]
+    affected_components:
+      - .opencode/reference/spec-structure-standards.md (Prohibited Content Patterns section)
+    ripple_effects:
+      - "spec-creation create.md (line 43) reads the reference — producers will see the new rule when assembling specs"
+      - "spec-creation validate.md (step 1.2) reads the reference — required section inventory includes the new entry"
+      - "audit spec-audit-investigator.md (line 100) reads the reference — required sections inventory includes the new entry"
+      - "audit spec-audit-evaluator.md (steps 5e/5f) reads §Prohibited Content Patterns — the new entry is visible to the existing narrow criteria"
+    risk: "existing condensation specs (#2347-#2357) contain now-prohibited thresholds; mitigated by out-of-scope remediation"
+  - phase: 2
+    items: [item-3]
+    affected_components:
+      - .opencode/skills/audit/tasks/spec-audit-evaluator.md (Step 5 narrow criteria)
+    ripple_effects:
+      - "spec-audit pipeline now enforces the new rule via a dedicated narrow criterion"
+      - "specs with false numerical targets will FAIL spec-audit"
+    risk: "audit evaluator narrow-criteria numbering and structure must stay consistent with existing SC-TRACKING-LANG / SC-PRESCRIPTIVE-CODE entries"
+  - phase: 3
+    items: [item-4, item-5]
+    affected_components:
+      - .opencode/tests-v2/behaviors/<scenario>.sh (new artifact-only generator)
+      - .opencode/tests-v2/behaviors/fixtures/ (issue fixture if the prompt references issue content)
+    ripple_effects:
+      - "behavioral evidence artifacts under tmp/behavioral-evidence-<scenario>-*/"
+      - "test-enforcement.sh --changed / --tag discovery picks up the new scenario"
+    risk: "behavioral test requires model run (>=600s bash timeout); harness lock contention; fixture issues must exist if the prompt references issue content"
+
+no_ripple:
+  - "opencode.jsonc preload mechanism — explicitly out of scope"
+  - "evidence type taxonomy — explicitly out of scope"
+  - "existing condensation specs #2347-#2357 — explicitly out of scope (separate remediation)"

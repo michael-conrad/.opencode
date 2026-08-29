@@ -1,0 +1,36 @@
+# Code path inventory for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+code_paths:
+  - phase: 1
+    items: [item-1, item-2]
+    paths:
+      - path: .opencode/reference/spec-structure-standards.md
+        location: "## Prohibited Content Patterns (line 176)"
+        change: "add new bullet(s) with the false-numerical-target prohibition + emergent-property principle + correct/incorrect examples"
+    consumers_of_change:
+      - ".opencode/skills/spec-creation/tasks/create.md line 43 — Read-link loads the reference during spec assembly"
+      - ".opencode/skills/spec-creation/tasks/validate.md step 1.2 — Read-link loads required section inventory"
+      - ".opencode/skills/audit/tasks/spec-audit-investigator.md line 100 — required sections inventory"
+      - ".opencode/skills/audit/tasks/spec-audit-evaluator.md steps 5e/5f — narrow criteria reading §Prohibited Content Patterns"
+  - phase: 2
+    items: [item-3]
+    paths:
+      - path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+        location: "Step 5 narrow criteria (after Step 5f SC-PRESCRIPTIVE-CODE, line 267)"
+        change: "add a new narrow criterion (e.g., SC-NUMERICAL-TARGET) reading §Prohibited Content Patterns and verifying absence of false numerical reduction targets"
+    consumers_of_change:
+      - "spec-audit evaluator sub-agent executes the new criterion during spec audit"
+  - phase: 3
+    items: [item-4, item-5]
+    paths:
+      - path: .opencode/tests-v2/behaviors/<scenario>.sh
+        location: "new file in behaviors/"
+        change: "artifact-only generator: SCENARIO_NAME + SCENARIO_PROMPT (real-domain spec-creation task with false numerical target) + behavior_run + exit 0"
+      - path: .opencode/tests-v2/behaviors/fixtures/issues/{N}/
+        location: "fixture issue directory if the prompt references issue content"
+        change: "spec/plan fixture for the scenario, injected by setup_fixture_issues()"
+    consumers_of_change:
+      - "with-test-home (behavior_run) — runs opencode in isolated test home, produces artifacts"
+      - "clean-room evaluation sub-agent — reads session.yaml per tests-v2/AGENTS.md §2/§6a"
+      - "test-enforcement.sh --changed / --tag discovery"

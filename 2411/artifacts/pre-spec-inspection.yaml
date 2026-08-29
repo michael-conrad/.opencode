@@ -1,0 +1,93 @@
+# Pre-spec inspection for issue 2411
+# Title: [SPEC] Prohibit false numerical reduction targets in condensation specs
+# Repo: .opencode (owner michael-conrad, repo .opencode)
+# Inspected: 2026-08-29
+
+inspection_method: live file reads and grep across the .opencode submodule
+
+target_file:
+  path: .opencode/reference/spec-structure-standards.md
+  exists: true
+  prohibited_content_patterns_section:
+    line: 176
+    current_entries:
+      - "Tracking/status language: 'implemented', 'pending', 'confirmed', 'viable', 'completed' used as status markers -> FAIL"
+      - "Only forward-looking 'MUST be' language is permitted"
+      - "Prescriptive code: exact file paths with line numbers, exact import strings, exact assertion code -> FAIL"
+      - "Specs should use file area references only (e.g., 'the producer template' not 'line 42 of create.md')"
+  format: bullet list entries, each entry maps a prohibited pattern to a FAIL verdict
+  adjacent_sections:
+    - name: "## Evidence Type Taxonomy"
+      line: 162
+    - name: "## Format Requirements"
+      line: 183
+
+enforcement_anchors:
+  spec_creation_create:
+    path: .opencode/skills/spec-creation/tasks/create.md
+    line: 43
+    reads_reference: true
+    mechanism: "Read [spec-structure-standards.md](reference/spec-structure-standards.md) and assemble the spec against its required sections"
+  spec_creation_validate:
+    path: .opencode/skills/spec-creation/tasks/validate.md
+    step: "1.2"
+    reads_reference: true
+    mechanism: "Read [spec-structure-standards.md](reference/spec-structure-standards.md) and load the required section inventory dynamically"
+    determinism_check:
+      step: "3.2"
+      prohibited_patterns_list: hardcoded in validate.md (adverbs without thresholds, comparatives without baselines, open-ended quality terms, missing expected values, implicit behavior, either/or ambiguity, hedging language, escape hatches, ambiguity markers)
+      numerical_reduction_threshold_present: false
+  audit_spec_audit_investigator:
+    path: .opencode/skills/audit/tasks/spec-audit-investigator.md
+    line: 100
+    reads_reference: true
+    mechanism: "Required sections inventory — Read [spec-structure-standards.md](reference/spec-structure-standards.md)"
+  audit_spec_audit_evaluator:
+    path: .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    reads_reference: true
+    narrow_criteria_reading_prohibited_content_patterns:
+      - step: "5e"
+        criterion: SC-TRACKING-LANG
+        text: "Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Prohibited Content Patterns and verify the spec contains no tracking/status language."
+      - step: "5f"
+        criterion: SC-PRESCRIPTIVE-CODE
+        text: "Read [spec-structure-standards.md](reference/spec-structure-standards.md) §Prohibited Content Patterns and verify the spec contains no prescriptive code."
+    conclusion: new narrow criterion (e.g., SC-NUMERICAL-TARGET) must be added alongside SC-TRACKING-LANG / SC-PRESCRIPTIVE-CODE to enforce the new rule
+
+behavioral_test_infrastructure:
+  path: .opencode/tests-v2/behaviors/
+  paradigm: artifact-only generators (behavior_run + exit 0, no evaluation in script)
+  two_sc_pattern: "SC-N artifact generation + SC-N+1 clean-room evaluation (per tests-v2/AGENTS.md §6a)"
+  template: .opencode/tests-v2/behaviors/template.sh
+  helpers: .opencode/tests-v2/behaviors/helpers.sh
+  existing_spec_creation_scenarios:
+    - 2009-sc2-spec-creation-pipeline.sh
+    - 2254-sc32-functional-spec-creation-pipeline.sh
+    - 2241-sc6-spec-creation-create-local-first.sh
+  fixture_issues_dir: .opencode/tests-v2/behaviors/fixtures/issues/
+  fixture_setup_dir: .opencode/tests-v2/behaviors/fixtures/setup/
+
+condensation_specs_referenced_by_issue:
+  specs:
+    - 2347
+    - 2348
+    - 2349
+    - 2350
+    - 2352
+    - 2353
+    - 2354
+    - 2357
+  observation: "these specs carry token/byte-cost figures in their Problem Statement as factual context (e.g., 'costs ~19.8k tokens', '533 lines, 53,468 bytes'); the prohibited pattern is imposing such numbers as SC PASS/FAIL reduction thresholds, not citing them as context"
+  remediation_out_of_scope: true
+
+research_cards:
+  consulted: true
+  matching_card_found: false
+  note: no research card in .opencode/.issues/research-cards/ or .issues/research-cards/ matches the false-numerical-target topic; nearest cards (spec-creation-state, cross-reference-form-comparison) do not cover it
+
+key_findings:
+  - The canonical reference file exists and has a Prohibited Content Patterns section where the new rule belongs.
+  - Enforcement is anchored via mandatory Read-links: create.md (line 43), validate.md (step 1.2), spec-audit-investigator.md (line 100), spec-audit-evaluator.md (steps 5e/5f).
+  - The audit evaluator uses explicit narrow criteria (SC-TRACKING-LANG, SC-PRESCRIPTIVE-CODE) that read §Prohibited Content Patterns; a parallel criterion is the natural enforcement anchor.
+  - validate.md's determinism check (step 3.2) has a hardcoded prohibited-pattern list that does not include numerical reduction thresholds; adding the rule there is optional but would strengthen validate-side enforcement.
+  - Behavioral test infrastructure uses the artifact-only generator + clean-room evaluation two-SC pattern.

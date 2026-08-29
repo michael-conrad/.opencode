@@ -1,0 +1,24 @@
+# Concern map for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+concerns:
+  - concern: "Canonical rule definition"
+    owner_file: ".opencode/reference/spec-structure-standards.md"
+    phases: [1]
+    items: [item-1, item-2]
+    boundary: "the rule text and examples live ONLY in the Prohibited Content Patterns section; no other section of the reference is touched (evidence type taxonomy, format requirements unchanged)"
+  - concern: "Enforcement wiring (audit)"
+    owner_file: ".opencode/skills/audit/tasks/spec-audit-evaluator.md"
+    phases: [2]
+    items: [item-3]
+    boundary: "the new narrow criterion mirrors SC-TRACKING-LANG / SC-PRESCRIPTIVE-CODE exactly (Read-link to §Prohibited Content Patterns); it does not alter other narrow criteria or the evidence-type taxonomy"
+  - concern: "Behavioral enforcement verification"
+    owner_file: ".opencode/tests-v2/behaviors/"
+    phases: [3]
+    items: [item-4, item-5]
+    boundary: "artifact-only generator script + clean-room evaluation; no assertion helpers in the script; session.yaml is the primary evaluation source; two-SC pattern (generation + evaluation)"
+  - concern: "Producer-side enforcement (validate/create)"
+    owner_file: ".opencode/skills/spec-creation/tasks/"
+    phases: [1]
+    items: [item-1]
+    boundary: "create.md and validate.md consume the reference via Read-links (lines 43 and step 1.2) — the rule is automatically visible to producers; validate's hardcoded determinism list is NOT modified (design decision DD-1)"
