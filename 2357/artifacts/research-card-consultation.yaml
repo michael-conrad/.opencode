@@ -1,0 +1,26 @@
+# Research Card Consultation — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+method:
+  - Globbed .issues/research-cards/*.md (canonical path-parameter form, path=.issues/research-cards)
+  - Grepped frontmatter and content for topics: data-integrity, batch, retention, serialization, guideline condensation, shared reference, Read-link
+
+cards_consulted:
+  - name: writing-plans-flattening.md
+    relevance: LOW
+    why: Matched "batch/retention" grep on substring, but content addresses plan-architecture flattening (flat vs nested plan structures), NOT guideline condensation via shared references. Not directly applicable to data-integrity condensation.
+    confidence: 0.9
+  - name: cross-reference-lobotomization.md
+    relevance: LOW-MEDIUM
+    why: Adjacent concern — relates to weakening references in agent-facing text. Not consulted as authoritative for the condensation design, but reinforces the risk that relocating content must NOT weaken the mandatory Read-link directive (Read-Link Cross-Reference Rule).
+  - name: microsoft-markdown-link-patterns.md
+    relevance: LOW-MEDIUM
+    why: Markdown link patterns may inform the Read [Text](path) link format used in the condensed guideline. Not authoritative for the data-integrity condensation decision.
+
+finding:
+  - No active research card with confidence >= 0.7 directly answers the research question: "How should procedural data-integrity sections be condensed into a shared reference loaded via mandatory Read-links while preserving zero-tolerance cores preloaded?"
+  - The `writing-plans-flattening.md` card (confidence 0.9) is the only topical match but addresses a different concern (plan structure, not guideline reference relocation).
+  - CONCLUSION: No card qualifies for cached-findings reuse. Analysis proceeds from first-principles + codebase inspection. Research-card consultation is INCONCLUSIVE — no card to incorporate.
+
+gap:
+  - There is a research gap on "guideline condensation via shared reference while preserving preloaded zero-tolerance cores" for this specific repository pattern. Recommend flagging for future research card creation if the condensation pattern proves reusable.

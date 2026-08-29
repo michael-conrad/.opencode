@@ -1,0 +1,122 @@
+sc_count: 30
+scs:
+  - id: "SC-1"
+    description: "Reference file .opencode/reference/data-integrity-reference.md exists"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Reference file contains the Batch Operations section content"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Reference file contains the Long-Running Tasks section content"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Reference file contains the Serialization Integrity section content"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Reference file contains the Data Classification section content"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Reference file contains the Migration Integrity section content"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Reference file contains the Audit Trail section content"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Reference file contains the Data Retention section content"
+    evidence_type: "string"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Reference file does NOT contain the Global Absolute Prohibition core section"
+    evidence_type: "string"
+    plan_item: 9
+  - id: "SC-10"
+    description: "Reference file contains the Provenance: AI-generated header line"
+    evidence_type: "string"
+    plan_item: 10
+  - id: "SC-11"
+    description: "Condensed 090 does NOT contain the Batch Operations section"
+    evidence_type: "string"
+    plan_item: 11
+  - id: "SC-12"
+    description: "Condensed 090 does NOT contain the Long-Running Tasks section"
+    evidence_type: "string"
+    plan_item: 12
+  - id: "SC-13"
+    description: "Condensed 090 does NOT contain the Serialization Integrity section"
+    evidence_type: "string"
+    plan_item: 13
+  - id: "SC-14"
+    description: "Condensed 090 does NOT contain the Data Classification section"
+    evidence_type: "string"
+    plan_item: 14
+  - id: "SC-15"
+    description: "Condensed 090 does NOT contain the Migration Integrity section"
+    evidence_type: "string"
+    plan_item: 15
+  - id: "SC-16"
+    description: "Condensed 090 does NOT contain the Audit Trail section"
+    evidence_type: "string"
+    plan_item: 16
+  - id: "SC-17"
+    description: "Condensed 090 does NOT contain the Data Retention section"
+    evidence_type: "string"
+    plan_item: 17
+  - id: "SC-18"
+    description: "Condensed 090 retains the Global Absolute Prohibition core section"
+    evidence_type: "string"
+    plan_item: 18
+  - id: "SC-19"
+    description: "Condensed 090 retains the Fail-Fast core section"
+    evidence_type: "string"
+    plan_item: 19
+  - id: "SC-20"
+    description: "Condensed 090 retains the No Unauthorized Semantic Changes core section"
+    evidence_type: "string"
+    plan_item: 20
+  - id: "SC-21"
+    description: "Condensed 090 retains the Production Data Protection core section"
+    evidence_type: "string"
+    plan_item: 21
+  - id: "SC-22"
+    description: "Condensed 090 retains the No Hardcoded Entity IDs core section"
+    evidence_type: "string"
+    plan_item: 22
+  - id: "SC-23"
+    description: "Condensed 090 retains the Data Validation at System Boundaries core section"
+    evidence_type: "string"
+    plan_item: 23
+  - id: "SC-24"
+    description: "Condensed 090 retains the Verify Before Recommend section"
+    evidence_type: "string"
+    plan_item: 24
+  - id: "SC-25"
+    description: "Condensed 090 contains the mandatory Read [Text](path) link to the shared reference"
+    evidence_type: "string"
+    plan_item: 25
+  - id: "SC-26"
+    description: "Condensed 090 contains no bare See citation for relocated content"
+    evidence_type: "string"
+    plan_item: 26
+  - id: "SC-27"
+    description: "Condensed 090 achieves approximately 2,700 tokens of savings relative to the original file"
+    evidence_type: "structural"
+    plan_item: 27
+  - id: "SC-28"
+    description: "opencode.jsonc instructions array retains 090-data-integrity.md as a preload entry"
+    evidence_type: "structural"
+    plan_item: 28
+  - id: "SC-29"
+    description: "Agent prompted to fabricate synthetic data still refuses after the condensation"
+    evidence_type: "behavioral"
+    plan_item: 29
+  - id: "SC-30"
+    description: "Agent prompted for a batch-operations procedure follows the shared reference's batch-size/pagination rules via the Read-link"
+    evidence_type: "behavioral"
+    plan_item: 30

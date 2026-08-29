@@ -1,0 +1,80 @@
+# Decompose Output — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+# Decomposition into atomic, independently verifiable implementation items.
+# NOTE: SC-IDs below are placeholder analysis units derived from the problem statement.
+# The create task maps these to the spec's final SC table. Each item maps to exactly one SC.
+
+decomposition:
+  - item: 1
+    sc_id: SC-1
+    title: Create shared data-integrity reference document
+    description: Create .opencode/reference/data-integrity-reference.md containing the relocated procedural sections verbatim (Batch Operations, Long-Running Tasks, Serialization Integrity, Data Classification, Migration Integrity, Audit Trail, Data Retention).
+    inputs: Existing procedural section content from 090-data-integrity.md
+    outputs: .opencode/reference/data-integrity-reference.md
+    invariants: All procedural content preserved verbatim (relocation, not deletion); no core content in reference
+    failure_modes: Missing procedural section; altered content (semantic change); reference placed outside .opencode/reference/
+    verification_domain: structural (file existence + content preservation)
+    red_green: RED = reference absent; GREEN = reference present with all procedural sections verbatim
+
+  - item: 2
+    sc_id: SC-2
+    title: Condense 090-data-integrity.md — remove relocated procedural sections
+    description: Remove Batch Operations, Long-Running Tasks, Serialization Integrity, Data Classification, Migration Integrity, Audit Trail, Data Retention sections from 090-data-integrity.md. Retain all core sections verbatim.
+    inputs: Current 090-data-integrity.md
+    outputs: Condensed .opencode/guidelines/090-data-integrity.md
+    invariants: All core zero-tolerance sections retained verbatim (Global Absolute Prohibition, Fail-Fast, No Unauthorized Semantic Changes, Production Data Protection, No Hardcoded Entity IDs, Data Validation at System Boundaries); no-synthetic-data language unchanged
+    failure_modes: Core section removed or altered; no-synthetic-data prohibition weakened
+    verification_domain: structural + semantic (core content preserved verbatim, token savings achieved)
+    red_green: RED = procedural sections still present; GREEN = procedural sections removed, cores intact
+
+  - item: 3
+    sc_id: SC-3
+    title: Add mandatory Read-links in condensed 090 to shared reference
+    description: Insert `Read [Text](path)` mandatory links in condensed 090-data-integrity.md pointing to .opencode/reference/data-integrity-reference.md for the relocated procedural topics (batch, serialization, classification, migration, audit, retention).
+    inputs: Condensed 090-data-integrity.md
+    outputs: 090-data-integrity.md with mandatory Read-links
+    invariants: Every relocated topic has a mandatory Read-link; no bare "See §" citations (Read-Link Cross-Reference Rule)
+    failure_modes: Missing Read-link for a relocated topic; bare "See" citation used instead of `Read [Text](path)`
+    verification_domain: structural (Read-link pattern compliance)
+    red_green: RED = no/lax links; GREEN = all relocated topics have mandatory `Read [Text](path)` links
+
+  - item: 4
+    sc_id: SC-4
+    title: Verify token savings target (~2.7k)
+    description: Confirm condensed 090-data-integrity.md achieves ~2.7k token savings (~50% reduction) relative to original 14806 bytes.
+    inputs: Original + condensed file sizes
+    outputs: Token-savings verification
+    invariants: Savings within target range; file size roughly halved
+    failure_modes: Insufficient savings (condensation too shallow); over-condensation (cores removed)
+    verification_domain: structural (size/token measurement)
+    red_green: RED = savings below target; GREEN = ~2.7k savings achieved with cores intact
+
+  - item: 5
+    sc_id: SC-5
+    title: Verify opencode.jsonc preload unchanged
+    description: Confirm .opencode/opencode.jsonc instructions array retains .opencode/guidelines/090-data-integrity.md at its position (no entry removed).
+    inputs: .opencode/opencode.jsonc
+    outputs: Preload verification
+    invariants: 090-data-integrity.md remains in instructions array; no instruction entry removed (#497 safety constraint)
+    failure_modes: 090 removed from preload; instruction entry deleted
+    verification_domain: structural (config diff)
+    red_green: RED = preload changed/removed; GREEN = preload intact
+
+  - item: 6
+    sc_id: SC-6
+    title: Verify behavioral enforcement — data-integrity rules still enforced
+    description: Confirm the zero-tolerance cores are still loaded and enforceable (behavioral test: agent receiving a synthetic-data prompt still follows no-synthetic-data rule); procedural rules reachable via Read-link.
+    inputs: Condensed 090 + reference + opencode config
+    outputs: Behavioral enforcement evidence
+    invariants: No-synthetic-data prohibition enforced; procedural rules reachable
+    failure_modes: Core rule no longer enforced (EVIDENCE_TYPE_MISMATCH risk); procedural rule unreachable
+    verification_domain: behavioral (opencode run with real model)
+    red_green: RED = agent violates no-synthetic-data after condensation; GREEN = agent still follows it
+
+sc_to_item_mapping:
+  SC-1: item-1
+  SC-2: item-2
+  SC-3: item-3
+  SC-4: item-4
+  SC-5: item-5
+  SC-6: item-6

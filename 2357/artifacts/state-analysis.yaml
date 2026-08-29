@@ -1,0 +1,38 @@
+# State Analysis — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+state_machine:
+  - phase: 1
+    name: Create shared reference
+    from_state: reference file absent
+    to_state: reference file present with all procedural sections
+    transition: write .opencode/reference/data-integrity-reference.md
+    guard: all 7 procedural sections copied verbatim
+    invariant: no core content in reference; no semantic alteration
+
+  - phase: 2
+    name: Condense 090 guideline
+    from_state: 090 contains cores + procedural sections
+    to_state: 090 contains cores only
+    transition: remove procedural sections from 090-data-integrity.md
+    guard: cores retained verbatim; no-synthetic-data language unchanged
+    invariant: zero-tolerance cores fully present
+
+  - phase: 3
+    name: Add mandatory Read-links
+    from_state: 090 has no Read-links to reference
+    to_state: 090 has mandatory Read-links to reference for all relocated topics
+    transition: add `Read [Text](path)` links
+    guard: every relocated topic has a link; no bare "See" citations
+    invariant: all relocated content reachable
+
+  - phase: 4
+    name: Verify
+    from_state: changes made, unverified
+    to_state: changes verified (savings, preload, behavioral)
+    transition: run structural + behavioral verification
+    guard: token savings ~2.7k; preload intact; no-synthetic-data enforced
+    invariant: no regressions
+
+dependency_order: phase 1 -> phase 2 -> phase 3 -> phase 4 (strictly sequential — reference must exist before guideline is condensed and linked)
+acyclic: TRUE

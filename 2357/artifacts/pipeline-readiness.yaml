@@ -1,0 +1,34 @@
+# Pipeline Readiness Gate — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+gate_results:
+  atomicity:
+    status: PASS
+    detail: 6 items (SC-1..SC-6), each maps to exactly one RED->GREEN->COMMIT cycle. SC-1 reference creation, SC-2 condensation, SC-3 Read-links, SC-4 savings, SC-5 preload, SC-6 behavioral enforcement.
+
+  dependency_ordering:
+    status: PASS
+    detail: SC dependency DAG acyclic. SC-1 (reference) -> SC-2 (condense) -> SC-3 (Read-links) -> SC-4/SC-5/SC-6 (verify). Strictly sequential, no cycles.
+
+  single_concern:
+    status: PASS
+    detail: Each item targets one file category + one verification domain. SC-1/SC-2/SC-3 target the guideline/reference files (structural); SC-4/SC-5 target config/measurement (structural); SC-6 targets agent behavior (behavioral). No item spans multiple concerns.
+
+  phase_dependency:
+    status: PASS
+    detail: Phase dependency graph acyclic (phase 1 -> 2 -> 3 -> 4). Reference must exist before condensation and linking.
+
+  three_tier_structure:
+    status: PASS
+    detail: Multi-phase structure follows pre/per-file/post: pre (SC-1 reference), per-file (SC-2 condense, SC-3 links), post/verify (SC-4 savings, SC-5 preload, SC-6 behavioral).
+
+  verification_domain_assignment:
+    status: PASS
+    detail: SC-6 explicitly behavioral (runtime agent behavior) — must be verified via opencode run, not structural. This satisfies the Runtime-Behavioral Evidence Classification Gate (no EVIDENCE_TYPE_MISMATCH).
+
+gate_verdict: PASS
+notes:
+  - No BLOCKED findings. All 5 gate criteria pass.
+  - The spec's create task MUST preserve SC-6 as behavioral evidence type (runtime-behavioral change).
+  - The spec MUST retain opencode.jsonc preload as an invariant (SC-5) to avoid the #497-class safety regression.
+  - The spec MUST require mandatory Read-links (SC-3) per the Read-Link Cross-Reference Rule.

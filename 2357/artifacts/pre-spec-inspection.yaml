@@ -1,0 +1,57 @@
+# Pre-Spec Inspection — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+# Issue repo: michael-conrad/.opencode (path prefix: .opencode)
+
+affected_files:
+  - path: .opencode/guidelines/090-data-integrity.md
+    change: CONDENSE
+    role: Source guideline being condensed. Procedural sections relocated; zero-tolerance cores retained verbatim and preloaded.
+    current_size_bytes: 14806
+    current_line_count: 145
+    token_estimate: ~5500
+
+  - path: .opencode/reference/data-integrity-reference.md
+    change: CREATE
+    role: NEW shared data-integrity reference document. Receives relocated procedural sections (batch operations, long-running tasks, serialization integrity, data classification, migration integrity, audit trail, data retention). Loaded on-demand via mandatory Read [Text](path) links. Follows the established reference-doc pattern in .opencode/reference/ (cost-model-standards.md, plan-structure-standards.md, etc.).
+
+  - path: .opencode/opencode.jsonc
+    change: UNCHANGED (expected)
+    role: Instructions array retains .opencode/guidelines/090-data-integrity.md preload (line 87). The condensed 090 file remains in the instructions array; no entry removed. The "Depends on ... config" dependency is satisfied by the preload remaining intact. NOTE: verifier must confirm no instruction entry is removed, per #497 safety regression.
+
+conventions_observed:
+  - Read-link pattern: guidelines reference shared content via `Read [Text](path)` — see 000-critical-rules.md, 080-code-standards.md which use `Read [Section](path)` for cross-file references. The condensed 090 must use mandatory Read-links, not bare "See §" citations.
+  - Reference doc location: shared reference documents live in .opencode/reference/ (cost-model-standards.md is consumed by spec-creation/writing-plans via Read [Text](path)).
+  - Reference doc frontmatter: no YAML frontmatter required for reference docs (cost-model-standards.md starts directly with a `#` header). Reference docs are prose-format, human+agent readable.
+  - Preload discipline: opencode.jsonc comment (lines 69-76) mandates all 12 Tier 1 guidelines stay preloaded; #497 root-cause analysis documents the safety regression when guidelines were removed from preload. The 090 core MUST stay preloaded — this is a hard constraint.
+
+related_documents:
+  - .opencode/guidelines/INDEX.md: lists 090-data-integrity.md as Tier 1 with trigger "data integrity, mutable, mutation, database, production data". INDEX entry must remain consistent after condensation.
+  - .opencode/AGENTS.md: references 090-data-integrity core rules (data validation at boundaries) — no path change required.
+
+section_classification:
+  core_retained_preloaded:
+    - Global Absolute Prohibition (no-synthetic-data) — zero-tolerance core
+    - Fail-Fast (no-false-data, no-default-data, hard-fail-on-missing-data)
+    - No Unauthorized Semantic Changes — core
+    - Production Data Protection — core (references 070-environment)
+    - No Hardcoded Entity IDs — core
+    - Data Validation at System Boundaries — core
+    - Verify Before Recommend (no-synthetic-vocabulary + mandatory source traceability) — core elements retained
+
+  procedural_relocated:
+    - Batch Operations (pagination, batch sizes, PostgreSQL param limit) — procedural
+    - Long-Running Tasks (tqdm) — procedural
+    - Serialization Integrity (versioning, backward compat) — procedural
+    - Data Classification (sensitivity classification, retention window) — procedural
+    - Migration Integrity (reversible, source-vs-target verification) — procedural
+    - Audit Trail (mutation traceability) — procedural
+    - Data Retention (retention windows, review-before-persist) — procedural
+
+  mixed_retained_in_place:
+    - Cross-References section — retained (points to 200-errors.md and internal anchors)
+    - Verify Before Recommend — core sub-rules retained; procedural sub-rules (robust sampling, exhaustive automated analysis, evidence-based remediation, no-unauthorized-format-changes, mandatory audit logging) may be considered for relocation but issue Scope lists batch/serialization/classification/migration/retention as the relocation set.
+
+risk_identified:
+  - Losing no-synthetic-data prohibition — mitigation: retain those cores verbatim (per issue Impact).
+  - Token savings target: ~2.7k from ~5.5k total (per issue).
+  - Read-link must be MANDATORY (not bare "See") per Read-Link Cross-Reference Rule.

@@ -1,0 +1,42 @@
+# Code Path Inventory — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+phases:
+  - phase: 1
+    code_paths_touched:
+      - path: .opencode/reference/data-integrity-reference.md
+        action: CREATE
+        detail: Write relocated procedural sections verbatim
+    consumers: sub-agents needing procedural data-integrity rules (via Read-link)
+
+  - phase: 2
+    code_paths_touched:
+      - path: .opencode/guidelines/090-data-integrity.md
+        action: MODIFY
+        detail: Remove procedural sections (Batch Ops line 78-85, Long-Running 86-89, Serialization 101-107, Classification 108-114, Migration 115-121, Audit 122-127, Retention 128-132); retain cores
+    consumers: orchestrator system context (preloaded Tier 1)
+
+  - phase: 3
+    code_paths_touched:
+      - path: .opencode/guidelines/090-data-integrity.md
+        action: MODIFY
+        detail: Add mandatory `Read [Text](.opencode/reference/data-integrity-reference.md)` links for relocated topics
+    consumers: sub-agents dispatching procedural data-integrity operations
+
+  - phase: 4
+    code_paths_touched:
+      - path: .opencode/guidelines/090-data-integrity.md (measure)
+        action: VERIFY
+        detail: Confirm ~2.7k token savings, cores intact
+      - path: .opencode/opencode.jsonc
+        action: VERIFY
+        detail: Confirm 090 remains in instructions array (line 87), no entry removed
+      - path: .opencode/guidelines/INDEX.md
+        action: VERIFY
+        detail: Confirm entry consistent (trigger patterns unchanged)
+    consumers: verification/audit pipeline
+
+not_touched:
+  - .opencode/guidelines/INDEX.md (no edit expected — trigger patterns unchanged)
+  - .opencode/opencode.jsonc (no edit expected — preload retained)
+  - Any src/ or test/ application code (this is a .opencode guideline-config change)

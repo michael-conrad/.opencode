@@ -1,0 +1,35 @@
+# Testability Assessment — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+phases:
+  - phase: 1
+    test_strategy: structural
+    tests:
+      - File existence: .opencode/reference/data-integrity-reference.md present
+      - Content preservation: every procedural section present verbatim (diff against source sections)
+    rationale: Verifies the shared reference was created without content loss. Structural check suffices for content-preservation (relocation, not behavioral).
+
+  - phase: 2
+    test_strategy: structural + semantic
+    tests:
+      - Core presence: all core sections retained verbatim in 090 (Global Absolute Prohibition, Fail-Fast, No Unauthorized Semantic Changes, Production Data Protection, No Hardcoded Entity IDs, Data Validation at System Boundaries)
+      - No-synthetic-data language unchanged (grep for "NO SYNTHETIC / IMAGINARY")
+      - Token savings measured: ~2.7k (~50% reduction from 14806 bytes)
+    rationale: Semantic check verifies no core/zero-tolerance rule weakened or removed. Structural check verifies procedural removal.
+
+  - phase: 3
+    test_strategy: structural
+    tests:
+      - Read-link pattern compliance: every relocated topic (batch, serialization, classification, migration, audit, retention) has a mandatory `Read [Text](path)` link to the reference
+      - No bare "See §" citations for relocated topics
+    rationale: Verifies Read-Link Cross-Reference Rule compliance. Structural (pattern matching) suffices.
+
+  - phase: 4
+    test_strategy: structural + behavioral
+    tests:
+      - Config diff: .opencode/opencode.jsonc instructions array unchanged (090 still at line 87, no entry removed) — structural
+      - Behavioral enforcement: run `opencode run` with a synthetic-data prompt; assert agent still refuses to fabricate data (no-synthetic-data core enforced) — behavioral
+      - Behavioral reachability: run `opencode run` prompting a batch-operations procedure; assert agent follows batch-size/pagination rules via Read-link — behavioral
+    rationale: Behavioral test is REQUIRED because the change affects runtime agent behavior (whether data-integrity rules are still followed). Structural config check verifies preload integrity. EVIDENCE_TYPE_MISMATCH risk: this is a runtime-behavioral change (SC-6), so it MUST be tested behaviorally, not structurally.
+
+verification_domain_note: SC-6 is a runtime-behavioral SC (does the agent still follow data-integrity rules after condensation?). It MUST be verified behaviorally via `opencode run` with a real model (with-test-home), not via grep/static analysis. Per 080-code-standards.md Enforcement Test Mandate and the Runtime-Behavioral Evidence Classification Gate.

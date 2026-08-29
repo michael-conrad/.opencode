@@ -1,0 +1,61 @@
+# Requirements Output — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+# Each requirement verified against actual codebase state.
+
+explicit_requirements:
+  - id: R-EXPL-01
+    text: Relocate procedural sections of 090-data-integrity.md to a shared data-integrity reference.
+    verification: Section headers Batch Operations, Long-Running Tasks, Serialization Integrity, Data Classification, Migration Integrity, Audit Trail, Data Retention confirmed present in .opencode/guidelines/090-data-integrity.md (lines 78-131). Shared reference pattern confirmed via .opencode/reference/ directory (7 existing reference docs).
+  - id: R-EXPL-02
+    text: Relocation set is batch/serialization/classification/migration/retention (and audit-trail/long-running as procedural).
+    verification: Issue Scope: "In: Relocate batch/serialization/classification/migration/retention to a shared data-integrity reference". Confirmed sections exist.
+  - id: R-EXPL-03
+    text: Retain global no-synthetic-data, no-false-data, no-default-data, hard-fail-on-missing-data, no-unauthorized-semantic-change cores preloaded.
+    verification: Core sections Global Absolute Prohibition, Fail-Fast, No Unauthorized Semantic Changes confirmed in file (lines 9-65). Preload confirmed via .opencode/opencode.jsonc instructions array line 87.
+  - id: R-EXPL-04
+    text: Do NOT remove any data-integrity zero-tolerance core (Out of scope).
+    verification: Issue Scope Out: "Removing any data-integrity zero-tolerance core". No core section may be deleted.
+  - id: R-EXPL-05
+    text: Shared reference must be loaded via mandatory Read-links.
+    verification: Read-Link Cross-Reference Rule in AGENTS.md mandates `Read [Text](path)` pattern; bare "See" citations are forbidden. Cost-model-standards.md is consumed via Read [Text](path) — precedent confirmed.
+  - id: R-EXPL-06
+    text: Achieve ~2.7k token savings (from ~5.5k).
+    verification: File is 14806 bytes (~5.5k tokens per issue). Impact states ~2.7k savings. Relocated procedural sections constitute ~50% of content, consistent with target.
+
+implicit_requirements:
+  - id: R-IMPL-01
+    text: The condensed 090-data-integrity.md must remain in the opencode.jsonc instructions preload (no instruction entry removed).
+    verification: opencode.jsonc comment (lines 69-76) mandates all 12 Tier 1 guidelines stay preloaded; #497 documents the safety regression from removing a guideline from preload. The 090 file must remain at instructions[9].
+  - id: R-IMPL-02
+    text: The shared reference must be discoverable in .opencode/reference/ following the existing reference-doc convention.
+    verification: .opencode/reference/ contains cost-model-standards.md, plan-structure-standards.md, etc. — all prose reference docs consumed via Read-links. New data-integrity-reference.md should follow this pattern.
+  - id: R-IMPL-03
+    text: INDEX.md entry for 090-data-integrity.md must remain consistent (trigger patterns unchanged).
+    verification: INDEX.md lists "090-data-integrity.md | 1 | data integrity, mutable, mutation, database, production data". Core trigger patterns retained, so INDEX entry stays valid.
+  - id: R-IMPL-04
+    text: The shared reference must preserve the exact procedural content — relocation is not deletion.
+    verification: Issue states "move procedural sections to shared reference" — content is relocated, not dropped. Serialization/Migration/Audit/Retention rules must be preserved verbatim in the reference.
+  - id: R-IMPL-05
+    text: The reference is loaded on-demand (sub-agent context), not preloaded into orchestrator system context.
+    verification: Only the instructions array (Tier 1 preloads) enters orchestrator system context. Reference docs are Read-link-loaded into sub-agent context, keeping orchestrator context lean (per §1.1 Orchestrator Context Lean).
+
+constraint_requirements:
+  - id: R-CON-01
+    text: All data-integrity rules must remain enforceable — relocation must not make any zero-tolerance rule optional.
+    verification: Zero-tolerance cores retained verbatim preloaded; procedural rules preserved in reference and reachable via mandatory Read-link.
+  - id: R-CON-02
+    text: The condensed guideline must not exceed the ~2.7k token savings target (target file size roughly half of current).
+    verification: Procedural sections (~50% of content) relocated → ~2.7k savings expected.
+  - id: R-CON-03
+    text: Read-links in the condensed guideline MUST be mandatory-form (`Read [Text](path)`), not bare "See §" citations.
+    verification: Read-Link Cross-Reference Rule (MANDATORY) in AGENTS.md.
+
+non_requirements:
+  - id: R-NON-01
+    text: Removing any data-integrity zero-tolerance core is explicitly out of scope.
+  - id: R-NON-02
+    text: No change to the no-synthetic-data prohibition language (retained verbatim).
+  - id: R-NON-03
+    text: No modification to INDEX.md routing semantics (trigger patterns unchanged).
+  - id: R-NON-04
+    text: No relocation of core sections (Global Absolute Prohibition, Fail-Fast, No Unauthorized Semantic Changes, Production Data Protection, No Hardcoded Entity IDs, Data Validation at System Boundaries).

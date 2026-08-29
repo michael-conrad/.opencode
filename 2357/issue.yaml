@@ -2,7 +2,8 @@ number: 2357
 title: '[SPEC] Condense 090-data-integrity.md — move batch/retention/classification
   to shared ref'
 status: open
-labels: []
+labels:
+- needs-approval,spec-draft
 body: '## Problem
 
   Preloaded `.opencode/guidelines/090-data-integrity.md` costs ~5.5k tokens. ~50%
@@ -30,7 +31,7 @@ body: '## Problem
   ~2.7k savings. Risk: losing no-synthetic-data prohibition. Mitigation: retain those
   cores verbatim. Depends on shared ref + config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
-updated_at: '2026-08-27T03:14:22Z'
+updated_at: '2026-08-29T02:51:32+00:00'
 remote_issue: 2357
 remote_url: https://github.com/michael-conrad/.opencode/issues/2357
 promoted_at: '2026-08-27T03:25:12.671383+00:00'

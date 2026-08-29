@@ -1,0 +1,45 @@
+# Cross-Cutting Matrix — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+matrix:
+  - cross_cutting_concern: Preload safety (orchestrator context integrity)
+    phase_1: N/A
+    phase_2: MUST retain 090 in instructions array
+    phase_3: N/A
+    phase_4: VERIFY preload intact (#497 regression gate)
+    impact: HIGH — removing 090 from preload is the #497 safety regression class
+
+  - cross_cutting_concern: Read-link cross-reference compliance
+    phase_1: N/A
+    phase_2: N/A
+    phase_3: MUST use `Read [Text](path)`, not bare "See §"
+    phase_4: VERIFY all relocated topics have mandatory Read-links
+    impact: MEDIUM — bare "See" citations are defective per Read-Link Cross-Reference Rule
+
+  - cross_cutting_concern: Content preservation (no semantic change)
+    phase_1: Relocate verbatim
+    phase_2: Retain cores verbatim
+    phase_3: N/A
+    phase_4: VERIFY no core content altered/removed
+    impact: HIGH — no-synthetic-data prohibition must not be lost (issue Impact risk)
+
+  - cross_cutting_concern: INDEX.md routing consistency
+    phase_1: N/A
+    phase_2: Trigger patterns retained (cores stay) so no INDEX edit needed
+    phase_3: N/A
+    phase_4: VERIFY INDEX entry consistent
+    impact: LOW — no INDEX change expected
+
+  - cross_cutting_concern: Agent-facing attribution/provenance
+    phase_1: New reference file needs provenance header (Provenance: AI-generated + AI byline)
+    phase_2: Modified guideline retains existing byline, appends if new creative content
+    phase_3: same as phase 2
+    phase_4: N/A
+    impact: LOW — standard attribution requirement per 080-code-standards.md
+
+  - cross_cutting_concern: Token budget (orchestrator context lean)
+    phase_1: N/A
+    phase_2: ~2.7k savings realized
+    phase_3: N/A
+    phase_4: VERIFY savings target
+    impact: MEDIUM — primary stated benefit of the issue

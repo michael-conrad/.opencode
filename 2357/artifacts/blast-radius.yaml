@@ -1,0 +1,41 @@
+# Blast Radius — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+phases:
+  - phase: 1
+    name: Create shared reference
+    affected_components:
+      - .opencode/reference/data-integrity-reference.md (NEW)
+    ripple_effects:
+      - none (new file, no existing consumers)
+    blast_radius: LOW — additive only, no modification to existing files
+
+  - phase: 2
+    name: Condense 090-data-integrity.md
+    affected_components:
+      - .opencode/guidelines/090-data-integrity.md (modified — procedural sections removed)
+    ripple_effects:
+      - opencode.jsonc preload behavior (090 still preloaded, but shorter)
+      - INDEX.md entry (trigger patterns unchanged, no edit needed)
+      - Any agent-facing text that references 090 procedural sections (must now point to reference)
+      - .opencode/AGENTS.md references to 090 cores (unchanged, cores retained)
+    blast_radius: MEDIUM — touches the preloaded Tier 1 guideline, primary consumer is the orchestrator system context
+
+  - phase: 3
+    name: Add mandatory Read-links
+    affected_components:
+      - .opencode/guidelines/090-data-integrity.md (Read-links added)
+    ripple_effects:
+      - Sub-agents needing procedural data-integrity rules must now follow the Read-link to the reference
+      - orchestrator context lean improved (procedural content no longer preloaded)
+    blast_radius: MEDIUM — changes how procedural rules are consumed (preloaded -> on-demand Read-link)
+
+  - phase: 4
+    name: Verify savings + preload + behavioral enforcement
+    affected_components:
+      - All above (verification only, no modification)
+    ripple_effects:
+      - none (verification phase)
+    blast_radius: LOW — read-only verification
+
+highest_risk_component: .opencode/guidelines/090-data-integrity.md — preloaded Tier 1 guideline; removing the wrong section (a core) or weakening no-synthetic-data is the #497-class safety regression.

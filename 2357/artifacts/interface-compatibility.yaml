@@ -1,0 +1,35 @@
+# Interface Compatibility — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+interfaces:
+  - interface: .opencode/guidelines/090-data-integrity.md (preloaded guideline file)
+    classification: MODIFIED
+    backward_compatible: YES
+    change: Procedural sections removed; cores retained verbatim; Read-links added for relocated topics
+    compat_detail: Still present in instructions array (line 87) so still preloaded. Core trigger patterns and zero-tolerance rules unchanged. Interface contract (preloaded Tier 1 guideline) intact.
+
+  - interface: .opencode/reference/data-integrity-reference.md (NEW)
+    classification: NEW
+    backward_compatible: N/A (new interface)
+    change: New shared reference consuming relocated procedural sections
+    compat_detail: No pre-existing consumers. New consumers = sub-agents via mandatory Read-link.
+
+  - interface: .opencode/opencode.jsonc instructions array
+    classification: UNCHANGED
+    backward_compatible: YES
+    change: No entry removed; 090-data-integrity.md stays at position 87
+    compat_detail: Preload configuration unchanged.
+
+  - interface: .opencode/guidelines/INDEX.md entry
+    classification: UNCHANGED
+    backward_compatible: YES
+    change: No edit expected; trigger patterns (data integrity, mutable, mutation, database, production data) retained
+    compat_detail: Routing metadata consistent.
+
+  - interface: .opencode/AGENTS.md cross-references to 090 cores
+    classification: UNCHANGED
+    backward_compatible: YES
+    change: AGENTS.md references 090 cores (data validation at boundaries) which are retained
+    compat_detail: No broken cross-references expected.
+
+summary: No breaking changes. All existing interfaces remain backward compatible. One new interface (reference doc) is additive. The only modified interface (090 guideline) preserves its preload contract.

@@ -1,0 +1,29 @@
+# Concern Map — .opencode#2357
+# Condense 090-data-integrity.md — move batch/retention/classification to shared ref
+
+concerns:
+  - concern: zero-tolerance data-integrity cores
+    phase: all
+    location: .opencode/guidelines/090-data-integrity.md (retained preloaded)
+    boundary: No-synthetic-data, no-false-data, no-default-data, hard-fail-on-missing, no-unauthorized-semantic-change, production-data-protection, no-hardcoded-entity-ids, data-validation-at-boundaries
+    separation: These stay in the preloaded guideline. Never relocated.
+
+  - concern: procedural data-integrity operational rules
+    phase: 1, 2, 3
+    location: .opencode/reference/data-integrity-reference.md (NEW)
+    boundary: Batch operations, long-running tasks, serialization integrity, data classification, migration integrity, audit trail, data retention
+    separation: Relocated to shared reference. Consumed on-demand via mandatory Read-link, NOT preloaded.
+
+  - concern: preload configuration
+    phase: 5
+    location: .opencode/opencode.jsonc instructions array
+    boundary: 090-data-integrity.md must remain preloaded (line 87)
+    separation: Configuration concern — verifies no instruction entry removed.
+
+  - concern: agent routing/discoverability
+    phase: all
+    location: .opencode/guidelines/INDEX.md
+    boundary: INDEX entry for 090 unchanged (trigger patterns retained)
+    separation: Routing metadata — remains consistent since trigger patterns are core-based.
+
+separation_principle: Cores (safety-critical, orchestrator context) are separated from procedural operations (on-demand, sub-agent context). This follows the Orchestrator Context Lean model — only Tier 1 safety cores stay preloaded; procedural detail moves to on-demand Read-links.
