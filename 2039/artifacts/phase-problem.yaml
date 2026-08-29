@@ -1,0 +1,27 @@
+# Problem — Issue 2039: Create 10 STILL-MISSING task cards + resolve 2 special-case dangling references
+# Models the phase dependency DAG from dependency-contract.yaml
+domain: issue-2039-phase-dag
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+actions:
+  - name: do-phase-1
+    effects:
+      - phase_1
+  - name: do-phase-2
+    preconditions:
+      - phase_1
+    effects:
+      - phase_2
+  - name: do-phase-3
+    preconditions:
+      - phase_1
+      - phase_2
+    effects:
+      - phase_3
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3

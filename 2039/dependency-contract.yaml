@@ -1,0 +1,62 @@
+# Dependency Contract — Issue 2039: Create 10 STILL-MISSING task cards + resolve 2 special-case dangling references
+# Extracted from interface-compatibility.yaml dependency_contract section
+spec: .opencode/.issues/2039/spec.md
+variables:
+  phase_1:
+    type: bool
+    description: "Create the 10 STILL-MISSING task cards with required procedure — SC-1, SC-1.1, SC-2"
+  phase_2:
+    type: bool
+    description: "Resolve the two special-case dangling references (route, push-artifacts) — SC-4"
+  phase_3:
+    type: bool
+    description: "Verify no TDT references a non-existent task card — SC-3"
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+invariants: []
+postconditions: []
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/brainstorming/tasks/top-down-analysis.md
+      - .opencode/skills/brainstorming/tasks/cross-scope.md
+      - .opencode/skills/programming-principles/tasks/check-limits.md
+      - .opencode/skills/programming-principles/tasks/decompose.md
+      - .opencode/skills/skill-creator/tasks/init.md
+      - .opencode/skills/skill-creator/tasks/package.md
+      - .opencode/skills/skill-creator/tasks/fragment-management.md
+      - .opencode/skills/using-git-worktrees/tasks/verify-worktree.md
+      - .opencode/skills/issue-operations-core/tasks/push-artifacts.md
+      - .opencode/skills/multimodal-dispatch/tasks/route.md
+    scs:
+      - SC-1
+      - SC-1.1
+      - SC-2
+  phase_2:
+    files:
+      - .opencode/skills/multimodal-dispatch/SKILL.md
+      - .opencode/skills/issue-operations-core/SKILL.md
+      - .opencode/skills/issue-operations-core/tasks/push-artifacts.md
+    scs:
+      - SC-4
+  phase_3:
+    files:
+      - .opencode/skills/**/SKILL.md
+    scs:
+      - SC-3
+edges:
+  - from: phase_1
+    to: phase_2
+    rationale: "Phase 2 resolves the two special-case dangling references against the cards created in Phase 1"
+  - from: phase_1
+    to: phase_3
+    rationale: "Phase 3 cross-references all TDTs against the filesystem, covering the cards created in Phase 1"
+  - from: phase_2
+    to: phase_3
+    rationale: "Phase 3 integrity check covers the TDT rows modified/resolved in Phase 2"
+notes:
+  - "Phase 1 creates the 10 STILL-MISSING task cards (SC-1), the two brainstorming cards with full procedure content (SC-1.1), and the canonical entry/inline-steps/exit structure on all 10 (SC-2)."
+  - "Phase 2 resolves the special cases: remove the stale route TDT row + Invocation (rerouting triggers to dispatch.md) and create the thin push-artifacts core dispatcher (SC-4)."
+  - "Phase 3 is a verification-only gate over the entire skill deck that confirms no TDT references a non-existent task card (SC-3)."

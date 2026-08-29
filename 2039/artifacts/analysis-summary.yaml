@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2039/spec.md
+issue_number: 2039
+issues_prefix: .opencode/.issues
+approval_status: approved
+approval_labels:
+- approved-for-for_pr
+sc_count: 5
+sc_ids:
+- SC-1
+- SC-1.1
+- SC-2
+- SC-3
+- SC-4
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+artifact_findings:
+- id: ART-1
+  severity: resolved
+  detail: "All 7 analytical artifacts were MISSING at analysis time and have now been backfilled from the spec body by the backfill task: blast-radius, concern-map, code-path-inventory, cross-cutting-matrix, interface-compatibility (incl. dependency_contract), state-analysis, testability-assessment."
+scope_boundary_findings:
+- id: SCOPE-1
+  severity: missing
+  detail: "multimodal-dispatch/tasks/route.md does not exist. This is an intended special-case (SC-4): the card is STILL-MISSING and requires a resolution decision (remove stale TDT row+Invocation, or create thin card)."
+- id: SCOPE-2
+  severity: info
+  detail: "issue-operations-core/tasks/push-artifacts.md exists (created during re-scope). The platform-level card issue-operations/platforms/local/tasks/push-artifacts.md also exists. SC-4 special-case resolution still applies to verify the core TDT row routes correctly."
+- id: SCOPE-3
+  severity: ok
+  detail: "9 of 10 STILL-MISSING card files exist: brainstorming/{top-down-analysis,cross-scope}.md, programming-principles/{check-limits,decompose}.md, skill-creator/{init,package,fragment-management}.md, using-git-worktrees/verify-worktree.md, issue-operations-core/push-artifacts.md. Only multimodal-dispatch/route.md is absent."
+summary: "Spec exists, is approved (approved-for-for_pr), and defines 5 SCs (SC-1 through SC-4, incl. SC-1.1). All 7 analytical artifacts have been backfilled from the spec body. Scope boundaries: 9 of the 10 STILL-MISSING cards exist on disk; only multimodal-dispatch/route.md remains absent (the SC-4 special case)."

@@ -1,0 +1,42 @@
+# State Analysis — Issue 2039
+# Identifies state transitions required by each SC.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+state_transitions:
+  - sc: SC-1
+    from: "Task card file absent on disk"
+    to: "Task card file exists on disk (or dangling reference resolved for special cases)"
+    trigger: "Create each of the 10 STILL-MISSING task cards as .md files; resolve route/push-artifacts per SC-4."
+    persistent: false
+    detail: "State is filesystem presence of .md task card files in skills/<name>/tasks/."
+  - sc: SC-1.1
+    from: "brainstorming task cards exist"
+    to: "brainstorming task cards contain all required procedure"
+    trigger: "Ensure top-down-analysis.md and cross-scope.md include all sections per §Brainstorming Task Card Requirements."
+    persistent: false
+    detail: "Content-level state of the two brainstorming cards."
+  - sc: SC-2
+    from: "task cards created"
+    to: "task cards have entry criteria, inline steps, exit criteria"
+    trigger: "Each of the 10 new task cards follows the canonical structure."
+    persistent: false
+    detail: "Structural state of each new task card."
+  - sc: SC-3
+    from: "some TDT references a non-existent task card"
+    to: "no TDT references a non-existent task card"
+    trigger: "Cross-reference all TDTs against the filesystem."
+    persistent: false
+    detail: "Integrity state of all Trigger Dispatch Tables in the skill deck."
+  - sc: SC-4
+    from: "route/push-artifacts TDT reference is dangling (route) or unverified (push-artifacts)"
+    to: "route/push-artifacts TDT reference is resolved (card exists or row removed)"
+    trigger: "Remove stale route TDT row + Invocation (recommended) OR create thin card; verify push-artifacts core card routes correctly."
+    persistent: false
+    detail: "Resolution state of the two special-case dangling references."
+
+state_notes:
+  - "No persistent application state, database, or production data is affected."
+  - "State transitions are confined to filesystem presence and content/integrity of skill-deck markdown files."
+  - "SC-3 is a verification gate over all TDTs; SC-4 is the resolution gate for the two special cases."

@@ -1,0 +1,38 @@
+# Testability Assessment — Issue 2039
+# Assigns evidence types to each SC.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+sc_evidence:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: "Verify each of the 10 task card files exists (or TDT row removed for the two special cases)."
+    testability: high
+    detail: "Filesystem existence checks against skills/<name>/tasks/ directories. For special cases, verify TDT row removal or thin card creation."
+  - sc: SC-1.1
+    evidence_type: string
+    verification_method: "Verify brainstorming/tasks/top-down-analysis.md and cross-scope.md exist and contain all required sections per §Brainstorming Task Card Requirements."
+    testability: high
+    detail: "Content-presence verification of the two brainstorming task cards."
+  - sc: SC-2
+    evidence_type: string
+    verification_method: "Sample audit of the new task cards for entry criteria, inline steps, and exit criteria."
+    testability: medium
+    detail: "Structural audit of the 10 new task cards."
+  - sc: SC-3
+    evidence_type: string
+    verification_method: "Cross-reference all TDTs against the filesystem to confirm no TDT references a non-existent task card."
+    testability: high
+    detail: "Mechanically verifiable cross-reference; can be automated by scanning SKILL.md files for tasks/ references and checking file existence."
+  - sc: SC-4
+    evidence_type: string
+    verification_method: "Verify the route and push-artifacts TDT rows/Invocation reference an existing card or are removed."
+    testability: high
+    detail: "Per special-case verification: route (row removed or thin card), push-artifacts (core card exists and routes correctly)."
+
+testability_notes:
+  - "All 5 SCs are declared `string` evidence type; all are mechanically verifiable via filesystem existence and content checks."
+  - "The changes are structural (creation of markdown files + TDT edits) — no runtime behavior is altered, so `string` evidence type is appropriate."
+  - "SC-3 is the highest-value automated check (full TDT cross-reference scan); SC-2 is a sample audit by nature."
+  - "No behavioral (`opencode run`) testing is required for this spec because the changes do not alter agent runtime behavior at dispatch-time beyond resolving dangling references."

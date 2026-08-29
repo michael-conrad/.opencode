@@ -1,0 +1,79 @@
+# Blast Radius Analysis — Issue 2039
+# Re-scoped: create 10 STILL-MISSING task cards + resolve 2 special-case dangling TDT references.
+# Affected files are SKILL.md files and task card files in the .opencode skill deck.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+affected_files:
+  - path: .opencode/skills/brainstorming/tasks/top-down-analysis.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1, SC-1.1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/brainstorming/tasks/cross-scope.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1, SC-1.1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/programming-principles/tasks/check-limits.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/programming-principles/tasks/decompose.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/skill-creator/tasks/init.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/skill-creator/tasks/package.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/skill-creator/tasks/fragment-management.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/using-git-worktrees/tasks/verify-worktree.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1
+    detail: New task card created during re-scope. Verified present.
+  - path: .opencode/skills/issue-operations-core/tasks/push-artifacts.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-1, SC-4
+    detail: Thin core dispatcher card. Verified present. SC-4 special case.
+  - path: .opencode/skills/multimodal-dispatch/tasks/route.md
+    status: absent_on_disk
+    impact: indirect_consumer
+    sc: SC-1, SC-3, SC-4
+    detail: STILL-MISSING. SC-4 special case. Requires resolution: remove stale route TDT row+Invocation (recommended) OR create thin alias card.
+  - path: .opencode/skills/multimodal-dispatch/SKILL.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-3, SC-4
+    detail: Contains stale route TDT row + Invocation referencing non-existent route.md. Must be resolved so no dangling reference remains.
+  - path: .opencode/skills/issue-operations-core/SKILL.md
+    status: existing_on_disk
+    impact: direct_consumer
+    sc: SC-3, SC-4
+    detail: Contains stale push-artifacts TDT row + Invocation. push-artifacts.md now exists (thin card) so resolution verified.
+  - path: .opencode/skills/issue-operations/platforms/local/tasks/push-artifacts.md
+    status: existing_on_disk
+    impact: data_flow_dependent
+    sc: SC-4
+    detail: Platform-level card. issue-operations/SKILL.md routes push-artifacts to this card. Core-level thin card captures artifact_url for spec-creation/tasks/reconcile-push.md.
+
+impact_summary:
+  - The blast radius is confined to the .opencode skill deck (skills/ subdirectories).
+  - No application source code (src/), tests (test/), or production data are affected.
+  - 9 of 10 target card files already exist on disk; only multimodal-dispatch/tasks/route.md is absent.
+  - The two SKILL.md files (multimodal-dispatch, issue-operations-core) carry the TDT rows requiring SC-3/SC-4 resolution.

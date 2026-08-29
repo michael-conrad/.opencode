@@ -1,4 +1,4 @@
-sc_count: 12
+sc_count: 14
 scs:
   - id: "SC-1"
     description: "Condensed guideline SHALL NOT contain the Self-Simulation Prohibition section"
@@ -48,3 +48,11 @@ scs:
     description: "Behavioral run with SESSION_TRIGGERS SHALL NOT echo trigger content verbatim"
     evidence_type: "behavioral"
     plan_item: 12
+  - id: "SC-13"
+    description: "Condensed guideline SHALL NOT contain any cross-reference to a .py or .ts source file"
+    evidence_type: "string"
+    plan_item: 13
+  - id: "SC-14"
+    description: "Every retained section of the condensed guideline SHALL contain at least one MUST, MUST NOT, or SHOULD instruction"
+    evidence_type: "string"
+    plan_item: 14

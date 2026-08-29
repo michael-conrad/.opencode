@@ -1,0 +1,126 @@
+# Interface Compatibility — Issue 2039
+# Checks interface boundaries between affected modules (skill deck files) and
+# the dependency contract for the solve/plan tools.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+interface_assessment:
+  - interface: multimodal-dispatch/SKILL.md -> multimodal-dispatch/tasks/route.md
+    status: dangling
+    sc: SC-3, SC-4
+    detail: "TDT row + Invocation reference a non-existent route.md. Resolution: remove the stale row + Invocation (recommended), rerouting 'route'/'route task'/'dispatch to model' triggers to dispatch.md. No interface change to dispatch.md or resolve.md needed."
+  - interface: issue-operations-core/SKILL.md -> issue-operations-core/tasks/push-artifacts.md
+    status: compatible
+    sc: SC-3, SC-4
+    detail: "Core card now exists (thin dispatcher). Routes to platform-level card issue-operations/platforms/local/tasks/push-artifacts.md and captures artifact_url for spec-creation/tasks/reconcile-push.md consumer."
+  - interface: issue-operations/SKILL.md -> issue-operations/platforms/local/tasks/push-artifacts.md
+    status: compatible
+    sc: SC-4
+    detail: "Existing routing of push-artifacts to the platform-level card is correct; unaffected by the re-scope."
+  - interface: brainstorming/SKILL.md -> brainstorming/tasks/top-down-analysis.md, cross-scope.md
+    status: compatible
+    sc: SC-1, SC-1.1
+    detail: "Both cards exist and contain the required procedure content."
+  - interface: programming-principles/SKILL.md -> tasks/check-limits.md, decompose.md
+    status: compatible
+    sc: SC-1
+    detail: "Both cards exist."
+  - interface: skill-creator/SKILL.md -> tasks/init.md, package.md, fragment-management.md
+    status: compatible
+    sc: SC-1
+    detail: "All three cards exist."
+  - interface: using-git-worktrees/SKILL.md -> tasks/verify-worktree.md
+    status: compatible
+    sc: SC-1
+    detail: "Card exists."
+
+dependency_contract:
+  version: 1
+  description: "Dependency contract for the .opencode skill-deck TDT/card references affected by issue 2039."
+  source_issue: 2039
+  dependencies:
+    - id: DEP-1
+      source: multimodal-dispatch/SKILL.md
+      target: multimodal-dispatch/tasks/route.md
+      type: TDT_reference
+      status: dangling
+      constraint: "route TDT row + Invocation MUST either reference an existing card or be removed (SC-4). Recommended: remove row + Invocation, reroute triggers to dispatch.md."
+      consumer: multimodal-dispatch skill orchestrator
+    - id: DEP-2
+      source: issue-operations-core/SKILL.md
+      target: issue-operations-core/tasks/push-artifacts.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Core card exists as thin dispatcher; routes to platform-level card and captures artifact_url."
+      consumer: issue-operations-core skill orchestrator
+    - id: DEP-3
+      source: issue-operations-core/tasks/push-artifacts.md
+      target: issue-operations/platforms/local/tasks/push-artifacts.md
+      type: dispatcher_to_platform
+      status: satisfied
+      constraint: "Core card resolves github.platform and delegates to platform implementation; returns artifact_url."
+      consumer: push-artifacts thin core dispatcher
+    - id: DEP-4
+      source: issue-operations/platforms/local/tasks/push-artifacts.md
+      target: spec-creation/tasks/reconcile-push.md
+      type: producer_to_consumer
+      status: satisfied
+      constraint: "Platform card returns artifact_url consumed by reconcile-push.md."
+      consumer: spec-creation/tasks/reconcile-push.md
+    - id: DEP-5
+      source: brainstorming/SKILL.md
+      target: brainstorming/tasks/top-down-analysis.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists and contains required procedure per §Brainstorming Task Card Requirements."
+      consumer: brainstorming skill orchestrator
+    - id: DEP-6
+      source: brainstorming/SKILL.md
+      target: brainstorming/tasks/cross-scope.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists and contains required procedure per §Brainstorming Task Card Requirements."
+      consumer: brainstorming skill orchestrator
+    - id: DEP-7
+      source: programming-principles/SKILL.md
+      target: programming-principles/tasks/check-limits.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: programming-principles skill orchestrator
+    - id: DEP-8
+      source: programming-principles/SKILL.md
+      target: programming-principles/tasks/decompose.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: programming-principles skill orchestrator
+    - id: DEP-9
+      source: skill-creator/SKILL.md
+      target: skill-creator/tasks/init.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: skill-creator skill orchestrator
+    - id: DEP-10
+      source: skill-creator/SKILL.md
+      target: skill-creator/tasks/package.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: skill-creator skill orchestrator
+    - id: DEP-11
+      source: skill-creator/SKILL.md
+      target: skill-creator/tasks/fragment-management.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: skill-creator skill orchestrator
+    - id: DEP-12
+      source: using-git-worktrees/SKILL.md
+      target: using-git-worktrees/tasks/verify-worktree.md
+      type: TDT_reference
+      status: satisfied
+      constraint: "Card exists."
+      consumer: using-git-worktrees skill orchestrator

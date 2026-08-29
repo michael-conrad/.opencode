@@ -40,20 +40,22 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 
 ## Success Criteria
 
-| ID | Criterion | Evidence Type | Verification Method |
-|----|-----------|---------------|---------------------|
-| SC-1 | The condensed guideline `.opencode/guidelines/117-session-trigger-behavior.md` SHALL NOT contain the Self-Simulation Prohibition section. | string | `grep -q "Self-Simulation"` returns no match in the guideline |
-| SC-2 | The condensed guideline SHALL NOT contain the Trigger Behavior Map section. | string | `grep -q "Trigger Behavior Map"` returns no match in the guideline |
-| SC-3 | The condensed guideline SHALL NOT contain the Suppression Rule section. | string | `grep -q "Suppression Rule"` returns no match in the guideline |
-| SC-4 | The condensed guideline SHALL retain the Session Trigger No-Echo section. | string | `grep -q "No-Echo"` returns a match in the guideline |
-| SC-5 | The condensed guideline SHALL retain the nested_opencode_fatal hard-halt section. | string | `grep -q "nested_opencode_fatal"` returns a match in the guideline |
-| SC-6 | The self-simulation prohibition detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Self-Simulation"` returns a match in `.opencode/plugins/session-enforcement.ts` |
-| SC-7 | The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Suppression"` returns a match in `.opencode/plugins/session-enforcement.ts` |
-| SC-8 | The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task. | string | `grep -q "pair_mode_resume"` returns a match in `git-workflow-branch/tasks/pair-mode-resume.md` |
-| SC-9 | The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`. | string | `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to a Read-link to `git-workflow-branch/tasks/pair-mode-resume.md`, not to 117 |
-| SC-10 | The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures. | behavioral | run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0 |
-| SC-11 | A behavioral run with a NESTED_OPENCODE_FATAL block in the first user message SHALL produce a HALT. | behavioral | `with-test-home opencode run` against a real model, assert HALT via stderr evidence |
-| SC-12 | A behavioral run with a SESSION_TRIGGERS block SHALL NOT echo the trigger content verbatim. | behavioral | `with-test-home opencode run` against a real model, assert no verbatim echo via stderr evidence |
+| ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
+|----|-----------|---------------|---------------------|----------------------|
+| SC-1 | The condensed guideline `.opencode/guidelines/117-session-trigger-behavior.md` SHALL NOT contain the Self-Simulation Prohibition section. | string | `grep -q "Self-Simulation"` returns no match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-2 | The condensed guideline SHALL NOT contain the Trigger Behavior Map section. | string | `grep -q "Trigger Behavior Map"` returns no match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-3 | The condensed guideline SHALL NOT contain the Suppression Rule section. | string | `grep -q "Suppression Rule"` returns no match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-4 | The condensed guideline SHALL retain the Session Trigger No-Echo section. | string | `grep -q "No-Echo"` returns a match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-5 | The condensed guideline SHALL retain the nested_opencode_fatal hard-halt section. | string | `grep -q "nested_opencode_fatal"` returns a match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-6 | The self-simulation prohibition detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Self-Simulation"` returns a match in `.opencode/plugins/session-enforcement.ts` | `.opencode/plugins/session-enforcement.ts` |
+| SC-7 | The suppression rule detail SHALL be preserved in `.opencode/plugins/session-enforcement.ts`. | string | `grep -q "Suppression"` returns a match in `.opencode/plugins/session-enforcement.ts` | `.opencode/plugins/session-enforcement.ts` |
+| SC-8 | The pair_mode_resume trigger behavior detail SHALL be preserved in the git-workflow pair-mode-resume task. | string | `grep -q "pair_mode_resume"` returns a match in `git-workflow-branch/tasks/pair-mode-resume.md` | `.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md` |
+| SC-9 | The cross-reference in the `Pair Mode Suggestion Protocol` section of `.opencode/guidelines/116-pair-mode.md` SHALL point to `git-workflow-branch/tasks/pair-mode-resume.md`. | string | `grep -n "trigger behavior map"` in 116-pair-mode.md resolves to a Read-link to `git-workflow-branch/tasks/pair-mode-resume.md`, not to 117 | `.opencode/guidelines/116-pair-mode.md` |
+| SC-10 | The `test-2134-sc*.sh` content-verification suite SHALL pass against the condensed guideline with zero failures. | behavioral | run `bash .opencode/tests-v2/test-2134-sc*.sh` and assert every script exits 0 | `.opencode/tests-v2/test-2134-sc*.sh` |
+| SC-11 | A behavioral run with a NESTED_OPENCODE_FATAL block in the first user message SHALL produce a HALT. | behavioral | `with-test-home opencode run` against a real model, assert HALT via stderr evidence | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-12 | A behavioral run with a SESSION_TRIGGERS block SHALL NOT echo the trigger content verbatim. | behavioral | `with-test-home opencode run` against a real model, assert no verbatim echo via stderr evidence | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-13 | The condensed guideline SHALL NOT contain any cross-reference to a `.py` or `.ts` source file. | string | `grep -nE '\.(py|ts)'` returns no match in the guideline | `.opencode/guidelines/117-session-trigger-behavior.md` |
+| SC-14 | Every retained section of the condensed guideline SHALL contain at least one MUST, MUST NOT, or SHOULD instruction. | string | for each retained section, `grep -qE 'MUST|MUST NOT|SHOULD'` returns a match | `.opencode/guidelines/117-session-trigger-behavior.md` |
 
 ## Requirements
 
@@ -156,6 +158,20 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 - verify: `with-test-home opencode run` with a SESSION_TRIGGERS block, assert no verbatim echo via stderr evidence
 - commit: verification slice
 
+### Item 13 (SC-13): Remove .py/.ts cross-references from the condensed guideline
+
+- RED: `grep -nE '\.(py|ts)'` returns a match (cross-reference present)
+- GREEN: remove any `.py`/`.ts` source-file cross-references from the condensed guideline
+- verify: `grep -nE '\.(py|ts)'` returns no match in the guideline
+- commit: guideline condensation slice
+
+### Item 14 (SC-14): Verify retained sections carry mandatory instruction language
+
+- RED: `grep -qE 'MUST|MUST NOT|SHOULD'` returns no match in a retained section
+- GREEN: confirm each retained section carries at least one MUST/MUST NOT/SHOULD instruction
+- verify: for each retained section, `grep -qE 'MUST|MUST NOT|SHOULD'` returns a match
+- commit: guideline condensation slice
+
 ## Dependencies
 
 | Reference | Relationship | Status |
@@ -180,8 +196,8 @@ Condense the preloaded `.opencode/guidelines/117-session-trigger-behavior.md` gu
 | R-8 | SC-8 | relocate |
 | R-9 | SC-9 | reference-update |
 | R-10 | SC-10 | test-reconcile |
-| R-11 | SC-1, SC-2, SC-3 | condense |
-| R-12 | SC-4, SC-5 | condense |
+| R-11 | SC-13 | condense |
+| R-12 | SC-14 | condense |
 
 ## Documentation Sources
 
@@ -213,6 +229,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-10: Verifying the 2134 suite passes costs running the scripts. Skipping means the enforcement suite breaks on the condensed guideline, producing false FAILs.
 - SC-11: Verifying the HALT behavior costs a behavioral run. Skipping means a weakened hard-halt ships and costs 1000× more when the violation surfaces in production.
 - SC-12: Verifying the no-echo mandate costs a behavioral run. Skipping means a verbatim-echo regression ships and costs 1000× more to discover downstream.
+- SC-13: Verifying no `.py`/`.ts` cross-references remain costs one grep. Skipping leaves dangling source-file references in the preloaded guideline, defeating the condensation's relocation intent.
+- SC-14: Verifying retained sections carry MUST/MUST NOT/SHOULD language costs one grep per retained section. Skipping risks the enforcement core shipping without mandatory instruction language, weakening the always-required signal.
 
 ## Edge Cases
 
@@ -229,6 +247,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-28 | Corrected SC-1..SC-8 evidence types from `structural` to `string`; pinned SC-6/SC-7 relocation destination to `.opencode/plugins/session-enforcement.ts`; named SC-9 concrete path `git-workflow-branch/tasks/pair-mode-resume.md`; updated R-6/R-7/R-9, Items 6/7/9, Cost Frame, and Edge Cases accordingly. | Validation findings: EVIDENCE_TYPE_MISMATCH (grep-pattern verification is string evidence), DETERMINISM/ESCAPE-HATCH (disjunctive "or a companion artifact" and vague "relocated home" targets), ATOMICITY (disjunctive "or" fails atomicity). | Validation pipeline |
 | 2026-08-28 | Replaced the "line 76" line-number reference with the stable `Pair Mode Suggestion Protocol` section heading across SC-9, R-9, Item 9, Dependencies, and Edge Cases. | Validation findings: LINE-NUMBER REFERENCE (SC-9/R-9/Item 9/Edge Cases cite "116-pair-mode.md line 76", violating spec-structure-standards §Prohibited Content Patterns). | Validation pipeline |
 | 2026-08-29 | Removed the false-target SC-10 that imposed a hard numeric reduction threshold on the condensed guideline's size, along with its R-10 requirement, Item 10, traceability row, cost frame entry, and edge case; renumbered subsequent SCs/Items/Requirements; updated sc-summary.yaml to 12 SCs. | Revision reason: the condensation savings are an emergent property of correctly implementing the content-based SCs — a hard numerical threshold incentivizes aggressive trimming to hit a number rather than faithful implementation, causes agent malfunction, and improper reworking. | Validation pipeline |
+| 2026-08-29 | Added SC-13 (condensed guideline SHALL NOT contain any `.py`/`.ts` cross-reference) and SC-14 (every retained section SHALL contain at least one MUST/MUST NOT/SHOULD instruction); re-mapped R-11→SC-13 and R-12→SC-14 in Traceability; added Items 13/14 and Cost Frame entries; added the Documentation Sources column to the SC table with non-empty per-SC entries populated from the Documentation Sources section; updated sc-summary.yaml to 14 SCs. | Validation findings: TRACEABILITY/COMPLETENESS (R-11/R-12 mapped to SCs that verify section removal/retention only, not the requirements' actual content criteria); SC-TABLE STRUCTURE (SC table lacked the Documentation Sources column). | Validation pipeline |
 
 <!-- SPDX-FileCopyrightText: 2026 michael-conrad -->
 <!-- SPDX-License-Identifier: MIT -->

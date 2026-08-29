@@ -1,0 +1,80 @@
+# Code Path Inventory — Issue 2039
+# Lists code paths implied by each SC.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+sc_paths:
+  - sc: SC-1
+    paths:
+    - "Create each of the 10 STILL-MISSING task cards as .md files in their respective tasks/ directories."
+    - "Special cases: for route and push-artifacts, either remove the stale TDT row + Invocation or create a thin card per SC-4."
+  - sc: SC-1.1
+    paths:
+    - "brainstorming/tasks/top-down-analysis.md must contain all required procedure per §Brainstorming Task Card Requirements."
+    - "brainstorming/tasks/cross-scope.md must contain all required procedure per §Brainstorming Task Card Requirements."
+  - sc: SC-2
+    paths:
+    - "Each of the 10 new task cards must have entry criteria, inline steps, and exit criteria."
+  - sc: SC-3
+    paths:
+    - "Cross-reference all Trigger Dispatch Tables against the filesystem to confirm no TDT references a non-existent task card."
+  - sc: SC-4
+    paths:
+    - "Resolve route special case: remove stale multimodal-dispatch route TDT row + Invocation (recommended) OR create thin alias card."
+    - "Resolve push-artifacts special case: create thin core dispatcher card (recommended, exists on disk) OR remove stale core TDT row + Invocation."
+
+path_inventory:
+  - id: P-1
+    sc: SC-1
+    path: .opencode/skills/brainstorming/tasks/top-down-analysis.md
+    status: exists
+  - id: P-2
+    sc: SC-1
+    path: .opencode/skills/brainstorming/tasks/cross-scope.md
+    status: exists
+  - id: P-3
+    sc: SC-1
+    path: .opencode/skills/programming-principles/tasks/check-limits.md
+    status: exists
+  - id: P-4
+    sc: SC-1
+    path: .opencode/skills/programming-principles/tasks/decompose.md
+    status: exists
+  - id: P-5
+    sc: SC-1
+    path: .opencode/skills/skill-creator/tasks/init.md
+    status: exists
+  - id: P-6
+    sc: SC-1
+    path: .opencode/skills/skill-creator/tasks/package.md
+    status: exists
+  - id: P-7
+    sc: SC-1
+    path: .opencode/skills/skill-creator/tasks/fragment-management.md
+    status: exists
+  - id: P-8
+    sc: SC-1
+    path: .opencode/skills/using-git-worktrees/tasks/verify-worktree.md
+    status: exists
+  - id: P-9
+    sc: SC-1
+    path: .opencode/skills/issue-operations-core/tasks/push-artifacts.md
+    status: exists
+    special_case: true
+  - id: P-10
+    sc: SC-1
+    path: .opencode/skills/multimodal-dispatch/tasks/route.md
+    status: absent
+    special_case: true
+    detail: SC-4 resolution required.
+  - id: P-11
+    sc: SC-3
+    path: .opencode/skills/multimodal-dispatch/SKILL.md
+    status: exists
+    detail: Carries stale route TDT row + Invocation.
+  - id: P-12
+    sc: SC-4
+    path: .opencode/skills/issue-operations-core/SKILL.md
+    status: exists
+    detail: Carries push-artifacts TDT row; card now exists.

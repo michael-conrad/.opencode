@@ -1,0 +1,43 @@
+# Cross-Cutting Matrix — Issue 2039
+# Identifies SCs that span multiple concerns.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+cross_cutting_scs:
+  - sc: SC-1
+    spans:
+    - CONCERN-1 (Card Creation)
+    - CONCERN-2 (TDT Reference Integrity)
+    detail: "SC-1 mandates the cards exist OR the dangling reference is resolved for the two special cases (route, push-artifacts), coupling card creation with TDT integrity."
+  - sc: SC-4
+    spans:
+    - CONCERN-2 (TDT Reference Integrity)
+    - CONCERN-1 (Card Creation) — for the thin-card resolution option
+    detail: "SC-4's resolution decision (remove TDT row OR create thin card) spans both concerns; the chosen path determines whether a card is created."
+  - sc: SC-3
+    spans:
+    - CONCERN-2 (TDT Reference Integrity)
+    detail: "SC-3 is purely a cross-reference verification, scoped to CONCERN-2 alone."
+
+sc_to_concern_matrix:
+  - sc: SC-1
+    concern_1_card_creation: primary
+    concern_2_tdt_integrity: secondary
+  - sc: SC-1.1
+    concern_1_card_creation: primary
+    concern_2_tdt_integrity: none
+  - sc: SC-2
+    concern_1_card_creation: primary
+    concern_2_tdt_integrity: none
+  - sc: SC-3
+    concern_1_card_creation: none
+    concern_2_tdt_integrity: primary
+  - sc: SC-4
+    concern_1_card_creation: conditional
+    concern_2_tdt_integrity: primary
+
+propagation_notes:
+  - SC-1 and SC-4 are the only cross-cutting SCs; both couple card creation with TDT reference integrity.
+  - SC-1.1 and SC-2 are confined to card creation; SC-3 is confined to TDT integrity.
+  - The cross-cutting coupling is resolved by the SC-4 decisions for route and push-artifacts.

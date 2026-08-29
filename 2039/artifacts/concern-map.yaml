@@ -1,0 +1,36 @@
+# Concern Map — Issue 2039
+# Decomposes SCs into concern groups and maps each to a phase boundary.
+
+issue_number: 2039
+source: .opencode/.issues/2039/spec.md
+
+concern_groups:
+  - id: CONCERN-1
+    name: Card Creation
+    scs:
+    - SC-1
+    - SC-1.1
+    - SC-2
+    description: Create the 10 STILL-MISSING task cards as .md files with entry criteria, inline-only steps, and exit criteria. Brainstorming cards additionally require all procedure content per the spec's Brainstorming Task Card Requirements section.
+    phase_boundary: creation
+
+  - id: CONCERN-2
+    name: TDT Reference Integrity
+    scs:
+    - SC-3
+    - SC-4
+    description: Ensure no Trigger Dispatch Table or Invocation references a non-existent task card. Resolve the two special-case decisions (route, push-artifacts) such that no dangling reference remains.
+    phase_boundary: integrity
+
+concern_to_phase:
+  - concern: CONCERN-1 (Card Creation)
+    phase: Phase 1 — Create task cards
+    note: 9 of 10 cards already exist on disk; only multimodal-dispatch/tasks/route.md is absent.
+  - concern: CONCERN-2 (TDT Reference Integrity)
+    phase: Phase 2 — Resolve dangling references + verification
+    note: Cross-reference all TDTs against filesystem (SC-3); resolve route and push-artifacts special cases (SC-4).
+
+boundary_notes:
+  - CONCERN-1 maps to card file creation; CONCERN-2 maps to TDT verification and special-case resolution.
+  - The two concerns are sequential: cards must exist before TDT references can be validated (SC-3) and before special cases can be resolved (SC-4).
+  - No single unit addresses multiple concerns; each concern maps to a distinct phase boundary.
