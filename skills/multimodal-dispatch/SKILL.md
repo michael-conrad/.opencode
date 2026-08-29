@@ -35,7 +35,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
 | "probe" / "probe models" / "check capabilities" | `probe` | `sub-task` | {modalities} |
-| "route" / "route task" / "dispatch to model" | `route` | `sub-task` | {task_description, content_modality} |
+| "route" / "route task" / "dispatch to model" | `dispatch` | `sub-task` | {task_description, content_modality} |
 | completion / workflow end | `completion` | `sub-task` | {workflow_state} |
 
 ## Persona
@@ -46,7 +46,7 @@ Modality Router. Focus: probe models, resolve modality hints, task sub-agents to
 
 
 | `probe` |
-| `route` |
+| `dispatch` |
 | `completion` |
 
 ## Invocation
@@ -56,7 +56,7 @@ Modality Router. Focus: probe models, resolve modality hints, task sub-agents to
 | Task | Call via task() |
 
 | `probe` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [probe model capabilities](.opencode/skills/multimodal-dispatch/tasks/probe.md). "))` |
-| `route` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [route task to model by modality](.opencode/skills/multimodal-dispatch/tasks/route.md). "))` |
+| `dispatch` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [dispatch sub-agent task to model by modality](.opencode/skills/multimodal-dispatch/tasks/dispatch.md). "))` |
 | `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete multimodal dispatch](.opencode/skills/multimodal-dispatch/tasks/completion.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "multimodal-dispatch"})` ``
