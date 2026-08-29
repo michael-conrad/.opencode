@@ -1,0 +1,39 @@
+# Problem — Issue 2411: Prohibit false numerical reduction targets in condensation specs
+# Models the phase dependency DAG from dependency-contract.yaml
+# Edges: Phase 1 -> Phase 3 (cross-phase). Phase 2 does NOT gate on Phase 1.
+# Phase 3 internal sequential: SC-4 (generation) -> SC-5 (evaluation).
+domain: issue-2411-phase-dag
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+  - name: sc4_artifacts
+  - name: sc5_eval
+actions:
+  - name: do-phase-1
+    effects:
+      - phase_1
+  - name: do-phase-2
+    effects:
+      - phase_2
+  - name: do-phase-3-sc4
+    preconditions:
+      - phase_1
+    effects:
+      - sc4_artifacts
+  - name: do-phase-3-sc5
+    preconditions:
+      - sc4_artifacts
+    effects:
+      - sc5_eval
+  - name: complete-phase-3
+    preconditions:
+      - sc4_artifacts
+      - sc5_eval
+    effects:
+      - phase_3
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3
