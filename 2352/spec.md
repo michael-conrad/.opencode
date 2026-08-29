@@ -44,8 +44,7 @@ labels:
 | SC-8a | The retained enforcement cores in 080 Read-link to the canonical `test-driven-development/SKILL.md` sections (Enforcement Test Mandate, Evidence Type Taxonomy, Behavioral RED/GREEN gate, Test Integrity Mandate). | string | `grep` the Read-link targets in 080 | `.opencode/guidelines/080-code-standards.md`; `.opencode/skills/test-driven-development/SKILL.md` |
 | SC-8b | The `test-driven-development/SKILL.md` sections linked from 080 (Enforcement Test Mandate, Evidence Type Taxonomy, Behavioral RED/GREEN gate, Test Integrity Mandate) exist in the skill. | string | `read` `test-driven-development/SKILL.md` to confirm the linked sections exist | `.opencode/skills/test-driven-development/SKILL.md` |
 | SC-9 | The condensed 080 contains no stale or duplicated enforcement-core definitions inline — the enforcement cores link to the canonical `test-driven-development/SKILL.md` definitions rather than re-defining them inline. | string | `diff`/`grep` 080 to confirm no stale or duplicated enforcement-core definition text remains inline | `.opencode/guidelines/080-code-standards.md`; `.opencode/skills/test-driven-development/SKILL.md` |
-| SC-10 | The preloaded token burden of 080 is reduced by at least 40% relative to the ~14.2k token baseline — i.e., the post-condensation token count of 080 is ≤ 8,500 tokens. | structural | Measure pre/post token count of 080 with a token-count script; assert post-condensation count ≤ 8,500 tokens | `.opencode/guidelines/080-code-standards.md`; research card `spec-writing-ai-agents-opencode-skill-architecture` |
-| SC-12 | An agent consuming the condensed 080 still enforces the retained enforcement cores — specifically, the behavioral-test-substitution prohibition — with no regression from condensation. | behavioral | Run a behavioral enforcement test via `opencode run` through the `with-test-home` harness; assert via stderr-based helpers (`assert_stderr_pattern_present`) that the agent enforces the retained core rather than substituting grep/structural checks | `.opencode/guidelines/080-code-standards.md`; `.opencode/skills/test-driven-development/SKILL.md` |
+| SC-10 | An agent consuming the condensed 080 still enforces the retained enforcement cores — specifically, the behavioral-test-substitution prohibition — with no regression from condensation. | behavioral | Run a behavioral enforcement test via `opencode run` through the `with-test-home` harness; assert via stderr-based helpers (`assert_stderr_pattern_present`) that the agent enforces the retained core rather than substituting grep/structural checks | `.opencode/guidelines/080-code-standards.md`; `.opencode/skills/test-driven-development/SKILL.md` |
 
 ## 4. Requirements
 
@@ -54,8 +53,7 @@ labels:
 - R-3. The system SHALL keep 080-code-standards.md in the Tier 1 `instructions[]` array; condensation SHALL NOT remove the file from preload.
 - R-4. The system SHALL align the design/DI authority to the `programming-principles` skill as the master source, with no reversed reference and no duplicated authority.
 - R-5. The system SHALL wire the retained enforcement cores in 080 to the canonical `test-driven-development/SKILL.md` definitions, with no stale or duplicated definitions inline.
-- R-6. The system SHALL reduce the preloaded token burden of 080 by at least 40% relative to the ~14.2k baseline (post-condensation count ≤ 8,500 tokens) while preserving every enforcement core.
-- R-7. The system SHALL preserve stable anchors referenced by other files (critical-rules-023 references 080; critical-rules-060 references 080 §Terminology Note; programming-principles skill line 68 references 080).
+- R-6. The system SHALL preserve stable anchors referenced by other files (critical-rules-023 references 080; critical-rules-060 references 080 §Terminology Note; programming-principles skill line 68 references 080).
 
 ## 5. Items
 
@@ -136,14 +134,7 @@ labels:
 - verify: `diff`/`grep` 080 to confirm no stale or duplicated enforcement-core definition text remains inline.
 - commit: 080 de-duplication of enforcement definitions.
 
-### Item 12 (SC-10): Measure token-burden reduction against hard threshold
-
-- RED: Enforcement test asserts the token reduction has not been measured against the hard threshold.
-- GREEN: Measure the preloaded token burden of 080 before and after condensation; assert post-condensation count ≤ 8,500 tokens (≥40% reduction).
-- verify: token-count script; assert the hard numeric threshold.
-- commit: Verification evidence artifact.
-
-### Item 13 (SC-12): Behavioral enforcement: enforcement core retained and enforced
+### Item 12 (SC-10): Behavioral enforcement: enforcement core retained and enforced
 
 - RED: Behavioral enforcement test asserts the condensed 080 does NOT lead the agent to enforce the behavioral-test-substitution prohibition (no regression) — expects enforcement, so test is written to detect the regression.
 - GREEN: Confirm the condensed 080 (with retained cores and TDD wiring) causes an agent to enforce the retained core behaviorally.
@@ -167,12 +158,11 @@ labels:
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1, SC-2, SC-3a, SC-3b | Phase 1, Phase 2, Phase 3 |
-| R-2 | SC-4, SC-8a, SC-8b, SC-9, SC-12 | Phase 4, Phase 8, Phase 9, Phase 10, Phase 12 |
+| R-2 | SC-4, SC-8a, SC-8b, SC-9, SC-10 | Phase 4, Phase 8, Phase 9, Phase 10, Phase 12 |
 | R-3 | SC-5 | Phase 5 |
 | R-4 | SC-6a, SC-6b | Phase 6 |
-| R-5 | SC-8a, SC-8b, SC-9, SC-12 | Phase 8, Phase 9, Phase 10, Phase 12 |
-| R-6 | SC-10 | Phase 11 |
-| R-7 | SC-3a, SC-3b, SC-6a, SC-6b, SC-8a, SC-8b | Phase 3, Phase 6, Phase 8, Phase 9 |
+| R-5 | SC-8a, SC-8b, SC-9, SC-10 | Phase 8, Phase 9, Phase 10, Phase 12 |
+| R-6 | SC-3a, SC-3b, SC-6a, SC-6b, SC-8a, SC-8b | Phase 3, Phase 6, Phase 8, Phase 9 |
 
 ## 8. Documentation Sources
 
@@ -205,8 +195,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-8a:** Verifying the retained enforcement cores Read-link to the canonical TDD skill sections costs one grep. Skipping means a stale or duplicate definition survives, and the enforcement-test mandate loses its canonical source.
 - **SC-8b:** Verifying the linked TDD sections exist costs one read. Skipping means the enforcement cores reference a non-existent section, breaking the Read-link.
 - **SC-9:** Verifying no stale/duplicate enforcement definitions remain inline costs one diff/grep. Skipping means a duplicate enforcement definition persists, creating two authorities for the same rule.
-- **SC-10:** Measuring the token-burden reduction against the hard threshold costs one token-count run. Skipping means the primary objective (token savings) is unverified, and the condensation may have shipped without achieving its goal.
-- **SC-12:** Running the behavioral enforcement test costs minutes of execution time via `opencode run`. Skipping means the behavioral-test-substitution prohibition regresses silently — the death spiral: structural PASS ships a behavioral defect that costs 1000× more to fix downstream. The behavioral test is the break that catches the regression at gate 1.
+- **SC-10:** Running the behavioral enforcement test costs minutes of execution time via `opencode run`. Skipping means the behavioral-test-substitution prohibition regresses silently — the death spiral: structural PASS ships a behavioral defect that costs 1000× more to fix downstream. The behavioral test is the break that catches the regression at gate 1.
 
 ## 11. Edge Cases
 
@@ -214,9 +203,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |-----------|-------------------|------------|
 | **Input boundary — empty procedural section** | A relocated section that is empty or near-empty MUST still be represented (the Read-link exists) or explicitly documented as not requiring relocation. | The shared reference is created for each relocated concern even if sparse; no section is silently dropped. |
 | **Input boundary — enforcement core missing during condensation** | If an enforcement core (Enforcement Test Mandate or any critical-rules block) is absent from the condensed 080, SC-4 verification FAILs. | Restore the core verbatim from the original and re-verify (state-analysis recovery path REFS_CREATED→CONDENSED). |
-| **Threshold boundary — token reduction below 40%** | If the post-condensation token count of 080 exceeds 8,500 tokens (less than 40% reduction), SC-10 verification FAILs. | Diagnose the incomplete condensation (a procedural section left inline), relocate the remaining procedural content, and re-measure against the hard threshold. |
 | **State transition — REFS_CREATED → CONDENSED failure** | If enforcement core dropped or altered during condensation. | Restore the core verbatim from the original; re-verify (per state-analysis failure transition). |
-| **State transition — CONDENSED → VERIFIED failure** | If the hard token threshold is not achieved OR the behavioral enforcement test FAILs. | Diagnose (incomplete condensation or enforcement regression), remediate, re-verify (per state-analysis failure transition). |
+| **State transition — CONDENSED → VERIFIED failure** | If the behavioral enforcement test FAILs. | Diagnose (enforcement regression), remediate, re-verify (per state-analysis failure transition). |
 | **Failure mode — 080 removed from instructions array** | Verification checks `grep opencode.jsonc`; absence is a FAIL (preload invariance invariant violated). | Re-add 080 to the `instructions[]` array; never remove it. |
 | **Failure mode — Read-link uses wrong form** | A `See file §section` citation instead of the mandatory `Read [Text](path)` pattern is a FAIL (Read-Link Cross-Reference Rule). | Rewrite the cross-reference in the mandatory Read-link form. |
 | **Failure mode — reversed authority (080 as master source)** | If `programming-principles` or `test-driven-development` begins referencing 080 as authoritative, SC-6b verification FAILs. | Re-point the authority so 080 links to the skills, never the reverse. |
@@ -231,10 +219,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | What Changed | Why | Authorized By |
 |------|--------------|-----|---------------|
 | 2026-08-28 | Decomposed compound SCs into atomic SCs: SC-3 → SC-3/4/5 (Read-links, enforcement verbatim, instructions[] presence); SC-4 → SC-6/7 (no reversed reference, no duplicated authority); SC-5 → SC-8/9 (Read-links resolve, no stale/duplicate definitions); SC-6 → SC-10/11 (token reduction, no enforcement core lost). Renumbered the SC set to SC-1..SC-12. Updated Items (1:1 item-SC mapping), Traceability, Cost Frame, and Edge Cases to match the decomposed atomic SC set. | Validation finding (2) COMPOUND-SC and (3) DECOMPOSITION — each SC must be atomic with a single deliverable and binary verifiability. | Validation gate (spec-auditor) |
-| 2026-08-28 | Pinned SC-10 to a hard numeric threshold: ≥40% token reduction (post-condensation ≤ 8,500 tokens relative to the ~14.2k baseline). Updated R-6, Cost Frame, and Edge Cases to reflect the deterministic threshold. | Validation finding (1) DETERMINISM — "substantially reduced" has no numeric threshold and is not binary-verifiable. | Validation gate (spec-auditor) |
 | 2026-08-28 | Added a Documentation Sources column to the Success Criteria table (Section 3) with non-empty entries for every SC, referencing the Section 8 Documentation Sources. The SC table is now 5 columns (ID, Criterion, Evidence Type, Verification Method, Documentation Sources), satisfying validate.md Step 3.1's Documentation Sources conformance check. | Validation finding (4) DOCUMENTATION-SOURCES — the 4-column SC table lacks the Documentation Sources column validate.md Step 3.1 requires. | Validation gate (spec-auditor) |
 | 2026-08-28 | Aggregate FAIL remediation (four defects): (1) TRACEABILITY — added SC-12 to the Section 7 Traceability table (traces to R-2/R-5). (2) EVIDENCE_TYPE_MISMATCH — corrected SC-1..SC-9 evidence types from "structural" to "string", since their diff/grep content-comparison methods are string evidence per the canonical taxonomy (SC-10 remains structural as a numeric token-count measurement; SC-12 remains behavioral). (3) COMPOUND-SC — decomposed SC-8 into atomic SC-8a (wiring verification) and SC-8b (linked-section existence check), with corresponding Items 8/9. (4) DECOMPOSITION/COVERAGE — removed SC-11 (no enforcement core lost) as it is entailed by SC-4 (cores retained verbatim), and renumbered the downstream Items accordingly. Updated sc-summary.yaml, Items (1:1 item-SC mapping), Traceability, Cost Frame, and Edge Cases to match the revised SC set. | Validation findings: Aggregate FAIL on four defects (TRACEABILITY, EVIDENCE_TYPE_MISMATCH, COMPOUND-SC, DECOMPOSITION/COVERAGE). | Validation gate (spec-auditor) |
 | 2026-08-28 | Aggregate FAIL remediation (three defects + recurring pattern): (1) COMPOUND-SC — decomposed SC-3 into atomic SC-3a (Read-link present per relocated section) + SC-3b (no relocated procedural section body remains inline), with corresponding Items 3/4. (2) COMPOUND-SC — decomposed SC-6 into atomic SC-6a (Read-link to programming-principles master source present) + SC-6b (no reversed reference), with corresponding Items 7/8. (3) COMPOUND-SC + COVERED-BY-PRIOR — removed SC-7 (no duplicated design/DI authority) as its requirement set is entailed by SC-3a/SC-3b (content removed + Read-link remains). Comprehensive decomposition audit of ALL SCs performed to eliminate the recurring compound-SC failure pattern (5 consecutive FAILs, each surfacing a new compound SC); all remaining SCs (SC-1, SC-2, SC-4, SC-5, SC-8a, SC-8b, SC-9, SC-10, SC-12) verified atomic. Renumbered Items to a sequential 1:1 item-SC mapping (Item 1..13). Updated sc-summary.yaml (sc_count 13), Items, Traceability, Cost Frame, and Edge Cases to match the final atomic SC set. | Validation findings: Aggregate FAIL on three structural defects (SC-3 compound, SC-7 compound, SC-7 covered-by-SC-3) plus a recurring compound-SC pattern across 5 consecutive validations. | Validation gate (spec-auditor) |
+| 2026-08-29 | Removed SC-10 — the hard numerical reduction threshold on 080's preloaded token burden — as a false target. Removed R-6, Item 12 (SC-10), the R-6 traceability row, the SC-10 cost-frame entry, and the token-reduction edge case; removed all threshold references from the spec body including the Approach Chosen success framing and the CONDENSED → VERIFIED edge-case condition. Renumbered the subsequent behavioral SC (SC-12 → SC-10), Item 13 → Item 12, and R-7 → R-6; updated all cross-references (Traceability R-2/R-5, Cost Frame). Updated sc-summary.yaml (sc_count 13 → 12). | Revision request: the hard percentage+token-count reduction threshold is a false target — condensation savings are an emergent property of correctly implementing the content-based SCs. A hard numerical threshold incentivizes aggressive trimming to hit a number rather than faithful implementation, causes agent malfunction, and improper reworking. | Developer (spec revision request) |
 
 ---
 

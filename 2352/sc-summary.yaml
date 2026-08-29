@@ -1,4 +1,4 @@
-sc_count: 13
+sc_count: 12
 scs:
   - id: "SC-1"
     description: "Create code-standards-shared reference holding relocated procedural sections verbatim"
@@ -45,10 +45,6 @@ scs:
     evidence_type: "string"
     plan_item: 11
   - id: "SC-10"
-    description: "Preloaded token burden of 080 reduced by at least 40% relative to documented ~14.2k baseline (chars/2.7 proxy: 38,456/2.7 ≈ 14,243 tokens; post-condensation count ≤ 8,500 tokens)"
-    evidence_type: "structural"
-    plan_item: 12
-  - id: "SC-12"
     description: "Behavioral enforcement: agent consuming condensed 080 still enforces behavioral-test-substitution prohibition (no regression)"
     evidence_type: "behavioral"
-    plan_item: 13
+    plan_item: 12

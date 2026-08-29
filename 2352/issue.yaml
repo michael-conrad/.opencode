@@ -63,16 +63,16 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   to the relocated procedural content. Design/DI authority stays with the `programming-principles`
   skill (already the master source), and the retained enforcement cores wire to the
   canonical `test-driven-development` skill definitions. This preserves enforcement
-  behavior while cutting the preloaded token burden. Success is measured via the documented
-  chars/2.7 prose-dense proxy (38,456 / 2.7 ≈ 14,243 baseline): the post-condensation
-  count must be ≤ 8,500 tokens (≥40% reduction).
+  behavior while cutting the preloaded token burden. The condensation savings are an
+  emergent property of correctly implementing the content-based success criteria — no
+  hard numerical reduction threshold is imposed; no enforcement core may be lost.
 
 
   ## Impact
 
 
   - **Risk:** Losing the enforcement-test mandate during condensation. **Mitigation:**
-  Retain enforcement cores verbatim; verify behaviorally (SC-12) that the behavioral-test-substitution
+  Retain enforcement cores verbatim; verify behaviorally (SC-10) that the behavioral-test-substitution
   prohibition is still enforced.
 
 
