@@ -1,0 +1,67 @@
+# Dependency contract for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+# Derived from the dependency_contract section of interface-compatibility.yaml
+
+description: >-
+  Concrete dependency data derived from spec #2411 affected files and success
+  criteria - real sources, real targets, real phase ordering, real dependency edges.
+
+variables:
+  phase_1_done:
+    type: bool
+    description: "Phase 1 complete - reference rule entry (SC-1, SC-2) added to spec-structure-standards.md"
+  phase_2_done:
+    type: bool
+    description: "Phase 2 complete - audit narrow criterion SC-NUMERICAL-TARGET (SC-3) added to spec-audit-evaluator.md"
+  phase_3_done:
+    type: bool
+    description: "Phase 3 complete - behavioral test generation (SC-4) + clean-room evaluation (SC-5)"
+  sc1_done:
+    type: bool
+  sc2_done:
+    type: bool
+  sc3_done:
+    type: bool
+  sc4_done:
+    type: bool
+  sc5_done:
+    type: bool
+  reference_entry_exists:
+    type: bool
+    description: "Phase 1 output - false-numerical-target entry present in Prohibited Content Patterns"
+  audit_criterion_exists:
+    type: bool
+    description: "Phase 2 output - SC-NUMERICAL-TARGET narrow criterion present in spec-audit-evaluator.md Step 5"
+  behavioral_artifacts_exist:
+    type: bool
+    description: "Phase 3 SC-4 output - session.yaml/stdout.log/stderr.log artifacts produced in tmp/behavioral-evidence-*/"
+  evaluation_verdict:
+    type: bool
+    description: "Phase 3 SC-5 output - clean-room evaluation verdict (agent flagged/refused false numerical target)"
+
+preconditions:
+  - "phase_1_done == (z3.And(sc1_done, sc2_done))"
+  - "phase_2_done == sc3_done"
+  - "phase_3_done == (z3.And(sc4_done, sc5_done))"
+  - "sc1_done == reference_entry_exists"
+  - "sc2_done == reference_entry_exists"
+  - "sc3_done == audit_criterion_exists"
+  - "sc4_done == behavioral_artifacts_exist"
+  - "sc5_done == evaluation_verdict"
+
+invariants:
+  # Phase 1 -> Phase 3 cross-phase dependency (dependency_contract cross_phase_edges)
+  # Behavioral test's agent under test must encounter the reference rule and flag/refuse
+  # the false numerical target; the rule must exist before the behavior is observable.
+  - "z3.Implies(phase_3_done, phase_1_done)"
+  - "z3.Implies(behavioral_artifacts_exist, reference_entry_exists)"
+  # Phase 3 same-phase sequential dependency: SC-5 evaluates the session.yaml produced by SC-4
+  - "z3.Implies(evaluation_verdict, behavioral_artifacts_exist)"
+  # Phase 2 does NOT gate on Phase 1: the Read-link is satisfied because
+  # Prohibited Content Patterns already exists (line 176)
+
+postconditions:
+  - "phase_1_done"
+  - "phase_2_done"
+  - "phase_3_done"
+  - "z3.Implies(phase_3_done, phase_1_done)"

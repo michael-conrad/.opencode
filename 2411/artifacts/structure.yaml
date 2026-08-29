@@ -1,0 +1,93 @@
+# Structure artifact for issue 2411
+# Prohibit false numerical reduction targets in condensation specs
+
+issue_number: 2411
+repo: .opencode
+
+phases:
+  - phase: 1
+    name: "Reference rule entry"
+    scs: [SC-1, SC-2]
+    items: [1, 2]
+    files:
+      - .opencode/reference/spec-structure-standards.md
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+  - phase: 2
+    name: "Audit narrow criterion"
+    scs: [SC-3]
+    items: [3]
+    files:
+      - .opencode/skills/audit/tasks/spec-audit-evaluator.md
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+  - phase: 3
+    name: "Behavioral test generation + clean-room evaluation"
+    scs: [SC-4, SC-5]
+    items: [4, 5]
+    files:
+      - .opencode/tests-v2/behaviors/
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+item_to_sc:
+  1: SC-1
+  2: SC-2
+  3: SC-3
+  4: SC-4
+  5: SC-5
+
+sc_to_phase:
+  SC-1: 1
+  SC-2: 1
+  SC-3: 2
+  SC-4: 3
+  SC-5: 3
+
+# Triplet co-location: each SC's RED/GREEN/COMMIT all reside in the same phase.
+triplet_co_location:
+  SC-1: ok
+  SC-2: ok
+  SC-3: ok
+  SC-4: ok
+  SC-5: ok
+
+# Cross-phase dependency verification: no RED in phase X depends on output of phase Y > X.
+cross_phase_dependency:
+  verified: ok
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 3
+      type: cross_phase
+      rationale: >-
+        Phase 3 (behavioral test SC-4/SC-5) depends on Phase 1 (SC-1/SC-2 reference rule
+        entry). The agent under test reads the reference's Prohibited Content Patterns
+        section and flags/refuses the false numerical target; that rule must exist before
+        the behavior is observable and testable.
+    - from: "SC-4"
+      to: "SC-5"
+      phase: 3
+      type: same_phase_sequential
+      rationale: >-
+        SC-5 evaluates the session.yaml artifact produced by the SC-4 scenario run;
+        SC-5 cannot produce a verdict before the SC-4 artifacts exist.
+  no_edge:
+    - from: 1
+      to: 2
+      rationale: >-
+        Phase 2 does not gate on Phase 1. The new narrow criterion SC-NUMERICAL-TARGET
+        Read-links the already-existing Prohibited Content Patterns section (line 176),
+        so the Read-link is satisfied without requiring the Phase 1 entry.
