@@ -25,6 +25,7 @@ For each missing criterion:
 |------|------|-------------------|
 | Test output? | 1 — REQUIRED | Run test, capture output |
 | Test artifact output? | 1 — REQUIRED | Run test with `--junitxml` or equivalent, save to `{project_root}/tmp/{issue-N}/artifacts/` |
+| Test execution evidence? | 1 — REQUIRED | Create `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml` with `tests_run: <N>` and `all_passed: true/false` |
 | File creation? | 2 — OPT-IN ONLY | Show file path and content hash |
 | Code change? | 2 — OPT-IN ONLY | Show `git diff` output |
 | API response? | 1 — REQUIRED | Show status code and body |
@@ -34,6 +35,34 @@ For each missing criterion:
 - Run required verification commands
 - Store output in `{project_root}/tmp/{issue-N}/artifacts/` or post to issue
 - Verify evidence is complete and accurate
+
+### 2a. Produce `tests-run.yaml` Evidence Artifact (MANDATORY)
+
+**Before any completion claim, a `tests-run.yaml` artifact MUST exist at `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml`.** This artifact proves that tests were actually executed and their results — it is the ONLY acceptable evidence of test execution.
+
+- [ ] 1. **Run all applicable tests** — execute the full test suite or the subset relevant to the change
+- [ ] 2. **Capture test execution results** — record:
+   - Number of tests run (`tests_run`)
+   - Whether all passed (`all_passed`)
+   - Total test count, pass count, fail count, skip count (optional but recommended)
+- [ ] 3. **Write the artifact** to `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml`:
+
+   ```yaml
+   # Example tests-run.yaml
+   tests_run: 42              # integer > 0
+   all_passed: true           # boolean, true only if all tests passed
+   total: 42                  # optional
+   passed: 42                 # optional
+   failed: 0                  # optional
+   skipped: 0                 # optional
+   ```
+
+- [ ] 4. **Verify the artifact** — read it back to confirm format and values are correct
+- [ ] 5. **If no tests can be run** (infrastructure failure, no applicable test suite): set `tests_run: 0` and `all_passed: false`, then document why in the artifact
+
+**🚫 FORBIDDEN:** Claiming completion without producing `tests-run.yaml`. Omitting the artifact is treated as evidence of skipped tests — the verification gate in `verify.md` Step 2.0 will detect the missing artifact and block the completion claim.
+
+**Evidence type:** `requirements-setup` — the artifact is produced during evidence collection, before per-SC verification.
 
 ### 3. Update Verification Status
 

@@ -16,7 +16,8 @@
 - [ ] 5. **Live-source only:** evidence from memory/training data is FORBIDDEN. Tool-call artifact required.
 - [ ] 6. **Clean-room routing:** verification sub-agents receive ONLY spec SC list + file paths. No implementation context, no prior results.
 - [ ] 7. **Behavioral test evaluation:** After `behavior_run` produces artifacts, the orchestrator MUST dispatch `behavioral-test-evaluation` to evaluate artifacts via clean-room sub-agents. "Artifact generated" is NOT a valid PASS verdict for behavioral SCs. **This gate is enforced procedurally in `verify.md` Step 2 (evidence type classification) and Step 2b (Behavioral Test Evaluation Gate).** The verify.md workflow is the canonical source — this protocol entry is a cross-reference.
-- [ ] 8. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
+- [ ] 8. **Verifiable test execution gate:** Before any per-SC verification, the `tests-run.yaml` evidence artifact MUST exist at `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml` with `tests_run > 0` and `all_passed: true`. This gate is enforced by `verify.md` Step 2.0. Without this artifact, the verification pipeline BLOCKs before any SC evidence check. **This gate is the first check in the verification workflow — it runs before any per-SC evidence check.**
+- [ ] 9. **Correctness over speed.** Every code path with runtime behavior requires live-wire testing against real systems. Static analysis alone is NOT acceptable verification — behavioral compliance requires actual execution with cross-validated PASS verdict.
 
 ### Authorization Context
 

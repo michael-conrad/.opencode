@@ -38,9 +38,10 @@ Decompose success criteria into implementation phases, build a dependency DAG be
    - Skill+task selection per phase
 9. Generate the dependency contract from the interface-compatibility artifact:
    - Read `{issues_prefix}/{N}/artifacts/interface-compatibility.yaml`.
-   - Extract the `dependency_contract` section.
-   - Write the extracted contract to `{issues_prefix}/{N}/dependency-contract.yaml`.
-   - If `interface-compatibility.yaml` is missing or has no `dependency_contract` section: return BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND`.
+   - If the file contains a `dependency_contract` section: extract it as-is.
+   - If the file has no `dependency_contract` section: auto-backfill one from the existing `interfaces`, `removed_interfaces`, and `breaking_changes` keys. Map each interface entry to a dependency entry where `source` is the interface name, `target` is `removed_interfaces` (if any) or the implied coupled component, `type` is `"artifact schema"`, and `constraint` is derived from `breaking_changes` (if any) or `"implied coupling"`. Write the auto-backfilled section into the generated contract.
+   - Write the extracted or auto-backfilled contract to `{issues_prefix}/{N}/dependency-contract.yaml`.
+   - If `interface-compatibility.yaml` is missing: return BLOCKED with `DEPENDENCY_CONTRACT_NOT_FOUND`.
 10. Run `./.opencode/tools/solve model --contract-path {issues_prefix}/{N}/dependency-contract.yaml --query sat`.
     - If UNSAT: return BLOCKED with `UNSAT` and the solver output.
 11. Run `./.opencode/tools/solve check --contract-path {issues_prefix}/{N}/dependency-contract.yaml --state-path {issues_prefix}/{N}/artifacts/state-analysis.yaml`.

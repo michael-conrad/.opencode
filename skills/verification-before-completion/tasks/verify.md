@@ -193,7 +193,35 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 - Parse each criterion as a testable statement
 - Identify evidence needed for each
 
-### 2. Check for Evidence
+### 2. Verifiable Test Execution Gate (MANDATORY — Before Per-SC Evidence Check)
+
+**Before any per-SC evidence check, verify that tests were actually executed and all passed. A completion claim without verifiable test execution is a bypass attempt — no structural evidence can substitute for test execution.**
+
+#### 2.0. Check `tests-run.yaml` Evidence Artifact
+
+- [ ] 1. **Verify the `tests-run.yaml` artifact exists** at `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml`
+   - If the artifact does not exist: return BLOCKED with `TESTS_NOT_RUN`
+   - If the artifact exists: proceed to Step 2.0.2
+- [ ] 2. **Verify `tests_run > 0`** — read the `tests_run` field from the artifact
+   - MUST be an integer > 0
+   - If `tests_run == 0` or the field is missing: return BLOCKED with `TESTS_NOT_RUN`
+   - If `tests_run > 0`: proceed to Step 2.0.3
+- [ ] 3. **Verify `all_passed == true`** — read the `all_passed` field from the artifact
+   - MUST be `true` (boolean, not string)
+   - If `all_passed == false` or the field is missing: return BLOCKED with `TESTS_FAILED`
+   - If `all_passed == true`: proceed to Step 2.1
+- [ ] 4. **Report test execution status** — include `tests_run` count and `all_passed` value in the verification report
+- [ ] 5. **Remediation path**: If blocked, record the blocker reason and the `tests-run.yaml` content in the evidence artifact, then HALT — do NOT proceed to per-SC evidence check
+
+**Evidence required:** `{project_root}/tmp/{issue-N}/artifacts/tests-run.yaml` MUST exist with:
+```yaml
+tests_run: <N>          # N MUST be > 0
+all_passed: true        # MUST be true
+```
+
+**🚫 FORBIDDEN:** Proceeding to per-SC evidence check without first verifying the `tests-run.yaml` artifact. A missing or `tests_run: 0` artifact is a hard stop — no structural evidence can replace test execution.
+
+### 2.1. Check for Evidence
 
 **Evidence type classification is MANDATORY before any evidence check.** The classification question is substrate-determined: "Does this change affect runtime behavior? YES/NO" — not "what did the author declare."
 
@@ -219,9 +247,9 @@ Inline execution bypasses every quality gate — clean-room isolation, cross-fam
 
 ### 2b. Behavioral Test Evaluation Gate (MANDATORY)
 
-**After artifact collection (Step 2) and before marking any SC as verified (Step 3): if any SC has evidence type `behavioral`, the `behavioral-test-evaluation` task MUST have been dispatched and returned a verdict. PASS cannot be claimed for behavioral SCs based on artifact file existence alone.**
+**After artifact collection (Step 2.1) and before marking any SC as verified (Step 3): if any SC has evidence type `behavioral`, the `behavioral-test-evaluation` task MUST have been dispatched and returned a verdict. PASS cannot be claimed for behavioral SCs based on artifact file existence alone.**
 
-- [ ] 1. Check whether any SC was classified as `behavioral` in Step 2
+- [ ] 1. Check whether any SC was classified as `behavioral` in Step 2.1
 - [ ] 2. If yes: confirm `behavioral-test-evaluation` was dispatched and returned a verdict
 - [ ] 3. If `behavioral-test-evaluation` was NOT dispatched: HALT — behavioral SCs require clean-room evaluation
 - [ ] 4. If `behavioral-test-evaluation` returned PASS: proceed to Step 3
