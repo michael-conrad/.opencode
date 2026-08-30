@@ -7,11 +7,16 @@ pr_strategy: stacked
 phase_count: 3
 ---
 
-# Implementation Plan — #2418 — Fix git-workflow-cleanup orchestrator pre-investigation and submodule-first ordering
+# Implementation Plan — [#2418](https://github.com/michael-conrad/.opencode/issues/2418) — Fix git-workflow-cleanup orchestrator pre-investigation and submodule-first ordering
 
 **Goal:** Eliminate orchestrator inline git/gh investigation before cleanup sub-agent dispatch, add guard notes against the pattern, and reinforce submodule-first result contract ordering.
 
-**Architecture:** Three independent-but-sequential changes: (1) replace the `concat()` dispatch prompt in SKILL.md with a `pr_merged_event: true` flag, (2) add a guard note in `cleanup.md` Step 0 plus a behavioral enforcement test, (3) reinforce submodule-first ordering in the result contract reporting sections.
+**Architecture:** Three independent-but-sequential phases each with a full RED/GREEN/verify/commit TDD cycle. Phase 1 replaces the `concat()` dispatch prompt with a `pr_merged_event: true` flag in SKILL.md. Phase 2 adds a guard note in cleanup.md Step 0 plus a behavioral enforcement test. Phase 3 reinforces submodule-first ordering in the result contract reporting sections.
+
+**Phase files:**
+- `plan-01-dispatch-protocol.md`
+- `plan-02-orchestrator-guard.md`
+- `plan-03-result-ordering.md`
 
 **Files:**
 - `.opencode/skills/git-workflow-cleanup/SKILL.md`
@@ -24,72 +29,17 @@ phase_count: 3
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — DISPATCH_PROTOCOL | `test-driven-development` | `red` | `.opencode/skills/git-workflow-cleanup/SKILL.md` | SC-1 | — |
-| 2 — ORCHESTRATOR_GUARD | `test-driven-development` | `green` | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md`, `.opencode/tests-v2/behaviors/` | SC-2, SC-4 | 1 |
-| 3 — RESULT_ORDERING | `test-driven-development` | `verify` | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` | SC-3 | 2 |
+| 1 — DISPATCH_PROTOCOL | `test-driven-development` | `red` | `plan-01-dispatch-protocol.md` | SC-1 | — |
+| 2 — ORCHESTRATOR_GUARD | `test-driven-development` | `red` | `plan-02-orchestrator-guard.md` | SC-2, SC-4 | 1 |
+| 3 — RESULT_ORDERING | `test-driven-development` | `red` | `plan-03-result-ordering.md` | SC-3 | 2 |
 
 ---
 
-## Phase Details
+## Lifecycle Events
 
-### Phase 1 — DISPATCH_PROTOCOL
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` |
-| Target | `.opencode/skills/git-workflow-cleanup/SKILL.md` |
-| SCs | SC-1 |
-| Depends On | — |
-
-**Context:**
-```yaml
-files_to_modify:
-  - .opencode/skills/git-workflow-cleanup/SKILL.md
-change: "Replace concat() dispatch prompt with pr_merged_event: true flag"
-removals:
-  - pr_merge_status from Workflows context
-  - branch_name from Workflows context
-sc_ids: [SC-1]
-```
-
-### Phase 2 — ORCHESTRATOR_GUARD
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `green` |
-| Target | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md`, `.opencode/tests-v2/behaviors/` |
-| SCs | SC-2, SC-4 |
-| Depends On | 1 |
-
-**Context:**
-```yaml
-files_to_modify:
-  - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
-  - .opencode/tests-v2/behaviors/ (new file)
-sc_ids: [SC-2, SC-4]
-guard_note: "Step 0: explicit guard note against orchestrator pre-investigation"
-behavioral_test: "Verify no git/gh tool calls appear before dispatch (opencode run + stderr inspection)"
-```
-
-### Phase 3 — RESULT_ORDERING
-
-| Field | Value |
-|-------|-------|
-| Skill | `test-driven-development` |
-| Task | `verify` |
-| Target | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` |
-| SCs | SC-3 |
-| Depends On | 2 |
-
-**Context:**
-```yaml
-files_to_modify:
-  - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
-ordering_change: "Reinforce submodule-first ordering in result contract reporting sections"
-sc_ids: [SC-3]
-```
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-30T19:53:00Z | plan_created | Plan file created at `.opencode/.issues/2418/plan.md` with 3 phases |
 
 ---
 
