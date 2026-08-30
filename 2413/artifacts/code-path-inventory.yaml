@@ -1,0 +1,35 @@
+# Code path inventory for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+code_paths:
+  - phase: 1
+    items: [item-1]
+    paths:
+      - path: .opencode/skills/spec-creation/tasks/analyze.md
+        location: "Step 5.1.5 — Interface compatibility artifact generation"
+        change: "ensure the interface-compatibility.yaml artifact includes a dependency_contract section populated with concrete dependency data (real sources, real targets, real type constraints) derived from the spec's affected files and success criteria"
+      - path: .opencode/skills/brainstorming/tasks/top-down-analysis.md
+        location: "Step 3c — preliminary interface-compat.md"
+        change: "ensure the preliminary artifact carries interface compatibility data that feeds into the full artifact generation"
+    consumers_of_change:
+      - ".opencode/skills/writing-plans/tasks/research.md step 9 — reads dependency_contract from interface-compatibility.yaml"
+      - ".opencode/tools/solve — consumes dependency-contract.yaml extracted from dependency_contract section"
+      - ".opencode/tools/plan — consumes dependency-contract.yaml for plan generation"
+  - phase: 2
+    items: [item-2]
+    paths:
+      - path: .opencode/skills/writing-plans/tasks/research.md
+        location: "Step 9 — dependency_contract extraction"
+        change: "modify step 9 to either validate dependency_contract exists, or auto-backfill the dependency_contract section from existing interfaces/removed_interfaces/breaking_changes keys instead of hard-blocking with DEPENDENCY_CONTRACT_NOT_FOUND"
+    consumers_of_change:
+      - "writing-plans sub-agent executing research.md — no longer blocked by missing dependency_contract"
+      - "solve/plan tools — receive dependency-contract.yaml regardless of whether it was natively generated or auto-backfilled"
+  - phase: 3
+    items: [item-3]
+    paths:
+      - path: .opencode/skills/writing-plans/contracts/
+        location: "schema templates for dependency_contract"
+        change: "verify producer and consumer agree on the dependency_contract schema; apply structural/string verification"
+    consumers_of_change:
+      - "spec-creation pipeline verifiers — confirm forward-path artifacts match the contract schema"
+      - "writing-plans pipeline verifiers — confirm research.md accepts the expected schema"

@@ -1,0 +1,34 @@
+# Blast radius for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+phases:
+  - phase: 1
+    items: [item-1]
+    affected_components:
+      - .opencode/skills/spec-creation/tasks/analyze.md (Step 5 analytical artifact generation — interface-compatibility producer)
+      - .opencode/skills/brainstorming/tasks/top-down-analysis.md (Step 3c preliminary interface-compat artifact)
+    ripple_effects:
+      - "spec-creation pipeline sub-agents generate interface-compatibility.yaml with dependency_contract section"
+      - "writing-plans research.md step 9 reads dependency_contract from interface-compatibility.yaml"
+      - "solve/plan tools consume dependency-contract.yaml extracted from dependency_contract section"
+    risk: "producer-consumer schema mismatch if dependency_contract structure diverges from solve/plan contract templates"
+  - phase: 2
+    items: [item-2]
+    affected_components:
+      - .opencode/skills/writing-plans/tasks/research.md (Step 9 — dependency_contract consumer)
+    ripple_effects:
+      - "research.md step 9 now auto-backfills dependency_contract instead of hard-blocking, or validates the section exists"
+      - "plan creation proceeds without manual backfill for spec-creation-generated artifacts"
+    risk: "auto-backfill could produce contract that diverges from solve/plan tools' expected schema"
+  - phase: 3
+    items: [item-3]
+    affected_components:
+      - .opencode/skills/writing-plans/contracts/ (dependency-contract schema templates)
+    ripple_effects:
+      - "producer and consumer both reference the same contract schema, ensuring agreement"
+    risk: "low — verification is structural (string/unit testing)"
+
+no_ripple:
+  - "Z3 constraint solving tools (.opencode/tools/solve, .opencode/tools/plan) — explicitly out of scope"
+  - "retroactive backfill path (backfill.md / PR #2316) — already fixed, out of scope"
+  - "existing spec-creation artifacts for closed issues — not re-generated"

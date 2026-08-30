@@ -1,0 +1,36 @@
+# State analysis for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+state_machines:
+  - machine: "interface-compatibility.yaml artifact content"
+    phases: [1]
+    transitions:
+      - from: "artifact with only {interfaces, removed_interfaces, breaking_changes} keys"
+        to: "artifact with {interfaces, removed_interfaces, breaking_changes, dependency_contract} keys"
+        trigger: "item-1 RED→GREEN commit (spec-creation pipeline generates dependency_contract section)"
+        invariant: "existing keys unchanged; dependency_contract section populated with concrete dependency data"
+        failure_mode: "section added with placeholder/template data instead of concrete dependencies, or section structure does not match solve/plan tool schema"
+  - machine: "research.md step 9 dependency_contract detection"
+    phases: [2]
+    transitions:
+      - from: "step 9 hard-blocks with DEPENDENCY_CONTRACT_NOT_FOUND when dependency_contract is missing"
+        to: "step 9 either validates existing dependency_contract or auto-backfills it from interfaces/removed_interfaces/breaking_changes keys"
+        trigger: "item-2 RED→GREEN commit"
+        invariant: "extracted dependency-contract.yaml output structure unchanged"
+        failure_mode: "auto-backfill produces contract structure that diverges from solve/plan schema, or hard-block is removed without adequate fallback"
+  - machine: "plan pipeline blocked state"
+    phases: [1, 2]
+    transitions:
+      - from: "plan creation blocked at research step 9 (DEPENDENCY_CONTRACT_NOT_FOUND) for spec-creation-generated artifacts"
+        to: "plan creation proceeds past step 9 without manual backfill"
+        trigger: "item-1 (forward artifact fix) OR item-2 (research.md adaptation)"
+        invariant: "solve/plan tools receive valid dependency-contract.yaml regardless of source"
+        failure_mode: "contract still missing or structurally invalid after fix"
+  - machine: "producer-consumer schema agreement"
+    phases: [3]
+    transitions:
+      - from: "unverified schema agreement (root cause unknown)"
+        to: "verified schema agreement between spec-creation producer and writing-plans consumer"
+        trigger: "item-3 RED→GREEN commit (structural verification added)"
+        invariant: "contract templates at .opencode/skills/writing-plans/contracts/ match emitted dependency_contract structure"
+        failure_mode: "schema drift re-occurs in future changes without detection"

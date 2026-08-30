@@ -1,0 +1,29 @@
+spec_path: .opencode/.issues/2413/spec.md
+approval_status: approved
+approved_for: for_pr
+sc_count: 3
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+  - path: .opencode/skills/spec-creation/tasks/analyze.md
+    status: exists
+  - path: .opencode/skills/brainstorming/tasks/top-down-analysis.md
+    status: exists
+  - path: .opencode/skills/writing-plans/tasks/research.md
+    status: exists
+scope_summary:
+  phases: 3
+  phase_1: "Forward spec-creation artifact generation — ensure interface-compatibility.yaml emits dependency_contract section"
+  phase_2: "Research.md step 9 adaptation — validate or auto-backfill dependency_contract instead of hard-blocking"
+  phase_3: "Producer-consumer schema agreement verification — structural check against contract templates"
+  out_of_scope:
+    - "Retroactive backfill path (backfill.md / PR #2316) — already fixed"
+    - "Z3 constraint solving (solve/plan tools) — no behavioral changes"
+    - "Behavioral enforcement tests — structural verification only"
+backfill_note: "All 7 analytical artifacts backfilled from spec body by backfill.md task. No pre-existing artifacts were found."

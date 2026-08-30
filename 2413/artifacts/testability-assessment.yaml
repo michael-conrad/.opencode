@@ -1,0 +1,27 @@
+# Testability assessment for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+test_strategy:
+  - item: item-1
+    sc_id: SC-1
+    evidence_type: structural
+    test_strategy: unit/string — verify that the spec-creation pipeline's artifact generation (analyze.md Step 5.1.5) produces interface-compatibility.yaml with a dependency_contract key containing concrete dependency data
+    test_script: "grep for 'dependency_contract:' in generated interface-compatibility.yaml; verify section structure matches contract templates"
+    notes: "RED: dependency_contract absent. GREEN: dependency_contract present with concrete data (real sources, real targets, real type constraints)."
+  - item: item-2
+    sc_id: SC-2
+    evidence_type: structural
+    test_strategy: unit/string — verify that research.md step 9 either validates the existing dependency_contract or auto-backfills it instead of hard-blocking
+    test_script: "grep research.md step 9 for the DEPENDENCY_CONTRACT_NOT_FOUND branch; verify it is replaced with validation or auto-backfill logic"
+    notes: "RED: step 9 still hard-blocks on missing dependency_contract. GREEN: step 9 validates or auto-backfills."
+  - item: item-3
+    sc_id: SC-3
+    evidence_type: structural
+    test_strategy: structural — verify plan creation for a spec with spec-creation-generated interface-compatibility.yaml proceeds without DEPENDENCY_CONTRACT_NOT_FOUND
+    test_script: "run the plan pipeline for a spec with spec-creation-generated artifacts; verify no DEPENDENCY_CONTRACT_NOT_FOUND block"
+    notes: "RED: plan blocked by DEPENDENCY_CONTRACT_NOT_FOUND. GREEN: plan proceeds past research step 9."
+
+testability_risks:
+  - "This fix is purely structural — no behavioral tests needed. Verification is by grep/string matching for key presence and structure."
+  - "The closed #2311 backfill fix changed research.md step 9; ensure the forward-path fix does not conflict with the backfill logic."
+  - "Contract schema templates at .opencode/skills/writing-plans/contracts/ must be read to verify the expected dependency_contract structure."

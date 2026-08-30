@@ -1,0 +1,19 @@
+# Concern map for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+concerns:
+  - concern: "Forward spec-creation artifact generation"
+    owner_file: ".opencode/skills/spec-creation/tasks/analyze.md (Step 5.1.5) / .opencode/skills/brainstorming/tasks/top-down-analysis.md (Step 3c)"
+    phases: [1]
+    items: [item-1]
+    boundary: "the dependency_contract section is emitted as part of the interface-compatibility.yaml artifact during analytical artifact generation; the section contains concrete dependency data derived from the spec's affected files and success criteria — not a placeholder schema template"
+  - concern: "Research step dependency_contract consumption"
+    owner_file: ".opencode/skills/writing-plans/tasks/research.md (Step 9)"
+    phases: [2]
+    items: [item-2]
+    boundary: "research.md step 9 detects missing dependency_contract section and auto-backfills from the existing interfaces/removed_interfaces/breaking_changes keys instead of hard-blocking, or validates the section exists; the extracted contract is written to {issues_prefix}/{N}/dependency-contract.yaml for solve/plan tools"
+  - concern: "Producer-consumer schema agreement"
+    owner_file: ".opencode/skills/writing-plans/contracts/ (schema templates)"
+    phases: [3]
+    items: [item-3]
+    boundary: "verify that the dependency_contract section emitted by the spec-creation pipeline matches the schema expected by solve/plan tools; structural/string verification only"

@@ -1,0 +1,20 @@
+# Cross-cutting matrix for issue 2413
+# Ensure interface-compatibility.yaml always emits dependency_contract section
+
+cross_cutting_concerns:
+  - concern: "Producer-consumer schema agreement"
+    phases: [1, 2, 3]
+    detail: "The dependency_contract section emitted by the spec-creation pipeline (phase 1) must match the schema expected by research.md step 9 (phase 2) and the solve/plan tools. Phase 3 verifies this agreement structurally."
+    impact: "high — schema mismatch between producer and consumer is the root cause of this issue"
+  - concern: "Backfill path duality (forward vs retroactive)"
+    phases: [1, 2]
+    detail: "The forward spec-creation path (phase 1) and the retroactive backfill path (backfill.md, closed #2311) both produce interface-compatibility.yaml. Both must produce a dependency_contract section with the same schema."
+    impact: "medium — the retroactive path was fixed by #2311; the forward path remains broken. Both must emit the same structure."
+  - concern: "Extract-to-contract consistency"
+    phases: [1, 2]
+    detail: "research.md step 9 extracts the dependency_contract section into dependency-contract.yaml for solve/plan tools. The extraction assumes a specific key structure under dependency_contract. Both the forward-generated and backfilled artifacts must produce identically extractable structures."
+    impact: "medium — divergent structures produce extraction failures or silently broken solve/plan input"
+  - concern: "No behavioral test scope"
+    phases: []
+    detail: "This fix does not add behavioral enforcement tests. Verification is structural (string/unit): grep for dependency_contract key in generated artifacts, grep for condition change in research.md."
+    impact: "none — explicitly structural scope per spec"
