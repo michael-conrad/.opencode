@@ -126,8 +126,30 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | R-4 | SC-3 | Item 3 |
 | R-5 | SC-2 | Item 4 |
 
+## Documentation Sources
+
+| Source | Type | Location | Verification |
+|--------|------|----------|-------------|
+| git-workflow-cleanup SKILL.md | skill | `.opencode/skills/git-workflow-cleanup/SKILL.md` | Read file |
+| git-workflow-cleanup cleanup.md | task | `.opencode/skills/git-workflow-cleanup/tasks/cleanup.md` | Read file |
+
+## Enforcement Gate
+
+> **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
+
+## Edge Cases
+
+| Condition | Expected Behavior | Resolution |
+|-----------|------------------|------------|
+| No submodules in repo | Sub-agent detects empty `SUBMODULE_PATHS` and proceeds without submodule routing context | Normal operation — guard note already covers "if no submodules, proceed normally" from the task card |
+| Multiple submodules | Sub-agent processes each submodule before parent repo in both iteration order and result contract | Normal operation — the fix reinforces existing correct behavior |
+| Orchestrator already has branch_name from session-init | Orchestrator MUST still not pre-investigate; sub-agent independently discovers branch name | The signal flag eliminates the need for the orchestrator to know branch_name at dispatch time — the sub-agent discovers it |
+| Behavioral test model times out | Test infrastructure produces FAIL verdict | Per test-driven-development skill: try alternative model, if all models fail, report FAIL with infrastructure diagnosis |
+| Another skill also has concat() with pre-resolved values | Not affected — this fix is scoped to git-workflow-cleanup only | Out of scope per Scope section |
+
 ## Change Control
 
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-08-30 | Re-created from root repo #369 (closed) to .opencode#2417 | Wrong repo: affected files under .opencode/ belong to michael-conrad/.opencode |
+| 2026-08-30 | Added Documentation Sources, Enforcement Gate, Edge Cases sections | Audit evaluator FAIL: spec missing required sections per spec-structure-standards.md |
