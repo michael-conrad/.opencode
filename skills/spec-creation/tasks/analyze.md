@@ -65,7 +65,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 - [ ] 2. **Concern map** — Concern boundaries and separation per phase
 - [ ] 3. **Code path inventory** — Code paths touched by each phase
 - [ ] 4. **Cross-cutting matrix** — Cross-cutting concerns matrix
-- [ ] 5. **Interface compatibility** — Interface compatibility analysis (unchanged, modified, new, removed; backward compatible, breaking, internal only)
+- [ ] 5. **Interface compatibility** — Interface compatibility analysis (unchanged, modified, new, removed; backward compatible, breaking, internal only). Include a `dependency_contract` section with entries mapping `source` (from `interfaces`), `target` (from `removed_interfaces` or related), `type` ("artifact schema"), and `constraint` (from `breaking_changes` or implied coupling).
 - [ ] 6. **State analysis** — State machine transitions per phase
 - [ ] 7. **Testability assessment** — Test strategy per phase (unit, integration, behavioral, mixed)
 
