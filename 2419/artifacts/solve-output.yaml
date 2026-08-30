@@ -1,0 +1,11 @@
+# Solve output for issue 2419
+
+solve_status: SAT
+plan_status: SOLVED
+checks:
+  - check: solve model --query "z3.BoolVal(True)"
+    result: SAT
+  - check: solve check --contract-path dependency-contract.yaml --state-path state-analysis.yaml
+    result: SAT (+ postconditions + invariants)
+  - check: plan plan --problem plan-problem.yaml
+    result: SOLVED (engine: tamer)

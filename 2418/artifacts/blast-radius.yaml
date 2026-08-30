@@ -1,0 +1,18 @@
+spec_path: .opencode/.issues/2418/spec.md
+affected_files:
+  - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+    status: EXISTS
+    role: Primary target — dispatch prompt concat() replacement and Workflows context cleanup
+    change_type: structural (dispatch string, context removal)
+  - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    status: EXISTS
+    role: Primary target — Step 0 guard note, submodule-first reinforcement in result contract
+    change_type: structural (guard note addition, ordering reinforcement)
+  - path: .opencode/tests-v2/behaviors/2219-sc11-existing-cleanup.sh
+    status: EXISTS
+    role: Existing behavioral test for cleanup dispatch — may need companion
+    change_type: behavioral enforcement test addition
+verification:
+  - All affected files confirmed to exist via ls
+  - No other files in git-workflow-cleanup skill are impacted (pair-cleanup is out of scope)
+  - No files in parent git-workflow skill are impacted (out of scope per spec)

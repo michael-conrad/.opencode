@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2418/spec.md
+interface_boundaries:
+  - boundary: "SKILL.md Workflows → task() dispatch prompt"
+    description: "The concat() function produces the prompt string for task(). Changing from concat() with pre-resolved values to a boolean flag changes what context the sub-agent receives."
+    affected_scs:
+      - SC-1
+    compatibility: "Backward compatible — the sub-agent receives a pr_merged_event: true flag instead of pre-resolved pr_merge_status/branch_name. The cleanup.md task card must handle the flag accordingly."
+  - boundary: "Orchestrator → Cleanup sub-agent (dispatch boundary)"
+    description: "The orchestrator dispatches the cleanup sub-agent via task(). Currently the orchestrator resolves git/gh values inline before dispatch."
+    affected_scs:
+      - SC-2
+    compatibility: "Breaking change — orchestrator MUST stop doing inline investigation. Sub-agent MUST be able to handle dispatch without pre-resolved values."
+  - boundary: "Cleanup sub-agent → Result contract → Orchestrator"
+    description: "The result contract returns to the orchestrator. Ordering of entries in the reporting section matters."
+    affected_scs:
+      - SC-3
+    compatibility: "Backward compatible — ordering change only, no schema change."
+dependency_contract:
+  version: "1.0"
+  issue: "2418"
+  dependencies:
+    - source: ".opencode/skills/git-workflow-cleanup/SKILL.md"
+      target: ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+      type: "dispatch → execution"
+      constraint: "SKILL.md dispatch prompt must provide sufficient context for cleanup.md to run without orchestrator pre-investigation"
+      sc_proof: "SC-1 (structural change to prompt), SC-4 (guard note in cleanup.md)"
+    - source: ".opencode/skills/git-workflow-cleanup/SKILL.md"
+      target: ".opencode/tests-v2/behaviors/ (new behavioral test)"
+      type: "rule → enforcement"
+      constraint: "Behavioral test must verify no git/gh inline calls before dispatch"
+      sc_proof: "SC-2"
+    - source: ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+      target: "Orchestrator result contract consumer"
+      type: "execution → reporting"
+      constraint: "Result contract must report submodules before parent repo"
+      sc_proof: "SC-3"

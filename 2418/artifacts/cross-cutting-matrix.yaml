@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2418/spec.md
+cross_cutting_scs:
+  - sc: SC-2
+    concerns:
+      - ORCHESTRATOR_GUARD
+    rationale: "SC-2 is behavioral — requires opencode run with real model. It spans the concern of 'preventing orchestrator inline investigation' which also includes SC-4 (structural guard note). SC-2 and SC-4 are complementary: SC-4 adds the guard note to the task card, SC-2 verifies the orchestrator respects it."
+  - sc: SC-4
+    concerns:
+      - ORCHESTRATOR_GUARD
+    rationale: "SC-4 provides the structural guard note that SC-2's behavioral test verifies is obeyed. These two SCs are independent (structural vs behavioral evidence) but semantically coupled."
+non_cross_cutting:
+  - sc: SC-1
+    rationale: "SC-1 is purely structural — changing SKILL.md dispatch prompt. Does not overlap with other SCs."
+  - sc: SC-3
+    rationale: "SC-3 is purely structural — changing result contract ordering in cleanup.md. Does not overlap with other SCs."

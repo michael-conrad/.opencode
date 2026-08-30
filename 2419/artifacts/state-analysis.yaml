@@ -1,0 +1,26 @@
+current_state:
+  guidelines/020-go-prohibitions.md:
+    has_prohibition: true
+    prohibition_location: line 14 with 3 sub-bullets (lines 15-17)
+  guidelines/117-session-trigger-behavior.md:
+    has_self_simulation_prohibition: true
+    echo_printf_examples_present: true
+target_state:
+  guidelines/020-go-prohibitions.md:
+    has_prohibition: false
+    prohibition_location: removed
+  guidelines/117-session-trigger-behavior.md:
+    unchanged: true
+state_transitions:
+  - sc: SC-1
+    from: prohibition present at lines 14-17 of 020-go-prohibitions.md
+    to: prohibition removed from 020-go-prohibitions.md
+    trigger: edit operation deleting lines 14-17
+  - sc: SC-2
+    from: 020-go-prohibitions.md at current state
+    to: 020-go-prohibitions.md with only lines 14-17 removed
+    trigger: verify git diff
+  - sc: SC-3
+    from: 117-session-trigger-behavior.md at current state
+    to: 117-session-trigger-behavior.md unmodified
+    trigger: verify git diff

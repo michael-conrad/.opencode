@@ -1,0 +1,15 @@
+affected_files:
+  - path: guidelines/020-go-prohibitions.md
+    change_type: removal
+    description: Remove lines 14-17 (the "No echo or printf commands — ever" bullet and its 3 sub-bullets)
+    verified: true
+  - path: guidelines/117-session-trigger-behavior.md
+    change_type: none
+    description: Explicitly excluded from modification per spec scope. Mention of echo/printf as Self-Simulation Prohibition examples is preserved.
+    verified: false
+unchanged_files:
+  - path: guidelines/060-tool-usage.md
+    rationale: Already covers the sub-concerns that the removed rule addressed (tool hierarchy, API Client Mandate)
+  - path: guidelines/117-session-trigger-behavior.md
+    rationale: The Self-Simulation Prohibition and its echo/printf examples serve a distinct purpose and are explicitly retained
+scope_summary: Single-rule removal in a single file with zero cascading effects

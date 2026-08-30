@@ -1,0 +1,26 @@
+spec_path: .opencode/.issues/2418/spec.md
+sc_testability:
+  SC-1:
+    evidence_type: structural
+    verification_method: "grep dispatch prompt for pr_merged_event in SKILL.md"
+    difficulty: easy
+    rationale: "Simple grep — structural check against a single file with a unique string"
+    automation: "grep -n 'pr_merged_event' .opencode/skills/git-workflow-cleanup/SKILL.md"
+  SC-2:
+    evidence_type: behavioral
+    verification_method: "opencode run + stderr inspection — no git/gh tool calls before dispatch"
+    difficulty: medium
+    rationale: "Requires real model inference via opencode run. Stderr inspection for tool call patterns. Single scenario, bounded runtime."
+    automation: "bash .opencode/tests-v2/with-test-home opencode run '<prompt>'"
+  SC-3:
+    evidence_type: structural
+    verification_method: "Inspect task card — submodule entries precede parent in result contract"
+    difficulty: easy
+    rationale: "Structural inspection of cleanup.md result contract sections — submodule entries before parent entries"
+    automation: "grep -n 'submodule' .opencode/skills/git-workflow-cleanup/tasks/cleanup.md | head -5"
+  SC-4:
+    evidence_type: string
+    verification_method: "grep cleanup.md for guard note text against orchestrator pre-investigation"
+    difficulty: easy
+    rationale: "Simple grep for unique guard note string in cleanup.md Step 0"
+    automation: "grep -n 'orchestrator.*pre\|guard\|must not investigate' .opencode/skills/git-workflow-cleanup/tasks/cleanup.md"

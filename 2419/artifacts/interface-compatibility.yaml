@@ -1,0 +1,19 @@
+affected_modules:
+  - module: guidelines/020-go-prohibitions.md
+    interfaces:
+      - type: section_marker
+        description: Section 1 (What GO Is Not & Self-Authorization Prohibitions) sub-bullet "No echo or printf commands — ever"
+        change: removal of 4 lines
+    dependencies: []
+dependency_contract:
+  - source: guidelines/020-go-prohibitions.md
+    target: guidelines/060-tool-usage.md
+    relationship: redundancy
+    description: The removed rule's sub-concerns (tool hierarchy bypass, file operations bypass) are already covered by the five-tier tool hierarchy and API Client Mandate in 060-tool-usage.md
+    type_constraint: No change needed — existing coverage suffices
+  - source: guidelines/020-go-prohibitions.md
+    target: guidelines/117-session-trigger-behavior.md
+    relationship: reference
+    description: The removed rule's sub-concern (script injection/self-simulation) is covered by the Self-Simulation Prohibition
+    type_constraint: No change needed — existing coverage suffices; spec explicitly excludes modification of 117
+interface_boundary_analysis: Zero interface boundary changes. The removed rule was a self-contained prohibition with no cross-references to other sections. The three sub-concerns have existing coverage in other guidelines, but those guidelines require no changes.

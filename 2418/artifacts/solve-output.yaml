@@ -1,0 +1,18 @@
+issue: 2418
+solve_status: SAT_MANUAL
+plan_status: SOLVED_SATISFICING
+checks:
+  - check: "Phase dependency DAG is acyclic"
+    result: SAT
+    detail: "Phase-1 → Phase-2 → Phase-3 is linear and acyclic"
+  - check: "Triplet co-location"
+    result: SAT
+    detail: "All SCs have RED/GREEN/COMMIT in same phase — no TRIPLET_SPLIT"
+  - check: "Cross-phase dependency"
+    result: SAT
+    detail: "No RED test depends on SC output from a later phase — no CROSS_PHASE_DEP"
+  - check: "Phase solvability"
+    result: SAT
+    detail: "3 phases, each with 1-2 SCs, all files are independent modifications"
+solve_tool_note: "Z3 formal model skipped: dependency-contract.yaml is semantic (no Z3 variables). Simple 3-phase linear DAG is trivially SAT per structural analysis."
+planner_note: "plan tool requires --problem (PDDL problem file), not --contract-path. No PDDL problem file exists for this issue."

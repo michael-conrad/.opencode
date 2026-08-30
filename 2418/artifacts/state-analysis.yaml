@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2418/spec.md
+state_transitions:
+  SC-1:
+    initial_state: "SKILL.md has concat() dispatch prompt with pr_merge_status and branch_name in context"
+    final_state: "SKILL.md has pr_merged_event: true dispatch prompt without pre-resolved values"
+    transitions:
+      - action: "Replace concat() dispatch prompt with boolean flag"
+        file: ".opencode/skills/git-workflow-cleanup/SKILL.md"
+      - action: "Remove pr_merge_status and branch_name from Workflows context"
+        file: ".opencode/skills/git-workflow-cleanup/SKILL.md"
+  SC-2:
+    initial_state: "No behavioral test verifying orchestrator does not inline investigate before dispatch"
+    final_state: "Behavioral test exists that verifies no git/gh calls before dispatch"
+    transitions:
+      - action: "Create or modify behavioral enforcement test"
+        file: ".opencode/tests-v2/behaviors/"
+  SC-3:
+    initial_state: "cleanup.md result contract ordering may not explicitly reinforce submodule-first"
+    final_state: "cleanup.md explicitly reinforces submodule-first in result contract reporting"
+    transitions:
+      - action: "Reinforce submodule-first ordering in result contract reporting sections"
+        file: ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"
+  SC-4:
+    initial_state: "cleanup.md Step 0 has no guard note against orchestrator pre-investigation"
+    final_state: "cleanup.md Step 0 has explicit guard note"
+    transitions:
+      - action: "Add guard note to Step 0"
+        file: ".opencode/skills/git-workflow-cleanup/tasks/cleanup.md"

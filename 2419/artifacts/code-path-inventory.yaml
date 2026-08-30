@@ -1,0 +1,20 @@
+code_paths:
+  - sc: SC-1
+    paths:
+      - type: file_edit
+        description: Remove line 14 (blanket prohibition header) from guidelines/020-go-prohibitions.md
+        command: edit lines 14-17
+      - type: file_edit
+        description: Remove line 15 (output for narration sub-bullet) from guidelines/020-go-prohibitions.md
+      - type: file_edit
+        description: Remove line 16 (file operations bypass sub-bullet) from guidelines/020-go-prohibitions.md
+      - type: file_edit
+        description: Remove line 17 (script injection sub-bullet) from guidelines/020-go-prohibitions.md
+  - sc: SC-2
+    paths:
+      - type: verify
+        description: Confirm git diff of guidelines/020-go-prohibitions.md shows ONLY lines 14-17 removed
+  - sc: SC-3
+    paths:
+      - type: verify
+        description: Confirm git diff of guidelines/117-session-trigger-behavior.md shows zero changes

@@ -1,0 +1,78 @@
+issue: 2418
+phase_decomposition:
+  - id: Phase-1
+    label: "DISPATCH_PROTOCOL — Replace concat() dispatch with pr_merged_event flag"
+    concern_group: DISPATCH_PROTOCOL
+    scs:
+      - SC-1
+    description: "Replace concat() dispatch prompt with pr_merged_event: true flag, remove pr_merge_status and branch_name from Workflows context"
+    files:
+      - .opencode/skills/git-workflow-cleanup/SKILL.md
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - step: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly"
+
+  - id: Phase-2
+    label: "ORCHESTRATOR_GUARD — Prevent orchestrator pre-investigation + behavioral test"
+    concern_group: ORCHESTRATOR_GUARD
+    scs:
+      - SC-2
+      - SC-4
+    description: "Add guard note to cleanup.md Step 0 and create behavioral enforcement test verifying no git/gh inline calls before dispatch"
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      - .opencode/tests-v2/behaviors/
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - step: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly"
+
+  - id: Phase-3
+    label: "RESULT_ORDERING — Reinforce submodule-first result contract ordering"
+    concern_group: RESULT_ORDERING
+    scs:
+      - SC-3
+    description: "Reinforce submodule-first ordering in result contract reporting sections of cleanup.md"
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - step: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly"
+
+dependency_dag:
+  edges:
+    - from: Phase-1
+      to: Phase-2
+      reason: "Dispatch prompt change (SC-1) must be committed before behavioral test (SC-2) which relies on the new prompt format"
+    - from: Phase-2
+      to: Phase-3
+      reason: "Guard note (SC-4) in cleanup.md must be in place before ordering refinements (SC-3) in the same file"

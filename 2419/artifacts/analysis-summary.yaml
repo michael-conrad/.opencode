@@ -1,0 +1,19 @@
+spec_path: .opencode/.issues/2419/spec.md
+sc_count: 3
+created: 2026-08-30
+artifacts:
+  blast-radius.yaml:
+    status: backfilled
+  concern-map.yaml:
+    status: backfilled
+  code-path-inventory.yaml:
+    status: backfilled
+  cross-cutting-matrix.yaml:
+    status: backfilled
+  interface-compatibility.yaml:
+    status: backfilled
+  state-analysis.yaml:
+    status: backfilled
+  testability-assessment.yaml:
+    status: backfilled
+scope_summary: Single-file, single-rule removal. Three structural SCs. Zero cross-file changes. All 7 artifacts backfilled from spec body.

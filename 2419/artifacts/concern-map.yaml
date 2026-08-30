@@ -1,0 +1,23 @@
+concern_groups:
+  - name: rule-removal
+    description: Remove the blanket "No echo or printf commands — ever" prohibition
+    scs:
+      - SC-1
+    phase: 1
+  - name: scope-preservation
+    description: Ensure no other sections of 020-go-prohibitions.md are modified
+    scs:
+      - SC-2
+    phase: 1
+  - name: cross-file-preservation
+    description: Ensure 117-session-trigger-behavior.md remains unmodified
+    scs:
+      - SC-3
+    phase: 1
+phase_boundaries:
+  phase_1:
+    description: Single phase — remove the targeted lines and verify no collateral changes
+    concern_groups:
+      - rule-removal
+      - scope-preservation
+      - cross-file-preservation

@@ -1,0 +1,21 @@
+spec_path: .opencode/.issues/2418/spec.md
+concern_groups:
+  - id: DISPATCH_PROTOCOL
+    description: Replace concat() dispatch prompt with pr_merged_event: true flag
+    scs:
+      - SC-1
+    phase_boundary: Phase 1
+    rationale: "SC-1 is structural — change the SKILL.md dispatch string, remove pre-resolved values from context"
+  - id: ORCHESTRATOR_GUARD
+    description: Prevent orchestrator pre-investigation git/gh calls before dispatch
+    scs:
+      - SC-2
+      - SC-4
+    phase_boundary: Phase 2
+    rationale: "SC-4 guard note in cleanup.md Step 0 and SC-2 behavioral test enforce the same invariant — orchestrator must not inline investigate"
+  - id: RESULT_ORDERING
+    description: Reinforce submodule-first result contract ordering in cleanup.md
+    scs:
+      - SC-3
+    phase_boundary: Phase 3
+    rationale: "SC-3 is a structural change to the task card — ensure result contract ordering matches procedural order"

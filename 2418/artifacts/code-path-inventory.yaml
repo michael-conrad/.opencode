@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2418/spec.md
+sc_code_paths:
+  SC-1:
+    description: "Dispatch prompt uses pr_merged_event: true instead of concat() with pre-resolved values"
+    files:
+      - .opencode/skills/git-workflow-cleanup/SKILL.md
+    key_locations:
+      - "Workflows section, line 36: concat() function in dispatch prompt"
+      - "Workflows section, context passed: pr_merge_status and branch_name entries"
+  SC-2:
+    description: "Orchestrator does NOT run git/gh tool calls inline before dispatching cleanup sub-agent"
+    files:
+      - .opencode/tests-v2/behaviors/ (new or modified behavioral test)
+    key_locations:
+      - "Behavioral test script — opencode run with stderr inspection"
+  SC-3:
+    description: "Cleanup sub-agent's result contract reports submodules before parent repo"
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    key_locations:
+      - "Step 3: Branch Cleanup and Sync — iteration order paragraph"
+      - "Step 4: Post-Cleanup Dev-Tip Verification — repo list ordering"
+  SC-4:
+    description: "cleanup.md Step 0 has explicit guard note against orchestrator pre-investigation"
+    files:
+      - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+    key_locations:
+      - "Step 0: Detect Submodules and Build Routing Context"

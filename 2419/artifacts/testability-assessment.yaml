@@ -1,0 +1,20 @@
+scs:
+  - id: SC-1
+    evidence_type: structural
+    verification_method: git diff of guidelines/020-go-prohibitions.md shows lines 14-17 removed
+    automated: true
+    notes: Straightforward diff check
+  - id: SC-2
+    evidence_type: structural
+    verification_method: git diff of guidelines/020-go-prohibitions.md shows only the expected removal (no other changes)
+    automated: true
+    notes: Requires diff analysis to confirm no collateral changes
+  - id: SC-3
+    evidence_type: structural
+    verification_method: git diff of guidelines/117-session-trigger-behavior.md shows zero changes
+    automated: true
+    notes: Cross-file verification
+evidence_type_summary:
+  structural: 3
+  behavioral: 0
+  string: 0

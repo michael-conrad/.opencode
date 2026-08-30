@@ -1,0 +1,14 @@
+# Dependency contract for issue 2419
+# Auto-extracted from interface-compatibility.yaml
+
+dependency_contract:
+  - source: guidelines/020-go-prohibitions.md
+    target: guidelines/060-tool-usage.md
+    relationship: redundancy
+    description: The removed rule's sub-concerns (tool hierarchy bypass, file operations bypass) are already covered by the five-tier tool hierarchy and API Client Mandate in 060-tool-usage.md
+    type_constraint: No change needed — existing coverage suffices
+  - source: guidelines/020-go-prohibitions.md
+    target: guidelines/117-session-trigger-behavior.md
+    relationship: reference
+    description: The removed rule's sub-concern (script injection/self-simulation) is covered by the Self-Simulation Prohibition
+    type_constraint: No change needed — existing coverage suffices; spec explicitly excludes modification of 117

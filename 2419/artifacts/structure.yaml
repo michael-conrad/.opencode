@@ -1,0 +1,107 @@
+# Structure artifact for issue 2419
+# Single-phase decomposition: remove blanket "No echo or printf" prohibition
+
+phases:
+  - id: 1
+    description: "Remove blanket prohibition and verify no collateral changes"
+    scs:
+      - SC-1
+      - SC-2
+      - SC-3
+    dependencies: []
+    items:
+      - sc: SC-1
+        concern: rule-removal
+        red:
+          skill: test-driven-development
+          task: "execute red task from test-driven-development"
+          description: "Write failing enforcement test that checks lines 14-17 of 020-go-prohibitions.md still contain the prohibition"
+        green:
+          skill: test-driven-development
+          task: "execute green task from test-driven-development"
+          description: "Remove lines 14-17 from guidelines/020-go-prohibitions.md"
+        verify:
+          skill: verification-before-completion
+          task: "execute verify task from verification-before-completion"
+          description: "Verify git diff shows lines 14-17 removed from 020-go-prohibitions.md"
+        commit:
+          action: "git add guidelines/020-go-prohibitions.md && git commit -m 'Remove blanket \"No echo or printf\" prohibition (fixes .opencode#2419)'"
+
+      - sc: SC-2
+        concern: scope-preservation
+        red:
+          skill: test-driven-development
+          task: "execute red task from test-driven-development"
+          description: "Write failing enforcement test that checks for any unplanned changes in 020-go-prohibitions.md beyond lines 14-17"
+        green:
+          skill: test-driven-development
+          task: "execute green task from test-driven-development"
+          description: "Verification-only — confirm diff is limited to the intended removal; no code change needed"
+        verify:
+          skill: verification-before-completion
+          task: "execute verify task from verification-before-completion"
+          description: "Verify git diff of 020-go-prohibitions.md shows ONLY lines 14-17 removed"
+        commit:
+          action: "no-op — already committed with SC-1"
+
+      - sc: SC-3
+        concern: cross-file-preservation
+        red:
+          skill: test-driven-development
+          task: "execute red task from test-driven-development"
+          description: "Write failing enforcement test that checks for any changes in 117-session-trigger-behavior.md"
+        green:
+          skill: test-driven-development
+          task: "execute green task from test-driven-development"
+          description: "Verification-only — confirm 117-session-trigger-behavior.md is unchanged; no code change needed"
+        verify:
+          skill: verification-before-completion
+          task: "execute verify task from verification-before-completion"
+          description: "Verify git diff of 117-session-trigger-behavior.md shows zero changes"
+        commit:
+          action: "no-op — already committed with SC-1"
+
+dependency_dag:
+  edges: []
+  description: "All 3 SCs are independent with no dependencies between them"
+
+skill_task_selection:
+  pre_implementation: []
+  red_green_daisy_chain:
+    - step: red
+      skill: test-driven-development
+      dispatch: "execute red task from test-driven-development"
+    - step: green
+      skill: test-driven-development
+      dispatch: "execute green task from test-driven-development"
+    - step: verify
+      skill: verification-before-completion
+      dispatch: "execute verify task from verification-before-completion"
+    - step: commit-inline
+      owner: orchestrator
+      description: "git add + git commit for SC-1; SC-2 and SC-3 commit are no-ops"
+  post_implementation:
+    - step: audit
+      skill: audit
+      dispatch: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first"
+    - step: z3-check
+      owner: orchestrator
+      dispatch: ".opencode/tools/solve check --state-path .opencode/.issues/2419/artifacts/state-analysis.yaml --contract-path .opencode/.issues/2419/dependency-contract.yaml"
+    - step: structural-checks
+      skill: finishing-a-development-branch
+      dispatch: "execute checklist task from finishing-a-development-branch"
+    - step: pre-pr-gate
+      skill: verification-before-completion
+      dispatch: "execute verify task from verification-before-completion"
+    - step: regression-check
+      skill: test-driven-development
+      dispatch: "execute phase-4 task from test-driven-development"
+    - step: review-prep
+      skill: git-workflow-pr
+      dispatch: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first"
+    - step: create-pr
+      skill: git-workflow-pr
+      dispatch: "execute create task from git-workflow-pr"
+    - step: exec-summary
+      skill: completion-core
+      dispatch: "execute completion task from completion-core"

@@ -1,0 +1,15 @@
+scs:
+  - id: SC-1
+    concerns:
+      - rule-removal
+  - id: SC-2
+    concerns:
+      - scope-preservation
+      - rule-removal
+  - id: SC-3
+    concerns:
+      - cross-file-preservation
+cross_cutting_scs:
+  - sc: SC-2
+    reason: Verification that no other sections changed is a meta-concern applying to the same file as SC-1
+spanning_analysis: No SC spans multiple files. SC-1 and SC-2 both concern guidelines/020-go-prohibitions.md but are distinct verification concerns (removal vs. no-other-changes). SC-3 is an independent cross-file verification.

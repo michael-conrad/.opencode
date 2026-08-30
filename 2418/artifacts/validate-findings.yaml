@@ -1,0 +1,86 @@
+issue: 2418
+validate_timestamp: 2026-08-30T19:44:00Z
+overall_status: FAIL
+categories:
+  - category: "1 — Structural validation"
+    results:
+      - check: "Plan has phase table with all required columns"
+        status: PASS
+        detail: "Phase table has columns: Phase, Skill, Task, Target, SCs, Depends On"
+      - check: "Each phase has numbered procedure steps"
+        status: FAIL
+        detail: "Phases use YAML Context blocks instead of numbered procedure steps. No numbered steps found in any phase section."
+    category_status: FAIL
+
+  - category: "2 — Skill+task validity"
+    results:
+      - check: "Phase 1: test-driven-development/red"
+        status: PASS
+        detail: "red is a valid task under test-driven-development per implementation-workflow reference card"
+      - check: "Phase 2: test-driven-development/green"
+        status: PASS
+        detail: "green is a valid task under test-driven-development per implementation-workflow reference card"
+      - check: "Phase 3: test-driven-development/verify"
+        status: FAIL
+        detail: "verify is owned by verification-before-completion, not test-driven-development. Reference card maps verify -> verification-before-completion, canonical dispatch: 'execute verify task from verification-before-completion'"
+    category_status: FAIL
+
+  - category: "3 — SC coverage"
+    results:
+      - check: "All SCs covered in exit criteria"
+        status: PASS
+        detail: "SC-1 -> C1 (Phase 1), SC-2 -> C2 (Phase 2), SC-3 -> C3 (Phase 3), SC-4 -> C4 (Phase 2). All 4 SCs covered."
+      - check: "Triplet split detection (RED/GREEN/COMMIT co-located per SC)"
+        status: FAIL
+        detail: "TRIPLET_SPLIT: Triplet steps are distributed across phases by TDD role rather than per-SC. SC-1 has RED in Phase 1 but no GREEN/COMMIT in same phase. SC-2/SC-4 have GREEN in Phase 2 but no RED written for them in Phase 1. SC-3 has VERIFY in Phase 3. The per-SC RED/GREEN/COMMIT triplet is not co-located."
+    category_status: FAIL
+
+  - category: "4 — Concern separation"
+    results:
+      - check: "Each phase addresses exactly one concern"
+        status: PASS
+        detail: "Phase 1 -> DISPATCH_PROTOCOL (SC-1), Phase 2 -> ORCHESTRATOR_GUARD (SC-2, SC-4), Phase 3 -> RESULT_ORDERING (SC-3)"
+      - check: "No two phases address the same concern"
+        status: PASS
+        detail: "All three concerns are distinct — no overlap"
+    category_status: PASS
+
+  - category: "5 — DAG validation"
+    results:
+      - check: "Dependency contract DAG has no cycles"
+        status: PASS
+        detail: "Linear DAG: Phase-1 -> Phase-2 -> Phase-3. No cycles."
+      - check: "All phases reachable from start node"
+        status: PASS
+        detail: "Phase-1 (start) -> Phase-2 -> Phase-3 (end). All reachable."
+      - check: "No orphan phases"
+        status: PASS
+        detail: "Every phase has at least one incoming or outgoing edge."
+    category_status: PASS
+
+  - category: "6 — Holistic quality"
+    results:
+      - check: "No TBD/TODO placeholders"
+        status: PASS
+        detail: "No TBD or TODO placeholders found in plan body"
+      - check: "Exit criteria use checkbox format"
+        status: PASS
+        detail: "All 4 exit criteria use [ ] checkbox format"
+      - check: "Dispatch mode consistency"
+        status: PASS
+        detail: "All phases dispatch via test-driven-development tasks (clean-room). No inline vs dispatched inconsistency."
+    category_status: PASS
+
+findings:
+  - id: F-1
+    category: "1 — Structural validation"
+    severity: FAIL
+    detail: "Plan phases lack numbered procedure steps. Uses YAML Context blocks instead. Per validate.md Category 1: 'Verify each phase has a procedure section with numbered steps.'"
+  - id: F-2
+    category: "2 — Skill+task validity"
+    severity: FAIL
+    detail: "Phase 3 maps verify task to test-driven-development skill, but the implementation-workflow reference card maps verify to verification-before-completion skill. Canonical dispatch: 'execute verify task from verification-before-completion'."
+  - id: F-3
+    category: "3 — SC coverage"
+    severity: FAIL
+    detail: "TRIPLET_SPLIT: SCs have their TDD cycle steps distributed across phases. SC-1 RED in Phase 1 (no GREEN/COMMIT visible in same phase). SC-2/SC-4 GREEN in Phase 2 (no RED written in Phase 1). SC-3 alone in Phase 3 as VERIFY. The per-SC RED/GREEN/COMMIT co-location invariant is violated."
