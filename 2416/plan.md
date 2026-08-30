@@ -106,3 +106,11 @@ assertion: gate BLOCKs the bypass attempt
 - [ ] C5. SC-4 PASS: behavioral test asserts gate BLOCKs on bypass attempt
 - [ ] C6. No circular dependencies in phase DAG
 - [ ] C7. Every task enumerates all steps from the implementation-workflow reference card per-task cycle
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-30T04:39:00Z | `plan_created` | Plan file created at `.opencode/.issues/2416/plan.md` with 3 phases |
