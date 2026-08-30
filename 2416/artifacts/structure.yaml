@@ -1,0 +1,102 @@
+spec: .opencode/.issues/2416/spec.md
+phases:
+  - id: 1
+    name: Verification-gate-enforcement
+    description: Core verification gate changes — test count assertions, all-passed assertions, and tests-run.yaml evidence artifact
+    scs:
+      - SC-1a
+      - SC-1b
+      - SC-2
+    items:
+      - sc_id: SC-1a
+        description: Add test-execution count assertion to verify.md
+        red: Behavioral test confirms completion claimed without test execution
+        green: Add tests_run > 0 check to verify.md Step 2
+        verify: Behavioral test shows gate BLOCKs on zero test execution
+        skill: test-driven-development
+        dispatch_string: "execute red task from test-driven-development"
+      - sc_id: SC-1b
+        description: Add all-passed assertion to verify.md
+        red: Behavioral test confirms completion claimed with a failing test
+        green: Add all_passed == true check to verify.md Step 2
+        verify: Behavioral test shows gate BLOCKs on failing test
+        skill: test-driven-development
+        dispatch_string: "execute red task from test-driven-development"
+      - sc_id: SC-2
+        description: Require tests-run.yaml evidence artifact in verification pipeline
+        red: Structural check confirms no test evidence requirement in pipeline
+        green: Update collect.md and verify.md to require tests-run.yaml evidence artifact
+        verify: Verify task files contain evidence requirement
+        skill: test-driven-development
+        dispatch_string: "execute red task from test-driven-development"
+    skill_tasks:
+      - skill: test-driven-development
+        task: red
+        description: Write failing enforcement test for each SC
+      - skill: test-driven-development
+        task: green
+        description: Implement the change making the test pass
+      - skill: verification-before-completion
+        task: verify
+        description: Verify each SC passes
+    dependencies: []
+
+  - id: 2
+    name: Documentation
+    description: AGENTS.md documentation update for mandatory test execution
+    scs:
+      - SC-3
+    items:
+      - sc_id: SC-3
+        description: Add mandatory test-execution language to AGENTS.md
+        red: Structural check confirms no mandatory test-execution language
+        green: Add explicit mandatory test-execution language to AGENTS.md
+        verify: grep confirms required language present
+        skill: test-driven-development
+        dispatch_string: "execute red task from test-driven-development"
+    skill_tasks:
+      - skill: test-driven-development
+        task: red
+        description: Write failing structural check
+      - skill: test-driven-development
+        task: green
+        description: Add mandatory test-execution language
+    dependencies:
+      - phase: 1
+        reason: Documentation must reflect the gate changes accurately
+
+  - id: 3
+    name: Behavioral-enforcement-test
+    description: Behavioral enforcement test to prevent regression of the gate
+    scs:
+      - SC-4
+    items:
+      - sc_id: SC-4
+        description: Write behavioral enforcement test for bypass scenario
+        red: No behavioral test exists for bypass scenario
+        green: Write behavioral test that dispatches bypass scenario and asserts BLOCKED
+        verify: opencode run with new scenario produces BLOCKED result
+        skill: test-driven-development
+        dispatch_string: "execute red task from test-driven-development"
+    skill_tasks:
+      - skill: test-driven-development
+        task: red
+        description: Confirm no behavioral test exists
+      - skill: test-driven-development
+        task: green
+        description: Write behavioral enforcement test
+      - skill: verification-before-completion
+        task: verify
+        description: Verify behavioral test produces BLOCKED
+    dependencies:
+      - phase: 1
+        reason: Behavioral test must validate the gate changes
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: Documentation must reflect the gate changes accurately
+    - from: 1
+      to: 3
+      reason: Behavioral test must validate the gate changes

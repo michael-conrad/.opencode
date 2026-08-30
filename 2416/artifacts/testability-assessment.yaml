@@ -1,0 +1,59 @@
+spec: .opencode/.issues/2416/spec.md
+sc_evidence_types:
+  - sc_id: SC-1a
+    evidence_type: behavioral
+    description: Verification-before-completion gate asserts tests_run > 0
+    test_method: >
+      Behavioral test: agent attempts to claim completion without running any tests.
+      The gate MUST BLOCK with MISSING_EVIDENCE.
+    testability: HIGH
+    test_framework: opencode behavioral test (behavior_run via with-test-home)
+    assertions:
+      - assert_stderr_pattern_present "BLOCKED"
+      - assert_stderr_pattern_present "tests_run"
+    test_scenario: Agent attempts completion claim with zero test execution
+  - sc_id: SC-1b
+    evidence_type: behavioral
+    description: Verification-before-completion gate asserts all_passed == true
+    test_method: >
+      Behavioral test: agent attempts to claim completion with a test that failed.
+      The gate MUST BLOCK with FAIL.
+    testability: HIGH
+    test_framework: opencode behavioral test (behavior_run via with-test-home)
+    assertions:
+      - assert_stderr_pattern_present "BLOCKED"
+      - assert_stderr_pattern_present "all_passed"
+    test_scenario: Agent attempts completion claim with a failing test
+  - sc_id: SC-2
+    evidence_type: structural
+    description: tests-run.yaml evidence artifact required by verification pipeline
+    test_method: >
+      Structural check: verify verification-before-completion task files require
+      tests-run.yaml as an evidence artifact before proceeding.
+    testability: HIGH
+    test_framework: grep/read of task files
+    assertions:
+      - grep for tests-run.yaml in verify.md
+      - grep for tests-run.yaml in collect.md
+    test_scenario: Read task files and confirm tests-run.yaml requirement
+  - sc_id: SC-3
+    evidence_type: structural
+    description: AGENTS.md documents mandatory test execution before completion claim
+    test_method: >
+      Structural check: grep AGENTS.md for mandatory test-execution language.
+    testability: HIGH
+    test_framework: grep
+    assertions:
+      - grep for mandatory test execution language in AGENTS.md
+    test_scenario: grep AGENTS.md for required language
+  - sc_id: SC-4
+    evidence_type: behavioral
+    description: Behavioral enforcement test asserts bypass attempt is BLOCKED
+    test_method: >
+      Behavioral test: dispatch a scenario that attempts to bypass test execution
+      and claim completion. The gate MUST BLOCK.
+    testability: HIGH
+    test_framework: opencode behavioral test (behavior_run via with-test-home)
+    assertions:
+      - assert_stderr_pattern_present "BLOCKED"
+    test_scenario: Behavioral test scenario that attempts bypass

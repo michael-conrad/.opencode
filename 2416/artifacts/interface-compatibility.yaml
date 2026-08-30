@@ -1,0 +1,52 @@
+spec: .opencode/.issues/2416/spec.md
+interfaces:
+  - name: verify.md evidence check interface
+    description: The verify.md task's evidence checking step — the primary interface being modified
+    type: task-file-procedure
+    affected_files:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+    consumers:
+      - verification-before-completion orchestrator (dispatches verify sub-agent)
+      - finishing-a-development-branch task (post-verify chain)
+    changes:
+      - Add tests_run > 0 assertion in Step 2 (SC-1a)
+      - Add all_passed == true assertion in Step 2 (SC-1b)
+      - Add tests-run.yaml evidence artifact requirement (SC-2)
+    backward_compatibility: Verify.md retains all existing steps — new assertions are additive
+    dependency_contract:
+      source: verification-before-completion tasks
+      target: verification-before-completion gates
+      type_constraints:
+        - tests_run: "integer > 0"
+        - all_passed: "boolean == true"
+        - artifact_format: "YAML with tests_run (int) and all_passed (bool) fields"
+  - name: collect.md evidence collection interface
+    description: The collect.md task's evidence collection procedure for missing evidence
+    type: task-file-procedure
+    affected_files:
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+    consumers:
+      - verification-before-completion orchestrator (dispatches collect sub-agent)
+    changes:
+      - Add tests-run.yaml as required evidence artifact type
+    backward_compatibility: Collect.md retains all existing evidence collection methods
+  - name: AGENTS.md documentation interface
+    description: The documented build/lint/test commands section consumed by agents
+    type: documentation
+    affected_files:
+      - .opencode/AGENTS.md
+    consumers:
+      - AI agents (reading instructions for completion claims)
+    changes:
+      - Add mandatory test-execution language before completion claim
+    backward_compatibility: Existing build/lint/test commands remain unchanged
+  - name: behavioral test interface
+    description: The behavioral test scenario and assertion patterns
+    type: test-script
+    affected_files:
+      - .opencode/tests-v2/behaviors/
+    consumers:
+      - Enforcement test harness (behavior_run via with-test-home)
+    changes:
+      - New scenario that attempts bypass and asserts BLOCKED
+    backward_compatibility: Uses existing behavioral test infrastructure (behavior_run, helpers.sh)

@@ -1,0 +1,53 @@
+spec: .opencode/.issues/2416/spec.md
+code_paths:
+  - id: cp-verify-count
+    sc: SC-1a
+    description: verify.md gate checks that tests_run > 0 before accepting completion claim
+    files:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+    entry_point: verify.md Verification Workflow Step 2
+    conditions:
+      - Evidence artifact tests-run.yaml exists
+      - tests_run field is present and > 0
+    failure_mode: Gate BLOCKs with MISSING_EVIDENCE when no test evidence artifact exists
+  - id: cp-verify-passed
+    sc: SC-1b
+    description: verify.md gate checks that all_passed == true before accepting completion claim
+    files:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+    entry_point: verify.md Verification Workflow Step 2
+    conditions:
+      - Evidence artifact tests-run.yaml exists
+      - all_passed field is present and true
+    failure_mode: Gate BLOCKs with FAIL when tests exist but some failed
+  - id: cp-collect-evidence
+    sc: SC-2
+    description: collect.md requires tests-run.yaml as evidence artifact in the pipeline
+    files:
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+    entry_point: collect.md Evidence Collection procedure
+    conditions:
+      - tests-run.yaml is listed as required evidence artifact
+      - Pipeline produces tests-run.yaml during verification
+    failure_mode: Pipeline skips tests-run.yaml generation → no evidence for gate check
+  - id: cp-docs-mandatory
+    sc: SC-3
+    description: AGENTS.md documents mandatory test execution before completion claim
+    files:
+      - .opencode/AGENTS.md
+    entry_point: AGENTS.md Build/Lint/Test Commands section
+    conditions:
+      - Language explicitly states test execution is mandatory before completion claim
+      - Language is NOT advisory
+    failure_mode: No language found → agents continue treating tests as optional
+  - id: cp-behavioral-test
+    sc: SC-4
+    description: Behavioral enforcement test asserts bypass attempt produces BLOCKED
+    files:
+      - .opencode/tests-v2/behaviors/
+    entry_point: behavioral test scenario script
+    conditions:
+      - Scenario sends prompt requesting completion without test execution
+      - Assertion checks that gate BLOCKs (stderr contains BLOCKED)
+    failure_mode: Test passes (BLOCKED not produced) → gate not enforced

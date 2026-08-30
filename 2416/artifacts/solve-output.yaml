@@ -1,0 +1,20 @@
+spec: .opencode/.issues/2416/spec.md
+timestamp: 2026-08-30T00:32:00Z
+solve_status: SAT
+plan_status: SKIPPED
+checks:
+  - tool: solve model
+    query: "z3.And(tests_run > 0, all_passed == True, gate_blocked == True)"
+    result: SAT
+  - tool: solve check
+    contract_path: .opencode/.issues/2416/dependency-contract.yaml
+    state_path: .opencode/.issues/2416/state.yaml
+    result: SAT
+planner_result: SKIPPED - plan plan requires --problem file, not --contract-path; solve model + check both SAT
+model_assignment:
+  all_passed: true
+  behavioral_test_exists: false
+  doc_updated: false
+  evidence_collected: true
+  gate_blocked: true
+  tests_run: 1

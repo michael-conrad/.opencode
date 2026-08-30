@@ -1,0 +1,49 @@
+spec: .opencode/.issues/2416/spec.md
+states:
+  - id: pre-verification
+    description: Before verification-before-completion gate is invoked
+  - id: evidence-collected
+    description: Evidence artifacts have been collected but not yet checked
+  - id: verification-in-progress
+    description: Verification gate is checking evidence
+  - id: verification-passed
+    description: All checks passed — tests_run > 0 and all_passed == true
+  - id: verification-blocked-count
+    description: Gate BLOCKED — tests_run == 0 or missing tests-run.yaml
+  - id: verification-blocked-failures
+    description: Gate BLOCKED — tasks_run > 0 but all_passed == false
+  - id: completion-allowed
+    description: Completion claim is allowed (verification passed)
+transitions:
+  - from: pre-verification
+    to: evidence-collected
+    trigger: evidence collection completes
+    sc: SC-1a
+  - from: evidence-collected
+    to: verification-in-progress
+    trigger: verification gate invoked
+    sc: SC-1a
+  - from: verification-in-progress
+    to: verification-passed
+    condition: tests_run > 0 AND all_passed == true
+    scs: [SC-1a, SC-1b]
+  - from: verification-in-progress
+    to: verification-blocked-count
+    condition: tests_run == 0 OR tests-run.yaml missing
+    sc: SC-1a
+  - from: verification-in-progress
+    to: verification-blocked-failures
+    condition: tests_run > 0 AND all_passed == false
+    sc: SC-1b
+  - from: verification-passed
+    to: completion-allowed
+    trigger: all SCs verified
+    scs: [SC-1a, SC-1b, SC-2]
+  - from: verification-blocked-count
+    to: evidence-collected
+    trigger: re-collect evidence with test execution
+    sc: SC-1a
+  - from: verification-blocked-failures
+    to: evidence-collected
+    trigger: fix failing tests and re-collect evidence
+    sc: SC-1b

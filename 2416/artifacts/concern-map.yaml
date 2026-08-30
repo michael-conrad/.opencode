@@ -1,0 +1,28 @@
+spec: .opencode/.issues/2416/spec.md
+concerns:
+  - id: verification-gate-enforcement
+    description: Core verification gate changes — assertions for test count, all-passed, and tests-run.yaml evidence
+    scs: [SC-1a, SC-1b, SC-2]
+    phase: 1
+    affected_files:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+  - id: documentation
+    description: AGENTS.md documentation update for mandatory test execution
+    scs: [SC-3]
+    phase: 2
+    affected_files:
+      - .opencode/AGENTS.md
+  - id: behavioral-enforcement
+    description: Behavioral enforcement test to prevent regression of the gate
+    scs: [SC-4]
+    phase: 3
+    affected_files:
+      - .opencode/tests-v2/behaviors/
+cross_concern_boundaries:
+  - from: verification-gate-enforcement
+    to: documentation
+    reason: Documentation must reflect the gate changes accurately
+  - from: verification-gate-enforcement
+    to: behavioral-enforcement
+    reason: Behavioral test must validate the gate changes

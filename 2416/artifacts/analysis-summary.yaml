@@ -1,0 +1,33 @@
+spec_path: .opencode/.issues/2416/spec.md
+approval_status: approved
+approved_label: approved-for-pr
+sc_count: 5
+sc_ids:
+  - SC-1a
+  - SC-1b
+  - SC-2
+  - SC-3
+  - SC-4
+artifacts:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+missing_artifacts: []
+scope_boundary_findings:
+  - All changes scoped to `.opencode/` — no external repos affected
+  - Verification gate changes target only `verification-before-completion` skill tasks
+  - Documentation change targets only `.opencode/AGENTS.md`
+  - Behavioral test uses existing `.opencode/tests-v2/behaviors/` infrastructure
+all_referenced_files_exist: true
+referenced_files_checked:
+  - .opencode/AGENTS.md
+  - .opencode/skills/verification-before-completion/tasks/verify.md
+  - .opencode/skills/verification-before-completion/tasks/collect.md
+  - .opencode/skills/verification-before-completion/tasks/structural-verify.md
+  - .opencode/skills/verification-before-completion/tasks/completion.md
+backfill_date: 2026-08-30
+backfill_agent: "DeepSeek-V4-Flash"

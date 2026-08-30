@@ -1,0 +1,14 @@
+domain_name: verification-gate-enforcement
+problem_name: enforce-test-execution-before-completion
+objects:
+  - gate: [verify_gate]
+  - state: [pre_verification, evidence_collected, verification_in_progress, verification_passed, verification_blocked, completion_allowed]
+init:
+  - at(pre_verification)
+  - evidence_collected == False
+  - gate_blocked == False
+  - tests_run == 0
+goal:
+  - at(completion_allowed)
+  - tests_run > 0
+  - all_passed == True

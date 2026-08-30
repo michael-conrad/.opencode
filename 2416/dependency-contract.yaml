@@ -1,0 +1,33 @@
+spec: .opencode/.issues/2416/spec.md
+variables:
+  tests_run:
+    type: int
+    nullable: true
+  all_passed:
+    type: bool
+    nullable: true
+  evidence_collected:
+    type: bool
+  gate_blocked:
+    type: bool
+  doc_updated:
+    type: bool
+  behavioral_test_exists:
+    type: bool
+preconditions:
+  - evidence_collected == True
+invariants:
+  - z3.Implies(gate_blocked == True, evidence_collected == True)
+dependencies:
+  - source: verify.md evidence check interface
+    target: collect.md evidence collection interface
+    type: artifact schema
+    constraint: tests-run.yaml must be produced by collect step before verify step consumes it
+  - source: AGENTS.md documentation interface
+    target: verify.md evidence check interface
+    type: documentation
+    constraint: AGENTS.md language must match verify.md gate behavior
+  - source: behavioral test interface
+    target: verify.md evidence check interface
+    type: behavioral enforcement
+    constraint: Behavioral test must verify verify.md gate blocks bypass

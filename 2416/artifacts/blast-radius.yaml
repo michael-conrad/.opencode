@@ -1,0 +1,20 @@
+spec: .opencode/.issues/2416/spec.md
+description: Files affected by the test-execution evidence requirement for verification-before-completion gate
+affected_files:
+  - path: .opencode/skills/verification-before-completion/tasks/verify.md
+    impact: Primary target — add test-execution count assertion (SC-1a), all-passed assertion (SC-1b), and tests-run.yaml evidence artifact requirement (SC-2)
+    impact_type: modification
+    sc_coverage: [SC-1a, SC-1b, SC-2]
+  - path: .opencode/skills/verification-before-completion/tasks/collect.md
+    impact: May need updates to evidence collection procedure for tests-run.yaml artifact
+    impact_type: modification
+    sc_coverage: [SC-2]
+  - path: .opencode/AGENTS.md
+    impact: Add mandatory test-execution language before any completion claim (SC-3)
+    impact_type: modification
+    sc_coverage: [SC-3]
+  - path: .opencode/tests-v2/behaviors/
+    impact: New behavioral enforcement test scenario (SC-4) that verifies bypass attempt is blocked
+    impact_type: creation
+    sc_coverage: [SC-4]
+verified: false

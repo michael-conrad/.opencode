@@ -1,0 +1,23 @@
+spec: .opencode/.issues/2416/spec.md
+cross_cutting_concerns:
+  - id: evidence-consistency
+    description: All verification gates consistently require tests-run.yaml evidence before accepting completion
+    scs: [SC-1a, SC-1b, SC-2]
+    components:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+      - .opencode/skills/verification-before-completion/tasks/collect.md
+    verification: Each gate must check tests-run.yaml evidence — not just one gate
+  - id: gate-blocking-semantics
+    description: All gates BLOCK rather than warn when evidence is missing or test fails
+    scs: [SC-1a, SC-1b, SC-4]
+    components:
+      - .opencode/skills/verification-before-completion/tasks/verify.md
+      - .opencode/tests-v2/behaviors/
+    verification: Behavioral tests confirm BLOCKED state, not advisory PASS
+  - id: documentation-accuracy
+    description: Documentation correctly reflects gate behavior
+    scs: [SC-3, SC-4]
+    components:
+      - .opencode/AGENTS.md
+      - .opencode/tests-v2/behaviors/
+    verification: AGENTS.md language matches actual gate behavior; behavioral test enforces it
