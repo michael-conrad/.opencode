@@ -1,0 +1,10 @@
+# Concern Map
+# Issue: #2415
+# Date: 2026-08-29
+
+| Concern | Boundary | Phase |
+|---------|----------|-------|
+| Build command correctness | Which contexts use which build flags | Phase 1 (SC-1) |
+| Test execution verification | Asserting tests actually ran | Phase 2 (SC-2) |
+| Documentation convention | Distinguishing dev vs release | Phase 3 (SC-3, SC-5) |
+| Test source fix | Broken test case | Phase 1 (SC-4) |

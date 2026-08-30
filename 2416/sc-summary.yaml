@@ -1,0 +1,22 @@
+sc_count: 5
+scs:
+  - id: "SC-1"
+    description: "Release/build verification gate for releases runs the test suite WITHOUT -xtest"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Build-verification gate asserts test-report XML has tests > 0, skipped == 0, failures == 0"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "-xtest-is-the-norm convention removed or gated for release contexts"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "ConvertInnodbRowFormatDynamicValidationTest passes without -xtest"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Existing development workflow (-xtest for local builds) remains unaffected"
+    evidence_type: "structural"
+    plan_item: 5

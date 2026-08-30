@@ -1,0 +1,11 @@
+# Testability Assessment
+# Issue: #2415
+# Date: 2026-08-29
+
+| Phase | SC | Test Strategy | Method |
+|-------|----|---------------|--------|
+| 1 | SC-1 | behavioral | Run release build command; assert tests were executed (check test report exists and has >0 tests) |
+| 1 | SC-4 | integration | `./gradlew :DaoCore2:test` — verify ConvertInnodbRowFormatDynamicValidationTest passes |
+| 2 | SC-2 | behavioral | CI pipeline asserts test-report XML shows tests>0, skipped=0, failures=0 |
+| 3 | SC-3 | structural | `grep -c "-xtest" Butter/AGENTS.md` for dev commands vs release commands |
+| 3 | SC-5 | structural | Verify dev build commands in AGENTS.md still include `-xtest` |

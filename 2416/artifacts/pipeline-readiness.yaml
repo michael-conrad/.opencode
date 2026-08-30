@@ -1,0 +1,43 @@
+# Pipeline Readiness Gate
+# Issue: #2415
+# Date: 2026-08-29
+
+## Checks
+
+### Atomicity: PASS
+- SC-1: One release build command update → one RED/GREEN/COMMIT cycle
+- SC-2: One test-report assertion step → one RED/GREEN/COMMIT cycle
+- SC-3: One AGENTS.md convention update → one RED/GREEN/COMMIT cycle
+- SC-4: One test fix → one RED/GREEN/COMMIT cycle
+- SC-5: One documentation preservation verification → one RED/GREEN/COMMIT cycle
+- Every SC maps to exactly one item
+
+### Dependency Ordering: PASS
+- SC-1 → SC-2 (linear chain)
+- SC-3, SC-4, SC-5 are independent (no dependencies)
+- DAG is acyclic
+
+### Single Concern: PASS
+- SC-1: Build command configuration (release context)
+- SC-2: Test report verification (CI/build gate)
+- SC-3: Documentation convention (AGENTS.md)
+- SC-4: Test source fix (test code)
+- SC-5: Documentation preservation (AGENTS.md)
+
+### Phase Dependency: PASS
+- Phase graph is acyclic
+- Phase 1 (SC-1, SC-4) → Phase 2 (SC-2) → Phase 3 (SC-3, SC-5)
+
+### Three-Tier Structure: PASS (Advisory)
+- Pre: Fix test + update build command (SC-4, SC-1)
+- Per-file: CI assertion + documentation (SC-2, SC-3, SC-5)
+- Post: N/A for this scope
+
+## BLOCKERS
+
+**NOTE:** The affected codebase (Butter project) is NOT available in the current checkout
+(michael-conrad/opencode-config). Analysis artifacts are based solely on the issue
+description and cannot be verified against the actual code. This spec must be implemented
+against the Butter repository, not this one.
+
+## Overall: PASS (with caveat about unavailable codebase)

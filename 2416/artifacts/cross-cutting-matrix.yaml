@@ -1,0 +1,10 @@
+# Cross-Cutting Concerns Matrix
+# Issue: #2415
+# Date: 2026-08-29
+
+| Concern | Phase 1 (SC-1, SC-4) | Phase 2 (SC-2) | Phase 3 (SC-3, SC-5) |
+|----------|---------------------|-----------------|----------------------|
+| CI/CD pipeline | Changes release build command | Adds assertion step | No impact |
+| Documentation | Minor update | No impact | Major convention update |
+| Test infrastructure | Fixes one test | Adds new dependency | No impact |
+| Developer workflow | No impact (dev builds unchanged) | No impact | Explicitly preserved |

@@ -1,0 +1,9 @@
+# Interface Compatibility Analysis
+# Issue: #2415
+# Date: 2026-08-29
+
+| Interface | Change Type | Compatibility | Notes |
+|-----------|-------------|---------------|-------|
+| Build command (`./gradlew build`) | Modified | Backward compatible (release context only) | Dev builds unchanged |
+| Test report XML format | Used (not modified) | N/A | Read-only consumption |
+| AGENTS.md conventions | Modified | Backward compatible (adds distinction) | Adds new content, doesn't remove old |

@@ -1,0 +1,37 @@
+# Problem Decomposition
+# Issue: #2415 - [BUG] Release/build verification gate satisfiable with -xtest
+# Date: 2026-08-29
+
+## Success Criteria (derived from requirements)
+
+| SC-ID | Description | Evidence Type | Verification Method |
+|-------|-------------|---------------|-------------------|
+| SC-1 | Build-verification gate for releases runs the test suite WITHOUT `-xtest` | behavioral | `git diff --Butter/AGENTS.md` shows build commands for release contexts exclude `-xtest` |
+| SC-2 | Build-verification gate asserts test-report XML has `tests > 0`, `skipped == 0`, `failures == 0` | behavioral | Add CI step or build script that parses test report XML; verify it blocks on empty/failed test run |
+| SC-3 | `-xtest`-is-the-norm convention removed or gated for release contexts | structural | `Butter/AGENTS.md` updated to distinguish dev-build vs release-build command sets |
+| SC-4 | `ConvertInnodbRowFormatDynamicValidationTest` passes without `-xtest` | behavioral | `./gradlew build :DaoCore2:test` passes |
+| SC-5 | Existing development workflow (`-xtest` for local builds) remains unaffected | structural | Local dev build commands in AGENTS.md still use `-xtest` |
+
+## Implementation Items
+
+| # | SC-ID | Description |
+|---|-------|-------------|
+| 1 | SC-1 | Update release/build-verification gate command to run tests without `-xtest` |
+| 2 | SC-2 | Add test-report XML assertion step to build-verification gate |
+| 3 | SC-3 | Update AGENTS.md: distinguish dev-build vs release-build command convention |
+| 4 | SC-4 | Fix `ConvertInnodbRowFormatDynamicValidationTest` (MariaDB DELIMITER issue) |
+| 5 | SC-5 | Verify dev build commands unchanged; add explicit dev-vs-release section in AGENTS.md |
+
+## Dependency DAG
+
+SC-4 has no dependencies on other SCs (independent test fix)
+SC-1 → SC-2 (must run tests first before asserting results)
+SC-3 is independent of SC-1/SC-2 (documentation update)
+SC-5 is independent (documentation preservation)
+
+```
+SC-4 ──→ (none)
+SC-1 ──→ SC-2
+SC-3 ──→ (none)
+SC-5 ──→ (none)
+```
