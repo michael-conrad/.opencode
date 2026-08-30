@@ -1,0 +1,25 @@
+code_path_inventory:
+  issue_number: 2417
+  phases:
+    - phase: 1
+      code_paths:
+        - file: .opencode/skills/git-workflow-cleanup/SKILL.md
+          lines: 31-40 (Workflows > Clean up after a PR merge)
+          description: Dispatch prompt and context_passed fields
+          change: Replace concat() with pr_merged_event: true; remove pr_merge_status and branch_name
+    - phase: 2
+      code_paths:
+        - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+          lines: 35-77 (Step 0: Detect Submodules)
+          description: Guard note against orchestrator pre-investigation
+          change: Add guard note at Step 0
+        - file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+          lines: 113-188 (Step 4: Post-Cleanup Dev-Tip Verification)
+          description: Result contract reporting order reinforcement
+          change: Add explicit submodule-first reporting requirement
+    - phase: 3
+      code_paths:
+        - file: .opencode/tests-v2/behaviors/ (new)
+          lines: 1-40
+          description: Behavioral test script for orchestrator pre-investigation check
+          change: New file creation

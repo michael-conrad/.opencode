@@ -1,0 +1,14 @@
+research_card_consultation:
+  issue_number: 2417
+  searched_cards:
+    - pattern: "*.md"
+      path: ".issues/research-cards"
+    - pattern: "*.md"
+      path: ".opencode/.issues/research-cards"
+  matching_cards: []
+  findings:
+    - No existing research cards match the orchestrator pre-investigation or submodule-first ordering topics.
+    - The 2242-sc6 behavioral test is the closest related work — it tests cleanup dispatch routing but does not address orchestrator pre-investigation.
+    - No cached findings available for this topic.
+  confidence: 0.0
+  action: Proceed without research card — topic specific enough to analyze from source files.

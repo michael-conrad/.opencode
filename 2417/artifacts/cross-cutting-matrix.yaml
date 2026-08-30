@@ -1,0 +1,19 @@
+cross_cutting_matrix:
+  issue_number: 2417
+  matrix:
+    - concern: orchestrator_context_lean
+      phase_1: "Dispatch prompt change enforces lean context"
+      phase_2: "No impact"
+      phase_3: "No impact"
+    - concern: subagent_independence
+      phase_1: "Sub-agent no longer receives pre-resolved values"
+      phase_2: "Guard note reinforces independent discovery"
+      phase_3: "No impact"
+    - concern: reporting_order
+      phase_1: "No impact"
+      phase_2: "Submodule-first reporting reinforced"
+      phase_3: "No impact"
+    - concern: behavioral_testing
+      phase_1: "No impact"
+      phase_2: "No impact"
+      phase_3: "New behavioral test covers SC-2"

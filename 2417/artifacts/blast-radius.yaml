@@ -1,0 +1,30 @@
+blast_radius:
+  issue_number: 2417
+  analysis: >
+    The changes are tightly scoped to git-workflow-cleanup. SKILL.md dispatch prompt change and cleanup.md guard note addition
+    affect only the orchestrator's dispatch path and the sub-agent's entry criteria. No other git-workflow sub-skills,
+    guidelines, or task files are impacted. The behavioral test addition is additive — no existing tests are modified.
+  phases:
+    - phase: 1
+      description: Update SKILL.md dispatch prompt
+      affected_components:
+        - .opencode/skills/git-workflow-cleanup/SKILL.md (Workflows section, line 36-37)
+      ripple_effects:
+        - Orchestrator no longer pre-investigates PR state before dispatch
+        - Sub-agent receives pr_merged_event: true instead of pre-resolved values
+      risk: low — single string change in one file
+    - phase: 2
+      description: Add guard note and reinforce submodule-first reporting in cleanup.md
+      affected_components:
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md (Step 0, Step 4)
+      ripple_effects:
+        - Sub-agent sees explicit guard against orchestrator pre-investigation
+        - Sub-agent reports submodules before parent repo in result contract
+      risk: low — additive text changes to task card
+    - phase: 3
+      description: Create behavioral test
+      affected_components:
+        - .opencode/tests-v2/behaviors/ (new file)
+      ripple_effects:
+        - New artifact-only generator for cleanup dispatch behavioral verification
+      risk: low — new file, no existing tests modified

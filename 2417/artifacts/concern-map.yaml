@@ -1,0 +1,26 @@
+concern_map:
+  issue_number: 2417
+  concerns:
+    - concern: orchestrator_dispatch
+      description: How the orchestrator dispatches the cleanup task to a sub-agent
+      files:
+        - .opencode/skills/git-workflow-cleanup/SKILL.md
+      phase: 1
+      separation: |
+        The dispatch prompt is the only orchestrator-facing concern. Changing it from concat() with pre-resolved values
+        to a static string with pr_merged_event: true shifts the pre-investigation burden from orchestrator to sub-agent.
+    - concern: subagent_entry
+      description: How the cleanup sub-agent discovers context independently
+      files:
+        - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      phase: 2
+      separation: |
+        The guard note and reporting reinforcement are sub-agent-facing concerns. They ensure the sub-agent knows
+        it must discover everything independently and report submodules first.
+    - concern: behavioral_verification
+      description: How to verify the orchestrator does not pre-investigate
+      files:
+        - .opencode/tests-v2/behaviors/ (new file)
+      phase: 3
+      separation: |
+        The behavioral test is an independent verification artifact. It does not affect any production code.

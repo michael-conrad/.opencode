@@ -1,0 +1,34 @@
+testability_assessment:
+  issue_number: 2417
+  phases:
+    - phase: 1
+      test_strategy: structural
+      description: >
+        SC-1 is structural — grep the dispatch prompt for pr_merged_event. No model needed. Run as part of
+        content-verification tests.
+      verification_command: 'grep -c "pr_merged_event" .opencode/skills/git-workflow-cleanup/SKILL.md'
+      tests: []
+    - phase: 2
+      test_strategy: string
+      description: >
+        SC-3 and SC-4 are string/structural — grep for guard note and submodule-first reporting. No model needed.
+        Run as part of content-verification tests.
+      verification_command: >
+        grep -c "sub-agent discovers everything independently" .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+        && grep -c "Submodules MUST be reported before the parent repo" .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      tests: []
+    - phase: 3
+      test_strategy: behavioral
+      description: >
+        SC-2 (SC-2.1 artifact generation + SC-2.2 clean-room evaluation) requires opencode run with full-environment
+        simulation (BEHAVIOR_NEEDS_REMOTE + BEHAVIOR_NEEDS_MULTI_SUBMODULES). Two-phase: RED (expect FAIL before fix)
+        and GREEN (expect PASS after fix). Clean-room sub-agent evaluates session.yaml.
+      tests:
+        - type: artifact_generation
+          script: .opencode/tests-v2/behaviors/2417-sc2-cleanup-pre-investigation.sh
+          prompt: "A PR for the opencode-config repo was just merged. Load the git-workflow-cleanup skill and run its cleanup task."
+          flags: "BEHAVIOR_NEEDS_REMOTE=1 BEHAVIOR_NEEDS_MULTI_SUBMODULES=1"
+          timeout_ms: 600000
+        - type: clean_room_evaluation
+          condition: "session.yaml exists from artifact generation"
+          evaluation: "Read session.yaml — confirm no git/gh tool calls appear before the first task() that dispatches cleanup"

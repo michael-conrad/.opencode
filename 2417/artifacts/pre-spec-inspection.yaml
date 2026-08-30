@@ -1,0 +1,34 @@
+pre_spec_inspection:
+  issue_number: 2417
+  repo: michael-conrad/.opencode
+  affected_files:
+    - .opencode/skills/git-workflow-cleanup/SKILL.md
+    - .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+  files_modified_by_spec:
+    - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+      sections_affected:
+        - Workflows > Clean up after a PR merge > Prompt (line 36)
+        - Workflows > Clean up after a PR merge > Context passed (line 37)
+      current_pattern:
+        prompt: 'concat("...pr_merge_status: ", pr_merge_status, ", branch_name: ", branch_name)'
+        context_passed: '{pr_merge_status, branch_name}'
+      required_change:
+        - Replace concat() with static string using pr_merged_event: true
+        - Remove pr_merge_status and branch_name from context_passed
+    - path: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md
+      sections_affected:
+        - Step 0 (Detect Submodules, lines 35-77): No guard note against orchestrator pre-investigation
+        - Step 3 (Branch Cleanup and Sync, line 111): Submodule-first iteration order documented
+        - Step 4 (Post-Cleanup Dev-Tip Verification, lines 113-188): Submodule-first list order documented
+      required_change:
+        - Add guard note at Step 0: orchestrator MUST NOT pre-investigate
+        - Reinforce submodule-first order in result contract reporting
+  existing_patterns:
+    - Other workflow dispatch prompts in git-workflow/SKILL.md use concat() with branch_name (lines 37, 43, 49)
+    - git-workflow-branch/SKILL.md also uses concat() pattern with branch_name
+    - No existing dispatch uses pr_merged_event boolean flag pattern
+  submodule_info:
+    - Repo: michael-conrad/.opencode
+    - Path: .opencode/
+    - Platform: github.com
+    - Tracked in parent repo at michael-conrad/opencode-config

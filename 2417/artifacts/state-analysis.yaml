@@ -1,0 +1,18 @@
+state_analysis:
+  issue_number: 2417
+  transitions:
+    - phase: 1
+      from_state: "Orchestrator holds pr_merge_status and branch_name from inline investigation"
+      to_state: "Orchestrator holds only pr_merged_event: true as routing signal"
+      trigger: "Edit SKILL.md dispatch prompt"
+      invariant: "Sub-agent still discovers PR state independently"
+    - phase: 2
+      from_state: "cleanup.md Step 0 has no guard against orchestrator pre-investigation"
+      to_state: "cleanup.md Step 0 has explicit guard note stating orchestrator MUST NOT pre-investigate"
+      trigger: "Edit cleanup.md Step 0"
+      invariant: "All sub-task routing and execution unchanged"
+    - phase: 3
+      from_state: "No behavioral test for orchestrator pre-investigation"
+      to_state: "Behavioral test exists in both RED and GREEN phases"
+      trigger: "Create behavioral test script"
+      invariant: "Existing cleanup tests continue to pass"

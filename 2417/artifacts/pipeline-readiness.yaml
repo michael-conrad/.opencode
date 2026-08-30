@@ -1,0 +1,42 @@
+pipeline_readiness:
+  issue_number: 2417
+  atomicity:
+    - SC-1 -> ITEM-1: single edit to SKILL.md (structural verification)
+    - SC-2 -> ITEM-2: single edit to cleanup.md (guard note)
+    - SC-3 -> ITEM-3: single edit to cleanup.md (reporting order)
+    - SC-4.1 -> ITEM-4: new behavioral test script (artifact generation)
+    - SC-4.2 -> ITEM-5: clean-room evaluation (no file change)
+  atomicity_check: PASS — every SC maps to exactly one cycle
+  dependency_ordering:
+    edges:
+      - SC-2 depends on SC-1 (guard note is useful only after dispatch prompt change)
+      - SC-3 depends on SC-2 (reporting order reinforcement is in same file)
+      - SC-4 depends on SC-1, SC-2, SC-3 (behavioral test verifies all structural changes)
+    dag: acyclic
+  dependency_check: PASS — DAG is acyclic (SC-1 -> SC-2 -> SC-3 -> SC-4)
+  single_concern:
+    - SC-1: SKILL.md (dispatch prompt) — structural
+    - SC-2: cleanup.md (guard note) — string
+    - SC-3: cleanup.md (reporting order) — structural
+    - SC-4.1: behavioral test script — behavioral (artifact generation)
+    - SC-4.2: clean-room evaluation — behavioral (evaluation)
+  concern_check: PASS — every SC targets one file category and one verification domain
+  phase_dependency:
+    phases:
+      - phase: 1
+        scs: [SC-1]
+        description: Update SKILL.md dispatch prompt
+      - phase: 2
+        scs: [SC-2, SC-3]
+        description: Add guard note and reinforce reporting in cleanup.md
+      - phase: 3
+        scs: [SC-4]
+        description: Create behavioral test (runs after all structural changes)
+    phase_graph: acyclic
+  phase_check: PASS — Phase 1 -> Phase 2 -> Phase 3
+  three_tier_structure:
+    has_pre: false (no pre-phase needed — changes are simple edits)
+    has_per_file: true (three phases: SKILL.md, cleanup.md, behavioral test)
+    has_post: false (no post-phase needed)
+  three_tier_check: PASS — per-file structure is correct for this scope
+  overall: PASS

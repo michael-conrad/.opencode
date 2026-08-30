@@ -1,0 +1,53 @@
+interface_compatibility:
+  issue_number: 2417
+  interfaces:
+    - name: git-workflow-cleanup/dispatch-prompt
+      type: dispatch_prompt
+      file: .opencode/skills/git-workflow-cleanup/SKILL.md:36
+      status: modified
+      backward_compatible: false
+      analysis: >
+        The dispatch prompt changes from concat() requiring pr_merge_status and branch_name to a static string
+        with pr_merged_event: true. This is a BREAKING change for the orchestrator's dispatch protocol — the
+        orchestrator no longer passes pre-resolved values. However, since the orchestrator and sub-agent are
+        always updated together (same deployment), this breaking change does not affect external consumers.
+      dependency_contract:
+        source: git-workflow-cleanup/SKILL.md (dispatch prompt)
+        target: git-workflow-cleanup/tasks/cleanup.md (entry criteria)
+        type: dispatch_protocol
+        constraint: >
+          The orchestrator MUST NOT investigate PR state before dispatch. The sub-agent independently discovers
+          PR merge status, branch_name, and submodule routing context from the local git state.
+    - name: git-workflow-cleanup/context-passed
+      type: routing_context
+      file: .opencode/skills/git-workflow-cleanup/SKILL.md:37
+      status: modified
+      backward_compatible: false
+      analysis: >
+        context_passed changes from {pr_merge_status, branch_name} to {pr_merged_event: true}. This removes
+        the requirement for the orchestrator to resolve these values before dispatch.
+      dependency_contract:
+        source: git-workflow-cleanup/SKILL.md (context_passed)
+        target: git-workflow-cleanup/tasks/cleanup.md (Step 1: Verify PR Merge)
+        type: routing_context
+        constraint: >
+          The sub-agent receives only pr_merged_event: true as a signal to proceed with cleanup. All PR state
+          discovery happens within the sub-agent's own context.
+    - name: git-workflow-cleanup/guard-note
+      type: instruction
+      file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md:35
+      status: new
+      backward_compatible: true
+      analysis: >
+        Additive guard note at Step 0. Does not modify any existing interface — only adds an instruction.
+    - name: git-workflow-cleanup/reporting-order
+      type: instruction
+      file: .opencode/skills/git-workflow-cleanup/tasks/cleanup.md:113
+      status: modified
+      backward_compatible: true
+      analysis: >
+        Existing submodule-first iteration order is reinforced in result contract reporting. No interface change.
+  removed_interfaces: []
+  breaking_changes:
+    - "Dispatch prompt no longer accepts pr_merge_status and branch_name from orchestrator"
+    - "context_passed no longer requires pr_merge_status and branch_name resolution before dispatch"
