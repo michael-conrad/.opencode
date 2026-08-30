@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Extracted from interface-compatibility.yaml dependency_contract section
+
+description: "Concrete dependency data derived from spec #2413 affected files and success criteria — real sources, real targets, real phase ordering, real dependency edges"
+
+phase_ordering:
+  - phase: 1
+    scs: [SC-1]
+    files:
+      - .opencode/skills/spec-creation/tasks/analyze.md
+      - .opencode/skills/brainstorming/tasks/top-down-analysis.md
+  - phase: 2
+    scs: [SC-3]
+    files:
+      - .opencode/skills/writing-plans/tasks/research.md
+  - phase: 3
+    scs: [SC-2]
+    files:
+      - .opencode/skills/writing-plans/contracts/
+
+entries:
+  - source: "analyze.md Step 5.1.5 / top-down-analysis.md Step 3c (SC-1, Phase 1)"
+    target: "research.md step 9 (SC-3, Phase 2)"
+    type: "artifact schema (interface-compatibility.yaml → dependency_contract section)"
+    constraint: "Phase 1 emits dependency_contract as a key in interface-compatibility.yaml; Phase 2 reads and extracts it into dependency-contract.yaml. The section structure must match between producer and consumer."
+  - source: "research.md step 9 extracted dependency-contract.yaml (SC-3, Phase 2)"
+    target: "solve/plan tools (.opencode/tools/solve, .opencode/tools/plan)"
+    type: "input data (dependency-contract.yaml)"
+    constraint: "The extracted contract at .opencode/.issues/2413/dependency-contract.yaml must match the schema solve/plan tools expect. Auto-backfill (if chosen) must produce contracts indistinguishable from natively generated ones."
+  - source: "spec-creation pipeline interface-compatibility.yaml (SC-1, Phase 1)"
+    target: "writing-plans contracts schema templates (SC-2, Phase 3)"
+    type: "schema agreement verification"
+    constraint: "Phase 3 verifies that the dependency_contract section structure emitted by Phase 1 matches the contract schema templates. Both must agree on keys, nesting, and required fields."
+
+cross_phase_edges:
+  - from: 1
+    to: 2
+    rationale: "Phase 2 (research.md step 9) depends on Phase 1 (interface-compatibility.yaml with dependency_contract). Without the section, step 9 cannot extract dependency-contract.yaml, blocking the plan pipeline."
+  - from: 1
+    to: 3
+    rationale: "Phase 3 verifies the schema produced by Phase 1 against contract templates. The verification can only run after the Phase 1 artifact is generated."
+
+Co-authored with AI: OpenCode (DeepSeek-V4-Flash)

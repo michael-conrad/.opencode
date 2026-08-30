@@ -1,0 +1,112 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+schema_version: "1.0"
+issue_number: 2413
+
+phases:
+  - phase: 1
+    label: "Forward spec-creation artifact generation — emit dependency_contract"
+    scs: [SC-1]
+    items:
+      - item: item-1
+        sc_id: SC-1
+        description: "Ensure spec-creation-generated interface-compatibility.yaml always contains a dependency_contract section with concrete dependency data"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 2
+    label: "Research.md step 9 adaptation — validate or auto-backfill dependency_contract"
+    scs: [SC-3]
+    items:
+      - item: item-2
+        sc_id: SC-3
+        description: "Modify research.md step 9 to detect missing dependency_contract and auto-backfill from existing keys instead of hard-blocking with DEPENDENCY_CONTRACT_NOT_FOUND"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 3
+    label: "Producer-consumer schema agreement verification"
+    scs: [SC-2]
+    items:
+      - item: item-3
+        sc_id: SC-2
+        description: "Verify the dependency_contract section structure emitted by spec-creation pipeline matches the contract schema templates expected by solve/plan tools"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 3
+      rationale: "Phase 3 verifies that the dependency_contract schema emitted by Phase 1 matches contract templates. Verification can only run after Phase 1 artifact generation."
+  independent:
+    - phase: 2
+      rationale: "Phase 2 modifies research.md step 9 to auto-backfill dependency_contract. This is structurally independent of Phase 1 — both paths solve SC-3 independently. No dependency edge needed."
+
+triplet_co_location:
+  status: VERIFIED
+  note: "Each SC has RED/GREEN/COMMIT steps assigned to exactly one phase. SC-1 → Phase 1 (item-1), SC-2 → Phase 3 (item-3), SC-3 → Phase 2 (item-2). No triplet split detected."
+
+cross_phase_dependency:
+  status: VERIFIED
+  note: "No RED test depends on SC output not yet committed in the same phase. Phase 2 is independent of Phase 1. Phase 3 verification depends on Phase 1 output existing (not on uncommitted SC-M from another phase), which is a post-commit verification — not a cross-phase dependency violation."
+
+skill_task_selection:
+  pre_implementation:
+    - skill: test-driven-development
+      task: pre-regression
+      dispatch: "execute phase-0 task from test-driven-development"
+  red_green_cycle:
+    - skill: test-driven-development
+      task: red/green
+      dispatch: "execute red task from test-driven-development / execute green task from test-driven-development"
+  post_implementation:
+    - skill: verification-before-completion
+      task: verify
+      dispatch: "execute verify task from verification-before-completion"
+    - skill: audit
+      task: verification-audit DiMo investigator
+      dispatch: "execute verification-audit DiMo investigator from audit"
+    - skill: finishing-a-development-branch
+      task: structural-checks
+      dispatch: "execute checklist task from finishing-a-development-branch"
+    - skill: verification-before-completion
+      task: pre-pr-gate
+      dispatch: "execute verify task from verification-before-completion"
+
+Co-authored with AI: OpenCode (DeepSeek-V4-Flash)

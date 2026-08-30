@@ -3,6 +3,7 @@ title: '[BUG] interface-compatibility.yaml artifact missing dependency_contract 
 status: open
 labels:
 - approved-for-for_pr
+- spec-cleared
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/{N}/
 
 

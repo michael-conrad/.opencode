@@ -1,0 +1,127 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+domain: "interface-compatibility-fix"
+
+types:
+  - name: phase
+  - name: sc
+  - name: artifact
+  - name: tool
+
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: sc_1
+    type: sc
+  - name: sc_2
+    type: sc
+  - name: sc_3
+    type: sc
+  - name: interface_compatibility_yaml
+    type: artifact
+  - name: dependency_contract_yaml
+    type: artifact
+  - name: plan_output_yaml
+    type: artifact
+  - name: solve_tool
+    type: tool
+  - name: plan_tool
+    type: tool
+
+fluents:
+  - name: phase_complete
+    params:
+      - name: p
+        type: phase
+  - name: sc_satisfied
+    params:
+      - name: s
+        type: sc
+  - name: artifact_has_dependency_contract
+    params:
+      - name: a
+        type: artifact
+  - name: contract_extracted
+    params:
+      - name: a
+        type: artifact
+  - name: solve_sat
+    params:
+      - name: t
+        type: tool
+  - name: plan_valid
+
+actions:
+  - name: emit_dependency_contract
+    params:
+      - name: a
+        type: artifact
+    preconditions: []
+    effects:
+      - artifact_has_dependency_contract(interface_compatibility_yaml)
+  - name: extract_contract
+    params:
+      - name: src
+        type: artifact
+      - name: dst
+        type: artifact
+    preconditions:
+      - artifact_has_dependency_contract(src)
+    effects:
+      - contract_extracted(dst)
+  - name: complete_phase
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - phase_complete(p)
+  - name: satisfy_sc
+    params:
+      - name: s
+        type: sc
+      - name: p
+        type: phase
+    preconditions:
+      - phase_complete(p)
+    effects:
+      - sc_satisfied(s)
+  - name: run_solve
+    params:
+      - name: t
+        type: tool
+    preconditions:
+      - contract_extracted(dependency_contract_yaml)
+    effects:
+      - solve_sat(t)
+  - name: run_plan
+    preconditions:
+      - solve_sat(solve_tool)
+      - contract_extracted(dependency_contract_yaml)
+    effects:
+      - plan_valid
+
+init:
+  - not phase_complete(phase_1)
+  - not phase_complete(phase_2)
+  - not phase_complete(phase_3)
+  - not sc_satisfied(sc_1)
+  - not sc_satisfied(sc_2)
+  - not sc_satisfied(sc_3)
+  - not artifact_has_dependency_contract(interface_compatibility_yaml)
+  - not contract_extracted(dependency_contract_yaml)
+  - not solve_sat(solve_tool)
+  - not plan_valid
+
+goals:
+  - plan_valid
+  - sc_satisfied(sc_1)
+  - sc_satisfied(sc_2)
+  - sc_satisfied(sc_3)
+
