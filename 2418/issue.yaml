@@ -2,8 +2,7 @@ title: '[SPEC-FIX] git-workflow-cleanup: orchestrator pre-investigation reverses
   ordering'
 status: open
 labels:
-- needs-approval
-- spec-passed-review
+- approved-for-pr
 body: ''
 created_at: '2026-08-30T23:15:21+00:00'
-updated_at: '2026-08-30T23:15:21+00:00'
+updated_at: '2026-08-30T23:15:34+00:00'
