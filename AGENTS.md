@@ -148,6 +148,10 @@ git add .opencode
 
 **Do NOT fabricate parent-repo edits to bypass the submodule-only push gate.** If there are no parent-repo changes to make alongside the pointer update, the pointer update waits until the next real change. The gate exists to prevent review overhead for pointer-only PRs — do not create useless edits to work around it, and do not drop the pointer.
 
+### Mandatory Verifiable Test Execution Before Completion
+
+**Before any completion claim, the agent MUST have executed tests with `tests_run > 0` and `all_passed == true`, backed by a `tests-run.yaml` evidence artifact.** Verifiable test execution — not just command exit codes, not just file-existence checks, not just structural evidence — is REQUIRED before any completion claim. An exit code of 0 from a command that did not actually execute tests is NOT valid evidence. The tests-run.yaml artifact MUST enumerate which tests were run, their exit codes, and the total pass/fail count. This is a hard gate — no authorization, scope, or developer instruction may waive it.
+
 ### Testing Lessons Learned — Failure Patterns
 
 **Stale lock files:** `tmp/.behavior-run.lock` persists after killed test runs. Always run `rm -f tmp/.behavior-run.lock` before re-running. See `.opencode/tests-v2/AGENTS.md §10.1`.
