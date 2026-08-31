@@ -46,7 +46,7 @@ Hints INFORM but do NOT override — `audit --task spec-audit` retains its own s
 ### Step 3: Invoke audit
 
 ```
-Dispatch `audit` with `task(..., prompt: "execute spec-audit task from audit for issue N")`
+Dispatch `audit` with the prompt "execute spec-audit task from audit for issue N"
 ```
 
 Pass triage context as part of the invocation. The agent includes the hint about which subtasks are likely relevant based on the spec's nature.
