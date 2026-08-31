@@ -33,8 +33,8 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 When the agent needs to clean up after a PR merge — delete merged branches, close issues, sync trunk — or when a "pr merged" event or "check prs" request is detected.
 
 - [ ] 1. **Cleanup** — Deletes merged branches, closes issues, and syncs trunk
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [clean up after PR merge](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merge_status: ", pr_merge_status, ", branch_name: ", branch_name))`
-  - **Context passed:** `{pr_merge_status, branch_name}`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [clean up after PR merge](.opencode/skills/git-workflow-cleanup/tasks/cleanup.md). pr_merged_event: true"))`
+  - **Context passed:** `{pr_merged_event}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
   - **Executor note:** The cleanup executor IS the dispatched sub-agent. It performs the cleanup work directly (as the executor) and returns a structured result contract. It MUST NOT re-dispatch itself via `task()` — a sub-agent's `task` tool is denied by its permission config. Any sub-task routing described in the task cards (e.g., submodule trunk restore) is performed inline by the executor.
@@ -44,8 +44,8 @@ When the agent needs to clean up after a PR merge — delete merged branches, cl
 When the agent needs to clean up a pair mode branch after a merge.
 
 - [ ] 1. **Pair cleanup** — Cleans up a pair mode branch after merge
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [clean up pair-mode branches](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). branch_name: ", branch_name))`
-  - **Context passed:** `{branch_name}`
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [clean up pair-mode branches](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). pr_merged_event: true"))`
+  - **Context passed:** `{pr_merged_event}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
