@@ -1,0 +1,41 @@
+spec_path: .opencode/.issues/2425/spec.md
+state_transitions:
+  - sc: SC-1
+    target: default-model.sh
+    from_state: "DEFAULT_TEST_MODEL fallback == ollama/qwen3.8:27b-256k"
+    to_state: "DEFAULT_TEST_MODEL fallback == ollama/qwen3.8:27b-256k-gguf4"
+  - sc: SC-2
+    target: with-test-home (seed_model_config)
+    from_state: "seed fallback == ollama/qwen3.8:27b-256k"
+    to_state: "seed fallback == ollama/qwen3.8:27b-256k-gguf4"
+  - sc: SC-3
+    target: with-test-home (warmup)
+    from_state: "warmup fallback == ollama/qwen3.8:27b-256k"
+    to_state: "warmup fallback == ollama/qwen3.8:27b-256k-gguf4"
+  - sc: SC-4
+    target: .opencode/tests-v2/AGENTS.md
+    from_state: stale literal present
+    to_state: stale literal absent
+  - sc: SC-5
+    target: .opencode/docs/model-dependency.md
+    from_state: stale literal present
+    to_state: stale literal absent
+  - sc: SC-6
+    target: .opencode/README.md
+    from_state: stale literal present
+    to_state: stale literal absent
+  - sc: SC-7
+    target: .opencode/AGENTS.md
+    from_state: stale literal present
+    to_state: stale literal absent
+  - sc: SC-8
+    target: AGENTS.md
+    from_state: stale literal present
+    to_state: stale literal absent
+
+state_machine_note: |
+  No runtime state machine exists for model selection. Each SC is a literal pre/post
+  value swap. SC-1 transitions the source of truth; SC-2 and SC-3 transition the two
+  harness fallbacks; SC-4 through SC-8 transition the five documentation files.
+  Pre-2425 value used for assertions: ollama/qwen3.8:27b-256k.
+  New value: ollama/qwen3.8:27b-256k-gguf4.

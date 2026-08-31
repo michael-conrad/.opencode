@@ -1,0 +1,41 @@
+spec_path: .opencode/.issues/2425/spec.md
+affected_files:
+  - path: .opencode/tests-v2/default-model.sh
+    status: EXISTS
+    scs: [SC-1]
+    change: Replace DEFAULT_TEST_MODEL fallback literal with ollama/qwen3.8:27b-256k-gguf4
+  - path: .opencode/tests-v2/with-test-home
+    status: EXISTS
+    scs: [SC-2, SC-3]
+    change: Replace seed_model_config() fallback literal (line 135) and warmup fallback literal (line 264) with gguf4 value
+  - path: .opencode/tests-v2/AGENTS.md
+    status: EXISTS
+    scs: [SC-4]
+    change: Remove stale pre-2425 literal ollama/qwen3.8:27b-256k
+  - path: .opencode/docs/model-dependency.md
+    status: EXISTS
+    scs: [SC-5]
+    change: Remove stale pre-2425 literal ollama/qwen3.8:27b-256k
+  - path: .opencode/README.md
+    status: EXISTS
+    scs: [SC-6]
+    change: Remove stale pre-2425 literal ollama/qwen3.8:27b-256k
+  - path: .opencode/AGENTS.md
+    status: EXISTS
+    scs: [SC-7]
+    change: Remove stale pre-2425 literal ollama/qwen3.8:27b-256k
+  - path: AGENTS.md
+    status: EXISTS
+    scs: [SC-8]
+    change: Remove stale pre-2425 literal ollama/qwen3.8:27b-256k
+
+scope_boundary:
+  out_of_scope:
+    - Model-selection logic
+    - GPU/VRAM handling
+    - Other model values beyond the default test model
+  blast_radius_summary: |
+    The change is limited to the single source of truth literal in default-model.sh,
+    two fallback literals in with-test-home, and five documentation files. No runtime
+    model-selection logic, hardware handling, or other model values are affected.
+    Each affected file maps to exactly one SC (except with-test-home, which carries SC-2 and SC-3).

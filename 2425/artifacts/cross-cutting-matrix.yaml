@@ -1,0 +1,21 @@
+spec_path: .opencode/.issues/2425/spec.md
+sc_cross_cut:
+  - sc: SC-2
+    spans_concerns: [concern_harness_fallbacks]
+    notes: Shares concern_harness_fallbacks with SC-3 but is an independent literal (seed_model_config path).
+  - sc: SC-3
+    spans_concerns: [concern_harness_fallbacks]
+    notes: Shares concern_harness_fallbacks with SC-2 but is an independent literal (warmup path).
+  - sc: SC-8
+    spans_concerns: [concern_docs_parent_agents]
+    notes: Targets the parent root AGENTS.md, which lives in the parent repo rather than the .opencode submodule — the only cross-repo boundary in the change.
+
+cross_repo_boundary:
+  submodule_files: [.opencode/tests-v2/default-model.sh, .opencode/tests-v2/with-test-home, .opencode/tests-v2/AGENTS.md, .opencode/docs/model-dependency.md, .opencode/README.md, .opencode/AGENTS.md]
+  parent_repo_files: [AGENTS.md]
+  notes: SC-8 targets the parent root AGENTS.md, distinct repository from the other six target files. All other SCs stay within the .opencode submodule.
+
+shared_surface:
+  scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+  shared_value: ollama/qwen3.8:27b-256k-gguf4
+  notes: All SCs converge on the same model string value but each is an independent, atomic literal swap per file; no SC spans more than one deliverable target.

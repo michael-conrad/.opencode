@@ -1,0 +1,35 @@
+spec_path: .opencode/.issues/2425/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 8
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+scope_boundary_findings:
+  - path: .opencode/tests-v2/default-model.sh
+    status: EXISTS
+  - path: .opencode/tests-v2/with-test-home
+    status: EXISTS
+  - path: .opencode/tests-v2/AGENTS.md
+    status: EXISTS
+  - path: .opencode/docs/model-dependency.md
+    status: EXISTS
+  - path: .opencode/README.md
+    status: EXISTS
+  - path: .opencode/AGENTS.md
+    status: EXISTS
+  - path: AGENTS.md
+    status: EXISTS
+backfill_summary: |
+  All 7 analytical artifacts were backfilled from the spec body. The spec contains
+  8 SCs mapping to 7 phases: SC-1 -> default-model.sh source of truth; SC-2 and SC-3
+  -> the two with-test-home fallbacks (seed_model_config and warmup, each atomic);
+  SC-4 through SC-8 -> five documentation files (one per SC). All affected files verified
+  to exist in codebase. Evidence type is `string` for all SCs (content-verification grep).
+  interface-compatibility.yaml carries a concrete dependency_contract with real sources
+  (with-test-home fallbacks, test assertions, local Ollama) and real targets.

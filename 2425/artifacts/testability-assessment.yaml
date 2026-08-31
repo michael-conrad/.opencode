@@ -1,0 +1,40 @@
+spec_path: .opencode/.issues/2425/spec.md
+testabilities:
+  - sc: SC-1
+    evidence_type: string
+    verification_method: test-2376-sc1-red.sh content-verification grep of the exact fallback pattern in default-model.sh
+  - sc: SC-2
+    evidence_type: string
+    verification_method: test-2376-sc2-red.sh content-verification grep of the seed_model_config() fallback literal in with-test-home
+  - sc: SC-3
+    evidence_type: string
+    verification_method: test-2376-sc3-red.sh content-verification grep of the warmup fallback literal in with-test-home
+  - sc: SC-4
+    evidence_type: string
+    verification_method: test-2376-sc4-red.sh content-verification grep asserting the old literal is absent from .opencode/tests-v2/AGENTS.md
+  - sc: SC-5
+    evidence_type: string
+    verification_method: test-2376-sc5-red.sh content-verification grep asserting the old literal is absent from .opencode/docs/model-dependency.md
+  - sc: SC-6
+    evidence_type: string
+    verification_method: test-2376-sc6-red.sh content-verification grep asserting the old literal is absent from .opencode/README.md
+  - sc: SC-7
+    evidence_type: string
+    verification_method: test-2376-sc7-red.sh content-verification grep asserting the old literal is absent from .opencode/AGENTS.md
+  - sc: SC-8
+    evidence_type: string
+    verification_method: test-2376-sc8-red.sh content-verification grep asserting the old literal is absent from the parent root AGENTS.md
+
+evidence_type_rationale: |
+  Each SC is a configuration/documentation literal-value swap, not a runtime-behavioral
+  change. Per the spec change control, these were reclassified from `structural` to `string`
+  evidence: grep-based content verification asserts literal presence/absence. No model
+  selection logic, GPU/VRAM handling, or other runtime behavior is altered, so string
+  evidence is the correct type; a claim of runtime-behavioral change would be
+  EVIDENCE_TYPE_MISMATCH.
+
+test_framework: |
+  RED/GREEN per-item cycle. Each SC maps to one test-2376-scN-red.sh assertion.
+  RED fails while the stale literal is present; GREEN swaps the literal and the assertion
+  exits 0. Tests are content-verification (grep) tests, not behavioral `opencode run` tests,
+  because the change is a literal-value swap with no runtime behavior change.

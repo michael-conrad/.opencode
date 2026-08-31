@@ -1,0 +1,45 @@
+spec_path: .opencode/.issues/2425/spec.md
+code_paths:
+  - sc: SC-1
+    path: .opencode/tests-v2/default-model.sh
+    location: line 4
+    symbol: DEFAULT_TEST_MODEL
+    description: Fallback literal expression DEFAULT_TEST_MODEL="${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k}"
+    change: Update literal value to ollama/qwen3.8:27b-256k-gguf4; preserve variable name and env-var override
+  - sc: SC-2
+    path: .opencode/tests-v2/with-test-home
+    location: line 135 (seed_model_config function, line 127)
+    symbol: seed_model_config
+    description: local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k}" used to seed opencode.jsonc
+    change: Update fallback literal to ollama/qwen3.8:27b-256k-gguf4
+  - sc: SC-3
+    path: .opencode/tests-v2/with-test-home
+    location: line 264 (warmup smoke-test path)
+    symbol: warmup smoke-test default_model
+    description: Un-env-wrapped fallback default_model="ollama/qwen3.8:27b-256k" used in warmup smoke test
+    change: Update fallback literal to ollama/qwen3.8:27b-256k-gguf4 independently
+  - sc: SC-4
+    path: .opencode/tests-v2/AGENTS.md
+    symbol: N/A (documentation)
+    description: Documentation reference to pre-2425 model literal
+    change: Remove stale literal ollama/qwen3.8:27b-256k
+  - sc: SC-5
+    path: .opencode/docs/model-dependency.md
+    symbol: N/A (documentation)
+    description: Documentation reference to pre-2425 model literal
+    change: Remove stale literal ollama/qwen3.8:27b-256k
+  - sc: SC-6
+    path: .opencode/README.md
+    symbol: N/A (documentation)
+    description: Documentation reference to pre-2425 model literal
+    change: Remove stale literal ollama/qwen3.8:27b-256k
+  - sc: SC-7
+    path: .opencode/AGENTS.md
+    symbol: N/A (documentation)
+    description: Documentation reference to pre-2425 model literal
+    change: Remove stale literal ollama/qwen3.8:27b-256k
+  - sc: SC-8
+    path: AGENTS.md
+    symbol: N/A (documentation)
+    description: Documentation reference to pre-2425 model literal
+    change: Remove stale literal ollama/qwen3.8:27b-256k

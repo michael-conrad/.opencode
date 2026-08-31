@@ -1,0 +1,50 @@
+spec_path: .opencode/.issues/2425/spec.md
+sc_count: 8
+concerns:
+  - id: concern_source_of_truth
+    name: Single source of truth literal
+    description: DEFAULT_TEST_MODEL fallback in default-model.sh
+    scs: [SC-1]
+    phase_boundary: Phase 1
+    evidence_type: string
+  - id: concern_harness_fallbacks
+    name: Test harness fallback literals
+    description: seed_model_config() and warmup smoke-test fallbacks in with-test-home
+    scs: [SC-2, SC-3]
+    phase_boundary: Phase 2
+    evidence_type: string
+  - id: concern_docs_testsv2
+    name: tests-v2 documentation reference
+    description: Stale model literal in .opencode/tests-v2/AGENTS.md
+    scs: [SC-4]
+    phase_boundary: Phase 3
+    evidence_type: string
+  - id: concern_docs_modeldep
+    name: model-dependency documentation reference
+    description: Stale model literal in .opencode/docs/model-dependency.md
+    scs: [SC-5]
+    phase_boundary: Phase 4
+    evidence_type: string
+  - id: concern_docs_readme
+    name: README documentation reference
+    description: Stale model literal in .opencode/README.md
+    scs: [SC-6]
+    phase_boundary: Phase 5
+    evidence_type: string
+  - id: concern_docs_opencode_agents
+    name: .opencode/AGENTS.md documentation reference
+    description: Stale model literal in .opencode/AGENTS.md
+    scs: [SC-7]
+    phase_boundary: Phase 6
+    evidence_type: string
+  - id: concern_docs_parent_agents
+    name: Parent root AGENTS.md documentation reference
+    description: Stale model literal in parent AGENTS.md
+    scs: [SC-8]
+    phase_boundary: Phase 7
+    evidence_type: string
+decomposition_note: |
+  Each SC maps to exactly one concern and one artifact deliverable. The two harness
+  fallbacks (SC-2, SC-3) are separate SCs because each is an independent literal in
+  with-test-home; they share concern_harness_fallbacks but remain atomic for the
+  Atomicity and Single Deliverable criteria.
