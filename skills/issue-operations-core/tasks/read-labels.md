@@ -53,7 +53,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`. Extract labels from returned issue data.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: N}`. Extract labels from returned issue data.
 
 ### Step 3: Return Label Data
 
