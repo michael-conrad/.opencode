@@ -1,0 +1,41 @@
+domain: model-update
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+  - name: p5
+    type: phase
+  - name: p6
+    type: phase
+  - name: p7
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: complete
+    params:
+      - name: p
+        type: phase
+    preconditions:
+      - not done(p)
+    effects:
+      - done(p)
+init: []
+goals:
+  - done(p1)
+  - done(p2)
+  - done(p3)
+  - done(p4)
+  - done(p5)
+  - done(p6)
+  - done(p7)

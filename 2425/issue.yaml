@@ -1,6 +1,6 @@
 labels:
-- approved-for-pr
-updated_at: '2026-08-31T23:10:50+00:00'
+- spec-cleared
+updated_at: '2026-08-31T23:21:38+00:00'
 title: '[SPEC] Change default test model to ollama/qwen3.8:27b-256k-gguf4'
 status: open
 github_url: https://github.com/michael-conrad/.opencode/issues/2425

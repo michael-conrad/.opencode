@@ -1,0 +1,86 @@
+spec_path: .opencode/.issues/2425/spec.md
+sc_count: 8
+phase_decomposition:
+  - phase: 1
+    scs: [SC-1]
+    concern: "Update DEFAULT_TEST_MODEL source of truth in default-model.sh"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 2
+    scs: [SC-2, SC-3]
+    concern: "Update the two with-test-home fallback literals (seed_model_config, warmup)"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 3
+    scs: [SC-4]
+    concern: "Update documentation reference in .opencode/tests-v2/AGENTS.md"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 4
+    scs: [SC-5]
+    concern: "Update documentation reference in .opencode/docs/model-dependency.md"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 5
+    scs: [SC-6]
+    concern: "Update documentation reference in .opencode/README.md"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 6
+    scs: [SC-7]
+    concern: "Update documentation reference in .opencode/AGENTS.md"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 7
+    scs: [SC-8]
+    concern: "Update documentation reference in parent root AGENTS.md"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      reason: "SC-2 and SC-3 (with-test-home fallbacks) depend on SC-1 (default-model.sh source of truth) being updated first"
+    - from: 1
+      to: 3
+      reason: "SC-4 documentation reference must reflect the updated source-of-truth value"
+    - from: 1
+      to: 4
+      reason: "SC-5 documentation reference must reflect the updated source-of-truth value"
+    - from: 1
+      to: 5
+      reason: "SC-6 documentation reference must reflect the updated source-of-truth value"
+    - from: 1
+      to: 6
+      reason: "SC-7 documentation reference must reflect the updated source-of-truth value"
+    - from: 1
+      to: 7
+      reason: "SC-8 documentation reference must reflect the updated source-of-truth value"
+skill_task_selection:
+  - phase: 1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 2
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 3
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 4
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 5
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 6
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+  - phase: 7
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+triplet_co_location:
+  status: OK
+  note: "Each SC's RED/GREEN/COMMIT steps are assigned to the same phase. No SC has steps split across phases."
+cross_phase_dependency:
+  status: OK
+  note: "No RED test in a phase depends on SC output from a later phase. All dependencies point forward (phase 1 -> later phases)."

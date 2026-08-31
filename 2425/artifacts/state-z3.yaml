@@ -1,0 +1,11 @@
+variables:
+  phase1_done: true
+  phase2_done: true
+  phase3_done: true
+  phase4_done: true
+  phase5_done: true
+  phase6_done: true
+  phase7_done: true
+  source_of_truth_updated: true
+  harness_fallbacks_updated: true
+  docs_updated: true

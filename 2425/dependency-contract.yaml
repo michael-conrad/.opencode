@@ -1,0 +1,21 @@
+dependencies:
+  - source: with-test-home (seed_model_config, line 135)
+    target: DEFAULT_TEST_MODEL env var from default-model.sh
+    type: literal_fallback
+    constraint: fallback must equal ollama/qwen3.8:27b-256k-gguf4 with var name and env override preserved
+    sc: [SC-2]
+  - source: with-test-home (warmup smoke test, line 264)
+    target: DEFAULT_TEST_MODEL env var from default-model.sh
+    type: literal_fallback_unenvwrapped
+    constraint: fallback must equal ollama/qwen3.8:27b-256k-gguf4, updated independently
+    sc: [SC-3]
+  - source: test-2376-scN-red.sh assertions
+    target: target file literals
+    type: content_verification
+    constraint: assertion literal must match gguf4 value; target literal must match assertion to avoid test failure
+    sc: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+  - source: Local Ollama instance
+    target: ollama/qwen3.8:27b-256k-gguf4
+    type: external_availability
+    constraint: model tag ba02985ca4b1 (17 GB) present and runtime-available
+    sc: [SC-1, SC-2, SC-3]

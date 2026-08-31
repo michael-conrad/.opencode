@@ -1,0 +1,48 @@
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+  phase3_done:
+    type: bool
+  phase4_done:
+    type: bool
+  phase5_done:
+    type: bool
+  phase6_done:
+    type: bool
+  phase7_done:
+    type: bool
+  source_of_truth_updated:
+    type: bool
+  harness_fallbacks_updated:
+    type: bool
+  docs_updated:
+    type: bool
+preconditions:
+  - "z3.Not(source_of_truth_updated)"
+  - "z3.Not(harness_fallbacks_updated)"
+  - "z3.Not(docs_updated)"
+invariants:
+  - "z3.Implies(phase2_done, phase1_done)"
+  - "z3.Implies(phase3_done, phase1_done)"
+  - "z3.Implies(phase4_done, phase1_done)"
+  - "z3.Implies(phase5_done, phase1_done)"
+  - "z3.Implies(phase6_done, phase1_done)"
+  - "z3.Implies(phase7_done, phase1_done)"
+  - "z3.Implies(harness_fallbacks_updated, source_of_truth_updated)"
+  - "z3.Implies(docs_updated, source_of_truth_updated)"
+postconditions:
+  - "phase1_done"
+  - "phase2_done"
+  - "phase3_done"
+  - "phase4_done"
+  - "phase5_done"
+  - "phase6_done"
+  - "phase7_done"
+  - "source_of_truth_updated"
+  - "harness_fallbacks_updated"
+  - "docs_updated"
+theorem:
+  - "z3.Implies(z3.And(phase2_done, phase3_done), phase1_done)"
+  - "z3.Implies(z3.And(phase4_done, phase5_done, phase6_done, phase7_done), phase1_done)"

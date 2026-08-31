@@ -1,0 +1,27 @@
+---
+actions:
+- name: complete
+  parameters:
+  - p1
+- name: complete
+  parameters:
+  - p2
+- name: complete
+  parameters:
+  - p7
+- name: complete
+  parameters:
+  - p6
+- name: complete
+  parameters:
+  - p5
+- name: complete
+  parameters:
+  - p4
+- name: complete
+  parameters:
+  - p3
+domain: model-update
+engine: tamer
+plan_length: 7
+status: SOLVED_SATISFICING

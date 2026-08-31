@@ -1,0 +1,28 @@
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  - name: model
+    query: "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done)"
+    result: SAT
+    note: "Goal state (all 7 phases complete) is reachable under the dependency DAG invariants (phase2..7 imply phase1)."
+  - name: check-initial
+    state: state-z3-initial.yaml
+    result: SAT
+    note: "Initial state (all phases incomplete) satisfies preconditions; postconditions UNSAT on initial state is the expected goal-not-yet-reached condition."
+  - name: check-goal
+    state: state-z3.yaml
+    result: UNSAT
+    note: "Goal state conflicts with preconditions (preconditions assert initial not-done state). Goal reachability is proven by the model query (SAT)."
+planner:
+  engine: tamer
+  status: SOLVED_SATISFICING
+  plan_length: 7
+  plan:
+    - complete(p1)
+    - complete(p2)
+    - complete(p7)
+    - complete(p6)
+    - complete(p5)
+    - complete(p4)
+    - complete(p3)
+  note: "Planner produces a 7-step plan covering all phases. Phase ordering in the plan is not strictly enforced by the planner (no ordering constraints in the problem), but the Z3 contract invariants enforce phase1-before-phase2..7."
