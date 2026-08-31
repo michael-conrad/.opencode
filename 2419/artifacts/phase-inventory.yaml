@@ -1,0 +1,38 @@
+plan_path: .opencode/.issues/2419/plan.md
+issue: .opencode#2419
+title: "Remove blanket 'No echo or printf' rule from 020-go-prohibitions.md"
+phase_order:
+  - name: "Phase 1 — Remove blanket prohibition"
+    concern: rule-removal, scope-preservation, cross-file-preservation
+    scs: [SC-1, SC-2, SC-3]
+    dependencies: none
+    steps: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    dispatch:
+      - test-driven-development
+      - verification-before-completion
+post_implementation:
+  - step: 13
+    name: Audit
+    dispatch: audit
+  - step: 14
+    name: Z3 check
+    dispatch: inline (.opencode/tools/solve)
+  - step: 15
+    name: Structural checks
+    dispatch: finishing-a-development-branch
+  - step: 16
+    name: Pre-PR gate
+    dispatch: verification-before-completion
+  - step: 17
+    name: Regression check
+    dispatch: test-driven-development
+  - step: 18
+    name: Review prep
+    dispatch: git-workflow-pr
+  - step: 19
+    name: Create PR
+    dispatch: git-workflow-pr
+  - step: 20
+    name: Completion
+    dispatch: completion-core
+dependency_order: "Single phase (Phase 1) with no dependencies; daisy-chained items 1-12 within the phase, followed by post-implementation steps 13-20."
