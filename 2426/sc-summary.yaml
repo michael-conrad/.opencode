@@ -1,0 +1,26 @@
+sc_count: 6
+scs:
+  - id: "SC-1a"
+    description: "Reconcile co-author trailer requirement on implementation commits (no trailers on WIP commits)"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-1b"
+    description: "Reconcile co-author trailer requirement on the squashed commit (dual AI + human trailers)"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2a"
+    description: "Reconcile commit-count rule (multiple WIP commits during dev acceptable)"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-2b"
+    description: "Reconcile commit-count rule (squash to one commit per issue at PR creation)"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3a"
+    description: "Establish canonical rule stated consistently across gates (commit-count dimension: exactly 1 squashed commit per issue)"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-3b"
+    description: "Establish canonical rule stated consistently across gates (trailer-placement dimension: dual co-author trailers on the squashed commit)"
+    evidence_type: "behavioral"
+    plan_item: 3
