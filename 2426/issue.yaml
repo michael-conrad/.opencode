@@ -1,0 +1,7 @@
+number: 2426
+title: "[SPEC] Reconcile commit co-author trailer and squash-to-one-commit rules"
+labels:
+  - needs-approval
+state: open
+remote_issue: 2426
+remote_url: https://github.com/michael-conrad/.opencode/issues/2426
