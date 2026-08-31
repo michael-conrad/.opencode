@@ -24,6 +24,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - **Replace residual 'dev' trunk references** (#2308) - Replaced residual `dev` branch references in `git-workflow-cleanup` cleanup.md with the `$DEFAULT_BRANCH` trunk, so cleanup targets the actual default branch rather than the removed `dev` branch.
 
+- **Skill deck workflow/contract defects remediation** (#2410) - Aligned SKILL.md Workflows Returns/Context contracts with task-card Result Contracts/Entry Criteria across the git-workflow, issue-operations, and related skill families, removed embedded `task()`/`skill()` dispatch from task cards in favor of orchestrator-routing markers, and reworded lint false-positive triggers (e.g. trunk-tip-verification Entry Criteria, writing-plans analyze). 33 SCs, all behavioral, verified via skildeck lint.
+
 ### Fixed
 
 - **Built-in glob silent failures documented and remediated** (#2334) - Added a verified-semantics section to `060-tool-usage.md` documenting the six silent-failure modes of the built-in glob tool (LIM-1..LIM-6: hidden-directory skip, gitignore filtering, silent-empty conflation, files-only matching, absolute-pattern rejection, opaque path errors), the canonical path-parameter invocation idiom, and the empty-result disambiguation rule. Remediated all 27 audit-family task files, the sre-runbook generate.md discovery and format-matching gates, the verification-before-completion completion.md and collect.md evidence checks, and the research-card catalogue instruction to canonical path-parameter form with empty-result guards. Added a behavioral enforcement test proving agents emit a working path-parameter invocation instead of concluding nonexistence from a silent-empty result.
