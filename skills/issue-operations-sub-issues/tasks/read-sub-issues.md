@@ -46,7 +46,7 @@ echo "Sub-issues not supported by GitBucket API. Use comment-based linking."
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`. Extract sub-issue data from returned issue metadata.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: N}`. Extract sub-issue data from returned issue metadata.
 
 ### Step 3: Return Sub-Issue Data
 
