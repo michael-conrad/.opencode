@@ -11,8 +11,8 @@ The `.opencode` skilldeck is hard-wired to use **Ollama** as its model provider 
 | Layer | Ollama Footprint |
 |---|---|
 | **Agent definitions** (`agents/auditor-*.md`) | All 4 auditor agents hard-code `model: ollama/:cloud` |
-| **Behavioral tests** (`tests-v2/behaviors/`) | Default test model: `ollama/qwen3.8:27b-256k` (from `default-model.sh`); `helpers.sh` sources `default-model.sh` |
-| **Content-verification tests** (`test-enforcement.sh`) | Default model: `ollama/qwen3.8:27b-256k` (from `default-model.sh`) |
+| **Behavioral tests** (`tests-v2/behaviors/`) | Default test model: `ollama/qwen3.8:27b-256k-gguf4` (from `default-model.sh`); `helpers.sh` sources `default-model.sh` |
+| **Content-verification tests** (`test-enforcement.sh`) | Default model: `ollama/qwen3.8:27b-256k-gguf4` (from `default-model.sh`) |
 | **Auditor pool** (`tests-v2/qualification/qualified-auditor-pool.sh`) | 4 audited models, all `:cloud`-suffixed via Ollama |
 | **Audit** (`skills/audit/`) | Cross-family cross-validation dispatches dual Ollama models per audit via `resolve-models` |
 | **Tooling** (`tools/ollama-probe`, `tools/resolve-models`) | Dedicated tools for probing local Ollama server and resolving auditor model pairs |
@@ -31,7 +31,7 @@ The `.opencode` skilldeck is hard-wired to use **Ollama** as its model provider 
 
 | Setting | Mechanism | Default |
 |---|---|---|
-| **Default test model** | `DEFAULT_TEST_MODEL` env var (sourced from `tests-v2/default-model.sh`) | `ollama/qwen3.8:27b-256k` |
+| **Default test model** | `DEFAULT_TEST_MODEL` env var (sourced from `tests-v2/default-model.sh`) | `ollama/qwen3.8:27b-256k-gguf4` |
 | **Auditor agent models** | `model:` field in `agents/auditor-*.md` YAML frontmatter | Per-card (e.g., `ollama/deepseek-v4-flash:cloud`) |
 | **Qualified auditor pool** | `tests-v2/qualification/qualified-auditor-pool.sh` | 4 models (deepseek-v4-flash, gemma4, mistral-large-3, qwen3.5) |
 | **Auditor pair resolution** | `tools/resolve-models` scans cards + pool | Selects 2 auditors from different families |
