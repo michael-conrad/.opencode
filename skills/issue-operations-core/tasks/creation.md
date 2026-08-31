@@ -47,7 +47,7 @@ Action: [auto-resolved strategy | proceed | HALT]
 
 Before or alongside the remote dedup search, search `.issues/` for existing local specs:
 
-- [ ] 1. Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<significant keywords>", status: "open"}`
+- [ ] 1. Route to `platforms/local/tasks/search.md`. Pass: `{query: "<significant keywords>", status: "open"}`
 - [ ] 1. For each match, compare title keywords against proposed title
 - [ ] 1. Classify match level per `pre-creation.md` Step 0.5 Phase 2 classification table
 - [ ] 1. If a local EXACT-DUPLICATE or NEAR-DUPLICATE exists → report it alongside any remote duplicates
@@ -75,7 +75,7 @@ This fallback catches the scenario where `pre-creation` was not run or its outpu
 
 - [ ] 1. Extract significant keywords from the proposed title (remove stop words, prefixes like `[SPEC]`, `[SPEC-FIX]`, `[Task:]`)
 - [ ] 1. Search `.issues/` for local duplicates:
-   - **Local:** Route to `platforms/local/tasks/search.md` via task(). Pass: `{query: "<keywords>", status: "open"}`
+   - **Local:** Route to `platforms/local/tasks/search.md`. Pass: `{query: "<keywords>", status: "open"}`
    - Classify any local matches per `pre-creation.md` Step 0.5 Phase 2 classification table
 - [ ] 1. Search for existing issues via platform API:
    - **GitHub:** `issue-operations → search-issues` with keyword query
@@ -164,10 +164,10 @@ Determine creation order based on `github.platform`. **In ALL flows, the `needs-
 - [ ] 1. Promote to remote platform FIRST. Route based on `github.platform`:
 
    **GitHub:**
-   Route to `platforms/github-mcp/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `github_issue_write` call.
+   Route to `platforms/github-mcp/` sub-skill. Pass issue parameters (title, body, labels). The platform sub-skill handles the `github_issue_write` call.
 
    **GitBucket:**
-   Route to `platforms/gitbucket-api/` sub-skill via task(). Pass issue parameters (title, body, labels). The platform sub-skill handles the `gitbucket-api` call.
+   Route to `platforms/gitbucket-api/` sub-skill. Pass issue parameters (title, body, labels). The platform sub-skill handles the `gitbucket-api` call.
 
    **Note (GitBucket):** Labels can ONLY be set during creation. Post-creation label changes do not work. Treat this as best-effort — the local `issue.yaml` is the canonical label source.
 
@@ -197,7 +197,7 @@ Determine creation order based on `github.platform`. **In ALL flows, the `needs-
 
 **Use counter-based numbering. Create local first, no remote promotion:**
 
-Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "<title>", labels: ["needs-approval"]}`
+Route to `platforms/local/tasks/creation.md`. Pass: `{title: "<title>", labels: ["needs-approval"]}`
 
 Then write the spec body to `.issues/{N}/spec.md` (preserving YAML frontmatter).
 
@@ -294,7 +294,7 @@ When an issue is created (local or promoted), remind the developer how to review
 
 ```
 Local issue #NNN created. Review with:
-  platforms/local/tasks/read.md via task()
+  platforms/local/tasks/read.md
 ```
 
 **Remote platform (remote-first):**
@@ -302,7 +302,7 @@ Local issue #NNN created. Review with:
 ```
 Issue #MMM created on GitHub. Review:
   Remote: <html_url>
-  Local mirror: platforms/local/tasks/read.md via task()
+  Local mirror: platforms/local/tasks/read.md
 ```
 
 ### Step 5: Enforce Exec Summary Body Format
