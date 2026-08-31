@@ -18,9 +18,9 @@ promoted_at: 2026-08-31T15:15:00Z
 |---|-------|-------------|
 | 1 | **Problem Statement** | The default test model for the `opencode run` test framework is `ollama/qwen3.8:27b-256k`. It must be changed to `ollama/qwen3.8:27b-256k-gguf4` across the single source of truth, the harness fallback strings, the behavioral test assertions, and all documentation references. |
 | 2 | **Root Cause / Motivation** | The test framework's default model must be updated to the gguf4 build of the same model. The value is defined once in `default-model.sh` as `DEFAULT_TEST_MODEL` and mirrored in harness fallbacks, test assertions, and documentation. A coordinated change is required so every reference names the same model string or tests and documentation drift. |
-| 3 | **Approach Chosen** | Update the single source of truth `DEFAULT_TEST_MODEL` in `default-model.sh` to the gguf4 value, then propagate the change to the two fallback literals in `with-test-home`, the three behavioral test assertion scripts, and the five documentation files. Each SC is a literal-value swap verified by content-verification (grep) tests. |
+| 3 | **Approach Chosen** | Update the single source of truth `DEFAULT_TEST_MODEL` in `default-model.sh` to the gguf4 value, then propagate the change to the two fallback literals in `with-test-home` (one SC each) and the five documentation files (one SC each). Each SC is a single-target literal-value swap verified by content-verification (grep) tests. |
 | 4 | **Alternatives Considered & Why Discarded** | **Alternative: leave the fallback literals in `with-test-home` un-env-wrapped and independent.** Discarded because the warmup fallback at line 264 is a separate un-env-wrapped literal that would silently diverge from the source of truth, breaking model consistency across the harness. |
-| 5 | **Key Design Decisions** | **Decision: keep `DEFAULT_TEST_MODEL` as the single source of truth and mirror it in all fallbacks.** Tradeoff: requires a coordinated multi-file change, but preserves a single authoritative value and keeps the env-var override honored. **Decision: use content-verification (grep) tests rather than behavioral tests.** Tradeoff: this is a configuration/documentation literal change, not a runtime-behavioral change, so grep-based assertion is the correct evidence type. |
+| 5 | **Key Design Decisions** | **Decision: keep `DEFAULT_TEST_MODEL` as the single source of truth and mirror it in all fallbacks.** Tradeoff: requires a coordinated multi-file change, but preserves a single authoritative value and keeps the env-var override honored. **Decision: use content-verification (grep) tests rather than behavioral tests.** Tradeoff: this is a configuration/documentation literal change, not a runtime-behavioral change, so grep-based assertion is the correct evidence type. **Decision: decompose the two `with-test-home` fallbacks and the five documentation files into atomic single-target SCs.** Tradeoff: more SCs, but each SC maps to exactly one deliverable, satisfying Atomicity and Single Deliverable criteria. |
 | 6 | **User Intent / Original Prompt** | Change the default test model to `ollama/qwen3.8:27b-256k-gguf4`. |
 
 ## 2. Not Included
@@ -33,9 +33,14 @@ promoted_at: 2026-08-31T15:15:00Z
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | The `DEFAULT_TEST_MODEL` fallback literal in `.opencode/tests-v2/default-model.sh` SHALL equal `ollama/qwen3.8:27b-256k-gguf4`, with the variable name and env-var overridability preserved. | structural | `test-2376-sc1-red.sh` content-verification grep of the exact fallback pattern |
-| SC-2 | Both fallback model literals in `.opencode/tests-v2/with-test-home` (the `seed_model_config()` path and the warmup smoke-test path) SHALL equal `ollama/qwen3.8:27b-256k-gguf4`. | structural | `test-2376-sc2-red.sh` content-verification grep of the fallback literals |
-| SC-3 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from all five documentation files: `.opencode/tests-v2/AGENTS.md`, `.opencode/docs/model-dependency.md`, `.opencode/README.md`, `.opencode/AGENTS.md`, and the parent root `AGENTS.md`. | structural | `test-2376-sc3-red.sh` content-verification grep asserting the old literal is absent across the five files |
+| SC-1 | The `DEFAULT_TEST_MODEL` fallback literal in `.opencode/tests-v2/default-model.sh` SHALL equal `ollama/qwen3.8:27b-256k-gguf4`, with the variable name and env-var overridability preserved. | string | `test-2376-sc1-red.sh` content-verification grep of the exact fallback pattern |
+| SC-2 | The fallback model literal in the `seed_model_config()` path of `.opencode/tests-v2/with-test-home` SHALL equal `ollama/qwen3.8:27b-256k-gguf4`. | string | `test-2376-sc2-red.sh` content-verification grep of the `seed_model_config()` fallback literal |
+| SC-3 | The fallback model literal in the warmup smoke-test path of `.opencode/tests-v2/with-test-home` SHALL equal `ollama/qwen3.8:27b-256k-gguf4`. | string | `test-2376-sc3-red.sh` content-verification grep of the warmup fallback literal |
+| SC-4 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from `.opencode/tests-v2/AGENTS.md`. | string | `test-2376-sc4-red.sh` content-verification grep asserting the old literal is absent from `.opencode/tests-v2/AGENTS.md` |
+| SC-5 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from `.opencode/docs/model-dependency.md`. | string | `test-2376-sc5-red.sh` content-verification grep asserting the old literal is absent from `.opencode/docs/model-dependency.md` |
+| SC-6 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from `.opencode/README.md`. | string | `test-2376-sc6-red.sh` content-verification grep asserting the old literal is absent from `.opencode/README.md` |
+| SC-7 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from `.opencode/AGENTS.md`. | string | `test-2376-sc7-red.sh` content-verification grep asserting the old literal is absent from `.opencode/AGENTS.md` |
+| SC-8 | The pre-2425 default literal `ollama/qwen3.8:27b-256k` SHALL be absent from the parent root `AGENTS.md`. | string | `test-2376-sc8-red.sh` content-verification grep asserting the old literal is absent from the parent root `AGENTS.md` |
 
 ## 4. Requirements
 
@@ -59,19 +64,54 @@ promoted_at: 2026-08-31T15:15:00Z
 - verify: Run `test-2376-sc1-red.sh`; it exits 0.
 - commit: Commit the `default-model.sh` change and the `test-2376-sc1-red.sh` assertion update together.
 
-### Item 2 (SC-2): Update the fallback literals in `with-test-home`
+### Item 2 (SC-2): Update the `seed_model_config()` fallback literal in `with-test-home`
 
-- RED: `test-2376-sc2-red.sh` asserts both fallbacks equal `ollama/qwen3.8:27b-256k-gguf4`; currently stale, so it fails.
-- GREEN: Replace both fallback literals in `with-test-home` (the `seed_model_config()` path and the warmup path) with the gguf4 value.
+- RED: `test-2376-sc2-red.sh` asserts the `seed_model_config()` fallback equals `ollama/qwen3.8:27b-256k-gguf4`; currently stale, so it fails.
+- GREEN: Replace the `seed_model_config()` fallback literal in `with-test-home` with the gguf4 value.
 - verify: Run `test-2376-sc2-red.sh`; it exits 0.
 - commit: Commit the `with-test-home` change and the `test-2376-sc2-red.sh` assertion update together.
 
-### Item 3 (SC-3): Update documentation references across five files
+### Item 3 (SC-3): Update the warmup smoke-test fallback literal in `with-test-home`
 
-- RED: `test-2376-sc3-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent across the five documentation files; currently present, so it fails.
-- GREEN: Replace the pre-2425 default literal in all five documentation files with the gguf4 value.
+- RED: `test-2376-sc3-red.sh` asserts the warmup fallback equals `ollama/qwen3.8:27b-256k-gguf4`; currently stale, so it fails.
+- GREEN: Replace the warmup fallback literal in `with-test-home` with the gguf4 value.
 - verify: Run `test-2376-sc3-red.sh`; it exits 0.
-- commit: Commit the five documentation file changes and the `test-2376-sc3-red.sh` assertion update together.
+- commit: Commit the `with-test-home` change and the `test-2376-sc3-red.sh` assertion update together.
+
+### Item 4 (SC-4): Update documentation reference in `.opencode/tests-v2/AGENTS.md`
+
+- RED: `test-2376-sc4-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent from `.opencode/tests-v2/AGENTS.md`; currently present, so it fails.
+- GREEN: Replace the pre-2425 default literal in `.opencode/tests-v2/AGENTS.md` with the gguf4 value.
+- verify: Run `test-2376-sc4-red.sh`; it exits 0.
+- commit: Commit the `.opencode/tests-v2/AGENTS.md` change and the `test-2376-sc4-red.sh` assertion update together.
+
+### Item 5 (SC-5): Update documentation reference in `.opencode/docs/model-dependency.md`
+
+- RED: `test-2376-sc5-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent from `.opencode/docs/model-dependency.md`; currently present, so it fails.
+- GREEN: Replace the pre-2425 default literal in `.opencode/docs/model-dependency.md` with the gguf4 value.
+- verify: Run `test-2376-sc5-red.sh`; it exits 0.
+- commit: Commit the `.opencode/docs/model-dependency.md` change and the `test-2376-sc5-red.sh` assertion update together.
+
+### Item 6 (SC-6): Update documentation reference in `.opencode/README.md`
+
+- RED: `test-2376-sc6-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent from `.opencode/README.md`; currently present, so it fails.
+- GREEN: Replace the pre-2425 default literal in `.opencode/README.md` with the gguf4 value.
+- verify: Run `test-2376-sc6-red.sh`; it exits 0.
+- commit: Commit the `.opencode/README.md` change and the `test-2376-sc6-red.sh` assertion update together.
+
+### Item 7 (SC-7): Update documentation reference in `.opencode/AGENTS.md`
+
+- RED: `test-2376-sc7-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent from `.opencode/AGENTS.md`; currently present, so it fails.
+- GREEN: Replace the pre-2425 default literal in `.opencode/AGENTS.md` with the gguf4 value.
+- verify: Run `test-2376-sc7-red.sh`; it exits 0.
+- commit: Commit the `.opencode/AGENTS.md` change and the `test-2376-sc7-red.sh` assertion update together.
+
+### Item 8 (SC-8): Update documentation reference in the parent root `AGENTS.md`
+
+- RED: `test-2376-sc8-red.sh` asserts the pre-2425 default literal `ollama/qwen3.8:27b-256k` is absent from the parent root `AGENTS.md`; currently present, so it fails.
+- GREEN: Replace the pre-2425 default literal in the parent root `AGENTS.md` with the gguf4 value.
+- verify: Run `test-2376-sc8-red.sh`; it exits 0.
+- commit: Commit the parent root `AGENTS.md` change and the `test-2376-sc8-red.sh` assertion update together.
 
 ## 6. Dependencies
 
@@ -86,9 +126,13 @@ promoted_at: 2026-08-31T15:15:00Z
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | Phase 1 |
-| R-2 | SC-2 | Phase 2 |
-| R-3, R-4, R-5, R-6, R-7 | SC-3 | Phase 3 |
-| R-8 | SC-1, SC-2, SC-3 | Phase 1, 2, 3 |
+| R-2 | SC-2, SC-3 | Phase 2 |
+| R-3 | SC-4 | Phase 3 |
+| R-4 | SC-5 | Phase 4 |
+| R-5 | SC-6 | Phase 5 |
+| R-6 | SC-7 | Phase 6 |
+| R-7 | SC-8 | Phase 7 |
+| R-8 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8 | Phase 1, 2, 3, 4, 5, 6, 7 |
 | R-9 | — | — |
 | R-10 | — | — |
 
@@ -114,16 +158,29 @@ promoted_at: 2026-08-31T15:15:00Z
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - SC-1: Verifying the `default-model.sh` fallback equals the gguf4 value costs one grep search. Skipping means the source of truth diverges from the harness and every downstream test run uses the wrong model, surfacing as a behavioral failure in CI.
-- SC-2: Verifying both `with-test-home` fallbacks equal the gguf4 value costs one grep search. Skipping means the harness seeds `opencode.jsonc` with the stale model and the warmup smoke-test runs the wrong model, surfacing as a runtime failure in the test harness.
-- SC-3: Verifying the pre-2425 default literal is absent from all five documentation files costs one grep search. Skipping means agent-facing documentation cites a stale model, undermining the CRITICAL VIOLATION enforcement text and misleading agents that read it.
+- SC-2: Verifying the `seed_model_config()` fallback in `with-test-home` equals the gguf4 value costs one grep search. Skipping means the harness seeds `opencode.jsonc` with the stale model, surfacing as a runtime failure in the test harness.
+- SC-3: Verifying the warmup smoke-test fallback in `with-test-home` equals the gguf4 value costs one grep search. Skipping means the warmup smoke-test runs the wrong model, surfacing as a runtime failure in the test harness.
+- SC-4: Verifying the pre-2425 default literal is absent from `.opencode/tests-v2/AGENTS.md` costs one grep search. Skipping means agent-facing test documentation cites a stale model, misleading agents that read it.
+- SC-5: Verifying the pre-2425 default literal is absent from `.opencode/docs/model-dependency.md` costs one grep search. Skipping means the model dependency documentation cites a stale model, misleading agents that read it.
+- SC-6: Verifying the pre-2425 default literal is absent from `.opencode/README.md` costs one grep search. Skipping means the README cites a stale model, misleading agents that read it.
+- SC-7: Verifying the pre-2425 default literal is absent from `.opencode/AGENTS.md` costs one grep search. Skipping means agent-facing rules cite a stale model, undermining the CRITICAL VIOLATION enforcement text and misleading agents that read it.
+- SC-8: Verifying the pre-2425 default literal is absent from the parent root `AGENTS.md` costs one grep search. Skipping means agent-facing rules cite a stale model, misleading agents that read it.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** The `DEFAULT_TEST_MODEL` env-var override must remain honored; the fallback literal is only used when the env var is unset. The warmup fallback at line 264 is a separate un-env-wrapped literal and must be updated independently.
-- **State transitions:** The change is a literal pre/post value swap. SC-1 transitions the source of truth; SC-2 transitions the harness fallbacks; SC-3 transitions the documentation. No runtime state machine exists for model selection.
+- **State transitions:** The change is a literal pre/post value swap. SC-1 transitions the source of truth; SC-2 and SC-3 transition the two harness fallbacks; SC-4 through SC-8 transition the five documentation files. No runtime state machine exists for model selection.
 - **Failure modes:** If any fallback string or test assertion is not updated in lockstep, the corresponding RED test fails, surfacing the divergence at the earliest gate.
 - **Concurrency:** No concurrency concerns — this is a coordinated single change across configuration and documentation files.
 - **Recovery:** If a RED test fails, the divergence is diagnosed and the missed literal is updated before the change proceeds.
+
+---
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-08-31 | Changed all SC evidence types from `structural` to `string`; decomposed SC-2 into SC-2 (seed_model_config fallback) and SC-3 (warmup fallback); decomposed the former SC-3 into SC-4 through SC-8 (one per documentation file). Updated Approach, Key Design Decisions, Items, Traceability, Cost Frame, and Edge Cases to match. | Validation findings: (1) EVIDENCE_TYPE_MISMATCH — grep-based content-verification is `string` evidence, not `structural`; (2) Decomposition — SC-2 bundled two fallback literals via `and` and SC-3 bundled five documentation files via a comma-separated list, failing Atomicity and Single Deliverable criteria. | Spec-creation pipeline (validation gate) |
 
 ---
 
