@@ -34,16 +34,16 @@ Content Payload: <ContentPayload JSON>
 
 The sub-agent receives this context and processes the task using the resolved model.
 
-### Step 3: Execute Sub-Agent task()
+### Step 3: Execute Sub-Agent Dispatch
 
-Launch the sub-agent via task() with:
+Launch the sub-agent via the orchestrator's dispatch with:
 - The task prompt as the primary instruction
 - The resolved model as the target for processing
 - The content payload for modality-specific processing (e.g., image paths for vision tasks)
 
-**Nested sub-agent architecture (REQ-6):** Sub-agents task()ed by this task may themselves need to route additional sub-tasks. They can call `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-calls the calling skill.
+**Nested sub-agent architecture (REQ-6):** Sub-agents dispatched by this task may themselves need to route additional sub-tasks. They can call `multimodal-dispatch` recursively. The dispatcher prevents circular dispatch by tracking the call chain — it never re-calls the calling skill.
 
-**Circular task prevention:** Each task() call carries a `task_chain` list. Before task()ing, check if the calling skill is already in the chain. If so, return an error rather than forming a circular task.
+**Circular dispatch prevention:** Each dispatch carries a `task_chain` list. Before dispatching, check if the calling skill is already in the chain. If so, return an error rather than forming a circular dispatch.
 
 ### Step 4: Collect Results
 
