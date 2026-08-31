@@ -63,7 +63,7 @@ When the agent needs to set up a pair mode branch or resume a pair mode session.
 - [ ] 2. **Pair mode resume** — Resumes a pair mode session from saved state
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [resume pair-mode session](.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, pair_branch, issue_number, changes_summary, uncommitted_count, unpushed_count}`
   - **Execution mode:** sub-agent dispatch
 
 ### Manage submodule pointers before commit
