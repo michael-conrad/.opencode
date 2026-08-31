@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+cross_cutting_scs:
+  - sc: SC-1
+    spans_concerns: [concern-directive]
+    notes: Confined to the 070 directive concern; no cross-concern span.
+  - sc: SC-2
+    spans_concerns: [concern-crossref]
+    notes: Confined to the 075 cross-reference concern; references the 070 directive but does not duplicate its text (R-5).
+  - sc: SC-3
+    spans_concerns: [concern-behavioral-generation]
+    notes: Confined to the behavioral generation concern; depends on the 070 directive existing (SC-1) for the test to pass.
+  - sc: SC-4
+    spans_concerns: [concern-behavioral-evaluation]
+    notes: Confined to the clean-room evaluation concern; consumes SC-3 artifacts (two-SC pattern, R-12).
+  - sc: SC-5
+    spans_concerns: [concern-content-test]
+    notes: Confined to the content-test concern; asserts the SC-1 directive text is present in 070-environment.md.
+cross_concern_dependencies:
+  - from: SC-3
+    to: SC-1
+    reason: The behavioral test prompt requires the agent to follow the directive; the directive must exist for the test to be meaningful.
+  - from: SC-4
+    to: SC-3
+    reason: SC-4 evaluates the session.yaml artifacts produced by SC-3's generator (two-SC pattern, R-12).
+  - from: SC-5
+    to: SC-1
+    reason: SC-5 asserts the directive text added by SC-1 is present in 070-environment.md.

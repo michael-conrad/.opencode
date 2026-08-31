@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+affected_files:
+  - path: .opencode/guidelines/070-environment.md
+    status: EXISTS
+    change: Primary edit target — §Version Pinning (MANDATORY) receives the live-registry verification directive (SC-1, Item 1)
+  - path: .opencode/guidelines/075-docs-verification.md
+    status: EXISTS
+    change: Cross-reference target — gains a Read [Text](path) link to the 070 directive (SC-2, Item 2)
+  - path: .opencode/guidelines/065-verification-honesty.md
+    status: EXISTS
+    change: Related principle — cross-referenced, NOT edited (R-5)
+  - path: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    status: NEW_FILE
+    change: New behavioral test artifact-only generator (SC-3, Item 3)
+  - path: .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    status: NEW_FILE
+    change: New standalone content-verification test (SC-5, Item 5)
+  - path: .opencode/tests-v2/AGENTS.md
+    status: EXISTS
+    change: Behavioral test paradigm authority — referenced, NOT modified (REQ-C2)
+  - path: .opencode/tests-v2/behaviors/template.sh
+    status: EXISTS
+    change: Template for the new scenario script — referenced, NOT modified (REQ-C2)
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    status: EXISTS
+    change: Shared harness — referenced, NOT modified (REQ-C2, R-14)
+  - path: .opencode/tests-v2/behaviors/2411-sc4-false-numerical-target.sh
+    status: EXISTS
+    change: Reference example of a real-domain artifact-only generator — referenced, NOT modified
+  - path: .opencode/tests-v2/test-2411-sc1-false-numerical-target-entry.sh
+    status: EXISTS
+    change: Standalone content-verification test precedent — referenced, NOT modified
+  - path: .opencode/tests-v2/test-2419-sc1-echo-printf-removed.sh
+    status: EXISTS
+    change: Standalone content-verification test precedent — referenced, NOT modified
+scope_boundary:
+  - Renaming/relocating dependency-addition workflows: NOT in scope (REQ-C1, REQ-N1)
+  - Lockfile regeneration and dependency update tooling changes: NOT in scope (REQ-C1, REQ-N2)
+  - Verification of transitive/indirect dependency versions: NOT in scope (REQ-C1, REQ-N3)
+  - New tool or CLI for registry queries: NOT in scope (REQ-N4)
+  - Harness modifications (helpers.sh, with-test-home, test-enforcement.sh registration): NOT in scope (REQ-C2, R-14)
+  - Retroactive re-pinning of existing dependencies: NOT in scope

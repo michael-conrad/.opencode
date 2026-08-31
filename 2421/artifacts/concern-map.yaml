@@ -1,0 +1,41 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+concern_groups:
+  - id: concern-directive
+    name: Directive text in 070-environment.md
+    scs: [SC-1]
+    phase: Phase 1
+    description: Mandate live-registry verification of dependency version numbers before pinning, naming PyPI/npm/crates.io, with justified-older-pin exception and training-data recall prohibition.
+  - id: concern-crossref
+    name: Cross-reference from 075-docs-verification.md
+    scs: [SC-2]
+    phase: Phase 2
+    description: Add a Read [Text](path) link in 075-docs-verification.md routing agents to the 070 directive, without duplicating directive text.
+  - id: concern-behavioral-generation
+    name: Behavioral test artifact generator
+    scs: [SC-3]
+    phase: Phase 3
+    description: Create the artifact-only generator scenario script with a real-domain add-dependency task prompt.
+  - id: concern-behavioral-evaluation
+    name: Clean-room evaluation of behavioral artifacts
+    scs: [SC-4]
+    phase: Phase 3
+    description: Clean-room sub-agent evaluates session.yaml to determine whether the agent queried the live registry before pinning.
+  - id: concern-content-test
+    name: Standalone content-verification test
+    scs: [SC-5]
+    phase: Phase 4
+    description: Create a standalone content-verification test asserting the directive text exists in 070-environment.md.
+phase_boundaries:
+  - phase: Phase 1
+    concerns: [concern-directive]
+    scs: [SC-1]
+  - phase: Phase 2
+    concerns: [concern-crossref]
+    scs: [SC-2]
+  - phase: Phase 3
+    concerns: [concern-behavioral-generation, concern-behavioral-evaluation]
+    scs: [SC-3, SC-4]
+  - phase: Phase 4
+    concerns: [concern-content-test]
+    scs: [SC-5]

@@ -1,0 +1,57 @@
+# Solve Output — Issue 2421: Mandatory live-registry verification of dependency versions before pinning
+# Z3 constraint solving + planner evidence for the 4-phase dependency DAG.
+
+spec_path: ".opencode/.issues/2421/spec.md"
+
+solve_model:
+  command: ".opencode/tools/solve model --contract-path .opencode/.issues/2421/dependency-contract.yaml --query 'z3.And(phase_1_done, phase_2_done, phase_3_done, phase_4_done)'"
+  status: "SAT"
+  model:
+    phase_1_done: true
+    phase_2_done: true
+    phase_3_done: true
+    phase_4_done: true
+    sc1_done: true
+    sc2_done: true
+    sc3_done: true
+    sc4_done: true
+    sc5_done: true
+    directive_exists: true
+    crossref_exists: true
+    behavioral_artifacts_exist: true
+    evaluation_verdict: true
+    content_test_pass: true
+  note: "All 5 SCs across 4 phases are satisfiable under the dependency contract (preconditions + invariants)."
+
+solve_check:
+  command: ".opencode/tools/solve check --contract-path .opencode/.issues/2421/dependency-contract.yaml --state-path .opencode/.issues/2421/artifacts/state.yaml"
+  status: "SAT"
+  detail: "SAT (+ postconditions + invariants)"
+  note: "Target post-implementation state satisfies all dependency contract preconditions, postconditions, and invariants."
+
+solve_status: "SAT"
+plan_status: "SOLVED_SATISFICING"
+
+plan_result:
+  command: ".opencode/tools/plan plan --problem .opencode/.issues/2421/artifacts/phase-problem.yaml"
+  problem_file: ".opencode/.issues/2421/artifacts/phase-problem.yaml"
+  output_file: ".opencode/.issues/2421/artifacts/plan-output.yaml"
+  engine: "tamer"
+  plan_length: 6
+  outcome: "SOLVED_SATISFICING"
+  plan:
+    - do-phase-1
+    - do-phase-4
+    - do-phase-2
+    - do-phase-3-sc3
+    - do-phase-3-sc4
+    - complete-phase-3
+  note: >-
+    Plan respects the dependency DAG: Phase 1 -> Phase 2, Phase 1 -> Phase 3,
+    Phase 1 -> Phase 4 (cross-phase, do-phase-2/do-phase-3-sc3/do-phase-4 require
+    phase_1) and SC-3 -> SC-4 same-phase sequential (do-phase-3-sc4 requires
+    sc3_artifacts). Problem file built from dependency-contract.yaml phase DAG
+    per the established workaround for the defective step-12 CLI invocation
+    (documented in .opencode#2320, filed as .opencode#2322).
+
+blocker_reason: ""

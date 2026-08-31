@@ -1,0 +1,48 @@
+# Problem — Issue 2421: Mandatory live-registry verification of dependency versions before pinning
+# Models the phase dependency DAG from dependency-contract.yaml
+# Edges: Phase 1 -> Phase 2, Phase 1 -> Phase 3, Phase 1 -> Phase 4 (cross-phase).
+# Phase 3 internal sequential: SC-3 (generation) -> SC-4 (evaluation).
+domain: issue-2421-phase-dag
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+  - name: phase_4
+  - name: sc3_artifacts
+  - name: sc4_eval
+actions:
+  - name: do-phase-1
+    effects:
+      - phase_1
+  - name: do-phase-2
+    preconditions:
+      - phase_1
+    effects:
+      - phase_2
+  - name: do-phase-3-sc3
+    preconditions:
+      - phase_1
+    effects:
+      - sc3_artifacts
+  - name: do-phase-3-sc4
+    preconditions:
+      - sc3_artifacts
+    effects:
+      - sc4_eval
+  - name: complete-phase-3
+    preconditions:
+      - sc3_artifacts
+      - sc4_eval
+    effects:
+      - phase_3
+  - name: do-phase-4
+    preconditions:
+      - phase_1
+    effects:
+      - phase_4
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3
+  - phase_4

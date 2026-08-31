@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+state_transitions:
+  - sc: SC-1
+    from: 070-environment.md lacks the live-registry verification directive
+    to: 070-environment.md contains the directive (registries named, exception path, prohibition)
+    trigger: Item 1 GREEN — add directive to §Version Pinning
+    verification: read/grep confirms directive content; existing ~= pinning mandates unchanged
+  - sc: SC-2
+    from: 075-docs-verification.md lacks a Read-link to the 070 directive
+    to: 075-docs-verification.md contains the Read [Text](path) link
+    trigger: Item 2 GREEN — add cross-reference
+    verification: read/grep confirms canonical Read-link pattern; directive text appears only in 070
+  - sc: SC-3
+    from: behavioral scenario script does not exist (no artifacts produced)
+    to: scenario script exists and produces session.yaml/stdout.log/stderr.log/manifest.yaml/exit_code artifacts
+    trigger: Item 3 GREEN — create artifact-only generator; run via with-test-home
+    verification: run script via with-test-home (opencode run, bash tool timeout >= 600s)
+  - sc: SC-4
+    from: clean-room evaluation cannot produce a verdict (no artifacts)
+    to: clean-room sub-agent produces a verdict on whether the agent queried the live registry before pinning
+    trigger: Item 4 GREEN — evaluate session.yaml from item-3 artifacts
+    verification: clean-room sub-agent inspection of session.yaml per tests-v2/AGENTS.md §2, §6a
+  - sc: SC-5
+    from: standalone content-verification test reports the directive absent
+    to: standalone test reports the directive present (PASS)
+    trigger: Item 5 GREEN — create test-2421-sc1-directive-present.sh
+    verification: run the test script directly; PASS requires directive text present in 070-environment.md

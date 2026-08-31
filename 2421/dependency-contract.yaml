@@ -1,0 +1,79 @@
+# Dependency contract for issue 2421
+# Mandatory live-registry verification of dependency versions before pinning
+# Derived from the dependency_contract section of interface-compatibility.yaml
+# Built as a proper Z3 contract (variables/preconditions/invariants/postconditions)
+# per the established workaround for the defective step-9/10/12 CLI invocation
+# (documented in .opencode#2320, filed as .opencode#2322).
+
+description: >-
+  Concrete dependency data derived from spec #2421 affected files and success
+  criteria - real sources, real targets, real phase ordering, real dependency edges.
+
+variables:
+  phase_1_done:
+    type: bool
+    description: "Phase 1 complete - live-registry verification directive (SC-1) added to 070-environment.md"
+  phase_2_done:
+    type: bool
+    description: "Phase 2 complete - Read-link cross-reference (SC-2) added to 075-docs-verification.md"
+  phase_3_done:
+    type: bool
+    description: "Phase 3 complete - behavioral generation (SC-3) + clean-room evaluation (SC-4)"
+  phase_4_done:
+    type: bool
+    description: "Phase 4 complete - content-verification test (SC-5) added"
+  sc1_done:
+    type: bool
+  sc2_done:
+    type: bool
+  sc3_done:
+    type: bool
+  sc4_done:
+    type: bool
+  sc5_done:
+    type: bool
+  directive_exists:
+    type: bool
+    description: "Phase 1 output - live-registry verification directive present in 070-environment.md"
+  crossref_exists:
+    type: bool
+    description: "Phase 2 output - Read [Text](path) link present in 075-docs-verification.md"
+  behavioral_artifacts_exist:
+    type: bool
+    description: "Phase 3 SC-3 output - session.yaml/stdout.log/stderr.log artifacts produced in tmp/behavioral-evidence-*/"
+  evaluation_verdict:
+    type: bool
+    description: "Phase 3 SC-4 output - clean-room evaluation verdict (agent queried live registry before pinning)"
+  content_test_pass:
+    type: bool
+    description: "Phase 4 output - standalone content-verification test reports directive present (PASS)"
+
+preconditions:
+  - "phase_1_done == sc1_done"
+  - "phase_2_done == sc2_done"
+  - "phase_3_done == (z3.And(sc3_done, sc4_done))"
+  - "phase_4_done == sc5_done"
+  - "sc1_done == directive_exists"
+  - "sc2_done == crossref_exists"
+  - "sc3_done == behavioral_artifacts_exist"
+  - "sc4_done == evaluation_verdict"
+  - "sc5_done == content_test_pass"
+
+invariants:
+  # Phase 1 -> Phase 2 cross-phase dependency: SC-2 Read-link cross-references the SC-1 directive
+  - "z3.Implies(crossref_exists, directive_exists)"
+  # Phase 1 -> Phase 3 cross-phase dependency: behavioral test is meaningful only if the directive exists
+  - "z3.Implies(behavioral_artifacts_exist, directive_exists)"
+  # Phase 1 -> Phase 4 cross-phase dependency: content test asserts the SC-1 directive text is present
+  - "z3.Implies(content_test_pass, directive_exists)"
+  # Phase 3 same-phase sequential dependency: SC-4 evaluates the session.yaml produced by SC-3
+  - "z3.Implies(evaluation_verdict, behavioral_artifacts_exist)"
+
+postconditions:
+  - "phase_1_done"
+  - "phase_2_done"
+  - "phase_3_done"
+  - "phase_4_done"
+  - "z3.Implies(phase_2_done, phase_1_done)"
+  - "z3.Implies(phase_3_done, phase_1_done)"
+  - "z3.Implies(phase_4_done, phase_1_done)"

@@ -1,0 +1,28 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+code_paths:
+  - sc: SC-1
+    paths:
+      - .opencode/guidelines/070-environment.md §Version Pinning (MANDATORY)
+    description: Directive text added to the Version Pinning section; read/grep verification of registries named, exception path present, prohibition present.
+  - sc: SC-2
+    paths:
+      - .opencode/guidelines/075-docs-verification.md §What Must Be Verified / §Related Guidelines
+    description: Read [Text](path) link added routing to the 070 directive; read/grep verification of canonical Read-link pattern.
+  - sc: SC-3
+    paths:
+      - .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+      - .opencode/tests-v2/behaviors/template.sh (reference)
+      - .opencode/tests-v2/behaviors/2411-sc4-false-numerical-target.sh (reference)
+    description: Artifact-only generator scenario script; run via with-test-home producing session.yaml/stdout.log/stderr.log/manifest.yaml/exit_code in tmp/behavioral-evidence-<scenario>-<phase>-<model>/.
+  - sc: SC-4
+    paths:
+      - .opencode/tests-v2/AGENTS.md §2, §6a
+      - .opencode/tools/session-to-timeline (permitted corroborating tool)
+    description: Clean-room sub-agent inspects session.yaml (SQLite DB export — PRIMARY evidence source) to evaluate whether the agent queried the live registry before pinning.
+  - sc: SC-5
+    paths:
+      - .opencode/tests-v2/test-2421-sc1-directive-present.sh
+      - .opencode/tests-v2/test-2411-sc1-false-numerical-target-entry.sh (precedent)
+      - .opencode/tests-v2/test-2419-sc1-echo-printf-removed.sh (precedent)
+    description: Standalone content-verification test asserting directive text present in 070-environment.md; PASSED/FAILED counter format.

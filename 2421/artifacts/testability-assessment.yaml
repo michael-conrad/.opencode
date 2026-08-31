@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+sc_evidence_types:
+  - sc: SC-1
+    evidence_type: structural
+    verification_method: read/grep confirms the directive content (registries named, exception path present, prohibition present) in 070-environment.md; existing ~= pinning mandates remain unchanged
+    testability: HIGH — deterministic read/grep of a single guideline file
+  - sc: SC-2
+    evidence_type: structural
+    verification_method: read/grep confirms the Read-link exists in 075-docs-verification.md and uses the canonical Read [Text](path) pattern
+    testability: HIGH — deterministic read/grep of a single guideline file
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: run the scenario script via with-test-home (opencode run, bash tool timeout >= 600s), producing session.yaml/stdout.log/stderr.log/manifest.yaml/exit_code artifacts in tmp/behavioral-evidence-<scenario>-<phase>-<model>/
+    testability: MEDIUM — requires live model execution and live registry connectivity; network dependency mitigated by live connectivity verification and justified-older-pin exception path
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: clean-room sub-agent inspection of session.yaml (SQLite DB export — PRIMARY evidence source) per tests-v2/AGENTS.md §2 and §6a; session-to-timeline MAY be used as a permitted corroborating tool
+    testability: MEDIUM — requires clean-room sub-agent evaluation of SC-3 artifacts; two-SC pattern (R-12)
+  - sc: SC-5
+    evidence_type: structural
+    verification_method: run the test script directly (bash .opencode/tests-v2/test-2421-sc1-directive-present.sh); PASS requires directive text present in 070-environment.md
+    testability: HIGH — deterministic standalone content-verification test
+evidence_type_notes:
+  - SC-1, SC-2, SC-5 are structural (deterministic read/grep/content assertions).
+  - SC-3, SC-4 are behavioral (live model execution + clean-room evaluation of session.yaml), following the two-SC pattern to avoid EVIDENCE_TYPE_MISMATCH.
+  - The behavioral test runs against REAL live registries (no mocks); crates.io requires a User-Agent header (R-15).

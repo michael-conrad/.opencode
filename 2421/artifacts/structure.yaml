@@ -1,0 +1,111 @@
+# Structure artifact for issue 2421
+# Mandatory live-registry verification of dependency versions before pinning
+
+issue_number: 2421
+repo: .opencode
+
+phases:
+  - phase: 1
+    name: "070-environment.md directive"
+    scs: [SC-1]
+    items: [1]
+    files:
+      - .opencode/guidelines/070-environment.md
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+  - phase: 2
+    name: "075-docs-verification.md cross-reference"
+    scs: [SC-2]
+    items: [2]
+    files:
+      - .opencode/guidelines/075-docs-verification.md
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+  - phase: 3
+    name: "Behavioral enforcement (generation + evaluation)"
+    scs: [SC-3, SC-4]
+    items: [3, 4]
+    files:
+      - .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+  - phase: 4
+    name: "Content-verification test"
+    scs: [SC-5]
+    items: [5]
+    files:
+      - .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    skill: test-driven-development
+    tasks:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+
+item_to_sc:
+  1: SC-1
+  2: SC-2
+  3: SC-3
+  4: SC-4
+  5: SC-5
+
+sc_to_phase:
+  SC-1: 1
+  SC-2: 2
+  SC-3: 3
+  SC-4: 3
+  SC-5: 4
+
+# Triplet co-location: each SC's RED/GREEN/COMMIT all reside in the same phase.
+triplet_co_location:
+  SC-1: ok
+  SC-2: ok
+  SC-3: ok
+  SC-4: ok
+  SC-5: ok
+
+# Cross-phase dependency verification: no RED in phase X depends on output of phase Y > X.
+cross_phase_dependency:
+  verified: ok
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      type: cross_phase
+      rationale: >-
+        Phase 2 (SC-2 Read-link cross-reference) depends on Phase 1 (SC-1 directive).
+        The Read [Text](path) link in 075-docs-verification.md points to the directive
+        in 070-environment.md; the directive must exist before the link is meaningful.
+    - from: 1
+      to: 3
+      type: cross_phase
+      rationale: >-
+        Phase 3 (behavioral test SC-3/SC-4) depends on Phase 1 (SC-1 directive).
+        The behavioral test's agent under test must follow the live-registry verification
+        directive; the directive must exist before the behavior is observable and testable.
+    - from: 1
+      to: 4
+      type: cross_phase
+      rationale: >-
+        Phase 4 (content-verification test SC-5) depends on Phase 1 (SC-1 directive).
+        The standalone test asserts the directive text is present in 070-environment.md;
+        the directive must exist before the test can PASS.
+    - from: "SC-3"
+      to: "SC-4"
+      phase: 3
+      type: same_phase_sequential
+      rationale: >-
+        SC-4 evaluates the session.yaml artifact produced by the SC-3 scenario run;
+        SC-4 cannot produce a verdict before the SC-3 artifacts exist.

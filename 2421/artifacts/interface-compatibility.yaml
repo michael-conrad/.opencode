@@ -1,0 +1,84 @@
+spec_path: .opencode/.issues/2421/spec.md
+backfilled: true
+interface_boundaries:
+  - from: .opencode/guidelines/070-environment.md
+    to: .opencode/guidelines/075-docs-verification.md
+    direction: one-way reference
+    contract: 075 carries a Read [Text](path) link to the 070 directive; 070 does not reference 075. Directive text lives in EXACTLY one place (070); 075 never duplicates it (R-5, fragmentation prevention).
+    compatibility: COMPATIBLE
+  - from: .opencode/guidelines/070-environment.md
+    to: .opencode/guidelines/065-verification-honesty.md
+    direction: one-way reference
+    contract: 065 is cross-referenced as the related memory/integrity principle but is NOT edited (R-5). The directive is consistent with 065's Pre-Response Factual Claim Gate and memory-based-claim prohibitions.
+    compatibility: COMPATIBLE
+  - from: .opencode/guidelines/070-environment.md
+    to: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    direction: behavioral test dependency
+    contract: The scenario script's prompt is a real-domain add-dependency task whose correct behavior requires following the 070 directive (query live registry before pinning). The directive must exist for the test to be meaningful (SC-3 depends on SC-1).
+    compatibility: COMPATIBLE
+  - from: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    to: .opencode/tests-v2/behaviors/template.sh
+    direction: template inheritance
+    contract: The scenario script follows the artifact-only generator pattern (SCENARIO_NAME + SCENARIO_PROMPT + behavior_run + exit 0, no assertion helpers, no evaluation in the script). Harness (helpers.sh, with-test-home) is NOT modified (REQ-C2, R-14).
+    compatibility: COMPATIBLE
+  - from: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    to: .opencode/tests-v2/behaviors/2411-sc4-false-numerical-target.sh
+    direction: reference example
+    contract: 2411-sc4 is the reference example of a real-domain artifact-only generator (behavior_run + exit 0); the new script mirrors its structure.
+    compatibility: COMPATIBLE
+  - from: .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    to: .opencode/tests-v2/test-2411-sc1-false-numerical-target-entry.sh
+    direction: precedent
+    contract: Standalone content-verification test following the 2411/2419 precedent (PASSED/FAILED counter format; NOT registered in test-enforcement.sh).
+    compatibility: COMPATIBLE
+  - from: .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    to: .opencode/guidelines/070-environment.md
+    direction: content assertion
+    contract: The test asserts the directive text (live-registry verification mandate, justified-older-pin exception, training-data recall prohibition) is present in 070-environment.md.
+    compatibility: COMPATIBLE
+  - from: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    to: live package registries (PyPI, npm, crates.io)
+    direction: external API dependency
+    contract: The behavioral test runs against the REAL live registries (no mocks). crates.io requires a User-Agent header (curl -H or registry client default UA); the directive and test prompt MUST NOT assume header-less access (R-15). Network dependency mitigated by live connectivity verification and the justified-older-pin exception path.
+    compatibility: COMPATIBLE
+dependency_contract:
+  - source: .opencode/guidelines/070-environment.md
+    target: .opencode/guidelines/075-docs-verification.md
+    type: read-link cross-reference
+    constraint: Read [Text](path) pattern, not a "See file" citation; no directive text duplication (R-5)
+    evidence: spec §3 SC-2, §4 R-5, §6 Dependencies
+  - source: .opencode/guidelines/070-environment.md
+    target: .opencode/guidelines/065-verification-honesty.md
+    type: related-principle reference
+    constraint: 065 referenced but NOT edited (R-5); consistent with memory-based-claim prohibitions
+    evidence: spec §4 R-5, §6 Dependencies
+  - source: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    target: .opencode/tests-v2/behaviors/template.sh
+    type: template inheritance
+    constraint: artifact-only generator pattern (SCENARIO_NAME + SCENARIO_PROMPT + behavior_run + exit 0); no assertion helpers, no evaluation in script (R-10)
+    evidence: spec §3 SC-3, §4 R-10, §6 Dependencies
+  - source: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    target: .opencode/tests-v2/behaviors/helpers.sh
+    type: shared harness dependency
+    constraint: harness NOT modified (REQ-C2, R-14)
+    evidence: spec §2 Not Included, §4 R-14
+  - source: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    target: .opencode/tests-v2/AGENTS.md
+    type: paradigm authority
+    constraint: §1 (artifact-only generators), §2 (session.yaml PRIMARY), §6a (two-SC pattern), §11 (prompt construction mandate)
+    evidence: spec §6 Dependencies
+  - source: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    target: live package registries (PyPI, npm, crates.io)
+    type: external API dependency
+    constraint: real registries, no mocks; crates.io requires User-Agent header (R-15); read-only public metadata query, not a test against production data (R-13)
+    evidence: spec §4 R-13, R-15, §8 Documentation Sources
+  - source: .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    target: .opencode/guidelines/070-environment.md
+    type: content assertion
+    constraint: asserts directive text (live-registry verification mandate, justified-older-pin exception, training-data recall prohibition) present; PASSED/FAILED counter format; NOT registered in test-enforcement.sh (R-14)
+    evidence: spec §3 SC-5, §4 R-14
+  - source: .opencode/tests-v2/test-2421-sc1-directive-present.sh
+    target: .opencode/tests-v2/test-2411-sc1-false-numerical-target-entry.sh
+    type: precedent
+    constraint: standalone content-verification test precedent (2411/2419), not registered in test-enforcement.sh
+    evidence: spec §3 SC-5, §6 Dependencies
