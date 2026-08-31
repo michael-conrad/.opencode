@@ -62,7 +62,7 @@ gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: N}`.
 
 ### Step 3: Return Issue Data
 
