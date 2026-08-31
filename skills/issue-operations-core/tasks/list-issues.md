@@ -46,7 +46,7 @@ gb issue list -R <github.owner>/<github.repo> --state open
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/list.md` via task(). Pass: `{status: "open", label: "<label>"}`.
+Route to `platforms/local/tasks/list.md`. Pass: `{status: "open", label: "<label>"}`.
 
 ### Step 3: Return Issue List
 
