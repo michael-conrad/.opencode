@@ -37,6 +37,14 @@ Every PEP 723 script MUST pin both `requires-python` and all `dependencies` usin
 - `requires-python`: MUST use `~=X.Y.0` (three-part version, e.g., `~=3.12.0`). Bare `>=` is prohibited (permits untested future Python versions). Bare `X.Y` is rejected by `uv`.
 - `dependencies`: Each entry MUST use `~=` to constrain to a compatible release window (e.g., `pyyaml~=6.0`). Bare unversioned packages and `>=` are prohibited (permit untested major upgrades).
 
+### Live-Registry Verification of Dependency Versions (MANDATORY)
+
+Before pinning any new dependency version, the agent SHALL verify the current stable version against the live package registry — PyPI (`https://pypi.org/pypi/<package>/json`), npm (`https://registry.npmjs.org/<package>`), or crates.io (`https://crates.io/api/v1/crates/<crate>`) — by querying the registry API for the current stable version via `curl`, the registry client, or the package manager's query command. The agent SHALL pin the verified version with the `~=` compatible-release operator (per the `~=` mandates above), not a bare version. The agent SHALL NOT recall dependency version numbers from training data — training data is always stale for version numbers.
+
+**Justified-older-pin exception:** If the agent pins a version older than the current stable version, it SHALL record a documented justification (e.g., the registry API was unreachable at pinning time, or a compatibility constraint requires an older release). Without a documented justification, the pin MUST NOT proceed. A registry version lookup is a read-only public metadata query and does not conflict with production-data protection rules.
+
+**crates.io User-Agent requirement:** crates.io rejects header-less requests (HTTP 403). Registry queries to crates.io SHALL include a User-Agent header (`curl -H "User-Agent: ..."` or the registry client's default UA).
+
 ### Marker Validation
 
 The ONLY standardized PEP 723 marker is `# /// script`. The deprecated `# /// pyproject.toml` marker is INVALID — tools MUST NOT read metadata blocks with non-standardized types. `uv` ignores blocks with the wrong marker, causing dependency installation to silently fail.

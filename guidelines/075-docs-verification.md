@@ -31,6 +31,7 @@ Before writing ANY implementation code, verify against authoritative sources:
 | **Function parameters** | Type hints, docstrings, source code |
 | **Library usage** | Official docs, migration guides |
 | **Configuration formats** | Schema definitions, example configs |
+| **Dependency versions** | Live registry verification before pinning — Read [the live-registry verification directive](070-environment.md) |
 
 ### Verification Sources (Priority Order)
 
@@ -156,6 +157,7 @@ This verification is MANDATORY before and during implementation. Read [engineeri
 ## Related Guidelines
 
 - `000-critical-rules.md` — Zero tolerance enforcement
+- `070-environment.md` — Live-registry verification of dependency versions before pinning (Read [the live-registry verification directive](070-environment.md))
 - `080-code-standards.md` — Code quality standards
 - `130-authority-source.md` — Code as authoritative source
 
