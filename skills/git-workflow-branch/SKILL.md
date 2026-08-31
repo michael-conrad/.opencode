@@ -35,7 +35,7 @@ When the agent needs to create a feature branch before any implementation work, 
 - [ ] 1. **Verify remote trunk tip** — Verifies that parent repo and submodules are at remote trunk tip with clean working trees
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify trunk-tip state](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, checks, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 2. **Sync submodules** — Syncs dirty submodule pointers to latest remote trunk tip
