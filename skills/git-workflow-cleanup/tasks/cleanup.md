@@ -32,7 +32,11 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ## Procedure
 
-### Step 0: Detect Submodules and Build Routing Context
+### Step 0: Guard Against Orchestrator Pre-Investigation
+
+**⚠️ GUARD: The orchestrator MUST NOT resolve `pr_merge_status` or `branch_name` inline before dispatching the cleanup sub-agent.** The dispatch string passes only `pr_merged_event: true` — the sub-agent independently discovers the actual merge status and branch state. Any orchestrator inline git/gh investigation before dispatch is a violation of orchestrator-context-lean.
+
+### Step 0a: Detect Submodules and Build Routing Context
 
 Before any cleanup operations, detect and build routing context for submodules using `git submodule status`.
 
