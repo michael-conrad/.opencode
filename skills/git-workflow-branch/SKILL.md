@@ -57,7 +57,7 @@ When the agent needs to set up a pair mode branch or resume a pair mode session.
 - [ ] 1. **Pair pre-work** — Sets up a pair mode branch and workspace
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up pair-mode pre-work](.opencode/skills/git-workflow-branch/tasks/pair-pre-work.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, pair_mode, branch_name, wip_commit_created, working_directory}`
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 2. **Pair mode resume** — Resumes a pair mode session from saved state
