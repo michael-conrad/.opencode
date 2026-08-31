@@ -56,7 +56,7 @@ gb issue edit <issue-number> -R <github.owner>/<github.repo> --body "<body>"
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/update.md` via task(). Pass: `{issue_number: N, body: "<body>", labels: ["<label>"]}`.
+Route to `platforms/local/tasks/update.md`. Pass: `{issue_number: N, body: "<body>", labels: ["<label>"]}`.
 
 ### Step 3: Verify Body Preservation
 
