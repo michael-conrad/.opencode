@@ -456,3 +456,9 @@ Phase 1 is complete. Proceed to Phase 2 — Task-card internal-dispatch remediat
 - [ ] Q6. **Review-prep.** (**sub-agent**) Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare PR review context.
 - [ ] Q7. **Create PR.** (**sub-agent**) Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request.
 - [ ] Q8. **Exec summary.** (**sub-agent**) Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate completion executive summary.
+
+---
+
+## Lifecycle Events
+
+- **`plan_created`** at `2026-08-31T16:04:35Z` — Plan file created at `.opencode/.issues/2410/plan.md`. Content: 2 phases (Dispatch contract alignment, Task-card internal-dispatch remediation), 32 SCs, 32 daisy-chained items. Execution: Phase 1 and Phase 2 both dispatched via test-driven-development (RED/GREEN/post-regression/verify) with clean-room sub-agents; commits inline. Downstream pipeline signal: proceed to pre-implementation coherence gate (P1) then baseline check (P2).

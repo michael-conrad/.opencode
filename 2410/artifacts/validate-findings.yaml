@@ -1,0 +1,80 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+provenance: AI-generated
+validation:
+  issue_number: 2410
+  repo: .opencode
+  overall_status: PASS
+  categories:
+    - category: 1
+      name: "Structural validation"
+      status: PASS
+      checks:
+        - check: "plan.md has a phase table with all required columns"
+          result: PASS
+          detail: "Phase Table has columns: Phase, Name, SCs, Dependencies, Step Range, Dispatch."
+        - check: "Each phase has a procedure section with numbered steps"
+          result: PASS
+          detail: "Phase 1 Step-by-Step has Items 1-10 each with numbered steps 1-5; Phase 2 Step-by-Step has Items 11-32 each with numbered steps 1-5."
+        - check: "Exit criteria section exists with SC-to-phase mapping"
+          result: PASS
+          detail: "Exit Criteria section (C1-C6) present; C2 maps SC-1..SC-10 to Phase 1, C3 maps SC-11..SC-32 to Phase 2. Phase Table also provides SC-to-phase mapping."
+
+    - category: 2
+      name: "Skill+task validity"
+      status: PASS
+      checks:
+        - check: "Every skill+task reference matches a valid entry in implementation-workflow.md"
+          result: PASS
+          detail: "All dispatch references validated against reference card: red, green, post-regression, regression-check (test-driven-development); verify, pre-pr-gate (verification-before-completion); audit (audit); structural-checks (finishing-a-development-branch); review-prep, create-pr (git-workflow-pr); exec-summary (completion-core). All match canonical dispatch strings."
+
+    - category: 3
+      name: "SC coverage"
+      status: PASS
+      checks:
+        - check: "Every SC from the spec appears in at least one phase's exit criteria"
+          result: PASS
+          detail: "All 32 SCs covered: SC-1..SC-10 in Phase 1, SC-11..SC-32 in Phase 2. No uncovered SC."
+        - check: "Triplet split detection (RED/GREEN/COMMIT in same phase)"
+          result: PASS
+          detail: "No SC has RED/GREEN/COMMIT steps split across phases. SC-1..SC-10 all in Phase 1; SC-11..SC-32 all in Phase 2. Each item's steps 1-5 (RED, GREEN, post-regression, verify, commit) are co-located in a single phase."
+
+    - category: 4
+      name: "Concern separation"
+      status: PASS
+      checks:
+        - check: "Each phase addresses exactly one concern from the concern-map artifact"
+          result: PASS
+          detail: "Phase 1 addresses 'SKILL.md Workflows Returns/Context must match task-card Result Contract / Entry Criteria'; Phase 2 addresses 'Task cards must not instruct sub-agents to dispatch further sub-agents'. Both match concern-map.yaml."
+        - check: "No two phases address the same concern"
+          result: PASS
+          detail: "Phase 1 and Phase 2 address distinct concerns per concern-map.yaml concern_to_phase_mapping."
+
+    - category: 5
+      name: "DAG validation"
+      status: PASS
+      checks:
+        - check: "Dependency contract DAG has no cycles"
+          result: PASS
+          detail: "structure.yaml dependency_dag has edges: [] (no dependency edges). dependency-contract.yaml lists 3 artifact-schema constraints, no cyclic phase edges."
+        - check: "All phases reachable from the start node"
+          result: PASS
+          detail: "Both Phase 1 and Phase 2 declare Dependencies: none in the Phase Table; both are entry points reachable from start."
+        - check: "No orphan phases (no incoming or outgoing edges)"
+          result: PASS
+          detail: "Both phases have SC assignments and appear in the Phase Table; neither is orphaned."
+
+    - category: 6
+      name: "Holistic quality"
+      status: PASS
+      checks:
+        - check: "No TBD/TODO placeholders in the plan body"
+          result: PASS
+          detail: "No TBD/TODO placeholders found in plan.md."
+        - check: "All steps use checkbox format"
+          result: PASS
+          detail: "All procedure steps, pre/post-implementation steps, and completion-block items use '- [ ]' checkbox format."
+        - check: "Dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+          result: PASS
+          detail: "RED/GREEN/post-regression/verify steps are sub-agent dispatched; commit steps are marked inline per the canonical commit-inline orchestrator operation in implementation-workflow.md. Pre-implementation P1/P2 and post-implementation Q2 (Z3 check) are inline orchestrator operations per the reference card. No clean-room violation."
+  findings: []
