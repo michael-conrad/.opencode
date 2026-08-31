@@ -43,7 +43,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **Route to:** `pr-creation/enforcement-gate`
 
-task() sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
+Route a sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
 
 ### Pre-Push Submodule Pointer Verification
 
