@@ -132,7 +132,7 @@ seed_model_config() {
     if [ -f "$SCRIPT_DIR/default-model.sh" ]; then
         source "$SCRIPT_DIR/default-model.sh"
     fi
-    local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k}"
+    local default_model="${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k-gguf4}"
     local bare="${default_model#ollama/}"
 
     cat > "$TEST_HOME/.config/opencode/opencode.jsonc" << JSONC
