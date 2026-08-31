@@ -55,7 +55,7 @@ When the agent needs to make a WIP commit in pair mode with developer attributio
 - [ ] 1. **Pair commit** — Makes a WIP commit in pair mode with developer attribution
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [make pair-mode commit](.opencode/skills/git-workflow-commit/tasks/pair-commit.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, commit_hash, issue_referenced, pair_mode}`
   - **Execution mode:** sub-agent dispatch
 
 ## Cross-References
