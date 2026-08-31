@@ -4,11 +4,11 @@
 # Provenance: AI-generated
 #
 # Content-verification test: the DEFAULT_TEST_MODEL fallback literal in
-# .opencode/tests-v2/default-model.sh equals 'ollama/qwen3.8:27b-256k'.
-# Maps to SC-1 from issue #2376.
+# .opencode/tests-v2/default-model.sh equals 'ollama/qwen3.8:27b-256k-gguf4'.
+# Maps to SC-1 from issue #2425.
 #
 # RED phase (Phase 1, SC-1): assert the fallback equals the NEW model. At
-# baseline the stale literal 'ollama/qwen3.6:35b-256k' is still present, so
+# baseline the stale literal 'ollama/qwen3.8:27b-256k' is still present, so
 # this assertion FAILS (RED). GREEN phase replaces the fallback literal; this
 # test then PASSES.
 #
@@ -44,11 +44,11 @@ check_fail() {
 }
 
 echo ""
-echo "=== default-model.sh DEFAULT_TEST_MODEL fallback -- SC-1 (#2376) ==="
+echo "=== default-model.sh DEFAULT_TEST_MODEL fallback -- SC-1 (#2425) ==="
 echo ""
 
 MODEL_FILE="$PROJECT_DIR/tests-v2/default-model.sh"
-EXPECTED="ollama/qwen3.8:27b-256k"
+EXPECTED="ollama/qwen3.8:27b-256k-gguf4"
 
 # SC-1: The DEFAULT_TEST_MODEL fallback literal equals the new model. At
 # baseline it is the stale model, so this assertion FAILS (RED).
