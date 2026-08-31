@@ -456,4 +456,12 @@ Affected files and impact zones from `blast-radius.yaml`. The change is limited 
 
 | Timestamp | Event | Details |
 |-----------|-------|---------|
+| 2026-08-31T23:24:29Z | `plan_created` | Plan file `.opencode/.issues/2425/plan.md` created with 7 phases (SC-1 through SC-8). |
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
 | 2026-08-31T23:24:17Z | `plan_created` | Plan file: `.opencode/.issues/2425/plan.md`; 7 phases, 8 SCs |
