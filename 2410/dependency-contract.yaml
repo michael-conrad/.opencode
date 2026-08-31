@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+provenance: AI-generated
+dependency_contract:
+  - source: "SKILL.md Workflows Returns"
+    target: "task-card Result Contract"
+    type: "artifact schema"
+    constraint: >
+      The SKILL.md Returns field names MUST match the task-card Result Contract field names.
+      The task card is the authoritative source. This is the coupling that SC-1..SC-4 repair.
+      (extracted as-is from interface-compatibility.yaml dependency_contract)
+  - source: "SKILL.md Workflows Context"
+    target: "task-card Entry Criteria"
+    type: "artifact schema"
+    constraint: >
+      The SKILL.md Context MUST supply every required parameter named in the task-card Entry
+      Criteria. This is the coupling that SC-3, SC-5 repair (and SC-6 false-positives).
+      (extracted as-is from interface-compatibility.yaml dependency_contract)
+  - source: "task-card Procedure"
+    target: "orchestrator dispatch"
+    type: "artifact schema"
+    constraint: >
+      Task cards MUST NOT embed task()/skill({) dispatch instructions. The orchestrator alone
+      performs dispatch. This is the coupling that SC-7..SC-9 enforce. (extracted as-is from
+      interface-compatibility.yaml dependency_contract)

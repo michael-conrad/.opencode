@@ -1,0 +1,190 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+provenance: AI-generated
+structure:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Phase decomposition of the 32 success criteria into two implementation phases based on
+    concern boundaries and implementation dependencies. Phase 1 = dispatch contract alignment
+    (SKILL.md Workflows Returns/Context vs task-card Result Contract / Entry Criteria).
+    Phase 2 = task-card internal-dispatch remediation (task cards contain no embedded
+    task()/skill({) dispatch instructions). Two phases are independent concern silos touching
+    disjoint file sets.
+  sc_source: sc-summary.yaml (32 SCs) + spec.md §Traceability
+  phases:
+    - phase: 1
+      name: "Dispatch contract alignment"
+      concern: >
+        SKILL.md Workflows Returns/Context must match task-card Result Contract / Entry
+        Criteria. Touches SKILL.md Workflows Returns/Context sub-bullets and, for lint
+        false-positives, task-card Entry Criteria wording.
+      sc_assignments:
+        - id: SC-1
+          item: 1
+          file: git-workflow-branch/SKILL.md "Verify remote trunk tip" Returns
+          evidence_type: behavioral
+        - id: SC-2
+          item: 2
+          file: git-workflow-branch/SKILL.md "Pair pre-work" Returns
+          evidence_type: behavioral
+        - id: SC-3
+          item: 3
+          file: git-workflow-branch/SKILL.md "Pair mode resume" Returns
+          evidence_type: behavioral
+        - id: SC-4
+          item: 4
+          file: git-workflow-branch/SKILL.md "Pre-work" Context approved
+          evidence_type: behavioral
+        - id: SC-5
+          item: 5
+          file: git-workflow-cleanup/SKILL.md "pair-cleanup" Returns
+          evidence_type: behavioral
+        - id: SC-6
+          item: 6
+          file: git-workflow-commit/SKILL.md "pair-commit" Returns
+          evidence_type: behavioral
+        - id: SC-7
+          item: 7
+          file: git-workflow-pr/SKILL.md "pair-pr-creation" Returns
+          evidence_type: behavioral
+        - id: SC-8
+          item: 8
+          file: git-workflow-pr/SKILL.md "completion" Returns
+          evidence_type: behavioral
+        - id: SC-9
+          item: 9
+          file: git-workflow-conflict/SKILL.md "Rebase pending" Context merged_at
+          evidence_type: behavioral
+        - id: SC-10
+          item: 10
+          file: writing-plans/tasks/analyze.md Entry Criteria rewording
+          evidence_type: behavioral
+      skill_task_selection:
+        red: 'task(..., prompt: "execute red task from test-driven-development")'
+        green: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        audit: 'task(..., prompt: "execute verification-audit DiMo investigator from audit")'
+        commit_inline: (orchestrator) git add + commit
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      concern: >
+        Task cards must not instruct sub-agents to dispatch further sub-agents. Embedded
+        task()/skill({) dispatch instructions replaced with orchestrator-routing markers;
+        prose mentions reworded to avoid the lint token pattern.
+      sc_assignments:
+        - id: SC-11
+          item: 11
+          file: git-workflow-branch/tasks/pre-work.md
+          evidence_type: behavioral
+        - id: SC-12
+          item: 12
+          file: git-workflow-pr/tasks/pr-creation.md
+          evidence_type: behavioral
+        - id: SC-13
+          item: 13
+          file: issue-operations-comments task cards
+          evidence_type: behavioral
+        - id: SC-14
+          item: 14
+          file: issue-operations-core/tasks/body-edit.md
+          evidence_type: behavioral
+        - id: SC-15
+          item: 15
+          file: issue-operations-core/tasks/close.md
+          evidence_type: behavioral
+        - id: SC-16
+          item: 16
+          file: issue-operations-core/tasks/creation.md
+          evidence_type: behavioral
+        - id: SC-17
+          item: 17
+          file: issue-operations-core/tasks/list-issues.md
+          evidence_type: behavioral
+        - id: SC-18
+          item: 18
+          file: issue-operations-core/tasks/read-comments.md
+          evidence_type: behavioral
+        - id: SC-19
+          item: 19
+          file: issue-operations-core/tasks/read-issue.md
+          evidence_type: behavioral
+        - id: SC-20
+          item: 20
+          file: issue-operations-core/tasks/read-labels.md
+          evidence_type: behavioral
+        - id: SC-21
+          item: 21
+          file: issue-operations-core/tasks/search-issues.md
+          evidence_type: behavioral
+        - id: SC-22
+          item: 22
+          file: issue-operations-core/tasks/update-issue.md
+          evidence_type: behavioral
+        - id: SC-23
+          item: 23
+          file: issue-operations-sub-issues/tasks/link-sub-issue.md
+          evidence_type: behavioral
+        - id: SC-24
+          item: 24
+          file: issue-operations-sub-issues/tasks/read-sub-issues.md
+          evidence_type: behavioral
+        - id: SC-25
+          item: 25
+          file: issue-operations-sync/tasks/import-remote.md
+          evidence_type: behavioral
+        - id: SC-26
+          item: 26
+          file: issue-operations-sync/tasks/sync-pull-to-local.md
+          evidence_type: behavioral
+        - id: SC-27
+          item: 27
+          file: issue-review/tasks/audit.md
+          evidence_type: behavioral
+        - id: SC-28
+          item: 28
+          file: sre-runbook/tasks/track.md
+          evidence_type: behavioral
+        - id: SC-29
+          item: 29
+          file: multimodal-dispatch/tasks/completion.md
+          evidence_type: behavioral
+        - id: SC-30
+          item: 30
+          file: multimodal-dispatch/tasks/dispatch.md
+          evidence_type: behavioral
+        - id: SC-31
+          item: 31
+          file: pre-analysis/tasks/analyze.md
+          evidence_type: behavioral
+        - id: SC-32
+          item: 32
+          file: verification/tasks/verify.md
+          evidence_type: behavioral
+      skill_task_selection:
+        red: 'task(..., prompt: "execute red task from test-driven-development")'
+        green: 'task(..., prompt: "execute green task from test-driven-development")'
+        verify: 'task(..., prompt: "execute verify task from verification-before-completion")'
+        audit: 'task(..., prompt: "execute verification-audit DiMo investigator from audit")'
+        commit_inline: (orchestrator) git add + commit
+
+  dependency_dag:
+    edges: []
+    reason: >
+      Phase 1 and Phase 2 are independent concern silos. Phase 1 touches SKILL.md Workflows
+      Returns/Context sub-bullets and writing-plans analyze.md Entry Criteria wording; Phase 2
+      touches task-card Procedure lines. No phase output is consumed by the other phase, so the
+      DAG has no dependency edges. Each phase may be built independently.
+
+  triplet_co_location:
+    status: OK
+    check: "Each SC has its RED, GREEN, and COMMIT steps in the same phase (SC-1..SC-10 in Phase 1; SC-11..SC-32 in Phase 2). No SC split across phases."
+
+  cross_phase_dependency:
+    status: OK
+    check: "No RED test depends on SC output committed in a later phase. Phases are independent with no dependency edges."
+
+  cross_cutting_verification:
+    - "skildeck lint verification gate applies to ALL items (SC-1..SC-32): GREEN verify runs `./.opencode/tools/skildeck lint` and asserts the specific finding class is eliminated."
+    - "skill-card vs task-card division of labor governs both phases."

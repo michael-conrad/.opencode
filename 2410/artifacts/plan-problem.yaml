@@ -1,0 +1,25 @@
+domain: dispatch-contract-remediation
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+fluents:
+  - name: phase_clean
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: remediate_phase
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - phase_clean(p)
+init: []
+goals:
+  - phase_clean(phase1)
+  - phase_clean(phase2)

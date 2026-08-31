@@ -1,0 +1,223 @@
+pre_spec_inspection:
+  issue_number: 2410
+  repo: .opencode
+  topic: "Skill deck workflow/contract defects: dispatch contract mismatches and task-card-internal-dispatch"
+  evidence_source: "tmp/opencode-defects-investigation.md section D (referenced in issue body); live re-verification via `skildeck lint`"
+  live_lint_evidence:
+    command: "./.opencode/tools/skildeck lint"
+    total_findings: 166
+    in_scope_findings:
+      task_card_internal_dispatch: 22
+      dispatch_contract_result_mismatch: 19
+      dispatch_contract_incomplete: 5
+    evidence_file: "tmp/2410/skildeck-lint-full.txt"
+
+  affected_skills:
+    - skill: git-workflow-branch
+      path: .opencode/skills/git-workflow-branch/
+      defects:
+        - type: dispatch-contract-result-mismatch
+          step: "Verify remote trunk tip"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/trunk-tip-verification.md
+          task_card_result_contract: "{status, checks, blocker_reason}"
+          mismatch_fields: [finding_summary, artifact_path]
+          count: 2
+        - type: dispatch-contract-result-mismatch
+          step: "Pair pre-work"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/pair-pre-work.md
+          task_card_result_contract: "{status, task, pair_mode, branch_name, wip_commit_created, working_directory}"
+          mismatch_fields: [finding_summary, artifact_path, blocker_reason]
+          count: 3
+        - type: dispatch-contract-result-mismatch
+          step: "Pair mode resume"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/pair-mode-resume.md
+          task_card_result_contract: "{status, task, pair_branch, issue_number, changes_summary, uncommitted_count, unpushed_count}"
+          mismatch_fields: [finding_summary, artifact_path, blocker_reason]
+          count: 3
+        - type: dispatch-contract-incomplete
+          step: "Pre-work"
+          skilmd_context: "{branch_name, worktree.path}"
+          task_card: tasks/pre-work.md
+          missing_param: approved
+          note: "pre-work.md Entry Criteria requires explicit `approved`/`go` authorization"
+        - type: dispatch-contract-incomplete
+          step: "Verify remote trunk tip"
+          skilmd_context: "{branch_name}"
+          task_card: tasks/trunk-tip-verification.md
+          missing_param: origin
+          note: "LIKELY LINT FALSE-POSITIVE — `origin` is a git remote name in Entry Criteria prose, not a dispatch context parameter. See decision point."
+        - type: task-card-internal-dispatch
+          task_card: tasks/pre-work.md
+          line: 110
+          pattern: 'task(subagent_type="general", prompt: "execute trunk-tip-verification from git-workflow-branch")'
+          note: "Genuine internal dispatch — pre-work.md instructs the sub-agent to dispatch trunk-tip-verification. Also lines 156, 179 reference task() for submodule ops."
+
+    - skill: git-workflow-cleanup
+      path: .opencode/skills/git-workflow-cleanup/
+      defects:
+        - type: dispatch-contract-result-mismatch
+          step: "Pair cleanup"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/pair-cleanup.md
+          task_card_result_contract: "{status, task, branches_deleted, stashes_preserved, pr_merge_verified}"
+          mismatch_fields: [finding_summary, artifact_path, blocker_reason]
+          count: 3
+
+    - skill: git-workflow-commit
+      path: .opencode/skills/git-workflow-commit/
+      defects:
+        - type: dispatch-contract-result-mismatch
+          step: "Pair commit"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/pair-commit.md
+          task_card_result_contract: "{status, task, commit_hash, issue_referenced, pair_mode}"
+          mismatch_fields: [finding_summary, artifact_path, blocker_reason]
+          count: 3
+
+    - skill: git-workflow-pr
+      path: .opencode/skills/git-workflow-pr/
+      defects:
+        - type: dispatch-contract-result-mismatch
+          step: "Pair-pr-creation"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason, pr_url}"
+          task_card: tasks/pair-pr-creation.md
+          task_card_result_contract: "{status, task, pr_number, pr_url, squash_performed, pair_mode}"
+          mismatch_fields: [finding_summary, artifact_path, blocker_reason]
+          count: 3
+        - type: dispatch-contract-result-mismatch
+          step: "Completion"
+          skilmd_returns: "{status, finding_summary, artifact_path, blocker_reason}"
+          task_card: tasks/completion.md
+          task_card_result_contract: "{status, finding_summary, status_checked, status_updated, ticket_status}"
+          mismatch_fields: [artifact_path, blocker_reason]
+          count: 2
+        - type: task-card-internal-dispatch
+          task_card: tasks/pr-creation.md
+          line: 46
+          pattern: "task() sub-agent for report-only SHA verification"
+          note: "Genuine internal dispatch — pr-creation.md instructs the sub-agent to dispatch a report-only SHA verification sub-agent."
+
+    - skill: git-workflow-conflict
+      path: .opencode/skills/git-workflow-conflict/
+      defects:
+        - type: dispatch-contract-incomplete
+          step: "Rebase pending"
+          skilmd_context: "{branch_name, worktree.path}"
+          task_card: tasks/rebase-pending.md
+          missing_param: merged_at
+          note: "rebase-pending.md Entry Criteria requires `merged_at` timestamp confirmed on the just-merged PR."
+
+    - skill: writing-plans
+      path: .opencode/skills/writing-plans/
+      defects:
+        - type: dispatch-contract-incomplete
+          step: "analyze"
+          skilmd_context: "{issue_number, project_root, issues_prefix}"
+          task_card: tasks/analyze.md
+          missing_param: SPEC_NOT_FOUND
+          note: "LIKELY LINT FALSE-POSITIVE — SPEC_NOT_FOUND is a BLOCK reason, not a dispatch context parameter. See decision point."
+        - type: dispatch-contract-incomplete
+          step: "analyze"
+          skilmd_context: "{issue_number, project_root, issues_prefix}"
+          task_card: tasks/analyze.md
+          missing_param: SPEC_NOT_APPROVED
+          note: "LIKELY LINT FALSE-POSITIVE — SPEC_NOT_APPROVED is a BLOCK reason, not a dispatch context parameter. See decision point."
+
+    - skill: issue-operations-comments
+      path: .opencode/skills/issue-operations-comments/
+      defects:
+        - type: task-card-internal-dispatch
+          task_card: tasks/comment.md
+          lines: [47, 70, 180]
+          pattern: "Route to platforms/local/tasks/push-body.md via task()"
+          note: "Genuine internal dispatch — comment.md routes to platform sub-task via task()."
+
+    - skill: issue-operations-core
+      path: .opencode/skills/issue-operations-core/
+      defects:
+        - type: task-card-internal-dispatch
+          task_cards:
+            - tasks/body-edit.md (line 144: Route to platforms/local/tasks/push-body.md via task())
+            - tasks/close.md (line 66: Route to platforms/local/tasks/close.md via task())
+            - tasks/creation.md (lines 50,78,167,170,200: Route to platforms/*/tasks/*.md via task())
+            - tasks/list-issues.md (line 49: Route to platforms/local/tasks/list.md via task())
+            - tasks/read-comments.md (line 47: Route to platforms/local/tasks/comment.md via task())
+            - tasks/read-issue.md (line 65: Route to platforms/local/tasks/read.md via task())
+            - tasks/read-labels.md (line 56: Route to platforms/local/tasks/read.md via task())
+            - tasks/search-issues.md (line 46: Route to platforms/local/tasks/search.md via task())
+            - tasks/update-issue.md (line 59: Route to platforms/local/tasks/update.md via task())
+          note: "Genuine internal dispatch — issue-operations-core task cards route to platform sub-tasks via task()."
+
+    - skill: issue-operations-sub-issues
+      path: .opencode/skills/issue-operations-sub-issues/
+      defects:
+        - type: task-card-internal-dispatch
+          task_cards:
+            - tasks/link-sub-issue.md (lines 47,60,94,124: Route to platforms/local/tasks/*.md via task())
+            - tasks/read-sub-issues.md (line 49: Route to platforms/local/tasks/read.md via task())
+          note: "Genuine internal dispatch — routes to platform sub-tasks via task()."
+
+    - skill: issue-operations-sync
+      path: .opencode/skills/issue-operations-sync/
+      defects:
+        - type: task-card-internal-dispatch
+          task_cards:
+            - tasks/import-remote.md (lines 45,76: Route to platforms/local/tasks/*.md via task())
+            - tasks/sync-pull-to-local.md (lines 23,31,54,58: Route to platforms/local/tasks/*.md via task())
+          note: "Genuine internal dispatch — routes to platform sub-tasks via task()."
+
+    - skill: issue-review
+      path: .opencode/skills/issue-review/
+      defects:
+        - type: task-card-internal-dispatch
+          task_card: tasks/audit.md
+          line: 49
+          pattern: 'Dispatch `audit` with `task(..., prompt: "execute spec-audit task from audit for issue N")`'
+          note: "Genuine internal dispatch — audit.md instructs the sub-agent to dispatch the audit skill."
+
+    - skill: multimodal-dispatch
+      path: .opencode/skills/multimodal-dispatch/
+      defects:
+        - type: task-card-internal-dispatch
+          task_cards:
+            - tasks/completion.md (lines 9,19,30,32: prose mentions of task() describing orchestrator workflow)
+            - tasks/dispatch.md (lines 37,39,44,46: prose describing sub-agent task() architecture)
+          note: "PROSE MENTIONS — these describe the orchestrator's task() usage, not instructions for the sub-agent to dispatch. Lint false-positive; reword prose to avoid `task(` pattern."
+
+    - skill: pre-analysis
+      path: .opencode/skills/pre-analysis/
+      defects:
+        - type: task-card-internal-dispatch
+          task_card: tasks/analyze.md
+          line: 87
+          pattern: "Before task()ing the execution sub-agent"
+          note: "PROSE MENTION — describes orchestrator behavior, not a dispatch instruction. Lint false-positive; reword prose."
+
+    - skill: sre-runbook
+      path: .opencode/skills/sre-runbook/
+      defects:
+        - type: task-card-internal-dispatch
+          task_card: tasks/track.md
+          line: 68
+          pattern: 'Dispatch `issue-operations` with `task(..., prompt: "execute pre-creation task ...")`'
+          note: "Genuine internal dispatch — track.md instructs the sub-agent to dispatch issue-operations."
+
+    - skill: verification
+      path: .opencode/skills/verification/
+      defects:
+        - type: task-card-internal-dispatch
+          task_card: tasks/verify.md
+          lines: [41,54,56,63]
+          pattern: "For each result from task()"
+          note: "PROSE MENTIONS — describe the orchestrator's task() result collection, not dispatch instructions. Lint false-positive; reword prose."
+
+  conventions_observed:
+    - "SKILL.md Workflows steps use sub-bullets: Prompt, Context passed, Returns, Execution mode."
+    - "Task cards define authoritative Result Contract and Entry Criteria."
+    - "The skill-card vs task-card division of labor (000-critical-rules.md): skill card = routing metadata for orchestrator; task card = execution procedure for sub-agent. Task cards must not re-dispatch."
+    - "Result contracts carry only routing-significant data: status, finding_summary, artifact_path, blocker_reason (per 020-go-prohibitions.md §1.1)."
+    - "The lint's `task-card-internal-dispatch` regex matches `\b(task\(|skill\(\s*\{)` and skips lines containing a single quote or 'NOT call'/'not call'."
+    - "The lint's `dispatch-contract-incomplete` regex treats any backtick-quoted snake_case/dotted token in Entry Criteria as a required context parameter — this over-matches BLOCK reasons (SPEC_NOT_FOUND) and git remote names (origin)."

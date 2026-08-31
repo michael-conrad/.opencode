@@ -1,0 +1,35 @@
+pipeline_readiness:
+  issue_number: 2410
+  repo: .opencode
+  validation:
+    atomicity:
+      status: PASS
+      detail: >
+        Every SC maps to exactly one RED→GREEN→COMMIT cycle. SC-1..SC-9 each map to a single
+        implementation item (ITEM-1..ITEM-9) with its own verification cycle.
+    dependency_ordering:
+      status: PASS
+      detail: >
+        SC dependency DAG is acyclic. ITEM-1→ITEM-2→ITEM-3 are sequential (same SKILL.md file);
+        ITEM-4..ITEM-9 are independent. No cycles.
+    single_concern:
+      status: PASS
+      detail: >
+        Every SC targets one file category (SKILL.md Workflows or task-card Procedure) and one
+        verification domain (structural skildeck lint, or behavioral where observable).
+    phase_dependency:
+      status: PASS
+      detail: >
+        Phase dependency graph is acyclic. Phase 1 (contract alignment) and Phase 2 (internal
+        dispatch remediation) are independent and can be sequenced in either order.
+    three_tier_structure:
+      status: PASS
+      detail: >
+        The spec is a multi-file remediation. The structure is: pre (contract alignment of
+        SKILL.md Workflows) → per-file (each task-card internal-dispatch fix) → post (final
+        skildeck lint verification). This maps to the pre/per-file/post structure.
+  gate_result: PASS
+  notes:
+    - "The spec is a remediation spec (SPEC-FIX) for skill-deck contract and dispatch defects."
+    - "Each task-card fix is one commit per task card per REQ-7."
+    - "Lint false-positives (SC-6 writing-plans, SC-9 prose mentions) are remediated by rewording, not by adding context or changing behavior."

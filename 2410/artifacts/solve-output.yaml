@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+provenance: AI-generated
+solve_output:
+  issue_number: 2410
+  repo: .opencode
+  notes: >
+    The research task card CLI forms (`.opencode/tools/solve model --query sat` and
+    `plan plan --contract-path`) do not match the actual tool interfaces. `solve model`
+    requires a model expression (not the literal 'sat'), and `plan plan` requires a
+    `--problem` YAML file (not `--contract-path`). The task intent — SAT verification of
+    the dependency contract plus planability of the phase decomposition — was satisfied
+    using the correct tool interfaces.
+  solve_status: SAT
+  plan_status: SOLVED_SATISFICING
+  checks:
+    - tool: ".opencode/tools/solve model"
+      query: z3.BoolVal(True)
+      result: SAT
+    - tool: ".opencode/tools/solve check"
+      contract: dependency-contract.yaml
+      state: artifacts/state-analysis.yaml
+      result: SAT
+      notes: "SAT and SAT (+ postconditions + invariants)"
+  planner:
+    tool: ".opencode/tools/plan plan"
+    problem: artifacts/plan-problem.yaml
+    engine: tamer
+    result: SOLVED_SATISFICING
+    plan_length: 2
+    plan:
+      - remediate_phase(phase1)
+      - remediate_phase(phase2)
+  verification_cross_cutting:
+    - "skildeck lint gate applies to ALL items (SC-1..SC-32)."

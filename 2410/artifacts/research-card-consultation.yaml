@@ -1,0 +1,23 @@
+research_card_consultation:
+  issue_number: 2410
+  consulted_cards:
+    - card: .opencode/.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+      confidence: 0.90
+      relevance: HIGH
+      findings_applied:
+        - "Finding 17: The Invocation section in a SKILL.md serves as the dispatch contract — it tells the orchestrator exactly what to pass to task(). The complete dispatch contract includes: (1) subagent_type, (2) prompt, (3) context, (4) expected result contract."
+        - "Finding 19: Workflows with sub-bullet dispatch contracts — each workflow step has sub-bullets for dispatch parameters (Prompt, Context, Returns). The sub-bullets are the dispatch contract for that step. Task cards that appear in multiple workflows get their own sub-bullets each time."
+        - "The task card's Result Contract is the authoritative source for what the sub-agent returns. The SKILL.md Workflows Returns sub-bullet must match the task card's Result Contract field names."
+      implication_for_spec:
+        - "The dispatch contract (Context/Returns) in SKILL.md Workflows must be aligned with the task card's Entry Criteria (context) and Result Contract (returns). The task card is the source of truth for the execution procedure."
+        - "Task cards must not contain internal dispatch instructions — the orchestrator alone performs dispatch. This aligns with the clean-room unit rule and the skill-card/task-card division of labor."
+    - card: .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+      confidence: 0.90
+      relevance: MEDIUM
+      findings_applied:
+        - "Mirror of the .opencode research card; same findings on skill-card/task-card architecture and dispatch contract."
+  no_matching_card_for:
+    - "dispatch-contract-result-mismatch lint rule specifics"
+    - "task-card-internal-dispatch lint rule specifics"
+    - "skildeck lint false-positive behavior on BLOCK reasons and git remote names"
+  gap_note: "No research card specifically covers the skildeck lint dispatch-contract checks or their false-positive behavior. The lint implementation (skildeck-lint) was read directly to understand the exact matching rules."

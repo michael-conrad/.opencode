@@ -1,0 +1,33 @@
+concern_map:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Concern boundaries and separation per phase. The two defect classes are distinct concerns
+    with distinct remediation strategies.
+  phases:
+    - phase: 1
+      name: "Dispatch contract alignment"
+      concern: "SKILL.md Workflows Returns/Context must match task-card Result Contract / Entry Criteria"
+      boundaries:
+        - "SKILL.md Workflows Returns sub-bullet is the orchestrator-facing contract."
+        - "Task-card Result Contract is the authoritative source for what the sub-agent returns."
+        - "Task-card Entry Criteria is the authoritative source for required context."
+      separation:
+        - "Contract alignment touches only SKILL.md Workflows Returns/Context sub-bullets and, for false-positives, task-card Entry Criteria wording."
+        - "Does NOT touch task-card Procedure execution steps."
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      concern: "Task cards must not instruct sub-agents to dispatch further sub-agents"
+      boundaries:
+        - "Task cards are execution procedures consumed by sub-agents."
+        - "The orchestrator alone performs dispatch via task()."
+        - "Task cards may describe routing decisions but must not embed task()/skill({) dispatch instructions."
+      separation:
+        - "Remediation touches only task-card Procedure lines containing internal dispatch."
+        - "Prose mentions of task() describing orchestrator behavior are reworded to avoid the lint token pattern."
+        - "Does NOT touch SKILL.md Workflows routing metadata."
+
+  concern_to_phase_mapping:
+    "dispatch contract alignment": phase 1
+    "task-card internal dispatch remediation": phase 2

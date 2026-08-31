@@ -1,0 +1,34 @@
+state_analysis:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    State machine transitions per phase. The changes are static skill-deck edits; the observable
+    state is the skildeck lint finding set. Each phase transitions the deck from a defective
+    finding state to a clean state.
+  phases:
+    - phase: 1
+      name: "Contract alignment"
+      state_transitions:
+        - from: "dispatch-contract-result-mismatch findings present (19)"
+          to: "zero dispatch-contract-result-mismatch findings"
+          trigger: "SKILL.md Returns sub-bullets aligned to task-card Result Contracts (SC-1, SC-2, SC-4)"
+        - from: "dispatch-contract-incomplete findings present (5)"
+          to: "zero dispatch-contract-incomplete findings"
+          trigger: >
+            Context sub-bullets gain approved/merged_at (SC-3, SC-5); writing-plans analyze.md
+            Entry Criteria rewording removes SPEC_NOT_FOUND/SPEC_NOT_APPROVED false-positives (SC-6).
+      invariant: "Task card Result Contract / Entry Criteria remain the authoritative source."
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      state_transitions:
+        - from: "task-card-internal-dispatch findings present (22)"
+          to: "zero task-card-internal-dispatch findings"
+          trigger: >
+            Embedded task()/skill({) dispatch instructions replaced with orchestrator-routing
+            markers (SC-7, SC-8, SC-9); prose mentions reworded to avoid the lint token pattern.
+      invariant: "Task cards contain no internal dispatch instructions; orchestrator alone dispatches."
+
+  final_state:
+    - "skildeck lint shows zero findings for the in-scope defect classes (dispatch-contract-result-mismatch, dispatch-contract-incomplete, task-card-internal-dispatch)."
+    - "Out-of-scope findings (word-count, frontmatter, MISSING_SKILL_MD_FOR_TASKS_DIR, etc.) remain and are not addressed by this issue."

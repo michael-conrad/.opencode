@@ -1,0 +1,67 @@
+interface_compatibility:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Interface compatibility analysis. The changes modify the dispatch contract interface between
+    SKILL.md Workflows (orchestrator) and task cards (sub-agent). No external API, no runtime
+    code interface is affected.
+  interfaces:
+    - name: "SKILL.md Workflows Returns contract"
+      status: modified
+      compatibility: backward compatible
+      detail: >
+        Returns sub-bullets are aligned to match task-card Result Contract field names. The
+        orchestrator reads the corrected contract. No breaking change — the task card was always
+        the authoritative source; the SKILL.md was wrong.
+      affected: SC-1, SC-2, SC-4
+
+    - name: "SKILL.md Workflows Context contract"
+      status: modified
+      compatibility: backward compatible
+      detail: >
+        Context sub-bullets gain missing required parameters (approved, merged_at). Adding a
+        required context field is backward compatible — the orchestrator now supplies what the
+        task card requires.
+      affected: SC-3, SC-5
+
+    - name: "Task-card Entry Criteria wording"
+      status: modified
+      compatibility: internal only
+      detail: >
+        writing-plans/tasks/analyze.md Entry Criteria rewording removes backtick-quoting of BLOCK
+        reason tokens (SPEC_NOT_FOUND/SPEC_NOT_APPROVED) to eliminate lint false-positives. No
+        semantic change to the entry criteria.
+      affected: SC-6
+
+    - name: "Task-card Procedure internal-dispatch lines"
+      status: modified
+      compatibility: internal only
+      detail: >
+        Embedded task()/skill({) dispatch instructions replaced with orchestrator-routing markers.
+        Prose mentions reworded to avoid the lint token pattern. No change to the execution
+        procedure's intent — the orchestrator performs the dispatch the task card previously
+        instructed the sub-agent to perform.
+      affected: SC-7, SC-8, SC-9
+
+  removed_interfaces: []
+  new_interfaces: []
+
+  dependency_contract:
+    - source: "SKILL.md Workflows Returns"
+      target: "task-card Result Contract"
+      type: "artifact schema"
+      constraint: >
+        The SKILL.md Returns field names MUST match the task-card Result Contract field names.
+        The task card is the authoritative source. This is the coupling that SC-1..SC-4 repair.
+    - source: "SKILL.md Workflows Context"
+      target: "task-card Entry Criteria"
+      type: "artifact schema"
+      constraint: >
+        The SKILL.md Context MUST supply every required parameter named in the task-card Entry
+        Criteria. This is the coupling that SC-3, SC-5 repair (and SC-6 false-positives).
+    - source: "task-card Procedure"
+      target: "orchestrator dispatch"
+      type: "artifact schema"
+      constraint: >
+        Task cards MUST NOT embed task()/skill({) dispatch instructions. The orchestrator alone
+        performs dispatch. This is the coupling that SC-7..SC-9 enforce.

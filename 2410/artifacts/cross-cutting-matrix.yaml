@@ -1,0 +1,54 @@
+cross_cutting_matrix:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Cross-cutting concerns matrix. The primary cross-cutting concern is the skildeck lint
+    verification gate, which applies to every item. The skill-card/task-card division of labor
+    is the governing principle for both phases.
+  matrix:
+    - concern: "skildeck lint verification gate"
+      applies_to: ALL items (SC-1..SC-9)
+      impact: >
+        Every item's GREEN verification runs `./.opencode/tools/skildeck lint` and asserts the
+        specific finding class is eliminated. This is the single cross-cutting verification
+        mechanism.
+      phase: 1 and 2
+
+    - concern: "skill-card vs task-card division of labor"
+      applies_to: SC-1..SC-6 (contract alignment), SC-7..SC-9 (internal dispatch)
+      impact: >
+        SKILL.md Workflows = orchestrator routing metadata (Returns/Context). Task cards =
+        sub-agent execution procedures (must not re-dispatch). Governs both the contract
+        alignment direction and the internal-dispatch remediation approach.
+      phase: 1 and 2
+
+    - concern: "Result contract frugality"
+      applies_to: SC-1..SC-4 (Returns alignment)
+      impact: >
+        Result contracts carry only routing-significant data (status, finding_summary,
+        artifact_path, blocker_reason). Task cards with specialized contracts (checks, task,
+        pair_mode, etc.) are authoritative; SKILL.md Returns must match.
+      phase: 1
+
+    - concern: "Clean-room unit rule"
+      applies_to: SC-7..SC-9 (internal dispatch)
+      impact: >
+        Task cards must not instruct sub-agents to dispatch further sub-agents. Embedded
+        task()/skill({) instructions are replaced with orchestrator-routing markers.
+      phase: 2
+
+    - concern: "One commit per task card"
+      applies_to: SC-7..SC-9
+      impact: >
+        Each task-card fix lands as one commit per task card, with a RED/GREEN behavioral check
+        where the contract shape is observable.
+      phase: 2
+
+    - concern: "Lint false-positive handling"
+      applies_to: SC-6 (writing-plans), SC-9 (prose mentions)
+      impact: >
+        BLOCK reasons (SPEC_NOT_FOUND/SPEC_NOT_APPROVED) and git remote names (origin) are not
+        dispatch context parameters. Prose mentions of task() describing orchestrator behavior
+        are not dispatch instructions. These are remediated by rewording, not by adding context
+        or changing behavior.
+      phase: 1 and 2

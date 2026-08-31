@@ -1,0 +1,49 @@
+testability_assessment:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Test strategy per phase. The primary verification mechanism is the skildeck lint gate, which
+    is structural. Where the contract shape is observable at runtime (orchestrator routing),
+    a behavioral check is warranted.
+  phases:
+    - phase: 1
+      name: "Contract alignment"
+      test_strategy: structural (skildeck lint) + behavioral where observable
+      tests:
+        - type: structural
+          command: "./.opencode/tools/skildeck lint"
+          assertion: >
+            Zero dispatch-contract-result-mismatch findings for the aligned steps (SC-1, SC-2,
+            SC-4); zero dispatch-contract-incomplete findings for the context steps (SC-3, SC-5,
+            SC-6).
+        - type: behavioral
+          condition: "where the contract shape is observable"
+          assertion: >
+            An orchestrator dispatching the aligned step receives the task-card Result Contract
+            shape (e.g., {status, checks, blocker_reason} for trunk-tip-verification) rather than
+            the mismatched shape.
+      coverage: SC-1..SC-6
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      test_strategy: structural (skildeck lint) + behavioral where observable
+      tests:
+        - type: structural
+          command: "./.opencode/tools/skildeck lint"
+          assertion: >
+            Zero task-card-internal-dispatch findings across all remediated task cards.
+        - type: behavioral
+          condition: "where the contract shape is observable"
+          assertion: >
+            A sub-agent executing a remediated task card does not attempt to re-dispatch via
+            task()/skill({) — it executes the single clean-room unit and returns the result
+            contract.
+      coverage: SC-7..SC-9
+
+  verification_tooling:
+    - "skildeck lint (structural gate)"
+    - "opencode run via with-test-home (behavioral gate, where contract shape observable)"
+  notes:
+    - "The skildeck lint is the authoritative structural gate for all three in-scope finding classes."
+    - "Behavioral checks are scoped to where the contract shape is observable (orchestrator routing / sub-agent dispatch behavior)."
+    - "Out-of-scope findings (word-count, frontmatter, MISSING_SKILL_MD_FOR_TASKS_DIR) are not asserted."

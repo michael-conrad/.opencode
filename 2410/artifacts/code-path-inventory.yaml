@@ -1,0 +1,69 @@
+code_path_inventory:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Code paths touched by each phase. All paths are within the .opencode skill deck.
+  phases:
+    - phase: 1
+      name: "Contract alignment"
+      code_paths:
+        - path: .opencode/skills/git-workflow-branch/SKILL.md
+          touch: "Workflows 'Verify remote trunk tip', 'Pair pre-work', 'Pair mode resume', 'Pre-work' Returns/Context sub-bullets"
+        - path: .opencode/skills/git-workflow-cleanup/SKILL.md
+          touch: "Workflows 'Pair cleanup' Returns sub-bullet"
+        - path: .opencode/skills/git-workflow-commit/SKILL.md
+          touch: "Workflows 'Pair commit' Returns sub-bullet"
+        - path: .opencode/skills/git-workflow-pr/SKILL.md
+          touch: "Workflows 'Pair-pr-creation', 'Completion' Returns sub-bullets"
+        - path: .opencode/skills/git-workflow-conflict/SKILL.md
+          touch: "Workflows 'Rebase pending' Context sub-bullet"
+        - path: .opencode/skills/writing-plans/tasks/analyze.md
+          touch: "Entry Criteria wording (SPEC_NOT_FOUND / SPEC_NOT_APPROVED backtick removal)"
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      code_paths:
+        - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+          touch: "Step 2.5 trunk-tip dispatch (line 110), submodule dispatch prose (lines 156, 179)"
+        - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+          touch: "Step 0-1 enforcement-gate task() mention (line 46)"
+        - path: .opencode/skills/issue-operations-comments/tasks/comment.md
+          touch: "Platform routing task() mentions (lines 47, 70, 180)"
+        - path: .opencode/skills/issue-operations-core/tasks/body-edit.md
+          touch: "Platform routing task() mention (line 144)"
+        - path: .opencode/skills/issue-operations-core/tasks/close.md
+          touch: "Platform routing task() mention (line 66)"
+        - path: .opencode/skills/issue-operations-core/tasks/creation.md
+          touch: "Platform routing task() mentions (lines 50, 78, 167, 170, 200)"
+        - path: .opencode/skills/issue-operations-core/tasks/list-issues.md
+          touch: "Platform routing task() mention (line 49)"
+        - path: .opencode/skills/issue-operations-core/tasks/read-comments.md
+          touch: "Platform routing task() mention (line 47)"
+        - path: .opencode/skills/issue-operations-core/tasks/read-issue.md
+          touch: "Platform routing task() mention (line 65)"
+        - path: .opencode/skills/issue-operations-core/tasks/read-labels.md
+          touch: "Platform routing task() mention (line 56)"
+        - path: .opencode/skills/issue-operations-core/tasks/search-issues.md
+          touch: "Platform routing task() mention (line 46)"
+        - path: .opencode/skills/issue-operations-core/tasks/update-issue.md
+          touch: "Platform routing task() mention (line 59)"
+        - path: .opencode/skills/issue-operations-sub-issues/tasks/link-sub-issue.md
+          touch: "Platform routing task() mentions (lines 47, 60, 94, 124)"
+        - path: .opencode/skills/issue-operations-sub-issues/tasks/read-sub-issues.md
+          touch: "Platform routing task() mention (line 49)"
+        - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+          touch: "Platform routing task() mentions (lines 45, 76)"
+        - path: .opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md
+          touch: "Platform routing task() mentions (lines 23, 31, 54, 58)"
+        - path: .opencode/skills/issue-review/tasks/audit.md
+          touch: "audit dispatch task() mention (line 49)"
+        - path: .opencode/skills/multimodal-dispatch/tasks/completion.md
+          touch: "Prose task() mentions (lines 9, 19, 30, 32)"
+        - path: .opencode/skills/multimodal-dispatch/tasks/dispatch.md
+          touch: "Prose task() mentions (lines 37, 39, 44, 46)"
+        - path: .opencode/skills/pre-analysis/tasks/analyze.md
+          touch: "Prose task() mention (line 87)"
+        - path: .opencode/skills/sre-runbook/tasks/track.md
+          touch: "issue-operations dispatch task() mention (line 68)"
+        - path: .opencode/skills/verification/tasks/verify.md
+          touch: "Prose task() mentions (lines 41, 54, 56, 63)"

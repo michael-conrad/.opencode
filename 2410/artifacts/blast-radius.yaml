@@ -1,0 +1,50 @@
+blast_radius:
+  issue_number: 2410
+  repo: .opencode
+  description: >
+    Affected components and ripple effects per phase. The changes are confined to the
+    .opencode skill deck: SKILL.md Workflows dispatch contracts and task-card internal-dispatch
+    lines. No runtime code, no application source, no tests outside the skill deck.
+  phases:
+    - phase: 1
+      name: "Contract alignment (SKILL.md Returns/Context)"
+      affected_components:
+        - .opencode/skills/git-workflow-branch/SKILL.md
+        - .opencode/skills/git-workflow-cleanup/SKILL.md
+        - .opencode/skills/git-workflow-commit/SKILL.md
+        - .opencode/skills/git-workflow-pr/SKILL.md
+        - .opencode/skills/git-workflow-conflict/SKILL.md
+        - .opencode/skills/writing-plans/tasks/analyze.md
+      ripple_effects:
+        - "Orchestrator reads the corrected Returns contract and routes with the correct result-contract shape."
+        - "Downstream routing decisions (evidence lookup, finding propagation) no longer fail on missing fields."
+        - "No runtime code impact — SKILL.md is routing metadata consumed by the orchestrator."
+      blast_radius: LOW (confined to skill deck routing metadata)
+
+    - phase: 2
+      name: "Task-card internal-dispatch remediation"
+      affected_components:
+        - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+        - .opencode/skills/issue-operations-comments/tasks/comment.md
+        - .opencode/skills/issue-operations-core/tasks/*.md
+        - .opencode/skills/issue-operations-sub-issues/tasks/*.md
+        - .opencode/skills/issue-operations-sync/tasks/*.md
+        - .opencode/skills/issue-review/tasks/audit.md
+        - .opencode/skills/multimodal-dispatch/tasks/*.md
+        - .opencode/skills/pre-analysis/tasks/analyze.md
+        - .opencode/skills/sre-runbook/tasks/track.md
+        - .opencode/skills/verification/tasks/verify.md
+      ripple_effects:
+        - "Sub-agents execute single clean-room units instead of re-dispatching."
+        - "Orchestrator alone performs dispatch, preserving clean-room isolation."
+        - "Prose rewording in multimodal-dispatch/pre-analysis/verification removes lint false-positives without behavioral change."
+      blast_radius: LOW (confined to task-card execution procedures)
+
+  out_of_scope_components:
+    - "skildeck CLI tooling defects (#2408)"
+    - "broken dispatch references (#2409)"
+    - "TDT/Invocation incompleteness (#2407)"
+    - "guideline broken references (#2406)"
+    - "git-workflow-conflict dispatch context contract mismatch (#2381)"
+    - "writing-plans create→validate contract mismatch (#2343)"

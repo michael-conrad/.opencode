@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+provenance: AI-generated
+spec_path: .opencode/.issues/2410/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 9
+sc_count_note: "success criteria table rows SC-1 through SC-9 (grep count 414 includes table row content)"
+artifact_presence:
+  blast-radius: present
+  concern-map: present
+  code-path-inventory: present
+  cross-cutting-matrix: present
+  interface-compatibility: present
+  state-analysis: present
+  testability-assessment: present
+scope_boundary_findings:
+  git-workflow-branch_SKILL: present
+  git-workflow-branch_tasks/trunk-tip-verification: present
+  git-workflow-branch_tasks/pre-work: present
+  git-workflow-cleanup_SKILL: present
+  git-workflow-commit_SKILL: present
+  git-workflow-pr_SKILL: present
+  git-workflow-pr_tasks/pr-creation: present
+  git-workflow-conflict_SKILL: present
+  writing-plans_tasks/analyze: present
+  issue-review_tasks/audit: present
+  sre-runbook_tasks/track: present
+  pre-analysis_tasks/analyze: present
+  verification_tasks/verify: present
+  issue-operations-comments_tasks/comment: present
+  issue-operations-core_tasks (creation, close, body-edit, read-*, list-issues, search-issues, update-issue): present
+  issue-operations-sub-issues_tasks (link-sub-issue, read-sub-issues): present
+  issue-operations-sync_tasks (import-remote, sync-from-remote, sync-pull-to-local): present
+  multimodal-dispatch_tasks (completion, dispatch, dispatch-multi, probe, resolve): present
+  skildeck_lint_tool (.opencode/tools/skildeck): present
+missing_artifacts: []
+missing_scope_files: []

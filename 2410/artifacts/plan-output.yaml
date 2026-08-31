@@ -1,0 +1,24 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: dispatch-contract-remediation
+  objects: 2
+  fluents: 1
+  actions: 1
+  goals:   2
+plan length: 2
+
+- [ ] 1. remediate_phase(phase1)
+- [ ] 2. remediate_phase(phase2)
+
+---
+actions:
+- name: remediate_phase
+  parameters:
+  - phase1
+- name: remediate_phase
+  parameters:
+  - phase2
+domain: dispatch-contract-remediation
+engine: tamer
+plan_length: 2
+status: SOLVED_SATISFICING

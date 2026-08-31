@@ -1,38 +1,130 @@
-sc_count: 9
+sc_count: 32
 scs:
   - id: "SC-1"
     description: "git-workflow-branch 'Verify remote trunk tip' Returns matches trunk-tip-verification.md Result Contract"
-    evidence_type: "structural"
+    evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "git-workflow-branch pair-mode Returns contracts match task-card Result Contracts"
-    evidence_type: "structural"
+    description: "git-workflow-branch 'Pair pre-work' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
-    description: "git-workflow-branch 'Pre-work' Context includes approved field"
-    evidence_type: "structural"
+    description: "git-workflow-branch 'Pair mode resume' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "git-workflow-cleanup/commit/pr Returns contracts match task-card Result Contracts"
-    evidence_type: "structural"
+    description: "git-workflow-branch 'Pre-work' Context includes approved field"
+    evidence_type: "behavioral"
     plan_item: 4
   - id: "SC-5"
-    description: "git-workflow-conflict 'Rebase pending' Context includes merged_at field"
-    evidence_type: "structural"
+    description: "git-workflow-cleanup 'pair-cleanup' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "writing-plans analyze.md Entry Criteria reworded to avoid SPEC_NOT_FOUND/SPEC_NOT_APPROVED false-positives"
-    evidence_type: "structural"
+    description: "git-workflow-commit 'pair-commit' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 6
   - id: "SC-7"
-    description: "git-workflow-branch/pre-work.md and git-workflow-pr/pr-creation.md contain no internal dispatch"
-    evidence_type: "structural"
+    description: "git-workflow-pr 'pair-pr-creation' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 7
   - id: "SC-8"
-    description: "issue-operations-* task cards contain no internal dispatch"
-    evidence_type: "structural"
+    description: "git-workflow-pr 'completion' Returns matches task-card Result Contract"
+    evidence_type: "behavioral"
     plan_item: 8
   - id: "SC-9"
-    description: "issue-review/sre-runbook/multimodal-dispatch/pre-analysis/verification task cards contain no internal dispatch or prose triggers"
-    evidence_type: "structural"
+    description: "git-workflow-conflict 'Rebase pending' Context includes merged_at field"
+    evidence_type: "behavioral"
     plan_item: 9
+  - id: "SC-10"
+    description: "writing-plans analyze.md Entry Criteria reworded to avoid SPEC_NOT_FOUND/SPEC_NOT_APPROVED false-positives"
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "git-workflow-branch/tasks/pre-work.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 11
+  - id: "SC-12"
+    description: "git-workflow-pr/tasks/pr-creation.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 12
+  - id: "SC-13"
+    description: "issue-operations-comments/tasks/comment.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 13
+  - id: "SC-14"
+    description: "issue-operations-core/tasks/body-edit.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 14
+  - id: "SC-15"
+    description: "issue-operations-core/tasks/close.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 15
+  - id: "SC-16"
+    description: "issue-operations-core/tasks/creation.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 16
+  - id: "SC-17"
+    description: "issue-operations-core/tasks/list-issues.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 17
+  - id: "SC-18"
+    description: "issue-operations-core/tasks/read-comments.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 18
+  - id: "SC-19"
+    description: "issue-operations-core/tasks/read-issue.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 19
+  - id: "SC-20"
+    description: "issue-operations-core/tasks/read-labels.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 20
+  - id: "SC-21"
+    description: "issue-operations-core/tasks/search-issues.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 21
+  - id: "SC-22"
+    description: "issue-operations-core/tasks/update-issue.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 22
+  - id: "SC-23"
+    description: "issue-operations-sub-issues/tasks/link-sub-issue.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 23
+  - id: "SC-24"
+    description: "issue-operations-sub-issues/tasks/read-sub-issues.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 24
+  - id: "SC-25"
+    description: "issue-operations-sync/tasks/import-remote.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 25
+  - id: "SC-26"
+    description: "issue-operations-sync/tasks/sync-pull-to-local.md contains no internal dispatch"
+    evidence_type: "behavioral"
+    plan_item: 26
+  - id: "SC-27"
+    description: "issue-review/tasks/audit.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 27
+  - id: "SC-28"
+    description: "sre-runbook/tasks/track.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 28
+  - id: "SC-29"
+    description: "multimodal-dispatch/tasks/completion.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 29
+  - id: "SC-30"
+    description: "multimodal-dispatch/tasks/dispatch.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 30
+  - id: "SC-31"
+    description: "pre-analysis/tasks/analyze.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 31
+  - id: "SC-32"
+    description: "verification/tasks/verify.md contains no internal dispatch or prose triggers"
+    evidence_type: "behavioral"
+    plan_item: 32
