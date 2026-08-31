@@ -1,0 +1,176 @@
+# Pre-spec inspection — .opencode#2421
+# Mandatory live-registry verification of dependency versions before pinning
+# Inspected: 2026-08-31 (session date)
+# Repo: michael-conrad/.opencode (submodule at .opencode/)
+
+inspection_date: 2026-08-31
+issue_number: 2421
+repo: michael-conrad/.opencode
+
+affected_files:
+  - path: .opencode/guidelines/070-environment.md
+    role: primary_edit_target
+    reason: >
+      Governs HOW a dependency is added (edit pyproject.toml + uv sync, `~=`
+      pinning, PEP 723 version pinning mandates). The new directive (WHERE the
+      version number comes from) is a natural extension of the existing
+      "Version Pinning (MANDATORY)" section. Tier 2 guideline, load_when:
+      sub-agent.
+    existing_patterns:
+      - "Version Pinning (MANDATORY)" section mandates `~=` compatible-release
+        pins for PEP 723 scripts (requires-python `~=X.Y.0`, dependencies `~=`)
+      - "Python Environment" section: add dependencies by editing pyproject.toml
+        then `uv sync` — never `uv add`
+      - No existing directive on WHERE the version number comes from (registry
+        verification vs training-data recall) — confirmed gap
+    conventions:
+      - Markdown guideline with YAML frontmatter (trigger_on, tier, load_when)
+      - MANDATORY-labeled section headers
+      - Read-link cross-reference pattern for related guidelines
+
+  - path: .opencode/guidelines/075-docs-verification.md
+    role: primary_edit_target
+    reason: >
+      Tier 1 guideline. Already prohibits memory-based claims ("Relying on
+      memory from previous implementations" is NOT verification) and mandates
+      live verification of API signatures, env vars, config formats. The new
+      directive extends the same principle to dependency version numbers.
+      Candidate location for the directive or a Read-link to it.
+    existing_patterns:
+      - "Zero Tolerance Rule" — CRITICAL VIOLATION framing for unverified claims
+      - "What COUNTS as Verification" / "NOT Verification" tables
+      - "Prohibited Patterns" code examples (WRONG vs CORRECT)
+      - critical-rules-008 enforcement block at file end
+    conventions:
+      - Tier 1 guideline with YAML frontmatter
+      - CRITICAL VIOLATION header pattern
+      - Related Guidelines section with Read-links
+
+  - path: .opencode/guidelines/065-verification-honesty.md
+    role: secondary_edit_target
+    reason: >
+      Tier 1 guideline. Prohibits reporting unverified information as verified
+      and memory-based claims. The new directive is a specialization of this
+      guideline's principle for dependency versions. May receive a Read-link or
+      a cross-reference; the directive itself likely lives in 070 or 075.
+    existing_patterns:
+      - "Zero Tolerance Rule" — reporting unverified info as verified is a
+        process-integrity failure
+      - "Pre-Response Factual Claim Gate" — factual claims require tool-call
+        verification
+      - "Session-Scoped Verification" — verify once per fact per session
+    conventions:
+      - Tier 1 guideline with YAML frontmatter
+      - Co-authored byline at file end
+
+  - path: .opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh
+    role: new_file (behavioral test artifact generator)
+    reason: >
+      New behavioral enforcement test per the spec's Approach section
+      ("per-item TDD cycle with a behavioral enforcement test asserting the
+      agent queries the live registry before pinning"). Follows the
+      artifact-only generator paradigm in tests-v2/AGENTS.md §1.
+    existing_patterns:
+      - Template: .opencode/tests-v2/behaviors/template.sh
+      - Reference example: .opencode/tests-v2/behaviors/2411-sc4-false-numerical-target.sh
+        (real-domain task prompt, behavior_run, exit 0)
+      - helpers.sh provides behavior_run() with with-test-home isolation,
+        flock lock, fixture injection, session.yaml export
+    conventions:
+      - MANDATORY cross-reference header (3 lines)
+      - SCENARIO_NAME kebab-case, SCENARIO_PROMPT real-domain task
+      - Prompt MUST NOT be prose-recall (AGENTS.md §11 Prompt Construction Mandate)
+      - exit 0 unconditionally
+
+  - path: .opencode/tests-v2/behaviors/fixtures/setup/2421-sc1-live-registry-verification.sh
+    role: new_file (per-scenario fixture, optional)
+    reason: >
+      If the scenario needs repo state (e.g., a pyproject.toml with a
+      training-data-recalled version pin to correct), the per-scenario fixture
+      script provisions it. Harness sources fixtures/setup/<scenario-name>.sh
+      with the workdir as $1 (AGENTS.md §3 Step 0b).
+    existing_patterns:
+      - fixtures/setup/ directory pattern with setup_* function + "$1" workdir
+      - FORBIDDEN: modifying helpers.sh for scenario-specific flags
+
+  - path: .opencode/tests-v2/test-enforcement.sh
+    role: possibly_modified
+    reason: >
+      Content-verification runner. Recent precedent (2411, 2419) added
+      standalone content-verification tests WITHOUT registering them in
+      test-enforcement.sh SCENARIOS (verified: no 2411/2419 entries exist).
+      The behavioral test lives in behaviors/ and is run directly. No
+      registration required unless a content-verification test is added.
+    existing_patterns:
+      - SCENARIOS array with __STANDALONE__ marker for content-verification
+      - FILE_SCENARIO_MAP for --changed filtering
+      - Recent tests (2411, 2419) NOT registered — precedent for standalone
+        execution
+
+  - path: .opencode/tests-v2/AGENTS.md
+    role: possibly_modified
+    reason: >
+      Test harness spec. If the behavioral test needs a new harness capability
+      (e.g., registry-mock or network policy), AGENTS.md documents it. The
+      live-registry scenario uses real network access (PyPI/npm/crates.io
+      verified reachable) — no harness change expected.
+    existing_patterns:
+      - §3 Writing a New Behavioral Test
+      - §11 Prompt Construction Mandate
+      - §6a Two-SC Pattern (artifact generation + clean-room evaluation)
+
+  - path: .opencode/CHANGELOG.md
+    role: possibly_modified
+    reason: >
+      Recent guideline/test changes append CHANGELOG entries (see 7f4426d5
+      for #2411). The implementation commit may include a CHANGELOG entry.
+    existing_patterns:
+      - CHANGELOG.md updated in the same commit as guideline changes
+
+dependencies_and_callers:
+  - 070-environment.md is referenced by:
+    - .opencode/AGENTS.md (Build/Lint/Test commands reference uv sync)
+    - 075-docs-verification.md (Related Guidelines section)
+    - 065-verification-honesty.md (Related Guidelines section)
+  - 075-docs-verification.md is referenced by:
+    - 000-critical-rules.md (critical-rules-008)
+    - 080-code-standards.md (Related Guidelines)
+    - 130-authority-source.md (Related Guidelines)
+  - behaviors/helpers.sh is the shared harness for ALL behavioral tests —
+    must NOT be modified for scenario-specific needs (AGENTS.md §3 Step 0b)
+  - with-test-home provisions the isolated test project; the test repo's
+    .opencode is cloned from the submodule remote and pinned to the local
+    submodule commit (feature-branch changes visible to the test agent)
+
+connectivity_verification:
+  - purpose: Verify live package registries are reachable before the spec
+    claims the behavioral test can query them (Connectivity Verification Gate)
+  - evidence:
+    - command: curl -s -o /dev/null -w "pypi.org HTTP %{http_code}" https://pypi.org/pypi/pyyaml/json
+      result: "HTTP 200 in 0.063s"
+    - command: curl -s -o /dev/null -w "registry.npmjs.org HTTP %{http_code}" https://registry.npmjs.org/lodash
+      result: "HTTP 200 in 0.072s"
+    - command: curl -s --max-time 10 -H "User-Agent: opencode-config-spec-analysis" https://crates.io/api/v1/crates/serde
+      result: "HTTP 200 (crates.io requires a User-Agent header; bare curl returns 403)"
+  - conclusion: >
+    PyPI and npm registries are reachable without special headers. crates.io
+    requires a User-Agent header (403 without, 200 with) — the directive and
+    behavioral test must account for this (e.g., curl -H "User-Agent: ..." or
+    the registry client's default UA).
+
+key_findings:
+  - The gap is real: no guideline currently directs agents on WHERE dependency
+    version numbers come from. 070-environment.md governs HOW (edit
+    pyproject.toml + uv sync, `~=` pins), 065/075 prohibit memory-based claims
+    generally, but no text mandates live-registry verification before pinning.
+  - Existing `~=` pinning mandates in 070-environment.md (PEP 723 section)
+    are the natural anchor for the new directive.
+  - The behavioral test must be a real-domain task (e.g., "add dependency X to
+    pyproject.toml") — NOT a prose-recall prompt (AGENTS.md §11 hard-fail).
+  - The two-SC pattern (artifact generation + clean-room evaluation) is the
+    established structure for behavioral SCs (AGENTS.md §6a).
+  - crates.io requires a User-Agent header — the directive should mention
+    registry API access patterns or keep the directive registry-agnostic.
+  - Recent precedent (2411, 2419): standalone content-verification tests are
+    NOT registered in test-enforcement.sh; behavioral tests run directly from
+    behaviors/. No runner registration needed.

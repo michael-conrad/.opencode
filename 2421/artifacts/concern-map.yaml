@@ -1,0 +1,33 @@
+# Concern map — .opencode#2421
+# Mandatory live-registry verification of dependency versions before pinning
+
+issue_number: 2421
+artifact: concern-map
+
+## Concern Boundaries
+
+| Concern | Phase(s) | Files | Separation Rationale |
+|---------|----------|-------|----------------------|
+| Directive content (WHERE version numbers come from) | Phase 1 | 070-environment.md | The directive is a rule about dependency version sourcing — lives with the dependency-addition rules (070) |
+| Cross-referencing (routing agents to the directive) | Phase 2 | 075-docs-verification.md | 075 is the live-verification guideline; a Read-link routes agents without duplicating directive text |
+| Behavioral enforcement (agent behavior evidence) | Phase 3 | behaviors/2421-sc1-live-registry-verification.sh | Artifact-only generator per AGENTS.md §1 — separate from content rules |
+| Clean-room evaluation (verdict on behavior) | Phase 3 | (spec SC, no file) | Evaluation is a spec SC dispatching a clean-room sub-agent — not a script |
+| Content verification (directive text presence) | Phase 4 | test-2421-sc1-directive-present.sh | Standalone content test per 2411/2419 precedent |
+
+## Separation Rules
+
+- Directive text lives in ONE place (070-environment.md). 075 gets a Read-link,
+  never duplicated text (fragmentation prevention).
+- Behavioral test scripts NEVER evaluate (AGENTS.md §1) — evaluation is a
+  separate spec SC (two-SC pattern, §6a).
+- Content-verification tests (text presence) are distinct from behavioral tests
+  (agent behavior) — different evidence types, different files.
+- Shared harness (helpers.sh, with-test-home) is NOT modified for this scenario
+  (REQ-C2).
+
+## Cross-Cutting Concerns
+
+- Read-link cross-reference pattern (Read [Text](path)) — applies to Phase 2
+- Prompt Construction Mandate (AGENTS.md §11) — applies to Phase 3
+- Two-SC pattern (§6a) — applies to Phase 3
+- Connectivity (live registries reachable) — applies to Phase 3

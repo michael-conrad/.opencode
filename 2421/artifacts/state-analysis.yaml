@@ -1,0 +1,63 @@
+# State analysis — .opencode#2421
+# Mandatory live-registry verification of dependency versions before pinning
+
+issue_number: 2421
+artifact: state-analysis
+
+## State Machine: Dependency Version Sourcing (agent behavior)
+
+States:
+  - S0: DEPENDENCY_NEEDED — agent needs to add a dependency (no version known)
+  - S1: VERSION_RECALLED — agent recalls a version from training data
+    (PROHIBITED target state)
+  - S2: REGISTRY_QUERIED — agent queried the live registry for the current
+    stable version
+  - S3: VERSION_VERIFIED — agent holds the verified current stable version
+  - S4: PINNED_VERIFIED — agent pinned the verified version (with `~=` per 070)
+  - S5: PINNED_OLDER_JUSTIFIED — agent pinned an older version with documented
+    justification (exception path)
+  - S6: PINNED_RECALLED — agent pinned a training-data-recalled version
+    (VIOLATION state)
+
+Transitions:
+  - S0 -> S1: recall from training data (FORBIDDEN — directive prohibits)
+  - S0 -> S2: query live registry (REQUIRED — directive mandates)
+  - S2 -> S3: registry returns current stable version
+  - S3 -> S4: pin verified version with `~=` (normal path)
+  - S3 -> S5: pin older version + document justification (exception path)
+  - S1 -> S6: pin recalled version (VIOLATION — behavioral test asserts absence)
+  - S5 -> S6: pin without justification (VIOLATION)
+
+Invariants:
+  - S4 and S5 are the only terminal states reachable from S3
+  - S6 is never reachable from S2/S3 (verified version always preferred)
+  - The `~=` pin operator applies in S4 and S5 (070-environment.md mandate)
+
+## State Machine: Behavioral Test Lifecycle
+
+States:
+  - T0: SCRIPT_CREATED — test script exists in behaviors/
+  - T1: ARTIFACTS_GENERATED — behavior_run produced session.yaml etc.
+  - T2: EVALUATED — clean-room sub-agent read session.yaml and issued verdict
+
+Transitions:
+  - T0 -> T1: run bash behaviors/2421-sc1-live-registry-verification.sh
+    (requires network access to registries)
+  - T1 -> T2: dispatch clean-room evaluation (SC-4)
+  - T1 -> T0: RED phase — script exists, artifacts generated, evaluation FAILS
+    (agent did not query registry)
+  - T1 -> T2: GREEN phase — evaluation PASSES (agent queried registry)
+
+Invariants:
+  - T1 artifacts persist until PR merge cleanup (behavioral-evidence-* exempt
+    from temp cleanup)
+  - Evaluation reads session.yaml only
+
+## Phase Transitions (pipeline)
+
+- Phase 1 (070 directive) -> Phase 2 (075 cross-ref): directive exists first
+- Phase 1 -> Phase 3 (behavioral test): test asserts directive behavior
+- Phase 3 -> Phase 4 (clean-room evaluation): artifacts must exist first
+- Phase 1 -> Phase 5 (content test): directive text must exist first
+
+Acyclic: yes.

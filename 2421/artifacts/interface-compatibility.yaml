@@ -1,0 +1,118 @@
+# Interface compatibility — .opencode#2421
+# Mandatory live-registry verification of dependency versions before pinning
+
+issue_number: 2421
+artifact: interface-compatibility
+
+## Interfaces
+
+- id: IF-1
+  name: 070-environment.md guideline content
+  status: modified
+  change: >
+    New directive subsection (or extension of Version Pinning) mandating
+    live-registry verification of dependency version numbers before pinning.
+  backward_compatible: true
+  breaking: false
+  scope: internal only
+  consumers:
+    - Agents loading 070-environment.md (tier 2, load_when: sub-agent)
+    - 075-docs-verification.md (new Read-link target)
+
+- id: IF-2
+  name: 075-docs-verification.md guideline content
+  status: modified
+  change: >
+    New version-number row in "What Must Be Verified" table and/or Read-link to
+    the 070 directive.
+  backward_compatible: true
+  breaking: false
+  scope: internal only
+  consumers:
+    - Agents loading 075-docs-verification.md (tier 1)
+
+- id: IF-3
+  name: behaviors/2421-sc1-live-registry-verification.sh
+  status: new
+  change: >
+    New artifact-only generator script following template.sh structure.
+  backward_compatible: true
+  breaking: false
+  scope: internal only
+  consumers:
+    - behavior_run() in helpers.sh (unchanged interface)
+    - with-test-home (unchanged interface)
+
+- id: IF-4
+  name: fixtures/setup/2421-sc1-live-registry-verification.sh
+  status: new (conditional)
+  change: >
+    New per-scenario fixture script sourced by the harness with workdir as $1.
+  backward_compatible: true
+  breaking: false
+  scope: internal only
+  consumers:
+    - Harness fixture injection (AGENTS.md §3 Step 0b)
+
+- id: IF-5
+  name: test-2421-sc1-directive-present.sh
+  status: new (optional)
+  change: >
+    New standalone content-verification test.
+  backward_compatible: true
+  breaking: false
+  scope: internal only
+  consumers:
+    - Direct invocation only (not registered in test-enforcement.sh)
+
+## Removed Interfaces
+
+- id: RI-1
+  name: (none)
+  change: No interfaces are removed by this spec.
+
+## Breaking Changes
+
+- id: BC-1
+  name: (none)
+  change: >
+    No breaking changes. All modifications are additive (new directive text,
+    new cross-reference, new test files). Existing guideline content,
+    harness interfaces, and test runner behavior are unchanged.
+
+## Dependency Contract
+
+- id: DC-1
+  source: IF-1 (070-environment.md directive)
+  target: IF-2 (075-docs-verification.md Read-link)
+  type: artifact schema
+  constraint: >
+    The Read-link in 075 MUST reference the directive section in 070 using the
+    Read [Text](path) pattern. The directive text lives in exactly one place
+    (070) — 075 carries only the link, never duplicated text.
+
+- id: DC-2
+  source: IF-3 (behavioral test script)
+  target: behavior_run() in helpers.sh
+  type: artifact schema
+  constraint: >
+    The script MUST follow the artifact-only generator contract: source
+    helpers.sh, set SCENARIO_NAME/SCENARIO_PROMPT, call behavior_run, exit 0.
+    No assertion helpers, no evaluation, no helpers.sh modification.
+
+- id: DC-3
+  source: IF-3 (behavioral test artifacts)
+  target: SC-4 clean-room evaluation
+  type: artifact schema
+  constraint: >
+    The evaluation MUST read session.yaml (PRIMARY evidence source) from the
+    artifact directory produced by behavior_run. stdout.log/stderr.log are
+    secondary and MUST NOT be the evaluation source.
+
+- id: DC-4
+  source: IF-4 (per-scenario fixture)
+  target: harness fixture injection
+  type: artifact schema
+  constraint: >
+    The fixture script MUST accept the workdir as $1 and MUST be named exactly
+    fixtures/setup/<scenario-name>.sh matching SCENARIO_NAME.
