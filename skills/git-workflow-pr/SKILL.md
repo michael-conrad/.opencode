@@ -56,7 +56,7 @@ When the agent needs to create a PR from a pair mode branch.
 - [ ] 1. **Pair-pr-creation** — Creates a PR from a pair mode branch
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pair-mode pull request](.opencode/skills/git-workflow-pr/tasks/pair-pr-creation.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+  - **Returns:** `{status, task, pr_number, pr_url, squash_performed, pair_mode}`
   - **Execution mode:** sub-agent dispatch
 
 ### Perform post-implementation tasks
