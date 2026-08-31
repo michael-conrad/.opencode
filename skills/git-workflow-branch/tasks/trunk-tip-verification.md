@@ -8,7 +8,7 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
 
 - Authorization has been verified (approval-gate passed)
 - Working tree is on `$DEFAULT_BRANCH`
-- Remote `origin` is reachable
+- The git remote is reachable
 
 ## Procedure
 
