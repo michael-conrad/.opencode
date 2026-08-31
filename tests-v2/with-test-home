@@ -261,7 +261,7 @@ do_setup() {
             default_model="$DEFAULT_TEST_MODEL"
         fi
         if [ -z "${default_model:-}" ]; then
-            default_model="ollama/qwen3.8:27b-256k"
+            default_model="ollama/qwen3.8:27b-256k-gguf4"
         fi
         local hello_output
         hello_output=$("${OPENCODE_CMD[@]}" run "hello world" --model "$default_model" 2>&1 || true)
