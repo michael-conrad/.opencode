@@ -42,7 +42,7 @@ gb issue view <issue-number> -R <github.owner>/<github.repo>
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: N}`.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: N}`.
 
 Extract: title, body, html_url, state, labels, author, created_at, updated_at.
 
@@ -73,7 +73,7 @@ Collect each comment's author, timestamp, and body text.
 
 ### Step 3: Ensure .issues/ Exists
 
-If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
+If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` with setup action. The local-issues tool handles worktree setup transparently.
 
 ### Step 4: Completeness Gate
 

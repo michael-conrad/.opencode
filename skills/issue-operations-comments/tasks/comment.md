@@ -44,7 +44,7 @@ After substantiveness, classify comment content before determining type. Classif
 
 | Classification | Definition | Route |
 |---|---|---|
-| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → route to `platforms/local/tasks/push-body.md` via task() |
+| **stakeholder** | Information a reviewer/stakeholder needs to act on | Write to `remote.md` → route to `platforms/local/tasks/push-body.md` |
 | **internal** | Agent reasoning, design analysis, corrections, process metadata | `.issues/N/comments.md` only |
 
 **Concrete classification rules:**
@@ -67,7 +67,7 @@ When content is classified as "Revising/correcting spec" or "Revising/correcting
 | Content Type | Route To |
 |---|---|
 | Revising/correcting spec | `spec-creation --task change-control` |
-| Revising/correcting plan | `task("execute revise from writing-plans")` |
+| Revising/correcting plan | Route to `writing-plans --task revise` |
 
 The comment task's only job is posting comments — not revising bodies, not updating specs, not modifying plans.
 
@@ -177,7 +177,7 @@ gb issue comment <issue-number> -b "<formatted_comment>" -R <github.owner>/<gith
 ```
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: N, body: "<formatted_comment>", action: "post"}`.
+Route to `platforms/local/tasks/comment.md`. Pass: `{issue_number: N, body: "<formatted_comment>", action: "post"}`.
 
 ## Live Verification: Comment Claims (MANDATORY)
 

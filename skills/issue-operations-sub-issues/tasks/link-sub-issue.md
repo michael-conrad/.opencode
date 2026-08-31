@@ -44,7 +44,7 @@ gb issue view <M> -R <github.owner>/<github.repo>
 ```
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M}`.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: M}`.
 
 ### Step 2: Check Existing Sub-Issues
 
@@ -57,7 +57,7 @@ sub_issues = issue-operations -> read-issue
 Check parent issue comments for structured sub-issue list comments.
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/read.md` via task(). Pass: `{issue_number: M, type: "links"}`.
+Route to `platforms/local/tasks/read.md`. Pass: `{issue_number: M, type: "links"}`.
 
 ### Step 3: Reference Plan File (Metadata Only)
 
@@ -91,7 +91,7 @@ gb issue create -t "[Task: #<M>] <phase_description>" -R <github.owner>/<github.
 ```
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/creation.md` via task(). Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Phase:** <phase_description> — plan file: \`.issues/<M>/plan.md\`", labels: ["task"]}`.
+Route to `platforms/local/tasks/creation.md`. Pass: `{title: "[Task: #<M>] <phase_description>", body: "**Phase:** <phase_description> — plan file: \`.issues/<M>/plan.md\`", labels: ["task"]}`.
 
 ### Step 4.5: EXTRACT URL FROM API RESPONSE
 
@@ -121,7 +121,7 @@ gb issue comment <M> -b "**Sub-issue linked:** #<sub_issue_number> — <phase_de
 ```
 
 **Local platform (comment-based fallback via sub-skill):**
-Route to `platforms/local/tasks/comment.md` via task(). Pass: `{issue_number: M, body: "**Sub-issue linked:** #<sub_issue_number> — <phase_description>", action: "post"}`.
+Route to `platforms/local/tasks/comment.md`. Pass: `{issue_number: M, body: "**Sub-issue linked:** #<sub_issue_number> — <phase_description>", action: "post"}`.
 
 The caller records which method was used (formal link vs comment) for later closure operations.
 

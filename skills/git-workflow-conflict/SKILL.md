@@ -34,7 +34,7 @@ When the agent needs to resolve git conflicts during a rebase, merge, or cherry-
 
 - [ ] 1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [rebase pending PRs after merge](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
-  - **Context passed:** `{branch_name, worktree.path}`
+  - **Context passed:** `{branch_name, worktree.path, merged_at}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 

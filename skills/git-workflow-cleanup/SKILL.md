@@ -46,7 +46,7 @@ When the agent needs to clean up a pair mode branch after a merge.
 - [ ] 1. **Pair cleanup** — Cleans up a pair mode branch after merge
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [clean up pair-mode branches](.opencode/skills/git-workflow-cleanup/tasks/pair-cleanup.md). pr_merged_event: true"))`
   - **Context passed:** `{pr_merged_event}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, branches_deleted, stashes_preserved, pr_merge_verified}`
   - **Execution mode:** sub-agent dispatch
 
 ## Cross-References

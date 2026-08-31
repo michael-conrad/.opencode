@@ -104,15 +104,9 @@ git rebase origin/"$DEFAULT_BRANCH"
 
 ### Step 2.5: Trunk-Tip Verification
 
-**Before creating any feature branch, verify that the parent repo and all submodules are at remote trunk tip with clean working trees.** Dispatch trunk-tip verification to a sub-agent:
+**Before creating any feature branch, verify that the parent repo and all submodules are at remote trunk tip with clean working trees.** The orchestrator routes trunk-tip verification to a sub-agent. The sub-agent independently runs the 7-step verification gate (parent repo remote trunk tip, zero pending changes, remote tracking match, submodule remote trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match).
 
-```bash
-task(subagent_type="general", prompt: "execute trunk-tip-verification from git-workflow-branch")
-```
-
-The sub-agent independently runs the 7-step verification gate (parent repo remote trunk tip, zero pending changes, remote tracking match, submodule remote trunk tip, submodule zero pending, submodule remote tracking match, submodule pointer match).
-
-**If trunk-tip verification returns BLOCKED:** Re-task with original scoped context. If second task() also fails, report the double-failure and HALT.
+**If trunk-tip verification returns BLOCKED:** Re-dispatch with original scoped context. If the second dispatch also fails, report the double-failure and HALT.
 
 **If no submodules detected:** The trunk-tip verification still runs for the parent repo checks. Proceed to Step 3 for submodule work if submodules exist.
 
@@ -153,7 +147,7 @@ The agent MUST NOT ask for confirmation, permission, or readiness before perform
 
 ### Sub-Agent Boundary: Submodule Operations — Orchestrator Dispatch
 
-When submodules are detected via `git submodule status`, the dispatches a sub-agent via `task(subagent_type="general")` for submodule initialization, sync, and status operations. The sub-agent receives only:
+When submodules are detected via `git submodule status`, the orchestrator routes a sub-agent for submodule initialization, sync, and status operations. The sub-agent receives only:
 
 **`must_receive`:**
 - `worktree.path` (if in worktree mode; null otherwise)
@@ -176,7 +170,7 @@ When submodules are detected via `git submodule status`, the dispatches a sub-ag
 
 **If no submodules detected via `git submodule status`:** Skip this step and proceed to Step 4.
 
-**If submodules detected:** The dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules detected:** The orchestrator routes a sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 - [ ] 1. Detects the submodule path(s)
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
@@ -199,7 +193,7 @@ submodules_updated: <list of (path, old_sha, new_sha, commit_count)>
 submodule_tags_created: <list of (path, tag_name)>
 ```
 
-**If `status: BLOCKED`** (e.g., submodule checkout fails): Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+**If `status: BLOCKED`** (e.g., submodule checkout fails): Re-dispatch with original scoped context. If the second dispatch also fails, report the double-failure and HALT.
 
 **If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to remote $DEFAULT_BRANCH tip. Pass `worktree_type: main` in the task context.
 
@@ -270,7 +264,7 @@ git status --porcelain
 
 **If no submodules were detected in Step 3:** Skip this step and proceed to Step 6.
 
-**If submodules were detected:** The orchestrator dispatches a sub-agent via `task(subagent_type="general")` with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
+**If submodules were detected:** The orchestrator routes a sub-agent with the boundary context defined in the Sub-Agent Boundary section above. The sub-agent independently:
 
 - [ ] 1. For each submodule, checks if a feature branch already exists: `git branch --list feature/<issue-number>-*`
 - [ ] 2. If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
@@ -294,7 +288,7 @@ submodule_branches_created: <list of (path, branch_name, tag_used)>
 submodule_branches_skipped: <list of (path, branch_name, reason)>
 ```
 
-**If `status: BLOCKED`:** Re-task() with original scoped context. If second task() also fails, report the double-failure and HALT.
+**If `status: BLOCKED`:** Re-dispatch with original scoped context. If the second dispatch also fails, report the double-failure and HALT.
 
 ### Step 6: Verify Branch Environment
 

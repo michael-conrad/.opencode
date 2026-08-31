@@ -35,7 +35,7 @@ When the agent needs to create a feature branch before any implementation work, 
 - [ ] 1. **Verify remote trunk tip** — Verifies that parent repo and submodules are at remote trunk tip with clean working trees
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify trunk-tip state](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, checks, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 2. **Sync submodules** — Syncs dirty submodule pointers to latest remote trunk tip
@@ -46,7 +46,7 @@ When the agent needs to create a feature branch before any implementation work, 
 
 - [ ] 3. **Pre-work** — Creates the feature branch and sets up the working environment
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up feature branch pre-work](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
-  - **Context passed:** `{branch_name, worktree.path}`
+  - **Context passed:** `{branch_name, worktree.path, approved}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
@@ -57,13 +57,13 @@ When the agent needs to set up a pair mode branch or resume a pair mode session.
 - [ ] 1. **Pair pre-work** — Sets up a pair mode branch and workspace
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up pair-mode pre-work](.opencode/skills/git-workflow-branch/tasks/pair-pre-work.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, pair_mode, branch_name, wip_commit_created, working_directory}`
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 2. **Pair mode resume** — Resumes a pair mode session from saved state
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [resume pair-mode session](.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, task, pair_branch, issue_number, changes_summary, uncommitted_count, unpushed_count}`
   - **Execution mode:** sub-agent dispatch
 
 ### Manage submodule pointers before commit

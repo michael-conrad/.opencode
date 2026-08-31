@@ -20,7 +20,7 @@ After any `read-issue` call, automatically mirror the remote issue body to `.iss
 
 ### Step 1: Ensure .issues/ Exists
 
-If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` via task() with setup action. The local-issues tool handles worktree setup transparently.
+If `.issues/` directory does not exist, route to `platforms/local/tasks/creation.md` with setup action. The local-issues tool handles worktree setup transparently.
 
 ### Step 2: Create or Update Local Issue
 
@@ -28,7 +28,7 @@ Determine whether a local issue already exists for this remote number:
 
 - [ ] 1. Search `.issues/` for an entry matching the remote number
 - [ ] 2. If found: the issue exists locally — proceed to Step 3 (update)
-- [ ] 3. If not found: create a new local issue via task() to `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
+- [ ] 3. If not found: create a new local issue via `platforms/local/tasks/creation.md`: `{title: "<remote_title>"}`
 
 Capture the returned local issue number.
 
@@ -51,11 +51,11 @@ source: <github.platform>
 
 **Existing issue (update frontmatter only — preserve local spec body):**
 
-Use `platforms/local/tasks/update.md` via task() to update `remote.md` fields (`remote_issue`, `remote_url`, `last_sync`) and body. The local `spec.md` is never touched by this task — only `remote.md` is updated.
+Use `platforms/local/tasks/update.md` to update `remote.md` fields (`remote_issue`, `remote_url`, `last_sync`) and body. The local `spec.md` is never touched by this task — only `remote.md` is updated.
 
 ### Step 4: Link Local to Remote
 
-If a new issue was created, route to `platforms/local/tasks/link.md` via task() to link it to the remote. Pass: `{local_number: N, remote_number: N, remote_url: "<url>"}`.
+If a new issue was created, route to `platforms/local/tasks/link.md` to link it to the remote. Pass: `{local_number: N, remote_number: N, remote_url: "<url>"}`.
 
 ### Step 5: Verify Mirror
 

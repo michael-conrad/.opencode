@@ -44,7 +44,7 @@ github_issue_read(
 ```
 
 **Local platform:**
-Route to `platforms/local/tasks/comment.md` via task() to read comments. Pass: `{issue_number: N, action: "read"}`.
+Route to `platforms/local/tasks/comment.md` to read comments. Pass: `{issue_number: N, action: "read"}`.
 
 ### Step 3: Return Comment Data
 
