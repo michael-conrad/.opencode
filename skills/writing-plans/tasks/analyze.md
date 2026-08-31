@@ -18,9 +18,9 @@ Verify spec exists locally, check approval from issue.yaml labels, validate anal
 ## Entry Criteria
 
 - `{issues_prefix}/{N}/spec.md` must exist
-  - If missing: return BLOCKED with `SPEC_NOT_FOUND` and the resolved path
+  - If missing: return BLOCKED with the SPEC_NOT_FOUND reason and the resolved path
 - `{issues_prefix}/{N}/issue.yaml` must exist and contain an `approved-for-*` label
-  - If missing or no `approved-for-*` label: return BLOCKED with `SPEC_NOT_APPROVED`
+  - If missing or no `approved-for-*` label: return BLOCKED with the SPEC_NOT_APPROVED reason
 - The issue number `{N}` must be provided
 - The project root and issues prefix must be set
 
