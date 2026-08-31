@@ -84,7 +84,7 @@ total_estimated_changes: <N>
 
 ### Step 6: Context-Hash Audit Trail
 
-Before task()ing the execution sub-agent, the orchestrator MUST compute and log a context hash. This enables post-execution integrity verification — confirming the execution sub-agent operated on the same task plan that was produced.
+Before dispatching the execution sub-agent, the orchestrator MUST compute and log a context hash. This enables post-execution integrity verification — confirming the execution sub-agent operated on the same task plan that was produced.
 
 #### 6.1 Compute Task Payload Hash
 
