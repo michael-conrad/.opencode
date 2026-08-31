@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC1"
+    description: "Sub-agent role-identification prefix present on both dispatch entries"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC2"
+    description: "Validator conformance defects remediated (REQ-2, REQ-3, REQ-6) and card passes full validator suite"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC3"
+    description: "Dispatch link text rewritten from path restatement to purpose condensation"
+    evidence_type: "string"
+    plan_item: 6

@@ -2,9 +2,9 @@ title: '[SPEC] Remediate executing-plans SKILL.md — missing sub-agent dispatch
   and validator conformance defects'
 status: open
 labels:
-- needs-approval
+- needs-approval,spec-draft
 body: ''
 created_at: '2026-08-31T19:10:26+00:00'
-updated_at: '2026-08-31T19:11:20+00:00'
+updated_at: '2026-08-31T19:20:08+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2424
 remote_url: https://github.com/michael-conrad/.opencode/issues/2424
