@@ -63,7 +63,7 @@ gb issue comment <issue-number> -b "Closing: PR merged and implementation verifi
 ```
 
 **Local platform (sub-skill implementation):**
-Route to `platforms/local/tasks/close.md` via task(). Pass: `{issue_number: N, reason: "completed"}`.
+Route to `platforms/local/tasks/close.md`. Pass: `{issue_number: N, reason: "completed"}`.
 
 ### Step 4: Post Closure Comment (if substantive)
 
