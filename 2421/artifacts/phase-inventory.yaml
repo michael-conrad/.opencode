@@ -1,0 +1,64 @@
+plan_schema_version: 1
+issue: 2421
+title: "Mandatory live-registry verification of dependency versions before pinning"
+plan_path: .opencode/.issues/2421/plan.md
+inventory_timestamp: 2026-08-31T18:49:00Z
+
+phase_order:
+  - "1: 070 directive"
+  - "2: 075 cross-reference"
+  - "3: Behavioral test + evaluation"
+  - "4: Content-verification test"
+
+phases:
+  - phase: 1
+    name: "070 directive"
+    concern: "live-registry verification directive in 070-environment.md"
+    scs: [SC-1]
+    dependencies: []
+    dispatch: "red/green/verify/commit"
+    files:
+      - ".opencode/guidelines/070-environment.md"
+  - phase: 2
+    name: "075 cross-reference"
+    concern: "Read-link in 075-docs-verification.md to the 070 directive"
+    scs: [SC-2]
+    dependencies: [1]
+    dispatch: "red/green/verify/commit"
+    files:
+      - ".opencode/guidelines/075-docs-verification.md"
+  - phase: 3
+    name: "Behavioral test + evaluation"
+    concern: "scenario generation + clean-room evaluation"
+    scs: [SC-3, SC-4]
+    dependencies: [1]
+    dispatch: "red/green/verify/commit"
+    files:
+      - ".opencode/tests-v2/behaviors/2421-sc1-live-registry-verification.sh"
+    internal_order:
+      - "SC-3: behavioral test artifact generator"
+      - "SC-4: clean-room evaluation of behavioral artifacts (depends on SC-3)"
+  - phase: 4
+    name: "Content-verification test"
+    concern: "standalone directive-present test"
+    scs: [SC-5]
+    dependencies: [1]
+    dispatch: "red/green/verify/commit"
+    files:
+      - ".opencode/tests-v2/test-2421-sc1-directive-present.sh"
+
+post_implementation:
+  - "audit"
+  - "Z3 check"
+  - "structural checks"
+  - "pre-PR gate"
+  - "regression check"
+  - "review prep"
+  - "create PR"
+  - "completion summary"
+
+dependency_dag:
+  - "Phase 2 depends on Phase 1"
+  - "Phase 3 depends on Phase 1"
+  - "Phase 4 depends on Phase 1"
+  - "SC-4 depends on SC-3 (within Phase 3)"
