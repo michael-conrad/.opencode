@@ -449,3 +449,11 @@ Affected files and impact zones from `blast-radius.yaml`. The change is limited 
 - [ ] PX-6. **Review prep** (**sub-agent**). Dispatch `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`. Prepare the PR review context.
 - [ ] PX-7. **Create PR** (**sub-agent**). Dispatch `task(..., prompt: "execute create task from git-workflow-pr")`. Create the pull request only when `for_pr` scope is active or an explicit create-PR instruction is given.
 - [ ] PX-8. **Completion summary** (**sub-agent**). Dispatch `task(..., prompt: "execute completion task from completion-core")`. Generate the completion executive summary.
+
+---
+
+## Lifecycle Events
+
+| Timestamp | Event | Details |
+|-----------|-------|---------|
+| 2026-08-31T23:24:17Z | `plan_created` | Plan file: `.opencode/.issues/2425/plan.md`; 7 phases, 8 SCs |

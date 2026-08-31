@@ -1,0 +1,73 @@
+issue: 2425
+plan_path: .opencode/.issues/2425/plan.md
+solve_status: SAT
+overall_status: PASS
+categories:
+  - id: 1
+    name: structural
+    status: PASS
+    checks:
+      - name: phase-table-columns
+        status: PASS
+        detail: "Phase table (lines 65-73) has all required columns: Phase, Name, Concern, SCs, Dependencies, Steps, Dispatch."
+      - name: phase-procedure-steps
+        status: PASS
+        detail: "Each of the 7 phases has a Step-by-Step section with numbered steps (P1-1..P1-7, P2-1..P2-13, P3-1..P3-5, P4-1..P4-5, P5-1..P5-5, P6-1..P6-5, P7-1..P7-5)."
+      - name: exit-criteria-sc-mapping
+        status: PASS
+        detail: "Exit Criteria section (lines 77-88) maps C1-C8 to SC-1..SC-8; all 8 SCs present."
+  - id: 2
+    name: skill-task-validity
+    status: PASS
+    checks:
+      - name: dispatch-string-validity
+        status: PASS
+        detail: "All skill+task dispatch strings match the implementation-workflow reference card. Verified: phase-0/red/green/phase-4 (test-driven-development), verify (verification-before-completion), checklist (finishing-a-development-branch), verification-audit DiMo investigator (audit), review-prep/create (git-workflow-pr), completion (completion-core). Inline commit and z3-check steps match orchestrator-inline entries."
+  - id: 3
+    name: sc-coverage
+    status: PASS
+    checks:
+      - name: sc-coverage-all
+        status: PASS
+        detail: "All 8 SCs covered: SC-1 (Phase 1), SC-2/SC-3 (Phase 2), SC-4 (Phase 3), SC-5 (Phase 4), SC-6 (Phase 5), SC-7 (Phase 6), SC-8 (Phase 7)."
+      - name: triplet-split-detection
+        status: PASS
+        detail: "No SC has RED/GREEN/COMMIT split across phases. SC-1 (P1-4/P1-5/P1-7), SC-2 (P2-4/P2-5/P2-7), SC-3 (P2-9/P2-10/P2-12), SC-4 (P3-2/P3-3/P3-5), SC-5 (P4-2/P4-3/P4-5), SC-6 (P5-2/P5-3/P5-5), SC-7 (P6-2/P6-3/P6-5), SC-8 (P7-2/P7-3/P7-5) — each triplet fully contained in one phase."
+  - id: 4
+    name: concern-separation
+    status: PASS
+    checks:
+      - name: one-concern-per-phase
+        status: PASS
+        detail: "Each phase maps to exactly one concern-map concern: Phase 1 (concern_source_of_truth), Phase 2 (concern_harness_fallbacks), Phase 3 (concern_docs_testsv2), Phase 4 (concern_docs_modeldep), Phase 5 (concern_docs_readme), Phase 6 (concern_docs_opencode_agents), Phase 7 (concern_docs_parent_agents)."
+      - name: no-shared-concern
+        status: PASS
+        detail: "No two phases address the same concern; all 7 concerns map to distinct phases."
+  - id: 5
+    name: dag-validation
+    status: PASS
+    checks:
+      - name: no-cycles
+        status: PASS
+        detail: "Dependency contract DAG is acyclic: Phase 1 is the root; Phases 2-7 depend on Phase 1 only. No back-edges."
+      - name: all-reachable
+        status: PASS
+        detail: "All phases reachable from start node (Phase 1): Phases 2-7 each declare Phase 1 as dependency."
+      - name: no-orphans
+        status: PASS
+        detail: "No orphan phases. Phase 1 has outgoing edges to Phases 2-7; Phases 2-7 each have an incoming edge from Phase 1."
+  - id: 6
+    name: holistic-quality
+    status: PASS
+    checks:
+      - name: no-tbd-todo
+        status: PASS
+        detail: "No TBD/TODO placeholders in the plan body. Angle-bracket placeholders (<file>, <message>) are git-command argument templates, not TBD/TODO markers."
+      - name: checkbox-format
+        status: PASS
+        detail: "All steps use checkbox format (- [ ])."
+      - name: dispatch-mode-consistency
+        status: PASS
+        detail: "Inline steps (P0-1, P0-2, P1-1, P1-7, P2-1, P2-7, P2-8, P2-12, P3-1, P3-5, P4-1, P4-5, P5-1, P5-5, P6-1, P6-5, P7-1, P7-5, PX-3) contain no task() dispatch. Sub-agent steps contain valid task() dispatch strings."
+observations:
+  - "P1-1 pre-cleanup step contains a bare '{}' template placeholder in the artifact path ('{}'/artifacts/pipeline-pre-regression-*). This is a cosmetic template artifact, not a TBD/TODO marker, and does not affect plan validity. Flagged for awareness only."
