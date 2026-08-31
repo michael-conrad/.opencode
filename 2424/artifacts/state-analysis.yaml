@@ -1,0 +1,43 @@
+state_analysis:
+  issue: 2424
+  subject: "executing-plans/SKILL.md conformance state"
+  states:
+
+    - state: "non_conformant (current)"
+      transitions:
+        - event: "phase_1 dispatch prefix applied"
+          next: "partial (dispatch prefix only)"
+        - event: "phase_2 REQ-2/3/6 applied"
+          next: "partial (structure only)"
+
+    - state: "partial"
+      transitions:
+        - event: "remaining conformance fixes applied"
+          next: "conformant"
+
+    - state: "conformant"
+      description: "All REQ-2/3/6, CONDENSATION-001, and dispatch-prefix fixes applied."
+      transitions:
+        - event: "validator gate passes (executing-plans zero violations)"
+          next: "validated"
+        - event: "regression (edit reverts a fix)"
+          next: "non_conformant"
+
+    - state: "validated"
+      description: "Final gate: validator reports zero executing-plans violations. Goal state."
+      accepting: true
+
+    - state: "gate_failed"
+      description: "Validator still reports an executing-plans violation after remediation."
+      transitions:
+        - event: "diagnose specific rule id + re-apply fix"
+          next: "conformant"
+
+  invariants:
+    - "Task cards behavior remains unchanged throughout (REQ-H)."
+    - "Validator file never modified (REQ-J)."
+    - "No other skill card modified (REQ-I)."
+    - "Frontmatter name/description unchanged."
+
+  failure_guards:
+    - "If validator reports a new violation class (e.g., workflows-sub-bullets broken by REQ-6 renumbering), return to the failing rule, fix, and re-validate."

@@ -1,0 +1,34 @@
+cross_cutting_matrix:
+  issue: 2424
+  matrix:
+
+    - concern: "DISPATCH_GATE conformance baseline"
+      phase_1: "HIGH — dispatch prompt prefix is the routing-conformance fix"
+      phase_2: "LOW — structural/prose conformance"
+      phase_3: "MEDIUM — link condensation feeds the discovery directive in dispatch prompts"
+      gate: "HIGH — validator gate enforces the whole baseline"
+
+    - concern: "File edits (SKILL.md)"
+      phase_1: "HIGH — same file, Prompt sub-bullets"
+      phase_2: "HIGH — same file, byline/section/headers"
+      phase_3: "HIGH — same file, link labels"
+      gate: "NONE — gate is read-only"
+
+    - concern: "Validator invocation"
+      phase_1: "NONE"
+      phase_2: "LOW — REQ-2/3/6 target validator's rules"
+      phase_3: "LOW — condensation targets validate_condensation"
+      gate: "HIGH — full validator run is the gate"
+
+    - concern: "Prose/style standards (080-code-standards)"
+      phase_1: "LOW — no attribution impact"
+      phase_2: "HIGH — byline placeholders follow REQ-2 / attribution standards"
+      phase_3: "LOW"
+
+  cross_cutting_risks:
+    - "All three phases edit the same single file (executing-plans/SKILL.md). Non-overlap must be preserved to keep each phase's diff isolated."
+    - "Validator reports 255 violations across 51 cards suite-wide; the gate MUST scope assertions to the executing-plans card only to respect REQ-I."
+
+  mitigation:
+    - "Keep edits confined to disjoint regions of SKILL.md per phase."
+    - "Gate asserts only executing-plans violations == empty."

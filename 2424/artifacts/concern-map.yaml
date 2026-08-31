@@ -1,0 +1,29 @@
+concern_map:
+  issue: 2424
+  concerns:
+
+    - concern: "Dispatch prompt conformance (role-identification)"
+      phases: [phase_1]
+      separation: "Add `You are a sub-agent.` prefix to both dispatch prompt strings. Isolated to the Prompt sub-bullets of the two Workflows steps."
+      boundary: "Must not alter the task() signature, context, returns, or execution mode."
+
+    - concern: "Validator conformance defects (REQ-2/3/6)"
+      phases: [phase_2]
+      separation: "Byline placeholders (REQ-2), Worktree Mode section add (REQ-3), Workflows numbered-step format (REQ-6)."
+      boundary: "REQ-2/3/6 are file-structure + prose fixes inside SKILL.md; none touch task files or validator."
+
+    - concern: "Dispatch link purpose condensation (CONDENSATION-001)"
+      phases: [phase_3]
+      separation: "Rewrite the two dispatch link texts from path restatement to purpose condensation."
+      boundary: "Only the link label text changes; the href/path stays the same so sub-agent discovery still resolves."
+
+    - concern: "Conformance validation gate"
+      phases: [phase_2_gate]
+      separation: "Run validate_skill_cards.py; assert executing-plans has zero violations."
+      boundary: "Validator untouched; other cards' violations explicitly out of scope."
+
+  separation_strategy: >
+    Each concern is independently verifiable and maps to its own SC. Phase 2 (REQ-2/3/6) and
+    phase 3 (condensation) are text-structure changes; phase 1 (dispatch prefix) is dispatch-routing
+    text. All three phases modify the same single file (SKILL.md) but touch disjoint regions, so
+    edits are non-overlapping and revert-isolated.

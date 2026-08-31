@@ -1,0 +1,74 @@
+pre_spec_inspection:
+  issue: 2424
+  repo: michael-conrad/.opencode
+  target_file: .opencode/skills/executing-plans/SKILL.md
+  inspection_method: read tool + validator execution
+  findings:
+
+    - item: "Target card is the only card carrying the non-conforming role-identification omission"
+      evidence: >
+        `.opencode/skills/executing-plans/SKILL.md` (62 lines). Its two Workflows dispatch
+        prompt strings (`read-plan`, `dispatch-phase`) begin directly with
+        `Follow the instructions in [...]` and lack the `You are a sub-agent.` prefix that every
+        conforming dispatch entry in the deck carries.
+      file_path: .opencode/skills/executing-plans/SKILL.md
+
+    - item: "REQ-2 — hardcoded agent name in byline"
+      evidence: >
+        Byline on line 62 reads `Co-authored with AI: OpenCode (deepseek-v4-flash)`.
+        Validator HARDCODED_AGENT_NAMES matches `OpenCode`; ATTRIBUTION_EXEMPT only exempts the
+        placeholder form `Co-authored with AI:.*<AgentName>.*<ModelId>`.
+      defect: "Replace hardcoded `OpenCode` and model ID with `<AgentName>` and `<ModelId>` placeholders."
+      line_approx: 62
+
+    - item: "REQ-3 — missing `## Worktree Mode` section"
+      evidence: >
+        Card references reading the plan file and dispatching phases, which triggers the
+        FILE_OPS_PATTERN (read/tool references). WORKTREE_MODE_HEADING_RE found no `## Worktree Mode`
+        heading, so validator flags REQ-3.
+      defect: "Add a `## Worktree Mode` section per the deck's conforming reference cards."
+      reference_format: >
+        `## Worktree Mode` / "This skill operates in the main repo directory (direct-branch mode).
+        When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`."
+
+    - item: "REQ-6 — Workflows use checkbox format instead of numbered format"
+      evidence: >
+        Workflows steps use `- [ ] 1. **Read the plan file**` checkbox form. Validator
+        WORKFLOW_STEP_RE (`^\d+\.\s+\*\*`) requires a bare numbered step `1. **...**` with no
+        `- [ ] ` prefix at start of line. Hence `workflows-steps` violation.
+      defect: "Convert `- [ ] N. **` checkbox format to `N. **` numbered format."
+
+    - item: "CONDENSATION-001 ×2 — dispatch link text is a path restatement"
+      evidence: >
+        Both dispatch links use link text equal to the path stem:
+        `[executing-plans/tasks/read-plan.md](...)` and
+        `[executing-plans/tasks/dispatch-phase.md](...)`. DISPATCH_LINK_RE flags both because
+        text contains `tasks/` / equals the path stem.
+      defect: >
+        Replace link text with a purpose condensation of each task card's purpose statement:
+        read-plan -> "inventory plan phases"; dispatch-phase -> "dispatch one plan phase".
+
+    - item: "Spec scope and out-of-scope boundaries"
+      evidence: >
+        In scope: add `You are a sub-agent.` prefix to both dispatch prompts; resolve REQ-2, REQ-3,
+        REQ-6, CONDENSATION-001; make card conform to current standards.
+        Out of scope: changes to read-plan.md/dispatch-phase.md behavior, other skill cards, the
+        validator itself.
+
+    - item: "Non-conformance claim is broader than the spec asserts"
+      evidence: >
+        Running `validate_skill_cards.py` reports 255 violations across 51 cards (many are
+        SC-LINT-001 description-pattern warnings shared by most cards). The spec's assertion that
+        executing-plans is "the only non-conforming card" is imprecise at suite level, but the
+        *executing-plans-specific* violations (REQ-2, REQ-3, REQ-6, CONDENSATION-001) are unique to
+        this card. The conformance target for the create task is scoped to the executing-plans card
+        only, consistent with the spec's stated out-of-scope constraints.
+
+    - item: "Conforming dispatch pattern reference"
+      evidence: >
+        `spec-creation/SKILL.md` establishes the deck's conforming prompt shape:
+        `prompt: concat("You are a sub-agent. Follow the instructions in [<purpose-condensation>](<path>). <context...>")`.
+        This is the pattern the remediated executing-plans prompts must mirror.
+      file_path: .opencode/skills/spec-creation/SKILL.md
+
+  codebase_indexed: confirmed (srclight not separately invoked; file operations verified via read tool)

@@ -1,0 +1,34 @@
+research_card_consultation:
+  issue: 2424
+  consultation_method: glob+frontmatter grep on .opencode/.issues/research-cards/*.md
+  cards_match_found: true
+  relevant_cards:
+
+    - card: spec-writing-ai-agents-opencode-skill-architecture.md
+      confidence: 0.90
+      status: active
+      relevance: >
+        Canonical skill-card vs task-card architecture: SKILL.md is routing metadata (level 2,
+        ~5k tokens) consumed by the orchestrator via skill(); task cards are execution procedures
+        (level 3) consumed by sub-agents via task() which does NOT auto-load them. The dispatch
+        prompt MUST carry the discovery directive `You are a sub-agent. Follow the instructions in
+        [<condensation>](<path>).` because task() does not auto-load task cards. This directly
+        corroborates the two missing `You are a sub-agent.` prefixes in the executing-plans
+        card's dispatch entries.
+      findings_incorporated:
+        - "Sub-agents must receive the role-identification prefix so they read task cards independently."
+        - "Skill card is routing metadata; condensation link text = purpose condensation, not path restatement."
+
+    - card: pre-response-gate-skill-description-design.md
+      confidence: 0.90
+      status: active
+      relevance: >
+        Confirms the description field is a semantic router and the description format is 1-1024
+        chars describing what the skill does. Supporting context for conformance standards, though
+        this spec does not change the executing-plans description directly.
+      findings_incorporated:
+        - "Description conformance target from skill-card-schema.md applies (agent-intent format)."
+
+  confidence_threshold_used: 0.7
+  gaps:
+    - "No dedicated research card specifically documents the Worktree Mode section format; the deck's conforming cards (brainstorming, finishing-a-development-branch) serve as the reference source instead."

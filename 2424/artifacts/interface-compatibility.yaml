@@ -1,0 +1,51 @@
+interface_compatibility:
+  issue: 2424
+  interfaces:
+
+    - name: "executing-plans/SKILL.md Workflows dispatch Prompt strings"
+      status: modified
+      backward_compatible: true
+      detail: >
+        The Prompt sub-bullet text and link labels change (prefix + condensation). The task()
+        dispatch contract (subagent_type, context fields, returns, execution mode, task-card path)
+        is unchanged. Sub-agent discovery still resolves the same task card .md paths.
+
+    - name: "executing-plans task cards (read-plan.md, dispatch-phase.md)"
+      status: unchanged
+      backward_compatible: true
+      detail: "Behavior explicitly out of scope (REQ-H). No schema/contract changes."
+
+    - name: "validate_skill_cards.py"
+      status: unchanged
+      backward_compatible: true
+      detail: "Validator is read-only reference for the gate (REQ-J). No interface change."
+
+    - name: "Skill deck routing surface (<available_skills> entry)"
+      status: modified (indirect)
+      backward_compatible: true
+      detail: "Frontmatter (name, description) unchanged, so Level-1 semantic routing is unaffected. Dispatch-level routing text updated."
+
+    - name: "Byline attribution convention"
+      status: modified
+      backward_compatible: true
+      detail: "REQ-2 requires `Co-authored with AI: <AgentName> (<ModelId>)` placeholder form per skill-card-schema.md §AI Co-Authored Byline."
+
+  removed_interfaces: []
+
+  breaking_changes: []
+
+  dependency_contract:
+    - source: "executing-plans/SKILL.md Workflows dispatch Prompt"
+      target: "executing-plans/tasks/read-plan.md"
+      type: "artifact schema"
+      constraint: "Discovery directive `[<condensation>](<path>)` must keep the same task-card href so the sub-agent reads the correct task file."
+    - source: "executing-plans/SKILL.md Workflows dispatch Prompt"
+      target: "executing-plans/tasks/dispatch-phase.md"
+      type: "artifact schema"
+      constraint: "Same href-preservation requirement; task-card path unchanged."
+    - source: "executing-plans/SKILL.md byline"
+      target: "080-code-standards.md attribution convention"
+      type: "prose/attribution"
+      constraint: "Placeholder form required by validator ATTRIBUTION_EXEMPT regex."
+
+  internal_only: true
