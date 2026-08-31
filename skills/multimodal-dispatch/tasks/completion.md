@@ -16,7 +16,7 @@ Task results are documented, a status report is produced, and no orphaned state 
 
 ### Step 1: Document Results
 
-Compile a status report summarizing all task() operations:
+Compile a status report summarizing all sub-agent dispatch operations:
 
 ```
 Multimodal Task Status: <completed | partial | unverified | failed>
@@ -27,9 +27,9 @@ Unverified Modalities: <list of modalities that had no model>
 
 ### Step 2: Clean Up
 
-- Clear any temporary task() state
+- Clear any temporary dispatch state
 - Ensure the capability snapshot cache is left in a valid state
-- If any task() operations produced partial results, document what was completed and what was not
+- If any dispatch operations produced partial results, document what was completed and what was not
 
 ### Step 3: Report
 
