@@ -46,7 +46,7 @@ When the agent needs to create a feature branch before any implementation work, 
 
 - [ ] 3. **Pre-work** — Creates the feature branch and sets up the working environment
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up feature branch pre-work](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
-  - **Context passed:** `{branch_name, worktree.path}`
+  - **Context passed:** `{branch_name, worktree.path, approved}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
 
