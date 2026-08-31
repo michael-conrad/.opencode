@@ -141,7 +141,7 @@ Commit `.issues/` changes and sync push to remote.
    git commit -m "body-edit: update remote.md for issue #N"
    ```
 
-- [ ] 2. Route to `platforms/local/tasks/push-body.md` via task() to sync local changes. Pass: `{issue_number: N}`
+- [ ] 2. Route to `platforms/local/tasks/push-body.md` to sync local changes. Pass: `{issue_number: N}`
 
 - [ ] 3. For GitHub platform, also update the remote issue body (routed via platform sub-skill):
 
