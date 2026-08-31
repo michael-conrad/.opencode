@@ -1,0 +1,14 @@
+research_card_consultation:
+  issue_number: 2425
+  consultation_method: |
+    Globbed research cards in .opencode/.issues/research-cards/*.md and
+    .issues/research-cards/*.md, grepped frontmatter for topics matching
+    "default test model", "qwen3.8", "gguf", "27b", model dependency.
+  cards_consulted: 0
+  cards_searched:
+    - .opencode/.issues/research-cards/ (11 cards)
+    - .issues/research-cards/ (13 cards)
+  matching_cards: none
+  findings_incorporated: none
+  confidence_treshold: 0.7
+  result: "No research card covers the default test model value / gguf4 topic. Analysis proceeds without cached research findings."

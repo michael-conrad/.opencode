@@ -1,0 +1,32 @@
+cross_cutting_matrix:
+  issue_number: 2425
+  cross_cutting_concerns:
+    - concern: "Model identifier consistency"
+      applies_to_phases: [1, 2, 3]
+      rationale: "Every literal/fallback/doc reference must name the same gguf4 model string or tests/docs drift"
+      coordination: "Single coordinated change; sc1/sc2/sc3 tests enforce consistency"
+    - concern: "Behavioral/content-verification test integrity"
+      applies_to_phases: [1, 2, 3]
+      rationale: "Tests assert the literal and must not be lobotomized; updated in lockstep with each phase"
+      coordination: "sc1->phase1, sc2->phase2, sc3->phase3"
+    - concern: "Agent-facing documentation correctness"
+      applies_to_phases: [3]
+      rationale: ".opencode/AGENTS.md and parent AGENTS.md contain CRITICAL VIOLATION notes citing the verified model; stale model undermines enforcement text"
+      coordination: "Update both AGENTS.md files together"
+  matrix:
+    phases:
+      - phase: 1
+        model_consistency: HIGH
+        test_integrity: HIGH (sc1)
+        doc_correctness: LOW
+      - phase: 2
+        model_consistency: HIGH
+        test_integrity: HIGH (sc2)
+        doc_correctness: LOW
+      - phase: 3
+        model_consistency: HIGH
+        test_integrity: HIGH (sc3)
+        doc_correctness: HIGH
+  risk:
+    - risk: "sc3's OLD_LITERAL is anchored to pre-2376 value (qwen3.6:35b-256k); for #2425 it must be re-anchored to pre-2425 default (qwen3.8:27b-256k) to enforce full doc propagation"
+      mitigation: "Update sc3 test assertion in phase 3"

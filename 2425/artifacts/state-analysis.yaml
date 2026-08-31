@@ -1,0 +1,32 @@
+state_analysis:
+  issue_number: 2425
+  note: "This change is a literal value swap across configuration and documentation. No runtime state machine exists for model selection; state analysis captures the pre/post transition of the default-model literal."
+  phases:
+    - phase: 1
+      sc: SC-1
+      state_transition:
+        from: "DEFAULT_TEST_MODEL default = ollama/qwen3.8:27b-256k"
+        to: "DEFAULT_TEST_MODEL default = ollama/qwen3.8:27b-256k-gguf4"
+        trigger: "edit default-model.sh line 5"
+        invariant: "DEFAULT_TEST_MODEL environment override still honored"
+        verification: "sc1 RED->GREEN"
+    - phase: 2
+      sc: SC-2
+      state_transition:
+        from: "with-test-home fallbacks = ollama/qwen3.8:27b-256k"
+        to: "with-test-home fallbacks = ollama/qwen3.8:27b-256k-gguf4"
+        trigger: "edit with-test-home lines 135, 264"
+        invariant: "generated opencode.jsonc uses gguf4; warmup smoke-test runs gguf4"
+        verification: "sc2 RED->GREEN"
+    - phase: 3
+      sc: SC-3
+      state_transition:
+        from: "5 doc files reference pre-gguf4 default"
+        to: "5 doc files reference gguf4 default; zero pre-gguf4 occurrences"
+        trigger: "edit documentation in 5 files"
+        invariant: "documentation mirrors source-of-truth value"
+        verification: "sc3 RED->GREEN"
+  no_state_machine: "Model-selection logic is explicitly out of scope (spec); no state diagrams applicable beyond literal pre/post values."
+  final_state_invariant:
+    - "DEFAULT_TEST_MODEL and all harness/doc/test references name ollama/qwen3.8:27b-256k-gguf4"
+    - "No reference to the pre-2425 default remains anywhere in scope"

@@ -1,0 +1,37 @@
+blast_radius:
+  issue_number: 2425
+  phases:
+    - phase: 1
+      sc: SC-1
+      file: ".opencode/tests-v2/default-model.sh"
+      affected_components:
+        - DEFAULT_TEST_MODEL literal (value only)
+      ripple_effects:
+        - "with-test-home sources default-model.sh; inherits new value automatically (line 135)"
+        - "warmup path inherits via env var (line 264 fallback only hit when var unset - but line 264 fallback is a separate un-env-wrapped literal)"
+      blast_radius: LIMITED
+    - phase: 2
+      sc: SC-2
+      file: ".opencode/tests-v2/with-test-home"
+      affected_components:
+        - seed_model_config fallback literal (line 135)
+        - warmup fallback literal (line 264)
+      ripple_effects:
+        - "All test runs via with-test-home use the new model in generated opencode.jsonc"
+        - "Smoke-test warmup uses new model"
+      blast_radius: MODERATE (affects entire test harness runtime)
+    - phase: 3
+      sc: SC-3
+      files:
+        - ".opencode/tests-v2/AGENTS.md"
+        - ".opencode/docs/model-dependency.md"
+        - ".opencode/README.md"
+        - ".opencode/AGENTS.md"
+        - "AGENTS.md" (parent root)
+      affected_components:
+        - documentation prose describing default model
+        - "AGENTS.md CRITICAL VIOLATION note referencing model in .opencode/AGENTS.md and parent AGENTS.md"
+      ripple_effects:
+        - "Agents reading agent-facing documentation see the new model"
+      blast_radius: DOCUMENTATION ONLY
+  combined_blast_radius: "Source of truth + 2 harness fallbacks + 3 tests + 5 doc files, all within one coordinated change. No external/API surface."

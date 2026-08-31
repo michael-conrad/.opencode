@@ -1,0 +1,52 @@
+code_path_inventory:
+  issue_number: 2425
+  phases:
+    - phase: 1
+      sc: SC-1
+      code_paths:
+        - path: ".opencode/tests-v2/default-model.sh"
+          line: 5
+          detail: "DEFAULT_TEST_MODEL=\"\${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k}\""
+          change: "replace literal with ollama/qwen3.8:27b-256k-gguf4"
+    - phase: 2
+      sc: SC-2
+      code_paths:
+        - path: ".opencode/tests-v2/with-test-home"
+          line: 135
+          detail: "local default_model=\"\${DEFAULT_TEST_MODEL:-ollama/qwen3.8:27b-256k}\" (seed_model_config)"
+          change: "replace fallback literal with gguf4"
+        - path: ".opencode/tests-v2/with-test-home"
+          line: 264
+          detail: "default_model=\"ollama/qwen3.8:27b-256k\" (warmup fallback)"
+          change: "replace literal with gguf4"
+    - phase: 3
+      sc: SC-3
+      code_paths:
+        - path: ".opencode/tests-v2/AGENTS.md"
+          detail: "lines 281, 402, 505, 595 reference model"
+          change: "replace literal"
+        - path: ".opencode/docs/model-dependency.md"
+          detail: "lines 14, 15, 34"
+          change: "replace literal"
+        - path: ".opencode/README.md"
+          detail: "lines 39, 40, 59"
+          change: "replace literal"
+        - path: ".opencode/AGENTS.md"
+          detail: "line 163 (CRITICAL VIOLATION note)"
+          change: "replace literal"
+        - path: "AGENTS.md"
+          detail: "line 86 (parent root, CRITICAL VIOLATION note)"
+          change: "replace literal"
+  test_cross_references:
+    - test: ".opencode/tests-v2/test-2376-sc1-red.sh"
+      asserts: default-model.sh DEFAULT_TEST_MODEL fallback == EXPECTED
+      current_expected: "ollama/qwen3.8:27b-256k"
+      needed: "ollama/qwen3.8:27b-256k-gguf4"
+    - test: ".opencode/tests-v2/test-2376-sc2-red.sh"
+      asserts: with-test-home fallback == EXPECTED
+      current_expected: "ollama/qwen3.8:27b-256k"
+      needed: "ollama/qwen3.8:27b-256k-gguf4"
+    - test: ".opencode/tests-v2/test-2376-sc3-red.sh"
+      asserts: old literal ABSENT across 5 doc files
+      current_old_literal: "qwen3.6:35b-256k"
+      needed_old_literal: "qwen3.8:27b-256k"

@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "DEFAULT_TEST_MODEL fallback literal in default-model.sh equals ollama/qwen3.8:27b-256k-gguf4"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Both fallback model literals in with-test-home equal ollama/qwen3.8:27b-256k-gguf4"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Pre-2425 default literal ollama/qwen3.8:27b-256k absent from all five documentation files"
+    evidence_type: "structural"
+    plan_item: 3
