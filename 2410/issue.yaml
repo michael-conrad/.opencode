@@ -3,6 +3,115 @@ title: '[BUG] Skill deck workflow/contract defects: dispatch contract mismatches
 status: open
 labels:
 - approved-for-pr
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2410/
+
+
+  ## Problem
+
+
+  The `skildeck lint` scan of the skill deck (evidence: `tmp/opencode-defects-investigation.md`,
+  section D) confirms two classes of workflow/contract defects that break orchestrator→sub-agent
+  routing:
+
+
+  1. **Dispatch contract mismatches** — several SKILL.md dispatch steps declare a
+  `Returns`/`Context` contract that disagrees with the target task card''s actual
+  `Result Contract` / required context. The orchestrator routes with one contract
+  shape and receives (or must provide) a different one.
+
+  2. **Task-card-internal-dispatch (22 findings)** — task cards (execution procedures
+  consumed by sub-agents) embed internal `task()` / `skill({)` dispatch instructions,
+  violating the lint''s clean-room unit rule and the skill-card vs task-card division
+  of labor (task cards must not instruct sub-agents to dispatch further sub-agents).
+
+
+  ## Scope
+
+
+  **In scope:**
+
+  - Fix the `git-workflow-branch` dispatch contract mismatch: SKILL.md "Verify remote
+  trunk tip" declares Returns `{status, finding_summary, artifact_path, blocker_reason}`
+  but `tasks/trunk-tip-verification.md` Result Contract is `{status, checks, blocker_reason}`
+  — no `finding_summary`/`artifact_path` (lint: `dispatch-contract-result-mismatch`
+  x2)
+
+  - Fix the `git-workflow-branch` "Pre-work" context omission: SKILL.md passes Context
+  `{branch_name, worktree.path}` but `pre-work.md` requires `approved` (lint: `dispatch-contract-incomplete`)
+
+  - Resolve the same-class contract mismatches: `git-workflow-cleanup` (pair-cleanup),
+  `git-workflow-commit` (pair-commit), `git-workflow-pr` (pair-pr-creation, completion),
+  `git-workflow-conflict` (rebase-pending `merged_at`), `writing-plans` (analyze `SPEC_NOT_FOUND`
+  / `SPEC_NOT_APPROVED`)
+
+  - Remediate the 22 task-card-internal-dispatch findings across: `git-workflow-branch/tasks/pre-work.md:110`
+  (verified `task(subagent_type="general", ...)`), `git-workflow-pr/tasks/pr-creation.md`,
+  `issue-operations-core/tasks/{creation,close,body-edit,read-*,list-issues,search-issues,update-issue}.md`,
+  `issue-operations-comments/tasks/comment.md`, `issue-operations-sub-issues/tasks/*.md`,
+  `issue-operations-sync/tasks/*.md`, `issue-review/tasks/audit.md`, `multimodal-dispatch/tasks/*.md`,
+  `pre-analysis/tasks/analyze.md`, `sre-runbook/tasks/track.md`, `verification/tasks/verify.md`
+
+
+  **Out of scope:**
+
+  - The other defect classes in the investigation artifact — skildeck CLI tooling
+  defects (#2408), broken dispatch references (#2409), TDT/Invocation incompleteness
+  (#2407), guideline broken references (#2406) — each tracked separately
+
+  - The single-skill-specific contract defects already reported as #2381 (git-workflow-conflict
+  dispatch context contract mismatch) and #2343 (writing-plans create→validate contract
+  mismatch)
+
+  - Skill card content restructuring beyond the contract/context fields and internal-dispatch
+  lines flagged here
+
+
+  ## Approach
+
+
+  Align each mismatched SKILL.md dispatch contract with its target task card''s authoritative
+  `Result Contract` / required `Context` — the task card is the execution procedure,
+  so it is the source of truth — or vice versa where the SKILL.md is correct. Add
+  the missing `approved` field to the "Pre-work" context. For the task-card-internal-dispatch
+  findings, replace embedded `task()` / `skill({)` dispatch instructions inside task
+  cards with orchestrator-routing markers so sub-agents execute single clean-room
+  units and the orchestrator alone performs dispatch. This follows the skill-card/task-card
+  division of labor in `000-critical-rules.md`: dispatching SKILL.md content to sub-agents
+  is a category error, and task cards must not re-dispatch. Each fix lands as one
+  commit per task card, with a RED/GREEN behavioral check where the contract shape
+  is observable.
+
+
+  ## Impact
+
+
+  - **Risk 1 — Wrong contract shape breaks orchestrator routing.** Orchestrator reads
+  Returns `{status, finding_summary, artifact_path, blocker_reason}`, sub-agent returns
+  `{status, checks, blocker_reason}` — result contracts lack required fields, so downstream
+  routing decisions (evidence lookup, finding propagation) fail. *Mitigation:* task-card
+  contract becomes canonical; SKILL.md updated to match.
+
+  - **Risk 2 — Missing required context blocks or mis-directs sub-agents.** "Pre-work"
+  without `approved` may cause sub-agents to BLOCK or self-authorize. *Mitigation:*
+  add the required context field to the dispatch step.
+
+  - **Risk 3 — Task-card internal dispatch creates sub-agent loops.** A sub-agent
+  instructed to call `task()` re-dispatches instead of executing, wasting context
+  and violating clean-room isolation. *Mitigation:* strip internal dispatch to routing
+  markers; verify via a clean `skildeck lint` run.
+
+
+  **Key dependencies:** `skildeck` lint (`dispatch-contract-*` checks) for re-verification;
+  no external service dependencies.
+
+
+  **Call to action:** Review and approve this bug report for a remediation spec covering
+  both contract alignment and task-card dispatch cleanup.
+
+
+  🤖 OpenCode (deepseek-ai/DeepSeek-V4-Flash-0731) created
+
+
+  '
 created_at: '2026-08-31T15:22:31+00:00'
-updated_at: '2026-08-31T15:22:49+00:00'
+updated_at: '2026-08-31T15:23:25+00:00'
