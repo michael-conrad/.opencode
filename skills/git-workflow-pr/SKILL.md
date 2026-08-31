@@ -76,7 +76,7 @@ When the agent needs to run idempotent completion steps to ensure mandatory chec
 - [ ] 1. **Completion** — Runs PR lifecycle completion, final status, and URL reporting
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete git-workflow](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
   - **Context passed:** `{workflow_state}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Returns:** `{status, finding_summary, status_checked, status_updated, ticket_status}`
   - **Execution mode:** sub-agent dispatch
   - After the completion summary is produced, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Ticket Status Reconciliation in `tasks/completion.md`).
 
