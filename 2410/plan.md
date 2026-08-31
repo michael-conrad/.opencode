@@ -70,15 +70,15 @@ Repair the two classes of workflow/contract defects in the skill deck that break
 
 | Phase | Name | SCs | Dependencies | Step Range | Dispatch |
 |-------|------|-----|--------------|------------|----------|
-| 1 | Dispatch contract alignment | SC-1..SC-10 | none | 1–10 | test-driven-development, verification-before-completion |
+| 1 | Dispatch contract alignment | SC-1..SC-10, SC-33 | none | 1–11 | test-driven-development, verification-before-completion |
 | 2 | Task-card internal-dispatch remediation | SC-11..SC-32 | none | 11–32 | test-driven-development, verification-before-completion |
 
 > **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
 
 ## Exit Criteria
 
-- [ ] C1. All 32 SCs pass their `skildeck lint` verification gate.
-- [ ] C2. Phase 1 aligns all 10 dispatch contracts (SC-1..SC-10).
+- [ ] C1. All 33 SCs pass their `skildeck lint` verification gate.
+- [ ] C2. Phase 1 aligns all 11 dispatch contracts (SC-1..SC-10, SC-33).
 - [ ] C3. Phase 2 removes all 22 task-card-internal-dispatch findings (SC-11..SC-32).
 - [ ] C4. Each item committed as one atomic slice (test + change together).
 - [ ] C5. No circular dependencies in the phase DAG.
@@ -98,8 +98,8 @@ Repair the two classes of workflow/contract defects in the skill deck that break
 ## Phase Metadata
 
 - **Concern:** SKILL.md Workflows Returns/Context must match task-card Result Contract / Entry Criteria. Touches SKILL.md Workflows Returns/Context sub-bullets and, for lint false-positives, task-card Entry Criteria wording.
-- **Files:** `git-workflow-branch/SKILL.md`, `git-workflow-cleanup/SKILL.md`, `git-workflow-commit/SKILL.md`, `git-workflow-pr/SKILL.md`, `git-workflow-conflict/SKILL.md`, `writing-plans/tasks/analyze.md`
-- **SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10
+- **Files:** `git-workflow-branch/SKILL.md`, `git-workflow-cleanup/SKILL.md`, `git-workflow-commit/SKILL.md`, `git-workflow-pr/SKILL.md`, `git-workflow-conflict/SKILL.md`, `writing-plans/tasks/analyze.md`, `git-workflow-branch/tasks/trunk-tip-verification.md`
+- **SCs:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-33
 - **Dependencies:** none
 - **Entry condition:** Baseline check (P2) passed.
 - **Exit condition:** `skildeck lint` shows zero `dispatch-contract-result-mismatch` and `dispatch-contract-incomplete` findings for the affected steps.
@@ -209,11 +209,19 @@ Repair the two classes of workflow/contract defects in the skill deck that break
 - [ ] 4. **Verify.** (**sub-agent**) Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Assert `./.opencode/tools/skildeck lint` output inspection shows zero `dispatch-contract-incomplete` findings for this step.
 - [ ] 5. **Commit.** (**inline**) Run `git add <files> && git commit -m "<message>"` for the `writing-plans/tasks/analyze.md` Entry Criteria rewording.
 
+### Item 11 (SC-33): Resolve git-workflow-branch 'Verify remote trunk tip' origin false-positive
+
+- [ ] 1. **RED.** (**sub-agent**) Dispatch `task(..., prompt: "execute red task from test-driven-development")`. Assert `skildeck lint` shows `dispatch-contract-incomplete` for the git-workflow-branch "Verify remote trunk tip" step.
+- [ ] 2. **GREEN.** (**sub-agent**) Dispatch `task(..., prompt: "execute green task from test-driven-development")`. Reword `trunk-tip-verification.md` Entry Criteria to avoid backtick-quoting the git remote name `origin` as a required context parameter.
+- [ ] 3. **Post-regression.** (**sub-agent**) Dispatch `task(..., prompt: "execute phase-4 task from test-driven-development")`. Run regression test patterns after GREEN.
+- [ ] 4. **Verify.** (**sub-agent**) Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. Assert `./.opencode/tools/skildeck lint` output inspection shows zero `dispatch-contract-incomplete` findings for this step.
+- [ ] 5. **Commit.** (**inline**) Run `git add <files> && git commit -m "<message>"` for the `trunk-tip-verification.md` Entry Criteria rewording.
+
 ## Phase 1 Completion Block
 
 - [ ] V1. `skildeck lint` shows zero `dispatch-contract-result-mismatch` findings for the git-workflow-branch, git-workflow-cleanup, git-workflow-commit, and git-workflow-pr steps.
-- [ ] V2. `skildeck lint` shows zero `dispatch-contract-incomplete` findings for the git-workflow-branch "Pre-work", git-workflow-conflict "Rebase pending", and writing-plans "analyze" steps.
-- [ ] V3. All 10 Phase 1 items committed as atomic slices.
+- [ ] V2. `skildeck lint` shows zero `dispatch-contract-incomplete` findings for the git-workflow-branch "Pre-work", git-workflow-conflict "Rebase pending", writing-plans "analyze", and git-workflow-branch "Verify remote trunk tip" steps.
+- [ ] V3. All 11 Phase 1 items committed as atomic slices.
 
 ## Concern Transition
 

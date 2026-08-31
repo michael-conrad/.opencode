@@ -71,6 +71,7 @@ The SC table uses exactly the 4 canonical columns (ID, Criterion, Evidence Type,
 | SC-30 | The `multimodal-dispatch/tasks/dispatch.md` task card SHALL contain no embedded `task()`/`skill({)` dispatch instructions and no prose that triggers the lint token pattern. | behavioral | `./.opencode/tools/skildeck lint` output inspection shows zero `task-card-internal-dispatch` findings for `multimodal-dispatch/tasks/dispatch.md` |
 | SC-31 | The `pre-analysis/tasks/analyze.md` task card SHALL contain no embedded `task()`/`skill({)` dispatch instructions and no prose that triggers the lint token pattern. | behavioral | `./.opencode/tools/skildeck lint` output inspection shows zero `task-card-internal-dispatch` findings for `pre-analysis/tasks/analyze.md` |
 | SC-32 | The `verification/tasks/verify.md` task card SHALL contain no embedded `task()`/`skill({)` dispatch instructions and no prose that triggers the lint token pattern. | behavioral | `./.opencode/tools/skildeck lint` output inspection shows zero `task-card-internal-dispatch` findings for `verification/tasks/verify.md` |
+| SC-33 | The `trunk-tip-verification.md` Entry Criteria SHALL be reworded so the git remote name `origin` is no longer backtick-quoted as a required context parameter. | behavioral | `./.opencode/tools/skildeck lint` output inspection shows zero `dispatch-contract-incomplete` findings for the git-workflow-branch "Verify remote trunk tip" step |
 
 ## 4. Requirements
 
@@ -335,7 +336,7 @@ The SC table uses exactly the 4 canonical columns (ID, Criterion, Evidence Type,
 | R-6 | SC-10 | Phase 1 |
 | R-7 | SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29, SC-30, SC-31, SC-32 | Phase 2 |
 | R-8 | SC-11, SC-12, SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29, SC-30, SC-31, SC-32 | Phase 2 |
-| R-9 | SC-10, SC-27, SC-28, SC-29, SC-30, SC-31, SC-32 | Phase 1, Phase 2 |
+| R-9 | SC-10, SC-27, SC-28, SC-29, SC-30, SC-31, SC-32, SC-33 | Phase 1, Phase 2 |
 | R-10 | SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26, SC-27, SC-28, SC-29, SC-30, SC-31, SC-32 | Phase 2 |
 
 ## 8. Documentation Sources
