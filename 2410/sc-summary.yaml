@@ -1,0 +1,38 @@
+sc_count: 9
+scs:
+  - id: "SC-1"
+    description: "git-workflow-branch 'Verify remote trunk tip' Returns matches trunk-tip-verification.md Result Contract"
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-2"
+    description: "git-workflow-branch pair-mode Returns contracts match task-card Result Contracts"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "git-workflow-branch 'Pre-work' Context includes approved field"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "git-workflow-cleanup/commit/pr Returns contracts match task-card Result Contracts"
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "git-workflow-conflict 'Rebase pending' Context includes merged_at field"
+    evidence_type: "structural"
+    plan_item: 5
+  - id: "SC-6"
+    description: "writing-plans analyze.md Entry Criteria reworded to avoid SPEC_NOT_FOUND/SPEC_NOT_APPROVED false-positives"
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-7"
+    description: "git-workflow-branch/pre-work.md and git-workflow-pr/pr-creation.md contain no internal dispatch"
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "issue-operations-* task cards contain no internal dispatch"
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-9"
+    description: "issue-review/sre-runbook/multimodal-dispatch/pre-analysis/verification task cards contain no internal dispatch or prose triggers"
+    evidence_type: "structural"
+    plan_item: 9
