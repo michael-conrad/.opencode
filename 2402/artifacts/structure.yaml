@@ -1,0 +1,107 @@
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+phases:
+  - id: phase-1
+    name: Trailer classification on agent-own branch
+    concern: trailer-classification
+    scs:
+      - SC-1
+    items:
+      - item_id: item-1
+        sc_id: SC-1
+        red: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+        green: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+        commit:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+    skill: test-driven-development
+    task: red/green/verify/commit
+  - id: phase-2
+    name: Agent-owned trailer remediation procedure
+    concern: trailer-remediation
+    scs:
+      - SC-2
+    items:
+      - item_id: item-2
+        sc_id: SC-2
+        red: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+        green:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+        commit:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+          - .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+    skill: test-driven-development
+    task: red/green/verify/commit
+  - id: phase-3
+    name: Footer byline auto-fix
+    concern: footer-byline-autofix
+    scs:
+      - SC-3
+    items:
+      - item_id: item-3
+        sc_id: SC-3
+        red: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+        green:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+        commit:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+          - .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+    skill: test-driven-development
+    task: red/green/verify/commit
+  - id: phase-4
+    name: Agent-own-branch scope guard
+    concern: scope-guard
+    scs:
+      - SC-4
+      - SC-5
+    items:
+      - item_id: item-4a
+        sc_id: SC-4
+        red: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+        green: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+        commit:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+      - item_id: item-4b
+        sc_id: SC-5
+        red: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+        green: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+        commit:
+          - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+          - .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+    skill: test-driven-development
+    task: red/green/verify/commit
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      reason: SC-1 classification must route trailer absence to auto-fix before the SC-2 remediation procedure is exercised.
+    - from: phase-2
+      to: phase-4
+      reason: The SC-4/SC-5 scope guard confines the SC-2 remediation procedure added in Phase 2.
+  parallel:
+    - phase-3
+    - reason: SC-3 footer byline auto-fix is independent of commit trailer remediation (SC-1/SC-2) and the scope guard (SC-4/SC-5).
+skill_task_selection:
+  - phase: phase-1
+    skill: test-driven-development
+    dispatch: task(..., prompt: "execute red task from test-driven-development")
+  - phase: phase-2
+    skill: test-driven-development
+    dispatch: task(..., prompt: "execute red task from test-driven-development")
+  - phase: phase-3
+    skill: test-driven-development
+    dispatch: task(..., prompt: "execute red task from test-driven-development")
+  - phase: phase-4
+    skill: test-driven-development
+    dispatch: task(..., prompt: "execute red task from test-driven-development")
+triplet_co_location:
+  status: verified
+  note: Each SC's RED, GREEN, and COMMIT steps are assigned to the same phase. No SC has steps split across phases.
+cross_phase_dependency:
+  status: verified
+  note: SC-2 RED (Phase 2) depends on SC-1 output (Phase 1) — earlier phase, allowed. SC-4/SC-5 RED (Phase 4) depends on SC-2 output (Phase 2) — earlier phase, allowed. No RED test depends on output from a later phase.

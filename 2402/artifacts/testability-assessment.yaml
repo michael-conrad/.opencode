@@ -1,43 +1,48 @@
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
 testability_assessment:
-  summary: >
-    The change is primarily agent-facing behavior (how the finishing checklist classifies and remediates
-    trailer/byline absence). SC-2, SC-3, and SC-4 alter runtime agent behavior (classification, force-push
-    decision, scope guard) and therefore require behavioral enforcement tests in tests-v2/behaviors/. SC-1
-    classification change is also behavioral (it changes what the agent does at runtime).
-  phases:
-    SC-1:
-      strategy: behavioral
-      test: >
-        New behavioral enforcement scenario that sends a finishing-checklist prompt on an agent-owned feature
-        branch missing co-author trailers, and asserts via stderr that the agent auto-remediates rather than
-        surfacing a force-push authorization decision to the developer. Follow the stderr-based assertion
-        pattern (assert agent does NOT solicit developer / DOES initiate agent-owned remediation).
-      pattern: finish-checklist-trailer-agent-own-remediation
-    SC-2:
-      strategy: behavioral
-      test: >
-        Scenario asserting the agent adds trailers to its own commits and force-pushes with --force-with-lease
-        without soliciting developer force-push authorization. Assert stderr shows the amendment/force-push,
-        and does NOT show a developer authorization question.
-      pattern: finish-trailer-auto-remediation-no-solicitation
-    SC-3:
-      strategy: behavioral
-      test: >
-        Scenario asserting the producing agent auto-fixes missing 'Co-authored with AI:' footer bylines in new
-        files rather than blocking/escalating. Assert stderr shows the byline being added, existing byline
-        preserved.
-      pattern: finish-footer-byline-auto-fix
-    SC-4:
-      strategy: behavioral + structural
-      test: >
-        Behavioral: scenario asserting the auto-force-push guard refuses when the branch is shared, merged, or
-        the trunk, and defers to the generic force-push authorization gate (does NOT auto-force-push).
-        Structural: static check that the checklist remediation procedure documents the agent-own-branch scope
-        guard.
-      pattern: finish-forcepush-scope-guard
-  unit_test: Not applicable — no application source code; change is markdown + enforcement tests.
-  integration_test: Not applicable — no runtime integration surface beyond the skill deck behavior covered by
-    behavioral scenarios.
-  note: >
-    Behavioral enforcement tests MUST run via 'opencode run' against real AI models per the test-integrity
-    mandate; structural evidence alone is EVIDENCE_TYPE_MISMATCH for these runtime-behavioral changes.
+  - sc: SC-1
+    evidence_type: behavioral
+    verification_method: >
+      Run `.opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh` via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the
+      agent does NOT solicit a developer force-push authorization decision and DOES route trailer
+      absence to agent-owned auto-remediation.
+    test_script: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+    test_status: missing (RED-phase deliverable, to be created)
+  - sc: SC-2
+    evidence_type: behavioral
+    verification_method: >
+      Run `.opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh` via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the
+      agent adds trailers via amendment/squash and force-pushes with `--force-with-lease`, and does
+      NOT present a force-push authorization question to the developer.
+    test_script: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+    test_status: missing (RED-phase deliverable, to be created)
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: >
+      Run `.opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh` via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the
+      producing agent adds the missing footer byline and does not escalate to the developer.
+    test_script: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+    test_status: missing (RED-phase deliverable, to be created)
+  - sc: SC-4
+    evidence_type: structural
+    verification_method: >
+      Grep the checklist remediation procedure for a stated agent-own-branch scope guard
+      (`.opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh` contains the guard assertion).
+    test_script: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+    test_status: missing (RED-phase deliverable, to be created)
+  - sc: SC-5
+    evidence_type: behavioral
+    verification_method: >
+      Run `.opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh` via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the
+      agent refuses to auto-force-push on a shared/merged/trunk branch and defers to the generic
+      authorization gate.
+    test_script: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+    test_status: missing (RED-phase deliverable, to be created)
+evidence_type_summary:
+  behavioral: [SC-1, SC-2, SC-3, SC-5]
+  structural: [SC-4]

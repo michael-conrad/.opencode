@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+dependency_contract:
+  - id: trailer-format
+    source: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: format-constraint
+    constraint: >
+      Co-authored-by trailers MUST use the repo-standard two-trailer format:
+      `Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>` (AI author) and
+      `Co-authored-by: <dev.name> <dev.email>` (human collaborator). The auto-fix adds
+      these exact trailers; no alternative trailer schema is introduced.
+  - id: force-push-mechanism
+    source: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: mechanism-constraint
+    constraint: >
+      The agent-owned remediation SHALL force-push with `--force-with-lease` only.
+      `--force` is forbidden. The carve-out applies only to the agent's own, unmerged,
+      unshared feature branch; shared/merged/trunk branches defer to the generic
+      force-push authorization gate in 000-critical-rules.md.
+  - id: attribution-mandate
+    source: .opencode/guidelines/080-code-standards.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: invariant
+    constraint: >
+      Co-author trailer and footer byline requirements remain mandatory and unchanged.
+      The auto-fix adds missing trailers/bylines; it never skips or weakens the mandatory
+      co-author attribution checks (R-7).
+  - id: scope-guard
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/guidelines/000-critical-rules.md
+    type: scope-constraint
+    constraint: >
+      The auto-force-push carve-out is confined to the agent's own, unmerged, unshared
+      feature branch. On a shared, merged, or trunk branch, the checklist SHALL refuse
+      auto-force-push and defer to the generic force-push authorization gate.

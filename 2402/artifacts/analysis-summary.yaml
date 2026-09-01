@@ -1,0 +1,56 @@
+spec_path: .opencode/.issues/2402/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 5
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    status: exists
+  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    status: exists
+  - path: .opencode/skills/finishing-a-development-branch/SKILL.md
+    status: exists
+  - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    status: exists
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    status: exists
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    status: exists
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    status: exists
+  - path: .opencode/guidelines/080-code-standards.md
+    status: exists
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: exists
+  - path: .opencode/tmp/2241-finishing-checklist-evidence.md
+    status: exists
+  - path: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+    status: missing (RED-phase deliverable, to be created)
+  - path: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+    status: missing (RED-phase deliverable, to be created)
+  - path: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+    status: missing (RED-phase deliverable, to be created)
+  - path: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+    status: missing (RED-phase deliverable, to be created)
+backfill_note: >
+  All 7 analytical artifacts were backfilled from the spec body on 2026-09-01. Affected files
+  verified to exist in the codebase. The four behavioral test scripts are RED-phase deliverables
+  to be created during implementation and are recorded as missing in the blast radius.
+scope_summary: >
+  5 SCs across 4 phases: SC-1 (trailer classification, Phase 1), SC-2 (trailer remediation,
+  Phase 2), SC-3 (footer byline auto-fix, Phase 3), SC-4/SC-5 (scope guard, Phase 4). Changes
+  confined to finishing-a-development-branch checklist.md/prepare.md plus four new behavioral
+  test scripts; all other affected files are read-only authority/precedent references.

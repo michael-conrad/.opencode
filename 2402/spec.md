@@ -17,7 +17,7 @@ labels:
 | # | Field | Description |
 |---|-------|-------------|
 | 1 | **Problem Statement** | The `finishing-a-development-branch` checklist task flags missing Co-authored-by commit trailers on a feature branch as a `MISSING-ELEMENT` readiness blocker, and its guidance surfaces a "force-push authorization" decision to the developer. On an agent-created, unmerged feature branch, this forces an unnecessary developer round-trip for a remediation that is already within the producing agent's authority. |
-| 2 | **Root Cause / Motivation** | The checklist (`checklist.md`) classifies missing trailers as a decision-requiring blocker with no auto-remediation path. This mis-applies the generic force-push authorization gate (`000-critical-rules.md`) to the agent-own-branch case, contradicting the agent-owned remediation mandate (`finishing SKILL.md:14`) and the existing force-push carve-out precedent (`git-workflow-pr/tasks/pr-creation/create-pr.md:341`). A concrete recorded instance (`.opencode/tmp/2241-finishing-checklist-evidence.md`) documents 36 commits with absent trailers flagged as a developer-authorization blocker. |
+| 2 | **Root Cause / Motivation** | The checklist (`checklist.md`) classifies missing trailers as a decision-requiring blocker with no auto-remediation path. This mis-applies the generic force-push authorization gate (`000-critical-rules.md`) to the agent-own-branch case, contradicting the agent-owned remediation mandate and the existing force-push carve-out precedent in `create-pr.md` (the "Step 7.2.3: Rebase on Stale Base" force-push note that force push is authorized because the PR is not yet merged and the branch has not been shared). A concrete recorded instance (`.opencode/tmp/2241-finishing-checklist-evidence.md`) documents 36 commits with absent trailers flagged as a developer-authorization blocker. |
 | 3 | **Approach Chosen** | Reclassify missing-co-author-trailer on the agent's own unmerged feature branch as an auto-fixable `MISSING-ELEMENT`, add an explicit agent-owned remediation procedure (amend/squash own commits to add trailers, then force-push `--force-with-lease` the agent's own branch), auto-fix missing new-file footer bylines, and add a scope guard limiting the auto-force-push carve-out to the agent's own unmerged, unshared branch. |
 | 4 | **Alternatives Considered & Why Discarded** | **Alternative: leave the developer-in-the-loop blocker.** Discarded because it directly contradicts the agent-owned remediation mandate and the existing force-push carve-out precedent, and produced an unnecessary developer round-trip. **Alternative: weaken or skip the trailer check.** Discarded because trailer/byline presence is mandatory per `080-code-standards.md`; the auto-fix adds missing trailers, never skips the check. |
 | 5 | **Key Design Decisions** | (1) The auto-remediation is scoped strictly to an agent-created, unmerged, unshared feature branch — never a shared, merged, or trunk branch. (2) The remediation reuses the existing sanctioned force-push mechanism (`--force-with-lease`) and trailer format already established across the deck; no new force-push mechanism or trailer schema is introduced. (3) Trailer auto-fix at finishing complements, rather than replaces, the PR-time squash that applies the repo-standard trailers. |
@@ -37,7 +37,8 @@ labels:
 | SC-1 | The `finishing-a-development-branch` checklist SHALL classify missing Co-authored-by commit trailers on an agent-created, unmerged, unshared feature branch as an auto-fixable MISSING-ELEMENT (remediation) rather than a decision-requiring blocker that surfaces a force-push authorization decision to the developer. | behavioral | Run `.opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh` via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the agent does NOT solicit a developer force-push authorization decision and DOES route trailer absence to agent-owned auto-remediation. |
 | SC-2 | The `finishing-a-development-branch` checklist and prepare tasks SHALL include an explicit agent-owned remediation procedure: amend or squash the agent's own commits to add repo-standard Co-authored-by trailers, then force-push the agent's own branch with `--force-with-lease`, without soliciting a developer force-push decision. | behavioral | Run `.opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh` via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the agent adds trailers via amendment/squash and force-pushes with `--force-with-lease`, and does NOT present a force-push authorization question to the developer. |
 | SC-3 | The `finishing-a-development-branch` checklist SHALL auto-fix missing "Co-authored with AI:" footer bylines in new files via the producing agent (preserving any existing bylines) rather than escalating as a decision-requiring blocker. | behavioral | Run `.opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh` via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the producing agent adds the missing footer byline and does not escalate to the developer. |
-| SC-4 | The `finishing-a-development-branch` checklist SHALL include a scope guard that confines the auto-force-push carve-out to the agent's own, unmerged, unshared feature branch, and refuses auto-force-push on a shared, merged, or trunk branch, deferring to the generic force-push authorization gate. | behavioral + structural | Behavioral: run `.opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh` via `with-test-home opencode run`; assert stderr shows the agent refuses to auto-force-push on a shared/merged/trunk branch and defers to the generic authorization gate. Structural: grep the checklist remediation procedure for a stated agent-own-branch scope guard. |
+| SC-4 | The `finishing-a-development-branch` checklist SHALL include a scope guard that confines the auto-force-push carve-out to the agent's own, unmerged, unshared feature branch. | structural | Grep the checklist remediation procedure for a stated agent-own-branch scope guard (`.opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh` contains the guard assertion). |
+| SC-5 | The `finishing-a-development-branch` checklist SHALL refuse auto-force-push on a shared, merged, or trunk branch, deferring to the generic force-push authorization gate. | behavioral | Run `.opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh` via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`; assert stderr shows the agent refuses to auto-force-push on a shared/merged/trunk branch and defers to the generic authorization gate. |
 
 ## 4. Requirements
 
@@ -72,11 +73,11 @@ labels:
 - verify: Run `finish-footer-byline-auto-fix.sh`; assert stderr shows the byline being added and existing bylines preserved.
 - commit: `finishing-a-development-branch/tasks/checklist.md`, `prepare.md`, plus the behavioral test.
 
-### Item 4 (SC-4): Add agent-own-branch scope guard
+### Item 4 (SC-4, SC-5): Add agent-own-branch scope guard
 
-- RED: Behavioral test asserts the auto-force-push guard refuses on a shared/merged/trunk branch and defers to the generic authorization gate (currently fails — no guard exists). Structural test asserts the remediation procedure documents the agent-own-branch scope guard.
+- RED: Structural test asserts the remediation procedure documents the agent-own-branch scope guard (currently fails — no guard exists). Behavioral test asserts the auto-force-push guard refuses on a shared/merged/trunk branch and defers to the generic authorization gate (currently fails — no guard exists).
 - GREEN: Add a scope guard to the checklist remediation procedure confining auto-force-push to the agent's own unmerged, unshared branch.
-- verify: Run `finish-forcepush-scope-guard.sh` (behavioral) and grep the checklist remediation procedure for the scope guard (structural).
+- verify: Run `finish-forcepush-scope-guard.sh` (behavioral, SC-5) and grep the checklist remediation procedure for the scope guard (structural, SC-4).
 - commit: `finishing-a-development-branch/tasks/checklist.md`, plus the behavioral test.
 
 ## 6. Dependencies
@@ -84,7 +85,7 @@ labels:
 - **Reference:** `080-code-standards.md` (mandatory co-author attribution)
 - **Relationship:** Source of the trailer/byline mandatory requirement; unchanged, but read as the authority the auto-fix satisfies.
 - **Status:** Satisfied (existing).
-- **Reference:** `git-workflow-pr/tasks/pr-creation/create-pr.md` (line 341 force-push carve-out)
+- **Reference:** `git-workflow-pr/tasks/pr-creation/create-pr.md` ("Step 7.2.3: Rebase on Stale Base" force-push note)
 - **Relationship:** Precedent authority for agent-owned force-push on an unmerged, unshared branch; reused, not modified.
 - **Status:** Satisfied (existing).
 - **Reference:** `finishing-a-development-branch/SKILL.md` (agent-owned remediation mandate)
@@ -98,7 +99,7 @@ labels:
 | R-1, R-2 | SC-1 | Phase 1 |
 | R-3, R-4 | SC-2 | Phase 2 |
 | R-5 | SC-3 | Phase 3 |
-| R-6 | SC-4 | Phase 4 |
+| R-6 | SC-4, SC-5 | Phase 4 |
 | R-7 | SC-1, SC-2 | Phase 1, Phase 2 |
 
 ## 8. Documentation Sources
@@ -127,14 +128,15 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-1: Running the behavioral trailer-classification test costs minutes of execution time. Skipping means the checklist keeps mis-classifying trailer absence as a decision-requiring blocker, forcing an unnecessary developer round-trip on every affected branch — surfacing as a behavioral defect at 1000× the fix cost.
 - SC-2: Running the behavioral auto-remediation test costs minutes of execution time. Skipping means agents keep stalling on a developer force-push decision instead of self-remediating, surfacing as a behavioral defect at 1000× the fix cost.
 - SC-3: Running the behavioral byline-auto-fix test costs minutes of execution time. Skipping means missing footer bylines keep being escalated as blockers instead of fixed by the producing agent, surfacing as a behavioral defect at 1000× the fix cost.
-- SC-4: Running the behavioral scope-guard test costs minutes of execution time. Skipping means the agent-own-branch force-push carve-out could leak to shared, merged, or trunk branches — a critical violation surfacing at 1000× the fix cost.
+- SC-4: Running the scope-guard structural test costs minutes of execution time. Skipping means the agent-own-branch confinement could be lost without detection — surfacing as a critical violation at 1000× the fix cost.
+- SC-5: Running the behavioral scope-guard test costs minutes of execution time. Skipping means the auto-force-push carve-out on shared/merged/trunk branches remains undetected — a critical violation surfacing at 1000× the fix cost.
 
 ## 11. Edge Cases
 
 - **Input boundaries:** A branch with zero commits, a single-commit branch missing a trailer, and a multi-commit branch missing trailers SHALL all resolve to agent-owned auto-remediation when on the agent's own unmerged branch.
 - **State transitions:** `branch_complete_but_trailer_missing` → `trailer_remediated_by_agent` → `branch_ready_for_pr` when the branch is agent-owned/unmerged; the guarded branch SHALL route to the generic authorization gate instead.
 - **Failure modes:** If the branch is shared with another developer, merged, or the trunk, the scope guard SHALL refuse auto-force-push and defer to the generic force-push authorization gate. If the agent attempts `--force` instead of `--force-with-lease`, the remediation SHALL fail.
-- **Concurrency:** SC-3 (footer byline auto-fix) is independent of SC-1/SC-2 (commit trailer remediation) and may run in parallel; SC-4 (scope guard) is a companion to SC-2.
+- **Concurrency:** SC-3 (footer byline auto-fix) is independent of SC-1/SC-2 (commit trailer remediation) and may run in parallel; SC-4/SC-5 (scope guard) are companions to SC-2.
 - **Recovery:** If a behavioral test fails, the affected checklist/prepare text is corrected and the test re-run until it passes.
 
 ## 12. Change Control
@@ -142,6 +144,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-09-01 | Initial spec creation from analysis artifacts. | Bug-fix spec for the finishing-a-development-branch checklist trailer/byline mis-classification. | spec-creation pipeline |
+| 2026-09-01 | Decomposed compound SC-4 into atomic SC-4 (confine-to-own-branch, structural) and SC-5 (refuse-on-shared/merged/trunk, behavioral); updated Items, Traceability, Edge Cases, and Cost Frame. Replaced line-number references in the preamble and Dependencies with stable anchors pointing to the `create-pr.md` "Step 7.2.3: Rebase on Stale Base" force-push note. | Validation findings: SC-4 compound SC bundling two verification targets; line-number references violate stable-anchor rule. | validation |
 
 ---
 

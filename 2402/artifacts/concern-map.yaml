@@ -1,21 +1,45 @@
-concern_map:
-  concerns:
-    - name: Checklist classification of trailer/byline presence
-      path: skills/finishing-a-development-branch/tasks/checklist.md
-      phase: SC-1, SC-3
-    - name: Agent-owned trailer remediation procedure
-      path: skills/finishing-a-development-branch/tasks/checklist.md + prepare.md
-      phase: SC-2
-    - name: Agent-own-branch scope guard for force-push
-      path: skills/finishing-a-development-branch/tasks/checklist.md
-      phase: SC-4
-  separation:
-    - The classification concern (SC-1) is separate from the remediation procedure concern (SC-2) — one
-      changes how the checklist verdicts, the other adds the fix routine.
-    - The footer-byline concern (SC-3) is separate from commit-trailer concern (SC-1/SC-2) — bylines live in
-      file content, trailers live in commit metadata.
-    - The scope guard (SC-4) is a cross-cutting guard that constrains both SC-2 remediation and the carve-out.
-  boundary_rules:
-    - No changes to 080-code-standards attribution requirements (byline/trailer remain mandatory).
-    - No changes to generic force-push authorization gate (only agent-own unmerged branch carve-out).
-    - No changes to squash/PR pipeline trailer application.
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+concern_groups:
+  - id: trailer-classification
+    name: Trailer classification on agent-own branch
+    scs:
+      - SC-1
+    phase: Phase 1
+    description: Reclassify missing Co-authored-by trailers on an agent-created, unmerged, unshared feature branch as an auto-fixable MISSING-ELEMENT rather than a decision-requiring blocker.
+  - id: trailer-remediation
+    name: Agent-owned trailer remediation procedure
+    scs:
+      - SC-2
+    phase: Phase 2
+    description: Add explicit amend/squash + --force-with-lease remediation procedure for the agent's own branch without soliciting a developer force-push decision.
+  - id: footer-byline-autofix
+    name: Footer byline auto-fix
+    scs:
+      - SC-3
+    phase: Phase 3
+    description: Auto-fix missing "Co-authored with AI:" footer bylines in new files via the producing agent, preserving existing bylines.
+  - id: scope-guard
+    name: Agent-own-branch scope guard
+    scs:
+      - SC-4
+      - SC-5
+    phase: Phase 4
+    description: Confine the auto-force-push carve-out to the agent's own unmerged, unshared branch; refuse on shared/merged/trunk branches and defer to the generic force-push authorization gate.
+phase_boundaries:
+  - phase: Phase 1
+    concern: trailer-classification
+    scs: [SC-1]
+  - phase: Phase 2
+    concern: trailer-remediation
+    scs: [SC-2]
+  - phase: Phase 3
+    concern: footer-byline-autofix
+    scs: [SC-3]
+  - phase: Phase 4
+    concern: scope-guard
+    scs: [SC-4, SC-5]
+dependency_order:
+  - Phase 1 (SC-1) precedes Phase 2 (SC-2): classification must route to auto-fix before the remediation procedure is exercised.
+  - Phase 2 (SC-2) precedes Phase 4 (SC-4/SC-5): the scope guard confines the remediation procedure added in Phase 2.
+  - Phase 3 (SC-3) is independent of Phase 1/Phase 2 (footer byline auto-fix is independent of commit trailer remediation) and may run in parallel.

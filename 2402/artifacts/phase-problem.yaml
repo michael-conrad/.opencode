@@ -1,0 +1,120 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+domain: "finishing-checklist-trailer-remediation"
+
+types:
+  - name: phase
+  - name: sc
+  - name: artifact
+  - name: tool
+
+objects:
+  - name: phase_1
+    type: phase
+  - name: phase_2
+    type: phase
+  - name: phase_3
+    type: phase
+  - name: phase_4
+    type: phase
+  - name: sc_1
+    type: sc
+  - name: sc_2
+    type: sc
+  - name: sc_3
+    type: sc
+  - name: sc_4
+    type: sc
+  - name: sc_5
+    type: sc
+  - name: dependency_contract_yaml
+    type: artifact
+  - name: plan_output_yaml
+    type: artifact
+  - name: solve_tool
+    type: tool
+  - name: plan_tool
+    type: tool
+
+fluents:
+  - name: phase_complete
+    params:
+      - name: p
+        type: phase
+  - name: sc_satisfied
+    params:
+      - name: s
+        type: sc
+  - name: contract_extracted
+    params:
+      - name: a
+        type: artifact
+  - name: solve_sat
+    params:
+      - name: t
+        type: tool
+  - name: plan_valid
+
+actions:
+  - name: complete_phase
+    params:
+      - name: p
+        type: phase
+    preconditions: []
+    effects:
+      - phase_complete(p)
+  - name: satisfy_sc
+    params:
+      - name: s
+        type: sc
+      - name: p
+        type: phase
+    preconditions:
+      - phase_complete(p)
+    effects:
+      - sc_satisfied(s)
+  - name: extract_contract
+    params:
+      - name: a
+        type: artifact
+    preconditions: []
+    effects:
+      - contract_extracted(a)
+  - name: run_solve
+    params:
+      - name: t
+        type: tool
+    preconditions:
+      - contract_extracted(dependency_contract_yaml)
+    effects:
+      - solve_sat(t)
+  - name: run_plan
+    preconditions:
+      - solve_sat(solve_tool)
+      - contract_extracted(dependency_contract_yaml)
+    effects:
+      - plan_valid
+
+init:
+  - not phase_complete(phase_1)
+  - not phase_complete(phase_2)
+  - not phase_complete(phase_3)
+  - not phase_complete(phase_4)
+  - not sc_satisfied(sc_1)
+  - not sc_satisfied(sc_2)
+  - not sc_satisfied(sc_3)
+  - not sc_satisfied(sc_4)
+  - not sc_satisfied(sc_5)
+  - not contract_extracted(dependency_contract_yaml)
+  - not solve_sat(solve_tool)
+  - not plan_valid
+
+goals:
+  - plan_valid
+  - sc_satisfied(sc_1)
+  - sc_satisfied(sc_2)
+  - sc_satisfied(sc_3)
+  - sc_satisfied(sc_4)
+  - sc_satisfied(sc_5)

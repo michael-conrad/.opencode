@@ -1,66 +1,73 @@
-interface_compatibility:
-  summary: >
-    The change modifies agent-facing skill deck markdown only; no application-level API or artifact schema
-    changes. The co-author trailer format and the new-file footer byline format are unchanged. The analysis
-    records the dependency contract between the finishing checklist (consumer) and the git squash/PR pipeline
-    (producer of trailers) that the remediation reuses.
-  interfaces:
-    - name: finishing-checklist-trailer-verdict
-      status: modified
-      kind: agent-behavior contract (markdown)
-      backward_compatible: true
-      breaking: false
-      description: >
-        The checklist's classification of missing trailers on an agent-own branch changes from
-        decision-requiring blocker to auto-fixable MISSING-ELEMENT. The check remains present and mandatory.
-    - name: finishing-checklist-remediation-procedure
-      status: new
-      kind: agent-instruction (markdown)
-      backward_compatible: true
-      breaking: false
-      description: >
-        New remediation procedure block added to checklist.md and prepare.md describing agent-owned trailer
-        amendment + force-with-lease push on the agent's own unmerged branch.
-    - name: co-author-trailer-schema
-      status: unchanged
-      kind: artifact schema (commit trailer)
-      backward_compatible: true
-      breaking: false
-      description: >
-        'Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>' and human trailer formats remain
-        as defined by git-workflow-commit/commit-prep.md. The remediation reuses these formats.
-    - name: new-file-footer-byline-schema
-      status: unchanged
-      kind: artifact schema (file footer)
-      backward_compatible: true
-      breaking: false
-      description: >
-        'Co-authored with AI:' footer byline format per 080-code-standards.md remains mandatory and
-        unchanged; SC-3 only auto-fixes their presence.
-    - name: force-push-with-lease-invocation
-      status: reused-not-modified
-      kind: operation contract
-      backward_compatible: true
-      breaking: false
-      description: >
-        --force-with-lease usage established across the deck (squash-push.md, create-pr.md, review-prep.md,
-        rebase-pending.md) is reused by the remediation. No new force-push mechanism introduced.
-  removed_interfaces: []
-  breaking_changes: []
-  dependency_contract:
-    - source: finishing-checklist-remediation
-      target: pr-creation/squash-push (trailer application) and git-workflow-pr create-pr (force-push authority)
-      type: artifact schema
-      constraint: >
-        The checklist remediation may invoke the same trailer-add (git commit --trailer) and
-        --force-with-lease push that squash-push.md uses, and must respect the create-pr.md carve-out that
-        force-push is authorized only on an unmerged, unshared branch. Coupling: the finishing remediation
-        depends on the squash/PR pipeline's trailer semantics and force-push authority to avoid diverging
-        from what the final squash commit would produce.
-    - source: finishing-checklist-remediation
-      target: new-file-byline (080-code-standards)
-      type: artifact schema
-      constraint: >
-        When auto-fixing footer bylines in new files, the producing agent must preserve existing byline
-        entries (append, not overwrite) per 080-code-standards 'Preserve Existing Bylines' rule, to avoid
-        erasing a prior agent's attribution.
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+interface_boundaries:
+  - boundary: finishing-checklist -> trailer classification
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    compatibility: compatible
+    note: SC-1/SC-2 route trailer absence to auto-fix in checklist.md; prepare.md carries the remediation procedure. Both must agree on the MISSING-ELEMENT classification and the --force-with-lease remediation.
+  - boundary: finishing-checklist -> force-push authorization gate
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/guidelines/000-critical-rules.md
+    compatibility: compatible
+    note: The scope guard (SC-4/SC-5) confines the auto-force-push carve-out to the agent's own unmerged, unshared branch; shared/merged/trunk branches defer to the generic force-push authorization gate. No weakening of the generic gate.
+  - boundary: finishing-checklist -> co-author attribution authority
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/guidelines/080-code-standards.md
+    compatibility: compatible
+    note: Trailer auto-fix (SC-1/SC-2) and footer byline auto-fix (SC-3) add missing attribution; they never skip or weaken the mandatory co-author attribution checks (R-7).
+  - boundary: finishing-checklist -> trailer format authority
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    compatibility: compatible
+    note: The remediation procedure reuses the repo-standard Co-authored-by trailer format (AI + human collaborator trailers) from commit-prep.md; no new trailer schema is introduced.
+  - boundary: finishing-checklist -> force-push precedent
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    compatibility: compatible
+    note: The auto-force-push carve-out reuses the existing sanctioned --force-with-lease mechanism and the "Step 7.2.3: Rebase on Stale Base" precedent (force push authorized because PR not merged and branch not shared). No new force-push mechanism.
+  - boundary: finishing-checklist -> squash-push trailer application
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    compatibility: compatible
+    note: Trailer auto-fix at finishing complements, rather than replaces, the PR-time squash that applies repo-standard trailers.
+  - boundary: finishing-checklist -> checkpoint commit policy
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    compatibility: compatible
+    note: Trailer-free WIP implementation commits remain permitted; finishing-time remediation is clarified, not a change to checkpoint commit policy.
+dependency_contract:
+  - id: trailer-format
+    source: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: format-constraint
+    constraint: >
+      Co-authored-by trailers MUST use the repo-standard two-trailer format:
+      `Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>` (AI author) and
+      `Co-authored-by: <dev.name> <dev.email>` (human collaborator). The auto-fix adds
+      these exact trailers; no alternative trailer schema is introduced.
+  - id: force-push-mechanism
+    source: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: mechanism-constraint
+    constraint: >
+      The agent-owned remediation SHALL force-push with `--force-with-lease` only.
+      `--force` is forbidden. The carve-out applies only to the agent's own, unmerged,
+      unshared feature branch; shared/merged/trunk branches defer to the generic
+      force-push authorization gate in 000-critical-rules.md.
+  - id: attribution-mandate
+    source: .opencode/guidelines/080-code-standards.md
+    target: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    type: invariant
+    constraint: >
+      Co-author trailer and footer byline requirements remain mandatory and unchanged.
+      The auto-fix adds missing trailers/bylines; it never skips or weakens the mandatory
+      co-author attribution checks (R-7).
+  - id: scope-guard
+    source: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    target: .opencode/guidelines/000-critical-rules.md
+    type: scope-constraint
+    constraint: >
+      The auto-force-push carve-out is confined to the agent's own, unmerged, unshared
+      feature branch. On a shared, merged, or trunk branch, the checklist SHALL refuse
+      auto-force-push and defer to the generic force-push authorization gate.

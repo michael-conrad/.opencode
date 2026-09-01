@@ -1,41 +1,65 @@
-blast_radius:
-  summary: >
-    The change is confined to the finishing-a-development-branch skill deck's checklist and prepare tasks,
-    plus the behavioral enforcement test for the new classification/remediation behavior. It relies on
-    pre-existing force-push carve-out authority from git-workflow-pr (create-pr.md) and the agent-owned
-    remediation mandate from 080-code-standards / finishing SKILL.md. It does NOT modify the attribution
-    requirements, the squash/PR pipeline, or generic git authorization gates.
-  per_phase:
-    SC-1 (checklist classification):
-      affected:
-        - skills/finishing-a-development-branch/tasks/checklist.md (co-authored-by trailers item, Finding
-          Classification table)
-      ripple_effects:
-        - Removes the erroneous 'needs developer authorization' framing surfaced to the developer.
-        - No downstream pipeline impact — classification change only.
-      out_of_scope_ripple: commit-prep.md / implement.md trailer format docs unchanged.
-    SC-2 (remediation procedure):
-      affected:
-        - skills/finishing-a-development-branch/tasks/checklist.md (add remediation procedure)
-        - skills/finishing-a-development-branch/tasks/prepare.md (remediation step for trailers)
-        - skills/finishing-a-development-branch/SKILL.md (may reference the auto-fix agent-owned rule in
-          existing line 14 language — likely already sufficient, minor reference if any)
-      ripple_effects:
-        - Agents running finishing on their own unmerged branch will self-remediate trailers instead of
-          halting for developer decision.
-        - Force-push-on-own-branch precedent already exists (create-pr.md line 341) so no new authority
-          surface is introduced.
-    SC-3 (footer byline auto-fix):
-      affected:
-        - skills/finishing-a-development-branch/tasks/checklist.md ('AI co-authored attribution in new
-          files' item)
-        - skills/finishing-a-development-branch/tasks/prepare.md (verification step for new-file bylines)
-      ripple_effects:
-        - Producing agent fixes missing footer bylines autonomously; byline requirement unchanged.
-    SC-4 (scope guard):
-      affected:
-        - skills/finishing-a-development-branch/tasks/checklist.md (guard for agent-own branch scope)
-      ripple_effects:
-        - Prevents the auto-force-push carve-out from leaking to shared/merged/trunk branches; preserves the
-          generic force-push authorization gate.
-  no_blast: src/, test/, docs/, other skills, guidelines (no rule change required — mandate already exists).
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+affected_files:
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    status: exists
+    change_type: modify
+    rationale: Primary source of defect — reclassifies missing trailer/byline findings and adds agent-owned remediation procedure + scope guard.
+  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    status: exists
+    change_type: modify
+    rationale: Secondary source of defect — adds agent-owned trailer remediation procedure and footer byline auto-fix verification step.
+  - path: .opencode/skills/finishing-a-development-branch/SKILL.md
+    status: exists
+    change_type: reference
+    rationale: Governing agent-owned remediation mandate; read as authority, not modified.
+  - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    status: exists
+    change_type: reference
+    rationale: Trailer format authority; read to ensure auto-fix uses repo-standard trailer schema.
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    status: exists
+    change_type: reference
+    rationale: Documents that checkpoint commits legitimately lack trailers; read to confirm finishing-time remediation scope.
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    status: exists
+    change_type: reference
+    rationale: Trailer application via squash at PR time; unchanged, complements finishing-time auto-fix.
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    status: exists
+    change_type: reference
+    rationale: Force-push carve-out precedent ("Step 7.2.3: Rebase on Stale Base"); reused, not modified.
+  - path: .opencode/guidelines/080-code-standards.md
+    status: exists
+    change_type: reference
+    rationale: Mandatory co-author attribution requirement; unchanged, read as authority the auto-fix satisfies.
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: exists
+    change_type: reference
+    rationale: Generic force-push authorization gate; remains in force for all branches except agent-own unmerged/unshared.
+  - path: .opencode/tmp/2241-finishing-checklist-evidence.md
+    status: exists
+    change_type: reference
+    rationale: Concrete recorded instance of the defect (36 commits with absent trailers flagged as blocker).
+  - path: .opencode/tests-v2/behaviors/finish-checklist-trailer-agent-own-remediation.sh
+    status: missing (RED-phase deliverable, to be created)
+    change_type: create
+    rationale: Behavioral test for SC-1.
+  - path: .opencode/tests-v2/behaviors/finish-trailer-auto-remediation-no-solicitation.sh
+    status: missing (RED-phase deliverable, to be created)
+    change_type: create
+    rationale: Behavioral test for SC-2.
+  - path: .opencode/tests-v2/behaviors/finish-footer-byline-auto-fix.sh
+    status: missing (RED-phase deliverable, to be created)
+    change_type: create
+    rationale: Behavioral test for SC-3.
+  - path: .opencode/tests-v2/behaviors/finish-forcepush-scope-guard.sh
+    status: missing (RED-phase deliverable, to be created)
+    change_type: create
+    rationale: Behavioral test for SC-5 (and structural guard assertion for SC-4).
+blast_radius_summary: >
+  Changes are confined to the finishing-a-development-branch skill (checklist.md, prepare.md)
+  and four new behavioral test scripts. All other affected files are read-only references
+  (authority sources and precedent). No shared, merged, or trunk branch behavior is altered;
+  the generic force-push authorization gate remains in force outside the agent-own unmerged
+  unshared branch carve-out.

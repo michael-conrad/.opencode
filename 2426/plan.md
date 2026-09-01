@@ -38,9 +38,9 @@ phase_count: 3
 
 | Phase | Skill | Task | Target | SCs | Depends On |
 |-------|-------|------|--------|-----|------------|
-| 1 — Reconcile co-author trailer placement | `test-driven-development` | `red` → `green` → `verify` → `commit-inline` | `.guidelines/commit-workflow.md`, `git-workflow-commit/tasks/commit-prep.md`, `git-workflow-commit/tasks/implementation.md`, `writing-plans/reference/implementation-workflow.md` | SC-1a, SC-1b | — |
-| 2 — Reconcile commit-count rule | `test-driven-development` | `red` → `green` → `verify` → `commit-inline` | `000-critical-rules.md`, `git-workflow-commit/tasks/implementation.md`, `git-workflow-commit/SKILL.md`, `git-workflow-pr/tasks/pr-creation.md`, `git-workflow-pr/tasks/review-prep.md`, `git-workflow-branch/tasks/operating-protocol.md`, `115-branch-naming.md` | SC-2a, SC-2b | — |
-| 3 — Establish canonical rule consistency | `test-driven-development` | `red` → `green` → `verify` → `commit-inline` | `git-workflow-pr/tasks/pr-creation.md`, `squash-push.md`, `enforcement-gate.md`, `finishing-a-development-branch/tasks/checklist.md`, `prepare.md` | SC-3a, SC-3b | 1, 2 |
+| 1 — Reconcile co-author trailer placement | `test-driven-development` + `verification-before-completion` + `(orchestrator)` | `red`(tdd) → `green`(tdd) → `verify`(vbc) → `commit-inline`(orch) | `.guidelines/commit-workflow.md`, `git-workflow-commit/tasks/commit-prep.md`, `git-workflow-commit/tasks/implementation.md`, `writing-plans/reference/implementation-workflow.md` | SC-1a, SC-1b | — |
+| 2 — Reconcile commit-count rule | `test-driven-development` + `verification-before-completion` + `(orchestrator)` | `red`(tdd) → `green`(tdd) → `verify`(vbc) → `commit-inline`(orch) | `000-critical-rules.md`, `git-workflow-commit/tasks/implementation.md`, `git-workflow-commit/SKILL.md`, `git-workflow-pr/tasks/pr-creation.md`, `git-workflow-pr/tasks/review-prep.md`, `git-workflow-branch/tasks/operating-protocol.md`, `115-branch-naming.md` | SC-2a, SC-2b | — |
+| 3 — Establish canonical rule consistency | `test-driven-development` + `verification-before-completion` + `(orchestrator)` | `red`(tdd) → `green`(tdd) → `verify`(vbc) → `commit-inline`(orch) | `git-workflow-pr/tasks/pr-creation.md`, `squash-push.md`, `enforcement-gate.md`, `finishing-a-development-branch/tasks/checklist.md`, `prepare.md` | SC-3a, SC-3b | 1, 2 |
 
 ---
 
@@ -50,8 +50,8 @@ phase_count: 3
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` → `green` → `verify` → `commit-inline` |
+| Skill | `test-driven-development` + `verification-before-completion` + `(orchestrator)` |
+| Task | `red`(test-driven-development) → `green`(test-driven-development) → `verify`(verification-before-completion) → `commit-inline`(orchestrator) |
 | Target | `.guidelines/commit-workflow.md`, `git-workflow-commit/tasks/commit-prep.md`, `git-workflow-commit/tasks/implementation.md`, `writing-plans/reference/implementation-workflow.md` |
 | SCs | SC-1a, SC-1b |
 | Depends On | — |
@@ -77,8 +77,8 @@ sc_ids: [SC-1a, SC-1b]
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` → `green` → `verify` → `commit-inline` |
+| Skill | `test-driven-development` + `verification-before-completion` + `(orchestrator)` |
+| Task | `red`(test-driven-development) → `green`(test-driven-development) → `verify`(verification-before-completion) → `commit-inline`(orchestrator) |
 | Target | `000-critical-rules.md`, `git-workflow-commit/tasks/implementation.md`, `git-workflow-commit/SKILL.md`, `git-workflow-pr/tasks/pr-creation.md`, `git-workflow-pr/tasks/review-prep.md`, `git-workflow-branch/tasks/operating-protocol.md`, `115-branch-naming.md` |
 | SCs | SC-2a, SC-2b |
 | Depends On | — (independent of Phase 1) |
@@ -107,8 +107,8 @@ sc_ids: [SC-2a, SC-2b]
 
 | Field | Value |
 |-------|-------|
-| Skill | `test-driven-development` |
-| Task | `red` → `green` → `verify` → `commit-inline` |
+| Skill | `test-driven-development` + `verification-before-completion` + `(orchestrator)` |
+| Task | `red`(test-driven-development) → `green`(test-driven-development) → `verify`(verification-before-completion) → `commit-inline`(orchestrator) |
 | Target | `git-workflow-pr/tasks/pr-creation.md`, `squash-push.md`, `enforcement-gate.md`, `finishing-a-development-branch/tasks/checklist.md`, `prepare.md` |
 | SCs | SC-3a, SC-3b |
 | Depends On | 1, 2 |

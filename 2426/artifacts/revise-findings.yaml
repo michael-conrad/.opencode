@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue_number: 2426
+repo: .opencode
+revision_source: artifacts/validate-findings.yaml
+findings_addressed:
+  - finding_id: F1
+    severity: CONCERN
+    type: skill-ownership-mismatch
+    resolution: ALIGNED_SKILL_ATTRIBUTION
+    message: >
+      Plan phase table and Phase Details Field/Value tables attributed `verify`
+      and `commit-inline` to `test-driven-development` only. Canonical reference
+      card (skills/writing-plans/reference/implementation-workflow.md) attributes
+      `verify` to `verification-before-completion` and `commit-inline` to
+      `(orchestrator)`. Updated the Skill column to
+      `test-driven-development` + `verification-before-completion` +
+      `(orchestrator)` and the Task column to
+      `red`(test-driven-development) -> `green`(test-driven-development) ->
+      `verify`(verification-before-completion) ->
+      `commit-inline`(orchestrator) across Phases 1, 2, and 3.
+unchanged_artifacts:
+  - dependency-contract.yaml:
+      reason: DAG validation (category 5) PASSed with no cycles, no orphan phases,
+        all phases reachable; finding F1 is a documentation-precision issue in the
+        plan body, not a contract structural defect. No contract change required.
+result:
+  status: DONE
+  overall_plan_revision: skill-attribution precision aligned with canonical implementation-workflow reference card

@@ -1,32 +1,33 @@
-cross_cutting_matrix:
-  summary: >
-    The primary cross-cutting concern is the force-push authorization boundary: the auto-remediation must
-    carve out only the agent's own, unmerged, agent-created feature branch while preserving the generic
-    force-push authorization requirement everywhere else. Secondary cross-cutting concerns are the mandatory
-    attribution requirement (shared by trailers + bylines) and the agent-owned remediation mandate.
-  matrix:
-    - concern: Force-push authorization boundary
-      intersects_phases: SC-2, SC-4
-      interaction: SC-2 adds agent-owned force-push; SC-4 guards its scope. Together they define the
-        single carve-out boundary.
-      requirement_ref: R2, I1, C1
-    - concern: Mandatory co-author attribution (080-code-standards)
-      intersects_phases: SC-1, SC-2, SC-3
-      interaction: Trailers (SC-1/SC-2) and footer bylines (SC-3) both derive from the same mandatory
-        attribution rule; both are auto-fixed rather than skipped.
-      requirement_ref: R1, R3
-    - concern: Agent-owned remediation mandate (finishing SKILL.md line 14)
-      intersects_phases: SC-1, SC-2, SC-3
-      interaction: All three auto-fix items are governed by the producing-agent-owns-defects principle.
-      requirement_ref: R2, R3
-    - concern: Sub-agent verification vs producing-agent remediation boundary
-      intersects_phases: SC-1, SC-2, SC-3, SC-4
-      interaction: Verification is dispatched to independent verifiers, but remediation of the producing
-        agent's own defects is the producing agent's job (C2). The trailer/byline fix is remediation, not
-        verification re-dispatch.
-      requirement_ref: C2
-    - concern: No sub-issue creation / linkage at finishing
-      intersects_phases: all
-      interaction: The checklist's Sub-Issue Linkage Verification section remains untouched; the remediation
-        does not create or link sub-issues.
-      requirement_ref: C3
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+cross_cutting_scs:
+  - sc: SC-1
+    spans_concerns:
+      - trailer-classification
+      - trailer-remediation
+    description: SC-1 (classification) is the routing precondition for SC-2 (remediation). Both touch checklist.md and share the trailer-classification concern boundary.
+  - sc: SC-2
+    spans_concerns:
+      - trailer-remediation
+      - scope-guard
+    description: SC-2 (remediation procedure) is confined by the SC-4/SC-5 scope guard. The remediation procedure and the guard both live in checklist.md.
+  - sc: SC-4
+    spans_concerns:
+      - scope-guard
+      - trailer-remediation
+    description: SC-4 (structural scope guard) is a companion to SC-2 (remediation) and SC-5 (behavioral refusal). The guard confines the remediation added for SC-2.
+  - sc: SC-5
+    spans_concerns:
+      - scope-guard
+      - trailer-remediation
+    description: SC-5 (behavioral refusal on shared/merged/trunk) is the behavioral companion to SC-4 and confines the SC-2 remediation carve-out.
+non_cross_cutting_scs:
+  - sc: SC-3
+    description: Footer byline auto-fix is independent of commit trailer remediation (SC-1/SC-2) and the scope guard (SC-4/SC-5); may run in parallel.
+shared_files:
+  - file: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    note: All five SCs touch checklist.md; changes must be coordinated to avoid conflicting edits.
+  - file: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    scs: [SC-2, SC-3]
+    note: SC-2 and SC-3 both modify prepare.md; edits must be coordinated.

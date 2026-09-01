@@ -1,4 +1,4 @@
-sc_count: 4
+sc_count: 5
 scs:
   - id: "SC-1"
     description: "The finishing checklist SHALL classify missing Co-authored-by trailers on the agent's own unmerged feature branch as auto-fixable MISSING-ELEMENT, not a decision-requiring blocker surfacing a force-push authorization decision."
@@ -13,6 +13,10 @@ scs:
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "The finishing checklist SHALL include a scope guard limiting the auto-force-push carve-out to the agent's own unmerged feature branch, deferring shared/merged/trunk branches to the generic force-push authorization gate."
+    description: "The finishing checklist SHALL include a scope guard that confines the auto-force-push carve-out to the agent's own, unmerged, unshared feature branch."
+    evidence_type: "structural"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The finishing checklist SHALL refuse auto-force-push on a shared, merged, or trunk branch, deferring to the generic force-push authorization gate."
     evidence_type: "behavioral"
     plan_item: 4

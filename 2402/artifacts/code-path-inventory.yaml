@@ -1,30 +1,39 @@
-code_path_inventory:
-  summary: >
-    No application source code is touched. The change operates entirely on agent-facing skill deck markdown
-    (checklist.md, prepare.md) and a corresponding behavioral enforcement test. Code-path inventory therefore
-    enumerates the agent-facing decision paths each phase modifies.
-  phases:
-    SC-1:
-      paths:
-        - 'checklist.md "Co-authored-by trailers present" checklist item (line 29) → verdict classification'
-        - 'checklist.md Finding Classification table → add auto-fix row for trailer absence on agent-own branch'
-      agent_decision_path: finishing checklist runs trailer scan; verdict must route to auto-fix, not blocker.
-    SC-2:
-      paths:
-        - 'checklist.md remediation procedure block (new)'
-        - 'prepare.md Step 1 "Verify co-authored-by trailers are present" (line 74) → add remediation path'
-      agent_decision_path: on missing trailer, agent amends/squashes own commits + force-push --force-with-lease.
-    SC-3:
-      paths:
-        - 'checklist.md "AI co-authored attribution in new files" item → auto-fix missing footer bylines'
-        - 'prepare.md verification step for new-file bylines'
-      agent_decision_path: producing agent adds missing 'Co-authored with AI:' footer byline to new files.
-    SC-4:
-      paths:
-        - 'checklist.md agent-own branch scope guard in remediation procedure'
-      agent_decision_path: only force-push own unmerged branch; else defer to generic authorization gate.
-  unchanged:
-    - src/, test/, docs/ (no source code)
-    - git-workflow-commit (trailer format docs remain authority)
-    - git-workflow-pr (create-pr.md force-push authority reused, not modified)
-    - 080-code-standards.md (attribution requirement unchanged)
+spec_path: .opencode/.issues/2402/spec.md
+issue_number: 2402
+code_paths:
+  - sc: SC-1
+    concern: trailer-classification
+    paths:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    description: The "Co-authored-by trailers present" checklist item and Finding Classification table route trailer absence on an agent-own branch to auto-fix rather than blocker.
+  - sc: SC-2
+    concern: trailer-remediation
+    paths:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    description: Explicit remediation procedure describing amend/squash of the agent's own commits to add repo-standard Co-authored-by trailers, then --force-with-lease push, without soliciting a developer force-push decision.
+  - sc: SC-3
+    concern: footer-byline-autofix
+    paths:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    description: The "AI co-authored attribution in new files" checklist item and prepare verification step auto-fix missing footer bylines, preserving existing ones.
+  - sc: SC-4
+    concern: scope-guard
+    paths:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    description: The remediation procedure documents an agent-own-branch scope guard confining auto-force-push to the agent's own unmerged, unshared branch.
+  - sc: SC-5
+    concern: scope-guard
+    paths:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    description: The scope guard refuses auto-force-push on a shared, merged, or trunk branch and defers to the generic force-push authorization gate.
+authority_paths:
+  - .opencode/guidelines/080-code-standards.md
+  - .opencode/guidelines/000-critical-rules.md
+  - .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+  - .opencode/skills/git-workflow-commit/tasks/implementation.md
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+  - .opencode/skills/finishing-a-development-branch/SKILL.md
+  - .opencode/tmp/2241-finishing-checklist-evidence.md
