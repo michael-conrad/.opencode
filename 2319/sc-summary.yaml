@@ -1,11 +1,11 @@
-sc_count: 6
+sc_count: 12
 scs:
   - id: "SC-1"
-    description: "Composite issue reference form {owner}/{repo}#NNN defined in .opencode/guidelines/118-issue-reference-qualification.md as the single self-describing issue identity token used for all internal handoffs across the deck."
+    description: "Composite issue reference form {owner}/{repo}#NNN defined in .opencode/guidelines/118-issue-reference-qualification.md as the single self-describing issue identity token used for all internal handoffs across the deck; under identity_source: local no owner/repo pair exists and Edge Case 5 governs the alternative directory-scoped issues-prefix identity form."
     evidence_type: "structural"
     plan_item: 1
   - id: "SC-2"
-    description: "Every split-identity Context-passed contract enumerated in the spec's Affected Files carries issue identity only through the single composite field issue_ref: '{owner}/{repo}#NNN'; separate identity fields no longer appear in those contracts."
+    description: "Every split-identity Context-passed contract enumerated in the spec's Affected Files carries issue identity only through the single composite field issue_ref: '{owner}/{repo}#NNN'; separate issue_number, spec_issue_number, github.owner, and github.repo identity fields no longer appear in those contracts."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
@@ -13,7 +13,7 @@ scs:
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "Guideline rule at .opencode/guidelines/118-issue-reference-qualification.md defines the composite parse convention: sub-agents derive owner, repo, and issue_number from {owner}/{repo}#NNN. Permitted: derived-variable carve-out for artifact-path construction. Forbidden: concrete bare issue references to real issues without repo qualification."
+    description: "Guideline rule at .opencode/guidelines/118-issue-reference-qualification.md defines the composite parse convention: sub-agents derive owner, repo, and issue_number from {owner}/{repo}#NNN. Permitted (derived-variable carve-out): local variables such as spec_issue_number used solely for artifact-path construction beneath the resolved issues prefix, and a local basename variable used solely to construct local-issues {repo}#{N} commands. Forbidden: any concrete bare issue reference to a real issue without repo qualification, and any split identity field transmitted as a contract/dispatch field."
     evidence_type: "behavioral"
     plan_item: 4
   - id: "SC-5"
@@ -24,3 +24,27 @@ scs:
     description: "Task files in the audit, issue-operations, spec-creation, and writing-plans families enumerated in Affected Files consume the composite: instructions, path construction, and API dispatch start from the qualified token rather than a bare number."
     evidence_type: "behavioral"
     plan_item: 6
+  - id: "SC-7"
+    description: "_parse_qualified in .opencode/tools/local-issues recognizes the composite form {owner}/{repo}#NNN (two slash-separated segments before #) and returns a structured (owner, repo, number) triple, while retaining the basename {repo}#N (single segment) and bare N forms."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "A new resolution path in .opencode/tools/local-issues maps owner/repo to a local repo Path by deriving owner/repo from each repo's origin remote URL (parsing github.com/<owner>/<repo>, matching the composite's repo slug against the remote-derived slug), falling back to basename matching. _resolve_repo_path, _resolve_qualified, and _resolve_and_validate_repo all route through this new path."
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Under identity_source: local (no remote), the composite form in .opencode/tools/local-issues hard-fails — no fabricated owner/repo mapping — while the basename form remains the valid qualifier, in alignment with Edge Case 5."
+    evidence_type: "behavioral"
+    plan_item: 9
+  - id: "SC-10"
+    description: "All 12 number-consuming subcommands of local-issues (create, read, read-comments, read-labels, read-sub-issues, update, comment, close, delete, link, renumber, promote) accept the composite form via the centralized parse/resolve layer, without per-command modifications. The five non-number-consuming subcommands are unaffected."
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "_print_available_repos and the local-issues error messages document both the composite {owner}/{repo}#NNN and basename {repo}#N qualifier forms."
+    evidence_type: "structural"
+    plan_item: 11
+  - id: "SC-12"
+    description: "Each task card enumerated in Affected Files that performs a local-issues {repo}#{N} mutation (or a single-repo-target read) carries a pre-flight Entry-Criteria BLOCK returning status: BLOCKED with reason MISSING_REPO_QUALIFIER when dispatch context lacks the resolved repo qualifier, and does not emit an unqualified local-issues {repo}#{N} mutation. The contract identity field remains issue_ref only; the local basename is a derived local variable under the SC-4 carve-out."
+    evidence_type: "behavioral"
+    plan_item: 12
