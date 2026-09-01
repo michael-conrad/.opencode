@@ -1,0 +1,18 @@
+sc_count: 4
+scs:
+  - id: "SC-1"
+    description: "The finishing checklist SHALL classify missing Co-authored-by trailers on the agent's own unmerged feature branch as auto-fixable MISSING-ELEMENT, not a decision-requiring blocker surfacing a force-push authorization decision."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The finishing checklist and prepare task SHALL include an agent-owned remediation procedure: amend/squash the agent's own commits to add Co-authored-by trailers and force-push with --force-with-lease, without soliciting a developer force-push decision."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "The finishing checklist SHALL auto-fix missing 'Co-authored with AI:' footer bylines in new files via the producing agent (preserving existing bylines), not escalate as a decision-requiring blocker."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "The finishing checklist SHALL include a scope guard limiting the auto-force-push carve-out to the agent's own unmerged feature branch, deferring shared/merged/trunk branches to the generic force-push authorization gate."
+    evidence_type: "behavioral"
+    plan_item: 4
