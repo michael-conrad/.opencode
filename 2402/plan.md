@@ -344,3 +344,9 @@ dispatch: [test-driven-development, verification-before-completion, audit, finis
 
 - [ ] **Completion.** Append lifecycle event and report executive summary.
   - (**clean-room**) `task(..., prompt: "execute completion task from completion-core")`
+
+## Lifecycle Events
+
+| Timestamp | Event | Phase Count | Plan Path |
+|-----------|-------|-------------|-----------|
+| 2026-09-01T04:23:28Z | plan_created | 4 | `.opencode/.issues/2402/plan.md` |
