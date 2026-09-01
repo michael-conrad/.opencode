@@ -1,0 +1,115 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+issue_number: 2426
+repo: .opencode
+validator_scope: plan-structure-validation
+overall_status: PASS_WITH_CONCERNS
+solve_status: SAT
+
+categories:
+  - id: 1
+    name: Structural validation
+    pass: true
+    checks:
+      - name: phase table with required columns
+        result: PASS
+        detail: "Phase table has Phase, Skill, Task, Target, SCs, Depends On columns for all 3 phases."
+      - name: procedure section with numbered steps per phase
+        result: PASS
+        detail: "Each of Phase 1/2/3 has a Field/Value table, Context YAML, and numbered Step 1..Step 5."
+      - name: exit criteria with SC-to-phase mapping
+        result: PASS
+        detail: "Exit Criteria table maps C1-C6 to Phases 1/2/3; SC groups are coverable via criteria."
+
+  - id: 2
+    name: Skill+task validity
+    pass: false
+    checks:
+      - name: every skill+task reference matches implementation-workflow reference card
+        result: FAIL
+        detail: >
+          The phase table lists Skill=`test-driven-development` for the whole chain
+          `red -> green -> verify -> commit-inline`. The reference card
+          (skills/writing-plans/reference/implementation-workflow.md) attributes
+          `verify` to `verification-before-completion` and `commit-inline` to
+          (orchestrator), NOT to `test-driven-development`. Only `red` and `green`
+          are owned by `test-driven-development`. The task NAMES (red, green,
+          verify, commit-inline) are all valid entries, but the owning-skill
+          attribution in the plan's phase table does not match the canonical
+          reference for `verify` and `commit-inline`.
+
+  - id: 3
+    name: SC coverage
+    pass: true
+    checks:
+      - name: every SC from spec appears in at least one phase's exit criteria
+        result: PASS
+        detail: "SC-1a/SC-1b via C1 (Phase 1); SC-2a/SC-2b via C2 (Phase 2); SC-3a via C3 (Phase 3); SC-3b via C4 (Phase 3). C5/C6 are cross-cutting pass/invariant checks."
+      - name: triplet split detection (RED/GREEN/COMMIT in same phase per SC)
+        result: PASS
+        detail: "SC-1a/1b: Steps 2/3/5 in Phase 1; SC-2a/2b: Steps 2/3/5 in Phase 2; SC-3a/3b: Steps 2/3/5 in Phase 3. No SC has RED/GREEN/COMMIT split across phases."
+
+  - id: 4
+    name: Concern separation
+    pass: true
+    checks:
+      - name: each phase addresses exactly one concern from concern-map
+        result: PASS
+        detail: "Phase 1 -> concern C1 (trailer placement); Phase 2 -> concern C2 (commit count); Phase 3 -> concern C3 (canonical gate consistency)."
+      - name: no two phases address the same concern
+        result: PASS
+        detail: "C1, C2, C3 map 1:1 to Phases 1, 2, 3 with no overlap."
+
+  - id: 5
+    name: DAG validation
+    pass: true
+    checks:
+      - name: dependency contract DAG has no cycles
+        result: PASS
+        detail: "Edges 1->3 (dep), 2->3 (dep), 1->2 (parallel) form a DAG; no cycle."
+      - name: all phases reachable from start node
+        result: PASS
+        detail: "Phase 3 reachable via edges (1|2)->3; Phases 1 and 2 are start nodes with no incoming dependency edges."
+      - name: no orphan phases
+        result: PASS
+        detail: "Phase 1 has outgoing edges, Phase 2 has outgoing edges, Phase 3 has incoming edges. No orphan."
+
+  - id: 6
+    name: Holistic quality
+    pass: true
+    checks:
+      - name: no TBD/TODO placeholders in plan body
+        result: PASS
+        detail: "No TBD/TODO placeholders found in plan.md body."
+      - name: all steps use checkbox format
+        result: PASS
+        detail: "All procedure steps use '- [ ] Step N:' checkbox format."
+      - name: dispatch mode consistency
+        result: PASS
+        detail: "RED/GREEN/verify are dispatched (clean-room); commit-inline is the explicit orchestrator-run inline step per the reference card. Dispatch mixing matches canonical TDD daisy-chain, so consistent."
+
+findings:
+  - finding_id: F1
+    category: 2
+    severity: CONCERN
+    type: skill-ownership-mismatch
+    message: >
+      Plan phase table attributes `verify` and `commit-inline` to
+      `test-driven-development`; the canonical implementation-workflow reference
+      card attributes `verify` to `verification-before-completion` and
+      `commit-inline` to (orchestrator). Task names are valid; the skill
+      attribution column is imprecise. Recommend aligning the Skill/Task column
+      with the reference card (e.g., Skill=`test-driven-development` +
+      `verification-before-completion` + `(orchestrator)`).
+    affected_phases: [1, 2, 3]
+
+overall_summary: >
+  5 of 6 categories PASS. Category 2 (skill+task validity) FAILs on a single
+  non-blocking concern: the phase table's Skill column attributes `verify` and
+  `commit-inline` to `test-driven-development` instead of the reference card's
+  `verification-before-completion` and `(orchestrator)`. Task names are valid
+  and all SCs are covered with no triplet splits; DAG, concerns, structure, and
+  holistic quality all PASS. This is the only defect; it is a documentation
+  precision issue in the plan's Table/Field columns, not a structural or coverage
+  defect.
