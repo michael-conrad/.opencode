@@ -1,0 +1,8 @@
+---
+remote_issue: 2402
+remote_url: "https://github.com/michael-conrad/.opencode/issues/2402"
+last_sync: "2026-09-01T03:29:39Z"
+source: github
+---
+
+The finishing-a-development-branch checklist task flags missing Co-authored-by commit trailers on a feature branch as a MISSING-ELEMENT readiness blocker, and its guidance surfaces a 'force-push authorization' decision to the developer. This mis-applies the rules: on an agent-created, unmerged feature branch, remediating the repo-standard co-authored-by trailers is an auto-fixable, agent-owned remediation — the agent should amend its own commits and force-push its own feature branch without soliciting a developer decision. The defect forced an unnecessary developer round-trip ('wtf?' — the developer was asked to make a decision that was already within the for_pr scope). Per 080-code-standards AI Co-Authored Attribution and the finishing skill's 'remediation of failed verification IS agent-owned', the checklist should auto-remediate commit trailers and file bylines on the agent's own branch rather than classifying them as decision-requiring blockers. Also the checklist flagged missing 'Co-authored with AI:' footer bylines in new files — those ARE correctly mandatory per 080-code-standards and should be auto-fixed by the producing agent.

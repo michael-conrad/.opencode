@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+solve_output:
+  issue_number: 2426
+  repo: .opencode
+  notes: >
+    The research task card CLI forms (`.opencode/tools/solve model --query sat` and
+    `plan plan --contract-path ... --output ...`) do not match the actual tool interfaces.
+    `solve model` requires a Z3 expression (not the literal 'sat'), and `plan plan` requires
+    a `--problem` YAML file (not `--contract-path`/`--output`). The task intent — SAT
+    verification of the dependency contract plus planability of the phase decomposition —
+    was satisfied using the correct tool interfaces, following the documented precedent
+    in issue 2410 solve-output.yaml.
+  solve_status: SAT
+  plan_status: SOLVED_SATISFICING
+  checks:
+    - tool: ".opencode/tools/solve model"
+      query: z3.BoolVal(True)
+      result: SAT
+    - tool: ".opencode/tools/solve check"
+      contract: dependency-contract.yaml
+      state: artifacts/state-analysis.yaml
+      result: SAT
+      notes: "SAT and SAT (+ postconditions + invariants)"
+  planner:
+    tool: ".opencode/tools/plan plan"
+    problem: artifacts/plan-problem.yaml
+    engine: tamer
+    result: SOLVED_SATISFICING
+    plan_length: 3
+    plan:
+      - remediate_phase(phase1)
+      - remediate_phase(phase2)
+      - remediate_phase(phase3)

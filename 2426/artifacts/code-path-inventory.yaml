@@ -1,0 +1,63 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: Code paths implied by each success criterion, mapping each SC to the concrete files that must be modified to satisfy it.
+
+sc_code_paths:
+  SC-1a:
+    description: No co-author trailers required on intermediate implementation/WIP commits.
+    code_paths:
+      - .opencode/.guidelines/commit-workflow.md
+      - .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/writing-plans/reference/implementation-workflow.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+  SC-1b:
+    description: Dual co-author trailers (AI + human) required on the final squashed commit.
+    code_paths:
+      - .opencode/.guidelines/commit-workflow.md
+      - .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/writing-plans/reference/implementation-workflow.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+  SC-2a:
+    description: Multiple WIP commits during development are acceptable.
+    code_paths:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-commit/SKILL.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+      - .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      - .opencode/guidelines/115-branch-naming.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+  SC-2b:
+    description: Squash to exactly one commit per issue occurs at PR creation.
+    code_paths:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-commit/SKILL.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+      - .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      - .opencode/guidelines/115-branch-naming.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+  SC-3a:
+    description: Canonical rule (exactly one squashed commit per issue) stated consistently across PR/squash/enforcement/finishing gates.
+    code_paths:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    behavioral_test: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+  SC-3b:
+    description: Canonical rule (dual co-author trailers on the squashed commit) stated consistently across PR/squash/enforcement/finishing gates.
+    code_paths:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    behavioral_test: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+
+note: All 14 source code paths verified to exist. The 3 behavioral test paths are RED deliverables to be created during implementation (currently absent).

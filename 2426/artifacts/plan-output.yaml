@@ -1,0 +1,14 @@
+actions:
+- name: remediate_phase
+  parameters:
+  - phase1
+- name: remediate_phase
+  parameters:
+  - phase2
+- name: remediate_phase
+  parameters:
+  - phase3
+domain: commit-rule-reconciliation
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING

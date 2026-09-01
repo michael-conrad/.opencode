@@ -1,0 +1,63 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: Identification of success criteria that span multiple concerns, and the files shared across those concerns.
+
+cross_cutting_scs:
+  - id: SC-1b
+    spans_concerns:
+      - C1 (trailer placement on implementation commits)
+    description: >
+      Dual-trailer requirement on the squashed commit is expressed in the contradictory sources
+      (C1 scope) but the canonical statement of that rule lives on squash-push.md, which is also
+      a canonical-rule gate file (C3 scope). SC-1b and SC-3b therefore touch squash-push.md from
+      two directions (source reconciliation and gate-consistency), requiring a single coherent
+      statement.
+    shared_files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+
+  - id: SC-3a
+    spans_concerns:
+      - C2 (commit count / squash timing)
+      - C3 (canonical rule consistency across gates)
+    description: >
+      The commit-count dimension of the canonical rule must be consistent across the five gates
+      (C3) but the underlying rule source is the commit-count reconciliation from C2
+      (000-critical-rules.md, implementation.md). Gates must reference the same one-squashed-commit
+      rule reconciled in C2.
+    shared_files:
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+
+  - id: SC-3b
+    spans_concerns:
+      - C1 (trailer placement) / C3 (canonical rule across gates)
+    description: >
+      The trailer-placement dimension of the canonical rule must be consistent across the five gates (C3)
+      but derived from the source reconciliation in C1 (dual trailers on squashed commit). Gates must
+      reference the same dual-trailer rule reconciled in C1.
+    shared_files:
+      - .opencode/.guidelines/commit-workflow.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+
+  - id: SC-2a
+    spans_concerns: []
+    description: Fully contained within C2; no cross-concern span.
+
+  - id: SC-2b
+    spans_concerns: []
+    description: Fully contained within C2; no cross-concern span.
+
+  - id: SC-1a
+    spans_concerns: []
+    description: Fully contained within C1; no cross-concern span.
+
+summary:
+  highest_span_scs:
+    - SC-1b
+    - SC-3a
+    - SC-3b
+  note: >
+    Phases 1 and 2 may run in parallel (no inter-phase data dependency), but both feed Phase 3.
+    Shared files across concerns must be reconciled once, with a single coherent statement, to avoid
+    re-introducing contradictions.

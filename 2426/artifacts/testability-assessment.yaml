@@ -1,0 +1,73 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: Evidence-type assignment per success criterion. All six SCs are behaviorally verified via opencode-run behavioral tests.
+
+sc_evidence_assignment:
+  SC-1a:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/commit-trailer-placement.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent does NOT add co-author trailers to an implementation commit.
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+    test_status_to_create: RED
+  SC-1b:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/commit-trailer-placement.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent DOES add dual co-author trailers (AI + human) to the squashed commit.
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+    test_status_to_create: RED
+  SC-2a:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/commit-count-squash-timing.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent makes multiple WIP commits during development.
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+    test_status_to_create: RED
+  SC-2b:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/commit-count-squash-timing.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent defers squash to PR creation.
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+    test_status_to_create: RED
+  SC-3a:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/squash-dual-trailer.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent produces exactly one squashed commit per issue (commit-count dimension).
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+    test_status_to_create: RED
+  SC-3b:
+    evidence_type: behavioral
+    verification_method: >
+      Run .opencode/tests-v2/behaviors/squash-dual-trailer.sh via
+      `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+      Assert stderr shows the agent adds dual co-author trailers (AI + human) to the squashed commit (trailer-placement dimension).
+    testable: true
+    test_path: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+    test_status_to_create: RED
+
+testability_assessment:
+  all_scs_behavioral: true
+  behavioral_test_infrastructure_available: true
+  behavioral_test_note: >
+    Mandatory harness: `bash .opencode/tests-v2/with-test-home opencode run '<message>'`.
+    Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads,
+    sub-agent task() calls, tool invocations). Prose recall is NOT behavioral evidence.
+  tests_to_create:
+    - .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+    - .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+    - .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+  constraint: >
+    The three behavioral test files do not yet exist and are RED deliverables produced during
+    implementation. Until created, the behavioral SCs cannot be verified (tests_run == 0).

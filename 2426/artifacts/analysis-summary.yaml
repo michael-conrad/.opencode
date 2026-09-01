@@ -1,0 +1,63 @@
+spec_path: .opencode/.issues/2426/spec.md
+approval_status: approved
+approval_label: approved-for-pr
+sc_count: 6
+sc_ids:
+  - SC-1a
+  - SC-1b
+  - SC-2a
+  - SC-2b
+  - SC-3a
+  - SC-3b
+artifact_presence:
+  blast-radius.yaml: BACKFILLED
+  concern-map.yaml: BACKFILLED
+  code-path-inventory.yaml: BACKFILLED
+  cross-cutting-matrix.yaml: BACKFILLED
+  interface-compatibility.yaml: BACKFILLED
+  state-analysis.yaml: BACKFILLED
+  testability-assessment.yaml: BACKFILLED
+backfill_note: >
+  All 7 analytical artifacts were backfilled on 2026-08-31 from the spec body. All 14 affected
+  source files verified to exist in the .opencode submodule. The 3 behavioral test files
+  (commit-trailer-placement.sh, commit-count-squash-timing.sh, squash-dual-trailer.sh) referenced
+  in the SC verification methods do not yet exist and are RED deliverables to be created during
+  implementation.
+scope_boundary_findings:
+  - path: .opencode/.guidelines/commit-workflow.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    status: EXISTS
+  - path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+    status: EXISTS
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-commit/SKILL.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    status: EXISTS
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    status: EXISTS
+  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+    status: EXISTS
+  - path: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+    status: EXISTS
+  - path: .opencode/guidelines/115-branch-naming.md
+    status: EXISTS
+  - path: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+    status: MISSING
+    note: Referenced in SC-1a/SC-1b verification method but does not exist (RED deliverable)
+  - path: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+    status: MISSING
+    note: Referenced in SC-2a/SC-2b verification method but does not exist (RED deliverable)
+  - path: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+    status: MISSING
+    note: Referenced in SC-3a/SC-3b verification method but does not exist (RED deliverable)

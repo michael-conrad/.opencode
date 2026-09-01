@@ -1,0 +1,170 @@
+spec_path: .opencode/.issues/2426/spec.md
+authority_source: Read [130-authority-source.md](.opencode/guidelines/130-authority-source.md) — "Spec for Intent, Code for State." When the spec or downstream reconciliation references a concrete rule, the code path that state must match in its current state. This artifact records interface boundaries and the concrete dependency contract between the affected skill-deck modules.
+
+description: >
+  Interface boundaries between the affected .opencode skill modules, and the dependency contract
+  extracted for the solve/plan tools. The affected files are documentation/instruction modules in the
+  skill deck; their "interface" is the instruction they expose to agents at the given commit lifecycle
+  gate. The dependency contract captures real sources, real targets, and the binary constraint
+  (either state A or state B) that each module must satisfy.
+
+interface_boundaries:
+  - module: git-workflow-commit
+    role: Owns the implementation-commit lifecycle gate.
+    exposed_interface:
+      - commit-prep.md — instruction set that prepares an implementation commit.
+      - implementation.md — instruction set governing implementation/WIP commits during dev.
+    consumers:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+
+  - module: git-workflow-pr
+    role: Owns the PR-creation gate where squash-to-one-commit and dual-trailer placement occur.
+    exposed_interface:
+      - pr-creation.md — entry gate for PR creation.
+      - review-prep.md — review preparation step gating PR readiness.
+      - squash-push.md — the squash step that produces a single squashed commit.
+      - enforcement-gate.md — enforced consistency gate for canonical rules.
+    consumers:
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/guidelines/000-critical-rules.md
+
+  - module: finishing-a-development-branch
+    role: Final gate that verifies branch readiness before PR submission; must reference the canonical rule.
+    exposed_interface:
+      - checklist.md — final verification checklist.
+      - prepare.md — branch preparation before PR.
+    consumers:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+
+  - module: git-workflow-branch
+    role: Operating protocol for branch lifecycle; states acceptable commit count during dev.
+    exposed_interface:
+      - operating-protocol.md — branch operating protocol.
+    consumers:
+      - .opencode/guidelines/115-branch-naming.md
+
+  - module: guidelines
+    role: Top-level rules that agents consume globally; source of the commit-count/commit-width rules.
+    exposed_interface:
+      - .guidelines/commit-workflow.md — commit workflow guideline (contradictory source).
+      - guidelines/000-critical-rules.md — critical-rules commit-count rule.
+      - guidelines/115-branch-naming.md — branch naming / commit-per-issue rule.
+    consumers:
+      - .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+
+  - module: writing-plans-reference
+    role: Reference documentation for the implementation workflow; aligned source stating no trailers during implementation.
+    exposed_interface:
+      - reference/implementation-workflow.md — reference doc describing implementation workflow.
+    consumers:
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+
+dependency_contract:
+  version: 1
+  scope: Reconcile commit co-author trailer and squash-to-one-commit rules across the .opencode skill deck.
+  nodes:
+    - id: guidelines/commit-workflow.md
+      role: contradictory_source
+      constraint: MUST state no co-author trailers on implementation/WIP commits; MUST state dual (AI + human) trailers on the squashed commit.
+      type: enum(TRAILERS_ON_WIP, NO_TRAILERS_ON_WIP)
+      target: NO_TRAILERS_ON_WIP
+    - id: git-workflow-commit/tasks/commit-prep.md
+      role: contradictory_source
+      constraint: MUST state no co-author trailers on implementation/WIP commits; MUST state dual (AI + human) trailers on the squashed commit.
+      type: enum(TRAILERS_ON_WIP, NO_TRAILERS_ON_WIP)
+      target: NO_TRAILERS_ON_WIP
+    - id: git-workflow-commit/tasks/implementation.md
+      role: aligned_source_and_commit_count
+      constraint: MUST state no trailers during implementation; MUST state multiple WIP commits during dev acceptable; MUST state squash to one commit per issue at PR.
+      type: enum(ONE_COMMIT_PER_ISSUE, MULTIPLE_WIP_COMMITS)
+      target: MULTIPLE_WIP_COMMITS
+    - id: writing-plans/reference/implementation-workflow.md
+      role: aligned_source
+      constraint: MUST state no co-author trailers on implementation/WIP commits.
+      type: enum(TRAILERS_ON_WIP, NO_TRAILERS_ON_WIP)
+      target: NO_TRAILERS_ON_WIP
+    - id: guidelines/000-critical-rules.md
+      role: commit_count_source
+      constraint: MUST state multiple WIP commits during dev acceptable; MUST state squash to exactly one commit per issue at PR creation.
+      type: enum(ONE_COMMIT_PER_ISSUE, MULTIPLE_WIP_COMMITS)
+      target: MULTIPLE_WIP_COMMITS
+    - id: git-workflow-commit/SKILL.md
+      role: commit_count_source
+      constraint: MUST state multiple WIP commits during dev acceptable; MUST state squash to one commit per issue at PR.
+      type: enum(ONE_COMMIT_PER_ISSUE, MULTIPLE_WIP_COMMITS)
+      target: MULTIPLE_WIP_COMMITS
+    - id: git-workflow-pr/tasks/pr-creation.md
+      role: canonical_rule_gate
+      constraint: MUST state exactly one squashed commit per issue with dual co-author trailers; MUST preserve stacked-PR organization.
+      type: enum(ONE_SQUASHED_COMMIT_PER_ISSUE, MULTIPLE_COMMITS_PER_ISSUE)
+      target: ONE_SQUASHED_COMMIT_PER_ISSUE
+    - id: git-workflow-pr/tasks/review-prep.md
+      role: commit_count_source
+      constraint: MUST state squash to one commit per issue at PR creation.
+      type: enum(ONE_COMMIT_PER_ISSUE, MULTIPLE_COMMITS_PER_ISSUE)
+      target: ONE_COMMIT_PER_ISSUE
+    - id: git-workflow-pr/tasks/pr-creation/squash-push.md
+      role: canonical_rule_gate
+      constraint: MUST state squash at PR creation producing one committed per issue carrying dual co-author trailers.
+      type: enum(MULTIPLE_TRAILERS, DUAL_TRAILERS_ON_SQUASH)
+      target: DUAL_TRAILERS_ON_SQUASH
+    - id: git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      role: canonical_rule_gate
+      constraint: MUST state the canonical rule (one squashed commit per issue, dual trailers) consistently.
+      type: enum(NOT_ENFORCED, ENFORCES_CANONICAL)
+      target: ENFORCES_CANONICAL
+    - id: finishing-a-development-branch/tasks/checklist.md
+      role: canonical_rule_finishing_gate
+      constraint: MUST state the canonical rule (one squashed commit, dual trailers) consistently.
+      type: enum(NOT_STATED, CONSISTENT)
+      target: CONSISTENT
+    - id: finishing-a-development-branch/tasks/prepare.md
+      role: canonical_rule_finishing_gate
+      constraint: MUST state the canonical rule consistently.
+      type: enum(NOT_STATED, CONSISTENT)
+      target: CONSISTENT
+    - id: git-workflow-branch/tasks/operating-protocol.md
+      role: commit_count_source
+      constraint: MUST state multiple WIP commits during dev acceptable.
+      type: enum(ONE_COMMIT_PER_ISSUE, MULTIPLE_WIP_COMMITS)
+      target: MULTIPLE_WIP_COMMITS
+    - id: guidelines/115-branch-naming.md
+      role: commit_count_source
+      constraint: MUST state one squashed commit per issue.
+      type: enum(MULTIPLE_COMMITS_PER_ISSUE, ONE_SQUASHED_COMMIT_PER_ISSUE)
+      target: ONE_SQUASHED_COMMIT_PER_ISSUE
+
+  edges:
+    - from_phase: 1
+      to_phase: 3
+      kind: dependency
+      source: "trailer reconciliation (SC-1a, SC-1b)"
+    - from_phase: 2
+      to_phase: 3
+      kind: dependency
+      source: "commit-count reconciliation (SC-2a, SC-2b)"
+    - from_phase: 1
+      to_phase: 2
+      kind: parallel
+      source: "independent concerns; may run in parallel"
+
+  global_invariants:
+    - id: STACKED_PR_PRESERVED
+      constraint: The stacked-PR organization rule (one branch, N commits, one PR) MUST be preserved unchanged. This rule is orthogonal and excluded from reconciliation. See critical-rules-PR-ORG.
+    - id: SCOPE_CONFINEMENT
+      constraint: Changes are confined to the .opencode skill deck. No application source code is touched.
+    - id: STATE_TRANSITION_ORDER
+      constraint: Commit lifecycle follows implementation-commit (no trailers) -> squashed-commit (dual trailers) -> merged-commit (dual trailers preserved). Transition trigger is PR creation (squash-push).
+
+phase_order:
+  - phase: 1
+    scs: [SC-1a, SC-1b]
+    depends_on: []
+  - phase: 2
+    scs: [SC-2a, SC-2b]
+    depends_on: []
+  - phase: 3
+    scs: [SC-3a, SC-3b]
+    depends_on: [phase 1, phase 2]

@@ -1,0 +1,77 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: State transitions required by each success criterion over the commit lifecycle.
+
+state_machine:
+  states:
+    - id: implementation-commit
+      description: Intermediate WIP commit made during development.
+      co_author_trailers: NONE
+      commit_count: MULTIPLE (one or more WIP commits per issue during dev)
+    - id: squashed-commit
+      description: Single commit produced by squash at PR creation.
+      co_author_trailers: DUAL (AI + human)
+      commit_count: ONE per issue
+    - id: merged-commit
+      description: Commit merged to the trunk after PR merge.
+      co_author_trailers: DUAL (preserved from squashed commit)
+      commit_count: ONE per issue
+
+  transitions:
+    - from: implementation-commit
+      to: squashed-commit
+      trigger: PR creation (squash-push task)
+      scs_satisfied: [SC-2b, SC-2a]
+      action: Squash all WIP commits for the issue into exactly one commit; append dual co-author trailers (AI + human).
+    - from: squashed-commit
+      to: merged-commit
+      trigger: PR merge
+      scs_satisfied: [SC-1b, SC-3b]
+      action: Preserve dual co-author trailers and single-commit structure through merge.
+    - from: implementation-commit
+      to: implementation-commit
+      trigger: additional development commit
+      scs_satisfied: [SC-2a]
+      action: Add another WIP commit with no co-author trailers; permitted multiple times during dev.
+
+sc_state_requirements:
+  SC-1a:
+    description: implementation-commit state MUST carry zero co-author trailers.
+    required_state: implementation-commit
+    trailer_constraint: NONE
+  SC-1b:
+    description: squashed-commit state MUST carry dual (AI + human) co-author trailers.
+    required_state: squashed-commit
+    trailer_constraint: DUAL
+  SC-2a:
+    description: Implementation phase MUST permit multiple WIP commits (state may be entered repeatedly).
+    required_state: implementation-commit
+    commit_count_constraint: MULTIPLE (unbounded during dev)
+  SC-2b:
+    description: Squash transition MUST occur at PR creation, producing exactly one commit per issue.
+    required_transition: implementation-commit -> squashed-commit
+    commit_count_constraint: ONE per issue at PR
+  SC-3a:
+    description: Canonical rule (one squashed commit per issue) MUST be consistent across gates; every gate must reference the same squashed-commit target.
+    required_state: squashed-commit
+    commit_count_constraint: ONE across all gates
+  SC-3b:
+    description: Canonical rule (dual trailers on squashed commit) MUST be consistent across gates.
+    required_state: squashed-commit
+    trailer_constraint: DUAL across all gates
+
+edge_case_states:
+  - input: single-commit branch
+    result: Squash resolves to exactly one commit (already one); dual trailers applied.
+  - input: multi-commit branch
+    result: Squash collapses to exactly one commit; dual trailers applied.
+  - input: empty commit message
+    result: Still resolves to exactly one squashed commit per issue; dual trailers applied.
+  - failure_mode: If a source still requires trailers on implementation commits after reconciliation, the behavioral test SHALL fail, surfacing the residual contradiction.
+
+concurrency:
+  - phase: 1
+    parallel_with: [phase 2]
+    note: Phases 1 and 2 are independent and may run in parallel.
+  - phase: 3
+    depends_on: [phase 1, phase 2]
+    note: Phase 3 depends on both prior phases.

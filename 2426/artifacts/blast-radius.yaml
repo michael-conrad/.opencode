@@ -1,0 +1,65 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: Affected files extracted from the spec documentation sources, each verified to exist in the codebase.
+scope_boundary: Changes are confined to the .opencode skill deck (guidelines, skill task files, reference files). No application source code is touched. The stacked-PR organization rule is deliberately excluded from scope.
+
+affected_files:
+  contradictory_sources:
+    - path: .opencode/.guidelines/commit-workflow.md
+      status: EXISTS
+      role: Contradictory source requiring co-author trailers on every implementation commit; SHALL be reconciled to no-trailers-on-WIP.
+    - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+      status: EXISTS
+      role: Contradictory source requiring two co-author trailers on every implementation commit; SHALL be reconciled.
+    - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+      status: EXISTS
+      role: Aligned source (no trailers during implementation, added at squash); referenced in spec as the intended behavior model.
+    - path: .opencode/skills/writing-plans/reference/implementation-workflow.md
+      status: EXISTS
+      role: Aligned source (no trailers during implementation); reference file documenting implementation workflow.
+
+  commit_count_sources:
+    - path: .opencode/guidelines/000-critical-rules.md
+      status: EXISTS
+      role: Commit-count source stating one commit per issue; SHALL be reconciled to permit multiple WIP commits during dev, one squashed commit per issue.
+    - path: .opencode/skills/git-workflow-commit/SKILL.md
+      status: EXISTS
+      role: Commit-count source; SHALL state multiple WIP commits during dev acceptable.
+    - path: .opencode/skills/git-workflow-pr/tasks/review-prep.md
+      status: EXISTS
+      role: Commit-count source; SHALL state squash-to-one at PR creation.
+    - path: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      status: EXISTS
+      role: Commit-count source; SHALL state multiple WIP commits during dev acceptable.
+    - path: .opencode/guidelines/115-branch-naming.md
+      status: EXISTS
+      role: Commit-count source; SHALL state one squashed commit per issue.
+
+  canonical_rule_gates (PR/squash/enforcement/finishing gates):
+    - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      status: EXISTS
+      role: Canonical-aligned gate; SHALL state exactly one squashed commit per issue with dual co-author trailers.
+    - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      status: EXISTS
+      role: Canonical-aligned gate; SHALL state squash happens at PR creation with dual trailers.
+    - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      status: EXISTS
+      role: Canonical-aligned gate; SHALL state consistent canonical rule.
+    - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      status: EXISTS
+      role: Canonical-aligned finishing gate; SHALL state consistent canonical rule.
+    - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+      status: EXISTS
+      role: Canonical-aligned finishing gate; SHALL state consistent canonical rule.
+
+  behavioral_tests_to_create:
+    - path: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+      status: MISSING
+      role: RED behavioral test for SC-1a/SC-1b; must be created as a RED deliverable.
+    - path: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+      status: MISSING
+      role: RED behavioral test for SC-2a/SC-2b; must be created as a RED deliverable.
+    - path: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+      status: MISSING
+      role: RED behavioral test for SC-3a/SC-3b; must be created as a RED deliverable.
+
+verification: All 14 affected source files verified to exist via ls on 2026-08-31. The 3 behavioral test files do not yet exist and are the RED deliverables of the implementation plan.

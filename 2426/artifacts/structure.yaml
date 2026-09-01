@@ -1,0 +1,101 @@
+spec_path: .opencode/.issues/2426/spec.md
+sc_count: 6
+scope: Reconcile commit co-author trailer and squash-to-one-commit rules across the .opencode skill deck.
+
+phases:
+  - phase: 1
+    title: Reconcile co-author trailer placement on implementation vs squashed commits
+    scs: [SC-1a, SC-1b]
+    items:
+      - item: 1
+        sc: SC-1a
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+      - item: 1
+        sc: SC-1b
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+    skill_task_selection:
+      - skill: test-driven-development
+        tasks: [red, green]
+      - skill: verification-before-completion
+        tasks: [verify]
+    behavioral_evidence: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+
+  - phase: 2
+    title: Reconcile commit-count rule (multiple WIP commits acceptable, squash at PR)
+    scs: [SC-2a, SC-2b]
+    items:
+      - item: 2
+        sc: SC-2a
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+      - item: 2
+        sc: SC-2b
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+    skill_task_selection:
+      - skill: test-driven-development
+        tasks: [red, green]
+      - skill: verification-before-completion
+        tasks: [verify]
+    behavioral_evidence: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+
+  - phase: 3
+    title: Establish canonical rule (one squashed commit per issue with dual trailers) consistently across gates
+    scs: [SC-3a, SC-3b]
+    items:
+      - item: 3
+        sc: SC-3a
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+      - item: 3
+        sc: SC-3b
+        evidence_type: behavioral
+        red: task(..., prompt: "execute red task from test-driven-development")
+        green: task(..., prompt: "execute green task from test-driven-development")
+        verify: task(..., prompt: "execute verify task from verification-before-completion")
+        commit: orchestrator-inline
+    skill_task_selection:
+      - skill: test-driven-development
+        tasks: [red, green]
+      - skill: verification-before-completion
+        tasks: [verify]
+    behavioral_evidence: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+
+dependency_dag:
+  edges:
+    - from_phase: 1
+      to_phase: 3
+      kind: dependency
+      source: "trailer reconciliation (SC-1a, SC-1b)"
+    - from_phase: 2
+      to_phase: 3
+      kind: dependency
+      source: "commit-count reconciliation (SC-2a, SC-2b)"
+    - from_phase: 1
+      to_phase: 2
+      kind: parallel
+      source: "independent concerns; may run in parallel"
+
+triplet_co_location: verified
+cross_phase_dependency: verified
+
+# Phase 1 depends on no prior phase; Phase 2 depends on no prior phase (parallel to Phase 1);
+# Phase 3 depends on Phase 1 and Phase 2. RED tests in each phase only reference deliverables
+# committed within that same phase, so no cross-phase dependency on uncommitted output exists.

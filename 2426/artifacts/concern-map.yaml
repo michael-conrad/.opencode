@@ -1,0 +1,76 @@
+spec_path: .opencode/.issues/2426/spec.md
+description: Decomposition of success criteria into concern groups, each mapped to a phase boundary and plan item.
+
+concern_groups:
+  - id: C1
+    name: Co-author trailer placement on commits
+    description: Whether implementation/WIP commits carry co-author trailers and whether the final squashed commit requires dual (AI + human) trailers.
+    scs:
+      - SC-1a
+      - SC-1b
+    phases:
+      - phase: 1
+        plan_item: 1
+    affected_files:
+      - .opencode/.guidelines/commit-workflow.md
+      - .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/writing-plans/reference/implementation-workflow.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-trailer-placement.sh
+
+  - id: C2
+    name: Commit count and squash timing
+    description: Whether multiple WIP commits during development are acceptable and whether squash to exactly one commit per issue occurs at PR creation.
+    scs:
+      - SC-2a
+      - SC-2b
+    phases:
+      - phase: 2
+        plan_item: 2
+    affected_files:
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/skills/git-workflow-commit/tasks/implementation.md
+      - .opencode/skills/git-workflow-commit/SKILL.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/review-prep.md
+      - .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+      - .opencode/guidelines/115-branch-naming.md
+    behavioral_test: .opencode/tests-v2/behaviors/commit-count-squash-timing.sh
+
+  - id: C3
+    name: Canonical rule consistency across gates
+    description: The canonical rule (one squashed commit per issue with dual co-author trailers) stated consistently across PR/squash/enforcement/finishing gates.
+    scs:
+      - SC-3a
+      - SC-3b
+    phases:
+      - phase: 3
+        plan_item: 3
+    depends_on:
+      - C1
+      - C2
+    affected_files:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      - .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+      - .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    behavioral_test: .opencode/tests-v2/behaviors/squash-dual-trailer.sh
+
+phase_dependencies:
+  - phase: 1
+    description: Reconcile co-author trailer requirement on implementation commits (SC-1a, SC-1b).
+    depends_on: []
+    parallelizable_with:
+      - phase: 2
+  - phase: 2
+    description: Reconcile commit-count rule (SC-2a, SC-2b).
+    depends_on: []
+    parallelizable_with:
+      - phase: 1
+  - phase: 3
+    description: Establish canonical rule consistency across gates (SC-3a, SC-3b).
+    depends_on:
+      - phase: 1
+      - phase: 2

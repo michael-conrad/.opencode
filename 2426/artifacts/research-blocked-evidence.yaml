@@ -1,0 +1,32 @@
+status: BLOCKED
+blocker_reason: DEPENDENCY_CONTRACT_NOT_FOUND
+task: research
+issue_number: 2426
+issues_prefix: .opencode/.issues
+blocked_at_step: 9
+missing_artifacts:
+  - interface-compatibility.yaml
+  - state-analysis.yaml
+  - blast-radius.yaml
+  - concern-map.yaml
+  - code-path-inventory.yaml
+  - cross-cutting-matrix.yaml
+  - testability-assessment.yaml
+present_artifacts:
+  - analysis-summary.yaml
+  - sc-summary.yaml
+  - spec.md
+analysis_summary_artifact_presence:
+  blast-radius.yaml: MISSING
+  concern-map.yaml: MISSING
+  code-path-inventory.yaml: MISSING
+  cross-cutting-matrix.yaml: MISSING
+  interface-compatibility.yaml: MISSING
+  state-analysis.yaml: MISSING
+  testability-assessment.yaml: MISSING
+note: >
+  The research task requires interface-compatibility.yaml to generate the dependency
+  contract (step 9) and state-analysis.yaml for the solve check (step 11). Both are
+  missing. Per task step 9, a missing interface-compatibility.yaml mandates returning
+  BLOCKED with DEPENDENCY_CONTRACT_NOT_FOUND. The analytical artifact gate must be
+  satisfied (via writing-plans backfill) before research can proceed.
