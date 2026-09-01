@@ -1,0 +1,43 @@
+testability_assessment:
+  summary: >
+    The change is primarily agent-facing behavior (how the finishing checklist classifies and remediates
+    trailer/byline absence). SC-2, SC-3, and SC-4 alter runtime agent behavior (classification, force-push
+    decision, scope guard) and therefore require behavioral enforcement tests in tests-v2/behaviors/. SC-1
+    classification change is also behavioral (it changes what the agent does at runtime).
+  phases:
+    SC-1:
+      strategy: behavioral
+      test: >
+        New behavioral enforcement scenario that sends a finishing-checklist prompt on an agent-owned feature
+        branch missing co-author trailers, and asserts via stderr that the agent auto-remediates rather than
+        surfacing a force-push authorization decision to the developer. Follow the stderr-based assertion
+        pattern (assert agent does NOT solicit developer / DOES initiate agent-owned remediation).
+      pattern: finish-checklist-trailer-agent-own-remediation
+    SC-2:
+      strategy: behavioral
+      test: >
+        Scenario asserting the agent adds trailers to its own commits and force-pushes with --force-with-lease
+        without soliciting developer force-push authorization. Assert stderr shows the amendment/force-push,
+        and does NOT show a developer authorization question.
+      pattern: finish-trailer-auto-remediation-no-solicitation
+    SC-3:
+      strategy: behavioral
+      test: >
+        Scenario asserting the producing agent auto-fixes missing 'Co-authored with AI:' footer bylines in new
+        files rather than blocking/escalating. Assert stderr shows the byline being added, existing byline
+        preserved.
+      pattern: finish-footer-byline-auto-fix
+    SC-4:
+      strategy: behavioral + structural
+      test: >
+        Behavioral: scenario asserting the auto-force-push guard refuses when the branch is shared, merged, or
+        the trunk, and defers to the generic force-push authorization gate (does NOT auto-force-push).
+        Structural: static check that the checklist remediation procedure documents the agent-own-branch scope
+        guard.
+      pattern: finish-forcepush-scope-guard
+  unit_test: Not applicable — no application source code; change is markdown + enforcement tests.
+  integration_test: Not applicable — no runtime integration surface beyond the skill deck behavior covered by
+    behavioral scenarios.
+  note: >
+    Behavioral enforcement tests MUST run via 'opencode run' against real AI models per the test-integrity
+    mandate; structural evidence alone is EVIDENCE_TYPE_MISMATCH for these runtime-behavioral changes.

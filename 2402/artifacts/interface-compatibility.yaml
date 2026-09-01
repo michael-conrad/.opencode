@@ -1,0 +1,66 @@
+interface_compatibility:
+  summary: >
+    The change modifies agent-facing skill deck markdown only; no application-level API or artifact schema
+    changes. The co-author trailer format and the new-file footer byline format are unchanged. The analysis
+    records the dependency contract between the finishing checklist (consumer) and the git squash/PR pipeline
+    (producer of trailers) that the remediation reuses.
+  interfaces:
+    - name: finishing-checklist-trailer-verdict
+      status: modified
+      kind: agent-behavior contract (markdown)
+      backward_compatible: true
+      breaking: false
+      description: >
+        The checklist's classification of missing trailers on an agent-own branch changes from
+        decision-requiring blocker to auto-fixable MISSING-ELEMENT. The check remains present and mandatory.
+    - name: finishing-checklist-remediation-procedure
+      status: new
+      kind: agent-instruction (markdown)
+      backward_compatible: true
+      breaking: false
+      description: >
+        New remediation procedure block added to checklist.md and prepare.md describing agent-owned trailer
+        amendment + force-with-lease push on the agent's own unmerged branch.
+    - name: co-author-trailer-schema
+      status: unchanged
+      kind: artifact schema (commit trailer)
+      backward_compatible: true
+      breaking: false
+      description: >
+        'Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>' and human trailer formats remain
+        as defined by git-workflow-commit/commit-prep.md. The remediation reuses these formats.
+    - name: new-file-footer-byline-schema
+      status: unchanged
+      kind: artifact schema (file footer)
+      backward_compatible: true
+      breaking: false
+      description: >
+        'Co-authored with AI:' footer byline format per 080-code-standards.md remains mandatory and
+        unchanged; SC-3 only auto-fixes their presence.
+    - name: force-push-with-lease-invocation
+      status: reused-not-modified
+      kind: operation contract
+      backward_compatible: true
+      breaking: false
+      description: >
+        --force-with-lease usage established across the deck (squash-push.md, create-pr.md, review-prep.md,
+        rebase-pending.md) is reused by the remediation. No new force-push mechanism introduced.
+  removed_interfaces: []
+  breaking_changes: []
+  dependency_contract:
+    - source: finishing-checklist-remediation
+      target: pr-creation/squash-push (trailer application) and git-workflow-pr create-pr (force-push authority)
+      type: artifact schema
+      constraint: >
+        The checklist remediation may invoke the same trailer-add (git commit --trailer) and
+        --force-with-lease push that squash-push.md uses, and must respect the create-pr.md carve-out that
+        force-push is authorized only on an unmerged, unshared branch. Coupling: the finishing remediation
+        depends on the squash/PR pipeline's trailer semantics and force-push authority to avoid diverging
+        from what the final squash commit would produce.
+    - source: finishing-checklist-remediation
+      target: new-file-byline (080-code-standards)
+      type: artifact schema
+      constraint: >
+        When auto-fixing footer bylines in new files, the producing agent must preserve existing byline
+        entries (append, not overwrite) per 080-code-standards 'Preserve Existing Bylines' rule, to avoid
+        erasing a prior agent's attribution.

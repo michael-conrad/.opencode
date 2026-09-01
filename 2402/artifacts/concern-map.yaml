@@ -1,0 +1,21 @@
+concern_map:
+  concerns:
+    - name: Checklist classification of trailer/byline presence
+      path: skills/finishing-a-development-branch/tasks/checklist.md
+      phase: SC-1, SC-3
+    - name: Agent-owned trailer remediation procedure
+      path: skills/finishing-a-development-branch/tasks/checklist.md + prepare.md
+      phase: SC-2
+    - name: Agent-own-branch scope guard for force-push
+      path: skills/finishing-a-development-branch/tasks/checklist.md
+      phase: SC-4
+  separation:
+    - The classification concern (SC-1) is separate from the remediation procedure concern (SC-2) — one
+      changes how the checklist verdicts, the other adds the fix routine.
+    - The footer-byline concern (SC-3) is separate from commit-trailer concern (SC-1/SC-2) — bylines live in
+      file content, trailers live in commit metadata.
+    - The scope guard (SC-4) is a cross-cutting guard that constrains both SC-2 remediation and the carve-out.
+  boundary_rules:
+    - No changes to 080-code-standards attribution requirements (byline/trailer remain mandatory).
+    - No changes to generic force-push authorization gate (only agent-own unmerged branch carve-out).
+    - No changes to squash/PR pipeline trailer application.

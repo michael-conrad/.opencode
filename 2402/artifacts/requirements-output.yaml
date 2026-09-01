@@ -1,0 +1,72 @@
+requirements:
+  explicit:
+    - id: R1
+      text: The finishing-a-development-branch checklist MUST NOT classify missing Co-authored-by commit
+        trailers on an agent-created, unmerged feature branch as a decision-requiring readiness blocker
+        that surfaces a force-push authorization decision to the developer.
+      verified_against: .opencode/skills/finishing-a-development-branch/tasks/checklist.md line 29 and
+        the evidence in .opencode/tmp/2241-finishing-checklist-evidence.md lines 14-16,60.
+    - id: R2
+      text: Remediating repo-standard co-authored-by trailers on the agent's own unmerged feature branch
+        is an auto-fixable, agent-owned remediation; the agent must amend its own commits and force-push
+        its own feature branch without soliciting a developer force-push decision.
+      verified_against: .opencode/skills/finishing-a-development-branch/SKILL.md line 14 (remediation is
+        agent-owned); .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md line 341 (force-push
+        authorized on unmerged unshared branch).
+    - id: R3
+      text: Missing 'Co-authored with AI:' footer bylines in new files ARE correctly mandatory per
+        .opencode/guidelines/080-code-standards.md and MUST be auto-fixed by the producing agent (not
+        escalated as a blocker).
+      verified_against: .opencode/guidelines/080-code-standards.md AI Co-Authored Attribution section.
+    - id: R4
+      text: The checklist should auto-remediate commit trailers and file bylines on the agent's own branch
+        rather than classifying them as decision-requiring blockers.
+      verified_against: Issue #2402 problem statement; finishing SKILL.md line 14 agent-owned mandate.
+  implicit:
+    - id: I1
+      text: The force-push performed during agent-owned trailer remediation MUST use --force-with-lease
+        (the sanctioned force-push mechanism) and apply only to the agent's own branch that has not been
+        shared with other developers.
+      verified_against: create-pr.md line 341; squash-push.md lines 79; review-prep.md line 66.
+    - id: I2
+      text: Trailer auto-fix must not weaken or remove the mandatory co-author attribution checks; it must
+        ADD missing trailers rather than skip the check. The check remains mandatory (per 080-code-standards)
+        but resolves via remediation instead of developer escalation.
+      verified_against: 080-code-standards.md (trailers mandatory); finishing checklist line 29.
+    - id: I3
+      text: The auto-remediation applies ONLY to the agent's own, unmerged, agent-created feature branch.
+        It does NOT authorize modifying commits shared with other developers or on the trunk.
+      verified_against: create-pr.md line 341 carve-out scope; the issue's focus on 'agent-created, unmerged
+        feature branch'.
+    - id: I4
+      text: Implementation checkpoint commits legitimately lack trailers (trailers added at squash time); the
+        auto-remediation at finishing must produce the repo-standard trailers on the final commit state, either
+        by amending or by running the normal squash step, then force-push the agent's own branch.
+      verified_against: git-workflow-commit/implementation.md line 60.
+  constraints:
+    - id: C1
+      text: "git push --force generically requires explicit authorization (000-critical-rules.md lines
+        55/78); the agent-owned-branch trailing remediation is the carve-out, not a general force-push waiver."
+      verified_against: .opencode/guidelines/000-critical-rules.md.
+    - id: C2
+      text: Sub-agent/producing-agent boundaries per finishing SKILL.md line 20 — verification is dispatched to
+        independent verifiers, but remediation of the producing agent's own defects is agent-owned. The trailer
+        fix is a producing-agent remediation, not a verification re-dispatch.
+      verified_against: finishing-a-development-branch/SKILL.md.
+    - id: C3
+      text: Do NOT create sub-issues or link issues at branch-finishing time; the checklist scope is readiness
+        verification + auto-remediation only.
+      verified_against: checklist.md Sub-Issue Linkage Verification section.
+  non_requirements:
+    - id: N1
+      text: This is NOT a change to the co-author attribution requirements themselves (080-code-standards stays
+        in force). It changes only how the finishing checklist CLASSIFIES and REMEDIATES them.
+    - id: N2
+      text: This is NOT a general authorization for arbitrary history rewrite on any branch; it is scoped to the
+        agent's own unmerged feature branch trailer remediation.
+    - id: N3
+      text: This does NOT change the human-only merge rule or any other git authorization gate outside the
+        agent-own-branch trailer context.
+    - id: N4
+      text: This is NOT a change to implementation checkpoint commit policy (which still permits trailer-free
+        WIP commits); it clarifies finishing-time remediation.

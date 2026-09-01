@@ -1,0 +1,70 @@
+decomposition:
+  items:
+    - item_number: 1
+      sc_id: SC-1
+      description: >
+        Rewrite the finishing-a-development-branch checklist "Co-authored-by trailers present" item so that
+        missing trailers on the agent's own, unmerged, agent-created feature branch are classified as
+        MISSING-ELEMENT auto-fix (remediation) rather than a decision-requiring blocker that surfaces a
+        force-push authorization decision to the developer.
+      interface:
+        input: checklist.md checklist item + branch commit state (git log trailer scan)
+        output: checklist classifies trailer absence as auto-fixable on agent-own branch
+        invariants:
+          - Trailer check remains mandatory (080-code-standards not weakened)
+          - Auto-fix applies only to agent-created, unmerged branch (not shared commits, not trunk)
+        failure_modes:
+          - Still classifying trailer absence as developer-decision blocker
+          - Auto-fix applied to a shared or merged branch
+      verification_domain: structural + behavioral (enforcement test scenario)
+
+    - item_number: 2
+      sc_id: SC-2
+      description: >
+        Add an explicit remediation procedure to the checklist (and prepare task) describing agent-owned
+        trailer auto-fix: amend/squash the agent's own commits to add Co-authored-by trailers, then
+        force-push the agent's own branch with --force-with-lease, without soliciting a developer force-push
+        decision.
+      interface:
+        input: agent-own unmerged feature branch missing trailers
+        output: branch updated with trailers; force-push with --force-with-lease; no developer solicitation
+        invariants:
+          - Force-push uses --force-with-lease, never bare --force
+          - Scoped to agent's own unshared branch
+        failure_modes:
+          - Soliciting developer authorization for agent-own branch (the original defect)
+          - Using bare --force
+          - Altering shared/other-developer commits
+      verification_domain: behavioral (enforcement test scenario)
+
+    - item_number: 3
+      sc_id: SC-3
+      description: >
+        Ensure missing 'Co-authored with AI:' footer bylines in new files (mandatory per 080-code-standards)
+        are auto-fixed by the producing agent rather than escalated as a decision-requiring blocker.
+      interface:
+        input: new files lacking the AI co-authored footer byline
+        output: bylines added by producing agent; not escalated to developer
+        invariants:
+          - Byline remains mandatory (080-code-standards unchanged)
+          - Preserve existing bylines when editing (append, don't overwrite)
+        failure_modes:
+          - Escalating a mandatory-byline fix to developer as a blocker
+          - Removing/overwriting an existing byline
+      verification_domain: structural + behavioral
+
+    - item_number: 4
+      sc_id: SC-4
+      description: >
+        The auto-remediation MUST be scoped and guarded: it applies ONLY to the agent's own unmerged
+        feature branch. The checklist must include a guard that refuses auto-force-push when the branch is
+        shared, merged, or the trunk, deferring to the generic force-push authorization gate.
+      interface:
+        input: branch state determination (merged/shared/trunk vs agent-own unmerged feature branch)
+        output: guard prevents unauthorized force-push on non-agent-own branches
+        invariants:
+          - Generic force-push authorization gate (000-critical-rules) remains for non-own branches
+          - Carve-out precisely scoped
+        failure_modes:
+          - Auto-force-push on a shared or trunk branch (critical violation)
+      verification_domain: behavioral + structural

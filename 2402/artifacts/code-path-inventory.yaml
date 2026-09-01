@@ -1,0 +1,30 @@
+code_path_inventory:
+  summary: >
+    No application source code is touched. The change operates entirely on agent-facing skill deck markdown
+    (checklist.md, prepare.md) and a corresponding behavioral enforcement test. Code-path inventory therefore
+    enumerates the agent-facing decision paths each phase modifies.
+  phases:
+    SC-1:
+      paths:
+        - 'checklist.md "Co-authored-by trailers present" checklist item (line 29) → verdict classification'
+        - 'checklist.md Finding Classification table → add auto-fix row for trailer absence on agent-own branch'
+      agent_decision_path: finishing checklist runs trailer scan; verdict must route to auto-fix, not blocker.
+    SC-2:
+      paths:
+        - 'checklist.md remediation procedure block (new)'
+        - 'prepare.md Step 1 "Verify co-authored-by trailers are present" (line 74) → add remediation path'
+      agent_decision_path: on missing trailer, agent amends/squashes own commits + force-push --force-with-lease.
+    SC-3:
+      paths:
+        - 'checklist.md "AI co-authored attribution in new files" item → auto-fix missing footer bylines'
+        - 'prepare.md verification step for new-file bylines'
+      agent_decision_path: producing agent adds missing 'Co-authored with AI:' footer byline to new files.
+    SC-4:
+      paths:
+        - 'checklist.md agent-own branch scope guard in remediation procedure'
+      agent_decision_path: only force-push own unmerged branch; else defer to generic authorization gate.
+  unchanged:
+    - src/, test/, docs/ (no source code)
+    - git-workflow-commit (trailer format docs remain authority)
+    - git-workflow-pr (create-pr.md force-push authority reused, not modified)
+    - 080-code-standards.md (attribution requirement unchanged)

@@ -1,0 +1,47 @@
+state_analysis:
+  summary: >
+    The finishing checklist transitions a branch toward 'ready for PR' by verifying readiness items. The
+    defect is that missing co-author trailers pushed the branch into a 'blocked on developer force-push
+    decision' state instead of an 'agent-owned auto-remediation' state. The remediation changes this
+    transition to self-service.
+  states:
+    - name: branch_complete_but_trailer_missing
+      phase: SC-1, SC-2
+      current_transition:
+        from: branch_complete_but_trailer_missing
+        to: blocked_on_developer_force_push_decision  # THE DEFECT
+      target_transition:
+        from: branch_complete_but_trailer_missing
+        to: trailer_remediated_by_agent            # CORRECT
+      guard: branch is agent-created, unmerged, unshared feature branch (SC-4)
+      failure_mode: if branch is shared/merged/trunk, transition must go to generic authorization gate, not
+        agent-owned remediation.
+    - name: trailer_remediated_by_agent
+      phase: SC-2
+      transition:
+        from: branch_complete_but_trailer_missing
+        to: branch_ready_for_pr
+      actions:
+        - amend/squash agent-own commits to add Co-authored-by trailers (reusing squash-push trailer format)
+        - force-push --force-with-lease origin <branch>
+      invariants:
+        - --force-with-lease, never bare --force
+        - only agent's own unshared branch
+    - name: new_file_byline_missing
+      phase: SC-3
+      current_transition:
+        from: new_file_byline_missing
+        to: blocked_as_decision_requiring  # THE DEFECT (escalated)
+      target_transition:
+        from: new_file_byline_missing
+        to: byline_added_by_producing_agent      # CORRECT
+      guards:
+        - new file was produced by the agent
+        - preserve existing bylines (append)
+    - name: branch_ready_for_pr
+      phase: final
+      transition: all checklist items pass → PR readiness confirmed
+      note: trailers present and bylines present are preconditions for this state.
+  forbidden_states:
+    - blocked_on_developer_force_push_decision for an agent-created, unmerged feature branch (the defect)
+    - auto-force-pushed_shared_or_trunk_branch (scope guard violation per SC-4)

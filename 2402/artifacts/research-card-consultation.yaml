@@ -1,0 +1,22 @@
+consultation_result: |
+  No matching research cards found in .issues/research-cards/. Grep of all research cards for
+  'co-authored', 'co-author trailer', 'force-push', 'force push', 'amendment' returned no hits,
+  so no cached findings constrain or augment this analysis.
+
+research_cards_checked:
+  - .issues/research-cards/agent-config-path-rules.md
+  - .issues/research-cards/audit-skill-dimo-role-chain-defects.md
+  - .issues/research-cards/authorization-session-vs-workflow-state.md
+  - .issues/research-cards/cross-reference-lobotomization.md
+  - .issues/research-cards/dimo-same-model-auditor-divergence.md
+  - .issues/research-cards/for_analysis-scope-investigation.md
+  - .issues/research-cards/imperative-verb-forms-load-directives.md
+  - .issues/research-cards/microsoft-markdown-link-patterns.md
+  - .issues/research-cards/per-sc-decomposition-industry-standards.md
+  - .issues/research-cards/self-attribution-bias-independent-verification.md
+  - .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+  - .issues/research-cards/thinking-block-verification-checkpoint.md
+  - .issues/research-cards/writing-plans-flattening.md
+  - .issues/research-cards/writing-plans-skill-contradiction.md
+
+confidence_basis: direct filesystem grep, verified live in this session.

@@ -1,0 +1,99 @@
+finding_summary: |
+  The defect lives in the finishing-a-development-branch skill deck, specifically the checklist task's
+  handling of co-authored-by trailer checks. The checklist flags missing Co-authored-by commit trailers
+  as a readiness blocker, and related commit-prep/implementation docs note that a post-commit trailer fix
+  on an already-pushed feature branch 'requires history rewrite + force-push; needs developer authorization.'
+  This contradicts the agent-owned remediation mandate (finishing SKILL.md line 14) and the existing
+  force-push carve-out precedent in create-pr.md (line 341: force push authorized because the PR is not yet
+  merged and the branch has not been shared with other developers).
+
+affected_files:
+  - path: .opencode/skills/finishing-a-development-branch/tasks/checklist.md
+    role: primary_source_of_defect
+    findings:
+      - "checklist.md line 29: the 'Co-authored-by trailers present' item is a plain checklist item with no
+        auto-fix path. When trailers are absent, the agent treats it as a readiness blocker with no
+        remediation procedure."
+      - "The Live Verification table lists verification actions but contains no auto-remediation row for
+        missing trailers."
+      - "The Finding Classification table lists FAIL/auto-fix rows but nothing for co-authored-by trailer
+        absence on an agent-owned, unmerged feature branch."
+      - "checklist.md line 92 establishes the auto-fix-on-failure pattern (MISSING-ELEMENT auto-fix); the
+        trailer check should follow the same auto-fix model rather than blocker classification."
+
+  - path: .opencode/skills/finishing-a-development-branch/tasks/prepare.md
+    role: secondary_source_of_defect
+    findings:
+      - "prepare.md line 74: 'Verify co-authored-by trailers are present' has no remediation procedure. It
+        lists trailers as a verify step (Step 1) but does not specify what to do when they are absent on the
+        agent's own unmerged branch."
+
+  - path: .opencode/skills/git-workflow-commit/tasks/commit-prep.md
+    role: contributing_doc
+    findings:
+      - "commit-prep.md lines 103-138: documents the mandatory AI + human co-author trailer requirement for
+        implementation commits, providing the trailer format but not addressing remediation on already-created
+        commits."
+
+  - path: .opencode/skills/git-workflow-commit/tasks/implementation.md
+    role: contributing_doc
+    findings:
+      - "implementation.md line 60: 'No co-author trailers required during implementation commits - those are
+        added during squash at PR time.' Implementation checkpoint commits legitimately lack trailers; the
+        finishing checklist must not flag a missing trailer on a still-unmerged implementation branch as a
+        blocker when the trailer is only added at PR-squash."
+
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    role: remediation_target_reference
+    findings:
+      - "squash-push.md lines 50-56: squash commits add Co-authored-by trailers via git commit --trailer. This
+        is the legitimate point where trailers are applied. If the finishing checklist wants trailers present,
+        the auto-fix is to squash (or amend) the agent's own commits and force-push the agent's own branch."
+
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    role: authority_reference
+    findings:
+      - "create-pr.md line 341: establishes that force-push with --force-with-lease on an unmerged, unshared
+        branch is authorized. This is the precedent for agent-owned force-push during trailer remediation."
+
+  - path: .opencode/skills/finishing-a-development-branch/SKILL.md
+    role: mandate_reference
+    findings:
+      - "finishing SKILL.md line 14: 'Remediation of failed verification IS agent-owned — the producing agent
+        owns every defect in its output, and autonomous remediation is the default action before any escalation.'"
+      - "finishing SKILL.md line 20: persona states professional finishers dispatch to independent verifiers;
+        but remediation of the producing agent's own output defects is agent-owned, so trailer auto-fix should
+        not be escalated to a developer decision."
+
+  - path: .opencode/guidelines/080-code-standards.md
+    role: authority_reference
+    findings:
+      - "AI Co-Authored Attribution section requires 'Co-authored with AI:' footer bylines in new files and
+        Co-authored-by trailer presence. Confirms trailer/byline presence IS mandatory (not optional) — the
+        auto-fix must add them, not skip or weaken the check."
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    role: authority_reference
+    findings:
+      - "000-critical-rules.md lines 55/78: 'git push --force' always requires explicit authorization. This is
+        the tension point: generic force-push requires authorization, but the agent-owned-branch remediation
+        carve-out (create-pr.md line 341) resolves it for the agent's own unmerged branch. The checklist's
+        current behavior incorrectly applies the generic gate to the agent-own-branch case."
+
+  - path: .opencode/tmp/2241-finishing-checklist-evidence.md
+    role: behavioral_evidence_of_defect
+    findings:
+      - "2241-finishing-checklist-evidence.md lines 14-16, 60: concrete recorded instance where 36 commits on a
+        feature branch had absent Co-authored-by trailers, flagged as FLAG/blocker, with note that fix
+        'requires history rewrite + force-push; needs developer authorization'. This is the exact unnecessary
+        developer round-trip documented in the issue."
+
+conventions:
+  - "Co-author trailers are applied at squash time (git-workflow-commit/implementation.md line 60), not at
+    every implementation checkpoint commit."
+  - "New-file AI co-authored footer bylines are mandatory per 080-code-standards and are the producing
+    agent's responsibility."
+  - "Force-push with --force-with-lease is the sanctioned force-push mechanism throughout the deck
+    (squash-push.md, create-pr.md, review-prep.md, rebase-pending.md)."
+  - "Agent-owned remediation (finishing SKILL.md line 14) is the governing principle: the producing agent
+    fixes its own output defects autonomously before escalation."

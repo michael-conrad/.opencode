@@ -1,0 +1,41 @@
+blast_radius:
+  summary: >
+    The change is confined to the finishing-a-development-branch skill deck's checklist and prepare tasks,
+    plus the behavioral enforcement test for the new classification/remediation behavior. It relies on
+    pre-existing force-push carve-out authority from git-workflow-pr (create-pr.md) and the agent-owned
+    remediation mandate from 080-code-standards / finishing SKILL.md. It does NOT modify the attribution
+    requirements, the squash/PR pipeline, or generic git authorization gates.
+  per_phase:
+    SC-1 (checklist classification):
+      affected:
+        - skills/finishing-a-development-branch/tasks/checklist.md (co-authored-by trailers item, Finding
+          Classification table)
+      ripple_effects:
+        - Removes the erroneous 'needs developer authorization' framing surfaced to the developer.
+        - No downstream pipeline impact — classification change only.
+      out_of_scope_ripple: commit-prep.md / implement.md trailer format docs unchanged.
+    SC-2 (remediation procedure):
+      affected:
+        - skills/finishing-a-development-branch/tasks/checklist.md (add remediation procedure)
+        - skills/finishing-a-development-branch/tasks/prepare.md (remediation step for trailers)
+        - skills/finishing-a-development-branch/SKILL.md (may reference the auto-fix agent-owned rule in
+          existing line 14 language — likely already sufficient, minor reference if any)
+      ripple_effects:
+        - Agents running finishing on their own unmerged branch will self-remediate trailers instead of
+          halting for developer decision.
+        - Force-push-on-own-branch precedent already exists (create-pr.md line 341) so no new authority
+          surface is introduced.
+    SC-3 (footer byline auto-fix):
+      affected:
+        - skills/finishing-a-development-branch/tasks/checklist.md ('AI co-authored attribution in new
+          files' item)
+        - skills/finishing-a-development-branch/tasks/prepare.md (verification step for new-file bylines)
+      ripple_effects:
+        - Producing agent fixes missing footer bylines autonomously; byline requirement unchanged.
+    SC-4 (scope guard):
+      affected:
+        - skills/finishing-a-development-branch/tasks/checklist.md (guard for agent-own branch scope)
+      ripple_effects:
+        - Prevents the auto-force-push carve-out from leaking to shared/merged/trunk branches; preserves the
+          generic force-push authorization gate.
+  no_blast: src/, test/, docs/, other skills, guidelines (no rule change required — mandate already exists).
