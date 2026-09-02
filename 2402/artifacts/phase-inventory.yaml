@@ -1,0 +1,52 @@
+plan_schema_version: 1
+issue: 2402
+title: "finishing-a-development-branch checklist: agent-owned trailer/byline auto-remediation with scope guard"
+read_at: 2026-09-01T04:23:28Z
+phase_order:
+  - phase: 1
+    name: Trailer classification on agent-own branch
+    concern: trailer-classification
+    scs: [SC-1]
+    dependencies: []
+    steps: [1, 2, 3, 4]
+    dispatch: test-driven-development
+  - phase: 2
+    name: Agent-owned trailer remediation procedure
+    concern: trailer-remediation
+    scs: [SC-2]
+    dependencies: [Phase 1]
+    steps: [5, 6, 7, 8]
+    dispatch: test-driven-development
+  - phase: 3
+    name: Footer byline auto-fix
+    concern: footer-byline-autofix
+    scs: [SC-3]
+    dependencies: []  # parallel — independent of Phase 1/Phase 2
+    steps: [9, 10, 11, 12]
+    dispatch: test-driven-development
+  - phase: 4
+    name: Agent-own-branch scope guard
+    concern: scope-guard
+    scs: [SC-4, SC-5]
+    dependencies: [Phase 2]
+    steps: [13, 14, 15, 16, 17]
+    dispatch: test-driven-development
+dependency_order:
+  - Phase 1 (no deps)
+  - Phase 2 (depends on Phase 1)
+  - Phase 3 (no deps — parallel, independent)
+  - Phase 4 (depends on Phase 2)
+execution_sequence:
+  - Phase 1 -> Phase 2 -> Phase 4 (serial chain)
+  - Phase 3 (parallel, independent)
+pre_implementation_steps:
+  - Coherence gate (inline)
+  - Baseline check (inline)
+post_implementation_steps:
+  - Structural checks (finishing-a-development-branch)
+  - Verification (verification-before-completion)
+  - Audit (audit)
+  - Cross-validate (audit)
+  - Review prep (git-workflow-pr)
+  - Create PR (git-workflow-pr)
+  - Completion (completion-core)

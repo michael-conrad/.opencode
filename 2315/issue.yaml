@@ -1,46 +1,120 @@
 labels:
 - approved-for-pr
 - spec-cleared
-updated_at: '2026-09-02T03:01:25Z'
-body: |
-  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+updated_at: '2026-09-02T03:30:51+00:00'
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+
 
   ## Problem
 
-  The opencode agent has no default Retrieval-Augmented Generation (RAG) service for querying the locally-maintained corpus of non-tracked, copyright-sensitive reference and research documentation. It relies on live web search for verification and cannot retrieve grounded content from that corpus without leaking source material into the tracked repository. This spec registers the RAGSync MCP server (`jsbroks/ragsync-mcp`) as a default local stdio MCP service with local embeddings, per-source isolation, auto-sync, and a bounded indexing corpus scope.
+
+  The opencode agent has no default Retrieval-Augmented Generation (RAG) service for
+  querying the locally-maintained corpus of non-tracked, copyright-sensitive reference
+  and research documentation. It relies on live web search for verification and cannot
+  retrieve grounded content from that corpus without leaking source material into
+  the tracked repository. This spec registers the RAGSync MCP server (`jsbroks/ragsync-mcp`)
+  as a default local stdio MCP service with local embeddings, per-source isolation,
+  auto-sync, and a bounded indexing corpus scope.
+
 
   ## Scope
 
-  - Register RAGSync as a default MCP service in `.opencode/opencode.jsonc` with `type: local`, `stdio` transport, and `enabled: true`, following the existing `uvx` runner pattern (SC-1).
-  - Configure local embeddings via `fastembed` with a pinned default local model and a documented offline/cache path — no external embedding API dependency (SC-2).
-  - Enforce per-source isolation with exactly one config section per reference source corpus and isolated index namespaces, plus a documented review checklist enforcing isolation (SC-3, SC-4).
-  - Enable auto-sync so the index updates on source file changes without manual re-indexing (SC-5).
-  - Bound the indexing corpus scope to all files in the main repo plus every git submodule in its registered submodule list; git sub-repos that are not registered submodules are not indexed unless a special carveout is declared in the RAGSync config (SC-7, CON-8).
-  - Document service configuration, per-source layout, usage, offline/cache path, and validation in the `.opencode` skill/guideline tree (SC-6).
+
+  - Register RAGSync as a default MCP service in `.opencode/opencode.jsonc` with `type:
+  local`, `stdio` transport, and `enabled: true`, following the existing `uvx` runner
+  pattern (SC-1).
+
+  - Configure local embeddings via `fastembed` with a pinned default local model and
+  a documented offline/cache path — no external embedding API dependency (SC-2).
+
+  - Enforce per-source isolation with exactly one config section per reference source
+  corpus designated in §3.1 of the spec (two live-verified corpora: `opencode-agent-config`
+  over the main repo''s tracked agent-facing text; `.opencode-deck` over the `.opencode/`
+  submodule deck) and isolated index namespaces, plus a documented review checklist
+  enforcing isolation (SC-3, SC-4).
+
+  - Enable auto-sync so the index updates on source file changes without manual re-indexing
+  (SC-5).
+
+  - Bound the indexing corpus scope to all files in the main repo plus every git submodule
+  in its registered submodule list; git sub-repos that are not registered submodules
+  are not indexed unless a special carveout is declared in the RAGSync config (SC-7,
+  CON-8).
+
+  - Document service configuration, per-source layout, usage, offline/cache path,
+  and validation in the `.opencode` skill/guideline tree (SC-6).
+
 
   **Out of scope:**
 
-  - Ingesting or tracking the actual copyright-sensitive reference material in the repository — the source corpus remains non-tracked (CON-2); the spec only configures retrieval over it.
+
+  - Ingesting or tracking the actual copyright-sensitive reference material in the
+  repository — the source corpus remains non-tracked (CON-2); the spec only configures
+  retrieval over it.
+
   - Building a bespoke/custom RAG implementation — RAGSync is adopted as-is (CON-1).
+
   - Backfilling existing research cards or dictionaries into the RAG index (CON-3).
-  - Any changes to the root `snea-phonetics` repo's `.issues/` tree (CON-4), or modifying any existing MCP service (the-notebook-mcp, srclight, editor).
+
+  - Any changes to the root `snea-phonetics` repo''s `.issues/` tree (CON-4), or modifying
+  any existing MCP service (the-notebook-mcp, srclight, editor).
+
 
   ## Approach
 
-  Adopt the RAGSync MCP server as-is and register it declaratively as a default local stdio MCP service in the `.opencode/opencode.jsonc` `mcp` block, mirroring the existing local-service registration pattern. RAGSync is configured via a config file that declares source directories and the corpus scope, fastembed embedding settings with a pinned default model, auto-sync behavior, and per-source isolation with isolated index namespaces. Verification is behavioral for the runtime-behavioral criteria: launching opencode to confirm the service spawns and list its tools (SC-1), a network-monitored retrieval query through the fastembed local path (SC-2), a cross-source search asserting no leakage between corpus namespaces (SC-3), a source-file modification with index-freshness observation (SC-5), and runtime enumeration of indexed sources asserting main-repo and registered-submodule coverage with non-registered sub-repos excluded absent a carveout (SC-7). Prose deliverables — the isolation review checklist (SC-4) and the service documentation (SC-6) — are verified structurally by file existence and topic coverage in the `.opencode` tree.
+
+  Adopt the RAGSync MCP server as-is and register it declaratively as a default local
+  stdio MCP service in the `.opencode/opencode.jsonc` `mcp` block, mirroring the existing
+  local-service registration pattern. RAGSync is configured via a single YAML config
+  file whose `sources` list is the authoritative designation of the reference source
+  corpora (spec §3.1): two folder-type sources with gitignore-style include/exclude
+  globs restricted to agent-facing text, per-source vector-store collections as isolated
+  namespaces, fastembed with a pinned default local model, and auto-sync per source.
+  The corpus scope is bounded per CON-8 — main repo plus the registered `.opencode`
+  submodule — with the `.issues/` orphan-branch worktrees and other non-registered
+  git sub-repos excluded absent a declared carveout. Verification is behavioral for
+  the runtime-behavioral criteria: launching opencode to confirm the service spawns
+  and lists its tools (SC-1), a network-monitored retrieval query through the fastembed
+  local path (SC-2), a cross-source search asserting no leakage between corpus namespaces
+  (SC-3), a source-file modification with index-freshness observation (SC-5), and
+  runtime enumeration of indexed sources asserting coverage and exclusion (SC-7).
+  The isolation review checklist (SC-4) and the service documentation (SC-6) are verified
+  structurally with explicit topic-presence criteria in the `.opencode` tree.
+
 
   ## Impact
 
+
   **Top 3 risks:**
 
-  1. Service fails to spawn or the RAGSync config drifts from its registration — mitigated by co-located, validated config (CON-5) and runtime service-spawn verification with tool listing (SC-1).
-  2. Cross-source retrieval leakage of copyrighted material between corpora — mitigated by per-source isolation with isolated namespaces (CON-6, SC-3) and the documented isolation review checklist (SC-4).
-  3. Indexing corpus scope silently wrong — non-registered git sub-repos enter retrieval, or intended main-repo/submodule coverage is missing — mitigated by the CON-8 corpus-scope rule verified via runtime source enumeration (SC-7).
 
-  **Key dependencies:** `jsbroks/ragsync-mcp` (external MCP server, must be available and version-stable); `fastembed` (local embedding runtime; first-run model download mitigated by the pinned model and documented offline/cache path, CON-7).
+  1. Service fails to spawn or the RAGSync config drifts from its registration — mitigated
+  by co-located, validated config (CON-5) and runtime service-spawn verification with
+  tool listing (SC-1).
 
-  **Call to action:** Review the revised spec — this revision uplifts SC-1/SC-2/SC-3/SC-5 to behavioral evidence with executable runtime verification per the spec-audit remediation, and adds the corpus-scope constraint (CON-8/R-12/SC-7) per the 2026-09-01 developer directive. Full spec text and artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+  2. Cross-source retrieval leakage of copyrighted material between the §3.1-designated
+  corpora — mitigated by per-source isolation with isolated namespaces (CON-6, SC-3)
+  and the documented isolation review checklist (SC-4).
+
+  3. Indexing corpus scope silently wrong — non-registered git sub-repos enter retrieval,
+  or intended main-repo/submodule coverage is missing — mitigated by the CON-8 corpus-scope
+  rule verified via runtime source enumeration (SC-7).
+
+
+  **Key dependencies:** `jsbroks/ragsync-mcp` (external MCP server, must be available
+  and version-stable); `fastembed` (local embedding runtime; first-run model download
+  mitigated by the pinned model and documented offline/cache path, CON-7).
+
+
+  **Call to action:** Review the revised spec — this revision adds the §3.1 Reference
+  Source Corpus Designation (config-as-authority with two live-verified corpora),
+  resolving the validation FAIL on the previously undefined "reference source corpus"
+  concept, and states explicit topic-presence criteria for SC-4/SC-6. Full spec text
+  and artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+
 
   ---
+
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
-  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
