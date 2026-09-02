@@ -1,14 +1,14 @@
 # Dependency contract — issue #2315
 # Generated from interface-compatibility.yaml dependency_contract section.
-# Phase dependency: phase_2 (SC-6 documentation) depends on phase_1 (SC-1..SC-5 config).
+# Phase dependency: phase_2 (SC-6 documentation) depends on phase_1 (SC-1..SC-5, SC-7 config).
 
 variables:
   phase_1:
     type: bool
-    description: "Configuration and registration work (SC-1..SC-5): ragsync MCP registration, fastembed embeddings, per-source isolation, review checklist, auto-sync"
+    description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation, review checklist, auto-sync, bounded corpus scope"
   phase_2:
     type: bool
-    description: "Documentation work (SC-6): service config, per-source layout, usage, offline/cache path, validation step"
+    description: "Documentation work (SC-6): service config, per-source layout, corpus scope, usage, offline/cache path, validation step"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
 invariants: []
@@ -25,6 +25,7 @@ phases:
       - SC-3
       - SC-4
       - SC-5
+      - SC-7
   phase_2:
     files:
       - .opencode/skills/ or .opencode/guidelines/ (documentation)
@@ -33,6 +34,6 @@ phases:
 edges:
   - from: phase_1
     to: phase_2
-    rationale: "SC-6 documentation covers the service configuration, per-source layout, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place."
+    rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place."
 notes:
-  - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation)."
+  - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation), including the CON-8 corpus-scope declaration."

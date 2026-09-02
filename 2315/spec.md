@@ -6,12 +6,12 @@ labels:
 - needs-approval
 - spec-draft
 created: 2026-08-21T14:54:28Z
-updated: 2026-08-21T16:34:39Z
+updated: 2026-09-02T03:01:25Z
 remote_issue: 2315
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2315"
 promoted_at: 2026-08-23T21:00:00Z
 promotion_type: retroactive_import
-last_sync: 2026-08-23T21:00:00Z
+last_sync: 2026-09-02T03:01:25Z
 author: michael-conrad
 ---
 
@@ -21,12 +21,12 @@ author: michael-conrad
 
 | # | Field | Description |
 |---|-------|-------------|
-| 1 | **Problem Statement** | The opencode agent has no default Retrieval-Augmented Generation (RAG) service for querying a locally-maintained corpus of non-tracked, copyright-sensitive reference and research documentation. It relies on live web search for verification and cannot retrieve grounded content from that corpus without leaking source material into the tracked repository. |
-| 2 | **Root Cause / Motivation** | The `.opencode/opencode.jsonc` `mcp` block declares three local services (the-notebook-mcp, srclight, editor) but no RAG service. The agent needs a config-driven RAG backend that indexes a non-tracked corpus with auto-sync, local embeddings, and per-source isolation, while keeping the copyrighted source material out of the tracked tree. |
-| 3 | **Approach Chosen** | Adopt the RAGSync MCP server (`jsbroks/ragsync-mcp`) as-is and register it declaratively as a default local stdio MCP service in `.opencode/opencode.jsonc`, following the existing `type: local` / `stdio` / `uvx` pattern. RAGSync is configured via a config file that declares source directories, fastembed embedding settings, auto-sync behavior, and per-source isolation. |
+| 1 | **Problem Statement** | The opencode agent has no default Retrieval-Augmented Generation (RAG) service for querying the locally-maintained corpus of non-tracked, copyright-sensitive reference and research documentation. It relies on live web search for verification and cannot retrieve grounded content from that corpus without leaking source material into the tracked repository. |
+| 2 | **Root Cause / Motivation** | The `.opencode/opencode.jsonc` `mcp` block declares three local services (the-notebook-mcp, srclight, editor) but no RAG service. The agent needs a config-driven RAG backend that indexes a non-tracked corpus with auto-sync, local embeddings, per-source isolation, and a bounded indexing corpus scope, while keeping the copyrighted source material out of the tracked tree. |
+| 3 | **Approach Chosen** | Adopt the RAGSync MCP server (`jsbroks/ragsync-mcp`) as-is and register it declaratively as a default local stdio MCP service in `.opencode/opencode.jsonc`, following the existing `type: local` / `stdio` / `uvx` pattern. RAGSync is configured via a config file that declares source directories and the corpus scope, fastembed embedding settings with a pinned default model, auto-sync behavior, and per-source isolation with isolated index namespaces. |
 | 4 | **Alternatives Considered & Why Discarded** | Building a bespoke/custom RAG implementation was considered and rejected because it duplicates an existing, maintained tool and adds in-repo maintenance and security surface for no functional gain. The RAGSync server is adopted as-is per constraint CON-1. |
-| 5 | **Key Design Decisions** | (a) Register RAGSync as a default-on (`enabled: true`) local service so the agent gets RAG capability without per-session setup; tradeoff: one additional service loads at startup. (b) Use local embeddings via fastembed with a pinned default model; tradeoff: no external embedding API dependency at the cost of a first-run model download (mitigated by a documented offline/cache path). (c) Enforce per-source isolation with one config section per source; tradeoff: more config boilerplate in exchange for preventing cross-source retrieval leakage. |
-| 6 | **User Intent / Original Prompt** | Add RAGSync MCP as a default MCP service for opencode, configured with local embeddings, per-source isolation, auto-sync, and documentation in the `.opencode` skill/guideline tree. |
+| 5 | **Key Design Decisions** | (a) Register RAGSync as a default-on (`enabled: true`) local service so the agent gets RAG capability without per-session setup; tradeoff: one additional service loads at startup. (b) Use local embeddings via fastembed with a pinned default model; tradeoff: no external embedding API dependency at the cost of a first-run model download (mitigated by a documented offline/cache path). (c) Enforce per-source isolation with one config section per source; tradeoff: more config boilerplate in exchange for preventing cross-source retrieval leakage. (d) Bound the indexing corpus scope to the main repo plus its registered git submodules, excluding non-registered git sub-repos absent an explicit carveout; tradeoff: explicit scope enumeration in the config in exchange for preventing silently-indexed foreign git sub-repos. |
+| 6 | **User Intent / Original Prompt** | Add RAGSync MCP as a default MCP service for opencode, configured with local embeddings, per-source isolation, auto-sync, a bounded corpus scope (main repo + registered submodules only), and documentation in the `.opencode` skill/guideline tree. |
 
 ## 2. Not Included
 
@@ -35,6 +35,7 @@ author: michael-conrad
 - **Backfilling existing research cards or dictionaries into the RAG index** — no historical material is re-indexed (CON-3).
 - **Any changes to the root `snea-phonetics` repo's `.issues/` tree** — this spec is scoped to the `.opencode` repo (CON-4).
 - **Modifying any existing MCP service** (the-notebook-mcp, srclight, editor) — the change is purely additive.
+- **Indexing git sub-repos that are not registered submodules** — e.g., the `.issues/` orphan-branch worktrees at the root repo and under `.opencode/` are excluded from the index unless a special carveout is declared in the RAGSync config (CON-8).
 
 ## 3. Constraints
 
@@ -49,17 +50,19 @@ The following constraints bound the scope and approach of this spec. Each CON id
 | CON-5 | The RAGSync config and its opencode registration SHALL be co-located and validated to mitigate config drift. | Prevents the agent from loading a service pointing at stale configuration. |
 | CON-6 | Per-source isolation SHALL be enforced with exactly one config section per reference source corpus, with a review checklist. | Prevents cross-source retrieval leakage between corpora. |
 | CON-7 | The embedding model SHALL have a pinned default local model and a documented offline/cache path. | Mitigates first-run embedding model download failure. |
+| CON-8 | The indexing corpus scope SHALL cover all files in the main repo plus every git submodule in the main repo's registered submodule list (per `.gitmodules`). Git sub-repos that are not registered submodules — concretely, the `.issues/` orphan-branch worktrees at the root repo and under `.opencode/` — SHALL NOT be indexed unless a special carveout is declared in the RAGSync config. | Prevents silently-indexed foreign git sub-repos (orphan-branch worktrees with separate issue-tracking history) from entering retrieval, and guarantees intended main-repo and submodule coverage. Verified by repo inspection: `.gitmodules` registers exactly one submodule (`.opencode`); the root `.issues/` and `.opencode/.issues/` trees are orphan-branch git worktrees, not registered submodules. |
 
 ## 4. Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
-| SC-1 | RAGSync (`jsbroks/ragsync-mcp`) SHALL be registered as a default MCP service in `.opencode/opencode.jsonc` with `type: local`, `stdio` transport, and `enabled: true`. | structural | `opencode.jsonc` mcp block contains the `ragsync` service entry, parses as valid JSONC, and lists the service as enabled. | `.opencode/opencode.jsonc` (mcp block); existing service pattern |
-| SC-2 | RAGSync SHALL be configured to use local embeddings via `fastembed` with a pinned default local embedding model and no external embedding API dependency. | structural | RAGSync config references `fastembed` and a pinned default local model; no external embedding API endpoint is declared. | RAGSync config file; fastembed runtime |
-| SC-3 | Per-source isolation SHALL be configured with exactly one config section per reference source corpus, with isolated index namespaces. | structural | RAGSync config declares one section per source with isolated index namespaces. | RAGSync config file |
+| SC-1 | RAGSync (`jsbroks/ragsync-mcp`) SHALL be registered as a default MCP service in `.opencode/opencode.jsonc` with `type: local`, `stdio` transport, and `enabled: true`. | behavioral | Launch opencode and confirm the `ragsync` service spawns and lists its tools; confirm the `opencode.jsonc` mcp block contains the `ragsync` entry, parses as valid JSONC, and lists the service as enabled. | `.opencode/opencode.jsonc` (mcp block); existing service pattern; opencode runtime service-spawn behavior |
+| SC-2 | RAGSync SHALL be configured to use local embeddings via `fastembed` with a pinned default local embedding model and no external embedding API dependency. | behavioral | Run a network-monitored retrieval query through the fastembed local path and confirm no external embedding API call is made; confirm the config references `fastembed` and a pinned default local model. | RAGSync config file; fastembed runtime; network-monitor output |
+| SC-3 | Per-source isolation SHALL be configured with exactly one config section per reference source corpus, with isolated index namespaces. | behavioral | Run a cross-source search asserting no retrieval leakage between corpus namespaces; confirm the config declares one section per source with isolated index namespaces. | RAGSync config file; cross-source search output |
 | SC-4 | A review checklist SHALL be documented that enforces per-source isolation. | structural | A review checklist exists in the `.opencode` tree covering per-source isolation enforcement. | `.opencode/` skills/guidelines tree; review checklist |
-| SC-5 | Auto-sync SHALL be enabled so the index updates on source file changes without manual re-indexing. | structural | RAGSync config enables auto-sync for each declared source. | RAGSync config file; RAGSync sync behavior |
+| SC-5 | Auto-sync SHALL be enabled so the index updates on source file changes without manual re-indexing. | behavioral | Modify a source file, observe index freshness without manual re-indexing, and confirm the config enables auto-sync for each declared source. | RAGSync config file; RAGSync sync behavior; index-freshness observation |
 | SC-6 | The service configuration, per-source layout, usage, offline/cache path, and validation step SHALL be documented in the `.opencode` skill/guideline tree. | structural | A documentation file exists in the `.opencode` tree covering config, per-source layout, usage, offline/cache path, and validation. | `.opencode/` skills/guidelines tree |
+| SC-7 | The indexing corpus scope SHALL cover all files in the main repo plus every git submodule in the main repo's registered submodule list; git sub-repos that are not registered submodules SHALL NOT be indexed unless a special carveout is declared in the RAGSync config. | behavioral | Enumerate indexed sources at runtime and assert main-repo and registered-submodule coverage with non-registered sub-repos (e.g., the `.issues/` orphan-branch worktrees) excluded absent a carveout. | RAGSync config corpus scope; `.gitmodules` registered submodule list; runtime indexed-source enumeration |
 
 ## 5. Requirements
 
@@ -74,6 +77,7 @@ The following constraints bound the scope and approach of this spec. Each CON id
 - R-9. The RAGSync config and its opencode registration SHALL be co-located and validated to mitigate config drift.
 - R-10. The embedding model SHALL have a pinned default local model and a documented offline/cache path to mitigate first-run download failure.
 - R-11. A review checklist SHALL be documented in the `.opencode` tree that enforces per-source isolation.
+- R-12. The indexing corpus scope SHALL be bounded to all files in the main repo plus every git submodule in the main repo's registered submodule list (per `.gitmodules`); git sub-repos that are not registered submodules — concretely, the `.issues/` orphan-branch worktrees at the root repo and under `.opencode/` — SHALL NOT be indexed unless a special carveout is declared in the RAGSync config.
 
 ## 6. Items
 
@@ -81,21 +85,21 @@ The following constraints bound the scope and approach of this spec. Each CON id
 
 - RED: A check that the `ragsync` service entry is absent from the `.opencode/opencode.jsonc` mcp block fails (i.e., the entry does not yet exist).
 - GREEN: Add the `ragsync` service entry to `.opencode/opencode.jsonc` with `type: local`, `stdio` transport, and `enabled: true`.
-- verify: Confirm the config parses as valid JSONC and the `ragsync` service is listed and enabled in the mcp block.
+- verify: Launch opencode and confirm the `ragsync` service spawns and lists its tools; confirm the config parses as valid JSONC and the service is listed and enabled in the mcp block.
 - commit: `.opencode/opencode.jsonc` registration change.
 
 ### Item 2 (SC-2): Configure local embeddings via fastembed
 
 - RED: A check that RAGSync is configured with a pinned local fastembed model fails (no such configuration exists).
 - GREEN: Configure RAGSync to use fastembed with a pinned default local embedding model and no external API dependency.
-- verify: Confirm the RAGSync embedding configuration references fastembed and a pinned local model.
+- verify: Run a network-monitored retrieval query through the fastembed local path and confirm no external embedding API call is made; confirm the config references fastembed and a pinned local model.
 - commit: RAGSync embedding configuration.
 
 ### Item 3 (SC-3): Configure per-source isolation
 
 - RED: A check that per-source config sections exist fails (no isolation is declared).
 - GREEN: Declare one RAGSync config section per reference source corpus with isolated index namespaces.
-- verify: Confirm per-source config sections are present with isolated index namespaces.
+- verify: Run a cross-source search asserting no leakage between corpus namespaces; confirm per-source config sections are present with isolated index namespaces.
 - commit: RAGSync per-source isolation configuration.
 
 ### Item 4 (SC-4): Document the per-source isolation review checklist
@@ -109,7 +113,7 @@ The following constraints bound the scope and approach of this spec. Each CON id
 
 - RED: A check that auto-sync is enabled fails (it is not configured).
 - GREEN: Enable auto-sync for each declared source in the RAGSync config.
-- verify: Confirm auto-sync is enabled in the RAGSync config for each source.
+- verify: Modify a source file, observe index freshness without manual re-indexing, and confirm auto-sync is enabled in the RAGSync config for each source.
 - commit: RAGSync auto-sync configuration.
 
 ### Item 6 (SC-6): Document service configuration and usage
@@ -119,6 +123,13 @@ The following constraints bound the scope and approach of this spec. Each CON id
 - verify: Confirm the documentation file exists and covers the required topics.
 - commit: `.opencode/` documentation addition.
 
+### Item 7 (SC-7): Configure and verify the bounded corpus scope
+
+- RED: A check that the RAGSync config declares a corpus scope covering all main-repo files plus every registered submodule fails (no corpus scope is declared; non-registered sub-repos would be silently indexed by a naive file walk).
+- GREEN: Configure the RAGSync corpus scope to cover all files in the main repo plus every git submodule in the main repo's registered submodule list (per `.gitmodules`), excluding non-registered git sub-repos (the `.issues/` orphan-branch worktrees at the root repo and under `.opencode/`) unless a special carveout is declared in the RAGSync config.
+- verify: Enumerate indexed sources at runtime and assert main-repo and registered-submodule coverage with non-registered sub-repos excluded absent a carveout.
+- commit: RAGSync corpus-scope configuration.
+
 ## 7. Dependencies
 
 | Reference | Relationship | Status |
@@ -127,6 +138,7 @@ The following constraints bound the scope and approach of this spec. Each CON id
 | `fastembed` | Local embedding runtime; model downloaded on first run with offline/cache path mitigation. | Pending (external) |
 | opencode MCP local-server registration | Required capability; confirmed present in `.opencode/opencode.jsonc` mcp block. | Satisfied |
 | Existing MCP services (the-notebook-mcp, srclight, editor) | Unmodified; must continue to function alongside the new service. | Satisfied |
+| Main repo `.gitmodules` registered submodule list | Authoritative source for the CON-8 corpus scope; currently registers exactly one submodule (`.opencode`). | Satisfied (verified) |
 
 ## 8. Traceability
 
@@ -142,6 +154,7 @@ The following constraints bound the scope and approach of this spec. Each CON id
 | R-9 | SC-6 | Phase 2 |
 | R-10 | SC-2 | Phase 1 |
 | R-11 | SC-4 | Phase 1 |
+| R-12 | SC-7 | Phase 1 |
 
 ## 9. Documentation Sources
 
@@ -150,8 +163,9 @@ The following constraints bound the scope and approach of this spec. Each CON id
 | opencode MCP config | config | `.opencode/opencode.jsonc` (mcp block) | Read via config file inspection; existing service pattern confirmed |
 | RAGSync MCP server | code/external | `jsbroks/ragsync-mcp` | External tool; adopted as-is (CON-1) |
 | fastembed embedding runtime | code/external | fastembed | Local runtime; model pinned and offline/cache path documented (CON-7) |
-| RAGSync config | config | RAGSync config file (to be created) | Declared per-source layout and auto-sync |
+| RAGSync config | config | RAGSync config file (to be created) | Declared per-source layout, corpus scope, and auto-sync |
 | `.opencode` skill/guideline tree | doc | `.opencode/skills/` or `.opencode/guidelines/` | Documentation file exists covering config, layout, usage |
+| Main repo submodule list | config | `.gitmodules` (main repo root) | Verified 2026-09-01: registers exactly one submodule (`.opencode` → `michael-conrad/.opencode`); root `.issues/` and `.opencode/.issues/` are orphan-branch git worktrees, not registered submodules (CON-8) |
 
 ## 10. Enforcement Gate
 
@@ -161,12 +175,13 @@ The following constraints bound the scope and approach of this spec. Each CON id
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Verifying the `ragsync` service is registered and the config parses costs one config-inspection read. Skipping means a malformed or missing registration isn't caught until opencode fails to load the service at startup — a config defect discovered at runtime rather than design time.
-- SC-2: Verifying the fastembed configuration and pinned model costs one config-inspection read. Skipping means an external embedding API dependency or unpinned model ships, producing an undeclared network dependency and a first-run failure that is only discovered at first retrieval.
-- SC-3: Verifying per-source isolation sections costs one config-inspection read. Skipping means cross-source retrieval leakage ships unchecked — copyrighted material from one corpus leaking into another's retrieval results is a data-integrity and provenance defect discovered only in downstream queries.
+- SC-1: Verifying the `ragsync` service spawns and is registered costs one runtime launch with tool listing. Skipping means a malformed or missing registration isn't caught until opencode fails to load the service at startup — a config defect discovered at runtime rather than design time.
+- SC-2: Verifying the fastembed local path with network monitoring costs one instrumented retrieval query. Skipping means an external embedding API dependency or unpinned model ships, producing an undeclared network dependency and a first-run failure that is only discovered at first retrieval.
+- SC-3: Verifying per-source isolation with a cross-source search costs one instrumented query pair. Skipping means cross-source retrieval leakage ships unchecked — copyrighted material from one corpus leaking into another's retrieval results is a data-integrity and provenance defect discovered only in downstream queries.
 - SC-4: Verifying the per-source isolation review checklist exists costs one file read. Skipping means the isolation enforcement is undocumented, so a future operator cannot verify that cross-source leakage is prevented.
-- SC-5: Verifying auto-sync is enabled costs one config-inspection read. Skipping means a stale index ships, and the agent retrieves outdated content while believing it is current — a silent-correctness defect that surfaces as confidently-wrong answers.
+- SC-5: Verifying auto-sync via source-file modification and index-freshness observation costs one modification cycle. Skipping means a stale index ships, and the agent retrieves outdated content while believing it is current — a silent-correctness defect that surfaces as confidently-wrong answers.
 - SC-6: Verifying the documentation file exists and covers the required topics costs one file read. Skipping means the config and registration drift apart undetected (CON-5), and the offline/cache path is undocumented, so a first-run embedding download failure becomes an unrecoverable blocker for the next operator.
+- SC-7: Verifying the corpus scope via runtime indexed-source enumeration costs one enumeration pass. Skipping means the corpus scope is silently wrong — non-registered git sub-repos (the `.issues/` orphan-branch worktrees with their own issue-tracking content) enter retrieval, or intended main-repo/submodule coverage is missing — a provenance and data-integrity defect discovered only when retrieved content traces to an unintended source.
 
 ## 12. Edge Cases
 
@@ -176,6 +191,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure mode — cross-source isolation misconfigured:** If per-source isolation is misconfigured, retrieval SHALL NOT leak material between corpora. Resolution: enforce one config section per source and a review checklist (CON-6).
 - **State transition — config drift:** If the RAGSync config and the opencode registration diverge, the agent may load a service pointing at stale configuration. Resolution: co-locate and validate both, and document the validation step (CON-5).
 - **Concurrency — auto-sync during active retrieval:** If a source file changes while retrieval is in flight, RAGSync SHALL update the index without corrupting in-flight queries. Resolution: rely on RAGSync's auto-sync behavior; document that re-sync is non-destructive.
+- **Input boundary — naive file walk encounters non-registered git sub-repos:** A naive recursive walk of the main repo encounters the `.issues/` orphan-branch worktrees (root and under `.opencode/`), which are git sub-repos but not registered submodules. RAGSync SHALL NOT index them absent an explicit carveout in the RAGSync config. Resolution: declare the corpus scope explicitly (main repo + registered submodule list) and verify via runtime indexed-source enumeration (CON-8, SC-7).
+- **Failure mode — submodule list drift:** If the main repo registers a new submodule, the RAGSync corpus scope SHALL be updated to include it; coverage assertions in the SC-7 verification catch drift between `.gitmodules` and the declared corpus scope. Resolution: derive the corpus scope from the registered submodule list and re-verify on submodule changes (CON-8, SC-7).
 
 ## Change Control
 
@@ -185,6 +202,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-08-21 | Replaced exact line-number references "lines 101-136" with file-area references (`.opencode/opencode.jsonc` mcp block) in Intent field 2, SC-1 Documentation Sources, and Section 9. | Validation finding: exact line numbers violate spec-structure-standards.md "Prohibited Content Patterns"; file-area references required. | Spec-creation revision pipeline (validation remediation) |
 | 2026-08-21 | Decomposed SC-3 into two atomic SCs: SC-3 (one config section per source with isolated index namespaces) and SC-4 (review checklist enforcing isolation). Renumbered former SC-4/SC-5 to SC-5/SC-6 and updated Items, Traceability, and Cost Frame references accordingly. | Validation finding: Compound-SC detection FAIL on SC-3 — it bundled two independently verifiable claims (per-source config sections; review checklist). | Spec-creation revision pipeline (validation remediation) |
 | 2026-08-21 | Added requirement R-11 (review checklist enforcing per-source isolation) and mapped it to SC-4 in the Section 8 Traceability table. | Validation finding: Traceability FAIL — SC-4 was an orphan in the Section 8 Traceability table, tracing to no requirement (R-1..R-10). | Spec-creation revision pipeline (validation remediation) |
+| 2026-09-02 | Corpus-scope sync revision per 2026-09-01 developer directive: added CON-8 (bounded corpus scope = main repo + registered submodule list; non-registered git sub-repos — concretely the `.issues/` orphan-branch worktrees at root and under `.opencode/` — excluded absent a declared carveout), SC-7 with behavioral evidence (runtime indexed-source enumeration), R-12, Item 7 (per-SC RED/GREEN/verify/commit), Not-Included entry for non-registered sub-repos, Dependencies/Documentation-Sources rows for the `.gitmodules` submodule list, Traceability row R-12→SC-7 Phase 1, Cost Frame entry for SC-7, two Edge Cases (naive-walk encounter; submodule list drift), and behavioral uplift of SC-1/SC-2/SC-3/SC-5 (runtime service spawn + tool listing, network-monitored retrieval, cross-source leakage search, index-freshness observation) with corresponding Items 1/2/3/5 verify-step updates. | Spec-audit finding: the 2026-09-01 corpus-scope revision existed only as a condensed summary in the remote GitHub issue body; the authoritative local spec was missing the full success criterion text, definitions, behavioral uplift notes, Item 7, Traceability/Cost-Frame/Edge-Case entries, and the Change Control row. Revision restores full parity with the remote revision content. | Developer directive (2026-09-01 corpus-scope revision) applied via spec-creation revise task; audit finding per michael-conrad/.opencode#2315 spec audit |
 
 ---
 
