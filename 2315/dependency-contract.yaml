@@ -5,7 +5,7 @@
 variables:
   phase_1:
     type: bool
-    description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation, review checklist, auto-sync, bounded corpus scope"
+    description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation over the §3.1-designated corpora (opencode-agent-config, .opencode-deck), review checklist, auto-sync, bounded corpus scope"
   phase_2:
     type: bool
     description: "Documentation work (SC-6): service config, per-source layout, corpus scope, usage, offline/cache path, validation step"
@@ -37,3 +37,4 @@ edges:
     rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place."
 notes:
   - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation), including the CON-8 corpus-scope declaration."
+  - "Corpus designation authority is the RAGSync config sources list per spec §3.1: two designated corpora (opencode-agent-config over the main repo working tree; .opencode-deck over the .opencode submodule) with per-corpus include/exclude globs. Source sections outside the CON-8 surface are config defects caught by SC-7 verification."
