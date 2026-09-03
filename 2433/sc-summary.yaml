@@ -1,4 +1,4 @@
-sc_count: 17
+sc_count: 8
 scs:
   - id: "SC-1"
     description: "System prompt Sub-Agent Routing Boundary and Pre-Response Gate state Architecture B (orchestrator executes workflow steps directly; task() only at marked points); Architecture-A prose absent."
@@ -25,46 +25,10 @@ scs:
     evidence_type: "behavioral"
     plan_item: 6
   - id: "SC-7"
-    description: "Canonical plan format defines per-step dispatch mode (direct | task-card, default direct); writing-plans templates emit it; plan-format check verifies explicit modes."
+    description: "Canonical plan format defines per-step dispatch mode (direct | task-card, default direct); writing-plans templates emit it; every produced plan step carries an explicit mode."
     evidence_type: "behavioral"
     plan_item: 7
   - id: "SC-8"
     description: "Single canonical dispatch-vocabulary table in reference layer; directive-layer files (including .opencode/AGENTS.md dispatch directives) reference it via Read-link; system prompt carries no duplicated definitions."
     evidence_type: "behavioral"
     plan_item: 8
-  - id: "SC-9a"
-    description: "Serial pipeline routes every pipeline dispatch through Architecture-B semantics (closed TDT vocabulary + per-step plan dispatch modes as sole routing sources, including SC coherence gate and remediation re-dispatch); no divide-and-conquer forwarding rows."
-    evidence_type: "behavioral"
-    plan_item: 9a
-  - id: "SC-9b"
-    description: "Adversarial-audit dispatch-table routing exception dispatches by auditor_type to an adversarial model without forwarding card content; no generic-pattern routing of the adversarial-audit step."
-    evidence_type: "behavioral"
-    plan_item: 9b
-  - id: "SC-9c"
-    description: "Cross-validate consensus step derives deterministic PASS/FAIL verdict from standardized verifier verdicts without re-dispatching whole cards."
-    evidence_type: "behavioral"
-    plan_item: 9c
-  - id: "SC-10a"
-    description: "Skill task files declare per-skill contract.yaml ownership and emit standardized enforcement-gated hand-off contract schema with required fields {gate_result, verifier_identity, artifact_hash}; no parallel contract vocabularies."
-    evidence_type: "behavioral"
-    plan_item: 10a
-  - id: "SC-10b"
-    description: "Standardized contract schema carries frugal size limits (bounded field set, no free-form growth) and the skill task-file inventory classification."
-    evidence_type: "behavioral"
-    plan_item: 10b
-  - id: "SC-10c"
-    description: "Solve tool consumes the standardized contract YAML as its state input."
-    evidence_type: "behavioral"
-    plan_item: 10c
-  - id: "SC-11a"
-    description: "skildeck dispatch-table linter gate rejects TDT Dispatch values outside the closed set, additive to existing validators."
-    evidence_type: "behavioral"
-    plan_item: 11a
-  - id: "SC-11b"
-    description: "skildeck dispatch-string linter gate rejects task() dispatch strings targeting SKILL.md paths, additive to existing validators."
-    evidence_type: "behavioral"
-    plan_item: 11b
-  - id: "SC-11c"
-    description: "skildeck contract-schema linter gate rejects contract.yaml files missing required schema fields, additive to existing validators."
-    evidence_type: "behavioral"
-    plan_item: 11c

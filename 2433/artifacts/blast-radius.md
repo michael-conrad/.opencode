@@ -23,7 +23,7 @@
 6. `.opencode/skills/audit/SKILL.md`, `spec-creation/SKILL.md`, `brainstorming/SKILL.md` — TDT/Invocation internal contradictions (TDT says `inline`, Invocation routes same tasks to `task()`)
 7. All 51 SKILL.md — Invocation/Dispatch sections need normalization to one vocabulary
 8. `.opencode/reference/task-card-structure-standards.md`, `skill-card-description-standards.md` — canonical definitions
-9. `.opencode/AGENTS.md` — Development cycle section ("The orchestrator does NOT execute the task steps inline")
+9. `.opencode/AGENTS.md` — Development cycle section (quoted sentence "The orchestrator does NOT execute the task steps inline" actually lives at `prompts/default.txt:198`, not AGENTS.md; AGENTS.md carries the "Amateurs inline." header prose)
 10. `.opencode/hooks/*` + `session-enforcement.ts` — enforcement surface if mechanical gates reference the old model
 
 ## Indirectly Affected
