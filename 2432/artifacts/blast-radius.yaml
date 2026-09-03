@@ -1,0 +1,162 @@
+name: blast-radius
+status: complete
+source_issue: 2432
+generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+generated_at: '2026-09-03T04:20:00Z'
+method: >
+  Direct source read of .opencode/tools/local-issues (1992 lines), live CLI
+  execution from alternate CWDs, rg-based consumer sweep across .opencode/skills/,
+  .opencode/tests-v2/, and .opencode/.issues/AGENTS.md. srclight does not index
+  the tool (no .py extension, zero symbol hits for "local-issues"), so caller
+  tracing used ripgrep over the skill deck instead.
+subject: >
+  local-issues CLI hardening: (1) qualifier enforcement on ALL commands,
+  (2) PROJECT_DIR anchoring of repo-name resolution and repo discovery,
+  (3) YAML warn-and-skip hardening, (4) new validate-yaml subcommand,
+  (5) YAML repair of malformed tracking files, (6) upstream validate-yaml gate.
+
+target_file: .opencode/tools/local-issues
+
+change_classes:
+  qualifier-enforcement:
+    summary: ALL commands error on bare (non-qualified) issue numbers.
+    directly_modified_symbols:
+      - cmd_create          # removes auto-qualify/autonumber path (L930-965)
+      - cmd_read            # switches _resolve_qualified -> qualified-only resolution (L1127)
+      - cmd_read_comments   # same (L1143)
+      - cmd_read_labels     # same (L1168)
+      - cmd_read_sub_issues # same (L1194)
+      - _resolve_qualified  # bare-N multi-repo fan-out branch removed (L1026-1053)
+    already_compliant_symbols:
+      - cmd_update    # L1220 uses _require_qualified
+      - cmd_comment   # L1247
+      - cmd_close     # L1270
+      - cmd_delete    # L1289
+      - cmd_link      # L1431
+      - cmd_renumber  # L1459-1460
+      - cmd_promote   # L1498
+  project-dir-anchoring:
+    summary: Repo-name resolution and repo discovery anchored to PROJECT_DIR (L41-47) instead of os.getcwd().
+    directly_modified_symbols:
+      - _resolve_repo_name    # L1374-1375: Path(os.getcwd()).name -> PROJECT_DIR.name
+      - _discover_all_repos   # L210: root = Path(os.getcwd()).resolve() -> PROJECT_DIR
+      - _collect_repos        # L656: current = Path(os.getcwd()).resolve() -> PROJECT_DIR
+      - _resolve_qualified    # L1034: current = Path(os.getcwd()).resolve() -> PROJECT_DIR
+    secondary_cwd_dependent_symbols:
+      - _resolve_repo_path          # L1006 — same class as _resolve_qualified; should anchor for consistency
+      - _worktree_active            # L180 — called with explicit repo_path by mutation paths
+      - _issues_branch_exists       # L187 — os.getcwd() default
+      - _has_remote                 # L235 — Path.cwd() default
+      - _ensure_worktree            # L617 — Path(os.getcwd()) default
+      - _push_orphan_if_needed      # L697 — os.getcwd() default
+      - _push_issues_branch         # L733
+      - _auto_commit                # L842
+      - _spec_path_for_issue        # L1087 — display-only relative path; CWD-relative is intentional
+      - cmd_search / cmd_list       # L1361, L1420 — current_cwd used for display only
+      - _resolve_worktree_from_path # L1623 — sync-file path prefix matching
+      - main _check_legacy_formats  # L1967 — Path(ISSUES_DIR) is CWD-relative
+    note: >
+      cmd_create already writes to PROJECT_DIR via _next_number(PROJECT_DIR) (L947)
+      but labels the issue with the CWD-derived repo name — a mixed-anchoring
+      defect that PROJECT_DIR anchoring fixes by construction.
+  yaml-hardening:
+    summary: search/list/read warn-and-skip malformed YAML instead of crashing.
+    directly_modified_symbols:
+      - yaml_load                 # L120-123 — unguarded yaml.safe_load; hardening point
+      - _read_issue_data_in_repo  # L1056 — consumed by read/search
+      - read_issue_data           # L131 — consumed by read/promote
+      - _read_issue_title_status  # L161 — consumed by list
+      - _search_in_repo           # L1323 — yaml_dump(data) on malformed data
+  validate-yaml-subcommand:
+    summary: New cmd_validate_yaml + argparse registration. Purely additive.
+    new_symbols:
+      - cmd_validate_yaml
+      - _scan_issue_dirs (proposed)
+      - _classify_yaml_error (proposed)
+  yaml-repair:
+    summary: One-time data repair of malformed tracking files; tool code unaffected.
+
+verified_defect_evidence:
+  - evidence: >
+      Running `local-issues list` from CWD=.opencode/ crashes with unhandled
+      yaml.parser.ParserError at 1204/issue.yaml line 2 (nested unescaped double quotes).
+    command: cd .opencode && ../.opencode/tools/local-issues list
+    result: traceback, yaml.parser.ParserError
+  - evidence: >
+      Running bare `read --number 2432` from CWD=.opencode/.issues/ reports
+      "Issue #2432 not found" even though the issue exists in .opencode/.issues/ —
+      CWD-anchored _discover_all_repos/_resolve_qualified scanned the wrong root.
+    command: cd .opencode/.issues && local-issues read --number 2432
+    result: not-found with wrong-repo recent-numbers hint
+
+impact_classification:
+  direct_consumers:
+    - path: .opencode/tools/local-issues
+      relation: target file — all cmd_* handlers and resolution helpers
+    - path: .opencode/skills/issue-operations/platforms/local/tasks/
+      files: [creation.md, read.md, comment.md, close.md, update.md, delete.md,
+              link.md, list.md, search.md, promote.md, body-edit.md, pull-body.md,
+              push-artifacts.md]
+      relation: invoke local-issues commands; bare-number examples break under enforcement
+    - path: .opencode/skills/issue-operations-core/tasks/
+      files: [creation.md, read-labels.md, completion.md, push-artifacts.md]
+      relation: invoke read/create commands
+    - path: .opencode/skills/issue-operations-sync/tasks/
+      files: [sync-from-remote.md, sync-pull-to-local.md, import-remote.md]
+      relation: invoke sync/update commands
+    - path: .opencode/skills/spec-creation/tasks/create.md
+      relation: writes spec artifacts; upstream gate target for validate-yaml
+    - path: .opencode/skills/writing-plans/tasks/
+      files: [create.md, handoff.md, completion.md]
+      relation: writes plan artifacts; upstream gate target for validate-yaml
+    - path: .opencode/skills/approval-gate/tasks/apply-label.md
+      relation: invokes update/label commands
+    - path: .opencode/skills/issue-review/tasks/
+      files: [gather.md, analyze-and-spec.md]
+      relation: invokes read/search commands
+    - path: .opencode/skills/verification-before-completion/tasks/operating-protocol.md
+      relation: documents local-first issue reads
+    - path: .opencode/skills/git-workflow-pr/tasks/
+      files: [pr-creation.md, completion.md]
+      relation: reads issue state during PR flow
+    - path: .opencode/skills/audit/
+      files: [SKILL.md, tasks/drift-detection-investigator.md, tasks/verification-audit-arbiter.md]
+      relation: reads issues via local-issues
+  data_flow_dependent:
+    - path: .opencode/.issues/{1204,1205,1235,1296,1305,2013,2177}/{issue.yaml,comments.yaml}
+      relation: repair targets — currently unreadable by the tool (crash/skip)
+    - path: .issues/162/comments.yaml
+      relation: repair target (root repo)
+    - path: .opencode/.issues/{2257,2241,2303,2264,2413}/artifacts/plan-output.yaml
+      relation: contain ANSI \x1b escapes — validate-yaml must classify; repair candidates
+  indirect_consumers:
+    - path: .opencode/.issues/AGENTS.md
+      relation: >
+        usage examples show bare numbers (read --number 46, close --number 99);
+        docs must be updated or agents will follow stale examples into errors
+    - path: .opencode/AGENTS.md
+      relation: references local-issues tool; example flags must be checked for bare numbers
+    - path: .opencode/tests-v2/behaviors/
+      files: [2241-sc1-handoff-local-read.sh, 2241-sc2-apply-label-local-first.sh,
+              2241-sc3-creation-local-first.sh, 2241-sc7-analyze-and-spec-local-first.sh,
+              2241-sc9-read-labels-local-first.sh, 2241-sc12-gather-local-first.sh,
+              2241-sc14-operating-protocol-local-first.sh, 2241-sc21-resolve-scope-chat-only.sh,
+              2272-sc3-shared-status-check-skip.sh, 2295-sc7-issues-write-prohibition.sh,
+              helpers.sh, fixtures/setup/1364-for-pr-common.sh]
+      relation: >
+        behavioral scenarios exercise local-issues through opencode runs;
+        qualifier enforcement may invalidate scenarios using bare numbers
+  unaffected:
+    - .opencode/tools/session-init (no code dependency on local-issues)
+    - remote issue platforms (github-mcp, gitbucket-api) — separate code paths
+
+risk_assessment:
+  blast_radius_size: large
+  highest_risk: >
+    Qualifier enforcement on read family + create auto-qualify removal is a
+    breaking interface change rippling into 36 skill/task files and AGENTS.md
+    documented examples. Every consumer using bare numbers must migrate to
+    repo#N or receive the new error format with qualifier listing.
+  lowest_risk: >
+    validate-yaml subcommand (additive) and YAML repair (data-only, reversible
+    via issues-data branch git history).

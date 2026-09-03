@@ -1,0 +1,117 @@
+name: testability-assessment
+status: complete
+source_issue: 2432
+generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+generated_at: '2026-09-03T04:20:00Z'
+method: >
+  Existing coverage enumerated via directory listing of .opencode/tests/ and
+  rg sweep of .opencode/tests-v2/ for local-issues references. Testability of
+  each change class assessed against the tool's structure (module-level
+  PROJECT_DIR constant, pure cmd_* functions, subprocess git boundaries).
+
+existing_coverage:
+
+  unit_tests:
+    status: NONE
+    evidence: >
+      .opencode/tests/ contains only conftest.py, test_session_init/,
+      test_skill_creator/ — no test module for local-issues despite
+      .opencode/AGENTS.md declaring "Run tool unit tests: uv run pytest
+      .opencode/tests/" for Python tools under .opencode/tools/.
+    implication: all coverage for this change is NEW coverage.
+
+  behavioral_tests:
+    status: PARTIAL — 13 scenario/fixture files reference the tool
+    files: [2241-sc1-handoff-local-read.sh, 2241-sc2-apply-label-local-first.sh,
+            2241-sc3-creation-local-first.sh, 2241-sc7-analyze-and-spec-local-first.sh,
+            2241-sc9-read-labels-local-first.sh, 2241-sc12-gather-local-first.sh,
+            2241-sc14-operating-protocol-local-first.sh, 2241-sc21-resolve-scope-chat-only.sh,
+            2272-sc3-shared-status-check-skip.sh, 2295-sc7-issues-write-prohibition.sh,
+            helpers.sh, fixtures/setup/1364-for-pr-common.sh]
+    implication: >
+      Scenarios exercising issue reads/creates may break under qualifier
+      enforcement if they use bare numbers; they provide regression detection
+      but were written for current behavior — audit each before re-running
+      post-change.
+
+testability_by_change_class:
+
+  - class: qualifier-enforcement
+    unit_testability: HIGH
+    approach: >
+      Invoke cmd_read/cmd_read_comments/cmd_read_labels/cmd_read_sub_issues/
+      cmd_create with argparse.Namespace fixtures; bare-number args assert
+      SystemExit(1) + stderr qualifier listing; qualified args assert normal
+      resolution. No filesystem fixtures needed for the bare-number error path.
+    behavioral_test: >
+      opencode run scenario asserting agent uses repo#N form and treats the
+      new error as routing guidance (stderr-pattern assertions per 091
+      behavioral variant).
+
+  - class: project-dir-anchoring
+    unit_testability: HIGH
+    approach: >
+      PROJECT_DIR is a module-level constant (L41-47) computed from __file__ —
+      tests monkeypatch module attributes or chdir. Assert
+      _resolve_repo_name()/_discover_all_repos()/_collect_repos()/
+      _resolve_qualified() return identical results from two different CWDs
+      (repo root vs .opencode/ vs arbitrary subdir). Live defect reproduction
+      already demonstrated (read --number 2432 from .opencode/.issues/ misses
+      the issue) — this exact scenario becomes the regression test.
+    risk_note: >
+      subprocess git calls in _ensure_worktree/_auto_commit accept repo_path
+      already; anchoring changes do not alter git invocation surfaces, keeping
+      the test surface pure-Python.
+
+  - class: yaml-hardening
+    unit_testability: HIGH
+    approach: >
+      Fixture tree with one valid + one malformed (ParserError, ScannerError,
+      truncation, ANSI-escape) issue dir; assert list/search/read emit the
+      valid entry, emit "warn: skipping malformed" on stderr, and exit 0.
+      Assert mutation commands (comment/close/update) still hard-fail on
+      malformed state (fail-fast invariant).
+
+  - class: validate-yaml-subcommand
+    unit_testability: HIGHEST (pure function over a directory tree)
+    approach: >
+      Fixture issue dirs seeded with each error class; assert report contains
+      {repo, file, error_class, message} and exit code 1; assert clean tree
+      exits 0. Error-class classification (ANSI, truncation, parser, scanner,
+      legacy-format) is deterministic — table-driven tests.
+    doubles_as_repair_gate: >
+      Repair verification = run validate-yaml against the real trees after
+      repair and assert exit 0. This is itself the acceptance test for the
+      repair work item.
+
+  - class: yaml-repair
+    unit_testability: MEDIUM (data work, verified by the gate)
+    approach: >
+      Not classic unit tests — verified by (a) validate-yaml exit 0 on real
+      trees, (b) read/list/search returning previously-unreadable issues
+      (1204, 1205, 1235, 1296, 1305, 2013, 2177, 162 appear in output with
+      correct titles/statuses), (c) spot-check that repaired files preserve
+      original content fields (no fabricated data).
+    reversibility: git history on issues-data branch is the rollback test.
+
+enforcement_test_mandate:
+  required: true
+  authority: >
+    .opencode/guidelines/080-code-standards.md Enforcement Test Mandate +
+    091-incremental-build.md per-item TDD (RED/GREEN per SC).
+  plan: >
+    Behavioral scenarios via bash .opencode/tests-v2/with-test-home opencode run
+    for agent-facing behavior (qualified-form usage); unit tests under
+    .opencode/tests/ for deterministic tool logic. Behavioral evidence =
+    stderr-visible agent actions, not prose recall.
+  scope_note: >
+    tests-v2 requires >=600s bash timeout; rm -f tmp/.behavior-run.lock before
+    re-runs; tests_run > 0 with tests-run.yaml evidence required before any
+    completion claim.
+
+coverage_gaps_to_close:
+  - no unit tests exist today for any local-issues command (all new)
+  - no test fixture tree with malformed YAML seeds exists (new fixture needed)
+  - behavioral scenarios 2241-sc3 (creation) and 1364-for-pr-common fixture
+    likely encode bare-number/autonumber usage — must be updated in the same
+    change to avoid green-on-broken state

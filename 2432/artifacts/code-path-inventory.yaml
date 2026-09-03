@@ -1,0 +1,118 @@
+name: code-path-inventory
+status: complete
+source_issue: 2432
+generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+generated_at: '2026-09-03T04:20:00Z'
+method: >
+  Full source read of .opencode/tools/local-issues (1992 lines) with line-verified
+  symbol inventory; execution paths traced from main() command_map through each
+  cmd_* handler to resolution helpers and file I/O.
+
+entry_point:
+  symbol: main
+  lines: 1960-1992
+  flow: >
+    --description short-circuit (L1961-1963) -> build_parser() (L1890-1915,
+    17 subcommands) -> _check_legacy_formats(Path(ISSUES_DIR)) (L1967, CWD-relative)
+    -> command_map[args.command](args) (L1988).
+
+path_inventory:
+
+  - id: P1-qualified-mutation-path
+    commands: [update, comment, close, delete, link, renumber, promote]
+    flow: >
+      cmd_* -> _require_qualified (L990-997, errors on bare) ->
+      _resolve_and_validate_repo (L1016) -> _resolve_repo_path (L1000, CWD-anchored)
+      -> _discover_all_repos (L204, CWD-anchored) -> issue_exists /
+      get_issue_path (L89, PROJECT_DIR-or-repo_path) -> file read/write via
+      yaml_load/yaml_dump -> _auto_commit (L833, CWD default) -> push.
+    qualifier_status: already enforced
+    anchoring_status: CWD-dependent (repo resolution + auto_commit default)
+    yaml_crash_exposure: yes (yaml_load unguarded on issue.yaml/comments.yaml/links.yaml)
+
+  - id: P2-read-family-path
+    commands: [read, read-comments, read-labels, read-sub-issues]
+    flow: >
+      cmd_read / cmd_read_comments / cmd_read_labels / cmd_read_sub_issues ->
+      _resolve_qualified (L1026-1053) -> bare-N branch fans out to ALL repos
+      (current first, then _discover_all_repos children) OR qualified branch
+      resolves single repo -> _collect_read_results (L1107) /
+      _find_issue_dir_in_repo -> _read_issue_data_in_repo (L1056, unguarded
+      yaml_load) -> yaml_dump output.
+    qualifier_status: DEFECT — bare numbers accepted via multi-repo fan-out
+    anchoring_status: DEFECT — current = Path(os.getcwd()).resolve() (L1034)
+    yaml_crash_exposure: yes — read crashes on malformed YAML (hardening target)
+
+  - id: P3-create-path
+    commands: [create]
+    flow: >
+      cmd_create (L930) -> _detect_dual_branch (L336, calls _discover_all_repos)
+      -> if --number omitted: _next_number(PROJECT_DIR) (L947, autonumber) +
+      repo_path=PROJECT_DIR + qualified=_resolve_repo_name()#N (L949 — CWD-named
+      qualifier on PROJECT_DIR data: mixed anchoring defect) -> else
+      _parse_qualified (L982); bare explicit number already errors (L956-958)
+      -> _check_duplicate_issue (L876) -> _ensure_all_worktrees (L346) ->
+      _create_issue_files (L910, writes issue.yaml/comments.yaml/links.yaml) ->
+      _auto_commit.
+    qualifier_status: DEFECT — auto-qualifies when --number omitted (spec removes this)
+    anchoring_status: DEFECT — qualifier from CWD, files to PROJECT_DIR
+    yaml_crash_exposure: no (writes fresh files)
+
+  - id: P4-search-path
+    commands: [search]
+    flow: >
+      cmd_search (L1359) -> _discover_all_repos (CWD root) -> per-repo
+      _search_in_repo (L1323) -> _read_issue_data_in_repo (unguarded yaml_load)
+      -> yaml_dump(data) haystack match -> _format_search_results.
+    qualifier_status: n/a (no --number argument)
+    anchoring_status: DEFECT — CWD-anchored repo discovery (out of stated scope; flag)
+    yaml_crash_exposure: yes — search crashes on first malformed issue dir (live-verified)
+
+  - id: P5-list-path
+    commands: [list]
+    flow: >
+      cmd_list (L1419) -> _discover_all_repos (CWD root) -> per-repo
+      _list_issues_in_repo (L1388) -> _read_issue_title_status (L161, unguarded
+      yaml_load on issue.yaml) -> _format_list_output.
+    qualifier_status: n/a (no --number argument)
+    anchoring_status: DEFECT — CWD-anchored (out of stated scope; flag)
+    yaml_crash_exposure: yes — live-verified ParserError crash on 1204/issue.yaml
+
+  - id: P6-sync-path
+    commands: [init, sync, sync-file]
+    flow: >
+      cmd_init (L1597) / cmd_sync (L1609) -> _collect_repos (L654, CWD current
+      + _discover_all_repos children) -> _sync_repo (L1569) -> git add/commit/
+      pull --rebase/push via subprocess in .issues worktree.
+      cmd_sync_file (L1722) -> _resolve_worktree_from_path (L1617, CWD-anchored
+      prefix match) -> _sync_file_in_worktree.
+    qualifier_status: n/a
+    anchoring_status: DEFECT — _collect_repos CWD-anchored (in stated scope)
+    yaml_crash_exposure: no (pure git operations)
+
+  - id: P7-validate-yaml-path (NEW)
+    commands: [validate-yaml]
+    flow: >
+      cmd_validate_yaml (proposed) -> iterate repos from _collect_repos
+      (PROJECT_DIR-anchored after fix) -> for each issue dir, attempt
+      yaml.safe_load on issue.yaml / comments.yaml / links.yaml -> on
+      yaml.YAMLError, classify (ANSI-escape, truncation/EOF, parser,
+      scanner, legacy-format) -> report {file, error_class, message} ->
+      exit non-zero if any malformed (gate semantics for pipeline callers).
+    qualifier_status: n/a (scans all repos by design)
+    yaml_crash_exposure: none — this path's purpose is catching what other paths crash on
+
+callers_outside_tool:
+  - 36 files under .opencode/skills/ invoke the CLI via bash; execution enters
+    at main() — no Python-level imports of this tool were found (uv run --script
+    boundary), so blast radius is CLI-surface only.
+  - behavioral tests (.opencode/tests-v2/behaviors/) invoke via with-test-home
+    opencode runs.
+
+decomposition_notes:
+  - P2 and P3 are the qualifier-enforcement change surface.
+  - _resolve_repo_name/_discover_all_repos/_collect_repos/_resolve_qualified are
+    the shared anchoring helpers; fixing them fixes P2/P3/P6 simultaneously.
+  - yaml_load hardening must be applied at read-side call sites (P2/P4/P5),
+    NOT inside yaml_load itself, because mutation paths (P1) must still hard-fail
+    on unreadable state rather than silently skip (data-integrity fail-fast).

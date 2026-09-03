@@ -4,6 +4,46 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: "# Problem (union of chat brainstorm + bug report #2432)\n\n`/opencode/tools/local-issues`\
+  \ has inconsistent repo/issue resolution and no\nmalformed-YAML resilience. Two\
+  \ source problem statements:\n\n**A. Chat brainstorm (2026-09-03 session, this conversation):**\n\
+  \n1. The tool must raise an error when using non-qualified issue ticket numbers.\n\
+  \   ALL commands require `repo#N` form — including `create` (currently\n   auto-qualifies\
+  \ via CWD basename at line ~949) and the read-family\n   `read`/`read-comments`/`read-labels`/`read-sub-issues`\
+  \ (currently accept\n   bare numbers via `_resolve_qualified`, line ~1026). Mutations\
+  \ already\n   enforce via `_require_qualified`.\n2. The qualifier determines the\
+  \ correct `.issues/` folder — consistently,\n   from any invocation directory. Current\
+  \ code mixes CWD-derived identity\n   (`_resolve_repo_name` = cwd basename, `_discover_all_repos`\
+  \ roots at CWD)\n   with `PROJECT_DIR` fallbacks (counter at ~947, path fallbacks\
+  \ at ~60/~95/~970),\n   so qualifier and physical location disagree depending on\
+  \ CWD.\n3. YAML hardening: `yaml_load` has zero exception handling across ~15 call\n\
+  \   sites; malformed YAML crashes `search`/`list`/`read`. Tool must\n   warn-and-skip\
+  \ instead of crash.\n4. New `validate-yaml` subcommand: scans issue dirs for malformed\
+  \ YAML,\n   reports file + error class; doubles as repair verification gate.\n5.\
+  \ YAML repair: ~10 malformed core tracking files (.opencode/.issues\n   #1204 #1205\
+  \ #1235 #1296 #1305 #2013 #2177 issue.yaml; #1296 #2013\n   comments.yaml; .issues/162\
+  \ comments.yaml) plus mechanically fixable\n   artifact classes (ANSI #x1b escapes,\
+  \ truncation). Semantically broken\n   historical artifacts are flagged, not guessed\
+  \ at.\n6. Upstream prevention: pipeline skills call `validate-yaml` as a gate after\n\
+  \   artifact generation.\n\n**B. Bug report (remote GitHub #2432, authored by developer):**\n\
+  \n1. Misrouting: create from inside `.opencode/` writes to parent `.issues/`\n \
+  \  (PROJECT_DIR/CWD mixed anchoring) — covered by A2.\n2. ~~Non-submodule child\
+  \ discovery~~ — SUPERSEDED by developer decision\n   (2026-09-03): qualifier forms\
+  \ are valid for git submodules only;\n   `.gitmodules`-declared repos are the only\
+  \ discoverable qualifiers.\n3. `_ensure_worktree()` orphan-branch bootstrap: creates\
+  \ unrelated-histories\n   orphan when `origin/issues-data` exists but no local branch;\
+  \ must\n   fetch/track remote instead.\n4. Counter hygiene: counter writes must\
+  \ target the resolved repo's\n   `.issues/.counter` (root counter drifted 50→52\
+  \ during misrouted creates).\n5. `doctor` subcommand: per-repo worktree health report\
+  \ (branch,\n   merge-base with origin/issues-data, counter state).\n\n## Settled\
+  \ decisions (developer, this session)\n\n- Qualifier format: `repo#N` (NOT `owner/repo#NNN`)\
+  \ — supersedes #2319.\n- Qualifier required everywhere; all commands error on bare\
+  \ numbers.\n- Discovery: `.gitmodules`-only, anchored to PROJECT_DIR — supersedes\n\
+  \  #1224 (filesystem glob) by changed requirements.\n- Supersedes #2319 and #1224.\
+  \ #2093 closed (already satisfied).\n\n## Analytical artifacts\n\nPreliminary artifacts\
+  \ from brainstorming (chat-side analysis) are at\n`.opencode/.issues/2432/artifacts/`:\
+  \ blast-radius, code-path-inventory,\ninterface-compatibility, state-analysis, testability-assessment,\n\
+  concern-map. Union decomposition must extend these to cover bug-report\nitems B3-B5\
+  \ (worktree bootstrap, counter hygiene, doctor).\n"
 created_at: '2026-09-03T03:55:47+00:00'
-updated_at: '2026-09-03T03:55:47+00:00'
+updated_at: '2026-09-03T04:15:05+00:00'

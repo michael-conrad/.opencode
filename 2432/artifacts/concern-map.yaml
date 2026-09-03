@@ -1,0 +1,262 @@
+name: concern-map
+status: complete
+source_issue: 2432
+generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+generated_at: '2026-09-03T04:55:00Z'
+method: >
+  Cross-spec scope search over open michael-conrad/.opencode issues ([SPEC]/[PLAN]/[SPEC-FIX]
+  filter, gh issue list + local .opencode/.issues sweep), classification against the four-tier
+  scheme, concern mapping grounded in the verified blast-radius.yaml and code-path-inventory.yaml
+  artifacts (line-verified inventory of the 1992-line tool), and live source reads.
+
+# ---------------------------------------------------------------------------
+# 1. Concern inventory (the six changes, restated as concern boundaries)
+# ---------------------------------------------------------------------------
+
+concerns:
+  - id: C1
+    name: qualifier-enforcement
+    summary: ALL commands error on bare issue numbers, including create (auto-qualify removal) and the read-family (bare-N multi-repo fan-out removal in _resolve_qualified).
+    primary_area: A1
+    spans: [A1, A2, A3, A5, A6]
+
+  - id: C2
+    name: project-dir-anchoring
+    summary: Repo-name resolution (_resolve_repo_name) and repo discovery (_discover_all_repos, _collect_repos, _resolve_qualified) anchored to PROJECT_DIR instead of os.getcwd(); secondary CWD-default helpers aligned.
+    primary_area: A1
+    spans: [A1, A6]
+
+  - id: C3
+    name: yaml-hardening
+    summary: search/list/read warn-and-skip malformed YAML instead of crashing (unguarded yaml_load at L120-123 and consumers).
+    primary_area: A1
+    spans: [A1, A6]
+
+  - id: C4
+    name: validate-yaml-subcommand
+    summary: New cmd_validate_yaml + argparse registration; scans issue dirs, classifies YAML defects (incl. ANSI-escape class in plan-output.yaml artifacts). Purely additive.
+    primary_area: A1
+    spans: [A1, A6]
+
+  - id: C5
+    name: yaml-repair
+    summary: One-time repair of ~10 malformed core tracking files (.opencode/.issues/{1204,1205,1235,1296,1305,2013,2177}, .issues/162/comments.yaml) plus mechanically fixable artifacts (ANSI-escape plan-output.yaml in {2257,2241,2303,2264,2413}).
+    primary_area: A4
+    spans: [A4]
+
+  - id: C6
+    name: upstream-prevention
+    summary: Pipeline skills call validate-yaml as a gate; bare-number examples across ~36 skill/task files, 2+ AGENTS.md guides, and behavioral test scripts updated to qualified form.
+    primary_area: A2
+    spans: [A2, A3, A5]
+
+# ---------------------------------------------------------------------------
+# 2. Affected areas (concern boundaries mapped to units)
+# ---------------------------------------------------------------------------
+
+affected_areas:
+  - id: A1
+    path: .opencode/tools/local-issues
+    relation: single-file concentration — five of six concerns (C1-C4) modify this one 1992-line script; one unit addresses multiple concerns.
+  - id: A2
+    path: .opencode/skills/** (issue-operations platforms/local 13 task files, issue-operations-core 4, issue-operations-sync 3, spec-creation/create.md, writing-plans 3, approval-gate/apply-label.md, issue-review 2, verification-before-completion, git-workflow-pr 2, audit 3)
+    relation: C6 gate wiring + C1 example migration; ~36 files.
+  - id: A3
+    path: .opencode/AGENTS.md, .opencode/.issues/AGENTS.md (usage examples with bare numbers), root AGENTS.md references
+    relation: C6 docs migration.
+  - id: A4
+    path: .opencode/.issues/{1204,1205,1235,1296,1305,2013,2177}/ + .issues/162/comments.yaml + ANSI plan-output.yaml artifacts
+    relation: C5 repair targets inside the issues-data worktree (data-only, reversible via git history).
+  - id: A5
+    path: .opencode/tests-v2/behaviors/ (2241-sc*, 2272-sc3, 2295-sc7, helpers.sh, fixtures/setup/1364-for-pr-common.sh)
+    relation: scenarios exercising local-issues with bare numbers break under C1.
+  - id: A6
+    path: error-output contract (new shared error/diagnostic format module or constants)
+    relation: emerges from C1 x C3 x C4 — see cross-cutting X1/X5.
+
+# ---------------------------------------------------------------------------
+# 3. Cross-cutting concerns (concern x concern x area propagation)
+# ---------------------------------------------------------------------------
+
+cross_cutting:
+  - id: X1
+    name: shared-error-format
+    concerns: [C1, C4]
+    areas: [A1, A6]
+    detail: >
+      Qualifier-enforcement errors ("bare number rejected — use repo#N; available
+      qualifiers: ...") and validate-yaml diagnostics must share one error-format
+      module/constants. Open PLAN #1-plan-local-issues-print-available-repo-qualifiers
+      requires the qualifier listing on repo-not-found errors — same surface.
+      Risk: three divergent error vocabularies if implemented in isolation.
+  - id: X2
+    name: bare-number-example-migration
+    concerns: [C1, C6]
+    areas: [A2, A3, A5]
+    detail: >
+      The moment C1 lands, every bare-number example in A2/A3 and every bare-number
+      behavioral scenario in A5 becomes an invalid documented workflow. C1 without
+      C6 breaks documented behavior mid-merge. Ordering: example migration must land
+      atomically with (or immediately after) enforcement.
+  - id: X3
+    name: anchoring-vs-worktree-layout
+    concerns: [C2]
+    areas: [A1, A4]
+    detail: >
+      PROJECT_DIR-anchored discovery must still find root repo + .opencode submodule
+      and must NOT treat .issues/ orphan-branch worktrees (which contain .git files)
+      as child repos. Discovery-source direction is contested by open specs #1224
+      (filesystem-based) vs #2093 (.gitmodules-based) — three-way interaction with
+      the anchoring change on the same function _discover_all_repos. Also fixes the
+      mixed-anchoring defect in cmd_create (autonumber uses PROJECT_DIR, repo label
+      uses CWD name) by construction — but the label must match the C1 qualifier grammar.
+  - id: X4
+    name: repair-ordering-vs-gate
+    concerns: [C4, C5, C6]
+    areas: [A1, A2, A4]
+    detail: >
+      Hard ordering constraint: validate-yaml (C4) must exist and classify before
+      repair (C5), so repair is verifiable by the validator. The upstream gate (C6)
+      must be wired AFTER repair completes — otherwise the gate immediately BLOCKs
+      every pipeline skill on the ~10 still-malformed core files. Order: C3+C4 -> C5 -> C6.
+  - id: X5
+    name: classifier-reuse
+    concerns: [C3, C4]
+    areas: [A1, A6]
+    detail: >
+      Warn-and-skip in read paths and validate-yaml's report must consume the same
+      _classify_yaml_error logic; separate implementations drift. The ANSI-escape
+      class (plan-output.yaml) must be classified identically in both surfaces.
+  - id: X6
+    name: qualifier-grammar-vs-composite-identity
+    concerns: [C1]
+    areas: [A1, A2]
+    detail: >
+      In-flight approved-for-pr spec #2319 adds {owner}/{repo}#NNN composite
+      acceptance in the SAME parse/resolve layer (_parse_qualified/_require_qualified/
+      _resolve_qualified) that C1 rewrites, and edits the SAME skill/task files.
+      Parallel implementation = merge + semantic conflict on the qualifier grammar.
+      Sequencing (or absorbing #2319's tool-boundary SCs into #2432) is required.
+  - id: X7
+    name: create-path-defect-cluster
+    concerns: [C1, C2]
+    areas: [A1]
+    detail: >
+      Open unprefixed bugs #2394 (global cross-repo uniqueness), #2404 (autonumber
+      reuses in-use number), #2338 (duplicate guard global scope), #2422 (create
+      triggers _ensure_all_worktrees across child repos) cluster on the same create
+      path that C1 (auto-qualify removal) and C2 (anchored labeling) modify. The
+      spec must declare these in-scope or out-of-scope explicitly to prevent
+      scope-gap disputes at verification.
+  - id: X8
+    name: behavioral-test-invalidation
+    concerns: [C1, C6]
+    areas: [A5]
+    detail: >
+      tests-v2 behavioral scenarios (2241-*, 2272-sc3, 2295-sc7) drive local-issues
+      with bare numbers through opencode runs; enforcement invalidates them. Scenario
+      updates belong in the C6 file set, not a separate workstream.
+
+# ---------------------------------------------------------------------------
+# 4. Concern-to-phase matrix (proposed implementation groups)
+# ---------------------------------------------------------------------------
+
+phase_matrix:
+  - phase: P1-hardening-and-validator
+    concerns: [C3, C4]
+    areas: [A1, A6]
+    notes: additive + guarded reads; establishes shared classifier (X5) and error format (X1)
+  - phase: P2-anchoring
+    concerns: [C2]
+    areas: [A1]
+    notes: independent of P1; must resolve discovery-source direction (X3, #1224/#2093)
+  - phase: P3-enforcement-and-examples
+    concerns: [C1, C6-partial]
+    areas: [A1, A2, A3, A5, A6]
+    notes: X2 atomicity — enforcement and example migration land together
+  - phase: P4-repair
+    concerns: [C5]
+    areas: [A4]
+    notes: requires P1 validator (X4); data-only, reversible
+  - phase: P5-upstream-gate
+    concerns: [C6-remainder]
+    areas: [A2, A3]
+    notes: requires P4 repair complete (X4); gate wiring last
+
+# ---------------------------------------------------------------------------
+# 5. Cross-spec scope search results (four-tier classification)
+# ---------------------------------------------------------------------------
+
+overlap_classification:
+  search_method: gh issue list -R michael-conrad/.opencode (open, 50+) + local .opencode/.issues status sweep; [SPEC]/[PLAN]/[SPEC-FIX] filter applied
+  classified:
+    - issue: 2319
+      title: '[SPEC] Qualify issue references as owner/repo#NNN across the agent deck'
+      classification: CONFLICT-RISK
+      evidence: >
+        Open with approved-for-pr label (in-flight). SC-7..SC-11 modify the same
+        parse/resolve functions (_parse_qualified/_require_qualified/_resolve_qualified)
+        that C1 rewrites, and its label-routing/pre-flight surfaces edit the same
+        skill/task files as C6. Verified by reading its spec.md (tool-boundary
+        composite acceptance section) and by blast-radius.yaml consumer sweep.
+    - issue: 1128
+      title: '[SPEC-FIX] local-issues: replace global-state chdir design with PROJECT_DIR-anchored operations'
+      classification: CONFLICT-RISK
+      evidence: >
+        Open with a 7-phase plan.md whose phases 1-4 (PROJECT_DIR global,
+        _resolve_repo_name, chdir removal, relative ISSUES_DIR) modify the same
+        functions C2 modifies (_resolve_repo_name, _discover_all_repos). Parallel
+        implementation of C2 and #1128 produces merge conflicts. Recommend the
+        parent either supersede/absorb #1128 into #2432 change (2) or sequence them.
+    - issue: 1224
+      title: '[SPEC-FIX] Replace .gitmodules-based repo discovery in local-issues with filesystem-based'
+      classification: CONFLICT-RISK
+      evidence: >
+        Open (two local mirror dirs: 1224 and 1224-spec-fix-...). Modifies
+        _discover_all_repos — the same function C2 anchors — in the OPPOSITE
+        direction to #2093. The two open specs are mutually contradictory.
+    - issue: 2093
+      title: '[SPEC] local-issues: scope repo discovery to .gitmodules instead of filesystem'
+      classification: CONFLICT-RISK
+      evidence: >
+        Open. Modifies _discover_all_repos; direction contradicts #1224. #2432's
+        change (2) must pick a discovery-source direction before implementation.
+    - issue: 985
+      title: '[PLAN] Phase 1: Rewrite local-issues CLI tool'
+      classification: PARTIAL-OVERLAP
+      evidence: >
+        Open but its phase specs (1.1-1.14) are implemented in the current tool
+        (verified: 17 subcommands incl. create --number, read-comments, read-labels,
+        read-sub-issues, close --reason all present per code-path-inventory.yaml).
+        Stale open plan; same file; no active conflict — cleanup candidate.
+    - issue: 1102
+      title: 'local-issues: init + sync verbs, fully qualified mutations + output'
+      classification: PARTIAL-OVERLAP
+      evidence: >
+        Open, no spec file on disk (issue.yaml only). init/sync verbs exist in the
+        current tool; its fully-qualified-mutations slice overlaps C1. Stale.
+    - issue: 1004
+      title: '[SPEC-FIX] Canonicalize all local-issues CLI references to .opencode/tools/local-issues'
+      classification: PARTIAL-OVERLAP
+      evidence: Open; edits the same skill/task files as C6 (reference canonicalization).
+    - issue: 1-plan-local-issues-print-available-repo-qualifiers-on-repo-no
+      title: '[PLAN] local-issues: print available repo qualifiers on repo-not-found errors'
+      classification: PARTIAL-OVERLAP
+      evidence: Open; defines the qualifier-listing error surface that X1 folds into the shared error format.
+  adjacent_unclassified:
+    note: Unprefixed [BUG] issues are outside the task's [SPEC]/[PLAN]/[SPEC-FIX] filter but share the create/read/YAML surfaces.
+    issues: [2323, 2338, 2394, 2404, 2422, 2413]
+  full_supersession: none
+
+# ---------------------------------------------------------------------------
+# 6. Ordering constraints summary (derived from X2, X3, X4)
+# ---------------------------------------------------------------------------
+
+ordering_constraints:
+  - 'P1 (C3+C4) before P4 (C5): repair must be verifiable by the validator'
+  - 'P4 (C5) before P5 (C6): gate must not wire onto still-malformed files'
+  - 'P3 (C1) atomic with its example migration slice of C6 (X2)'
+  - 'Discovery-source direction (X3) must be resolved before P2 (C2) — conflicting open specs #1224 vs #2093'
+  - 'Qualifier grammar must be reconciled with in-flight #2319 before P3 (C1) rewrites the parse layer (X6)'
+
+co-authored_with_ai: 'OpenCode (huggingface/zai-org/GLM-5.3-Flash)'

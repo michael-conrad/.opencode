@@ -1,0 +1,120 @@
+name: interface-compatibility
+status: complete
+source_issue: 2432
+generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+generated_at: '2026-09-03T04:20:00Z'
+method: >
+  Signature verification via direct source read (argparse parser registration
+  L1740-1915, cmd_* handlers). Consumer compatibility verified by ripgrep sweep
+  of all 36 skill files referencing local-issues, plus .opencode/.issues/AGENTS.md
+  and behavioral test fixtures. No Python importers exist (uv run --script CLI
+  boundary), so compatibility surface is CLI flags, stdout YAML shape, exit codes,
+  and stderr error strings.
+
+cli_surface:
+
+  - command: read
+    current_signature: read --number {N|repo#N} [--type full|comments|labels|links|all]
+    planned_signature: read --number repo#N [--type ...]   # bare N now errors
+    compat: BREAKING
+    rationale: _resolve_qualified bare-N fan-out removed; documented in parser
+      help text as "(N or repo#N)" — help strings need updating too.
+    consumers_affected: issue-review/gather.md, issue-operations-core tasks,
+      audit tasks, verification-before-completion operating-protocol.md,
+      AGENTS.md examples (read --number 46)
+
+  - command: read-comments / read-labels / read-sub-issues
+    current_signature: '{cmd} --number {N|repo#N}'
+    planned_signature: '{cmd} --number repo#N'
+    compat: BREAKING
+    consumers_affected: issue-operations-core/read-labels.md, AGENTS.md examples
+
+  - command: create
+    current_signature: >
+      create --title T [--labels ...] [--number {N|repo#N}]; autonumbers into
+      PROJECT_DIR with CWD-derived qualifier when --number omitted
+    planned_interpretation_a: >
+      create --number repo#N --title T [--labels ...] — number now REQUIRED and
+      qualified; auto-qualify path removed entirely
+    planned_interpretation_b: >
+      autonumber retained but qualifier anchored to PROJECT_DIR.name; bare
+      explicit --number N still errors (already does)
+    selected: interpretation_a (strict reading of requirement 1 — "ALL commands
+      must error on bare (non-qualified) issue numbers, including create which
+      currently auto-qualifies")
+    compat: BREAKING (autonumber mode removed — callers relying on create
+      without --number must obtain a number first; counter-based _next_number
+      may be retained internally or exposed via a separate mechanism — spec decision)
+    consumers_affected: issue-operations/platforms/local/tasks/creation.md,
+      issue-operations-core/creation.md, spec-creation/tasks/create.md,
+      behavioral fixtures 1364-for-pr-common.sh
+
+  - command: update, comment, close, delete, link, renumber, promote
+    current_signature: '{cmd} --number repo#N ...  (_require_qualified enforced)'
+    compat: NO-CHANGE
+    note: >
+      Already compliant; error message format from _require_qualified (L994,
+      "Error: Use qualified form repo#N for mutations.") becomes the canonical
+      error shape for the newly-enforced commands too.
+
+  - command: validate-yaml (NEW)
+    signature: validate-yaml [--repo NAME] [--json]  (proposed flags)
+    compat: ADDITIVE
+    output_contract: >
+      YAML report {issues: [{repo, file, error_class, message}]} on stdout;
+      exit 0 when all clean; exit 1 when malformed files found (gate semantics).
+    doubling_as_repair_gate: exit code + report consumed by pipeline skills
+      after artifact generation.
+
+  - command: list, search
+    signature: unchanged
+    compat: >
+      NO-CHANGE (flags); OUTPUT-COMPAT-CHANGE (behavior): malformed issue dirs
+      previously crashed the whole command; after hardening they are
+      warn-and-skipped (warning on stderr, valid entries still printed).
+      Callers parsing stdout see a superset of previous successful output —
+      no consumer parses crash output.
+
+stdout_shape:
+  - read_family: >
+      unchanged for valid data (single-entry YAML or a matches list).
+  - create: >
+      created/number/title mapping — unchanged shape; number always qualified.
+  - validate-yaml: new report shape (additive).
+
+exit_codes:
+  - bare_number_errors: >
+      sys.exit(1) with stderr message + qualifier listing
+      (_print_available_repos L1378). Consistent with existing
+      _require_qualified.
+  - validate_yaml: >
+      0 when clean / 1 when malformed files found (proposed).
+
+error_message_compat:
+  canonical_new_error: >
+    Reuse _require_qualified wording for read family and create:
+    "Error: Use qualified form {repo}#{N}." + _print_available_repos().
+    Keeps a single error vocabulary across all commands.
+  yaml_skip_warning: >
+    "warn: skipping malformed YAML {path}: {error_class}" on stderr — never
+    stdout, so stdout parsers are unaffected.
+
+documented_examples_requiring_update:
+  - .opencode/.issues/AGENTS.md — bare-number examples throughout
+    (read --number 46, link --number 46 --sub 47 48, comment --number 46,
+    close --number 99, update --number 46, promote --number 46)
+  - .opencode/AGENTS.md — .issues/ workspace guide references
+  - skill task files listed in blast-radius.yaml direct_consumers
+  - parser help strings (L1740-1915) saying "(N or repo#N)"
+
+python_api:
+  status: not-applicable
+  justification: tool is a uv-run script with no importers; all compatibility
+    surface is CLI-level.
+
+compat_summary:
+  breaking: [read, read-comments, read-labels, read-sub-issues, create]
+  additive: [validate-yaml]
+  unchanged: [update, comment, close, delete, link, renumber, promote,
+              list, search, init, sync, sync-file]
+  docs_updates_required: true
