@@ -1,5 +1,6 @@
 # Testability Assessment — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/testability.md (brainstorming).
+# Regenerated 2026-09-03: scope G added — SC-10 monitoring-mandate evidence row appended.
 status: complete
 source: "formalized from brainstorming preliminary + live grep verification"
 produced_at: "2026-09-02T20:38:00-04:00"
@@ -31,6 +32,7 @@ The change alters runtime behavior (what agents see; what they do on dispatch-fa
 | SC-9 #497 guard | GREEN-only regression | run existing human-only-merge + approval-gate scenarios post-split |
 | SC-8 sweep | behavioral re-runs | 2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt via with-test-home — PASS post-sweep |
 | SC-6 dedup | structural grep | single occurrence per rule class |
+| SC-10 monitoring mandate | Behavioral (monitored run) | RED: unmonitored off-track/loop run burns full timeout with no abort and no diagnosis; GREEN: committed monitor (4989ffb5) detects the stall — poll log + semantic diagnosis + §10.5 export recorded alongside session.yaml; healthy-run regression confirms no false-abort |
 
 ## Harness Constraints (tests-v2/AGENTS.md lessons)
 
