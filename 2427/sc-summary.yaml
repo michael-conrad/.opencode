@@ -1,0 +1,45 @@
+# SC Summary — Issue #2427 (.opencode)
+# Tier-1 context-injection reduction — scopes A (infra-failure carve-out),
+# B (anti-recitation clause), C (split 020), D (split 080), E (trim AGENTS.md).
+# One implementation item per SC; items numbered sequentially from 1.
+# NO size-threshold PASS/FAIL criteria (#2411) — savings are emergent properties.
+
+sc_count: 9
+
+scs:
+  - id: "SC-1"
+    description: "000-critical-rules.md contains the infrastructure-failure carve-out (scope A): a numbered procedure with binary conditions under which, after >=2 consecutive tool-level sub-agent dispatch failures, inline execution of read-only/verification work is authorized WITH explicit disclosure in output."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "000-critical-rules.md contains the anti-recitation clause (scope B): rule citations belong in enforcement artifacts (test scripts, pre-commit hooks), not in agent deliberation; when an action is safe and reversible, the agent acts and discloses instead of reciting rules before acting."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "020-go-prohibitions.md Tier-1 core retains authorization semantics, prohibited authorization patterns, halt rules, the authorization-free-actions list, and silent-halt-with-search; the scenario-governed sections (1.1 Orchestrator Context Discipline, 1.6 Discussion Mode Mandates, 4 Project-Local Tool Installation) are moved to Tier-2 file(s) with semantically equivalent content; the 020 core retains one-line Read [Text](path) pointer per demoted concern."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "080-code-standards.md Tier-1 core retains attribution/provenance/byline-preservation mandates plus cross-reference/numbering/YAML standards; Python-specific sections (Typing, Design Principles body, Modern Python, DI mandates, Print Statements, Libraries & Packages, Pipeline Rerun Constraint) are moved to a Tier-2 file with semantically equivalent content; the 080 core retains a Read [Text](path) pointer; the attribution sections are untouched."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "AGENTS.md gb CLI install table/version-pinning/TOOL_MISSING content is moved to a Tier-2 location with semantics preserved; the editor MCP tool table is moved to a Tier-2 reference; the Pair Mode section is replaced by a pointer to the existing 116-pair-mode.md canonical home (dedup — no second copy); the one-line gb skill-dispatch mandate is retained."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Each duplicated rule class has exactly ONE canonical Tier-2 home post-change: project-local tools (020 section 4 vs 085 → 085 canonical), pair mode (AGENTS.md vs 116 → 116 canonical), gb install reference (AGENTS.md vs gb-cli skill area → one location)."
+    evidence_type: "structural"
+    plan_item: 6
+  - id: "SC-7"
+    description: "INDEX.md contains a Tier-2 routing row for every demoted content class with trigger patterns matching the content (context-discipline, discussion-mode, python-standards classes; existing 085/116 rows reused where canonical)."
+    evidence_type: "structural"
+    plan_item: 7
+  - id: "SC-8"
+    description: "All Read-links and test SCENARIO_PROMPTs referencing moved sections are re-pointed; zero dangling section anchors remain (grep sweep); the affected behavioral scenarios (2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt) pass via with-test-home after the sweep."
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Post-change, human-only merge (000-critical-rules.md), approval gate/no-self-authorization (010-approval-gate.md), and attribution mandates (080-code-standards.md) remain in Tier-1 injected files, and the opencode.jsonc instructions array is unchanged (14 entries, byte-identical)."
+    evidence_type: "structural"
+    plan_item: 9
