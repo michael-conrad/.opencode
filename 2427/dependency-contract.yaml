@@ -1,0 +1,112 @@
+# Dependency contract — Issue #2427 (.opencode)
+# Extracted from artifacts/interface-compatibility.yaml `dependency_contract` section (present
+# in source — extracted as-is per research.md step 9) + phase-DAG variables for Z3 solving.
+# Generated 2026-09-02 by writing-plans research task.
+version: 1
+source_artifact: .opencode/.issues/2427/artifacts/interface-compatibility.yaml
+scope: >-
+  Tier-1 context-injection reduction (scopes A/B/C/D/E): 000 carve-outs, 020/080 splits,
+  AGENTS.md trim, dedup reconciliation, INDEX routing, consumer sweep, #497 guard.
+
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+  phase3_done:
+    type: bool
+  phase4_done:
+    type: bool
+  phase5_done:
+    type: bool
+  phase6_done:
+    type: bool
+  phase7_done:
+    type: bool
+  carve_outs_added:
+    type: bool
+  splits_done:
+    type: bool
+  dedup_complete:
+    type: bool
+  index_routing_complete:
+    type: bool
+  sweep_complete:
+    type: bool
+  guard_verified:
+    type: bool
+
+preconditions:
+  - "z3.Not(carve_outs_added)"
+  - "z3.Not(splits_done)"
+  - "z3.Not(dedup_complete)"
+  - "z3.Not(index_routing_complete)"
+  - "z3.Not(sweep_complete)"
+  - "z3.Not(guard_verified)"
+
+invariants:
+  - "z3.Implies(carve_outs_added, phase1_done)"
+  - "z3.Implies(splits_done, z3.And(phase2_done, phase3_done, phase4_done))"
+  - "z3.Implies(dedup_complete, phase5_done)"
+  - "z3.Implies(index_routing_complete, phase5_done)"
+  - "z3.Implies(sweep_complete, phase6_done)"
+  - "z3.Implies(guard_verified, phase7_done)"
+  - "z3.Implies(phase2_done, phase1_done)"
+  - "z3.Implies(phase3_done, phase1_done)"
+  - "z3.Implies(phase4_done, phase1_done)"
+  - "z3.Implies(phase5_done, z3.And(phase2_done, phase3_done, phase4_done))"
+  - "z3.Implies(phase6_done, z3.And(phase2_done, phase3_done, phase4_done, phase5_done))"
+  - "z3.Implies(phase7_done, phase6_done)"
+
+postconditions:
+  - "phase1_done"
+  - "phase2_done"
+  - "phase3_done"
+  - "phase4_done"
+  - "phase5_done"
+  - "phase6_done"
+  - "phase7_done"
+  - "carve_outs_added"
+  - "splits_done"
+  - "dedup_complete"
+  - "index_routing_complete"
+  - "sweep_complete"
+  - "guard_verified"
+
+dependency_edges:
+  - source: "opencode.jsonc instructions array"
+    target: "guidelines/000-critical-rules.md, 010, 020, 060, 065, 067, 075, 080, 090, 091, 117, 130, INDEX.md, AGENTS.md"
+    type: "artifact schema"
+    constraint: "array entries reference file paths that MUST continue to exist; paths stable through this change; new Tier-2 files must NOT be appended to the array"
+  - source: "INDEX.md routing rows"
+    target: "Tier-2 guideline files"
+    type: "artifact schema"
+    constraint: "every demoted content class must have a routing row with trigger patterns matching content; frontmatter schema (trigger_on/tier/load_when) required on new files"
+  - source: "test-enforcement.sh FILE_SCENARIO_MAP"
+    target: "guidelines/020-go-prohibitions.md, 000-critical-rules.md, 010-approval-gate.md"
+    type: "artifact schema"
+    constraint: "map keys on file paths — paths must remain unchanged; scenario content assertions must survive the split"
+  - source: "behavioral SCENARIO_PROMPTs (2243/2249-series)"
+    target: "guidelines/080-code-standards.md DI sections"
+    type: "artifact schema"
+    constraint: "breaking — prompts must be re-pointed to the Tier-2 python-standards file or an in-file visible pointer must route agents there (sweep phase)"
+  - source: "skill Read-links (audit x5, verification-before-completion x2, git-workflow-commit, git-workflow-branch, issue-review)"
+    target: "guidelines/020 §1.1/§1.6/§4, guidelines/080 Python sections"
+    type: "artifact schema"
+    constraint: "breaking for moved anchors — all Read-links must be re-pointed to new locations (sweep phase)"
+  - source: "085-project-local-tools.md mutual Read-link"
+    target: "020-go-prohibitions.md §4"
+    type: "artifact schema"
+    constraint: "dedup resolution must flip the pointer direction (085 becomes canonical; 020 core holds pointer to 085)"
+
+global_invariants:
+  - id: TIER1_CORE_PRESERVED
+    constraint: "Human-only merge (000), approval gate/no-self-authorization (010), and attribution mandates (080) remain in Tier-1 injected files per the #497 hard constraint (SC-9)."
+  - id: JSONC_ARRAY_UNCHANGED
+    constraint: "opencode.jsonc instructions array stays byte-identical at 14 entries; new Tier-2 files are NOT appended (SC-9, R-10)."
+  - id: SEMANTIC_PRESERVATION
+    constraint: "Every moved rule remains semantically equivalent (R-6); rewrites permitted, verbatim text not required."
+  - id: ECHO_BLOCKS_TRAVEL
+    constraint: "Echo blocks inside moved sections travel with their sections (OQ-1); removal deferred to follow-up spec (R-9)."
+  - id: DEDUP_NOT_DUAL_COPY
+    constraint: "Duplicates reconcile to ONE canonical home: 085 for project-local tools, 116 for pair mode, one location for gb install (SC-6, R-13)."

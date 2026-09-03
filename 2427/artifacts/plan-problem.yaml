@@ -1,0 +1,75 @@
+# Plan problem — issue #2427 phase decomposition for tools/plan (unified-planning)
+# Actions are grounded per phase; preconditions encode the dependency DAG from
+# artifacts/structure.yaml. Generated 2026-09-02 by writing-plans research task.
+domain: tier1-injection-reduction
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+  - name: phase4
+    type: phase
+  - name: phase5
+    type: phase
+  - name: phase6
+    type: phase
+  - name: phase7
+    type: phase
+fluents:
+  - name: phase_clean
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: carve_outs_000
+    preconditions: []
+    effects:
+      - phase_clean(phase1)
+  - name: split_020
+    preconditions:
+      - phase_clean(phase1)
+    effects:
+      - phase_clean(phase2)
+  - name: split_080
+    preconditions:
+      - phase_clean(phase1)
+    effects:
+      - phase_clean(phase3)
+  - name: trim_agents_md
+    preconditions:
+      - phase_clean(phase1)
+    effects:
+      - phase_clean(phase4)
+  - name: reconcile_dedup_index
+    preconditions:
+      - phase_clean(phase2)
+      - phase_clean(phase3)
+      - phase_clean(phase4)
+    effects:
+      - phase_clean(phase5)
+  - name: sweep_consumers
+    preconditions:
+      - phase_clean(phase2)
+      - phase_clean(phase3)
+      - phase_clean(phase4)
+      - phase_clean(phase5)
+    effects:
+      - phase_clean(phase6)
+  - name: verify_guard_497
+    preconditions:
+      - phase_clean(phase6)
+    effects:
+      - phase_clean(phase7)
+init: []
+goals:
+  - phase_clean(phase1)
+  - phase_clean(phase2)
+  - phase_clean(phase3)
+  - phase_clean(phase4)
+  - phase_clean(phase5)
+  - phase_clean(phase6)
+  - phase_clean(phase7)
