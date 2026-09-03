@@ -1,5 +1,6 @@
 # Concern Map — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/concern-map.md (brainstorming).
+# Regenerated 2026-09-03: scope G added — Concern 5 (test-framework monitoring mandate).
 status: complete
 source: "formalized from brainstorming preliminary + live verification"
 produced_at: "2026-09-02T20:28:00-04:00"
@@ -39,6 +40,15 @@ produced_at: "2026-09-02T20:28:00-04:00"
 | gb CLI install table + version pinning + TOOL_MISSING | AGENTS.md lines 173-204 | Tier-2 reference location; keep skill-dispatch mandate line |
 | editor MCP 11-tool surface table | AGENTS.md lines 381-410 | Tier-2 reference location |
 | Pair Mode section | AGENTS.md lines 297-311 | EXISTING 116-pair-mode.md (canonical — dedup, INDEX row exists) |
+
+### Concern 5 — Test-Framework Monitoring Mandate (scope G — developer-directed 2026-09-03)
+
+| Content | Location | Disposition |
+|---------|----------|-------------|
+| Semantic continuous monitoring mandate (§14) + `__semantic_monitor` poll protocol | tests-v2/AGENTS.md + behaviors/helpers.sh | GREEN ALREADY COMMITTED as 4989ffb5 — Phase 8 records RED baseline + monitored-run evidence only (R-21/R-22) |
+| §10.7 amendment (new-home-per-invocation resumption limitation) | tests-v2/AGENTS.md §10.7 | Committed with 4989ffb5 — verified present; no edit authorized under this plan |
+
+Phase boundary: Phase 8 (evidence-only; no pending phase dependency — GREEN pre-committed).
 
 ## Concern Boundary Violations Fixed
 
