@@ -274,7 +274,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
-| 2026-09-03 | Initial spec — scopes A/B/C/D/E (SC-1..SC-9, R-1..R-20, Items 1-9). | Developer-directed scope from issue creation. | Developer (issue #2427 authorization) |
+| 2026-09-03 | Initial spec — scopes A/B/C/D/E (SC-1..SC-9, R-1..R-20, Items 1-9). | Developer-directed scope from issue creation. | Developer (issue #2429 authorization) |
 | 2026-09-03 | Scope G added (developer-directed revision): new SC-10, R-21, R-22, Item 10; amended §1 Approach row 3, Alternatives row 4, Key Decisions row 5, User Intent row 6; amended NR-7 in §2; added traceability rows R-21/R-22; added Documentation Sources rows (tests-v2/AGENTS.md §10.5/§10.7, behaviors/helpers.sh); added SC-10 cost frame per dark-prose-007; added three scope-G edge cases (abort mid-run, cross-invocation resume limitation, semantic-only abort). Updated sc-summary.yaml sc_count 9→10 with SC-10 entry. | Developer-directed revision reason: "Add a new scope and SC updating the test framework to mandate semantic continuous monitoring of behavioral runs." | Developer (for_pr scope-continuation — per approval-gate, this revision does NOT halt for re-authorization; recorded here and plan regeneration follows) |
 
 ---

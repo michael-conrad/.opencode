@@ -15,7 +15,7 @@ lifecycle_events:
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
 ---
 
-# Implementation Plan — Issue #2427 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G
+# Implementation Plan — Issue #2429 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G
 
 Spec: [`.opencode/.issues/2429/spec.md`](https://github.com/michael-conrad/.opencode/tree/issues-data/2429) — remote exec summary: https://github.com/michael-conrad/.opencode/issues/2429
 
@@ -100,13 +100,13 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Run `git -C .opencode log --oneline -1` — record the HEAD commit as the rollback anchor; confirm 4989ffb5 (scope-G GREEN) is on the branch.
   - Run `rm -f tmp/.behavior-run.lock` — clear any stale behavioral-test lock before test execution.
   - Confirm `.opencode/tests-v2/with-test-home` exists (all behavioral verification MUST run through it — never bare `opencode run`).
-  - Confirm Item 10's evidence prerequisites: no `tmp/behavioral-evidence-2427-sc10-*` directories exist (RED baseline + monitored-run cycle pending); `.opencode/tests-v2/behaviors/helpers.sh` exports `__semantic_monitor` (committed 4989ffb5).
+  - Confirm Item 10's evidence prerequisites: no `tmp/behavioral-evidence-2429-sc10-*` directories exist (RED baseline + monitored-run cycle pending); `.opencode/tests-v2/behaviors/helpers.sh` exports `__semantic_monitor` (committed 4989ffb5).
   - If any check fails: halt and report — do not work from a non-trunk-tip or dirty state.
 - [ ] 3. Pre-regression — run regression test patterns before the first RED phase. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-pre-regression-*`.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")` with context: issue 2427, branch feature/2402-finishing-checklist-trailer-remediation, baseline scenarios silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via `bash .opencode/tests-v2/test-enforcement.sh --scenario <name>` plus the 2131-series and 2243/2249-series behavioral scripts — all must PASS on the pre-change tree to establish the regression baseline.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-pre-regression-*`.
+  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")` with context: issue 2429, branch feature/2402-finishing-checklist-trailer-remediation, baseline scenarios silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via `bash .opencode/tests-v2/test-enforcement.sh --scenario <name>` plus the 2131-series and 2243/2249-series behavioral scripts — all must PASS on the pre-change tree to establish the regression baseline.
 - [ ] 4. Pre-regression-verify — verify the baseline results. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-pre-regression-verify-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-pre-regression-verify-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: verify the pre-regression evidence artifact shows all baseline scenarios PASS; BLOCK on any baseline failure.
 
 ---
@@ -127,19 +127,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 1 — SC-1: Infrastructure-failure carve-out (scope A)
 
 - [ ] 1. RED — write the failing behavioral enforcement test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-1-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-1-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh`; the scenario prompt simulates a session state with at least two consecutive tool-level sub-agent dispatch failures and a pending read-only/verification task; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; assertions are stderr-based (assert_stderr_pattern helpers per the 091 behavioral variant): RED condition = the agent halts or loops with NO carve-out disclosure and NO inline execution, because 000-critical-rules.md does not yet contain the scope A carve-out. Run `rm -f tmp/.behavior-run.lock` before re-runs.
   - SC reference: SC-1. The test MUST FAIL before GREEN begins.
 - [ ] 2. GREEN — add the carve-out that makes the test pass. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-1-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-1-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: append to `.opencode/guidelines/000-critical-rules.md` a numbered binary-condition procedure (~15 lines) authorizing inline execution of read-only/verification work after at least two consecutive tool-level sub-agent dispatch failures, WITH mandatory explicit disclosure in the agent's output (R-1). What must be true afterwards: the behavioral scenario passes — the agent discloses and proceeds inline within read-only/verification limits. No scope creep — minimum change only; numbered procedure form, not prose.
   - SC reference: SC-1.
 - [ ] 3. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-1-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-1-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run the 000-keyed scenarios `bash .opencode/tests-v2/test-enforcement.sh --scenario silent-halt-with-search` and `bash .opencode/tests-v2/test-enforcement.sh --scenario read-secrets-in-output` — both must remain PASS after the 000 edit.
   - SC reference: SC-1 (guard: R-15 enforcement-test compatibility).
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-1-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-1-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-1 verdict — evidence must be behavioral: session stderr from the with-test-home run shows disclosure plus inline execution confined to read-only/verification work. Structural-only evidence is EVIDENCE_TYPE_MISMATCH → FAIL.
   - SC reference: SC-1.
 - [ ] 5. Commit — commit the test and the change as one atomic slice. (**inline**)
@@ -150,19 +150,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 2 — SC-2: Anti-recitation clause (scope B)
 
 - [ ] 6. RED — write the failing behavioral enforcement test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-2-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-2-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2427-sc2-anti-recitation.sh`; the scenario prompt directs the agent to perform a mechanically simple, safe, reversible action; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; stderr-based assertions: RED condition = the agent produces citation-only turns, reciting protocol rules instead of acting, because 000-critical-rules.md does not yet contain the anti-recitation clause. Run `rm -f tmp/.behavior-run.lock` before re-runs.
   - SC reference: SC-2. The test MUST FAIL before GREEN begins.
 - [ ] 7. GREEN — add the anti-recitation clause that makes the test pass. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-2-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-2-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: append to `.opencode/guidelines/000-critical-rules.md` an anti-recitation clause (~10 lines) establishing that rule citations belong in enforcement artifacts (test scripts, pre-commit hooks), not in agent deliberation, and that on a safe reversible action the agent acts and discloses instead of reciting rules before acting (R-2). What must be true afterwards: the behavioral scenario passes — the agent performs the action with disclosure and zero citation-only turns. Numbered clause form consistent with the scope A addition.
   - SC reference: SC-2.
 - [ ] 8. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-2-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-2-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run `bash .opencode/tests-v2/test-enforcement.sh --scenario silent-halt-with-search`, `bash .opencode/tests-v2/test-enforcement.sh --scenario read-secrets-in-output`, and the Item 1 scenario `bash .opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` — all must remain PASS after the second 000 edit.
   - SC reference: SC-2 (guard: SC-1 regression).
 - [ ] 9. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-2-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-2-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-2 verdict — behavioral evidence: the with-test-home run shows the safe action performed with disclosure; zero citation-only turns in session stderr.
   - SC reference: SC-2.
 - [ ] 10. Commit — commit the test and the change as one atomic slice. (**inline**)
@@ -171,7 +171,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 ### Phase 1 Completion
 
-- VbC assertion: SC-1 and SC-2 verdicts are PASS with behavioral evidence artifacts on disk under `tmp/2427/artifacts/`.
+- VbC assertion: SC-1 and SC-2 verdicts are PASS with behavioral evidence artifacts on disk under `tmp/2429/artifacts/`.
 - VbC assertion: 000-critical-rules.md contains both carve-outs in numbered binary-condition form; the 000-keyed enforcement scenarios still PASS.
 - Concern transition: the carve-outs are now available before any split work begins — proceed to Phase 2 (020 split).
 
@@ -193,19 +193,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 3 — SC-3: Split 020 — move scenario-governed sections to Tier-2
 
 - [ ] 1. RED — write the failing enforcement test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-3-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-3-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — grep asserts that INDEX.md lacks routing rows for the context-discipline and discussion-mode classes, that the 020 core still contains the three scenario-governed sections, and that the project-local-tools key rules appear in BOTH 020 section 4 and 085 (duplicate present); additionally stage the behavioral routing spot-check scenario prompt (agent must reach a demoted rule through the INDEX row or pointer) via `bash .opencode/tests-v2/with-test-home opencode run '<routing prompt>'` — RED condition = the demoted rule is unreachable because the move has not happened.
   - SC reference: SC-3. The test MUST FAIL before GREEN begins.
 - [ ] 2. GREEN — perform the split with semantically equivalent content. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-3-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-3-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: move 020 section 1.1 (Orchestrator Context Discipline — three mandates, context flow, authorization-free actions placement) into new `.opencode/guidelines/022-orchestrator-context-discipline.md`; move 020 section 1.6 (Discussion Mode Mandates) into new `.opencode/guidelines/025-discussion-mode.md`; reconcile 020 section 4 (Project-Local Tool Installation) INTO `.opencode/guidelines/085-project-local-tools.md` as the single canonical copy — dedup, NOT a dual-copy move (R-13); remove the empty "Specialized Execution Gates" header from 020 (nothing to preserve); echo blocks inside moved sections travel WITH their sections (R-9); rewrites/rephrasing/condensation permitted — same requirements, forbiddances, and mandates (R-6); when intent is ambiguous, preserve the original text rather than guess (fail-fast). What must be true afterwards: 020 core retains authorization semantics, prohibited authorization patterns, halt rules, the authorization-free-actions list, and silent-halt-with-search; each demoted concern has exactly one canonical home; the 020 core carries one-line imperative `Read [Text](path)` pointers per demoted concern; 022 and 025 carry `trigger_on`/`tier: 2`/`load_when` frontmatter; INDEX.md gains rows for 022 and 025 with trigger patterns matching their content; 085 is the only home for the 8 project-local-tools key rules.
   - SC reference: SC-3.
 - [ ] 3. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-3-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-3-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: run `bash .opencode/tests-v2/test-enforcement.sh --scenario pipeline-scoped-halt` (020-keyed) — must remain PASS after the split; note the 2131-series and sweep-dependent scenarios are handled in their own phases.
   - SC reference: SC-3 (guard: R-15 enforcement-test compatibility).
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-3-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-3-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-3 verdict — structural greps: retained authorization/halt content present in the 020 core, moved sections absent from the core, one-line imperative pointers present; `grep -c` over 085 and 020 for the project-local-tools key semantics resolves to 085 only; plus the behavioral routing spot-check via `bash .opencode/tests-v2/with-test-home opencode run '<routing prompt>'` asserting the agent reaches a moved rule through the pointer or INDEX row. Lint gate: `uvx pymarkdownlnt scan -r .opencode/guidelines/` and `uvx --with mdformat-frontmatter --with mdformat-tables --with mdformat-config --with mdformat-gfm mdformat --number --compact-tables --check .opencode/guidelines/` (advisory, read-only).
   - SC reference: SC-3.
 - [ ] 5. Commit — commit the split as one atomic slice. (**inline**)
@@ -236,19 +236,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 4 — SC-4: Split 080 — move Python-specific sections to Tier-2
 
 - [ ] 1. RED — write the failing enforcement test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-4-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-4-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — grep asserts that no Tier-2 python-standards file exists and that the 080 core still carries the Typing, Design Principles body, Modern Python, Dependency Injection (both sections), Print Statements & Output, Libraries & Packages, and Pipeline Rerun Constraint sections; the DI-reachability scenario staged against the not-yet-existing destination fails.
   - SC reference: SC-4. The test MUST FAIL before GREEN begins.
 - [ ] 2. GREEN — create the Tier-2 python-standards file and slim the 080 core. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-4-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-4-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: create `.opencode/guidelines/082-python-standards.md` with `trigger_on`/`tier: 2`/`load_when` frontmatter; move the Typing, Design Principles body, Modern Python, Dependency Injection (mandate + generic mandate), Print Statements & Output, Libraries & Packages, and Pipeline Rerun Constraint sections from 080 into 082 with semantically equivalent content (R-6 — rewrites permitted, same requirements and forbiddances; ambiguous intent → preserve original text, fail-fast); echo blocks inside moved sections travel with them (R-9); add one-line imperative `Read [Text](path)` pointer in the 080 core; add the INDEX.md row for 082 with trigger patterns matching the moved content (dependency injection, di, typing, python, print, pipeline rerun). What must be true afterwards: the attribution/provenance/byline-preservation sections, Cross-Reference Standards, Numbering, YAML Standard, Tool Selection, and Linting sections remain in the 080 core UNTOUCHED (R-18); 082 is the single home for the Python-specific standards; 082 is NOT in the opencode.jsonc instructions array (R-10, R-20).
   - SC reference: SC-4.
 - [ ] 3. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-4-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-4-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: run the 2131-series structural tests `bash .opencode/tests-v2/behaviors/2131/sc-1-parsing-paths.sh`, `bash .opencode/tests-v2/behaviors/2131/sc-2-library-names.sh`, `bash .opencode/tests-v2/behaviors/2131/sc-7-pipeline-rerun.sh` — record which assertions still target 080 content that moved to 082; the full re-point and re-run of those assertions happens in phase 6 (record the delta here, do not fix here).
   - SC reference: SC-4 (guard: R-15 enforcement-test compatibility evidence gathering).
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-4-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-4-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-4 verdict — structural greps: attribution sections intact in the 080 core, moved sections absent from the core, imperative pointer present, 082 frontmatter correct; behavioral DI-reachability: run the 2243-sc1-style DI scenario with the prompt re-pointed to the 082 destination via `bash .opencode/tests-v2/with-test-home opencode run '<DI prompt targeting 082>'` — the agent reaches the DI mandate through the new file. Lint gate per R-19 (advisory, read-only).
   - SC reference: SC-4.
 - [ ] 5. Commit — commit the split as one atomic slice. (**inline**)
@@ -279,19 +279,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 5 — SC-5: Trim AGENTS.md scenario sections to Tier-2 routing
 
 - [ ] 1. RED — write the failing enforcement test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-5-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-5-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — grep asserts that AGENTS.md still carries the gb CLI install table, version-pinning and TOOL_MISSING content, the editor MCP tool table, and the full Pair Mode section; no single canonical gb-install home exists outside the skill area; stage the behavioral spot-check prompt (a gb-install or pair-mode question must route to canonical content) via `bash .opencode/tests-v2/with-test-home opencode run '<gb-install or pair-mode prompt>'` — RED condition = the agent answers from the duplicated AGENTS.md copy or cannot reach canonical content.
   - SC reference: SC-5. The test MUST FAIL before GREEN begins.
 - [ ] 2. GREEN — replace the three sections with pointers; dedup Pair Mode to 116. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-5-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-5-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: move the gb CLI install-by-platform table, version-pinning rules, and TOOL_MISSING detection content into new `.opencode/skills/gb-cli/reference/install-and-authentication.md` (semantically equivalent, R-6); move the editor MCP plugin description and 11-tool surface table into new `.opencode/reference/editor-mcp-plugin.md`; replace the AGENTS.md Pair Mode section with a one-line imperative `Read [Text](.opencode/guidelines/116-pair-mode.md)` pointer — NO second copy of Pair Mode rules (R-13; read 116 first to confirm it holds the canonical content); replace the gb and editor sections with one-line imperative `Read [Text](path)` pointers to their new destinations; RETAIN the one-line gb skill-dispatch mandate in AGENTS.md. What must be true afterwards: AGENTS.md carries pointers plus the mandate line only; the install and editor content lives in exactly one Tier-2 location each; Pair Mode lives only in 116.
   - SC reference: SC-5.
 - [ ] 3. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-5-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-5-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: run `bash .opencode/tests-v2/test-enforcement.sh --scenario silent-halt-with-search` and `bash .opencode/tests-v2/test-enforcement.sh --scenario pipeline-scoped-halt` (AGENTS.md is session context for both) — must remain PASS; record any gb-cli-series test result changes (gb-cli-*.sh test skill availability, not the AGENTS.md table — VERIFY only, sweep in phase 6 if any assertion targets the moved table).
   - SC reference: SC-5 (guard: R-15 enforcement-test compatibility).
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-5-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-5-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-5 verdict — structural greps: AGENTS.md contains one-line imperative pointers for the three trimmed sections plus the retained gb skill-dispatch mandate, and no residual install table, tool table, or Pair Mode rules; behavioral spot-check via `bash .opencode/tests-v2/with-test-home opencode run '<gb-install or pair-mode question>'` asserting the agent routes to the canonical content (gb-cli reference file or 116). Lint gate per R-19 (advisory, read-only).
   - SC reference: SC-5.
 - [ ] 5. Commit — commit the trim as one atomic slice. (**inline**)
@@ -322,47 +322,47 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 6 — SC-6: Duplicate reconciliation verification
 
 - [ ] 1. RED — write the failing structural test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-6-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-6-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — `grep -rn` across `.opencode/guidelines/` and `.opencode/AGENTS.md` for each duplicated rule class's key semantics (project-local tools: the 8 key rules; pair mode: branch pattern table and dev-pair working-directory rules; gb install: platform download URLs and version pinning); RED condition = any class with MORE than one occurrence (straggler duplicate). If items 3–5 already achieved single-home state, the RED evidence records the zero-straggler counts and the item proceeds directly to verification — the grep evidence is mandatory either way.
   - SC reference: SC-6.
 - [ ] 2. GREEN — fix any straggler duplicates. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-6-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-6-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: for any class showing more than one occurrence, remove the non-canonical copy (canonical homes: 085 for project-local tools, 116 for pair mode, the gb-cli skill reference for gb install) leaving the canonical home intact; if the grep already shows exactly one occurrence per class, make NO edit — the minimum change needed is zero. What must be true afterwards: the class-key grep resolves to exactly one occurrence per class.
   - SC reference: SC-6.
 - [ ] 3. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-6-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-6-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run `bash .opencode/tests-v2/test-enforcement.sh --scenario pipeline-scoped-halt` and the 2131-series structural tests — all must remain PASS after any straggler fixes.
   - SC reference: SC-6.
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-6-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-6-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-6 verdict — structural: the class-key grep output shows exactly one occurrence per rule class across `.opencode/guidelines/` and `.opencode/AGENTS.md`, with the canonical home named for each class.
   - SC reference: SC-6.
 - [ ] 5. Commit — commit any straggler fixes (or record the zero-fix evidence). (**inline**)
   - If edits were made: `git -C .opencode add guidelines/ && git -C .opencode commit -m "refactor(guidelines): dedup straggler fixes — single canonical home per rule class (#2427 SC-6)"`.
-  - If no edits were needed: record the zero-straggler grep evidence under `tmp/2427/artifacts/` and skip the commit (verification-shaped item; nothing to commit).
+  - If no edits were needed: record the zero-straggler grep evidence under `tmp/2429/artifacts/` and skip the commit (verification-shaped item; nothing to commit).
   - SC reference: SC-6. This commit (or recorded no-op) is the precondition for Item 7's RED.
 
 ### Item 7 — SC-7: INDEX.md routing completeness
 
 - [ ] 6. RED — write the failing structural test. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-7-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-7-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — read INDEX.md and assert a Tier-2 routing row exists for every demoted class (context-discipline → 022, discussion-mode → 025, python-standards → 082) with trigger patterns matching the moved content, and that 022/025/082 carry `trigger_on`/`tier: 2`/`load_when` frontmatter; RED condition = any missing row, any pattern that fails to match the destination content, or missing frontmatter.
   - SC reference: SC-7.
 - [ ] 7. GREEN — complete or correct the INDEX row set. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-7-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-7-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: add or correct INDEX.md rows so exactly one routing row exists per demoted class with trigger patterns matching the destination content; existing 085 and 116 rows are reused (they are already canonical); disambiguate any pattern collision so exactly one row matches a given trigger intent; if the row set is already complete and accurate from items 3 and 4, make NO edit. What must be true afterwards: one row per class; new files carry `tier: 2` frontmatter.
   - SC reference: SC-7.
 - [ ] 8. Post-regression — run regression patterns after GREEN. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-7-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-7-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run `bash .opencode/tests-v2/test-enforcement.sh --scenario pipeline-scoped-halt` — INDEX.md is session context; must remain PASS.
   - SC reference: SC-7.
 - [ ] 9. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-7-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-7-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-7 verdict — structural: read INDEX.md post-change and assert one Tier-2 routing row per demoted class (context-discipline, discussion-mode, python-standards) with trigger patterns matching the moved content; assert 022, 025, and 082 each carry `trigger_on`, `tier: 2`, `load_when` frontmatter; confirm the existing 085 and 116 rows still resolve.
   - SC reference: SC-7.
 - [ ] 10. Commit — commit INDEX corrections (or record the zero-fix evidence). (**inline**)
   - If edits were made: `git -C .opencode add guidelines/INDEX.md && git -C .opencode commit -m "docs(guidelines): INDEX routing rows for demoted classes (#2427 SC-7)"`.
-  - If no edits were needed: record the row-set evidence under `tmp/2427/artifacts/` and skip the commit.
+  - If no edits were needed: record the row-set evidence under `tmp/2429/artifacts/` and skip the commit.
   - SC reference: SC-7. This commit (or recorded no-op) closes Phase 5.
 
 ### Phase 5 Completion
@@ -389,19 +389,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Item 8 — SC-8: Consumer sweep — Read-links + test prompts
 
 - [ ] 1. RED — write the failing sweep verification. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-8-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-8-*`.
   - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: run the sweep grep `grep -rn "guidelines/020-go-prohibitions\|guidelines/080-code-standards" .opencode/skills/ .opencode/guidelines/` and diff each hit against the post-phase-2/3 file states — RED condition = at least one hit resolves to a section anchor that no longer exists in the source file (dangling), or one of the 080-path test prompts directs the agent to DI content that now lives in 082; attempt the affected scenario runs to record the failure baseline.
   - SC reference: SC-8.
 - [ ] 2. GREEN — re-point every consumer to the new canonical locations. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-8-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-8-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: re-point every skill Read-link referencing 020 sections 1.1/1.6/4 or the 080 Python sections to their new destinations (022, 025, 085, 082) — imperative `Read [Text](path)` form only; re-point SCENARIO_PROMPT paths in the 2243-sc1, 2249-sc6, 2249-sc7 pair, and test-sc3-di-carveout-doc scripts from the 080 path to the 082 destination (or confirm a visible pointer routes there); update 2131-series TARGET_FILE/section assertions whose target sections moved; re-point echo-block grep targets in enforcement tests to the new file locations (blocks themselves untouched). What must be true afterwards: the sweep grep returns no dangling anchors, and every named scenario completes.
   - SC reference: SC-8.
 - [ ] 3. Post-regression — run the named affected scenarios. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-8-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-8-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: run `rm -f tmp/.behavior-run.lock`, then via with-test-home with timeouts of at least 600000 ms: `bash .opencode/tests-v2/with-test-home opencode run` driven scenarios `bash .opencode/tests-v2/behaviors/2243-sc1-dependency-injector-mandate.sh`, `bash .opencode/tests-v2/behaviors/2249-sc6-generic-di-mandate.sh`, `bash .opencode/tests-v2/behaviors/2249-sc7-html-css-exclusion.sh`, `bash .opencode/tests-v2/behaviors/2249-sc7-contested-ts-di.sh`, and `bash .opencode/tests-v2/test-enforcement.sh --scenario pipeline-scoped-halt` — all PASS.
   - SC reference: SC-8.
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-8-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-8-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-8 verdict — the sweep grep returns zero dangling anchors across `.opencode/skills/` and `.opencode/guidelines/`; the four named scenarios PASS via with-test-home with stderr-based evidence; zero unverified claims.
   - SC reference: SC-8.
 - [ ] 5. Commit — commit the swept files as one atomic slice. (**inline**)
@@ -425,7 +425,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 **Code path coverage:** Path 1 (session-start injection — the guard confirms the true Tier-1 core still reaches the model) and Path 5 (config invariance).
 **Cross-cutting SCs:** This is the verification column of the cross-cutting matrix for #497 core preservation, the scope A/B additions, and the informational-only context-reduction measurement (#2411 — measure and record, never gate).
 **Interface boundaries:** Interface 1 (opencode.jsonc instructions array — UNCHANGED, 14 entries) and the #497 WARNING comment accuracy are the verified boundaries.
-**State transitions:** no file changes — verification-only item; evidence recorded under `tmp/2427/artifacts/`; the informational injection-size measurement (pre/post stat of the 15 injected files) is recorded as diagnostic evidence ONLY, never a PASS/FAIL input (#2411).
+**State transitions:** no file changes — verification-only item; evidence recorded under `tmp/2429/artifacts/`; the informational injection-size measurement (pre/post stat of the 15 injected files) is recorded as diagnostic evidence ONLY, never a PASS/FAIL input (#2411).
 
 **Cost frame:** Running the #497 guard greps and the git diff costs seconds. Skipping risks repeating the documented regression — a PR merged because the human-only-merge rule was missing from context — the highest-cost failure mode in the deck's history.
 
@@ -435,19 +435,19 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Run the guard greps against the baseline commit recorded in the pre-implementation baseline check (`git -C .opencode show <baseline-sha>:guidelines/000-critical-rules.md | grep -c "human-only merge"` and the corresponding 010 and 080 checks) — expected PASS on the baseline; this establishes the guard reference before comparing post-change state.
   - SC reference: SC-9.
 - [ ] 2. GREEN — run the full structural guard verification. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-9-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-9-*`.
   - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: no code change — run the post-change greps: human-only-merge rule present in `guidelines/000-critical-rules.md`; the zero-tolerance table present in `guidelines/010-approval-gate.md`; the attribution sections present in `guidelines/080-code-standards.md`; `git -C .opencode diff opencode.jsonc` is empty; the opencode.jsonc instructions array holds exactly 14 entries; record the informational injection-size stat (diagnostic only, #2411). What must be true afterwards: every guard grep passes and the diff is empty.
   - SC reference: SC-9.
 - [ ] 3. Post-regression — final file-level regression confirmation. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-9-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-9-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: confirm `git -C .opencode status --porcelain` is clean (all slices committed) and the full scenario set touched by this plan is recorded PASS in the phase evidence.
   - SC reference: SC-9.
 - [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-9-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-9-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-9 verdict — structural evidence: guard grep outputs + empty `git -C .opencode diff opencode.jsonc` + 14-entry count, recorded as the SC-9 evidence artifact.
   - SC reference: SC-9.
 - [ ] 5. Record evidence — no commit (verification-only item). (**inline**)
-  - Write the SC-9 evidence (grep outputs, diff emptiness, entry count, informational size stat) to `tmp/2427/artifacts/sc9-guard-evidence.yaml`.
+  - Write the SC-9 evidence (grep outputs, diff emptiness, entry count, informational size stat) to `tmp/2429/artifacts/sc9-guard-evidence.yaml`.
   - SC reference: SC-9. This closes Phase 7 — SC-1 through SC-9 all carry verdicts.
 
 ### Phase 7 Completion
@@ -460,36 +460,36 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 # Phase 8 — Monitoring Mandate Evidence (Scope G, SC-10)
 
 **Concern:** Evidence the test-framework semantic continuous monitoring mandate (scope G) per SC-10: the GREEN change (tests-v2/AGENTS.md §14 monitoring mandate + tests-v2/behaviors/helpers.sh `__semantic_monitor` poll protocol) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step — this phase's cycle is therefore the RED baseline + monitored-run evidence recording against a committed GREEN, plus regression/verify steps. The RED baseline records the unmonitored comparison (a run driving an off-track/loop state burning the full timeout with no abort and no diagnosis); the evidence cycle records the monitored variant (poll protocol executing, hard-abort detected, §10.5 export, semantic diagnosis recorded). The monitoring evidence requirements apply to SC-10's verdict AND to every monitored-run behavioral verdict recorded by Phases 1–7 evidence artifacts going forward.
-**Files:** `.opencode/tests-v2/behaviors/helpers.sh` and `.opencode/tests-v2/AGENTS.md` (READ-ONLY this phase — change already committed as 4989ffb5); new evidence artifacts under `tmp/2427/artifacts/` (RED baseline record, poll log, semantic diagnosis, SC-10 verdict).
+**Files:** `.opencode/tests-v2/behaviors/helpers.sh` and `.opencode/tests-v2/AGENTS.md` (READ-ONLY this phase — change already committed as 4989ffb5); new evidence artifacts under `tmp/2429/artifacts/` (RED baseline record, poll log, semantic diagnosis, SC-10 verdict).
 **SCs:** SC-10 (behavioral). Guards: R-21 (monitoring mandate), R-22 (hard-abort signals + abort recovery + §10.7 limitation documentation).
 **Dependencies:** None pending — Phase 8 depends on NO other phase's completion (the GREEN change landed before this plan revision; the RED baseline and monitored evidence are independent of Phases 2–7 outcomes). It executes after Phase 7 to preserve sequential daisy-chaining in this plan.
 **Code path coverage:** Path 3 (enforcement tests — helpers.sh `__semantic_monitor` poll protocol is the runtime-under-test; the monitored run exercises background launch, interval polling, live session DB read, semantic event-stream evaluation, hard-abort signals, kill + §10.5 export + diagnosis) and Path 5 (evidence contract — monitoring evidence recorded alongside session.yaml per the SC-10 evidence rule).
 **Cross-cutting SCs:** SC-10's monitoring protocol is the evidence-collection method upgrade for ALL behavioral SCs in this plan (SC-1 through SC-5, SC-8) — monitored runs record poll logs/semantic diagnoses alongside session.yaml. §14's evidence requirement is verified here once as the harness-level gate; individual phase evidence artifacts confirm compliance per run.
 **Interface boundaries:** helpers.sh and tests-v2/AGENTS.md are READ-ONLY in this phase (4989ffb5 is the committed GREEN; no further harness edits authorized under this plan — a defect found here is a spec-revision trigger, not an inline fix). The §10.7 amendment (new-home-per-invocation limitation) is verified present in tests-v2/AGENTS.md. The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between this phase and every behavioral SC verdict.
-**State transitions:** NO file changes in the `.opencode` submodule this phase — Item 10 is evidence-recording only (the GREEN commit 4989ffb5 already advanced git state); evidence artifacts appear under `tmp/2427/artifacts/`; `tmp/behavioral-evidence-2427-sc10-*` directories are created by the RED baseline and monitored runs.
+**State transitions:** NO file changes in the `.opencode` submodule this phase — Item 10 is evidence-recording only (the GREEN commit 4989ffb5 already advanced git state); evidence artifacts appear under `tmp/2429/artifacts/`; `tmp/behavioral-evidence-2429-sc10-*` directories are created by the RED baseline and monitored runs.
 
 **Cost frame:** Running the RED baseline and the monitored scenario costs the poll intervals plus one abort-and-diagnose cycle — a bounded delay that surfaces a stuck-run defect at gate 1 instead of burning the full 600–900s timeout on every looped run (SC-10 cost frame, dark-prose-007). The per-run polling cost is seconds of SQLite reads against an already-present session DB; skipping the evidence cycle means SC-10's behavioral verdict has no poll-log/semantic-diagnosis artifact — an EVIDENCE_TYPE_MISMATCH that fails the completion gate regardless of the committed GREEN.
 
 ### Item 10 — SC-10: Monitoring mandate evidence cycle (scope G — GREEN pre-committed as 4989ffb5)
 
 - [ ] 1. RED — record the unmonitored-run failure baseline. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-10-*` and `rm -f tmp/.behavior-run.lock`.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: the GREEN change is already committed (4989ffb5) — this RED step records the RED-vs-GREEN comparison baseline required by SC-10's verdict basis, not a pre-change failure. Run a scenario that drives an off-track/loop state (a prompt that induces repeated identical tool input or reasoning growth with no goal-relevant tool calls) with the monitor DISABLED (bypassing `__semantic_monitor`) via `bash .opencode/tests-v2/with-test-home opencode run '<off-track prompt>'` with a timeout of at least 600000 ms — observe it burn the full timeout with NO abort and NO semantic diagnosis recorded; archive the run artifacts under `tmp/behavioral-evidence-2427-sc10-RED-<model>/`. RED condition = the unmonitored run completes (or is killed by timeout) with zero poll-log entries, zero abort record, zero diagnosis — the comparison baseline against which the monitored variant's abort evidence is judged.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-10-*` and `rm -f tmp/.behavior-run.lock`.
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: the GREEN change is already committed (4989ffb5) — this RED step records the RED-vs-GREEN comparison baseline required by SC-10's verdict basis, not a pre-change failure. Run a scenario that drives an off-track/loop state (a prompt that induces repeated identical tool input or reasoning growth with no goal-relevant tool calls) with the monitor DISABLED (bypassing `__semantic_monitor`) via `bash .opencode/tests-v2/with-test-home opencode run '<off-track prompt>'` with a timeout of at least 600000 ms — observe it burn the full timeout with NO abort and NO semantic diagnosis recorded; archive the run artifacts under `tmp/behavioral-evidence-2429-sc10-RED-<model>/`. RED condition = the unmonitored run completes (or is killed by timeout) with zero poll-log entries, zero abort record, zero diagnosis — the comparison baseline against which the monitored variant's abort evidence is judged.
   - SC reference: SC-10. The RED baseline MUST be recorded before the monitored-run evidence step begins.
 - [ ] 2. GREEN — confirm the committed monitoring mandate satisfies the scenario. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-10-*`.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: NO code change — the GREEN change is already landed as 4989ffb5 (tests-v2/AGENTS.md §14 mandate + helpers.sh `__semantic_monitor` wired into behavioral run paths). Verify the committed state satisfies SC-10: run the monitored variant of the same off-track scenario — the run is launched in background and polled; the poll reads the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream, detects a hard-abort signal (identical tool input >=3x, or reasoning >20K chars with <=1 new tool call, or semantically judged off-track), kills the run, exports session.yaml per §10.5, and records the semantic diagnosis; archive poll log + session.yaml + diagnosis under `tmp/behavioral-evidence-2427-sc10-GREEN-<model>/`. What must be true afterwards: the abort beats the RED baseline's full-timeout burn; poll log shows per-poll event-stream reads + semantic judgment; §10.5 export present; diagnosis records the abort reason.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-10-*`.
+  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: NO code change — the GREEN change is already landed as 4989ffb5 (tests-v2/AGENTS.md §14 mandate + helpers.sh `__semantic_monitor` wired into behavioral run paths). Verify the committed state satisfies SC-10: run the monitored variant of the same off-track scenario — the run is launched in background and polled; the poll reads the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream, detects a hard-abort signal (identical tool input >=3x, or reasoning >20K chars with <=1 new tool call, or semantically judged off-track), kills the run, exports session.yaml per §10.5, and records the semantic diagnosis; archive poll log + session.yaml + diagnosis under `tmp/behavioral-evidence-2429-sc10-GREEN-<model>/`. What must be true afterwards: the abort beats the RED baseline's full-timeout burn; poll log shows per-poll event-stream reads + semantic judgment; §10.5 export present; diagnosis records the abort reason.
   - SC reference: SC-10.
 - [ ] 3. Post-regression — confirm the monitoring mandate does not regress existing scenarios. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-10-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-10-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run one completed behavioral scenario end-to-end under the monitoring protocol — `bash .opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` (SC-1's committed scenario) via `bash .opencode/tests-v2/with-test-home opencode run '<SC-1 scenario prompt>'` with a timeout of at least 600000 ms — must remain PASS with the poll protocol executing silently on a healthy run (no false-abort); confirms the monitor does not abort progressing runs.
   - SC reference: SC-10 (guard: healthy-run non-interference).
 - [ ] 4. Verify — verify SC-10 with monitoring evidence alongside session.yaml. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-10-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-10-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-10 verdict — evidence must be behavioral AND monitoring-shaped: session.yaml from the monitored run shows the stalled event stream; the poll log artifact shows per-poll live-DB event-stream reads + semantic judgments; the abort record shows the §10.5 export + semantic diagnosis; the §10.7 amendment (with-test-home new-home-per-invocation limitation, cross-invocation resumption impossible) is visible in tests-v2/AGENTS.md; the committed GREEN (4989ffb5) contains the §14 mandate and the `__semantic_monitor` helper. Structural-only evidence is EVIDENCE_TYPE_MISMATCH → FAIL.
   - SC reference: SC-10.
 - [ ] 5. Record evidence — no commit (GREEN change already committed as 4989ffb5). (**inline**)
-  - Write the SC-10 evidence (RED baseline record, poll log, semantic diagnosis, monitored-run session.yaml path, §10.7 amendment citation, committed-GREEN SHA) to `tmp/2427/artifacts/sc10-monitoring-evidence.yaml`.
+  - Write the SC-10 evidence (RED baseline record, poll log, semantic diagnosis, monitored-run session.yaml path, §10.7 amendment citation, committed-GREEN SHA) to `tmp/2429/artifacts/sc10-monitoring-evidence.yaml`.
   - SC reference: SC-10. This closes Phase 8 — all ten SCs now carry verdicts.
 
 ### Phase 8 Completion
@@ -502,22 +502,22 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 # Post-Implementation (once per plan — executes after Phase 8)
 
 - [ ] 1. Audit — adversarial audit of the deliverable. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-audit-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-audit-*`.
   - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` with context: issue 2427, plan `.opencode/.issues/2429/plan.md`, spec `.opencode/.issues/2429/spec.md`.
   - Then dispatch in sequence (each a separate single-dispatch step): validator → evaluator → arbiter using the corresponding `audit/tasks/verification-audit-*.md` task cards.
   - Semantic-preservation audit focus (R-6): compare moved sections against destinations — same requirements, forbiddances, mandates; block on doubt (fail-fast).
 - [ ] 2. Z3 check — run the constraint solver verification of the dependency contract. (**inline**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-z3-check-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-z3-check-*`.
   - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2429/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
   - Run: `.opencode/tools/solve check --state-path .opencode/.issues/2429/artifacts/state-z3-goal.yaml --contract-path .opencode/.issues/2429/dependency-contract.yaml` — interpret per the solve-output caveat (goal-state UNSAT from precondition conflict is expected; reachability is proven by the model query above, not the state check).
 - [ ] 3. Structural checks — run the finishing checklist. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-structural-checks-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-structural-checks-*`.
   - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")` with context: branch feature/2402-finishing-checklist-trailer-remediation, lint gates (pymarkdownlnt scan + mdformat --check, advisory read-only) on all modified guideline files.
 - [ ] 4. Pre-PR gate — verify all SC verdicts before PR creation. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-pre-pr-gate-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-pre-pr-gate-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all ten SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules; SC-10's verdict MUST carry monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
 - [ ] 5. Regression check — final regression run before PR. (**clean-room**)
-  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-regression-check-*`.
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-regression-check-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2427-sc1, 2427-sc2, 2427-sc3, 2427-sc4 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; SC-10 monitored-run evidence confirmed on disk — all PASS.
 - [ ] 6. Review-prep — prepare PR review context. (**clean-room**)
   - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and items 9–10 evidence-only excluded; the scope-G GREEN landed as commit 4989ffb5).

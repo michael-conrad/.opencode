@@ -1,4 +1,4 @@
-# Dependency contract — Issue #2427 (.opencode)
+# Dependency contract — Issue #2429 (.opencode)
 # Extracted from artifacts/interface-compatibility.yaml `dependency_contract` section (present
 # in source — extracted as-is per research.md step 9) + phase-DAG variables for Z3 solving.
 # Generated 2026-09-02 by writing-plans research task.
