@@ -1,71 +1,154 @@
+# Validate findings — Issue #2427 (.opencode)
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Fresh full validation per writing-plans validate task; overwrites the prior
+# BLOCKED run (solve artifacts missing — since regenerated and SAT).
 schema_version: 1
 issue: 2427
 artifact: validate-findings
-generated_at: "2026-09-03T20:41:39Z"
+generated_at: "2026-09-03T21:30:00Z"
 generator: "writing-plans validate task (inline executor, ollama-cloud/glm-5.3-flash)"
-validation_run: fresh  # prior verdicts overwritten per dispatch context
+validation_run: fresh
 
 entry_criteria:
   solve_output_path: ".opencode/.issues/2427/artifacts/solve-output.yaml"
-  solve_output_present: false
-  solve_status: NOT_FOUND
-  evidence:
-    - "ls .opencode/.issues/2427/artifacts/ -> directory absent (parent holds only comments/dependency-contract/issue/links/plan/sc-summary/spec)"
-    - "git -C .opencode/.issues ls-tree origin/issues-data 2427/ --name-only -> 7 files, no artifacts/ tree (remote issues-data branch tip 497cd5e8; local HEAD matches)"
-    - "find tmp/2427 -name '*solve*' -> no match; tmp/2427/contracts holds only requirements-output.yaml and decompose-output.yaml"
-    - "find . -path '*2427*' -name 'solve-output.yaml' -> no match outside tmp/test-home fixtures"
-  dependency_contract_present: true
-  dependency_contract_path: ".opencode/.issues/2427/dependency-contract.yaml"
+  solve_output_present: true
+  solve_status: SAT
+  plan_status: SOLVED_SATISFICING
   plan_present: true
   plan_path: ".opencode/.issues/2427/plan.md"
+  dependency_contract_present: true
+  dependency_contract_path: ".opencode/.issues/2427/dependency-contract.yaml"
   spec_present: true
   spec_path: ".opencode/.issues/2427/spec.md"
-  note: >-
-    plan.md frontmatter and body reference `.opencode/.issues/2427/artifacts/structure.yaml`
-    and `.opencode/.issues/2427/artifacts/solve-output.yaml` (pre-implementation coherence gate),
-    but neither artifact exists on disk or on the remote issues-data branch. The plan-regeneration
-    step that should have produced them is not recorded in the worktree (only plan.md and
-    dependency-contract.yaml are locally modified).
+  evidence:
+    - "solve-output.yaml: solve_status SAT, plan_status SOLVED_SATISFICING, 8-step planner plan covering all phases; regenerated 2026-09-03 for the 8-phase decomposition"
+    - "structure.yaml: 8 phases, 10 SCs, 11-edge DAG among phases 1-7 + phase_8_node (no edges), triplet_co_location verified"
 
 categories:
-  category_1_structural: BLOCKED
-  category_2_skill_task_validity: BLOCKED
-  category_3_sc_coverage: BLOCKED
-  category_4_concern_separation: BLOCKED
-  category_5_dag_validation: BLOCKED
-  category_6_holistic_quality: BLOCKED
-  category_block_reason: >-
-    Entry-criteria artifact solve-output.yaml is missing (solve_status NOT_FOUND, not SAT).
-    Per task Procedure step 1, execution halts before category execution. No category was
-    executed against the plan body; no PASS/FAIL verdict is asserted for any category.
+  category_1_structural: PASS
+  category_2_skill_task_validity: PASS
+  category_3_sc_coverage: PASS
+  category_4_concern_separation: PASS
+  category_5_dag_validation: PASS
+  category_6_holistic_quality: PASS
 
-findings:
-  - id: FIND-1
-    severity: blocker
-    check: entry_criteria_solve_output
-    result: FAIL
-    reason: SOLVE_NOT_SAT
-    detail: >-
-      Required entry-criteria artifact {issues_prefix}/2427/artifacts/solve-output.yaml does not
-      exist. Verified missing locally, on the fetched remote issues-data branch tip (497cd5e8),
-      and in every tmp/2427/ staging location. DAG/cycle checks in Category 5 cannot be
-      independently verified against a solve artifact; per Procedure step 1 the run blocks
-      instead of partially validating.
-  - id: FIND-2
-    severity: blocker
-    check: plan_referenced_artifacts_present
-    result: FAIL
-    reason: MISSING_PLAN_REFERENCED_ARTIFACTS
-    detail: >-
-      plan.md pre-implementation step 1 (coherence gate) requires artifacts/structure.yaml and
-      artifacts/solve-output.yaml to exist; neither does. If validation proceeded, the plan's own
-      first gate would BLOCK on this same gap — surfacing it at validation is the cheaper defect
-      catch.
+checks:
+  category_1_structural:
+    phase_table_present: true
+    phase_table_columns: [Phase, Name, Concern, SCs, Dependencies, Items, Dispatch]
+    phase_table_rows: 8
+    procedures_with_numbered_steps: 8
+    exit_criteria_present: true
+    exit_criteria_sc_to_phase_mapping: "C1-C9 map SC-1..SC-10 to phases 1-8 (C2 covers SC-1..SC-10 with evidence-type rule; C4 SC-9; C5 SC-8; C6 SC-6; C7 SC-7; C9 post-implementation gates)"
+    result: PASS
+  category_2_skill_task_validity:
+    unique_dispatch_strings: 10
+    matched_against: ".opencode/skills/writing-plans/reference/implementation-workflow.md"
+    all_match: true
+    note: >-
+      All 10 unique dispatch strings match the reference card canonical forms
+      (red/green/post-regression->phase-4/verify/phase-0/checklist/completion/create/review-prep/audit-investigator).
+      The two audit/git-workflow-pr strings with embedded Read-first paths match modulo
+      backtick escaping in the reference card table. Orchestrator-inline steps (commit,
+      guard RED, record-evidence, z3-check) match the reference card's (orchestrator)
+      entries. Referenced task cards verified on disk: red, green, phase-0, phase-4,
+      verify, verification-audit-investigator, checklist, review-prep, completion all
+      exist; git-workflow-pr "create" maps to pr-creation.md (exists, skill-internal
+      routing per SKILL.md Create-a-PR section).
+    result: PASS
+  category_3_sc_coverage:
+    spec_sc_count: 10
+    spec_sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+    spec_r_count: 22
+    sc_to_phase:
+      SC-1: 1
+      SC-2: 1
+      SC-3: 2
+      SC-4: 3
+      SC-5: 4
+      SC-6: 5
+      SC-7: 5
+      SC-8: 6
+      SC-9: 7
+      SC-10: 8
+    all_scs_covered: true
+    triplet_split_violations: none
+    triplet_detail: >-
+      Every SC's RED, GREEN, COMMIT steps are co-located in exactly one phase
+      (SC-1/SC-2 -> items 1-2, phase 1; SC-3 -> item 3, phase 2; SC-4 -> item 4, phase 3;
+      SC-5 -> item 5, phase 4; SC-6 -> item 6, phase 5; SC-7 -> item 7, phase 5;
+      SC-8 -> item 8, phase 6; SC-9 -> item 9, phase 7; SC-10 -> item 10, phase 8).
+      SC-9 RED is the inline pre-change guard check and SC-9 COMMIT is "none"
+      (verification-only) — both fully within phase 7. SC-10 COMMIT is "none"
+      (evidence-only, GREEN pre-committed as 4989ffb5) — fully within phase 8.
+      Verified against structure.yaml triplet_co_location: verified.
+    result: PASS
+  category_4_concern_separation:
+    concern_map: ".opencode/.issues/2427/artifacts/concern-map.yaml"
+    concern_count: 5
+    phase_to_concern:
+      1: "Safety-critical authorization rules additions (scopes A+B -> 000) — Concern 1 ADD rows"
+      2: "Context mechanics + project-local-tools demotion (020 split) — Concerns 2+3"
+      3: "Python-standards demotion (080 split) — Concern 3 (080 rows)"
+      4: "Repo-reference trimming (AGENTS.md gb/editor/pair) — Concern 4"
+      5: "Dedup + INDEX verification — verification layer of Concerns 2/3/4 (single canonical home + reachability)"
+      6: "Consumer sweep — cross-cutting propagation (Read-links + test prompts)"
+      7: "#497 guard verification — Concern 1 KEEP rows verification column"
+      8: "Monitoring mandate evidence (scope G) — Concern 5"
+    one_concern_per_phase: true
+    duplicate_concern_phases: none
+    note: >-
+      Phases 2 and 5 touch overlapping content classes, but phase 5 is the
+      verification column of the SAME concern classes phases 2/3/4 produce —
+      the concern-map and cross-cutting matrix encode this P (produce) vs V
+      (verify) split explicitly; no two phases produce the same concern.
+      Phase 1 holds two SCs (A+B carve-outs) but both are Concern-1 ADD rows
+      in one file — one concern per phase holds.
+    result: PASS
+  category_5_dag_validation:
+    contract_edges: 11
+    dag_edges_phases_1_to_7: "1->{2,3,4}; {2,3,4}->5; {2,3,4,5}->6; 6->7"
+    cycle_check: "Acyclic — edges strictly increase phase index; topological order 1,(2,3,4),5,6,7 exists"
+    all_phases_reachable: true
+    orphan_phases: none
+    phase_8_treatment: intentional_independent_node
+    phase_8_note: >-
+      Phase 8 has no incoming or outgoing DAG edges BY DESIGN: its GREEN change
+      is pre-committed as 4989ffb5 (verified ancestor of HEAD in .opencode),
+      so it depends on no pending phase. structure.yaml phase_8_node,
+      solve-output checks, and dependency-contract invariant
+      MONITORING_MANDATE_EVIDENCED all encode this. The plan table's
+      Dependencies column states 'none pending'. Under a strict orphan-phase
+      reading this is a no-edge node; it is recorded as an intentional,
+      documented independent node — verified consistent across all four
+      artifacts — not a decomposition defect.
+    result: PASS
+  category_6_holistic_quality:
+    placeholder_scan: "grep TBD|TODO|FIXME|PLACEHOLDER -> 0 matches"
+    checkbox_steps: 62
+    all_steps_checkbox: true
+    dispatch_mode_consistency: "62/62 steps carry (**inline**)/(**clean-room**) markers; 0 inline steps contain task(); 0 clean-room steps lack task() (inline steps run git/solve/rm commands directly)"
+    inline_steps: 14
+    clean_room_steps: 48
+    material_premises_verified_live:
+      - "git -C .opencode branch --show-current -> feature/2402-finishing-checklist-trailer-remediation (plan target branch exists)"
+      - "git -C .opencode log --oneline -5 -> SC-1..SC-4 commits + 4989ffb5 scope-G GREEN on branch; 4989ffb5 is ancestor of HEAD"
+      - "grep __semantic_monitor tests-v2/behaviors/helpers.sh -> 2 matches (helper present)"
+      - "tests-v2/AGENTS.md: section 14 Semantic Continuous Monitoring Mandate present; 10.7 new-home-per-invocation limitation present"
+      - "spec R-count: 22 SHALL requirements (R-1..R-22) — matches plan coherence-gate claim"
+      - "opencode.jsonc instructions array: 14 entries (verified live); git diff of opencode.jsonc from plan-start baseline empty (byte-identical)"
+      - "git -C .opencode status --porcelain -> clean"
+      - "SC-10/Phase 8 framing consistent: RED baseline + monitored evidence against committed GREEN, no new commit, evidence-only"
+    result: PASS
 
-overall_status: BLOCKED
-aggregate_verdict: FAIL
-blocker_reason: SOLVE_NOT_SAT
+findings: []
+
+overall_status: PASS
+aggregate_verdict: PASS
+blocker_reason: null
 next_action: >-
-  Regenerate the 8-phase solve output (and structure.yaml) for the regenerated plan via the
-  writing-plans pipeline solve step, then re-dispatch this validate task. plan.md and
-  dependency-contract.yaml are present and current; no plan-body edit is indicated.
+  Proceed to plan completion (lifecycle event) — validation is clean PASS.
+  Execution progress on the feature branch (SC-1..SC-4 already committed) is
+  consistent with the plan and is outside this task's scope.
