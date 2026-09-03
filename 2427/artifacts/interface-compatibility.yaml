@@ -3,6 +3,8 @@
 status: complete
 source: "formalized from brainstorming preliminary + live verification"
 produced_at: "2026-09-02T20:34:00-04:00"
+updated_at: "2026-09-03T21:10:00Z"
+update_note: "Scope G added 2026-09-03 — Interface 7 (tests-v2 monitoring harness, READ-ONLY under this plan; GREEN pre-committed as 4989ffb5). dependency_contract section unchanged (root dependency-contract.yaml already carries the 8-phase revision with scope-G variables)."
 
 ## Public Interfaces Inventory
 
@@ -46,6 +48,14 @@ Preliminary grep verified: zero guideline references. Verdict: NO IMPACT.
 
 Schema: trigger_on, tier, load_when (verified on all Tier-1 files + 085/116 Tier-2). New Tier-2 files must carry tier: 2 + be registered in INDEX.md, else routing cannot find them.
 Verdict: COMPATIBLE with constraint on new files.
+
+### Interface 7 — tests-v2 monitoring harness (scope G — READ-ONLY under this plan)
+
+- The monitoring mandate GREEN change (tests-v2/AGENTS.md §14 + behaviors/helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5.
+- helpers.sh exports `__semantic_monitor` (line 485) and wires it into behavioral run paths (line 856); §10.7 carries the new-home-per-invocation limitation amendment.
+- No further harness edits authorized under this plan: helpers.sh and tests-v2/AGENTS.md are READ-ONLY in Phase 8 — a harness defect found during evidence recording is a spec-revision trigger, not an inline fix.
+- The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between Phase 8 and every behavioral SC verdict produced by monitored runs.
+Verdict: COMPATIBLE — interface already landed; Phase 8 consumes it evidence-only.
 
 ## Dependency Contract
 
