@@ -1,26 +1,31 @@
 ---
 plan_schema_version: 1
 issue: 2427
-title: "Tier-1 context-injection reduction — scopes A/B/C/D/E implementation plan"
+title: "Tier-1 context-injection reduction — scopes A/B/C/D/E/G implementation plan"
 lifecycle_events:
   - timestamp: "2026-09-03T02:50:00Z"
     event: plan_created
     plan_path: ".opencode/.issues/2427/plan.md"
     phase_count: 7
+  - timestamp: "2026-09-03T20:40:00Z"
+    event: plan_revised
+    plan_path: ".opencode/.issues/2427/plan.md"
+    revision_reason: "Spec revised to add scope G (test-framework semantic continuous monitoring mandate) — new SC-10 (behavioral), R-21/R-22, Item 10. Plan regenerated to cover all 10 SCs across 8 phases. Scope-G GREEN change already committed as 4989ffb5; Item 10 records the RED baseline + monitored-run evidence cycle with a committed-GREEN confirmation."
+    phase_count: 8
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
 ---
 
-# Implementation Plan — Issue #2427 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E
+# Implementation Plan — Issue #2427 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G
 
 Spec: [`.opencode/.issues/2427/spec.md`](https://github.com/michael-conrad/.opencode/tree/issues-data/2427) — remote exec summary: https://github.com/michael-conrad/.opencode/issues/2429
 
 ## Goal
 
-Deduplicate and re-place Tier-1 injected content in the `.opencode` submodule while preserving semantics (R-6: rewrites OK if rule/guide/intent unchanged; verbatim text NOT required). Add two 000-critical-rules.md carve-outs (infrastructure-failure inline authorization; anti-recitation). Split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files. Trim AGENTS.md scenario sections to pointers. Reconcile every duplicate to exactly one canonical home. Register all demoted content in INDEX.md. NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only. The #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) stays in Tier-1 injected files. Echo-block removal (scope F) is OUT OF SCOPE — echo blocks travel WITH their sections.
+Deduplicate and re-place Tier-1 injected content in the `.opencode` submodule while preserving semantics (R-6: rewrites OK if rule/guide/intent unchanged; verbatim text NOT required). Add two 000-critical-rules.md carve-outs (infrastructure-failure inline authorization; anti-recitation). Split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files. Trim AGENTS.md scenario sections to pointers. Reconcile every duplicate to exactly one canonical home. Register all demoted content in INDEX.md. NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only. The #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) stays in Tier-1 injected files. Echo-block removal (scope F) is OUT OF SCOPE — echo blocks travel WITH their sections. Scope G (developer-directed revision, 2026-09-03) mandates semantic continuous monitoring of behavioral runs in the tests-v2 harness (SC-10, R-21/R-22).
 
 ## Architecture
 
-Seven phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, eight commits, one PR — items 6–7 commits are conditional evidence-recording no-ops when the verified state is already achieved; item 9 records evidence only, no commit).
+Eight phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Phase 8 (scope G) evidences the test-framework semantic continuous monitoring mandate — its GREEN change (tests-v2/AGENTS.md §14 + helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step, so Item 10 executes the RED baseline + monitored-run evidence cycle against a committed GREEN; Phase 8 depends on NO pending phase and slots after the #497 guard. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, eight commits, one PR — items 6–7 commits are conditional evidence-recording no-ops when the verified state is already achieved; items 9 and 10 record evidence only, no new commit — item 10's GREEN change is already landed as 4989ffb5).
 
 New Tier-2 destination files (numbers verified free; frontmatter `trigger_on`, `tier: 2`, `load_when` mandatory; NOT added to the opencode.jsonc instructions array):
 
@@ -38,7 +43,7 @@ Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-
 
 ## Dispatch
 
-Per-item cycle (items 1–8; item 9 is verification-only — guard RED inline, no commit): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
+Per-item cycle (items 1–8; items 9 and 10 are verification-only — item 9 guard RED inline, item 10 executes the RED baseline + monitored evidence cycle against its pre-committed GREEN, no new commit): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
 
 ## Blast Radius
 
@@ -63,13 +68,14 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 | 5 | Dedup + INDEX verification | Single canonical home per rule class; routing reachability | SC-6, SC-7 | Phases 2, 3, 4 | Items 6–7 | test-driven-development, verification-before-completion |
 | 6 | Consumer sweep | Read-link + test-prompt integrity; zero dangling anchors | SC-8 | Phases 2, 3, 4, 5 | Item 8 | test-driven-development, verification-before-completion |
 | 7 | #497 guard verification | Tier-1 core retention; opencode.jsonc invariance | SC-9 | Phase 6 | Item 9 | test-driven-development, verification-before-completion |
+| 8 | Monitoring mandate evidence (scope G) | Semantic continuous monitoring RED baseline + monitored-run evidence cycle; GREEN already committed (4989ffb5) | SC-10 | none pending (slots after Phase 7; RED baseline independent of Phases 2–7 outcomes) | Item 10 | test-driven-development, verification-before-completion |
 
 > **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
 
 ## Exit Criteria
 
-1. C1 — Every item completed its RED → GREEN → post-regression → verify → commit cycle in dependency order; phases executed 1 through 7.
-2. C2 — SC-1 through SC-9 each verified with evidence matching its declared evidence type (behavioral SCs via `bash .opencode/tests-v2/with-test-home opencode run`; structural SCs via grep/git diff); zero EVIDENCE_TYPE_MISMATCH verdicts.
+1. C1 — Every item completed its RED → GREEN → post-regression → verify → commit cycle in dependency order; phases executed 1 through 8 (Item 10's GREEN is pre-committed as 4989ffb5 — its cycle is the RED baseline + monitored-run evidence recording per the on-disk state).
+2. C2 — SC-1 through SC-10 each verified with evidence matching its declared evidence type (behavioral SCs via `bash .opencode/tests-v2/with-test-home opencode run`; structural SCs via grep/git diff); zero EVIDENCE_TYPE_MISMATCH verdicts. Monitored-run behavioral verdicts (SC-10) record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
 3. C3 — No byte/token/percentage/line-count reduction threshold used as a PASS/FAIL criterion anywhere in the plan execution (R-16, #2411).
 4. C4 — #497 core retained: human-only merge in 000, zero-tolerance table in 010, attribution sections in 080; `.opencode/opencode.jsonc` diff empty with 14 instructions-array entries (SC-9).
 5. C5 — Zero dangling section anchors after the consumer sweep (SC-8); the four named scenarios PASS via with-test-home.
@@ -81,18 +87,20 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ## Pre-Implementation (once per plan)
 
 - [ ] 1. Coherence gate — verify the plan-to-spec chain before any dispatch. (**inline**)
-  - Confirm the spec at `.opencode/.issues/2427/spec.md` holds 9 success criteria (SC-1 through SC-9) and 20 SHALL requirements (R-1 through R-20).
-  - Confirm `.opencode/.issues/2427/artifacts/structure.yaml` holds the 7-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase) and the 11-edge dependency DAG.
-  - Confirm `.opencode/.issues/2427/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 7-phase decomposition.
+  - Confirm the spec at `.opencode/.issues/2427/spec.md` holds 10 success criteria (SC-1 through SC-10) and 22 SHALL requirements (R-1 through R-22).
+  - Confirm `.opencode/.issues/2427/artifacts/structure.yaml` holds the 8-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase; SC-10's GREEN is pre-committed as 4989ffb5 per the on-disk state) and the 11-edge dependency DAG plus the SC-10/Phase-8 node (Phase 8 depends on no pending phase).
+  - Confirm `.opencode/.issues/2427/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 8-phase decomposition.
   - Confirm authorization scope is `for_pr` with PR strategy `stacked`, and the implementation target is the `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` (R-17 stacking base; #2416 same-file additions rebase cleanly — disjoint sections).
   - Confirm #2411 binding constraint is honored: no SC in this plan uses a size metric as PASS/FAIL.
+  - Confirm the scope-G GREEN change is committed as 4989ffb5 on the branch (`git -C .opencode log --oneline -1` shows 4989ffb5 or a descendant) — Item 10 proceeds on the committed-GREEN path.
   - If any check fails: BLOCKED — do not proceed to phase 1.
 - [ ] 2. Baseline check — verify the repository state before any file modification. (**inline**)
   - Run `git -C .opencode branch --show-current` — must report `feature/2402-finishing-checklist-trailer-remediation`.
   - Run `git -C .opencode status --porcelain` — must be empty (zero pending changes).
-  - Run `git -C .opencode log --oneline -1` — record the HEAD commit as the rollback anchor.
+  - Run `git -C .opencode log --oneline -1` — record the HEAD commit as the rollback anchor; confirm 4989ffb5 (scope-G GREEN) is on the branch.
   - Run `rm -f tmp/.behavior-run.lock` — clear any stale behavioral-test lock before test execution.
   - Confirm `.opencode/tests-v2/with-test-home` exists (all behavioral verification MUST run through it — never bare `opencode run`).
+  - Confirm Item 10's evidence prerequisites: no `tmp/behavioral-evidence-2427-sc10-*` directories exist (RED baseline + monitored-run cycle pending); `.opencode/tests-v2/behaviors/helpers.sh` exports `__semantic_monitor` (committed 4989ffb5).
   - If any check fails: halt and report — do not work from a non-trunk-tip or dirty state.
 - [ ] 3. Pre-regression — run regression test patterns before the first RED phase. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-pre-regression-*`.
@@ -440,16 +448,58 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - SC reference: SC-9.
 - [ ] 5. Record evidence — no commit (verification-only item). (**inline**)
   - Write the SC-9 evidence (grep outputs, diff emptiness, entry count, informational size stat) to `tmp/2427/artifacts/sc9-guard-evidence.yaml`.
-  - SC reference: SC-9. This closes Phase 7 — all nine SCs now carry verdicts.
+  - SC reference: SC-9. This closes Phase 7 — SC-1 through SC-9 all carry verdicts.
 
 ### Phase 7 Completion
 
 - VbC assertion: SC-9 verdict PASS — #497 core present, opencode.jsonc byte-identical, 14 entries.
-- VbC assertion: all SC-1 through SC-9 verdicts recorded with evidence-type-matched artifacts.
+- VbC assertion: SC-1 through SC-9 verdicts recorded with evidence-type-matched artifacts; Phase 8 (SC-10) completes the ten-SC set after this phase.
 
 ---
 
-# Post-Implementation (once per plan — executes after Phase 7)
+# Phase 8 — Monitoring Mandate Evidence (Scope G, SC-10)
+
+**Concern:** Evidence the test-framework semantic continuous monitoring mandate (scope G) per SC-10: the GREEN change (tests-v2/AGENTS.md §14 monitoring mandate + tests-v2/behaviors/helpers.sh `__semantic_monitor` poll protocol) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step — this phase's cycle is therefore the RED baseline + monitored-run evidence recording against a committed GREEN, plus regression/verify steps. The RED baseline records the unmonitored comparison (a run driving an off-track/loop state burning the full timeout with no abort and no diagnosis); the evidence cycle records the monitored variant (poll protocol executing, hard-abort detected, §10.5 export, semantic diagnosis recorded). The monitoring evidence requirements apply to SC-10's verdict AND to every monitored-run behavioral verdict recorded by Phases 1–7 evidence artifacts going forward.
+**Files:** `.opencode/tests-v2/behaviors/helpers.sh` and `.opencode/tests-v2/AGENTS.md` (READ-ONLY this phase — change already committed as 4989ffb5); new evidence artifacts under `tmp/2427/artifacts/` (RED baseline record, poll log, semantic diagnosis, SC-10 verdict).
+**SCs:** SC-10 (behavioral). Guards: R-21 (monitoring mandate), R-22 (hard-abort signals + abort recovery + §10.7 limitation documentation).
+**Dependencies:** None pending — Phase 8 depends on NO other phase's completion (the GREEN change landed before this plan revision; the RED baseline and monitored evidence are independent of Phases 2–7 outcomes). It executes after Phase 7 to preserve sequential daisy-chaining in this plan.
+**Code path coverage:** Path 3 (enforcement tests — helpers.sh `__semantic_monitor` poll protocol is the runtime-under-test; the monitored run exercises background launch, interval polling, live session DB read, semantic event-stream evaluation, hard-abort signals, kill + §10.5 export + diagnosis) and Path 5 (evidence contract — monitoring evidence recorded alongside session.yaml per the SC-10 evidence rule).
+**Cross-cutting SCs:** SC-10's monitoring protocol is the evidence-collection method upgrade for ALL behavioral SCs in this plan (SC-1 through SC-5, SC-8) — monitored runs record poll logs/semantic diagnoses alongside session.yaml. §14's evidence requirement is verified here once as the harness-level gate; individual phase evidence artifacts confirm compliance per run.
+**Interface boundaries:** helpers.sh and tests-v2/AGENTS.md are READ-ONLY in this phase (4989ffb5 is the committed GREEN; no further harness edits authorized under this plan — a defect found here is a spec-revision trigger, not an inline fix). The §10.7 amendment (new-home-per-invocation limitation) is verified present in tests-v2/AGENTS.md. The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between this phase and every behavioral SC verdict.
+**State transitions:** NO file changes in the `.opencode` submodule this phase — Item 10 is evidence-recording only (the GREEN commit 4989ffb5 already advanced git state); evidence artifacts appear under `tmp/2427/artifacts/`; `tmp/behavioral-evidence-2427-sc10-*` directories are created by the RED baseline and monitored runs.
+
+**Cost frame:** Running the RED baseline and the monitored scenario costs the poll intervals plus one abort-and-diagnose cycle — a bounded delay that surfaces a stuck-run defect at gate 1 instead of burning the full 600–900s timeout on every looped run (SC-10 cost frame, dark-prose-007). The per-run polling cost is seconds of SQLite reads against an already-present session DB; skipping the evidence cycle means SC-10's behavioral verdict has no poll-log/semantic-diagnosis artifact — an EVIDENCE_TYPE_MISMATCH that fails the completion gate regardless of the committed GREEN.
+
+### Item 10 — SC-10: Monitoring mandate evidence cycle (scope G — GREEN pre-committed as 4989ffb5)
+
+- [ ] 1. RED — record the unmonitored-run failure baseline. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-red-10-*` and `rm -f tmp/.behavior-run.lock`.
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: the GREEN change is already committed (4989ffb5) — this RED step records the RED-vs-GREEN comparison baseline required by SC-10's verdict basis, not a pre-change failure. Run a scenario that drives an off-track/loop state (a prompt that induces repeated identical tool input or reasoning growth with no goal-relevant tool calls) with the monitor DISABLED (bypassing `__semantic_monitor`) via `bash .opencode/tests-v2/with-test-home opencode run '<off-track prompt>'` with a timeout of at least 600000 ms — observe it burn the full timeout with NO abort and NO semantic diagnosis recorded; archive the run artifacts under `tmp/behavioral-evidence-2427-sc10-RED-<model>/`. RED condition = the unmonitored run completes (or is killed by timeout) with zero poll-log entries, zero abort record, zero diagnosis — the comparison baseline against which the monitored variant's abort evidence is judged.
+  - SC reference: SC-10. The RED baseline MUST be recorded before the monitored-run evidence step begins.
+- [ ] 2. GREEN — confirm the committed monitoring mandate satisfies the scenario. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-green-10-*`.
+  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: NO code change — the GREEN change is already landed as 4989ffb5 (tests-v2/AGENTS.md §14 mandate + helpers.sh `__semantic_monitor` wired into behavioral run paths). Verify the committed state satisfies SC-10: run the monitored variant of the same off-track scenario — the run is launched in background and polled; the poll reads the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream, detects a hard-abort signal (identical tool input >=3x, or reasoning >20K chars with <=1 new tool call, or semantically judged off-track), kills the run, exports session.yaml per §10.5, and records the semantic diagnosis; archive poll log + session.yaml + diagnosis under `tmp/behavioral-evidence-2427-sc10-GREEN-<model>/`. What must be true afterwards: the abort beats the RED baseline's full-timeout burn; poll log shows per-poll event-stream reads + semantic judgment; §10.5 export present; diagnosis records the abort reason.
+  - SC reference: SC-10.
+- [ ] 3. Post-regression — confirm the monitoring mandate does not regress existing scenarios. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-post-regression-10-*`.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run one completed behavioral scenario end-to-end under the monitoring protocol — `bash .opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` (SC-1's committed scenario) via `bash .opencode/tests-v2/with-test-home opencode run '<SC-1 scenario prompt>'` with a timeout of at least 600000 ms — must remain PASS with the poll protocol executing silently on a healthy run (no false-abort); confirms the monitor does not abort progressing runs.
+  - SC reference: SC-10 (guard: healthy-run non-interference).
+- [ ] 4. Verify — verify SC-10 with monitoring evidence alongside session.yaml. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-verify-10-*`.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-10 verdict — evidence must be behavioral AND monitoring-shaped: session.yaml from the monitored run shows the stalled event stream; the poll log artifact shows per-poll live-DB event-stream reads + semantic judgments; the abort record shows the §10.5 export + semantic diagnosis; the §10.7 amendment (with-test-home new-home-per-invocation limitation, cross-invocation resumption impossible) is visible in tests-v2/AGENTS.md; the committed GREEN (4989ffb5) contains the §14 mandate and the `__semantic_monitor` helper. Structural-only evidence is EVIDENCE_TYPE_MISMATCH → FAIL.
+  - SC reference: SC-10.
+- [ ] 5. Record evidence — no commit (GREEN change already committed as 4989ffb5). (**inline**)
+  - Write the SC-10 evidence (RED baseline record, poll log, semantic diagnosis, monitored-run session.yaml path, §10.7 amendment citation, committed-GREEN SHA) to `tmp/2427/artifacts/sc10-monitoring-evidence.yaml`.
+  - SC reference: SC-10. This closes Phase 8 — all ten SCs now carry verdicts.
+
+### Phase 8 Completion
+
+- VbC assertion: SC-10 verdict PASS — monitored abort evidence (poll log + semantic diagnosis + §10.5 export) recorded alongside session.yaml; RED baseline shows the unmonitored full-timeout burn; no false-abort on the healthy-run regression scenario.
+- VbC assertion: SC-1 through SC-10 all carry verdicts with evidence-type-matched artifacts.
+
+---
+
+# Post-Implementation (once per plan — executes after Phase 8)
 
 - [ ] 1. Audit — adversarial audit of the deliverable. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-audit-*`.
@@ -458,19 +508,19 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Semantic-preservation audit focus (R-6): compare moved sections against destinations — same requirements, forbiddances, mandates; block on doubt (fail-fast).
 - [ ] 2. Z3 check — run the constraint solver verification of the dependency contract. (**inline**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-z3-check-*`.
-  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2427/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
+  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2427/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
   - Run: `.opencode/tools/solve check --state-path .opencode/.issues/2427/artifacts/state-z3-goal.yaml --contract-path .opencode/.issues/2427/dependency-contract.yaml` — interpret per the solve-output caveat (goal-state UNSAT from precondition conflict is expected; reachability is proven by the model query above, not the state check).
 - [ ] 3. Structural checks — run the finishing checklist. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-structural-checks-*`.
   - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")` with context: branch feature/2402-finishing-checklist-trailer-remediation, lint gates (pymarkdownlnt scan + mdformat --check, advisory read-only) on all modified guideline files.
 - [ ] 4. Pre-PR gate — verify all SC verdicts before PR creation. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-pre-pr-gate-*`.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all nine SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all ten SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules; SC-10's verdict MUST carry monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
 - [ ] 5. Regression check — final regression run before PR. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-regression-check-*`.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2427-sc1 and 2427-sc2 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series — all PASS.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2427-sc1, 2427-sc2, 2427-sc3, 2427-sc4 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; SC-10 monitored-run evidence confirmed on disk — all PASS.
 - [ ] 6. Review-prep — prepare PR review context. (**clean-room**)
-  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and item 9 evidence-only excluded).
+  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and items 9–10 evidence-only excluded; the scope-G GREEN landed as commit 4989ffb5).
 - [ ] 7. Create PR — create the pull request. (**clean-room**)
   - Dispatch: `task(..., prompt: "execute create task from git-workflow-pr")` with context: one stacked PR from feature/2402-finishing-checklist-trailer-remediation; squash to exactly one commit per issue at PR creation; co-author trailers added at squash time. HALT after PR creation — the agent does not merge (human-only merge).
 - [ ] 8. Executive summary — generate the completion summary. (**clean-room**)
@@ -478,7 +528,7 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 ### Final Completion Block
 
-- VbC assertion: all nine SC verdicts PASS with evidence-type-matched artifacts; audit, z3-check, structural checks, pre-PR gate, and regression check all PASS.
+- VbC assertion: all ten SC verdicts PASS with evidence-type-matched artifacts; audit, z3-check, structural checks, pre-PR gate, and regression check all PASS.
 - VbC assertion: the plan's exit criteria C1 through C9 are each satisfied with evidence on disk.
 - Completion: PR created per stacked strategy; report once; HALT.
 
