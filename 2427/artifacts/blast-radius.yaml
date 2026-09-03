@@ -1,6 +1,9 @@
 # Blast Radius — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/blast-radius.md (brainstorming).
 # Basis: DUPLICATION / INCORRECT PLACEMENT (size figures are diagnostic evidence only, #2411).
+# Regenerated 2026-09-03: scope G added — tests-v2 harness files (AGENTS.md §14 +
+# behaviors/helpers.sh __semantic_monitor) are READ-ONLY under this plan (change
+# pre-committed as 4989ffb5); evidence artifacts land under tmp/2427/artifacts/.
 status: complete
 source: "formalized from brainstorming preliminary + live re-verification (stat/grep this session)"
 produced_at: "2026-09-02T20:26:00-04:00"
@@ -54,6 +57,7 @@ True Tier-1 core remains in main context (verified present pre-change):
 1. Every demoted section requires: destination file + INDEX row + Read-link pointer in source core + re-pointed consumer links + updated test prompts. Missing any one → unreachable rule or broken consumer.
 2. §A/§B additions alter 000 runtime content → new behavioral tests required (substrate-determined behavioral change per critical-rules-BEH-EV).
 3. Dedup changes which file "owns" a rule → downstream greps by rule semantics must resolve to the canonical file.
+4. Scope G (evidence-only): the monitoring mandate's GREEN change is already committed (4989ffb5) — no further harness edits authorized under this plan; the phase-8 cycle records RED baseline + monitored-run evidence (poll log + semantic diagnosis) under tmp/behavioral-evidence-2427-sc10-*/ and tmp/2427/artifacts/. A defect found in the committed harness is a spec-revision trigger, not an inline fix.
 
 ## Blast Radius Verdict
 
