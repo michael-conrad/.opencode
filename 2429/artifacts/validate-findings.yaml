@@ -5,23 +5,23 @@
 # Fresh full validation per writing-plans validate task; overwrites the prior
 # BLOCKED run (solve artifacts missing — since regenerated and SAT).
 schema_version: 1
-issue: 2427
+issue: 2429
 artifact: validate-findings
 generated_at: "2026-09-03T21:30:00Z"
 generator: "writing-plans validate task (inline executor, ollama-cloud/glm-5.3-flash)"
 validation_run: fresh
 
 entry_criteria:
-  solve_output_path: ".opencode/.issues/2427/artifacts/solve-output.yaml"
+  solve_output_path: ".opencode/.issues/2429/artifacts/solve-output.yaml"
   solve_output_present: true
   solve_status: SAT
   plan_status: SOLVED_SATISFICING
   plan_present: true
-  plan_path: ".opencode/.issues/2427/plan.md"
+  plan_path: ".opencode/.issues/2429/plan.md"
   dependency_contract_present: true
-  dependency_contract_path: ".opencode/.issues/2427/dependency-contract.yaml"
+  dependency_contract_path: ".opencode/.issues/2429/dependency-contract.yaml"
   spec_present: true
-  spec_path: ".opencode/.issues/2427/spec.md"
+  spec_path: ".opencode/.issues/2429/spec.md"
   evidence:
     - "solve-output.yaml: solve_status SAT, plan_status SOLVED_SATISFICING, 8-step planner plan covering all phases; regenerated 2026-09-03 for the 8-phase decomposition"
     - "structure.yaml: 8 phases, 10 SCs, 11-edge DAG among phases 1-7 + phase_8_node (no edges), triplet_co_location verified"
@@ -86,7 +86,7 @@ checks:
       Verified against structure.yaml triplet_co_location: verified.
     result: PASS
   category_4_concern_separation:
-    concern_map: ".opencode/.issues/2427/artifacts/concern-map.yaml"
+    concern_map: ".opencode/.issues/2429/artifacts/concern-map.yaml"
     concern_count: 5
     phase_to_concern:
       1: "Safety-critical authorization rules additions (scopes A+B -> 000) — Concern 1 ADD rows"

@@ -6,7 +6,7 @@
 # (its GREEN change is pre-committed as 4989ffb5); DAG is the original 11 edges
 # among phases 1-7 plus the Phase 8 node (no edges — executes after Phase 7 for
 # sequential daisy-chaining only).
-spec_path: .opencode/.issues/2427/spec.md
+spec_path: .opencode/.issues/2429/spec.md
 sc_count: 10
 implementation_target: .opencode submodule branch feature/2402-finishing-checklist-trailer-remediation
 

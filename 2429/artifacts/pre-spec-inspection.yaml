@@ -7,7 +7,7 @@ inspector: "OpenCode (ollama-cloud/glm-5.3-flash) — spec-creation analyze task
 ## Issue Binding
 issue_number: 2427
 repo: .opencode (submodule)
-binding_evidence: "brainstorming handoff.yaml binds issue 2427, design_approved: true; .opencode/.issues/.counter = 2427 (next free); no .opencode/.issues/2427/ directory yet (created later by spec-creation create task per handoff State 2 note)"
+binding_evidence: "brainstorming handoff.yaml binds issue 2427, design_approved: true; .opencode/.issues/.counter = 2427 (next free); no .opencode/.issues/2429/ directory yet (created later by spec-creation create task per handoff State 2 note)"
 remote_binding_check: "gh pr view 2427 (.opencode) returns an unrelated MERGED PR title; local counter + handoff are the binding authority for pre-create analysis"
 
 ## Files To Be Modified (verified via stat/read this session)

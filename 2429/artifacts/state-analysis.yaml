@@ -21,8 +21,8 @@ Transitions: implementation adds commits on the feature branch; per-SC RED/GREEN
 
 | Field | Value |
 |-------|-------|
-| Next free issue | 2427 (verified: .counter=2427; no .opencode/.issues/2427/ yet; highest 2426) |
-| Planned destination | .opencode/.issues/2427/ (spec.md, sc-summary.yaml, artifacts/) |
+| Next free issue | 2427 (verified: .counter=2427; no .opencode/.issues/2429/ yet; highest 2426) |
+| Planned destination | .opencode/.issues/2429/ (spec.md, sc-summary.yaml, artifacts/) |
 
 Transitions: spec-creation create task creates the directory via local-issues CLI; analytical artifacts copy from tmp/2427/artifacts/ per create.md Step 6. NEVER touch .issues/ via parent-repo file tools (worktree discipline).
 

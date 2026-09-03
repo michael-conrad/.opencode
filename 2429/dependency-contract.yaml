@@ -5,7 +5,7 @@
 # Revised 2026-09-03: scope G added (SC-10) — phase8_done / monitoring_evidence_recorded variables
 # appended (GREEN pre-committed as 4989ffb5; Phase 8 depends on no pending phase).
 version: 1
-source_artifact: .opencode/.issues/2427/artifacts/interface-compatibility.yaml
+source_artifact: .opencode/.issues/2429/artifacts/interface-compatibility.yaml
 scope: >-
   Tier-1 context-injection reduction (scopes A/B/C/D/E/G): 000 carve-outs, 020/080 splits,
   AGENTS.md trim, dedup reconciliation, INDEX routing, consumer sweep, #497 guard,

@@ -1,16 +1,16 @@
-# Full Spec — Issue #2427 (.opencode)
+# Full Spec — Issue #2429 (.opencode)
 # Tier-1 context-injection reduction — scopes A/B/C/D/E/G.
 # NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only.
-issue: 2427
+issue: 2429
 remote_issue: 2429
 remote_url: https://github.com/michael-conrad/.opencode/issues/2429
 labels:
   - needs-approval
   - spec-draft
 
-> **Full spec and artifacts: [`.opencode/.issues/2427/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2427)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+> **Full spec and artifacts: [`.opencode/.issues/2429/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2429)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
-> **Local artifacts:** `.opencode/.issues/2427/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+> **Local artifacts:** `.opencode/.issues/2429/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 >
 > **Scope G (developer-directed revision):** test-framework semantic continuous monitoring mandate — behavioral runs are launched in background, polled at intervals, and each poll semantically evaluates the live session event stream; off-track/loop states hard-abort the run. See SC-10, R-21/R-22, Item 10, and the §10.7 amendment in tests-v2/AGENTS.md.
 
@@ -193,18 +193,18 @@ labels:
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
-| Pre-spec inspection (files, defects, couplings) | analysis artifact | `.opencode/.issues/2427/artifacts/pre-spec-inspection.yaml` | stat/read/grep of all 15 injected files this session |
-| Requirements output | analysis artifact | `.opencode/.issues/2427/artifacts/requirements-output.yaml` | extracted from developer binding scope + live verification |
-| Decompose output (SCs, items, DAG) | analysis artifact | `.opencode/.issues/2427/artifacts/decompose-output.yaml` | atomicity/DAG traced manually per pipeline-readiness gate |
-| Concern map (boundaries, destinations) | analysis artifact | `.opencode/.issues/2427/artifacts/concern-map.yaml` | read of 020/080/AGENTS.md sections + 085/116 overlap checks |
-| Blast radius (affected files, consumers) | analysis artifact | `.opencode/.issues/2427/artifacts/blast-radius.yaml` | grep of skill Read-links + test scripts |
-| Code path inventory (injection/routing/test paths) | analysis artifact | `.opencode/.issues/2427/artifacts/code-path-inventory.yaml` | read of opencode.jsonc lines 76-93 + FILE_SCENARIO_MAP lines 129-139 |
-| Cross-cutting matrix (sibling issues) | analysis artifact | `.opencode/.issues/2427/artifacts/cross-cutting-matrix.yaml` | live issue-state checks (#2411, #2416, #2131, #2419) |
-| Interface compatibility (anchors, prompts) | analysis artifact | `.opencode/.issues/2427/artifacts/interface-compatibility.yaml` | grep of Read-links + SCENARIO_PROMPT paths |
-| State analysis (git/issue/tmp state) | analysis artifact | `.opencode/.issues/2427/artifacts/state-analysis.yaml` | git log + local-issues counter verification |
-| Testability assessment (test coverage, gaps) | analysis artifact | `.opencode/.issues/2427/artifacts/testability-assessment.yaml` | grep of behavioral scripts (2243, 2249, 2131, 2293 series) |
-| Pipeline readiness gate | analysis artifact | `.opencode/.issues/2427/artifacts/pipeline-readiness.yaml` | 5 checks PASS (atomicity, ordering, concern, phase, tiering) |
-| Research card consultation | research artifact | `.opencode/.issues/2427/artifacts/research-card-consultation.yaml` | glob `.issues/research-cards/*.md` + frontmatter grep; 3 cards incorporated (confidence >= 0.85) |
+| Pre-spec inspection (files, defects, couplings) | analysis artifact | `.opencode/.issues/2429/artifacts/pre-spec-inspection.yaml` | stat/read/grep of all 15 injected files this session |
+| Requirements output | analysis artifact | `.opencode/.issues/2429/artifacts/requirements-output.yaml` | extracted from developer binding scope + live verification |
+| Decompose output (SCs, items, DAG) | analysis artifact | `.opencode/.issues/2429/artifacts/decompose-output.yaml` | atomicity/DAG traced manually per pipeline-readiness gate |
+| Concern map (boundaries, destinations) | analysis artifact | `.opencode/.issues/2429/artifacts/concern-map.yaml` | read of 020/080/AGENTS.md sections + 085/116 overlap checks |
+| Blast radius (affected files, consumers) | analysis artifact | `.opencode/.issues/2429/artifacts/blast-radius.yaml` | grep of skill Read-links + test scripts |
+| Code path inventory (injection/routing/test paths) | analysis artifact | `.opencode/.issues/2429/artifacts/code-path-inventory.yaml` | read of opencode.jsonc lines 76-93 + FILE_SCENARIO_MAP lines 129-139 |
+| Cross-cutting matrix (sibling issues) | analysis artifact | `.opencode/.issues/2429/artifacts/cross-cutting-matrix.yaml` | live issue-state checks (#2411, #2416, #2131, #2419) |
+| Interface compatibility (anchors, prompts) | analysis artifact | `.opencode/.issues/2429/artifacts/interface-compatibility.yaml` | grep of Read-links + SCENARIO_PROMPT paths |
+| State analysis (git/issue/tmp state) | analysis artifact | `.opencode/.issues/2429/artifacts/state-analysis.yaml` | git log + local-issues counter verification |
+| Testability assessment (test coverage, gaps) | analysis artifact | `.opencode/.issues/2429/artifacts/testability-assessment.yaml` | grep of behavioral scripts (2243, 2249, 2131, 2293 series) |
+| Pipeline readiness gate | analysis artifact | `.opencode/.issues/2429/artifacts/pipeline-readiness.yaml` | 5 checks PASS (atomicity, ordering, concern, phase, tiering) |
+| Research card consultation | research artifact | `.opencode/.issues/2429/artifacts/research-card-consultation.yaml` | glob `.issues/research-cards/*.md` + frontmatter grep; 3 cards incorporated (confidence >= 0.85) |
 | opencode.jsonc instructions array | config | `.opencode/opencode.jsonc` (lines 76-93) | read this session — 14 entries verified |
 | 116-pair-mode.md (canonical Pair Mode home) | code | `.opencode/guidelines/116-pair-mode.md` | read this session — exists, 118 lines |
 | 085-project-local-tools.md (canonical tools home) | code | `.opencode/guidelines/085-project-local-tools.md` | read this session — exists, 52 lines, carries the 8 key rules |

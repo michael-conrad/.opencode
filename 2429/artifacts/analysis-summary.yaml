@@ -2,9 +2,9 @@
 # Verified 2026-09-02 via live file reads (task: analyze, executed inline by sub-agent)
 # Regenerated 2026-09-03: scope G added (SC-10, R-21/R-22) — sc_count 9 -> 10,
 # sc_ids extended, sc-summary crosscheck re-run against the 10-SC sc-summary.yaml.
-spec_path: .opencode/.issues/2427/spec.md
+spec_path: .opencode/.issues/2429/spec.md
 approval:
-  source: .opencode/.issues/2427/issue.yaml
+  source: .opencode/.issues/2429/issue.yaml
   labels:
     - spec-draft
     - approved-for-pr
@@ -25,9 +25,9 @@ sc_ids:
   - SC-8
   - SC-9
   - SC-10
-sc_source: .opencode/.issues/2427/spec.md (section 3, Success Criteria table)
+sc_source: .opencode/.issues/2429/spec.md (section 3, Success Criteria table)
 sc_summary_crosscheck:
-  file: .opencode/.issues/2427/sc-summary.yaml
+  file: .opencode/.issues/2429/sc-summary.yaml
   sc_ids_found: 10
   match: true
 artifacts:
@@ -44,7 +44,7 @@ artifacts:
     decompose-output.yaml: present
     pipeline-readiness.yaml: present
     research-card-consultation.yaml: present
-artifact_dir: .opencode/.issues/2427/artifacts/
+artifact_dir: .opencode/.issues/2429/artifacts/
 scope_boundary_findings:
   - finding: All spec-referenced guideline/config/test files exist in the codebase
     files_verified:

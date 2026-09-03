@@ -1,15 +1,15 @@
 ---
 plan_schema_version: 1
-issue: 2427
+issue: 2429
 title: "Tier-1 context-injection reduction — scopes A/B/C/D/E/G implementation plan"
 lifecycle_events:
   - timestamp: "2026-09-03T02:50:00Z"
     event: plan_created
-    plan_path: ".opencode/.issues/2427/plan.md"
+    plan_path: ".opencode/.issues/2429/plan.md"
     phase_count: 7
   - timestamp: "2026-09-03T20:40:00Z"
     event: plan_revised
-    plan_path: ".opencode/.issues/2427/plan.md"
+    plan_path: ".opencode/.issues/2429/plan.md"
     revision_reason: "Spec revised to add scope G (test-framework semantic continuous monitoring mandate) — new SC-10 (behavioral), R-21/R-22, Item 10. Plan regenerated to cover all 10 SCs across 8 phases. Scope-G GREEN change already committed as 4989ffb5; Item 10 records the RED baseline + monitored-run evidence cycle with a committed-GREEN confirmation."
     phase_count: 8
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
@@ -17,7 +17,7 @@ dispatch: [test-driven-development, verification-before-completion, audit, finis
 
 # Implementation Plan — Issue #2427 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G
 
-Spec: [`.opencode/.issues/2427/spec.md`](https://github.com/michael-conrad/.opencode/tree/issues-data/2427) — remote exec summary: https://github.com/michael-conrad/.opencode/issues/2429
+Spec: [`.opencode/.issues/2429/spec.md`](https://github.com/michael-conrad/.opencode/tree/issues-data/2429) — remote exec summary: https://github.com/michael-conrad/.opencode/issues/2429
 
 ## Goal
 
@@ -47,7 +47,7 @@ Per-item cycle (items 1–8; items 9 and 10 are verification-only — item 9 gua
 
 ## Blast Radius
 
-From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Direct changes: 000 (APPEND scope A + scope B), 020 (SPLIT — sections 1.1, 1.6, 4 out; authorization core retained), 080 (SPLIT — Python sections out; attribution retained), AGENTS.md (TRIM gb install table, editor MCP table, Pair Mode → pointers), INDEX.md (ADD Tier-2 rows), three new Tier-2 files, 085 (canonical dedup). Indirect consumers: opencode.jsonc instructions array (NONE — untouched), session-enforcement.ts (NONE — zero coupling), test-enforcement.sh FILE_SCENARIO_MAP (LOW — path-keyed, paths stable), behavioral tests 2243-sc1 / 2249-sc6 / 2249-sc7 pair / test-sc3-di-carveout-doc (MEDIUM — prompts hardcode the 080 path, mandatory sweep), 2131-series structural tests (LOW — path stable, section assertions verify per move), skills with Read-links into moved sections — verification-before-completion (2 files), git-workflow-commit, issue-review, git-workflow-branch, audit (5 files) (MEDIUM — sweep), 085 mutual Read-link into 020 section 4 (LOW — resolved by dedup). Primary risks: dangling Read-link anchors, test prompts pointing at moved content, echo-block grep targets moving with sections — all mitigated by the phase 6 sweep (SC-8).
+From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Direct changes: 000 (APPEND scope A + scope B), 020 (SPLIT — sections 1.1, 1.6, 4 out; authorization core retained), 080 (SPLIT — Python sections out; attribution retained), AGENTS.md (TRIM gb install table, editor MCP table, Pair Mode → pointers), INDEX.md (ADD Tier-2 rows), three new Tier-2 files, 085 (canonical dedup). Indirect consumers: opencode.jsonc instructions array (NONE — untouched), session-enforcement.ts (NONE — zero coupling), test-enforcement.sh FILE_SCENARIO_MAP (LOW — path-keyed, paths stable), behavioral tests 2243-sc1 / 2249-sc6 / 2249-sc7 pair / test-sc3-di-carveout-doc (MEDIUM — prompts hardcode the 080 path, mandatory sweep), 2131-series structural tests (LOW — path stable, section assertions verify per move), skills with Read-links into moved sections — verification-before-completion (2 files), git-workflow-commit, issue-review, git-workflow-branch, audit (5 files) (MEDIUM — sweep), 085 mutual Read-link into 020 section 4 (LOW — resolved by dedup). Primary risks: dangling Read-link anchors, test prompts pointing at moved content, echo-block grep targets moving with sections — all mitigated by the phase 6 sweep (SC-8).
 
 > **Compliance:** All SCs must pass before completion. Partial implementation is not permitted. Each item is daisy-chained — item N's commit is precondition for item N+1's RED.
 
@@ -87,9 +87,9 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ## Pre-Implementation (once per plan)
 
 - [ ] 1. Coherence gate — verify the plan-to-spec chain before any dispatch. (**inline**)
-  - Confirm the spec at `.opencode/.issues/2427/spec.md` holds 10 success criteria (SC-1 through SC-10) and 22 SHALL requirements (R-1 through R-22).
-  - Confirm `.opencode/.issues/2427/artifacts/structure.yaml` holds the 8-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase; SC-10's GREEN is pre-committed as 4989ffb5 per the on-disk state) and the 11-edge dependency DAG plus the SC-10/Phase-8 node (Phase 8 depends on no pending phase).
-  - Confirm `.opencode/.issues/2427/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 8-phase decomposition.
+  - Confirm the spec at `.opencode/.issues/2429/spec.md` holds 10 success criteria (SC-1 through SC-10) and 22 SHALL requirements (R-1 through R-22).
+  - Confirm `.opencode/.issues/2429/artifacts/structure.yaml` holds the 8-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase; SC-10's GREEN is pre-committed as 4989ffb5 per the on-disk state) and the 11-edge dependency DAG plus the SC-10/Phase-8 node (Phase 8 depends on no pending phase).
+  - Confirm `.opencode/.issues/2429/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 8-phase decomposition.
   - Confirm authorization scope is `for_pr` with PR strategy `stacked`, and the implementation target is the `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` (R-17 stacking base; #2416 same-file additions rebase cleanly — disjoint sections).
   - Confirm #2411 binding constraint is honored: no SC in this plan uses a size metric as PASS/FAIL.
   - Confirm the scope-G GREEN change is committed as 4989ffb5 on the branch (`git -C .opencode log --oneline -1` shows 4989ffb5 or a descendant) — Item 10 proceeds on the committed-GREEN path.
@@ -503,13 +503,13 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 - [ ] 1. Audit — adversarial audit of the deliverable. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-audit-*`.
-  - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` with context: issue 2427, plan `.opencode/.issues/2427/plan.md`, spec `.opencode/.issues/2427/spec.md`.
+  - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` with context: issue 2427, plan `.opencode/.issues/2429/plan.md`, spec `.opencode/.issues/2429/spec.md`.
   - Then dispatch in sequence (each a separate single-dispatch step): validator → evaluator → arbiter using the corresponding `audit/tasks/verification-audit-*.md` task cards.
   - Semantic-preservation audit focus (R-6): compare moved sections against destinations — same requirements, forbiddances, mandates; block on doubt (fail-fast).
 - [ ] 2. Z3 check — run the constraint solver verification of the dependency contract. (**inline**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-z3-check-*`.
-  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2427/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
-  - Run: `.opencode/tools/solve check --state-path .opencode/.issues/2427/artifacts/state-z3-goal.yaml --contract-path .opencode/.issues/2427/dependency-contract.yaml` — interpret per the solve-output caveat (goal-state UNSAT from precondition conflict is expected; reachability is proven by the model query above, not the state check).
+  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2429/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
+  - Run: `.opencode/tools/solve check --state-path .opencode/.issues/2429/artifacts/state-z3-goal.yaml --contract-path .opencode/.issues/2429/dependency-contract.yaml` — interpret per the solve-output caveat (goal-state UNSAT from precondition conflict is expected; reachability is proven by the model query above, not the state check).
 - [ ] 3. Structural checks — run the finishing checklist. (**clean-room**)
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-structural-checks-*`.
   - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")` with context: branch feature/2402-finishing-checklist-trailer-remediation, lint gates (pymarkdownlnt scan + mdformat --check, advisory read-only) on all modified guideline files.
