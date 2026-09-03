@@ -1,7 +1,11 @@
----
 number: 1213
-title: "[SPEC] Workstream E — skildeck dispatch table + contract schema linter"
+title: '[SPEC] Workstream E — skildeck dispatch table + contract schema linter'
 state: open
 labels: '[[SPEC, approved-for-plan]"'
-created: "2026-06-15"
-remote_url: "https://github.com/michael-conrad/.opencode/issues/1213"
+created: '2026-06-15'
+remote_url: https://github.com/michael-conrad/.opencode/issues/1213
+status: closed
+closed_at: '2026-09-03T15:50:12+00:00'
+close_reason: duplicate
+duplicate_of: 2433
+updated_at: '2026-09-03T15:50:12+00:00'
