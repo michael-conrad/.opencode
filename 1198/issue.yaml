@@ -1,4 +1,10 @@
 number: 1198
-title: "[SPEC] Contract schema → Z3 state wiring — solve tool integration for standardized hand-off contract ingestion"
+title: '[SPEC] Contract schema → Z3 state wiring — solve tool integration for standardized
+  hand-off contract ingestion'
 state: OPEN
 labels: '[]'
+status: closed
+closed_at: '2026-09-03T15:49:37+00:00'
+close_reason: duplicate
+duplicate_of: 2433
+updated_at: '2026-09-03T15:49:37+00:00'
