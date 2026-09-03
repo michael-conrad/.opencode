@@ -39,7 +39,7 @@ Existing canonical homes (dedup destinations, read-only in their own right): `.o
 
 ## Files
 
-Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-go-prohibitions.md`, `.opencode/guidelines/080-code-standards.md`, `.opencode/AGENTS.md`, `.opencode/guidelines/INDEX.md`, `.opencode/guidelines/085-project-local-tools.md`, new files listed above, `.opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh`, `.opencode/tests-v2/behaviors/2427-sc2-anti-recitation.sh`, swept skill files and behavioral test prompts. Read-only: `.opencode/guidelines/116-pair-mode.md`, `.opencode/opencode.jsonc` (diff must be empty), `.opencode/guidelines/010-approval-gate.md`.
+Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-go-prohibitions.md`, `.opencode/guidelines/080-code-standards.md`, `.opencode/AGENTS.md`, `.opencode/guidelines/INDEX.md`, `.opencode/guidelines/085-project-local-tools.md`, new files listed above, `.opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh`, `.opencode/tests-v2/behaviors/2429-sc2-anti-recitation.sh`, swept skill files and behavioral test prompts. Read-only: `.opencode/guidelines/116-pair-mode.md`, `.opencode/opencode.jsonc` (diff must be empty), `.opencode/guidelines/010-approval-gate.md`.
 
 ## Dispatch
 
@@ -114,7 +114,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 # Phase 1 — 000 Carve-Outs (Scopes A + B)
 
 **Concern:** Add the infrastructure-failure inline-execution carve-out (scope A) and the anti-recitation clause (scope B) to `.opencode/guidelines/000-critical-rules.md` as numbered binary-condition procedures.
-**Files:** `.opencode/guidelines/000-critical-rules.md` (modified); `.opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` (new); `.opencode/tests-v2/behaviors/2427-sc2-anti-recitation.sh` (new).
+**Files:** `.opencode/guidelines/000-critical-rules.md` (modified); `.opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh` (new); `.opencode/tests-v2/behaviors/2429-sc2-anti-recitation.sh` (new).
 **SCs:** SC-1 (behavioral), SC-2 (behavioral).
 **Dependencies:** None — first phase. Entry: pre-implementation steps complete. Exit: items 1 and 2 committed.
 **Code path coverage:** Path 1 (session-start injection — 000 is instructions-array-loaded; additions alter runtime agent behavior, substrate-determined behavioral change per critical-rules-BEH-EV) and Path 3 (enforcement tests — two new behavioral scenarios via with-test-home).
@@ -128,7 +128,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 - [ ] 1. RED — write the failing behavioral enforcement test. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-1-*`.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh`; the scenario prompt simulates a session state with at least two consecutive tool-level sub-agent dispatch failures and a pending read-only/verification task; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; assertions are stderr-based (assert_stderr_pattern helpers per the 091 behavioral variant): RED condition = the agent halts or loops with NO carve-out disclosure and NO inline execution, because 000-critical-rules.md does not yet contain the scope A carve-out. Run `rm -f tmp/.behavior-run.lock` before re-runs.
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh`; the scenario prompt simulates a session state with at least two consecutive tool-level sub-agent dispatch failures and a pending read-only/verification task; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; assertions are stderr-based (assert_stderr_pattern helpers per the 091 behavioral variant): RED condition = the agent halts or loops with NO carve-out disclosure and NO inline execution, because 000-critical-rules.md does not yet contain the scope A carve-out. Run `rm -f tmp/.behavior-run.lock` before re-runs.
   - SC reference: SC-1. The test MUST FAIL before GREEN begins.
 - [ ] 2. GREEN — add the carve-out that makes the test pass. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-1-*`.
@@ -143,7 +143,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-1 verdict — evidence must be behavioral: session stderr from the with-test-home run shows disclosure plus inline execution confined to read-only/verification work. Structural-only evidence is EVIDENCE_TYPE_MISMATCH → FAIL.
   - SC reference: SC-1.
 - [ ] 5. Commit — commit the test and the change as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh && git -C .opencode commit -m "test(000-critical-rules): add infrastructure-failure inline-execution carve-out (#2427 SC-1)"`.
+  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh && git -C .opencode commit -m "test(000-critical-rules): add infrastructure-failure inline-execution carve-out (#2427 SC-1)"`.
   - No co-author trailers during implementation commits — those are added during squash at PR time.
   - SC reference: SC-1. This commit is the precondition for Item 2's RED.
 
@@ -151,7 +151,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 - [ ] 6. RED — write the failing behavioral enforcement test. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-2-*`.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2427-sc2-anti-recitation.sh`; the scenario prompt directs the agent to perform a mechanically simple, safe, reversible action; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; stderr-based assertions: RED condition = the agent produces citation-only turns, reciting protocol rules instead of acting, because 000-critical-rules.md does not yet contain the anti-recitation clause. Run `rm -f tmp/.behavior-run.lock` before re-runs.
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: create `.opencode/tests-v2/behaviors/2429-sc2-anti-recitation.sh`; the scenario prompt directs the agent to perform a mechanically simple, safe, reversible action; run via `bash .opencode/tests-v2/with-test-home opencode run '<scenario prompt>'` with a timeout of at least 600000 ms; stderr-based assertions: RED condition = the agent produces citation-only turns, reciting protocol rules instead of acting, because 000-critical-rules.md does not yet contain the anti-recitation clause. Run `rm -f tmp/.behavior-run.lock` before re-runs.
   - SC reference: SC-2. The test MUST FAIL before GREEN begins.
 - [ ] 7. GREEN — add the anti-recitation clause that makes the test pass. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-2-*`.
@@ -159,14 +159,14 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - SC reference: SC-2.
 - [ ] 8. Post-regression — run regression patterns after GREEN. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-2-*`.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run `bash .opencode/tests-v2/test-enforcement.sh --scenario silent-halt-with-search`, `bash .opencode/tests-v2/test-enforcement.sh --scenario read-secrets-in-output`, and the Item 1 scenario `bash .opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` — all must remain PASS after the second 000 edit.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run `bash .opencode/tests-v2/test-enforcement.sh --scenario silent-halt-with-search`, `bash .opencode/tests-v2/test-enforcement.sh --scenario read-secrets-in-output`, and the Item 1 scenario `bash .opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh` — all must remain PASS after the second 000 edit.
   - SC reference: SC-2 (guard: SC-1 regression).
 - [ ] 9. Verify — verify the implementation against the success criterion. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-2-*`.
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-2 verdict — behavioral evidence: the with-test-home run shows the safe action performed with disclosure; zero citation-only turns in session stderr.
   - SC reference: SC-2.
 - [ ] 10. Commit — commit the test and the change as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2427-sc2-anti-recitation.sh && git -C .opencode commit -m "test(000-critical-rules): add anti-recitation clause for safe reversible actions (#2427 SC-2)"`.
+  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc2-anti-recitation.sh && git -C .opencode commit -m "test(000-critical-rules): add anti-recitation clause for safe reversible actions (#2427 SC-2)"`.
   - SC reference: SC-2. This commit closes Phase 1.
 
 ### Phase 1 Completion
@@ -482,7 +482,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - SC reference: SC-10.
 - [ ] 3. Post-regression — confirm the monitoring mandate does not regress existing scenarios. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-10-*`.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run one completed behavioral scenario end-to-end under the monitoring protocol — `bash .opencode/tests-v2/behaviors/2427-sc1-infra-failure-carveout.sh` (SC-1's committed scenario) via `bash .opencode/tests-v2/with-test-home opencode run '<SC-1 scenario prompt>'` with a timeout of at least 600000 ms — must remain PASS with the poll protocol executing silently on a healthy run (no false-abort); confirms the monitor does not abort progressing runs.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run one completed behavioral scenario end-to-end under the monitoring protocol — `bash .opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh` (SC-1's committed scenario) via `bash .opencode/tests-v2/with-test-home opencode run '<SC-1 scenario prompt>'` with a timeout of at least 600000 ms — must remain PASS with the poll protocol executing silently on a healthy run (no false-abort); confirms the monitor does not abort progressing runs.
   - SC reference: SC-10 (guard: healthy-run non-interference).
 - [ ] 4. Verify — verify SC-10 with monitoring evidence alongside session.yaml. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-10-*`.
@@ -518,7 +518,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all ten SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules; SC-10's verdict MUST carry monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
 - [ ] 5. Regression check — final regression run before PR. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-regression-check-*`.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2427-sc1, 2427-sc2, 2427-sc3, 2427-sc4 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; SC-10 monitored-run evidence confirmed on disk — all PASS.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2429-sc1, 2429-sc2, 2429-sc3, 2429-sc4 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; SC-10 monitored-run evidence confirmed on disk — all PASS.
 - [ ] 6. Review-prep — prepare PR review context. (**clean-room**)
   - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and items 9–10 evidence-only excluded; the scope-G GREEN landed as commit 4989ffb5).
 - [ ] 7. Create PR — create the pull request. (**clean-room**)
