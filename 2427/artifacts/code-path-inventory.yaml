@@ -1,6 +1,7 @@
 # Code Path Inventory — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/code-paths.md (brainstorming).
 # Documentation/config change: "code paths" = runtime paths through which injected text reaches the model and through which tests assert.
+# Regenerated 2026-09-03: scope G added — Path 3 note (semantic monitoring protocol wraps behavioral runs; committed 4989ffb5).
 status: complete
 source: "formalized from brainstorming preliminary + live verification"
 produced_at: "2026-09-02T20:30:00-04:00"
@@ -32,6 +33,8 @@ Change impact: new INDEX rows required for context-discipline, discussion-mode, 
 test-enforcement.sh --scenario <name> → FILE_SCENARIO_MAP (path-keyed)
 behaviors/<scenario>.sh → with-test-home opencode run '<SCENARIO_PROMPT>' → session.yaml stderr assertions
 ```
+
+Scope G (2026-09-03): behavioral runs are wrapped by the semantic continuous monitoring protocol — `__semantic_monitor` (helpers.sh, committed 4989ffb5) launches the run in background, polls the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream each interval, and hard-aborts off-track/loop states (kill + §10.5 export + semantic diagnosis). Monitored-run behavioral SC verdicts record the poll log or semantic diagnosis alongside session.yaml.
 
 Verified test couplings:
 
