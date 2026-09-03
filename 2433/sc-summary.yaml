@@ -1,0 +1,34 @@
+sc_count: 8
+scs:
+  - id: "SC-1"
+    description: "System prompt Sub-Agent Routing Boundary and Pre-Response Gate state Architecture B (orchestrator executes workflow steps directly; task() only at marked points); Architecture-A prose absent."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "022 no longer defines pure-router model or HALTs on inline work; halt machinery re-pointed to whole-card/whole-plan forwarding; 000-critical-rules retains whole-card prohibition."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "executing-plans routes plan execution to the orchestrator (reads plan, executes steps directly, task() only at step-marked points); whole-plan/workflow forwarding absent."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "No SKILL.md contains a task() dispatch string targeting a SKILL.md path; all 51 cards retain the ORCHESTRATOR_ONLY_SKILL_CARD guard."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Plan pre-flight guard ORCHESTRATOR_ONLY_PLAN defined in canonical standards; whole plan body arriving at a leaf sub-agent is rejected with BLOCKED."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "TDT Dispatch values use closed set {orchestrator, task-card, task-card blind}; audit/brainstorming/spec-creation contradictions resolved; blanket clause rewritten in all carrying cards."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Canonical plan format defines per-step dispatch mode (direct | task-card, default direct); writing-plans templates emit it; plan-format check verifies explicit modes."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Single canonical dispatch-vocabulary table in reference layer; directive-layer files reference it via Read-link; system prompt carries no duplicated definitions."
+    evidence_type: "behavioral"
+    plan_item: 8
