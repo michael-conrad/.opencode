@@ -1,11 +1,12 @@
 # SC Summary — Issue #2429 (.opencode)
 # Tier-1 context-injection reduction — scopes A (infra-failure carve-out),
 # B (anti-recitation clause), C (split 020), D (split 080), E (trim AGENTS.md),
-# G (test-framework semantic continuous monitoring mandate — developer-directed revision 2026-09-03).
+# G (test-framework semantic continuous monitoring mandate — developer-directed revision 2026-09-03),
+# H (spec-creation number-collision guard — developer-directed revision 2026-09-03).
 # One implementation item per SC; items numbered sequentially from 1.
 # NO size-threshold PASS/FAIL criteria (#2411) — savings are emergent properties.
 
-sc_count: 10
+sc_count: 11
 
 scs:
   - id: "SC-1"
@@ -48,3 +49,7 @@ scs:
     description: "The tests-v2 harness mandates semantic continuous monitoring of every behavioral opencode run (scope G): background launch + interval polling, live session DB read (newest tmp/test-home-*/.local/share/opencode/opencode.db), semantic evaluation of the event stream (tool calls, reasoning sizes, text parts) against the scenario goal; hard-abort signals (identical tool input >=3x; task() parts stuck in running >=2 consecutive polls; reasoning >20K chars with <=1 new tool call; semantically judged off-track — no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows); abort recovery (kill, session.yaml export per §10.5, semantic diagnosis recorded); behavioral SC verdicts from monitored runs record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml; §10.7 documents the with-test-home new-home-per-invocation resumption limitation (--continue cannot reach a prior run's DB; the semantic monitoring mandate replaces blind resume loops)."
     evidence_type: "behavioral"
     plan_item: 10
+  - id: "SC-11"
+    description: "The spec-creation create task enforces a number-collision guard in its stub-first flow (scope H): before binding a local issue number to a remote issue, the flow queries the remote namespace for BOTH existing issues AND existing pull requests at the candidate number pair and verifies the local counter and remote counter produce the SAME number; on collision (local counter behind remote counter, or the remote number taken by an unrelated resource) the create task returns BLOCKED with blocker_reason NUMBER_COLLISION — auto-diverge and 'documented divergence' are prohibited. After creation, local and remote numbers match exactly, and the binding fields (remote_issue, remote_url, github_url) reference the same number as the local directory name. Remediation when BLOCKED: advance/sync the local counter to the remote counter, then create again under the matching number; post-hoc renumbering is a post-defect repair, not the primary guard."
+    evidence_type: "structural"
+    plan_item: 11
