@@ -14,7 +14,7 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   >
 
   > **Local artifacts:** `.opencode/.issues/2433/` — implementation plan, card catalogue,
-  dependency contracts, research, designs, audit findings
+  dependency contracts, analytical artifacts, research, designs, audit findings
 
 
   ## Problem
@@ -40,7 +40,7 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
 
   - Normalize all TDT Dispatch values to the closed set {`orchestrator`, `task-card`,
   `task-card blind`} and single-source the dispatch vocabulary in one canonical reference
-  table.
+  table (including `.opencode/AGENTS.md` dispatch directives).
 
   - Add a per-step plan dispatch mode (`direct` | `task-card`, default `direct`) to
   the canonical plan format.
@@ -52,12 +52,20 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   #706 — see §12 of the authoritative spec. **The 14 absorbed tickets are NOT closed
   here**; marking/closing happens via a separate orchestrator dispatch.
 
+  - The absorbed multi-concern SCs are decomposed into per-concern atomic sub-SCs:
+  SC-9a/9b/9c (serial pipeline, adversarial-audit routing, deterministic consensus),
+  SC-10a/10b/10c (contract schema fields + ownership, frugal size limits + inventory
+  classification, solve-tool wiring), SC-11a/11b/11c (TDT-vocabulary, dispatch-string,
+  contract-schema skildeck gates) — 17 success criteria total, each with its own RED/GREEN
+  cycle.
+
 
   **Out of scope:** `session-enforcement.ts` mechanical forwarding detection (phase-2
   backstop); content changes to other open issues'' bodies; `.opencode/scripts/` and
   `.opencode/tests/` Python tooling; `skill()`/`task()` tool contract changes; sub-agent
-  result contract envelope changes; tickets verified to have no dispatch concern (698,
-  699, 700, 701, 702, 703, 704, 705, 872, 1013, 1189, 1212).
+  result contract envelope changes; non-dispatch content of `.opencode/AGENTS.md`;
+  tickets verified to have no dispatch concern (698, 699, 700, 701, 702, 703, 704,
+  705, 872, 1013, 1189, 1212).
 
 
   ## Approach
@@ -78,9 +86,9 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   ## Impact
 
 
-  - **Risk 1 — Deck-wide TDT migration churn:** 44+ cards carry the retired blanket
-  clause. *Mitigation:* closed-set linter gate lands with the migration; validator
-  rejects old values after cut-over.
+  - **Risk 1 — Deck-wide TDT migration churn:** 45 cards carry the retired blanket
+  clause (measured). *Mitigation:* closed-set linter gate lands with the migration;
+  validator rejects old values after cut-over.
 
   - **Risk 2 — Behavioral regression across items:** vocabulary edits can break earlier
   probe assertions. *Mitigation:* enforcement gate is all-or-nothing; a regressed
@@ -93,11 +101,12 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   - **Dependencies:** tests-v2 behavioral harness; verified local model (qwen3.8:27b-256k-gguf4);
   skildeck validators; solve tool contract-schema wiring.
 
-  - **Call to action:** all 11 success criteria must pass before this spec is complete;
+  - **Call to action:** all 17 success criteria must pass before this spec is complete;
   the 14 absorbed tickets await marking/closing by a separate orchestrator dispatch.
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-03T15:24:41+00:00'
-updated_at: '2026-09-03T15:46:49+00:00'
+updated_at: '2026-09-03T16:22:19+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2433
+github_url: https://github.com/michael-conrad/.opencode/issues/2433
