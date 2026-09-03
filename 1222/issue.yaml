@@ -1,4 +1,11 @@
 number: 1222
-title: "[SPEC] Enforcement-Gated Contract Schema — standardized hand-off contracts with Z3-enforced gate_result, verifier identity, and evidence-type checking"
+title: '[SPEC] Enforcement-Gated Contract Schema — standardized hand-off contracts
+  with Z3-enforced gate_result, verifier identity, and evidence-type checking'
 state: OPEN
-labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec", "color": "ededed", "description": ""}]'
+labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name":
+  "spec", "color": "ededed", "description": ""}]'
+status: closed
+closed_at: '2026-09-03T15:49:44+00:00'
+close_reason: duplicate
+duplicate_of: 2433
+updated_at: '2026-09-03T15:49:44+00:00'
