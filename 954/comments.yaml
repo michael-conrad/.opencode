@@ -131,3 +131,6 @@ comments:
     🤖 OpenCode (deepseek-v4-flash)'
   created_at: '2026-06-01T17:19:57Z'
   user: michael-conrad
+- type: internal
+  body: 'Superseded by .opencode#2433 (superseded_by: 2433) per developer directive.'
+  timestamp: '2026-09-03T15:49:23+00:00'
