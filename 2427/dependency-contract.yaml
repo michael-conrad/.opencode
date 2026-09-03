@@ -2,11 +2,14 @@
 # Extracted from artifacts/interface-compatibility.yaml `dependency_contract` section (present
 # in source — extracted as-is per research.md step 9) + phase-DAG variables for Z3 solving.
 # Generated 2026-09-02 by writing-plans research task.
+# Revised 2026-09-03: scope G added (SC-10) — phase8_done / monitoring_evidence_recorded variables
+# appended (GREEN pre-committed as 4989ffb5; Phase 8 depends on no pending phase).
 version: 1
 source_artifact: .opencode/.issues/2427/artifacts/interface-compatibility.yaml
 scope: >-
-  Tier-1 context-injection reduction (scopes A/B/C/D/E): 000 carve-outs, 020/080 splits,
-  AGENTS.md trim, dedup reconciliation, INDEX routing, consumer sweep, #497 guard.
+  Tier-1 context-injection reduction (scopes A/B/C/D/E/G): 000 carve-outs, 020/080 splits,
+  AGENTS.md trim, dedup reconciliation, INDEX routing, consumer sweep, #497 guard,
+  test-framework semantic continuous monitoring mandate evidence cycle.
 
 variables:
   phase1_done:
@@ -23,6 +26,8 @@ variables:
     type: bool
   phase7_done:
     type: bool
+  phase8_done:
+    type: bool
   carve_outs_added:
     type: bool
   splits_done:
@@ -35,6 +40,8 @@ variables:
     type: bool
   guard_verified:
     type: bool
+  monitoring_evidence_recorded:
+    type: bool
 
 preconditions:
   - "z3.Not(carve_outs_added)"
@@ -43,6 +50,7 @@ preconditions:
   - "z3.Not(index_routing_complete)"
   - "z3.Not(sweep_complete)"
   - "z3.Not(guard_verified)"
+  - "z3.Not(monitoring_evidence_recorded)"
 
 invariants:
   - "z3.Implies(carve_outs_added, phase1_done)"
@@ -51,6 +59,7 @@ invariants:
   - "z3.Implies(index_routing_complete, phase5_done)"
   - "z3.Implies(sweep_complete, phase6_done)"
   - "z3.Implies(guard_verified, phase7_done)"
+  - "z3.Implies(monitoring_evidence_recorded, phase8_done)"
   - "z3.Implies(phase2_done, phase1_done)"
   - "z3.Implies(phase3_done, phase1_done)"
   - "z3.Implies(phase4_done, phase1_done)"
@@ -66,12 +75,14 @@ postconditions:
   - "phase5_done"
   - "phase6_done"
   - "phase7_done"
+  - "phase8_done"
   - "carve_outs_added"
   - "splits_done"
   - "dedup_complete"
   - "index_routing_complete"
   - "sweep_complete"
   - "guard_verified"
+  - "monitoring_evidence_recorded"
 
 dependency_edges:
   - source: "opencode.jsonc instructions array"
@@ -110,3 +121,5 @@ global_invariants:
     constraint: "Echo blocks inside moved sections travel with their sections (OQ-1); removal deferred to follow-up spec (R-9)."
   - id: DEDUP_NOT_DUAL_COPY
     constraint: "Duplicates reconcile to ONE canonical home: 085 for project-local tools, 116 for pair mode, one location for gb install (SC-6, R-13)."
+  - id: MONITORING_MANDATE_EVIDENCED
+    constraint: "Scope-G GREEN change is pre-committed as 4989ffb5 (tests-v2/AGENTS.md §14 + helpers.sh __semantic_monitor); Phase 8 (SC-10) is evidence-only — RED baseline + monitored-run poll log/semantic diagnosis recorded alongside session.yaml (R-21, R-22); Phase 8 depends on no pending phase."
