@@ -200,3 +200,6 @@ comments:
     🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
   created_at: '2026-05-30T15:41:19Z'
   user: michael-conrad
+- type: internal
+  body: 'Superseded by .opencode#2433 (superseded_by: 2433) per developer directive.'
+  timestamp: '2026-09-03T15:49:06+00:00'
