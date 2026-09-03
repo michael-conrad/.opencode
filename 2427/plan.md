@@ -2,6 +2,11 @@
 plan_schema_version: 1
 issue: 2427
 title: "Tier-1 context-injection reduction — scopes A/B/C/D/E implementation plan"
+lifecycle_events:
+  - timestamp: "2026-09-03T02:50:00Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2427/plan.md"
+    phase_count: 7
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
 ---
 
@@ -15,7 +20,7 @@ Deduplicate and re-place Tier-1 injected content in the `.opencode` submodule wh
 
 ## Architecture
 
-Seven phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, nine commits, one PR).
+Seven phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, eight commits, one PR — items 6–7 commits are conditional evidence-recording no-ops when the verified state is already achieved; item 9 records evidence only, no commit).
 
 New Tier-2 destination files (numbers verified free; frontmatter `trigger_on`, `tier: 2`, `load_when` mandatory; NOT added to the opencode.jsonc instructions array):
 
@@ -33,7 +38,7 @@ Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-
 
 ## Dispatch
 
-Per-item cycle (every item, every phase): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
+Per-item cycle (items 1–8; item 9 is verification-only — guard RED inline, no commit): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
 
 ## Blast Radius
 
@@ -77,7 +82,7 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 
 - [ ] 1. Coherence gate — verify the plan-to-spec chain before any dispatch. (**inline**)
   - Confirm the spec at `.opencode/.issues/2427/spec.md` holds 9 success criteria (SC-1 through SC-9) and 20 SHALL requirements (R-1 through R-20).
-  - Confirm `.opencode/.issues/2427/artifacts/structure.yaml` holds the 7-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase) and the 12-edge dependency DAG.
+  - Confirm `.opencode/.issues/2427/artifacts/structure.yaml` holds the 7-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase) and the 11-edge dependency DAG.
   - Confirm `.opencode/.issues/2427/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 7-phase decomposition.
   - Confirm authorization scope is `for_pr` with PR strategy `stacked`, and the implementation target is the `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` (R-17 stacking base; #2416 same-file additions rebase cleanly — disjoint sections).
   - Confirm #2411 binding constraint is honored: no SC in this plan uses a size metric as PASS/FAIL.
@@ -465,7 +470,7 @@ From `.opencode/.issues/2427/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Pre-clean: `rm -f tmp/2427/artifacts/pipeline-regression-check-*`.
   - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2427-sc1 and 2427-sc2 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series — all PASS.
 - [ ] 6. Review-prep — prepare PR review context. (**clean-room**)
-  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, nine commits on feature/2402-finishing-checklist-trailer-remediation.
+  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and item 9 evidence-only excluded).
 - [ ] 7. Create PR — create the pull request. (**clean-room**)
   - Dispatch: `task(..., prompt: "execute create task from git-workflow-pr")` with context: one stacked PR from feature/2402-finishing-checklist-trailer-remediation; squash to exactly one commit per issue at PR creation; co-author trailers added at squash time. HALT after PR creation — the agent does not merge (human-only merge).
 - [ ] 8. Executive summary — generate the completion summary. (**clean-room**)
