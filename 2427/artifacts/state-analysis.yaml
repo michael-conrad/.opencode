@@ -1,5 +1,6 @@
 # State Analysis — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/state-analysis.md (brainstorming).
+# Regenerated 2026-09-03: scope G added — State 6 (monitoring evidence state) appended.
 status: complete
 source: "formalized from brainstorming preliminary"
 produced_at: "2026-09-02T20:36:00-04:00"
@@ -45,6 +46,17 @@ Current: full Tier-1 corpus (225,798 B verified) injected every session, includi
 | Behavioral scripts | 2243-sc1, 2249-sc6/sc7, test-sc3-di-carveout-doc reference 080 paths; 2293-sc1 references 020 |
 
 Transitions: prompts/assertions updated in sweep; scenario map untouched.
+
+### State 6 — Behavioral monitoring evidence state (scope G, 2026-09-03)
+
+| Field | Value |
+|-------|-------|
+| Committed GREEN | 4989ffb5 (tests-v2/AGENTS.md §14 mandate + behaviors/helpers.sh `__semantic_monitor` poll protocol) — landed during the spec-revision step |
+| Pending state | tmp/behavioral-evidence-2427-sc10-* directories (RED baseline + monitored run) — not yet created |
+| Evidence destination | tmp/2427/artifacts/sc10-monitoring-evidence.yaml (RED baseline record, poll log, semantic diagnosis, session.yaml path, §10.7 amendment citation, committed-GREEN SHA) |
+| Harness edit authority | READ-ONLY under this plan — 4989ffb5 is the committed GREEN; a harness defect is a spec-revision trigger, not an inline fix |
+
+Transitions: Phase 8 (Item 10) creates the RED baseline record, then the monitored-run evidence (poll log + semantic diagnosis + §10.5 export) alongside session.yaml; monitoring_evidence_recorded flips false→true in the Z3 contract state.
 
 ## State Machine (spec lifecycle)
 
