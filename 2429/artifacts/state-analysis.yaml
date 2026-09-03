@@ -1,38 +1,46 @@
-# State Analysis — Issue #2427
+# State Analysis — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/state-analysis.md (brainstorming).
 # Regenerated 2026-09-03: scope G added — State 6 (monitoring evidence state) appended.
+# Regenerated 2026-09-03 (scope H): State 7 added (issue-numbering state — remote-number-first per SC-11).
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary"
-produced_at: "2026-09-02T20:36:00-04:00"
+source: "formalized from brainstorming preliminary; State 7 derived from spec.md §3 SC-11/§11 edge cases + live .counter read (value 2429) + git -C .opencode log (2026-09-03)"
+produced_at: "2026-09-03T22:30:00Z"
 
 ## Persistent State Affected
 
 ### State 1 — Git state (.opencode submodule)
 
-| Field | Value (preliminary-verified; re-verify at implementation) |
+| Field | Value (verified 2026-09-03) |
 |-------|---------|
-| Branch | feature/2402-finishing-checklist-trailer-remediation |
+| Branch | feature/2402-finishing-checklist-trailer-remediation (checked out, verified `git -C .opencode branch --show-current`) |
 | Stacking | this spec's implementation stacks on the #2402 branch (handoff implementation_target) |
-| HEAD at brainstorming | 316ba8a1 (fix(git-workflow) #2426 SC-3a SC-3b) |
+| HEAD at regeneration | f1bcf1cf (Phase-4 AGENTS.md trim GREEN + 2427→2429 test-script renumbering); 4989ffb5 (scope-G GREEN) confirmed ancestor of HEAD |
+| Pending changes | 4 modified behavioral test scripts (2429-sc1/sc2/sc3/sc4) — plan's pre-implementation baseline check flags these at execution time (recorded in validate-findings; execution-state observation, not a plan defect) |
 
-Transitions: implementation adds commits on the feature branch; per-SC RED/GREEN/COMMIT cycles per incremental-build; submodule pointer in parent rides alongside next real parent-repo change (never standalone per AGENTS.md).
+Transitions: implementation adds commits on the feature branch; per-SC RED/GREEN/COMMIT cycles per incremental-build; Phase 9 adds one commit (create.md + 2429-sc11-remote-number-first.sh) after Phase 8 completes; submodule pointer in parent rides alongside next real parent-repo change (never standalone per AGENTS.md).
 
 ### State 2 — Local issue state (.opencode/.issues/ worktree)
 
 | Field | Value |
 |-------|-------|
-| Next free issue | 2427 (verified: .counter=2427; no .opencode/.issues/2429/ yet; highest 2426) |
-| Planned destination | .opencode/.issues/2429/ (spec.md, sc-summary.yaml, artifacts/) |
+| Issue record | #2429 (renumbered from #2427 — the renumbering is itself the verified scope-H defect repair; remote #2427 was a MERGED PR) |
+| `.counter` | 2429 (verified live; matches remote) |
+| Issue directory | .opencode/.issues/2429/ (spec.md, sc-summary.yaml, plan.md, dependency-contract.yaml, artifacts/) |
+| issue.yaml | labels: spec-draft, approved-for-pr, spec-cleared; remote_issue: 2429; github_url: https://github.com/michael-conrad/.opencode/issues/2429 |
 
-Transitions: spec-creation create task creates the directory via local-issues CLI; analytical artifacts copy from tmp/2427/artifacts/ per create.md Step 6. NEVER touch .issues/ via parent-repo file tools (worktree discipline).
+Transitions: future spec creations bind the local number to the remote-assigned N BY CONSTRUCTION (scope H) — the counter-drift class that produced 2427↔2429 cannot recur when a remote API is available. NEVER touch .issues/ via parent-repo file tools (worktree discipline); mutations go through `local-issues`.
 
 ### State 3 — tmp/ pipeline state
 
 | Path | State |
 |------|-------|
 | tmp/2427/artifacts/preliminary/ | 7 brainstorming artifacts + handoff.yaml (complete) |
-| tmp/2427/artifacts/*.yaml | 7 formalized analytical artifacts (this analyze task) + pre-spec-inspection.yaml + research-card-consultation.yaml |
-| tmp/2427/contracts/ | requirements-output.yaml + decompose-output.yaml (this task) |
+| tmp/2427/artifacts/*.yaml | 7 formalized analytical artifacts + pre-spec-inspection.yaml + research-card-consultation.yaml |
+| tmp/2427/contracts/ | requirements-output.yaml + decompose-output.yaml |
+| tmp/2429/artifacts/ | plan-pipeline step artifacts (pipeline-red-*/green-*/verify-*/audit-*, per-phase pre-clean pattern) |
+| tmp/behavioral-evidence-2427-sc10-* | NOT YET CREATED — Phase 8 destination (RED baseline + monitored-run poll log/semantic diagnosis) |
 
 ### State 4 — Session-injection state (the problem being fixed)
 
@@ -43,29 +51,42 @@ Current: full Tier-1 corpus (225,798 B verified) injected every session, includi
 | Artifact | Current |
 |----------|---------|
 | FILE_SCENARIO_MAP | 020→pipeline-scoped-halt; 000→silent-halt-with-search read-secrets-in-output; 010→pipeline-scoped-halt (verified) |
-| Behavioral scripts | 2243-sc1, 2249-sc6/sc7, test-sc3-di-carveout-doc reference 080 paths; 2293-sc1 references 020 |
+| Behavioral scripts | 2243-sc1, 2249-sc6/sc7, test-sc3-di-carveout-doc reference 080 paths; 2293-sc1 references 020; 2429-sc1/sc2/sc3/sc4/sc5 exist (renumbered 2427-* → 2429-* in f1bcf1cf) |
 
-Transitions: prompts/assertions updated in sweep; scenario map untouched.
+Transitions: prompts/assertions updated in sweep; scenario map untouched. Phase 9 adds `2429-sc11-remote-number-first.sh` (new file — RED creates it).
 
 ### State 6 — Behavioral monitoring evidence state (scope G, 2026-09-03)
 
 | Field | Value |
 |-------|-------|
-| Committed GREEN | 4989ffb5 (tests-v2/AGENTS.md §14 mandate + behaviors/helpers.sh `__semantic_monitor` poll protocol) — landed during the spec-revision step |
+| Committed GREEN | 4989ffb5 (tests-v2/AGENTS.md §14 mandate + behaviors/helpers.sh `__semantic_monitor` poll protocol) — landed during the spec-revision step; verified ancestor of HEAD |
 | Pending state | tmp/behavioral-evidence-2427-sc10-* directories (RED baseline + monitored run) — not yet created |
 | Evidence destination | tmp/2427/artifacts/sc10-monitoring-evidence.yaml (RED baseline record, poll log, semantic diagnosis, session.yaml path, §10.7 amendment citation, committed-GREEN SHA) |
 | Harness edit authority | READ-ONLY under this plan — 4989ffb5 is the committed GREEN; a harness defect is a spec-revision trigger, not an inline fix |
 
 Transitions: Phase 8 (Item 10) creates the RED baseline record, then the monitored-run evidence (poll log + semantic diagnosis + §10.5 export) alongside session.yaml; monitoring_evidence_recorded flips false→true in the Z3 contract state.
 
+### State 7 — Issue-numbering state (scope H, 2026-09-03)
+
+| Field | Value |
+|-------|-------|
+| Number source (remote API available) | Post-change: the remote API create response's `number` field — remote stub created FIRST, local record at exactly N (R-23) |
+| Number source (local-only mode) | The local `.counter` — the ONLY mode where the counter picks the number |
+| Binding state (post-creation) | `.issues/N/` directory + issue.yaml `remote_issue: N` + binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION (R-24) |
+| Failure state | API failure mid-flow → BLOCKED (blocker reason `API_FAILURE_MID_FLOW`); remote stub at N persists; recovery is a re-run binding to the remote-owned N, never a local-counter fallback |
+| Repair state | Remote assigns N whose local directory already exists → renumber/migrate repair pattern (migrate existing local directory to N, then create); post-hoc renumbering remains a post-defect developer repair, not the primary guard |
+| Verified defect (motivation) | local 2427 assigned while remote counter was at 2429; remote #2427 a MERGED PR (closing #2421) — verified via `gh pr view 2427` this session |
+
+Transitions: create_task_numbering_remote_first flips false→true in the Z3 contract state at Phase 9 GREEN; Phase 9 depends on phase8_done only (daisy-chain ordering, content-disjoint).
+
 ## State Machine (spec lifecycle)
 
 ```
-analyze (this task — DONE when artifacts complete)
+analyze (artifacts complete — regenerated for 11-SC scope-H state)
   → create (spec issue created, remote-stub-first, artifacts copied)
     → validate (holistic self-check, structural validation)
       → (revise → validate)*
-        → audit → approval-gate → writing-plans → implementation (per-SC TDD on feature/2402)
+        → audit → approval-gate → writing-plans → implementation (per-SC TDD on feature/2402, Phases 1-9)
 ```
 
 ## State Not Affected
@@ -73,9 +94,9 @@ analyze (this task — DONE when artifacts complete)
 - opencode.jsonc instructions array (no entry changes)
 - session-enforcement.ts / env-loader.ts
 - Parent-repo files (only submodule pointer rides later)
-- .issues/ worktrees other than 2427 creation
-- Remote issue state (creation happens in create task, not analyze)
+- .issues/ worktrees other than 2429 artifacts
+- Remote issue state beyond the create-task flow (scope H changes the number SOURCE, not the remote API surface)
 
 ## Idempotency & Rollback
 
-All changes are file edits in a git-tracked submodule — fully reversible via git reset to checkpoint tag. No data migrations, external systems, or databases. tmp/ artifacts are disposable and rebuildable.
+All changes are file edits in a git-tracked submodule — fully reversible via git reset to checkpoint tag. No data migrations, external systems, or databases. tmp/ artifacts are disposable and rebuildable. Scope-H mid-flow failure state is recoverable by design: the remote stub at N persists and a re-run binds to it (BLOCKED is a halt-with-retry state, not data loss).

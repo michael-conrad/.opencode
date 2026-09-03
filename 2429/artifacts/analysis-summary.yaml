@@ -1,19 +1,26 @@
-# Analysis summary — writing-plans analyze task for issue #2427
+# Analysis summary — writing-plans analyze task for issue #2429 (.opencode)
 # Verified 2026-09-02 via live file reads (task: analyze, executed inline by sub-agent)
 # Regenerated 2026-09-03: scope G added (SC-10, R-21/R-22) — sc_count 9 -> 10,
 # sc_ids extended, sc-summary crosscheck re-run against the 10-SC sc-summary.yaml.
+# Regenerated 2026-09-03 (scope H): sc_count 10 -> 11 (SC-11, R-23/R-24, Item 11);
+# all 7 analytical artifacts regenerated for the 11-SC scope-H state; sc-summary
+# crosscheck re-run against the 11-SC sc-summary.yaml (sc_count: 11, SC-11 present).
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H (validate-findings category 4 FAIL,
+# 2026-09-03T22:20:31Z) — sibling artifact batch regenerated in the same pass.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 spec_path: .opencode/.issues/2429/spec.md
 approval:
   source: .opencode/.issues/2429/issue.yaml
   labels:
     - spec-draft
     - approved-for-pr
+    - spec-cleared
   status: APPROVED
   note: >-
     issue.yaml is the canonical authorization record per .opencode/AGENTS.md;
     spec.md frontmatter labels (needs-approval, spec-draft) are stale metadata —
     advisory only, not authoritative. approved-for-pr verified in issue.yaml.
-sc_count: 10
+sc_count: 11
 sc_ids:
   - SC-1
   - SC-2
@@ -25,24 +32,25 @@ sc_ids:
   - SC-8
   - SC-9
   - SC-10
+  - SC-11
 sc_source: .opencode/.issues/2429/spec.md (section 3, Success Criteria table)
 sc_summary_crosscheck:
   file: .opencode/.issues/2429/sc-summary.yaml
-  sc_ids_found: 10
+  sc_ids_found: 11
   match: true
 artifacts:
-  blast-radius.yaml: present
-  concern-map.yaml: present
-  code-path-inventory.yaml: present
-  cross-cutting-matrix.yaml: present
-  interface-compatibility.yaml: present
-  state-analysis.yaml: present
-  testability-assessment.yaml: present
+  blast-radius.yaml: present (regenerated 2026-09-03 scope H)
+  concern-map.yaml: present (regenerated 2026-09-03 scope H — Concern 6 added, Phase 9 boundary)
+  code-path-inventory.yaml: present (regenerated 2026-09-03 scope H — Path 6 added)
+  cross-cutting-matrix.yaml: present (regenerated 2026-09-03 scope H — Phase 9 column added)
+  interface-compatibility.yaml: present (regenerated 2026-09-03 scope H — Interface 8 + dependency-contract scope-H edges added)
+  state-analysis.yaml: present (regenerated 2026-09-03 scope H — State 7 added)
+  testability-assessment.yaml: present (regenerated 2026-09-03 scope H — SC-11 evidence row added)
   supplementary:
     pre-spec-inspection.yaml: present
     requirements-output.yaml: present
     decompose-output.yaml: present
-    pipeline-readiness.yaml: present
+    pipeline-readiness.yaml: present (refreshed 2026-09-03 scope H — 9-phase/11-SC gate re-run)
     research-card-consultation.yaml: present
 artifact_dir: .opencode/.issues/2429/artifacts/
 scope_boundary_findings:
@@ -60,6 +68,7 @@ scope_boundary_findings:
       - .opencode/tests-v2/test-enforcement.sh
       - .opencode/tests-v2/with-test-home
       - .opencode/.issues/2411/spec.md
+      - .opencode/skills/spec-creation/tasks/create.md (scope H integration point — read this session, stub-first flow verified)
     status: OK
   - finding: Research cards cited in spec dependencies live in the PARENT repo's .issues/research-cards/ (not .opencode/.issues/research-cards/)
     files_verified:
@@ -68,15 +77,16 @@ scope_boundary_findings:
       - .issues/research-cards/thinking-block-verification-checkpoint.md
     consultation_artifact_records: 3
     status: OK (note — parent-repo location is correct per session-init repo routing; cards are read-only inputs)
-  - finding: No missing referenced files; no dangling scope boundaries
+  - finding: No missing referenced files; no dangling scope boundaries; scope H affected-file set verified (create.md exists; 2429-sc11-remote-number-first.sh correctly ABSENT — it is NEW work created by Phase 9 RED)
     status: OK
 dependencies:
   stacking_branch: feature/2402-finishing-checklist-trailer-remediation
-  stacking_branch_exists: verified via `git -C .opencode worktree list` (checked out in submodule worktree)
+  stacking_branch_exists: verified via `git -C .opencode branch --show-current` (checked out; HEAD f1bcf1cf; 4989ffb5 scope-G GREEN confirmed ancestor)
   issue_2411: satisfied (spec exists at .opencode/.issues/2411/spec.md — size-threshold prohibition verified live in spec section 2, alternative (b))
   issue_2416: pending (sequencing constraint — same-file AGENTS.md overlap, R-17)
   issue_2131: satisfied (closed, PR #2238)
   issue_497: satisfied (constraint inherited)
+  scope_H_number_source: satisfied (remote namespace michael-conrad/.opencode verified; defect basis — local 2427 assigned while remote counter was at 2429, remote #2427 a MERGED PR; `.counter` currently 2429 matching remote)
 result:
   status: DONE
   blocker_reason: null

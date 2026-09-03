@@ -1,13 +1,17 @@
-# Validate findings — Issue #2427 (.opencode)
+# Validate findings — Issue #2429 (.opencode)
 # SPDX-FileCopyrightText: 2026 michael-conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
 # Fresh full validation per writing-plans validate task; overwrites the prior
-# BLOCKED run (solve artifacts missing — since regenerated and SAT).
+# PASS run (which validated the 8-phase/scope-G plan). This run validates the
+# regenerated 9-phase/scope-H plan (11 SCs / 9 phases). One deterministic FAIL:
+# the concern-map artifact was last regenerated for scope G (5 concerns) and
+# contains zero scope-H entries — Phase 9 addresses a concern (remote-number-first
+# create-task flow, SC-11/R-23/R-24) that does not exist in concern-map.yaml.
 schema_version: 1
 issue: 2429
 artifact: validate-findings
-generated_at: "2026-09-03T21:30:00Z"
+generated_at: "2026-09-03T22:20:31Z"
 generator: "writing-plans validate task (inline executor, ollama-cloud/glm-5.3-flash)"
 validation_run: fresh
 
@@ -23,14 +27,14 @@ entry_criteria:
   spec_present: true
   spec_path: ".opencode/.issues/2429/spec.md"
   evidence:
-    - "solve-output.yaml: solve_status SAT, plan_status SOLVED_SATISFICING, 8-step planner plan covering all phases; regenerated 2026-09-03 for the 8-phase decomposition"
-    - "structure.yaml: 8 phases, 10 SCs, 11-edge DAG among phases 1-7 + phase_8_node (no edges), triplet_co_location verified"
+    - "solve-output.yaml: solve_status SAT, plan_status SOLVED_SATISFICING, 9-step planner plan covering all 9 phases (carve_outs_000 .. remote_number_first_create); regenerated 2026-09-03 for the 9-phase decomposition"
+    - "structure.yaml: 9 phases, sc_count 11, 13-edge DAG (11 edges among phases 1-7 + 7->8 daisy-chain + 8->9), triplet_co_location verified"
 
 categories:
   category_1_structural: PASS
   category_2_skill_task_validity: PASS
   category_3_sc_coverage: PASS
-  category_4_concern_separation: PASS
+  category_4_concern_separation: FAIL
   category_5_dag_validation: PASS
   category_6_holistic_quality: PASS
 
@@ -38,30 +42,43 @@ checks:
   category_1_structural:
     phase_table_present: true
     phase_table_columns: [Phase, Name, Concern, SCs, Dependencies, Items, Dispatch]
-    phase_table_rows: 8
-    procedures_with_numbered_steps: 8
+    phase_table_rows: 9
+    procedures_with_numbered_steps: 9
     exit_criteria_present: true
-    exit_criteria_sc_to_phase_mapping: "C1-C9 map SC-1..SC-10 to phases 1-8 (C2 covers SC-1..SC-10 with evidence-type rule; C4 SC-9; C5 SC-8; C6 SC-6; C7 SC-7; C9 post-implementation gates)"
+    exit_criteria_sc_to_phase_mapping: "C1-C9 map SC-1..SC-11 to phases 1-9 (C1 phases 1-9; C2 covers SC-1..SC-11 with evidence-type + monitoring-evidence + SC-11 read-back/fixture rules; C4 SC-9; C5 SC-8; C6 SC-6; C7 SC-7; C9 post-implementation gates)"
+    step_numbering: "per-phase continuous 1..N across all 9 phases (Item 7 resumes at 6, Item 11 restarts at 1 — both are numbered-step procedures; no gaps, no duplicates within a phase)"
     result: PASS
   category_2_skill_task_validity:
     unique_dispatch_strings: 10
     matched_against: ".opencode/skills/writing-plans/reference/implementation-workflow.md"
     all_match: true
+    dispatch_strings:
+      - "execute red task from test-driven-development"
+      - "execute green task from test-driven-development"
+      - "execute phase-4 task from test-driven-development"
+      - "execute verify task from verification-before-completion"
+      - "execute phase-0 task from test-driven-development"
+      - "execute checklist task from finishing-a-development-branch"
+      - "execute completion task from completion-core"
+      - "execute create task from git-workflow-pr"
+      - "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first"
+      - "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first"
     note: >-
       All 10 unique dispatch strings match the reference card canonical forms
-      (red/green/post-regression->phase-4/verify/phase-0/checklist/completion/create/review-prep/audit-investigator).
-      The two audit/git-workflow-pr strings with embedded Read-first paths match modulo
-      backtick escaping in the reference card table. Orchestrator-inline steps (commit,
-      guard RED, record-evidence, z3-check) match the reference card's (orchestrator)
-      entries. Referenced task cards verified on disk: red, green, phase-0, phase-4,
-      verify, verification-audit-investigator, checklist, review-prep, completion all
-      exist; git-workflow-pr "create" maps to pr-creation.md (exists, skill-internal
-      routing per SKILL.md Create-a-PR section).
+      (red/green/post-regression->phase-4/verify/phase-0/checklist/completion/create/
+      review-prep/audit-investigator). The two audit/git-workflow-pr strings with
+      embedded Read-first paths match modulo backtick escaping in the reference card
+      table. Orchestrator-inline steps (commit, guard RED, record-evidence, z3-check)
+      match the reference card's (orchestrator) entries. Referenced task cards
+      verified on disk (live check 2026-09-03): red, green, phase-0, phase-4, verify,
+      verification-audit-investigator/-validator/-evaluator/-arbiter, checklist,
+      review-prep, pr-creation, completion — all exist.
     result: PASS
   category_3_sc_coverage:
-    spec_sc_count: 10
-    spec_sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
-    spec_r_count: 22
+    spec_sc_count: 11
+    spec_sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
+    spec_r_count: 24
+    spec_r_ids_verified_live: "R-1..R-24 extracted from spec.md — 24 distinct IDs, matching the plan coherence-gate claim of 24 SHALL requirements"
     sc_to_phase:
       SC-1: 1
       SC-2: 1
@@ -73,21 +90,25 @@ checks:
       SC-8: 6
       SC-9: 7
       SC-10: 8
+      SC-11: 9
     all_scs_covered: true
     triplet_split_violations: none
     triplet_detail: >-
       Every SC's RED, GREEN, COMMIT steps are co-located in exactly one phase
-      (SC-1/SC-2 -> items 1-2, phase 1; SC-3 -> item 3, phase 2; SC-4 -> item 4, phase 3;
-      SC-5 -> item 5, phase 4; SC-6 -> item 6, phase 5; SC-7 -> item 7, phase 5;
-      SC-8 -> item 8, phase 6; SC-9 -> item 9, phase 7; SC-10 -> item 10, phase 8).
-      SC-9 RED is the inline pre-change guard check and SC-9 COMMIT is "none"
-      (verification-only) — both fully within phase 7. SC-10 COMMIT is "none"
-      (evidence-only, GREEN pre-committed as 4989ffb5) — fully within phase 8.
-      Verified against structure.yaml triplet_co_location: verified.
+      (SC-1/SC-2 -> items 1-2, phase 1; SC-3 -> item 3, phase 2; SC-4 -> item 4,
+      phase 3; SC-5 -> item 5, phase 4; SC-6 -> item 6, phase 5; SC-7 -> item 7,
+      phase 5; SC-8 -> item 8, phase 6; SC-9 -> item 9, phase 7; SC-10 -> item 10,
+      phase 8; SC-11 -> item 11, phase 9). SC-9 RED is the inline pre-change guard
+      check and SC-9 COMMIT is "none" (verification-only) — both fully within
+      phase 7. SC-10 COMMIT is "none" (evidence-only, GREEN pre-committed as
+      4989ffb5) — fully within phase 8. SC-11's RED/GREEN/COMMIT are all in
+      item 11 / phase 9. Verified against structure.yaml triplet_co_location:
+      verified (9-phase comment block).
     result: PASS
   category_4_concern_separation:
     concern_map: ".opencode/.issues/2429/artifacts/concern-map.yaml"
     concern_count: 5
+    scope_h_entries_in_concern_map: 0
     phase_to_concern:
       1: "Safety-critical authorization rules additions (scopes A+B -> 000) — Concern 1 ADD rows"
       2: "Context mechanics + project-local-tools demotion (020 split) — Concerns 2+3"
@@ -97,58 +118,93 @@ checks:
       6: "Consumer sweep — cross-cutting propagation (Read-links + test prompts)"
       7: "#497 guard verification — Concern 1 KEEP rows verification column"
       8: "Monitoring mandate evidence (scope G) — Concern 5"
-    one_concern_per_phase: true
+      9: "Remote-number-first create task (scope H) — NO MATCHING CONCERN IN concern-map.yaml"
+    one_concern_per_phase: false
     duplicate_concern_phases: none
-    note: >-
-      Phases 2 and 5 touch overlapping content classes, but phase 5 is the
-      verification column of the SAME concern classes phases 2/3/4 produce —
-      the concern-map and cross-cutting matrix encode this P (produce) vs V
-      (verify) split explicitly; no two phases produce the same concern.
-      Phase 1 holds two SCs (A+B carve-outs) but both are Concern-1 ADD rows
-      in one file — one concern per phase holds.
-    result: PASS
+    findings:
+      - id: CONCERN_MAP_MISSING_SCOPE_H
+        severity: FAIL
+        check: "Category 4 — 'Verify each phase addresses exactly one concern from the concern-map artifact'"
+        detail: >-
+          Phase 9 (scope H, SC-11) addresses the remote-number-first spec-creation
+          create-task flow, but concern-map.yaml contains zero matches for
+          scope H | scope-H | SC-11 | R-23 | R-24 | remote.number.first |
+          remote_number_first (grep count 0, verified live 2026-09-03). The artifact
+          header records its last regeneration as 'scope G added — Concern 5
+          (test-framework monitoring mandate)'. The scope-H spec revision
+          (2026-09-03, recorded in spec.md change history rows 4-5) did not
+          regenerate the concern-map. The plan's Phase 9 Concern column
+          ('spec-creation create.md stub-first flow restructured to
+          remote-number-first numbering') therefore has no concern-map anchor.
+        same_staleness_batch: >-
+          The 2026-09-03T17:57 artifact batch (blast-radius.yaml,
+          interface-compatibility.yaml, state-analysis.yaml, cross-cutting-matrix.yaml,
+          code-path-inventory.yaml, testability-assessment.yaml, decompose-output.yaml,
+          requirements-output.yaml, pre-spec-inspection.yaml, analysis-summary.yaml)
+          likewise contains zero scope-H matches (grep count 0 per file). These are
+          supporting evidence for other categories and do not independently gate them:
+          category 3 coverage was verified directly against spec.md SC-1..SC-11, and
+          category 5 DAG validation was verified directly against
+          dependency-contract.yaml invariants. The concern-map is the named
+          authority for category 4, so its staleness is a FAIL there.
+        remediation: >-
+          Regenerate concern-map.yaml (and ideally the scope-H-relevant analytical
+          artifacts: blast-radius, interface-compatibility, state-analysis) via
+          writing-plans backfill (mode: retroactive) or the spec-creation artifact
+          update path to add a Concern 6 (scope H — remote-number-first create-task
+          flow) with Phase 9 as its boundary, then re-run this validation.
+    result: FAIL
   category_5_dag_validation:
-    contract_edges: 11
-    dag_edges_phases_1_to_7: "1->{2,3,4}; {2,3,4}->5; {2,3,4,5}->6; 6->7"
-    cycle_check: "Acyclic — edges strictly increase phase index; topological order 1,(2,3,4),5,6,7 exists"
+    contract_variables: 17
+    contract_invariants: 16
+    contract_postconditions: 17
+    dependency_edges: 13
+    dag_edges: "1->{2,3,4}; {2,3,4}->5; {2,3,4,5}->6; 6->7; 7->8; 8->9"
+    cycle_check: "Acyclic — edges strictly increase phase index; topological order 1,(2,3,4),5,6,7,8,9 exists"
     all_phases_reachable: true
     orphan_phases: none
-    phase_8_treatment: intentional_independent_node
-    phase_8_note: >-
-      Phase 8 has no incoming or outgoing DAG edges BY DESIGN: its GREEN change
-      is pre-committed as 4989ffb5 (verified ancestor of HEAD in .opencode),
-      so it depends on no pending phase. structure.yaml phase_8_node,
-      solve-output checks, and dependency-contract invariant
-      MONITORING_MANDATE_EVIDENCED all encode this. The plan table's
-      Dependencies column states 'none pending'. Under a strict orphan-phase
-      reading this is a no-edge node; it is recorded as an intentional,
-      documented independent node — verified consistent across all four
-      artifacts — not a decomposition defect.
+    chain_integrity: >-
+      Invariant chain verified: Implies(phase9_done, phase8_done), Implies(phase8_done,
+      phase7_done), ..., Implies(phase2_done, phase1_done) — every phase reachable
+      from phase 1; no phase lacks both incoming and outgoing edges.
+      structure.yaml edges (13) match dependency-contract invariant chain 1:1.
+      Solve model query (all 9 phase_done vars ANDed) returned SAT — goal
+      reachable. Phase 8 no longer carries the prior 'intentional independent
+      node' status: the revised contract adds the 7->8 daisy-chain edge, and
+      structure.yaml phase_8_node/phase_9_node document both as daisy-chain
+      placement (content-disjoint, ordering dependency).
     result: PASS
   category_6_holistic_quality:
-    placeholder_scan: "grep TBD|TODO|FIXME|PLACEHOLDER -> 0 matches"
-    checkbox_steps: 62
+    placeholder_scan: "grep TBD|TODO|FIXME|PLACEHOLDER -> 0 matches (live check 2026-09-03)"
+    checkbox_steps: 67
     all_steps_checkbox: true
-    dispatch_mode_consistency: "62/62 steps carry (**inline**)/(**clean-room**) markers; 0 inline steps contain task(); 0 clean-room steps lack task() (inline steps run git/solve/rm commands directly)"
+    dispatch_mode_consistency: "67/67 steps carry (**inline**)/(**clean-room**) markers; block-level scan: 0 clean-room steps lack a Dispatch: line; 0 inline steps contain task() (inline steps run git/solve/rm commands directly)"
     inline_steps: 14
-    clean_room_steps: 48
+    clean_room_steps: 53
     material_premises_verified_live:
-      - "git -C .opencode branch --show-current -> feature/2402-finishing-checklist-trailer-remediation (plan target branch exists)"
-      - "git -C .opencode log --oneline -5 -> SC-1..SC-4 commits + 4989ffb5 scope-G GREEN on branch; 4989ffb5 is ancestor of HEAD"
-      - "grep __semantic_monitor tests-v2/behaviors/helpers.sh -> 2 matches (helper present)"
-      - "tests-v2/AGENTS.md: section 14 Semantic Continuous Monitoring Mandate present; 10.7 new-home-per-invocation limitation present"
-      - "spec R-count: 22 SHALL requirements (R-1..R-22) — matches plan coherence-gate claim"
-      - "opencode.jsonc instructions array: 14 entries (verified live); git diff of opencode.jsonc from plan-start baseline empty (byte-identical)"
-      - "git -C .opencode status --porcelain -> clean"
-      - "SC-10/Phase 8 framing consistent: RED baseline + monitored evidence against committed GREEN, no new commit, evidence-only"
+      - "git -C .opencode branch --show-current -> feature/2402-finishing-checklist-trailer-remediation (plan target branch is checked out)"
+      - "git -C .opencode log --oneline -6 -> e820bbad SC-1, 122f1749 SC-2, a0ee6d0e SC-3, 73cfaf1b SC-4, 4989ffb5 scope-G GREEN, f1bcf1cf Phase-4 GREEN + 2427->2429 renumbering; 4989ffb5 confirmed ancestor of HEAD (merge-base --is-ancestor YES) — matches plan execution notes and solve-output execution_state_note"
+      - "git -C .opencode status --porcelain -> 4 modified test scripts (2429-sc1/sc2/sc3/sc4 behavioral scripts) — the plan's pre-implementation baseline check (zero pending changes) will flag these at execution time; recorded as an execution-state observation, not a plan-structure defect (this validate task checks the plan document, not the working tree)"
+      - "grep __semantic_monitor tests-v2/behaviors/helpers.sh -> 2 matches (helper present, committed 4989ffb5)"
+      - "tests-v2/AGENTS.md: §14 Semantic Continuous Monitoring Mandate present (line 825); §10.7 new-home-per-invocation limitation amendment present (line 873)"
+      - "opencode.jsonc instructions array: 14 entries (verified live); git -C .opencode diff opencode.jsonc empty (byte-identical)"
+      - "plan-referenced files on disk: 2429-sc1/sc2 scripts exist; 2429-sc11-remote-number-first.sh MISSING — correct, it is NEW work planned in pending Phase 9 (RED creates it); test-sc3-di-carveout-doc.sh exists at .opencode/tests-v2/test-sc3-di-carveout-doc.sh (plan references it without directory qualifier — resolvable); 2241-sc6, 2243-sc1, 2249-sc6, 2249-sc7 x2 scenario scripts exist; spec-creation create.md exists"
+      - "spec R-count: 24 SHALL requirements (R-1..R-24) — matches plan coherence-gate claim; sc-summary.yaml sc_count: 11 with SC-11 entry"
+      - "historical-commit handling consistent: plan Item execution notes state commits e820bbad/122f1749/a0ee6d0e/73cfaf1b/f1bcf1cf keep #2427 (immutable history, future commits reference #2429); live log confirms those SHAs carry #2427 messages — plan note matches on-disk reality"
     result: PASS
 
-findings: []
+findings:
+  - id: CONCERN_MAP_MISSING_SCOPE_H
+    category: 4
+    severity: FAIL
+    blocking: true
+    summary: "concern-map.yaml has no scope-H concern (last regenerated for scope G, 5 concerns); Phase 9 (SC-11 remote-number-first) has no concern-map anchor"
+    remediation: "Regenerate concern-map.yaml to add the scope-H concern (Concern 6: remote-number-first create-task flow, SC-11/R-23/R-24, Phase 9 boundary); optionally refresh the sibling scope-H analytical artifacts (blast-radius, interface-compatibility, state-analysis) in the same pass; then re-run validation"
 
-overall_status: PASS
-aggregate_verdict: PASS
-blocker_reason: null
+overall_status: FAIL
+aggregate_verdict: FAIL
+blocker_reason: "Category 4 FAIL — CONCERN_MAP_MISSING_SCOPE_H: concern-map.yaml contains zero scope-H/SC-11 entries; Phase 9 addresses a concern absent from the concern-map artifact. Regenerate concern-map.yaml (add scope-H concern) and re-run validation."
 next_action: >-
-  Proceed to plan completion (lifecycle event) — validation is clean PASS.
-  Execution progress on the feature branch (SC-1..SC-4 already committed) is
-  consistent with the plan and is outside this task's scope.
+  BLOCKED for pipeline advancement — only clean PASS proceeds (PASS_WITH_CONCERNS
+  coerces to FAIL per the workflow coercion rules, and this run is a hard FAIL).
+  Remediate the concern-map regeneration, then re-run the validate task fresh.

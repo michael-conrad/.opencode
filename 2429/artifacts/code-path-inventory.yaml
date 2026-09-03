@@ -1,10 +1,13 @@
-# Code Path Inventory — Issue #2427
+# Code Path Inventory — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/code-paths.md (brainstorming).
 # Documentation/config change: "code paths" = runtime paths through which injected text reaches the model and through which tests assert.
 # Regenerated 2026-09-03: scope G added — Path 3 note (semantic monitoring protocol wraps behavioral runs; committed 4989ffb5).
+# Regenerated 2026-09-03 (scope H): Path 6 added — spec-creation create-task numbering flow (remote-number-first per SC-11).
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live verification"
-produced_at: "2026-09-02T20:30:00-04:00"
+source: "formalized from brainstorming preliminary + live verification; Path 6 derived from spec.md §3 SC-11/§5 Item 11 + live read of skills/spec-creation/tasks/create.md (2026-09-03)"
+produced_at: "2026-09-03T22:27:00Z"
 
 ## Path 1 — Session-Start Injection (PRIMARY)
 
@@ -36,6 +39,8 @@ behaviors/<scenario>.sh → with-test-home opencode run '<SCENARIO_PROMPT>' → 
 
 Scope G (2026-09-03): behavioral runs are wrapped by the semantic continuous monitoring protocol — `__semantic_monitor` (helpers.sh, committed 4989ffb5) launches the run in background, polls the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream each interval, and hard-aborts off-track/loop states (kill + §10.5 export + semantic diagnosis). Monitored-run behavioral SC verdicts record the poll log or semantic diagnosis alongside session.yaml.
 
+Scope H (2026-09-03): the new fixture scenario script `tests-v2/behaviors/2429-sc11-remote-number-first.sh` runs as a structural fixture (grep of create.md + fixture API-response execution), not a monitored behavioral run — SC-11 is declared structural per developer direction.
+
 Verified test couplings:
 
 | Test | Relies on | Post-change action |
@@ -48,6 +53,8 @@ Verified test couplings:
 | 2131/sc-1,2,7-*.sh | TARGET_FILE=080 path, section assertions | VERIFY/SWEEP per section moved |
 | 2293-sc1-remove-global-prohibition.sh | 020 path | VERIFY — path stable |
 | gb-cli-*.sh | skill availability, not AGENTS.md table | VERIFY |
+| 2241-sc6-spec-creation-create-local-first.sh (scope H) | create.md Step 3/Step 3.1 remote-first flow (remote stub remains created FIRST) | RE-RUN post-GREEN — confirm stub-first step preserved; only the number source changed |
+| 2429-sc11-remote-number-first.sh (scope H, NEW) | create.md remote-number-first sequence + fixture API response `number` field | NEW — created in Phase 9 RED; passes post-GREEN |
 
 ## Path 4 — Skill Read-Link Consumer Paths
 
@@ -62,6 +69,26 @@ Verified consumers (grep): verification-before-completion (operating-protocol.md
 - srclight: indexes Python only; .md corpus not symbol-indexed — no blast radius.
 - pymarkdownlnt + mdformat --check run on guidelines/ — post-split files must pass (lint gate, advisory-only per linters rule).
 
+## Path 6 — Spec-Creation Create-Task Numbering Flow (scope H, 2026-09-03)
+
+```
+spec-creation create task (create.md)
+  Step 3 (remote API available — RESTRUCTURED to remote-number-first):
+    1. create remote issue stub FIRST (before any local record)
+    2. extract remote-assigned number N from the API create response's `number` field
+    3. create local issue record at exactly N (.issues/N/, issue.yaml with remote_issue: N)
+    4. write binding fields (remote_issue, remote_url, github_url) all referencing N
+       → local == remote BY CONSTRUCTION
+  Step 3 alternative (local-only mode — no remote API):
+    → local-counter numbering (the ONLY mode where the counter picks the number)
+  On API failure mid-flow (stub created, local write fails):
+    → task returns BLOCKED (blocker reason API_FAILURE_MID_FLOW) — no silent reassignment, no half-bound state
+  If the remote-assigned N's local directory already exists:
+    → renumber/migrate repair pattern (migrate existing local directory to N, then create)
+```
+
+Change impact: the incumbent stub-first flow creates the remote stub but picks the local number independently (local counter / autonumber) — two independent number sources that drift (verified defect: local 2427 assigned while remote counter was at 2429; remote #2427 a MERGED PR). Remote-number-first makes the remote API response the single number source when a remote exists. Downstream consumers of the number (blockquote URLs, artifact paths, cross-references) inherit the construction-time binding with no divergence possibility. The `.counter` and `remote_issue` interfaces keep their shapes; the counter is demoted to local-only-mode use only.
+
 ## Inventory Verdict
 
-Five runtime paths; Path 3 + Path 4 require a mandatory remediation phase (test-prompt sweep + Read-link sweep, SC-8); Paths 1, 2, 5 are verification-only. No executable source code modified.
+Six runtime paths; Path 3 + Path 4 require a mandatory remediation phase (test-prompt sweep + Read-link sweep, SC-8); Paths 1, 2, 5 are verification-only; Path 6 is restructured in Phase 9 (SC-11) with fixture-scenario evidence and a 2241-sc6 regression re-run. No executable source code modified.

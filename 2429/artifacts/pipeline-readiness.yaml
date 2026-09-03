@@ -1,52 +1,58 @@
-# Pipeline Readiness Gate — Issue #2427
-gated_at: "2026-09-02T20:40:00-04:00"
+# Pipeline Readiness Gate — Issue #2429 (.opencode)
+# Regenerated 2026-09-03 (scope H): gate re-run for the 9-phase/11-SC decomposition
+# (scope G evidence phase + scope H create-task phase added). Remediation for
+# CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+gated_at: "2026-09-03T22:32:00Z"
 
 ## Checks
 
 ### Atomicity
 - check: "Every SC maps to exactly one RED→GREEN→COMMIT cycle"
 - result: PASS
-- evidence: "decompose-output.yaml: 9 SCs → 9 items, one-to-one; each item has its own red/green/files/concern; no item spans multiple SCs"
+- evidence: "decompose-output.yaml + plan.md structure.yaml: 11 SCs → 11 items, one-to-one; each item has its own red/green/files/concern; no item spans multiple SCs; SC-9 COMMIT is none (verification-only), SC-10 COMMIT is none (evidence-only, GREEN pre-committed 4989ffb5), SC-11 RED/GREEN/COMMIT all in item 11 / phase 9 — verified per validate-findings category 3 triplet_detail"
 
 ### Dependency Ordering
 - check: "SC dependency DAG is acyclic"
 - result: PASS
-- evidence: "decompose-output.yaml DAG: items 1,2 → 9; items 3,4,5 → {6,7,8,9}; 6,7 → 8; edges strictly forward by item number — no cycles (manually traced)"
+- evidence: "dependency-contract.yaml (current, 2026-09-03T17:42): 13 edges — 1->{2,3,4}; {2,3,4}->5; {2,3,4,5}->6; 6->7; 7->8; 8->9; edges strictly increase phase index — acyclic (topological order 1,(2,3,4),5,6,7,8,9 exists); solve model SAT (solve-output.yaml, regenerated 2026-09-03 for 9-phase decomposition)"
 
 ### Single Concern
 - check: "Every SC targets one file category and one verification domain"
 - result: PASS
-- evidence: "item 1-2: 000 + its behavioral scenario; item 3: 020+destination+INDEX; item 4: 080+destination+INDEX; item 5: AGENTS.md+INDEX; item 6: dedup grep; item 7: INDEX rows; item 8: consumer sweep; item 9: preservation guard"
+- evidence: "item 1-2: 000 + its behavioral scenario; item 3: 020+destination+INDEX; item 4: 080+destination+INDEX; item 5: AGENTS.md+INDEX; item 6: dedup grep; item 7: INDEX rows; item 8: consumer sweep; item 9: preservation guard; item 10: monitoring evidence; item 11 (scope H): create.md restructure + 2429-sc11 fixture script — concern 6 (spec-creation numbering integrity) per concern-map.yaml"
 
 ### Phase Dependency
 - check: "Phase dependency graph is acyclic"
 - result: PASS
-- evidence: "Ph1 (000 A+B) independent; Ph2 (020) and Ph3 (080) independent of each other; Ph4 (AGENTS.md) independent; Ph5-7 depend on Ph2-4 only — linear tail, no cycles"
+- evidence: "Ph1 (000 A+B) independent; Ph2 (020), Ph3 (080), Ph4 (AGENTS.md) independent of each other; Ph5-6 depend on Ph2-4; Ph7 depends on Ph6; Ph8 depends on Ph7 (sequential daisy-chain); Ph9 depends on Ph8 (daisy-chain placement, content-disjoint — create.md is disjoint from the guideline/test files edited in Phases 1-8); no cycles; all 9 phases reachable"
 
 ### Three-Tier Structure
 - check: "Multi-phase specs have pre/per-file/post structure"
 - result: PASS
-- evidence: "pre = Ph1 (000 additions); per-file = Ph2/Ph3/Ph4 (one file category each: 020 split, 080 split, AGENTS.md trim); post = Ph5 (dedup+INDEX), Ph6 (sweep), Ph7 (#497 guard)"
+- evidence: "pre = Ph1 (000 additions); per-file = Ph2/Ph3/Ph4 (one file category each: 020 split, 080 split, AGENTS.md trim); post = Ph5 (dedup+INDEX), Ph6 (sweep), Ph7 (#497 guard), Ph8 (monitoring evidence), Ph9 (remote-number-first create task — scope H)"
 
 ## Additional Constraints Verified
 
-- "#2411 compliance: no SC in decompose-output.yaml uses byte/token/percentage/line-count thresholds as PASS/FAIL — all SCs keyed on content presence/placement/dedup/reachability/behavior; size appears only as informational evidence"
+- "#2411 compliance: no SC uses byte/token/percentage/line-count thresholds as PASS/FAIL — all SCs keyed on content presence/placement/dedup/reachability/behavior; size appears only as informational evidence"
 - "#497 guard is itself an SC (SC-9) — preservation is verified, not assumed"
 - "Out-of-scope F respected: no item removes echo blocks; OQ-1 disposition (blocks move with sections; sweep re-points grep targets) documented in concern-map.yaml and cross-cutting-matrix.yaml"
 - "Semantic preservation (binding #3) encoded in R-6 and SC-3/4/5 ('semantically equivalent content') — rewrites permitted, invariant is rule meaning"
 - "Reachability (binding #4) encoded in R-7, SC-7 (INDEX rows) + behavioral routing spot-checks"
+- "Scope G evidence-only: GREEN pre-committed (4989ffb5, verified ancestor of HEAD); Phase 8 records RED baseline + monitored-run evidence; harness files READ-ONLY under this plan"
+- "Scope H (SC-11, R-23/R-24): remote-number-first number sourcing when a remote API is available — remote stub FIRST, number from the API create response's `number` field, local record at exactly N, binding fields reference N, BLOCKED (API_FAILURE_MID_FLOW) on API failure mid-flow, local counter only for local-only mode, renumber/migrate repair pattern; REMOTE_NUMBER_FIRST invariant present in dependency-contract.yaml global_invariants; concern-map Concern 6 anchors Phase 9 (remediates CONCERN_MAP_MISSING_SCOPE_H)"
 
 ## Gate Verdict
 
-READY — all 5 checks PASS. Analysis artifacts complete for writing-plans consumption:
-- tmp/2427/artifacts/pre-spec-inspection.yaml
-- tmp/2427/artifacts/research-card-consultation.yaml
-- tmp/2427/artifacts/blast-radius.yaml
-- tmp/2427/artifacts/concern-map.yaml
-- tmp/2427/artifacts/code-path-inventory.yaml
-- tmp/2427/artifacts/cross-cutting-matrix.yaml
-- tmp/2427/artifacts/interface-compatibility.yaml
-- tmp/2427/artifacts/state-analysis.yaml
-- tmp/2427/artifacts/testability-assessment.yaml
-- tmp/2427/contracts/requirements-output.yaml
-- tmp/2427/contracts/decompose-output.yaml
+READY — all 5 checks PASS on the 9-phase/11-SC decomposition. Analysis artifacts complete (and scope-H-current) for writing-plans consumption:
+- .opencode/.issues/2429/artifacts/pre-spec-inspection.yaml
+- .opencode/.issues/2429/artifacts/research-card-consultation.yaml
+- .opencode/.issues/2429/artifacts/blast-radius.yaml
+- .opencode/.issues/2429/artifacts/concern-map.yaml
+- .opencode/.issues/2429/artifacts/code-path-inventory.yaml
+- .opencode/.issues/2429/artifacts/cross-cutting-matrix.yaml
+- .opencode/.issues/2429/artifacts/interface-compatibility.yaml
+- .opencode/.issues/2429/artifacts/state-analysis.yaml
+- .opencode/.issues/2429/artifacts/testability-assessment.yaml
+- .opencode/.issues/2429/artifacts/requirements-output.yaml
+- .opencode/.issues/2429/artifacts/decompose-output.yaml

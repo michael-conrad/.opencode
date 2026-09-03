@@ -1,9 +1,13 @@
-# Concern Map — Issue #2427
+# Concern Map — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/concern-map.md (brainstorming).
 # Regenerated 2026-09-03: scope G added — Concern 5 (test-framework monitoring mandate).
+# Regenerated 2026-09-03 (scope H): Concern 6 added — spec-creation create-task
+# numbering integrity (remote-number-first flow, SC-11, R-23/R-24); Phase 9 boundary.
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H (validate-findings category 4 FAIL).
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live verification"
-produced_at: "2026-09-02T20:28:00-04:00"
+source: "formalized from brainstorming preliminary + live verification; scope-H concern derived from spec.md §1 blockquote/§3 SC-11/§5 Item 11 + live read of skills/spec-creation/tasks/create.md (2026-09-03)"
+produced_at: "2026-09-03T22:25:00Z"
 
 ## Concern Boundaries
 
@@ -48,7 +52,19 @@ produced_at: "2026-09-02T20:28:00-04:00"
 | Semantic continuous monitoring mandate (§14) + `__semantic_monitor` poll protocol | tests-v2/AGENTS.md + behaviors/helpers.sh | GREEN ALREADY COMMITTED as 4989ffb5 — Phase 8 records RED baseline + monitored-run evidence only (R-21/R-22) |
 | §10.7 amendment (new-home-per-invocation resumption limitation) | tests-v2/AGENTS.md §10.7 | Committed with 4989ffb5 — verified present; no edit authorized under this plan |
 
-Phase boundary: Phase 8 (evidence-only; no pending phase dependency — GREEN pre-committed).
+Phase boundary: Phase 8 (evidence-only; GREEN pre-committed as 4989ffb5).
+
+### Concern 6 — Spec-Creation Create-Task Numbering Integrity (scope H — developer-directed 2026-09-03, refined same day)
+
+| Content | Location | Disposition |
+|---------|----------|-------------|
+| Remote-number-first create-task flow (scope H): when a remote API is available, create the remote stub FIRST (before any local record), take the remote-assigned number N from the API create response's `number` field, create the local issue record at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`), write binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION | `.opencode/skills/spec-creation/tasks/create.md` Step 3 (stub-first flow — RESTRUCTURED) | RESTRUCTURE per R-23 — number source flips from local counter/autonumber to the remote API create response's `number` field; local counter restricted to local-only mode (no remote API) |
+| BLOCKED outcome for API failure mid-flow (remote stub created but local write fails — no silent reassignment of a different local number, no half-bound state) | create.md result contract | ADD blocker reason `API_FAILURE_MID_FLOW` per R-23 |
+| Renumber/migrate repair pattern (remote assigns a number whose local directory already exists — migrate the existing local directory to the remote-assigned number, then create) | create.md (documented) | ADD per R-24 — repair, not the primary guard; post-hoc renumbering (2427→2429 repair) remains a post-defect developer repair |
+| Fixture scenario script: fixture API create response whose `number` (e.g., 2429) DIFFERS from the local counter (e.g., 2427) — the flow MUST adopt the API's number; RED = script fails because create.md lacks the remote-number-first sequence the script asserts | `.opencode/tests-v2/behaviors/2429-sc11-remote-number-first.sh` (NEW) | ADD — structural evidence per SC-11 (developer-directed: behavioral runs impractical for a deterministic number-sourcing flow; prose recall NOT evidence) |
+| Number-source invariants: local counter consulted ONLY in local-only mode; `.counter` no longer drives numbering when a remote exists; the drift class that produced local 2427 ↔ remote 2429 cannot recur BY CONSTRUCTION | `.opencode/.issues/.counter` + local-issues tooling contract (remote_issue field) | GOVERN — existing interface unchanged in shape; its number source changes when a remote API is available (R-23/R-24, REMOTE_NUMBER_FIRST invariant in dependency-contract.yaml) |
+
+Phase boundary: Phase 9 (Item 11 — depends on Phase 8 complete; daisy-chain ordering only, create.md is content-disjoint from the guideline/test files edited in Phases 1-8).
 
 ## Concern Boundary Violations Fixed
 
@@ -56,15 +72,18 @@ Phase boundary: Phase 8 (evidence-only; no pending phase dependency — GREEN pr
 2. 080 mixes universal standards with Python-only standards — language-specific concern in a universal Tier-1 file.
 3. AGENTS.md mixes session-critical workflow with install instructions and tool tables.
 4. Duplicate canonical-homes: 020 §4 ↔ 085; AGENTS.md Pair Mode ↔ 116.
+5. (scope H) spec-creation create task used two independent number sources (local counter vs remote namespace) — the local number was picked independently of the remote-assigned number, silently binding mismatched pairs (verified defect: local 2427 assigned while remote counter was at 2429; remote #2427 a MERGED PR). Remote-number-first makes the remote API the single number source when a remote exists.
 
 ## Separation Rules
 
 - Authorization semantics: one home (020 core). Halt rules: one home. Context mechanics: one home (Tier-2). Python standards: one home (Tier-2). Attribution: one home (080 core).
 - §A carve-out and §B anti-recitation: canonical in 000 only; no restatement in 020 (020 core may Read-link 000 for the clause).
 - Research-cards catalogue rule: demoted copy keeps Read-link to the canonical `.issues/research-cards` procedure (per 020 §1.6 current text).
+- (scope H) Issue-number sourcing: one source per mode — remote API create response `number` field when a remote API is available; local counter ONLY in local-only mode. No dual-source mode exists; the create task MUST NOT use the local counter to pick the number when a remote API is available.
 
 ## Open Questions Carried To Spec Creation
 
 - OQ-1 (RESOLVED by developer binding): echo blocks move WITH their sections; sweep re-points test grep targets. Removal stays out of scope.
 - OQ-2: Tier-2 file numbering/naming (022-context vs merged; 082-python) — decided at spec creation with INDEX collision check (verified 022/025/082 all free).
 - OQ-3 (RESOLVED by live verification): 020 §4 and 085 overlap is confirmed (both carry the identical 8 key rules) → reconcile to 085 as canonical.
+- OQ-4 (RESOLVED by developer direction, scope H): SC-11 evidence is structural, not behavioral — the remote-number-first flow is a deterministic number-sourcing procedure; verified by reading the revised create.md plus a fixture scenario script demonstrating the number comes from the API response, not the counter.

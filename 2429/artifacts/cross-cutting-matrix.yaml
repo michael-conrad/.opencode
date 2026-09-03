@@ -1,9 +1,12 @@
-# Cross-Cutting Matrix — Issue #2427
+# Cross-Cutting Matrix — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/cross-cutting.md (brainstorming) + live #2411 verification.
 # Regenerated 2026-09-03: scope G added — Phase 8 column (monitoring mandate evidence).
+# Regenerated 2026-09-03 (scope H): Phase 9 column added (remote-number-first create task, SC-11).
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live verification"
-produced_at: "2026-09-02T20:32:00-04:00"
+source: "formalized from brainstorming preliminary + live verification; Phase 9 column derived from spec.md §3 SC-11/§5 Item 11 + dependency-contract.yaml REMOTE_NUMBER_FIRST invariant (2026-09-03)"
+produced_at: "2026-09-03T22:28:00Z"
 
 ## Cross-Spec Scope Search (re-verified this session)
 
@@ -16,25 +19,27 @@ produced_at: "2026-09-02T20:32:00-04:00"
 | #2421 | live-registry verification | CLOSED (delivered via PR #2427) | 070/075 | INDEPENDENT |
 | #2425 | default test model change | CLOSED | tests-v2 config | INDEPENDENT |
 | #2426 | co-author trailer reconciliation | OPEN | git-workflow skill files | INDEPENDENT — same work stream (feature/2402) |
+| #2427 | (renumbered to #2429 — verified collision defect: local 2427 assigned while remote counter was at 2429; remote #2427 a MERGED PR) | renumbered | scope H root cause | REMEDIATION BASIS — the 2427→2429 repair motivates scope H |
 
-Verdict: one PARTIAL-OVERLAP (#2416 — sequencing), one authoring constraint (#2411). No supersession.
+Verdict: one PARTIAL-OVERLAP (#2416 — sequencing), one authoring constraint (#2411), one remediation basis (#2427→#2429 renumbering). No supersession.
 
 ## Concern-to-Phase Matrix
 
-| Concern | Ph1: 000 (A+B) | Ph2: 020 split (C) | Ph3: 080 split (D) | Ph4: AGENTS.md trim (E) | Ph5: dedup+INDEX verify | Ph6: sweep | Ph7: guard verify | Ph8: monitoring evidence (G) |
-|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| #497 Tier-1 core preservation | R | R | R | — | — | — | V | — |
-| Infra-failure carve-out (A) | P | — | — | — | — | — | V | — |
-| Anti-recitation (B) | P | — | — | — | — | — | V | — |
-| Context-mechanics reachability | — | P+R | — | — | V | R | — | — |
-| Discussion-mode reachability | — | P+R | — | — | V | R | — | — |
-| Python-standards reachability | — | — | P+R | — | V | R | — | — |
-| Duplicate reconciliation | — | P (§4→085) | — | P (pair→116) | V | — | — | — |
-| Behavioral-test prompt compat | — | R | R | — | — | P+V | — | — |
-| Read-link anchor integrity | R | R | R | R | — | P+V | — | — |
-| Markdown lint/format | R | R | R | R | R | V | — | — |
-| Context reduction (informational stat) | — | M | M | M | — | — | V (informational only, #2411) | — |
-| Semantic monitoring evidence (G, SC-10) | — | — | — | — | — | — | — | P+V |
+| Concern | Ph1: 000 (A+B) | Ph2: 020 split (C) | Ph3: 080 split (D) | Ph4: AGENTS.md trim (E) | Ph5: dedup+INDEX verify | Ph6: sweep | Ph7: guard verify | Ph8: monitoring evidence (G) | Ph9: remote-number-first (H) |
+|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| #497 Tier-1 core preservation | R | R | R | — | — | — | V | — | — |
+| Infra-failure carve-out (A) | P | — | — | — | — | — | V | — | — |
+| Anti-recitation (B) | P | — | — | — | — | — | V | — | — |
+| Context-mechanics reachability | — | P+R | — | — | V | R | — | — | — |
+| Discussion-mode reachability | — | P+R | — | — | V | R | — | — | — |
+| Python-standards reachability | — | — | P+R | — | V | R | — | — | — |
+| Duplicate reconciliation | — | P (§4→085) | — | P (pair→116) | V | — | — | — | — |
+| Behavioral-test prompt compat | — | R | R | — | — | P+V | — | — | — |
+| Read-link anchor integrity | R | R | R | R | — | P+V | — | — | — |
+| Markdown lint/format | R | R | R | R | R | V | — | — | — |
+| Context reduction (informational stat) | — | M | M | M | — | — | V (informational only, #2411) | — | — |
+| Semantic monitoring evidence (G, SC-10) | — | — | — | — | — | — | — | P+V | — |
+| Create-task numbering integrity (H, SC-11) | — | — | — | — | — | — | — | — | P+V |
 
 P = produce, R = risk managed, M = measure only, V = verify
 
@@ -43,6 +48,7 @@ P = produce, R = risk managed, M = measure only, V = verify
 1. Every demoted section propagates to exactly: one Tier-2 destination + one INDEX row + zero-or-more re-pointed Read-links + zero-or-more updated test prompts.
 2. §A/§B propagate: canonical 000 text → new behavioral tests (RED/GREEN) → 020-core Read-link optional.
 3. #2411 constraint propagates into spec authoring: SCs are behavioral/evidence-verified on WHAT moves/retains; no numerical thresholds.
+4. (scope H) Remote-number-first propagates into every future spec-creation create-task invocation: the remote-assigned N drives the local directory name, issue.yaml `remote_issue` field, binding fields (remote_issue, remote_url, github_url), and all derived blockquote/URL/cross-reference numbers — no downstream consumer may fall back to the local counter when a remote API is available.
 
 ## Echo-Block Grep-Target Safety (out-of-scope F constraint)
 

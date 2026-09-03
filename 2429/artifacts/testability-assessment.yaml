@@ -1,9 +1,13 @@
-# Testability Assessment — Issue #2427
+# Testability Assessment — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/testability.md (brainstorming).
 # Regenerated 2026-09-03: scope G added — SC-10 monitoring-mandate evidence row appended.
+# Regenerated 2026-09-03 (scope H): SC-11 remote-number-first evidence row appended
+# (structural per developer direction — fixture scenario script, prose recall NOT evidence).
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live grep verification"
-produced_at: "2026-09-02T20:38:00-04:00"
+source: "formalized from brainstorming preliminary + live grep verification; SC-11 row derived from spec.md §3 SC-11/§5 Item 11 + live 2241-sc6 script read (2026-09-03)"
+produced_at: "2026-09-03T22:31:00Z"
 
 ## Existing Test Coverage of Affected Paths
 
@@ -19,10 +23,12 @@ produced_at: "2026-09-02T20:38:00-04:00"
 | gb-cli-skill-discovery.sh, gb-cli-auth-check.sh, gb-cli-merge-prohibition.sh | gb-cli skill | VALID (skill entry, not AGENTS.md table) | verified |
 | 2105/2116/2009/2032-series authorization/halt scenarios | Tier-1 core behaviors | VALID regression guards | path-level reasoning |
 | read-link-pattern-clean-room.sh | Read-link format | REQUIRES REVIEW — new INDEX rows must keep format | grep verified |
+| 2241-sc6-spec-creation-create-local-first.sh (scope H) | create.md Step 3/Step 3.1 remote-first flow (remote stub remains created FIRST; only the number source changes) | RE-RUN post-GREEN — Phase 9 post-regression confirms stub-first step preserved | script read this session (SCENARIO_NAME line 56, Step 3/3.1 flow lines 20-56) |
+| 2429-sc1..sc5-*.sh (renumbered from 2427-*) | phases 1-4 scenario fixtures | VALID (renumbered in f1bcf1cf; scripts exist) | `git -C .opencode log` + behaviors/ listing |
 
 ## Gaps — New Tests REQUIRED (behavioral evidence per critical-rules-BEH-EV)
 
-The change alters runtime behavior (what agents see; what they do on dispatch-failure and safe-action situations). SCs must be behavioral where substrate-determined.
+The change alters runtime behavior (what agents see; what they do on dispatch-failure and safe-action situations). SCs must be behavioral where substrate-determined. SC-11 is the developer-directed exception: the remote-number-first flow is a deterministic number-sourcing procedure (not an agent-dispatch behavior change), so its evidence is structural — fixture scenario script + create.md read-back; prose recall is NOT evidence.
 
 | SC area | Test type | RED/GREEN shape |
 |---------|-----------|-----------------|
@@ -33,6 +39,7 @@ The change alters runtime behavior (what agents see; what they do on dispatch-fa
 | SC-8 sweep | behavioral re-runs | 2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt via with-test-home — PASS post-sweep |
 | SC-6 dedup | structural grep | single occurrence per rule class |
 | SC-10 monitoring mandate | Behavioral (monitored run) | RED: unmonitored off-track/loop run burns full timeout with no abort and no diagnosis; GREEN: committed monitor (4989ffb5) detects the stall — poll log + semantic diagnosis + §10.5 export recorded alongside session.yaml; healthy-run regression confirms no false-abort |
+| SC-11 remote-number-first (scope H) | Structural fixture (developer-directed) | RED: `2429-sc11-remote-number-first.sh` fails — create.md lacks the remote-number-first sequence the script asserts; fixture API response `number` (2429) DIFFERS from local counter (2427) and the flow must adopt the API's number. GREEN: restructured create.md passes the fixture — remote stub BEFORE any local record, number from the API response's `number` field, local record at exactly N, binding fields reference N, BLOCKED on API failure mid-flow, local counter restricted to local-only mode. Post-regression: 2241-sc6 re-run confirms no stub-flow regression |
 
 ## Harness Constraints (tests-v2/AGENTS.md lessons)
 
@@ -42,7 +49,8 @@ The change alters runtime behavior (what agents see; what they do on dispatch-fa
 - No numerical reduction thresholds as PASS/FAIL (#2411) — injection-size stat is informational only.
 - Behavioral evidence = agent actions in session.yaml stderr (skill dispatches, tool calls); prose recall in stdout is NOT behavioral evidence.
 - Artifact-only generator pattern for new scenarios (2411/2425-era precedent).
+- (scope G) Monitored-run behavioral SC verdicts record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — EVIDENCE_TYPE_MISMATCH gate applies.
 
 ## Verdict
 
-Partial coverage today: existing suite guards Tier-1 core behaviors (regression value) but NO test covers carve-out, anti-recitation, or Tier-2 routing reachability. Testability adequate for a spec with a named test-sweep phase (SC-8) + new behavioral scenarios (items 1-2) + routing spot-checks (items 3-5).
+Partial coverage today: existing suite guards Tier-1 core behaviors (regression value) but NO test covers carve-out, anti-recitation, Tier-2 routing reachability, or the remote-number-first create flow. Testability adequate for a spec with a named test-sweep phase (SC-8) + new behavioral scenarios (items 1-2, 10) + routing spot-checks (items 3-5) + a new fixture scenario script (item 11, structural per developer direction) + the 2241-sc6 create-path regression re-run.

@@ -1,10 +1,15 @@
-# Interface Compatibility — Issue #2427
+# Interface Compatibility — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/interface-compat.md (brainstorming).
+# Regenerated 2026-09-03: scope G added — Interface 7 (tests-v2 monitoring harness, READ-ONLY under this plan; GREEN pre-committed as 4989ffb5). dependency_contract section unchanged (root dependency-contract.yaml already carries the 8-phase revision with scope-G variables).
+# Regenerated 2026-09-03 (scope H): Interface 8 added (spec-creation create task, remote-number-first numbering);
+# dependency_contract section extended with the scope-H edges matching dependency-contract.yaml REMOTE_NUMBER_FIRST.
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live verification"
-produced_at: "2026-09-02T20:34:00-04:00"
-updated_at: "2026-09-03T21:10:00Z"
-update_note: "Scope G added 2026-09-03 — Interface 7 (tests-v2 monitoring harness, READ-ONLY under this plan; GREEN pre-committed as 4989ffb5). dependency_contract section unchanged (root dependency-contract.yaml already carries the 8-phase revision with scope-G variables)."
+source: "formalized from brainstorming preliminary + live verification; Interface 8 derived from spec.md §3 SC-11 + live read of skills/spec-creation/tasks/create.md (2026-09-03)"
+produced_at: "2026-09-03T22:29:00Z"
+updated_at: "2026-09-03T22:29:00Z"
+update_note: "Scope H added 2026-09-03 — Interface 8 (spec-creation create.md remote-number-first restructure) + dependency_contract scope-H edges. dependency-contract.yaml itself is CURRENT (17:42, carries phase9_done + create_task_numbering_remote_first) — not touched by this regeneration."
 
 ## Public Interfaces Inventory
 
@@ -57,6 +62,15 @@ Verdict: COMPATIBLE with constraint on new files.
 - The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between Phase 8 and every behavioral SC verdict produced by monitored runs.
 Verdict: COMPATIBLE — interface already landed; Phase 8 consumes it evidence-only.
 
+### Interface 8 — spec-creation create task (scope H — RESTRUCTURED)
+
+- The task card `.opencode/skills/spec-creation/tasks/create.md` is read by sub-agents executing the spec-creation create step; its category (PRODUCTION), entry criteria, exit criteria, and result-contract field set are preserved — the Step 3 numbered procedure body is restructured.
+- Incumbent Step 3 stub-first flow: remote issue stub created (with `[SPEC]` prefix + `needs-approval` label) to establish the issue number, `html_url` extracted from the API response; the local record is created at a number picked independently (local counter / autonumber via `local-issues create` without `--number`) — two independent number sources.
+- Post-change Step 3 (remote-number-first per R-23): remote stub created FIRST (before any local record); remote-assigned number N taken from the API create response's `number` field; local record created at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`); binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION. Local-counter numbering is explicitly restricted to local-only mode (no remote API). Result contract gains BLOCKED outcome with blocker reason `API_FAILURE_MID_FLOW` on API failure mid-flow (no silent reassignment, no half-bound state). Renumber/migrate repair documented per R-24 for a remote-assigned number whose local directory already exists.
+- Unchanged sub-interfaces: `.issues/N/` path convention; `remote_issue` binding-field shape; Step 3.1 local-canonical label writes (LOCAL_LABEL_WRITE_FAILED path); Step 3.2 best-effort remote label; Step 6 artifact-copy metadata-only rule.
+- Regression consumer: `tests-v2/behaviors/2241-sc6-spec-creation-create-local-first.sh` exercises create.md Step 3/Step 3.1 remote-first flow — the remote stub remains created FIRST; only the number source changes; re-run post-GREEN in Phase 9 post-regression.
+Verdict: COMPATIBLE with one documented behavioral-of-procedure change (number source); fixture evidence via `tests-v2/behaviors/2429-sc11-remote-number-first.sh` (new, Phase 9).
+
 ## Dependency Contract
 
 - source: "opencode.jsonc instructions array"
@@ -83,11 +97,19 @@ Verdict: COMPATIBLE — interface already landed; Phase 8 consumes it evidence-o
   target: "020-go-prohibitions.md §4"
   type: "artifact schema"
   constraint: "dedup resolution must flip the pointer direction (085 becomes canonical; 020 core holds pointer to 085)"
+- source: "spec-creation create task Step 3 (scope H)"
+  target: ".opencode/skills/spec-creation/tasks/create.md"
+  type: "artifact schema"
+  constraint: "remote-number-first per R-23 — remote stub created FIRST (before any local record); number taken from the API create response's `number` field; local record at exactly N (.issues/N/, issue.yaml remote_issue: N); binding fields (remote_issue, remote_url, github_url) reference N; local counter used ONLY in local-only mode; BLOCKED outcome API_FAILURE_MID_FLOW on API failure mid-flow (no silent reassignment)"
+- source: "local-issues tooling contract (scope H)"
+  target: "create.md Step 3 + 2241-sc6 scenario"
+  type: "artifact schema"
+  constraint: "remote_issue field and .counter interfaces keep their shapes; the counter path remains ONLY for local-only mode; renumber/migrate repair per R-24 when the remote-assigned number's local directory already exists; 2241-sc6 re-run post-GREEN confirms the remote stub stays FIRST"
 
 ## Signature Verification
 
-No function signatures (markdown corpus). File-level existence verified by stat: all 15 injected files present; sizes recorded in pre-spec-inspection.yaml as diagnostic evidence.
+No function signatures (markdown corpus). File-level existence verified by stat: all 15 injected files present; sizes recorded in pre-spec-inspection.yaml as diagnostic evidence; create.md verified read this session (stub-first flow, binding fields remote_issue/remote_url/github_url).
 
 ## Compatibility Verdict
 
-Interfaces 1, 2, 5, 6: compatible. Interfaces 3, 4: BREAKING within change, mitigated by mandatory sweep (SC-8). No out-of-repo consumers (agent-config repo; corpus consumed only by opencode sessions, tests, skills within this repo).
+Interfaces 1, 2, 5, 6, 7: compatible. Interfaces 3, 4: BREAKING within change, mitigated by mandatory sweep (SC-8). Interface 8: COMPATIBLE — task-card structure preserved, number source restructured with fixture evidence (SC-11) and 2241-sc6 regression re-run. No out-of-repo consumers (agent-config repo; corpus consumed only by opencode sessions, tests, skills within this repo).

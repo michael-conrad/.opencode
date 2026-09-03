@@ -1,12 +1,16 @@
-# Blast Radius — Issue #2427
+# Blast Radius — Issue #2429 (.opencode)
 # Formalized from tmp/2427/artifacts/preliminary/blast-radius.md (brainstorming).
 # Basis: DUPLICATION / INCORRECT PLACEMENT (size figures are diagnostic evidence only, #2411).
 # Regenerated 2026-09-03: scope G added — tests-v2 harness files (AGENTS.md §14 +
 # behaviors/helpers.sh __semantic_monitor) are READ-ONLY under this plan (change
 # pre-committed as 4989ffb5); evidence artifacts land under tmp/2427/artifacts/.
+# Regenerated 2026-09-03 (scope H): create.md restructure + new fixture scenario
+# script added as direct affected files; local-issues tooling contract noted.
+# Remediation for CONCERN_MAP_MISSING_SCOPE_H stale-artifact batch.
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 status: complete
-source: "formalized from brainstorming preliminary + live re-verification (stat/grep this session)"
-produced_at: "2026-09-02T20:26:00-04:00"
+source: "formalized from brainstorming preliminary + live re-verification (stat/grep 2026-09-03; create.md read this session)"
+produced_at: "2026-09-03T22:26:00Z"
 
 ## Change Summary
 
@@ -16,6 +20,8 @@ Deduplicate and re-place Tier-1 injected content in the .opencode submodule:
 (C) split 020-go-prohibitions.md — authorization semantics/prohibited patterns/halt rules stay Tier-1; scenario-governed sections move to Tier-2,
 (D) split 080-code-standards.md — attribution/provenance stays Tier-1; Python-specific sections move to Tier-2,
 (E) trim AGENTS.md scenario-specific sections (gb CLI install, editor MCP table, Pair Mode) to Tier-2 routing.
+(G) test-framework semantic continuous monitoring mandate — GREEN pre-committed (4989ffb5); evidence-only phase.
+(H) restructure spec-creation create.md stub-first flow to remote-number-first numbering (remote stub FIRST, number from the API create response's `number` field, local record at exactly N, BLOCKED on API failure mid-flow) plus a new fixture scenario script.
 Echo-block removal (F) OUT OF SCOPE — blocks move WITH their sections (OQ-1 disposition).
 
 ## Affected Files (direct)
@@ -31,6 +37,8 @@ Echo-block removal (F) OUT OF SCOPE — blocks move WITH their sections (OQ-1 di
 | NEW guidelines/<tier2-discussion-mode>.md or merged | receives 020 §1.6 | New file (naming OQ-2) |
 | NEW guidelines/<tier2-python-standards>.md | receives 080 Python sections | New file |
 | guidelines/085-project-local-tools.md | canonical home for project-local tools (020 §4 reconciled in) | Modified — mutual pointer resolved |
+| skills/spec-creation/tasks/create.md (scope H) | RESTRUCTURE Step 3 stub-first flow → remote-number-first (remote stub FIRST, number from API create response `number` field, local record at exactly N with binding fields referencing N; local counter restricted to local-only mode; BLOCKED outcome `API_FAILURE_MID_FLOW` in result contract; renumber/migrate repair documented per R-24) | Direct — task-card procedure body changes; category/entry/exit criteria and result-contract field set preserved |
+| NEW tests-v2/behaviors/2429-sc11-remote-number-first.sh (scope H) | NEW fixture scenario script — fixture API create response whose `number` differs from the local counter; asserts the flow adopts the API's number (structural evidence, SC-11) | New file — RED/GREEN fixture for the create.md restructure |
 
 ## Indirect Consumers (not modified, behavior changes)
 
@@ -43,6 +51,8 @@ Echo-block removal (F) OUT OF SCOPE — blocks move WITH their sections (OQ-1 di
 | 2131/sc-*.sh structural tests | TARGET_FILE = 080 path | LOW — path stable; assertions target moved sections → verify |
 | Skills with Read-links into moved sections (verification-before-completion x2, git-workflow-commit, issue-review, git-workflow-branch, audit x5) | section anchors | MEDIUM — grep sweep + re-point phase |
 | 085-project-local-tools.md | mutual Read-link into 020 §4 | LOW — resolved by dedup reconciliation |
+| 2241-sc6-spec-creation-create-local-first.sh (scope H) | exercises create.md Step 3/Step 3.1 remote-first flow | LOW — remote stub remains created FIRST (only the number source changes); re-run post-GREEN as Phase 9 post-regression |
+| local-issues tooling contract (scope H) | `remote_issue` field + `.counter` autonumber path | LOW — interfaces unchanged in shape; the counter path remains ONLY for local-only mode (R-23); binding fields (remote_issue, remote_url, github_url) now all reference the remote-assigned N (R-24) |
 
 ## #497 Hard Constraint Guard
 
@@ -58,7 +68,8 @@ True Tier-1 core remains in main context (verified present pre-change):
 2. §A/§B additions alter 000 runtime content → new behavioral tests required (substrate-determined behavioral change per critical-rules-BEH-EV).
 3. Dedup changes which file "owns" a rule → downstream greps by rule semantics must resolve to the canonical file.
 4. Scope G (evidence-only): the monitoring mandate's GREEN change is already committed (4989ffb5) — no further harness edits authorized under this plan; the phase-8 cycle records RED baseline + monitored-run evidence (poll log + semantic diagnosis) under tmp/behavioral-evidence-2427-sc10-*/ and tmp/2427/artifacts/. A defect found in the committed harness is a spec-revision trigger, not an inline fix.
+5. Scope H: renumbering create.md Step 3 changes the number source for every future spec issue creation — the `.issues/N/` directory name, issue.yaml `remote_issue` field, and all blockquote/URL/cross-reference derivations now bind to the remote-assigned N BY CONSTRUCTION; the verified 2427↔2429 divergence class is eliminated. The create task's result contract gains a BLOCKED outcome — downstream orchestrators consuming the result contract must treat `API_FAILURE_MID_FLOW` as a halt-with-retry state (re-run binds to the remote-owned N), never a local-counter fallback.
 
 ## Blast Radius Verdict
 
-MEDIUM — no config/plugin/schema breakage (instructions array untouched, plugin uncoupled, scenario map path-keyed and stable). Primary risks: (1) dangling Read-link anchors, (2) test prompts pointing agents at moved content, (3) echo-block grep targets moving with sections (test sweep handles). All mitigated by mandatory consumer-sweep phase (SC-8).
+MEDIUM — no config/plugin/schema breakage (instructions array untouched, plugin uncoupled, scenario map path-keyed and stable). Primary risks: (1) dangling Read-link anchors, (2) test prompts pointing agents at moved content, (3) echo-block grep targets moving with sections (test sweep handles), (4) consumers of the create.md result contract encountering the new BLOCKED `API_FAILURE_MID_FLOW` outcome (documented remediation path per R-23; re-run, never reassign). All mitigated: consumer-sweep phase (SC-8) for risks 1-3; Phase 9 fixture scenario + 2241-sc6 post-regression for risk 4.
