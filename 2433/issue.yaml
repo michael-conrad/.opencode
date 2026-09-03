@@ -4,7 +4,100 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2433/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2433/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2433/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  Two incompatible orchestrator architectures coexist in the `.opencode` directive
+  layer (Architecture A "pure router" vs Architecture B "orchestrator executes skill-card
+  workflows and plan steps directly, `task()` only at marked points"). A model reading
+  both averages them and dispatches MORE — forwarding whole SKILL.md cards and whole
+  plans to leaf sub-agents that cannot call `task()`. Related open tickets carry dispatch
+  semantics that predate and contradict the target architecture, risking a second
+  vocabulary fork.
+
+
+  ## Scope
+
+
+  - Rewrite the system prompt routing boundary, `022-orchestrator-context-discipline.md`
+  HALT machinery, and `executing-plans` plan-execution flow to Architecture B.
+
+  - Eliminate whole-card/whole-plan forwarding across the deck; add the `ORCHESTRATOR_ONLY_PLAN`
+  plan pre-flight guard.
+
+  - Normalize all TDT Dispatch values to the closed set {`orchestrator`, `task-card`,
+  `task-card blind`} and single-source the dispatch vocabulary in one canonical reference
+  table.
+
+  - Add a per-step plan dispatch mode (`direct` | `task-card`, default `direct`) to
+  the canonical plan format.
+
+  - Absorb direct dispatch-concern scope from #909, #912, #954, #955, #1198, #1222,
+  #1019 (serial pipeline routing, contract schema {`gate_result`, `verifier_identity`,
+  `artifact_hash`}, solve-tool state wiring, `auditor_type` adversarial-audit routing)
+  and supersede cross-cutting format tickets #1208, #1209, #1210, #1211, #1213, #936,
+  #706 — see §12 of the authoritative spec. **The 14 absorbed tickets are NOT closed
+  here**; marking/closing happens via a separate orchestrator dispatch.
+
+
+  **Out of scope:** `session-enforcement.ts` mechanical forwarding detection (phase-2
+  backstop); content changes to other open issues'' bodies; `.opencode/scripts/` and
+  `.opencode/tests/` Python tooling; `skill()`/`task()` tool contract changes; sub-agent
+  result contract envelope changes; tickets verified to have no dispatch concern (698,
+  699, 700, 701, 702, 703, 704, 705, 872, 1013, 1189, 1212).
+
+
+  ## Approach
+
+
+  Adopt Architecture B as the single architecture and re-point every directive layer
+  at it: system prompt, `022`, `000-critical-rules`, and `executing-plans` are rewritten
+  so sanctioned direct execution is never halted while whole-card/whole-plan forwarding
+  is the halt-triggering violation. The word "inline" is retired from the dispatch
+  vocabulary; TDTs migrate to the closed set verified by skildeck linter gates. The
+  serial pipeline, SC coherence-gate remediation routing, adversarial-audit `auditor_type`
+  routing, deterministic cross-validate consensus, and the enforcement-gated hand-off
+  contract schema (with frugal size limits and solve-tool state wiring) are consolidated
+  onto these semantics. Where an absorbed spec''s design contradicts this target architecture,
+  this spec''s design wins and the conflict is recorded as superseded in §12.
+
+
+  ## Impact
+
+
+  - **Risk 1 — Deck-wide TDT migration churn:** 44+ cards carry the retired blanket
+  clause. *Mitigation:* closed-set linter gate lands with the migration; validator
+  rejects old values after cut-over.
+
+  - **Risk 2 — Behavioral regression across items:** vocabulary edits can break earlier
+  probe assertions. *Mitigation:* enforcement gate is all-or-nothing; a regressed
+  SC re-runs before the pipeline advances.
+
+  - **Risk 3 — Dual-vocabulary period with open absorbed tickets:** parallel work
+  under #1208/#1210 could reintroduce retired semantics. *Mitigation:* §12 records
+  supersession; sequencing is decided at coordination time before implementation.
+
+  - **Dependencies:** tests-v2 behavioral harness; verified local model (qwen3.8:27b-256k-gguf4);
+  skildeck validators; solve tool contract-schema wiring.
+
+  - **Call to action:** all 11 success criteria must pass before this spec is complete;
+  the 14 absorbed tickets await marking/closing by a separate orchestrator dispatch.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-03T15:24:41+00:00'
-updated_at: '2026-09-03T15:27:36+00:00'
+updated_at: '2026-09-03T15:46:49+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2433

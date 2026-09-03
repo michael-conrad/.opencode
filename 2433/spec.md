@@ -1,6 +1,6 @@
 # [SPEC] Remediate Orchestrator Dispatch Discipline
 
-> **Full spec and artifacts: [`.opencode/.issues/2433/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2433/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+> **Full spec and artifacts: [`.opencode/.issues/2433/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2433/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2433/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
@@ -10,18 +10,18 @@
 |---|-------|---------|
 | 1 | **Problem Statement** | Two incompatible orchestrator architectures coexist in the `.opencode` directive layer: Architecture A ("orchestrator is a pure router — it never executes task steps inline") and Architecture B ("orchestrator loads the skill card, executes workflow steps directly, and dispatches task cards via `task()` only where the workflow marks it"). A model reading all directives averages them: it dispatches MORE, including whole cards and whole plans — the exact forwarding the target model prohibits. The observed malfunction (whole SKILL.md and whole plans forwarded to leaf sub-agents that cannot call `task()`) is this averaging made visible. |
 | 2 | **Root Cause / Motivation** | The directive layer was written across sessions under two different mental models and never reconciled. `prompts/default.txt` carries BOTH architectures verbatim; `022-orchestrator-context-discipline.md` is written entirely in the pure-router model (A) and arms a HALT-on-inline enforcement machine that would fire on the target model's legitimate direct execution; 3 skill cards mark TDT rows `inline` while their Invocation sections route the same tasks to `task()`; 44 cards carry a blanket "each step dispatched to a sub-agent unless marked inline" clause readable as "dispatch everything"; `executing-plans` routes even read-plan to a sub-agent so no directive anywhere says the orchestrator executes plan steps directly; plans have no pre-flight guard (cards have `ORCHESTRATOR_ONLY_SKILL_CARD`, plans have nothing); and open plan #1210 introduces a third dispatch vocabulary ("orchestrator routes to general (blind)"). |
-| 3 | **Approach Chosen** | Adopt Architecture B as the single architecture and re-point every layer at it: rewrite the system prompt routing-boundary language, rewrite `022` (re-pointing the HALT machinery from inline-work to whole-card/whole-plan forwarding), retain the `000-critical-rules` whole-card prohibition, rewrite `executing-plans` so the orchestrator reads the plan and executes steps directly, normalize TDT vocabulary to a closed set (`orchestrator`, `task-card`, `task-card blind`), add a plan pre-flight guard (`ORCHESTRATOR_ONLY_PLAN`), add a per-step dispatch-mode field to the canonical plan format, and single-source the vocabulary in one canonical reference table. |
-| 4 | **Alternatives Considered & Why Discarded** | (a) Keep Architecture A (pure router) and fix only the contradictions — discarded: the whole-card prohibition in `000-critical-rules` and the pre-flight guard in all 51 cards already encode B; the guard converts forwarding into a stall rather than a correction, so A is already unenforceable without contradicting Tier 1 text. (b) Add a third-layer mediation doc explaining when each architecture applies — discarded: adding prose on top of contradictory prose deepens the averaging problem; the deck needs fewer vocabularies, not more. (c) Mechanical detection of forwarding in `session-enforcement.ts` as the primary fix — discarded: detection-at-runtime is a backstop, not a directive; agents need the correct pattern stated before the violation fires. Mechanical detection remains in scope as a phase-2 additive backstop. |
-| 5 | **Key Design Decisions** | (a) The word "inline" is RETIRED from the dispatch vocabulary — it currently means both "orchestrator does directly" (pejorative, in `022`) and "a sanctioned execution mode" (TDT rows); the closed set uses `orchestrator` for sanctioned direct execution. Tradeoff: all 44 blanket-clause cards and 3 contradictory cards need bulk edits, and old TDT values fail the validator after migration. (b) HALT-on-inline machinery is re-pointed, not deleted — the halt behavior is preserved but its trigger condition becomes whole-card/whole-plan forwarding. Tradeoff: any behavioral test asserting the old trigger must be updated in the same GREEN. (c) `task()` dispatch strings are the ONLY sanctioned routing surface — a `task()` string whose target is a SKILL.md path is a whole-card forwarding invitation and fails the grep gate. Tradeoff: card authors lose the ability to delegate "just read this card" — they must route through task cards. (d) Plan steps default to `direct` (orchestrator executes in own context); sub-agent dispatch is opt-in per step. Tradeoff: existing plans without explicit modes remain readable, new plans must carry explicit modes. |
-| 6 | **User Intent / Original Prompt** | "the spec topic: remediation of orchestrator dispatch discipline in .opencode/ (skill cards executed directly by orchestrator with task() only at marked points; plans executed step-by-step by orchestrator; whole-card and whole-plan forwarding eliminated; vocabulary normalization; dedup of system-prompt injection)." |
+| 3 | **Approach Chosen** | Adopt Architecture B as the single architecture and re-point every layer at it: rewrite the system prompt routing-boundary language, rewrite `022` (re-pointing the HALT machinery from inline-work to whole-card/whole-plan forwarding), retain the `000-critical-rules` whole-card prohibition, rewrite `executing-plans` so the orchestrator reads the plan and executes steps directly, normalize TDT vocabulary to a closed set (`orchestrator`, `task-card`, `task-card blind`), add a plan pre-flight guard (`ORCHESTRATOR_ONLY_PLAN`), add a per-step dispatch-mode field to the canonical plan format, and single-source the vocabulary in one canonical reference table. Additionally, absorb the dispatch-concern scope of related open tickets (serial pipeline, contract schema, skildeck linter gates) and record supersession of cross-cutting format tickets — see §12. |
+| 4 | **Alternatives Considered & Why Discarded** | (a) Keep Architecture A (pure router) and fix only the contradictions — discarded: the whole-card prohibition in `000-critical-rules` and the pre-flight guard in all 51 cards already encode B; the guard converts forwarding into a stall rather than a correction, so A is already unenforceable without contradicting Tier 1 text. (b) Add a third-layer mediation doc explaining when each architecture applies — discarded: adding prose on top of contradictory prose deepens the averaging problem; the deck needs fewer vocabularies, not more. (c) Mechanical detection of forwarding in `session-enforcement.ts` as the primary fix — discarded: detection-at-runtime is a backstop, not a directive; agents need the correct pattern stated before the violation fires. Mechanical detection remains in scope as a phase-2 additive backstop. (d) Leave related dispatch-concern tickets open to be fixed independently — discarded: their dispatch semantics predate and contradict the Architecture-B correction; absorbing them here prevents a second vocabulary fork. |
+| 5 | **Key Design Decisions** | (a) The word "inline" is RETIRED from the dispatch vocabulary — it currently means both "orchestrator does directly" (pejorative, in `022`) and "a sanctioned execution mode" (TDT rows); the closed set uses `orchestrator` for sanctioned direct execution. Tradeoff: all 44 blanket-clause cards and 3 contradictory cards need bulk edits, and old TDT values fail the validator after migration. (b) HALT-on-inline machinery is re-pointed, not deleted — the halt behavior is preserved but its trigger condition becomes whole-card/whole-plan forwarding. Tradeoff: any behavioral test asserting the old trigger must be updated in the same GREEN. (c) `task()` dispatch strings are the ONLY sanctioned routing surface — a `task()` string whose target is a SKILL.md path is a whole-card forwarding invitation and fails the grep gate. Tradeoff: card authors lose the ability to delegate "just read this card" — they must route through task cards. (d) Plan steps default to `direct` (orchestrator executes in own context); sub-agent dispatch is opt-in per step. Tradeoff: existing plans without explicit modes remain readable, new plans must carry explicit modes. (e) Related open tickets with direct or cross-cutting dispatch concerns are absorbed into or superseded by this spec rather than remediated in parallel — where an absorbed design contradicts Architecture B, the closed TDT vocabulary, or the `direct|task-card` plan-step schema, this spec's design wins (§12). Tradeoff: absorbed tickets await a separate orchestrator dispatch for marking/closing. |
 
 ## 2. Not Included
 
 - **`session-enforcement.ts` mechanical forwarding detection** — additive backstop (detect whole-card/whole-plan content in `task()` prompts) is deferred to a follow-up; this spec fixes the directive layer that tells agents the correct pattern. Rationale: directive text is the primary correction surface; mechanical detection without corrected directives would halt correct target-model behavior.
-- **Content changes to open spec #1208 / plan #1210** — their TDT-format work proceeds; this spec records the coordination decision and supersedes only their dispatch-semantics vocabulary. Rationale: mutating another open issue's body from inside this spec would fork tracking.
+- **Content changes to open spec #1208 / plan #1210 bodies** — their non-dispatch work proceeds; this spec records the coordination decision and supersedes only their dispatch-semantics vocabulary (§12). Rationale: mutating another open issue's body from inside this spec would fork tracking; marking/closing absorbed tickets is a separate orchestrator dispatch.
 - **`.opencode/scripts/`, `.opencode/tests/` Python tooling, `node_modules/`, `.venv/`, `.node/`** — no dispatch directives live there.
 - **Retiring or redesigning the `skill()` / `task()` tool contracts** — the tool surface is unchanged; only the directive text and guard semantics change.
-- **Sub-agent result contract changes** — `{status, finding_summary, artifact_path, blocker_reason}` stays as-is.
+- **Sub-agent result contract envelope changes** — `{status, finding_summary, artifact_path, blocker_reason}` stays as-is; the enforcement-gated contract schema (SC-10) extends the payload carried alongside it, not the envelope.
+- **Tickets excluded from absorption (verified no dispatch concern):** 698, 699, 700, 701, 702, 703, 704, 705, 872, 1013, 1189, 1212 — none of these carries a dispatch-table, contract-schema, or serial-pipeline routing concern; their scopes remain with their own issues.
 
 ## 3. Success Criteria
 
@@ -35,6 +35,9 @@
 | SC-6 | TDT Dispatch column values across all SKILL.md use only the closed set {`orchestrator`, `task-card`, `task-card blind`}; the TDT/Invocation contradictions in the audit, brainstorming, and spec-creation cards are resolved; the blanket "each step must be dispatched to a sub-agent unless marked inline" clause is rewritten in every card carrying it. | behavioral | tests-v2 behavioral probe (skill dispatch routes per closed-set row) with the closed-set grep gate as scenario precondition; validator rejects old values (`inline`, `sub-task`, `blind sub-task`) after migration | `.opencode/skills/*/SKILL.md` (TDT sections), `.opencode/reference/skill-card-description-standards.md` |
 | SC-7 | The canonical plan format defines a per-step dispatch mode (`direct` or `task-card`, default `direct`); the writing-plans producer templates emit it; a plan-format check verifies every plan step carries an explicit mode. | behavioral | tests-v2 behavioral probe: a plan produced by the updated writing-plans flow is executed per its per-step modes; validator output inspected in-scenario | `.opencode/skills/writing-plans/SKILL.md` + producer task templates, plan-format section |
 | SC-8 | A single canonical dispatch-vocabulary table exists in the reference layer; every directive-layer file (system prompt, `022`, `000-critical-rules`, both standards reference cards) references it via Read-link instead of restating definitions; the system prompt carries no duplicated or contradictory dispatch definitions. | behavioral | tests-v2 behavioral probe: skill-trigger and plan-trigger probes both route per the canonical table; directive files inspected in-scenario for Read-link presence and absent duplicate definitions | `.opencode/reference/skill-card-description-standards.md`, `.opencode/prompts/default.txt`, `.opencode/guidelines/022-orchestrator-context-discipline.md` |
+| SC-9 | The orchestrator serial pipeline routes every dispatch through Architecture-B semantics: the serial pipeline (spec → plan → implement → verify) uses the closed TDT vocabulary and per-step plan dispatch modes as its sole routing sources, with no divide-and-conquer forwarding rows; the adversarial-audit dispatch-table routing exception dispatches by `auditor_type` to an adversarial model without forwarding card content; the cross-validate consensus step derives a deterministic PASS/FAIL verdict from standardized verifier verdicts without re-dispatching whole cards. | behavioral | tests-v2 behavioral probes: serial-pipeline probe (routes per dispatch mode and TDT row; no whole-card/whole-plan forwarding in any `task()` prompt), adversarial-audit probe (asserts `auditor_type`-based routing), consensus probe (asserts deterministic verdict from conflicting verifier outputs) | `.opencode/skills/audit/SKILL.md` (TDT/Invocation), `.opencode/.issues/open/909-*/spec.md`, `.opencode/.issues/open/912-*/spec.md`, `.opencode/.issues/open/1019-*/spec.md`, `.opencode/.issues/open/936-*/spec.md` |
+| SC-10 | Skill task files declare per-skill `contract.yaml` ownership and emit the standardized enforcement-gated hand-off contract schema — required fields {`gate_result`, `verifier_identity`, `artifact_hash`} plus the skill task-file inventory classification — with frugal size limits (bounded field set, no free-form growth); the solve tool consumes the standardized contract YAML as its state input; no parallel contract vocabularies remain in the deck. | behavioral | tests-v2 behavioral probe: a pipeline step produces a schema-conformant `contract.yaml`; the linter rejects an oversized or schema-missing contract; the solve tool is exercised against contract state in-scenario | `.opencode/skills/` task files (contract ownership), `.opencode/tools/solve/`, `.opencode/.issues/open/954-*/spec.md`, `.opencode/.issues/open/955-*/spec.md`, `.opencode/.issues/open/1198-*/spec.md`, `.opencode/.issues/open/1222-*/spec.md` |
+| SC-11 | skildeck provides dispatch-table and contract-schema linter gates: the linter rejects TDT Dispatch values outside the closed set, `task()` dispatch strings targeting SKILL.md paths, and `contract.yaml` files missing required schema fields; the gates run additively alongside existing skildeck validators. | behavioral | validator output inspected in-scenario via negative probes: an old TDT value, a SKILL.md-path-targeting dispatch string, and a schema-missing contract each fail the linter | `.opencode/tools/skildeck/`, `.opencode/.issues/open/1213-*/spec.md` |
 
 ## 4. Requirements
 
@@ -53,6 +56,12 @@ R-6. TDT Dispatch column values SHALL use the closed vocabulary {`orchestrator`,
 R-7. The canonical plan format SHALL carry a per-step dispatch mode (`direct` or `task-card`, default `direct`), and the plan-format check SHALL verify every step carries an explicit mode.
 
 R-8. The dispatch vocabulary SHALL be single-sourced in one canonical reference table, referenced via Read-link by every directive-layer file, with no duplicated or contradictory definitions in the system prompt.
+
+R-9. The orchestrator serial pipeline SHALL route all dispatch exclusively through the closed TDT vocabulary and per-step plan dispatch modes; the adversarial-audit routing exception SHALL dispatch by `auditor_type` to an adversarial model; the cross-validate consensus step SHALL derive deterministic verdicts from standardized verifier verdicts.
+
+R-10. Skill task files SHALL declare `contract.yaml` ownership and emit the standardized enforcement-gated hand-off contract schema with required fields {`gate_result`, `verifier_identity`, `artifact_hash`} and a frugal size bound; the solve tool SHALL consume the standardized contract YAML as its state input.
+
+R-11. skildeck SHALL provide linter gates that reject closed-set TDT vocabulary violations, whole-card dispatch strings, and contract-schema violations, additively alongside existing validators.
 
 ## 5. Items
 
@@ -112,15 +121,37 @@ R-8. The dispatch vocabulary SHALL be single-sourced in one canonical reference 
 - verify: Behavioral probes (skill + plan triggers) route per the canonical table; directive files show Read-link references and no duplicates.
 - commit: reference card + directive-layer Read-link edits.
 
+### Item 9 (SC-9): Consolidate serial-pipeline dispatch semantics under Architecture B
+
+- RED: Behavioral scenario drives a serial-pipeline segment; assert stderr currently shows divide-and-conquer routing, whole-card/whole-plan forwarding, non-`auditor_type` adversarial-audit routing, or re-dispatch-based consensus (expected FAIL before change).
+- GREEN: Re-point the serial-pipeline routing (absorbing #909's 14-step table and #912's coherence-gate remediation routing) onto the closed TDT vocabulary and per-step plan dispatch modes; route the adversarial-audit exception by `auditor_type` (absorbing #1019); derive the cross-validate consensus verdict deterministically from standardized verifier verdicts (absorbing #936).
+- verify: Behavioral probes — pipeline routes per dispatch mode/TDT row with no forwarding; adversarial-audit routes by `auditor_type`; consensus verdict deterministic.
+- commit: routing edits + scenarios.
+
+### Item 10 (SC-10): Standardize the enforcement-gated hand-off contract schema
+
+- RED: Behavioral scenario runs a pipeline step and inspects its contract artifact; assert no standardized `contract.yaml` with {`gate_result`, `verifier_identity`, `artifact_hash`}, no inventory classification, and no solve-tool state wiring (expected FAIL).
+- GREEN: Define per-skill `contract.yaml` ownership (absorbing #955, superseded content per #1222), the standardized schema fields with frugal size limits and task-file inventory classification (absorbing #954 and #1222), and the solve-tool state wiring of the standardized contract YAML (absorbing #1198).
+- verify: Produced contract conforms to schema; linter rejects violations; solve tool consumes contract state in-scenario.
+- commit: schema docs + task-file contract edits + solve wiring + scenario.
+
+### Item 11 (SC-11): Add skildeck dispatch-table and contract-schema linter gates
+
+- RED: Negative probes against skildeck (old TDT value, SKILL.md-path dispatch string, schema-missing contract) pass without rejection (expected FAIL).
+- GREEN: Add the dispatch-table and contract-schema linter rules to skildeck (merging #1213's linter workstream with this spec's validator gates), additive to existing validators.
+- verify: Negative probes each fail the linter; existing validators unaffected.
+- commit: skildeck linter rules + probe.
+
 ## 6. Dependencies
 
 | Reference | Relationship | Status |
 |-----------|--------------|--------|
-| Open spec #1208 / plan #1210 (`.opencode/.issues/`) | Overlapping TDT-format work; this spec supersedes their dispatch-semantics vocabulary; coordination comment recorded before implementation begins | pending |
+| Absorbed/superseded open specs (909, 912, 954, 955, 1198, 1222, 1019, 1208, 1209, 1210, 1211, 1213, 936, 706 — `.opencode/.issues/open/`) | Dispatch-semantics supersession recorded in §12; those tickets are marked/closed by a separate orchestrator dispatch; non-dispatch workstreams in #1208/#1209/#1211 remain with their owners until closure | pending |
 | tests-v2 behavioral harness (`.opencode/tests-v2/with-test-home`, scenario framework) | All SC verification runs through it; existing dispatch-behavior scenarios updated with each GREEN | satisfied |
 | Local model availability (qwen3.8:27b-256k-gguf4, verified working) | Behavioral evidence requires real-model `opencode run` cycles; timeout discipline per tests-v2/AGENTS.md (≥600s) | satisfied |
-| skildeck validators (`.opencode/tools/skildeck`) | New validator rules (closed-set TDT vocabulary, whole-card grep gate, plan-step modes) land additively | satisfied |
+| skildeck validators (`.opencode/tools/skildeck`) | New validator rules (closed-set TDT vocabulary, whole-card grep gate, plan-step modes, contract-schema linter) land additively | satisfied |
 | Skill card pre-flight guards (all 51 SKILL.md) | Retained verbatim; the card-side backstop is unchanged | satisfied |
+| Solve tool (`.opencode/tools/solve`) + standardized contract schema (absorbed #1198/#1222) | The solve tool consumes the standardized contract YAML as state input; schema fields land before Item 10's wiring | pending |
 
 ## 7. Traceability
 
@@ -134,6 +165,9 @@ R-8. The dispatch vocabulary SHALL be single-sourced in one canonical reference 
 | R-6 | SC-6 | Item 6 |
 | R-7 | SC-7 | Item 7 |
 | R-8 | SC-8 | Item 8 |
+| R-9 | SC-9 | Item 9 |
+| R-10 | SC-10 | Item 10 |
+| R-11 | SC-11 | Item 11 |
 
 ## 8. Documentation Sources
 
@@ -148,6 +182,10 @@ R-8. The dispatch vocabulary SHALL be single-sourced in one canonical reference 
 | Plan pre-flight guard absence | deck survey | `.opencode/skills/`, `.opencode/guidelines/`, `.opencode/prompts/` | grep count this session: 0 occurrences of `ORCHESTRATOR_ONLY_PLAN` |
 | Third dispatch vocabulary | open plan | `.issues/1214/plan.md` (dispatch-type gate rows) | grep read this session: "orchestrator routes to general"/"orchestrator inline" vocabulary confirmed |
 | Preliminary analysis artifacts | analysis | `tmp/dispatch-remediation/artifacts/preliminary/` (blast-radius, concern-map, code-paths, cross-cutting, interface-compat, state-analysis, testability) | read this session (7 artifacts + handoff.yaml) |
+| Absorbed spec bodies (909, 912, 954, 955, 1198, 1222, 1019, 936) | spec | `.opencode/.issues/open/{909,912,954,955,1198,1222,1019,936}-*/spec.md` | verified this session: all absorption-set directories present under `.opencode/.issues/open/` with `spec.md` |
+| Cross-cutting superseded spec bodies (1208, 1209, 1210, 1211, 1213, 706) | spec | `.opencode/.issues/open/{1208,1209,1210,1211,1213,706}-*/spec.md` | verified this session: directories present under `.opencode/.issues/open/` with `spec.md` |
+| skildeck tooling | tool | `.opencode/tools/skildeck/` | verified this session: directory present |
+| Solve tool | tool | `.opencode/tools/solve/` | verified this session: directory present |
 
 ## 9. Enforcement Gate
 
@@ -165,6 +203,9 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-6: The closed-set validator costs seconds per commit; the routing probe costs minutes. Skipping means three vocabularies persist and every new card flips a coin between them — each new card added under the old vocabulary extends the migration debt.
 - SC-7: Producing a plan with per-step modes and running the format check costs minutes. Skipping means the plan layer stays prose-ambiguous and Item 3's behavioral fix degrades back to wholesale forwarding on the next hand-written plan.
 - SC-8: Reading the canonical table and running both trigger probes costs minutes. Skipping means the vocabulary re-fragments at the next session that edits a directive file — the dedup is the only item that keeps the other seven from regressing.
+- SC-9: Running the serial-pipeline, adversarial-audit, and consensus probes costs minutes. Skipping means the absorbed pipeline tickets' divide-and-conquer routing keeps averaging with Architecture B — the same averaging defect this spec removes re-enters through the serial pipeline and every absorbed ticket's unimplemented scope.
+- SC-10: Producing a schema-conformant contract and running the negative linter probe costs minutes. Skipping means hand-off artifacts stay free-form — gate results without verifier identity or artifact hash cannot be cross-validated, and the solve tool wires against a moving schema.
+- SC-11: Running the three negative linter probes costs seconds. Skipping means the closed set and contract schema are conventions, not gates — the next card author reintroduces a retired vocabulary value with no mechanical rejection.
 
 ## 11. Edge Cases
 
@@ -174,5 +215,46 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** A sub-agent receives a step-scoped prompt (not a whole plan) that references the plan. **Expected behavior:** no guard fires — step-scoped prompts and task cards are the sanctioned carriers; only a whole plan body trips `ORCHESTRATOR_ONLY_PLAN`. **Resolution:** the guard definition in the standards docs specifies the trip condition (plan document body in the dispatch prompt).
 - **Condition:** The 51-card pre-flight guard retention check and the whole-card grep gate disagree (guard present, but a `task()` string still targets a SKILL.md path). **Expected behavior:** the SC fails on the grep gate — guard presence alone is insufficient; both checks must pass. **Resolution:** the Item 4 validator requires both conditions.
 - **Condition:** Concurrent edits to the same deck files by open specs #1208/#1210 and this remediation. **Expected behavior:** sequencing is decided at coordination time (recorded in the #1210 comment before implementation); no silent merge of dispatch semantics. **Resolution:** this spec's vocabulary supersedes; the other issue re-bases its format work onto the closed set.
+- **Condition:** An absorbed issue's design contradicts this spec's target architecture (e.g., #909's divide-and-conquer dispatch table vs Architecture B). **Expected behavior:** this spec's design wins — Architecture B, the closed TDT vocabulary {`orchestrator`, `task-card`, `task-card blind`}, and the `direct|task-card` plan-step schema are authoritative; the conflicting absorbed content is recorded as superseded in §12. **Resolution:** no dual-vocabulary period — implementation follows only this spec's dispatch semantics; absorbed tickets are marked/closed by a separate orchestrator dispatch.
 - **State boundary:** the `.opencode` submodule pointer must ride alongside the next real parent-repo change; pointer-only pushes are blocked by pre-push hooks. **Expected behavior:** all spec implementation commits land in the submodule; pointer updates follow parent-repo discipline. **Resolution:** no migration needed (state analysis artifact confirms no DB/session schema impact).
 - **Recovery:** if a behavioral GREEN regresses a previously passing SC (e.g., Item 6 vocabulary edits break Item 1 probe assertions), the affected earlier SC re-runs before the pipeline advances; the enforcement gate is all-or-nothing.
+
+## 12. Superseded and Absorbed Issues
+
+All 14 tickets below were verified (by the orchestrator, against the local `.opencode/.issues/open/` spec bodies) to carry direct or cross-cutting dispatch concerns. **They are NOT closed from this task** — they await marking/closing by a separate orchestrator dispatch. This section records the absorption mapping and conflict resolution.
+
+**Conflict rule:** where an absorbed spec's design contradicts this spec's target architecture (Architecture B: orchestrator executes skill-card workflows and plan steps directly, `task()` only at marked points; closed TDT vocabulary {`orchestrator`, `task-card`, `task-card blind`}; plan-step dispatch mode `direct|task-card`), **this spec's design wins** and the absorbed issue's conflicting content is superseded as noted.
+
+### 12.1 Direct — absorbed scope merged into this spec
+
+| Issue | Disposition | Scope outcome |
+|-------|-------------|---------------|
+| #909 | absorbed-scope-merged | Orchestrator serial pipeline's 14-step dispatch routing table (replacing divide-and-conquer) is redefined by this spec's Architecture-B dispatch semantics — carried by SC-9/R-9/Item 9; its router-model routing rows are superseded. |
+| #912 | absorbed-scope-merged | SC coherence gate + remediation routing (Phase 2 of the 909 cluster) proceeds under this spec's routing vocabulary — carried by SC-9; remediation re-dispatch follows the per-step plan dispatch modes. |
+| #954 | absorbed-scope-merged | Frugal contract size limits + skill task-file inventory classification fold into the standardized contract schema — carried by SC-10/R-10/Item 10. |
+| #955 | absorbed-scope-merged | Per-skill `contract.yaml` ownership folds into SC-10; its content was already mostly superseded by #1222, which this spec absorbs. |
+| #1198 | absorbed-scope-merged | Solve-tool state wiring of the standardized contract YAML is carried by SC-10/R-10; the solve tool consumes the schema defined in Item 10. |
+| #1222 | absorbed-scope-merged | Enforcement-gated hand-off contract schema {`gate_result`, `verifier_identity`, `artifact_hash`} absorbed into SC-10/R-10 verbatim as the required field set. |
+| #1019 | absorbed-scope-merged | Dispatch-table routing exception for adversarial-audit absorbed into SC-9 — routing dispatches by `auditor_type` to an adversarial model, never by forwarding card content. |
+
+### 12.2 Cross-cutting format — superseded
+
+| Issue | Disposition | Scope outcome |
+|-------|-------------|---------------|
+| #1208 | superseded | Skillcard routing overhaul parent: this spec's deck normalization + validator work covers and supersedes its dispatch-relevant workstreams (TDT overhaul → SC-6, dispatch-table linter → SC-11); non-dispatch workstreams (e.g., submodule-sync task) remain with #1208 until closed. |
+| #1209 | superseded | Workstream A YAML frontmatter cleanup: subsumed by this spec's deck normalization (closed TDT vocabulary SC-6 + canonical table SC-8); residual non-dispatch frontmatter work remains with #1209 until closed. |
+| #1210 | superseded | Workstream B trigger dispatch tables: superseded by the closed-vocabulary migration (SC-6); its third dispatch vocabulary ("orchestrator routes to general (blind)") is retired. |
+| #1211 | superseded | Workstream C procedure checklist-ification: subsumed by this spec's deck normalization (SC-4/SC-6); checklists carry closed-set dispatch strings. |
+| #1213 | superseded | Workstream E skildeck dispatch-table + contract-schema linter: merges with this spec's validator gates — carried by SC-11/R-11/Item 11. |
+| #936 | superseded | Deterministic consensus gate: orchestrator routing in cross-validate is absorbed into SC-9; consensus derives deterministically from standardized verifier verdicts. |
+| #706 | superseded | Phase-level plans with TDD as mandate: the TDD mandate is preserved, but the canonical plan-step dispatch schema is defined by this spec (R-7/SC-7, extended by SC-10); plan-format conflicts resolve in this spec's favor. |
+
+### 12.3 Excluded — verified no dispatch concern (not absorbed)
+
+698, 699, 700, 701, 702, 703, 704, 705, 872, 1013, 1189, 1212.
+
+## 13. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-03 | Added §12 (Superseded and Absorbed Issues) with the 14-ticket absorption mapping; added SC-9/SC-10/SC-11, R-9/R-10/R-11, and Items 9–11; updated Intent (field 3/4/5 additions), Not Included (excluded-ticket list, body-mutation clarification, contract envelope clarification), Dependencies (absorbed-set row, solve-tool row), Traceability, Documentation Sources, Cost Frame, and Edge Cases (Architecture-B conflict rule) | Developer directive — absorb/supersede all related open tickets with direct or cross-cutting dispatch concerns into this spec; prior tickets conflicting with the dispatch corrections are resolved via supersession (closing handled by separate orchestrator dispatch) | Developer (test) |
