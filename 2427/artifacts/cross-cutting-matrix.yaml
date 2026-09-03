@@ -1,5 +1,6 @@
 # Cross-Cutting Matrix — Issue #2427
 # Formalized from tmp/2427/artifacts/preliminary/cross-cutting.md (brainstorming) + live #2411 verification.
+# Regenerated 2026-09-03: scope G added — Phase 8 column (monitoring mandate evidence).
 status: complete
 source: "formalized from brainstorming preliminary + live verification"
 produced_at: "2026-09-02T20:32:00-04:00"
@@ -20,19 +21,20 @@ Verdict: one PARTIAL-OVERLAP (#2416 — sequencing), one authoring constraint (#
 
 ## Concern-to-Phase Matrix
 
-| Concern | Ph1: 000 (A+B) | Ph2: 020 split (C) | Ph3: 080 split (D) | Ph4: AGENTS.md trim (E) | Ph5: dedup+INDEX verify | Ph6: sweep | Ph7: guard verify |
-|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| #497 Tier-1 core preservation | R | R | R | — | — | — | V |
-| Infra-failure carve-out (A) | P | — | — | — | — | — | V |
-| Anti-recitation (B) | P | — | — | — | — | — | V |
-| Context-mechanics reachability | — | P+R | — | — | V | R | — |
-| Discussion-mode reachability | — | P+R | — | — | V | R | — |
-| Python-standards reachability | — | — | P+R | — | V | R | — |
-| Duplicate reconciliation | — | P (§4→085) | — | P (pair→116) | V | — | — |
-| Behavioral-test prompt compat | — | R | R | — | — | P+V | — |
-| Read-link anchor integrity | R | R | R | R | — | P+V | — |
-| Markdown lint/format | R | R | R | R | R | V | — |
-| Context reduction (informational stat) | — | M | M | M | — | — | V (informational only, #2411) |
+| Concern | Ph1: 000 (A+B) | Ph2: 020 split (C) | Ph3: 080 split (D) | Ph4: AGENTS.md trim (E) | Ph5: dedup+INDEX verify | Ph6: sweep | Ph7: guard verify | Ph8: monitoring evidence (G) |
+|---------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| #497 Tier-1 core preservation | R | R | R | — | — | — | V | — |
+| Infra-failure carve-out (A) | P | — | — | — | — | — | V | — |
+| Anti-recitation (B) | P | — | — | — | — | — | V | — |
+| Context-mechanics reachability | — | P+R | — | — | V | R | — | — |
+| Discussion-mode reachability | — | P+R | — | — | V | R | — | — |
+| Python-standards reachability | — | — | P+R | — | V | R | — | — |
+| Duplicate reconciliation | — | P (§4→085) | — | P (pair→116) | V | — | — | — |
+| Behavioral-test prompt compat | — | R | R | — | — | P+V | — | — |
+| Read-link anchor integrity | R | R | R | R | — | P+V | — | — |
+| Markdown lint/format | R | R | R | R | R | V | — | — |
+| Context reduction (informational stat) | — | M | M | M | — | — | V (informational only, #2411) | — |
+| Semantic monitoring evidence (G, SC-10) | — | — | — | — | — | — | — | P+V |
 
 P = produce, R = risk managed, M = measure only, V = verify
 
