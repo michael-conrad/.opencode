@@ -1,1 +1,4 @@
-comments: []
+comments:
+- type: internal
+  body: 'Superseded by .opencode#2433 (superseded_by: 2433) per developer directive.'
+  timestamp: '2026-09-03T15:51:54+00:00'
