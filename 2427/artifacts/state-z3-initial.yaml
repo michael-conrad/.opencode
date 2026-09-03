@@ -2,6 +2,7 @@
 # Companion to artifacts/state-analysis.yaml (which is markdown-with-YAML-header and not
 # machine-parseable by tools/solve — deviation documented in artifacts/solve-output.yaml).
 # Represents the state before any implementation phase begins.
+# Updated 2026-09-03: scope G added — phase8_done + monitoring_evidence_recorded appended.
 variables:
   phase1_done: false
   phase2_done: false
@@ -10,9 +11,11 @@ variables:
   phase5_done: false
   phase6_done: false
   phase7_done: false
+  phase8_done: false
   carve_outs_added: false
   splits_done: false
   dedup_complete: false
   index_routing_complete: false
   sweep_complete: false
   guard_verified: false
+  monitoring_evidence_recorded: false
