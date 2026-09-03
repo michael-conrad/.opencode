@@ -1,5 +1,5 @@
 # Full Spec — Issue #2427 (.opencode)
-# Tier-1 context-injection reduction — scopes A/B/C/D/E.
+# Tier-1 context-injection reduction — scopes A/B/C/D/E/G.
 # NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only.
 issue: 2427
 remote_issue: 2429
@@ -11,6 +11,8 @@ labels:
 > **Full spec and artifacts: [`.opencode/.issues/2427/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2427)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2427/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+>
+> **Scope G (developer-directed revision):** test-framework semantic continuous monitoring mandate — behavioral runs are launched in background, polled at intervals, and each poll semantically evaluates the live session event stream; off-track/loop states hard-abort the run. See SC-10, R-21/R-22, Item 10, and the §10.7 amendment in tests-v2/AGENTS.md.
 
 ## 1. Intent and Executive Summary
 
@@ -18,10 +20,10 @@ labels:
 |---|-------|-------------|
 | 1 | **Problem Statement** | The always-injected Tier-1 guideline corpus duplicates semantic rules across multiple injected files and injects scenario-governed content that applies only in specific sessions. Duplicated content risks divergence between copies; scenario-governed content at Tier 1 is dead weight for every session that never enters the scenario. Additionally, the 000-critical-rules.md file lacks two targeted carve-outs (infrastructure-failure inline execution; anti-recitation) whose absence forces agents into halt/loop and recitation behavior on mechanically safe actions. |
 | 2 | **Root Cause / Motivation** | The corpus grew by accretion: scenario-scoped sections (orchestrator context mechanics, discussion etiquette, tool installation tables, Python-only standards) were placed in Tier-1 files where every session pays the injection cost, and the same rules were written into two homes (020 §4 ↔ 085; AGENTS.md Pair Mode ↔ 116; gb install content ↔ skill neighborhood) without a single canonical-owner decision. It must be solved now because every session start injects the full corpus (~225,798 B across 15 files, verified by stat — diagnostic evidence only), and the duplication plus misplacement defects compound with each new rule added to the wrong tier. |
-| 3 | **Approach Chosen** | Preserve the #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) in Tier-1 files; add the two 000-critical-rules.md carve-outs (scope A: infrastructure-failure inline-execution authorization with mandatory disclosure; scope B: anti-recitation clause for safe reversible actions) as numbered binary-condition procedures; split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files with semantically equivalent content; trim AGENTS.md scenario sections to pointers; reconcile every duplicate to exactly one canonical home; register all demoted content in INDEX.md routing and retain imperative Read [Text](path) pointers in the Tier-1 cores. |
-| 4 | **Alternatives Considered & Why Discarded** | (a) **Delete scenario content outright.** Discarded — the rules remain valid in their scenarios; deletion would break behavioral tests and lose semantics (binding requirement: semantics must remain). (b) **Hard byte/token/percentage reduction thresholds as SCs.** Discarded — prohibited by #2411; savings are an emergent property of correctly implementing content-based SCs, never a PASS/FAIL criterion. (c) **Remove echo blocks ([critical-rules-*] duplicates) in the same pass.** Discarded — echo blocks are enforcement-test grep targets; their removal requires coupled test-suite migration and is deferred to a separate follow-up spec (out-of-scope F). |
-| 5 | **Key Design Decisions** | (1) Echo blocks travel WITH their sections (OQ-1, developer-resolved) — scope C/D move whole sections; enforcement-test grep targets are re-pointed in the sweep phase (SC-8). (2) Dedup to single canonical homes, not dual-copy moves: 085 is canonical for project-local tools, 116 for pair mode. (3) New Tier-2 files use the standard frontmatter schema (trigger_on, tier: 2, load_when) and are NOT added to the opencode.jsonc instructions array — that would defeat the split. (4) Pointer form is exclusively imperative `Read [Text](path)` — research cards (confidence 0.85/0.9) confirm the "See X" citation form is defective and never loaded. (5) The 000 additions use numbered binary-condition procedure form, not prose mandates, per the 0.9-confidence research card finding. |
-| 6 | **User Intent / Original Prompt** | Reduce Tier-1 context injection by scopes A (infrastructure-failure carve-out), B (anti-recitation clause), C (split 020-go-prohibitions by placement), D (split 080-code-standards by placement), E (trim AGENTS.md scenario sections) — duplication and incorrect-placement defects; semantics must remain (rewrites OK if rule/guide/intent unchanged); no size-threshold SCs; the #497 core stays in main context; echo-block removal is a separate follow-up spec. |
+| 3 | **Approach Chosen** | Preserve the #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) in Tier-1 files; add the two 000-critical-rules.md carve-outs (scope A: infrastructure-failure inline-execution authorization with mandatory disclosure; scope B: anti-recitation clause for safe reversible actions) as numbered binary-condition procedures; split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files with semantically equivalent content; trim AGENTS.md scenario sections to pointers; reconcile every duplicate to exactly one canonical home; register all demoted content in INDEX.md routing and retain imperative Read [Text](path) pointers in the Tier-1 cores. Scope G (developer-directed revision) adds a test-framework mandate: every behavioral opencode run is launched in background and polled at intervals; each poll reads the live session DB and semantically evaluates the event stream (tool calls, reasoning sizes, text parts) to judge whether the agent is progressing toward the scenario goal or has gone off-track, with hard-abort signals and recorded semantic diagnosis replacing blind timeout burn and blind resume loops. |
+| 4 | **Alternatives Considered & Why Discarded** | (a) **Delete scenario content outright.** Discarded — the rules remain valid in their scenarios; deletion would break behavioral tests and lose semantics (binding requirement: semantics must remain). (b) **Hard byte/token/percentage reduction thresholds as SCs.** Discarded — prohibited by #2411; savings are an emergent property of correctly implementing content-based SCs, never a PASS/FAIL criterion. (c) **Remove echo blocks ([critical-rules-*] duplicates) in the same pass.** Discarded — echo blocks are enforcement-test grep targets; their removal requires coupled test-suite migration and is deferred to a separate follow-up spec (out-of-scope F). (d) **Blind session-resume loops as the sole hang recovery (scope G alternative).** Discarded — §10.7 resumption blindly continues from where the run stalled without judging whether the agent was progressing; a stuck or looping run resumed blindly burns the full timeout again. The semantic monitoring mandate (SC-10) judges progression each poll and hard-aborts off-track runs; resumption remains the recovery path for runs that were genuinely progressing when killed (e.g., bash tool timeout). |
+| 5 | **Key Design Decisions** | (1) Echo blocks travel WITH their sections (OQ-1, developer-resolved) — scope C/D move whole sections; enforcement-test grep targets are re-pointed in the sweep phase (SC-8). (2) Dedup to single canonical homes, not dual-copy moves: 085 is canonical for project-local tools, 116 for pair mode. (3) New Tier-2 files use the standard frontmatter schema (trigger_on, tier: 2, load_when) and are NOT added to the opencode.jsonc instructions array — that would defeat the split. (4) Pointer form is exclusively imperative `Read [Text](path)` — research cards (confidence 0.85/0.9) confirm the "See X" citation form is defective and never loaded. (5) The 000 additions use numbered binary-condition procedure form, not prose mandates, per the 0.9-confidence research card finding. (6) Scope G monitoring is semantic, not heuristic-only: mechanical signals (identical tool input >=3x, task() parts stuck running >=2 consecutive polls, reasoning >20K chars with <=1 new tool call) trigger abort, but the poll ALSO reads the event stream semantically each interval — a run with no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows is judged off-track even when no mechanical threshold fires. (7) Evidence for behavioral SCs is behavioral, never structural: monitored-run SCs record the poll log or semantic diagnosis alongside session.yaml (EVIDENCE_TYPE_MISMATCH gate). |
+| 6 | **User Intent / Original Prompt** | Reduce Tier-1 context injection by scopes A (infrastructure-failure carve-out), B (anti-recitation clause), C (split 020-go-prohibitions by placement), D (split 080-code-standards by placement), E (trim AGENTS.md scenario sections) — duplication and incorrect-placement defects; semantics must remain (rewrites OK if rule/guide/intent unchanged); no size-threshold SCs; the #497 core stays in main context; echo-block removal is a separate follow-up spec. Scope G (developer-directed revision, 2026-09-03): update the test framework to mandate semantic continuous monitoring of behavioral runs — background launch + interval polling, live session DB reads, semantic off-track judgment, hard-abort signals, abort recovery with semantic diagnosis, and monitoring evidence recorded with behavioral SC verdicts; amends the §10.7 resumption known limitation (with-test-home provisions a NEW test home per invocation, so --continue cannot reach a prior run's DB — resumption across invocations requires a shared-home mechanism; the semantic monitoring mandate replaces blind resume loops). |
 
 ## 2. Not Included
 
@@ -31,7 +33,7 @@ labels:
 - **[opencode.jsonc instructions array restructuring]** — the 14-entry array is unchanged; new Tier-2 files are NOT appended (NR-4, R-10, R-20).
 - **[session-enforcement.ts / env-loader.ts changes]** — verified zero guideline coupling (NR-5).
 - **[Size-reduction targets as success criteria]** — prohibited by #2411; injection-size measurements are informational evidence only (NR-6).
-- **[Behavioral test suite restructuring beyond the sweep]** — only prompts/assertions referencing moved content are re-pointed (NR-7).
+- **[Behavioral test suite restructuring beyond the sweep]** — only prompts/assertions referencing moved content are re-pointed (NR-7). Amended by scope G: the tests-v2 harness itself (AGENTS.md documentation + behaviors/helpers.sh monitoring protocol) is now in-scope via SC-10 — NR-7 still excludes scenario-suite restructuring, but the monitoring mandate is harness-level, not a scenario restructure.
 - **[#2416 AGENTS.md content additions]** — #2416 (approved-for-pr) adds text to the same AGENTS.md file; this spec stacks on feature/2402-finishing-checklist-trailer-remediation and its Phase-4 edits must rebase cleanly alongside #2416's changes (sequencing constraint, not content conflict).
 
 ## 3. Success Criteria
@@ -47,6 +49,7 @@ labels:
 | SC-7 | INDEX.md SHALL contain a Tier-2 routing row for every demoted content class with trigger patterns matching the content (context-discipline, discussion-mode, python-standards classes; existing 085/116 rows reused where canonical). | structural | Read INDEX.md post-change; assert one routing row per demoted class with trigger patterns matching the moved content; new destination files carry frontmatter `tier: 2`. |
 | SC-8 | All Read-links and test SCENARIO_PROMPTs referencing moved sections SHALL be re-pointed; zero dangling section anchors SHALL remain; the affected behavioral scenarios (2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt) SHALL pass via with-test-home after the sweep. | behavioral | `grep -rn "guidelines/020-go-prohibitions\|guidelines/080-code-standards" .opencode/skills/ .opencode/guidelines/` returns no dangling anchors; run the named scenarios via `bash .opencode/tests-v2/with-test-home` — PASS. |
 | SC-9 | Post-change, human-only merge (000-critical-rules.md), approval gate/no-self-authorization (010-approval-gate.md), and attribution mandates (080-code-standards.md) SHALL remain in Tier-1 injected files, and the opencode.jsonc instructions array SHALL be unchanged (14 entries, byte-identical). | structural | `git diff .opencode/opencode.jsonc` empty; grep for the human-only-merge rule in 000, the zero-tolerance table in 010, and the attribution sections in 080 — all present. |
+| SC-10 | The tests-v2 harness SHALL mandate semantic continuous monitoring of every behavioral opencode run (scope G): the run is launched in background and polled at intervals; each poll reads the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`) and semantically evaluates the event stream (tool calls, reasoning sizes, text parts) to judge whether the agent is progressing toward the scenario goal or has gone off-track. Hard-abort signals: identical tool input >=3x, task() parts stuck in running >=2 consecutive polls, reasoning >20K chars with <=1 new tool call, or semantically judged off-track (no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows). On abort: kill the run, export session.yaml per §10.5, record the semantic diagnosis. Behavioral SC verdicts whose evidence comes from monitored runs SHALL record the monitoring evidence (poll log or semantic diagnosis) alongside session.yaml. The §10.7 resumption section SHALL document the known limitation: with-test-home provisions a NEW test home per invocation, so `--continue` cannot reach a prior run's DB — resumption across invocations requires a shared-home mechanism; the semantic monitoring mandate replaces blind resume loops. | behavioral | Verdict basis: behavioral — a monitored run where the semantic poll detects an off-track/loop state and aborts (session.yaml shows the stalled state; poll log/semantic diagnosis records the abort decision), vs an unmonitored run that burns the full timeout (RED comparison). Verification via session.yaml artifacts showing the poll protocol was executed: poll log artifact with per-poll event-stream reads + semantic judgment, abort record with §10.5 export, and §10.7 amendment visible in tests-v2/AGENTS.md. |
 
 ## 4. Requirements
 
@@ -70,6 +73,8 @@ labels:
 - R-18. This spec SHALL NOT supersede closed #2131 outcomes; 080 attribution sections remain explicitly untouched.
 - R-19. pymarkdownlnt scan and mdformat --check SHALL pass on all modified guideline files (advisory, read-only modes only).
 - R-20. No Tier-1 file SHALL be removed from the opencode.jsonc instructions array (the WARNING comment documents the #497 regression).
+- R-21. The tests-v2 harness (AGENTS.md documentation + behaviors/helpers.sh monitoring helper or documented protocol) SHALL mandate semantic continuous monitoring of every behavioral opencode run: background launch, interval polling, live session DB read (newest `tmp/test-home-*/.local/share/opencode/opencode.db`) with semantic evaluation of the event stream (tool calls, reasoning sizes, text parts) against the scenario goal each poll.
+- R-22. The monitoring protocol SHALL define hard-abort signals (identical tool input >=3x; task() parts stuck in running >=2 consecutive polls; reasoning >20K chars with <=1 new tool call; semantically judged off-track — no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows) and the abort recovery procedure (kill the run, export session.yaml per §10.5, record the semantic diagnosis). Behavioral SC verdicts relying on monitored runs SHALL record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml, and tests-v2/AGENTS.md §10.7 SHALL document the with-test-home new-home-per-invocation resumption limitation.
 
 ## 5. Items
 
@@ -136,6 +141,13 @@ labels:
 - verify: structural greps + git diff as named.
 - commit: none (verification-only item; evidence recorded).
 
+### Item 10 (SC-10): Test-framework semantic continuous monitoring mandate (scope G)
+
+- RED: Behavioral — run a scenario that drives an off-track/loop state (e.g., a prompt that induces repeated identical tool input or reasoning growth with no goal-relevant tool calls) UNMONITORED and observe it burn the full timeout with no abort and no diagnosis recorded.
+- GREEN: Add the monitoring mandate to tests-v2/AGENTS.md (new subsection or amend §10.5/§10.7, authority-frame MANDATORY/PROHIBITED tables per dark-prose-007 cost frame) and implement the monitoring helper or documented poll protocol in tests-v2/behaviors/helpers.sh: background launch, interval poll, live session DB read (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantic event-stream evaluation (tool calls, reasoning sizes, text parts) against the scenario goal, hard-abort signals, kill + §10.5 export + semantic-diagnosis recording on abort.
+- verify: Run the monitored variant — session.yaml shows the stalled event stream; poll log/semantic diagnosis artifact records the abort decision; the abort beats the full-timeout baseline. §10.7 amendment documents the with-test-home new-home-per-invocation limitation. Monitored-run SC verdicts record monitoring evidence alongside session.yaml.
+- commit: tests-v2/AGENTS.md, tests-v2/behaviors/helpers.sh (or the protocol's implementation files), plus the monitoring evidence artifacts.
+
 ## 6. Dependencies
 
 | Reference | Relationship | Status |
@@ -174,6 +186,8 @@ labels:
 | R-18 | SC-4 (continuity) | Item 4 |
 | R-19 | SC-3, SC-4, SC-5 (lint gate) | Items 3, 4, 5 |
 | R-20 | SC-9 | Item 9 |
+| R-21 | SC-10 | Item 10 |
+| R-22 | SC-10 | Item 10 |
 
 ## 8. Documentation Sources
 
@@ -196,6 +210,8 @@ labels:
 | 085-project-local-tools.md (canonical tools home) | code | `.opencode/guidelines/085-project-local-tools.md` | read this session — exists, 52 lines, carries the 8 key rules |
 | test-enforcement.sh FILE_SCENARIO_MAP | code | `.opencode/tests-v2/test-enforcement.sh` (lines 129-139) | read this session — path-keyed mapping verified |
 | #2411 spec (size-threshold prohibition) | issue | `.opencode/.issues/2411/spec.md` | read this session — SC text verified live |
+| tests-v2/AGENTS.md §10.5/§10.7 (timeout recovery, resumption) | code | `.opencode/tests-v2/AGENTS.md` (lines 597-680) | read this session — §10.5 fallback procedure and §10.7 resumption mandate verified live; scope G amends §10.7 |
+| tests-v2/behaviors/helpers.sh (monitoring integration point) | code | `.opencode/tests-v2/behaviors/helpers.sh` | read this session — exists, 35652 B; scope G adds the monitoring helper or documented poll protocol |
 
 ## 9. Enforcement Gate
 
@@ -214,6 +230,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-7:** Running the INDEX completeness check costs one read. Skipping means a demoted rule becomes unreachable — the agent that needs it never loads it, and the semantic-preservation goal silently fails at first use.
 - **SC-8:** Running the consumer sweep and the four named scenarios costs minutes via with-test-home. Skipping means dangling Read-links and broken test prompts surface as CI failures and misrouted agents — 100× more expensive to diagnose downstream.
 - **SC-9:** Running the #497 guard greps and git diff costs seconds. Skipping risks repeating the documented regression: a PR merged because the human-only-merge rule was missing from context — the highest-cost failure mode in the deck's history.
+- **SC-10:** Running the monitored behavioral scenario costs minutes of execution time — the poll intervals plus one abort-and-diagnose cycle, a bounded delay that surfaces a stuck-run defect at gate 1 instead of burning the full 600-900s timeout on every looped run. Skipping means every off-track behavioral run burns its full timeout in CI, hung runs are blindly resumed (§10.7) only to stall at the same point again, and the defect-discovery loop costs a full rework cycle per hung scenario — diagnosis, spec-fix, re-review — each cycle costing far more than the monitoring harness. The one-time harness build cost is amortized across every behavioral scenario the deck runs; the per-run polling cost is seconds of SQLite reads against an already-present session DB.
 
 ## 11. Edge Cases
 
@@ -241,6 +258,24 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** All sub-agent dispatch attempts fail at implementation time (infrastructure failure — the exact condition scope A addresses).
   **Expected behavior:** The implementer applies the new carve-out procedure: >=2 consecutive tool-level failures authorize inline read-only/verification execution WITH disclosure.
   **Resolution:** Scope A (item 1) makes the carve-out available before any split work begins (item 1 precedes items 3-9 in the DAG).
+- **Condition:** A monitored behavioral run crosses a hard-abort signal mid-inference (scope G).
+  **Expected behavior:** The poll detects the signal, kills the run, exports session.yaml per §10.5, and records the semantic diagnosis — the run does NOT burn the remaining timeout.
+  **Resolution:** Monitoring protocol (item 10) — abort path writes both session.yaml and the poll log/diagnosis artifact; the scenario verdict is evaluated on the partial evidence, which §10.5 confirms is valid.
+- **Condition:** An agent attempts `--continue` session resumption across a `with-test-home` invocation boundary (scope G, §10.7 known limitation).
+  **Expected behavior:** Resumption CANNOT reach the prior run's DB — with-test-home provisions a NEW test home per invocation, so the prior session id is unreachable via `--continue`; the agent MUST NOT loop blind resume attempts.
+  **Resolution:** §10.7 amendment documents the limitation: resumption across invocations requires a shared-home mechanism (out of scope G's mandate — the semantic monitoring mandate replaces blind resume loops); within-invocation resumption remains per §10.7, and cross-invocation recovery follows the monitoring abort path (kill + export + diagnose).
+- **Condition:** The semantic poll judges a run off-track while no mechanical signal (identical input, stuck task(), reasoning-size threshold) has fired.
+  **Expected behavior:** The semantic judgment alone (no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows) authorizes abort — mechanical signals are necessary-but-not-sufficient triggers, not the only abort path.
+  **Resolution:** R-22 lists the semantic off-track judgment as one of the four hard-abort signals; the poll log records the semantic reasoning for audit.
+
+---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-03 | Initial spec — scopes A/B/C/D/E (SC-1..SC-9, R-1..R-20, Items 1-9). | Developer-directed scope from issue creation. | Developer (issue #2427 authorization) |
+| 2026-09-03 | Scope G added (developer-directed revision): new SC-10, R-21, R-22, Item 10; amended §1 Approach row 3, Alternatives row 4, Key Decisions row 5, User Intent row 6; amended NR-7 in §2; added traceability rows R-21/R-22; added Documentation Sources rows (tests-v2/AGENTS.md §10.5/§10.7, behaviors/helpers.sh); added SC-10 cost frame per dark-prose-007; added three scope-G edge cases (abort mid-run, cross-invocation resume limitation, semantic-only abort). Updated sc-summary.yaml sc_count 9→10 with SC-10 entry. | Developer-directed revision reason: "Add a new scope and SC updating the test framework to mandate semantic continuous monitoring of behavioral runs." | Developer (for_pr scope-continuation — per approval-gate, this revision does NOT halt for re-authorization; recorded here and plan regeneration follows) |
 
 ---
 

@@ -1,10 +1,11 @@
 # SC Summary — Issue #2427 (.opencode)
 # Tier-1 context-injection reduction — scopes A (infra-failure carve-out),
-# B (anti-recitation clause), C (split 020), D (split 080), E (trim AGENTS.md).
+# B (anti-recitation clause), C (split 020), D (split 080), E (trim AGENTS.md),
+# G (test-framework semantic continuous monitoring mandate — developer-directed revision 2026-09-03).
 # One implementation item per SC; items numbered sequentially from 1.
 # NO size-threshold PASS/FAIL criteria (#2411) — savings are emergent properties.
 
-sc_count: 9
+sc_count: 10
 
 scs:
   - id: "SC-1"
@@ -43,3 +44,7 @@ scs:
     description: "Post-change, human-only merge (000-critical-rules.md), approval gate/no-self-authorization (010-approval-gate.md), and attribution mandates (080-code-standards.md) remain in Tier-1 injected files, and the opencode.jsonc instructions array is unchanged (14 entries, byte-identical)."
     evidence_type: "structural"
     plan_item: 9
+  - id: "SC-10"
+    description: "The tests-v2 harness mandates semantic continuous monitoring of every behavioral opencode run (scope G): background launch + interval polling, live session DB read (newest tmp/test-home-*/.local/share/opencode/opencode.db), semantic evaluation of the event stream (tool calls, reasoning sizes, text parts) against the scenario goal; hard-abort signals (identical tool input >=3x; task() parts stuck in running >=2 consecutive polls; reasoning >20K chars with <=1 new tool call; semantically judged off-track — no goal-relevant completed tool call across 2+ consecutive polls while reasoning grows); abort recovery (kill, session.yaml export per §10.5, semantic diagnosis recorded); behavioral SC verdicts from monitored runs record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml; §10.7 documents the with-test-home new-home-per-invocation resumption limitation (--continue cannot reach a prior run's DB; the semantic monitoring mandate replaces blind resume loops)."
+    evidence_type: "behavioral"
+    plan_item: 10
