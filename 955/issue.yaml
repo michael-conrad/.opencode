@@ -1,7 +1,7 @@
 number: 955
 title: '[SPEC] Per-skill precondition declarations (optional — standardized contract
   schema per #1222 replaces custom contract.yaml)'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -90,10 +90,13 @@ body: '> **Scope revision: `.opencode#1222` (Enforcement-Gated Contract Schema) 
 
   🤖 OpenCode (deepseek-v4-flash)'
 created_at: '2026-05-30T15:40:09Z'
-updated_at: '2026-06-15T03:32:52Z'
+updated_at: '2026-09-03T15:49:28+00:00'
 remote_issue: 955
 remote_url: https://github.com/michael-conrad/.opencode/issues/955
 promoted_at: '2026-08-27T03:25:12.421243+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.421243+00:00'
 author: michael-conrad
+closed_at: '2026-09-03T15:49:28+00:00'
+close_reason: duplicate
+duplicate_of: 2433
