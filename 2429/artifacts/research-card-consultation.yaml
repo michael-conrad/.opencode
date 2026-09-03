@@ -1,0 +1,43 @@
+# Research Card Consultation — Issue #2427
+consulted_at: "2026-09-02T20:20:00-04:00"
+method: "glob .issues/research-cards/*.md + frontmatter grep for topic match"
+
+## Cards Consulted
+
+### 1. cross-reference-lobotomization.md
+- confidence: 0.85 (≥ 0.7 threshold — INCORPORATE)
+- research_question: "What form should cross-reference load directives take in the opencode deck, given the existing organizational patterns?"
+- relevance: HIGH — the split's reachability mechanism (moved rules must remain reachable via Tier-2 INDEX routing + Read-links) depends on correct load-directive form
+- findings:
+  - "'See `FILE.md` §SECTION' is a defective citation form — agents treat it as decorative prose, never load the content"
+  - "Progressive disclosure (Microsoft agent-skills, Anthropic, mbleigh.dev) uses lightweight identifiers loaded on demand — matches opencode's Tier-2 INDEX pattern"
+  - "The imperative 'Read' verb is the trigger that agents interpret as a tool-use instruction"
+- implication_for_2427: "Every pointer replacing a moved section MUST use Read [Text](path) form, never 'See'. INDEX.md routing rows + Read-links are the sanctioned reachability mechanism. This validates the developer's binding requirement #4 (moved rules must remain reachable via Tier-2 INDEX routing)."
+
+### 2. imperative-verb-forms-load-directives.md
+- confidence: 0.85 (≥ 0.7 — INCORPORATE)
+- research_question: imperative verb forms for LLM cross-reference load directives
+- findings:
+  - "OpenCode's Read [Text](path) and Amp's @-mention are the only agent-instructed file-loading patterns in production"
+  - "'See [file]' documented as defective — citation, not instruction (confirmed by OpenCode's own guidelines)"
+  - "Imperative language improves adherence (Codex MUST patterns, Anthropic IMPORTANT/YOU MUST)"
+- implication_for_2427: "Pointer lines retained in Tier-1 cores after demotion must be imperative Read-links to be effective routing."
+
+### 3. thinking-block-verification-checkpoint.md
+- confidence: 0.9 (≥ 0.7 — INCORPORATE)
+- research_question: "What text-only mechanism prevents agents from making unverified factual claims?"
+- finding: "Numbered pre-response procedures with binary checks and halt conditions outperform prose-heavy mandates (checklist > description; binary > pass/fail-less)"
+- implication_for_2427: "The new §A carve-out and §B anti-recitation clause in 000-critical-rules.md should be written as numbered procedures with explicit binary conditions (e.g., 'N consecutive dispatch failures observed → YES/NO') rather than prose mandates, for the same reason this card found: binary procedural form is harder to skip."
+
+## Cards Not Matching Topic (reviewed, not incorporated)
+- per-sc-decomposition-industry-standards (SC decomposition practice — relevant to Step 4 generally, no new finding for this spec)
+- writing-plans-flattening, writing-plans-skill-contradiction (plan authoring defects — downstream, not analysis-relevant)
+- self-attribution-bias-independent-verification, dimo-same-model-auditor-divergence, audit-skill-dimo-role-chain-defects (audit-chain topics — verification phase relevant only)
+- authorization-session-vs-workflow-state, for_analysis-scope-investigation (authorization-state topics — no placement/duplication overlap)
+- agent-config-path-rules, microsoft-markdown-link-patterns (formatting only)
+- spec-writing-ai-agents-opencode-skill-architecture (skill architecture — no overlap with guideline split)
+
+## Consultation Verdict
+cards_matching: 3
+cards_incorporated: 3 (all confidence >= 0.7)
+key_synthesis: "Reachability mechanism is validated by research: imperative Read-links + INDEX trigger rows. New 000 clauses should use numbered binary-condition procedures per the 0.9-confidence card finding."

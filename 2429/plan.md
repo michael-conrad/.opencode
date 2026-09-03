@@ -1,7 +1,7 @@
 ---
 plan_schema_version: 1
 issue: 2429
-title: "Tier-1 context-injection reduction — scopes A/B/C/D/E/G implementation plan"
+title: "Tier-1 context-injection reduction — scopes A/B/C/D/E/G/H implementation plan"
 lifecycle_events:
   - timestamp: "2026-09-03T02:50:00Z"
     event: plan_created
@@ -12,20 +12,25 @@ lifecycle_events:
     plan_path: ".opencode/.issues/2429/plan.md"
     revision_reason: "Spec revised to add scope G (test-framework semantic continuous monitoring mandate) — new SC-10 (behavioral), R-21/R-22, Item 10. Plan regenerated to cover all 10 SCs across 8 phases. Scope-G GREEN change already committed as 4989ffb5; Item 10 records the RED baseline + monitored-run evidence cycle with a committed-GREEN confirmation."
     phase_count: 8
+  - timestamp: "2026-09-03T22:10:00Z"
+    event: plan_revised
+    plan_path: ".opencode/.issues/2429/plan.md"
+    revision_reason: "Spec revised to add scope H (spec-creation remote-number-first numbering in the create task) — new SC-11 (structural), R-23/R-24, Item 11. Plan regenerated to cover all 11 SCs across 9 phases; DAG gains the Phase-9 node (depends on phase8_done only); dependency-contract gains phase9_done + create_task_numbering_remote_first; each item references exactly one SC-ID. Items 1–8 and 10 are execution-preserved (Phases 1–4 already committed; Phase 4 verify pending; Item 10 RED+evidence cycle pending) — the revision adds Item 11 as a NEW pending phase in dependency order and does not re-plan completed work. Future commit messages reference #2429; historical commits keep #2427 (immutable history). Solve artifacts regenerated for the 9-phase decomposition."
+    phase_count: 9
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
 ---
 
-# Implementation Plan — Issue #2429 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G
+# Implementation Plan — Issue #2429 (.opencode): Tier-1 Context-Injection Reduction — Scopes A/B/C/D/E/G/H
 
 Spec: [`.opencode/.issues/2429/spec.md`](https://github.com/michael-conrad/.opencode/tree/issues-data/2429) — remote exec summary: https://github.com/michael-conrad/.opencode/issues/2429
 
 ## Goal
 
-Deduplicate and re-place Tier-1 injected content in the `.opencode` submodule while preserving semantics (R-6: rewrites OK if rule/guide/intent unchanged; verbatim text NOT required). Add two 000-critical-rules.md carve-outs (infrastructure-failure inline authorization; anti-recitation). Split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files. Trim AGENTS.md scenario sections to pointers. Reconcile every duplicate to exactly one canonical home. Register all demoted content in INDEX.md. NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only. The #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) stays in Tier-1 injected files. Echo-block removal (scope F) is OUT OF SCOPE — echo blocks travel WITH their sections. Scope G (developer-directed revision, 2026-09-03) mandates semantic continuous monitoring of behavioral runs in the tests-v2 harness (SC-10, R-21/R-22).
+Deduplicate and re-place Tier-1 injected content in the `.opencode` submodule while preserving semantics (R-6: rewrites OK if rule/guide/intent unchanged; verbatim text NOT required). Add two 000-critical-rules.md carve-outs (infrastructure-failure inline authorization; anti-recitation). Split 020-go-prohibitions.md and 080-code-standards.md by moving scenario-governed sections to Tier-2 files. Trim AGENTS.md scenario sections to pointers. Reconcile every duplicate to exactly one canonical home. Register all demoted content in INDEX.md. NO size-threshold PASS/FAIL criteria (#2411) — size figures are diagnostic evidence only. The #497 hard-constraint core (human-only merge, approval gate, no self-authorization, attribution mandates) stays in Tier-1 injected files. Echo-block removal (scope F) is OUT OF SCOPE — echo blocks travel WITH their sections. Scope G (developer-directed revision, 2026-09-03) mandates semantic continuous monitoring of behavioral runs in the tests-v2 harness (SC-10, R-21/R-22). Scope H (developer-directed revision, 2026-09-03, refined same day) restructures the spec-creation create task's numbering to remote-number-first (SC-11, R-23/R-24): when a remote API is available the remote stub is created FIRST, the number is taken from the API create response's `number` field, and the local record is created at exactly N — local == remote BY CONSTRUCTION; the local counter is used ONLY in local-only mode.
 
 ## Architecture
 
-Eight phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Phase 8 (scope G) evidences the test-framework semantic continuous monitoring mandate — its GREEN change (tests-v2/AGENTS.md §14 + helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step, so Item 10 executes the RED baseline + monitored-run evidence cycle against a committed GREEN; Phase 8 depends on NO pending phase and slots after the #497 guard. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, eight commits, one PR — items 6–7 commits are conditional evidence-recording no-ops when the verified state is already achieved; items 9 and 10 record evidence only, no new commit — item 10's GREEN change is already landed as 4989ffb5).
+Nine phases in dependency order. Phase 1 adds the two 000 carve-outs first (they must be available before split work — spec edge case: all sub-agent dispatch attempts may fail at implementation time, and the carve-out is the authorized recovery). Phases 2, 3, 4 are mutually independent (disjoint files) but execute sequentially in this plan. Phase 5 verifies duplicate reconciliation and INDEX completeness. Phase 6 sweeps consumers (Read-links + test prompts) to zero dangling anchors. Phase 7 verifies the #497 guard. Phase 8 (scope G) evidences the test-framework semantic continuous monitoring mandate — its GREEN change (tests-v2/AGENTS.md §14 + helpers.sh `__semantic_monitor`) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step, so Item 10 executes the RED baseline + monitored-run evidence cycle against a committed GREEN; Phase 8 depends on phase8_done only through the sequential daisy-chain and no other pending phase. Phase 9 (scope H) is NEW pending work: restructure `.opencode/skills/spec-creation/tasks/create.md` to remote-number-first numbering (SC-11, R-23/R-24) with structural evidence (create.md read-back + fixture scenario script); it slots after Phase 8 in dependency order. Implementation target: `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` — ALL file edits and commits occur inside the `.opencode` submodule working tree (use `git -C .opencode`); authorization scope `for_pr`, PR strategy `stacked` (one branch, nine commits, one PR — items 6–7 commits are conditional evidence-recording no-ops when the verified state is already achieved; items 9 and 10 record evidence only, no new commit; item 10's GREEN change is already landed as 4989ffb5; item 11 commits create.md plus its fixture script).
 
 New Tier-2 destination files (numbers verified free; frontmatter `trigger_on`, `tier: 2`, `load_when` mandatory; NOT added to the opencode.jsonc instructions array):
 
@@ -39,15 +44,15 @@ Existing canonical homes (dedup destinations, read-only in their own right): `.o
 
 ## Files
 
-Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-go-prohibitions.md`, `.opencode/guidelines/080-code-standards.md`, `.opencode/AGENTS.md`, `.opencode/guidelines/INDEX.md`, `.opencode/guidelines/085-project-local-tools.md`, new files listed above, `.opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh`, `.opencode/tests-v2/behaviors/2429-sc2-anti-recitation.sh`, swept skill files and behavioral test prompts. Read-only: `.opencode/guidelines/116-pair-mode.md`, `.opencode/opencode.jsonc` (diff must be empty), `.opencode/guidelines/010-approval-gate.md`.
+Direct: `.opencode/guidelines/000-critical-rules.md`, `.opencode/guidelines/020-go-prohibitions.md`, `.opencode/guidelines/080-code-standards.md`, `.opencode/AGENTS.md`, `.opencode/guidelines/INDEX.md`, `.opencode/guidelines/085-project-local-tools.md`, new files listed above, `.opencode/tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh`, `.opencode/tests-v2/behaviors/2429-sc2-anti-recitation.sh`, `.opencode/skills/spec-creation/tasks/create.md`, `.opencode/tests-v2/behaviors/2429-sc11-remote-number-first.sh` (new fixture scenario script), swept skill files and behavioral test prompts. Read-only: `.opencode/guidelines/116-pair-mode.md`, `.opencode/opencode.jsonc` (diff must be empty), `.opencode/guidelines/010-approval-gate.md`.
 
 ## Dispatch
 
-Per-item cycle (items 1–8; items 9 and 10 are verification-only — item 9 guard RED inline, item 10 executes the RED baseline + monitored evidence cycle against its pre-committed GREEN, no new commit): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
+Per-item cycle (items 1–8 and 11; items 9 and 10 are verification/evidence-only — item 9 guard RED inline, item 10 executes the RED baseline + monitored evidence cycle against its pre-committed GREEN, no new commit): `red` → test-driven-development (**clean-room**), `green` → test-driven-development (**clean-room**), `post-regression` → test-driven-development (**clean-room**), `verify` → verification-before-completion (**clean-room**), `commit` → orchestrator (**inline**). Pre-implementation: `pre-regression` → test-driven-development (**clean-room**), `pre-regression-verify` → verification-before-completion (**clean-room**). Post-implementation: `audit` → audit (**clean-room**, investigator → validator → evaluator → arbiter in sequence), `z3-check` → orchestrator (**inline**), `structural-checks` → finishing-a-development-branch (**clean-room**), `pre-pr-gate` → verification-before-completion (**clean-room**), `regression-check` → test-driven-development (**clean-room**), `review-prep` → git-workflow-pr (**clean-room**), `create-pr` → git-workflow-pr (**clean-room**), `exec-summary` → completion-core (**clean-room**).
 
 ## Blast Radius
 
-From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Direct changes: 000 (APPEND scope A + scope B), 020 (SPLIT — sections 1.1, 1.6, 4 out; authorization core retained), 080 (SPLIT — Python sections out; attribution retained), AGENTS.md (TRIM gb install table, editor MCP table, Pair Mode → pointers), INDEX.md (ADD Tier-2 rows), three new Tier-2 files, 085 (canonical dedup). Indirect consumers: opencode.jsonc instructions array (NONE — untouched), session-enforcement.ts (NONE — zero coupling), test-enforcement.sh FILE_SCENARIO_MAP (LOW — path-keyed, paths stable), behavioral tests 2243-sc1 / 2249-sc6 / 2249-sc7 pair / test-sc3-di-carveout-doc (MEDIUM — prompts hardcode the 080 path, mandatory sweep), 2131-series structural tests (LOW — path stable, section assertions verify per move), skills with Read-links into moved sections — verification-before-completion (2 files), git-workflow-commit, issue-review, git-workflow-branch, audit (5 files) (MEDIUM — sweep), 085 mutual Read-link into 020 section 4 (LOW — resolved by dedup). Primary risks: dangling Read-link anchors, test prompts pointing at moved content, echo-block grep targets moving with sections — all mitigated by the phase 6 sweep (SC-8).
+From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Direct changes: 000 (APPEND scope A + scope B), 020 (SPLIT — sections 1.1, 1.6, 4 out; authorization core retained), 080 (SPLIT — Python sections out; attribution retained), AGENTS.md (TRIM gb install table, editor MCP table, Pair Mode → pointers), INDEX.md (ADD Tier-2 rows), three new Tier-2 files, 085 (canonical dedup), spec-creation create.md (RESTRUCTURE — Step 3 stub-first flow to remote-number-first; result contract gains a BLOCKED API-failure-mid-flow outcome). Indirect consumers: opencode.jsonc instructions array (NONE — untouched), session-enforcement.ts (NONE — zero coupling), test-enforcement.sh FILE_SCENARIO_MAP (LOW — path-keyed, paths stable), behavioral tests 2243-sc1 / 2249-sc6 / 2249-sc7 pair / test-sc3-di-carveout-doc (MEDIUM — prompts hardcode the 080 path, mandatory sweep), 2131-series structural tests (LOW — path stable, section assertions verify per move), 2241-sc6 spec-creation create-path behavioral test (LOW-MEDIUM — exercises create.md Step 3 remote stub flow; the remote-number-first restructure changes WHICH number the flow binds but preserves the remote-stub-first step the test asserts; verify via scenario re-run in Phase 9 post-regression), skills with Read-links into moved sections — verification-before-completion (2 files), git-workflow-commit, issue-review, git-workflow-branch, audit (5 files) (MEDIUM — sweep), 085 mutual Read-link into 020 section 4 (LOW — resolved by dedup). Primary risks: dangling Read-link anchors, test prompts pointing at moved content, echo-block grep targets moving with sections — all mitigated by the phase 6 sweep (SC-8); scope-H risk (mismatched local↔remote numbers pointing at unrelated remote resources) is eliminated BY CONSTRUCTION in Phase 9 (R-24 exact-match invariant).
 
 > **Compliance:** All SCs must pass before completion. Partial implementation is not permitted. Each item is daisy-chained — item N's commit is precondition for item N+1's RED.
 
@@ -68,14 +73,15 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 | 5 | Dedup + INDEX verification | Single canonical home per rule class; routing reachability | SC-6, SC-7 | Phases 2, 3, 4 | Items 6–7 | test-driven-development, verification-before-completion |
 | 6 | Consumer sweep | Read-link + test-prompt integrity; zero dangling anchors | SC-8 | Phases 2, 3, 4, 5 | Item 8 | test-driven-development, verification-before-completion |
 | 7 | #497 guard verification | Tier-1 core retention; opencode.jsonc invariance | SC-9 | Phase 6 | Item 9 | test-driven-development, verification-before-completion |
-| 8 | Monitoring mandate evidence (scope G) | Semantic continuous monitoring RED baseline + monitored-run evidence cycle; GREEN already committed (4989ffb5) | SC-10 | none pending (slots after Phase 7; RED baseline independent of Phases 2–7 outcomes) | Item 10 | test-driven-development, verification-before-completion |
+| 8 | Monitoring mandate evidence (scope G) | Semantic continuous monitoring RED baseline + monitored-run evidence cycle; GREEN already committed (4989ffb5) | SC-10 | Phase 7 (sequential daisy-chain only — RED baseline independent of Phases 2–7 outcomes) | Item 10 | test-driven-development, verification-before-completion |
+| 9 | Remote-number-first create task (scope H) | spec-creation create.md stub-first flow restructured to remote-number-first numbering | SC-11 | Phase 8 | Item 11 | test-driven-development, verification-before-completion |
 
 > **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
 
 ## Exit Criteria
 
-1. C1 — Every item completed its RED → GREEN → post-regression → verify → commit cycle in dependency order; phases executed 1 through 8 (Item 10's GREEN is pre-committed as 4989ffb5 — its cycle is the RED baseline + monitored-run evidence recording per the on-disk state).
-2. C2 — SC-1 through SC-10 each verified with evidence matching its declared evidence type (behavioral SCs via `bash .opencode/tests-v2/with-test-home opencode run`; structural SCs via grep/git diff); zero EVIDENCE_TYPE_MISMATCH verdicts. Monitored-run behavioral verdicts (SC-10) record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
+1. C1 — Every item completed its RED → GREEN → post-regression → verify → commit cycle in dependency order; phases executed 1 through 9 (Item 10's GREEN is pre-committed as 4989ffb5 — its cycle is the RED baseline + monitored-run evidence recording per the on-disk state).
+2. C2 — SC-1 through SC-11 each verified with evidence matching its declared evidence type (behavioral SCs via `bash .opencode/tests-v2/with-test-home opencode run`; structural SCs via grep/git diff/read-back); zero EVIDENCE_TYPE_MISMATCH verdicts. Monitored-run behavioral verdicts (SC-10) record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml. SC-11's verdict records create.md read-back plus the fixture scenario script result.
 3. C3 — No byte/token/percentage/line-count reduction threshold used as a PASS/FAIL criterion anywhere in the plan execution (R-16, #2411).
 4. C4 — #497 core retained: human-only merge in 000, zero-tolerance table in 010, attribution sections in 080; `.opencode/opencode.jsonc` diff empty with 14 instructions-array entries (SC-9).
 5. C5 — Zero dangling section anchors after the consumer sweep (SC-8); the four named scenarios PASS via with-test-home.
@@ -87,9 +93,9 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ## Pre-Implementation (once per plan)
 
 - [ ] 1. Coherence gate — verify the plan-to-spec chain before any dispatch. (**inline**)
-  - Confirm the spec at `.opencode/.issues/2429/spec.md` holds 10 success criteria (SC-1 through SC-10) and 22 SHALL requirements (R-1 through R-22).
-  - Confirm `.opencode/.issues/2429/artifacts/structure.yaml` holds the 8-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase; SC-10's GREEN is pre-committed as 4989ffb5 per the on-disk state) and the 11-edge dependency DAG plus the SC-10/Phase-8 node (Phase 8 depends on no pending phase).
-  - Confirm `.opencode/.issues/2429/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 8-phase decomposition.
+  - Confirm the spec at `.opencode/.issues/2429/spec.md` holds 11 success criteria (SC-1 through SC-11) and 24 SHALL requirements (R-1 through R-24).
+  - Confirm `.opencode/.issues/2429/artifacts/structure.yaml` holds the 9-phase decomposition with triplet co-location verified (each SC's RED, GREEN, COMMIT in exactly one phase; SC-10's GREEN is pre-committed as 4989ffb5 per the on-disk state) and the 13-edge dependency DAG (11 edges among phases 1–7 + the 7→8 daisy-chain edge + the 8→9 edge; Phase 9 depends on phase8_done only).
+  - Confirm `.opencode/.issues/2429/artifacts/solve-output.yaml` records solve_status SAT and plan_status SOLVED_SATISFICING for the 9-phase decomposition.
   - Confirm authorization scope is `for_pr` with PR strategy `stacked`, and the implementation target is the `.opencode` submodule branch `feature/2402-finishing-checklist-trailer-remediation` (R-17 stacking base; #2416 same-file additions rebase cleanly — disjoint sections).
   - Confirm #2411 binding constraint is honored: no SC in this plan uses a size metric as PASS/FAIL.
   - Confirm the scope-G GREEN change is committed as 4989ffb5 on the branch (`git -C .opencode log --oneline -1` shows 4989ffb5 or a descendant) — Item 10 proceeds on the committed-GREEN path.
@@ -143,9 +149,10 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-1 verdict — evidence must be behavioral: session stderr from the with-test-home run shows disclosure plus inline execution confined to read-only/verification work. Structural-only evidence is EVIDENCE_TYPE_MISMATCH → FAIL.
   - SC reference: SC-1.
 - [ ] 5. Commit — commit the test and the change as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh && git -C .opencode commit -m "test(000-critical-rules): add infrastructure-failure inline-execution carve-out (#2427 SC-1)"`.
+  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc1-infra-failure-carveout.sh && git -C .opencode commit -m "test(000-critical-rules): add infrastructure-failure inline-execution carve-out (#2429 SC-1)"`.
   - No co-author trailers during implementation commits — those are added during squash at PR time.
   - SC reference: SC-1. This commit is the precondition for Item 2's RED.
+  - Execution note: COMMITTED as e820bbad with message `... (#2427 SC-1)` — historical commits keep #2427 (immutable history; future commits reference #2429).
 
 ### Item 2 — SC-2: Anti-recitation clause (scope B)
 
@@ -166,8 +173,9 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-2 verdict — behavioral evidence: the with-test-home run shows the safe action performed with disclosure; zero citation-only turns in session stderr.
   - SC reference: SC-2.
 - [ ] 10. Commit — commit the test and the change as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc2-anti-recitation.sh && git -C .opencode commit -m "test(000-critical-rules): add anti-recitation clause for safe reversible actions (#2427 SC-2)"`.
+  - Run: `git -C .opencode add guidelines/000-critical-rules.md tests-v2/behaviors/2429-sc2-anti-recitation.sh && git -C .opencode commit -m "test(000-critical-rules): add anti-recitation clause for safe reversible actions (#2429 SC-2)"`.
   - SC reference: SC-2. This commit closes Phase 1.
+  - Execution note: COMMITTED as 122f1749 with message `... (#2427 SC-2)` — historical commits keep #2427 (immutable history).
 
 ### Phase 1 Completion
 
@@ -209,8 +217,9 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-3 verdict — structural greps: retained authorization/halt content present in the 020 core, moved sections absent from the core, one-line imperative pointers present; `grep -c` over 085 and 020 for the project-local-tools key semantics resolves to 085 only; plus the behavioral routing spot-check via `bash .opencode/tests-v2/with-test-home opencode run '<routing prompt>'` asserting the agent reaches a moved rule through the pointer or INDEX row. Lint gate: `uvx pymarkdownlnt scan -r .opencode/guidelines/` and `uvx --with mdformat-frontmatter --with mdformat-tables --with mdformat-config --with mdformat-gfm mdformat --number --compact-tables --check .opencode/guidelines/` (advisory, read-only).
   - SC reference: SC-3.
 - [ ] 5. Commit — commit the split as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/020-go-prohibitions.md guidelines/022-orchestrator-context-discipline.md guidelines/025-discussion-mode.md guidelines/085-project-local-tools.md guidelines/INDEX.md && git -C .opencode commit -m "refactor(guidelines): split 020 — demote context-discipline and discussion-mode to Tier-2; 085 canonical (#2427 SC-3)"`.
+  - Run: `git -C .opencode add guidelines/020-go-prohibitions.md guidelines/022-orchestrator-context-discipline.md guidelines/025-discussion-mode.md guidelines/085-project-local-tools.md guidelines/INDEX.md && git -C .opencode commit -m "refactor(guidelines): split 020 — demote context-discipline and discussion-mode to Tier-2; 085 canonical (#2429 SC-3)"`.
   - SC reference: SC-3. This commit is the precondition for Item 4's RED.
+  - Execution note: COMMITTED as a0ee6d0e with message `... (#2427 SC-3)` — historical commits keep #2427 (immutable history).
 
 ### Phase 2 Completion
 
@@ -252,8 +261,9 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-4 verdict — structural greps: attribution sections intact in the 080 core, moved sections absent from the core, imperative pointer present, 082 frontmatter correct; behavioral DI-reachability: run the 2243-sc1-style DI scenario with the prompt re-pointed to the 082 destination via `bash .opencode/tests-v2/with-test-home opencode run '<DI prompt targeting 082>'` — the agent reaches the DI mandate through the new file. Lint gate per R-19 (advisory, read-only).
   - SC reference: SC-4.
 - [ ] 5. Commit — commit the split as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add guidelines/080-code-standards.md guidelines/082-python-standards.md guidelines/INDEX.md && git -C .opencode commit -m "refactor(guidelines): split 080 — demote Python standards to Tier-2; attribution retained (#2427 SC-4)"`.
+  - Run: `git -C .opencode add guidelines/080-code-standards.md guidelines/082-python-standards.md guidelines/INDEX.md && git -C .opencode commit -m "refactor(guidelines): split 080 — demote Python standards to Tier-2; attribution retained (#2429 SC-4)"`.
   - SC reference: SC-4. This commit is the precondition for Item 5's RED.
+  - Execution note: COMMITTED as 73cfaf1b with message `... (#2427 SC-4)` — historical commits keep #2427 (immutable history).
 
 ### Phase 3 Completion
 
@@ -295,8 +305,9 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-5 verdict — structural greps: AGENTS.md contains one-line imperative pointers for the three trimmed sections plus the retained gb skill-dispatch mandate, and no residual install table, tool table, or Pair Mode rules; behavioral spot-check via `bash .opencode/tests-v2/with-test-home opencode run '<gb-install or pair-mode question>'` asserting the agent routes to the canonical content (gb-cli reference file or 116). Lint gate per R-19 (advisory, read-only).
   - SC reference: SC-5.
 - [ ] 5. Commit — commit the trim as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add AGENTS.md skills/gb-cli/reference/install-and-authentication.md reference/editor-mcp-plugin.md && git -C .opencode commit -m "docs(agents): trim gb-install, editor-MCP, Pair Mode sections to Tier-2 pointers (#2427 SC-5)"`.
+  - Run: `git -C .opencode add AGENTS.md skills/gb-cli/reference/install-and-authentication.md reference/editor-mcp-plugin.md && git -C .opencode commit -m "docs(agents): trim gb-install, editor-MCP, Pair Mode sections to Tier-2 pointers (#2429 SC-5)"`.
   - SC reference: SC-5. This commit closes Phase 4.
+  - Execution note: GREEN changes COMMITTED across 4989ffb5 and f1bcf1cf (test-script renumbering 2427-* → 2429-* included in f1bcf1cf); Phase 4 verify (SC-5) evidence PENDING — execute Item 5 step 4 before advancing to Phase 5.
 
 ### Phase 4 Completion
 
@@ -338,7 +349,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-6 verdict — structural: the class-key grep output shows exactly one occurrence per rule class across `.opencode/guidelines/` and `.opencode/AGENTS.md`, with the canonical home named for each class.
   - SC reference: SC-6.
 - [ ] 5. Commit — commit any straggler fixes (or record the zero-fix evidence). (**inline**)
-  - If edits were made: `git -C .opencode add guidelines/ && git -C .opencode commit -m "refactor(guidelines): dedup straggler fixes — single canonical home per rule class (#2427 SC-6)"`.
+  - If edits were made: `git -C .opencode add guidelines/ && git -C .opencode commit -m "refactor(guidelines): dedup straggler fixes — single canonical home per rule class (#2429 SC-6)"`.
   - If no edits were needed: record the zero-straggler grep evidence under `tmp/2429/artifacts/` and skip the commit (verification-shaped item; nothing to commit).
   - SC reference: SC-6. This commit (or recorded no-op) is the precondition for Item 7's RED.
 
@@ -361,7 +372,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-7 verdict — structural: read INDEX.md post-change and assert one Tier-2 routing row per demoted class (context-discipline, discussion-mode, python-standards) with trigger patterns matching the moved content; assert 022, 025, and 082 each carry `trigger_on`, `tier: 2`, `load_when` frontmatter; confirm the existing 085 and 116 rows still resolve.
   - SC reference: SC-7.
 - [ ] 10. Commit — commit INDEX corrections (or record the zero-fix evidence). (**inline**)
-  - If edits were made: `git -C .opencode add guidelines/INDEX.md && git -C .opencode commit -m "docs(guidelines): INDEX routing rows for demoted classes (#2427 SC-7)"`.
+  - If edits were made: `git -C .opencode add guidelines/INDEX.md && git -C .opencode commit -m "docs(guidelines): INDEX routing rows for demoted classes (#2429 SC-7)"`.
   - If no edits were needed: record the row-set evidence under `tmp/2429/artifacts/` and skip the commit.
   - SC reference: SC-7. This commit (or recorded no-op) closes Phase 5.
 
@@ -405,7 +416,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-8 verdict — the sweep grep returns zero dangling anchors across `.opencode/skills/` and `.opencode/guidelines/`; the four named scenarios PASS via with-test-home with stderr-based evidence; zero unverified claims.
   - SC reference: SC-8.
 - [ ] 5. Commit — commit the swept files as one atomic slice. (**inline**)
-  - Run: `git -C .opencode add skills/ tests-v2/ && git -C .opencode commit -m "test(sweep): re-point Read-links and scenario prompts to moved sections (#2427 SC-8)"`.
+  - Run: `git -C .opencode add skills/ tests-v2/ && git -C .opencode commit -m "test(sweep): re-point Read-links and scenario prompts to moved sections (#2429 SC-8)"`.
   - SC reference: SC-8. This commit closes Phase 6.
 
 ### Phase 6 Completion
@@ -453,7 +464,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 ### Phase 7 Completion
 
 - VbC assertion: SC-9 verdict PASS — #497 core present, opencode.jsonc byte-identical, 14 entries.
-- VbC assertion: SC-1 through SC-9 verdicts recorded with evidence-type-matched artifacts; Phase 8 (SC-10) completes the ten-SC set after this phase.
+- VbC assertion: SC-1 through SC-9 verdicts recorded with evidence-type-matched artifacts; Phase 8 (SC-10) then Phase 9 (SC-11) complete the eleven-SC set after this phase.
 
 ---
 
@@ -462,7 +473,7 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
 **Concern:** Evidence the test-framework semantic continuous monitoring mandate (scope G) per SC-10: the GREEN change (tests-v2/AGENTS.md §14 monitoring mandate + tests-v2/behaviors/helpers.sh `__semantic_monitor` poll protocol) is ALREADY COMMITTED as 4989ffb5 during the spec-revision step — this phase's cycle is therefore the RED baseline + monitored-run evidence recording against a committed GREEN, plus regression/verify steps. The RED baseline records the unmonitored comparison (a run driving an off-track/loop state burning the full timeout with no abort and no diagnosis); the evidence cycle records the monitored variant (poll protocol executing, hard-abort detected, §10.5 export, semantic diagnosis recorded). The monitoring evidence requirements apply to SC-10's verdict AND to every monitored-run behavioral verdict recorded by Phases 1–7 evidence artifacts going forward.
 **Files:** `.opencode/tests-v2/behaviors/helpers.sh` and `.opencode/tests-v2/AGENTS.md` (READ-ONLY this phase — change already committed as 4989ffb5); new evidence artifacts under `tmp/2429/artifacts/` (RED baseline record, poll log, semantic diagnosis, SC-10 verdict).
 **SCs:** SC-10 (behavioral). Guards: R-21 (monitoring mandate), R-22 (hard-abort signals + abort recovery + §10.7 limitation documentation).
-**Dependencies:** None pending — Phase 8 depends on NO other phase's completion (the GREEN change landed before this plan revision; the RED baseline and monitored evidence are independent of Phases 2–7 outcomes). It executes after Phase 7 to preserve sequential daisy-chaining in this plan.
+**Dependencies:** Phase 7 (sequential daisy-chain placement only) — the RED baseline and monitored evidence are independent of Phases 2–7 outcomes; no other pending phase constrains this phase.
 **Code path coverage:** Path 3 (enforcement tests — helpers.sh `__semantic_monitor` poll protocol is the runtime-under-test; the monitored run exercises background launch, interval polling, live session DB read, semantic event-stream evaluation, hard-abort signals, kill + §10.5 export + diagnosis) and Path 5 (evidence contract — monitoring evidence recorded alongside session.yaml per the SC-10 evidence rule).
 **Cross-cutting SCs:** SC-10's monitoring protocol is the evidence-collection method upgrade for ALL behavioral SCs in this plan (SC-1 through SC-5, SC-8) — monitored runs record poll logs/semantic diagnoses alongside session.yaml. §14's evidence requirement is verified here once as the harness-level gate; individual phase evidence artifacts confirm compliance per run.
 **Interface boundaries:** helpers.sh and tests-v2/AGENTS.md are READ-ONLY in this phase (4989ffb5 is the committed GREEN; no further harness edits authorized under this plan — a defect found here is a spec-revision trigger, not an inline fix). The §10.7 amendment (new-home-per-invocation limitation) is verified present in tests-v2/AGENTS.md. The monitoring evidence contract (poll log + semantic diagnosis alongside session.yaml) is the verified interface between this phase and every behavioral SC verdict.
@@ -490,45 +501,87 @@ From `.opencode/.issues/2429/artifacts/blast-radius.yaml` — verdict MEDIUM. Di
   - SC reference: SC-10.
 - [ ] 5. Record evidence — no commit (GREEN change already committed as 4989ffb5). (**inline**)
   - Write the SC-10 evidence (RED baseline record, poll log, semantic diagnosis, monitored-run session.yaml path, §10.7 amendment citation, committed-GREEN SHA) to `tmp/2429/artifacts/sc10-monitoring-evidence.yaml`.
-  - SC reference: SC-10. This closes Phase 8 — all ten SCs now carry verdicts.
+  - SC reference: SC-10. This closes Phase 8 — ten of eleven SCs now carry verdicts; Phase 9 (SC-11) follows.
 
 ### Phase 8 Completion
 
 - VbC assertion: SC-10 verdict PASS — monitored abort evidence (poll log + semantic diagnosis + §10.5 export) recorded alongside session.yaml; RED baseline shows the unmonitored full-timeout burn; no false-abort on the healthy-run regression scenario.
-- VbC assertion: SC-1 through SC-10 all carry verdicts with evidence-type-matched artifacts.
+- VbC assertion: SC-1 through SC-10 all carry verdicts with evidence-type-matched artifacts; Phase 9 (SC-11) completes the set after this phase.
 
 ---
 
-# Post-Implementation (once per plan — executes after Phase 8)
+# Phase 9 — Remote-Number-First Create Task (Scope H, SC-11)
+
+**Concern:** Restructure `.opencode/skills/spec-creation/tasks/create.md` stub-first flow to remote-number-first numbering per SC-11 (R-23/R-24): when a remote API is available, the flow creates the remote stub FIRST (before any local record), takes the remote-assigned number N from the API create response's `number` field, creates the local issue record at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`), and writes the binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION. The create task explicitly documents that the local counter is used ONLY in local-only mode. The result contract gains a BLOCKED outcome for API failure mid-flow (remote stub created but local write fails — no silent reassignment of a different local number). The renumber/migrate repair pattern is documented for the case where the remote assigns a number whose local directory already exists.
+**Files:** `.opencode/skills/spec-creation/tasks/create.md` (restructured), `.opencode/tests-v2/behaviors/2429-sc11-remote-number-first.sh` (new fixture scenario script — structural evidence).
+**SCs:** SC-11 (structural). Guards: R-23 (remote-number-first number sourcing), R-24 (exact-match invariant + renumber/migrate repair).
+**Dependencies:** Phase 8 complete (sequential daisy-chain placement; create.md is disjoint from the guideline/test files edited in Phases 1–8 — the dependency is ordering, not content). Entry: Item 10 evidence recorded. Exit: Item 11 committed.
+**Code path coverage:** Path 5 (deterministic task-card procedure — the flow is a documented sequence whose behavior is verified by reading the revised create.md; not a runtime-behavioral change: agent dispatch behavior is unchanged, only the number-sourcing sequence inside the task card is restructured, substrate-determined structural per the spec's SC-11 evidence declaration) and Path 3 (fixture scenario script demonstrating the number is taken from the API response, not the counter).
+**Cross-cutting SCs:** The 2241-sc6 spec-creation create-path behavioral test exercises create.md Step 3's remote stub flow — re-run post-GREEN in this phase's post-regression to confirm the stub-first step it asserts is preserved (the remote-number-first restructure keeps the remote stub; only the number source changes).
+**Interface boundaries:** create.md is a task card read by sub-agents executing the spec-creation create step — the restructure changes the numbered procedure body only; the task card's category (PRODUCTION), entry criteria, exit criteria, and result-contract field set are preserved, with the result contract gaining the BLOCKED `API_FAILURE_MID_FLOW` outcome. The `.issues/N/` path convention and the `remote_issue` binding field are existing interfaces — unchanged, now sourced from the API response. Local counter semantics: `local-issues create` without `--number` autonumbers from the local `.counter` — that path remains ONLY for local-only mode (no remote API).
+**State transitions:** create.md Step 3 restructured (remote stub FIRST; number from API response `number` field; local record at exactly N; local counter restricted to local-only mode; BLOCKED on API failure mid-flow; renumber/migrate repair documented); new fixture scenario script under `.opencode/tests-v2/behaviors/`; git state advances by one commit.
+
+**Cost frame:** Running the remote-number-first test scenario script costs seconds — a grep of create.md plus a fixture execution demonstrating the number comes from the API response (spec SC-11 cost frame). Skipping means every future stub-first creation re-risks the verified 2427↔2429 defect: two independent number sources bind mismatched numbers, pointing blockquotes, artifact URLs, and cross-references at an unrelated remote PR, and every downstream consumer of the wrong number inherits a corrupted pointer that costs a full renumber-and-repair cycle to undo. Construction-by-remote-number eliminates the divergence class outright.
+
+### Item 11 — SC-11: Spec-creation remote-number-first flow (scope H)
+
+- [ ] 1. RED — write the failing structural test. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-red-11-*`.
+  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")` with context: structural RED — read `.opencode/skills/spec-creation/tasks/create.md` and confirm the incumbent stub-first flow: the remote stub is created (Step 3) WITHOUT the number being taken from the API response to drive the local record — the local number is picked independently (local counter / autonumber), i.e., two independent number sources; assert create.md does NOT yet state the remote-number-first sequence (stub FIRST, number from the API response's `number` field, local record at exactly N, local counter restricted to local-only mode, BLOCKED on API failure mid-flow). Create the fixture scenario script `.opencode/tests-v2/behaviors/2429-sc11-remote-number-first.sh`: a fixture API create response whose `number` field (e.g., 2429) DIFFERS from the local counter value (e.g., 2427) — the flow MUST adopt the API's number (2429), not the counter's (2427); RED condition = the fixture script fails because create.md lacks the remote-number-first sequence the script asserts. The fixture demonstrates the defect class verified this session (local 2427 assigned while remote counter was at 2429; remote #2427 a merged PR).
+  - SC reference: SC-11. The test MUST FAIL before GREEN begins.
+- [ ] 2. GREEN — restructure create.md to remote-number-first. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-green-11-*`.
+  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")` with context: restructure `.opencode/skills/spec-creation/tasks/create.md` Step 3 to remote-number-first per R-23: when a remote API is available (github.platform is not `local`), the flow creates the remote stub FIRST (before any local record), takes the remote-assigned number N from the API create response's `number` field, creates the local issue record at exactly N (local directory `.issues/N/`, issue.yaml with `remote_issue: N`), and writes the binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION; explicitly document that the local counter is used ONLY in local-only mode (no remote API) and the create task MUST NOT use the local counter to pick the number when a remote API is available; add a BLOCKED outcome to the result contract for API failure mid-flow (remote stub created but local write fails) with blocker reason `API_FAILURE_MID_FLOW` — the task MUST NOT silently reassign a different local number and MUST NOT leave a half-bound state; document the renumber/migrate repair pattern per R-24 for the case where the remote assigns a number whose local directory already exists (migrate the existing local directory to the remote-assigned number, then create) — repair, not the primary guard. What must be true afterwards: the fixture scenario script passes — reading the revised create.md confirms the remote-number-first sequence (stub BEFORE any local record; number from the API response's `number` field; local record at exactly N; local counter restricted to local-only mode; BLOCKED outcome present), and the fixture run adopts the API response's number over the counter's.
+  - SC reference: SC-11.
+- [ ] 3. Post-regression — re-run the spec-creation create-path scenario. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-post-regression-11-*`.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: re-run the fixture scenario script `bash .opencode/tests-v2/behaviors/2429-sc11-remote-number-first.sh` — PASS; and confirm the 2241-sc6 spec-creation create-path behavioral test `bash .opencode/tests-v2/behaviors/2241-sc6-spec-creation-create-local-first.sh` still exercises create.md's remote stub flow without regression (the remote stub remains created FIRST; only the number source changed).
+  - SC reference: SC-11.
+- [ ] 4. Verify — verify the implementation against the success criterion. (**clean-room**)
+  - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-verify-11-*`.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: SC-11 verdict — structural evidence per the spec's declared evidence type: (1) read the revised `.opencode/skills/spec-creation/tasks/create.md` and confirm the remote-number-first sequence — remote stub created BEFORE any local record, number taken from the API create response's `number` field, local record created at exactly N with binding fields (remote_issue, remote_url, github_url) referencing N, BLOCKED outcome on API failure mid-flow, and an explicit statement that the local counter is used only in local-only mode; (2) run the fixture scenario script demonstrating the number comes from the API response, not the counter (fixture response `number` differs from the local counter — the flow adopts the API's number). Post-creation binding fields match the local directory number exactly. Prose recall is NOT evidence.
+  - SC reference: SC-11.
+- [ ] 5. Commit — commit the restructure and the fixture script as one atomic slice. (**inline**)
+  - Run: `git -C .opencode add skills/spec-creation/tasks/create.md tests-v2/behaviors/2429-sc11-remote-number-first.sh && git -C .opencode commit -m "refactor(spec-creation): remote-number-first create-task flow — stub FIRST, number from API response, local record at exactly N (#2429 SC-11)"`.
+  - SC reference: SC-11. This commit closes Phase 9.
+
+### Phase 9 Completion
+
+- VbC assertion: SC-11 verdict PASS — create.md read-back confirms the remote-number-first sequence; the fixture scenario script demonstrates the number is taken from the API response's `number` field, not the local counter; BLOCKED outcome and renumber/migrate repair documented.
+- VbC assertion: SC-1 through SC-11 all carry verdicts with evidence-type-matched artifacts.
+
+---
+
+# Post-Implementation (once per plan — executes after Phase 9)
 
 - [ ] 1. Audit — adversarial audit of the deliverable. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-audit-*`.
-  - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` with context: issue 2427, plan `.opencode/.issues/2429/plan.md`, spec `.opencode/.issues/2429/spec.md`.
+  - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` with context: issue 2429, plan `.opencode/.issues/2429/plan.md`, spec `.opencode/.issues/2429/spec.md`.
   - Then dispatch in sequence (each a separate single-dispatch step): validator → evaluator → arbiter using the corresponding `audit/tasks/verification-audit-*.md` task cards.
-  - Semantic-preservation audit focus (R-6): compare moved sections against destinations — same requirements, forbiddances, mandates; block on doubt (fail-fast).
+  - Semantic-preservation audit focus (R-6): compare moved sections against destinations — same requirements, forbiddances, and mandates; block on doubt (fail-fast). Scope-H audit focus: create.md restructure preserves the create task's other steps (entry/exit criteria, artifact copy, reconcile-push handoff) unchanged.
 - [ ] 2. Z3 check — run the constraint solver verification of the dependency contract. (**inline**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-z3-check-*`.
-  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2429/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
+  - Run: `.opencode/tools/solve model --contract-path .opencode/.issues/2429/dependency-contract.yaml --query "z3.And(phase1_done, phase2_done, phase3_done, phase4_done, phase5_done, phase6_done, phase7_done, phase8_done, phase9_done)"` — expected SAT (goal reachability authority, per the documented solve-output precedent).
   - Run: `.opencode/tools/solve check --state-path .opencode/.issues/2429/artifacts/state-z3-goal.yaml --contract-path .opencode/.issues/2429/dependency-contract.yaml` — interpret per the solve-output caveat (goal-state UNSAT from precondition conflict is expected; reachability is proven by the model query above, not the state check).
 - [ ] 3. Structural checks — run the finishing checklist. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-structural-checks-*`.
   - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")` with context: branch feature/2402-finishing-checklist-trailer-remediation, lint gates (pymarkdownlnt scan + mdformat --check, advisory read-only) on all modified guideline files.
 - [ ] 4. Pre-PR gate — verify all SC verdicts before PR creation. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-pre-pr-gate-*`.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all ten SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules; SC-10's verdict MUST carry monitoring evidence (poll log or semantic diagnosis) alongside session.yaml.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")` with context: read all eleven SC verdicts from the phase evidence artifacts — BLOCK if any verdict is FAIL or any evidence type mismatches its SC declaration; DONE_WITH_CONCERNS coerces to FAIL per the workflow coercion rules; SC-10's verdict MUST carry monitoring evidence (poll log or semantic diagnosis) alongside session.yaml; SC-11's verdict MUST carry create.md read-back plus the fixture scenario script result.
 - [ ] 5. Regression check — final regression run before PR. (**clean-room**)
   - Pre-clean: `rm -f tmp/2429/artifacts/pipeline-regression-check-*`.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2429-sc1, 2429-sc2, 2429-sc3, 2429-sc4 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; SC-10 monitored-run evidence confirmed on disk — all PASS.
+  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")` with context: full scope-limited regression set for the touched files: silent-halt-with-search, read-secrets-in-output, pipeline-scoped-halt via test-enforcement.sh; 2429-sc1, 2429-sc2 new scenarios; 2243-sc1, 2249-sc6, 2249-sc7 pair; 2131-series; 2429-sc11 fixture script; 2241-sc6 spec-creation create-path scenario; SC-10 monitored-run evidence confirmed on disk — all PASS.
 - [ ] 6. Review-prep — prepare PR review context. (**clean-room**)
-  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, eight commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and items 9–10 evidence-only excluded; the scope-G GREEN landed as commit 4989ffb5).
+  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")` with context: stacked PR strategy, nine commits on feature/2402-finishing-checklist-trailer-remediation (items 6–7 conditional no-op commits and items 9–10 evidence-only excluded; the scope-G GREEN landed as commit 4989ffb5; historical commit messages keep #2427 — immutable history).
 - [ ] 7. Create PR — create the pull request. (**clean-room**)
   - Dispatch: `task(..., prompt: "execute create task from git-workflow-pr")` with context: one stacked PR from feature/2402-finishing-checklist-trailer-remediation; squash to exactly one commit per issue at PR creation; co-author trailers added at squash time. HALT after PR creation — the agent does not merge (human-only merge).
 - [ ] 8. Executive summary — generate the completion summary. (**clean-room**)
-  - Dispatch: `task(..., prompt: "execute completion task from completion-core")` with context: issue 2427, SC verdict table, artifact paths.
+  - Dispatch: `task(..., prompt: "execute completion task from completion-core")` with context: issue 2429, SC verdict table, artifact paths.
 
 ### Final Completion Block
 
-- VbC assertion: all ten SC verdicts PASS with evidence-type-matched artifacts; audit, z3-check, structural checks, pre-PR gate, and regression check all PASS.
+- VbC assertion: all eleven SC verdicts PASS with evidence-type-matched artifacts; audit, z3-check, structural checks, pre-PR gate, and regression check all PASS.
 - VbC assertion: the plan's exit criteria C1 through C9 are each satisfied with evidence on disk.
 - Completion: PR created per stacked strategy; report once; HALT.
 

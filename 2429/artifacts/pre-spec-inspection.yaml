@@ -1,0 +1,95 @@
+# Pre-Spec Inspection — Issue #2427 (.opencode)
+# Topic: Injected Tier-1 corpus duplication/incorrect-placement remediation
+# Basis: DUPLICATION + INCORRECT PLACEMENT (developer binding scope) — size is diagnostic evidence only
+inspected_at: "2026-09-02T20:18:00-04:00"
+inspector: "OpenCode (ollama-cloud/glm-5.3-flash) — spec-creation analyze task"
+
+## Issue Binding
+issue_number: 2427
+repo: .opencode (submodule)
+binding_evidence: "brainstorming handoff.yaml binds issue 2427, design_approved: true; .opencode/.issues/.counter = 2427 (next free); no .opencode/.issues/2429/ directory yet (created later by spec-creation create task per handoff State 2 note)"
+remote_binding_check: "gh pr view 2427 (.opencode) returns an unrelated MERGED PR title; local counter + handoff are the binding authority for pre-create analysis"
+
+## Files To Be Modified (verified via stat/read this session)
+- path: .opencode/guidelines/000-critical-rules.md
+  bytes: 23216
+  change: APPEND §A infra-failure carve-out (~15 lines) + §B anti-recitation clause (~10 lines) — scope items A, B
+- path: .opencode/guidelines/020-go-prohibitions.md
+  bytes: 52988
+  change: SPLIT — demote scenario-governed sections to Tier-2; retain authorization semantics + prohibited patterns + halt rules in Tier-1 core — scope item C
+- path: .opencode/guidelines/080-code-standards.md
+  bytes: 38456
+  change: SPLIT — demote Python-specific sections to Tier-2; retain attribution/provenance in Tier-1 core — scope item D
+- path: .opencode/AGENTS.md
+  bytes: 31693
+  change: TRIM scenario-specific sections (gb CLI install table, editor MCP tool table, Pair Mode table) to Tier-2 routing — scope item E
+- path: .opencode/guidelines/INDEX.md
+  bytes: 4433
+  change: ADD Tier-2 routing rows for demoted content (reachability requirement)
+
+## New Files (destinations for demoted content — names TBD at spec creation, OQ-2)
+- candidates: "guidelines/022-*.md (context/discussion mechanics), guidelines/082-*.md (Python standards) — verified nonexistent (ls confirmed)"
+- alternative_destinations:
+  - ".opencode/guidelines/085-project-local-tools.md exists (52 lines) and already carries the same Project-Local Tool rules as 020 §4"
+  - ".opencode/guidelines/116-pair-mode.md exists (118 lines) and already carries Pair Mode branch discipline"
+
+## Existing Patterns And Conventions (verified)
+- pattern: YAML frontmatter on every guideline file
+  fields: [trigger_on, tier, load_when]
+  evidence: "read of 000/010/020/060/065/067/075/080/090/091/117/130/085/116 frontmatter"
+- pattern: INDEX.md routing table (Guideline | Tier | Trigger Pattern | Load When)
+  evidence: "read of INDEX.md — 32 rows; Tier-2 rows route via trigger-pattern match"
+- pattern: Read [Text](path) cross-reference form is the ONLY valid load directive (000-critical-rules.md Read-Link Cross-Reference Rule; 'See X' is FORBIDDEN)
+  evidence: ".opencode/AGENTS.md §Read-Link Cross-Reference Rule — MANDATORY"
+- pattern: 085-project-local-tools.md Read-links BACK to 020 §4 ("Read [§4](020-go-prohibitions.md) — this guideline provides the full rules") — mutual-pointer duplication
+  evidence: "read of 085 Relationship to Other Guidelines section"
+
+## Duplication Defects (semantic duplicates across injected files — verified)
+- defect: Project-Local Tool Installation rules appear in BOTH 020 §4 (lines 286–302) AND 085-project-local-tools.md (full file)
+  semantic_evidence: "both state: .tools/<tool>/ primary, .node/.uv/.jdk alternatives, gitignore-mandatory, PATH-prefixed invocation, no-project-config-modification, system-isolation, cleanability, no-shell-profiles"
+  disposition: reconcile to one canonical Tier-2 home; 020 core keeps pointer only
+- defect: Pair Mode branch/working-directory rules appear in BOTH .opencode/AGENTS.md §Pair Mode (lines 297–311) AND guidelines/116-pair-mode.md (full file)
+  semantic_evidence: "both define pair-* branch pattern, dev-pair mode, main-project-dir working"
+  disposition: AGENTS.md keeps one-line pointer routed via existing INDEX row
+- defect: gb CLI install/version-pinning/TOOL_MISSING content in AGENTS.md (lines 173–204) is not in the gb-cli skill (verified: skill carries only TOOL_MISSING retry pattern), but IS platform-reference documentation (install commands for 4 OSes)
+  disposition: move install/version content to Tier-2 reachable location; keep skill-dispatch mandate line in AGENTS.md
+- defect: critical-rules-042 (monolithic implementation) echo-cited across 020 (2×), 080 (1×), 091 (1×) — verified by grep; developer framing cites 11 files for the 042 family (broader echo-block pattern)
+  disposition: OUT OF SCOPE (item F — echo-block removal deferred); scope C/D move the sections CONTAINING them (OQ-1: blocks move with sections)
+
+## Incorrect-Placement Defects (scenario-governed content at Tier 1 — verified)
+- defect: 020 §1.1 Orchestrator Context Discipline (line 80–136) — orchestrator/sub-agent context mechanics, three mandates, authorization-free actions list
+  applies_when: "orchestrator pipeline routing only — not every session turn"
+- defect: 020 §1.6 Discussion Mode Mandates (lines 248–275) — question-tool ban, one-topic-per-turn, research card catalogue
+  applies_when: "discussion-mode sessions only"
+- defect: 020 §4 Project-Local Tool Installation (lines 286–302)
+  applies_when: "tool installation scenario only — and duplicates Tier-2 085"
+- defect: 080 Typing/Modern Python/Dependency Injection/Print Statements/Libraries (lines 13–103)
+  applies_when: "Python file authoring only"
+- defect: AGENTS.md gb CLI install table (173–204), editor MCP tool table (381–410), Pair Mode (297–311)
+  applies_when: "GitBucket ops / editor-MCP usage / pair-branch sessions only"
+
+## Tier-1 Core Preservation (#497 hard constraint — verified intact pre-change)
+- human-only merge: 000-critical-rules.md line 159 (critical-rules-merge) ✓
+- approval gate + no self-auth: 010-approval-gate.md zero-tolerance table ✓
+- attribution mandates: 080 lines 164–437 (AI Co-Authored Attribution + Provenance Headers) ✓
+- opencode.jsonc WARNING comment documents the #497 regression (PR merge without 000 loaded) ✓
+
+## Dependencies And Callers (consumers of affected files)
+- opencode.jsonc instructions array: 14 entries (verified lines 76–93) — loads all Tier-1 files + AGENTS.md + INDEX.md each session; NO array changes needed (paths stable, content shrinks)
+- session-enforcement.ts: no guideline coupling (per preliminary grep; 83-line plugin, no critical-rules/tier1 references)
+- test-enforcement.sh FILE_SCENARIO_MAP (verified lines 129–139): 020→pipeline-scoped-halt; 000→silent-halt-with-search read-secrets-in-output — path-keyed, survives content change
+- behavioral tests with SCENARIO_PROMPT hardcoding 080 path (verified): 2243-sc1-dependency-injector-mandate.sh (line 35 prompt), 2249-sc6-generic-di-mandate.sh (line 35 prompt), 2249-sc7-html-css-exclusion.sh (line 27 prompt), 2249-sc7-contested-ts-di.sh; plus 2131/sc-*.sh structural TARGET_FILE references and test-sc3-di-carveout-doc.sh
+- skills with Read-links into 020/080 (verified grep): verification-before-completion (2 files), git-workflow-commit, issue-review, git-workflow-branch, audit (5 task files)
+- 085-project-local-tools.md Read-links into 020 §4 (mutual pointer)
+
+## Constraints From Sibling Issues (verified live)
+- "#2411 (approved-for-pr): prohibits hard byte/token/percentage/line-count reduction thresholds as PASS/FAIL SCs — emergent-property principle; SCs define WHAT to move/retain/remove"
+- "#2416 (approved-for-pr): adds text to .opencode/AGENTS.md — same-file PARTIAL-OVERLAP with scope E removals; sequencing needed (this spec stacks on feature/2402 branch)"
+- "#2131 (closed, PR #2238): previous 080 compaction — this spec continues with Python-content demotion, no supersession"
+- "#2419 (closed): no-echo rule removal from 020 — no shared sections"
+
+## Inspection Verdict
+scope_is_well_founded: true
+duplication_basis_confirmed: "≥3 semantic-duplicate classes verified (project-local tools, pair mode, echo-family)"
+placement_basis_confirmed: "≥5 scenario-governed blocks verified at Tier 1"
+size_role: "byte counts recorded as diagnostic evidence only; NO size-threshold SCs permitted (#2411)"

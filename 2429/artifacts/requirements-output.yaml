@@ -1,0 +1,78 @@
+# Requirements Output — Issue #2427 (.opencode)
+# Framed in duplication/placement/semantic-preservation terms per developer binding scope.
+# Size is diagnostic evidence only; NO size-threshold PASS/FAIL criteria (#2411).
+extracted_at: "2026-09-02T20:22:00-04:00"
+
+## Explicit Requirements (stated directly by developer binding scope)
+
+- R-1 (Scope A): 000-critical-rules.md SHALL contain an infrastructure-failure carve-out authorizing inline execution for read-only/verification work after repeated tool-level sub-agent dispatch failures, WITH mandatory disclosure.
+  verification: "read/grep 000-critical-rules.md for carve-out section"
+- R-2 (Scope B): 000-critical-rules.md SHALL contain an anti-recitation clause establishing that rule citations belong in enforcement (test scripts, pre-commit hooks), not in agent deliberation; on a safe reversible action, the agent acts and discloses instead of re-deriving protocol.
+  verification: "read/grep 000-critical-rules.md for anti-recitation clause"
+- R-3 (Scope C): 020-go-prohibitions.md SHALL retain authorization semantics + prohibited authorization patterns + halt rules in Tier-1; SHALL move scenario-governed sections (Orchestrator Context Discipline, Discussion Mode Mandates, Project-Local Tool Installation) to Tier-2 routing.
+  verification: "read/grep 020 core for authorization content; grep INDEX.md for new routing rows; read Tier-2 destination files for moved content"
+- R-4 (Scope D): 080-code-standards.md SHALL retain attribution/provenance mandates in Tier-1; SHALL move Python-specific sections (Typing, Design Principles body, Modern Python, DI both mandates, Print Statements, Libraries & Packages, Pipeline Rerun Constraint) to Tier-2 routing.
+  verification: "read/grep 080 core; grep INDEX.md routing rows; read Tier-2 destination"
+- R-5 (Scope E): AGENTS.md SHALL trim scenario-specific sections (gb CLI install table + version pinning + TOOL_MISSING, editor MCP tool table, Pair Mode section) to Tier-2 routing pointers.
+  verification: "read/grep AGENTS.md for pointers; grep INDEX.md/116/085 for routed content"
+- R-6 (Semantic preservation — binding scope #3): every moved rule SHALL remain semantically equivalent (same requirements/forbiddances/mandates); rewrites/rephrasing/restructuring/condensation during move are permitted, verbatim text is NOT required.
+  verification: "semantic comparison of moved content vs original sections (auditor check)"
+- R-7 (Reachability — binding scope #4): every moved rule SHALL remain reachable via Tier-2 INDEX.md routing (load-on-demand) or conditional load.
+  verification: "grep INDEX.md for one routing row per moved content class; behavioral spot-check that an agent given the trigger finds the file"
+- R-8 (#497 hard constraint — binding scope #4): human-only merge, no self-authorization, approval gate, attribution mandates SHALL remain in main context (Tier-1 injected files).
+  verification: "grep 000 line 159 / 010 zero-tolerance table / 080 attribution sections post-change; opencode.jsonc instructions array unchanged"
+- R-9 (Out of scope): echo-block removal (scope F) SHALL NOT occur in this spec — deferred to separate follow-up spec (echo blocks are enforcement-test grep targets requiring coupled test migration).
+  verification: "absence check — no spec section removes echo blocks; sections containing them move WITH their blocks (OQ-1 default)"
+
+## Implicit Requirements (inferred from context)
+
+- R-10: opencode.jsonc instructions array SHALL NOT change (14 entries, paths stable; new Tier-2 files are NOT added to the array — that would defeat the split).
+  verification: "git diff opencode.jsonc empty post-change"
+- R-11: new Tier-2 destination files SHALL carry the standard YAML frontmatter (trigger_on, tier: 2, load_when) and be registered in INDEX.md with trigger patterns matching their content.
+  verification: "read new file frontmatter; read INDEX.md rows"
+- R-12: consumers of moved section anchors SHALL be updated: skill Read-links pointing into moved 020/080/AGENTS.md sections, behavioral test SCENARIO_PROMPTs hardcoding 080 path for DI content (2243-sc1, 2249-sc6, 2249-sc7 x2, test-sc3-di-carveout-doc.sh), and 085's mutual Read-link into 020 §4.
+  verification: "grep -rn 'guidelines/020-go-prohibitions|guidelines/080-code-standards' .opencode/skills/ .opencode/tests-v2/ post-change returns no dangling section anchors"
+- R-13: duplicates SHALL be reconciled to ONE canonical home (020 §4 vs 085; AGENTS.md Pair Mode vs 116; gb install content vs gb-cli skill neighborhood) — dedup, not dual-copy move.
+  verification: "grep for duplicated rule semantics across files post-change returns single occurrence per rule class"
+- R-14: Tier-1 cores SHALL retain a one-line imperative Read-link pointer for each demoted concern (per research card cross-reference-lobotomization: 'See' form is defective; 'Read [Text](path)' is the only sanctioned load directive).
+  verification: "grep 020/080 cores for Read-link pointers to Tier-2 destinations"
+- R-15: enforcement-test compatibility SHALL be preserved: test-enforcement.sh FILE_SCENARIO_MAP keys on unchanged file paths; scenarios asserting moved content get path-updated prompts in a dedicated sweep phase.
+  verification: "run affected scenarios (pipeline-scoped-halt, 2243-sc1, 2249 series) post-change via with-test-home"
+
+## Constraint Requirements (boundary conditions)
+
+- R-16 (#2411): NO hard byte/token/percentage/line-count reduction thresholds as PASS/FAIL criteria. Savings are emergent; SCs define WHAT moves/retains/removes. Size measurements recorded as informational evidence only.
+  verification: "spec audit against .opencode/reference/spec-structure-standards.md §Prohibited Content Patterns"
+- R-17 (#2416 sequencing): AGENTS.md is also modified by approved #2416 — this spec stacks on feature/2402 branch; E-phase edits must rebase-cleanly (sequencing constraint, not content conflict).
+  verification: "branch topology check at implementation"
+- R-18 (#2131 continuity): this spec continues the 080 compaction line — no supersession of closed #2131 outcomes; attribution sections (lines 164-437) explicitly untouched.
+  verification: "grep attribution sections unchanged post-change"
+- R-19: markdown lint (pymarkdownlnt) + mdformat --check SHALL pass on all modified guideline files (project lint gates).
+  verification: "run lint commands post-change"
+- R-20: no Tier-1 file may be REMOVED from the opencode.jsonc instructions array (WARNING comment documents the #497 regression — removing 000 from context caused an unauthorized PR merge).
+
+## Non-Requirements (explicitly excluded)
+
+- NR-1: echo-block removal (scope F) — separate follow-up spec with coupled test migration.
+- NR-2: changes to authorization semantics themselves (what authorizes what) — only WHERE the text lives.
+- NR-3: changes to attribution requirements (080 attribution stays mandatory and Tier-1).
+- NR-4: opencode.jsonc instructions array restructuring.
+- NR-5: session-enforcement.ts / env-loader.ts changes (verified: no coupling).
+- NR-6: size-reduction targets as success criteria (#2411 prohibition).
+- NR-7: behavioral test suite restructuring beyond the sweep of prompts referencing moved content.
+
+## Requirement-To-Scope Trace
+
+| Requirement | Scope item | Phase |
+|---|---|---|
+| R-1 | A | 1 |
+| R-2 | B | 1 |
+| R-3 | C | 2 |
+| R-4 | D | 3 |
+| R-5 | E | 4 |
+| R-6 | binding #3 | 2,3,4 |
+| R-7 | binding #4 | 2,3,4 + INDEX |
+| R-8 | #497 | all (guard) |
+| R-9 | F exclusion | all (guard) |
+| R-10..R-15 | implied | sweep phase |
+| R-16..R-20 | constraints | all |

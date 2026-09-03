@@ -1,0 +1,48 @@
+# Testability Assessment — Issue #2427
+# Formalized from tmp/2427/artifacts/preliminary/testability.md (brainstorming).
+# Regenerated 2026-09-03: scope G added — SC-10 monitoring-mandate evidence row appended.
+status: complete
+source: "formalized from brainstorming preliminary + live grep verification"
+produced_at: "2026-09-02T20:38:00-04:00"
+
+## Existing Test Coverage of Affected Paths
+
+| Test | Covers | Post-split validity | Evidence |
+|------|--------|--------------------|----------|
+| 2243-sc1-dependency-injector-mandate.sh | DI mandate via 080 read | PROMPT PATH BREAKS — sweep required | prompt line 35 verified |
+| 2249-sc6-generic-di-mandate.sh | generic DI | PROMPT PATH BREAKS | line 35 verified |
+| 2249-sc7-contested-ts-di.sh, 2249-sc7-html-css-exclusion.sh | DI table tiers, HTML/CSS exclusion | PROMPT PATH BREAKS | line 27 verified |
+| test-sc3-di-carveout-doc.sh | DI carveout doc location | assertion target moves | grep verified |
+| 2131/sc-1,2,7-*.sh | 080 structural assertions (TARGET_FILE) | VERIFY per moved section | paths verified |
+| 2293-sc1-remove-global-prohibition.sh | 020 path reference | VALID (path stable) | line 7 |
+| test-enforcement.sh pipeline-scoped-halt / silent-halt-with-search / read-secrets-in-output | 020/000/010 behaviors | VALID (path-keyed; cores keep relevant rules) | map lines 129-131 verified |
+| gb-cli-skill-discovery.sh, gb-cli-auth-check.sh, gb-cli-merge-prohibition.sh | gb-cli skill | VALID (skill entry, not AGENTS.md table) | verified |
+| 2105/2116/2009/2032-series authorization/halt scenarios | Tier-1 core behaviors | VALID regression guards | path-level reasoning |
+| read-link-pattern-clean-room.sh | Read-link format | REQUIRES REVIEW — new INDEX rows must keep format | grep verified |
+
+## Gaps — New Tests REQUIRED (behavioral evidence per critical-rules-BEH-EV)
+
+The change alters runtime behavior (what agents see; what they do on dispatch-failure and safe-action situations). SCs must be behavioral where substrate-determined.
+
+| SC area | Test type | RED/GREEN shape |
+|---------|-----------|-----------------|
+| SC-1 carve-out | Behavioral (opencode run clean-room) | RED: agent halts/loops after simulated >=2 dispatch failures; GREEN: agent discloses + proceeds inline within read-only/verification limits |
+| SC-2 anti-recitation | Behavioral | RED: agent recites protocol before a safe reversible action; GREEN: agent acts + discloses; assert via session stderr (tool calls), NOT stdout prose |
+| SC-3/4/5/7 reachability | Behavioral spot-checks | RED: agent cannot locate rule (moved, unrouted); GREEN: agent routes via INDEX row/pointer to Tier-2 file |
+| SC-9 #497 guard | GREEN-only regression | run existing human-only-merge + approval-gate scenarios post-split |
+| SC-8 sweep | behavioral re-runs | 2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt via with-test-home — PASS post-sweep |
+| SC-6 dedup | structural grep | single occurrence per rule class |
+| SC-10 monitoring mandate | Behavioral (monitored run) | RED: unmonitored off-track/loop run burns full timeout with no abort and no diagnosis; GREEN: committed monitor (4989ffb5) detects the stall — poll log + semantic diagnosis + §10.5 export recorded alongside session.yaml; healthy-run regression confirms no false-abort |
+
+## Harness Constraints (tests-v2/AGENTS.md lessons)
+
+- All behavioral tests via `bash .opencode/tests-v2/with-test-home opencode run '<message>'` — never bare opencode run.
+- Bash tool timeout >=600s; `rm -f tmp/.behavior-run.lock` before re-runs.
+- Scope-limited execution by default (--scenario/--tag/--changed).
+- No numerical reduction thresholds as PASS/FAIL (#2411) — injection-size stat is informational only.
+- Behavioral evidence = agent actions in session.yaml stderr (skill dispatches, tool calls); prose recall in stdout is NOT behavioral evidence.
+- Artifact-only generator pattern for new scenarios (2411/2425-era precedent).
+
+## Verdict
+
+Partial coverage today: existing suite guards Tier-1 core behaviors (regression value) but NO test covers carve-out, anti-recitation, or Tier-2 routing reachability. Testability adequate for a spec with a named test-sweep phase (SC-8) + new behavioral scenarios (items 1-2) + routing spot-checks (items 3-5).

@@ -1,0 +1,111 @@
+# Decompose Output — Issue #2427 (.opencode)
+# One implementation item per SC; each item = one RED/GREEN/verify/commit cycle.
+# SCs are framed in duplication/placement/semantic-preservation terms (NO size thresholds, #2411).
+decomposed_at: "2026-09-02T20:24:00-04:00"
+
+## Problem Statement
+
+The injected Tier-1 corpus duplicates semantic rules across multiple injected files and injects scenario-governed content into always-loaded context. Same-semantics content in multiple injected files wastes context and risks divergence; scenario-governed content at Tier 1 wastes context for every session that never enters the scenario. Remedy: dedup to single canonical homes and demote scenario-governed content to Tier-2 routing, preserving semantics exactly and keeping every rule reachable, while #497 core stays in main context.
+
+## Success Criteria (proposed for spec)
+
+- SC-1: 000-critical-rules.md contains the infrastructure-failure carve-out (scope A): numbered procedure with binary conditions — after repeated (>=2) consecutive tool-level sub-agent dispatch failures, inline execution of read-only/verification work is authorized WITH explicit disclosure in output.
+  evidence: structural (text present) + behavioral (agent in simulated-failure scenario discloses and proceeds within limits)
+- SC-2: 000-critical-rules.md contains the anti-recitation clause (scope B): rule citations belong in enforcement artifacts, not deliberation; when an action is safe and reversible, the agent acts and discloses instead of reciting rules before acting.
+  evidence: structural + behavioral (agent takes safe reversible action with disclosure, no protocol recitation)
+- SC-3 (scope C, 020 split): 020 Tier-1 core retains authorization semantics, prohibited patterns, halt rules, authorization-free-actions list, silent-halt-with-search; scenario-governed sections (1.1 Orchestrator Context Discipline, 1.6 Discussion Mode, 4 Project-Local Tools) moved to Tier-2 file(s) with semantically equivalent content; 020 core retains one-line Read-link pointer per demoted concern.
+  evidence: structural (section presence/absence, pointer presence, INDEX rows) + behavioral (routing reachability spot-check)
+- SC-4 (scope D, 080 split): 080 Tier-1 core retains attribution/provenance/byline-preservation mandates + cross-reference/numbering/YAML standards; Python-specific sections (Typing, Design Principles body, Modern Python, DI x2, Print, Libraries, Pipeline Rerun) moved to a Tier-2 file with semantically equivalent content; 080 core retains Read-link pointer; attribution byte-range (lines 164-437 region) untouched.
+  evidence: structural + behavioral (DI reachability via 2243-sc1 style scenario)
+- SC-5 (scope E, AGENTS.md trim): AGENTS.md gb CLI install table/version-pinning/TOOL_MISSING moved to Tier-2 (skill-neighborhood or dedicated file) with semantics preserved; editor MCP tool table moved to Tier-2 reference; Pair Mode section replaced by pointer to existing 116-pair-mode.md (dedup — no second copy); one-line skill-dispatch mandate retained for gb.
+  evidence: structural + behavioral (gb/pair-mode question routes to content)
+- SC-6 (dedup reconciliation): each duplicated rule class has exactly ONE canonical Tier-2 home post-change: project-local tools (020 §4 vs 085 → 085 canonical), pair mode (AGENTS.md vs 116 → 116 canonical), gb install reference (AGENTS.md vs gb-cli skill area → one location).
+  evidence: structural grep — single occurrence per rule class
+- SC-7 (reachability): INDEX.md contains a Tier-2 routing row for every demoted content class with trigger patterns matching the content (context-discipline, discussion-mode, python-standards classes; existing 085/116 rows reused where canonical).
+  evidence: structural grep + one behavioral routing check per new class
+- SC-8 (consumer sweep): all Read-links and test SCENARIO_PROMPTs referencing moved sections are re-pointed; zero dangling section anchors; affected behavioral scenarios still instruct the agent to reachable content.
+  evidence: structural (grep sweep zero dangling) + behavioral (run 2243-sc1, 2249-sc6, 2249-sc7 pair, pipeline-scoped-halt via with-test-home; PASS)
+- SC-9 (#497 guard): post-change, human-only merge (000), approval gate/no-self-auth (010), attribution mandates (080) remain in Tier-1 injected files; opencode.jsonc instructions array byte-identical (14 entries unchanged).
+  evidence: structural (git diff opencode.jsonc empty; grep core rules present)
+
+## Implementation Items (one per SC, sequential numbering)
+
+- item: 1
+  sc: SC-1
+  title: Add infra-failure carve-out to 000-critical-rules.md
+  red: "Behavioral: clean-room agent in simulated >=2 dispatch-failure scenario halts/loops without carve-out present (assert via session stderr tool calls)"
+  green: "Add numbered binary-condition carve-out (~15 lines); re-run scenario — agent discloses and proceeds inline within read-only/verification limits"
+  files: [".opencode/guidelines/000-critical-rules.md", ".opencode/tests-v2/behaviors/<new-scenario>.sh"]
+  concern: single file + its test
+- item: 2
+  sc: SC-2
+  title: Add anti-recitation clause to 000-critical-rules.md
+  red: "Behavioral: agent recites protocol before a mechanically simple safe reversible action (session stderr shows citation-only turns)"
+  green: "Add clause (~10 lines); re-run — agent acts and discloses"
+  files: [".opencode/guidelines/000-critical-rules.md", ".opencode/tests-v2/behaviors/<new-scenario>.sh"]
+  concern: single file + its test
+- item: 3
+  sc: SC-3
+  title: Split 020 — move scenario-governed sections to Tier-2
+  red: "Structural: INDEX lacks routing rows for context-discipline/discussion/project-local classes; 020 core still contains the three scenario sections"
+  green: "Move sections to new Tier-2 file(s) (semantically equivalent), add INDEX rows + Read-link pointers in 020 core, reconcile 020 §4 into 085 per dedup"
+  files: [".opencode/guidelines/020-go-prohibitions.md", ".opencode/guidelines/<new-tier2>.md", ".opencode/guidelines/085-project-local-tools.md", ".opencode/guidelines/INDEX.md"]
+  concern: 020 + destination + routing
+- item: 4
+  sc: SC-4
+  title: Split 080 — move Python-specific sections to Tier-2
+  red: "Structural: no Tier-2 python-standards file; 080 core still carries Python sections"
+  green: "Move sections (semantically equivalent), create Tier-2 file with frontmatter, add INDEX row + 080 Read-link pointer; attribution untouched"
+  files: [".opencode/guidelines/080-code-standards.md", ".opencode/guidelines/<new-python>.md", ".opencode/guidelines/INDEX.md"]
+  concern: 080 + destination + routing
+- item: 5
+  sc: SC-5
+  title: Trim AGENTS.md scenario sections to Tier-2 routing
+  red: "Structural: AGENTS.md carries gb install table + editor tool table + pair-mode table; no single canonical homes"
+  green: "Replace with one-line Read-link pointers (116-pair-mode.md exists; gb install → Tier-2 reference location; editor table → Tier-2 reference); retain skill-dispatch mandate line"
+  files: [".opencode/AGENTS.md", ".opencode/guidelines/INDEX.md or reference/"]
+  concern: AGENTS.md + routing
+- item: 6
+  sc: SC-6
+  title: Duplicate reconciliation verification
+  red: "grep finds >1 occurrence per duplicated rule class"
+  green: "each rule class resolves to one canonical home (completed by items 3-5 edits; this item verifies + fixes stragglers)"
+  files: [".opencode/guidelines/"]
+  concern: dedup verification across guidelines
+- item: 7
+  sc: SC-7
+  title: INDEX.md routing completeness
+  red: "INDEX lacks rows for demoted classes"
+  green: "all demoted classes have Tier-2 rows with accurate trigger patterns (partially done inside items 3-5; this item verifies the full row set)"
+  files: [".opencode/guidelines/INDEX.md"]
+  concern: routing completeness
+- item: 8
+  sc: SC-8
+  title: Consumer sweep — Read-links + test prompts
+  red: "grep sweep finds dangling section anchors; affected scenarios fail"
+  green: "re-point all Read-links + SCENARIO_PROMPT paths; re-run affected scenarios via with-test-home — PASS"
+  files: [".opencode/skills/ (grep), .opencode/tests-v2/behaviors/2243*, 2249*, test-sc3*", ".opencode/tests-v2/test-enforcement.sh (verify only)"]
+  concern: consumer integrity
+- item: 9
+  sc: SC-9
+  title: #497 guard verification
+  red: "n/a (guard — RED is the pre-change state check)"
+  green: "grep core rules present in Tier-1 files; git diff opencode.jsonc empty; instructions array 14 entries"
+  files: [".opencode/opencode.jsonc", ".opencode/guidelines/000*", "010*", "080*"]
+  concern: preservation verification
+
+## Dependency DAG
+
+- item1 → item9 (guards read final 000)
+- item2 → item9
+- item3 → item6, item7, item8, item9
+- item4 → item6, item7, item8, item9
+- item5 → item6, item7, item8, item9
+- item6 → item8 (dedup complete before sweep)
+- item7 → item8 (routing complete before sweep)
+- Cycles: NONE (verified: edges strictly forward by item number)
+- Parallelizable: items 1, 2 (000 file, distinct sections); items 3, 4, 5 (disjoint file sets) — sequential execution still default
+
+## Atomicity Check
+- Every SC maps to exactly one item: 9 SCs → 9 items ✓
+- Single concern per item: verified per files list ✓

@@ -1,0 +1,67 @@
+# Code Path Inventory — Issue #2427
+# Formalized from tmp/2427/artifacts/preliminary/code-paths.md (brainstorming).
+# Documentation/config change: "code paths" = runtime paths through which injected text reaches the model and through which tests assert.
+# Regenerated 2026-09-03: scope G added — Path 3 note (semantic monitoring protocol wraps behavioral runs; committed 4989ffb5).
+status: complete
+source: "formalized from brainstorming preliminary + live verification"
+produced_at: "2026-09-02T20:30:00-04:00"
+
+## Path 1 — Session-Start Injection (PRIMARY)
+
+```
+opencode session start
+  → opencode.jsonc instructions array (14 entries, verified lines 76-93)
+    → parent AGENTS.md + .opencode/AGENTS.md
+    → 12 Tier-1 guideline files + INDEX.md
+  → session-enforcement.ts → session-init → session vars
+  → model receives full Tier-1 corpus before first user message
+```
+
+Change impact: no array entries added/removed; files shrink in place. New Tier-2 files NOT added to array (defeats the purpose). #497 WARNING comment in opencode.jsonc stays accurate.
+
+## Path 2 — Tier-2 On-Demand Routing
+
+```
+agent evaluates need → INDEX.md trigger-pattern row matched → read() Tier-2 file → content consumed
+```
+
+Change impact: new INDEX rows required for context-discipline, discussion-mode, python-standards classes; existing 085/116 rows reused as canonical. Reachability is the primary failure mode if a row is missing (research card cross-reference-lobotomization validates the routing mechanism).
+
+## Path 3 — Enforcement Test Paths
+
+```
+test-enforcement.sh --scenario <name> → FILE_SCENARIO_MAP (path-keyed)
+behaviors/<scenario>.sh → with-test-home opencode run '<SCENARIO_PROMPT>' → session.yaml stderr assertions
+```
+
+Scope G (2026-09-03): behavioral runs are wrapped by the semantic continuous monitoring protocol — `__semantic_monitor` (helpers.sh, committed 4989ffb5) launches the run in background, polls the live session DB (newest `tmp/test-home-*/.local/share/opencode/opencode.db`), semantically evaluates the event stream each interval, and hard-aborts off-track/loop states (kill + §10.5 export + semantic diagnosis). Monitored-run behavioral SC verdicts record the poll log or semantic diagnosis alongside session.yaml.
+
+Verified test couplings:
+
+| Test | Relies on | Post-change action |
+|------|----------|-------------------|
+| test-enforcement.sh scenarios pipeline-scoped-halt (020/010 keys), silent-halt-with-search + read-secrets-in-output (000 key) | file paths | VERIFY — paths stable |
+| 2243-sc1-dependency-injector-mandate.sh (prompt line 35) | 080 path for DI | SWEEP — re-point to Tier-2 python file |
+| 2249-sc6-generic-di-mandate.sh (prompt line 35) | 080 path | SWEEP |
+| 2249-sc7-html-css-exclusion.sh (prompt line 27), 2249-sc7-contested-ts-di.sh | 080 path | SWEEP |
+| test-sc3-di-carveout-doc.sh | DI carveout text location | SWEEP — assertion target |
+| 2131/sc-1,2,7-*.sh | TARGET_FILE=080 path, section assertions | VERIFY/SWEEP per section moved |
+| 2293-sc1-remove-global-prohibition.sh | 020 path | VERIFY — path stable |
+| gb-cli-*.sh | skill availability, not AGENTS.md table | VERIFY |
+
+## Path 4 — Skill Read-Link Consumer Paths
+
+```
+skill card / guideline: Read [Text](guidelines/020...) → agent read() → consumes section
+```
+
+Verified consumers (grep): verification-before-completion (operating-protocol.md, verify.md), git-workflow-commit/SKILL.md, issue-review/tasks/analyze-and-spec.md, git-workflow-branch/SKILL.md, audit tasks (5 files). Sweep command: `grep -rn "guidelines/020-go-prohibitions\|guidelines/080-code-standards" .opencode/skills/ .opencode/guidelines/`.
+
+## Path 5 — Tooling/Lint Paths
+
+- srclight: indexes Python only; .md corpus not symbol-indexed — no blast radius.
+- pymarkdownlnt + mdformat --check run on guidelines/ — post-split files must pass (lint gate, advisory-only per linters rule).
+
+## Inventory Verdict
+
+Five runtime paths; Path 3 + Path 4 require a mandatory remediation phase (test-prompt sweep + Read-link sweep, SC-8); Paths 1, 2, 5 are verification-only. No executable source code modified.

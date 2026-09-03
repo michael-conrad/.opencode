@@ -4,12 +4,16 @@
 # Generated 2026-09-02 by writing-plans research task.
 # Revised 2026-09-03: scope G added (SC-10) — phase8_done / monitoring_evidence_recorded variables
 # appended (GREEN pre-committed as 4989ffb5; Phase 8 depends on no pending phase).
+# Revised 2026-09-03: scope H added (SC-11) — phase9_done + create_task_numbering_remote_first
+# variables appended (Item 11 pending work; Phase 9 depends on phase8_done only —
+# remote-number-first create-task flow, R-23/R-24).
 version: 1
 source_artifact: .opencode/.issues/2429/artifacts/interface-compatibility.yaml
 scope: >-
-  Tier-1 context-injection reduction (scopes A/B/C/D/E/G): 000 carve-outs, 020/080 splits,
+  Tier-1 context-injection reduction (scopes A/B/C/D/E/G/H): 000 carve-outs, 020/080 splits,
   AGENTS.md trim, dedup reconciliation, INDEX routing, consumer sweep, #497 guard,
-  test-framework semantic continuous monitoring mandate evidence cycle.
+  test-framework semantic continuous monitoring mandate evidence cycle,
+  spec-creation remote-number-first create-task flow.
 
 variables:
   phase1_done:
@@ -28,6 +32,8 @@ variables:
     type: bool
   phase8_done:
     type: bool
+  phase9_done:
+    type: bool
   carve_outs_added:
     type: bool
   splits_done:
@@ -42,6 +48,8 @@ variables:
     type: bool
   monitoring_evidence_recorded:
     type: bool
+  create_task_numbering_remote_first:
+    type: bool
 
 preconditions:
   - "z3.Not(carve_outs_added)"
@@ -51,6 +59,7 @@ preconditions:
   - "z3.Not(sweep_complete)"
   - "z3.Not(guard_verified)"
   - "z3.Not(monitoring_evidence_recorded)"
+  - "z3.Not(create_task_numbering_remote_first)"
 
 invariants:
   - "z3.Implies(carve_outs_added, phase1_done)"
@@ -60,12 +69,15 @@ invariants:
   - "z3.Implies(sweep_complete, phase6_done)"
   - "z3.Implies(guard_verified, phase7_done)"
   - "z3.Implies(monitoring_evidence_recorded, phase8_done)"
+  - "z3.Implies(create_task_numbering_remote_first, phase9_done)"
   - "z3.Implies(phase2_done, phase1_done)"
   - "z3.Implies(phase3_done, phase1_done)"
   - "z3.Implies(phase4_done, phase1_done)"
   - "z3.Implies(phase5_done, z3.And(phase2_done, phase3_done, phase4_done))"
   - "z3.Implies(phase6_done, z3.And(phase2_done, phase3_done, phase4_done, phase5_done))"
   - "z3.Implies(phase7_done, phase6_done)"
+  - "z3.Implies(phase8_done, phase7_done)"
+  - "z3.Implies(phase9_done, phase8_done)"
 
 postconditions:
   - "phase1_done"
@@ -76,6 +88,7 @@ postconditions:
   - "phase6_done"
   - "phase7_done"
   - "phase8_done"
+  - "phase9_done"
   - "carve_outs_added"
   - "splits_done"
   - "dedup_complete"
@@ -83,6 +96,7 @@ postconditions:
   - "sweep_complete"
   - "guard_verified"
   - "monitoring_evidence_recorded"
+  - "create_task_numbering_remote_first"
 
 dependency_edges:
   - source: "opencode.jsonc instructions array"
@@ -123,3 +137,5 @@ global_invariants:
     constraint: "Duplicates reconcile to ONE canonical home: 085 for project-local tools, 116 for pair mode, one location for gb install (SC-6, R-13)."
   - id: MONITORING_MANDATE_EVIDENCED
     constraint: "Scope-G GREEN change is pre-committed as 4989ffb5 (tests-v2/AGENTS.md §14 + helpers.sh __semantic_monitor); Phase 8 (SC-10) is evidence-only — RED baseline + monitored-run poll log/semantic diagnosis recorded alongside session.yaml (R-21, R-22); Phase 8 depends on no pending phase."
+  - id: REMOTE_NUMBER_FIRST
+    constraint: "Scope-H create-task flow is remote-number-first when a remote API is available (R-23/R-24): remote stub created FIRST, number taken from the API create response's number field, local record created at exactly N with binding fields (remote_issue, remote_url, github_url) referencing N — local == remote BY CONSTRUCTION; local counter used ONLY in local-only mode; BLOCKED on API failure mid-flow (no silent reassignment); renumber/migrate repair when the remote-assigned number's local directory already exists (repair, not guard)."
