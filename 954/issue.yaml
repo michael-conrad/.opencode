@@ -1,7 +1,7 @@
 number: 954
 title: '[SPEC] Skill Task File Inventory — frugal contract limits, solve gate integration,
   two-tier protocol (enforcement fields per #1222)'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -128,10 +128,13 @@ body: '> **Scope revision: `.opencode#1222` (Enforcement-Gated Contract Schema) 
 
   🤖 OpenCode (deepseek-v4-flash)'
 created_at: '2026-05-30T14:44:38Z'
-updated_at: '2026-06-15T03:33:17Z'
+updated_at: '2026-09-03T15:49:19+00:00'
 remote_issue: 954
 remote_url: https://github.com/michael-conrad/.opencode/issues/954
 promoted_at: '2026-08-27T03:25:12.411263+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.411263+00:00'
 author: michael-conrad
+closed_at: '2026-09-03T15:49:19+00:00'
+close_reason: duplicate
+duplicate_of: 2433
