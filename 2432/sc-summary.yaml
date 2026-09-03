@@ -1,0 +1,41 @@
+# SC summary — issue 2432 (spec-creation create task)
+issue: ".opencode#2432"
+created_at: "2026-09-03"
+sc_count: 9
+scs:
+  - id: "SC-01"
+    description: "ALL local-issues commands reject bare issue numbers; every invocation uses repo#N form; qualified numbers resolve to exactly one repo."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-02"
+    description: "Repo identity and discovery anchored to PROJECT_DIR: identical resolution from any CWD; each qualifier maps to exactly one .issues/ folder."
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-03"
+    description: "Worktree bootstrap fetches/tracks origin/issues-data when the remote branch exists without a local branch; orphan bootstrap only when neither exists."
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-04"
+    description: "Counter writes target the qualifier-resolved repo's .issues/.counter; .opencode creates increment the .opencode counter, root counter byte-identical."
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-05"
+    description: "yaml_load warn-and-skip: malformed content YAML yields stderr warning (path + error class) and skip/empty result; search/list/read never crash."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-06"
+    description: "validate-yaml subcommand scans issue dirs, prints '<path>: <error-class>' per malformed file; exit 0 clean / exit 1 malformed found."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-07"
+    description: "The 10 confirmed malformed tracking files parse cleanly after repair; mechanical classes repaired; semantic cases flagged in a report, not reconstructed."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-08"
+    description: "doctor subcommand emits per-repo health markers (branch state, merge-base delta, counter state, worktree presence) without mutating repository state."
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-09"
+    description: "spec-creation (analyze, create) and writing-plans task cards invoke validate-yaml after artifact generation; BLOCKED result contract on exit 1."
+    evidence_type: "behavioral"
+    plan_item: 9

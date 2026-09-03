@@ -1,0 +1,142 @@
+# Problem decomposition — issue 2432
+decomposed_at: "2026-09-03"
+discipline: "per-SC decomposition — one implementation item per SC, one RED/GREEN/verify/commit cycle each"
+
+success_criteria_table:
+  - sc_id: SC-01
+    statement: "All local-issues commands reject bare issue numbers; every invocation uses repo#N form (create auto-number path derives qualifier from the resolved anchor, not CWD)"
+    item: 1
+  - sc_id: SC-02
+    statement: "Repo identity and discovery anchored to PROJECT_DIR: _resolve_repo_name/_discover_all_repos resolve from the .opencode-containing root regardless of CWD; qualifier maps deterministically to exactly one .issues/ folder"
+    item: 2
+  - sc_id: SC-03
+    statement: "_ensure_worktree fetches/tracks origin/issues-data when the remote branch exists without a local branch; orphan bootstrap only fires when no remote branch exists"
+    item: 3
+  - sc_id: SC-04
+    statement: "Counter writes target the qualifier-resolved repo's .issues/.counter; creating .opencode#N increments the .opencode counter, not root"
+    item: 4
+  - sc_id: SC-05
+    statement: "yaml_load warn-and-skip: malformed YAML in any tracking file produces a stderr warning and skip/empty result — search/list/read never crash on malformed content"
+    item: 5
+  - sc_id: SC-06
+    statement: "validate-yaml subcommand scans issue dirs, reports file path + error class per malformed file, exits non-zero when malformed files found (gate semantics)"
+    item: 6
+  - sc_id: SC-07
+    statement: "The 10 confirmed malformed tracking files parse cleanly after repair; mechanical classes (ANSI escapes, truncation) repaired; semantically broken artifacts flagged in a report, not reconstructed"
+    item: 7
+  - sc_id: SC-08
+    statement: "doctor subcommand emits per-repo worktree health: issues-data branch state, merge-base with origin/issues-data, counter state, worktree presence"
+    item: 8
+  - sc_id: SC-09
+    statement: "Pipeline skills (spec-creation analyze/create, writing-plans) invoke validate-yaml as a gate after artifact generation"
+    item: 9
+
+items:
+  - item: 1
+    sc_id: SC-01
+    title: "Qualifier enforcement on all commands"
+    interface: "_resolve_qualified(qualified_str) -> single repo result or exit(1); cmd_create requires explicit qualifier or derives from anchored identity (SC-02)"
+    inputs: "argv number argument"
+    outputs: "single-resolved repo target; stderr error + exit(1) on bare number"
+    invariants: "mutation paths keep existing _require_qualified behavior (no regression)"
+    failure_modes: "bare number -> error listing available qualifiers (existing _print_available_repos pattern)"
+    red: "unit test: bare number to read/read-comments/create-auto errors with qualifier hint"
+    green: "bare numbers rejected; read-family returns single resolution only for qualified form"
+    verification_domain: "tool unit test"
+  - item: 2
+    sc_id: SC-02
+    title: "PROJECT_DIR anchoring of identity + discovery"
+    interface: "_resolve_repo_name() -> PROJECT_DIR.name; _discover_all_repos() roots at PROJECT_DIR; .gitmodules-only child discovery (preserved)"
+    inputs: "filesystem state (.gitmodules, PROJECT_DIR)"
+    outputs: "stable repo identity independent of CWD"
+    invariants: "invocation from any subdirectory yields same qualifier -> .issues/ mapping"
+    failure_modes: "missing .gitmodules -> root-only repos; missing child dir -> skipped"
+    red: "unit test: same qualifier resolves to same path when CWD differs (repo root vs .opencode/ subdir)"
+    green: "identity/discovery anchored to PROJECT_DIR"
+    verification_domain: "tool unit test"
+    depends_on: [1]
+  - item: 3
+    sc_id: SC-03
+    title: "Worktree bootstrap remote-tracking remediation"
+    interface: "_ensure_worktree/_create_issues_worktree: check refs/remotes/origin/issues-data; fetch + local branch from remote when missing"
+    inputs: "git repo state"
+    outputs: "local issues-data branch tracking origin/issues-data; orphan only when no remote"
+    invariants: "no unrelated-histories merge states created"
+    failure_modes: "no remote -> existing orphan path preserved; fetch failure -> warn + fallback"
+    red: "unit test with repo having origin/issues-data but no local branch asserts no orphan created and remote-tracked branch checked out"
+    green: "fetch/track logic implemented"
+    verification_domain: "tool unit test (temp git fixture)"
+    depends_on: [2]
+  - item: 4
+    sc_id: SC-04
+    title: "Counter hygiene — resolved-repo counter targeting"
+    interface: "cmd_create auto-number: _next_number(repo_path) where repo_path comes from qualifier resolution (SC-01/SC-02)"
+    inputs: "resolved repo_path"
+    outputs: "incremented .counter inside resolved repo's .issues/"
+    invariants: "one qualifier -> one counter; cross-repo creates never touch root counter"
+    failure_modes: "missing counter -> created at 1 (existing behavior); corrupt counter -> FATAL (existing, preserved)"
+    red: "unit test: create with .opencode qualifier increments .opencode/.issues/.counter, root counter unchanged"
+    green: "counter targets resolved repo"
+    verification_domain: "tool unit test"
+    depends_on: [1, 2]
+  - item: 5
+    sc_id: SC-05
+    title: "YAML parse hardening (warn-and-skip)"
+    interface: "yaml_load(content) -> parsed | {} with stderr warn; optional structured error info for validate-yaml reuse"
+    inputs: "file content string"
+    outputs: "parsed data or empty dict + warning; never raises to callers"
+    invariants: "counter corruption keeps fail-fast (IMP-03); 15 call sites crash-free"
+    failure_modes: "malformed YAML -> warn: file + error class to stderr, skip record"
+    red: "unit test: list/search/read over fixture with malformed YAML completes without exception and emits warning"
+    green: "try/except in yaml_load (+ malformed-record skip in iteration paths)"
+    verification_domain: "tool unit test"
+    depends_on: []
+  - item: 6
+    sc_id: SC-06
+    title: "validate-yaml subcommand"
+    interface: "local-issues validate-yaml [--repo QUALIFIER] -> per-file report: path, error class; exit 0 clean / exit 1 malformed found"
+    inputs: "issue dirs (resolved repo or all repos)"
+    outputs: "stdout report + exit code gate semantics"
+    invariants: "machine-greppable output; uses same error classification as SC-05"
+    failure_modes: "missing issue dir -> clean; unreadable file -> reported as error class"
+    red: "unit test: fixture with known-malformed file -> exit 1 + file/class in output; clean fixture -> exit 0"
+    green: "subcommand implemented"
+    verification_domain: "tool unit test"
+    depends_on: [5]
+  - item: 7
+    sc_id: SC-07
+    title: "Malformed tracking file repair"
+    interface: "repair pass over the 10 confirmed files + mechanical artifact classes; validate-yaml as verification gate"
+    inputs: "confirmed BAD file list (F11) + artifact scan for ANSI \\x1b escapes / truncation"
+    outputs: "all core tracking files parse cleanly; flagged-not-fixed report for semantic breakage"
+    invariants: "no semantic content invention (CON-03); repairs committed in issues-data worktrees (IMP-04)"
+    failure_modes: "unrecoverable file -> flagged in report, left malformed"
+    red: "validate-yaml over listed repos reports the 10 files malformed (pre-repair)"
+    green: "post-repair validate-yaml exit 0 for core files; flag report lists semantic cases"
+    verification_domain: "validate-yaml gate (integration)"
+    depends_on: [6]
+  - item: 8
+    sc_id: SC-08
+    title: "doctor subcommand"
+    interface: "local-issues doctor -> per-repo: issues-data branch exists, merge-base delta vs origin/issues-data, .counter state, worktree presence"
+    inputs: "repo worktree state"
+    outputs: "per-repo health report (stdout)"
+    invariants: "covers root + all .gitmodules repos; distinguishes worktree vs plain .issues (research card finding)"
+    failure_modes: "missing remote/branch/counter reported as unhealthy markers, not crashes"
+    red: "unit test: fixture with missing local branch reports unhealthy branch marker; healthy fixture reports clean"
+    green: "subcommand implemented"
+    verification_domain: "tool unit test"
+    depends_on: [2, 3]
+  - item: 9
+    sc_id: SC-09
+    title: "Pipeline validate-yaml gate insertion"
+    interface: "spec-creation (analyze/create tasks) + writing-plans tasks append validate-yaml invocation + gate check after artifact generation"
+    inputs: "task file procedures"
+    outputs: "gate step that BLOCKs on validate-yaml exit 1"
+    invariants: "gate references the subcommand from SC-06; failure = BLOCKED result contract"
+    red: "behavioral test: opencode run generating artifacts without gate -> gate absent (RED); after change -> gate invoked (GREEN)"
+    green: "task files updated with gate step"
+    verification_domain: "behavioral (with-test-home) + structural"
+    depends_on: [6]
+
+dag_check: "acyclic — edges 2→1? no: 1→2? items order: 1,2 (2 depends on 1? anchoring is prerequisite for consistent qualifier->path mapping; set depends 2 on 1)… final edges: 1→2→(3,4), 5→6→(7,9), 2,3→8. Acyclic confirmed."

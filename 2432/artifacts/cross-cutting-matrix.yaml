@@ -1,0 +1,38 @@
+name: cross-cutting-matrix
+status: complete
+source_issue: ".opencode#2432"
+
+matrix:
+  - concern: error-handling
+    applies_to: [SC-05, SC-06, SC-07]
+    rule: "warn-and-skip for content YAML (A3); fail-fast preserved for corrupt counter (IMP-03); validate-yaml reports, never repairs"
+    guideline_refs: ["090-data-integrity fail-fast", "existing FATAL counter precedent :869"]
+  - concern: data-integrity
+    applies_to: [SC-07]
+    rule: "no synthetic reconstruction of semantically broken historical artifacts — flag, don't guess (CON-03); mechanical transforms only with before/after validate-yaml evidence"
+    guideline_refs: ["090-data-integrity NO UNAUTHORIZED SEMANTIC CHANGES", "audit trail: repair commits carry validate-yaml before/after output"]
+  - concern: deterministic-output
+    phases: [SC-06, SC-08]
+    rule: "machine-greppable stdout (file path + error class; per-repo health markers) — gate and repair verification consume exit codes and patterns"
+  - concern: cwd-independence
+    applies_to: [SC-01, SC-02, SC-04]
+    rule: "identity invariant: identical qualifier->path mapping from any CWD; display-only CWD-relative paths exempt (_spec_path_for_issue, search/list formatting)"
+  - concern: backward-compatibility
+    applies_to: [SC-01]
+    rule: "BREAKING by design (bare numbers rejected) — consumer sweep required: ~36 skill/task files, AGENTS.md examples, behavioral fixtures 2241/2272/2295/1364 updated to repo#N in same phase"
+    guideline_refs: ["087-no-backward-compat (no compat shims)"]
+  - concern: submodule-discipline
+    applies_to: [SC-01..SC-09]
+    rule: "all changes live in .opencode submodule; repair commits live in issues-data worktrees (orphan branches) — never in parent repo; .issues/ paths handled only via tool or git -C"
+    guideline_refs: ["AGENTS.md .issues-is-a-worktree"]
+  - concern: test-enforcement
+    applies_to: [SC-01..SC-09]
+    rule: "every SC gets unit or behavioral test per evidence taxonomy; SC-09 is runtime-behavioral (skill dispatch gate) — structural evidence insufficient"
+    guideline_refs: ["080-code-standards enforcement-test mandate", "091-incremental-build behavioral variant"]
+  - concern: attribution
+    applies_to: [all new files]
+    rule: "Co-authored with AI byline in new unit-test modules and any new source files"
+
+conflicts_resolved:
+  - "warn-and-skip (content) vs fail-fast (counter): boundary drawn at data-class — counter is control state, YAML content is records"
+  - "no-compat-shims (087) vs consumer breakage: consumers updated in-phase, not shimmed"

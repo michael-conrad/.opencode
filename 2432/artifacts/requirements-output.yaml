@@ -1,0 +1,78 @@
+# Requirements extraction — issue 2432 (local-issues qualifier enforcement, PROJECT_DIR anchoring, YAML hardening and repair)
+extracted_at: "2026-09-03"
+sources:
+  - ".opencode/.issues/2432/issue.yaml body (union of chat brainstorm A1-A6 + bug report B1-B5 + settled decisions)"
+
+explicit_requirements:
+  - id: REQ-01
+    text: "ALL commands require repo#N qualifier form; bare numbers raise an error"
+    code_refs: ["_resolve_qualified:1026 (read-family bare expansion)", "cmd_create:945-959 (auto-number path bypasses qualifier)", "_require_qualified:990 (mutation precedent)"]
+    verification: "Verified F3/F4/F5 — read-family and create auto-number path accept/derive without explicit qualifier; mutations already enforce"
+  - id: REQ-02
+    text: "Qualifier determines the correct .issues/ folder consistently, from any invocation directory"
+    code_refs: ["_resolve_repo_name:1374 (CWD basename)", "_discover_all_repos:204-230 (CWD root)", "_ensure_worktree:611 (CWD fallback)"]
+    verification: "Verified F1/F2/F9 — identity is CWD-derived while PROJECT_DIR (stable, __file__-derived) is used inconsistently for counter/paths"
+  - id: REQ-03
+    text: "Discovery is .gitmodules-only, anchored to PROJECT_DIR (settled decision, supersedes #1224 filesystem glob)"
+    code_refs: ["_discover_all_repos:204-230"]
+    verification: "Verified F2 — .gitmodules-only already implemented but root anchored at CWD, not PROJECT_DIR; partial compliance, anchoring defect remains"
+  - id: REQ-04
+    text: "yaml_load must warn-and-skip on malformed YAML instead of crashing search/list/read"
+    code_refs: ["yaml_load:120-125 (zero exception handling)", "15 call sites"]
+    verification: "Verified F7 — bare yaml.safe_load, no try/except anywhere in call chain"
+  - id: REQ-05
+    text: "New validate-yaml subcommand: scans issue dirs for malformed YAML, reports file + error class, doubles as repair verification gate"
+    code_refs: ["argparse registration :1741-1885 (no validate-yaml)"]
+    verification: "Verified F10 — subcommand does not exist"
+  - id: REQ-06
+    text: "Repair ~10 malformed core tracking files plus mechanically fixable artifact classes (ANSI \\x1b escapes, truncation); semantically broken historical artifacts flagged, not guessed at"
+    code_refs: ["live parse test: all 10 listed files fail yaml.safe_load"]
+    verification: "Verified F11 — repair targets confirmed real"
+  - id: REQ-07
+    text: "Pipeline skills call validate-yaml as a gate after artifact generation"
+    code_refs: [".opencode/skills/spec-creation/tasks/analyze.md, create.md; .opencode/skills/writing-plans/tasks/"]
+    verification: "No gate exists in current task files (grep confirms no validate-yaml reference in skills)"
+  - id: REQ-08
+    text: "_ensure_worktree must fetch/track origin/issues-data when it exists but no local branch, instead of creating unrelated-histories orphan"
+    code_refs: ["_issues_branch_exists:185-203 (refs/heads only)", "_create_issues_worktree:577-601 (orphan fallback)"]
+    verification: "Verified F8 — remote branch never checked before orphan bootstrap"
+  - id: REQ-09
+    text: "Counter writes must target the resolved repo's .issues/.counter"
+    code_refs: ["cmd_create:947 (_next_number(PROJECT_DIR) always root)", "_next_number:855-875"]
+    verification: "Verified F5/F6 — root counter drift 50→52 mechanism confirmed"
+  - id: REQ-10
+    text: "New doctor subcommand: per-repo worktree health report (branch, merge-base with origin/issues-data, counter state)"
+    code_refs: ["argparse registration :1741-1885 (no doctor)"]
+    verification: "Verified F10 — subcommand does not exist"
+
+implicit_requirements:
+  - id: IMP-01
+    text: "Qualifier format stays repo#N (NOT owner/repo#NNN) — settled decision supersedes #2319"
+  - id: IMP-02
+    text: "Existing _require_qualified enforcement on mutations is preserved (no regression)"
+  - id: IMP-03
+    text: "Fail-fast precedent for corrupt counter (_next_number:869 FATAL) is preserved — warn-and-skip applies to YAML content reads, not the counter"
+  - id: IMP-04
+    text: "Repairs happen inside the issues-data worktrees (managed by the tool), not as parent-repo tracked changes"
+  - id: IMP-05
+    text: "Doctor and validate-yaml output must be machine-greppable (gate + repair verification consumption)"
+
+constraint_requirements:
+  - id: CON-01
+    text: "Supersedes #2319 (qualifier format) and #1224 (filesystem glob discovery); #2093 closed (already satisfied)"
+  - id: CON-02
+    text: "B2 (non-submodule child discovery) SUPERSEDED by settled decision — only .gitmodules-declared repos are discoverable qualifiers"
+  - id: CON-03
+    text: "YAML repair must not alter semantic meaning of historical artifacts (data-integrity: flag, don't guess)"
+  - id: CON-04
+    text: "All work in .opencode repo — issue path prefix .opencode/.issues/2432/"
+
+non_requirements:
+  - id: NON-01
+    text: "No owner/repo#NNN qualifier migration"
+  - id: NON-02
+    text: "No filesystem-glob child discovery"
+  - id: NON-03
+    text: "No reconstruction of semantically broken historical artifacts"
+  - id: NON-04
+    text: "No counter value repair/backfill beyond pointing writes at the correct repo counter"

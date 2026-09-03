@@ -1,49 +1,99 @@
-title: 'local-issues: qualifier enforcement, PROJECT_DIR anchoring, YAML hardening
+title: '[SPEC] local-issues: qualifier enforcement, PROJECT_DIR anchoring, YAML hardening
   and repair'
 status: open
 labels:
 - needs-approval
 - spec-draft
-body: "# Problem (union of chat brainstorm + bug report #2432)\n\n`/opencode/tools/local-issues`\
-  \ has inconsistent repo/issue resolution and no\nmalformed-YAML resilience. Two\
-  \ source problem statements:\n\n**A. Chat brainstorm (2026-09-03 session, this conversation):**\n\
-  \n1. The tool must raise an error when using non-qualified issue ticket numbers.\n\
-  \   ALL commands require `repo#N` form — including `create` (currently\n   auto-qualifies\
-  \ via CWD basename at line ~949) and the read-family\n   `read`/`read-comments`/`read-labels`/`read-sub-issues`\
-  \ (currently accept\n   bare numbers via `_resolve_qualified`, line ~1026). Mutations\
-  \ already\n   enforce via `_require_qualified`.\n2. The qualifier determines the\
-  \ correct `.issues/` folder — consistently,\n   from any invocation directory. Current\
-  \ code mixes CWD-derived identity\n   (`_resolve_repo_name` = cwd basename, `_discover_all_repos`\
-  \ roots at CWD)\n   with `PROJECT_DIR` fallbacks (counter at ~947, path fallbacks\
-  \ at ~60/~95/~970),\n   so qualifier and physical location disagree depending on\
-  \ CWD.\n3. YAML hardening: `yaml_load` has zero exception handling across ~15 call\n\
-  \   sites; malformed YAML crashes `search`/`list`/`read`. Tool must\n   warn-and-skip\
-  \ instead of crash.\n4. New `validate-yaml` subcommand: scans issue dirs for malformed\
-  \ YAML,\n   reports file + error class; doubles as repair verification gate.\n5.\
-  \ YAML repair: ~10 malformed core tracking files (.opencode/.issues\n   #1204 #1205\
-  \ #1235 #1296 #1305 #2013 #2177 issue.yaml; #1296 #2013\n   comments.yaml; .issues/162\
-  \ comments.yaml) plus mechanically fixable\n   artifact classes (ANSI #x1b escapes,\
-  \ truncation). Semantically broken\n   historical artifacts are flagged, not guessed\
-  \ at.\n6. Upstream prevention: pipeline skills call `validate-yaml` as a gate after\n\
-  \   artifact generation.\n\n**B. Bug report (remote GitHub #2432, authored by developer):**\n\
-  \n1. Misrouting: create from inside `.opencode/` writes to parent `.issues/`\n \
-  \  (PROJECT_DIR/CWD mixed anchoring) — covered by A2.\n2. ~~Non-submodule child\
-  \ discovery~~ — SUPERSEDED by developer decision\n   (2026-09-03): qualifier forms\
-  \ are valid for git submodules only;\n   `.gitmodules`-declared repos are the only\
-  \ discoverable qualifiers.\n3. `_ensure_worktree()` orphan-branch bootstrap: creates\
-  \ unrelated-histories\n   orphan when `origin/issues-data` exists but no local branch;\
-  \ must\n   fetch/track remote instead.\n4. Counter hygiene: counter writes must\
-  \ target the resolved repo's\n   `.issues/.counter` (root counter drifted 50→52\
-  \ during misrouted creates).\n5. `doctor` subcommand: per-repo worktree health report\
-  \ (branch,\n   merge-base with origin/issues-data, counter state).\n\n## Settled\
-  \ decisions (developer, this session)\n\n- Qualifier format: `repo#N` (NOT `owner/repo#NNN`)\
-  \ — supersedes #2319.\n- Qualifier required everywhere; all commands error on bare\
-  \ numbers.\n- Discovery: `.gitmodules`-only, anchored to PROJECT_DIR — supersedes\n\
-  \  #1224 (filesystem glob) by changed requirements.\n- Supersedes #2319 and #1224.\
-  \ #2093 closed (already satisfied).\n\n## Analytical artifacts\n\nPreliminary artifacts\
-  \ from brainstorming (chat-side analysis) are at\n`.opencode/.issues/2432/artifacts/`:\
-  \ blast-radius, code-path-inventory,\ninterface-compatibility, state-analysis, testability-assessment,\n\
-  concern-map. Union decomposition must extend these to cover bug-report\nitems B3-B5\
-  \ (worktree bootstrap, counter hygiene, doctor).\n"
+body: '> **Full spec and artifacts: [`.opencode/.issues/2432/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2432/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2432/` — analytical artifacts, implementation
+  plan, research, audit findings
+
+
+  ## Problem
+
+
+  `local-issues` mixes CWD-derived repo identity with `PROJECT_DIR` anchoring and
+  enforces the `repo#N` qualifier only on mutation commands, so creates misroute to
+  the parent repo, the root counter drifted 50→52, and first-run bootstrap created
+  an unrelated-histories orphan branch diverged from `origin/issues-data`. Separately,
+  `yaml_load` has zero exception handling, so 10 confirmed malformed tracking files
+  crash `search`/`list`/`read` across the whole tree.
+
+
+  ## Scope
+
+
+  - Qualifier enforcement: ALL commands require `repo#N`; bare numbers exit non-zero
+  with a qualifier listing (BREAKING — no compat shims; in-repo consumers updated
+  in-phase).
+
+  - `PROJECT_DIR` anchoring: repo identity and discovery resolve identically from
+  any invocation directory.
+
+  - Worktree bootstrap: fetch/track `origin/issues-data` instead of creating an unrelated-histories
+  orphan.
+
+  - Counter hygiene: counter writes target the qualifier-resolved repo''s `.issues/.counter`.
+
+  - YAML hardening: warn-and-skip parsing; new `validate-yaml` and `doctor` subcommands;
+  mechanical repair of the 10 confirmed malformed files; `validate-yaml` pipeline
+  gate in spec-creation and writing-plans task cards.
+
+
+  **Out of scope:** `owner/repo#NNN` qualifier migration (supersedes #2319); filesystem-glob
+  child discovery (supersedes #1224); reconstruction of semantically broken historical
+  artifacts (flagged, not guessed); root counter value repair (doctor reports, does
+  not mutate); counter format changes.
+
+
+  ## Approach
+
+
+  Nine per-SC changes land in DAG order as single-concern TDD items: qualifier enforcement
+  (SC-01), `PROJECT_DIR` anchoring (SC-02), worktree bootstrap remediation (SC-03),
+  counter targeting (SC-04), `yaml_load` warn-and-skip hardening (SC-05), the `validate-yaml`
+  gate subcommand (SC-06), data repair gated by `validate-yaml` (SC-07), read-only
+  `doctor` diagnostics (SC-08), and pipeline gate insertion (SC-09). The error-class
+  taxonomy and exit-code contract are fixed at SC-05/SC-06 so repair and pipeline
+  consumers share one verification gate. All work lives in the `.opencode` repo; repair
+  commits land on issues-data worktree branches via tool auto-commit, never as parent-repo
+  tracked changes.
+
+
+  ## Impact
+
+
+  - **Risk: breaking CLI change** (bare-number rejection, create auto-number removal)
+  breaks ~36 skill/task files and behavioral fixtures — **Mitigation:** in-phase consumer
+  sweep with SC-01; no shims per the no-backward-compat guideline.
+
+  - **Risk: repair touches live tracking data** — **Mitigation:** mechanical transforms
+  only with semantic-meaning preservation, `validate-yaml` before/after evidence,
+  commits confined to issues-data branches; semantic cases flagged, not rewritten.
+
+  - **Risk: `cmd_create` concentrates three concerns** (qualifier, anchoring, counter)
+  — **Mitigation:** SC-01/02/04 sequenced as separate single-concern commits in DAG
+  order.
+
+
+  **Key dependencies:** `local-issues` tool (all tool SCs); new pytest unit module
+  (SC-01..SC-06, SC-08); behavioral enforcement harness (SC-09); issues-data branches
+  on both repos (SC-07).
+
+
+  **Call to action:** Review the full spec on the `issues-data` branch (`.opencode/.issues/2432/spec.md`)
+  — all nine success criteria are gated; partial implementation is not permitted.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-09-03T03:55:47+00:00'
-updated_at: '2026-09-03T04:15:05+00:00'
+updated_at: '2026-09-03T04:21:19+00:00'

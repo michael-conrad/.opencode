@@ -1,0 +1,27 @@
+# Research card consultation — issue 2432
+consulted_at: "2026-09-03"
+searched:
+  - ".opencode/.issues/research-cards/*.md (25 cards)"
+  - ".issues/research-cards/*.md (13 cards)"
+
+matching_cards:
+  - card: ".opencode/.issues/research-cards/local-issues-discover-repos-worktree-filter.md"
+    question: "What causes the nested .issues/.issues/ directory in local-issues sync for submodule repos?"
+    confidence: 0.95
+    threshold_met: true
+    incorporated: true
+    findings_used:
+      - "Worktree .git files contain 'worktrees/' in gitdir path; submodule .git files contain 'modules/' — distinguishes worktree from submodule discovery"
+      - "_ensure_worktree() guard prevents nested directory creation in normal conditions; sync probes repo_path/ISSUES_DIR/'.git' which becomes .issues/.issues/.git"
+    staleness_note: "Card line numbers (discovery glob at :265) are stale — _discover_all_repos now parses .gitmodules exclusively (issue 2432's settled decision codifies this). The worktree/submodule .git distinction remains valid context for _ensure_worktree and doctor (B5) design."
+    relevance: "Supports SC-02 (PROJECT_DIR anchoring) and SC-08 (doctor): doctor must report per-repo worktree health and distinguish worktree roots from submodule .issues trees."
+
+  - card: ".issues/research-cards/per-sc-decomposition-industry-standards.md"
+    question: "Per-SC decomposition industry standards"
+    confidence: "high (used for decomposition discipline)"
+    incorporated: true
+    relevance: "Informs decompose-output.yaml structure: one implementation item per SC, each with own RED/GREEN/verify/commit cycle."
+
+non_matching_cards: "Remaining 36 cards cover unrelated topics (spec-writing, plan-fidelity, prose patterns, search tools) — no additional relevant research found."
+
+gap_report: "No research card covers YAML hardening patterns (warn-and-skip vs fail-fast at parse boundaries) or orphan-branch bootstrap remediation. Both are resolvable from first principles + existing code patterns (fail-fast precedent in _next_number:869; warn-to-stderr precedent throughout). No research dispatch required."

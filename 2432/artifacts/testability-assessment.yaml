@@ -1,117 +1,57 @@
 name: testability-assessment
 status: complete
-source_issue: 2432
-generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
-generated_at: '2026-09-03T04:20:00Z'
-method: >
-  Existing coverage enumerated via directory listing of .opencode/tests/ and
-  rg sweep of .opencode/tests-v2/ for local-issues references. Testability of
-  each change class assessed against the tool's structure (module-level
-  PROJECT_DIR constant, pure cmd_* functions, subprocess git boundaries).
+source_issue: ".opencode#2432"
+extends: ".opencode/.issues/2432/artifacts/testability-assessment.yaml (preliminary)"
+existing_unit_coverage: "NONE for local-issues (.opencode/tests/ has only test_session_init/, test_skill_creator/) — all coverage new"
+behavioral_fixture_risk: "13 tests-v2 scenario/fixture files reference the tool with bare numbers — audit before re-run post-change"
 
-existing_coverage:
+test_strategy_by_phase:
 
-  unit_tests:
-    status: NONE
-    evidence: >
-      .opencode/tests/ contains only conftest.py, test_session_init/,
-      test_skill_creator/ — no test module for local-issues despite
-      .opencode/AGENTS.md declaring "Run tool unit tests: uv run pytest
-      .opencode/tests/" for Python tools under .opencode/tools/.
-    implication: all coverage for this change is NEW coverage.
+  - phase: SC-01 qualifier enforcement
+    strategy: unit
+    tests: "argparse.Namespace fixtures -> cmd_read/cmd_read_comments/cmd_read_labels/cmd_read_sub_issues/cmd_create; bare N asserts SystemExit(1) + stderr contains qualifier listing; qualified N asserts single-repo resolution; mutation commands assert unchanged _require_qualified behavior"
+    framework: "uv run pytest .opencode/tests/test_local_issues.py"
 
-  behavioral_tests:
-    status: PARTIAL — 13 scenario/fixture files reference the tool
-    files: [2241-sc1-handoff-local-read.sh, 2241-sc2-apply-label-local-first.sh,
-            2241-sc3-creation-local-first.sh, 2241-sc7-analyze-and-spec-local-first.sh,
-            2241-sc9-read-labels-local-first.sh, 2241-sc12-gather-local-first.sh,
-            2241-sc14-operating-protocol-local-first.sh, 2241-sc21-resolve-scope-chat-only.sh,
-            2272-sc3-shared-status-check-skip.sh, 2295-sc7-issues-write-prohibition.sh,
-            helpers.sh, fixtures/setup/1364-for-pr-common.sh]
-    implication: >
-      Scenarios exercising issue reads/creates may break under qualifier
-      enforcement if they use bare numbers; they provide regression detection
-      but were written for current behavior — audit each before re-running
-      post-change.
+  - phase: SC-02 PROJECT_DIR anchoring
+    strategy: unit
+    tests: "tmp_path repo fixture with .gitmodules; run resolution from two CWDs (repo root, nested subdir); assert identical _resolve_repo_name/_discover_all_repos/_resolve_qualified results; regression scenario mirrors live defect (read --number 2432 from .opencode/ subdir)"
+    framework: unit
 
-testability_by_change_class:
+  - phase: SC-03 worktree bootstrap
+    strategy: unit
+    tests: "temp git fixture: bare origin with issues-data branch, clone without local branch; invoke bootstrap; assert local branch tracks origin, no orphan created, merge-base equality; second fixture without remote asserts orphan path still fires"
+    framework: unit
 
-  - class: qualifier-enforcement
-    unit_testability: HIGH
-    approach: >
-      Invoke cmd_read/cmd_read_comments/cmd_read_labels/cmd_read_sub_issues/
-      cmd_create with argparse.Namespace fixtures; bare-number args assert
-      SystemExit(1) + stderr qualifier listing; qualified args assert normal
-      resolution. No filesystem fixtures needed for the bare-number error path.
-    behavioral_test: >
-      opencode run scenario asserting agent uses repo#N form and treats the
-      new error as routing guidance (stderr-pattern assertions per 091
-      behavioral variant).
+  - phase: SC-04 counter hygiene
+    strategy: unit
+    tests: "two-repo fixture; create with .opencode qualifier; assert .opencode/.issues/.counter incremented and root .counter byte-identical; corrupt-counter fixture asserts FATAL exit preserved"
+    framework: unit
 
-  - class: project-dir-anchoring
-    unit_testability: HIGH
-    approach: >
-      PROJECT_DIR is a module-level constant (L41-47) computed from __file__ —
-      tests monkeypatch module attributes or chdir. Assert
-      _resolve_repo_name()/_discover_all_repos()/_collect_repos()/
-      _resolve_qualified() return identical results from two different CWDs
-      (repo root vs .opencode/ vs arbitrary subdir). Live defect reproduction
-      already demonstrated (read --number 2432 from .opencode/.issues/ misses
-      the issue) — this exact scenario becomes the regression test.
-    risk_note: >
-      subprocess git calls in _ensure_worktree/_auto_commit accept repo_path
-      already; anchoring changes do not alter git invocation surfaces, keeping
-      the test surface pure-Python.
+  - phase: SC-05 yaml hardening
+    strategy: unit
+    tests: "malformed-content fixture (each error class); list/search/read complete without exception; stderr contains path + class; valid files in same tree still parsed"
+    framework: unit
 
-  - class: yaml-hardening
-    unit_testability: HIGH
-    approach: >
-      Fixture tree with one valid + one malformed (ParserError, ScannerError,
-      truncation, ANSI-escape) issue dir; assert list/search/read emit the
-      valid entry, emit "warn: skipping malformed" on stderr, and exit 0.
-      Assert mutation commands (comment/close/update) still hard-fail on
-      malformed state (fail-fast invariant).
+  - phase: SC-06 validate-yaml
+    strategy: unit
+    tests: "fixture tree with known-bad + known-good; assert exit 1 + '<path>: <class>' lines; clean tree asserts exit 0"
+    framework: unit
 
-  - class: validate-yaml-subcommand
-    unit_testability: HIGHEST (pure function over a directory tree)
-    approach: >
-      Fixture issue dirs seeded with each error class; assert report contains
-      {repo, file, error_class, message} and exit code 1; assert clean tree
-      exits 0. Error-class classification (ANSI, truncation, parser, scanner,
-      legacy-format) is deterministic — table-driven tests.
-    doubles_as_repair_gate: >
-      Repair verification = run validate-yaml against the real trees after
-      repair and assert exit 0. This is itself the acceptance test for the
-      repair work item.
+  - phase: SC-07 repair
+    strategy: integration
+    tests: "RED: validate-yaml over the two real repos reports the 10 confirmed files; GREEN: post-repair validate-yaml exit 0 for core files; flag-report asserts semantic cases listed not rewritten; before/after evidence retained"
+    framework: "integration via validate-yaml gate (live repos, tool auto-commit on issues-data branches)"
 
-  - class: yaml-repair
-    unit_testability: MEDIUM (data work, verified by the gate)
-    approach: >
-      Not classic unit tests — verified by (a) validate-yaml exit 0 on real
-      trees, (b) read/list/search returning previously-unreadable issues
-      (1204, 1205, 1235, 1296, 1305, 2013, 2177, 162 appear in output with
-      correct titles/statuses), (c) spot-check that repaired files preserve
-      original content fields (no fabricated data).
-    reversibility: git history on issues-data branch is the rollback test.
+  - phase: SC-08 doctor
+    strategy: unit
+    tests: "fixture states: healthy repo (clean markers), missing local branch + remote present (unhealthy marker, no crash), corrupt counter (marker); read-only invariant — repo state hash unchanged after run"
+    framework: unit
 
-enforcement_test_mandate:
-  required: true
-  authority: >
-    .opencode/guidelines/080-code-standards.md Enforcement Test Mandate +
-    091-incremental-build.md per-item TDD (RED/GREEN per SC).
-  plan: >
-    Behavioral scenarios via bash .opencode/tests-v2/with-test-home opencode run
-    for agent-facing behavior (qualified-form usage); unit tests under
-    .opencode/tests/ for deterministic tool logic. Behavioral evidence =
-    stderr-visible agent actions, not prose recall.
-  scope_note: >
-    tests-v2 requires >=600s bash timeout; rm -f tmp/.behavior-run.lock before
-    re-runs; tests_run > 0 with tests-run.yaml evidence required before any
-    completion claim.
+  - phase: SC-09 pipeline gate
+    strategy: behavioral
+    tests: "bash .opencode/tests-v2/with-test-home opencode run '<artifact-generation scenario>' — stderr-pattern assertions: agent invokes validate-yaml after artifact generation (GREEN), absent before change (RED); per 091 behavioral variant"
+    framework: behavioral (with-test-home, >=600s timeout)
 
-coverage_gaps_to_close:
-  - no unit tests exist today for any local-issues command (all new)
-  - no test fixture tree with malformed YAML seeds exists (new fixture needed)
-  - behavioral scenarios 2241-sc3 (creation) and 1364-for-pr-common fixture
-    likely encode bare-number/autonumber usage — must be updated in the same
-    change to avoid green-on-broken state
+evidence_type_note: "SC-09 is runtime-behavioral (skill procedure change) — structural/string evidence is EVIDENCE_TYPE_MISMATCH; behavioral evidence mandatory. SC-01..SC-08 are tool-code changes verified by executable unit/integration tests."
+
+coverage_command: "uv run pytest .opencode/tests/ --cov=.opencode/tools/ --cov-report=term-missing (new test_local_issues.py module)"

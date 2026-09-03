@@ -1,116 +1,61 @@
 name: state-analysis
 status: complete
-source_issue: 2432
-generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
-generated_at: '2026-09-03T04:20:00Z'
-method: >
-  Persistent state identified from source read (file I/O call sites, git
-  subprocess wrappers) plus live inspection of the .issues worktrees in both
-  repos. Every repaired file's parse failure verified with pyyaml safe_load.
+source_issue: ".opencode#2432"
+extends: ".opencode/.issues/2432/artifacts/state-analysis.yaml (preliminary — persistent state inventory and repair mappings retained)"
 
-persistent_state_inventory:
+state_transitions_by_phase:
 
-  - state: issue_yaml
-    location: '{repo}/.issues/{N}/issue.yaml'
-    schema: >
-      {title, status, labels: [str], body, created_at, updated_at} plus optional
-      {phase, github_url, remote_url, closed_at, close_reason, duplicate_of}
-    writers: [cmd_create, cmd_update, cmd_close]
-    readers: [read, read-labels, list, search, promote]
-    repair_impact: >
-      7 malformed issue.yaml files (1204, 1205, 1235, 1296, 1305, 2013, 2177 in
-      .opencode/.issues) are in LEGACY GitHub-export format — verified live:
-      keys {number, title, state: OPEN, labels: '<json-string>'} with nested
-      unescaped double quotes in title/labels. Mechanical repair mapping:
-      state -> status (OPEN -> open), labels JSON string -> list of label names,
-      number key dropped (directory name is authoritative), title quote-escaping
-      fixed. All data recoverable — no semantic guessing required.
+  - phase: SC-01 qualifier enforcement
+    transitions:
+      - from: "command invoked with bare N"
+        to: "exit 1 + stderr qualifier listing (was: multi-repo fan-out read / CWD-auto-qualify create)"
+      - from: "command invoked with repo#N"
+        to: "unchanged single-repo resolution"
 
-  - state: comments_yaml
-    location: '{repo}/.issues/{N}/comments.yaml'
-    schema: '{comments: [{type, body, timestamp}]}'
-    writers: [cmd_comment]
-    readers: [read-comments, read (via read_issue_data), promote]
-    repair_impact: >
-      3 malformed comments.yaml files verified live: .opencode/.issues/1296,
-      .opencode/.issues/2013, .issues/162 — human-markdown format
-      ("--- author @ timestamp ---" headers followed by markdown body) instead
-      of structured YAML. Mechanical repair: parse markdown comment blocks,
-      map author/timestamp header to {type: internal, body, timestamp}.
-      2013 additionally fails with ScannerError "while scanning an alias"
-      (unquoted @ or * sequences). All content recoverable — bodies are plain
-      text; no guessing.
+  - phase: SC-02 PROJECT_DIR anchoring
+    transitions:
+      - from: "identity = f(CWD); qualifier/location disagree across CWDs"
+        to: "identity = f(PROJECT_DIR); invariant: same qualifier -> same .issues/ path from any CWD"
 
-  - state: links_yaml
-    location: '{repo}/.issues/{N}/links.yaml'
-    schema: '{links: [{number, type}]}'
-    writers: [cmd_link, cmd_renumber]
-    readers: [read-sub-issues, cmd_delete link check, cmd_renumber renumbering]
-    repair_impact: none among the 8 verified dirs (2177 has links.yaml, valid).
+  - phase: SC-03 worktree bootstrap
+    transitions:
+      - state: "no local issues-data, origin/issues-data EXISTS"
+        from: "orphan branch created (unrelated histories)"
+        to: "git fetch origin issues-data + local branch tracking remote"
+      - state: "no local issues-data, no remote"
+        from: "orphan branch created"
+        to: "unchanged (orphan path preserved)"
 
-  - state: counter_file
-    location: '{repo}/.issues/.counter'
-    semantics: monotonically increasing next-issue number; corrupt counter
-      hard-fails (L869).
-    change_impact: >
-      If create autonumber mode is removed (interface interpretation_a), the
-      counter becomes write-unused unless retained for a numbering helper.
-      Spec decision: keep _next_number for manual/auxiliary use or retire with
-      migration note. .counter content itself is unaffected by this change.
+  - phase: SC-04 counter hygiene
+    transitions:
+      - from: "create with .opencode qualifier increments ROOT .counter"
+        to: "increments .opencode/.issues/.counter; root counter untouched"
+      - invariants: "corrupt counter -> FATAL exit (preserved); missing counter -> created at 1 (preserved); existing root drift value (52) NOT rewritten (NON-04)"
 
-  - state: sentinel_legacy_warned
-    location: '{repo}/.issues/.legacy-warned'
-    semantics: once-per-session legacy-format warning suppression (L1918-1957).
-    change_impact: none.
+  - phase: SC-05 yaml hardening
+    transitions:
+      - from: "malformed content file -> uncaught exception -> command crash"
+        to: "malformed content file -> stderr warn (path + error class) -> record skipped, command completes"
 
-  - state: git_worktree_state
-    location: '{repo}/.issues/.git (gitlink file) -> {repo}/.git/worktrees/-issues/'
-    branch: issues-data (orphan)
-    change_impact: >
-      YAML repairs land as commits on issues-data via local-issues auto-commit
-      (if applied through the tool) or manual git -C; both routes are reversible
-      (git revert / reflog). No worktree structure change.
+  - phase: SC-06 validate-yaml
+    transitions:
+      - from: "(no state)"
+        to: "scan -> exit 0 (all parse) | exit 1 (>=1 malformed, file+class reported); no file mutation"
 
-  - state: artifact_files_with_ansi_escapes
-    location: >
-      verified live: .opencode/.issues/{2257,2241,2303,2264,2413}/artifacts/plan-output.yaml,
-      .opencode/.issues/1588/artifacts/{red-run,green-run}/stderr.log,
-      .opencode/.issues/1260/{tmp/artifacts,artifacts}/stderr.log
-    defect_class: ANSI escape \x1b sequences embedded in YAML scalar content
-      (tool output captured raw into artifact files).
-    repair_policy: mechanically strippable (\x1b\[[0-9;]*[A-Za-z] regex) — these
-      are capture logs, stripping preserves informational content.
-    repair_policy_note: >
-      Semantically broken historical artifacts (truncated mid-structure,
-      unrecoverable content) get FLAGGED by validate-yaml, never guessed —
-      per data-integrity no-synthetic-data rule.
+  - phase: SC-07 repair
+    transitions:
+      - from: "10 core tracking files malformed; ANSI-escape/truncated artifacts malformed"
+        to: "core files parse cleanly (legacy GitHub-export -> canonical schema; markdown-comment -> structured); unrecoverable/semantic cases flagged in report, left as-is"
+      - persistence: "repairs committed on issues-data branches via tool auto-commit"
 
-state_transition_model:
+  - phase: SC-08 doctor
+    transitions:
+      - from: "(no state)"
+        to: "read-only per-repo report; surfaces residuals (root counter drift, divergent worktrees) without mutation"
 
-  pre_change:
-    malformed_yaml_file: [read->crash, list/search->crash, read-comments/labels/links->crash-or-empty]
-    bare_number_arg: [read-family->multi-repo fan-out scan, create->autonumber+CWD-qualifier, mutations->error]
-    wrong_cwd_invocation: [repo-resolution->wrong repo, create->mislabeled qualifier]
+  - phase: SC-09 pipeline gate
+    transitions:
+      - from: "artifact generation completes without YAML verification"
+        to: "task procedure: validate-yaml runs post-generation; exit 1 -> BLOCKED result contract"
 
-  post_change:
-    malformed_yaml_file: >
-      [read-side commands -> warn+skip on stderr, mutation paths -> hard fail
-      (fail-fast), validate-yaml -> report file + error_class + message with
-      exit 1]
-    bare_number_arg: [ALL commands->error + qualifier listing, exit 1]
-    wrong_cwd_invocation: [resolution anchored to PROJECT_DIR -> identical behavior from any CWD]
-    validate_yaml_gate: [pipeline artifact generation -> validate-yaml -> 0=proceed / 1=blocked]
-
-  repair_transition:
-    before: 10 malformed tracking files (8 dirs) + ANSI-contaminated artifacts
-    after: zero malformed tracking files; validate-yaml exits 0 across both repos
-    rollback: git history on issues-data branch (per-file revert)
-
-invariants:
-  - Counter monotonicity preserved.
-  - issue.yaml schema keys unchanged (title/status/labels/body/timestamps) —
-    repair normalizes legacy keys INTO the current schema, not vice versa.
-  - Comment bodies preserved byte-for-byte except ANSI stripping where applicable.
-  - Mutation paths keep fail-fast on unreadable state (no silent data loss on
-    comment/close/update against a malformed issue).
-  - All repairs reversible via issues-data git history.
+persistent_state_unchanged: ".counter format, issue.yaml canonical schema, comments.yaml schema, links.yaml schema — all preserved; only defect states transition"

@@ -1,0 +1,36 @@
+name: pipeline-readiness
+status: PASS
+source_issue: ".opencode#2432"
+validated_at: "2026-09-03"
+
+atomicity:
+  rule: "every SC maps to exactly one RED->GREEN->COMMIT cycle"
+  result: PASS
+  evidence: "decompose-output.yaml defines 9 items, one per SC (SC-01..SC-09), each with its own red/green/verification_domain; no item covers multiple SCs; cmd_create seams (SC-01/02/04) are sequenced as separate commits, not merged"
+
+dependency_ordering:
+  rule: "SC dependency DAG is acyclic"
+  result: PASS
+  evidence: "edges: SC-01->SC-02, SC-02->SC-03, SC-02->SC-04, SC-05->SC-06, SC-06->SC-07, SC-06->SC-09, SC-02+SC-03->SC-08; topological order 1,2,{3,4},5,6,{7,8},9 — no cycles"
+
+single_concern:
+  rule: "every SC targets one file category and one verification domain"
+  result: PASS
+  evidence: "concern-map.yaml: C1-C6,C8 -> tool category/unit; C7 -> worktree data/integration; C9 -> skill markdown/behavioral; one domain per SC"
+
+phase_dependency:
+  rule: "phase dependency graph is acyclic"
+  result: PASS
+  evidence: "tool-core (SC-01..05,08) -> repair (SC-06,07) -> integration (SC-09); strictly forward edges"
+
+three_tier_structure:
+  rule: "multi-phase specs have pre/per-file/post structure"
+  result: PASS
+  evidence: "pre: unit-test scaffolding + anchoring (SC-01,02); per-file: bootstrap/counter/yaml/validate/doctor (SC-03,04,05,06,08); post: repair gate + pipeline gate (SC-07,09)"
+
+open_decisions_flagged:
+  - "create --number required + qualified (interpretation_a from preliminary interface-compatibility) — number reservation flow must be spec'd explicitly for callers"
+  - "root counter drift value 52 left as-is (NON-04) — doctor reports; repair of value itself out of scope"
+  - "counter retention: _next_number retained for reservation use rather than retired"
+
+gate_verdict: PASS — analysis artifacts complete at {project_root}/tmp/2432/artifacts/; ready for create task

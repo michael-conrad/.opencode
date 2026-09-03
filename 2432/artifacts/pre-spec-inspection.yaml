@@ -1,0 +1,59 @@
+# Pre-spec inspection — issue 2432 (local-issues qualifier enforcement, PROJECT_DIR anchoring, YAML hardening and repair)
+inspected_at: "2026-09-03"
+issue: ".opencode#2432"
+repo: ".opencode"
+primary_file: ".opencode/tools/local-issues"
+file_size_lines: 1992
+
+verified_code_facts:
+  - id: F1
+    claim: "_resolve_repo_name() is pure CWD basename"
+    evidence: "local-issues:1374-1375 — `def _resolve_repo_name() -> str: return Path(os.getcwd()).name`"
+  - id: F2
+    claim: "_discover_all_repos() roots at CWD, parses .gitmodules only (no filesystem glob)"
+    evidence: "local-issues:204-230 — `root = Path(os.getcwd()).resolve()`; child repos exclusively from .gitmodules sections"
+    note: "Research card line-numbers (2026-06-19, glob at :265) are stale — code already migrated to .gitmodules parsing, but root anchoring is still CWD not PROJECT_DIR"
+  - id: F3
+    claim: "Read-family accepts bare numbers (no qualifier enforcement)"
+    evidence: "local-issues:1026-1053 — `_resolve_qualified` expands bare N across all repos (current first, children alphabetical); used by cmd_read:1128, cmd_read_comments:1144, cmd_read_labels:1169, cmd_read_sub_issues:1195"
+  - id: F4
+    claim: "Mutations already enforce qualifier via _require_qualified"
+    evidence: "local-issues:990-998 — used by cmd_update:1220, cmd_comment:1247, cmd_close:1270, cmd_delete:1289"
+  - id: F5
+    claim: "cmd_create auto-number path misroutes: CWD-derived qualifier + PROJECT_DIR counter/files"
+    evidence: "local-issues:945-948 — `current_repo_name = _resolve_repo_name()` (CWD) then `args.number = _next_number(PROJECT_DIR); repo_path = PROJECT_DIR`. Invoked from inside .opencode/: qualifier says '.opencode' but counter and files target root .issues/"
+  - id: F6
+    claim: "Counter writes in auto-number path always target root counter regardless of qualifier"
+    evidence: "local-issues:855-875 — `_next_number(PROJECT_DIR)` from cmd_create:947; counter_path = root/ISSUES_DIR/.counter where root is caller-passed (always PROJECT_DIR in create auto path)"
+  - id: F7
+    claim: "yaml_load has zero exception handling; 15 call sites"
+    evidence: "local-issues:120-125 — bare `yaml.safe_load(content)`; `grep -c 'yaml_load('` = 15"
+  - id: F8
+    claim: "_issues_branch_exists checks LOCAL branch only — orphan bootstrap fires when origin/issues-data exists but no local branch"
+    evidence: "local-issues:185-203 — `git rev-parse --verify --quiet refs/heads/issues-data` (refs/heads only, no remote check); _create_issues_worktree:577-601 calls _create_orphan_branch when this returns False"
+  - id: F9
+    claim: "_ensure_worktree root fallback is CWD"
+    evidence: "local-issues:602-638 — `root = repo_path or Path(os.getcwd())`"
+  - id: F10
+    claim: "No validate-yaml or doctor subcommand exists"
+    evidence: "argparse subparsers at :1741-1885 register only: create, read, read-comments, read-labels, read-sub-issues, update, comment, close, delete, search, list, link, renumber, promote, sync, sync-file"
+  - id: F11
+    claim: "All 10 listed malformed YAML tracking files are actually malformed (verified by live parse)"
+    evidence: "python yaml.safe_load FAILED on: .opencode/.issues/{1204,1205,1235,1296,1305,2013,2177}/issue.yaml, .opencode/.issues/{1296,2013}/comments.yaml, .issues/162/comments.yaml"
+
+existing_patterns:
+  - "_require_qualified / _parse_qualified / _resolve_qualified form the qualifier-resolution layer (target of A1/A2 refactor)"
+  - "_next_number fails hard on corrupt counter (FATAL + sys.exit) — existing fail-fast pattern to preserve"
+  - "warn-to-stderr pattern exists (`print(f'warn: ...', file=sys.stderr)`) — reuse for yaml hardening warn-and-skip"
+  - "PROJECT_DIR is stable (derived from __file__, not CWD) at local-issues:40-46 — correct anchor to standardize on"
+
+affected_files:
+  - ".opencode/tools/local-issues (all changes A1-A5, B3-B5)"
+  - ".opencode/tests/ (new unit tests for qualifier/anchoring/yaml/counter/bootstrap behavior)"
+  - ".opencode/.issues/**/*.yaml + .issues/**/*.yaml (repair targets — live inside issues-data worktrees)"
+  - ".opencode/skills/spec-creation/tasks/analyze.md + create.md, .opencode/skills/writing-plans/tasks/ (validate-yaml gate insertion, SC-09)"
+
+dependencies:
+  - "_discover_all_repos called by: _detect_dual_branch:338, _ensure_all_worktrees:348, _collect_repos:660, _resolve_repo_path:1010, _resolve_qualified:1040, cmd_create:962"
+  - "_resolve_repo_name called by: _collect_repos:657, cmd_create:945, _resolve_repo_path:1007, _resolve_qualified:1035, cmd_read:1133"
+  - "yaml_load called at 15 sites — every read/list/search/close/delete/link/promote/renumber path"

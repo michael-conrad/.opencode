@@ -1,120 +1,71 @@
 name: interface-compatibility
 status: complete
-source_issue: 2432
-generated_by: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
-generated_at: '2026-09-03T04:20:00Z'
-method: >
-  Signature verification via direct source read (argparse parser registration
-  L1740-1915, cmd_* handlers). Consumer compatibility verified by ripgrep sweep
-  of all 36 skill files referencing local-issues, plus .opencode/.issues/AGENTS.md
-  and behavioral test fixtures. No Python importers exist (uv run --script CLI
-  boundary), so compatibility surface is CLI flags, stdout YAML shape, exit codes,
-  and stderr error strings.
+source_issue: ".opencode#2432"
+extends: ".opencode/.issues/2432/artifacts/interface-compatibility.yaml (preliminary)"
+compatibility_surface: "CLI flags, stdout YAML shape, exit codes, stderr error strings (no Python importers — uv run --script boundary)"
 
-cli_surface:
-
-  - command: read
-    current_signature: read --number {N|repo#N} [--type full|comments|labels|links|all]
-    planned_signature: read --number repo#N [--type ...]   # bare N now errors
+interfaces:
+  - name: "read / read-comments / read-labels / read-sub-issues --number"
+    current: "{N | repo#N} (bare N fans out across all repos)"
+    planned: "repo#N only — bare N exits 1 with qualifier listing"
     compat: BREAKING
-    rationale: _resolve_qualified bare-N fan-out removed; documented in parser
-      help text as "(N or repo#N)" — help strings need updating too.
-    consumers_affected: issue-review/gather.md, issue-operations-core tasks,
-      audit tasks, verification-before-completion operating-protocol.md,
-      AGENTS.md examples (read --number 46)
-
-  - command: read-comments / read-labels / read-sub-issues
-    current_signature: '{cmd} --number {N|repo#N}'
-    planned_signature: '{cmd} --number repo#N'
+    consumers: "issue-review/gather.md, issue-operations-core tasks, audit tasks, verification-before-completion operating-protocol.md, AGENTS.md examples, behavioral fixtures"
+  - name: "create --number"
+    current: "optional; auto-number into PROJECT_DIR with CWD-derived qualifier when omitted"
+    planned: "REQUIRED and qualified (repo#N) — auto-qualify path removed (interpretation_a per preliminary artifact)"
     compat: BREAKING
-    consumers_affected: issue-operations-core/read-labels.md, AGENTS.md examples
+    consumers: "issue-operations/platforms/local/tasks/creation.md, issue-operations-core/creation.md, spec-creation/tasks/create.md, fixtures 1364-for-pr-common.sh"
+  - name: "update / comment / close / delete / link / renumber / promote --number"
+    compat: NO-CHANGE (already _require_qualified enforced)
+  - name: "validate-yaml [--repo QUALIFIER]"
+    compat: NEW
+    contract: "stdout: '<path>: <error-class>' lines; exit 0 clean, exit 1 malformed found"
+  - name: "doctor"
+    compat: NEW
+    contract: "stdout: per-repo sections (qualifier, path, issues-data branch present, merge-base delta vs origin/issues-data, .counter state, worktree present); read-only, exit 0 unless internal error"
+  - name: "yaml_load(content) -> Any"
+    planned: "returns {} + stderr warn on malformed (never raises); raises nothing to callers"
+    compat: MODIFIED (internal — 15 call sites inherit hardening)
+  - name: "_resolve_repo_name() -> str"
+    planned: "PROJECT_DIR.name (was CWD basename)"
+    compat: MODIFIED (internal)
+  - name: "_discover_all_repos() -> list[Path]"
+    planned: "root = PROJECT_DIR (was CWD); .gitmodules-only discovery preserved"
+    compat: MODIFIED (internal)
+  - name: "_next_number(repo_path)"
+    compat: MODIFIED (internal — callers must pass qualifier-resolved repo_path; counter state itself unchanged, corrupt counter stays FATAL)
+  - name: "_issues_branch_exists(repo_path) / bootstrap step"
+    planned: "checks refs/remotes/origin/issues-data; fetch+track when remote exists and local missing; orphan only when neither exists"
+    compat: MODIFIED (internal)
 
-  - command: create
-    current_signature: >
-      create --title T [--labels ...] [--number {N|repo#N}]; autonumbers into
-      PROJECT_DIR with CWD-derived qualifier when --number omitted
-    planned_interpretation_a: >
-      create --number repo#N --title T [--labels ...] — number now REQUIRED and
-      qualified; auto-qualify path removed entirely
-    planned_interpretation_b: >
-      autonumber retained but qualifier anchored to PROJECT_DIR.name; bare
-      explicit --number N still errors (already does)
-    selected: interpretation_a (strict reading of requirement 1 — "ALL commands
-      must error on bare (non-qualified) issue numbers, including create which
-      currently auto-qualifies")
-    compat: BREAKING (autonumber mode removed — callers relying on create
-      without --number must obtain a number first; counter-based _next_number
-      may be retained internally or exposed via a separate mechanism — spec decision)
-    consumers_affected: issue-operations/platforms/local/tasks/creation.md,
-      issue-operations-core/creation.md, spec-creation/tasks/create.md,
-      behavioral fixtures 1364-for-pr-common.sh
+removed_interfaces:
+  - "create autonumber mode (--number omitted)"
+  - "_resolve_qualified bare-N multi-repo fan-out"
 
-  - command: update, comment, close, delete, link, renumber, promote
-    current_signature: '{cmd} --number repo#N ...  (_require_qualified enforced)'
-    compat: NO-CHANGE
-    note: >
-      Already compliant; error message format from _require_qualified (L994,
-      "Error: Use qualified form repo#N for mutations.") becomes the canonical
-      error shape for the newly-enforced commands too.
+breaking_changes:
+  - "bare-number rejection across read-family and create"
+  - "create requires explicit qualified --number (callers must reserve a number first — counter still exists for that purpose)"
 
-  - command: validate-yaml (NEW)
-    signature: validate-yaml [--repo NAME] [--json]  (proposed flags)
-    compat: ADDITIVE
-    output_contract: >
-      YAML report {issues: [{repo, file, error_class, message}]} on stdout;
-      exit 0 when all clean; exit 1 when malformed files found (gate semantics).
-    doubling_as_repair_gate: exit code + report consumed by pipeline skills
-      after artifact generation.
+dependency_contract:
+  - source: "local-issues CLI (validate-yaml exit-code gate)"
+    target: ".opencode/skills/spec-creation + writing-plans task cards (SC-09)"
+    type: "artifact schema"
+    constraint: "gate task cards BLOCK on exit 1; subcommand must exist and be stable before SC-09 lands (DAG: 6→9)"
+  - source: "yaml_load error classification (SC-05)"
+    target: "validate-yaml report classes (SC-06)"
+    type: "artifact schema"
+    constraint: "single shared error-class taxonomy (e.g., ScannerError, ParserError, DuplicateKey, ANSI-escape, truncation) — defined in SC-05, consumed by SC-06/SC-07"
+  - source: "repaired issue.yaml/comments.yaml schemas (SC-07)"
+    target: "yaml_load consumers (read/list/search/promote)"
+    type: "artifact schema"
+    constraint: "post-repair files must conform to state-analysis schema ({title, status, labels: [str], body, ...} / {comments: [{type, body, timestamp}]}) — no consumer changes required"
+  - source: "counter semantics (SC-04)"
+    target: "create callers reserving numbers (SC-01)"
+    type: "artifact schema"
+    constraint: "number reservation flow: caller runs _next_number(resolved_repo) or future explicit reserve path, then create --number repo#N"
+  - source: "doctor health markers (SC-08)"
+    target: "developer + pipeline diagnostics"
+    type: "artifact schema"
+    constraint: "marker vocabulary stable across runs; covers residual counter drift (B4) and divergent worktrees (B3)"
 
-  - command: list, search
-    signature: unchanged
-    compat: >
-      NO-CHANGE (flags); OUTPUT-COMPAT-CHANGE (behavior): malformed issue dirs
-      previously crashed the whole command; after hardening they are
-      warn-and-skipped (warning on stderr, valid entries still printed).
-      Callers parsing stdout see a superset of previous successful output —
-      no consumer parses crash output.
-
-stdout_shape:
-  - read_family: >
-      unchanged for valid data (single-entry YAML or a matches list).
-  - create: >
-      created/number/title mapping — unchanged shape; number always qualified.
-  - validate-yaml: new report shape (additive).
-
-exit_codes:
-  - bare_number_errors: >
-      sys.exit(1) with stderr message + qualifier listing
-      (_print_available_repos L1378). Consistent with existing
-      _require_qualified.
-  - validate_yaml: >
-      0 when clean / 1 when malformed files found (proposed).
-
-error_message_compat:
-  canonical_new_error: >
-    Reuse _require_qualified wording for read family and create:
-    "Error: Use qualified form {repo}#{N}." + _print_available_repos().
-    Keeps a single error vocabulary across all commands.
-  yaml_skip_warning: >
-    "warn: skipping malformed YAML {path}: {error_class}" on stderr — never
-    stdout, so stdout parsers are unaffected.
-
-documented_examples_requiring_update:
-  - .opencode/.issues/AGENTS.md — bare-number examples throughout
-    (read --number 46, link --number 46 --sub 47 48, comment --number 46,
-    close --number 99, update --number 46, promote --number 46)
-  - .opencode/AGENTS.md — .issues/ workspace guide references
-  - skill task files listed in blast-radius.yaml direct_consumers
-  - parser help strings (L1740-1915) saying "(N or repo#N)"
-
-python_api:
-  status: not-applicable
-  justification: tool is a uv-run script with no importers; all compatibility
-    surface is CLI-level.
-
-compat_summary:
-  breaking: [read, read-comments, read-labels, read-sub-issues, create]
-  additive: [validate-yaml]
-  unchanged: [update, comment, close, delete, link, renumber, promote,
-              list, search, init, sync, sync-file]
-  docs_updates_required: true
+backward_compat_summary: "BREAKING (CLI bare-number rejection, create autonumber removal) — no shims per 087-no-backward-compat; all in-repo consumers updated in-phase"
