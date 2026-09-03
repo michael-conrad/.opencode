@@ -1,6 +1,10 @@
 # Plan problem — issue #2427 phase decomposition for tools/plan (unified-planning)
 # Actions are grounded per phase; preconditions encode the dependency DAG from
 # artifacts/structure.yaml. Generated 2026-09-02 by writing-plans research task.
+# Regenerated 2026-09-03: 8-phase decomposition matching the current plan.md —
+# scope G added (Phase 8, SC-10). Phase 8 depends on NO pending phase (its GREEN
+# change is pre-committed as 4989ffb5), so its action has empty preconditions;
+# the goal set covers all eight phases.
 domain: tier1-injection-reduction
 types:
   - name: phase
@@ -18,6 +22,8 @@ objects:
   - name: phase6
     type: phase
   - name: phase7
+    type: phase
+  - name: phase8
     type: phase
 fluents:
   - name: phase_clean
@@ -64,6 +70,10 @@ actions:
       - phase_clean(phase6)
     effects:
       - phase_clean(phase7)
+  - name: record_monitoring_evidence
+    preconditions: []
+    effects:
+      - phase_clean(phase8)
 init: []
 goals:
   - phase_clean(phase1)
@@ -73,3 +83,4 @@ goals:
   - phase_clean(phase5)
   - phase_clean(phase6)
   - phase_clean(phase7)
+  - phase_clean(phase8)
