@@ -73,6 +73,37 @@ git status --porcelain
 - Verify commit messages are descriptive
 - Verify co-authored-by trailers are present
 
+### Step 1a: Agent-Owned Trailer Remediation (MISSING-ELEMENT auto-fix)
+
+If the "Co-authored-by trailers present" verification finds missing trailers on the agent's own, unmerged, unshared feature branch, the producing agent SHALL self-remediate without soliciting a developer force-push decision:
+
+1. **Amend or squash the agent's own commits** to add the repo-standard two-trailer format from `commit-prep.md`:
+   ```bash
+   git commit --amend --no-edit \
+       --trailer "Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>" \
+       --trailer "Co-authored-by: <dev.name> <dev.email>"
+   ```
+   For multiple commits, use `git rebase -i` to squash/reword the agent's own commits and add the trailers.
+2. **Force-push the agent's own branch with `--force-with-lease` only**:
+   ```bash
+   git push --force-with-lease origin HEAD:<branch_name>
+   ```
+   `--force` is FORBIDDEN (R-4). The `--force-with-lease` push is authorized only because the branch is the agent's own, unmerged, and unshared.
+3. **Do NOT solicit a developer force-push decision.** The remediation is agent-owned; the generic force-push authorization gate does not apply to the agent's own unmerged, unshared branch.
+4. **Reuse the repo-standard trailer format** — no alternative trailer schema is introduced.
+
+### Step 1b: Footer Byline Auto-Fix (MISSING-ELEMENT auto-fix)
+
+If the attribution verification finds a new file missing the "Co-authored with AI:" footer byline, the producing agent SHALL auto-fix it without escalating to the developer:
+
+1. **Add the missing footer byline** to the new file, using the repo-standard format from `080-code-standards.md`:
+   ```markdown
+   *Co-authored with AI: <AgentName> (<ModelId>)*
+   ```
+2. **Preserve any existing bylines** — never overwrite or remove a prior agent's byline (080-code-standards R-5). If editing a file that already has a `Co-authored with AI:` line, append the producing agent's byline on a new line rather than replacing.
+3. **Do NOT weaken the mandatory co-author attribution requirement (R-7).** The auto-fix adds the missing byline; it never skips the attribution check.
+4. **Do NOT escalate byline absence as a decision-requiring blocker.** The remediation is agent-owned.
+
 ### Step 2: Run Code Quality Checks
 
 ```bash
