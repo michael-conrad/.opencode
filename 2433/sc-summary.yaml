@@ -1,4 +1,4 @@
-sc_count: 8
+sc_count: 9
 scs:
   - id: "SC-1"
     description: "System prompt Sub-Agent Routing Boundary and Pre-Response Gate state Architecture B (orchestrator executes workflow steps directly; task() only at marked points); Architecture-A prose absent."
@@ -32,3 +32,7 @@ scs:
     description: "Single canonical dispatch-vocabulary table in reference layer; directive-layer files (including .opencode/AGENTS.md dispatch directives) reference it via Read-link; system prompt carries no duplicated definitions."
     evidence_type: "behavioral"
     plan_item: 8
+  - id: "SC-9"
+    description: "Behavioral test execution is targeted: one run per SC-RED and SC-GREEN need; whole-suite invocations (behaviors/*.sh loops/enumeration, unfiltered model-executing sweeps) are BLOCKED/prohibited by the tests-v2/AGENTS.md directive + harness guard; content-verification runners are exempt."
+    evidence_type: "behavioral"
+    plan_item: 9

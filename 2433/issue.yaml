@@ -27,7 +27,10 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   both averages them and dispatches MORE — forwarding whole SKILL.md cards and whole
   plans to leaf sub-agents that cannot call `task()`. Related open tickets carry dispatch
   semantics that predate and contradict the target architecture, risking a second
-  vocabulary fork.
+  vocabulary fork. Additionally, a mechanism existed whereby an agent could run ALL
+  opencode behavioral tests in a single script or invocation — enumerating the 197
+  scenario scripts in `tests-v2/behaviors/`, an unfiltered model-executing sweep,
+  or a loop over all scenarios — causing a >2000-run runaway during branch-finishing.
 
 
   ## Scope
@@ -36,19 +39,20 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   - Rewrite the system prompt routing boundary, `022-orchestrator-context-discipline.md`
   HALT machinery, and `executing-plans` plan-execution flow to Architecture B.
 
-
   - Eliminate whole-card/whole-plan forwarding across the deck; add the `ORCHESTRATOR_ONLY_PLAN`
   plan pre-flight guard.
-
 
   - Normalize all TDT Dispatch values to the closed set {`orchestrator`, `task-card`,
   `task-card blind`} and single-source the dispatch vocabulary in one canonical reference
   table (including `.opencode/AGENTS.md` dispatch directives).
 
-
   - Add a per-step plan dispatch mode (`direct` | `task-card`, default `direct`) to
   the canonical plan format.
 
+  - Enforce targeted behavioral-test execution: one run per SC-RED and SC-GREEN need;
+  no whole-suite invocation mechanism — whole-suite runs, directory-enumeration runs,
+  and unfiltered model-executing sweeps are PROHIBITED; the guard scopes to model-executing
+  invocations (content-verification runners are exempt).
 
   - Scope is directive text only: guidelines, prompts, AGENTS.md, skill cards, task
   cards, reference standards markdown, and plan/spec documents — nothing more. Related
@@ -56,9 +60,8 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   1213, 1222, 1214) are superseded by #2433 — their conflicting SCs are superseded
   by #2433''s dispatch-correction SCs; see §12 of the authoritative spec.
 
-
-  - 8 success criteria (SC-1..SC-8), each with its own behavioral probe verification
-  (probes run via sub-agents dispatched from the working session; no isolated environment,
+  - 9 success criteria (SC-1..SC-9), each with its own behavioral verification (probes/tests
+  run via sub-agents dispatched from the working session; no isolated environment,
   no project writes) plus direct reading of the text artifact where the deliverable
   is a document.
 
@@ -78,9 +81,14 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   is the halt-triggering violation. The word "inline" is retired from the dispatch
   vocabulary; TDTs migrate to the closed set. The plan format gains a per-step dispatch
   mode (`direct` default), and the vocabulary is single-sourced in one canonical reference
-  table referenced via Read-link by every directive-layer file. Where a superseded
-  ticket''s design contradicts this target architecture, this spec''s design wins
-  and the conflict is recorded as superseded in §12.
+  table referenced via Read-link by every directive-layer file. Behavioral test execution
+  is made targeted: `tests-v2/AGENTS.md` and the harness state the targeted-run mandate
+  and carry the guard text — every `opencode run` targets exactly the scenario(s)
+  the current SC''s RED and GREEN evidence needs, and the prohibition is scoped to
+  model-executing invocations (`test-enforcement.sh` is a content-verification runner
+  with no model runs). Where a superseded ticket''s design contradicts this target
+  architecture, this spec''s design wins and the conflict is recorded as superseded
+  in §12.
 
 
   ## Impact
@@ -90,28 +98,26 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
   clause (measured). *Mitigation:* the migration is one pass across all 45 carrying
   cards, verified by direct reading and behavioral probes.
 
-
   - **Risk 2 — Behavioral regression across items:** vocabulary edits can break earlier
   probe assertions. *Mitigation:* enforcement gate is all-or-nothing; a regressed
   SC re-runs before the pipeline advances.
 
-
-  - **Risk 3 — Verification without static checks:** the mandate is enforced by behavioral
-  probes and direct reading only, per developer directive (static checks invite agent
-  workarounds — dead weight, ceremony, confusion, deliberation loops). *Mitigation:*
-  every SC carries a named behavioral probe; unexecutable probes are FAIL, not structural
-  substitutes.
-
+  - **Risk 3 — Whole-suite test-run runaway:** an unguarded "run the behavioral tests"
+  instruction can enumerate 197 model-executing scenario scripts and launch a multi-hour
+  runaway (a >2000-run runaway was observed during branch-finishing). *Mitigation:*
+  SC-9''s targeted-run mandate + harness guard BLOCK whole-suite invocations; every
+  run is scoped to the named scenarios the current branch''s SCs need.
 
   - **Dependencies:** verified local model (qwen3.8:27b-256k-gguf4); skill card pre-flight
-  guards retained verbatim (all 51 SKILL.md).
+  guards retained verbatim (all 51 SKILL.md); tests-v2 harness surface verified this
+  session (197 scenario scripts; `test-enforcement.sh` confirmed content-verification
+  — no model runs).
 
-
-  - **Call to action:** all 8 success criteria must pass before this spec is complete.
+  - **Call to action:** all 9 success criteria must pass before this spec is complete.
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-03T15:24:41+00:00'
-updated_at: '2026-09-04T01:57:20+00:00'
+updated_at: '2026-09-04T02:45:59+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2433
 github_url: https://github.com/michael-conrad/.opencode/issues/2433
