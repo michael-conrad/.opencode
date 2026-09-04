@@ -632,3 +632,15 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 ## Exit Criteria (recheck before halt)
 
 All exit criteria C1–C9 listed in the plan index must hold before the pipeline declares completion. The enforcement gate is all-or-nothing: any SC FAIL blocks completion, remediation-first protocol applies, and escalation follows only after exhaustive remediation.
+
+---
+
+## Lifecycle Events
+
+```yaml
+lifecycle_events:
+  - timestamp: "2026-09-04T02:07:26Z"
+    event: plan_created
+    plan_file: ".opencode/.issues/2433/plan.md"
+    phase_count: 8
+```
