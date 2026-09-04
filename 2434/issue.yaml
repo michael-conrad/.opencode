@@ -2,7 +2,7 @@ title: '[SPEC] Test-framework commit/push/fetch/checkout cycle: hard-FAIL checko
   gate and mandatory pre-test cycle carve-out'
 status: open
 labels:
-- needs-approval
+- approved-for-pr
 - spec-draft
 body: '# [SPEC] Test-Framework Commit/Push/Fetch/Checkout Cycle: Hard-FAIL Checkout
   Gate and Mandatory Pre-Test Cycle Carve-Out
@@ -604,6 +604,6 @@ body: '# [SPEC] Test-Framework Commit/Push/Fetch/Checkout Cycle: Hard-FAIL Check
 
   Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-04T16:35:50+00:00'
-updated_at: '2026-09-04T16:47:49+00:00'
+updated_at: '2026-09-04T23:15:14+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2434
 remote_url: https://github.com/michael-conrad/.opencode/issues/2434
