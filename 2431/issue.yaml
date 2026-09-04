@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] Stacked-PR ordering gate: parent PR must wait for submodule PR
+  merges (stale pointers on parent PR tree)'
+status: open
+labels:
+- needs-approval
+- spec-draft
+body: ''
+created_at: '2026-09-04T23:17:30+00:00'
+updated_at: '2026-09-04T23:17:30+00:00'
