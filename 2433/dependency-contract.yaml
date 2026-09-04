@@ -1,0 +1,143 @@
+# Dependency contract — Issue #2433 (.opencode)
+# Extracted from artifacts/interface-compatibility.yaml `dependency_contract` section (present
+# in source — extracted as-is per research.md step 9) + phase-DAG variables for Z3 solving.
+# Generated 2026-09-03 by writing-plans research task (inline executor).
+# Phase DAG: 8 phases (SC-1..SC-8, 1:1 per spec Items 1-8); edges from artifacts/structure.yaml.
+version: 1
+source_artifact: .opencode/.issues/2433/artifacts/interface-compatibility.yaml
+scope: >-
+  Orchestrator dispatch discipline remediation (directive-text-only): system prompt Architecture-B
+  rewrite (SC-1), directive-layer halt-machinery re-pointing (SC-2), executing-plans
+  plan-execution rewrite (SC-3), whole-card forwarding elimination deck-wide (SC-4),
+  ORCHESTRATOR_ONLY_PLAN plan pre-flight guard (SC-5), TDT closed-set vocabulary migration
+  deck-wide (SC-6), per-step plan dispatch mode (SC-7), canonical dispatch-vocabulary
+  single-sourcing (SC-8).
+
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+  phase3_done:
+    type: bool
+  phase4_done:
+    type: bool
+  phase5_done:
+    type: bool
+  phase6_done:
+    type: bool
+  phase7_done:
+    type: bool
+  phase8_done:
+    type: bool
+  system_prompt_b_architecture:
+    type: bool
+  halt_machinery_repointed:
+    type: bool
+  plan_execution_orchestrator_owned:
+    type: bool
+  whole_card_forwarding_eliminated:
+    type: bool
+  plan_guard_defined:
+    type: bool
+  tdt_closed_set_migrated:
+    type: bool
+  plan_step_mode_emitted:
+    type: bool
+  canonical_table_read_linked:
+    type: bool
+
+preconditions:
+  - "z3.Not(system_prompt_b_architecture)"
+  - "z3.Not(halt_machinery_repointed)"
+  - "z3.Not(plan_execution_orchestrator_owned)"
+  - "z3.Not(whole_card_forwarding_eliminated)"
+  - "z3.Not(plan_guard_defined)"
+  - "z3.Not(tdt_closed_set_migrated)"
+  - "z3.Not(plan_step_mode_emitted)"
+  - "z3.Not(canonical_table_read_linked)"
+
+invariants:
+  - "z3.Implies(system_prompt_b_architecture, phase1_done)"
+  - "z3.Implies(halt_machinery_repointed, phase2_done)"
+  - "z3.Implies(plan_execution_orchestrator_owned, phase3_done)"
+  - "z3.Implies(whole_card_forwarding_eliminated, phase4_done)"
+  - "z3.Implies(plan_guard_defined, phase5_done)"
+  - "z3.Implies(tdt_closed_set_migrated, phase6_done)"
+  - "z3.Implies(plan_step_mode_emitted, phase7_done)"
+  - "z3.Implies(canonical_table_read_linked, phase8_done)"
+  - "z3.Implies(phase4_done, phase3_done)"
+  - "z3.Implies(phase6_done, z3.And(phase3_done, phase4_done))"
+  - "z3.Implies(phase8_done, z3.And(phase1_done, phase2_done, phase5_done, phase7_done))"
+
+postconditions:
+  - "phase1_done"
+  - "phase2_done"
+  - "phase3_done"
+  - "phase4_done"
+  - "phase5_done"
+  - "phase6_done"
+  - "phase7_done"
+  - "phase8_done"
+  - "system_prompt_b_architecture"
+  - "halt_machinery_repointed"
+  - "plan_execution_orchestrator_owned"
+  - "whole_card_forwarding_eliminated"
+  - "plan_guard_defined"
+  - "tdt_closed_set_migrated"
+  - "plan_step_mode_emitted"
+  - "canonical_table_read_linked"
+
+dependency_edges:
+  - source: ".opencode/prompts/default.txt"
+    target: ".opencode/reference/skill-card-description-standards.md (canonical dispatch-vocabulary table)"
+    type: "read_link_reference"
+    constraint: "System prompt MUST reference the canonical table via Read-link and MUST NOT restate or contradict dispatch definitions (SC-8, R-8). Architecture-B prose required (SC-1, R-1)."
+  - source: ".opencode/guidelines/022-orchestrator-context-discipline.md"
+    target: ".opencode/reference/skill-card-description-standards.md (canonical dispatch-vocabulary table)"
+    type: "read_link_reference"
+    constraint: "Halt machinery MUST trigger on whole-card/whole-plan forwarding, never on sanctioned orchestrator direct execution (SC-2, R-2)."
+  - source: ".opencode/guidelines/000-critical-rules.md"
+    target: ".opencode/guidelines/022-orchestrator-context-discipline.md"
+    type: "directive_alignment"
+    constraint: "Whole-card prohibition (critical-rules-XXX) retained; Infrastructure-Failure Carve-out and routing-bypass classifications MUST reference forwarding-based violations consistent with 022's re-pointed halt machinery (SC-2, R-2)."
+  - source: ".opencode/skills/executing-plans/SKILL.md"
+    target: ".opencode/skills/executing-plans/tasks/read-plan.md"
+    type: "tdt_reference"
+    constraint: "read-plan card MUST route plan reading to the orchestrator's own context, not a sub-agent (SC-3, R-3)."
+  - source: ".opencode/skills/executing-plans/SKILL.md"
+    target: ".opencode/skills/executing-plans/tasks/dispatch-phase.md"
+    type: "tdt_reference"
+    constraint: "dispatch-phase MUST dispatch a step's task card via task() ONLY where the plan step marks dispatch; whole-plan/whole-workflow forwarding absent (SC-3, R-3)."
+  - source: ".opencode/reference/task-card-structure-standards.md"
+    target: "leaf sub-agent entry pattern (task-card directive text)"
+    type: "guard_definition"
+    constraint: "ORCHESTRATOR_ONLY_PLAN guard semantics MUST be defined in the standards doc and stated in the sub-agent entry pattern; trip condition = whole plan body in dispatch prompt (SC-5, R-5)."
+  - source: ".opencode/skills/**/SKILL.md (51)"
+    target: ".opencode/reference/skill-card-description-standards.md (closed TDT vocabulary)"
+    type: "vocabulary_conformance"
+    constraint: "All TDT Dispatch values ∈ {orchestrator, task-card, task-card blind}; TDT rows agree with Invocation; blanket clause rewritten in all 45 carrying cards (SC-6, R-6). Guards ORCHESTRATOR_ONLY_SKILL_CARD retained in 51/51 (SC-4, R-4)."
+  - source: ".opencode/skills/writing-plans/reference/plan-artifact-format.md"
+    target: ".opencode/skills/writing-plans/tasks/create.md (producer template)"
+    type: "format_conformance"
+    constraint: "Per-step dispatch mode (direct | task-card, default direct) defined in canonical format and emitted by producer templates so every produced plan step carries an explicit mode (SC-7, R-7)."
+  - source: ".opencode/AGENTS.md (Universal Skill Dispatch Gate section)"
+    target: ".opencode/reference/skill-card-description-standards.md (canonical dispatch-vocabulary table)"
+    type: "read_link_reference"
+    constraint: "Dispatch directives use the canonical table via Read-link; retired-vocabulary header prose ('Amateurs inline.') rewritten (SC-8, R-8). Non-dispatch AGENTS.md content out of scope (spec §2)."
+
+global_invariants:
+  - id: GUARDS_RETAINED_51
+    constraint: "All 51 SKILL.md retain ORCHESTRATOR_ONLY_SKILL_CARD guard after every card edit (verified 51/51 pre-implementation; state invariant at every phase boundary)."
+  - id: RESULT_CONTRACT_ENVELOPE_UNCHANGED
+    constraint: "Sub-agent result contract envelope {status, finding_summary, artifact_path, blocker_reason} stays as-is (spec §2)."
+  - id: OLD_PLANS_READABLE
+    constraint: "Retired vocabularies in pre-existing plans remain valid for reading; only new plans must carry closed-set per-step modes (spec §11)."
+  - id: DIRECTIVE_TEXT_ONLY
+    constraint: "No code, DB, or serialized-data change; every deliverable is directive text in the .opencode deck (spec §2)."
+
+dependency_contract_notes:
+  - "All dependencies are directive-text/artifact-schema couplings inside the .opencode deck — no code, DB, or wire interfaces."
+  - "DEP-1, DEP-2, DEP-7, DEP-9 converge on the canonical vocabulary table: it must exist (Item 8) for all Read-link edges to resolve."
+  - "DEP-6 is the only NEW guard interface; card-side guard interface is unchanged and verified 51/51."
+  - "Phase-DAG variables encode the structure.yaml edges: 3->4, 3->6, 4->6, 1->8, 2->8, 5->8, 7->8."

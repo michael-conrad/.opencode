@@ -1,0 +1,81 @@
+# Plan problem — issue #2433 phase decomposition for tools/plan (unified-planning)
+# Actions are grounded per phase; preconditions encode the dependency DAG from
+# artifacts/structure.yaml. Generated 2026-09-03 by writing-plans research task (inline executor).
+# Edges: 3->4, 3->6, 4->6, 1->8, 2->8, 5->8, 7->8. Independent phases (1, 2, 3, 5, 7)
+# are mutually orderable; the DAG constrains only the deck-sweep chain and the
+# directive-layer Read-link convergence (phase 8).
+domain: dispatch-discipline-remediation
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+  - name: phase4
+    type: phase
+  - name: phase5
+    type: phase
+  - name: phase6
+    type: phase
+  - name: phase7
+    type: phase
+  - name: phase8
+    type: phase
+fluents:
+  - name: phase_clean
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: rewrite_system_prompt_b
+    preconditions: []
+    effects:
+      - phase_clean(phase1)
+  - name: repoint_halt_machinery
+    preconditions: []
+    effects:
+      - phase_clean(phase2)
+  - name: rewrite_executing_plans
+    preconditions: []
+    effects:
+      - phase_clean(phase3)
+  - name: eliminate_whole_card_forwarding
+    preconditions:
+      - phase_clean(phase3)
+    effects:
+      - phase_clean(phase4)
+  - name: add_plan_preflight_guard
+    preconditions: []
+    effects:
+      - phase_clean(phase5)
+  - name: migrate_tdt_closed_set
+    preconditions:
+      - phase_clean(phase3)
+      - phase_clean(phase4)
+    effects:
+      - phase_clean(phase6)
+  - name: add_plan_step_dispatch_mode
+    preconditions: []
+    effects:
+      - phase_clean(phase7)
+  - name: single_source_vocabulary
+    preconditions:
+      - phase_clean(phase1)
+      - phase_clean(phase2)
+      - phase_clean(phase5)
+      - phase_clean(phase7)
+    effects:
+      - phase_clean(phase8)
+init: []
+goals:
+  - phase_clean(phase1)
+  - phase_clean(phase2)
+  - phase_clean(phase3)
+  - phase_clean(phase4)
+  - phase_clean(phase5)
+  - phase_clean(phase6)
+  - phase_clean(phase7)
+  - phase_clean(phase8)

@@ -1,0 +1,23 @@
+# Plan output — tools/plan plan for issue #2433 (captured from live stdout 2026-09-03;
+# the tool prints YAML to stdout — no --output flag exists on the plan subcommand, per #2429 precedent)
+actions:
+- name: rewrite_executing_plans
+  parameters: []
+- name: add_plan_preflight_guard
+  parameters: []
+- name: add_plan_step_dispatch_mode
+  parameters: []
+- name: eliminate_whole_card_forwarding
+  parameters: []
+- name: repoint_halt_machinery
+  parameters: []
+- name: rewrite_system_prompt_b
+  parameters: []
+- name: migrate_tdt_closed_set
+  parameters: []
+- name: single_source_vocabulary
+  parameters: []
+domain: dispatch-discipline-remediation
+engine: tamer
+plan_length: 8
+status: SOLVED_SATISFICING
