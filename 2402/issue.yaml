@@ -6,7 +6,7 @@ labels:
 - spec-cleared
 - approved-for-pr
 - needs-approval
-- spec-draft
+- pr-created
 body: '---
 
   remote_issue: 2402
@@ -37,4 +37,4 @@ body: '---
 
   '
 created_at: '2026-09-01T03:06:12+00:00'
-updated_at: '2026-09-01T04:19:32+00:00'
+updated_at: '2026-09-04T21:48:28+00:00'
