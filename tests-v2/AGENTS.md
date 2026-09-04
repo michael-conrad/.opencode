@@ -889,3 +889,31 @@ Anchor target for the §10.7 cross-reference — same content as the "with-test-
 ### Monitoring Evidence Requirement for Behavioral SC Verdicts
 
 Any behavioral SC verdict whose evidence comes from a monitored run MUST record the monitoring evidence (poll log or semantic diagnosis) alongside session.yaml in the scenario's evidence directory. A session.yaml alone does not prove the poll protocol executed — the poll log is the artifact that shows per-poll event-stream reads and judgments. Verdicts from unmonitored runs that burned a full timeout on an off-track state are a monitoring-mandate violation, not a valid verification path.
+
+---
+
+## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
+
+**Every `opencode run` behavioral invocation targets exactly the named scenario(s) the current SC's RED or GREEN evidence needs. One run per SC-RED need and one run per SC-GREEN need — no more.**
+
+### 🚫 PROHIBITED — Whole-Suite Model-Executing Invocations
+
+An agent instructed to "run the behavioral tests" (or any equivalent instruction) MUST NOT:
+
+- Enumerate `tests-v2/behaviors/*.sh` and launch a loop over all scenario scripts
+- Issue an unfiltered model-executing sweep (any invocation that starts `opencode run` sessions for more than the named scenarios the current SC needs)
+- Invoke any whole-suite mechanism (a glob over the behaviors directory, an "run all" script, or an unfiltered enumeration)
+- Batch "run the suite while you're at it" runs alongside a targeted run
+
+The >2000-run runaway observed during branch-finishing (2026-09-04) is the canonical defect this mandate closes: each unguarded "run the tests" instruction is a latent multi-hour model-execution runaway that masks per-SC evidence.
+
+### ✅ REQUIRED
+
+- **One run per SC need.** Each SC's RED phase runs its named probe scenario once; each SC's GREEN phase runs its named probe scenario once. Re-runs happen only for verified-FAIL remediation, not for coverage.
+- **Named scenarios only.** The per-SC re-run instruction names the current branch's SC scenarios explicitly (e.g., `2433-sc1-system-prompt-architecture-b.sh`), never a directory or glob.
+- **Derive or ask.** A bare "run the behavioral tests" instruction is answered by deriving the named scenarios needed for the current SC's RED/GREEN evidence (or asking the developer which SCs need testing) — never by enumerating the directory.
+- **Guard text scope.** The prohibition scopes to MODEL-EXECUTING invocations (`opencode run` sessions). Content-verification runners (`test-enforcement.sh`, skildeck standalone suites — no model runs) are EXEMPT from the named-scenario requirement; an unfiltered content-verification run is not a model-cost runaway. CI/umbrella content-verification runners are likewise exempt.
+
+### Harness Guard
+
+No whole-suite invocation mechanism exists in this harness: each `opencode run` names its target scenario(s); `behaviors/*.sh` scripts are launched individually via `bash .opencode/tests-v2/behaviors/<scenario>.sh` with the scenario name explicit in the command. An agent that finds itself constructing a loop, glob, or enumeration over `behaviors/*.sh` for model execution MUST stop and derive the named scenarios instead. Enforcing scenario: `2433-sc9-whole-suite-invocation-blocked.sh` (whole-suite attempt → BLOCKED/prohibited).

@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 ---
-trigger_on: orchestrator context, context discipline, sub-agent dispatch, task(), clean-room, result contract, inline work, dispatch gate
+trigger_on: orchestrator context, context discipline, sub-agent dispatch, task(), clean-room, result contract, whole-card forwarding, dispatch gate
 tier: 2
 load_when: sub-agent
 ---
@@ -113,17 +113,19 @@ Under `for_analysis` scope:
 
 These branches are NOT for implementation — they are ephemeral scratch space. The agent MUST NOT leave them behind.
 
-## ✅ ALWAYS DO — Orchestration Operations
+## ✅ ALWAYS DO — Orchestration Operations (Architecture B)
 
-- **The orchestrator allocates work by context cost.** Large or disposable work — full file reads, file edits, file writes, analysis, verification, and composition — MUST be delegated to clean-room sub-agents, whose context is disposable. Small, necessary, routing-relevant work that the orchestrator must hold — reading routing metadata, receiving result contracts, routing to the next pipeline step — is performed by the orchestrator in its own context. This is an allocation-by-context-cost model: large/disposable → sub-agent; small/necessary → orchestrator. It does not loosen the prohibition on the orchestrator doing large/disposable work inline. This context-cost dimension is distinct from the cost-blind dimension (verification/execution cost — never skip a tool call): cost-blind governs whether a sub-agent task or tool call is executed at all, while context-cost governs which of those tasks run in the orchestrator's own bounded context versus a disposable sub-agent context. Both are NON-WAIVABLE — the re-scope changes only the framing of the inline-work rule, never which tasks are delegated vs inline.
+- **The orchestrator executes skill workflow steps directly in its own context.** Loading a skill gives the orchestrator a workflow: it reads the loaded card's Trigger Dispatch Table and Invocation in its own context, executes the workflow's steps itself (own-context file reads, own tool calls), and dispatches a task card via `task()` ONLY at the points the workflow explicitly marks for dispatch. Direct execution of workflow steps is sanctioned — it is NOT inline work. The context-cost model still governs what the orchestrator keeps in its bounded context: large deliverable-producing work the workflow explicitly marks as a sub-task dispatch goes to a clean-room sub-agent; small, necessary, routing-relevant work (reading routing metadata, receiving result contracts, routing to the next pipeline step) is performed by the orchestrator. This is distinct from the cost-blind dimension (verification/execution cost — never skip a tool call): cost-blind governs whether a task or tool call is executed at all, while context-cost governs which of those tasks run in the orchestrator's own bounded context versus a disposable sub-agent context. Both are NON-WAIVABLE.
 
-EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is the small, necessary, routing-relevant work that the allocation-by-context-cost model assigns to the orchestrator. `skill()` auto-loads the SKILL.md into the orchestrator's context — the routing metadata is already present and small; sub-agents cannot call `skill()` or load skills themselves, so the orchestrator must read these sections to determine which task card to dispatch and what canonical dispatch string to use. The orchestrator dispatches the task card (`tasks/<name>.md`), not the skill card (SKILL.md), to the sub-agent.
+EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispatch Table and Invocation section in the orchestrator's own context is the small, necessary, routing-relevant work that the allocation-by-context-cost model assigns to the orchestrator. `skill()` auto-loads the SKILL.md into the orchestrator's context — the routing metadata is already present and small; sub-agents cannot call `skill()` or load skills themselves, so the orchestrator must read these sections to execute the workflow correctly.
 
 | Artifact | File | Consumer | Content | Action |
 |----------|------|----------|---------|--------|
-| Skill Card | SKILL.md | Orchestrator | Routing metadata (Trigger Dispatch Table, Invocation, DISPATCH_GATE) | Load via skill(), read in own context, do NOT dispatch |
-| Task Card | tasks/<name>.md | Sub-agent | Execution procedure (entry criteria, steps, exit criteria) | Dispatch via task() using canonical string from Invocation |
-- **Orchestrator inline work detected → HALT.** When the orchestrator performs inline work (reading files, running analysis, making decisions instead of task()ing sub-agents), the orchestrator MUST HALT immediately. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](000-critical-rules.md).
+| Skill Card | SKILL.md | Orchestrator | Routing metadata (Trigger Dispatch Table, Invocation, DISPATCH_GATE) | Load via skill(), read in own context, execute its workflow directly, do NOT forward |
+| Task Card | tasks/<name>.md | Sub-agent (only where the workflow marks dispatch) | Execution procedure (entry criteria, steps, exit criteria) | Dispatch via task() using canonical string from Invocation, at workflow-marked points only |
+
+Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, Architecture B, the TDT closed set, and the plan-step dispatch modes; this guideline carries no duplicate dispatch definitions.
+- **Whole-card or whole-plan forwarding detected → HALT.** When the orchestrator forwards SKILL.md content, a whole workflow, or a whole plan to a sub-agent via task(), the orchestrator MUST HALT immediately. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](000-critical-rules.md). Sanctioned direct execution of workflow steps by the orchestrator is NOT a halt trigger — the machinery fires on forwarding, not on direct execution.
 - **Discard all work on sub-agent failure before re-task.** When a sub-agent returns `status: BLOCKED` or fails, ALL work produced by that sub-agent MUST be discarded before re-task. The sub-agent's failure contaminates its output — the cause of the failure and the cause of any incorrect output are not distinguishable. Preserving partial output and re-tasking with it risks propagating contaminated state. Re-task with original scoped context only — the re-task sub-agent starts from the pre-failure branch state. This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override the discard requirement. Read [000-critical-rules.md §Discard on Sub-Agent Failure](000-critical-rules.md). **This discard requirement applies to pipeline execution artifacts (sub-agent output, work state files, cached results, temp files). It does NOT apply to published tracking documents (issue bodies, plan files, spec files, comments) — those are edited in place to fix defects.**
 - **When an issue body, plan file, or spec file has a content defect, the correct action is to edit the body to fix the defect. Closing the issue and recreating is the last resort, not the first.**
 - **"Continue" does NOT waive mandatory pipeline gates.** Cumulative "continue" messages ("please continue", "go on", "proceed") and session momentum do NOT waive mandatory gates (coherence gate, verification-before-completion, finishing-a-development-branch checklist, review-prep). Only pipeline-scoped authorization (`approved #N to PR`, `approved #N for plan`) changes `halt_at`. Every mandatory gate fires on EVERY implementation pass regardless of how many "continue" messages preceded it. "Continue" means "proceed to the next step" — it does NOT mean "skip the step." This is a NON-WAIVABLE hard gate — no authorization, scope, or developer instruction can override mandatory gate execution. Read [000-critical-rules.md §Gate Non-Waiver Principle](000-critical-rules.md).
@@ -138,64 +140,60 @@ EXCEPTION — Skill routing metadata: Reading a loaded SKILL.md's Trigger Dispat
 - **Functional/behavioral test substitution is FORBIDDEN.** When a behavioral/functional test cannot be executed (model unavailable, timeout, infrastructure failure), the agent MUST report FAIL — NEVER substitute grep, string matching, metadata checks, pattern scanning, or file-existence checks. "Functional test" and "behavioral test" are synonymous in this rule.
 - **Remediate before escalating.** Escalation is only permitted after verified remediation failure. Skipping remediation is not a valid choice.
 
-### [critical-rules-034] Inline Work — orchestrator performing file modifications without sub-agent task() (Tier 2 — cannot be mechanically enforced)
-An orchestrator that reads files, edits files, or makes decisions inline has stopped being a router and started being a contaminant. Amateurs do the work themselves. Professionals route to sub-agents. Detailed rules below.
+### [critical-rules-034] Whole-Card/Whole-Plan Forwarding — orchestrator forwarding card content or whole workflows to sub-agents (Tier 2 — cannot be mechanically enforced)
+An orchestrator that forwards SKILL.md content, a whole workflow, or a whole plan to a sub-agent has handed orchestrator-only routing metadata to a context that cannot act on it. Amateurs forward cards. Professionals execute workflows and dispatch task cards at marked points. Detailed rules below.
 
 #### 🚫 FORBIDDEN
-- The main orchestrator reading, editing, writing, or analyzing files in its own context
+- Forwarding SKILL.md content (Trigger Dispatch Table, Invocation, DISPATCH_GATE, workflow prose) to a sub-agent via task()
+- Forwarding a whole workflow or a whole plan body to a sub-agent via task()
+- task() prompt content that includes card content or plan content rather than a task-card dispatch string
 - Sub-agents combining multiple steps (analyze + write + verify) in a single task()
 - The producer of a deliverable also verifying that deliverable (self-verification)
 - Sub-agents receiving orchestrator reasoning, expected outcomes, or cached results
 - task()ing a sub-agent without a `dispatch_context` object specifying `must_receive` and `must_not_receive`
-- Any SKILL.md performing inline work (reading files, running analysis, making decisions) instead of delegating to sub-agents
 
 #### ✅ REQUIRED
-- ALL task execution uses clean-room sub-agents decomposed into discrete single-step units
-- The orchestrator is a pure router — it tasks sub-agents via task() and collects result contracts, never performing work inline
-- Every pipeline stage is a logged sub-agent task() in the work state file
-- Every SKILL.md contains a task context audit table documenting sub-agent tasks, scope, exclusions, and inline-work status
-- Verification is ALWAYS performed by a different sub-agent from the producer, with ONLY the deliverable + spec received
+- The orchestrator executes skill workflow steps directly in its own context (sanctioned direct execution)
+- task() dispatches occur only at workflow-marked points, carrying a task-card dispatch string — never card content, never a whole plan
+- Verification is ALWAYS performed by a different agent from the producer, with ONLY the deliverable + spec received
 - Sub-agents receive minimal context (issue number + scoped instruction) — no orchestrator preload
 
 #### Violation Patterns
 
 | Violation Pattern | Correct Action |
 | -- | -- |
-| Orchestrator reads file inline to "understand context" | Task routing sub-agent instead |
-| Orchestrator edits guideline text inline | Task guideline-update sub-agent |
-| Orchestrator creates issue content inline ("straightforward content, I'll write it myself") | Task issue-operations skill |
+| Orchestrator forwards SKILL.md content in a task() prompt | HALT — whole-card forwarding; execute the workflow in own context instead |
+| Orchestrator forwards a whole plan body to a sub-agent | HALT — whole-plan forwarding; the orchestrator reads the plan and executes steps directly |
 | Sub-agent performs analysis + writing + verification in one task() | Decompose into 3 tasks (analyze, write, verify) |
 | Verifier receives producer's reasoning or drafts | Verifier gets only deliverable + SC list |
-| Orchestrator performs inline work | HALT — discard pipeline state, restart from last known good commit checkpoint tag |
-| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
 | Sub-agent detects spec/plan defect but proceeds with GREEN anyway | Sub-agent returns BLOCKED — defect must be resolved before continuing |
 | User said "continue" so mandatory checks are optional | Mandatory gates are structural invariants — "continue" is NOT authorization to skip |
 | Sub-agent skips defect detection in GREEN phase (code-complete without verification) | GREEN sub-agent MUST produce verification evidence before returning |
 | Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
-| Orchestrator creates issue content inline (Edit on `.issues/` or direct `github_issue_write`) | Dispatch to `issue-operations --task creation`. **Fallback:** If `skill("issue-operations")` + `task()` is unavailable, use `github_issue_write` directly but MUST log tool name, version, and reason in a comment on the created issue. |
+| RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
 
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
-Reading a SKILL.md routing section and then executing the task inline means every quality gate in that skill was silently bypassed. Amateurs inline. Professionals dispatch. See DISPATCH_GATE procedure below.
+Reading a SKILL.md routing section and then silently bypassing that skill's quality gates means the gates never ran. See DISPATCH_GATE procedure below.
 
 #### DISPATCH_GATE Checkpoint Procedure
-Every routing decision in the approval-gate pipeline chain MUST be followed by an explicit DISPATCH_GATE that forces handoff to a sub-agent:
+Every workflow step the orchestrator executes directly (Architecture B) runs under the loaded skill's gates. Where the workflow marks a sub-task dispatch, the dispatch MUST carry the canonical task-card string — never card content:
 
-1. **Confirm next action is task()** — verify the routing decision has been made
-2. **Task sub-agent** — call `task(subagent_type="general")` with scoped context
-3. **Receive result contract** — collect the structured result (never read the full task file)
+1. **Confirm the step's dispatch mode** — the workflow either marks the step as a sub-task dispatch or the orchestrator executes it directly
+2. **At marked points** — call `task(subagent_type="general")` with the canonical task-card dispatch string and scoped context
+3. **Receive result contract** — collect the structured result (never card content)
 4. **Log in work state file** — record which sub-agent was tasked and when
 5. **Proceed based on result contract** — route to next pipeline step based on sub-agent output
 
-- 🚫 FORBIDDEN: Loading a SKILL.md routing section and then performing the described task inline
-- 🚫 FORBIDDEN: Reading full SKILL.md content (beyond the routing section) in the orchestrator context
-- ✅ REQUIRED: After reading routing metadata, immediately task a sub-agent for execution
-- ✅ REQUIRED: The orchestrator NEVER loads task file content — it only receives result contracts
+- 🚫 FORBIDDEN: Forwarding SKILL.md content or a whole workflow to a sub-agent instead of executing the workflow in own context
+- 🚫 FORBIDDEN: Dispatching a task() prompt that carries card content instead of a task-card dispatch string
+- ✅ REQUIRED: Workflow steps execute in the orchestrator's own context unless the workflow marks the step for dispatch
+- ✅ REQUIRED: At marked dispatch points, the canonical task-card string from the Invocation section is used verbatim
 
-### [critical-rules-034] Orchestrator Inline Work = pipeline contamination (Tier 2 — cannot be mechanically enforced)
-Orchestrator inline work detected → HALT. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](000-critical-rules.md).
+### [critical-rules-034] Whole-Card/Whole-Plan Forwarding = pipeline contamination (Tier 2 — cannot be mechanically enforced)
+Whole-card or whole-plan forwarding detected → HALT. Discard pipeline execution state (work state files, cached results, sub-agent output). Published artifacts (issues, plans, specs) are edited in place — do not close and recreate. Restart from last known good commit checkpoint tag per Checkpoint Rollback Exception. Non-waivable. Read [000-critical-rules.md §Checkpoint Rollback Exception](000-critical-rules.md).
 
-- 🚫 FORBIDDEN: Continuing the pipeline after detecting orchestrator inline work; attempting to "clean up" or "patch" after orchestrator inline work; preserving any cached state, work state files, or verification results produced during the inline work session
-- ✅ REQUIRED: On detection of orchestrator inline work: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from last known good commit checkpoint tag; log the detection event in the new work state file
+- 🚫 FORBIDDEN: Continuing the pipeline after detecting whole-card/whole-plan forwarding; attempting to "clean up" or "patch" after forwarding; preserving any cached state, work state files, or verification results produced during the forwarding session
+- ✅ REQUIRED: On detection of whole-card/whole-plan forwarding: HALT immediately; discard ALL work state files, cached results, and in-progress artifacts; restart from last known good commit checkpoint tag; log the detection event in the new work state file
 
 ### [critical-rules-042] Discard on Sub-Agent Failure
 Preserving output from a BLOCKED sub-agent means propagating contaminated state into the next attempt. Amateurs salvage. Professionals discard and re-task with original context.
@@ -203,23 +201,23 @@ Preserving output from a BLOCKED sub-agent means propagating contaminated state 
 ### [critical-rules-034] Tool-Recipe Task() — sub-agents as API proxies (Tier 2 — cannot be mechanically enforced)
 Tasking a sub-agent with `github_create_pull_request` instead of "create a PR" means you are using the agent as an API proxy, not an engineer. Professional agents task objectives. Amateurs task tool recipes. Every tool-recipe dispatch is a decision you made for the sub-agent, not a problem you gave it to solve.
 
-### [critical-rules-048] Skill Pre-Read + Inline Execution — reading skill task files and executing steps manually
+### [critical-rules-048] Skill Pre-Read + Manual Execution — executing skill steps without loading the skill
 
-Reading a skill's task files and then inlining the steps means you are bypassing the quality gates designed to catch your mistakes. Professional agents load skills. Amateurs inline. Every skill you pre-read and execute manually is a defect you accepted before writing a single line of code.
+Executing a skill's steps without loading the skill via `skill()` means you are bypassing the quality gates designed to catch your mistakes. Professional agents load skills. Every workflow executed without loading its card first is a defect you accepted before writing a single line of output. (Executing the steps of a LOADED skill in the orchestrator's own context is sanctioned direct execution — see the Orchestration Operations section.)
 
 **3-Way Violation Distinction:**
 
 | Violation | ID | What Happens |
 |----------|-----|-------------|
-| Pre-read skill + inline execute | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
-| Orchestrator inline work | critical-rules-034 | Agent performs file modifications or analysis inline without sub-agent task() |
+| Pre-read skill + manual execution without skill() | critical-rules-048 | Agent reads `.md` task file, executes steps manually without calling `skill()` |
+| Whole-card/whole-plan forwarding | critical-rules-034 | Orchestrator forwards SKILL.md content, a whole workflow, or a whole plan to a sub-agent via task() |
 | Tool-recipe dispatch | #329 (spec-fix) | Agent tasks sub-agent with raw API calls instead of task objectives |
 
 ### [critical-rules-044] Preloading Sub-Agent Context — task()ing with pre-determined file paths/line numbers/outcomes
 Handing a sub-agent pre-determined file paths, line numbers, and expected outcomes means you are not asking the sub-agent to do the work — you are asking it to execute your guesses. Professional engineers gate every execution behind a pre-analysis sub-agent that discovers the scope independently. Amateurs preload their assumptions.
 
-### [critical-rules-043] Universal Re-Task Mandate — no inline fallback on sub-agent failure
-When a sub-agent fails, inline fallback means the failure contaminates your pipeline — you inherit the same context that caused the error. Professional engineers always re-task clean-room with the same scoped context. Amateurs patch in place and compound their problems.
+### [critical-rules-043] Universal Re-Task Mandate — no unverified self-continuation on sub-agent failure
+When a sub-agent fails, proceeding on the failed output means the failure contaminates your pipeline — you inherit the same context that caused the error. Professional engineers always re-task clean-room with the same scoped context. Amateurs patch in place and compound their problems. (Read-only/verification work after repeated infrastructure-level dispatch failures is governed by the Infrastructure-Failure Carve-Out in 000-critical-rules.md, not this rule.)
 
 ### [critical-rules-063] Orchestrator Context Lean — orchestrator holds routing metadata only
 The orchestrator holds routing metadata only (worktree.path, github.owner, github.repo, authorization_scope, halt_at, pr_strategy, pipeline_phase, pipeline_history). Task file contents, analysis artifacts, and verification results go to sub-agents or disk. Read [Orchestrator Context Lean](#1-orchestrator-context-lean).

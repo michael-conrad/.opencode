@@ -15,7 +15,7 @@ Cleanup management sub-skill of git-workflow. Handles post-merge cleanup, PR sta
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -37,7 +37,7 @@ When the agent needs to clean up after a PR merge — delete merged branches, cl
   - **Context passed:** `{pr_merged_event}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
   - **Execution mode:** sub-agent dispatch
-  - **Executor note:** The cleanup executor IS the dispatched sub-agent. It performs the cleanup work directly (as the executor) and returns a structured result contract. It MUST NOT re-dispatch itself via `task()` — a sub-agent's `task` tool is denied by its permission config. Any sub-task routing described in the task cards (e.g., submodule trunk restore) is performed inline by the executor.
+  - **Executor note:** The cleanup executor IS the dispatched sub-agent. It performs the cleanup work directly (as the executor) and returns a structured result contract. It MUST NOT re-dispatch itself via `task()` — a sub-agent's `task` tool is denied by its permission config. Any step-level routing described in the task cards (e.g., submodule trunk restore) is performed by the executor directly.
 
 ### Clean up a pair mode branch
 

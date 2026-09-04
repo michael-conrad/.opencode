@@ -32,7 +32,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 **The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
 
-The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
+The orchestrator follows the steps below step-by-step, in order. The `Execution mode` sub-bullet on every step makes the execution decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()` with a task-card dispatch string; `orchestrator` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
 
 ### Create a new spec
 
@@ -76,7 +76,7 @@ The validate→revise loop uses a 3-tier escalation when validation continues to
 The tier counter resets when validate returns PASS (successful exit from the loop).
 
 - [ ] 5. **If validate returns PASS:** Spec is ready for approval. Report spec_path and issue_url.
-  - **Execution mode:** inline
+  - **Execution mode:** orchestrator
 
 ### Revise an existing spec
 
@@ -91,7 +91,7 @@ The tier counter resets when validate returns PASS (successful exit from the loo
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
-  - **Execution mode:** inline
+  - **Execution mode:** orchestrator
 
 ## Cross-References
 

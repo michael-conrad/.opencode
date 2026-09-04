@@ -159,6 +159,30 @@ The result contract is the sub-agent's only output. Full evidence artifacts go t
 
 ---
 
+## 2a. Plan Pre-Flight Guard — `ORCHESTRATOR_ONLY_PLAN`
+
+The card-side pre-flight guard (`ORCHESTRATOR_ONLY_SKILL_CARD`, defined in `skill-card-description-standards.md`) protects skill cards from sub-agent consumption. Plans are the other whole-artifact forwarding target and carry the analogous guard:
+
+**Every leaf sub-agent MUST carry a plan pre-flight guard that detects a whole plan body in its dispatch prompt and rejects it:**
+
+> If your `task()` dispatch prompt contains a whole plan document body (a plan's phases, step-by-step sections, or phase-completion criteria — i.e., a plan document forwarded verbatim rather than a step-scoped prompt or a task-card path), you MUST NOT consume or execute it. Return `status: BLOCKED` with `blocker_reason: ORCHESTRATOR_ONLY_PLAN` and halt.
+
+**Trip condition (precisely specified):** the guard fires when the dispatch prompt contains the plan DOCUMENT BODY — phase structures, step lists, or completion criteria copied from a plan file. The guard does NOT fire on:
+
+- Step-scoped prompts that reference a plan by path (e.g., "execute the step at plan section X" with the orchestrator's own context)
+- Task-card dispatch strings (`tasks/*.md` paths) — the sanctioned carriers
+- Result-contract data or context fields that happen to name a plan file
+
+**Why:** plans are orchestrator-consumed artifacts (the orchestrator reads the plan and executes steps in its own context per the executing-plans workflow). A sub-agent receiving a whole plan body would execute orchestrator-level pipeline work without authorization scope, dispatch capability, or verification gates — silent malfunction instead of a `BLOCKED` contract.
+
+**Canonical guard text (for sub-agent entry patterns in task-card directive text):**
+
+```
+If you are a sub-agent (dispatched via task()) and your dispatch prompt contains a whole plan body (phases, step-by-step sections, or phase-completion criteria forwarded from a plan document), you MUST NOT consume or execute it. Return status: BLOCKED with blocker_reason: ORCHESTRATOR_ONLY_PLAN and halt. Step-scoped prompts and task-card paths are unaffected — they are the sanctioned carriers.
+```
+
+---
+
 ## 3. Result Contract Format
 
 The result contract is a structured YAML object with exactly these fields:
@@ -195,6 +219,16 @@ Dispatch a sub-agent with the prompt "Follow the instructions in [<skill>/tasks/
 This is required because `task()` does NOT auto-load task card files. The sub-agent must use its own file read tools to load the task card.
 
 The discovery directive is routing metadata (which file to read), not preloading. It tells the sub-agent where to find its instructions — it does not tell the sub-agent what those instructions say.
+
+### Sub-Agent Entry Pattern
+
+The canonical sub-agent entry pattern opens every dispatch prompt: `You are a sub-agent.` followed by the discovery directive and context. The entry pattern MUST carry the plan pre-flight guard so a leaf sub-agent receiving a whole plan body rejects it before consuming any content:
+
+```
+You are a sub-agent. Follow the instructions in [<skill>/tasks/<task>.md](.opencode/skills/<skill>/tasks/<task>.md). {context data}
+```
+
+If the dispatch prompt contains a whole plan body (phases, step-by-step sections, or phase-completion criteria forwarded from a plan document), the sub-agent MUST NOT consume or execute it — return `status: BLOCKED` with `blocker_reason: ORCHESTRATOR_ONLY_PLAN` and halt. Step-scoped prompts and task-card paths are unaffected — they are the sanctioned carriers. Guard semantics: [§2a Plan Pre-Flight Guard](#2a-plan-pre-flight-guard--orchestrator_only_plan).
 
 ### Purpose Statement as Dispatch-Anchor Source
 
@@ -245,7 +279,7 @@ This rule ensures that validation criteria stay synchronized with their authorit
 
 ## 8. Cross-References
 
-- `reference/skill-card-description-standards.md` — Description field standards and persona framing
+- Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, whole-card/whole-plan forwarding prohibitions, and the plan-step dispatch modes; this file's guard and mode definitions reference that table instead of restating vocabulary.
 - `reference/skill-card-schema.md` — SKILL.md frontmatter schema (binary constraints)
 - `skills/skill-creator/reference/skill-card-spec.md` — Skill card structure reference
 - `skills/skill-creator/reference/routing-only-template.md` — Canonical routing-only SKILL.md template

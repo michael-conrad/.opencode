@@ -23,22 +23,22 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "pre-creation" / "prepare issue" | `pre-creation` | `sub-task` | {issue_context} |
-| "single-task-check" / "check single task" | `single-task-check` | `sub-task` | {issue_number} |
-| "create issue" / "new issue" | `creation` | `sub-task` | {issue_body} |
-| "post-creation" / "after create" | `post-creation` | `sub-task` | {issue_number} |
-| "close issue" | `close` | `sub-task` | {issue_number} |
-| "verify merge" / "check merged" | `verify-merge` | `sub-task` | {issue_number} |
-| "capabilities" / "list capabilities" | `capabilities` | `sub-task` | {platform} |
-| "body-edit" / "edit body" | `body-edit` | `sub-task` | {issue_number, new_body} |
-| "read-issue" / "get issue" | `read-issue` | `sub-task` | {issue_number} |
-| "read-comments" / "get comments" | `read-comments` | `sub-task` | {issue_number} |
-| "read-labels" / "get labels" | `read-labels` | `sub-task` | {issue_number} |
-| "list-issues" / "list with filters" | `list-issues` | `sub-task` | {filters} |
-| "search-issues" / "search" | `search-issues` | `sub-task` | {query} |
-| "update-issue" / "edit issue" | `update-issue` | `sub-task` | {issue_number, updates} |
-| "push-artifacts" / "push spec artifacts" | `push-artifacts` | `sub-task` | {issue_number} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "pre-creation" / "prepare issue" | `pre-creation` | `task-card` | {issue_context} |
+| "single-task-check" / "check single task" | `single-task-check` | `task-card` | {issue_number} |
+| "create issue" / "new issue" | `creation` | `task-card` | {issue_body} |
+| "post-creation" / "after create" | `post-creation` | `task-card` | {issue_number} |
+| "close issue" | `close` | `task-card` | {issue_number} |
+| "verify merge" / "check merged" | `verify-merge` | `task-card` | {issue_number} |
+| "capabilities" / "list capabilities" | `capabilities` | `task-card` | {platform} |
+| "body-edit" / "edit body" | `body-edit` | `task-card` | {issue_number, new_body} |
+| "read-issue" / "get issue" | `read-issue` | `task-card` | {issue_number} |
+| "read-comments" / "get comments" | `read-comments` | `task-card` | {issue_number} |
+| "read-labels" / "get labels" | `read-labels` | `task-card` | {issue_number} |
+| "list-issues" / "list with filters" | `list-issues` | `task-card` | {filters} |
+| "search-issues" / "search" | `search-issues` | `task-card` | {query} |
+| "update-issue" / "edit issue" | `update-issue` | `task-card` | {issue_number, updates} |
+| "push-artifacts" / "push spec artifacts" | `push-artifacts` | `task-card` | {issue_number} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
 
 ## Persona
 
@@ -67,7 +67,7 @@ Issue Operations Core Router. Focus: spec-first workflow, validation, labeling, 
 
 ## Invocation
 
-`skill({name: "issue-operations-core"})` — call the skill, then call via task():
+`skill({name: "issue-operations-core"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 |------|-----------------|

@@ -19,7 +19,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -34,28 +34,28 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "pre-creation" / "prepare issue" | `pre-creation` | `sub-task` | {issue_context} |
-| "single-task-check" / "check single task" | `single-task-check` | `sub-task` | {issue_number} |
-| "create issue" / "new issue" | `creation` | `sub-task` | {issue_body} |
-| "post-creation" / "after create" | `post-creation` | `sub-task` | {issue_number} |
-| "comment" / "add comment" / "post comment" | `comment` | `sub-task` | {issue_number, body} |
-| "close issue" | `close` | `sub-task` | {issue_number} |
-| "link sub-issue" / "add sub-issue" | `link-sub-issue` | `sub-task` | {parent_issue, sub_issue} |
-| "verify merge" / "check merged" | `verify-merge` | `sub-task` | {issue_number} |
-| "capabilities" / "list capabilities" | `capabilities` | `sub-task` | {platform} |
-| "body-edit" / "edit body" | `body-edit` | `sub-task` | {issue_number, new_body} |
-| "read-issue" / "get issue" | `read-issue` | `sub-task` | {issue_number} |
-| "read-comments" / "get comments" | `read-comments` | `sub-task` | {issue_number} |
-| "read-labels" / "get labels" | `read-labels` | `sub-task` | {issue_number} |
-| "read-sub-issues" / "get sub-issues" | `read-sub-issues` | `sub-task` | {issue_number} |
-| "list-issues" / "list with filters" | `list-issues` | `sub-task` | {filters} |
-| "search-issues" / "search" | `search-issues` | `sub-task` | {query} |
-| "sync-from-remote" / "reconcile" | `sync-from-remote` | `sub-task` | {platform} |
-| "update-issue" / "edit issue" | `update-issue` | `sub-task` | {issue_number, updates} |
-| "sync-pull-to-local" / "mirror to local" | `sync-pull-to-local` | `sub-task` | {issue_number} |
-| "import-remote" / "retroactive import" | `import-remote` | `sub-task` | {issue_number} |
-| "push-artifacts" / "push spec artifacts" | `push-artifacts` | `sub-task` | {issue_number} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "pre-creation" / "prepare issue" | `pre-creation` | `task-card` | {issue_context} |
+| "single-task-check" / "check single task" | `single-task-check` | `task-card` | {issue_number} |
+| "create issue" / "new issue" | `creation` | `task-card` | {issue_body} |
+| "post-creation" / "after create" | `post-creation` | `task-card` | {issue_number} |
+| "comment" / "add comment" / "post comment" | `comment` | `task-card` | {issue_number, body} |
+| "close issue" | `close` | `task-card` | {issue_number} |
+| "link sub-issue" / "add sub-issue" | `link-sub-issue` | `task-card` | {parent_issue, sub_issue} |
+| "verify merge" / "check merged" | `verify-merge` | `task-card` | {issue_number} |
+| "capabilities" / "list capabilities" | `capabilities` | `task-card` | {platform} |
+| "body-edit" / "edit body" | `body-edit` | `task-card` | {issue_number, new_body} |
+| "read-issue" / "get issue" | `read-issue` | `task-card` | {issue_number} |
+| "read-comments" / "get comments" | `read-comments` | `task-card` | {issue_number} |
+| "read-labels" / "get labels" | `read-labels` | `task-card` | {issue_number} |
+| "read-sub-issues" / "get sub-issues" | `read-sub-issues` | `task-card` | {issue_number} |
+| "list-issues" / "list with filters" | `list-issues` | `task-card` | {filters} |
+| "search-issues" / "search" | `search-issues` | `task-card` | {query} |
+| "sync-from-remote" / "reconcile" | `sync-from-remote` | `task-card` | {platform} |
+| "update-issue" / "edit issue" | `update-issue` | `task-card` | {issue_number, updates} |
+| "sync-pull-to-local" / "mirror to local" | `sync-pull-to-local` | `task-card` | {issue_number} |
+| "import-remote" / "retroactive import" | `import-remote` | `task-card` | {issue_number} |
+| "push-artifacts" / "push spec artifacts" | `push-artifacts` | `task-card` | {issue_number} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
 
 ## Persona
 

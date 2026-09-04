@@ -23,7 +23,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "comment" / "add comment" / "post comment" | `comment` | `sub-task` | {issue_number, body} |
+| "comment" / "add comment" / "post comment" | `comment` | `task-card` | {issue_number, body} |
 
 ## Persona
 
@@ -37,7 +37,7 @@ Issue Comment Gatekeeper. Focus: substantiveness check, byline format, platform-
 
 ## Invocation
 
-`skill({name: "issue-operations-comments"})` — call the skill, then call via task():
+`skill({name: "issue-operations-comments"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 |------|-----------------|

@@ -18,9 +18,11 @@ Every skill boundary requires a re-encounter of the enforcement identity. Profes
 
 ---
 
-## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
+## Universal Skill Dispatch Gate — Professional agents evaluate and follow the skill deck.
 
 Producing chat output without first evaluating and dispatching applicable skills means chat output without skill evaluation has bypassed the quality gates that catch defects. Every response produced without skill evaluation is a response produced blind. Agents who produce blind responses produce defective work — it is that direct. Do not be that agent.
+
+Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, and Architecture B routing; this section's dispatch directives use the canonical table instead of restating definitions.
 
 ### Pre-Response Gate Procedure — Your quality is determined here
 
@@ -33,7 +35,7 @@ skip it are not "fast" — they produce lower-quality work by definition.
 
 2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
 
-2.5. **Read the loaded SKILL.md's Trigger Dispatch Table and Invocation section to determine the correct dispatch string. Then dispatch the task card via task() using that canonical string.**
+2.5. **Read the loaded SKILL.md's Trigger Dispatch Table and Invocation section in your own context, then execute the workflow steps directly — dispatching a step's task card via task() only where the workflow marks dispatch (Dispatch value `task-card`).**
 
 3. **Only after skill content is loaded: proceed to produce the response.**
    The skill is not an interruption to your workflow — it IS the workflow.

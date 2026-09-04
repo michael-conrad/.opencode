@@ -23,9 +23,9 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "sync-from-remote" / "reconcile" | `sync-from-remote` | `sub-task` | {platform} |
-| "sync-pull-to-local" / "mirror to local" | `sync-pull-to-local` | `sub-task` | {issue_number} |
-| "import-remote" / "retroactive import" | `import-remote` | `sub-task` | {issue_number} |
+| "sync-from-remote" / "reconcile" | `sync-from-remote` | `task-card` | {platform} |
+| "sync-pull-to-local" / "mirror to local" | `sync-pull-to-local` | `task-card` | {issue_number} |
+| "import-remote" / "retroactive import" | `import-remote` | `task-card` | {issue_number} |
 
 ## Persona
 
@@ -41,7 +41,7 @@ Issue Sync Manager. Focus: bidirectional reconciliation, spec.md mirror mandate,
 
 ## Invocation
 
-`skill({name: "issue-operations-sync"})` — call the skill, then call via task():
+`skill({name: "issue-operations-sync"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 |------|-----------------|
