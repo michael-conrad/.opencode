@@ -1,0 +1,49 @@
+spec_path: .opencode/.issues/2431/spec.md
+issue_number: .opencode#2431
+approval_status:
+  approved: true
+  label: approved-for-pr
+  source: .opencode/.issues/2431/issue.yaml labels
+  halt_at: pr_created
+sc_count: 0
+sc_note: >
+  Spec contains no success criteria table. Sections present: Problem, Verified
+  Instance, Masking Factors, Root Cause, Scope (in/out), Approach, Impact,
+  Dependencies, Provenance. The Approach section defines a three-condition
+  ordering gate but no SC table with evidence types. Recorded as a finding;
+  the SC gap is reported for the plan writer to address via writing-plans
+  backfill/decomposition.
+artifact_presence:
+  blast-radius.yaml: missing
+  concern-map.yaml: missing
+  code-path-inventory.yaml: missing
+  cross-cutting-matrix.yaml: missing
+  interface-compatibility.yaml: missing
+  state-analysis.yaml: missing
+  testability-assessment.yaml: missing
+  missing_count: 7
+  note: >
+    artifacts/ directory does not exist for this issue. All 7 analytical
+    artifacts must be generated (writing-plans backfill task, retroactive mode)
+    before plan creation per the artifact gate.
+scope_boundary_findings:
+  all_referenced_files_exist: true
+  referenced_files:
+    - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      exists: true
+      note: Enforcement site 1 (pr-creation entry criteria); has pointers-ride-alongside rule at lines 50-58 but no submodule-PR-merge ordering gate
+    - path: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+      exists: true
+      note: Enforcement site 2 (pre-commit-pointer-check); checks dirty-pointer staging at commit time, no pre-PR merge-ancestry assertion
+    - path: .opencode/skills/executing-plans/
+      exists: true
+      note: Enforcement site 3 (post-implementation stage); executing-plans delegates post-implementation to git-workflow-pr/tasks/post-implementation.md
+    - path: .opencode/tests-v2/behaviors/
+      exists: true
+      note: Enforcement site 4 (behavioral test suite); 208 entries including submodule-pointer-enforcement.sh and stacked-pr-organization.sh as prior art
+out_of_scope_confirmed:
+  - Automatic submodule PR creation or cleanup
+  - SKIP_STALE_POINTER_CHECK semantics at commit time
+  - Human merge behavior
+  - Non-stacked (single-repo) PR flows
+related_prior_work: .opencode#2313 (pointer reachability gates — confirmed distinct, does not cover ordering)
