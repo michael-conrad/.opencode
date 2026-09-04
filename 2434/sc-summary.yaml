@@ -1,19 +1,27 @@
-sc_count: 9
+sc_count: 11
 scs:
   - id: "SC-1"
     description: "with-test-home clone+checkout site 1: hard-FAIL with remediation-naming message on uncheckoutable local submodule HEAD; pushed HEAD proceeds normally (no false positive)"
     evidence_type: "behavioral"
     plan_item: 1
-  - id: "SC-2"
-    description: "with-test-home clone+checkout site 2: identical hard-FAIL behavior and remediation message as SC-1; guard logic identical at both sites (DRY)"
+  - id: "SC-2a"
+    description: "with-test-home clone+checkout site 2: identical hard-FAIL behavior and remediation message as SC-1, exercised through the site-2 invocation path; pushed HEAD through site-2 proceeds normally"
     evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-2b"
+    description: "Guard logic at both with-test-home clone+checkout sites is identical (DRY — shared guard function or identical literal)"
+    evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
     description: "behavior_run() pre-flight gate: FAIL before flock/model dispatch on uncommitted submodule changes or effective commit (local HEAD or BEHAVIOR_SUBMODULE_COMMIT pin) absent from remote after fresh fetch; pinned unpushed SHA FAILS (no bypass); clean pushed state proceeds"
     evidence_type: "behavioral"
     plan_item: 3
-  - id: "SC-4"
-    description: "tests-v2/AGENTS.md §4 documents the ordered precondition cycle (commit → push → fetch/verify → run) for ALL behavioral runs as the infrastructure-maintenance carve-out; §5 describes the hard FAIL with no WARNING-fallback language"
+  - id: "SC-4a"
+    description: "tests-v2/AGENTS.md §4 documents the ordered precondition cycle (commit → push → fetch/verify → run) for ALL behavioral runs as the infrastructure-maintenance carve-out"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-4b"
+    description: "tests-v2/AGENTS.md §5 describes the hard FAIL with no WARNING-fallback language"
     evidence_type: "string"
     plan_item: 4
   - id: "SC-5"
