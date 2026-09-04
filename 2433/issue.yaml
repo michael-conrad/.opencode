@@ -3,6 +3,7 @@ title: '[SPEC] Remediate orchestrator dispatch discipline (skill-card execution,
 status: open
 labels:
 - approved-for-pr
+- spec-draft
 body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
 
 
@@ -110,6 +111,6 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-03T15:24:41+00:00'
-updated_at: '2026-09-04T01:34:25+00:00'
+updated_at: '2026-09-04T01:34:37+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2433
 github_url: https://github.com/michael-conrad/.opencode/issues/2433
