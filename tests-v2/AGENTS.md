@@ -34,6 +34,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 11. [Prompt Construction Mandate](#11-prompt-construction-mandate)
 12. [Self-Contained GitBucket Container for Remote API Tests](#12-self-contained-gitbucket-container-for-remote-api-tests)
 13. [Remote-Strategy Flags and Full-Environment Simulation](#13-remote-strategy-flags-and-full-environment-simulation)
+14. [Semantic Continuous Monitoring Mandate (Behavioral Runs)](#14-semantic-continuous-monitoring-mandate-behavioral-runs)
 
 ---
 
@@ -679,6 +680,8 @@ When a behavioral test times out (bash tool kills the script), session resumptio
 
 **🚫 FORBIDDEN:** Claiming resumption is impossible without attempting it. Resumption is the only valid first-line response to a timeout; the manual export + full re-run in §10.5 is the fallback for when resumption genuinely cannot run.
 
+**Known limitation (scope G, #2427):** `with-test-home` provisions a NEW test home per invocation, so `--continue` cannot reach a prior run's DB — resumption across invocations requires a shared-home mechanism that does not exist today. Within a single invocation (same test home), resumption works as documented above. The semantic continuous monitoring mandate (§14) replaces blind resume loops for off-track/hung runs: the monitor detects the stall mid-run and aborts with a recorded diagnosis instead of blindly resuming. Read [§14 Known Limitation](#14-known-limitation---continue-cannot-reach-a-prior-invocations-test-home).
+
 ## 11. Prompt Construction Mandate
 
 Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do.
@@ -816,3 +819,73 @@ This opt-in provides sibling submodules for tests that must discover or interact
 Combining `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1` enables **full-environment simulation**: the test workdir is provisioned with multi-submodule fixtures (sibling `test-submodule-1`/`test-submodule-2` repos) AND a wired GitBucket origin (test repo set as the project's `origin` remote with `GITBUCKET_PORT`/`GB_TOKEN` scoped into the isolated environment).
 
 This is the recommended configuration for remote-dependent tests that also need multi-submodule context, such as `2242-sc6`. Because full-environment simulation uses `BEHAVIOR_NEEDS_REMOTE` (not `BEHAVIOR_SET_BARE_REMOTE`), it does not trigger the mutual-exclusion rejection.
+
+---
+
+## 14. Semantic Continuous Monitoring Mandate (Behavioral Runs)
+
+**Every behavioral `opencode run` MUST be monitored semantically while it executes — blind full-timeout burns and blind resume loops are PROHIBITED.** (Issue #2427 scope G.)
+
+A behavioral run that goes off-track — looping on identical tool input, spinning in reasoning without goal-relevant tool calls, or stuck in a sub-agent dispatch — burns its full 600-900s timeout with no diagnosis and no partial evidence collected at the moment of failure. The monitoring mandate replaces the blind wait with interval polling of the live session DB and a semantic judgment each poll: is the agent progressing toward the scenario goal, or has it gone off-track?
+
+### The Monitoring Protocol — MANDATORY
+
+| Step | Action | Detail |
+|------|--------|--------|
+| 1 | **Launch in background** | The `opencode run` invocation is launched in the background (not awaited synchronously) so the harness can poll while inference proceeds. |
+| 2 | **Poll at intervals** | Poll at a fixed interval (e.g., 30-60s) for as long as the process runs. Each poll is cheap — a SQLite read against an already-present DB. |
+| 3 | **Read the live session DB** | Each poll reads the NEWEST `tmp/test-home-*/.local/share/opencode/opencode.db` (the current run's test home) and extracts the event stream: tool calls (name + input), reasoning sizes (char counts), and text parts. |
+| 4 | **Evaluate semantically** | Judge progression, not just mechanics: are completed tool calls goal-relevant for the scenario? Is reasoning growing without producing tool calls? Is the agent repeating itself? |
+| 5 | **Abort on signal** | On any hard-abort signal (below), kill the run, export session.yaml per §10.5, record the semantic diagnosis. |
+| 6 | **Record evidence** | The poll log (per-poll event-stream reads + judgments) or the semantic diagnosis MUST be recorded alongside session.yaml for any behavioral SC verdict whose evidence comes from a monitored run. |
+
+### Hard-Abort Signals — ZERO TOLERANCE
+
+A monitored run MUST be aborted (killed + exported + diagnosed) when ANY of the following fires:
+
+| # | Signal | Threshold |
+|---|--------|-----------|
+| 1 | Identical tool input | The same tool call with the same input appears >=3 times |
+| 2 | Stuck sub-agent dispatch | `task()` parts remain in `running` state across >=2 consecutive polls |
+| 3 | Reasoning runaway | Reasoning exceeds 20,000 chars with <=1 new completed tool call |
+| 4 | Semantically off-track | No goal-relevant completed tool call across 2+ consecutive polls while reasoning grows |
+
+Signal 4 is the semantic judgment and fires even when no mechanical threshold does — the mechanical signals (1-3) are necessary-but-not-sufficient triggers, not the only abort path. The poll log records the semantic reasoning for audit.
+
+### PROHIBITED Patterns (§14)
+
+| Pattern | Why Forbidden |
+|---------|---------------|
+| Launching a behavioral run and awaiting the full timeout with no polling | Blind waits burn 600-900s on runs that failed in the first minutes — defect-discovery latency with zero diagnostic yield |
+| Blind `--continue` resume loops after a hung run | Resuming a run that was already off-track repeats the identical stall — §10.7 resumption is for genuinely progressing runs (e.g., bash tool timeout), not for off-track states the monitor detected |
+| Skipping the semantic diagnosis after an abort | An abort without a recorded diagnosis destroys the evidence the verdict needs — the diagnosis IS the monitoring evidence |
+| Structural-only verdicts from monitored runs | Behavioral SCs verified via monitored runs MUST record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — structural substitutes are EVIDENCE_TYPE_MISMATCH |
+
+### Abort Recovery Procedure
+
+1. **Kill the run** — terminate the background `opencode run` process (the monitor kills the process; GNU `timeout` is still FORBIDDEN per the §5 Bash Tool Timeout Mandate — the monitor's own kill is the abort signal handler, not a timeout wrapper).
+2. **Export session.yaml** — follow the §10.5 manual export procedure (extract TEST_HOME from `stderr.log`, export the `event` table). Partial evidence is valid evidence (§10.5 step 5).
+3. **Record the semantic diagnosis** — write the poll log and the abort judgment (which signal fired, the event-stream evidence, the semantic reasoning) to the scenario's evidence directory alongside session.yaml.
+4. **Evaluate on the partial evidence** — the scenario verdict is evaluated from session.yaml + the monitoring evidence; a run aborted for looping yields a valid FAIL/behavior-diagnosis verdict, not an INCONCLUSIVE.
+
+### `--continue` Known Limitation — with-test-home Provisions a NEW Test Home Per Invocation
+
+**This section amends §10.7 (Session Resumption).** `with-test-home` provisions a NEW test home per invocation. The `--continue` / `--session <id>` resume flags therefore CANNOT reach a prior invocation's run: the session id lives in the PRIOR test home's SQLite DB, which the new invocation's test home does not contain. Resumption across `with-test-home` invocations requires a shared-home mechanism — provisioning a persistent test home that survives across invocations — which is not provided today.
+
+**Practical consequence:** blind resume loops across invocations are not merely wasteful — they cannot work. The semantic monitoring mandate (this section) replaces the blind-resume pattern for off-track/hung runs: the monitor detects the stall mid-run, aborts, exports, and diagnoses — no cross-invocation resumption is needed. §10.7 resumption remains valid WITHIN a single invocation (same test home, same session DB), e.g., when the bash tool timeout kills the harness wrapper while the session survives; it does NOT apply across invocations.
+
+### §14 Known Limitation — `--continue` Cannot Reach a Prior Invocation's Test Home
+
+Anchor target for the §10.7 cross-reference — same content as the "with-test-home Provisions a NEW Test Home" section above; MD024 forbids duplicate headings, so this anchor note carries the cross-reference.
+
+### Relationship to §10.5 / §10.7
+
+| Situation | Correct Path |
+|-----------|--------------|
+| Run is progressing but the bash tool timeout kills the wrapper | §10.7 resumption (within-invocation; same test home) — monitor evidence confirms progression |
+| Monitor detects an off-track/loop state mid-run | §14 abort path: kill + §10.5 export + semantic diagnosis |
+| Resumption genuinely impossible AND no monitoring ran | §10.5 fallback (manual export + re-run) |
+
+### Monitoring Evidence Requirement for Behavioral SC Verdicts
+
+Any behavioral SC verdict whose evidence comes from a monitored run MUST record the monitoring evidence (poll log or semantic diagnosis) alongside session.yaml in the scenario's evidence directory. A session.yaml alone does not prove the poll protocol executed — the poll log is the artifact that shows per-poll event-stream reads and judgments. Verdicts from unmonitored runs that burned a full timeout on an off-track state are a monitoring-mandate violation, not a valid verification path.

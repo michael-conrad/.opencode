@@ -233,7 +233,7 @@ This rule ensures that validation criteria stay synchronized with their authorit
 | Prohibited (hardcoded) | Required (dynamic) |
 |------------------------|-------------------|
 | `Required sections: Objective, Background, SCs, Requirements, Phases, Traceability` | `Read [spec-structure-standards.md](.opencode/reference/spec-structure-standards.md) and load the required section inventory` |
-| `Evidence types: behavioral, semantic, string, structural` | `Read [Evidence Type Taxonomy](.opencode/guidelines/080-code-standards.md) and load the evidence type definitions` |
+| `Evidence types: behavioral, semantic, string, structural` | `Read [Evidence Type Taxonomy](.opencode/skills/test-driven-development/SKILL.md) and load the evidence type definitions` |
 
 ### Enforcement
 

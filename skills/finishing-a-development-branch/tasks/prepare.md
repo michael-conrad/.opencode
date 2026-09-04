@@ -71,7 +71,8 @@ git status --porcelain
 
 - If output is not empty → Stage and commit remaining changes
 - Verify commit messages are descriptive
-- Verify co-authored-by trailers are present
+- Verify the branch resolves to **exactly one squashed commit per issue** (canonical commit rule)
+- Verify the dual co-author trailers (AI + human) are present on the squashed commit
 
 ### Step 1a: Agent-Owned Trailer Remediation (MISSING-ELEMENT auto-fix)
 

@@ -4,16 +4,18 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-7: Generalized Parsing Logic Changes preserve pipeline-rerun constraint
+# (2026-09-03 #2429 SC-8 sweep: the pipeline-rerun constraint moved from
+# 080-code-standards.md to 082-python-standards.md — TARGET_FILE re-pointed.)
 # RED phase: Assert the pipeline-rerun constraint text still exists in the
-#   Parsing Logic Changes section — test FAILS now because the section
-#   still has project-specific paths that will be removed in GREEN.
+#   Parsing Logic Changes section (now in 082-python-standards.md per the
+#   #2429 SC-8 consumer sweep).
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers.sh"
 
 SCENARIO_NAME="2131-sc-7-pipeline-rerun"
-TARGET_FILE=".opencode/guidelines/080-code-standards.md"
+TARGET_FILE=".opencode/guidelines/082-python-standards.md"
 
 # SC-7: Assert the pipeline-rerun constraint keyword is present
 # This should PASS now (constraint exists) — it's a pre-condition check.

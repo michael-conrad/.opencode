@@ -11,7 +11,7 @@ Squash implementation commits or verify existing commit structure for all branch
 
 ## Exit Criteria
 
-- Verified commit structure on feature branch (one commit per implementation item)
+- Verified commit structure on feature branch (exactly one squashed commit per issue)
 - Branch rebased on current target
 - Branch pushed to remote with force-with-lease
 - Working tree clean
@@ -39,15 +39,15 @@ Then stage: `git add CHANGELOG.md`
 
 **Enforcement gate:** Verify `git status --porcelain CHANGELOG.md` shows `M` or `A` before proceeding. If changelog not staged and no skip directive — HALT.
 
-### Step 3: Squash to One Commit Per Item (MANDATORY)
+### Step 3: Squash to One Commit Per Issue (MANDATORY)
 
-All branches use the same squash strategy: one commit per implementation item.
+All branches use the same squash strategy: exactly one squashed commit per issue.
 
 ```bash
 git reset --soft origin/<target>
 ```
 
-Then commit each item separately with the standardized format:
+Then commit the squashed work for the issue with the standardized format:
 
 ```bash
 git commit -m "#<issue> <title> — <summary>" \
@@ -55,7 +55,9 @@ git commit -m "#<issue> <title> — <summary>" \
     --trailer "Co-authored-by: <dev.name> <dev.email>"
 ```
 
-Generate the commit message from the combined diff of each implementation item. The format is `#<issue> <title> — <summary>` where:
+**The squashed commit MUST carry dual co-author trailers (AI + human) as shown above.** Every issue resolves to exactly one squashed commit at PR creation.
+
+Generate the commit message from the combined diff of the issue's implementation. The format is `#<issue> <title> — <summary>` where:
 - `<issue>` is the issue number
 - `<title>` is the issue title
 - `<summary>` is a brief description of what changed

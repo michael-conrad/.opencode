@@ -26,7 +26,8 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] All changes committed
 - [ ] No untracked files remaining
 - [ ] Commit messages are descriptive
-- [ ] Co-authored-by trailers present — on an agent-created, unmerged, unshared feature branch, absence is an auto-fixable MISSING-ELEMENT (agent adds trailers and force-pushes with `--force-with-lease`); it is NOT a decision-requiring blocker. On a shared, merged, or trunk branch, trailer absence defers to the generic force-push authorization gate.
+- [ ] **Canonical commit rule:** the branch resolves to exactly one squashed commit per issue; the squashed commit carries dual co-author trailers (AI + human) per the canonical rule stated consistently across the PR/squash/enforcement/finishing gates
+- [ ] Co-authored-by trailers present on the squashed commit — on an agent-created, unmerged, unshared feature branch, absence is an auto-fixable MISSING-ELEMENT (agent adds dual co-author trailers and force-pushes with `--force-with-lease`); it is NOT a decision-requiring blocker. On a shared, merged, or trunk branch, trailer absence defers to the generic force-push authorization gate.
 
 ### Agent-Owned Trailer Remediation (MISSING-ELEMENT auto-fix)
 

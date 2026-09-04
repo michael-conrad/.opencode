@@ -3,7 +3,7 @@
 # SHALL be documented within the DI section (contained within SC-1).
 #
 # The DI section is the `## Dependency Injection` section in
-# `.opencode/guidelines/080-code-standards.md`. SC-3 requires this section to
+# `.opencode/guidelines/082-python-standards.md`. SC-3 requires this section to
 # document all three carveout paths:
 #   - `.opencode/tools/`
 #   - `.opencode/scripts/`
@@ -13,7 +13,7 @@
 # appropriate evidence type per the spec's declared type.
 #
 # NOTE: SC-3's carveout was co-delivered with SC-1's GREEN (the DI section in
-# `080-code-standards.md` already documents the carveout). Consequently this RED
+# `082-python-standards.md` already documents the carveout). Consequently this RED
 # test may already PASS. That is acceptable — report the actual state truthfully
 # rather than forcing a false failure.
 #
@@ -28,7 +28,7 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
-GUIDELINE_FILE="$PROJECT_DIR/.opencode/guidelines/080-code-standards.md"
+GUIDELINE_FILE="$PROJECT_DIR/.opencode/guidelines/082-python-standards.md"
 
 # Extract the `## Dependency Injection` section from the guideline file.
 # DI_SECTION spans from the `## Dependency Injection` heading to the next `## `
@@ -43,7 +43,7 @@ echo "=== SC-3 (#2243): DI section documents all three carveout paths ==="
 echo ""
 
 if [ -z "$DI_SECTION" ]; then
-    echo "  FAIL: no '## Dependency Injection' section found in 080-code-standards.md"
+    echo "  FAIL: no '## Dependency Injection' section found in 082-python-standards.md"
     FAIL_COUNT=$((FAIL_COUNT + 1))
 else
     echo "  DI section extracted (${#DI_SECTION} chars)."

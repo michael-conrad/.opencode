@@ -462,6 +462,190 @@ except Exception as e:
 " 2>/dev/null || echo "source_db: MISSING" > "$yaml_output_file"
 }
 
+# ══════════════════════════════════════════════════════════════════════════════
+# Scope G (#2427): Semantic Continuous Monitoring — tests-v2/AGENTS.md §14
+# ══════════════════════════════════════════════════════════════════════════════
+# Opt-in via BEHAVIOR_SEMANTIC_MONITOR=1. Polls the live session DB of the
+# running opencode process at BEHAVIOR_MONITOR_INTERVAL-second intervals and
+# semantically evaluates the event stream against the §14 hard-abort signals.
+# On abort: kill the run, export session.yaml per §10.5, record the semantic
+# diagnosis. Return 0 when the run finished normally, 1 when the monitor
+# aborted it. The monitor NEVER evaluates model output quality — it judges
+# run PROGRESSION only (artifact-only paradigm preserved; verdicts remain the
+# orchestrator's job).
+#
+# GNU `timeout` is FORBIDDEN here (§5 Bash Tool Timeout Mandate): the kill on
+# abort is the monitor's own signal handler, not a timeout wrapper.
+
+BEHAVIOR_MONITOR_INTERVAL="${BEHAVIOR_MONITOR_INTERVAL:-30}"
+BEHAVIOR_MONITOR_MAX_POLLS="${BEHAVIOR_MONITOR_MAX_POLLS:-30}"
+BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-20000}"
+BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
+
+__semantic_monitor() {
+    local run_pid="$1"
+    local scenario_name="$2"
+    local attempt="$3"
+    local output_file="$4"
+    local err_file="$5"
+
+    local poll_log="$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log"
+    : > "$poll_log"
+
+    echo "# Semantic continuous monitoring poll log — scenario=${scenario_name} attempt=${attempt}" >> "$poll_log"
+    echo "# Signals per tests-v2/AGENTS.md §14 (identical input >=3x, task() stuck >=2 polls, reasoning >${BEHAVIOR_MONITOR_MAX_REASONING} chars with <=1 new tool call, semantically off-track 2+ polls)" >> "$poll_log"
+
+    local poll=0
+    local prev_event_count=0
+    local prev_tool_calls=0
+    local prev_reasoning_chars=0
+    local stuck_task_polls=0
+    local offtrack_polls=0
+    local abort_reason=""
+
+    while kill -0 "$run_pid" 2>/dev/null; do
+        poll=$((poll + 1))
+        if [ "$poll" -gt "$BEHAVIOR_MONITOR_MAX_POLLS" ]; then
+            echo "POLL ${poll}: max-polls budget exhausted — run outlived monitor budget, aborting" >> "$poll_log"
+            abort_reason="max_polls_exhausted"
+            break
+        fi
+        sleep "$BEHAVIOR_MONITOR_INTERVAL"
+
+        # Newest test home DB = the current run's live session DB (§14 step 3).
+        local db
+        db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
+        if [ -z "$db" ] || [ ! -f "$db" ]; then
+            echo "POLL ${poll}: DB not yet provisioned (test home not created yet)" >> "$poll_log"
+            continue
+        fi
+
+        # Extract the event stream: total events, tool-call count, identical-input
+        # repeats, stuck task() parts, reasoning char growth, newest event id.
+        local stats
+        stats=$(python3 - "$db" <<'PYEOF'
+import json, sqlite3, sys
+db = sys.argv[1]
+try:
+    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT id, type, data FROM event ORDER BY id")
+    rows = [dict(r) for r in c.fetchall()]
+    conn.close()
+except Exception as e:
+    print(json.dumps({"error": str(e)}))
+    sys.exit(0)
+tool_inputs = []
+tool_calls = 0
+reasoning_chars = 0
+task_running = 0
+for r in rows:
+    try:
+        data = json.loads(r.get("data") or "{}")
+    except Exception:
+        data = {}
+    t = r.get("type") or ""
+    if "tool" in t and data.get("state") in ("done", "completed", None):
+        tool_calls += 1
+        tool_inputs.append(json.dumps({k: data.get(k) for k in ("tool", "input", "call", "arguments") if k in data}, sort_keys=True))
+    if "reasoning" in t:
+        reasoning_chars += len(str(data.get("text", "")))
+    if "task" in t and data.get("state") == "running":
+        task_running += 1
+identical_max = 0
+if tool_inputs:
+    counts = {}
+    for ti in tool_inputs:
+        identical_max = max(identical_max, tool_inputs.count(ti))
+print(json.dumps({"event_count": len(rows), "last_event_id": rows[-1]["id"] if rows else 0, "tool_calls": tool_calls, "reasoning_chars": reasoning_chars, "task_running": task_running, "identical_input_max": identical_max}))
+PYEOF
+) || stats='{"error": "read_failed"}'
+
+        echo "POLL ${poll} db=${db} stats=${stats}" >> "$poll_log"
+
+        local event_count tool_calls task_running identical_max reasoning_chars
+        event_count=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('event_count', 0))" 2>/dev/null || echo 0)
+        tool_calls=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('tool_calls', 0)))" 2>/dev/null || echo 0)
+        task_running=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('task_running', 0)))" 2>/dev/null || echo 0)
+        identical_max=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('identical_input_max', 0)))" 2>/dev/null || echo 0)
+        reasoning_chars=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('reasoning_chars', 0)))" 2>/dev/null || echo 0)
+        local new_tool_calls=$((tool_calls - prev_tool_calls))
+
+        # Signal 1: identical tool input >= threshold
+        if [ "$identical_max" -ge "$BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD" ]; then
+            echo "ABORT: signal 1 (identical tool input x${identical_max} >= ${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD})" >> "$poll_log"
+            abort_reason="identical_tool_input"
+        # Signal 2: task() parts stuck in running >=2 consecutive polls
+        elif [ "$task_running" -gt 0 ]; then
+            stuck_task_polls=$((stuck_task_polls + 1))
+            if [ "$stuck_task_polls" -ge 2 ]; then
+                echo "ABORT: signal 2 (task() in running state across ${stuck_task_polls} consecutive polls)" >> "$poll_log"
+                abort_reason="stuck_task_dispatch"
+            fi
+        else
+            stuck_task_polls=0
+        fi
+        # Signal 3: reasoning runaway — >max chars with <=1 new tool call
+        if [ -z "${abort_reason:-}" ] && [ "$reasoning_chars" -gt "$BEHAVIOR_MONITOR_MAX_REASONING" ] && [ "$new_tool_calls" -le 1 ]; then
+            echo "ABORT: signal 3 (reasoning ${reasoning_chars} chars > ${BEHAVIOR_MONITOR_MAX_REASONING} with ${new_tool_calls} new tool calls)" >> "$poll_log"
+            abort_reason="reasoning_runaway"
+        fi
+        # Signal 4: semantically off-track — no NEW goal-relevant completed tool call
+        # across 2+ consecutive polls while reasoning grows (the harness judges
+        # "no new completed tool call while reasoning grows" as the off-track proxy;
+        # the full semantic judgment is recorded in the poll log for audit).
+        if [ -z "${abort_reason:-}" ] && [ "$new_tool_calls" -le 0 ] && [ "$reasoning_chars" -gt "$prev_reasoning_chars" ] && [ "$poll" -gt 1 ]; then
+            offtrack_polls=$((offtrack_polls + 1))
+            if [ "$offtrack_polls" -ge 2 ]; then
+                echo "ABORT: signal 4 (no new completed tool call across ${offtrack_polls} consecutive polls while reasoning grows)" >> "$poll_log"
+                abort_reason="semantic_offtrack"
+            fi
+        else
+            offtrack_polls=0
+        fi
+
+        prev_tool_calls=$tool_calls
+        prev_event_count=$event_count
+        prev_reasoning_chars=$reasoning_chars
+
+        if [ -n "${abort_reason:-}" ]; then
+            break
+        fi
+    done
+
+    if [ -n "${abort_reason:-}" ]; then
+        # §14 abort path: kill the run, export session.yaml per §10.5, record diagnosis.
+        kill "$run_pid" 2>/dev/null || true
+        sleep 2
+        kill -9 "$run_pid" 2>/dev/null || true
+        echo "ABORTED run_pid=${run_pid} reason=${abort_reason} poll=${poll}" >> "$poll_log"
+
+        local artifact_dir
+        artifact_dir=$(__artifact_dir "$scenario_name" "${model:-monitor}")
+        mkdir -p "$artifact_dir"
+        __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file" || true
+        cp "$poll_log" "$artifact_dir/monitor.log" 2>/dev/null || true
+
+        cat > "$artifact_dir/semantic-diagnosis.yaml" <<DIAGEOF
+diagnosis: monitor-abort
+abort_reason: ${abort_reason}
+polls_executed: ${poll}
+poll_log: ${poll_log}
+session_db: ${db:-unknown}
+session_yaml: ${artifact_dir}/session.yaml
+mandate: tests-v2/AGENTS.md §14 (semantic continuous monitoring, #2427 scope G)
+note: Run aborted mid-execution by the semantic monitor; session.yaml exported per §10.5; poll log records the per-poll event-stream evidence and the firing signal.
+DIAGEOF
+
+        echo "  [harness] SEMANTIC MONITOR ABORT: ${abort_reason} after ${poll} polls (diagnosis: ${artifact_dir}/semantic-diagnosis.yaml)" >&2
+        return 1
+    fi
+
+    echo "MONITOR-COMPLETE polls=${poll} run finished without abort signal" >> "$poll_log"
+    return 0
+}
+
 behavior_run() {
     local scenario_name="$1"
     local message="$2"
@@ -654,6 +838,31 @@ behavior_run() {
             git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
             git -C "$attempt_workdir" push -u origin main 2>/dev/null || true
             echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
+        fi
+
+        # Scope G (#2427): semantic continuous monitoring — opt-in via
+        # BEHAVIOR_SEMANTIC_MONITOR=1. The opencode run is launched in background;
+        # a poll loop reads the live session DB (newest tmp/test-home-*/) at
+        # BEHAVIOR_MONITOR_INTERVAL seconds and evaluates the event stream against
+        # the hard-abort signals in tests-v2/AGENTS.md §14. On signal: kill the
+        # run, export session.yaml per §10.5, record the semantic diagnosis, and
+        # break out of the retry loop (no blind re-run after an off-track abort).
+        if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
+            TEST_WORKDIR="$attempt_workdir" \
+            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+                > "$output_file" 2> "$err_file" \
+                &
+            local run_pid=$!
+            __semantic_monitor "$run_pid" "$scenario_name" "$attempt" "$output_file" "$err_file"
+            local monitor_result=$?
+            wait "$run_pid" 2>/dev/null || true
+            if [ "$monitor_result" -eq 0 ]; then
+                break
+            fi
+            # Monitor aborted the run (off-track/loop) — record and stop retrying:
+            # a resumed/retried off-track run repeats the identical stall (§14).
+            echo "  [harness] semantic monitor aborted attempt $attempt (off-track/loop state) — no blind retry" >&2
+            break
         fi
 
         TEST_WORKDIR="$attempt_workdir" \

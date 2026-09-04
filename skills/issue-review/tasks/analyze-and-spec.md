@@ -104,7 +104,7 @@ SC-to-test mapping: [
 
 **If RED state is NOT confirmed:** HALT. Do NOT create the fix spec sub-issue. The enforcement test assertions MUST exist and fail before the fix spec is persisted.
 
-**Cross-reference:** Read [Per-Item TDD Cycle → RED phase](guidelines/091-incremental-build.md), and Read [SC-to-Test Traceability and RED-Phase Ordering](guidelines/080-code-standards.md).
+**Cross-reference:** Read [Per-Item TDD Cycle → RED phase](guidelines/091-incremental-build.md), and Read [SC-to-Test Traceability (MANDATORY) — Behavioral PRIMARY](skills/test-driven-development/SKILL.md).
 
 **Root Cause Anti-Patterns (FORBIDDEN):**
 

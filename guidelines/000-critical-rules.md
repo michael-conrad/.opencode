@@ -170,7 +170,7 @@ A "why" question, a complaint about redundancy, or any interpretive inference is
 
 
 ### [critical-rules-PR-ORG] CRITICAL VIOLATION — Stacked PR Is the Only Valid Organization
-Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch. Multiple WIP commits during development are acceptable; squash to exactly one commit per issue occurs at PR creation. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
 
 An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
 
@@ -350,6 +350,22 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Issue closure | Issue comment |
 | Agent completes implementation task | Chat only |
 | Spec-audit findings | Internal only |
+
+### Infrastructure-Failure Carve-Out — Authorized Inline Execution After Repeated Dispatch Failures
+
+1. **Condition:** At least 2 consecutive tool-level sub-agent dispatch attempts (`task()`) have failed (empty results, runtime errors, or harness failure) — NOT a task-content defect (a task-content defect requires re-task per critical-rules-043, never inline execution).
+2. **Authorization:** Inline execution is authorized ONLY for read-only/verification work (file reads, grep/search, lint, test runs, status checks) that the failed dispatch would have performed.
+3. **Disclosure is mandatory:** The agent MUST disclose in its output, before or with the inline execution, that it is invoking this carve-out: name the carve-out, state the number of failed dispatches, and state that the work is confined to read-only/verification limits.
+4. **Binary decision:** Conditions 1-3 all true → proceed inline with disclosure. Any condition false → do NOT proceed inline; re-dispatch or halt.
+5. **Limits:** Inline execution under this carve-out MUST NOT write, modify, or commit files, MUST NOT perform authorization-gated actions, and MUST be reported factually (what was checked, what was found).
+
+### Anti-Recitation — Act and Disclose on Safe Reversible Actions
+
+1. **Placement rule:** Rule citations belong in enforcement artifacts (behavioral test scripts, pre-commit hooks, CI gates) — NOT in agent deliberation. Reciting protocol rules in reasoning or chat before acting is a defect, not compliance.
+2. **Safe reversible action defined:** An action that writes only to permitted scratch locations (`{project_root}/tmp/`), is trivially reversible (delete the file), performs no commit, push, remote mutation, or authorization-gated operation, and destroys no data.
+3. **Mandate:** On a safe reversible action, the agent acts first and discloses in the same output — stating the action taken and the rule that permits it in one sentence — instead of reciting rules before acting.
+4. **Binary decision:** Action is safe and reversible → act and disclose. Action is destructive, irreversible, or authorization-gated → existing gates apply unchanged; this clause creates no new authorization.
+5. **Recitation defect:** Producing citation-only turns (restating critical-rules, approval-gate, or scope rules without performing the requested safe action) is a process-integrity failure — act, then disclose; do not deliberate in citations.
 
 
 

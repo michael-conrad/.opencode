@@ -104,7 +104,7 @@ When the agent needs to enforce the git operating protocol and tag conventions.
 - Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
 - Read [trunk-tip-verification task](tasks/trunk-tip-verification.md) for the 7-step remote trunk tip verification gate
 - Read [submodule-divergence reference](reference/submodule-divergence.md) for submodule divergence detection and resolution
-- Read [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions
+- Read [022-orchestrator-context-discipline.md §`for_analysis` Branch Restrictions](guidelines/022-orchestrator-context-discipline.md) for `for_analysis` branch restrictions
 
 ### [critical-rules-042] Treating Branch Stacking as Optional
 Skipping branch stacking means merging chaos into your commit history. Professional engineers stack branches as prerequisite — amateurs treat stacking as optional and produce unreviewable history.

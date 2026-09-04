@@ -383,7 +383,7 @@ The sub-agent does NOT receive:
 - Treating the rationalization-check as optional or skippable
 - Preloading the sub-agent with orchestrator reasoning or expected outcomes
 
-**Authority:** Read [020-go-prohibitions.md §1](guidelines/020-go-prohibitions.md), [065-verification-honesty.md §Cost Model](guidelines/065-verification-honesty.md), [065-verification-honesty.md §Anti-Evasion Rules](guidelines/065-verification-honesty.md), [000-critical-rules.md §hard-fail](guidelines/000-critical-rules.md)
+**Authority:** Read [020-go-prohibitions.md §1 — Cost-blind verification](guidelines/020-go-prohibitions.md), [065-verification-honesty.md §Cost Model](guidelines/065-verification-honesty.md), [065-verification-honesty.md §Anti-Evasion Rules](guidelines/065-verification-honesty.md), [000-critical-rules.md §hard-fail](guidelines/000-critical-rules.md)
 
 ### When Behavioral/Functional Tests Cannot Execute
 
@@ -507,7 +507,7 @@ When verifying live values against specifications, use this row-by-row compariso
 | -- | -- | -- | -- | -- | -- |
 | SC-1 | \[criterion text\] | structural/string/semantic/behavioral | `command --flag` | \[exact output\] | PASS/FAIL/MISSING EVIDENCE |
 
-The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per Read [Evidence Type Taxonomy](guidelines/080-code-standards.md).
+The **Evidence Type** column is MANDATORY. It MUST match the evidence type declared in the spec's success criteria table. If the spec does not declare evidence types, default to `string` per Read [Evidence Type Taxonomy](skills/test-driven-development/SKILL.md).
 
 **Every row's evidence MUST match or exceed the declared evidence type:**
 

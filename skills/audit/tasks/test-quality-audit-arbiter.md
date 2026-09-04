@@ -379,8 +379,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/test-quality-audit-evaluator.md` — Evaluator role (produces the verdict.yaml consumed by this task)
 - `tasks/test-quality-audit-arbiter.md` — Main task file (orchestrator-level test-quality-audit)
 - Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
-- Read [Test Integrity Mandate](guidelines/080-code-standards.md) — no lobotomizing tests
-- Read [Behavioral RED/GREEN as Primary Enforcement Gate](guidelines/080-code-standards.md)
+- Read [test-driven-development/SKILL.md §Test Integrity Mandate](skills/test-driven-development/SKILL.md) — no lobotomizing tests
+- Read [test-driven-development/SKILL.md §Behavioral RED/GREEN as Primary Enforcement Gate](skills/test-driven-development/SKILL.md)
 - Read [critical-rules-hard-fail](guidelines/000-critical-rules.md) — FAIL is a hard gate, never reclassifiable
 - Read [Hard Failure Discipline](guidelines/065-verification-honesty.md) — FAIL is a hard gate, never reclassifiable
 

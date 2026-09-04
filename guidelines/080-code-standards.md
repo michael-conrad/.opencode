@@ -10,97 +10,13 @@ load_when: sub-agent
 
 These standards apply to **ALL code artifacts**: Python modules, Jupyter notebooks, LaTeX/XeLaTeX documents, configuration files, scripts, and any other code written or modified in this repository. No exceptions.
 
-## Typing
-
-- Explicit type hints (Pydantic/Dataclasses) project-wide. Avoid `Any`; use concrete types wherever possible. This is the project standard — type hints make code self-documenting and catch errors at definition time.
-  `Any` is acceptable only when imposed by third-party signatures.
-- Use Python 3.12+ built-in types (`list[str]`, `dict[str, Any]`), not `typing.List`/`Dict`.
-- **Strict Enum Mapping**: DB-stored enums use plain string values (`NEW_DISCOVERY = "new_discovery"`).
-  Emojis/presentation strings handled as properties or mapping functions, never stored in DB.
-- **Pipeline Rerun Constraint**: Changes to data processing pipelines that affect extracted metadata require a full
-  pipeline rerun — performed by the user, not the agent. A change **affects extracted metadata** if it alters the
-  values, presence, or format of any field written to the database or output files. Agent MUST NOT write DB
-  remediation, backfill, or migration code to compensate for pipeline changes; the pipeline rerun handles data
-  consistency. Flag the rerun requirement to the user after making such changes. Redundant "safety-net" updates
-  in downstream processing steps prohibited.
+Read [082-python-standards.md](082-python-standards.md) before writing or reviewing Python-specific code — typing, the design-principles body, Modern Python, Libraries & Packages, both Dependency Injection mandates, Print Statements, and the Pipeline Rerun Constraint are governed there.
 
 ## Design Principles
 
-> **For design principles (KISS, DRY, SRP, SoC, cohesion, YAGNI, Fail Fast, Defensive Programming, and all 20 programming principles), see the `programming-principles` skill.** That skill is the single authoritative source for both enforcement rules and design judgment (apply strongly when / relax when). This guideline retains only project-specific conventions below.
+> **For design principles (KISS, DRY, SRP, SoC, cohesion, YAGNI, Fail Fast, Defensive Programming, and all 20 programming principles), see the `programming-principles` skill.** That skill is the single authoritative source for both enforcement rules and design judgment (apply strongly when / relax when).
 
-The following project-specific code structure rules are enforced in this repository:
-
-- **Non-Monolithic**: Break large blocks into cohesive, independent components. Notebooks should have focused cells — cells that do "one thing."
-- **Single Function Methods**: Every function/method performs exactly ONE task. If a function has multiple responsibilities, split it. Decompose ALL tasks, plans, and algorithms into discrete single-function methods. This applies to:
-  - Python functions in `.py` files
-  - Notebook cells (each cell should do ONE thing)
-  - LaTeX/XeLaTeX environments and macros (one purpose each)
-  - Scripts and configuration files
-- **No Monoliths**: Long procedural blocks are prohibited. If a function exceeds 40 lines, decompose it. If a notebook cell exceeds 50 lines, split it into multiple cells.
-- **No Magic Strings or Numbers**: All literal strings and numbers that carry domain meaning must be extracted to named constants (`UPPER_SNAKE_CASE` at module level, or class-level `ClassVar`) before use. Inline literals are only acceptable for truly universal values (e.g., `0`, `1`, `""`, `True`, `False`, HTTP status `200`).
-- **No Re-exports**: Imports must reference concrete module paths — IDE navigation depends on it. This is the project standard.
-  - NEVER add `from X import Y` or `__all__` to `__init__.py` files.
-  - `__init__.py` must contain ONLY a module docstring describing the package purpose.
-  - All imports must reference concrete module paths (e.g., `from project.module import ClassName`, NOT `from project import ClassName`).
-  - Rationale: Re-exports break IDE "Find Usages" and "Go to Definition" by creating false source locations.
-  - Existing `__all__` entries in legacy files are assumed approved — do not remove them without explicit instruction.
-  - When creating a NEW `__init__.py`, it must be docstring-only. When editing an existing `__init__.py`, do not add any imports or `__all__` entries.
-- **Top-Level Documentation**: Every Python source file must include a brief top-level comment identifying the package's or class's purpose. Use a module docstring (preferred) or a leading `#` comment. Keep it to one or two concise sentences — enough for the project's tooling to display alongside the filename.
-- **Docstring/Comment Determinism**: Pydoc/docstrings and code comments must use deterministic wording. Avoid ambiguous hedge/alternative phrasing such as `maybe`, `if ... or ...`, `and/or`, or `A + B or C` when describing required behavior, validation paths, or implementation intent.
-- **Labels Over Index Numbers**: When editing structured artifacts (notebooks, migration lists, cell arrays, ordered configs), add and use stable labels/names so that inserts, deletes, and moves which change index numbers do not cause edit failures. Reference items by label, not by positional index.
-- **Derivation Provenance**: Every element in agent output must trace to a specific consumer or first-principles derivation. Read [§critical-rules-XXX](000-critical-rules.md). "Because it's there in the other location" is not a valid justification.
-
-## Modern Python
-
-- **Pathlib**: `pathlib.Path` exclusively for file/dir ops. No `os.path.join`, `os.mkdir`, string concatenation. Use `/`
-  operator.
-- **f-strings**: For all string interpolation. No `.format()` or `%` unless required by external libs.
-- **Metadata Integrity**: Use `shutil.copy2` (not `shutil.copy`). Never discard metadata unless explicitly instructed.
-
-## Libraries & Packages
-
-- Use domain-appropriate libraries for specialized tasks — no regex for NLP. NLP tasks include tokenization, stemming,
-  lemmatization, part-of-speech tagging, named entity recognition, and sentence segmentation. Simple pattern matching
-  or fixed-format extraction does not qualify and may use regex. For tasks requiring complex pattern logic beyond
-  simple fixed-format extraction, prefer FSM or LALR-type grammars (e.g., `lark`, `pyparsing`) over regex — regex is
-  brittle on live data.
-- All DB/system ops use existing project libraries. Direct data file manipulation prohibited unless instructed.
-- Use project-provided abstractions for all data file paths — never hardcode or assume data file locations.
-
-## Dependency Injection
-
-- **What DI is**: Dependency Injection (DI) is the pattern of supplying a component's dependencies from outside (via a container or explicit wiring) rather than having the component construct them itself. A service receives its collaborators as constructor or setter inputs instead of instantiating them internally.
-- **Why it is required**: DI decouples a class from its dependencies, making it easy to test (swap real collaborators for fakes), refactor, and reason about. Components that construct their own dependencies are tightly coupled, hard to test in isolation, and resist change. DI is required so services remain easy to test and refactor.
-- **Mandated library**: Use `dependency-injector` for all dependency wiring. Do not hand-roll DI containers, use ad-hoc module-level singletons, or wire dependencies through arbitrary parameter passing. Structure wiring through an `Injector`/`Container` from `dependency-injector`, with providers declared for each dependency.
-- **Usage patterns**: Declare a container class that registers each dependency as a provider (e.g., `ConfigProvider`, `SecretsProvider`) and wires them into the service and its callers. Services declare their dependencies in their constructor; the container supplies them at composition time. Follow the container-first pattern — define the wiring graph once in the container and let the container resolve dependencies for all consumers.
-- **Carveout for `.opencode/` infrastructure tools**: The DI mandate applies to application/service code only. It does NOT apply to infrastructure tooling under `.opencode/`. Scripts and tools in `.opencode/tools/`, `.opencode/scripts/`, and `.opencode/skills/*/scripts/` are exempt — they may use simple, direct wiring appropriate to their scope.
-
-## Dependency Injection (generic mandate)
-
-- **The enforceable rule is "use a DI approach," not "use framework X."** Agents MUST approach problem solving and unit tests from the point of view of having an available DI approach of some worth, and use it rather than hand-rolling manual wiring where such an approach exists. This generic principle applies across all programming languages and is a superset of the Python-specific `dependency-injector` mandate above — Python remains in the "Clear standard" tier with `dependency-injector`.
-- **Curated per-language framework table (explicitly advisory):** The table below is advisory guidance, not an enforcement pin. Tier placement reflects ecosystem idiom, not a mandate to adopt the framework. Use a DI approach where one is idiomatic; where the table marks a tier "guidance-only", hand-rolled wiring or a framework-free approach is acceptable.
-
-| Tier | Languages / Frameworks |
-| -- | -- |
-| Clear standard | Python (`dependency-injector`), C#/.NET (built-in `Microsoft.Extensions.DependencyInjection`), Java (Spring; Dagger for GWT-style), Angular/Vue/Svelte (built-in) |
-| Contested | Kotlin (Koin/Hilt), Scala (MacWire/Guice/ZIO), Dart/Flutter (get_it/provider/Riverpod), TypeScript (tsyringe/InversifyJS) |
-| Non-idiomatic and guidance-only | Go, Rust, C++, Swift, Ruby, React (Context/hooks), Web Components |
-
-- **Selection guidance:** Framework choice is driven by code analysis and spec requirements, not a fixed pin. Combinations of DI approaches are allowed when the framework table documents two or more idiomatic DI options for the same language.
-- **HTML/CSS exclusion:** Markup and styling are not programming languages, and DI guidance does not apply. Do not attempt a DI approach on HTML/CSS.
-
-## Print Statements & Output
-
-- **NO narration/signal prints**: Never add print statements that narrate code changes, signal feature updates, or announce implementation details. Print statements are for data output and user-facing information only.
-- **NO pedantic notes in code**: Lines like `print("Note: X now uses Y")` or `print("Feature Z implemented")` are prohibited. Code should speak for itself through documentation and version control.
-- **Valid print uses**: Progress bars, data summaries, error messages, user-facing status, diagnostic output during development/testing.
-- **Invalid print uses**: Announcing "implementation complete", narrating changes, signaling "now using X", helpful hints, tutorial-style output, any form of self-documentation via print.
-- **Examples of prohibited prints**:
-  - `print("Note: Visualizations now use dark mode")`
-  - `print("Feature X enabled")`
-  - `print("Using new algorithm for Y")`
-  - `print("Implementation complete - phase 1")`
-- **If context is needed**: Add a docstring, code comment, or update documentation — never a print statement.
+Read [082-python-standards.md](082-python-standards.md) for the project-specific code structure rules (non-monolithic decomposition, single-function methods, no monoliths, no magic strings, no re-exports, top-level documentation, docstring determinism, labels over index numbers, derivation provenance).
 
 ## Linting & Static Analysis
 
@@ -582,7 +498,7 @@ The uplift is automatic. Declaring an SC as `structural` or `string` does not ex
 - When the declared type is `structural` or `string` but the change is runtime-behavioral: report EVIDENCE_TYPE_MISMATCH with a FAIL verdict
 - Apply the same remediation-first protocol as all hard failures: diagnose, remediate, re-verify
 
-Authority sources: Read [test-driven-development/SKILL.md §Evidence Type Taxonomy](skills/test-driven-development/SKILL.md), Read [test-driven-development/SKILL.md §Test Integrity Mandate](skills/test-driven-development/SKILL.md), Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md). Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
+Authority sources: Read [test-driven-development/SKILL.md §Evidence Type Taxonomy](skills/test-driven-development/SKILL.md), Read [test-driven-development/SKILL.md §Test Integrity Mandate](skills/test-driven-development/SKILL.md), Read [020-go-prohibitions.md §1 — Cost-blind verification](guidelines/020-go-prohibitions.md). Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) §Cost Model for the death-spiral cost rationale underlying this classification gate — automatic uplift from structural→behavioral prevents the death spiral at the earliest possible gate.
 
 
 ### [critical-rules-XXX] Derivation Provenance — every element must have a consumer or first-principles justification
@@ -642,9 +558,9 @@ Verify byline presence before ANY API call posting AI-authored content.
 
 #### Authority Sources
 
-- Read [080-code-standards.md §Terminology Note](guidelines/080-code-standards.md) — functional test and behavioral test are synonymous
+- Read [critical-rules-060 Functional/Behavioral Test Substitution Prohibition](guidelines/080-code-standards.md) — functional test and behavioral test are synonymous
 - Read [test-driven-development/SKILL.md §Behavioral RED/GREEN gate](skills/test-driven-development/SKILL.md) — behavioral evidence is PRIMARY
-- Read [020-go-prohibitions.md §1 ALWAYS DO — Cost-blind verification](guidelines/020-go-prohibitions.md): substitution is forbidden
+- Read [020-go-prohibitions.md §1 — Cost-blind verification](guidelines/020-go-prohibitions.md): substitution is forbidden
 - Read [skills/verification-before-completion/tasks/verify.md §"When Behavioral/Functional Tests Cannot Execute"](skills/verification-before-completion/tasks/verify.md) — FAIL is the only valid outcome when the test cannot run
 
 #### Forbidden Substitutions
