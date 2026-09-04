@@ -1,0 +1,32 @@
+# Decompose Output — issue 2434
+
+## Decomposition Rule
+
+One implementation item per SC; each item owns exactly one RED/GREEN/verify/commit cycle; items numbered sequentially and reference exactly one SC-ID.
+
+## Success Criteria → Implementation Items
+
+| Item | SC-ID | Unit | Interface | Inputs | Outputs | Invariants | Failure Modes | RED | GREEN |
+|------|-------|------|-----------|--------|---------|------------|---------------|-----|-------|
+| 1 | SC-1 | with-test-home hard-FAIL gate (site 1, lines ~211–222) | exit code + stderr message of `with-test-home` invocation | local submodule HEAD unpushed/uncheckoutable | exit 1 + remediation-naming FAIL message (no stale run) | Model never dispatched on gate failure; pushed HEAD proceeds normally | Gate misfires on pushed HEAD (false positive) | Run with-test-home with intentionally unpushed SHA → expect exit 1 (test FAILs today: WARNING + exit 0) | Replace WARNING block with hard FAIL |
+| 2 | SC-2 | with-test-home hard-FAIL gate (site 2, lines ~407–418) | same as SC-1, second duplicated block | same | same | identical gate logic to SC-1 (DRY: shared guard function or identical literal) | Divergent logic between the two sites | Same probe against site-2 code path | Mirror SC-1 change at site 2 |
+| 3 | SC-3 | behavior_run() pre-flight cycle gate | behavior_run() return/exit before flock | submodule working tree state; local HEAD vs remote-tracking SHA after fetch; BEHAVIOR_SUBMODULE_COMMIT pin | FAIL before flock/model dispatch when: uncommitted changes, or local HEAD not on remote; FATAL message names commit+push+fetch remediation | Pinned-commit override still verified against remote; gate fires before lock acquisition or immediately after (before model) | Gate bypassed when BEHAVIOR_SUBMODULE_COMMIT set (must NOT be); lock left stale on gate fail | behavior_run probe with unpushed/uncommitted state → FAIL before model dispatch | Add pre-flight gate block |
+| 4 | SC-4 | tests-v2/AGENTS.md §4/§5 cycle documentation | doc text | — | §4: ordered precondition cycle (commit → push → fetch/verify → run) for ALL runs; §5: submodule-checkout paragraph describes hard FAIL, not WARNING fallback | Doc cycle matches machine-gate precondition exactly (I3) | Doc/gate divergence | String check: ordered-cycle text absent → RED | Rewrite §4/§5 wording |
+| 5 | SC-5 | 091-incremental-build.md ordering amendment | guideline text | — | Per-item cycle for behavioral items: commit+push precede the behavioral test run; COMMIT phase wording updated | Consistent with TDD skill (I4); does not contradict #2433 commit-inline pattern | Contradiction with TDD skill ordering | String check: push-before-test ordering absent → RED | Amend cycle table + behavioral-variant paragraph |
+| 6 | SC-6 | TDD SKILL.md PUSH step | skill text | — | Per-change pattern and RED-Phase Ordering include PUSH between COMMIT and next RED for behavioral items | Same consistency invariant as SC-5 | Contradiction with 091 | String check: PUSH step absent → RED | Amend both tables/lists |
+| 7 | SC-7 | Root AGENTS.md Testing Lessons Learned entry | lesson text | — | New lesson: commit/push/fetch cycle before behavioral tests; points to gate + §4 | Lesson references the actual gate behavior (no stale-code claim) | Lesson drifts from gate reality | String check: cycle lesson absent → RED | Add lesson entry |
+| 8 | SC-8 | Agent follows the cycle (behavioral, artifact generation) | behavioral run artifacts (session.yaml etc.) | scenario prompt (real-domain test-framework fix task) | artifact dir per §2 | Agent commits+pushes submodule changes before invoking test framework | Agent runs tests with unpushed HEAD (RED proves today's behavior) | opencode run behavioral script → session.yaml shows no push-before-test | n/a (rule changes already landed in items 4–7; this SC re-verifies end-to-end) |
+| 9 | SC-9 | Clean-room evaluation of SC-8 artifacts | evaluation verdict | SC-8 session.yaml | PASS/FAIL verdict + justification | Evaluator receives only artifact path + criterion (no orchestrator context) | Contaminated evaluation | — (evaluation dispatch) | Verdict recorded from SC-8 artifacts |
+
+## Dependency DAG
+
+- SC-2 depends on SC-1 (identical logic derived from first site's change).
+- SC-3 independent of SC-1/SC-2 (different file, different gate) but should follow the same remediation-message convention.
+- SC-4, SC-5, SC-6, SC-7 independent string-evidence items (doc/rule changes); SC-5 and SC-6 must be consistent (I4) — implement SC-5 then SC-6 to lock ordering.
+- SC-8 depends on SC-1–SC-7 (end-to-end behavioral verification of the full cycle).
+- SC-9 depends on SC-8 (evaluation consumes its artifacts).
+- DAG is acyclic.
+
+## Atomicity Check
+
+Every item = exactly one SC-ID, one file category (script / doc / guideline / skill / behavioral run / evaluation), one verification domain (behavioral probe / string presence / session.yaml inspection). PASS.

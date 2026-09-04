@@ -1,0 +1,45 @@
+# Interface Compatibility — Test-Framework Commit/Push/Fetch/Checkout Cycle (issue 2434)
+
+## Interfaces Inventory
+
+### Runtime Interfaces (agent/harness-facing)
+
+| Interface | Current | Proposed | Compatibility |
+|-----------|---------|----------|---------------|
+| `with-test-home <cmd>` exit behavior on uncheckoutable commit | WARNING + proceed (stale code) | hard FAIL exit 1 + remediation message | **BREAKING — intentional** (R1; the breaking change IS the fix per developer directive) |
+| `with-test-home <cmd>` exit behavior on pushed HEAD | normal setup | unchanged (must not false-positive) | Compatible |
+| `behavior_run()` invocation contract (scenario, message, model, workdir, agent args) | 5 positional params | unchanged | Compatible |
+| `behavior_run()` failure mode on unpushed/uncommitted state | FATAL at checkout (after clone+fixtures) or silent stale run | pre-flight FAIL before flock/model dispatch | **BREAKING — intentional** (R2) |
+| `BEHAVIOR_SUBMODULE_COMMIT` env var | pins specific commit, checkout FATAL if absent from clone | same; gate verifies pinned commit is fetchable from remote | Compatible (I2) |
+| Behavioral scripts (182 files) | `source helpers.sh; behavior_run; exit 0` | unchanged — gate inside helper | Compatible (I5) |
+| `HARNESS_FAILURE:` / `FATAL:` stderr message prefixes | existing conventions | extended to new gate messages | Compatible (pattern-consistent) |
+
+### Documentation Interfaces
+
+| Interface | Change Type |
+|-----------|-------------|
+| `tests-v2/AGENTS.md` §4/§5 wording | modified, no structural doc interface |
+| 091 guideline cycle table | phase added/wording changed; existing phases keep meaning |
+| TDD SKILL.md per-change table | same |
+| Root AGENTS.md lessons list | new entry appended |
+
+## dependency_contract
+
+| source | target | type | constraint |
+|--------|--------|------|-----------|
+| `with-test-home` clone+checkout sites | `tests-v2/AGENTS.md` §5 Submodule Checkout paragraph | artifact schema | doc MUST describe the implemented gate predicate exactly — no WARNING-fallback language may survive (I3) |
+| `behavior_run()` pre-flight gate | `tests-v2/AGENTS.md` §4 ordered cycle | artifact schema | §4 cycle (commit → push → fetch/verify → run) MUST be the precondition the gate enforces; same SHA-on-remote predicate (I3) |
+| 091-incremental-build.md cycle table | TDD SKILL.md per-change table | artifact schema | orderings MUST be identical for behavioral items; no contradiction with #2433 commit-inline pattern (I4) |
+| root AGENTS.md lessons entry | with-test-home/behavior_run gate behavior | artifact schema | lesson text MUST match actual gate behavior — no stale-code claims (R6, I3) |
+| SC-8 behavioral script | tests-v2/AGENTS.md §1/§2/§6a paradigm | artifact schema | script MUST be artifact-only generator; evaluation via session.yaml clean-room (C7) |
+
+## Breaking-Change Register
+
+| Change | Direction | Mitigation |
+|--------|-----------|------------|
+| WARNING→FAIL in with-test-home | BREAKING, intentional | Remediation message names fix (commit+push+fetch); agent acts immediately (R7) |
+| behavior_run pre-flight FAIL | BREAKING, intentional | Same remediation; fires before model dispatch so no wasted cycles (I6) |
+
+## Backward Compatibility Verdict
+
+No silent breaks: every breaking change is a deliberate conversion of a silent-failure path into a fail-fast path. All compatible interfaces (env vars, positional args, script contracts) preserved. Internal-only interfaces (shell functions) — no external consumers.

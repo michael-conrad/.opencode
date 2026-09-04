@@ -1,0 +1,40 @@
+# Blast Radius — Test-Framework Commit/Push/Fetch/Checkout Cycle (issue 2434)
+
+## Per-Phase Ripple Effects
+
+### Phase A — Harness hardening (SC-1, SC-2, SC-3)
+
+| Component | Ripple |
+|-----------|--------|
+| `with-test-home` site 1 (lines 211–222) | Direct modification; WARNING→FAIL. All `--setup` and every subsequent invocation hits this path |
+| `with-test-home` site 2 (lines 407–418) | Direct modification; identical logic (DRY). Second invocation path |
+| `behavior_run()` in `behaviors/helpers.sh` (lines 649–749) | New pre-flight gate before flock/model dispatch; FATAL message at line 746 gains remediation naming |
+| 182 behavioral scripts (`behaviors/*.sh`) | Indirect consumers — inherit gate via `behavior_run()`; no script changes required (interface-compatible by design) |
+| Any agent running tests per `.opencode/AGENTS.md` test table | New failure mode: unpushed HEAD now hard-FAILs with remediation instruction instead of silently running stale code |
+
+### Phase B — Documentation/rules (SC-4, SC-5, SC-6, SC-7)
+
+| Component | Ripple |
+|-----------|--------|
+| `tests-v2/AGENTS.md` §4/§5 | Doc now matches gate reality (I3); removes stale "WARNING is emitted" claim |
+| `091-incremental-build.md` | Cycle table ordering change; agents following per-item TDD for behavioral items now commit+push before test runs |
+| TDD SKILL.md | Same ordering change in per-change pattern + RED-phase ordering |
+| Root `.opencode/AGENTS.md` lessons | Session-start awareness; ends re-deliberation about push timing |
+
+### Phase C — End-to-end behavioral verification (SC-8, SC-9)
+
+| Component | Ripple |
+|-----------|--------|
+| Behavioral test scripts (new scenario) | One new artifact-only generator script + fixture if needed |
+| Clean-room evaluation | Consumes SC-8 session.yaml; no production-file impact |
+
+## Blast Radius Boundary
+
+- NO parent-repo file changes (C1) — all targets in `.opencode` submodule.
+- `test-enforcement.sh` unaffected (C3).
+- Test home SQLite DB, tmp/ artifacts, `.tools/` caches unaffected (state-analysis).
+- Parent-repo submodule pointer policy untouched (C5).
+
+## Risk Concentration
+
+Highest risk: SC-1/SC-2 false-positive gates blocking legitimate runs (pushed-HEAD runs must pass). Mitigated by identical gate predicate at both sites + SC-8 end-to-end run proving normal path works.

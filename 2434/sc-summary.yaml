@@ -1,0 +1,38 @@
+sc_count: 9
+scs:
+  - id: "SC-1"
+    description: "with-test-home clone+checkout site 1: hard-FAIL with remediation-naming message on uncheckoutable local submodule HEAD; pushed HEAD proceeds normally (no false positive)"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "with-test-home clone+checkout site 2: identical hard-FAIL behavior and remediation message as SC-1; guard logic identical at both sites (DRY)"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "behavior_run() pre-flight gate: FAIL before flock/model dispatch on uncommitted submodule changes or effective commit (local HEAD or BEHAVIOR_SUBMODULE_COMMIT pin) absent from remote after fresh fetch; pinned unpushed SHA FAILS (no bypass); clean pushed state proceeds"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "tests-v2/AGENTS.md §4 documents the ordered precondition cycle (commit → push → fetch/verify → run) for ALL behavioral runs as the infrastructure-maintenance carve-out; §5 describes the hard FAIL with no WARNING-fallback language"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "guidelines/091-incremental-build.md Per-Item TDD Cycle and behavioral-variant paragraph encode commit+push before behavioral test execution for behavioral items, consistent with the TDD skill and not contradicting the #2433 commit-inline pattern"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "skills/test-driven-development/SKILL.md Per-Change TDD Pattern and RED-Phase Ordering include a PUSH step between COMMIT and the next RED for behavioral items, with ordering identical to 091"
+    evidence_type: "string"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Root .opencode/AGENTS.md Testing Lessons Learned gains a commit/push/fetch cycle lesson entry matching the implemented gate behavior and referencing the §4 carve-out"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Agent follows the cycle end-to-end: given a real-domain test-framework fix task via opencode run (artifact-only generator), the agent commits and pushes submodule changes BEFORE invoking the test framework, evidenced in session.yaml"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Clean-room evaluation confirms SC-8: a clean-room sub-agent reading only the SC-8 session.yaml path and criterion returns PASS/FAIL with justification"
+    evidence_type: "behavioral"
+    plan_item: 9

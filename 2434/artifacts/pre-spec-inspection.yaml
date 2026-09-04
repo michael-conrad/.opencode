@@ -1,0 +1,55 @@
+# Pre-Spec Inspection — Test-Framework Commit/Push/Fetch/Checkout Cycle (issue 2434)
+
+## Verified Codebase State (live tool-call evidence)
+
+### with-test-home — two duplicated clone+checkout blocks
+
+- **Site 1** (`.opencode/tests-v2/with-test-home` lines 211–222): `git clone -q "$submodule_remote_url"` → `LOCAL_SUBMODULE_COMMIT=$(git -C "$PROJECT_DIR/.opencode" rev-parse HEAD)` → `checkout -q $LOCAL_SUBMODULE_COMMIT || { echo "WARNING: could not checkout local submodule commit ... using remote default branch"; }` — **confirmed WARNING fallback present at line 220**.
+- **Site 2** (same file, lines 407–418): identical clone+checkout pattern with **WARNING fallback confirmed at line 416**.
+- No `git fetch` or push-state verification exists anywhere in the file (grep for `push|fetch` in executable lines returned only the clone lines).
+- File length: 550 lines.
+
+### behaviors/helpers.sh — behavior_run()
+
+- `behavior_run()` defined at line 649 (1006-line file).
+- Lines 660–665: resolves `submodule_remote_url` from parent `.gitmodules`, defaulting to `https://github.com/michael-conrad/.opencode.git`.
+- Line 667: `local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"` — default is EMPTY (clone uses remote default branch), not local HEAD.
+- Lines 679–685: `flock -x -w 30 200` on `tmp/.behavior-run.lock` — **no pre-flight git-state gate exists before the lock or after it**. No `git status --porcelain`, no local-HEAD vs remote-tracking comparison anywhere in `behavior_run()`.
+- Lines 736–742: if `submodule_commit` empty, resolves `local_submodule_commit=$(git -C "$PARENT_REPO_DIR/.opencode" rev-parse HEAD)` and pins it.
+- Lines 744–749: `git checkout -q "$submodule_commit" || { echo "FATAL: could not checkout submodule commit ..."; exit 1; }` — **checkout failure is already hard-FAIL here (confirmed FATAL at line 746)**, but only AFTER clone, fixture issue setup, and story setup; and there is no push-state check (a commit can be checkoutable from the clone only if it is on the remote — so in practice this FATAL fires when local HEAD is unpushed, matching the gap).
+- Note: handoff artifact said "checkout block at 745–748 already hard" — verified accurate.
+
+### Consumer counts
+
+- `tests-v2/behaviors/*.sh`: 200 scripts; 182 source `helpers.sh` (call `behavior_run`). All inherit any gate added inside `behavior_run()`.
+- `test-enforcement.sh`: content-verification only, greps working tree, no clone/checkout — unaffected.
+
+### Documentation / rule encoding sites (verified current wording)
+
+- `.opencode/tests-v2/AGENTS.md` §4 (Running Tests, line 200): documents "DEFAULT_TEST_MODEL override requires the feature branch to be pushed to remote" — narrow push-before-test rule exists only for the model-override case. §5 Submodule Checkout paragraph: documents "If the commit is not pushed to remote, a WARNING is emitted and the remote default branch is used instead" — documents the defective fallback. §4 FORBIDDEN block already authorizes autonomous test-framework commit+push (infrastructure maintenance carve-out).
+- `.opencode/guidelines/091-incremental-build.md` Per-Item TDD Cycle table (lines 24–35): RED → GREEN → REFACTOR → COMMIT — commit is LAST, push absent. Behavioral variant paragraph describes stderr-assertion pattern (pre-dates session.yaml-primary evaluation).
+- `.opencode/skills/test-driven-development/SKILL.md`: Per-Change TDD Pattern table (line ~268) and RED-Phase Ordering list (line ~337): RED → GREEN → REFACTOR → COMMIT — commit last, push absent.
+- `.opencode/AGENTS.md` Testing Lessons Learned section (line 155): lists stale-lock, timeout, session.yaml-export, fabricated-model-excuse, post-timeout-recovery, submodule-only-push-bypass lessons — no commit/push/fetch cycle lesson.
+
+### Live git-state probe (the defect, reproduced conditions)
+
+- Submodule branch: `feature/2402-finishing-checklist-trailer-remediation`; HEAD `aea9d479` IS on `origin/feature/2402-finishing-checklist-trailer-remediation` (fetch → `rev-list HEAD..origin/...` = 0). Current state is clean, but the WARNING fallback path exists and would silently run stale code whenever HEAD is unpushed.
+- Working tree of submodule at analysis time: clean (no porcelain output).
+
+### Out of scope (confirmed unchanged)
+
+- Parent-repo pointer-rides-alongside policy — working as designed.
+- `SKIP_STALE_POINTER_CHECK` machinery — grep found no references in helpers.sh/with-test-home (handled elsewhere; unrelated).
+- Stacked-PR plan for #2402/#2433.
+
+## Existing Patterns and Conventions
+
+- Gate pattern precedent: mutual-exclusion rejection in `behavior_run()` (lines 691–694) — pre-dispatch config validation with `HARNESS_FAILURE:` message + `return 1`. The new pre-flight gate should follow this shape.
+- `FATAL:` prefix pattern for checkout failures (line 746) — remediation-naming convention should extend here.
+- `HARNESS_FAILURE:` prefix pattern for environment failures in with-test-home (lines 212, 253).
+
+## Symbols / Dependencies
+
+- No public API changes — shell scripts internal to harness.
+- `behavior_run()` has 182 direct consumer scripts.
+- `BEHAVIOR_SUBMODULE_COMMIT` env var (line 667) — override semantics must be preserved: gate verifies the pinned commit is fetchable from remote rather than bypassing the check.

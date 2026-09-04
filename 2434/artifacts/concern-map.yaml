@@ -1,0 +1,34 @@
+# Concern Map — Test-Framework Commit/Push/Fetch/Checkout Cycle (issue 2434)
+
+## Concern Boundaries Per Phase
+
+### Phase A — Harness runtime behavior (scripts)
+- **Files**: `tests-v2/with-test-home`, `tests-v2/behaviors/helpers.sh`
+- **Boundary**: machine-enforced gate — FAIL on unpushed/uncheckoutable/uncommitted state, remediation-naming messages
+- **Single concern**: git-state gating only; no evaluation logic, no model interaction changes
+
+### Phase B — Harness specification (documentation)
+- **Files**: `tests-v2/AGENTS.md` §4/§5
+- **Boundary**: defines the cycle agents must follow; mirrors the machine gate exactly (I3)
+
+### Phase B — Workflow ordering rules (guideline)
+- **Files**: `guidelines/091-incremental-build.md`
+- **Boundary**: ordering discipline for behavioral items only (commit+push BEFORE test execution); no test-harness mechanics
+
+### Phase B — TDD skill routing
+- **Files**: `skills/test-driven-development/SKILL.md`
+- **Boundary**: per-change pattern ordering; must not contradict 091 (I4)
+
+### Phase B — Always-loaded lesson
+- **Files**: root `.opencode/AGENTS.md` Testing Lessons Learned
+- **Boundary**: session-start awareness entry pointing to gate + §4; no new rules
+
+### Phase C — Behavioral verification
+- **Files**: new `behaviors/<scenario>.sh` + clean-room evaluation dispatch
+- **Boundary**: artifact-only generation (§1 paradigm) + independent evaluation (§6a two-SC pattern)
+
+## Separation Invariants
+
+- Scripts enforce; docs describe the same predicate — never duplicate divergent definitions
+- No new skill (N5) — carve-out within existing test-framework docs + harness hardening
+- Gate logic stays inside `behavior_run()` — never moves to per-script level (I5)

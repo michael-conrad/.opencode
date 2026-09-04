@@ -1,0 +1,36 @@
+# Pipeline Readiness Gate — issue 2434
+
+## Validation Results
+
+| Gate | Check | Result |
+|------|-------|--------|
+| Atomicity | Every SC maps to exactly one RED→GREEN→COMMIT cycle | PASS — 9 items, one SC-ID each (decompose-output.yaml) |
+| Dependency ordering | SC dependency DAG acyclic | PASS — SC-2←SC-1; SC-3 independent; SC-4/5/6/7 independent (5→6 locked for consistency); SC-8←(1..7); SC-9←SC-8 |
+| Single concern | Every SC targets one file category and one verification domain | PASS — scripts(SC-1..3)/docs(SC-4..7)/behavioral-run(SC-8)/evaluation(SC-9) |
+| Phase dependency | Phase dependency graph acyclic | PASS — A(harness) → B(docs/rules, independent of A's code) → C(end-to-end, depends on A+B) |
+| Three-tier structure | Multi-phase spec has pre/per-file/post structure | PASS — pre: fixtures + RED probes; per-file: one target file per SC; post: SC-8/SC-9 end-to-end verification |
+
+## Artifact Completeness
+
+All 7 analytical artifacts written to `tmp/2434/artifacts/`:
+
+- [x] blast-radius.yaml
+- [x] concern-map.yaml
+- [x] code-path-inventory.yaml
+- [x] cross-cutting-matrix.yaml
+- [x] interface-compatibility.yaml (includes dependency_contract section)
+- [x] state-analysis.yaml
+- [x] testability-assessment.yaml
+
+Plus: pre-spec-inspection.yaml, research-card-consultation.yaml, requirements-output.yaml, decompose-output.yaml.
+
+## Exit Criteria Status
+
+- All 7 analytical artifacts written: DONE
+- Requirements extracted and verified against codebase: DONE (R1–R7 all VERIFIED with line-level evidence)
+- Pipeline readiness gate: PASSED
+- No spec content written, no remote issue created, no holistic check run: CONFIRMED
+
+## Verdict
+
+READY — proceed to spec-creation create task.
