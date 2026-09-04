@@ -30,7 +30,9 @@
 # ║  processes hold the flock lock and hang all subsequent test runs.            ║
 # ║                                                                              ║
 # ║  On SSE read timeout or transient model error: resume the session via         ║
-# ║  `opencode run "continue" --task_id <id>` — NEVER kill and restart.           ║
+# ║  `opencode run --continue` (resume last session) or                           ║
+# ║  `opencode run --session <id>` (resume a specific session) — NEVER kill and   ║
+# ║  restart.                                                                     ║
 # ║                                                                              ║
 # ║  Violation = orphaned processes = hang = manual kill -9 required.            ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝

@@ -594,9 +594,9 @@ This exports the SQLite DB even when the test was killed mid-run, allowing evalu
 
 **Evidence that the model works:** The model (qwen3.8:27b-256k-gguf4) is verified to work with the test harness. It produces valid output for cleanup workflows in 5-10 minutes. Any claim that it "doesn't work" or "is too large" is a fabrication unless backed by tool-call evidence.
 
-### 10.5 Post-Timeout Recovery Procedure
+### 10.5 Post-Timeout Recovery Procedure (FALLBACK — Resumption is Primary)
 
-When a behavioral test times out (bash tool kills the script), follow this procedure:
+When a behavioral test times out (bash tool kills the script), session resumption (§10.7) is the **PRIMARY** recovery path — it picks up where the agent left off instead of re-running the full inference that timed out at the same point. **Only when resumption is not possible** (no session id discoverable, resume fails, or the session cannot be re-run through the harness) should the agent follow this manual export + re-run procedure:
 
 1. **Locate the artifact directory:**
    ```bash
@@ -644,7 +644,40 @@ When a behavioral test times out (bash tool kills the script), follow this proce
 
 **`DEFAULT_TEST_MODEL` (from `default-model.sh`) is the single source of truth** for which model runs a behavioral test. The agent MUST use `DEFAULT_TEST_MODEL` without substitution — it is the only model the agent uses during behavioral testing. The no-outguess mandate means the agent does not outguess `DEFAULT_TEST_MODEL` by switching models.
 
-**On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and post-timeout recovery (§10.5). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
+**On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and session resumption (§10.7, primary) or post-timeout recovery (§10.5, fallback). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
+
+### 10.7 Session Resumption — MANDATORY FIRST-LINE Recovery on Model Timeout
+
+**`opencode run` supports session resumption. Resumption is the FIRST-LINE recovery for a model timeout — manual SQLite export and full re-run are the FALLBACK, permitted only when resumption is not possible.** The agent MUST attempt resumption before any other recovery action.
+
+**PROHIBITED:** Jumping to the manual SQLite DB export + `--clean-all` + full `opencode run` re-run (§10.5) as the first response to a timeout. A full re-run repeats 5-10 minutes of model inference that times out at the same point — it discards the agent's completed work and reproduces the identical failure. The mean response is to restart from zero; the expert response is to resume where the agent left off.
+
+**Resume flags:**
+
+| Flag | Meaning | Use When |
+|------|---------|----------|
+| `--continue` | Resume the last session | The timed-out session is the most recent session in the test home |
+| `--session <id>` | Resume a specific session | A different session is the most recent, or you need to target a specific run |
+
+**Discovering the session id:** The session id is the `aggregate_id` value in the `event` table of the test home's SQLite DB (`$TEST_HOME/.local/share/opencode/opencode.db`), or the session id reported in the `with-test-home` invocation output. Extract it from the DB the same way `__export_sqlite_to_yaml()` reads events; the `aggregate_id` identifies the session to resume.
+
+**Why resumption is preferred:** Resumption picks up where the agent left off — the model continues the existing session context instead of re-running minutes of inference that timed out at the same point. The completed tool calls and reasoning remain in the session; only the remaining work is re-executed. This converts a 5-10 minute repeated re-run into a short continuation, and it preserves the partial behavioral evidence for evaluation.
+
+**Resumption procedure on model timeout:**
+
+1. **Confirm the test home survives the timeout** — `ls -la "$TEST_HOME/.local/share/opencode/opencode.db"` (extract TEST_HOME from `stderr.log` per §10.5).
+2. **Discover the session id (if not resumable via `--continue`)** — read `aggregate_id` from the `event` table, or use the session id from the `with-test-home` invocation output.
+3. **Clear the stale flock lock** — `rm -f tmp/.behavior-run.lock`.
+4. **Resume the session through the harness:**
+   ```bash
+   bash .opencode/tests-v2/with-test-home opencode run --continue
+   # or, to target a specific session:
+   bash .opencode/tests-v2/with-test-home opencode run --session <id>
+   ```
+   The run **MUST** go through `with-test-home` — never call `opencode run` directly (SQLite session conflicts with the desktop app). Keep the bash tool `timeout` parameter at >= 600000ms so the resumed inference can complete.
+5. **Fallback if resumption is not possible:** Only if resumption fails or the session cannot be identified may the agent fall back to the manual export + re-run procedure in §10.5.
+
+**🚫 FORBIDDEN:** Claiming resumption is impossible without attempting it. Resumption is the only valid first-line response to a timeout; the manual export + full re-run in §10.5 is the fallback for when resumption genuinely cannot run.
 
 ## 11. Prompt Construction Mandate
 
