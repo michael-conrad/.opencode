@@ -4,8 +4,606 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '# [SPEC] Test-Framework Commit/Push/Fetch/Checkout Cycle: Hard-FAIL Checkout
+  Gate and Mandatory Pre-Test Cycle Carve-Out
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2434/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2434/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2434/` — implementation plan, card catalogue,
+  dependency contracts, analytical artifacts, research, designs, audit findings
+
+
+  ## Intent and Executive Summary
+
+
+  - **Problem Statement:** The behavioral test harness silently runs against stale
+  submodule code whenever the local `.opencode` submodule HEAD is unpushed: both `with-test-home`
+  clone+checkout sites emit a WARNING and proceed on the remote default branch, and
+  `behavior_run()` has no pre-flight git-state gate before model dispatch. The test
+  run then exercises different code than the branch being tested, producing PASS/FAIL
+  verdicts about code that was never checked out.
+
+  - **Root Cause / Motivation:** The checkout-failure fallback (`WARNING: could not
+  checkout local submodule commit ... using remote default branch`) was written as
+  a convenience for early-stage development, but the timing evidence shows RED/GREEN
+  behavioral runs executing before their containing commits existed (an orphaned STALE-GREEN
+  artifact proves wasted inference cycles). There is no durable encoding of the commit
+  → push → fetch/verify → run cycle the framework actually requires: the push-before-test
+  rule lives only in a narrow `DEFAULT_TEST_MODEL` note, and the TDD cycle tables
+  place COMMIT last with PUSH absent. The developer directive is explicit: an inability
+  to check out the exact code under test is a hard FAIL for immediate agent remediation
+  — never a degraded run.
+
+  - **Approach Chosen:** Three coordinated layers: (a) harness hardening — convert
+  the two WARNING fallbacks in `with-test-home` to hard FAILs and add a pre-flight
+  commit/push/fetch/verify gate inside `behavior_run()` that fires before the flock
+  and any model dispatch; (b) durable rule encoding — `tests-v2/AGENTS.md` §4/§5 documents
+  the ordered cycle as an all-runs precondition, the `091-incremental-build.md` per-item
+  TDD cycle and TDD SKILL.md gain a PUSH step for behavioral items, and the root `.opencode/AGENTS.md`
+  Testing Lessons Learned gains a cycle lesson; (c) end-to-end behavioral verification
+  via the §6a two-SC pattern (artifact generation + clean-room evaluation).
+
+  - **Alternatives Considered & Why Discarded:** (1) Keep the WARNING fallback and
+  add a post-run staleness report — discarded: the developer directive mandates FAIL,
+  and a post-run report still wastes full model-dispatch cycles on stale code before
+  flagging anything. (2) Enforce the gate in each of the 182 behavioral scripts —
+  discarded: massive duplication and drift risk; the gate lives inside `behavior_run()`
+  so all 182 consumers inherit it unchanged. (3) Bypass the check when `BEHAVIOR_SUBMODULE_COMMIT`
+  is set — discarded: the override pins WHICH commit to test, not WHETHER it is on
+  remote; a pinned unpushed SHA is exactly the stale-code defect the gate exists to
+  catch, so the gate verifies the pinned SHA is fetchable instead of bypassing.
+
+  - **Key Design Decisions:** (D1) Gate predicate = after a fresh `git fetch`, the
+  tested submodule SHA is contained in a remote ref and the submodule working tree
+  is clean; both `with-test-home` sites and the `behavior_run()` gate enforce the
+  same predicate. (D2) Every failure message names the remediation (commit + push
+  + fetch) using the existing `FATAL:`/`HARNESS_FAILURE:` stderr-prefix conventions
+  so the agent acts immediately instead of deliberating. (D3) The gate fires BEFORE
+  the flock/model dispatch in `behavior_run()` and exits in `with-test-home` — no
+  model inference is ever spent on stale code. (D4) The documented cycle in `tests-v2/AGENTS.md`
+  §4 (commit → push → fetch/verify → run) is the same precondition the machine gate
+  enforces — doc and gate are one definition, never divergent copies. (D5) The remediation
+  path is the existing §4 infrastructure-maintenance carve-out: test-framework fixes
+  authorize the agent to commit and push autonomously without authorization solicitation.
+  Tradeoff: D1''s hard FAIL is an intentional breaking change (exit 1 instead of WARNING)
+  accepted because the silent-stale-run failure mode it replaces is strictly worse.
+
+  - **User Intent / Original Prompt:** Upstream brainstorming for issue .opencode#2434
+  ("Test-framework commit/push/fetch/checkout cycle: hard-FAIL checkout gate and mandatory
+  pre-test cycle carve-out", design_approved: true, 2 exploration turns) with two
+  captured developer directives: (1) inability to check out a specific branch or SHA
+  in the test harness must be a hard FAIL for immediate agent remediation — the test
+  is not being run against the actual code to be tested; (2) durably encode the commit/push/fetch/checkout
+  cycle the test framework requires as a special carve-out so agents know it when
+  running the test framework.
+
+
+  ## Not Included
+
+
+  - **Parent-repo submodule pointer rides-alongside policy** — working as designed;
+  dirty pointers on the parent repo remain legitimate under the existing policy, and
+  changing it is a separate design decision.
+
+  - **`SKIP_STALE_POINTER_CHECK` machinery** — verified no references in `helpers.sh`/`with-test-home`;
+  handled elsewhere and unrelated to the checkout gate.
+
+  - **Stacked-PR plan for #2402/#2433** — the PR-merge sequencing gate is tracked
+  in its own SPEC-FIX; this spec adds no PR-organization rules.
+
+  - **Stash/branch cleanup** — destructive branch operations require separate authorization
+  and are not part of a test-cycle spec.
+
+  - **New skill creation** — this is a carve-out within existing test-framework documentation
+  plus harness hardening; a new skill card would duplicate the §4 cycle definition
+  and fork the vocabulary.
+
+  - **`test-enforcement.sh` content-verification flow** — it greps the working tree
+  and performs no clone/checkout; the gate targets the behavioral harness only.
+
+  - **Shared-home/resumption mechanism changes** — the §10.7 known limitation (resumed
+  runs reuse `tmp/test-home-shared`) is untouched; the pre-flight gate still validates
+  the shared project''s git state without altering the resumption flow.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | `with-test-home` clone+checkout site 1: when the local submodule HEAD cannot
+  be checked out (unpushed/uncheckoutable SHA), the invocation exits non-zero with
+  a failure message naming the commit+push+fetch remediation, and no test home is
+  produced from the wrong ref; when the HEAD is pushed to remote, setup proceeds normally
+  (no false positive) | behavioral | Run `with-test-home` probe with a fixture local
+  commit left unpushed → expect exit 1 + remediation message (RED: today WARNING +
+  exit 0); control probe with pushed HEAD → normal setup completes |
+
+  | SC-2 | `with-test-home` clone+checkout site 2: identical hard-FAIL behavior and
+  remediation message as SC-1; the guard logic at both sites is identical (DRY — shared
+  guard function or identical literal) | behavioral | Same unpushed-SHA probe exercised
+  through the site-2 invocation path → exit 1 + remediation message; string check
+  confirms identical guard logic at both sites |
+
+  | SC-3 | `behavior_run()` pre-flight gate: when the submodule working tree has uncommitted
+  changes, or the effective submodule commit (local HEAD, or `BEHAVIOR_SUBMODULE_COMMIT`
+  when set) is not present on the remote after a fresh fetch, the function FAILS before
+  the flock acquisition completes and before any model dispatch, with a `FATAL`/`HARNESS_FAILURE`
+  message naming the commit+push+fetch remediation; a pinned unpushed SHA FAILS (no
+  bypass); clean pushed state proceeds to lock acquisition and model dispatch | behavioral
+  | `behavior_run` probe with unpushed/uncommitted fixture state → FAIL before flock/model
+  dispatch; negative probe with `BEHAVIOR_SUBMODULE_COMMIT` set to an unpushed SHA
+  → FAIL; control probe with pushed state → proceeds to lock acquisition |
+
+  | SC-4 | `tests-v2/AGENTS.md` §4 documents the ordered precondition cycle (commit
+  → push → fetch/verify → run) as required for ALL behavioral runs (not only `DEFAULT_TEST_MODEL`
+  override), framed as the test-framework infrastructure-maintenance carve-out; §5
+  submodule-checkout paragraph describes the hard FAIL with no WARNING-fallback language
+  | string | Direct text read of `tests-v2/AGENTS.md` §4 and §5: ordered-cycle text
+  present in §4; §5 contains no "using remote default branch" WARNING-fallback claim
+  and describes the FAIL behavior |
+
+  | SC-5 | `guidelines/091-incremental-build.md` Per-Item TDD Cycle table and behavioral-variant
+  paragraph: for behavioral items, commit+push precede the behavioral test run — the
+  cycle ordering encodes PUSH before test execution, consistent with the TDD skill
+  and not contradicting the #2433 commit-inline plan pattern | string | Direct text
+  read of the 091 cycle table and behavioral-variant paragraph: push-before-test ordering
+  present |
+
+  | SC-6 | `skills/test-driven-development/SKILL.md` Per-Change TDD Pattern and RED-Phase
+  Ordering: a PUSH step appears between COMMIT and the next RED for behavioral items,
+  with ordering identical to 091 (no contradiction) | string | Direct text read of
+  both tables/lists: PUSH step present between COMMIT and next RED |
+
+  | SC-7 | Root `.opencode/AGENTS.md` Testing Lessons Learned section gains a lesson
+  entry encoding the commit/push/fetch cycle before behavioral tests, referencing
+  the gate behavior and the §4 carve-out — lesson text matches actual gate behavior
+  (no stale-code claims) | string | Direct text read of the Testing Lessons Learned
+  section: cycle lesson present and consistent with the implemented gate predicate
+  |
+
+  | SC-8 | Agent follows the cycle end-to-end: given a real-domain test-framework
+  fix task via `opencode run` (artifact-only generator script), the agent commits
+  and pushes submodule changes BEFORE invoking the test framework, evidenced in the
+  session.yaml artifact | behavioral | Behavioral test script (§1 artifact-only generator)
+  runs `opencode run` with a real-domain test-framework-fix prompt → session.yaml
+  artifact produced (exit 0); artifact dir per §2 |
+
+  | SC-9 | Clean-room evaluation confirms SC-8: a clean-room sub-agent reading ONLY
+  the SC-8 session.yaml artifact path and the criterion ("agent committed and pushed
+  submodule changes before invoking the test framework") returns PASS/FAIL with justification
+  | behavioral | Clean-room sub-agent reads SC-8 session.yaml, evaluates agent tool
+  calls/decisions against the criterion, records PASS/FAIL verdict |
+
+
+  > **Enforcement gate:** All success criteria MUST pass before this spec is considered
+  complete. Partial implementation is not permitted.
+
+
+  ## Requirements
+
+
+  - R-1. The `with-test-home` harness SHALL hard-FAIL (exit non-zero, no test home
+  produced from a wrong ref) when the local submodule HEAD cannot be checked out,
+  replacing the WARNING fallback at both clone+checkout sites.
+
+  - R-2. The `behavior_run()` function SHALL enforce a pre-flight git-state gate —
+  submodule working tree clean AND the effective submodule commit present on the remote
+  after a fresh fetch — that FAILS before the flock acquisition completes and before
+  any model dispatch.
+
+  - R-3. Every gate failure message SHALL name the remediation (commit + push + fetch)
+  using the existing `FATAL:`/`HARNESS_FAILURE:` message conventions, so the remediation
+  path is immediate agent action per the §4 infrastructure-maintenance carve-out (no
+  authorization solicitation).
+
+  - R-4. The gate SHALL verify the effective commit — the `BEHAVIOR_SUBMODULE_COMMIT`
+  pin when set, local HEAD otherwise — against the remote, rather than bypassing the
+  check when the override is set.
+
+  - R-5. The gate logic SHALL be identical across both duplicated `with-test-home`
+  clone+checkout sites (shared guard function or identical literal).
+
+  - R-6. `tests-v2/AGENTS.md` §4 SHALL document the ordered precondition cycle (commit
+  → push → fetch/verify → run) for ALL behavioral runs, extending the existing infrastructure-maintenance
+  carve-out framing; §5 SHALL describe the hard-FAIL checkout behavior with no WARNING-fallback
+  language.
+
+  - R-7. `guidelines/091-incremental-build.md` SHALL encode commit+push before behavioral-test
+  execution in the per-item TDD cycle for behavioral items, without contradicting
+  the TDD skill or the #2433 commit-inline plan pattern.
+
+  - R-8. `skills/test-driven-development/SKILL.md` SHALL include a PUSH step between
+  COMMIT and the next RED for behavioral items in both the Per-Change TDD Pattern
+  and RED-Phase Ordering, consistent with R-7.
+
+  - R-9. Root `.opencode/AGENTS.md` Testing Lessons Learned SHALL gain a lesson entry
+  on the commit/push/fetch cycle that matches the implemented gate behavior.
+
+  - R-10. The machine gate and the documented cycle SHALL specify the same precondition:
+  after a fresh fetch, the tested submodule SHA is contained in a remote ref and the
+  submodule working tree is clean (single definition, two enforcement surfaces).
+
+  - R-11. Existing behavioral scripts (the 182 `behavior_run` consumers) SHALL remain
+  unchanged — the gate lives inside `behavior_run()` and inherits to all consumers.
+
+  - R-12. Gate failures SHALL fire before model dispatch so no inference cycles are
+  spent on stale code.
+
+  - R-13. The gate SHALL read live git state at run time (fresh fetch each run) and
+  SHALL NOT cache prior-session SHAs.
+
+  - R-14. A pushed-HEAD state SHALL pass the gate with no false positive, preserving
+  the normal run path and the `BEHAVIOR_SUBMODULE_COMMIT` pinned-commit path.
+
+
+  ## Items
+
+
+  ### Item 1 (SC-1): with-test-home site 1 hard-FAIL gate
+
+
+  - RED: Probe `with-test-home` with a fixture local submodule commit left unpushed
+  → assertion expects exit 1 + remediation-naming FAIL message; today the WARNING
+  fallback exits 0 (test FAILs = RED).
+
+  - GREEN: Replace the WARNING fallback block at site 1 with a hard FAIL (exit 1)
+  whose message names commit+push+fetch remediation.
+
+  - verify: Control probe with pushed HEAD → normal setup completes (no false positive);
+  re-run RED probe → exit 1.
+
+  - commit: `with-test-home` site-1 gate block.
+
+
+  ### Item 2 (SC-2): with-test-home site 2 hard-FAIL gate (DRY mirror)
+
+
+  - RED: Same probe exercised through the site-2 invocation path → expects identical
+  exit-1 behavior; plus string check that both sites carry identical guard logic (RED:
+  site 2 still has WARNING).
+
+  - GREEN: Mirror the SC-1 change at site 2 via the shared guard function or identical
+  literal from Item 1.
+
+  - verify: Both-site identical-logic string check; both-site probe run.
+
+  - commit: `with-test-home` site-2 gate block.
+
+
+  ### Item 3 (SC-3): behavior_run() pre-flight cycle gate
+
+
+  - RED: `behavior_run` probe with unpushed/uncommitted fixture state → assertion
+  expects FAIL before flock/model dispatch; negative probe with `BEHAVIOR_SUBMODULE_COMMIT`
+  pinned to an unpushed SHA → expects FAIL (RED: no pre-flight gate exists today).
+
+  - GREEN: Add the pre-flight gate block (clean-tree check + fresh fetch + SHA-on-remote
+  check, honoring the pin) before the flock, with `FATAL`/`HARNESS_FAILURE` remediation-naming
+  message.
+
+  - verify: Control probe with pushed state → proceeds to lock acquisition; confirm
+  the pinned-unpushed negative probe FAILs (no bypass); confirm gate ordering precedes
+  flock.
+
+  - commit: `behaviors/helpers.sh` pre-flight gate block.
+
+
+  ### Item 4 (SC-4): tests-v2/AGENTS.md §4/§5 cycle documentation
+
+
+  - RED: String check for the ordered-cycle text in §4 and absence of WARNING-fallback
+  language in §5 (RED: §4 scopes the push note to DEFAULT_TEST_MODEL override; §5
+  documents the WARNING fallback).
+
+  - GREEN: Rewrite §4 with the all-runs ordered cycle (commit → push → fetch/verify
+  → run) framed as the test-framework infrastructure-maintenance carve-out; rewrite
+  §5 Submodule Checkout to describe the hard FAIL.
+
+  - verify: Direct text read confirms cycle text present and no fallback language
+  survives.
+
+  - commit: `tests-v2/AGENTS.md` §4/§5 sections.
+
+
+  ### Item 5 (SC-5): 091-incremental-build.md ordering amendment
+
+
+  - RED: String check for push-before-test ordering in the Per-Item TDD Cycle table
+  and behavioral-variant paragraph (RED: COMMIT is last, PUSH absent).
+
+  - GREEN: Amend the cycle table and behavioral-variant paragraph so behavioral items
+  commit+push before the behavioral test run.
+
+  - verify: Direct text read confirms ordering; cross-read TDD skill for consistency
+  (I4).
+
+  - commit: `guidelines/091-incremental-build.md` cycle sections.
+
+
+  ### Item 6 (SC-6): TDD SKILL.md PUSH step
+
+
+  - RED: String check for a PUSH step between COMMIT and next RED in the Per-Change
+  TDD Pattern and RED-Phase Ordering (RED: PUSH absent).
+
+  - GREEN: Add the PUSH step to both tables/lists with ordering identical to 091.
+
+  - verify: Direct text read of both locations; consistency read against 091 (I4).
+
+  - commit: `skills/test-driven-development/SKILL.md` pattern sections.
+
+
+  ### Item 7 (SC-7): Root AGENTS.md Testing Lessons Learned entry
+
+
+  - RED: String check for a commit/push/fetch cycle lesson in the Testing Lessons
+  Learned section (RED: absent).
+
+  - GREEN: Add the lesson entry referencing the gate behavior and the §4 carve-out
+  — text matches the implemented predicate (no stale-code claims).
+
+  - verify: Direct text read confirms lesson present and consistent with gate behavior.
+
+  - commit: `.opencode/AGENTS.md` lessons section entry.
+
+
+  ### Item 8 (SC-8): Agent follows the cycle (behavioral, artifact generation)
+
+
+  - RED: Behavioral script runs `opencode run` with a real-domain test-framework-fix
+  prompt and produces session.yaml; SC-8''s criterion (agent committed+pushed before
+  invoking the test framework) is evaluated in Item 9 — the RED state is today''s
+  behavior where the agent runs tests with unpushed HEAD.
+
+  - GREEN: n/a (rule changes landed in Items 4–7; this item re-verifies end-to-end
+  that the cycle is followed).
+
+  - verify: Script exits 0 with session.yaml artifact produced (§2 artifact dir conventions;
+  bash tool timeout >= 600000).
+
+  - commit: New `behaviors/<scenario>.sh` artifact-only generator script (+ fixture
+  setup if repo-state setup is needed per §3 Step 0b).
+
+
+  ### Item 9 (SC-9): Clean-room evaluation of SC-8 artifacts
+
+
+  - RED: n/a (evaluation dispatch — no code change).
+
+  - GREEN: Dispatch a clean-room sub-agent that reads ONLY the SC-8 session.yaml path
+  and the SC-9 criterion, returning PASS/FAIL with a one-sentence justification.
+
+  - verify: Verdict recorded from SC-8 artifacts; evaluator received no orchestrator
+  reasoning or expected outcomes.
+
+  - commit: Evaluation verdict artifact per §2 conventions.
+
+
+  ## Dependencies
+
+
+  | Reference | Relationship | Status |
+
+  |-----------|--------------|--------|
+
+  | .opencode#2433 (dispatch discipline remediation) | Its targeted behavioral-test
+  execution mandate shapes §4/§5 wording; commit-inline plan pattern must not be contradicted
+  (I4) | Satisfied — open spec with compatible design |
+
+  | `.opencode/tests-v2/AGENTS.md` §1/§2/§3/§5/§6a | Behavioral-test paradigm (artifact-only
+  generators, session.yaml-primary evidence, fixture setup, two-SC pattern) governs
+  Items 8–9 test construction | Satisfied — verified this session |
+
+  | `.opencode/tests-v2/AGENTS.md` §4 FORBIDDEN block | Existing infrastructure-maintenance
+  carve-out is the authorization basis for the agent commit+push remediation path
+  (I7) | Satisfied — verified this session |
+
+  | Existing `FATAL:`/`HARNESS_FAILURE:` message conventions | Gate failure messages
+  extend these prefixes (R3) | Satisfied — verified at with-test-home lines 212/253
+  and helpers.sh line 746 |
+
+  | Verified local model (qwen3.8:27b-256k-gguf4) | Required for Item 8 `opencode
+  run` execution | Satisfied — verified in tests-v2/AGENTS.md §10.4 |
+
+
+  ## Traceability
+
+
+  | Requirement | SC(s) | Phase(s) |
+
+  |-------------|-------|----------|
+
+  | R-1 | SC-1, SC-2 | A |
+
+  | R-2 | SC-3 | A |
+
+  | R-3 | SC-1, SC-2, SC-3 | A |
+
+  | R-4 | SC-3 | A |
+
+  | R-5 | SC-2 | A |
+
+  | R-6 | SC-4 | B |
+
+  | R-7 | SC-5 | B |
+
+  | R-8 | SC-6 | B |
+
+  | R-9 | SC-7 | B |
+
+  | R-10 | SC-3, SC-4 | A, B |
+
+  | R-11 | SC-3 | A |
+
+  | R-12 | SC-3, SC-8 | A, C |
+
+  | R-13 | SC-3 | A |
+
+  | R-14 | SC-1, SC-2, SC-3 | A |
+
+
+  ## Documentation Sources
+
+
+  | Source | Type | Location | Verification |
+
+  |--------|------|----------|-------------|
+
+  | `with-test-home` WARNING fallback sites | code | `.opencode/tests-v2/with-test-home`
+  (site 1 lines 211–222; site 2 lines 407–418) | Read this session — WARNING fallback
+  confirmed at lines 220 and 416 |
+
+  | `behavior_run()` + flock + checkout FATAL | code | `.opencode/tests-v2/behaviors/helpers.sh`
+  (lines 649–749) | Read this session — no pre-flight git-state gate; FATAL at line
+  746 lacks remediation naming |
+
+  | `tests-v2/AGENTS.md` §4/§5 | doc | `.opencode/tests-v2/AGENTS.md` | Read this
+  session — narrow DEFAULT_TEST_MODEL push note (§4, line ~200); §5 documents WARNING
+  fallback |
+
+  | 091 Per-Item TDD Cycle table | guideline | `.opencode/guidelines/091-incremental-build.md`
+  (lines 24–35) | Read this session — COMMIT last, PUSH absent |
+
+  | TDD SKILL.md pattern tables | skill | `.opencode/skills/test-driven-development/SKILL.md`
+  (Per-Change TDD Pattern ~line 268; RED-Phase Ordering ~line 337) | Read this session
+  — COMMIT last, PUSH absent |
+
+  | Root AGENTS.md lessons | doc | `.opencode/AGENTS.md` Testing Lessons Learned (line
+  ~155) | Read this session — 6 lessons, none on the cycle |
+
+  | §6a Two-SC Pattern | doc | `.opencode/tests-v2/AGENTS.md` (lines 422–479) | Read
+  this session — artifact generation + clean-room evaluation pattern for Items 8–9
+  |
+
+  | #2433 exec summary | issue | https://github.com/michael-conrad/.opencode/issues/2433
+  | Read this session — commit-inline pattern and targeted-run mandate constraints
+  (I4) |
+
+  | Git-state probe | code | `.opencode` submodule worktree | `git fetch` + `rev-list
+  HEAD..origin/...` = 0 this session; branch feature/2402-..., HEAD aea9d479 on remote
+  |
+
+
+  ## Cost Frame
+
+
+  Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
+  only metric.
+
+
+  - **SC-1:** Verifying site-1 hard-FAIL costs minutes of harness probe execution
+  — the gate fires before model dispatch, catching the stale-code defect at gate 1
+  where the fix cost is bounded. Skipping costs weeks of silent stale-code test runs
+  — PASS/FAIL verdicts issued against code that was never checked out, discovered
+  only when a "passing" branch merges broken behavior.
+
+  - **SC-2:** Verifying site-2 parity costs the same bounded probe plus one grep for
+  guard-logic identity — trivial against the death-spiral alternative. Skipping costs
+  a divergent second clone path that resurrects the WARNING fallback on every site-2
+  invocation — the defect returns through the door site 1 closed, at full rework price.
+
+  - **SC-3:** Verifying the `behavior_run()` pre-flight gate costs minutes of probe
+  execution — cheapest possible position because it precedes flock and model dispatch.
+  Skipping costs full 600-second model-dispatch cycles spent testing stale code, plus
+  contaminated RED/GREEN verdicts that poison every downstream SC decision on the
+  branch.
+
+  - **SC-4:** Verifying the §4/§5 cycle documentation costs one direct text read —
+  seconds. Skipping costs doc/gate divergence: agents read the documented WARNING
+  fallback and deliberately follow it, converting the machine gate into a rule agents
+  route around.
+
+  - **SC-5:** Verifying the 091 ordering amendment costs one direct text read — seconds.
+  Skipping costs per-item TDD agents committing AFTER their behavioral runs and reproducing
+  the orphaned-STALE-GREEN defect on every behavioral item, a full rework cycle per
+  item.
+
+  - **SC-6:** Verifying the TDD PUSH step costs one direct text read — seconds. Skipping
+  costs a vocabulary fork between 091 and the TDD skill where agents follow whichever
+  file they loaded first, guaranteeing contradictory ordering compliance.
+
+  - **SC-7:** Verifying the lessons entry costs one direct text read — seconds. Skipping
+  costs session-start blindness: agents re-deliberate push timing from scratch each
+  session, and the lesson drifts from gate reality into a stale-code claim that teaches
+  the wrong behavior.
+
+  - **SC-8:** Running the behavioral cycle test costs minutes of model execution —
+  the bounded break cost. Skipping costs 1000× more downstream: agents ship test-framework
+  invocations on unpushed HEAD indefinitely, and every false verdict surfaces in review
+  or production rather than at the gate.
+
+  - **SC-9:** Running the clean-room evaluation costs minutes of sub-agent execution
+  — bounded. Skipping costs an unevaluated artifact stream where agent non-compliance
+  passes silently because nobody read the evidence the test was built to produce.
+
+
+  ## Edge Cases
+
+
+  - **Unpushed local HEAD (F2):** Condition: submodule HEAD committed locally but
+  absent from the remote after fresh fetch. Expected behavior: hard FAIL at both `with-test-home`
+  sites and the `behavior_run()` gate, before any model dispatch; message names commit+push+fetch.
+  Resolution: agent commits and pushes per the §4 carve-out, re-fetches, re-runs.
+
+  - **Uncommitted submodule changes (F1):** Condition: `git status --porcelain` non-empty
+  in the submodule. Expected behavior: `behavior_run()` pre-flight gate FAILS before
+  the flock acquisition completes. Resolution: agent commits (the §4 carve-out authorizes
+  autonomous commit+push for test-framework runs), then re-runs.
+
+  - **`BEHAVIOR_SUBMODULE_COMMIT` pinned to an unpushed SHA (F2 variant):** Condition:
+  override env var set to a commit not on remote. Expected behavior: gate verifies
+  THAT pinned SHA against the remote and FAILS — no bypass (R-4). Resolution: agent
+  pushes the pinned commit or re-pins to a pushed SHA.
+
+  - **Pushed HEAD control (false-positive guard):** Condition: normal case — clean
+  tree, HEAD on remote. Expected behavior: gate passes, run proceeds identically to
+  today''s good path (R-14). Resolution: n/a — SC-1/SC-3 control probes enforce no
+  regression here.
+
+  - **Shared-home reuse mode:** Condition: resumed run reuses `tmp/test-home-shared`
+  (existing clone, checkout block skipped). Expected behavior: the `behavior_run()`
+  pre-flight gate still validates the shared project''s git state — the reuse path
+  MUST NOT bypass the gate. Resolution: gate reads live state each run (R-13); the
+  §10.7 known limitation remains unchanged.
+
+  - **Local-only / unreachable remote:** Condition: remote unreachable or missing
+  at gate time. Expected behavior: hard FAIL — consistent with the fact that the clone
+  itself requires the remote (C2). Resolution: agent restores remote connectivity;
+  the harness makes no degraded-mode exception.
+
+  - **Concurrent test runs (lock contention):** Condition: gate fires while another
+  run holds `tmp/.behavior-run.lock`. Expected behavior: the gate precedes the flock,
+  so a stale-code run FAILS before it ever contends for the lock; a legitimate pushed-state
+  run proceeds to acquire the lock normally. Resolution: no stale lock left by gate
+  failures (gate exits before lock acquisition); stale-lock cleanup per §10.1 unchanged.
+
+  - **Gate failure mid-`with-test-home` (no test home produced):** Condition: site-1/site-2
+  checkout FAIL during `--setup` or a subsequent invocation. Expected behavior: exit
+  1 with remediation message; no partially-constructed test home from the wrong ref.
+  Resolution: agent remediates git state and re-invokes; existing `HARNESS_FAILURE:`
+  handling applies.
+
+
+  ---
+
+
+  <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+
+  <!-- SPDX-License-Identifier: MIT -->
+
+  <!-- Provenance: AI-generated -->
+
+
+  Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-04T16:35:50+00:00'
-updated_at: '2026-09-04T16:42:57+00:00'
+updated_at: '2026-09-04T16:47:49+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2434
 remote_url: https://github.com/michael-conrad/.opencode/issues/2434
