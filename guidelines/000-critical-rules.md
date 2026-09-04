@@ -36,7 +36,7 @@ ONLY "approved"/"go" authorize action.
 
 
 ### [critical-rules-006] CRITICAL VIOLATION — Routing-bypass rationalization as self-authorization variant
-The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses dispatch has committed a routing-bypass self-authorization violation.
+The pattern "agent recognizes matching skill, deliberates about whether skill is needed, constructs carveout justification, executes bypass" is explicitly classified as a self-authorization variant. Any agent that matches a skill trigger but self-classifies into a "read-only" or "simple lookup" exemption and bypasses executing the loaded skill's workflow has committed a routing-bypass self-authorization violation. (Executing a loaded skill's workflow steps directly in the orchestrator's own context is sanctioned — see 022-orchestrator-context-discipline.md Architecture B; the prohibited bypass is skipping the skill entirely, not direct execution.)
 
 
 ### [critical-rules-026] CRITICAL VIOLATION — Deleting Branches/Stashes Improperly
@@ -170,7 +170,7 @@ A "why" question, a complaint about redundancy, or any interpretive inference is
 
 
 ### [critical-rules-PR-ORG] CRITICAL VIOLATION — Stacked PR Is the Only Valid Organization
-Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch with one commit per issue. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
+Creating N branches for N issues under any authorization scope is a critical violation. All issues within an authorization scope share one feature branch. Multiple WIP commits during development are acceptable; squash to exactly one commit per issue occurs at PR creation. The only valid PR strategy is `stacked` — one branch, N commits, one PR. The `individual` strategy (N branches, N PRs) does not exist.
 
 An authorization scope that halts before PR creation declares `pr_strategy: none`. An authorization scope that creates PRs declares `pr_strategy: stacked`. There is no third option.
 
@@ -193,6 +193,8 @@ The skill card (SKILL.md) tells the orchestrator WHAT to dispatch. The task card
 |----------|------|----------|---------|--------|
 | Skill Card | SKILL.md | Orchestrator | Routing metadata (Trigger Dispatch Table, Invocation, DISPATCH_GATE) | Load via skill(), read in own context, do NOT dispatch |
 | Task Card | tasks/<name>.md | Sub-agent | Execution procedure (entry criteria, steps, exit criteria) | Dispatch via task() using canonical string from Invocation |
+
+Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, and the forwarding prohibitions (whole-card / whole-plan); this file's routing rules reference that table instead of restating definitions.
 
 The correct pattern:
 1. Orchestrator calls `skill({name: "..."})` → skill card loads into orchestrator context
@@ -350,6 +352,22 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 | Issue closure | Issue comment |
 | Agent completes implementation task | Chat only |
 | Spec-audit findings | Internal only |
+
+### Infrastructure-Failure Carve-Out — Authorized Direct Execution After Repeated Dispatch Failures
+
+1. **Condition:** At least 2 consecutive tool-level sub-agent dispatch attempts (`task()`) have failed (empty results, runtime errors, or harness failure) — NOT a task-content defect (a task-content defect requires re-task per critical-rules-043, never direct execution).
+2. **Authorization:** Direct execution in the orchestrator's own context is authorized ONLY for read-only/verification work (file reads, grep/search, lint, test runs, status checks) that the failed dispatch would have performed.
+3. **Disclosure is mandatory:** The agent MUST disclose in its output, before or with the direct execution, that it is invoking this carve-out: name the carve-out, state the number of failed dispatches, and state that the work is confined to read-only/verification limits.
+4. **Binary decision:** Conditions 1-3 all true → proceed with direct execution and disclosure. Any condition false → do NOT proceed directly; re-dispatch or halt.
+5. **Limits:** Direct execution under this carve-out MUST NOT write, modify, or commit files, MUST NOT perform authorization-gated actions, and MUST be reported factually (what was checked, what was found).
+
+### Anti-Recitation — Act and Disclose on Safe Reversible Actions
+
+1. **Placement rule:** Rule citations belong in enforcement artifacts (behavioral test scripts, pre-commit hooks, CI gates) — NOT in agent deliberation. Reciting protocol rules in reasoning or chat before acting is a defect, not compliance.
+2. **Safe reversible action defined:** An action that writes only to permitted scratch locations (`{project_root}/tmp/`), is trivially reversible (delete the file), performs no commit, push, remote mutation, or authorization-gated operation, and destroys no data.
+3. **Mandate:** On a safe reversible action, the agent acts first and discloses in the same output — stating the action taken and the rule that permits it in one sentence — instead of reciting rules before acting.
+4. **Binary decision:** Action is safe and reversible → act and disclose. Action is destructive, irreversible, or authorization-gated → existing gates apply unchanged; this clause creates no new authorization.
+5. **Recitation defect:** Producing citation-only turns (restating critical-rules, approval-gate, or scope rules without performing the requested safe action) is a process-integrity failure — act, then disclose; do not deliberate in citations.
 
 
 

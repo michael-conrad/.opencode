@@ -94,7 +94,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
   - **Execution mode:** sub-agent dispatch
 
 - [ ] 5. **If validate returns FAIL:** Return to step 2 (revise) — max 3 iterations, then HALT
-  - **Execution mode:** inline
+  - **Execution mode:** orchestrator
 
 - [ ] 6. **If validate returns PASS:** Runs lifecycle event append, execution strategy determination, and summary report
   - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete plan workflow](.opencode/skills/writing-plans/tasks/completion.md). issue_number: ", issue_number, ", project_root: ", project_root, ", issues_prefix: ", issues_prefix))`

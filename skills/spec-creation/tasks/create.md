@@ -6,7 +6,7 @@ PRODUCTION
 
 ## Purpose
 
-Assemble the full spec document from analysis artifacts, create a remote issue stub (when remote API available), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path. This task does NOT perform analysis steps or verification steps.
+Assemble the full spec document from analysis artifacts, create a remote issue stub FIRST (when remote API available) and take the issue number N from the API create response's `number` field (remote-number-first — the remote API is the sole number source when a remote exists), write the full spec to the remote issue body, and write the local spec to the correct `.issues/{N}/` path (local record created at exactly N — local == remote BY CONSTRUCTION; the local counter is used ONLY in local-only mode). This task does NOT perform analysis steps or verification steps.
 
 ## Label Canonical Source
 
@@ -68,14 +68,40 @@ scs:
 
 Each SC gets a `plan_item` number instead of a phase group. Items are numbered sequentially starting from 1.
 
-### Step 3: Create remote issue stub
+### Step 3: Create remote issue stub FIRST — remote-number-first numbering
 
-When a remote API is available (github.platform is not `local`):
+**Remote-number-first rule (MANDATORY):**
+When a remote API is available (github.platform is not `local`), the remote
+API's assigned number is the SOLE source of truth for the issue number. The
+flow creates the remote stub FIRST — before ANY local record exists — and
+takes the issue number N from the API create response's `number` field. The
+local issue record is then created at exactly N. Local == remote BY
+CONSTRUCTION (both derive from the same response `number` field) — no
+after-the-fact collision check, no divergence possibility.
 
-- [ ] 1. Create a minimal remote issue with `[SPEC]` prefix and `needs-approval` label to establish the issue number
-- [ ] 2. Extract the `html_url` from the API response
+When a remote API is available:
 
-When no remote API is available (local-only mode), use the local issue number directly.
+- [ ] 1. Create the remote stub FIRST (before any local record): a minimal remote issue with `[SPEC]` prefix and `needs-approval` label
+- [ ] 2. Read the remote-assigned number N from the API create response's `number` field
+- [ ] 3. Extract the `html_url` from the API response
+- [ ] 4. Create the local issue record at exactly N: local directory `{issues_prefix}/{N}/` (`.issues/N/`), issue.yaml with `remote_issue: N`, and binding fields (`remote_issue`, `remote_url`, `github_url`) all referencing N
+- [ ] 5. If the remote assigns a number whose local directory `{issues_prefix}/{N}/` already exists: follow the renumber/migrate repair pattern — migrate the existing local directory to the remote-assigned number, then create the local record at exactly N. This is a post-defect repair, not the primary guard; construction-by-remote-number remains the guard.
+- [ ] 6. If the API fails mid-flow (remote stub created but the local write fails): return BLOCKED with blocker_reason `API_FAILURE_MID_FLOW` — MUST NOT silently reassign a different local number and MUST NOT leave a half-bound state. Recovery is a re-run that binds to the remote-assigned number, never a local-counter fallback.
+
+**Local counter restriction:**
+The create task MUST NOT use the local counter to pick the number when a
+remote API is available. The local counter (`.counter` autonumber via
+`local-issues create` without `--number`) is used ONLY in local-only mode
+(no remote API — github.platform is `local`); in that mode, use the local
+issue number directly.
+
+**Downstream number binding:**
+From this step onward, every `{issue_number}` reference in subsequent steps
+(sc-summary.yaml path, spec path, artifact copy destination) resolves to N —
+the remote-assigned number — never to a dispatch-context provisional number
+or a local-counter value. The exact-match invariant holds: local directory
+`.issues/N/`, issue.yaml `remote_issue: N`, and binding fields all reference
+the same N.
 
 ### Step 3.1: Record labels in local `issue.yaml` as PRIMARY CANONICAL (MANDATORY)
 
@@ -122,8 +148,8 @@ Route the remote issue body to the canonical exec-summary body format defined in
 
 Write the full spec to the correct local path:
 
-- Root repo issues: `{project_root}/.issues/{issue_number}/spec.md`
-- Submodule issues: `{project_root}/{path}/.issues/{issue_number}/spec.md` (where `path` comes from session-init Repo Information)
+- Root repo issues: `{project_root}/.issues/{N}/spec.md`
+- Submodule issues: `{project_root}/{path}/.issues/{N}/spec.md` (where `path` comes from session-init Repo Information; N is the remote-assigned number from Step 3 — local == remote BY CONSTRUCTION)
 
 Include the GitHub URL blockquote at the top of the local spec:
 
@@ -156,7 +182,9 @@ After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/i
 
 - [ ] Spec assembled with all required sections
 - [ ] Format-level rules applied (SHALL language, dark-prose-007, SC determinism, Documentation Sources columns)
-- [ ] Remote issue created (when API available) with `[SPEC]` prefix and `needs-approval` label
+- [ ] Remote issue stub created FIRST (when API available), before any local record
+- [ ] Issue number N taken from the API create response's `number` field (remote-number-first — remote API is the source of truth; local counter NOT used when a remote API is available)
+- [ ] Local issue record created at exactly N: `.issues/N/`, issue.yaml with `remote_issue: N`, binding fields (remote_issue, remote_url, github_url) all referencing N — local == remote BY CONSTRUCTION
 - [ ] `needs-approval` and `spec-draft` labels recorded in local `{issues_prefix}/{N}/issue.yaml` labels array as primary canonical source (REQUIRED — via `local-issues update --labels`)
 - [ ] Remote `spec-draft` label write attempted best-effort; remote failure does not block completion
 - [ ] Full spec written to remote issue body (when API available)
@@ -171,9 +199,12 @@ After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/i
 
 ```yaml
 status: DONE | BLOCKED
-spec_path: "{project_root}/.issues/{issue_number}/spec.md"
-issue_url: "https://github.com/{owner}/{repo}/issues/{issue_number}"
-artifact_url: "https://github.com/{owner}/{repo}/tree/issues-data/{issue_number}/"
+spec_path: "{project_root}/.issues/{N}/spec.md"
+issue_url: "https://github.com/{owner}/{repo}/issues/{N}"
+artifact_url: "https://github.com/{owner}/{repo}/tree/issues-data/{N}/"
+remote_issue: <N>
+remote_url: "https://github.com/{owner}/{repo}/issues/{N}"
+github_url: "https://github.com/{owner}/{repo}/issues/{N}"
 finding_summary: "Brief summary of spec structure, sections, and key decisions"
-blocker_reason: "If BLOCKED: why the spec could not be created"
+blocker_reason: "If BLOCKED: why the spec could not be created (e.g., API_FAILURE_MID_FLOW, LOCAL_LABEL_WRITE_FAILED)"
 ```

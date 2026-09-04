@@ -525,7 +525,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 - `tasks/guideline-audit-evaluator.md` — Evaluator role (consumes this Investigator's evidence.yaml)
 - Read [000-critical-rules.md](guidelines/000-critical-rules.md) — guideline standards and critical rule definitions
 - Read [065-verification-honesty.md](guidelines/065-verification-honesty.md) — live verification requirement
-- Read [080-code-standards.md](guidelines/080-code-standards.md) — enforcement test mandate
+- Read [test-driven-development/SKILL.md §Enforcement Test Mandate](skills/test-driven-development/SKILL.md) — enforcement test mandate
 - Read [cost-model-standards.md](reference/cost-model-standards.md) — canonical evidence-type taxonomy
 
 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-pro)

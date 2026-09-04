@@ -27,7 +27,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **Analytical artifact validation required before audit tasks.** Spec-audit requires all 7 analytical artifacts (blast radius, concern map, code path inventory, cross-cutting matrix, interface compatibility, state analysis, testability assessment). Concern-separation requires concern-map. Plan-fidelity requires interface-compatibility. Verification-audit requires code-path-inventory. Cross-validate requires cross-cutting-matrix. Coherence-maintenance requires state-analysis. Test-quality-audit requires testability-assessment. Three artifact-missing scenarios are distinguished by where the detection occurs:
 
@@ -72,7 +72,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 **The orchestrator does NOT read task cards.** Each step below is dispatched to a clean-room sub-agent via `task()`. The sub-agent independently discovers and reads the task card file. The orchestrator receives only the result contract — it never loads task card content.
 
-The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an inline orchestrator action where marked). The `Execution mode` sub-bullet on every step makes the inline-vs-dispatch decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()`; `inline` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
+The orchestrator follows the steps below step-by-step, in order. Each step is a clean-room `task()` dispatch (or an orchestrator-own-context action where marked). The `Execution mode` sub-bullet on every step makes the execution decision explicit: `sub-agent dispatch` means the orchestrator dispatches a clean-room sub-agent via `task()` with a task-card dispatch string; `orchestrator` means the orchestrator performs the action in its own context. The orchestrator waits for each result contract before dispatching the next step.
 
 The orchestrator dispatches each audit as a 4-step DiMo chain — one `task()` call per role, in sequence (Investigator → Validator → Evaluator → Arbiter). Each role is a clean-room sub-agent dispatched via `task(subagent_type="general")`. The orchestrator does NOT read task cards — the sub-agent independently discovers and reads the task card.
 

@@ -141,15 +141,16 @@ Context:
 | 8 | Step-by-step | Yes | Checkbox steps with dispatch indicators |
 | 9 | Phase Completion Block | Yes | VbC verification assertions |
 
-### 4.2 Dispatch Indicators
+### 4.2 Dispatch Indicators and Per-Step Dispatch Mode
 
-Every step MUST use one of three dispatch indicators:
+Every step MUST use one of two dispatch indicators, each carrying the step's explicit **dispatch mode** (`direct` or `task-card`, default `direct`):
 
-| Indicator | Meaning | Consumer |
-|-----------|---------|----------|
-| `(**inline**)` | Orchestrator executes directly | Orchestrator |
-| `(**sub-agent**)` | Dispatch via `task()` with phase context | Sub-agent |
-| `(**clean-room**)` | Dispatch via `task()` with routing metadata only | Clean-room sub-agent |
+| Indicator | Dispatch mode | Meaning | Consumer |
+|-----------|---------------|---------|----------|
+| `(**direct**)` | `direct` (default) | Orchestrator executes the step in its own context | Orchestrator |
+| `(**task-card**)` | `task-card` | The orchestrator dispatches the step's task card via `task()` | Sub-agent |
+
+Every step of a produced plan MUST carry an explicit mode — the mode is emitted by the producer templates so no step is prose-ambiguous. Steps left unmarked default to `direct` (the executing-plans workflow treats an unmarked step as `direct`). The retired three-indicator vocabulary (`inline`, `sub-agent`, `clean-room`) is superseded: `inline` maps to `direct`; `sub-agent`/`clean-room` map to `task-card`.
 
 ### 4.3 Global Sequential Numbering
 
@@ -308,14 +309,14 @@ test_cases:
 
 ---
 
-- [ ] 1. **RED (**sub-agent**).** Write failing test asserting `RegistrationInput` model exists and validates fields. **→ SC-1, SC-2**
-- [ ] 2. **GREEN (**sub-agent**).** Create `src/validators/registration.py` with `RegistrationInput` Pydantic model. **→ SC-1, SC-2**
-- [ ] 3. **GREEN doublecheck (**clean-room**).** Verify model rejects invalid email, short password, out-of-range age. **→ SC-1, SC-2**
-- [ ] 4. **Checkpoint commit (**inline**).** Commit model creation.
+- [ ] 1. **RED (**task-card**).** Write failing test asserting `RegistrationInput` model exists and validates fields. **→ SC-1, SC-2**
+- [ ] 2. **GREEN (**task-card**).** Create `src/validators/registration.py` with `RegistrationInput` Pydantic model. **→ SC-1, SC-2**
+- [ ] 3. **GREEN doublecheck (**task-card**).** Verify model rejects invalid email, short password, out-of-range age. **→ SC-1, SC-2**
+- [ ] 4. **Checkpoint commit (**direct**).** Commit model creation.
 
 #### Phase 1 VbC
 
-- [ ] 5. **VbC (**clean-room**).** Verify `RegistrationInput` exists, all fields present, validation rules correct. **→ SC-1, SC-2**
+- [ ] 5. **VbC (**task-card**).** Verify `RegistrationInput` exists, all fields present, validation rules correct. **→ SC-1, SC-2**
 
 **Concern transition:** Leaving validation schema definition → entering middleware integration. Phase 2 depends on Phase 1's `RegistrationInput` model.
 
@@ -344,14 +345,14 @@ test_cases:
 
 ---
 
-- [ ] 6. **RED (**sub-agent**).** Write failing test asserting route returns 422 for invalid payload. **→ SC-3**
-- [ ] 7. **GREEN (**sub-agent**).** Add validation call to route handler, return 422 on failure. **→ SC-3**
-- [ ] 8. **GREEN doublecheck (**clean-room**).** Verify 422 response body contains `error` and `details` fields. **→ SC-3**
-- [ ] 9. **Checkpoint commit (**inline**).** Commit middleware integration.
+- [ ] 6. **RED (**task-card**).** Write failing test asserting route returns 422 for invalid payload. **→ SC-3**
+- [ ] 7. **GREEN (**task-card**).** Add validation call to route handler, return 422 on failure. **→ SC-3**
+- [ ] 8. **GREEN doublecheck (**task-card**).** Verify 422 response body contains `error` and `details` fields. **→ SC-3**
+- [ ] 9. **Checkpoint commit (**direct**).** Commit middleware integration.
 
 #### Phase 2 VbC
 
-- [ ] 10. **VbC (**clean-room**).** Verify route returns 422 for invalid payload, 200 for valid. **→ SC-3**
+- [ ] 10. **VbC (**task-card**).** Verify route returns 422 for invalid payload, 200 for valid. **→ SC-3**
 
 **Concern transition:** Leaving middleware integration → entering test coverage expansion. Phase 3 depends on Phase 2's validation logic.
 
@@ -380,11 +381,11 @@ test_cases:
 
 ---
 
-- [ ] 11. **RED (**sub-agent**).** Write failing test for missing email field. **→ SC-4**
-- [ ] 12. **GREEN (**sub-agent**).** Add test cases for all 4 scenarios. **→ SC-4**
-- [ ] 13. **GREEN doublecheck (**clean-room**).** Verify all 4 test cases pass. **→ SC-4**
-- [ ] 14. **Checkpoint commit (**inline**).** Commit test coverage.
+- [ ] 11. **RED (**task-card**).** Write failing test for missing email field. **→ SC-4**
+- [ ] 12. **GREEN (**task-card**).** Add test cases for all 4 scenarios. **→ SC-4**
+- [ ] 13. **GREEN doublecheck (**task-card**).** Verify all 4 test cases pass. **→ SC-4**
+- [ ] 14. **Checkpoint commit (**direct**).** Commit test coverage.
 
 #### Phase 3 VbC
 
-- [ ] 15. **VbC (**clean-room**).** Verify all 4 test cases pass, coverage meets SC-4. **→ SC-4**
+- [ ] 15. **VbC (**task-card**).** Verify all 4 test cases pass, coverage meets SC-4. **→ SC-4**

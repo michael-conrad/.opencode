@@ -42,9 +42,9 @@ Sequence: Implementation complete → commit → push → **review-prep MUST be 
 
 Tasks sub-agent for submodule changes (if a submodule `.git` file or directory is discovered), then handles temp file cleanup, rebase on current trunk, worktree handoff, and branch push verification.
 
-### Step 2.5: Squash Verification (MANDATORY GATE)
+### Step 2.5: Commit-Count Verification (MANDATORY GATE)
 
-**Before generating the compare URL, verify the commit-per-issue invariant.** This gate catches unsquashed branches before the compare URL is exposed to the developer.
+**Before generating the compare URL, verify the commit-count invariant.** Multiple WIP commits during development are acceptable; squash to exactly one commit per issue occurs at PR creation, NOT at review-prep. This gate verifies the branch is in a reviewable state without prematurely squashing.
 
 ```bash
 # Count commits ahead of trunk
@@ -56,15 +56,10 @@ ls {project_root}/tmp/{issue-N}/work.md 2>/dev/null
 
 | Branch Type | Expected Commits | On Mismatch |
 | -- | -- | -- |
-| **Single-issue** | Exactly 1 | HALT — squash via `pr-creation/squash-push.md` Step 3 before URL generation |
+| **Single-issue** | 1 or more WIP commits | OK — do NOT squash here; squash is deferred to PR creation |
 | **Work branch** | N (N = work items) | HALT — verify commit count matches work state before URL generation |
 
-**If single-issue branch has >1 commit:**
-
-- [ ] 1. DO NOT generate compare URL
-- [ ] 2. Squash — Read [Step 3](skills/git-workflow-pr/tasks/pr-creation/squash-push.md)
-- [ ] 3. Re-push with `--force-with-lease`
-- [ ] 4. Re-verify commit count — then proceed to URL generation
+**Squash is deferred to PR creation, not review-prep.** Multiple WIP commits on a single-issue branch are acceptable and expected during development. Do NOT squash at review-prep — the squash to exactly one commit per issue happens at PR creation via `pr-creation/squash-push.md`.
 
 **If work branch commit count does not match work state items:**
 

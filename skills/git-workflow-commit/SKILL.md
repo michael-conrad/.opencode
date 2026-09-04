@@ -1,6 +1,6 @@
 ---
 name: git-workflow-commit
-description: "Implement changes and prepare atomic, well-described commits including commit message preparation and pair mode commits. Commits MUST be atomic and well-described; single-issue branches produce exactly one squash commit."
+description: "Implement changes and prepare atomic, well-described commits including commit message preparation and pair mode commits. Multiple WIP commits during development are acceptable; single-issue branches are squashed to exactly one commit at PR creation."
 license: MIT
 provenance: AI-generated
 ---
@@ -9,13 +9,13 @@ provenance: AI-generated
 
 ## Overview
 
-Commit management sub-skill of git-workflow. Handles implementation commits, commit message preparation, and pair mode commits. Enforces squash-on-PR-only discipline — single-issue branches produce exactly one commit. All commits require a feature branch; direct commits to protected branches are blocked.
+Commit management sub-skill of git-workflow. Handles implementation commits, commit message preparation, and pair mode commits. Multiple WIP commits during development are acceptable; squash to exactly one commit per issue occurs at PR creation. All commits require a feature branch; direct commits to protected branches are blocked.
 
 ## Mandatory Task Discipline
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -64,4 +64,4 @@ When the agent needs to make a WIP commit in pair mode with developer attributio
 - Read [critical-rules-026](guidelines/000-critical-rules.md) for commit authorization rules
 - Read [critical-rules-040](guidelines/000-critical-rules.md) for single-commit discipline
 - Read [AI co-authored attribution requirements](guidelines/080-code-standards.md)
-- Read [§1](guidelines/020-go-prohibitions.md) for `--no-verify` restrictions
+- Read [§critical-rules-026 Git Configuration and Destructive Command Authorization](guidelines/000-critical-rules.md) for `--no-verify` restrictions

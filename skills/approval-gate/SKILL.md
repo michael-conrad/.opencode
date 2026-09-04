@@ -20,7 +20,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -35,12 +35,12 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "verify authorization" / "check approval" / "approved" / "go" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope} |
-| "apply label" / "set approval label" | `apply-label` | `sub-task` | {issue_number, authorization_scope} |
-| "route" / "auto-dispatch" / "next step" | `route` | `sub-task` | {authorization_scope, halt_at, pipeline_phase} |
-| "spec revision" / "spec revised" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope, is_revision: true} |
-| "bug discovery" / "bug found during implementation" | `resolve-scope` | `sub-task` | {issue_number, bug_description} |
-| "release PR" / "release authorization" | `resolve-scope` | `sub-task` | {issue_number, authorization_scope, is_release: true} |
+| "verify authorization" / "check approval" / "approved" / "go" | `resolve-scope` | `task-card` | {issue_number, authorization_scope} |
+| "apply label" / "set approval label" | `apply-label` | `task-card` | {issue_number, authorization_scope} |
+| "route" / "auto-dispatch" / "next step" | `route` | `task-card` | {authorization_scope, halt_at, pipeline_phase} |
+| "spec revision" / "spec revised" | `resolve-scope` | `task-card` | {issue_number, authorization_scope, is_revision: true} |
+| "bug discovery" / "bug found during implementation" | `resolve-scope` | `task-card` | {issue_number, bug_description} |
+| "release PR" / "release authorization" | `resolve-scope` | `task-card` | {issue_number, authorization_scope, is_release: true} |
 
 ## Invocation
 

@@ -18,9 +18,11 @@ Every skill boundary requires a re-encounter of the enforcement identity. Profes
 
 ---
 
-## Universal Skill Dispatch Gate — Professional agents dispatch skills. Amateurs inline.
+## Universal Skill Dispatch Gate — Professional agents evaluate and follow the skill deck.
 
 Producing chat output without first evaluating and dispatching applicable skills means chat output without skill evaluation has bypassed the quality gates that catch defects. Every response produced without skill evaluation is a response produced blind. Agents who produce blind responses produce defective work — it is that direct. Do not be that agent.
+
+Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, and Architecture B routing; this section's dispatch directives use the canonical table instead of restating definitions.
 
 ### Pre-Response Gate Procedure — Your quality is determined here
 
@@ -33,7 +35,7 @@ skip it are not "fast" — they produce lower-quality work by definition.
 
 2. **If one or more skills match the intent of the request: call `skill({name: "..."})` before generating output.** Loading a skill means you are using the enforcement gates designed to catch your mistakes. Skipping this step means memory is the least reliable tool available — a skipped skill call means operating without confirmed information.
 
-2.5. **Read the loaded SKILL.md's Trigger Dispatch Table and Invocation section to determine the correct dispatch string. Then dispatch the task card via task() using that canonical string.**
+2.5. **Read the loaded SKILL.md's Trigger Dispatch Table and Invocation section in your own context, then execute the workflow steps directly — dispatching a step's task card via task() only where the workflow marks dispatch (Dispatch value `task-card`).**
 
 3. **Only after skill content is loaded: proceed to produce the response.**
    The skill is not an interruption to your workflow — it IS the workflow.
@@ -172,31 +174,7 @@ git add .opencode
 
 ## `gb` CLI Tool — GitBucket Operations
 
-This repo uses the [`gb` CLI](https://github.com/Masahiro-Obuchi/gitbucket-cli-rs) (v0.6.1) for all GitBucket API operations. The `gb` tool replaces the previous bespoke `gitbucket-api` Python tool. Agents performing `gb` workflows MUST dispatch the [`gb-cli` skill](skills/gb-cli/SKILL.md) — it is the canonical entry point for all `gb` command operations.
-
-### Install by Platform
-
-| Platform | Download URL | Install Commands |
-|----------|-------------|------------------|
-| Linux x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-unknown-linux-gnu.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
-| macOS x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
-| macOS arm64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-aarch64-apple-darwin.tar.gz` | `curl -L <url> \| tar xz && sudo mv gb /usr/local/bin/` |
-| Windows x86_64 | `https://github.com/Masahiro-Obuchi/gitbucket-cli-rs/releases/download/v0.6.1/gb-v0.6.1-x86_64-pc-windows-msvc.zip` | Expand archive and add to PATH |
-
-### Version Pinning
-
-Pin to `v0.6.1`. Verify with `gb --version` before use. The version check is enforced at skill entry — agents MUST NOT proceed if `gb --version` reports `< 0.6.1`.
-
-### TOOL_MISSING Detection
-
-When `gb` is not found, skill task files return `BLOCKED` with `reason: TOOL_MISSING`. The retry pattern:
-
-```bash
-if ! command -v gb &>/dev/null; then
-  echo "TOOL_MISSING: gb CLI not found. Install from https://github.com/Masahiro-Obuchi/gitbucket-cli-rs"
-  return 1
-fi
-```
+Agents performing `gb` workflows MUST dispatch the [`gb-cli` skill](skills/gb-cli/SKILL.md) — it is the canonical entry point for all `gb` command operations. Read [the gb CLI install, version-pinning, and authentication reference](skills/gb-cli/reference/install-and-authentication.md) for the install-by-platform table, version pinning rules, authentication verification, and TOOL_MISSING detection.
 
 ---
 
@@ -296,16 +274,7 @@ Credential status values: `verified` (token exists + API ping succeeds), `presen
 
 ## Pair Mode
 
-When the current branch starts with `pair-`, the agent operates in **dev-pair mode**: working directly in the main project directory alongside the developer, using WIP-commit switching instead of worktrees.
-
-| Branch Pattern | Mode | Working Directory |
-|---|---|---|
-| `pair-feature/123-xyz` | Dev-pair | Main project dir |
-| `pair-spec/456-abc` | Dev-pair | Main project dir |
-| `feature/789-xyz` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
-| `spec/789-abc` | Autonomous | Main project dir (direct-branch) or `.worktrees/` (opt-in) |
-
-Pair mode tasks: `pair-pre-work`, `pair-commit`, `pair-pr-creation`, `pair-cleanup`, `pair-mode-resume`. Read [git-workflow skill](skills/git-workflow/SKILL.md) for full task documentation.
+Read [the pair-mode branch discipline](guidelines/116-pair-mode.md) — the canonical home for pair-mode rules: `pair-` branch detection, dev-pair working-directory rules, worktree prohibition, WIP-commit switching, and pair task sequence.
 
 ---
 
@@ -380,31 +349,7 @@ The `Read [Text](path)` pattern is the only cross-reference form that produces r
 
 ## editor MCP Plugin
 
-This repo uses [editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server.
-
-**11-tool surface** (see README for full action lists):
-
-| Tool | Purpose |
-|------|---------|
-| **viewport** | Open, navigate, and manage focused editing windows |
-| **edit** | Stage text changes into viewport buffers (replace, insert, delete, swap, move) |
-| **file** | Commit or discard staged changes to disk |
-| **diff** | Show unified diffs of pending edits before saving |
-| **clipboard** | Copy/cut/paste content across viewports with provenance tracking |
-| **search** | Find text with substring or regex matching |
-| **regex** | Test and escape regex patterns |
-| **read_file** | Composite: open + scroll — preferred over built-in `read` for single-call reading |
-| **write_file** | Composite: open + replace-all + save — preferred over built-in `write` for conflict-safe writing |
-| **edit_text** | Composite: open + replace + save — preferred over built-in `edit` for targeted changes with conflict detection |
-| **find_text** | Composite: search — preferred over built-in `grep` for structured results |
-
-**Recommended agent behavior:**
-
-- Use `read_file`, `write_file`, `edit_text`, `find_text` for single-call operations
-- Use `viewport` + `edit` + `file` for multi-step editing with diff review
-- Always call `diff:show` before `file:save` to verify staged changes
-- File paths are relative to project root (MCP resolver defaults to `os.getcwd()`)
-- Conflict detection: server tracks file mtime+size externally; stale-file soft warning on reads, hard block on `file:save` (use `force: true` override if change is intentional)
+This repo uses [editor](https://github.com/michael-conrad/viewport-editor) as its editing MCP server. Read [the editor MCP plugin reference](reference/editor-mcp-plugin.md) for the 11-tool surface table and the recommended agent behavior.
 
 ---
 

@@ -37,7 +37,7 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 5. **Build the plan body.** Read [plan-structure-standards.md](reference/plan-structure-standards.md) for structural expectations:
    - Three-tier layout (Tier 1 global pre/post, Tier 2 per-phase, Tier 3 per-item)
    - Per-item daisy chain: RED → GREEN → verify → commit
-   - Dispatch indicators: `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)`
+   - Dispatch indicators (per-step dispatch mode): `(**direct**)` (default — orchestrator executes in own context) and `(**task-card**)` (the orchestrator dispatches the step's task card via `task()`); every step MUST carry an explicit mode
    - Step format: numbered checkbox with sub-bullets, no prescriptive code
    - Admonishments: compliance (top only), one-step-at-a-time, step status, self-remediation, enforcement gate
    - Phase file sections: code path coverage, cross-cutting SCs, interface boundaries, state transitions

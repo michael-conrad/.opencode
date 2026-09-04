@@ -14,7 +14,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 ## Operating Protocol
 
 - [ ] 1. **User-initiated only:** "create a PR", "make a PR", "push and create PR"
-- [ ] 2. **Squash to single commit:** ALL implementation commits combined into ONE clean commit
+- [ ] 2. **Squash to one commit per issue:** ALL implementation commits for the issue combined into ONE clean commit per issue (canonical: one squashed commit per issue)
 - [ ] 3. **Target `$DEFAULT_BRANCH` branch:** Feature PRs merge to `$DEFAULT_BRANCH` (not `main`)
 - [ ] 4. **HALT after PR creation:** No prompting for next steps
 - [ ] 5. **Human-only merge:** After PR creation, HALT — do not merge. Only the developer can merge. The `github_merge_pull_request` tool is FORBIDDEN for agent use.
@@ -92,11 +92,14 @@ After the PR is created and the PR URL is reported, BEFORE reporting completion,
 | `pr-creation/squash-push` | Changelog, squash, rebase, push with live verification | ≈600 |
 | `pr-creation/create-pr` | Sub-issue collection, PR creation, URL extraction, body format | ≈550 |
 
-## Co-Author Trailers (MANDATORY)
+## Canonical Commit Rule (MANDATORY)
 
-Every squash commit MUST include:
+The canonical commit structure for every issue is **exactly one squashed commit per issue**, created at PR creation. Multiple WIP commits during development are squashed into this single commit. The squashed commit MUST carry **dual co-author trailers (AI + human)**:
+
 - [ ] 1. AI Trailer: `Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>`
 - [ ] 2. Human Trailer: `Co-authored-by: <dev.name> <dev.email>`
+
+The one-squashed-commit-per-issue rule and the dual-trailer rule apply consistently across the PR/squash/enforcement/finishing gates.
 
 ## Review Phase (Mandatory)
 

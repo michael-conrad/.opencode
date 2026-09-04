@@ -19,7 +19,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -34,9 +34,9 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "create-worktree" / "create worktree" / "new worktree" | `create-worktree` | `sub-task` | {branch_name} |
-| "verify-worktree" / "check worktree" | `verify-worktree` | `sub-task` | {worktree_path} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "create-worktree" / "create worktree" / "new worktree" | `create-worktree` | `task-card` | {branch_name} |
+| "verify-worktree" / "check worktree" | `verify-worktree` | `task-card` | {worktree_path} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
 
 ## Persona
 
@@ -51,7 +51,7 @@ Worktree Setup Specialist. Focus: creating safe, isolated git worktrees for para
 
 ## Invocation
 
-`skill({name: "using-git-worktrees"})` — call the skill, then call via task():
+`skill({name: "using-git-worktrees"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 

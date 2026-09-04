@@ -15,7 +15,7 @@ Branch management sub-skill of git-workflow. Handles feature branch creation, su
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -104,7 +104,7 @@ When the agent needs to enforce the git operating protocol and tag conventions.
 - Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
 - Read [trunk-tip-verification task](tasks/trunk-tip-verification.md) for the 7-step remote trunk tip verification gate
 - Read [submodule-divergence reference](reference/submodule-divergence.md) for submodule divergence detection and resolution
-- Read [§1](guidelines/020-go-prohibitions.md) for `for_analysis` branch restrictions
+- Read [022-orchestrator-context-discipline.md §`for_analysis` Branch Restrictions](guidelines/022-orchestrator-context-discipline.md) for `for_analysis` branch restrictions
 
 ### [critical-rules-042] Treating Branch Stacking as Optional
 Skipping branch stacking means merging chaos into your commit history. Professional engineers stack branches as prerequisite — amateurs treat stacking as optional and produce unreviewable history.

@@ -28,7 +28,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -43,15 +43,15 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "red" / "write test" / "failing test" | `red` | `sub-task` | {spec_context} |
-| "green" / "implement" / "pass test" | `green` | `sub-task` | {spec_context} |
-| "refactor" / "clean up" | `refactor` | `sub-task` | {spec_context} |
-| "patterns" / "test patterns" / "decision matrix" | `patterns` | `sub-task` | {spec_context} |
-| "anti-patterns" / "test anti-patterns" | `anti-patterns` | `sub-task` | {spec_context} |
-| "checklist" / "TDD checklist" | `checklist` | `sub-task` | {spec_context} |
-| "phase-0" / "pre-regression" / "baseline" | `phase-0` | `sub-task` | {spec_context} |
-| "phase-4" / "post-regression" / "verify" | `phase-4` | `sub-task` | {spec_context} |
-| "validate-behavioral-prompt" / "validate prompt" / "check prompt" | `validate-behavioral-prompt` | `sub-task` | {prompt_text, sc_list} |
+| "red" / "write test" / "failing test" | `red` | `task-card` | {spec_context} |
+| "green" / "implement" / "pass test" | `green` | `task-card` | {spec_context} |
+| "refactor" / "clean up" | `refactor` | `task-card` | {spec_context} |
+| "patterns" / "test patterns" / "decision matrix" | `patterns` | `task-card` | {spec_context} |
+| "anti-patterns" / "test anti-patterns" | `anti-patterns` | `task-card` | {spec_context} |
+| "checklist" / "TDD checklist" | `checklist` | `task-card` | {spec_context} |
+| "phase-0" / "pre-regression" / "baseline" | `phase-0` | `task-card` | {spec_context} |
+| "phase-4" / "post-regression" / "verify" | `phase-4` | `task-card` | {spec_context} |
+| "validate-behavioral-prompt" / "validate prompt" / "check prompt" | `validate-behavioral-prompt` | `task-card` | {prompt_text, sc_list} |
 
 ## TDD Heading Format Requirement
 
@@ -76,7 +76,7 @@ Read [the TDD cycle diagram](skills/test-driven-development/tasks/operating-prot
 
 ## Invocation
 
-`skill({name: "test-driven-development"})` — call the skill, then call via task():
+`skill({name: "test-driven-development"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 

@@ -21,7 +21,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **Preliminary analytical artifact production required before spec-creation handoff.** Artifact requirements are conditional: blast-radius always required; concern-map required for multi-concern specs; code-path-inventory required when spec touches existing code; cross-cutting-matrix required for multi-concern specs; interface-compatibility required when spec modifies public APIs; state-analysis required when spec modifies stateful components; testability-assessment required when spec has behavioral SCs.
 
@@ -37,20 +37,20 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "explore" / "brainstorm" / "discuss requirements" | `explore` | `inline` | — |
-| "top-down analysis" / "decompose" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "enforcement" / "rule check" | `enforcement` | `sub-task` | {issue_number} |
-| "cross-scope" / "scope analysis" | `cross-scope` | `sub-task` | {issue_number} |
-| "analytical artifacts needed" | `explore` | `inline` | — |
-| "blast-radius analysis needed" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "concern-map needed" | `cross-scope` | `sub-task` | {issue_number} |
-| "code-path-inventory needed" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "cross-cutting-matrix needed" | `cross-scope` | `sub-task` | {issue_number} |
-| "interface-compatibility needed" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "state-analysis needed" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "testability-assessment needed" | `top-down-analysis` | `sub-task` | {issue_number} |
-| "all analytical artifacts present" | `completion` | `sub-task` | {workflow_state} |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| "explore" / "brainstorm" / "discuss requirements" | `explore` | `orchestrator` | — |
+| "top-down analysis" / "decompose" | `top-down-analysis` | `task-card` | {issue_number} |
+| "enforcement" / "rule check" | `enforcement` | `task-card` | {issue_number} |
+| "cross-scope" / "scope analysis" | `cross-scope` | `task-card` | {issue_number} |
+| "analytical artifacts needed" | `explore` | `orchestrator` | — |
+| "blast-radius analysis needed" | `top-down-analysis` | `task-card` | {issue_number} |
+| "concern-map needed" | `cross-scope` | `task-card` | {issue_number} |
+| "code-path-inventory needed" | `top-down-analysis` | `task-card` | {issue_number} |
+| "cross-cutting-matrix needed" | `cross-scope` | `task-card` | {issue_number} |
+| "interface-compatibility needed" | `top-down-analysis` | `task-card` | {issue_number} |
+| "state-analysis needed" | `top-down-analysis` | `task-card` | {issue_number} |
+| "testability-assessment needed" | `top-down-analysis` | `task-card` | {issue_number} |
+| "all analytical artifacts present" | `completion` | `task-card` | {workflow_state} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
 
 ## Persona
 
@@ -67,11 +67,13 @@ Requirements Explorer. Focus: understand what user wants through natural convers
 
 ## Invocation
 
-`skill({name: "brainstorming"})` — call the skill, then call via task():
+`skill({name: "brainstorming"})` — call the skill, then dispatch per the Trigger Dispatch Table Dispatch value:
+
+- `explore` rows are marked `orchestrator` — the orchestrator conducts the exploration in its own context (follow [the explore procedure](tasks/explore.md)); no `task()` dispatch.
+- Task-card rows dispatch via `task()`:
 
 | Task | Call via task() |
 
-| `explore` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [explore requirements conversationally](.opencode/skills/brainstorming/tasks/explore.md). "))` |
 | `top-down-analysis` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [perform top-down analysis](.opencode/skills/brainstorming/tasks/top-down-analysis.md). "))` |
 | `enforcement` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [enforce brainstorming prerequisite](.opencode/skills/brainstorming/tasks/enforcement.md). "))` |
 | `cross-scope` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [analyze cross-scope concerns](.opencode/skills/brainstorming/tasks/cross-scope.md). "))` |

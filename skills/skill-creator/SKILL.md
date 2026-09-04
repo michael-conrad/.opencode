@@ -25,7 +25,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -40,12 +40,12 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "init" / "create skill" / "new skill" | `init` | `sub-task` | {skill_name, output_dir} |
-| "package" / "package skill" | `package` | `sub-task` | {skill_folder, output_dir} |
-| "validate" / "validate skill" / "check skill" | `validate` | `sub-task` | {skill_folders} |
-| "fragment" / "fragment management" / "sync fragment" | `fragment-management` | `sub-task` | {fragment_name, destination_paths} |
-| "skill card audit" / "review skills" / "audit skill cards" | `validate` | `sub-task` | {skill_folders, audit_mode: "full"} |
-| "description pattern" / "enforce description pattern" | `validate` | `sub-task` | {skill_folders, audit_mode: "description"} |
+| "init" / "create skill" / "new skill" | `init` | `task-card` | {skill_name, output_dir} |
+| "package" / "package skill" | `package` | `task-card` | {skill_folder, output_dir} |
+| "validate" / "validate skill" / "check skill" | `validate` | `task-card` | {skill_folders} |
+| "fragment" / "fragment management" / "sync fragment" | `fragment-management` | `task-card` | {fragment_name, destination_paths} |
+| "skill card audit" / "review skills" / "audit skill cards" | `validate` | `task-card` | {skill_folders, audit_mode: "full"} |
+| "description pattern" / "enforce description pattern" | `validate` | `task-card` | {skill_folders, audit_mode: "description"} |
 
 ## Tasks
 
@@ -57,7 +57,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 ## Invocation
 
-`skill({name: "skill-creator"})` — call the skill, then call via task():
+`skill({name: "skill-creator"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 

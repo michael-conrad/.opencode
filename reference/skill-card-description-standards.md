@@ -188,6 +188,23 @@ First person in skill/task cards creates identity ambiguity:
 
 Understanding the two-tool pipeline is essential for writing correct descriptions and dispatch contracts.
 
+### Canonical Dispatch-Vocabulary Table (Single Source of Truth)
+
+The dispatch vocabulary is defined ONCE, here. Directive-layer files (system prompt, `022-orchestrator-context-discipline.md`, `000-critical-rules.md`, `task-card-structure-standards.md`, `.opencode/AGENTS.md` Universal Skill Dispatch Gate section) reference this table via `Read [Text](path)` instead of restating definitions. Directive files MUST NOT carry duplicated or contradictory dispatch definitions.
+
+| Term | Definition | Layer | Notes |
+|------|------------|-------|-------|
+| **skill card** | A SKILL.md carrying routing metadata (workflows, dispatch contracts, TDT) for the orchestrator | Directive layer | Loaded via `skill({name: "..."})` — orchestrator-only |
+| **task card** | A `tasks/<name>.md` carrying an execution procedure for a sub-agent | Task layer | Loaded by the sub-agent via its own file tools — never auto-loaded by `task()` |
+| **orchestrator** | The top-level agent that loads skill cards, executes workflow steps in its own context, and dispatches task cards only at workflow-marked points | Agent role | Architecture B: executes skill workflow steps directly; `task()` only at marked points |
+| **Architecture B** | The routing model where the orchestrator executes skill workflow steps directly in its own context, dispatching a step's task card via `task()` ONLY where the workflow marks dispatch | Dispatch model | Supersedes the pure-router model (A) |
+| **TDT Dispatch closed set** | The only valid TDT Dispatch column values: `orchestrator`, `task-card`, `task-card blind` | Skill deck layer | `orchestrator` = orchestrator executes in own context; `task-card` = dispatch the step's task card via `task()`; `task-card blind` = dispatch with routing metadata only, no orchestrator reading of the task card |
+| **per-step plan dispatch mode** | Every plan step carries an explicit mode: `direct` (orchestrator executes in own context, default) or `task-card` (the orchestrator dispatches the step's task card) | Plan layer | Defined in `writing-plans/reference/plan-artifact-format.md` §4.2; unmarked steps default to `direct` |
+| **whole-card forwarding** | Putting SKILL.md card content inside a `task()` prompt, or targeting a SKILL.md path in a dispatch string | Prohibited | Category error — the card tells the orchestrator WHAT to dispatch; a sub-agent receiving it cannot act on it; guard: `ORCHESTRATOR_ONLY_SKILL_CARD` |
+| **whole-plan forwarding** | Putting a plan document body inside a `task()` prompt | Prohibited | Plans are orchestrator-consumed artifacts; a leaf sub-agent receiving one rejects with `BLOCKED` / `ORCHESTRATOR_ONLY_PLAN` and halts |
+| **step-scoped dispatch** | A `task()` prompt carrying a task-card path plus scoped context — the sanctioned dispatch carrier | Sanctioned | Does NOT trip either guard |
+| **Retired vocabulary** | `inline` (→ `orchestrator` / `direct`), `sub-task` / `sub-agent` / `clean-room` (→ `task-card` / `task-card`), `task()` as a Dispatch value (→ `task-card`), "orchestrator routes to general (blind)" (→ `task-card blind`) | — | MUST NOT appear as dispatch vocabulary in directive text or TDT rows; persona prose warning against inline self-review is not dispatch vocabulary |
+
 ### `skill({name: "..."})` — Auto-Loads SKILL.md
 
 - Reads the SKILL.md file from disk

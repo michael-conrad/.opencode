@@ -25,7 +25,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 - [ ] 5. **Analytical artifact cross-reference required before completion claim.** Each analytical artifact must be verified against actual implementation evidence. Contradictions between analytical artifacts and implementation evidence produce HALT. Unverified artifacts produce HALT with the specific artifact name.
 
@@ -41,18 +41,18 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "verify" / "verify SCs" / "check completion" | `verify` | `sub-task` | {spec_sc_list, file_paths} |
-| "collect" / "collect evidence" | `collect` | `sub-task` | {spec_sc_list, file_paths} |
-| "structural-verify" / "structural check" | `structural-verify` | `sub-task` | {spec_structure} |
-| "behavioral-test-evaluation" / "evaluate behavioral tests" | `behavioral-test-evaluation` | `sub-task` | {artifact_dir, sc_list} |
-| "verify analytical artifacts" | `verify` | `sub-task` | {spec_sc_list, file_paths, analytical_artifact_dir} |
+| "verify" / "verify SCs" / "check completion" | `verify` | `task-card` | {spec_sc_list, file_paths} |
+| "collect" / "collect evidence" | `collect` | `task-card` | {spec_sc_list, file_paths} |
+| "structural-verify" / "structural check" | `structural-verify` | `task-card` | {spec_structure} |
+| "behavioral-test-evaluation" / "evaluate behavioral tests" | `behavioral-test-evaluation` | `task-card` | {artifact_dir, sc_list} |
+| "verify analytical artifacts" | `verify` | `task-card` | {spec_sc_list, file_paths, analytical_artifact_dir} |
 | "blast-radius not verified" | HALT | — | — |
 | "code-path-inventory not cross-referenced" | HALT | — | — |
 | "interface-compatibility not verified" | HALT | — | — |
 | "state-analysis not verified" | HALT | — | — |
 | "testability-assessment not verified" | HALT | — | — |
 | "analytical artifact contradicts implementation" | HALT | — | — |
-| completion / workflow end | `completion` | `sub-task` | {workflow_state} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
 
 ## Persona
 
@@ -69,7 +69,7 @@ Verification Gatekeeper. Focus: no completion claim without verified evidence. E
 
 ## Invocation
 
-`skill({name: "verification-before-completion"})` — call the skill, then call via task():
+`skill({name: "verification-before-completion"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 

@@ -23,8 +23,8 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "link sub-issue" / "add sub-issue" | `link-sub-issue` | `sub-task` | {parent_issue, sub_issue} |
-| "read-sub-issues" / "get sub-issues" | `read-sub-issues` | `sub-task` | {issue_number} |
+| "link sub-issue" / "add sub-issue" | `link-sub-issue` | `task-card` | {parent_issue, sub_issue} |
+| "read-sub-issues" / "get sub-issues" | `read-sub-issues` | `task-card` | {issue_number} |
 
 ## Persona
 
@@ -39,7 +39,7 @@ Sub-Issue Manager. Focus: parent-child relationships, authorization cascade, clo
 
 ## Invocation
 
-`skill({name: "issue-operations-sub-issues"})` — call the skill, then call via task():
+`skill({name: "issue-operations-sub-issues"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 |------|-----------------|

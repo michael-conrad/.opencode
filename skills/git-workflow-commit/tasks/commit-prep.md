@@ -31,7 +31,7 @@ The developer will say "commit" or "create a PR" when they want git operations. 
 
 ### ✅ ALWAYS DO
 
-- **Include co-author trailers for both AI and human collaborator** — every implementation commit MUST include TWO trailers
+- **No co-author trailers on implementation/WIP commits** — dual co-author trailers (AI + human) are added on the final squashed commit at PR creation
 - **Re-run discovery** (`git status`, `git diff`) before any commit workflow
 - **If `pyproject.toml` changed, include `uv.lock`** — this is an application/CI repo
 - **Use dynamic AI identity** — the AI knows its own name and email
@@ -102,7 +102,7 @@ Report:
 
 ## Co-Author Trailer Requirements (MANDATORY)
 
-Every implementation commit MUST include:
+The final squashed commit at PR creation MUST include dual co-author trailers (AI + human). Implementation/WIP commits MUST NOT include co-author trailers.
 
 ### AI Author Trailer
 

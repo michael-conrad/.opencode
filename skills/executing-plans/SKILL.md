@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: "Read an approved plan file and dispatch each phase through the implementation pipeline in sequence, executing the plan's phases in dependency order. Reading the plan and sequencing phase dispatch is REQUIRED before any implementation work begins."
+description: "Read an approved plan file and execute its phases in dependency order, with the orchestrator executing each plan step directly in its own context and dispatching a step's task card via task() only where that step marks dispatch. Reading the plan before any implementation work begins is REQUIRED."
 license: MIT
 compatibility: opencode
 provenance: AI-generated
@@ -13,18 +13,16 @@ provenance: AI-generated
 
 ## Overview
 
-Enables the orchestrator to execute an approved implementation plan by first reading the plan file, then dispatching each phase through the implementation pipeline in sequence. The mandatory plan-reading step guarantees that implementation follows the documented phases in dependency order rather than ad-hoc reordering.
+Enables the orchestrator to execute an approved implementation plan by reading the plan file directly in its own context, then executing the plan's steps step-by-step in its own context in dependency order. A plan step is dispatched via `task()` ONLY where that step explicitly marks dispatch (per-step dispatch mode); the orchestrator never forwards the whole plan or a whole workflow body to a sub-agent.
 
-## Mandatory Task Discipline
+## Orchestrator Plan Execution (Architecture B)
 
-- [ ] 1. Every task and sub-task in this skill is mandatory
-- [ ] 2. Skipping, combining, optimizing out, or performing inline work
-     that should be delegated to a sub-agent produces defective
-     deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless
-     explicitly marked as inline/orchestrator in this skill
-- [ ] 4. Return only routing-significant data: `status`, `finding_summary`,
-     `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+The orchestrator does NOT forward the plan or workflow to a sub-agent:
+
+- **Read the plan in own context** — the orchestrator reads the plan file itself and inventories phases in dependency order.
+- **Execute steps in own context** — the orchestrator performs each plan step directly with its own tool calls, in the plan's dependency order.
+- **Dispatch only at marked points** — a step's task card goes to a sub-agent via `task()` ONLY when that step explicitly marks dispatch (per-step dispatch mode `task-card`); steps marked `direct` are executed in the orchestrator's own context.
+- **Never forward whole artifacts** — the plan body, a whole phase, or a whole workflow body MUST NOT appear inside any `task()` prompt. A leaf sub-agent receiving a whole plan body rejects with `ORCHESTRATOR_ONLY_PLAN` and halts.
 
 ## Pre-Flight Guard (Mandatory)
 
@@ -39,17 +37,15 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 ### Read the plan
 When the agent needs to begin executing an approved implementation plan and must first read the plan file to understand its phases and dependency order.
 
-- [ ] 1. **Read the plan file** — read the approved plan and inventory its phases in dependency order
-  - Prompt: `Dispatch a sub-agent with the prompt "Follow the instructions in [executing-plans/tasks/read-plan.md](.opencode/skills/executing-plans/tasks/read-plan.md). {issue_number, plan_path, project_root}"`
+- [ ] 1. **Read the plan file** — the orchestrator reads the approved plan itself and inventories its phases in dependency order (**orchestrator, own context** — follow [the read-plan procedure](tasks/read-plan.md))
   - Context: `{issue_number, plan_path, project_root}`
-  - Returns: `{status, finding_summary, artifact_path, blocker_reason, phase_order}`
-  - Execution mode: sub-agent dispatch
+  - Returns: `{phase_order}`
+  - Execution mode: orchestrator (own context)
 
-- [ ] 2. **Dispatch phases in sequence** — dispatch each phase through the implementation pipeline in the plan's dependency order
-  - Prompt: `Dispatch a sub-agent with the prompt "Follow instructions in [executing-plans/tasks/dispatch-phase.md](.opencode/skills/executing-plans/tasks/dispatch-phase.md). {issue_number, phase, plan_path, project_root, phase_order}"`
+- [ ] 2. **Execute phases in sequence** — execute each phase's steps in the plan's dependency order, performing each step in the orchestrator's own context and dispatching a step's task card via `task()` ONLY where that step marks dispatch (**orchestrator, own context** — follow [the execute-phase procedure](tasks/execute-phase.md))
   - Context: `{issue_number, phase, plan_path, project_root, phase_order}`
   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
-  - Execution mode: sub-agent dispatch
+  - Execution mode: orchestrator (own context), with step-marked `task()` dispatches
 
 ## Cross-References
 

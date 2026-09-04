@@ -26,7 +26,37 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] All changes committed
 - [ ] No untracked files remaining
 - [ ] Commit messages are descriptive
-- [ ] Co-authored-by trailers present
+- [ ] **Canonical commit rule:** the branch resolves to exactly one squashed commit per issue; the squashed commit carries dual co-author trailers (AI + human) per the canonical rule stated consistently across the PR/squash/enforcement/finishing gates
+- [ ] Co-authored-by trailers present on the squashed commit — on an agent-created, unmerged, unshared feature branch, absence is an auto-fixable MISSING-ELEMENT (agent adds dual co-author trailers and force-pushes with `--force-with-lease`); it is NOT a decision-requiring blocker. On a shared, merged, or trunk branch, trailer absence defers to the generic force-push authorization gate.
+
+### Agent-Owned Trailer Remediation (MISSING-ELEMENT auto-fix)
+
+When the "Co-authored-by trailers present" item finds missing trailers on the agent's own, unmerged, unshared feature branch, the producing agent SHALL self-remediate without soliciting a developer force-push decision:
+
+1. **Amend or squash the agent's own commits** to add the repo-standard two-trailer format from `commit-prep.md`:
+   ```bash
+   git commit --amend --no-edit \
+       --trailer "Co-authored-by: <AgentName> (<ModelId>) <noreply@example.com>" \
+       --trailer "Co-authored-by: <dev.name> <dev.email>"
+   ```
+   For multiple commits, use `git rebase -i` to squash/reword the agent's own commits and add the trailers.
+2. **Force-push the agent's own branch with `--force-with-lease` only**:
+   ```bash
+   git push --force-with-lease origin HEAD:<branch_name>
+   ```
+   `--force` is FORBIDDEN (R-4). The `--force-with-lease` push is authorized only because the branch is the agent's own, unmerged, and unshared.
+3. **Do NOT solicit a developer force-push decision.** The remediation is agent-owned; the generic force-push authorization gate does not apply to the agent's own unmerged, unshared branch.
+4. **Reuse the repo-standard trailer format** — no alternative trailer schema is introduced.
+
+### Agent-Owned Branch Scope Guard (MANDATORY)
+
+The auto-force-push carve-out above is confined STRICTLY to the agent's own, unmerged, unshared feature branch. The producing agent SHALL verify all three conditions before any `--force-with-lease` push:
+
+1. **Agent's own branch** — the branch was created by this agent for this work; it is not a branch another developer created or shares.
+2. **Unmerged** — the branch has not been merged into the trunk.
+3. **Unshared** — the branch has not been pushed to a shared remote or shared with another developer.
+
+On a **shared, merged, or trunk branch**, the checklist SHALL **refuse auto-force-push** and defer to the generic force-push authorization gate (`000-critical-rules.md`). The auto-force-push carve-out does NOT apply; the producing agent MUST NOT amend/squash-and-force-push without explicit developer authorization. This scope guard does not weaken the generic force-push authorization gate — it only confines the agent-owned carve-out to the agent's own, unmerged, unshared branch.
 
 ### Code Quality
 - [ ] `ruff check` passes (zero errors)
@@ -62,7 +92,21 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 - [ ] No stale todowrite state (all items `completed` or cleared via `todowrite(todos=[])`)
 
 ### Documentation
-- [ ] AI co-authored attribution in new files
+- [ ] AI co-authored attribution in new files — a missing "Co-authored with AI:" footer byline in a new file is an auto-fixable MISSING-ELEMENT: the producing agent adds the missing footer byline, preserving any existing bylines; it is NOT escalated as a decision-requiring blocker.
+
+### Footer Byline Auto-Fix (MISSING-ELEMENT auto-fix)
+
+When the "AI co-authored attribution in new files" item finds a new file missing the "Co-authored with AI:" footer byline, the producing agent SHALL auto-fix it without escalating to the developer:
+
+1. **Add the missing footer byline** to the new file, using the repo-standard format from `080-code-standards.md`:
+   ```markdown
+   *Co-authored with AI: <AgentName> (<ModelId>)*
+   ```
+2. **Preserve any existing bylines** — never overwrite or remove a prior agent's byline (080-code-standards R-5). If editing a file that already has a `Co-authored with AI:` line, append the producing agent's byline on a new line rather than replacing.
+3. **Do NOT weaken the mandatory co-author attribution requirement (R-7).** The auto-fix adds the missing byline; it never skips the attribution check.
+4. **Do NOT escalate byline absence as a decision-requiring blocker.** The remediation is agent-owned.
+
+### Module Docstrings
 - [ ] Module docstrings present
 - [ ] No narration print statements
 
@@ -158,3 +202,5 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 | Lint/test failures | VERIFICATION-GAP | FAIL | HALT — fix issues before PR |
 | Debug prints or TODOs found | STRUCTURE-VIOLATION | auto-fix | Remove before proceeding |
 | Unrelated files in diff | CONFLICTING | FAIL | Report — scope may have deviated |
+| Missing Co-authored-by trailers on agent-own unmerged branch | MISSING-ELEMENT | auto-fix | Agent adds trailers and force-pushes with `--force-with-lease` — do NOT solicit a developer force-push decision (see Agent-Owned Trailer Remediation) |
+| Missing Co-authored-by trailers on shared/merged/trunk branch | MISSING-ELEMENT | FAIL | Refuse auto-force-push and defer to generic force-push authorization gate (see Agent-Owned Branch Scope Guard) |

@@ -23,7 +23,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 
 - [ ] 1. Every task and sub-task in this skill is mandatory
 - [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Each step must be dispatched to a sub-agent via `task()` unless explicitly marked as inline/orchestrator in this skill
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
 - [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
 
 ## Pre-Flight Guard (Mandatory)
@@ -38,8 +38,8 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 | User says / Context | Task | Dispatch | Context passed |
 |---------------------|------|----------|----------------|
-| "prepare" / "prepare review" / "PR context" | `prepare` | `sub-task` | {pr_number} |
-| "request" / "request review" / "assign reviewer" | `request` | `sub-task` | {pr_number} |
+| "prepare" / "prepare review" / "PR context" | `prepare` | `task-card` | {pr_number} |
+| "request" / "request review" / "assign reviewer" | `request` | `task-card` | {pr_number} |
 
 ## Tasks
 
@@ -49,7 +49,7 @@ If you are the orchestrator (loaded this card via `skill({name: "..."})`), proce
 
 ## Invocation
 
-`skill({name: "requesting-code-review"})` — call the skill, then call via task():
+`skill({name: "requesting-code-review"})` — call the skill, then dispatch each task-card row via task():
 
 | Task | Call via task() |
 

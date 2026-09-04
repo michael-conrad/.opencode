@@ -34,6 +34,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 11. [Prompt Construction Mandate](#11-prompt-construction-mandate)
 12. [Self-Contained GitBucket Container for Remote API Tests](#12-self-contained-gitbucket-container-for-remote-api-tests)
 13. [Remote-Strategy Flags and Full-Environment Simulation](#13-remote-strategy-flags-and-full-environment-simulation)
+14. [Semantic Continuous Monitoring Mandate (Behavioral Runs)](#14-semantic-continuous-monitoring-mandate-behavioral-runs)
 
 ---
 
@@ -594,9 +595,9 @@ This exports the SQLite DB even when the test was killed mid-run, allowing evalu
 
 **Evidence that the model works:** The model (qwen3.8:27b-256k-gguf4) is verified to work with the test harness. It produces valid output for cleanup workflows in 5-10 minutes. Any claim that it "doesn't work" or "is too large" is a fabrication unless backed by tool-call evidence.
 
-### 10.5 Post-Timeout Recovery Procedure
+### 10.5 Post-Timeout Recovery Procedure (FALLBACK — Resumption is Primary)
 
-When a behavioral test times out (bash tool kills the script), follow this procedure:
+When a behavioral test times out (bash tool kills the script), session resumption (§10.7) is the **PRIMARY** recovery path — it picks up where the agent left off instead of re-running the full inference that timed out at the same point. **Only when resumption is not possible** (no session id discoverable, resume fails, or the session cannot be re-run through the harness) should the agent follow this manual export + re-run procedure:
 
 1. **Locate the artifact directory:**
    ```bash
@@ -644,7 +645,42 @@ When a behavioral test times out (bash tool kills the script), follow this proce
 
 **`DEFAULT_TEST_MODEL` (from `default-model.sh`) is the single source of truth** for which model runs a behavioral test. The agent MUST use `DEFAULT_TEST_MODEL` without substitution — it is the only model the agent uses during behavioral testing. The no-outguess mandate means the agent does not outguess `DEFAULT_TEST_MODEL` by switching models.
 
-**On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and post-timeout recovery (§10.5). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
+**On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and session resumption (§10.7, primary) or post-timeout recovery (§10.5, fallback). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
+
+### 10.7 Session Resumption — MANDATORY FIRST-LINE Recovery on Model Timeout
+
+**`opencode run` supports session resumption. Resumption is the FIRST-LINE recovery for a model timeout — manual SQLite export and full re-run are the FALLBACK, permitted only when resumption is not possible.** The agent MUST attempt resumption before any other recovery action.
+
+**PROHIBITED:** Jumping to the manual SQLite DB export + `--clean-all` + full `opencode run` re-run (§10.5) as the first response to a timeout. A full re-run repeats 5-10 minutes of model inference that times out at the same point — it discards the agent's completed work and reproduces the identical failure. The mean response is to restart from zero; the expert response is to resume where the agent left off.
+
+**Resume flags:**
+
+| Flag | Meaning | Use When |
+|------|---------|----------|
+| `--continue` | Resume the last session | The timed-out session is the most recent session in the test home |
+| `--session <id>` | Resume a specific session | A different session is the most recent, or you need to target a specific run |
+
+**Discovering the session id:** The session id is the `aggregate_id` value in the `event` table of the test home's SQLite DB (`$TEST_HOME/.local/share/opencode/opencode.db`), or the session id reported in the `with-test-home` invocation output. Extract it from the DB the same way `__export_sqlite_to_yaml()` reads events; the `aggregate_id` identifies the session to resume.
+
+**Why resumption is preferred:** Resumption picks up where the agent left off — the model continues the existing session context instead of re-running minutes of inference that timed out at the same point. The completed tool calls and reasoning remain in the session; only the remaining work is re-executed. This converts a 5-10 minute repeated re-run into a short continuation, and it preserves the partial behavioral evidence for evaluation.
+
+**Resumption procedure on model timeout:**
+
+1. **Confirm the test home survives the timeout** — `ls -la "$TEST_HOME/.local/share/opencode/opencode.db"` (extract TEST_HOME from `stderr.log` per §10.5).
+2. **Discover the session id (if not resumable via `--continue`)** — read `aggregate_id` from the `event` table, or use the session id from the `with-test-home` invocation output.
+3. **Clear the stale flock lock** — `rm -f tmp/.behavior-run.lock`.
+4. **Resume the session through the harness:**
+   ```bash
+   bash .opencode/tests-v2/with-test-home opencode run --continue
+   # or, to target a specific session:
+   bash .opencode/tests-v2/with-test-home opencode run --session <id>
+   ```
+   The run **MUST** go through `with-test-home` — never call `opencode run` directly (SQLite session conflicts with the desktop app). Keep the bash tool `timeout` parameter at >= 600000ms so the resumed inference can complete.
+5. **Fallback if resumption is not possible:** Only if resumption fails or the session cannot be identified may the agent fall back to the manual export + re-run procedure in §10.5.
+
+**🚫 FORBIDDEN:** Claiming resumption is impossible without attempting it. Resumption is the only valid first-line response to a timeout; the manual export + full re-run in §10.5 is the fallback for when resumption genuinely cannot run.
+
+**Known limitation (scope G, #2427):** `with-test-home` provisions a NEW test home per invocation, so `--continue` cannot reach a prior run's DB — resumption across invocations requires a shared-home mechanism that does not exist today. Within a single invocation (same test home), resumption works as documented above. The semantic continuous monitoring mandate (§14) replaces blind resume loops for off-track/hung runs: the monitor detects the stall mid-run and aborts with a recorded diagnosis instead of blindly resuming. Read [§14 Known Limitation](#14-known-limitation---continue-cannot-reach-a-prior-invocations-test-home).
 
 ## 11. Prompt Construction Mandate
 
@@ -783,3 +819,101 @@ This opt-in provides sibling submodules for tests that must discover or interact
 Combining `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1` enables **full-environment simulation**: the test workdir is provisioned with multi-submodule fixtures (sibling `test-submodule-1`/`test-submodule-2` repos) AND a wired GitBucket origin (test repo set as the project's `origin` remote with `GITBUCKET_PORT`/`GB_TOKEN` scoped into the isolated environment).
 
 This is the recommended configuration for remote-dependent tests that also need multi-submodule context, such as `2242-sc6`. Because full-environment simulation uses `BEHAVIOR_NEEDS_REMOTE` (not `BEHAVIOR_SET_BARE_REMOTE`), it does not trigger the mutual-exclusion rejection.
+
+---
+
+## 14. Semantic Continuous Monitoring Mandate (Behavioral Runs)
+
+**Every behavioral `opencode run` MUST be monitored semantically while it executes — blind full-timeout burns and blind resume loops are PROHIBITED.** (Issue #2427 scope G.)
+
+A behavioral run that goes off-track — looping on identical tool input, spinning in reasoning without goal-relevant tool calls, or stuck in a sub-agent dispatch — burns its full 600-900s timeout with no diagnosis and no partial evidence collected at the moment of failure. The monitoring mandate replaces the blind wait with interval polling of the live session DB and a semantic judgment each poll: is the agent progressing toward the scenario goal, or has it gone off-track?
+
+### The Monitoring Protocol — MANDATORY
+
+| Step | Action | Detail |
+|------|--------|--------|
+| 1 | **Launch in background** | The `opencode run` invocation is launched in the background (not awaited synchronously) so the harness can poll while inference proceeds. |
+| 2 | **Poll at intervals** | Poll at a fixed interval (e.g., 30-60s) for as long as the process runs. Each poll is cheap — a SQLite read against an already-present DB. |
+| 3 | **Read the live session DB** | Each poll reads the NEWEST `tmp/test-home-*/.local/share/opencode/opencode.db` (the current run's test home) and extracts the event stream: tool calls (name + input), reasoning sizes (char counts), and text parts. |
+| 4 | **Evaluate semantically** | Judge progression, not just mechanics: are completed tool calls goal-relevant for the scenario? Is reasoning growing without producing tool calls? Is the agent repeating itself? |
+| 5 | **Abort on signal** | On any hard-abort signal (below), kill the run, export session.yaml per §10.5, record the semantic diagnosis. |
+| 6 | **Record evidence** | The poll log (per-poll event-stream reads + judgments) or the semantic diagnosis MUST be recorded alongside session.yaml for any behavioral SC verdict whose evidence comes from a monitored run. |
+
+### Hard-Abort Signals — ZERO TOLERANCE
+
+A monitored run MUST be aborted (killed + exported + diagnosed) when ANY of the following fires:
+
+| # | Signal | Threshold |
+|---|--------|-----------|
+| 1 | Identical tool input | The same tool call with the same input appears >=3 times |
+| 2 | Stuck sub-agent dispatch | `task()` parts remain in `running` state across >=2 consecutive polls |
+| 3 | Reasoning runaway | Reasoning exceeds 20,000 chars with <=1 new completed tool call |
+| 4 | Semantically off-track | No goal-relevant completed tool call across 2+ consecutive polls while reasoning grows |
+
+Signal 4 is the semantic judgment and fires even when no mechanical threshold does — the mechanical signals (1-3) are necessary-but-not-sufficient triggers, not the only abort path. The poll log records the semantic reasoning for audit.
+
+### PROHIBITED Patterns (§14)
+
+| Pattern | Why Forbidden |
+|---------|---------------|
+| Launching a behavioral run and awaiting the full timeout with no polling | Blind waits burn 600-900s on runs that failed in the first minutes — defect-discovery latency with zero diagnostic yield |
+| Blind `--continue` resume loops after a hung run | Resuming a run that was already off-track repeats the identical stall — §10.7 resumption is for genuinely progressing runs (e.g., bash tool timeout), not for off-track states the monitor detected |
+| Skipping the semantic diagnosis after an abort | An abort without a recorded diagnosis destroys the evidence the verdict needs — the diagnosis IS the monitoring evidence |
+| Structural-only verdicts from monitored runs | Behavioral SCs verified via monitored runs MUST record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — structural substitutes are EVIDENCE_TYPE_MISMATCH |
+
+### Abort Recovery Procedure
+
+1. **Kill the run** — terminate the background `opencode run` process (the monitor kills the process; GNU `timeout` is still FORBIDDEN per the §5 Bash Tool Timeout Mandate — the monitor's own kill is the abort signal handler, not a timeout wrapper).
+2. **Export session.yaml** — follow the §10.5 manual export procedure (extract TEST_HOME from `stderr.log`, export the `event` table). Partial evidence is valid evidence (§10.5 step 5).
+3. **Record the semantic diagnosis** — write the poll log and the abort judgment (which signal fired, the event-stream evidence, the semantic reasoning) to the scenario's evidence directory alongside session.yaml.
+4. **Evaluate on the partial evidence** — the scenario verdict is evaluated from session.yaml + the monitoring evidence; a run aborted for looping yields a valid FAIL/behavior-diagnosis verdict, not an INCONCLUSIVE.
+
+### `--continue` Known Limitation — with-test-home Provisions a NEW Test Home Per Invocation
+
+**This section amends §10.7 (Session Resumption).** `with-test-home` provisions a NEW test home per invocation. The `--continue` / `--session <id>` resume flags therefore CANNOT reach a prior invocation's run: the session id lives in the PRIOR test home's SQLite DB, which the new invocation's test home does not contain. Resumption across `with-test-home` invocations requires a shared-home mechanism — provisioning a persistent test home that survives across invocations — which is not provided today.
+
+**Practical consequence:** blind resume loops across invocations are not merely wasteful — they cannot work. The semantic monitoring mandate (this section) replaces the blind-resume pattern for off-track/hung runs: the monitor detects the stall mid-run, aborts, exports, and diagnoses — no cross-invocation resumption is needed. §10.7 resumption remains valid WITHIN a single invocation (same test home, same session DB), e.g., when the bash tool timeout kills the harness wrapper while the session survives; it does NOT apply across invocations.
+
+### §14 Known Limitation — `--continue` Cannot Reach a Prior Invocation's Test Home
+
+Anchor target for the §10.7 cross-reference — same content as the "with-test-home Provisions a NEW Test Home" section above; MD024 forbids duplicate headings, so this anchor note carries the cross-reference.
+
+### Relationship to §10.5 / §10.7
+
+| Situation | Correct Path |
+|-----------|--------------|
+| Run is progressing but the bash tool timeout kills the wrapper | §10.7 resumption (within-invocation; same test home) — monitor evidence confirms progression |
+| Monitor detects an off-track/loop state mid-run | §14 abort path: kill + §10.5 export + semantic diagnosis |
+| Resumption genuinely impossible AND no monitoring ran | §10.5 fallback (manual export + re-run) |
+
+### Monitoring Evidence Requirement for Behavioral SC Verdicts
+
+Any behavioral SC verdict whose evidence comes from a monitored run MUST record the monitoring evidence (poll log or semantic diagnosis) alongside session.yaml in the scenario's evidence directory. A session.yaml alone does not prove the poll protocol executed — the poll log is the artifact that shows per-poll event-stream reads and judgments. Verdicts from unmonitored runs that burned a full timeout on an off-track state are a monitoring-mandate violation, not a valid verification path.
+
+---
+
+## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
+
+**Every `opencode run` behavioral invocation targets exactly the named scenario(s) the current SC's RED or GREEN evidence needs. One run per SC-RED need and one run per SC-GREEN need — no more.**
+
+### 🚫 PROHIBITED — Whole-Suite Model-Executing Invocations
+
+An agent instructed to "run the behavioral tests" (or any equivalent instruction) MUST NOT:
+
+- Enumerate `tests-v2/behaviors/*.sh` and launch a loop over all scenario scripts
+- Issue an unfiltered model-executing sweep (any invocation that starts `opencode run` sessions for more than the named scenarios the current SC needs)
+- Invoke any whole-suite mechanism (a glob over the behaviors directory, an "run all" script, or an unfiltered enumeration)
+- Batch "run the suite while you're at it" runs alongside a targeted run
+
+The >2000-run runaway observed during branch-finishing (2026-09-04) is the canonical defect this mandate closes: each unguarded "run the tests" instruction is a latent multi-hour model-execution runaway that masks per-SC evidence.
+
+### ✅ REQUIRED
+
+- **One run per SC need.** Each SC's RED phase runs its named probe scenario once; each SC's GREEN phase runs its named probe scenario once. Re-runs happen only for verified-FAIL remediation, not for coverage.
+- **Named scenarios only.** The per-SC re-run instruction names the current branch's SC scenarios explicitly (e.g., `2433-sc1-system-prompt-architecture-b.sh`), never a directory or glob.
+- **Derive or ask.** A bare "run the behavioral tests" instruction is answered by deriving the named scenarios needed for the current SC's RED/GREEN evidence (or asking the developer which SCs need testing) — never by enumerating the directory.
+- **Guard text scope.** The prohibition scopes to MODEL-EXECUTING invocations (`opencode run` sessions). Content-verification runners (`test-enforcement.sh`, skildeck standalone suites — no model runs) are EXEMPT from the named-scenario requirement; an unfiltered content-verification run is not a model-cost runaway. CI/umbrella content-verification runners are likewise exempt.
+
+### Harness Guard
+
+No whole-suite invocation mechanism exists in this harness: each `opencode run` names its target scenario(s); `behaviors/*.sh` scripts are launched individually via `bash .opencode/tests-v2/behaviors/<scenario>.sh` with the scenario name explicit in the command. An agent that finds itself constructing a loop, glob, or enumeration over `behaviors/*.sh` for model execution MUST stop and derive the named scenarios instead. Enforcing scenario: `2433-sc9-whole-suite-invocation-blocked.sh` (whole-suite attempt → BLOCKED/prohibited).

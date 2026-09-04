@@ -132,7 +132,7 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 
 ### Step 1.2: Commit Count Verification (MANDATORY GATE)
 
-**This gate enforces the commit-per-issue invariant.** Creating a PR with an incorrect commit count is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR.
+**This gate enforces the canonical commit-per-issue invariant: exactly one squashed commit per issue, carrying dual co-author trailers (AI + human) on the squashed commit.** Creating a PR with an incorrect commit count is a CRITICAL GUIDELINE VIOLATION per `000-critical-rules.md` §Un-Squashed PR.
 
 ```bash
 # Count commits ahead of trunk
