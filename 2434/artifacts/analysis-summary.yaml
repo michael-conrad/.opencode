@@ -1,7 +1,11 @@
-# Analysis summary for .opencode#2434 (writing-plans analyze task)
+# Analysis summary for .opencode#2434 (writing-plans backfill task — retroactive)
 # Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
 spec_path: ".opencode/.issues/2434/spec.md"
 spec_exists: true
+backfill:
+  executed: true
+  mode: "retroactive"
+  reason: "spec-creation did not produce analytical artifacts; writing-plans backfill task generated them from the spec body with live codebase verification"
 approval:
   status: approved
   label: "approved-for-pr"
@@ -23,41 +27,65 @@ success_criteria:
     - "SC-9"
   note: "Spec body (spec.md) is authoritative; SC-2 and SC-4 are split into a/b sub-criteria. Count matches sc-summary.yaml (11)."
 analytical_artifacts:
-  directory_exists: false
+  directory_exists: true
   required:
     - name: "blast-radius.yaml"
-      present: false
+      present: true
+      source: "backfilled"
     - name: "concern-map.yaml"
-      present: false
+      present: true
+      source: "backfilled"
     - name: "code-path-inventory.yaml"
-      present: false
+      present: true
+      source: "backfilled"
     - name: "cross-cutting-matrix.yaml"
-      present: false
+      present: true
+      source: "backfilled"
     - name: "interface-compatibility.yaml"
-      present: false
+      present: true
+      source: "backfilled"
+      note: "dependency_contract section populated with concrete dependency data (real sources, targets, type constraints) for research.md step 9 extraction"
     - name: "state-analysis.yaml"
-      present: false
+      present: true
+      source: "backfilled"
     - name: "testability-assessment.yaml"
-      present: false
-  missing_count: 7
-  finding: "All 7 required analytical artifacts are missing; the artifacts/ directory did not exist prior to this analysis (only analysis-summary.yaml now written). Retroactive generation via writing-plans backfill (mode: retroactive) is required before plan creation."
-scope_boundaries:
+      present: true
+      source: "backfilled"
+  missing_count: 0
+  finding: "All 7 required analytical artifacts backfilled this session from the spec body; every affected-file existence claim and code-path fact verified with live tool-call evidence (grep/awk extraction of with-test-home, helpers.sh, and the four doc targets)."
+scope_summary:
   files_verified:
     - path: ".opencode/tests-v2/with-test-home"
       exists: true
+      evidence: "WARNING fallback at two clone+checkout sites (lines 220, 416)"
     - path: ".opencode/tests-v2/behaviors/helpers.sh"
       exists: true
+      evidence: "behavior_run() line 649; flock block lines 679-682; no pre-flight git-state gate"
     - path: ".opencode/tests-v2/AGENTS.md"
       exists: true
+      evidence: "§4 narrow DEFAULT_TEST_MODEL push note (line 222); §5 WARNING-fallback text (line 275)"
     - path: ".opencode/guidelines/091-incremental-build.md"
       exists: true
+      evidence: "cycle table ends at COMMIT (line 33); PUSH absent"
     - path: ".opencode/skills/test-driven-development/SKILL.md"
       exists: true
+      evidence: "COMMIT last in Per-Change TDD Pattern (line 268) and RED-Phase Ordering (line 337); PUSH absent"
     - path: ".opencode/AGENTS.md"
       exists: true
+      evidence: "Testing Lessons Learned section; 6 lessons, none on the commit/push/fetch cycle"
   to_be_created:
     - path: ".opencode/tests-v2/behaviors/<scenario>.sh (SC-8 artifact-only generator)"
-      note: "New behavioral test script created by Item 8 — not an existing-file scope finding."
+      note: "New behavioral test script created by Item 8 — not an existing-file scope finding"
   missing_count: 0
-  finding: "All 6 existing files referenced by the spec's Documentation Sources / Items sections exist in the codebase. Spec has no separate 'Affected Files' section; scope was resolved from Documentation Sources and Items (spec lines 173-216)."
+  finding: "All 6 existing files referenced by the spec exist and were re-verified this session with grep/awk evidence. Scope resolved from Documentation Sources and Items (spec lines 173-216); no separate 'Affected Files' section in the spec."
+phases:
+  - id: "A"
+    concern_group: "A-harness-hardening"
+    scs: ["SC-1", "SC-2a", "SC-2b", "SC-3"]
+  - id: "B"
+    concern_group: "B-durable-rule-encoding"
+    scs: ["SC-4a", "SC-4b", "SC-5", "SC-6", "SC-7"]
+  - id: "C"
+    concern_group: "C-end-to-end-verification"
+    scs: ["SC-8", "SC-9"]
 status: DONE

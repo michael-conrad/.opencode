@@ -1,0 +1,57 @@
+# State analysis for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+state_machines:
+  - machine: "parent stacked PR creation (gate decision state)"
+    phases: [1]
+    transitions:
+      - from: "gate not present — parent stacked PR created regardless of in-scope submodule merge state (#304 failure mode)"
+        to: "gate present — parent PR creation blocked while any in-scope submodule PR is unmerged, inconclusive, or the pointers fail freshness assertions"
+        trigger: "item-1/item-3/item-4/item-6/item-7 RED→GREEN commits (ordering gate implemented in pr-creation/enforcement-gate)"
+        invariant: "PR creation proceeds ONLY when every in-scope submodule PR is verified merged via live API, pointers carry no + prefixes, and each in-scope pointer SHA is an ancestor of origin/$DEFAULT_BRANCH"
+        failure_mode: "gate passes on inferred merge state (local checkout or ancestry) instead of live API — the exact #304 masking factor"
+      - from: "inconclusive merge state (API unreachable, mergeable null, PR not found)"
+        to: "definite block or verified pass after bounded retry"
+        trigger: "probing loop: up to 3 probes at 60-second intervals"
+        invariant: "inconclusive state NEVER converts to pass; after the bounded retry it blocks with a clear reason in chat naming the inconclusive submodule and its PR (fail-closed)"
+        failure_mode: "fail-open on inconclusive state — 'unknown merge state' silently passes, shipping an unmergeable parent PR"
+  - machine: "in-scope submodule set"
+    phases: [1]
+    transitions:
+      - from: "undefined coverage (no enumeration mechanism)"
+        to: "enumerated set — submodule paths whose pointer changes on the parent feature branch relative to the trunk base"
+        trigger: "item-2 RED→GREEN commit (enumeration language added to the authoritative card)"
+        invariant: "enumeration precedes merge verification; out-of-scope submodules (no pointer change) never block the gate; merged submodule PRs with unbumped pointers ride alongside the next parent change per the pointers-ride-alongside convention"
+        failure_mode: "gate silently covers the wrong submodule set — defects re-fire on the next multi-submodule release"
+  - machine: "parent branch waiting state"
+    phases: [1]
+    transitions:
+      - from: "waiting with undefined behavior (commits/pushes/PR mutations may occur mid-wait)"
+        to: "idle wait — no new commits, pushes, or PR mutations until all in-scope submodule PRs land"
+        trigger: "item-11 RED→GREEN commit (waiting-behavior language added)"
+        invariant: "the branch idles deterministically; the gate re-evaluates branch state at the next PR-creation attempt; pointer bumps for in-scope submodules land on the same branch after merges (pointers-ride-alongside) before PR creation"
+        failure_mode: "mid-wait mutations invalidate the gate's verification at PR creation"
+  - machine: "pointer bump timing"
+    phases: [1]
+    transitions:
+      - from: "pointer bumps committed before merges land (stale pointers in the parent PR commit — #304)"
+        to: "pointer bumps committed on the parent feature branch after the submodule merges land"
+        trigger: "item-5 RED→GREEN commit (timing rule added to the authoritative card)"
+        invariant: "the parent PR's squashed commit carries fresh pointers; SKIP_STALE_POINTER_CHECK commit-time semantics unchanged (pointers legally target unmerged SHAs at commit time); the freshness assertion moves to pre-PR creation where merges have landed"
+        failure_mode: "pointers committed before merges re-create the stale-pointer parent PR the gate exists to prevent"
+  - machine: "enforcement authority assignment"
+    phases: [2]
+    transitions:
+      - from: "undesignated placement (four candidate sites, no published selection criteria, conflicting blocking roles possible)"
+        to: "exactly one authoritative blocking check at pr-creation/enforcement-gate; three sites annotated advisory/consistency"
+        trigger: "item-8/item-9 RED→GREEN commits (designation statement + advisory annotations)"
+        invariant: "every path to parent PR creation passes through the authoritative gate; non-selected sites carry no blocking authority and cannot contradict it"
+        failure_mode: "a rogue blocking check at an advisory site blocks legitimate PRs with no authoritative basis, or duplicated blocking checks produce contradictory outcomes"
+  - machine: "per-submodule blocking report"
+    phases: [1]
+    transitions:
+      - from: "bare or ambiguous block (developer hunts across submodule repos for what is pending)"
+        to: "categorized per-submodule report — unmerged PR, inconclusive state, stale pointer, or +-prefixed working tree — naming the submodule and its PR"
+        trigger: "item-10 RED→GREEN commit (four-category reporting added to the result contract)"
+        invariant: "every block names the blocking submodule and its PR with its category; mixed states enumerate every pending or inconclusive submodule"
+        failure_mode: "an unclassified block obscures whether the remedy is a merge, a wait, a pointer bump, or a working-tree sync"

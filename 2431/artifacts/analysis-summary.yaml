@@ -1,0 +1,37 @@
+spec_path: .opencode/.issues/2431/spec.md
+approval_status: approved
+approved_for: for_pr
+sc_count: 11
+artifact_presence:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+scope_boundary_findings:
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    status: exists
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    status: exists
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+    status: exists
+  - path: .opencode/skills/git-workflow-pr/tasks/post-implementation.md
+    status: exists
+  - path: .opencode/tests-v2/behaviors/
+    status: exists
+  - path: .opencode/tests-v2/behaviors/fixtures/issues/2313/spec.md
+    status: exists
+  - path: .opencode/tests-v2/with-test-home
+    status: exists
+scope_summary:
+  phases: 2
+  phase_1: "Ordering-gate implementation in pr-creation/enforcement-gate — in-scope enumeration, live-API merge-state verification with bounded retry, pointers-ride-alongside timing, no-+-prefix and pointer-ancestry assertions, per-submodule blocking-reason reporting, waiting behavior, plus behavioral tests for SC-1/SC-6/SC-7"
+  phase_2: "Enforcement placement — designate pr-creation/enforcement-gate as the sole authoritative blocking check (SC-8) and annotate the three non-selected sites as advisory/consistency (SC-9)"
+  out_of_scope:
+    - "Automatic submodule PR creation/cleanup — the gate verifies merge state only"
+    - "SKIP_STALE_POINTER_CHECK commit-time semantics — the hook-documented escape hatch remains correct at commit time"
+    - "Human merge behavior — merging remains human-only; the gate observes merge state via API"
+    - "Non-stacked (single-repo) PR flows — no in-scope set, gate skips entirely"
+backfill_note: "All 7 analytical artifacts backfilled from spec body by backfill.md task. No pre-existing artifacts were found (artifacts/ directory absent). Affected-file existence verified: all 4 task cards, tests-v2 behaviors directory, #2313 fixture spec, and with-test-home harness present in the codebase. Enforcement-site grounding verified by reading the current enforcement-gate card (Step 0 reachability gate + Step 0.5 bump-only gate present), pr-creation.md (Pre-Push Submodule Pointer Verification), pre-commit-pointer-check.md (staging-hygiene role), and post-implementation.md (push-without-PR role)."

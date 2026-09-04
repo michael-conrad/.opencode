@@ -1,0 +1,29 @@
+# Cross-cutting matrix for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+cross_cutting_concerns:
+  - concern: "Single canonical definition (no variant drift)"
+    phases: [1, 2, 3, 4]
+    detail: "The guard text is defined exactly once (R-2, phase 1) and embedded verbatim in 51 cards (phase 3) and every plan (phase 4), with lint (phase 2) verifying against the canonical text. Any wording divergence between the reference doc and embedded copies is a defect lint must catch."
+    impact: "high — variant drift recreates the prose-guard problem with a mechanical-sounding imposter; SC-1 verbatim check is the control"
+
+  - concern: "Discriminator correctness across the deck"
+    phases: [3, 5]
+    detail: "The guard keys on task-tool absence as the sole discriminator. The skill tool is present in sub-agent context (live probe ses_f9ac0f59bffetMsE6s3sQOHoQ8: 96 tools, no task, skill present) — cards reasoning 'I have skill, therefore orchestrator' is a failure mode the canonical text must foreclose."
+    impact: "high — wrong discriminator produces either false halts (orchestrator blocked) or missed leaks (sub-agent proceeds); SC-5 is the false-halt recovery gate"
+
+  - concern: "Lint-before-sweep ordering"
+    phases: [2, 3]
+    detail: "The phase-2 lint rule flags cards missing the guard, but the sweep that fixes all 51 cards lands in phase 3. Between the two commits the deck is intentionally red."
+    impact: "medium — lint output must not be treated as authoritative until the sweep GREEN lands; item-1 RED phase legitimately reports all 51 as missing"
+
+  - concern: "Two artifact classes, two reason codes"
+    phases: [1, 2, 3, 4, 5]
+    detail: "Cards use ORCHESTRATOR_ONLY_SKILL_CARD; plans use ORCHESTRATOR_ONLY_PLAN. Lint assertions (cards), audit findings (plans), and behavioral tests (both) each key on the artifact-class-specific code."
+    impact: "medium — swapping or merging the codes breaks SC-3/SC-4 assertions and makes lint/audit findings unattributable"
+
+  - concern: "Behavioral evidence discipline"
+    phases: [5]
+    detail: "SC-2, SC-3, SC-4, SC-5, SC-6b are behavioral: they run opencode run against real models via tests-v2 and assert on stderr (BLOCKED codes, dispatch attempts, TDT progression). Grep/static checks are valid only for SC-1 (string) and SC-6a (structural)."
+    impact: "high — substituting structural evidence for behavioral SCs is EVIDENCE_TYPE_MISMATCH (critical-rules-BEH-EV) and produces a FAIL verdict"

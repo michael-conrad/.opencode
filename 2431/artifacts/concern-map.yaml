@@ -1,0 +1,29 @@
+# Concern map for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+concerns:
+  - concern: "Merge-state verification (Condition 1)"
+    owner_file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (ordering gate step, after in-scope enumeration)"
+    phases: [1]
+    items: [item-1, item-3, item-4]
+    boundary: "the gate enumerates the in-scope submodule set from the parent feature branch's changed submodule paths (gitlink changes relative to the trunk base), then verifies each in-scope submodule PR's merge state via a live platform API call using the merge-state fields (merged, merged_at); merge state is never inferred from local checkout state or from git merge-base ancestry; on inconclusive state the gate probes up to 3 times at 60-second intervals, then blocks PR creation with a clear reason reported in chat naming the inconclusive submodule and its PR"
+  - concern: "Pointer freshness assertions (Condition 3)"
+    owner_file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (ordering gate assertions)"
+    phases: [1]
+    items: [item-6, item-7]
+    boundary: "the gate asserts git submodule status shows no + prefixes for in-scope submodules and asserts each in-scope recorded pointer SHA is an ancestor of the submodule's remote trunk origin/$DEFAULT_BRANCH (dynamically resolved per submodule per the #2313 convention); both assertions block PR creation on failure with per-submodule reporting"
+  - concern: "Pointers-ride-alongside timing and waiting behavior (Condition 2)"
+    owner_file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (timing rule + waiting statement) with documentation anchor in .opencode/skills/git-workflow-pr/tasks/pr-creation.md (Pre-Push Submodule Pointer Verification)"
+    phases: [1]
+    items: [item-5, item-11]
+    boundary: "submodule pointer bumps are committed on the parent feature branch after the submodule merges land so the parent PR's squashed commit carries fresh pointers; while waiting, the parent branch sits idle — no new commits, pushes, or PR mutations until all in-scope submodule PRs land"
+  - concern: "Blocking-reason reporting"
+    owner_file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (result contract)"
+    phases: [1]
+    items: [item-10]
+    boundary: "every block names which in-scope submodule blocks it across the four categories — unmerged PR, inconclusive state, stale pointer, or +-prefixed working tree — naming the submodule and its PR"
+  - concern: "Enforcement placement (authoritative vs advisory)"
+    owner_file: ".opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (designation) + advisory annotations at .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md, .opencode/skills/git-workflow-pr/tasks/post-implementation.md, and .opencode/tests-v2/behaviors/"
+    phases: [2]
+    items: [item-8, item-9]
+    boundary: "exactly one authoritative blocking check for the ordering gate is assigned at pr-creation/enforcement-gate; the three non-selected candidate sites (git-workflow-branch pre-commit-pointer-check, executing-plans post-implementation steps, tests-v2 behavioral test) carry advisory/consistency roles with no blocking authority"

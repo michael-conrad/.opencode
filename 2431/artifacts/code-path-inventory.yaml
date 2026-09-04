@@ -1,0 +1,38 @@
+# Code path inventory for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+code_paths:
+  - phase: 1
+    items: [item-1, item-2, item-3, item-4, item-5, item-6, item-7, item-10, item-11]
+    paths:
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+        location: "new ordering-gate step evaluated immediately before parent stacked PR creation, alongside the existing Step 0 (submodule PR dependency check) and Step 0.5 (submodule-bump-only gate)"
+        change: "add the three-condition ordering gate: (1) in-scope submodule set enumeration from changed submodule paths relative to the trunk base, live-API merge-state verification with bounded retry (3 probes, 60-second intervals) and inconclusive-block; (2) pointers-ride-alongside timing rule with waiting behavior (parent branch sits idle); (3) no-+-prefix git submodule status assertion and pointer-SHA ancestry assertion against origin/$DEFAULT_BRANCH dynamically resolved per submodule; plus per-submodule blocking-reason reporting naming the submodule and its PR across the four categories (unmerged PR, inconclusive state, stale pointer, +-prefixed working tree)"
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+        location: "Pre-Push Submodule Pointer Verification section"
+        change: "cross-reference the ordering gate's pointers-ride-alongside rule and waiting behavior so the parent card and the authoritative card carry consistent timing language"
+      - path: .opencode/tests-v2/behaviors/
+        location: "new artifact-only generator scripts for SC-1 (unmerged in-scope submodule PR blocks), SC-6 (+-prefixed in-scope submodule blocks), SC-7 (pointer absent from origin/$DEFAULT_BRANCH blocks), with fixtures/issues/2431/ and per-scenario fixtures/setup/ provisioning"
+        change: "create behavioral test scripts per the two-SC pattern (artifact generation + clean-room evaluation) using BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 provisioning; scripts generate session.yaml artifacts and exit 0 — evaluation is the orchestrator's job"
+    consumers_of_change:
+      - "the pr-creation orchestrator — the enforcement gate it routes to now blocks parent stacked PR creation until all in-scope submodule PRs are verified merged"
+      - "multi-submodule release flows (Butter-style stacked PRs) — the defect from Butter #304 (parent PR created with stale pointers while submodule PRs were open) is structurally impossible"
+      - "developers — receive per-submodule blocking reports naming which submodule and PR is pending, inconclusive, stale, or divergent"
+  - phase: 2
+    items: [item-8, item-9]
+    paths:
+      - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+        location: "ordering-gate designation statement"
+        change: "designate the ordering gate as the sole authoritative blocking check for stacked-PR ordering across the four candidate enforcement sites, per the spec's placement evaluation and published selection criteria (every-path coverage, post-commit execution, existing blocking authority, fail-closed capability)"
+      - path: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+        location: "task card body"
+        change: "annotate the task as an advisory/consistency check for the ordering gate with no blocking authority (it runs pre-commit, before merges can be verified, and commits legally proceed under SKIP_STALE_POINTER_CHECK)"
+      - path: .opencode/skills/git-workflow-pr/tasks/post-implementation.md
+        location: "task card body"
+        change: "annotate the post-implementation push-without-PR steps as advisory/consistency for the ordering gate with no blocking authority (they run only on the standard executing-plans path and hold no PR-creation authority)"
+      - path: .opencode/tests-v2/behaviors/
+        location: "behavioral test role documentation (scripts/fixtures for the ordering gate)"
+        change: "annotate the behavioral test as the behavioral-evidence instrument with no runtime blocking authority"
+    consumers_of_change:
+      - "clean-room evaluation sub-agents for SC-8/SC-9 — read the four sites and judge exactly-one-authoritative and advisory-only roles"
+      - "future agents modifying any of the four sites — the annotations prevent rogue blocking checks at advisory sites"

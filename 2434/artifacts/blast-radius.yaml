@@ -1,0 +1,49 @@
+# Blast-radius analysis for .opencode#2434 (backfill — retroactive)
+# Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
+spec_path: ".opencode/.issues/2434/spec.md"
+affected_files:
+  - path: ".opencode/tests-v2/with-test-home"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — WARNING fallback present at two clone+checkout sites (grep matched lines 220 and 416); clone commands at lines 211 and 407"
+    touches: "Both clone+checkout guard blocks converted from WARNING fallback to hard FAIL with remediation-naming message (R-1, R-5)"
+  - path: ".opencode/tests-v2/behaviors/helpers.sh"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — behavior_run() at line 649; LOCK_FILE/flock block at lines 679-682; no pre-flight git-state gate exists"
+    touches: "Pre-flight git-state gate inserted inside behavior_run() before the flock acquisition and model dispatch (R-2, R-4, R-12)"
+  - path: ".opencode/tests-v2/AGENTS.md"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — §4 push note scoped to DEFAULT_TEST_MODEL override (line 222); §5 documents the WARNING fallback (line 275)"
+    touches: "§4 rewritten with all-runs ordered cycle; §5 rewritten with hard-FAIL language, fallback language removed (R-6)"
+  - path: ".opencode/guidelines/091-incremental-build.md"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — Per-Item TDD Cycle table line 33 ends at COMMIT; PUSH absent; behavioral-variant paragraph present"
+    touches: "Cycle table + behavioral-variant paragraph amended: commit+push precede behavioral test run for behavioral items (R-7)"
+  - path: ".opencode/skills/test-driven-development/SKILL.md"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — Per-Change TDD Pattern line 268 ends at COMMIT; RED-Phase Ordering line 337 step 4 is COMMIT; PUSH absent in both"
+    touches: "PUSH step added between COMMIT and next RED in both pattern sections, ordering identical to 091 (R-8)"
+  - path: ".opencode/AGENTS.md"
+    change_type: modify
+    exists: true
+    evidence: "Verified this session — Testing Lessons Learned section exists with 6 lessons, none on the commit/push/fetch cycle"
+    touches: "New Testing Lessons Learned entry encoding the commit/push/fetch cycle, matching gate behavior and referencing the §4 carve-out (R-9)"
+  - path: ".opencode/tests-v2/behaviors/<scenario>.sh"
+    change_type: create
+    exists: false
+    evidence: "Artifact-only generator script for SC-8 — new file created by Item 8; not an existing-file scope finding"
+    touches: "New behavioral test script running opencode run with a real-domain test-framework-fix prompt, producing session.yaml evidence"
+inherited_consumers:
+  - surface: "behavior_run() callers"
+    count: 182
+    note: "All behavioral scripts under .opencode/tests-v2/behaviors/ inherit the pre-flight gate via behavior_run() with zero source changes (R-11). Blast radius is intentional and centralized — no per-script edits."
+breaking_change:
+  acknowledged: true
+  detail: "with-test-home exit semantics change from WARNING+exit-0 to FAIL+exit-1 on uncheckoutable submodule HEAD (D1 tradeoff). Accepted because the silent-stale-run failure mode it replaces is strictly worse. 182 consumers unaffected in source; only harness invocation failure paths change."
+false_positive_guards:
+  - "Pushed-HEAD control probes (SC-1, SC-2a, SC-3) enforce no regression on the normal run path (R-14)"
+  - "BEHAVIOR_SUBMODULE_COMMIT pinned-and-pushed path preserved (R-14); pinned-unpushed SHA FAILS (R-4)"

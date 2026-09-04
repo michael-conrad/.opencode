@@ -1,0 +1,49 @@
+# Cross-cutting matrix for .opencode#2434 (backfill — retroactive)
+# Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
+# Identifies SCs spanning multiple concerns; drives the R-10 single-definition invariant.
+cross_cutting_scs:
+  - sc: "SC-3"
+    spans:
+      - "A-harness-hardening (gate implementation in behavior_run())"
+      - "B-durable-rule-encoding (§4 documented cycle must equal the gate predicate — D4/R-10)"
+    coupling: "Gate predicate text and doc cycle text are one definition on two enforcement surfaces; a change to one without the other forks the vocabulary"
+  - sc: "SC-4a"
+    spans:
+      - "B-durable-rule-encoding (§4 rewrite)"
+      - "A-harness-hardening (same predicate as SC-3 gate)"
+    coupling: "§4 cycle ordering (commit → push → fetch/verify → run) must mirror the SC-3 gate's actual check sequence"
+  - sc: "SC-5"
+    spans:
+      - "B-durable-rule-encoding (091 guideline)"
+      - "external consistency: TDD skill (SC-6) and #2433 commit-inline plan pattern (I4 constraint)"
+    coupling: "Ordering must be identical across 091 and TDD SKILL.md; contradiction with #2433 forbidden"
+  - sc: "SC-6"
+    spans:
+      - "B-durable-rule-encoding (TDD skill)"
+      - "external consistency: 091 guideline (SC-5)"
+    coupling: "Same I4 ordering-consistency constraint as SC-5, mirrored"
+  - sc: "SC-7"
+    spans:
+      - "B-durable-rule-encoding (root lessons)"
+      - "A-harness-hardening (lesson text must match implemented gate predicate — no stale-code claims)"
+    coupling: "Lesson accuracy depends on the SC-1/2a/3 gate behavior actually landing"
+  - sc: "SC-8"
+    spans:
+      - "C-end-to-end-verification (behavioral run)"
+      - "B-durable-rule-encoding (the agent-under-test only follows the cycle because Items 4-7 landed)"
+    coupling: "SC-8 measures the effect of the Phase B rule changes; running it before Phase B lands measures nothing"
+  - sc: "SC-9"
+    spans:
+      - "C-end-to-end-verification (clean-room evaluation)"
+      - "A-harness-hardening adjacency (verdict artifact conventions)"
+    coupling: "Strictly consumes SC-8's session.yaml; no orchestrator reasoning may leak to the evaluator (R-15)"
+single_definition_invariants:
+  - invariant: "R-10 — gate predicate == documented cycle (D4)"
+    surfaces: ["behavior_run() pre-flight block", "with-test-home site guards", "tests-v2/AGENTS.md §4", "root AGENTS.md lesson"]
+    enforcement: "SC-3 (behavioral) + SC-4a (string) + SC-7 (string, text-matches-gate clause)"
+  - invariant: "I4 — 091 ordering == TDD skill ordering"
+    surfaces: ["guidelines/091-incremental-build.md", "skills/test-driven-development/SKILL.md"]
+    enforcement: "SC-5 + SC-6 verify clauses (cross-read for consistency, no contradiction with #2433)"
+shared_infrastructure:
+  - "FATAL:/HARNESS_FAILURE: message prefix conventions — reused by all new gate failure messages (R-3); already established in with-test-home (line 212) and behavior_run() lock/mutual-exclusion blocks"
+  - "BEHAVIOR_SUBMODULE_COMMIT pin resolution — read by both behavior_run() (existing, line ~665) and the new gate logic (R-4)"

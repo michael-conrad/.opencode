@@ -1,6 +1,6 @@
 # Analysis summary for .opencode#2430
-# Task: writing-plans analyze (verify plan preconditions)
-# Generated: 2026-09-04
+# Analyze task output updated by writing-plans/tasks/backfill.md (mode: retroactive)
+# Generated: 2026-09-04 (backfilled same day)
 
 spec_path: .opencode/.issues/2430/spec.md
 issue_yaml_path: .opencode/.issues/2430/issue.yaml
@@ -14,7 +14,7 @@ approval:
   source: issue.yaml labels field (local record — authoritative)
   labels_found:
     - approved-for-pr
-  scope_interpretation: for_pr (label approved-for-pr maps to for_pr authorization scope; PR strategy: stacked)
+  scope_interpretation: "for_pr (label approved-for-pr maps to for_pr authorization scope; PR strategy: stacked)"
 
 success_criteria:
   count: 7
@@ -39,69 +39,87 @@ artifacts:
   path: .opencode/.issues/2430/artifacts/
   required_artifacts:
     - name: blast-radius.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: concern-map.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: code-path-inventory.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: cross-cutting-matrix.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: interface-compatibility.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: state-analysis.yaml
-      present: false
+      present: true
+      status: backfilled
     - name: testability-assessment.yaml
-      present: false
-  missing_count: 7
-  note: >
-    Per writing-plans Entry Criteria / artifact gate, missing artifacts produce
-    BLOCKED with MISSING_SPEC_ARTIFACT and a fallback via retroactive generation
-    (writing-plans/tasks/backfill.md, mode: retroactive). The plan-creation task
-    handles this fallback; this analyze task records the gap as findings.
+      present: true
+      status: backfilled
+  missing_count: 0
+  backfill_note: >
+    All 7 analytical artifacts were backfilled on 2026-09-04 by
+    writing-plans/tasks/backfill.md (mode: retroactive) from the spec body,
+    per the analyze task's MISSING_SPEC_ARTIFACT remediation. The
+    interface-compatibility.yaml dependency_contract section is populated
+    with concrete dependency data (real sources, real targets, real phase
+    ordering) derived from the spec's affected files and success criteria —
+    not a placeholder schema template. research.md step 9 extracts this
+    section into {issues_prefix}/{N}/dependency-contract.yaml for the
+    solve/plan tools.
+
+scope_summary:
+  intent: "Define one canonical mechanical Pre-Flight Guard (tool-list check for a tool named 'task') and embed it in all 51 SKILL.md cards and every writing-plans plan, with lint/audit flagging and behavioral enforcement tests"
+  card_count: 51
+  card_breakdown: "48 top-level .opencode/skills/*/SKILL.md + 3 nested platform cards (issue-operations/platforms/{github-mcp,gitbucket-api,local}/SKILL.md)"
+  reason_codes:
+    cards: ORCHESTRATOR_ONLY_SKILL_CARD
+    plans: ORCHESTRATOR_ONLY_PLAN
+  rollout_phases:
+    - "Phase 1: canonical reference doc + guideline cross-link (.opencode/guidelines/)"
+    - "Phase 2: lint/audit flagging (skildeck, validate_skill_cards.py, audit plan-fidelity)"
+    - "Phase 3: card sweep (51 files, item-1)"
+    - "Phase 4: writing-plans plan template (item-2)"
+    - "Phase 5: behavioral enforcement tests (items 3-5, 7)"
+  non_goals:
+    - "opencode.jsonc permission.task deny backstop (separate decision)"
+    - "Root-repo (snea-phonetics) files"
+    - "Dispatch strings / TDTs / result contracts (guard is strictly additive)"
+    - ".opencode/tools/local-issues defect (filed for separate triage)"
 
 scope_boundary_findings:
   all_affected_paths_exist: true
   checks:
     - check: 48 top-level .opencode/skills/*/SKILL.md cards
       result: PASS
-      evidence: ls .opencode/skills/*/SKILL.md | wc -l -> 48
+      evidence: find .opencode/skills -maxdepth 2 -name SKILL.md -> 48 (re-verified at backfill time)
     - check: 3 nested platform cards (issue-operations/platforms/{github-mcp,gitbucket-api,local}/SKILL.md)
       result: PASS
-      evidence: all three paths exist on disk
+      evidence: all three paths exist on disk (re-verified at backfill time)
     - check: .opencode/skills/writing-plans/ (plan template + create/revise tasks)
       result: PASS
-      evidence: directory exists with SKILL.md, tasks/ (analyze, backfill, completion, create, handoff, research, revise, validate, verify-plan-pipeline), contracts/, reference/
+      evidence: directory exists with SKILL.md, tasks/ (create.md, revise.md present), contracts/, reference/
     - check: .opencode/skills/skill-creator/ (validation step)
       result: PASS
-      evidence: directory exists with SKILL.md, tasks/, scripts/ (validate_skill_cards.py present at scripts/validate_skill_cards.py)
+      evidence: scripts/validate_skill_cards.py present
     - check: .opencode/skills/audit/ (plan-fidelity check)
       result: PASS
-      evidence: directory exists with SKILL.md, tasks/
+      evidence: tasks/plan-fidelity-{investigator,evaluator,arbiter}.md present
     - check: .opencode/tools/skildeck* (lint tooling)
       result: PASS
-      evidence: .opencode/tools/skildeck exists (Python script, UTF-8 executable)
-    - check: .opencode/tools/validate_skill_cards.py (validation scripts)
-      result: PASS
-      evidence: found at .opencode/skills/skill-creator/scripts/validate_skill_cards.py (spec references it by name; resolved)
+      evidence: .opencode/tools/skildeck exists (lint action delegates to impl/skildeck/ rule modules)
     - check: .opencode/guidelines/ (canonical guard reference + cross-link)
       result: PASS
       evidence: directory exists (36 guideline files + INDEX.md)
     - check: .opencode/tests-v2/behaviors/ (new enforcement tests)
       result: PASS
-      evidence: directory exists with existing behavioral scenario scripts
-    - check: .opencode/reference/spec-structure-standards.md (Documentation Sources)
-      result: PASS
-      evidence: file exists
-    - check: .opencode/reference/cost-model-standards.md (Documentation Sources)
-      result: PASS
-      evidence: file exists
-  notes:
-    - >
-      The spec's local-issues defect note (.opencode/tools/local-issues) is
-      explicitly marked NOT part of this spec — excluded from scope verification.
-    - >
-      Card count verified live: 48 top-level + 3 nested platform cards = 51 total,
-      matching the spec's corrected count from the 2026-09-02 revision.
+      evidence: directory exists with existing behavioral scenario scripts following <issue>-sc<N>-<slug>.sh convention
+  prose_guard_baseline:
+    detail: "Existing prose-only guard verified live in cards — e.g. .opencode/skills/git-workflow/SKILL.md lines 22-26 ('If you are a sub-agent (dispatched via task())...Return BLOCKED with reason ORCHESTRATOR_ONLY_SKILL_CARD')"
+    relevance: "confirms the spec's replacement target exists and the prose-only variant is the deviation lint will flag"
 
 entry_criteria:
   issue_number_provided: true
@@ -111,24 +129,12 @@ entry_criteria:
   issue_yaml_exists: true
   approved_label_present: true
 
-blockers:
-  - id: MISSING_SPEC_ARTIFACT
-    severity: gating-at-plan-creation
-    detail: >
-      All 7 required analytical artifacts (blast-radius, concern-map,
-      code-path-inventory, cross-cutting-matrix, interface-compatibility,
-      state-analysis, testability-assessment) are absent from
-      .opencode/.issues/2430/artifacts/. Per critical-rules-010 (Plan Creation
-      Without Analytical Artifacts) and writing-plans Entry Criteria Step 4a,
-      plan creation without artifact verification is a bypass. Auto-generation
-      fallback is via writing-plans/tasks/backfill.md (dispatched with
-      mode: retroactive).
-    remediation: Dispatch writing-plans backfill task (mode: retroactive) to generate the 7 artifacts before plan creation.
+blockers: []
 
 summary: >
   Spec exists, is approved (approved-for-pr label in local issue.yaml —
-  authoritative record), and defines 7 SCs across 8 rollout items. All 11
-  referenced affected paths/files verified to exist in the codebase; card count
-  matches the spec (51). The only gap is artifact coverage: zero of 7 required
-  analytical artifacts exist. Plan creation may proceed only after the backfill
-  task retroactively generates them.
+  authoritative record), and defines 7 SCs across 5 rollout phases. All
+  affected paths verified to exist; card count matches the spec (51). The
+  MISSING_SPEC_ARTIFACT blocker from the analyze task is RESOLVED: all 7
+  analytical artifacts have been backfilled and the analysis summary updated.
+  Plan creation may proceed.

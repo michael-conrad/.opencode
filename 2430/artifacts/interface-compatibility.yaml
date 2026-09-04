@@ -1,0 +1,111 @@
+# Interface compatibility for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+interfaces:
+  - interface: "SKILL.md Pre-Flight Guard section (content contract)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [3]
+    detail: "The prose-only guard text in each card's Pre-Flight Guard section is replaced by the canonical mechanical guard verbatim. Section position and all other card sections (TDT, Invocation, tasks) unchanged. Consumers of the section are sub-agents reading the card — they now receive a mechanically checkable directive instead of prose-only self-identification. Dispatch strings and result contracts are untouched."
+
+  - interface: "Plan file structure (writing-plans output contract)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [4]
+    detail: "Plans produced by writing-plans gain a Pre-Flight Guard section with reason code ORCHESTRATOR_ONLY_PLAN. executing-plans reads plans at orchestrator level and is unaffected by the added section; sub-agents wrongly dispatched with a plan now receive a mechanical halt directive. Existing plans (pre-guard) remain valid — no retroactive regeneration."
+
+  - interface: "skildeck lint rule surface"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "A new guard-verbatim lint rule is added; existing lint rules and action CLI surface unchanged. Cards currently in the deck will flag once the rule lands and before the phase-3 sweep — the flag is the item-1 RED phase, not a regression."
+
+  - interface: "skill-creator validation contract"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "validate_skill_cards.py gains a guard-verbatim check; existing structural validations unchanged. Future card create/update flows must embed the canonical guard to pass validation."
+
+  - interface: "audit plan-fidelity finding taxonomy"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "The plan-fidelity path gains a new FAIL finding class (plan missing canonical guard). Existing finding classes and the 4-role arbiter/evaluator/investigator/validator pipeline unchanged."
+
+  - interface: "tests-v2 behavioral scenario contract"
+    kind: added
+    compatibility: backward_compatible
+    phases: [5]
+    detail: "New scenario scripts follow the existing naming convention and harness invocation (with-test-home + opencode run, stderr assertions). No changes to existing scenarios or harness."
+
+removed_interfaces: []
+breaking_changes: []
+
+dependency_contract:
+  description: "Concrete dependency data derived from spec #2430 affected files and success criteria — real sources, real targets, real type constraints; not a placeholder template"
+
+  phase_ordering:
+    - phase: 1
+      scs: []
+      files:
+        - ".opencode/guidelines/ (new canonical guard reference doc)"
+        - ".opencode/guidelines/INDEX.md"
+      note: "SC-1/R-2 depend on phase 1's reference existing; no SC completes in phase 1 alone"
+    - phase: 2
+      scs: [SC-6a, SC-6b]
+      files:
+        - ".opencode/tools/skildeck"
+        - ".opencode/tools/impl/skildeck/ (lint rule modules)"
+        - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+        - ".opencode/skills/audit/tasks/plan-fidelity-validator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-evaluator.md"
+        - ".opencode/skills/audit/tasks/plan-fidelity-arbiter.md"
+    - phase: 3
+      scs: [SC-1, SC-3]
+      files:
+        - ".opencode/skills/*/SKILL.md (48 top-level)"
+        - ".opencode/skills/issue-operations/platforms/github-mcp/SKILL.md"
+        - ".opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md"
+        - ".opencode/skills/issue-operations/platforms/local/SKILL.md"
+    - phase: 4
+      scs: [SC-2, SC-4]
+      files:
+        - ".opencode/skills/writing-plans/ (plan template)"
+        - ".opencode/skills/writing-plans/tasks/create.md"
+        - ".opencode/skills/writing-plans/tasks/revise.md"
+    - phase: 5
+      scs: [SC-3, SC-4, SC-5, SC-6b]
+      files:
+        - ".opencode/tests-v2/behaviors/ (new scenario scripts)"
+
+  entries:
+    - source: "phase 1 canonical guard reference doc (guidelines/, R-2)"
+      target: "phase 2 lint rule in skildeck impl + validate_skill_cards.py + audit plan-fidelity tasks"
+      type: "content dependency — the rule verifies cards/plans against the canonical text"
+      constraint: "the reference doc must exist before lint can check verbatim conformance; the rule pattern is derived from the canonical guard text exactly (SC-1 verbatim semantics)"
+
+    - source: "phase 2 lint rule (skildeck + validate_skill_cards.py, R-4)"
+      target: "phase 3 card sweep (51 SKILL.md files, item-1)"
+      type: "verification dependency — the sweep's RED/GREEN/verify cycle uses the lint rule as its gate"
+      constraint: "RED = lint flags all 51 cards missing/deviant; GREEN = lint reports zero missing/deviant (SC-1 evidence); the rule must be content-based and position-independent per spec Edge Cases"
+
+    - source: "phase 3 card sweep output (guard embedded in cards, R-1)"
+      target: "phase 5 SC-3 card-leak behavioral test"
+      type: "runtime dependency — the behavioral test exercises the guard embedded by the sweep"
+      constraint: "SC-3 asserts BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD with no dispatch attempt; test cannot pass until the swept cards carry the mechanical guard"
+
+    - source: "phase 4 plan template guard emission (writing-plans, R-3)"
+      target: "phase 5 SC-2 (create emits guarded plan) and SC-4 (plan-leak test)"
+      type: "runtime dependency — behavioral tests exercise the guard emitted by the template"
+      constraint: "SC-2 asserts the emitted plan contains the canonical guard; SC-4 asserts BLOCKED + ORCHESTRATOR_ONLY_PLAN with no phase execution; both require the template change to have landed"
+
+    - source: "phase 2 audit plan-fidelity FAIL class (R-4)"
+      target: "phase 5 SC-6b plan-audit fixture test"
+      type: "verification dependency — the fixture test exercises the audit finding class"
+      constraint: "SC-6b runs the plan-fidelity audit against a fixture plan missing the guard via opencode run and asserts a FAIL finding naming the missing guard"
+
+    - source: "canonical guard discriminator (task-tool presence)"
+      target: "all guard consumers (51 cards, plan template, lint pattern, audit finding, behavioral assertions)"
+      type: "semantic contract — single source of truth for the identification signal"
+      constraint: "the sole discriminator is absence of a tool named 'task'; the skill tool is NOT a discriminator (probe ses_f9ac0f59bffetMsE6s3sQOHoQ8: skill present in sub-agent context). Reason codes: ORCHESTRATOR_ONLY_SKILL_CARD (cards), ORCHESTRATOR_ONLY_PLAN (plans). Guard governs ACTION, not perception"

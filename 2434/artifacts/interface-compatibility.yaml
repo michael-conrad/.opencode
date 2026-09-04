@@ -1,0 +1,91 @@
+# Interface-compatibility analysis for .opencode#2434 (backfill — retroactive)
+# Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
+interface_boundaries:
+  - boundary: "behavior_run() function signature"
+    source: ".opencode/tests-v2/behaviors/helpers.sh line 649"
+    signature: "behavior_run(scenario_name, message, [model=DEFAULT_TEST_MODEL], [workdir], [agent])"
+    compatibility: "UNCHANGED — the pre-flight gate is inserted inside the function body before the flock; no positional/keyword parameter is added, no return-value contract change. All 182 consumers keep their invocation shape (R-11)."
+  - boundary: "with-test-home CLI contract"
+    source: ".opencode/tests-v2/with-test-home"
+    compatibility: "EXIT-CODE CHANGE (intentional, D1): previously exit 0 with a WARNING when local submodule HEAD was uncheckoutable; now exit 1 with a remediation-naming FAIL. Success-path contract (exit 0, test home produced) is preserved for pushed-HEAD states (R-14). Callers are human agents invoking the documented command; the failure path change is the spec's purpose."
+  - boundary: "FATAL:/HARNESS_FAILURE: message-prefix convention"
+    source: ".opencode/tests-v2/with-test-home (HARNESS_FAILURE clone-failure block), .opencode/tests-v2/behaviors/helpers.sh (lock contention, mutual exclusion)"
+    compatibility: "EXTENDED — new gate failure messages reuse the same prefixes verbatim (R-3). No convention change; stderr as the message channel preserved."
+  - boundary: "BEHAVIOR_SUBMODULE_COMMIT environment variable"
+    source: ".opencode/tests-v2/behaviors/helpers.sh behavior_run() pin resolution"
+    semantics: "Overrides WHICH submodule commit is tested; when unset, the remote default branch is used"
+    compatibility: "SEMANTICS PRESERVED with one behavioral addition (R-4): when the pin is set to an unpushed SHA, the gate now FAILs instead of silently proceeding. Pin-to-pushed-SHA and unset paths behave identically to today."
+  - boundary: "behavioral script invocation contract (182 consumers)"
+    source: "bash .opencode/tests-v2/behaviors/<scenario>.sh"
+    compatibility: "UNCHANGED — scripts source helpers.sh and call behavior_run() unchanged; the gate is inherited (R-11). Failure only occurs in git states that today produce silently-wrong runs."
+  - boundary: "tests-v2/AGENTS.md §4/§5 documentation contract"
+    source: ".opencode/tests-v2/AGENTS.md"
+    compatibility: "CONTENT REVISION — §4 narrow DEFAULT_TEST_MODEL push note broadened to all-runs cycle; §5 WARNING-fallback language removed. No section renumbering; §1/§2/§3/§6a consumers (Items 8-9) unaffected."
+  - boundary: "TDD cycle vocabulary (091 guideline + TDD skill)"
+    source: ".opencode/guidelines/091-incremental-build.md, .opencode/skills/test-driven-development/SKILL.md"
+    compatibility: "EXTENDED — PUSH step added between COMMIT and next RED for behavioral items in both files, ordering identical (I4). Non-behavioral item cycles unchanged. No contradiction with #2433 commit-inline plan pattern (constraint I4)."
+
+dependency_contract:
+  # Concrete dependency data derived from the spec's affected files and SCs.
+  # research.md step 9 extracts this section into dependency-contract.yaml for the solve/plan tools.
+  dependencies:
+    - name: "git-cli"
+      kind: "external-tool"
+      source: "with-test-home, helpers.sh behavior_run(), and the new gate logic all shell out to git"
+      target: "git binary on PATH"
+      type_constraint: "Commands used: clone, checkout, fetch, rev-list, config, status --porcelain, rev-parse (all standard git >= 2.x; flock usage implies Linux/WSL — already a harness precondition)"
+      consumed_by: ["SC-1", "SC-2a", "SC-3", "SC-8"]
+    - name: "flock"
+      kind: "external-tool"
+      source: "helpers.sh behavior_run() line 682 (existing)"
+      target: "util-linux flock on PATH"
+      type_constraint: "Existing precondition; unchanged by this spec — the new gate runs BEFORE flock acquisition, so gate failures never touch the lock"
+      consumed_by: ["SC-3"]
+    - name: "LOCAL_SUBMODULE_COMMIT"
+      kind: "env-var"
+      source: "with-test-home resolves the local .opencode submodule HEAD at runtime"
+      target: "with-test-home clone+checkout sites 1 and 2"
+      type_constraint: "40-hex git SHA string; may be unpushed (triggers new FAIL) — the variable's producer and both consumers are inside the same script"
+      consumed_by: ["SC-1", "SC-2a"]
+    - name: "BEHAVIOR_SUBMODULE_COMMIT"
+      kind: "env-var"
+      source: "caller of behavior_run() / behavioral scenario scripts"
+      target: "helpers.sh behavior_run() pin resolution (existing) + new pre-flight gate read (R-4)"
+      type_constraint: "Optional env var; empty/unset → remote default branch; 40-hex SHA → pin, which the gate now verifies against the remote after fresh fetch"
+      consumed_by: ["SC-3"]
+    - name: "PARENT_REPO_DIR"
+      kind: "harness-env-var"
+      source: "helpers.sh environment (existing)"
+      target: "behavior_run() lock file path and new gate's git commands against the parent repo / submodule worktree"
+      type_constraint: "Absolute path to parent repo checkout; must contain the .opencode submodule worktree for git state reads"
+      consumed_by: ["SC-3"]
+    - name: "FATAL:/HARNESS_FAILURE: stderr prefixes"
+      kind: "message-convention"
+      source: "existing harness failure blocks (verified this session)"
+      target: "all new gate failure messages (R-3)"
+      type_constraint: "Exact literal prefixes; stderr channel; message must name the commit+push+fetch remediation"
+      consumed_by: ["SC-1", "SC-2a", "SC-3"]
+    - name: "tests-v2/AGENTS.md §4 infrastructure-maintenance carve-out"
+      kind: "doc-convention"
+      source: ".opencode/tests-v2/AGENTS.md §4 FORBIDDEN block (line 224, verified this session)"
+      target: "agent remediation behavior on gate failure; §4 rewrite; root AGENTS.md lesson reference"
+      type_constraint: "Prose contract: test-framework fixes authorize autonomous agent commit+push without authorization solicitation; §4 rewrite extends this framing to all runs"
+      consumed_by: ["SC-4a", "SC-7", "SC-8"]
+    - name: "tests-v2/AGENTS.md §6a two-SC pattern"
+      kind: "doc-convention"
+      source: ".opencode/tests-v2/AGENTS.md §6a (verified this session per spec Dependencies table)"
+      target: "Items 8-9 (SC-8 artifact generation, SC-9 clean-room evaluation)"
+      type_constraint: "Prose contract: artifact-only generator produces session.yaml; clean-room evaluator reads ONLY artifact path + criterion; no orchestrator reasoning or expected outcomes passed"
+      consumed_by: ["SC-8", "SC-9"]
+    - name: "DEFAULT_TEST_MODEL"
+      kind: "env-var"
+      source: ".opencode/tests-v2/default-model.sh (single source of truth)"
+      target: "behavior_run() model parameter default (existing) and Item 8 opencode run"
+      type_constraint: "Model id string 'ollama/qwen3.8:27b-256k-gguf4' (§10.4 verified); MUST NOT be substituted by the agent (§10.4 mandate)"
+      consumed_by: ["SC-8"]
+    - name: "qwen3.8:27b-256k-gguf4 local model"
+      kind: "external-service"
+      source: "local Ollama server (verified per tests-v2/AGENTS.md §10.4 and spec Dependencies table)"
+      target: "Item 8 opencode run execution"
+      type_constraint: "Model availability evidenced — no fabricated unavailability claims (§10.4); bash tool timeout >= 600000 for behavioral runs"
+      consumed_by: ["SC-8"]

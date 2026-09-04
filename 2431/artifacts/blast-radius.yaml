@@ -1,0 +1,34 @@
+# Blast radius for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+phases:
+  - phase: 1
+    items: [item-1, item-2, item-3, item-4, item-5, item-6, item-7, item-10, item-11]
+    affected_components:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (authoritative site — new ordering gate: in-scope enumeration, live-API merge-state verification with bounded retry, pointers-ride-alongside rule, no-`+`-prefix and pointer-ancestry assertions, per-submodule blocking-reason reporting, waiting behavior)
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation.md (SC-5/SC-11 documentation anchor — Pre-Push Submodule Pointer Verification and waiting-behavior cross-reference)
+      - .opencode/tests-v2/behaviors/ (new artifact-only generator scripts for SC-1, SC-6, SC-7 with fixtures/issues/2431/ and fixtures/setup/ per-scenario provisioning)
+    ripple_effects:
+      - "Stacked-PR pipeline halts before parent PR creation while any in-scope submodule PR is unmerged — multi-submodule releases (Butter-style) now wait for submodule merges"
+      - "The #2313 Step 0 reachability gates remain unchanged and coexist with the new ordering gate in the same card (fail-open reachability vs fail-closed merge state)"
+      - "Parent branches idle during the wait: no commits, pushes, or PR mutations until all in-scope submodule PRs land"
+      - "Behavioral suite grows by three scenarios requiring merge-state fixture provisioning (multi-submodules + platform API merge state)"
+    risk: "Live-API merge verification can false-block when platform merge-state lags; bounded retry (3 probes at 60-second intervals) absorbs transient lag, and the block names the submodule PR so the developer can prioritize merges"
+  - phase: 2
+    items: [item-8, item-9]
+    affected_components:
+      - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md (designation of the ordering gate as the sole authoritative blocking check)
+      - .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md (advisory/consistency annotation — no blocking authority)
+      - .opencode/skills/git-workflow-pr/tasks/post-implementation.md (advisory/consistency annotation — no blocking authority)
+      - .opencode/tests-v2/behaviors/ (advisory/consistency annotation on the behavioral test role)
+    ripple_effects:
+      - "Exactly one site owns blocking authority over parent PR creation ordering — gate failures have one diagnosable owner"
+      - "The three non-selected sites gain advisory annotations that reference the authoritative gate without contradicting it"
+    risk: "low — annotations are additive card text; the designation consolidates rather than relocates blocking authority"
+
+no_ripple:
+  - "SKIP_STALE_POINTER_CHECK commit-time semantics — explicitly out of scope; the hook-documented escape hatch remains correct at commit time"
+  - "Human merge behavior — merging remains human-only; the gate observes merge state via API and never performs or requests merges"
+  - "Non-stacked (single-repo) PR flows — repos with no submodules have no in-scope set; the gate skips entirely"
+  - "Submodule PR creation/cleanup automation — the gate verifies merge state only"
+  - "#2313 reachability gate semantics — fail-open policy on network error is unchanged and governs only reachability, not merge state"

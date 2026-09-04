@@ -1,0 +1,28 @@
+# Cross-cutting matrix for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+cross_cutting_concerns:
+  - concern: "Fail-closed vs fail-open semantics boundary"
+    phases: [1]
+    detail: "The ordering gate is deliberately fail-closed on inconclusive state (network error, mergeable null, PR not found) while the #2313 reachability gates in the same card are fail-open on network error. The two policies coexist: #2313 governs reachability only; the ordering gate governs merge state. Card text must keep the two clearly separated so an agent does not apply the wrong policy."
+    impact: "high — mixing the policies either blocks legitimate PRs on network flakiness (applying fail-closed to reachability) or ships unmergeable parent PRs (applying fail-open to merge state)"
+  - concern: "Ancestry vs merge-state distinction"
+    phases: [1]
+    detail: "The gate runs BOTH an ancestry assertion (pointer SHA is an ancestor of origin/$DEFAULT_BRANCH) AND a live-API merge-state verification. They are not interchangeable: the #304 failure showed ancestry can pass while merge state is open/unmerged (pointers referencing unmerged feature-branch SHAs legitimately pass reachability checks yet are unmergeable). The card text must present them as separate conditions with separate failure categories (stale pointer vs unmerged PR)."
+    impact: "high — conflating ancestry with merge state re-creates the exact #304 masking factor the gate exists to close"
+  - concern: "Pointers-ride-alongside convention coherence"
+    phases: [1, 2]
+    detail: "The ordering gate's timing rule (pointer bumps committed after merges land) must stay consistent with the established pointers-ride-alongside convention across pr-creation.md (Pre-Push Submodule Pointer Verification), pre-commit-pointer-check.md, and the Submodule-Bump-Only PR Gate in the same enforcement-gate card. Pointer bumps ride alongside real parent changes; they are never standalone and never committed before merges land for in-scope submodules."
+    impact: "medium — a divergent timing statement across cards produces contradictory commit-time vs PR-time guidance"
+  - concern: "Waiting behavior vs branch-activity invariants"
+    phases: [1]
+    detail: "The waiting statement (parent branch sits idle — no commits, pushes, or PR mutations until all in-scope submodule PRs land) interacts with edge cases: developer pushes new parent commits mid-wait (lands on the same branch before PR creation, gate re-verifies) and the bounded retry race (submodule PR merges while probing; next probe observes merged state). Card text must define idle as 'no mutations until verification passes at the next attempt', not as an indefinite freeze."
+    impact: "medium — undefined waiting behavior invites commits or PR mutations mid-wait, invalidating the gate's verification at PR creation"
+  - concern: "Behavioral evidence infrastructure coupling"
+    phases: [1]
+    detail: "SC-1, SC-6, SC-7 behavioral tests depend on the tests-v2 harness's multi-submodule provisioning (BEHAVIOR_NEEDS_MULTI_SUBMODULES=1, test-submodule-1/test-submodule-2 reachable remotes), the two-SC pattern (artifact-only generator + clean-room evaluation), and the 600s+ bash tool timeout mandate. SC-4's bounded-retry parameters (3 probes, 60-second intervals) must be stated in the card as text verified by grep — the behavioral test does not run the 180-second retry loop itself."
+    impact: "medium — fixture/provisioning gaps fail the behavioral tests at runtime (harness failure, not gate defect)"
+  - concern: "Skip semantics for out-of-scope repos"
+    phases: [1]
+    detail: "Repos with no submodules (empty git submodule status) and branches with no changed submodule pointers have no in-scope set; the gate skips entirely or passes the merge-state condition respectively. Single-repo PR flow behavior is unchanged. The skip must be explicit, not a silent pass through unverifiable checks."
+    impact: "low — explicit skip conditions prevent the gate from firing on single-repo flows"

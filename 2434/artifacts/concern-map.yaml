@@ -1,0 +1,27 @@
+# Concern map for .opencode#2434 (backfill — retroactive)
+# Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
+# Decomposes the 11 SCs into concern groups, each mapped to a phase boundary.
+concern_groups:
+  - group_id: "A-harness-hardening"
+    concern: "Machine gates in the test harness (with-test-home clone+checkout sites, behavior_run() pre-flight)"
+    phase_boundary: "Phase A"
+    scs: ["SC-1", "SC-2a", "SC-2b", "SC-3"]
+    rationale: "Pure code changes to the two harness entry points; gates fire before flock/model dispatch; zero documentation coupling"
+  - group_id: "B-durable-rule-encoding"
+    concern: "Documentation encoding the commit → push → fetch/verify → run cycle (AGENTS.md §4/§5, 091 cycle table, TDD skill pattern tables, root lessons)"
+    phase_boundary: "Phase B"
+    scs: ["SC-4a", "SC-4b", "SC-5", "SC-6", "SC-7"]
+    rationale: "All string-evidence doc edits; single definition shared between doc and gate (D4) — 091 and TDD skill must carry identical ordering (I4 cross-consistency)"
+  - group_id: "C-end-to-end-verification"
+    concern: "Agent cycle compliance verified via the §6a two-SC pattern (artifact generation + clean-room evaluation)"
+    phase_boundary: "Phase C"
+    scs: ["SC-8", "SC-9"]
+    rationale: "Depends on Phase B rule changes having landed; consumes opencode run + clean-room sub-agent evaluation; no further code/doc edits"
+phase_ordering:
+  - "Phase A (harness hardening) — no dependencies on later phases"
+  - "Phase B (rule encoding) — no code dependency on Phase A, but doc text must match the implemented gate predicate (D4, R-10), so Phase A precedes Phase B"
+  - "Phase C (end-to-end verification) — requires Phase B changes landed so the agent-under-test reads the amended rules"
+dependency_notes:
+  - "SC-2b depends on SC-2a (guard identity verified after the site-2 mirror)"
+  - "SC-4b may share Item 4a's commit (same file, adjacent sections)"
+  - "SC-9 strictly follows SC-8 (evaluates SC-8's session.yaml artifact)"

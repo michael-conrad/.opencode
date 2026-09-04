@@ -1,0 +1,49 @@
+# State analysis for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+state_machines:
+  - machine: "Sub-agent guard state (per dispatch)"
+    phases: [3, 4]
+    transitions:
+      - from: "sub-agent receives full card/plan, no mechanical signal available; consumes routing metadata it cannot execute (calls it cannot make), malfunctions"
+        to: "sub-agent checks tool list for a tool named 'task'; absent => returns BLOCKED with ORCHESTRATOR_ONLY_SKILL_CARD (cards) or ORCHESTRATOR_ONLY_PLAN (plans) and halts before executing any instruction"
+        trigger: "item-1 (card sweep) / item-2 (plan template) RED->GREEN commits embedding the canonical mechanical guard"
+        invariant: "guard governs ACTION, not perception — reading already happened; execution is what is forbidden. No dispatch attempt (cards) / no phase execution (plans) occurs after the guard"
+        failure_mode: "sub-agent keys on the skill tool (present in sub-agent context) instead of task absence and reasons itself into orchestrator mode; canonical text must name task as the sole discriminator"
+
+  - machine: "Orchestrator dispatch flow"
+    phases: [3, 5]
+    transitions:
+      - from: "orchestrator loads guarded card, proceeds to Trigger Dispatch Table use"
+        to: "orchestrator checks tool list; tool named 'task' present => proceeds normally, no BLOCKED emitted"
+        trigger: "guard present in card (item-1) + SC-5 behavioral scenario verifying progression"
+        invariant: "no false halt — the guard adds a check, not a gate, for orchestrators. Observable pass condition: session reaches TDT use with zero BLOCKED output"
+        failure_mode: "guard over-fires (orchestrator misreads itself as sub-agent) — SC-5 is the recovery gate that catches any such regression"
+
+  - machine: "Deck lint conformance state (per SKILL.md)"
+    phases: [2, 3]
+    transitions:
+      - from: "card carries prose-only guard (or none); lint has no guard rule"
+        to: "lint flags any card missing the canonical guard or carrying a deviant (non-mechanical) variant; after the sweep all 51 cards conform and lint reports zero findings"
+        trigger: "item-6 rule lands (phase 2), then item-1 sweep lands (phase 3)"
+        invariant: "content-based, position-independent pattern check — guard placement after other sections does not evade the flag; a fixture missing the guard is always flagged, never silently passed"
+        failure_mode: "rule landing before the sweep makes the deck temporarily red (expected, = item-1 RED); a miss in the sweep's 51-file edit leaves exactly the cards lint flags"
+
+  - machine: "Plan artifact guard state (per produced plan)"
+    phases: [4, 2, 5]
+    transitions:
+      - from: "plans produced with no guard at all; plan-fidelity audit has no guard finding class"
+        to: "every plan emitted by writing-plans create/revise carries the canonical guard with ORCHESTRATOR_ONLY_PLAN; audit flags any plan missing it as a FAIL finding"
+        trigger: "item-2 template change (phase 4) + item-6 audit finding class (phase 2)"
+        invariant: "backward compatible — existing pre-guard plans stay valid; new plans are self-describing. Audit flags fixtures, never silently passes"
+        failure_mode: "template change lands but create/revise tasks do not emit the section (emission step missing) — SC-2 behavioral test catches this"
+
+  - machine: "Fixture flagging state (lint + audit self-test)"
+    phases: [2, 5]
+    transitions:
+      - from: "guard-missing fixture passes silently (no rule exists)"
+        to: "deck lint flags the fixture card (SC-6a, structural); plan audit FAIL-finding names the fixture plan's missing guard (SC-6b, behavioral)"
+        trigger: "item-6/item-7 RED->GREEN commits adding the rules + fixtures"
+        invariant: "a missing guard can never produce a silent PASS from either checker"
+        failure_mode: "tooling unavailable — lint/audit command failure is a hard FAIL (BLOCKED with tool-missing reason), never a silent pass"

@@ -1,0 +1,60 @@
+# Testability assessment for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+test_strategy:
+  - item: item-1
+    sc_id: SC-1
+    evidence_type: string
+    test_strategy: "string — run deck lint (skildeck lint / validate_skill_cards.py) guard-verbatim pattern check across all 51 SKILL.md files; inspect lint output for zero missing/deviant"
+    test_script: "./.opencode/tools/skildeck lint (guard rule); verify output reports 0 cards missing/deviant the canonical guard"
+    notes: "RED: lint flags all 51 cards (prose guard deviates from canonical mechanical text). GREEN: zero flags. Evidence type is string per spec — content-based, position-independent pattern check"
+
+  - item: item-2
+    sc_id: SC-2
+    evidence_type: behavioral
+    test_strategy: "behavioral — tests-v2 scenario: run writing-plans create on a test spec via bash .opencode/tests-v2/with-test-home opencode run '<message>'; assert the emitted plan contains the canonical guard"
+    test_script: "tests-v2 harness (with-test-home, >=600s timeout); assert guard text present in produced plan file"
+    notes: "RED: produced plan has no guard section. GREEN: plan carries canonical guard with ORCHESTRATOR_ONLY_PLAN. Real-model execution required — not grep"
+
+  - item: item-3
+    sc_id: SC-3
+    evidence_type: behavioral
+    test_strategy: "behavioral — tests-v2 scenario: dispatch a sub-agent with a full card via opencode run; assert BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD in stderr, no dispatch attempt"
+    test_script: "tests-v2 harness; stderr assertions (assert_stderr_pattern_present) — behavioral evidence = agent actions in stderr, not prose recall"
+    notes: "RED: sub-agent executes routing instructions without returning BLOCKED. GREEN: guard fires. Probe ses_f9ac0429effeFtp1UF2JH91EuF demonstrates the mechanical form works"
+
+  - item: item-4
+    sc_id: SC-4
+    evidence_type: behavioral
+    test_strategy: "behavioral — tests-v2 scenario: dispatch a sub-agent with a plan file via opencode run; assert BLOCKED + ORCHESTRATOR_ONLY_PLAN, no phase execution"
+    test_script: "tests-v2 harness; stderr assertions for reason code and absence of phase-execution actions"
+    notes: "RED: sub-agent executes plan phases. GREEN: guard fires with plan-class reason code"
+
+  - item: item-5
+    sc_id: SC-5
+    evidence_type: behavioral
+    test_strategy: "behavioral — tests-v2 scenario: orchestrator session loads a guarded card via opencode run; assert progression to Trigger Dispatch Table use and absence of any BLOCKED output"
+    test_script: "tests-v2 harness; assert_stderr_pattern_absent for BLOCKED + positive signal of TDT progression"
+    notes: "Recovery gate for guard over-firing. RED: false halt. GREEN: orchestrator proceeds normally"
+
+  - item: item-6
+    sc_id: SC-6a
+    evidence_type: structural
+    test_strategy: "structural — run deck lint against a fixture card missing the guard; record the flagged verdict"
+    test_script: "./.opencode/tools/skildeck lint with fixture; record flagged verdict as evidence artifact"
+    notes: "RED: no flag (rule absent). GREEN: fixture flagged. Structural evidence type is legitimate here — the change is a lint rule, and the fixture run IS the behavioral output of that rule"
+
+  - item: item-7
+    sc_id: SC-6b
+    evidence_type: behavioral
+    test_strategy: "behavioral — tests-v2 scenario: run the audit plan-fidelity path against a fixture plan missing the guard via opencode run; assert a FAIL finding naming the missing guard"
+    test_script: "tests-v2 harness; assert FAIL finding text in output"
+    notes: "RED: audit reports no finding. GREEN: FAIL finding present. Real-model run required — the audit path is agent-executed"
+
+testability_risks:
+  - "Behavioral scenarios (SC-2..SC-5, SC-6b) require >=600s bash timeouts per tests-v2 AGENTS.md 10.2; default 120s kills 35B model inference mid-run"
+  - "Stale lock: rm -f tmp/.behavior-run.lock before re-runs (tests-v2 AGENTS.md 10.1)"
+  - "SC-5 (no-false-halt) depends on orchestrator tooling having task present — a platform change to sub-agent/orchestrator tool lists invalidates the discriminator and both SC-3/SC-5 simultaneously; probe evidence is dated 2026-09-02"
+  - "SC-1 verbatim semantics: minor whitespace/formatting drift between the canonical reference doc and embedded copies would flag; the lint rule and sweep must agree on the exact canonical block"
+  - "Lint-before-sweep ordering: item-6 landing before item-1 makes the full deck intentionally red between phase-2 and phase-3 GREEN — CI/lint output must not be misread as regression in that window"

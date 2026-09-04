@@ -1,0 +1,34 @@
+# Concern map for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+concerns:
+  - concern: "Canonical guard definition (single reference)"
+    owner_file: ".opencode/guidelines/ (new canonical reference doc + INDEX.md cross-link)"
+    phases: [1]
+    items: []
+    boundary: "the canonical mechanical guard text exists exactly once as a reference definition under .opencode/guidelines/; all other surfaces embed or reference it verbatim (R-2). The guard checks the tool list for a tool named 'task': present = orchestrator proceeds; absent = sub-agent returns BLOCKED with the artifact-class reason code and halts"
+
+  - concern: "Lint/audit flagging enforcement"
+    owner_file: ".opencode/tools/skildeck (impl rule), .opencode/skills/skill-creator/scripts/validate_skill_cards.py, .opencode/skills/audit/tasks/plan-fidelity-*.md"
+    phases: [2]
+    items: [item-6]
+    boundary: "deck lint flags any SKILL.md missing the canonical guard or carrying a deviant (non-mechanical) guard; the audit plan-fidelity path flags any plan missing the guard as a FAIL finding (R-4). Content-based, position-independent pattern check — placement after other sections does not silence the flag"
+
+  - concern: "Card sweep verbatim embedding"
+    owner_file: "51 SKILL.md files: 48 top-level .opencode/skills/*/SKILL.md + 3 nested platform cards under .opencode/skills/issue-operations/platforms/"
+    phases: [3]
+    items: [item-1]
+    boundary: "every card's prose guard is replaced with the canonical mechanical guard verbatim, reason code ORCHESTRATOR_ONLY_SKILL_CARD; TDTs, dispatch strings, and result contracts are untouched. Nested platform cards are included because they are dispatched the same way via task()"
+
+  - concern: "Plan template guard emission"
+    owner_file: ".opencode/skills/writing-plans/ (template + tasks/create.md, tasks/revise.md)"
+    phases: [4]
+    items: [item-2]
+    boundary: "every plan file produced by writing-plans embeds the canonical guard with reason code ORCHESTRATOR_ONLY_PLAN (R-3); plans are orchestrator-only documents read by executing-plans at orchestrator level"
+
+  - concern: "Behavioral enforcement coverage"
+    owner_file: ".opencode/tests-v2/behaviors/ (new scenarios) via tests-v2 harness (opencode run against real models)"
+    phases: [5]
+    items: [item-3, item-4, item-5, item-7]
+    boundary: "behavioral tests cover: guard fires on card leak (BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD, no dispatch attempt); guard fires on plan leak (BLOCKED + ORCHESTRATOR_ONLY_PLAN, no phase execution); no false halt when an orchestrator loads a card; writing-plans create produces a guarded plan; lint + audit flag a fixture missing the guard (R-5). Prose recall is not accepted — assertions use stderr behavioral evidence"

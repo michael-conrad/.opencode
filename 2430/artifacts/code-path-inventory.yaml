@@ -1,0 +1,65 @@
+# Code path inventory for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+code_paths:
+  - phase: 1
+    items: []
+    paths:
+      - path: ".opencode/guidelines/ (new file: canonical-guard reference)"
+        location: "single reference definition of the mechanical Pre-Flight Guard"
+        change: "create the canonical guard reference document (guard text from the spec's Intent preamble: task-tool present/absent check, ORCHESTRATOR_ONLY_SKILL_CARD + ORCHESTRATOR_ONLY_PLAN reason codes, action-not-perception semantic note) and register a cross-link in .opencode/guidelines/INDEX.md"
+    consumers_of_change:
+      - "all 51 SKILL.md cards (phase 3 embed the guard verbatim)"
+      - "writing-plans plan template (phase 4 embeds the guard with ORCHESTRATOR_ONLY_PLAN)"
+      - "deck lint + skill-creator validation + audit plan-fidelity (phase 2 verify against the canonical text)"
+
+  - phase: 2
+    items: [item-6]
+    paths:
+      - path: ".opencode/tools/skildeck"
+        location: "lint action (delegates to .opencode/tools/impl/skildeck/ rule modules)"
+        change: "add a guard-verbatim lint rule: flag any SKILL.md missing the canonical guard or carrying a deviant (non-mechanical, prose-only) guard; content-based, position-independent pattern check"
+      - path: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+        location: "card validation checks"
+        change: "add validation that every card embeds the canonical guard verbatim (R-2 verification step)"
+      - path: ".opencode/skills/audit/tasks/plan-fidelity-validator.md (and investigator/evaluator/arbiter roles)"
+        location: "plan-fidelity audit pipeline"
+        change: "add a FAIL finding class: any plan missing the canonical guard (ORCHESTRATOR_ONLY_PLAN) is a plan-fidelity FAIL"
+    consumers_of_change:
+      - "skildeck lint invocations (CI / agent sessions) — deck-wide guard enforcement"
+      - "skill-creator create/update flows — every future card validated for guard verbatim"
+      - "audit skill plan-fidelity audits — every future plan audited for guard presence"
+
+  - phase: 3
+    items: [item-1]
+    paths:
+      - path: ".opencode/skills/*/SKILL.md (48 top-level cards)"
+        location: "Pre-Flight Guard section (e.g. git-workflow/SKILL.md:22-26 currently carries the prose-only variant)"
+        change: "replace prose-only guard with the canonical mechanical guard verbatim, reason code ORCHESTRATOR_ONLY_SKILL_CARD; no other section touched"
+      - path: ".opencode/skills/issue-operations/platforms/{github-mcp,gitbucket-api,local}/SKILL.md (3 nested platform cards)"
+        location: "Pre-Flight Guard section"
+        change: "same replacement; included because nested platform cards are dispatched the same way via task()"
+    consumers_of_change:
+      - "every sub-agent dispatched with a card via task() — guard fires before routing metadata is consumed"
+      - "deck lint (phase 2 rule) — verifies all 51 cards carry the guard verbatim (SC-1)"
+
+  - phase: 4
+    items: [item-2]
+    paths:
+      - path: ".opencode/skills/writing-plans/ (plan template)"
+        location: "plan document structure emitted by tasks/create.md (structured markdown with frontmatter dispatch array)"
+        change: "add the canonical guard with reason code ORCHESTRATOR_ONLY_PLAN to the plan template; create/revise tasks emit it on every produced plan"
+    consumers_of_change:
+      - "executing-plans (reads plans at orchestrator level, dispatches phases via task())"
+      - "sub-agents dispatched with a plan file via task() — guard fires with ORCHESTRATOR_ONLY_PLAN before phase execution"
+
+  - phase: 5
+    items: [item-3, item-4, item-5, item-7]
+    paths:
+      - path: ".opencode/tests-v2/behaviors/"
+        location: "new behavioral scenario scripts following existing naming convention (<issue>-sc<N>-<slug>.sh)"
+        change: "add scenarios: card-leak BLOCKED (SC-3), plan-leak BLOCKED (SC-4), orchestrator no-false-halt (SC-5), writing-plans create emits guarded plan (SC-2), plan-audit fixture flagging (SC-6b); run via bash .opencode/tests-v2/with-test-home opencode run '<message>' with >=600s timeouts"
+    consumers_of_change:
+      - "tests-v2 harness — regression gate for card/plan template changes"
+      - "verification-before-completion — behavioral evidence source for SC-2..SC-5, SC-6b"

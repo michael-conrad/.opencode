@@ -1,0 +1,64 @@
+# Blast radius for issue 2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Backfilled retroactively by writing-plans/tasks/backfill.md (mode: retroactive), 2026-09-04
+
+phases:
+  - phase: 1
+    items: []
+    affected_components:
+      - ".opencode/guidelines/ (new canonical Pre-Flight Guard reference document)"
+      - ".opencode/guidelines/INDEX.md (cross-link registration)"
+    ripple_effects:
+      - "All guard-consuming surfaces (cards, plans, lint, audit, tests) must reference the single canonical definition — no divergent inline variants"
+      - "R-2 single-reference constraint: any later guard wording change happens in exactly one file"
+    risk: "low — purely additive new document; no existing content restructured"
+
+  - phase: 2
+    items: [item-6]
+    affected_components:
+      - ".opencode/tools/skildeck (lint action -> impl/skildeck/ rule modules)"
+      - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py (guard-verbatim check)"
+      - ".opencode/skills/audit/tasks/plan-fidelity-{investigator,evaluator,arbiter}.md (new FAIL finding class for plans missing the guard)"
+    ripple_effects:
+      - "Every SKILL.md in the deck becomes subject to the new lint rule — pre-existing cards without the guard will flag once the rule lands (ahead of the phase-3 sweep)"
+      - "skill-creator card validation behavior changes for all future create/update flows"
+      - "audit plan-fidelity path gains a new finding class; existing audit pipelines see a new possible FAIL verdict"
+    risk: "medium — lint rule landing before the sweep makes the deck temporarily red; item ordering within phases must land the sweep's GREEN before CI/lint gates are treated as authoritative"
+
+  - phase: 3
+    items: [item-1]
+    affected_components:
+      - "48 top-level .opencode/skills/*/SKILL.md files (prose guard replaced with canonical mechanical guard)"
+      - "3 nested platform cards: .opencode/skills/issue-operations/platforms/{github-mcp,gitbucket-api,local}/SKILL.md"
+    ripple_effects:
+      - "All 51 cards change the Pre-Flight Guard section in-place; TDTs, dispatch strings, and result contracts untouched (strictly additive, per spec Key Decision 4)"
+      - "Live dispatches during the sweep see either guard variant — both instruct sub-agents to return BLOCKED, so concurrent dispatch behavior is unchanged in effect"
+      - "skill-creator validation (phase 2 rule) verifies the new text verbatim going forward"
+    risk: "medium — 51-file mechanical edit; a partial/missed replacement leaves a prose-guard card that phase-2 lint must catch"
+
+  - phase: 4
+    items: [item-2]
+    affected_components:
+      - ".opencode/skills/writing-plans/ (plan template guard section, reason code ORCHESTRATOR_ONLY_PLAN)"
+      - ".opencode/skills/writing-plans/tasks/create.md and tasks/revise.md (guard emission steps)"
+    ripple_effects:
+      - "Every plan file produced after this change carries the guard; plans are read by executing-plans at orchestrator level and dispatched via task() — plan structure otherwise unchanged"
+      - "Existing (pre-guard) plans remain valid; no retroactive plan regeneration required"
+    risk: "low — additive template section; backward compatible with existing plan consumers"
+
+  - phase: 5
+    items: [item-3, item-4, item-5, item-7]
+    affected_components:
+      - ".opencode/tests-v2/behaviors/ (new enforcement scenario scripts: card-leak, plan-leak, no-false-halt, plan-audit fixture)"
+      - "tests-v2 harness (opencode run against real models)"
+    ripple_effects:
+      - "Behavioral scenarios become the regression gate for every future card/plan template change"
+      - "SC-5 no-false-halt is the recovery gate: any over-firing guard variant fails this test"
+    risk: "low — tests only; runtime cost per run is minutes of model execution"
+
+no_ripple:
+  - "Dispatch strings, Trigger Dispatch Tables, result contracts — spec non-goals; guard is strictly additive and MUST NOT restructure routing"
+  - "opencode.jsonc permission.task deny backstop — explicitly Not Included (separate decision)"
+  - ".opencode/tools/local-issues PROJECT_DIR defect — noted in spec as separate defect, NOT part of this spec"
+  - "Root-repo (snea-phonetics) files — explicitly out of scope"
+  - "session-enforcement.ts / plugin pipeline — no plugin changes required; guard lives in artifact content"

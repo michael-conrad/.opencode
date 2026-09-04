@@ -1,0 +1,76 @@
+# Testability assessment for issue 2431
+# Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+
+test_strategy:
+  - item: item-1
+    sc_id: SC-1
+    evidence_type: behavioral
+    test_strategy: "behavioral — artifact-only generator script in tests-v2/behaviors/ sends a real-domain prompt through opencode run (via with-test-home, bash tool timeout >= 600000ms): scenario reaches parent stacked PR creation with one in-scope submodule PR open; clean-room evaluation sub-agent reads session.yaml and judges that the gate blocks and no parent PR is created"
+    test_script: ".opencode/tests-v2/behaviors/2431-sc1-unmerged-submodule-block.sh (artifact generation) + clean-room evaluation dispatch (per the two-SC pattern in tests-v2/AGENTS.md §6a)"
+    notes: "RED: gate does not block; a parent PR would be created. GREEN: gate blocks with SUBMODULE_PR unmerged category naming the submodule and its PR. Requires BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 provisioning and fixtures/issues/2431/. Monitoring per §14 (BEHAVIOR_SEMANTIC_MONITOR=1) with recorded poll evidence."
+  - item: item-2
+    sc_id: SC-2
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for in-scope-set enumeration language (changed submodule paths relative to the trunk base) preceding merge verification"
+    test_script: "grep the enforcement-gate card for enumeration language: changed submodule paths / gitlink changes relative to the trunk base"
+    notes: "RED: no enumeration language. GREEN: enumeration documented as the in-scope mechanism before merge verification."
+  - item: item-3
+    sc_id: SC-3
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for live platform API merge-state verification language (merged, merged_at) and for the prohibition on inferring merge state from local checkout state or from git merge-base ancestry"
+    test_script: "grep the enforcement-gate card for live-API verification language and the never-inferred-from-local-state-or-ancestry prohibition"
+    notes: "RED: card lacks live-API verification or lacks the prohibition. GREEN: both present. GitHub REST API merge-state fields verified live 2026-09-04 per spec Documentation Sources."
+  - item: item-4
+    sc_id: SC-4
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for the bounded-retry parameters (up to 3 probes, 60-second intervals) and the inconclusive-block reason reporting destination (chat, naming the inconclusive submodule and its PR)"
+    test_script: "grep the enforcement-gate card for '3 probes' / '60-second' interval language and chat-reported inconclusive block"
+    notes: "RED: retry parameters or report destination absent. GREEN: bounded retry (3 probes at 60-second intervals) and fail-closed inconclusive block documented. The behavioral test does not execute the 180-second retry loop itself — the parameters are card text verified by grep."
+  - item: item-5
+    sc_id: SC-5
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for the pointers-ride-alongside rule requiring pointer bumps committed on the parent feature branch after the merges land so the parent PR's squashed commit carries fresh pointers"
+    test_script: "grep the enforcement-gate card (and the pr-creation.md anchor) for the timing rule: pointer bumps committed after merges land"
+    notes: "RED: timing rule absent. GREEN: timing rule present and consistent with the Pre-Push Submodule Pointer Verification language in pr-creation.md."
+  - item: item-6
+    sc_id: SC-6
+    evidence_type: behavioral
+    test_strategy: "behavioral — artifact-only generator script: scenario reaches parent stacked PR creation with a +-prefixed in-scope submodule (working tree divergent from recorded pointer); clean-room evaluation sub-agent reads session.yaml and judges that the gate blocks"
+    test_script: ".opencode/tests-v2/behaviors/2431-sc6-plus-prefix-block.sh (artifact generation) + clean-room evaluation dispatch"
+    notes: "RED: gate does not block. GREEN: gate blocks with the +-prefixed working tree category. Per-scenario fixture in fixtures/setup/ creates the divergent working-tree state."
+  - item: item-7
+    sc_id: SC-7
+    evidence_type: behavioral
+    test_strategy: "behavioral — artifact-only generator script: scenario reaches parent stacked PR creation with an in-scope pointer referencing a commit absent from origin/$DEFAULT_BRANCH (dynamically resolved per submodule); clean-room evaluation sub-agent reads session.yaml and judges that the gate blocks"
+    test_script: ".opencode/tests-v2/behaviors/2431-sc7-pointer-ancestry-block.sh (artifact generation) + clean-room evaluation dispatch"
+    notes: "RED: gate does not block. GREEN: gate blocks with the stale-pointer category. Uses the #2313 origin/$DEFAULT_BRANCH convention and test-submodule-1 reachable-remote provisioning (default branch dev) so ancestry is verified against a genuine reachable ref."
+  - item: item-8
+    sc_id: SC-8
+    evidence_type: semantic
+    test_strategy: "semantic — clean-room sub-agent reads the four enforcement sites (pr-creation/enforcement-gate, git-workflow-branch pre-commit-pointer-check, git-workflow-pr post-implementation, tests-v2 behavioral test) and judges that exactly one authoritative blocking check is assigned (pr-creation/enforcement-gate)"
+    test_script: "clean-room sub-agent dispatch; sub-agent returns PASS/FAIL with one-sentence justification"
+    notes: "RED: sub-agent cannot identify exactly one designated authoritative blocking check. GREEN: sub-agent judges the designation is unambiguous. Sub-agent receives only the four site paths and the SC criterion — no orchestrator reasoning or expected outcomes."
+  - item: item-9
+    sc_id: SC-9
+    evidence_type: semantic
+    test_strategy: "semantic — clean-room sub-agent reads the three non-selected sites and judges that each carries advisory/consistency roles for the ordering gate with no blocking authority"
+    test_script: "clean-room sub-agent dispatch; sub-agent returns PASS/FAIL with one-sentence justification"
+    notes: "RED: sub-agent finds blocking authority or a missing advisory annotation at a non-selected site. GREEN: sub-agent judges all three sites advisory/consistency only."
+  - item: item-10
+    sc_id: SC-10
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for per-submodule blocking-reason reporting covering the four categories (unmerged PR, inconclusive state, stale pointer, +-prefixed working tree), each naming the submodule and its PR"
+    test_script: "grep the enforcement-gate card for the four blocking-reason categories and per-submodule naming in the result contract"
+    notes: "RED: reporting language absent or incomplete (fewer than four categories). GREEN: all four categories present with submodule + PR naming."
+  - item: item-11
+    sc_id: SC-11
+    evidence_type: structural
+    test_strategy: "string — grep the authoritative task card for waiting-behavior language (parent branch sits idle; no commits, pushes, or PR mutations until all in-scope submodule PRs land)"
+    test_script: "grep the enforcement-gate card for the waiting-behavior statement"
+    notes: "RED: waiting behavior undefined. GREEN: idle-wait statement present, aligned with pr-creation.md."
+
+testability_risks:
+  - "Behavioral tests (SC-1, SC-6, SC-7) require the multi-submodule harness provisioning (BEHAVIOR_NEEDS_MULTI_SUBMODULES=1) and platform merge-state fixtures; a fixture gap fails at harness level (HARNESS_FAILURE), not as a gate defect — remediation path is §10 of tests-v2/AGENTS.md, never a model excuse"
+  - "Live-API merge-state verification in behavioral scenarios depends on platform state that the isolated test environment may not fully simulate; the SC-1 scenario must provision a resolvable-but-unmerged submodule PR state via fixtures, and the evaluation judges the gate's block decision from session.yaml, not from live platform latency"
+  - "Semantic judgments (SC-8, SC-9) require clean-room sub-agents; contamination with orchestrator expectations invalidates the verdict — sub-agents receive only site paths and the SC criterion"
+  - "The bounded-retry parameters (SC-4) are verified as card text by grep; no behavioral test executes the 180-second retry loop — this is a deliberate scope boundary, not a coverage gap"
