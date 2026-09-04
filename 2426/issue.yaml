@@ -7,4 +7,5 @@ labels:
 state: open
 remote_issue: 2426
 remote_url: https://github.com/michael-conrad/.opencode/issues/2426
-updated_at: '2026-09-04T21:48:32+00:00'
+updated_at: '2026-09-04T22:27:04+00:00'
+status: closed
