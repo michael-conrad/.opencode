@@ -2,8 +2,7 @@ title: '[SPEC-FIX] Stacked-PR ordering gate: parent PR must wait for submodule P
   merges (stale pointers on parent PR tree)'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-pr
 body: '2026-09-03T03:38:03Z
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2431/
@@ -159,4 +158,4 @@ body: '2026-09-03T03:38:03Z
 
   '
 created_at: '2026-09-04T23:17:30+00:00'
-updated_at: '2026-09-04T23:17:36+00:00'
+updated_at: '2026-09-04T23:17:43+00:00'
