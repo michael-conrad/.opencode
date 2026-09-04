@@ -1,0 +1,105 @@
+# Code Path Inventory — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Backfilled from spec §3/§5 (mode: retroactive). Directive-layer paths implied by each SC.
+# Scope is directive text only (spec §2) — "code path" here means directive-text execution
+# paths (agent dispatch flows), not application code.
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+sc_paths:
+  - sc: SC-1
+    paths:
+      - "prompts/default.txt Sub-Agent Routing Boundary: rewrite Architecture-A prose ('The orchestrator routes. It does not do.') to Architecture B — orchestrator executes skill workflow steps directly in own context."
+      - "prompts/default.txt 'hand off to executing-plans via sub-agent' forwarding line: removed/replaced with orchestrator-own plan execution."
+      - "prompts/default.txt Pre-Response Gate step 2.5: task()-only-at-marked-points dispatch semantics retained and made sole routing surface."
+  - sc: SC-2
+    paths:
+      - "guidelines/022: remove pure-router framing ('pure router — never performing work inline'); halt machinery re-pointed from inline-work rows to whole-card/whole-plan forwarding triggers."
+      - "guidelines/000-critical-rules: retain whole-card prohibition (critical-rules-XXX); re-point Infrastructure-Failure Carve-out and routing-bypass classifications to forwarding-based violations."
+  - sc: SC-3
+    paths:
+      - "executing-plans/SKILL.md: route plan execution to the orchestrator — reads plan file directly, executes steps step-by-step in own context."
+      - "executing-plans/tasks/read-plan.md: rewritten from sub-agent routing to orchestrator-own-context plan reading."
+      - "executing-plans/tasks/dispatch-phase.md: rewritten from whole-phase/workflow dispatch to step-scoped task() dispatch only where a plan step marks dispatch."
+  - sc: SC-4
+    paths:
+      - "Deck sweep (.opencode/skills/**/SKILL.md, 51 files): audit every task() dispatch string; fix any whose target is a SKILL.md path (whole-card forwarding invitation)."
+      - "Guard verification: all 51 SKILL.md retain ORCHESTRATOR_ONLY_SKILL_CARD (measured 51/51 this session)."
+  - sc: SC-5
+    paths:
+      - "reference/task-card-structure-standards.md: define ORCHESTRATOR_ONLY_PLAN guard semantics — leaf sub-agent receiving a whole plan body rejects with BLOCKED reason ORCHESTRATOR_ONLY_PLAN and halts."
+      - "Task-card directive text: sub-agent entry pattern states the guard semantics (trip condition = plan document body in the dispatch prompt; step-scoped prompts unaffected — spec §11 edge case)."
+  - sc: SC-6
+    paths:
+      - "Deck TDT sweep: Dispatch column values migrate to closed set {orchestrator, task-card, task-card blind} across all SKILL.md."
+      - "Contradiction resolution: audit/SKILL.md, brainstorming/SKILL.md, spec-creation/SKILL.md TDT rows marked inline re-aligned with their Invocation task() routing."
+      - "Blanket-clause rewrite: 'must be dispatched to a sub-agent unless marked inline' clause rewritten in all 45 carrying cards (44 verbatim tails + executing-plans wrapped-tail variant)."
+      - "reference/skill-card-description-standards.md: canonical closed-set vocabulary table."
+  - sc: SC-7
+    paths:
+      - "writing-plans plan format (reference/plan-artifact-format.md §4.2 dispatch indicators): extended with explicit per-step dispatch mode field (direct | task-card, default direct)."
+      - "writing-plans producer templates (SKILL.md + tasks/create.md): emit the mode so every produced plan step carries an explicit mode."
+  - sc: SC-8
+    paths:
+      - "reference layer: single canonical dispatch-vocabulary table written into skill-card-description-standards.md."
+      - "Read-link conversion: prompts/default.txt, 022, 000-critical-rules, task-card-structure-standards, skill-card-description-standards, AGENTS.md (Universal Skill Dispatch Gate) reference the canonical table instead of restating definitions."
+      - "System prompt dedup: prompts/default.txt carries no duplicated or contradictory dispatch definitions."
+
+path_inventory:
+  - id: P-1
+    sc: SC-1, SC-8
+    path: .opencode/prompts/default.txt
+    status: exists (verified this session)
+  - id: P-2
+    sc: SC-2
+    path: .opencode/guidelines/022-orchestrator-context-discipline.md
+    status: exists (verified this session)
+  - id: P-3
+    sc: SC-2
+    path: .opencode/guidelines/000-critical-rules.md
+    status: exists (verified this session)
+  - id: P-4
+    sc: SC-3
+    path: .opencode/skills/executing-plans/SKILL.md
+    status: exists (verified this session)
+  - id: P-5
+    sc: SC-3
+    path: .opencode/skills/executing-plans/tasks/read-plan.md
+    status: exists (verified this session)
+  - id: P-6
+    sc: SC-3
+    path: .opencode/skills/executing-plans/tasks/dispatch-phase.md
+    status: exists (verified this session)
+  - id: P-7
+    sc: SC-4, SC-6
+    path: .opencode/skills/**/SKILL.md (51 files)
+    status: exists (51 measured this session)
+  - id: P-8
+    sc: SC-5
+    path: .opencode/reference/task-card-structure-standards.md
+    status: exists (verified this session)
+  - id: P-9
+    sc: SC-6, SC-8
+    path: .opencode/reference/skill-card-description-standards.md
+    status: exists (verified this session)
+  - id: P-10
+    sc: SC-7
+    path: .opencode/skills/writing-plans/SKILL.md
+    status: exists (verified this session)
+  - id: P-11
+    sc: SC-7
+    path: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    status: exists (verified this session)
+  - id: P-12
+    sc: SC-7
+    path: .opencode/skills/writing-plans/tasks/create.md
+    status: exists (verified this session)
+  - id: P-13
+    sc: SC-8
+    path: .opencode/AGENTS.md (Universal Skill Dispatch Gate section, line 21 header)
+    status: exists (verified this session)
+
+path_notes:
+  - "All paths are directive-text surfaces; no application code is touched (spec §2 scope)."
+  - "Every path in the inventory exists on disk — zero missing (analysis-summary verified 10/10; this backfill verified the additional producer-template paths)."
+  - "Target dispatch flow (post-remediation, per spec §1 field 6): skill() loads card into orchestrator context → orchestrator reads TDT/Invocation → orchestrator executes workflow steps directly → task() only where workflow marks dispatch → sub-agent reads task card, executes, returns result contract."

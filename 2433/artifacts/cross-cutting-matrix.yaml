@@ -1,0 +1,85 @@
+# Cross-Cutting Matrix — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Backfilled from spec §3/§5/§11 (mode: retroactive). Identifies SCs spanning multiple concerns
+# (concern IDs per concern-map.yaml: CONCERN-1 Directive Layer, CONCERN-2 Skill Deck Layer,
+# CONCERN-3 Plan Layer).
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+cross_cutting_scs:
+  - sc: SC-8
+    spans:
+      - CONCERN-1 (Directive Layer)
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-3 (Plan Layer)
+    detail: >
+      The canonical vocabulary table is written in the reference layer and Read-linked by the
+      system prompt, 022, 000-critical-rules, both standards cards, and AGENTS.md (directive
+      layer) — while the deck's 51 TDTs and the plan layer's mode vocabulary must all agree
+      with it. SC-8 is the convergence point that keeps SC-1..SC-7 from re-fragmenting.
+  - sc: SC-6
+    spans:
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-1 (Directive Layer)
+    detail: >
+      TDT vocabulary normalization is deck-wide (51 cards) but must exactly match the
+      directive-layer canonical table (SC-8) and the retired "inline" pejorative in 022/AGENTS.md
+      (SC-2/SC-8). The blanket-clause rewrite also overlaps SC-3's file set (executing-plans
+      wrapped-tail variant — spec §11 edge case).
+  - sc: SC-3
+    spans:
+      - CONCERN-3 (Plan Layer)
+      - CONCERN-2 (Skill Deck Layer)
+    detail: >
+      executing-plans is both a plan-execution card (SC-3 rewrites its routing architecture)
+      and a blanket-clause carrier (SC-6 rewrites its Task Discipline clause). Item ordering
+      runs SC-3 before SC-6 so the clause rewrite lands on the already-corrected card.
+  - sc: SC-4
+    spans:
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-3 (Plan Layer)
+    detail: >
+      Whole-card forwarding prohibition (deck dispatch strings) shares the vocabulary and
+      guard-semantics layer with the plan guard (SC-5): both are pre-flight-guard backstops
+      defined in the standards docs, and both are enforced by the same task()-string discipline.
+
+sc_to_concern_matrix:
+  - sc: SC-1
+    directive_layer: primary
+    skill_deck_layer: none
+    plan_layer: none
+  - sc: SC-2
+    directive_layer: primary
+    skill_deck_layer: none
+    plan_layer: none
+  - sc: SC-3
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+  - sc: SC-4
+    directive_layer: none
+    skill_deck_layer: primary
+    plan_layer: secondary
+  - sc: SC-5
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+  - sc: SC-6
+    directive_layer: secondary
+    skill_deck_layer: primary
+    plan_layer: none
+  - sc: SC-7
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+  - sc: SC-8
+    directive_layer: primary
+    skill_deck_layer: secondary
+    plan_layer: secondary
+
+propagation_notes:
+  - "SC-8 is the keystone: every layer references its canonical table, so it is executed last (Item 8) after Items 1-7 establish the corrected surfaces it links to."
+  - "Vocabulary single-sourcing is the deck's deepest cross-cutting item: TDT (inline/sub-task/blind sub-task), 022 (clean-room sub-agent/inline work/pure router), #1210 plans (orchestrator routes to general), and the target closed set all name the same concepts — the canonical table collapses them."
+  - "The word 'inline' is contaminated (means both pejorative in 022 and sanctioned mode in TDT rows); retirement of the term (spec §5 key decision a) propagates through 45 blanket-clause cards, 3 contradictory cards, 022, and the AGENTS.md header."
+  - "Tests encode the old model: tests-v2 behavioral scenario expectations update alongside each GREEN (spec cost frame); regression between items is caught by the §11 Recovery edge case (all-or-nothing enforcement gate)."
+  - "Open plans #1210/#1214 carry a third vocabulary but are superseded (§12), not edited — no propagation into this spec's deliverables."

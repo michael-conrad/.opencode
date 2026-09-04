@@ -1,0 +1,80 @@
+# State Analysis — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Backfilled from spec + preliminary state-analysis.md (mode: retroactive).
+# Identifies state transitions required by each SC.
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+state_transitions:
+  - sc: SC-1
+    from: "prompts/default.txt carries BOTH architectures (A prose at routing boundary + 'hand off to executing-plans via sub-agent'; B at Pre-Response Gate step 2.5)"
+    to: "prompts/default.txt carries Architecture B only: orchestrator executes workflow steps directly; task() only at marked points; no A forwarding prose"
+    trigger: "Item 1 GREEN rewrite of Sub-Agent Routing Boundary and Pre-Response Gate"
+    persistent: true
+    detail: "File-content state in the system prompt — loaded into every future session at startup; no session/schema migration."
+
+  - sc: SC-2
+    from: "022 defines orchestrator as pure router and HALTs on inline work; 000-critical-rules whole-card prohibition already correct"
+    to: "022 halt machinery fires on whole-card/whole-plan forwarding; sanctioned direct execution not halted; 000-critical-rules carve-out/classifications aligned, prohibition retained"
+    trigger: "Item 2 GREEN rewrite of 022 + 000-critical-rules alignment"
+    persistent: true
+    detail: "Guideline text state; enforced at directive read time."
+
+  - sc: SC-3
+    from: "executing-plans routes read-plan and dispatch-phase to sub-agents; no directive states orchestrator executes plan steps directly"
+    to: "executing-plans routes plan execution to the orchestrator: reads plan directly, executes steps step-by-step, task() only at step-marked points"
+    trigger: "Item 3 GREEN rewrite of executing-plans SKILL.md + read-plan.md + dispatch-phase.md"
+    persistent: true
+    detail: "Skill/task-card text state."
+
+  - sc: SC-4
+    from: "Some SKILL.md carry task() dispatch strings targeting SKILL.md paths (whole-card forwarding invitations); guards present 51/51"
+    to: "No SKILL.md contains a task() string targeting a SKILL.md path or forwarding card content; guards retained 51/51"
+    trigger: "Item 4 GREEN: fix offending dispatch strings; verify guard retention by direct reading"
+    persistent: true
+    detail: "Deck-wide dispatch-string state; guard count must remain 51 after every card edit (state invariant)."
+
+  - sc: SC-5
+    from: "0 occurrences of ORCHESTRATOR_ONLY_PLAN across skills/guidelines/reference/prompts (verified this session); plans are the only unguarded artifact class"
+    to: "ORCHESTRATOR_ONLY_PLAN defined in reference/task-card-structure-standards.md and stated in the sub-agent entry pattern; leaf sub-agent receiving a whole plan body rejects with BLOCKED + halts"
+    trigger: "Item 5 GREEN: write guard definition into standards docs"
+    persistent: true
+    detail: "New guard semantics in canonical standards docs; behavioral backstop at sub-agent entry."
+
+  - sc: SC-6
+    from: "TDT Dispatch values use {inline, sub-task, blind sub-task, task(), orchestrator routes to general (blind)}; 3 contradictory cards; 45 blanket-clause cards"
+    to: "TDT Dispatch values ∈ closed set {orchestrator, task-card, task-card blind}; audit/brainstorming/spec-creation TDT-vs-Invocation contradictions resolved; blanket clause rewritten in all 45 carrying cards"
+    trigger: "Item 6 GREEN: deck-wide TDT migration + contradiction resolution + clause rewrite"
+    persistent: true
+    detail: "Largest state transition (deck-wide bulk edit across 51 files); overlaps SC-3's file set on executing-plans (spec §11 edge case — item ordering handles it)."
+
+  - sc: SC-7
+    from: "Canonical plan format defines dispatch indicators (inline/sub-agent/clean-room at plan-artifact-format.md §4.2) but no explicit per-step dispatch-mode field; producer templates emit none"
+    to: "Per-step dispatch mode (direct | task-card, default direct) in the canonical plan format; writing-plans producer templates emit it; every produced plan step carries an explicit mode"
+    trigger: "Item 7 GREEN: extend plan format + producer templates"
+    persistent: true
+    detail: "Format-schema state for all future plans; existing plans without explicit modes remain readable (spec §11 edge case — no migration of old plans)."
+
+  - sc: SC-8
+    from: "Dispatch vocabulary defined redundantly and contradictorily across system prompt, 022, 000-critical-rules, standards cards, AGENTS.md; no canonical table"
+    to: "Single canonical dispatch-vocabulary table in the reference layer; every directive-layer file references it via Read-link; AGENTS.md dispatch directives use the canonical table; system prompt carries no duplicates"
+    trigger: "Item 8 GREEN: write canonical table + convert restatements to Read-links"
+    persistent: true
+    detail: "Reference-edge state — the convergence state that prevents re-fragmentation of SC-1..SC-7 outcomes."
+
+state_invariants:
+  - "All 51 SKILL.md retain ORCHESTRATOR_ONLY_SKILL_CARD guard after any card edit (verified 51/51 this session; must hold at every item boundary)."
+  - "Submodule discipline: all edits commit to the .opencode submodule; parent-repo submodule pointer rides alongside next real parent-repo change (pointer-only pushes blocked)."
+  - "No .opencode/.opencode/ nested directory creation (Tier 1)."
+  - "Sub-agent result contract envelope {status, finding_summary, artifact_path, blocker_reason} unchanged (spec §2)."
+  - "Markdown lint/format gates continue to pass on edited guideline/reference files."
+
+non_state_areas:
+  - "No DB, session schema, or serialized data format is touched — the averaging defect is a directive-text defect, not a data defect."
+  - "Session-level pipeline state (authorization_scope, halt_at, pipeline_phase) carried in prompts, not persisted; unaffected."
+  - "tmp/.behavior-run.lock lifecycle unaffected; behavioral probes run without project writes (spec §3 verification method)."
+
+state_notes:
+  - "All transitions are file-content state in the directive/deck layer — reversible via git; no data migration."
+  - "Old-plan readability invariant (§11): retired vocabularies in pre-existing plans remain valid for reading; only new plans must carry the closed-set modes."
+  - "Superseded tickets (§12) require no state change in this spec — dispositions recorded, bodies not edited."
