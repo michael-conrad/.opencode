@@ -5,6 +5,7 @@ labels:
 - approved-for-pr
 - spec-draft
 - spec-cleared
+- pr-created
 body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
 
 
@@ -118,6 +119,6 @@ body: '# [SPEC] Remediate Orchestrator Dispatch Discipline
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-03T15:24:41+00:00'
-updated_at: '2026-09-04T02:45:59+00:00'
+updated_at: '2026-09-04T21:48:41+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2433
 github_url: https://github.com/michael-conrad/.opencode/issues/2433
