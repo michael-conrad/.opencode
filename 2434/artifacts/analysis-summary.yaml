@@ -1,0 +1,63 @@
+# Analysis summary for .opencode#2434 (writing-plans analyze task)
+# Generated: 2026-09-04 by OpenCode (ollama-cloud/glm-5.3-flash)
+spec_path: ".opencode/.issues/2434/spec.md"
+spec_exists: true
+approval:
+  status: approved
+  label: "approved-for-pr"
+  source: ".opencode/.issues/2434/issue.yaml labels field"
+  remote_url: "https://github.com/michael-conrad/.opencode/issues/2434"
+success_criteria:
+  count: 11
+  ids:
+    - "SC-1"
+    - "SC-2a"
+    - "SC-2b"
+    - "SC-3"
+    - "SC-4a"
+    - "SC-4b"
+    - "SC-5"
+    - "SC-6"
+    - "SC-7"
+    - "SC-8"
+    - "SC-9"
+  note: "Spec body (spec.md) is authoritative; SC-2 and SC-4 are split into a/b sub-criteria. Count matches sc-summary.yaml (11)."
+analytical_artifacts:
+  directory_exists: false
+  required:
+    - name: "blast-radius.yaml"
+      present: false
+    - name: "concern-map.yaml"
+      present: false
+    - name: "code-path-inventory.yaml"
+      present: false
+    - name: "cross-cutting-matrix.yaml"
+      present: false
+    - name: "interface-compatibility.yaml"
+      present: false
+    - name: "state-analysis.yaml"
+      present: false
+    - name: "testability-assessment.yaml"
+      present: false
+  missing_count: 7
+  finding: "All 7 required analytical artifacts are missing; the artifacts/ directory did not exist prior to this analysis (only analysis-summary.yaml now written). Retroactive generation via writing-plans backfill (mode: retroactive) is required before plan creation."
+scope_boundaries:
+  files_verified:
+    - path: ".opencode/tests-v2/with-test-home"
+      exists: true
+    - path: ".opencode/tests-v2/behaviors/helpers.sh"
+      exists: true
+    - path: ".opencode/tests-v2/AGENTS.md"
+      exists: true
+    - path: ".opencode/guidelines/091-incremental-build.md"
+      exists: true
+    - path: ".opencode/skills/test-driven-development/SKILL.md"
+      exists: true
+    - path: ".opencode/AGENTS.md"
+      exists: true
+  to_be_created:
+    - path: ".opencode/tests-v2/behaviors/<scenario>.sh (SC-8 artifact-only generator)"
+      note: "New behavioral test script created by Item 8 — not an existing-file scope finding."
+  missing_count: 0
+  finding: "All 6 existing files referenced by the spec's Documentation Sources / Items sections exist in the codebase. Spec has no separate 'Affected Files' section; scope was resolved from Documentation Sources and Items (spec lines 173-216)."
+status: DONE
