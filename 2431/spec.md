@@ -37,6 +37,17 @@ The stacked-PR procedure (git-workflow-pr/tasks/pr-creation.md + executing-plans
 
 Introduce a three-condition ordering gate into the stacked-PR procedure, evaluated immediately before parent stacked PR creation. Condition 1: every in-scope submodule PR is verified merged via a live platform API call (never inferred from local state or ancestry). Condition 2: submodule pointer bumps are committed on the parent feature branch per the pointers-ride-alongside rule. Condition 3: a pre-PR assertion confirms `git submodule status` shows no `+` prefixes and each recorded pointer SHA is an ancestor of the submodule's remote master. Placement of the gate is to be evaluated in the spec across four candidate enforcement sites: pr-creation entry criteria, git-workflow-branch pre-commit-pointer-check, executing-plans post-implementation steps, and a behavioral enforcement test in tests-v2. The spec must also define what the parent branch does while waiting (the existing branch may sit idle; the gate simply blocks PR creation until the submodule PRs land).
 
+## Success Criteria
+
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | The stacked-PR procedure blocks parent stacked PR creation until every in-scope submodule PR is verified merged | behavioral | Behavioral enforcement test in tests-v2: scenario reaches parent stacked PR creation while an in-scope submodule PR is open — assert the gate blocks and no parent PR is created |
+| SC-2 | Merge verification is performed via a live platform API call (never inferred from local state or ancestry), and inconclusive state blocks with a clear reason via a bounded retry/report path | string | `grep` the task card hosting the authoritative blocking check for live-API verification language and the bounded retry/report inconclusive-block path |
+| SC-3 | Submodule pointer bumps are committed on the parent feature branch after the submodule merges land per the pointers-ride-alongside rule, so the parent PR commit carries fresh pointers | string | `grep` the task card hosting the authoritative blocking check for the pointers-ride-alongside rule requiring pointer bumps committed after merges land |
+| SC-4 | A pre-PR gate asserts `git submodule status` shows no `+` prefixes and each recorded pointer SHA is an ancestor of the submodule's remote master before parent stacked PR creation | behavioral | Behavioral enforcement test in tests-v2: scenario reaches parent stacked PR creation with a stale or `+`-prefixed submodule pointer — assert the gate blocks |
+| SC-5 | Gate placement assigns exactly one authoritative blocking check across the four candidate enforcement sites (pr-creation entry criteria, git-workflow-branch pre-commit-pointer-check, executing-plans post-implementation steps, tests-v2 behavioral test), with the remaining sites as advisory/consistency checks | semantic | Clean-room sub-agent reads the four enforcement sites and judges that exactly one authoritative blocking check is assigned and the others are advisory/consistency checks |
+| SC-6 | The waiting behavior is defined: the existing parent branch may sit idle and the gate simply blocks PR creation until the submodule PRs land | string | `grep` the task card hosting the authoritative blocking check for waiting-behavior language (parent branch sits idle; gate blocks PR creation until submodule PRs land) |
+
 ## Impact
 
 | Risk | Mitigation |
@@ -52,6 +63,12 @@ Introduce a three-condition ordering gate into the stacked-PR procedure, evaluat
 ## Provenance
 
 Surfaced by developer Q&A during Butter #304 cleanup — developer: "why are the pointers stale for the root repo PR?" then "why did you create a PR for a root repo with submodules with pending merges that you didn't have the hashes for?"
+
+## Change Control
+
+| Date | Change | Reason | Authorizer |
+|------|--------|--------|------------|
+| 2026-09-04 | Added Success Criteria table (SC-1 through SC-6) decomposing the Approach's three-condition ordering gate, the pointers-ride-alongside rule, and the enforcement-placement evaluation into per-SC entries with evidence types (behavioral/string/semantic) and verification methods | Pipeline-initiated non-substantive revision: the writing-plans analyze gate requires a Success Criteria table with per-SC evidence types before plan creation (spec had zero SCs — `NO_SUCCESS_CRITERIA`); adds missing SC decomposition without altering implementation intent, scope, or requirements | Pipeline gate (writing-plans analyze) under developer-approved for_pr scope (approved-for-pr label, halt_at pr_created) |
 
 ---
 
