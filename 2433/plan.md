@@ -3,6 +3,7 @@ plan_schema_version: 1
 issue: 2433
 title: "Implementation Plan — Remediate Orchestrator Dispatch Discipline (#2433)"
 dispatch: [test-driven-development, verification-before-completion, audit, finishing-a-development-branch, git-workflow-pr, completion-core]
+phase_count: 9
 ---
 
 # Implementation Plan — Remediate Orchestrator Dispatch Discipline
@@ -11,18 +12,19 @@ dispatch: [test-driven-development, verification-before-completion, audit, finis
 
 ## Goal / Architecture / Files / Dispatch
 
-- **Goal:** Adopt Architecture B as the single orchestrator architecture across the `.opencode` directive layer — the orchestrator loads skill cards and executes workflow steps directly in its own context, dispatching task cards via `task()` only where the workflow marks dispatch — and re-point every directive layer (system prompt, guidelines, skill deck, plan layer, AGENTS.md) at it, closing with a single-sourced canonical dispatch vocabulary.
-- **Architecture:** Directive-text-only remediation (spec §2). Eight phases, one success criterion per phase, executed in topological order of the phase DAG. All 8 success criteria are behavioral: verification runs through behavioral probes dispatched via `task()` from the working session (no isolated environment, no project writes) plus direct reading of the edited text artifacts. Static substitutes are EVIDENCE_TYPE_MISMATCH — an unexecutable probe is FAIL, never a structural pass.
-- **Files:** `.opencode/prompts/default.txt`; `.opencode/guidelines/022-orchestrator-context-discipline.md`; `.opencode/guidelines/000-critical-rules.md`; `.opencode/skills/executing-plans/SKILL.md`, `tasks/read-plan.md`, `tasks/dispatch-phase.md`; `.opencode/skills/**/SKILL.md` (51-card deck surface); `.opencode/reference/task-card-structure-standards.md`; `.opencode/reference/skill-card-description-standards.md`; `.opencode/skills/writing-plans/SKILL.md`, `reference/plan-artifact-format.md`, `tasks/create.md`; `.opencode/AGENTS.md` (Universal Skill Dispatch Gate section only).
-- **Dispatch:** Every phase runs the full per-task cycle from the implementation-workflow reference card — pre-regression → pre-regression-verify → RED → GREEN → post-regression → verify → commit-inline. The RED/GREEN/post-regression steps dispatch `test-driven-development` task cards; the pre-regression-verify and verify steps dispatch `verification-before-completion` task cards; commit-inline runs as orchestrator-direct `git add` + `git commit` in the `.opencode` submodule. Post-implementation gates run once after the last phase: audit → z3-check → structural-checks → pre-pr-gate → regression-check → review-prep → create-pr → exec-summary.
+- **Goal:** Adopt Architecture B as the single orchestrator architecture across the `.opencode` directive layer — the orchestrator loads skill cards and executes workflow steps directly in its own context, dispatching task cards via `task()` only where the workflow marks dispatch — and re-point every directive layer (system prompt, guidelines, skill deck, plan layer, AGENTS.md) at it, closing with a single-sourced canonical dispatch vocabulary and a targeted behavioral-test execution mandate.
+- **Architecture:** Directive-text-only remediation (spec §2). Nine phases, one success criterion per phase, executed in topological order of the phase DAG. All 9 success criteria are behavioral: verification runs through behavioral probes dispatched via `task()` from the working session (no isolated environment, no project writes) plus direct reading of the edited text artifacts. Static substitutes are EVIDENCE_TYPE_MISMATCH — an unexecutable probe is FAIL, never a structural pass.
+- **Files:** `.opencode/prompts/default.txt`; `.opencode/guidelines/022-orchestrator-context-discipline.md`; `.opencode/guidelines/000-critical-rules.md`; `.opencode/skills/executing-plans/SKILL.md`, `tasks/read-plan.md`, `tasks/dispatch-phase.md`; `.opencode/skills/**/SKILL.md` (51-card deck surface); `.opencode/reference/task-card-structure-standards.md`; `.opencode/reference/skill-card-description-standards.md`; `.opencode/skills/writing-plans/SKILL.md`, `reference/plan-artifact-format.md`, `tasks/create.md`; `.opencode/AGENTS.md` (Universal Skill Dispatch Gate section only); `.opencode/tests-v2/AGENTS.md`; `.opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh` (new).
+- **Dispatch mode (developer-corrected):** Skill-card execution steps are executed **orchestrator-direct** — the orchestrator loads the skill card, reads the named task card, and executes its procedure in its own context. `task()` is used ONLY where the task card itself marks a sub-task dispatch (e.g., verification-before-completion's behavioral-test-evaluation sub-agent, the audit DiMo chain, PR-creation sub-agent routing). Every phase runs the full per-task cycle from the implementation-workflow reference card — pre-regression → pre-regression-verify → RED → GREEN → post-regression → verify → commit-inline. The RED/GREEN/post-regression steps execute `test-driven-development` task cards orchestrator-direct; the pre-regression-verify and verify steps execute `verification-before-completion` task cards orchestrator-direct; commit-inline runs as orchestrator-direct `git add` + `git commit` in the `.opencode` submodule. Post-implementation gates run once after the last phase: audit → z3-check → structural-checks → pre-pr-gate → regression-check → review-prep → create-pr → exec-summary.
+- **Targeted-run mandate (R-25/R-26, SC-9):** every behavioral run in this plan targets exactly the named scenario(s) the current SC's RED and GREEN evidence needs — no whole-suite invocations, no enumeration over `tests-v2/behaviors/*.sh`, no unfiltered model-executing sweeps; one run per need.
 - **Branch:** All implementation commits land on `feature/2402-finishing-checklist-trailer-remediation` in the `michael-conrad/.opencode` submodule. No co-author trailers on implementation commits — those are added during squash at PR time.
 
 ## Blast Radius
 
-From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.md`):
+From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.yaml`):
 
-- **Quantified surface:** 51 SKILL.md cards (284 `task(subagent_type=...)` dispatch strings; 49/51 TDTs route tasks to sub-agents); 299 task cards; 35 guidelines (`022` is the architecture-defining doc; `000-critical-rules.md` carries the whole-card prohibition); 3 reference standards cards; 1 system prompt loaded into every session; open plans #1210/#1214 carry a third dispatch vocabulary and are superseded (spec §12), not edited.
-- **Directly affected (must change):** the system prompt routing-boundary prose; `022` pure-router framing and inline-HALT rows; `000-critical-rules.md` carve-out and routing-bypass classifications (whole-card prohibition retained); executing-plans card and its read-plan/dispatch-phase task cards; the 3 TDT-contradiction cards (audit, brainstorming, spec-creation); all 45 blanket-clause cards; the writing-plans plan-format surface; both standards reference cards; `.opencode/AGENTS.md` dispatch directives.
+- **Quantified surface:** 51 SKILL.md cards (284 `task(subagent_type=...)` dispatch strings; 49/51 TDTs route tasks to sub-agents); 299 task cards; 35 guidelines (`022` is the architecture-defining doc; `000-critical-rules.md` carries the whole-card prohibition); 3 reference standards cards; 1 system prompt loaded into every session; 197 model-executing behavioral scenario scripts under `tests-v2/behaviors/` (the SC-9 governed surface); open plans #1210/#1214 carry a third dispatch vocabulary and are superseded (spec §12), not edited.
+- **Directly affected (must change):** the system prompt routing-boundary prose; `022` pure-router framing and inline-HALT rows; `000-critical-rules.md` carve-out and routing-bypass classifications (whole-card prohibition retained); executing-plans card and its read-plan/dispatch-phase task cards; the 3 TDT-contradiction cards (audit, brainstorming, spec-creation); all 45 blanket-clause cards; the writing-plans plan-format surface; both standards reference cards; `.opencode/AGENTS.md` dispatch directives; `tests-v2/AGENTS.md` (targeted-run mandate + harness guard text) plus one new behavioral scenario script for the SC-9 whole-suite-BLOCKED behavior.
 - **Indirectly affected:** behavioral tests under the tests-v2 tree whose scenario expectations assert the old dispatch model — expectations update alongside each GREEN; skildeck validators may gain additive closed-set/mode checks (optional, out of scope for this plan).
 - **Out of scope:** node_modules, venvs, `.issues/` data bodies, Python test tooling, and all application code — no code file of any kind is touched (spec §2).
 
@@ -40,20 +42,21 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 > **Step status:** Report `[item N] [PASS|FAIL]` after each step. If FAIL, report blocker and halt.
 
-> **Enforcement gate:** All SCs must pass before this plan is complete.
+> **Enforcement gate:** All 9 SCs must pass before this plan is complete.
 
 ## Phase Table
 
 | Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch |
 |---|---|---|---|---|---|---|
-| 1 | System Prompt Architecture-B Rewrite | Rewrite `prompts/default.txt` Sub-Agent Routing Boundary + Pre-Response Gate to Architecture B; remove Architecture-A forwarding prose | SC-1 | none | 1–8 | test-driven-development (pre-regression, red, green, post-regression); verification-before-completion (pre-regression-verify, verify); commit-inline |
-| 2 | Directive-Layer HALT Machinery Re-Pointing | Re-point `022` pure-router framing + inline-HALT rows to whole-card/whole-plan forwarding triggers; align `000-critical-rules` classifications; retain whole-card prohibition | SC-2 | none | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 3 | executing-plans Plan-Execution Rewrite | Orchestrator reads plan + executes steps directly; step-scoped `task()` only at marked points | SC-3 | none | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 4 | Whole-Card Forwarding Elimination | No `task()` string targets a SKILL.md path; guards retained 51/51 by direct reading | SC-4 | Phase 3 | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 5 | Plan Pre-Flight Guard | `ORCHESTRATOR_ONLY_PLAN` guard definition in canonical standards docs + sub-agent entry pattern | SC-5 | none | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 6 | TDT Closed-Set Vocabulary Migration | TDT Dispatch values → {`orchestrator`, `task-card`, `task-card blind`}; resolve 3 contradictions; rewrite blanket clause in 45 cards | SC-6 | Phases 3, 4 | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 7 | Per-Step Plan Dispatch Mode | `direct` \| `task-card` (default `direct`) per-step mode in canonical plan format; producer templates emit it | SC-7 | none | 1–8 | test-driven-development; verification-before-completion; commit-inline |
-| 8 | Canonical Dispatch-Vocabulary Single-Sourcing | Canonical table in reference layer; Read-link conversions across directive-layer files incl. AGENTS.md; strip system-prompt duplicates; then post-implementation gates | SC-8 | Phases 1, 2, 5, 7 | 1–8 + post 1–8 | test-driven-development; verification-before-completion; audit; solve (z3-check); finishing-a-development-branch; git-workflow-pr; completion-core |
+| 1 | System Prompt Architecture-B Rewrite | Rewrite `prompts/default.txt` Sub-Agent Routing Boundary + Pre-Response Gate to Architecture B; remove Architecture-A forwarding prose | SC-1 | none | 1–8 | test-driven-development (pre-regression, red, green, post-regression — orchestrator-direct); verification-before-completion (pre-regression-verify, verify — orchestrator-direct); commit-inline |
+| 2 | Directive-Layer HALT Machinery Re-Pointing | Re-point `022` pure-router framing + inline-HALT rows to whole-card/whole-plan forwarding triggers; align `000-critical-rules` classifications; retain whole-card prohibition | SC-2 | none | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 3 | executing-plans Plan-Execution Rewrite | Orchestrator reads plan + executes steps directly; step-scoped `task()` only at marked points | SC-3 | none | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 4 | Whole-Card Forwarding Elimination | No `task()` string targets a SKILL.md path; guards retained 51/51 by direct reading | SC-4 | Phase 3 | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 5 | Plan Pre-Flight Guard | `ORCHESTRATOR_ONLY_PLAN` guard definition in canonical standards docs + sub-agent entry pattern | SC-5 | none | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 6 | TDT Closed-Set Vocabulary Migration | TDT Dispatch values → {`orchestrator`, `task-card`, `task-card blind`}; resolve 3 contradictions; rewrite blanket clause in 45 cards | SC-6 | Phases 3, 4 | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 7 | Per-Step Plan Dispatch Mode | `direct` \| `task-card` (default `direct`) per-step mode in canonical plan format; producer templates emit it | SC-7 | none | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 8 | Canonical Dispatch-Vocabulary Single-Sourcing | Canonical table in reference layer; Read-link conversions across directive-layer files incl. AGENTS.md; strip system-prompt duplicates | SC-8 | Phases 1, 2, 5, 7 | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
+| 9 | Targeted Behavioral-Test Execution Mandate | Targeted-run mandate + harness guard text in `tests-v2/AGENTS.md` (whole-suite/directory-enumeration/unfiltered model-executing sweeps PROHIBITED; one run per SC-RED/GREEN need; content-verification runners exempt); new behavioral scenario `2433-sc9-whole-suite-invocation-blocked.sh` for the whole-suite-attempt BLOCKED behavior | SC-9 | none (file-disjoint; converges into post-implementation gates, which operate under the mandate after this phase) | 1–8 | test-driven-development; verification-before-completion (orchestrator-direct); commit-inline |
 
 ## Self-Remediation Protocol
 
@@ -63,27 +66,28 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 ## Exit Criteria
 
-- [ ] C1. All 8 SCs verified PASS with behavioral evidence artifacts; no SC left FAIL or UNVERIFIED (all-or-nothing enforcement gate).
-- [ ] C2. Phases executed in topological order (1, 2, 3, 4, 5, 6, 7, 8); every phase's commit preceded its dependents' RED; no circular dependency encountered.
+- [ ] C1. All 9 SCs verified PASS with behavioral evidence artifacts; no SC left FAIL or UNVERIFIED (all-or-nothing enforcement gate).
+- [ ] C2. Phases executed in topological order (1, 2, 3, 4, 5, 6, 7, 8, 9); every phase's commit preceded its dependents' RED; no circular dependency encountered.
 - [ ] C3. `ORCHESTRATOR_ONLY_SKILL_CARD` guards retained 51/51 after every card edit.
 - [ ] C4. All commits landed on `feature/2402-finishing-checklist-trailer-remediation` in the `.opencode` submodule; no co-author trailers on implementation commits.
 - [ ] C5. Closed-set vocabulary {`orchestrator`, `task-card`, `task-card blind`} holds across all 51 TDTs with TDT-vs-Invocation agreement; the blanket clause is absent from all 45 former carriers.
 - [ ] C6. The canonical dispatch-vocabulary table exists in the reference layer; every directive-layer file references it via Read-link; the system prompt carries no duplicated or contradictory dispatch definitions.
 - [ ] C7. Audit completed and z3-check recorded; no unresolved findings.
-- [ ] C8. Pre-PR gate reports all SC verdicts PASS; final regression check clean.
-- [ ] C9. PR created (stacked strategy) for the `.opencode` submodule; completion executive summary produced.
+- [ ] C8. Pre-PR gate reports all 9 SC verdicts PASS; final regression check clean.
+- [ ] C9. Targeted behavioral-test execution holds across the plan's own runs: every behavioral run targeted exactly the named scenario(s) its SC's RED/GREEN evidence needed; no whole-suite invocation occurred.
+- [ ] C10. PR created (stacked strategy) for the `.opencode` submodule; completion executive summary produced.
 
 ---
 
 ## Pre-Implementation (Tier 1 — once per plan)
 
 - [ ] 1. (**inline**) Run the coherence gate before any file modification.
-  - Verify the plan-phase-to-SC mapping is 1:1: eight phases map to SC-1..SC-8 per spec Items 1–8, with each phase's item referencing exactly one SC-ID.
-  - Verify the phase DAG (edges 3→4, 3→6, 4→6, 1→8, 2→8, 5→8, 7→8) matches the spec §11 overlapping-file ordering constraints and contains no circular dependency.
-  - Verify all 8 SCs are covered by exactly one phase and the dependency contract (`dependency-contract.yaml`) matches the structure artifact.
+  - Verify the plan-phase-to-SC mapping is 1:1: nine phases map to SC-1..SC-9 per spec Items 1–9, with each phase's item referencing exactly one SC-ID.
+  - Verify the phase DAG (edges 3→4, 3→6, 4→6, 1→8, 2→8, 5→8, 7→8; Phase 9 carries no edges — file-disjoint, converging into post-implementation gates) matches the spec §11 overlapping-file ordering constraints and contains no circular dependency.
+  - Verify all 9 SCs are covered by exactly one phase and the dependency contract (`dependency-contract.yaml`) matches the structure artifact.
 - [ ] 2. (**inline**) Run the baseline check before any file modification.
   - Verify the `.opencode` submodule is on branch `feature/2402-finishing-checklist-trailer-remediation` with zero pending changes and at the remote tracking tip (git-workflow pre-work re-verification).
-  - Record the baseline: `ORCHESTRATOR_ONLY_SKILL_CARD` guard count measured 51/51; `ORCHESTRATOR_ONLY_PLAN` occurrences measured 0 across skills/guidelines/reference/prompts.
+  - Record the baseline: `ORCHESTRATOR_ONLY_SKILL_CARD` guard count measured 51/51; `ORCHESTRATOR_ONLY_PLAN` occurrences measured 0 across skills/guidelines/reference/prompts; targeted-run/whole-suite-prohibition guard occurrences in `tests-v2/AGENTS.md` measured 0.
   - Verify the behavioral-probe model is available (`qwen3.8:27b-256k-gguf4`) — probes require real-model execution; claim unavailability only with tool-call evidence.
 
 ---
@@ -125,25 +129,27 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - Remove previous-run artifacts so stale state cannot contaminate this run: `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope (R-25/R-26 once Phase 9 lands; before that, this plan's standing discipline): run only the named scenarios this phase's evidence needs — never a whole-suite or enumerated sweep.
   - Purpose: run regression test patterns before the RED phase; confirm no unrelated behavioral regressions are already present.
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
   - Purpose: verify the pre-regression run is clean before RED begins.
-- [ ] 4. (**sub-agent**) RED — write the failing behavioral probe for SC-1.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 4. (**inline**) RED — write the failing behavioral probe for SC-1 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Probe type: skill-trigger prompt dispatched from the working session (no isolated environment, no project writes).
   - What fails: the probe currently shows whole-card forwarding or router-model dispatch — SKILL.md content inside a `task()` prompt, or the orchestrator not executing workflow steps in its own context.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-1 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-1 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: the Sub-Agent Routing Boundary and Pre-Response Gate state Architecture B (orchestrator executes skill workflow steps directly in its own context; `task()` dispatches a task card only where the workflow marks dispatch); the prose "The orchestrator routes. It does not do." and the "hand off to executing-plans via sub-agent" forwarding language are absent from `prompts/default.txt`.
   - Minimum change only — no scope creep beyond the two named sections; update any behavioral scenario expectations that assert the old model in the same GREEN.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 1's post-GREEN regression evidence needs.
   - Purpose: run regression test patterns after GREEN; confirm the rewrite broke nothing else.
-- [ ] 7. (**sub-agent**) Verify SC-1 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 7. (**inline**) Verify SC-1 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate, which the task card marks as a sub-task dispatch (clean-room evaluation of the probe artifacts via `task()`).
   - Verify: the probe asserts the orchestrator executes workflow steps in its own context, `task()` appears only at marked points, and no card content sits inside any `task()` prompt; direct reading of `prompts/default.txt` confirms the Architecture-A prose is gone. Evidence recorded per the SC's behavioral evidence type — structural substitutes are EVIDENCE_TYPE_MISMATCH.
 - [ ] 8. (**inline**) Commit the SC-1 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/prompts/default.txt && git commit -m "Item 1 (SC-1): rewrite system prompt dispatch directives to Architecture B"`
@@ -194,23 +200,24 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Purpose: regression patterns before RED.
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing behavioral probe for SC-2.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing behavioral probe for SC-2 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Probe type: behavioral probes dispatched from the working session — one exercising sanctioned direct workflow execution, one exercising whole-card forwarding.
   - What fails: the probe asserting the current state shows `022` still HALTs on sanctioned direct execution — the old rule fires on correct behavior.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-2 change that makes the probes pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-2 change that makes the probes pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: `022` no longer defines the orchestrator as a pure router and no longer HALTs on orchestrator inline work; its halt machinery fires on whole-card/whole-plan forwarding instead; `000-critical-rules.md` retains the whole-card dispatch prohibition and its Infrastructure-Failure Carve-out and routing-bypass classifications reference forwarding-based violations.
   - Update any behavioral scenario expectations that assert the old inline-work trigger in the same GREEN.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-2 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 2's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-2 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: behavioral probes — orchestrator performing sanctioned direct workflow execution is not halted; orchestrator forwarding a whole card is halted; direct reading of both guideline files confirms the re-pointed machinery and the retained prohibition.
 - [ ] 8. (**inline**) Commit the SC-2 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/guidelines/022-orchestrator-context-discipline.md .opencode/guidelines/000-critical-rules.md && git commit -m "Item 2 (SC-2): re-point directive-layer HALT machinery to forwarding triggers"`
@@ -261,21 +268,22 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing behavioral probe for SC-3.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing behavioral probe for SC-3 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Probe type: approved-plan prompt dispatched from the working session.
   - What fails: the probe currently shows whole-plan/workflow dispatch to a sub-agent — the plan body or the whole workflow inside a `task()` prompt.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-3 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-3 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: the skill card routes plan execution to the orchestrator — it reads the plan file directly and executes steps step-by-step in its own context; a step's task card is dispatched via `task()` only where that step marks dispatch; the read-plan/dispatch-phase sub-agent routing is absent from all three files.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-3 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 3's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-3 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: the probe asserts plan steps executed with orchestrator-own tool calls and `task()` only at step-marked points; no whole-plan body inside any `task()` prompt; direct reading of the three skill files confirms the routing rewrite.
 - [ ] 8. (**inline**) Commit the SC-3 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/skills/executing-plans/SKILL.md .opencode/skills/executing-plans/tasks/read-plan.md .opencode/skills/executing-plans/tasks/dispatch-phase.md && git commit -m "Item 3 (SC-3): rewrite executing-plans plan-execution to orchestrator-owned steps"`
@@ -325,21 +333,22 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing behavioral probe for SC-4.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing behavioral probe for SC-4 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Probe type: skill-trigger behavioral probe dispatched from the working session.
   - What fails: the probe shows card content inside `task()` prompts for at least one offending dispatch string.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-4 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-4 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: every offending `task()` dispatch string is re-pointed to its task card (no SKILL.md-path targets, no card-content forwarding); all 51 SKILL.md retain the `ORCHESTRATOR_ONLY_SKILL_CARD` pre-flight guard, verified by direct reading of every card's guard line.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-4 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 4's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-4 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: behavioral probe asserts no card content in any `task()` prompt; direct reading of every SKILL.md Invocation/Dispatch section finds no SKILL.md-path targets and confirms guard retention in all 51 cards — both conditions required.
 - [ ] 8. (**inline**) Commit the SC-4 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/skills/ && git commit -m "Item 4 (SC-4): eliminate whole-card forwarding across the deck; guards retained 51/51"`
@@ -389,21 +398,22 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing negative behavioral probe for SC-5.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing negative behavioral probe for SC-5 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Probe type: negative behavioral probe dispatched from the working session — dispatch a sub-agent with a whole plan body.
   - What fails: the sub-agent does not reject — no `BLOCKED` with reason `ORCHESTRATOR_ONLY_PLAN` is returned, because the guard does not exist yet.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-5 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-5 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: the `ORCHESTRATOR_ONLY_PLAN` guard semantics are defined in `task-card-structure-standards.md` and stated in the sub-agent entry pattern — a leaf sub-agent receiving a whole plan body rejects with `BLOCKED` reason `ORCHESTRATOR_ONLY_PLAN` and halts; the trip condition (plan document body in the dispatch prompt) is specified.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-5 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 5's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-5 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: the negative probe asserts `BLOCKED` with reason `ORCHESTRATOR_ONLY_PLAN`; direct reading of the standards doc confirms the guard definition and the entry-pattern statement.
 - [ ] 8. (**inline**) Commit the SC-5 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/reference/task-card-structure-standards.md && git commit -m "Item 5 (SC-5): add ORCHESTRATOR_ONLY_PLAN plan pre-flight guard to standards docs"`
@@ -455,21 +465,22 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing probe for SC-6.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing probe for SC-6 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What fails: direct reading of all TDTs finds retired values present and the 3 contradictory cards unresolved; the routing probe confirms dispatch routes contradict the closed set.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-6 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-6 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: every TDT Dispatch column value across the 51 cards is in {`orchestrator`, `task-card`, `task-card blind`}; the audit, brainstorming, and spec-creation TDT-vs-Invocation contradictions are resolved (the TDT row and the Invocation section agree); the blanket clause is rewritten in every card carrying it (45 files), retiring the word "inline" from the dispatch vocabulary.
   - Deck-wide bulk edit — one sequential pass over the 45 blanket-clause carriers plus the 3 contradiction cards; verify guard retention 51/51 after the pass.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-6 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 6's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-6 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: behavioral probe routes per closed-set rows; direct reading of every SKILL.md TDT and Invocation section confirms closed-set values and TDT-vs-Invocation agreement.
 - [ ] 8. (**inline**) Commit the SC-6 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/skills/ && git commit -m "Item 6 (SC-6): normalize TDT vocabulary to the closed set; resolve contradictions; rewrite blanket clause in 45 cards"`
@@ -519,20 +530,21 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing probe for SC-7.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing probe for SC-7 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What fails: direct reading of a plan produced by the current writing-plans flow finds no explicit per-step dispatch modes; the behavioral probe cannot execute a produced plan per per-step modes because none are emitted.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-7 change that makes the probe pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-7 change that makes the probe pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: the canonical plan format defines the per-step dispatch mode field with values `direct` and `task-card`, default `direct`; the writing-plans producer templates emit the mode so every step of a produced plan carries an explicit mode.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-7 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 7's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-7 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: a plan produced by the updated writing-plans flow is executed per its per-step modes (behavioral probe dispatched from the working session); direct reading of the produced plan and the producer templates confirms explicit per-step modes on every step.
 - [ ] 8. (**inline**) Commit the SC-7 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/skills/writing-plans/SKILL.md .opencode/skills/writing-plans/reference/plan-artifact-format.md .opencode/skills/writing-plans/tasks/create.md && git commit -m "Item 7 (SC-7): add per-step dispatch mode (direct | task-card) to canonical plan format and producer templates"`
@@ -542,7 +554,7 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 - SC-7 verify verdict PASS recorded in the pipeline-verify evidence artifact.
 - Behavioral evidence preserved for audit cross-validation.
 - Commit present on the feature branch; working tree clean.
-- Concern transition: Phase 8 single-sources the vocabulary — the convergence state that keeps Phases 1–7 from re-fragmenting.
+- Concern transition: Phase 9 adds the targeted behavioral-test execution mandate — the harness-governance state that bounds every subsequent behavioral run, including the post-implementation gates.
 
 ---
 
@@ -555,7 +567,7 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 - **SCs:** SC-8
 - **Dependencies:** Phases 1, 2, 5, 7 (DAG edges 1→8, 2→8, 5→8, 7→8 — the Read-link conversions require the corrected Architecture-B prompt text, the re-pointed halt machinery, the guard definition, and the finalized plan-step mode in place)
 - **Entry condition:** Phases 1, 2, 5, and 7 commits landed; working tree clean
-- **Exit condition:** SC-8 verify verdict PASS recorded; commit landed on the feature branch; then the post-implementation gates complete
+- **Exit condition:** SC-8 verify verdict PASS recorded; commit landed on the feature branch (Phase 9 then runs before the post-implementation gates, which operate under the SC-9 targeted-run mandate)
 
 ## Code Path Coverage
 
@@ -566,7 +578,7 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 
 ## Cross-Cutting SCs
 
-- SC-8 is the keystone spanning all three concerns (directive layer, skill deck layer, plan layer) — every layer references its canonical table, and it is executed last after Phases 1–7 establish the corrected surfaces it links to.
+- SC-8 is the keystone spanning all three concerns (directive layer, skill deck layer, plan layer) — every layer references its canonical table, and it is executed after Phases 1–7 establish the corrected surfaces it links to (Phase 9 follows; its tests-v2 surface is not a Read-link target).
 
 ## Interface Boundaries
 
@@ -578,60 +590,141 @@ From the blast-radius artifact (`.opencode/.issues/2433/artifacts/blast-radius.m
 - From: dispatch vocabulary defined redundantly and contradictorily across the system prompt, `022`, `000-critical-rules`, the standards cards, and AGENTS.md; no canonical table.
 - To: a single canonical dispatch-vocabulary table in the reference layer; every directive-layer file references it via Read-link; AGENTS.md dispatch directives use the canonical table; the system prompt carries no duplicates. The convergence state that prevents re-fragmentation of the Phase 1–7 outcomes.
 
-**Cost frame:** Reading the canonical table and running both trigger probes costs minutes. Skipping means the vocabulary re-fragments at the next session that edits a directive file — the dedup is the only item that keeps the other seven from regressing.
+**Cost frame:** Reading the canonical table and running both trigger probes costs minutes. Skipping means the vocabulary re-fragments at the next session that edits a directive file — the dedup is the only item that keeps the other eight from regressing.
 
 ## Step-by-step
 
 - [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
   - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
-- [ ] 2. (**sub-agent**) Run pre-regression.
-  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
-- [ ] 3. (**sub-agent**) Verify pre-regression results.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-- [ ] 4. (**sub-agent**) RED — write the failing probe for SC-8.
-  - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing probe for SC-8 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What fails: direct reading of the directive-layer files finds duplicate/contradictory dispatch definitions and no canonical table; the skill-trigger and plan-trigger probes route inconsistently.
-- [ ] 5. (**sub-agent**) GREEN — implement the SC-8 change that makes the probes pass.
-  - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+- [ ] 5. (**inline**) GREEN — implement the SC-8 change that makes the probes pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - What must be true: the canonical dispatch-vocabulary table exists in `skill-card-description-standards.md`; every directive-layer file references it via Read-link instead of restating definitions; `.opencode/AGENTS.md`'s dispatch directives (Universal Skill Dispatch Gate section) use the canonical table with the retired-vocabulary header prose rewritten; the system prompt carries no duplicated or contradictory dispatch definitions.
-- [ ] 6. (**sub-agent**) Run post-regression.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
-- [ ] 7. (**sub-agent**) Verify SC-8 against its success criterion.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 8's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-8 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
   - Verify: behavioral probes (skill trigger and plan trigger) both route per the canonical table; direct reading of the directive files (including `.opencode/AGENTS.md`) confirms Read-link presence and absent duplicate definitions.
 - [ ] 8. (**inline**) Commit the SC-8 slice.
   - From the `.opencode` submodule working tree: `git add .opencode/reference/skill-card-description-standards.md .opencode/reference/task-card-structure-standards.md .opencode/prompts/default.txt .opencode/guidelines/022-orchestrator-context-discipline.md .opencode/guidelines/000-critical-rules.md .opencode/AGENTS.md && git commit -m "Item 8 (SC-8): single-source dispatch vocabulary in canonical reference table; Read-link directive layer"`
 
+## Phase Completion
+
+- SC-8 verify verdict PASS recorded in the pipeline-verify evidence artifact.
+- Behavioral evidence preserved for audit cross-validation.
+- Commit present on the feature branch; working tree clean.
+- Concern transition: Phase 9 adds the targeted behavioral-test execution mandate — the harness-governance state under which the post-implementation gates below run.
+
+---
+
+# Phase 9 — Targeted Behavioral-Test Execution Mandate
+
+## Phase Metadata
+
+- **Concern:** Enforce targeted behavioral-test execution — state the targeted-run mandate and harness guard text in `tests-v2/AGENTS.md` (R-25/R-26): every `opencode run` targets exactly the scenario(s) the current SC's RED and GREEN evidence needs; whole-suite runs (glob over `behaviors/*.sh`), directory-enumeration runs, loops over all scenarios, and unfiltered model-executing sweeps are PROHIBITED; the per-SC re-run instruction names only the current branch's SC scenarios; the prohibition scopes to model-executing invocations (content-verification runners exempt — spec §11 edge case). Add the behavioral scenario `2433-sc9-whole-suite-invocation-blocked.sh` (2429-style artifact-only generator: `behavior_run` + exit 0, session.yaml PRIMARY evidence) for the whole-suite-attempt BLOCKED behavior.
+- **Files:** `.opencode/tests-v2/AGENTS.md`; `.opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh` (new)
+- **SCs:** SC-9
+- **Dependencies:** none (file-disjoint from Phases 1–8 — the tests-v2 directive surface shares no edit targets; converges into the post-implementation gates, which run after this phase and operate under the mandate it establishes)
+- **Entry condition:** Phases 1–8 commits landed (plan row order); working tree clean
+- **Exit condition:** SC-9 verify verdict PASS recorded; commit landed on the feature branch; then the post-implementation gates complete
+
+## Code Path Coverage
+
+- `tests-v2/AGENTS.md`: state the targeted-run mandate — one run per SC-RED and SC-GREEN need; whole-suite invocations, `behaviors/*.sh` glob/enumeration runs, and unfiltered model-executing sweeps are PROHIBITED; the "Running Tests" and per-SC re-run instructions explicitly name only the current branch's SC scenarios; the prohibition scopes to model-executing invocations — content-verification runners (`test-enforcement.sh`, no model runs) are exempt (spec §11 edge case); the bare "run the behavioral tests" instruction is answered by deriving/asking which SCs need testing per spec §11.
+- Harness guard text: carried in `tests-v2/AGENTS.md` — no whole-suite invocation mechanism exists in the harness documentation surface; each `opencode run` names its target scenario(s).
+- New behavioral scenario `tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh`: 2429-style artifact-only generator — cross-reference header, `SCENARIO_NAME`/`SCENARIO_PROMPT`, `behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"`, `exit 0`; evaluation via `session.yaml` (PRIMARY evidence source per tests-v2/AGENTS.md §2) by the orchestrator. The scenario prompts an agent to "run the behavioral tests": RED the agent attempts a whole-suite invocation (glob/loop over scenario scripts); GREEN the attempt is BLOCKED/prohibited by the directive + harness guard (assert no model-executing whole-suite invocation occurs).
+
+## Cross-Cutting SCs
+
+- SC-9 is orthogonal to the routing concern set (spec §3 granularity note) — it governs test-execution discipline, not dispatch routing. It spans the test-execution discipline layer (primary) and indirectly the directive layer: once this phase lands, this plan's own post-implementation gates (regression-check, pre-PR gate) run under the targeted-run mandate.
+
+## Interface Boundaries
+
+- Harness-governance edge (dependency contract DEP-10): the mandate in `tests-v2/AGENTS.md` governs the 197 model-executing scenario scripts under `tests-v2/behaviors/` and the exemption of the content-verification runner `test-enforcement.sh` (no model runs — verified this session; scenario tags confirm).
+- No harness code changes — directive text and one new scenario script only; the 197 existing scenario scripts are the governed surface, not edit targets.
+- Guard scope boundary: the prohibition targets model-executing invocations only; an unfiltered content-verification run is not a model-cost runaway (spec §11 edge case).
+
+## State Transitions
+
+- From: no targeted-run mandate in `tests-v2/AGENTS.md` (0 occurrences of any targeted-run / whole-suite-prohibition guard verified this session); a mechanism exists whereby an agent enumerates `behaviors/*.sh` (197 model-executing scripts) and launches a whole-suite invocation — the >2000-run runaway observed during branch-finishing.
+- To: the targeted-run mandate + harness guard text stated in `tests-v2/AGENTS.md`; one run per SC-RED and SC-GREEN need; whole-suite invocations BLOCKED/prohibited; the new behavioral scenario enforces the BLOCKED behavior. Persistent directive + guard-text state in the test harness docs; governs every future behavioral-test execution including this plan's post-implementation gates.
+
+**Cost frame:** Running the targeted-run behavioral test costs minutes. Skipping means an agent facing "run the behavioral tests" can enumerate `behaviors/*.sh` (197 model-executing scripts) and launch a >2000-run runaway — observed this session during branch-finishing, where the runaway burned hours of model execution and masked per-SC evidence. Every unguarded "run the tests" instruction is a latent multi-hour runaway; the targeted-run mandate converts each into one bounded named-scenario run.
+
+## Step-by-step
+
+- [ ] 1. (**inline**) Clean stale artifacts for this phase's pipeline steps.
+  - `rm -f tmp/2433/artifacts/pipeline-pre-regression-* tmp/2433/artifacts/pipeline-pre-regression-verify-* tmp/2433/artifacts/pipeline-red-* tmp/2433/artifacts/pipeline-green-* tmp/2433/artifacts/pipeline-post-regression-* tmp/2433/artifacts/pipeline-verify-*`
+- [ ] 2. (**inline**) Run pre-regression — orchestrator-direct execution of the `test-driven-development` phase-0 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-0.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 9's pre-RED evidence needs.
+- [ ] 3. (**inline**) Verify pre-regression results — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly.
+- [ ] 4. (**inline**) RED — write the failing behavioral test for SC-9 — orchestrator-direct execution of the `test-driven-development` red task card.
+  - Skill execution: load `test-driven-development`, read `tasks/red.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Behavioral test: run the new scenario `tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh` (one targeted run; >=600s bash timeout; no GNU `timeout` command) — the agent asked to "run the behavioral tests" currently attempts (or permits) a whole-suite invocation — a loop/glob over `behaviors/*.sh` or an unfiltered model-executing sweep (expected FAIL before change, asserted via `session.yaml`).
+  - What fails: no targeted-run mandate exists in `tests-v2/AGENTS.md` (0 guard occurrences) and the whole-suite attempt is not blocked.
+- [ ] 5. (**inline**) GREEN — implement the SC-9 change that makes the behavioral test pass — orchestrator-direct execution of the `test-driven-development` green task card.
+  - Skill execution: load `test-driven-development`, read `tasks/green.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - What must be true: the targeted-run mandate is stated in `tests-v2/AGENTS.md` — whole-suite runs, directory-enumeration runs, and unfiltered model-executing sweeps are PROHIBITED; one run per SC-RED and SC-GREEN need; the per-SC re-run instruction names only the current branch's SC scenarios; the harness guard text scopes the prohibition to model-executing invocations (content-verification runners excluded); the behavioral scenario's whole-suite attempt is BLOCKED/prohibited by the directive + harness guard.
+  - Update any behavioral scenario expectations that assert the old permissive state in the same GREEN.
+- [ ] 6. (**inline**) Run post-regression — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios Phase 9's post-GREEN regression evidence needs.
+- [ ] 7. (**inline**) Verify SC-9 against its success criterion — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly — including its behavioral-test-evaluation gate (card-marked sub-task dispatch).
+  - Verify: the behavioral test asserts the whole-suite attempt is BLOCKED/prohibited by the directive + harness guard (no model-executing whole-suite invocation occurred — asserted via `session.yaml`); structural read-back of the guard text in `tests-v2/AGENTS.md` (mandate + prohibition + exemption + per-SC re-run scoping) confirms the directive is in place. Structural read-back is supporting evidence only — the behavioral BLOCKED assertion is primary.
+- [ ] 8. (**inline**) Commit the SC-9 slice.
+  - From the `.opencode` submodule working tree: `git add .opencode/tests-v2/AGENTS.md .opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh && git commit -m "Item 9 (SC-9): enforce targeted behavioral-test execution — mandate + harness guard in tests-v2/AGENTS.md; whole-suite BLOCKED scenario"`
+
+## Phase Completion
+
+- SC-9 verify verdict PASS recorded in the pipeline-verify evidence artifact.
+- Behavioral test evidence preserved for audit cross-validation.
+- Commit present on the feature branch; working tree clean.
+- Concern transition: post-implementation gates run once now — all operating under the targeted-run mandate this phase established.
+
 ## Post-Implementation (Tier 1 — once per plan, at the end of the last phase)
 
-- [ ] 1. (**sub-agent**) Run the adversarial audit.
-  - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by the validator, evaluator, and arbiter in sequence.
+All behavioral runs below are TARGETED (R-25/R-26): each names exactly the scenario(s) its evidence needs — no whole-suite invocations, no enumeration over `behaviors/*.sh`, no unfiltered model-executing sweeps.
+
+- [ ] 1. (**inline**) Run the adversarial audit — orchestrator-direct execution of the `audit` skill card.
+  - Skill execution: load `audit`, read the `verification-audit-investigator` task card, execute its procedure directly; `task()` ONLY where the card marks the sub-agent dispatch — each DiMo role (investigator → validator → evaluator → arbiter) is a card-marked clean-room `task()` dispatch, run in sequence.
+  - Targeted-run scope: audit verification runs name only the scenario(s) the audit evidence needs.
   - Purpose: adversarial audit of the deliverable against the spec; record verdicts.
 - [ ] 2. (**inline**) Run the Z3 constraint-solver verification.
   - Command: `.opencode/tools/solve check --state-path tmp/2433/artifacts/state-z3-post.yaml --contract-path .opencode/.issues/2433/dependency-contract.yaml`
   - Purpose: verify the post-implementation phase state against the dependency contract; record the solver output as the pipeline z3-check artifact. Interpret goal-state UNSAT against initial-state preconditions per the precedent documented in the solve-output artifact (reachability was proven by the model query).
-- [ ] 3. (**sub-agent**) Run the finishing checklist.
-  - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
+- [ ] 3. (**inline**) Run the finishing checklist — orchestrator-direct execution of the `finishing-a-development-branch` checklist task card.
+  - Skill execution: load `finishing-a-development-branch`, read `tasks/checklist.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
   - Purpose: structural checks — markdown lint/format gates on edited guideline and reference files, submodule state, branch readiness.
-- [ ] 4. (**sub-agent**) Run the pre-PR gate.
-  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
-  - Purpose: read all SC verdicts; BLOCK if any SC is FAIL (DONE_WITH_CONCERNS coerces to FAIL; EVIDENCE_TYPE_MISMATCH is a hard FAIL).
-- [ ] 5. (**sub-agent**) Run the final regression check.
-  - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
+- [ ] 4. (**inline**) Run the pre-PR gate — orchestrator-direct execution of the `verification-before-completion` verify task card.
+  - Skill execution: load `verification-before-completion`, read `tasks/verify.md`, execute its procedure directly (its behavioral-test-evaluation gate is a card-marked sub-task dispatch).
+  - Purpose: read all 9 SC verdicts; BLOCK if any SC is FAIL (DONE_WITH_CONCERNS coerces to FAIL; EVIDENCE_TYPE_MISMATCH is a hard FAIL).
+- [ ] 5. (**inline**) Run the final regression check — orchestrator-direct execution of the `test-driven-development` phase-4 task card.
+  - Skill execution: load `test-driven-development`, read `tasks/phase-4.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
+  - Targeted-run scope: run only the named scenarios the final regression evidence needs — the scenarios the 9 SCs' verification requires, never an enumerated sweep.
   - Purpose: final regression check before PR.
-- [ ] 6. (**sub-agent**) Prepare the PR review context.
-  - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`
-- [ ] 7. (**sub-agent**) Create the pull request.
-  - Dispatch: `task(..., prompt: "execute create task from git-workflow-pr")`
+- [ ] 6. (**inline**) Prepare the PR review context — orchestrator-direct execution of the `git-workflow-pr` review-prep task card.
+  - Skill execution: load `git-workflow-pr`, read `tasks/review-prep.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch (e.g., report-only SHA-verification sub-agent).
+- [ ] 7. (**inline**) Create the pull request — orchestrator-direct execution of the `git-workflow-pr` create task card.
+  - Skill execution: load `git-workflow-pr`, read `tasks/pr-creation.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch (e.g., the report-only SHA-verification sub-agent).
   - Target: `michael-conrad/.opencode` from `feature/2402-finishing-checklist-trailer-remediation`; stacked strategy — one branch, one squashed commit per issue, one PR. Human-only merge — the agent never merges.
-- [ ] 8. (**sub-agent**) Generate the completion executive summary.
-  - Dispatch: `task(..., prompt: "execute completion task from completion-core")`
+- [ ] 8. (**inline**) Generate the completion executive summary — orchestrator-direct execution of the `completion-core` completion task card.
+  - Skill execution: load `completion-core`, read `tasks/completion.md`, execute its procedure directly. `task()` only where the task card marks a sub-task dispatch.
 
 ---
 
 ## Exit Criteria (recheck before halt)
 
-All exit criteria C1–C9 listed in the plan index must hold before the pipeline declares completion. The enforcement gate is all-or-nothing: any SC FAIL blocks completion, remediation-first protocol applies, and escalation follows only after exhaustive remediation.
+All exit criteria C1–C10 listed in the plan index must hold before the pipeline declares completion. The enforcement gate is all-or-nothing: any SC FAIL blocks completion, remediation-first protocol applies, and escalation follows only after exhaustive remediation.
 
 ---
 
@@ -643,4 +736,9 @@ lifecycle_events:
     event: plan_created
     plan_file: ".opencode/.issues/2433/plan.md"
     phase_count: 8
+  - timestamp: "2026-09-04T03:30:00Z"
+    event: plan_revised
+    plan_file: ".opencode/.issues/2433/plan.md"
+    phase_count: 9
+    revision_reason: "Spec gained SC-9 (targeted behavioral-test execution mandate, R-25/R-26); plan regenerated 8 -> 9 phases; DAG updated (SC-9 file-disjoint, converging into post-implementation gates); dispatch modes corrected to orchestrator-direct skill-card execution per developer execution-directive correction; 7 analytical artifacts + solve/plan artifacts regenerated from the 9-SC spec body"
 ```

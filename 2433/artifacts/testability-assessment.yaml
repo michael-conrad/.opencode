@@ -1,0 +1,112 @@
+# Testability Assessment — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Regenerated from the current 9-SC spec body (SC-1..SC-9) after the spec revise deleted
+# the prior analytical set (backfill precedent, mode: retroactive). Assigns evidence types
+# to each SC.
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+sc_evidence:
+  - sc: SC-1
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents dispatched from the working session (no isolated
+      environment, no project writes): skill-trigger prompt; probe asserts orchestrator
+      executing workflow steps itself (own-context file reads) and no SKILL.md content
+      inside any task() prompt. Plus direct reading of prompts/default.txt.
+    testability: high
+    detail: "Spec declares behavioral evidence; the change is runtime-behavioral (agent dispatch decisions) — structural substitutes are EVIDENCE_TYPE_MISMATCH (critical-rules-BEH-EV). Behavioral scenario exists: tests-v2/behaviors/2433-sc1-system-prompt-architecture-b.sh (written during the stale-plan phase-1 RED; re-used by Item 1)."
+
+  - sc: SC-2
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents from the working session: orchestrator performing
+      sanctioned direct workflow execution is NOT halted; orchestrator forwarding a whole
+      card IS halted. Plus direct reading of both guideline files.
+    testability: high
+    detail: "Halt-machinery trigger re-pointing is runtime-behavioral; both positive (not halted) and negative (halted) probe directions required."
+
+  - sc: SC-3
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents from the working session: approved-plan prompt;
+      probe asserts plan steps executed with orchestrator-own tool calls and task() only
+      at step-marked points; no whole-plan body inside any task() prompt. Plus direct
+      reading of the three executing-plans files.
+    testability: high
+    detail: "Plan-execution routing is runtime-behavioral; whole-plan forwarding assertion is the key negative check."
+
+  - sc: SC-4
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents from the working session: skill-trigger probe
+      asserting no card content in task() prompt. Plus direct reading of every SKILL.md
+      Invocation/Dispatch section (no SKILL.md-path targets) and guard line (51/51 retained).
+    testability: high
+    detail: "Two conditions must both pass (spec §11 edge case): behavioral probe AND direct reading of all dispatch strings — guard presence alone is insufficient."
+
+  - sc: SC-5
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral negative probe via sub-agents from the working session: dispatch a
+      sub-agent with a whole plan body; assert BLOCKED with reason ORCHESTRATOR_ONLY_PLAN.
+      Plus direct reading of the standards doc carrying the guard definition.
+    testability: high
+    detail: "Negative probe is the primary evidence; the guard must convert forwarding into a BLOCKED contract, not a stall."
+
+  - sc: SC-6
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents from the working session: skill dispatch routes per
+      closed-set row. Plus direct reading of every SKILL.md TDT and Invocation section
+      confirming closed-set values {orchestrator, task-card, task-card blind} and
+      TDT-vs-Invocation agreement.
+    testability: medium
+    detail: "Deck-wide migration (51 cards, 45 blanket clauses) makes the direct reading broad; the routing probe confirms runtime conformance. RED phase is direct reading (old values present)."
+
+  - sc: SC-7
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probe via sub-agents from the working session: a plan produced by the
+      updated writing-plans flow is executed per its per-step modes. Plus direct reading
+      of the produced plan and the producer templates confirming explicit per-step modes.
+    testability: medium
+    detail: "Requires producing a plan through the updated flow before probing; two-stage evidence (format reading + execution probe)."
+
+  - sc: SC-8
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral probes via sub-agents from the working session: skill-trigger and
+      plan-trigger probes both route per the canonical table. Plus direct reading of the
+      directive files (including .opencode/AGENTS.md) confirming Read-link presence and
+      absent duplicate definitions.
+    testability: high
+    detail: "Both trigger probes (skill + plan) required; direct reading confirms single-sourcing across all directive-layer files."
+
+  - sc: SC-9
+    evidence_type: behavioral
+    verification_method: >
+      Behavioral test: an agent asked to "run the behavioral tests" attempts a whole-suite
+      invocation and is BLOCKED/prohibited by the directive + harness guard (assert no
+      model-executing whole-suite invocation occurs); plus structural read-back of the
+      guard text in tests-v2/AGENTS.md. Executed via the artifact-only harness
+      (2433-sc9-whole-suite-invocation-blocked.sh) with session.yaml as PRIMARY evidence
+      (tests-v2/AGENTS.md §2) — orchestrator evaluation via behavioral-test-evaluation.
+    testability: high
+    detail: "The change is runtime-behavioral per BEH-EV substrate (agents invoking the harness); the whole-suite attempt BLOCKED assertion is the key negative check. The structural read-back of guard text is SUPPORTING evidence only."
+
+testability_notes:
+  - "All 9 SCs declare behavioral evidence in the spec — substrate-determined: agent dispatch decisions and test-execution choices are runtime behavior (critical-rules-BEH-EV uplift makes declared type irrelevant; the change IS runtime-behavioral regardless)."
+  - "Behavioral probes are executed by sub-agents dispatched from the working session (no isolated environment, no project writes) per spec §3 verification method and §6 dependency row."
+  - "Model dependency: verified local model qwen3.8:27b-256k-gguf4 per spec §6; behavioral tests require >=600s bash timeout (tests-v2/AGENTS.md §10.2); fabricated model-unavailability excuses prohibited (§10.4)."
+  - "TARGETED-RUN MANDATE (R-25/R-26, enforced by Item 9): every behavioral run targets exactly the named scenario(s) the current SC's RED/GREEN evidence needs — no whole-suite invocations, no enumeration sweeps, no loops over behaviors/*.sh; one run per need."
+  - "Structural/direct-reading checks are SUPPORTING evidence only (dispatch-string sweep, guard counts, closed-set confirmation, guard-text read-back) — never substitutes for the probes."
+  - "Existing structural harness retained: skildeck-lint / validate_skill_cards.py for guards + frontmatter; gap noted — no existing check rejects SKILL.md-path targets in task() strings, no TDT vocabulary validator (candidates for additive validators, optional)."
+  - "Regression risk between items: spec §11 Recovery edge case — if a behavioral GREEN regresses a previously passing SC, the affected earlier SC re-runs before the pipeline advances; enforcement gate is all-or-nothing (spec §9)."
+
+verdict: testable
+verdict_detail: >
+  Testable with the existing behavioral harness plus probe dispatches from the working
+  session. Evidence type for all 9 SCs: behavioral (substrate-determined). Every SC pairs
+  a behavioral probe with a direct reading of the changed text artifact; SC-9 pairs the
+  whole-suite-BLOCKED behavioral test with structural read-back of the guard text.

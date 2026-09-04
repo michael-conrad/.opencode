@@ -1,0 +1,180 @@
+# Structure — writing-plans revise task for issue #2433 (.opencode)
+# Regenerated from the current 9-SC spec body (SC-1..SC-9): phase decomposition,
+# dependency DAG, and skill+task selection. Revision basis: spec gained SC-9
+# (targeted behavioral-test execution mandate, R-25/R-26); plan.md was stale at
+# 8 phases / SC-1..SC-8. Generated 2026-09-04 by writing-plans/tasks/revise executor.
+# Branch: feature/2402-finishing-checklist-trailer-remediation (.opencode submodule, verified this session).
+# #2429 completed work is NOT re-planned — phases 1-8 retain their original scope;
+# only Phase 9 (SC-9) is new.
+
+spec_path: .opencode/.issues/2433/spec.md
+sc_count: 9
+scope: directive-text-only (spec §2) — guidelines, prompts, AGENTS.md, skill cards, task cards, reference standards, tests-v2 directive surface
+branch: feature/2402-finishing-checklist-trailer-remediation
+
+phase_decomposition:
+  - phase: 1
+    scs: [SC-1]
+    concern: "Rewrite system prompt dispatch directives (prompts/default.txt Sub-Agent Routing Boundary + Pre-Response Gate) to Architecture B"
+    files: [.opencode/prompts/default.txt]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 2
+    scs: [SC-2]
+    concern: "Re-point directive-layer HALT machinery (022 pure-router framing + inline-HALT rows -> whole-card/whole-plan forwarding triggers; align 000-critical-rules carve-out classifications; retain whole-card prohibition)"
+    files: [.opencode/guidelines/022-orchestrator-context-discipline.md, .opencode/guidelines/000-critical-rules.md]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 3
+    scs: [SC-3]
+    concern: "Rewrite executing-plans plan-execution architecture (orchestrator reads plan + executes steps directly; step-scoped task() only at marked points)"
+    files: [.opencode/skills/executing-plans/SKILL.md, .opencode/skills/executing-plans/tasks/read-plan.md, .opencode/skills/executing-plans/tasks/dispatch-phase.md]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 4
+    scs: [SC-4]
+    concern: "Eliminate whole-card forwarding across the deck (no task() string targets a SKILL.md path; guard retention verified 51/51 by direct reading)"
+    files: [".opencode/skills/**/SKILL.md (offending dispatch strings)"]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 5
+    scs: [SC-5]
+    concern: "Add plan pre-flight guard ORCHESTRATOR_ONLY_PLAN to canonical standards docs + sub-agent entry pattern"
+    files: [.opencode/reference/task-card-structure-standards.md]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 6
+    scs: [SC-6]
+    concern: "Normalize TDT vocabulary to closed set {orchestrator, task-card, task-card blind} across the deck; resolve audit/brainstorming/spec-creation TDT-vs-Invocation contradictions; rewrite blanket clause in all 45 carrying cards"
+    files: [".opencode/skills/**/SKILL.md (TDT sections, 45 blanket-clause cards, 3 contradiction cards)"]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 7
+    scs: [SC-7]
+    concern: "Add per-step dispatch mode (direct | task-card, default direct) to canonical plan format; writing-plans producer templates emit it"
+    files: [.opencode/skills/writing-plans/SKILL.md, .opencode/skills/writing-plans/reference/plan-artifact-format.md, .opencode/skills/writing-plans/tasks/create.md]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 8
+    scs: [SC-8]
+    concern: "Single-source dispatch vocabulary: canonical table in reference layer; directive-layer files (system prompt, 022, 000-critical-rules, both standards cards, AGENTS.md Universal Skill Dispatch Gate) reference it via Read-link; strip duplicates from system prompt"
+    files: [.opencode/reference/skill-card-description-standards.md, .opencode/prompts/default.txt, .opencode/guidelines/022-orchestrator-context-discipline.md, .opencode/guidelines/000-critical-rules.md, .opencode/reference/task-card-structure-standards.md, .opencode/AGENTS.md]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: 9
+    scs: [SC-9]
+    concern: "Enforce targeted behavioral-test execution: mandate + harness guard text in tests-v2/AGENTS.md (whole-suite/directory-enumeration/unfiltered model-executing sweeps PROHIBITED; one run per SC-RED/GREEN need; content-verification runners exempt); new behavioral scenario 2433-sc9-whole-suite-invocation-blocked.sh for the whole-suite-attempt BLOCKED behavior"
+    files: [.opencode/tests-v2/AGENTS.md, .opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh (new)]
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+
+dependency_dag:
+  edges:
+    - from: 3
+      to: 4
+      reason: "SC-4 deck-wide dispatch-string sweep covers executing-plans' task() strings; the card must be in corrected Architecture-B form first (spec §11 overlapping-file ordering)"
+    - from: 3
+      to: 6
+      reason: "Spec §11 edge case: SC-6's blanket-clause rewrite must land on the already-corrected executing-plans card (SC-3 before SC-6)"
+    - from: 4
+      to: 6
+      reason: "Dispatch-string fixes (SC-4) precede the TDT vocabulary migration pass (SC-6) over the same 51-file deck surface — sequential bulk edits, no concurrent edit window"
+    - from: 1
+      to: 8
+      reason: "SC-8 Read-link conversion + duplicate-stripping on prompts/default.txt requires SC-1's Architecture-B rewrite in place (directive text finalized before dedup pass)"
+    - from: 2
+      to: 8
+      reason: "SC-8 Read-link conversion on 022/000-critical-rules requires SC-2's re-pointed halt machinery text in place"
+    - from: 5
+      to: 8
+      reason: "SC-8 converts task-card-structure-standards restatements to Read-links; ORCHESTRATOR_ONLY_PLAN guard definition (SC-5) must exist first"
+    - from: 7
+      to: 8
+      reason: "Canonical vocabulary table's plan-step-mode row (direct | task-card) reflects the finalized plan format from SC-7"
+  no_edges_for:
+    - phase: 9
+      reason: >
+        SC-9 is file-disjoint from SC-1..SC-8 (tests-v2/AGENTS.md + new scenario script are a
+        disjoint surface — no shared edit targets), so no ordering edge connects it to phases
+        1-7. Per the revision brief it converges into the post-implementation gates: the
+        post-implementation regression-check and every RED/GREEN/post-regression run after
+        Item 9 lands operate under the targeted-run mandate. Phase 9 therefore slots after
+        phases 1-8 in the plan's executed order (it can run at any topological position;
+        plan ordering follows the spec's SC order SC-1..SC-9). The DAG stays acyclic: no
+        edge points from 9 to any earlier phase and none from any phase to 9.
+  topological_order: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  acyclicity_note: "All 7 edges point strictly from a lower to a higher phase index; phase 9 has no incoming/outgoing edges in the phase DAG (file-disjoint, converging into post-implementation gates). Acyclic by construction; verified by solve model query (SAT)."
+
+skill_task_selection:
+  - phase: 1
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 2
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 3
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 4
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 5
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 6
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 7
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 8
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+  - phase: 9
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    verify_task: "execute verify task from verification-before-completion"
+    commit_mode: "commit-inline (orchestrator runs git add + git commit directly)"
+
+dispatch_mode_note: >
+  Per the developer's execution-directive correction (reflected in the revised plan's
+  dispatch-mode annotations): skill-card execution steps (RED/GREEN/post-regression from
+  test-driven-development; verify from verification-before-completion) are executed
+  ORCHESTRATOR-DIRECT — the orchestrator reads the named task card and executes its
+  procedure in its own context. task() is used ONLY where the task card itself marks a
+  sub-task dispatch (e.g., verification-before-completion's behavioral-test-evaluation
+  sub-agent, audit DiMo chain, PR-creation sub-agent routing). commit-inline and z3-check
+  remain orchestrator-direct per the implementation-workflow reference card.
+
+triplet_co_location:
+  status: OK
+  note: "Each SC's RED/GREEN/COMMIT steps are assigned to exactly one phase (1:1 SC-to-phase mapping per spec Items 1-9). No SC has steps split across phases."
+
+cross_phase_dependency:
+  status: OK
+  note: "No RED test depends on SC output from a later phase. Every DAG edge points from an earlier phase to a later one (3->4, 3->6, 4->6, 1->8, 2->8, 5->8, 7->8); each phase's RED probe reads only pre-change state or outputs of already-completed earlier phases. Phase 9 has no DAG edges — its RED (whole-suite attempt runs/unblocked) reads pre-change tests-v2 state only."

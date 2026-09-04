@@ -1,0 +1,109 @@
+# Cross-Cutting Matrix — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Regenerated from the current 9-SC spec body (SC-1..SC-9) after the spec revise deleted
+# the prior analytical set (backfill precedent, mode: retroactive). Identifies SCs spanning
+# multiple concerns (concern IDs per concern-map.yaml: CONCERN-1 Directive Layer,
+# CONCERN-2 Skill Deck Layer, CONCERN-3 Plan Layer, CONCERN-4 Test-Execution Discipline).
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+cross_cutting_scs:
+  - sc: SC-8
+    spans:
+      - CONCERN-1 (Directive Layer)
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-3 (Plan Layer)
+    detail: >
+      The canonical vocabulary table is written in the reference layer and Read-linked by the
+      system prompt, 022, 000-critical-rules, both standards cards, and AGENTS.md (directive
+      layer) — while the deck's 51 TDTs and the plan layer's mode vocabulary must all agree
+      with it. SC-8 is the convergence point that keeps SC-1..SC-7 from re-fragmenting.
+  - sc: SC-6
+    spans:
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-1 (Directive Layer)
+    detail: >
+      TDT vocabulary normalization is deck-wide (51 cards) but must exactly match the
+      directive-layer canonical table (SC-8) and the retired "inline" pejorative in 022/AGENTS.md
+      (SC-2/SC-8). The blanket-clause rewrite also overlaps SC-3's file set (executing-plans
+      wrapped-tail variant — spec §11 edge case).
+  - sc: SC-3
+    spans:
+      - CONCERN-3 (Plan Layer)
+      - CONCERN-2 (Skill Deck Layer)
+    detail: >
+      executing-plans is both a plan-execution card (SC-3 rewrites its routing architecture)
+      and a blanket-clause carrier (SC-6 rewrites its Task Discipline clause). Item ordering
+      runs SC-3 before SC-6 so the clause rewrite lands on the already-corrected card.
+  - sc: SC-4
+    spans:
+      - CONCERN-2 (Skill Deck Layer)
+      - CONCERN-3 (Plan Layer)
+    detail: >
+      Whole-card forwarding prohibition (deck dispatch strings) shares the vocabulary and
+      guard-semantics layer with the plan guard (SC-5): both are pre-flight-guard backstops
+      defined in the standards docs, and both are enforced by the same task()-string discipline.
+  - sc: SC-9
+    spans:
+      - CONCERN-4 (Test-Execution Discipline)
+      - CONCERN-1 (Directive Layer) — indirect
+    detail: >
+      SC-9's targeted-run mandate governs how this plan's own RED/GREEN/post-regression
+      behavioral runs are executed (one run per SC need; no whole-suite invocation) — the
+      post-implementation regression-check and pre-pr-gate gates operate under it. Its
+      deliverables (tests-v2/AGENTS.md mandate + guard + one new scenario) live in a file
+      set disjoint from SC-1..SC-8, so it has no file-ordering edge on phases 1-7; it
+      converges into the post-implementation gates, which themselves must comply with it.
+
+sc_to_concern_matrix:
+  - sc: SC-1
+    directive_layer: primary
+    skill_deck_layer: none
+    plan_layer: none
+    test_execution_layer: none
+  - sc: SC-2
+    directive_layer: primary
+    skill_deck_layer: none
+    plan_layer: none
+    test_execution_layer: none
+  - sc: SC-3
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+    test_execution_layer: none
+  - sc: SC-4
+    directive_layer: none
+    skill_deck_layer: primary
+    plan_layer: secondary
+    test_execution_layer: none
+  - sc: SC-5
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+    test_execution_layer: none
+  - sc: SC-6
+    directive_layer: secondary
+    skill_deck_layer: primary
+    plan_layer: none
+    test_execution_layer: none
+  - sc: SC-7
+    directive_layer: none
+    skill_deck_layer: secondary
+    plan_layer: primary
+    test_execution_layer: none
+  - sc: SC-8
+    directive_layer: primary
+    skill_deck_layer: secondary
+    plan_layer: secondary
+    test_execution_layer: none
+  - sc: SC-9
+    directive_layer: indirect (governs how verification runs are executed)
+    skill_deck_layer: none
+    plan_layer: none
+    test_execution_layer: primary
+
+propagation_notes:
+  - "SC-9 has no file overlap with SC-1..SC-8 (tests-v2/AGENTS.md + new scenario script are a disjoint surface) — its DAG independence is structural, not incidental (spec §6: harness surface verified; §3 granularity note: orthogonal)."
+  - "Post-implementation gates (audit, z3-check, structural-checks, pre-PR gate, final regression check) run once after the last phase and are subject to SC-9's targeted-run mandate as soon as Phase 9 lands."
+  - "Every modified .md file must pass markdown lint/format gates (advisory, read-only modes only per critical-rules-linters-advisory)."
+  - "State invariants hold at every phase boundary: guards 51/51, result-contract envelope unchanged, no .opencode/.opencode/ creation, directive-text-only."

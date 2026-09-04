@@ -1,0 +1,106 @@
+# Concern Map — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Regenerated from the current 9-SC spec body (SC-1..SC-9) after the spec revise deleted
+# the prior analytical set (backfill precedent, mode: retroactive). SC → concern → item
+# boundary mapping.
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+
+concern_groups:
+  - id: CONCERN-1
+    name: Directive Layer (what the agent is told to do)
+    scs:
+      - SC-1
+      - SC-2
+      - SC-8
+    description: >
+      The system prompt (prompts/default.txt) and guideline layer (022, 000-critical-rules,
+      AGENTS.md dispatch directives) carry two incompatible orchestrator architectures.
+      Rewrite to Architecture B (orchestrator executes workflow steps directly; task() only
+      at marked points); re-point halt machinery; single-source the vocabulary via Read-link
+      to the canonical reference table.
+    phase_boundary: directive-rewrite
+    files:
+      - .opencode/prompts/default.txt
+      - .opencode/guidelines/022-orchestrator-context-discipline.md
+      - .opencode/guidelines/000-critical-rules.md
+      - .opencode/AGENTS.md (Universal Skill Dispatch Gate section only)
+
+  - id: CONCERN-2
+    name: Skill Deck Layer (51 cards + task cards)
+    scs:
+      - SC-4
+      - SC-6
+    description: >
+      Eliminate whole-card forwarding invitations (no task() string may target a SKILL.md
+      path); normalize TDT Dispatch values to the closed set {orchestrator, task-card,
+      task-card blind}; resolve the three TDT-vs-Invocation contradictory cards (audit,
+      brainstorming, spec-creation); rewrite the blanket clause in all 45 carrying cards.
+      Retain the 51/51 ORCHESTRATOR_ONLY_SKILL_CARD guards verbatim.
+    phase_boundary: deck-normalization
+    files:
+      - .opencode/skills/**/SKILL.md (51)
+      - .opencode/reference/skill-card-description-standards.md (canonical vocabulary table)
+
+  - id: CONCERN-3
+    name: Plan Layer (how plans are executed and produced)
+    scs:
+      - SC-3
+      - SC-5
+      - SC-7
+    description: >
+      Rewrite executing-plans so the orchestrator reads the plan and executes steps directly
+      (step-scoped task() only where the plan marks it); add the ORCHESTRATOR_ONLY_PLAN plan
+      pre-flight guard to the canonical standards docs; add the per-step dispatch mode
+      (direct | task-card, default direct) to the canonical plan format and writing-plans
+      producer templates.
+    phase_boundary: plan-layer-rewrite
+    files:
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/executing-plans/tasks/read-plan.md
+      - .opencode/skills/executing-plans/tasks/dispatch-phase.md
+      - .opencode/reference/task-card-structure-standards.md
+      - .opencode/skills/writing-plans/SKILL.md
+      - .opencode/skills/writing-plans/reference/plan-artifact-format.md
+      - .opencode/skills/writing-plans/tasks/create.md
+
+  - id: CONCERN-4
+    name: Test-Execution Discipline Layer (behavioral harness governance)
+    scs:
+      - SC-9
+    description: >
+      Targeted behavioral-test execution: one run per SC-RED and SC-GREEN need; no
+      whole-suite invocation mechanism (behaviors/*.sh loops/enumeration, unfiltered
+      model-executing sweeps PROHIBITED); the mandate and guard text live in
+      tests-v2/AGENTS.md + harness; content-verification runners exempt (spec §11 edge case).
+      Orthogonal to the routing concern set (spec §3 granularity note) — stays whole as a
+      single prohibition.
+    phase_boundary: test-execution-governance
+    files:
+      - .opencode/tests-v2/AGENTS.md
+      - .opencode/tests-v2/behaviors/ (197 model-executing scenario scripts — governed surface, not edited)
+      - .opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh (new scenario)
+
+concern_to_item:
+  - concern: CONCERN-1 (Directive Layer)
+    items: [Item 1 (SC-1), Item 2 (SC-2), Item 8 (SC-8)]
+    note: Item 8 single-sources the vocabulary all directive-layer files Read-link to.
+  - concern: CONCERN-2 (Skill Deck Layer)
+    items: [Item 4 (SC-4), Item 6 (SC-6)]
+    note: Deck-wide bulk edits; contradictory-card resolution and blanket-clause rewrite are deck-scoped.
+  - concern: CONCERN-3 (Plan Layer)
+    items: [Item 3 (SC-3), Item 5 (SC-5), Item 7 (SC-7)]
+    note: Item ordering runs SC-3 before SC-6 so the executing-plans blanket-clause rewrite (SC-6) lands on the already-corrected card (spec §11 edge case).
+  - concern: CONCERN-4 (Test-Execution Discipline)
+    items: [Item 9 (SC-9)]
+    note: SC-9 is orthogonal to the routing concern set (spec §3 granularity note); it governs how behavioral tests are executed, not how agents dispatch.
+
+boundary_notes:
+  - Directive-layer changes are text rewrites in prompts/guidelines — no code.
+  - Deck-layer changes are bulk edits across 51 SKILL.md files plus the reference vocabulary card.
+  - Plan-layer changes touch executing-plans skill files, the standards doc (guard), and writing-plans producer templates (mode field).
+  - Test-execution-discipline changes are directive + guard text in tests-v2/AGENTS.md plus one new behavioral scenario script; the 197 existing scenario scripts are the governed surface, not edit targets.
+  - Concerns 1-2 interact: directive rewrites must match the deck vocabulary exactly — the canonical table (SC-8) is the convergence point.
+  - Concerns 2-3 interact: executing-plans is touched by both SC-3 (routing architecture) and SC-6 (Task Discipline clause); item ordering prevents conflict.
+  - Concern 4 is independent of Concerns 1-3 (no shared files) — SC-9 has no ordering constraint on phases 1-7 and converges with the post-implementation gates, which are themselves subject to the targeted-run mandate.
+  - Each item covers exactly one SC (spec §5); no item spans multiple SCs.

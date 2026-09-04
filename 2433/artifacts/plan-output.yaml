@@ -1,0 +1,32 @@
+---
+actions:
+- name: rewrite_executing_plans
+  parameters: []
+- name: add_plan_preflight_guard
+  parameters: []
+- name: add_plan_step_dispatch_mode
+  parameters: []
+- name: eliminate_whole_card_forwarding
+  parameters: []
+- name: repoint_halt_machinery
+  parameters: []
+- name: rewrite_system_prompt_b
+  parameters: []
+- name: enforce_targeted_run_mandate
+  parameters: []
+- name: migrate_tdt_closed_set
+  parameters: []
+- name: single_source_vocabulary
+  parameters: []
+domain: dispatch-discipline-remediation
+engine: tamer
+plan_length: 9
+status: SOLVED_SATISFICING
+capture_note: >
+  Captured from live `.opencode/tools/plan plan --problem` stdout 2026-09-04 (the tool
+  prints YAML to stdout — no --output flag exists on the plan subcommand, per #2429/#2433
+  precedent; ANSI engine-credit lines stripped before capture). Plan validated against
+  plan-problem.yaml via `.opencode/tools/plan validate` -> valid. Planner order:
+  independent phases first (3=executing-plans, 5=plan-guard, 7=plan-step-mode, 1=system-prompt,
+  2=halt-machinery, 9=targeted-run), then the deck-sweep chain (4 after 3; 6 after 3+4),
+  then the convergence phase 8. Edge-compliance governs execution, not plan.md row order.

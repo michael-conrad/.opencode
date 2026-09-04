@@ -1,0 +1,194 @@
+# Blast Radius Analysis — Issue 2433: Remediate Orchestrator Dispatch Discipline
+# Regenerated from the current 9-SC spec body (SC-1..SC-9) after the spec revise deleted
+# the prior analytical set (backfill precedent, mode: retroactive). Affected files verified
+# on disk this session.
+
+issue_number: 2433
+source: .opencode/.issues/2433/spec.md
+scope_note: >
+  Directive text only (spec §2): guidelines, prompts, AGENTS.md, skill cards, task cards,
+  reference standards markdown, and plan/spec documents — plus the tests-v2 targeted-run
+  directive surface (SC-9: tests-v2/AGENTS.md mandate + harness guard text + one new
+  behavioral scenario script). No code files. Every deliverable is a text artifact.
+
+affected_files:
+  - path: .opencode/prompts/default.txt
+    status: existing_on_disk
+    impact: direct
+    sc: SC-1, SC-8
+    detail: >
+      Sub-Agent Routing Boundary + Pre-Response Gate carry BOTH architectures (Architecture-A
+      prose at "The orchestrator routes. It does not do." and the "hand off to executing-plans
+      via sub-agent" forwarding line). Rewrite to Architecture B; Read-link the canonical
+      vocabulary table (SC-8).
+
+  - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-2, SC-8
+    detail: >
+      Written in pure-router model (A); halt machinery re-pointed from inline-work to
+      whole-card/whole-plan forwarding; vocabulary restatements converted to Read-link (SC-8).
+
+  - path: .opencode/guidelines/000-critical-rules.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-2
+    detail: >
+      Whole-card dispatch prohibition RETAINED; Infrastructure-Failure Carve-out and
+      routing-bypass classifications re-pointed to forwarding-based violations.
+
+  - path: .opencode/skills/executing-plans/SKILL.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-3, SC-6
+    detail: >
+      Plan-execution architecture rewritten: orchestrator reads the plan and executes steps
+      directly; step-scoped task() only where the plan marks it. Also carries the wrapped-tail
+      variant of the blanket clause (SC-6 rewrite lands after SC-3 — spec §11 edge case).
+
+  - path: .opencode/skills/executing-plans/tasks/read-plan.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-3
+    detail: Task card routes read-plan to a sub-agent; rewritten for orchestrator-own-context reading.
+
+  - path: .opencode/skills/executing-plans/tasks/dispatch-phase.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-3
+    detail: Task card dispatches whole phases/workflow to a sub-agent; rewritten for step-scoped dispatch only.
+
+  - path: .opencode/skills/writing-plans/SKILL.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-7
+    detail: >
+      Producer card. Per-step dispatch mode (direct | task-card, default direct) added to the
+      plan format it produces; card execution is orchestrator-direct per the corrected dispatch mode.
+
+  - path: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-7
+    detail: >
+      Canonical plan-format section. Extended with the explicit per-step dispatch-mode field.
+
+  - path: .opencode/skills/writing-plans/tasks/create.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-7
+    detail: >
+      Producer template: emits per-step modes so every produced plan step carries an explicit mode.
+
+  - path: .opencode/reference/task-card-structure-standards.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-5, SC-8
+    detail: >
+      ORCHESTRATOR_ONLY_PLAN plan pre-flight guard defined here (analogous to the card guard).
+
+  - path: .opencode/reference/skill-card-description-standards.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-6, SC-8
+    detail: Canonical dispatch-vocabulary table lives in the reference layer here.
+
+  - path: .opencode/AGENTS.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-8
+    detail: >
+      Universal Skill Dispatch Gate section only: retired-vocabulary header prose rewritten
+      onto the canonical table via Read-link. All other AGENTS.md content out of scope (spec §2).
+
+  - path: .opencode/skills/audit/SKILL.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-6
+    detail: TDT/Invocation contradiction — resolved in Item 6.
+
+  - path: .opencode/skills/brainstorming/SKILL.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-6
+    detail: Same TDT/Invocation contradiction; resolved in Item 6.
+
+  - path: .opencode/skills/spec-creation/SKILL.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-6
+    detail: Same TDT/Invocation contradiction; resolved in Item 6.
+
+  - path: .opencode/tests-v2/AGENTS.md
+    status: existing_on_disk
+    impact: direct
+    sc: SC-9
+    detail: >
+      Targeted-run mandate (R-25/R-26) + harness guard text stated here: whole-suite runs,
+      directory-enumeration runs, and unfiltered model-executing sweeps are PROHIBITED;
+      one run per SC-RED and SC-GREEN need; per-SC re-run instruction names only the current
+      branch's SC scenarios; prohibition scoped to model-executing invocations
+      (content-verification runners exempt — spec §11 edge case).
+
+  - path: .opencode/tests-v2/behaviors/2433-sc9-whole-suite-invocation-blocked.sh
+    status: new_file
+    impact: direct
+    sc: SC-9
+    detail: >
+      New behavioral scenario script (2429-style artifact-only generator: behavior_run +
+      exit 0, session.yaml PRIMARY evidence): an agent asked to "run the behavioral tests"
+      attempts a whole-suite invocation; post-GREEN the attempt is BLOCKED/prohibited by
+      the directive + harness guard (assert no model-executing whole-suite invocation occurs).
+
+deck_wide_surfaces:
+  - surface: .opencode/skills/**/SKILL.md
+    count: 51
+    sc: SC-4, SC-6
+    detail: >
+      51 SKILL.md files (48 top-level + 3 in platforms/ subdirs); 51/51 carry the
+      ORCHESTRATOR_ONLY_SKILL_CARD guard (must retain verbatim); 45 carry the blanket clause
+      (44 verbatim single-line tail, 45th = executing-plans wrapped-tail); 284
+      task(subagent_type=...) dispatch strings — none may target a SKILL.md path (SC-4);
+      all TDT Dispatch values migrate to the closed set (SC-6).
+  - surface: .opencode/tests-v2/behaviors/*.sh
+    count: 197
+    sc: SC-9
+    detail: >
+      197 model-executing behavioral scenario scripts measured this session; SC-9's
+      targeted-run mandate governs them — each opencode run targets exactly the named
+      scenario(s) the current SC's RED/GREEN evidence needs. test-enforcement.sh is a
+      content-verification runner (no model runs) and is EXEMPT (spec §11 edge case).
+
+indirectly_affected:
+  - path: .opencode/tests-v2/behaviors/* (scenario expectations)
+    impact: indirect
+    detail: Behavioral scenarios asserting the old dispatch model update alongside each GREEN (spec cost frame).
+  - path: .opencode/.issues/open/1210-spec-workstream-b-trigger-dispatch-tables-all-39-skillmd-files/plan.md
+    impact: indirect
+    detail: Third dispatch vocabulary; superseded by this spec (§12) — not edited by it.
+  - path: .opencode/.issues/1214/plan.md
+    impact: indirect
+    detail: Orphan plan artifact carrying the same third vocabulary; superseded (§12) — not edited by it.
+  - path: .opencode/hooks/session-enforcement.ts
+    impact: indirect
+    detail: Enforcement surface only if mechanical gates reference the old model; additive phase-2 candidate.
+
+out_of_scope:
+  - .opencode/node_modules/, .venv/, .node/, tmp/ (no dispatch directives)
+  - Sub-agent result contract envelope {status, finding_summary, artifact_path, blocker_reason} (spec §2)
+  - Other issues' bodies (supersession recorded in §12; bodies not edited)
+  - Tickets verified to have no dispatch concern: 698, 699, 700, 701, 702, 703, 704, 705, 872, 1013, 1189, 1212
+
+blast_radius_summary:
+  direct_file_count: 17
+  deck_wide_file_count: 51
+  tests_v2_scenario_script_count: 197
+  indirectly_affected_count: 4
+  risk: high
+  risk_detail: >
+    Deck-wide vocabulary migration (45+ files) with interdependent directive-layer rewrites;
+    regression risk between items is managed by the spec §11 Recovery edge case (all-or-nothing
+    enforcement gate re-runs any earlier SC a later GREEN regresses). SC-9's targeted-run
+    mandate converts every "run the behavioral tests" instruction into one bounded
+    named-scenario run per SC-RED/GREEN need.
