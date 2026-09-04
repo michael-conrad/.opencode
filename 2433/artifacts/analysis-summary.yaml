@@ -1,0 +1,57 @@
+# Analysis Summary — writing-plans/tasks/analyze
+# Executed 2026-09-03 by OpenCode (ollama-cloud/glm-5.3-flash) as analyze task executor
+spec_path: .opencode/.issues/2433/spec.md
+approval:
+  source: 2433/issue.yaml labels
+  label: approved-for-pr
+  status: approved
+success_criteria:
+  count: 8
+  ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8]
+  sc_summary_source: 2433/sc-summary.yaml (8 SCs, matches spec table)
+artifacts:
+  formal_required: &formal
+    - blast-radius.yaml
+    - concern-map.yaml
+    - code-path-inventory.yaml
+    - cross-cutting-matrix.yaml
+    - interface-compatibility.yaml
+    - state-analysis.yaml
+    - testability-assessment.yaml
+  formal_present: []
+  formal_missing: *formal
+  preliminary_present:
+    - {name: blast-radius, path: 2433/artifacts/blast-radius.md, status: complete-substantive}
+    - {name: concern-map, path: 2433/artifacts/concern-map.md, status: complete-substantive}
+    - {name: code-paths, path: 2433/artifacts/code-paths.md, status: complete-substantive}
+    - {name: cross-cutting, path: 2433/artifacts/cross-cutting.md, status: complete-substantive}
+    - {name: interface-compat, path: 2433/artifacts/interface-compat.md, status: complete-substantive}
+    - {name: state-analysis, path: 2433/artifacts/state-analysis.md, status: complete-substantive}
+    - {name: testability, path: 2433/artifacts/testability.md, status: complete-substantive}
+  preliminary_note: >
+    Preliminary .md artifacts were produced by the brainstorming → spec-creation
+    handoff (handoff.yaml, 3 exploration turns, design_approved: false). They are
+    substantively complete but are NOT the 7 formal .yaml artifacts required by
+    writing-plans create.md Step 4a. BACKFILL REQUIRED before plan creation —
+    orchestrator dispatches writing-plans/tasks/backfill.md (mode: retroactive)
+    separately; this analyze task does not backfill.
+scope_boundaries:
+  affected_files_checked: 10
+  files_missing: []
+  verified_present:
+    - .opencode/prompts/default.txt
+    - .opencode/guidelines/022-orchestrator-context-discipline.md
+    - .opencode/guidelines/000-critical-rules.md
+    - .opencode/skills/executing-plans/SKILL.md
+    - .opencode/skills/executing-plans/tasks/read-plan.md
+    - .opencode/skills/executing-plans/tasks/dispatch-phase.md
+    - .opencode/reference/task-card-structure-standards.md
+    - .opencode/reference/skill-card-description-standards.md
+    - .opencode/reference/skill-card-schema.md
+    - .opencode/AGENTS.md
+  scope_note: Spec §2 Not Included confirms directive-text-only scope; no code files affected.
+findings:
+  - Spec exists and is approved (approved-for-pr label verified in issue.yaml).
+  - 8 SCs defined; sc-summary.yaml count matches spec success-criteria table.
+  - All 7 formal analytical artifacts MISSING (only preliminary .md versions exist) — backfill needed.
+  - All referenced scope-boundary files exist in the codebase; zero missing.
