@@ -1,0 +1,260 @@
+# Validation findings — writing-plans validate task for issue #2433 (.opencode)
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+#
+# Generated 2026-09-04 by writing-plans/tasks/validate executor (inline, clean-room).
+# Full fresh validation of .opencode/.issues/2433/plan.md (744 lines, 9 phases /
+# 9 SCs) against the 6 check categories in writing-plans/tasks/validate.md.
+# All evidence from live reads this session: plan.md (full), spec.md (full),
+# dependency-contract.yaml (full), concern-map.yaml, structure.yaml,
+# solve-output.yaml, revise-validation.yaml, implementation-workflow.md, plus
+# live bash checks (task-card existence, grep counts). PASS_WITH_CONCERNS is
+# treated as FAIL per dispatch directive; verdict below is clean PASS.
+
+validate_findings:
+  issue_number: 2433
+  repo: .opencode
+  plan_path: .opencode/.issues/2433/plan.md
+  spec_path: .opencode/.issues/2433/spec.md
+  solve_output_status: SAT
+  planner_status: SOLVED_SATISFICING
+  overall_status: PASS
+  overall_verdict: PASS
+  fail_count: 0
+
+  category_1_structural:
+    result: PASS
+    checks:
+      - check: phase-table-required-columns
+        result: PASS
+        evidence: >
+          plan.md "## Phase Table" (lines 47-59) carries all 7 required columns —
+          Phase | Name | Concern | SCs | Dependencies | Steps | Dispatch — with
+          exactly 9 data rows (phases 1-9), one SC per row (SC-N in row N), and
+          frontmatter phase_count: 9 matching the row count.
+      - check: per-phase-procedure-numbered-steps
+        result: PASS
+        evidence: >
+          Each of the 9 phase sections has a "## Step-by-step" procedure with
+          8 numbered checkbox steps (verified per phase in the full plan read:
+          Phase 1 lines 130-156, Phase 2 lines 201-223, Phase 3 lines 269-289,
+          Phase 4 lines 334-354, Phase 5 lines 399-419, Phase 6 lines 466-486,
+          Phase 7 lines 531-550, Phase 8 lines 597-616, Phase 9 lines 663-685).
+          No gaps or duplicated step numbers; phase table "Steps" column says
+          1-8 in all 9 rows.
+      - check: exit-criteria-sc-mapping
+        result: PASS
+        evidence: >
+          "## Exit Criteria" (C1-C10, lines 67-78) exists with a recheck section
+          at plan end (lines 725-727). SC-to-phase mapping is 1:1 via the phase
+          table SCs column and each phase's "SCs:" metadata field (Phase N ->
+          SC-N for N=1..9); C1 asserts all 9 SCs verified PASS (all-or-nothing
+          enforcement gate); C9 asserts targeted-run compliance of the plan's
+          own behavioral runs (SC-9).
+
+  category_2_skill_task_validity:
+    result: PASS
+    checks:
+      - check: dispatch-references-match-implementation-workflow
+        result: PASS
+        evidence: >
+          Every skill+task reference in the plan matches a valid entry in
+          skills/writing-plans/reference/implementation-workflow.md, with step
+          names and owning skills matching exactly: pre-regression (tdt
+          phase-0), pre-regression-verify (vbc verify), red (tdt red), green
+          (tdt green), post-regression (tdt phase-4), verify (vbc verify),
+          commit-inline (orchestrator-direct git add + commit), audit (DiMo
+          investigator -> validator -> evaluator -> arbiter sequence),
+          z3-check (orchestrator-direct solve check), structural-checks
+          (finishing-a-development-branch checklist), pre-pr-gate (vbc verify),
+          regression-check (tdt phase-4), review-prep (git-workflow-pr
+          review-prep), create-pr (git-workflow-pr create), exec-summary
+          (completion-core completion). All 10 referenced task-card files
+          verified to exist on disk this session (bash -f check, 10/10 EXISTS):
+          test-driven-development/tasks/{phase-0,red,green,phase-4}.md,
+          verification-before-completion/tasks/verify.md,
+          finishing-a-development-branch/tasks/checklist.md,
+          audit/tasks/verification-audit-investigator.md,
+          git-workflow-pr/tasks/{review-prep,pr-creation}.md,
+          completion-core/tasks/completion.md. Frontmatter dispatch array
+          [test-driven-development, verification-before-completion, audit,
+          finishing-a-development-branch, git-workflow-pr, completion-core]
+          is exactly the set of referenced skills. Post-implementation gate
+          sequence matches the reference card order 1:1 (audit -> z3-check ->
+          structural-checks -> pre-pr-gate -> regression-check -> review-prep
+          -> create-pr -> exec-summary). Zero invalid references.
+      - check: dispatch-mode-annotation-basis
+        result: PASS
+        evidence: >
+          Context note (informational, verified non-defective): the plan's
+          skill-card execution steps are annotated orchestrator-direct rather
+          than carrying the reference card's task()-form canonical dispatch
+          strings. This is the developer-corrected dispatch mode that this
+          plan revision was regenerated to encode (dispatch brief: "dispatch
+          modes corrected to orchestrator-direct skill-card execution with
+          task() only at card-marked sub-tasks"), documented in plan section
+          "Dispatch mode (developer-corrected)" and structure.yaml
+          dispatch_mode_note. The skill+task pairings themselves are valid
+          reference-card entries; the execution mechanism is governed by
+          Category 6 dispatch-mode consistency, which passes.
+
+  category_3_sc_coverage:
+    result: PASS
+    checks:
+      - check: every-sc-covered
+        result: PASS
+        evidence: >
+          Spec section 3 defines exactly 9 SCs (SC-1..SC-9, verified in the
+          spec Success Criteria table; granularity note confirms the active
+          set SC-1..SC-9). Plan phases cover each exactly once: Phase 1->SC-1,
+          2->SC-2, 3->SC-3, 4->SC-4, 5->SC-5, 6->SC-6, 7->SC-7, 8->SC-8,
+          9->SC-9 (phase table SCs column + per-phase metadata). Zero
+          uncovered SCs; zero phases without an SC. Concern-map and structure
+          artifact phase decomposition agree (SC-N -> phase N for all 9).
+      - check: triplet-split-detection
+        result: PASS
+        evidence: >
+          For every SC, RED (step 4), GREEN (step 5), and COMMIT (step 8) are
+          co-located in the same phase section — verified 1:1:1 across all 9
+          phases in the full plan read (Phase 9's RED is the targeted
+          2433-sc9-whole-suite-invocation-blocked.sh behavioral test, GREEN is
+          the mandate + guard text, COMMIT is step 8). No SC has RED/GREEN/
+          COMMIT split across phases.
+
+  category_4_concern_separation:
+    result: PASS
+    checks:
+      - check: one-concern-per-phase
+        result: PASS
+        evidence: >
+          Each phase addresses exactly one concern. Via concern-map.yaml
+          (SC -> concern group): CONCERN-1 Directive Layer {SC-1, SC-2, SC-8}
+          -> phases 1, 2, 8; CONCERN-2 Skill Deck Layer {SC-4, SC-6} -> phases
+          4, 6; CONCERN-3 Plan Layer {SC-3, SC-5, SC-7} -> phases 3, 5, 7;
+          CONCERN-4 Test-Execution Discipline {SC-9} -> phase 9. Each phase
+          maps to exactly one SC and each SC to exactly one concern group, so
+          phase -> SC -> concern is well-defined and single-valued for all 9
+          phases. SC-8's plan prose ("keystone spanning all three concerns")
+          is descriptive context; the concern-map assigns SC-8 to CONCERN-1
+          (directive layer, canonical-table convergence), which the phase
+          concern statement matches.
+      - check: no-two-phases-same-concern
+        result: PASS
+        evidence: >
+          All 9 phase-level concern statements are distinct (system-prompt
+          rewrite; HALT-machinery re-pointing; executing-plans rewrite;
+          whole-card forwarding elimination; plan pre-flight guard; TDT
+          closed-set migration; per-step plan dispatch mode; canonical
+          vocabulary single-sourcing; targeted-run mandate). No two phases
+          address the same concern item; the per-SC 1:1 decomposition
+          guarantees distinctness.
+
+  category_5_dag_validation:
+    result: PASS
+    checks:
+      - check: no-cycles
+        result: PASS
+        evidence: >
+          All 7 DAG edges (3->4, 3->6, 4->6, 1->8, 2->8, 5->8, 7->8) point
+          strictly from a lower to a higher phase index; Phase 9 carries no
+          edges. Acyclic by construction; goal reachability proven SAT by the
+          solve model query this revision (solve-output.yaml checks[0]:
+          z3.And(phase1_done..phase9_done) = SAT; raw output
+          tmp/2433/artifacts/solve-model-query.out). dependency-contract.yaml
+          invariants encode the same edges (Implies(phase4_done, phase3_done);
+          Implies(phase6_done, And(phase3_done, phase4_done));
+          Implies(phase8_done, And(phase1_done, phase2_done, phase5_done,
+          phase7_done))). Plan C2 topological order [1..9] is a valid
+          topological sort (every edge lower->higher row).
+      - check: all-phases-reachable
+        result: PASS
+        evidence: >
+          Start nodes (no incoming edges): phases 1, 2, 3, 5, 7, 9. Phase 4
+          reachable via 3->4; Phase 6 via 3->6 and 4->6; Phase 8 via 1->8,
+          2->8, 5->8, 7->8; Phase 9 is itself a start node (trivially
+          reachable) and converges into the post-implementation gates per its
+          exit condition. All 9 phases reachable from some start node.
+      - check: no-orphan-phases
+        result: PASS
+        evidence: >
+          Phase 9 has no incoming OR outgoing DAG edges — a graph orphan by
+          the literal check. Disposition (documented design exception, not a
+          FAIL): the edge-less shape is contract-sanctioned and tri-authored —
+          dependency-contract.yaml dependency_contract_notes states "DEP-10
+          (SC-9) is file-disjoint from DEP-1..DEP-9 — no phase-DAG ordering
+          edge on phases 1-7; it converges into the post-implementation
+          gates"; structure.yaml dependency_dag.no_edges_for states the same
+          with the acyclicity rationale; spec section 3 granularity note
+          declares SC-9 orthogonal to the routing concern set and section 6
+          documents the disjoint tests-v2 surface. The plan implements the
+          contract faithfully (Phase 9 dependencies: none; exit condition
+          chains the post-implementation gates after it). Fabricating an edge
+          (9->8 or 8->9) would contradict the spec's file-disjointness — a
+          worse defect than the edge-less node. The check's intent (catch
+          accidental disconnection) is not violated: the disconnection is
+          intentional, documented in three authoritative artifacts, and the
+          plan's execution narrative orders Phase 9 before the gates it
+          governs. Recorded here for audit transparency per the precedent in
+          revise-validation.yaml category_5.
+      - check: plan-matches-contract-dag
+        result: PASS
+        evidence: >
+          Plan Dependencies column matches dependency-contract.yaml invariants
+          exactly: Phase 4 deps [3]; Phase 6 deps [3,4]; Phase 8 deps
+          [1,2,5,7]; Phases 1,2,3,5,7,9 deps none. 7 edges — matches the
+          contract's 3 phase-dependency invariants and structure.yaml's 7-edge
+          DAG. Plan Pre-Implementation step 1 restates the identical edge set.
+          All 10 contract dependency_edges (DEP-1..DEP-10) are covered by
+          phases: DEP-1/DEP-2/DEP-9 (Read-link edges) -> Phase 8; DEP-3 ->
+          Phase 2; DEP-4/DEP-5 -> Phase 3; DEP-6 -> Phase 5; DEP-7 -> Phases
+          4+6; DEP-8 -> Phase 7; DEP-10 -> Phase 9. Contract carries 18
+          variables (9 phase + 9 effect), 12 invariants, 18 postconditions,
+          10 dependency edges — consistent with solve-output.yaml counts.
+
+  category_6_holistic_quality:
+    result: PASS
+    checks:
+      - check: no-tbd-todo-placeholders
+        result: PASS
+        evidence: >
+          Live grep over plan.md for TBD|TODO|FIXME|placeholder|TBC|XXX
+          returned exactly one match: line 181 "critical-rules-XXX" — the
+          literal rule ID of the whole-card dispatch prohibition in
+          000-critical-rules.md (the rule sections are titled
+          [critical-rules-XXX] in that guideline), referenced verbatim by
+          spec SC-2. It is a real rule identifier, not a placeholder. Zero
+          true placeholders.
+      - check: checkbox-step-format
+        result: PASS
+        evidence: >
+          Live count: 92 checkbox lines ("- [ ]") in plan.md — exactly 9
+          phases x 8 steps (72) + Pre-Implementation 2 + Post-Implementation 8
+          + Exit Criteria C1-C10 (10) = 92. A PCRE scan for numbered step
+          lines lacking a checkbox returned zero matches. All steps use
+          checkbox format.
+      - check: dispatch-mode-consistency
+        result: PASS
+        evidence: >
+          All 9 phases are orchestrator-direct: every step is labeled
+          (**inline**) (live count consistent with 92 checkbox steps); zero
+          (**sub-agent**) step annotations remain (grep, 0 matches); zero
+          canonical task(..., prompt:) dispatch strings remain in phase steps
+          (grep, 0 matches). task() appears ONLY as annotations of
+          card-marked sub-task dispatches — the vbc behavioral-test-evaluation
+          gate (every phase step 7), the audit DiMo chain (post-impl step 1),
+          and PR-creation SHA-verification routing (post-impl steps 6-7) —
+          exactly the developer-corrected mode. Commit-inline (per-phase step
+          8) and z3-check (post-impl step 2) are orchestrator-direct, matching
+          the implementation-workflow reference card. No dispatched steps
+          inside inline phases; no clean-room phases exist to violate the
+          inverse rule.
+
+  validation_method_notes:
+    - "Entry criterion verified: solve-output.yaml solve_status SAT (regenerated 2026-09-04, 9-phase basis) — SOLVE_NOT_SAT not triggered."
+    - "plan.md read in full (744 lines, two reads: 1-475, 476-744); dependency-contract.yaml (161 lines), spec.md (236 lines), concern-map.yaml, structure.yaml, solve-output.yaml, revise-validation.yaml, and implementation-workflow.md read in full this session."
+    - "SC source of truth: spec.md section 3 Success Criteria table (SC-1..SC-9); spec Items 1-9 map 1:1 (verified via spec section 5 heading scan)."
+    - "Task-card existence verified live (bash -f loop, 10/10 EXISTS); grep counts run live with rg (checkbox count 92, sub-agent annotations 0, canonical dispatch strings 0, placeholder scan 1 benign match)."
+    - "Prior validation history consulted for format precedent and orphan-disposition precedent: validate-findings.yaml at issues-data commit e0bd3679^ (8-phase PASS) and revise-validation.yaml (9-phase revise-time validation, PASS)."
+    - "Fresh validation executed independently this session against the regenerated plan — the revise-time results were used as cross-reference precedent only, not as evidence."
