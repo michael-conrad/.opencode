@@ -3,6 +3,7 @@ title: '[SPEC-FIX] Stacked-PR ordering gate: parent PR must wait for submodule P
 status: open
 labels:
 - approved-for-pr
+- spec-cleared
 body: '> **Full spec and artifacts: [`.opencode/.issues/2431/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2431/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -97,5 +98,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2431/`](https://github.c
 
   🤖 OpenCode (ollama-cloud/glm-5.3-flash) created'
 created_at: '2026-09-04T23:17:30+00:00'
-updated_at: '2026-09-04T23:43:16+00:00'
+updated_at: '2026-09-05T00:29:30+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2431
