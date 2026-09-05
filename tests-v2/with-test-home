@@ -217,7 +217,8 @@ do_setup() {
         LOCAL_SUBMODULE_COMMIT=$(git -C "$PROJECT_DIR/.opencode" rev-parse HEAD 2>/dev/null || true)
         if [ -n "$LOCAL_SUBMODULE_COMMIT" ]; then
             git -C "$test_project/.opencode" checkout -q "$LOCAL_SUBMODULE_COMMIT" 2>/dev/null || {
-                echo "WARNING: could not checkout local submodule commit $LOCAL_SUBMODULE_COMMIT — using remote default branch" >&2
+                echo "HARNESS_FAILURE: could not checkout local submodule commit $LOCAL_SUBMODULE_COMMIT — the SHA is not on the remote. Commit and push the submodule change, then fetch and re-run the test framework. No test home is produced; refusing to run on the wrong ref." >&2
+                exit 1
             }
         fi
 
