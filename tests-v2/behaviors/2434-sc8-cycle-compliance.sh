@@ -59,9 +59,9 @@ BEHAVIOR_SEMANTIC_MONITOR=1
 # after commit+push). Raise the threshold so the monitor does not abort a healthy
 # run; the loop/looping defect class this signal targets needs 5+ repeats.
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD=5
-# 28 polls x 30s = 840s monitored budget, inside the mandated bash tool timeout
-# (900s), leaving ~60s for the §10.5 export + §14 diagnosis on abort.
-BEHAVIOR_MONITOR_MAX_POLLS=28
+# 45 polls x 30s = 1350s monitored budget, inside the mandated bash tool timeout
+# (1500s), leaving ~150s for the §10.5 export + §14 diagnosis on abort.
+BEHAVIOR_MONITOR_MAX_POLLS=45
 export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
 
 # The prompt references no issue content — skip fixture-issue injection (§3 Step 0).
