@@ -1,0 +1,12 @@
+---
+actions:
+- name: harden-harness
+  parameters: []
+- name: encode-durable-rules
+  parameters: []
+- name: verify-end-to-end
+  parameters: []
+domain: harness-git-state-gate-remediation
+engine: tamer
+plan_length: 3
+status: SOLVED_SATISFICING

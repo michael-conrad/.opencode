@@ -1,0 +1,56 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Solve output — issue .opencode#2430
+# Z3 + planner verification results from the research task
+# Produced by writing-plans/tasks/research.md steps 10-13, 2026-09-04
+
+schema_version: "1.0"
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2430/dependency-contract.yaml --query z3.And(phase_1, phase_2, phase_3, phase_4, phase_5)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+    phase_3: true
+    phase_4: true
+    phase_5: true
+  interpretation: "Goal state (all 5 phases complete) is satisfiable under the precondition dependency chain (phase_2/3/4 -> phase_1, phase_3 -> phase_2, phase_5 -> phase_1/3/4). The dependency DAG admits a valid completion order."
+
+solve_check:
+  command: "./.opencode/tools/solve check --state-path .opencode/.issues/2430/artifacts/solver-state.yaml --contract-path .opencode/.issues/2430/dependency-contract.yaml"
+  status: SAT
+  check_details: "SAT (+ postconditions + invariants) — initial state (all phases false, closed-world) consistent with contract preconditions/invariants"
+  state_path: .opencode/.issues/2430/artifacts/solver-state.yaml
+  assignment:
+    phase_1: false
+    phase_2: false
+    phase_3: false
+    phase_4: false
+    phase_5: false
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2430/artifacts/phase-problem.yaml"
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 5
+  plan:
+    - run_p1
+    - run_p2
+    - run_p3
+    - run_p4
+    - run_p5
+  problem_path: .opencode/.issues/2430/artifacts/phase-problem.yaml
+  output_path: .opencode/.issues/2430/artifacts/plan-output.yaml
+  interpretation: "Planner produced a 5-step sequential plan enforcing all dependency edges: run_p1 first; run_p2/run_p4 after p1; run_p3 after p1+p2; run_p5 after p1+p3+p4. Ordering matches the dependency DAG (1 -> 2 -> 3 -> 5; 1 -> 4 -> 5)."
+
+notes:
+  - "Task-card procedure commands in writing-plans/tasks/research.md steps 10-12 use CLI forms that do not match current solve/plan tool signatures (same deviation as issues #2133/#2135). Resolved using actual tool interfaces."
+  - "solve model: --contract-path + --query (not --query sat). solve check: --state-path + --contract-path (requires a solver-format state file, not the analysis artifact) — state initialized via 'solve state init' + 'solve state update'. plan plan: --problem <problem.yaml> (not --contract-path/--output) — problem YAML derived from the dependency contract DAG."
+  - "dependency-contract.yaml contains a Z3 view (variables + preconditions) derived from the dependency_contract section extracted as-is from interface-compatibility.yaml, so the solve tool can consume it directly."
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

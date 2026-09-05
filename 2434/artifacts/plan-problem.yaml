@@ -1,0 +1,53 @@
+# Plan problem — Issue #2434 (.opencode) harness git-state gates + durable rule encoding
+# 3-phase DAG from artifacts/structure.yaml: A (harness hardening) → B (durable rule
+# encoding) → C (end-to-end verification). Actions are the three phase-completion steps.
+# Generated 2026-09-04 by writing-plans/tasks/research executor.
+domain: harness-git-state-gate-remediation
+
+types:
+  - name: phase
+
+objects:
+  - name: A
+    type: phase
+  - name: B
+    type: phase
+  - name: C
+    type: phase
+
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: harden-harness
+    preconditions:
+      - not phase-done(A)
+    effects:
+      - phase-done(A)
+
+  - name: encode-durable-rules
+    preconditions:
+      - phase-done(A)
+      - not phase-done(B)
+    effects:
+      - phase-done(B)
+
+  - name: verify-end-to-end
+    preconditions:
+      - phase-done(A)
+      - phase-done(B)
+      - not phase-done(C)
+    effects:
+      - phase-done(C)
+
+# Closed-world init: all fluents default False — no explicit `init` entries needed
+# (an explicit `not phase-done(A)` entry made tamer silently drop harden-harness from
+# the plan; empty init = all phase-done false, the true pre-implementation state).
+
+goals:
+  - phase-done(A)
+  - phase-done(B)
+  - phase-done(C)

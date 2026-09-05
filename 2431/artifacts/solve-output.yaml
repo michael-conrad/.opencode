@@ -1,0 +1,39 @@
+# Solve Output — Issue .opencode#2431
+# Generated: research task from writing-plans
+
+solve_model:
+  status: SAT
+  query: "z3.BoolVal(True)"
+  contract_path: .opencode/.issues/2431/dependency-contract.yaml
+  note: "No variables section in dependency-contract.yaml (documentation-form contract per repo precedent #2219); trivially SAT"
+
+solve_check:
+  status: SAT
+  output: "SAT\nSAT (+ postconditions + invariants)"
+  state_path: .opencode/.issues/2431/artifacts/state-analysis.yaml
+  contract_path: .opencode/.issues/2431/dependency-contract.yaml
+  note: "State file consumed without a variables mapping (state machine transitions only); contract declares no variables so no state-value equalities were asserted"
+
+plan:
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 5
+  problem_path: .opencode/.issues/2431/artifacts/plan-problem.yaml
+  domain: stacked-pr-ordering-gate-2431
+  steps:
+    - execute_enumeration_merge_verification()
+    - execute_pointer_freshness()
+    - execute_blocking_reporting()
+    - execute_timing_waiting()
+    - execute_enforcement_placement()
+  note: "Planner ordering is a valid topological order of the structure.yaml DAG: timing_waiting and blocking_reporting are mutually independent; enforcement_placement depends on all four predecessors. The task card's documented --contract-path/--output flags do not exist on plan plan (actual CLI: --problem); the #2219 repo precedent (plan-problem.yaml encoding the phase DAG) was followed."
+
+structure_verification:
+  triplet_co_location: "PASS — each SC's RED/GREEN/COMMIT assigned to one phase"
+  cross_phase_dependency: "PASS — no RED depends on later-phase SC output"
+  sc_coverage: "11/11 SCs covered exactly once (SC-1..SC-11)"
+  phases: 5
+  dag_edges: 8
+  acyclic: true
+
+timestamp: "2026-09-04T20:30:00Z"

@@ -1,0 +1,147 @@
+# Structure — writing-plans research task for issue #2434 (.opencode)
+# Phase decomposition from analysis-summary.yaml (A/B/C concern groups), per-SC item mapping
+# from sc-summary.yaml + spec Items 1-9 (SC-2→2a/2b, SC-4→4a/4b splits), dependency DAG,
+# and skill+task selection from the implementation-workflow reference card.
+# Generated 2026-09-04 by writing-plans/tasks/research executor.
+# Branch: main (.opencode submodule, verified this session — HEAD 86dcf061).
+
+spec_path: .opencode/.issues/2434/spec.md
+sc_count: 11
+scope: >-
+  Harness git-state gate + durable rule encoding: with-test-home hard-FAIL gates (SC-1/SC-2a/SC-2b),
+  behavior_run() pre-flight gate (SC-3), directive-text encoding of the commit→push→fetch cycle
+  (SC-4a/SC-4b/SC-5/SC-6/SC-7), end-to-end behavioral verification (SC-8/SC-9)
+branch: main
+
+phase_decomposition:
+  - phase: A
+    scs: [SC-1, SC-2a, SC-2b, SC-3]
+    concern: "Harness hardening — git-state gates in with-test-home (both clone+checkout sites) and behavior_run() pre-flight gate before flock"
+    items:
+      - item: "Item 1 (SC-1): with-test-home site 1 hard-FAIL gate"
+        files: [.opencode/tests-v2/with-test-home]
+        cycle: "RED probe unpushed-HEAD exit-1+remediation → GREEN replace WARNING fallback with hard FAIL → verify control probe pushed-HEAD passes → commit site-1 gate block"
+      - item: "Item 2a (SC-2a): with-test-home site 2 hard-FAIL gate (behavioral parity)"
+        files: [.opencode/tests-v2/with-test-home]
+        cycle: "RED probe site-2 path exit-1 → GREEN mirror shared guard at site 2 → verify both-site + site-2 control probes → commit site-2 gate block"
+      - item: "Item 2b (SC-2b): both-site identical guard logic (string)"
+        files: [.opencode/tests-v2/with-test-home]
+        cycle: "RED string-compare guard blocks differ → GREEN identical guard after mirror → verify direct text comparison → commit included in Item 2a commit"
+      - item: "Item 3 (SC-3): behavior_run() pre-flight cycle gate"
+        files: [.opencode/tests-v2/behaviors/helpers.sh]
+        cycle: "RED unpushed/uncommitted + pinned-unpushed probes expect FAIL-before-flock → GREEN pre-flight gate block (clean-tree + fresh fetch + SHA-on-remote, honoring pin) before flock with FATAL/HARNESS_FAILURE remediation → verify control + no-bypass + ordering probes → commit helpers.sh gate block"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle_pattern: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: B
+    scs: [SC-4a, SC-4b, SC-5, SC-6, SC-7]
+    concern: "Durable rule encoding — directive-text documentation of the ordered commit→push→fetch/verify→run cycle across tests-v2/AGENTS.md §4/§5, 091 guideline, TDD skill, root AGENTS.md lessons"
+    items:
+      - item: "Item 4a (SC-4a): tests-v2/AGENTS.md §4 cycle documentation"
+        files: [.opencode/tests-v2/AGENTS.md]
+        cycle: "RED §4 scopes push note to DEFAULT_TEST_MODEL → GREEN rewrite §4 all-runs ordered cycle as §4 infrastructure-maintenance carve-out → verify direct text read → commit §4 section"
+      - item: "Item 4b (SC-4b): tests-v2/AGENTS.md §5 hard-FAIL documentation"
+        files: [.opencode/tests-v2/AGENTS.md]
+        cycle: "RED §5 documents WARNING fallback → GREEN rewrite §5 hard FAIL no fallback → verify no fallback language survives → commit §5 section (may share Item 4a commit)"
+      - item: "Item 5 (SC-5): 091-incremental-build.md ordering amendment"
+        files: [.opencode/guidelines/091-incremental-build.md]
+        cycle: "RED COMMIT-last PUSH-absent → GREEN behavioral items commit+push before behavioral run → verify ordering + TDD-skill consistency read (I4) → commit 091 cycle sections"
+      - item: "Item 6 (SC-6): TDD SKILL.md PUSH step"
+        files: [.opencode/skills/test-driven-development/SKILL.md]
+        cycle: "RED PUSH absent in both pattern tables → GREEN add PUSH between COMMIT and next RED, ordering identical to 091 → verify both locations + 091 consistency (I4) → commit TDD skill pattern sections"
+      - item: "Item 7 (SC-7): Root AGENTS.md Testing Lessons Learned entry"
+        files: [.opencode/AGENTS.md]
+        cycle: "RED cycle lesson absent → GREEN add lesson matching implemented gate predicate referencing §4 carve-out → verify lesson present + gate-consistent → commit lessons entry"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle_pattern: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: C
+    scs: [SC-8, SC-9]
+    concern: "End-to-end verification — §6a two-SC pattern: artifact-generation behavioral run (SC-8) then clean-room evaluation of its session.yaml (SC-9)"
+    items:
+      - item: "Item 8 (SC-8): Agent follows the cycle (behavioral, artifact generation)"
+        files: [".opencode/tests-v2/behaviors/<scenario>.sh (new, artifact-only generator)"]
+        cycle: "RED behavioral run via opencode run real-domain test-framework-fix prompt (today: agent runs tests on unpushed HEAD) → GREEN n/a (rules landed in B; re-verifies end-to-end) → verify exit 0 + session.yaml artifact (bash timeout >= 600000) → commit new scenario script"
+      - item: "Item 9 (SC-9): Clean-room evaluation of SC-8 artifacts"
+        files: ["evaluation verdict artifact (per §2 conventions)"]
+        cycle: "RED n/a (evaluation dispatch) → GREEN clean-room sub-agent reads ONLY SC-8 session.yaml path + SC-9 criterion → verify PASS/FAIL verdict with one-sentence justification, no orchestrator reasoning passed → commit verdict artifact"
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle_pattern: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+
+dependency_dag:
+  edges:
+    - from: A
+      to: B
+      reason: >-
+        Directive text (SC-4a/SC-4b/SC-5/SC-6/SC-7) must encode the IMPLEMENTED gate behavior —
+        the machine gates (SC-1/SC-2a/SC-2b/SC-3) define the predicate that §4/§5/091/TDD-skill/lessons
+        prose must match exactly (SC-7 requires "text matches the implemented predicate"; SC-4a/SC-4b
+        document the gate's FAIL semantics). Encoding prose before the gates exist risks documenting
+        a predicate that implementation then contradicts.
+    - from: B
+      to: C
+      reason: >-
+        SC-8 re-verifies end-to-end that the landed rule set is followed ("GREEN: n/a (rule changes
+        landed in Items 4–7)"); the artifact-generation run and SC-9's clean-room evaluation require
+        the full directive surface in place before the agent-under-test can exhibit compliant behavior.
+    - from: A
+      to: C
+      reason: >-
+        SC-8's opencode run exercises the hardened harness (with-test-home gates + behavior_run()
+        pre-flight gate) — the gates must be in place for the behavioral run to proceed through a
+        validated git state and for the cycle evidence to be meaningful.
+  internal_phase_ordering:
+    - "Phase A: Items 1 → 2a/2b → 3 (site-1 guard function established first; site-2 mirrors it per SC-2b; behavior_run() gate independent but sequenced after the with-test-home work on the shared harness)"
+    - "Phase B: Items 4a/4b → 5 → 6 → 7 (§4/§5 rewrite lands the carve-out first; SC-5/SC-6 encode ordering consistent with it; SC-7 lesson references the §4 carve-out and gate behavior)"
+    - "Phase C: Item 8 → Item 9 (SC-9 evaluates SC-8's session.yaml — strict producer/consumer dependency)"
+
+triplet_colocation:
+  verified: true
+  detail: >-
+    Every SC's RED/GREEN/COMMIT steps live in exactly one phase: SC-1/SC-2a/SC-2b/SC-3 fully in A
+    (SC-2b's commit is Item 2a's commit — same phase); SC-4a/SC-4b/SC-5/SC-6/SC-7 fully in B;
+    SC-8/SC-9 fully in C (SC-8 GREEN is n/a re-verification, SC-9 RED is n/a evaluation dispatch —
+    both steps still assigned within phase C). No SC has steps split across phases.
+
+cross_phase_dependency_check:
+  verified: true
+  detail: >-
+    No RED test depends on output committed in a later phase. Phase A REDs probe current
+    WARNING/no-gate behavior (no phase input needed). Phase B REDs are string checks against
+    current doc text (no phase-A artifact consumed by any RED). Phase C RED (Item 8) probes
+    agent behavior with the landed rules — depends on phases A+B output, and C follows both
+    in the DAG. The only cross-phase references (B prose encoding A's gate predicate; C
+    re-verifying A+B's rules) are forward — producer phases precede consumer phases in the DAG.
+
+skill_task_selection:
+  reference_card: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  pre_implementation:
+    - {step: pre-regression, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-0 task from test-driven-development")'}
+    - {step: pre-regression-verify, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'}
+  per_sc_cycle:
+    - {step: red, skill: test-driven-development, dispatch: 'task(..., prompt: "execute red task from test-driven-development")'}
+    - {step: green, skill: test-driven-development, dispatch: 'task(..., prompt: "execute green task from test-driven-development")'}
+    - {step: post-regression, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'}
+    - {step: verify, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'}
+    - {step: commit-inline, skill: "(orchestrator)", dispatch: "orchestrator runs git add <files> && git commit -m '<message>' directly — no sub-agent dispatch"}
+  post_implementation:
+    - {step: audit, skill: audit, dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first") — followed by validator, evaluator, arbiter in sequence'}
+    - {step: z3-check, skill: "(orchestrator)", dispatch: "orchestrator runs .opencode/tools/solve check --state-path ... --contract-path ... directly — no sub-agent dispatch"}
+    - {step: structural-checks, skill: finishing-a-development-branch, dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'}
+    - {step: pre-pr-gate, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion") — reads all SC verdicts, BLOCKs if any FAIL'}
+    - {step: regression-check, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'}
+    - {step: review-prep, skill: git-workflow-pr, dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first")'}
+    - {step: create-pr, skill: git-workflow-pr, dispatch: 'task(..., prompt: "execute create task from git-workflow-pr")'}
+    - {step: exec-summary, skill: completion-core, dispatch: 'task(..., prompt: "execute completion task from completion-core")'}
+
+notes:
+  - >-
+    SC-2b is string-evidence but its GREEN (identical guard) is produced by Item 2a's mirror
+    implementation — colocated in phase A with its own RED/GREEN/verify/commit rows (commit
+    shared with Item 2a per spec). This is per-SC decomposition, not batching: each SC keeps
+    its own cycle.
+  - >-
+    Item 8 GREEN is "n/a (rule changes landed in Items 4–7)" per spec — the item's cycle is
+    RED/verify/commit around the artifact-generation run. Item 9 RED is "n/a (evaluation
+    dispatch)". Both n/a steps remain assigned inside phase C; triplet colocation holds.

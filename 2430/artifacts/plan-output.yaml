@@ -1,0 +1,40 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: pre-flight-guard-rollout
+  objects: 5
+  fluents: 1
+  actions: 5
+  goals:   5
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 5
+
+- [ ] 1. run_p1()
+- [ ] 2. run_p2()
+- [ ] 3. run_p3()
+- [ ] 4. run_p4()
+- [ ] 5. run_p5()
+
+---
+actions:
+- name: run_p1
+  parameters: []
+- name: run_p2
+  parameters: []
+- name: run_p3
+  parameters: []
+- name: run_p4
+  parameters: []
+- name: run_p5
+  parameters: []
+domain: pre-flight-guard-rollout
+engine: tamer
+plan_length: 5
+status: SOLVED_SATISFICING

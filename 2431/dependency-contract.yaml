@@ -1,0 +1,50 @@
+# Dependency Contract — #2431 — Stacked-PR ordering gate: parent PR must wait for submodule PR merges
+schema_version: "1.0"
+issue: ".opencode#2431"
+source: "Extracted from interface-compatibility.yaml dependency_contract section (procedures step 9, branch 1: section exists — extracted as-is); phase decomposition refined per structure.yaml"
+dependency_contract:
+  description: "Concrete dependency data derived from spec #2431 affected files and success criteria — real sources, real targets, real type constraints, real phase ordering"
+  phase_ordering:
+    - phase: 1
+      scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-10, SC-11]
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+        - .opencode/tests-v2/behaviors/
+    - phase: 2
+      scs: [SC-8, SC-9]
+      files:
+        - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+        - .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+        - .opencode/skills/git-workflow-pr/tasks/post-implementation.md
+        - .opencode/tests-v2/behaviors/
+  entries:
+    - source: "tests-v2 behavioral suite (SC-1, SC-6, SC-7 artifact generation — Phase 1)"
+      target: "pr-creation/enforcement-gate.md ordering gate (SC-1, SC-6, SC-7 GREEN implementation — Phase 1)"
+      type: "behavioral evidence instrument → enforcement card content"
+      constraint: "The behavioral scripts are artifact-only generators (exit 0, no evaluation); the clean-room evaluation sub-agent reads session.yaml per the two-SC pattern. Phase 1 implements the gate conditions and the tests together as one working slice per item. Harness dependency: BEHAVIOR_NEEDS_MULTI_SUBMODULES=1 provisioning and fixtures/issues/2431/ must exist before the scripts run."
+      sc: [SC-1, SC-6, SC-7]
+    - source: "#2313 merged convention (origin/$DEFAULT_BRANCH terminology, Step 0 reachability gate, fail-open semantics)"
+      target: "ordering gate in pr-creation/enforcement-gate.md (SC-3, SC-7 — Phase 1)"
+      type: "convention dependency (terminology + coexisting gate semantics)"
+      constraint: "Ancestry is asserted against origin/$DEFAULT_BRANCH dynamically resolved per submodule (never hardcoded master). The ordering gate is fail-closed on inconclusive merge state while Step 0 reachability remains fail-open on network error — the card must keep the two policies explicitly separated."
+      sc: [SC-3, SC-7]
+    - source: "GitHub REST API Pull requests endpoints (Get a PR; Check if a pull request has been merged)"
+      target: "ordering gate merge-state verification (SC-1, SC-3, SC-4 — Phase 1)"
+      type: "external API dependency"
+      constraint: "Merge state is read from the API's merge-state fields (merged, merged_at); mergeable is null while GitHub computes mergeability in a background job, which is the inconclusive state driving the bounded retry (3 probes, 60-second intervals, then block naming the submodule PR)."
+      sc: [SC-1, SC-3, SC-4]
+    - source: "pr-creation/enforcement-gate.md ordering gate (Phase 1)"
+      target: "Phase 2 designation and advisory annotations (SC-8, SC-9)"
+      type: "sequencing dependency"
+      constraint: "The designation of the sole authoritative blocking check and the advisory annotations at the three non-selected sites are judged by clean-room sub-agents against gate content that exists after Phase 1; the Phase 2 items cannot reach GREEN before the Phase 1 gate language is in place."
+      sc: [SC-8, SC-9]
+    - source: "pr-creation.md Pre-Push Submodule Pointer Verification + pre-commit-pointer-check.md (pointers-ride-alongside convention)"
+      target: "ordering gate timing rule (SC-5 — Phase 1)"
+      type: "convention dependency (timing rule coherence)"
+      constraint: "The card text must align the timing rule with the established pointers-ride-alongside convention: pointer bumps committed on the parent feature branch after merges land, never dropped, never standalone — consistent with the Submodule-Bump-Only PR Gate in the same card."
+      sc: [SC-5]
+  cross_phase_edges:
+    - from: 1
+      to: 2
+      rationale: "Phase 2 (SC-8/SC-9 designation and advisory annotations) is judged against the four enforcement sites as modified by Phase 1; the designation statement lives in the authoritative card Phase 1 creates. Clean-room judgments require the Phase 1 gate language to exist first."

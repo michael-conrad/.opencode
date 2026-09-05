@@ -1,0 +1,167 @@
+artifact_name: structure
+generated_at: 2026-09-04
+source: "Spec #2431 spec.md Items section, analysis-summary.yaml, testability-assessment.yaml (item-SC mapping; sc-summary.yaml absent — spec Items used as authoritative mapping), interface-compatibility.yaml, state-analysis.yaml, concern-map.yaml"
+issue_number: 2431
+issue_qualifier: ".opencode#2431"
+description: "Phase decomposition, dependency DAG, and skill+task selection for the stacked-PR ordering gate: parent PR must wait for submodule PR merges"
+phase_mapping_note: "The extracted dependency contract (interface-compatibility.yaml dependency_contract.phase_ordering) groups SCs into 2 spec-scope phases. This structure decomposes spec-scope phase 1 into implementation phases 1-4 along the four concern boundaries in concern-map.yaml (one concern per phase, per concern-separation validation), and keeps spec-scope phase 2 as implementation phase 5. Contract phase 1 == implementation phases 1-4; contract phase 2 == implementation phase 5."
+sc_mapping_note: "sc-summary.yaml was absent from artifacts/. The authoritative item-SC mapping was taken from spec.md ## Items (item-N (SC-N) with RED/GREEN/verify/commit definitions) cross-confirmed by testability-assessment.yaml item/sc_id pairs. All 11 SCs covered exactly once."
+phases:
+  - phase: 1
+    name: "In-scope enumeration and live-API merge-state verification"
+    concern: "Merge-state verification (Condition 1) — includes in-scope set enumeration per concern boundary (concern-map.yaml omits item-2 from concern 1's items list but its boundary text explicitly includes enumeration preceding merge verification; recorded as a concern-map reconciliation)"
+    spec_scope_phase: 1
+    scs: ["SC-2", "SC-1", "SC-3", "SC-4"]
+    dependencies: []
+    items:
+      - sc: "SC-2"
+        plan_item: 2
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-1"
+        plan_item: 1
+        evidence_type: behavioral
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-3"
+        plan_item: 3
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-4"
+        plan_item: 4
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+    intra_phase_order_note: "Enumeration (SC-2) precedes merge verification (SC-1, SC-3, SC-4) per state-analysis invariant 'enumeration precedes merge verification'."
+  - phase: 2
+    name: "Pointer freshness assertions"
+    concern: "Pointer freshness assertions (Condition 3)"
+    spec_scope_phase: 1
+    scs: ["SC-6", "SC-7"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC-6"
+        plan_item: 6
+        evidence_type: behavioral
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-7"
+        plan_item: 7
+        evidence_type: behavioral
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 3
+    name: "Pointers-ride-alongside timing and waiting behavior"
+    concern: "Pointers-ride-alongside timing and waiting behavior (Condition 2)"
+    spec_scope_phase: 1
+    scs: ["SC-5", "SC-11"]
+    dependencies: ["phase-1"]
+    items:
+      - sc: "SC-5"
+        plan_item: 5
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-11"
+        plan_item: 11
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 4
+    name: "Per-submodule blocking-reason reporting"
+    concern: "Blocking-reason reporting"
+    spec_scope_phase: 1
+    scs: ["SC-10"]
+    dependencies: ["phase-1", "phase-2"]
+    items:
+      - sc: "SC-10"
+        plan_item: 10
+        evidence_type: string
+        dispatch: "test-driven-development red/green; verification-before-completion verify; orchestrator commit-inline"
+  - phase: 5
+    name: "Enforcement placement — designation and advisory annotations"
+    concern: "Enforcement placement (authoritative vs advisory)"
+    spec_scope_phase: 2
+    scs: ["SC-8", "SC-9"]
+    dependencies: ["phase-1", "phase-2", "phase-3", "phase-4"]
+    items:
+      - sc: "SC-8"
+        plan_item: 8
+        evidence_type: semantic
+        dispatch: "test-driven-development red/green (clean-room sub-agent judgment); verification-before-completion verify; orchestrator commit-inline"
+      - sc: "SC-9"
+        plan_item: 9
+        evidence_type: semantic
+        dispatch: "test-driven-development red/green (clean-room sub-agent); verification-before-completion verify; orchestrator commit-inline"
+dependency_dag:
+  edges:
+    - from: "phase-1"
+      to: "phase-2"
+      reason: "SC-6/SC-7 freshness assertions operate on the enumerated in-scope submodule set (SC-2) — assertions presuppose the in-scope definition exists in the card"
+    - from: "phase-1"
+      to: "phase-3"
+      reason: "SC-11 waiting statement references in-scope submodule PRs; SC-5 timing rule aligns with the merge-state verification timing established in phase 1"
+    - from: "phase-1"
+      to: "phase-4"
+      reason: "SC-10 reporting covers the unmerged-PR and inconclusive-state categories produced by phase 1 conditions"
+    - from: "phase-2"
+      to: "phase-4"
+      reason: "SC-10 reporting covers the stale-pointer and +-prefixed-working-tree categories produced by phase 2 assertions"
+    - from: "phase-1"
+      to: "phase-5"
+      reason: "SC-8/SC-9 designation and advisory judgments are made against gate content that exists after phase 1 (contract cross_phase_edge)"
+    - from: "phase-2"
+      to: "phase-5"
+      reason: "Designation judged against complete gate language including freshness assertions"
+    - from: "phase-3"
+      to: "phase-5"
+      reason: "Designation judged against complete gate language including timing/waiting statements"
+    - from: "phase-4"
+      to: "phase-5"
+      reason: "Designation judged against complete gate language including per-submodule reporting"
+  verification:
+    triplet_co_location: "PASS — each SC's RED/GREEN/COMMIT steps are assigned to the same phase (one item per SC, per spec.md Items definitions)"
+    cross_phase_dependency: "PASS — no RED test depends on SC output from a later phase; all RED tests are either behavioral scenarios provisioned by fixtures/harness or absence-greps/clean-room judgments against pre-change state"
+skill_task_selection:
+  pre_implementation:
+    - step: pre-regression
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute phase-0 task from test-driven-development")'
+    - step: pre-regression-verify
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+  per_sc_cycle:
+    red:
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+    green:
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+    post_regression:
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+    verify:
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+    commit:
+      skill: "(orchestrator)"
+      dispatch: "commit-inline — orchestrator runs git add/commit directly, no sub-agent dispatch"
+  post_implementation:
+    - step: audit
+      skill: audit
+      dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first") — followed by validator, evaluator, arbiter in sequence'
+    - step: z3-check
+      skill: "(orchestrator)"
+      dispatch: ".opencode/tools/solve check --state-path ... --contract-path ..."
+    - step: structural-checks
+      skill: finishing-a-development-branch
+      dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'
+    - step: pre-pr-gate
+      skill: verification-before-completion
+      dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+    - step: regression-check
+      skill: test-driven-development
+      dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+    - step: review-prep
+      skill: git-workflow-pr
+      dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first")'
+    - step: create-pr
+      skill: git-workflow-pr
+      dispatch: 'task(..., prompt: "execute create task from git-workflow-pr")'
+    - step: exec-summary
+      skill: completion-core
+      dispatch: 'task(..., prompt: "execute completion task from completion-core")'

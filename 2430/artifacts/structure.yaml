@@ -1,0 +1,270 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Structure artifact — issue .opencode#2430
+# [SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and plan files
+# Phase decomposition, dependency DAG, skill+task selection
+# Produced by writing-plans/tasks/research.md, 2026-09-04
+
+schema_version: "1.0"
+issue_number: 2430
+repo: .opencode
+spec_path: .opencode/.issues/2430/spec.md
+analysis_summary_path: .opencode/.issues/2430/artifacts/analysis-summary.yaml
+
+phases:
+  - phase: 1
+    label: "Canonical guard reference doc + guideline cross-link"
+    concern: "Define the mechanical Pre-Flight Guard exactly once as a single reference definition under .opencode/guidelines/ with an INDEX.md cross-link (R-2 infrastructure)"
+    scs: []
+    sc_note: "No SC completes in phase 1 — it is the preparatory single-source-of-truth phase. Every later phase consumes the canonical text: the phase-2 lint pattern, the phase-3 card sweep, the phase-4 template emission, and the phase-5 behavioral assertions and audit finding class all derive from it."
+    files:
+      - ".opencode/guidelines/ (new canonical guard reference doc)"
+      - ".opencode/guidelines/INDEX.md"
+    items:
+      - item: item-0
+        sc_id: null
+        description: "Create the canonical mechanical Pre-Flight Guard reference document (guard block verbatim from spec Approach Chosen: task-tool probe, two reason codes) + INDEX.md cross-link"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 2
+    label: "Guard-verbatim deck-lint rule + fixture flagging"
+    concern: "skildeck lint rule module + validate_skill_cards.py check that flag any SKILL.md missing the canonical guard or carrying a deviant (non-mechanical) variant, verified against a guard-missing fixture card (R-4 deck-lint half)"
+    scs: [SC-6a]
+    files:
+      - ".opencode/tools/skildeck"
+      - ".opencode/tools/impl/skildeck/ (lint rule modules)"
+      - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+    items:
+      - item: item-6
+        sc_id: SC-6a
+        description: "Deck-lint fixture flagging — RED: lint run against fixture card missing the guard reports no flag; GREEN: content-based position-independent rule flags cards missing/deviant; verify: structural flagged verdict recorded; commit: lint rule + fixture together"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 3
+    label: "Card sweep — canonical guard embedded in all 51 cards"
+    concern: "Replace the prose-only guard with the canonical mechanical guard in 48 top-level .opencode/skills/*/SKILL.md plus the 3 nested platform cards (R-1)"
+    scs: [SC-1]
+    files:
+      - ".opencode/skills/*/SKILL.md (48 top-level)"
+      - ".opencode/skills/issue-operations/platforms/github-mcp/SKILL.md"
+      - ".opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md"
+      - ".opencode/skills/issue-operations/platforms/local/SKILL.md"
+    items:
+      - item: item-1
+        sc_id: SC-1
+        description: "Card sweep — RED: phase-2 lint rule reports all 51 cards missing/deviant; GREEN: replace prose guard with canonical mechanical guard in all 51 files; verify: lint reports zero cards missing/deviant; commit: 51-file sweep as one atomic commit"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 4
+    label: "writing-plans plan template embeds the guard"
+    concern: "Plan template + create/revise tasks emit the canonical guard with reason code ORCHESTRATOR_ONLY_PLAN into every produced plan (R-3)"
+    scs: [SC-2]
+    files:
+      - ".opencode/skills/writing-plans/ (plan template)"
+      - ".opencode/skills/writing-plans/tasks/create.md"
+      - ".opencode/skills/writing-plans/tasks/revise.md"
+    items:
+      - item: item-2
+        sc_id: SC-2
+        description: "RED: behavioral create-run asserting the emitted plan contains the canonical guard fails; GREEN: template + create/revise emit the guard; verify: behavioral create-run emits a guarded plan; commit: template change together with its behavioral test"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+  - phase: 5
+    label: "Behavioral enforcement tests (tests-v2 harness, opencode run)"
+    concern: "Real-model behavioral scenarios: card-leak halt (SC-3), plan-leak halt (SC-4), no-false-halt (SC-5), plan-audit fixture flagging (SC-6b — its GREEN implements the audit plan-fidelity FAIL finding class) (R-5)"
+    scs: [SC-3, SC-4, SC-5, SC-6b]
+    files:
+      - ".opencode/tests-v2/behaviors/ (new scenario scripts)"
+      - ".opencode/skills/audit/tasks/plan-fidelity-{investigator,evaluator,arbiter,validator}.md (SC-6b GREEN)"
+    items:
+      - item: item-3
+        sc_id: SC-3
+        description: "Card-leak behavioral test — RED: sub-agent given full prose-guard fixture card executes routing without BLOCKED; GREEN: guard from phase-3 sweep fires; assert BLOCKED + ORCHESTRATOR_ONLY_SKILL_CARD, no dispatch attempt"
+      - item: item-4
+        sc_id: SC-4
+        description: "Plan-leak behavioral test — RED: sub-agent given unguarded fixture plan executes phases without BLOCKED; GREEN: guard from phase-4 template fires; assert BLOCKED + ORCHESTRATOR_ONLY_PLAN, no phase execution"
+      - item: item-5
+        sc_id: SC-5
+        description: "No-false-halt behavioral test — orchestrator session loads a guarded card (phase-3 output), proceeds to Trigger Dispatch Table use, emits no BLOCKED"
+      - item: item-7
+        sc_id: SC-6b
+        description: "Plan-audit fixture flagging — RED: plan-fidelity audit against fixture plan missing the guard reports no finding; GREEN: audit plan-fidelity path flags the missing guard as a FAIL finding; verify: behavioral opencode run produces the FAIL finding; commit: audit check + fixture together"
+    steps:
+      - name: red
+        skill: test-driven-development
+        dispatch: "execute red task from test-driven-development"
+      - name: green
+        skill: test-driven-development
+        dispatch: "execute green task from test-driven-development"
+      - name: post-regression
+        skill: test-driven-development
+        dispatch: "execute phase-4 task from test-driven-development"
+      - name: verify
+        skill: verification-before-completion
+        dispatch: "execute verify task from verification-before-completion"
+      - name: commit-inline
+        skill: "(orchestrator)"
+        dispatch: "git add <files> && git commit -m '<message>'"
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      rationale: "The lint rule's verbatim pattern is derived from the canonical guard text; the reference doc must exist before the rule can check conformance (dependency_contract entry 1)."
+    - from: 1
+      to: 3
+      rationale: "The sweep embeds the canonical guard verbatim in 51 cards — the text comes from the phase-1 reference doc (dependency_contract entries 1-2)."
+    - from: 2
+      to: 3
+      rationale: "The sweep's RED/GREEN/verify cycle uses the phase-2 lint rule as its gate: RED = lint flags all 51, GREEN = lint reports zero (dependency_contract entry 2)."
+    - from: 1
+      to: 4
+      rationale: "The plan template emits the canonical guard text sourced from the phase-1 reference doc (dependency_contract entry 4 constraint)."
+    - from: 1
+      to: 5
+      rationale: "All phase-5 behavioral assertions (reason codes, canonical guard text) and the SC-6b audit finding class derive their expected strings from the canonical reference doc (dependency_contract discriminator entry)."
+    - from: 3
+      to: 5
+      rationale: "SC-3 (card-leak) and SC-5 (no-false-halt) behavioral tests exercise the guard embedded by the phase-3 sweep (dependency_contract entry 3)."
+    - from: 4
+      to: 5
+      rationale: "SC-4 (plan-leak) exercises the guard emitted by the phase-4 template (dependency_contract entry 4)."
+
+triplet_co_location:
+  status: VERIFIED
+  note: "Each SC has RED/GREEN/COMMIT assigned to exactly one phase: SC-6a -> phase 2 (item-6), SC-1 -> phase 3 (item-1), SC-2 -> phase 4 (item-2), SC-3 -> phase 5 (item-3), SC-4 -> phase 5 (item-4), SC-5 -> phase 5 (item-5), SC-6b -> phase 5 (item-7). No triplet split detected."
+  sc6b_note: "interface-compatibility.yaml phase_ordering lists SC-6b under both phase 2 and phase 5. Triplet co-location requires single ownership: item-7's GREEN implements the audit plan-fidelity FAIL finding class in the same phase as its RED/verify/commit, so SC-6b is assigned wholly to phase 5. The dependency_contract narrative (extracted as-is) retains the R-4 'phase 2' concern label for the audit path; the executing phase for the finding class is phase 5."
+
+cross_phase_dependency:
+  status: VERIFIED
+  note: "No RED test depends on SC output committed in a later phase. Phase-2 RED depends only on phase-1 canonical text (earlier, committed). Phase-3 RED depends on the phase-2 lint rule (earlier, committed). Phase-4 RED depends on phase-1 canonical text (earlier, committed); its assertion fails because the same-phase template change has not landed yet. Phase-5 REDs use the pre-guard baseline (prose-guard fixture card / unguarded fixture plan) or same-phase missing rules to fail; their GREEN passes depend only on phase-3/phase-4 output committed earlier. The dependency chain is strictly forward: 1 -> 2 -> 3 -> 5 and 1 -> 4 -> 5."
+
+skill_task_selection:
+  pre_implementation:
+    - skill: test-driven-development
+      task: pre-regression
+      dispatch: "execute phase-0 task from test-driven-development"
+    - skill: verification-before-completion
+      task: pre-regression-verify
+      dispatch: "execute verify task from verification-before-completion"
+  red_green_cycle:
+    red:
+      skill: test-driven-development
+      dispatch: "execute red task from test-driven-development"
+    green:
+      skill: test-driven-development
+      dispatch: "execute green task from test-driven-development"
+    post_regression:
+      skill: test-driven-development
+      dispatch: "execute phase-4 task from test-driven-development"
+    verify:
+      skill: verification-before-completion
+      dispatch: "execute verify task from verification-before-completion"
+    commit_inline:
+      skill: "(orchestrator)"
+      dispatch: "orchestrator runs git add <files> && git commit -m '<message>' directly — no sub-agent dispatch"
+  post_implementation:
+    - skill: audit
+      task: verification-audit DiMo investigator
+      dispatch: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first"
+    - skill: "(orchestrator)"
+      task: z3-check
+      dispatch: ".opencode/tools/solve check --state-path ... --contract-path ..."
+    - skill: finishing-a-development-branch
+      task: structural-checks
+      dispatch: "execute checklist task from finishing-a-development-branch"
+    - skill: verification-before-completion
+      task: pre-pr-gate
+      dispatch: "execute verify task from verification-before-completion"
+    - skill: test-driven-development
+      task: regression-check
+      dispatch: "execute phase-4 task from test-driven-development"
+    - skill: git-workflow-pr
+      task: review-prep
+      dispatch: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first"
+    - skill: git-workflow-pr
+      task: create-pr
+      dispatch: "execute create task from git-workflow-pr"
+    - skill: completion-core
+      task: exec-summary
+      dispatch: "execute completion task from completion-core"
+
+sc_summary:
+  source: "analysis-summary.yaml success_criteria + spec Items section (sc-summary.yaml not present; SC list and item mapping taken from authoritative spec body)"
+  items:
+    - item: item-0
+      sc_id: null
+      phase: 1
+    - item: item-6
+      sc_id: SC-6a
+      phase: 2
+    - item: item-1
+      sc_id: SC-1
+      phase: 3
+    - item: item-2
+      sc_id: SC-2
+      phase: 4
+    - item: item-3
+      sc_id: SC-3
+      phase: 5
+    - item: item-4
+      sc_id: SC-4
+      phase: 5
+    - item: item-5
+      sc_id: SC-5
+      phase: 5
+    - item: item-7
+      sc_id: SC-6b
+      phase: 5
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

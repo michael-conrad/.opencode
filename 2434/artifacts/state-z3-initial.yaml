@@ -1,0 +1,13 @@
+# Z3 state — initial (pre-implementation) state for issue #2434
+# Companion to artifacts/state-analysis.yaml (which is markdown-with-YAML-header and not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433 precedent).
+# Represents the state before any implementation phase begins.
+# Generated 2026-09-04 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: false
+  phase_B_done: false
+  phase_C_done: false
+  with_test_home_gates_installed: false
+  behavior_run_preflight_gate_installed: false
+  directive_text_encoded: false
+  end_to_end_verified: false

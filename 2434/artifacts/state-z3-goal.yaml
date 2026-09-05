@@ -1,0 +1,12 @@
+# Z3 state — goal (post-implementation) state for issue #2434
+# Companion to artifacts/state-analysis.yaml (markdown-with-YAML-header, not machine-parseable).
+# Represents the state after all 3 phases complete (SC-1..SC-9 verified).
+# Generated 2026-09-04 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: true
+  phase_B_done: true
+  phase_C_done: true
+  with_test_home_gates_installed: true
+  behavior_run_preflight_gate_installed: true
+  directive_text_encoded: true
+  end_to_end_verified: true

@@ -1,0 +1,69 @@
+domain: stacked-pr-ordering-gate-2431
+types:
+  - name: phase
+objects:
+  - name: enumeration_merge_verification
+    type: phase
+  - name: pointer_freshness
+    type: phase
+  - name: timing_waiting
+    type: phase
+  - name: blocking_reporting
+    type: phase
+  - name: enforcement_placement
+    type: phase
+fluents:
+  - name: phase_done
+    params:
+      - name: p
+        type: phase
+  - name: phase_ready
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: execute_enumeration_merge_verification
+    preconditions:
+      - phase_ready(enumeration_merge_verification)
+    effects:
+      - phase_done(enumeration_merge_verification)
+      - phase_ready(pointer_freshness)
+      - phase_ready(timing_waiting)
+  - name: execute_pointer_freshness
+    preconditions:
+      - phase_ready(pointer_freshness)
+      - phase_done(enumeration_merge_verification)
+    effects:
+      - phase_done(pointer_freshness)
+      - phase_ready(blocking_reporting)
+  - name: execute_timing_waiting
+    preconditions:
+      - phase_ready(timing_waiting)
+      - phase_done(enumeration_merge_verification)
+    effects:
+      - phase_done(timing_waiting)
+  - name: execute_blocking_reporting
+    preconditions:
+      - phase_ready(blocking_reporting)
+      - phase_done(enumeration_merge_verification)
+      - phase_done(pointer_freshness)
+    effects:
+      - phase_done(blocking_reporting)
+      - phase_ready(enforcement_placement)
+  - name: execute_enforcement_placement
+    preconditions:
+      - phase_ready(enforcement_placement)
+      - phase_done(enumeration_merge_verification)
+      - phase_done(pointer_freshness)
+      - phase_done(timing_waiting)
+      - phase_done(blocking_reporting)
+    effects:
+      - phase_done(enforcement_placement)
+init:
+  - phase_ready(enumeration_merge_verification)
+goals:
+  - phase_done(enumeration_merge_verification)
+  - phase_done(pointer_freshness)
+  - phase_done(timing_waiting)
+  - phase_done(blocking_reporting)
+  - phase_done(enforcement_placement)
