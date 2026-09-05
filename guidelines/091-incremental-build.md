@@ -23,7 +23,7 @@ All implementation MUST follow: top-down decomposition → bottom-up design → 
 
 ## Per-Item TDD Cycle
 
-An item is a single success criterion (SC) from the spec. Each SC gets its own RED/GREEN/REFACTOR/COMMIT cycle.
+An item is a single success criterion (SC) from the spec. Each SC gets its own RED/GREEN/REFACTOR/COMMIT cycle; behavioral items add a PUSH step after COMMIT, before the behavioral test run.
 
 | Phase | Action |
 |-------|--------|
@@ -31,8 +31,9 @@ An item is a single success criterion (SC) from the spec. Each SC gets its own R
 | GREEN | Make the change that makes the test PASS |
 | REFACTOR | Clean up cross-references, verify consistency |
 | COMMIT | Test + change committed together as one working slice |
+| PUSH | Behavioral items only: push the commit to its remote branch, then fresh-fetch and verify the effective commit is contained in a remote ref — required BEFORE the behavioral test run (regular items keep commit-last per the #2433 commit-inline plan pattern) |
 
-**Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN).
+**Behavioral variant** (for rule/guideline items): Send a real-domain prompt via `opencode run`, inspect stderr output (not stdout prose) for behavioral evidence of agent actions (skill dispatches, file reads, tool invocations). Assertions use stderr-based helpers (`assert_stderr_pattern_present`/`assert_stderr_pattern_absent_all_models`). Assert agent does NOT follow new rule (RED), then make change and assert agent DOES follow (GREEN). Ordering for behavioral items: COMMIT and PUSH precede the behavioral test run — first commit and push, then a fresh `git fetch` verifies the effective commit is contained in a remote ref, and only after that verification does the behavioral test run execute (the harness pre-flight gate hard-FAILs on uncommitted or unpushed submodule state). Regular (non-behavioral) items keep the commit-last cycle per the #2433 commit-inline plan pattern.
 
 **Behavioral evidence = agent actions visible in stderr (skill dispatches, file reads, sub-agent task() calls, tool invocations). Prose recall (what the agent says in stdout when asked to describe a procedure) is NOT behavioral evidence. Prose-recall prompts are NOT accepted as behavioral tests.** Read [§9 Prompt Construction Mandate](.opencode/tests-v2/AGENTS.md) for the centralized specification of valid vs invalid prompt types.
 
