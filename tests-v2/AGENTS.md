@@ -287,9 +287,17 @@ The command runs from `TEST_PROJECT` (the test project directory inside the test
 
 #### Submodule Checkout
 
-`.opencode/` is cloned from the remote URL (not `cp -a` from the parent repo). After cloning, the test harness checks out the same commit as the local `.opencode` submodule HEAD to pick up feature branch changes. If the commit is not pushed to remote, a WARNING is emitted and the remote default branch is used instead.
+`.opencode/` is cloned from the remote URL (not `cp -a` from the parent repo). After cloning, the test harness checks out the same commit as the local `.opencode` submodule HEAD to pick up feature branch changes.
 
-**Feature branch changes MUST be pushed to remote before running tests.** The clone from remote ensures the test environment has a clean git history and proper submodule state.
+**If that commit is not on the remote (unpushed local HEAD), the checkout cannot succeed and the invocation hard-FAILS with exit 1 and a `HARNESS_FAILURE:` message — no test home is produced:**
+
+```text
+HARNESS_FAILURE: could not checkout local submodule commit <SHA> — the SHA is not on the remote. Commit and push the submodule change, then fetch and re-run the test framework. No test home is produced; refusing to run on the wrong ref.
+```
+
+**A run that tests code it never checked out issues PASS/FAIL verdicts about code the branch does not contain — the harness refuses to run on the wrong ref rather than proceed on any substitute ref.**
+
+**Feature branch changes MUST be pushed to remote before running tests.** The clone from remote ensures the test environment has a clean git history and proper submodule state. This checkout gate is one enforcement surface of the §4 ordered precondition cycle (commit → push → fetch/verify → run): same predicate — effective commit contained in a remote ref after a fresh fetch — enforced mechanically.
 
 #### Model Config Generation
 
