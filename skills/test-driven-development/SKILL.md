@@ -266,6 +266,7 @@ Content-verification tests are valuable as a fast check that files haven't regre
 | **GREEN** | Make the guideline/skill change that causes the agent to follow the rule |
 | **REFACTOR** | Verify content-verification also passes; clean up test scenarios; confirm behavioral test passes reliably |
 | **COMMIT** | Both the behavioral test, content-verification test (if any), and the guideline/skill change committed together |
+| **PUSH** | Behavioral items only: push the commit to its remote branch, then fresh-fetch and verify the effective commit is contained in a remote ref — required BEFORE the behavioral test run (regular items keep commit-last per the #2433 commit-inline plan pattern) |
 
 ### Why This Matters
 
@@ -335,6 +336,7 @@ The BEHAVIORAL enforcement test for each SC MUST exist and FAIL before implement
 2. **GREEN**: Implement the change that makes the agent follow the rule
 3. **REFACTOR**: Verify content-verification also passes; clean up test scenarios
 4. **COMMIT**: Both the behavioral test and the change committed together
+5. **PUSH**: Behavioral items only: push the commit to its remote branch, then fresh-fetch and verify the effective commit is contained in a remote ref — required BEFORE the behavioral test run (regular items keep commit-last per the #2433 commit-inline plan pattern)
 
 Writing behavioral tests AFTER implementation means the test was never RED — it never caught the gap between the rule and the agent's behavior. The #1217 root cause was exactly this: the agent had correct rule text (passed content-verification) but did not follow the rule in practice (would have failed behavioral verification).
 
