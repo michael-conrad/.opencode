@@ -1,0 +1,123 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Validate findings — issue .opencode#2430
+# Structural validation of plan.md + plan-01..plan-06 against the 6 check categories
+# Produced by writing-plans/tasks/validate.md, 2026-09-04 (re-validation run)
+# Supersedes prior run (overall_status: FAIL, finding F-1) — F-1 remediation verified in-plan
+
+schema_version: "1.0"
+issue: 2430
+validated_artifacts:
+  - .opencode/.issues/2430/plan.md
+  - .opencode/.issues/2430/plan-01-canonical-guard-reference.md
+  - .opencode/.issues/2430/plan-02-deck-lint-rule.md
+  - .opencode/.issues/2430/plan-03-card-sweep.md
+  - .opencode/.issues/2430/plan-04-plan-template-guard.md
+  - .opencode/.issues/2430/plan-05-behavioral-tests.md
+  - .opencode/.issues/2430/plan-06-post-implementation.md
+inputs:
+  solve_output: .opencode/.issues/2430/artifacts/solve-output.yaml
+  solve_status: SAT
+  dependency_contract: .opencode/.issues/2430/dependency-contract.yaml
+  concern_map: .opencode/.issues/2430/artifacts/concern-map.yaml
+  spec: .opencode/.issues/2430/spec.md
+  implementation_workflow_reference: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  prior_run: .opencode/.issues/2430/artifacts/validate-findings.yaml (overall FAIL, F-1)
+
+prior_run_resolution:
+  finding: F-1 (5 VbC steps labeled task-card without Dispatch lines: steps 9, 14, 19, 24, 35)
+  status: REMEDIATED
+  evidence: >-
+    Live re-scan (awk block walk across plan-0*.md) finds ZERO task-card steps without a Dispatch line.
+    Steps 9, 14, 19, 24, 35 each carry "Dispatch: task(..., prompt: \"execute verify task from
+    verification-before-completion\")". Frontmatter dispatch arrays for phases 1-5 each include
+    verification-before-completion:verify.
+
+overall_status: PASS
+categories_passed: 6
+categories_failed: 0
+
+categories:
+
+  - category: "1 — Structural validation"
+    status: PASS
+    checks:
+      - check: "plan.md has a phase table with all required columns"
+        result: PASS
+        detail: "Phase Table (plan.md lines 61-69) carries Phase | Skill | Task | Target | SCs | Depends On for all 5 phases; header row verified by direct read"
+      - check: "each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "plan-01..plan-05 each contain a '## Step-by-step' section with numbered checkbox steps (5-8, 10-13, 15-18, 20-23, 25-35); plan.md holds Pre-Implementation steps 1-4; plan-06 holds post-implementation steps 36-43; 43 total checkbox steps counted by grep"
+      - check: "exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "plan.md '## Exit Criteria' at line 100 (C1-C9) plus explicit 'SC coverage check' line: SC-1→phase 3; SC-2→phase 4; SC-3/SC-4/SC-5/SC-6b→phase 5; SC-6a→phase 2; phase 1 preparatory (no SC)"
+
+  - category: "2 — Skill+task validity"
+    status: PASS
+    checks:
+      - check: "every skill+task reference matches a valid entry in implementation-workflow.md"
+        result: PASS
+        detail: "Extracted all 10 distinct task() dispatch strings from plan files via grep; each matches the reference card verbatim: test-driven-development red/green/phase-0 (pre-regression)/phase-4 (post-regression); verification-before-completion verify; finishing-a-development-branch checklist (structural-checks); git-workflow-pr review-prep and create; completion-core completion (exec-summary); audit verification-audit DiMo investigator (plan-06 step 36 string matches reference card exactly)"
+      - check: "direct-labeled steps are sanctioned orchestrator-direct entries"
+        result: PASS
+        detail: "Commit steps (8, 13, 18, 23, 34) match commit-inline; plan-06 step 37 (Z3 check) matches z3-check — both sanctioned orchestrator-direct entries in the reference card"
+
+  - category: "3 — SC coverage"
+    status: PASS
+    checks:
+      - check: "every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "All 7 spec SCs covered: SC-1→phase 3 (plan-03); SC-2→phase 4 (plan-04); SC-3, SC-4, SC-5, SC-6b→phase 5 (plan-05); SC-6a→phase 2 (plan-02); phase 1 explicitly preparatory (R-2 infra, no SC). SC-ID scan across plan files: no uncovered SC; the spec's historical 'SC-6' mention (revision log) is superseded by the SC-6a/SC-6b decomposition the spec itself declares"
+      - check: "triplet split detection — no SC has RED/GREEN/COMMIT split across phases"
+        result: PASS
+        detail: "SC-6a: RED(10)/GREEN(11)/COMMIT(13) all phase 2. SC-1: RED(15)/GREEN(16)/COMMIT(18) all phase 3. SC-2: RED(20)/GREEN(21)/COMMIT(23) all phase 4. SC-3: RED(25)/GREEN(26)/COMMIT(34) all phase 5. SC-4: RED(27)/GREEN(28)/COMMIT(34) all phase 5. SC-5: GREEN(29)/COMMIT(34) phase 5. SC-6b: RED(30)/GREEN(31)/COMMIT(34) all phase 5. No cross-phase splits."
+    notes:
+      - "ADVISORY (no FAIL): SC-5 has no distinct RED step — the RED condition (orchestrator false-halt) is folded into GREEN step 29 as the recovery-gate assertion, with documented rationale in plan-05. RED and GREEN remain in the same phase (5), so the triplet-split check passes; the merge is a documented same-phase deviation, not a cross-phase violation."
+
+  - category: "4 — Concern separation"
+    status: PASS
+    checks:
+      - check: "each phase addresses exactly one concern from the concern-map artifact"
+        result: PASS
+        detail: "concern-map.yaml defines 5 concerns with phases: [1], [2], [3], [4], [5] respectively; each plan-01..05 Concern header matches its concern-map entry (verified by direct read of both artifacts)"
+      - check: "no two phases address the same concern"
+        result: PASS
+        detail: "No concern appears in more than one phase; plan-06 (post-implementation) introduces no new concern or SC — it is explicitly plan-level verification/delivery gates"
+
+  - category: "5 — DAG validation"
+    status: PASS
+    checks:
+      - check: "dependency contract DAG has no cycles"
+        result: PASS
+        detail: "All 7 edges (1→2, 1→3, 2→3, 1→4, 1→5, 3→5, 4→5) verified acyclic via Kahn topological sort (programmatic run this session): full order [1, 4, 2, 3, 5] covers all 5 nodes"
+      - check: "all phases are reachable from the start node"
+        result: PASS
+        detail: "Reachability from node 1 computed programmatically: {1,2,3,4,5} — all phases reachable"
+      - check: "no orphan phases (no incoming or outgoing edges)"
+        result: PASS
+        detail: "Source set {1,2,3,4} ∪ destination set {2,3,4,5} covers all 5 nodes; zero orphans"
+      - check: "contract edges match plan.md Depends On column and per-phase Dependencies headers"
+        result: PASS
+        detail: "Phase table: 2 dep 1; 3 dep 1,2; 4 dep 1; 5 dep 1,3,4 — exactly matches contract edges. plan-05 Entry Conditions require phases 1, 3, 4 — matches. Consistent with solve-output SAT assignment (all 5 phases true under the precondition chain)"
+
+  - category: "6 — Holistic quality"
+    status: PASS
+    checks:
+      - check: "no TBD/TODO placeholders in the plan body"
+        result: PASS
+        detail: "grep scan for TBD|TODO|FIXME|placeholder across plan.md + plan-01..06: zero matches (live run)"
+      - check: "all steps use checkbox format"
+        result: PASS
+        detail: "43 numbered step lines counted, all '- [ ] N.' checkbox format; zero bare-numbered step lines (live grep)"
+      - check: "dispatch mode consistency (inline phases have no dispatched steps, clean-room phases have no inline steps)"
+        result: PASS
+        detail: "Live awk scan: zero task-card steps missing a Dispatch line (prior-run F-1 remediated); direct-labeled steps limited to sanctioned commit-inline/z3-check entries; frontmatter dispatch arrays carry verification-before-completion:verify for phases 1-5 and the full post-implementation set"
+
+findings_summary: >-
+  All 6 categories PASS on re-validation. Prior-run finding F-1 (VbC steps labeled task-card
+  without Dispatch lines) is verified remediated in-plan. One advisory carried forward (SC-5
+  RED folded into GREEN step 29 — same-phase, documented, not a triplet split). Overall: PASS.
+
+co-authored_with_ai: "OpenCode (ollama-cloud/glm-5.3-flash)"
