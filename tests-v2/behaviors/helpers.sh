@@ -672,6 +672,48 @@ behavior_run() {
         submodule_commit=""  # let clone use remote default branch
     fi
 
+    # SC-3 (.opencode#2434): pre-flight git-state gate — MUST fire before the
+    # lock-file open and flock acquisition below and before any model dispatch.
+    # Predicate (single definition, mirrors tests-v2/AGENTS.md §4): the submodule
+    # working tree is clean (git status --porcelain empty) AND the effective
+    # submodule commit — the BEHAVIOR_SUBMODULE_COMMIT pin when set, the local
+    # HEAD otherwise (R-4: pin honored, never bypassed) — is contained in a
+    # remote ref after a fresh git fetch (R-13: live state read at run time, no
+    # cached SHAs). On failure: FATAL message naming the commit+push+fetch
+    # remediation, return 1 before the lock file is opened. All behavioral
+    # scripts inherit this gate via behavior_run() (R-11) — invocation unchanged.
+    local __preflight_repo="$PARENT_REPO_DIR/.opencode"
+    local __preflight_dirty=0
+    if [ -n "$(git -C "$__preflight_repo" status --porcelain 2>/dev/null || true)" ]; then
+        __preflight_dirty=1
+    fi
+    local __preflight_effective="$submodule_commit"
+    if [ -z "$__preflight_effective" ]; then
+        __preflight_effective=$(git -C "$__preflight_repo" rev-parse HEAD 2>/dev/null || true)
+    fi
+    local __preflight_contained=0
+    if [ -n "$__preflight_effective" ] && git -C "$__preflight_repo" fetch -q origin 2>/dev/null; then
+        if git -C "$__preflight_repo" branch -r --contains "$__preflight_effective" 2>/dev/null | grep -q .; then
+            __preflight_contained=1
+        fi
+    fi
+    if [ "$__preflight_dirty" -ne 0 ] || [ "$__preflight_contained" -ne 1 ]; then
+        local __preflight_dirty_txt="yes"
+        local __preflight_contained_txt="yes"
+        if [ "$__preflight_dirty" -ne 0 ]; then
+            __preflight_dirty_txt="NO (uncommitted/untracked changes present)"
+        fi
+        if [ "$__preflight_contained" -ne 1 ]; then
+            __preflight_contained_txt="NO"
+        fi
+        echo "FATAL: pre-flight git-state gate failed for .opencode submodule (SC-3, .opencode#2434)" >&2
+        echo "  submodule working tree clean: $__preflight_dirty_txt" >&2
+        echo "  effective commit: ${__preflight_effective:-<unknown>}${submodule_commit:+ (pinned via BEHAVIOR_SUBMODULE_COMMIT)}" >&2
+        echo "  contained in a remote ref after fresh git fetch: $__preflight_contained_txt" >&2
+        echo "  Remediation: git commit the submodule working-tree changes, git push the effective commit to its remote branch, then re-run — a fresh git fetch verifies remote containment. Do not run behavioral tests against uncommitted or unpushed submodule state." >&2
+        return 1
+    fi
+
     local attempt=0
     local output_file="$log_dir/stdout.log"
     local err_file="$log_dir/stderr.log"
