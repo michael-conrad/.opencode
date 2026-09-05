@@ -3,6 +3,7 @@ title: '[SPEC] Mechanical Pre-Flight Guard (task-tool probe) for skill cards and
 status: open
 labels:
 - approved-for-pr
+- spec-cleared
 body: "## Intent and Executive Summary\n\n**Problem Statement:** Sub-agents dispatched\
   \ via `task()` misidentify themselves as orchestrators and execute orchestrator-level\
   \ routing metadata (SKILL.md Pre-Flight Guard sections, Trigger Dispatch Tables,\
@@ -271,4 +272,4 @@ body: "## Intent and Executive Summary\n\n**Problem Statement:** Sub-agents disp
   \ local-issues defect note) is preserved.\n\n\U0001F916 Co-authored with AI: OpenCode\
   \ (ollama-cloud/glm-5.3-flash)\n"
 created_at: '2026-09-04T23:16:08+00:00'
-updated_at: '2026-09-04T23:21:30+00:00'
+updated_at: '2026-09-05T00:29:31+00:00'
