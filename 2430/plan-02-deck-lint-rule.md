@@ -80,5 +80,6 @@
   - Fixture card is flagged by deck lint; flagged verdict recorded.
   - `validate_skill_cards.py` guard-verbatim check in place.
   - All exit conditions hold before phase 3 begins.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`.
 
 **Concern transition:** Leaving guard-verification tooling → entering deck-wide guard embedding. Phase 3 depends on phase 2's lint rule as its gate — RED = lint flags all 51 cards missing/deviant; GREEN = lint reports zero. The deck is intentionally red between phase 2's commit and phase 3's GREEN; lint output in that window is the expected RED signal, not a regression.

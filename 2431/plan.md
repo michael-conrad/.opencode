@@ -71,6 +71,7 @@ Verification coercions (from the implementation-workflow reference card): a DONE
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
+| Pre | Pre-implementation (global) — coherence gate, baseline check, pre-regression, pre-regression-verify | — | — | — | 1–4 | direct (1–2) + task-card (3–4) |
 | 1 | In-scope enumeration and live-API merge-state verification | Merge-state verification (Condition 1), including in-scope set enumeration | SC-2, SC-1, SC-3, SC-4 | — | 5–24 | task-card (red/green/post-regression/verify) + direct (commit) |
 | 2 | Pointer freshness assertions | Pointer freshness assertions (Condition 3) | SC-6, SC-7 | 1 | 25–34 | task-card (red/green/post-regression/verify) + direct (commit) |
 | 3 | Pointers-ride-alongside timing and waiting behavior | Pointers-ride-alongside timing and waiting behavior (Condition 2) | SC-5, SC-11 | 1 | 35–44 | task-card (red/green/post-regression/verify) + direct (commit) |
@@ -93,6 +94,27 @@ Verification coercions (from the implementation-workflow reference card): a DONE
 
 ---
 
+# Pre-Implementation (Global)
+
+**Cost frame:** Running the coherence gate and baseline check costs minutes each — the plan is structurally valid against the spec and the tree starts from the trunk tip. Skipping costs days — a spec-plan divergence or stale base branch contaminates every downstream item and surfaces as rework at the first FAIL.
+
+- [ ] 1. (**direct**) coherence gate — spec/plan coherence check
+  - Re-read the spec Success Criteria and Requirements against this plan's phase table and exit criteria; confirm every SC maps to exactly one item, evidence types match the spec table, and the DAG is acyclic
+  - Any incoherence halts the plan for remediation before item work begins
+- [ ] 2. (**direct**) baseline check
+  - Verify the working tree is clean, the feature branch is current with the trunk tip, and submodule state matches the committed pointer (`git submodule status` shows no `+` prefix)
+  - Any deviation halts before the first item's RED
+- [ ] 3. (**task-card**) pre-regression
+  - Pre-cleanup: `rm -f tmp/2431/artifacts/pipeline-pre-regression-*`
+  - Dispatch: `task(..., prompt: "execute phase-0 task from test-driven-development")`
+  - Runs the regression test patterns before the first RED phase
+- [ ] 4. (**task-card**) pre-regression-verify
+  - Pre-cleanup: `rm -f tmp/2431/artifacts/pipeline-pre-regression-verify-*`
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+  - Verifies the pre-regression results; FAIL halts before Phase 1
+
+---
+
 # Phase 1 — In-scope enumeration and live-API merge-state verification
 
 | Field | Value |
@@ -101,7 +123,7 @@ Verification coercions (from the implementation-workflow reference card): a DONE
 | Files | `.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md`; `.opencode/tests-v2/behaviors/` (new SC-1 script + fixtures) |
 | SCs | SC-2, SC-1, SC-3, SC-4 |
 | Dependencies | none |
-| Entry condition | Pre-implementation steps complete; feature branch current; working tree clean |
+| Entry condition | Pre-implementation steps (coherence gate, baseline check, pre-regression, pre-regression-verify) complete; feature branch current; working tree clean |
 | Exit condition | Enumeration precedes merge verification in the card; live-API verification and bounded-retry language present; SC-2, SC-1, SC-3, SC-4 verified and committed |
 
 ## Code Path Coverage

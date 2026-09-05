@@ -108,3 +108,7 @@ dispatch:
 - [ ] C7. The no-false-halt behavioral scenario shows an orchestrator session reaching Trigger Dispatch Table use with no `BLOCKED` output (SC-5).
 - [ ] C8. The plan-fidelity audit path flags a fixture plan missing the guard as a FAIL finding (SC-6b, R-4).
 - [ ] C9. Audit DiMo chain, Z3 check, structural checks, pre-PR gate, and final regression check all pass; the PR is created (stacked, one branch) and the completion summary is reported.
+
+## lifecycle_events
+
+- **2026-09-05T00:43:32Z** — `plan_created` — plan file: `.opencode/.issues/2430/plan.md` — phase count: 5 (+ post-implementation). Appended by writing-plans completion task.

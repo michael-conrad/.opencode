@@ -115,5 +115,6 @@
 - [ ] 35. **VbC (**task-card**).** Verification-before-completion assertions for phase 5. **→ SC-3, SC-4, SC-5, SC-6b**
   - All four behavioral scenarios produce their expected verdicts from real-model runs.
   - All exit conditions hold before post-implementation steps begin.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`.
 
 **Concern transition:** Leaving behavioral enforcement testing → entering post-implementation gates. All seven SCs now have their verifying evidence; the audit, Z3, structural, pre-PR, regression, review-prep, PR, and completion steps run once at plan level.

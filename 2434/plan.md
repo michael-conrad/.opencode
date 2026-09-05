@@ -604,3 +604,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | SC-7 | Item 7 | 2 | string | direct text read of lessons section |
 | SC-8 | Item 8 | 3 | behavioral | behavioral run → exit 0 + session.yaml artifact |
 | SC-9 | Item 9 | 3 | behavioral | clean-room evaluator verdict from SC-8 session.yaml |
+---
+
+## Lifecycle Events
+
+- **20260905004327** — `plan_created`: Plan verified at `.opencode/.issues/2434/plan.md` (11 SCs, 3 phases). Dependency contract verified. Execution strategy reported for downstream pipeline routing. 🤖 OpenCode (ollama-cloud/glm-5.3-flash)

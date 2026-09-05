@@ -1,0 +1,174 @@
+# Validate findings — writing-plans validate task for issue #2434 (.opencode)
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+# Generated 2026-09-04 by writing-plans/tasks/validate executor against plan.md
+# (606 lines), dependency-contract.yaml, solve-output.yaml, spec.md, and
+# artifacts/concern-map.yaml. All checks executed this session with tool evidence.
+validate_findings:
+  issue_number: 2434
+  repo: .opencode
+  validated_artifact: .opencode/.issues/2434/plan.md
+  validation_date: 2026-09-04
+  overall_status: PASS
+
+  category_1_structural:
+    status: PASS
+    checks:
+      - check: phase_table_required_columns
+        result: PASS
+        evidence: >
+          Phase Table (plan.md "## Phase Table") carries columns Phase, Name, Concern,
+          SCs, Dependencies, Steps, Dispatch — matching plan-structure-standards.md
+          §Plan Index Sections item 8 ("phase number, name, concern, SCs, dependencies,
+          step range, dispatch"). 3 rows (phases 1-3).
+      - check: phase_procedure_sections_numbered_steps
+        result: PASS
+        evidence: >
+          Each phase section (Phase 1 "Harness Hardening", Phase 2 "Durable Rule
+          Encoding", Phase 3 "End-to-End Verification") contains step-by-step checkbox
+          items with globally sequential numbering verified continuous 1..86 with zero
+          duplicates (programmatic census: 86 numbered checkbox steps).
+      - check: exit_criteria_with_sc_to_phase_mapping
+        result: PASS
+        evidence: >
+          "## Exit Criteria" section present with checkbox checklist C1-C9, each
+          criterion referencing its SCs (C2→SC-1/SC-2a/SC-2b; C3→SC-3; C4→SC-4a/SC-4b;
+          C5→SC-5/SC-6; C6→SC-7; C7→SC-8/SC-9). "## Verification Coverage Matrix"
+          additionally maps every SC → Item → Phase → Evidence Type → Verification.
+    observations:
+      - >
+        Frontmatter uses plan_schema_version: 1 (integer) matching
+        plan-structure-standards.md §Plan Frontmatter; plan-artifact-format.md §3.1
+        shows "1.0" (string) — the two references conflict. The plan matches the
+        canonical structure standards referenced by the producer task (create.md
+        step 4), so this is recorded as an observation, not a finding.
+      - >
+        Dispatch indicators use the current (**direct**)/(**task-card**) vocabulary
+        per plan-artifact-format.md §4.2, which explicitly supersedes the retired
+        inline/sub-agent/clean-room vocabulary listed in plan-structure-standards.md
+        §Dispatch Indicators. Recorded as an observation; no action required.
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - check: all_dispatch_strings_match_reference_card
+        result: PASS
+        evidence: >
+          Every task-card dispatch string in the plan matches a canonical entry in
+          implementation-workflow.md: pre-regression ("execute phase-0 task from
+          test-driven-development", steps 4/31/64), pre-regression-verify and verify
+          and pre-pr-gate ("execute verify task from verification-before-completion",
+          steps 5/9/15/21/27/29/32/36/42/48/54/60/62/65/70/76/78/82), red (steps
+          6/12/18/24/33/39/45/51/57/66), green (steps 7/13/19/25/34/40/46/52/58/74),
+          post-regression and regression-check ("execute phase-4 task from
+          test-driven-development", steps 8/14/20/26/35/41/47/53/59/69/75/83), audit
+          (step 79 — verbatim canonical string incl. "Read
+          audit/tasks/verification-audit-investigator.md first"), structural-checks
+          (step 81), review-prep (step 84 — verbatim incl. Read-link), create-pr
+          (step 85), exec-summary (step 86).
+      - check: commit_inline_and_z3_check_are_orchestrator_direct
+        result: PASS
+        evidence: >
+          All commit-inline steps (10/16/22/28/37/43/49/55/61/71/77) and the z3-check
+          step (80) are marked (**direct**) with explicit git/solve commands — matching
+          the reference card's "(orchestrator)" owner rows with no sub-agent dispatch.
+      - check: frontmatter_dispatch_array_valid
+        result: PASS
+        evidence: >
+          Frontmatter dispatch: [test-driven-development,
+          verification-before-completion, audit, finishing-a-development-branch,
+          git-workflow-pr, completion-core] — all six skills appear in the
+          implementation-workflow reference card.
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - check: every_spec_sc_covered
+        result: PASS
+        evidence: >
+          Spec defines 11 SCs (SC-1, SC-2a, SC-2b, SC-3, SC-4a, SC-4b, SC-5, SC-6,
+          SC-7, SC-8, SC-9). Phase coverage: Phase 1 → SC-1/SC-2a/SC-2b/SC-3; Phase 2 →
+          SC-4a/SC-4b/SC-5/SC-6/SC-7; Phase 3 → SC-8/SC-9. All 11 appear in at least
+          one phase's SCs list and in the Verification Coverage Matrix. Zero uncovered.
+      - check: triplet_split_detection
+        result: PASS
+        evidence: >
+          For every SC, RED/GREEN/COMMIT colocate in one phase: SC-1 (6/7/10→P1),
+          SC-2a (12/13/16→P1), SC-2b (18/19/22→P1, commit shared with Item 2a per
+          spec Item 2b), SC-3 (24/25/28→P1), SC-4a (33/34/37→P2), SC-4b (39/40/43→P2),
+          SC-5 (45/46/49→P2), SC-6 (51/52/55→P2), SC-7 (57/58/61→P2), SC-8
+          (66/67-n.a./71→P3), SC-9 (73-n.a./74/77→P3). No TRIPLET_SPLIT findings.
+          n/a-rationale steps (67, 73) are direct-mode steps recording rationale —
+          allowed by spec Items 8/9 which mark GREEN/RED n/a.
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - check: each_phase_one_concern_group
+        result: PASS
+        evidence: >
+          Plan phases map 1:1 onto concern-map.yaml groups: Phase 1 = A-harness-hardening
+          ("Machine gates in the test harness"; SC-1/SC-2a/SC-2b/SC-3), Phase 2 =
+          B-durable-rule-encoding ("Documentation encoding the cycle";
+          SC-4a/SC-4b/SC-5/SC-6/SC-7), Phase 3 = C-end-to-end-verification ("§6a
+          two-SC pattern"; SC-8/SC-9). Each phase's Concern line states exactly one
+          concern.
+      - check: no_two_phases_share_a_concern
+        result: PASS
+        evidence: >
+          Concern groups are disjoint across phases — SC sets are disjoint
+          (4+5+2 = 11 SCs, no overlap) and concern text is distinct per phase.
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - check: dag_acyclic
+        result: PASS
+        evidence: >
+          dependency-contract.yaml phase_dag edges A→B, A→C, B→C all point
+          earlier→later in topological_order [A, B, C] — acyclic by construction.
+          Independently confirmed by solve model query "z3.And(phase_A_done,
+          phase_B_done, phase_C_done)" → SAT (solve-output.yaml, goal reachable under
+          the invariants).
+      - check: all_phases_reachable_from_start
+        result: PASS
+        evidence: >
+          A is the start node (no incoming edges); B reachable via A→B; C reachable
+          via A→C and B→C. Plan dependencies agree: Phase 1 "None (first phase)",
+          Phase 2 "Phase 1", Phase 3 "Phases 1, 2".
+      - check: no_orphan_phases
+        result: PASS
+        evidence: >
+          A: 2 outgoing, 0 incoming (start). B: 1 incoming, 1 outgoing. C: 2 incoming,
+          0 outgoing (sink). No phase lacks both incoming and outgoing edges.
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - check: no_tbd_todo_placeholders
+        result: PASS
+        evidence: >
+          grep -nE 'TBD|TODO|FIXME|XXX|<placeholder|TBD:' plan.md → zero matches.
+      - check: all_steps_checkbox_format
+        result: PASS
+        evidence: >
+          All 86 body steps are "- [ ] N." checkboxes (programmatic census);
+          Exit Criteria C1-C9 are checkbox items.
+      - check: dispatch_mode_consistency
+        result: PASS
+        evidence: >
+          Programmatic scan of all 86 steps: 28 (**direct**) steps carry zero
+          "Dispatch:" sub-bullets; 58 (**task-card**) steps each carry exactly one
+          "Dispatch:" sub-bullet. Zero inconsistencies — no dispatched steps inside
+          direct steps, no inline steps inside dispatched steps.
+      - check: numbering_and_admonishments
+        result: PASS
+        evidence: >
+          Steps number 1..86 continuously (no zero-indexed numbering; phases start at
+          1). Mandatory admonishments present verbatim: Compliance, One step at a
+          time, Step status, Self-Remediation Protocol, Enforcement gate (plan.md
+          lines 43-51). No line-number cross-references (stable anchors used).
+
+  findings: []
+  blocker_reason: null

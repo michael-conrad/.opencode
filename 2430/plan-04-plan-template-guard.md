@@ -78,5 +78,6 @@
   - Plan template + create/revise tasks emit the canonical guard with `ORCHESTRATOR_ONLY_PLAN`.
   - Behavioral create-run confirms the emitted plan carries the guard.
   - All exit conditions hold before phase 5 begins.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`.
 
 **Concern transition:** Leaving plan-template guard emission → entering behavioral enforcement testing. Phase 5 depends on phase 3 (SC-3 card-leak and SC-5 no-false-halt exercise the guard embedded by the sweep) and on this phase (SC-4 plan-leak exercises the guard emitted by the template); both dependencies are now committed.

@@ -74,5 +74,6 @@
   - Canonical guard reference document exists under `.opencode/guidelines/` with the guard block verbatim from the spec.
   - `INDEX.md` cross-link resolves to the new document.
   - All exit conditions hold before phase 2 begins.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`.
 
 **Concern transition:** Leaving guard-definition infrastructure → entering guard-verification tooling. Phase 2 depends on phase 1's canonical text — the lint rule's verbatim pattern is derived from the canonical guard text and cannot check conformance before the reference doc exists.

@@ -1,0 +1,80 @@
+# Validate Findings — Issue .opencode#2431
+# Generated: validate task from writing-plans
+# Plan: .opencode/.issues/2431/plan.md
+# Dependency contract: .opencode/.issues/2431/dependency-contract.yaml
+# Solve output: .opencode/.issues/2431/artifacts/solve-output.yaml (status: SAT)
+
+overall_status: PASS
+
+category_1_structural:
+  status: PASS
+  checks:
+    phase_table:
+      status: PASS
+      detail: "Phase Table present with all required columns (Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch); 7 rows covering Pre, Phases 1-5, Post"
+    phase_procedure_sections:
+      status: PASS
+      detail: "Every phase has a procedure section with numbered checkbox steps; step ranges contiguous 1-67 (Pre 1-4, P1 5-24, P2 25-34, P3 35-44, P4 45-49, P5 50-59, Post 60-67). Observation: Pre/Post global sections present steps directly under the global heading without a '## Step-by-step' sub-heading; concern-phases 1-5 all carry the heading — formatting nuance only, procedure content complete"
+    exit_criteria:
+      status: PASS
+      detail: "Exit Criteria section present (C1-C8); C1 maps SC-1..SC-11 to per-SC verification with declared evidence types; SC-to-phase mapping provided by the phase table SCs column and consistent with the spec Traceability section (spec-scope phase 1 -> implementation phases 1-4, spec-scope phase 2 -> implementation phase 5)"
+
+category_2_skill_task_validity:
+  status: PASS
+  checks:
+    dispatch_strings:
+      status: PASS
+      detail: "All task-card dispatch strings match the implementation-workflow reference card exactly: 'execute phase-0 task from test-driven-development' (pre-regression), red, green, 'execute phase-4 task from test-driven-development' (post-regression + regression-check), 'execute verify task from verification-before-completion' (pre-regression-verify, per-item verify, pre-PR gate), 'execute verification-audit DiMo investigator from audit...' (audit, + validator/evaluator/arbiter in sequence), 'execute checklist task from finishing-a-development-branch' (structural-checks), 'execute review-prep from git-workflow-pr...' and 'execute create task from git-workflow-pr' (review-prep, create PR), 'execute completion task from completion-core' (exec summary)"
+    orchestrator_direct_steps:
+      status: PASS
+      detail: "Inline steps limited to commit-inline, coherence gate, baseline check, and z3-check — all four designated orchestrator-direct by the reference card and declared in the plan Dispatch section ('Orchestrator-direct steps: coherence gate, baseline check, every commit-inline, z3-check')"
+
+category_3_sc_coverage:
+  status: PASS
+  checks:
+    sc_coverage:
+      status: PASS
+      detail: "11/11 spec SCs covered exactly once: P1(SC-2, SC-1, SC-3, SC-4), P2(SC-6, SC-7), P3(SC-5, SC-11), P4(SC-10), P5(SC-8, SC-9); no uncovered SC, no duplicate coverage"
+    triplet_split:
+      status: PASS
+      detail: "No SC has RED/GREEN/COMMIT split across phases — SC-2 steps 5-9, SC-1 steps 10-14, SC-3 steps 15-19, SC-4 steps 20-24 (all P1); SC-6 steps 25-29, SC-7 steps 30-34 (all P2); SC-5 steps 35-39, SC-11 steps 40-44 (all P3); SC-10 steps 45-49 (P4); SC-8 steps 50-54, SC-9 steps 55-59 (all P5); each triplet includes its commit step in the same phase"
+
+category_4_concern_separation:
+  status: PASS
+  checks:
+    one_concern_per_phase:
+      status: PASS
+      detail: "P1=Merge-state verification (Condition 1, incl. in-scope enumeration per concern-map reconciliation), P2=Pointer freshness assertions (Condition 3), P3=Pointers-ride-alongside timing and waiting behavior (Condition 2), P4=Blocking-reason reporting, P5=Enforcement placement — exactly the 5 concerns from concern-map.yaml, one per phase"
+    no_duplicate_concerns:
+      status: PASS
+      detail: "No two phases address the same concern; concern-map spec-scope phase numbering ([1], [2]) reconciled to implementation phases 1-4 / 5 as documented in the plan Blast Radius section"
+
+category_5_dag_validation:
+  status: PASS
+  checks:
+    acyclic:
+      status: PASS
+      detail: "Plan DAG (P1 root; P2<-P1; P3<-P1; P4<-P1,P2; P5<-P1,P2,P3,P4; Post<-P1..P5) has no cycles — topological order exists (Pre, 1, 2, 3, 4, 5, Post); contract cross_phase_edge 1->2 is honored (P5 designation judged against P1-P4 gate language); solve-output corroborates acyclic:true with dag_edges:8"
+    reachability:
+      status: PASS
+      detail: "All phases reachable from the start node — Pre gates Phase 1 entry per the phase table entry condition and sequential step ranges enforce the ordering"
+    no_orphans:
+      status: PASS
+      detail: "No orphan phases — every phase carries declared incoming dependencies or outgoing dependents (P1 is the root with four dependents; Post consumes all five)"
+
+category_6_holistic_quality:
+  status: PASS
+  checks:
+    no_placeholders:
+      status: PASS
+      detail: "grep 'TBD|TODO|FIXME|PLACEHOLDER|<placeholder>|???' over plan.md returned 0 matches (tool-verified)"
+    checkbox_format:
+      status: PASS
+      detail: "All 67 steps use the '- [ ] N.' checkbox format (grep-verified: 67 matches, steps 1 through 67 contiguous, no unnumbered steps)"
+    dispatch_mode_consistency:
+      status: PASS
+      detail: "Clean-room (task-card) steps carry no inline work; inline steps are exclusively the four orchestrator-direct categories; Pre declared 'direct (1-2) + task-card (3-4)' and Post declared 'mixed (see steps)' — declared dispatch modes match actual step content; per-item pattern 'task-card (red/green/post-regression/verify) + direct (commit)' matches the reference card commit-inline rule"
+
+finding_summary: "6/6 categories PASS — plan structurally valid against spec .opencode#2431 (11/11 SCs covered, no triplet splits, DAG acyclic, dispatch modes consistent, zero placeholders)"
+
+timestamp: "2026-09-05T00:32:20Z"

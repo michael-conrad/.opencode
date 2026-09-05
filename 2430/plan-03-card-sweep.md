@@ -81,5 +81,6 @@
   - All 51 SKILL.md files embed the canonical guard verbatim.
   - Deck lint reports zero cards missing/deviant.
   - All exit conditions hold before phase 4 begins.
+  - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`.
 
 **Concern transition:** Leaving deck-wide guard embedding → entering plan-template guard emission. Phase 4 depends on phase 1's canonical text; it is independent of phases 2–3 and may proceed once phase 1 lands. Phase 5 depends on both this phase (SC-3 card-leak, SC-5 no-false-halt exercise the swept cards) and phase 4 (SC-4 plan-leak exercises the template).
