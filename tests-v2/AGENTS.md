@@ -199,6 +199,21 @@ Expected: `manifest.yaml`, `stdout.log`, `stderr.log`, `exit_code`, `session.yam
 
 ## 4. Running Tests
 
+### The Ordered Precondition Cycle — Required for ALL Behavioral Runs
+
+Before any behavioral test invocation, the preconditions must hold in this exact order — **commit → push → fetch/verify → run**:
+
+| Step | Action | Verification |
+|------|--------|--------------|
+| 1. commit | Commit all `.opencode` submodule working-tree changes | Submodule working tree clean (`git status --porcelain` empty) |
+| 2. push | Push the effective commit to its remote branch | `git push` succeeds for the branch carrying the effective commit |
+| 3. fetch/verify | Perform a fresh `git fetch`, then verify the effective commit is contained in a remote ref | `git branch -r --contains <effective-commit>` returns at least one remote ref after the fresh fetch |
+| 4. run | Invoke the behavioral test | Only after steps 1–3 pass |
+
+This cycle is required for all behavioral runs — every behavioral run tests the effective submodule commit as it exists on the remote, never local-only state. The scope is not limited to a `DEFAULT_TEST_MODEL` override or any other environment variable: an unpushed or uncommitted submodule state invalidates the run regardless of which model or phase is requested.
+
+The documented cycle mirrors the harness gate predicate exactly (single definition, R-10): **submodule working tree clean (`git status --porcelain` empty) AND effective commit contained in a remote ref after a fresh `git fetch`.** That predicate is enforced mechanically at two surfaces: the `behavior_run()` pre-flight git-state gate (`.opencode/tests-v2/behaviors/helpers.sh`, firing before the flock and before any model dispatch) and the `with-test-home` clone+checkout gates. All of these hard-FAIL (exit 1) on dirty or unpushed submodule state, and their failure messages name the commit+push+fetch remediation using the `FATAL:`/`HARNESS_FAILURE:` stderr-prefix conventions. The effective commit honors `BEHAVIOR_SUBMODULE_COMMIT` when pinned — the pin is verified against the remote, never bypassed.
+
 ### Single Scenario
 
 ```bash
@@ -219,9 +234,9 @@ BEHAVIOR_PHASE="RED" \
 bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
 
-**⚠️ `DEFAULT_TEST_MODEL` override requires the feature branch to be pushed to remote.** The test harness clones `.opencode/` from remote and checks out the local submodule HEAD commit. If the feature branch changes (including `seed_model_config()` fixes) are not pushed, the harness uses the remote default branch which has the old code. The `seed_model_config()` function in `with-test-home` dynamically interpolates `$default_model` into the `opencode.jsonc` `model` field — this fix was applied in commit `f5c66371`. Without it, the `model` field was hardcoded to `ollama/ornith:35b-256k` regardless of `DEFAULT_TEST_MODEL`.
+The model override selects which model runs — it does not change the preconditions. The ordered cycle above applies to override runs exactly as to default runs: the harness clones `.opencode/` from remote and checks out the local submodule HEAD commit, so unpushed changes (including `seed_model_config()` fixes, applied in commit `f5c66371`) are invisible to the clone until the commit+push steps of the cycle land them on the remote.
 
-**🚫 FORBIDDEN:** Asking the developer for authorization to push test framework fixes. Test framework changes that fix broken behavior are not implementation — they are infrastructure maintenance. The agent commits and pushes autonomously. The earlier pattern of asking "authorize push?" for a test harness bugfix was a routing-bypass self-authorization violation.
+**🚫 FORBIDDEN:** Asking the developer for authorization to push test framework fixes. Test framework changes that fix broken behavior are not implementation — they are infrastructure maintenance. The agent commits and pushes autonomously. The earlier pattern of asking "authorize push?" for a test harness bugfix was a routing-bypass self-authorization violation. This test-framework infrastructure-maintenance carve-out is the authorization basis for the commit → push → fetch/verify → run cycle above: it extends to all behavioral runs and is never re-scoped to a single environment variable.
 
 ## 5. Infrastructure Details
 
