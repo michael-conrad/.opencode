@@ -940,3 +940,9 @@ The >2000-run runaway observed during branch-finishing (2026-09-04) is the canon
 ### Harness Guard
 
 No whole-suite invocation mechanism exists in this harness: each `opencode run` names its target scenario(s); `behaviors/*.sh` scripts are launched individually via `bash .opencode/tests-v2/behaviors/<scenario>.sh` with the scenario name explicit in the command. An agent that finds itself constructing a loop, glob, or enumeration over `behaviors/*.sh` for model execution MUST stop and derive the named scenarios instead. Enforcing scenario: `2433-sc9-whole-suite-invocation-blocked.sh` (whole-suite attempt → BLOCKED/prohibited).
+
+## 16. Ordering-Gate Behavioral Tests — Role (Advisory — No Runtime Blocking Authority)
+
+The stacked-PR ordering-gate behavioral tests (e.g., `2431-sc*.sh` in `behaviors/`) are the **behavioral-evidence instrument** for the ordering gate's blocking SCs: they generate clean-room model-run artifacts (`session.yaml`) that the two-SC pattern (§6a) pairs with clean-room evaluation — they prove what an agent DOES at parent-PR-creation time, and nothing else. They exercise **no runtime blocking authority** over stacked-PR ordering: a test script runs, produces artifacts, and exits — it never gates, blocks, or permits a real parent stacked PR. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.

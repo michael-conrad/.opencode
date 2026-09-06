@@ -33,6 +33,12 @@ The submodule pointer rides ALONGSIDE the next real root-repo change on a featur
 | Pointers staged | `git diff --cached --name-only` | Submodule paths present | `git add <path>` |
 | Mixed commit allowed | Gate 4 check | PASS | HALT and report |
 
+## Ordering-Gate Role (Advisory — No Blocking Authority)
+
+This task runs pre-commit — before any in-scope submodule PR merge state can be verified — and its stale-pointer gate legally proceeds under `SKIP_STALE_POINTER_CHECK=1`, so it cannot serve as a blocking check for stacked-PR ordering. Its role relative to the stacked-PR ordering gate is advisory/consistency only: it exercises **no blocking authority** over parent stacked PR creation. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
+
 ## Cross-References
 
 - `implementation.md` — pre-commit step before `git add`

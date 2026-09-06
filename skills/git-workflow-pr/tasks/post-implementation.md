@@ -155,6 +155,12 @@ PR URL: <html_url from github_create_pull_request API response>
 - **Compare URL correctness:** Verify URL uses correct base branch ($DEFAULT_BRANCH, not main). Verify URL uses session init values (not hardcoded).
 - **Chat output format:** Verify each required element is present: executive summary, outcome, URL (if applicable), byline. See Step 4.5 for the full checklist.
 
+## Ordering-Gate Role (Advisory — No Blocking Authority)
+
+This task runs only on the standard executing-plans path and pushes the feature branch without PR-creation authority — it executes no merge-state verification and cannot block parent stacked PR creation. Its role relative to the stacked-PR ordering gate is advisory/consistency only: it exercises **no blocking authority** over the ordering gate. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
+
 ## Enforcement References
 
 - Evidence format + finding classification: Read [verification-before-completion/tasks/verify.md](.opencode/skills/verification-before-completion/tasks/verify.md)
