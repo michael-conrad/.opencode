@@ -163,6 +163,25 @@ git submodule status | grep -E '^\+' | awk '{print $2}'
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-6 — the gate asserts `git submodule status` shows no `+` prefixes for in-scope submodules before parent stacked PR creation.
 
+#### Pointer-SHA Ancestry Assertion (MANDATORY)
+
+For each in-scope submodule enumerated above, before parent stacked PR creation the gate asserts pointer-SHA ancestry: the recorded pointer SHA (the gitlink SHA recorded on the parent feature branch) MUST be an ancestor of the submodule's remote trunk `origin/$DEFAULT_BRANCH`, dynamically resolved per submodule — never a hardcoded trunk name (the #2313 convention).
+
+```bash
+DEFAULT_BRANCH=$(git -C <submodule_path> remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
+if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
+git -C <submodule_path> fetch origin "$DEFAULT_BRANCH"
+git -C <submodule_path> merge-base --is-ancestor <recorded_pointer_sha> origin/$DEFAULT_BRANCH
+```
+
+On exit code `0` (ancestor): the recorded pointer is fresh on the submodule's remote trunk — proceed to the next in-scope submodule.
+
+- **In-scope recorded pointer SHA absent from `origin/$DEFAULT_BRANCH` (non-zero merge-base exit) → BLOCK.** Do NOT create the parent PR. Do NOT auto-remediate. Report the block naming the submodule whose recorded pointer references a commit absent from the submodule's remote trunk, then halt. The developer must land the recorded commit on the submodule's remote trunk (merge the submodule PR) and re-bump the parent pointer to a merged SHA before parent stacked PR creation is re-attempted.
+- This ancestry assertion is separate from the live-API merge-state verification above: the two checks are not interchangeable and carry separate failure categories — a stale pointer (recorded SHA absent from the remote trunk) is not an unmerged PR. Merge state is never inferred from this ancestry result.
+- The assertion applies only to the enumerated in-scope set. A pointer on an out-of-scope submodule that is absent from its remote trunk does not block.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-7 — the gate asserts each in-scope recorded pointer SHA is an ancestor of the submodule's remote trunk `origin/$DEFAULT_BRANCH` before parent stacked PR creation.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
