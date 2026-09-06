@@ -182,6 +182,16 @@ On exit code `0` (ancestor): the recorded pointer is fresh on the submodule's re
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-7 — the gate asserts each in-scope recorded pointer SHA is an ancestor of the submodule's remote trunk `origin/$DEFAULT_BRANCH` before parent stacked PR creation.
 
+#### Pointers-Ride-Alongside Timing Rule (MANDATORY)
+
+Submodule pointer bumps are committed on the parent feature branch only after the submodule merges land. While any in-scope submodule PR is unmerged, no pointer bump is committed on the parent branch. Once every in-scope submodule PR has landed, commit the pointer bumps on the parent feature branch — alongside the real parent-repo change, never as standalone pointer-only commits — so the parent PR's squashed commit carries fresh pointers pointing at the newly merged submodule SHAs.
+
+- Pointer bumps committed before the merges land re-create the stale-pointer parent PR this ordering gate exists to prevent — a squashed parent commit whose recorded pointers reference commits absent from the submodule's remote trunk.
+- The pointers-ride-alongside timing is enforced together with the assertions above: the merge-state verification confirms the in-scope submodule merges have landed before any pointer bump is committed, and the `+`-prefix and Pointer-SHA Ancestry assertions confirm the committed pointers are clean and fresh.
+- Pointer bumps are never committed before merges land for in-scope submodules and never committed standalone — the bump-after-merge timing preserves the pointers-ride-alongside convention that the pointer rides alongside the next real parent-repo change.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-5 — submodule pointer bumps are committed on the parent feature branch after the submodule merges land per the pointers-ride-alongside rule, so the parent PR's squashed commit carries fresh pointers.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
