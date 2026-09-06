@@ -132,7 +132,15 @@ done)
 
 #### Merge-State Blocking Condition (MANDATORY)
 
-For each in-scope submodule enumerated above, the stacked-PR procedure requires the submodule's PR to be merged before the parent stacked PR is created:
+For each in-scope submodule enumerated above, the stacked-PR procedure requires the submodule's PR to be merged before the parent stacked PR is created. Merge state is verified via a live platform API call using the merge-state fields — never inferred from local checkout state or git merge-base ancestry:
+
+```bash
+# Live-API merge-state verification per in-scope submodule PR (GitHub examples)
+gh api repos/<owner>/<submodule_repo>/pulls/<pr_number> --jq '{state: .state, merged: .merged, merged_at: .merged_at}'
+# or: gh pr view <pr_number> --repo <owner>/<submodule_repo> --json state,mergedAt
+```
+
+The `merged` / `merged_at` fields from the platform pulls API (or `state` / `mergedAt` from `gh pr view --json`) are the authoritative merge-state fields. The merge state is never inferred from local checkout state or git merge-base ancestry: the checked-out submodule, its local branches, and parent-side `git merge-base --is-ancestor` ancestry are NOT substitutes for the live-API merge-state answer. The Step 0 merged-commit reachability check (fail-open on network error) and this ordering-gate merge-state verification are separate checks with separate failure categories — ancestry staleness (stale pointer) is not an unmerged PR, and live-API verification with the merge-state fields is the only accepted merge-state source here.
 
 - **Unmerged in-scope submodule PR → BLOCK.** While any in-scope submodule PR is unmerged, parent stacked PR creation is blocked. Do NOT create the parent PR. Do NOT auto-remediate. Report the block naming the submodule and its open PR, then halt.
 - The merge-state blocking condition applies only to the enumerated in-scope set. An empty in-scope set means no submodule PR can block — recorded with the enumeration skip above.
