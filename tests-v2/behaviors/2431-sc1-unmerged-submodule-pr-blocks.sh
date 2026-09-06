@@ -76,7 +76,7 @@ BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD=5
 # (1800s), leaving ~300s for the §10.5 export + §14 diagnosis on abort. The
 # stacked-PR gate flow (procedure load, state inspection, gate evaluation) needs
 # 15-25 min on the 35B model.
-BEHAVIOR_MONITOR_MAX_POLLS=50
+BEHAVIOR_MONITOR_MAX_POLLS=90
 export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
 
 # The prompt references no issue content — skip fixture-issue injection (§3 Step 0).
