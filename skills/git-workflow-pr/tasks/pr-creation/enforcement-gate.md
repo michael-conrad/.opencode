@@ -72,6 +72,28 @@ submodule_checks:
 summary: <text>
 ```
 
+**Per-submodule blocking-reason reporting (Step 0.75 ordering gate).** When the
+ordering gate blocks, the block report names the blocking reason per in-scope
+submodule — the submodule and its PR are named for every block. The
+`blocking_reason` categories are:
+
+```yaml
+blocking_reason: unmerged_pr | inconclusive_state | stale_pointer | plus_prefixed_working_tree
+```
+
+| Category | Trigger | Report names |
+| -- | -- | -- |
+| `unmerged_pr` | The in-scope submodule's PR is unmerged (live-API merge state) | The submodule and its open PR |
+| `inconclusive_state` | The bounded-retry merge-state probes are exhausted with the state still inconclusive | The inconclusive submodule and its PR |
+| `stale_pointer` | The recorded pointer SHA is absent from the submodule's remote trunk | The submodule and its PR |
+| `plus_prefixed_working_tree` | `git submodule status` shows a `+` prefix for the in-scope submodule | The submodule whose working tree diverges, and its PR |
+
+Mixed states (two or more in-scope submodules pending or inconclusive at the
+same time) are enumerated together: the block report lists a `blocking_reason`
+entry for every pending or inconclusive submodule, not just the first one
+found — every pending submodule and every inconclusive submodule is named with
+its category, submodule path, and PR.
+
 **PASS →** Proceed to Step 0.5.
 **FAIL →** BLOCK PR creation. Report which submodules failed, with both SHAs. If the failure is a local-only pointer (`merged: FAIL`), block with `SUBMODULE_PR_MISSING` — the committed gitlink SHA references an unmerged commit that must be merged to `origin/$DEFAULT_BRANCH` first. Do NOT create the PR. Do NOT auto-remediate. The developer must resolve submodule SHA mismatches manually.
 
