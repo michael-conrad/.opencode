@@ -192,6 +192,16 @@ Submodule pointer bumps are committed on the parent feature branch only after th
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-5 — submodule pointer bumps are committed on the parent feature branch after the submodule merges land per the pointers-ride-alongside rule, so the parent PR's squashed commit carries fresh pointers.
 
+#### Waiting Behavior — Parent Branch Sits Idle (MANDATORY)
+
+While any in-scope submodule PR is unmerged, the parent branch sits idle: no new commits, pushes, or PR mutations occur on the parent branch until all in-scope submodule PRs have landed. The idle wait is bounded by the merge-state blocking condition above — the gate blocks parent stacked PR creation while any in-scope submodule PR is unmerged, and the parent branch performs no work during that wait.
+
+- New commits are barred during the wait: a commit made while an in-scope submodule PR is unmerged would capture an unmerged pointer state and re-create the stale-pointer parent PR this ordering gate exists to prevent.
+- Pushes and PR mutations are equally barred during the wait: the parent stacked PR is created only after every in-scope submodule PR has landed, so there is nothing to push to and nothing to mutate on the parent branch while the idle wait is in effect.
+- The wait ends only when all in-scope submodule PRs have landed: the idle period is then over, and the gate proceeds to the Pointers-Ride-Alongside Timing Rule above (pointer bumps committed alongside the real parent-repo change) before parent stacked PR creation.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-11 — while waiting, the parent branch sits idle: no new commits, pushes, or PR mutations occur on the parent branch until all in-scope submodule PRs land.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
