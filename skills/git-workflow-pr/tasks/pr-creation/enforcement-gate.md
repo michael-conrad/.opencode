@@ -148,6 +148,21 @@ The `merged` / `merged_at` fields from the platform pulls API (or `state` / `mer
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-1 — block parent stacked PR creation while any in-scope submodule PR is unmerged.
 
+#### No-`+`-Prefix Freshness Assertion (MANDATORY)
+
+For each in-scope submodule enumerated above, before parent stacked PR creation the gate asserts a clean submodule working tree: `git submodule status` MUST show no `+` prefix for any in-scope submodule. A `+` prefix means the submodule's checked-out working tree HEAD diverges from the gitlink pointer recorded on the parent feature branch — the parent PR tree would resolve submodule content that differs from the recorded pointer.
+
+```bash
+git submodule status | grep -E '^\+' | awk '{print $2}'
+# Any in-scope submodule path listed here triggers the block
+```
+
+- **In-scope submodule shows a `+` prefix → BLOCK.** Do NOT create the parent PR. Do NOT auto-remediate. Report the block naming the submodule whose working tree diverges from the recorded pointer, then halt. The developer must sync or commit the divergent submodule working-tree state so the checked-out submodule HEAD matches the recorded pointer.
+- This assertion is separate from the Step 0 merged-commit reachability check: a clean working tree with a stale (unmerged) pointer is a different failure category (stale pointer) from a `+`-prefixed working tree, and the two conditions are not interchangeable.
+- The assertion applies only to the enumerated in-scope set. A `+` prefix on an out-of-scope submodule does not block.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-6 — the gate asserts `git submodule status` shows no `+` prefixes for in-scope submodules before parent stacked PR creation.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
