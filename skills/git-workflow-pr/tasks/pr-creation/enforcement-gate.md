@@ -224,6 +224,19 @@ While any in-scope submodule PR is unmerged, the parent branch sits idle: no new
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-11 — while waiting, the parent branch sits idle: no new commits, pushes, or PR mutations occur on the parent branch until all in-scope submodule PRs land.
 
+#### Enforcement Placement — Sole Authoritative Blocking Check (MANDATORY)
+
+This Step 0.75 ordering gate is the **sole authoritative blocking check** for stacked-PR ordering across the four candidate enforcement sites, designated per the spec's placement evaluation and its published selection criteria:
+
+- **(a) Every-path coverage** — the gate executes on every path to parent stacked PR creation: it is a mandatory gate every parent PR passes through immediately before creation.
+- **(b) Post-commit execution** — the gate runs after parent commits exist, so the committed pointer state it verifies is real, inspectable state.
+- **(c) Existing blocking authority** — the gate already owns blocking authority over parent PR creation (alongside its existing Step 0 and Step 0.5 blocking gates).
+- **(d) Fail-closed capability** — the gate fails closed on inconclusive merge state: exhausted probes resolve to a block, never to a pass.
+
+pr-creation/enforcement-gate satisfies all four criteria. The three non-selected candidate sites carry advisory/consistency roles with no blocking authority over stacked-PR ordering: the git-workflow-branch pre-commit-pointer-check, the executing-plans post-implementation steps, and the tests-v2 behavioral ordering-gate tests (behavioral-evidence instrument, not a runtime enforcement site). Exactly one site owns blocking authority for the ordering gate — this one.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-8 and D-1 — the ordering gate's authoritative blocking check is assigned to exactly one enforcement site, the spec-designated site pr-creation/enforcement-gate.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
