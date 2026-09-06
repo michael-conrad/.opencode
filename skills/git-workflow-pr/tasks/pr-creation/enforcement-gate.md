@@ -130,6 +130,15 @@ done)
 - Each in-scope entry is a changed submodule path relative to the trunk base (`$DEFAULT_BRANCH` per Default Branch Resolution).
 - An empty result means no in-scope submodule set exists — record the skip explicitly (ordering gate has no submodule set to verify) and proceed. The skip is explicit, not a silent pass.
 
+#### Merge-State Blocking Condition (MANDATORY)
+
+For each in-scope submodule enumerated above, the stacked-PR procedure requires the submodule's PR to be merged before the parent stacked PR is created:
+
+- **Unmerged in-scope submodule PR → BLOCK.** While any in-scope submodule PR is unmerged, parent stacked PR creation is blocked. Do NOT create the parent PR. Do NOT auto-remediate. Report the block naming the submodule and its open PR, then halt.
+- The merge-state blocking condition applies only to the enumerated in-scope set. An empty in-scope set means no submodule PR can block — recorded with the enumeration skip above.
+
+**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-1 — block parent stacked PR creation while any in-scope submodule PR is unmerged.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
