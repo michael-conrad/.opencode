@@ -6,6 +6,7 @@
 # SPDX-FileCopyrightText: 2026 michael-conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 #
 # SC-6 (.opencode#2431): The stacked-PR procedure blocks parent stacked PR creation
 # when an in-scope submodule's working tree diverges from the recorded pointer

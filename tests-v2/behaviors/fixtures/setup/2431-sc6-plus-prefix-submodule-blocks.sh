@@ -2,6 +2,7 @@
 # SPDX-FileCopyrightText: 2026 michael-conrad
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
 #
 # Per-scenario fixture: 2431-sc6-plus-prefix-submodule-blocks (SC-6, .opencode#2431).
 # Sourced by behavior_run() with $1 = attempt workdir (the future test-home project).
