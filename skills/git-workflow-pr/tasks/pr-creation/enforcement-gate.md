@@ -111,6 +111,25 @@ if [ "$CHANGED" = "1" ] && [ "$SUBMODULE_ONLY" = "1" ]; then
 
 **AUTHORITY:** `audit --task spec-audit` auto-fix model, `000-critical-rules.md` §Implementation Without Spec (audit auto-fix exemption). Spec #414 Part 2 — prohibit submodule-bump-only parent PRs.
 
+### Step 0.75: Ordering Gate — In-Scope Submodule Set Enumeration (MANDATORY GATE)
+
+This step is the first condition of the stacked-PR ordering gate, evaluated immediately before parent stacked PR creation. Enumeration precedes merge verification: the in-scope submodule set MUST be enumerated before any merge-state verification runs, and merge verification operates only on the enumerated set.
+
+**If no submodules detected via `git submodule status`:** Skip entirely.
+
+Enumerate the in-scope submodule set from changed submodule paths relative to the trunk base — a submodule is in scope when its gitlink changed on the parent feature branch relative to `$DEFAULT_BRANCH`:
+
+```bash
+IN_SCOPE_SUBMODULES=$(git submodule status | awk '{print $2}' | while read -r sub; do
+    if ! git diff --quiet "$DEFAULT_BRANCH"...HEAD -- "$sub"; then
+        echo "$sub"
+    fi
+done)
+```
+
+- Each in-scope entry is a changed submodule path relative to the trunk base (`$DEFAULT_BRANCH` per Default Branch Resolution).
+- An empty result means no in-scope submodule set exists — record the skip explicitly (ordering gate has no submodule set to verify) and proceed. The skip is explicit, not a silent pass.
+
 ### Step 1: Verify PR Instruction (MANDATORY)
 
 **If ANY check fails → STOP and report. DO NOT proceed.**
