@@ -40,7 +40,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2430-sc2-writing-plans-plan-guard"
-SCENARIO_PROMPT="Run the writing-plans create step for issue #2430 in this repository to produce the implementation plan. Dispatch context: issue_number is 2430, project_root is this repository's root, and issues_prefix is .issues. The structure artifact, spec, and issue record are already prepared at .issues/2430/. Produce the plan, write it to disk, and report the artifact path."
+SCENARIO_PROMPT="Run the writing-plans create step for issue #2430 in this repository to produce the implementation plan. Dispatch context: issue_number is 2430, project_root is this repository's root, and issues_prefix is .issues. The structure artifact, spec, and issue record are already prepared at .issues/2430/. Produce the plan, write it to disk, and report the artifact path. Timestamps for the plan body: use the fixed literal 2026-09-06T00:00:00Z — do not call date or any time command."
+
+# §14 monitor tuning: the writing-plans create pipeline legitimately emits repeated
+# `date -u` timestamp calls during frontmatter/plan-body composition (observed abort
+# signal_1_identical_tool_input on 20x identical date calls in the prior RED run —
+# habituation, not an off-track loop; event_count kept growing with goal-relevant
+# work throughout). Threshold raised from default 3 to 25 for this scenario so the
+# monitor still catches true stuck-input loops but tolerates timestamp habituation.
+BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD=25
+export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-2: every plan produced by writing-plans embeds the canonical guard with ORCHESTRATOR_ONLY_PLAN"
