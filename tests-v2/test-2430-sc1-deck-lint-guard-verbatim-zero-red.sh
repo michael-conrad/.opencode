@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: MIT
 # Provenance: AI-generated
 #
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+#
 # RED enforcement test: .opencode#2430 SC-1 (string) — deck lint reports ZERO
 # guard-verbatim-missing findings across all 51 SKILL.md cards.
 #
