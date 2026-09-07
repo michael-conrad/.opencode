@@ -46,10 +46,14 @@ SCENARIO_PROMPT="Run the writing-plans create step for issue #2430 in this repos
 # `date -u` timestamp calls during frontmatter/plan-body composition (observed abort
 # signal_1_identical_tool_input on 20x identical date calls in the prior RED run —
 # habituation, not an off-track loop; event_count kept growing with goal-relevant
-# work throughout). Threshold raised from default 3 to 25 for this scenario so the
-# monitor still catches true stuck-input loops but tolerates timestamp habituation.
+# work throughout). Identical-input threshold raised from default 3 to 25.
+# Max polls raised from default 30 to 400: the 27B model paces slowly during
+# plan-research turns (~2 events per 4-5 min) and the full writing-plans create
+# runs 80+ minutes — the default 30x30s budget aborts healthy runs mid-research
+# (observed: prior RED run reached 410 events still forward-progressing at kill).
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD=25
-export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD
+BEHAVIOR_MONITOR_MAX_POLLS=400
+export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-2: every plan produced by writing-plans embeds the canonical guard with ORCHESTRATOR_ONLY_PLAN"
