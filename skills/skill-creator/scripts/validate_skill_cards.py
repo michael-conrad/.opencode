@@ -455,6 +455,113 @@ def validate_req_skill_preflight_guard(name: str, body: str, file_path: str) -> 
         )
     return violations
 
+CANONICAL_GUARD_DOC_REL = ".opencode/guidelines/023-pre-flight-guard.md"
+CANONICAL_GUARD_DOC_ANCHOR = "## Canonical Guard Block (Reference Definition)"
+CANONICAL_GUARD_HEADING = "## Pre-Flight Guard (Mandatory)"
+
+def _load_canonical_guard_block(root: Path) -> list[str] | None:
+    """Derive the canonical Pre-Flight Guard block from the single reference
+    definition (.opencode/guidelines/023-pre-flight-guard.md, R-2 .opencode#2430).
+
+    The guard-verbatim validation pattern is derived from the canonical guard
+    text exactly: the fenced block under the 'Canonical Guard Block (Reference
+    Definition)' heading is the verbatim conformance target. Returns the block
+    lines, or None when the canonical doc cannot be located or parsed; callers
+    MUST surface a hard failure violation in that case (never a silent pass).
+    """
+    doc_path = root / CANONICAL_GUARD_DOC_REL
+    if not doc_path.exists():
+        return None
+    text = doc_path.read_text(encoding="utf-8")
+    anchor_idx = text.find(CANONICAL_GUARD_DOC_ANCHOR)
+    if anchor_idx == -1:
+        return None
+    rest = text[anchor_idx:]
+    fence_open = rest.find("```")
+    if fence_open == -1:
+        return None
+    line_end = rest.find("\n", fence_open)
+    if line_end == -1:
+        return None
+    fence_close = rest.find("```", line_end)
+    if fence_close == -1:
+        return None
+    block_lines = rest[line_end + 1 : fence_close].split("\n")
+    while block_lines and block_lines[-1].strip() == "":
+        block_lines.pop()
+    if not block_lines or block_lines[0] != CANONICAL_GUARD_HEADING:
+        return None
+    return block_lines
+
+GUARD_HEADING_RE = re.compile(r"^## Pre-Flight Guard \(Mandatory\)\s*$", re.MULTILINE)
+
+def validate_req_guard_verbatim(name: str, body: str, file_path: str, root: Path) -> list[Violation]:
+    """Guard-verbatim validation (.opencode#2430 SC-6a): every card embeds the
+    canonical guard verbatim.
+
+    Content-based, position-independent: the guard section is located by its
+    canonical heading anywhere in the card body; guard placement after other
+    sections does not evade the flag. Additive to the #2339 marker rule
+    (skill-preflight-guard-missing): this check additionally flags prose-only
+    deviant guard variants that contain the marker string and therefore evade
+    the marker rule. Reason code: ORCHESTRATOR_ONLY_SKILL_CARD (card class).
+    """
+    violations: list[Violation] = []
+    canonical_block = _load_canonical_guard_block(root)
+    if canonical_block is None:
+        violations.append(
+            Violation(
+                "REQ",
+                name,
+                "guard-verbatim-canonical-missing",
+                (
+                    "Canonical guard reference (.opencode/guidelines/023-pre-flight-guard.md) "
+                    "missing or unparseable — guard-verbatim validation cannot run "
+                    "(hard failure, never a silent pass)"
+                ),
+                file_path=file_path,
+            )
+        )
+        return violations
+    heading_match = GUARD_HEADING_RE.search(body)
+    if heading_match is None:
+        violations.append(
+            Violation(
+                "REQ",
+                name,
+                "guard-verbatim-missing",
+                (
+                    "Missing canonical Pre-Flight Guard block (no "
+                    "'## Pre-Flight Guard (Mandatory)' heading; canonical "
+                    "definition: .opencode/guidelines/023-pre-flight-guard.md)"
+                ),
+                file_path=file_path,
+            )
+        )
+        return violations
+    section_lines = body[heading_match.start() :].split("\n")
+    section_end = len(section_lines)
+    for i in range(1, len(section_lines)):
+        if section_lines[i].startswith("## "):
+            section_end = i
+            break
+    if section_lines[:section_end][: len(canonical_block)] != canonical_block:
+        violations.append(
+            Violation(
+                "REQ",
+                name,
+                "guard-verbatim-missing",
+                (
+                    "Deviant (non-mechanical, prose-only) Pre-Flight Guard variant "
+                    "— does not match the canonical block in "
+                    ".opencode/guidelines/023-pre-flight-guard.md verbatim "
+                    "(reason code ORCHESTRATOR_ONLY_SKILL_CARD)"
+                ),
+                file_path=file_path,
+            )
+        )
+    return violations
+
 ADMONISHMENT_HEADING_RE = re.compile(r"^##\s+Mandatory\s+Task\s+Discipline", re.MULTILINE)
 WORKFLOWS_HEADING_RE = re.compile(
     r"^##\s+Workflows", re.MULTILINE
@@ -557,6 +664,7 @@ def validate_card(card_path: Path, root: Path) -> list[Violation]:
     violations.extend(validate_req6(name, body, rel_path))
     violations.extend(validate_condensation(name, body, rel_path))
     violations.extend(validate_req_skill_preflight_guard(name, body, rel_path))
+    violations.extend(validate_req_guard_verbatim(name, body, rel_path, root))
     return violations
 
 def violation_to_dict(v: Violation) -> dict:
