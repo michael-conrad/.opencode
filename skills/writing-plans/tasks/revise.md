@@ -30,6 +30,7 @@ Revises an existing plan and dependency contract based on validation findings or
 5. Apply revisions based on the revision source:
    - For each FAIL finding in validation: fix the root cause in the plan or dependency contract.
    - For direct revision requests: apply the requested changes.
+   - **Preserve/emit the Pre-Flight Guard (Mandatory):** Every revised plan MUST include the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN`. Read [the canonical Pre-Flight Guard definition](../../guidelines/023-pre-flight-guard.md) and copy the plan-class guard block VERBATIM into the plan index — no paraphrasing. See [plan-artifact-format.md](../reference/plan-artifact-format.md) §3.5. Pre-guard plans remain valid — no retroactive regeneration requirement, but any rewritten plan body gains the guard.
 6. Write the updated plan to `{issues_prefix}/{N}/plan.md`.
 7. Write the updated dependency contract to `{issues_prefix}/{N}/dependency-contract.yaml`.
 8. Return the result contract.
@@ -37,6 +38,7 @@ Revises an existing plan and dependency contract based on validation findings or
 ## Exit Criteria
 
 - The plan has been updated at `{issues_prefix}/{N}/plan.md`
+- The plan contains the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN` (verbatim per [plan-artifact-format.md](../reference/plan-artifact-format.md) §3.5)
 - The dependency contract has been updated at `{issues_prefix}/{N}/dependency-contract.yaml`
 - All revision findings have been addressed
 - The artifact path has been set in the result contract

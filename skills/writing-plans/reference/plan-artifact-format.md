@@ -74,6 +74,22 @@ phase_count: <integer>
 | 5 | Phase Table | Yes | Table with columns: Phase, Skill, Task, Target, SCs, Depends On |
 | 6 | Phase Details | Yes | One subsection per phase with Skill, Task, Target, SCs, Depends On, Context |
 | 7 | Exit Criteria | Yes | Numbered checklist C1 through C{N} |
+| 8 | Pre-Flight Guard | Yes | Canonical guard block (verbatim — see §3.5) |
+
+### 3.5 Pre-Flight Guard (Mandatory)
+
+Every plan index (`plan.md`) embeds the canonical Pre-Flight Guard block verbatim, as defined in the canonical reference definition at `guidelines/023-pre-flight-guard.md`. The emitted guard identifies the plan artifact class with reason code `ORCHESTRATOR_ONLY_PLAN`:
+
+```markdown
+## Pre-Flight Guard (Mandatory)
+
+Check your tool list for a tool named `task`.
+
+- Present ⇒ orchestrator — proceed.
+- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+```
+
+The block text MUST match the canonical reference definition verbatim — no paraphrasing, no variant drift. Plans produced before this requirement remain valid — no retroactive regeneration.
 
 ### 3.3 Phase Table
 

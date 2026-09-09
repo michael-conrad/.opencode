@@ -55,6 +55,7 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 8. **Write the plan to disk** at `{issues_prefix}/{N}/plan.md`:
    - Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Plan Index Sections for the required index structure.
+   - **Emit the Pre-Flight Guard (Mandatory):** Every produced plan MUST include the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN`. Read [the canonical Pre-Flight Guard definition](../../guidelines/023-pre-flight-guard.md) and copy the plan-class guard block VERBATIM into the plan index — no paraphrasing. See [plan-artifact-format.md](reference/plan-artifact-format.md) §3.5.
    - Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-phase cost-frame statements following the dark-prose-007 pattern.
    - Use structured markdown: checkbox lists with dash sub-bullets for context parameters.
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
@@ -70,6 +71,7 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 ## Exit Criteria
 
 - The plan has been written to `{issues_prefix}/{N}/plan.md`
+- The plan contains the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN` (verbatim per [plan-artifact-format.md](reference/plan-artifact-format.md) §3.5)
 - `spec-cleared` is present in the local `{issues_prefix}/{N}/issue.yaml` labels array (canonical — REQUIRED)
 - Remote `spec-cleared` label write attempted best-effort; remote failure does not block completion
 - The plan frontmatter contains `dispatch:` array with skill+task refs per phase
