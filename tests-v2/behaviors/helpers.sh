@@ -489,13 +489,23 @@ BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-20000}"
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
 
 __semantic_monitor() {
+    # .opencode#2441 hardening: the poll body is best-effort reads under the
+    # caller's `set -euo pipefail` — any transient read failure (log file not
+    # yet created, SIGPIPE race in the ls|head DB pick, WAL lock) would
+    # otherwise silently kill the whole scenario script. Run the entire body
+    # in a subshell with set +e; the exit code still distinguishes
+    # completed (0) from aborted (1).
     local run_pid="$1"
     local scenario_name="$2"
     local attempt="$3"
     local output_file="$4"
     local err_file="$5"
 
+    (
+    set +e
+
     local poll_log="$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log"
+    mkdir -p "$(dirname "$poll_log")"
     : > "$poll_log"
 
     echo "# Semantic continuous monitoring poll log — scenario=${scenario_name} attempt=${attempt}" >> "$poll_log"
@@ -719,11 +729,12 @@ note: Run aborted mid-execution by the semantic monitor; session.yaml exported p
 DIAGEOF
 
         echo "  [harness] SEMANTIC MONITOR ABORT: ${abort_reason} after ${poll} polls (diagnosis: ${artifact_dir}/semantic-diagnosis.yaml)" >&2
-        return 1
+        exit 1
     fi
 
     echo "MONITOR-COMPLETE polls=${poll} run finished without abort signal" >> "$poll_log"
-    return 0
+    exit 0
+    )
 }
 
 behavior_run() {
