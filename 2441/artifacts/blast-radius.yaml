@@ -1,0 +1,34 @@
+name: blast-radius
+issue: 2441
+phases:
+  - phase: 1
+    item: 1
+    scope: "Documentation — .opencode/tests-v2/AGENTS.md §14"
+    affected_components:
+      - "tests-v2/AGENTS.md §14 (additive sections)"
+    ripple_effects: "None at runtime; downstream implementers (items 2-3) gain normative definitions. Cross-references from §14 Known Limitation remain valid."
+    risk: LOW
+  - phase: 2
+    item: 2
+    scope: "helpers.sh __semantic_monitor() + behavior_run() retry loop"
+    affected_components:
+      - "__semantic_monitor() (helpers.sh:485-645) — new artifact signal + GREEN path"
+      - "behavior_run() retry loop (helpers.sh:898-907) — GREEN-terminated run exits loop with valid evidence"
+    ripple_effects: "All behavioral scenarios using behavior_run() inherit the new signal; scenarios without BEHAVIOR_EXPECTED_ARTIFACT see no behavior change (artifact signal skipped)."
+    risk: MEDIUM
+    mitigation: "Graceful skip when expected-artifact variable unset; existing 4 abort signals untouched"
+  - phase: 3
+    item: 3
+    scope: "helpers.sh __semantic_monitor() HOPELESS path"
+    affected_components:
+      - "__semantic_monitor() abort path (helpers.sh:617-641) — new HOPELESS judgment type"
+    ripple_effects: "Verdict evaluation layer receives behavior-diagnosis verdicts from HOPELESS terminations; existing semantic-diagnosis.yaml schema extended with a judgment-kind field."
+    risk: MEDIUM
+    mitigation: "Reuse existing abort/export path; cite-evidence constraint recorded in poll log"
+  - phase: 4
+    item: 4
+    scope: "Parent repo AGENTS.md"
+    affected_components:
+      - "AGENTS.md Testing Lessons Learned area (one line)"
+    ripple_effects: "Submodule pointer update rides alongside in the same parent commit."
+    risk: LOW

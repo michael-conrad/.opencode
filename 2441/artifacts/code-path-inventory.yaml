@@ -1,0 +1,31 @@
+name: code-path-inventory
+issue: 2441
+phases:
+  - phase: 1
+    paths:
+      - path: ".opencode/tests-v2/AGENTS.md"
+        section: "§14 Semantic Continuous Monitoring Mandate (lines 850-914)"
+        change: "additive — new early-termination subsections"
+  - phase: 2
+    paths:
+      - path: ".opencode/tests-v2/behaviors/helpers.sh"
+        symbol: "__semantic_monitor (line 485)"
+        change: "modified — add artifact-signal read, GREEN condition, GREEN termination branch"
+      - path: ".opencode/tests-v2/behaviors/helpers.sh"
+        symbol: "behavior_run monitor call site (line 898)"
+        change: "modified — distinguish GREEN termination from off-track abort in loop control"
+      - path: ".opencode/tests-v2/behaviors/helpers.sh"
+        symbol: "abort path (lines 617-641)"
+        change: "reused — kill + §10.5 export + judgment YAML extended with termination kind"
+  - phase: 3
+    paths:
+      - path: ".opencode/tests-v2/behaviors/helpers.sh"
+        symbol: "__semantic_monitor poll loop + abort path"
+        change: "modified — HOPELESS judgment branch with evidence citation"
+  - phase: 4
+    paths:
+      - path: "AGENTS.md (parent repo)"
+        section: "Testing Lessons Learned"
+        change: "additive — one pointer line"
+      - path: ".opencode submodule pointer"
+        change: "updated alongside parent commit"

@@ -1,0 +1,22 @@
+name: state-analysis
+issue: 2441
+state_machine: "__semantic_monitor poll loop states"
+states:
+  - IDLE: "run launched, DB not yet provisioned"
+  - POLLING: "per-poll three-signal read (DB events, reasoning, on-disk artifact)"
+  - GREEN_TERMINATED: "expected artifact exists AND goal-relevant actions observed → kill + export + judgment"
+  - HOPELESS_TERMINATED: "cited-evidence judgment run cannot succeed → kill + export + FAIL/behavior-diagnosis"
+  - ABORTED: "existing mechanical/semantic offtrack signals fire → kill + export + monitor-abort diagnosis (unchanged)"
+  - COMPLETED: "run finished without signal (unchanged)"
+transitions:
+  - "IDLE → POLLING when DB appears"
+  - "POLLING → GREEN_TERMINATED on AND-condition (new)"
+  - "POLLING → HOPELESS_TERMINATED on cited judgment (new)"
+  - "POLLING → ABORTED on existing signals (unchanged)"
+  - "POLLING → COMPLETED when run exits (unchanged)"
+  - "POLLING → ABORTED on max-polls exhaustion (unchanged)"
+invariants:
+  - "Terminal states are exclusive — at most one termination kind per run"
+  - "GREEN/HOPELESS/ABORTED all flow through the same kill+export+record path"
+  - "behavior_run() retry loop: GREEN_TERMINATED and HOPELESS_TERMINATED and ABORTED all exit loop without blind retry"
+  - "Verdict evaluation consumes evidence from any terminal state; early-terminated evidence is valid (C4)"

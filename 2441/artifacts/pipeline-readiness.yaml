@@ -1,0 +1,20 @@
+name: pipeline-readiness
+issue: 2441
+checks:
+  atomicity:
+    pass: true
+    detail: "SC-1 → items 1-2, SC-2 → item 3, SC-3 → item 4. Each item = one RED→GREEN→(verify)→COMMIT cycle. SC-1 spans doc + implementation (two items, same SC) — acceptable: doc item is content-verify, impl item is behavioral; each independently verifiable."
+  dependency_ordering:
+    pass: true
+    detail: "DAG: 1→2, 1→3, 2&3→4. Acyclic."
+  single_concern:
+    pass: true
+    detail: "Item 1: docs only. Item 2: GREEN signal. Item 3: HOPELESS signal. Item 4: parent pointer."
+  phase_dependency:
+    pass: true
+    detail: "Phase DAG mirrors item DAG; acyclic."
+  three_tier_structure:
+    pass: true
+    detail: "Pre (item 1: normative definitions) / per-file (items 2-3: monitor code paths) / post (item 4: cross-repo pointer + submodule pointer ride-along)."
+verdict: PASS
+blockers: []
