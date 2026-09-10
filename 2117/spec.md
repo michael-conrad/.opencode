@@ -67,6 +67,7 @@ A spec-creation holistic validation of `.opencode#2117` returned FAIL (holistic 
 | SC-23 | The three bare reference patterns `reference/<name>.md` are ABSENT from all audit task cards in `skills/audit/tasks/` | string | grep for absence of each bare pattern (`reference/cost-model-standards.md`, `reference/spec-structure-standards.md`, `reference/plan-structure-standards.md`) across skills/audit/tasks/ |
 | SC-24 | The corrected `.opencode/reference/...` paths are PRESENT across the audit task cards in `skills/audit/tasks/` | string | grep for presence of each corrected path (`.opencode/reference/cost-model-standards.md`, `.opencode/reference/spec-structure-standards.md`, `.opencode/reference/plan-structure-standards.md`) across skills/audit/tasks/ |
 | SC-25 | The master reference maintainer note path `audit/tasks/spec-audit-evaluator.md` is corrected to `skills/audit/tasks/spec-audit-evaluator.md` | string | grep for the corrected path in the maintainer note |
+| SC-26 | The bare `reference/` patterns `reference/plan-structure-standards.md` and `reference/cost-model-standards.md` are ABSENT from `skills/writing-plans/tasks/create.md`, the corrected `.opencode/reference/plan-structure-standards.md` and `.opencode/reference/cost-model-standards.md` paths are PRESENT in that file, and `.opencode/reference/plan-structure-standards.md` contains the referenced anchors (§Plan Frontmatter, §Plan Index Sections, §Three-Tier Plan Structure) | string | grep for absence of each bare pattern and presence of each corrected path in `skills/writing-plans/tasks/create.md`; grep the target file for the three anchors |
 
 ## 4. Requirements
 
@@ -246,6 +247,13 @@ R-24. The master reference maintainer note SHALL use the corrected path `skills/
 - GREEN: correct the maintainer-note path to `skills/audit/tasks/spec-audit-evaluator.md`
 - verify: grep the corrected path in the maintainer note
 - commit: content
+
+### Item 26 (SC-26): Repoint writing-plans create.md bare reference paths
+- RED: grep fails because `skills/writing-plans/tasks/create.md` carries 4 bare `reference/...` links (3× plan-structure-standards at the frontmatter/body/index-structure emission steps, 1× cost-model-standards at the cost-frame step)
+- GREEN: repoint to `.opencode/reference/plan-structure-standards.md` and `.opencode/reference/cost-model-standards.md` (same pattern as Items 23-24; file already exists at the canonical location — no duplicate doc created)
+- verify: grep absence of bare patterns + presence of corrected paths + anchor presence in the target file
+- commit: link correction (landed 2026-09-10 on feature/2434-stacked)
+- Context: discovered 2026-09-10 as the root cause of writing-plans create-run deliberation ceremony (observed in .opencode#2430 SC-2 behavioral runs); same defect class as Items 23-24 on a surface the original scan did not cover.
 
 ## 6. Dependencies
 
