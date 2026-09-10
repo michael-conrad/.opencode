@@ -482,6 +482,11 @@ BEHAVIOR_MONITOR_INTERVAL="${BEHAVIOR_MONITOR_INTERVAL:-30}"
 # Optional per scenario; unset means the corresponding signal is skipped
 # gracefully with no change to existing behavior (spec R-2).
 BEHAVIOR_EXPECTED_ARTIFACT="${BEHAVIOR_EXPECTED_ARTIFACT:-}"
+# Optional content pattern: GREEN fires only when the artifact exists AND
+# contains this pattern (existence alone can match a mid-emission skeleton —
+# observed .opencode#2430 SC-2 run 14: GREEN fired on the stage-1 skeleton
+# before the stage-3 guard emission).
+BEHAVIOR_EXPECTED_ARTIFACT_GREP="${BEHAVIOR_EXPECTED_ARTIFACT_GREP:-}"
 BEHAVIOR_GOAL_ACTIONS="${BEHAVIOR_GOAL_ACTIONS:-}"
 BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS="${BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS:-}"
 # .opencode#2430 finding: signal 2 (task running >=2 polls) false-fires on
@@ -634,8 +639,14 @@ MONPY
                 /*) ;;
                 *) if [ -n "$test_home_dir" ]; then art_path="$test_home_dir/project/$art_path"; else art_path=""; fi ;;
             esac
-            if [ -n "$art_path" ]; then
-                if [ -f "$art_path" ]; then art_status="present"; else art_status="absent"; fi
+            if [ -n "$art_path" ] && [ -f "$art_path" ]; then
+                if [ -n "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" ] && ! grep -q "$BEHAVIOR_EXPECTED_ARTIFACT_GREP" "$art_path" 2>/dev/null; then
+                    art_status="partial"
+                else
+                    art_status="present"
+                fi
+            elif [ -n "$art_path" ]; then
+                art_status="absent"
             fi
         fi
         local out_tail=""; local err_tail=""
@@ -649,7 +660,7 @@ MONPY
 
         # ── GREEN termination (.opencode#2441 R-3/R-4): expected artifact exists
         # on disk AND >=1 declared goal action present in the event stream.
-        if [ "$art_status" = "present" ] && [ "$goal_json" != "[]" ]; then
+        if [ "$art_status" = "present" ] && [ "$goal_json" != "[]" ]; then  # partial (exists, content pattern absent) does NOT fire GREEN
             echo "GREEN-SIGNAL: artifact present + goal actions hit ${goal_json} — early termination, evidence complete" >> "$poll_log"
             abort_reason="green_termination"
             break

@@ -58,6 +58,9 @@ BEHAVIOR_MONITOR_MAX_POLLS=400
 # the goal action is the write/edit tool call that emits it. GREEN termination
 # fires when both land — no gain in letting inference finish.
 BEHAVIOR_EXPECTED_ARTIFACT=".issues/2430/plan.md"
+# Content-complete check: the SC-2 deliverable is the plan WITH the guard —
+# existence alone matches the stage-1 skeleton (run 14 lesson).
+BEHAVIOR_EXPECTED_ARTIFACT_GREP="ORCHESTRATOR_ONLY_PLAN"
 BEHAVIOR_GOAL_ACTIONS="write,edit,editor_write_file"
 # HOPELESS proxy (R-5/R-6): 60 consecutive polls (~30 min at 30s) with zero new
 # completed tool calls and artifact absent — long composition turns run 15-30
@@ -76,7 +79,7 @@ BEHAVIOR_STUCK_TASK_POLLS=70
 # write phase at ~5h on this model.
 BEHAVIOR_MONITOR_MAX_POLLS=800
 export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
-export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS BEHAVIOR_MONITOR_MAX_REASONING BEHAVIOR_STUCK_TASK_POLLS
+export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_EXPECTED_ARTIFACT_GREP BEHAVIOR_GOAL_ACTIONS BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS BEHAVIOR_MONITOR_MAX_REASONING BEHAVIOR_STUCK_TASK_POLLS
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-2: every plan produced by writing-plans embeds the canonical guard with ORCHESTRATOR_ONLY_PLAN"
