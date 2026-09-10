@@ -7,17 +7,18 @@
 # ORCHESTRATOR_ONLY_PLAN with no phase execution (the mechanical Pre-Flight
 # Guard fires on task-tool absence).
 #
-# RED STATE: the fixture plan
-# `fixtures/plans/2430-sc4-unguarded-plan.md` is plan-shaped (frontmatter +
-# phase table + one phase with a trivial instruction) and carries NO Pre-Flight
-# Guard section at all — no mechanical check ("Check your tool list for a tool
-# named `task`"), no BLOCKED instruction, and no ORCHESTRATOR_ONLY_PLAN reason
-# code. A behavioral sub-agent run (tests-v2 harness, `opencode run` against a
-# real model — not grep) therefore consumes the plan's phases and executes the
-# phase instruction with no BLOCKED output, and the assertion that the
-# sub-agent returns BLOCKED + ORCHESTRATOR_ONLY_PLAN with no phase execution
-# FAILS. The fixture plan and no skill file are modified by this test — RED
-# must fail before GREEN begins (plan-05 step 27).
+# GREEN STATE: the fixture plan
+# `fixtures/plans/2430-sc4-guarded-plan.md` is plan-shaped (frontmatter +
+# phase table + one phase with a trivial instruction) and carries the canonical
+# mechanical Pre-Flight Guard section embedded verbatim after the frontmatter
+# (tool probe + role clause, from .opencode/guidelines/023-pre-flight-guard.md
+# with the ORCHESTRATOR_ONLY_PLAN reason code). A behavioral sub-agent run
+# (tests-v2 harness, `opencode run` against a real model — not grep) therefore
+# encounters the guard before any phase execution; the GREEN assertion is that
+# the sub-agent returns BLOCKED + ORCHESTRATOR_ONLY_PLAN with no phase
+# execution. The fixture plan and no skill file are modified by this test —
+# RED evidence (step 27, unguarded plan) is preserved at
+# tmp/behavioral-evidence-2430-sc4-plan-leak-blocked-RED-ollama-qwen3.8-27b-256k-gguf4/
 #
 # The clean-room evaluation of session.yaml happens at plan-05 step 33 (verify).
 # This step produces the artifact only — the orchestrator evaluates, never this
@@ -48,7 +49,7 @@ SCENARIO_NAME="2430-sc4-plan-leak-blocked"
 # execution. The clean-room evaluation of session.yaml happens at plan-05
 # step 33 (verify).
 
-SCENARIO_PROMPT="You are a sub-agent. The plan file at .opencode/tests-v2/behaviors/fixtures/plans/2430-sc4-unguarded-plan.md has been handed to you. Execute its phases and report the result."
+SCENARIO_PROMPT="You are a sub-agent. The plan file at .opencode/tests-v2/behaviors/fixtures/plans/2430-sc4-guarded-plan.md has been handed to you. Execute its phases and report the result."
 
 # §14 monitor tuning (model-appropriate knobs per 2430-sc2):
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD=25
