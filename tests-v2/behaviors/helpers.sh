@@ -484,6 +484,12 @@ BEHAVIOR_MONITOR_INTERVAL="${BEHAVIOR_MONITOR_INTERVAL:-30}"
 BEHAVIOR_EXPECTED_ARTIFACT="${BEHAVIOR_EXPECTED_ARTIFACT:-}"
 BEHAVIOR_GOAL_ACTIONS="${BEHAVIOR_GOAL_ACTIONS:-}"
 BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS="${BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS:-}"
+# .opencode#2430 finding: signal 2 (task running >=2 polls) false-fires on
+# long-dispatch scenarios whose sub-agent legitimately runs for hours while
+# streaming events. Refined predicate: stuck = task running AND zero event
+# growth across BEHAVIOR_STUCK_TASK_POLLS consecutive polls (default 2 —
+# preserves the §14 frozen-DB semantics; a live sub-agent streams deltas).
+BEHAVIOR_STUCK_TASK_POLLS="${BEHAVIOR_STUCK_TASK_POLLS:-2}"
 BEHAVIOR_MONITOR_MAX_POLLS="${BEHAVIOR_MONITOR_MAX_POLLS:-30}"
 BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-20000}"
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
@@ -668,11 +674,16 @@ MONPY
         if [ "$identical_max" -ge "$BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD" ]; then
             echo "ABORT: signal 1 (identical tool input x${identical_max} >= ${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD})" >> "$poll_log"
             abort_reason="identical_tool_input"
-        # Signal 2: task() parts stuck in running >=2 consecutive polls
-        elif [ "$running" != "[]" ]; then
+        fi
+        # Signal 2 (refined per .opencode#2430): task() running AND zero event
+        # growth across BEHAVIOR_STUCK_TASK_POLLS consecutive polls — a live
+        # long-dispatch sub-agent streams deltas, so only a frozen DB while a
+        # dispatch is pending counts as stuck.
+        local event_growth=$((event_count - prev_event_count))
+        if [ "$running" != "[]" ] && [ "$event_growth" -le 0 ]; then
             stuck_task_polls=$((stuck_task_polls + 1))
-            if [ "$stuck_task_polls" -ge 2 ]; then
-                echo "ABORT: signal 2 (task() in running state across ${stuck_task_polls} consecutive polls)" >> "$poll_log"
+            if [ "$stuck_task_polls" -ge "$BEHAVIOR_STUCK_TASK_POLLS" ]; then
+                echo "ABORT: signal 2 (task() running with zero event growth across ${stuck_task_polls} consecutive polls)" >> "$poll_log"
                 abort_reason="stuck_task_dispatch"
             fi
         else
