@@ -48,11 +48,7 @@ dispatch: [<skill-names>]
 
 ## Dispatch Indicators
 
-| Indicator | Meaning |
-|-----------|---------|
-| `(**inline**)` | Orchestrator executes directly |
-| `(**sub-agent**)` | Dispatch via `task()` with phase context |
-| `(**clean-room**)` | Dispatch via `task()` with routing metadata only |
+Plan step indicators use the canonical dispatch vocabulary — defined ONCE in the canonical dispatch-vocabulary table. Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, and dispatch definitions. Plan steps carry the `(**direct**)` (orchestrator executes in own context — default) and `(**task-card**)` (orchestrator dispatches the step's task card via `task()`) indicators; no other dispatch vocabulary is valid in plan bodies. This file MUST NOT restate or extend the canonical table.
 
 ## Step Format
 
