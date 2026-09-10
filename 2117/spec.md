@@ -69,6 +69,9 @@ A spec-creation holistic validation of `.opencode#2117` returned FAIL (holistic 
 | SC-25 | The master reference maintainer note path `audit/tasks/spec-audit-evaluator.md` is corrected to `skills/audit/tasks/spec-audit-evaluator.md` | string | grep for the corrected path in the maintainer note |
 | SC-26 | The bare `reference/` patterns `reference/plan-structure-standards.md` and `reference/cost-model-standards.md` are ABSENT from `skills/writing-plans/tasks/create.md`, the corrected `.opencode/reference/plan-structure-standards.md` and `.opencode/reference/cost-model-standards.md` paths are PRESENT in that file, and `.opencode/reference/plan-structure-standards.md` contains the referenced anchors (§Plan Frontmatter, §Plan Index Sections, §Three-Tier Plan Structure) | string | grep for absence of each bare pattern and presence of each corrected path in `skills/writing-plans/tasks/create.md`; grep the target file for the three anchors |
 | SC-27 | The stale dispatch-indicator table in `.opencode/reference/plan-structure-standards.md` §Dispatch Indicators is REMOVED and replaced with a Read-link to the canonical dispatch-vocabulary table in `reference/skill-card-description-standards.md`, so plan bodies carry no contradictory dispatch vocabulary (observed 2026-09-10: create-run sub-agent thrashed resolving `(**direct**)`/`(**task-card**)` against the obsolete `(**inline**)`/`(**sub-agent**)`/`(**clean-room**)` table) | string | grep `plan-structure-standards.md` for absence of `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)` and presence of the Read-link to the canonical table |
+| SC-28 | `writing-plans/tasks/create.md` step 8 mandates staged incremental emission: skeleton-to-disk-first before body prose, one section per follow-up write/edit with re-read between edits, and full-body single-shot composition is prohibited | string | grep `create.md` for the staged language ("skeleton", "one section per", "re-reading the file") and for the prohibition of full-body single-write composition |
+| SC-29 | `writing-plans/tasks/create.md` contains the verification-ledger mandate: verified inputs recorded once at `{issues_prefix}/{N}/artifacts/plan-input-verification.md`, and re-verifying ledger-covered inputs across turns is prohibited | string | grep `create.md` for the ledger path and the re-verification prohibition language; grep the exit criteria for the ledger existence requirement |
+| SC-30 | `.opencode/reference/plan-structure-standards.md` contains a §Composition Conventions (Pinned Decisions) section pinning the 11 format decisions (frontmatter field order, phase-table columns, step numbering, dispatch cell style, timestamp policy, issue-reference line, identity placeholders, fenced-block policy, cross-ref ID policy, lifecycle event fields, label-write preservation) | string | grep the section header + presence of each pinned item's distinctive keyword (e.g., "Step Range", "plan_created", "replaces the entire labels array") |
 
 ## 4. Requirements
 
@@ -262,6 +265,24 @@ R-24. The master reference maintainer note SHALL use the corrected path `skills/
 - verify: grep absence of the obsolete indicators + presence of the Read-link
 - commit: content
 - Context: observed 2026-09-10 (.opencode#2430 SC-2 GREEN run 2) — the sub-agent thrashed reconciling the required `(**direct**)`/`(**task-card**)` indicators against the obsolete table before exemplar-hunting. Origin: the obsolete vocabulary was codified into `plan-structure-standards.md` by `.opencode#2210` (closed) and later superseded by the canonical dispatch-vocabulary table. Related open tickets in the same plan-schema defect space: `.opencode#2250` / `.opencode#2252` (apparent duplicates of each other; single plan-schema authority, delete conflicting plan-artifact-format.md) and `.opencode#2256` (P1 split-canon resolution) — the competing-authority conflict between plan-artifact-format.md and plan-structure-standards.md is a separate unresolved thrash source not covered by this SC.
+
+### Item 28 (SC-28): Mandate staged incremental plan emission in create.md
+- RED: create.md step 8 has no staged emission language; single-shot composition is the implied default (observed: #2430 SC-2 run 3 announced the write 14+ times over 4h and never emitted — full-body composition died at every turn boundary)
+- GREEN: step 8 reworked to skeleton-first + one-section-per-edit + guard/cost-frame/read-back stages; exit criteria updated
+- verify: grep the staged language + prohibition
+- commit: content
+
+### Item 29 (SC-29): Mandate the verification ledger in create.md
+- RED: no ledger mandate; each turn re-probes verified inputs (observed: run 3 re-verified CLI flags and issue state across 4+ hours)
+- GREEN: step 3a added — ledger at artifacts/plan-input-verification.md, re-verification prohibited; exit criteria updated
+- verify: grep ledger path + prohibition + exit-criteria line
+- commit: content
+
+### Item 30 (SC-30): Pin composition conventions in plan-structure-standards.md
+- RED: the 11 micro-format decisions are unstated; each create-run re-litigates them from exemplars
+- GREEN: §Composition Conventions (Pinned Decisions) added with all 11 items
+- verify: grep section header + pinned-item keywords
+- commit: content
 
 ## 6. Dependencies
 
