@@ -5,10 +5,8 @@
 
 ## Items (per-SC TDD order)
 
-### Item 1 — SC-11 deck fix (unblocks #2430 SC-2 re-test)
-- File: `.opencode/skills/writing-plans/tasks/create.md` (3 sites, lines ~35/37/57)
-- Fix: repoint bare `reference/plan-structure-standards.md` → `.opencode/reference/plan-structure-standards.md` per #2117 pattern (file exists at repo-root reference/).
-- Verify (structural): zero bare links remain; target file exists; referenced anchors present.
+### Item 1 — deck fix (OWNED BY .opencode#2117 SC-26/Item 26)
+- The writing-plans create.md bare-reference repoint is owned by #2117 (SC-26), per 2026-09-10 reattribution. The fix already landed on feature/2434-stacked; #2441 depends on it, does not implement it.
 
 ### Item 2 — SC-5 + monitor three-signal reads (R-1, R-2)
 - File: `.opencode/tests-v2/behaviors/helpers.sh` `__semantic_monitor()`
