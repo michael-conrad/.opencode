@@ -63,11 +63,15 @@ BEHAVIOR_GOAL_ACTIONS="write,edit,editor_write_file"
 # completed tool calls and artifact absent — long composition turns run 15-30
 # min, so 60 polls tolerates a full turn while catching true stalls.
 BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS=60
+# Reasoning runaway threshold raised for the 27B model: it legitimately
+# produces 60-70k reasoning chars per composition turn (default 20000 chars
+# false-fires on the first deep turn — observed run 12 abort at 22k chars).
+BEHAVIOR_MONITOR_MAX_REASONING=2000000
 # Monitor budget raised to 800 polls (~400 min): observed sub-agent reaches the
 # write phase at ~5h on this model.
 BEHAVIOR_MONITOR_MAX_POLLS=800
 export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
-export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS
+export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS BEHAVIOR_MONITOR_MAX_REASONING
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-2: every plan produced by writing-plans embeds the canonical guard with ORCHESTRATOR_ONLY_PLAN"
