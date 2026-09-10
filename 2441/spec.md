@@ -1,6 +1,6 @@
 # Spec: Early-termination semantic monitoring for behavioral runs (GREEN/HOPELESS signals + artifact checks)
 
-> **Full spec and artifacts: [`.opencode/.issues/2441/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.opencode/.issues/2441/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+> **Full spec and artifacts: [`.opencode/.issues/2441/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2441/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 >
 > **Local artifacts:** `.opencode/.issues/2441/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
@@ -60,12 +60,12 @@ Original request (issue .opencode#2441): the §14 semantic monitor does not chec
 | SC-1 | A monitored behavioral run whose scenario-declared expected artifact (`BEHAVIOR_EXPECTED_ARTIFACT`) is produced mid-run, with `BEHAVIOR_GOAL_ACTIONS` set and ≥1 declared tool name present in the event stream, is terminated by the GREEN signal before the run's natural exit, and the poll log records both the artifact-existence check result and the matched goal-action tool name. | behavioral | Run a monitored scenario via `bash .opencode/tests-v2/with-test-home opencode run` (>=600s timeout; `rm -f tmp/.behavior-run.lock` first) where the expected artifact is produced mid-run; assert GREEN termination fires before natural exit and the poll log contains the artifact-existence record and the matched goal-action name. | `.opencode/tests-v2/AGENTS.md` §14; `.opencode/tests-v2/behaviors/helpers.sh` `__semantic_monitor()` |
 | SC-2 | On GREEN termination, the run is killed, session.yaml is exported per §10.5, and a termination judgment is written recording the GREEN signal and its two evidence components. | behavioral | Same monitored scenario as SC-1; assert exported session.yaml exists per §10.5 and the judgment YAML records the GREEN signal with artifact + goal-action evidence. | `.opencode/tests-v2/AGENTS.md` §14, §10.5 |
 | SC-3 | On GREEN termination, the `behavior_run()` retry loop exits without blind retry (no second run launched for the same scenario). | behavioral | Same monitored scenario as SC-1; assert exactly one run executes and the loop exits after GREEN termination. | `.opencode/tests-v2/behaviors/helpers.sh` `behavior_run()` |
-| SC-4 | The verdict for an early-terminated (GREEN) run is evaluated from the captured evidence (exported session.yaml + poll log + judgment), and the verdict result is identical to what the same run would produce at natural completion. | behavioral | Same monitored scenario as SC-1; assert the final verdict cites the captured evidence and matches the scenario's expected PASS outcome. | `.opencode/tests-v2/AGENTS.md` §14, §10.5 |
+| SC-4 | The verdict for an early-terminated (GREEN) run is evaluated from the captured evidence (exported session.yaml + poll log + termination judgment), and the verdict result matches the scenario's expected PASS outcome. | behavioral | Same monitored scenario as SC-1; assert the final verdict cites the captured evidence and matches the scenario's expected PASS outcome. | `.opencode/tests-v2/AGENTS.md` §14, §10.5 |
 | SC-5 | A monitored run with `BEHAVIOR_EXPECTED_ARTIFACT` or `BEHAVIOR_GOAL_ACTIONS` unset exhibits no behavior change: no artifact signal read, no GREEN termination, existing monitor behavior identical to pre-change. | behavioral | Run an existing scenario without the new variables declared; assert no GREEN termination fires and monitor behavior (poll cadence, abort signals, exit) is unchanged. | `.opencode/tests-v2/AGENTS.md` §14; `.opencode/tests-v2/behaviors/helpers.sh` |
 | SC-6 | A monitored behavioral run judged (with cited evidence) unable to achieve the scenario goal is terminated by the HOPELESS signal before the mechanical threshold/timeout, and the diagnosis YAML cites concrete event-stream evidence with the judgment recorded in the poll log. | behavioral | Run a monitored off-track scenario via `with-test-home opencode run`; assert HOPELESS termination fires before mechanical threshold/timeout, diagnosis YAML cites concrete event-stream evidence, and the poll log records the judgment. | `.opencode/tests-v2/AGENTS.md` §14; `.opencode/tests-v2/behaviors/helpers.sh` abort path |
 | SC-7 | On HOPELESS termination, the run is killed and exported per §10.5, and the termination is recorded as a valid FAIL/behavior-diagnosis verdict input. | behavioral | Same monitored off-track scenario as SC-6; assert exported session.yaml per §10.5 and the verdict records a behavior-diagnosis FAIL. | `.opencode/tests-v2/AGENTS.md` §14, §10.5 |
 | SC-8 | `tests-v2/AGENTS.md` §14 contains the early-termination mandate documentation: three-signal polling, GREEN/HOPELESS conditions, evidence contract (session.yaml + poll log + judgment), and the no-blind-retry rule. | structural | grep §14 for the mandate subsections — all four present. | `.opencode/tests-v2/AGENTS.md` §14 |
-| SC-9 | The parent-repo `AGENTS.md` contains a one-line pointer to the §14 early-termination mandate in the Testing Lessons Learned area, AND the `.opencode` submodule pointer update is staged in the same parent commit. | structural | grep parent `AGENTS.md` for the pointer line; verify the submodule pointer is staged in the same commit via `git status`/`git diff --cached`. | `AGENTS.md` (parent repo) Testing Lessons Learned area |
+| SC-9 | The parent-repo `AGENTS.md` contains a one-line pointer to the §14 early-termination mandate in the Testing Lessons Learned area. | structural | grep parent `AGENTS.md` for the pointer line. | `AGENTS.md` (parent repo) Testing Lessons Learned area |
 
 ## 4. Requirements
 
@@ -78,7 +78,8 @@ Original request (issue .opencode#2441): the §14 semantic monitor does not chec
 - R-7. All new terminations SHALL reuse the existing abort path contract (kill + §10.5 export + diagnosis YAML + stderr banner) and SHALL NOT duplicate kill/export logic.
 - R-8. `tests-v2/AGENTS.md` §14 SHALL document the early-termination mandate: three-signal polling, GREEN/HOPELESS conditions, the goal-relevant-action criterion (§1.1), evidence contract (session.yaml + poll log + judgment), and the no-blind-retry rule.
 - R-9. Terminal states SHALL be exclusive — at most one termination kind per run.
-- R-10. The parent repo `AGENTS.md` SHALL carry a one-line pointer to the §14 early-termination mandate, with the submodule pointer update committed alongside.
+- R-10. The parent repo `AGENTS.md` SHALL carry a one-line pointer to the §14 early-termination mandate. (The `.opencode` submodule pointer update rides the same parent commit per the universally mandated Submodule Pointer Updates rule — this is commit hygiene, not a success criterion.)
+- R-11. Captured early-termination evidence (exported session.yaml + poll log + termination judgment) SHALL be a valid verdict input: the verdict evaluation SHALL consume it and produce the run's verdict from it.
 
 ## 5. Items
 
@@ -113,7 +114,7 @@ Original request (issue .opencode#2441): the §14 semantic monitor does not chec
 ### Item 5 (SC-4): Verdict evaluated from captured evidence
 
 - RED: same scenario pre-implementation; early termination does not exist, so the verdict path for early-terminated evidence cannot be exercised (assert absence).
-- GREEN: feed the captured evidence (session.yaml + poll log + judgment) into the existing verdict evaluation; the same scenario's verdict cites the captured evidence and matches the expected PASS outcome.
+- GREEN: feed the captured evidence (session.yaml + poll log + judgment) into the existing verdict evaluation per R-11; the same scenario's verdict cites the captured evidence and matches the expected PASS outcome.
 - verify: behavioral run asserting verdict-from-captured-evidence.
 - commit: `helpers.sh` change committed + pushed in the submodule.
 
@@ -138,12 +139,12 @@ Original request (issue .opencode#2441): the §14 semantic monitor does not chec
 - verify: behavioral run asserting exported session.yaml and verdict record.
 - commit: `helpers.sh` change committed + pushed in the submodule.
 
-### Item 9 (SC-9): Parent-repo discoverability pointer + submodule pointer ride-along
+### Item 9 (SC-9): Parent-repo discoverability pointer
 
 - RED: grep parent `AGENTS.md` Testing Lessons Learned area — pointer line absent.
-- GREEN: add the one-line §14/early-termination pointer; stage the submodule pointer update in the same parent commit.
-- verify: grep parent `AGENTS.md` for the pointer line; verify submodule pointer staged in same commit.
-- commit: parent repo commit containing pointer + submodule pointer ride-along.
+- GREEN: add the one-line §14/early-termination pointer.
+- verify: grep parent `AGENTS.md` for the pointer line.
+- commit: parent repo commit containing the pointer line; stage the `.opencode` submodule pointer update in the same commit (commit hygiene per the parent repo's Submodule Pointer Updates rule — no standalone pointer commit).
 
 ## 6. Dependencies
 
@@ -165,7 +166,7 @@ Original request (issue .opencode#2441): the §14 semantic monitor does not chec
 | R-7, R-9 | SC-2, SC-3, SC-7 | 3, 4, 8 |
 | R-8 | SC-8 | 1 |
 | R-10 | SC-9 | 9 |
-| (verdict capture) | SC-4 | 5 |
+| R-11 | SC-4 | 5 |
 
 ## 8. Documentation Sources
 
@@ -188,7 +189,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-1..SC-4: Running the GREEN-termination behavioral tests costs minutes of execution time each — a bounded delay that surfaces false-positive GREEN conditions before they silently hand unverifiable verdicts to every downstream consumer. Skipping costs hours-to-days of diagnosis when early-terminated evidence is later found invalid at review time — the harness's core trust property erodes across every scenario.
 - SC-5: Verifying unset-variable no-change costs one behavioral run. Skipping costs silent behavior drift in every existing scenario the moment the monitor changes.
 - SC-6, SC-7: Running the HOPELESS-termination behavioral tests costs minutes of execution time. Skipping costs hours-to-days when un-cited hopeless judgments cut off viable runs or let hopeless runs burn the full timeout — and the poll log cannot explain why, destroying the audit trail.
-- SC-8, SC-9: Verifying the documentation and pointer line costs grep invocations; verifying submodule-pointer staging costs one `git diff --cached`. Skipping costs weeks of drift where the parent-repo agent deck never learns the early-termination mandate exists and implementations proceed from stale guidance.
+- SC-8, SC-9: Verifying the documentation and pointer line costs grep invocations. Skipping costs weeks of drift where the parent-repo agent deck never learns the early-termination mandate exists and implementations proceed from stale guidance.
 
 ## 11. Edge Cases
 
@@ -208,6 +209,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |------|--------|--------|---------------|
 | 2026-09-09 | Initial spec | — | Orchestrator (spec-creation create) |
 | 2026-09-09 | (1) Added §1.1 concrete goal-relevant-action definition (`BEHAVIOR_GOAL_ACTIONS` exact tool-name match); R-3, R-8, Key Design Decisions, Edge Cases updated. (2) Decomposed compound SC-1/SC-2/SC-3 into atomic SC-1..SC-9. (3) Rewrote Items to strict 1:1 SC mapping (9 items). | Validation findings 1-3 (D3 completeness/determinism; compound-SC atomicity; SC-to-item 1:1) | Developer via validation findings |
+| 2026-09-09 | (1) SC-4 recast from counterfactual ("identical to what the same run would produce at natural completion") to the observable criterion: verdict evaluated from captured evidence (session.yaml + poll log + termination judgment) matching the scenario's expected PASS outcome. (2) Added R-11 (captured early-termination evidence SHALL be a valid verdict input); SC-4 traceability remapped from pseudo-requirement "(verdict capture)" to R-11. (3) SC-9 recast as pointer-line structural SC only; submodule-pointer staging moved to Item 9's commit step as commit hygiene (already universally mandated by Submodule Pointer Updates rule); R-10 reworded accordingly. (4) Restored analytical artifacts directory (regenerated against the 9-SC structure). (5) Fixed spec blockquote URL to the canonical `tree/issues-data/2441/` form. | Validation findings 1-3 from re-validation iteration 2; artifacts-absence warning | Developer via validation findings |
 
 ---
 

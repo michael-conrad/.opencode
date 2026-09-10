@@ -1,0 +1,24 @@
+# Code-path inventory for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+code_paths:
+  - path: ".opencode/tests-v2/behaviors/helpers.sh"
+    symbol: "__semantic_monitor()"
+    current_behavior: "Polls session DB event stream; aborts on stall signals via kill + §10.5 export + diagnosis YAML. No artifact check, no success-shaped termination."
+    modified_by: "SC-1, SC-2, SC-5, SC-6, SC-7 (three-signal polling; GREEN/HOPELESS branches; per-signal unset guards)"
+  - path: ".opencode/tests-v2/behaviors/helpers.sh"
+    symbol: "behavior_run()"
+    current_behavior: "Retry loop around opencode run; exits on natural completion or mechanical abort; may retry."
+    modified_by: "SC-3, SC-7 (GREEN/HOPELESS terminations exit the loop without blind retry)"
+  - path: ".opencode/tests-v2/AGENTS.md"
+    section: "§14"
+    modified_by: "SC-8 (early-termination mandate subsections)"
+  - path: "AGENTS.md (parent repo)"
+    section: "Testing Lessons Learned"
+    modified_by: "SC-9 (one-line pointer; submodule pointer staged in same commit)"
+  - path: "verdict evaluation layer"
+    current_behavior: "Computes verdicts from natural-completion evidence."
+    modified_by: "SC-4 (consumes captured early-termination evidence per R-11; computation logic unchanged)"
+new_declarations:
+  - "BEHAVIOR_EXPECTED_ARTIFACT (optional per-scenario variable)"
+  - "BEHAVIOR_GOAL_ACTIONS (optional per-scenario variable; exact tool-name match per §1.1)"

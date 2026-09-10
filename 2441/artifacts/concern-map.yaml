@@ -1,0 +1,28 @@
+# Concern map for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+concerns:
+  - concern: "Correctness of the GREEN condition"
+    requirements: [R-3, R-11]
+    scs: [SC-1, SC-2, SC-4]
+    resolution: "AND-condition: artifact existence + >=1 exact-matched BEHAVIOR_GOAL_ACTIONS tool name; binary-verifiable per §1.1."
+  - concern: "Evidence integrity on early termination"
+    requirements: [R-4, R-6, R-7, R-11]
+    scs: [SC-2, SC-3, SC-4, SC-7]
+    resolution: "Reuse abort path (kill + §10.5 export + diagnosis YAML); captured evidence is the verdict input."
+  - concern: "No behavior change for existing scenarios"
+    requirements: [R-2]
+    scs: [SC-5]
+    resolution: "Per-signal guards on unset variables; GREEN cannot fire when either variable is unset."
+  - concern: "False-positive HOPELESS termination"
+    requirements: [R-5]
+    scs: [SC-6, SC-7]
+    resolution: "Cited-evidence judgment recorded in poll log; auditable."
+  - concern: "Documentation and discoverability"
+    requirements: [R-8, R-10]
+    scs: [SC-8, SC-9]
+    resolution: "§14 mandate subsections; one-line parent-repo AGENTS.md pointer."
+  - concern: "Terminal-state exclusivity and retry discipline"
+    requirements: [R-9]
+    scs: [SC-3, SC-6]
+    resolution: "At most one termination kind per run; loop exits without blind retry."

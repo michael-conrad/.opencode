@@ -1,0 +1,22 @@
+# Interface-compatibility analysis for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+interfaces:
+  - interface: "__semantic_monitor() poll contract"
+    change: "Additive — three-signal read (DB tool calls, text/reasoning, on-disk artifacts). Existing signals and abort semantics unchanged."
+    compatibility: "Backward compatible; unset BEHAVIOR_EXPECTED_ARTIFACT / BEHAVIOR_GOAL_ACTIONS skips new signals (R-2)."
+  - interface: "behavior_run() retry-loop contract"
+    change: "Additive loop-exit conditions for GREEN and HOPELESS terminations."
+    compatibility: "Backward compatible; natural-completion and mechanical-abort paths unchanged."
+  - interface: "Scenario declaration surface (env vars)"
+    change: "Two new OPTIONAL variables: BEHAVIOR_EXPECTED_ARTIFACT, BEHAVIOR_GOAL_ACTIONS."
+    compatibility: "Fully optional; unset = existing behavior exactly (SC-5)."
+  - interface: "Abort-path evidence schema (diagnosis YAML + §10.5 export)"
+    change: "Extended additively — GREEN judgment records artifact-existence result + matched goal-action name; HOPELESS judgment cites event-stream evidence."
+    compatibility: "Consumers of existing schema fields unaffected (R-7: no duplication, additive extension)."
+  - interface: "Verdict evaluation input"
+    change: "Early-terminated evidence (session.yaml + poll log + judgment) accepted as valid verdict input (R-11)."
+    compatibility: "Verdict computation unchanged; input domain widened only for early-terminated runs."
+  - interface: "Parent-repo AGENTS.md"
+    change: "One-line pointer in Testing Lessons Learned area."
+    compatibility: "Documentation-only; submodule pointer staged in same commit per Submodule Pointer Updates rule."

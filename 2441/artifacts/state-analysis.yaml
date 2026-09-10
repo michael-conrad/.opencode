@@ -1,0 +1,18 @@
+# State analysis for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+states:
+  monitor_states:
+    - "IDLE — DB not yet provisioned; unchanged (existing IDLE→POLLING transition preserved)."
+    - "POLLING — three-signal read per poll (tool calls, text/reasoning, artifacts)."
+    - "GREEN_TERMINATION — expected artifact exists AND >=1 declared goal action present; fires kill + §10.5 export + judgment."
+    - "HOPELESS_TERMINATION — cited-evidence judgment run can never achieve goal; fires kill + §10.5 export + behavior-diagnosis."
+    - "MECHANICAL_ABORT — existing stall signals; unchanged."
+    - "NATURAL_EXIT — run completes on its own; unchanged."
+  state_invariants:
+    - "Terminal states are exclusive: at most one termination kind per run (R-9)."
+    - "GREEN requires BOTH signals; unset variable disables GREEN entirely (§1.1, R-3)."
+    - "GREEN and HOPELESS both exit behavior_run() retry loop without blind retry (R-4, R-6)."
+  verdict_input_states:
+    - "Natural-completion evidence (existing)."
+    - "Early-termination evidence: exported session.yaml + poll log + termination judgment — valid verdict input per R-11 (SC-4: verdict matches expected PASS outcome; SC-7: verdict records behavior-diagnosis FAIL)."

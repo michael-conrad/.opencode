@@ -1,0 +1,31 @@
+# Testability assessment for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+assessment:
+  behavioral_scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+  structural_scs: [SC-8, SC-9]
+  method:
+    - "Behavioral: bash .opencode/tests-v2/with-test-home opencode run with >=600s timeout; rm -f tmp/.behavior-run.lock before each run. Behavioral items commit+push before the behavioral run (091-incremental-build PUSH step)."
+    - "Structural: grep for §14 mandate subsections (SC-8); grep parent AGENTS.md for pointer line (SC-9)."
+  per_sc_testability:
+    - sc: SC-1
+      observable: "GREEN termination before natural exit; poll log contains artifact-existence record + matched goal-action tool name."
+    - sc: SC-2
+      observable: "Exported session.yaml per §10.5; judgment YAML records GREEN signal with both evidence components."
+    - sc: SC-3
+      observable: "Exactly one run executes; retry loop exits after GREEN termination."
+    - sc: SC-4
+      observable: "Final verdict cites captured evidence (session.yaml + poll log + judgment) and matches the scenario's expected PASS outcome. (Recast from counterfactual natural-completion-equivalence, which is unobservable for a GREEN-killed run.)"
+    - sc: SC-5
+      observable: "No GREEN termination; poll cadence, abort signals, exit identical to pre-change for scenarios without the new variables."
+    - sc: SC-6
+      observable: "HOPELESS termination before mechanical threshold/timeout; diagnosis YAML cites concrete event-stream evidence; judgment recorded in poll log."
+    - sc: SC-7
+      observable: "Exported session.yaml per §10.5; verdict records behavior-diagnosis FAIL."
+    - sc: SC-8
+      observable: "grep §14 finds all four mandate subsections (three-signal polling, GREEN/HOPELESS conditions, evidence contract, no-blind-retry rule)."
+    - sc: SC-9
+      observable: "grep parent AGENTS.md finds the one-line pointer in Testing Lessons Learned area. (Submodule-pointer staging is commit hygiene, verified via git status at commit time — not an SC.)"
+  risks:
+    - "GREEN-termination timing (mid-run artifact production) requires a scenario that writes the expected artifact partway through the run — scenario selection is the main test-design risk."
+    - "HOPELESS requires a deliberately off-track scenario; the cited-evidence assertion guards against false-positive judgments."

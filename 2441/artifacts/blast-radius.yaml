@@ -1,0 +1,31 @@
+# Blast-radius analysis for spec 2441 (Early-termination semantic monitoring)
+# Regenerated 2026-09-09 against the 9-SC structure (SC-1..SC-9, R-1..R-11).
+spec: ".opencode/.issues/2441/spec.md"
+blast_radius:
+  files_modified:
+    - path: ".opencode/tests-v2/AGENTS.md"
+      section: "§14 Semantic Continuous Monitoring Mandate"
+      sc: SC-8
+      risk: low
+      reason: "Documentation-only addition (early-termination mandate subsections)."
+    - path: ".opencode/tests-v2/behaviors/helpers.sh"
+      symbols:
+        - "__semantic_monitor()"
+        - "behavior_run()"
+      sc: SC-1..SC-7
+      risk: high
+      reason: "Poll loop gains a third signal (on-disk artifacts), GREEN and HOPELESS termination branches, and loop-exit handling. All existing scenarios flow through this code path."
+    - path: "AGENTS.md"
+      section: "Testing Lessons Learned"
+      sc: SC-9
+      risk: low
+      reason: "One-line discoverability pointer; submodule pointer staged in same commit (commit hygiene)."
+  files_read_only:
+    - ".opencode/tests-v2/AGENTS.md §10.5 export procedure (reused, not modified)"
+  downstream_dependents:
+    - "All behavioral scenarios in .opencode/tests-v2/behaviors/ — every run passes through __semantic_monitor(); unset-variable guards (R-2) are the containment boundary."
+    - "Verdict evaluation consumers — gain early-terminated evidence as a valid input (R-11); verdict computation itself unchanged."
+  mitigation:
+    - "R-2: unset BEHAVIOR_EXPECTED_ARTIFACT / BEHAVIOR_GOAL_ACTIONS skips new signals gracefully (SC-5 asserts zero behavior change)."
+    - "R-7: all new terminations reuse the existing abort path; no duplicated kill/export logic to drift."
+    - "R-9: exclusive terminal states prevent mixed-evidence runs."

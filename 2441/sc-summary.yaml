@@ -33,6 +33,6 @@ scs:
     evidence_type: "structural"
     plan_item: 1
   - id: "SC-9"
-    description: "Parent-repo AGENTS.md carries one-line §14 early-termination pointer in Testing Lessons Learned area AND the .opencode submodule pointer update is staged in the same parent commit."
+    description: "Parent-repo AGENTS.md carries one-line §14 early-termination pointer in Testing Lessons Learned area. (Submodule-pointer staging is commit hygiene at Item 9's commit step, not part of the SC.)"
     evidence_type: "structural"
     plan_item: 9
