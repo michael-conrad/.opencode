@@ -677,7 +677,7 @@ MONPY
         fi
         # Signal 4: semantically off-track — no NEW completed tool call
         # across 2+ consecutive polls while reasoning grows.
-        if [ -z "${abort_reason:-}" ] && [ "$new_tool_calls" -le 0 ] && [ "$poll" -gt 1 ]; then
+        if [ -z "${abort_reason:-}" ] && [ "$new_tool_calls" -le 0 ] && [ "$reasoning_total" -gt "$prev_reasoning_chars" ] && [ "$poll" -gt 1 ]; then
             offtrack_polls=$((offtrack_polls + 1))
             if [ "$offtrack_polls" -ge 2 ]; then
                 echo "ABORT: signal 4 (no new completed tool call across ${offtrack_polls} consecutive polls while reasoning grows)" >> "$poll_log"
@@ -687,9 +687,9 @@ MONPY
             offtrack_polls=0
         fi
 
-        prev_tool_calls=$tool_calls
+        prev_tool_calls=$completed
         prev_event_count=$event_count
-        prev_reasoning_chars=$reasoning_chars
+        prev_reasoning_chars=$reasoning_total
 
         if [ -n "${abort_reason:-}" ]; then
             break

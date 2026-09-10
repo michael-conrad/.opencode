@@ -59,8 +59,15 @@ BEHAVIOR_MONITOR_MAX_POLLS=400
 # fires when both land — no gain in letting inference finish.
 BEHAVIOR_EXPECTED_ARTIFACT=".issues/2430/plan.md"
 BEHAVIOR_GOAL_ACTIONS="write,edit,editor_write_file"
+# HOPELESS proxy (R-5/R-6): 60 consecutive polls (~30 min at 30s) with zero new
+# completed tool calls and artifact absent — long composition turns run 15-30
+# min, so 60 polls tolerates a full turn while catching true stalls.
+BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS=60
+# Monitor budget raised to 800 polls (~400 min): observed sub-agent reaches the
+# write phase at ~5h on this model.
+BEHAVIOR_MONITOR_MAX_POLLS=800
 export BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD BEHAVIOR_MONITOR_MAX_POLLS
-export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS
+export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS
 
 echo "=== Behavioral Test: $SCENARIO_NAME ==="
 echo "SC-2: every plan produced by writing-plans embeds the canonical guard with ORCHESTRATOR_ONLY_PLAN"
