@@ -478,6 +478,12 @@ except Exception as e:
 # abort is the monitor's own signal handler, not a timeout wrapper.
 
 BEHAVIOR_MONITOR_INTERVAL="${BEHAVIOR_MONITOR_INTERVAL:-30}"
+# .opencode#2441: early-termination + three-signal monitoring declarations.
+# Optional per scenario; unset means the corresponding signal is skipped
+# gracefully with no change to existing behavior (spec R-2).
+BEHAVIOR_EXPECTED_ARTIFACT="${BEHAVIOR_EXPECTED_ARTIFACT:-}"
+BEHAVIOR_GOAL_ACTIONS="${BEHAVIOR_GOAL_ACTIONS:-}"
+BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS="${BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS:-}"
 BEHAVIOR_MONITOR_MAX_POLLS="${BEHAVIOR_MONITOR_MAX_POLLS:-30}"
 BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-20000}"
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
@@ -501,6 +507,9 @@ __semantic_monitor() {
     local prev_reasoning_chars=0
     local stuck_task_polls=0
     local offtrack_polls=0
+    local hopeless_polls=0
+    local reasoning_total=0
+    local test_home_dir=""
     local abort_reason=""
 
     while kill -0 "$run_pid" 2>/dev/null; do
@@ -520,64 +529,139 @@ __semantic_monitor() {
             continue
         fi
 
-        # Extract the event stream: total events, tool-call count, identical-input
-        # repeats, stuck task() parts, reasoning char growth, newest event id.
+        # Extract the event stream (.opencode#2441 three-signal read):
+        # tool calls with names/statuses, latest text + reasoning CONTENT
+        # (not just char counts), identical-input repeats, task() running.
+        # Schema (verified live): event.data JSON has {sessionID, part:{id,
+        # type:tool|text|reasoning|step-start|step-finish, state:{status,input}}}.
         local stats
-        stats=$(python3 - "$db" <<'PYEOF'
-import json, sqlite3, sys
+        stats=$(python3 - "$db" <<'MONPY'
+import json, sqlite3, sys, os
 db = sys.argv[1]
 try:
     conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
-    conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT id, type, data FROM event ORDER BY id")
-    rows = [dict(r) for r in c.fetchall()]
+    rows = c.execute("SELECT seq, data FROM event ORDER BY seq").fetchall()
     conn.close()
 except Exception as e:
     print(json.dumps({"error": str(e)}))
     sys.exit(0)
-tool_inputs = []
-tool_calls = 0
-reasoning_chars = 0
-task_running = 0
-for r in rows:
+tools = {}; last_text = ""; last_reason = ""
+for seq, data in rows:
     try:
-        data = json.loads(r.get("data") or "{}")
+        d = json.loads(data or "{}")
     except Exception:
-        data = {}
-    t = r.get("type") or ""
-    if "tool" in t and data.get("state") in ("done", "completed", None):
-        tool_calls += 1
-        tool_inputs.append(json.dumps({k: data.get(k) for k in ("tool", "input", "call", "arguments") if k in data}, sort_keys=True))
-    if "reasoning" in t:
-        reasoning_chars += len(str(data.get("text", "")))
-    if "task" in t and data.get("state") == "running":
-        task_running += 1
-identical_max = 0
-if tool_inputs:
-    counts = {}
-    for ti in tool_inputs:
-        identical_max = max(identical_max, tool_inputs.count(ti))
-print(json.dumps({"event_count": len(rows), "last_event_id": rows[-1]["id"] if rows else 0, "tool_calls": tool_calls, "reasoning_chars": reasoning_chars, "task_running": task_running, "identical_input_max": identical_max}))
-PYEOF
+        continue
+    part = d.get("part")
+    if not isinstance(part, dict):
+        continue
+    ptype = part.get("type", "")
+    if ptype == "tool":
+        st = (part.get("state") or {}).get("status", "?")
+        tools[part.get("id", f"seq{seq}")] = {
+            "tool": part.get("tool", "?"), "status": st,
+            "input": json.dumps((part.get("state") or {}).get("input", {}), sort_keys=True)[:200],
+        }
+    elif ptype == "text" and str(part.get("text", "")).strip():
+        last_text = str(part.get("text"))[:150]
+    elif "reasoning" in ptype and str(part.get("text", "")):
+        reasoning_total += len(str(part.get("text", "")))
+        last_reason = str(part.get("text"))[-150:]
+completed_inputs = [json.dumps({"tool": v["tool"], "input": v["input"]}, sort_keys=True)
+                    for v in tools.values() if v["status"] == "completed"]
+identical_max = max([completed_inputs.count(x) for x in set(completed_inputs)], default=0)
+goal_hit = []
+for name in [n.strip() for n in (os.environ.get("BEHAVIOR_GOAL_ACTIONS", "") or "").split(",") if n.strip()]:
+    if any(v["tool"] == name and v["status"] == "completed" for v in tools.values()):
+        goal_hit.append(name)
+print(json.dumps({
+    "event_count": len(rows),
+    "tool_parts": len(tools),
+    "reasoning_total": reasoning_total,
+    "completed": sum(1 for v in tools.values() if v["status"] == "completed"),
+    "running": [f"{v['tool']}:{v['input'][:60]}" for v in tools.values() if v["status"] == "running"][:1],
+    "identical_input_max": identical_max,
+    "goal_actions_hit": goal_hit,
+    "last_text": last_text,
+    "last_reason": last_reason,
+}))
+MONPY
 ) || stats='{"error": "read_failed"}'
 
         echo "POLL ${poll} db=${db} stats=${stats}" >> "$poll_log"
 
-        local event_count tool_calls task_running identical_max reasoning_chars
+        # ── .opencode#2441 per-poll report (R-11/R-12): every poll performs a
+        # three-signal semantic read and records ACTUAL content, not counters.
+        local event_count tool_parts completed running identical_max goal_json last_text last_reason
         event_count=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('event_count', 0))" 2>/dev/null || echo 0)
-        tool_calls=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('tool_calls', 0)))" 2>/dev/null || echo 0)
-        task_running=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('task_running', 0)))" 2>/dev/null || echo 0)
-        identical_max=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('identical_input_max', 0)))" 2>/dev/null || echo 0)
-        reasoning_chars=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('reasoning_chars', 0)))" 2>/dev/null || echo 0)
-        local new_tool_calls=$((tool_calls - prev_tool_calls))
+        tool_parts=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('tool_parts', 0))" 2>/dev/null || echo 0)
+        completed=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('completed', 0))" 2>/dev/null || echo 0)
+        running=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('running', [])))" 2>/dev/null || echo "[]")
+        identical_max=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('identical_input_max', 0))" 2>/dev/null || echo 0)
+        goal_json=$(echo "$stats" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin).get('goal_actions_hit', [])))" 2>/dev/null || echo "[]")
+        last_text=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('last_text', ''))" 2>/dev/null || echo "")
+        last_reason=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('last_reason', ''))" 2>/dev/null || echo "")
+        local new_tool_calls=$((completed - prev_tool_calls))
+
+        reasoning_total=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reasoning_total', 0))" 2>/dev/null || echo 0)
+        # Resolve the run's test home once (with-test-home emits TEST_HOME=<path> to stderr).
+        if [ -z "$test_home_dir" ] && grep -q '^TEST_HOME=' "$err_file" 2>/dev/null; then
+            test_home_dir=$(grep '^TEST_HOME=' "$err_file" | head -1 | sed 's/^TEST_HOME=//')
+        fi
+
+        # Signal (c) (.opencode#2441 R-1): on-disk expected artifact in the run's
+        # test home. BEHAVIOR_EXPECTED_ARTIFACT is test-home-relative when it
+        # does not start with "/". Also tail the run logs each poll (developer
+        # directive: actually check logs + sqlite db when polling).
+        local art_status="not_declared"
+        if [ -n "$BEHAVIOR_EXPECTED_ARTIFACT" ]; then
+            local art_path="$BEHAVIOR_EXPECTED_ARTIFACT"
+            case "$art_path" in
+                /*) ;;
+                *) if [ -n "$test_home_dir" ]; then art_path="$test_home_dir/project/$art_path"; else art_path=""; fi ;;
+            esac
+            if [ -n "$art_path" ]; then
+                if [ -f "$art_path" ]; then art_status="present"; else art_status="absent"; fi
+            fi
+        fi
+        local out_tail=""; local err_tail=""
+        out_tail=$(tail -c 200 "$output_file" 2>/dev/null | tr '\n' ' ' | tail -c 120)
+        err_tail=$(tail -c 200 "$err_file" 2>/dev/null | tr '\n' ' ' | tail -c 120)
+        echo "POLL ${poll}: ev=${event_count} tools=${tool_parts} completed=${completed} running=${running} ident=${identical_max} artifact=${art_status} goal=${goal_json}" >> "$poll_log"
+        echo "  text: ${last_text}" >> "$poll_log"
+        echo "  reason-tail: ${last_reason}" >> "$poll_log"
+        echo "  stdout-tail: ${out_tail}" >> "$poll_log"
+        echo "  stderr-tail: ${err_tail}" >> "$poll_log"
+
+        # ── GREEN termination (.opencode#2441 R-3/R-4): expected artifact exists
+        # on disk AND >=1 declared goal action present in the event stream.
+        if [ "$art_status" = "present" ] && [ "$goal_json" != "[]" ]; then
+            echo "GREEN-SIGNAL: artifact present + goal actions hit ${goal_json} — early termination, evidence complete" >> "$poll_log"
+            abort_reason="green_termination"
+            break
+        fi
+
+        # ── HOPELESS termination (.opencode#2441 R-5/R-6): cited-evidence
+        # judgment. Mechanical proxy when declared: N consecutive polls with
+        # zero new completed tool calls AND expected artifact absent — the run
+        # is making no observable progress toward its deliverable.
+        if [ -n "$BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS" ] && [ "$new_tool_calls" -le 0 ] && [ "$poll" -gt 1 ]; then
+            hopeless_polls=$((hopeless_polls + 1))
+            if [ "$hopeless_polls" -ge "$BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS" ]; then
+                echo "HOPELESS-SIGNAL: ${hopeless_polls} consecutive polls with zero new completed tool calls, artifact=${art_status} — cited evidence above (last text/reason/log tails); run cannot reach deliverable" >> "$poll_log"
+                abort_reason="hopeless_no_progress"
+                break
+            fi
+        else
+            hopeless_polls=0
+        fi
 
         # Signal 1: identical tool input >= threshold
         if [ "$identical_max" -ge "$BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD" ]; then
             echo "ABORT: signal 1 (identical tool input x${identical_max} >= ${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD})" >> "$poll_log"
             abort_reason="identical_tool_input"
         # Signal 2: task() parts stuck in running >=2 consecutive polls
-        elif [ "$task_running" -gt 0 ]; then
+        elif [ "$running" != "[]" ]; then
             stuck_task_polls=$((stuck_task_polls + 1))
             if [ "$stuck_task_polls" -ge 2 ]; then
                 echo "ABORT: signal 2 (task() in running state across ${stuck_task_polls} consecutive polls)" >> "$poll_log"
@@ -587,15 +671,13 @@ PYEOF
             stuck_task_polls=0
         fi
         # Signal 3: reasoning runaway — >max chars with <=1 new tool call
-        if [ -z "${abort_reason:-}" ] && [ "$reasoning_chars" -gt "$BEHAVIOR_MONITOR_MAX_REASONING" ] && [ "$new_tool_calls" -le 1 ]; then
-            echo "ABORT: signal 3 (reasoning ${reasoning_chars} chars > ${BEHAVIOR_MONITOR_MAX_REASONING} with ${new_tool_calls} new tool calls)" >> "$poll_log"
+        if [ -z "${abort_reason:-}" ] && [ "$reasoning_total" -gt "$BEHAVIOR_MONITOR_MAX_REASONING" ] && [ "$new_tool_calls" -le 1 ]; then
+            echo "ABORT: signal 3 (reasoning ${reasoning_total} chars > ${BEHAVIOR_MONITOR_MAX_REASONING} with ${new_tool_calls} new tool calls)" >> "$poll_log"
             abort_reason="reasoning_runaway"
         fi
-        # Signal 4: semantically off-track — no NEW goal-relevant completed tool call
-        # across 2+ consecutive polls while reasoning grows (the harness judges
-        # "no new completed tool call while reasoning grows" as the off-track proxy;
-        # the full semantic judgment is recorded in the poll log for audit).
-        if [ -z "${abort_reason:-}" ] && [ "$new_tool_calls" -le 0 ] && [ "$reasoning_chars" -gt "$prev_reasoning_chars" ] && [ "$poll" -gt 1 ]; then
+        # Signal 4: semantically off-track — no NEW completed tool call
+        # across 2+ consecutive polls while reasoning grows.
+        if [ -z "${abort_reason:-}" ] && [ "$new_tool_calls" -le 0 ] && [ "$poll" -gt 1 ]; then
             offtrack_polls=$((offtrack_polls + 1))
             if [ "$offtrack_polls" -ge 2 ]; then
                 echo "ABORT: signal 4 (no new completed tool call across ${offtrack_polls} consecutive polls while reasoning grows)" >> "$poll_log"
