@@ -1,18 +1,38 @@
-sc_count: 3
+sc_count: 9
 scs:
   - id: "SC-1"
-    description: "GREEN-signal early termination: expected artifact (BEHAVIOR_EXPECTED_ARTIFACT) exists on disk AND goal-relevant session actions observed → kill + §10.5 export + judgment + poll-log evidence; retry loop exits without blind retry; verdict evaluated from captured evidence; unset variable skips gracefully."
-    evidence_type: "behavioral"
-    plan_item: 1
-  - id: "SC-1"
-    description: "GREEN-signal implementation (code half of SC-1): __semantic_monitor() three-signal poll (DB tools, reasoning, on-disk artifact) + GREEN termination branch + behavior_run() GREEN loop-exit handling."
+    description: "GREEN termination fires before natural exit when expected artifact (BEHAVIOR_EXPECTED_ARTIFACT) exists AND >=1 declared goal action (BEHAVIOR_GOAL_ACTIONS exact tool-name match per §1.1) is in the event stream; poll log records artifact-existence result and matched goal-action name."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-2"
-    description: "HOPELESS-signal early termination: cited-evidence judgment that run cannot achieve the goal → kill + §10.5 export + diagnosis YAML citing concrete event-stream evidence + poll-log judgment record; treated as valid FAIL/behavior-diagnosis verdict."
+    description: "On GREEN termination: run killed, session.yaml exported per §10.5, termination judgment written recording GREEN signal with its two evidence components."
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-3"
-    description: "Parent-repo AGENTS.md carries one-line §14 early-termination pointer in Testing Lessons Learned area; .opencode submodule pointer update rides alongside in the same parent commit."
-    evidence_type: "structural"
+    description: "On GREEN termination, behavior_run() retry loop exits without blind retry (exactly one run executed)."
+    evidence_type: "behavioral"
     plan_item: 4
+  - id: "SC-4"
+    description: "Verdict for an early-terminated (GREEN) run is evaluated from captured evidence (session.yaml + poll log + judgment) and matches the scenario's expected PASS outcome."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-5"
+    description: "Runs with BEHAVIOR_EXPECTED_ARTIFACT or BEHAVIOR_GOAL_ACTIONS unset exhibit no behavior change: no artifact/goal signal read, no GREEN termination, monitor behavior identical to pre-change."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-6"
+    description: "HOPELESS termination fires before mechanical threshold/timeout on a cited-evidence judgment; diagnosis YAML cites concrete event-stream evidence; judgment recorded in poll log."
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-7"
+    description: "On HOPELESS termination: run killed and exported per §10.5; termination recorded as a valid FAIL/behavior-diagnosis verdict input."
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-8"
+    description: "§14 contains the early-termination mandate documentation: three-signal polling, GREEN/HOPELESS conditions, goal-relevant-action criterion, evidence contract, no-blind-retry rule."
+    evidence_type: "structural"
+    plan_item: 1
+  - id: "SC-9"
+    description: "Parent-repo AGENTS.md carries one-line §14 early-termination pointer in Testing Lessons Learned area AND the .opencode submodule pointer update is staged in the same parent commit."
+    evidence_type: "structural"
+    plan_item: 9
