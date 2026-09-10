@@ -32,9 +32,9 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 3. **Read the spec file** from `{issues_prefix}/{N}/spec.md` to extract all success criteria with their evidence types.
 
-4. **Build the plan frontmatter.** Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Plan Frontmatter. Write YAML frontmatter with the required fields.
+4. **Build the plan frontmatter.** Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Plan Frontmatter. Write YAML frontmatter with the required fields.
 
-5. **Build the plan body.** Read [plan-structure-standards.md](reference/plan-structure-standards.md) for structural expectations:
+5. **Build the plan body.** Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) for structural expectations:
    - Three-tier layout (Tier 1 global pre/post, Tier 2 per-phase, Tier 3 per-item)
    - Per-item daisy chain: RED → GREEN → verify → commit
    - Dispatch indicators (per-step dispatch mode): `(**direct**)` (default — orchestrator executes in own context) and `(**task-card**)` (the orchestrator dispatches the step's task card via `task()`); every step MUST carry an explicit mode
@@ -54,9 +54,9 @@ The per-task cycle steps are discovered at runtime by reading the implementation
    - These appear once per plan, not per phase.
 
 8. **Write the plan to disk** at `{issues_prefix}/{N}/plan.md`:
-   - Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Plan Index Sections for the required index structure.
+   - Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Plan Index Sections for the required index structure.
    - **Emit the Pre-Flight Guard (Mandatory):** Every produced plan MUST include the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN`. Read [the canonical Pre-Flight Guard definition](../../guidelines/023-pre-flight-guard.md) and copy the plan-class guard block VERBATIM into the plan index — no paraphrasing. See [plan-artifact-format.md](reference/plan-artifact-format.md) §3.5.
-   - Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-phase cost-frame statements following the dark-prose-007 pattern.
+   - Read [cost-model-standards.md](.opencode/reference/cost-model-standards.md) and write per-phase cost-frame statements following the dark-prose-007 pattern.
    - Use structured markdown: checkbox lists with dash sub-bullets for context parameters.
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
    - English text only — the plan is read by the orchestrator, not parsed.
