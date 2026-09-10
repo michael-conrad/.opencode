@@ -1,7 +1,9 @@
 title: '[SPEC] Phase 3: Add decomposition criteria to audit spec-audit evaluator'
 status: open
 labels:
-- approved-for-review,approved-for-implementation,stacked
+- approved-for-review
+- approved-for-implementation
+- stacked
 body: '# Spec: Restore Audit Decomposition Verification (Corrected Scope)
 
 
