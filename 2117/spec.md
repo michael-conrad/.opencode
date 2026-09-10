@@ -261,7 +261,7 @@ R-24. The master reference maintainer note SHALL use the corrected path `skills/
 - GREEN: replace the stale table with a Read-link to the canonical dispatch-vocabulary table
 - verify: grep absence of the obsolete indicators + presence of the Read-link
 - commit: content
-- Context: observed 2026-09-10 (.opencode#2430 SC-2 GREEN run 2) — the sub-agent thrashed reconciling the required `(**direct**)`/`(**task-card**)` indicators against the obsolete table before exemplar-hunting.
+- Context: observed 2026-09-10 (.opencode#2430 SC-2 GREEN run 2) — the sub-agent thrashed reconciling the required `(**direct**)`/`(**task-card**)` indicators against the obsolete table before exemplar-hunting. Origin: the obsolete vocabulary was codified into `plan-structure-standards.md` by `.opencode#2210` (closed) and later superseded by the canonical dispatch-vocabulary table. Related open tickets in the same plan-schema defect space: `.opencode#2250` / `.opencode#2252` (apparent duplicates of each other; single plan-schema authority, delete conflicting plan-artifact-format.md) and `.opencode#2256` (P1 split-canon resolution) — the competing-authority conflict between plan-artifact-format.md and plan-structure-standards.md is a separate unresolved thrash source not covered by this SC.
 
 ## 6. Dependencies
 
