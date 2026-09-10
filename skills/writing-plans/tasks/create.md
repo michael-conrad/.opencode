@@ -32,7 +32,9 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 3. **Read the spec file** from `{issues_prefix}/{N}/spec.md` to extract all success criteria with their evidence types.
 
-4. **Build the plan frontmatter.** Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Plan Frontmatter. Write YAML frontmatter with the required fields.
+3a. **Verification ledger (mandatory).** After steps 1-3, record the verified input facts ONCE in a working note at `{issues_prefix}/{N}/artifacts/plan-input-verification.md`: issue state + labels (from `issue.yaml`), the SC list with evidence types, the structure artifact's phase/SC mappings, and the CLI surface flags actually needed (e.g., `local-issues update` flags). Across all subsequent steps: re-read YOUR ledger, not the sources. Re-verifying inputs the ledger already covers is prohibited — re-verification wastes turn budget and re-opens settled decisions (observed: .opencode#2430 SC-2 run 3 spent 4+ hours re-probing verified facts each turn).
+
+4. **Build the plan frontmatter.** Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Plan Frontmatter and §Composition Conventions. Write YAML frontmatter with the required fields.
 
 5. **Build the plan body.** Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) for structural expectations:
    - Three-tier layout (Tier 1 global pre/post, Tier 2 per-phase, Tier 3 per-item)
@@ -53,10 +55,13 @@ The per-task cycle steps are discovered at runtime by reading the implementation
    - Structural checks, verification, audit, cross-validate, review-prep, PR creation, completion.
    - These appear once per plan, not per phase.
 
-8. **Write the plan to disk** at `{issues_prefix}/{N}/plan.md`:
-   - Read [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Plan Index Sections for the required index structure.
+8. **Write the plan to disk — incrementally (mandatory).** Target: `{issues_prefix}/{N}/plan.md`. NEVER compose the full plan body in memory for a single write call — plan composition must survive turn boundaries, and on-disk progress is the only state that persists across them (observed: .opencode#2430 SC-2 run 3 announced the write 14+ times across 4 hours and never emitted it, because full-body composition died at every turn boundary). Write in three stages:
+   - **Stage 1 — skeleton first:** immediately after steps 4-6, write the skeleton to disk: frontmatter, title, phase table, pre-implementation steps, and one stub heading per phase plus the post-implementation section. The skeleton MUST be on disk before any body prose is composed.
+   - **Stage 2 — one section per call:** fill the body one section per write/edit call, re-reading the file from disk before each subsequent edit. Never batch more than one section per tool call.
+   - **Stage 3 — guard, cost frames, read-back:** emit the Pre-Flight Guard section and per-phase cost frames, then perform a final read-back of the file to verify structure.
    - **Emit the Pre-Flight Guard (Mandatory):** Every produced plan MUST include the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN`. Read [the canonical Pre-Flight Guard definition](../../guidelines/023-pre-flight-guard.md) and copy the plan-class guard block VERBATIM into the plan index — no paraphrasing. See [plan-artifact-format.md](reference/plan-artifact-format.md) §3.5.
    - Read [cost-model-standards.md](.opencode/reference/cost-model-standards.md) and write per-phase cost-frame statements following the dark-prose-007 pattern.
+   - Follow [plan-structure-standards.md](.opencode/reference/plan-structure-standards.md) §Composition Conventions for all pinned format decisions — do not re-litigate them.
    - Use structured markdown: checkbox lists with dash sub-bullets for context parameters.
    - No machine-parseable cross-references, no identifier IDs (REQ-001, TASK-001), no JSON/YAML code blocks in the body.
    - English text only — the plan is read by the orchestrator, not parsed.
@@ -70,7 +75,8 @@ The per-task cycle steps are discovered at runtime by reading the implementation
 
 ## Exit Criteria
 
-- The plan has been written to `{issues_prefix}/{N}/plan.md`
+- The plan has been written to `{issues_prefix}/{N}/plan.md` via the staged incremental emission (skeleton on disk before body prose; one section per follow-up edit)
+- The verification ledger exists at `{issues_prefix}/{N}/artifacts/plan-input-verification.md` and was written once (no source re-verification after it)
 - The plan contains the canonical Pre-Flight Guard section with reason code `ORCHESTRATOR_ONLY_PLAN` (verbatim per [plan-artifact-format.md](reference/plan-artifact-format.md) §3.5)
 - `spec-cleared` is present in the local `{issues_prefix}/{N}/issue.yaml` labels array (canonical — REQUIRED)
 - Remote `spec-cleared` label write attempted best-effort; remote failure does not block completion
