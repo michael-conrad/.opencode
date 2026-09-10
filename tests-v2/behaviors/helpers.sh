@@ -539,7 +539,7 @@ __semantic_monitor() {
 import json, sqlite3, sys, os
 db = sys.argv[1]
 try:
-    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     rows = c.execute("SELECT seq, data FROM event ORDER BY seq").fetchall()
     conn.close()
@@ -587,8 +587,6 @@ print(json.dumps({
 }))
 MONPY
 ) || stats='{"error": "read_failed"}'
-
-        echo "POLL ${poll} db=${db} stats=${stats}" >> "$poll_log"
 
         # ── .opencode#2441 per-poll report (R-11/R-12): every poll performs a
         # three-signal semantic read and records ACTUAL content, not counters.
