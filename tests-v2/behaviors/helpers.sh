@@ -546,7 +546,7 @@ try:
 except Exception as e:
     print(json.dumps({"error": str(e)}))
     sys.exit(0)
-tools = {}; last_text = ""; last_reason = ""
+tools = {}; last_text = ""; last_reason = ""; reasoning_total = 0
 for seq, data in rows:
     try:
         d = json.loads(data or "{}")
