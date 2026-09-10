@@ -603,8 +603,8 @@ MONPY
 
         reasoning_total=$(echo "$stats" | python3 -c "import json,sys; print(json.load(sys.stdin).get('reasoning_total', 0))" 2>/dev/null || echo 0)
         # Resolve the run's test home once (with-test-home emits TEST_HOME=<path> to stderr).
-        if [ -z "$test_home_dir" ] && grep -q '^TEST_HOME=' "$err_file" 2>/dev/null; then
-            test_home_dir=$(grep '^TEST_HOME=' "$err_file" | head -1 | sed 's/^TEST_HOME=//')
+        if [ -z "$test_home_dir" ]; then
+            test_home_dir=$(grep '^TEST_HOME=' "$err_file" 2>/dev/null | head -1 | sed 's/^TEST_HOME=//' || true)
         fi
 
         # Signal (c) (.opencode#2441 R-1): on-disk expected artifact in the run's
