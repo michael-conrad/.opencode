@@ -68,6 +68,7 @@ A spec-creation holistic validation of `.opencode#2117` returned FAIL (holistic 
 | SC-24 | The corrected `.opencode/reference/...` paths are PRESENT across the audit task cards in `skills/audit/tasks/` | string | grep for presence of each corrected path (`.opencode/reference/cost-model-standards.md`, `.opencode/reference/spec-structure-standards.md`, `.opencode/reference/plan-structure-standards.md`) across skills/audit/tasks/ |
 | SC-25 | The master reference maintainer note path `audit/tasks/spec-audit-evaluator.md` is corrected to `skills/audit/tasks/spec-audit-evaluator.md` | string | grep for the corrected path in the maintainer note |
 | SC-26 | The bare `reference/` patterns `reference/plan-structure-standards.md` and `reference/cost-model-standards.md` are ABSENT from `skills/writing-plans/tasks/create.md`, the corrected `.opencode/reference/plan-structure-standards.md` and `.opencode/reference/cost-model-standards.md` paths are PRESENT in that file, and `.opencode/reference/plan-structure-standards.md` contains the referenced anchors (§Plan Frontmatter, §Plan Index Sections, §Three-Tier Plan Structure) | string | grep for absence of each bare pattern and presence of each corrected path in `skills/writing-plans/tasks/create.md`; grep the target file for the three anchors |
+| SC-27 | The stale dispatch-indicator table in `.opencode/reference/plan-structure-standards.md` §Dispatch Indicators is REMOVED and replaced with a Read-link to the canonical dispatch-vocabulary table in `reference/skill-card-description-standards.md`, so plan bodies carry no contradictory dispatch vocabulary (observed 2026-09-10: create-run sub-agent thrashed resolving `(**direct**)`/`(**task-card**)` against the obsolete `(**inline**)`/`(**sub-agent**)`/`(**clean-room**)` table) | string | grep `plan-structure-standards.md` for absence of `(**inline**)`, `(**sub-agent**)`, `(**clean-room**)` and presence of the Read-link to the canonical table |
 
 ## 4. Requirements
 
@@ -254,6 +255,13 @@ R-24. The master reference maintainer note SHALL use the corrected path `skills/
 - verify: grep absence of bare patterns + presence of corrected paths + anchor presence in the target file
 - commit: link correction (landed 2026-09-10 on feature/2434-stacked)
 - Context: discovered 2026-09-10 as the root cause of writing-plans create-run deliberation ceremony (observed in .opencode#2430 SC-2 behavioral runs); same defect class as Items 23-24 on a surface the original scan did not cover.
+
+### Item 27 (SC-27): Remove stale dispatch-indicator table from plan-structure-standards.md
+- RED: grep fails because `.opencode/reference/plan-structure-standards.md` §Dispatch Indicators carries the obsolete `(**inline**)`/`(**sub-agent**)`/`(**clean-room**)` table, contradicting the canonical dispatch-vocabulary table (skill-card-description-standards.md single-definition rule)
+- GREEN: replace the stale table with a Read-link to the canonical dispatch-vocabulary table
+- verify: grep absence of the obsolete indicators + presence of the Read-link
+- commit: content
+- Context: observed 2026-09-10 (.opencode#2430 SC-2 GREEN run 2) — the sub-agent thrashed reconciling the required `(**direct**)`/`(**task-card**)` indicators against the obsolete table before exemplar-hunting.
 
 ## 6. Dependencies
 
