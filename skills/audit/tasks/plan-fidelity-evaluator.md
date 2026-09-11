@@ -103,6 +103,7 @@ Evaluate each criterion against the validated evidence. Expected values referenc
 | PF-DISPATCH-MODE | Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Dispatch Indicators and verify every step has exactly one valid dispatch indicator. | Every step has exactly one valid dispatch indicator |
 | PF-DISPATCH-DEFECTS | Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Dispatch Indicators and verify dispatch declarations are consistent with step indicators. | Dispatch declarations consistent with step indicators |
 | PF-SUBSTEP-EXPAND | Read [plan-structure-standards.md](reference/plan-structure-standards.md) §Step Format and verify no step describes more than one atomic action. | No step describes more than one atomic action |
+| PF-PREFLIGHT-GUARD | Read [the canonical mechanical Pre-Flight Guard](../../../guidelines/023-pre-flight-guard.md). Verify the plan carries the canonical Pre-Flight Guard block verbatim (task-tool check with the `ORCHESTRATOR_ONLY_PLAN` reason code), using the Investigator's `plan.preflight_guard` evidence. | Canonical guard present and verbatim with `ORCHESTRATOR_ONLY_PLAN`; a plan missing the canonical guard is an automatic FAIL finding `MISSING_CANONICAL_PREFLIGHT_GUARD` (classification: FAIL — no remediation path; the plan MUST be regenerated with the guard) |
 
 ### Step 4: Evaluate Each Criterion
 
@@ -231,6 +232,7 @@ After verdict collection, classify each discrepancy:
 | MISSING_EDGE_CASE | FAIL | Verify clean-room correctness |
 | DEPENDENCY_REVERSAL | auto-fix | Reorder phases |
 | MISSING_TDD_CHECKPOINT | FAIL | Add RED checkpoint |
+| MISSING_PREFLIGHT_GUARD | FAIL | Plan missing the canonical Pre-Flight Guard (`ORCHESTRATOR_ONLY_PLAN`) — regenerate the plan with the canonical guard; finding name: `MISSING_CANONICAL_PREFLIGHT_GUARD` |
 
 ### Step 11: Generate Bidirectional Findings
 
@@ -294,7 +296,7 @@ blast_radius:
     status: "PASS" | "FAIL"
     findings: []
 discrepancy_classification:
-  - finding_type: "<MISSING_PHASE|EXTRA_PHASE|MISSING_STEP|EXTRA_STEP|APPROACH_DIFFERENCE|MISSING_EDGE_CASE|DEPENDENCY_REVERSAL|MISSING_TDD_CHECKPOINT>"
+  - finding_type: "<MISSING_PHASE|EXTRA_PHASE|MISSING_STEP|EXTRA_STEP|APPROACH_DIFFERENCE|MISSING_EDGE_CASE|DEPENDENCY_REVERSAL|MISSING_TDD_CHECKPOINT|MISSING_PREFLIGHT_GUARD>"
     classification: "<auto-fix|FAIL>"
     description: "<text>"
 bidirectional_findings:

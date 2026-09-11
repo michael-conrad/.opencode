@@ -330,6 +330,148 @@ def lint_skill_preflight_guard(base_dir: Path) -> list[LintFinding]:
     return findings
 
 
+CANONICAL_GUARD_DOC_ANCHOR = "## Canonical Guard Block (Reference Definition)"
+CANONICAL_GUARD_DOC_REL = "guidelines/023-pre-flight-guard.md"
+CANONICAL_GUARD_HEADING = "## Pre-Flight Guard (Mandatory)"
+
+
+def _load_canonical_guard_block() -> list[str] | None:
+    """Derive the canonical Pre-Flight Guard block from the single reference
+    definition (.opencode/guidelines/023-pre-flight-guard.md, R-2 .opencode#2430).
+
+    The guard-verbatim rule pattern is derived from the canonical guard text
+    exactly: the fenced block under the 'Canonical Guard Block (Reference
+    Definition)' heading is the verbatim conformance target. Returns the block
+    lines, or None when the canonical doc cannot be located or parsed; callers
+    MUST surface a hard failure finding in that case (never a silent pass).
+    """
+    doc_path: Path | None = None
+    for parent in [IMPL_DIR] + list(IMPL_DIR.parents):
+        candidate = parent / CANONICAL_GUARD_DOC_REL
+        if candidate.exists():
+            doc_path = candidate
+            break
+    if doc_path is None:
+        return None
+    text = doc_path.read_text()
+    anchor_idx = text.find(CANONICAL_GUARD_DOC_ANCHOR)
+    if anchor_idx == -1:
+        return None
+    rest = text[anchor_idx:]
+    fence_open = rest.find("```")
+    if fence_open == -1:
+        return None
+    line_end = rest.find("\n", fence_open)
+    if line_end == -1:
+        return None
+    fence_close = rest.find("```", line_end)
+    if fence_close == -1:
+        return None
+    block_lines = rest[line_end + 1 : fence_close].split("\n")
+    while block_lines and block_lines[-1].strip() == "":
+        block_lines.pop()
+    if not block_lines or block_lines[0] != CANONICAL_GUARD_HEADING:
+        return None
+    return block_lines
+
+
+def lint_skill_guard_verbatim(base_dir: Path) -> list[LintFinding]:
+    """Flag SKILL.md cards missing the canonical Pre-Flight Guard block or
+    carrying a deviant (non-mechanical, prose-only) guard variant.
+
+    SC-6a (.opencode#2430): content-based, position-independent conformance
+    check against the canonical guard block in
+    .opencode/guidelines/023-pre-flight-guard.md (R-2, single reference
+    definition). Additive to the #2339 marker rule (lint_skill_preflight_guard
+    / skill-preflight-guard-missing): the marker rule catches cards lacking
+    the literal ORCHESTRATOR_ONLY_SKILL_CARD string; this rule additionally
+    catches prose-only deviant guard variants that contain the marker string
+    and therefore evade the marker rule.
+
+    Position independence: the guard section is located by its canonical
+    heading anywhere in the card body (after frontmatter); guard placement
+    after other sections does not evade the flag. Reason code: the canonical
+    block's absent-branch line keys the card-class reason code
+    ORCHESTRATOR_ONLY_SKILL_CARD (plan-02 Cross-Cutting SCs).
+    """
+    import re
+
+    findings: list[LintFinding] = []
+    canonical_block = _load_canonical_guard_block()
+    if canonical_block is None:
+        findings.append(LintFinding(
+            severity="error", category="skill-preflight-guard-verbatim",
+            source="guard-verbatim-rule", rule_id="guard-verbatim-canonical-missing",
+            message=(
+                "Canonical guard reference (.opencode/guidelines/023-pre-flight-guard.md) "
+                "missing or unparseable — guard-verbatim rule cannot run "
+                "(hard failure, never a silent pass)"
+            )
+        ))
+        return findings
+
+    skills_dir = base_dir / "skills"
+    if not skills_dir.exists():
+        return findings
+
+    heading_re = re.compile(r"^## Pre-Flight Guard \(Mandatory\)\s*$", re.MULTILINE)
+    block_len = len(canonical_block)
+
+    # SC-1 (.opencode#2430) card enumeration: 48 top-level cards plus 3 nested
+    # platform cards (issue-operations/platforms/*) = 51 total. The verbatim
+    # check covers both classes — a nested deviant card must not evade deck lint.
+    card_paths: list[tuple[Path, str]] = []
+    for skill_dir in sorted(skills_dir.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        skmd = skill_dir / "SKILL.md"
+        if skmd.exists():
+            card_paths.append((skmd, str(skmd.relative_to(base_dir))))
+        platforms_dir = skill_dir / "platforms"
+        if platforms_dir.exists() and platforms_dir.is_dir():
+            for platform_dir in sorted(platforms_dir.iterdir()):
+                if not platform_dir.is_dir():
+                    continue
+                nested_skmd = platform_dir / "SKILL.md"
+                if nested_skmd.exists():
+                    card_paths.append((nested_skmd, str(nested_skmd.relative_to(base_dir))))
+
+    for skmd, rel in card_paths:
+        text = skmd.read_text()
+        heading_match = heading_re.search(text)
+        if heading_match is None:
+            findings.append(LintFinding(
+                severity="error", category="skill-preflight-guard-verbatim",
+                source=rel, rule_id="guard-verbatim-missing",
+                message=(
+                    "SKILL.md missing canonical Pre-Flight Guard block "
+                    "(no '## Pre-Flight Guard (Mandatory)' heading; "
+                    "canonical definition: .opencode/guidelines/023-pre-flight-guard.md)"
+                )
+            ))
+            continue
+        # Position-independent: compare the section opening at the heading
+        # (wherever it sits in the card) against the canonical block lines.
+        section_lines = text[heading_match.start():].split("\n")
+        section_end = len(section_lines)
+        for i in range(1, len(section_lines)):
+            if section_lines[i].startswith("## "):
+                section_end = i
+                break
+        if section_lines[:section_end][:block_len] != canonical_block:
+            findings.append(LintFinding(
+                severity="error", category="skill-preflight-guard-verbatim",
+                source=rel, rule_id="guard-verbatim-missing",
+                message=(
+                    "SKILL.md carries a deviant (non-mechanical, prose-only) "
+                    "Pre-Flight Guard variant — does not match the canonical block "
+                    "in .opencode/guidelines/023-pre-flight-guard.md verbatim "
+                    "(reason code ORCHESTRATOR_ONLY_SKILL_CARD)"
+                )
+            ))
+    return findings
+
+
 def lint_all(
     scan_dir: Path,
     skill_filter: str = "",
@@ -1287,6 +1429,7 @@ def main() -> None:
     findings.extend(lint_progressive_disclosure(base_dir))
     findings.extend(lint_skill_frontmatter(base_dir))
     findings.extend(lint_skill_preflight_guard(base_dir))
+    findings.extend(lint_skill_guard_verbatim(base_dir))
     findings.extend(lint_skill_deck_completeness(base_dir))
     findings.extend(lint_skill_workflows_prompts(base_dir))
     findings.extend(lint_skill_card_format_rules(base_dir))

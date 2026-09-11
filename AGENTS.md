@@ -170,6 +170,8 @@ git add .opencode
 
 **Wrong repo for spec creation:** When creating a spec to track changes, the agent MUST file the issue against the repo where the change lives — not the root repo by default. Check `## Repo Information` from session-init to determine the correct owner/repo. Changes to `.opencode/` files belong in the `.opencode` repo. Changes to root repo files belong in the root repo. Defaulting to the root repo produces issues in the wrong repository.
 
+**Unpushed submodule state invalidates behavioral runs — commit → push → fetch/verify → run:** Behavioral tests MUST NOT run on uncommitted or unpushed submodule state. The `behavior_run()` pre-flight gate and the `with-test-home` clone+checkout gates hard-FAIL when the submodule working tree is dirty (`git status --porcelain` non-empty) or the effective commit is not contained in a remote ref after a fresh `git fetch` — the harness tests the effective commit as it exists on the remote, never local-only code, so a run against unpushed code would issue verdicts about code the branch does not contain. Run the ordered cycle before every behavioral run: commit the submodule changes, push the effective commit to its remote branch, fresh `git fetch` and verify the effective commit is contained in a remote ref, then run. Test framework fixes that require commit+push remediation are infrastructure maintenance under the §4 carve-out — the agent commits and pushes autonomously, never re-scoped to a single environment variable. See `.opencode/tests-v2/AGENTS.md §4`.
+
 ---
 
 ## `gb` CLI Tool — GitBucket Operations

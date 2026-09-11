@@ -57,6 +57,8 @@ Before squash and push, verify dirty submodule pointers are included in staged c
 - [ ] 4. If not staged: `git add <submodule_path>` before squash
 - [ ] 5. Confirm staged files include both source changes AND submodule pointer updates
 
+**Timing alignment (ordering gate):** The staging-verification checks above apply at squash/push time. Pointer bumps themselves are committed on the parent feature branch only after the submodule merges land — while any in-scope submodule PR is unmerged, no pointer bump is committed; the branch waits idle. This pointers-ride-alongside timing rule is enforced by the ordering gate in `pr-creation/enforcement-gate` (Step 0.75, Pointers-Ride-Alongside Timing Rule), ensuring the parent PR's squashed commit carries fresh pointers.
+
 ### Step 2-4: Changelog, Squash, Rebase, Push
 
 **Route to:** `pr-creation/squash-push`

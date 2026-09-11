@@ -105,7 +105,8 @@ Validate each item in the `plan` section against the actual plan files:
 - [ ] 8. **Gate sequence** — verify `plan.gate_sequence` matches the pipeline gates referenced in plan steps
 - [ ] 9. **Verification instructions** — for each instruction in `plan.verification_instructions`, verify the step number, SC ID, and required evidence type match the plan
 - [ ] 10. **Z3 contract refs** — for each ref in `plan.z3_contract_refs`, verify the contract path is referenced in the plan
-- [ ] 11. **Prescriptive content** — for each item in `plan.prescriptive_content`, verify the step number, type, and content match the plan
+ - [ ] 11. **Prescriptive content** — for each item in `plan.prescriptive_content`, verify the step number, type, and content match the plan
+- [ ] 12. **Canonical Pre-Flight Guard (plan-05 SC-6b)** — for the `plan.preflight_guard` evidence item from the Investigator, verify `present` and `verbatim` by reading the plan files and comparing against the canonical block in [the canonical mechanical Pre-Flight Guard](../../../guidelines/023-pre-flight-guard.md); verify `reason_code` is `ORCHESTRATOR_ONLY_PLAN` and `finding` is `MISSING_CANONICAL_PREFLIGHT_GUARD` when the canonical guard block is absent or non-verbatim
 
 For each item, record:
 

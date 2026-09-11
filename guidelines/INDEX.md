@@ -12,6 +12,7 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `015-pre-spec-inspection.md` | 2 | code inspection, pre-spec, investigate codebase | Pre-spec creation |
 | `020-go-prohibitions.md` | 1 | GO, prohibited, forbidden, never do, soliciting, solicitation | Authorization handling |
 | `022-orchestrator-context-discipline.md` | 2 | orchestrator context, context discipline, sub-agent dispatch, task(), clean-room, result contract, inline work, dispatch gate | Orchestrator/sub-agent context mechanics |
+| `023-pre-flight-guard.md` | 2 | pre-flight guard, task-tool probe, sub-agent identity, orchestrator detection, ORCHESTRATOR_ONLY_SKILL_CARD, ORCHESTRATOR_ONLY_PLAN, routing metadata guard | Canonical mechanical Pre-Flight Guard reference (single reference definition) |
 | `025-discussion-mode.md` | 2 | discussion, question tool, pigeon-hole, brainstorming mode, open-ended, single topic, research card, card catalogue | Developer discussion conduct |
 | `045-open-questions.md` | 2 | open questions, unresolved, Q&A, clarify | Spec review |
 | `050-scope-autonomy.md` | 2 | scope, autonomy, agent discretion, agent decision | Agent classification |
@@ -42,3 +43,9 @@ Full guideline content for Tier 2+ is loaded on-demand by sub-agents. Tier 1 fil
 | `250-dark-prose-reference.md` | 2 | dark prose, prose pattern, confirmshaming, goal hijacking, agency-respecting, identity frame, dark pattern | Dark prose content creation |
 | `255-distribution-shifting-reference.md` | 2 | distribution shift, dist-shift, mean response, expert tail, RLHF diversity, contrastive decoding, anti-mean, anti-consensus, external-signal verification, corrupt-success contrast | Distribution shifting content |
 | `257-procedural-discipline-reference.md` | 2 | procedural discipline, p-dis, dependency order, re-priming, controlled vocabulary, continue drift, verification signal, positional enforcement, dependency-order gate | Procedural discipline content |
+
+## Canonical Reference Definitions
+
+Single-source-of-truth reference documents that other guidelines, skill cards, task cards, and lint/audit checks copy verbatim or defer semantics to. Embedding surfaces MUST NOT carry divergent inline variants:
+
+- Read [the canonical mechanical Pre-Flight Guard](023-pre-flight-guard.md) — task-tool probe (`task` present ⇒ orchestrator proceeds; absent ⇒ sub-agent returns `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` or `ORCHESTRATOR_ONLY_PLAN`), action-not-perception semantics, reason-code table.

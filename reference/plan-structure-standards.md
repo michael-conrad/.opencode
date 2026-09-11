@@ -48,11 +48,7 @@ dispatch: [<skill-names>]
 
 ## Dispatch Indicators
 
-| Indicator | Meaning |
-|-----------|---------|
-| `(**inline**)` | Orchestrator executes directly |
-| `(**sub-agent**)` | Dispatch via `task()` with phase context |
-| `(**clean-room**)` | Dispatch via `task()` with routing metadata only |
+Plan step indicators use the canonical dispatch vocabulary — defined ONCE in the canonical dispatch-vocabulary table. Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md) — the single source of truth for skill card, task card, orchestrator, and dispatch definitions. Plan steps carry the `(**direct**)` (orchestrator executes in own context — default) and `(**task-card**)` (orchestrator dispatches the step's task card via `task()`) indicators; no other dispatch vocabulary is valid in plan bodies. This file MUST NOT restate or extend the canonical table.
 
 ## Step Format
 
@@ -60,6 +56,22 @@ dispatch: [<skill-names>]
 - No step describes more than one atomic action
 - RED/GREEN conditions contain no line numbers, exact code, or file paths
 - RED describes "what fails". GREEN describes "what must be true"
+
+## Composition Conventions (Pinned Decisions)
+
+These format decisions are PINNED — plan writers apply them as stated; do not re-derive them from exemplar plans, and do not re-litigate them during composition (observed: .opencode#2430 SC-2 run 3 burned hours per create-run litigating exactly these).
+
+1. **Frontmatter fields** (order fixed): `plan_schema_version`, `issue`, `title`, `authorization_scope`, `pr_strategy`, `phase_count`, `dispatch` (array of skill+task refs per phase).
+2. **Phase-table columns** (exactly this set, this order): `Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch`.
+3. **Step numbering**: continuous `1..N` across pre-implementation, phase, and post-implementation steps; each phase's `Step Range` cell records its slice (e.g., `5-14`).
+4. **Dispatch column cell style**: summary form like `direct (1-4) + task-card (5-14)` — per-step modes live in the phase files, never as per-step dispatch tables in the index.
+5. **Timestamps**: plan bodies carry no runtime timestamps. The only timestamp in the pipeline is the lifecycle-event value supplied by the dispatch context (fixed literal when provided) — used in the lifecycle event only, never in the plan body.
+6. **Issue reference line**: `- **Issue:** {issues_prefix}/{N}/spec.md` — no remote URL when the platform is local.
+7. **Model/identity references**: use placeholders per the code-standards attribution rules — never hardcode or claim an unverifiable model ID.
+8. **Fenced code blocks**: none in the plan body (structured markdown only; frontmatter is the sole YAML).
+9. **Cross-references**: no machine-parseable IDs (`REQ-001`, `C0`); exit criteria are labeled `C1..Cn`.
+10. **Lifecycle event**: exactly one `plan_created` event with `plan_file` (the canonical plan path) and `phase_count`.
+11. **Label writes**: `local-issues update` replaces the entire labels array — every label write MUST include all existing labels plus the new one.
 
 ## Admonishments
 

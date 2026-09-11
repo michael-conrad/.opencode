@@ -89,7 +89,19 @@ Read the plan from `spec_local_dir/`:
 - [ ] 5. Extract all steps across all phases — step numbers, descriptions, sub-bullets, SC references
 - [ ] 6. Extract dispatch indicators from step titles — ``, `(**sub-agent**)`, `(**clean-room**)`
 - [ ] 7. Extract TDD checkpoints — RED/GREEN/REFACTOR structure, RED and GREEN separation
-- [ ] 8. Read [plan-structure-standards.md](reference/plan-structure-standards.md). For each structural element in the reference doc, collect evidence about its presence, content, and format.
+  - [ ] 8. Read [plan-structure-standards.md](reference/plan-structure-standards.md). For each structural element in the reference doc, collect evidence about its presence, content, and format.
+  - [ ] 9. **Canonical Pre-Flight Guard presence (plan-05 SC-6b)** — check whether the plan contains the canonical Pre-Flight Guard section: a `## Pre-Flight Guard (Mandatory)` heading followed by the task-tool check text with the `ORCHESTRATOR_ONLY_PLAN` reason code, copied verbatim from the canonical reference definition. If the plan (or plan index + phase files collectively) is missing the canonical guard block, record a **FAIL finding named for the missing canonical guard**: `MISSING_CANONICAL_PREFLIGHT_GUARD`. A divergent inline guard variant (present but not verbatim) also fails this check — record the divergence in the finding. Read [the canonical mechanical Pre-Flight Guard](../../../guidelines/023-pre-flight-guard.md) for the verbatim block and reason codes.
+
+Record the guard evidence in the plan section:
+
+```yaml
+plan:
+  preflight_guard:
+    present: <true|false>
+    verbatim: <true|false>
+    reason_code: "ORCHESTRATOR_ONLY_PLAN"
+    finding: "MISSING_CANONICAL_PREFLIGHT_GUARD | null"
+```
 
 Record all extracted plan data in the evidence structure:
 

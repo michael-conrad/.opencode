@@ -21,11 +21,10 @@ GitBucket CLI (gb) operations for authentication, issue and PR workflows, labels
 
 ## Pre-Flight Guard (Mandatory)
 
-**This skill card is orchestrator-only routing metadata.**
+Check your tool list for a tool named `task`.
 
-If you are a sub-agent (dispatched via `task()`), you MUST NOT consume the routing metadata below. Sub-agents cannot call `task()` and cannot execute orchestrator-level dispatch instructions. Return `BLOCKED` with reason `ORCHESTRATOR_ONLY_SKILL_CARD` and halt.
-
-If you are the orchestrator (loaded this card via `skill({name: "..."})`), proceed to the Workflows section.
+- Present ⇒ orchestrator — proceed.
+- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
 
 ## Workflows
 
