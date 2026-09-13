@@ -1,0 +1,254 @@
+# Validate findings — writing-plans validate task for issue #2444 (.opencode)
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+#
+# Generated 2026-09-13 by writing-plans/tasks/validate executor (sub-agent, clean-room).
+# Full fresh validation of .opencode/.issues/2444/plan.md (348 lines, 2 phases /
+# 3 SCs) against the 6 check categories in writing-plans/tasks/validate.md.
+# All evidence from live reads this session: plan.md (full), spec.md (full),
+# dependency-contract.yaml (full), solve-output.yaml (full), concern-map.yaml,
+# structure.yaml, cross-cutting-matrix.yaml, implementation-workflow.md,
+# plan-artifact-format.md, plus live bash checks (step census, dispatch-mode scan,
+# placeholder grep, task-card existence). Precedent cross-referenced: #2433 and
+# #2434 validate-findings.yaml (precedent only, not evidence).
+
+validate_findings:
+  issue_number: 2444
+  repo: .opencode
+  plan_path: .opencode/.issues/2444/plan.md
+  spec_path: .opencode/.issues/2444/spec.md
+  solve_output_status: SAT
+  planner_status: SOLVED_SATISFICING
+  overall_status: PASS
+  fail_count: 0
+
+  category_1_structural:
+    status: PASS
+    checks:
+      - check: phase_table_required_columns
+        result: PASS
+        evidence: >
+          "## Phase Table" (plan.md lines 54-59) carries columns Phase | Name |
+          Concern | SCs | Depends On | Step Range | Dispatch — the required-column
+          set per the operational precedent (validate-findings #2433/#2434 both PASS
+          with this column family). Exactly 2 data rows for phase_count: 2
+          (frontmatter); Dispatch column enumerates direct vs task-card step numbers
+          per row and matches the body scan (Phase 1 direct {3,10,11,16}, task-card
+          {4-9,12-15,17}; Phase 2 direct {18,20,22,23}, task-card {19,21,24,25}).
+      - check: phase_procedure_sections_numbered_steps
+        result: PASS
+        evidence: >
+          Each phase section contains procedure content with numbered checkbox steps:
+          Phase 1 (Items 1-2, steps 3-17 incl. VbC), Phase 2 (Item 3, steps 18-25
+          incl. VbC). Programmatic census: 33 numbered checkbox steps, globally
+          sequential 1..33 with zero gaps and zero duplicates; plus Pre-Implementation
+          (1-2) and Post-Implementation (26-33) sections.
+      - check: exit_criteria_with_sc_to_phase_mapping
+        result: PASS
+        evidence: >
+          "## Exit Criteria" (C1-C6, checkbox items) present, each criterion
+          referencing its SCs (C1: all; C2: SC-1; C3: SC-3; C4: SC-2; C5: SC-2; C6:
+          all). "## Verification Coverage Matrix" additionally maps SC → Item →
+          Phase → Evidence Type → Verification for all 3 SCs.
+    observations:
+      - >
+        Single-file format for a 2-phase plan (no plan-01/plan-02 split files) —
+        plan-artifact-format.md §2 prescribes the split format for multi-phase plans.
+        Same layout family as the #2433/#2434 sibling plans from this pipeline, both
+        validated PASS by this validator; the task card's Category 1 check set does
+        not include file layout. Recorded as an observation, not a finding.
+      - >
+        Pre-Flight Guard block (plan.md lines 77-82) matches the canonical text in
+        plan-artifact-format.md §3.5 verbatim (ORCHESTRATOR_ONLY_PLAN class).
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - check: all_dispatch_strings_match_reference_card
+        result: PASS
+        evidence: >
+          Every task-card dispatch string in the plan matches a canonical entry in
+          implementation-workflow.md verbatim: pre-regression ("execute phase-0 task
+          from test-driven-development", step 4), pre-regression-verify / verify /
+          pre-pr-gate ("execute verify task from verification-before-completion",
+          steps 5/9/15/17/24/25/29), red (steps 6/12/19), green (steps 7/13),
+          post-regression and regression-check ("execute phase-4 task from
+          test-driven-development", steps 8/14/21/30), audit (step 26 — verbatim
+          canonical string incl. "Read audit/tasks/verification-audit-investigator.md
+          first" followed by validator, evaluator, arbiter), structural-checks
+          (step 28), review-prep (step 31 — verbatim incl. Read-link), create-pr
+          (step 32), exec-summary (step 33).
+      - check: commit_inline_z3_check_push_are_orchestrator_direct
+        result: PASS
+        evidence: >
+          commit-inline steps (10/16/22) and z3-check (27) are marked (**direct**)
+          with explicit git/solve commands — matching the reference card's
+          "(orchestrator)" owner rows. Step 23 (push + fresh-fetch verify, direct)
+          implements the 091-incremental-build behavioral variant (commit → push →
+          fetch-verify → behavioral run) cited by dependency-contract.yaml
+          dependency_contract_notes and structure.yaml; it is a git operation, not a
+          skill+task reference. Pre-clean steps (3/11/18, direct) implement the
+          reference card's Rule 3 step-specific pre-cleanup.
+      - check: referenced_task_card_files_exist
+        result: PASS
+        evidence: >
+          bash -f existence check: 10/10 referenced task files EXIST —
+          test-driven-development/tasks/{phase-0,red,green,phase-4}.md,
+          verification-before-completion/tasks/verify.md,
+          finishing-a-development-branch/tasks/checklist.md,
+          audit/tasks/verification-audit-investigator.md,
+          git-workflow-pr/tasks/{review-prep,pr-creation}.md,
+          completion-core/tasks/completion.md.
+      - check: frontmatter_dispatch_entries_valid
+        result: PASS
+        evidence: >
+          Frontmatter dispatch lists only skill:task pairs that are valid
+          reference-card entries: test-driven-development:{pre-regression,red,green,
+          post-regression}, verification-before-completion:{pre-regression-verify,
+          verify}.
+    observations:
+      - >
+        Phase-2 frontmatter lists test-driven-development:green while the body
+        executes the GREEN slot as step 20 "GREEN — n/a (**direct**)" — a documented
+        n/a-rationale step per the #2434 Item 8 precedent (structure.yaml
+        triplet_colocation: "GREEN is n/a re-verification — fixes landed in phase A —
+        and remains assigned within phase B"). The slot exists in the body; the
+        reference-card entry is valid. Recorded as an observation, not a finding.
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - check: every_spec_sc_covered
+        result: PASS
+        evidence: >
+          Spec Success Criteria table defines exactly 3 SCs (SC-1 structural, SC-2
+          behavioral, SC-3 structural). Plan coverage: Phase 1 → SC-1, SC-3 (Items
+          1-2); Phase 2 → SC-2 (Item 3). All 3 appear in phase SCs fields, the Exit
+          Criteria, and the Verification Coverage Matrix. Zero uncovered.
+      - check: triplet_split_detection
+        result: PASS
+        evidence: >
+          For every SC, RED/GREEN/COMMIT colocate in one phase: SC-1 (RED 6 / GREEN 7
+          / COMMIT 10 → Phase 1), SC-3 (RED 12 / GREEN 13 / COMMIT 16 → Phase 1),
+          SC-2 (RED 19 / GREEN 20 n/a-direct / COMMIT 22 → Phase 2). No
+          TRIPLET_SPLIT findings. SC-2's n/a GREEN remains assigned within Phase 2
+          per the #2434 Item 8 precedent and structure.yaml triplet_colocation
+          (verified: true).
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - check: each_phase_one_concern
+        result: PASS
+        evidence: >
+          Phase 1's Concern statement is the single shared defect concern defined by
+          cross-cutting-matrix.yaml shared_defect_pattern ("task-relative reference/
+          link in spec-creation task cards", scs [SC-1, SC-3], one fix idiom); the
+          concern-map's C1/C2 file-level split cross-cuts this, but the
+          cross-cutting-matrix declares multi_concern_coordination_required: false
+          ("All 3 SCs localize to one skill directory with one defect pattern. No SC
+          spans multiple concern groups requiring cross-phase coordination") and
+          classifies SC-3's audit overlap with SC-1 as "a verification-overlap, not a
+          true cross-cutting concern" sequenced after SC-1 — exactly the plan's
+          within-phase Item 1 → Item 2 order. Phase 2's Concern statement is the
+          single behavioral-gate concern. Each phase states exactly one concern.
+      - check: no_two_phases_share_a_concern
+        result: PASS
+        evidence: >
+          Phase-level concern statements are distinct (path-corrections vs
+          behavioral-gate) and the phases' work is disjoint: Phase 1 performs the
+          structural corrections (file edits); Phase 2 performs the behavioral gate
+          run (no file edits beyond the scenario artifact). C1's structural half
+          (SC-1, Phase 1) and behavioral half (SC-2, Phase 2) are the two stages the
+          concern-map's own C1 phase_boundary prescribes ("SC-1 precedes SC-2 — SC-2
+          cannot pass until SC-1's corrections are in place") — the plan encodes that
+          boundary as the Phase DAG edge A→B with contract invariant
+          Implies(phase_B_done, phase_A_done). No phase duplicates another phase's
+          work.
+    observations:
+      - >
+        Artifact-partition tension recorded for audit transparency (per the #2433
+        orphan-disposition precedent): concern-map.yaml partitions by file (C1 =
+        {SC-1, SC-2} validate.md integrity; C2 = {SC-3} sibling audit) while the
+        SAT-verified structure.yaml / solve-output.yaml partition by work nature
+        (A = {SC-1, SC-3} structural corrections; B = {SC-2} behavioral validation),
+        and the plan implements the latter. The concern-map's own phase_boundary
+        prose prescribes the cross-phase SC-1→SC-2 ordering the plan encodes; the
+        cross-cutting matrix confirms no multi-concern coordination is required; and
+        the solve planner produced the unique topological order [A, B] as SAT. A
+        literal C1-owns-one-phase reading would contradict the 091 behavioral
+        ordering (commit + push before the behavioral run) encoded in the contract
+        invariants. Not a violation — the dispositions are consistent across
+        dependency-contract.yaml, solve-output.yaml, structure.yaml, and the
+        cross-cutting matrix.
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - check: dag_acyclic
+        result: PASS
+        evidence: >
+          dependency-contract.yaml phase_dag has the single edge A→B with
+          topological_order [A, B] — acyclic by construction. Independently confirmed
+          by the solve model query "z3.And(phase_A_done, phase_B_done)" → SAT
+          (solve-output.yaml checks[0]; goal state reachable under the contract
+          invariants).
+      - check: all_phases_reachable_from_start
+        result: PASS
+        evidence: >
+          A is the start node (0 incoming, 1 outgoing); B reachable via A→B. Plan
+          dependencies agree: Phase 1 "Depends On: —", Phase 2 "Depends On: Phase 1"
+          (matches contract invariant Implies(phase_B_done, phase_A_done)).
+      - check: no_orphan_phases
+        result: PASS
+        evidence: >
+          A: 1 outgoing edge (start). B: 1 incoming edge (sink). No phase lacks both
+          incoming and outgoing edges.
+      - check: dependency_edges_covered_by_phases
+        result: PASS
+        evidence: >
+          All 7 dependency_contract link edges are covered: 5 validate.md link edges
+          (lines 24/28/30/72/97) → Phase 1 Item 1; 2 create.md link edges (lines
+          43/45) → Phase 1 Item 2; the behavioral-ordering phase edge A→B → Phase 2
+          (entry/exit conditions restate commit+push+fetch-verify before the run).
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - check: no_tbd_todo_placeholders
+        result: PASS
+        evidence: >
+          Live grep -nE 'TBD|TODO|FIXME|TBC|placeholder' plan.md → zero matches.
+      - check: all_steps_checkbox_format
+        result: PASS
+        evidence: >
+          Programmatic census: all 33 numbered steps are "- [ ] N." checkboxes;
+          zero numbered-step lines lacking a checkbox; Exit Criteria C1-C6 are also
+          checkbox items. Numbering starts at 1 (no zero-indexed steps).
+      - check: dispatch_mode_consistency
+        result: PASS
+        evidence: >
+          Programmatic scan of all 33 steps: 11 (**direct**) steps (1, 2, 3, 10, 11,
+          16, 18, 20, 22, 23, 27) carry zero "Dispatch:" sub-bullets; 22 (**task-card**)
+          steps each carry exactly one. Zero mismatches — no dispatched steps inside
+          direct steps, no direct steps carrying task() dispatches. Step 20 (GREEN —
+          n/a, direct) is a documented n/a-rationale recording step per the #2434
+          Item 8 precedent.
+      - check: numbering_and_mandatory_admonishments
+        result: PASS
+        evidence: >
+          Steps number 1..33 continuously with no zero-indexed numbering. Mandatory
+          admonishments present verbatim (plan.md lines 44-52): Compliance, One step
+          at a time, Step status, Self-Remediation Protocol, Enforcement gate. No
+          line-number cross-references (stable anchors used; issue/step references
+          only).
+
+  findings: []
+  blocker_reason: null
+
+  validation_method_notes:
+    - "Entry criterion verified: solve-output.yaml solve_status: SAT (first-run final, no remediation cycles) — SOLVE_NOT_SAT not triggered."
+    - "plan.md read in full (348 lines); spec.md (79), dependency-contract.yaml (106), solve-output.yaml (88), concern-map.yaml (44), structure.yaml (136), cross-cutting-matrix.yaml (35), implementation-workflow.md (86), plan-artifact-format.md (407) read in full this session."
+    - "Precedent cross-referenced (not used as evidence): #2433/#2434 validate-findings.yaml for phase-table column family, GREEN-n/a allowance, and artifact-tension disposition."
+    - "All bash checks live this session: step census (33 steps, 1..33 continuous), dispatch-mode scan (11 direct / 22 task-card, 0 mismatches), placeholder grep (0 matches), task-card existence (10/10 EXISTS)."
