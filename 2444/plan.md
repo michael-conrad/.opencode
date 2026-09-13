@@ -346,3 +346,4 @@ Check your tool list for a tool named `task`.
 ## Lifecycle Events
 
 - **20260913192543** — `plan_created` — plan file: `.opencode/.issues/2444/plan.md` — phase count: 2 (+ post-implementation). Appended by writing-plans create task.
+- **20260913233120** — `pr_created` — PR #2445: https://github.com/michael-conrad/.opencode/pull/2445 — branch: `feature/2444-spec-creation-reference-paths` → `main`. Appended by completion-core completion task (issuer: OpenCode, huggingface/zai-org/GLM-5.3-Flash).
