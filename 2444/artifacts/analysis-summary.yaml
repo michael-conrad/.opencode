@@ -1,0 +1,36 @@
+# analysis-summary.yaml — backfill summary for .opencode#2444
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+
+spec_path: .opencode/.issues/2444/spec.md
+spec_status: "retroactively imported bug-report spec; passed spec-audit rounds 4-5"
+issue_labels: [approved-for-pr]
+sc_count: 3
+success_criteria:
+  - "SC-1 (structural): tasks/validate.md contains no reference link resolving to a nonexistent path — 4 corrected references verified by filesystem check"
+  - "SC-2 (behavioral): validate-task dispatch's reference-deck integrity check locates all 4 canonical files at paths stated in validate.md — via with-test-home opencode run, no reference-deck-integrity: FAIL"
+  - "SC-3 (structural): no file in .opencode/skills/spec-creation/ references reference/ or audit/reference/ paths that fail resolution — full grep audit"
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: >
+  FIX scope in the .opencode submodule. Two task-card files carry 7 stale
+  task-relative reference/ links (validate.md lines 24, 28, 30, 72, 97;
+  create.md lines 43, 45). Fix: rewrite targets with the ../../../ prefix so
+  they resolve to the 4 canonical files under .opencode/reference/ and
+  .opencode/audit/reference/ (verified to exist 2026-09-13). No content changes
+  to reference files, no new files, no procedure-logic changes. Unblocks the
+  spec-creation validate/create pipeline, which currently BLOCKS every dispatch
+  at reference-deck-integrity: FAIL (critical-rules-074 prohibits workarounds).
+  Authorization label approved-for-pr (for_pr scope); behavioral verification
+  (SC-2) must run through with-test-home isolation.
+
+filesystem_verification_basis: >
+  All path claims in these artifacts were re-verified live on 2026-09-13 via
+  ls, grep, and wc against the working tree before artifact generation.

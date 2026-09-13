@@ -1,0 +1,33 @@
+# state-analysis.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+
+spec_path: .opencode/.issues/2444/spec.md
+
+state_transitions:
+  SC-1:
+    entity: ".opencode/skills/spec-creation/tasks/validate.md reference links"
+    from_state: "BROKEN — 4 link targets resolve to nonexistent paths relative to task dir (reference-deck-integrity: FAIL)"
+    to_state: "VALID — 4 link targets resolve to existing canonical files at .opencode/reference/ and .opencode/audit/reference/"
+    transition_kind: filesystem-content
+    persistent: true
+    rollback: "git revert of the single commit restores prior link strings"
+  SC-2:
+    entity: "spec-creation validate dispatch reference-deck integrity gate"
+    from_state: "BLOCKED — every validate dispatch fails reference-deck integrity (observed 2026-09-12, spec issue NewSRX-Tech-LLC/Butter#346 run)"
+    to_state: "PASS — isolated validate run passes the reference-deck integrity gate without reference-deck-integrity: FAIL"
+    transition_kind: runtime-agent-dispatch
+    persistent: false
+    rollback: "N/A — runtime verification outcome; regression detected by re-running SC-2 check"
+    precondition: "SC-1 complete; with-test-home harness functional; standalone binary cached at .tools/opencode/opencode"
+  SC-3:
+    entity: "grep audit state of .opencode/skills/spec-creation/ directory"
+    from_state: "7 stale reference-path mentions (5 validate.md + 2 create.md), all failing resolution"
+    to_state: "0 stale mentions — every reference/ or audit/reference/ mention in the directory resolves to an existing path"
+    transition_kind: filesystem-content
+    persistent: true
+    rollback: "git revert restores prior link strings in create.md"
+
+global_invariants:
+  - "No reference file content changes — canonical documents byte-identical before/after"
+  - "No new files created"
+  - "Submodule discipline: edits live in .opencode submodule; parent-repo submodule pointer rides along with next real parent-repo change (never standalone)"

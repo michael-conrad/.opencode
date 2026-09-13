@@ -1,0 +1,51 @@
+# testability-assessment.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+# Evidence types taken from the spec's Success Criteria table (verbatim).
+
+spec_path: .opencode/.issues/2444/spec.md
+
+assessments:
+  SC-1:
+    evidence_type: structural
+    test_method: "grep + path-existence check"
+    test_description: >
+      Extract every reference/ or audit/reference/ mention from tasks/validate.md;
+      resolve each against the task-file directory; assert every resolved path
+      exists on the filesystem (specifically the 4 corrected targets).
+    cost_frame: trivial
+    executable_without_harness: true
+  SC-2:
+    evidence_type: behavioral
+    test_method: "bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+    test_description: >
+      Isolated validate-task dispatch whose reference-deck integrity check
+      locates all 4 canonical files at the paths stated in validate.md; run
+      must pass the gate without emitting reference-deck-integrity: FAIL.
+      Evidence from the run's session export (agent actions), never prose recall.
+    cost_frame: moderate
+    executable_without_harness: false
+    harness_requirements:
+      - "with-test-home isolation (MANDATORY — direct opencode run prohibited)"
+      - "standalone binary cached at .tools/opencode/opencode (spec Implicit Preconditions)"
+      - "bash tool timeout >= 600s for behavioral runs"
+      - "rm -f tmp/.behavior-run.lock before re-runs"
+    substitution_prohibited: >
+      Per critical-rules-060 and 020-go-prohibitions: if the behavioral test
+      cannot execute, the only valid outcome is FAIL — grep/structural
+      substitutes are forbidden. Harness breakage remediates via harness repair.
+  SC-3:
+    evidence_type: structural
+    test_method: "grep audit over .opencode/skills/spec-creation/"
+    test_description: >
+      grep -rn 'reference/' across the entire skill directory; resolve every
+      mention; assert zero failing resolutions (covers validate.md corrections
+      and create.md corrections; SKILL.md repo-root-relative links resolve and
+      are excluded from defect scope).
+    cost_frame: trivial
+    executable_without_harness: true
+
+coverage_check:
+  all_scs_testable: true
+  all_scs_have_declared_evidence_type: true
+  behavioral_scs: [SC-2]
+  structural_scs: [SC-1, SC-3]

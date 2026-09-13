@@ -1,0 +1,35 @@
+# cross-cutting-matrix.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+
+spec_path: .opencode/.issues/2444/spec.md
+
+spanning_scs:
+  - sc: SC-2
+    spans_concerns: [C1]
+    spans_files: [".opencode/skills/spec-creation/tasks/validate.md"]
+    note: >
+      SC-2 is behavioral but confined to C1's file. It does NOT exercise
+      create.md, so it does not span C2.
+  - sc: SC-3
+    spans_concerns: [C2]
+    audit_scope_overlap:
+      - ".opencode/skills/spec-creation/tasks/validate.md"
+    note: >
+      SC-3's audit scope INCLUDES SC-1's edit target (validate.md) even though
+      its edit target is create.md. This creates a verification-overlap, not a
+      true cross-cutting concern: SC-3 must run after SC-1's corrections land or
+      its audit will report validate.md failures that SC-1 already remediates.
+
+shared_defect_pattern:
+  pattern: "task-relative reference/ link in spec-creation task cards"
+  scs: [SC-1, SC-3]
+  shared_fix_idiom: "../../../ prefix (tasks → spec-creation → skills → .opencode)"
+  coordination_requirement: >
+    Both SCs apply the identical idiom to different files. No shared file
+    mutation except SC-3's read-only audit of validate.md.
+
+multi_concern_coordination_required: false
+reasoning: >
+  All 3 SCs localize to one skill directory with one defect pattern. No SC
+  spans multiple concern groups requiring cross-phase coordination. Sequencing
+  constraint (SC-3 after SC-1) is an ordering preference, not a data dependency.

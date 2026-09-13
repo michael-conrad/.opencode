@@ -1,0 +1,71 @@
+# interface-compatibility.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+
+spec_path: .opencode/.issues/2444/spec.md
+
+interface_boundaries:
+  - boundary: "task-card Read-link → canonical reference file"
+    description: >
+      Agent-facing task cards link reference documents via markdown links. The
+      link target is resolved relative to the task file's directory
+      (.opencode/skills/spec-creation/tasks/). The referenced files' internal
+      structure (section inventories, spec_dimensions list, cost tables,
+      decomposition criteria) is the consumed interface and is NOT modified.
+    compatibility_risk: NONE
+    reason: >
+      Fix changes link target strings only. Canonical file locations, names,
+      and content are unchanged. Consumers (validate/create dispatches) read
+      the same documents as before — the defect was that they could not be
+      found at all.
+
+compatibility_constraints:
+  - constraint: "Reference file locations are deck-wide canonical (.opencode/reference/, .opencode/audit/reference/)"
+    ruling: "Must not relocate or copy files — spec Alternatives 1 and 2 ruled out (single-source-of-truth; other skills/guidelines reference the canonical locations)"
+  - constraint: "validate.md loads dimensions/taxonomy dynamically from reference files"
+    ruling: "Must not inline content into task cards — spec Alternative 3 ruled out (reverses a design decision)"
+
+dependency_contract:
+  # Concrete dependency data extracted per backfill task directive.
+  # research.md step 9 extracts this section into dependency-contract.yaml.
+  - source: .opencode/skills/spec-creation/tasks/validate.md
+    target: .opencode/reference/spec-structure-standards.md
+    source_line: 24
+    link_kind: markdown-read-link
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/validate.md
+    target: .opencode/reference/holistic-dimensions.yaml
+    source_line: 28
+    link_kind: inline-code-path-reference
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/validate.md
+    target: .opencode/reference/holistic-dimensions.yaml
+    source_line: 30
+    link_kind: markdown-read-link
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/validate.md
+    target: .opencode/reference/cost-model-standards.md
+    source_line: 72
+    link_kind: markdown-read-link
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/validate.md
+    target: .opencode/audit/reference/decomposition-criteria.md
+    source_line: 97
+    link_kind: prose-see-reference
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/create.md
+    target: .opencode/reference/spec-structure-standards.md
+    source_line: 43
+    link_kind: markdown-read-link
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"
+  - source: .opencode/skills/spec-creation/tasks/create.md
+    target: .opencode/reference/cost-model-standards.md
+    source_line: 45
+    link_kind: markdown-read-link
+    type_constraint: "path resolves from task-file directory"
+    required_prefix: "../../../"

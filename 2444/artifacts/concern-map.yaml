@@ -1,0 +1,44 @@
+# concern-map.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+
+spec_path: .opencode/.issues/2444/spec.md
+sc_count: 3
+
+concerns:
+  - concern_id: C1
+    name: validate-task reference-deck path integrity
+    description: >
+      The 4 reference paths in tasks/validate.md must resolve to the canonical
+      files at .opencode/reference/ and .opencode/audit/reference/ so the
+      validate dispatch's reference-deck integrity check passes.
+    scs: [SC-1, SC-2]
+    phase_boundary: >
+      Owns its own phase. SC-1 (structural correction) precedes SC-2 (behavioral
+      gate verification) — SC-2 cannot pass until SC-1's corrections are in place.
+  - concern_id: C2
+    name: skill-directory-wide stale-reference audit (sibling create.md)
+    description: >
+      The same broken reference/ pattern exists in sibling create.md (lines 43,
+      45). A full grep audit of .opencode/skills/spec-creation/ must show zero
+      failing reference paths so the pipeline does not block at the create step.
+    scs: [SC-3]
+    phase_boundary: >
+      Independent phase — no dependency on C1's outcome (different file), though
+      it shares the identical defect pattern and fix idiom (../../../ prefix).
+
+sc_to_concern_map:
+  SC-1: C1
+  SC-2: C1
+  SC-3: C2
+
+intra_concern_dependencies:
+  - from: SC-2
+    to: SC-1
+    reason: "Behavioral gate verification requires the 4 corrected paths to exist first"
+
+cross_concern_dependencies: []
+reasoning: >
+  C1 and C2 touch disjoint files (validate.md vs create.md). SC-3's grep audit
+  scope includes validate.md, so sequencing SC-3 after SC-1 avoids auditing a
+  file mid-correction; this ordering hint is recorded for the research task but
+  is not a hard data dependency.

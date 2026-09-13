@@ -1,0 +1,57 @@
+# code-path-inventory.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+# Note: srclight index covers python/typescript only; these are .md task cards,
+# so inventory was built via filesystem/grep verification, not symbol graph.
+
+spec_path: .opencode/.issues/2444/spec.md
+
+code_paths:
+  SC-1:
+    - path: .opencode/skills/spec-creation/tasks/validate.md
+      role: "Edit target — 4 reference link corrections"
+      lines: [24, 28, 30, 72, 97]
+      current_broken_targets:
+        - "reference/spec-structure-standards.md (line 24)"
+        - "reference/holistic-dimensions.yaml (lines 28, 30)"
+        - "reference/cost-model-standards.md (line 72)"
+        - "audit/reference/decomposition-criteria.md (line 97)"
+      corrected_targets:
+        - "../../../reference/spec-structure-standards.md"
+        - "../../../reference/holistic-dimensions.yaml"
+        - "../../../reference/cost-model-standards.md"
+        - "../../../audit/reference/decomposition-criteria.md"
+    - path: .opencode/reference/holistic-dimensions.yaml
+      role: "Canonical target — read target only, unchanged"
+    - path: .opencode/reference/spec-structure-standards.md
+      role: "Canonical target — read target only, unchanged"
+    - path: .opencode/reference/cost-model-standards.md
+      role: "Canonical target — read target only, unchanged"
+    - path: .opencode/audit/reference/decomposition-criteria.md
+      role: "Canonical target — read target only, unchanged"
+  SC-2:
+    - path: .opencode/tests-v2/with-test-home
+      role: "Isolation harness — SC-2 MUST run via: bash .opencode/tests-v2/with-test-home opencode run '<message>'"
+    - path: .opencode/skills/spec-creation/tasks/validate.md
+      role: "Executed task card — reference-deck integrity check resolves its 4 links at dispatch time"
+    - path: .tools/opencode/opencode
+      role: "Standalone binary assumed cached (spec Implicit Preconditions); harness copies to $TEST_HOME/bin"
+  SC-3:
+    - path: .opencode/skills/spec-creation/
+      role: "Grep audit scope — entire skill directory"
+      members:
+        - SKILL.md
+        - tasks/analyze.md
+        - tasks/create.md
+        - tasks/reconcile-push.md
+        - tasks/revise.md
+        - tasks/validate.md
+        - reference/sc-table-columns.md
+    - path: .opencode/skills/spec-creation/tasks/create.md
+      role: "Edit target — 2 reference link corrections at lines 43, 45"
+
+grep_evidence_basis: >
+  grep -rn "reference/" .opencode/skills/spec-creation/ returned exactly 7 hits:
+  5 in validate.md (lines 24, 28, 30, 72, 97) and 2 in create.md (lines 43, 45).
+  No other file in the directory contains reference/ path mentions. SKILL.md
+  line 160 uses repo-root-relative links (.opencode/skills/...) which resolve
+  correctly and are out of defect scope.

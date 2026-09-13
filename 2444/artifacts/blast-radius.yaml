@@ -1,0 +1,48 @@
+# blast-radius.yaml — backfilled from spec body (.opencode/.issues/2444/spec.md)
+# Generated: 2026-09-13 by writing-plans/tasks/backfill
+# All affected files verified to exist in codebase on 2026-09-13.
+
+spec_path: .opencode/.issues/2444/spec.md
+scope: FIX (existing code + bug report)
+
+affected_files:
+  - path: .opencode/skills/spec-creation/tasks/validate.md
+    exists: true
+    verified: "ls .opencode/skills/spec-creation/tasks/ → validate.md present (198 lines)"
+    change: "Correct 4 reference paths at lines 24, 28, 30, 72, 97 (5 link instances, 4 unique targets)"
+    defect: "Task-relative reference/ paths resolve from .opencode/skills/spec-creation/ but canonical files live at .opencode/reference/ and .opencode/audit/reference/"
+  - path: .opencode/skills/spec-creation/tasks/create.md
+    exists: true
+    verified: "ls .opencode/skills/spec-creation/tasks/ → create.md present (210 lines)"
+    change: "Correct same-pattern reference paths at lines 43, 45"
+    defect: "Same broken task-relative reference/ pattern as validate.md"
+
+unaffected_but_adjacent:
+  - path: .opencode/skills/spec-creation/SKILL.md
+    reason: "grep shows no reference/ or audit/reference/ path mentions; 'reference' hits are prose, not link paths"
+  - path: .opencode/skills/spec-creation/tasks/analyze.md
+    reason: "grep shows no reference/ path mentions"
+  - path: .opencode/skills/spec-creation/tasks/revise.md
+    reason: "grep shows no reference/ path mentions"
+  - path: .opencode/skills/spec-creation/tasks/reconcile-push.md
+    reason: "grep shows no reference/ path mentions"
+  - path: .opencode/reference/*.yaml,md (4 canonical files)
+    reason: "Content unchanged — only link targets in task cards are corrected"
+
+blast_radius_assessment: LOW
+reasoning: >
+  Text-only path corrections in two agent-facing task cards. No reference file
+  content changes, no new files, no procedure-logic changes. Downstream impact is
+  positive: spec-creation validate/create dispatches unblock (reference-deck
+  integrity gate passes instead of BLOCKED). Worst-case regression: a mistyped
+  corrected path re-breaks resolution — caught by SC-1/SC-3 structural checks
+  and SC-2 behavioral gate.
+
+canonical_target_files:
+  - .opencode/reference/holistic-dimensions.yaml
+  - .opencode/reference/spec-structure-standards.md
+  - .opencode/reference/cost-model-standards.md
+  - .opencode/audit/reference/decomposition-criteria.md
+canonical_verification: >
+  ls of all 4 paths returned all 4 files (verified 2026-09-13). Matches spec's
+  Evidence section verbatim.
