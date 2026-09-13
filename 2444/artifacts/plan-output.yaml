@@ -1,0 +1,14 @@
+# Planner output — writing-plans research task for issue #2444 (.opencode)
+# Captured from `.opencode/tools/plan plan --problem artifacts/plan-problem.yaml`
+# (stdout after the --- separator, ANSI credit lines stripped, per #2433/#2434 precedent).
+# Raw full stdout: tmp/2444/plan-plan.out. Validation: plan validate -> valid
+# (tmp/2444/plan-validate.out).
+actions:
+- name: correct-structural-paths
+  parameters: []
+- name: verify-behavioral-gate
+  parameters: []
+domain: stale-reference-path-remediation
+engine: tamer
+plan_length: 2
+status: SOLVED_SATISFICING

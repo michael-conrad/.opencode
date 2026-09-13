@@ -1,0 +1,45 @@
+# Plan problem — Issue #2444 (.opencode) stale reference-path remediation
+# 2-phase DAG from artifacts/structure.yaml: A (structural path corrections: validate.md
+# 4 links + create.md 2 links + full-dir audit) → B (behavioral validation: isolated
+# with-test-home validate dispatch passes reference-deck integrity gate). Actions are the
+# two phase-completion steps.
+# Generated 2026-09-13 by writing-plans/tasks/research executor.
+domain: stale-reference-path-remediation
+
+types:
+  - name: phase
+
+objects:
+  - name: A
+    type: phase
+  - name: B
+    type: phase
+
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: correct-structural-paths
+    preconditions:
+      - not phase-done(A)
+    effects:
+      - phase-done(A)
+
+  - name: verify-behavioral-gate
+    preconditions:
+      - phase-done(A)
+      - not phase-done(B)
+    effects:
+      - phase-done(B)
+
+# Closed-world init: all fluents default False — no explicit `init` entries needed
+# (#2434 remediation lesson: an explicit `not phase-done(A)` entry made tamer silently
+# drop the first action from the plan; empty init = all phase-done false, the true
+# pre-implementation state).
+
+goals:
+  - phase-done(A)
+  - phase-done(B)

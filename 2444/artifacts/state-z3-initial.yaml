@@ -1,0 +1,11 @@
+# Z3 state — initial (pre-implementation) state for issue #2444
+# Companion to artifacts/state-analysis.yaml (whose state_transitions structure is not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433/#2434 precedent).
+# Represents the state before any implementation phase begins.
+# Generated 2026-09-13 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: false
+  phase_B_done: false
+  validate_md_paths_corrected: false
+  spec_creation_dir_audit_clean: false
+  behavioral_run_passes_gate: false

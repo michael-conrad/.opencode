@@ -1,0 +1,11 @@
+# Z3 state — goal (post-implementation) state for issue #2444
+# Companion to artifacts/state-analysis.yaml (state_transitions structure not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433/#2434 precedent).
+# Represents the state after both phases complete (SC-1..SC-3 verified).
+# Generated 2026-09-13 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: true
+  phase_B_done: true
+  validate_md_paths_corrected: true
+  spec_creation_dir_audit_clean: true
+  behavioral_run_passes_gate: true

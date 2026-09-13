@@ -1,0 +1,136 @@
+# Structure — writing-plans research task for issue #2444 (.opencode)
+# Phase decomposition from analysis-summary.yaml (2 concern groups), per-SC item mapping
+# from analysis-summary.yaml success_criteria (sc-summary.yaml absent from artifacts/ —
+# SC list sourced from analysis-summary.yaml, the entry-criteria-required artifact),
+# dependency DAG, and skill+task selection from the implementation-workflow reference card.
+# Generated 2026-09-13 by writing-plans/tasks/research executor.
+# Branch: main (.opencode submodule, verified this session — HEAD 6e021308, clean tree).
+
+spec_path: .opencode/.issues/2444/spec.md
+sc_count: 3
+scope: >-
+  FIX scope in the .opencode submodule: rewrite 7 stale task-relative reference/ links
+  (validate.md lines 24, 28, 30, 72, 97; create.md lines 43, 45) with the ../../../
+  prefix so they resolve to the 4 canonical files under .opencode/reference/ and
+  .opencode/audit/reference/ (existence verified live this session), then confirm via
+  one isolated behavioral run that a validate dispatch passes the reference-deck
+  integrity gate. No reference-file content changes, no new files, no procedure-logic
+  changes. Authorization label approved-for-pr (for_pr scope).
+branch: main
+
+phase_decomposition:
+  - phase: A
+    scs: [SC-1, SC-3]
+    concern: "Structural reference-path corrections — rewrite stale task-relative Read-link targets in spec-creation task cards to the ../../../ canonical prefix; full-directory grep audit closes the sibling create.md defect"
+    items:
+      - item: "Item 1 (SC-1): validate.md 4 reference paths corrected"
+        files: [.opencode/skills/spec-creation/tasks/validate.md]
+        cycle: >-
+          RED structural resolver check — resolve every reference/ link in validate.md
+          relative to the task-file directory; 4 targets nonexistent → check FAILS →
+          GREEN rewrite lines 24, 28, 30, 72, 97 with ../../../ prefix (3 targets to
+          .opencode/reference/, 1 prose mention to ../../../audit/reference/) → verify
+          all 4 corrected targets exist on disk → commit validate.md path fixes
+      - item: "Item 2 (SC-3): create.md sibling fix + full-directory grep audit"
+        files: [.opencode/skills/spec-creation/tasks/create.md]
+        cycle: >-
+          RED full-dir audit — every reference/ or audit/reference/ mention in
+          .opencode/skills/spec-creation/ resolves; create.md lines 43, 45 still stale
+          → audit FAILS → GREEN rewrite create.md lines 43, 45 with ../../../ prefix →
+          verify re-run full-dir audit reports 0 unresolvable mentions → commit
+          create.md path fixes
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle_pattern: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline"
+  - phase: B
+    scs: [SC-2]
+    concern: "Behavioral validation — one isolated with-test-home validate dispatch proves the reference-deck integrity gate locates all 4 canonical files at the corrected paths, with no reference-deck-integrity: FAIL"
+    items:
+      - item: "Item 3 (SC-2): isolated behavioral validate dispatch passes reference-deck integrity gate"
+        files: [".opencode/tests-v2/behaviors/<scenario>.sh (new scenario script, if retained as enforcement artifact)"]
+        cycle: >-
+          RED behavioral enforcement check asserting a validate dispatch passes the
+          reference-deck gate, demonstrated against the pre-fix state (pre-fix evidence:
+          2026-09-12 blocked run, spec issue NewSRX-Tech-LLC/Butter#346 —
+          reference-deck-integrity: FAIL) → GREEN n/a (path fixes landed in Items 1-2;
+          re-verifies end-to-end) → verify via bash .opencode/tests-v2/with-test-home
+          opencode run '<message>' — run passes the reference-deck integrity gate
+          without reference-deck-integrity: FAIL (bash timeout >= 600000) → commit
+          scenario script; per 091 behavioral ordering, COMMIT and PUSH precede the
+          behavioral run, with fresh git fetch verifying the effective commit is
+          contained in a remote ref
+    skill: test-driven-development
+    task: "execute red task from test-driven-development"
+    cycle_pattern: "pre-regression -> red -> green -> post-regression -> verify -> commit-inline (+ push before behavioral run per 091 behavioral variant)"
+
+dependency_dag:
+  edges:
+    - from: A
+      to: B
+      reason: >-
+        SC-2's behavioral run exercises validate.md's corrected reference paths — the
+        corrections (SC-1, and sibling create.md fix under SC-3's audit) must be
+        committed and pushed before the isolated validate dispatch can pass the
+        reference-deck integrity gate. 091-incremental-build behavioral variant mandates
+        COMMIT + PUSH + fresh-fetch verification BEFORE the behavioral test run, so
+        phase B's run necessarily follows phase A's commits.
+  internal_phase_ordering:
+    - "Phase A: Item 1 → Item 2 (SC-3's full-directory audit passes only after SC-1's validate.md fix; audit item sequenced after the validate.md fix item within the phase)"
+    - "Phase B: Item 3 (single item)"
+
+triplet_colocation:
+  verified: true
+  detail: >-
+    Every SC's RED/GREEN/COMMIT steps live in exactly one phase: SC-1 and SC-3 fully in
+    phase A; SC-2 fully in phase B (GREEN is n/a re-verification — fixes landed in phase
+    A — and remains assigned within phase B, matching the #2434 Item 8 precedent for
+    behavioral end-to-end items). No SC has steps split across phases.
+
+cross_phase_dependency_check:
+  verified: true
+  detail: >-
+    No RED test depends on output committed in a later phase. Phase A REDs probe the
+    current broken path state (no phase input needed). Phase B's RED (Item 3) depends on
+    phases-A output (corrected paths), and B follows A in the DAG — producer phases
+    precede consumer phases. No SC-N RED in phase X depends on SC-M output from phase
+    Y where Y > X.
+
+skill_task_selection:
+  reference_card: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  pre_implementation:
+    - {step: pre-regression, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-0 task from test-driven-development")'}
+    - {step: pre-regression-verify, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'}
+  per_sc_cycle:
+    - {step: red, skill: test-driven-development, dispatch: 'task(..., prompt: "execute red task from test-driven-development")'}
+    - {step: green, skill: test-driven-development, dispatch: 'task(..., prompt: "execute green task from test-driven-development")'}
+    - {step: post-regression, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'}
+    - {step: verify, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'}
+    - {step: commit-inline, skill: "(orchestrator)", dispatch: "orchestrator runs git add <files> && git commit -m '<message>' directly — no sub-agent dispatch"}
+  post_implementation:
+    - {step: audit, skill: audit, dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first") — followed by validator, evaluator, arbiter in sequence'}
+    - {step: z3-check, skill: "(orchestrator)", dispatch: "orchestrator runs .opencode/tools/solve check --state-path ... --contract-path ... directly — no sub-agent dispatch"}
+    - {step: structural-checks, skill: finishing-a-development-branch, dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'}
+    - {step: pre-pr-gate, skill: verification-before-completion, dispatch: 'task(..., prompt: "execute verify task from verification-before-completion") — reads all SC verdicts, BLOCKs if any FAIL'}
+    - {step: regression-check, skill: test-driven-development, dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'}
+    - {step: review-prep, skill: git-workflow-pr, dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first")'}
+    - {step: create-pr, skill: git-workflow-pr, dispatch: 'task(..., prompt: "execute create task from git-workflow-pr")'}
+    - {step: exec-summary, skill: completion-core, dispatch: 'task(..., prompt: "execute completion task from completion-core")'}
+
+notes:
+  - >-
+    sc-summary.yaml referenced by research.md step 5 is absent from artifacts/; the SC
+    list was sourced from analysis-summary.yaml success_criteria (the entry-criteria
+    artifact). One item per SC preserved — no batching.
+  - >-
+    SC-2 (behavioral) GREEN is "n/a (path fixes landed in Items 1-2; re-verifies
+    end-to-end)" per the #2434 Item 8 precedent; the step remains assigned within
+    phase B, so triplet colocation holds.
+  - >-
+    SC-2's behavioral run MUST use bash .opencode/tests-v2/with-test-home opencode run
+    (spec Edge Cases; production-state isolation mandate) and requires the standalone
+    binary cached at .tools/opencode/opencode (spec Implicit Preconditions). Harness
+    breakage → FAIL verdict + harness repair, never evidence substitution.
+  - >-
+    Behavioral ordering per 091-incremental-build: phase B item commits and pushes
+    BEFORE the behavioral run; fresh git fetch verifies the effective commit is
+    contained in a remote ref. Structural phase A items keep the commit-last cycle.
