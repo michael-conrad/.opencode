@@ -231,6 +231,8 @@ The `local-issues` tool handles this resolution automatically via qualified name
 
 **🚫 CRITICAL: Agents MUST NOT read/write `.issues/` files directly through git operations.** Using `read()`, `write()`, `edit()`, `glob()`, or `grep()` on `.issues/` paths in the parent repo silently targets the wrong repository and corrupts git state. All `.issues/` operations MUST go through `.opencode/tools/local-issues` or explicit `git -C <tree>/.issues/` commands.
 
+**Correct rule (two-part):** `.issues/` is a git worktree. Part 1 (git axis): any git operations against `.issues/` MUST target it via `git -C <tree>/.issues/ <command>` — never through the parent repo's git. Part 2 (file axis): standard file access tools (`read`/`write`/`edit`/`glob`/`grep`) are permitted for `.issues/` files — reading and editing files inside the worktree with these tools operates on the correct repository.
+
 **Read [the `.issues/` workspace guide](.issues/AGENTS.md) for the complete `.issues/` workspace guide.**
 
 ---
