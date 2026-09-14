@@ -30,7 +30,13 @@
       [ "$resolved" = "$pinned" ] || { echo "DRIFT_FAIL: <submodule-path> resolved $resolved != pinned $pinned"; exit 1; }
       ```
       Repeat for EVERY submodule. Any mismatch is a hard fail: state `DRIFT_FAIL`, exit non-zero, and do NOT proceed to tagging — promotion is blocked. `git submodule status` may be used as a cross-check (a `+` prefix on a submodule line indicates drift from the gitlink).
-   7. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
+   7. **Canonical build and test command discovery (build manifest):** After the submodule drift assertion, discover the repository's canonical build and test commands from the repo's build manifest — never assume or hardcode a specific build system.
+      1. Read the root `AGENTS.md` of the temp checkout (`<tmpdir>/AGENTS.md`) FIRST and look for a build/test commands section (e.g., a "Build / Lint / Test Commands" table).
+      2. If the root `AGENTS.md` has no build commands section, fall back to reading `<submodule-path>/AGENTS.md` (e.g., `.opencode/AGENTS.md` → "Build / Lint / Test Commands" section) for the declared commands.
+      3. Identify the canonical build command and the canonical test command from the discovered section.
+      4. If the build and test commands cannot be discovered from the manifest (no root section, no fallback section, no commands derivable), hard-fail: state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed to tagging — promotion is blocked.
+      5. All discovery reads happen inside `<tmpdir>` against the release-commit checkout — never against the source working tree.
+   8. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
 - [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
 - [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
 - [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)
