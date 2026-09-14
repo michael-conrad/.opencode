@@ -22,6 +22,18 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
       git status --porcelain | head -5
       # MUST be empty — no uncommitted changes
       ```
+      **Pointer-only submodule exception:** If `git status --porcelain` shows
+      ONLY submodule pointer entries (` M <submodule>` with no other changes),
+      classify `parent_clean: WARN` with reason `release-capture-pending` —
+      NOT FAIL — when the safe-state predicate holds:
+      (a) the submodule checkout is at the submodule's `origin/<default>` tip
+      (from step 6's computation), AND
+      (b) the merged-commit check passes (from step 8 — the committed pointer
+      SHA is an ancestor of the submodule's remote trunk).
+      The predicate is derived from the computations already performed in steps
+      6 and 8 — no new checks, check IDs, or network calls. If the safe-state
+      predicate does NOT hold, or the working tree has changes beyond
+      pointer-only submodule drift, retain FAIL (genuine dirt).
 
 - [ ] 3. **Parent repo remote tracking match:** Verify local `$DEFAULT_BRANCH` matches `origin/$DEFAULT_BRANCH`:
       ```bash

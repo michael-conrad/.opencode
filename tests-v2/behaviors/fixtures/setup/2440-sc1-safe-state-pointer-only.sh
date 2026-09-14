@@ -35,6 +35,13 @@ setup_2440_sc1_safe_state() {
     local prev_commit
     prev_commit="$(git -C "$sub" rev-parse origin/main^ 2>/dev/null)" || return 0
 
+    # Create a bare origin for the parent repo and push main to it, so
+    # session-init reports a remote-tracking repo (not local-only) and the agent
+    # runs the full remote-tracking trunk-tip gate (mirrors 2313-sc1).
+    local bare="$wd/../origin.git"
+    git init -q --bare "$bare" 2>/dev/null || true
+    git -C "$wd" remote add origin "$bare" 2>/dev/null || true
+
     # Step 1: move the submodule checkout to the previous commit and commit that
     # as the parent's gitlink pointer, so the committed pointer references a
     # commit merged on the submodule remote.
