@@ -39,7 +39,7 @@ setup_2440_sc1_safe_state() {
     git init -q --bare "$sub_bare" 2>/dev/null || true
     git -C "$sub" remote remove origin 2>/dev/null || true
     git -C "$sub" remote add origin "$sub_bare" 2>/dev/null || true
-    if ! git -C "$sub" push -q origin HEAD:main 2>/dev/null; then
+    if ! git -C "$sub" push -q origin HEAD:refs/heads/main 2>/dev/null; then
         echo "FIXTURE_FAILURE: 2440-sc1 — submodule push to $sub_bare failed" >&2
         return 1
     fi
