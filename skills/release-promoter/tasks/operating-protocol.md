@@ -23,7 +23,14 @@
      git -C <tmpdir> submodule update --init --depth 1
      ```
      This resolves every submodule to the exact SHA pinned by the release commit's gitlink. `--remote` and `--recursive` are FORBIDDEN anywhere in this gate — `--remote` would resolve submodules to branch tips instead of pinned SHAs, and `--recursive` would pull in unintended nested submodules.
-  6. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
+   6. **Submodule drift assertion (resolved SHA == pinned SHA):** After `git submodule update --init --depth 1`, compare each resolved submodule SHA against the SHA pinned by the release commit's gitlink:
+      ```bash
+      resolved=$(git -C <tmpdir>/<submodule-path> rev-parse HEAD)
+      pinned=$(git -C <tmpdir> ls-tree HEAD <submodule-path> | awk '{print $3}')
+      [ "$resolved" = "$pinned" ] || { echo "DRIFT_FAIL: <submodule-path> resolved $resolved != pinned $pinned"; exit 1; }
+      ```
+      Repeat for EVERY submodule. Any mismatch is a hard fail: state `DRIFT_FAIL`, exit non-zero, and do NOT proceed to tagging — promotion is blocked. `git submodule status` may be used as a cross-check (a `+` prefix on a submodule line indicates drift from the gitlink).
+   7. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
 - [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
 - [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
 - [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)
