@@ -1,0 +1,103 @@
+# Validation findings for .opencode#2440 plan — writing-plans/tasks/validate
+issue: .opencode#2440
+validated_at: "2026-09-13"
+overall_status: PASS
+
+categories:
+  - category: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - check: phase table with all required columns
+        result: PASS
+        detail: "plan.md Phase Table has Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch; phase_count: 2 matches 2 phase rows."
+      - check: each phase has procedure with numbered steps
+        result: PASS
+        detail: "plan-01-safe-state-semantics.md steps 5-25; plan-02-behavioral-regression.md steps 26-38; all checkbox format."
+      - check: exit criteria section with SC-to-phase mapping
+        result: PASS
+        detail: "Exit Criteria C1-C6 map to SC-1..SC-5 explicitly; phase 1 covers SC-1..SC-4, phase 2 covers SC-5."
+
+  - category: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - check: all skill+task references valid per implementation-workflow.md
+        result: PASS
+        detail: >
+          References verified against the reference card: test-driven-development
+          (phase-0 pre-regression, red, green, phase-4 post-regression),
+          verification-before-completion (verify), orchestrator commit-inline
+          (direct, no sub-agent), audit (verification-audit DiMo investigator),
+          z3-check (orchestrator direct), finishing-a-development-branch (checklist),
+          pre-pr-gate (verify), regression-check (phase-4), git-workflow-pr
+          (review-prep, create), completion-core (completion). All match canonical
+          dispatch strings. No invalid references.
+
+  - category: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - check: every SC covered in phase exit criteria
+        result: PASS
+        detail: "SC-1 (C1), SC-2 (C2), SC-3 (C3), SC-4 (C4) in phase 1; SC-5 (C5) in phase 2. All 5 spec SCs covered."
+      - check: triplet split detection (RED/GREEN/COMMIT per SC in same phase)
+        result: PASS
+        detail: >
+          SC-1: RED 5 / GREEN 6 / COMMIT 9 — phase 1. SC-2: 10 / 11 / 14 — phase 1.
+          SC-3: 15 / 16 / 19 — phase 1. SC-4: 20 / 21 / 24 — phase 1.
+          SC-5: 26 / 27 / 30 — phase 2. No triplet split.
+
+  - category: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - check: each phase addresses exactly one concern
+        result: PASS
+        detail: >
+          Phase 1 concern: safe-state-vs-hazard-state classification (umbrella for
+          items 1-4; matches concern-map concern 1, with shell-construct validity and
+          contract documentation as its item-level sub-boundaries — concern-map
+          per_phase_separation ITEM-1..ITEM-4 honored exactly). Phase 2 concern:
+          behavioral regression verification (concern-map per_phase_separation
+          ITEM-5, test suite only). No overlap.
+      - check: no two phases address the same concern
+        result: PASS
+        detail: "Phase 1 modifies gate semantics; phase 2 is verification-only (no interface changes stated)."
+
+  - category: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - check: dependency contract has no cycles
+        result: PASS
+        detail: "phase2_complete implies phase1_complete (one-way edge); solve-output.yaml model SAT confirms solvability."
+      - check: all phases reachable from start
+        result: PASS
+        detail: "phase1 (no deps) -> phase2 (depends on 1). Both reachable."
+      - check: no orphan phases
+        result: PASS
+        detail: "phase1 has outgoing edge; phase2 has incoming edge."
+
+  - category: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - check: no TBD/TODO placeholders
+        result: PASS
+        detail: "None found in plan.md, plan-01, plan-02."
+      - check: all steps use checkbox format
+        result: PASS
+        detail: "All procedure steps 1-38 use '- [ ]' format."
+      - check: dispatch mode consistency
+        result: PASS
+        detail: >
+          Direct steps limited to commit-inline and z3-check, both sanctioned as
+          orchestrator-direct by the reference card. All other steps are task-card
+          with explicit dispatch strings. Minor note (non-blocking): plan-02 step 31
+          (Phase 2 VbC) is labeled (task-card) with no explicit dispatch line; its
+          verify-task dispatch is implied by the phase frontmatter dispatch table.
+
+findings: []
+minor_notes:
+  - "plan-02 step 31 lacks an explicit dispatch string line (implied verify task)."

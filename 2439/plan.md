@@ -294,3 +294,10 @@ Post-implementation steps (42-49) follow Phase 4 in this index.
 - [ ] 49. Completion summary (**task-card**)
   - Dispatch `task(..., prompt: "execute completion task from completion-core")` — emit the single `plan_created` lifecycle event context (plan file path, phase_count 4) and the executive summary; report once, then HALT.
 
+
+## lifecycle_events
+
+- timestamp: 2026-09-13T21:50:00-04:00
+  event: plan_created
+  artifact: .opencode/.issues/2439/plan.md
+  phase_count: 4

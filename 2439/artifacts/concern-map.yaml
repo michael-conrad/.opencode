@@ -1,20 +1,28 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
 spec_path: .opencode/.issues/2439/spec.md
-generated_by: backfill (retroactive)
+generated_by: revise (regenerated per validate-findings Category 4 FAIL; aligned with plan.md phase table, dependency-contract.yaml phase_ordering, and solve-output.yaml — preserves Z3-validated DAG)
 
 concern_groups:
-  - concern: checkout
-    scs: [SC-1, SC-2]
-    phase_boundary: Phase 1 — pinned-SHA checkout construction
-  - concern: verification-assertion
-    scs: [SC-3]
-    phase_boundary: Phase 2 — drift assertion (SHA == pinned, hard fail)
-  - concern: build-manifest-discovery
-    scs: [SC-4]
-    phase_boundary: Phase 3 — canonical build/test command discovery
-  - concern: build-execution-gate
-    scs: [SC-5, SC-6]
-    phase_boundary: Phase 4 — build/test execution and promotion gate
+  - concern: checkout-construction
+    scs: [SC-1]
+    phase_boundary: Phase 1 — shallow temp-copy checkout at release commit
+  - concern: pinned-sha-submodule-integrity
+    scs: [SC-2, SC-3]
+    phase_boundary: Phase 2 — submodule pin resolution + drift assertion
+  - concern: build-system-agnostic-verification
+    scs: [SC-4, SC-5]
+    phase_boundary: Phase 3 — build manifest discovery + build/test execution gate
+  - concern: gate-semantics
+    scs: [SC-6]
+    phase_boundary: Phase 4 — once-per-release gate placement + promotion blocking
 
 mapping_rule: >
   Each concern group maps to exactly one phase; SCs within a group share the
-  same skill-deck surface (operating-protocol.md task card).
+  same skill-deck surface (operating-protocol.md task card). Concern groups are
+  distinct (no two phases share a concern) and align 1:1 with the plan's
+  phase table and the dependency contract's phase_ordering.
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

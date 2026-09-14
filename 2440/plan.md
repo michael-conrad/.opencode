@@ -128,6 +128,10 @@ Phase files:
 
 ---
 
+## Lifecycle Events
+
+- 2026-09-13T21:47:00-04:00 — `plan_created` — plan file: `.opencode/.issues/2440/plan.md` — phase count: 2
+
 ## Pre-Flight Guard (Mandatory)
 
 Check your tool list for a tool named `task`.
