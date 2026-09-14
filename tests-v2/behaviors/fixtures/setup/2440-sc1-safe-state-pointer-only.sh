@@ -26,6 +26,24 @@ setup_2440_sc1_safe_state() {
     git -C "$wd" config user.email "test@test.dev" 2>/dev/null || true
     git -C "$wd" config user.name "Test" 2>/dev/null || true
 
+    # Rewire the submodule's origin to a local bare whose main = the feature
+    # branch tip. The safe-state predicate requires the submodule checkout to
+    # sit at the submodule's origin/main tip — but the card change under test
+    # lives on the feature branch, and the real remote's main predates it. A
+    # local submodule origin with main = feature tip makes the checkout both
+    # (a) at origin/main tip (safe state) and (b) in possession of the updated
+    # card. The stable absolute path survives the with-test-home workdir move.
+    local sub_bare
+    sub_bare="$(cd "$wd/../.." && pwd)/tmp/origin-2440-sc1-sub.git"
+    rm -rf "$sub_bare"
+    git init -q --bare "$sub_bare" 2>/dev/null || true
+    git -C "$sub" remote remove origin 2>/dev/null || true
+    git -C "$sub" remote add origin "$sub_bare" 2>/dev/null || true
+    if ! git -C "$sub" push -q origin HEAD:main 2>/dev/null; then
+        echo "FIXTURE_FAILURE: 2440-sc1 — submodule push to $sub_bare failed" >&2
+        return 1
+    fi
+
     # Fetch the submodule remote and resolve the SAFE commit pair: the submodule
     # checkout target is the submodule's origin/main tip (merged commit); the
     # committed parent pointer is its parent (origin/main^ — also merged).
