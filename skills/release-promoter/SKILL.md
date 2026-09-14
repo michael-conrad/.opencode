@@ -63,6 +63,8 @@ Check your tool list for a tool named `task`.
 
 Read [the full operating protocol](release-promoter/tasks/operating-protocol.md)
 
+**Verification gate:** Release promotion includes a verification-gate step (before tag creation) that performs a shallow temp-copy checkout (`git clone --depth 1` into a temp directory, checkout of the release commit) and never modifies the source tree. See the operating protocol for the full procedure.
+
 ## Sub-Agent Routing
 
 All tasks run via `task(subagent_type="general")` with `{ next_version, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. No inline work.
