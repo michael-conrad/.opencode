@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] Correct .issues/ file-access rule in .opencode/AGENTS.md: git -C
+  for git operations, standard file access otherwise'
+status: open
+labels:
+- needs-approval
+- spec-fix
+body: ''
+created_at: '2026-09-14T01:26:24+00:00'
+updated_at: '2026-09-14T01:26:24+00:00'
