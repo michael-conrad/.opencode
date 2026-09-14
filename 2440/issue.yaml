@@ -2,9 +2,10 @@ title: '[BUG] trunk-tip-verification gate unsatisfiable after legitimate trunk-t
   pull — submodule pointer staleness treated as FAIL'
 status: open
 labels:
-- needs-approval,spec-draft
+- needs-approval
+- spec-draft
 body: ''
 created_at: '2026-09-14T01:26:34+00:00'
-updated_at: '2026-09-14T01:31:02+00:00'
+updated_at: '2026-09-14T01:31:10+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2440
 remote_url: https://github.com/michael-conrad/.opencode/issues/2440
