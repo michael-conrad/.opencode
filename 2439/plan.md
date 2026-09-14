@@ -63,9 +63,9 @@ Check your tool list for a tool named `task`.
 | 1 | Shallow temp-copy checkout at release commit | checkout construction | SC-1 | — | 3-11 | direct (3) + task-card (4-11) |
 | 2 | Submodule pin resolution + drift assertion | pinned-SHA submodule integrity | SC-2, SC-3 | 1 | 12-22 | direct (12) + task-card (13-22) |
 | 3 | Build manifest discovery + build/test execution gate | build-system-agnostic verification | SC-4, SC-5 | 2 | 23-33 | direct (23) + task-card (24-33) |
-| 4 | Once-per-release gate placement + promotion blocking | gate semantics | SC-6 | 3 | 34-42 | direct (34) + task-card (35-42) |
+| 4 | Once-per-release gate placement + promotion blocking | gate semantics | SC-6 | 3 | 34-41 | direct (34) + task-card (35-41) |
 
-Post-implementation steps (43-56) follow Phase 4 in this index.
+Post-implementation steps (42-49) follow Phase 4 in this index.
 
 > **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
 
