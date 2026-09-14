@@ -235,3 +235,10 @@ Steps 30-40 run once, after the last phase.
   - One event with `plan_file` = `.opencode/.issues/2442/plan.md` and `phase_count` = 2
 
 **Cost frame:** Post-implementation gates cost minutes of harness and audit execution. Skipping means a wrong-rule regression reaches the trunk with no adversarial check — every future session inherits the defect, multiplied across the agent deck.
+
+## lifecycle_events
+
+- timestamp: 2026-09-14T01:47:32Z
+  event: plan_created
+  plan_file: .opencode/.issues/2442/plan.md
+  phase_count: 2
