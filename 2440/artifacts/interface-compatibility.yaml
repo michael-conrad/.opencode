@@ -1,0 +1,41 @@
+interface_compatibility:
+  issue: .opencode#2440
+  interfaces:
+    - name: trunk-tip-verification gate status contract
+      kind: task-card Result Contract (agent-consumed interface)
+      change: modified
+      detail: >
+        parent_clean and submodule_pointer_match gain WARN value;
+        status remains DONE | BLOCKED. Consumers: pre-work.md dispatch result
+        handling. Backward compatible: DONE-with-WARN is a new non-blocking
+        outcome; existing PASS and FAIL values unchanged.
+      backward_compatible: true (additive enum value)
+    - name: BLOCKED trigger SUBMODULE_UNMERGED_COMMIT
+      kind: task-card blocker reason
+      change: unchanged
+      backward_compatible: true
+    - name: Step 8 fail-open shell contract
+      kind: internal bash snippet
+      change: modified
+      detail: "`continue` replaced by if/else; externally observable behavior
+        (WARN message on unreachable remote, skip of merged-commit check)
+        unchanged."
+      backward_compatible: true
+      breaking: false
+      internal_only: true
+  removed_interfaces: []
+  breaking_changes: []
+  dependency_contract:
+    - source: trunk-tip-verification Result Contract (checks enum)
+      target: pre-work.md status handling
+      type: artifact schema
+      constraint: >
+        pre-work must not treat checks.*: WARN as blocking; the enum extension
+        is additive so existing consumers that branch on FAIL/BLOCKED are
+        unaffected.
+    - source: trunk-tip-verification Step 8 blocking semantics
+      target: 2313-sc1-prework-merged-commit.sh behavioral test
+      type: artifact schema
+      constraint: >
+        SUBMODULE_UNMERGED_COMMIT blocking assertion must remain satisfied —
+        no change to the merged/ancestor detection path.

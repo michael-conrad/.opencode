@@ -1,0 +1,34 @@
+state_analysis:
+  issue: .opencode#2440
+  states:
+    gate_result_states:
+      - state: DONE (all PASS)
+        transitions_in: all checks pass
+      - state: DONE (with WARN)  # NEW
+        transitions_in: >
+          pointer staleness present (dirty ` M ` entry and/or `+` prefix) AND
+          submodule checkout == its remote trunk tip AND merged-commit check
+          passes. Steps 2 and 7 emit WARN instead of FAIL.
+      - state: BLOCKED (SUBMODULE_UNMERGED_COMMIT)
+        transitions_in: >
+          any submodule pointer commit is not an ancestor of the submodule's
+          origin/<default> tip (step 8). UNCHANGED by this spec.
+      - state: BLOCKED (other failures)
+        transitions_in: >
+          parent_on_default FAIL, submodule branch mismatch, submodule dirty
+          tree (non-pointer), remote tracking mismatch, genuine parent dirt
+          (non-pointer-only).
+        note: >
+          parent_clean FAIL is retained for non-pointer-only dirt; only the
+          pointer-only-safe-state subset reclassifies to WARN.
+    state_transitions_per_item:
+      - item: ITEM-1 — adds edge "pointer-only dirt + safe state -> DONE(WARN)" previously routed to BLOCKED.
+      - item: ITEM-2 — same edge for the `+` prefix signal.
+      - item: ITEM-3 — no state change; fail-open branch still ends in SKIP/WARN for unreachable remote.
+      - item: ITEM-4 — documents the new state in the contract.
+      - item: ITEM-5 — verifies hazard-state transitions unchanged.
+    invariants:
+      - SUBMODULE_UNMERGED_COMMIT always BLOCKs (never downgraded).
+      - FAIL retained for genuine parent dirt and genuine submodule dirt.
+      - WARN never blocks pre-work.
+      - SKIP remains the step-8 outcome for unreachable remotes.

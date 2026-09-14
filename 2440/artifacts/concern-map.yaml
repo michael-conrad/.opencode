@@ -1,0 +1,25 @@
+concern_map:
+  issue: .opencode#2440
+  concerns:
+    - name: safe-state-vs-hazard-state classification
+      boundary: >
+        The gate's single concern. Safe state = submodule checkout at its own
+        remote trunk tip + pointer commit merged. Hazard state = local-only
+        pointer commit. All changes keep these boundaries: steps 4-6 detect
+        safe-state membership, step 8 detects hazard; steps 2 and 7 only
+        re-classify their failure signal when safe state is established.
+    - name: shell-construct validity
+      boundary: Step 8 fail-open branch only; no cross-file concern.
+    - name: contract documentation
+      boundary: Exit Criteria + Result Contract prose; must mirror the
+        classification logic exactly (single source: the procedure steps).
+  separation_rules:
+    - Classification logic lives in the procedure steps; the Result Contract
+      documents outcomes, never reimplements logic.
+    - No new concern (no new step, no new check ID) may be introduced.
+  per_phase_separation:
+    - ITEM-1: procedure Step 2 only
+    - ITEM-2: procedure Step 7 only
+    - ITEM-3: procedure Step 8 only
+    - ITEM-4: Exit Criteria + Result Contract only
+    - ITEM-5: test suite only

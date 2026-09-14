@@ -1,0 +1,64 @@
+pre_spec_inspection:
+  issue: .opencode#2440
+  inspected_at: "2026-09-13"
+  primary_target:
+    path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    role: The 8-step pre-work gate under repair. Single file modified by this spec.
+  observed_defects:
+    - id: DEF-1
+      location: trunk-tip-verification.md Step 2 (parent_clean, lines 20-24)
+      detail: >
+        Requires `git status --porcelain` output to be empty. A stale submodule
+        pointer renders as ` M <submodule>`, so the documented dev-parking
+        workflow (pull submodules to trunk tip before feature work, AGENTS.md
+        "Submodule Pointer Updates") produces a FAIL even though the state is
+        safe: the submodule checkout equals the submodule's own remote trunk
+        tip and the committed pointer will be captured at next real parent change.
+    - id: DEF-2
+      location: trunk-tip-verification.md Step 7 (submodule_pointer_match, lines 70-74)
+      detail: >
+        `git submodule status | grep '^+'` MUST be empty. Same safe-state
+        collision: a submodule checked out at its own trunk tip shows `+`
+        relative to the (older) committed pointer.
+    - id: DEF-3
+      location: trunk-tip-verification.md Step 8 fail-open path (line 94)
+      detail: >
+        `continue` inside the `git submodule foreach` eval body is not a valid
+        loop-context construct — foreach evals the script per submodule; the
+        fail-open branch should use if/else (or `exit 0`) to skip the
+        merged-commit check for unreachable remotes.
+  existing_supporting_checks:
+    - Step 4 submodule_on_default (lines 37-46) — PASS in defect state
+    - Step 5 submodule_clean (lines 48-55) — PASS in defect state
+    - Step 6 submodule_remote_match (lines 57-68) — PASS in defect state
+    - Step 8 submodule_merged_commit (lines 76-102) — PASS in defect state;
+      independently detects the hazardous state (local-only pointer commit)
+      via `git merge-base --is-ancestor`
+  affected_consumers:
+    - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+      role: Runs this gate before feature branch creation; consumes BLOCKED/DONE
+    - path: .opencode/skills/git-workflow-branch/SKILL.md
+      role: Trigger Dispatch Table routes to trunk-tip-verification
+    - path: .opencode/skills/git-workflow/SKILL.md
+      role: References pre-work / trunk-tip verification workflow
+  affected_tests:
+    - path: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+      role: Existing behavioral test of the gate — may assert old FAIL semantics; must be checked for assertion changes
+    - path: .opencode/tests-v2/behaviors/git-workflow/2313-sc1-prework-merged-commit.sh
+      role: Behavioral test of SUBMODULE_UNMERGED_COMMIT blocking — must stay green
+    - path: .opencode/tests-v2/behaviors/2230-sc1-trunk-tip-dispatch.sh
+      role: Dispatch behavioral test for this gate
+  documented_discipline:
+    - source: .opencode/AGENTS.md §Submodule Pointer Updates
+      rule: >
+        Stale parent pointers after submodule trunk-tip pull are expected until
+        release captures them; pointer-only commits are forbidden (must ride
+        alongside next real parent change); fabricating parent edits to carry
+        the pointer is forbidden. Hence no permitted action can clear the
+        DEF-1/DEF-2 failures — the gate is unsatisfiable by design in this state.
+  related_issue:
+    number: 2013
+    relation: Adjacent over-strictness in a different gate (pre-red-baseline SUBMODULE-DRIFT); confirms a pattern of safe-state/hazard-state conflation, but a different gate — out of scope here.
+  conventions:
+    - Task cards in git-workflow-branch use checklist procedure steps, Exit Criteria, and a YAML Result Contract.
+    - Classifications used in sibling tasks: PASS | FAIL | SKIP | WARN (e.g., submodule_merged_commit already uses SKIP for network-unreachable).

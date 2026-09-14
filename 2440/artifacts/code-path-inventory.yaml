@@ -1,0 +1,33 @@
+code_path_inventory:
+  issue: .opencode#2440
+  paths:
+    - phase: ITEM-1
+      files:
+        - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+          sections: ["Procedure Step 2 (parent_clean)"]
+      tests:
+        - path: .opencode/tests-v2/behaviors/ (new safe-state scenario script)
+    - phase: ITEM-2
+      files:
+        - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+          sections: ["Procedure Step 7 (submodule_pointer_match)"]
+    - phase: ITEM-3
+      files:
+        - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+          sections: ["Procedure Step 8 fail-open branch"]
+      tests:
+        - path: .opencode/tests-v2/behaviors/git-workflow/2313-sc1-prework-merged-commit.sh (must stay green)
+    - phase: ITEM-4
+      files:
+        - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+          sections: ["Exit Criteria", "Result Contract"]
+      tests:
+        - path: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh (review/update stale assertions)
+    - phase: ITEM-5
+      tests:
+        - path: .opencode/tests-v2/behaviors/ (full gate suite run)
+  files_modified_total: 1 (plus test files)
+  files_read_only:
+    - .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    - .opencode/skills/git-workflow-branch/SKILL.md
+    - .opencode/tests-v2/behaviors/git-workflow/2313-sc1-prework-merged-commit.sh

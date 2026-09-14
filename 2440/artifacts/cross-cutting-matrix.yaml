@@ -1,0 +1,35 @@
+cross_cutting_matrix:
+  issue: .opencode#2440
+  matrix:
+    - concern: behavioral test evidence mandate (guideline 080)
+      affected_phases: [ITEM-1, ITEM-2, ITEM-5]
+      resolution: >
+        Rule-change items (SC-1, SC-2) require behavioral tests via
+        with-test-home opencode run with stderr-based evidence. SC-3/SC-4 are
+        shell-construct/prose-structural items — structural evidence type
+        declared and justified (no runtime behavior change).
+    - concern: provenance/attribution (guideline 080)
+      affected_phases: [ITEM-1, ITEM-2, ITEM-3, ITEM-4]
+      resolution: Preserve existing file attribution headers; the file is
+        AI-assisted content — preserve any existing Co-authored lines.
+    - concern: per-SC decomposition (guideline 091)
+      affected_phases: all
+      resolution: One RED/GREEN/verify/commit cycle per item; behavioral items
+        add PUSH before the behavioral run (commit+push, fresh fetch, then run).
+    - concern: submodule discipline (AGENTS.md pointer rules)
+      affected_phases: all
+      resolution: >
+        Changes live in the .opencode submodule; commits follow
+        pre-commit-pointer-check and pointer rides with next real parent
+        change. No fabricated parent edits.
+    - concern: test integrity (no lobotomized tests)
+      affected_phases: [ITEM-4, ITEM-5]
+      resolution: >
+        Updating trunk-tip-enforcement.sh assertions is NOT weakening — the
+        new assertions must still prove the gate blocks on hazard state
+        (SUBMODULE_UNMERGED_COMMIT) and only reclassifies the safe state.
+        SUBMODULE_UNMERGED_COMMIT blocking assertion must remain intact.
+    - concern: test framework mandate (with-test-home, no GNU timeout)
+      affected_phases: [ITEM-1, ITEM-2, ITEM-5]
+      resolution: Use bash .opencode/tests-v2/with-test-home wrapper; >=600s
+        bash timeout; rm -f tmp/.behavior-run.lock before re-runs.

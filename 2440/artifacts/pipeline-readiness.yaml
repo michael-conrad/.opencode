@@ -1,0 +1,35 @@
+pipeline_readiness:
+  issue: .opencode#2440
+  validated_at: "2026-09-13"
+  atomicity:
+    passed: true
+    detail: >
+      SC-1..SC-5 each map to exactly one RED/GREEN/verify/commit cycle.
+      SC-5's cycle is its own behavioral regression run, not a batch of
+      prior items.
+  dependency_ordering:
+    passed: true
+    detail: >
+      DAG: SC-1 -> SC-2 -> SC-4 -> SC-5; SC-3 -> SC-5. Acyclic; SC-1 precedes
+      SC-2 because SC-2 reuses the safe-state predicate SC-1 establishes.
+  single_concern:
+    passed: true
+    detail: >
+      Every SC targets one file (trunk-tip-verification.md) and one
+      verification domain (gate classification semantics; SC-3 shell
+      construct; SC-4 contract prose; SC-5 suite run).
+  phase_dependency:
+    passed: true
+    detail: Phase graph equals SC DAG; acyclic.
+  three_tier_structure:
+    passed: true
+    detail: >
+      Single-phase spec (one file category, one gate). Multi-phase
+      pre/per-file/post structure not applicable; structure is
+      classification-fix (SC-1/2/3), contract-sync (SC-4),
+      regression-verify (SC-5).
+  verdict: READY
+  notes:
+    - No spec content written in this task (analyze-only).
+    - Evidence-type split documented in testability-assessment.yaml:
+      SC-1/2/5 behavioral, SC-3/4 structural (no runtime behavior change).

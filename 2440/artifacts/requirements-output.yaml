@@ -1,0 +1,94 @@
+requirements:
+  issue: .opencode#2440
+  extracted_at: "2026-09-13"
+  source: "[BUG] trunk-tip-verification gate unsatisfiable after legitimate trunk-tip pull — submodule pointer staleness treated as FAIL"
+  verified_against_codebase: true
+  explicit:
+    - id: REQ-E1
+      text: >
+        When the submodule checkout equals the submodule's origin/<default>
+        tip AND the step-8 merged-commit check passes, the pointer-only dirty
+        entry in parent_clean (Step 2) must be classified INFO/WARN
+        (release-capture-pending), not FAIL.
+      verification: >
+        Verified defect at .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+        lines 20-24: Step 2 requires empty `git status --porcelain`; a stale
+        pointer renders ` M <submodule>`. Safe-state signals (steps 4-6, 8)
+        all pass in that state per issue evidence (xBaseJ#65).
+    - id: REQ-E2
+      text: >
+        Under the same safe-state condition, the `+` prefix in
+        submodule_pointer_match (Step 7) must be classified WARN, not FAIL.
+      verification: >
+        Verified defect at lines 70-74: Step 7 does
+        `git submodule status | grep '^+'` and requires empty output.
+    - id: REQ-E3
+      text: >
+        The BLOCKED trigger must remain Step 8's SUBMODULE_UNMERGED_COMMIT
+        (local-only submodule pointer commit) — hazardous-state detection is
+        unchanged.
+      verification: >
+        Verified Step 8 at lines 76-102 already implements
+        `git merge-base --is-ancestor` detection; fix must not weaken it.
+    - id: REQ-E4
+      text: >
+        Exit Criteria and Result Contract in trunk-tip-verification.md must be
+        updated to match the new WARN classification.
+      verification: >
+        Verified Exit Criteria (lines 104-110) and Result Contract
+        (lines 112-126) currently declare pointer staleness as failure
+        ("Submodule pointers match committed SHAs",
+        "submodule_pointer_match: PASS | FAIL").
+    - id: REQ-E5
+      text: >
+        Secondary defect: Step 8's network-fail-open path uses `continue`
+        inside the `git submodule foreach` eval body, which is not a valid
+        loop context — verify and fix the fail-open path.
+      verification: >
+        Verified at line 94: `continue` appears inside the foreach eval body.
+        `git submodule foreach` evals the script per submodule with no outer
+        loop in scope; `continue` is not meaningful there. Fix: restructure
+        with if/else so the check is skipped via control flow that foreach
+        supports.
+  implicit:
+    - id: REQ-I1
+      text: >
+        The safe-state predicate is: submodule HEAD == submodule's
+        origin/<default-branch> tip AND merge-base --is-ancestor passes
+        (pointer commit merged). Both are already computed by steps 6 and 8 —
+        the fix reuses existing checks, adds no new network calls.
+      verification: >
+        Verified steps 6 (remote tracking) and 8 (merged commit) already
+        fetch and compute exactly these conditions.
+    - id: REQ-I2
+      text: >
+        Committed-pointer staleness between releases is expected state per
+        documented submodule discipline; the release-capture-pending WARN
+        must not block pre-work or trigger re-dispatch.
+      verification: >
+        Verified .opencode/AGENTS.md §Submodule Pointer Updates and
+        research card multi-feature-branch-main-with-submodules (confidence 0.7).
+    - id: REQ-I3
+      text: >
+        Existing behavioral tests covering the gate (trunk-tip-enforcement.sh,
+        2313-sc1-prework-merged-commit.sh) must remain green; SUBMODULE_
+        UNMERGED_COMMIT blocking behavior is regression-protected.
+      verification: >
+        Verified both test files exist and assert on SUBMODULE_UNMERGED_COMMIT
+        behavior; gate text changes must not alter step-8 blocking semantics.
+  constraints:
+    - id: REQ-C1
+      text: Single file modified: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    - id: REQ-C2
+      text: >
+        Gate stays 8 steps with same check IDs in the Result Contract; only
+        classification values for two checks change (new WARN/INFO states).
+    - id: REQ-C3
+      text: >
+        Behavioral enforcement evidence required for rule-change items per
+        .opencode/guidelines/080-code-standards.md (behavioral test with
+        behavioral evidence required).
+  non_requirements:
+    - text: No change to pre-red-baseline SUBMODULE-DRIFT check (that is issue #2013, different gate).
+    - text: No change to submodule-sync.md or pre-commit-pointer-check.md behavior — pointer capture at release remains unchanged.
+    - text: No new tooling, scripts, or git commands introduced.

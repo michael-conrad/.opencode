@@ -1,0 +1,71 @@
+decomposition:
+  issue: .opencode#2440
+  decomposed_at: "2026-09-13"
+  target_file: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+  scs:
+    - sc_id: SC-1
+      title: Safe-state classification for parent_clean pointer-only dirt
+      claim: >
+        When the submodule checkout equals its remote trunk tip and the
+        merged-commit check passes, a pointer-only ` M <submodule>` entry does
+        not cause parent_clean FAIL; it is reported as WARN
+        (release-capture-pending) and does not trigger BLOCKED.
+      item: ITEM-1
+      red: >
+        Behavioral test: construct state (submodule at own trunk tip, parent
+        pointer stale, merged) and assert gate output classifies parent_clean
+        as WARN, not FAIL/BLOCKED.
+      green: Update Step 2 in trunk-tip-verification.md to add the safe-state
+        classification.
+      depends_on: []
+    - sc_id: SC-2
+      title: Safe-state classification for submodule_pointer_match `+` prefix
+      claim: >
+        Under the same safe-state predicate, a `+` prefix in
+        `git submodule status` for a merged, trunk-tip-checked-out submodule
+        is WARN, not FAIL.
+      item: ITEM-2
+      red: Behavioral test asserting `+` prefix on merged trunk-tip submodule
+        yields submodule_pointer_match: WARN, gate status DONE.
+      green: Update Step 7 classification in trunk-tip-verification.md.
+      depends_on: [SC-1]
+    - sc_id: SC-3
+      title: Fail-open path in Step 8 avoids invalid `continue`
+      claim: >
+        The network-unreachable branch in Step 8 skips the merged-commit check
+        via a construct valid inside `git submodule foreach` (if/else), with
+        no `continue`, and still emits the WARN-skip message.
+      item: ITEM-3
+      red: Structural/static test asserting `continue` is absent from the Step 8
+        foreach eval body and the skip path still warns (structural — shell
+        construct validity, not runtime agent behavior).
+      green: Rewrite the fail-open branch in Step 8 using if/else.
+      depends_on: []
+    - sc_id: SC-4
+      title: Exit Criteria and Result Contract reflect WARN states
+      claim: >
+        Exit Criteria and Result Contract in trunk-tip-verification.md list
+        parent_clean and submodule_pointer_match as PASS | WARN | FAIL
+        (with WARN = release-capture-pending), BLOCKED trigger documented as
+        SUBMODULE_UNMERGED_COMMIT only.
+      item: ITEM-4
+      red: Structural test asserting the Result Contract and Exit Criteria
+        contain the WARN classification and do not declare pointer staleness
+        a failure.
+      green: Update Exit Criteria and Result Contract sections.
+      depends_on: [SC-1, SC-2]
+    - sc_id: SC-5
+      title: Behavioral regression — SUBMODULE_UNMERGED_COMMIT still blocks
+      claim: >
+        After all changes, a local-only submodule pointer commit still causes
+        BLOCKED with SUBMODULE_UNMERGED_COMMIT (existing 2313-sc1 test stays
+        green) and the new safe-state test asserts DONE with WARNs.
+      item: ITEM-5
+      red: Pre-change run of the new combined behavioral scenario fails.
+      green: Combined behavioral run passes with changes applied.
+      depends_on: [SC-1, SC-2, SC-3, SC-4]
+  atomicity_check: >
+    Each SC maps to exactly one RED/GREEN/verify/commit cycle. SC-5 is the
+    behavioral regression consolidation of prior items' changes and its own
+    RED/GREEN cycle (runs the suite).
+  dag: SC-1 -> SC-2 -> SC-4 -> SC-5; SC-3 -> SC-5. Acyclic.

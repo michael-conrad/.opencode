@@ -1,0 +1,25 @@
+research_card_consultation:
+  issue: .opencode#2440
+  consulted_at: "2026-09-13"
+  search_scope:
+    - .issues/research-cards/*.md
+    - .opencode/.issues/research-cards/*.md
+  cards_reviewed: 27
+  matching_cards:
+    - name: multi-feature-branch-main-with-submodules
+      path: .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md
+      confidence: 0.7
+      status: draft
+      relevant_findings: >
+        Submodule pointers are the most frequently conflicted merge target in
+        repos with many submodules; stale pointer states between feature work
+        and trunk are a recurring workflow friction point. Supports the
+        analysis that committed-pointer staleness between releases is an
+        expected, safe state rather than a defect requiring a gate halt.
+      confidence_threshold_met: true (0.7 >= 0.7)
+  non_matching_cards: >
+    Remaining 26 cards cover spec-creation, writing-plans, discussion-mode,
+    audit, and search topics — none address git submodule gate semantics.
+  incorporation: >
+    Card finding incorporated into requirement REQ-I2 (pointer staleness
+    between releases is expected safe state). No other research card applies.

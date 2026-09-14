@@ -1,0 +1,36 @@
+blast_radius:
+  issue: .opencode#2440
+  per_phase:
+    - phase: ITEM-1 (parent_clean WARN classification)
+      affected:
+        - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md (Step 2)
+        - .opencode/tests-v2/behaviors/ (new behavioral scenario)
+      ripple: >
+        pre-work.md consumes gate status; DONE-with-WARN is a new terminal
+        state — pre-work must treat WARN as non-blocking. No prose change
+        required in pre-work.md (it consumes status only), but plan should
+        verify pre-work handles status: DONE with WARN checks.
+      risk: LOW — additive classification, FAIL retained for genuine dirt.
+    - phase: ITEM-2 (submodule_pointer_match WARN)
+      affected: trunk-tip-verification.md (Step 7)
+      ripple: Same as ITEM-1; Result Contract gains WARN value.
+      risk: LOW
+    - phase: ITEM-3 (Step 8 fail-open fix)
+      affected: trunk-tip-verification.md (Step 8 fail-open branch)
+      ripple: >
+        2313-sc1-prework-merged-commit.sh exercises step 8 — behavior for the
+        merged/ancestor path unchanged; only unreachable-remote branch
+        restructured.
+      risk: LOW
+    - phase: ITEM-4 (Exit Criteria + Result Contract)
+      affected: trunk-tip-verification.md (Exit Criteria, Result Contract)
+      ripple: >
+        Any behavioral test asserting old FAIL semantics for pointer staleness
+        must be updated — trunk-tip-enforcement.sh must be reviewed for
+        assertions on parent_clean/submodule_pointer_match.
+      risk: MEDIUM — test assertion drift is the main failure mode.
+    - phase: ITEM-5 (behavioral regression consolidation)
+      affected: tests-v2 behavioral suite run
+      ripple: None — verification only.
+      risk: LOW
+  out_of_blast: pre-red-baseline gate (#2013), submodule-sync.md, pre-commit-pointer-check.md, AGENTS.md prose.

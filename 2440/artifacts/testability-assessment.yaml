@@ -1,0 +1,42 @@
+testability_assessment:
+  issue: .opencode#2440
+  strategy:
+    - item: ITEM-1 (SC-1)
+      type: behavioral
+      method: >
+        Construct fixture repo state: parent repo with one submodule checked
+        out at its own origin/<default> tip, merged commit, stale committed
+        parent pointer. Run gate via with-test-home opencode run; assert
+        stderr behavioral evidence that parent_clean classifies WARN and
+        status DONE.
+      evidence: stderr behavioral (skill dispatch, check outputs)
+    - item: ITEM-2 (SC-2)
+      type: behavioral
+      method: Same fixture; assert submodule_pointer_match WARN, status DONE,
+        no BLOCKED.
+      evidence: stderr behavioral
+    - item: ITEM-3 (SC-3)
+      type: structural
+      justification: >
+        Shell-construct validity of a static snippet — no runtime agent
+        behavior change; structural assertion (no `continue` in foreach body,
+        skip path preserved) is the appropriate evidence type.
+      evidence: static check of Step 8 snippet
+    - item: ITEM-4 (SC-4)
+      type: structural
+      justification: Prose contract sync — Result Contract / Exit Criteria
+        content assertions.
+      evidence: static check of task card sections
+    - item: ITEM-5 (SC-5)
+      type: behavioral
+      method: >
+        Run trunk-tip-enforcement.sh and 2313-sc1-prework-merged-commit.sh
+        plus the new safe-state scenario end-to-end via with-test-home;
+        assert SUBMODULE_UNMERGED_COMMIT blocking preserved and new WARN
+        behavior passes.
+      evidence: stderr behavioral
+  constraints:
+    - All opencode invocations via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`
+    - bash tool timeout >= 600000 ms; `rm -f tmp/.behavior-run.lock` before re-runs
+    - behavioral items commit+push, fresh fetch verify contained-in-remote, then run
+    - SUBMODULE_UNMERGED_COMMIT assertion is regression-protected and must not be weakened
