@@ -6,12 +6,13 @@
 # Content-verification test: cross-reference comment present in validate.md
 # Maps to SC-7 from issue #2116: the inline decomposition criteria copy in
 # .opencode/skills/spec-creation/tasks/validate.md includes the cross-reference
-# comment 'See audit/reference/decomposition-criteria.md for master definition'.
+# comment 'See ../../../audit/reference/decomposition-criteria.md for master
+# definition' (canonical path corrected from the task-relative form by #2444).
 #
 # RED phase (Item 7): assert the exact string
-# 'See audit/reference/decomposition-criteria.md for master definition' is PRESENT
-# in validate.md. The test FAILS while the string is absent (baseline). GREEN phase
-# adds the comment; this test then PASSES.
+# 'See ../../../audit/reference/decomposition-criteria.md for master definition'
+# is PRESENT in validate.md. The test FAILS while the string is absent (baseline).
+# GREEN phase adds the comment; this test then PASSES.
 #
 # validate.md is a regular tracked file in the .opencode repo (not the .issues/
 # worktree), so it is read directly with grep.
@@ -53,7 +54,7 @@ VALIDATE_MD="$PROJECT_DIR/skills/spec-creation/tasks/validate.md"
 # SC-7 (RED phase): the cross-reference comment must be present in validate.md.
 # The test FAILS while the string is absent (baseline). After GREEN adds the
 # comment, this PASSES.
-if grep -qF 'See audit/reference/decomposition-criteria.md for master definition' "$VALIDATE_MD" 2>/dev/null; then
+if grep -qF 'See ../../../audit/reference/decomposition-criteria.md for master definition' "$VALIDATE_MD" 2>/dev/null; then
     check_pass "SC-7: cross-reference comment present in .opencode/skills/spec-creation/tasks/validate.md"
 else
     check_fail "SC-7: cross-reference comment present in .opencode/skills/spec-creation/tasks/validate.md" \

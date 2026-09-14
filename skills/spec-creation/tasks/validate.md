@@ -21,13 +21,13 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
 
 - [ ] 1.1. Read the full spec from `{spec_path}`.
 
-- [ ] 1.2. Read [spec-structure-standards.md](reference/spec-structure-standards.md) and load the required section inventory dynamically. The section list is NOT hardcoded — it is loaded from the reference document.
+- [ ] 1.2. Read [spec-structure-standards.md](../../../reference/spec-structure-standards.md) and load the required section inventory dynamically. The section list is NOT hardcoded — it is loaded from the reference document.
 
 ### Step 2: Run 11-dimension holistic self-check
 
-- [ ] 2.1. Evaluate the spec against all 11 holistic dimensions. The 11 dimensions are NOT hardcoded here — they are loaded dynamically from `reference/holistic-dimensions.yaml`, the single source of truth.
+- [ ] 2.1. Evaluate the spec against all 11 holistic dimensions. The 11 dimensions are NOT hardcoded here — they are loaded dynamically from `../../../reference/holistic-dimensions.yaml`, the single source of truth.
 
-- [ ] 2.2. Read [holistic-dimensions.yaml](reference/holistic-dimensions.yaml) and load the `spec_dimensions` list. The dimension names, evaluation questions, and checks are taken from that reference document, not from a local list. When a dimension changes, update the reference file — this task always reflects it.
+- [ ] 2.2. Read [holistic-dimensions.yaml](../../../reference/holistic-dimensions.yaml) and load the `spec_dimensions` list. The dimension names, evaluation questions, and checks are taken from that reference document, not from a local list. When a dimension changes, update the reference file — this task always reflects it.
 
 ### Step 3: Run structural validation
 
@@ -69,7 +69,7 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
 
 - [ ] 3.5. **Evidence-type-to-method cross-check** — Verify each SC's evidence type matches its verification method. The evidence-type taxonomy is NOT hardcoded here — it is loaded dynamically from the single canonical reference.
 
-  Read [cost-model-standards.md](reference/cost-model-standards.md) and load the evidence-type taxonomy (the "Tiered Cost Table by Evidence Type" section lists the four valid types). When the canonical taxonomy changes, update the reference file — this task always reflects it.
+  Read [cost-model-standards.md](../../../reference/cost-model-standards.md) and load the evidence-type taxonomy (the "Tiered Cost Table by Evidence Type" section lists the four valid types). When the canonical taxonomy changes, update the reference file — this task always reflects it.
 
   For each SC, verify:
 - [ ] 1. The declared evidence type is one of the valid types in the canonical reference
@@ -94,7 +94,7 @@ Run the 11-dimension holistic self-check and structural validation (SC completen
 
   **Skip condition:** If the spec has exactly **1 SC** AND **1 affected file**, skip this check entirely (not evaluated) and mark it PASS. The skip-guard requires BOTH conditions — a spec with 1 SC but more than 1 affected file is evaluated.
 
-  See audit/reference/decomposition-criteria.md for master definition. Inline copy mirrors the criteria content, not the master reference's numbered heading format. Maintain in lockstep with the master reference per its maintainer note.
+  See ../../../audit/reference/decomposition-criteria.md for master definition. Inline copy mirrors the criteria content, not the master reference's numbered heading format. Maintain in lockstep with the master reference per its maintainer note.
 
 ### Atomicity
 

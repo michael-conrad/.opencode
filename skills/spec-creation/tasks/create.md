@@ -40,9 +40,9 @@ Read all analysis artifacts from `{analysis_artifact_path}`:
 
 ### Step 2: Assemble spec document
 
-Read [spec-structure-standards.md](reference/spec-structure-standards.md) and assemble the spec against its required sections.
+Read [spec-structure-standards.md](../../../reference/spec-structure-standards.md) and assemble the spec against its required sections.
 
-Read [cost-model-standards.md](reference/cost-model-standards.md) and write per-SC cost-frame statements following the dark-prose-007 pattern.
+Read [cost-model-standards.md](../../../reference/cost-model-standards.md) and write per-SC cost-frame statements following the dark-prose-007 pattern.
 
 ### Step 2.1: Apply format-level rules
 
