@@ -1,0 +1,8 @@
+title: '[BUG] trunk-tip-verification gate unsatisfiable after legitimate trunk-tip
+  pull — submodule pointer staleness treated as FAIL'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-09-14T01:26:34+00:00'
+updated_at: '2026-09-14T01:26:34+00:00'
