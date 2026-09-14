@@ -130,9 +130,9 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
 
 ## Exit Criteria
 
-- Parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
+- `parent_clean: PASS` — parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip; `parent_clean: WARN` = release-capture-pending (safe-state pointer-only drift)
 - All submodules are on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
-- Submodule pointers match committed SHAs
+- `submodule_pointer_match: PASS` — submodule pointers match committed SHAs; `submodule_pointer_match: WARN` = release-capture-pending (safe-state "+" drift)
 - All submodule pointer SHAs are ancestors of their submodule's remote `origin/$DEFAULT_BRANCH` (merged) — no local-only submodule commits
 - Safe-state pointer-only submodule drift (step 2 exception, including the checks 4/6/7 WARN scope) classifies as `DONE` with `WARN: release-capture-pending` — NOT BLOCKED
 - If ANY check fails outside the safe-state WARN scope: return BLOCKED with the specific failure
@@ -148,7 +148,7 @@ checks:
   submodule_on_default: PASS | WARN | FAIL   # WARN = detached HEAD at origin tip under safe state
   submodule_clean: PASS | FAIL
   submodule_remote_match: PASS | WARN | FAIL # WARN = local ref lag under safe state
-  submodule_pointer_match: PASS | WARN | FAIL # WARN = "+" drift under safe state
+  submodule_pointer_match: PASS | WARN | FAIL # WARN = "+" drift under safe state — release-capture-pending
   submodule_merged_commit: PASS | FAIL | SKIP
 blocker_reason: "<description of which check failed and why>"
 ```
