@@ -1,0 +1,18 @@
+# Code path inventory — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+paths:
+  - sc: SC-1
+    target: .opencode/AGENTS.md (worktree section)
+    path: direct text edit of section ".issues/ Is a Worktree — NOT a Regular Directory"; verified present at ~line 218 (section header)
+  - sc: SC-2
+    target: .opencode/AGENTS.md (prohibition sentence)
+    path: removal/rewrite of line ~232 ("MUST NOT read/write .issues/ files directly through git operations ... silently targets the wrong repository")
+  - sc: SC-3
+    target: .opencode/AGENTS.md (retained rules)
+    path: preserve within same section: git -C mandate rows, FORBIDDEN table row for parent-repo git add, CRITICAL rule re git-tracking
+  - sc: SC-4
+    target: .opencode/AGENTS.md (whole file)
+    path: full-file grep for contradicting file-access-prohibition phrases outside the preserved git-op rule
+  - sc: SC-5
+    target: .opencode/tests-v2/behaviors/<scenario>.sh
+    path: new scenario script; executed via bash .opencode/tests-v2/test-enforcement.sh / opencode run through with-test-home; assertions on stderr (file-read evidence, no parent-repo git add .issues/)

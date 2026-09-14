@@ -1,0 +1,11 @@
+# Cross-cutting matrix — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+cross_cutting:
+  - scs: [SC-1, SC-2, SC-3, SC-4]
+    dimension: single-file internal consistency
+    note: all four text SCs mutate the same file/section; must be edited together in one pass (Item 1, per-SC grep assertions verified after edit) to avoid intermediate contradictory states
+  - scs: [SC-4, SC-5]
+    dimension: residual-contradiction check vs behavioral evidence
+    note: SC-4 grep must exclude the preserved git-op rule; SC-5 behavioral run validates the corrected guidance end-to-end
+single_concern_scs:
+  - SC-5 (isolated concern C-2)

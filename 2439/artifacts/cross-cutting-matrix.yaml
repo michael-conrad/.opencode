@@ -1,0 +1,16 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+cross_cutting_scs:
+  - scs: [SC-1, SC-2, SC-3]
+    shared_concern: pinned-SHA checkout integrity — checkout, submodule resolution, and drift assertion all operate on the same temp-copy tree
+  - scs: [SC-4, SC-5]
+    shared_concern: build-system-agnostic execution — discovery output feeds directly into execution
+  - scs: [SC-5, SC-6]
+    shared_concern: gate semantics — non-zero exit becomes FAIL which blocks promotion
+
+isolated_scs: []
+notes: >
+  No SC spans unrelated concern groups; cross-cutting pairs are sequential
+  within one gate implementation, so a single task card (operating-protocol
+  update) covers them without batching unrelated items.

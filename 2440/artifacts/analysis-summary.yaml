@@ -1,0 +1,38 @@
+issue: 2440
+spec_path: .opencode/.issues/2440/spec.md
+approval_status:
+  approved: true
+  label: approved-for-for_pr
+sc_count: 5
+sc_ids:
+  - SC-1
+  - SC-2
+  - SC-3
+  - SC-4
+  - SC-5
+artifacts:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_findings:
+  - path: .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+    exists: true
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+    exists: true
+  - path: .opencode/tests-v2/with-test-home
+    exists: true
+  - path: .opencode/tests-v2/behaviors/trunk-tip-enforcement.sh
+    exists: true
+  - path: .opencode/tests-v2/behaviors/git-workflow/2313-sc1-prework-merged-commit.sh
+    exists: true
+  - path: .opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md
+    exists: true
+  - path: .opencode/AGENTS.md
+    exists: true
+  - path: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+    exists: unverified-in-scope-check
+    note: referenced in spec "Not Included" section only; not an implementation target

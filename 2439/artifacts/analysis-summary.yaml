@@ -1,0 +1,24 @@
+spec_path: .opencode/.issues/2439/spec.md
+approval_status: APPROVED
+approval_label: approved-for-for_pr
+sc_count: 6
+sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+
+artifacts:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_boundary_findings:
+  - finding: "Affected file 'release-promoter skill (tag/operating-protocol)' exists at .opencode/skills/release-promoter/ with SKILL.md and tasks/{tag.md,operating-protocol.md,create-release.md} — all present"
+    status: OK
+  - finding: "Build manifest: root AGENTS.md has no 'Build / Lint / Test' section; the canonical build/test commands table exists in .opencode/AGENTS.md ('Build / Lint / Test Commands'). Gate's manifest-discovery (SC-4) must account for the manifest living in .opencode/AGENTS.md"
+    status: FINDING
+  - finding: "artifacts/ directory did not exist prior to this run; created with analysis-summary.yaml only"
+    status: FINDING
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

@@ -1,0 +1,27 @@
+# Interface compatibility — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+interfaces:
+  - name: agent-instruction-consumption
+    type: prose-guidance
+    source: .opencode/AGENTS.md worktree section
+    target: all opencode agents (instructions array)
+    compatibility: section header and table structure preserved; only rule content changes — no consumer parses exact wording
+  - name: tests-v2-scenario-contract
+    type: harness
+    source: .opencode/tests-v2/behaviors/<scenario>.sh
+    target: test-enforcement.sh / behavior_run()
+    compatibility: new file follows existing scenario script conventions (executable via harness, stderr-based assertions); additive, no interface change
+dependency_contract:
+  dependencies:
+    - name: worktree-facts
+      source: .opencode/AGENTS.md (existing true statements: issues-data orphan branch, .gitignore line 40, worktree location)
+      target: rewritten section
+      constraint: retained verbatim-in-meaning; file-access and git-access treated as separate axes
+    - name: harness-conventions
+      source: .opencode/tests-v2/behaviors/ (existing scenario scripts, e.g. 2105-sc4-human-only-merge.sh)
+      target: new SC-5 scenario script
+      constraint: must run through with-test-home wrapper; bash timeout >=600s; no GNU timeout; stderr-based assertions per tests-v2 AGENTS.md
+    - name: local-issues routing
+      source: .opencode/tools/local-issues
+      target: rewritten section text
+      constraint: remains preferred interface for issue mutations (commits/pushes internally); removed only as forced intermediary for plain reads

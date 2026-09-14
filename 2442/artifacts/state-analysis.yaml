@@ -1,0 +1,19 @@
+# State analysis — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+state_transitions:
+  - sc: SC-1
+    from: prohibition text present in AGENTS.md worktree section
+    to: corrected two-part rule present (file tools permitted; git ops via git -C)
+  - sc: SC-2
+    from: "'silently targets the wrong repository' prohibition sentence present (~line 232)"
+    to: sentence absent; no file-access prohibition on read/write/edit/glob/grep for .issues/ content
+  - sc: SC-3
+    from: retained rules already present (git -C mandate; git add .issues/ FORBIDDEN)
+    to: unchanged/verified present after rewrite
+  - sc: SC-4
+    from: prohibition-consistent wording throughout
+    to: no residual contradicting file-access-prohibition phrases
+  - sc: SC-5
+    from: no behavioral scenario for this rule
+    to: scenario script exists, is executable via harness, and PASSES against corrected text (RED first against pre-edit text)
+persistence: all state lives in tracked files (.opencode/AGENTS.md, new scenario script); no runtime state

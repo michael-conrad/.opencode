@@ -1,0 +1,114 @@
+structure:
+  issue: .opencode#2440
+  sc_count: 5
+  phases:
+    - phase: 1
+      name: task-card safe-state semantics
+      target_files:
+        - .opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md
+      scs:
+        - "SC-1"
+        - "SC-2"
+        - "SC-3"
+        - "SC-4"
+      items:
+        - item: 1
+          sc: "SC-1"
+          description: >
+            Reclassify pointer-only parent_clean dirt to WARN (release-capture-pending)
+            when submodule checkout == remote trunk tip and merged-commit check passes.
+          evidence_type: behavioral
+          cycle:
+            red: RED enforcement test asserts WARN (not FAIL) for pointer-only dirt in safe state — fails before change
+            green: Modify Step 2/parent_clean classification in trunk-tip-verification.md
+            verify: verification-before-completion verify task
+            commit: commit-inline (orchestrator)
+        - item: 2
+          sc: "SC-2"
+          description: >
+            Reclassify `+` submodule pointer prefix on a merged, trunk-tip-checked-out
+            submodule from FAIL to WARN.
+          evidence_type: behavioral
+          cycle:
+            red: RED enforcement test asserts WARN for safe-state `+` prefix — fails before change
+            green: Modify Step 7/submodule_pointer_match classification
+            verify: verification-before-completion verify task
+            commit: commit-inline (orchestrator)
+        - item: 3
+          sc: "SC-3"
+          description: >
+            Replace `continue` with if/else in the Step 8 network-unreachable fail-open
+            path (construct valid inside `git submodule foreach`).
+          evidence_type: structural
+          cycle:
+            red: Structural check asserts no bare `continue` in foreach context — fails before change
+            green: Rewrite fail-open snippet using if/else
+            verify: verification-before-completion verify task
+            commit: commit-inline (orchestrator)
+        - item: 4
+          sc: "SC-4"
+          description: >
+            Update Exit Criteria and Result Contract: parent_clean and
+            submodule_pointer_match accept PASS | WARN | FAIL (WARN =
+            release-capture-pending); SUBMODULE_UNMERGED_COMMIT remains the only
+            documented BLOCKED trigger.
+          evidence_type: structural
+          cycle:
+            red: Structural check asserts WARN documented in Exit Criteria/Result Contract — fails before change
+            green: Update task-card Exit Criteria and Result Contract sections
+            verify: verification-before-completion verify task
+            commit: commit-inline (orchestrator)
+      skill_task_selection:
+        red: test-driven-development — "execute red task from test-driven-development"
+        green: test-driven-development — "execute green task from test-driven-development"
+        verify: verification-before-completion — "execute verify task from verification-before-completion"
+        commit: (orchestrator) commit-inline
+    - phase: 2
+      name: behavioral regression verification
+      target_files:
+        - .opencode/tests-v2/behaviors/git-workflow/ (regression scenario)
+      scs:
+        - "SC-5"
+      items:
+        - item: 5
+          sc: "SC-5"
+          description: >
+            Behavioral regression: local-only submodule pointer commit still BLOCKs
+            with SUBMODULE_UNMERGED_COMMIT; new safe-state scenario asserts DONE
+            with WARNs.
+          evidence_type: behavioral
+          cycle:
+            red: Run behavioral regression — safe-state scenario fails before full semantics validated
+            green: Confirm/complete scenario assertions in tests-v2 behaviors
+            verify: verification-before-completion verify task
+            commit: commit-inline (orchestrator)
+      skill_task_selection:
+        red: test-driven-development — "execute red task from test-driven-development"
+        green: test-driven-development — "execute green task from test-driven-development"
+        verify: verification-before-completion — "execute verify task from verification-before-completion"
+        commit: (orchestrator) commit-inline
+
+  dependency_dag:
+    edges:
+      - from: phase-1 (SC-1)
+        to: phase-2 (SC-5)
+        reason: regression scenario asserts the new WARN semantics
+      - from: phase-1 (SC-2)
+        to: phase-2 (SC-5)
+        reason: regression scenario asserts the new WARN semantics
+      - from: phase-1 (SC-4)
+        to: phase-2 (SC-5)
+        reason: scenario result contract mirrors documented DONE-with-WARN outcome
+
+  triplet_co_location:
+    verified: true
+    detail: >
+      SC-1..SC-4 RED/GREEN/COMMIT all in phase 1; SC-5 RED/GREEN/COMMIT all in
+      phase 2. No triplet split.
+
+  cross_phase_dependencies:
+    verified: true
+    detail: >
+      Phase 2 RED (SC-5) depends only on phase 1 outputs (SC-1, SC-2, SC-4) —
+      Y < X ordering, no forward dependencies. Phase 1 has no external
+      dependencies.

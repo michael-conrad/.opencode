@@ -1,0 +1,21 @@
+# Testability assessment — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+assessments:
+  - sc: SC-1
+    evidence_type: structural
+    verification: grep tracked .opencode/AGENTS.md for corrected-rule text
+  - sc: SC-2
+    evidence_type: structural
+    verification: grep for prohibition phrase — absent
+  - sc: SC-3
+    evidence_type: structural
+    verification: grep for both retained rules — present
+  - sc: SC-4
+    evidence_type: structural
+    verification: grep for contradicting phrases; assert no file-access-prohibition hits outside preserved git-op rule
+  - sc: SC-5
+    evidence_type: behavioral
+    verification: .opencode/tests-v2/behaviors/<scenario>.sh via opencode run (with-test-home); stderr shows file read of .issues/... and no parent-repo git add .issues/
+notes:
+  - substrate check: SC-1..SC-4 are text-content changes in an agent-facing file consumed at runtime by agents — declared structural evidence for the text itself; SC-5 is the runtime-behavioral uplift covering the changed guidance
+  - enforcement-test mandate satisfied by SC-5 behavioral scenario shipped in same change

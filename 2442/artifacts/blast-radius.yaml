@@ -1,0 +1,21 @@
+# Blast radius — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+scope: submodule (.opencode)
+affected_files:
+  - path: .opencode/AGENTS.md
+    exists: true
+    change: rewrite of section ".issues/ Is a Worktree — NOT a Regular Directory" (lines ~216-240), preserving section header and table structure
+    blast_radius: LOW — single prose section in one agent-facing file; consumed by session context instructions array
+  - path: .opencode/tests-v2/behaviors/
+    exists: true
+    change: add one new behavioral scenario script (new file, no edits to existing scenarios)
+    blast_radius: NONE — additive
+downstream_consumers:
+  - consumer: opencode agents loading .opencode/AGENTS.md via instructions array
+    effect: corrected two-part rule (file tools OK, git ops via git -C)
+  - consumer: tests-v2 harness
+    effect: one additional scenario executable via test-enforcement.sh
+unaffected:
+  - .opencode/guidelines/060-tool-usage.md (glob LIM notes retained, out of scope)
+  - root-repo AGENTS.md (companion spec tracked separately)
+  - local platform skill task cards (mutation routing unchanged)

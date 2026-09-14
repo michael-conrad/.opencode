@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+evidence_types:
+  - sc: SC-1
+    evidence: behavioral
+    method: opencode run — stderr assertion that the gate issues a shallow checkout at the release commit
+  - sc: SC-2
+    evidence: behavioral
+    method: opencode run — stderr assertion of 'git submodule update --init --depth 1' and absence of --remote/--recursive
+  - sc: SC-3
+    evidence: behavioral
+    method: opencode run — stderr assertion that a SHA mismatch produces a hard fail
+  - sc: SC-4
+    evidence: behavioral
+    method: opencode run — stderr assertion that the gate reads the declared build manifest for build/test commands
+  - sc: SC-5
+    evidence: behavioral
+    method: opencode run — stderr assertion that a non-zero build/test exit blocks promotion
+  - sc: SC-6
+    evidence: behavioral
+    method: opencode run — stderr assertion that the gate is invoked once per release and a failure halts promotion
+
+notes: >
+  All 6 SCs are behavioral per spec. Runtime-behavioral uplift applies: gate
+  dispatch/enforcement outcomes cannot be verified with grep/structural
+  substitutes (critical-rules-BEH-EV).

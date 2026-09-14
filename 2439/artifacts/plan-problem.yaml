@@ -1,0 +1,50 @@
+# Plan problem — issue #2439 phase decomposition for tools/plan (unified-planning)
+# Actions are grounded per phase; preconditions encode the dependency DAG from
+# artifacts/structure.yaml. Generated 2026-09-13 by writing-plans research task.
+# Daisy-chain: Phase 1 (SC-1 checkout) -> Phase 2 (SC-2/SC-3 submodule pin + drift)
+# -> Phase 3 (SC-4/SC-5 manifest discovery + build/test) -> Phase 4 (SC-6 gate placement).
+domain: release-verification-gate
+types:
+  - name: phase
+objects:
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+  - name: phase4
+    type: phase
+fluents:
+  - name: phase_clean
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: shallow_checkout_gate
+    preconditions: []
+    effects:
+      - phase_clean(phase1)
+  - name: submodule_pin_drift_gate
+    preconditions:
+      - phase_clean(phase1)
+    effects:
+      - phase_clean(phase2)
+  - name: manifest_build_test_gate
+    preconditions:
+      - phase_clean(phase1)
+      - phase_clean(phase2)
+    effects:
+      - phase_clean(phase3)
+  - name: once_per_release_promotion_gate
+    preconditions:
+      - phase_clean(phase2)
+      - phase_clean(phase3)
+    effects:
+      - phase_clean(phase4)
+init: []
+goals:
+  - phase_clean(phase1)
+  - phase_clean(phase2)
+  - phase_clean(phase3)
+  - phase_clean(phase4)

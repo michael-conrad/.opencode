@@ -1,0 +1,41 @@
+# Plan problem — Issue #2440 (.opencode) safe-state WARN classification
+# 2-phase DAG from artifacts/structure.yaml: Phase 1 (task-card safe-state
+# semantics: SC-1, SC-2, SC-3, SC-4) → Phase 2 (behavioral regression
+# verification: SC-5). Actions are the two phase-completion steps.
+# Generated 2026-09-13 by writing-plans/tasks/research executor.
+domain: safe-state-warn-classification
+
+types:
+  - name: phase
+
+objects:
+  - name: P1
+    type: phase
+  - name: P2
+    type: phase
+
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: implement-task-card-semantics
+    preconditions:
+      - not phase-done(P1)
+    effects:
+      - phase-done(P1)
+
+  - name: verify-behavioral-regression
+    preconditions:
+      - phase-done(P1)
+      - not phase-done(P2)
+    effects:
+      - phase-done(P2)
+
+# Closed-world init: all fluents default False (empty init per #2434 lesson).
+
+goals:
+  - phase-done(P1)
+  - phase-done(P2)

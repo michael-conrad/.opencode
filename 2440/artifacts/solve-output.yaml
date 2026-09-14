@@ -1,0 +1,33 @@
+# Solve output for .opencode#2440 research task (writing-plans/tasks/research)
+# Generated 2026-09-13
+issue: .opencode#2440
+solve_status: SAT
+solve_command: ".opencode/tools/solve model --contract-path .opencode/.issues/2440/dependency-contract.yaml --query 'z3.And(phase2_complete, unmerged_commit_blocking_preserved)'"
+solve_output: |
+  SAT
+    phase1_complete = True
+    phase2_complete = True
+    sc1_warn_semantics = True
+    sc2_warn_semantics = True
+    sc3_foreach_safe_construct = True
+    sc4_contract_docs = True
+    sc5_regression_verified = True
+    unmerged_commit_blocking_preserved = True
+check_status: SAT
+check_command: ".opencode/tools/solve check --contract-path .opencode/.issues/2440/dependency-contract.yaml --state-path .opencode/.issues/2440/artifacts/state-analysis.yaml"
+check_output: |
+  SAT (+ postconditions + invariants)
+  (initial state consistent with contract; blocking invariants preserved)
+plan_status: SOLVED_SATISFICING
+plan_command: ".opencode/tools/plan plan --problem .opencode/.issues/2440/artifacts/plan-problem.yaml"
+plan_result:
+  engine: tamer
+  plan_length: 2
+  actions:
+    - implement-task-card-semantics
+    - verify-behavioral-regression
+notes: >
+  Task card's literal `--query sat` is not a valid Z3 expression for the
+  solver (evaluates as a Python expression over contract variables); a
+  semantically equivalent conjunctive query over the phase-DAG variables was
+  used instead. All three gates: model SAT, check SAT, planner SOLVED_SATISFICING.

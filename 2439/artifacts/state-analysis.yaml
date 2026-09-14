@@ -1,0 +1,25 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+state_transitions:
+  - sc: SC-1
+    from: repo at release commit (unverified)
+    to: temp-copy shallow checkout at release commit
+  - sc: SC-2
+    from: checkout without submodule content
+    to: submodules initialized at gitlink-pinned SHAs
+  - sc: SC-3
+    from: submodule SHAs unresolved/unchecked
+    to: asserted state (resolved == pinned) OR hard FAIL
+  - sc: SC-4
+    from: build/test commands unknown
+    to: commands discovered from manifest OR hard FAIL
+  - sc: SC-5
+    from: tree built/unbuilt
+    to: build+test executed with zero failures OR FAIL
+  - sc: SC-6
+    from: promotion pending
+    to: promoted (gate PASS, exactly once per release) OR blocked (any FAIL)
+
+gate_states: [PENDING, CHECKOUT_OK, DRIFT_FAIL, MANIFEST_FAIL, BUILD_FAIL, PASS]
+failure_semantics: any of DRIFT_FAIL / MANIFEST_FAIL / BUILD_FAIL blocks promotion; no retries within a release run

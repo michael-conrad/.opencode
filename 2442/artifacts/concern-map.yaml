@@ -1,0 +1,14 @@
+# Concern map — issue 2442 (backfill, mode: retroactive)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+concerns:
+  - id: C-1
+    name: guidance-text-correction
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    description: rewrite the AGENTS.md worktree section to state the correct two-part rule (file tools permitted; git ops via git -C; git add .issues/ forbidden) with no residual contradictions
+    phase_boundary: Phase 1
+  - id: C-2
+    name: behavioral-enforcement
+    scs: [SC-5]
+    description: add behavioral scenario verifying agent reads .issues/ files with standard file tools and routes .issues/ git ops through git -C
+    phase_boundary: Phase 2
+concern_independence: C-2 depends on C-1 being GREEN (scenario must pass against corrected text); C-1 is independent

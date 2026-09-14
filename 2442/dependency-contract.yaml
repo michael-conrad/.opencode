@@ -1,0 +1,31 @@
+# Dependency contract — issue 2442 (extracted from interface-compatibility.yaml)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+preconditions:
+  - z3.Implies(phase2_done, phase1_done)
+dependencies:
+  - name: worktree-facts
+    source: ".opencode/AGENTS.md (existing true statements: issues-data orphan branch, .gitignore line 40, worktree location)"
+    target: rewritten section
+    type: artifact schema
+    constraint: retained verbatim-in-meaning; file-access and git-access treated as separate axes
+  - name: harness-conventions
+    source: .opencode/tests-v2/behaviors/ (existing scenario scripts)
+    target: new SC-5 scenario script
+    type: artifact schema
+    constraint: must run through with-test-home wrapper; bash timeout >=600s; no GNU timeout; stderr-based assertions per tests-v2 AGENTS.md
+  - name: local-issues routing
+    source: .opencode/tools/local-issues
+    target: rewritten section text
+    type: artifact schema
+    constraint: remains preferred interface for issue mutations (commits/pushes internally); removed only as forced intermediary for plain reads
+phases:
+  - id: 1
+    depends_on: []
+  - id: 2
+    depends_on: [1]
+

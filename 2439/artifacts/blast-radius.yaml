@@ -1,0 +1,27 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+affected_files:
+  - file: .opencode/skills/release-promoter/SKILL.md
+    change: Add verification gate routing metadata to the release-promoter skill card
+    verified_exists: true
+  - file: .opencode/skills/release-promoter/tasks/operating-protocol.md
+    change: Add the verification gate step that runs before tag creation
+    verified_exists: true
+  - file: .opencode/skills/release-promoter/tasks/tag.md
+    change: Gate placement — verification precedes tag creation
+    verified_exists: true
+  - file: AGENTS.md / .opencode/AGENTS.md (build manifest)
+    change: Read-only dependency — source of canonical build/test commands
+    verified_exists: true
+
+dependency_files:
+  - .opencode/AGENTS.md  # 'Build / Lint / Test Commands' table — canonical command source
+  - .gitignore / submodule config of consuming repo  # gitlink SHAs read at gate runtime
+
+blast_radius: LOW-MEDIUM
+notes: >
+  Changes are confined to the release-promoter skill deck (.opencode submodule).
+  The gate executes commands in a temp-copy checkout; it does not modify the
+  source tree. Root AGENTS.md lacks a build/test section — discovery must fall
+  back to .opencode/AGENTS.md (see analysis-summary FINDING).

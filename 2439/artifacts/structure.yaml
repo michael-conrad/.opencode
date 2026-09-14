@@ -1,0 +1,93 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: writing-plans/tasks/research
+
+# Phase decomposition — SCs grouped by concern boundary and dependency order
+phases:
+  - phase: 1
+    title: "Shallow temp-copy checkout at release commit"
+    scs: [SC-1]
+    items:
+      - sc: SC-1
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+      - .opencode/skills/release-promoter/SKILL.md
+
+  - phase: 2
+    title: "Submodule pin resolution + drift assertion"
+    scs: [SC-2, SC-3]
+    items:
+      - sc: SC-2
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+      - sc: SC-3
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+
+  - phase: 3
+    title: "Build manifest discovery + build/test execution gate"
+    scs: [SC-4, SC-5]
+    items:
+      - sc: SC-4
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+      - sc: SC-5
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+
+  - phase: 4
+    title: "Once-per-release gate placement + promotion blocking"
+    scs: [SC-6]
+    items:
+      - sc: SC-6
+        red: "task(..., prompt: 'execute red task from test-driven-development')"
+        green: "task(..., prompt: 'execute green task from test-driven-development')"
+        verify: "task(..., prompt: 'execute verify task from verification-before-completion')"
+        commit: "(orchestrator) commit-inline"
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+      - .opencode/skills/release-promoter/SKILL.md
+
+# Dependency DAG between phases (direct edges)
+dependency_dag:
+  - from: 1
+    to: 2
+    rationale: "SC-2/SC-3 RED tests exercise submodule init inside the checkout produced by SC-1; checkout must exist and be committed first."
+  - from: 2
+    to: 3
+    rationale: "SC-4/SC-5 RED tests run build/test inside the fully-initialized pinned-SHA tree produced by SC-1+SC-2."
+  - from: 3
+    to: 4
+    rationale: "SC-6 gate placement wraps the completed checkout/drift/build steps into a once-per-release promotion-blocking gate."
+
+# Verification: triplet co-location — every SC's RED/GREEN/COMMIT are in one phase (PASS)
+triplet_colocation: PASS
+# Verification: no RED depends on SC output from a later phase (PASS)
+cross_phase_dependencies: PASS
+
+skill_task_selection:
+  red: "test-driven-development :: execute red task from test-driven-development"
+  green: "test-driven-development :: execute green task from test-driven-development"
+  verify: "verification-before-completion :: execute verify task from verification-before-completion"
+  commit: "(orchestrator) commit-inline — no sub-agent dispatch"
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

@@ -1,0 +1,39 @@
+# Structure — issue 2442 (research task)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+# Note: sc-summary.yaml not present; SCs extracted from spec.md success-criteria table
+issue: 2442
+phases:
+  - id: 1
+    name: Correct the .issues/ worktree rule in .opencode/AGENTS.md
+    items:
+      - sc: SC-1
+        cycle: [red, green, verify, commit]
+        skill: test-driven-development
+        description: RED grep test asserting corrected two-part rule text present; GREEN edit worktree section to state file tools permitted + git ops via git -C
+      - sc: SC-2
+        cycle: [red, green, verify, commit]
+        skill: test-driven-development
+        description: RED grep test asserting prohibition sentence absent; GREEN remove the "silently targets the wrong repository / corrupts git state" prohibition on read/write/edit/glob/grep
+      - sc: SC-3
+        cycle: [red, green, verify, commit]
+        skill: test-driven-development
+        description: RED grep test asserting git -C mandate and git add .issues/ FORBIDDEN rules retained; GREEN preserve both rules during rewrite
+      - sc: SC-4
+        cycle: [red, green, verify, commit]
+        skill: test-driven-development
+        description: RED grep test asserting no residual contradicting file-access-prohibition phrases; GREEN sweep remaining contradicted sentences
+    skill_task: "red/green/verify from test-driven-development; commit via commit-inline (orchestrator)"
+  - id: 2
+    name: Behavioral enforcement scenario
+    items:
+      - sc: SC-5
+        cycle: [red, green, verify, commit]
+        skill: test-driven-development
+        description: RED behavioral scenario FAILs against pre-edit text; GREEN scenario passes via opencode run through with-test-home (stderr shows .issues/ file read via standard tool; no parent-repo git add .issues/)
+    skill_task: "red/green/verify from test-driven-development (behavioral variant); commit+push before behavioral run"
+dependency_dag:
+  - from: 1
+    to: 2
+    reason: SC-5 behavioral scenario verifies the corrected rule produced by phase 1
+triplet_colocation: verified — every SC's RED/GREEN/COMMIT cycle is entirely within one phase
+cross_phase_dependency: verified — SC-5 RED (phase 2) depends only on SC-1..SC-4 outputs committed in phase 1

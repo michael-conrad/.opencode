@@ -1,0 +1,107 @@
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# Extracted from interface-compatibility.yaml dependency_contract section
+
+description: "Concrete dependency data derived from spec #2439 affected files and success criteria — verification gate for release promotion against a pinned-SHA checkout"
+
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+  phase3_done:
+    type: bool
+  phase4_done:
+    type: bool
+  checkout_ok:
+    type: bool
+  submodules_pinned:
+    type: bool
+  drift_asserted:
+    type: bool
+  manifest_discovered:
+    type: bool
+  build_test_passed:
+    type: bool
+  gate_blocks_promotion:
+    type: bool
+
+preconditions:
+  - "z3.Not(checkout_ok)"
+  - "z3.Not(submodules_pinned)"
+  - "z3.Not(drift_asserted)"
+  - "z3.Not(manifest_discovered)"
+  - "z3.Not(build_test_passed)"
+  - "z3.Not(gate_blocks_promotion)"
+
+invariants:
+  - "z3.Implies(checkout_ok, phase1_done)"
+  - "z3.Implies(submodules_pinned, phase2_done)"
+  - "z3.Implies(drift_asserted, phase2_done)"
+  - "z3.Implies(manifest_discovered, phase3_done)"
+  - "z3.Implies(build_test_passed, phase3_done)"
+  - "z3.Implies(gate_blocks_promotion, phase4_done)"
+  - "z3.Implies(phase2_done, phase1_done)"
+  - "z3.Implies(phase3_done, z3.And(phase1_done, phase2_done))"
+  - "z3.Implies(phase4_done, z3.And(phase2_done, phase3_done))"
+
+postconditions:
+  - "phase1_done"
+  - "phase2_done"
+  - "phase3_done"
+  - "phase4_done"
+  - "checkout_ok"
+  - "submodules_pinned"
+  - "drift_asserted"
+  - "manifest_discovered"
+  - "build_test_passed"
+  - "gate_blocks_promotion"
+
+phase_ordering:
+  - phase: 1
+    scs: [SC-1]
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+      - .opencode/skills/release-promoter/SKILL.md
+  - phase: 2
+    scs: [SC-2, SC-3]
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+  - phase: 3
+    scs: [SC-4, SC-5]
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+  - phase: 4
+    scs: [SC-6]
+    files:
+      - .opencode/skills/release-promoter/tasks/operating-protocol.md
+      - .opencode/skills/release-promoter/SKILL.md
+
+entries:
+  - source: "Phase 1 (SC-1): shallow temp-copy checkout at release commit"
+    target: "Phase 2 (SC-2/SC-3): git submodule update --init --depth 1 + resolved-SHA==pinned-SHA assertion"
+    type: "artifact schema (interface-compatibility.yaml dependency_contract)"
+    constraint: "Phase 2's submodule init runs inside the Phase 1 checkout; without CHECKOUT_OK the submodule steps cannot execute. Checkout must use --depth 1, never --remote or --recursive."
+  - source: "Phase 2 (SC-2/SC-3): pinned-SHA submodule tree + drift assertion"
+    target: "Phase 3 (SC-4/SC-5): manifest-discovered build/test commands executed in that tree"
+    type: "input data (pinned checkout tree)"
+    constraint: "Build/test must run against the Phase 2 pinned-SHA tree; DRIFT_FAIL hard-fails before any build attempt. build_command and test_command are strings read from .opencode/AGENTS.md 'Build / Lint / Test Commands' (root AGENTS.md first, fallback .opencode/AGENTS.md); missing manifest = MANIFEST_FAIL."
+  - source: "Phase 3 (SC-4/SC-5): build+test zero-failure result"
+    target: "Phase 4 (SC-6): once-per-release gate blocks promotion on any failure"
+    type: "gate composition (promotion blocking)"
+    constraint: "Any of DRIFT_FAIL / MANIFEST_FAIL / BUILD_FAIL blocks promotion; gate runs exactly once per release at the pinned-SHA configuration; PASS is required before tag creation. pinned_submodule_shas and release_commit fields (map<submodule_path, sha>, git commit SHA) are required contract fields."
+
+cross_phase_edges:
+  - from: 1
+    to: 2
+    rationale: "Submodule init and SHA assertion execute inside the Phase 1 shallow checkout — no checkout, no submodule gate."
+  - from: 2
+    to: 3
+    rationale: "Build/test commands execute against the pinned-SHA tree; drift must be asserted (hard fail) before building."
+  - from: 3
+    to: 4
+    rationale: "The once-per-release promotion gate composes all prior gate outcomes (drift, manifest, build/test) into the block-promotion decision."
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

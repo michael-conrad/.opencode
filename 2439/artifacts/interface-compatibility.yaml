@@ -1,0 +1,44 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+interfaces:
+  - name: release-promoter skill card (SKILL.md)
+    boundary: orchestrator -> sub-agent dispatch
+    change: routing metadata extended with verification-gate entry
+    compatible: true
+  - name: operating-protocol task card
+    boundary: sub-agent execution procedure
+    change: new gate step inserted before tag creation; existing steps unchanged
+    compatible: true
+  - name: build manifest (AGENTS.md / .opencode/AGENTS.md)
+    boundary: gate (reader) -> repo docs (read-only source)
+    contract: >
+      Manifest must expose a table of canonical build and test commands.
+      Discovery order: root AGENTS.md first; fallback .opencode/AGENTS.md
+      'Build / Lint / Test Commands'. Missing or ambiguous manifest = hard FAIL.
+
+dependency_contract:
+  source:
+    - file: .opencode/AGENTS.md
+      role: canonical build/test command source (table 'Build / Lint / Test Commands')
+    - file: AGENTS.md (root)
+      role: primary manifest location; currently lacks build/test section
+  target:
+    - file: .opencode/skills/release-promoter/tasks/operating-protocol.md
+      role: verification gate — consumes manifest commands and repo gitlink SHAs
+  type_constraints:
+    - field: build_command
+      type: string (shell command)
+      required: true
+    - field: test_command
+      type: string (shell command)
+      required: true
+    - field: pinned_submodule_shas
+      type: map<submodule_path, commit_sha>  # read from gitlinks at release commit
+      required: true
+    - field: release_commit
+      type: git commit SHA
+      required: true
+  notes: >
+    No code-level API changes; all boundaries are skill-deck text and shell
+    command contracts executed inside the temp checkout.

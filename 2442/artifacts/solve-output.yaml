@@ -1,0 +1,15 @@
+# Solve output — issue 2442 (research task)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+solve_status: SAT
+model_query: "z3.And(phase1_done, phase2_done)"
+model: {phase1_done: true, phase2_done: true}
+check_status: "SAT (+ postconditions + invariants)"
+plan_status: SOLVED_SATISFICING
+plan_length: 2
+plan:
+  - correct-agents-md-rule()
+  - behavioral-enforcement-scenario()
+artifacts:
+  dependency_contract: .opencode/.issues/2442/dependency-contract.yaml
+  plan_problem: .opencode/.issues/2442/artifacts/plan-problem.yaml
+  plan_output: .opencode/.issues/2442/artifacts/plan-output.yaml

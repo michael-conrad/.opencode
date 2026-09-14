@@ -1,0 +1,32 @@
+# Dependency contract for .opencode#2440 — Z3-evaluable encoding of the phase DAG.
+# Extracted from artifacts/interface-compatibility.yaml dependency_contract section.
+# Phase 1 (SC-1..SC-4, task-card semantics) precedes Phase 2 (SC-5, behavioral regression).
+issue: .opencode#2440
+variables:
+  phase1_complete: {type: bool}
+  phase2_complete: {type: bool}
+  sc1_warn_semantics: {type: bool}
+  sc2_warn_semantics: {type: bool}
+  sc3_foreach_safe_construct: {type: bool}
+  sc4_contract_docs: {type: bool}
+  sc5_regression_verified: {type: bool}
+  unmerged_commit_blocking_preserved: {type: bool}
+preconditions:
+  - z3.Implies(phase1_complete, z3.And(sc1_warn_semantics, sc2_warn_semantics, sc3_foreach_safe_construct, sc4_contract_docs))
+  - z3.Implies(phase2_complete, z3.And(phase1_complete, sc5_regression_verified, unmerged_commit_blocking_preserved))
+invariants:
+  - unmerged_commit_blocking_preserved
+dependency_contract_entries:
+  - source: trunk-tip-verification Result Contract (checks enum)
+    target: pre-work.md status handling
+    type: artifact schema
+    constraint: >
+      pre-work must not treat checks.*: WARN as blocking; the enum extension
+      is additive so existing consumers that branch on FAIL/BLOCKED are
+      unaffected.
+  - source: trunk-tip-verification Step 8 blocking semantics
+    target: 2313-sc1-prework-merged-commit.sh behavioral test
+    type: artifact schema
+    constraint: >
+      SUBMODULE_UNMERGED_COMMIT blocking assertion must remain satisfied —
+      no change to the merged/ancestor detection path.

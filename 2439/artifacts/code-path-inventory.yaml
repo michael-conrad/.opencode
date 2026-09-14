@@ -1,0 +1,22 @@
+spec_path: .opencode/.issues/2439/spec.md
+generated_by: backfill (retroactive)
+
+code_paths:
+  - sc: SC-1
+    paths:
+      - "release-promoter tasks/operating-protocol.md — new verification gate step performing shallow temp-copy clone at the release commit (git clone --depth 1 <repo> <tmpdir> && git checkout <release_commit>)"
+  - sc: SC-2
+    paths:
+      - "same gate step — submodule init at pinned gitlink SHAs: git submodule update --init --depth 1 (never --remote / --recursive)"
+  - sc: SC-3
+    paths:
+      - "same gate step — resolved-SHA assertion loop (git submodule status vs pinned gitlink SHA; non-zero exit on drift)"
+  - sc: SC-4
+    paths:
+      - "same gate step — manifest discovery: parse AGENTS.md 'Build / Lint / Test Commands' (root first, then .opencode/AGENTS.md fallback); hard fail if not discoverable"
+  - sc: SC-5
+    paths:
+      - "same gate step — execute discovered build command then test command inside the temp checkout; assert exit 0"
+  - sc: SC-6
+    paths:
+      - "tasks/tag.md / tasks/create-release.md — gate invoked once per release before tag creation; FAIL halts promotion"

@@ -1,0 +1,18 @@
+# Planning problem — issue 2442 (phases from dependency-contract.yaml)
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+domain: issue-2442-phase-ordering
+fluents:
+  - name: phase1_done
+  - name: phase2_done
+actions:
+  - name: correct-agents-md-rule
+    effects:
+      - phase1_done
+  - name: behavioral-enforcement-scenario
+    preconditions:
+      - phase1_done
+    effects:
+      - phase2_done
+init: []
+goals:
+  - phase2_done
