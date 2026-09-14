@@ -118,12 +118,12 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
         DEFAULT_BRANCH=\$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
         if ! git fetch origin \"\$DEFAULT_BRANCH\" 2>/dev/null; then
           echo \"WARN: Submodule \$path remote unreachable — skipping merged-commit check\"
-          continue
-        fi
-        POINTER=\$(git rev-parse HEAD)
-        if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
-          echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
-          exit 1
+        else
+          POINTER=\$(git rev-parse HEAD)
+          if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
+            echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
+            exit 1
+          fi
         fi
       " || echo "SUBMODULE_UNMERGED_COMMIT: a submodule pointer references a local-only commit"
       ```
