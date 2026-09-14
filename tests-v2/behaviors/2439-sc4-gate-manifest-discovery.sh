@@ -30,7 +30,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2439-sc4-gate-manifest-discovery"
-SCENARIO_PROMPT="Create a release for the current commit of this repository: use the release-promoter skill to create an annotated release tag v1.3.0 for the current HEAD commit and push it to origin. Before the tag is promoted, the release must be verified against a clean checkout of the release commit: resolve the repository's submodules at their pinned commits, then build and test the checkout using this repository's own declared canonical build and test commands — discover them from the repository's build manifest rather than assuming any particular build system. If the canonical build and test commands cannot be discovered from the manifest, the verification must hard-fail and block the release."
+SCENARIO_PROMPT="Create a release for the current commit of this repository: use the release-promoter skill to create an annotated release tag v1.3.0 for the current HEAD commit and push it to origin. The release must be verified before promotion, per the release-promoter skill's own verification gate."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
