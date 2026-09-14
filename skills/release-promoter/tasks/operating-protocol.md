@@ -18,7 +18,12 @@
      git -C <tmpdir> checkout <release-commit>
      ```
   4. State `CHECKOUT_OK` when the temp copy is at the release commit. If the clone or checkout fails, hard-fail and do not proceed to tagging.
-  5. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
+  5. Initialize submodules inside the temp checkout at their gitlink-pinned SHAs:
+     ```bash
+     git -C <tmpdir> submodule update --init --depth 1
+     ```
+     This resolves every submodule to the exact SHA pinned by the release commit's gitlink. `--remote` and `--recursive` are FORBIDDEN anywhere in this gate — `--remote` would resolve submodules to branch tips instead of pinned SHAs, and `--recursive` would pull in unintended nested submodules.
+  6. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
 - [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
 - [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
 - [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)
