@@ -38,8 +38,16 @@ setup_2440_sc1_safe_state() {
     # Create a bare origin for the parent repo and push main to it, so
     # session-init reports a remote-tracking repo (not local-only) and the agent
     # runs the full remote-tracking trunk-tip gate (mirrors 2313-sc1).
-    local bare="$wd/../origin.git"
+    # The bare MUST live at a stable absolute path OUTSIDE the attempt workdir:
+    # with-test-home MOVES the workdir into the test home (helpers/with-test-home),
+    # so any origin URL pointing into tmp/behavior-isolated-* breaks after the move.
+    # tmp/ is stable for the duration of the run. Remove any stale bare first so a
+    # leftover from a prior run cannot mask a failed push.
+    local bare
+    bare="$(cd "$wd/../.." && pwd)/tmp/origin-2440-sc1.git"
+    rm -rf "$bare"
     git init -q --bare "$bare" 2>/dev/null || true
+    git -C "$wd" remote remove origin 2>/dev/null || true
     git -C "$wd" remote add origin "$bare" 2>/dev/null || true
 
     # Step 1: move the submodule checkout to the previous commit and commit that
@@ -51,7 +59,12 @@ setup_2440_sc1_safe_state() {
 
     # Step 2: push main to origin AFTER the pointer change so step 3 (parent
     # remote tracking match) passes and the agent reaches the pointer checks.
-    git -C "$wd" push -q -u origin main 2>/dev/null || true
+    # Loud failure — a silently swallowed push error is what masked the missing
+    # remote in the first GREEN run (agent saw zero reachable parent remotes).
+    if ! git -C "$wd" push -q -u origin main 2>/dev/null; then
+        echo "FIXTURE_FAILURE: 2440-sc1 — parent push to bare origin $bare failed" >&2
+        return 1
+    fi
 
     # Step 3: move the submodule checkout to the submodule's origin/main tip.
     # The parent's committed gitlink still references origin/main^, so the
