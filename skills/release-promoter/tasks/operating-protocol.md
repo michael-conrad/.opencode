@@ -36,7 +36,13 @@
       3. Identify the canonical build command and the canonical test command from the discovered section.
       4. If the build and test commands cannot be discovered from the manifest (no root section, no fallback section, no commands derivable), hard-fail: state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed to tagging — promotion is blocked.
       5. All discovery reads happen inside `<tmpdir>` against the release-commit checkout — never against the source working tree.
-   8. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
+   8. **Build and test execution with zero-failure assertion:** After manifest discovery (step 7), execute the discovered build command, then the discovered test command, inside the temp checkout `<tmpdir>` — never in the source working tree:
+      ```bash
+      (cd <tmpdir> && <build-command>) || { echo "BUILD_FAIL: build command exited non-zero"; exit 1; }
+      (cd <tmpdir> && <test-command>) || { echo "BUILD_FAIL: test command exited non-zero"; exit 1; }
+      ```
+      Both commands MUST exit zero. Any non-zero exit — from the build command or the test command — is `BUILD_FAIL`: exit non-zero, state `BUILD_FAIL` with the failing command and its exit code, and do NOT proceed to tagging — promotion is blocked, no tag is created and no tag is pushed.
+   9. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
 - [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
 - [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
 - [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)
