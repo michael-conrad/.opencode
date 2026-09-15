@@ -4,6 +4,8 @@
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
 # SC-1: orchestrator dispatches pre-work before file modification; trunk-tip-verification is dispatched as sub-task within pre-work
+# Safe-state pointer-only drift (parent_clean / submodule_pointer_match) classifies WARN (release-capture-pending), never a blocking outcome.
+# The SUBMODULE_UNMERGED_COMMIT blocking assertion lives in the 2313-sc1-prework-merged-commit.sh scenario and its clean-room evaluation.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

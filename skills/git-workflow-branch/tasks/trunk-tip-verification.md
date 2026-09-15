@@ -22,6 +22,33 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
       git status --porcelain | head -5
       # MUST be empty — no uncommitted changes
       ```
+      **Pointer-only submodule exception:** If `git status --porcelain` shows
+      ONLY submodule pointer entries (` M <submodule>` with no other changes),
+      classify `parent_clean: WARN` with reason `release-capture-pending` —
+      NOT FAIL — when the safe-state predicate holds:
+      (a) the submodule checkout is at the submodule's `origin/<default>` tip
+      (from step 6's computation), AND
+      (b) the merged-commit check passes (from step 8 — the committed pointer
+      SHA is an ancestor of the submodule's remote trunk).
+      The predicate is derived from the computations already performed in steps
+      6 and 8 — no new checks, check IDs, or network calls. If the safe-state
+      predicate does NOT hold, or the working tree has changes beyond
+      pointer-only submodule drift, retain FAIL (genuine dirt).
+
+      **Safe-state WARN scope (checks 4, 6, 7):** When the safe-state predicate
+      holds, the submodule-side symptoms of the SAME deferred pointer capture
+      are classified `WARN` with reason `release-capture-pending` — NOT FAIL —
+      for: check 4 (submodule checkout is a detached HEAD sitting exactly at
+      `origin/<default>` tip — verify with `git rev-parse HEAD` vs
+      `origin/<default>`, not `git branch --show-current`), check 6 (the local
+      named `<default>` ref lags `origin/<default>` because the checkout is
+      detached at the tip), and check 7 (the `+` prefix — the pointer drift
+      itself). These are one deferred state, not three independent defects:
+      none can fail while the safe-state predicate holds except as artifacts
+      of that state. Genuine failures outside this family (submodule working
+      tree dirt on step 5, an unmerged pointer on step 8, parent-side
+      failures) still block. Gate status is `DONE` when every FAIL-class check
+      passes and the only deviations are these safe-state WARNs.
 
 - [ ] 3. **Parent repo remote tracking match:** Verify local `$DEFAULT_BRANCH` matches `origin/$DEFAULT_BRANCH`:
       ```bash
@@ -91,23 +118,24 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
         DEFAULT_BRANCH=\$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
         if ! git fetch origin \"\$DEFAULT_BRANCH\" 2>/dev/null; then
           echo \"WARN: Submodule \$path remote unreachable — skipping merged-commit check\"
-          continue
-        fi
-        POINTER=\$(git rev-parse HEAD)
-        if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
-          echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
-          exit 1
+        else
+          POINTER=\$(git rev-parse HEAD)
+          if ! git merge-base --is-ancestor \"\$POINTER\" \"origin/\$DEFAULT_BRANCH\"; then
+            echo \"FAIL: Submodule \$path pointer \$POINTER is not on origin/\$DEFAULT_BRANCH\"
+            exit 1
+          fi
         fi
       " || echo "SUBMODULE_UNMERGED_COMMIT: a submodule pointer references a local-only commit"
       ```
 
 ## Exit Criteria
 
-- Parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
+- `parent_clean: PASS` — parent repo is on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip; `parent_clean: WARN` = release-capture-pending (safe-state pointer-only drift)
 - All submodules are on `$DEFAULT_BRANCH` with zero pending changes at remote trunk tip
-- Submodule pointers match committed SHAs
+- `submodule_pointer_match: PASS` — submodule pointers match committed SHAs; `submodule_pointer_match: WARN` = release-capture-pending (safe-state "+" drift)
 - All submodule pointer SHAs are ancestors of their submodule's remote `origin/$DEFAULT_BRANCH` (merged) — no local-only submodule commits
-- If ANY check fails: return BLOCKED with the specific failure
+- Safe-state pointer-only submodule drift (step 2 exception, including the checks 4/6/7 WARN scope) classifies as `DONE` with `WARN: release-capture-pending` — NOT BLOCKED
+- If ANY check fails outside the safe-state WARN scope: return BLOCKED with the specific failure
 
 ## Result Contract
 
@@ -115,12 +143,12 @@ Verify that the parent repo and all submodules are at remote trunk tip with clea
 status: DONE | BLOCKED
 checks:
   parent_on_default: PASS | FAIL
-  parent_clean: PASS | FAIL
+  parent_clean: PASS | WARN | FAIL   # WARN = release-capture-pending (safe-state pointer-only)
   parent_remote_match: PASS | FAIL
-  submodule_on_default: PASS | FAIL
+  submodule_on_default: PASS | WARN | FAIL   # WARN = detached HEAD at origin tip under safe state
   submodule_clean: PASS | FAIL
-  submodule_remote_match: PASS | FAIL
-  submodule_pointer_match: PASS | FAIL
+  submodule_remote_match: PASS | WARN | FAIL # WARN = local ref lag under safe state
+  submodule_pointer_match: PASS | WARN | FAIL # WARN = "+" drift under safe state — release-capture-pending
   submodule_merged_commit: PASS | FAIL | SKIP
 blocker_reason: "<description of which check failed and why>"
 ```

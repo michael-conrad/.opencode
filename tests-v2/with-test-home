@@ -148,6 +148,11 @@ seed_model_config() {
         "$bare": {}
       }
     }
+  },
+  "permission": {
+    "external_directory": {
+      "**": "allow"
+    }
   }
 }
 JSONC

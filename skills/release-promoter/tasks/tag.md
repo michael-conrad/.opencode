@@ -8,6 +8,7 @@ Create an annotated git tag with v prefix on the merge commit and push it to the
 
 - [ ] 1.  Release PR has merged — verify merge commit exists
 - [ ] 2.  Next version determined (from version-manager --task bump)
+- [ ] 3.  Verification gate (operating-protocol step 0) has run and PASSED for this release — the gate runs exactly once per release before tag creation; any gate FAIL blocks promotion, so no tag may be created unless the gate passed
 
 ## Steps
 
