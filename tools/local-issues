@@ -463,6 +463,75 @@ def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
     return True
 
 
+def _bootstrap_from_remote(root: Path) -> bool:
+    """Bootstrap the issues branch from origin/issues-data when present.
+
+    Fetches the remote branch and creates a local tracking branch. Returns
+    True when the local branch was created from the remote ref. Returns
+    False when the remote branch does not exist or the fetch failed
+    (warned) — the caller then falls back to the orphan-branch path.
+    """
+    fetch = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "fetch",
+            "--quiet",
+            "origin",
+            WORKTREE_BRANCH,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if fetch.returncode != 0:
+        print(
+            f"warn: fetch of origin/{WORKTREE_BRANCH} failed: "
+            f"{fetch.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return False
+    verify = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/remotes/origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if verify.returncode != 0:
+        return False
+    branch = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "branch",
+            "--track",
+            WORKTREE_BRANCH,
+            f"origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if branch.returncode != 0:
+        print(
+            f"warn: failed to create tracking branch {WORKTREE_BRANCH}: "
+            f"{branch.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return False
+    return True
+
+
 def _create_orphan_branch(root: Path) -> bool:
     """Create an orphan issues-data branch with an initial empty commit.
 
@@ -589,7 +658,7 @@ def _create_issues_worktree(root: Path) -> bool:
                 ["git", "-C", str(root), "worktree", "prune"],
                 capture_output=True, text=True, timeout=15,
             )
-        if not _create_orphan_branch(root):
+        if not _bootstrap_from_remote(root) and not _create_orphan_branch(root):
             print("error: failed to create orphan issues-data branch", file=sys.stderr)
             return False
     if not _setup_worktree(root):
