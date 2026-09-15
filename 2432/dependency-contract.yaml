@@ -1,0 +1,59 @@
+# Dependency contract for issue 2432 (research task) — Z3 formalism
+# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration)
+source_issue: ".opencode#2432"
+source_artifact: ".opencode/.issues/2432/artifacts/interface-compatibility.yaml"
+
+variables:
+  p1_identity_completed:
+    type: bool
+    nullable: false
+  p2_infra_completed:
+    type: bool
+    nullable: false
+  p3_parse_gate_completed:
+    type: bool
+    nullable: false
+  p4_repair_completed:
+    type: bool
+    nullable: false
+  p5_integration_completed:
+    type: bool
+    nullable: false
+
+preconditions:
+  - "z3.Not(z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed))"
+
+invariants:
+  - "z3.Implies(p2_infra_completed, p1_identity_completed)"
+  - "z3.Implies(p4_repair_completed, p3_parse_gate_completed)"
+  - "z3.Implies(p5_integration_completed, p3_parse_gate_completed)"
+
+postconditions:
+  - "z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed)"
+
+theorem:
+  - "z3.Implies(z3.And(p4_repair_completed, p5_integration_completed), p3_parse_gate_completed)"
+  - "z3.Implies(p2_infra_completed, p1_identity_completed)"
+
+# Informal dependency_contract extracted as-is from interface-compatibility.yaml
+dependency_contract:
+  - source: "local-issues CLI (validate-yaml exit-code gate)"
+    target: ".opencode/skills/spec-creation + writing-plans task cards (SC-09)"
+    type: "artifact schema"
+    constraint: "gate task cards BLOCK on exit 1; subcommand must exist and be stable before SC-09 lands (DAG: 6→9)"
+  - source: "yaml_load error classification (SC-05)"
+    target: "validate-yaml report classes (SC-06)"
+    type: "artifact schema"
+    constraint: "single shared error-class taxonomy (e.g., ScannerError, ParserError, DuplicateKey, ANSI-escape, truncation) — defined in SC-05, consumed by SC-06/SC-07"
+  - source: "repaired issue.yaml/comments.yaml schemas (SC-07)"
+    target: "yaml_load consumers (read/list/search/promote)"
+    type: "artifact schema"
+    constraint: "post-repair files must conform to state-analysis schema ({title, status, labels: [str], body, ...} / {comments: [{type, body, timestamp}]}) — no consumer changes required"
+  - source: "counter semantics (SC-04)"
+    target: "create callers reserving numbers (SC-01)"
+    type: "artifact schema"
+    constraint: "number reservation flow: caller runs _next_number(resolved_repo) or future explicit reserve path, then create --number repo#N"
+  - source: "doctor health markers (SC-08)"
+    target: "developer + pipeline diagnostics"
+    type: "artifact schema"
+    constraint: "marker vocabulary stable across runs; covers residual counter drift (B4) and divergent worktrees (B3)"

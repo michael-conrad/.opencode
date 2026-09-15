@@ -1,0 +1,24 @@
+# Analysis summary for issue 2432 (analyze task)
+spec_path: .opencode/.issues/2432/spec.md
+approval:
+  status: approved
+  label: approved-for-pr
+  source: .opencode/.issues/2432/issue.yaml
+success_criteria:
+  count: 9
+  ids: [SC-01, SC-02, SC-03, SC-04, SC-05, SC-06, SC-07, SC-08, SC-09]
+artifacts:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_boundary_findings:
+  - local-issues tool exists at .opencode/tools/local-issues (single-file Python tool)
+  - pytest scaffolding directory .opencode/tests/ exists (new test module to be created there)
+  - spec-creation task cards (analyze.md, create.md) exist at .opencode/skills/spec-creation/tasks/
+  - writing-plans task cards (analyze.md, create.md) exist at .opencode/skills/writing-plans/tasks/
+  - spec does not carry an explicit file-path table; affected targets are described as layers (qualifier-resolution, identity/discovery, bootstrap, create path, parse layer, subcommand registration) — all map to .opencode/tools/local-issues, verified present
+  - no missing files recorded

@@ -1,0 +1,50 @@
+# solve-output.yaml for issue 2432 — 5-phase DAG dependency validation
+# Generated via .opencode/tools/solve (model, check, prove) + .opencode/tools/plan plan
+
+status: SAT
+finding_summary: >
+  5-phase DAG (P1 identity -> P2 infra; P3 parse-gate -> P4 repair; P3 -> P5 integration)
+  validated: solve model SAT, initial-state check SAT (postconditions UNSAT as expected —
+  goals unmet at init), both theorems VALID, planner SOLVED_SATISFICING with a 5-step
+  plan covering all phases.
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+
+model:
+  query: "p5_integration_completed"
+  result: SAT
+  sample_model:
+    p1_identity_completed: false
+    p2_infra_completed: false
+    p3_parse_gate_completed: true
+    p4_repair_completed: false
+    p5_integration_completed: true
+
+check:
+  state_path: .opencode/.issues/2432/artifacts/state-initial.yaml
+  preconditions: SAT
+  postconditions_plus_invariants: UNSAT
+  unsat_note: >
+    Expected for the initial (all-false) state — postconditions require all five phases
+    complete. Invariants enforce the DAG: p2→p1, p4→p3, p5→p3.
+
+theorem_proofs:
+  - theorem: "Implies(And(p4_repair_completed, p5_integration_completed), p3_parse_gate_completed)"
+    validity: VALID
+  - theorem: "Implies(p2_infra_completed, p1_identity_completed)"
+    validity: VALID
+
+planner:
+  engine: tamer
+  problem_path: .opencode/.issues/2432/artifacts/problem.yaml
+  plan_length: 5
+  plan:
+    - complete_phase_1_identity
+    - complete_phase_3_parse_gate
+    - complete_phase_4_repair
+    - complete_phase_2_infra
+    - complete_phase_5_integration
+
+contract_path: .opencode/.issues/2432/dependency-contract.yaml
+structure_path: .opencode/.issues/2432/artifacts/structure.yaml

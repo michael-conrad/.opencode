@@ -1,0 +1,7 @@
+# Initial state for issue 2432 — all phases not yet started
+variables:
+  p1_identity_completed: false
+  p2_infra_completed: false
+  p3_parse_gate_completed: false
+  p4_repair_completed: false
+  p5_integration_completed: false
