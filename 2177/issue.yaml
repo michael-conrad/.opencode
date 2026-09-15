@@ -98,7 +98,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2177/`](https://github.c
   key assignments | `string` | grep for `secret-assignment` pattern name in config
   |
 
-  | SC-6 | `.opencode/vibeguard.config.json` is valid JSON | `string` | `python3 -c "import json; json.load(open('.opencode/vibeguard.config.json'))"` |
+  | SC-6 | `.opencode/vibeguard.config.json` is valid JSON | `string` | `python3 -c "import json; json.load(open(''.opencode/vibeguard.config.json''))"` |
 
 
   # Requirements
