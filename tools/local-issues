@@ -1953,6 +1953,87 @@ def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+def _add_doctor_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser(
+        "doctor",
+        help="Emit per-repo health markers (read-only): branch state, merge-base delta vs origin/issues-data, counter state, worktree presence",
+    )
+
+
+def _doctor_remote_branch_exists(repo_path: Path) -> bool:
+    """Check if refs/remotes/origin/issues-data exists (read-only)."""
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_path),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/remotes/origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        timeout=15,
+    )
+    return result.returncode == 0
+
+
+def _doctor_counter_state(issues_dir: Path) -> str:
+    """Report counter state for a repo's .issues/ directory (read-only)."""
+    counter_path = issues_dir / ".counter"
+    if not counter_path.exists():
+        return "missing"
+    try:
+        raw = counter_path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return "corrupt"
+    if raw.isdigit():
+        return raw
+    return "corrupt"
+
+
+def _doctor_repo_report(repo: Path) -> str:
+    """Build one machine-greppable health-marker line for a repo (read-only).
+
+    Markers: repo=<path> branch_state={HEALTHY|UNHEALTHY}
+    merge_base_delta={absent|<ahead>/<behind>} counter={missing|corrupt|<n>}
+    worktree={active|absent}
+    """
+    issues_dir = repo / ISSUES_DIR
+    local_exists = _issues_branch_exists(repo_path=repo)
+    branch_state = "HEALTHY" if local_exists else "UNHEALTHY"
+    if local_exists and _doctor_remote_branch_exists(repo):
+        raw = _get_branch_divergence(
+            str(repo), WORKTREE_BRANCH, f"origin/{WORKTREE_BRANCH}"
+        )
+        parts = raw.split()
+        delta = f"{parts[0]}/{parts[1]}" if len(parts) == 2 else raw or "absent"
+    else:
+        delta = "absent"
+    worktree = "active" if (issues_dir / ".git").is_file() else "absent"
+    counter = _doctor_counter_state(issues_dir)
+    return (
+        f"repo={repo} issues_dir={issues_dir} branch_state={branch_state} "
+        f"merge_base_delta={delta} counter={counter} worktree={worktree}"
+    )
+
+
+def cmd_doctor(args: argparse.Namespace) -> None:
+    """Emit per-repo health markers for root and all discovered repos.
+
+    Read-only: never mutates state (no worktree bootstrap, no counter
+    writes, no sentinel files).
+    """
+    for repo in _discover_all_repos():
+        try:
+            print(f"doctor {_doctor_repo_report(repo)}")
+        except Exception as e:
+            print(
+                f"doctor repo={repo} branch_state=UNKNOWN error={e}",
+                file=sys.stderr,
+            )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="local-issues",
@@ -1977,6 +2058,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_init_parser(sub)
     _add_sync_parser(sub)
     _add_sync_file_parser(sub)
+    _add_doctor_parser(sub)
 
     return parser
 
@@ -2030,7 +2112,9 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    _check_legacy_formats(Path(ISSUES_DIR))
+    # doctor is strictly read-only — skip the legacy sentinel (which writes a file)
+    if args.command != "doctor":
+        _check_legacy_formats(Path(ISSUES_DIR))
 
     command_map = {
         "create": cmd_create,
@@ -2050,6 +2134,7 @@ def main() -> None:
         "init": cmd_init,
         "sync": cmd_sync,
         "sync-file": cmd_sync_file,
+        "doctor": cmd_doctor,
     }
     command_map[args.command](args)
 
