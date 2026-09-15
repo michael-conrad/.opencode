@@ -169,7 +169,6 @@ R-14. Existing qualifier enforcement on mutation commands (`update`, `comment`, 
 | `local-issues` tool source | code | `.opencode/tools/local-issues` | Read + line-verified during analyze pass (2026-09-03) |
 | `.gitmodules` | config | `.gitmodules` | Read during pre-spec inspection |
 | Malformed tracking files (10) | data | `.opencode/.issues/{1204,1205,1235,1296,1305,2013,2177}/issue.yaml`, `.opencode/.issues/{1296,2013}/comments.yaml`, `.issues/162/comments.yaml` | Live `yaml.safe_load` parse test — all 10 confirmed malformed |
-| Research card: discover-repos/worktree-filter | research | `.opencode/.issues/research-cards/local-issues-discover-repos-worktree-filter.md` | Read; confidence 0.95; staleness note incorporated |
 | Bug report #2432 | issue | https://github.com/michael-conrad/.opencode/issues/2432 | Read via GitHub API (2026-09-03) |
 | Testability/decomposition artifacts | analysis | `.opencode/.issues/2432/artifacts/` | Produced by the analyze pass this session |
 
