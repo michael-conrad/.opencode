@@ -979,7 +979,7 @@ behavior_run() {
         fi
 
         if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
-            (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
+            (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --number "$(basename "$attempt_workdir")#1" --title "stale-test" 2>/dev/null) || true
             rm -rf "$attempt_workdir/.issues"
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
         fi
