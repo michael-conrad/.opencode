@@ -43,11 +43,11 @@ ______________________________________________________________________
 
 | Type         | CLI Command                      | Output Format                                                                                          | Use Case                                                          |
 | ------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| **full**     | `./.opencode/tools/local-issues read N`            | YAML document (number, title, status, labels, phase, created, updated, github_issue, remote_url, body) | Full spec reading. One-dispatch access to issue body + metadata.  |
-| **comments** | `./.opencode/tools/local-issues read-comments N`   | YAML list of `{author, timestamp, body}`                                                               | Reading discussion history without the spec body.                 |
-| **labels**   | `./.opencode/tools/local-issues read-labels N`     | YAML `{labels: [string]}`                                                                              | Quick label check. Filtering by authorization state.              |
-| **links**    | `./.opencode/tools/local-issues read-sub-issues N` | YAML `{parent, children, related, blocked_by, duplicate_of, superseded_by}`                            | Sub-issue and dependency graph. Reads `links.yaml`.               |
-| **all**      | `./.opencode/tools/local-issues read N --all`      | Bundled YAML: `issue: {...}`, `comments: [...]`, `links: {...}`                                        | One-dispatch full context. Preferred when multiple facets needed. |
+| **full**     | `./.opencode/tools/local-issues read <repo>#<N>`            | YAML document (number, title, status, labels, phase, created, updated, github_issue, remote_url, body) | Full spec reading. One-dispatch access to issue body + metadata.  |
+| **comments** | `./.opencode/tools/local-issues read-comments <repo>#<N>`   | YAML list of `{author, timestamp, body}`                                                               | Reading discussion history without the spec body.                 |
+| **labels**   | `./.opencode/tools/local-issues read-labels <repo>#<N>`     | YAML `{labels: [string]}`                                                                              | Quick label check. Filtering by authorization state.              |
+| **links**    | `./.opencode/tools/local-issues read-sub-issues <repo>#<N>` | YAML `{parent, children, related, blocked_by, duplicate_of, superseded_by}`                            | Sub-issue and dependency graph. Reads `links.yaml`.               |
+| **all**      | `./.opencode/tools/local-issues read <repo>#<N> --all`      | Bundled YAML: `issue: {...}`, `comments: [...]`, `links: {...}`                                        | One-dispatch full context. Preferred when multiple facets needed. |
 
 ______________________________________________________________________
 
@@ -60,7 +60,7 @@ Read the complete issue spec and metadata.
 | Step | Action       | Command / Details                                       |
 | ---- | ------------ | ------------------------------------------------------- |
 | 1    | Validate     | Issue number N is a positive integer                    |
-| 2    | Read         | `./.opencode/tools/local-issues read N`                                   |
+| 2    | Read         | `./.opencode/tools/local-issues read <repo>#<N>`                                   |
 | 3    | Parse output | YAML document with all frontmatter fields + body        |
 | 4    | Verify       | Exit code 0, YAML is parseable, required fields present |
 
@@ -75,7 +75,7 @@ Read only the comments for an issue.
 | Step | Action       | Command / Details                            |
 | ---- | ------------ | -------------------------------------------- |
 | 1    | Validate     | Issue number N is a positive integer         |
-| 2    | Read         | `./.opencode/tools/local-issues read-comments N`               |
+| 2    | Read         | `./.opencode/tools/local-issues read-comments <repo>#<N>`               |
 | 3    | Parse output | YAML list of comment entries                 |
 | 4    | Verify       | Exit code 0, output is a parseable YAML list |
 
@@ -90,7 +90,7 @@ Read only the labels for an issue.
 | Step | Action       | Command / Details                                     |
 | ---- | ------------ | ----------------------------------------------------- |
 | 1    | Validate     | Issue number N is a positive integer                  |
-| 2    | Read         | `./.opencode/tools/local-issues read-labels N`                          |
+| 2    | Read         | `./.opencode/tools/local-issues read-labels <repo>#<N>`                          |
 | 3    | Parse output | YAML `{labels: [string]}`                             |
 | 4    | Verify       | Exit code 0, output has `labels` key with array value |
 
@@ -105,7 +105,7 @@ Read the sub-issue/dependency graph from `links.yaml`.
 | Step | Action       | Command / Details                                |
 | ---- | ------------ | ------------------------------------------------ |
 | 1    | Validate     | Issue number N is a positive integer             |
-| 2    | Read         | `./.opencode/tools/local-issues read-sub-issues N`                 |
+| 2    | Read         | `./.opencode/tools/local-issues read-sub-issues <repo>#<N>`                 |
 | 3    | Parse output | YAML with all link fields                        |
 | 4    | Verify       | Exit code 0, output has all expected link fields |
 
@@ -129,7 +129,7 @@ Read full issue + comments + links in a single bundled call.
 | Step | Action       | Command / Details                                               |
 | ---- | ------------ | --------------------------------------------------------------- |
 | 1    | Validate     | Issue number N is a positive integer                            |
-| 2    | Read         | `./.opencode/tools/local-issues read N --all`                                     |
+| 2    | Read         | `./.opencode/tools/local-issues read <repo>#<N> --all`                                     |
 | 3    | Parse output | Bundled YAML with `issue`, `comments`, `links` top-level keys   |
 | 4    | Verify       | Exit code 0, all three top-level sections present and parseable |
 
@@ -173,7 +173,7 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                             | Resolution                                                                           |
 | ------------------------------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `./.opencode/tools/local-issues read N` exits non-zero | Issue number N does not exist, directory missing, corrupted files | Verify `.issues/<N>/` exists. Check `spec.md`, `state.md`, `links.yaml` are present. |
+| `./.opencode/tools/local-issues read <repo>#<N>` exits non-zero | Issue number N does not exist, directory missing, corrupted files | Verify `.issues/<N>/` exists. Check `spec.md`, `state.md`, `links.yaml` are present. |
 | Empty YAML output                    | File exists but is empty                                          | Treat as corrupt. Report to orchestrator. Do not fabricate data.                     |
 | YAML parse failure                   | Corrupted YAML frontmatter or malformed comments file             | Read raw files as fallback, report parse error.                                      |
 | Issue directory missing              | `.issues/N/` path does not exist                                  | HALT. Issue N does not exist.                                                        |
@@ -187,11 +187,11 @@ ______________________________________________________________________
 
 | Operation | Command                                                         |
 | --------- | --------------------------------------------------------------- |
-| Full read | `./.opencode/tools/local-issues read <N>` (bare) or `read --number <repo>#<N>` (qualified) |
-| Comments  | `./.opencode/tools/local-issues read-comments <N>`              |
-| Labels    | `./.opencode/tools/local-issues read-labels <N>`                |
-| Links     | `./.opencode/tools/local-issues read-sub-issues <N>`            |
-| Bundle    | `./.opencode/tools/local-issues read <N> --all` (bare) or `read <N> --all --number <repo>#<N>` (qualified) |
+| Full read | `./.opencode/tools/local-issues read --number <repo>#<N>` (qualified form is REQUIRED) |
+| Comments  | `./.opencode/tools/local-issues read-comments <repo>#<N>`              |
+| Labels    | `./.opencode/tools/local-issues read-labels <repo>#<N>`                |
+| Links     | `./.opencode/tools/local-issues read-sub-issues <repo>#<N>`            |
+| Bundle    | `./.opencode/tools/local-issues read --number <repo>#<N> --all` |
 
 All commands output YAML. Always check exit code before parsing output.
 

@@ -47,9 +47,9 @@ ______________________________________________________________________
 
 | Step | Action                | Command / Details                                                                                                                                                   |
 | ---- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify issue exists   | `./.opencode/tools/local-issues read N` — confirm exit 0. If exit non-zero → HALT. Issue may not exist.                                                                               |
+| 1    | Verify issue exists   | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit 0. If exit non-zero → HALT. Issue may not exist.                                                                               |
 | 2    | Append to comments.md | `./.opencode/tools/local-issues comment N --body "TEXT" --type internal` — appends to `.issues/N/comments.md` with frontmatter: `type: internal`, `timestamp`, agent identity header. |
-| 3    | Verify append         | `./.opencode/tools/local-issues read N` — read comments. Confirm new entry present, `type: internal` in frontmatter.                                                                  |
+| 3    | Verify append         | `./.opencode/tools/local-issues read <repo>#<N>` — read comments. Confirm new entry present, `type: internal` in frontmatter.                                                                  |
 
 **Result:** Comment appended to `.issues/N/comments.md` as `type: internal`. No remote.md update. No push. No commit.
 
@@ -59,7 +59,7 @@ ______________________________________________________________________
 
 | Step | Action                    | Command / Details                                                                                                                                                           |
 | ---- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Verify issue exists       | `./.opencode/tools/local-issues read N` — confirm exit 0. If exit non-zero → HALT. Issue may not exist.                                                                                       |
+| 1    | Verify issue exists       | `./.opencode/tools/local-issues read <repo>#<N>` — confirm exit 0. If exit non-zero → HALT. Issue may not exist.                                                                                       |
 | 2    | Verify remote link exists | Check frontmatter `remote_url` or `github_issue` field. If absent, issue has no remote — stakeholder comment CAN still be added (it documents intent for future promotion). |
 | 3    | Append to comments.md     | `./.opencode/tools/local-issues comment N --body "TEXT" --type stakeholder` — appends to `.issues/N/comments.md` with frontmatter: `type: stakeholder`, `timestamp`, agent identity header.   |
 | 4    | Append to remote.md       | The CLI tool appends the stakeholder-facing comment entry to `remote.md` with context suitable for a remote reader.                                                         |

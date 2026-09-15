@@ -57,7 +57,7 @@ ______________________________________________________________________
 - \[ \] CLI tool returned exit code 0
 - \[ \] `.issues/{N}/issue.yaml` frontmatter `status` is `closed`
 - \[ \] `.issues/{N}/` directory exists with all files intact
-- \[ \] `./.opencode/tools/local-issues read N` returns exit 0
+- \[ \] `./.opencode/tools/local-issues read <repo>#<N>` returns exit 0
 - \[ \] Frontmatter `status` is `closed`
 - \[ \] `closed_at` timestamp is present (ISO 8601 format)
 - \[ \] `state_reason` matches expected value (or default `completed`)

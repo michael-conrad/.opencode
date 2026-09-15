@@ -90,10 +90,11 @@ When a remote API is available:
 
 **Local counter restriction:**
 The create task MUST NOT use the local counter to pick the number when a
-remote API is available. The local counter (`.counter` autonumber via
-`local-issues create` without `--number`) is used ONLY in local-only mode
-(no remote API — github.platform is `local`); in that mode, use the local
-issue number directly.
+remote API is available. The local counter (`.issues/.counter`) is used ONLY
+in local-only mode (no remote API — github.platform is `local`); in that
+mode, reserve the next number from `.issues/.counter` and pass it as an
+explicit qualified `--number <repo>#N` to `local-issues create` (bare
+numbers and omitted `--number` are rejected).
 
 **Downstream number binding:**
 From this step onward, every `{issue_number}` reference in subsequent steps

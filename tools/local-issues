@@ -942,25 +942,13 @@ def cmd_create(args: argparse.Namespace) -> None:
             "  action: no auto-merge — compare data above and resolve manually",
             file=sys.stderr,
         )
-    current_repo_name = _resolve_repo_name()
-    if args.number is None:
-        args.number = _next_number(PROJECT_DIR)
-        repo_path = PROJECT_DIR
-        qualified = f"{current_repo_name}#{args.number}"
-    else:
-        repo_name, num = _parse_qualified(args.number)
-        if repo_name is not None:
-            repo_path = _resolve_and_validate_repo(repo_name)
-            current_repo_name = repo_path.name
-        else:
-            print(f"Error: bare number '{args.number}' requires a repo qualifier ({repo_name}#{args.number}).", file=sys.stderr)
-            _print_available_repos()
-            sys.exit(1)
-            repo_path = PROJECT_DIR  # unreachable
-        args.number = num
-        qualified = f"{current_repo_name}#{args.number}"
-        child_repos = _discover_all_repos()
-        _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
+    repo_name, num = _require_qualified(args.number)
+    repo_path = _resolve_and_validate_repo(repo_name)
+    current_repo_name = repo_path.name
+    args.number = num
+    qualified = f"{current_repo_name}#{args.number}"
+    child_repos = _discover_all_repos()
+    _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
     _ensure_all_worktrees()
     _create_issue_files(args.number, args.title, args.labels, repo_path, qualified)
 
@@ -989,9 +977,13 @@ def _parse_qualified(value: str) -> tuple[str | None, int]:
 
 def _require_qualified(number_str: str) -> tuple[str, int]:
     """Parse qualified form, error on bare numbers."""
-    repo_name, num = _parse_qualified(number_str.strip())
+    bare = number_str.strip()
+    repo_name, num = _parse_qualified(bare)
     if repo_name is None:
-        print("Error: Use qualified form {repo}#{N} for mutations.", file=sys.stderr)
+        print(
+            f"Error: bare number '{bare}' requires a repo qualifier — use repo#{bare}.",
+            file=sys.stderr,
+        )
         _print_available_repos()
         sys.exit(1)
     return repo_name, num
@@ -1125,6 +1117,7 @@ def _not_found(number: int, repo_path: Path | None = None) -> None:
 
 
 def cmd_read(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = _collect_read_results(targets)
     if not matches:
@@ -1141,6 +1134,7 @@ def cmd_read(args: argparse.Namespace) -> None:
 
 
 def cmd_read_comments(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1166,6 +1160,7 @@ def cmd_read_comments(args: argparse.Namespace) -> None:
 
 
 def cmd_read_labels(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1192,6 +1187,7 @@ def cmd_read_labels(args: argparse.Namespace) -> None:
 
 
 def cmd_read_sub_issues(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1740,13 +1736,13 @@ def cmd_sync_file(args: argparse.Namespace) -> None:
 def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "create",
-        help="Create a new issue (autonumber when --number omitted). Flags: --number, --title, --labels",
+        help="Create a new issue. Flags: --number (repo#N, required), --title, --labels",
     )
     p.add_argument(
         "--number",
         type=str,
-        default=None,
-        help="Explicit issue number or qualified repo#N form (autonumber if omitted)",
+        required=True,
+        help="Qualified repo#N form (required — reserve a number via the counter first)",
     )
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
@@ -1755,9 +1751,9 @@ def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_read_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read",
-        help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)",
+        help="Read an issue as YAML. Flags: --number repo#N, --type (full|comments|labels|links|all)",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
     p.add_argument(
         "--type",
         choices=["full", "comments", "labels", "links", "all"],
@@ -1768,24 +1764,24 @@ def _add_read_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_read_comments_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read-comments",
-        help="Read comments for an issue. Flags: --number (N or repo#N)",
+        help="Read comments for an issue. Flags: --number repo#N",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_read_labels_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
-        "read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)"
+        "read-labels", help="Read labels for an issue. Flags: --number repo#N"
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_read_sub_issues_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read-sub-issues",
-        help="Read sub-issues of an issue. Flags: --number (N or repo#N)",
+        help="Read sub-issues of an issue. Flags: --number repo#N",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_update_parser(subparsers: argparse._SubParsersAction) -> None:
