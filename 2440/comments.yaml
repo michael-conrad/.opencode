@@ -1,1 +1,6 @@
-comments: []
+comments:
+- type: internal
+  body: 'Lifecycle event: pr_created — stacked PR https://github.com/michael-conrad/.opencode/pull/2448
+    created (branch feature/2442-2440-2439, commits b50c83c1..bade55cf). Pipeline
+    scope for_pr, halt_at pr_created reached. Human-only merge pending.'
+  timestamp: '2026-09-15T12:39:56+00:00'
