@@ -51,6 +51,62 @@ YAML_INDENT = 2
 YAML_FILES = ("issue.yaml", "comments.yaml", "links.yaml")
 MARKDOWN_FILES = ("spec.md",)
 
+# SC-05 error-class taxonomy for warn-and-skip stderr warnings.
+MALFORMED_FRONTMATTER = "malformed-frontmatter"
+INVALID_YAML = "invalid-yaml"
+SCHEMA_VIOLATION = "schema-violation"
+
+
+def _warn_skip(rel: str, error_class: str, detail: Any = None) -> None:
+    """Emit a warn-and-skip warning for a malformed record (SC-05).
+
+    Warns to stderr with the offending file path and error class; the
+    caller then skips the record. Never raises.
+    """
+    msg = f"warn: skipping {rel}: {error_class}"
+    if detail is not None:
+        msg += f": {str(detail).strip()}"
+    print(msg, file=sys.stderr)
+
+
+def _rel_issue_path(entry: Path, fname: str) -> str:
+    """Relative display path of a file inside an issue directory."""
+    return f"{entry.name}/{fname}"
+
+
+def _schema_problem(kind: str, data: Any) -> str | None:
+    """Return an error class if parsed YAML violates the record schema."""
+    if kind == "links":
+        if not isinstance(data, dict) or not isinstance(data.get("links"), list):
+            return SCHEMA_VIOLATION
+        return None
+    if not isinstance(data, dict):
+        return SCHEMA_VIOLATION
+    return None
+
+
+def _validate_issue_dir(entry: Path) -> None:
+    """Warn-and-skip scan of one issue directory (SC-05).
+
+    Emits stderr warnings (file path + error class) for malformed YAML
+    records, schema violations, and malformed frontmatter. Completes
+    exception-free; never mutates state.
+    """
+    for name in YAML_FILES:
+        f = entry / name
+        if not f.exists():
+            continue
+        rel = _rel_issue_path(entry, name)
+        data = yaml_load(read_file(f), path=rel)
+        problem = _schema_problem(name.removesuffix(".yaml"), data)
+        if problem:
+            _warn_skip(rel, problem)
+    spec_file = entry / "spec.md"
+    if spec_file.exists():
+        spec = read_file(spec_file)
+        if spec.startswith("---") and len(spec.split("---", 2)) < 3:
+            _warn_skip(_rel_issue_path(entry, "spec.md"), MALFORMED_FRONTMATTER)
+
 
 def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
     """Find issue directory by exact number match.
@@ -117,10 +173,22 @@ def yaml_dump(data: Any) -> str:
     )
 
 
-def yaml_load(content: str) -> Any:
+def yaml_load(content: str, path: str | None = None) -> Any:
+    """Parse YAML content, warn-and-skip on parse errors (SC-05).
+
+    On a YAML parse error, emits a stderr warning carrying the source
+    file path (when provided) and the invalid-yaml error class, then
+    returns an empty dict so iteration paths skip the malformed record
+    exception-free. Control state (e.g. .counter) never goes through
+    this function and keeps its fail-fast behavior.
+    """
     if not content.strip():
         return {}
-    return yaml.safe_load(content)
+    try:
+        return yaml.safe_load(content)
+    except yaml.YAMLError as exc:
+        _warn_skip(path or "<memory>", INVALID_YAML, exc)
+        return {}
 
 
 def issue_exists(number: int, repo_path: Path | None = None) -> bool:
@@ -139,7 +207,9 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
             content = read_file(f)
         else:
             content = ""
-        result[name.removesuffix(".yaml")] = yaml_load(content)
+        result[name.removesuffix(".yaml")] = yaml_load(
+            content, path=_rel_issue_path(path, name)
+        )
     # If no YAML files exist, fall back to spec.md for backward compatibility
     if not has_yaml:
         spec = read_file(path / "spec.md")
@@ -152,6 +222,11 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
                     if isinstance(fm, dict):
                         fm["body"] = body
                         result["issue"] = fm
+                else:
+                    _warn_skip(
+                        _rel_issue_path(path, "spec.md"),
+                        MALFORMED_FRONTMATTER,
+                    )
             else:
                 # Plain markdown with no frontmatter — treat entire file as body
                 result["issue"] = {"body": spec.strip(), "status": "open"}
@@ -163,7 +238,9 @@ def _read_issue_title_status(entry: Path) -> tuple[str, str]:
     issue_file = entry / "issue.yaml"
     spec_file = entry / "spec.md"
     if issue_file.exists():
-        data = yaml_load(read_file(issue_file))
+        data = yaml_load(
+            read_file(issue_file), path=_rel_issue_path(entry, "issue.yaml")
+        )
         if isinstance(data, dict):
             return data.get("title", ""), data.get("status", "open")
     elif spec_file.exists():
@@ -1128,7 +1205,9 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
             content = read_file(f)
         else:
             content = ""
-        result[name.removesuffix(".yaml")] = yaml_load(content)
+        result[name.removesuffix(".yaml")] = yaml_load(
+            content, path=_rel_issue_path(path, name)
+        )
     if not has_yaml:
         spec = read_file(path / "spec.md")
         if spec:
@@ -1140,6 +1219,11 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
                     if isinstance(fm, dict):
                         fm["body"] = body
                         result["issue"] = fm
+                else:
+                    _warn_skip(
+                        _rel_issue_path(path, "spec.md"),
+                        MALFORMED_FRONTMATTER,
+                    )
             else:
                 result["issue"] = {"body": spec.strip(), "status": "open"}
     return result
@@ -1400,6 +1484,7 @@ def _search_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        _validate_issue_dir(entry)
         spec_path = _spec_path_for_issue(num, repo_path)
         data = _read_issue_data_in_repo(num, repo_path)
         if not data:
@@ -1464,6 +1549,7 @@ def _list_issues_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        _validate_issue_dir(entry)
         spec_path = _spec_path_for_issue(num, repo_path)
         title, status = _read_issue_title_status(entry)
         entries.append(
