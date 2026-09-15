@@ -207,7 +207,7 @@ def _discover_all_repos() -> list[Path]:
     Root repo is always first. Child repos come exclusively from
     .gitmodules entries. No filesystem glob, no worktree detection.
     """
-    root = Path(os.getcwd()).resolve()
+    root = PROJECT_DIR.resolve()
     repos: list[Path] = [root]
 
     gitmodules = root / ".gitmodules"
@@ -1368,7 +1368,7 @@ def cmd_search(args: argparse.Namespace) -> None:
 
 
 def _resolve_repo_name() -> str:
-    return Path(os.getcwd()).name
+    return PROJECT_DIR.resolve().name
 
 
 def _print_available_repos() -> None:
