@@ -43,6 +43,7 @@
       ```
       Both commands MUST exit zero. Any non-zero exit — from the build command or the test command — is `BUILD_FAIL`: exit non-zero, state `BUILD_FAIL` with the failing command and its exit code, and do NOT proceed to tagging — promotion is blocked, no tag is created and no tag is pushed.
    9. All verification work happens inside `<tmpdir>`. The gate is read-only with respect to the source working tree — never touch, checkout, or reset the source repo.
+  10. **Invocation guarantee:** The verification gate runs EXACTLY ONCE per release, before tag creation. Any gate FAIL (`DRIFT_FAIL`, `MANIFEST_FAIL`, `BUILD_FAIL`) blocks promotion with NO retries within the release run — a failed gate must not be re-run, remediated inline, or re-attempted in the same release; promotion stops.
 - [ ] 1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
 - [ ] 2. **Annotated tags:** Always use `git tag -a` with a message
 - [ ] 3. **Release body:** Changelog entries for that version (standard GitHub practice)

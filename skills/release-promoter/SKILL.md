@@ -63,7 +63,7 @@ Check your tool list for a tool named `task`.
 
 Read [the full operating protocol](release-promoter/tasks/operating-protocol.md)
 
-**Verification gate:** Release promotion includes a verification-gate step (before tag creation) that performs a shallow temp-copy checkout (`git clone --depth 1` into a temp directory, checkout of the release commit) and never modifies the source tree. See the operating protocol for the full procedure.
+**Verification gate:** Release promotion includes a verification-gate step (before tag creation) that performs a shallow temp-copy checkout (`git clone --depth 1` into a temp directory, checkout of the release commit) and never modifies the source tree. The gate runs exactly ONCE per release, before any tagging; any gate FAIL (`DRIFT_FAIL`, `MANIFEST_FAIL`, `BUILD_FAIL`) blocks promotion with no retries within the release run. See the operating protocol for the full procedure.
 
 ## Sub-Agent Routing
 
