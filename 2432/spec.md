@@ -6,7 +6,9 @@
 
 2. **Root Cause / Motivation**: `_resolve_repo_name` and `_discover_all_repos` root identity at the current working directory while `PROJECT_DIR` (stable, derived from the tool file location) anchors only some paths — so qualifier and physical location disagree depending on invocation directory. Qualifier enforcement was added only to mutation commands, leaving the read family and the create auto-number path bypassing it. `yaml_load` performs a bare parse with no error handling, so one malformed file takes down whole commands. `_issues_branch_exists` checks only the local `refs/heads`, so a machine with `origin/issues-data` but no local branch gets an unrelated-histories orphan instead of a fetch/track. This MUST be solved now because the defects corrupt live tracking data (counter drift, orphan history) and every pipeline consumer that touches malformed YAML crashes.
 
-3. **Approach Chosen**: Nine per-SC changes land in dependency order as single-concern TDD items: (1) qualifier enforcement on ALL commands, (2) PROJECT_DIR anchoring of identity and discovery, (3) worktree bootstrap fetch/track remediation, (4) counter targeting the qualifier-resolved repo, (5) `yaml_load` warn-and-skip hardening, (6) a new `validate-yaml` subcommand with gate exit codes, (7) mechanical repair of the confirmed malformed files gated by `validate-yaml`, (8) a read-only `doctor` subcommand, and (9) pipeline gate insertion in the spec-creation and writing-plans task cards.
+3. **Approach Chosen**: Eleven per-SC changes land in dependency order as single-concern TDD items: (1) qualifier enforcement on ALL commands, (2) PROJECT_DIR anchoring of identity and discovery, (3) worktree bootstrap fetch/track remediation, (4) counter targeting the qualifier-resolved repo, (5) `yaml_load` warn-and-skip hardening, (6) a new `validate-yaml` subcommand with gate exit codes, (7) mechanical repair of the confirmed malformed files gated by `validate-yaml`, (8) a read-only `doctor` subcommand, (9) pipeline gate insertion in the spec-creation and writing-plans task cards, (10) surfacing the tests-v2 §10.7 session-resumption mandate in the RED/GREEN/post-regression task instructions and behavioral scenario scripts, and (11) persistent/shared test-home support in `with-test-home` so `--continue`/`--session <id>` can resume an interrupted behavioral run across invocations.
+
+**Revision addendum (2026-09-15, developer directive during for_pr execution)**: Behavioral testing of SC-09 exposed a defect in the testing instructions and the test framework. 14 isolated-harness runs aborted over ~7h; two aborts were bash-tool-timeout kills where tests-v2 AGENTS.md §10.7 documents session resumption (`--continue` / `--session <id>`) as the PRIMARY recovery path (line 623: resumption picks up where the agent left off; line 677: full re-run as first response to timeout is PROHIBITED) — but the executing agent never applied resumption because (a) the guidance is buried in the harness AGENTS.md and not surfaced in the RED/GREEN task instructions the agent actually follows, and (b) §14 documents that `with-test-home` provisions a NEW test home per invocation, so `--continue` cannot reach a prior invocation's session DB — resumption across invocations does not work today. SC-10 fixes the instructions at the point of use; SC-11 adds the shared-home resumption capability. All existing SCs (SC-01..SC-09) are preserved unchanged.
 
 4. **Alternatives Considered & Why Discarded**:
    - **`owner/repo#NNN` qualifier format** — discarded by settled developer decision (supersedes #2319); `repo#N` is sufficient for this two-repo workspace and avoids owner-name coupling.
@@ -31,6 +33,7 @@
 - **Root counter value repair (50→52 drift)** — the doctor subcommand reports counter state; repairing the stored drift value is out of scope.
 - **Counter format changes** — the counter file format is preserved; only write targeting changes.
 - **Push/promote/renumber/sync behavioral changes beyond anchoring inheritance** — these commands change only via inherited identity anchoring; no new behavior is specified.
+- **Changes to §10.7 resumption semantics themselves** — SC-10/SC-11 surface and enable the documented resumption path; the resumption protocol content stays as defined in tests-v2 AGENTS.md.
 
 ## Success Criteria
 
@@ -45,6 +48,8 @@
 | SC-07 | The 10 confirmed malformed tracking files parse cleanly after repair; ANSI-escape and truncation artifact classes are repaired; unrecoverable or semantically broken cases are listed in a flag report and left as-is. | behavioral | Integration via the validate-yaml gate over the live repos: pre-repair run reports the 10 files; post-repair run exits 0 for core files; flag report asserted to list semantic cases without rewriting them; before/after evidence retained. | `.opencode/.issues/` and `.issues/` worktree content; state-analysis artifact (repair mappings) |
 | SC-08 | The `doctor` subcommand emits per-repo health markers (issues-data branch state, merge-base delta vs `origin/issues-data`, counter state, worktree presence) without mutating any repository state. | behavioral | Unit tests: fixture states (healthy repo, missing local branch with remote present, corrupt counter) assert marker output; read-only invariant asserted via repo-state hash comparison before/after the run. | `local-issues` source (subcommand registration); research card on worktree/submodule distinction |
 | SC-09 | The spec-creation (analyze, create) and writing-plans task cards invoke `validate-yaml` after artifact generation and return a BLOCKED result contract when it exits 1. | behavioral | Behavioral test via the isolated harness: artifact-generation scenario asserted to invoke the gate after the change (and absent before); stderr-pattern assertions per the behavioral-variant discipline. | spec-creation and writing-plans task cards; enforcement-test framework docs |
+| SC-10 | Testing-instructions defect fix: the RED/GREEN/post-regression task instructions (test-driven-development task cards) and/or behavioral scenario scripts surface the tests-v2 AGENTS.md §10.7 session-resumption mandate at the point of use — when a behavioral run is killed by a bash-tool timeout, the instructions direct the agent to resume the surviving session through `with-test-home` (`--continue` / `--session <id>`) instead of a full re-run, and a blind full re-run after timeout is marked prohibited. | behavioral | Behavioral test via the isolated harness: timeout-recovery scenario asserted to produce session-resumption dispatch after the change (and absent before); stderr-pattern assertions per the behavioral-variant discipline; structural check confirms task-card/scenario-script edits reference §10.7 resumption. | test-driven-development task cards; behavioral scenario scripts; `.opencode/tests-v2/AGENTS.md` §10.7 (lines 623, 677) |
+| SC-11 | Test-framework resumption capability: `with-test-home` provisions a persistent/shared test home (or equivalent mechanism) so `--continue` / `--session <id>` can reach a prior invocation's session DB, with harness integration such that resuming after an interrupted run picks up the surviving session instead of starting a new test home; a resume-after-timeout scenario is behaviorally verified through the framework. | behavioral | Behavioral test via the isolated harness: a run interrupted by timeout, resumed with `--continue`/`--session <id>` through `with-test-home`, asserts the resumed run reuses the prior session DB (same test home / session id) rather than provisioning a fresh one; prior-run session state asserted reachable post-resume; stderr-pattern assertions per the behavioral-variant discipline. | `.opencode/tests-v2/with-test-home` (test-home provisioning); `.opencode/tests-v2/AGENTS.md` §10.7, §14; behavioral scenario scripts |
 
 > **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
 
@@ -64,6 +69,8 @@ R-11. The `doctor` subcommand SHALL emit per-repo health markers for issues-data
 R-12. The `doctor` and `validate-yaml` outputs SHALL be machine-greppable (stable per-file and per-repo markers) so gates and repair verification can consume them.
 R-13. The spec-creation and writing-plans task cards SHALL invoke `validate-yaml` after artifact generation and SHALL return a BLOCKED result contract when it exits 1.
 R-14. Existing qualifier enforcement on mutation commands (`update`, `comment`, `close`, `delete`, `link`, `renumber`, `promote`) SHALL be preserved without regression.
+R-15. The RED/GREEN/post-regression task instructions (test-driven-development task cards) and/or behavioral scenario scripts SHALL surface the tests-v2 AGENTS.md §10.7 session-resumption mandate at the point of timeout-kill: the agent SHALL be instructed to resume the surviving session through `with-test-home` instead of executing a full re-run; a blind full re-run after timeout SHALL be marked prohibited.
+R-16. The test framework (`with-test-home`) SHALL support resuming an interrupted behavioral run: a persistent/shared test home (or equivalent mechanism) SHALL make a prior invocation's session DB reachable by `--continue` / `--session <id>`, integrated with the harness, and a resume-after-timeout scenario SHALL be behaviorally verified.
 
 ## Items
 
@@ -130,6 +137,20 @@ R-14. Existing qualifier enforcement on mutation commands (`update`, `comment`, 
 - verify: Behavioral test re-run asserts gate invocation; structural check confirms task-card edits.
 - commit: Task-card changes + behavioral test, single commit (depends on Item 6).
 
+### Item 10 (SC-10): Session-resumption mandate surfaced at point of use
+
+- RED: Behavioral test running a timeout-kill recovery scenario through the isolated harness asserts the resumption instruction is absent (executing agent does not dispatch session resumption after a timeout kill — full re-run attempted instead).
+- GREEN: test-driven-development RED/GREEN/post-regression task cards (and/or behavioral scenario scripts) add the §10.7 resumption directive at the timeout-recovery decision point: resume the surviving session via `with-test-home --continue` / `--session <id>`; blind full re-run after timeout marked PROHIBITED, mirroring tests-v2 AGENTS.md line 677.
+- verify: Behavioral test re-run asserts resumption dispatch; structural check confirms task-card/scenario-script edits reference §10.7.
+- commit: Task-card/scenario-script changes + behavioral test, single commit (depends on Item 9's harness availability; independent of Items 1–8).
+
+### Item 11 (SC-11): Persistent/shared test home for resumption
+
+- RED: Behavioral test interrupting a run by timeout then resuming via `with-test-home --continue` asserts the resumed run cannot reach the prior invocation's session DB (a new test home is provisioned) — fails while test homes are per-invocation (§14).
+- GREEN: `with-test-home` gains a persistent/shared test-home mechanism (e.g., a stable home path per scenario, or an explicit `--home`/`--resume` option) so the resumed invocation targets the prior invocation's session DB; harness integration updated so resumption picks up where the agent left off per §10.7 line 623.
+- verify: Behavioral resume-after-timeout scenario asserts the same test home / session id is reused and prior session state is reachable; fresh-invocation behavior unchanged when resumption is not requested.
+- commit: `with-test-home` changes + harness docs + behavioral test, single commit (depends on Item 10's instruction surfacing for end-to-end usefulness).
+
 ## Dependencies
 
 | Reference | Relationship | Status |
@@ -140,7 +161,11 @@ R-14. Existing qualifier enforcement on mutation commands (`update`, `comment`, 
 | GitHub #2432 (bug report) | Source problem statement; this spec subsumes it | In scope |
 | `local-issues` tool | All SC-01..SC-08 changes modify this tool | Present |
 | pytest unit scaffolding (`.opencode/tests/`) | New test module required for SC-01..SC-06, SC-08 | To create |
-| Behavioral enforcement harness (tests-v2) | SC-09 verification runs through it | Present |
+| Behavioral enforcement harness (tests-v2) | SC-09, SC-10, SC-11 verification runs through it | Present |
+| `.opencode/tests-v2/AGENTS.md` §10.7, §14 | Resumption protocol source (lines 623, 677) and per-invocation test-home behavior | Present |
+| `.opencode/tests-v2/with-test-home` | SC-11 modifies test-home provisioning | Present |
+| test-driven-development task cards | SC-10 modifies RED/GREEN/post-regression instructions | Present |
+| behavioral scenario scripts (tests-v2) | SC-10 may embed resumption directive at point of use | Present |
 | issues-data branches on both repos | SC-07 repair commits land there via tool auto-commit | Present |
 
 ## Traceability
@@ -161,6 +186,8 @@ R-14. Existing qualifier enforcement on mutation commands (`update`, `comment`, 
 | R-12 | SC-06, SC-08 | repair, tool-core |
 | R-13 | SC-09 | integration |
 | R-14 | SC-01 | tool-core |
+| R-15 | SC-10 | integration |
+| R-16 | SC-11 | integration |
 
 ## Documentation Sources
 
@@ -186,6 +213,8 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **SC-07:** Running the before/after validate-yaml integration gate costs minutes. Skipping costs unrepaired malformed files feeding every read/list/search path indefinitely, plus the risk of unreviewed semantic rewrites — which is why semantic cases are flagged, not guessed.
 - **SC-08:** Running the doctor marker tests costs minutes. Skipping costs the residual-defect visibility layer — counter drift and divergent worktrees stay invisible until they cause an operational failure.
 - **SC-09:** Running the behavioral gate test costs minutes of model execution time. Skipping costs the death spiral — a skipped pipeline gate lets malformed artifacts flow into plans and specs, where the defect surfaces downstream at 100×–1000× the cost of the behavioral test that would have caught it.
+- **SC-10:** Running the timeout-recovery behavioral test costs minutes. Skipping costs the measured ~7h abort class — 14 isolated-harness runs aborted, two of them recoverable-in-place via §10.7 resumption but re-run from scratch instead, burning full inference time on every timeout kill for the lifetime of the framework.
+- **SC-11:** Running the resume-after-timeout behavioral test costs minutes. Skipping costs the permanent gap between the documented PRIMARY recovery path and what the framework can actually do — §10.7 resumption stays dead code, and every future timeout kill re-runs full inference with no recovery path.
 
 ## Edge Cases
 
@@ -205,9 +234,19 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Unrecoverable or semantically ambiguous file in repair | Listed in flag report; left malformed | Flag, don't guess (R-9); no semantic invention |
 | Repair commit mechanics | Commits land on issues-data worktree branches via tool auto-commit | Parent repo untouched (R-10) |
 | Concurrent counter access | Single-process CLI assumption; no multi-process lock specified | Out of scope — tool has no cross-process locking today; unchanged |
+| Behavioral run killed by bash-tool timeout | Agent resumes the surviving session via `with-test-home --continue` / `--session <id>` | §10.7 resumption surfaced at point of use (SC-10); blind full re-run prohibited |
+| Resumption requested but no prior session exists | Framework fails fast with a clear error naming the missing session/test home | Resumption requires a prior invocation's session DB; never silently provisions a fresh home |
+| Fresh invocation without resumption flags | Per-invocation fresh test home behavior unchanged | SC-11 changes only the resumption path, not default provisioning |
+| Session DB corrupted or unreadable on resume | Harness reports FATAL naming the DB path | Resumption is control state; fail-fast matches counter policy (R-5 analog) |
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-15 | Added SC-10 (session-resumption mandate surfaced in test-driven-development task cards / behavioral scenario scripts) and SC-11 (persistent/shared test home in `with-test-home` so `--continue`/`--session <id>` can reach a prior invocation's session DB); added R-15, R-16, Items 10–11, traceability rows, cost-frame entries, edge cases; updated problem statement/approach and affected-file references (`.opencode/tests-v2/AGENTS.md`, `.opencode/tests-v2/with-test-home`, test-driven-development task cards, behavioral scenario scripts). All existing SCs preserved unchanged. | Developer directive during for_pr execution: behavioral testing of SC-09 exposed a defect — 14 isolated-harness runs aborted over ~7h; two bash-tool-timeout kills were recoverable via §10.7 resumption (documented PRIMARY path; full re-run prohibited per line 677) but the agent never applied it because the guidance is not surfaced in the task instructions (SC-10) and `with-test-home`'s per-invocation test home makes cross-invocation resumption impossible today (§14) (SC-11). | Developer (for_pr scope, 2026-09-15) |
 
 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

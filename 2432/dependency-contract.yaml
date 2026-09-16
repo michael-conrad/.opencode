@@ -1,5 +1,5 @@
 # Dependency contract for issue 2432 (research task) — Z3 formalism
-# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration)
+# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration); P3 -> P6(test-framework); P6-SC10 -> P6-SC11
 source_issue: ".opencode#2432"
 source_artifact: ".opencode/.issues/2432/artifacts/interface-compatibility.yaml"
 
@@ -19,17 +19,21 @@ variables:
   p5_integration_completed:
     type: bool
     nullable: false
+  p6_resumption_completed:
+    type: bool
+    nullable: false
 
 preconditions:
-  - "z3.Not(z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed))"
+  - "z3.Not(z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed, p6_resumption_completed))"
 
 invariants:
   - "z3.Implies(p2_infra_completed, p1_identity_completed)"
   - "z3.Implies(p4_repair_completed, p3_parse_gate_completed)"
   - "z3.Implies(p5_integration_completed, p3_parse_gate_completed)"
+  - "z3.Implies(p6_resumption_completed, p3_parse_gate_completed)"
 
 postconditions:
-  - "z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed)"
+  - "z3.And(p1_identity_completed, p2_infra_completed, p3_parse_gate_completed, p4_repair_completed, p5_integration_completed, p6_resumption_completed)"
 
 theorem:
   - "z3.Implies(z3.And(p4_repair_completed, p5_integration_completed), p3_parse_gate_completed)"
@@ -57,3 +61,11 @@ dependency_contract:
     target: "developer + pipeline diagnostics"
     type: "artifact schema"
     constraint: "marker vocabulary stable across runs; covers residual counter drift (B4) and divergent worktrees (B3)"
+  - source: "tests-v2 AGENTS.md §10.7 resumption protocol (lines 623, 677)"
+    target: "test-driven-development task cards + behavioral scenario scripts (SC-10)"
+    type: "artifact schema"
+    constraint: "task-card resumption directive must mirror §10.7 semantics verbatim (resume = PRIMARY; full re-run after timeout = PROHIBITED); defined in §10.7, consumed at the timeout-recovery decision point"
+  - source: "with-test-home persistent/shared test home (SC-11)"
+    target: "with-test-home --continue / --session <id> resumption (SC-10/SC-11)"
+    type: "artifact schema"
+    constraint: "resumption requires a prior invocation's session DB reachable via the shared home; missing-session resume fails fast; fresh-invocation provisioning unchanged when resumption flags absent"
