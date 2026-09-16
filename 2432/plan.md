@@ -26,8 +26,8 @@ Check your tool list for a tool named `task`.
 ## Goal / Architecture / Files / Dispatch
 
 - **Issue:** .opencode/.issues/2432/spec.md
-- **Goal:** Make `local-issues` resolve repo/issue identity deterministically (qualifier enforcement on all commands, `PROJECT_DIR` anchoring), remediate the worktree bootstrap and counter targeting, harden YAML parsing (warn-and-skip), add `validate-yaml` and `doctor` subcommands, repair the 10 confirmed malformed tracking files, insert the `validate-yaml` gate into the spec-creation and writing-plans task cards, surface the tests-v2 §10.7 session-resumption mandate at the point of timeout-kill (SC-10), and add persistent/shared test-home resumption support to `with-test-home` (SC-11).
-- **Architecture:** Eleven per-SC TDD items in dependency order across six phases. All tool changes live in `.opencode/tools/local-issues` plus a new pytest unit module under `.opencode/tests/`. Repair commits land on issues-data worktree branches via the tool's auto-commit (R-10) — never as parent-repo tracked changes. Phase 6 fixes the timeout-recovery instructions (SC-10) and framework resumption capability (SC-11).
+- **Goal:** Make `local-issues` resolve repo/issue identity deterministically (qualifier enforcement on all commands, `PROJECT_DIR` anchoring), remediate the worktree bootstrap and counter targeting, harden YAML parsing (warn-and-skip), add `validate-yaml` and `doctor` subcommands, repair the 10 confirmed malformed tracking files, insert the `validate-yaml` gate into the spec-creation and writing-plans task cards, surface the session-resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules — resume when the session store survives, never blind-restart (SC-10), add persistent/shared test-home resumption as an implementation-agnostic capability contract (SC-11), and mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides, schema- and provider-agnostic (SC-12).
+- **Architecture:** Twelve per-SC TDD items in dependency order across six phases. All tool changes live in `.opencode/tools/local-issues` plus a new pytest unit module under `.opencode/tests/`. Repair commits land on issues-data worktree branches via the tool's auto-commit (R-10) — never as parent-repo tracked changes. Phase 6 fixes the timeout-recovery instructions (SC-10), adds the shared-home resumption capability (SC-11), and adds the deliberation-review mandate (SC-12).
 - **Files:** `.opencode/tools/local-issues`, new test module under `.opencode/tests/`, task cards under `.opencode/skills/spec-creation/tasks/` and `.opencode/skills/writing-plans/tasks/`, test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/`, behavioral scenario scripts and `.opencode/tests-v2/with-test-home`, live tracking data in `.opencode/.issues/` and `.issues/` (repair only, via tool auto-commit).
 - **Dispatch:** Per-task cycle steps dispatch as task cards per the implementation-workflow reference card; commit-inline steps are executed directly by the orchestrator.
 
@@ -57,12 +57,12 @@ Check your tool list for a tool named `task`.
 | 3 | YAML warn-and-skip hardening + validate-yaml | parse gate | SC-05, SC-06 | none | 28-37 | direct (28-29, 36-37) + task-card (30-35) |
 | 4 | Malformed tracking file repair | repair | SC-07 | Phase 3 | 38-44 | direct (38-39) + task-card (40-43) + auto-commit (44) |
 | 5 | Pipeline validate-yaml gate insertion | integration | SC-09 | Phase 3 | 45-58 | direct (45-46) + task-card (47-57) + direct (58) |
-| 6 | Session-resumption mandate + shared test home | test-framework | SC-10, SC-11 | Phase 3 | 60-71 | direct (60-61, 70-71) + task-card (62-69) |
+| 6 | Session-resumption mandate + shared test home + deliberation review | test-framework | SC-10, SC-11, SC-12 | Phase 3 | 60-78 | direct (60-61, 70-78) + task-card (62-69) |
 | — | Post-implementation (after Phase 6) | pipeline gates | all | Phases 1-6 | see Phase 5/6 | mixed |
 
 ## Exit Criteria
 
-- C1: All eleven SCs verified PASS with behavioral evidence artifacts under `tmp/2432/`.
+- C1: All twelve SCs verified PASS with behavioral evidence artifacts under `tmp/2432/`.
 - C2: Phase 1 items committed in DAG order; Phase 2 depends on Phase 1 commits; Phases 4 and 5 depend on Phase 3; Phase 6 items committed after their RED evidence.
 - C3: Phase-4 repair commits exist only on issues-data worktree branches (parent repo untouched).
 - C4: Post-implementation gates (audit, z3-check, structural-checks, pre-pr-gate, regression-check) all clean before review-prep.
@@ -382,30 +382,31 @@ Check your tool list for a tool named `task`.
 
 ## Phase 6 — Session-resumption mandate + shared test home
 
-- **Concern:** test-framework defect fix — surface the §10.7 resumption mandate at the point of timeout-kill (SC-10) and make cross-invocation resumption possible (SC-11). Evidence: 14 isolated-harness runs aborted over ~7h during SC-09 behavioral testing; two bash-tool-timeout kills were recoverable via §10.7 resumption (documented PRIMARY path; full re-run prohibited per line 677) but the agent never applied it.
-- **Files:** test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/` (red, green, post-regression), behavioral scenario scripts under `.opencode/tests-v2/behaviors/`, `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/AGENTS.md` (§10.7/§14 cross-reference updates).
-- **SCs:** SC-10, SC-11.
-- **Dependencies:** Phase 3 (harness availability); SC-11 builds on SC-10's instruction surfacing for end-to-end usefulness.
+- **Concern:** test-framework defect fix — surface the resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules (SC-10), make cross-invocation resumption possible via an implementation-agnostic capability contract (SC-11), and mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides (SC-12). Evidence: 14 isolated-harness runs aborted over ~7h during SC-09 behavioral testing; two bash-tool-timeout kills were recoverable via §10.7 resumption (documented PRIMARY path; full re-run prohibited per line 677) but the agent never applied it.
+- **Files:** test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/` (red, green, post-regression), behavioral scenario scripts under `.opencode/tests-v2/behaviors/`, `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/AGENTS.md` (§10.7/§14 cross-reference updates), `.opencode/tools/session-to-timeline` (deliberation-evidence source for SC-12).
+- **SCs:** SC-10, SC-11, SC-12.
+- **Dependencies:** Phase 3 (harness availability); SC-11 builds on SC-10's instruction surfacing for end-to-end usefulness; SC-12 builds on Items 10-11 for session-evidence availability.
 - **Entry:** Phase 3 committed; isolated harness operational.
-- **Exit:** SC-10 and SC-11 verified PASS via behavioral harness; timeout-recovery scenario asserts resumption dispatch; resume-after-timeout scenario asserts prior session DB reachability; commits landed.
+- **Exit:** SC-10, SC-11, and SC-12 verified PASS via behavioral harness; timeout-recovery scenario asserts resumption dispatch; resume-after-timeout scenario asserts prior session-state reachability; deliberation-review scenario asserts deliberation-evidence inspection; commits landed.
 
 ### Code Path Coverage
 
-- Task-card edit path: RED/GREEN/post-regression cards gain the §10.7 resumption directive at the timeout-recovery decision point (R-15).
-- Harness provisioning path: `with-test-home` gains a persistent/shared test-home mechanism (e.g., stable home path per scenario or explicit `--home`/`--resume` option) so `--continue`/`--session <id>` reaches a prior invocation's session DB (R-16).
+- Task-card edit path: RED/GREEN/post-regression cards gain the resumption directive at the timeout-recovery decision point, expressed as framework-agnostic behavioral rules (R-15) — resume when the session store survives, never blind-restart; no hardcoded flags or paths.
+- Harness provisioning path: the harness gains a resumption capability satisfying the contract — a test home that survives across invocations and exposes prior session state to the harness (R-16). Implementation-agnostic: any mechanism (stable home path per scenario, explicit resume option, or equivalent) qualifies; no language, storage engine, or CLI surface is mandated.
+- Evidence-review path: review instructions gain the deliberation-review directive — inspect whatever reasoning/deliberation evidence the session store provides (reasoning events/thinking traces in session evidence, via `session-to-timeline` where applicable) for excessive deliberation, false starts, off-track reasoning, and prompt/fixture-induced derailment (R-17); schema- and provider-agnostic.
 
 ### Cross-Cutting SCs
 
-- R-15 spans SC-10's task-card and scenario-script edits: blind full re-run after timeout is marked PROHIBITED, mirroring tests-v2 AGENTS.md line 677.
+- R-15 spans SC-10's task-card and scenario-script edits: blind restart after an interrupt is marked PROHIBITED, mirroring tests-v2 AGENTS.md line 677.
 - R-16: fresh-invocation behavior (new test home per invocation) is unchanged when resumption is not requested.
 
 ### Interface Boundaries
 
-- Resumption requires a prior invocation's session DB; missing-session resumption fails fast with a clear error naming the missing session/test home. Corrupted/unreadable session DB on resume reports FATAL naming the DB path (control-state fail-fast, R-5 analog).
+- Resumption requires a prior invocation's session state; missing-session resumption fails fast with a clear error naming the missing session/test home. Corrupted/unreadable session store on resume reports FATAL naming the store path (control-state fail-fast, R-5 analog).
 
 ### State Transitions
 
-- Timeout kill → surviving session DB → `with-test-home --continue` / `--session <id>` resumes prior session (new path); without resumption flags, per-invocation provisioning unchanged.
+- Timeout kill → surviving session store → the harness's resumption capability resumes prior session state (new path); without resumption requests, per-invocation provisioning unchanged.
 
 ### Step-by-step
 
@@ -416,39 +417,56 @@ Check your tool list for a tool named `task`.
   - Run a timeout-kill recovery scenario through the isolated harness; assert the resumption instruction is absent (executing agent does not dispatch session resumption after a timeout kill — full re-run attempted instead). FAILS before the change.
   - (**task-card** — `task(..., prompt: "execute red task from test-driven-development")`)
 - [ ] 62. GREEN for item 10 (SC-10) — task-card / scenario-script edits
-  - test-driven-development RED/GREEN/post-regression task cards (and/or behavioral scenario scripts) add the §10.7 resumption directive at the timeout-recovery decision point: resume the surviving session via `with-test-home --continue` / `--session <id>`; blind full re-run after timeout marked PROHIBITED.
+  - test-driven-development RED/GREEN/post-regression task cards (and/or behavioral scenario scripts) add the resumption directive at the timeout-recovery decision point, expressed as framework-agnostic behavioral rules: resume the surviving session whenever the session store survives — never a blind restart; blind restart after an interrupt marked PROHIBITED. No specific flags or paths hardcoded; the rule references whatever resumption mechanism the harness provides.
   - (**task-card** — `task(..., prompt: "execute green task from test-driven-development")`)
 - [ ] 63. Commit + push the SC-10 change before the behavioral re-run
   - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` then pushes; fresh `git fetch` verifies containment in a remote ref)
 - [ ] 64. Behavioral re-run + verify for item 10 (SC-10)
-  - Re-run the timeout-recovery scenario asserting resumption dispatch; structural check confirms task-card/scenario-script edits reference §10.7.
+  - Re-run the timeout-recovery scenario asserting resumption dispatch; structural check confirms task-card/scenario-script edits carry the resumption rule.
   - (**task-card** — `task(..., prompt: "execute phase-4 task from test-driven-development")` then `task(..., prompt: "execute verify task from verification-before-completion")`)
 - [ ] 65. Commit item 10 (SC-10) — task-card/scenario-script changes + behavioral test, single commit
   - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` directly; no sub-agent dispatch)
 - [ ] 66. RED for item 11 (SC-11) — behavioral, with-test-home harness
-  - Interrupt a run by timeout then resume via `with-test-home --continue`; assert the resumed run cannot reach the prior invocation's session DB (a new test home is provisioned). FAILS while test homes are per-invocation (§14).
+  - Interrupt a run by timeout then resume via the harness's resumption capability; assert the resumed run cannot reach the prior invocation's session state (a new test home is provisioned). FAILS while test homes are per-invocation (§14).
   - (**task-card** — `task(..., prompt: "execute red task from test-driven-development")`)
-- [ ] 67. GREEN for item 11 (SC-11) — with-test-home provisioning changes
-  - `with-test-home` gains a persistent/shared test-home mechanism (e.g., stable home path per scenario, or explicit `--home`/`--resume` option) so the resumed invocation targets the prior invocation's session DB; harness integration updated so resumption picks up where the agent left off per §10.7 line 623; AGENTS.md §10.7/§14 cross-references updated.
+- [ ] 67. GREEN for item 11 (SC-11) — harness provisioning changes
+  - The harness gains a resumption capability satisfying the capability contract: a test home that survives across invocations and exposes prior session state, so the resumed invocation targets the prior invocation's session state; harness integration updated so resumption picks up where the agent left off per §10.7 line 623; AGENTS.md §10.7/§14 cross-references updated. Implementation-agnostic — any mechanism meeting the capability contract qualifies; no language, storage engine, or CLI surface is mandated.
   - (**task-card** — `task(..., prompt: "execute green task from test-driven-development")`)
 - [ ] 68. Commit + push the SC-11 change before the behavioral re-run
   - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` then pushes; fresh `git fetch` verifies containment in a remote ref)
 - [ ] 69. Behavioral re-run for item 11 (SC-11) — resume-after-timeout scenario
-  - Assert the resumed run reuses the prior session DB (same test home / session id) rather than provisioning a fresh one; prior session state asserted reachable post-resume; fresh-invocation behavior unchanged when resumption is not requested.
+  - Assert the resumed run reuses the prior invocation's test home / session state rather than provisioning a fresh one; prior session state asserted reachable post-resume; fresh-invocation behavior unchanged when resumption is not requested.
   - (**task-card** — `task(..., prompt: "execute phase-4 task from test-driven-development")`)
 - [ ] 70. Verify item 11 (SC-11)
   - (**task-card** — `task(..., prompt: "execute verify task from verification-before-completion")`)
 - [ ] 71. Commit item 11 (SC-11) — `with-test-home` changes + harness docs + behavioral test, single commit
   - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` directly; no sub-agent dispatch)
+- [ ] 72. RED for item 12 (SC-12) — deliberation-review mandate, behavioral, with-test-home harness
+  - Run an evidence-review scenario through the isolated harness; assert the deliberation review is absent (the reviewing agent inspects tool-call output only and does not inspect the run agent's deliberation evidence). FAILS before the change.
+  - (**task-card** — `task(..., prompt: "execute red task from test-driven-development")`)
+- [ ] 73. GREEN for item 12 (SC-12) — review-instruction edits
+  - Evidence-review instructions (test-driven-development post-regression/verify task cards and/or behavioral scenario scripts) add the deliberation-review directive: inspect whatever reasoning/deliberation evidence the session store provides — reasoning events/thinking traces in the session evidence, defined generically, schema- and provider-agnostic — for excessive deliberation (reasoning budget burned on loops/surveys before productive tool calls), false starts (abandoned investigation paths), off-track reasoning, and prompt/fixture-induced derailment; findings recorded and routed to test-scenario and prompt adjustments.
+  - (**task-card** — `task(..., prompt: "execute green task from test-driven-development")`)
+- [ ] 74. Commit + push the SC-12 change before the behavioral re-run
+  - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` then pushes; fresh `git fetch` verifies containment in a remote ref)
+- [ ] 75. Behavioral re-run for item 12 (SC-12) — deliberation-review scenario
+  - Assert the review output names the inspected deliberation-evidence source and reports identified test-effectiveness findings; absent deliberation evidence is recorded as such (never fabricated).
+  - (**task-card** — `task(..., prompt: "execute phase-4 task from test-driven-development")`)
+- [ ] 76. Verify item 12 (SC-12)
+  - Behavioral re-run asserts deliberation-evidence inspection; structural check confirms the review instructions reference the deliberation-review mandate.
+  - (**task-card** — `task(..., prompt: "execute verify task from verification-before-completion")`)
+- [ ] 77. Commit item 12 (SC-12) — review-instruction changes + behavioral test, single commit
+  - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` directly; no sub-agent dispatch)
+- [ ] 78. (reserved — end of Phase 6 step range; SC-12 complete)
 
 ### Phase Completion Block
 
-- Verify SC-10 and SC-11 verdicts are PASS with behavioral evidence.
-- Daisy-chain check: SC-10's commit precedes SC-11's RED.
+- Verify SC-10, SC-11, and SC-12 verdicts are PASS with behavioral evidence.
+- Daisy-chain check: SC-10's commit precedes SC-11's RED; SC-11's commit precedes SC-12's RED.
 
 ### Post-Implementation Steps (end of plan)
 
-> These gates run after Phase 6 (all eleven SCs verified). Post-implementation step numbers (52-59) were assigned when the plan had five phases; they are unchanged and remain the final sequence.
+> These gates run after Phase 6 (all twelve SCs verified). Post-implementation step numbers (52-59) were assigned when the plan had five phases; they are unchanged and remain the final sequence.
 
 - [ ] 52. Audit — adversarial audit of the deliverable
   - (**task-card** — `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence)
@@ -486,3 +504,13 @@ Check your tool list for a tool named `task`.
   plan_file: .opencode/.issues/2432/plan.md
   phase_count: 6
   reason: "Developer directive during for_pr execution — SC-09 behavioral testing exposed timeout-recovery defect; added SC-10/SC-11 (Phase 6: session-resumption mandate + shared test home)"
+- timestamp: 2026-09-15T23:55:00Z
+  event: plan_revised
+  plan_file: .opencode/.issues/2432/plan.md
+  phase_count: 6
+  reason: "Developer directive — second addition to the SC-10/SC-11 revision; added SC-12 (deliberation-review mandate, R-17, Phase 6 steps 72-77): behavioral test evidence review MUST inspect the run agent's reasoning traces for test-effectiveness findings"
+- timestamp: 2026-09-16T00:00:00Z
+  event: plan_revised
+  plan_file: .opencode/.issues/2432/plan.md
+  phase_count: 6
+  reason: "Developer directive — third addition: constrained SC-10/SC-11/SC-12 (R-15/R-16/R-17, verification methods, Phase 6 steps 61-77) to be holistic and implementation-agnostic — framework-agnostic resumption rules (SC-10), capability-contract test-home survival (SC-11), schema/provider-agnostic deliberation review (SC-12); no criterion weakened; SC-01..SC-09 unchanged"

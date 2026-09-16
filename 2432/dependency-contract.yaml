@@ -1,5 +1,5 @@
 # Dependency contract for issue 2432 (research task) — Z3 formalism
-# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration); P3 -> P6(test-framework); P6-SC10 -> P6-SC11
+# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration); P3 -> P6(test-framework); P6-SC10 -> P6-SC11 -> P6-SC12
 source_issue: ".opencode#2432"
 source_artifact: ".opencode/.issues/2432/artifacts/interface-compatibility.yaml"
 
@@ -61,11 +61,15 @@ dependency_contract:
     target: "developer + pipeline diagnostics"
     type: "artifact schema"
     constraint: "marker vocabulary stable across runs; covers residual counter drift (B4) and divergent worktrees (B3)"
-  - source: "tests-v2 AGENTS.md §10.7 resumption protocol (lines 623, 677)"
+  - source: "session-resumption behavioral rules (framework-agnostic; §10.7 lines 623, 677 as documentation source)"
     target: "test-driven-development task cards + behavioral scenario scripts (SC-10)"
     type: "artifact schema"
-    constraint: "task-card resumption directive must mirror §10.7 semantics verbatim (resume = PRIMARY; full re-run after timeout = PROHIBITED); defined in §10.7, consumed at the timeout-recovery decision point"
-  - source: "with-test-home persistent/shared test home (SC-11)"
-    target: "with-test-home --continue / --session <id> resumption (SC-10/SC-11)"
+    constraint: "task-card resumption directive carries the behavioral rules (resume when the session store survives = PRIMARY; blind restart after an interrupt = PROHIBITED); implementation-agnostic — no hardcoded flags or paths; rules defined in the instructions, consumed at the timeout-recovery decision point"
+  - source: "harness resumption capability contract (SC-11)"
+    target: "harness resumption capability (SC-10/SC-11)"
     type: "artifact schema"
-    constraint: "resumption requires a prior invocation's session DB reachable via the shared home; missing-session resume fails fast; fresh-invocation provisioning unchanged when resumption flags absent"
+    constraint: "capability contract: a test home that survives across invocations and exposes prior session state to the harness; implementation-agnostic — no mandated language, storage engine, or CLI surface; resumption requires a prior invocation's session state reachable; missing-session resume fails fast; fresh-invocation provisioning unchanged when resumption not requested"
+  - source: "session deliberation evidence (reasoning events/thinking traces in session evidence, via session-to-timeline where applicable) (SC-12)"
+    target: "behavioral test evidence review instructions (test-driven-development post-regression/verify task cards + behavioral scenario scripts) (SC-12)"
+    type: "artifact schema"
+    constraint: "review MUST inspect whatever reasoning/deliberation evidence the session store provides, defined generically and schema/provider-agnostic, for test-effectiveness findings (excessive deliberation, false starts, off-track reasoning, prompt/fixture-induced derailment); findings feed test-scenario/prompt adjustments and never alter SC pass/fail verdicts; absent deliberation evidence recorded as unavailable, never fabricated; SC-12 depends on SC-11's session-evidence availability"
