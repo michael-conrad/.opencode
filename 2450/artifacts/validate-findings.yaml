@@ -1,0 +1,71 @@
+artifact_name: validate-findings
+generated_at: 2026-09-17
+issue: 2450
+validated_plan: .opencode/.issues/2450/plan.md
+solve_status: SAT
+overall_status: FAIL
+categories:
+  - category: 1 — Structural validation
+    status: PASS
+    checks:
+      - check: "phase table has all required columns"
+        result: PASS
+        detail: "Table carries Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch (plan.md lines 51-56); 3 phases + post-implementation row."
+      - check: "each phase has a procedure section with numbered steps"
+        result: PASS
+        detail: "Phase 1 steps 3-15, Phase 2 steps 16-38, Phase 3 steps 39-73, Post-implementation steps 74-81 — all sequential, no gaps."
+      - check: "exit criteria section exists with SC-to-phase mapping"
+        result: PASS
+        detail: "Exit Criteria C1-C10 map SC-1..SC-10 (plan.md lines 62-74); phase table SCs column covers the same mapping."
+  - category: 2 — Skill+task validity
+    status: PASS
+    checks:
+      - check: "every skill+task reference matches the implementation-workflow reference card"
+        result: PASS
+        detail: "Pre-regression, pre-regression verify (verification-before-completion), red/green/post-regression (test-driven-development), verify (verification-before-completion), commit (orchestrator commit-inline), audit (audit DiMo chain), z3-check (orchestrator direct), structural-checks (finishing-a-development-branch checklist), pre-pr-gate, regression-check (tdd phase-4), review-prep (git-workflow-pr), create-pr (git-workflow-pr create), exec-summary (completion-core) — all match canonical entries in reference/implementation-workflow.md."
+      - check: "non-card step names resolve to a governing reference"
+        result: PASS
+        detail: "PUSH steps are the 091-incremental-build.md behavioral-variant ordering (orchestrator direct); REFACTOR steps are the 091 per-item TDD cycle (test-driven-development scope); VbC completion steps map to verification-before-completion verify. No invalid skill+task pairing found."
+  - category: 3 — SC coverage
+    status: PASS
+    checks:
+      - check: "every SC from the spec appears in at least one phase's exit criteria"
+        result: PASS
+        detail: "SC-1..SC-10 (spec.md §3) map 1:1 to C1..C10; phase table columns cover SC-1/2 (P1), SC-3/4/5 (P2), SC-6..SC-10 (P3)."
+      - check: "no SC has RED/GREEN/COMMIT steps split across phases"
+        result: PASS
+        detail: "SC-1: 5/6/9 (P1); SC-2: 10/11/14 (P1); SC-3: 18/19/21 (P2); SC-4: 24/25/27 (P2); SC-5: 30/31/33 (P2); SC-6: 41/42/44 (P3); SC-7: 47/48/50 (P3); SC-8: 53/54/56 (P3); SC-9: 59/60/62 (P3); SC-10: 65/66/68 (P3). All triplets intra-phase."
+  - category: 4 — Concern separation
+    status: FAIL
+    checks:
+      - check: "each phase addresses exactly one concern from the concern-map artifact"
+        result: FAIL
+        detail: "FINDING: Phase 3 addresses TWO concerns from concern-map.yaml — issues-data-governance (SC-6, SC-7) and spec-number-reservation (SC-8, SC-9, SC-10). The phase table's Concern column reads 'hygiene + remote-first reservation mandate text at five sites' (plan.md line 55). The concern-map lists these as separate concerns with separate file sets and risks. Per-item structure is otherwise correct (Items 6-7 = governance; Items 8-10 = reservation), so the remedy is structural at the phase level: split Phase 3 into Phase 3 (hygiene mandate, SC-6/SC-7, items 6-7) and Phase 4 (reservation mandate, SC-8/SC-9/SC-10, items 8-10) — both remain independent of Phases 1-2 — or revise the concern-map to declare a single combined concern with justification. Phases 1 (tool-cli-semantics) and 2 (pipeline-gate-enforcement) each map to exactly one concern. The test-infrastructure concern is cross-cutting and is correctly declared via each phase's Cross-Cutting SCs section rather than as a phase concern."
+      - check: "no two phases address the same concern"
+        result: PASS
+        detail: "Concerns are disjoint across phases 1-3 (SC-1/2 vs SC-3/4/5 vs SC-6..SC-10)."
+  - category: 5 — DAG validation
+    status: PASS
+    checks:
+      - check: "dependency contract DAG has no cycles"
+        result: PASS
+        detail: "Edges: phase1→phase2 (cross_phase_edges), item preconditions (item2←item1, item3/5←item1, item4←item3, item5←item4); phase 3 independent; post-implementation depends on 1,2,3. Acyclic (solve-output SAT corroborates)."
+      - check: "all phases reachable from the start node"
+        result: PASS
+        detail: "Phase 1 start; Phase 2 via 1; Phase 3 start; post-implementation via 1+2+3. All reachable."
+      - check: "no orphan phases"
+        result: PASS
+        detail: "Every phase has at least one incoming or outgoing edge; no isolated nodes."
+  - category: 6 — Holistic quality
+    status: PASS
+    checks:
+      - check: "no TBD/TODO placeholders in plan body"
+        result: PASS
+        detail: "Full-text scan of plan.md: zero TBD/TODO/FIXME occurrences."
+      - check: "all steps use checkbox format"
+        result: PASS
+        detail: "Steps 1-81 all use '- [ ] N.' checkbox format; exit criteria C1-C11 likewise."
+      - check: "dispatch mode consistency"
+        result: PASS
+        detail: "Each phase declares task-card vs direct step allocation in the phase table and frontmatter dispatch block; direct steps are orchestrator commit-inline/push/z3-check only; task-card steps route to named skills. No inline steps inside task-card ranges and vice versa."
+finding_summary: "Categories 1, 2, 3, 5, 6 PASS. Category 4 FAIL — Phase 3 combines two concerns from the concern-map (issues-data-governance + spec-number-reservation) in one phase; remedy: split into two phases or revise the concern-map with justification. Overall: FAIL."

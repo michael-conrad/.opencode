@@ -27,11 +27,12 @@ promoted_at: 2026-09-17T20:53:41Z
 |----|-----------|---------------|---------------------|
 | SC-1 | The spec-creation TDT analyze dispatch context carries an optional `brainstorm_handoff_path` field, and when a dispatch supplies it, the analyze sub-agent reads the handoff artifact as primary design input — observable as a handoff-file read in the analyze sub-agent's stderr tool actions before producing the spec | behavioral | `opencode run` via `tests-v2/with-test-home` with a brainstorming handoff present; assert stderr shows the analyze dispatch and a handoff-file read (`assert_stderr_pattern_present`) |
 | SC-2 | The brainstorming exploration-workflow writes a handoff pointer file into the local issue directory (`{issues_prefix}{N}/`) as part of issue creation, and the pointer references the existing handoff artifact path | behavioral | Behavioral run of the brainstorming explore path; assert the pointer file exists in the issue directory after issue creation (observable file output = runtime behavior); structural path check as secondary corroboration only |
-| SC-3 | When the dispatch context field is absent but the issue-directory pointer exists, the analyze sub-agent discovers and reads the pointer target (observable discovery read in stderr); when neither channel is present, analyze completes with current empty-stub behavior and does not halt | behavioral | Behavioral run with handoff absent from dispatch context but pointer present; assert stderr shows the discovery read. Third run variant: neither present → assert analyze completes without halt (regression check) |
+| SC-3a | When the dispatch context field is absent but the issue-directory pointer exists, the analyze sub-agent discovers and reads the pointer target (observable discovery read in stderr) | behavioral | Behavioral run with handoff absent from dispatch context but pointer present; assert stderr shows the discovery read (`assert_stderr_pattern_present`) |
+| SC-3b | When neither channel is present (no dispatch field, no pointer), analyze completes with current empty-stub behavior and does not halt | behavioral | Behavioral run with neither channel present; assert analyze completes without halt (regression check — run exits normally, no BLOCKED state) |
 
 > **Enforcement gate:** All success criteria MUST pass before this spec is considered complete. Partial implementation is not permitted.
 
-**Dependency DAG:** SC-3 depends on SC-1 and SC-2 (the fallback-discovery run variants exercise both channels independently; SC-1 and SC-2 are independent of each other).
+**Dependency DAG:** SC-3a and SC-3b each depend on SC-1 and SC-2 (the fallback-discovery run variants exercise both channels independently; SC-1 and SC-2 are independent of each other).
 
 ## 4. Requirements
 
@@ -57,12 +58,19 @@ promoted_at: 2026-09-17T20:53:41Z
 - verify: Behavioral run; file existence observed as runtime output; structural check secondary
 - commit: Skill-deck text change + behavioral test, one working slice
 
-### Item 3 (SC-3): Fallback discovery + degraded mode (depends on Items 1 and 2)
+### Item 3a (SC-3a): Fallback pointer discovery (depends on Items 1 and 2)
 
 - RED: Behavioral run with field absent + pointer present; assert discovery read in stderr — fails before analyze discovery instructions exist
-- GREEN: Add pointer-discovery instructions to the analyze task card; document degraded mode (neither channel → current behavior, no halt)
-- verify: Two run variants: (a) pointer present, field absent → discovery read asserted; (b) neither → analyze completes without halt
-- commit: Skill-deck text change + behavioral tests, one working slice
+- GREEN: Add pointer-discovery instructions to the analyze task card
+- verify: Behavioral run; `assert_stderr_pattern_present` for the discovery read
+- commit: Skill-deck text change + behavioral test, one working slice
+
+### Item 3b (SC-3b): Degraded no-halt mode (depends on Items 1 and 2)
+
+- RED: Behavioral run with neither channel present; assert analyze completes without halt — fails before degraded-mode documentation exists
+- GREEN: Document degraded mode in the analyze task card (neither channel → current behavior, no halt)
+- verify: Behavioral run; assert analyze completes without halt (no BLOCKED state)
+- commit: Skill-deck text change + behavioral test, one working slice
 
 ## 6. Dependencies
 

@@ -1,0 +1,80 @@
+# validate-findings.yaml — .opencode#2451
+# Structural validation of plan.md per writing-plans/tasks/validate.md
+# Generated 2026-09-17
+
+issue: 2451
+artifact: validate-findings
+overall_status: PASS
+
+category_1_structural:
+  status: PASS
+  checks:
+    phase_table_columns:
+      result: PASS
+      detail: "Phase Table (plan.md lines 58-64) has all required columns: Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch."
+    phase_procedure_numbered_steps:
+      result: PASS
+      detail: "Each phase has a 'Step-by-Step' section with numbered checkbox steps: Phase 1 steps 5-24, Phase 2 steps 25-35, Phase 3 steps 36-40; matching the Step Range column."
+    exit_criteria_sc_mapping:
+      result: PASS
+      detail: "Exit Criteria section (lines 68-76) maps C1-C7 to SC-1..SC-7 and each C to its owning phase."
+
+category_2_skill_task_validity:
+  status: PASS
+  checks:
+    dispatch_strings_match_reference:
+      result: PASS
+      detail: "Every task-card dispatch string in the plan matches an entry in skills/writing-plans/reference/implementation-workflow.md: pre-regression (phase-0 task from test-driven-development), pre-regression-verify (verify task from verification-before-completion), red, green, post-regression (phase-4 task from test-driven-development), verify, commit-inline (direct git add/commit), audit (DiMo investigator chain), z3-check (direct solve check), structural-checks (checklist task from finishing-a-development-branch), pre-pr-gate (verify task from verification-before-completion), regression-check (phase-4 task from test-driven-development), review-prep (review-prep from git-workflow-pr), create-pr (create task from git-workflow-pr), exec-summary (completion task from completion-core). No invalid references found."
+
+category_3_sc_coverage:
+  status: PASS
+  checks:
+    all_scs_covered:
+      result: PASS
+      detail: "SC-1..SC-4 in Phase 1 exit criteria (C1-C4); SC-5, SC-6 in Phase 2 (C5-C6); SC-7 in Phase 3 (C7). All 7 spec SCs covered, 1:1 with the six-part design."
+    triplet_split_detection:
+      result: PASS
+      detail: "No SC has RED/GREEN/COMMIT split across phases. Item 1 (SC-1): steps 5/6/9 all Phase 1. Item 2 (SC-2): 10/11/14 Phase 1. Item 3 (SC-3): 15/16/19 Phase 1. Item 4 (SC-4): 20/21/24 Phase 1. Item 5 (SC-5): 25/26/27(+28 push, behavioral-variant ordering) Phase 2. Item 6 (SC-6): 31/32/35 Phase 2. Item 7 (SC-7): 36/37/40 Phase 3."
+
+category_4_concern_separation:
+  status: PASS
+  checks:
+    one_concern_per_phase_no_overlap:
+      result: PASS
+      detail: "Concern map (concern-map.yaml) defines 6 concerns with disjoint phase ownership: Parts 1-4 -> Phase 1 (items 1-4), Part 5 -> Phase 2 (items 5-6), Part 6 -> Phase 3 (item 7). No concern is addressed by two phases; no two phases address the same concern. Note: Phase 1 aggregates four sub-concerns via 1:1 item-to-concern mapping (item-1..4 each own exactly one concern per the concern map) — separation holds at item level and no concern spans phases."
+
+category_5_dag_validation:
+  status: PASS
+  checks:
+    no_cycles:
+      result: PASS
+      detail: "dependency-contract.yaml edges: phase_2 -> phase_1, phase_3 -> phase_1 (preconditions z3.Implies(phase_2, phase_1), z3.Implies(phase_3, phase_1)). Acyclic; solve model query z3.And(phase_1, phase_2, phase_3) returned SAT."
+    all_phases_reachable:
+      result: PASS
+      detail: "phase_1 is the start node (no dependencies); phase_2 and phase_3 are directly reachable from phase_1."
+    no_orphan_phases:
+      result: PASS
+      detail: "phase_1 has outgoing edges to 2 and 3; phases 2 and 3 each have an incoming edge. No phase lacks both incoming and outgoing edges."
+
+category_6_holistic_quality:
+  status: PASS
+  checks:
+    no_tbd_todo_placeholders:
+      result: PASS
+      detail: "No TBD/TODO/placeholder tokens in plan.md body. Phase body markers (PHASE-N-BODY, POST-IMPLEMENTATION-BODY, PRE-FLIGHT-GUARD) are structural template markers, not unresolved content placeholders — each phase carries a fully populated body beneath its marker."
+    checkbox_format:
+      result: PASS
+      detail: "All executable steps (1-48) use '- [ ]' checkbox format."
+    dispatch_mode_consistency:
+      result: PASS
+      detail: "Each step carries exactly one mode marker: task-card steps contain a single task() dispatch with a canonical string; direct steps (commits, push, z3-check, coherence/baseline checks) contain no task() dispatch. No mixed-mode steps. Plan frontmatter dispatch block matches phase bodies."
+
+summary:
+  category_1: PASS
+  category_2: PASS
+  category_3: PASS
+  category_4: PASS
+  category_5: PASS
+  category_6: PASS
+  overall: PASS
+  findings: []

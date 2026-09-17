@@ -390,3 +390,10 @@ All SCs pass; post-implementation gates (audit, structural checks, pre-PR gate, 
 > ```
 >
 > This guard is mechanical (action-not-perception): presence of the `task` tool is the probe; it does not infer role from prompts. Reason code table: `ORCHESTRATOR_ONLY_PLAN` (this artifact), `ORCHESTRATOR_ONLY_SKILL_CARD` (skill cards).
+
+## lifecycle_events
+
+- timestamp: 2026-09-17T23:22:55Z
+  event: plan_created
+  plan_file: .opencode/.issues/2451/plan.md
+  phase_count: 3
