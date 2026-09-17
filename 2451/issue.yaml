@@ -2,8 +2,7 @@ title: '[SPEC] One-dispatch-one-step gate — prohibit combined dispatches for d
   steps'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2451/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2451/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -112,6 +111,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2451/`](https://github.c
 
   '
 created_at: '2026-09-17T19:32:29+00:00'
-updated_at: '2026-09-17T20:42:13+00:00'
+updated_at: '2026-09-17T23:10:40+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2451
 remote_url: https://github.com/michael-conrad/.opencode/issues/2451
