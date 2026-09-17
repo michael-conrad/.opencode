@@ -1,0 +1,125 @@
+# dependency-contract.yaml — .opencode#2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# Solver-format sections (variables/preconditions/postconditions) added for tools/solve + tools/plan.
+
+spec: .opencode/.issues/2451/spec.md
+generated: 2026-09-17T23:20:00Z
+
+variables:
+  phase_1:
+    type: bool
+    description: "Rule-text authoring: 257 p-dis-007, 091 dispatch-level bright-line, 022 critical-rules-034 extension, tests-v2 AGENTS §15/§6a (SC-1..SC-4)"
+  phase_2:
+    type: bool
+    description: "Behavioral scenario: artifact-generation run + separate clean-room evaluation dispatch (SC-5..SC-6)"
+  phase_3:
+    type: bool
+    description: "Content-verification placement scenario (SC-7)"
+
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_1)"
+
+invariants: []
+postconditions: []
+
+# Solver-format phase list (mirrors dependency_contract.phase_ordering above)
+phases:
+  - id: 1
+    name: "Rule-text authoring"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    dependencies: []
+  - id: 2
+    name: "Behavioral scenario"
+    scs: [SC-5, SC-6]
+    dependencies: [1]
+  - id: 3
+    name: "Content-verification placement scenario"
+    scs: [SC-7]
+    dependencies: [1]
+
+# Interface compatibility for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# All changes are ADDITIVE-ONLY: every modification extends an existing host; nothing is removed or replaced.
+
+interfaces:
+  - interface: "257 procedural-discipline pattern catalog (p-dis-001..006 + selection matrix + canonical formulas)"
+    kind: added_to
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "p-dis-007 is ADDED via 257's own §11 add-pattern procedure (catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis). Existing p-dis-001..006 entries, the selection matrix rows, and the co-application rules are untouched — the §11 procedure is additive by construction. The pattern ID p-dis-007 is the next free ID per §11 (verified 2026-09-17: §11 names 'p-dis-007+' as the insertion point; no existing p-dis-007 definition)."
+  - interface: "091 'Batching items' anti-pattern (Anti-Patterns section)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "EXTENDED, not replaced: the existing item-level anti-pattern text ('combining separate concerns') is preserved; a dispatch-level bright-line with the no-exceptions clause and a Read [Text](path) link to 257 p-dis-007 is added. No existing 091 section is removed or reworded beyond the extension."
+  - interface: "022 critical-rules-034 (whole-card/whole-plan forwarding + tool-recipe task() coverage)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "EXTENDED, not replaced: existing sub-agent-internal analyze+write+verify combination coverage is preserved; dispatch-level shapes (run+verify in one task(), cross-SC verification runs, Task A/Task B packing) are added with the no-matter-the-reasoning clause and a Read-link to 257 p-dis-007. One rule family for all combining violations; nothing removed."
+  - interface: "tests-v2/AGENTS.md §15 Targeted Behavioral-Test Execution Mandate + §6a Two-SC Pattern"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "Clarifying sentences ADDED: §15 gains the cannot-combine clarification (a combined run violates the mandate instead of satisfying it); §6a gains the explicit separate-dispatch sentence (clean-room evaluation is a SEPARATE dispatch from the artifact-generation run). The existing mandate text and the two-SC pattern structure are otherwise unchanged."
+  - interface: "tests-v2/behaviors/ scenario inventory (224 scripts, zero combined-dispatch scenarios)"
+    kind: added
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "NEW scenario files (artifact-generation run + separate clean-room evaluation dispatch) are added; no existing scenario is modified. The harness (with-test-home, session.yaml export) is consumed as-is."
+  - interface: "tests-v2 content-verification suite (test-enforcement.sh --scenario)"
+    kind: added
+    compatibility: backward_compatible
+    phases: [3]
+    detail: "NEW content-verification scenario for rule-text placement; test-enforcement.sh is consumed as-is. No existing scenario or suite machinery changes."
+
+removed_interfaces: []
+breaking_changes: []
+dependency_contract:
+  description: "Concrete dependency data derived from spec #2451 affected files and success criteria — real sources, real targets, real phase ordering, real dependency edges (six-part developer-approved design, 7 SCs, 12 requirements)"
+  phase_ordering:
+    - phase: 1
+      scs: [SC-1, SC-2, SC-3, SC-4]
+      items: [item-1, item-2, item-3, item-4]
+      files:
+        - .opencode/guidelines/257-procedural-discipline-reference.md
+        - .opencode/guidelines/091-incremental-build.md
+        - .opencode/guidelines/022-orchestrator-context-discipline.md
+        - .opencode/tests-v2/AGENTS.md
+    - phase: 2
+      scs: [SC-5, SC-6]
+      items: [item-5, item-6]
+      files:
+        - .opencode/tests-v2/behaviors/ (NEW artifact-generation scenario)
+        - .opencode/tests-v2/behaviors/ (NEW clean-room evaluation dispatch)
+        - session.yaml (run artifact, exported per the behavioral harness export procedure)
+    - phase: 3
+      scs: [SC-7]
+      items: [item-7]
+      files:
+        - .opencode/tests-v2/content-verification suite (NEW placement scenario)
+  entries:
+    - source: "257 p-dis-007 canonical pattern (SC-1, Phase 1, item-1)"
+      target: "091 Read-link (SC-2, item-2) and 022 Read-link (SC-3, item-3)"
+      type: "Read [Text](path) link target"
+      constraint: "the link target must exist before the links are written — items 2-3 depend on item 1; links use the Read [Text](path) form, never 'see'-style citations (Read-link mandate)"
+    - source: "Phase 1 rule texts (SC-1..SC-4, items 1-4), committed and pushed"
+      target: "SC-5 artifact-generation behavioral run (Phase 2, item-5)"
+      type: "runtime rule effectiveness"
+      constraint: "Items 1-4 must be committed and pushed with a fresh fetch verifying the effective commit is contained in a remote ref BEFORE the behavioral run — the harness tests the effective commit as it exists on the remote; the evaluated session must run under the effective rule text"
+    - source: "SC-5 artifact-generation session.yaml (Phase 2, item-5)"
+      target: "SC-6 separate clean-room evaluation dispatch (Phase 2, item-6)"
+      type: "evaluation input"
+      constraint: "the evaluator's sole inputs are the semantic criterion (every discrete step received its own dispatch) and the session.yaml from SC-5; evaluation is a SEPARATE dispatch from the generation run (§6a); no marker lists, no expected phrases, no static gates (R-7); stderr/stdout assertion helpers prohibited (tests-v2 §2 — session.yaml is the PRIMARY evaluation source); verdict recorded per the §6a result-contract format"
+    - source: "257/091/022 rule texts (SC-1..SC-3, Phase 1, items 1-3)"
+      target: "SC-7 content-verification placement scenario (Phase 3, item-7)"
+      type: "structural placement assertions"
+      constraint: "item 7 depends on items 1-3: the placement assertions can only pass after the rule texts exist; the scenario asserts both presence (257 p-dis-007, 091 bright-line, 022 extension) and absence (multi-step dispatch template text in task cards)"
+  cross_phase_edges:
+    - from: 1
+      to: 2
+      rationale: "Items 5-6 depend on Items 1-4 — the behavioral run evaluates a session governed by the new rule text, which must be committed, pushed, and remote-contained before the run (commit+push precede the behavioral test run per the behavioral variant ordering)."
+    - from: 1
+      to: 3
+      rationale: "Item 7 depends on Items 1-3 — the placement assertions require the three rule texts to exist. Phase 3 has no dependency on Phase 2."

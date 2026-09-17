@@ -1,0 +1,64 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: issue-2450-phases
+  objects: 13
+  fluents: 2
+  actions: 13
+  goals:   3
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 13
+
+- [ ] 1. complete-item1()
+- [ ] 2. complete-item3()
+- [ ] 3. complete-item4()
+- [ ] 4. complete-item10()
+- [ ] 5. complete-item8()
+- [ ] 6. complete-item9()
+- [ ] 7. complete-item7()
+- [ ] 8. complete-item5()
+- [ ] 9. complete-item6()
+- [ ] 10. complete-item2()
+- [ ] 11. close-phase3()
+- [ ] 12. close-phase2()
+- [ ] 13. close-phase1()
+
+---
+actions:
+- name: complete-item1
+  parameters: []
+- name: complete-item3
+  parameters: []
+- name: complete-item4
+  parameters: []
+- name: complete-item10
+  parameters: []
+- name: complete-item8
+  parameters: []
+- name: complete-item9
+  parameters: []
+- name: complete-item7
+  parameters: []
+- name: complete-item5
+  parameters: []
+- name: complete-item6
+  parameters: []
+- name: complete-item2
+  parameters: []
+- name: close-phase3
+  parameters: []
+- name: close-phase2
+  parameters: []
+- name: close-phase1
+  parameters: []
+domain: issue-2450-phases
+engine: tamer
+plan_length: 13
+status: SOLVED_SATISFICING

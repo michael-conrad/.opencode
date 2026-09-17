@@ -1,0 +1,18 @@
+issue: 2452
+artifact: concern-map
+phases:
+  - phase: "SC-1: dispatch-context threading + handoff consumption"
+    concerns:
+      - "Routing concern: TDT context fields (SKILL.md — orchestrator-only routing metadata)"
+      - "Execution concern: handoff reading step (analyze.md — sub-agent procedure)"
+    separation: "Skill card carries the field; task card carries the consumption procedure — matches dispatch-vocabulary split"
+  - phase: "SC-2: issue-directory pointer write"
+    concerns:
+      - "Producer concern: brainstorming writes pointer at issue creation"
+      - "Storage concern: pointer lives in {issues_prefix}{N}/ (issues-data branch), not parent repo"
+    separation: "Brainstorming deck owns production; local-issues git handling owns storage mechanics"
+  - phase: "SC-3: pointer discovery fallback"
+    concerns:
+      - "Consumer resilience: analyze discovers pointer absent explicit context field"
+    separation: "Consumption logic stays in analyze.md; no change to brainstorming"
+cross_phase: "No shared mutable state across phases; each phase edits a distinct deck"

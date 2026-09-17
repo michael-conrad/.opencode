@@ -1,0 +1,27 @@
+artifact_name: solve-output
+generated_at: 2026-09-17
+issue: 2450
+solve_status: SAT
+solve_command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2450/dependency-contract.yaml --query 'z3.And(phase1_tool_complete, phase2_gate_text_complete, phase3_governance_complete)'"
+model_assignment:
+  phase1_tool_complete: true
+  phase2_gate_text_complete: true
+  phase3_governance_complete: true
+  item1_flag_complete: true
+  item2_parity_complete: true
+  item3_analyze_invocation_complete: true
+  item4_analyze_contract_complete: true
+  item5_create_gate_complete: true
+  item6_hygiene_issues_guide_complete: true
+  item7_hygiene_parent_agents_complete: true
+  item8_reservation_issues_guide_complete: true
+  item9_reservation_create_md_complete: true
+  item10_reservation_creation_md_complete: true
+check_status: SAT
+check_command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2450/dependency-contract.yaml --state-path .opencode/.issues/2450/artifacts/state-analysis.yaml"
+check_note: "state-analysis.yaml carries no variable section for this contract; the solver returned SAT with a satisfying assignment honoring postconditions+invariants (phases unreachable in the empty state, SAT with all phases completable)."
+plan_status: SOLVED_SATISFICING
+plan_command: "./.opencode/tools/plan plan --problem .opencode/.issues/2450/artifacts/planning-problem.yaml"
+plan_output_path: .opencode/.issues/2450/artifacts/plan-output.yaml
+plan_length: 13
+plan_note: "planning problem derived from the dependency-contract item graph (item preconditions = item_dependencies; phase-close preconditions = phase item sets); tools/plan takes --problem not --contract-path, so a PDDL problem file was generated from the contract."

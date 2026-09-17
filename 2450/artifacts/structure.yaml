@@ -1,0 +1,89 @@
+artifact_name: structure
+generated_at: 2026-09-17
+issue: 2450
+source: "spec.md §5 Items + sc table (spec.md §3); sc-summary.yaml not present — SCs read directly from spec.md §3 table"
+phases:
+  - phase: 1
+    name: "tool — scoped validation mode in local-issues"
+    scs: [SC-1, SC-2]
+    items: [item-1, item-2]
+    files:
+      - .opencode/tools/local-issues
+      - .opencode/tests/test_local_issues/
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: orchestrator
+        dispatch: "orchestrator runs git add <files> && git commit directly"
+  - phase: 2
+    name: "gate text — analyze.md and create.md R-13 gate scoping"
+    scs: [SC-3, SC-4, SC-5]
+    items: [item-3, item-4, item-5]
+    files:
+      - .opencode/skills/spec-creation/tasks/analyze.md
+      - .opencode/skills/spec-creation/tasks/create.md
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: orchestrator
+        dispatch: "orchestrator runs git add <files> && git commit directly"
+  - phase: 3
+    name: "governance docs — hygiene and reservation mandates"
+    scs: [SC-6, SC-7, SC-8, SC-9, SC-10]
+    items: [item-6, item-7, item-8, item-9, item-10]
+    files:
+      - .opencode/.issues/AGENTS.md
+      - .opencode/AGENTS.md
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+    skill_task_selection:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: orchestrator
+        dispatch: "orchestrator runs git add <files> && git commit directly"
+dependency_dag:
+  edges:
+    - from: 1
+      to: 2
+      rationale: "Items 3 and 5 depend on Item 1 — the validate-yaml --number flag must exist before the gate cards instruct its use. Item 5 additionally depends on Item 4 (contract semantics defined once in analyze.md, mirrored in create.md)."
+  independent:
+    - phase: 3
+      rationale: "Items 6-10 are disjoint from Items 1-5 — different files, no tool dependency; Phase 3 may run in parallel with Phases 1-2."
+item_dependencies:
+  item-1: []
+  item-2: [item-1]
+  item-3: [item-1]
+  item-4: [item-3]
+  item-5: [item-1, item-4]
+  item-6: []
+  item-7: []
+  item-8: []
+  item-9: []
+  item-10: []
+verifications:
+  triplet_co_location: "PASS — every SC's RED, GREEN, and COMMIT steps live in the same item, and every item lives in exactly one phase (spec §5: Items 1-10 are self-contained TDD cycles; behavioral items carry their own PUSH + behavioral verify within the same item)."
+  cross_phase_dependency: "PASS — Phase 2's RED behavioral runs depend on Phase 1 output (Item 1 flag), which is a forward dependency (Y < X), not a violation. No RED test in any phase depends on output from a later phase. Phase 3 items have zero dependencies."

@@ -1,0 +1,17 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "spec-creation analyze dispatch carries optional brainstorm_handoff_path and the analyze task card consumes the handoff as primary design input when present"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "brainstorming exploration-workflow writes a handoff pointer file into the local issue directory at issue creation"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "analyze discovers the issue-directory pointer when the dispatch context field is absent, and degrades to current behavior when neither exists"
+    evidence_type: "behavioral"
+    plan_item: 3
+dependency_dag:
+  - id: "SC-3"
+    depends_on: ["SC-1", "SC-2"]

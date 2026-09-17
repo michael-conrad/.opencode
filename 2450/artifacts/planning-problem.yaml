@@ -1,0 +1,123 @@
+domain: issue-2450-phases
+fluents:
+  - name: item-done
+    params:
+      - name: i
+        type: item
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+objects:
+  - name: item1
+    type: item
+  - name: item2
+    type: item
+  - name: item3
+    type: item
+  - name: item4
+    type: item
+  - name: item5
+    type: item
+  - name: item6
+    type: item
+  - name: item7
+    type: item
+  - name: item8
+    type: item
+  - name: item9
+    type: item
+  - name: item10
+    type: item
+  - name: phase1
+    type: phase
+  - name: phase2
+    type: phase
+  - name: phase3
+    type: phase
+actions:
+  - name: complete-item1
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item1)
+  - name: complete-item2
+    params: []
+    preconditions:
+      - item-done(item1)
+    effects:
+      - item-done(item2)
+  - name: complete-item3
+    params: []
+    preconditions:
+      - item-done(item1)
+    effects:
+      - item-done(item3)
+  - name: complete-item4
+    params: []
+    preconditions:
+      - item-done(item3)
+    effects:
+      - item-done(item4)
+  - name: complete-item5
+    params: []
+    preconditions:
+      - item-done(item1)
+      - item-done(item4)
+    effects:
+      - item-done(item5)
+  - name: complete-item6
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item6)
+  - name: complete-item7
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item7)
+  - name: complete-item8
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item8)
+  - name: complete-item9
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item9)
+  - name: complete-item10
+    params: []
+    preconditions: []
+    effects:
+      - item-done(item10)
+  - name: close-phase1
+    params: []
+    preconditions:
+      - item-done(item1)
+      - item-done(item2)
+    effects:
+      - phase-done(phase1)
+  - name: close-phase2
+    params: []
+    preconditions:
+      - item-done(item3)
+      - item-done(item4)
+      - item-done(item5)
+    effects:
+      - phase-done(phase2)
+  - name: close-phase3
+    params: []
+    preconditions:
+      - item-done(item6)
+      - item-done(item7)
+      - item-done(item8)
+      - item-done(item9)
+      - item-done(item10)
+    effects:
+      - phase-done(phase3)
+init: []
+goals:
+  - phase-done(phase1)
+  - phase-done(phase2)
+  - phase-done(phase3)

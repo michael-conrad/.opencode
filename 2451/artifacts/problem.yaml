@@ -1,0 +1,26 @@
+# Unified-planning problem derived from .opencode#2451 dependency contract
+# DAG: phase_1 -> phase_2, phase_1 -> phase_3 (phase 3 does not depend on phase 2)
+domain: one-dispatch-one-step-gate
+fluents:
+  - name: phase_1
+  - name: phase_2
+  - name: phase_3
+actions:
+  - name: complete_phase_1
+    effects:
+      - phase_1
+  - name: complete_phase_2
+    preconditions:
+      - phase_1
+    effects:
+      - phase_2
+  - name: complete_phase_3
+    preconditions:
+      - phase_1
+    effects:
+      - phase_3
+init: []
+goals:
+  - phase_1
+  - phase_2
+  - phase_3

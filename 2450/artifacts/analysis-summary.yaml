@@ -1,0 +1,15 @@
+spec_path: .opencode/.issues/2450/spec.md
+approval_status: approved
+approved_label: approved-for-pr
+sc_count: 8
+sc_defined: true
+artifacts:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+scope_findings: "Spec references .opencode/tools/local-issues (cmd_validate_yaml, _scan_issue_dir_errors), .opencode/skills/spec-creation/tasks/analyze.md and create.md, .opencode/.issues/AGENTS.md, .opencode/AGENTS.md, and .opencode/tests/test_local_issues/test_validate_yaml_exit_codes.py — all verified present 2026-09-17."
+blockers: []

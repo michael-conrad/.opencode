@@ -1,0 +1,10 @@
+issue: 2452
+cards_consulted:
+  - path: .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+    confidence: 0.90
+    relevance: "high — spec-writing/skill-architecture patterns for AI agents; confirms handoff-consumption belongs in task cards (analyze.md) rather than prose conventions"
+    incorporated: true
+  - path: .issues/research-cards/writing-plans-flattening.md
+    relevance: "grep-matched 'handoff' but concerns plan flattening, not brainstorm→spec handoff wiring"
+    incorporated: false
+search_method: "glob .issues/research-cards/*.md (14 cards) + frontmatter grep for spec topic"

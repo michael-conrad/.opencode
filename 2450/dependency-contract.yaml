@@ -1,0 +1,136 @@
+# Interface compatibility for issue 2450
+# Scoped validation mode for local-issues validate-yaml (--number repo#N) + R-13 gate scoping + governance mandates
+# All tool changes are ADDITIVE-ONLY: the no-flag default stays byte-for-byte identical (R-5); nothing removed.
+# dependency_contract section auto-backfilled per research task Step 9 (source artifact carried no dependency_contract key).
+
+interfaces:
+  - interface: "validate-yaml CLI surface"
+    kind: added_to
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "--number <repo>#N flag ADDED (R-1); no-flag default unchanged byte-for-byte (R-5); bare numbers rejected per qualifier enforcement (R-11); fail-fast on missing directory (R-10)."
+  - interface: "report format '<path>: <error-class>' with error classes invalid-yaml / schema-violation / malformed-frontmatter"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: "UNCHANGED — scoped mode emits through the same shared scan code path; scoped output equals workspace output filtered to the target's paths (R-4); no second report dialect."
+  - interface: "R-13 gate sites (analyze.md Step 5.3, create.md Step 6.1)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: "Intentional contract change per the spec's problem statement: gates switch to the scoped invocation as the progress-gating check; workspace-wide scan demoted to secondary maintenance check that MUST NOT gate on unrelated records; BLOCKED-on-target-violations semantics preserved."
+  - interface: "spec-creation create.md Step 3 / issue-operations-core creation.md Step 2.1 existing mechanics"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [3]
+    detail: "Reservation mandate text ADDED alongside; remote-stub-first -> local-at-N mechanics, renumber/migrate repair, API_FAILURE_MID_FLOW path, counter advancement all preserved."
+  - interface: ".opencode/.issues/AGENTS.md and .opencode/AGENTS.md governance sections"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [3]
+    detail: "ADDITIVE mandate sentences (hygiene mandate SC-6/SC-7, reservation mandate SC-8); existing Authorization/Workflow/worktree-table structure untouched."
+
+removed_interfaces: []
+breaking_changes: []
+# Z3 contract section consumed by .opencode/tools/solve (check/model/prove)
+variables:
+  phase1_tool_complete:
+    type: bool
+    nullable: false
+  phase2_gate_text_complete:
+    type: bool
+    nullable: false
+  phase3_governance_complete:
+    type: bool
+    nullable: false
+  item1_flag_complete:
+    type: bool
+    nullable: false
+  item2_parity_complete:
+    type: bool
+    nullable: false
+  item3_analyze_invocation_complete:
+    type: bool
+    nullable: false
+  item4_analyze_contract_complete:
+    type: bool
+    nullable: false
+  item5_create_gate_complete:
+    type: bool
+    nullable: false
+  item6_hygiene_issues_guide_complete:
+    type: bool
+    nullable: false
+  item7_hygiene_parent_agents_complete:
+    type: bool
+    nullable: false
+  item8_reservation_issues_guide_complete:
+    type: bool
+    nullable: false
+  item9_reservation_create_md_complete:
+    type: bool
+    nullable: false
+  item10_reservation_creation_md_complete:
+    type: bool
+    nullable: false
+preconditions:
+  - "z3.Implies(phase2_gate_text_complete, item1_flag_complete)"
+  - "z3.Implies(phase2_gate_text_complete, z3.And(item3_analyze_invocation_complete, item4_analyze_contract_complete, item5_create_gate_complete))"
+  - "z3.Implies(phase1_tool_complete, z3.And(item1_flag_complete, item2_parity_complete))"
+  - "z3.Implies(item5_create_gate_complete, z3.And(item1_flag_complete, item4_analyze_contract_complete))"
+  - "z3.Implies(item2_parity_complete, item1_flag_complete)"
+  - "z3.Implies(item4_analyze_contract_complete, item3_analyze_invocation_complete)"
+  - "z3.Implies(phase3_governance_complete, z3.And(item6_hygiene_issues_guide_complete, item7_hygiene_parent_agents_complete, item8_reservation_issues_guide_complete, item9_reservation_create_md_complete, item10_reservation_creation_md_complete))"
+invariants:
+  - "z3.Implies(phase2_gate_text_complete, phase1_tool_complete)"
+  - "z3.Implies(z3.Or(item3_analyze_invocation_complete, item5_create_gate_complete), item1_flag_complete)"
+postconditions:
+  - "z3.And(phase1_tool_complete, phase2_gate_text_complete, phase3_governance_complete)"
+dependency_contract:
+  description: "Auto-backfilled dependency contract for spec #2450 — derived from interface-compatibility.yaml cli_surface/consumer_compatibility/doc_surface and the spec's item dependency graph (ten SCs, three phases)"
+  phase_ordering:
+    - phase: 1
+      scs: [SC-1, SC-2]
+      items: [item-1, item-2]
+      files:
+        - .opencode/tools/local-issues
+        - .opencode/tests/test_local_issues/
+    - phase: 2
+      scs: [SC-3, SC-4, SC-5]
+      items: [item-3, item-4, item-5]
+      files:
+        - .opencode/skills/spec-creation/tasks/analyze.md
+        - .opencode/skills/spec-creation/tasks/create.md
+    - phase: 3
+      scs: [SC-6, SC-7, SC-8, SC-9, SC-10]
+      items: [item-6, item-7, item-8, item-9, item-10]
+      files:
+        - .opencode/.issues/AGENTS.md
+        - .opencode/AGENTS.md
+        - .opencode/skills/spec-creation/tasks/create.md
+        - .opencode/skills/issue-operations-core/tasks/creation.md
+  entries:
+    - source: "validate-yaml --number flag (SC-1, Phase 1, item-1)"
+      target: "analyze.md Step 5.3 (SC-3, item-3) and create.md Step 6.1 (SC-5, item-5) scoped gate invocations"
+      type: "artifact schema"
+      constraint: "the flag must exist and pass its pytest suite before any gate card instructs its use — items 3 and 5 depend on item 1 (implied coupling via the R-13 gate consumption contract)"
+    - source: "analyze.md Step 5.3 scoped invocation + contract (SC-3/SC-4, items 3-4)"
+      target: "create.md Step 6.1 mirrored contract (SC-5, item-5)"
+      type: "artifact schema"
+      constraint: "contract semantics are defined once at the analyze.md site and mirrored verbatim in create.md — item 5 depends on item 4 (implied coupling)"
+    - source: "SC-2 shared-scan reporting parity (Phase 1, item-2)"
+      target: "SC-3/SC-5 gate gate_evidence expectations (Phase 2, items 3/5)"
+      type: "artifact schema"
+      constraint: "gate evidence cites the <path>: <error-class> format, which item 2 locks in before the gate cards reference it (implied coupling)"
+    - source: "Phase 2 gate texts (SC-3..SC-5, items 3-5), committed and pushed"
+      target: "behavioral verify runs for SC-3..SC-5 (Phase 2)"
+      type: "runtime rule effectiveness"
+      constraint: "task-card changes must be committed and pushed with a fresh fetch verifying the effective commit is contained in a remote ref BEFORE the behavioral run (behavioral-variant ordering per 091-incremental-build.md)"
+    - source: "Phase 3 mandate texts (SC-6..SC-10, items 6-10), committed and pushed"
+      target: "behavioral verify runs for SC-6..SC-10 (Phase 3)"
+      type: "runtime rule effectiveness"
+      constraint: "same behavioral-variant ordering — commit+push precede the behavioral run; Phase 3 has NO dependency on Phases 1-2 (disjoint files, no tool dependency)"
+  cross_phase_edges:
+    - from: 1
+      to: 2
+      rationale: "Items 3 and 5 depend on Item 1 — the scoped flag must exist before the R-13 gate cards consume it."
