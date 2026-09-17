@@ -1,0 +1,23 @@
+# blast-radius.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+affected_files:
+  - path: .opencode/skills/spec-creation/SKILL.md
+    exists: true
+    change: Add optional `brainstorm_handoff_path` field to TDT analyze dispatch context (SC-1, R-1)
+  - path: .opencode/skills/spec-creation/tasks/analyze.md
+    exists: true
+    change: Add handoff-consumption instructions (R-2), pointer-discovery instructions (R-4), degraded no-halt mode documentation (SC-3b)
+  - path: .opencode/skills/brainstorming/SKILL.md
+    exists: true
+    change: Add handoff pointer-file write step to exploration-workflow at issue creation (SC-2, R-3, R-5)
+  - path: .opencode/tests-v2/AGENTS.md
+    exists: true
+    change: Documentation reference only — behavioral harness conventions used for verification; no normative change expected
+  - path: .opencode/.issues/2451/
+    exists: true
+    change: Read-only reference (live case evidence); explicitly excluded from remediation per spec §2
+
+blast_radius: LOW-MEDIUM
+rationale: All changes are skill-deck text edits inside the .opencode submodule; no production source code is touched. Downstream impact is behavioral (dispatch routing and workflow steps), verified via tests-v2 behavioral runs.

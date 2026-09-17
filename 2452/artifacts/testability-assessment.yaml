@@ -1,0 +1,33 @@
+# testability-assessment.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+scs:
+  - id: SC-1
+    evidence_type: behavioral
+    verification: opencode run via tests-v2/with-test-home with a brainstorming handoff present; assert stderr shows analyze dispatch + handoff-file read (assert_stderr_pattern_present)
+    primary: true
+    notes: stderr tool actions (dispatch + file read) are the behavioral evidence; prose recall not accepted
+  - id: SC-2
+    evidence_type: behavioral
+    verification: behavioral run of brainstorming explore path; assert pointer file exists in issue directory after issue creation
+    primary: true
+    notes: file existence is observable runtime output; structural path check is secondary corroboration only (spec explicit)
+  - id: SC-3a
+    evidence_type: behavioral
+    verification: behavioral run with handoff absent from dispatch context but pointer present; assert stderr shows discovery read (assert_stderr_pattern_present)
+    primary: true
+    notes: depends on Items 1 and 2 (DAG)
+  - id: SC-3b
+    evidence_type: behavioral
+    verification: behavioral run with neither channel present; assert analyze completes without halt (normal exit, no BLOCKED state)
+    primary: true
+    notes: regression check; depends on Items 1 and 2 (DAG)
+
+harness:
+  runner: bash .opencode/tests-v2/with-test-home opencode run '<message>'
+  assertion_helpers: [assert_stderr_pattern_present, assert_stderr_pattern_absent_all_models]
+  timeout_minimum: 600000ms
+  pre_run_cycle: commit → push → fresh fetch → verify effective commit in remote ref (tests-v2 §4)
+
+substitution_guard: no grep/static-analysis/metadata substitution for any SC — all runtime-behavioral (EVIDENCE_TYPE uplift rule applies)

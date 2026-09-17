@@ -1,0 +1,43 @@
+# Dependency contract for #2446: local-issues --labels normalization, fail-fast rejection, help text
+# Z3 schema section (consumed by tools/solve); extracted interface contract preserved as appendix key.
+variables:
+  phase_1_complete:
+    type: bool
+  sc1_normalize_labels:
+    type: bool
+  sc2a_cmd_update_rejects:
+    type: bool
+  sc2b_cmd_create_rejects:
+    type: bool
+  sc3a_update_help_text:
+    type: bool
+  sc3b_create_help_text:
+    type: bool
+preconditions:
+  # Phase ordering: single-phase decomposition, phase completes when all 5 SCs complete
+  - "z3.Implies(phase_1_complete == z3.BoolVal(True), z3.And(sc1_normalize_labels == z3.BoolVal(True), sc2a_cmd_update_rejects == z3.BoolVal(True), sc2b_cmd_create_rejects == z3.BoolVal(True), sc3a_update_help_text == z3.BoolVal(True), sc3b_create_help_text == z3.BoolVal(True)))"
+  # R-5: validation (SC-2) builds on the normalization helper (SC-1); item order enforces SC-1 first
+  - "z3.Implies(sc2a_cmd_update_rejects == z3.BoolVal(True), sc1_normalize_labels == z3.BoolVal(True))"
+  - "z3.Implies(sc2b_cmd_create_rejects == z3.BoolVal(True), sc1_normalize_labels == z3.BoolVal(True))"
+postconditions: []
+invariants: []
+# --- Appendix: extracted dependency_contract from interface-compatibility.yaml (authoritative interface semantics) ---
+interface_contract:
+  source: ".opencode/tools/local-issues (single modified file)"
+  consumers:
+    - consumer: cmd_update
+      contract: "receives parsed args.labels: list[str]; must normalize then validate before assigning into issue dict and calling _auto_commit"
+      types: "list[str] -> list[str] (normalized) | SystemExit (CLI error, no mutation)"
+    - consumer: cmd_create
+      contract: "receives parsed args.labels: list[str]; must normalize then validate before passing to _create_issue_files (which calls _ensure_needs_approval and _auto_commit)"
+      types: "list[str] -> list[str] (normalized) | SystemExit (CLI error, no file creation)"
+    - consumer: "_ensure_needs_approval(labels: list[str]) -> list[str]"
+      contract: "inserts 'needs-approval' first if absent; invoked AFTER normalization so canonical ordering holds"
+      types: "list[str] -> list[str]"
+    - consumer: "_auto_commit(message: str, repo_path: Path | None) -> None"
+      contract: "must NOT be reached on malformed-remainder rejection (fail-fast pre-write)"
+      types: "called only after successful validation+write"
+  real_type_constraints:
+    labels_input: "list[str] (argparse nargs='*' type=str)"
+    normalized: "list[str] with no empty strings, no embedded commas or whitespace per token"
+    malformed_remainder: "any normalized token still containing ',' or whitespace -> CLI error exit before any write or commit"

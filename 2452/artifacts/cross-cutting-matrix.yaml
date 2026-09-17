@@ -1,0 +1,31 @@
+# cross-cutting-matrix.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+matrix:
+  - sc: SC-1
+    concerns: [dispatch-threading]
+    files_spanned: [.opencode/skills/spec-creation/SKILL.md, .opencode/skills/spec-creation/tasks/analyze.md]
+    cross_cutting: false
+  - sc: SC-2
+    concerns: [pointer-write]
+    files_spanned: [.opencode/skills/brainstorming/SKILL.md]
+    cross_cutting: false
+  - sc: SC-3a
+    concerns: [fallback-discovery, dispatch-threading, pointer-write]
+    files_spanned: [.opencode/skills/spec-creation/tasks/analyze.md]
+    cross_cutting: true
+    note: Fallback discovery exercises BOTH channels from Items 1 and 2 — it spans the dispatch field (absent variant) and the pointer (present variant); depends on both per spec DAG
+  - sc: SC-3b
+    concerns: [degraded-mode, dispatch-threading, pointer-write]
+    files_spanned: [.opencode/skills/spec-creation/tasks/analyze.md]
+    cross_cutting: true
+    note: Degraded mode asserts absence of both channels — its verification depends on both prior channels existing to be meaningfully tested
+
+channel_precedence:
+  rule: dispatch-context field > issue-directory pointer (spec Edge Cases: field wins as primary, pointer is fallback only)
+
+shared_files:
+  - path: .opencode/skills/spec-creation/tasks/analyze.md
+    items: [Item 1, Item 3a, Item 3b]
+    note: Three items edit the same task card — sequential execution required to avoid merge churn; items 3a/3b append sections after Item 1's consumption instructions

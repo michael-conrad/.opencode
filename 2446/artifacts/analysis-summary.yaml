@@ -1,0 +1,18 @@
+artifact: analysis-summary
+issue: 2446
+spec_path: .opencode/.issues/2446/spec.md
+generated: retroactive-backfill
+sc_count: 6
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+scope_summary: >
+  SPEC-FIX for local-issues --labels: add pure _normalize_labels helper
+  (split commas, strip, drop empties), fail-fast pre-write rejection of
+  malformed remainder in cmd_update/cmd_create, and --labels help text on
+  both subparsers. Single affected file: .opencode/tools/local-issues.

@@ -1,0 +1,23 @@
+artifact: testability-assessment
+issue: 2446
+generated: retroactive-backfill
+assessments:
+  - sc: SC-1
+    evidence_type: behavioral
+    verification: "Unit test execution against _normalize_labels with repro case ['a, b'] -> ['a', 'b'] and clean case ['needs-approval'] unchanged; output asserted"
+  - sc: SC-2a
+    evidence_type: behavioral
+    verification: "Unit test asserting error exit + byte-identical issue.yaml on malformed remainder, run against a temp issues worktree (never live)"
+  - sc: SC-2b
+    evidence_type: behavioral
+    verification: "Unit test asserting error exit + no issue.yaml creation on malformed remainder, temp issues worktree only"
+  - sc: SC-3a
+    evidence_type: string
+    verification: "Parse `update --help` output and assert the --labels help string content"
+  - sc: SC-3b
+    evidence_type: string
+    verification: "Parse `create --help` output and assert the --labels help string content"
+notes: >
+  SC-1 was redeclared from semantic to behavioral per the spec Change Control
+  (2026-09-17 EVIDENCE_TYPE_MISMATCH correction). SC-3a/3b are string evidence:
+  help output is static argparse metadata, not runtime-behavioral state.

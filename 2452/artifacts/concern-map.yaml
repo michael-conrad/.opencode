@@ -1,0 +1,33 @@
+# concern-map.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+concerns:
+  - name: dispatch-threading
+    scs: [SC-1]
+    description: Optional `brainstorm_handoff_path` field in spec-creation TDT analyze dispatch context; analyze sub-agent reads handoff artifact as primary design input
+    phase_boundary: Item 1
+    files: [.opencode/skills/spec-creation/SKILL.md, .opencode/skills/spec-creation/tasks/analyze.md]
+  - name: pointer-write
+    scs: [SC-2]
+    description: Brainstorming exploration-workflow writes handoff pointer file into local issue directory at issue creation
+    phase_boundary: Item 2
+    files: [.opencode/skills/brainstorming/SKILL.md]
+  - name: fallback-discovery
+    scs: [SC-3a]
+    description: Analyze discovers and reads the issue-directory pointer when the dispatch context field is absent
+    phase_boundary: Item 3a
+    files: [.opencode/skills/spec-creation/tasks/analyze.md]
+  - name: degraded-mode
+    scs: [SC-3b]
+    description: Neither channel present → analyze proceeds with current empty-stub behavior, no halt
+    phase_boundary: Item 3b
+    files: [.opencode/skills/spec-creation/tasks/analyze.md]
+
+dependency_order:
+  - Item 1 (dispatch-threading) — independent
+  - Item 2 (pointer-write) — independent
+  - Item 3a (fallback-discovery) — depends on Items 1 and 2
+  - Item 3b (degraded-mode) — depends on Items 1 and 2
+
+per_sc_decomposition: compliant — one SC per item, one RED/GREEN/verify/commit cycle per item

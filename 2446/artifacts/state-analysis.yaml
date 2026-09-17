@@ -1,0 +1,23 @@
+artifact: state-analysis
+issue: 2446
+generated: retroactive-backfill
+transitions:
+  - sc: SC-1
+    transition: "raw parsed labels list -> normalized labels list (split on commas, strip, drop empties)"
+    state_change: none-before-write
+  - sc: SC-2a
+    transition: "malformed remainder -> CLI error exit"
+    state_change: "issue.yaml byte-identical; no _auto_commit record created"
+  - sc: SC-2b
+    transition: "malformed remainder -> CLI error exit"
+    state_change: "no new issue.yaml created; no _auto_commit record created"
+  - sc: SC-3a
+    transition: "--labels help text added to update subparser"
+    state_change: none — argparse metadata only
+  - sc: SC-3b
+    transition: "--labels help text added to create subparser"
+    state_change: none — argparse metadata only
+happy_path:
+  - "well-formed input -> normalization -> _ensure_needs_approval (needs-approval first) -> issue.yaml write -> _auto_commit (unchanged from current behavior)"
+recovery:
+  - "after rejection, caller corrects --labels and re-invokes; failed invocation mutated nothing, no cleanup needed"

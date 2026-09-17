@@ -1,0 +1,67 @@
+# dependency-contract.yaml — .opencode#2452
+# Derived from interface-compatibility.yaml dependency_contract section (extracted as-is,
+# reformatted into solver-consumable variables/preconditions/postconditions/invariants schema).
+# Spec: .opencode/.issues/2452/spec.md
+# Date: 2026-09-17
+
+variables:
+  phase_1_complete:
+    type: bool
+  phase_2_complete:
+    type: bool
+  phase_3_complete:
+    type: bool
+  dispatch_field_threaded:
+    type: bool
+  pointer_written:
+    type: bool
+  fallback_discovery:
+    type: bool
+  degraded_no_halt:
+    type: bool
+
+preconditions:
+  - "z3.Implies(phase_2_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_2_complete)"
+  - "z3.Implies(phase_1_complete, dispatch_field_threaded)"
+  - "z3.Implies(phase_2_complete, pointer_written)"
+  - "z3.Implies(phase_3_complete, z3.And(fallback_discovery, degraded_no_halt))"
+
+postconditions:
+  - "z3.And(phase_1_complete, phase_2_complete, phase_3_complete)"
+  - "z3.And(dispatch_field_threaded, pointer_written, fallback_discovery, degraded_no_halt)"
+
+invariants:
+  - "z3.Implies(fallback_discovery, z3.And(pointer_written, dispatch_field_threaded))"
+  - "z3.Implies(degraded_no_halt, z3.And(pointer_written, dispatch_field_threaded))"
+
+# --- Concrete dependency data extracted from interface-compatibility.yaml ---
+dependency_contract:
+  description: Concrete dependency data derived from the spec's affected files and success criteria
+  dependencies:
+    - source: .opencode/skills/brainstorming/SKILL.md (Step 2.5 handoff contract)
+      target: .opencode/skills/spec-creation/tasks/analyze.md (handoff consumption)
+      type: file-contract
+      constraint: handoff.yaml exists at the path referenced by the pointer; analyze reads it read-only
+      status: exists (verified live 2026-09-17 per spec §6)
+    - source: .opencode/skills/spec-creation/SKILL.md (TDT dispatch)
+      target: .opencode/skills/spec-creation/tasks/analyze.md
+      type: dispatch-context
+      constraint: "optional brainstorm_handoff_path field; absent → degraded mode, no halt (R-2)"
+      status: field to be added (Item 1)
+    - source: .opencode/tests-v2/with-test-home + stderr assertion helpers
+      target: behavioral tests for SC-1, SC-2, SC-3a, SC-3b
+      type: verification-infrastructure
+      constraint: all SCs verified via opencode run behavioral runs; assert_stderr_pattern_present; no prose-recall prompts
+      status: exists (spec §6 — Satisfied)
+    - source: .opencode#1759 (spec-to-plan handoff gates)
+      target: this spec
+      type: adjacent-seam
+      constraint: out of scope; must not be regressed
+      status: pending (tracked separately)
+  phase_ordering:
+    - Item 1 → independent
+    - Item 2 → independent
+    - Item 3a → after Items 1 and 2
+    - Item 3b → after Items 1 and 2

@@ -1,0 +1,89 @@
+# dependency-contract.yaml — .opencode#2447
+# session-init hint removal + AGENTS.md routing rewrite + worktree deregistration (authorization-gated)
+# Solver-format sections (variables/preconditions/postconditions) for tools/solve + tools/plan.
+
+spec: .opencode/.issues/2447/spec.md
+generated: 2026-09-17T19:35:00Z
+
+variables:
+  phase_1:
+    type: bool
+    description: "session-init hint removal: collect_issue_artifact_paths() drops worktree-creation setup hint; root-repo entry unchanged (SC-1, SC-2)"
+  phase_2:
+    type: bool
+    description: "AGENTS.md routing rewrite: GitHub API filing for .opencode tickets, no local-issues routing (SC-3, SC-4)"
+  phase_3:
+    type: bool
+    description: "Worktree deregistration: .opencode/.issues/ worktree removed (SC-5, authorization-gated critical-rules-052)"
+
+preconditions:
+  - "z3.Implies(phase_2, phase_1)"
+  - "z3.Implies(phase_3, phase_2)"
+
+invariants: []
+postconditions: []
+
+phases:
+  - id: 1
+    name: "session-init hint removal"
+    scs: [SC-1, SC-2]
+    dependencies: []
+  - id: 2
+    name: "AGENTS.md routing rewrite"
+    scs: [SC-3, SC-4]
+    dependencies: [1]
+  - id: 3
+    name: "worktree deregistration (authorization-gated)"
+    scs: [SC-5]
+    dependencies: [2]
+
+interfaces:
+  - interface: "session-init stdout contract (## Local Issue Folders section)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [1]
+    detail: ".opencode entry loses the worktree-setup hint entirely (removal, not annotation); root-repo entry unchanged"
+  - interface: ".opencode/AGENTS.md routing contract (.opencode#N)"
+    kind: modified
+    compatibility: backward_compatible
+    phases: [2]
+    detail: ".opencode#N no longer maps to .opencode/.issues/; routes to GitHub API"
+  - interface: "local-issues CLI"
+    kind: unchanged
+    compatibility: backward_compatible
+    phases: []
+  - interface: "root .issues/ worktree contract"
+    kind: unchanged
+    compatibility: backward_compatible
+    phases: []
+
+removed_interfaces:
+  - "agent-managed .opencode/.issues/ worktree (SC-5, phase 3, authorization-gated)"
+
+breaking_changes:
+  - "local-issues .opencode#N mutations no longer supported for ticket filing"
+
+dependency_contract:
+  description: "Extracted from interface-compatibility.yaml dependency_contract section"
+  phase_ordering:
+    - phase: 1
+      scs: [SC-1, SC-2]
+      files: [.opencode/tools/session-init]
+    - phase: 2
+      scs: [SC-3, SC-4]
+      files: [.opencode/AGENTS.md]
+    - phase: 3
+      scs: [SC-5]
+      files: [.opencode/.issues/]
+  entries:
+    - source: "session-init Local Issue Folders output"
+      target: "AGENTS.md issue-routing prose"
+      type: "artifact schema"
+      constraint: "Both artifacts must state the same .opencode/.issues policy — no divergence"
+  cross_phase_edges:
+    - from: 1
+      to: 2
+      rationale: "Policy-divergence constraint: AGENTS.md rewrite lands against post-SC-1 session-init behavior so both artifacts state the same .opencode/.issues policy"
+    - from: 2
+      to: 3
+      rationale: "Documentation must be updated before destructive worktree removal; SC-5 additionally requires explicit developer authorization (critical-rules-052)"

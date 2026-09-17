@@ -1,0 +1,9 @@
+timestamp: '2026-09-17T23:34:14.133072+00:00'
+variables:
+  degraded_no_halt: true
+  dispatch_field_threaded: true
+  fallback_discovery: true
+  phase_1_complete: true
+  phase_2_complete: true
+  phase_3_complete: true
+  pointer_written: true

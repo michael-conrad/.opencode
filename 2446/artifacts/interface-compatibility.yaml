@@ -1,0 +1,35 @@
+artifact: interface-compatibility
+issue: 2446
+generated: retroactive-backfill
+interfaces:
+  - boundary: CLI argument surface (--labels)
+    compat: backward-compatible
+    detail: >
+      nargs='*' preserved; comma-separated quoted tokens now normalize instead
+      of producing a malformed single label; space-separated usage unchanged (R-4).
+  - boundary: issue.yaml labels schema
+    compat: unchanged
+    detail: Labels remain a YAML list of strings; only value cleanliness changes.
+  - boundary: internal helper _ensure_needs_approval(labels: list[str]) -> list[str]
+    compat: unchanged signature; ordering invariant preserved post-normalization (R-5).
+  - boundary: read-labels / list output formatting
+    compat: unchanged (display layers render stored labels verbatim; out of scope).
+dependency_contract:
+  source: ".opencode/tools/local-issues (single modified file)"
+  consumers:
+    - consumer: cmd_update
+      contract: receives parsed args.labels: list[str]; must normalize then validate before assigning into issue dict and calling _auto_commit
+      types: "list[str] -> list[str] (normalized) | SystemExit (CLI error, no mutation)"
+    - consumer: cmd_create
+      contract: receives parsed args.labels: list[str]; must normalize then validate before passing to _create_issue_files (which calls _ensure_needs_approval and _auto_commit)
+      types: "list[str] -> list[str] (normalized) | SystemExit (CLI error, no file creation)"
+    - consumer: _ensure_needs_approval(labels: list[str]) -> list[str]
+      contract: inserts 'needs-approval' first if absent; invoked AFTER normalization so canonical ordering holds
+      types: "list[str] -> list[str]"
+    - consumer: _auto_commit(message: str, repo_path: Path | None) -> None
+      contract: must NOT be reached on malformed-remainder rejection (fail-fast pre-write)
+      types: "called only after successful validation+write"
+  real_type_constraints:
+    labels_input: "list[str] (argparse nargs='*' type=str)"
+    normalized: "list[str] with no empty strings, no embedded commas or whitespace per token"
+    malformed_remainder: "any normalized token still containing ',' or whitespace -> CLI error exit before any write or commit"

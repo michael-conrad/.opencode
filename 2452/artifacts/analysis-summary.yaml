@@ -1,0 +1,33 @@
+# analysis-summary.yaml — backfill of analytical artifacts for .opencode#2452
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/tasks/backfill (mode: retroactive)
+generated_at: 2026-09-17
+
+sc_count: 4
+scs: [SC-1, SC-2, SC-3a, SC-3b]
+
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled (dependency_contract populated with concrete data)
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: >
+  Wire the existing brainstorming handoff contract into the spec-creation pipeline via
+  belt-and-suspenders: (1) optional `brainstorm_handoff_path` field threaded through the
+  spec-creation TDT analyze dispatch with handoff consumption in the analyze task card;
+  (2) brainstorming exploration-workflow writes a handoff pointer file into the local
+  issue directory at issue creation; (3a) fallback pointer discovery when the dispatch
+  field is absent; (3b) documented degraded no-halt mode when neither channel is present.
+  All changes are skill-deck text in the .opencode submodule; verification is behavioral
+  via tests-v2 (opencode run, stderr assertions). Handoff schema ownership stays with
+  brainstorming (read-only consumer); channel precedence: dispatch field > pointer.
+
+affected_files_verified:
+  - .opencode/skills/brainstorming/SKILL.md
+  - .opencode/skills/spec-creation/SKILL.md
+  - .opencode/skills/spec-creation/tasks/analyze.md
+  - .opencode/tests-v2/AGENTS.md

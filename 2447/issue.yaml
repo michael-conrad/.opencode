@@ -5,6 +5,7 @@ labels:
 - approved-for-pr
 - needs-approval
 - spec-draft
+- spec-cleared
 body: '## Observed
 
 
@@ -73,5 +74,5 @@ body: '## Observed
 
   '
 created_at: '2026-09-17T23:11:37+00:00'
-updated_at: '2026-09-17T23:19:46+00:00'
+updated_at: '2026-09-17T23:34:31+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2447

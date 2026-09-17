@@ -1,0 +1,81 @@
+# structure.yaml — phase decomposition for .opencode#2452
+issue_number: 2452
+issues_prefix: .opencode/.issues
+generated_by: writing-plans/tasks/research
+generated_at: 2026-09-17
+
+scs:
+  - SC-1
+  - SC-2
+  - SC-3a
+  - SC-3b
+
+phases:
+  - id: phase-1
+    name: "Dispatch-field channel: brainstorm_handoff_path threading"
+    scs: [SC-1]
+    items:
+      - sc_id: SC-1
+        description: "spec-creation analyze dispatch carries optional brainstorm_handoff_path and analyze task card consumes the handoff as primary design input when present"
+        red: { skill: test-driven-development, task: "execute red task from test-driven-development" }
+        green: { skill: test-driven-development, task: "execute green task from test-driven-development" }
+        verify: { skill: verification-before-completion, task: "execute verify task from verification-before-completion" }
+        commit: { skill: null, task: "commit-inline (orchestrator direct)" }
+    affected_files:
+      - .opencode/skills/spec-creation/SKILL.md
+      - .opencode/skills/spec-creation/tasks/analyze.md
+
+  - id: phase-2
+    name: "Pointer-file channel: brainstorming writes handoff pointer at issue creation"
+    scs: [SC-2]
+    items:
+      - sc_id: SC-2
+        description: "brainstorming exploration-workflow writes a handoff pointer file into the local issue directory at issue creation"
+        red: { skill: test-driven-development, task: "execute red task from test-driven-development" }
+        green: { skill: test-driven-development, task: "execute green task from test-driven-development" }
+        verify: { skill: verification-before-completion, task: "execute verify task from verification-before-completion" }
+        commit: { skill: null, task: "commit-inline (orchestrator direct)" }
+    affected_files:
+      - .opencode/skills/brainstorming/SKILL.md
+
+  - id: phase-3
+    name: "Fallback discovery and degraded no-halt mode"
+    scs: [SC-3a, SC-3b]
+    items:
+      - sc_id: SC-3a
+        description: "analyze discovers the issue-directory pointer when the dispatch context field is absent"
+        red: { skill: test-driven-development, task: "execute red task from test-driven-development" }
+        green: { skill: test-driven-development, task: "execute green task from test-driven-development" }
+        verify: { skill: verification-before-completion, task: "execute verify task from verification-before-completion" }
+        commit: { skill: null, task: "commit-inline (orchestrator direct)" }
+      - sc_id: SC-3b
+        description: "analyze degrades to current behavior (no halt) when neither channel exists"
+        red: { skill: test-driven-development, task: "execute red task from test-driven-development" }
+        green: { skill: test-driven-development, task: "execute green task from test-driven-development" }
+        verify: { skill: verification-before-completion, task: "execute verify task from verification-before-completion" }
+        commit: { skill: null, task: "commit-inline (orchestrator direct)" }
+    affected_files:
+      - .opencode/skills/spec-creation/tasks/analyze.md
+
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-3
+      reason: "SC-3a fallback discovery requires SC-1 dispatch field semantics to exist (fallback = field absent path)"
+    - from: phase-2
+      to: phase-3
+      reason: "SC-3a pointer discovery requires SC-2 pointer file to exist; SC-3b degraded mode requires both channels defined"
+  phases_with_no_dependencies: [phase-1, phase-2]
+
+verification:
+  evidence_type: behavioral
+  method: "tests-v2 behavioral runs via `bash .opencode/tests-v2/with-test-home opencode run` with stderr assertions (assert_stderr_pattern_present); no prose-recall prompts"
+  behavioral_variant: "COMMIT and PUSH precede behavioral test run per guidelines/091-incremental-build.md"
+
+triplet_colocation:
+  verified: true
+  detail: "All SCs have RED, GREEN, and COMMIT in the same phase (SC-1→phase-1, SC-2→phase-2, SC-3a/SC-3b→phase-3)"
+
+cross_phase_dependency_check:
+  verified: true
+  detail: "No RED test in any phase depends on SC output committed in a later phase; phase-3 RED tests depend only on phase-1/phase-2 outputs (earlier phases)"

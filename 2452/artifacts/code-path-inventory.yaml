@@ -1,0 +1,31 @@
+# code-path-inventory.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+scs:
+  SC-1:
+    code_paths:
+      - path: .opencode/skills/spec-creation/SKILL.md
+        role: TDT analyze dispatch context definition — gains optional `brainstorm_handoff_path` field
+      - path: .opencode/skills/spec-creation/tasks/analyze.md
+        role: Analyze task card — gains handoff-consumption instruction preceding analysis steps
+    runtime_observable: handoff-file read appears in analyze sub-agent stderr tool actions
+  SC-2:
+    code_paths:
+      - path: .opencode/skills/brainstorming/SKILL.md
+        role: Exploration-workflow issue-creation step — gains pointer-file write alongside Step 2.5 handoff contract
+    runtime_observable: pointer file exists in `{issues_prefix}{N}/` after issue creation
+  SC-3a:
+    code_paths:
+      - path: .opencode/skills/spec-creation/tasks/analyze.md
+        role: Analyze task card — gains pointer-discovery instructions (glob/read of issue-directory pointer when dispatch field absent)
+    runtime_observable: discovery read of pointer target appears in analyze sub-agent stderr
+  SC-3b:
+    code_paths:
+      - path: .opencode/skills/spec-creation/tasks/analyze.md
+        role: Analyze task card — gains degraded-mode paragraph (neither channel → current behavior, no halt)
+    runtime_observable: behavioral run completes without BLOCKED state / halt
+
+producer_artifact:
+  path: tmp/.../artifacts/preliminary/handoff.yaml
+  owner: brainstorming Step 2.5 (schema unchanged — read-only consumer, spec Key Decision 3)

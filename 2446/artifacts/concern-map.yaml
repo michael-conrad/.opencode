@@ -1,0 +1,18 @@
+artifact: concern-map
+issue: 2446
+generated: retroactive-backfill
+concern_groups:
+  - concern: normalization
+    scs: [SC-1]
+    phase_boundary: Phase 1 (normalization helper + wiring into both entry points)
+  - concern: rejection
+    scs: [SC-2a, SC-2b]
+    phase_boundary: Phase 2 (pre-write fail-fast validation in cmd_update / cmd_create)
+  - concern: help-text
+    scs: [SC-3a, SC-3b]
+    phase_boundary: Phase 3 (argparse --labels help strings on update / create subparsers)
+notes: >
+  SC-1 bundles repro-case and clean-case assertions under one concern: a single
+  pure function (_normalize_labels), one code path, per same-concern bundling
+  justification in the spec. SC-2a/2b and SC-3a/3b decomposed per distinct
+  code target (cmd_update vs cmd_create; update vs create subparser).

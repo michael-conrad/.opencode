@@ -1,0 +1,16 @@
+artifact: code-path-inventory
+issue: 2446
+generated: retroactive-backfill
+paths_by_sc:
+  SC-1:
+    - ".opencode/tools/local-issues: new _normalize_labels() (pure, no I/O)"
+    - ".opencode/tools/local-issues: cmd_update -> labels assignment (normalize before write)"
+    - ".opencode/tools/local-issues: _create_issue_files -> _ensure_needs_approval call chain (normalize applied upstream in cmd_create)"
+  SC-2a:
+    - ".opencode/tools/local-issues: cmd_update -> malformed-remainder check -> CLI error exit BEFORE issue.yaml write and _auto_commit"
+  SC-2b:
+    - ".opencode/tools/local-issues: cmd_create -> malformed-remainder check -> CLI error exit BEFORE issue.yaml creation and _auto_commit"
+  SC-3a:
+    - ".opencode/tools/local-issues: _add update subparser --labels argparse add_argument help= string"
+  SC-3b:
+    - ".opencode/tools/local-issues: create subparser --labels argparse add_argument help= string"

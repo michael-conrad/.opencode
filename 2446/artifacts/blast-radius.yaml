@@ -1,0 +1,13 @@
+artifact: blast-radius
+issue: 2446
+generated: retroactive-backfill
+affected_files:
+  - path: .opencode/tools/local-issues
+    exists: true
+    verified_by: "ls + grep 2026-09-17; contains --labels argparse defs (lines ~1957, ~2005), cmd_create (~1129), cmd_update (~1422), _ensure_needs_approval (~1100), _auto_commit (~1032)"
+    change_type: modify
+    reason: "Single file modified by the fix: _normalize_labels helper added, wired into cmd_update/cmd_create, pre-write rejection added, --labels help text added to both subparsers."
+blast_radius:
+  direct: 1 file
+  transitive: 0 — no other callers of --labels found in .opencode/tools (spec Not-Included section)
+  risk: LOW — pure-function helper + pre-write validation; auto-commit semantics unchanged

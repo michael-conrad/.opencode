@@ -1,0 +1,74 @@
+artifact: structure
+issue: 2446
+generated: research-phase-structure
+sc_count: 5
+phases:
+  - id: phase-1
+    name: "Label normalization helper + fail-fast rejection + help text"
+    rationale: >
+      Single affected file (.opencode/tools/local-issues), all 5 SCs share the
+      same --labels concern. SC-2a/2b validation and SC-3a/3b help text build
+      on the normalization helper (SC-1); no cross-phase dependency is created
+      by colocating them, and splitting a single-file concern into multiple
+      phases would create artificial ordering without dependency benefit.
+    scs: ["SC-1", "SC-2a", "SC-2b", "SC-3a", "SC-3b"]
+    items:
+      - sc: SC-1
+        evidence_type: behavioral
+        skill: test-driven-development
+        steps:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator: git add .opencode/tools/local-issues + test && git commit"
+        summary: "Pure _normalize_labels helper wired into cmd_update and cmd_create before _ensure_needs_approval."
+      - sc: SC-2a
+        evidence_type: behavioral
+        skill: test-driven-development
+        steps:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator: git add .opencode/tools/local-issues + test && git commit"
+        summary: "cmd_update fails fast on malformed remainder before write/_auto_commit; issue.yaml byte-identical."
+      - sc: SC-2b
+        evidence_type: behavioral
+        skill: test-driven-development
+        steps:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator: git add .opencode/tools/local-issues + test && git commit"
+        summary: "cmd_create fails fast on malformed remainder before write/_auto_commit; no issue.yaml created."
+      - sc: SC-3a
+        evidence_type: string
+        skill: test-driven-development
+        steps:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator: git add .opencode/tools/local-issues + test && git commit"
+        summary: "Help text on --labels for update subparser documenting accepted formats and rejection."
+      - sc: SC-3b
+        evidence_type: string
+        skill: test-driven-development
+        steps:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator: git add .opencode/tools/local-issues + test && git commit"
+        summary: "Help text on --labels for create subparser documenting accepted formats and rejection."
+dependency_dag:
+  nodes: ["phase-1"]
+  edges: []
+  notes: >
+    Single-phase decomposition. All items execute in per-SC RED/GREEN/verify/
+    commit cycles in SC order (SC-1 -> SC-2a -> SC-2b -> SC-3a -> SC-3b);
+    SC-2/SC-3 items depend on SC-1's helper within the phase, satisfied by
+    item ordering — no cross-phase edge exists.
+triplet_co_location:
+  verified: true
+  detail: "Every SC has RED, GREEN, and COMMIT assigned to phase-1. No triplet split."
+cross_phase_dependencies:
+  verified: true
+  detail: "No RED test depends on output from a later phase; only one phase exists."

@@ -1,0 +1,22 @@
+artifact: cross-cutting-matrix
+issue: 2446
+generated: retroactive-backfill
+matrix:
+  - sc: SC-1
+    spans: [normalization, rejection-ordering]
+    note: >
+      Normalization helper also affects R-4 (space-separated backward compat
+      passes through unchanged) and R-5 (normalization must precede
+      _ensure_needs_approval so first-label ordering invariant holds).
+  - sc: SC-2a
+    spans: [rejection, data-integrity, auto-commit]
+    note: Pre-write rejection spans the CLI boundary and _auto_commit semantics.
+  - sc: SC-2b
+    spans: [rejection, data-integrity, auto-commit]
+    note: Same cross-cutting surface as SC-2a, distinct entry point.
+  - sc: SC-3a
+    spans: [help-text, caller-education]
+    note: Help text is the caller-facing documentation of the SC-1/SC-2 behavior.
+  - sc: SC-3b
+    spans: [help-text, caller-education]
+    note: Same as SC-3a for the create subparser.

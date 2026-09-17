@@ -1,0 +1,42 @@
+# state-analysis.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+states:
+  - name: handoff-channel-state
+    dimension: availability of the approved-design channel at analyze time
+    transitions:
+      - from: none
+        to: dispatch-field-present
+        trigger: dispatch supplies `brainstorm_handoff_path` (Item 1, SC-1)
+        behavior: analyze reads handoff artifact as primary design input
+      - from: none
+        to: pointer-present
+        trigger: brainstorming exploration-workflow writes pointer at issue creation (Item 2, SC-2)
+        behavior: pointer exists in `{issues_prefix}{N}/` referencing handoff artifact
+      - from: dispatch-field-present
+        behavior: handoff read (primary channel)
+      - from: pointer-present, field absent
+        to: discovery-read
+        trigger: analyze discovers issue-directory pointer (Item 3a, SC-3a)
+        behavior: analyze follows pointer and loads approved design
+      - from: neither-present
+        behavior: current empty-stub behavior, no halt (Item 3b, SC-3b) — documented degraded mode, not an error
+    precedence: dispatch field > pointer (spec Edge Cases)
+
+  - name: pointer-target-currency
+    transitions:
+      - trigger: design revision during brainstorming
+        behavior: pointer write refreshes pointer target alongside handoff contract update (R-5)
+      - trigger: handoff artifact deleted from tmp/ after pointer written (stale pointer)
+        behavior: analyze records handoff-unavailable, proceeds with normal analysis — no halt (spec Edge Cases)
+
+error_states:
+  - stale-pointer → degraded mode (R-2), no halt
+  - out-of-scope pointer path → analyze records handoff-unavailable, does not follow the path (read-scope discipline)
+  - conflicting paths (both channels) → dispatch field wins
+
+invariants:
+  - analyze never halts due to missing or stale handoff channels
+  - handoff.yaml schema ownership stays with brainstorming (read-only consumer)
+  - pointer file lives on issues-data branch, never tracked by parent repo

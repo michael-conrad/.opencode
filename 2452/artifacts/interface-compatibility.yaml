@@ -1,0 +1,48 @@
+# interface-compatibility.yaml — backfilled from spec .opencode#2452 (retroactive mode)
+spec_path: .opencode/.issues/2452/spec.md
+generated_by: writing-plans/backfill (retroactive)
+
+interfaces:
+  - name: spec-creation TDT analyze dispatch context
+    boundary: spec-creation SKILL.md (dispatcher) → analyze task card (sub-agent)
+    change: Optional `brainstorm_handoff_path` field added
+    compatibility: backward-compatible — absent field yields behavior identical to today (spec Key Decision 1)
+    consumers: [spec-creation analyze dispatch]
+  - name: brainstorming handoff pointer file
+    boundary: brainstorming exploration-workflow (producer) → local issue directory `{issues_prefix}{N}/` → analyze sub-agent (consumer)
+    change: New pointer file written at issue creation
+    compatibility: additive — new file, no existing consumer disrupted
+    conventions: follows issue-directory naming/frontmatter conventions (R-3)
+  - name: handoff contract schema
+    boundary: brainstorming Step 2.5 (owner) → analyze (read-only consumer)
+    change: NONE — schema remains owned by brainstorming (spec Key Decision 3); one-directional coupling; upstream format changes propagate automatically
+    compatibility: unchanged
+
+dependency_contract:
+  description: Concrete dependency data derived from the spec's affected files and success criteria
+  dependencies:
+    - source: .opencode/skills/brainstorming/SKILL.md (Step 2.5 handoff contract)
+      target: .opencode/skills/spec-creation/tasks/analyze.md (handoff consumption)
+      type: file-contract
+      constraint: handoff.yaml exists at the path referenced by the pointer; analyze reads it read-only
+      status: exists (verified live 2026-09-17 per spec §6)
+    - source: .opencode/skills/spec-creation/SKILL.md (TDT dispatch)
+      target: .opencode/skills/spec-creation/tasks/analyze.md
+      type: dispatch-context
+      constraint: optional `brainstorm_handoff_path` field; absent → degraded mode, no halt (R-2)
+      status: field to be added (Item 1)
+    - source: .opencode/tests-v2/with-test-home + stderr assertion helpers
+      target: behavioral tests for SC-1, SC-2, SC-3a, SC-3b
+      type: verification-infrastructure
+      constraint: all SCs verified via `opencode run` behavioral runs; assert_stderr_pattern_present; no prose-recall prompts
+      status: exists (spec §6: Satisfied)
+    - source: .opencode#1759 (spec-to-plan handoff gates)
+      target: this spec
+      type: adjacent-seam
+      constraint: out of scope; must not be regressed
+      status: pending (tracked separately)
+  phase_ordering:
+    - Item 1 → independent
+    - Item 2 → independent
+    - Item 3a → after Items 1 and 2
+    - Item 3b → after Items 1 and 2
