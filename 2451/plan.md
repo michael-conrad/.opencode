@@ -209,12 +209,184 @@ Phase 1 rule text must be committed AND pushed (fresh-fetch remote containment) 
 
 <!-- PHASE-2-BODY -->
 
+## Phase Metadata
+
+- **Concern:** Produce runtime behavioral evidence via the §6a two-SC pattern — an artifact-generation run whose session.yaml a SEPARATE clean-room dispatch then evaluates semantically.
+- **Files:** `.opencode/tests-v2/behaviors/` (new artifact-generation scenario; new clean-room evaluation dispatch); exported `session.yaml` (run artifact).
+- **SCs:** SC-5, SC-6
+- **Dependencies:** Phase 1 committed and pushed; fresh `git fetch` verifying the effective commit is contained in a remote ref (behavioral harness pre-flight gate hard-FAILs otherwise).
+- **Entry condition:** Phase 1 exit condition met; remote containment verified.
+- **Exit condition:** session.yaml exported and preserved; clean-room verdict recorded with criterion + session.yaml as sole inputs.
+
+## Code Path Coverage
+
+- New behavioral scenario script in `.opencode/tests-v2/behaviors/` invoking `bash .opencode/tests-v2/with-test-home opencode run '<multi-step-plan prompt>'` with a >=600s timeout (SC-5).
+- New clean-room evaluation dispatch whose sole inputs are the semantic criterion and the session.yaml from SC-5 (SC-6).
+
+## Cross-Cutting SCs
+
+- R-7 (no static gates) and R-8 (observed RED preserved, not fabricated) govern both items.
+- tests-v2/AGENTS.md §2: session.yaml is the PRIMARY evaluation source; stderr/stdout assertion helpers are prohibited.
+
+## Interface Boundaries
+
+- The clean-room evaluation is a SEPARATE dispatch from the artifact-generation run — never merged, never collapsed.
+- The evaluator receives only the criterion and session.yaml — no marker lists, no expected phrases, no static gates.
+
+## State Transitions
+
+- RED state: observed evidence on record — 22 combined "Two sequential tasks" dispatches in production session `ses_f5aa152f7ffeeEzOm66Lr2Gbs6` (issue 2432); documented, not re-run or fabricated.
+- GREEN state: the post-rule artifact-generation session shows one dispatch per discrete step; the clean-room evaluator judges this semantically.
+
+## Step-by-Step
+
+### Item 5 (SC-5) — behavioral artifact-generation scenario (§6a SC-N)
+
+Depends on items 1-4 (rule text effective in the evaluated session).
+
+- [ ] 25. RED — document the observed baseline (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-5
+  - RED is observed, not fabricated: the scenario cites the preserved evidence record (22 combined dispatches in `ses_f5aa152f7ffeeEzOm66Lr2Gbs6`, issue 2432). No RED run is manufactured. If neither the live session nor the preserved record is accessible, report BLOCKED rather than fabricating evidence.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 26. GREEN — add the behavioral scenario script (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-5
+  - Must be true: a scenario in `.opencode/tests-v2/behaviors/` runs a real-model `opencode run` against a multi-step-plan prompt via `with-test-home` (>=600s timeout), producing the artifact-generation session whose session.yaml is the evaluation input.
+- [ ] 27. Commit (**direct**)
+  - SC: SC-5 — test script plus fixtures committed.
+- [ ] 28. Push (**direct**)
+  - SC: SC-5 — behavioral variant ordering: push the commit to its remote branch, then fresh `git fetch` and verify the effective commit is contained in a remote ref — required BEFORE the behavioral run.
+- [ ] 29. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-5
+- [ ] 30. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-5 — session.yaml exported and preserved per the behavioral harness export procedure; no structural substitution; run evidence preserved under `./tmp/behavioral-evidence-*` naming where applicable.
+
+### Item 6 (SC-6) — clean-room semantic evaluation (§6a SC-N+1)
+
+Depends on items 1-4 and item 5 (session.yaml must exist).
+
+- [ ] 31. RED (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-6
+  - The observed baseline session evaluated under the semantic criterion FAILS — 22 combined dispatches mean not every discrete step received its own dispatch. Documented from the preserved record; not fabricated.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 32. GREEN (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-6
+  - Must be true: a SEPARATE clean-room evaluation dispatch — distinct from item 5's artifact-generation run — receives only the semantic criterion (every discrete step received its own dispatch) and the session.yaml, and judges SEMANTICALLY. No marker lists, no expected phrases, no static gates (R-7). GREEN = the post-rule session shows one dispatch per discrete step.
+- [ ] 33. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-6
+- [ ] 34. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-6 — verdict recorded per the §6a result-contract format; evaluator input audit confirms criterion + session.yaml only.
+- [ ] 35. Commit (**direct**)
+  - SC: SC-6 — evaluation script/prompt fixture committed.
+
+## Phase Completion Block
+
+- SC-5 and SC-6 verdicts verified and recorded with behavioral evidence type; no structural substitution anywhere in the phase.
+
+## Concern Transition
+
+The behavioral evidence is complete; Phase 3 adds the regression gate that keeps the three rule texts in place.
+
+**Cost frame:** Running the artifact-generation scenario costs minutes of real-model execution — a bounded delay; RED is already observed on record, so no RED-run cost is added. Skipping costs the package its only runtime evidence — a structural PASS with zero evidence the dispatch behavior changed. Running the separate clean-room evaluation costs one bounded dispatch; collapsing it into item 5's run (which §6a forbids) or replacing it with marker gates costs the semantic verdict itself — the escape hatch the developer directive prohibits. Correctness is the only metric.
+
 # Phase 3 — Content-verification scenario (rule-text placement)
 
 <!-- PHASE-3-BODY -->
+
+## Phase Metadata
+
+- **Concern:** Lock the three rule texts in place with a content-verification regression scenario.
+- **Files:** `.opencode/tests-v2/` content-verification suite (new placement scenario).
+- **SCs:** SC-7
+- **Dependencies:** Phase 1 items 1-3 (the rule texts must exist for placement assertions to pass).
+- **Entry condition:** items 1-3 committed.
+- **Exit condition:** scenario PASS via `bash .opencode/tests-v2/test-enforcement.sh --scenario <name>`.
+
+## Code Path Coverage
+
+- New content-verification scenario asserting: 257 contains p-dis-007; 091 contains the dispatch-level bright-line; 022 contains the critical-rules-034 dispatch-level extension; task cards contain NO multi-step dispatch template text.
+
+## Cross-Cutting SCs
+
+- None — single-SC phase.
+
+## Interface Boundaries
+
+- The scenario asserts placement only; it does not duplicate or redefine any rule text.
+
+## State Transitions
+
+- Rule texts move from unenforced placement to regression-guarded placement — future edits that move or delete them fail the suite.
+
+## Step-by-Step
+
+### Item 7 (SC-7) — content-verification scenario for rule-text placement
+
+Depends on items 1-3.
+
+- [ ] 36. RED (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-7
+  - The placement scenario run before items 1-3 FAILS — the rule texts are absent. Documented as the pre-change state; the scenario file is authored here and its assertions validated against the now-present texts in GREEN.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 37. GREEN (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-7
+  - Must be true: the content-verification scenario asserts 257 contains p-dis-007, 091 contains the bright-line, 022 contains the 034 extension, and task cards contain NO multi-step dispatch template text; the scenario PASSES via `bash .opencode/tests-v2/test-enforcement.sh --scenario <name>`.
+- [ ] 38. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-7
+- [ ] 39. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-7 — scenario PASS via the content-verification suite; no structural substitution.
+- [ ] 40. Commit (**direct**)
+  - SC: SC-7 — content-verification scenario committed.
+
+## Phase Completion Block
+
+- SC-7 verdict verified; all seven SCs now pass — the enforcement gate is satisfied at item level.
+
+## Concern Transition
+
+All SCs pass; post-implementation gates (audit, structural checks, pre-PR gate, review-prep, PR creation) proceed.
+
+**Cost frame:** Running the content-verification scenario costs seconds via the existing suite. Skipping costs the regression gate: future edits could silently move or delete the three rule texts with nothing failing — the defect re-enters through the same unguarded door the package just closed. Correctness is the only metric.
 
 # Post-Implementation
 
 <!-- POST-IMPLEMENTATION-BODY -->
 
+- [ ] 41. Audit (**task-card**) — `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence
+  - Adversarial audit of the deliverable against all seven SCs; clean-room evaluation input audit included.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-audit-*`
+- [ ] 42. Z3 check (**direct**)
+  - Orchestrator runs `.opencode/tools/solve check --state-path <state> --contract-path <contract>` directly — no sub-agent dispatch.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-z3-check-*`
+- [ ] 43. Structural checks (**task-card**) — `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
+  - Run the finishing checklist (lint, typecheck, markdown format checks on modified guideline files).
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-structural-checks-*`
+- [ ] 44. Pre-PR gate (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - Read all SC verdicts; BLOCK if any FAIL. DONE_WITH_CONCERNS coerces to FAIL. EVIDENCE_TYPE_MISMATCH is a hard FAIL.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-pre-pr-gate-*`
+- [ ] 45. Regression check (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - Final regression check before PR, including the new content-verification scenario.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-regression-check-*`
+- [ ] 46. Review prep (**task-card**) — `task(..., prompt: "execute review-prep from git-workflow-pr. Read \`git-workflow-pr/tasks/review-prep.md\` first")`
+- [ ] 47. Create PR (**task-card**) — `task(..., prompt: "execute create task from git-workflow-pr")`
+  - Stacked PR — one branch, commits squashed to exactly one per issue at PR creation. PR creation only; merging is human-only.
+- [ ] 48. Completion summary (**task-card**) — `task(..., prompt: "execute completion task from completion-core")`
+  - Generate the completion executive summary; report once; HALT.
+
 <!-- PRE-FLIGHT-GUARD -->
+
+## Pre-Flight Guard
+
+> **ORCHESTRATOR_ONLY_PLAN** — This artifact is an implementation plan (orchestrator-level routing metadata).
+>
+> **Guard (execute before consuming any plan step):**
+>
+> ```text
+> IF task tool (task) is NOT present in this agent's toolset:
+>     RETURN BLOCKED
+>     reason: ORCHESTRATOR_ONLY_PLAN
+>     detail: "Plans contain orchestrator-level routing (dispatch indicators, phase gates, per-step modes). A sub-agent cannot dispatch task() or hold phase-level state."
+> ELSE:
+>     PROCEED — consumer is the orchestrator; plan steps may execute.
+> ```
+>
+> This guard is mechanical (action-not-perception): presence of the `task` tool is the probe; it does not infer role from prompts. Reason code table: `ORCHESTRATOR_ONLY_PLAN` (this artifact), `ORCHESTRATOR_ONLY_SKILL_CARD` (skill cards).

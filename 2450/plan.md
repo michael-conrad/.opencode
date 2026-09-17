@@ -50,10 +50,10 @@ dispatch:
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
-| 1 | Tool — scoped validation mode in local-issues | scoped `--number` flag with scoped exit codes and format parity | SC-1, SC-2 | — | 3-12 | direct (1-2) + task-card (3-11) + direct (12) |
-| 2 | Gate text — analyze.md and create.md R-13 gate scoping | scoped gate invocation + scoped-primary contract | SC-3, SC-4, SC-5 | 1 | 13-33 | task-card (13-32) + direct (33) |
-| 3 | Governance docs — hygiene and reservation mandates | hygiene + remote-first reservation mandate text at five sites | SC-6..SC-10 | — | 34-68 | task-card (34-67) + direct (68) |
-| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3 | 69-76 | mixed — see steps |
+| 1 | Tool — scoped validation mode in local-issues | scoped `--number` flag with scoped exit codes and format parity | SC-1, SC-2 | — | 3-15 | task-card (3-4, 5-8, 10-13, 15) + direct (9, 14) |
+| 2 | Gate text — analyze.md and create.md R-13 gate scoping | scoped gate invocation + scoped-primary contract | SC-3, SC-4, SC-5 | 1 | 16-38 | task-card (16-17, 18-23, 24-29, 30-36, 38) + direct (37) |
+| 3 | Governance docs — hygiene and reservation mandates | hygiene + remote-first reservation mandate text at five sites | SC-6..SC-10 | — | 39-73 | task-card (39-40, 41-46, 47-52, 53-58, 59-64, 65-71, 73) + direct (72) |
+| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3 | 74-81 | mixed — see steps |
 
 ## Self-Remediation
 
@@ -143,7 +143,70 @@ dispatch:
 
 # Phase 2 — Gate text — analyze.md and create.md R-13 gate scoping
 
-- [ STUB — phase body pending ]
+**Concern:** Re-scope the spec-creation R-13 gates to the scoped invocation and encode the scoped-primary/workspace-secondary contract at both task-card sites.
+
+**Files:** `.opencode/skills/spec-creation/tasks/analyze.md`; `.opencode/skills/spec-creation/tasks/create.md`; `.opencode/tests-v2/behaviors/`
+
+**SCs:** SC-3, SC-4, SC-5
+
+**Dependencies:** Phase 1 (Items 3 and 5 depend on the `--number` flag; Item 5 additionally depends on Item 4's contract semantics, mirrored verbatim).
+
+**Entry Conditions:** Phase 1 VbC passed; behavioral scenarios scaffolded per `tests-v2/AGENTS.md`; each item's commit pushed and fresh-fetched to a remote ref before its behavioral run.
+
+**Exit Conditions:** analyze.md Step 5.3 and create.md Step 6.1 invoke `validate-yaml --number <repo>#<issue>` as the progress-gating check; both sites' bodies, exit criteria, and result contracts state scoped-primary gating with the MUST-NOT-gate-on-unrelated clause; behavioral runs show the scoped invocation and pipeline completion amid unrelated violations.
+
+**Code Path Coverage:** analyze-step R-13 gate flow (agent decides → runs gate → proceeds/BLOCKED) switches the executed command to the scoped form; create-step gate flow likewise; BLOCKED-on-target-violations preserved at both sites.
+
+**Cross-Cutting SCs:** SC-3/SC-4/SC-5 cut across pipeline-gate-enforcement, tool-cli-semantics, and test-infrastructure concerns.
+
+**Interface Boundaries:** The gate contract change is intentional per the spec's problem statement; the workspace-wide scan remains available as a secondary maintenance check; existing mechanics (action-first wording, command+exit-code evidence) preserved.
+
+**State Transitions:** unrelated-drift × analyze/create gate → proceeds (was BLOCKED); target-violations × gate → BLOCKED preserved; malformed/missing issue number at gate time → fail-fast on the qualifier, never a workspace-wide fallback.
+
+**Cost frame:** Running each with-test-home real-model gate scenario costs minutes of model-inference execution time — the behavioral tier (1× multiplier, BREAK). Skipping — or settling for the supporting grep as the verdict — costs the string-tier trap: a content PASS over text the agent may not follow at runtime leaves the gate invoking the unscoped form, and the 2451-style block re-manifests on the very next unrelated drift, blocking every spec-creation pipeline — the exact failure this spec exists to prevent, discovered only after the block.
+
+---
+
+- [ ] 16. **Pre-regression (**task-card**).** Run the regression patterns for the gate-scenario fixtures before RED. **→ SC-3, SC-4**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-regression-*`
+- [ ] 17. **Pre-regression verify (**task-card**).** Verify the pre-regression results before RED. **→ SC-3, SC-4**
+- [ ] 18. **RED (**task-card**).** Behavioral run via `bash .opencode/tests-v2/with-test-home opencode run` — a gate-running agent at the analyze step against a fixture workspace with unrelated schema violations. **→ SC-3**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+  - RED condition (passes-as-defect today): session.yaml shows the agent executing the unscoped workspace-wide `validate-yaml` as the gate command.
+- [ ] 19. **GREEN (**task-card**).** Update analyze.md Step 5.3 to invoke `validate-yaml --number <repo>#<issue-under-analysis>` as the progress-gating check, preserving the gate's action-first wording and the command+exit-code evidence requirement. **→ SC-3**
+- [ ] 20. **REFACTOR (**task-card**).** Cross-check Step 5.3's surrounding text for stale unscoped references. **→ SC-3**
+- [ ] 21. **Commit (**direct**).** Commit the task-card change.
+  - `git add .opencode/skills/spec-creation/tasks/analyze.md && git commit -m "docs(spec-creation): analyze R-13 gate consumes scoped validate-yaml"`
+- [ ] 22. **PUSH (**direct**).** Push the commit to its remote branch; fresh `git fetch` verifies the effective commit is contained in a remote ref — mandatory before the behavioral verify run. **→ SC-3**
+- [ ] 23. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml (clean-room sub-agent inspection) shows the agent executing the scoped `--number` invocation as the gate action. Supporting (never the verdict): grep analyze.md for the scoped invocation and absence of the unscoped form as the gating command. **→ SC-3**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-verify-*`
+- [ ] 24. **RED (**task-card**).** Behavioral run — the analyze pipeline against a fixture workspace whose unrelated issues violate the schema while the issue under analysis is clean. **→ SC-4**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+  - RED condition (passes-as-defect today): the analyze step BLOCKS on unrelated drift — the contract mandates workspace-wide gating.
+- [ ] 25. **GREEN (**task-card**).** Update the analyze.md R-13 gate contract site — Step 5.3 body beyond the invocation, exit criteria, and result-contract `gate_evidence`/`blocker_reason` wording: the scoped check gates pipeline progress; the workspace-wide scan is a secondary maintenance check that MUST NOT gate pipeline progress on unrelated issues' records. Keep BLOCKED-on-target-violations semantics. **→ SC-4**
+- [ ] 26. **REFACTOR (**task-card**).** Ensure exit-criteria and result-contract sentences are mutually consistent — no residual workspace-wide-remediation requirement. **→ SC-4**
+- [ ] 27. **Commit (**direct**).** Commit the task-card change.
+  - `git add .opencode/skills/spec-creation/tasks/analyze.md && git commit -m "docs(spec-creation): analyze gate contract scoped-primary, workspace-secondary"`
+- [ ] 28. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-4**
+- [ ] 29. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows the analyze step completing (not BLOCKED) amid unrelated violations, with the scoped gate recorded. Supporting: grep for the scoped-primary/secondary-maintenance language, the MUST-NOT-gate clause, and absence of workspace-wide-remediation contract sentences. **→ SC-4**
+- [ ] 30. **RED (**task-card**).** Behavioral run — a gate-running agent at the create step against a fixture workspace with unrelated violations. **→ SC-5**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+  - RED condition (passes-as-defect today): session.yaml shows the unscoped workspace-wide invocation and the pipeline blocking on unrelated drift.
+- [ ] 31. **GREEN (**task-card**).** Update the create.md R-13 gate site — Step 6.1 body including its gate invocation, exit criteria, and result-contract wording: the gate invokes the scoped form `--number <repo>#<issue-being-created>`, the scoped check gates progress, and the workspace-wide scan MUST NOT gate progress on unrelated issues' records. **→ SC-5**
+- [ ] 32. **REFACTOR (**task-card**).** Align exit-criteria and result-contract `gate_evidence`/`blocker_reason` wording with the analyze.md site's contract — same semantics, verbatim mandate. **→ SC-5**
+- [ ] 33. **Commit (**direct**).** Commit the task-card change.
+  - `git add .opencode/skills/spec-creation/tasks/create.md && git commit -m "docs(spec-creation): create R-13 gate scoped invocation + scoped-primary contract"`
+- [ ] 34. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-5**
+- [ ] 35. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows the scoped gate invocation and pipeline completion amid unrelated violations. Supporting: grep create.md Step 6.1 body, exit criteria, and result contract for the scoped invocation, the scoped-primary/secondary-maintenance language, and the MUST-NOT-gate clause. **→ SC-5**
+- [ ] 36. **Post-regression (**task-card**).** Run regression patterns across the phase's deliverables after GREEN. **→ SC-3, SC-4, SC-5**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-post-regression-*`
+- [ ] 37. **Verify (**direct**).** Confirm all three SC verdicts are behavioral PASS with session.yaml evidence artifacts on disk; no structural substitute reported as PASS. **→ SC-3, SC-4, SC-5**
+
+#### Phase 2 Completion (VbC)
+
+- [ ] 38. **VbC (**task-card**).** Verify SC-3, SC-4, SC-5 against session.yaml evidence: scoped invocation executed, pipeline proceeds amid unrelated violations, BLOCKED-on-target preserved. **→ SC-3, SC-4, SC-5**
+
+**Concern transition:** Leaving gate-text scoping → entering governance-doc mandates. Phase 3 is independent of Phases 1-2 but is sequenced here per the phase DAG.
 
 ---
 
