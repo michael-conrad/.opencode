@@ -2,7 +2,7 @@ interface_compatibility:
   interfaces:
     - name: "session-init stdout contract (## Local Issue Folders section)"
       change: modified
-      detail: ".opencode entry loses worktree-setup hint / gains not-for-agent-use annotation"
+      detail: ".opencode entry loses the worktree-setup hint entirely (removal, not annotation); root-repo entry unchanged"
       backward_compatible: true
       consumers: "agents reading system prompt"
     - name: ".opencode/AGENTS.md routing contract (.opencode#N)"

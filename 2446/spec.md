@@ -27,9 +27,13 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | A `_normalize_labels` helper exists and, given the repro input tokens `['a, b']`, returns `['a', 'b']` — splitting on commas, stripping whitespace, and dropping empty tokens; given `['needs-approval']` it returns `['needs-approval']` unchanged. | semantic | Unit test execution against the helper with the repro case and an already-clean case; output inspected by assertion |
-| SC-2 | When a label token still contains a comma or whitespace after normalization, `cmd_update` and `cmd_create` exit with a CLI error before any file write or auto-commit, and the target `issue.yaml` is byte-identical before and after. | behavioral | Unit test asserting error exit and unchanged issue.yaml on malformed remainder, run against a temp issues worktree (never the live worktree) |
-| SC-3 | The `--help` output for both `update` and `create` subparsers includes help text on `--labels` documenting that comma-separated and space-separated input are accepted and malformed labels are rejected. | string | Parse `--help` output for both subparsers and assert the `--labels` help string content |
+| SC-1 | A `_normalize_labels` helper exists and, given the repro input tokens `['a, b']`, returns `['a', 'b']` — splitting on commas, stripping whitespace, and dropping empty tokens; given `['needs-approval']` it returns `['needs-approval']` unchanged. | behavioral | Unit test execution against the helper with the repro case and an already-clean case; output inspected by assertion |
+| SC-2a | When a label token still contains a comma or whitespace after normalization, `cmd_update` exits with a CLI error before any file write or auto-commit, and the target `issue.yaml` is byte-identical before and after. | behavioral | Unit test asserting error exit and unchanged issue.yaml on malformed remainder, run against a temp issues worktree (never the live worktree) |
+| SC-2b | When a label token still contains a comma or whitespace after normalization, `cmd_create` exits with a CLI error before any file write or auto-commit, and no new `issue.yaml` is created. | behavioral | Unit test asserting error exit and no issue.yaml creation on malformed remainder, run against a temp issues worktree (never the live worktree) |
+| SC-3a | The `--help` output for the `update` subparser includes help text on `--labels` documenting that comma-separated and space-separated input are accepted and malformed labels are rejected. | string | Parse `update --help` output and assert the `--labels` help string content |
+| SC-3b | The `--help` output for the `create` subparser includes help text on `--labels` documenting that comma-separated and space-separated input are accepted and malformed labels are rejected. | string | Parse `create --help` output and assert the `--labels` help string content |
+
+**Same-concern bundling justification (SC-1):** SC-1 asserts a single pure function (`_normalize_labels`) on two inputs — the repro case and the already-clean case exercise the same code path with no branching between distinct targets. Splitting them would produce two SCs verifying one helper's behavior; the bundling is same-concern and atomic per the deck's per-target decomposition rule (each SC targets exactly one symbol, `_normalize_labels`). SC-2a/SC-2b and SC-3a/SC-3b are decomposed because `cmd_update`/`cmd_create` and the two subparser argparse definitions are distinct code targets.
 
 ## Requirements
 
@@ -48,18 +52,32 @@
 - verify: Run the unit tests; confirm `_ensure_needs_approval` still inserts `needs-approval` first post-normalization.
 - commit: One commit scoped to `.opencode/tools/local-issues` + test.
 
-### Item 2 (SC-2): Fail-fast rejection of malformed label remainder
+### Item 2a (SC-2a): Fail-fast rejection of malformed label remainder in `cmd_update`
 
-- RED: Unit test invoking `update`/`create` with an unresolvable malformed label token asserts an error exit and an untouched issue.yaml — fails (currently silently succeeds).
-- GREEN: Add pre-write validation in both command paths; raise a CLI error before any mutation or `_auto_commit`.
-- verify: Run the unit tests against a temp issues worktree; assert issue.yaml byte-identical and no commit created.
+- RED: Unit test invoking `update` with an unresolvable malformed label token asserts an error exit and an untouched issue.yaml — fails (currently silently succeeds).
+- GREEN: Add pre-write validation in `cmd_update`; raise a CLI error before any mutation or `_auto_commit`.
+- verify: Run the unit test against a temp issues worktree; assert issue.yaml byte-identical and no commit created.
 - commit: One commit scoped to `.opencode/tools/local-issues` + test.
 
-### Item 3 (SC-3): Help text for `--labels` on both subparsers
+### Item 2b (SC-2b): Fail-fast rejection of malformed label remainder in `cmd_create`
 
-- RED: Test parsing `update --help` and `create --help` output asserts a `--labels` help string exists — fails (no per-argument help).
-- GREEN: Add help strings to `--labels` on both subparsers documenting accepted input formats and rejection behavior.
-- verify: Run the help-text test; assert content present on both subparsers.
+- RED: Unit test invoking `create` with an unresolvable malformed label token asserts an error exit and no created issue.yaml — fails (currently silently succeeds).
+- GREEN: Add pre-write validation in `cmd_create`; raise a CLI error before any mutation or `_auto_commit`.
+- verify: Run the unit test against a temp issues worktree; assert no issue.yaml created and no commit created.
+- commit: One commit scoped to `.opencode/tools/local-issues` + test.
+
+### Item 3a (SC-3a): Help text for `--labels` on the `update` subparser
+
+- RED: Test parsing `update --help` output asserts a `--labels` help string exists — fails (no per-argument help).
+- GREEN: Add a help string to `--labels` on the `update` subparser documenting accepted input formats and rejection behavior.
+- verify: Run the help-text test; assert content present on the `update` subparser.
+- commit: One commit scoped to `.opencode/tools/local-issues` + test.
+
+### Item 3b (SC-3b): Help text for `--labels` on the `create` subparser
+
+- RED: Test parsing `create --help` output asserts a `--labels` help string exists — fails (no per-argument help).
+- GREEN: Add a help string to `--labels` on the `create` subparser documenting accepted input formats and rejection behavior.
+- verify: Run the help-text test; assert content present on the `create` subparser.
 - commit: One commit scoped to `.opencode/tools/local-issues` + test.
 
 ## Dependencies
@@ -73,9 +91,9 @@
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | Phase 1 (normalization) |
-| R-2 | SC-2 | Phase 2 (rejection) |
-| R-3 | SC-3 | Phase 3 (help text) |
-| R-4 | SC-1, SC-2 | Phase 1, Phase 2 |
+| R-2 | SC-2a, SC-2b | Phase 2 (rejection) |
+| R-3 | SC-3a, SC-3b | Phase 3 (help text) |
+| R-4 | SC-1, SC-2a, SC-2b | Phase 1, Phase 2 |
 | R-5 | SC-1 | Phase 1 |
 
 ## Documentation Sources
@@ -96,8 +114,8 @@
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - **SC-1:** Running the normalization unit test costs minutes of execution time. Skipping means malformed labels keep crossing the CLI→issue.yaml boundary and corrupt the canonical `approved-for-*` authorization record, surfacing days later in approval-gate checks at 100× fix cost.
-- **SC-2:** Running the rejection unit test against a temp worktree costs minutes. Skipping means a silently accepted malformed label ships into issue.yaml, and the corruption is discovered only when authorization verification fails downstream — weeks later, at rework cost far exceeding the test.
-- **SC-3:** Parsing the help output costs seconds. Skipping means the next caller repeats the same comma-separated mistake the help text implies is valid — the original defect vector stays open indefinitely.
+- **SC-2a / SC-2b:** Running the rejection unit tests against a temp worktree costs minutes. Skipping means a silently accepted malformed label ships into issue.yaml, and the corruption is discovered only when authorization verification fails downstream — weeks later, at rework cost far exceeding the test.
+- **SC-3a / SC-3b:** Parsing the help output costs seconds. Skipping means the next caller repeats the same comma-separated mistake the help text implies is valid — the original defect vector stays open indefinitely.
 
 ## Edge Cases
 
@@ -106,3 +124,10 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Failure modes:** Normalization helper failure (unexpected exception) → propagate immediately, no write (fail-fast). `_ensure_needs_approval` ordering after normalization → canonical label still inserted first.
 - **Concurrency:** Not applicable — single-process CLI; auto-commit semantics unchanged from existing behavior.
 - **Recovery:** After a rejection error, the caller corrects the `--labels` argument and re-invokes; no state cleanup is needed because the failed invocation mutated nothing.
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-17 | Decomposed compound SCs: SC-2 split into SC-2a (`cmd_update`) and SC-2b (`cmd_create`); SC-3 split into SC-3a (`update` subparser) and SC-3b (`create` subparser); Items 2/3 renumbered to 2a/2b and 3a/3b; Traceability and Cost Frame updated to reference the new SC IDs. SC-1 kept as one SC with a same-concern bundling justification added (single pure helper, two inputs, one code path). | Validation findings (1) compound SCs — per-target atomic decomposition required | spec-creation revise task, validation findings from developer |
+| 2026-09-17 | SC-1 evidence type redeclared from `semantic` to `behavioral` in the Success Criteria table and sc-summary.yaml — unit-test-execution verification of runtime helper behavior is behavioral evidence, not semantic. | Validation finding (2) EVIDENCE_TYPE_MISMATCH on SC-1 | spec-creation revise task, validation findings from developer |

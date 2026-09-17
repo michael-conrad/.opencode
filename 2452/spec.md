@@ -85,9 +85,9 @@ promoted_at: 2026-09-17T20:53:41Z
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | Item 1 |
-| R-2 | SC-1, SC-3 | Items 1, 3 |
+| R-2 | SC-1, SC-3b | Items 1, 3b |
 | R-3 | SC-2 | Item 2 |
-| R-4 | SC-3 | Item 3 |
+| R-4 | SC-3a | Item 3a |
 | R-5 | SC-2 | Item 2 |
 
 ## 8. Documentation Sources
@@ -102,19 +102,30 @@ promoted_at: 2026-09-17T20:53:41Z
 
 ## 9. Cost Frame
 
+**Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.**
+
 - **SC-1:** Threading the dispatch field costs one context-field edit plus one behavioral run (~minutes) — low. Skipping costs every handoff-enabled dispatch re-investigating from scratch or, worse, silently diverging from the approved design — a full revise cycle per occurrence, and the divergence is invisible until the developer rejects the spec.
 - **SC-2:** Writing the pointer file costs one additional step in the exploration workflow and one behavioral run. Skipping costs the belt in belt-and-suspenders: any dispatch that bypasses the context field sees a title-only stub and drifts undetected — the exact #2451 failure.
-- **SC-3:** Implementing fallback discovery costs one task-card section plus two behavioral run variants. Skipping costs the deterministic guarantee that approved designs survive dispatch-path variance — legacy or manual dispatches remain silent-drift vectors, and the no-halt regression would surface as spurious BLOCKED states across every non-brainstorm spec.
+- **SC-3a:** Implementing fallback discovery costs one task-card section plus one behavioral run variant. Skipping costs the deterministic guarantee that approved designs survive dispatch-path variance — legacy or manual dispatches remain silent-drift vectors.
+- **SC-3b:** Documenting degraded no-halt mode costs one task-card paragraph plus one behavioral run variant. Skipping costs the no-halt regression coverage — without it, spurious BLOCKED states would surface across every non-brainstorm spec.
 
 ## 10. Edge Cases
 
 | Condition | Expected behavior | Resolution |
 |-----------|-------------------|------------|
 | Handoff artifact deleted from `tmp/` after pointer written (stale pointer) | Analyze records handoff-unavailable and proceeds with normal analysis — no halt | Degraded mode per R-2 |
-| Neither dispatch field nor pointer present (brainstorming never ran) | Analyze proceeds with current empty-stub behavior — identical to today, no error | Documented degraded mode; SC-3 run variant (b) verifies no-halt |
+| Neither dispatch field nor pointer present (brainstorming never ran) | Analyze proceeds with current empty-stub behavior — identical to today, no error | Documented degraded mode; SC-3b verifies no-halt |
 | Both channels present with conflicting paths | Dispatch-context field wins as primary; pointer is fallback only | Channel precedence fixed: field > pointer |
 | Pointer points at a path outside the issue's `tmp/{issue-N}/` scope | Analyze records handoff-unavailable; does not follow the out-of-scope path | Read-scope discipline in analyze task card |
 | Concurrent revision of design during analyze | Analyze reads the handoff once at consumption step; later revisions flow through the normal spec revise cycle | Single-read semantics; revision via existing revise pipeline |
+
+---
+
+## Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-17 | Decomposed compound SC-3 into SC-3a (fallback pointer discovery) and SC-3b (degraded no-halt mode), each with its own item, RED/GREEN cycle, and cost-frame entry; updated dependency DAG and traceability (R-2 → SC-3b, R-4 → SC-3a); added shared computation-frame header to §9 | Validation finding: SC-3 was compound — bundled two independent behaviors joined by 'and', violating per-SC decomposition. Non-blocking: missing §9 frame header | Validation findings from spec-creation validation step (orchestrator-dispatched revise, issue .opencode#2452) |
 
 ---
 

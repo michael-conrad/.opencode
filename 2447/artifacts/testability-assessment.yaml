@@ -1,14 +1,22 @@
 testability_assessment:
   phases:
-    - phase: "SC-1 session-init hint"
+    - phase: "SC-1 session-init hint absence"
       strategy: unit
-      detail: "pytest in .opencode/tests/ — call collect_issue_artifact_paths() with synthetic repo_info incl. .opencode entry and no .opencode/.issues dir; assert no 'setup: create worktree' hint and root entry unchanged"
+      detail: "pytest in .opencode/tests/ — call collect_issue_artifact_paths() with synthetic repo_info incl. .opencode entry and no .opencode/.issues dir; assert no 'setup: create worktree' hint in emitted output"
+      evidence_type: behavioral
+    - phase: "SC-2 root-repo entry unchanged"
+      strategy: unit
+      detail: "pytest in .opencode/tests/ — call collect_issue_artifact_paths() with synthetic repo_info and assert root-repo entry emission is byte-identical to pre-change output"
       evidence_type: structural
-    - phase: "SC-2 AGENTS.md guidance"
-      strategy: mixed
-      detail: "structural: grep/read asserts no local-issues routing for .opencode tickets and GitHub API instruction present; behavioral: optional opencode run scenario asserting agent routes .opencode defect via gh api"
-      evidence_type: structural (primary); behavioral optional
-    - phase: "SC-3 worktree removal"
+    - phase: "SC-3 AGENTS.md GitHub API mandate"
+      strategy: manual
+      detail: "clean-room sub-agent reads revised AGENTS.md routing sections and judges the GitHub-API ticket-filing directive is unambiguous"
+      evidence_type: semantic
+    - phase: "SC-4 AGENTS.md local-issues routing removed"
+      strategy: static
+      detail: "grep asserts the .opencode#N -> .opencode/.issues/ mapping is absent from .opencode/AGENTS.md"
+      evidence_type: structural
+    - phase: "SC-5 worktree removal"
       strategy: integration
       detail: "git -C .opencode worktree list output as evidence; destructive step gated on explicit authorization"
       evidence_type: structural

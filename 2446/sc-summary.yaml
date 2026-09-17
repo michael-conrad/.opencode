@@ -1,14 +1,22 @@
-sc_count: 3
+sc_count: 5
 scs:
   - id: "SC-1"
-    description: "A _normalize_labels helper exists and normalizes comma/space tokens, strips whitespace, drops empties; clean tokens unchanged."
-    evidence_type: "semantic"
+    description: "A _normalize_labels helper exists and normalizes comma/space tokens, strips whitespace, drops empties; clean tokens unchanged. Same-concern bundling: one pure helper, two inputs, single code path."
+    evidence_type: "behavioral"
     plan_item: 1
-  - id: "SC-2"
-    description: "Malformed label remainder causes cmd_update/cmd_create to fail-fast before any write or auto-commit; issue.yaml byte-identical."
+  - id: "SC-2a"
+    description: "Malformed label remainder causes cmd_update to fail-fast before any write or auto-commit; issue.yaml byte-identical."
     evidence_type: "behavioral"
     plan_item: 2
-  - id: "SC-3"
-    description: "Help text on --labels for both update and create subparsers documents accepted formats and rejection behavior."
-    evidence_type: "string"
+  - id: "SC-2b"
+    description: "Malformed label remainder causes cmd_create to fail-fast before any write or auto-commit; no issue.yaml created."
+    evidence_type: "behavioral"
     plan_item: 3
+  - id: "SC-3a"
+    description: "Help text on --labels for the update subparser documents accepted formats and rejection behavior."
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-3b"
+    description: "Help text on --labels for the create subparser documents accepted formats and rejection behavior."
+    evidence_type: "string"
+    plan_item: 5

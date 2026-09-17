@@ -4,11 +4,12 @@ issue: 2450
 title: "local-issues validate-yaml scoped validation mode + R-13 gate scoping + governance mandates"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 3
+phase_count: 4
 dispatch:
   - "phase 1: test-driven-development (red, green, post-regression), verification-before-completion (verify), orchestrator (commit-inline)"
   - "phase 2: test-driven-development (red, green, post-regression, regression-check), verification-before-completion (verify, behavioral verify), orchestrator (commit-inline, push)"
   - "phase 3: test-driven-development (red, green, post-regression, regression-check), verification-before-completion (verify, behavioral verify), orchestrator (commit-inline, push)"
+  - "phase 4: test-driven-development (red, green, post-regression, regression-check), verification-before-completion (verify, behavioral verify), orchestrator (commit-inline, push)"
   - "post-implementation: audit, verification-before-completion (pre-pr-gate), finishing-a-development-branch (structural-checks), test-driven-development (regression-check), git-workflow-pr (review-prep, create-pr), completion-core (exec-summary), orchestrator (z3-check)"
 ---
 
@@ -18,7 +19,7 @@ dispatch:
 
 **Goal:** Add a scoped validation mode to `local-issues validate-yaml` (`--number <repo>#N`), re-scope the spec-creation R-13 gates to the scoped form, and encode the issues-data hygiene and remote-first spec-number reservation mandates in the governing docs — so pipelines verify their own issue records independent of workspace drift.
 
-**Architecture:** Phase 1 adds the scoped flag to the tool's `cmd_validate_yaml()` routing through the existing shared scan machinery (`_scan_issue_dir_errors`, exact-match directory lookup) so exit semantics and report-format parity are structural. Phase 2 updates the analyze.md and create.md R-13 gate sites to invoke the scoped form and to state the scoped-primary/workspace-secondary contract (workspace-wide scan MUST NOT gate progress on unrelated issues' records). Phase 3 encodes the hygiene mandate (`.opencode/.issues/AGENTS.md` Authorization section + `.opencode/AGENTS.md` worktree section) and the remote-first reservation mandate (`.opencode/.issues/AGENTS.md` Workflow section + create.md Step 3 + creation.md Step 2.1). Phase 3 is independent of Phases 1-2; Phase 2 depends on Phase 1 (the flag must exist before the gate cards instruct its use).
+**Architecture:** Phase 1 adds the scoped flag to the tool's `cmd_validate_yaml()` routing through the existing shared scan machinery (`_scan_issue_dir_errors`, exact-match directory lookup) so exit semantics and report-format parity are structural. Phase 2 updates the analyze.md and create.md R-13 gate sites to invoke the scoped form and to state the scoped-primary/workspace-secondary contract (workspace-wide scan MUST NOT gate progress on unrelated issues' records). Phase 3 encodes the issues-data hygiene mandate (`.opencode/.issues/AGENTS.md` Authorization section + `.opencode/AGENTS.md` worktree section). Phase 4 encodes the remote-first reservation mandate (`.opencode/.issues/AGENTS.md` Workflow section + create.md Step 3 + creation.md Step 2.1). Phases 3 and 4 are independent of Phases 1-2 and of each other (concern-map: issues-data-governance vs spec-number-reservation are separate concerns); Phase 2 depends on Phase 1 (the flag must exist before the gate cards instruct its use).
 
 **Files:**
 - `.opencode/tools/local-issues` and `.opencode/tests/test_local_issues/` — scoped mode + pytest suite
@@ -52,8 +53,9 @@ dispatch:
 |-------|------|---------|-----|------------|------------|----------|
 | 1 | Tool — scoped validation mode in local-issues | scoped `--number` flag with scoped exit codes and format parity | SC-1, SC-2 | — | 3-15 | task-card (3-4, 5-8, 10-13, 15) + direct (9, 14) |
 | 2 | Gate text — analyze.md and create.md R-13 gate scoping | scoped gate invocation + scoped-primary contract | SC-3, SC-4, SC-5 | 1 | 16-38 | task-card (16-17, 18-23, 24-29, 30-36, 38) + direct (37) |
-| 3 | Governance docs — hygiene and reservation mandates | hygiene + remote-first reservation mandate text at five sites | SC-6..SC-10 | — | 39-73 | task-card (39-40, 41-46, 47-52, 53-58, 59-64, 65-71, 73) + direct (72) |
-| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3 | 74-81 | mixed — see steps |
+| 3 | Governance docs — issues-data hygiene mandate | hygiene mandate text at two sites | SC-6, SC-7 | — | 39-53 | task-card (39-40, 41-46, 47-52, 53) |
+| 4 | Governance docs — remote-first reservation mandate | remote-first reservation mandate text at three sites | SC-8, SC-9, SC-10 | — | 54-76 | task-card (54-55, 56-61, 62-67, 68-73, 74-75, 76) |
+| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3, 4 | 84-91 | mixed — see steps |
 
 ## Self-Remediation
 
@@ -210,35 +212,35 @@ dispatch:
 
 ---
 
-# Phase 3 — Governance docs — hygiene and reservation mandates
+# Phase 3 — Governance docs — issues-data hygiene mandate
 
-**Concern:** Encode the issues-data hygiene mandate at its two governing sites and the remote-first spec-number reservation mandate at its three governing sites.
+**Concern:** Encode the issues-data hygiene mandate at its two governing sites (concern-map: issues-data-governance).
 
-**Files:** `.opencode/.issues/AGENTS.md`; `.opencode/AGENTS.md`; `.opencode/skills/spec-creation/tasks/create.md`; `.opencode/skills/issue-operations-core/tasks/creation.md`; `.opencode/tests-v2/behaviors/`
+**Files:** `.opencode/.issues/AGENTS.md`; `.opencode/AGENTS.md`; `.opencode/tests-v2/behaviors/`
 
-**SCs:** SC-6, SC-7, SC-8, SC-9, SC-10
+**SCs:** SC-6, SC-7
 
-**Dependencies:** None — disjoint from Phases 1-2 (different files, no tool dependency); sequenced after Phase 2 per the plan order.
+**Dependencies:** None — independent of Phases 1-2 and Phase 4 (different concern, disjoint behavioral scenarios).
 
-**Entry Conditions:** Pre-implementation steps complete; behavioral fixtures per `fixtures/setup/` ready; remote environment (`BEHAVIOR_NEEDS_REMOTE=1` / GitBucket container per tests-v2 §12-13) available for reservation scenarios; each item's commit pushed to a remote ref before its behavioral run.
+**Entry Conditions:** Pre-implementation steps complete; behavioral fixtures per `fixtures/setup/` ready; each item's commit pushed to a remote ref before its behavioral run.
 
-**Exit Conditions:** All five doc sites carry their mandates (responsibility + ALL-files scope + authorization-free/no-spec clause; MUST-be-filed-FIRST + clean-room-restartable context + BEFORE-local-setup ordering + local-first-is-a-violation clause); behavioral runs show drift repair without spec requests and remote-first filing with resumable context.
+**Exit Conditions:** Both hygiene doc sites carry the mandate (responsibility + ALL-files scope + authorization-free/no-spec clause); behavioral runs show drift repair without spec requests.
 
-**Code Path Coverage:** issues-data drift repair flow (agent encounters drift → repairs directly → continues; no spec dispatch, no authorization halt); remote-first spec filing flow (remote create FIRST → take N from create response → local setup after; local-only counter path conditionally inapplicable).
+**Code Path Coverage:** issues-data drift repair flow (agent encounters drift → repairs directly → continues; no spec dispatch, no authorization halt).
 
-**Cross-Cutting SCs:** SC-6/SC-7 share one hygiene mandate's semantics verbatim across two sites; SC-8/SC-9/SC-10 share one reservation mandate's semantics verbatim across three sites — each independently verifiable by its own assertion set.
+**Cross-Cutting SCs:** SC-6/SC-7 share one hygiene mandate's semantics verbatim across two sites — each independently verifiable by its own assertion set.
 
-**Interface Boundaries:** All doc changes additive; existing Authorization-section content, worktree correct/forbidden table, Workflow init/sync table, create.md Step 3 mechanics (remote stub → local at N; renumber/migrate repair; `API_FAILURE_MID_FLOW`), and creation.md Step 2.1/2.2 mechanics preserved.
+**Interface Boundaries:** All doc changes additive; existing Authorization-section content and worktree correct/forbidden table preserved.
 
-**State Transitions:** drift-present × mandate-absent → agent requests spec or halts (current defect); drift-present × mandate-present → authorization-free repair; local-first reservation → split-brain collision → forced renumber (observed 2450→2451); remote-first reservation → remote create serializes numbering, local at exactly N.
+**State Transitions:** drift-present × mandate-absent → agent requests spec or halts (current defect); drift-present × mandate-present → authorization-free repair.
 
-**Cost frame:** Running each with-test-home real-model scenario costs minutes of model-inference execution time — the behavioral tier (1× multiplier, BREAK). Skipping leaves repair authority unstated and the local-first path unmarked as a violation, so the next drift sits unrepaired until it blocks a pipeline, and the next agent repeats the 2450-style split-brain collision — remote number assigned elsewhere, local renumber, spec rewrite — discovered only after the damage, at the 100×–1000× tier.
+**Cost frame:** Running each with-test-home real-model scenario costs minutes of model-inference execution time — the behavioral tier (1× multiplier, BREAK). Skipping leaves repair authority unstated, so the next drift sits unrepaired until it blocks a pipeline — discovered only after the damage, at the 100×–1000× tier.
 
 ---
 
-- [ ] 39. **Pre-regression (**task-card**).** Run the regression patterns for the governance scenarios before RED. **→ SC-6, SC-7, SC-8, SC-9, SC-10**
+- [ ] 39. **Pre-regression (**task-card**).** Run the regression patterns for the hygiene scenarios before RED. **→ SC-6, SC-7**
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-regression-*`
-- [ ] 40. **Pre-regression verify (**task-card**).** Verify the pre-regression results before RED. **→ SC-6, SC-7, SC-8, SC-9, SC-10**
+- [ ] 40. **Pre-regression verify (**task-card**).** Verify the pre-regression results before RED. **→ SC-6, SC-7**
 - [ ] 41. **RED (**task-card**).** Behavioral run — an agent facing injected issues-data drift (fixture per `fixtures/setup/`). **→ SC-6**
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
   - RED condition (passes-as-defect today): the agent requests a spec or halts awaiting authorization instead of repairing.
@@ -255,35 +257,74 @@ dispatch:
   - `git add .opencode/AGENTS.md && git commit -m "docs: hygiene mandate in .issues worktree guidance section"`
 - [ ] 51. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-7**
 - [ ] 52. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows repair without spec request. Supporting: grep the section for the responsibility mandate, ALL-files scope, and authorization-free/no-spec clause. **→ SC-7**
-- [ ] 53. **RED (**task-card**).** Behavioral run with remote environment enabled — an agent filing a spec. **→ SC-8**
-  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
-  - RED condition (passes-as-defect today): the Workflow section carries no reservation mandate, so nothing prevents local-first setup.
-- [ ] 54. **GREEN (**task-card**).** Update the `.opencode/.issues/AGENTS.md` Workflow section with the mandate: when a remote spec system exists (platform is not local), file the remote spec FIRST — with clear intent and context sufficient for a clean-room restart — to reserve the spec number, BEFORE any local spec folder setup; local-first reservation is a violation. Record the observed 2450 split-brain collision as the motivating defect; cross-reference (not duplicate) the numbers-must-match mandate and the `.counter` drift defect. **→ SC-8**
-- [ ] 55. **REFACTOR (**task-card**).** Integrate with the section's existing init/sync workflow table without disturbing it. **→ SC-8**
-- [ ] 56. **Commit (**direct**).** Commit the doc change.
-  - `git add .opencode/.issues/AGENTS.md && git commit -m "docs(issues): remote-first spec-number reservation mandate in Workflow"`
-- [ ] 57. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-8**
-- [ ] 58. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows the remote create call preceding any local record creation, with clean-room-restartable context in the remote body. Supporting: grep for the MUST-be-filed-FIRST language, the clean-room-restart clause, the BEFORE-local-setup ordering, and the violation clause. **→ SC-8**
-- [ ] 59. **RED (**task-card**).** Behavioral run with remote environment enabled, driven through the spec-creation create step. **→ SC-9**
-- [ ] 60. **GREEN (**task-card**).** Update create.md Step 3 (remote-number-first) with the same mandate verbatim in semantics; preserve the existing mechanics (remote stub → read N → local at exactly N; renumber/migrate repair; `API_FAILURE_MID_FLOW` BLOCKED path). **→ SC-9**
-- [ ] 61. **REFACTOR (**task-card**).** Ensure the added mandate composes with Step 3.1/3.2 label flows without contradiction. **→ SC-9**
-- [ ] 62. **Commit (**direct**).** Commit the task-card change.
-  - `git add .opencode/skills/spec-creation/tasks/create.md && git commit -m "docs(spec-creation): reservation mandate in create Step 3"`
-- [ ] 63. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-9**
-- [ ] 64. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows remote-first filing with resumable context. Supporting: grep Step 3 for the MUST-be-filed-FIRST language, clean-room-restart clause, BEFORE-local-setup ordering, and violation clause. **→ SC-9**
-- [ ] 65. **RED (**task-card**).** Behavioral run with remote environment enabled, driven through the issue-operations creation flow. **→ SC-10**
-- [ ] 66. **GREEN (**task-card**).** Update creation.md Step 2.1 (Remote-First Flow) with the same mandate verbatim in semantics; preserve the existing Remote-First Flow mechanics (promote first, extract remote number, local at the remote number, counter advancement, best-effort remote label). **→ SC-10**
-- [ ] 67. **REFACTOR (**task-card**).** Ensure the mandate composes with the local-only counter path (Step 2.2) without contradiction — the mandate is conditional on a remote spec system existing. **→ SC-10**
-- [ ] 68. **Commit (**direct**).** Commit the task-card change.
-  - `git add .opencode/skills/issue-operations-core/tasks/creation.md && git commit -m "docs(issue-operations): reservation mandate in creation Step 2.1"`
-- [ ] 69. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-10**
-- [ ] 70. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows remote promotion preceding local `.issues/{N}/` creation with resumable context. Supporting: grep Step 2.1 for the MUST-be-filed-FIRST language, clean-room-restart clause, BEFORE-local-setup ordering, and violation clause. **→ SC-10**
-- [ ] 71. **Post-regression (**task-card**).** Run regression patterns across the phase's deliverables after GREEN. **→ SC-6, SC-7, SC-8, SC-9, SC-10**
-- [ ] 72. **Verify (**direct**).** Confirm all five SC verdicts are behavioral PASS with session.yaml evidence artifacts on disk; no structural substitute reported as PASS. **→ SC-6, SC-7, SC-8, SC-9, SC-10**
 
 #### Phase 3 Completion (VbC)
 
-- [ ] 73. **VbC (**task-card**).** Verify SC-6..SC-10 against session.yaml evidence: drift repaired without spec requests at both hygiene sites; remote-first filing with clean-room-restartable context at all three reservation sites. **→ SC-6, SC-7, SC-8, SC-9, SC-10**
+- [ ] 53. **VbC (**task-card**).** Verify SC-6 and SC-7 against session.yaml evidence: drift repaired without spec requests at both hygiene sites. **→ SC-6, SC-7**
+
+**Concern transition:** Leaving issues-data hygiene → entering remote-first reservation mandates. Phase 4 is independent of Phases 1-3.
+
+---
+
+# Phase 4 — Governance docs — remote-first reservation mandate
+
+**Concern:** Encode the remote-first spec-number reservation mandate at its three governing sites (concern-map: spec-number-reservation).
+
+**Files:** `.opencode/.issues/AGENTS.md`; `.opencode/skills/spec-creation/tasks/create.md`; `.opencode/skills/issue-operations-core/tasks/creation.md`; `.opencode/tests-v2/behaviors/`
+
+**SCs:** SC-8, SC-9, SC-10
+
+**Dependencies:** None — independent of Phases 1-3 (different concern, disjoint files within this phase's scope, no tool dependency).
+
+**Entry Conditions:** Pre-implementation steps complete; behavioral fixtures per `fixtures/setup/` ready; remote environment (`BEHAVIOR_NEEDS_REMOTE=1` / GitBucket container per tests-v2 §12-13) available for reservation scenarios; each item's commit pushed to a remote ref before its behavioral run.
+
+**Exit Conditions:** All three reservation doc sites carry the mandate (MUST-be-filed-FIRST + clean-room-restartable context + BEFORE-local-setup ordering + local-first-is-a-violation clause); behavioral runs show remote-first filing with resumable context.
+
+**Code Path Coverage:** remote-first spec filing flow (remote create FIRST → take N from create response → local setup after; local-only counter path conditionally inapplicable).
+
+**Cross-Cutting SCs:** SC-8/SC-9/SC-10 share one reservation mandate's semantics verbatim across three sites — each independently verifiable by its own assertion set.
+
+**Interface Boundaries:** All doc changes additive; existing Workflow init/sync table, create.md Step 3 mechanics (remote stub → local at N; renumber/migrate repair; `API_FAILURE_MID_FLOW`), and creation.md Step 2.1/2.2 mechanics preserved.
+
+**State Transitions:** local-first reservation → split-brain collision → forced renumber (observed 2450→2451); remote-first reservation → remote create serializes numbering, local at exactly N.
+
+**Cost frame:** Running each with-test-home real-model scenario costs minutes of model-inference execution time — the behavioral tier (1× multiplier, BREAK). Skipping leaves the local-first path unmarked as a violation, so the next agent repeats the 2450-style split-brain collision — remote number assigned elsewhere, local renumber, spec rewrite — discovered only after the damage, at the 100×–1000× tier.
+
+---
+
+- [ ] 54. **Pre-regression (**task-card**).** Run the regression patterns for the reservation scenarios before RED. **→ SC-8, SC-9, SC-10**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-regression-*`
+- [ ] 55. **Pre-regression verify (**task-card**).** Verify the pre-regression results before RED. **→ SC-8, SC-9, SC-10**
+- [ ] 56. **RED (**task-card**).** Behavioral run with remote environment enabled — an agent filing a spec. **→ SC-8**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+  - RED condition (passes-as-defect today): the Workflow section carries no reservation mandate, so nothing prevents local-first setup.
+- [ ] 57. **GREEN (**task-card**).** Update the `.opencode/.issues/AGENTS.md` Workflow section with the mandate: when a remote spec system exists (platform is not local), file the remote spec FIRST — with clear intent and context sufficient for a clean-room restart — to reserve the spec number, BEFORE any local spec folder setup; local-first reservation is a violation. Record the observed 2450 split-brain collision as the motivating defect; cross-reference (not duplicate) the numbers-must-match mandate and the `.counter` drift defect. **→ SC-8**
+- [ ] 58. **REFACTOR (**task-card**).** Integrate with the section's existing init/sync workflow table without disturbing it. **→ SC-8**
+- [ ] 59. **Commit (**direct**).** Commit the doc change.
+  - `git add .opencode/.issues/AGENTS.md && git commit -m "docs(issues): remote-first spec-number reservation mandate in Workflow"`
+- [ ] 60. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-8**
+- [ ] 61. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows the remote create call preceding any local record creation, with clean-room-restartable context in the remote body. Supporting: grep for the MUST-be-filed-FIRST language, the clean-room-restart clause, the BEFORE-local-setup ordering, and the violation clause. **→ SC-8**
+- [ ] 62. **RED (**task-card**).** Behavioral run with remote environment enabled, driven through the spec-creation create step. **→ SC-9**
+- [ ] 63. **GREEN (**task-card**).** Update create.md Step 3 (remote-number-first) with the same mandate verbatim in semantics; preserve the existing mechanics (remote stub → read N → local at exactly N; renumber/migrate repair; `API_FAILURE_MID_FLOW` BLOCKED path). **→ SC-9**
+- [ ] 64. **REFACTOR (**task-card**).** Ensure the added mandate composes with Step 3.1/3.2 label flows without contradiction. **→ SC-9**
+- [ ] 65. **Commit (**direct**).** Commit the task-card change.
+  - `git add .opencode/skills/spec-creation/tasks/create.md && git commit -m "docs(spec-creation): reservation mandate in create Step 3"`
+- [ ] 66. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-9**
+- [ ] 67. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows remote-first filing with resumable context. Supporting: grep Step 3 for the MUST-be-filed-FIRST language, clean-room-restart clause, BEFORE-local-setup ordering, and violation clause. **→ SC-9**
+- [ ] 68. **RED (**task-card**).** Behavioral run with remote environment enabled, driven through the issue-operations creation flow. **→ SC-10**
+- [ ] 69. **GREEN (**task-card**).** Update creation.md Step 2.1 (Remote-First Flow) with the same mandate verbatim in semantics; preserve the existing Remote-First Flow mechanics (promote first, extract remote number, local at the remote number, counter advancement, best-effort remote label). **→ SC-10**
+- [ ] 70. **REFACTOR (**task-card**).** Ensure the mandate composes with the local-only counter path (Step 2.2) without contradiction — the mandate is conditional on a remote spec system existing. **→ SC-10**
+- [ ] 71. **Commit (**direct**).** Commit the task-card change.
+  - `git add .opencode/skills/issue-operations-core/tasks/creation.md && git commit -m "docs(issue-operations): reservation mandate in creation Step 2.1"`
+- [ ] 72. **PUSH (**direct**).** Push; fresh-fetch verify containment in a remote ref. **→ SC-10**
+- [ ] 73. **Verify (behavioral, verdict basis) (**task-card**).** Re-run the scenario; session.yaml shows remote promotion preceding local `.issues/{N}/` creation with resumable context. Supporting: grep Step 2.1 for the MUST-be-filed-FIRST language, clean-room-restart clause, BEFORE-local-setup ordering, and violation clause. **→ SC-10**
+
+- [ ] 74. **Post-regression (**task-card**).** Run regression patterns across the phase's deliverables after GREEN. **→ SC-8, SC-9, SC-10**
+- [ ] 75. **Verify (**direct**).** Confirm all three SC verdicts are behavioral PASS with session.yaml evidence artifacts on disk; no structural substitute reported as PASS. **→ SC-8, SC-9, SC-10**
+
+#### Phase 4 Completion (VbC)
+
+- [ ] 76. **VbC (**task-card**).** Verify SC-8, SC-9, SC-10 against session.yaml evidence: remote-first filing with clean-room-restartable context at all three reservation sites. **→ SC-8, SC-9, SC-10**
 
 **Concern transition:** Leaving governance-doc mandates → entering post-implementation verification and PR preparation.
 
@@ -291,21 +332,21 @@ dispatch:
 
 # Post-implementation (global)
 
-- [ ] 74. **Audit (**task-card**).** Adversarial audit of the deliverable — dispatch the verification-audit investigator, then validator, evaluator, and arbiter in sequence.
+- [ ] 82. **Audit (**task-card**).** Adversarial audit of the deliverable — dispatch the verification-audit investigator, then validator, evaluator, and arbiter in sequence.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-audit-*`
   - Coercion: DONE_WITH_CONCERNS coerces to FAIL for gate purposes; EVIDENCE_TYPE_MISMATCH is a hard FAIL.
-- [ ] 75. **Z3 check (**direct**).** Run the constraint solver verification directly.
+- [ ] 83. **Z3 check (**direct**).** Run the constraint solver verification directly.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-z3-check-*`
   - Command context: `.opencode/tools/solve check --state-path <state file> --contract-path .opencode/.issues/2450/dependency-contract.yaml`
-- [ ] 76. **Structural checks (**task-card**).** Run the finishing checklist (lint, typecheck, format checks) per finishing-a-development-branch.
+- [ ] 84. **Structural checks (**task-card**).** Run the finishing checklist (lint, typecheck, format checks) per finishing-a-development-branch.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-structural-checks-*`
-- [ ] 77. **Pre-PR gate (**task-card**).** Verify all SC verdicts — reads all SC evidence artifacts and BLOCKs if any FAIL (including coerced DONE_WITH_CONCERNS and EVIDENCE_TYPE_MISMATCH verdicts).
+- [ ] 85. **Pre-PR gate (**task-card**).** Verify all SC verdicts — reads all SC evidence artifacts and BLOCKs if any FAIL (including coerced DONE_WITH_CONCERNS and EVIDENCE_TYPE_MISMATCH verdicts).
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-pr-gate-*`
-- [ ] 78. **Regression check (**task-card**).** Final full regression run before PR — the complete pytest suite plus the no-flag `validate-yaml` default-scan sanity check on both repos.
+- [ ] 86. **Regression check (**task-card**).** Final full regression run before PR — the complete pytest suite plus the no-flag `validate-yaml` default-scan sanity check on both repos.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-regression-check-*`
-- [ ] 79. **Review-prep (**task-card**).** Prepare PR review context per git-workflow-pr review-prep.
-- [ ] 80. **Create PR (**task-card**).** Create the stacked PR per git-workflow-pr create — one branch, commits squashed to one commit per issue at PR creation; no co-author trailers in implementation commits (added during squash at PR time).
-- [ ] 81. **Exec summary (**task-card**).** Generate the completion executive summary per completion-core.
+- [ ] 87. **Review-prep (**task-card**).** Prepare PR review context per git-workflow-pr review-prep.
+- [ ] 88. **Create PR (**task-card**).** Create the stacked PR per git-workflow-pr create — one branch, commits squashed to one commit per issue at PR creation; no co-author trailers in implementation commits (added during squash at PR time).
+- [ ] 89. **Exec summary (**task-card**).** Generate the completion executive summary per completion-core.
 
 **Cost frame:** Running the full audit + pre-PR-gate chain costs minutes of execution time — the behavioral tier. Skipping costs the death-spiral tier: a FAIL SC carried into review ships the unscoped gate or an unstated mandate, and the 2451-style block or split-brain collision is discovered in production use — the 1000×+ discovery latency the entire pipeline exists to prevent.
 
