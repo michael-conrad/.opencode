@@ -87,8 +87,8 @@ Read back the local remote.md and verify:
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
 | "Local remote.md exists" | Verify file exists at `.issues/{N}/remote.md` | `ls .issues/{N}/remote.md` | MISSING-ELEMENT |
-| "Body matches remote" | Compare local remote.md body vs remote issue body | `local-issues read NNN` (reads remote.md) | VERIFICATION-GAP |
-| "Frontmatter has remote_issue" | Verify YAML frontmatter contains `remote_issue` field | `local-issues read NNN` → parse frontmatter | STRUCTURE-VIOLATION |
-| "last_sync is recent" | Verify timestamp is within current session window | `local-issues read NNN` → parse frontmatter | VERIFICATION-GAP |
+| "Body matches remote" | Compare local remote.md body vs remote issue body | `local-issues read <repo>#<N>` (reads remote.md) | VERIFICATION-GAP |
+| "Frontmatter has remote_issue" | Verify YAML frontmatter contains `remote_issue` field | `local-issues read <repo>#<N>` → parse frontmatter | STRUCTURE-VIOLATION |
+| "last_sync is recent" | Verify timestamp is within current session window | `local-issues read <repo>#<N>` → parse frontmatter | VERIFICATION-GAP |
 
 **Evidence artifact:** Local remote.md readback showing body content and frontmatter fields.

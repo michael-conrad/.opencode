@@ -51,6 +51,115 @@ YAML_INDENT = 2
 YAML_FILES = ("issue.yaml", "comments.yaml", "links.yaml")
 MARKDOWN_FILES = ("spec.md",)
 
+# SC-05 error-class taxonomy for warn-and-skip stderr warnings.
+MALFORMED_FRONTMATTER = "malformed-frontmatter"
+INVALID_YAML = "invalid-yaml"
+SCHEMA_VIOLATION = "schema-violation"
+
+
+def _warn_skip(rel: str, error_class: str, detail: Any = None) -> None:
+    """Emit a warn-and-skip warning for a malformed record (SC-05).
+
+    Warns to stderr with the offending file path and error class; the
+    caller then skips the record. Never raises.
+    """
+    msg = f"warn: skipping {rel}: {error_class}"
+    if detail is not None:
+        msg += f": {str(detail).strip()}"
+    print(msg, file=sys.stderr)
+
+
+def _rel_issue_path(entry: Path, fname: str) -> str:
+    """Relative display path of a file inside an issue directory."""
+    return f"{entry.name}/{fname}"
+
+
+def _schema_problem(kind: str, data: Any) -> str | None:
+    """Return an error class if parsed YAML violates the record schema."""
+    if kind == "links":
+        if not isinstance(data, dict) or not isinstance(data.get("links"), list):
+            return SCHEMA_VIOLATION
+        return None
+    if not isinstance(data, dict):
+        return SCHEMA_VIOLATION
+    return None
+
+
+def _validate_issue_dir(entry: Path) -> None:
+    """Warn-and-skip scan of one issue directory (SC-05).
+
+    Emits stderr warnings (file path + error class) for malformed YAML
+    records, schema violations, and malformed frontmatter. Completes
+    exception-free; never mutates state.
+    """
+    for name in YAML_FILES:
+        f = entry / name
+        if not f.exists():
+            continue
+        rel = _rel_issue_path(entry, name)
+        data = yaml_load(read_file(f), path=rel)
+        problem = _schema_problem(name.removesuffix(".yaml"), data)
+        if problem:
+            _warn_skip(rel, problem)
+    spec_file = entry / "spec.md"
+    if spec_file.exists():
+        spec = read_file(spec_file)
+        if spec.startswith("---") and len(spec.split("---", 2)) < 3:
+            _warn_skip(_rel_issue_path(entry, "spec.md"), MALFORMED_FRONTMATTER)
+
+
+def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
+    """Collect (path, error-class) findings for one issue directory (SC-06).
+
+    Reuses the SC-05 error-class taxonomy (malformed-frontmatter,
+    invalid-yaml, schema-violation) without emitting warn-and-skip
+    warnings — callers own reporting. Read-only: never mutates files.
+    """
+    errors: list[tuple[str, str]] = []
+    for name in YAML_FILES:
+        f = entry / name
+        if not f.exists():
+            continue
+        rel = _rel_issue_path(entry, name)
+        content = read_file(f)
+        if not content.strip():
+            continue
+        try:
+            data = yaml.safe_load(content)
+        except yaml.YAMLError:
+            errors.append((rel, INVALID_YAML))
+            continue
+        problem = _schema_problem(name.removesuffix(".yaml"), data)
+        if problem:
+            errors.append((rel, problem))
+    spec_file = entry / "spec.md"
+    if spec_file.exists():
+        spec = read_file(spec_file)
+        if spec.startswith("---") and len(spec.split("---", 2)) < 3:
+            errors.append((_rel_issue_path(entry, "spec.md"), MALFORMED_FRONTMATTER))
+    return errors
+
+
+def cmd_validate_yaml(args: argparse.Namespace) -> None:
+    """Validate YAML across all issue directories (SC-06, read-only).
+
+    Walks .issues/<N>/ directories, reuses the SC-05 error-class
+    taxonomy, prints machine-greppable `<path>: <error-class>` report
+    lines to stdout, and applies the exit-code gate: 0 clean, 1 when
+    malformed files are found. Never mutates files.
+    """
+    issues_dir = Path(ISSUES_DIR)
+    errors: list[tuple[str, str]] = []
+    if issues_dir.is_dir():
+        for entry in sorted(issues_dir.iterdir()):
+            if not entry.is_dir():
+                continue
+            errors.extend(_scan_issue_dir_errors(entry))
+    for rel, error_class in errors:
+        print(f"{rel}: {error_class}")
+    if errors:
+        sys.exit(1)
+
 
 def _find_issue_dir(number: int, repo_path: Path | None = None) -> Path | None:
     """Find issue directory by exact number match.
@@ -117,10 +226,22 @@ def yaml_dump(data: Any) -> str:
     )
 
 
-def yaml_load(content: str) -> Any:
+def yaml_load(content: str, path: str | None = None) -> Any:
+    """Parse YAML content, warn-and-skip on parse errors (SC-05).
+
+    On a YAML parse error, emits a stderr warning carrying the source
+    file path (when provided) and the invalid-yaml error class, then
+    returns an empty dict so iteration paths skip the malformed record
+    exception-free. Control state (e.g. .counter) never goes through
+    this function and keeps its fail-fast behavior.
+    """
     if not content.strip():
         return {}
-    return yaml.safe_load(content)
+    try:
+        return yaml.safe_load(content)
+    except yaml.YAMLError as exc:
+        _warn_skip(path or "<memory>", INVALID_YAML, exc)
+        return {}
 
 
 def issue_exists(number: int, repo_path: Path | None = None) -> bool:
@@ -139,7 +260,9 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
             content = read_file(f)
         else:
             content = ""
-        result[name.removesuffix(".yaml")] = yaml_load(content)
+        result[name.removesuffix(".yaml")] = yaml_load(
+            content, path=_rel_issue_path(path, name)
+        )
     # If no YAML files exist, fall back to spec.md for backward compatibility
     if not has_yaml:
         spec = read_file(path / "spec.md")
@@ -152,6 +275,11 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
                     if isinstance(fm, dict):
                         fm["body"] = body
                         result["issue"] = fm
+                else:
+                    _warn_skip(
+                        _rel_issue_path(path, "spec.md"),
+                        MALFORMED_FRONTMATTER,
+                    )
             else:
                 # Plain markdown with no frontmatter — treat entire file as body
                 result["issue"] = {"body": spec.strip(), "status": "open"}
@@ -163,7 +291,9 @@ def _read_issue_title_status(entry: Path) -> tuple[str, str]:
     issue_file = entry / "issue.yaml"
     spec_file = entry / "spec.md"
     if issue_file.exists():
-        data = yaml_load(read_file(issue_file))
+        data = yaml_load(
+            read_file(issue_file), path=_rel_issue_path(entry, "issue.yaml")
+        )
         if isinstance(data, dict):
             return data.get("title", ""), data.get("status", "open")
     elif spec_file.exists():
@@ -207,7 +337,7 @@ def _discover_all_repos() -> list[Path]:
     Root repo is always first. Child repos come exclusively from
     .gitmodules entries. No filesystem glob, no worktree detection.
     """
-    root = Path(os.getcwd()).resolve()
+    root = PROJECT_DIR.resolve()
     repos: list[Path] = [root]
 
     gitmodules = root / ".gitmodules"
@@ -463,6 +593,75 @@ def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
     return True
 
 
+def _bootstrap_from_remote(root: Path) -> bool:
+    """Bootstrap the issues branch from origin/issues-data when present.
+
+    Fetches the remote branch and creates a local tracking branch. Returns
+    True when the local branch was created from the remote ref. Returns
+    False when the remote branch does not exist or the fetch failed
+    (warned) — the caller then falls back to the orphan-branch path.
+    """
+    fetch = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "fetch",
+            "--quiet",
+            "origin",
+            WORKTREE_BRANCH,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if fetch.returncode != 0:
+        print(
+            f"warn: fetch of origin/{WORKTREE_BRANCH} failed: "
+            f"{fetch.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return False
+    verify = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/remotes/origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if verify.returncode != 0:
+        return False
+    branch = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "branch",
+            "--track",
+            WORKTREE_BRANCH,
+            f"origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if branch.returncode != 0:
+        print(
+            f"warn: failed to create tracking branch {WORKTREE_BRANCH}: "
+            f"{branch.stderr.strip()}",
+            file=sys.stderr,
+        )
+        return False
+    return True
+
+
 def _create_orphan_branch(root: Path) -> bool:
     """Create an orphan issues-data branch with an initial empty commit.
 
@@ -589,7 +788,7 @@ def _create_issues_worktree(root: Path) -> bool:
                 ["git", "-C", str(root), "worktree", "prune"],
                 capture_output=True, text=True, timeout=15,
             )
-        if not _create_orphan_branch(root):
+        if not _bootstrap_from_remote(root) and not _create_orphan_branch(root):
             print("error: failed to create orphan issues-data branch", file=sys.stderr)
             return False
     if not _setup_worktree(root):
@@ -942,26 +1141,15 @@ def cmd_create(args: argparse.Namespace) -> None:
             "  action: no auto-merge — compare data above and resolve manually",
             file=sys.stderr,
         )
-    current_repo_name = _resolve_repo_name()
-    if args.number is None:
-        args.number = _next_number(PROJECT_DIR)
-        repo_path = PROJECT_DIR
-        qualified = f"{current_repo_name}#{args.number}"
-    else:
-        repo_name, num = _parse_qualified(args.number)
-        if repo_name is not None:
-            repo_path = _resolve_and_validate_repo(repo_name)
-            current_repo_name = repo_path.name
-        else:
-            print(f"Error: bare number '{args.number}' requires a repo qualifier ({repo_name}#{args.number}).", file=sys.stderr)
-            _print_available_repos()
-            sys.exit(1)
-            repo_path = PROJECT_DIR  # unreachable
-        args.number = num
-        qualified = f"{current_repo_name}#{args.number}"
-        child_repos = _discover_all_repos()
-        _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
+    repo_name, num = _require_qualified(args.number)
+    repo_path = _resolve_and_validate_repo(repo_name)
+    current_repo_name = repo_path.name
+    args.number = num
+    qualified = f"{current_repo_name}#{args.number}"
+    child_repos = _discover_all_repos()
+    _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
     _ensure_all_worktrees()
+    _next_number(repo_path)
     _create_issue_files(args.number, args.title, args.labels, repo_path, qualified)
 
 
@@ -989,9 +1177,13 @@ def _parse_qualified(value: str) -> tuple[str | None, int]:
 
 def _require_qualified(number_str: str) -> tuple[str, int]:
     """Parse qualified form, error on bare numbers."""
-    repo_name, num = _parse_qualified(number_str.strip())
+    bare = number_str.strip()
+    repo_name, num = _parse_qualified(bare)
     if repo_name is None:
-        print("Error: Use qualified form {repo}#{N} for mutations.", file=sys.stderr)
+        print(
+            f"Error: bare number '{bare}' requires a repo qualifier — use repo#{bare}.",
+            file=sys.stderr,
+        )
         _print_available_repos()
         sys.exit(1)
     return repo_name, num
@@ -1066,7 +1258,9 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
             content = read_file(f)
         else:
             content = ""
-        result[name.removesuffix(".yaml")] = yaml_load(content)
+        result[name.removesuffix(".yaml")] = yaml_load(
+            content, path=_rel_issue_path(path, name)
+        )
     if not has_yaml:
         spec = read_file(path / "spec.md")
         if spec:
@@ -1078,6 +1272,11 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
                     if isinstance(fm, dict):
                         fm["body"] = body
                         result["issue"] = fm
+                else:
+                    _warn_skip(
+                        _rel_issue_path(path, "spec.md"),
+                        MALFORMED_FRONTMATTER,
+                    )
             else:
                 result["issue"] = {"body": spec.strip(), "status": "open"}
     return result
@@ -1125,6 +1324,7 @@ def _not_found(number: int, repo_path: Path | None = None) -> None:
 
 
 def cmd_read(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = _collect_read_results(targets)
     if not matches:
@@ -1141,6 +1341,7 @@ def cmd_read(args: argparse.Namespace) -> None:
 
 
 def cmd_read_comments(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1166,6 +1367,7 @@ def cmd_read_comments(args: argparse.Namespace) -> None:
 
 
 def cmd_read_labels(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1192,6 +1394,7 @@ def cmd_read_labels(args: argparse.Namespace) -> None:
 
 
 def cmd_read_sub_issues(args: argparse.Namespace) -> None:
+    _require_qualified(args.number)
     targets = _resolve_qualified(args.number)
     matches = []
     for repo_path, repo_name, number_str in targets:
@@ -1334,6 +1537,7 @@ def _search_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        _validate_issue_dir(entry)
         spec_path = _spec_path_for_issue(num, repo_path)
         data = _read_issue_data_in_repo(num, repo_path)
         if not data:
@@ -1372,7 +1576,7 @@ def cmd_search(args: argparse.Namespace) -> None:
 
 
 def _resolve_repo_name() -> str:
-    return Path(os.getcwd()).name
+    return PROJECT_DIR.resolve().name
 
 
 def _print_available_repos() -> None:
@@ -1398,6 +1602,7 @@ def _list_issues_in_repo(
         if num is None or num in seen:
             continue
         seen.add(num)
+        _validate_issue_dir(entry)
         spec_path = _spec_path_for_issue(num, repo_path)
         title, status = _read_issue_title_status(entry)
         entries.append(
@@ -1740,13 +1945,13 @@ def cmd_sync_file(args: argparse.Namespace) -> None:
 def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "create",
-        help="Create a new issue (autonumber when --number omitted). Flags: --number, --title, --labels",
+        help="Create a new issue. Flags: --number (repo#N, required), --title, --labels",
     )
     p.add_argument(
         "--number",
         type=str,
-        default=None,
-        help="Explicit issue number or qualified repo#N form (autonumber if omitted)",
+        required=True,
+        help="Qualified repo#N form (required — reserve a number via the counter first)",
     )
     p.add_argument("--title", type=str, required=True)
     p.add_argument("--labels", type=str, nargs="*", default=[])
@@ -1755,9 +1960,9 @@ def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_read_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read",
-        help="Read an issue as YAML. Flags: --number (N or repo#N), --type (full|comments|labels|links|all)",
+        help="Read an issue as YAML. Flags: --number repo#N, --type (full|comments|labels|links|all)",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
     p.add_argument(
         "--type",
         choices=["full", "comments", "labels", "links", "all"],
@@ -1768,24 +1973,24 @@ def _add_read_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_read_comments_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read-comments",
-        help="Read comments for an issue. Flags: --number (N or repo#N)",
+        help="Read comments for an issue. Flags: --number repo#N",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_read_labels_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
-        "read-labels", help="Read labels for an issue. Flags: --number (N or repo#N)"
+        "read-labels", help="Read labels for an issue. Flags: --number repo#N"
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_read_sub_issues_parser(subparsers: argparse._SubParsersAction) -> None:
     p = subparsers.add_parser(
         "read-sub-issues",
-        help="Read sub-issues of an issue. Flags: --number (N or repo#N)",
+        help="Read sub-issues of an issue. Flags: --number repo#N",
     )
-    p.add_argument("--number", type=str, required=True)
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
 
 
 def _add_update_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -1887,6 +2092,94 @@ def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
     )
 
 
+def _add_doctor_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser(
+        "doctor",
+        help="Emit per-repo health markers (read-only): branch state, merge-base delta vs origin/issues-data, counter state, worktree presence",
+    )
+
+
+def _add_validate_yaml_parser(subparsers: argparse._SubParsersAction) -> None:
+    subparsers.add_parser(
+        "validate-yaml",
+        help="Validate YAML across issue directories (read-only); exit 1 when malformed files are found",
+    )
+
+
+def _doctor_remote_branch_exists(repo_path: Path) -> bool:
+    """Check if refs/remotes/origin/issues-data exists (read-only)."""
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo_path),
+            "rev-parse",
+            "--verify",
+            "--quiet",
+            f"refs/remotes/origin/{WORKTREE_BRANCH}",
+        ],
+        capture_output=True,
+        timeout=15,
+    )
+    return result.returncode == 0
+
+
+def _doctor_counter_state(issues_dir: Path) -> str:
+    """Report counter state for a repo's .issues/ directory (read-only)."""
+    counter_path = issues_dir / ".counter"
+    if not counter_path.exists():
+        return "missing"
+    try:
+        raw = counter_path.read_text(encoding="utf-8").strip()
+    except OSError:
+        return "corrupt"
+    if raw.isdigit():
+        return raw
+    return "corrupt"
+
+
+def _doctor_repo_report(repo: Path) -> str:
+    """Build one machine-greppable health-marker line for a repo (read-only).
+
+    Markers: repo=<path> branch_state={HEALTHY|UNHEALTHY}
+    merge_base_delta={absent|<ahead>/<behind>} counter={missing|corrupt|<n>}
+    worktree={active|absent}
+    """
+    issues_dir = repo / ISSUES_DIR
+    local_exists = _issues_branch_exists(repo_path=repo)
+    branch_state = "HEALTHY" if local_exists else "UNHEALTHY"
+    if local_exists and _doctor_remote_branch_exists(repo):
+        raw = _get_branch_divergence(
+            str(repo), WORKTREE_BRANCH, f"origin/{WORKTREE_BRANCH}"
+        )
+        parts = raw.split()
+        delta = f"{parts[0]}/{parts[1]}" if len(parts) == 2 else raw or "absent"
+    else:
+        delta = "absent"
+    worktree = "active" if (issues_dir / ".git").is_file() else "absent"
+    counter = _doctor_counter_state(issues_dir)
+    return (
+        f"repo={repo} issues_dir={issues_dir} branch_state={branch_state} "
+        f"merge_base_delta={delta} counter={counter} worktree={worktree}"
+    )
+
+
+def cmd_doctor(args: argparse.Namespace) -> None:
+    """Emit per-repo health markers for root and all discovered repos.
+
+    Read-only: never mutates state (no worktree bootstrap, no counter
+    writes, no sentinel files).
+    """
+    for repo in _discover_all_repos():
+        try:
+            print(f"doctor {_doctor_repo_report(repo)}")
+        except Exception as e:
+            print(
+                f"doctor repo={repo} branch_state=UNKNOWN error={e}",
+                file=sys.stderr,
+            )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="local-issues",
@@ -1911,6 +2204,8 @@ def build_parser() -> argparse.ArgumentParser:
     _add_init_parser(sub)
     _add_sync_parser(sub)
     _add_sync_file_parser(sub)
+    _add_doctor_parser(sub)
+    _add_validate_yaml_parser(sub)
 
     return parser
 
@@ -1964,7 +2259,10 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    _check_legacy_formats(Path(ISSUES_DIR))
+    # doctor and validate-yaml are strictly read-only — skip the legacy
+    # sentinel (which writes a file)
+    if args.command not in ("doctor", "validate-yaml"):
+        _check_legacy_formats(Path(ISSUES_DIR))
 
     command_map = {
         "create": cmd_create,
@@ -1984,6 +2282,8 @@ def main() -> None:
         "init": cmd_init,
         "sync": cmd_sync,
         "sync-file": cmd_sync_file,
+        "doctor": cmd_doctor,
+        "validate-yaml": cmd_validate_yaml,
     }
     command_map[args.command](args)
 

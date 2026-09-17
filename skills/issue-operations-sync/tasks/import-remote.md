@@ -182,12 +182,12 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "remote.md exists (body)" | Verify file at `.issues/{N}/remote.md` | `local-issues read <number>` | MISSING-ELEMENT |
-| "spec.md exists (frontmatter only)" | Verify file at `.issues/{N}/spec.md` | `local-issues read <number>` | MISSING-ELEMENT |
+| "remote.md exists (body)" | Verify file at `.issues/{N}/remote.md` | `local-issues read <repo>#<number>` | MISSING-ELEMENT |
+| "spec.md exists (frontmatter only)" | Verify file at `.issues/{N}/spec.md` | `local-issues read <repo>#<number>` | MISSING-ELEMENT |
 | "comments.md exists with all comments" | Verify file and comment count matches remote | `ls .issues/{N}/comments.md` | MISSING-ELEMENT |
-| "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <number>` → parse frontmatter | STRUCTURE-VIOLATION |
+| "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <repo>#<number>` → parse frontmatter | STRUCTURE-VIOLATION |
 | "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
-| "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <number>` | VERIFICATION-GAP |
-| "spec.md has no remote body" | Verify spec.md has no body content below frontmatter | `local-issues read <number>` → check body is empty after frontmatter | VERIFICATION-GAP |
+| "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <repo>#<number>` | VERIFICATION-GAP |
+| "spec.md has no remote body" | Verify spec.md has no body content below frontmatter | `local-issues read <repo>#<number>` → check body is empty after frontmatter | VERIFICATION-GAP |
 
 **Evidence artifact:** remote.md readback showing body, spec.md readback showing frontmatter only, comments.md showing imported comments, .counter value.

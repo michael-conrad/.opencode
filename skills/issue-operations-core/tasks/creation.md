@@ -237,7 +237,7 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 #### Step 3.5a: Verify Local `issue.yaml` (PRIMARY — MANDATORY)
 
-- [ ] 1. **Read local labels:** `./.opencode/tools/local-issues read-labels --number N` — confirm `needs-approval` is in the labels list
+- [ ] 1. **Read local labels:** `./.opencode/tools/local-issues read-labels --number <repo>#<N>` — confirm `needs-approval` is in the labels list
 - [ ] 1. **If `needs-approval` is missing:** remediate immediately via `./.opencode/tools/local-issues update N --labels needs-approval`
 - [ ] 1. **Re-read labels** to confirm the label is present
 - [ ] 1. **If remediation fails:** HALT and report the label application failure
@@ -395,7 +395,7 @@ Before proceeding, verify ALL:
 | "No conflicting spec exists"     | Search for overlapping issues        | `issue-operations → search-issues` → verify                                                        | CONFLICTING            |
 | "Title follows format"           | Verify title prefix                  | Check `[SPEC]`, `[SPEC-FIX]`, `[SPEC-ENHANCEMENT]`, `[Task:` prefix                                | STRUCTURE-VIOLATION    |
 | "Issue was created"              | Verify API response                  | Check `number` field in creation response                                                          | MISSING-ELEMENT        |
-| "`needs-approval` in local issue.yaml" | Verify label in local canonical source | `local-issues read-labels --number N` → verify label present | MISSING-ELEMENT        |
+| "`needs-approval` in local issue.yaml" | Verify label in local canonical source | `local-issues read-labels --number <repo>#<N>` → verify label present | MISSING-ELEMENT        |
 | "`needs-approval` label applied" | Verify label on remote issue (secondary, best-effort)        | `issue-operations → read-labels` → verify label (non-blocking)                                                    | MISSING-ELEMENT        |
 | "Byline in body"                 | Verify byline present                | Check issue body for `🤖` marker                                                                   | STRUCTURE-VIOLATION    |
 

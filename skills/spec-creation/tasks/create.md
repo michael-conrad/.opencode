@@ -90,10 +90,11 @@ When a remote API is available:
 
 **Local counter restriction:**
 The create task MUST NOT use the local counter to pick the number when a
-remote API is available. The local counter (`.counter` autonumber via
-`local-issues create` without `--number`) is used ONLY in local-only mode
-(no remote API — github.platform is `local`); in that mode, use the local
-issue number directly.
+remote API is available. The local counter (`.issues/.counter`) is used ONLY
+in local-only mode (no remote API — github.platform is `local`); in that
+mode, reserve the next number from `.issues/.counter` and pass it as an
+explicit qualified `--number <repo>#N` to `local-issues create` (bare
+numbers and omitted `--number` are rejected).
 
 **Downstream number binding:**
 From this step onward, every `{issue_number}` reference in subsequent steps
@@ -153,9 +154,19 @@ Write the full spec to the correct local path:
 
 Include the GitHub URL blockquote at the top of the local spec:
 
+**Skeleton-first write (R-21):** For the local spec write, immediately after the spec sections to be written are known and BEFORE any further assembly reads, write a minimal valid skeleton spec to `{project_root}/{path}/.issues/{N}/spec.md` — the GitHub URL blockquote plus empty placeholder sections, a few lines long. All subsequent spec body work APPENDS to and refines the skeleton section-by-section, with one small write per section. Never accumulate the full spec body across multiple reasoning turns before the first write.
+
+**Action-first transition rule (R-21):** When a write is due — the skeleton write or any section append/refine — the agent's next assistant action MUST be the write tool call itself. No restating what will be written, no summarizing what was assembled, no pre-write verification prose between the decision to write and the write call.
+
 ### Step 6: Copy analytical artifacts
 
 Copy **only analysis artifacts** from the analysis step to the issue's artifact directory. The `.issues/{N}/artifacts/` directory is a metadata-only store — it MUST NOT receive source code, test files, test fixtures, or any other non-analysis content. Only the analysis artifacts produced by the spec-creation pipeline (pre-spec-inspection, requirements, decomposition, and the 7 analytical artifacts) belong here.
+
+**Incremental-emission rule (R-18):** Emit artifacts incrementally — copy/write each artifact individually, one artifact per operation. Do NOT batch all artifact copies/writes into a single large operation. If resuming an interrupted run, check the destination directory first and copy/write only the artifacts not yet present, without re-deriving artifacts already written.
+
+**Skeleton-first write (R-21):** Copy artifacts one at a time — establish the destination directory and start copying immediately after the source artifact list is known, BEFORE any further verification or assembly work. If an artifact must be transformed rather than copied verbatim, write a minimal valid skeleton of it first, then append/refine section-by-section.
+
+**Action-first transition rule (R-21):** When a copy/write operation is due, the agent's next assistant action MUST be the copy/write tool call itself — no restating, no summarizing, no pre-write verification prose between the decision and the operation.
 
 - [ ] 1. Source: `tmp/{issue_number}/artifacts/`
 - [ ] 2. Destination: `{project_root}/{path}/.issues/{issue_number}/artifacts/`
@@ -170,6 +181,14 @@ This ensures analysis artifacts are preserved alongside the spec for downstream 
 >
 > **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 ```
+
+### Step 6.1: validate-yaml gate (R-13)
+
+After the artifacts are written/copied, run `./.opencode/tools/local-issues validate-yaml` over the affected repos (the root repo and, when the issue belongs to the `.opencode` submodule, the submodule repo via its qualified name). This gate is read-only — it NEVER mutates files.
+
+- [ ] 1. The gate MUST be executed directly by the agent performing this task — do NOT delegate it to another agent and report the outcome second-hand. The result contract MUST include the literal gate invocation evidence: the exact command executed and its exit code (and, on exit 1, the malformed-file report lines). A prose claim that the gate ran, without the recorded command + exit code, is treated as gate-not-run: return BLOCKED (or re-run the gate and capture the evidence).
+- [ ] 2. Exit 0 → continue to Step 7.
+- [ ] 3. Exit 1 → return the BLOCKED result contract with `blocker_reason: VALIDATE_YAML_FAILED`, naming each malformed file with its path and the error class from the report line. Do NOT fix or rewrite the malformed files.
 
 ### Step 7: Hand off post-push reconciliation to the reconcile-push task
 
@@ -190,6 +209,7 @@ After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/i
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
 - [ ] Analysis artifacts (not source/test/fixture) copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
+- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact write/copy, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files
 - [ ] `artifact_url` from `push-artifacts` recorded in the result contract for the `reconcile-push` step
 - [ ] No internal sub-agent dispatch performed — this task executes its steps directly
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
@@ -206,5 +226,6 @@ remote_issue: <N>
 remote_url: "https://github.com/{owner}/{repo}/issues/{N}"
 github_url: "https://github.com/{owner}/{repo}/issues/{N}"
 finding_summary: "Brief summary of spec structure, sections, and key decisions"
-blocker_reason: "If BLOCKED: why the spec could not be created (e.g., API_FAILURE_MID_FLOW, LOCAL_LABEL_WRITE_FAILED)"
+gate_evidence: "validate-yaml gate invocation: exact command executed and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run."
+blocker_reason: "If BLOCKED: why the spec could not be created (e.g., API_FAILURE_MID_FLOW, LOCAL_LABEL_WRITE_FAILED, VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the validate-yaml report)"
 ```

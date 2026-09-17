@@ -83,6 +83,14 @@ RED-phase sub-agents write tests only — they MUST NOT modify `src/` or any imp
 
 The RED-phase sub-agent MUST NOT modify any file under `src/`. If `git diff --name-only -- src/` shows changes after RED, the orchestrator re-dispatches the RED-phase from clean-room state — no inline fallback.
 
+## Timeout-Recovery Resumption Directive (R-15)
+
+At the timeout-recovery decision point — when a RED-phase test run is interrupted (bash-tool timeout kill or semantic-monitor abort) and the session store survives — the agent MUST attempt session resumption through the harness BEFORE any re-run. A blind restart after an interrupt is PROHIBITED. Reference whatever resumption mechanism the harness provides; no specific CLI flags or paths are hardcoded in this directive (framework-agnostic, R-15). If resumption is unavailable (session store unreachable), record that fact and fall back per the harness's documented recovery procedure.
+
+## Default-Model Mandate (R-20)
+
+At the model-selection decision point — when the RED-phase behavioral probe run is launched — the run uses the harness's default test model, resolved from the harness's default-model definition (its single source of truth), unless the user explicitly directs otherwise. Substituting another model on the agent's own initiative is PROHIBITED: model-shopping to work around a failing or slow test is a defect signal, and remediation targets the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior) — never model selection. A model override is applied only on explicit user direction and MUST be recorded with the direction that authorized it. The mandate binds the harness's default-model mechanism, never a hardcoded model string (framework-agnostic, R-20).
+
 ## RED Abort Protocol
 
 RED defines exactly one normal terminal state: a confirmed-failing enforcement test. When an irregular condition makes that terminal state unreachable or invalid, the RED-phase sub-agent returns a **classified ABORT** as its terminal state. Returning a classified abort IS completing the task correctly — it is task completion, not failure. The sub-agent MUST NOT force the outcome, MUST NOT modify a test to make it fail, and MUST NOT loop between the mandate and reality.

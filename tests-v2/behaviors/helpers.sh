@@ -396,13 +396,18 @@ __export_sqlite_to_yaml() {
     local db_found=0
     local db_path=""
 
-    # Search stdout first, then stderr — TEST_HOME= is emitted to stderr by with-test-home.
+    # Search stderr first — TEST_HOME= is with-test-home's OWN emission to
+    # stderr (§10.3), while stdout may contain agent-echoed TEST_HOME markers
+    # from scenario evidence (fixture-simulated or quoted file content), which
+    # poisoned the stdout-first search and produced source_db: MISSING even
+    # when stderr carried the real marker (#2432 SC-13 R-18 harness fold-in).
+    # stdout remains a fallback for invocations that emit only there.
     local test_home=""
-    if [ -n "$stdout_file" ] && [ -f "$stdout_file" ]; then
-        test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//' || true)
-    fi
-    if [ -z "$test_home" ] && [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
+    if [ -n "$stderr_file" ] && [ -f "$stderr_file" ]; then
         test_home=$(grep '^TEST_HOME=' "$stderr_file" | head -1 | sed 's/^TEST_HOME=//' || true)
+    fi
+    if [ -z "$test_home" ] && [ -n "$stdout_file" ] && [ -f "$stdout_file" ]; then
+        test_home=$(grep '^TEST_HOME=' "$stdout_file" | head -1 | sed 's/^TEST_HOME=//' || true)
     fi
     if [ -n "$test_home" ]; then
         local candidate="$test_home/.local/share/opencode/opencode.db"
@@ -496,7 +501,8 @@ BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS="${BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS:-}"
 # preserves the §14 frozen-DB semantics; a live sub-agent streams deltas).
 BEHAVIOR_STUCK_TASK_POLLS="${BEHAVIOR_STUCK_TASK_POLLS:-2}"
 BEHAVIOR_MONITOR_MAX_POLLS="${BEHAVIOR_MONITOR_MAX_POLLS:-30}"
-BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-20000}"
+# R-18 fold-in (2432): 20000 killed productive write-transitions on 27B models (trace: 25K cumulative during valid derivation); calibrated to 60000, env-respecting
+BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-60000}"
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
 
 __semantic_monitor() {
@@ -528,6 +534,8 @@ __semantic_monitor() {
     local prev_reasoning_chars=0
     local stuck_task_polls=0
     local offtrack_polls=0
+    local frozen_reason_polls=0
+    local prev_reason_hash=""
     local hopeless_polls=0
     local reasoning_total=0
     local test_home_dir=""
@@ -581,7 +589,8 @@ for seq, data in rows:
         st = (part.get("state") or {}).get("status", "?")
         tools[part.get("id", f"seq{seq}")] = {
             "tool": part.get("tool", "?"), "status": st,
-            "input": json.dumps((part.get("state") or {}).get("input", {}), sort_keys=True)[:200],
+            # R-18 fold-in (2432): full-input hash — 200-char truncation false-positived on progressive same-path writes (skeleton-first appends share the path prefix)
+            "input": json.dumps((part.get("state") or {}).get("input", {}), sort_keys=True),
         }
     elif ptype == "text" and str(part.get("text", "")).strip():
         last_text = str(part.get("text"))[:150]
@@ -591,6 +600,8 @@ for seq, data in rows:
 completed_inputs = [json.dumps({"tool": v["tool"], "input": v["input"]}, sort_keys=True)
                     for v in tools.values() if v["status"] == "completed"]
 identical_max = max([completed_inputs.count(x) for x in set(completed_inputs)], default=0)
+import hashlib
+reason_hash = hashlib.sha256(str(last_reason).encode()).hexdigest()[:16] if last_reason else ""
 goal_hit = []
 for name in [n.strip() for n in (os.environ.get("BEHAVIOR_GOAL_ACTIONS", "") or "").split(",") if n.strip()]:
     if any(v["tool"] == name and v["status"] == "completed" for v in tools.values()):
@@ -602,6 +613,7 @@ print(json.dumps({
     "completed": sum(1 for v in tools.values() if v["status"] == "completed"),
     "running": [f"{v['tool']}:{v['input'][:60]}" for v in tools.values() if v["status"] == "running"][:1],
     "identical_input_max": identical_max,
+    "reason_hash": reason_hash,
     "goal_actions_hit": goal_hit,
     "last_text": last_text,
     "last_reason": last_reason,
@@ -717,6 +729,24 @@ MONPY
             offtrack_polls=0
         fi
 
+        # Signal 5 (2432 R-18 fold-in): frozen reasoning tail — identical
+        # reasoning tail hash with zero new tool calls across >=5 consecutive
+        # polls is a deliberation loop; abort early with the loop tail cited.
+        if [ -z "${abort_reason:-}" ] && [ -n "${reason_hash:-}" ] && [ "$new_tool_calls" -le 0 ]; then
+            if [ "${reason_hash:-}" = "${prev_reason_hash:-}" ]; then
+                frozen_reason_polls=$((frozen_reason_polls + 1))
+                if [ "$frozen_reason_polls" -ge 5 ]; then
+                    echo "ABORT: signal 5 (identical reasoning tail across ${frozen_reason_polls} consecutive polls with 0 new tool calls — deliberation loop; tail: ${last_reason})" >> "$poll_log"
+                    abort_reason="reasoning_loop"
+                fi
+            else
+                frozen_reason_polls=0
+            fi
+        else
+            frozen_reason_polls=0
+        fi
+        prev_reason_hash="${reason_hash:-}"
+
         prev_tool_calls=$completed
         prev_event_count=$event_count
         prev_reasoning_chars=$reasoning_total
@@ -728,9 +758,15 @@ MONPY
 
     if [ -n "${abort_reason:-}" ]; then
         # §14 abort path: kill the run, export session.yaml per §10.5, record diagnosis.
-        kill "$run_pid" 2>/dev/null || true
+        # .opencode#2432 SC-10 finding: run_pid is the `bash with-test-home`
+        # wrapper — killing only the wrapper orphans the inner `opencode run`
+        # grandchild, which inherits the flock fd and deadlocks the next
+        # behavior_run with HARNESS_FAILURE lock contention. The run is
+        # launched under setsid, so run_pid is a session/group leader: kill
+        # the whole process group to take down wrapper + opencode children.
+        kill -TERM -- "-$run_pid" 2>/dev/null || kill "$run_pid" 2>/dev/null || true
         sleep 2
-        kill -9 "$run_pid" 2>/dev/null || true
+        kill -KILL -- "-$run_pid" 2>/dev/null || kill -9 "$run_pid" 2>/dev/null || true
         echo "ABORTED run_pid=${run_pid} reason=${abort_reason} poll=${poll}" >> "$poll_log"
 
         local artifact_dir
@@ -979,7 +1015,7 @@ behavior_run() {
         fi
 
         if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
-            (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --title "stale-test" 2>/dev/null) || true
+            (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --number "$(basename "$attempt_workdir")#1" --title "stale-test" 2>/dev/null) || true
             rm -rf "$attempt_workdir/.issues"
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
         fi
@@ -1003,8 +1039,12 @@ behavior_run() {
         # run, export session.yaml per §10.5, record the semantic diagnosis, and
         # break out of the retry loop (no blind re-run after an off-track abort).
         if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
+            # setsid: run_pid becomes session/group leader so the §14 abort
+            # path can kill the full wrapper+opencode process group (see the
+            # abort-path comment in __semantic_monitor — wrapper-only kill
+            # orphans the opencode grandchild and deadlocks the flock).
             TEST_WORKDIR="$attempt_workdir" \
-            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+            setsid bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
                 > "$output_file" 2> "$err_file" \
                 &
             local run_pid=$!

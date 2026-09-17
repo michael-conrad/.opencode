@@ -21,7 +21,7 @@ Verifies authorization by reading the `approved-for-*` label from the local `{is
 
 1. Verify the spec exists at `{issues_prefix}/{N}/spec.md`.
    - If missing: return BLOCKED with `SPEC_NOT_FOUND`.
-2. Read the authorization label from the local `issue.yaml` record via `local-issues read-labels --number {N}`:
+2. Read the authorization label from the local `issue.yaml` record via `local-issues read-labels --number {repo}#{N}`:
    - Check that the returned `labels` array contains an `approved-for-*` label matching the required scope.
    - If no `approved-for-*` label: return BLOCKED with `SPEC_NOT_APPROVED`.
 3. Report the authorization status in the finding summary.

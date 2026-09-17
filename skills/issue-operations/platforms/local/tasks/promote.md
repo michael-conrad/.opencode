@@ -98,7 +98,7 @@ ______________________________________________________________________
 - \[ \] CLI tool returned exit code 0
 - \[ \] Remote issue was created (confirmed by `html_url` and `number` from platform API)
 - \[ \] Local frontmatter updated with `github_issue`, `remote_url`, `remote_number`, `promoted_at`
-- \[ \] `./.opencode/tools/local-issues read N --type full` confirms all remote metadata fields are populated
+- \[ \] `./.opencode/tools/local-issues read <repo>#<N> --type full` confirms all remote metadata fields are populated
 - \[ \] Remote issue body contains the exec-summary and local provenance note
 - \[ \] Remote issue has comment referencing local path
 - \[ \] Labels from local frontmatter were carried forward to remote issue
