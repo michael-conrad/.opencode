@@ -1,0 +1,8 @@
+title: '[BUG] local-issues update --labels: help text implies comma-separated input
+  but nargs=''*'' parses space-separated'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-09-17T23:11:33+00:00'
+updated_at: '2026-09-17T23:11:33+00:00'
