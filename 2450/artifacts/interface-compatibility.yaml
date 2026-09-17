@@ -1,0 +1,49 @@
+artifact_name: interface-compatibility
+generated_at: 2026-09-17
+source: "Spec #2450 — additive-change analysis, live CLI verification 2026-09-17"
+content:
+  description: "Compatibility surface: what changes, what is guaranteed unchanged, and consumer impact"
+  cli_surface:
+    - aspect: "new flag"
+      before: "validate-yaml accepts zero flags (verified live 2026-09-17: --help shows no options)"
+      after: "validate-yaml --number <repo>#N added"
+      compatibility: "ADDITIVE — no existing invocation changes meaning"
+    - aspect: "no-flag default"
+      before: "full workspace scan across all tracked repos; exit 0 clean / 1 on any violation"
+      after: "byte-for-byte identical (R-5)"
+      compatibility: "UNCHANGED — maintenance consumers unaffected"
+    - aspect: "qualified-form convention"
+      before: "every other command requires repo#N (post-2432 qualifier enforcement)"
+      after: "--number inherits the same requirement; bare numbers rejected (R-11)"
+      compatibility: "CONSISTENT — no new number dialect introduced"
+    - aspect: "report format"
+      before: "'<path>: <error-class>' lines with three error classes"
+      after: "identical format restricted to the target's paths (R-4); emitted through the same code path"
+      compatibility: "UNCHANGED — no second report dialect"
+    - aspect: "missing-target behavior"
+      before: "N/A (flag did not exist)"
+      after: "fail-fast: clear error naming the missing directory, non-zero exit, no workspace scan (R-10)"
+      compatibility: "NEW surface; fail-fast prevents silently validating nothing"
+  consumer_compatibility:
+    - consumer: "R-13 gates (analyze.md Step 5.3, create.md Step 6.1)"
+      impact: "Switch from unscoped to scoped invocation (SC-3/SC-5); BLOCKED-on-target-violations semantics preserved; unrelated-drift blocking removed (SC-4/SC-5)"
+      breaking: false — "intentional contract change per this spec's problem statement; workspace-wide scan remains available as secondary maintenance check"
+    - consumer: "maintenance audit workflows"
+      impact: "none — no-flag scan unchanged"
+      breaking: false
+    - consumer: "local-issues other commands"
+      impact: "none — shared scan machinery reused read-only; the tool's never-mutates guarantee preserved"
+      breaking: false
+    - consumer: "spec-creation create.md Step 3 / issue-operations creation.md Step 2.1 existing mechanics"
+      impact: "Reservation mandate text added alongside; remote-stub-first → local-at-N mechanics, renumber/migrate repair, API_FAILURE_MID_FLOW path, counter advancement all preserved"
+      breaking: false
+  doc_surface:
+    - file: ".opencode/.issues/AGENTS.md"
+      change: "mandate text added to Authorization (hygiene) and Workflow (reservation) sections; existing content untouched"
+      compatibility: "ADDITIVE"
+    - file: ".opencode/AGENTS.md"
+      change: "mandate sentence added to the worktree section; correct/forbidden table structure preserved"
+      compatibility: "ADDITIVE"
+  versioning:
+    serialized_formats_affected: none
+    note: "No wire protocol, file format, or schema changes — record schemas and report format are explicitly frozen (Not Included; R-2/R-4)"

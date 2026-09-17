@@ -1,0 +1,47 @@
+artifact_name: code-path-inventory
+generated_at: 2026-09-17
+source: "Spec #2450 — live code-path verification 2026-09-17 (this revision session)"
+content:
+  description: "Runtime code paths the spec modifies or that the behavioral SCs exercise"
+  tool_code_paths:
+    - entry: "cmd_validate_yaml()"
+      location: ".opencode/tools/local-issues (~line 143)"
+      change: "Accepts --number <repo>#N; resolves the qualified form; routes to scoped scan; applies scoped exit semantics (R-1, R-3)"
+      exercised_by: [SC-1, SC-2]
+    - entry: "_find_issue_dir()"
+      location: ".opencode/tools/local-issues"
+      change: "Reused unchanged — exact-match directory lookup resolves the scoped target; missing directory → fail-fast error (R-10)"
+      exercised_by: [SC-1]
+    - entry: "_scan_issue_dir_errors()"
+      location: ".opencode/tools/local-issues (~line 112)"
+      change: "Reused unchanged as the shared per-directory scan collector — scoped findings emit through it so format parity is structural (R-4)"
+      exercised_by: [SC-2]
+    - entry: "_schema_problem() / error-class constants / YAML_FILES"
+      location: ".opencode/tools/local-issues (lines 51-77)"
+      change: "Untouched — the schema definition, error classes (invalid-yaml, schema-violation, malformed-frontmatter), and file list are the single taxonomy both modes share (R-2)"
+      exercised_by: [SC-1, SC-2]
+  behavioral_execution_paths:
+    - path: "analyze-step R-13 gate"
+      flow: "spec-creation analyze → agent decides to run the gate → executes validate-yaml [--number <repo>#N] → reads exit code → proceeds or BLOCKED"
+      change: "The executed command becomes the scoped form; BLOCKED semantics preserved for target violations, removed for unrelated drift"
+      exercised_by: [SC-3, SC-4]
+      verified_live: "analyze.md Step 5.3 line 82 currently mandates the unscoped form — grep 2026-09-17"
+    - path: "create-step R-13 gate"
+      flow: "spec-creation create → artifacts written → agent runs the gate → proceeds or BLOCKED"
+      change: "Same scoped invocation + scoped-primary contract at the create site"
+      exercised_by: [SC-5]
+      verified_live: "create.md Step 6.1 lines 185-187 currently run the unscoped form over affected repos — grep 2026-09-17"
+    - path: "issues-data drift repair"
+      flow: "agent encounters issues-data schema drift → repairs directly (local-issues update/sync or .issues/ file edits) → continues; no spec-creation dispatch, no authorization halt"
+      change: "Mandate text in both governing docs authorizes this path as agent hygiene"
+      exercised_by: [SC-6, SC-7]
+      verified_live: "Authorization section line 157 (extends naturally); worktree section line 216 — grep 2026-09-17"
+    - path: "remote-first spec filing"
+      flow: "spec pipeline (platform != local) → remote create FIRST → take N from create response → local {issues_prefix}/{N}/ setup after"
+      change: "Reservation mandate (clean-room-restartable context) added at three sites; existing remote-number-first mechanics preserved"
+      exercised_by: [SC-8, SC-9, SC-10]
+      verified_live: "Workflow line 68; create.md Step 3 line 71; creation.md Step 2.1 line 162 — grep 2026-09-17"
+  unchanged_paths_guarded_by_r5:
+    - path: "no-flag workspace scan"
+      flow: "cmd_validate_yaml() with no flags → walks ISSUES_DIR across all tracked repos → union of findings → exit 0/1"
+      guarantee: "Byte-for-byte unchanged (R-5) — the maintenance audit surface"

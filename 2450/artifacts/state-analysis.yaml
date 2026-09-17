@@ -1,0 +1,50 @@
+artifact_name: state-analysis
+generated_at: 2026-09-17
+source: "Spec #2450 — workspace and numbering state transitions, live verification 2026-09-17"
+content:
+  description: "State spaces the scoped mode and the governance mandates operate over, with transitions"
+  validation_states:
+    state_variables:
+      - name: target_issue_records
+        values: [clean, violating, absent, empty-dir, blank-file]
+      - name: workspace_rest
+        values: [clean, unrelated-violations]
+      - name: invocation_mode
+        values: [scoped --number, no-flag default]
+    transitions:
+      - from: "scoped × clean-target × unrelated-violations"
+        to: "exit 0 — pipeline proceeds"
+        note: "core semantic (R-3); the defect this spec removes"
+      - from: "scoped × violating-target × any-workspace"
+        to: "exit 1 with target-only '<path>: <error-class>' lines — pipeline for that issue BLOCKED"
+        note: "BLOCKED-on-target-violations preserved (SC-4/SC-5)"
+      - from: "scoped × absent-target"
+        to: "fail-fast error naming the directory, non-zero exit, no scan (R-10)"
+      - from: "scoped × bare-number"
+        to: "qualifier rejection (R-11)"
+      - from: "no-flag × any-workspace"
+        to: "unchanged full-scan semantics (R-5)"
+  governance_states:
+    - state: "drift present, mandate absent (current)"
+      behavior: "agent requests spec or halts; drift persists; pipelines block at the unscoped gate"
+      transitions_to: "drift present, mandate present (SC-6/SC-7)"
+    - state: "drift present, mandate present"
+      behavior: "agent repairs as authorization-free hygiene; no spec-creation dispatch; workspace-wide scan surfaces drift for maintenance only"
+      verified_live: "root + submodule validate-yaml exit 0 post-repair (2026-09-17) — the repaired baseline the mandate protects"
+  numbering_states:
+    - state: "local-first reservation (current defect)"
+      behavior: "local stub takes N; remote independently assigns N elsewhere → split-brain collision → forced renumber (observed live 2026-09-17: .opencode#2450 stub → remote 2450 assigned elsewhere → local renumbered to 2451)"
+      transitions_to: "remote-first reservation (SC-8/SC-9/SC-10)"
+    - state: "remote-first reservation"
+      behavior: "remote create reserves N with clean-room-restartable context; local record created at exactly N; .counter advanced past N (existing mechanics); concurrent pipelines serialize on the remote create response"
+    - state: "local-only mode (platform == local)"
+      behavior: "reservation mandate inapplicable — counter-based local numbering is the documented fallback (creation.md Step 2.2 mechanics preserved)"
+  failure_recovery_states:
+    - condition: "scoped flag delivered but a card still references the unscoped form"
+      recovery: "SC-3..SC-5 behavioral verdicts (supporting greps) FAIL → remediation extends the assertion set to the missed site"
+    - condition: "mandate doc site missed"
+      recovery: "SC-6..SC-10 per-site verdicts FAIL → extend to the missed doc; repair is authorization-free per the hygiene mandate"
+  invariants:
+    - "scoping narrows what is examined, never what counts as a violation"
+    - "the tool never mutates files (read-only gate) in either mode"
+    - "remote reservation is the number source of record whenever a remote spec system exists"

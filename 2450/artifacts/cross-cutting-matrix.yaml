@@ -1,0 +1,62 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-09-17
+source: "Spec #2450 — SC × concern matrix, validation-finding revision (10 SCs after per-site split)"
+content:
+  description: "Which concerns each success criterion cuts across; behavioral SCs marked with their runtime-behavioral substrate"
+  matrix:
+    - sc: SC-1
+      criterion: "Scoped mode validates only the target's records with scoped exit-code semantics"
+      concerns: [tool-cli-semantics, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "exit-code semantics = observable tool output"
+    - sc: SC-2
+      criterion: "Report format parity between scoped and workspace modes"
+      concerns: [tool-cli-semantics, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "emitted report lines = observable tool output"
+    - sc: SC-3
+      criterion: "analyze.md R-13 gate invokes the scoped form as the progress-gating check"
+      concerns: [pipeline-gate-enforcement, tool-cli-semantics, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "tool selection + gate command execution by the gate-running agent (uplifted from string per critical-rules-BEH-EV)"
+    - sc: SC-4
+      criterion: "analyze.md gate contract: scoped-primary, workspace-secondary, MUST NOT gate on unrelated records"
+      concerns: [pipeline-gate-enforcement, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "enforcement gate outcome — pipeline proceeds amid unrelated workspace violations (uplifted from string)"
+    - sc: SC-5
+      criterion: "create.md gate site: scoped invocation + scoped-primary contract"
+      concerns: [pipeline-gate-enforcement, tool-cli-semantics, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "tool selection + enforcement gate outcome at the create step (uplifted from string)"
+    - sc: SC-6
+      criterion: "Hygiene mandate in .opencode/.issues/AGENTS.md"
+      concerns: [issues-data-governance, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "agent repair behavior — repairs drift without spec request or authorization halt (uplifted from string)"
+    - sc: SC-7
+      criterion: "Hygiene mandate in .opencode/AGENTS.md worktree section"
+      concerns: [issues-data-governance, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "agent repair behavior at the second governing surface (uplifted from string)"
+    - sc: SC-8
+      criterion: "Reservation mandate in .opencode/.issues/AGENTS.md Workflow"
+      concerns: [spec-number-reservation, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "pipeline filing order — remote create precedes local folder setup (uplifted from string)"
+    - sc: SC-9
+      criterion: "Reservation mandate in create.md Step 3"
+      concerns: [spec-number-reservation, pipeline-gate-enforcement, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "filing order through the spec-creation create step (uplifted from string)"
+    - sc: SC-10
+      criterion: "Reservation mandate in creation.md Step 2.1"
+      concerns: [spec-number-reservation, test-infrastructure]
+      evidence_type: behavioral
+      behavioral_substrate: "filing order through the issue-operations creation flow (uplifted from string)"
+  single_deliverable_check:
+    rule: "One SC = one deliverable/site"
+    result: "PASS — SC-1/SC-2 (tool suite); SC-3/SC-4 (analyze.md); SC-5 (create.md gate); SC-6 (.opencode/.issues/AGENTS.md hygiene); SC-7 (.opencode/AGENTS.md hygiene); SC-8 (.opencode/.issues/AGENTS.md Workflow); SC-9 (create.md Step 3); SC-10 (creation.md Step 2.1)"
+  verification_independence:
+    rule: "Split SCs of one mandate share semantics verbatim, each verifiable by its own assertion set"
+    mandates: "SC-6/SC-7 (one hygiene mandate, two sites); SC-8/SC-9/SC-10 (one reservation mandate, three sites)"

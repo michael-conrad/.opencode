@@ -1,0 +1,61 @@
+artifact_name: testability-assessment
+generated_at: 2026-09-17
+source: "Spec #2450 — evidence-type assignments, validation-finding revision (behavioral uplift + per-site split)"
+content:
+  description: "Evidence type and verification method per SC; behavioral verdicts via with-test-home real-model runs with session.yaml clean-room evaluation; grep demoted to supporting content-verification"
+  assignments:
+    - sc_id: SC-1
+      criterion: "Scoped mode: target-only validation with scoped exit-code semantics"
+      evidence_type: behavioral
+      verification_method: "executed pytest under .opencode/tests/test_local_issues/ — clean target amid violating neighbors exits 0; violating target exits 1 (extends test_validate_yaml_exit_codes.py patterns)"
+    - sc_id: SC-2
+      criterion: "Report format parity scoped vs workspace"
+      evidence_type: behavioral
+      verification_method: "executed pytest asserting scoped output equals workspace output filtered to the target's paths (same format + error classes)"
+    - sc_id: SC-3
+      criterion: "analyze.md gate invokes the scoped form"
+      evidence_type: behavioral
+      verification_method: "with-test-home real-model run: gate-running agent executes validate-yaml --number <repo>#<issue-under-analysis>; session.yaml (clean-room sub-agent inspection) shows the scoped command in tool-call evidence. SUPPORTING ONLY (not verdict): grep Step 5.3 for scoped invocation / absence of unscoped gating command"
+      uplift_note: "uplifted from string per critical-rules-BEH-EV — agent-facing enforcement text changes tool selection at runtime"
+    - sc_id: SC-4
+      criterion: "analyze.md gate contract scoped-primary/workspace-secondary"
+      evidence_type: behavioral
+      verification_method: "with-test-home real-model run: analyze pipeline completes amid unrelated workspace violations; session.yaml shows completion (not BLOCKED) with scoped gate recorded. SUPPORTING ONLY: grep Step 5.3 body + exit criteria + result contract for scoped-primary/secondary language and MUST-NOT-gate clause, and absence of workspace-wide-remediation requirements"
+      uplift_note: "uplifted from string — enforcement gate outcome is runtime behavior"
+    - sc_id: SC-5
+      criterion: "create.md gate site: scoped invocation + contract"
+      evidence_type: behavioral
+      verification_method: "with-test-home real-model run at the create step: scoped gate command executed, pipeline proceeds amid unrelated violations; session.yaml evidence. SUPPORTING ONLY: grep Step 6.1 body/exit criteria/result contract"
+      uplift_note: "uplifted from string; also strengthens the old SC-4 create.md half by requiring the scoped invocation there (contract coherence)"
+    - sc_id: SC-6
+      criterion: "Hygiene mandate in .opencode/.issues/AGENTS.md"
+      evidence_type: behavioral
+      verification_method: "with-test-home real-model run with injected issues-data drift (fixtures/setup/): agent repairs directly; session.yaml shows repair actions with NO spec-creation dispatch and NO authorization halt. SUPPORTING ONLY: grep for 'repair, remediate, and revise' + ALL-files scope + authorization-free/no-spec clause"
+      uplift_note: "uplifted from string — agent repair behavior is runtime behavior"
+    - sc_id: SC-7
+      criterion: "Hygiene mandate in .opencode/AGENTS.md worktree section"
+      evidence_type: behavioral
+      verification_method: "same archetype as SC-6, separate site; session.yaml repair-without-spec-request evidence. SUPPORTING ONLY: grep the worktree section"
+      uplift_note: "uplifted from string"
+    - sc_id: SC-8
+      criterion: "Reservation mandate in .opencode/.issues/AGENTS.md Workflow"
+      evidence_type: behavioral
+      verification_method: "with-test-home real-model run with remote environment (BEHAVIOR_NEEDS_REMOTE=1 / GitBucket container per tests-v2 §12-13): remote create precedes local setup, remote body carries clean-room-restartable context; session.yaml evidence. SUPPORTING ONLY: grep for MUST-be-filed-FIRST, clean-room-restart context, BEFORE-local-setup ordering, violation clause"
+      uplift_note: "uplifted from string — pipeline filing order is runtime behavior"
+    - sc_id: SC-9
+      criterion: "Reservation mandate in create.md Step 3"
+      evidence_type: behavioral
+      verification_method: "same archetype through the spec-creation create step (remote-enabled); session.yaml filing-order evidence. SUPPORTING ONLY: grep Step 3"
+      uplift_note: "uplifted from string"
+    - sc_id: SC-10
+      criterion: "Reservation mandate in creation.md Step 2.1"
+      evidence_type: behavioral
+      verification_method: "same archetype through the issue-operations creation flow (remote-enabled); session.yaml filing-order evidence. SUPPORTING ONLY: grep Step 2.1"
+      uplift_note: "uplifted from string"
+  evidence_discipline:
+    verdict_basis: "session.yaml clean-room sub-agent inspection per tests-v2/AGENTS.md — stderr/stdout grep helpers are FORBIDDEN as behavioral verdicts (EVIDENCE_TYPE_MISMATCH)"
+    supporting_role: "grep-class content assertions retained as supporting content-verification only — they corroborate that the governing text exists; they never substitute for the behavioral run"
+    item_ordering: "behavioral items (3-10) follow the behavioral variant: COMMIT → PUSH → fresh fetch containment check → behavioral run (091-incremental-build)"
+  cost_tier_alignment:
+    behavioral_tier: "minutes execution, 1× DDL multiplier, BREAK (cost-model-standards tiered table)"
+    string_tier_trap: "grep-only verdicts on runtime-behavioral SCs = string PASS → behavioral FAIL in production → 100×–1000× discovery latency — the §10 cost frames price SC-3..SC-10 at the behavioral tier accordingly"

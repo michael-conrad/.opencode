@@ -1,0 +1,35 @@
+artifact_name: concern-map
+generated_at: 2026-09-17
+source: "Spec #2450 (scoped validate-yaml mode + hygiene/reservation mandates) — validation-finding revision"
+content:
+  description: "Functional concerns the spec touches, with the SCs and files mapped to each"
+  concerns:
+    - concern: tool-cli-semantics
+      description: "The validate-yaml command surface: flag parsing, target resolution, exit-code semantics, report emission"
+      scs: [SC-1, SC-2]
+      files: [".opencode/tools/local-issues", ".opencode/tests/test_local_issues/"]
+      risk: "Semantics regression — scoped mode must gate on target state only (R-3), never workspace state; default no-flag scan byte-for-byte unchanged (R-5)"
+    - concern: pipeline-gate-enforcement
+      description: "The R-13 gate's runtime behavior in the spec-creation task cards: which command the gate-running agent executes and what gates progress"
+      scs: [SC-3, SC-4, SC-5]
+      files: [".opencode/skills/spec-creation/tasks/analyze.md", ".opencode/skills/spec-creation/tasks/create.md"]
+      risk: "Agent-facing enforcement text changes runtime behavior (enforcement gate outcomes, tool selection) — hence behavioral evidence, per critical-rules-BEH-EV automatic uplift"
+    - concern: issues-data-governance
+      description: "Repair authority over the issues-data worktrees: drift repair as authorization-free agent hygiene"
+      scs: [SC-6, SC-7]
+      files: [".opencode/.issues/AGENTS.md", ".opencode/AGENTS.md"]
+      risk: "Mandate absent → drift sits unrepaired until it blocks a pipeline (the observed 374-file failure); mandate present → agent repair behavior changes (behavioral evidence)"
+    - concern: spec-number-reservation
+      description: "Remote-first reservation of spec numbers to prevent split-brain local/remote collisions"
+      scs: [SC-8, SC-9, SC-10]
+      files: [".opencode/.issues/AGENTS.md", ".opencode/skills/spec-creation/tasks/create.md", ".opencode/skills/issue-operations-core/tasks/creation.md"]
+      risk: "Local-first setup repeats the observed 2450→2451 collision; pipeline filing order changes (behavioral evidence)"
+    - concern: test-infrastructure
+      description: "Verification substrate: pytest suite for SC-1/SC-2; with-test-home behavioral harness for SC-3..SC-10"
+      scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+      files: [".opencode/tests/test_local_issues/", ".opencode/tests-v2/behaviors/"]
+      risk: "Substituting grep for behavioral runs is EVIDENCE_TYPE_MISMATCH — session.yaml clean-room evaluation is the verdict basis; grep is supporting only"
+  cross_concern_interactions:
+    - "pipeline-gate-enforcement depends on tool-cli-semantics: the gate cannot invoke the scoped form until the flag exists (Item 3-5 depend on Item 1)"
+    - "issues-data-governance removes the repair path's authorization friction that pipeline-gate-enforcement used to impose workspace-wide"
+    - "spec-number-reservation prevents the numbering collisions that would otherwise corrupt cross-references between all other concerns"

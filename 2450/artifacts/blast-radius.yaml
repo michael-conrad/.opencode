@@ -1,0 +1,54 @@
+artifact_name: blast-radius
+generated_at: 2026-09-17
+source: "Spec #2450 (scoped validate-yaml mode + hygiene/reservation mandates) — validation-finding revision: behavioral uplift + per-site split"
+content:
+  description: "All files affected by the scoped validation mode, the R-13 gate scoping, and the two governance mandates; every path existence-verified live 2026-09-17"
+  affected_files:
+    - path: ".opencode/tools/local-issues"
+      change: "Add --number repo#N scoped mode to cmd_validate_yaml (qualified-form resolution, exact-match directory lookup, scoped exit semantics R-3, fail-fast R-10, bare-number rejection R-11); emit through the shared _scan_issue_dir_errors path for format parity (R-4)"
+      exists: true
+      verified: "read 2026-09-17 (this revision session)"
+      scs: [SC-1, SC-2]
+    - path: ".opencode/tests/test_local_issues/"
+      change: "New scoped-mode pytest tests extending the existing test_validate_yaml_exit_codes.py fixture/assertion patterns (R-9)"
+      exists: true
+      verified: "ls 2026-09-17 (this revision session)"
+      scs: [SC-1, SC-2]
+    - path: ".opencode/skills/spec-creation/tasks/analyze.md"
+      change: "Step 5.3 (line 82): gate invocation becomes scoped --number <repo>#<issue-under-analysis> (R-6/SC-3); Step 5.3 body + exit criteria (line 103) + result contract (lines 114-115): scoped-primary/workspace-secondary MUST-NOT-gate contract (R-7/SC-4)"
+      exists: true
+      verified: "grep 2026-09-17 (this revision session)"
+      scs: [SC-3, SC-4]
+    - path: ".opencode/skills/spec-creation/tasks/create.md"
+      change: "Step 6.1 (lines 185-187) + exit criteria (line 212) + result contract (lines 229-230): scoped invocation + scoped-primary contract at the create gate site (R-8/SC-5); Step 3 (line 71): remote-first reservation mandate with clean-room-restartable context and local-first-is-a-violation clause (R-16/SC-9)"
+      exists: true
+      verified: "grep 2026-09-17 (this revision session)"
+      scs: [SC-5, SC-9]
+    - path: ".opencode/.issues/AGENTS.md"
+      change: "Authorization section (line 157) extended with the issues-data hygiene mandate (R-12/SC-6); Workflow section (line 68) gains the remote-first reservation mandate (R-15/SC-8)"
+      exists: true
+      verified: "grep of section headers 2026-09-17 (this revision session)"
+      scs: [SC-6, SC-8]
+    - path: ".opencode/AGENTS.md"
+      change: "'.issues/ Is a Worktree — NOT a Regular Directory' section (line 216) states the hygiene mandate: repair authority is the agent's authorization-free responsibility (R-14/SC-7)"
+      exists: true
+      verified: "grep 2026-09-17 (this revision session)"
+      scs: [SC-7]
+    - path: ".opencode/skills/issue-operations-core/tasks/creation.md"
+      change: "Step 2.1 Remote-First Flow (line 162) states the reservation mandate with clean-room-restartable context (R-17/SC-10)"
+      exists: true
+      verified: "grep 2026-09-17 (this revision session)"
+      scs: [SC-10]
+    - path: ".opencode/tests-v2/behaviors/"
+      change: "New behavioral scenarios for SC-3..SC-10: gate-runs-scoped (analyze + create), pipeline-proceeds-amid-unrelated-violations, repairs-drift-without-spec-request, remote-filed-first-with-clean-room-context (fixtures/setup/ for injected drift; BEHAVIOR_NEEDS_REMOTE / GitBucket container for reservation scenarios)"
+      exists: true
+      verified: "tests-v2/AGENTS.md read 2026-09-17 (this revision session)"
+      scs: [SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10]
+  related_files_not_modified:
+    - path: ".opencode/tools/local-issues"
+      relationship: "Schema definition (_schema_problem) untouched — only scan scoping is added; error-class constants and YAML_FILES reused as-is"
+    - path: ".opencode/skills/issue-operations-core/tasks/creation.md"
+      relationship: "Step 2.2 local-only counter path unchanged — the reservation mandate is conditional on a remote spec system existing"
+    - path: ".opencode/tests-v2/AGENTS.md"
+      relationship: "Harness specification consumed, not modified — behavior_run, session.yaml evaluation, fixtures, remote-env flags"
+  note: "SC-1/SC-2 target one deliverable each (tool+suite); SC-3..SC-10 are one-deliverable-per-site following the Single-Deliverable split (analyze contract site, create gate site, and one SC per governance-doc site). R-13 numbering is skipped (external R-13-gate identifier collision)."
