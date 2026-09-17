@@ -26,9 +26,9 @@ Check your tool list for a tool named `task`.
 ## Goal / Architecture / Files / Dispatch
 
 - **Issue:** .opencode/.issues/2432/spec.md
-- **Goal:** Make `local-issues` resolve repo/issue identity deterministically (qualifier enforcement on all commands, `PROJECT_DIR` anchoring), remediate the worktree bootstrap and counter targeting, harden YAML parsing (warn-and-skip), add `validate-yaml` and `doctor` subcommands, repair the 10 confirmed malformed tracking files, insert the `validate-yaml` gate into the spec-creation and writing-plans task cards, surface the session-resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules — resume when the session store survives, never blind-restart (SC-10), add persistent/shared test-home resumption as an implementation-agnostic capability contract (SC-11), and mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides, schema- and provider-agnostic (SC-12) — extended (R-18) so the deliberation/effectiveness review treats excessive run time as a primary defect signal: repeated timeouts, monitor aborts, large single-turn reasoning blocks, or budget exhaustion trigger cause tracing to instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior, with fixes folded in as an SC revision or additional spec, implemented on the stacked feature branch, tested for effectiveness, adjusted, and the pipeline continuing only after the fix is verified effective.
-- **Architecture:** Twelve per-SC TDD items in dependency order across six phases. All tool changes live in `.opencode/tools/local-issues` plus a new pytest unit module under `.opencode/tests/`. Repair commits land on issues-data worktree branches via the tool's auto-commit (R-10) — never as parent-repo tracked changes. Phase 6 fixes the timeout-recovery instructions (SC-10), adds the shared-home resumption capability (SC-11), and adds the deliberation-review mandate (SC-12).
-- **Files:** `.opencode/tools/local-issues`, new test module under `.opencode/tests/`, task cards under `.opencode/skills/spec-creation/tasks/` and `.opencode/skills/writing-plans/tasks/`, test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/`, behavioral scenario scripts and `.opencode/tests-v2/with-test-home`, live tracking data in `.opencode/.issues/` and `.issues/` (repair only, via tool auto-commit).
+- **Goal:** Make `local-issues` resolve repo/issue identity deterministically (qualifier enforcement on all commands, `PROJECT_DIR` anchoring), remediate the worktree bootstrap and counter targeting, harden YAML parsing (warn-and-skip), add `validate-yaml` and `doctor` subcommands, repair the 10 confirmed malformed tracking files, insert the `validate-yaml` gate into the spec-creation and writing-plans task cards, surface the session-resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules — resume when the session store survives, never blind-restart (SC-10), add persistent/shared test-home resumption as an implementation-agnostic capability contract (SC-11), mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides, schema- and provider-agnostic (SC-12) — extended (R-18) so the deliberation/effectiveness review treats excessive run time as a primary defect signal: repeated timeouts, monitor aborts, large single-turn reasoning blocks, or budget exhaustion trigger cause tracing to instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior, with fixes folded in as an SC revision or additional spec, implemented on the stacked feature branch, tested for effectiveness, adjusted, and the pipeline continuing only after the fix is verified effective — and mandate the default-model rule (SC-13): behavioral tests run on the harness's default test model (the single source of truth, `DEFAULT_TEST_MODEL` in `.opencode/tests-v2/default-model.sh`, currently `ollama/qwen3.8:27b-256k-gguf4`) unless the user explicitly directs otherwise — no model-shopping; remediation targets deck/prompt/fixture defects, not model selection.
+- **Architecture:** Thirteen per-SC TDD items in dependency order across six phases. All tool changes live in `.opencode/tools/local-issues` plus a new pytest unit module under `.opencode/tests/`. Repair commits land on issues-data worktree branches via the tool's auto-commit (R-10) — never as parent-repo tracked changes. Phase 6 fixes the timeout-recovery instructions (SC-10), adds the shared-home resumption capability (SC-11), adds the deliberation-review mandate (SC-12), and adds the default-model mandate (SC-13).
+- **Files:** `.opencode/tools/local-issues`, new test module under `.opencode/tests/`, task cards under `.opencode/skills/spec-creation/tasks/` and `.opencode/skills/writing-plans/tasks/`, test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/`, behavioral scenario scripts and `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/default-model.sh` docs plus `.opencode/tests-v2/AGENTS.md` §9/§5/§10.4 model-selection cross-references (SC-13), live tracking data in `.opencode/.issues/` and `.issues/` (repair only, via tool auto-commit).
 - **Dispatch:** Per-task cycle steps dispatch as task cards per the implementation-workflow reference card; commit-inline steps are executed directly by the orchestrator.
 
 ## Blast Radius
@@ -57,12 +57,12 @@ Check your tool list for a tool named `task`.
 | 3 | YAML warn-and-skip hardening + validate-yaml | parse gate | SC-05, SC-06 | none | 28-37 | direct (28-29, 36-37) + task-card (30-35) |
 | 4 | Malformed tracking file repair | repair | SC-07 | Phase 3 | 38-44 | direct (38-39) + task-card (40-43) + auto-commit (44) |
 | 5 | Pipeline validate-yaml gate insertion | integration | SC-09 | Phase 3 | 45-58 | direct (45-46) + task-card (47-57) + direct (58) |
-| 6 | Session-resumption mandate + shared test home + deliberation review | test-framework | SC-10, SC-11, SC-12 | Phase 3 | 60-78 | direct (60-61, 70-78) + task-card (62-69) |
+| 6 | Session-resumption mandate + shared test home + deliberation review + default-model mandate | test-framework | SC-10, SC-11, SC-12, SC-13 | Phase 3 | 60-84 | direct (60, 63, 65, 68, 71, 74, 77, 81, 84) + task-card (62, 64, 66-67, 69-70, 72-73, 75-76, 79-80, 82-83) |
 | — | Post-implementation (after Phase 6) | pipeline gates | all | Phases 1-6 | see Phase 5/6 | mixed |
 
 ## Exit Criteria
 
-- C1: All twelve SCs verified PASS with behavioral evidence artifacts under `tmp/2432/`.
+- C1: All thirteen SCs verified PASS with behavioral evidence artifacts under `tmp/2432/`.
 - C2: Phase 1 items committed in DAG order; Phase 2 depends on Phase 1 commits; Phases 4 and 5 depend on Phase 3; Phase 6 items committed after their RED evidence.
 - C3: Phase-4 repair commits exist only on issues-data worktree branches (parent repo untouched).
 - C4: Post-implementation gates (audit, z3-check, structural-checks, pre-pr-gate, regression-check) all clean before review-prep.
@@ -71,7 +71,7 @@ Check your tool list for a tool named `task`.
 ## Pre-Implementation Steps
 
 - [ ] 1. Coherence gate — verify plan fidelity to spec
-  - Confirm every SC-01..SC-09 maps to exactly one item in exactly one phase per the structure artifact; confirm the phase DAG is acyclic (phase-1 → phase-2; phase-3 → phase-4; phase-3 → phase-5).
+  - Confirm every SC-01..SC-13 maps to exactly one item in exactly one phase per the structure artifact; confirm the phase DAG is acyclic (phase-1 → phase-2; phase-3 → phase-4; phase-3 → phase-5; phase-3 → phase-6 with SC-10 → SC-11 → SC-12 → SC-13 inside phase 6).
   - Confirm the verification ledger exists at `.opencode/.issues/2432/artifacts/plan-input-verification.md` and record the gate outcome.
   - (**direct**)
 - [ ] 2. Baseline check — verify clean starting state
@@ -382,23 +382,25 @@ Check your tool list for a tool named `task`.
 
 ## Phase 6 — Session-resumption mandate + shared test home
 
-- **Concern:** test-framework defect fix — surface the resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules (SC-10), make cross-invocation resumption possible via an implementation-agnostic capability contract (SC-11), and mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides (SC-12). Evidence: 14 isolated-harness runs aborted over ~7h during SC-09 behavioral testing; two bash-tool-timeout kills were recoverable via §10.7 resumption (documented PRIMARY path; full re-run prohibited per line 677) but the agent never applied it.
-- **Files:** test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/` (red, green, post-regression), behavioral scenario scripts under `.opencode/tests-v2/behaviors/`, `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/AGENTS.md` (§10.7/§14 cross-reference updates), `.opencode/tools/session-to-timeline` (deliberation-evidence source for SC-12).
-- **SCs:** SC-10, SC-11, SC-12.
-- **Dependencies:** Phase 3 (harness availability); SC-11 builds on SC-10's instruction surfacing for end-to-end usefulness; SC-12 builds on Items 10-11 for session-evidence availability.
+- **Concern:** test-framework defect fix — surface the resumption mandate at the point of timeout-kill as framework-agnostic behavioral rules (SC-10), make cross-invocation resumption possible via an implementation-agnostic capability contract (SC-11), mandate deliberation review of behavioral test evidence over whatever reasoning/deliberation evidence the session store provides (SC-12), and mandate the default-model rule (SC-13): behavioral tests run on the harness's default test model (single source of truth, currently `ollama/qwen3.8:27b-256k-gguf4` in `.opencode/tests-v2/default-model.sh`) unless the user explicitly directs otherwise — no model-shopping; remediation targets deck/prompt/fixture defects. Evidence: 14 isolated-harness runs aborted over ~7h during SC-09 behavioral testing; two bash-tool-timeout kills were recoverable via §10.7 resumption (documented PRIMARY path; full re-run prohibited per line 677) but the agent never applied it; and the default-model policy existed only as harness change-control prose, so agents model-shopped instead of remediating.
+- **Files:** test-driven-development task cards under `.opencode/skills/test-driven-development/tasks/` (red, green, post-regression), behavioral scenario scripts under `.opencode/tests-v2/behaviors/`, `.opencode/tests-v2/with-test-home`, `.opencode/tests-v2/AGENTS.md` (§10.7/§14 cross-reference updates for SC-10/SC-11; §9 Default Model and §5 Model Config Generation cross-references for SC-13), `.opencode/tests-v2/default-model.sh` docs comment (SC-13), `.opencode/tools/session-to-timeline` (deliberation-evidence source for SC-12).
+- **SCs:** SC-10, SC-11, SC-12, SC-13.
+- **Dependencies:** Phase 3 (harness availability); SC-11 builds on SC-10's instruction surfacing for end-to-end usefulness; SC-12 builds on Items 10-11 for session-evidence availability; SC-13 builds on Items 10-12 for harness and review-instruction context.
 - **Entry:** Phase 3 committed; isolated harness operational.
-- **Exit:** SC-10, SC-11, and SC-12 verified PASS via behavioral harness; timeout-recovery scenario asserts resumption dispatch; resume-after-timeout scenario asserts prior session-state reachability; deliberation-review scenario asserts deliberation-evidence inspection; commits landed.
+- **Exit:** SC-10, SC-11, SC-12, and SC-13 verified PASS via behavioral harness; timeout-recovery scenario asserts resumption dispatch; resume-after-timeout scenario asserts prior session-state reachability; deliberation-review scenario asserts deliberation-evidence inspection; model-substitution scenario asserts default-model adherence with user-directed override honored; commits landed.
 
 ### Code Path Coverage
 
 - Task-card edit path: RED/GREEN/post-regression cards gain the resumption directive at the timeout-recovery decision point, expressed as framework-agnostic behavioral rules (R-15) — resume when the session store survives, never blind-restart; no hardcoded flags or paths.
 - Harness provisioning path: the harness gains a resumption capability satisfying the contract — a test home that survives across invocations and exposes prior session state to the harness (R-16). Implementation-agnostic: any mechanism (stable home path per scenario, explicit resume option, or equivalent) qualifies; no language, storage engine, or CLI surface is mandated.
 - Evidence-review path: review instructions gain the deliberation-review directive — inspect whatever reasoning/deliberation evidence the session store provides (reasoning events/thinking traces in session evidence, via `session-to-timeline` where applicable) for excessive deliberation, false starts, off-track reasoning, and prompt/fixture-induced derailment (R-17); schema- and provider-agnostic. The instructions additionally gain the excessive-run-time defect-signal rule (R-18): when a behavioral run takes excessively long (repeated timeouts, monitor aborts, large single-turn reasoning blocks, budget exhaustion), the reviewer traces the cause to instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior; identified fixes are folded in as an SC revision or an additional spec, implemented on the stacked feature branch, tested for effectiveness, adjusted, and the pipeline continues only after the fix is verified effective.
+- Default-model mandate path: test-driven-development task cards (where model selection or behavioral-run instructions are mentioned) and tests-v2 docs (AGENTS.md §9 Default Model cross-reference, §5 Model Config Generation wording, with-test-home/default-model docs) gain the default-model directive (R-20) — run on the harness default model (the single source of truth, `DEFAULT_TEST_MODEL`, currently `ollama/qwen3.8:27b-256k-gguf4`) unless the user explicitly directs otherwise; model-shopping to work around failures is PROHIBITED; remediation targets the R-18 defect classes, never model selection; an override applies only when the user explicitly directs it. The rule references the default-model definition mechanism, never a hardcoded model string.
 
 ### Cross-Cutting SCs
 
 - R-15 spans SC-10's task-card and scenario-script edits: blind restart after an interrupt is marked PROHIBITED, mirroring tests-v2 AGENTS.md line 677.
 - R-16: fresh-invocation behavior (new test home per invocation) is unchanged when resumption is not requested.
+- R-20: explicit user direction is the ONLY legitimate override path; changing the default model value itself stays governed by tests-v2 AGENTS.md §9 (approved-spec gate) and is out of scope.
 
 ### Interface Boundaries
 
@@ -457,16 +459,32 @@ Check your tool list for a tool named `task`.
   - (**task-card** — `task(..., prompt: "execute verify task from verification-before-completion")`)
 - [ ] 77. Commit item 12 (SC-12) — review-instruction changes + behavioral test, single commit
   - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` directly; no sub-agent dispatch)
-- [ ] 78. (reserved — end of Phase 6 step range; SC-12 complete)
+- [ ] 78. (reserved — SC-12 complete)
+- [ ] 79. RED for item 13 (SC-13) — default-model mandate, behavioral, with-test-home harness
+  - Run a model-substitution scenario through the isolated harness; assert the mandate is absent — an executing agent facing a failing or slow behavioral test substitutes a non-default model on its own initiative instead of continuing on the harness default and tracing the failure to deck/prompt/fixture defects. FAILS before the change.
+  - (**task-card** — `task(..., prompt: "execute red task from test-driven-development")`)
+- [ ] 80. GREEN for item 13 (SC-13) — task-card / tests-v2 docs edits
+  - test-driven-development task cards (where model selection or behavioral-run instructions are mentioned) and tests-v2 docs (AGENTS.md §9 Default Model cross-reference, §5 Model Config Generation wording, with-test-home/default-model docs) add the default-model directive at the model-selection decision point, expressed as a mechanism-agnostic rule: run on the harness default model (the single source of truth — `DEFAULT_TEST_MODEL`, currently `ollama/qwen3.8:27b-256k-gguf4`) unless the user explicitly directs otherwise; model-shopping to work around failures is PROHIBITED; remediation targets instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior (R-18 classes), never model selection; an override applies only when the user explicitly directs it. No model string is hardcoded in the rule — it references whatever default-model definition mechanism the harness provides.
+  - (**task-card** — `task(..., prompt: "execute green task from test-driven-development")`)
+- [ ] 81. Commit + push the SC-13 change before the behavioral re-run
+  - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` then pushes; fresh `git fetch` verifies containment in a remote ref)
+- [ ] 82. Behavioral re-run for item 13 (SC-13) — model-substitution scenario
+  - Assert the executing agent continues on the default model and traces the failure to the R-18 defect classes (no substitution without explicit user direction); an explicit-user-direction override scenario asserts the user-directed model is applied.
+  - (**task-card** — `task(..., prompt: "execute phase-4 task from test-driven-development")`)
+- [ ] 83. Verify item 13 (SC-13)
+  - Behavioral re-run asserts default-model adherence and user-directed override handling; structural check confirms the test-driven-development task cards and tests-v2 docs (AGENTS.md §9 cross-reference, with-test-home/default-model docs) carry the default-model mandate.
+  - (**task-card** — `task(..., prompt: "execute verify task from verification-before-completion")`)
+- [ ] 84. Commit item 13 (SC-13) — instruction/doc changes + behavioral test, single commit
+  - (**direct** — orchestrator runs `git add <files> && git commit -m "<message>"` directly; no sub-agent dispatch)
 
 ### Phase Completion Block
 
-- Verify SC-10, SC-11, and SC-12 verdicts are PASS with behavioral evidence.
-- Daisy-chain check: SC-10's commit precedes SC-11's RED; SC-11's commit precedes SC-12's RED.
+- Verify SC-10, SC-11, SC-12, and SC-13 verdicts are PASS with behavioral evidence.
+- Daisy-chain check: SC-10's commit precedes SC-11's RED; SC-11's commit precedes SC-12's RED; SC-12's commit precedes SC-13's RED.
 
 ### Post-Implementation Steps (end of plan)
 
-> These gates run after Phase 6 (all twelve SCs verified). Post-implementation step numbers (52-59) were assigned when the plan had five phases; they are unchanged and remain the final sequence.
+> These gates run after Phase 6 (all thirteen SCs verified). Post-implementation step numbers (52-59) were assigned when the plan had five phases; they are unchanged and remain the final sequence.
 
 - [ ] 52. Audit — adversarial audit of the deliverable
   - (**task-card** — `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read \`audit/tasks/verification-audit-investigator.md\` first")` — followed by validator, evaluator, arbiter in sequence)
@@ -487,7 +505,7 @@ Check your tool list for a tool named `task`.
 
 ### Phase Completion Block
 
-- Verify SC-09 and SC-10/SC-11 verdicts are PASS with behavioral evidence; all post-implementation gates clean before PR creation.
+- Verify all thirteen SC verdicts are PASS with behavioral evidence; all post-implementation gates clean before PR creation.
 
 ---
 
@@ -519,3 +537,8 @@ Check your tool list for a tool named `task`.
   plan_file: .opencode/.issues/2432/plan.md
   phase_count: 6
   reason: "Developer directive (2026-09-16) — extended the SC-12 deliberation-review mandate (R-17) with R-18: the deliberation/effectiveness review MUST treat excessive run time as a primary defect signal (repeated timeouts, monitor aborts, large single-turn reasoning blocks, budget exhaustion) and trace the cause to instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior; fixes folded in as SC revision or additional spec, implemented on the stacked feature branch, tested for effectiveness, adjusted before the pipeline continues. Updated Goal, Phase 6 concern/code-path wording, and Item 12 steps 72-76; SC-01..SC-12 preserved"
+- timestamp: 2026-09-17T14:00:00Z
+  event: plan_revised
+  plan_file: .opencode/.issues/2432/plan.md
+  phase_count: 6
+  reason: "Developer directive (2026-09-17, fifth addition) — added SC-13 (default-model mandate, R-20, Phase 6 steps 79-84): behavioral tests MUST use the harness's default test model (single source of truth, currently ollama/qwen3.8:27b-256k-gguf4 in .opencode/tests-v2/default-model.sh, documented in tests-v2 AGENTS.md §9) unless the user explicitly directs otherwise; agents MUST NOT substitute other models on their own initiative — no model-shopping to work around failures; remediation targets deck/prompt/fixture defects (R-18 classes), not model selection. Updated Goal/Architecture/Files, Phase Table row 6 (step range 60-84), Exit Criteria C1, pre-implementation step 1, Phase 6 concern/files/SCs/deps/exit/code-path/cross-cutting sections, steps 78-84, Phase 6 completion block, post-implementation notes; SC-01..SC-12 preserved"

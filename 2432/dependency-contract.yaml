@@ -1,5 +1,5 @@
 # Dependency contract for issue 2432 (research task) — Z3 formalism
-# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration); P3 -> P6(test-framework); P6-SC10 -> P6-SC11 -> P6-SC12
+# Phase DAG: P1(identity) -> P2(infra); P3(parse-gate) -> P4(repair); P3 -> P5(integration); P3 -> P6(test-framework); P6-SC10 -> P6-SC11 -> P6-SC12 -> P6-SC13
 source_issue: ".opencode#2432"
 source_artifact: ".opencode/.issues/2432/artifacts/interface-compatibility.yaml"
 
@@ -73,3 +73,7 @@ dependency_contract:
     target: "behavioral test evidence review instructions (test-driven-development post-regression/verify task cards + behavioral scenario scripts) (SC-12)"
     type: "artifact schema"
     constraint: "review MUST inspect whatever reasoning/deliberation evidence the session store provides, defined generically and schema/provider-agnostic, for test-effectiveness findings (excessive deliberation, false starts, off-track reasoning, prompt/fixture-induced derailment); findings feed test-scenario/prompt adjustments and never alter SC pass/fail verdicts; absent deliberation evidence recorded as unavailable, never fabricated; SC-12 depends on SC-11's session-evidence availability"
+  - source: "harness default-model single source of truth (DEFAULT_TEST_MODEL in .opencode/tests-v2/default-model.sh, currently ollama/qwen3.8:27b-256k-gguf4; documented in tests-v2 AGENTS.md §9) (SC-13)"
+    target: "test-driven-development task cards (model-selection guidance) + tests-v2 docs (AGENTS.md §9/§5 cross-references, with-test-home/default-model docs) (SC-13)"
+    type: "artifact schema"
+    constraint: "behavioral tests MUST run on the harness default model unless the user explicitly directs otherwise; model-shopping to work around failures is PROHIBITED — remediation targets the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, harness behavior), never model selection; the mandate binds the default-model definition mechanism, never a hardcoded model string; explicit user direction is the only override path; default-model VALUE changes stay gated by approved spec per tests-v2 §9; SC-13 depends on SC-10/SC-11/SC-12 harness and review-instruction context"
