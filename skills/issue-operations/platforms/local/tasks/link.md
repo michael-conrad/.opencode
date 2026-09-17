@@ -38,12 +38,12 @@ ______________________________________________________________________
 
 | Step | Action                   | Command / Details                                                                                                                                                                |
 | ---- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | Read existing links      | `./.opencode/tools/local-issues read N --type links` — capture current `links.yaml` content                                                                                                        |
-| 2    | Validate link targets    | For `--child T`: verify local issue T exists (`./.opencode/tools/local-issues read T`). For `--github T`: validate T > 0. For `--related T` and `--blocked-by T`: if T is local, verify existence. |
+| 1    | Read existing links      | `./.opencode/tools/local-issues read <repo>#<N> --type links` — capture current `links.yaml` content                                                                                                        |
+| 2    | Validate link targets    | For `--child T`: verify local issue T exists (`./.opencode/tools/local-issues read <repo>#<T>`). For `--github T`: validate T > 0. For `--related T` and `--blocked-by T`: if T is local, verify existence. |
 | 3    | Check for duplicates     | Compare each new link against existing links in `links.yaml`. Warn on duplicates but allow them (deduplication is the caller's responsibility).                                  |
 | 4    | Check circular reference | For `--child T`: issue N's parent cannot be T. Verify by reading issue T's links. If circular, HALT.                                                                             |
 | 5    | Run link CLI             | `./.opencode/tools/local-issues link N [--github N] [--child N] [--related N] [--blocked-by N]` — updates `links.yaml`                                                                             |
-| 6    | Verify links             | `./.opencode/tools/local-issues read N --type links` — confirm all new link entries appear in YAML output                                                                                          |
+| 6    | Verify links             | `./.opencode/tools/local-issues read <repo>#<N> --type links` — confirm all new link entries appear in YAML output                                                                                          |
 | 7    | Report updated links     | Return `{ number: N, links_updated: [string] }` listing each link type + target                                                                                                  |
 
 ### Link Types and YAML Schema
@@ -91,7 +91,7 @@ github_links:
 
 Before adding a `--child` link, the agent MUST verify that the proposed child is not already N's ancestor:
 
-- [ ] 1. Read child target T's links (`./.opencode/tools/local-issues read T --type links`)
+- [ ] 1. Read child target T's links (`./.opencode/tools/local-issues read <repo>#<T> --type links`)
 - [ ] 1. If T has `parent: { number: N }`, the link would create a cycle — HALT
 - [ ] 1. If T already has record of N as a parent in `parent` field, the link would duplicate — warn but allow (caller may want explicit re-linking)
 
@@ -119,7 +119,7 @@ ______________________________________________________________________
 ## Exit Criteria
 
 - \[ \] CLI tool returned exit code 0
-- \[ \] `./.opencode/tools/local-issues read N --type links` shows all new link entries
+- \[ \] `./.opencode/tools/local-issues read <repo>#<N> --type links` shows all new link entries
 - \[ \] For `--child T`: T's `links.yaml` has N as `parent`
 - \[ \] `links_updated` array contains entries for each link type that was added
 - \[ \] No duplicate links were created (or duplicates were explicitly warned)

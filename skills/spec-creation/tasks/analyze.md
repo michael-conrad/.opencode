@@ -61,7 +61,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 
 - [ ] 5.1. Generate the 7 analytical artifacts consumed by `writing-plans`:
 
-- [ ] 1. **Blast radius** — Affected components and ripple effects per phase
+- [ ] 1. **Blast radius** — Affected components and ripple effects per phase. **Bounded-grounding rule (R-18):** Ground the blast radius from the spec's own affected-files/scope sections FIRST; only then inspect the primary target surface and its direct call sites (bounded reads). Record grounding coverage and any ungrounded assumptions in the artifact itself rather than exhaustively reading implementations. Deep code reading is warranted only when the spec's scope sections are insufficient to identify the affected surface.
 - [ ] 2. **Concern map** — Concern boundaries and separation per phase
 - [ ] 3. **Code path inventory** — Code paths touched by each phase
 - [ ] 4. **Cross-cutting matrix** — Cross-cutting concerns matrix
@@ -70,6 +70,20 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 - [ ] 7. **Testability assessment** — Test strategy per phase (unit, integration, behavioral, mixed)
 
 - [ ] 5.2. Write each artifact to `{project_root}/tmp/{issue_number}/artifacts/{name}.yaml`.
+
+**Incremental-emission rule (R-18):** Emit each artifact immediately upon deriving it — one artifact per write. Do NOT batch-derive all artifacts and then emit them in a single large turn. **Hard ordering — write before expand:** derive each artifact from the spec's scope sections plus the reads already performed, then WRITE it BEFORE any further reads; expanded grounding (additional reads) after a write is permitted only to fill an artifact section that could not be derived from what was already gathered, and the assumption being filled MUST be recorded in the artifact itself. Before deriving an artifact, check the artifacts directory for artifacts already written (e.g., by a prior interrupted run); on resumption, emit only the remaining artifacts without re-deriving artifacts already on disk.
+
+**Skeleton-first write (R-21):** For each artifact, immediately after reading the spec's scope sections and BEFORE any grounding reads, write a minimal valid skeleton artifact to the target path — the YAML header plus empty placeholder sections, a few lines long. All subsequent work on that artifact APPENDS to and refines the skeleton section-by-section, with one small write per section. Never accumulate a full artifact body across multiple reasoning turns before the first write: the skeleton on disk guarantees that an interrupt at any later point leaves a valid artifact (empty sections) rather than nothing. This rule refines the emission path only — grounding requirements are unchanged and still occur, only AFTER the skeleton write.
+
+**Action-first transition rule (R-21):** When a write is due — the skeleton write or any section append/refine — the agent's next assistant action MUST be the write tool call itself. No restating what will be written, no summarizing what was derived, no pre-write verification prose between the decision to write and the write call. The write transition is a tool call, not a paragraph.
+
+**Incident recovery (R-22):** if you make an unintended edit outside the artifact target, revert it with ONE immediate corrective tool call, record a one-line incident note in the artifact, and continue the task — deliberating about revert mechanics, re-reading policy rules, or re-planning before resuming is prohibited. Excessive deliberation over an incident is a deck-defect signal, not a model characteristic.
+
+- [ ] 5.3. **validate-yaml gate (R-13):** After the artifacts are written, run `./.opencode/tools/local-issues validate-yaml` over the affected repos (the root repo and, when the issue belongs to the `.opencode` submodule, the submodule repo via its qualified name). This gate is read-only — it NEVER mutates files. **Gate action-first (R-21):** when you have decided to run this gate, your next tool call MUST be the gate command itself — no intervening read, inspection, verification, or scoping call between the decision and the gate execution; record the command and its exit code immediately from that call's result.
+  - The gate MUST be executed directly by the agent performing this task — do NOT delegate it to another agent and report the outcome second-hand. A second-hand claim that the gate ran is NOT gate evidence.
+  - The result contract MUST include the literal gate invocation evidence: the exact command executed and its exit code (and, on exit 1, the malformed-file report lines). A prose claim that the gate ran — without the recorded command + exit code in the result contract — is treated as gate-not-run: return BLOCKED (or re-run the gate and capture the evidence).
+  - Exit 0 → continue to Step 6.
+  - Exit 1 → return the BLOCKED result contract with `blocker_reason: VALIDATE_YAML_FAILED`, naming each malformed file with its path and the error class from the report line. Do NOT fix or rewrite the malformed files.
 
 ### Step 6: Pipeline readiness gate
 
@@ -86,6 +100,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 ## Exit Criteria
 
 - [ ] All 7 analytical artifacts written to `{project_root}/tmp/{issue_number}/artifacts/`
+- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact generation, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files
 - [ ] Requirements extracted and verified against codebase
 - [ ] Pipeline readiness gate passed (or BLOCKED with findings)
 - [ ] No spec content written, no remote issue created, no holistic check run
@@ -96,5 +111,6 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 status: DONE | BLOCKED
 analysis_artifact_path: "{project_root}/tmp/{issue_number}/artifacts/"
 finding_summary: "Brief summary of analysis findings, key requirements, and decomposition structure"
-blocker_reason: "If BLOCKED: why the analysis could not complete"
+gate_evidence: "validate-yaml gate invocation: exact command executed (e.g., `./.opencode/tools/local-issues validate-yaml`) and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run."
+blocker_reason: "If BLOCKED: why the analysis could not complete (e.g., VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the validate-yaml report)"
 ```

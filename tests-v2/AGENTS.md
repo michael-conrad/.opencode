@@ -403,7 +403,7 @@ When a behavioral test times out (bash tool kills the script), the agent MUST NO
    - If the agent was going in the wrong direction → fix the prompt or fixtures
 6. **Document the finding** — if the exported session.yaml shows correct behavior, that IS the behavioral evidence. The timeout does not invalidate the evidence the agent produced up to that point.
 
-**🚫 FORBIDDEN:** Retrying the same test with the same model and same timeout expecting a different result. If the model is too slow for the prompt complexity, either simplify the prompt or use a faster model. Do not burn compute cycles on the same failing configuration.
+**🚫 FORBIDDEN:** Retrying the same test with the same configuration expecting a different result, and switching to a different model to work around a failing or slow test (model-shopping). Behavioral tests run on the harness default model — the single source of truth `DEFAULT_TEST_MODEL` in `default-model.sh` (Default-Model Mandate, R-20) — unless the user explicitly directs otherwise; substituting another model on the agent's own initiative is PROHIBITED. Remediation targets the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, harness behavior — e.g., simplify the prompt, fix the fixture, or raise the bash-tool timeout per this section) — never model selection. Do not burn compute cycles on the same failing configuration.
 
 ### Test Isolation Mandates — ZERO TOLERANCE
 
@@ -535,6 +535,8 @@ If a spec requires a different model, override via environment variable:
 ```bash
 DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
+
+**Default-Model Mandate (R-20):** Every behavioral test run uses the default test model defined by this single source of truth (`DEFAULT_TEST_MODEL` in `default-model.sh`) unless the user explicitly directs otherwise. Substituting another model on the agent's own initiative is PROHIBITED: model-shopping to work around a failing or slow test is a defect signal, and remediation targets the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior) — never model selection. A model override is legitimate only on explicit user direction (e.g., a user-directed per-run `DEFAULT_TEST_MODEL` env override as above, or a spec-directed default change gated by this section) and MUST be recorded with the direction that authorized it. The mandate binds the single-source-of-truth mechanism, not a hardcoded model string, so future default-model changes (gated by approved spec per this section) are picked up automatically.
 
 ### Binary Resolution
 
@@ -703,7 +705,15 @@ When a behavioral test times out (bash tool kills the script), session resumptio
 
 **🚫 FORBIDDEN:** Claiming resumption is impossible without attempting it. Resumption is the only valid first-line response to a timeout; the manual export + full re-run in §10.5 is the fallback for when resumption genuinely cannot run.
 
-**Known limitation (scope G, #2427):** `with-test-home` provisions a NEW test home per invocation, so `--continue` cannot reach a prior run's DB — resumption across invocations requires a shared-home mechanism that does not exist today. Within a single invocation (same test home), resumption works as documented above. The semantic continuous monitoring mandate (§14) replaces blind resume loops for off-track/hung runs: the monitor detects the stall mid-run and aborts with a recorded diagnosis instead of blindly resuming. Read [§14 Known Limitation](#14-known-limitation---continue-cannot-reach-a-prior-invocations-test-home).
+**Resumption across invocations (SC-11, #2432):** `with-test-home` provides a resumption capability via `--resume-home <path>`. When a prior invocation's test home survives an interrupt, a FOLLOW-UP invocation reuses that home — and its session store — instead of provisioning a fresh one, so `--continue` / `--session <id>` reach the prior invocation's session state:
+
+```bash
+bash .opencode/tests-v2/with-test-home --resume-home <prior-test-home> opencode run --continue
+# or, to target a specific session:
+bash .opencode/tests-v2/with-test-home --resume-home <prior-test-home> opencode run --session <id>
+```
+
+Guards: a missing/unreachable prior test home fails fast naming the home; a missing session store fails fast naming the store path; a corrupted/unreadable session store reports `FATAL:` naming the store path (R-5 analog). Fresh invocations (no `--resume-home`) are unchanged — a new test home per invocation. The flock/locking discipline in `behavior_run()` is unaffected (a resumed run passes through the same single-flock path).
 
 ## 11. Prompt Construction Mandate
 
@@ -883,6 +893,9 @@ Signal 4 is the semantic judgment and fires even when no mechanical threshold do
 | Blind `--continue` resume loops after a hung run | Resuming a run that was already off-track repeats the identical stall — §10.7 resumption is for genuinely progressing runs (e.g., bash tool timeout), not for off-track states the monitor detected |
 | Skipping the semantic diagnosis after an abort | An abort without a recorded diagnosis destroys the evidence the verdict needs — the diagnosis IS the monitoring evidence |
 | Structural-only verdicts from monitored runs | Behavioral SCs verified via monitored runs MUST record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — structural substitutes are EVIDENCE_TYPE_MISMATCH |
+| Treating excessive run time as model-speed-only and skipping cause analysis | Excessive run time is a PRIMARY defect signal (R-18) — a run that is "slow" is usually slow because of bad instructions, skill-deck wording, prompt construction, fixture state, or harness behavior; skipping the cause analysis re-pays the defect in inference time on every future run — see §17 |
+| Concluding hardware/model unavailability without direct deliberation-evidence review | Unavailability claims are conclusions about reasoning and require reasoning evidence — the reviewing agent MUST personally inspect the failed run's actions and thinking and trace the reasoning-failure scenario first; sub-agent diagnoses are inputs, not substitutes — see §18 (R-19) |
+| Model-shopping to work around a failing or slow test | Substituting a non-default model on the agent's own initiative runs tests on a configuration the harness has not verified and masks the R-18 defect classes — behavioral tests run on the harness default model (`DEFAULT_TEST_MODEL` in `default-model.sh`, R-20) unless the user explicitly directs otherwise; remediation targets the R-18 defect classes, never model selection — see §9 Change Control — Default Model |
 
 ### Abort Recovery Procedure
 
@@ -891,21 +904,21 @@ Signal 4 is the semantic judgment and fires even when no mechanical threshold do
 3. **Record the semantic diagnosis** — write the poll log and the abort judgment (which signal fired, the event-stream evidence, the semantic reasoning) to the scenario's evidence directory alongside session.yaml.
 4. **Evaluate on the partial evidence** — the scenario verdict is evaluated from session.yaml + the monitoring evidence; a run aborted for looping yields a valid FAIL/behavior-diagnosis verdict, not an INCONCLUSIVE.
 
-### `--continue` Known Limitation — with-test-home Provisions a NEW Test Home Per Invocation
+### Cross-Invocation Resumption — `--resume-home` (SC-11, #2432)
 
-**This section amends §10.7 (Session Resumption).** `with-test-home` provisions a NEW test home per invocation. The `--continue` / `--session <id>` resume flags therefore CANNOT reach a prior invocation's run: the session id lives in the PRIOR test home's SQLite DB, which the new invocation's test home does not contain. Resumption across `with-test-home` invocations requires a shared-home mechanism — provisioning a persistent test home that survives across invocations — which is not provided today.
+`with-test-home` provisions a NEW test home per invocation by default. For resumption across invocations, the harness provides `--resume-home <path>`: a FOLLOW-UP invocation reuses the named prior invocation's surviving test home and session store, so `--continue` / `--session <id>` reach the prior session state instead of landing in a fresh home. Guards: missing prior home or session store → fail fast naming the path; corrupted store → `FATAL:` naming the store path. Fresh invocations are unchanged. Full procedure and examples: Read [§10.7 Session Resumption](#107-session-resumption---mandatory-first-line-recovery-on-model-timeout).
 
-**Practical consequence:** blind resume loops across invocations are not merely wasteful — they cannot work. The semantic monitoring mandate (this section) replaces the blind-resume pattern for off-track/hung runs: the monitor detects the stall mid-run, aborts, exports, and diagnoses — no cross-invocation resumption is needed. §10.7 resumption remains valid WITHIN a single invocation (same test home, same session DB), e.g., when the bash tool timeout kills the harness wrapper while the session survives; it does NOT apply across invocations.
+The semantic continuous monitoring mandate (this section) still governs off-track/hung runs: the monitor detects the stall mid-run and aborts with a recorded diagnosis instead of blindly resuming — §10.7 resumption (now including cross-invocation `--resume-home`) is for genuinely progressing runs (e.g., bash tool timeout kill with the test home intact), not for off-track states the monitor detected.
 
-### §14 Known Limitation — `--continue` Cannot Reach a Prior Invocation's Test Home
+### §14 Cross-Invocation Resumption Anchor
 
-Anchor target for the §10.7 cross-reference — same content as the "with-test-home Provisions a NEW Test Home" section above; MD024 forbids duplicate headings, so this anchor note carries the cross-reference.
+Anchor target for the §10.7 cross-reference — same content as the "Cross-Invocation Resumption" section above; MD024 forbids duplicate headings, so this anchor note carries the cross-reference.
 
 ### Relationship to §10.5 / §10.7
 
 | Situation | Correct Path |
 |-----------|--------------|
-| Run is progressing but the bash tool timeout kills the wrapper | §10.7 resumption (within-invocation; same test home) — monitor evidence confirms progression |
+| Run is progressing but the bash tool timeout kills the wrapper | §10.7 resumption — within-invocation via `--continue`, or across invocations via `--resume-home <prior-test-home>` when a prior test home survived; monitor evidence confirms progression |
 | Monitor detects an off-track/loop state mid-run | §14 abort path: kill + §10.5 export + semantic diagnosis |
 | Resumption genuinely impossible AND no monitoring ran | §10.5 fallback (manual export + re-run) |
 
@@ -946,3 +959,56 @@ No whole-suite invocation mechanism exists in this harness: each `opencode run` 
 The stacked-PR ordering-gate behavioral tests (e.g., `2431-sc*.sh` in `behaviors/`) are the **behavioral-evidence instrument** for the ordering gate's blocking SCs: they generate clean-room model-run artifacts (`session.yaml`) that the two-SC pattern (§6a) pairs with clean-room evaluation — they prove what an agent DOES at parent-PR-creation time, and nothing else. They exercise **no runtime blocking authority** over stacked-PR ordering: a test script runs, produces artifacts, and exits — it never gates, blocks, or permits a real parent stacked PR. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
+
+## 17. Excessive Run Time — R-18 Cause-Analysis Mandate
+
+**Excessive run time in a behavioral run is a PRIMARY defect signal, not a nuisance to be tolerated.** Excessive run time means: repeated bash-tool timeouts, semantic-monitor aborts (§14 hard-abort signals), large single-turn reasoning blocks, or inference-budget exhaustion. A run that exhibits any of these is usually slow because something is wrong — bad instructions, a skill-deck defect, or another harness problem — not because the model is merely "slow."
+
+**AUTHORITY:** Spec `.opencode/.issues/2432/spec.md` R-18 (extension of the SC-12 deliberation-review directive R-17).
+
+### The Mandate
+
+When a behavioral run takes excessively long, the reviewer MUST trace the cause to one of the identified defect classes:
+
+| Defect Class | What to Inspect |
+|--------------|-----------------|
+| Instructions | The prompt/message sent to the run agent — ambiguous, contradictory, or under-specified directives |
+| Task-card/skill-deck wording | The task card or SKILL.md the run agent loaded — wording that induces excessive deliberation, false starts, or off-track reasoning |
+| Prompt construction | Prompt shape violating the §11 Prompt Construction Mandate — leading questions, embedded expectations, invalid prompt types |
+| Fixture state | Fixture issues, per-scenario fixture scripts, or repo state that derailed the run |
+| Harness behavior | `with-test-home`, monitor, or evaluation-harness behavior that inflated run time |
+
+### Fix Fold-In Procedure
+
+1. **Trace the cause** — use the session evidence (session.yaml, reasoning events, §14 monitoring evidence) to identify which defect class fired.
+2. **Fold in the fix** — record it as an SC revision or an additional spec; the fix is implemented on the stacked feature branch, never as a side channel.
+3. **Test effectiveness** — re-run the affected behavioral probe and verify the fix reduces the run time / eliminates the defect signal.
+4. **Adjust and continue** — adjust the fix until it verifies effective; the pipeline continues ONLY after the fix is verified effective. Re-running or blaming the model without cause analysis is PROHIBITED.
+
+This mandate extends the SC-12 deliberation-review directive (R-17): the same evidence review that inspects reasoning traces for excessive deliberation (R-17) also classifies excessive run time as a primary defect signal (R-18). Read [§14 Semantic Continuous Monitoring Mandate](#14-semantic-continuous-monitoring-mandate-behavioral-runs) for the abort signals that flag excessive runs in the first place.
+
+## 18. R-19 — No Hardware/Model-Unavailability Excuse Without Deliberation Evidence
+
+**An agent MUST NOT classify a behavioral-run failure as "hardware limit", "model unavailability", "unobtainable on this hardware", or any equivalent resource excuse without FIRST directly reviewing the actual session evidence of the failed run(s).** (Issue #2432 — extension of the §10.4 fabricated-model-excuse prohibition, and broader: it covers concluding "hardware/model cannot do this" at all.)
+
+**AUTHORITY:** Spec `.opencode/.issues/2432/spec.md` R-19 (extension of the SC-12 deliberation-review directive R-17).
+
+### The Mandate
+
+Before ANY unavailability or resource-limit conclusion, the reviewing agent MUST:
+
+1. **Personally inspect the exported session evidence** of the failed run(s) — the agent's actions (tool calls) and deliberation/thinking (reasoning parts in the session store, e.g. session.yaml / timeline reasoning events). Sub-agent diagnoses are inputs, not substitutes: aggregating sub-agent verdicts without reading the evidence yourself does not satisfy this mandate.
+2. **Trace the true reasoning-failure scenario** — what the run agent was thinking when it stalled, skipped a step, or derailed; which instruction it followed or ignored; where the deliberation went off-track (per the R-17 deliberation-review classes: excessive deliberation, false starts, off-track reasoning, prompt/fixture-induced derailment).
+3. **Cite the specific reasoning evidence reviewed** in any unavailability claim — the session, events, and reasoning excerpts — alongside the traced failure scenario.
+
+Absent that evidence, the claim is a fabricated excuse (extends §10.4): "the model cannot do this" and "the hardware cannot run this" are conclusions about reasoning, and conclusions about reasoning require reasoning evidence.
+
+### Prohibition
+
+| 🚫 FORBIDDEN | ✅ REQUIRED |
+| --- | --- |
+| Declaring "unobtainable on this hardware" after aggregating sub-agent diagnoses without reading the session evidence | Personally reviewing the failed run's tool calls and reasoning parts before any unavailability conclusion |
+| Citing model size, VRAM, timeout, or unavailability as the failure class without a traced reasoning-failure scenario | Tracing what the run agent was thinking when it stalled/skipped/derailed and which instruction it followed or ignored |
+| Treating sub-agent summary verdicts as evidence of unavailability | Citing the specific session, events, and reasoning excerpts reviewed |
+
+This mandate extends the SC-12 deliberation-review directive (R-17): the same deliberation evidence that identifies test-effectiveness findings is also the only admissible basis for a hardware/model-unavailability claim. Read [§10.4 Fabricated Model Excuses](#104-fabricated-model-excuses--absolute-prohibition) for the narrower tool-call-evidence requirement this section generalizes.

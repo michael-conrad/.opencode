@@ -103,7 +103,7 @@ ______________________________________________________________________
 
 | Error                                | Cause                                                              | Resolution                                                                                                          |
 | ------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| `./.opencode/tools/local-issues read N` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
+| `./.opencode/tools/local-issues read <repo>#<N>` exits non-zero | Issue directory missing or malformed                               | HALT. Verify `.issues/<N>/spec.md` exists.                                                                          |
 | No remote link in frontmatter        | Issue was created locally only, never promoted                     | HALT. Report "Issue #N has no remote link — no remote to pull from."                                                |
 | Remote API call fails                | Network error, auth failure, rate limit, issue not found on remote | HALT. Report the API error message. Do not retry without orchestrator instruction.                                  |
 | remote.md write fails                | Filesystem permissions, disk full                                  | HALT. Report filesystem error.                                                                                      |

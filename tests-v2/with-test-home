@@ -10,12 +10,23 @@
 #   bash .opencode/tests-v2/with-test-home --clean
 #   bash .opencode/tests-v2/with-test-home --clean-all
 #   bash .opencode/tests-v2/with-test-home --keep <command> [args...]   (default)
+#   bash .opencode/tests-v2/with-test-home --resume-home <path> <command> [args...]
 #
 # Options:
-#   --setup      Create test home, seed config, run smoke tests, print TEST_HOME=<path>
-#   --keep       Preserve test home after execution (default)
-#   --clean      Remove the most recent test home directory
-#   --clean-all  Remove ALL test home directories under tmp/
+#   --setup           Create test home, seed config, run smoke tests, print TEST_HOME=<path>
+#   --keep            Preserve test home after execution (default)
+#   --clean           Remove the most recent test home directory
+#   --clean-all       Remove ALL test home directories under tmp/
+#   --resume-home <path>
+#                     Resume against a PRIOR invocation's surviving test home
+#                     (session resumption, #2432 SC-11): reuse the existing home
+#                     and its session store instead of provisioning a fresh one,
+#                     so opencode run --continue/--session can reach the prior
+#                     session state. Fails fast when the prior test home or its
+#                     session store is missing, and reports FATAL when the
+#                     session store is corrupted/unreadable. Fresh invocations
+#                     (no --resume-home) are unchanged: a new test home per
+#                     invocation.
 #
 # Exit codes:
 #   0  - Command succeeded (or clean succeeded)
@@ -71,11 +82,15 @@ OPENCODE_CMD=("opencode")
 
 usage() {
     echo "Usage: bash .opencode/tests-v2/with-test-home [--setup|--keep|--clean|--clean-all] [command...]" >&2
+    echo "       bash .opencode/tests-v2/with-test-home --resume-home <path> [command...]" >&2
     echo "" >&2
     echo "  --setup           Create env, run smoke tests, print TEST_HOME=<path>" >&2
     echo "  --keep            Preserve test home after execution (default)" >&2
     echo "  --clean           Remove the most recent test home directory" >&2
     echo "  --clean-all       Remove ALL test home directories under tmp/" >&2
+    echo "  --resume-home <path>" >&2
+    echo "                    Resume against a prior invocation's surviving test home" >&2
+    echo "                    (session resumption); fails fast on missing/corrupt state" >&2
     exit 2
 }
 
@@ -358,6 +373,15 @@ case "$MODE" in
         KEEP_TEST_HOME=1
         shift
         ;;
+    --resume-home)
+        RESUME_HOME="${2:-}"
+        if [ -z "$RESUME_HOME" ]; then
+            echo "ERROR: --resume-home requires a path argument naming the prior test home" >&2
+            usage
+        fi
+        KEEP_TEST_HOME=1
+        shift 2
+        ;;
     --help|-h)
         usage
         exit 0
@@ -379,8 +403,43 @@ fi
 # on the same test project + test gitbucket instance. The shared home survives
 # between invocations and is only removed by --clean-all. TEST_WORKDIR holds the
 # shared project directory that is moved into (or reused as) the shared home's project.
+#
+# Session resumption (#2432 SC-11): --resume-home <path> reuses a PRIOR
+# invocation's surviving test home and its session store so the resumed run
+# targets the prior invocation's session state (opencode run --continue /
+# --session). Guards: missing test home → fail fast naming the home; missing
+# session store → fail fast naming the store; corrupted store → FATAL naming
+# the store path (R-5 analog). Fresh invocations are unchanged.
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ]; then
+if [ -n "${RESUME_HOME:-}" ]; then
+    # Resolve the prior test home; unreachable path fails fast naming it.
+    if ! RESOLVED_HOME="$(cd "$RESUME_HOME" 2>/dev/null && pwd)"; then
+        echo "HARNESS_FAILURE: resume failed — prior test home not found or unreachable at '$RESUME_HOME'" >&2
+        exit 1
+    fi
+    TEST_HOME="$RESOLVED_HOME"
+    SESSION_STORE="$TEST_HOME/.local/share/opencode/opencode.db"
+    if [ ! -f "$SESSION_STORE" ]; then
+        echo "HARNESS_FAILURE: resume failed — no prior session found: session store missing at $SESSION_STORE (test home: $TEST_HOME)" >&2
+        exit 1
+    fi
+    if ! python3 - "$SESSION_STORE" <<'PYRESUME'
+import sqlite3
+import sys
+
+try:
+    conn = sqlite3.connect(f"file:{sys.argv[1]}?mode=ro", uri=True)
+    conn.execute("PRAGMA schema_version").fetchone()
+    conn.execute("SELECT count(*) FROM sqlite_master").fetchone()
+except Exception:
+    sys.exit(1)
+PYRESUME
+    then
+        echo "FATAL: resume failed — session store corrupted or unreadable: $SESSION_STORE" >&2
+        exit 1
+    fi
+    KEEP_TEST_HOME=1
+elif [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ]; then
     TEST_HOME="$TMP_DIR/test-home-shared"
     KEEP_TEST_HOME=1
 else
@@ -389,7 +448,19 @@ fi
 mkdir -p "$TEST_HOME"
 
 # If TEST_WORKDIR is set, use it as the project directory (behavior_run pre-setup).
-if [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
+if [ -n "${RESUME_HOME:-}" ]; then
+    # Resumption: the prior invocation provisioned the home already — reuse its
+    # project and config as-is so the resumed run targets the prior session state.
+    TEST_PROJECT="$TEST_HOME/project"
+    if [ ! -d "$TEST_PROJECT" ]; then
+        echo "HARNESS_FAILURE: resume failed — test project directory missing at $TEST_PROJECT (test home: $TEST_HOME)" >&2
+        exit 1
+    fi
+    if [ ! -x "$TEST_HOME/bin/opencode" ]; then
+        echo "FATAL: resume failed — opencode binary missing at $TEST_HOME/bin/opencode (test home: $TEST_HOME)" >&2
+        exit 1
+    fi
+elif [ -n "${TEST_WORKDIR:-}" ] && [ -d "$TEST_WORKDIR" ]; then
     if [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ] && [ -d "$TEST_HOME/project" ]; then
         # Shared home already has a project (earlier invocation) — build on it.
         TEST_PROJECT="$TEST_HOME/project"
@@ -431,6 +502,9 @@ fi
 seed_model_config
 seed_gb_config
 
+# Resumption reuses the prior invocation's config, binary, and set-env.sh as-is —
+# skip re-provisioning entirely (fresh invocations only).
+if [ -z "${RESUME_HOME:-}" ]; then
 # Copy standalone binary to $TEST_HOME/bin so env -i PATH resolution finds it.
 STANDALONE_BINARY="$PROJECT_DIR/.tools/opencode/opencode"
 if [ -x "$STANDALONE_BINARY" ]; then
@@ -493,6 +567,7 @@ if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
 	SETENV_GB_TOKEN
 fi
 chmod +x "$TEST_HOME/set-env.sh"
+fi # end fresh-invocation provisioning (skipped on --resume-home)
 
 # Print [test-env] diagnostics before running the command.
 # TEST_HOME= on stderr is machine-parseable for __export_sqlite_to_yaml in helpers.sh

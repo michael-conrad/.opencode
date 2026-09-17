@@ -133,8 +133,8 @@ capabilities:
 All operations go through `./.opencode/tools/local-issues`:
 
 ```bash
-local-issues create [--scenario draft|promote|import-remote] [--title TITLE] [--labels L1,L2]
-local-issues read NNN [--type full|comments|labels|links|all]
+local-issues create --number <repo>#<N> --title TITLE [--labels L1,L2]
+local-issues read <repo>#<N> [--type full|comments|labels|links|all]
 local-issues update NNN [--title T] [--status S] [FIELD=VALUE]
 local-issues comment NNN --body "TEXT" [--type internal|stakeholder]
 local-issues close NNN [--reason REASON]

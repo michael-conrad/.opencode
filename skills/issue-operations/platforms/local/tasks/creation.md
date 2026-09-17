@@ -32,8 +32,8 @@ ______________________________________________________________________
 
 | Condition                                                              | Scenario         | CLI Command                                            |
 | ---------------------------------------------------------------------- | ---------------- | ------------------------------------------------------ |
-| Platform is `local` OR user explicitly requested local-only draft      | **draft**        | `./.opencode/tools/local-issues create --title "TITLE" --labels L1,L2`   |
-| Local draft exists, user says "promote" / "create the spec"            | **promote**      | `./.opencode/tools/local-issues promote N` (preceded by remote creation) |
+| Platform is `local` OR user explicitly requested local-only draft      | **draft**        | `./.opencode/tools/local-issues create --number <repo>#<N> --title "TITLE" --labels L1,L2` (reserve N from `.issues/.counter`)   |
+| Local draft exists, user says "promote" / "create the spec"            | **promote**      | `./.opencode/tools/local-issues promote <repo>#<N>` (preceded by remote creation) |
 | Remote issue R already exists on `github`/`gitbucket`, import to local | **remote-first** | `./.opencode/tools/local-issues import-remote N --platform TYPE`         |
 
 ______________________________________________________________________
@@ -47,11 +47,11 @@ Create a local-only draft issue. No API calls, no remote.
 | Step | Action          | Command / Details                                                                |
 | ---- | --------------- | -------------------------------------------------------------------------------- |
 | 1    | Dedup check     | `./.opencode/tools/local-issues search --query "<keywords>"` — non-empty = DUPLICATE → HALT        |
-| 2    | Create issue    | `./.opencode/tools/local-issues create --title "TITLE" --labels "L1,L2"` — captures local number N |
-| 3    | Verify label    | `./.opencode/tools/local-issues read-labels --number N` — check `needs-approval` is in labels list. If missing: `./.opencode/tools/local-issues update N --labels needs-approval` |
+| 2    | Create issue    | `./.opencode/tools/local-issues create --number <repo>#<N> --title "TITLE" --labels "L1,L2"` — reserve N from `.issues/.counter` first |
+| 3    | Verify label    | `./.opencode/tools/local-issues read-labels --number <repo>#<N>` — check `needs-approval` is in labels list. If missing: `./.opencode/tools/local-issues update N --labels needs-approval` |
 | 4    | Write spec body | Full fidelity spec body content written to `.issues/N/spec.md`                   |
 | 5    | Set phase       | Phase set to `draft` in `.issues/N/state.md`                                     |
-| 6    | Verify          | `./.opencode/tools/local-issues read N` — exit 0 = PASS                                            |
+| 6    | Verify          | `./.opencode/tools/local-issues read <repo>#<N>` — exit 0 = PASS                                            |
 
 **Result:** Local issue N in draft phase. No remote exists. `links.yaml` created empty.
 
@@ -70,7 +70,7 @@ Promote a local draft to a remote platform. The local issue is renumbered to mat
 | 5    | Update metadata       | Set `github_issue: R`, `remote_url: <url>`, `phase: promoted` in frontmatter                                                    |
 | 6    | Push exec summary     | Write `remote.md` to `.issues/R/remote.md` with remote context. `./.opencode/tools/local-issues push-body R`.                                     |
 | 7    | Tag gate              | Create tag: `<parent-repo>/R/spec-promoted` — push tag to remote                                                                |
-| 8    | Verify                | `./.opencode/tools/local-issues read R` confirms all metadata fields, remote_url, and phase                                                       |
+| 8    | Verify                | `./.opencode/tools/local-issues read <repo>#R` confirms all metadata fields, remote_url, and phase                                                       |
 
 **Result:** Local `.issues/R/` linked to remote issue R. Phase is `promoted`.
 
@@ -86,13 +86,13 @@ Mirror an existing remote issue into local `.issues/`. The local issue uses the 
 | 2    | On CLEAN result                 | Proceed. On CONFLICT: HALT with candidate list.                                                  |
 | 3    | Fetch remote issue              | API call per platform → extract title, body, html_url, state, labels                             |
 | 4    | Fetch remote comments           | API call per platform → collect all comments chronologically                                     |
-| 5    | Create local with remote number | `./.opencode/tools/local-issues create --number R --title "TITLE"` — uses remote issue number                      |
+| 5    | Create local with remote number | `./.opencode/tools/local-issues create --number <repo>#R --title "TITLE"` — uses remote issue number                      |
 | 6    | Write spec.md mirror            | Remote body written as full fidelity mirror to `.issues/R/spec.md`                               |
 | 7    | Write comments.md               | All remote comments in chronological order to `.issues/R/comments.md`                            |
 | 8    | Write remote.md                 | Executive summary extracted from remote body                                                     |
 | 9    | Write state.md                  | `phase: promoted`, `promotion_type: retroactive_import`                                          |
 | 10   | Update frontmatter              | Set `github_issue: R`, `remote_url: <url>`                                                       |
-| 11   | Verify                          | `./.opencode/tools/local-issues read R` confirms body matches remote, comments match                               |
+| 11   | Verify                          | `./.opencode/tools/local-issues read <repo>#R` confirms body matches remote, comments match                               |
 
 **Result:** Local `.issues/R/` mirrors full remote issue. No data loss.
 
@@ -104,8 +104,8 @@ ______________________________________________________________________
 - \[ \] `spec.md` contains the full issue body
 - \[ \] `state.md` has correct phase value (`draft` or `promoted`)
 - \[ \] `links.yaml` exists (empty for new drafts, populated for imports/promotions)
-- \[ \] `./.opencode/tools/local-issues read N` returns exit 0
-- \[ \] `./.opencode/tools/local-issues read-labels --number N` confirms `needs-approval` is in labels list. If missing, remediation was applied via `update N --labels needs-approval`
+- \[ \] `./.opencode/tools/local-issues read <repo>#<N>` returns exit 0
+- \[ \] `./.opencode/tools/local-issues read-labels --number <repo>#<N>` confirms `needs-approval` is in labels list. If missing, remediation was applied via `update N --labels needs-approval`
 - \[ \] For promoted/imported: `remote_url` and `github_issue` are set in frontmatter
 - \[ \] For promoted: tag created and pushed
 
@@ -115,7 +115,7 @@ ______________________________________________________________________
 
 | Error                                 | Cause                                                | Resolution                                                                                    |
 | ------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `./.opencode/tools/local-issues create` exits non-zero  | Missing title, invalid labels, counter file missing  | Check arguments. Initialize `.issues/.counter` if missing.                                    |
+| `./.opencode/tools/local-issues create` exits non-zero  | Missing --number, missing title, invalid labels  | Check arguments. `--number` is REQUIRED in qualified `<repo>#<N>` form — reserve N from `.issues/.counter`.                                    |
 | DEDUP: search returns existing issue  | Duplicate title/keywords found                       | HALT. Present candidates to orchestrator. Do not proceed.                                     |
 | Promote: phase is not `draft`         | Issue already promoted or not created via draft flow | HALT. Report current phase. Only `draft` or `ready-to-promote` are promotable.                |
 | Promote: remote creation fails        | API error (auth, rate limit, 422)                    | HALT. Report API error from platform-specific response.                                       |

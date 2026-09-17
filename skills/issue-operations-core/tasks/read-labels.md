@@ -22,7 +22,7 @@ Read labels for an issue. Reads from local `{issues_prefix}/{N}/issue.yaml` by d
 Read labels from the local canonical source by default:
 
 ```bash
-./.opencode/tools/local-issues read-labels --number <N>
+./.opencode/tools/local-issues read-labels --number <repo>#<N>
 ```
 
 Extract the `labels` array from the returned YAML. This is the default and primary source for authorization labels.

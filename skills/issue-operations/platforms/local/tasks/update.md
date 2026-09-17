@@ -67,9 +67,9 @@ Update the spec.md body content. This is the full-fidelity issue body — spec, 
 
 | Step | Action               | Command / Details                                                     |
 | ---- | -------------------- | --------------------------------------------------------------------- |
-| 1    | Pre-read             | `./.opencode/tools/local-issues read N` — capture body to verify content structure      |
+| 1    | Pre-read             | `./.opencode/tools/local-issues read <repo>#<N>` — capture body to verify content structure      |
 | 2    | Update body          | `./.opencode/tools/local-issues update N --body "..."` — full body content              |
-| 3    | Verify               | `./.opencode/tools/local-issues read N` — confirm body matches expected content, exit 0 |
+| 3    | Verify               | `./.opencode/tools/local-issues read <repo>#<N>` — confirm body matches expected content, exit 0 |
 | 4    | Post-update decision | See Post-Update Decision Gate below                                   |
 
 **Body update does NOT modify:** frontmatter fields (title, status, phase, labels), links, comments, or remote.md. Only spec.md body is changed.
@@ -102,8 +102,8 @@ ______________________________________________________________________
 ## Exit Criteria
 
 - \[ \] CLI tool returned exit code 0
-- \[ \] For metadata: `./.opencode/tools/local-issues read N` confirms every updated field in frontmatter
-- \[ \] For body: `./.opencode/tools/local-issues read N` confirms body content matches expected value
+- \[ \] For metadata: `./.opencode/tools/local-issues read <repo>#<N>` confirms every updated field in frontmatter
+- \[ \] For body: `./.opencode/tools/local-issues read <repo>#<N>` confirms body content matches expected value
 - \[ \] Post-update decision recorded (pushed or skipped with reason)
 - \[ \] No files outside `.issues/N/` were modified
 
