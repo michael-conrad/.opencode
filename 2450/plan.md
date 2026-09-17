@@ -84,7 +84,56 @@ dispatch:
 
 # Phase 1 — Tool — scoped validation mode in local-issues
 
-- [ STUB — phase body pending ]
+**Concern:** Add the scoped `--number <repo>#N` validation mode with scoped exit-code semantics and report-format parity, delivered with pytest coverage in the existing suite.
+
+**Files:** `.opencode/tools/local-issues`; `.opencode/tests/test_local_issues/`
+
+**SCs:** SC-1, SC-2
+
+**Dependencies:** None
+
+**Entry Conditions:** Pre-implementation steps 1-2 complete; baseline suite green; feature branch active.
+
+**Exit Conditions:** Scoped flag resolves qualified `repo#N`, exits on target-only semantics, fails fast on missing target, rejects bare numbers; format parity proven by shared-code-path tests; existing suite remains green.
+
+**Code Path Coverage:** `cmd_validate_yaml()` gains the flag and scoped routing; `_find_issue_dir()` reused for exact-match target resolution (missing target → fail-fast, R-10); `_scan_issue_dir_errors()` reused as the shared per-directory scan collector so parity is structural; `_schema_problem()`/error-class constants/`YAML_FILES` untouched.
+
+**Cross-Cutting SCs:** None — SC-1 and SC-2 are both confined to the tool + its test suite.
+
+**Interface Boundaries:** CLI is purely additive; no-flag default byte-for-byte unchanged (R-5); qualified-form convention inherited (R-11); report format unchanged (R-4).
+
+**State Transitions:** scoped × clean-target × unrelated-violations → exit 0; scoped × violating-target → exit 1 with target-only lines; scoped × absent-target → fail-fast error; scoped × bare-number → qualifier rejection.
+
+**Cost frame:** Running the scoped pytest suites costs minutes of execution time — the behavioral tier, surfacing any exit-semantics or format defect at gate 1. Skipping costs the death-spiral tier: a flag that exits on workspace state or emits a second report dialect ships silently, every pipeline block recurs on the next drift, and the divergence surfaces days later as misrouted failure triage — the 100×–1000× discovery latency.
+
+---
+
+- [ ] 3. **Pre-regression (**task-card**).** Run the existing regression patterns for the tool suite before RED.
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-regression-*`
+  - Run `uv run pytest .opencode/tests/test_local_issues/` and record the green baseline. **→ SC-1, SC-2**
+- [ ] 4. **Pre-regression verify (**task-card**).** Verify the pre-regression results — baseline suite fully green before any RED is written. **→ SC-1, SC-2**
+- [ ] 5. **RED (**task-card**).** Write failing tests asserting `validate-yaml --number <repo>#N` exits 0 on a clean target amid a fixture workspace with violating neighbors, exits 1 on a violating target, fails fast on an absent target directory, and rejects bare unqualified numbers. **→ SC-1**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+  - RED condition: the flag does not exist — `validate-yaml --help` accepts zero flags — so the tests fail today.
+- [ ] 6. **GREEN (**task-card**).** Implement the minimum change making the RED tests pass: add `--number` to the `validate-yaml` parser with qualified `repo#N` resolution, route to the target directory via the existing exact-match lookup, scan only that directory through the shared scan machinery, and apply scoped exit semantics with fail-fast on a missing directory. **→ SC-1**
+  - GREEN condition: scoped exit code reflects only the target's own files; the no-flag default scan is unchanged.
+- [ ] 7. **Post-regression (**task-card**).** Re-run the full existing suite — including `test_validate_yaml_exit_codes.py` — plus the new tests; confirm nothing regressed and the no-flag default is unchanged. **→ SC-1**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-post-regression-*`
+- [ ] 8. **Verify (**task-card**).** Verify the implementation against SC-1's success criteria with executed pytest evidence. **→ SC-1**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-verify-*`
+- [ ] 9. **Commit (**direct**).** Stage and commit the tool change plus its tests as one atomic slice.
+  - `git add .opencode/tools/local-issues .opencode/tests/test_local_issues/ && git commit -m "feat(local-issues): scoped validate-yaml mode with scoped exit-code semantics"`
+- [ ] 10. **RED (**task-card**).** Write failing tests asserting scoped-mode report lines match the `<path>: <error-class>` format and the same error classes the workspace scan emits for identical fixture files — scoped output equals the workspace output filtered to the target's paths. **→ SC-2**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
+- [ ] 11. **GREEN (**task-card**).** Emit scoped findings through the same code path the workspace scan uses (the shared per-directory scan collector) so format parity is structural. **→ SC-2**
+- [ ] 12. **Post-regression + verify + commit (**direct** for commit; task-card for tests).** Re-run the full suite, verify SC-2 with executed pytest evidence plus a manual cross-check comparing scoped output to filtered workspace output, then commit the tests and any emitted-line adjustment as one slice. **→ SC-2**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-post-regression-* pipeline-verify-*`
+
+#### Phase 1 Completion (VbC)
+
+- [ ] 13. **VbC (**task-card**).** Verify SC-1 and SC-2 success criteria against executed test evidence: scoped exit semantics, fail-fast, bare-number rejection, format parity, unchanged default. **→ SC-1, SC-2**
+
+**Concern transition:** Leaving tool semantics → entering gate-text scoping. Phase 2 depends on Phase 1's `--number` flag existing.
 
 ---
 

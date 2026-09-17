@@ -92,6 +92,119 @@ Structural rule text in three guidelines (257 canonical, 091 Tier 1 bright-line,
 
 <!-- PHASE-1-BODY -->
 
+## Phase Metadata
+
+- **Concern:** Author the three rule texts and the loophole closure — each is the minimum change that makes its RED assertion pass.
+- **Files:** `.opencode/guidelines/257-procedural-discipline-reference.md`, `.opencode/guidelines/091-incremental-build.md`, `.opencode/guidelines/022-orchestrator-context-discipline.md`, `.opencode/tests-v2/AGENTS.md`
+- **SCs:** SC-1, SC-2, SC-3, SC-4
+- **Dependencies:** none (first phase)
+- **Entry condition:** pre-implementation steps 1-4 complete; trunk-tip state verified.
+- **Exit condition:** items 1-4 committed; all four rule texts verifiable by grep-class assertions.
+
+## Code Path Coverage
+
+- 257 §11 "Adding New Patterns" procedure → catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis (SC-1).
+- 091 "Batching items" anti-pattern section → dispatch-level extension (SC-2).
+- 022 critical-rules-034 rule block → dispatch-level extension with preserved sub-agent-internal coverage (SC-3).
+- tests-v2/AGENTS.md §6a and §15 sections → loophole-closure sentences (SC-4).
+
+## Cross-Cutting SCs
+
+- The no-matter-the-reasoning clause appears in SC-1, SC-2, and SC-3 texts; the Read-link mandate (never "see" citations) governs SC-2 and SC-3.
+- "Discrete step" definition (task-card plan step or workflow-marked sub-task dispatch) anchors all three rule texts (R-10).
+
+## Interface Boundaries
+
+- 257 is the sole canonical pattern home; 091 and 022 Read-link it and never redefine it.
+- Architecture B (direct execution in orchestrator context) remains sanctioned — the gate constrains task() dispatch cardinality only.
+- Other skills' DISPATCH_GATE sections are untouched.
+
+## State Transitions
+
+- Guideline files move from "no dispatch-cardinality rule" to "bright-line present at the dispatch decision moment" (091 is always loaded).
+- tests-v2/AGENTS.md §15 economy wording moves from ambiguous (combinable reading) to explicitly cannot-combine; §6a gains the separate-dispatch sentence.
+
+## Step-by-Step
+
+### Item 1 (SC-1) — p-dis-007 canonical pattern in 257
+
+- [ ] 5. RED — write the failing content assertion (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-1
+  - The assertion checks 257 for pattern p-dis-007, its §11 procedure artifacts, and the no-matter-the-reasoning clause — it FAILS today because the pattern is absent.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 6. GREEN — add p-dis-007 "One-Dispatch-One-Step Gate" to 257 (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-1
+  - Must be true: 257 contains the pattern per its §11 add-pattern procedure — catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis. Bright-line: one dispatch = one discrete step; enumerated violation shapes (two task cards, run+verify, multi-SC verification, Task A/Task B shapes, "combined effectiveness run"); structural, not reasoning-classification. No other card carries the canonical definition.
+- [ ] 7. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-1
+- [ ] 8. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-1 — grep-class check over 257 for the pattern ID, §11 artifacts, and the clause; verdict recorded.
+- [ ] 9. Commit (**direct**)
+  - SC: SC-1 — `git add .opencode/guidelines/257-procedural-discipline-reference.md <test artifact> && git commit` — guideline pattern addition (257 only).
+
+### Item 2 (SC-2) — 091 Tier 1 dispatch-level bright-line
+
+Depends on item 1 (the Read-link target must exist).
+
+- [ ] 10. RED (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-2
+  - The assertion checks 091's "Batching items" anti-pattern for dispatch-level language and a Read-link to p-dis-007 — it FAILS today.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 11. GREEN (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-2
+  - Must be true: 091 extends "Batching items" into an explicit dispatch-level rule with the no-exceptions clause, plus a `Read [Text](path)` link to 257 p-dis-007 — never "see" citations. Tier 1 rationale recorded (091 always loaded at the dispatch decision moment).
+- [ ] 12. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-2
+- [ ] 13. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-2 — grep 091 for the extension, the no-exceptions clause, and the Read-link; assert absence of "see"-style citations to the pattern.
+- [ ] 14. Commit (**direct**)
+  - SC: SC-2 — guideline bright-line change committed.
+
+### Item 3 (SC-3) — 022 critical-rules-034 dispatch-level extension
+
+Depends on item 1 (the Read-link target must exist).
+
+- [ ] 15. RED (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-3
+  - The assertion checks critical-rules-034 for dispatch-level shapes (run+verify in one task(), cross-SC verification runs, Task A/Task B packing) — it FAILS today.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 16. GREEN (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-3
+  - Must be true: 022 extends critical-rules-034 to cover ALL combined-dispatch shapes at the dispatch level with the no-matter-the-reasoning clause and a Read-link to 257 p-dis-007; the existing sub-agent-internal coverage is preserved, not replaced.
+- [ ] 17. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-3
+- [ ] 18. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-3 — grep 022 for the shapes, the clause, and the Read-link; consistency read against the pre-extension 034 text (extension, not replacement).
+- [ ] 19. Commit (**direct**)
+  - SC: SC-3 — guideline rule extension committed.
+
+### Item 4 (SC-4) — tests-v2/AGENTS.md §15 + §6a loophole closure
+
+- [ ] 20. RED (**task-card**) — `task(..., prompt: "execute red task from test-driven-development")`
+  - SC: SC-4
+  - The assertion checks §15 for the cannot-combine clarification and §6a for the separate-dispatch sentence — it FAILS today.
+  - Pre-clean: `rm -f ./tmp/2451/artifacts/pipeline-red-*`
+- [ ] 21. GREEN (**task-card**) — `task(..., prompt: "execute green task from test-driven-development")`
+  - SC: SC-4
+  - Must be true: §15 clarifies that "one run per SC-RED need and one run per SC-GREEN need" CANNOT be satisfied by combining two SCs' needs into one run — a combined run violates the mandate; §6a states explicitly that the clean-room evaluation is a SEPARATE dispatch from the artifact-generation run.
+- [ ] 22. Post-regression (**task-card**) — `task(..., prompt: "execute phase-4 task from test-driven-development")`
+  - SC: SC-4
+- [ ] 23. Verify (**task-card**) — `task(..., prompt: "execute verify task from verification-before-completion")`
+  - SC: SC-4 — grep §15 and §6a for both additions.
+- [ ] 24. Commit (**direct**)
+  - SC: SC-4 — tests framework guide change committed.
+
+## Phase Completion Block
+
+- All four items report PASS; SC-1..SC-4 verdicts verified and recorded.
+- Daisy chain holds: item 1 committed before items 2-3 RED; item 4 independent of 2-3 but sequenced last.
+
+## Concern Transition
+
+Phase 1 rule text must be committed AND pushed (fresh-fetch remote containment) before the Phase 2 behavioral run — per the behavioral harness pre-flight gate.
+
+**Cost frame:** Verifying each rule-text addition costs one grep-class content check — seconds, bounded. Skipping costs the gate its definition and visibility: with no p-dis-007 in 257, no bright-line in always-loaded 091, no 034 extension in 022, and the §15 loophole intact, every combined dispatch repeats the observed unattributable-diagnosis cost — the 100×–1000× DDL tier, with the ~44h SC-09 re-dispatch loop as the recorded precedent. Correctness is the only metric.
+
 # Phase 2 — Behavioral scenario (artifact-generation run + clean-room evaluation)
 
 <!-- PHASE-2-BODY -->

@@ -1,0 +1,14 @@
+issue: ".opencode#2446"
+artifact: testability-assessment
+phases:
+  - phase: 1-normalization
+    strategy: unit
+    note: "pure helper; direct assertions on split/strip/drop behavior incl. repro case 'a, b'"
+  - phase: 2-rejection
+    strategy: unit
+    note: "assert SystemExit/error and issue.yaml unchanged for malformed remainder"
+  - phase: 3-help-text
+    strategy: unit
+    note: "parse formatter help text for --labels entries on both subparsers"
+integration:
+  - "end-to-end invocation against a temp issues worktree only — never the live .issues worktree"

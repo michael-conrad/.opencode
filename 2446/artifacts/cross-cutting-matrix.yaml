@@ -1,0 +1,15 @@
+issue: ".opencode#2446"
+artifact: cross-cutting-matrix
+matrix:
+  - concern: "error handling"
+    phases: ["2-rejection"]
+    note: "fail-fast CLI error; no swallowed input"
+  - concern: "data integrity"
+    phases: ["1-normalization", "2-rejection"]
+    note: "prevents malformed data crossing the CLI->issue.yaml boundary"
+  - concern: "attribution/byline"
+    phases: ["all"]
+    note: "Python file module docstring attribution per 080-code-standards"
+  - concern: "backward compatibility"
+    phases: ["1-normalization", "2-rejection"]
+    note: "existing space-separated usage unchanged"

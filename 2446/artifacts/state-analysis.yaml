@@ -1,0 +1,13 @@
+issue: ".opencode#2446"
+artifact: state-analysis
+phases:
+  - phase: 1-normalization
+    transitions:
+      - "args.labels (raw tokens) -> normalized list -> issue.yaml labels"
+    invariants: "no partial write; needs-approval still first after normalization (_ensure_needs_approval runs post-normalization)"
+  - phase: 2-rejection
+    transitions:
+      - "malformed input -> CLI error exit -> no state change (issue.yaml untouched, no auto-commit)"
+  - phase: 3-help-text
+    transitions: []
+    note: "no state"

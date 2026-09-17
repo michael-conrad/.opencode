@@ -1,0 +1,13 @@
+issue: ".opencode#2446"
+artifact: code-path-inventory
+phases:
+  - phase: 1-normalization
+    paths:
+      - "main -> cmd_update -> label assignment into issue dict -> write_file"
+      - "main -> cmd_create -> _create_issue_files -> _ensure_needs_approval -> issue files"
+  - phase: 2-rejection
+    paths:
+      - "cmd_update / cmd_create early-exit error path (pre-write, pre-commit)"
+  - phase: 3-help-text
+    paths:
+      - "_add_update_parser / _add_create_parser argparse setup"

@@ -1,0 +1,12 @@
+issue: ".opencode#2446"
+artifact: concern-map
+phases:
+  - phase: 1-normalization
+    concern: "input parsing/normalization — pure function, no I/O"
+    separation: "helper isolated from git/YAML concerns; testable without issue fixtures"
+  - phase: 2-rejection
+    concern: "input validation at system boundary"
+    separation: "validation lives with normalization, before any mutation (_auto_commit/write)"
+  - phase: 3-help-text
+    concern: "CLI UX documentation"
+    separation: "string change only, no logic"

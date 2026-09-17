@@ -1,0 +1,7 @@
+issue: ".opencode#2446"
+cards_reviewed: 15
+matching_cards:
+  - name: "local-issues-discover-repos-worktree-filter"
+    confidence: 0.95
+    relevance: "low — covers _discover_all_repos worktree filtering, not label parsing; no reusable findings"
+findings: "No research card addresses label parsing or argparse input normalization. Consultation did not alter analysis."

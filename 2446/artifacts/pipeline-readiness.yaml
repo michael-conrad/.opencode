@@ -1,0 +1,18 @@
+issue: ".opencode#2446"
+gate_evidence: "command: `./.opencode/tools/local-issues validate-yaml`, exit code: 0"
+checks:
+  - name: atomicity
+    result: pass
+    note: "3 items, each maps to exactly one SC and one RED→GREEN→COMMIT cycle"
+  - name: dependency-ordering
+    result: pass
+    note: "SC-1 (normalize) -> SC-2 (reject) -> SC-3 (help); acyclic"
+  - name: single-concern
+    result: pass
+    note: "each item targets one file (.opencode/tools/local-issues) and one verification domain (unit)"
+  - name: phase-dependency
+    result: pass
+    note: "linear phase graph, acyclic"
+  - name: three-tier-structure
+    result: pass
+    note: "single-concern fix; phases form pre/post-normalization structure, no multi-file phases"
