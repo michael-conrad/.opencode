@@ -1,0 +1,61 @@
+# Problem file for issue 2446 (planner input for tools/plan plan)
+domain: local-issues-labels-fix
+types:
+  - name: item
+objects:
+  - name: sc1-normalize
+    type: item
+  - name: sc2a-update-reject
+    type: item
+  - name: sc2b-create-reject
+    type: item
+  - name: sc3a-update-help
+    type: item
+  - name: sc3b-create-help
+    type: item
+fluents:
+  - name: done
+    params:
+      - name: i
+        type: item
+  - name: helper-wired
+actions:
+  - name: red-green-verify-commit
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - "not done(i)"
+    effects:
+      - "done(i)"
+  - name: wire-normalization-helper
+    preconditions:
+      - "done(sc1-normalize)"
+    effects:
+      - "helper-wired"
+  - name: apply-fail-fast-validation
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - "helper-wired"
+      - "not done(i)"
+    effects:
+      - "done(i)"
+  - name: add-help-text
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - "helper-wired"
+      - "not done(i)"
+    effects:
+      - "done(i)"
+init:
+  - "not helper-wired"
+goals:
+  - "done(sc1-normalize)"
+  - "done(sc2a-update-reject)"
+  - "done(sc2b-create-reject)"
+  - "done(sc3a-update-help)"
+  - "done(sc3b-create-help)"

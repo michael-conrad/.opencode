@@ -1,0 +1,43 @@
+problem built: local-issues-labels-fix
+  objects: 5
+  fluents: 2
+  actions: 4
+  goals:   5
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 5
+
+- [ ] 1. add-help-text(sc1-normalize)
+- [ ] 2. add-help-text(sc3a-update-help)
+- [ ] 3. add-help-text(sc3b-create-help)
+- [ ] 4. add-help-text(sc2a-update-reject)
+- [ ] 5. add-help-text(sc2b-create-reject)
+
+---
+actions:
+- name: add-help-text
+  parameters:
+  - sc1-normalize
+- name: add-help-text
+  parameters:
+  - sc3a-update-help
+- name: add-help-text
+  parameters:
+  - sc3b-create-help
+- name: add-help-text
+  parameters:
+  - sc2a-update-reject
+- name: add-help-text
+  parameters:
+  - sc2b-create-reject
+domain: local-issues-labels-fix
+engine: tamer
+plan_length: 5
+status: SOLVED_SATISFICING

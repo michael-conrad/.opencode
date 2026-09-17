@@ -1,0 +1,18 @@
+artifact: solve-output
+issue: 2446
+solve_status: SAT
+model_query: "phase_1_complete == z3.BoolVal(True)"
+model_result: SAT
+check_result: "SAT (+ postconditions + invariants)"
+plan_status: SOLVED_SATISFICING
+plan_engine: tamer
+plan_length: 5
+problem_path: .opencode/.issues/2446/artifacts/problem.yaml
+plan_output_path: .opencode/.issues/2446/artifacts/plan-output.yaml
+contract_path: .opencode/.issues/2446/dependency-contract.yaml
+structure_path: .opencode/.issues/2446/artifacts/structure.yaml
+notes: >
+  Single-phase decomposition (phase-1) covering SC-1, SC-2a, SC-2b, SC-3a,
+  SC-3b. solve model returned SAT with all SC variables True; solve check
+  returned SAT pre and post invariants; planner returned SOLVED_SATISFICING
+  with a 5-step plan. All gates passed.
