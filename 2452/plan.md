@@ -4,11 +4,12 @@ issue: 2452
 title: "Wire brainstorming handoff consumption into spec-creation analyze (belt-and-suspenders)"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 3
+phase_count: 4
 dispatch:
   - phase-1: test-driven-development (red, green, phase-4) + verification-before-completion (verify) + commit-inline (direct)
   - phase-2: test-driven-development (red, green, phase-4) + verification-before-completion (verify) + commit-inline (direct)
   - phase-3: test-driven-development (red, green, phase-4) + verification-before-completion (verify) + commit-inline (direct)
+  - phase-4: test-driven-development (red, green, phase-4) + verification-before-completion (verify) + commit-inline (direct)
   - post: audit + finishing-a-development-branch (structural-checks) + verification-before-completion (pre-pr-gate) + test-driven-development (regression-check) + git-workflow-pr (review-prep, create-pr) + completion-core (exec-summary)
 ---
 
@@ -28,7 +29,7 @@ Belt-and-suspenders wiring (approved option 3): thread the optional field throug
 ## Files
 
 - `.opencode/skills/spec-creation/SKILL.md` — TDT analyze dispatch context gains optional `brainstorm_handoff_path` (Phase 1)
-- `.opencode/skills/spec-creation/tasks/analyze.md` — handoff-consumption instructions, pointer-discovery instructions, degraded-mode paragraph (Phases 1 and 3)
+- `.opencode/skills/spec-creation/tasks/analyze.md` — handoff-consumption instructions, pointer-discovery instructions, degraded-mode paragraph (Phases 1, 3, and 4)
 - `.opencode/skills/brainstorming/SKILL.md` — exploration-workflow pointer-write step at issue creation (Phase 2)
 
 ## Blast Radius
@@ -40,6 +41,7 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 - Phase 1: direct (commit) + task-card (red, green, post-regression, verify)
 - Phase 2: direct (commit) + task-card (red, green, post-regression, verify)
 - Phase 3: direct (commit) + task-card (red, green, post-regression, verify)
+- Phase 4: direct (commit) + task-card (red, green, post-regression, verify)
 - Post-implementation: task-card (audit, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary) + direct (z3-check)
 
 > **Compliance:** All SCs must pass before completion. Partial implementation is not permitted. Each item is daisy-chained — item N's commit is precondition for item N+1's RED.
@@ -54,9 +56,10 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|-----------|----------|
-| 1 | Dispatch-field channel: brainstorm_handoff_path threading | dispatch-threading | SC-1 | none | 1-14 | direct (7-8, 11-14) + task-card (1-6, 9-10) |
-| 2 | Pointer-file channel: brainstorming writes handoff pointer at issue creation | pointer-write | SC-2 | none | 15-28 | direct (21-22, 25-28) + task-card (15-20, 23-24) |
-| 3 | Fallback discovery and degraded no-halt mode | fallback-discovery, degraded-mode | SC-3a, SC-3b | Phase 1, Phase 2 | 29-52 | direct (33-34, 38-39, 47-52) + task-card (29-32, 35-37, 40-46) |
+| 1 | Dispatch-field channel: brainstorm_handoff_path threading | dispatch-threading | SC-1 | none | 3-12 | direct (7-8, 11-12) + task-card (3-6, 9-10) |
+| 2 | Pointer-file channel: brainstorming writes handoff pointer at issue creation | pointer-write | SC-2 | none | 13-22 | direct (17-18, 21-22) + task-card (13-16, 19-20) |
+| 3 | Fallback pointer discovery | fallback-discovery | SC-3a | Phase 1, Phase 2 | 23-32 | direct (27-28, 31-32) + task-card (23-26, 29-30) |
+| 4 | Degraded no-halt mode | degraded-mode | SC-3b | Phase 3 | 33-41 | direct (37-38, 41) + task-card (33-36, 39-40) |
 
 > **Self-Remediation Protocol:** If a step FAILs: diagnose root cause, fix the deliverable, re-verify. If the fix requires spec revision, update the spec and re-enter the plan. Escalate only after remediation failure.
 
@@ -90,7 +93,7 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 
 ### Cross-Cutting SCs
 
-- None in this phase. SC-3a/SC-3b (Phase 3) exercise this phase's channel as the absent-field variant.
+- None in this phase. SC-3a/SC-3b (Phases 3 and 4) exercise this phase's channel as the absent-field variant.
 
 ### Interface Boundaries
 
@@ -143,7 +146,7 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 
 ### Cross-Cutting SCs
 
-- None in this phase. SC-3a/SC-3b (Phase 3) exercise this phase's channel as the pointer-present variant.
+- None in this phase. SC-3a/SC-3b (Phases 3 and 4) exercise this phase's channel as the pointer-present variant.
 
 ### Interface Boundaries
 
@@ -184,21 +187,21 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 
 **Cost frame:** Writing the pointer file costs one additional exploration-workflow step and one behavioral run (minutes). Skipping costs the belt in belt-and-suspenders: any dispatch that bypasses the context field sees a title-only stub and drifts undetected — the exact .opencode#2451 failure.
 
-**Concern transition:** pointer-write complete; both channels exist — Phase 3 wires fallback discovery and degraded mode.
+**Concern transition:** pointer-write complete; both channels exist — Phase 3 wires fallback discovery, Phase 4 wires degraded mode.
 
-## Phase 3 — Fallback discovery and degraded no-halt mode
+## Phase 3 — Fallback pointer discovery
 
-**Concern:** fallback-discovery, degraded-mode. **SCs:** SC-3a, SC-3b.
+**Concern:** fallback-discovery. **SCs:** SC-3a.
 **Files:** `.opencode/skills/spec-creation/tasks/analyze.md`
-**Dependencies:** Phase 1 (dispatch-field semantics), Phase 2 (pointer file). **Entry:** SC-1 and SC-2 committed. **Exit:** SC-3a and SC-3b committed and pushed; behavioral runs show discovery read (3a) and no-halt completion (3b).
+**Dependencies:** Phase 1 (dispatch-field semantics), Phase 2 (pointer file). **Entry:** SC-1 and SC-2 committed. **Exit:** SC-3a committed and pushed; behavioral run shows discovery read of the pointer target.
 
 ### Code Path Coverage
 
-- `.opencode/skills/spec-creation/tasks/analyze.md` — gains pointer-discovery instructions (glob/read of issue-directory pointer when dispatch field absent; SC-3a) and a degraded-mode paragraph (neither channel → current behavior, no halt; SC-3b). Runtime observables: discovery read of pointer target in stderr (3a); run completes without BLOCKED state (3b).
+- `.opencode/skills/spec-creation/tasks/analyze.md` — gains pointer-discovery instructions (glob/read of issue-directory pointer when dispatch field absent; SC-3a). Runtime observable: discovery read of pointer target in stderr (3a).
 
 ### Cross-Cutting SCs
 
-- SC-3a and SC-3b are cross-cutting: both exercise BOTH channels from Phases 1 and 2 — SC-3a spans the dispatch field (absent variant) and the pointer (present variant); SC-3b asserts absence of both channels.
+- SC-3a is cross-cutting: it exercises BOTH channels from Phases 1 and 2 — the dispatch field (absent variant) and the pointer (present variant).
 - Shared-file discipline: `.opencode/skills/spec-creation/tasks/analyze.md` is edited by Items 1, 3a, and 3b — sequential execution only; 3a/3b sections append after Item 1's consumption instructions.
 
 ### Interface Boundaries
@@ -209,7 +212,6 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
 ### State Transitions
 
 - handoff-channel-state: pointer-present with field absent → discovery-read (analyze follows pointer and loads approved design; SC-3a).
-- neither-present → current empty-stub behavior, no halt — documented degraded mode, not an error (SC-3b).
 - Error states preserved: stale pointer → record handoff-unavailable, proceed, no halt; pointer target outside the issue's `tmp/{issue-N}/` scope → record handoff-unavailable, do not follow the out-of-scope path (read-scope discipline).
 
 ### Step-by-step
@@ -231,52 +233,92 @@ LOW-MEDIUM. All changes are skill-deck text edits inside the .opencode submodule
   - Push the commit to the remote branch; fresh `git fetch`; verify the effective commit is contained in a remote ref BEFORE the behavioral test run
 - [ ] 29. (**task-card**) Item 3a (SC-3a) behavioral test run
   - Run the SC-3a behavioral test against the pushed effective commit; record verdict as evidence
-- [ ] 30. (**task-card**) Item 3b (SC-3b) RED — execute red task from test-driven-development
+
+### Phase completion block
+
+- [ ] 30. (**task-card**) Phase 3 verification — execute verify task from verification-before-completion
+  - Assert SC-3a verdict is PASS with behavioral evidence type matching the spec's declared evidence type; any DONE_WITH_CONCERNS is coerced to FAIL
+- [ ] 31. (**direct**) Record phase 3 completion and SC-3a evidence artifact path under `{project_root}/tmp/{issue-2452}/artifacts/`
+- [ ] 32. (**direct**) Confirm daisy chain: phase 4 may begin only after this phase's commit, phase 1's commit, and phase 2's commit are in place
+
+**Cost frame:** Implementing fallback discovery costs one task-card section plus one behavioral run (minutes). Skipping costs the deterministic guarantee that approved designs survive dispatch-path variance — the exact silent-drift failure mode .opencode#2451 exposed.
+
+**Concern transition:** fallback-discovery complete; Phase 4 documents the degraded no-halt mode on the same task card.
+
+## Phase 4 — Degraded no-halt mode
+
+**Concern:** degraded-mode. **SCs:** SC-3b.
+**Files:** `.opencode/skills/spec-creation/tasks/analyze.md`
+**Dependencies:** Phase 3 (both channel behaviors exist before the neither-channel path is defined). **Entry:** SC-3a committed. **Exit:** SC-3b committed and pushed; behavioral run shows no-halt completion with neither channel present.
+
+### Code Path Coverage
+
+- `.opencode/skills/spec-creation/tasks/analyze.md` — gains a degraded-mode paragraph (neither channel → current behavior, no halt; SC-3b). Runtime observable: run completes without BLOCKED state (3b).
+
+### Cross-Cutting SCs
+
+- SC-3b is cross-cutting: it asserts absence of BOTH channels from Phases 1 and 2.
+- Shared-file discipline: `.opencode/skills/spec-creation/tasks/analyze.md` is edited by Items 1, 3a, and 3b — sequential execution only; the 3b degraded-mode paragraph appends after Item 3a's discovery instructions.
+
+### Interface Boundaries
+
+- spec-creation TDT analyze dispatch context: unchanged from Phase 1; SC-3b tests the neither-channel path only.
+- Handoff contract schema: read-only consumer; degraded mode is documented behavior, not an error path — no halt, no BLOCKED state.
+
+### State Transitions
+
+- neither-present → current empty-stub behavior, no halt — documented degraded mode, not an error (SC-3b).
+
+### Step-by-step
+
+- [ ] 33. (**task-card**) Item 3b (SC-3b) RED — execute red task from test-driven-development
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-red-*`
   - Write a behavioral enforcement test for SC-3b: behavioral run with neither channel present; assert analyze completes without halt (run exits normally, no BLOCKED state)
   - RED condition: test FAILS because degraded-mode behavior is not documented in the analyze task card yet
-- [ ] 31. (**task-card**) Item 3b (SC-3b) GREEN — execute green task from test-driven-development
+- [ ] 34. (**task-card**) Item 3b (SC-3b) GREEN — execute green task from test-driven-development
   - GREEN condition: document degraded mode in the analyze task card (neither channel → current behavior, record handoff-unavailable, proceed — no halt); minimum change only
-- [ ] 32. (**task-card**) Item 3b (SC-3b) post-regression — execute phase-4 task from test-driven-development
+- [ ] 35. (**task-card**) Item 3b (SC-3b) post-regression — execute phase-4 task from test-driven-development
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-post-regression-*`
   - Re-run regression test patterns after GREEN
-- [ ] 33. (**task-card**) Item 3b (SC-3b) verify — execute verify task from verification-before-completion
+- [ ] 36. (**task-card**) Item 3b (SC-3b) verify — execute verify task from verification-before-completion
   - Verify SC-3b against its success criterion with behavioral evidence (run completes without halt, no BLOCKED state)
-- [ ] 34. (**direct**) Item 3b (SC-3b) commit-inline
+- [ ] 37. (**direct**) Item 3b (SC-3b) commit-inline
   - Stage skill-deck change + behavioral test; single atomic slice, no co-author trailers during implementation commits
-- [ ] 35. (**direct**) Item 3b (SC-3b) push — behavioral variant requirement
+- [ ] 38. (**direct**) Item 3b (SC-3b) push — behavioral variant requirement
   - Push the commit to the remote branch; fresh `git fetch`; verify the effective commit is contained in a remote ref BEFORE the behavioral test run
-- [ ] 36. (**task-card**) Item 3b (SC-3b) behavioral test run
+- [ ] 39. (**task-card**) Item 3b (SC-3b) behavioral test run
   - Run the SC-3b behavioral test against the pushed effective commit; record verdict as evidence
 
 ### Phase completion block
 
-- [ ] 37. (**task-card**) Phase 3 verification — execute verify task from verification-before-completion
-  - Assert SC-3a and SC-3b verdicts are PASS with behavioral evidence types matching the spec's declared evidence types; any DONE_WITH_CONCERNS is coerced to FAIL
-- [ ] 38. (**direct**) Record phase 3 completion and SC-3a/SC-3b evidence artifact paths under `{project_root}/tmp/{issue-2452}/artifacts/`
+- [ ] 40. (**task-card**) Phase 4 verification — execute verify task from verification-before-completion
+  - Assert SC-3b verdict is PASS with behavioral evidence type matching the spec's declared evidence type; any DONE_WITH_CONCERNS is coerced to FAIL
+- [ ] 41. (**direct**) Record phase 4 completion and SC-3b evidence artifact path under `{project_root}/tmp/{issue-2452}/artifacts/`
 
-**Cost frame:** Implementing fallback discovery and degraded mode costs one task-card section plus one behavioral run variant each (minutes). Skipping costs the deterministic guarantee that approved designs survive dispatch-path variance, and the no-halt regression coverage — without it, spurious BLOCKED states would surface across every non-brainstorm spec.
+**Cost frame:** Documenting degraded mode costs one paragraph plus one behavioral run variant (minutes). Skipping costs the no-halt regression coverage — without it, spurious BLOCKED states would surface across every non-brainstorm spec.
+
+**Concern transition:** degraded-mode complete; all four SCs implemented — post-implementation gates follow.
 
 ## Post-Implementation (Tier 1 — Global)
 
-- [ ] 39. (**task-card**) Adversarial audit — execute verification-audit DiMo investigator from audit (read `audit/tasks/verification-audit-investigator.md` first), followed by validator, evaluator, arbiter in sequence
+- [ ] 42. (**task-card**) Adversarial audit — execute verification-audit DiMo investigator from audit (read `audit/tasks/verification-audit-investigator.md` first), followed by validator, evaluator, arbiter in sequence
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-audit-*`
   - Audit the deliverable against all four SCs; record verdicts
-- [ ] 40. (**direct**) Z3 constraint check — run `.opencode/tools/solve check --state-path ... --contract-path ...` directly
+- [ ] 43. (**direct**) Z3 constraint check — run `.opencode/tools/solve check --state-path ... --contract-path ...` directly
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-z3-check-*`
-- [ ] 41. (**task-card**) Structural checks — execute checklist task from finishing-a-development-branch
+- [ ] 44. (**task-card**) Structural checks — execute checklist task from finishing-a-development-branch
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-structural-checks-*`
   - Run the finishing checklist (lint, format check, markdown lint on modified skill files)
-- [ ] 42. (**task-card**) Pre-PR gate — execute verify task from verification-before-completion
+- [ ] 45. (**task-card**) Pre-PR gate — execute verify task from verification-before-completion
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-pre-pr-gate-*`
   - Read all SC verdicts; BLOCK if any is FAIL (DONE_WITH_CONCERNS coerces to FAIL); EVIDENCE_TYPE_MISMATCH is a hard FAIL
-- [ ] 43. (**task-card**) Final regression check — execute phase-4 task from test-driven-development
+- [ ] 46. (**task-card**) Final regression check — execute phase-4 task from test-driven-development
   - Pre-clean prior artifacts: remove `{project_root}/tmp/{issue-2452}/artifacts/pipeline-regression-check-*`
-- [ ] 44. (**task-card**) Review prep — execute review-prep from git-workflow-pr (read `git-workflow-pr/tasks/review-prep.md` first)
-- [ ] 45. (**task-card**) Create PR — execute create task from git-workflow-pr
+- [ ] 47. (**task-card**) Review prep — execute review-prep from git-workflow-pr (read `git-workflow-pr/tasks/review-prep.md` first)
+- [ ] 48. (**task-card**) Create PR — execute create task from git-workflow-pr
   - Stacked strategy: one branch, squashed to one commit per issue, single PR targeting the trunk; HALT after PR creation — human-only merge
-- [ ] 46. (**task-card**) Completion executive summary — execute completion task from completion-core
-  - Emit the single `plan_created` lifecycle event with `plan_file` and `phase_count: 3` alongside completion reporting per pipeline conventions
+- [ ] 49. (**task-card**) Completion executive summary — execute completion task from completion-core
+  - Emit the single `plan_created` lifecycle event with `plan_file` and `phase_count: 4` alongside completion reporting per pipeline conventions
   - Report completion; HALT
 
 ## Pre-Flight Guard (Mandatory)
@@ -285,3 +327,10 @@ Check your tool list for a tool named `task`.
 
 - Present ⇒ orchestrator — proceed.
 - Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+
+## lifecycle_events
+
+- timestamp: 2026-09-17T23:45:00Z
+  event: plan_created
+  plan_file: .opencode/.issues/2452/plan.md
+  phase_count: 4

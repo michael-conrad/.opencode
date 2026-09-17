@@ -48,7 +48,7 @@ Check your tool list for a tool named `task`.
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
-| 1 | Label normalization helper + fail-fast rejection + help text | `--labels` input handling in `.opencode/tools/local-issues` | SC-1, SC-2a, SC-2b, SC-3a, SC-3b | none | 1-37 | direct (1-4, 14, 20, 26, 32, 33-37) + task-card (5-13, 15-19, 21-25, 27-31) |
+| 1 | Label normalization helper + fail-fast rejection + help text | `--labels` input handling in `.opencode/tools/local-issues` | SC-1, SC-2a, SC-2b, SC-3a, SC-3b | none | 1-33 | direct (1-3, 8, 12, 16, 20, 24, 25, 27) + task-card (4-7, 9-11, 13-15, 17-19, 21-23, 26, 28-33) |
 
 ## Pre-Implementation Steps
 

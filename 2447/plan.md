@@ -263,7 +263,8 @@ Computation frame: Cost is measured in defect-discovery-latency, not tool calls.
 - [ ] 38. Phase 3 completion record (**direct**)
   - Record SC-5 verdict and evidence path for the pre-PR gate
 - [ ] 39. Issue evidence record (**direct**)
-  - Record the removal evidence in `.opencode/.issues/2447/` via `./.opencode/tools/local-issues comment .opencode#2447 --type internal --body "<removal evidence summary>"`
+  - Record the removal evidence via the GitHub API as a comment on `michael-conrad/.opencode#2447` — NOT via `./.opencode/tools/local-issues comment .opencode#2447`, because step 32 removed the `.opencode/.issues` worktree that command targets (the `local-issues .opencode#N` store no longer exists after SC-5; routing evidence there would fail or silently recreate the directory)
+  - Comment body: removal evidence summary + authorization reference; byline `🤖 <AgentName> (<ModelId>)` on the last line per posted-content attribution rules
 - [ ] 40. Phase 3 HALT if gated (**direct**)
   - If step 29 found no authorization: report `SC-5 BLOCKED on explicit developer authorization (critical-rules-052)` with the RED evidence from step 30, and halt all remaining steps — phases 1-2 deliverables stand
 
@@ -317,6 +318,16 @@ Computation frame: Cost is measured in defect-discovery-latency, not tool calls.
 ## Cost Frame — Post-Implementation
 
 Computation frame: Cost is measured in defect-discovery-latency, not tool calls. The audit, Z3 check, and pre-PR gate cost minutes combined. Skipping them costs a full rework cycle when a coerced DONE_WITH_CONCERNS or EVIDENCE_TYPE_MISMATCH verdict surfaces downstream: re-review, re-CI, and a PR that re-exposes the defective routing to every agent. Correctness is the only metric.
+
+## Lifecycle Events
+
+```yaml
+lifecycle_events:
+  - timestamp: "2026-09-17T19:41:00Z"
+    event: plan_created
+    plan_path: ".opencode/.issues/2447/plan.md"
+    phase_count: 3
+```
 
 ## Pre-Flight Guard (Mandatory)
 

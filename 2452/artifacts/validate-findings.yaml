@@ -1,0 +1,58 @@
+# validate-findings.yaml — .opencode#2452
+# Revision 2 re-validation (post phase-split + solve re-run)
+date: 2026-09-17
+overall_status: PASS
+
+solve_output:
+  path: .opencode/.issues/2452/artifacts/solve-output.yaml
+  status: SAT
+  currency: Revision 2 — re-solved against the Revision 2 4-phase dependency contract; not stale
+
+category_1_structural: PASS
+  checks:
+    phase_table_required_columns: PASS — Phase Table has Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch
+    phase_procedure_numbered_steps: PASS — all 4 phases have Step-by-step sections with numbered checkbox steps
+    exit_criteria_sc_mapping: PASS — Exit Criteria C1-C4 map to SC-1, SC-2, SC-3a, SC-3b; C5/C6 cover gate + PR
+    step_range_currency: PASS — Phase Table Step Ranges match actual step numbers after the phase split (Phase 1: 3-12, Phase 2: 13-22, Phase 3: 23-32, Phase 4: 33-41); contiguous with no gaps or overlaps across all 49 steps (1-2 pre-implementation, 42-49 post-implementation)
+
+category_2_skill_task_validity: PASS
+  checks:
+    tdt_dispatch_strings: PASS — red, green, phase-4 (post-regression), phase-0 (pre-regression) match implementation-workflow reference card canonical strings
+    verification_dispatch_strings: PASS — verify task from verification-before-completion used for pre-regression-verify, per-item verify, phase verification, pre-pr-gate (matches reference card entries)
+    direct_steps: PASS — commit-inline, z3-check marked (direct) match reference card "(orchestrator) no sub-agent dispatch" entries
+    post_implementation: PASS — audit DiMo, finishing-a-development-branch checklist, regression-check phase-4, review-prep, create task from git-workflow-pr, completion task from completion-core all match reference card
+    advisory_notes:
+      - "Push steps (8, 18, 28, 38) are (direct) orchestrator steps with no skill+task reference — not a reference-card violation; they implement the PUSH phase of the per-item behavioral TDD cycle mandated by 091-incremental-build.md (COMMIT and PUSH precede the behavioral test run). Order verified correct in all four phases."
+      - "Behavioral test run steps (9, 19, 29, 39) are task-card dispatches without an owning-skill reference string; they re-run the RED-phase test against the pushed commit. Advisory only — no invalid reference."
+
+category_3_sc_coverage: PASS
+  checks:
+    all_scs_covered: PASS — SC-1 (Phase 1), SC-2 (Phase 2), SC-3a (Phase 3), SC-3b (Phase 4); spec §3 has exactly these 4 SCs
+    triplet_split_detection: PASS
+      SC-1: RED(3) GREEN(4) COMMIT(7) all in Phase 1
+      SC-2: RED(13) GREEN(14) COMMIT(17) all in Phase 2
+      SC-3a: RED(23) GREEN(24) COMMIT(27) all in Phase 3
+      SC-3b: RED(33) GREEN(34) COMMIT(37) all in Phase 4
+      no SC has RED/GREEN/COMMIT split across phases
+    evidence_type_alignment: PASS — all four SCs declared behavioral in spec §3; plan uses behavioral runs with assert_stderr_pattern_present / runtime-observable outcomes; no structural substitution
+
+category_4_concern_separation: PASS
+  checks:
+    one_concern_per_phase: PASS — Phase 1=dispatch-threading, Phase 2=pointer-write, Phase 3=fallback-discovery, Phase 4=degraded-mode; each matches exactly one concern-map entry
+    no_duplicate_concerns: PASS — four distinct concerns, no two phases share a concern
+    concern_map_sync: PASS — concern-map.yaml Revision 2 note records the Phase 3 split; concern boundaries match phase table Concern column
+    shared_file_discipline: PASS — analyze.md edited by Items 1, 3a, 3b is explicitly flagged with sequential-execution discipline in Phases 3 and 4
+
+category_5_dag_validation: PASS
+  checks:
+    no_cycles: PASS — contract edges: P3→P1, P3→P2, P4→P3; acyclic
+    all_phases_reachable: PASS — P1 and P2 are start nodes (Depends On: none); P3 reachable via P1/P2; P4 reachable via P3
+    no_orphans: PASS — every phase has at least one edge (P1/P2 are roots; P3 has in-edges; P4 has in/out edges)
+    plan_contract_match: PASS — plan Phase Table "Depends On" (none/none/P1+P2/P3) matches contract preconditions exactly; contract phase_ordering matches plan
+    solve_currency: PASS — solve-output.yaml Revision 2 is SAT against the Revision 2 contract (both model query and solve_check); contract header documents the Revision 2 changes matching the plan's 4-phase split
+
+category_6_holistic_quality: PASS
+  checks:
+    no_tbd_todo_placeholders: PASS — no TBD/TODO/placeholder tokens in plan body
+    checkbox_format: PASS — all 49 steps use "- [ ]" checkbox format
+    dispatch_mode_consistency: PASS — frontmatter dispatch block matches per-phase step labels: task-card steps (RED/GREEN/post-regression/verify/behavioral-run/phase-verify) and direct steps (commit/push/record/confirm) declared consistently; hybrid direct+task-card mode is declared up front in the Dispatch section for all four phases

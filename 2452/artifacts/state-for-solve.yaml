@@ -6,4 +6,5 @@ variables:
   phase_1_complete: true
   phase_2_complete: true
   phase_3_complete: true
+  phase_4_complete: true
   pointer_written: true

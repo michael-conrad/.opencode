@@ -3,6 +3,11 @@
 # reformatted into solver-consumable variables/preconditions/postconditions/invariants schema).
 # Spec: .opencode/.issues/2452/spec.md
 # Date: 2026-09-17
+# Revision 2 (2026-09-17): validation findings applied — (Cat 4) Phase 3 split into
+# fallback-discovery (phase 3) and degraded-mode (phase 4); (Cat 5) removed the
+# phase_2_complete → phase_1_complete precondition — the plan declares Phases 1 and 2
+# parallel-safe ("Depends On: none"), so the contract now matches the plan.
+# Re-run solve after this revision.
 
 variables:
   phase_1_complete:
@@ -10,6 +15,8 @@ variables:
   phase_2_complete:
     type: bool
   phase_3_complete:
+    type: bool
+  phase_4_complete:
     type: bool
   dispatch_field_threaded:
     type: bool
@@ -21,15 +28,16 @@ variables:
     type: bool
 
 preconditions:
-  - "z3.Implies(phase_2_complete, phase_1_complete)"
-  - "z3.Implies(phase_3_complete, phase_1_complete)"
-  - "z3.Implies(phase_3_complete, phase_2_complete)"
   - "z3.Implies(phase_1_complete, dispatch_field_threaded)"
   - "z3.Implies(phase_2_complete, pointer_written)"
-  - "z3.Implies(phase_3_complete, z3.And(fallback_discovery, degraded_no_halt))"
+  - "z3.Implies(phase_3_complete, phase_1_complete)"
+  - "z3.Implies(phase_3_complete, phase_2_complete)"
+  - "z3.Implies(phase_3_complete, fallback_discovery)"
+  - "z3.Implies(phase_4_complete, phase_3_complete)"
+  - "z3.Implies(phase_4_complete, degraded_no_halt)"
 
 postconditions:
-  - "z3.And(phase_1_complete, phase_2_complete, phase_3_complete)"
+  - "z3.And(phase_1_complete, phase_2_complete, phase_3_complete, phase_4_complete)"
   - "z3.And(dispatch_field_threaded, pointer_written, fallback_discovery, degraded_no_halt)"
 
 invariants:
@@ -61,7 +69,7 @@ dependency_contract:
       constraint: out of scope; must not be regressed
       status: pending (tracked separately)
   phase_ordering:
-    - Item 1 → independent
-    - Item 2 → independent
-    - Item 3a → after Items 1 and 2
-    - Item 3b → after Items 1 and 2
+    - Item 1 (Phase 1, dispatch-threading) → independent, parallel-safe with Item 2
+    - Item 2 (Phase 2, pointer-write) → independent, parallel-safe with Item 1
+    - Item 3a (Phase 3, fallback-discovery) → after Items 1 and 2
+    - Item 3b (Phase 4, degraded-mode) → after Item 3a

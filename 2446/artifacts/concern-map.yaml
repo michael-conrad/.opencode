@@ -1,18 +1,22 @@
 artifact: concern-map
 issue: 2446
 generated: retroactive-backfill
+revised: "2026-09-17"
+revision_reason: >-
+  Validation finding F-1 (Category 4): phase_boundary fields referenced nonexistent
+  Phase 2/Phase 3. Regenerated to reflect the plan's single-phase decomposition,
+  which the solve contract (single phase_1_complete variable) and prior validation
+  rounds already assume.
 concern_groups:
-  - concern: normalization
-    scs: [SC-1]
-    phase_boundary: Phase 1 (normalization helper + wiring into both entry points)
-  - concern: rejection
-    scs: [SC-2a, SC-2b]
-    phase_boundary: Phase 2 (pre-write fail-fast validation in cmd_update / cmd_create)
-  - concern: help-text
-    scs: [SC-3a, SC-3b]
-    phase_boundary: Phase 3 (argparse --labels help strings on update / create subparsers)
+  - concern: labels-input-handling
+    scs: [SC-1, SC-2a, SC-2b, SC-3a, SC-3b]
+    phase_boundary: Phase 1 (single phase — normalization helper, pre-write fail-fast rejection in cmd_update/cmd_create, argparse help text on update/create subparsers)
 notes: >
-  SC-1 bundles repro-case and clean-case assertions under one concern: a single
-  pure function (_normalize_labels), one code path, per same-concern bundling
-  justification in the spec. SC-2a/2b and SC-3a/3b decomposed per distinct
-  code target (cmd_update vs cmd_create; update vs create subparser).
+  Single-phase decomposition: all five SCs target one file (.opencode/tools/local-issues),
+  are daisy-chained in SC order (SC-2a/2b imply SC-1; SC-3a/3b are sub-item pairs),
+  and complete as one atomic slice per item with its own RED/GREEN/COMMIT cycle.
+  The single concern group matches the plan's Phase 1 Concern field
+  (`--labels` input handling). Item-level separation within the phase is provided
+  by the per-SC items (Item 1, 2a, 2b, 3a, 3b), each with one code target:
+  _normalize_labels (SC-1), cmd_update rejection (SC-2a), cmd_create rejection (SC-2b),
+  update subparser help (SC-3a), create subparser help (SC-3b).

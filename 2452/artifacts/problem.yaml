@@ -11,6 +11,8 @@ objects:
     type: phase
   - name: phase_3
     type: phase
+  - name: phase_4
+    type: phase
 fluents:
   - name: phase_complete
     params:
@@ -45,7 +47,9 @@ actions:
 init:
   - phase_depends_on(phase_3, phase_1)
   - phase_depends_on(phase_3, phase_2)
+  - phase_depends_on(phase_4, phase_3)
 goals:
   - phase_complete(phase_1)
   - phase_complete(phase_2)
   - phase_complete(phase_3)
+  - phase_complete(phase_4)

@@ -1,0 +1,105 @@
+artifact: validate-findings
+issue: 2446
+validated: "2026-09-17"
+validation_round: 2
+prior_fix_verified: >-
+  F-1 (Category 4, round 1) resolved: concern-map.yaml now contains a single
+  concern group `labels-input-handling` covering all 5 SCs with
+  phase_boundary "Phase 1", matching the plan's single-phase decomposition.
+overall_status: PASS
+categories:
+  - category: 1
+    name: Structural validation
+    status: PASS
+    checks:
+      - check: phase table with all required columns
+        result: PASS
+        detail: "Phase Table present with columns Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch."
+      - check: each phase has procedure section with numbered steps
+        result: PASS
+        detail: "Phase 1 has Pre-Implementation Steps (1-4) and Step-by-Step (5-24) sections with numbered checkbox steps."
+      - check: exit criteria section with SC-to-phase mapping
+        result: PASS
+        detail: "Exit Criteria C1-C6 present; C1-C4 map all five SCs to Phase 1; phase table SCs column covers SC-1/2a/2b/3a/3b."
+  - category: 2
+    name: Skill+task validity
+    status: PASS
+    checks:
+      - check: every skill+task reference matches implementation-workflow reference card
+        result: PASS
+        detail: >-
+          All dispatch strings match the reference card: phase-0 pre-regression
+          and phase-4 post-regression (test-driven-development), red, green
+          (test-driven-development), verify (verification-before-completion),
+          commit-inline (orchestrator), audit, z3-check (orchestrator),
+          structural-checks (finishing-a-development-branch), pre-pr-gate,
+          regression-check, review-prep (git-workflow-pr), create-pr
+          (git-workflow-pr), exec-summary (completion-core). No invalid references.
+  - category: 3
+    name: SC coverage
+    status: PASS
+    checks:
+      - check: every SC from spec appears in at least one phase's exit criteria
+        result: PASS
+        detail: "SC-1, SC-2a, SC-2b, SC-3a, SC-3b all covered by Phase 1 and Exit Criteria C1-C4; matches spec SC list and structure.yaml."
+      - check: triplet split detection
+        result: PASS
+        detail: "No triplet split. SC-1: RED/GREEN/COMMIT in steps 5-8 (Phase 1). SC-2a: 9-12. SC-2b: 13-16. SC-3a: 17-20. SC-3b: 21-24. All three steps per SC are in the same phase."
+  - category: 4
+    name: Concern separation
+    status: PASS
+    checks:
+      - check: each phase addresses exactly one concern from concern-map
+        result: PASS
+        detail: "Phase 1 addresses exactly one concern: labels-input-handling — the single concern group in the regenerated concern-map.yaml."
+      - check: no two phases address the same concern
+        result: PASS
+        detail: "Single-phase plan; no duplication possible."
+  - category: 5
+    name: DAG validation
+    status: PASS
+    checks:
+      - check: no cycles
+        result: PASS
+        detail: "Single-node DAG (phase-1), zero edges — acyclic by construction."
+      - check: all phases reachable from start node
+        result: PASS
+        detail: "phase-1 is the start node; trivially reachable."
+      - check: no orphan phases
+        result: PASS
+        detail: "Single-node DAG: phase-1 is both start and terminal node; the zero-edge condition is the trivial degenerate case, not an orphan."
+  - category: 6
+    name: Holistic quality
+    status: PASS
+    checks:
+      - check: no TBD/TODO placeholders in plan body
+        result: PASS
+        detail: "grep for TBD/TODO/FIXME/PLACEHOLDER returned no matches."
+      - check: all steps use checkbox format
+        result: PASS
+        detail: "Steps 1-33 and Exit Criteria C1-C6 all use '- [ ]' checkbox format (39 checkboxes total)."
+      - check: dispatch mode consistency
+        result: PASS
+        detail: >-
+          Phase 1 declares mixed dispatch consistent with the reference card's
+          canonical workflow: task-card steps are exactly the sub-agent steps
+          (pre-regression, red, green, post-regression, verify, audit, etc.);
+          direct steps are exactly the orchestrator-owned steps per the
+          reference card (commit-inline at 8/12/16/20/24, z3-check at 27) plus
+          orchestrator gates (coherence gate 1, baseline 2, pre-regression
+          pre-clean 3, phase completion 25). No inline step performs sub-agent
+          work; no task-card step is performed inline.
+observations:
+  - id: OBS-1
+    severity: advisory
+    category: cross-artifact
+    detail: >-
+      Spec traceability table (spec.md, R-1..R-5 rows) references "Phase 2
+      (rejection)" and "Phase 3 (help text)" which do not exist in the plan's
+      single-phase decomposition — the same stale-phase-reference pattern as
+      the round-1 concern-map finding F-1. The SC/requirement content itself is
+      consistent; only the phase labels are stale. Recommend a non-substantive
+      spec revision updating the R-matrix phase references to Phase 1, per the
+      Documentation Drift Protocol. Does not block plan execution — the plan's
+      own coherence gate (step 1) verifies SC list, evidence types, and phase
+      mapping against the structure artifact, which are consistent.

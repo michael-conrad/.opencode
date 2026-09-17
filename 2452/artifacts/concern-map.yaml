@@ -25,9 +25,12 @@ concerns:
     files: [.opencode/skills/spec-creation/tasks/analyze.md]
 
 dependency_order:
-  - Item 1 (dispatch-threading) — independent
-  - Item 2 (pointer-write) — independent
-  - Item 3a (fallback-discovery) — depends on Items 1 and 2
-  - Item 3b (degraded-mode) — depends on Items 1 and 2
+  - Item 1 (dispatch-threading, Phase 1) — independent
+  - Item 2 (pointer-write, Phase 2) — independent
+  - Item 3a (fallback-discovery, Phase 3) — depends on Items 1 and 2
+  - Item 3b (degraded-mode, Phase 4) — depends on Item 3a (transitively Items 1 and 2)
+
+# Revision 2 note (2026-09-17): plan revised per validation findings — Phase 3 split into
+# Phase 3 (fallback-discovery) and Phase 4 (degraded-mode); concerns above are unchanged.
 
 per_sc_decomposition: compliant — one SC per item, one RED/GREEN/verify/commit cycle per item
