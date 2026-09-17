@@ -1,17 +1,33 @@
 # SC Summary — .opencode#2451
 # One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
 
-sc_count: 3
+sc_count: 7
 scs:
   - id: "SC-1"
-    description: ".opencode/guidelines/022-orchestrator-context-discipline.md contains the one-dispatch-one-step gate rule: discrete-step definition, prohibition on bundling multiple discrete steps in one task() dispatch, corrective action, and Tier-2 classification."
+    description: "257-procedural-discipline-reference.md contains canonical pattern p-dis-007 'One-Dispatch-One-Step Gate' added per its §11 add-pattern procedure, with the structural no-matter-the-reasoning bright-line covering two task cards, run+verify, multi-SC verification, Task A/B shapes, and 'combined effectiveness run'."
     evidence_type: "string"
     plan_item: 1
   - id: "SC-2"
-    description: "executing-plans SKILL.md Workflows and tasks/execute-phase.md reflect the gate at the dispatch decision point with language consistent with the 022 canonical rule."
+    description: "091-incremental-build.md extends the 'Batching items' anti-pattern into an explicit Tier 1 dispatch-level rule with the no-exceptions clause, plus a Read-link to 257 p-dis-007."
     evidence_type: "string"
     plan_item: 2
   - id: "SC-3"
-    description: "A behavioral enforcement scenario in .opencode/tests-v2/behaviors/ verifies via a real-model opencode run that the agent dispatches exactly one discrete step per task() call."
-    evidence_type: "behavioral"
+    description: "022-orchestrator-context-discipline.md extends critical-rules-034 to cover ALL combined-dispatch shapes at the dispatch level with the no-matter-the-reasoning clause and a Read-link to p-dis-007; existing sub-agent-internal coverage preserved."
+    evidence_type: "string"
     plan_item: 3
+  - id: "SC-4"
+    description: "tests-v2/AGENTS.md §15 clarifies combined runs violate the targeted-execution mandate instead of satisfying it; §6a states the clean-room evaluation is a SEPARATE dispatch from the artifact-generation run."
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Behavioral scenario produces the artifact-generation session via a real-model run against a multi-step-plan prompt (§6a SC-N); RED evidence is the observed 22 combined dispatches in session ses_f5aa152f7ffeeEzOm66Lr2Gbs6, preserved not fabricated."
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Separate clean-room evaluation dispatch reads session.yaml and judges semantically whether each discrete step received its own dispatch — criterion + session.yaml only, no marker lists, expected phrases, or static gates (§6a SC-N+1)."
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Content-verification scenario asserts rule-text placement (257 p-dis-007, 091 bright-line, 022 extension) and absence of multi-step dispatch template text in task cards."
+    evidence_type: "string"
+    plan_item: 7

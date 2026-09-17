@@ -4,8 +4,114 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2451/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2451/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2451/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  Combined dispatches were observed in production: session `ses_f5aa152f7ffeeEzOm66Lr2Gbs6`
+  (issue 2432) recorded 22 combined "Two sequential tasks" task() dispatches — including
+  a "combined effectiveness run" framing and an SC-09 re-dispatch loop of 14+ attempts
+  over ~44 hours. No rule in the agent deck prohibits a task() dispatch from carrying
+  more than one discrete workflow step, and tests-v2 §15''s economy wording was inverted
+  into a combination justification, so every combined dispatch passed the existing
+  gates.
+
+
+  ## Scope
+
+
+  - Canonical pattern p-dis-007 "One-Dispatch-One-Step Gate" added to `.opencode/guidelines/257-procedural-discipline-reference.md`
+  via that card''s §11 add-pattern procedure — one dispatch = one discrete step, a
+  violation no matter the reasoning (structural, not reasoning-classification).
+
+  - Tier 1 dispatch-level bright-line in `.opencode/guidelines/091-incremental-build.md`
+  extending the "Batching items" anti-pattern, with a Read-link to p-dis-007 — 091
+  is always loaded, so the rule is present at the dispatch decision moment.
+
+  - Extension of critical-rules-034 in `.opencode/guidelines/022-orchestrator-context-discipline.md`
+  to cover ALL combined-dispatch shapes at the dispatch level (run+verify in one task(),
+  cross-SC verification runs, Task A/Task B packing).
+
+  - Loophole closure in `.opencode/tests-v2/AGENTS.md`: §15 cannot-combine clarification
+  and §6a separate-dispatch sentence — the causal fix for the observed defect.
+
+  - Behavioral scenario via the §6a two-SC pattern (artifact-generation run + separate
+  clean-room semantic evaluation of session.yaml) plus a content-verification scenario
+  for rule-text placement.
+
+
+  **Out of scope:**
+
+
+  - Dispatch-mode marking changes (direct vs task-card) and the canonical dispatch
+  string mechanism — only per-dispatch cardinality.
+
+  - Marker vocabularies, expected phrases, or static gates for behavioral evaluation
+  — developer directive: static gates on dispatch prose are escape hatches.
+
+  - stderr/stdout assertion helpers for behavioral SC evaluation — prohibited by tests-v2
+  §2; session.yaml is the PRIMARY evaluation source.
+
+  - Plugin/hook mechanical enforcement — not mechanically observable and prohibited
+  as an escape hatch; behavioral tests are the enforcement vehicle.
+
+
+  ## Approach
+
+
+  Implement the developer-approved six-part design exactly. Part 1 adds the canonical
+  pattern to 257 via its §11 procedure (catalog row, selection matrix entry, canonical
+  formula, co-application with 250/255, auto-detection, version tracking, research
+  basis). Part 2 places the Tier 1 bright-line in 091 (always loaded at the dispatch
+  decision), Part 3 extends critical-rules-034 to dispatch-level shapes, and Part
+  4 closes the §15/§6a loophole that causally produced the observed "combined effectiveness
+  run." Part 5 adds the behavioral scenario as the §6a two-SC pattern: a real-model
+  artifact-generation run plus a separate clean-room dispatch that reads session.yaml
+  and judges semantically whether each discrete step received its own dispatch — the
+  evaluator receives only the criterion and session.yaml. Part 6 adds a content-verification
+  scenario checking rule-text placement and the absence of multi-step dispatch template
+  text in task cards. RED evidence is already observed and preserved: 22 combined
+  dispatches in session `ses_f5aa152f7ffeeEzOm66Lr2Gbs6` — nothing is fabricated.
+  "Discrete step" stays anchored to task-card plan steps and workflow-marked sub-task
+  dispatches; Architecture B direct execution and the decompose-and-re-dispatch corrective
+  action are preserved.
+
+
+  ## Impact
+
+
+  - Risk: rule-text drift across 257/091/022 → mitigation: 257 is the canonical pattern
+  home; 091 and 022 Read-link it, never redefine; the content-verification scenario
+  asserts placement.
+
+  - Risk: clean-room evaluator drifts toward marker matching → mitigation: developer
+  directive encoded as R-7 — evaluator receives only the criterion + session.yaml;
+  input audit in the verify step.
+
+  - Risk: §15 economy wording re-inverted into combination justification → mitigation:
+  R-5 states the cannot-combine clarification explicitly and §6a states the evaluation
+  dispatch is separate.
+
+  - Key dependencies: 257 §11 procedure, tests-v2 harness (`with-test-home`, §6a pattern),
+  observed RED session `ses_f5aa152f7ffeeEzOm66Lr2Gbs6`.
+
+  - Call to action: review and approve `.opencode#2451` to move the six-part dispatch
+  gate to plan creation.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-09-17T19:32:29+00:00'
-updated_at: '2026-09-17T20:29:37+00:00'
+updated_at: '2026-09-17T20:42:13+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2451
 remote_url: https://github.com/michael-conrad/.opencode/issues/2451
