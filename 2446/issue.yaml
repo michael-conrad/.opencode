@@ -3,6 +3,43 @@ title: '[BUG] local-issues update --labels: help text implies comma-separated in
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Observed
+
+
+  The help text for `local-issues update --labels` implies comma-separated label input,
+  but the argparse definition uses `nargs=''*''` (space-separated). Passing a quoted
+  comma-separated string (e.g. `--labels ''spec-passed-review, other''`) silently
+  produces a single malformed label containing the comma/space.
+
+
+  Discovered during spec-audit label updates on `NewsRx/hermes-ingest-pubmed#139`
+  (2026-09-14).
+
+
+  ## Expected
+
+
+  Help text matches parsing behavior (either document space-separated usage or split
+  on commas in code), and malformed labels should be rejected rather than silently
+  created.
+
+
+  ## Steps to reproduce
+
+
+  `./.opencode/tools/local-issues update --number <repo>#<N> --labels ''a, b''` then
+  read the issue labels.
+
+
+  ## Component
+
+
+  `.opencode/tools/local-issues` — label update CLI + help text.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-09-17T23:11:33+00:00'
-updated_at: '2026-09-17T23:11:33+00:00'
+updated_at: '2026-09-17T23:11:44+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2446
