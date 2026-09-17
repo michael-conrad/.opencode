@@ -2,6 +2,9 @@ title: '[SPEC-FIX] local-issues validate-yaml gate is workspace-wide with no sco
   — 356 pre-existing legacy schema violations block all spec-creation pipelines at
   the R-13 gate'
 status: open
+remote_issue: 2450
+remote_url: https://github.com/michael-conrad/.opencode/issues/2450
+github_url: https://github.com/michael-conrad/.opencode/issues/2450
 labels:
 - needs-approval
 - spec-draft
