@@ -1,0 +1,46 @@
+# Blast radius for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# All paths verified to exist 2026-09-17 (revision session) except the two new scenario files (marked new)
+
+phases:
+  - phase: 1
+    items: [item-1, item-2, item-3, item-4]
+    affected_components:
+      - .opencode/guidelines/257-procedural-discipline-reference.md (§11 add-pattern procedure — p-dis-007 canonical pattern home; existing p-dis-001..006 untouched)
+      - .opencode/guidelines/091-incremental-build.md ("Batching items" anti-pattern, line 44 region — Tier 1 dispatch-level bright-line host; 091 is always loaded)
+      - .opencode/guidelines/022-orchestrator-context-discipline.md (critical-rules-034, lines 143/192/201/213 region — dispatch-level extension host)
+      - .opencode/tests-v2/AGENTS.md (§6a two-SC pattern, line 445; §15 Targeted Behavioral-Test Execution Mandate, line 931 — loophole closure)
+    ripple_effects:
+      - "091 and 022 carry Read [Text](path) links to 257 p-dis-007 — the link target must exist, so item-1 precedes items 2-3"
+      - "091 is Tier 1 (always loaded): the bright-line becomes present at the moment the dispatch decision is made"
+      - "critical-rules-034's existing sub-agent-internal coverage is preserved; only dispatch-level shapes are added"
+      - "tests-v2 §15 economy wording can no longer be inverted into a combination justification; §6a states the clean-room evaluation is a separate dispatch"
+    risk: "rule-text drift across 257/091/022 — mitigated by canonical-home-in-257 with Read-link references, never redefinition; asserted by the Phase 3 content-verification scenario"
+  - phase: 2
+    items: [item-5, item-6]
+    affected_components:
+      - .opencode/tests-v2/behaviors/ (NEW scenario file — artifact-generation run per §6a SC-N)
+      - .opencode/tests-v2/behaviors/ (NEW clean-room evaluation dispatch per §6a SC-N+1 — separate from the generation run)
+      - .opencode/tests-v2/with-test-home (harness consumed as-is; >=600s timeout per §10.2)
+    ripple_effects:
+      - "a real-model opencode run against a multi-step-plan prompt produces the artifact-generation session; session.yaml exported and preserved as the SC-6 evaluation input"
+      - "the separate clean-room evaluation dispatch reads session.yaml plus the semantic criterion only — no marker lists, no expected phrases, no static gates (R-7 developer directive)"
+      - "observed RED evidence (22 combined 'Two sequential tasks' dispatches in production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6, issue 2432) is documented, never re-fabricated (R-8)"
+    risk: "runtime cost is minutes of real-model execution and stderr/stdout assertion helpers are prohibited (tests-v2 §2 — session.yaml is the PRIMARY evaluation source); structural substitution is a critical violation, not a fallback"
+  - phase: 3
+    items: [item-7]
+    affected_components:
+      - .opencode/tests-v2/content-verification suite (NEW scenario — rule-text placement verification)
+      - .opencode/tests-v2/test-enforcement.sh (consumed as-is via --scenario)
+    ripple_effects:
+      - "the scenario asserts 257 contains p-dis-007, 091 contains the dispatch-level bright-line, 022 contains the critical-rules-034 dispatch-level extension, and task cards contain NO multi-step dispatch template text"
+      - "future edits that silently move or delete the three rule texts fail the regression gate"
+    risk: "low — structural placement assertions only; scenario must stay in lockstep with the SC-1..SC-3 rule texts"
+
+no_ripple:
+  - "other skill cards' DISPATCH_GATE sections — blast radius is contained to 257, 091, 022, tests-v2/AGENTS.md, and the test suite (spec §2 Not Included)"
+  - "dispatch-mode marking (direct vs task-card) — unchanged; the gate constrains only per-dispatch cardinality"
+  - "canonical dispatch string mechanism — consumed as-is; no new string format"
+  - "Architecture B direct-mode execution in the orchestrator's own context — stays sanctioned (R-11); the gate constrains task() dispatch cardinality only"
+  - "plugin/hook mechanical enforcement — not added (not mechanically observable at this repo's enforcement layer; prohibited as an escape hatch)"
+  - "critical-rules-034's existing sub-agent-internal coverage — preserved, not replaced (spec §2)"

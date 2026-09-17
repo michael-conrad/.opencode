@@ -1,0 +1,42 @@
+# Concern map for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# Maps the six developer-approved design parts (2026-09-17 brainstorming) to concern boundaries
+# 1:1 SC mapping: Part 1→SC-1, Part 2→SC-2, Part 3→SC-3, Part 4→SC-4, Part 5→SC-5+SC-6, Part 6→SC-7
+
+concerns:
+  - concern: "Part 1 — Canonical pattern definition (p-dis-007)"
+    owner_file: ".opencode/guidelines/257-procedural-discipline-reference.md (§11 add-pattern procedure, line 271 region)"
+    phases: [1]
+    items: [item-1]
+    scs: [SC-1]
+    boundary: "p-dis-007 'One-Dispatch-One-Step Gate' is defined ONCE in 257 via that card's §11 add-pattern procedure — catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis. Bright-line: one dispatch = one discrete step; a task() dispatch carrying more than one discrete step (two task cards, run+verify, multi-SC verification, Task A/Task B shapes, 'combined effectiveness run') is a violation no matter the reasoning; structural, not reasoning-classification. 091 and 022 reference the pattern via Read-link, never redefine it."
+  - concern: "Part 2 — Decision-moment visibility (091 Tier 1 bright-line)"
+    owner_file: ".opencode/guidelines/091-incremental-build.md ('Batching items' anti-pattern, line 44 region)"
+    phases: [1]
+    items: [item-2]
+    scs: [SC-2]
+    boundary: "the existing 'Batching items' anti-pattern is EXTENDED into an explicit dispatch-level rule with the no-exceptions clause, plus a Read [Text](path) link to 257 p-dis-007 (Read-link mandate — never 'see' citations). Rationale: 091 is Tier 1 and always loaded, so the bright-line is present at the moment the dispatch decision is made. Item-level anti-pattern content is preserved; only the dispatch-level extension is added."
+  - concern: "Part 3 — Dispatch-level combining coverage (022 critical-rules-034 extension)"
+    owner_file: ".opencode/guidelines/022-orchestrator-context-discipline.md (critical-rules-034, lines 143/192/201/213 region)"
+    phases: [1]
+    items: [item-3]
+    scs: [SC-3]
+    boundary: "critical-rules-034 — which currently polices only sub-agent-internal analyze+write+verify combination — is EXTENDED to cover ALL combined-dispatch shapes at the dispatch level (run+verify in one task(), cross-SC verification runs, Task A/Task B packing) with the no-matter-the-reasoning clause and a Read-link to 257 p-dis-007. Existing sub-agent-internal coverage is preserved, not replaced. One rule family for all combining violations."
+  - concern: "Part 4 — Evaluation-economy loophole closure (tests-v2 §15/§6a)"
+    owner_file: ".opencode/tests-v2/AGENTS.md (§6a two-SC pattern, line 445; §15 Targeted Behavioral-Test Execution Mandate, line 931)"
+    phases: [1]
+    items: [item-4]
+    scs: [SC-4]
+    boundary: "§15 clarifies that 'one run per SC-RED need and one run per SC-GREEN need' CANNOT be satisfied by combining two SCs' needs into one run — a combined run violates the mandate instead of satisfying it. §6a states explicitly that the clean-room evaluation is a SEPARATE dispatch from the artifact-generation run. This is the causal fix: the observed defect ('combined effectiveness run') was §15 economy wording inverted into combination justification."
+  - concern: "Part 5 — Runtime behavioral evidence (§6a two-SC pattern)"
+    owner_file: ".opencode/tests-v2/behaviors/ (NEW scenario file + NEW separate clean-room evaluation dispatch)"
+    phases: [2]
+    items: [item-5, item-6]
+    scs: [SC-5, SC-6]
+    boundary: "two SCs because the §6a two-SC pattern mandates artifact generation and clean-room evaluation as separate SCs. SC-N (SC-5): a real-model opencode run via with-test-home against a multi-step-plan prompt produces the artifact-generation session; session.yaml is exported and preserved as the evaluation input. SC-N+1 (SC-6): a separate clean-room evaluation dispatch reads session.yaml and judges SEMANTICALLY whether each discrete step received its own dispatch — its sole inputs are the criterion and session.yaml; no marker lists, no expected phrases, no static gates (R-7); stderr/stdout assertions prohibited (tests-v2 §2). Observed RED evidence (22 combined dispatches, ses_f5aa152f7ffeeEzOm66Lr2Gbs6) is preserved, not fabricated (R-8)."
+  - concern: "Part 6 — Placement regression gate (content-verification scenario)"
+    owner_file: ".opencode/tests-v2/content-verification suite (NEW scenario, run via test-enforcement.sh --scenario)"
+    phases: [3]
+    items: [item-7]
+    scs: [SC-7]
+    boundary: "a content-verification scenario asserts rule-text placement: 257 contains p-dis-007; 091 contains the dispatch-level bright-line; 022 contains the critical-rules-034 dispatch-level extension; and task cards contain NO multi-step dispatch template text. Structural placement assertions only — this concern owns the regression gate for the three rule texts."

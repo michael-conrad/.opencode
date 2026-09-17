@@ -1,0 +1,61 @@
+# State analysis for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# Each machine is the before→after state of one spec deliverable; triggers are the item RED→GREEN commits.
+
+state_machines:
+  - machine: "257 pattern catalog content"
+    phases: [1]
+    transitions:
+      - from: "catalog without p-dis-007 (p-dis-001..006 only; §11 names 'p-dis-007+' as the next insertion point)"
+        to: "catalog with p-dis-007 'One-Dispatch-One-Step Gate' plus all §11 procedure artifacts (catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis)"
+        trigger: "item-1 RED→GREEN commit"
+        invariant: "existing p-dis-001..006 entries, selection matrix rows, and co-application rules unchanged (additive per §11)"
+        failure_mode: "pattern added without the full §11 artifact set, or existing pattern entries altered"
+  - machine: "091 dispatch-level rule state"
+    phases: [1]
+    transitions:
+      - from: "'Batching items' anti-pattern polices item-level batching only (multiple SCs in one implementation item); no dispatch-level shape is named"
+        to: "explicit dispatch-level bright-line with the no-exceptions clause plus a Read [Text](path) link to 257 p-dis-007; zero 'see'-style citations to the pattern"
+        trigger: "item-2 RED→GREEN commit (depends on item-1)"
+        invariant: "existing item-level anti-pattern text preserved; Tier 1 placement retained (091 always loaded)"
+        failure_mode: "dispatch-level text added without the Read-link, or with a 'see'-style citation, or replacing the item-level text"
+  - machine: "022 critical-rules-034 coverage state"
+    phases: [1]
+    transitions:
+      - from: "critical-rules-034 polices only sub-agent-internal analyze+write+verify combination"
+        to: "critical-rules-034 additionally covers ALL combined-dispatch shapes at the dispatch level (run+verify in one task(), cross-SC verification runs, Task A/Task B packing) with the no-matter-the-reasoning clause and a Read-link to 257 p-dis-007"
+        trigger: "item-3 RED→GREEN commit (depends on item-1)"
+        invariant: "existing sub-agent-internal coverage preserved — extension, not replacement (consistency read against the pre-extension 034 text)"
+        failure_mode: "extension replaces the existing coverage instead of adding to it"
+  - machine: "tests-v2 evaluation-economy rule state"
+    phases: [1]
+    transitions:
+      - from: "§15 economy wording ('one run per SC-RED need and one run per SC-GREEN need') invertible into combination justification; §6a silent on the dispatch boundary between artifact generation and clean-room evaluation"
+        to: "§15 states a combined run VIOLATES the mandate instead of satisfying it; §6a states the clean-room evaluation is a SEPARATE dispatch from the artifact-generation run"
+        trigger: "item-4 RED→GREEN commit"
+        invariant: "mandate text otherwise unchanged; the clarification is the causal fix for the observed 'combined effectiveness run' defect"
+        failure_mode: "partial closure — §15 clarified but §6a left silent, or vice versa"
+  - machine: "combined-dispatch behavioral scenario existence state"
+    phases: [2]
+    transitions:
+      - from: "no combined-dispatch scenario in .opencode/tests-v2/behaviors/ (224 scenarios, zero combined-dispatch — absence verified in the creation session)"
+        to: "scenario exists: artifact-generation run (§6a SC-N) via with-test-home opencode run (>=600s) plus a SEPARATE clean-room evaluation dispatch (§6a SC-N+1)"
+        trigger: "items 5-6 GREEN (depend on items 1-4 committed+pushed and remote-contained)"
+        invariant: "the two-SC dispatch separation is maintained; the evaluator's inputs are the semantic criterion and session.yaml only"
+        failure_mode: "evaluation collapsed into the generation run (the prohibited combined shape), or marker/static-gate evaluation substituted (R-7 violation)"
+  - machine: "session.yaml evaluation-input state (RED → GREEN)"
+    phases: [2]
+    transitions:
+      - from: "observed RED baseline: 22 combined 'Two sequential tasks' dispatches in production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6 (issue 2432) — preserved evidence, not re-run"
+        to: "post-rule session.yaml showing one dispatch per discrete step; SC-6 semantic verdict GREEN (every discrete step received its own dispatch)"
+        trigger: "item-5 run produces session.yaml; item-6 evaluation dispatch reads it"
+        invariant: "RED evidence is observed and preserved, never fabricated (R-8); if the live session and the preserved record are both inaccessible, the item reports BLOCKED (spec §11 Recovery); no structural substitution for the semantic verdict"
+        failure_mode: "RED re-fabrication, structural substitution, or a post-rule session that still bundles steps (hard FAIL — cause-analysis per the behavioral test framework guide, fix folded into the feature branch)"
+  - machine: "rule-text placement regression state"
+    phases: [3]
+    transitions:
+      - from: "no scenario asserts rule-text placement (future edits could silently move or delete the three rule texts)"
+        to: "content-verification scenario asserts: 257 contains p-dis-007; 091 contains the dispatch-level bright-line; 022 contains the critical-rules-034 dispatch-level extension; task cards contain NO multi-step dispatch template text"
+        trigger: "item-7 GREEN (depends on items 1-3)"
+        invariant: "placement assertions match the SC-1..SC-3 rule texts; scenario runs via test-enforcement.sh --scenario"
+        failure_mode: "scenario drifts from the rule texts (false PASS/FAIL) — keep the scenario in lockstep with the rule texts"

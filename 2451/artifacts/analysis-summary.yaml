@@ -1,0 +1,38 @@
+spec_path: .opencode/.issues/2451/spec.md
+approval_status: pending_approval
+approval_labels: [needs-approval, spec-draft]
+sc_count: 7
+requirement_count: 12
+artifact_presence:
+  blast-radius.yaml: regenerated
+  concern-map.yaml: regenerated
+  code-path-inventory.yaml: regenerated
+  cross-cutting-matrix.yaml: regenerated
+  interface-compatibility.yaml: regenerated
+  state-analysis.yaml: regenerated
+  testability-assessment.yaml: regenerated
+scope_boundary_findings:
+  - path: .opencode/guidelines/257-procedural-discipline-reference.md
+    status: exists
+  - path: .opencode/guidelines/091-incremental-build.md
+    status: exists
+  - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+    status: exists
+  - path: .opencode/tests-v2/AGENTS.md
+    status: exists
+  - path: .opencode/tests-v2/behaviors/ (NEW scenario files, created during implementation)
+    status: new
+  - path: .opencode/tests-v2/content-verification suite (NEW scenario, created during implementation)
+    status: new
+scope_summary:
+  phases: 3
+  phase_1: "Rule-text-and-loophole-closure (Items 1-4): 257 p-dis-007 via §11 procedure; 091 Tier 1 dispatch-level bright-line + Read-link; 022 critical-rules-034 dispatch-level extension; tests-v2 §15/§6a loophole closure"
+  phase_2: "Behavioral-enforcement (Items 5-6): §6a two-SC pattern — real-model artifact-generation run producing session.yaml + separate clean-room semantic evaluation (criterion + session.yaml only; no markers, no stderr assertions)"
+  phase_3: "Content-verification (Item 7): rule-text placement scenario via test-enforcement.sh --scenario"
+  out_of_scope:
+    - "dispatch-mode marking changes (direct vs task-card) and the canonical dispatch string mechanism"
+    - "marker vocabularies, expected phrases, or static gates for behavioral evaluation (developer directive)"
+    - "stderr/stdout assertion helpers for behavioral SC evaluation (tests-v2 §2)"
+    - "plugin/hook mechanical enforcement"
+    - "other skill cards' DISPATCH_GATE sections (blast radius contained to 257, 091, 022, tests-v2/AGENTS.md, test suite)"
+regeneration_note: "All 7 analytical artifacts regenerated 2026-09-17 (revision session) after validation check 3.6 (artifact cross-reference) FAILED — the artifacts directory was absent because the prior revision (developer-approved six-part redesign) deleted the stale 3-SC artifacts without regenerating. Regenerated grounded in the CURRENT revised spec text (7 SCs / 12 requirements / six-part developer-approved design). Spec body untouched per the dispatch directive ('do not alter spec.md'). No plan.md exists — plan regeneration skipped per revise Step 8.1."

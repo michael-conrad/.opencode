@@ -1,0 +1,54 @@
+# Testability assessment for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# Evidence types follow the spec §3 table; SC-5/SC-6 reflect the §6a two-SC pattern.
+
+test_strategy:
+  - item: item-1
+    sc_id: SC-1
+    evidence_type: string
+    test_strategy: "grep-class content-verification assertion over 257 for the pattern ID p-dis-007, the §11 procedure artifacts (catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis), and the no-matter-the-reasoning clause"
+    test_script: "grep .opencode/guidelines/257-procedural-discipline-reference.md for 'p-dis-007', the §11 artifact keywords, and the clause; the SC-7 content-verification scenario asserts placement regressively"
+    notes: "RED verified 2026-09-17: p-dis-007 absent from 257 — the only hit is §11's own text naming 'p-dis-007+' as the next insertion point (line 271). GREEN: the pattern exists with the full §11 artifact set."
+  - item: item-2
+    sc_id: SC-2
+    evidence_type: string
+    test_strategy: "grep-class assertions over 091 for the dispatch-level extension, the no-exceptions clause, and the Read [Text](path) link to 257 p-dis-007; assert the ABSENCE of 'see'-style citations to the pattern"
+    test_script: "grep .opencode/guidelines/091-incremental-build.md for the dispatch-level rule text, the clause, and the Read-link form; negative assertion for 'see'-style citation"
+    notes: "RED: 'Batching items' (line 44) polices item-level batching only. GREEN: dispatch-level extension present with Read-link."
+  - item: item-3
+    sc_id: SC-3
+    evidence_type: string
+    test_strategy: "grep-class assertions over 022 for the dispatch-level shapes (run+verify in one task(), cross-SC verification runs, Task A/Task B packing), the no-matter-the-reasoning clause, and the Read-link to p-dis-007; consistency read against the pre-extension 034 text (extension, not replacement)"
+    test_script: "grep .opencode/guidelines/022-orchestrator-context-discipline.md for the dispatch shapes and clause; diff-read the critical-rules-034 sections (lines 143/192/201/213 region) against the pre-extension text"
+    notes: "RED: 034 covers only sub-agent-internal combination. GREEN: dispatch-level shapes added, existing coverage intact."
+  - item: item-4
+    sc_id: SC-4
+    evidence_type: string
+    test_strategy: "grep-class assertions over tests-v2/AGENTS.md §15 for the cannot-combine clarification and §6a for the separate-dispatch sentence"
+    test_script: "grep .opencode/tests-v2/AGENTS.md §15 (line 931 region) for the cannot-combine language and §6a (line 445 region) for the separate-dispatch sentence"
+    notes: "RED: §15 economy wording invertible into combination justification; §6a silent on the dispatch boundary. GREEN: both closures present."
+  - item: item-5
+    sc_id: SC-5
+    evidence_type: behavioral
+    test_strategy: "real-model artifact-generation run (§6a SC-N) — bash .opencode/tests-v2/with-test-home opencode run '<multi-step-plan prompt>' with >=600s timeout; session.yaml exported and preserved as the evaluation input; NO structural substitution"
+    test_script: "bash .opencode/tests-v2/with-test-home opencode run '<multi-step-plan prompt>' (>=600s timeout); session.yaml export per the behavioral harness export procedure"
+    notes: "RED is observed, not fabricated: 22 combined 'Two sequential tasks' dispatches in production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6 (issue 2432) are the preserved RED baseline (R-8). Behavioral variant ordering: commit+push Items 1-4 and verify remote containment BEFORE the run. Stale lock cleanup (rm -f tmp/.behavior-run.lock) and >=600s timeout per §10.1-10.2."
+  - item: item-6
+    sc_id: SC-6
+    evidence_type: behavioral
+    test_strategy: "SEPARATE clean-room evaluation dispatch (§6a SC-N+1, distinct from the item-5 generation run) whose sole inputs are the semantic criterion (every discrete step received its own dispatch) and the session.yaml from SC-5; the evaluator judges SEMANTICALLY; verdict recorded per the §6a result-contract format; evaluator input audit confirms criterion + session.yaml only"
+    test_script: "separate clean-room dispatch consuming session.yaml + criterion; NO marker lists, NO expected phrases, NO static gates (R-7 developer directive); stderr/stdout assertion helpers PROHIBITED — tests-v2 §2: session.yaml is the PRIMARY evaluation source"
+    notes: "GREEN = every discrete step in the evaluated session received its own dispatch; combined dispatches fail. A post-rule FAIL triggers the test-integrity mandate: no lobotomized assertions, no marker substitution — analyze session evidence and fold a fix into the feature branch. If the RED baseline record is inaccessible, report BLOCKED, never fabricate (R-8, spec §11 Recovery)."
+  - item: item-7
+    sc_id: SC-7
+    evidence_type: string
+    test_strategy: "content-verification scenario asserting rule-text placement: 257 contains p-dis-007; 091 contains the dispatch-level bright-line; 022 contains the critical-rules-034 dispatch-level extension; task cards contain NO multi-step dispatch template text"
+    test_script: "bash .opencode/tests-v2/test-enforcement.sh --scenario <content-verification scenario>"
+    notes: "RED: placement assertions fail before Items 1-3 (rule texts absent). GREEN: scenario passes after Items 1-3 are committed. No structural substitution beyond the string evidence the SC declares."
+
+testability_risks:
+  - "SC-5/SC-6 require real-model runtime (>=600s timeout) — grep/static-analysis/metadata substitution is a critical violation (critical-rules-060); the §6a two-SC separation means the evaluation dispatch must NOT be merged into the generation run"
+  - "evaluator input drift: any marker list, expected phrase, or static gate entering the evaluator's input set silently violates R-7 — the verify step's input audit is the control"
+  - "stderr-assertion temptation: tests-v2 §2 prohibits stderr/stdout assertion helpers for behavioral SC evaluation; behavioral evidence lives in session.yaml"
+  - "observed RED evidence dependency: if production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6 and its preserved record are both inaccessible at evaluation time, item-5/6 report BLOCKED rather than fabricating a substitute RED session (R-8)"
+  - "unpushed state invalidates the behavioral run: the harness hard-FAILs on uncommitted/unpushed submodule state — the commit→push→fresh-fetch→verify cycle precedes every behavioral run"

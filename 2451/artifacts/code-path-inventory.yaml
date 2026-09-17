@@ -1,0 +1,49 @@
+# Code path inventory for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+# Locations verified by grep 2026-09-17 (revision session): 257 §11 procedure line 271, p-dis-001..006 catalog
+# rows lines 26-31; 091 "Batching items" line 44; 022 critical-rules-034 lines 143/192/201/213;
+# tests-v2/AGENTS.md §6a line 445, §15 line 931. All pre-change line references are advisory anchors, not contracts.
+
+code_paths:
+  - phase: 1
+    items: [item-1, item-2, item-3, item-4]
+    paths:
+      - path: .opencode/guidelines/257-procedural-discipline-reference.md
+        location: "pattern catalog (p-dis-001..006 rows), selection matrix, canonical formula sections, co-application section, and §11 'To add a procedural discipline pattern (p-dis-007+)' procedure (line 271 region)"
+        change: "SC-1 — add p-dis-007 'One-Dispatch-One-Step Gate' per the §11 add-pattern procedure: catalog row, selection matrix entry, canonical formula, co-application with 250/255, auto-detection trigger, version tracking, research basis. Bright-line per R-2 with the enumerated violation shapes and the no-matter-the-reasoning clause."
+      - path: .opencode/guidelines/091-incremental-build.md
+        location: "Anti-Patterns section, 'Batching items' entry (line 44 region)"
+        change: "SC-2 — extend the 'Batching items' anti-pattern into an explicit dispatch-level rule with the no-exceptions clause; add a Read [Text](path) link to 257 p-dis-007; assert no 'see'-style citation. Tier 1 placement: present at the dispatch decision moment."
+      - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+        location: "critical-rules-034 sections (whole-card/whole-plan forwarding + tool-recipe task(), lines 143/192/201/213 region)"
+        change: "SC-3 — extend critical-rules-034 to cover ALL combined-dispatch shapes at the dispatch level (run+verify in one task(), cross-SC verification runs, Task A/Task B packing) with the no-matter-the-reasoning clause and a Read-link to 257 p-dis-007; preserve the existing sub-agent-internal coverage (extension, not replacement — consistency read against the pre-extension 034 text)."
+      - path: .opencode/tests-v2/AGENTS.md
+        location: "§15 Targeted Behavioral-Test Execution Mandate (line 931 region); §6a Two-SC Pattern (line 445 region)"
+        change: "SC-4 — §15: clarify that 'one run per SC-RED need and one run per SC-GREEN need' CANNOT be satisfied by combining two SCs' needs into one run (a combined run violates the mandate). §6a: state explicitly that the clean-room evaluation is a SEPARATE dispatch from the artifact-generation run."
+    consumers_of_change:
+      - "every agent's always-loaded 091 Tier 1 instructions — the bright-line is in context at the dispatch decision moment"
+      - "orchestrators dispatching sub-agents — 022 critical-rules-034 now names dispatch-level combining shapes"
+      - "behavioral test authors — tests-v2 §15/§6a no longer sanction combined runs; §6a mandates the two-SC separation"
+
+  - phase: 2
+    items: [item-5, item-6]
+    paths:
+      - path: .opencode/tests-v2/behaviors/
+        location: "NEW behavioral scenario script (artifact-generation run, §6a SC-N)"
+        change: "SC-5 — run via bash .opencode/tests-v2/with-test-home opencode run '<multi-step-plan prompt>' (>=600s timeout); the run produces the artifact-generation session whose session.yaml is exported and preserved as the evaluation input. RED is observed, not fabricated: the scenario documents 22 combined 'Two sequential tasks' dispatches in production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6 (issue 2432)."
+      - path: .opencode/tests-v2/behaviors/
+        location: "NEW separate clean-room evaluation dispatch (§6a SC-N+1)"
+        change: "SC-6 — distinct from the SC-5 generation run; sole inputs are the semantic criterion (every discrete step received its own dispatch) and the session.yaml from SC-5; judges SEMANTICALLY; verdict recorded per the §6a result-contract format; evaluator input audit confirms criterion + session.yaml only (no marker lists, no expected phrases, no static gates — R-7; stderr/stdout assertions prohibited per tests-v2 §2)."
+    consumers_of_change:
+      - "SC-6's clean-room evaluator — consumes SC-5's session.yaml as its only evaluation input"
+      - "behavioral harness export procedure — session.yaml must survive the run (post-timeout export per §10.5 if killed)"
+
+  - phase: 3
+    items: [item-7]
+    paths:
+      - path: .opencode/tests-v2/content-verification suite
+        location: "NEW content-verification scenario, executed via bash .opencode/tests-v2/test-enforcement.sh --scenario <name>"
+        change: "SC-7 — assert 257 contains p-dis-007; 091 contains the dispatch-level bright-line; 022 contains the critical-rules-034 dispatch-level extension; task cards contain NO multi-step dispatch template text."
+    consumers_of_change:
+      - "test-enforcement.sh scenario runs — the placement assertions gate future edits to the three rule texts"
+      - "task-card authors — the absence assertion keeps multi-step dispatch template text out of task cards"

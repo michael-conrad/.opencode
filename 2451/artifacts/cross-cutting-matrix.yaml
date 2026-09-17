@@ -1,0 +1,34 @@
+# Cross-cutting matrix for issue 2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+
+cross_cutting_concerns:
+  - concern: "No-matter-the-reasoning clause triplication"
+    phases: [1]
+    scs: [SC-1, SC-2, SC-3]
+    detail: "The clause appears in all three rule texts (257 p-dis-007, 091 bright-line, 022 extension) per R-2 — the rule is structural, not reasoning-classification. 257 is the canonical home; 091 and 022 carry placement-appropriate text and Read-link to the pattern. The three texts must agree on the enumerated violation shapes (two task cards, run+verify, multi-SC verification, Task A/Task B packing, 'combined effectiveness run')."
+    impact: "high — divergent clause wording across the three texts weakens the foreclosure of justification-based bypass; the Phase 3 placement scenario detects drift"
+  - concern: "Read-link dependency on p-dis-007 existence"
+    phases: [1, 2]
+    scs: [SC-1, SC-2, SC-3, SC-5, SC-6]
+    detail: "Items 2 and 3 depend on Item 1 (the Read-link target must exist). Items 5 and 6 depend on Items 1-4: the rule text must be committed and pushed — fresh fetch verifies the effective commit is contained in a remote ref — before the behavioral run, so the evaluated session runs under the effective rule."
+    impact: "high — sequencing violation produces dangling Read-links (Phase 1) or verdicts about rule text the branch does not contain (Phase 2)"
+  - concern: "§6a two-SC pattern spans text closure, generation, and evaluation"
+    phases: [1, 2]
+    scs: [SC-4, SC-5, SC-6]
+    detail: "SC-4 writes the separate-dispatch sentence into §6a; SC-5 is the §6a SC-N artifact-generation run; SC-6 is the §6a SC-N+1 separate clean-room evaluation. Collapsing SC-6 into SC-5's run is itself an instance of the defect class this spec prohibits — the pattern's integrity requires the dispatch boundary the spec enforces."
+    impact: "high — a combined generation+evaluation run would invalidate the behavioral evidence and repeat the observed 'combined effectiveness run' defect"
+  - concern: "No-static-gates constraint (developer directive)"
+    phases: [2]
+    scs: [SC-6]
+    detail: "R-7 prohibits mechanical/marker-based enforcement of the behavioral SC: no marker lists, no expected phrases, no static gates on dispatch prose — static gates are escape hatches the agent detects and subverts. The evaluator receives only the criterion and session.yaml. Corollary: stderr/stdout assertion helpers are prohibited for behavioral SC evaluation (tests-v2 §2 — session.yaml is the PRIMARY evaluation source)."
+    impact: "high — a marker-based or stderr-based evaluation silently violates the developer directive and produces subvertible evidence"
+  - concern: "Observed RED evidence preservation"
+    phases: [2]
+    scs: [SC-5, SC-6]
+    detail: "R-8: the 22 combined 'Two sequential tasks' dispatches in production session ses_f5aa152f7ffeeEzOm66Lr2Gbs6 (issue 2432) are preserved as observed RED evidence — the scenario documents this session as the combined-dispatch baseline and MUST NOT fabricate or re-run a substitute RED session. If neither the live session nor the preserved record is accessible at evaluation time, the item reports BLOCKED (spec §11 Recovery)."
+    impact: "medium — fabricated RED evidence would be a data-integrity violation; BLOCKED is the correct terminal state if evidence is inaccessible"
+  - concern: "Discrete-step vocabulary anchoring"
+    phases: [1, 2]
+    scs: [SC-1, SC-2, SC-3, SC-6]
+    detail: "R-10: 'discrete step' stays anchored to existing vocabulary — a task-card plan step (a plan step marked task-card) or a workflow-marked sub-task dispatch. No new vocabulary; the definition inherits executing-plans semantics. The same anchor governs the rule texts (SC-1..3) and the SC-6 semantic criterion, keeping the prohibition independently testable."
+    impact: "medium — a redefinition in any one text would desynchronize the rule from the evaluation criterion"
