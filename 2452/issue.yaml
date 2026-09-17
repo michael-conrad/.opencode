@@ -3,6 +3,7 @@ title: '[BUG] spec-creation analyze never consumes the brainstorming handoff —
 status: open
 labels:
 - approved-for-pr
+- spec-cleared
 body: ''
 created_at: '2026-09-17T20:53:29+00:00'
-updated_at: '2026-09-17T23:28:31+00:00'
+updated_at: '2026-09-17T23:36:30+00:00'
