@@ -126,12 +126,16 @@ dispatch:
 - [ ] 10. **RED (**task-card**).** Write failing tests asserting scoped-mode report lines match the `<path>: <error-class>` format and the same error classes the workspace scan emits for identical fixture files — scoped output equals the workspace output filtered to the target's paths. **→ SC-2**
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-red-*`
 - [ ] 11. **GREEN (**task-card**).** Emit scoped findings through the same code path the workspace scan uses (the shared per-directory scan collector) so format parity is structural. **→ SC-2**
-- [ ] 12. **Post-regression + verify + commit (**direct** for commit; task-card for tests).** Re-run the full suite, verify SC-2 with executed pytest evidence plus a manual cross-check comparing scoped output to filtered workspace output, then commit the tests and any emitted-line adjustment as one slice. **→ SC-2**
-  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-post-regression-* pipeline-verify-*`
+- [ ] 12. **Post-regression (**task-card**).** Re-run the full existing suite after the GREEN change; confirm nothing regressed. **→ SC-2**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-post-regression-*`
+- [ ] 13. **Verify (**task-card**).** Verify SC-2 with executed pytest evidence plus a manual cross-check comparing scoped output to the filtered workspace output. **→ SC-2**
+  - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-verify-*`
+- [ ] 14. **Commit (**direct**).** Stage and commit the tests plus any emitted-line adjustment as one atomic slice.
+  - `git add .opencode/tests/test_local_issues/ .opencode/tools/local-issues && git commit -m "test(local-issues): scoped report format parity"`
 
 #### Phase 1 Completion (VbC)
 
-- [ ] 13. **VbC (**task-card**).** Verify SC-1 and SC-2 success criteria against executed test evidence: scoped exit semantics, fail-fast, bare-number rejection, format parity, unchanged default. **→ SC-1, SC-2**
+- [ ] 15. **VbC (**task-card**).** Verify SC-1 and SC-2 success criteria against executed test evidence: scoped exit semantics, fail-fast, bare-number rejection, format parity, unchanged default. **→ SC-1, SC-2**
 
 **Concern transition:** Leaving tool semantics → entering gate-text scoping. Phase 2 depends on Phase 1's `--number` flag existing.
 
