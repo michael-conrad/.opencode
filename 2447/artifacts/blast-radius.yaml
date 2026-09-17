@@ -2,13 +2,13 @@ blast_radius:
   grounding: "Derived from issue scope sections + reads already performed (session-init sed 490-640; rg on .opencode/AGENTS.md; git worktree list)"
   scope_source: "Issue ## Component + ## Expected"
   phases:
-    - phase: "session-init hint fix (SC-1)"
+    - phase: "session-init hint fix (SC-1, guarded by SC-2)"
       affected: [".opencode/tools/session-init (collect_issue_artifact_paths, main output loop)"]
       ripple: "Every future session's system prompt loses the .opencode setup hint; root .issues entry unchanged; callers: opencode plugin session-init invocation only"
-    - phase: "AGENTS.md correction (SC-2)"
+    - phase: "AGENTS.md correction (SC-3, SC-4)"
       affected: [".opencode/AGENTS.md § Issues Path Resolution / § .issues/ Is a Worktree"]
       ripple: "Agent routing for .opencode tickets shifts local-issues → GitHub API; opencode.jsonc instructions array loads this file so all agents see corrected guidance on next session"
-    - phase: "worktree removal (SC-3)"
+    - phase: "worktree removal (SC-5)"
       affected: [".opencode submodule worktree registration at .opencode/.issues"]
       ripple: "Existing local tickets under .opencode/.issues/ become unreachable via local-issues for .opencode#N; no parent-repo git impact"
   ungrounded_assumptions:

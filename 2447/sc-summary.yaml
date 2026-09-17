@@ -1,14 +1,22 @@
-sc_count: 3
+sc_count: 5
 scs:
   - id: "SC-1"
-    description: "session-init collect_issue_artifact_paths() emits no worktree-creation setup hint for missing .issues dirs; root entry unchanged"
-    evidence_type: "structural"
+    description: "session-init collect_issue_artifact_paths() emits no worktree-creation setup hint for missing .issues dirs"
+    evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: ".opencode/AGENTS.md routes .opencode defect reports via GitHub API against michael-conrad/.opencode, not local-issues into .opencode/.issues/"
-    evidence_type: "semantic"
+    description: "session-init root-repo .issues/ entry emission unchanged after the hint-removal change"
+    evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
+    description: ".opencode/AGENTS.md states .opencode defect reports and tickets are filed via the GitHub API against michael-conrad/.opencode"
+    evidence_type: "semantic"
+    plan_item: 3
+  - id: "SC-4"
+    description: ".opencode/AGENTS.md no longer routes .opencode tickets through local-issues into .opencode/.issues/"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
     description: ".opencode/.issues/ worktree registration removed (destructive — requires explicit developer authorization)"
     evidence_type: "structural"
-    plan_item: 3
+    plan_item: 5

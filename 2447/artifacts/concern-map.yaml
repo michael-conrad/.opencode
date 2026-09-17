@@ -1,12 +1,12 @@
 concern_map:
   phases:
-    - phase: "SC-1 session-init hint"
+    - phase: "SC-1/SC-2 session-init hint + root-entry invariance"
       concerns: ["output-generation logic (Python)"]
       boundaries: "Only collect_issue_artifact_paths; no repo-info discovery, no plugin changes"
-    - phase: "SC-2 AGENTS.md guidance"
+    - phase: "SC-3/SC-4 AGENTS.md guidance + routing removal"
       concerns: ["agent-facing documentation"]
       boundaries: "Only issue-routing prose; no guideline file changes, no tool changes"
-    - phase: "SC-3 worktree removal"
+    - phase: "SC-5 worktree removal"
       concerns: ["local git state hygiene"]
       boundaries: "Only the .opencode submodule; parent repo git untouched"
   separation_ok: true

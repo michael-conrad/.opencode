@@ -22,9 +22,9 @@
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-1 | `collect_issue_artifact_paths()` emits no worktree-creation setup hint for a repo entry whose `.issues` directory does not exist (the `# setup: create worktree from orphaned branch issues-data` text no longer appears in session-init output). | behavioral | pytest in `.opencode/tests/` — call `collect_issue_artifact_paths()` with synthetic repo_info including the `.opencode` entry and no `.opencode/.issues` dir; assert the hint string is absent from the function's emitted output. |
-| SC-2 | The session-init root-repo `.issues/` entry emission is unchanged after the hint-removal change. | structural | pytest in `.opencode/tests/` — call `collect_issue_artifact_paths()` with synthetic repo_info and assert the root-repo entry output is byte-identical to the pre-change emission. |
+| SC-2 | The session-init root-repo `.issues/` entry emission is unchanged after the hint-removal change. | behavioral | pytest in `.opencode/tests/` — call `collect_issue_artifact_paths()` with synthetic repo_info and assert the root-repo entry output is byte-identical to the pre-change emission. |
 | SC-3 | `.opencode/AGENTS.md` issue-routing sections state that `.opencode` defect reports and tickets are filed via the GitHub API against `michael-conrad/.opencode`. | semantic | Clean-room sub-agent reads the revised sections and judges that the GitHub-API ticket-filing directive is unambiguous. |
-| SC-4 | `.opencode/AGENTS.md` no longer routes `.opencode` tickets through `local-issues` into `.opencode/.issues/` (the `.opencode#N → .opencode/.issues/` mapping is removed). | structural | grep asserts the `.opencode#N → .opencode/.issues/` mapping is absent from `.opencode/AGENTS.md`. |
+| SC-4 | `.opencode/AGENTS.md` no longer routes `.opencode` tickets through `local-issues` into `.opencode/.issues/` (the `.opencode#N → .opencode/.issues/` mapping is removed). | string | grep asserts the `.opencode#N → .opencode/.issues/` mapping is absent from `.opencode/AGENTS.md`. |
 | SC-5 | The `.opencode/.issues/` worktree registration is removed (`git -C .opencode worktree list` shows no `.issues` worktree). **⛔ REQUIRES EXPLICIT DEVELOPER AUTHORIZATION — destructive step; MUST NOT execute on the `approved-for-pr` label alone (critical-rules-052).** | structural | `git -C .opencode worktree list` output as evidence; execution gated on a separate explicit developer authorization. |
 
 ## Requirements
@@ -36,21 +36,35 @@
 
 ## Items
 
-### Item 1 (SC-1, SC-2): Remove `.opencode` worktree setup hint from session-init
+### Item 1 (SC-1): Remove `.opencode` worktree setup hint from session-init
 
-- RED: pytest unit test asserting `collect_issue_artifact_paths()` output for a synthetic `.opencode` entry with no `.issues` dir contains no `setup: create worktree` hint (SC-1), plus a paired assertion that the root-repo entry emission is unchanged (SC-2) — fails before the change.
+- RED: pytest unit test asserting `collect_issue_artifact_paths()` output for a synthetic `.opencode` entry with no `.issues` dir contains no `setup: create worktree` hint (SC-1) — fails before the change.
 - GREEN: Remove the hint-append branch in `collect_issue_artifact_paths()` in `.opencode/tools/session-init` (delivered as PR against `michael-conrad/.opencode`; no direct local mutation).
-- verify: run the unit test suite for `.opencode/tests/`; confirm the root entry assertion (SC-2) still passes.
+- verify: run the unit test suite for `.opencode/tests/`; confirm the SC-1 assertion passes.
 - commit: one commit on the `.opencode` feature branch scoped to session-init.
 
-### Item 2 (SC-3, SC-4): Rewrite `.opencode/AGENTS.md` issue-routing guidance
+### Item 2 (SC-2): Root-repo `.issues/` emission invariance test
 
-- RED: grep test asserting `.opencode/AGENTS.md` contains no `.opencode#N → .opencode/.issues/` local-issues routing (SC-4) — fails before the change.
-- GREEN: Rewrite the § Issues Path Resolution and § .issues/ Is a Worktree sections to mandate GitHub API filing for `.opencode` tickets (SC-3) and prohibit creating/pushing `.opencode/.issues/` (SC-4).
-- verify: clean-room sub-agent reads the revised sections and confirms the GitHub-API routing directive is unambiguous (SC-3); grep confirms the local-issues routing mapping is removed (SC-4).
+- RED: paired invariance pytest assertion in its own item — call `collect_issue_artifact_paths()` with synthetic repo_info and assert the root-repo entry emission is byte-identical to the pre-change output (SC-2) — passes before the change (invariance RED); it becomes the regression guard that fails if the hint removal perturbs the root entry.
+- GREEN: Keep the root-repo emission path untouched while executing Item 1; the invariance assertion guards it.
+- verify: run the unit test suite for `.opencode/tests/`; confirm the root entry assertion (SC-2) passes.
+- commit: one commit on the `.opencode` feature branch scoped to session-init (may share the Item 1 commit only if both SCs land in the same atomic slice; the item remains a distinct SC with its own RED/GREEN cycle).
+
+### Item 3 (SC-3): Mandate GitHub API ticket filing in `.opencode/AGENTS.md`
+
+- RED: clean-room sub-agent reads the current § Issues Path Resolution / § .issues/ Is a Worktree sections and finds no unambiguous GitHub-API ticket-filing directive for `.opencode` (SC-3) — fails before the change.
+- GREEN: Rewrite the sections to state that `.opencode` defect reports and tickets are filed via the GitHub API against `michael-conrad/.opencode` (SC-3).
+- verify: clean-room sub-agent reads the revised sections and confirms the GitHub-API routing directive is unambiguous (SC-3).
 - commit: one commit on the `.opencode` feature branch scoped to AGENTS.md.
 
-### Item 3 (SC-5): Remove `.opencode/.issues/` worktree ⛔ AUTHORIZATION-GATED
+### Item 4 (SC-4): Remove `.opencode#N` local-issues routing mapping
+
+- RED: removal-assertion grep test in its own item — grep asserting `.opencode/AGENTS.md` contains no `.opencode#N → .opencode/.issues/` local-issues routing (SC-4) — fails before the change.
+- GREEN: Remove the `.opencode#N → .opencode/.issues/` mapping and any prose routing `.opencode` tickets through `local-issues` (SC-4).
+- verify: grep confirms the local-issues routing mapping is removed (SC-4).
+- commit: one commit on the `.opencode` feature branch scoped to AGENTS.md.
+
+### Item 5 (SC-5): Remove `.opencode/.issues/` worktree ⛔ AUTHORIZATION-GATED
 
 - RED: `git -C .opencode worktree list` shows the `.issues` worktree — the removal test fails before execution.
 - GREEN: Execute `git -C .opencode worktree remove .issues` (and prune the orphan-branch registration) — ONLY after explicit developer authorization beyond `approved-for-pr`.
@@ -61,23 +75,23 @@
 
 - **Reference:** `michael-conrad/.opencode` push/PR access — Relationship: fix delivery requires a PR against the `.opencode` repo; Status: pending (push currently denied for `michael-newsrx` — PR must be created from an authorized account).
 - **Reference:** Owner directive (2026-09-14, recorded in issue #2447 body) — Relationship: defines the required end-state guidance; Status: satisfied.
-- **Reference:** critical-rules-052 (file/destructive-state removal requires spec + authorization) — Relationship: gates Item 3; Status: spec satisfied, explicit destructive-step authorization pending.
+- **Reference:** critical-rules-052 (file/destructive-state removal requires spec + authorization) — Relationship: gates Item 5 (SC-5); Status: spec satisfied, explicit destructive-step authorization pending.
 
 ## Traceability
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | Item 1 |
-| R-2 | SC-2 | Item 1 |
-| R-3 | SC-3, SC-4 | Item 2 |
-| R-4 | SC-5 | Item 3 |
+| R-2 | SC-2 | Item 2 |
+| R-3 | SC-3, SC-4 | Items 3, 4 |
+| R-4 | SC-5 | Item 5 |
 
 ## Documentation Sources
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
 | Issue #2447 bug report | issue | https://github.com/michael-conrad/.opencode/issues/2447 | read (gh issue view) |
-| session-init `collect_issue_artifact_paths()` | code | `.opencode/tools/session-init` | read (sed 495-535) |
+| session-init `collect_issue_artifact_paths()` | code | `.opencode/tools/session-init` — `collect_issue_artifact_paths()` function | read (`collect_issue_artifact_paths()`) |
 | `.opencode/AGENTS.md` routing sections | doc | `.opencode/AGENTS.md` § Issues Path Resolution / § .issues/ Is a Worktree | grep + read |
 | Owner directive | discussion | recorded in issue #2447 body (2026-09-14) | read |
 | Pre-spec inspection artifact | artifact | `.opencode/.issues/2447/artifacts/pre-spec-inspection.yaml` | copied from analysis step |
@@ -115,4 +129,5 @@ Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-09-17 | Decomposed SC-1 into SC-1 (no worktree hint, behavioral) + SC-2 (root entry unchanged, structural); decomposed former SC-2 into SC-3 (GitHub API filing mandate, semantic) + SC-4 (no local-issues routing, structural); renumbered former SC-3 → SC-5 with authorization marker intact; renumbered Items/traceability/cost-frame/edge-case references accordingly; declared SC-1 behavioral (pytest execution is behavioral evidence). | Validation findings: compound-SC decomposition atomicity failure (SC-1, SC-2) and EVIDENCE_TYPE_MISMATCH (SC-1 declared structural but verified via pytest test execution). | Validation gate findings on spec revision (spec-creation revise pipeline) |
-| 2026-09-17 | Updated `testability-assessment.yaml` (SC numbering, evidence types: SC-1 behavioral, SC-2 structural, SC-3 semantic, SC-4 structural) and `interface-compatibility.yaml` (session-init change: hint removal not annotation; AGENTS.md routing contract change: removal of `.opencode#N` mapping) to match the revised spec. | Validation warnings: artifact/spec divergence on SC-2 evidence type and interface change kind. | Validation gate findings on spec revision |
+| 2026-09-17 | Updated `testability-assessment.yaml` (SC numbering, evidence types: SC-1 behavioral, SC-2 structural, SC-3 semantic, SC-4 structural) and `interface-compatibility.yaml` (session-init change: hint removal not annotation; AGENTS.md routing contract change: removal of `.opencode#N` mapping) to match the revised spec. Artifacts directory NOT wholesale-deleted (revise Step 7 superseded): validation finding (4) explicitly requires the artifacts to be updated to match the revised spec, and they serve as the referenced validation evidence; stale-SC references in both updated artifacts were corrected in place. | Validation warnings: artifact/spec divergence on SC-2 evidence type and interface change kind; revise Step 7 conflict with finding (4). | Validation gate findings on spec revision |
+| 2026-09-17 (iteration 2) | Redeclared SC-2 evidence type structural → behavioral (verified by pytest execution) and SC-4 structural → string (verified by grep) per EVIDENCE_TYPE_MISMATCH findings (1). Split compound Items 1-2 into five per-SC items (Item 1 SC-1, Item 2 SC-2 invariance, Item 3 SC-3, Item 4 SC-4 removal-assertion, Item 5 SC-5 unchanged) with own RED/GREEN cycles per SC↔Item mapping finding (2). Updated `blast-radius.yaml` and `concern-map.yaml` SC numbering to SC-1..SC-5 per finding (3). Replaced line-number verification cell "read (sed 495-535)" with stable anchor `collect_issue_artifact_paths()` per finding (4). SC-5 authorization marker preserved. Regenerated sc-summary.yaml (5 SCs) and remote exec-summary body. | Validation findings, iteration 2 (spec-creation revise pipeline). | Validation gate findings on spec revision |

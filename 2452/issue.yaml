@@ -2,8 +2,7 @@ title: '[BUG] spec-creation analyze never consumes the brainstorming handoff —
   drift from developer-approved designs'
 status: open
 labels:
-- needs-approval
-- spec-draft
+- approved-for-pr
 body: ''
 created_at: '2026-09-17T20:53:29+00:00'
-updated_at: '2026-09-17T23:19:06+00:00'
+updated_at: '2026-09-17T23:28:31+00:00'

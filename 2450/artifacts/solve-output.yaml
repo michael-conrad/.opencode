@@ -2,11 +2,12 @@ artifact_name: solve-output
 generated_at: 2026-09-17
 issue: 2450
 solve_status: SAT
-solve_command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2450/dependency-contract.yaml --query 'z3.And(phase1_tool_complete, phase2_gate_text_complete, phase3_governance_complete)'"
+solve_command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2450/dependency-contract.yaml --query 'z3.And(phase1_tool_complete, phase2_gate_text_complete, phase3_hygiene_complete, phase4_reservation_complete)'"
 model_assignment:
   phase1_tool_complete: true
   phase2_gate_text_complete: true
-  phase3_governance_complete: true
+  phase3_hygiene_complete: true
+  phase4_reservation_complete: true
   item1_flag_complete: true
   item2_parity_complete: true
   item3_analyze_invocation_complete: true

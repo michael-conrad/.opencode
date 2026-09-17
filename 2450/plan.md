@@ -52,10 +52,10 @@ dispatch:
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
 | 1 | Tool — scoped validation mode in local-issues | scoped `--number` flag with scoped exit codes and format parity | SC-1, SC-2 | — | 3-15 | task-card (3-4, 5-8, 10-13, 15) + direct (9, 14) |
-| 2 | Gate text — analyze.md and create.md R-13 gate scoping | scoped gate invocation + scoped-primary contract | SC-3, SC-4, SC-5 | 1 | 16-38 | task-card (16-17, 18-23, 24-29, 30-36, 38) + direct (37) |
-| 3 | Governance docs — issues-data hygiene mandate | hygiene mandate text at two sites | SC-6, SC-7 | — | 39-53 | task-card (39-40, 41-46, 47-52, 53) |
-| 4 | Governance docs — remote-first reservation mandate | remote-first reservation mandate text at three sites | SC-8, SC-9, SC-10 | — | 54-76 | task-card (54-55, 56-61, 62-67, 68-73, 74-75, 76) |
-| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3, 4 | 84-91 | mixed — see steps |
+| 2 | Gate text — analyze.md and create.md R-13 gate scoping | scoped gate invocation + scoped-primary contract | SC-3, SC-4, SC-5 | 1 | 16-38 | task-card (16-17, 18-20, 23-26, 29-32, 35-36, 38) + direct (21-22, 27-28, 33-34, 37) |
+| 3 | Governance docs — issues-data hygiene mandate | hygiene mandate text at two sites | SC-6, SC-7 | — | 39-53 | task-card (39-43, 46-49, 52-53) + direct (44-45, 50-51) |
+| 4 | Governance docs — remote-first reservation mandate | remote-first reservation mandate text at three sites | SC-8, SC-9, SC-10 | — | 54-76 | task-card (54-58, 61-64, 67-70, 73-74, 76) + direct (59-60, 65-66, 71-72, 75) |
+| — | Post-implementation | audit, verification, review-prep, PR | all | 1, 2, 3, 4 | 77-84 | mixed — see steps |
 
 ## Self-Remediation
 
@@ -332,21 +332,21 @@ dispatch:
 
 # Post-implementation (global)
 
-- [ ] 82. **Audit (**task-card**).** Adversarial audit of the deliverable — dispatch the verification-audit investigator, then validator, evaluator, and arbiter in sequence.
+- [ ] 77. **Audit (**task-card**).** Adversarial audit of the deliverable — dispatch the verification-audit investigator, then validator, evaluator, and arbiter in sequence.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-audit-*`
   - Coercion: DONE_WITH_CONCERNS coerces to FAIL for gate purposes; EVIDENCE_TYPE_MISMATCH is a hard FAIL.
-- [ ] 83. **Z3 check (**direct**).** Run the constraint solver verification directly.
+- [ ] 78. **Z3 check (**direct**).** Run the constraint solver verification directly.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-z3-check-*`
   - Command context: `.opencode/tools/solve check --state-path <state file> --contract-path .opencode/.issues/2450/dependency-contract.yaml`
-- [ ] 84. **Structural checks (**task-card**).** Run the finishing checklist (lint, typecheck, format checks) per finishing-a-development-branch.
+- [ ] 79. **Structural checks (**task-card**).** Run the finishing checklist (lint, typecheck, format checks) per finishing-a-development-branch.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-structural-checks-*`
-- [ ] 85. **Pre-PR gate (**task-card**).** Verify all SC verdicts — reads all SC evidence artifacts and BLOCKs if any FAIL (including coerced DONE_WITH_CONCERNS and EVIDENCE_TYPE_MISMATCH verdicts).
+- [ ] 80. **Pre-PR gate (**task-card**).** Verify all SC verdicts — reads all SC evidence artifacts and BLOCKs if any FAIL (including coerced DONE_WITH_CONCERNS and EVIDENCE_TYPE_MISMATCH verdicts).
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-pre-pr-gate-*`
-- [ ] 86. **Regression check (**task-card**).** Final full regression run before PR — the complete pytest suite plus the no-flag `validate-yaml` default-scan sanity check on both repos.
+- [ ] 81. **Regression check (**task-card**).** Final full regression run before PR — the complete pytest suite plus the no-flag `validate-yaml` default-scan sanity check on both repos.
   - Clean previous artifacts: `rm -f tmp/2450/artifacts/pipeline-regression-check-*`
-- [ ] 87. **Review-prep (**task-card**).** Prepare PR review context per git-workflow-pr review-prep.
-- [ ] 88. **Create PR (**task-card**).** Create the stacked PR per git-workflow-pr create — one branch, commits squashed to one commit per issue at PR creation; no co-author trailers in implementation commits (added during squash at PR time).
-- [ ] 89. **Exec summary (**task-card**).** Generate the completion executive summary per completion-core.
+- [ ] 82. **Review-prep (**task-card**).** Prepare PR review context per git-workflow-pr review-prep.
+- [ ] 83. **Create PR (**task-card**).** Create the stacked PR per git-workflow-pr create — one branch, commits squashed to one commit per issue at PR creation; no co-author trailers in implementation commits (added during squash at PR time).
+- [ ] 84. **Exec summary (**task-card**).** Generate the completion executive summary per completion-core.
 
 **Cost frame:** Running the full audit + pre-PR-gate chain costs minutes of execution time — the behavioral tier. Skipping costs the death-spiral tier: a FAIL SC carried into review ships the unscoped gate or an unstated mandate, and the 2451-style block or split-brain collision is discovered in production use — the 1000×+ discovery latency the entire pipeline exists to prevent.
 

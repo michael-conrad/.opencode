@@ -7,7 +7,7 @@ testability_assessment:
     - phase: "SC-2 root-repo entry unchanged"
       strategy: unit
       detail: "pytest in .opencode/tests/ — call collect_issue_artifact_paths() with synthetic repo_info and assert root-repo entry emission is byte-identical to pre-change output"
-      evidence_type: structural
+      evidence_type: behavioral
     - phase: "SC-3 AGENTS.md GitHub API mandate"
       strategy: manual
       detail: "clean-room sub-agent reads revised AGENTS.md routing sections and judges the GitHub-API ticket-filing directive is unambiguous"
@@ -15,7 +15,7 @@ testability_assessment:
     - phase: "SC-4 AGENTS.md local-issues routing removed"
       strategy: static
       detail: "grep asserts the .opencode#N -> .opencode/.issues/ mapping is absent from .opencode/AGENTS.md"
-      evidence_type: structural
+      evidence_type: string
     - phase: "SC-5 worktree removal"
       strategy: integration
       detail: "git -C .opencode worktree list output as evidence; destructive step gated on explicit authorization"

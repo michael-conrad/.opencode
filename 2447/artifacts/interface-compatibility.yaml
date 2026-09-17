@@ -20,4 +20,4 @@ interface_compatibility:
       type: "artifact schema"
       constraint: "Both artifacts must state the same .opencode/.issues policy — no divergence"
   removed_interfaces:
-    - "agent-managed .opencode/.issues/ worktree (SC-3)"
+    - "agent-managed .opencode/.issues/ worktree (SC-5)"
