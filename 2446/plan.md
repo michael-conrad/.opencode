@@ -179,3 +179,10 @@ Phase 1 is the only phase — proceed to post-implementation steps.
 - [ ] C4. Help text present on both subparsers (SC-3a, SC-3b).
 - [ ] C5. Audit, structural checks, pre-PR gate, and final regression check all passed.
 - [ ] C6. PR created (human-only merge); no merge performed by the agent.
+
+## Lifecycle Events
+
+- event: plan_created
+  timestamp: 2026-09-17T19:45:00-04:00
+  plan_file: .opencode/.issues/2446/plan.md
+  phase_count: 1
