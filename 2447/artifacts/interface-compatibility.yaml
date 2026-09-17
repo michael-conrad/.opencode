@@ -1,0 +1,23 @@
+interface_compatibility:
+  interfaces:
+    - name: "session-init stdout contract (## Local Issue Folders section)"
+      change: modified
+      detail: ".opencode entry loses worktree-setup hint / gains not-for-agent-use annotation"
+      backward_compatible: true
+      consumers: "agents reading system prompt"
+    - name: ".opencode/AGENTS.md routing contract (.opencode#N)"
+      change: modified
+      detail: ".opencode#N no longer maps to .opencode/.issues/; routes to GitHub API"
+      backward_compatible: false
+      breaking_changes: "local-issues .opencode#N mutations no longer supported for ticket filing"
+    - name: "local-issues CLI"
+      change: unchanged
+    - name: "root .issues/ worktree contract"
+      change: unchanged
+  dependency_contract:
+    - source: "session-init Local Issue Folders output"
+      target: "AGENTS.md issue-routing prose"
+      type: "artifact schema"
+      constraint: "Both artifacts must state the same .opencode/.issues policy — no divergence"
+  removed_interfaces:
+    - "agent-managed .opencode/.issues/ worktree (SC-3)"

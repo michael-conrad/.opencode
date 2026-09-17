@@ -1,0 +1,9 @@
+state_analysis:
+  phases:
+    - phase: "SC-1"
+      transitions: "session-init output state: hint-present → hint-absent/annotated for .opencode entry (one-way, on next session start)"
+    - phase: "SC-2"
+      transitions: "guidance state: local-issues-routed → github-api-routed (one-way)"
+    - phase: "SC-3"
+      transitions: "worktree state: registered (.opencode/.issues @ issues-data) → removed; branch issues-data retained or deleted per authorization scope"
+      rollback: "worktree can be re-created with git worktree add (reversible)"

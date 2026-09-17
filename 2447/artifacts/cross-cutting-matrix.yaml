@@ -1,0 +1,18 @@
+cross_cutting_matrix:
+  rows:
+    - concern: "verification-honesty / evidence"
+      SC-1: "unit test output as evidence"
+      SC-2: "grep/read evidence of corrected text"
+      SC-3: "git worktree list output as evidence"
+    - concern: "authorization"
+      SC-1: "covered by approved-for-pr issue label (PR in .opencode)"
+      SC-2: "same"
+      SC-3: "destructive — needs explicit developer authorization (critical-rules-052)"
+    - concern: "attribution"
+      SC-1: "Co-authored with AI byline in module docstring preserved/appended"
+      SC-2: "preserve existing bylines in AGENTS.md"
+      SC-3: "n/a (no file edits)"
+    - concern: "submodule discipline"
+      SC-1: "pointer rides with next real parent change; PR in .opencode repo"
+      SC-2: "same"
+      SC-3: "worktree removal inside submodule only"

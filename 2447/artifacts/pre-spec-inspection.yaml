@@ -1,0 +1,26 @@
+pre_spec_inspection:
+  issue: ".opencode#2447 (mirrored root #2447)"
+  title: "[BUG] AGENTS.md needs clarification on when .opencode/.issues/ should (not) be checked out as a worktree"
+  date: "2026-09-17"
+  affected_files:
+    - path: ".opencode/tools/session-init"
+      role: "Emits '## Local Issue Folders' section; collect_issue_artifact_paths() (lines 502-530) appends '# setup: create worktree from orphaned branch issues-data in repo .opencode' when <repo>/.issues does not exist"
+      evidence: "rg found 'Local Issue Folders' only in .opencode/tools/session-init; sed 490-640 read confirms emission loop and setup hint at lines 527-529"
+    - path: ".opencode/AGENTS.md"
+      role: "§ Issues Path Resolution / § .issues/ Is a Worktree direct agents to route .opencode tickets via local-issues into .opencode/.issues/; line 214 documents qualified-name mapping '.opencode#N → .opencode/.issues/'"
+      evidence: "rg -n 'local-issues|\\.opencode/.issues' .opencode/AGENTS.md → lines 214, 224, 229"
+  observed_runtime_state:
+    worktrees:
+      - "root repo: .issues at 8e84a030 [issues-data] (legitimate, agent-managed)"
+      - ".opencode submodule: .opencode/.issues worktree at df8d7139 [issues-data] (the defect — owner directed it must not exist; local issues-data commits are unsharable because michael-newsrx is denied push to michael-conrad/.opencode)"
+    existing_dirs:
+      - ".opencode/.issues/ contains issue dirs (1, 10, 100, ...) created by agents following current guidance"
+  existing_patterns:
+    - "local-issues CLI requires repo-qualified names (repo#N); bare numbers rejected"
+    - "session-init collect_repo_info() emits one entry per repo incl. the .opencode submodule; ## Local Issue Folders iterates the same list"
+  dependencies:
+    - "opencode.jsonc instructions array loads AGENTS.md into every session context"
+    - "session-init runs at every session start (plugin), so the setup hint is re-emitted constantly"
+  constraint_tension:
+    - "Owner directive: .opencode/ is read-only for agents; yet the defective guidance files (AGENTS.md, session-init) live inside .opencode. Fix must be delivered as a PR against michael-conrad/.opencode (label approved-for-pr present on issue), not by direct local mutation."
+  srclight_note: "srclight indexes python/typescript; session-init is a Python script — indexed surface confirmed via rg/file reads"

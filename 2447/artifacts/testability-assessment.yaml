@@ -1,0 +1,14 @@
+testability_assessment:
+  phases:
+    - phase: "SC-1 session-init hint"
+      strategy: unit
+      detail: "pytest in .opencode/tests/ — call collect_issue_artifact_paths() with synthetic repo_info incl. .opencode entry and no .opencode/.issues dir; assert no 'setup: create worktree' hint and root entry unchanged"
+      evidence_type: structural
+    - phase: "SC-2 AGENTS.md guidance"
+      strategy: mixed
+      detail: "structural: grep/read asserts no local-issues routing for .opencode tickets and GitHub API instruction present; behavioral: optional opencode run scenario asserting agent routes .opencode defect via gh api"
+      evidence_type: structural (primary); behavioral optional
+    - phase: "SC-3 worktree removal"
+      strategy: integration
+      detail: "git -C .opencode worktree list output as evidence; destructive step gated on explicit authorization"
+      evidence_type: structural

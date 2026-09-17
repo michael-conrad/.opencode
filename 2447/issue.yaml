@@ -3,6 +3,8 @@ title: '[BUG] AGENTS.md needs clarification on when .opencode/.issues/ should (n
 status: open
 labels:
 - approved-for-pr
+- needs-approval
+- spec-draft
 body: '## Observed
 
 
@@ -71,5 +73,5 @@ body: '## Observed
 
   '
 created_at: '2026-09-17T23:11:37+00:00'
-updated_at: '2026-09-17T23:12:22+00:00'
+updated_at: '2026-09-17T23:19:46+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2447

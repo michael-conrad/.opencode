@@ -1,0 +1,9 @@
+research_card_consultation:
+  date: "2026-09-17"
+  cards_found:
+    - ".issues/research-cards/agent-config-path-rules.md"
+    - ".issues/research-cards/cross-reference-lobotomization.md"
+    - ".issues/research-cards/imperative-verb-forms-load-directives.md"
+  matched: []
+  confidence_check: "No card frontmatter matched the spec topic (.opencode/.issues worktree policy, local-issues routing, GitHub API ticket routing). Closest card agent-config-path-rules.md covers .opencode path rules, not issue-folder checkout policy."
+  incorporation: "none — proceed from live code inspection only"

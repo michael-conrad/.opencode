@@ -1,0 +1,15 @@
+code_path_inventory:
+  phases:
+    - phase: "SC-1"
+      paths:
+        - ".opencode/tools/session-init :: collect_issue_artifact_paths()"
+        - ".opencode/tools/session-init :: main() → '## Local Issue Folders' print loop"
+    - phase: "SC-2"
+      paths:
+        - ".opencode/AGENTS.md :: 'Issues Path Resolution' section"
+        - ".opencode/AGENTS.md :: '.issues/ Is a Worktree' section"
+    - phase: "SC-3"
+      paths:
+        - "submodule git state: .opencode/.issues worktree (branch issues-data @ df8d7139)"
+  tests_impacted:
+    - ".opencode/tests/ unit tests for session-init (if covering collect_issue_artifact_paths)"
