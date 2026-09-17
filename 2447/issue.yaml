@@ -3,6 +3,73 @@ title: '[BUG] AGENTS.md needs clarification on when .opencode/.issues/ should (n
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Observed
+
+
+  `.opencode/AGENTS.md` and the session-init `## Local Issue Folders` output direct
+  agents to set up `.opencode/.issues/` as an orphan-branch worktree ("setup: create
+  worktree from orphaned branch issues-data in repo .opencode"), and the issue-tracking
+  guidance routes `.opencode` defect reports through `local-issues` into `.opencode/.issues/`.
+
+
+  However, the repository owner has directed (2026-09-14) that:
+
+
+  1. `.opencode/` is read-only for agents — agents must never modify it, including
+  never creating local `.opencode/.issues/` tickets or pushing to its `issues-data`
+  branch
+
+  2. `.opencode/.issues/` should not exist at all
+
+  3. Tickets for `.opencode` must be filed via proper GitHub API calls against `michael-conrad/.opencode`
+
+
+  Following the current AGENTS.md guidance as written caused an agent to create the
+  worktree, commit local issue files, and attempt a push (which fails anyway: `michael-newsrx`
+  is denied push to `michael-conrad/.opencode` over both HTTPS and SSH, so local `issues-data`
+  commits are unsharable). The worktree and local commits had to be removed afterward.
+
+
+  ## Expected
+
+
+  AGENTS.md (and any session-init/session-context output derived from it) should unambiguously
+  state when `.opencode/.issues/` should be checked out as a worktree and when it
+  should NOT be checked out — specifically:
+
+
+  - `.opencode/.issues/` is not an agent-managed issue folder; agents must not create,
+  populate, or push it
+
+  - `.opencode` defect reports and tickets go through the GitHub API (`gh api repos/michael-conrad/.opencode/issues`),
+  not `local-issues`
+
+  - The `## Local Issue Folders` setup hint for `.opencode/.issues/` should be removed
+  or annotated as not-for-agent-use
+
+
+  ## Steps to reproduce
+
+
+  1. Read `.opencode/AGENTS.md` § Issue Tracking / `.opencode` defect-reporting mandate
+
+  2. Observe it directs agents to `local-issues create` targeting the `.opencode`
+  sub-repo (i.e., writing into `.opencode/.issues/`)
+
+  3. Contrast with the owner''s directive that `.opencode/` is read-only and `.opencode/.issues/`
+  must not be checked out
+
+
+  ## Component
+
+
+  `.opencode/AGENTS.md` (§ Issue Tracking, § .opencode Defect Reporting) and the session-init
+  `## Local Issue Folders` output that mirrors it.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-09-17T23:11:37+00:00'
-updated_at: '2026-09-17T23:11:37+00:00'
+updated_at: '2026-09-17T23:11:48+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2447
