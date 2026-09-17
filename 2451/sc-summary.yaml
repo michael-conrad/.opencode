@@ -1,0 +1,17 @@
+# SC Summary — .opencode#2451
+# One-dispatch-one-step gate — prohibit combined dispatches for discrete steps
+
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: ".opencode/guidelines/022-orchestrator-context-discipline.md contains the one-dispatch-one-step gate rule: discrete-step definition, prohibition on bundling multiple discrete steps in one task() dispatch, corrective action, and Tier-2 classification."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "executing-plans SKILL.md Workflows and tasks/execute-phase.md reflect the gate at the dispatch decision point with language consistent with the 022 canonical rule."
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "A behavioral enforcement scenario in .opencode/tests-v2/behaviors/ verifies via a real-model opencode run that the agent dispatches exactly one discrete step per task() call."
+    evidence_type: "behavioral"
+    plan_item: 3
