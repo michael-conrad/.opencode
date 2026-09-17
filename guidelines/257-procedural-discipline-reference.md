@@ -28,7 +28,8 @@ Every procedural discipline statement must position the agent as an autonomous e
 | `p-dis-003` | Re-Priming Anchor              | identity restatement, positional strategy                         | All tiers    |
 | `p-dis-004` | Controlled Vocabulary Pair     | mandatory/prohibited word pairs                                   | Tier 2+      |
 | `p-dis-005` | Continue-Drift Contrast        | "cumulative context = authorization" is mean response             | Tier 2+      |
-| `p-dis-006` | Verification-Signal Discipline | external signals required, internal reasoning is NOT verification | Tier 1+      |
+| `p-dis-006` | Verification-Signal Discipline | external signals required, internal reasoning is NOT verification | Tier 1+ |
+| `p-dis-007` | One-Dispatch-One-Step Gate      | one dispatch = one discrete step; multi-step dispatch is a violation no matter the reasoning | Tier 1+      |
 
 ### Anti-Patterns: What Procedural Discipline Is NOT
 
@@ -86,6 +87,7 @@ Framing skipping one gate as equivalent to skipping ALL gates. Overreach induces
 | Verification-before-completion sections                 | Self-Drift Contrast + Verification-Signal Discipline | Strong    | p-dis-002 + p-dis-006 |
 | Post-merge cleanup documentation                        | Dependency-Order Gate                                | Medium    | p-dis-001             |
 | Context cost compliance (Read [§1.1](020-go-prohibitions.md)) | Verification-Signal Discipline                       | Strong    | p-dis-006             |
+| Sub-agent dispatch design (task cards, execution steps, verification scope) | One-Dispatch-One-Step Gate                           | Strong    | p-dis-007             |
 
 ## Section 3: Pattern Formulas (Canonical)
 
@@ -138,6 +140,23 @@ PROHIBITED: [word or phrase — mean response if used].
 [Cost-frame]: [Action] costs [unit] — [skipped-verification cost] vs [verification cost].
 ```
 
+**p-dis-007 — One-Dispatch-One-Step Gate:**
+
+```
+[Dispatch rule]: One dispatch = one discrete step. A dispatch carrying more than one
+discrete step is a violation NO MATTER THE REASONING — the rule is structural, not reasoning-classification.
+[Violation shapes]: The five enumerated violation shapes are — (1) one dispatch carrying
+two task cards; (2) one dispatch carrying run+verify as a single step; (3) one dispatch
+carrying multi-SC verification; (4) one dispatch carrying Task A/Task B shapes (two
+unrelated work items fused into one dispatch); (5) the "combined effectiveness run"
+rationalization (one dispatch justified as more effective because it combines steps).
+[Why structural]: Reasoning quality does not enter the evaluation — the dispatch
+boundary is countable, so the gate fires deterministically regardless of the agent's
+stated motivation.
+[Sole canonical home]: 257 is the SOLE canonical home for this definition — no other
+card carries it.
+```
+
 ## Section 4: Co-Application Rules
 
 When patterns from this reference card (257) co-apply with patterns from other reference cards:
@@ -156,6 +175,8 @@ When patterns from this reference card (257) co-apply with patterns from other r
    - If both apply equally: apply both with agency-respecting formulation.
 
 5. **One enforcement mechanism per location:** No two 257 patterns may target the same content location with different gate formulas. When overlap is detected, the dominant pattern (by tier or specificity) supersedes; the subordinate pattern is applied at a different location or omitted.
+
+6. **p-dis-007 co-application with 250 and 255:** p-dis-007 (One-Dispatch-One-Step Gate) co-applies with 250 and 255: the 257 pattern defines the structural dispatch boundary (one dispatch = one discrete step); the 250 dark-prose identity-frame anchors the professional-engineer identity that holds the boundary without rationalizing; the 255 distribution-shifting encoding shifts the distribution away from the "combined effectiveness run" rationalization toward single-step dispatches as the default professional practice.
 
 ## Section 5: Dependency-Order Gate Protocol
 
@@ -247,6 +268,7 @@ When this card (or 250 or 255) is consulted to create or modify AI-agent-facing 
 | Version | Date       | SHA                                        | Changes                                                                                                                                                                                                                                                   |
 | ------- | ---------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.0     | 2026-05-25 | `0000000000000000000000000000000000000000` | Initial catalog — all 6 patterns documented, 14-row matrix, 6 canonical formulas in Section 3, complete protocol for Dependency-Order Gate (Section 5) and Re-Priming (Section 6), 7-row controlled vocabulary table (Section 7), all supporting sections |
+| 1.1     | 2026-09-17 | `0000000000000000000000000000000000000000` | Added p-dis-007 One-Dispatch-One-Step Gate (.opencode issue 2451, SC-1) — catalog row (Section 1), selection matrix entry (Section 2), canonical formula (Section 3), co-application with 250/255 (Section 4), auto-detection trigger (Section 10), research basis reference (Section 13) |
 
 SHA format: 40-character lowercase hex SHA of the commit that introduced this version of the reference card. When a new version is committed, the SHA in this row is updated to match the commit hash.
 
@@ -265,6 +287,8 @@ The following rules determine when an agent should consult the Procedural Discip
 5. **Cost-blind verification enforcement** — When writing enforcement language for cost-blind verification (e.g., `020-go-prohibitions.md` Section 1), the agent must apply p-dis-006 with the cost-frame component.
 
 6. **Continue vs authorization clarification** — When drafting language to distinguish "continue" from authorization, the agent must use p-dis-005 (Continue-Drift Contrast) formula.
+
+7. **Sub-agent dispatch design** — When creating or modifying sub-agent dispatch instructions, task-card step boundaries, or execution-step scoping (any text that defines what one `task()` dispatch carries), the agent must apply p-dis-007 (One-Dispatch-One-Step Gate): one dispatch = one discrete step, no matter the reasoning.
 
 ## Section 11: Adding New Patterns
 
@@ -339,6 +363,8 @@ Verified claim: framework condition 0.30 vs filler condition 0.65
 Verified claim: 14 failure modes in 3 categories (system design, inter-agent misalignment, task verification)
 - Zhu et al. (2025), "AgentErrorTaxonomy: Where LLM Agents Fail and How They can Learn From Failures" — https://arxiv.org/abs/2509.25370
 Verified claim: taxonomy of 23 agent failure types across 3 categories (execution, specification, monitoring)
+
+**Research basis for p-dis-007 (One-Dispatch-One-Step Gate):** p-dis-007 draws on the MAST task-verification failure category (Cemri et al., 2025 — task verification failures in multi-agent systems) and the AgentErrorTaxonomy execution failure category (Zhu et al., 2025 — execution failures arising from overloaded, under-scoped agent tasks). Fusing multiple discrete steps into a single dispatch enlarges the per-step verification surface beyond what a single sub-agent context can verify, producing the multi-step dispatch failure mode this gate prevents.
 
 **Sycophancy:**
 
