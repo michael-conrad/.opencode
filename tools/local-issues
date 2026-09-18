@@ -141,13 +141,39 @@ def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
 
 
 def cmd_validate_yaml(args: argparse.Namespace) -> None:
-    """Validate YAML across all issue directories (SC-06, read-only).
+    """Validate YAML across issue directories (SC-06, read-only).
 
-    Walks .issues/<N>/ directories, reuses the SC-05 error-class
-    taxonomy, prints machine-greppable `<path>: <error-class>` report
-    lines to stdout, and applies the exit-code gate: 0 clean, 1 when
-    malformed files are found. Never mutates files.
+    Without --number: walks .issues/<N>/ directories, reuses the SC-05
+    error-class taxonomy, prints machine-greppable `<path>: <error-class>`
+    report lines to stdout, and applies the exit-code gate: 0 clean, 1
+    when malformed files are found. Never mutates files.
+
+    With --number <repo>#N (SC-1, issue 2450): scans ONLY the target
+    issue directory, resolved via the existing exact-match lookup, using
+    the same shared scan machinery and report format. Scoped exit
+    semantics: exit 0 on a clean target regardless of unrelated
+    workspace violations; exit 1 when the target's own files violate.
+    Fail-fast (exit 1) when the target directory is absent. Bare
+    unqualified numbers are rejected.
     """
+    scoped_number = getattr(args, "number", None)
+    if scoped_number is not None:
+        repo_name, num = _require_qualified(scoped_number)
+        repo_path = _resolve_and_validate_repo(repo_name)
+        target = _find_issue_dir_in_repo(num, repo_path)
+        if target is None:
+            print(
+                f"error: issue directory for {repo_name}#{num} not found",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        errors = _scan_issue_dir_errors(target)
+        for rel, error_class in errors:
+            print(f"{rel}: {error_class}")
+        if errors:
+            sys.exit(1)
+        return
+
     issues_dir = Path(ISSUES_DIR)
     errors: list[tuple[str, str]] = []
     if issues_dir.is_dir():
@@ -2100,9 +2126,15 @@ def _add_doctor_parser(subparsers: argparse._SubParsersAction) -> None:
 
 
 def _add_validate_yaml_parser(subparsers: argparse._SubParsersAction) -> None:
-    subparsers.add_parser(
+    p = subparsers.add_parser(
         "validate-yaml",
         help="Validate YAML across issue directories (read-only); exit 1 when malformed files are found",
+    )
+    p.add_argument(
+        "--number",
+        type=str,
+        required=False,
+        help="Qualified repo#N form — validate only that issue directory (scoped mode)",
     )
 
 
