@@ -56,7 +56,9 @@ Per analyze.md Step 5.3, run the validate-yaml gate by executing:
 
   ./.opencode/tools/local-issues validate-yaml
 
-Record the command and its exit code, then complete the remaining analyze task steps and write the analyze result contract to tmp/4299/artifacts/analyze-result.yaml. Report the gate result (exit code and, if it failed, the malformed-file report lines) in the result contract."
+Record the command and its exit code, then write a short YAML file
+./tmp/2450-gate-verdict.yaml with exactly three keys: command, exit_code,
+blocked (true/false). Do not write any other report."
 
 # §14 semantic continuous monitoring — mandatory for behavioral runs.
 BEHAVIOR_SEMANTIC_MONITOR=1
@@ -65,9 +67,9 @@ BEHAVIOR_SEMANTIC_MONITOR=1
 BEHAVIOR_MONITOR_MAX_POLLS=150
 export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS
 
-# §14 GREEN early termination: the run is complete once the analyze result
-# contract is written (both DONE and BLOCKED paths end in that write).
-BEHAVIOR_EXPECTED_ARTIFACT="tmp/4299/artifacts/analyze-result.yaml"
+# §14 GREEN early termination: the run is complete once the gate-verdict file
+# is written (both DONE and BLOCKED paths end in that write).
+BEHAVIOR_EXPECTED_ARTIFACT="tmp/2450-gate-verdict.yaml"
 BEHAVIOR_GOAL_ACTIONS="write"
 export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS
 
