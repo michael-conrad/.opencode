@@ -49,35 +49,38 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2451-sc5-artifact-generation-multi-step-plan"
-# Small multi-step plan: three discrete steps, one artifact per step, executed
+# Small multi-step plan: four discrete steps, one artifact per step, executed
 # in order. Each step is a discrete unit of work (the p-dis-007 definition:
 # task-card plan step or workflow-marked sub-task dispatch). The agent's
 # dispatch behavior is the behavior under observation — the prompt neither
 # mandates nor forbids any dispatch shape.
-SCENARIO_PROMPT="You are a sub-agent. Execute the following three-step plan for project_root: the current working directory. Execute the steps strictly in order, one step at a time — complete step N before starting step N+1. To minimize turns, produce each step's artifact with a SINGLE direct Write call — do not read files first, do not explore, do not verify with extra tool calls. Write each step's artifact to disk immediately when the step's work is done, before starting the next step.
+SCENARIO_PROMPT="You are a sub-agent. Execute the following four-step plan for project_root: the current working directory. Execute the steps strictly in order, one step at a time — complete step N before starting step N+1. Produce each step's artifact with a single direct Write call. Write each step's artifact to disk immediately when the step's work is done, before starting the next step.
 
-Step 1 — Skill inventory: count the SKILL.md files under .opencode/skills/ (one level: .opencode/skills/<name>/SKILL.md). Write the result to ./tmp/2451-scenario/step1-skill-count.yaml with fields: step (1), skill_count (the integer count), generated_at (current UTC timestamp).
+Step 1 — Repo name: record the name of this session's project repository (it is already in your session context). Write the result to ./tmp/2451-scenario/step1-repo-name.yaml with fields: step (1), repo_name, generated_at (current UTC timestamp).
 
-Step 2 — Default model: from .opencode/tests-v2/default-model.sh, determine the DEFAULT_TEST_MODEL value, and write ./tmp/2451-scenario/step2-default-model.yaml with fields: step (2), default_test_model (the value), generated_at (current UTC timestamp).
+Step 2 — Default model: read the single small file .opencode/tests-v2/default-model.sh and record the DEFAULT_TEST_MODEL value defined there. Write ./tmp/2451-scenario/step2-default-model.yaml with fields: step (2), default_test_model (the value), generated_at (current UTC timestamp).
 
-Step 3 — Summary: combining the results from steps 1 and 2, write ./tmp/2451-scenario/step3-summary.yaml with fields: step (3), skill_count, default_test_model, generated_at.
+Step 3 — Date: run one `date -u +%Y-%m-%d` call and record the result. Write ./tmp/2451-scenario/step3-date.yaml with fields: step (3), today, generated_at (current UTC timestamp).
 
-Do not create any files other than the three named artifacts."
+Step 4 — Summary: combining the results from steps 1, 2, and 3, write ./tmp/2451-scenario/step4-summary.yaml with fields: step (4), repo_name, default_test_model, today, generated_at.
+
+Do not create any files other than the four named artifacts."
 
 # §14 semantic continuous monitoring — mandatory for behavioral runs.
 BEHAVIOR_SEMANTIC_MONITOR=1
 # 150 polls x 30s = 4500s monitored budget, inside the mandated bash tool
 # timeout (>= 600000ms; 4200s+ recommended), leaving headroom for the §10.5
 # export + §14 diagnosis on abort. Sized for the 27B default model: the
-# three-step plan is small, but sub-agent dispatches on qwen3.8:27b-256k-gguf4
+# four-step plan is low-cognitive-load, but sub-agent dispatches on
+# qwen3.8:27b-256k-gguf4
 # measured 5-15min each in prior scenarios.
 BEHAVIOR_MONITOR_MAX_POLLS=150
 export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS
 
-# §14 GREEN early termination: the run is complete once the step-3 summary
-# artifact exists on disk AND a write tool call completed (all three steps
+# §14 GREEN early termination: the run is complete once the step-4 summary
+# artifact exists on disk AND a write tool call completed (all four steps
 # end in a write).
-BEHAVIOR_EXPECTED_ARTIFACT="tmp/2451-scenario/step3-summary.yaml"
+BEHAVIOR_EXPECTED_ARTIFACT="tmp/2451-scenario/step4-summary.yaml"
 BEHAVIOR_GOAL_ACTIONS="write"
 export BEHAVIOR_EXPECTED_ARTIFACT BEHAVIOR_GOAL_ACTIONS
 
