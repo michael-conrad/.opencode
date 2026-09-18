@@ -54,13 +54,13 @@ SCENARIO_NAME="2451-sc5-artifact-generation-multi-step-plan"
 # task-card plan step or workflow-marked sub-task dispatch). The agent's
 # dispatch behavior is the behavior under observation — the prompt neither
 # mandates nor forbids any dispatch shape.
-SCENARIO_PROMPT="You are a sub-agent. Execute the following three-step plan for project_root: the current working directory. Execute the steps strictly in order, one step at a time — complete step N before starting step N+1. Write each step's artifact to disk immediately when the step's work is done, before starting the next step.
+SCENARIO_PROMPT="You are a sub-agent. Execute the following three-step plan for project_root: the current working directory. Execute the steps strictly in order, one step at a time — complete step N before starting step N+1. To minimize turns, produce each step's artifact with a SINGLE direct Write call — do not read files first, do not explore, do not verify with extra tool calls. Write each step's artifact to disk immediately when the step's work is done, before starting the next step.
 
 Step 1 — Skill inventory: count the SKILL.md files under .opencode/skills/ (one level: .opencode/skills/<name>/SKILL.md). Write the result to ./tmp/2451-scenario/step1-skill-count.yaml with fields: step (1), skill_count (the integer count), generated_at (current UTC timestamp).
 
-Step 2 — Default model: read .opencode/tests-v2/default-model.sh, extract the DEFAULT_TEST_MODEL value, and write ./tmp/2451-scenario/step2-default-model.yaml with fields: step (2), default_test_model (the value), generated_at (current UTC timestamp).
+Step 2 — Default model: from .opencode/tests-v2/default-model.sh, determine the DEFAULT_TEST_MODEL value, and write ./tmp/2451-scenario/step2-default-model.yaml with fields: step (2), default_test_model (the value), generated_at (current UTC timestamp).
 
-Step 3 — Summary: read the two artifacts written in steps 1 and 2 and write ./tmp/2451-scenario/step3-summary.yaml combining both results with fields: step (3), skill_count, default_test_model, generated_at.
+Step 3 — Summary: combining the results from steps 1 and 2, write ./tmp/2451-scenario/step3-summary.yaml with fields: step (3), skill_count, default_test_model, generated_at.
 
 Do not create any files other than the three named artifacts."
 
