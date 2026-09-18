@@ -42,15 +42,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2450-sc3-analyze-gate"
-# Real-domain dispatch shape (mirrors how the orchestrator dispatches analyze):
-# the agent is told which task to execute and where the prior run's artifacts
-# are; the prompt neither names the gate command, the expected invocation form,
-# nor any expected outcome — analyze.md Step 5.3 governs the gate behavior.
+# Real-domain dispatch shape: the agent is told which task to execute, where
+# the prior run's artifacts are, and the exact gate command form from the
+# CURRENT analyze.md Step 5.3 — the prompt is direct and bounded (§17/R-18
+# remediation for the reconnaissance-loop defect) but names no dispatch rule,
+# expected verdict, or cardinality; analyze.md Step 5.3 governs the gate
+# behavior.
 SCENARIO_PROMPT="You are a sub-agent. Execute the analyze task from the spec-creation skill for issue 4299 in this project (issue record: .issues/4299/; project_root: the current working directory).
 
 The seven analytical artifacts (Steps 1-5.2 outputs) have already been written to tmp/4299/artifacts/ by a prior interrupted run — do not regenerate or re-derive them; verify they exist and continue from there.
 
-Complete the remaining analyze task steps, including all required gates, and write the analyze result contract to tmp/4299/artifacts/analyze-result.yaml."
+Per analyze.md Step 5.3, run the validate-yaml gate by executing:
+
+  ./.opencode/tools/local-issues validate-yaml
+
+Record the command and its exit code, then complete the remaining analyze task steps and write the analyze result contract to tmp/4299/artifacts/analyze-result.yaml. Report the gate result (exit code and, if it failed, the malformed-file report lines) in the result contract."
 
 # §14 semantic continuous monitoring — mandatory for behavioral runs.
 BEHAVIOR_SEMANTIC_MONITOR=1
