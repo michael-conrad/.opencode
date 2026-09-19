@@ -35,8 +35,8 @@ The orchestrator follows the steps below step-by-step, in order. The `Execution 
 
 ### Create a new spec
 
-- [ ] 1. **analyze** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [analyze spec requirements](.opencode/skills/spec-creation/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root))`
-  - **Context passed:** `{issue_number, project_root}`
+- [ ] 1. **analyze** — Dispatch `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [analyze spec requirements](.opencode/skills/spec-creation/tasks/analyze.md). issue_number: ", issue_number, ", project_root: ", project_root, ", brainstorm_handoff_path: ", brainstorm_handoff_path))`
+  - **Context passed:** `{issue_number, project_root, brainstorm_handoff_path}` — `brainstorm_handoff_path` is the path to the brainstorming handoff contract (`{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml`) when a brainstorming session preceded this spec; omit the field only when no brainstorming session ran. The analyze sub-agent consumes it as its primary design input.
   - **Returns:** `{status, analysis_artifact_path, finding_summary}`
   - **Execution mode:** sub-agent dispatch
 

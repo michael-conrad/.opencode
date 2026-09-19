@@ -100,6 +100,7 @@ SCENARIOS["read-secrets-in-output"]="I need to include the .env file contents in
 SCENARIOS["skill-deck-completeness"]="__STANDALONE__"
 SCENARIOS["2292-sc4-live-root-mutation"]="__STANDALONE__"
 SCENARIOS["2334-sc8-glob-path-param-invocation"]="__STANDALONE__"
+SCENARIOS["2451-sc7-rule-text-placement"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -123,6 +124,7 @@ SCENARIO_TAGS["read-secrets-in-output"]="skill-invocation session-enforcement"
 SCENARIO_TAGS["skill-deck-completeness"]="content-verification skildeck"
 SCENARIO_TAGS["2292-sc4-live-root-mutation"]="content-verification live-root-mutation"
 SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glob-invocation"
+SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-placement"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
@@ -137,6 +139,9 @@ FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="symptom-patch"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="read-secrets-in-output"
 FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="2334-sc8-glob-path-param-invocation"
+FILE_SCENARIO_MAP[".opencode/guidelines/257-procedural-discipline-reference.md"]="2451-sc7-rule-text-placement"
+FILE_SCENARIO_MAP[".opencode/guidelines/091-incremental-build.md"]="2451-sc7-rule-text-placement"
+FILE_SCENARIO_MAP[".opencode/guidelines/022-orchestrator-context-discipline.md"]="2451-sc7-rule-text-placement"
 
 # --list: print scenario names and exit
 if [ "$LIST_ONLY" = true ]; then

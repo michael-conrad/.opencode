@@ -22,6 +22,14 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 - **BLOCK reason:** `UNBOUND_ISSUE_NUMBER` — the analyze task cannot anchor its analysis to a real issue. Issue-number binding is NOT analyze.md's responsibility; it is handled upstream by issue-operations-core creation and by create.md remote-stub-first. The orchestrator MUST provide a bound issue number before dispatching analyze.
 - **Result contract:** return `status: BLOCKED` with `blocker_reason` explaining that the issue number is unbound/placeholder and must be bound upstream before analyze can run.
 
+## Step 0: Brainstorming handoff consumption (PRIMARY design input)
+
+The dispatch context MAY carry `brainstorm_handoff_path` — the path to the brainstorming handoff contract (`{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml`) produced by a preceding brainstorming session. Resolve and consume it in this order:
+
+1. **Dispatch channel (primary):** if `brainstorm_handoff_path` is present in the dispatch context and the file exists, read it FIRST — before pre-spec inspection — and treat it as the primary design input: artifacts marked `complete` are used directly; `partial` artifacts are refined during analysis; `not-applicable` artifacts are skipped. Do NOT re-investigate ground the handoff already covers.
+2. **Fallback discovery channel:** if `brainstorm_handoff_path` is absent (or the file does not exist), read the issue-directory pointer at `{issues_prefix}/{issue_number}/handoff-pointer.yaml` (written by brainstorming at issue creation). If that pointer exists and its referenced handoff file exists, consume it exactly as in channel 1.
+3. **Degraded mode (no halt):** if neither channel yields a handoff contract, record `brainstorm_handoff: unavailable` in the analysis result contract and proceed with full pre-spec inspection from scratch. The absence of a handoff contract is a recorded condition, NOT a BLOCKED state — the analyze task MUST NOT halt for it.
+
 ## Procedure
 
 ### Step 1: Pre-spec inspection
@@ -79,7 +87,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 
 **Incident recovery (R-22):** if you make an unintended edit outside the artifact target, revert it with ONE immediate corrective tool call, record a one-line incident note in the artifact, and continue the task — deliberating about revert mechanics, re-reading policy rules, or re-planning before resuming is prohibited. Excessive deliberation over an incident is a deck-defect signal, not a model characteristic.
 
-- [ ] 5.3. **validate-yaml gate (R-13):** After the artifacts are written, run `./.opencode/tools/local-issues validate-yaml` over the affected repos (the root repo and, when the issue belongs to the `.opencode` submodule, the submodule repo via its qualified name). This gate is read-only — it NEVER mutates files. **Gate action-first (R-21):** when you have decided to run this gate, your next tool call MUST be the gate command itself — no intervening read, inspection, verification, or scoping call between the decision and the gate execution; record the command and its exit code immediately from that call's result.
+- [ ] 5.3. **validate-yaml gate (R-13):** After the artifacts are written, run the scoped check `./.opencode/tools/local-issues validate-yaml --number <repo>#<issue_number>` where `<repo>#<issue_number>` is the qualified name of the issue under analysis (e.g., `opencode-config#42` for the root repo, `.opencode#42` for the `.opencode` submodule). This scoped check is the progress-gating check — it validates only the target issue's own records. The workspace-wide scan (no-flag `validate-yaml`) is a secondary maintenance check only — it MUST NOT gate pipeline progress on unrelated issues' records: if the workspace scan reports violations in other issues, that alone NEVER blocks analyze; only violations in the target issue's own records do. This gate is read-only — it NEVER mutates files. **Gate action-first (R-21):** when you have decided to run this gate, your next tool call MUST be the gate command itself — no intervening read, inspection, verification, or scoping call between the decision and the gate execution; record the command and its exit code immediately from that call's result.
   - The gate MUST be executed directly by the agent performing this task — do NOT delegate it to another agent and report the outcome second-hand. A second-hand claim that the gate ran is NOT gate evidence.
   - The result contract MUST include the literal gate invocation evidence: the exact command executed and its exit code (and, on exit 1, the malformed-file report lines). A prose claim that the gate ran — without the recorded command + exit code in the result contract — is treated as gate-not-run: return BLOCKED (or re-run the gate and capture the evidence).
   - Exit 0 → continue to Step 6.
@@ -100,7 +108,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 ## Exit Criteria
 
 - [ ] All 7 analytical artifacts written to `{project_root}/tmp/{issue_number}/artifacts/`
-- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact generation, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files
+- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact generation, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files. BLOCKED applies ONLY to violations in the target issue's own records — the scoped check gates pipeline progress; the workspace-wide scan is a secondary maintenance check and MUST NOT gate pipeline progress on unrelated issues' records.
 - [ ] Requirements extracted and verified against codebase
 - [ ] Pipeline readiness gate passed (or BLOCKED with findings)
 - [ ] No spec content written, no remote issue created, no holistic check run
@@ -111,6 +119,6 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 status: DONE | BLOCKED
 analysis_artifact_path: "{project_root}/tmp/{issue_number}/artifacts/"
 finding_summary: "Brief summary of analysis findings, key requirements, and decomposition structure"
-gate_evidence: "validate-yaml gate invocation: exact command executed (e.g., `./.opencode/tools/local-issues validate-yaml`) and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run."
-blocker_reason: "If BLOCKED: why the analysis could not complete (e.g., VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the validate-yaml report)"
+gate_evidence: "validate-yaml gate invocation: exact command executed (e.g., `./.opencode/tools/local-issues validate-yaml --number <repo>#<issue_number>`) and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run. This scoped check gates pipeline progress; the workspace-wide scan is a secondary maintenance check and MUST NOT gate pipeline progress on unrelated issues' records."
+blocker_reason: "If BLOCKED: why the analysis could not complete (e.g., VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the validate-yaml report — target issue's own records ONLY; violations in unrelated issues' records MUST NOT block)"
 ```

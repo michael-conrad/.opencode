@@ -444,7 +444,7 @@ bash .opencode/tests-v2/with-test-home --clean-all
 
 ## 6a. Two-SC Pattern: Artifact Generation + Clean-Room Evaluation
 
-Every behavioral test (artifact-only generator) MUST be paired with a spec SC that dispatches a clean-room sub-agent to evaluate the generated artifacts. A single SC that both runs `opencode run` and evaluates the output conflates two concerns — the evaluation cannot be independently verified.
+Every behavioral test (artifact-only generator) MUST be paired with a spec SC that dispatches a clean-room sub-agent to evaluate the generated artifacts. A single SC that both runs `opencode run` and evaluates the output conflates two concerns — the evaluation cannot be independently verified. The clean-room evaluation is a SEPARATE dispatch from the artifact-generation run: SC-N runs the artifact-generating behavioral test, and SC-N+1 is dispatched as its own clean-room sub-agent afterwards — the two runs are never merged into a single dispatch.
 
 ### The Pattern
 
@@ -931,6 +931,8 @@ Any behavioral SC verdict whose evidence comes from a monitored run MUST record 
 ## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
 
 **Every `opencode run` behavioral invocation targets exactly the named scenario(s) the current SC's RED or GREEN evidence needs. One run per SC-RED need and one run per SC-GREEN need — no more.**
+
+**Cannot-combine clarification:** The "one run per SC-RED need and one run per SC-GREEN need" budget cannot be satisfied by combining two SCs' needs into one run — combining two SCs' needs into one run violates the mandate. Each SC's evidence need is separate, even when both SCs target the same scenario or appear cheaper to batch.
 
 ### 🚫 PROHIBITED — Whole-Suite Model-Executing Invocations
 

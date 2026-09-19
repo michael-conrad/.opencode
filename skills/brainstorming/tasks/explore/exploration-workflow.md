@@ -162,6 +162,15 @@ handoff:
 
 **Consumption by spec-creation:** The `spec-creation` skill reads `handoff.yaml` to discover which artifacts exist and their status. Artifacts marked `complete` are used directly; `partial` artifacts are refined during spec creation; `not-applicable` artifacts are skipped.
 
+**Issue-directory pointer (belt-and-suspenders):** immediately after writing `handoff.yaml`, write a pointer file at `{issues_prefix}/{issue_number}/handoff-pointer.yaml` (the issue's directory in the local issues workspace) containing:
+
+```yaml
+brainstorm_handoff_path: "{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml"
+written: <UTC timestamp>
+```
+
+This pointer makes the handoff discoverable by the spec-creation analyze task's fallback channel when the dispatch context does not carry `brainstorm_handoff_path` directly.
+
 ### Step 7: Transition to spec-creation
 
 **Terminal state: invoking spec-creation.**
