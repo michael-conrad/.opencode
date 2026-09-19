@@ -38,3 +38,37 @@ class TestCollectIssueArtifactPathsNoWorktreeHint:
             f"worktree-creation setup hint must not be emitted; got: {entries}"
         )
         assert "create worktree" not in emitted, f"setup hint leaked: {entries}"
+
+
+class TestRootIssuesEntryInvariance:
+    """SC-2: root-repo `.issues/` emission is invariant when other entries' hints are suppressed."""
+
+    def test_root_entry_line_byte_identical(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        # Root entry has a real .issues dir; second entry lacks one entirely.
+        (tmp_path / ".issues").mkdir()
+        repo_info = [
+            {
+                "path": ".",
+                "owner": "o",
+                "repo": "root",
+                "platform": "github.com",
+                "url": "https://example.com/o/root",
+                "issues": ".issues/",
+            },
+            {
+                "path": ".opencode",
+                "owner": "o",
+                "repo": "sub",
+                "platform": "github.com",
+                "url": "https://example.com/o/sub",
+                "issues": ".opencode/.issues/",
+            },
+        ]
+
+        entries = collect_issue_artifact_paths(repo_info)
+
+        root_lines = [e for e in entries if e.startswith("- .issues/")]
+        assert root_lines == ["- .issues/: git -C .issues/"], (
+            f"root-repo .issues/ emission must be byte-identical to pre-change form; got: {entries}"
+        )
