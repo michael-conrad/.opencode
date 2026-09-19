@@ -1203,9 +1203,10 @@ def cmd_create(args: argparse.Namespace) -> None:
     qualified = f"{current_repo_name}#{args.number}"
     child_repos = _discover_all_repos()
     _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
+    labels = _normalize_labels(args.labels)
+    _reject_malformed_labels(labels, "create")
     _ensure_all_worktrees()
     _next_number(repo_path)
-    labels = _normalize_labels(args.labels)
     _create_issue_files(args.number, args.title, labels, repo_path, qualified)
 
 
