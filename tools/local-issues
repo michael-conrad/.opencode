@@ -1123,6 +1123,17 @@ def _check_duplicate_issue(
                 sys.exit(1)
 
 
+def _normalize_labels(labels: list[str]) -> list[str]:
+    """Normalize label tokens: split on commas, strip whitespace, drop empties."""
+    result: list[str] = []
+    for token in labels:
+        for part in token.split(","):
+            part = part.strip()
+            if part:
+                result.append(part)
+    return result
+
+
 def _ensure_needs_approval(labels: list[str]) -> list[str]:
     """Ensure 'needs-approval' is always in the labels list, first."""
     result = ["needs-approval"]
@@ -1176,7 +1187,8 @@ def cmd_create(args: argparse.Namespace) -> None:
     _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
     _ensure_all_worktrees()
     _next_number(repo_path)
-    _create_issue_files(args.number, args.title, args.labels, repo_path, qualified)
+    labels = _normalize_labels(args.labels)
+    _create_issue_files(args.number, args.title, labels, repo_path, qualified)
 
 
 def _recent_issue_numbers(repo_path: Path | None = None) -> list[int]:
@@ -1453,6 +1465,8 @@ def cmd_update(args: argparse.Namespace) -> None:
     path = get_issue_path(args.number, repo_path=repo_path) / "issue.yaml"
     issue = yaml_load(read_file(path))
     changed = False
+    if args.labels is not None:
+        args.labels = _normalize_labels(args.labels)
     if args.body_file:
         body = read_file(Path(args.body_file))
         if body:
