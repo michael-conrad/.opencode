@@ -160,6 +160,16 @@ Reading and writing `.issues/` is **authorization-free** — it is workspace-loc
 
 Creating `feature/*` or `spec/*` branches for code changes still requires `for_implementation` or above scope.
 
+### Issues-Data Hygiene Mandate
+
+It is the agent's responsibility to repair, remediate, and revise as needed ALL issue-ticket data files in the issues-data branches to prevent problems. Issue-ticket data repairs (fixing malformed YAML, correcting stale metadata, reconciling drifted records) are **authorization-free agent hygiene** and do **NOT** require a spec.
+
+This extends the authorization-free reading/writing rule above: the agent does not merely *may* touch `.issues/` files — it is *responsible* for their correctness. An agent that encounters drift or defects in issues-data records and leaves them unrepaired (or halts awaiting authorization or a spec) has failed its hygiene duty.
+
+**Scope boundary (extends the rules above, does not contradict them):** Hygiene applies ONLY to issue-ticket data records inside `.issues/`. It never authorizes source-code changes — those still require spec + `for_implementation` per the repo-wide approval gate — and it never authorizes creating `feature/*` or `spec/*` branches; hygiene edits happen on the `issues-data` branch via the `local-issues` tool.
+
+**Rationale:** Legacy drift across 374 issues-data files previously blocked pipelines that validate the whole workspace; repairs stalled because agents wrongly treated record fixes as implementation requiring spec + authorization. The developer directed on 2026-09-17 that issue-ticket data repairs are hygiene, not implementation.
+
 ## Relationship to Remote Issue Tracker
 
 - **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
