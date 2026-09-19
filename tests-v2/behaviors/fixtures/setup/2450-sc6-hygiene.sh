@@ -15,6 +15,18 @@
 setup_2450_sc6_hygiene() {
     local wd="$1"
 
+    # Provision the governing convention file so the run agent can discover the
+    # hygiene mandate (or its absence, pre-mandate). Copied from the real
+    # submodule's issues-data worktree AGENTS.md when available.
+    local src_ag="$wd/../../../../../../.opencode/.issues/AGENTS.md"
+    if [ ! -f "$src_ag" ]; then
+        src_ag="/home/muksihs/git/opencode-config/.opencode/.issues/AGENTS.md"
+    fi
+    if [ -f "$src_ag" ]; then
+        mkdir -p "$wd/.opencode/.issues"
+        cp "$src_ag" "$wd/.opencode/.issues/AGENTS.md"
+    fi
+
     mkdir -p "$wd/.issues/4297"
 
     cat > "$wd/.issues/4297/issue.yaml" <<'EOF'
