@@ -1,0 +1,9 @@
+title: '[SPEC] Orchestrator-direct plan execution — task() only at plan-marked dispatch
+  points'
+status: open
+labels:
+- needs-approval
+- SPEC
+body: ''
+created_at: '2026-09-19T02:38:23+00:00'
+updated_at: '2026-09-19T02:38:23+00:00'
