@@ -74,6 +74,8 @@ Each SC gets a `plan_item` number instead of a phase group. Items are numbered s
 When a remote API is available (github.platform is not `local`), the remote
 API's assigned number is the SOLE source of truth for the issue number. The
 flow creates the remote stub FIRST — before ANY local record exists — and
+
+**Remote-first reservation mandate (verbatim in semantics with .opencode/.issues/AGENTS.md § Workflow):** when a remote spec system exists (platform is not local), file the remote spec FIRST — with clear intent and context sufficient for a clean-room restart — to reserve the spec number, BEFORE any local spec folder setup. Local-first reservation is a violation.
 takes the issue number N from the API create response's `number` field. The
 local issue record is then created at exactly N. Local == remote BY
 CONSTRUCTION (both derive from the same response `number` field) — no
