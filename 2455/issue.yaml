@@ -4,6 +4,82 @@ status: open
 labels:
 - needs-approval
 - SPEC
-body: ''
+body: '---
+
+  issue: 2455
+
+  title: "[SPEC] Orchestrator-direct plan execution — task() only at plan-marked dispatch
+  points"
+
+  labels: [SPEC]
+
+  created: 2026-09-18
+
+  ---
+
+
+  # SPEC — Orchestrator-Direct Plan Execution Default
+
+
+  ## Problem
+
+
+  Executing-plans Architecture B (022-orchestrator-context-discipline) states plans
+  execute directly in the orchestrator''s own context, with `task()` dispatch ONLY
+  where a plan step explicitly marks dispatch. In practice (observed 2026-09-18, batch
+  .opencode#2452/2451/2450/2447/2446), agents default to dispatching EVERY plan step
+  to sub-agents — including steps the plan marks `direct` — treating task() as the
+  default execution angle. This produced: (a) massive sub-agent overhead with no isolation
+  benefit, (b) orchestrator-context discipline violations, (c) the observed "you murdered
+  yourself" dispatch of a verify step that then hit the harness pre-flight incorrectly.
+
+
+  The defect is the same class as the §17 R-18 excessive-deliberation remediation
+  requirement: a deviation from the canonical execution model must be treated as a
+  defect that gets fixed in the deck, not merely corrected ad hoc in the session.
+
+
+  ## Success Criteria
+
+
+  | SC | Criterion | Evidence Type |
+
+  |----|-----------|---------------|
+
+  | SC-1 | `.opencode/guidelines/091-incremental-build.md` (or 022) carries a bright-line
+  rule: the default execution angle for plan/workflow steps is orchestrator-direct;
+  `task()` is used ONLY where the plan/workflow step explicitly marks dispatch (`task-card`);
+  any deviation is a defect requiring deck remediation (SC revision or guideline fix
+  folded into the active feature branch), per the §17 R-18 remediation pattern. |
+  string |
+
+  | SC-2 | `executing-plans/SKILL.md` and `git-workflow` skill dispatcher text carry
+  the same rule verbatim in semantics, with a Read-link to the canonical rule site
+  (no "see" citations). | string |
+
+  | SC-3 | A behavioral scenario demonstrates an agent executing a mixed-mode plan
+  (some direct steps, some task-card steps) with direct steps executed in its own
+  context and task() used only at marked steps. | behavioral |
+
+  | SC-4 | A behavioral scenario demonstrates the remediation duty: an agent that
+  combined steps (deviation) must fold a deck fix into its work rather than only correcting
+  ad hoc. | behavioral |
+
+
+  ## Not Included
+
+
+  - Re-litigating Architecture B''s dispatch-vocabulary table (canonical in skill-card-description-standards.md).
+
+  - Retroactive audits of past sessions.
+
+
+  ## Approach
+
+
+  Add the bright-line to the always-loaded guideline (091) as Tier 1, mirror in executing-plans
+  + git-workflow SKILL.md text, add two behavioral scenarios to tests-v2.
+
+  '
 created_at: '2026-09-19T02:38:23+00:00'
-updated_at: '2026-09-19T02:38:23+00:00'
+updated_at: '2026-09-19T02:38:32+00:00'
