@@ -22,6 +22,14 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 - **BLOCK reason:** `UNBOUND_ISSUE_NUMBER` — the analyze task cannot anchor its analysis to a real issue. Issue-number binding is NOT analyze.md's responsibility; it is handled upstream by issue-operations-core creation and by create.md remote-stub-first. The orchestrator MUST provide a bound issue number before dispatching analyze.
 - **Result contract:** return `status: BLOCKED` with `blocker_reason` explaining that the issue number is unbound/placeholder and must be bound upstream before analyze can run.
 
+## Step 0: Brainstorming handoff consumption (PRIMARY design input)
+
+The dispatch context MAY carry `brainstorm_handoff_path` — the path to the brainstorming handoff contract (`{project_root}/tmp/{issue-N}/artifacts/preliminary/handoff.yaml`) produced by a preceding brainstorming session. Resolve and consume it in this order:
+
+1. **Dispatch channel (primary):** if `brainstorm_handoff_path` is present in the dispatch context and the file exists, read it FIRST — before pre-spec inspection — and treat it as the primary design input: artifacts marked `complete` are used directly; `partial` artifacts are refined during analysis; `not-applicable` artifacts are skipped. Do NOT re-investigate ground the handoff already covers.
+2. **Fallback discovery channel:** if `brainstorm_handoff_path` is absent (or the file does not exist), read the issue-directory pointer at `{issues_prefix}/{issue_number}/handoff-pointer.yaml` (written by brainstorming at issue creation). If that pointer exists and its referenced handoff file exists, consume it exactly as in channel 1.
+3. **Degraded mode (no halt):** if neither channel yields a handoff contract, record `brainstorm_handoff: unavailable` in the analysis result contract and proceed with full pre-spec inspection from scratch. The absence of a handoff contract is a recorded condition, NOT a BLOCKED state — the analyze task MUST NOT halt for it.
+
 ## Procedure
 
 ### Step 1: Pre-spec inspection
