@@ -1134,6 +1134,24 @@ def _normalize_labels(labels: list[str]) -> list[str]:
     return result
 
 
+def _reject_malformed_labels(labels: list[str], command: str) -> None:
+    """Exit with a CLI error if any label token is structurally malformed.
+
+    Called after normalization, before any file mutation or _auto_commit.
+    A token is malformed if it is empty or still contains whitespace
+    (inner spaces/tabs cannot be resolved by normalization).
+    """
+    for label in labels:
+        if not label or any(ch.isspace() for ch in label):
+            print(
+                f"error: malformed label token {label!r} passed to "
+                f"{command} --labels (whitespace/empty not resolvable by "
+                "normalization); no changes were written",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+
+
 def _ensure_needs_approval(labels: list[str]) -> list[str]:
     """Ensure 'needs-approval' is always in the labels list, first."""
     result = ["needs-approval"]
@@ -1467,6 +1485,7 @@ def cmd_update(args: argparse.Namespace) -> None:
     changed = False
     if args.labels is not None:
         args.labels = _normalize_labels(args.labels)
+        _reject_malformed_labels(args.labels, "update")
     if args.body_file:
         body = read_file(Path(args.body_file))
         if body:
