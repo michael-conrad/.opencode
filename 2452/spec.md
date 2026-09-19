@@ -127,6 +127,8 @@ promoted_at: 2026-09-17T20:53:41Z
 |------|--------|--------|---------------|
 | 2026-09-17 | Decomposed compound SC-3 into SC-3a (fallback pointer discovery) and SC-3b (degraded no-halt mode), each with its own item, RED/GREEN cycle, and cost-frame entry; updated dependency DAG and traceability (R-2 → SC-3b, R-4 → SC-3a); added shared computation-frame header to §9 | Validation finding: SC-3 was compound — bundled two independent behaviors joined by 'and', violating per-SC decomposition. Non-blocking: missing §9 frame header | Validation findings from spec-creation validation step (orchestrator-dispatched revise, issue .opencode#2452) |
 
+| 2026-09-19 | Evidence type for all SCs corrected behavioral → string (instruction-text deliverable): the deliverable is skill/task-card doc text, not runtime behavior; developer directive 2026-09-19 confirms text-level verification is proportionate and the plan's real-model behavioral apparatus is disproportionate | Developer directive during batch execution; verification recorded at tmp/2452/artifacts/verification-2452.yaml (4/4 PASS, channel precedence confirmed) | Developer directive (orchestrator) |
+
 ---
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
