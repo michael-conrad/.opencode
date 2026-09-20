@@ -1,24 +1,46 @@
-# Interface compatibility for issue 2449 (backfilled retroactively from spec body)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-
-interface_boundaries:
-  - boundary: reader -> formatter hand-off
-    interfaces:
-      - `_read_issue_title_status(entry) -> tuple[str, str]` changes contract: status may be `None` (sentinel) instead of fabricated `"open"` when issue.yaml is absent. Callers: list path (local-issues:1667). Well-formed ticket return values unchanged.
-      - `_read_issue_data_in_repo(number, repo_path) -> dict` changes contract: synthesized `result["issue"]["status"] = "open"` omitted for yaml-less dirs. Callers: read path (local-issues:1354, 1602) and search formatting.
-    compatibility: single-file tool — all callers inside the same file; no external API surface change; CLI stdout shape gains the `[artifact-only]` token for yaml-less dirs only.
-  - boundary: CLI stdout (public contract)
-    consumers: agents and scripts routing on list/search/read output
-    compatibility: breaking for phantom-state consumers by design (fabricated `[open]` removed); real ticket output unchanged (SC-4)
-
+artifact: interface-compatibility
+spec: ".opencode/.issues/2449/spec.md"
+generated: retroactive-backfill
+boundaries:
+  - boundary: reader-to-formatter
+    producer: "_read_issue_title_status -> tuple[str, str] (today); becomes Optional-status sentinel"
+    consumer: "_format_list_output"
+    change: "status element may be None; formatter branches on sentinel"
+    compatibility: "internal function; single call-site update; no external contract"
+  - boundary: reader-to-formatter-search-read
+    producer: "_read_issue_data_in_repo -> dict with result['issue']['status'] (today); synthesized status omitted for yaml-less dirs"
+    consumer: "_search_in_repo -> _format_search_results; read output path"
+    change: "status key absent/None for yaml-less dirs; formatters render [artifact-only] or omit status line"
+    compatibility: "internal; well-formed dicts unchanged in shape"
+  - boundary: cli-output
+    producer: "list/search/read stdout"
+    consumer: "agents routing on output (primary consumer per spec motivation)"
+    change: "yaml-less dirs now show [artifact-only] instead of fabricated [open]; well-formed output unchanged"
+    compatibility: "BREAKING for any consumer keying on '[open]' for artifact-only dirs — that is the defect being fixed"
 dependency_contract:
-  dependencies:
-    - source: .opencode/tools/local-issues
-      target: .opencode/tests/test_local_issues/
-      type: test-consumes-implementation
-      constraint: "new sandbox pytest fixtures invoke the `local-issues` CLI (list/search/read) against fixture trees; assertions on stdout tokens `[artifact-only]` and absence of `[open]`/`status: open` for yaml-less dirs; conventions per test_yaml_load_warn_and_skip.py and issue 2432 error-class taxonomy"
-    - source: spec SC table
-      target: .opencode/tests/test_local_issues/ fixtures
-      type: evidence-to-verification
-      constraint: "each SC maps to exactly one sandbox pytest with stdout assertions (behavioral evidence type); fixture tree must contain a well-formed control ticket (issue.yaml + spec.md) plus artifact-only variants"
+  source: ".opencode/tools/local-issues (single-file tool)"
+  targets:
+    - symbol: "_read_issue_title_status"
+      kind: function
+      location: ".opencode/tools/local-issues:315"
+      signature_constraint: "entry: Path -> tuple[str, Optional[str]] (status None when issue.yaml absent)"
+      consumers: ["_format_list_output"]
+    - symbol: "_read_issue_data_in_repo"
+      kind: function
+      location: ".opencode/tools/local-issues:1305"
+      signature_constraint: "number: int, repo_path: Path -> dict; result['issue']['status'] omitted when issue.yaml absent"
+      consumers: ["_search_in_repo", "read subcommand"]
+    - symbol: "_format_list_output"
+      kind: function
+      location: ".opencode/tools/local-issues:1674"
+      signature_constraint: "accepts sentinel entries; renders '[artifact-only]' token exactly"
+      consumers: ["list subcommand stdout"]
+    - symbol: "_format_search_results"
+      kind: function
+      location: ".opencode/tools/local-issues:1617"
+      signature_constraint: "accepts sentinel results; renders '[artifact-only]' token exactly; no 'status: open' synthesis"
+      consumers: ["search subcommand stdout"]
+  test_targets:
+    - directory: ".opencode/tests/test_local_issues/"
+      convention: "test_yaml_load_warn_and_skip.py pattern; issue 2432 error-class taxonomy"
+      type_constraint: "sandbox pytest fixture trees with stdout assertions"

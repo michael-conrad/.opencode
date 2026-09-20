@@ -1,25 +1,25 @@
-# Concern map for issue 2449 (backfilled retroactively from spec body)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-
+artifact: concern-map
+spec: ".opencode/.issues/2449/spec.md"
+generated: retroactive-backfill
 concerns:
-  - name: reader-state-truthfulness
-    description: Readers stop fabricating ticket state when issue.yaml is absent (sentinel instead of synthesized open)
-    symbols: [_read_issue_title_status, _read_issue_data_in_repo]
+  - id: C-1
+    name: reader-sentinel
+    description: "Readers (_read_issue_title_status, _read_issue_data_in_repo) detect issue.yaml absence and return/propagate a None-status sentinel instead of fabricated 'open'"
     scs: [SC-1, SC-2, SC-3]
-
-  - name: presentation-policy
-    description: Shared fixed presentation policy — [artifact-only] marker applied by list/search formatters; read omits status
-    symbols: [_format_list_output, _format_search_results]
-    scs: [SC-1, SC-2, SC-4]
-
-  - name: non-regression-guard
-    description: Well-formed tickets (issue.yaml + spec.md) keep real status; marker never applied to them
-    symbols: [_format_list_output, _format_search_results, read path]
+    phase_boundary: 1
+  - id: C-2
+    name: presentation-policy
+    description: "Formatters (_format_list_output, _format_search_results) render the fixed token [artifact-only] for sentinel entries; read path omits status line"
+    scs: [SC-1, SC-2, SC-3]
+    phase_boundary: 1
+  - id: C-3
+    name: well-formed-guard
+    description: "Guard logic ensuring [artifact-only] applies only when issue.yaml is absent; well-formed tickets keep real status"
     scs: [SC-4]
-
-phase_boundaries:
-  - phase: 1
-    concerns: [reader-state-truthfulness, presentation-policy, non-regression-guard]
-    items: [Item 1 (SC-1), Item 2 (SC-2), Item 3 (SC-3), Item 4 (SC-4)]
-    rationale: All four items touch the same two readers and shared formatter policy; spec Traceability maps every R to Phase 1. Single-phase decomposition, per-item TDD commits.
+    phase_boundary: 1
+  - id: C-4
+    name: sandbox-verification
+    description: "Per-SC sandbox pytest fixture trees and stdout assertions in .opencode/tests/test_local_issues/"
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    phase_boundary: 1
+notes: "All concerns resolve within Phase 1 per spec Traceability; reader/presenter split is a layer boundary, not a phase boundary."

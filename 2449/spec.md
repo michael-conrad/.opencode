@@ -69,9 +69,9 @@
 - **Relationship**: must be read before implementation — tests follow these conventions
 - **Status**: satisfied (existing test directory and patterns present)
 
-- **Reference**: #2404, #2394
+- **Reference**: #2404, #2394 (michael-conrad/.opencode, remote — both verified OPEN via `gh issue view`)
 - **Relationship**: related defects in the same phantom-state family — context only, not a build prerequisite
-- **Status**: satisfied (recorded for traceability)
+- **Status**: satisfied (remote-verified, recorded for traceability)
 
 No external dependencies. The tool is single-file (`.opencode/tools/local-issues`).
 
@@ -88,9 +88,9 @@ No external dependencies. The tool is single-file (`.opencode/tools/local-issues
 
 | Source | Type | Location | Verification |
 |--------|------|----------|-------------|
-| local-issues tool | code | `.opencode/tools/local-issues` (`_read_issue_title_status`, `_read_issue_data_in_repo`, `_validate_issue_dir`, `_format_list_output`, `_format_search_results`, `_search_issues_in_repo`) | read (pre-spec inspection) |
+| local-issues tool | code | `.opencode/tools/local-issues` (`_read_issue_title_status`, `_read_issue_data_in_repo`, `_validate_issue_dir`, `_format_list_output`, `_format_search_results`, `_search_in_repo`) | read (pre-spec inspection, grep-verified definitions) |
 | Sandbox test conventions | code | `.opencode/tests/test_local_issues/test_yaml_load_warn_and_skip.py` | read (pre-spec inspection) |
-| Related defect family | issue | #2404, #2394 | read (issue history) |
+| Related defect family | issue | #2404, #2394 (michael-conrad/.opencode, remote) | read (remote — `gh issue view 2404` / `2394` confirm both OPEN; 2404: autonumber counter, 2394: cross-repo numbering) |
 | Issue 2432 error-class taxonomy | issue | `.opencode/.issues/2432/` | read (issue history) |
 
 ## Enforcement Gate
@@ -124,5 +124,8 @@ Per-SC unit tests in `.opencode/tests/test_local_issues/` using sandbox fixture 
 - 2026-09-19 — Revised per spec-creation validate FAIL findings: (1) added missing required sections per spec-structure-standards (preamble 6 fields, Not Included, Requirements, Items, Dependencies, Traceability, Enforcement Gate, Cost Frame, Edge Cases, Documentation Sources); (2) added per-SC cost frames (dark-prose-007); (3) SC table restructured to canonical 4 columns with Verification Method; (4) fixed presentation policy to a single deterministic decision — marker token is exactly `[artifact-only]` (determinism finding); (5) split compound SC-3 into atomic SCs (SC-1 list, SC-2 search, SC-3 read, SC-4 well-formed preservation) so each SC is independently verifiable and SC-1 no longer depends on SC-3's policy; (6) redeclared evidence types from `semantic` to `behavioral` to match sandbox pytest execution with stdout assertions (EVIDENCE_TYPE_MISMATCH); (7) removed line-number references per spec-structure-standards prohibited content. Preserved all 3 root-cause fixes (list reader `_read_issue_title_status`, search/read synthesis `_read_issue_data_in_repo`, shared presentation policy). Authorized by: spec-creation validate gate (revision_reason: must reach 100% clean pass).
 
 ---
+
+- 2026-09-19 — Revised per spec-audit round-1 evaluator verdict DRAFT (Provenance dimension FAIL): (1) replaced fabricated `_search_issues_in_repo` citation with the actual search-path symbol `_search_in_repo` (grep-verified definition at line 1586 of `.opencode/tools/local-issues`; the formatter `_format_search_results` is at line 1617); (2) re-verified related defects #2404/#2394 on the remote tracker via `gh issue view` — both confirmed OPEN on michael-conrad/.opencode, so the citation was kept and its verification method corrected from "read (issue history)" to explicit remote-read with evidence. No SC criterion was touched. Authorized by: spec-creation revise task (revision_reason: spec-audit round-1 holistic Provenance FAIL).
+
 
 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

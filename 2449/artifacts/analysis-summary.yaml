@@ -1,23 +1,22 @@
-# Analysis summary for issue 2449 (retroactive backfill)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-sc_count: 4
-evidence_type: behavioral
-
-artifact_status:
-  blast-radius.yaml: backfilled (pre-existing at backfill start — verified content)
-  concern-map.yaml: backfilled (pre-existing at backfill start — verified content)
-  code-path-inventory.yaml: backfilled
-  cross-cutting-matrix.yaml: backfilled
-  interface-compatibility.yaml: backfilled (includes dependency_contract section)
-  state-analysis.yaml: backfilled
-  testability-assessment.yaml: backfilled
-
-scope_summary: >
-  Read-path-only fix in the single-file CLI tool .opencode/tools/local-issues: the two
-  readers (_read_issue_title_status, _read_issue_data_in_repo) stop fabricating
-  status "open" for directories without issue.yaml; formatters (_format_list_output,
-  _format_search_results) and the read rendering apply a shared fixed presentation
-  policy marking such dirs with the token [artifact-only]. Well-formed tickets
-  (issue.yaml + spec.md) keep real status (SC-4 non-regression matrix). Verified via
-  sandbox pytest in .opencode/tests/test_local_issues/. Risk LOW; no data mutation.
+analysis-summary:
+  spec_path: ".opencode/.issues/2449/spec.md"
+  spec_issue_number: 2449
+  mode: retroactive
+  sc_count: 4
+  artifact_status:
+    blast-radius: backfilled
+    concern-map: backfilled
+    code-path-inventory: backfilled
+    cross-cutting-matrix: backfilled
+    interface-compatibility: backfilled
+    state-analysis: backfilled
+    testability-assessment: backfilled
+  scope_summary: "Fix phantom [open] fabrication in local-issues list/search/read for artifact-only dirs; single-file change in .opencode/tools/local-issues (readers emit None-status sentinel, formatters render fixed [artifact-only] token), verified by sandbox pytest with stdout assertions. Well-formed ticket rendering preserved."
+  grounding:
+    - "_read_issue_title_status at .opencode/tools/local-issues:315"
+    - "_read_issue_data_in_repo at .opencode/tools/local-issues:1305"
+    - "_search_in_repo at .opencode/tools/local-issues:1586"
+    - "_format_search_results at .opencode/tools/local-issues:1617"
+    - "_format_list_output at .opencode/tools/local-issues:1674"
+    - "_validate_issue_dir at .opencode/tools/local-issues:88"
+    - "sandbox conventions verified in .opencode/tests/test_local_issues/ (test_yaml_load_warn_and_skip.py present)"

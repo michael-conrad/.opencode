@@ -1,30 +1,27 @@
-# Blast radius analysis for issue 2449 (backfilled retroactively from spec body)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-
+artifact: blast-radius
+spec: ".opencode/.issues/2449/spec.md"
+generated: retroactive-backfill
 affected_files:
-  - path: .opencode/tools/local-issues
+  - path: ".opencode/tools/local-issues"
+    exists: true
     role: primary
     symbols:
-      - _read_issue_title_status      # list path reader — returns ("", "open") for yaml-less dirs (fabricated state)
-      - _read_issue_data_in_repo      # search/read path reader — synthesizes status: "open" for yaml-less dirs
-      - _format_list_output           # list presentation — must render [artifact-only] marker
-      - _format_search_results        # search presentation — must render [artifact-only] marker
-      - read subcommand output path   # read presentation — must omit fabricated status
-    exists: verified
-
-  - path: .opencode/tests/test_local_issues/
+      - "_read_issue_title_status (line 315) — returns ('', 'open') when issue.yaml absent but spec.md present; must return None-status sentinel"
+      - "_read_issue_data_in_repo (line 1305) — synthesizes result['issue'] = {..., 'status': 'open'} for yaml-less dirs; must omit synthesized status"
+      - "_format_list_output (line 1674) — renders [open] for sentinel entries; must render [artifact-only]"
+      - "_format_search_results (line 1617) — must render [artifact-only] for sentinel results, no synthesized status"
+      - "_search_in_repo (line 1586) — passes through reader data to search formatter"
+      - "_validate_issue_dir (line 88) — unchanged (out of scope); listed to mark exclusion boundary"
+  - path: ".opencode/tests/test_local_issues/"
+    exists: true
     role: test
-    purpose: new per-SC sandbox pytest fixtures (pattern: test_yaml_load_warn_and_skip.py, issue 2432 taxonomy)
-    exists: verified
-
+    note: "new sandbox pytest files for SC-1..SC-4 following test_yaml_load_warn_and_skip.py conventions"
 blast_radius:
-  direct: [.opencode/tools/local-issues, .opencode/tests/test_local_issues/]
+  direct: [".opencode/tools/local-issues"]
   indirect:
-    - all agents routing on `local-issues list`/`search` output (consumers of the corrected view; no code change)
-  out_of_scope:
-    - _validate_issue_dir (validate subcommand contract — Not Included)
-    - issue-data migration of artifact-only dirs (Not Included)
-
+    - "all local-issues list/search/read consumers (agent routing decisions) — output shape changes only for yaml-less dirs"
+  unaffected:
+    - "validate subcommand (excluded per Not Included)"
+    - "well-formed ticket rendering (SC-4 guard)"
+    - "mutation subcommands (create/update/comment/link/close/renumber)"
 risk: LOW
-risk_rationale: Single-file CLI tool, read-path only, no data mutation, well-formed ticket output preserved by SC-4 non-regression matrix.

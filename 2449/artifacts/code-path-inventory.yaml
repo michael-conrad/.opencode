@@ -1,22 +1,24 @@
-# Code path inventory for issue 2449 (backfilled retroactively from spec body)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-grounding: symbols verified by grep against .opencode/tools/local-issues (lines 315, 1305, 1354, 1602, 1617, 1667, 1674, 1692)
-
-sc_paths:
+artifact: code-path-inventory
+spec: ".opencode/.issues/2449/spec.md"
+generated: retroactive-backfill
+paths:
   - sc: SC-1
-    paths:
-      - "`list` subcommand -> entry enumeration -> `_read_issue_title_status(entry)` (local-issues:315) -> `_format_list_output(...)` (local-issues:1674, called at 1692)"
-    change: reader returns None-status sentinel when issue.yaml absent; formatter renders `[artifact-only]`
+    trigger: "local-issues list on directory without issue.yaml"
+    code_path: "main list dispatch -> repo iteration -> _read_issue_title_status (returns ('', 'open') today) -> _format_list_output renders '[open]'"
+    change: "_read_issue_title_status returns None status when issue.yaml absent; _format_list_output renders [artifact-only] for sentinel"
   - sc: SC-2
-    paths:
-      - "`search` subcommand -> `_search_issues_in_repo` -> `_read_issue_data_in_repo` (local-issues:1305) -> `_format_search_results(...)` (local-issues:1617, called at 1635)"
-    change: reader omits synthesized status for yaml-less dirs; formatter renders `[artifact-only]`
+    trigger: "local-issues search matching a yaml-less spec-only dir"
+    code_path: "search dispatch -> _search_in_repo -> _read_issue_data_in_repo (synthesizes status: open today) -> _format_search_results"
+    change: "_read_issue_data_in_repo omits synthesized status; _format_search_results renders [artifact-only]"
   - sc: SC-3
-    paths:
-      - "`read` subcommand -> `_read_issue_data_in_repo` (local-issues:1305; call sites local-issues:1354, 1602) -> output rendering"
-    change: read output omits `status: open` for yaml-less dirs
+    trigger: "local-issues read --number N on yaml-less dir"
+    code_path: "read dispatch -> _read_issue_data_in_repo -> output formatting"
+    change: "read path consumes sentinel, renders no status line"
   - sc: SC-4
-    paths:
-      - "all three subcommand paths above; guard condition = `issue.yaml` absence is the sole trigger"
-    change: guard logic in `_format_list_output`, `_format_search_results`, and read rendering — well-formed tickets untouched
+    trigger: "list/search/read on well-formed ticket (issue.yaml + spec.md)"
+    code_path: "same three paths; issue.yaml present branch unchanged"
+    change: "guard in all formatters: marker only when issue.yaml absent"
+  - sc: edge-empty-dir
+    trigger: "empty directory in enumeration"
+    code_path: "reader not-a-ticket condition -> formatter skips entry"
+    change: "preserved current exclusion behavior"

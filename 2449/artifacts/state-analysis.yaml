@@ -1,31 +1,33 @@
-# State analysis for issue 2449 (backfilled retroactively from spec body)
-spec: .opencode/.issues/2449/spec.md
-generated: retroactive backfill
-
-state_transitions:
-  - sc: SC-1
-    transition: yaml-less dir rendered as `[open]` (fabricated) -> rendered as `[artifact-only]`
-    persistence: none — computed per invocation, never cached
-  - sc: SC-2
-    transition: search result with synthesized `status: open` -> result with `[artifact-only]` marker, no synthesized status
-    persistence: none
-  - sc: SC-3
-    transition: read output with fabricated `status: open` -> no status line
-    persistence: none
-  - sc: SC-4
-    transition: none — well-formed ticket state output unchanged (guarded non-regression)
-    persistence: none
-
-edge_case_states:
-  - state: empty directory (no files)
-    handling: not a ticket — excluded from enumeration (preserved current behavior)
-  - state: metadata-only dir (comments.yaml or links.yaml, no issue.yaml)
-    handling: same `[artifact-only]` policy — issue.yaml absence is the sole trigger
-  - state: dir gains issue.yaml later
-    handling: marker disappears, real status renders on next read — policy recomputed per invocation
-  - state: malformed issue.yaml (present but unparseable)
-    handling: out of scope — issue 2432 parse-error taxonomy governs; `[artifact-only]` policy not applied
-  - state: concurrent write during read
-    handling: non-mutating, idempotent reads; absence of issue.yaml at read time yields `[artifact-only]`
-
-mutation_state: none — this is a read-path-only change; no issue-data mutations, no schema changes, no serialization format changes.
+artifact: state-analysis
+spec: ".opencode/.issues/2449/spec.md"
+generated: retroactive-backfill
+transitions:
+  - id: T-1
+    sc: SC-1
+    state_from: "yaml-less dir rendered as '[open]' with empty title"
+    state_to: "yaml-less dir rendered as '[artifact-only]'"
+    trigger: "list invocation; policy computed per invocation, never cached"
+  - id: T-2
+    sc: SC-2
+    state_from: "search result with synthesized status: open"
+    state_to: "search result marked [artifact-only], no synthesized status"
+    trigger: "search invocation"
+  - id: T-3
+    sc: SC-3
+    state_from: "read output containing status: open for yaml-less dir"
+    state_to: "read output omits status line"
+    trigger: "read invocation"
+  - id: T-4
+    sc: edge-dir-gains-issue-yaml
+    state_from: "[artifact-only] marker shown"
+    state_to: "real status renders"
+    trigger: "issue.yaml added to dir; reader consults presence on every read"
+  - id: T-5
+    sc: SC-4
+    state_from: "well-formed ticket real status"
+    state_to: "unchanged (invariant, not a transition)"
+    trigger: "any of list/search/read; issue.yaml present branch preserved"
+invariants:
+  - "policy computed per invocation — no caching"
+  - "read paths non-mutating and idempotent"
+  - "empty dirs excluded from ticket enumeration (current behavior preserved)"
