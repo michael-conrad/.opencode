@@ -3,6 +3,8 @@
 
 spec_path: .opencode/.issues/2437/spec.md
 generated: 2026-09-19
+revalidated: 2026-09-20
+approval_status: approved-for-pr (issue.yaml labels)
 sc_count: 5
 
 artifact_status:
@@ -23,3 +25,13 @@ scope_summary: >
   three nested sub-task cards as task-card dispatch points (SC-4), and sync the
   parent git-workflow card's "Create a PR" entry (SC-5). PR pipeline gates and
   authorization scope model are untouched invariants.
+
+scope_boundary_findings:
+  - .opencode/skills/git-workflow-pr/SKILL.md: exists
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation.md: exists
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md: exists
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md: exists
+  - .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md: exists
+  - .opencode/skills/git-workflow/SKILL.md: exists
+  - .opencode/reference/skill-card-description-standards.md: exists
+  missing: none

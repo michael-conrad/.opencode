@@ -1,0 +1,41 @@
+problem built: issue-2437-pr-creation-reclassification
+  objects: 5
+  fluents: 2
+  actions: 6
+  goals:   1
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 6
+
+- [ ] 1. complete_sc_1()
+- [ ] 2. complete_sc_2()
+- [ ] 3. complete_sc_3()
+- [ ] 4. complete_sc_4()
+- [ ] 5. complete_sc_5()
+- [ ] 6. finish_phase_1()
+
+---
+actions:
+- name: complete_sc_1
+  parameters: []
+- name: complete_sc_2
+  parameters: []
+- name: complete_sc_3
+  parameters: []
+- name: complete_sc_4
+  parameters: []
+- name: complete_sc_5
+  parameters: []
+- name: finish_phase_1
+  parameters: []
+domain: issue-2437-pr-creation-reclassification
+engine: tamer
+plan_length: 6
+status: SOLVED_SATISFICING
