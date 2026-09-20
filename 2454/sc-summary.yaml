@@ -1,17 +1,21 @@
 # SC Summary — .opencode#2454
 provenance: AI-generated
 
-sc_count: 3
+sc_count: 4
 scs:
   - id: "SC-1"
-    description: "The executing-plans skill deck SHALL mandate orchestrator-direct execution of plan steps: direct steps are executed by the orchestrator with its own tool calls, never delegated wholesale."
+    description: "The executing-plans skill deck SHALL mandate that direct plan steps are executed by the orchestrator with its own tool calls."
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "The executing-plans skill deck SHALL restrict task() dispatch to exactly the plan steps that mark dispatch (task-card mode); unmarked/direct steps MUST NOT be dispatched."
+    description: "The executing-plans skill deck SHALL prohibit wholesale delegation of plan steps: forwarding plan body or whole-phase content into a task() prompt SHALL NOT occur during plan execution."
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-3"
+    description: "The executing-plans skill deck SHALL restrict task() dispatch to exactly the plan steps that mark dispatch (task-card mode); unmarked/direct steps SHALL NOT be dispatched."
     evidence_type: "behavioral"
     plan_item: 2
-  - id: "SC-3"
-    description: "The pre-flight guard backstop SHALL return BLOCKED with ORCHESTRATOR_ONLY_PLAN / ORCHESTRATOR_ONLY_SKILL_CARD when plan or skill-card content reaches a sub-agent context."
+  - id: "SC-4"
+    description: "The pre-flight guard backstop SHALL return BLOCKED with ORCHESTRATOR_ONLY_PLAN / ORCHESTRATOR_ONLY_SKILL_CARD when plan or skill-card content reaches a sub-agent context (single mechanism: pre-flight guard backstop; dual reason codes retained in one SC)."
     evidence_type: "behavioral"
     plan_item: 3

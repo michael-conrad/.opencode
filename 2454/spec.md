@@ -23,9 +23,12 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | The executing-plans skill deck SHALL mandate orchestrator-direct execution: direct plan steps are executed by the orchestrator with its own tool calls, and wholesale delegation of plan steps (forwarding plan body or whole-phase content into a `task()` prompt) does not occur during plan execution. | behavioral | `opencode run` via `with-test-home` on a plan-execution scenario; assert via stderr agent actions (own tool calls on direct steps; no whole-plan/whole-phase forwarding). |
-| SC-2 | The executing-plans skill deck SHALL restrict `task()` dispatch to exactly the plan steps that mark dispatch (`task-card` mode); unmarked or `(**direct**)` steps MUST NOT be dispatched to sub-agents. | behavioral | `opencode run` via `with-test-home` on a mixed direct/task-card plan scenario; assert dispatch occurs only at `task-card`-marked steps. |
-| SC-3 | A sub-agent that receives plan content or skill-card content SHALL return BLOCKED with `ORCHESTRATOR_ONLY_PLAN` / `ORCHESTRATOR_ONLY_SKILL_CARD` respectively (pre-flight guard backstop verified end-to-end). | behavioral | `opencode run` via `with-test-home` guard scenario; assert BLOCKED reason codes in sub-agent output. |
+| SC-1 | The executing-plans skill deck SHALL mandate that direct plan steps are executed by the orchestrator with its own tool calls. | behavioral | `opencode run` via `with-test-home` on a plan-execution scenario; assert via stderr agent actions that the orchestrator performs own tool calls on direct steps. |
+| SC-2 | The executing-plans skill deck SHALL prohibit wholesale delegation of plan steps: forwarding plan body or whole-phase content into a `task()` prompt SHALL NOT occur during plan execution. | behavioral | `opencode run` via `with-test-home` on a plan-execution scenario; assert via stderr agent actions the absence of whole-plan/whole-phase forwarding. |
+| SC-3 | The executing-plans skill deck SHALL restrict `task()` dispatch to exactly the plan steps that mark dispatch (`task-card` mode); unmarked or `(**direct**)` steps SHALL NOT be dispatched to sub-agents. | behavioral | `opencode run` via `with-test-home` on a mixed direct/task-card plan scenario; assert dispatch occurs only at `task-card`-marked steps. |
+| SC-4 | A sub-agent that receives plan content or skill-card content SHALL return BLOCKED with `ORCHESTRATOR_ONLY_PLAN` / `ORCHESTRATOR_ONLY_SKILL_CARD` respectively (pre-flight guard backstop verified end-to-end). | behavioral | `opencode run` via `with-test-home` guard scenario; assert BLOCKED reason codes in sub-agent output. |
+
+**SC-4 dual reason-code justification:** `ORCHESTRATOR_ONLY_PLAN` and `ORCHESTRATOR_ONLY_SKILL_CARD` are retained in a single SC because both are emitted by one mechanism (the pre-flight guard backstop) verified end-to-end by one behavioral scenario; they are output variants of the same guard contract, not independent success criteria.
 
 ## 4. Requirements
 
@@ -37,28 +40,28 @@ R-3. The skill deck and task cards SHALL prohibit forwarding plan body, whole-ph
 
 R-4. The pre-flight guard backstop SHALL be verified to return `ORCHESTRATOR_ONLY_PLAN` when plan content reaches a sub-agent and `ORCHESTRATOR_ONLY_SKILL_CARD` when skill-card content reaches a sub-agent.
 
-R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `with-test-home`, stderr agent actions); structural or string substitutes MUST NOT be accepted.
+R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `with-test-home`, stderr agent actions); structural or string substitutes SHALL NOT be accepted.
 
 ## 5. Items
 
-### Item 1 (SC-1): Orchestrator-direct mandate verified/enforced in the executing-plans deck
+### Item 1 (SC-1, SC-2): Orchestrator-direct mandate verified/enforced in the executing-plans deck
 
-- RED: Behavioral scenario run via `opencode run` (with-test-home) where an agent executes a direct-step plan; assert orchestrator reads the plan itself and executes direct steps with own tool calls — assertion fails against current unverified state where applicable.
-- GREEN: Tighten SKILL.md / execute-phase.md wording so the orchestrator-direct mandate is explicit; no structural rewrite (deck already states the behavior).
+- RED: Behavioral scenario run via `opencode run` (with-test-home) where an agent executes a direct-step plan; assert orchestrator reads the plan itself and executes direct steps with own tool calls, and assert absence of whole-plan/whole-phase forwarding — assertion fails against the current unverified state.
+- GREEN: Tighten SKILL.md / execute-phase.md wording so the orchestrator-direct mandate is explicit (positive execution mandate and forwarding prohibition); no structural rewrite (deck already states the behavior).
 - verify: Re-run the behavioral scenario; assert own-tool-call execution on direct steps and absence of whole-plan forwarding.
 - commit: One commit covering SKILL.md + task-card wording changes and the behavioral scenario.
 
-### Item 2 (SC-2): Dispatch restricted to plan-marked (`task-card`) steps
+### Item 2 (SC-3): Dispatch restricted to plan-marked (`task-card`) steps
 
 - RED: Behavioral scenario on a mixed `(**direct**)` / `(**task-card**)` plan; assert dispatch only at marked steps — fails against current state.
 - GREEN: Make per-step dispatch-mode language in execute-phase.md unambiguous (direct default; task-card only at marked steps).
 - verify: Re-run scenario; assert zero dispatches on direct steps, dispatch on task-card steps only.
 - commit: One commit covering execute-phase.md wording + scenario.
 
-### Item 3 (SC-3): Pre-flight guard backstop verified end-to-end
+### Item 3 (SC-4): Pre-flight guard backstop verified end-to-end
 
 - RED: Behavioral guard scenario where plan/skill-card content reaches a sub-agent; assert BLOCKED with reason code — fails if guard path is unverified.
-- GREEN: No guard semantics change; verify and, if needed, align SKILL.md references to the guard reason codes (guideline 023 canonical definition).
+- GREEN: No guard semantics change; verify and align SKILL.md references to the guard reason codes (guideline 023 canonical definition).
 - verify: Re-run guard scenario; assert `ORCHESTRATOR_ONLY_PLAN` / `ORCHESTRATOR_ONLY_SKILL_CARD` in sub-agent output.
 - commit: One commit covering guard-verification scenario + any wording alignment.
 
@@ -67,7 +70,7 @@ R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `
 | Reference | Relationship | Status |
 |-----------|--------------|--------|
 | writing-plans/reference/plan-artifact-format.md | Defines the dispatch indicator grammar the executor consumes; must be read before implementation | Satisfied (exists, stable) |
-| guideline 023 (pre-flight guard canonical reference) | Guard reason codes verified by SC-3 derive from this definition | Satisfied |
+| guideline 023 (pre-flight guard canonical reference) | Guard reason codes verified by SC-4 derive from this definition | Satisfied |
 | `.opencode/tests-v2/with-test-home` | Required harness for all behavioral verification | Satisfied |
 
 ## 7. Traceability
@@ -75,10 +78,10 @@ R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
 | R-1 | SC-1 | P1 |
-| R-2 | SC-2 | P1 |
-| R-3 | SC-1, SC-2 | P1 |
-| R-4 | SC-3 | P1 |
-| R-5 | SC-1, SC-2, SC-3 | P1 |
+| R-2 | SC-3 | P1 |
+| R-3 | SC-2, SC-3 | P1 |
+| R-4 | SC-4 | P1 |
+| R-5 | SC-1, SC-2, SC-3, SC-4 | P1 |
 
 ## 8. Documentation Sources
 
@@ -99,13 +102,21 @@ R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - **SC-1:** Running the plan-execution behavioral scenario costs minutes — a bounded delay that catches wholesale-delegation defects at the earliest gate. Skipping costs the full pipeline of rework when mis-dispatched plan execution surfaces downstream — hours to days of diagnosis and re-review, compounded by every plan executed under the unenforced deck.
-- **SC-2:** Running the mixed-dispatch scenario costs minutes — it pins the direct/task-card boundary before any consumer depends on it. Skipping costs hours-to-days of downstream rework when direct steps get silently dispatched and context isolation breaks.
-- **SC-3:** Running the guard-backstop scenario costs minutes — it verifies the reason-code contract end-to-end. Skipping costs the loss of the only mechanical backstop against skill-card/plan forwarding, whose failure surfaces only after sub-agent context contamination has already propagated — a 100×+ escalation by the tiered cost table.
+- **SC-2:** Verifying the forwarding-prohibition behavioral scenario costs minutes — it pins the no-wholesale-delegation boundary at the same gate as SC-1. Skipping costs the same downstream rework when plan bodies are silently forwarded into sub-agent contexts.
+- **SC-3:** Running the mixed-dispatch scenario costs minutes — it pins the direct/task-card boundary before any consumer depends on it. Skipping costs hours-to-days of downstream rework when direct steps get silently dispatched and context isolation breaks.
+- **SC-4:** Running the guard-backstop scenario costs minutes — it verifies the reason-code contract end-to-end. Skipping costs the loss of the only mechanical backstop against skill-card/plan forwarding, whose failure surfaces only after sub-agent context contamination has already propagated — a 100×+ escalation by the tiered cost table.
 
 ## 11. Edge Cases
 
 - **Condition:** A plan step is unmarked (no dispatch indicator). **Expected behavior:** It is treated as `direct` (default per plan artifact format) and executed by the orchestrator. **Resolution:** Grammar default; no ambiguity.
 - **Condition:** A plan contains zero dispatch-marked steps. **Expected behavior:** The entire plan executes orchestrator-direct with zero `task()` calls. **Resolution:** Valid state; not an error.
 - **Condition:** The behavioral harness (`with-test-home`) fails or times out. **Expected behavior:** The SC verdict is FAIL with diagnosis (R-18 cause analysis); structural substitutes are prohibited. **Resolution:** Remediate harness, re-run.
-- **Condition:** Plan content reaches a sub-agent despite the deck's prohibition. **Expected behavior:** Pre-flight guard returns BLOCKED `ORCHESTRATOR_ONLY_PLAN`. **Resolution:** Guard backstop is the defense in depth verified by SC-3.
+- **Condition:** Plan content reaches a sub-agent despite the deck's prohibition. **Expected behavior:** Pre-flight guard returns BLOCKED `ORCHESTRATOR_ONLY_PLAN`. **Resolution:** Guard backstop is the defense in depth verified by SC-4.
 - **State boundaries:** Transitions `plan_not_read → plan_read → executing_phase → phase_complete` are unchanged by this spec; the mandate constrains behavior only within `executing_phase`.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-20 | Initial spec | — | Spec-creation pipeline (spec-creation-validation) |
+| 2026-09-20 | Revision: (1) decomposed compound SC-1 into atomic SC-1 (positive own-tool-call execution) and SC-2 (negative forwarding prohibition); renumbered prior SC-2→SC-3 and SC-3→SC-4 across SC table, items, traceability, cost frame, edge cases. (2) Normalized `MUST NOT` → `SHALL NOT` per spec-structure-standards (R-2, R-3, R-5, SC-3). (3) Stripped discretion hedges: "where applicable" (Item 1 RED) and "if needed" (Item 3 GREEN). (4) Kept SC-4 (guard) as one SC with dual reason codes — single mechanism justification added to §3. Updated sc-summary.yaml (sc_count 3→4) and item mappings consistently. | Validation findings from spec-creation-validation | Developer-issued revise dispatch (validation_findings) |
