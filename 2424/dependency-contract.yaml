@@ -1,0 +1,85 @@
+# Dependency contract — issue 2424
+# Extracted from artifacts/interface-compatibility.yaml dependency_contract section
+# (auto-normalized to solve-tool schema: the raw section was documentation-form YAML,
+# invalid at line 36 due to an unquoted colon, and not in solver variable/expr format).
+# Semantics preserved: single edited file, one-directional conformance-gate coupling
+# to the read-only validator, DAG phase1-3 -> phase4 gate.
+variables:
+  item1_done:
+    type: bool
+    description: "SC-1 read-plan dispatch prompt prefix committed"
+  item2_done:
+    type: bool
+    description: "SC-2 execute-phase dispatch prompt prefix committed"
+  item3_done:
+    type: bool
+    description: "SC-3 byline placeholder (REQ-2) committed"
+  item4_done:
+    type: bool
+    description: "SC-4 Worktree Mode section (REQ-3) committed"
+  item5_done:
+    type: bool
+    description: "SC-5 numbered Workflows format (REQ-6) committed"
+  item6_done:
+    type: bool
+    description: "SC-6 read-plan link condensation committed"
+  item7_done:
+    type: bool
+    description: "SC-7 execute-phase link condensation committed"
+  item8_done:
+    type: bool
+    description: "SC-8 Mandatory Task Discipline section (REQ-5) committed"
+  sc9_gate_pass:
+    type: bool
+    description: "SC-9 validator violations list empty (behavioral gate)"
+  card_state:
+    type: string
+    domain: [non_conformant, partial, conformant, validated, gate_failed]
+    description: "executing-plans card conformance state (state-analysis.yaml state machine)"
+
+preconditions:
+  # DAG: SC-9 gate depends on items 1-8 (spec §5 Item 9 dependency)
+  - "z3.Implies(sc9_gate_pass, z3.And(item1_done, item2_done, item3_done, item4_done, item5_done, item6_done, item7_done, item8_done))"
+  # Gate pass requires card in validated state; conformance requires items 1-8
+  - "z3.Implies(sc9_gate_pass, card_state == 'validated')"
+  - "z3.Implies(z3.And(item1_done, item2_done, item3_done, item4_done, item5_done, item6_done, item7_done, item8_done), z3.Not(card_state == 'non_conformant'))"
+
+invariants:
+  # One-directional gate: validator untouched (R-12) — no variable may assert validator modification
+  # Card state always one of the state-machine states (domain-constrained above)
+  - "z3.Or(card_state == 'non_conformant', card_state == 'partial', card_state == 'conformant', card_state == 'validated', card_state == 'gate_failed')"
+  # Items 1-8 in any phase edit disjoint SKILL.md regions — mutually independent; no ordering constraint
+
+postconditions:
+  - "sc9_gate_pass"
+
+sources:
+  - path: .opencode/skills/executing-plans/SKILL.md
+    role: single edited file
+    exists: verified
+  - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    role: read-only validator (R-12)
+    exists: verified
+  - path: .opencode/skills/spec-creation/SKILL.md
+    role: dispatch-pattern baseline pinned at commit 125b423e0bd846439e908c1150e18e913f042726
+    exists: verified
+    type_constraint: "string content — canonical 'You are a sub-agent. Follow the instructions in [...]' template"
+  - path: .opencode/skills/completion-core/SKILL.md
+    role: canonical Worktree Mode / Mandatory Task Discipline section reference
+    exists: verified
+    type_constraint: "markdown section text — verbatim source for SC-4 (Appendix A) and SC-8 checklist"
+  - path: .opencode/reference/skill-card-schema.md
+    role: byline placeholder form
+    exists: verified
+    type_constraint: "ATTRIBUTION_EXEMPT placeholder regex → <AgentName> (<ModelId>)"
+  - path: .opencode/reference/skill-card-description-standards.md
+    role: purpose-condensation rule and dispatch template definition
+    exists: verified
+
+targets:
+  - path: .opencode/skills/executing-plans/tasks/read-plan.md
+    role: condensation source (SC-6); unmodified (R-10)
+    exists: verified
+  - path: .opencode/skills/executing-plans/tasks/execute-phase.md
+    role: condensation source (SC-7); unmodified (R-10)
+    exists: verified

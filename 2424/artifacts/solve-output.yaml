@@ -1,0 +1,32 @@
+# Solve output — issue 2424 research task
+generated: "2026-09-20"
+contract_path: .opencode/.issues/2424/dependency-contract.yaml
+state_path: .opencode/.issues/2424/artifacts/state-analysis.yaml
+
+solve_status: SAT
+solve_detail: |
+  `tools/solve model --query "z3.BoolVal(True)"` returned SAT with a satisfying
+  model (card_state=validated, sc9_gate_pass=True feasible with all items done;
+  task card's literal `--query sat` was normalized to an always-true expression
+  because the tool evaluates Python/Z3 expressions, not the bare token `sat`).
+  Note: interface-compatibility.yaml's dependency_contract section was
+  documentation-form YAML (invalid at line 36, unquoted colon) and was
+  auto-normalized to solver schema format in dependency-contract.yaml with
+  semantics preserved.
+
+check_status: SAT
+check_detail: |
+  `tools/solve check` returned SAT before postconditions/invariants and
+  "SAT (+ postconditions + invariants)" after — state machine consistent with
+  the contract DAG.
+
+plan_status: SOLVED_SATISFICING
+plan_detail: |
+  `tools/plan plan` (engine tamer) solved the 9-action problem
+  (8 item-completion actions + validator gate) with a 9-step plan; the gate
+  action run-validator-gate is correctly sequenced after items 1-8.
+
+verdicts:
+  solve_model: SAT
+  solve_check: SAT
+  plan: SOLVED_SATISFICING

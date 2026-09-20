@@ -1,0 +1,110 @@
+# Planning problem — issue 2424, derived from dependency-contract.yaml
+domain: skill-card-conformance
+types:
+  - name: item
+objects:
+  - name: item1
+    type: item
+  - name: item2
+    type: item
+  - name: item3
+    type: item
+  - name: item4
+    type: item
+  - name: item5
+    type: item
+  - name: item6
+    type: item
+  - name: item7
+    type: item
+  - name: item8
+    type: item
+fluents:
+  - name: item_done
+    params:
+      - name: i
+        type: item
+  - name: card_conformant
+actions:
+  - name: complete-dispatch-prefix-read-plan
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item1)
+    effects:
+      - item_done(item1)
+  - name: complete-dispatch-prefix-execute-phase
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item2)
+    effects:
+      - item_done(item2)
+  - name: complete-byline-placeholder
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item3)
+    effects:
+      - item_done(item3)
+  - name: complete-worktree-mode-section
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item4)
+    effects:
+      - item_done(item4)
+  - name: complete-numbered-workflows
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item5)
+    effects:
+      - item_done(item5)
+  - name: complete-read-plan-condensation
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item6)
+    effects:
+      - item_done(item6)
+  - name: complete-execute-phase-condensation
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item7)
+    effects:
+      - item_done(item7)
+  - name: complete-task-discipline-section
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_done(item8)
+    effects:
+      - item_done(item8)
+  - name: run-validator-gate
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - item_done(item1)
+      - item_done(item2)
+      - item_done(item3)
+      - item_done(item4)
+      - item_done(item5)
+      - item_done(item6)
+      - item_done(item7)
+      - item_done(item8)
+    effects:
+      - card_conformant
+init: []
+goals:
+  - card_conformant

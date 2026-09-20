@@ -1,0 +1,61 @@
+engine: tamer
+status: SOLVED_SATISFICING
+problem built: skill-card-conformance
+  objects: 8
+  fluents: 2
+  actions: 9
+  goals:   1
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 9
+
+- [ ] 1. complete-byline-placeholder(item1)
+- [ ] 2. complete-worktree-mode-section(item1)
+- [ ] 3. complete-read-plan-condensation(item1)
+- [ ] 4. complete-task-discipline-section(item1)
+- [ ] 5. complete-dispatch-prefix-read-plan(item1)
+- [ ] 6. complete-numbered-workflows(item1)
+- [ ] 7. complete-execute-phase-condensation(item1)
+- [ ] 8. complete-dispatch-prefix-execute-phase(item1)
+- [ ] 9. run-validator-gate(item1)
+
+---
+actions:
+- name: complete-byline-placeholder
+  parameters:
+  - item1
+- name: complete-worktree-mode-section
+  parameters:
+  - item1
+- name: complete-read-plan-condensation
+  parameters:
+  - item1
+- name: complete-task-discipline-section
+  parameters:
+  - item1
+- name: complete-dispatch-prefix-read-plan
+  parameters:
+  - item1
+- name: complete-numbered-workflows
+  parameters:
+  - item1
+- name: complete-execute-phase-condensation
+  parameters:
+  - item1
+- name: complete-dispatch-prefix-execute-phase
+  parameters:
+  - item1
+- name: run-validator-gate
+  parameters:
+  - item1
+domain: skill-card-conformance
+engine: tamer
+plan_length: 9
+status: SOLVED_SATISFICING
