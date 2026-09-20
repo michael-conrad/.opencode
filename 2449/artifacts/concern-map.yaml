@@ -1,0 +1,14 @@
+# Concern map — .opencode#2449
+phases:
+  - phase: "SC-1"
+    concern: "ticket-state read fidelity (list path)"
+    boundary: "_read_issue_title_status only — no validation/output formatting concerns"
+  - phase: "SC-2"
+    concern: "ticket-state read fidelity (search/read path)"
+    boundary: "_read_issue_data_in_repo synthesized-status branch only"
+  - phase: "SC-3"
+    concern: "output presentation policy (marker vs skip)"
+    boundary: "formatting functions + shared artifact-only constant; no data-reading logic"
+separation_rules:
+  - "state-detection logic (does issue.yaml exist?) stays in reader functions"
+  - "presentation decision (marker token vs skip) stays in formatting/output layer"

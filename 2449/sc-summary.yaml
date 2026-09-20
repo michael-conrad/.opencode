@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "list SHALL NOT emit [open] for artifact-only dirs (no issue.yaml); distinct marker or skip per SC-3 policy"
+    evidence_type: "semantic"
+    plan_item: 1
+  - id: "SC-2"
+    description: "search/read SHALL NOT synthesize status open for yaml-less dirs with plain-markdown specs"
+    evidence_type: "semantic"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Shared output policy: distinct artifact-only marker token in list+search formatters; well-formed tickets keep real status"
+    evidence_type: "semantic"
+    plan_item: 3

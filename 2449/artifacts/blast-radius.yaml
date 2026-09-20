@@ -1,0 +1,21 @@
+# Blast radius — .opencode#2449
+grounding: "derived from spec affected-component section (.opencode/tools/local-issues list/search) + direct code reads already performed"
+phases:
+  - phase: "SC-1 list phantom-status fix"
+    affected:
+      - "_read_issue_title_status (local-issues:315-327)"
+      - "_list_issues_in_repo (1652-1671) — consumer, no signature change"
+    ripple: "cmd_list output format only; all callers of _read_issue_title_status are within list path (grep-verified single consumer)"
+  - phase: "SC-2 search phantom-status fix"
+    affected:
+      - "_read_issue_data_in_repo (1305-1339)"
+    ripple: >
+      Also consumed by _read_issue_entry (1353-1360) → read subcommand
+      output. Changing the synthesized status affects `read` output for
+      yaml-less dirs — must be checked for behavioral consistency.
+  - phase: "SC-3 distinct marker / skip policy"
+    affected:
+      - "_format_list_output (1674-1681), _format_search_results (1617-1620)"
+    ripple: "output token consumed by agents parsing list output — additive change, non-breaking for well-formed tickets"
+ungrounded_assumptions:
+  - "read subcommand consumers tolerate absence of fabricated status for yaml-less dirs (to verify during plan grounding)"

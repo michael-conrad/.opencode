@@ -1,0 +1,45 @@
+# Pre-spec inspection — .opencode#2449
+issue: ".opencode#2449"
+topic: "local-issues list reports [open] for artifact-only dirs without issue.yaml (phantom ticket state)"
+tool: ".opencode/tools/local-issues" (Python, 2371 lines, single-file CLI)
+
+verified_code_locations:
+  - location: "_read_issue_title_status (local-issues:315-327)"
+    finding: >
+      ROOT CAUSE for `list`. When `issue.yaml` does not exist but `spec.md`
+      does (line 325-326), it returns ("", "open") — fabricating status
+      "open" for a directory with no ticket-state record. cmd_list
+      (_list_issues_in_repo:1652-1671) then prints the entry as
+      `[open]` via _format_list_output:1674-1681.
+  - location: "_read_issue_data_in_repo (local-issues:1305-1339)"
+    finding: >
+      ROOT CAUSE for `search`. When no YAML file exists and spec.md is
+      plain markdown, line 1338 fabricates
+      result["issue"] = {"body": ..., "status": "open"}.
+      _search_issues_in_repo (1590-1614) then emits `[open]`.
+  - location: "_validate_issue_dir (local-issues:88-108)"
+    finding: >
+      Warn-and-skip scan only validates files that EXIST (line 97:
+      `if not f.exists(): continue`). Absence of issue.yaml is never
+      flagged; artifact-only dirs pass validation silently.
+  - location: "YAML_FILES constant (local-issues:51)"
+    finding: "('issue.yaml', 'comments.yaml', 'links.yaml') — issue.yaml is the canonical ticket-state record."
+  - location: "cmd_list (1684-1692), _format_list_output (1674-1681)"
+    finding: "Output format: '<repo>#N [status] <title> spec_path=<path>'. No distinct marker for artifact-only dirs."
+
+affected_surface:
+  - "_read_issue_title_status"
+  - "_read_issue_data_in_repo"
+  - "_list_issues_in_repo / cmd_list output"
+  - "_search_issues_in_repo / cmd_search output (same phantom pattern)"
+
+existing_test_conventions:
+  - location: ".opencode/tests/test_local_issues/"
+    finding: >
+      pytest files using an isolated sandbox copy of the tool (no real
+      .issues/ state touched), asserting on stdout/stderr tokens.
+      Pattern to follow: test_yaml_load_warn_and_skip.py (SC-05,
+      issue 2432) — error-class token taxonomy
+      (malformed-frontmatter, invalid-yaml, schema-violation).
+
+related_issues: "#2404, #2394 (autonumber defect family, same phantom-state family)"

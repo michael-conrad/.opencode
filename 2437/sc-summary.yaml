@@ -1,0 +1,14 @@
+sc_count: 3
+scs:
+  - id: "SC-1"
+    description: "git-workflow-pr skill card pr-creation step re-marked to canonical dispatch classification consistent with Mandatory Task Discipline; no sub-agent-dispatch marker remains"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "tasks/pr-creation.md explicitly classifies each procedure step as orchestrator-direct or task-card; nested sub-task routing aligned"
+    evidence_type: "semantic"
+    plan_item: 2
+  - id: "SC-3"
+    description: "git-workflow skill card Create-a-PR entry aligned with the same classification vocabulary"
+    evidence_type: "string"
+    plan_item: 3

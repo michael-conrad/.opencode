@@ -1,0 +1,14 @@
+# State analysis — .opencode#2449
+ticket_dir_states:
+  - state: "full ticket (issue.yaml present)"
+    transitions: "none introduced — status read from issue.yaml, unchanged"
+  - state: "artifact-only (spec.md/plan.md, no issue.yaml)"
+    before: "list/search/read synthesize status 'open' (phantom)"
+    after: "list/search report '[artifact-only]' (or skip); read no longer fabricates open status"
+    trigger: "directory iteration in _list_issues_in_repo / _search_issues_in_repo"
+  - state: "empty dir (no yaml, no spec)"
+    behavior: "list: _read_issue_title_status returns ('', 'open') → also phantom; must be covered by same fix"
+  - state: "yaml-without-issue.yaml (comments.yaml/links.yaml only)"
+    behavior: "SC-3 must decide marker vs skip; currently phantom-open via spec.md absence → ('', 'open')"
+invariants:
+  - "'[open]' printed iff issue.yaml exists and declares status open (or defaults open within a real ticket record)"

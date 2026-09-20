@@ -1,0 +1,13 @@
+# Code path inventory — .opencode#2449
+file: ".opencode/tools/local-issues"
+paths:
+  - phase: "SC-1"
+    path: "cmd_list → _list_issues_in_repo → _read_issue_title_status → _format_list_output"
+  - phase: "SC-2"
+    path: "cmd_search → _search_issues_in_repo → _read_issue_data_in_repo → _format_search_results"
+  - phase: "SC-2 (side effect)"
+    path: "cmd_read → _read_issue_entry → _read_issue_data_in_repo"
+  - phase: "SC-3"
+    path: "formatting layer: _format_list_output, _format_search_results"
+tests:
+  - ".opencode/tests/test_local_issues/ (sandbox pytest convention, pattern: test_yaml_load_warn_and_skip.py)"

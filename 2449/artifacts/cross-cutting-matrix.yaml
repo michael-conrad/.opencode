@@ -1,0 +1,14 @@
+# Cross-cutting matrix — .opencode#2449
+concerns:
+  - concern: "error-class taxonomy consistency"
+    affected_phases: [SC-1, SC-2, SC-3]
+    note: "SC-05 taxonomy (malformed-frontmatter, invalid-yaml, schema-violation) from issue 2432 — missing-issue.yaml is a NEW class, must not silently reuse existing tokens unless spec decides"
+  - concern: "agent-facing output contract"
+    affected_phases: [SC-1, SC-2, SC-3]
+    note: "list/search output is parsed by agents; token changes are cross-cutting to all downstream consumers (guidelines reference local-issues output)"
+  - concern: "read-only mandate"
+    affected_phases: [SC-1, SC-2]
+    note: "list/search/validate paths never mutate; fix must preserve this"
+  - concern: "worktree discipline"
+    affected_phases: [SC-1, SC-2, SC-3]
+    note: "tests must use sandbox copies, never real .issues/ state (existing convention)"
