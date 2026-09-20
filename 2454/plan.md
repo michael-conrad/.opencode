@@ -63,7 +63,7 @@ Context-cost allocation, authorization gates, verification honesty (behavioral e
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
-| 1 | executing-plans orchestrator-direct mandate (behavioral enforcement) | executing-plans skill deck only (SKILL.md, execute-phase.md, read-plan.md) | SC-1, SC-2, SC-3, SC-4 | none | 5-32 | direct (1-2, 25, 26) + task-card (3-4, 5-24, 27-32) |
+| 1 | executing-plans orchestrator-direct mandate (behavioral enforcement) | executing-plans skill deck only (SKILL.md, execute-phase.md, read-plan.md) | SC-1, SC-2, SC-3, SC-4 | none | 5-32 | direct (1-2, 26) + task-card (3-4, 5-25, 27-32) |
 
 ## Pre-Implementation
 
