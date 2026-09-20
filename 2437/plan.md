@@ -261,6 +261,14 @@ Executed once after all phase-1 items commit. Each step pre-cleans its own artif
 
 ---
 
+## lifecycle_events
+
+| timestamp | event | plan_file | phase_count |
+|-----------|-------|-----------|-------------|
+| 2026-09-20T13:50:00-04:00 | plan_created | `.opencode/.issues/2437/plan.md` | 1 |
+
+---
+
 ## Pre-Flight Guard (Mandatory)
 
 Check your tool list for a tool named `task`.
