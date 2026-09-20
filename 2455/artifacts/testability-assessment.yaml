@@ -1,0 +1,39 @@
+# Testability assessment — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+assessments:
+  - sc: SC-1
+    evidence_type: string
+    declared_by_spec: string
+    substrate_check: "Guideline text change — does not alter runtime behavior of code; the rule alters agent behavior, but SC-1 as written checks rule presence/wording."
+    verdict: keep-string
+    method: "grep/read verify bright-line text exists in 091 (or 022) with Tier 1 placement and R-18 remediation clause."
+    uplift_note: "SC-3/SC-4 scenarios provide the behavioral backstop; no uplift of SC-1 itself needed beyond spec declaration."
+  - sc: SC-2
+    evidence_type: string
+    declared_by_spec: string
+    substrate_check: "Skill text change; SC checks semantic mirror + Read-link presence."
+    verdict: keep-string
+    method: "read executing-plans/SKILL.md and git-workflow/SKILL.md; verify semantic parity and Read [Text](path) form (no 'see' citations)."
+  - sc: SC-3
+    evidence_type: behavioral
+    declared_by_spec: behavioral
+    substrate_check: "Tests agent dispatch decisions at runtime — YES, runtime-behavioral."
+    verdict: keep-behavioral
+    method: "tests-v2 scenario via with-test-home opencode run; stderr assertions for direct-step execution vs task() at marked steps."
+    constraints: ">=600s timeout; no `timeout` command; commit+push before run."
+  - sc: SC-4
+    evidence_type: behavioral
+    declared_by_spec: behavioral
+    substrate_check: "Tests agent remediation behavior after induced deviation — YES, runtime-behavioral."
+    verdict: keep-behavioral
+    method: "tests-v2 scenario inducing step-combining; stderr assertions for deck-remediation action (spec/commit evidence) beyond ad-hoc fix."
+    constraints: "Same harness constraints as SC-3."
+
+summary:
+  string_scs: [SC-1, SC-2]
+  behavioral_scs: [SC-3, SC-4]
+  uplifts: []
+  all_sc_covered: true

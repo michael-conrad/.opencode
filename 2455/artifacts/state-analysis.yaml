@@ -1,0 +1,37 @@
+# State analysis — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+state_transitions:
+  - sc: SC-1
+    entity: 091-incremental-build.md rule inventory
+    transitions:
+      - from: "no explicit orchestrator-direct bright-line"
+        to: "Tier 1 bright-line present (default = orchestrator-direct; task() only at task-card markers; deviation → deck remediation)"
+    persistence: git-committed guideline text (issues loaded via instructions array)
+  - sc: SC-2
+    entity: executing-plans/SKILL.md, git-workflow/SKILL.md dispatch text
+    transitions:
+      - from: "rule absent or 'see'-style citation"
+        to: "semantically mirrored rule with Read-link to 091 canonical section"
+    persistence: git-committed skill text
+  - sc: SC-3
+    entity: tests-v2 scenario set
+    transitions:
+      - from: "no mixed-mode execution scenario"
+        to: "scenario exists; RED (agent dispatches direct steps) → GREEN (agent executes direct in own context) after rules pushed"
+    persistence: tests-v2/behaviors/*.sh + tags registry
+  - sc: SC-4
+    entity: tests-v2 scenario set
+    transitions:
+      - from: "no deviation-remediation scenario"
+        to: "scenario exists; asserts agent folds deck fix into work instead of ad-hoc-only correction"
+    persistence: tests-v2/behaviors/*.sh + tags registry
+
+run_ordering_state:
+  - "SC-1 commit+push precedes SC-3/SC-4 behavioral runs (remote-containment gate, tests-v2 §4)."
+  - "SC-2 commit+push also precedes behavioral runs since scenarios exercise the mirror text."
+
+no_runtime_state: true
+notes: "Pure documentation + test additions; no application state, database, or serialized format involved."

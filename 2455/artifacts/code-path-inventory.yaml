@@ -1,0 +1,27 @@
+# Code path inventory — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+paths:
+  - sc: SC-1
+    paths:
+      - "Read path: .opencode/guidelines/091-incremental-build.md — always-loaded Tier 1 instructions array in opencode.jsonc; agents encounter rule at every dispatch decision moment."
+      - "Fallback path: .opencode/guidelines/022-orchestrator-context-discipline.md — Architecture B section if rule co-located here instead."
+    kind: guideline-text
+  - sc: SC-2
+    paths:
+      - "Routing path: .opencode/skills/executing-plans/SKILL.md — orchestrator reads plan execution instructions; the rule governs per-step execution-angle choice."
+      - "Routing path: .opencode/skills/git-workflow/SKILL.md — dispatcher text read during the universal skill dispatch gate."
+      - "Cross-reference path: Read [Text](path) links from both SKILL.md files to the 091 canonical section."
+    kind: skill-text
+  - sc: SC-3
+    paths:
+      - "Test path: bash .opencode/tests-v2/behaviors/<scenario-sc3>.sh — runs with-test-home opencode run with a mixed-mode plan prompt; assertions on stderr (skill dispatches, task() calls, direct file edits)."
+    kind: behavioral-test
+  - sc: SC-4
+    paths:
+      - "Test path: bash .opencode/tests-v2/behaviors/<scenario-sc4>.sh — prompt induces a step-combining deviation; assertions assert agent folds deck fix (spec/commit on feature branch) rather than only ad-hoc correction."
+    kind: behavioral-test
+
+notes: "No Python/TS runtime code paths affected; all changes are agent-deck text plus test scripts."

@@ -1,0 +1,45 @@
+# Blast-radius analysis — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+affected_files:
+  - path: .opencode/guidelines/091-incremental-build.md
+    role: primary-target
+    sc: [SC-1]
+    rationale: "Tier 1 always-loaded guideline carrying the bright-line orchestrator-direct default rule (spec Approach: add to 091 as Tier 1)."
+    verified_exists: true
+  - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+    role: alternative-canonical-site
+    sc: [SC-1]
+    rationale: "Spec permits 091 OR 022 as the canonical site; 022 is the Architecture B source. Treated as secondary target if rule co-located here."
+    verified_exists: true
+  - path: .opencode/skills/executing-plans/SKILL.md
+    role: mirror-target
+    sc: [SC-2]
+    rationale: "Must carry the same rule in semantics with a Read-link to the canonical site."
+    verified_exists: true
+  - path: .opencode/skills/git-workflow/SKILL.md
+    role: mirror-target
+    sc: [SC-2]
+    rationale: "Skill dispatcher text must carry the rule (dispatcher text in the AGENTS.md universal skill dispatch gate references git-workflow)."
+    verified_exists: true
+  - path: .opencode/tests-v2/behaviors/
+    role: new-artifacts
+    sc: [SC-3, SC-4]
+    rationale: "Two new behavioral scenario scripts added under tests-v2/behaviors/."
+    verified_exists: true
+  - path: .opencode/tests-v2/AGENTS.md
+    role: possible-test-doc-update
+    sc: [SC-3, SC-4]
+    rationale: "Scenario registry documentation if tests-v2/AGENTS.md enumerates behavioral scenarios."
+    verified_exists: true
+
+ripple_analysis:
+  - guideline change to 091 cascades to every agent that loads Tier 1 instructions (always-loaded); wording must avoid conflicting with 091's existing per-SC dispatch and 022's Architecture B.
+  - executing-plans SKILL.md edits affect orchestrator plan-execution routing for all plan pipelines.
+  - git-workflow SKILL.md dispatcher edits affect the universal skill dispatch gate reading path.
+  - new behavioral scenarios add runs to tests-v2 suite and its tags registry.
+
+risk: LOW-MEDIUM
+risk_notes: "Text-only guideline/skill changes plus test additions; no runtime code. Main risk is cross-reference drift (Read-link correctness) and semantic divergence between 091 and the two SKILL.md mirrors."

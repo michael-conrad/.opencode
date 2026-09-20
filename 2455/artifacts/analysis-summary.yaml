@@ -1,0 +1,25 @@
+# Analysis summary — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+spec_path: .opencode/.issues/2455/spec.md
+sc_count: 4
+scs: [SC-1, SC-2, SC-3, SC-4]
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+
+scope_summary: >
+  Add an orchestrator-direct bright-line rule (task() only at plan-marked dispatch points;
+  deviation = deck defect requiring R-18-style remediation) to the always-loaded Tier 1
+  guideline 091 (or 022), mirror it in executing-plans and git-workflow SKILL.md with
+  Read-links, and add two behavioral scenarios to tests-v2 (mixed-mode execution SC-3;
+  deviation-remediation duty SC-4). All changes are agent-deck text plus test scripts;
+  no runtime application code affected.

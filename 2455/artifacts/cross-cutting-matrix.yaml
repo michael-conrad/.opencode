@@ -1,0 +1,24 @@
+# Cross-cutting matrix — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+matrix:
+  - scs: [SC-1, SC-2]
+    shared_concern: rule-text-consistency
+    description: "The bright-line rule must be semantically identical across 091 (canonical) and executing-plans + git-workflow SKILL.md (mirrors). One SC's wording change ripples into the other's text."
+    coordination: "Write canonical text first (SC-1); mirrors derive wording from it in the same phase sequence."
+  - scs: [SC-2, SC-3]
+    shared_concern: execution-angle-routing
+    description: "SKILL.md mirror text (SC-2) is what the SC-3 behavioral agent reads and follows; the scenario validates the mirror actually changes routing behavior."
+    coordination: "SC-3 cannot run GREEN until SC-2 mirrors are committed and pushed (tests-v2 §4 remote-containment gate)."
+  - scs: [SC-1, SC-4]
+    shared_concern: remediation-duty
+    description: "SC-1's deviation-as-defect clause (§17 R-18 remediation pattern) is the rule SC-4's scenario exercises; the scenario references the canonical remediation language."
+    coordination: "SC-4 scenario prompt cites the 091 rule; keep rule wording stable before running SC-4."
+  - scs: [SC-3, SC-4]
+    shared_concern: test-harness
+    description: "Both scenarios share tests-v2 harness conventions: with-test-home, >=600s timeout, stderr-based assertions, commit+push pre-flight."
+    coordination: "Implement both in Phase 3 under the same harness discipline; independent scenarios otherwise."
+
+standalone_scs: []

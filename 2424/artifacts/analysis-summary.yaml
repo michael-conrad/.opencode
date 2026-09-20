@@ -1,0 +1,21 @@
+# Analysis summary — Issue 2424
+spec_path: .opencode/.issues/2424/spec.md
+generated_by: writing-plans backfill task (retroactive mode)
+generated_at: 2026-09-19
+
+sc_count: 8
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: >
+  Single-file markdown remediation of .opencode/skills/executing-plans/SKILL.md to achieve
+  validator conformance: add `You are a sub-agent.` prefixes to both dispatch prompts (SC-1/2),
+  byline placeholder (SC-3), `## Worktree Mode` section (SC-4), numbered Workflows format (SC-5),
+  purpose-condensation link labels (SC-6/7), aggregate validator gate (SC-8, behavioral).
+  Task files and validator explicitly out of scope (R-9..R-11). Blast radius: LOW.

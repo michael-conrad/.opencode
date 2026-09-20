@@ -1,0 +1,33 @@
+# Blast-radius analysis — Issue 2424
+spec: .opencode/.issues/2424/spec.md
+generated_by: backfill (retroactive)
+
+affected_files:
+  - path: .opencode/skills/executing-plans/SKILL.md
+    role: sole modification target
+    verified_exists: true
+
+read_only_references:
+  - path: .opencode/skills/spec-creation/SKILL.md
+    role: conforming reference card (visual diff baseline)
+  - path: .opencode/reference/skill-card-schema.md
+    role: byline placeholder regex / frontmatter constraints
+  - path: .opencode/reference/skill-card-description-standards.md
+    role: canonical dispatch prompt template
+  - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    role: read-only validator (SC-8 gate)
+
+forbidden_targets:
+  - .opencode/skills/executing-plans/tasks/read-plan.md   # R-9
+  - .opencode/skills/executing-plans/tasks/dispatch-phase.md  # R-9
+  - any other skill card in the deck  # R-10
+  - validate_skill_cards.py  # R-11
+
+downstream_consumers:
+  - consumers: orchestrator agents dispatching executing-plans
+    impact: dispatch prompts gain role-identification prefix; sub-agents read task cards independently
+  - consumers: skill-creator audits
+    impact: card passes validator; deck conformance baseline restored
+
+blast_radius: LOW
+rationale: single-file markdown edit, no runtime code, no interfaces changed; regression caught by validator gate

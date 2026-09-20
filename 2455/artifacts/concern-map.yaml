@@ -1,0 +1,29 @@
+# Concern map — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+concerns:
+  - id: C-1
+    name: canonical-rule-site
+    scs: [SC-1]
+    description: "Bright-line rule text: orchestrator-direct default; task() only at plan-marked dispatch; deviation = defect requiring deck remediation per §17 R-18."
+    phase_boundary: "Phase 1 — guideline text change (091 or 022), Tier 1 placement."
+  - id: C-2
+    name: skill-mirrors
+    scs: [SC-2]
+    description: "Mirror the rule in executing-plans/SKILL.md and git-workflow/SKILL.md dispatcher text with Read-links (no 'see' citations)."
+    phase_boundary: "Phase 2 — skill deck text changes, depends on C-1 canonical path existing."
+  - id: C-3
+    name: behavioral-mixed-mode
+    scs: [SC-3]
+    description: "Behavioral scenario: agent executes mixed-mode plan (direct steps in own context, task() only at task-card steps)."
+    phase_boundary: "Phase 3 — test artifact, independent of C-2 text but depends on rules being in place."
+  - id: C-4
+    name: behavioral-remediation-duty
+    scs: [SC-4]
+    description: "Behavioral scenario: agent that combined steps must fold a deck fix into its work, not just ad-hoc correct."
+    phase_boundary: "Phase 3 — test artifact, sibling of C-3."
+
+dependency_order: [C-1, C-2, C-3, C-4]
+notes: "C-3 and C-4 are independent of each other; both are behavioral and require commit+push before run per tests-v2 §4."

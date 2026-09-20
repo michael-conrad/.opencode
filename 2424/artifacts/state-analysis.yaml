@@ -1,0 +1,38 @@
+# State analysis — Issue 2424
+spec: .opencode/.issues/2424/spec.md
+generated_by: backfill (retroactive)
+
+card_state_machine:
+  states: [non_conformant, partial, conformant, validated, gate_failed]
+  transitions:
+    - from: non_conformant
+      to: partial
+      trigger: apply phase 1 or phase 2 edits (SC-1..SC-5)
+    - from: partial
+      to: conformant
+      trigger: apply phase 3 edits (SC-6, SC-7)
+    - from: conformant
+      to: validated
+      trigger: SC-8 validator gate passes (violations list empty)
+    - from: any
+      to: non_conformant
+      trigger: regression / reverted or malformed edit
+    - from: conformant
+      to: gate_failed
+      trigger: validator reports an executing-plans violation after remediation
+    - from: gate_failed
+      to: conformant
+      trigger: diagnose rule id, re-apply fix
+
+per_sc_state_effects:
+  SC-1: prompt prefix present in read-plan entry
+  SC-2: prompt prefix present in dispatch-phase entry
+  SC-3: byline placeholder replaces hardcoded name
+  SC-4: ## Worktree Mode section exists
+  SC-5: Workflows steps numbered, checkbox prefix absent
+  SC-6: read-plan link label == purpose condensation
+  SC-7: dispatch-phase link label == purpose condensation
+  SC-8: validator violations list for executing-plans == []
+
+persisted_state: single file .opencode/skills/executing-plans/SKILL.md (git-tracked; git history is the state record)
+no_runtime_state: no databases, caches, or process state involved

@@ -1,0 +1,25 @@
+# Code path inventory — Issue 2424
+spec: .opencode/.issues/2424/spec.md
+generated_by: backfill (retroactive)
+
+paths_by_sc:
+  SC-1:
+    - .opencode/skills/executing-plans/SKILL.md :: Workflows > read-plan entry > Prompt sub-bullet
+    - .opencode/skills/spec-creation/SKILL.md :: dispatch entries (conformance diff baseline, read-only)
+  SC-2:
+    - .opencode/skills/executing-plans/SKILL.md :: Workflows > dispatch-phase entry > Prompt sub-bullet
+  SC-3:
+    - .opencode/skills/executing-plans/SKILL.md :: byline (Co-authored with AI line)
+    - .opencode/reference/skill-card-schema.md :: ATTRIBUTION_EXEMPT placeholder regex (reference)
+  SC-4:
+    - .opencode/skills/executing-plans/SKILL.md :: section insertion point (## Worktree Mode)
+  SC-5:
+    - .opencode/skills/executing-plans/SKILL.md :: Workflows section step headers
+  SC-6:
+    - .opencode/skills/executing-plans/SKILL.md :: Workflows > read-plan dispatch link label
+  SC-7:
+    - .opencode/skills/executing-plans/SKILL.md :: Workflows > dispatch-phase dispatch link label
+  SC-8:
+    - .opencode/skills/skill-creator/scripts/validate_skill_cards.py :: full validator run (--json)
+
+notes: no runtime/executable code paths; all paths are markdown content regions of one file plus a validator script executed read-only

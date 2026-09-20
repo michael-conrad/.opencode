@@ -1,0 +1,50 @@
+# Interface compatibility — .opencode#2455 (backfilled)
+spec: .opencode/.issues/2455/spec.md
+generated: 2026-09-19
+mode: retroactive-backfill
+
+interface_boundaries:
+  - name: guideline-to-skill-cross-reference
+    producer: .opencode/guidelines/091-incremental-build.md (new bright-line section)
+    consumers:
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/git-workflow/SKILL.md
+    contract: "Read [Text](path) links; no 'see' citations; stable anchors (section names), never line numbers (080-code-standards cross-reference rule)."
+    compatible: true
+  - name: skill-to-agent-routing
+    producer: executing-plans/SKILL.md + git-workflow/SKILL.md dispatcher text
+    consumers:
+      - orchestrator agent at plan-execution time
+      - universal skill dispatch gate (AGENTS.md)
+    contract: "Rule must not contradict Architecture B (022) dispatch vocabulary: direct execution in orchestrator context is sanctioned; task() only where plan marks task-card."
+    compatible: true
+  - name: test-harness-contract
+    producer: .opencode/tests-v2/behaviors/<new scenarios>
+    consumers:
+      - bash .opencode/tests-v2/test-enforcement.sh (--scenario/--tag filters)
+      - behavior_run() pre-flight gate
+    contract: "Scenario scripts follow tests-v2/AGENTS.md conventions: with-test-home wrapper, >=600s timeout, stderr-based assert helpers (assert_stderr_pattern_present/absent_all_models), commit+push before run, no `timeout` command."
+    compatible: true
+
+dependency_contract:
+  description: "Concrete dependencies for plan/solve tooling, derived from spec affected files and SCs."
+  dependencies:
+    - source: SC-1 (new rule section in 091-incremental-build.md)
+      target: SC-2 (executing-plans/SKILL.md, git-workflow/SKILL.md)
+      constraint: "Mirror text must reference the canonical section anchor that exists after SC-1 lands; semantic parity required."
+      type: text-reference
+    - source: SC-1 + SC-2 (committed, pushed deck text)
+      target: SC-3 + SC-4 (behavioral scenarios)
+      constraint: "Behavioral runs test the effective remote commit (tests-v2 §4); scenarios cannot run GREEN against unpushed rules."
+      type: execution-ordering
+    - source: spec §17 R-18 remediation pattern (tests-v2/AGENTS.md)
+      target: SC-1 + SC-4 rule text
+      constraint: "Remediation language must align with existing R-18 wording; no divergent remediation definitions."
+      type: semantic-consistency
+    - source: 022-orchestrator-context-discipline.md Architecture B
+      target: SC-1 rule text
+      constraint: "Rule must restate Architecture B, not re-litigate the dispatch-vocabulary table (Not Included)."
+      type: semantic-consistency
+
+breaking_changes: none
+notes: "All changes additive text; no public API, no serialization format, no tool signatures modified."
