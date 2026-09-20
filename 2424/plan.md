@@ -419,3 +419,7 @@ Check your tool list for a tool named `task`.
 
 - Present ⇒ orchestrator — proceed.
 - Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+
+## Lifecycle Events
+
+- **2026-09-20T17:58:06Z** — `plan_created` — plan file: `.opencode/.issues/2424/plan.md` — phase count: 4 (phase-1 dispatch prompt sub-agent prefixes; phase-2 validator REQ remediation; phase-3 purpose-condensation alignment + Mandatory Task Discipline; phase-4 full validator conformance gate)
