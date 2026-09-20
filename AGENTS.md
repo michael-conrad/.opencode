@@ -212,7 +212,9 @@ When a skill task file references `.issues/{N}/` as a hard-coded path, the agent
 
 The `local-issues` tool handles this resolution automatically via qualified names (`opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
 
-### `.opencode` Tickets — GitHub API Only
+### `.opencode` Tickets — GitHub API Only (Conditional)
+
+**This section applies ONLY when the local checkout does not have full local issue-store access** — i.e., when the parent repo is NOT `opencode-config` OR the `.opencode` remote is NOT via the ssh protocol (`git@github.com:...`). In that case:
 
 **`.opencode/` is READ-ONLY for agents.** Agents MUST NOT create, populate, or push `.opencode/.issues/`, and MUST NOT route `.opencode` tickets through `local-issues` into `.opencode/.issues/`. That directory must not exist; if it is present, it is a defect to report, not a folder to use.
 
@@ -223,9 +225,11 @@ The `local-issues` tool handles this resolution automatically via qualified name
 | `gh api repos/michael-conrad/.opencode/issues` / `gh issue` against `michael-conrad/.opencode` | `local-issues .opencode#N` (create/comment/update) |
 | GitHub MCP issue tools targeting `michael-conrad/.opencode` | Creating, writing to, or pushing `.opencode/.issues/` |
 
+**Exception — when the parent repo IS `opencode-config` AND the `.opencode` remote IS via ssh:** the local `.opencode/.issues/` worktree is the agent-managed issue store. Route `.opencode` tickets through `local-issues` with qualified names (`.opencode#N`) as normal, including create/update/comment and `issues-data` branch commits and pushes. The GitHub-API-only restriction above does NOT apply in this configuration.
+
 ### `.issues/` Is a Worktree — NOT a Regular Directory
 
-**`.issues/` is a git worktree (orphan branch worktree), NOT a regular directory.** It lives at `.git/worktrees/-issues/` and is a completely separate git repository with its own `issues-data` branch. It is gitignored in the parent repo (`.gitignore` line 40: `.issues/`). This applies to the **root repo's** `.issues/` only — `.opencode/.issues/` must not exist at all (see § `.opencode` Tickets — GitHub API Only above).
+**`.issues/` is a git worktree (orphan branch worktree), NOT a regular directory.** It lives at `.git/worktrees/-issues/` and is a completely separate git repository with its own `issues-data` branch. It is gitignored in the parent repo (`.gitignore` line 40: `.issues/`). This applies to the **root repo's** `.issues/` only — `.opencode/.issues/` is subject to the conditional rule in § `.opencode` Tickets — GitHub API Only above (it must not exist in non-ssh/non-parent checkouts; in an `opencode-config` parent with an ssh `.opencode` remote it is the agent-managed store).
 
 **Any agent that tracks `.issues/` files in the parent repo's git is corrupting git state and breaking branches.**
 
