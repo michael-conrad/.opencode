@@ -1,0 +1,40 @@
+# dependency-contract.yaml — .opencode#2454
+# Derived from interface-compatibility.yaml dependency_contract section (extracted as-is,
+# reformatted into solver-consumable variables/preconditions/postconditions/invariants schema,
+# following the .opencode#2452 contract pattern).
+# Spec: .opencode/.issues/2454/spec.md
+# Date: 2026-09-20
+
+variables:
+  item_1_complete:
+    type: bool
+  item_2_complete:
+    type: bool
+  item_3_complete:
+    type: bool
+  item_4_complete:
+    type: bool
+
+preconditions: []
+  # Single-phase decomposition (P1); items 1-4 are independent per-SC RED/GREEN/commit
+  # cycles on the same concern boundary (executing-plans deck) — no item output is a
+  # precondition of another item's RED test. No ordering constraints.
+
+postconditions:
+  - "z3.And(item_1_complete, item_2_complete, item_3_complete, item_4_complete)"
+
+invariants:
+  - "z3.Or(item_1_complete, z3.Not(item_1_complete))"
+
+# --- Concrete dependency data extracted from interface-compatibility.yaml (dependency_contract section, verbatim) ---
+dependency_contract:
+  dependencies:
+    - source: executing-plans skill
+      target: writing-plans plan-artifact-format
+      type: artifact schema
+      constraint: "executor consumes the dispatch-mode indicator grammar defined by the producer; any indicator change would be breaking — none proposed"
+  phase_ordering:
+    - Item 1 (SC-1, own-tool-call execution) → independent
+    - Item 2 (SC-2, forwarding prohibition) → independent
+    - Item 3 (SC-3, dispatch-mode restriction) → independent
+    - Item 4 (SC-4, pre-flight guard backstop verification) → independent

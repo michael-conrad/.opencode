@@ -1,0 +1,35 @@
+# problem.yaml for plan tool
+# Phase decomposition for issue .opencode#2454 — single phase P1, four sequential items
+
+domain: executing-plans-orchestrator-direct
+types:
+  - name: item
+objects:
+  - name: item_1
+    type: item
+  - name: item_2
+    type: item
+  - name: item_3
+    type: item
+  - name: item_4
+    type: item
+fluents:
+  - name: item_complete
+    params:
+      - name: i
+        type: item
+actions:
+  - name: complete_item
+    params:
+      - name: i
+        type: item
+    preconditions:
+      - not item_complete(i)
+    effects:
+      - item_complete(i)
+init: []
+goals:
+  - item_complete(item_1)
+  - item_complete(item_2)
+  - item_complete(item_3)
+  - item_complete(item_4)

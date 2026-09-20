@@ -1,0 +1,109 @@
+# Structure — .opencode#2454
+provenance: AI-generated
+# Phase decomposition from analysis-summary.yaml SCs, spec.md §5 items, sc-summary.yaml item mappings.
+
+phases:
+  - id: P1
+    name: executing-plans orchestrator-direct mandate (behavioral enforcement)
+    concern_boundary: executing-plans skill deck only (SKILL.md, execute-phase.md, read-plan.md) — executor-side scope per concern-map
+    scs: [SC-1, SC-2, SC-3, SC-4]
+    items:
+      - item: 1
+        sc: SC-1
+        description: Orchestrator own-tool-call execution on direct steps
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'commit-inline (orchestrator runs git add/commit directly — no sub-agent dispatch)'
+      - item: 2
+        sc: SC-2
+        description: Forwarding prohibition (no wholesale delegation)
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'commit-inline (orchestrator runs git add/commit directly — no sub-agent dispatch)'
+      - item: 3
+        sc: SC-3
+        description: Dispatch restricted to plan-marked (task-card) steps
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'commit-inline (orchestrator runs git add/commit directly — no sub-agent dispatch)'
+      - item: 4
+        sc: SC-4
+        description: Pre-flight guard backstop verified end-to-end
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'commit-inline (orchestrator runs git add/commit directly — no sub-agent dispatch)'
+
+dependency_dag:
+  edges: []
+  note: >
+    Single phase P1. All four SCs target the same concern boundary (the executing-plans deck);
+    each item carries its own RED/GREEN/verify/commit cycle in sequence within P1.
+    Items 1-3 are wording-tightening siblings on the same files with no output dependency between
+    them (each behavioral scenario is self-contained); Item 4 (guard verification) is an
+    independent verification of guideline-023 semantics — no GREEN output from Items 1-3 is
+    required by any RED test. No cross-phase or inter-item RED dependency edges.
+
+triplet_co_location:
+  verified: true
+  detail: "Each SC's RED/GREEN/COMMIT steps are all assigned to P1 — no triplet split."
+
+cross_phase_dependency_check:
+  verified: true
+  detail: "One phase; every RED test depends only on committed state reachable within P1."
+
+post_implementation:
+  - step: audit
+    skill: audit
+    dispatch: 'task(..., prompt: "execute verification-audit DiMo investigator from audit")'
+  - step: structural-checks
+    skill: finishing-a-development-branch
+    dispatch: 'task(..., prompt: "execute checklist task from finishing-a-development-branch")'
+  - step: pre-pr-gate
+    skill: verification-before-completion
+    dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+  - step: review-prep
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute review-prep from git-workflow-pr")'
+  - step: create-pr
+    skill: git-workflow-pr
+    dispatch: 'task(..., prompt: "execute create task from git-workflow-pr")'

@@ -1,0 +1,8 @@
+# state-for-solve.yaml — .opencode#2454
+# Target end-state: all four items complete (postconditions satisfied).
+provenance: AI-generated
+variables:
+  item_1_complete: true
+  item_2_complete: true
+  item_3_complete: true
+  item_4_complete: true
