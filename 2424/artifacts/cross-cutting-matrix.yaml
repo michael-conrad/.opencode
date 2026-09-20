@@ -1,0 +1,21 @@
+artifact: cross-cutting-matrix
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+
+spanning_scs:
+  - sc: SC-8
+    spans: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7]
+    nature: "Aggregate behavioral gate — cannot be satisfied by any single item; depends on items 1-7 collectively."
+  - sc: SC-1
+    also_touches: [SC-6]
+    nature: "Both edit the read-plan dispatch entry; SC-1 edits the Prompt sub-bullet, SC-6 edits the link label — disjoint lines, same entry."
+  - sc: SC-2
+    also_touches: [SC-7]
+    nature: "Both edit the dispatch-phase dispatch entry (prompt vs link label)."
+  - sc: SC-5
+    also_touches: [SC-1, SC-2, SC-6, SC-7]
+    nature: "Workflows reformatting (checkbox → numbered) restructures the container that holds the dispatch entries and link labels; sub-bullets must be preserved."
+
+constraints:
+  - "Edits confined to disjoint regions per phase to keep diffs revert-isolated (spec §11)."
+  - "No changes to task files (R-9), other cards (R-10), or the validator (R-11) despite validator output referencing them."

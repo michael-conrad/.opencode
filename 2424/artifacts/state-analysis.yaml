@@ -1,0 +1,30 @@
+artifact: state-analysis
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+
+state_machine:
+  states: [non_conformant, partial, conformant, validated, gate_failed]
+  initial: non_conformant
+  transitions:
+    - from: non_conformant
+      to: partial
+      trigger: "Phase 1 (SC-1/SC-2) or Phase 2 (SC-3/SC-4/SC-5) applied"
+    - from: partial
+      to: conformant
+      trigger: "All fixes SC-1..SC-7 applied"
+    - from: conformant
+      to: validated
+      trigger: "SC-8 gate: validator violations list empty"
+    - from: conformant
+      to: gate_failed
+      trigger: "Validator still reports an executing-plans violation after remediation"
+    - from: gate_failed
+      to: conformant
+      trigger: "Diagnose specific rule id, re-apply fix, re-validate"
+    - from: any
+      to: non_conformant
+      trigger: "Regression — an edit reverts a fix"
+
+isolation_invariants:
+  - "Each phase's edits confined to disjoint SKILL.md regions so diffs are revert-isolated."
+  - "Validator gate catches any regression before completion."

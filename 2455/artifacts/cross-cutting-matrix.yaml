@@ -1,24 +1,39 @@
-# Cross-cutting matrix — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: cross-cutting-matrix
 generated: 2026-09-19
 mode: retroactive-backfill
 
-matrix:
-  - scs: [SC-1, SC-2]
-    shared_concern: rule-text-consistency
-    description: "The bright-line rule must be semantically identical across 091 (canonical) and executing-plans + git-workflow SKILL.md (mirrors). One SC's wording change ripples into the other's text."
-    coordination: "Write canonical text first (SC-1); mirrors derive wording from it in the same phase sequence."
-  - scs: [SC-2, SC-3]
-    shared_concern: execution-angle-routing
-    description: "SKILL.md mirror text (SC-2) is what the SC-3 behavioral agent reads and follows; the scenario validates the mirror actually changes routing behavior."
-    coordination: "SC-3 cannot run GREEN until SC-2 mirrors are committed and pushed (tests-v2 §4 remote-containment gate)."
-  - scs: [SC-1, SC-4]
-    shared_concern: remediation-duty
-    description: "SC-1's deviation-as-defect clause (§17 R-18 remediation pattern) is the rule SC-4's scenario exercises; the scenario references the canonical remediation language."
-    coordination: "SC-4 scenario prompt cites the 091 rule; keep rule wording stable before running SC-4."
-  - scs: [SC-3, SC-4]
-    shared_concern: test-harness
-    description: "Both scenarios share tests-v2 harness conventions: with-test-home, >=600s timeout, stderr-based assertions, commit+push pre-flight."
-    coordination: "Implement both in Phase 3 under the same harness discipline; independent scenarios otherwise."
+cross_cutting:
+  - sc: SC-1
+    concerns: [canonical-rule-site]
+    spans_multiple: false
+    note: "Single concern (guideline text), though it touches two files (091 + 022 dedup) — one concern group, two files."
 
-standalone_scs: []
+  - sc: SC-2
+    concerns: [skill-mirroring]
+    spans_multiple: false
+    note: "Mirrors SC-1's rule into two SKILL.md files — single concern, two files."
+
+  - sc: SC-3
+    concerns: [behavioral-mixed-mode-execution, canonical-rule-site]
+    spans_multiple: true
+    note: >
+      The SC-3 scenario's assertions depend on the rule text and plan dispatch
+      markers established by SC-1 (and the mirrored semantics from SC-2) — the
+      fixture's direct/task-card steps must be consistent with the rule the
+      guideline defines. Cross-cutting: content + behavioral-test concerns.
+
+  - sc: SC-4
+    concerns: [behavioral-deviation-remediation, canonical-rule-site, skill-mirroring]
+    spans_multiple: true
+    note: >
+      The deck-fix assertion targets any of the enforcement artifacts produced by
+      SC-1/SC-2 (091, executing-plans/SKILL.md, or a tests-v2 scenario) and cites
+      the §17 R-18 pattern from tests-v2/AGENTS.md. Cross-cutting across all
+      enforcement-artifact concerns.
+
+shared_invariants:
+  - "Single canonical rule site: 091 — no duplicate directive-layer definitions (per skill-card-description-standards.md §191-206)."
+  - "Read [Text](path) link form only; no 'see' citations (read-link cross-reference rule)."
+  - "Per-step plan dispatch mode vocabulary matches the canonical table: direct (default) / task-card (marked)."
+  - "Behavioral evidence only for SC-3/SC-4 — no structural substitutes when a run cannot execute."

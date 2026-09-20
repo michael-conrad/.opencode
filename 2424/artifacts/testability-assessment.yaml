@@ -1,0 +1,34 @@
+artifact: testability-assessment
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+
+assessments:
+  - sc: SC-1
+    evidence_type: string
+    method: "grep read-plan Prompt sub-bullet for 'You are a sub-agent.' prefix; visual diff vs conforming spec-creation pattern @ pinned commit"
+  - sc: SC-2
+    evidence_type: string
+    method: "grep dispatch-phase Prompt sub-bullet for 'You are a sub-agent.' prefix"
+  - sc: SC-3
+    evidence_type: string
+    method: "grep byline for '<AgentName> (<ModelId>)'; assert 'OpenCode (deepseek-v4-flash)' absent"
+  - sc: SC-4
+    evidence_type: string
+    method: "grep '## Worktree Mode' heading + verbatim Appendix A body sentence; visual diff"
+  - sc: SC-5
+    evidence_type: string
+    method: "grep assert '- [ ] N. **' checkbox prefix absent in Workflows section"
+  - sc: SC-6
+    evidence_type: string
+    method: "grep read-plan link label == 'inventory plan phases', differs from path stem, no tasks/ or .md suffix"
+  - sc: SC-7
+    evidence_type: string
+    method: "grep dispatch-phase link label == 'dispatch one plan phase'"
+  - sc: SC-8
+    evidence_type: behavioral
+    method: "Run 'uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py --json'; assert executing-plans violations list is empty"
+    uplift_note: "SC-8 is behavioral by declaration (spec §3); executed tool run, not string matching."
+
+evidence_distribution:
+  string: 7
+  behavioral: 1

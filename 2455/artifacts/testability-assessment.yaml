@@ -1,39 +1,67 @@
-# Testability assessment — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: testability-assessment
 generated: 2026-09-19
 mode: retroactive-backfill
 
 assessments:
   - sc: SC-1
     evidence_type: string
-    declared_by_spec: string
-    substrate_check: "Guideline text change — does not alter runtime behavior of code; the rule alters agent behavior, but SC-1 as written checks rule presence/wording."
-    verdict: keep-string
-    method: "grep/read verify bright-line text exists in 091 (or 022) with Tier 1 placement and R-18 remediation clause."
-    uplift_note: "SC-3/SC-4 scenarios provide the behavioral backstop; no uplift of SC-1 itself needed beyond spec declaration."
+    declared_in_spec: string
+    substrate_classification: "Documentation content — does not affect runtime behavior."
+    verification_method: "grep on .opencode/guidelines/091-incremental-build.md for bright-line text (default orchestrator-direct; task() only at task-card-marked steps; deviation = deck remediation per §17 R-18); grep 022 for absence of duplicate text and presence of Read-link to 091."
+    evidence_artifact: "grep output captured in tmp/ verification evidence"
+    testability: HIGH
+
   - sc: SC-2
     evidence_type: string
-    declared_by_spec: string
-    substrate_check: "Skill text change; SC checks semantic mirror + Read-link presence."
-    verdict: keep-string
-    method: "read executing-plans/SKILL.md and git-workflow/SKILL.md; verify semantic parity and Read [Text](path) form (no 'see' citations)."
+    declared_in_spec: string
+    substrate_classification: "Documentation content — does not affect runtime behavior."
+    verification_method: "grep both SKILL.md files for rule semantics and `Read [`-pattern links targeting 091-incremental-build.md; 'see.*091' scan confirms no see-citation form."
+    evidence_artifact: "grep output captured in tmp/ verification evidence"
+    testability: HIGH
+
   - sc: SC-3
     evidence_type: behavioral
-    declared_by_spec: behavioral
-    substrate_check: "Tests agent dispatch decisions at runtime — YES, runtime-behavioral."
-    verdict: keep-behavioral
-    method: "tests-v2 scenario via with-test-home opencode run; stderr assertions for direct-step execution vs task() at marked steps."
-    constraints: ">=600s timeout; no `timeout` command; commit+push before run."
+    declared_in_spec: behavioral
+    substrate_classification: >
+      RUNTIME-BEHAVIORAL — tests agent dispatch decisions (whether task() is
+      called for direct steps and at the task-card-marked step). Declared type
+      matches substrate; no uplift needed.
+    verification_method: >
+      bash .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+      (invokes behavior_run from helpers.sh); clean-room sub-agent evaluates the
+      exported session.yaml asserting no task() call for any direct step and
+      dispatch exactly at the task-card step. Per SC text the assertions use the
+      stderr-based helpers named in the spec; NOTE: tests-v2/AGENTS.md §78/§125
+      currently FORBIDS stderr-grep helpers for behavioral SC evaluation in favor
+      of session.yaml inspection — the plan must reconcile this tension (spec's
+      named helpers vs harness rule) without weakening the behavioral assertion.
+    failure_semantics: "Any single task() targeting a direct step = FAIL (edge case 1); missing dispatch at task-card step = FAIL (edge case 2); unexecutable run = FAIL, no structural substitute (edge case 3)."
+    evidence_artifact: "tmp/behavioral-evidence-*.log + exported session.yaml evaluation"
+    testability: MEDIUM — requires real model run, committed+pushed state pre-flight, >=600s timeout
+
   - sc: SC-4
     evidence_type: behavioral
-    declared_by_spec: behavioral
-    substrate_check: "Tests agent remediation behavior after induced deviation — YES, runtime-behavioral."
-    verdict: keep-behavioral
-    method: "tests-v2 scenario inducing step-combining; stderr assertions for deck-remediation action (spec/commit evidence) beyond ad-hoc fix."
-    constraints: "Same harness constraints as SC-3."
+    declared_in_spec: behavioral
+    substrate_classification: >
+      RUNTIME-BEHAVIORAL — tests the remediation duty (agent edits + commits a
+      deck fix vs prose-only recommendation). Declared type matches substrate.
+    verification_method: >
+      bash .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh;
+      clean-room sub-agent evaluates exported session.yaml asserting deck-file
+      edit/commit evidence on the agent's feature branch — prose recall is not
+      behavioral evidence (edge case 4).
+    failure_semantics: "Prose-only fix recommendation without file edit/commit = FAIL; unexecutable run = FAIL."
+    evidence_artifact: "tmp/behavioral-evidence-*.log + exported session.yaml evaluation"
+    testability: MEDIUM — requires real model run, committed+pushed state pre-flight, >=600s timeout
 
 summary:
-  string_scs: [SC-1, SC-2]
-  behavioral_scs: [SC-3, SC-4]
-  uplifts: []
-  all_sc_covered: true
+  total_scs: 4
+  string_scs: 2
+  behavioral_scs: 2
+  declared_types_match_substrate: true
+  notes: >
+    No EVIDENCE_TYPE_MISMATCH: SC-1/SC-2 are documentation-only (string evidence
+    valid); SC-3/SC-4 are runtime-behavioral and declared behavioral. Behavioral
+    runs follow the cost-blind verification mandate — resource cost is never a
+    factor in deciding whether to run.

@@ -1,50 +1,79 @@
-# Interface compatibility — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: interface-compatibility
 generated: 2026-09-19
 mode: retroactive-backfill
 
-interface_boundaries:
-  - name: guideline-to-skill-cross-reference
-    producer: .opencode/guidelines/091-incremental-build.md (new bright-line section)
+interfaces:
+  - name: dispatch-vocabulary-contract
+    source: .opencode/reference/skill-card-description-standards.md
+    section: "Canonical Dispatch-Vocabulary Table (Single Source of Truth) (lines 191-206, verified 2026-09-19)"
     consumers:
+      - .opencode/guidelines/091-incremental-build.md (new bright-line — must use `direct` / `task-card` vocabulary)
+      - .opencode/skills/executing-plans/SKILL.md (mirrored rule)
+      - .opencode/skills/git-workflow/SKILL.md (mirrored rule)
+      - .opencode/guidelines/022-orchestrator-context-discipline.md (Read-link only)
+    constraints:
+      - "TDT Dispatch values are the closed set: orchestrator | task-card | task-card blind"
+      - "Per-step plan dispatch mode: direct (default) or task-card (marked) — defined in writing-plans/reference/plan-artifact-format.md §4.2"
+      - "Directive files MUST NOT carry duplicated or contradictory dispatch definitions"
+    compatibility: "Additive — no existing vocabulary is renamed or removed."
+
+  - name: read-link-cross-reference-contract
+    source: .opencode/guidelines/AGENTS.md §Read-Link Cross-Reference Rule (000/060 context)
+    consumers:
+      - .opencode/guidelines/022-orchestrator-context-discipline.md
       - .opencode/skills/executing-plans/SKILL.md
       - .opencode/skills/git-workflow/SKILL.md
-    contract: "Read [Text](path) links; no 'see' citations; stable anchors (section names), never line numbers (080-code-standards cross-reference rule)."
-    compatible: true
-  - name: skill-to-agent-routing
-    producer: executing-plans/SKILL.md + git-workflow/SKILL.md dispatcher text
+    constraints:
+      - "Cross-references to 091 use `Read [Text](path)` form; 'see' citations are FORBIDDEN"
+    compatibility: "Additive."
+
+  - name: behavioral-harness-contract
+    source: .opencode/tests-v2/behaviors/helpers.sh::behavior_run
     consumers:
-      - orchestrator agent at plan-execution time
-      - universal skill dispatch gate (AGENTS.md)
-    contract: "Rule must not contradict Architecture B (022) dispatch vocabulary: direct execution in orchestrator context is sanctioned; task() only where plan marks task-card."
-    compatible: true
-  - name: test-harness-contract
-    producer: .opencode/tests-v2/behaviors/<new scenarios>
-    consumers:
-      - bash .opencode/tests-v2/test-enforcement.sh (--scenario/--tag filters)
-      - behavior_run() pre-flight gate
-    contract: "Scenario scripts follow tests-v2/AGENTS.md conventions: with-test-home wrapper, >=600s timeout, stderr-based assert helpers (assert_stderr_pattern_present/absent_all_models), commit+push before run, no `timeout` command."
-    compatible: true
+      - .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh (new)
+      - .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh (new)
+    constraints:
+      - "Scenarios are invoked via `bash .opencode/tests-v2/behaviors/<scenario>.sh` and call behavior_run from helpers.sh"
+      - "Clean-room sub-agent evaluates the exported session.yaml"
+      - "No direct `opencode run` without with-test-home; no timeout command"
+      - "Run-timeout diagnosis per tests-v2/AGENTS.md §10; harness pre-flight requires committed+pushed submodule state (§4)"
+    compatibility: "Additive — follows existing scenario conventions."
 
 dependency_contract:
-  description: "Concrete dependencies for plan/solve tooling, derived from spec affected files and SCs."
-  dependencies:
-    - source: SC-1 (new rule section in 091-incremental-build.md)
-      target: SC-2 (executing-plans/SKILL.md, git-workflow/SKILL.md)
-      constraint: "Mirror text must reference the canonical section anchor that exists after SC-1 lands; semantic parity required."
-      type: text-reference
-    - source: SC-1 + SC-2 (committed, pushed deck text)
-      target: SC-3 + SC-4 (behavioral scenarios)
-      constraint: "Behavioral runs test the effective remote commit (tests-v2 §4); scenarios cannot run GREEN against unpushed rules."
-      type: execution-ordering
-    - source: spec §17 R-18 remediation pattern (tests-v2/AGENTS.md)
-      target: SC-1 + SC-4 rule text
-      constraint: "Remediation language must align with existing R-18 wording; no divergent remediation definitions."
-      type: semantic-consistency
-    - source: 022-orchestrator-context-discipline.md Architecture B
-      target: SC-1 rule text
-      constraint: "Rule must restate Architecture B, not re-litigate the dispatch-vocabulary table (Not Included)."
-      type: semantic-consistency
+  note: "Extracted to dependency-contract.yaml by research.md step 9; populated with real sources/targets from the spec's affected files and SCs."
+  edges:
+    - source: .opencode/reference/skill-card-description-standards.md
+      target: .opencode/guidelines/091-incremental-build.md
+      relationship: vocabulary-authority
+      constraint: "091's bright-line must not redefine dispatch vocabulary; only reference it"
+    - source: .opencode/guidelines/091-incremental-build.md
+      target: .opencode/guidelines/022-orchestrator-context-discipline.md
+      relationship: read-link
+      constraint: "022 carries a Read [Text](path) link to 091 and NO duplicate rule text"
+    - source: .opencode/guidelines/091-incremental-build.md
+      target: .opencode/skills/executing-plans/SKILL.md
+      relationship: semantic-mirror
+      constraint: "Rule semantics verbatim-equivalent; Read-link to 091; no 'see' citation"
+    - source: .opencode/guidelines/091-incremental-build.md
+      target: .opencode/skills/git-workflow/SKILL.md
+      relationship: semantic-mirror
+      constraint: "Rule semantics verbatim-equivalent; Read-link to 091; no 'see' citation"
+    - source: .opencode/tests-v2/behaviors/helpers.sh
+      target: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+      relationship: harness-dependency
+      constraint: "Scenario invokes behavior_run; requires committed+pushed submodule state pre-flight"
+    - source: .opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md
+      target: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+      relationship: fixture-dependency
+      constraint: "Fixture must contain >=2 `direct` steps and >=1 `task-card` step per per-step plan dispatch mode"
+    - source: .opencode/tests-v2/AGENTS.md
+      target: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+      relationship: pattern-dependency
+      constraint: "Deck-fix assertion follows §17 R-18 remediation pattern; targets 091, executing-plans/SKILL.md, or a tests-v2 scenario"
 
-breaking_changes: none
-notes: "All changes additive text; no public API, no serialization format, no tool signatures modified."
+phase_ordering:
+  - "1. canonical-rule-site (091 + 022) — no upstream deps"
+  - "2. skill-mirroring (executing-plans, git-workflow) — depends on 1 (rule text source)"
+  - "3. SC-3 scenario + fixture — depends on 1-2 (assertions reference rule text and Read-links)"
+  - "4. SC-4 scenario — depends on 1-2 (deck-fix targets exist)"

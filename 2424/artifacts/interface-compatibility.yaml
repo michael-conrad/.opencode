@@ -1,0 +1,37 @@
+artifact: interface-compatibility
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+
+interface_boundaries:
+  - boundary: "Orchestrator → sub-agent dispatch (task() prompt string)"
+    producer: ".opencode/skills/executing-plans/SKILL.md Workflows dispatch entries"
+    consumer: "Clean-room sub-agents receiving the prompt"
+    compatibility: "PRESERVED — change is additive prefix inside the quoted prompt; href/path unchanged so sub-agent discovery still resolves (spec §1 Key Design Decisions)."
+  - boundary: "Card → validator contract"
+    producer: ".opencode/skills/executing-plans/SKILL.md"
+    consumer: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py"
+    compatibility: "STRENGTHENED — card moves from 4+ violations to zero; validator itself unmodified (R-11)."
+  - boundary: "Card → task-card file resolution"
+    producer: "Dispatch link hrefs"
+    consumer: "Sub-agent read of tasks/read-plan.md"
+    compatibility: "PRESERVED — only label text changes, not the path."
+  - boundary: "Conformance-diff baseline"
+    producer: ".opencode/skills/spec-creation/SKILL.md at commit 125b423e0bd846439e908c1150e18e913f042726"
+    consumer: "SC-1/SC-2/SC-4 visual-diff verification"
+    compatibility: "PINNED — comparisons must use file content at that commit, not the moving checkout."
+
+dependency_contract:
+  sources:
+    - ".opencode/skills/executing-plans/SKILL.md (single edit target)"
+    - ".opencode/skills/spec-creation/SKILL.md @ 125b423e0bd846439e908c1150e18e913f042726 (conformance reference, read-only)"
+    - ".opencode/reference/skill-card-schema.md (ATTRIBUTION_EXEMPT placeholder regex, read-only)"
+    - ".opencode/reference/skill-card-description-standards.md (canonical dispatch template, read-only)"
+  targets:
+    - "validate_skill_cards.py gate (behavioral check, read-only execution)"
+  type_constraints:
+    - "Dispatch prompt: string, begins 'You are a sub-agent. Follow the instructions in [...]' inside the quoted prompt"
+    - "Byline: must match ATTRIBUTION_EXEMPT placeholder regex 'Co-authored with AI: <AgentName> (<ModelId>)'"
+    - "Workflows steps: numbered 'N. **' markdown list format, no '- [ ] ' prefix"
+    - "Worktree Mode: exact verbatim body sentence from spec Appendix A"
+  drift_finding:
+    - "Spec references tasks/dispatch-phase.md, which does not exist (tasks/ contains execute-phase.md, read-plan.md). Non-blocking: R-9 excludes task files from modification."

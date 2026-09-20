@@ -1,45 +1,57 @@
-# Blast-radius analysis — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: blast-radius
 generated: 2026-09-19
 mode: retroactive-backfill
+scope_summary: >
+  Add a bright-line rule (default orchestrator-direct plan execution; task() only
+  at plan-marked task-card steps; deviation = deck remediation per §17 R-18) to
+  guideline 091 as the single canonical rule site, mirror it in two SKILL.md files,
+  Read-link 022 to 091, and add two behavioral test scenarios plus a mixed-mode
+  plan fixture to tests-v2.
 
 affected_files:
   - path: .opencode/guidelines/091-incremental-build.md
-    role: primary-target
-    sc: [SC-1]
-    rationale: "Tier 1 always-loaded guideline carrying the bright-line orchestrator-direct default rule (spec Approach: add to 091 as Tier 1)."
-    verified_exists: true
+    exists: true
+    change: "Add bright-line rule as single canonical rule site (SC-1); targeted by SC-4 deck-fix assertion"
+    sc_refs: [SC-1, SC-4]
   - path: .opencode/guidelines/022-orchestrator-context-discipline.md
-    role: alternative-canonical-site
-    sc: [SC-1]
-    rationale: "Spec permits 091 OR 022 as the canonical site; 022 is the Architecture B source. Treated as secondary target if rule co-located here."
-    verified_exists: true
+    exists: true
+    change: "Remove/avoid duplicate rule text; add Read [Text](path) link to 091 (SC-1)"
+    sc_refs: [SC-1]
   - path: .opencode/skills/executing-plans/SKILL.md
-    role: mirror-target
-    sc: [SC-2]
-    rationale: "Must carry the same rule in semantics with a Read-link to the canonical site."
-    verified_exists: true
+    exists: true
+    change: "Mirror rule semantics; add Read-link to 091 (SC-2); targeted by SC-4 deck-fix assertion"
+    sc_refs: [SC-2, SC-4]
   - path: .opencode/skills/git-workflow/SKILL.md
-    role: mirror-target
-    sc: [SC-2]
-    rationale: "Skill dispatcher text must carry the rule (dispatcher text in the AGENTS.md universal skill dispatch gate references git-workflow)."
-    verified_exists: true
-  - path: .opencode/tests-v2/behaviors/
-    role: new-artifacts
-    sc: [SC-3, SC-4]
-    rationale: "Two new behavioral scenario scripts added under tests-v2/behaviors/."
-    verified_exists: true
+    exists: true
+    change: "Mirror rule semantics; add Read-link to 091 (SC-2); targeted by SC-4 deck-fix assertion"
+    sc_refs: [SC-2, SC-4]
+  - path: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+    exists: false
+    change: "NEW behavioral scenario (SC-3) invoking behavior_run from helpers.sh"
+    sc_refs: [SC-3]
+  - path: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+    exists: false
+    change: "NEW behavioral scenario (SC-4) invoking behavior_run from helpers.sh"
+    sc_refs: [SC-4]
+  - path: .opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md
+    exists: false
+    change: "NEW mixed-mode plan fixture: >=2 direct steps, >=1 task-card step (SC-3)"
+    sc_refs: [SC-3]
+
+read_only_reference_files:
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    exists: true
+    role: "behavior_run() invocation pattern consumed by new scenarios"
+  - path: .opencode/reference/skill-card-description-standards.md
+    exists: true
+    role: "Canonical dispatch-vocabulary table (verified present, lines 191-206) — referenced, not modified"
   - path: .opencode/tests-v2/AGENTS.md
-    role: possible-test-doc-update
-    sc: [SC-3, SC-4]
-    rationale: "Scenario registry documentation if tests-v2/AGENTS.md enumerates behavioral scenarios."
-    verified_exists: true
+    exists: true
+    role: "§17 R-18 remediation pattern and §10 run/timeout diagnosis — referenced, not modified"
 
-ripple_analysis:
-  - guideline change to 091 cascades to every agent that loads Tier 1 instructions (always-loaded); wording must avoid conflicting with 091's existing per-SC dispatch and 022's Architecture B.
-  - executing-plans SKILL.md edits affect orchestrator plan-execution routing for all plan pipelines.
-  - git-workflow SKILL.md dispatcher edits affect the universal skill dispatch gate reading path.
-  - new behavioral scenarios add runs to tests-v2 suite and its tags registry.
-
-risk: LOW-MEDIUM
-risk_notes: "Text-only guideline/skill changes plus test additions; no runtime code. Main risk is cross-reference drift (Read-link correctness) and semantic divergence between 091 and the two SKILL.md mirrors."
+blast_radius_risk: LOW-MEDIUM
+risk_notes: >
+  091 is a Tier 1 always-loaded guideline — text additions affect all agent sessions.
+  022/executing-plans/git-workflow edits are additive mirroring; no code changes.
+  No production code touched. New test files are additive.

@@ -1,37 +1,46 @@
-# State analysis — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: state-analysis
 generated: 2026-09-19
 mode: retroactive-backfill
 
-state_transitions:
+transitions:
   - sc: SC-1
-    entity: 091-incremental-build.md rule inventory
-    transitions:
-      - from: "no explicit orchestrator-direct bright-line"
-        to: "Tier 1 bright-line present (default = orchestrator-direct; task() only at task-card markers; deviation → deck remediation)"
-    persistence: git-committed guideline text (issues loaded via instructions array)
+    state_changes:
+      - entity: .opencode/guidelines/091-incremental-build.md
+        from: "no orchestrator-direct bright-line"
+        to: "bright-line present as single canonical rule site (default direct; task() only at task-card-marked steps; deviation = deck remediation per §17 R-18)"
+      - entity: .opencode/guidelines/022-orchestrator-context-discipline.md
+        from: "Architecture B stated without canonical-site pointer"
+        to: "duplicate rule text removed; Read [Text](path) link to 091 present"
+
   - sc: SC-2
-    entity: executing-plans/SKILL.md, git-workflow/SKILL.md dispatch text
-    transitions:
-      - from: "rule absent or 'see'-style citation"
-        to: "semantically mirrored rule with Read-link to 091 canonical section"
-    persistence: git-committed skill text
+    state_changes:
+      - entity: .opencode/skills/executing-plans/SKILL.md
+        from: "no mirrored rule"
+        to: "mirrored rule semantics + Read-link to 091; no 'see' citation"
+      - entity: .opencode/skills/git-workflow/SKILL.md
+        from: "no mirrored rule"
+        to: "mirrored rule semantics + Read-link to 091; no 'see' citation"
+
   - sc: SC-3
-    entity: tests-v2 scenario set
-    transitions:
-      - from: "no mixed-mode execution scenario"
-        to: "scenario exists; RED (agent dispatches direct steps) → GREEN (agent executes direct in own context) after rules pushed"
-    persistence: tests-v2/behaviors/*.sh + tags registry
+    state_changes:
+      - entity: .opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md
+        from: "absent"
+        to: "mixed-mode plan fixture present (>=2 direct, >=1 task-card)"
+      - entity: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+        from: "absent"
+        to: "executable scenario passing: session.yaml shows no task() for direct steps, dispatch exactly at task-card step"
+
   - sc: SC-4
-    entity: tests-v2 scenario set
-    transitions:
-      - from: "no deviation-remediation scenario"
-        to: "scenario exists; asserts agent folds deck fix into work instead of ad-hoc-only correction"
-    persistence: tests-v2/behaviors/*.sh + tags registry
+    state_changes:
+      - entity: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+        from: "absent"
+        to: "executable scenario passing: session.yaml shows deck-file edit + feature-branch commit of the fix (not prose-only)"
 
-run_ordering_state:
-  - "SC-1 commit+push precedes SC-3/SC-4 behavioral runs (remote-containment gate, tests-v2 §4)."
-  - "SC-2 commit+push also precedes behavioral runs since scenarios exercise the mirror text."
+persistent_state_notes: >
+  All transitions are file-content states on the issues branches (deck files,
+  test scenarios, fixture). No runtime/database state. The behavioral scenarios'
+  pass state additionally requires the submodule commit+push pre-flight per
+  tests-v2/AGENTS.md §4 (commit → push → fresh fetch → run).
 
-no_runtime_state: true
-notes: "Pure documentation + test additions; no application state, database, or serialized format involved."
+rollback: "Git revert of the deck/scenario commits; no irreversible state created."

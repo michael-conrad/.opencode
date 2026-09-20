@@ -1,0 +1,28 @@
+artifact: analysis-summary
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+generated_at: retroactive (spec revised 2026-09-19)
+
+spec_path: ".opencode/.issues/2424/spec.md"
+sc_count: 8
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+
+scope_summary: >
+  Single-file remediation of .opencode/skills/executing-plans/SKILL.md to conform
+  to the skill-card standard: add 'You are a sub-agent.' dispatch prompt prefixes
+  (SC-1/SC-2), placeholder byline (SC-3), Worktree Mode section (SC-4), numbered
+  Workflows (SC-5), purpose-condensation link text (SC-6/SC-7), validated by the
+  full validator suite (SC-8, behavioral). Task files, other cards, and the
+  validator are out of scope (R-9/R-10/R-11).
+
+findings:
+  - "Doc drift: spec references tasks/dispatch-phase.md which does not exist (tasks/ holds execute-phase.md, read-plan.md). Non-blocking per R-9."
+  - "Conformance-diff baseline pinned to .opencode commit 125b423e0bd846439e908c1150e18e913f042726 per spec §6."

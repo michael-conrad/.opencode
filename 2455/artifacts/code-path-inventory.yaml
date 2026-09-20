@@ -1,27 +1,34 @@
-# Code path inventory — .opencode#2455 (backfilled)
-spec: .opencode/.issues/2455/spec.md
+spec: 2455
+artifact: code-path-inventory
 generated: 2026-09-19
 mode: retroactive-backfill
 
 paths:
   - sc: SC-1
-    paths:
-      - "Read path: .opencode/guidelines/091-incremental-build.md — always-loaded Tier 1 instructions array in opencode.jsonc; agents encounter rule at every dispatch decision moment."
-      - "Fallback path: .opencode/guidelines/022-orchestrator-context-discipline.md — Architecture B section if rule co-located here instead."
-    kind: guideline-text
+    code_paths:
+      - ".opencode/guidelines/091-incremental-build.md — new bright-line section (single canonical rule site)"
+      - ".opencode/guidelines/022-orchestrator-context-discipline.md — Architecture B section: remove duplicate rule text, add Read [Text](path) link to 091"
+    verification_surface: "grep on 091 for bright-line text; grep 022 for absence of duplicate + presence of Read-link"
   - sc: SC-2
-    paths:
-      - "Routing path: .opencode/skills/executing-plans/SKILL.md — orchestrator reads plan execution instructions; the rule governs per-step execution-angle choice."
-      - "Routing path: .opencode/skills/git-workflow/SKILL.md — dispatcher text read during the universal skill dispatch gate."
-      - "Cross-reference path: Read [Text](path) links from both SKILL.md files to the 091 canonical section."
-    kind: skill-text
+    code_paths:
+      - ".opencode/skills/executing-plans/SKILL.md — rule semantics + Read-link to 091"
+      - ".opencode/skills/git-workflow/SKILL.md — rule semantics + Read-link to 091"
+    verification_surface: "grep both SKILL.md files for rule semantics and 'Read [' links to 091-incremental-build.md; 'see.*091' scan returns nothing"
   - sc: SC-3
-    paths:
-      - "Test path: bash .opencode/tests-v2/behaviors/<scenario-sc3>.sh — runs with-test-home opencode run with a mixed-mode plan prompt; assertions on stderr (skill dispatches, task() calls, direct file edits)."
-    kind: behavioral-test
+    code_paths:
+      - ".opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh — scenario entry: bash .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh"
+      - ".opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md — fixture with >=2 direct steps, >=1 task-card step"
+      - ".opencode/tests-v2/behaviors/helpers.sh::behavior_run — invoked by the scenario to run the clean-room agent"
+      - ".opencode/tests-v2 session.yaml export — clean-room sub-agent inspects exported session for task() absence on direct steps / presence at task-card step"
+    verification_surface: "behavioral run + session.yaml evaluation"
   - sc: SC-4
-    paths:
-      - "Test path: bash .opencode/tests-v2/behaviors/<scenario-sc4>.sh — prompt induces a step-combining deviation; assertions assert agent folds deck fix (spec/commit on feature branch) rather than only ad-hoc correction."
-    kind: behavioral-test
+    code_paths:
+      - ".opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh — scenario entry"
+      - "deviation prompt fixture — agent is induced to combine steps (deviation)"
+      - "deck-fix evidence path: edit/commit of 091, executing-plans/SKILL.md, or a tests-v2 scenario on the agent's feature branch (§17 R-18 pattern, .opencode/tests-v2/AGENTS.md §17)"
+    verification_surface: "behavioral run + session.yaml evaluation of deck-file edit/commit evidence"
 
-notes: "No Python/TS runtime code paths affected; all changes are agent-deck text plus test scripts."
+notes: >
+  All changes are documentation/test-deck artifacts; no runtime source code paths
+  are affected. The behavioral paths exercise the existing tests-v2 harness
+  (with-test-home, behavior_run, session export) unchanged.

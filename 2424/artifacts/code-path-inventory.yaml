@@ -1,0 +1,32 @@
+artifact: code-path-inventory
+spec: ".opencode/.issues/2424/spec.md"
+generated: retroactive-backfill
+
+code_paths:
+  - sc: SC-1
+    path: ".opencode/skills/executing-plans/SKILL.md :: Workflows § read-plan dispatch entry :: Prompt sub-bullet"
+    verification: "grep 'You are a sub-agent' + visual diff vs spec-creation/SKILL.md at pinned commit 125b423e"
+  - sc: SC-2
+    path: ".opencode/skills/executing-plans/SKILL.md :: Workflows § dispatch-phase dispatch entry :: Prompt sub-bullet"
+    verification: "grep 'You are a sub-agent'"
+  - sc: SC-3
+    path: ".opencode/skills/executing-plans/SKILL.md :: byline (footer)"
+    verification: "grep '<AgentName> (<ModelId>)'; assert 'OpenCode (deepseek-v4-flash)' absent"
+  - sc: SC-4
+    path: ".opencode/skills/executing-plans/SKILL.md :: new '## Worktree Mode' section (spec Appendix A verbatim text)"
+    verification: "grep heading + body sentence; visual diff vs conforming cards"
+  - sc: SC-5
+    path: ".opencode/skills/executing-plans/SKILL.md :: Workflows section step headers"
+    verification: "grep assert '- [ ] N. **' prefix absent"
+  - sc: SC-6
+    path: ".opencode/skills/executing-plans/SKILL.md :: Workflows § read-plan dispatch link label"
+    verification: "grep label == 'inventory plan phases'"
+  - sc: SC-7
+    path: ".opencode/skills/executing-plans/SKILL.md :: Workflows § dispatch-phase dispatch link label"
+    verification: "grep label == 'dispatch one plan phase'"
+  - sc: SC-8
+    path: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py --json (read-only execution)"
+    verification: "executing-plans violations list == empty"
+
+runtime_consumers:
+  - "Orchestrator task() dispatches read from the card's Workflows entries — the changed prompt/link strings are consumed at dispatch time."
