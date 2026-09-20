@@ -1,0 +1,14 @@
+# Z3 state — initial (pre-implementation) state for issue #2449
+# Companion to artifacts/state-analysis.yaml (state_transitions structure not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433/#2434 precedent).
+# Represents the state before any implementation phase begins.
+# Consumed by: .opencode/tools/solve check --state-path
+variables:
+  phase1_done: false
+  phase2_done: false
+  phase3_done: false
+  phase4_done: false
+  list_sentinel_marker: false
+  search_no_synthesized_status: false
+  read_no_fabricated_status: false
+  wellformed_preservation_guard: false

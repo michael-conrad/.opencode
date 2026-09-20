@@ -1,0 +1,83 @@
+# Dependency contract — Issue #2449 (.opencode)
+# Extracted from artifacts/interface-compatibility.yaml `dependency_contract` section (present
+# in source — extracted as-is per research.md step 9) + phase-DAG variables for Z3 solving.
+# Structure: 4 phases (SC-1..SC-4, 1:1 per spec Items 1-4, per-SC RED/GREEN/COMMIT triplet
+# colocated in one phase each). Phase DAG edges: 1->4, 2->4, 3->4 (SC-4 guard matrix
+# depends on all three marker/sentinel mechanisms from SC-1..SC-3).
+version: 1
+source_artifact: .opencode/.issues/2449/artifacts/interface-compatibility.yaml
+scope: >-
+  Fix phantom [open] fabrication in local-issues list/search/read for artifact-only dirs
+  (no issue.yaml): reader sentinel (_read_issue_title_status), synthesized-status omission
+  (_read_issue_data_in_repo), shared [artifact-only] presentation token in
+  _format_list_output / _format_search_results, and well-formed-ticket preservation guard (SC-4).
+
+variables:
+  phase1_done:
+    type: bool
+  phase2_done:
+    type: bool
+  phase3_done:
+    type: bool
+  phase4_done:
+    type: bool
+  list_sentinel_marker:
+    type: bool
+  search_no_synthesized_status:
+    type: bool
+  read_no_fabricated_status:
+    type: bool
+  wellformed_preservation_guard:
+    type: bool
+
+preconditions:
+  - "z3.Not(list_sentinel_marker)"
+  - "z3.Not(search_no_synthesized_status)"
+  - "z3.Not(read_no_fabricated_status)"
+  - "z3.Not(wellformed_preservation_guard)"
+
+invariants:
+  - "z3.Implies(list_sentinel_marker, phase1_done)"
+  - "z3.Implies(search_no_synthesized_status, phase2_done)"
+  - "z3.Implies(read_no_fabricated_status, phase3_done)"
+  - "z3.Implies(wellformed_preservation_guard, phase4_done)"
+  - "z3.Implies(phase4_done, z3.And(phase1_done, phase2_done, phase3_done))"
+
+postconditions:
+  - "phase1_done"
+  - "phase2_done"
+  - "phase3_done"
+  - "phase4_done"
+  - "list_sentinel_marker"
+  - "search_no_synthesized_status"
+  - "read_no_fabricated_status"
+  - "wellformed_preservation_guard"
+
+dependency_edges:
+  - source: "_read_issue_title_status (.opencode/tools/local-issues:315)"
+    target: "_format_list_output (.opencode/tools/local-issues:1674)"
+    type: "artifact schema"
+    constraint: "Reader returns tuple[str, Optional[str]] (status None when issue.yaml absent); formatter branches on sentinel and renders the exact token [artifact-only] (SC-1, R-1)."
+  - source: "_read_issue_data_in_repo (.opencode/tools/local-issues:1305)"
+    target: "_search_in_repo (.opencode/tools/local-issues:1586) -> _format_search_results (.opencode/tools/local-issues:1617); read subcommand"
+    type: "artifact schema"
+    constraint: "Synthesized status omitted for yaml-less dirs; search results carry [artifact-only] with no status: open synthesis; read output omits the status line (SC-2, SC-3; R-2, R-3)."
+  - source: "list/search/read stdout (.opencode/tools/local-issues)"
+    target: "agents routing on output (primary consumer per spec motivation)"
+    type: "artifact schema"
+    constraint: "BREAKING for consumers keying on '[open]' for artifact-only dirs — that is the defect being fixed; well-formed ticket output unchanged (SC-4, R-4)."
+
+global_invariants:
+  - id: WELLFORMED_PRESERVATION
+    constraint: "Directories containing both issue.yaml and spec.md keep their real status in list/search/read; [artifact-only] never appears for them (SC-4, R-4)."
+  - id: NO_CACHING
+    constraint: "Policy computed per invocation — reader consults issue.yaml presence on every read (spec Edge Cases; state-analysis invariant)."
+  - id: NON_MUTATING_READS
+    constraint: "Read paths remain non-mutating and idempotent (spec Edge Cases; state-analysis invariant)."
+  - id: SINGLE_FILE_TOOL
+    constraint: "All production changes confined to .opencode/tools/local-issues; tests in .opencode/tests/test_local_issues/ following sandbox conventions."
+
+dependency_contract_notes:
+  - "dependency_contract section was present in interface-compatibility.yaml — extracted as-is per research.md step 9 (no backfill needed)."
+  - "Single-file tool: phases 1-3 are file-coupled within .opencode/tools/local-issues but logically independent (distinct reader/formatter pairs); sequential ordering on a single branch keeps per-SC commits atomic."
+  - "Phase 4 (SC-4 guard matrix) is the only convergent phase — it pins non-regression across all three formatters."

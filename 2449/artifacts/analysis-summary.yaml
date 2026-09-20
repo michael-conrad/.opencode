@@ -2,6 +2,7 @@ analysis-summary:
   spec_path: ".opencode/.issues/2449/spec.md"
   spec_issue_number: 2449
   mode: retroactive
+  approval_status: approved-for-pr (issue.yaml labels, verified 2026-09-20)
   sc_count: 4
   artifact_status:
     blast-radius: backfilled

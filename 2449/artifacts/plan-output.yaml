@@ -1,0 +1,13 @@
+actions:
+- name: implement-list-sentinel-marker
+  parameters: []
+- name: implement-read-no-fabricated-status
+  parameters: []
+- name: implement-search-no-synthesis
+  parameters: []
+- name: implement-wellformed-preservation-guard
+  parameters: []
+domain: phantom-open-fabrication-remediation
+engine: tamer
+plan_length: 4
+status: SOLVED_SATISFICING

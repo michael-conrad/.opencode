@@ -1,0 +1,157 @@
+artifact: structure
+spec: ".opencode/.issues/2449/spec.md"
+generated: 2026-09-20
+source: writing-plans/tasks/research (per-SC decomposition; single-file tool .opencode/tools/local-issues)
+
+phases:
+  - phase: 1
+    title: "SC-1: list formatter applies the [artifact-only] marker for yaml-less dirs"
+    scs: ["SC-1"]
+    items:
+      - sc: SC-1
+        red:
+          step: red
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+          description: "Sandbox pytest: fixture tree with artifact-only dir (spec.md only); assert list stdout contains [artifact-only] and no [open] for that entry — fails against current tool."
+        green:
+          step: green
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+          description: "_read_issue_title_status returns None-status sentinel when issue.yaml absent; _format_list_output renders [artifact-only] for sentinel entries."
+        verify:
+          step: verify
+          owning_skill: verification-before-completion
+          dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          description: "Re-run SC-1 sandbox test plus existing list tests in .opencode/tests/test_local_issues/."
+        commit:
+          step: commit-inline
+          owning_skill: (orchestrator)
+          dispatch: "Orchestrator runs git add <files> && git commit directly — no sub-agent dispatch"
+          description: "Sentinel change + formatter change + SC-1 test in one commit."
+        triplet_phase: 1
+    depends_on: []
+
+  - phase: 2
+    title: "SC-2: search results marked [artifact-only] without synthesized status"
+    scs: ["SC-2"]
+    items:
+      - sc: SC-2
+        red:
+          step: red
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+          description: "Sandbox pytest: search hit on yaml-less spec-only dir carries [artifact-only] and no status: open — fails against current tool."
+        green:
+          step: green
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+          description: "_read_issue_data_in_repo omits synthesized status for yaml-less dirs; _format_search_results renders [artifact-only]."
+        verify:
+          step: verify
+          owning_skill: verification-before-completion
+          dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          description: "Re-run SC-2 sandbox test plus existing search tests."
+        commit:
+          step: commit-inline
+          owning_skill: (orchestrator)
+          dispatch: "Orchestrator runs git add <files> && git commit directly — no sub-agent dispatch"
+          description: "Reader + search formatter change + SC-2 test in one commit."
+        triplet_phase: 2
+    depends_on: []
+
+  - phase: 3
+    title: "SC-3: read subcommand omits fabricated status for yaml-less dirs"
+    scs: ["SC-3"]
+    items:
+      - sc: SC-3
+        red:
+          step: red
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+          description: "Sandbox pytest: read output for yaml-less spec-only dir does not contain status: open — fails against current tool."
+        green:
+          step: green
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+          description: "Read path consumes the sentinel from _read_issue_data_in_repo and renders no status line."
+        verify:
+          step: verify
+          owning_skill: verification-before-completion
+          dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          description: "Re-run SC-3 sandbox test plus existing read tests."
+        commit:
+          step: commit-inline
+          owning_skill: (orchestrator)
+          dispatch: "Orchestrator runs git add <files> && git commit directly — no sub-agent dispatch"
+          description: "Read-path change + SC-3 test in one commit."
+        triplet_phase: 3
+    depends_on: []
+
+  - phase: 4
+    title: "SC-4: well-formed ticket status preservation matrix"
+    scs: ["SC-4"]
+    items:
+      - sc: SC-4
+        red:
+          step: red
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+          description: "Sandbox fixture matrix (well-formed control + artifact-only, comments.yaml-only, links.yaml-only, empty dir variants); control-with-no-marker assertion pins non-regression."
+        green:
+          step: green
+          owning_skill: test-driven-development
+          dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+          description: "Guard logic in all three formatters applying [artifact-only] only when issue.yaml is absent."
+        verify:
+          step: verify
+          owning_skill: verification-before-completion
+          dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          description: "Run the full matrix test; assert control real status, variants marked, empty dir excluded per Edge Cases."
+        commit:
+          step: commit-inline
+          owning_skill: (orchestrator)
+          dispatch: "Orchestrator runs git add <files> && git commit directly — no sub-agent dispatch"
+          description: "Guard logic + SC-4 matrix test in one commit."
+        triplet_phase: 4
+    depends_on: [1, 2, 3]
+
+dependency_dag:
+  edges:
+    - from: 1
+      to: 4
+      reason: "SC-4 control-guard matrix requires the [artifact-only] marker mechanism from SC-1 to exist before pinning non-regression"
+    - from: 2
+      to: 4
+      reason: "SC-4 matrix covers search formatter guard — depends on SC-2 search marker rendering"
+    - from: 3
+      to: 4
+      reason: "SC-4 matrix covers read-path no-status guard — depends on SC-3 sentinel consumption"
+  cross_phase_dependency_check: "PASS — all cross-phase edges point backward (later phase RED tests depend only on already-committed earlier-phase output); no SC has RED in phase X and GREEN in phase Y"
+  triplet_colocation_check: "PASS — every SC's RED/GREEN/COMMIT assigned to its single phase (SC-1→P1, SC-2→P2, SC-3→P3, SC-4→P4)"
+
+post_implementation:
+  - step: audit
+    owning_skill: audit
+    dispatch: "task(..., prompt: \"execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first\")"
+  - step: z3-check
+    owning_skill: (orchestrator)
+    dispatch: "Orchestrator runs .opencode/tools/solve check directly — no sub-agent dispatch"
+  - step: structural-checks
+    owning_skill: finishing-a-development-branch
+    dispatch: "task(..., prompt: \"execute checklist task from finishing-a-development-branch\")"
+  - step: pre-pr-gate
+    owning_skill: verification-before-completion
+    dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+  - step: regression-check
+    owning_skill: test-driven-development
+    dispatch: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+  - step: review-prep
+    owning_skill: git-workflow-pr
+    dispatch: "task(..., prompt: \"execute review-prep from git-workflow-pr. Read `git-workflow-pr/tasks/review-prep.md` first\")"
+  - step: create-pr
+    owning_skill: git-workflow-pr
+    dispatch: "task(..., prompt: \"execute create task from git-workflow-pr\")"
+  - step: exec-summary
+    owning_skill: completion-core
+    dispatch: "task(..., prompt: \"execute completion task from completion-core\")"

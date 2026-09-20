@@ -1,0 +1,65 @@
+# Plan problem — Issue #2449 (.opencode) phantom [open] fabrication remediation
+# 4-phase DAG from artifacts/structure.yaml: P1 (SC-1 list sentinel+marker), P2 (SC-2
+# search no-synthesis+marker), P3 (SC-3 read no-fabricated-status), P4 (SC-4 well-formed
+# preservation guard matrix, converges on P1..P3). Actions are the four phase-completion
+# steps.
+# Generated 2026-09-20 by writing-plans/tasks/research executor.
+domain: phantom-open-fabrication-remediation
+
+types:
+  - name: phase
+
+objects:
+  - name: P1
+    type: phase
+  - name: P2
+    type: phase
+  - name: P3
+    type: phase
+  - name: P4
+    type: phase
+
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: implement-list-sentinel-marker
+    preconditions:
+      - not phase-done(P1)
+    effects:
+      - phase-done(P1)
+
+  - name: implement-search-no-synthesis
+    preconditions:
+      - not phase-done(P2)
+    effects:
+      - phase-done(P2)
+
+  - name: implement-read-no-fabricated-status
+    preconditions:
+      - not phase-done(P3)
+    effects:
+      - phase-done(P3)
+
+  - name: implement-wellformed-preservation-guard
+    preconditions:
+      - phase-done(P1)
+      - phase-done(P2)
+      - phase-done(P3)
+      - not phase-done(P4)
+    effects:
+      - phase-done(P4)
+
+# Closed-world init: all fluents default False — no explicit `init` entries needed
+# (#2434 remediation lesson: explicit `not phase-done(...)` init entries made tamer
+# silently drop the first action from the plan; empty init = all phase-done false,
+# the true pre-implementation state).
+
+goals:
+  - phase-done(P1)
+  - phase-done(P2)
+  - phase-done(P3)
+  - phase-done(P4)
