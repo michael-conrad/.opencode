@@ -504,8 +504,8 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
     """Collect local .issues/ folder paths for each repo entry.
 
     Returns a list of inline `git -C` command strings.
-    If .issues/ directory does not exist, appends a setup comment with
-    worktree creation instructions referencing the submodule's orphaned branch.
+    No setup hint is emitted for repo entries whose .issues/ directory
+    does not exist.
     """
     cwd = os.getcwd()
     entries: list[str] = []
@@ -522,11 +522,6 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
             issues_rel = f"{repo_path}/.issues/"
             issues_abs = os.path.join(cwd, repo_path, ".issues")
         cmd = f"- {issues_rel}: git -C {issues_rel}"
-        if not os.path.isdir(issues_abs):
-            cmd += (
-                f"  # setup: create worktree from orphaned branch "
-                f"issues-data in repo {repo['repo']}"
-            )
         entries.append(cmd)
     return entries
 

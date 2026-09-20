@@ -172,6 +172,15 @@ An orchestrator that forwards SKILL.md content, a whole workflow, or a whole pla
 | Orchestrator treats "continue" as waiver of a failed gate checkpoint | Failed gate is absolute stop — no task() proceeds past incomplete/failed gate; contamination requires full restart |
 | RED/GREEN sub-agent also instructed to commit and push | RED/GREEN sub-agents only execute tests — never commit, never push |
 
+#### Dispatch-Level Combined-Dispatch Shapes — One-Dispatch-One-Step Gate (p-dis-007)
+
+One dispatch = one discrete step — no matter the reasoning. Combining separate concerns into a single task() enlarges the per-step verification surface beyond what a single sub-agent context can verify. Efficiency, scope-size, and context-budget rationalizations never justify a multi-step dispatch. Read [the One-Dispatch-One-Step Gate](257-procedural-discipline-reference.md) (`p-dis-007`).
+
+- 🚫 FORBIDDEN: run + verify in one task() (e.g., "run the test and verify the result") — run and verify are separate dispatches
+- 🚫 FORBIDDEN: cross-SC verification runs — one task() verifying multiple success criteria at once; each SC gets its own verification dispatch
+- 🚫 FORBIDDEN: Task A/Task B packing — packing two discrete steps ("do Task A, then Task B") into one task() prompt
+- ✅ REQUIRED: One dispatch = one discrete step, no matter the reasoning — no efficiency, scope-size, or context-budget rationalization permits a multi-step dispatch
+
 ### [critical-rules-035] DISPATCH_GATE Checkpoint skipped
 Reading a SKILL.md routing section and then silently bypassing that skill's quality gates means the gates never ran. See DISPATCH_GATE procedure below.
 

@@ -37,6 +37,11 @@ Compare the blockquote URL against the `artifact_url` returned by `push-artifact
 
 - [ ] 1. Confirm the reconciled Spec Reference Blockquote / artifact URL is present and correct in the remote issue body before completing
 
+### Step 2.1: Reservation-mandate consistency check
+
+- [ ] 1. Confirm the reconciliation preserves the remote-first reservation semantics: the remote issue (already created first per create.md Step 3's remote-number-first mandate) remains the number source of record — the reconciliation never renumbers or re-reserves; the blockquote amendment references the SAME reserved number `N`
+- [ ] 2. If the artifact_url's issue number differs from the remote issue's number, return BLOCKED with `NUMBER_BINDING_MISMATCH` — the reservation mandate is violated upstream and must be repaired there, not papered over here
+
 ## Exit Criteria
 
 - [ ] Spec Reference Blockquote / artifact URL in the remote issue body matches the `artifact_url` returned by `push-artifacts`

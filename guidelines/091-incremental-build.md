@@ -41,9 +41,11 @@ An item is a single success criterion (SC) from the spec. Each SC gets its own R
 
 - Monolithic implementation — no decomposition
 - Code-first — writing code before enforcement test
-- Batching items — combining separate concerns
+- Batching items — combining separate concerns; one dispatch = one discrete step. This bright line holds NO exceptions: there is no reasoning, efficiency, scope-size, or context-budget rationalization that permits a multi-step dispatch. Read [the One-Dispatch-One-Step Gate](257-procedural-discipline-reference.md) (`p-dis-007`)
 - Merging without tests
 - Phase-scoped over-verification — testing other phases' deliverables
+
+**Tier 1 rationale for the dispatch bright line:** 091 is a Tier 1 guideline that is always loaded at the dispatch decision moment — the instant an orchestrator composes a `task()` call. The one-dispatch-one-step rule must therefore live here, not only in 257, because the enforcement boundary must be visible exactly where dispatch granularity is chosen.
 
 ### [critical-rules-042] Monolithic Implementation — skipping item decomposition
 Professional engineers decompose work into testable items and build one per TDD cycle (RED → GREEN → REFACTOR → COMMIT). Amateurs batch everything into single monolithic changes — then wonder why review catches half of it wrong.

@@ -205,19 +205,35 @@ The `*/.issues/` path for a given issue is determined by the issue's repo. Use t
 | Repo Path Prefix | Issues Directory | Example |
 |-----------------|-----------------|---------|
 | `.` (root) | `.issues/{N}/` | `.issues/1175/` |
-| `.opencode` | `.opencode/.issues/{N}/` | `.opencode/.issues/1175/` |
 
 **Resolution rule:** For any issue `#N`, find the repo entry whose `path` matches the issue's repo. The issues directory is `{path}/.issues/{N}/`. When `path` is `.`, the issues directory is `.issues/{N}/`.
 
-When a skill task file references `.issues/{N}/` as a hard-coded path, the agent MUST resolve it to the correct `*/.issues/{N}/` by prepending the repo path prefix from session-init. If the issue belongs to the `.opencode` submodule, the path is `.opencode/.issues/{N}/`. If the issue belongs to the root repo, the path is `.issues/{N}/`.
+When a skill task file references `.issues/{N}/` as a hard-coded path, the agent MUST resolve it to the correct `*/.issues/{N}/` by prepending the repo path prefix from session-init. For the root repo, the path is `.issues/{N}/`.
 
-The `local-issues` tool handles this resolution automatically via qualified names (`.opencode#N` → `.opencode/.issues/`, `opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
+The `local-issues` tool handles this resolution automatically via qualified names (`opencode-config#N` → `.issues/`). When using the tool, always use qualified names for mutations. When reading files directly, resolve the path manually using the session-init repo information.
+
+### `.opencode` Tickets — GitHub API Only (Conditional)
+
+**This section applies ONLY when the local checkout does not have full local issue-store access** — i.e., when the parent repo is NOT `opencode-config` OR the `.opencode` remote is NOT via the ssh protocol (`git@github.com:...`). In that case:
+
+**`.opencode/` is READ-ONLY for agents.** Agents MUST NOT create, populate, or push `.opencode/.issues/`, and MUST NOT route `.opencode` tickets through `local-issues` into `.opencode/.issues/`. That directory must not exist; if it is present, it is a defect to report, not a folder to use.
+
+**All `.opencode` defect reports, tickets, specs, and comments are filed and managed via the GitHub API against `michael-conrad/.opencode`** — using `gh api` / `gh` CLI operations (or the GitHub MCP platform tools). Never use `local-issues .opencode#N` or any `.opencode/.issues/{N}/` path for ticket filing; that local store is not agent-managed and local commits on its `issues-data` branch cannot be pushed.
+
+| ✅ CORRECT | 🚫 FORBIDDEN |
+|------------|---------------|
+| `gh api repos/michael-conrad/.opencode/issues` / `gh issue` against `michael-conrad/.opencode` | `local-issues .opencode#N` (create/comment/update) |
+| GitHub MCP issue tools targeting `michael-conrad/.opencode` | Creating, writing to, or pushing `.opencode/.issues/` |
+
+**Exception — when the parent repo IS `opencode-config` AND the `.opencode` remote IS via ssh:** the local `.opencode/.issues/` worktree is the agent-managed issue store. Route `.opencode` tickets through `local-issues` with qualified names (`.opencode#N`) as normal, including create/update/comment and `issues-data` branch commits and pushes. The GitHub-API-only restriction above does NOT apply in this configuration.
 
 ### `.issues/` Is a Worktree — NOT a Regular Directory
 
-**`.issues/` is a git worktree (orphan branch worktree), NOT a regular directory.** It lives at `.git/worktrees/-issues/` and is a completely separate git repository with its own `issues-data` branch. It is gitignored in the parent repo (`.gitignore` line 40: `.issues/`).
+**`.issues/` is a git worktree (orphan branch worktree), NOT a regular directory.** It lives at `.git/worktrees/-issues/` and is a completely separate git repository with its own `issues-data` branch. It is gitignored in the parent repo (`.gitignore` line 40: `.issues/`). This applies to the **root repo's** `.issues/` only — `.opencode/.issues/` is subject to the conditional rule in § `.opencode` Tickets — GitHub API Only above (it must not exist in non-ssh/non-parent checkouts; in an `opencode-config` parent with an ssh `.opencode` remote it is the agent-managed store).
 
 **Any agent that tracks `.issues/` files in the parent repo's git is corrupting git state and breaking branches.**
+
+**Issues-data hygiene mandate:** it is the agent's responsibility to repair, remediate, and revise as needed ALL issue-ticket data files in the issues-data branches to prevent problems. Issue-ticket data repairs are authorization-free agent hygiene and do NOT require a spec (developer directive 2026-09-17; legacy drift across 374 files previously blocked workspace-wide validation).
 
 | ✅ CORRECT | 🚫 FORBIDDEN |
 |------------|---------------|

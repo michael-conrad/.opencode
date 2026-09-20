@@ -74,6 +74,8 @@ Each SC gets a `plan_item` number instead of a phase group. Items are numbered s
 When a remote API is available (github.platform is not `local`), the remote
 API's assigned number is the SOLE source of truth for the issue number. The
 flow creates the remote stub FIRST — before ANY local record exists — and
+
+**Remote-first reservation mandate (verbatim in semantics with .opencode/.issues/AGENTS.md § Workflow):** when a remote spec system exists (platform is not local), file the remote spec FIRST — with clear intent and context sufficient for a clean-room restart — to reserve the spec number, BEFORE any local spec folder setup. Local-first reservation is a violation.
 takes the issue number N from the API create response's `number` field. The
 local issue record is then created at exactly N. Local == remote BY
 CONSTRUCTION (both derive from the same response `number` field) — no
@@ -184,11 +186,13 @@ This ensures analysis artifacts are preserved alongside the spec for downstream 
 
 ### Step 6.1: validate-yaml gate (R-13)
 
-After the artifacts are written/copied, run `./.opencode/tools/local-issues validate-yaml` over the affected repos (the root repo and, when the issue belongs to the `.opencode` submodule, the submodule repo via its qualified name). This gate is read-only — it NEVER mutates files.
+After the artifacts are written/copied, run `./.opencode/tools/local-issues validate-yaml --number <repo>#<issue-being-created>` — the scoped form, validating ONLY the issue directory for the issue being created. `<repo>` is the qualified repo name (e.g. `opencode-config#N` for the root repo, `.opencode#N` for the submodule repo). This gate is read-only — it NEVER mutates files.
 
-- [ ] 1. The gate MUST be executed directly by the agent performing this task — do NOT delegate it to another agent and report the outcome second-hand. The result contract MUST include the literal gate invocation evidence: the exact command executed and its exit code (and, on exit 1, the malformed-file report lines). A prose claim that the gate ran, without the recorded command + exit code, is treated as gate-not-run: return BLOCKED (or re-run the gate and capture the evidence).
-- [ ] 2. Exit 0 → continue to Step 7.
-- [ ] 3. Exit 1 → return the BLOCKED result contract with `blocker_reason: VALIDATE_YAML_FAILED`, naming each malformed file with its path and the error class from the report line. Do NOT fix or rewrite the malformed files.
+**Scoped check gates progress; workspace-wide scan is secondary maintenance.** The scoped check on the issue being created is the ONLY check that gates progress. A workspace-wide `validate-yaml` scan (no `--number`) MAY be run additionally as a secondary maintenance check, but it MUST NOT gate progress on unrelated issues' records: malformed files belonging to other issues MUST be reported as findings, never as `VALIDATE_YAML_FAILED` blockers for this task. Only malformed files under the scoped issue's own directory gate this task.
+
+- [ ] 1. The gate MUST be executed directly by the agent performing this task — do NOT delegate it to another agent and report the outcome second-hand. The result contract MUST include the literal gate invocation evidence: the exact command executed (the scoped form `validate-yaml --number <repo>#<issue-being-created>`) and its exit code (and, on exit 1, the malformed-file report lines). A prose claim that the gate ran, without the recorded command + exit code, is treated as gate-not-run: return BLOCKED (or re-run the gate and capture the evidence).
+- [ ] 2. Exit 0 on the scoped check → continue to Step 7. Findings from any workspace-wide maintenance scan on unrelated issues' records do NOT affect this decision.
+- [ ] 3. Exit 1 on the scoped check → return the BLOCKED result contract with `blocker_reason: VALIDATE_YAML_FAILED`, naming each malformed file with its path and the error class from the report line. Do NOT fix or rewrite the malformed files. Malformed records belonging to UNRELATED issues (workspace-wide scan findings) are reported as maintenance findings, never as this blocker.
 
 ### Step 7: Hand off post-push reconciliation to the reconcile-push task
 
@@ -209,7 +213,7 @@ After [skills/issue-operations/platforms/local/tasks/push-artifacts.md](skills/i
 - [ ] Full spec written to remote issue body (when API available)
 - [ ] Local spec written to correct `.issues/{N}/spec.md` path
 - [ ] Analysis artifacts (not source/test/fixture) copied from `tmp/{issue_number}/artifacts/` to `.issues/{N}/artifacts/`
-- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact write/copy, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files
+- [ ] validate-yaml gate (R-13) executed directly by this agent after artifact write/copy using the scoped form `validate-yaml --number <repo>#<issue-being-created>`, with the gate command + exit code recorded in the result contract — or BLOCKED with `VALIDATE_YAML_FAILED` naming malformed files. BLOCKED applies ONLY to violations in the target issue's own records — the scoped check gates pipeline progress; the workspace-wide scan is a secondary maintenance check and MUST NOT gate pipeline progress on unrelated issues' records.
 - [ ] `artifact_url` from `push-artifacts` recorded in the result contract for the `reconcile-push` step
 - [ ] No internal sub-agent dispatch performed — this task executes its steps directly
 - [ ] No analysis steps performed (no inspection, decomposition, or artifact generation)
@@ -226,6 +230,6 @@ remote_issue: <N>
 remote_url: "https://github.com/{owner}/{repo}/issues/{N}"
 github_url: "https://github.com/{owner}/{repo}/issues/{N}"
 finding_summary: "Brief summary of spec structure, sections, and key decisions"
-gate_evidence: "validate-yaml gate invocation: exact command executed and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run."
-blocker_reason: "If BLOCKED: why the spec could not be created (e.g., API_FAILURE_MID_FLOW, LOCAL_LABEL_WRITE_FAILED, VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the validate-yaml report)"
+gate_evidence: "validate-yaml gate invocation: exact command executed (scoped form: validate-yaml --number <repo>#<issue-being-created>) and its literal exit code (and, on exit 1, the malformed-file report lines). A result contract without this evidence is treated as gate-not-run. This scoped check gates pipeline progress; the workspace-wide scan is a secondary maintenance check and MUST NOT gate pipeline progress on unrelated issues' records."
+blocker_reason: "If BLOCKED: why the spec could not be created (e.g., API_FAILURE_MID_FLOW, LOCAL_LABEL_WRITE_FAILED, VALIDATE_YAML_FAILED — lists malformed file paths and error classes from the scoped validate-yaml report — target issue's own records ONLY; violations in unrelated issues' records MUST NOT block)"
 ```
