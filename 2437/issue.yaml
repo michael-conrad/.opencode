@@ -2,9 +2,7 @@ title: '[SPEC] pr-creation workflow execution mode conflicts with orchestrator-c
   discipline'
 status: open
 labels:
-- needs-approval
-- spec-draft
-- spec-passed-review
+- approved-for-pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2437/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2437/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -351,6 +349,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2437/`](https://github.c
 
   '
 created_at: '2026-09-20T02:14:40+00:00'
-updated_at: '2026-09-20T02:36:40+00:00'
+updated_at: '2026-09-20T17:06:49+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2437
 remote_url: https://github.com/michael-conrad/.opencode/issues/2437
