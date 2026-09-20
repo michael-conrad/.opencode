@@ -20,7 +20,7 @@ Enables the orchestrator to execute an approved implementation plan by reading t
 The orchestrator does NOT forward the plan or workflow to a sub-agent:
 
 - **Read the plan in own context** — the orchestrator reads the plan file itself and inventories phases in dependency order.
-- **Execute steps in own context** — the orchestrator performs each plan step directly with its own tool calls, in the plan's dependency order.
+- **Execute steps in own context** — the orchestrator performs each plan step directly with its OWN tool calls (read/write/edit/bash issued by the orchestrator itself), in the plan's dependency order. A `direct` step MUST NOT be delegated into a `task()` dispatch — wholesale delegation of a direct step to a sub-agent is a violation of this mandate.
 - **Dispatch only at marked points** — a step's task card goes to a sub-agent via `task()` ONLY when that step explicitly marks dispatch (per-step dispatch mode `task-card`); steps marked `direct` are executed in the orchestrator's own context.
 - **Never forward whole artifacts** — the plan body, a whole phase, or a whole workflow body MUST NOT appear inside any `task()` prompt. A leaf sub-agent receiving a whole plan body rejects with `ORCHESTRATOR_ONLY_PLAN` and halts.
 

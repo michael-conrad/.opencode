@@ -32,7 +32,7 @@ Executes a single phase of an approved plan in the orchestrator's own context, p
 ## Procedure
 
 - [ ] 1. Read the phase's steps from the plan file.
-- [ ] 2. For each step in order: if the step's dispatch mode is `direct` (or unmarked — default `direct`), execute the step in the orchestrator's own context with own tool calls; if the step's dispatch mode is `task-card`, dispatch that step's task card via `task()` with a task-card dispatch string — never the plan body, phase body, or workflow body.
+- [ ] 2. For each step in order: if the step's dispatch mode is `direct` (or unmarked — default `direct`), execute the step in the orchestrator's own context with the orchestrator's OWN tool calls (read/write/edit/bash) — direct steps are NEVER delegated to a sub-agent via `task()`; if the step's dispatch mode is `task-card`, dispatch that step's task card via `task()` with a task-card dispatch string — never the plan body, phase body, or workflow body.
 - [ ] 3. Verify each step's deliverable before marking the step complete (per `verification-before-completion`).
 - [ ] 4. Write phase execution evidence to the artifact path.
 - [ ] 5. Identify the next phase in dependency order and report the execution outcome.
@@ -40,7 +40,7 @@ Executes a single phase of an approved plan in the orchestrator's own context, p
 ## Exit Criteria
 
 - Every step in the phase has been executed per its dispatch mode
-- Steps marked `direct` were executed with orchestrator-own tool calls (no `task()`)
+- Steps marked `direct` were executed with orchestrator-OWN tool calls (no `task()` delegation of direct steps)
 - Steps marked `task-card` were dispatched with task-card dispatch strings only
 - No `task()` prompt contains the whole plan body, a whole phase body, or a whole workflow body
 - Phase evidence has been written to disk
