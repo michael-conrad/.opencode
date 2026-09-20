@@ -29,7 +29,7 @@
 | SC-1 | The `read-plan` dispatch entry prompt text SHALL begin with the `You are a sub-agent.` prefix inside the quoted prompt string, immediately before `Follow the instructions in`. | string | grep the read-plan Prompt sub-bullet for the `You are a sub-agent.` prefix; visual diff against the conforming spec-creation pattern |
 | SC-2 | The `dispatch-phase` dispatch entry prompt text SHALL begin with the `You are a sub-agent.` prefix inside the quoted prompt string, immediately before `Follow the instructions in`. | string | grep the dispatch-phase Prompt sub-bullet for the `You are a sub-agent.` prefix; visual diff against the conforming spec-creation pattern |
 | SC-3 | The byline SHALL use the placeholder form `Co-authored with AI: <AgentName> (<ModelId>)` instead of the hardcoded `OpenCode (deepseek-v4-flash)`. | string | grep the byline for `<AgentName> (<ModelId>)`; assert the hardcoded `OpenCode (deepseek-v4-flash)` is absent |
-| SC-4 | The card SHALL include a `## Worktree Mode` section using the deck's canonical direct-branch wording. | string | grep for the `## Worktree Mode` heading; visual diff against the conforming spec-creation pattern |
+| SC-4 | The card SHALL include a `## Worktree Mode` section with exactly the canonical direct-branch wording quoted verbatim in Appendix A of this spec (body text: `This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.`). | string | grep for the `## Worktree Mode` heading; grep the section body for the quoted canonical sentence; visual diff against the conforming spec-creation pattern (baseline pinned in Section 6 Dependencies) |
 | SC-5 | The Workflows section SHALL use the numbered `N. **` format without the `- [ ] ` checkbox prefix. | string | grep the Workflows section for the `- [ ] N. **` checkbox prefix; assert it is absent |
 | SC-6 | The `read-plan` dispatch link text SHALL be a purpose condensation (`inventory plan phases`) that differs from the path stem and does not contain `tasks/` or end in `.md`. | string | grep the read-plan dispatch link label; assert it equals the purpose condensation and differs from the path stem |
 | SC-7 | The `dispatch-phase` dispatch link text SHALL be a purpose condensation (`dispatch one plan phase`) that differs from the path stem and does not contain `tasks/` or end in `.md`. | string | grep the dispatch-phase dispatch link label; assert it equals the purpose condensation and differs from the path stem |
@@ -40,7 +40,7 @@
 - R-1. The `read-plan` dispatch entry prompt text SHALL begin with the `You are a sub-agent.` prefix inside the quoted prompt string.
 - R-2. The `dispatch-phase` dispatch entry prompt text SHALL begin with the `You are a sub-agent.` prefix inside the quoted prompt string.
 - R-3. The byline SHALL use the placeholder form `Co-authored with AI: <AgentName> (<ModelId>)` instead of the hardcoded `OpenCode (deepseek-v4-flash)`.
-- R-4. The card SHALL include a `## Worktree Mode` section using the deck's canonical direct-branch wording.
+- R-4. The card SHALL include a `## Worktree Mode` section with exactly the canonical direct-branch wording quoted verbatim in Appendix A of this spec.
 - R-5. The Workflows section SHALL use the numbered `N. **` format without the `- [ ] ` checkbox prefix.
 - R-6. The `read-plan` dispatch link text SHALL be a purpose condensation (`inventory plan phases`) that differs from the path stem.
 - R-7. The `dispatch-phase` dispatch link text SHALL be a purpose condensation (`dispatch one plan phase`) that differs from the path stem.
@@ -75,7 +75,7 @@
 ### Item 4 (SC-4): Resolve REQ-3 — add missing `## Worktree Mode` section
 
 - RED: run `validate_skill_cards.py --json`; assert the worktree-mode violation is present
-- GREEN: insert the `## Worktree Mode` section with canonical direct-branch wording
+- GREEN: insert the `## Worktree Mode` section with exactly the verbatim text quoted in Appendix A
 - verify: grep for the `## Worktree Mode` heading; visual diff vs conforming spec-creation pattern
 - commit: the Worktree Mode section addition
 
@@ -112,7 +112,7 @@
 
 - **Reference:** `.opencode/reference/skill-card-schema.md` — defines the frontmatter binary constraints and the ATTRIBUTION_EXEMPT placeholder regex. **Relationship:** must be read before implementation to confirm the byline placeholder form. **Status:** satisfied.
 - **Reference:** `.opencode/reference/skill-card-description-standards.md` — defines the description field semantic router and the canonical dispatch template. **Relationship:** must be read before implementation to confirm the dispatch prompt shape. **Status:** satisfied.
-- **Reference:** `.opencode/skills/spec-creation/SKILL.md` — the deck's conforming reference card establishing the dispatch prompt pattern. **Relationship:** must be read before implementation as the conformance reference. **Status:** satisfied.
+- **Reference:** `.opencode/skills/spec-creation/SKILL.md` — the deck's conforming reference card establishing the dispatch prompt pattern. **Relationship:** must be read before implementation as the conformance reference for the SC-1/SC-2/SC-4 visual-diff verification. **Baseline pin:** this reference was last modified 2026-09-19 (after this spec's creation on 2026-08-31); the conformance baseline is pinned to `.opencode` commit `125b423e0bd846439e908c1150e18e913f042726` (the last commit touching `skills/spec-creation/SKILL.md`, dated 2026-09-19 09:16:21 -0400). All visual-diff verification in SC-1, SC-2, and SC-4 SHALL compare against the file content at that commit, not against a moving checkout state. **Status:** satisfied.
 - **Reference:** `.opencode/skills/skill-creator/scripts/validate_skill_cards.py` — the read-only validator used for the conformance gate. **Relationship:** must be run to verify conformance; must not be modified. **Status:** satisfied.
 
 ## 7. Traceability
@@ -171,6 +171,17 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-08-31 | Decomposed compound SC-1/SC-2/SC-3 into 8 atomic SCs (one per verification target); fixed SC-to-item mapping to exactly one item per SC; corrected SC-8 evidence type to `behavioral`; resolved CONDENSATION-001 overlap so it appears only in SC-6/SC-7 (with SC-8 as the aggregate gate). | Validation findings: compound SCs, SC-to-item mapping violation, EVIDENCE_TYPE_MISMATCH on SC-2, CONDENSATION-001 double-mapping. | spec-creation validation gate |
+| 2026-09-19 | Quoted the canonical `## Worktree Mode` direct-branch wording verbatim in SC-4/R-4/Item 4 and added Appendix A so the pass condition is self-contained (previously an undefined external reference); pinned the spec-creation/SKILL.md conformance-diff baseline to `.opencode` commit `125b423e0bd846439e908c1150e18e913f042726` in Section 6 Dependencies so SC-1/SC-2/SC-4 visual-diff verification compares against a fixed state. | spec-audit verdict DRAFT: dimension 1 (Implementability) FAIL — SPEC_AMBIGUOUS on SC-4 undefined reference; dimension 3 (Completeness) FAIL — SPEC_INCOMPLETE on unpinned drift-prone diff baseline. Remediation options taken from verdict bidirectional findings. | spec-creation revise (spec-audit remediation, issue 2424) |
+
+## Appendix A — Canonical `## Worktree Mode` Section (Verbatim)
+
+The following is the canonical `## Worktree Mode` section text used verbatim by the deck's conforming cards (verified identical across `brainstorming/SKILL.md`, `research/SKILL.md`, and `completion-core/SKILL.md` on 2026-09-19). SC-4 requires the executing-plans card to contain a `## Worktree Mode` section with exactly this body text:
+
+```markdown
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+```
 
 ---
 
