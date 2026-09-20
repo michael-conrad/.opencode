@@ -1,0 +1,16 @@
+# Cross-Cutting Matrix — .opencode#2454
+provenance: AI-generated
+
+matrix:
+  - concern: context-cost allocation
+    phases: [P1]
+    impact: "direct steps keep plan context in orchestrator; task-card steps isolate sub-agent context"
+  - concern: authorization gates
+    phases: [P1]
+    impact: "plan must be approved before execution (read-plan entry criterion) — unchanged"
+  - concern: verification honesty
+    phases: [P1]
+    impact: "SC verification is behavioral (opencode run); structural substitutes prohibited"
+  - concern: attribution
+    phases: [P1]
+    impact: "preserve existing bylines when editing files (080-code-standards)"

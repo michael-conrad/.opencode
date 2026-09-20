@@ -1,0 +1,22 @@
+# State Analysis — .opencode#2454
+provenance: AI-generated
+
+state_machine:
+  states: [plan_not_read, plan_read, executing_phase, phase_complete, all_phases_complete]
+  transitions:
+    - from: plan_not_read
+      to: plan_read
+      trigger: read-plan task (orchestrator, own context)
+    - from: plan_read
+      to: executing_phase
+      trigger: execute-phase task on next phase in phase_order
+    - from: executing_phase
+      to: phase_complete
+      trigger: all steps executed per dispatch mode + deliverables verified
+    - from: phase_complete
+      to: executing_phase
+      trigger: next phase exists in phase_order
+    - from: phase_complete
+      to: all_phases_complete
+      trigger: no remaining phases
+  phases_of_this_spec: "P1 does not alter the state machine — it mandates in-context execution during executing_phase only"

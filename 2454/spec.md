@@ -44,21 +44,28 @@ R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `
 
 ## 5. Items
 
-### Item 1 (SC-1, SC-2): Orchestrator-direct mandate verified/enforced in the executing-plans deck
+### Item 1 (SC-1): Orchestrator own-tool-call execution on direct steps
 
-- RED: Behavioral scenario run via `opencode run` (with-test-home) where an agent executes a direct-step plan; assert orchestrator reads the plan itself and executes direct steps with own tool calls, and assert absence of whole-plan/whole-phase forwarding — assertion fails against the current unverified state.
-- GREEN: Tighten SKILL.md / execute-phase.md wording so the orchestrator-direct mandate is explicit (positive execution mandate and forwarding prohibition); no structural rewrite (deck already states the behavior).
-- verify: Re-run the behavioral scenario; assert own-tool-call execution on direct steps and absence of whole-plan forwarding.
+- RED: Behavioral scenario run via `opencode run` (with-test-home) where an agent executes a direct-step plan; assert the orchestrator reads the plan itself and executes direct steps with own tool calls — assertion fails against the current unverified state.
+- GREEN: Tighten SKILL.md / execute-phase.md wording so the positive own-tool-call execution mandate is explicit; no structural rewrite (deck already states the behavior).
+- verify: Re-run the behavioral scenario; assert own-tool-call execution on direct steps.
 - commit: One commit covering SKILL.md + task-card wording changes and the behavioral scenario.
 
-### Item 2 (SC-3): Dispatch restricted to plan-marked (`task-card`) steps
+### Item 2 (SC-2): Forwarding prohibition (no wholesale delegation)
+
+- RED: Behavioral scenario run via `opencode run` (with-test-home) where an agent executes a plan; assert the absence of whole-plan/whole-phase forwarding into `task()` prompts — assertion fails against the current unverified state.
+- GREEN: Tighten SKILL.md / execute-phase.md wording so the forwarding prohibition (no wholesale delegation of plan steps) is explicit; no structural rewrite.
+- verify: Re-run the behavioral scenario; assert absence of whole-plan/whole-phase forwarding.
+- commit: One commit covering SKILL.md + task-card wording changes and the behavioral scenario.
+
+### Item 3 (SC-3): Dispatch restricted to plan-marked (`task-card`) steps
 
 - RED: Behavioral scenario on a mixed `(**direct**)` / `(**task-card**)` plan; assert dispatch only at marked steps — fails against current state.
 - GREEN: Make per-step dispatch-mode language in execute-phase.md unambiguous (direct default; task-card only at marked steps).
 - verify: Re-run scenario; assert zero dispatches on direct steps, dispatch on task-card steps only.
 - commit: One commit covering execute-phase.md wording + scenario.
 
-### Item 3 (SC-4): Pre-flight guard backstop verified end-to-end
+### Item 4 (SC-4): Pre-flight guard backstop verified end-to-end
 
 - RED: Behavioral guard scenario where plan/skill-card content reaches a sub-agent; assert BLOCKED with reason code — fails if guard path is unverified.
 - GREEN: No guard semantics change; verify and align SKILL.md references to the guard reason codes (guideline 023 canonical definition).
@@ -77,11 +84,11 @@ R-5. SC verification SHALL use runtime-behavioral evidence (`opencode run` via `
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | P1 |
-| R-2 | SC-3 | P1 |
-| R-3 | SC-2, SC-3 | P1 |
-| R-4 | SC-4 | P1 |
-| R-5 | SC-1, SC-2, SC-3, SC-4 | P1 |
+| R-1 | SC-1 | Item 1 |
+| R-2 | SC-3 | Item 3 |
+| R-3 | SC-2, SC-3 | Item 2, Item 3 |
+| R-4 | SC-4 | Item 4 |
+| R-5 | SC-1, SC-2, SC-3, SC-4 | Item 1, Item 2, Item 3, Item 4 |
 
 ## 8. Documentation Sources
 
@@ -120,3 +127,4 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 |------|--------|--------|---------------|
 | 2026-09-20 | Initial spec | — | Spec-creation pipeline (spec-creation-validation) |
 | 2026-09-20 | Revision: (1) decomposed compound SC-1 into atomic SC-1 (positive own-tool-call execution) and SC-2 (negative forwarding prohibition); renumbered prior SC-2→SC-3 and SC-3→SC-4 across SC table, items, traceability, cost frame, edge cases. (2) Normalized `MUST NOT` → `SHALL NOT` per spec-structure-standards (R-2, R-3, R-5, SC-3). (3) Stripped discretion hedges: "where applicable" (Item 1 RED) and "if needed" (Item 3 GREEN). (4) Kept SC-4 (guard) as one SC with dual reason codes — single mechanism justification added to §3. Updated sc-summary.yaml (sc_count 3→4) and item mappings consistently. | Validation findings from spec-creation-validation | Developer-issued revise dispatch (validation_findings) |
+| 2026-09-20 | Revision: (1) split §5 Item 1 (which covered both SC-1 and SC-2) into two items — Item 1 (SC-1, own-tool-call execution) and Item 2 (SC-2, forwarding prohibition) — each with its own RED/GREEN/verify/commit cycle; renumbered downstream items (SC-3→Item 3, SC-4→Item 4). Updated sc-summary.yaml plan_item mappings (SC-1→1, SC-2→2, SC-3→3, SC-4→4), traceability Phase column, and cost frame consistently. (2) Restored the 10 analytical artifacts from `tmp/2454/artifacts/` to `.opencode/.issues/2454/artifacts/` (directory was absent). (3) Fixed cosmetic traceability Phase column (item numbers, not P1 phase labels). | Validation findings (HARD FAIL: 1 SC per item; WARNING: missing artifacts directory) | Developer-issued revise dispatch (validation_findings) |

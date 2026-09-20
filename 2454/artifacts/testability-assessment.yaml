@@ -1,0 +1,12 @@
+# Testability Assessment — .opencode#2454
+provenance: AI-generated
+
+strategy:
+  - phase: P1
+    type: behavioral
+    method: >
+      opencode run via with-test-home; assert orchestrator reads plan itself,
+      executes direct steps with own tool calls, dispatches only task-card-marked
+      steps, and that sub-agents given plan/card content return
+      ORCHESTRATOR_ONLY_PLAN / ORCHESTRATOR_ONLY_SKILL_CARD.
+    evidence_rule: runtime-behavioral evidence only (stderr agent actions); structural grep insufficient per critical-rules-BEH-EV

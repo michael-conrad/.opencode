@@ -1,0 +1,19 @@
+# Blast Radius — .opencode#2454
+provenance: AI-generated
+
+grounding: "Derived from spec title + executing-plans surface reads (bounded); no deep implementation reads needed — surface is documentation/skill-deck only."
+
+affected_components:
+  - component: executing-plans SKILL.md
+    ripple: none — already states the mandated behavior; at most tightened wording
+  - component: executing-plans/tasks/execute-phase.md
+    ripple: dispatch-mode procedure wording
+  - component: executing-plans/tasks/read-plan.md
+    ripple: none expected
+  - component: writing-plans/reference/plan-artifact-format.md
+    ripple: none — already defines dispatch indicators
+
+unaffected: runtime code, plugins, tools, other skills (dispatch vocabulary already retired repo-wide per plan-artifact-format line 169).
+
+assumptions:
+  - "No runtime-behavioral surface exists; change is skill-deck documentation/enforcement text. Behavioral evidence via behavioral tests, not code execution."

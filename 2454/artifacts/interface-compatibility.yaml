@@ -1,0 +1,21 @@
+# Interface Compatibility — .opencode#2454
+provenance: AI-generated
+
+interfaces:
+  - interface: executing-plans skill dispatch surface
+    status: unchanged
+    compatibility: backward compatible
+    note: workflows/contexts/result contracts remain as-is
+  - interface: plan step dispatch indicators (direct/task-card)
+    status: unchanged
+    compatibility: backward compatible
+    note: retired inline/sub-agent/clean-room vocabulary already superseded
+
+removed_interfaces: []
+breaking_changes: []
+
+dependency_contract:
+  - source: executing-plans skill
+    target: writing-plans plan-artifact-format
+    type: artifact schema
+    constraint: "executor consumes the dispatch-mode indicator grammar defined by the producer; any indicator change would be breaking — none proposed"

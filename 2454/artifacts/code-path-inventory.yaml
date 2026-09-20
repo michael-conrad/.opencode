@@ -1,0 +1,14 @@
+# Code Path Inventory — .opencode#2454
+provenance: AI-generated
+
+paths:
+  - phase: P1 (spec verification/tightening of orchestrator-direct mandate)
+    files:
+      - .opencode/skills/executing-plans/SKILL.md
+      - .opencode/skills/executing-plans/tasks/execute-phase.md
+      - .opencode/skills/executing-plans/tasks/read-plan.md
+  - phase: P1 (behavioral enforcement)
+    files:
+      - .opencode/tests-v2/ (scenario coverage for plan-execution behavior)
+
+no_runtime_code_paths: true

@@ -1,0 +1,15 @@
+# Concern Map — .opencode#2454
+provenance: AI-generated
+
+concerns:
+  - concern: orchestrator routing (who executes a plan step)
+    owner: executing-plans SKILL.md + execute-phase.md
+    boundary: dispatch-mode interpretation only
+  - concern: plan format (how a step marks dispatch)
+    owner: writing-plans/reference/plan-artifact-format.md
+    boundary: producer side — out of scope for this spec's SCs
+  - concern: guard backstop (sub-agent rejection)
+    owner: pre-flight guard (SKILL.md §Pre-Flight Guard, guideline 023)
+    boundary: return codes only
+
+separation: producer (writing-plans) vs executor (executing-plans) vs guard (023) are distinct concerns; the spec touches only the executor and guard verification.

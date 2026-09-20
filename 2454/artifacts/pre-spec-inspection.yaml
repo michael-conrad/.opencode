@@ -1,0 +1,30 @@
+# Pre-Spec Inspection — .opencode#2454
+provenance: AI-generated
+
+issue: ".opencode#2454"
+issue_title: "Orchestrator-direct plan execution — task() only at plan-marked dispatch points"
+issue_body_state: empty — requirements derived from title only
+brainstorm_handoff: unavailable
+
+affected_surface:
+  - path: .opencode/skills/executing-plans/SKILL.md
+    role: primary — defines orchestrator-direct plan execution (Architecture B), dispatch-only-at-marked-points
+  - path: .opencode/skills/executing-plans/tasks/read-plan.md
+    role: task card — orchestrator reads plan itself, produces phase_order
+  - path: .opencode/skills/executing-plans/tasks/execute-phase.md
+    role: task card — per-step dispatch-mode execution (direct default; task-card only at marked steps)
+  - path: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    role: plan format — per-step dispatch indicators `(**direct**)` / `(**task-card**)`, default `direct`
+
+existing_patterns:
+  - "Pre-flight guard: task tool present ⇒ orchestrator; absent ⇒ BLOCKED with ORCHESTRATOR_ONLY_SKILL_CARD / ORCHESTRATOR_ONLY_PLAN (SKILL.md lines 27-32)"
+  - "Never-forward rule: plan body / whole phase / whole workflow body MUST NOT appear in task() prompts (SKILL.md line 25)"
+  - "Dispatch-mode vocabulary retired: inline→direct; sub-agent/clean-room→task-card (plan-artifact-format.md line 169)"
+
+conventions: skill cards carry frontmatter (name, license, provenance) + Trigger/Workflows; task cards carry Purpose/Dispatch Contract/Procedure/Exit Criteria/Result Contract.
+
+key_gap_observation: >
+  The executing-plans skill already implements the titled behavior. The issue is
+  classified as a formalization/verification spec: intent is that plan execution
+  MUST be orchestrator-direct with task() only at plan-marked dispatch points,
+  verified as enforced (not merely described) across executing-plans artifacts.

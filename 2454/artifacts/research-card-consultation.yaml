@@ -1,0 +1,13 @@
+# Research Card Consultation — .opencode#2454
+provenance: AI-generated
+
+consulted:
+  - card: .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+    confidence: 0.90
+    relevance: skill architecture (dual-audience skill/task split) — supports the orchestrator-skill-card vs sub-agent-task-card division used by executing-plans
+  - card: .issues/research-cards/per-sc-decomposition-industry-standards.md
+    confidence: 0.95
+    relevance: per-SC decomposition standard — governs decomposition output structure
+
+scan: glob of .issues/research-cards/*.md found no card directly on orchestrator-direct plan execution or per-step dispatch modes.
+incorporation: per-SC decomposition standard applied to Step 4; skill-architecture card applied to affected-surface analysis.

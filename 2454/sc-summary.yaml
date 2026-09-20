@@ -10,12 +10,12 @@ scs:
   - id: "SC-2"
     description: "The executing-plans skill deck SHALL prohibit wholesale delegation of plan steps: forwarding plan body or whole-phase content into a task() prompt SHALL NOT occur during plan execution."
     evidence_type: "behavioral"
-    plan_item: 1
+    plan_item: 2
   - id: "SC-3"
     description: "The executing-plans skill deck SHALL restrict task() dispatch to exactly the plan steps that mark dispatch (task-card mode); unmarked/direct steps SHALL NOT be dispatched."
     evidence_type: "behavioral"
-    plan_item: 2
+    plan_item: 3
   - id: "SC-4"
     description: "The pre-flight guard backstop SHALL return BLOCKED with ORCHESTRATOR_ONLY_PLAN / ORCHESTRATOR_ONLY_SKILL_CARD when plan or skill-card content reaches a sub-agent context (single mechanism: pre-flight guard backstop; dual reason codes retained in one SC)."
     evidence_type: "behavioral"
-    plan_item: 3
+    plan_item: 4
