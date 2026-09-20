@@ -1,0 +1,57 @@
+artifact: state-analysis
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+state_machine:
+  subject: executing-plans/SKILL.md card conformance state
+  states:
+    - non_conformant   # current: validator flags REQ-2, REQ-3, REQ-5, REQ-6
+    - partial          # after any of phases 1, 2, or 3 individually
+    - conformant       # all fixes (items 1-8) applied
+    - validated        # SC-9 gate passes with zero violations
+    - gate_failed      # validator still reports a violation after remediation
+
+transitions:
+  - from: non_conformant
+    to: partial
+    trigger: any single phase's item edits (Items 1-8)
+    evidence: grep / validator run per item RED→GREEN
+
+  - from: partial
+    to: conformant
+    trigger: all items 1-8 complete
+    evidence: grep verifies every string SC; R-10/R-11/R-12 hold (no task files, other cards, or validator modified)
+
+  - from: conformant
+    to: validated
+    trigger: SC-9 gate — `uv run .../validate_skill_cards.py --json` returns empty violations for executing-plans
+    evidence: behavioral validator run (item 9)
+
+  - from: conformant
+    to: non_conformant
+    trigger: regression — an edit reverts or malformed (e.g., prefix placed outside the quote, checkbox format reintroduced)
+    evidence: failing grep or new validator violation class
+    recovery: return to failing rule, re-apply fix, re-validate (spec §11)
+
+  - from: validated
+    to: gate_failed
+    trigger: validator reports an executing-plans violation after remediation attempt
+    evidence: non-empty violations list in gate output
+    recovery: diagnose specific rule id, fix, return to conformant, re-run gate (spec §11)
+
+sc_transition_map:
+  SC-1: dispatch prompt prefix present (read-plan entry)
+  SC-2: dispatch prompt prefix present (execute-phase entry)
+  SC-3: byline placeholder form present, hardcoded name absent
+  SC-4: ## Worktree Mode section present with Appendix A verbatim sentence
+  SC-5: Workflows numbered format, checkbox prefix absent
+  SC-6: read-plan link label == `inventory plan phases`
+  SC-7: execute-phase link label == `dispatch one plan phase`
+  SC-8: ## Mandatory Task Discipline section present with four checklist items
+  SC-9: violations list empty (terminal validated state)
+
+no_persistent_state: |
+  No runtime/persistent data state is created or migrated. All state is
+  file content state of a single markdown card plus the validator's read-only
+  verdict. No production data touched.

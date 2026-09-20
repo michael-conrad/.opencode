@@ -1,0 +1,31 @@
+# State analysis for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+state_transitions:
+  - sc: SC-1
+    transition: yaml-less dir rendered as `[open]` (fabricated) -> rendered as `[artifact-only]`
+    persistence: none — computed per invocation, never cached
+  - sc: SC-2
+    transition: search result with synthesized `status: open` -> result with `[artifact-only]` marker, no synthesized status
+    persistence: none
+  - sc: SC-3
+    transition: read output with fabricated `status: open` -> no status line
+    persistence: none
+  - sc: SC-4
+    transition: none — well-formed ticket state output unchanged (guarded non-regression)
+    persistence: none
+
+edge_case_states:
+  - state: empty directory (no files)
+    handling: not a ticket — excluded from enumeration (preserved current behavior)
+  - state: metadata-only dir (comments.yaml or links.yaml, no issue.yaml)
+    handling: same `[artifact-only]` policy — issue.yaml absence is the sole trigger
+  - state: dir gains issue.yaml later
+    handling: marker disappears, real status renders on next read — policy recomputed per invocation
+  - state: malformed issue.yaml (present but unparseable)
+    handling: out of scope — issue 2432 parse-error taxonomy governs; `[artifact-only]` policy not applied
+  - state: concurrent write during read
+    handling: non-mutating, idempotent reads; absence of issue.yaml at read time yields `[artifact-only]`
+
+mutation_state: none — this is a read-path-only change; no issue-data mutations, no schema changes, no serialization format changes.

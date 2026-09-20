@@ -1,0 +1,30 @@
+# Blast radius analysis for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+affected_files:
+  - path: .opencode/tools/local-issues
+    role: primary
+    symbols:
+      - _read_issue_title_status      # list path reader — returns ("", "open") for yaml-less dirs (fabricated state)
+      - _read_issue_data_in_repo      # search/read path reader — synthesizes status: "open" for yaml-less dirs
+      - _format_list_output           # list presentation — must render [artifact-only] marker
+      - _format_search_results        # search presentation — must render [artifact-only] marker
+      - read subcommand output path   # read presentation — must omit fabricated status
+    exists: verified
+
+  - path: .opencode/tests/test_local_issues/
+    role: test
+    purpose: new per-SC sandbox pytest fixtures (pattern: test_yaml_load_warn_and_skip.py, issue 2432 taxonomy)
+    exists: verified
+
+blast_radius:
+  direct: [.opencode/tools/local-issues, .opencode/tests/test_local_issues/]
+  indirect:
+    - all agents routing on `local-issues list`/`search` output (consumers of the corrected view; no code change)
+  out_of_scope:
+    - _validate_issue_dir (validate subcommand contract — Not Included)
+    - issue-data migration of artifact-only dirs (Not Included)
+
+risk: LOW
+risk_rationale: Single-file CLI tool, read-path only, no data mutation, well-formed ticket output preserved by SC-4 non-regression matrix.

@@ -1,0 +1,53 @@
+artifact: cross-cutting-matrix
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+cross_cutting_scs:
+  - id: XC-1
+    scs: [SC-1, SC-2]
+    cross_cutting_concern: single-file concurrency
+    description: |
+      Both dispatch-prompt edits target the same file (SKILL.md). Mitigated
+      by disjoint edit regions (spec §11 Concurrency): each phase's edits
+      confined to disjoint regions so diffs are revert-isolated.
+    resolution: keep edits confined to disjoint regions per phase
+
+  - id: XC-2
+    scs: [SC-5, SC-6, SC-7]
+    cross_cutting_concern: Workflows-section collision
+    description: |
+      SC-5 reformats Workflows step headers (checkbox → numbered) while
+      SC-6/SC-7 rewrite the dispatch link texts inside those same step
+      entries. Renumbering must preserve sub-bullets and link hrefs.
+      Spec §11 flags "workflows-sub-bullets broken by REQ-6 renumbering"
+      as a known regression risk.
+    resolution: apply SC-5 renumbering, then SC-6/SC-7 label rewrites within
+      the already-numbered entries; validator regression returns to failing
+      rule per spec §11 resolution
+
+  - id: XC-3
+    scs: [SC-1, SC-2, SC-6, SC-7]
+    cross_cutting_concern: canonical dispatch template coherence
+    description: |
+      The prefix (SC-1/SC-2) and the link label (SC-6/SC-7) are parts of one
+      canonical dispatch template: concat("You are a sub-agent. Follow the
+      instructions in [<condensation>](<path>). <context...>"). All four must
+      cohere; the template shape is verified against the pinned spec-creation
+      baseline (commit 125b423e).
+    resolution: visual-diff SC-1/SC-2 prompts against the pinned baseline
+      after SC-6/SC-7 labels are applied
+
+  - id: XC-4
+    scs: [SC-9, SC-1..SC-8]
+    cross_cutting_concern: aggregate gate dependency
+    description: |
+      SC-9 (behavioral gate) depends on items 1-8 collectively; no code
+      change of its own. All string-level SCs must be complete before the
+      gate can pass.
+    resolution: execute items 1-8 before running the validator gate
+
+non_cross_cutting: |
+  SC-3 (byline), SC-4 (Worktree Mode section), and SC-8 (Mandatory Task
+  Discipline section) each touch a distinct, disjoint region of the card and
+  share no text with other SCs beyond the aggregate gate.

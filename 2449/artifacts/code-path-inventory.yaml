@@ -1,0 +1,22 @@
+# Code path inventory for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+grounding: symbols verified by grep against .opencode/tools/local-issues (lines 315, 1305, 1354, 1602, 1617, 1667, 1674, 1692)
+
+sc_paths:
+  - sc: SC-1
+    paths:
+      - "`list` subcommand -> entry enumeration -> `_read_issue_title_status(entry)` (local-issues:315) -> `_format_list_output(...)` (local-issues:1674, called at 1692)"
+    change: reader returns None-status sentinel when issue.yaml absent; formatter renders `[artifact-only]`
+  - sc: SC-2
+    paths:
+      - "`search` subcommand -> `_search_issues_in_repo` -> `_read_issue_data_in_repo` (local-issues:1305) -> `_format_search_results(...)` (local-issues:1617, called at 1635)"
+    change: reader omits synthesized status for yaml-less dirs; formatter renders `[artifact-only]`
+  - sc: SC-3
+    paths:
+      - "`read` subcommand -> `_read_issue_data_in_repo` (local-issues:1305; call sites local-issues:1354, 1602) -> output rendering"
+    change: read output omits `status: open` for yaml-less dirs
+  - sc: SC-4
+    paths:
+      - "all three subcommand paths above; guard condition = `issue.yaml` absence is the sole trigger"
+    change: guard logic in `_format_list_output`, `_format_search_results`, and read rendering — well-formed tickets untouched

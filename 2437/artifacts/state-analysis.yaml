@@ -1,0 +1,55 @@
+# State Analysis — issue 2437
+# Backfilled retroactively from spec.md (mode: retroactive)
+
+status: backfilled
+spec: .opencode/.issues/2437/spec.md
+generated: 2026-09-19
+
+# No runtime state machines are affected — reclassification is one-time text editing.
+runtime_state:
+  affected: none
+  note: >
+    PR pipeline states (for_pr, approved-for-pr) are invariants per the spec's
+    Edge Cases section; no state transitions in enforcement plugins or hooks.
+
+routing_state_transitions:
+  - id: RS-1
+    sc: SC-1
+    file: .opencode/skills/git-workflow-pr/SKILL.md (pr-creation step)
+    from_state: "Execution mode: sub-agent dispatch + task() prompt"
+    to_state: marker removed
+    transition_kind: deletion
+    trigger: Item 1 GREEN edit
+  - id: RS-2
+    sc: SC-2
+    file: .opencode/skills/git-workflow-pr/SKILL.md (pr-creation step)
+    from_state: unclassified / contradictory marker
+    to_state: task-card classification with dispatch-vocabulary-table citation
+    transition_kind: rewrite
+    trigger: Item 2 GREEN edit
+    constraint: must not add an overriding clause (R-6)
+  - id: RS-3
+    sc: SC-3
+    file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    from_state: ambiguous "Route to" prose, no per-step classification
+    to_state: explicit orchestrator-direct classification on Steps 0-1, 2-4, 5-7
+    transition_kind: annotation
+    trigger: Item 3 GREEN edit
+  - id: RS-4
+    sc: SC-4
+    file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    from_state: nested sub-task cards unclassified
+    to_state: enforcement-gate.md / squash-push.md / create-pr.md listed as task-card dispatch points
+    transition_kind: annotation
+    trigger: Item 4 GREEN edit
+  - id: RS-5
+    sc: SC-5
+    file: .opencode/skills/git-workflow/SKILL.md ("Create a PR" entry)
+    from_state: verbatim old sub-agent-dispatch task() prompt
+    to_state: task-card classification vocabulary, old prompt absent
+    transition_kind: rewrite
+    trigger: Item 5 GREEN edit
+
+file_edit_sequence:
+  order: [Item 1+2 (SKILL.md, git-workflow-pr), Item 3+4 (tasks/pr-creation.md), Item 5 (SKILL.md, git-workflow)]
+  concurrency: none — single-branch edit in the .opencode submodule

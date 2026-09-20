@@ -1,0 +1,26 @@
+# Testability assessment for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+assessments:
+  - sc: SC-1
+    evidence_type: behavioral
+    method: sandbox pytest in .opencode/tests/test_local_issues/ — fixture tree with artifact-only dir (spec.md only); run `local-issues list`; assert stdout contains `[artifact-only]` and no `[open]` for that entry
+    testability: high — deterministic CLI stdout, no mocks needed
+  - sc: SC-2
+    evidence_type: behavioral
+    method: sandbox pytest — fixture tree with yaml-less spec-only dir; run `search` with a matching query; assert result block contains `[artifact-only]` and no synthesized `status: open`
+    testability: high
+  - sc: SC-3
+    evidence_type: behavioral
+    method: sandbox pytest — run `read` on a yaml-less spec-only dir number; assert output omits `status: open`
+    testability: high
+  - sc: SC-4
+    evidence_type: behavioral
+    method: sandbox pytest — fixture matrix (well-formed control + artifact-only, comments.yaml-only, links.yaml-only, empty dir variants); assert control keeps real status with no `[artifact-only]` marker; assert variants marked; assert empty dir excluded
+    testability: high — matrix pins non-regression
+
+shared_notes:
+  - All SCs are unit-testable in sandbox; behavioral `opencode run` tests explicitly excluded by spec (Not Included).
+  - RED-first per item against current tool (which fabricates `[open]`); GREEN after fix.
+  - Test conventions follow test_yaml_load_warn_and_skip.py and issue 2432 error-class taxonomy.

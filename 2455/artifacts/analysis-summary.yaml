@@ -1,0 +1,40 @@
+artifact: analysis-summary
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+
+spec:
+  path: .opencode/.issues/2455/spec.md
+  revision: 2
+  issue: 2455
+  title: "[SPEC] Orchestrator-direct plan execution — task() only at plan-marked dispatch points"
+  sc_count: 4
+  requirements: [R-1, R-2, R-3, R-4]
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+
+scope_summary: >
+  Deck-level rule addition: 091 becomes the single canonical site for the
+  orchestrator-direct bright-line (SC-1); 022 Read-links without duplication
+  (SC-1); executing-plans + git-workflow SKILL.md mirror rule semantics with
+  Read-links, no dispatch-vocabulary restatement (SC-2); two behavioral
+  scenarios in tests-v2/behaviors — mixed-mode plan execution (SC-3, with
+  fixture at fixtures/plans/2455-mixed-mode-plan.md, >=2 direct + >=1
+  task-card step per plan-artifact-format.md 4.2) and deviation-to-deck-fix
+  remediation (SC-4) — both evaluated via behavior_run artifact generation
+  plus clean-room sub-agent inspection of exported session.yaml through
+  .opencode/tools/session-to-timeline.
+
+grounding_evidence:
+  all_affected_files_exist: true
+  behavior_run_present: "grep count 8 in .opencode/tests-v2/behaviors/helpers.sh"
+  session_to_timeline_present: true
+  plan_artifact_format_4_2: "verified line 160/162: Dispatch Indicators and Per-Step Dispatch Mode (direct | task-card, default direct)"
+  fixtures_plans_dir_exists: true

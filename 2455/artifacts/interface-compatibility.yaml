@@ -1,0 +1,77 @@
+artifact: interface-compatibility
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+interfaces:
+  - name: guideline-layer contract (091 <-> 022)
+    boundary: Read [Text](path) cross-reference pattern (read-link mandate, 080-code-standards.md)
+    contract: >
+      091 exports the canonical rule; 022 imports via Read-link and carries NO
+      duplicate directive-layer dispatch definition. Consumers (agents at the
+      dispatch decision moment) read 091 via the always-loaded Tier 1
+      instructions array.
+    compatibility: >
+      Additive to 091 (new paragraph) and to 022 (new Read-link). No existing
+      rule text removed; no signature change — markdown directive files.
+
+  - name: skill-card routing contract (executing-plans/SKILL.md, git-workflow/SKILL.md <-> 091)
+    boundary: Skill card routing metadata read by orchestrator via skill() load
+    contract: >
+      Each SKILL.md gains a rule-semantics statement + Read-link to 091.
+      Mirrors MUST NOT restate dispatch vocabulary definitions (orchestrator,
+      task-card, task-card blind, per-step direct/task-card modes) — those
+      remain canonical in skill-card-description-standards.md. A rule statement
+      referencing the canonical site coexists with the no-duplicate mandate.
+    compatibility: Additive text; existing TDT/Invocation sections unchanged.
+
+  - name: behavioral harness contract (scenarios <-> behavior_run)
+    boundary: Scenario scripts in .opencode/tests-v2/behaviors/ call helpers.sh behavior_run (line 798)
+    contract: >
+      Scenario calls behavior_run for clean-room artifact generation producing
+      session.yaml, manifest.yaml, stdout.log, stderr.log, exit_code; scenario
+      exits 0 on successful generation. Evaluation is a SEPARATE clean-room
+      sub-agent reading session.yaml via .opencode/tools/session-to-timeline.
+      No stderr/stdout grep assertion helpers (forbidden per tests-v2/AGENTS.md
+      sections 2/78/125).
+    compatibility: New consumers of an existing, unmodified helper — no break risk.
+
+  - name: plan fixture contract (2455-mixed-mode-plan.md <-> plan-artifact-format.md 4.2)
+    boundary: Per-step dispatch mode indicators (direct | task-card, default direct)
+    contract: >
+      Fixture uses exactly the two dispatch indicators from
+      plan-artifact-format.md section 4.2 (verified line 162): >=2 steps marked
+      direct, >=1 step marked task-card, with the task-card step's explicit
+      dispatch string for evaluation matching.
+    compatibility: New file conforming to an existing format spec.
+
+dependency_contract:
+  consumers:
+    - consumer: executing-plans/SKILL.md
+      provides: rule semantics + Read-link to 091
+      requires: 091 carries the canonical bright-line rule text
+      type_constraint: markdown Read [Text](path) link resolving to .opencode/guidelines/091-incremental-build.md
+    - consumer: git-workflow/SKILL.md
+      provides: rule semantics + Read-link to 091
+      requires: 091 carries the canonical bright-line rule text
+      type_constraint: markdown Read [Text](path) link resolving to .opencode/guidelines/091-incremental-build.md
+    - consumer: .opencode/guidelines/022-orchestrator-context-discipline.md
+      provides: Architecture B reference with Read-link to 091 (no duplicate rule)
+      requires: 091 carries the canonical bright-line rule text
+      type_constraint: markdown Read [Text](path) link resolving to .opencode/guidelines/091-incremental-build.md
+    - consumer: 2455-sc3-mixed-mode-plan-execution.sh
+      provides: behavior_run artifact generation (exit 0, non-empty session.yaml)
+      requires: helpers.sh behavior_run present; fixture 2455-mixed-mode-plan.md exists with >=2 direct + >=1 task-card steps
+      type_constraint: bash script; behavior_run function from .opencode/tests-v2/behaviors/helpers.sh (real source, line 798)
+    - consumer: 2455-sc4-deviation-deck-remediation.sh
+      provides: behavior_run artifact generation for deviation scenario
+      requires: helpers.sh behavior_run present
+      type_constraint: bash script; behavior_run function from .opencode/tests-v2/behaviors/helpers.sh (real source, line 798)
+    - consumer: clean-room evaluation sub-agents (SC-3, SC-4)
+      provides: PASS/FAIL verdict from session.yaml tool-call timeline
+      requires: exported session.yaml with source_db present (not MISSING); session-to-timeline tool
+      type_constraint: session-to-timeline consumes session.yaml (YAML/SQLite export) and emits timeline.yaml; verdicts on tool-call events only
+  ordering:
+    - SC-1 must complete before SC-2 (mirrors Read-link to the canonical rule that SC-1 installs)
+    - Items 3 and 4 require commit AND push of scenario + fixture before behavioral runs (tests-v2/AGENTS.md section 4)

@@ -1,0 +1,23 @@
+# Analysis summary for issue 2449 (retroactive backfill)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+sc_count: 4
+evidence_type: behavioral
+
+artifact_status:
+  blast-radius.yaml: backfilled (pre-existing at backfill start — verified content)
+  concern-map.yaml: backfilled (pre-existing at backfill start — verified content)
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled (includes dependency_contract section)
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: >
+  Read-path-only fix in the single-file CLI tool .opencode/tools/local-issues: the two
+  readers (_read_issue_title_status, _read_issue_data_in_repo) stop fabricating
+  status "open" for directories without issue.yaml; formatters (_format_list_output,
+  _format_search_results) and the read rendering apply a shared fixed presentation
+  policy marking such dirs with the token [artifact-only]. Well-formed tickets
+  (issue.yaml + spec.md) keep real status (SC-4 non-regression matrix). Verified via
+  sandbox pytest in .opencode/tests/test_local_issues/. Risk LOW; no data mutation.

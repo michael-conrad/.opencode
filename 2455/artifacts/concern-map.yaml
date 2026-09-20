@@ -1,0 +1,44 @@
+artifact: concern-map
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+concerns:
+  - name: canonical-rule-site
+    scs: [SC-1]
+    description: >
+      Add the orchestrator-direct bright-line rule to 091 as the SINGLE canonical
+      site; ensure 022 carries no duplicate and Read-links to 091.
+    phase_boundary: Phase 1 (Item 1)
+
+  - name: skill-card-mirrors
+    scs: [SC-2]
+    description: >
+      Mirror rule SEMANTICS (rule statement, no dispatch-vocabulary restatement)
+      plus Read [Text](path) link to 091 in executing-plans/SKILL.md and
+      git-workflow/SKILL.md.
+    phase_boundary: Phase 1 (Item 2)
+
+  - name: mixed-mode-behavioral-scenario
+    scs: [SC-3]
+    description: >
+      Create the SC-3 artifact-only generator scenario and mixed-mode plan fixture
+      (>=2 direct, >=1 task-card); clean-room evaluation inspects session.yaml via
+      session-to-timeline.
+    phase_boundary: Phase 2 (Item 3)
+
+  - name: deviation-remediation-scenario
+    scs: [SC-4]
+    description: >
+      Create the SC-4 deviation scenario whose clean-room evaluation asserts
+      edit+commit evidence on enforcement artifacts (deck fix, not ad hoc).
+    phase_boundary: Phase 2 (Item 4)
+
+phase_mapping:
+  Phase 1: [canonical-rule-site, skill-card-mirrors]
+  Phase 2: [mixed-mode-behavioral-scenario, deviation-remediation-scenario]
+
+notes: >
+  One SC maps to exactly one concern group and one phase boundary — per-SC
+  decomposition satisfied; no item spans multiple SCs.

@@ -1,0 +1,61 @@
+artifact: state-analysis
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+states:
+  - name: deck-rule-state
+    location: .opencode/guidelines/091-incremental-build.md
+    before: >
+      No bright-line rule present; dispatch default unspecified at the
+      always-loaded layer (agents default to task() for every step).
+    after: >
+      091 carries the bright-line rule as the SINGLE canonical site: default
+      orchestrator-direct; task() only at task-card-marked steps; deviation =
+      deck remediation per tests-v2/AGENTS.md section 17 R-18.
+    transition_sc: SC-1
+
+  - name: reference-link-state
+    location: .opencode/guidelines/022-orchestrator-context-discipline.md
+    before: Architecture B described with no explicit Read-link to the new 091 rule site.
+    after: 022 Read-links to 091 for this rule; carries no duplicate rule text.
+    transition_sc: SC-1
+
+  - name: skill-card-state
+    location: .opencode/skills/executing-plans/SKILL.md, .opencode/skills/git-workflow/SKILL.md
+    before: No rule semantics; no Read-link to 091.
+    after: Rule-semantics statement + Read [Text](path) link to 091; no dispatch-vocabulary restatement; no "see" citations.
+    transition_sc: SC-2
+
+  - name: behavioral-scenario-state
+    location: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh + fixtures/plans/2455-mixed-mode-plan.md
+    before: Files absent.
+    after: >
+      Scenario exists as artifact-only generator (behavior_run, exit 0,
+      non-empty session.yaml); evaluation sub-agent verdicts mixed-mode
+      compliance from timeline events.
+    transition_sc: SC-3
+
+  - name: remediation-scenario-state
+    location: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+    before: File absent.
+    after: >
+      Scenario exists; evaluation sub-agent verdicts edit+commit deck-fix
+      evidence from session.yaml events; prose-only remediation is FAIL.
+    transition_sc: SC-4
+
+transient_states:
+  - name: behavior_run artifact directory
+    produced_by: SC-3/SC-4 generation runs
+    contents: [session.yaml, manifest.yaml, stdout.log, stderr.log, exit_code]
+    invariant: >
+      session.yaml must export with source_db present (source_db: MISSING is
+      hard FAIL per tests-v2/AGENTS.md section 2; no data fabrication).
+
+  - name: git feature-branch state
+    produced_by: per-item commit/push cycle
+    invariant: >
+      Scenario + fixture commits are pushed and fresh-fetched (effective commit
+      contained in a remote ref) BEFORE behavioral runs (tests-v2/AGENTS.md
+      section 4 pre-flight gate).

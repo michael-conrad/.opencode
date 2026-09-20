@@ -1,0 +1,87 @@
+artifact: interface-compatibility
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+interfaces:
+  - id: IF-1
+    boundary: orchestrator → sub-agent dispatch prompt
+    participants:
+      - producer: executing-plans/SKILL.md workflow entries
+      - consumer: task() sub-agents dispatched for read-plan/execute-phase task cards
+    compatibility: |
+      SC-1/SC-2 add the role-identification prefix INSIDE the quoted prompt;
+      the prompt shape must match the canonical template
+      `concat("You are a sub-agent. Follow the instructions in [<condensation>](<path>). <context...>")`
+      verified at pinned baseline commit 125b423e. No other prompt-text
+      contract changes; hrefs unchanged so task-card discovery still resolves.
+    breaking: false
+
+  - id: IF-2
+    boundary: skill card → validator
+    participants:
+      - producer: executing-plans/SKILL.md
+      - consumer: .opencode/skills/skill-creator/scripts/validate_skill_cards.py (read-only, R-12)
+    compatibility: |
+      The card must satisfy REQ-2 (byline placeholder), REQ-3 (## Worktree
+      Mode section), REQ-5 (## Mandatory Task Discipline section), REQ-6
+      (numbered Workflows format). The validator is not modified; the card
+      conforms to the standard, not the standard to the card.
+    breaking: false
+
+  - id: IF-3
+    boundary: skill card → task cards
+    participants:
+      - producer: executing-plans/SKILL.md dispatch link texts
+      - consumer: tasks/read-plan.md, tasks/execute-phase.md (R-10: untouched)
+    compatibility: |
+      Only the link LABEL changes (purpose condensations `inventory plan
+      phases` / `dispatch one plan phase`); hrefs and the task files
+      themselves are untouched, so task-card content contracts are intact.
+    breaking: false
+
+  - id: IF-4
+    boundary: executing-plans card ↔ other deck cards
+    participants:
+      - consumer: every other skill card and deck-wide DISPATCH_GATE baseline
+    compatibility: |
+      R-11 forbids modifying other cards. The change brings executing-plans
+      to the deck conformance baseline; description field untouched (REQ-K).
+    breaking: false
+
+dependency_contract:
+  source: .opencode/skills/executing-plans/SKILL.md
+  target: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+  type: conformance-gate (one-directional: card is validated; validator untouched)
+  constraints:
+    - validator invoked via `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py --json`
+    - asserted result: executing-plans violations list == empty (SC-9)
+  sources:
+    - path: .opencode/skills/executing-plans/SKILL.md
+      role: single edited file
+      exists: verified
+    - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+      role: read-only validator
+      exists: verified
+    - path: .opencode/skills/spec-creation/SKILL.md
+      role: dispatch-pattern baseline pinned at commit 125b423e0bd846439e908c1150e18e913f042726
+      exists: verified
+      type_constraint: string content — canonical `You are a sub-agent. Follow the instructions in [...]` template
+    - path: .opencode/skills/completion-core/SKILL.md
+      role: canonical ## Worktree Mode / ## Mandatory Task Discipline section reference
+      exists: verified
+      type_constraint: markdown section text — verbatim source for SC-4 (Appendix A) and SC-8 checklist
+    - path: .opencode/reference/skill-card-schema.md
+      role: byline placeholder form
+      exists: verified
+      type_constraint: ATTRIBUTION_EXEMPT placeholder regex → `<AgentName> (<ModelId>)`
+    - path: .opencode/reference/skill-card-description-standards.md
+      role: purpose-condensation rule and dispatch template definition
+      exists: verified
+  targets:
+    - path: .opencode/skills/executing-plans/tasks/read-plan.md
+      role: condensation source (SC-6); unmodified
+      exists: verified
+    - path: .opencode/skills/executing-plans/tasks/execute-phase.md
+      role: condensation source (SC-7); unmodified
+      exists: verified

@@ -7,16 +7,16 @@ scs:
   - id: "SC-2"
     description: "pr-creation step states the task-card classification citing the canonical dispatch-vocabulary table, consistent with the Mandatory Task Discipline clause"
     evidence_type: "string"
-    plan_item: 1
+    plan_item: 2
   - id: "SC-3"
     description: "tasks/pr-creation.md states the dispatch classification for each procedure step group (Steps 0-1, 2-4, 5-7: orchestrator-direct)"
     evidence_type: "semantic"
-    plan_item: 2
+    plan_item: 3
   - id: "SC-4"
     description: "Each nested pr-creation/*.md sub-task card is classified as a task-card dispatch point in tasks/pr-creation.md"
     evidence_type: "semantic"
-    plan_item: 3
-  - id: "SC-5"
-    description: "git-workflow skill card Create-a-PR entry contains task-card classification vocabulary and no sub-agent-dispatch prompt"
-    evidence_type: "string"
     plan_item: 4
+  - id: "SC-5"
+    description: "git-workflow skill card Create-a-PR entry contains task-card classification vocabulary and does not match the verbatim quoted old sub-agent-dispatch prompt text"
+    evidence_type: "string"
+    plan_item: 5

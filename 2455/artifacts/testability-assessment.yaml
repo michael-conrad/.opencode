@@ -1,0 +1,74 @@
+artifact: testability-assessment
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+sc_assessments:
+  - sc: SC-1
+    evidence_type: string
+    declared_in_spec: string
+    runtime_behavioral: false
+    rationale: >
+      Textual presence/absence of a rule statement and Read-link in markdown
+      files; substrate is static file content, not runtime behavior.
+    verification: >
+      grep on 091 for bright-line text; grep on 022 for no duplicate rule text
+      + presence of Read-link to 091.
+  - sc: SC-2
+    evidence_type: string
+    declared_in_spec: string
+    runtime_behavioral: false
+    rationale: >
+      Rule-semantics statement and Read-link presence in SKILL.md files;
+      absence of "see" citations and vocabulary redefinitions — all static text
+      checks.
+    verification: >
+      grep both SKILL.md files for semantics + Read [ pattern targeting
+      091-incremental-build.md; no "see.*091" citations; no vocabulary
+      definitions beyond the rule sentence.
+  - sc: SC-3
+    evidence_type: behavioral
+    declared_in_spec: behavioral
+    runtime_behavioral: true
+    rationale: >
+      Asserts what the agent DOES at runtime — task() dispatch decisions
+      during plan execution. String/grep substitutes prohibited; evaluation is
+      on session.yaml tool-call events via clean-room sub-agent.
+    verification: >
+      Step 1 generation: run scenario script — PASS requires exit 0 +
+      non-empty session.yaml. Step 2 evaluation: clean-room sub-agent reads
+      session.yaml/timeline.yaml and returns PASS/FAIL on zero task() events
+      for direct steps and exactly one task() dispatch matching the
+      task-card-marked step's dispatch string.
+  - sc: SC-4
+    evidence_type: behavioral
+    declared_in_spec: behavioral
+    runtime_behavioral: true
+    rationale: >
+      Asserts agent remediation behavior (file edits + git commit/push) in
+      response to a deviation — runtime tool-call events, not prose. Prose
+      recall is NOT behavioral evidence; prose-only remediation is FAIL.
+    verification: >
+      Step 1 generation: run scenario script — PASS requires exit 0 +
+      non-empty session.yaml. Step 2 evaluation: clean-room sub-agent asserts
+      edit/write tool-call events targeting at least one named enforcement
+      artifact AND git commit/push command events in the session.
+
+integrity_constraints:
+  - constraint: >
+      SC-3/SC-4 are runtime-behavioral changes; structural or string evidence
+      submitted for them is EVIDENCE_TYPE_MISMATCH (verdict FAIL) per
+      critical-rules-BEH-EV.
+  - constraint: >
+      No substitution of grep/static analysis for behavioral runs
+      (critical-rules-060); cost is never a factor in the verification
+      decision (020-go-prohibitions).
+  - constraint: >
+      Harness-failure handling per tests-v2/AGENTS.md section 10: timeout is
+      diagnosed (including session.yaml evidence), never assumed model
+      unavailability; a run that cannot execute yields FAIL, never a
+      structural substitute (spec Edge Case 3).
+  - constraint: >
+      source_db: MISSING in the session.yaml export is hard FAIL; recovery is
+      verifying clean-room separation, never fabrication (spec Edge Case 5).

@@ -1,0 +1,77 @@
+# Interface Compatibility — issue 2437
+# Backfilled retroactively from spec.md (mode: retroactive)
+
+status: backfilled
+spec: .opencode/.issues/2437/spec.md
+generated: 2026-09-19
+
+# No runtime code changes — interfaces are agent-facing routing metadata contracts.
+affected_interfaces:
+  - name: git-workflow-pr skill-card Workflows section (pr-creation step)
+    file: .opencode/skills/git-workflow-pr/SKILL.md
+    boundary: orchestrator routing decision (inline vs task-card dispatch)
+    change: marker text reclassified from sub-agent dispatch to task-card
+    compatibility: |
+      Orchestrators loading the card will now execute the step per Architecture B
+      (task() only where Dispatch value is task-card). Consumers of the step
+      routing (orchestrator dispatch logic) must honor the canonical table.
+    breaking: true
+    breaking_reason: dispatch behavior changes from sub-agent dispatch to task-card dispatch
+
+  - name: git-workflow skill-card "Create a PR" entry
+    file: .opencode/skills/git-workflow/SKILL.md
+    boundary: parent-card routing to git-workflow-pr/tasks/pr-creation.md
+    change: old task(subagent_type="general", prompt: concat(...)) prompt replaced with task-card classification vocabulary
+    compatibility: must stay consistent with the git-workflow-pr card's classification (SC-5)
+    breaking: true
+    breaking_reason: the verbatim old sub-agent-dispatch prompt text is removed
+
+  - name: pr-creation task-card step routing
+    file: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    boundary: task-card internal step groups + nested sub-task dispatch points
+    change: explicit per-group classification (Steps 0-1, 2-4, 5-7: orchestrator-direct) and task-card classification for nested sub-task cards
+    compatibility: sub-task files (enforcement-gate.md, squash-push.md, create-pr.md) unchanged; only their classification labels in the parent card change
+    breaking: false
+
+dependency_contract:
+  description: >
+    Concrete dependency data derived from the spec's affected files and success
+    criteria — real sources, real targets, real constraints.
+  dependencies:
+    - source: .opencode/skills/git-workflow-pr/SKILL.md
+      target: .opencode/reference/skill-card-description-standards.md
+      type: vocabulary-authority
+      constraint: >
+        SC-2 requires the pr-creation step to cite the canonical dispatch-vocabulary
+        table at this path. The referenced file must exist and contain the table;
+        classification wording in both skill cards must come from it, not ad-hoc
+        vocabulary (R-2, R-5).
+    - source: .opencode/skills/git-workflow/SKILL.md
+      target: .opencode/skills/git-workflow-pr/SKILL.md
+      type: classification-consistency
+      constraint: >
+        SC-5 requires the parent card's "Create a PR" entry to use the same
+        task-card classification vocabulary as SC-2. Drift between the two cards
+        re-introduces the contradiction.
+    - source: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      target: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+      type: task-card-dispatch-point
+      constraint: SC-4 — must be listed as a task-card dispatch point.
+    - source: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      target: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+      type: task-card-dispatch-point
+      constraint: SC-4 — must be listed as a task-card dispatch point.
+    - source: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+      target: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+      type: task-card-dispatch-point
+      constraint: SC-4 — must be listed as a task-card dispatch point.
+    - source: .opencode/tests-v2/
+      target: SC-1 verification
+      type: harness-dependency
+      constraint: >
+        Behavioral enforcement scenario via `with-test-home opencode run` must
+        exist and be runnable; structural substitutes are EVIDENCE_TYPE_MISMATCH.
+  untouched_invariants:
+    - PR pipeline gates: squash-per-issue, human-only merge, Step 9 reconciliation
+    - PR body format and authorization scope model
+    - enforcement plugins/hooks (no runtime/code changes)

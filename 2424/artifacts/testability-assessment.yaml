@@ -1,0 +1,75 @@
+artifact: testability-assessment
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+assessments:
+  - sc: SC-1
+    evidence_type: string
+    verification: grep read-plan entry's dispatch prompt text for `You are a sub-agent.` prefix; visual diff vs conforming spec-creation dispatch pattern at pinned commit 125b423e0bd846439e908c1150e18e913f042726
+    automatable: true
+    testability: high
+
+  - sc: SC-2
+    evidence_type: string
+    verification: grep execute-phase entry's dispatch prompt text for `You are a sub-agent.` prefix; visual diff vs pinned baseline
+    automatable: true
+    testability: high
+
+  - sc: SC-3
+    evidence_type: string
+    verification: grep byline for `<AgentName> (<ModelId>)`; assert `OpenCode (deepseek-v4-flash)` absent
+    automatable: true
+    testability: high
+
+  - sc: SC-4
+    evidence_type: string
+    verification: grep for `## Worktree Mode` heading; grep section body for the Appendix A canonical sentence (sole pass condition — no external diff)
+    automatable: true
+    testability: high
+
+  - sc: SC-5
+    evidence_type: string
+    verification: grep Workflows section for `- [ ] N. **` checkbox prefix; assert absent
+    automatable: true
+    testability: high
+
+  - sc: SC-6
+    evidence_type: string
+    verification: grep read-plan dispatch link label; assert equals `inventory plan phases`, differs from path stem, no `tasks/`, no `.md` suffix
+    automatable: true
+    testability: high
+
+  - sc: SC-7
+    evidence_type: string
+    verification: grep execute-phase dispatch link label; assert equals `dispatch one plan phase`, differs from path stem, no `tasks/`, no `.md` suffix
+    automatable: true
+    testability: high
+
+  - sc: SC-8
+    evidence_type: string
+    verification: grep for `## Mandatory Task Discipline` heading; grep for the four checklist items; visual check vs canonical form in completion-core/SKILL.md
+    automatable: true (grep portion); visual portion assisted
+    testability: high
+
+  - sc: SC-9
+    evidence_type: behavioral
+    verification: |
+      Run `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py --json`;
+      assert executing-plans skill_name has an empty violations list.
+      Behavioral evidence: actual validator execution and exit output — grep or
+      structural substitution is not valid evidence for this SC.
+    automatable: true (command execution + output assertion)
+    testability: high
+
+  - sc: R-10/R-11/R-12 (scope guards)
+    evidence_type: string
+    verification: git status/diff scoped to repo — assert tasks/read-plan.md, tasks/execute-phase.md, all other skill cards, and validate_skill_cards.py unmodified
+    automatable: true
+    testability: high
+
+overall: |
+  All SCs are directly testable with deterministic commands (grep + one
+  validator execution). SC-9 requires genuine behavioral evidence (live
+  validator run); string-level SCs are grep-verifiable. Evidence artifacts
+  should record command output, not just pass/fail claims.

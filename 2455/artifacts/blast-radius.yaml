@@ -1,0 +1,66 @@
+artifact: blast-radius
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+affected_files:
+  - path: .opencode/guidelines/091-incremental-build.md
+    exists: true
+    scs: [SC-1]
+    change_type: modify
+    rationale: Single canonical rule site for the orchestrator-direct bright-line rule (R-1).
+  - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+    exists: true
+    scs: [SC-1]
+    change_type: modify
+    rationale: Carries NO duplicate rule; gains a Read [Text](path) link to 091 for this rule.
+  - path: .opencode/skills/executing-plans/SKILL.md
+    exists: true
+    scs: [SC-2]
+    change_type: modify
+    rationale: Mirror rule semantics + Read-link to 091; no dispatch-vocabulary restatement (R-2).
+  - path: .opencode/skills/git-workflow/SKILL.md
+    exists: true
+    scs: [SC-2]
+    change_type: modify
+    rationale: Mirror rule semantics + Read-link to 091; no dispatch-vocabulary restatement (R-2).
+  - path: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+    exists: false
+    scs: [SC-3]
+    change_type: create
+    rationale: Behavioral scenario (artifact-only generator via behavior_run) per R-3.
+  - path: .opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md
+    exists: false
+    scs: [SC-3]
+    change_type: create
+    rationale: Mixed-mode plan fixture (>=2 `direct` steps, >=1 `task-card` step per plan-artifact-format.md 4.2).
+  - path: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+    exists: false
+    scs: [SC-4]
+    change_type: create
+    rationale: Behavioral scenario for deviation -> deck remediation (R-4).
+
+verified_dependencies:
+  - path: .opencode/tests-v2/behaviors/helpers.sh
+    exists: true
+    note: behavior_run present (grep count 8); not modified by this spec.
+  - path: .opencode/tools/session-to-timeline
+    exists: true
+    note: Registered agent tool; consumed by evaluation steps, not modified.
+  - path: .opencode/reference/skill-card-description-standards.md
+    exists: true
+    note: Canonical dispatch-vocabulary table; referenced only, not modified.
+  - path: .opencode/skills/writing-plans/reference/plan-artifact-format.md
+    exists: true
+    note: Section 4.2 verified live (line 162 quote in spec); referenced only.
+  - path: .opencode/tests-v2/AGENTS.md
+    exists: true
+    note: Harness contract (sections 2, 4, 9, 10, 17); referenced only.
+
+blast_radius_assessment:
+  scope: LOW-MEDIUM
+  notes: >
+    Guideline/skill text changes (SC-1, SC-2) affect agent routing at the
+    dispatch decision moment deck-wide. Scenario additions (SC-3, SC-4) are
+    additive and isolated to tests-v2/behaviors/. No production source code touched.

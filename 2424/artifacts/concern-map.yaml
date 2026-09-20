@@ -1,0 +1,50 @@
+artifact: concern-map
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+concern_groups:
+  - id: CG-1
+    name: dispatch-prompt-role-identification
+    scs: [SC-1, SC-2]
+    description: |
+      Both workflow entries' dispatch prompt strings must begin with the
+      `You are a sub-agent.` prefix inside the quoted prompt string,
+      immediately before `Follow the instructions in` — per the canonical
+      template `concat("You are a sub-agent. Follow the instructions in [<condensation>](<path>). <context...>")`.
+    phase_boundary: Phase 1 (spec §7 traceability: R-1/R-2 → Phase 1)
+    files: [".opencode/skills/executing-plans/SKILL.md"]
+
+  - id: CG-2
+    name: card-metadata-and-structure-conformance
+    scs: [SC-3, SC-4, SC-5]
+    description: |
+      Byline placeholder form (REQ-2), presence of the ## Worktree Mode
+      section with the Appendix A verbatim sentence (REQ-3), and numbered
+      (non-checkbox) Workflows format (REQ-6).
+    phase_boundary: Phase 2 (spec §7: R-3/R-4/R-5 → Phase 2)
+    files: [".opencode/skills/executing-plans/SKILL.md"]
+
+  - id: CG-3
+    name: standards-alignment-and-section-completeness
+    scs: [SC-6, SC-7, SC-8]
+    description: |
+      Purpose-condensation dispatch link texts (standards alignment, not
+      validator remediation) and the new ## Mandatory Task Discipline
+      section with the canonical four-item checklist (REQ-5).
+    phase_boundary: Phase 3 (spec §7: R-6/R-7/R-8 → Phase 3)
+    files: [".opencode/skills/executing-plans/SKILL.md"]
+
+  - id: CG-4
+    name: conformance-gate
+    scs: [SC-9]
+    description: |
+      Aggregate gate: validator suite passes with zero violations for
+      executing-plans. Depends on CG-1, CG-2, CG-3 (items 1-8).
+    phase_boundary: Phase 4 (gate)
+    files: [".opencode/skills/skill-creator/scripts/validate_skill_cards.py"]
+
+concern_independence: |
+  CG-1..CG-3 edit disjoint regions of the same single file (dispatch prompt
+  text, byline/sections/headers, link labels), so concerns are
+  revert-isolated per spec §11 Concurrency. CG-4 is strictly downstream.

@@ -1,0 +1,26 @@
+# Cross-cutting matrix for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+scs_spanning_multiple_concerns:
+  - sc: SC-1
+    concerns: [reader-state-truthfulness, presentation-policy]
+    note: list output requires both the sentinel from the reader and the marker render in the formatter
+  - sc: SC-2
+    concerns: [reader-state-truthfulness, presentation-policy]
+    note: search result truthfulness spans reader synthesis removal and formatter marking
+  - sc: SC-4
+    concerns: [presentation-policy, non-regression-guard]
+    note: marker application policy must be guarded by issue.yaml presence across all three subcommands
+
+shared_mechanisms:
+  - mechanism: None-status sentinel returned by both readers (`_read_issue_title_status`, `_read_issue_data_in_repo`)
+    consumers: [list formatter, search formatter, read rendering]
+  - mechanism: marker token `[artifact-only]` (fixed, deterministic per spec Key Design Decision 1)
+    consumers: [_format_list_output, _format_search_results]
+
+cross_cutting_risks:
+  - risk: inconsistent marker between list and search
+    mitigation: single shared presentation policy applied identically (spec Key Design Decision 1); SC-4 matrix asserts consistency
+  - risk: sentinel leaking into well-formed ticket output
+    mitigation: guard fires only when issue.yaml is absent; SC-4 non-regression matrix

@@ -1,0 +1,24 @@
+# Interface compatibility for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+interface_boundaries:
+  - boundary: reader -> formatter hand-off
+    interfaces:
+      - `_read_issue_title_status(entry) -> tuple[str, str]` changes contract: status may be `None` (sentinel) instead of fabricated `"open"` when issue.yaml is absent. Callers: list path (local-issues:1667). Well-formed ticket return values unchanged.
+      - `_read_issue_data_in_repo(number, repo_path) -> dict` changes contract: synthesized `result["issue"]["status"] = "open"` omitted for yaml-less dirs. Callers: read path (local-issues:1354, 1602) and search formatting.
+    compatibility: single-file tool — all callers inside the same file; no external API surface change; CLI stdout shape gains the `[artifact-only]` token for yaml-less dirs only.
+  - boundary: CLI stdout (public contract)
+    consumers: agents and scripts routing on list/search/read output
+    compatibility: breaking for phantom-state consumers by design (fabricated `[open]` removed); real ticket output unchanged (SC-4)
+
+dependency_contract:
+  dependencies:
+    - source: .opencode/tools/local-issues
+      target: .opencode/tests/test_local_issues/
+      type: test-consumes-implementation
+      constraint: "new sandbox pytest fixtures invoke the `local-issues` CLI (list/search/read) against fixture trees; assertions on stdout tokens `[artifact-only]` and absence of `[open]`/`status: open` for yaml-less dirs; conventions per test_yaml_load_warn_and_skip.py and issue 2432 error-class taxonomy"
+    - source: spec SC table
+      target: .opencode/tests/test_local_issues/ fixtures
+      type: evidence-to-verification
+      constraint: "each SC maps to exactly one sandbox pytest with stdout assertions (behavioral evidence type); fixture tree must contain a well-formed control ticket (issue.yaml + spec.md) plus artifact-only variants"

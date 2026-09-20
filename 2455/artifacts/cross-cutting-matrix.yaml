@@ -1,0 +1,47 @@
+artifact: cross-cutting-matrix
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+matrix:
+  - sc: SC-1
+    concerns: [canonical-rule-site]
+    spans_multiple: false
+  - sc: SC-2
+    concerns: [skill-card-mirrors]
+    spans_multiple: false
+  - sc: SC-3
+    concerns: [mixed-mode-behavioral-scenario]
+    spans_multiple: false
+  - sc: SC-4
+    concerns: [deviation-remediation-scenario]
+    spans_multiple: false
+
+shared_infrastructure:
+  - concern: harness contract (behavior_run + session.yaml + session-to-timeline)
+    scs: [SC-3, SC-4]
+    resolution: >
+      Both scenarios share the tests-v2 harness contract (tests-v2/AGENTS.md
+      sections 2, 4, 9). Shared helpers.sh behavior_run is consumed, not
+      modified; each SC remains an independent scenario file with its own
+      fixture and evaluation step.
+
+cross_cutting_rules:
+  - rule: canonical-table no-duplicate mandate (skill-card-description-standards.md)
+    scs: [SC-1, SC-2]
+    resolution: >
+      091 is the sole directive-layer rule site (SC-1); mirrors carry a rule
+      STATEMENT + Read-link, not vocabulary definitions (SC-2). Rule wording
+      must not duplicate dispatch vocabulary definitions in either location.
+  - rule: session.yaml PRIMARY evaluation source / stderr-grep helpers forbidden (tests-v2/AGENTS.md section 2)
+    scs: [SC-3, SC-4]
+    resolution: Both evaluation steps inspect session.yaml via session-to-timeline; no stderr/stdout grep assertions.
+  - rule: commit+push before behavioral run (tests-v2/AGENTS.md section 4)
+    scs: [SC-3, SC-4]
+    resolution: Items 3 and 4 commit AND push before the behavioral run per their plan items.
+
+summary: >
+  No SC spans more than one concern group. Cross-cutting couplings are limited
+  to shared (unmodified) harness infrastructure and deck-wide rule consistency
+  constraints that do not blur SC boundaries.

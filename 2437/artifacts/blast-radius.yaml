@@ -1,0 +1,36 @@
+# blast-radius — backfilled from spec (mode: retroactive), issue 2437
+# blast-radius — backfilled from spec (mode: retroactive), issue 2437
+# All paths verified to exist on disk during backfill (ls evidence recorded).
+affected_files:
+  - path: .opencode/skills/git-workflow-pr/SKILL.md
+    exists: verified
+    touched_by: SC-1, SC-2 (Items 1-2)
+    blast_radius: orchestrators loading the git-workflow-pr card — routing decision for pr-creation step
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation.md
+    exists: verified
+    touched_by: SC-3, SC-4 (Items 3-4)
+    blast_radius: sub-agents executing pr-creation; dispatch classification for steps 0-7 and nested sub-tasks
+  - path: .opencode/skills/git-workflow/SKILL.md
+    exists: verified
+    touched_by: SC-5 (Item 5)
+    blast_radius: orchestrators using the parent card's "Create a PR" entry
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+    exists: verified
+    touched_by: none directly (classified in pr-creation.md per SC-4)
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/squash-push.md
+    exists: verified
+    touched_by: none directly (classified in pr-creation.md per SC-4)
+  - path: .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md
+    exists: verified
+    touched_by: none directly (classified in pr-creation.md per SC-4)
+read_only_references:
+  - path: .opencode/reference/skill-card-description-standards.md
+    exists: verified
+    role: canonical dispatch-vocabulary table — cited, not modified
+  - path: .opencode/tests-v2/
+    exists: verified
+    role: behavioral scenario harness for SC-1 — new scenario file added, framework untouched
+transitive_dependents:
+  - orchestrator pr-creation dispatch flow (runtime behavior, SC-1)
+  - PR pipeline gates (squash-per-issue, human-only merge, Step 9 reconciliation) — declared invariants, untouched
+

@@ -1,0 +1,39 @@
+artifact: code-path-inventory
+spec_issue: 2455
+generated: 2026-09-19
+mode: retroactive
+source: .opencode/.issues/2455/spec.md (revision 2)
+
+sc_paths:
+  SC-1:
+    - path: .opencode/guidelines/091-incremental-build.md
+      action: insert bright-line rule paragraph (default orchestrator-direct; task() only at task-card-marked steps; deviation = deck remediation per tests-v2/AGENTS.md section 17 R-18)
+      verification: grep for bright-line text; grep 022 for absence of duplicate + presence of Read-link to 091
+    - path: .opencode/guidelines/022-orchestrator-context-discipline.md
+      action: add Read [Text](path) link to 091; remove/avoid duplicate rule text
+      verification: grep confirms no duplicate rule text in 022
+
+  SC-2:
+    - path: .opencode/skills/executing-plans/SKILL.md
+      action: add rule-semantics statement + Read [Text](path) link to 091; no dispatch-vocabulary definitions
+      verification: grep for semantics + Read-link pattern; no "see" citations; no vocabulary redefinitions
+    - path: .opencode/skills/git-workflow/SKILL.md
+      action: identical mirror treatment as executing-plans/SKILL.md
+      verification: same grep set as executing-plans
+
+  SC-3:
+    - path: .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh
+      action: create scenario script calling behavior_run (helpers.sh) producing session.yaml, manifest.yaml, stdout.log, stderr.log, exit_code; exit 0
+      runtime_path: bash .opencode/tests-v2/behaviors/2455-sc3-mixed-mode-plan-execution.sh -> behavior_run -> exported session.yaml -> .opencode/tools/session-to-timeline -> clean-room evaluation sub-agent
+    - path: .opencode/tests-v2/behaviors/fixtures/plans/2455-mixed-mode-plan.md
+      action: create fixture with >=2 steps marked direct and >=1 step marked task-card per plan-artifact-format.md 4.2
+      verification: non-empty session.yaml in artifact directory; clean-room evaluation of timeline events
+
+  SC-4:
+    - path: .opencode/tests-v2/behaviors/2455-sc4-deviation-deck-remediation.sh
+      action: create scenario script with a step-combining deviation prompt; behavior_run artifact generation; exit 0
+      runtime_path: behavior_run -> exported session.yaml -> session-to-timeline -> clean-room evaluation asserting edit tool-call events targeting enforcement artifacts + git commit/push command events
+
+cross_cutting_paths:
+  - .opencode/tests-v2/behaviors/helpers.sh (consumed by SC-3/SC-4, behavior_run at line 798)
+  - .opencode/tools/session-to-timeline (consumed by SC-3/SC-4 evaluation steps)

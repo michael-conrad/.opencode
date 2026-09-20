@@ -1,0 +1,25 @@
+# Concern map for issue 2449 (backfilled retroactively from spec body)
+spec: .opencode/.issues/2449/spec.md
+generated: retroactive backfill
+
+concerns:
+  - name: reader-state-truthfulness
+    description: Readers stop fabricating ticket state when issue.yaml is absent (sentinel instead of synthesized open)
+    symbols: [_read_issue_title_status, _read_issue_data_in_repo]
+    scs: [SC-1, SC-2, SC-3]
+
+  - name: presentation-policy
+    description: Shared fixed presentation policy — [artifact-only] marker applied by list/search formatters; read omits status
+    symbols: [_format_list_output, _format_search_results]
+    scs: [SC-1, SC-2, SC-4]
+
+  - name: non-regression-guard
+    description: Well-formed tickets (issue.yaml + spec.md) keep real status; marker never applied to them
+    symbols: [_format_list_output, _format_search_results, read path]
+    scs: [SC-4]
+
+phase_boundaries:
+  - phase: 1
+    concerns: [reader-state-truthfulness, presentation-policy, non-regression-guard]
+    items: [Item 1 (SC-1), Item 2 (SC-2), Item 3 (SC-3), Item 4 (SC-4)]
+    rationale: All four items touch the same two readers and shared formatter policy; spec Traceability maps every R to Phase 1. Single-phase decomposition, per-item TDD commits.

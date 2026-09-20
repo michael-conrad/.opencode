@@ -1,0 +1,30 @@
+artifact: analysis-summary
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+spec_path: .opencode/.issues/2424/spec.md
+spec_revision: 2
+sc_count: 9
+
+artifact_status:
+  blast-radius: backfilled
+  concern-map: backfilled
+  code-path-inventory: backfilled
+  cross-cutting-matrix: backfilled
+  interface-compatibility: backfilled
+  state-analysis: backfilled
+  testability-assessment: backfilled
+
+scope_summary: |
+  Remediate the sole non-conforming skill card in the deck
+  (.opencode/skills/executing-plans/SKILL.md): add the `You are a sub-agent.`
+  dispatch-prompt prefix to both workflow entries (SC-1/SC-2), replace the
+  hardcoded byline with the placeholder form (SC-3), add the `## Worktree
+  Mode` section with the Appendix A verbatim sentence (SC-4), convert
+  Workflows to numbered format (SC-5), rewrite dispatch link texts to purpose
+  condensations (SC-6/SC-7), add the `## Mandatory Task Discipline` section
+  (SC-8), and pass the full validator suite with zero violations (SC-9).
+  Task files, other cards, and the validator are explicitly out of scope
+  (R-10/R-11/R-12). Single-file edit; all verification is grep/string plus
+  one live validator run (behavioral).

@@ -1,0 +1,25 @@
+# concern-map — backfilled from spec (mode: retroactive), issue 2437
+# concern-map — backfilled from spec (mode: retroactive), issue 2437
+concerns:
+  - id: C-1
+    name: skill-card marker reclassification (git-workflow-pr)
+    scs: [SC-1, SC-2]
+    items: [1, 2]
+    phase_boundary: "Phase 1 — single edit to .opencode/skills/git-workflow-pr/SKILL.md pr-creation step (marker removal + task-card classification citation); R-6 direct-edit constraint applies"
+  - id: C-2
+    name: task-card step routing classification (pr-creation.md)
+    scs: [SC-3, SC-4]
+    items: [3, 4]
+    phase_boundary: "Phase 1 — explicit per-step-group (0-1, 2-4, 5-7) orchestrator-direct classification plus task-card dispatch points for the three nested sub-task cards"
+  - id: C-3
+    name: parent-card vocabulary sync (git-workflow)
+    scs: [SC-5]
+    items: [5]
+    phase_boundary: "Phase 1 — align 'Create a PR' entry to task-card vocabulary, remove verbatim old sub-agent-dispatch prompt"
+unchanged_invariants:
+  - squash-per-issue gate
+  - human-only merge gate
+  - Step 9 reconciliation
+  - PR body format and authorization scope model
+notes: All SCs are Phase 1 per traceability; concern grouping is per-file/SC for the per-SC TDD cycle, not multi-phase.
+

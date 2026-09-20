@@ -1,0 +1,86 @@
+# Testability Assessment — issue 2437
+# Backfilled retroactively from spec.md (mode: retroactive)
+
+status: backfilled
+spec: .opencode/.issues/2437/spec.md
+generated: 2026-09-19
+
+assessments:
+  - sc: SC-1
+    evidence_type: behavioral
+    declared_by_spec: behavioral
+    substrate_check: >
+      Does the change affect runtime behavior? YES — reclassification alters
+      orchestrator dispatch decisions (a runtime-behavioral effect per the
+      runtime-behavioral classification gate). Declared type 'behavioral' already
+      matches; no uplift needed.
+    verification_method: >
+      tests-v2 enforcement scenario via `bash .opencode/tests-v2/with-test-home
+      opencode run '<message>'`; assert on stderr agent actions that the
+      orchestrator does not dispatch the skill card's pr-creation routing content
+      to a sub-agent.
+    substitutes_forbidden: >
+      grep/string checks on the marker are insufficient — a structural substitute
+      is EVIDENCE_TYPE_MISMATCH and FAILs (spec Edge Cases; critical-rules-060).
+    testability: high
+    notes: Requires commit → push → fresh fetch before behavioral run (tests-v2 §4).
+
+  - sc: SC-2
+    evidence_type: string
+    declared_by_spec: string
+    substrate_check: >
+      Does the change affect runtime behavior beyond the marker removal already
+      behaviorally gated by SC-1? NO — the citation/classification is static text
+      content; the behavioral effect is fully covered by SC-1.
+    verification_method: >
+      grep the pr-creation step body for `task-card` and a reference to
+      .opencode/reference/skill-card-description-standards.md; confirm no
+      contradictory marker text remains.
+    testability: high
+
+  - sc: SC-3
+    evidence_type: semantic
+    declared_by_spec: semantic
+    substrate_check: >
+      Content-semantics of routing metadata; verified by clean-room reader, not
+      runtime behavior. The runtime dispatch effect is covered by SC-1.
+    verification_method: >
+      Clean-room sub-agent reads tasks/pr-creation.md and confirms each of the
+      three step groups (Steps 0-1, 2-4, 5-7) carries exactly one stated
+      classification.
+    testability: medium
+    notes: Semantic reads are judgment-gated; keep the "exactly one classification" assertion strict.
+
+  - sc: SC-4
+    evidence_type: semantic
+    declared_by_spec: semantic
+    substrate_check: >
+      Static classification labels for three named nested sub-task files; no
+      runtime behavior change.
+    verification_method: >
+      Clean-room sub-agent reads tasks/pr-creation.md and confirms each of
+      enforcement-gate.md, squash-push.md, create-pr.md is listed as a task-card
+      dispatch point.
+    testability: high
+    notes: Enumeration is closed (exactly three files) — fully enumerable check.
+
+  - sc: SC-5
+    evidence_type: string
+    declared_by_spec: string
+    substrate_check: >
+      Static text in the parent card; the verbatim prohibited prompt is quoted in
+      the spec, giving an exact match target.
+    verification_method: >
+      grep the "Create a PR" entry: contains `task-card` and does NOT match the
+      quoted old sub-agent-dispatch prompt text from the spec.
+    testability: high
+
+coverage:
+  total_scs: 5
+  behavioral: 1
+  string: 2
+  semantic: 2
+  evidence_gate: >
+    Behavioral change (SC-1) requires behavioral evidence; structural/string
+    substitutes for it are EVIDENCE_TYPE_MISMATCH with FAIL verdict per
+    critical-rules-BEH-E.

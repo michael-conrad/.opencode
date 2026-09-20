@@ -1,0 +1,79 @@
+artifact: code-path-inventory
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+note: |
+  This spec remediates a skill card (routing metadata), not executable code.
+  The "code paths" are the runtime flow paths through which the card's
+  content is consumed by agents, plus the validator execution path used as
+  the conformance gate.
+
+paths:
+  - id: CP-1
+    scs: [SC-1]
+    path: orchestrator skill-dispatch path (read-plan entry)
+    description: |
+      Orchestrator loads executing-plans/SKILL.md → reads the Workflows
+      `read-plan` entry → composes the task() dispatch prompt. SC-1 targets
+      the prompt string: must begin `You are a sub-agent.` inside the quote,
+      immediately before `Follow the instructions in`.
+    location: ".opencode/skills/executing-plans/SKILL.md Workflows entry 1 (currently line 39, checkbox format)"
+    consumer: task() dispatch composed by orchestrator at runtime
+
+  - id: CP-2
+    scs: [SC-2]
+    path: orchestrator skill-dispatch path (execute-phase entry)
+    description: |
+      Same flow for the `execute-phase` entry; prompt string must begin
+      `You are a sub-agent.` inside the quote.
+    location: ".opencode/skills/executing-plans/SKILL.md Workflows entry 2 (currently line 44, checkbox format)"
+    consumer: task() dispatch composed by orchestrator at runtime
+
+  - id: CP-3
+    scs: [SC-3]
+    path: validator REQ-2 attribution check
+    description: |
+      validate_skill_cards.py scans card bylines; hardcoded
+      `OpenCode (deepseek-v4-flash)` must be replaced by
+      `<AgentName> (<ModelId>)`.
+    location: ".opencode/skills/executing-plans/SKILL.md byline (currently line 57)"
+    consumer: validate_skill_cards.py REQ-2 check (read-only)
+
+  - id: CP-4
+    scs: [SC-4, SC-8]
+    path: validator REQ-3/REQ-5 section-presence checks
+    description: |
+      Validator asserts presence of ## Worktree Mode (REQ-3) and
+      ## Mandatory Task Discipline (REQ-5) sections.
+    location: ".opencode/skills/executing-plans/SKILL.md (sections to be inserted)"
+    consumer: validate_skill_cards.py REQ-3/REQ-5 checks (read-only)
+
+  - id: CP-5
+    scs: [SC-5]
+    path: validator REQ-6 workflows-format check
+    description: |
+      Validator asserts Workflows steps use numbered `N. **` format;
+      the `- [ ] N. **` checkbox prefix must be removed.
+    location: ".opencode/skills/executing-plans/SKILL.md Workflows section"
+    consumer: validate_skill_cards.py REQ-6 check (read-only)
+
+  - id: CP-6
+    scs: [SC-6, SC-7]
+    path: dispatch-link label resolution
+    description: |
+      Link hrefs (tasks/read-plan.md, tasks/execute-phase.md) stay unchanged
+      for sub-agent discovery; only the label text changes to purpose
+      condensations. Falls outside the validator's dispatch-link pattern
+      (no CONDENSATION-001) — standards alignment only.
+    location: ".opencode/skills/executing-plans/SKILL.md Workflows entry link labels"
+    consumer: sub-agent task-card discovery via href (unchanged)
+
+  - id: CP-7
+    scs: [SC-9]
+    path: full validator conformance gate
+    description: |
+      `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py --json`;
+      assert executing-plans violations list is empty.
+    location: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    consumer: completion verification (behavioral evidence)

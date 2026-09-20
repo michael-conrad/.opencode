@@ -25,7 +25,7 @@
 | SC-2 | The `git-workflow-pr` skill card's `pr-creation` workflow step states the classification `task-card` with a citation of the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`, consistent with the Mandatory Task Discipline clause | string | grep: the step body contains `task-card` and a reference to the dispatch-vocabulary table; no contradictory marker text remains |
 | SC-3 | `tasks/pr-creation.md` states the dispatch classification for each procedure step group (Steps 0-1: orchestrator-direct; Steps 2-4: orchestrator-direct; Steps 5-7: orchestrator-direct) | semantic | Clean-room sub-agent reads the task card and confirms each of the three step groups carries exactly one stated classification |
 | SC-4 | Each nested `pr-creation/*.md` sub-task card (`enforcement-gate.md`, `squash-push.md`, `create-pr.md`) is classified as a `task-card` dispatch point in `tasks/pr-creation.md` | semantic | Clean-room sub-agent reads the task card and confirms each of the three sub-task files is listed as a `task-card` dispatch point |
-| SC-5 | The `git-workflow` skill card's "Create a PR" workflow entry contains the `task-card` classification vocabulary and does not contain the sub-agent-dispatch prompt | string | grep: the entry contains `task-card` and does not match the old sub-agent-dispatch prompt text |
+| SC-5 | The `git-workflow` skill card's "Create a PR" workflow entry contains the `task-card` classification vocabulary and does not contain the prohibited old sub-agent-dispatch prompt text: ``task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pull request](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`` | string | grep: the entry contains `task-card` and does not match the quoted old sub-agent-dispatch prompt text above |
 
 ## Requirements
 
@@ -39,34 +39,41 @@ R-4. `tasks/pr-creation.md` SHALL classify each nested `pr-creation/*.md` sub-ta
 
 R-5. The `git-workflow` skill card's "Create a PR" workflow entry SHALL use the same classification vocabulary as R-2.
 
-R-6. The fix SHALL resolve the internal contradiction with the Mandatory Task Discipline clause by removing/rewriting the contradictory markers — it SHALL NOT add another overriding clause.
+R-6. The fix SHALL resolve the internal contradiction with the Mandatory Task Discipline clause by either removing the contradictory markers outright or rewriting them to the canonical classification — one of those two direct edits, applied to the contradiction itself; it SHALL NOT add another overriding clause.
 
 R-7. Edited files SHALL preserve and append existing bylines/provenance per the code-standards attribution rules.
 
 ## Items
 
-### Item 1 (SC-1, SC-2): Reclassify the pr-creation workflow step in the git-workflow-pr skill card
+### Item 1 (SC-1): Remove the sub-agent-dispatch marker from the pr-creation workflow step
 
 - RED: tests-v2 behavioral scenario asserting the orchestrator still dispatches the pr-creation skill-card routing content to a sub-agent — fails before the change
-- GREEN: remove the `Execution mode: sub-agent dispatch` marker and `task()` prompt on the `pr-creation` step; replace with the `task-card` classification citing the dispatch-vocabulary table, consistent with the Mandatory Task Discipline clause
-- verify: behavioral scenario run passes; grep confirms the marker is gone and the `task-card` classification with table citation is present
+- GREEN: remove the `Execution mode: sub-agent dispatch` marker and its `task()` prompt on the `pr-creation` step in the `git-workflow-pr` skill card
+- verify: behavioral scenario run passes; grep confirms the marker text is gone from the step
 - commit: `.opencode/skills/git-workflow-pr/SKILL.md`
 
-### Item 2 (SC-3): Classify step routing in the pr-creation task card
+### Item 2 (SC-2): Add the task-card classification to the pr-creation workflow step
+
+- RED: grep finds no `task-card` classification or dispatch-vocabulary-table citation on the `pr-creation` step
+- GREEN: mark the `pr-creation` step with the `task-card` classification citing the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`, consistent with the Mandatory Task Discipline clause
+- verify: grep confirms the step body contains `task-card` and the table citation, with no contradictory marker text remaining
+- commit: `.opencode/skills/git-workflow-pr/SKILL.md`
+
+### Item 3 (SC-3): Classify step routing in the pr-creation task card
 
 - RED: content check for explicit per-step dispatch classification fails (only ambiguous "Route to" prose exists)
 - GREEN: add explicit orchestrator-direct classification for Steps 0-1, 2-4, 5-7
 - verify: clean-room sub-agent read confirms each step group carries exactly one stated classification
 - commit: `.opencode/skills/git-workflow-pr/tasks/pr-creation.md`
 
-### Item 3 (SC-4): Classify nested sub-task routing in the pr-creation task card
+### Item 4 (SC-4): Classify nested sub-task routing in the pr-creation task card
 
 - RED: content check finds no explicit task-card classification for the nested sub-task cards
 - GREEN: classify `pr-creation/enforcement-gate.md`, `pr-creation/squash-push.md`, and `pr-creation/create-pr.md` as `task-card` dispatch points in `tasks/pr-creation.md`
 - verify: clean-room sub-agent read confirms each of the three sub-task files is listed as a `task-card` dispatch point
 - commit: `.opencode/skills/git-workflow-pr/tasks/pr-creation.md`
 
-### Item 4 (SC-5): Sync the parent git-workflow skill card
+### Item 5 (SC-5): Sync the parent git-workflow skill card
 
 - RED: grep finds the sub-agent-dispatch prompt still present in the parent card's "Create a PR" entry
 - GREEN: align the entry's prompt/execution mode with the `task-card` classification vocabulary
@@ -84,15 +91,15 @@ R-7. Edited files SHALL preserve and append existing bylines/provenance per the 
 
 ## Traceability
 
-| Requirement | SC(s) | Phase(s) |
-|-------------|-------|----------|
-| R-1 | SC-1 | 1 |
-| R-2 | SC-2 | 1 |
-| R-3 | SC-3 | 1 |
-| R-4 | SC-4 | 1 |
-| R-5 | SC-5 | 1 |
-| R-6 | SC-1, SC-2 | 1 |
-| R-7 | SC-1, SC-2, SC-3, SC-4, SC-5 | 1 |
+| Requirement | SC(s) | Item(s) | Phase(s) |
+|-------------|-------|---------|----------|
+| R-1 | SC-1 | 1 | 1 |
+| R-2 | SC-2 | 2 | 1 |
+| R-3 | SC-3 | 3 | 1 |
+| R-4 | SC-4 | 4 | 1 |
+| R-5 | SC-5 | 5 | 1 |
+| R-6 | SC-1, SC-2 | 1, 2 | 1 |
+| R-7 | SC-1, SC-2, SC-3, SC-4, SC-5 | 1, 2, 3, 4, 5 | 1 |
 
 ## Documentation Sources
 
@@ -114,7 +121,8 @@ R-7. Edited files SHALL preserve and append existing bylines/provenance per the 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - SC-1: Running the behavioral enforcement scenario costs minutes of execution time — the defect is caught at the pre-commit gate where the fix costs the same bounded delay. Skipping costs a death spiral: a structural/string PASS lets the orchestrator keep dispatching skill-card content to sub-agents, and the critical-rules category error resurfaces on every PR run at 1000× the fix cost.
-- SC-2, SC-5: The grep verification costs seconds — classification drift across the two skill cards is caught before the deck ships inconsistent. Skipping costs the full contradiction again: an orchestrator loading either card re-introduces the exact defect SC-1 removed.
+- SC-2: The grep verification costs seconds — the classification citation on the `pr-creation` step is caught missing before the deck ships with an unclassified routing step. Skipping costs the full contradiction again: an orchestrator loading the card without a canonical classification falls back to the removed dispatch marker's behavior, re-introducing the exact defect SC-1 removed.
+- SC-5: The grep verification costs seconds — classification drift across the two skill cards is caught before the deck ships inconsistent. Skipping costs the full contradiction again: an orchestrator loading either card re-introduces the exact defect SC-1 removed.
 - SC-3, SC-4: The clean-room semantic read costs minutes of sub-agent execution — ambiguous step routing is caught before any orchestrator follows it. Skipping costs days-to-weeks of DDL: each ambiguous "Route to" line is a fresh dispatch-decision defect discovered only when an orchestrator mis-routes mid-PR.
 
 ## Edge Cases
@@ -130,3 +138,4 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-09-19 | Split SC-1 into SC-1 (marker removal, behavioral) and SC-2 (classification citation, string); split SC-2 into SC-3 (pr-creation.md per-step classification) and SC-4 (nested sub-task routing classified as task-card dispatch); renumbered parent-card sync to SC-5. Requirements R-1..R-6 renumbered to R-1..R-7 with the R-5 either/or disjunction resolved at spec time (nested sub-task cards classified as task-card dispatch points). Removed disjunctive and judgment terms ('or folded', 'unambiguous', 'aligned') from all SCs. Items, traceability, and cost frame updated to match. | spec-creation validate FAIL: compound-sc-detection, determinism, testability findings | spec-creation validate pipeline (revision task dispatch, issue michael-conrad/.opencode#2437) |
+| 2026-09-19 | Split Item 1 (which covered both SC-1 and SC-2) into Item 1 (SC-1: behavioral RED/GREEN on marker removal) and Item 2 (SC-2: string RED/GREEN on task-card classification + citation); renumbered following Items to 3-5; added Item(s) column to Traceability; split the Cost Frame SC-2/SC-5 bullet; sharpened R-6's 'removing/rewriting' slash-alternative into 'removing outright or rewriting to the canonical classification'; quoted the verbatim prohibited old sub-agent-dispatch prompt text in SC-5. | spec-creation re-validate FAIL: traceability/sc-item-mapping (Item 1 covered two SCs, violating per-SC decomposition per 091); optional polish from non-blocking determinism warnings | spec-creation re-validate pipeline (revision task dispatch, issue michael-conrad/.opencode#2437) |

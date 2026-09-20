@@ -1,0 +1,49 @@
+artifact: blast-radius
+spec_issue: 2424
+generated: retroactive-backfill
+generated_date: "2026-09-19"
+
+affected_files:
+  - path: .opencode/skills/executing-plans/SKILL.md
+    exists: verified
+    change: |
+      Single file edited across all items: dispatch prompt prefixes (SC-1/SC-2),
+      byline placeholder (SC-3), new ## Worktree Mode section (SC-4),
+      Workflows numbered format (SC-5), dispatch link texts (SC-6/SC-7),
+      new ## Mandatory Task Discipline section (SC-8).
+    regions_disjoint: true  # dispatch prompt text, byline/sections/headers, link labels — per spec §11 Concurrency
+
+read_only_references:
+  - path: .opencode/skills/executing-plans/tasks/read-plan.md
+    role: condensation source; MUST NOT be modified (R-10)
+    exists: verified
+  - path: .opencode/skills/executing-plans/tasks/execute-phase.md
+    role: condensation source; MUST NOT be modified (R-10)
+    exists: verified
+  - path: .opencode/skills/spec-creation/SKILL.md
+    role: conforming dispatch-pattern baseline pinned at commit 125b423e0bd846439e908c1150e18e913f042726
+    exists: verified
+  - path: .opencode/skills/completion-core/SKILL.md
+    role: conforming ## Worktree Mode and ## Mandatory Task Discipline reference (SC-4/SC-8)
+    exists: verified
+  - path: .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+    role: read-only conformance gate (SC-9); MUST NOT be modified (R-12)
+    exists: verified
+  - path: .opencode/reference/skill-card-schema.md
+    role: byline placeholder form (ATTRIBUTION_EXEMPT regex)
+    exists: verified
+  - path: .opencode/reference/skill-card-description-standards.md
+    role: canonical dispatch template and purpose-condensation rule
+    exists: verified
+
+unaffected_neighbors:
+  - all other skill cards in the deck (R-11: no other card modified)
+  - executing-plans description field (already conforms; REQ-K)
+
+blast_radius_summary: |
+  Blast radius is minimal and fully contained: one file edited
+  (.opencode/skills/executing-plans/SKILL.md), six files read as
+  references/validators only. No runtime call graph is affected — the card
+  is routing metadata consumed by orchestrators at skill-load time. The only
+  observable runtime surface change is the dispatch prompt text orchestrators
+  compose when routing to executing-plans task cards.

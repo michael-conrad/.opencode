@@ -1,0 +1,30 @@
+# Cross-Cutting Matrix — issue 2437
+# Backfilled retroactively from spec.md (mode: retroactive)
+
+status: backfilled
+spec: .opencode/.issues/2437/spec.md
+generated: 2026-09-19
+
+# SCs that span multiple concern areas
+cross_cutting:
+  - scs: [SC-1, SC-2]
+    concern_areas: [skill-card-routing, canonical-vocabulary]
+    span_reason: >
+      SC-1 (marker removal) and SC-2 (task-card classification) both edit the same
+      workflow step in git-workflow-pr/SKILL.md and together must satisfy R-6's
+      contradiction-resolution constraint (direct edit of the contradiction, no
+      overriding clause).
+    handling: Items 1 and 2 share a phase and commit target; execute sequentially on the same file.
+  - scs: [SC-1, SC-2, SC-3, SC-4, SC-5]
+    concern_areas: [attribution-provenance, routing-metadata]
+    span_reason: >
+      R-7 requires every edited file to preserve/append existing bylines, cutting
+      across all five SCs' file edits.
+    handling: Apply attribution rule as a shared constraint in every item's verify step.
+  - scs: [SC-2, SC-5]
+    concern_areas: [skill-card-routing, cross-card-consistency]
+    span_reason: >
+      SC-2 and SC-5 must use the same canonical classification vocabulary across
+      the git-workflow-pr and git-workflow skill cards; vocabulary drift between
+      cards re-introduces the contradiction.
+    handling: Both derive classification text solely from the dispatch-vocabulary table.

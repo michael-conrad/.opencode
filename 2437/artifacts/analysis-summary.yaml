@@ -1,0 +1,25 @@
+# Analysis Summary — issue 2437
+# Backfill task (writing-plans/tasks/backfill.md, mode: retroactive)
+
+spec_path: .opencode/.issues/2437/spec.md
+generated: 2026-09-19
+sc_count: 5
+
+artifact_status:
+  blast-radius.yaml: existing (pre-run, not re-derived)
+  concern-map.yaml: existing (pre-run, not re-derived)
+  code-path-inventory.yaml: existing (pre-run, not re-derived)
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary: >
+  Reclassify routing metadata for the pr-creation workflow step: remove the
+  'Execution mode: sub-agent dispatch' marker from .opencode/skills/git-workflow-pr/SKILL.md
+  (SC-1, behavioral), add the task-card classification with a citation of the
+  canonical dispatch-vocabulary table (SC-2), state per-step-group
+  orchestrator-direct classification in tasks/pr-creation.md (SC-3), classify the
+  three nested sub-task cards as task-card dispatch points (SC-4), and sync the
+  parent git-workflow card's "Create a PR" entry (SC-5). PR pipeline gates and
+  authorization scope model are untouched invariants.
