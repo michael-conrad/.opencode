@@ -5,8 +5,612 @@ labels:
 - needs-approval
 - spec-draft
 - spec-under-review
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2424/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2424)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2424/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  # Spec: Remediate executing-plans SKILL.md — missing sub-agent dispatch text and
+  validator conformance defects
+
+
+  ## 1. Intent and Executive Summary
+
+
+  | # | Field | Description |
+
+  |---|-------|-------------|
+
+  | 1 | **Problem Statement** | The skill card at `.opencode/skills/executing-plans/SKILL.md`
+  is the only non-conforming skill card in the deck. Its two workflow entries (`Read
+  the plan` → `tasks/read-plan.md`, `Execute phases in sequence` → `tasks/execute-phase.md`)
+  lack the deck''s canonical sub-agent dispatch prompt text, and the validator (`validate_skill_cards.py`)
+  flags the card on REQ-2, REQ-3, REQ-5, and REQ-6 (live run 2026-09-19). |
+
+  | 2 | **Root Cause / Motivation** | The card''s dispatch prompt strings (the `task()`
+  task-card dispatch strings its entries direct the orchestrator to compose) lack
+  the `You are a sub-agent.` role-identification prefix. Because `task()` does not
+  auto-load task cards, the sub-agent must receive the role-identification prefix
+  so it reads the task card independently. The card also carries a hardcoded agent
+  name in its byline (REQ-2), lacks the `## Worktree Mode` section (REQ-3), lacks
+  the `## Mandatory Task Discipline` section (REQ-5), and uses checkbox-format workflow
+  steps (REQ-6). Additionally, its dispatch link texts are path-adjacent rather than
+  the deck''s purpose-condensation form — a standards-alignment gap (the live validator
+  reports no CONDENSATION-001 for this card because its relative `tasks/` links fall
+  outside the validator''s dispatch-link pattern). This breaks the DISPATCH_GATE conformance
+  baseline. |
+
+  | 3 | **Approach Chosen** | Edit `.opencode/skills/executing-plans/SKILL.md` to
+  align with the deck''s conforming pattern: ensure both entries'' dispatch prompt
+  strings begin with `You are a sub-agent.`, convert the Workflows section to numbered
+  format (REQ-6), add the `## Worktree Mode` section (REQ-3), add the `## Mandatory
+  Task Discipline` section (REQ-5), replace the hardcoded agent name with the placeholder
+  convention (REQ-2), and rewrite the dispatch link texts to purpose condensations
+  (standards alignment with the condensation rule). Re-validate against `validate_skill_cards.py`
+  until the card passes all checks with zero violations. |
+
+  | 4 | **Alternatives Considered & Why Discarded** | **Leave the card non-conforming**
+  — discarded because the card would continue to break the DISPATCH_GATE conformance
+  baseline and route sub-agents without the role-identification prefix, producing
+  defective dispatch behavior. **Modify the validator to exempt the card** — discarded
+  because the validator is explicitly out of scope (REQ-J) and the card should conform
+  to the standard, not the standard to the card. |
+
+  | 5 | **Key Design Decisions** | **Dispatch prompt prefix is inside the quoted prompt
+  string** — the `You are a sub-agent.` prefix must be inside the quoted prompt passed
+  to the sub-agent, forming the canonical template `concat("You are a sub-agent. Follow
+  the instructions in [<condensation>](<path>). <context...>")`. **Link text is a
+  purpose condensation, not a path restatement** — the href/path stays the same so
+  sub-agent discovery still resolves; only the label text changes. **Task cards and
+  validator are untouched** — behavior of `read-plan.md`/`execute-phase.md` and the
+  validator are explicitly out of scope. |
+
+  | 6 | **User Intent / Original Prompt** | The spec was created to remediate the
+  executing-plans SKILL.md card so it conforms to the current skill-card standards
+  and passes the validator. |
+
+
+  ## 2. Not Included
+
+
+  - **Changes to the `executing-plans` task files (`read-plan.md`, `execute-phase.md`)
+  behavior** — task behavior is explicitly out of scope (REQ-H); the task purpose
+  statements serve only as condensation sources.
+
+  - **Any change to other skill cards in the deck** — other cards'' violations (including
+  SC-LINT-001 description-pattern warnings) are out of scope (REQ-I).
+
+  - **Any change to the validator (`validate_skill_cards.py`) itself** — the validator
+  is a read-only reference for the gate (REQ-J).
+
+  - **Change to the executing-plans description field** — it already conforms (no
+  SC-LINT-001 on description); not listed for change (REQ-K).
+
+
+  ## 3. Success Criteria
+
+
+  | ID | Criterion | Evidence Type | Verification Method |
+
+  |----|-----------|---------------|---------------------|
+
+  | SC-1 | The `read-plan` entry''s dispatch prompt text SHALL begin with the `You
+  are a sub-agent.` prefix inside the quoted prompt string, immediately before `Follow
+  the instructions in`. | string | grep the read-plan entry''s dispatch prompt text
+  for the `You are a sub-agent.` prefix; visual diff against the conforming spec-creation
+  dispatch pattern (baseline pinned in Section 6 Dependencies) |
+
+  | SC-2 | The `execute-phase` entry''s dispatch prompt text SHALL begin with the
+  `You are a sub-agent.` prefix inside the quoted prompt string, immediately before
+  `Follow the instructions in`. | string | grep the execute-phase entry''s dispatch
+  prompt text for the `You are a sub-agent.` prefix; visual diff against the conforming
+  spec-creation dispatch pattern (baseline pinned in Section 6 Dependencies) |
+
+  | SC-3 | The byline SHALL use the placeholder form `Co-authored with AI: <AgentName>
+  (<ModelId>)` instead of the hardcoded `OpenCode (deepseek-v4-flash)`. | string |
+  grep the byline for `<AgentName> (<ModelId>)`; assert the hardcoded `OpenCode (deepseek-v4-flash)`
+  is absent |
+
+  | SC-4 | The card SHALL include a `## Worktree Mode` section with exactly the canonical
+  direct-branch wording quoted verbatim in Appendix A of this spec (body text: `This
+  skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED`
+  is set, all file operations MUST prefix paths with `worktree.path`.`). | string
+  | grep for the `## Worktree Mode` heading; grep the section body for the quoted
+  canonical sentence (Appendix A is the sole pass condition — no external diff required)
+  |
+
+  | SC-5 | The Workflows section SHALL use the numbered `N. **` format without the
+  `- [ ] ` checkbox prefix. | string | grep the Workflows section for the `- [ ] N.
+  **` checkbox prefix; assert it is absent |
+
+  | SC-6 | The `read-plan` dispatch link text SHALL be a purpose condensation (`inventory
+  plan phases`) that differs from the path stem and does not contain `tasks/` or end
+  in `.md`. | string | grep the read-plan dispatch link label; assert it equals the
+  purpose condensation and differs from the path stem |
+
+  | SC-7 | The `execute-phase` dispatch link text SHALL be a purpose condensation
+  (`dispatch one plan phase`) that differs from the path stem and does not contain
+  `tasks/` or end in `.md`. | string | grep the execute-phase dispatch link label;
+  assert it equals the purpose condensation and differs from the path stem |
+
+  | SC-8 | The card SHALL include a `## Mandatory Task Discipline` section with the
+  deck''s canonical checklist content (numbered checklist: every task mandatory; no
+  skipping/combining/inline delegation work; execute each workflow step in the orchestrator''s
+  own context per the Dispatch value, dispatching a step''s task card via `task()`
+  only where the Dispatch value is `task-card`; return only routing-significant data).
+  | string | grep for the `## Mandatory Task Discipline` heading; grep the section
+  body for the four checklist items; visual check against the canonical form in a
+  conforming deck card (e.g., `completion-core/SKILL.md`) |
+
+  | SC-9 | The card SHALL pass the full validator suite with zero violations for skill
+  `executing-plans`. | behavioral | Run `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+  --json`; assert the `executing-plans` skill_name has an empty violations list |
+
+
+  ## 4. Requirements
+
+
+  - R-1. The `read-plan` entry''s dispatch prompt text SHALL begin with the `You are
+  a sub-agent.` prefix inside the quoted prompt string.
+
+  - R-2. The `execute-phase` entry''s dispatch prompt text SHALL begin with the `You
+  are a sub-agent.` prefix inside the quoted prompt string.
+
+  - R-3. The byline SHALL use the placeholder form `Co-authored with AI: <AgentName>
+  (<ModelId>)` instead of the hardcoded `OpenCode (deepseek-v4-flash)`.
+
+  - R-4. The card SHALL include a `## Worktree Mode` section with exactly the canonical
+  direct-branch wording quoted verbatim in Appendix A of this spec.
+
+  - R-5. The Workflows section SHALL use the numbered `N. **` format without the `-
+  [ ] ` checkbox prefix.
+
+  - R-6. The `read-plan` dispatch link text SHALL be a purpose condensation (`inventory
+  plan phases`) that differs from the path stem.
+
+  - R-7. The `execute-phase` dispatch link text SHALL be a purpose condensation (`dispatch
+  one plan phase`) that differs from the path stem.
+
+  - R-8. The card SHALL include a `## Mandatory Task Discipline` section with the
+  deck''s canonical checklist content.
+
+  - R-9. The card SHALL pass the full validator suite with zero violations for skill
+  `executing-plans`.
+
+  - R-10. The `executing-plans` task files (`read-plan.md`, `execute-phase.md`) SHALL
+  NOT be modified.
+
+  - R-11. No other skill card in the deck SHALL be modified.
+
+  - R-12. The validator (`validate_skill_cards.py`) SHALL NOT be modified.
+
+
+  ## 5. Items
+
+
+  ### Item 1 (SC-1): Add `You are a sub-agent.` prefix to read-plan dispatch prompt
+
+
+  - RED: grep the read-plan entry''s dispatch prompt text; assert the `You are a sub-agent.`
+  prefix is absent
+
+  - GREEN: prepend `You are a sub-agent.` to the read-plan entry''s dispatch prompt
+  string inside the quote
+
+  - verify: grep for `You are a sub-agent` in the read-plan dispatch prompt; visual
+  diff vs conforming spec-creation dispatch pattern
+
+  - commit: the read-plan dispatch prompt change
+
+
+  ### Item 2 (SC-2): Add `You are a sub-agent.` prefix to execute-phase dispatch prompt
+
+
+  - RED: grep the execute-phase entry''s dispatch prompt text; assert the `You are
+  a sub-agent.` prefix is absent
+
+  - GREEN: prepend `You are a sub-agent.` to the execute-phase entry''s dispatch prompt
+  string inside the quote
+
+  - verify: grep `You are a sub-agent` in the execute-phase dispatch prompt
+
+  - commit: the execute-phase dispatch prompt change
+
+
+  ### Item 3 (SC-3): Resolve REQ-2 — replace hardcoded agent name in byline
+
+
+  - RED: run `validate_skill_cards.py --json`; assert the byline placeholder violation
+  (REQ-2) is present
+
+  - GREEN: replace `OpenCode (deepseek-v4-flash)` with `<AgentName> (<ModelId>)` in
+  the byline
+
+  - verify: grep the byline for `<AgentName> (<ModelId>)`; assert the hardcoded name
+  is absent
+
+  - commit: the byline change
+
+
+  ### Item 4 (SC-4): Resolve REQ-3 — add missing `## Worktree Mode` section
+
+
+  - RED: run `validate_skill_cards.py --json`; assert the worktree-mode violation
+  (REQ-3) is present
+
+  - GREEN: insert the `## Worktree Mode` section with exactly the verbatim text quoted
+  in Appendix A
+
+  - verify: grep for the `## Worktree Mode` heading; grep the section body for the
+  Appendix A canonical sentence
+
+  - commit: the Worktree Mode section addition
+
+
+  ### Item 5 (SC-5): Resolve REQ-6 — convert Workflows steps to numbered format
+
+
+  - RED: run `validate_skill_cards.py --json`; assert the workflows-steps violation
+  (REQ-6) is present
+
+  - GREEN: convert `- [ ] N. **` checkbox headers to `N. **` numbered format, preserving
+  sub-bullets
+
+  - verify: grep the Workflows section for the `- [ ] N. **` checkbox prefix; assert
+  it is absent
+
+  - commit: the Workflows section format change
+
+
+  ### Item 6 (SC-6): Align read-plan dispatch link text to purpose condensation (standards
+  alignment)
+
+
+  - RED: grep the read-plan dispatch link label; assert it differs from the required
+  purpose condensation `inventory plan phases`
+
+  - GREEN: rewrite the read-plan dispatch link text to `inventory plan phases`
+
+  - verify: grep the read-plan dispatch link label; assert it equals `inventory plan
+  phases` and differs from the path stem
+
+  - commit: the read-plan link text change
+
+  - note: standards alignment with the deck''s purpose-condensation rule — the live
+  validator reports no CONDENSATION-001 for this card (its relative `tasks/` links
+  fall outside the validator''s dispatch-link pattern); this item is not a validator-finding
+  remediation
+
+
+  ### Item 7 (SC-7): Align execute-phase dispatch link text to purpose condensation
+  (standards alignment)
+
+
+  - RED: grep the execute-phase dispatch link label; assert it differs from the required
+  purpose condensation `dispatch one plan phase`
+
+  - GREEN: rewrite the execute-phase dispatch link text to `dispatch one plan phase`
+
+  - verify: grep the execute-phase dispatch link label; assert it equals `dispatch
+  one plan phase` and differs from the path stem
+
+  - commit: the execute-phase link text change
+
+  - note: standards alignment with the deck''s purpose-condensation rule — not a validator-finding
+  remediation (see Item 6 note)
+
+
+  ### Item 8 (SC-8): Resolve REQ-5 — add missing `## Mandatory Task Discipline` section
+
+
+  - RED: run `validate_skill_cards.py --json`; assert the admonishment violation (REQ-5)
+  is present
+
+  - GREEN: insert the `## Mandatory Task Discipline` section with the deck''s canonical
+  checklist content (per the conforming form in `completion-core/SKILL.md`)
+
+  - verify: grep for the `## Mandatory Task Discipline` heading; grep the section
+  body for the four checklist items
+
+  - commit: the Mandatory Task Discipline section addition
+
+
+  ### Item 9 (SC-9): Full validator conformance gate — executing-plans card passes
+  all checks
+
+
+  - RED: run `validate_skill_cards.py --json`; assert the executing-plans violations
+  list is non-empty
+
+  - GREEN: (no code change — gate verifies items 1-8 collectively)
+
+  - verify: run `uv run .opencode/skills/skill-creator/scripts/validate_skill_cards.py
+  --json`; grep executing-plans violations list == empty
+
+  - commit: (no commit — gate only)
+
+  - dependency: depends on items 1-8
+
+
+  ## 6. Dependencies
+
+
+  - **Reference:** `.opencode/reference/skill-card-schema.md` — defines the frontmatter
+  binary constraints and the ATTRIBUTION_EXEMPT placeholder regex. **Relationship:**
+  must be read before implementation to confirm the byline placeholder form. **Status:**
+  satisfied.
+
+  - **Reference:** `.opencode/reference/skill-card-description-standards.md` — defines
+  the description field semantic router and the canonical dispatch template. **Relationship:**
+  must be read before implementation to confirm the dispatch prompt shape. **Status:**
+  satisfied.
+
+  - **Reference:** `.opencode/skills/spec-creation/SKILL.md` — the deck''s conforming
+  reference card establishing the dispatch prompt pattern. **Relationship:** must
+  be read before implementation as the conformance reference for the SC-1/SC-2 dispatch-pattern
+  visual-diff verification. **Baseline pin:** this reference was last modified 2026-09-19
+  (after this spec''s creation on 2026-08-31); the conformance baseline is pinned
+  to `.opencode` commit `125b423e0bd846439e908c1150e18e913f042726` (the last commit
+  touching `skills/spec-creation/SKILL.md`, dated 2026-09-19 09:16:21 -0400). All
+  dispatch-pattern visual-diff verification in SC-1 and SC-2 SHALL compare against
+  the file content at that commit — live-verified 2026-09-19: that commit''s `skills/spec-creation/SKILL.md`
+  contains the canonical `You are a sub-agent. Follow the instructions in [<condensation>](<path>)`
+  dispatch template (verified via `git show 125b423e:skills/spec-creation/SKILL.md`).
+  The pinned baseline contains NO `## Worktree Mode` section, so SC-4 carries no baseline-diff
+  component — its sole pass condition is the Appendix A verbatim quote. **Status:**
+  satisfied.
+
+  - **Reference:** `.opencode/skills/completion-core/SKILL.md` — a conforming deck
+  card carrying both the `## Worktree Mode` and `## Mandatory Task Discipline` sections
+  in canonical form. **Relationship:** must be read before implementation as the conformance
+  reference for SC-4 and SC-8 section content. **Status:** satisfied.
+
+  - **Reference:** `.opencode/skills/skill-creator/scripts/validate_skill_cards.py`
+  — the read-only validator used for the conformance gate. **Relationship:** must
+  be run to verify conformance; must not be modified. **Status:** satisfied.
+
+
+  ## 7. Traceability
+
+
+  | Requirement | SC(s) | Phase(s) |
+
+  |-------------|-------|----------|
+
+  | R-1 | SC-1 | Phase 1 |
+
+  | R-2 | SC-2 | Phase 1 |
+
+  | R-3 | SC-3 | Phase 2 |
+
+  | R-4 | SC-4 | Phase 2 |
+
+  | R-5 | SC-5 | Phase 2 |
+
+  | R-6 | SC-6 | Phase 3 |
+
+  | R-7 | SC-7 | Phase 3 |
+
+  | R-8 | SC-8 | Phase 3 |
+
+  | R-9 | SC-9 | Phase 4 (gate) |
+
+  | R-10 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8 | All |
+
+  | R-11 | SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8 | All |
+
+  | R-12 | SC-9 | Phase 4 (gate) |
+
+
+  ## 8. Documentation Sources
+
+
+  | Source | Type | Location | Verification |
+
+  |--------|------|----------|-------------|
+
+  | executing-plans SKILL.md | code | `.opencode/skills/executing-plans/SKILL.md`
+  | read tool (57 lines; Workflows entries: `Read the plan` → `tasks/read-plan.md`,
+  `Execute phases in sequence` → `tasks/execute-phase.md`; `tasks/` contains exactly
+  `read-plan.md` and `execute-phase.md` — verified live 2026-09-19) |
+
+  | spec-creation SKILL.md (conforming dispatch reference) | code | `.opencode/skills/spec-creation/SKILL.md`
+  at commit `125b423e` | `git show 125b423e:skills/spec-creation/SKILL.md` (2026-09-19:
+  canonical dispatch template present; no `## Worktree Mode` section at that commit)
+  |
+
+  | completion-core SKILL.md (conforming section reference) | code | `.opencode/skills/completion-core/SKILL.md`
+  | read tool (2026-09-19: canonical `## Worktree Mode` and `## Mandatory Task Discipline`
+  sections present) |
+
+  | Appendix A identity claim | evidence | `brainstorming/SKILL.md`, `research/SKILL.md`,
+  `completion-core/SKILL.md` | live grep 2026-09-19: the Appendix A canonical Worktree
+  Mode sentence matched exactly once in each of the three cards (verification record
+  for the identity claim) |
+
+  | skill-card-schema.md | doc | `.opencode/reference/skill-card-schema.md` | read
+  tool |
+
+  | skill-card-description-standards.md | doc | `.opencode/reference/skill-card-description-standards.md`
+  | read tool |
+
+  | validate_skill_cards.py | code | `.opencode/skills/skill-creator/scripts/validate_skill_cards.py`
+  | validator execution (2026-09-19: executing-plans flagged on REQ-2, REQ-3, REQ-5,
+  REQ-6; no CONDENSATION-001) |
+
+
+  ## 9. Enforcement Gate
+
+
+  > **Enforcement gate:** All success criteria MUST pass before this spec is considered
+  complete. Partial implementation is not permitted.
+
+
+  ## 10. Cost Frame
+
+
+  Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
+  only metric.
+
+
+  - **SC-1:** Verifying the read-plan dispatch prompt carries the `You are a sub-agent.`
+  prefix costs one grep search. Skipping means the read-plan dispatch-routing defect
+  ships — the sub-agent is dispatched without the role-identification prefix and fails
+  to read the task card independently, surfacing as a behavioral failure at the first
+  read-plan dispatch.
+
+  - **SC-2:** Verifying the execute-phase dispatch prompt carries the `You are a sub-agent.`
+  prefix costs one grep search. Skipping means the execute-phase dispatch-routing
+  defect ships — the sub-agent is dispatched without the role-identification prefix
+  and fails to read the task card independently, surfacing as a behavioral failure
+  at the first step-marked dispatch.
+
+  - **SC-3:** Verifying the byline uses the placeholder form costs one grep search.
+  Skipping means the hardcoded agent name persists, and the REQ-2 violation is only
+  caught at the next validator run — a death-spiral start where a string PASS masks
+  a conformance defect.
+
+  - **SC-4:** Verifying the `## Worktree Mode` section exists costs one grep search.
+  Skipping means the missing-section defect ships, and the REQ-3 violation is only
+  caught at the next validator run.
+
+  - **SC-5:** Verifying the Workflows section uses numbered format costs one grep
+  search. Skipping means the checkbox-format defect ships, and the REQ-6 violation
+  is only caught at the next validator run.
+
+  - **SC-6:** Verifying the read-plan dispatch link text is a purpose condensation
+  costs one grep search. Skipping means the path-adjacent link text persists, diverging
+  from the deck''s purpose-condensation rule.
+
+  - **SC-7:** Verifying the execute-phase dispatch link text is a purpose condensation
+  costs one grep search. Skipping means the path-adjacent link text persists, diverging
+  from the deck''s purpose-condensation rule.
+
+  - **SC-8:** Verifying the `## Mandatory Task Discipline` section exists costs one
+  grep search. Skipping means the missing-section defect ships, and the REQ-5 violation
+  is only caught at the next validator run.
+
+  - **SC-9:** Running the full validator suite costs minutes of execution time. Skipping
+  means the conformance defects (REQ-2/3/5/6) ship unchanged and the card remains
+  the deck''s only non-conforming card, breaking the DISPATCH_GATE baseline and failing
+  the next skill-creator audit.
+
+
+  ## 11. Edge Cases
+
+
+  - **Input boundaries:** The `You are a sub-agent.` prefix must be inserted inside
+  the quoted prompt string, immediately before `Follow the instructions in`. Inserting
+  it outside the quote or after `Follow` produces a malformed dispatch prompt. **Expected
+  behavior:** the prefix SHALL be inside the quote, immediately before `Follow the
+  instructions in`. **Resolution:** verify by grep + visual diff against the conforming
+  spec-creation dispatch pattern.
+
+  - **State transitions:** The card transitions from `non_conformant` → `partial`
+  (after phase 1, 2, or 3) → `conformant` (all fixes applied) → `validated` (gate
+  passes). A regression (edit reverts a fix) returns the card to `non_conformant`.
+  **Expected behavior:** each phase''s edits are confined to disjoint regions of SKILL.md
+  so diffs are revert-isolated. **Resolution:** if the validator reports a new violation
+  class (e.g., workflows-sub-bullets broken by REQ-6 renumbering), return to the failing
+  rule, fix, and re-validate.
+
+  - **Failure modes:** If the validator still reports an executing-plans violation
+  after remediation, the card is in `gate_failed` state. **Expected behavior:** diagnose
+  the specific rule id and re-apply the fix. **Resolution:** return to `conformant`
+  and re-run the gate.
+
+  - **Concurrency:** All phases edit the same single file (executing-plans/SKILL.md).
+  Non-overlap must be preserved to keep each phase''s diff isolated. **Expected behavior:**
+  edits touch disjoint regions (dispatch prompt text, byline/section/headers, link
+  labels). **Resolution:** keep edits confined to disjoint regions per phase.
+
+  - **Recovery:** If a phase''s edit is reverted or malformed, the card returns to
+  `non_conformant`. **Expected behavior:** re-apply the fix and re-validate. **Resolution:**
+  the validator gate catches any regression before completion.
+
+
+  ## 12. Change Control
+
+
+  | Date | Change | Reason | Authorized By |
+
+  |------|--------|--------|---------------|
+
+  | 2026-08-31 | Decomposed compound SC-1/SC-2/SC-3 into 8 atomic SCs (one per verification
+  target); fixed SC-to-item mapping to exactly one item per SC; corrected SC-8 evidence
+  type to `behavioral`; resolved CONDENSATION-001 overlap so it appears only in SC-6/SC-7
+  (with SC-8 as the aggregate gate). | Validation findings: compound SCs, SC-to-item
+  mapping violation, EVIDENCE_TYPE_MISMATCH on SC-2, CONDENSATION-001 double-mapping.
+  | spec-creation validation gate |
+
+  | 2026-09-19 | Quoted the canonical `## Worktree Mode` direct-branch wording verbatim
+  in SC-4/R-4/Item 4 and added Appendix A so the pass condition is self-contained
+  (previously an undefined external reference); pinned the spec-creation/SKILL.md
+  conformance-diff baseline to `.opencode` commit `125b423e0bd846439e908c1150e18e913f042726`
+  in Section 6 Dependencies so SC-1/SC-2/SC-4 visual-diff verification compares against
+  a fixed state. | spec-audit verdict DRAFT: dimension 1 (Implementability) FAIL —
+  SPEC_AMBIGUOUS on SC-4 undefined reference; dimension 3 (Completeness) FAIL — SPEC_INCOMPLETE
+  on unpinned drift-prone diff baseline. Remediation options taken from verdict bidirectional
+  findings. | spec-creation revise (spec-audit remediation, issue 2424) |
+
+  | 2026-09-19 | Re-audit remediation: (1) remapped all `dispatch-phase` entry/file
+  references to the live `execute-phase` entry/file (SC-2, SC-7, R-2, R-7, Items 2/7,
+  Not Included, Key Design Decisions) — `tasks/dispatch-phase.md` does not exist;
+  live tasks are `read-plan.md` and `execute-phase.md`; (2) dropped the baseline visual-diff
+  component from SC-4''s verification (pinned commit `125b423e` contains no `## Worktree
+  Mode` section — live-verified via `git show`) leaving the Appendix A verbatim quote
+  as sole pass condition, and scoped the baseline pin to SC-1/SC-2 dispatch-pattern
+  diffs only; (3) corrected the problem statement and Items 6/7 to the live validator
+  output (REQ-2, REQ-3, REQ-5, REQ-6; no CONDENSATION-001) and reframed SC-6/SC-7
+  as standards-alignment with the purpose-condensation rule; (4) added SC-8/R-8/Item
+  8 adding the missing `## Mandatory Task Discipline` section (REQ-5), renumbering
+  the former SC-8 gate to SC-9 (R-9) and extending the gate dependency to items 1-8
+  — no SC was removed or weakened (SC-9 is the former SC-8 renumbered, its criterion
+  unchanged); (5) corrected Section 8''s card record to the live state (57 lines,
+  `read-plan` + `execute-phase` entries) and added a live-verification record for
+  the Appendix A identity claim and the baseline-pin content. | Re-audit verdict DRAFT:
+  6/11 holistic dimensions FAIL (Implementability, Internal Consistency, Completeness,
+  Provenance, Feasibility, Correctness); remediation options taken from verdict bidirectional
+  findings HD-2-contradiction-1/2/3, HD-3-req5-gap, HD-7-appendix-a-provenance. |
+  spec-creation revise (re-audit remediation, issue 2424) |
+
+
+  ## Appendix A — Canonical `## Worktree Mode` Section (Verbatim)
+
+
+  The following is the canonical `## Worktree Mode` section text used verbatim by
+  the deck''s conforming cards (identity across `brainstorming/SKILL.md`, `research/SKILL.md`,
+  and `completion-core/SKILL.md` live-verified by grep on 2026-09-19 — exactly one
+  exact match per card; see the verification record in Section 8). SC-4 requires the
+  executing-plans card to contain a `## Worktree Mode` section with exactly this body
+  text:
+
+
+  ```markdown
+
+  ## Worktree Mode
+
+
+  This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED`
+  is set, all file operations MUST prefix paths with `worktree.path`.
+
+  ```
+
+
+  ---
+
+
+  *Co-authored with AI: OpenCode (deepseek-v4-flash)*
+
+  *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
+
+  '
 created_at: '2026-08-31T19:10:26+00:00'
-updated_at: '2026-09-20T02:04:45+00:00'
-github_url: https://github.com/michael-conrad/.opencode/issues/2424
+updated_at: '2026-09-20T02:23:10+00:00'
+github_url: michael-conrad/.opencode
 remote_url: https://github.com/michael-conrad/.opencode/issues/2424
