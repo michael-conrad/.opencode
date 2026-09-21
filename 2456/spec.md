@@ -10,7 +10,7 @@
 - **Root Cause / Motivation:** Live evidence from issue #2454: a monitor false-positive abort (duplicate running-event over-count), two §10.7 resumptions ungated by any determination record, and silent continuation possibilities for undetermined or off-track runs. The §14 continuous-monitoring mandate currently ends in kill+export+diagnose with no recorded, non-undetermined determination and no orchestrator decision loop. The defect surface is test-infrastructure integrity: undetermined or off-target behavioral runs can silently pass, retry, or resume without human-visible cause analysis.
 - **Approach Chosen:** Introduce a determination-record lifecycle: the harness's mechanical poll loop remains an evidence collector; a monitoring sub-agent performs semantic classification (progressing-directionally / off-track / undetermined) in its own context with the scenario's goal as anchoring context; determinations are persisted as YAML records in the scenario evidence directory; off-track and undetermined states trigger orchestrator notification (never silent continuation); a hard gate blocks resume/re-run of aborted/killed dispatches without a recorded non-undetermined determination; a ceiling (default 3) on undetermined cycles produces a CEILING_REACHED mechanical block; false-positive aborts are folded into the determination record as false_signal annotations.
 - **Alternatives Considered & Why Discarded:** (1) Keep classification in shell heuristics but add more signals — discarded: semantic judgment ("does activity move toward the scenario goal?") cannot be faithfully evaluated by string heuristics; #2454's false-positive abort demonstrates the failure mode. (2) Fully automatic abort-retry with backoff — discarded: it is exactly the silent-continuation defect this spec eliminates; retry without a recorded determination destroys root-cause evidence (R-18/§17). (3) Persisting determinations only in agent chat output — discarded: chat is not durable across harness invocations; the §10.7 resume gate needs a filesystem artifact readable at gate time.
-- **Key Design Decisions:** (1) Direction-anchored classification: progressing means progressing toward the scenario goal; off-target motion is off-track and triggers orchestrator notification — never silent continuation (developer-finalized design). (2) Determination record is a YAML artifact (LLM-to-LLM data standard) with append-only semantics for false_signal annotations and orchestrator decisions. (3) The gate is mechanical — pure predicate checks on records, no semantic judgment inside the gate. (4) `BEHAVIOR_SEMANTIC_MONITOR=1` remains opt-in; fresh invocations without the flag are unchanged (backward compatible). (5) Ceiling of 3 undetermined cycles, persisted across invocations, blocking at CEILING_REACHED until developer-level remediation. (6) AGENTS.md §10.7/§14/R-18 documentation mirrors the exact implemented predicates (single-definition R-10 pattern).
+- **Key Design Decisions:** (1) Direction-anchored classification: progressing means progressing toward the scenario goal; off-target motion is off-track and triggers orchestrator notification — never silent continuation (developer-finalized design). (2) Determination record is a YAML artifact (LLM-to-LLM data standard) with append-only semantics for false_signal annotations and orchestrator decisions. (3) The gate is mechanical — pure predicate checks on records, no semantic judgment inside the gate. (4) `BEHAVIOR_SEMANTIC_MONITOR=1` remains opt-in; fresh invocations without the flag are unchanged (backward compatible). (5) Ceiling of 3 undetermined cycles, persisted across invocations, blocking at CEILING_REACHED until developer-level remediation. (6) AGENTS.md §10.7/§14/R-18 documentation mirrors the exact implemented predicates (single-definition R-10 pattern). (7) The orchestrator decision is a single recorded decision field with the allowed value-set {continue-new-dispatch, terminate-with-root-cause}; `--resume-home` and `--continue` are invocation variants of the single resume mechanism and are gated identically.
 - **User Intent / Original Prompt:** ".opencode#2456 — tests-v2 test-framework semantic-determination gate for behavioral opencode run dispatches." Developer finalized the brainstorming discussion: design approved as presented, including the direction-anchored progress refinement (progressing means progressing toward the scenario goal; off-target motion is off-track and triggers orchestrator notification, never silent continuation).
 
 ## Not Included
@@ -24,13 +24,17 @@
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | When `BEHAVIOR_SEMANTIC_MONITOR=1`, the monitor persists poll evidence and dispatches a monitoring sub-agent that semantically classifies run state (progressing-directionally / off-track / undetermined) in the sub-agent's own context, given the scenario's goal/expected-behavior context; a determination record with classification and poll-evidence references is written to the scenario evidence directory. | behavioral | Behavioral run via `with-test-home`: RED asserts no classification dispatch/record for a monitored run; GREEN asserts poll evidence plus classification result recorded in the determination record. |
-| SC-2 | Direction-anchored classification: a run is classified progressing-directionally ONLY when activity moves toward the scenario goal; off-goal motion is classified off-track and routed to an orchestrator notification (stderr `ORCHESTRATOR_DECISION_REQUIRED`-class convention) — never silently continued; progressing runs continue polling regardless of duration. | behavioral | Off-track fixture run (loop scenario) shows the orchestrator notification on stderr and no silent continuation; a progressing run continues polling. |
-| SC-3 | Undetermined / excessive-without-classification / direction-deviation states halt monitoring and notify the orchestrator before any further dispatch; the orchestrator decision — continue monitoring via a new sub-agent dispatch, or terminate with remediation — is recorded in the determination record with root-cause for termination. | behavioral | Undetermined-condition run halts and notifies; the recorded decision (continue vs terminate+root-cause) is present in the determination record. |
-| SC-4 | A hard gate blocks resume (`--resume-home`/`--continue`) or re-run of an aborted/killed dispatch when no recorded non-undetermined determination exists, exiting with a FATAL-class block; a valid determination permits the resume. | behavioral | Abort a dispatch, attempt resume/re-run without a determination → harness exits with the FATAL block; with a valid determination → proceeds. |
-| SC-5 | A ceiling (default 3) on undetermined determination cycles is counted and persisted across invocations; reaching it produces a CEILING_REACHED mechanical block that persists until developer-level remediation. | behavioral | Mechanical counter predicate verified with synthetic determination records; ceiling = 3 default and CEILING_REACHED message asserted. |
-| SC-6 | Monitor false-signal guard: a wrong abort (e.g., the #2454 duplicate-running-event over-count) is folded into the determination record as a false_signal annotation — never silently retried. | behavioral | Reproduce the #2454-style over-count; false_signal annotation present in the record; no silent retry occurs. |
-| SC-7 | A new behavioral enforcement scenario asserts the gate blocks re-dispatch without determination (RED→GREEN); `.opencode/tests-v2/AGENTS.md` §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates. | behavioral | New scenario registered and passing via `test-enforcement.sh`; doc alignment verified by structural advisory checks (mdformat/pymarkdownlnt) against the implemented predicates. |
+| SC-1 | When `BEHAVIOR_SEMANTIC_MONITOR=1`, the monitor persists poll evidence for every monitored run to the scenario evidence directory. | behavioral | Behavioral run via `with-test-home`: RED asserts no poll evidence persisted for a monitored run; GREEN asserts poll evidence present in the scenario evidence directory. |
+| SC-2 | The monitor dispatches a monitoring sub-agent that semantically classifies run state (progressing-directionally / off-track / undetermined) in the sub-agent's own context, given the scenario's goal/expected-behavior context. | behavioral | Behavioral run via `with-test-home`: RED asserts no classification dispatch for a monitored run; GREEN asserts the classification sub-agent dispatched with scenario-goal context. |
+| SC-3 | A determination record with classification and poll-evidence references is written to the scenario evidence directory. | behavioral | Behavioral run via `with-test-home`: RED asserts no determination record; GREEN asserts record present with classification and poll-evidence references. |
+| SC-4 | Direction-anchored off-track classification: off-goal motion is classified off-track and routed to an orchestrator notification (stderr `ORCHESTRATOR_DECISION_REQUIRED`-class convention) — never silently continued. | behavioral | Off-track fixture run (loop scenario) shows the orchestrator notification on stderr and no silent continuation. |
+| SC-5 | Progressing runs continue polling regardless of duration. | behavioral | Progressing fixture run continues polling past the duration at which non-progressing runs are halted. |
+| SC-6 | Undetermined / excessive-without-classification / direction-deviation states halt monitoring and notify the orchestrator before any further dispatch; the orchestrator decision is recorded in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}, including root-cause when the value is terminate-with-root-cause. | behavioral | Undetermined-condition run halts and notifies; the recorded decision field carries one allowed value (with root-cause present for terminate-with-root-cause) in the determination record. |
+| SC-7 | A hard gate blocks resume (`--resume-home` or `--continue` — invocation variants of the single resume mechanism) or re-run of an aborted/killed dispatch when no recorded non-undetermined determination exists, exiting with a FATAL-class block; a valid determination permits the resume. | behavioral | Abort a dispatch, attempt resume/re-run without a determination → harness exits with the FATAL block; with a valid determination → proceeds. |
+| SC-8 | A ceiling (default 3) on undetermined determination cycles is counted and persisted across invocations; reaching it produces a CEILING_REACHED mechanical block that persists until developer-level remediation. | structural | Mechanical counter predicate verified with synthetic determination records; ceiling = 3 default and CEILING_REACHED message asserted. |
+| SC-9 | Monitor false-signal guard: a wrong abort (e.g., the #2454 duplicate-running-event over-count) is folded into the determination record as a false_signal annotation — never silently retried. | behavioral | Reproduce the #2454-style over-count; false_signal annotation present in the record; no silent retry occurs. |
+| SC-10 | A new behavioral enforcement scenario asserts the gate blocks re-dispatch without determination (RED→GREEN), registered in the `test-enforcement.sh` registry and passing. | behavioral | New scenario registered and passing via `test-enforcement.sh --list` registry and run. |
+| SC-11 | `.opencode/tests-v2/AGENTS.md` §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates. | structural | Doc alignment verified by structural advisory checks (mdformat/pymarkdownlnt) against the implemented predicates. |
 
 ## Requirements
 
@@ -40,7 +44,7 @@ R-2. The harness SHALL classify a run as progressing-directionally only when its
 
 R-3. The harness SHALL halt monitoring and notify the orchestrator when classification is undetermined, when the run is excessive without classification, or on direction deviation, before any further dispatch.
 
-R-4. The orchestrator SHALL decide between continuing monitoring via a new sub-agent dispatch and terminating the run with remediation; the decision SHALL be recorded in the determination record, including root-cause for termination.
+R-4. The orchestrator SHALL record its decision in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}; when the recorded value is terminate-with-root-cause, the record SHALL include the root-cause.
 
 R-5. The harness SHALL block resume or re-run of an aborted/killed dispatch when no recorded non-undetermined determination exists, and SHALL mechanically block (CEILING_REACHED) after a ceiling of 3 undetermined determination cycles, persisted across invocations.
 
@@ -52,54 +56,82 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 
 ## Items
 
-### Item 1 (SC-1): Classification sub-agent with scenario-goal context
+### Item 1 (SC-1): Poll evidence persistence
 
-- RED: Monitored run with `BEHAVIOR_SEMANTIC_MONITOR=1` produces no classification dispatch evidence and no determination record — assertion fails.
-- GREEN: Harness dispatches the classification sub-agent with scenario-goal context; poll evidence and the classification result are persisted in the determination record.
+- RED: Monitored run with `BEHAVIOR_SEMANTIC_MONITOR=1` produces no persisted poll evidence — assertion fails.
+- GREEN: Harness persists poll evidence for every monitored run to the scenario evidence directory.
+- verify: Behavioral run via `with-test-home` asserts poll evidence present.
+- commit: helpers.sh monitor poll-evidence persistence.
+
+### Item 2 (SC-2): Classification sub-agent with scenario-goal context
+
+- RED: Monitored run produces no classification dispatch evidence — assertion fails.
+- GREEN: Harness dispatches the classification sub-agent with scenario-goal context; classification result produced in the sub-agent's own context.
+- verify: Behavioral run via `with-test-home` asserts classification dispatch with goal context.
+- commit: helpers.sh classification dispatch path.
+
+### Item 3 (SC-3): Determination record written
+
+- RED: Monitored run produces no determination record — assertion fails.
+- GREEN: Determination record with classification and poll-evidence references written to the scenario evidence directory.
 - verify: Behavioral run via `with-test-home` asserts record contents (classification, poll-evidence refs).
-- commit: helpers.sh monitor path + determination-record schema.
+- commit: determination-record schema + write path.
 
-### Item 2 (SC-2): Off-track notification path + progressing-continues behavior
+### Item 4 (SC-4): Off-track notification path
 
 - RED: Off-track fixture run silently continues (no orchestrator notification) — assertion fails.
-- GREEN: Off-track classification emits the orchestrator notification on stderr; progressing runs keep polling without duration cap.
-- verify: Off-track fixture run shows notification, not continuation; progressing run continues.
+- GREEN: Off-track classification emits the orchestrator notification on stderr; no silent continuation.
+- verify: Off-track fixture run shows notification, not continuation.
 - commit: helpers.sh classification routing.
 
-### Item 3 (SC-3): Orchestrator decision loop with recorded root-cause determination
+### Item 5 (SC-5): Progressing-continues behavior
+
+- RED: Progressing run is halted by a duration cap — assertion fails.
+- GREEN: Progressing runs keep polling without duration cap.
+- verify: Progressing fixture run continues polling past the halt threshold.
+- commit: helpers.sh polling continuation.
+
+### Item 6 (SC-6): Orchestrator decision loop with recorded decision field
 
 - RED: Undetermined condition continues without halt/notification — assertion fails.
-- GREEN: Undetermined/excessive/deviation halts monitor, notifies orchestrator; decision recorded (continue-new-dispatch vs terminate+root-cause).
-- verify: Behavioral run asserts halt, notification, and recorded decision.
+- GREEN: Undetermined/excessive/deviation halts monitor, notifies orchestrator; decision recorded as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause present for terminate-with-root-cause).
+- verify: Behavioral run asserts halt, notification, and recorded decision field with an allowed value.
 - commit: helpers.sh decision loop + §14 abort-recovery alignment.
 
-### Item 4 (SC-4): Determination gate in harness resume/re-run path
+### Item 7 (SC-7): Determination gate in harness resume/re-run path
 
 - RED: Resume/re-run after abort without a determination proceeds — assertion fails.
-- GREEN: `with-test-home` resume/re-run path reads the determination record; missing/non-undetermined-record-absent → FATAL block; valid record → pass-through.
+- GREEN: `with-test-home` resume/re-run path (both `--resume-home` and `--continue` variants) reads the determination record; missing/non-undetermined-record-absent → FATAL block; valid record → pass-through.
 - verify: Abort → resume blocked with FATAL; valid determination → proceeds.
 - commit: with-test-home gate.
 
-### Item 5 (SC-5): Undetermined-cycle counter + CEILING_REACHED block
+### Item 8 (SC-8): Undetermined-cycle counter + CEILING_REACHED block
 
 - RED: Third undetermined cycle does not block — assertion fails.
 - GREEN: Counter persisted under the flock discipline; ≥3 → CEILING_REACHED mechanical block persisting until remediation.
 - verify: Synthetic determination-record predicate tests (no model dispatch required); CEILING_REACHED message asserted.
 - commit: counter + gate predicate.
 
-### Item 6 (SC-6): False-signal folding into determination record
+### Item 9 (SC-9): False-signal folding into determination record
 
 - RED: Reproduced false-positive abort is retried silently with no record trace — assertion fails.
 - GREEN: Wrong abort folds a false_signal annotation into the determination record; no silent retry.
 - verify: #2454-style duplicate-running-event over-count reproduced; annotation asserted present.
 - commit: helpers.sh abort-folding path.
 
-### Item 7 (SC-7): Behavioral scenario + doc alignment
+### Item 10 (SC-10): Behavioral enforcement scenario
 
 - RED: New scenario asserts the gate blocks re-dispatch without determination and fails against pre-gate harness.
-- GREEN: Scenario passes against the gated harness; AGENTS.md §10.7/§14/R-18 updated to mirror the exact predicates.
-- verify: Scenario passes via `test-enforcement.sh --list` registry and run; advisory markdown checks clean.
-- commit: new `behaviors/<scenario>.sh` + AGENTS.md sections.
+- GREEN: Scenario passes against the gated harness.
+- verify: Scenario passes via `test-enforcement.sh --list` registry and run.
+- commit: new `behaviors/<scenario>.sh`.
+
+### Item 11 (SC-11): AGENTS.md doc alignment
+
+- RED: AGENTS.md §10.7/§14/R-18 do not mirror the implemented gate predicates — advisory structural check fails.
+- GREEN: AGENTS.md §10.7/§14/R-18 updated to mirror the exact predicates.
+- verify: Advisory markdown checks (mdformat/pymarkdownlnt) clean; content matches implemented predicates.
+- commit: AGENTS.md sections.
 
 ## Dependencies
 
@@ -115,14 +147,14 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-1 | Pre/Per-file (helpers.sh monitor) |
-| R-2 | SC-2 | Per-file (helpers.sh) |
-| R-3 | SC-3 | Per-file (helpers.sh) |
-| R-4 | SC-3 | Per-file (helpers.sh) |
-| R-5 | SC-4, SC-5 | Per-file (with-test-home, counter) |
-| R-6 | SC-6 | Per-file (helpers.sh) |
-| R-7 | SC-7 | Post (scenario + docs) |
-| R-8 | SC-1, SC-4 | Pre (determination record schema) |
+| R-1 | SC-1, SC-2 | Per-item (helpers.sh poll evidence; helpers.sh classification dispatch) |
+| R-2 | SC-4, SC-5 | Per-item (helpers.sh) |
+| R-3 | SC-6 | Per-item (helpers.sh) |
+| R-4 | SC-6 | Per-item (helpers.sh) |
+| R-5 | SC-7, SC-8 | Per-item (with-test-home, counter) |
+| R-6 | SC-9 | Per-item (helpers.sh) |
+| R-7 | SC-10, SC-11 | Post (scenario; docs) |
+| R-8 | SC-3, SC-7 | Per-item (determination record schema; gate reads record) |
 
 ## Documentation Sources
 
@@ -143,13 +175,17 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1: Running the behavioral classification test costs minutes of live-model execution plus ~15 min harness provisioning. Skipping costs weeks — undetermined runs silently pass verdicts and the defect ships inside every subsequent behavioral test's evidence chain, a 1000× death-spiral multiplier.
-- SC-2: Running the off-track fixture costs minutes. Skipping costs days-to-weeks — off-target runs silently consume the entire run budget and verdicts are issued for runs that never approached the scenario goal.
-- SC-3: Running the decision-loop test costs minutes. Skipping costs days — every monitor halt re-enters the silent kill+export cycle, root causes are never recorded, and R-18 diagnosis debt compounds per aborted run.
-- SC-4: Running the gate test costs minutes. Skipping costs weeks — aborted dispatches resume ungated, producing verdicts about sessions with no recorded determination; every downstream audit inherits the untraceable run.
-- SC-5: Verifying the ceiling predicate with synthetic records costs seconds. Skipping costs days — undetermined retry loops run unbounded, burning live-model budget while never surfacing the underlying reasoning failure.
-- SC-6: Reproducing the false-signal costs minutes. Skipping costs days — monitor false positives (the #2454 class) silently retry, discarding the only evidence that the monitor itself is defective.
-- SC-7: Running the new scenario costs minutes. Skipping costs weeks — the gate itself has no enforcement test, so any future regression in the resume gate ships undetected and every determination-gate guarantee above becomes unenforceable documentation.
+- SC-1: Running the poll-evidence persistence test costs minutes of live-model execution plus ~15 min harness provisioning. Skipping costs weeks — undetermined runs silently pass verdicts and the defect ships inside every subsequent behavioral test's evidence chain, a 1000× death-spiral multiplier.
+- SC-2: Running the classification-dispatch test costs minutes. Skipping costs weeks — semantic judgment stays in shell heuristics and the #2454 failure class persists in every monitored run.
+- SC-3: Running the determination-record test costs minutes. Skipping costs weeks — classifications live only in chat output and the §10.7 resume gate has no filesystem artifact to read.
+- SC-4: Running the off-track fixture costs minutes. Skipping costs days-to-weeks — off-target runs silently consume the entire run budget and verdicts are issued for runs that never approached the scenario goal.
+- SC-5: Running the progressing-continues fixture costs minutes. Skipping costs days — legitimate long runs get spuriously halted, producing false undetermined verdicts.
+- SC-6: Running the decision-loop test costs minutes. Skipping costs days — every monitor halt re-enters the silent kill+export cycle, root causes are never recorded, and R-18 diagnosis debt compounds per aborted run.
+- SC-7: Running the gate test costs minutes. Skipping costs weeks — aborted dispatches resume ungated, producing verdicts about sessions with no recorded determination; every downstream audit inherits the untraceable run.
+- SC-8: Verifying the ceiling predicate with synthetic records costs seconds. Skipping costs days — undetermined retry loops run unbounded, burning live-model budget while never surfacing the underlying reasoning failure.
+- SC-9: Reproducing the false-signal costs minutes. Skipping costs days — monitor false positives (the #2454 class) silently retry, discarding the only evidence that the monitor itself is defective.
+- SC-10: Running the new scenario costs minutes. Skipping costs weeks — the gate itself has no enforcement test, so any future regression in the resume gate ships undetected and every determination-gate guarantee above becomes unenforceable documentation.
+- SC-11: Running advisory doc-alignment checks costs seconds. Skipping costs weeks — documentation drifts from the implemented predicates, and agents following §10.7/§14 follow stale rules instead of the shipped gate.
 
 ## Edge Cases
 
@@ -157,13 +193,18 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** Determination record exists but classification is `undetermined`. **Expected behavior:** The gate blocks resume/re-run (only non-undetermined determinations authorize resume); the undetermined cycle counter increments on orchestrator-continue. **Resolution:** Third cycle → CEILING_REACHED until developer-level remediation.
 - **Condition:** Concurrent scenario runs contending for the ceiling counter. **Expected behavior:** Counter persistence respects the existing `tmp/.behavior-run.lock` flock discipline — no new locking scheme. **Resolution:** Contention serialized by the existing lock; no counter corruption.
 - **Condition:** Monitor false-positive abort (parser duplicate-event over-count). **Expected behavior:** Folded into the determination record as a false_signal annotation; not silently retried. **Resolution:** Record carries the annotation; run state resumes only through the recorded determination path.
-- **Condition:** Scenario goal context unavailable or empty for the classification dispatch. **Expected behavior:** Classification cannot anchor direction → classified undetermined, halting with orchestrator notification (fail-fast; no default classification). **Resolution:** Orchestrator decision loop (SC-3) governs continuation.
+- **Condition:** Scenario goal context unavailable or empty for the classification dispatch. **Expected behavior:** Classification cannot anchor direction → classified undetermined, halting with orchestrator notification (fail-fast; no default classification). **Resolution:** Orchestrator decision loop (SC-6) governs continuation.
 - **Condition:** Sub-agent dispatch of the classifier fails (model/harness error). **Expected behavior:** Halt + orchestrator notification — never a silent fallback to shell-heuristic classification. **Resolution:** Determination record records the failure; orchestrator decides continue/terminate.
 - **Condition:** `BEHAVIOR_SEMANTIC_MONITOR` unset (default invocations). **Expected behavior:** No monitor, no gate coupling — fresh invocations unchanged (backward compatible). **Resolution:** Out of the determination lifecycle entirely.
 
----
+## Change Control
 
-Co-authored with AI: OpenCode (zai-org/GLM-5.3-Flash)
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-21 | Retyped SC-8 (former SC-5, ceiling gate) from behavioral to structural evidence type — ceiling gate is mechanical bookkeeping; behavioral gate enforcement remains covered by the live scenario SC. Testability-assessment artifact's 'mixed' label retired with artifact regeneration. | Validation finding 1 (EVIDENCE_TYPE_MISMATCH) | spec-creation validate pipeline (`.opencode#2456`) |
+| 2026-09-21 | Decomposed compound SCs into atomic single-target SCs: former SC-1 → SC-1/SC-2/SC-3; former SC-2 → SC-4/SC-5; former SC-7 → SC-10/SC-11. 1 SC per item maintained; items/sc-summary/traceability/cost frame renumbered consistently. | Validation finding 2 (compound SCs) | spec-creation validate pipeline (`.opencode#2456`) |
+| 2026-09-21 | Reworded disjunctive phrasing: orchestrator decision now a recorded decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (SC-6, R-4); resume gate enumerates `--resume-home`/`--continue` as invocation variants of one mechanism (SC-7, R-5 unchanged in scope). | Validation finding 3 (disjunctive phrasing) | spec-creation validate pipeline (`.opencode#2456`) |
+| 2026-09-21 | Initial spec. | — | Developer (`.opencode#2456`) |
 
 ---
 

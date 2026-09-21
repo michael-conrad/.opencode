@@ -1,31 +1,47 @@
 issue: ".opencode#2456"
-sc_count: 7
+sc_count: 11
 scs:
   - id: "SC-1"
-    description: "Monitor persists poll evidence and dispatches a monitoring sub-agent that semantically classifies run state in the sub-agent's own context, given the scenario's goal/expected-behavior context; determination record written."
+    description: "Monitor persists poll evidence for every monitored run to the scenario evidence directory."
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "Direction-anchored classification: progressing only toward the scenario goal; off-goal motion classified off-track and routed to orchestrator notification, never silent continuation; progressing runs continue regardless of duration."
+    description: "Monitor dispatches a monitoring sub-agent that semantically classifies run state (progressing-directionally / off-track / undetermined) in the sub-agent's own context, given the scenario's goal/expected-behavior context."
     evidence_type: "behavioral"
     plan_item: 2
   - id: "SC-3"
-    description: "Undetermined / excessive-without-classification / direction-deviation halts monitoring and notifies the orchestrator; orchestrator decision (continue via new sub-agent dispatch vs terminate+remediate) recorded with root-cause."
+    description: "A determination record with classification and poll-evidence references is written to the scenario evidence directory."
     evidence_type: "behavioral"
     plan_item: 3
   - id: "SC-4"
-    description: "Hard gate blocks resume/re-run of an aborted/killed dispatch without a recorded non-undetermined determination (FATAL block); valid determination permits resume."
+    description: "Off-goal motion is classified off-track and routed to an orchestrator notification (stderr ORCHESTRATOR_DECISION_REQUIRED-class convention) — never silently continued."
     evidence_type: "behavioral"
     plan_item: 4
   - id: "SC-5"
-    description: "Ceiling (default 3) on undetermined determination cycles, persisted across invocations, produces CEILING_REACHED mechanical block until developer-level remediation."
+    description: "Progressing runs continue polling regardless of duration."
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "Monitor false-signal guard: wrong aborts folded into the determination record as false_signal annotations, never silently retried."
+    description: "Undetermined / excessive-without-classification / direction-deviation halts monitoring and notifies the orchestrator; decision recorded as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause for terminate)."
     evidence_type: "behavioral"
     plan_item: 6
   - id: "SC-7"
-    description: "New behavioral enforcement scenario asserts the gate blocks re-dispatch without determination; AGENTS.md §10.7/§14/R-18 mirror the implemented predicates."
+    description: "Hard gate blocks resume (--resume-home or --continue invocation variants) or re-run of an aborted/killed dispatch without a recorded non-undetermined determination (FATAL block); valid determination permits resume."
     evidence_type: "behavioral"
     plan_item: 7
+  - id: "SC-8"
+    description: "Ceiling (default 3) on undetermined determination cycles, persisted across invocations, produces CEILING_REACHED mechanical block until developer-level remediation."
+    evidence_type: "structural"
+    plan_item: 8
+  - id: "SC-9"
+    description: "Monitor false-signal guard: wrong aborts folded into the determination record as false_signal annotations, never silently retried."
+    evidence_type: "behavioral"
+    plan_item: 9
+  - id: "SC-10"
+    description: "New behavioral enforcement scenario asserts the gate blocks re-dispatch without determination (RED→GREEN), registered and passing."
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: "AGENTS.md §10.7/§14/R-18 mirror the implemented gate predicates."
+    evidence_type: "structural"
+    plan_item: 11
