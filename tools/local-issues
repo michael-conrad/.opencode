@@ -1343,7 +1343,7 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
                         MALFORMED_FRONTMATTER,
                     )
             else:
-                result["issue"] = {"body": spec.strip(), "status": "open"}
+                result["issue"] = {"body": spec.strip(), "status": "artifact-only"}
     return result
 
 
@@ -1617,7 +1617,7 @@ def _search_in_repo(
         if query not in haystack:
             continue
         title = issue.get("title", "")
-        status = issue.get("status", "open")
+        status = issue.get("status", "artifact-only")
         results.append((repo_name, f"{repo_name}#{num}", status, title, spec_path))
     return results
 
