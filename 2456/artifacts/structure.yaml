@@ -88,8 +88,8 @@ phases:
     rationale: "Gate (SC-8) reads the determination record (SC-3); ceiling counter (SC-9) counts undetermined determination records."
 
   - id: phase-4
-    name: "False-signal folding, enforcement scenario, doc alignment"
-    scs: ["SC-10", "SC-11", "SC-12"]
+    name: "False-signal folding + enforcement scenario"
+    scs: ["SC-10", "SC-11"]
     items:
       - sc: "SC-10"
         description: "Wrong abort folds false_signal annotation into determination record"
@@ -105,6 +105,13 @@ phases:
           green: "test-driven-development -- execute green task"
           verify: "verification-before-completion -- execute verify task"
           commit: "commit-inline (orchestrator)"
+    depends_on: ["phase-3"]
+    rationale: "SC-10 extends the record (phase-1 schema) within gated flow; SC-11's scenario exercises the SC-8 gate."
+
+  - id: phase-5
+    name: "Doc alignment"
+    scs: ["SC-12"]
+    items:
       - sc: "SC-12"
         description: "AGENTS.md §10.7/§14/R-18 mirror implemented gate predicates"
         steps:
@@ -112,8 +119,8 @@ phases:
           green: "test-driven-development -- execute green task"
           verify: "verification-before-completion -- execute verify task"
           commit: "commit-inline (orchestrator)"
-    depends_on: ["phase-3"]
-    rationale: "SC-10 extends the record (phase-1 schema) within gated flow; SC-11's scenario exercises the SC-8 gate; SC-12 documents the implemented predicates (requires SC-8/SC-9 final)."
+    depends_on: ["phase-4"]
+    rationale: "SC-12 documents the implemented predicates; requires the full SC-8/SC-9/SC-10/SC-11 predicate set (phase-4 completion transitively ensures phase-3)."
 
 dependency_dag:
   edges:
@@ -125,7 +132,10 @@ dependency_dag:
       reason: "SC-8 gate reads SC-3 determination record; SC-9 counts undetermined records"
     - from: phase-3
       to: phase-4
-      reason: "SC-11 scenario exercises the SC-8 gate; SC-12 documents implemented SC-8/SC-9 predicates"
+      reason: "SC-11 scenario exercises the SC-8 gate"
+    - from: phase-4
+      to: phase-5
+      reason: "SC-12 documents the implemented SC-8/SC-9/SC-10/SC-11 predicates"
 
 triplet_colocation:
   verified: true

@@ -1,15 +1,14 @@
-# Phase 4 — False-signal folding, enforcement scenario, doc alignment
+# Phase 4 — False-signal folding + enforcement scenario
 
-**Concern:** Fold monitor false-positive aborts into the determination record as false_signal annotations; deliver the behavioral enforcement scenario; align AGENTS.md §10.7/§14/R-18/§17 with the implemented predicates.
+**Concern:** Fold monitor false-positive aborts into the determination record as false_signal annotations; deliver the behavioral enforcement scenario (concern-map: `false-signal-and-enforcement`).
 
 **Files:**
 - `.opencode/tests-v2/behaviors/helpers.sh` (abort-folding path)
 - `.opencode/tests-v2/behaviors/<new-scenario>.sh` (new enforcement scenario)
-- `.opencode/tests-v2/AGENTS.md` (§10.7, §14, R-18/§17)
 
-**SCs:** SC-10, SC-11, SC-12
+**SCs:** SC-10, SC-11
 
-**Dependencies:** Phase 3 (SC-11's scenario exercises the SC-8 gate; SC-12 documents the implemented SC-8/SC-9 predicates)
+**Dependencies:** Phase 3 (SC-11's scenario exercises the SC-8 gate)
 
 **Entry Conditions:**
 - Phase 3 complete and VbC passed (gate predicates implemented)
@@ -18,14 +17,12 @@
 **Exit Conditions:**
 - Reproduced wrong abort (#2454-style duplicate-running-event over-count) produces a false_signal annotation in the determination record
 - New enforcement scenario asserting the gate blocks re-dispatch without determination passes via the `test-enforcement.sh` run
-- AGENTS.md §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates; advisory markdown checks clean
 
 **Code Path Coverage:**
 - helpers.sh abort path — kill + export + false_signal folding target (append-only annotation into the determination record)
 - new scenario script — artifact-only generator; registered in `test-enforcement.sh --list`; sources helpers.sh with the behavior_run contract preserved
-- AGENTS.md §10.7/§14/§17 — documentation mirrored to implemented predicates (single-definition R-10 pattern)
 
-**Cross-Cutting SCs:** Determination record append-only semantics (false_signal annotations); stderr conventions; test-enforcement.sh scenario registry; R-10 single-definition doc mirroring; `BEHAVIOR_SEMANTIC_MONITOR` opt-in unchanged.
+**Cross-Cutting SCs:** Determination record append-only semantics (false_signal annotations); stderr conventions; test-enforcement.sh scenario registry; `BEHAVIOR_SEMANTIC_MONITOR` opt-in unchanged.
 
 **Interface Boundaries:**
 - Scenario sources helpers.sh; behavior_run contract (artifact-only, exit 0) preserved
@@ -34,7 +31,7 @@
 **State Transitions:**
 - any → aborted on monitor abort/kill; false positives folded as false_signal annotation (append-only) rather than silently retried
 
-**Cost frame:** Reproducing the false-signal costs minutes; running the new scenario costs minutes; advisory doc-alignment checks cost seconds. Skipping costs weeks — monitor false positives silently retry discarding the evidence that the monitor itself is defective, the gate has no enforcement test so regressions ship undetected, and documentation drifts from the shipped gate, a 1000× death-spiral multiplier.
+**Cost frame:** Reproducing the false-signal costs minutes; running the new scenario costs minutes. Skipping costs weeks — monitor false positives silently retry discarding the evidence that the monitor itself is defective, and the gate has no enforcement test so regressions ship undetected.
 
 ---
 
@@ -52,16 +49,9 @@
 - [ ] 80. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-11**
 - [ ] 81. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — scenario passes via `test-enforcement.sh` run. **→ SC-11**
 - [ ] 82. **commit-inline (**direct**).** Commit the new `behaviors/<scenario>.sh`. **→ SC-11**
-- [ ] 83. **pre-regression (**task-card**).** `task(..., prompt: "execute phase-0 task from test-driven-development")`. **→ SC-12**
-- [ ] 84. **pre-regression-verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")`. **→ SC-12**
-- [ ] 85. **RED — doc alignment (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — AGENTS.md §10.7/§14/R-18 do not mirror the implemented gate predicates; advisory structural check fails. **→ SC-12**
-- [ ] 86. **GREEN — doc alignment (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — AGENTS.md §10.7/§14/R-18 updated to mirror the exact implemented predicates. **→ SC-12**
-- [ ] 87. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-12**
-- [ ] 88. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — advisory markdown checks (mdformat/pymarkdownlnt) clean; content matches implemented predicates. **→ SC-12**
-- [ ] 89. **commit-inline (**direct**).** Commit the AGENTS.md sections. **→ SC-12**
 
 #### Phase 4 VbC
 
-- [ ] 90. **VbC (**task-card**).** Verify SC-10/SC-11 (behavioral) and SC-12 (structural) verdicts are PASS with matching evidence types. **→ SC-10, SC-11, SC-12**
+- [ ] 83. **VbC (**task-card**).** Verify SC-10/SC-11 (behavioral) verdicts are PASS with matching evidence types. **→ SC-10, SC-11**
 
-**Concern transition:** Leaving Phase 4 → entering the post-implementation pipeline (audit, Z3 check, structural checks, pre-PR gate, regression check, review prep, PR creation, completion summary).
+**Concern transition:** Leaving Phase 4 (false-signal-and-enforcement) → entering Phase 5 (docs-alignment).

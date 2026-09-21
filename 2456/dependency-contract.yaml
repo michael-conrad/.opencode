@@ -30,11 +30,14 @@ variables:
     type: bool
   phase4_complete:
     type: bool
+  phase5_complete:
+    type: bool
   all_scs_covered:
     type: bool
 invariants:
   - "z3.Implies(phase2_complete, phase1_complete)"
   - "z3.Implies(phase3_complete, phase1_complete)"
   - "z3.Implies(phase4_complete, phase3_complete)"
+  - "z3.Implies(phase5_complete, phase4_complete)"
 postconditions:
-  - "z3.And(phase1_complete, phase2_complete, phase3_complete, phase4_complete)"
+  - "z3.And(phase1_complete, phase2_complete, phase3_complete, phase4_complete, phase5_complete)"
