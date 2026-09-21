@@ -1,34 +1,56 @@
-# Testability Assessment — .opencode#2456
-status: complete
+# Analytical artifact: testability-assessment (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
+note: "Retired 'mixed' evidence label; evidence types assigned per SC exactly as declared in the 12-SC spec Success Criteria table."
 
-test_strategy_per_phase:
-  SC-1:
-    strategy: behavioral
-    detail: "RED: monitored run with no classification dispatch/evidence → assertion fails. GREEN: poll evidence + classification result recorded for a live run."
-  SC-2:
-    strategy: behavioral
-    detail: "Off-track fixture run (loop scenario) → stderr shows ORCHESTRATOR_DECISION_REQUIRED notification, not silent continuation; progressing run continues."
-  SC-3:
-    strategy: behavioral
-    detail: "Undetermined-condition run halts and notifies; orchestrator decision (continue vs terminate) recorded in determination record."
-  SC-4:
-    strategy: behavioral
-    detail: "Abort a dispatch, attempt --resume-home / re-run without determination → harness exits with FATAL block; with valid determination → proceeds. This is also SC-7's scenario subject."
-  SC-5:
-    strategy: mixed
-    detail: "Mechanical: counter predicate testable with synthetic determination records; ceiling = 3 default verified; CEILING_REACHED message asserted."
-  SC-6:
-    strategy: behavioral
-    detail: "Reproduce #2454-style duplicate-running-event over-count → false_signal annotation present in record; no silent retry."
-  SC-7:
-    strategy: behavioral
-    detail: "New behaviors/<scenario>.sh asserting gate blocks re-dispatch without determination (RED→GREEN); doc alignment verified structurally (mdformat/pymarkdownlnt advisory)."
-
-execution_constraints:
-  - "All behavioral runs via with-test-home; >=600s bash timeout; rm -f tmp/.behavior-run.lock between runs"
-  - "Default model (default-model.sh, R-20); one run per SC-RED / SC-GREEN need (§15)"
-  - "Commit+push before each behavioral run (harness pre-flight gate)"
-  - "Deterministic SC-5 synthetic-record tests runnable without model dispatch (uv-style bash/unit where applicable)"
-
-risk_notes:
-  - "Behavioral SCs depend on live model runs (~15+ min incl. provisioning) — known unfixed re-provisioning cost defect from #2454; out of scope here but raises run-count discipline requirements (§15)."
+assessments:
+  - sc: "SC-1"
+    criterion: "Monitor persists poll evidence for every monitored run (BEHAVIOR_SEMANTIC_MONITOR=1)"
+    evidence_type: "behavioral"
+    verification: "Behavioral run via with-test-home: RED asserts no poll evidence; GREEN asserts poll evidence in scenario evidence directory"
+  - sc: "SC-2"
+    criterion: "Classification sub-agent dispatched with scenario-goal context, classifying in its own context"
+    evidence_type: "behavioral"
+    verification: "Behavioral run via with-test-home: RED no classification dispatch; GREEN dispatch with goal context"
+  - sc: "SC-3"
+    criterion: "Determination record with classification and poll-evidence references written"
+    evidence_type: "behavioral"
+    verification: "Behavioral run: RED no record; GREEN record present with classification + poll-evidence refs"
+  - sc: "SC-4"
+    criterion: "Off-track classification routes to orchestrator notification, never silent continuation"
+    evidence_type: "behavioral"
+    verification: "Off-track fixture run shows ORCHESTRATOR_DECISION_REQUIRED-class notification on stderr"
+  - sc: "SC-5"
+    criterion: "Progressing runs continue polling regardless of duration"
+    evidence_type: "behavioral"
+    verification: "Progressing fixture run polls past the halt threshold of non-progressing runs"
+  - sc: "SC-6"
+    criterion: "Halt-class states halt monitoring and notify orchestrator before further dispatch"
+    evidence_type: "behavioral"
+    verification: "Undetermined-condition run halts + notifies; no further dispatch before recorded decision"
+  - sc: "SC-7"
+    criterion: "Orchestrator decision recorded with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (+root-cause)"
+    evidence_type: "behavioral"
+    verification: "Recorded decision field carries exactly one allowed value"
+  - sc: "SC-8"
+    criterion: "Hard gate blocks resume/re-run without non-undetermined determination; valid determination permits"
+    evidence_type: "behavioral"
+    verification: "Abort -> resume without determination -> FATAL block; with determination -> proceeds"
+  - sc: "SC-9"
+    criterion: "Ceiling (default 3) on undetermined cycles; CEILING_REACHED mechanical block persists"
+    evidence_type: "structural"
+    verification: "Mechanical counter predicate with synthetic determination records; ceiling=3 + CEILING_REACHED message asserted"
+    note: "Retyped from behavioral per change-control 2026-09-21 (mechanical bookkeeping; synthetic-record predicate, no model dispatch)"
+  - sc: "SC-10"
+    criterion: "Wrong abort produces false_signal annotation in determination record"
+    evidence_type: "behavioral"
+    verification: "#2454-style over-count reproduced; annotation presence asserted"
+  - sc: "SC-11"
+    criterion: "New behavioral enforcement scenario passes via test-enforcement.sh (RED->GREEN)"
+    evidence_type: "behavioral"
+    verification: "Scenario passes via run; --list registration is enabling precondition of same deliverable"
+  - sc: "SC-12"
+    criterion: "AGENTS.md §10.7/§14/R-18 mirror exact implemented predicates"
+    evidence_type: "structural"
+    verification: "Advisory structural checks (mdformat/pymarkdownlnt) + content alignment"

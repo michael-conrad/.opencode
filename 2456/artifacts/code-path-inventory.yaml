@@ -1,24 +1,39 @@
-# Code Path Inventory — .opencode#2456
-status: complete
+# Analytical artifact: code-path-inventory (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
 
-paths_per_phase:
-  SC-1:
-    - "behaviors/helpers.sh: behavior_run → __semantic_monitor poll loop → NEW classify dispatch (sub-agent) → determination record write"
-  SC-2:
-    - "helpers.sh: classification=off_track → NEW orchestrator-notification output path (stderr FATAL:/NOTIFY: convention) — run NOT silently continued"
-    - "classification=progressing_directionally → poll loop continues (no duration cap)"
-  SC-3:
-    - "helpers.sh: classification=undetermined | excessive-without-classification | direction-deviation → halt monitor → notify orchestrator"
-    - "orchestrator decision recorded → continue (new dispatch) or terminate (kill + §10.5 export + root-cause determination)"
-  SC-4:
-    - "with-test-home: --resume-home path + behavior_run re-run path → NEW determination gate read (scenario evidence dir) → block on missing/non-undetermined record absent"
-  SC-5:
-    - "with-test-home / helpers.sh: undetermined cycle counter → >=3 → CEILING_REACHED mechanical block"
-  SC-6:
-    - "helpers.sh: abort determined false-positive (e.g., duplicate running-event over-count) → fold false_signal annotation into determination record — no silent retry"
-  SC-7:
-    - "behaviors/<new-scenario>.sh: RED asserts gate blocks re-dispatch without determination; GREEN asserts block after abort without record, pass-through with valid record"
-    - "tests-v2/AGENTS.md §10.7, §14, §17 (R-18) updates mirror predicates"
-
-paths_untouched:
-  - "default-model.sh (R-20), test-enforcement.sh filtering, fixtures/setup, remote/submodule wiring flags (BEHAVIOR_NEEDS_REMOTE etc.)"
+code_paths:
+  - scs: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5", "SC-6", "SC-7", "SC-9", "SC-10"]
+    file: ".opencode/tests-v2/behaviors/helpers.sh"
+    entry: "__semantic_monitor (line 508)"
+    paths:
+      - "poll loop (while kill -0 run_pid) — poll evidence persistence target"
+      - "per-poll stats extraction (python3 sqlite event read, lines 567-622)"
+      - "hard-abort signal evaluation (signals 1-4 per §14) — evidence collection retained, classification delegated"
+      - "abort path — kill + export + false_signal folding target"
+      - "new: classification sub-agent dispatch (BEHAVIOR_SEMANTIC_MONITOR=1 gated)"
+      - "new: determination record YAML write to scenario evidence directory"
+      - "new: halt+notify routing for off-track / halt-class states (ORCHESTRATOR_DECISION_REQUIRED-class stderr)"
+      - "new: undetermined-cycle counter under existing flock discipline"
+  - scs: ["SC-8"]
+    file: ".opencode/tests-v2/with-test-home"
+    entry: "resume/clone gates (632 lines)"
+    paths:
+      - "--resume-home guard chain (missing home, missing store, corrupted store FATAL)"
+      - "new: determination-record read gate before resume/re-run — missing/non-undetermined determination → FATAL-class block"
+  - scs: ["SC-9"]
+    file: ".opencode/tests-v2/behaviors/helpers.sh"
+    entry: "flock discipline (tmp/.behavior-run.lock)"
+    paths:
+      - "new: ceiling counter persisted under existing flock; >=3 undetermined cycles → CEILING_REACHED"
+  - scs: ["SC-11"]
+    file: ".opencode/tests-v2/behaviors/<new-scenario>.sh"
+    entry: "new scenario script (template.sh copy)"
+    paths:
+      - "artifact-only generator; registered in test-enforcement.sh --list"
+  - scs: ["SC-12"]
+    file: ".opencode/tests-v2/AGENTS.md"
+    entry: "§10.7, §14, §17 (R-18)"
+    paths:
+      - "documentation sections mirrored to implemented predicates"

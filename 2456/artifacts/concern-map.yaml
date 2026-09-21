@@ -1,31 +1,28 @@
-# Concern Map — .opencode#2456
-status: complete
+# Analytical artifact: concern-map (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
 
-concern_boundaries:
-  - concern: "Evidence collection (mechanical)"
-    owner: "helpers.sh poll loop (existing)"
-    boundary: "Reads session DB, extracts event stream, writes poll log — NO semantic judgment"
-  - concern: "Semantic classification"
-    owner: "monitoring sub-agent (own context)"
-    boundary: "Receives poll evidence + scenario goal; emits one classification: progressing-directionally | off-track | undetermined — no kills, no file writes beyond its result contract"
-  - concern: "Determination record persistence"
-    owner: "harness (helpers.sh / with-test-home)"
-    boundary: "YAML artifact in scenario evidence directory; single writer; read by resume gate"
-  - concern: "Orchestrator decision"
-    owner: "orchestrator agent (chat-level)"
-    boundary: "continue-monitoring (new sub-agent dispatch) vs terminate+remediate with root-cause; recorded in determination record"
-  - concern: "Mechanical gating"
-    owner: "harness (CEILING_REACHED, resume gate)"
-    boundary: "Pure predicate checks on determination records — no semantic judgment"
-  - concern: "Documentation"
-    owner: "tests-v2/AGENTS.md §10.7/§14/R-18"
-    boundary: "Mirrors implemented predicates; no divergent inline variants (R-10)"
+concerns:
+  - name: "monitor-evidence-lifecycle"
+    description: "Poll evidence persistence, classification sub-agent dispatch, determination record schema/write"
+    scs: ["SC-1", "SC-2", "SC-3"]
+    phase_boundary: "Per-item RED/GREEN cycle each (Items 1-3), helpers.sh"
+  - name: "classification-routing"
+    description: "Direction-anchored off-track notification, progressing-continues polling, halt-class halt+notify, recorded orchestrator decision"
+    scs: ["SC-4", "SC-5", "SC-6", "SC-7"]
+    phase_boundary: "Per-item RED/GREEN cycle each (Items 4-7), helpers.sh"
+  - name: "resume-gate"
+    description: "Hard gate on --resume-home/--continue resume or re-run without non-undetermined determination; undetermined-cycle ceiling counter with CEILING_REACHED block"
+    scs: ["SC-8", "SC-9"]
+    phase_boundary: "Per-item RED/GREEN cycle each (Items 8-9), with-test-home + helpers.sh counter"
+  - name: "false-signal-and-enforcement"
+    description: "False_signal annotation folding into determination record; new behavioral enforcement scenario"
+    scs: ["SC-10", "SC-11"]
+    phase_boundary: "Per-item RED/GREEN cycle each (Items 10-11), helpers.sh + new behaviors/<scenario>.sh"
+  - name: "docs-alignment"
+    description: "AGENTS.md §10.7/§14/R-18 mirror implemented gate predicates"
+    scs: ["SC-12"]
+    phase_boundary: "Per-item advisory check (Item 12), AGENTS.md"
 
-separation_per_phase:
-  SC-1: "classification concern extracted from shell into sub-agent; evidence collection stays mechanical"
-  SC-2: "notification concern added at harness boundary; classification stays pure"
-  SC-3: "orchestrator decision concern isolated from both classification and gating"
-  SC-4: "gating concern isolated: gate reads records only, never judges"
-  SC-5: "ceiling concern layered on gating, no classification coupling"
-  SC-6: "false-signal annotation folded into record-writing concern"
-  SC-7: "verification + docs concern only; no new logic"
+mapping_rule: "1 SC = 1 concern-target = 1 item = 1 RED/GREEN/verify/commit cycle (per-SC decomposition mandate)"

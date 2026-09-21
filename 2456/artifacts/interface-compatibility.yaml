@@ -1,38 +1,39 @@
-# Interface Compatibility — .opencode#2456
-status: complete
+# Analytical artifact: interface-compatibility (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
 
 interfaces:
-  - name: "BEHAVIOR_SEMANTIC_MONITOR=1 opt-in flag"
-    type: modified
-    detail: "Same opt-in trigger; when enabled, monitor now requires/records determinations and can notify orchestrator. Fresh invocations without the flag unchanged."
-    compatibility: backward_compatible (default path unchanged)
-  - name: "with-test-home --resume-home <path>"
-    type: modified
-    detail: "New guard: blocks when prior dispatch ended aborted/killed without a recorded non-undetermined determination, or ceiling reached"
-    compatibility: backward_compatible for progressing/normal prior runs (valid determination present)
-  - name: "__semantic_monitor poll log (monitor-attempt{N}.log)"
-    type: unchanged
-    detail: "Poll evidence format retained; determination record added alongside"
-  - name: "determination record (NEW)"
-    type: new
-    detail: "YAML artifact in scenario evidence directory: classification, poll evidence refs, false_signal annotations, orchestrator decisions, root_cause, undetermined cycle count"
-  - name: "FATAL:/HARNESS_FAILURE:/NOTIFY: stderr conventions"
-    type: extended
-    detail: "New NOTIFICATION:/ORCHESTRATOR_DECISION_REQUIRED: prefix for monitor-halt notifications"
-
-breaking_changes: []
-removed_interfaces: []
+  - boundary: "behavior_run() -> __semantic_monitor"
+    current: "internal call (line 1051) with run_pid, scenario_name, attempt, output_file, err_file"
+    compatibility: "Call signature unchanged; monitor internals extended behind BEHAVIOR_SEMANTIC_MONITOR=1"
+  - boundary: "with-test-home CLI surface"
+    current: "--resume-home <path>, --continue, --session <id>, --setup, --clean, --clean-all"
+    compatibility: "No flag changes; new gate is a precondition check inside the resume path — valid determination passes through unchanged"
+  - boundary: "determination record file interface"
+    current: "does not exist (new artifact)"
+    compatibility: "New YAML file in scenario evidence directory alongside session.yaml and poll log; consumers: resume gate (SC-8), ceiling counter (SC-9), orchestrator decision loop (SC-7); append-only for annotations/decisions"
+  - boundary: "classification sub-agent dispatch"
+    current: "does not exist (new dispatch)"
+    compatibility: "Dispatched with scenario goal/expected-behavior context; classification enum {progressing-directionally, off-track, undetermined} consumed by halt+notify routing (SC-4/SC-6)"
+  - boundary: "stderr message conventions"
+    current: "FATAL:/HARNESS_FAILURE: prefixes (R-5 analog)"
+    compatibility: "New ORCHESTRATOR_DECISION_REQUIRED-class and CEILING_REACHED messages join the same convention"
+  - boundary: "test-enforcement.sh scenario registry"
+    current: "--list enumerates registered scenarios"
+    compatibility: "SC-11 scenario registered as new entry; existing scenarios unaffected"
 
 dependency_contract:
-  - source: "SC-1 classification sub-agent result contract"
-    target: "SC-4 determination gate"
-    type: "artifact schema"
-    constraint: "Gate reads the determination record written by SC-1/SC-3 path; field names fixed at SC-1 (classification, cycle_count, status) — SC-4 depends on exact schema"
-  - source: "SC-3 orchestrator decision entry"
-    target: "SC-6 false_signal annotation"
-    type: "artifact schema"
-    constraint: "Both append to the same determination record; append-only semantics"
-  - source: "AGENTS.md §10.7/§14/§17"
-    target: "implemented gate predicates"
-    type: "artifact schema"
-    constraint: "Docs mirror the exact predicates (single definition, R-10)"
+  dependencies:
+    - source: ".opencode/tests-v2/behaviors/<new-scenario>.sh (SC-11)"
+      target: ".opencode/tests-v2/behaviors/helpers.sh"
+      constraint: "scenario sources helpers.sh; behavior_run contract (artifact-only, exit 0) preserved"
+    - source: ".opencode/tests-v2/with-test-home (SC-8 gate)"
+      target: ".opencode/.issues/2456 determination record (runtime artifact in scenario evidence dir)"
+      constraint: "gate reads YAML record; missing/undetermined -> FATAL-class block; valid non-undetermined -> pass-through"
+    - source: "helpers.sh classification dispatch (SC-2)"
+      target: "scenario goal context from scenario definition"
+      constraint: "empty/missing goal context -> classified undetermined -> halt+notify (fail-fast, no default classification)"
+    - source: "helpers.sh ceiling counter (SC-9)"
+      target: "tmp/.behavior-run.lock flock"
+      constraint: "counter persistence serialized by existing lock; no new locking scheme"

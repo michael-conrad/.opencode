@@ -1,0 +1,142 @@
+# Structure artifact — writing-plans research (phase decomposition)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+
+phases:
+  - id: phase-1
+    name: "Monitor evidence + classification + determination record foundation"
+    scs: ["SC-1", "SC-2", "SC-3"]
+    items:
+      - sc: "SC-1"
+        description: "Monitor persists poll evidence for every monitored run"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-2"
+        description: "Classification sub-agent dispatched with scenario-goal context"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-3"
+        description: "Determination record with classification + poll-evidence refs written"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+    depends_on: []
+    rationale: "Record lifecycle foundation: SC-2's classification feeds SC-3's record; both depend on SC-1 poll evidence."
+
+  - id: phase-2
+    name: "Classification routing (off-track / progressing / halt-class / decision)"
+    scs: ["SC-4", "SC-5", "SC-6", "SC-7"]
+    items:
+      - sc: "SC-4"
+        description: "Off-track classification routes to orchestrator notification"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-5"
+        description: "Progressing runs continue polling regardless of duration"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-6"
+        description: "Halt-class trigger states halt + notify before further dispatch"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-7"
+        description: "Orchestrator decision recorded as decision field with allowed value-set"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+    depends_on: ["phase-1"]
+    rationale: "Routing consumes SC-2 classification taxonomy and SC-3 record schema (phase-1 outputs)."
+
+  - id: phase-3
+    name: "Resume gate + undetermined-cycle ceiling"
+    scs: ["SC-8", "SC-9"]
+    items:
+      - sc: "SC-8"
+        description: "Hard gate blocks resume/re-run without non-undetermined determination"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-9"
+        description: "Ceiling (3) on undetermined cycles persisted; CEILING_REACHED block"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+    depends_on: ["phase-1"]
+    rationale: "Gate (SC-8) reads the determination record (SC-3); ceiling counter (SC-9) counts undetermined determination records."
+
+  - id: phase-4
+    name: "False-signal folding, enforcement scenario, doc alignment"
+    scs: ["SC-10", "SC-11", "SC-12"]
+    items:
+      - sc: "SC-10"
+        description: "Wrong abort folds false_signal annotation into determination record"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-11"
+        description: "New behavioral enforcement scenario passes via test-enforcement.sh run"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+      - sc: "SC-12"
+        description: "AGENTS.md §10.7/§14/R-18 mirror implemented gate predicates"
+        steps:
+          red: "test-driven-development -- execute red task"
+          green: "test-driven-development -- execute green task"
+          verify: "verification-before-completion -- execute verify task"
+          commit: "commit-inline (orchestrator)"
+    depends_on: ["phase-3"]
+    rationale: "SC-10 extends the record (phase-1 schema) within gated flow; SC-11's scenario exercises the SC-8 gate; SC-12 documents the implemented predicates (requires SC-8/SC-9 final)."
+
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      reason: "SC-4/SC-5/SC-6/SC-7 routing depends on SC-2 classification taxonomy + SC-3 record schema"
+    - from: phase-1
+      to: phase-3
+      reason: "SC-8 gate reads SC-3 determination record; SC-9 counts undetermined records"
+    - from: phase-3
+      to: phase-4
+      reason: "SC-11 scenario exercises the SC-8 gate; SC-12 documents implemented SC-8/SC-9 predicates"
+
+triplet_colocation:
+  verified: true
+  note: "Every SC's RED, GREEN, and COMMIT steps are assigned to the same phase (per-item TDD cycle, one SC per item)."
+
+cross_phase_dependency_check:
+  verified: true
+  note: "No RED test in phase X depends on SC output committed only in a later phase Y. All cross-phase reads (record schema SC-3, gate SC-8) are committed in earlier phases."
+
+skill_task_selection:
+  red: "test-driven-development -- task(..., prompt: 'execute red task from test-driven-development')"
+  green: "test-driven-development -- task(..., prompt: 'execute green task from test-driven-development')"
+  verify: "verification-before-completion -- task(..., prompt: 'execute verify task from verification-before-completion')"
+  commit: "commit-inline (orchestrator runs git add/commit directly)"

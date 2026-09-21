@@ -1,0 +1,28 @@
+# Analysis summary — writing-plans analyze (verify plan preconditions)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+spec_path: ".opencode/.issues/2456/spec.md"
+approval_status: "approved-for-pr (issue.yaml labels, verified)"
+sc_count: 12
+artifact_status:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: present
+  extra_artifacts:
+    - analysis-summary.yaml
+    - pipeline-readiness.yaml
+    - pre-spec-inspection.yaml
+    - research-card-consultation.yaml
+scope_findings:
+  - ".opencode/tests-v2/behaviors/helpers.sh — exists"
+  - ".opencode/tests-v2/with-test-home — exists"
+  - ".opencode/tests-v2/AGENTS.md — exists (§10.7/§14/§17 targets present)"
+  - ".opencode/guidelines/080-code-standards.md — exists (YAML standard source)"
+  - ".opencode/tests-v2/behaviors/<new-scenario>.sh — NEW file (created in SC-11; absence expected pre-implementation)"
+notes:
+  - "All 7 canonical analytical artifacts verified present in .opencode/.issues/2456/artifacts/"
+  - "Spec contains 12 SCs; approval label approved-for-pr verified in issue.yaml"

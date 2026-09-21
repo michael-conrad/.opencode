@@ -1,0 +1,40 @@
+# Dependency contract — writing-plans research (issue .opencode#2456)
+# dependency_contract section extracted as-is from interface-compatibility.yaml
+# (section present there); Z3 formalization added for solve tool verification.
+issue: ".opencode#2456"
+generated: "2026-09-21"
+source: ".opencode/.issues/2456/artifacts/interface-compatibility.yaml"
+
+dependency_contract:
+  dependencies:
+    - source: ".opencode/tests-v2/behaviors/<new-scenario>.sh (SC-11)"
+      target: ".opencode/tests-v2/behaviors/helpers.sh"
+      constraint: "scenario sources helpers.sh; behavior_run contract (artifact-only, exit 0) preserved"
+    - source: ".opencode/tests-v2/with-test-home (SC-8 gate)"
+      target: ".opencode/.issues/2456 determination record (runtime artifact in scenario evidence dir)"
+      constraint: "gate reads YAML record; missing/undetermined -> FATAL-class block; valid non-undetermined -> pass-through"
+    - source: "helpers.sh classification dispatch (SC-2)"
+      target: "scenario goal context from scenario definition"
+      constraint: "empty/missing goal context -> classified undetermined -> halt+notify (fail-fast, no default classification)"
+    - source: "helpers.sh ceiling counter (SC-9)"
+      target: "tmp/.behavior-run.lock flock"
+      constraint: "counter persistence serialized by existing lock; no new locking scheme"
+
+# Z3 formalization of the phase DAG (structure.yaml dependency_dag)
+variables:
+  phase1_complete:
+    type: bool
+  phase2_complete:
+    type: bool
+  phase3_complete:
+    type: bool
+  phase4_complete:
+    type: bool
+  all_scs_covered:
+    type: bool
+invariants:
+  - "z3.Implies(phase2_complete, phase1_complete)"
+  - "z3.Implies(phase3_complete, phase1_complete)"
+  - "z3.Implies(phase4_complete, phase3_complete)"
+postconditions:
+  - "z3.And(phase1_complete, phase2_complete, phase3_complete, phase4_complete)"

@@ -1,0 +1,27 @@
+# Solve output — writing-plans research (issue .opencode#2456)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  solve_model:
+    command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2456/dependency-contract.yaml --query \"z3.And(phase1_complete, phase2_complete, phase3_complete, phase4_complete)\""
+    result: SAT
+    model:
+      all_scs_covered: false
+      phase1_complete: true
+      phase2_complete: true
+      phase3_complete: true
+      phase4_complete: true
+  solve_check:
+    command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2456/dependency-contract.yaml --state-path .opencode/.issues/2456/artifacts/state-analysis.yaml"
+    result: "SAT (+ postconditions + invariants)"
+  plan_plan:
+    command: "./.opencode/tools/plan plan --problem .opencode/.issues/2456/artifacts/plan-problem.yaml"
+    result: SOLVED_SATISFICING
+    plan_length: 4
+    note: "plan tool does not accept --output; plan output written manually from solver stdout to plan-output.yaml"
+notes:
+  - "dependency_contract section extracted as-is from interface-compatibility.yaml (section present); Z3 variables/invariants formalizing the phase DAG added to the same file for solve verification"
+  - "research.md step 10's literal '--query sat' is not a valid Z3 expression for the tool; a satisfiable True-form query expressing full phase completion was used instead (task deviation documented)"
+  - "research.md step 12's '--contract-path' flag is not accepted by plan plan (requires --problem); plan-problem.yaml derived from the contract DAG (task deviation documented)"

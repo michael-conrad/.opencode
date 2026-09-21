@@ -1,23 +1,46 @@
-# State Analysis — .opencode#2456
-status: complete
+# Analytical artifact: state-analysis (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
 
-state_machine_per_phase:
-  run_state (per behavioral dispatch):
-    states: [running, progressing_directionally, off_track, undetermined, aborted_determined, aborted_false_signal, terminated]
+states:
+  - name: "run-lifecycle states (monitored dispatch)"
     transitions:
-      - "running → progressing_directionally: monitor sub-agent classification (goal-directed activity); continue polling, no duration cap"
-      - "running → off_track: activity not toward scenario goal (exploration/loops/drift) → notify orchestrator, never continue silently"
-      - "running → undetermined: classification cannot be made / excessive without classification / direction deviation → halt + notify orchestrator"
-      - "off_track → terminated: orchestrator decision terminate + remediation with root-cause determination"
-      - "off_track → progressing_directionally: orchestrator decision continue via new monitoring dispatch (determination updated)"
-      - "undetermined → running: orchestrator decision continue (new sub-agent dispatch); undetermined_cycle_count += 1"
-      - "undetermined → CEILING_REACHED (mechanical block): undetermined_cycle_count >= 3"
-      - "any → aborted_false_signal: wrong abort detected → fold false_signal annotation into determination record; NOT silently retried"
-      - "aborted/killed (no determination) → resume/re-run request → BLOCKED by gate (no non-undetermined determination on record)"
-  ceiling_state:
-    states: [below_ceiling, at_ceiling]
-    transitions: ["below_ceiling → at_ceiling: 3rd undetermined cycle → CEILING_REACHED block persists until developer-level remediation"]
-  invariants:
-    - "No resume/re-run after abort without a recorded non-undetermined determination"
-    - "Off-track runs never continue silently"
-    - "Wrong aborts always leave a determination-record trace"
+      - from: "launched"
+        to: "polling"
+        trigger: "behavior_run starts __semantic_monitor under BEHAVIOR_SEMANTIC_MONITOR=1"
+      - from: "polling"
+        to: "polling"
+        trigger: "classification = progressing-directionally (SC-5: continue regardless of duration)"
+      - from: "polling"
+        to: "halted-notify-orchestrator"
+        trigger: "classification in {off-track, undetermined, excessive-without-classification, direction-deviation} (SC-4/SC-6 halt+notify before further dispatch)"
+      - from: "halted-notify-orchestrator"
+        to: "continue-new-dispatch | terminate-with-root-cause"
+        trigger: "orchestrator decision recorded in determination record (SC-7 allowed value-set)"
+      - from: "any"
+        to: "aborted"
+        trigger: "monitor abort / kill (existing path) — false positives folded as false_signal annotation (SC-10)"
+  - name: "resume-gate states"
+    transitions:
+      - from: "aborted/killed dispatch"
+        to: "resume-blocked"
+        trigger: "resume/re-run attempt with no recorded non-undetermined determination (SC-8 FATAL-class)"
+      - from: "aborted/killed dispatch"
+        to: "resume-permitted"
+        trigger: "valid non-undetermined determination present (SC-8 pass-through)"
+      - from: "resume-blocked (undetermined cycles)"
+        to: "CEILING_REACHED-persistent"
+        trigger: "undetermined cycle counter >= 3, persisted across invocations (SC-9); cleared only by developer-level remediation"
+  - name: "determination-record state (durable)"
+    schema: "YAML in scenario evidence directory"
+    append_only_fields: ["false_signal annotations", "orchestrator decisions"]
+
+persistence:
+  - "determination record: scenario evidence directory (alongside session.yaml, poll log) — survives harness invocations"
+  - "undetermined-cycle counter: persisted across invocations under existing flock discipline"
+
+invariants:
+  - "No silent continuation from any halt-class state — orchestrator notification precedes any further dispatch"
+  - "Gate predicate is mechanical (pure record predicate); semantic judgment lives only in the classification sub-agent"
+  - "BEHAVIOR_SEMANTIC_MONITOR unset -> entire state machine inert (backward compatible)"

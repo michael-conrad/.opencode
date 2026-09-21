@@ -1,36 +1,31 @@
-# Blast Radius — .opencode#2456
-status: complete
-grounding: "Derived from spec affected-surface + bounded reads of with-test-home, behaviors/helpers.sh, tests-v2/AGENTS.md (per R-18 bounded-grounding rule)."
+# Analytical artifact: blast-radius (regenerated post SC-split, 12-SC numbering)
+issue: ".opencode#2456"
+generated: "2026-09-21"
+mode: retroactive-regeneration
+note: "Regenerated from 12-SC spec body; supersedes pre-split SC-1..SC-7 generation."
 
-affected_components:
-  - component: "behaviors/helpers.sh __semantic_monitor / behavior_run"
-    change: "Add classification sub-agent dispatch (poll evidence + scenario-goal context input), determination record emission, false-signal folding, undetermined counter"
-    blast_radius: "Every behavioral scenario using BEHAVIOR_SEMANTIC_MONITOR=1; opt-in flag semantics change (determination required, not just abort signals)"
-  - component: ".opencode/tests-v2/with-test-home"
-    change: "Resume/re-run gate: block --resume-home and re-run of aborted/killed dispatch without recorded non-undetermined determination; CEILING_REACHED block"
-    blast_radius: "All with-test-home invocations (fresh invocations unchanged); gate failure messages must use FATAL:/HARNESS_FAILURE: conventions"
-  - component: ".opencode/tests-v2/AGENTS.md"
-    change: "§10.7, §14, R-18/§17 alignment to implemented predicates (single-definition R-10 pattern)"
-    blast_radius: "Documentation only; agent behavior guidance"
-  - component: "new behaviors/<scenario>.sh"
-    change: "New behavioral enforcement scenario for the determination gate"
-    blast_radius: "Adds to test-enforcement.sh scenario registry"
+affected_files:
+  - path: ".opencode/tests-v2/behaviors/helpers.sh"
+    exists: true
+    role: "Primary implementation substrate — __semantic_monitor (line 508), behavior_run() (line 798); poll evidence, classification dispatch, determination record, halt+notify, ceiling counter, false-signal folding"
+    scs: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-5", "SC-6", "SC-7", "SC-9", "SC-10"]
+  - path: ".opencode/tests-v2/with-test-home"
+    exists: true
+    role: "Resume/re-run gate substrate — --resume-home/--continue gating, CEILING_REACHED mechanical block (632 lines)"
+    scs: ["SC-8", "SC-9"]
+  - path: ".opencode/tests-v2/AGENTS.md"
+    exists: true
+    role: "Documentation alignment target — §10.7, §14, R-18/§17 mirror implemented predicates"
+    scs: ["SC-12"]
+  - path: ".opencode/tests-v2/behaviors/<new-scenario>.sh"
+    exists: false
+    role: "NEW file — behavioral enforcement scenario asserting the gate blocks re-dispatch without determination"
+    scs: ["SC-11"]
 
-ripple_effects_per_phase:
-  - phase: "SC-1 (classification sub-agent + poll evidence)"
-    ripples: ["Existing __semantic_monitor shell heuristics become evidence collectors feeding the sub-agent; monitor-attempt{N}.log consumers (§14 evidence mandate) gain determination records"]
-  - phase: "SC-2 (off-track notification)"
-    ripples: ["§14 abort path gains an orchestrator-notification step; silent auto-abort removed for off-track class"]
-  - phase: "SC-3 (orchestrator decision loop)"
-    ripples: ["§14 Abort Recovery Procedure revised: kill+export unchanged, diagnosis becomes determination record with root-cause"]
-  - phase: "SC-4/SC-5 (resume gate + ceiling)"
-    ripples: ["§10.7 --resume-home gains determination check; re-run after kill gated; ceiling counter persisted across invocations"]
-  - phase: "SC-6 (false-signal guard)"
-    ripples: ["#2430 signal-2 hardening extended: false positives recorded, not retried silently"]
-  - phase: "SC-7 (scenario + docs)"
-    ripples: ["test-enforcement.sh --list includes new scenario"]
+transitive_impact:
+  - "All behavioral scenarios invoking behavior_run() inherit monitor changes (shared infrastructure)"
+  - "test-enforcement.sh scenario registry gains the new SC-11 scenario (--list registration)"
+  - "No changes to mechanical signals 1-3 machinery (explicitly out of scope)"
 
-grounding_coverage: "All 4 affected components from spec scope section directly inspected (bounded reads); direct call sites of behavior_run in scenario scripts follow the documented invocation contract (AGENTS.md §3), so exhaustive per-scenario reads not required."
-
-ungrounded_assumptions:
-  - "Determination record persists across harness invocations via the scenario evidence directory (tmp/behavioral-evidence-* convention) — assumed writable/readable at gate time; verified during GREEN."
+risk: LOW-MEDIUM
+rationale: "Test-infrastructure only; BEHAVIOR_SEMANTIC_MONITOR=1 remains opt-in so fresh invocations are unchanged (backward compatible per spec Key Design Decision 4)."

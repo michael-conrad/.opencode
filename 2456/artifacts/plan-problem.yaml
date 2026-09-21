@@ -1,0 +1,44 @@
+# PDDL-style problem for phase DAG — issue .opencode#2456 (derived from dependency-contract.yaml / structure.yaml)
+domain: phase-execution
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+  - name: p4
+    type: phase
+fluents:
+  - name: phase1_done
+  - name: phase2_done
+  - name: phase3_done
+  - name: phase4_done
+actions:
+  - name: complete-phase1
+    preconditions: []
+    effects:
+      - phase1_done
+  - name: complete-phase2
+    preconditions:
+      - phase1_done
+    effects:
+      - phase2_done
+  - name: complete-phase3
+    preconditions:
+      - phase1_done
+    effects:
+      - phase3_done
+  - name: complete-phase4
+    preconditions:
+      - phase3_done
+    effects:
+      - phase4_done
+init: []
+goals:
+  - phase1_done
+  - phase2_done
+  - phase3_done
+  - phase4_done
