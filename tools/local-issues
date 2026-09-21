@@ -323,14 +323,15 @@ def _read_issue_title_status(entry: Path) -> tuple[str, str]:
     total functions and never raise.
     """
     issue_file = entry / "issue.yaml"
-    spec_file = entry / "spec.md"
     if issue_file.exists():
         data = yaml_load(
             read_file(issue_file), path=_rel_issue_path(entry, "issue.yaml")
         )
         if isinstance(data, dict):
             return data.get("title", ""), data.get("status", "open")
-    elif spec_file.exists():
+    if any(p.is_file() for p in entry.iterdir()):
+        # Any metadata yaml variant (spec.md, comments.yaml, links.yaml,
+        # ...) without issue.yaml is an artifact-only directory.
         return "", ARTIFACT_ONLY_STATUS
     return "", "open"
 
@@ -1671,6 +1672,9 @@ def _list_issues_in_repo(
             continue
         seen.add(num)
         _validate_issue_dir(entry)
+        if not any(p.is_file() for p in entry.iterdir()):
+            # Empty issue directories are excluded from list enumeration.
+            continue
         spec_path = _spec_path_for_issue(num, repo_path)
         title, status = _read_issue_title_status(entry)
         entries.append(
