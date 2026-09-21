@@ -312,8 +312,16 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
     return result
 
 
+ARTIFACT_ONLY_STATUS = "artifact-only"
+
+
 def _read_issue_title_status(entry: Path) -> tuple[str, str]:
-    """Read title and status from an issue directory entry."""
+    """Read title and status from an issue directory entry.
+
+    Returns the ARTIFACT_ONLY_STATUS sentinel when the directory holds
+    only artifact files (e.g. spec.md) without issue.yaml — readers stay
+    total functions and never raise.
+    """
     issue_file = entry / "issue.yaml"
     spec_file = entry / "spec.md"
     if issue_file.exists():
@@ -323,7 +331,7 @@ def _read_issue_title_status(entry: Path) -> tuple[str, str]:
         if isinstance(data, dict):
             return data.get("title", ""), data.get("status", "open")
     elif spec_file.exists():
-        return "", "open"
+        return "", ARTIFACT_ONLY_STATUS
     return "", "open"
 
 
