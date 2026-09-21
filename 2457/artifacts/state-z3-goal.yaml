@@ -1,0 +1,12 @@
+# Z3 state — goal (post-implementation) state for issue .opencode#2457
+# Companion to artifacts/state-analysis.yaml (state_transitions structure not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433/#2434/#2444 precedent).
+# Represents the state after both phases complete (SC-1..SC-3 verified).
+# Generated 2026-09-21 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: true
+  phase_B_done: true
+  finalization_gate_in_deck: true
+  behavioral_scenario_registered: true
+  refinement_run_proves_no_dispatch: true
+  finalization_run_proves_dispatch_permitted: true

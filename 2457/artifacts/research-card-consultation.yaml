@@ -1,0 +1,14 @@
+research_card_consultation:
+  issue: ".opencode#2457"
+  date: "2026-09-21"
+  cards_found: 14
+  matching_cards:
+    - name: "authorization-session-vs-workflow-state.md"
+      confidence: 0.85
+      relevance: "high"
+      applicable_findings:
+        - "Dual-channel architecture: agent has a 'plan' channel (freely reason) and an 'act' channel (requires explicit approval); the authorization layer must refuse unauthorized actions regardless of how the agent requested them."
+        - "The approval channel must be one the agent cannot forge from its own context — approval must be out of band / an explicit user signal, not an agent inference."
+        - "Approval must happen before side effects; state machine model drafted → pending → approved → executing."
+      incorporation: "The brainstorming terminal-state gate should require an explicit, unforgeable user finalization signal (a recognized token/statement) before the 'act' step of dispatching spec-creation; refinement/correction/clarification messages are conversation (plan channel) and must never cross into the act channel."
+  non_matching_cards: "Remaining 13 cards cover per-sc decomposition, prose patterns, plans, etc. — no additional terminal-gate findings."

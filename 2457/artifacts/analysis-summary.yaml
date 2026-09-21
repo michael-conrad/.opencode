@@ -1,0 +1,22 @@
+# Analysis summary for .opencode#2457
+spec_path: .opencode/.issues/2457/spec.md
+approval_status: approved (label: approved-for-pr)
+sc_count: 3
+artifacts_restored_from: tmp/issue-2457/artifacts/
+artifact_presence:
+  blast-radius.yaml: present
+  concern-map.yaml: present
+  code-path-inventory.yaml: present
+  cross-cutting-matrix.yaml: present
+  interface-compatibility.yaml: present
+  state-analysis.yaml: present
+  testability-assessment.yaml: NAME_MISMATCH — restored as testability.yaml (content presumed to be the testability assessment; verify before create.md Step 4a validation)
+scope_boundary_findings:
+  - .opencode/skills/brainstorming/tasks/explore.md: exists
+  - .opencode/skills/brainstorming/tasks/explore/exploration-workflow.md: exists
+  - .opencode/tests-v2/test-enforcement.sh: exists
+  - .issues/research-cards/authorization-session-vs-workflow-state.md: exists
+findings:
+  - artifacts/ directory was absent; restored 10 artifact files from tmp/issue-2457/artifacts/ (extra files beyond the required 7: pipeline-readiness.yaml, pre-spec-inspection.yaml, research-card-consultation.yaml, testability.yaml)
+  - testability artifact filename mismatch vs required canonical name testability-assessment.yaml
+  - all referenced files in spec affected-scope sections exist in the codebase

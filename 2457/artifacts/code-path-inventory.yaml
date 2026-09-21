@@ -1,0 +1,13 @@
+artifact: code-path-inventory
+issue: ".opencode#2457"
+
+paths:
+  - path: "Agent in brainstorming explore flow"
+    steps:
+      - "explore.md Process Flow → exploration-workflow Step 6 (present design)"
+      - "DEFECT PATH (pre-gate): user sends refinement/correction → agent classifies as 'yes' edge → Step 7 → dispatches spec-creation"
+      - "GATED PATH (post-gate): non-finalization message → discussion mode (respond conversationally, await/re-ask signal) → only explicit finalization signal → Step 7 → dispatch spec-creation"
+  - path: "Behavioral test execution"
+    steps:
+      - "test-enforcement.sh --scenario <name> → behavior_run() → with-test-home opencode run '<prompt>'"
+      - "scenario asserts stderr patterns for spec-creation dispatch presence/absence"

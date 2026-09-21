@@ -1,0 +1,17 @@
+artifact: concern-map
+issue: ".opencode#2457"
+
+concerns:
+  - concern: "Discussion-mode state management (agent behavior rules)"
+    boundary: "brainstorming deck text — what messages count as finalization vs conversation"
+    phase: "ITEM-1"
+  - concern: "Behavioral enforcement (harness)"
+    boundary: "tests-v2 scenario + registration — proving the agent holds discussion mode absent the signal"
+    phase: "ITEM-2"
+  - concern: "Authorization vs finalization separation"
+    boundary: "Cross-cutting: finalization signal is a discussion-level construct, distinct from 'approved'/'go' implementation authorization (approval-gate). Gate text must not conflate the two."
+    phase: "ITEM-1 (text) / ITEM-2 (test wording)"
+
+separation_rules:
+  - "Deck text (ITEM-1) states the rule; harness (ITEM-2) proves the behavior — no enforcement logic in the skill deck"
+  - "No test-harness helpers are modified; scenario reuses existing assert_stderr helpers"

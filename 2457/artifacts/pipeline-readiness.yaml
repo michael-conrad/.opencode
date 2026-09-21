@@ -1,0 +1,20 @@
+pipeline_readiness:
+  issue: ".opencode#2457"
+  date: "2026-09-21"
+  checks:
+    atomicity:
+      pass: true
+      evidence: "SC-1 -> ITEM-1, SC-2 -> ITEM-2; each exactly one RED→GREEN→COMMIT cycle"
+    dependency_ordering:
+      pass: true
+      evidence: "DAG: ITEM-1 -> ITEM-2 (RED for ITEM-2 written against gated deck; single edge, acyclic)"
+    single_concern:
+      pass: true
+      evidence: "ITEM-1: skill deck text only; ITEM-2: tests-v2 scenario + registration only"
+    phase_dependency:
+      pass: true
+      evidence: "Two-item linear sequence; no cycles"
+    three_tier_structure:
+      pass: true
+      evidence: "Single-phase scale (2 items, one file category each); pre/per-file/post structure not applicable at this size — structure documented in decompose-output.yaml"
+  verdict: "READY"

@@ -1,0 +1,26 @@
+artifact: blast-radius
+issue: ".opencode#2457"
+grounding: "Derived from issue topic affected-surface declaration + pre-spec-inspection reads of explore.md, exploration-workflow.md, test-enforcement.sh (bounded reads, complete coverage)"
+
+affected_components:
+  - component: ".opencode/skills/brainstorming/tasks/explore.md"
+    change: "Process Flow digraph finalization gate; Operating Protocol / Exit Criteria / Key Behavioral Constraints updates"
+    ripple: "Skill card references task cards — no schema change, frontmatter untouched"
+  - component: ".opencode/skills/brainstorming/tasks/explore/exploration-workflow.md"
+    change: "Step 7 hard gate with finalization-signal definition and non-finalization classification; Exit Criteria wording"
+    ripple: "Handoff contract format unchanged; design_approved field semantics unchanged"
+  - component: ".opencode/tests-v2/behaviors/<new-scenario>.sh"
+    change: "NEW behavioral scenario file"
+    ripple: "none — additive"
+  - component: ".opencode/tests-v2/test-enforcement.sh"
+    change: "SCENARIOS, SCENARIO_TAGS, FILE_SCENARIO_MAP registration entries"
+    ripple: "none — additive registration following existing brainstorming entries (lines 84-138)"
+
+unaffected:
+  - "spec-creation skill (analyze.md consumes handoff regardless of source)"
+  - "approval-gate skill / 'approved'/'go' vocabulary"
+  - "other brainstorming task cards (completion.md, operating-protocol.md, top-down-analysis.md, cross-scope.md, enforcement.md — no terminal-transition logic)"
+
+ripple_effects:
+  - "Agents mid-brainstorming after merge will encounter the new gate — behavior change is the intent"
+  - "tests-v2 scenario count grows; --list/--list-tags output changes (additive)"

@@ -1,0 +1,16 @@
+artifact: cross-cutting-matrix
+issue: ".opencode#2457"
+
+matrix:
+  - concern: "Approval vocabulary separation"
+    items: ["ITEM-1", "ITEM-2"]
+    note: "Finalization signal ≠ 'approved'/'go'; both gate texts and scenario prompts must keep them distinct"
+  - concern: "Verification honesty / behavioral evidence"
+    items: ["ITEM-2"]
+    note: "Evidence is stderr agent actions via opencode run — no grep substitute (critical-rules-060)"
+  - concern: "Provenance/attribution"
+    items: ["ITEM-1", "ITEM-2"]
+    note: "Edits to existing files with prior bylines: preserve + append per 080-code-standards"
+  - concern: "Read-link cross-reference rule"
+    items: ["ITEM-1"]
+    note: "If the gate text references other rules, use Read [Text](path) pattern, never 'See'"

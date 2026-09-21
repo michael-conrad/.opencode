@@ -1,10 +1,14 @@
-sc_count: 2
+sc_count: 3
 scs:
   - id: "SC-1"
-    description: "Brainstorming explore deck defines an explicit finalization gate; refinements/corrections/clarifications are non-finalization discussion input and hold the agent in discussion mode"
+    description: "Brainstorming explore deck defines an explicit finalization gate (single mechanism: one gate-text block at the Step 6 -> Step 7 transition); refinements/corrections/clarifications are non-finalization discussion input and hold the agent in discussion mode"
     evidence_type: "behavioral"
     plan_item: 1
   - id: "SC-2"
-    description: "Behavioral enforcement scenario under tests-v2 proving refinement-only messages produce no spec-creation dispatch and explicit finalization permits it; registered in test-enforcement.sh"
+    description: "Behavioral enforcement scenario under tests-v2, registered in test-enforcement.sh, whose refinement-only run proves a refinement-only user message produces NO spec-creation dispatch (clean-room session.yaml inspection)"
     evidence_type: "behavioral"
     plan_item: 2
+  - id: "SC-3"
+    description: "The same behavioral scenario's finalization run proves an explicit finalization message permits the spec-creation dispatch (clean-room session.yaml inspection)"
+    evidence_type: "behavioral"
+    plan_item: 3

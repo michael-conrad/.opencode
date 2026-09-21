@@ -1,0 +1,17 @@
+artifact: state-analysis
+issue: ".opencode#2457"
+
+state_machine:
+  scope: "brainstorming explore conversation state (in-session, no persistence)"
+  states:
+    - exploration (Q&A, findings confirmation)
+    - design_presentation (Step 6)
+    - awaiting_finalization (NEW — after design presented; agent holds here on any non-finalization message)
+    - spec_creation_dispatch (Step 7 terminal)
+  transitions:
+    - "design_presentation -> awaiting_finalization: design presented"
+    - "awaiting_finalization -> awaiting_finalization: refinement / correction / clarification / finding-confirmation (respond conversationally)"
+    - "awaiting_finalization -> spec_creation_dispatch: explicit user finalization signal ONLY"
+    - "exploration -> design_presentation: per existing flow"
+
+persistent_state_affected: "none — handoff.yaml/handoff-pointer.yaml written only at the gated transition, as today"

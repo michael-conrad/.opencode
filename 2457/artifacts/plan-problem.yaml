@@ -1,0 +1,44 @@
+# Plan problem — Issue .opencode#2457 finalization-gate enforcement
+# 2-phase DAG from artifacts/structure.yaml: A (finalization gate in brainstorming
+# explore deck, SC-1) → B (behavioral scenarios in tests-v2, SC-2 + SC-3). Actions are
+# the two phase-completion steps.
+# Generated 2026-09-21 by writing-plans/tasks/research executor.
+domain: finalization-gate-enforcement
+
+types:
+  - name: phase
+
+objects:
+  - name: A
+    type: phase
+  - name: B
+    type: phase
+
+fluents:
+  - name: phase-done
+    params:
+      - name: p
+        type: phase
+
+actions:
+  - name: add-finalization-gate
+    preconditions:
+      - not phase-done(A)
+    effects:
+      - phase-done(A)
+
+  - name: verify-behavioral-scenarios
+    preconditions:
+      - phase-done(A)
+      - not phase-done(B)
+    effects:
+      - phase-done(B)
+
+# Closed-world init: all fluents default False — no explicit `init` entries needed
+# (#2434 remediation lesson: an explicit `not phase-done(A)` entry made tamer silently
+# drop the first action from the plan; empty init = all phase-done false, the true
+# pre-implementation state).
+
+goals:
+  - phase-done(A)
+  - phase-done(B)

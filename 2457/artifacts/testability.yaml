@@ -1,0 +1,20 @@
+artifact: testability-assessment
+issue: ".opencode#2457"
+
+strategy:
+  - item: "ITEM-1 (gate text)"
+    type: "behavioral (via ITEM-2)"
+    note: "Deck text alone is not verified structurally; SC-1 is proven through the SC-2 behavioral runs"
+  - item: "ITEM-2 (enforcement scenario)"
+    type: "behavioral"
+    method: |
+      New scenario under .opencode/tests-v2/behaviors/ following numbered-scenario pattern,
+      executed via bash .opencode/tests-v2/test-enforcement.sh --scenario <name>
+      (with-test-home opencode run; stderr-based assertions):
+      - run A (refinement-only message): assert_stderr_pattern_absent for spec-creation dispatch;
+        assert_stderr_pattern_present for discussion-mode continuation
+      - run B (explicit finalization message): assert_stderr_pattern_present for spec-creation dispatch
+    red_green: "RED against ungated deck (run A asserts dispatch absent → fails because pre-gate agent dispatches), GREEN after ITEM-1"
+  - item: "registration integrity"
+    type: "unit/structural (light)"
+    method: "test-enforcement.sh --list shows the new scenario; --list-tags shows its tag"

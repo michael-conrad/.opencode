@@ -1,0 +1,12 @@
+# Z3 state — initial (pre-implementation) state for issue .opencode#2457
+# Companion to artifacts/state-analysis.yaml (whose state_transitions structure is not
+# machine-parseable by tools/solve — deviation documented per #2429/#2433/#2434/#2444 precedent).
+# Represents the state before any implementation phase begins.
+# Generated 2026-09-21 by writing-plans/tasks/research executor.
+variables:
+  phase_A_done: false
+  phase_B_done: false
+  finalization_gate_in_deck: false
+  behavioral_scenario_registered: false
+  refinement_run_proves_no_dispatch: false
+  finalization_run_proves_dispatch_permitted: false

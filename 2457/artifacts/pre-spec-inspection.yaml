@@ -1,0 +1,38 @@
+pre_spec_inspection:
+  issue: ".opencode#2457"
+  date: "2026-09-21"
+  topic: "brainstorming terminal-state gate — explicit user finalization required before spec-creation dispatch"
+
+  defect_source:
+    live_defect_issue: ".opencode#2456-adjacent brainstorming session (2026-09-21)"
+    behavior_observed: "Agent treated design refinements/corrections as implicit approval and dispatched spec-creation without explicit user finalization signal."
+
+  affected_files:
+    - path: ".opencode/skills/brainstorming/tasks/explore/exploration-workflow.md"
+      role: "primary modification target — Step 6/7 terminal transition"
+      lines_of_interest: "Step 7 (lines 174-186): transition to spec-creation with no explicit-finalization gate; Exit Criteria line 16 'Design incrementally approved by user'"
+    - path: ".opencode/skills/brainstorming/tasks/explore.md"
+      role: "flow graph + Operating Protocol + Key Behavioral Constraints"
+      lines_of_interest: "Process Flow digraph 'User approves?' node (lines 22-24); Exit Criteria; Key Behavioral Constraints table"
+    - path: ".opencode/tests-v2/behaviors/"
+      role: "new behavioral enforcement scenario file"
+      convention: "numbered-scenario pattern e.g. 2433-sc6-tdt-closed-set.sh, registered in test-enforcement.sh SCENARIOS/SCENARIO_TAGS/FILE_SCENARIO_MAP"
+
+  existing_patterns:
+    flow_graph: "explore.md Process Flow uses a dot digraph; the decision node is 'User approves?' with edge labels 'no, revise' / 'yes' -> 'Invoke spec-creation'. The 'yes' edge has NO definition of what constitutes approval — this is the defect's root surface."
+    approval_gates_elsewhere: ".opencode/guidelines/010-approval-gate.md defines 'approved'/'go' as the only authorization tokens; exploration-workflow.md never references this vocabulary for the design->spec transition."
+    hard_gate_precedent: "exploration-workflow.md line 120 has a HARD GATE callout ('Design approval is NOT spec completion') — an analogous callout is the idiomatic insertion point for the finalization gate."
+    test_registration: "tests-v2/test-enforcement.sh: SCENARIOS[...]=prompt, SCENARIO_TAGS[...]=tags, FILE_SCENARIO_MAP['.opencode/skills/brainstorming/']=scenario list (line 138 already maps brainstorming dir to create-spec, offer-to-edit-bypass)."
+
+  verification_classifications:
+    - finding: "No existing explicit-finalization requirement exists in the brainstorming deck"
+      method: "grep for finalize/approve/terminal across brainstorming tasks"
+      evidence: "grep hits only: exploration-workflow.md:16 (exit criteria 'Design incrementally approved by user'), :17, :120 (hard gate note), :160 (handoff.yaml design_approved field); explore.md:22-24 (digraph 'User approves?')"
+    - finding: "'design_approved: true|false' handoff field exists but is populated by the agent, not gated on a user token"
+      method: "read exploration-workflow.md handoff contract section"
+      evidence: "handoff.yaml format block, exploration_summary.design_approved"
+
+  conventions:
+    - "Skill task cards use Purpose/Entry/Exit/Procedure/Key Behavioral Constraints structure"
+    - "Behavioral tests run via opencode run through with-test-home; scenario naming <issue>-sc<N>-<slug>.sh"
+    - "Behavioral assertion helpers: assert_stderr_pattern_present / assert_stderr_pattern_absent_all_models"

@@ -1,0 +1,12 @@
+# Plan output — captured from .opencode/tools/plan plan --problem plan-problem.yaml
+# (stdout after the --- separator, ANSI credit lines stripped; per #2433/#2444 precedent)
+# Generated 2026-09-21 by writing-plans/tasks/research executor.
+actions:
+- name: add-finalization-gate
+  parameters: []
+- name: verify-behavioral-scenarios
+  parameters: []
+domain: finalization-gate-enforcement
+engine: tamer
+plan_length: 2
+status: SOLVED_SATISFICING

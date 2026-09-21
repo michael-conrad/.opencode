@@ -1,0 +1,19 @@
+artifact: interface-compatibility
+issue: ".opencode#2457"
+
+interfaces:
+  - name: "brainstorming explore flow (agent-facing procedural interface)"
+    status: modified
+    breaking: false
+    detail: "Adds a precondition gate on the existing terminal transition; flow shape and task-card routing unchanged. Internal-only (agent behavior)."
+  - name: "tests-v2 scenario registry (SCENARIOS/SCENARIO_TAGS/FILE_SCENARIO_MAP)"
+    status: new_entry
+    breaking: false
+    detail: "Additive registration following existing conventions"
+  - name: "brainstorm→spec-creation handoff contract (handoff.yaml + handoff-pointer.yaml)"
+    status: unchanged
+    detail: "Schema and consumption path in spec-creation analyze.md Step 0 untouched"
+
+breaking_changes: []
+
+dependency_contract: []

@@ -1,0 +1,86 @@
+# Dependency contract — Issue .opencode#2457
+# Auto-backfilled from artifacts/interface-compatibility.yaml (the file contains a
+# `dependency_contract` key but it is an empty list, so entries were backfilled from
+# `interfaces` per research.md step 9: source = interface name, target = implied coupled
+# component (no removed_interfaces/breaking_changes present), type = "artifact schema",
+# constraint = "implied coupling"). + phase-DAG variables for Z3 solving.
+# Generated 2026-09-21 by writing-plans/tasks/research executor.
+# Phase DAG: 2 phases (A finalization-gate deck change -> B behavioral scenarios);
+# edge from artifacts/structure.yaml dependency_dag (A->B).
+version: 1
+source_artifact: .opencode/.issues/2457/artifacts/interface-compatibility.yaml
+scope: >-
+  Add an explicit single-mechanism finalization gate to the brainstorming explore deck
+  at the Step 6 -> Step 7 transition (SC-1), then add one tests-v2 behavioral scenario
+  (SC-2 refinement-only run proves NO spec-creation dispatch; SC-3 finalization run
+  proves the dispatch IS permitted) registered in test-enforcement.sh, verified by
+  clean-room session.yaml inspection.
+
+variables:
+  phase_A_done:
+    type: bool
+  phase_B_done:
+    type: bool
+  finalization_gate_in_deck:
+    type: bool
+  behavioral_scenario_registered:
+    type: bool
+  refinement_run_proves_no_dispatch:
+    type: bool
+  finalization_run_proves_dispatch_permitted:
+    type: bool
+
+preconditions:
+  # Initial state: pipeline effects not yet produced (phase variables are state, not
+  # preconditions — asserting them false here would make the goal-reachability model
+  # query UNSAT; pattern matches the #2444/#2433 contracts).
+  - "z3.Not(finalization_gate_in_deck)"
+  - "z3.Not(behavioral_scenario_registered)"
+  - "z3.Not(refinement_run_proves_no_dispatch)"
+  - "z3.Not(finalization_run_proves_dispatch_permitted)"
+
+invariants:
+  - "z3.Implies(finalization_gate_in_deck, phase_A_done)"
+  - "z3.Implies(behavioral_scenario_registered, phase_B_done)"
+  - "z3.Implies(refinement_run_proves_no_dispatch, phase_B_done)"
+  - "z3.Implies(finalization_run_proves_dispatch_permitted, phase_B_done)"
+  - "z3.Implies(phase_B_done, phase_A_done)"
+
+postconditions:
+  - "phase_A_done"
+  - "phase_B_done"
+  - "finalization_gate_in_deck"
+  - "behavioral_scenario_registered"
+  - "refinement_run_proves_no_dispatch"
+  - "finalization_run_proves_dispatch_permitted"
+
+dependency_edges:
+  # Auto-backfill of the empty `dependency_contract` section in
+  # artifacts/interface-compatibility.yaml (3 interfaces, no removed_interfaces,
+  # no breaking_changes).
+  - source: "brainstorming explore flow (agent-facing procedural interface)"
+    target: ".opencode/skills/brainstorming/tasks/explore.md (+ explore/exploration-workflow.md)"
+    type: "artifact schema"
+    constraint: "implied coupling"
+    detail: "Modified (non-breaking): adds a precondition gate on the existing terminal transition; flow shape and task-card routing unchanged."
+  - source: "tests-v2 scenario registry (SCENARIOS/SCENARIO_TAGS/FILE_SCENARIO_MAP)"
+    target: ".opencode/tests-v2/test-enforcement.sh"
+    type: "artifact schema"
+    constraint: "implied coupling"
+    detail: "New entry (non-breaking): additive registration following existing conventions."
+  - source: "brainstorm→spec-creation handoff contract (handoff.yaml + handoff-pointer.yaml)"
+    target: ".opencode/skills/spec-creation/tasks/analyze.md Step 0"
+    type: "artifact schema"
+    constraint: "implied coupling"
+    detail: "Unchanged: schema and consumption path untouched."
+
+phase_dag:
+  edges:
+    - {from: A, to: B}
+  topological_order: [A, B]
+
+dependency_contract_notes:
+  - "All dependencies are filesystem/procedural couplings inside the .opencode deck — no DB, wire, or external-service interfaces."
+  - "No breaking_changes and no removed_interfaces in source — every edge constraint is 'implied coupling'."
+  - "Phase-DAG edge A->B encodes structure.yaml: SC-2/SC-3 behavioral runs require the SC-1 gate committed and pushed (091 behavioral ordering: commit -> push -> fetch/verify -> run)."
+  - "The brainstorm→spec-creation handoff contract is unchanged; persistent_state_affected is none (state-analysis.yaml)."
