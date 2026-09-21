@@ -1,0 +1,36 @@
+# Blast Radius — .opencode#2456
+status: complete
+grounding: "Derived from spec affected-surface + bounded reads of with-test-home, behaviors/helpers.sh, tests-v2/AGENTS.md (per R-18 bounded-grounding rule)."
+
+affected_components:
+  - component: "behaviors/helpers.sh __semantic_monitor / behavior_run"
+    change: "Add classification sub-agent dispatch (poll evidence + scenario-goal context input), determination record emission, false-signal folding, undetermined counter"
+    blast_radius: "Every behavioral scenario using BEHAVIOR_SEMANTIC_MONITOR=1; opt-in flag semantics change (determination required, not just abort signals)"
+  - component: ".opencode/tests-v2/with-test-home"
+    change: "Resume/re-run gate: block --resume-home and re-run of aborted/killed dispatch without recorded non-undetermined determination; CEILING_REACHED block"
+    blast_radius: "All with-test-home invocations (fresh invocations unchanged); gate failure messages must use FATAL:/HARNESS_FAILURE: conventions"
+  - component: ".opencode/tests-v2/AGENTS.md"
+    change: "§10.7, §14, R-18/§17 alignment to implemented predicates (single-definition R-10 pattern)"
+    blast_radius: "Documentation only; agent behavior guidance"
+  - component: "new behaviors/<scenario>.sh"
+    change: "New behavioral enforcement scenario for the determination gate"
+    blast_radius: "Adds to test-enforcement.sh scenario registry"
+
+ripple_effects_per_phase:
+  - phase: "SC-1 (classification sub-agent + poll evidence)"
+    ripples: ["Existing __semantic_monitor shell heuristics become evidence collectors feeding the sub-agent; monitor-attempt{N}.log consumers (§14 evidence mandate) gain determination records"]
+  - phase: "SC-2 (off-track notification)"
+    ripples: ["§14 abort path gains an orchestrator-notification step; silent auto-abort removed for off-track class"]
+  - phase: "SC-3 (orchestrator decision loop)"
+    ripples: ["§14 Abort Recovery Procedure revised: kill+export unchanged, diagnosis becomes determination record with root-cause"]
+  - phase: "SC-4/SC-5 (resume gate + ceiling)"
+    ripples: ["§10.7 --resume-home gains determination check; re-run after kill gated; ceiling counter persisted across invocations"]
+  - phase: "SC-6 (false-signal guard)"
+    ripples: ["#2430 signal-2 hardening extended: false positives recorded, not retried silently"]
+  - phase: "SC-7 (scenario + docs)"
+    ripples: ["test-enforcement.sh --list includes new scenario"]
+
+grounding_coverage: "All 4 affected components from spec scope section directly inspected (bounded reads); direct call sites of behavior_run in scenario scripts follow the documented invocation contract (AGENTS.md §3), so exhaustive per-scenario reads not required."
+
+ungrounded_assumptions:
+  - "Determination record persists across harness invocations via the scenario evidence directory (tmp/behavioral-evidence-* convention) — assumed writable/readable at gate time; verified during GREEN."

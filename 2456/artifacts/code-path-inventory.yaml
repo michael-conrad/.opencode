@@ -1,0 +1,24 @@
+# Code Path Inventory — .opencode#2456
+status: complete
+
+paths_per_phase:
+  SC-1:
+    - "behaviors/helpers.sh: behavior_run → __semantic_monitor poll loop → NEW classify dispatch (sub-agent) → determination record write"
+  SC-2:
+    - "helpers.sh: classification=off_track → NEW orchestrator-notification output path (stderr FATAL:/NOTIFY: convention) — run NOT silently continued"
+    - "classification=progressing_directionally → poll loop continues (no duration cap)"
+  SC-3:
+    - "helpers.sh: classification=undetermined | excessive-without-classification | direction-deviation → halt monitor → notify orchestrator"
+    - "orchestrator decision recorded → continue (new dispatch) or terminate (kill + §10.5 export + root-cause determination)"
+  SC-4:
+    - "with-test-home: --resume-home path + behavior_run re-run path → NEW determination gate read (scenario evidence dir) → block on missing/non-undetermined record absent"
+  SC-5:
+    - "with-test-home / helpers.sh: undetermined cycle counter → >=3 → CEILING_REACHED mechanical block"
+  SC-6:
+    - "helpers.sh: abort determined false-positive (e.g., duplicate running-event over-count) → fold false_signal annotation into determination record — no silent retry"
+  SC-7:
+    - "behaviors/<new-scenario>.sh: RED asserts gate blocks re-dispatch without determination; GREEN asserts block after abort without record, pass-through with valid record"
+    - "tests-v2/AGENTS.md §10.7, §14, §17 (R-18) updates mirror predicates"
+
+paths_untouched:
+  - "default-model.sh (R-20), test-enforcement.sh filtering, fixtures/setup, remote/submodule wiring flags (BEHAVIOR_NEEDS_REMOTE etc.)"

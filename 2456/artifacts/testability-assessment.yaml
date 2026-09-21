@@ -1,0 +1,34 @@
+# Testability Assessment — .opencode#2456
+status: complete
+
+test_strategy_per_phase:
+  SC-1:
+    strategy: behavioral
+    detail: "RED: monitored run with no classification dispatch/evidence → assertion fails. GREEN: poll evidence + classification result recorded for a live run."
+  SC-2:
+    strategy: behavioral
+    detail: "Off-track fixture run (loop scenario) → stderr shows ORCHESTRATOR_DECISION_REQUIRED notification, not silent continuation; progressing run continues."
+  SC-3:
+    strategy: behavioral
+    detail: "Undetermined-condition run halts and notifies; orchestrator decision (continue vs terminate) recorded in determination record."
+  SC-4:
+    strategy: behavioral
+    detail: "Abort a dispatch, attempt --resume-home / re-run without determination → harness exits with FATAL block; with valid determination → proceeds. This is also SC-7's scenario subject."
+  SC-5:
+    strategy: mixed
+    detail: "Mechanical: counter predicate testable with synthetic determination records; ceiling = 3 default verified; CEILING_REACHED message asserted."
+  SC-6:
+    strategy: behavioral
+    detail: "Reproduce #2454-style duplicate-running-event over-count → false_signal annotation present in record; no silent retry."
+  SC-7:
+    strategy: behavioral
+    detail: "New behaviors/<scenario>.sh asserting gate blocks re-dispatch without determination (RED→GREEN); doc alignment verified structurally (mdformat/pymarkdownlnt advisory)."
+
+execution_constraints:
+  - "All behavioral runs via with-test-home; >=600s bash timeout; rm -f tmp/.behavior-run.lock between runs"
+  - "Default model (default-model.sh, R-20); one run per SC-RED / SC-GREEN need (§15)"
+  - "Commit+push before each behavioral run (harness pre-flight gate)"
+  - "Deterministic SC-5 synthetic-record tests runnable without model dispatch (uv-style bash/unit where applicable)"
+
+risk_notes:
+  - "Behavioral SCs depend on live model runs (~15+ min incl. provisioning) — known unfixed re-provisioning cost defect from #2454; out of scope here but raises run-count discipline requirements (§15)."

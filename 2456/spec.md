@@ -29,12 +29,17 @@
 | SC-3 | A determination record with classification and poll-evidence references is written to the scenario evidence directory. | behavioral | Behavioral run via `with-test-home`: RED asserts no determination record; GREEN asserts record present with classification and poll-evidence references. |
 | SC-4 | Direction-anchored off-track classification: off-goal motion is classified off-track and routed to an orchestrator notification (stderr `ORCHESTRATOR_DECISION_REQUIRED`-class convention) — never silently continued. | behavioral | Off-track fixture run (loop scenario) shows the orchestrator notification on stderr and no silent continuation. |
 | SC-5 | Progressing runs continue polling regardless of duration. | behavioral | Progressing fixture run continues polling past the duration at which non-progressing runs are halted. |
-| SC-6 | Undetermined / excessive-without-classification / direction-deviation states halt monitoring and notify the orchestrator before any further dispatch; the orchestrator decision is recorded in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}, including root-cause when the value is terminate-with-root-cause. | behavioral | Undetermined-condition run halts and notifies; the recorded decision field carries one allowed value (with root-cause present for terminate-with-root-cause) in the determination record. |
-| SC-7 | A hard gate blocks resume (`--resume-home` or `--continue` — invocation variants of the single resume mechanism) or re-run of an aborted/killed dispatch when no recorded non-undetermined determination exists, exiting with a FATAL-class block; a valid determination permits the resume. | behavioral | Abort a dispatch, attempt resume/re-run without a determination → harness exits with the FATAL block; with a valid determination → proceeds. |
-| SC-8 | A ceiling (default 3) on undetermined determination cycles is counted and persisted across invocations; reaching it produces a CEILING_REACHED mechanical block that persists until developer-level remediation. | structural | Mechanical counter predicate verified with synthetic determination records; ceiling = 3 default and CEILING_REACHED message asserted. |
-| SC-9 | Monitor false-signal guard: a wrong abort (e.g., the #2454 duplicate-running-event over-count) is folded into the determination record as a false_signal annotation — never silently retried. | behavioral | Reproduce the #2454-style over-count; false_signal annotation present in the record; no silent retry occurs. |
-| SC-10 | A new behavioral enforcement scenario asserts the gate blocks re-dispatch without determination (RED→GREEN), registered in the `test-enforcement.sh` registry and passing. | behavioral | New scenario registered and passing via `test-enforcement.sh --list` registry and run. |
-| SC-11 | `.opencode/tests-v2/AGENTS.md` §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates. | structural | Doc alignment verified by structural advisory checks (mdformat/pymarkdownlnt) against the implemented predicates. |
+| SC-6 | Halt-class trigger states — undetermined, excessive-without-classification, or direction-deviation — halt monitoring and notify the orchestrator before any further dispatch. | behavioral | Undetermined-condition run halts monitoring and emits the orchestrator notification; no further dispatch occurs before the recorded decision. |
+| SC-7 | The orchestrator decision is recorded in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}, including root-cause when the value is terminate-with-root-cause. | behavioral | The recorded decision field carries exactly one allowed value (with root-cause present for terminate-with-root-cause) in the determination record. |
+| SC-8 | A hard gate blocks resume (`--resume-home` or `--continue` — invocation variants of the single resume mechanism) or re-run of an aborted/killed dispatch when no recorded non-undetermined determination exists, exiting with a FATAL-class block; a valid determination permits the resume. | behavioral | Abort a dispatch, attempt resume/re-run without a determination → harness exits with the FATAL block; with a valid determination → proceeds. |
+| SC-9 | A ceiling (default 3) on undetermined determination cycles is counted and persisted across invocations; reaching it produces a CEILING_REACHED mechanical block that persists until developer-level remediation. | structural | Mechanical counter predicate verified with synthetic determination records; ceiling = 3 default and CEILING_REACHED message asserted. |
+| SC-10 | A reproduced wrong abort (e.g., the #2454 duplicate-running-event over-count) produces a false_signal annotation in the determination record. | behavioral | Reproduce the #2454-style over-count; assert the false_signal annotation is present in the record. |
+| SC-11 | The new behavioral enforcement scenario asserting the gate blocks re-dispatch without determination passes via the `test-enforcement.sh` run (RED→GREEN). | behavioral | New scenario passes via `test-enforcement.sh` run; `--list` registration is the enabling precondition of the same single deliverable. |
+| SC-12 | `.opencode/tests-v2/AGENTS.md` §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates. | structural | Doc alignment verified by structural advisory checks (mdformat/pymarkdownlnt) against the implemented predicates. |
+
+**SC-6 trigger-class single-mechanism justification:** The three halt-class conditions (undetermined / excessive-without-classification / direction-deviation) share one mechanism — they are exactly the three non-`progressing-directionally` outcomes of the single classification taxonomy defined in SC-2, and each routes through the identical halt+notify path (the same code path as SC-4's off-track notification, minus the distinct classification label). One classification enum, one halt+notify mechanism → one trigger class → one SC. The recorded decision field is a distinct deliverable (record schema + orchestrator write path) and is therefore verified separately as SC-7.
+
+**SC-10 / SC-11 single-deliverable justification:** SC-10's single verification target is the presence of the false_signal annotation in the determination record after a reproduced wrong abort; the annotation's presence is the sole assertion (its existence is precisely what prevents silent retry — the "no silent retry" property is the absence-side of the same single deliverable, not a separate mechanism). SC-11's single deliverable is the enforcement scenario; "passing via run" is the one assertion, and `--list` registration is the enabling precondition of that same scenario deliverable, not an independent verification target.
 
 ## Requirements
 
@@ -42,7 +47,7 @@ R-1. The harness monitor SHALL persist poll evidence for every monitored run and
 
 R-2. The harness SHALL classify a run as progressing-directionally only when its activity moves toward the scenario's goal; off-goal motion SHALL be classified off-track and SHALL trigger orchestrator notification — off-track runs SHALL never continue silently. Progressing runs SHALL continue polling regardless of duration.
 
-R-3. The harness SHALL halt monitoring and notify the orchestrator when classification is undetermined, when the run is excessive without classification, or on direction deviation, before any further dispatch.
+R-3. The harness SHALL halt monitoring and notify the orchestrator when classification is undetermined, when the run is excessive without classification, or on direction deviation, before any further dispatch (the halt-class trigger states of SC-6 — one halt+notify mechanism for the three non-progressing classification outcomes).
 
 R-4. The orchestrator SHALL record its decision in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}; when the recorded value is terminate-with-root-cause, the record SHALL include the root-cause.
 
@@ -91,42 +96,49 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 - verify: Progressing fixture run continues polling past the halt threshold.
 - commit: helpers.sh polling continuation.
 
-### Item 6 (SC-6): Orchestrator decision loop with recorded decision field
+### Item 6 (SC-6): Halt-class halt+notify path
 
 - RED: Undetermined condition continues without halt/notification — assertion fails.
-- GREEN: Undetermined/excessive/deviation halts monitor, notifies orchestrator; decision recorded as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause present for terminate-with-root-cause).
-- verify: Behavioral run asserts halt, notification, and recorded decision field with an allowed value.
-- commit: helpers.sh decision loop + §14 abort-recovery alignment.
+- GREEN: Halt-class states (undetermined / excessive-without-classification / direction-deviation) halt monitoring and notify the orchestrator before any further dispatch.
+- verify: Behavioral run asserts halt and orchestrator notification for a halt-class condition.
+- commit: helpers.sh halt-class routing.
 
-### Item 7 (SC-7): Determination gate in harness resume/re-run path
+### Item 7 (SC-7): Recorded orchestrator decision field
+
+- RED: No decision field recorded in the determination record after an orchestrator decision — assertion fails.
+- GREEN: Decision recorded as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause present for terminate-with-root-cause).
+- verify: Behavioral run asserts the recorded decision field carries an allowed value.
+- commit: helpers.sh decision-record write path + §14 abort-recovery alignment.
+
+### Item 8 (SC-8): Determination gate in harness resume/re-run path
 
 - RED: Resume/re-run after abort without a determination proceeds — assertion fails.
 - GREEN: `with-test-home` resume/re-run path (both `--resume-home` and `--continue` variants) reads the determination record; missing/non-undetermined-record-absent → FATAL block; valid record → pass-through.
 - verify: Abort → resume blocked with FATAL; valid determination → proceeds.
 - commit: with-test-home gate.
 
-### Item 8 (SC-8): Undetermined-cycle counter + CEILING_REACHED block
+### Item 9 (SC-9): Undetermined-cycle counter + CEILING_REACHED block
 
 - RED: Third undetermined cycle does not block — assertion fails.
 - GREEN: Counter persisted under the flock discipline; ≥3 → CEILING_REACHED mechanical block persisting until remediation.
 - verify: Synthetic determination-record predicate tests (no model dispatch required); CEILING_REACHED message asserted.
 - commit: counter + gate predicate.
 
-### Item 9 (SC-9): False-signal folding into determination record
+### Item 10 (SC-10): False-signal folding into determination record
 
-- RED: Reproduced false-positive abort is retried silently with no record trace — assertion fails.
-- GREEN: Wrong abort folds a false_signal annotation into the determination record; no silent retry.
+- RED: Reproduced false-positive abort produces no false_signal annotation in the determination record — assertion fails.
+- GREEN: Wrong abort folds a false_signal annotation into the determination record (annotation presence is the sole assertion; its existence is what prevents silent retry).
 - verify: #2454-style duplicate-running-event over-count reproduced; annotation asserted present.
 - commit: helpers.sh abort-folding path.
 
-### Item 10 (SC-10): Behavioral enforcement scenario
+### Item 11 (SC-11): Behavioral enforcement scenario
 
 - RED: New scenario asserts the gate blocks re-dispatch without determination and fails against pre-gate harness.
-- GREEN: Scenario passes against the gated harness.
-- verify: Scenario passes via `test-enforcement.sh --list` registry and run.
+- GREEN: Scenario passes against the gated harness via `test-enforcement.sh` run.
+- verify: Scenario passes via `test-enforcement.sh` run (registration in `--list` is the enabling precondition of the same deliverable).
 - commit: new `behaviors/<scenario>.sh`.
 
-### Item 11 (SC-11): AGENTS.md doc alignment
+### Item 12 (SC-12): AGENTS.md doc alignment
 
 - RED: AGENTS.md §10.7/§14/R-18 do not mirror the implemented gate predicates — advisory structural check fails.
 - GREEN: AGENTS.md §10.7/§14/R-18 updated to mirror the exact predicates.
@@ -149,12 +161,12 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 |-------------|-------|----------|
 | R-1 | SC-1, SC-2 | Per-item (helpers.sh poll evidence; helpers.sh classification dispatch) |
 | R-2 | SC-4, SC-5 | Per-item (helpers.sh) |
-| R-3 | SC-6 | Per-item (helpers.sh) |
-| R-4 | SC-6 | Per-item (helpers.sh) |
-| R-5 | SC-7, SC-8 | Per-item (with-test-home, counter) |
-| R-6 | SC-9 | Per-item (helpers.sh) |
-| R-7 | SC-10, SC-11 | Post (scenario; docs) |
-| R-8 | SC-3, SC-7 | Per-item (determination record schema; gate reads record) |
+| R-3 | SC-6 | Per-item (helpers.sh halt-class routing) |
+| R-4 | SC-7 | Per-item (helpers.sh decision-record write path) |
+| R-5 | SC-8, SC-9 | Per-item (with-test-home, counter) |
+| R-6 | SC-10 | Per-item (helpers.sh) |
+| R-7 | SC-11, SC-12 | Post (scenario; docs) |
+| R-8 | SC-3, SC-7, SC-8 | Per-item (determination record schema; decision field; gate reads record) |
 
 ## Documentation Sources
 
@@ -180,12 +192,13 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-3: Running the determination-record test costs minutes. Skipping costs weeks — classifications live only in chat output and the §10.7 resume gate has no filesystem artifact to read.
 - SC-4: Running the off-track fixture costs minutes. Skipping costs days-to-weeks — off-target runs silently consume the entire run budget and verdicts are issued for runs that never approached the scenario goal.
 - SC-5: Running the progressing-continues fixture costs minutes. Skipping costs days — legitimate long runs get spuriously halted, producing false undetermined verdicts.
-- SC-6: Running the decision-loop test costs minutes. Skipping costs days — every monitor halt re-enters the silent kill+export cycle, root causes are never recorded, and R-18 diagnosis debt compounds per aborted run.
-- SC-7: Running the gate test costs minutes. Skipping costs weeks — aborted dispatches resume ungated, producing verdicts about sessions with no recorded determination; every downstream audit inherits the untraceable run.
-- SC-8: Verifying the ceiling predicate with synthetic records costs seconds. Skipping costs days — undetermined retry loops run unbounded, burning live-model budget while never surfacing the underlying reasoning failure.
-- SC-9: Reproducing the false-signal costs minutes. Skipping costs days — monitor false positives (the #2454 class) silently retry, discarding the only evidence that the monitor itself is defective.
-- SC-10: Running the new scenario costs minutes. Skipping costs weeks — the gate itself has no enforcement test, so any future regression in the resume gate ships undetected and every determination-gate guarantee above becomes unenforceable documentation.
-- SC-11: Running advisory doc-alignment checks costs seconds. Skipping costs weeks — documentation drifts from the implemented predicates, and agents following §10.7/§14 follow stale rules instead of the shipped gate.
+- SC-6: Running the halt-class halt+notify test costs minutes. Skipping costs days — every monitor halt re-enters the silent kill+export cycle with no orchestrator visibility.
+- SC-7: Running the decision-field test costs minutes. Skipping costs days — root causes are never recorded, and R-18 diagnosis debt compounds per aborted run.
+- SC-8: Running the gate test costs minutes. Skipping costs weeks — aborted dispatches resume ungated, producing verdicts about sessions with no recorded determination; every downstream audit inherits the untraceable run.
+- SC-9: Verifying the ceiling predicate with synthetic records costs seconds. Skipping costs days — undetermined retry loops run unbounded, burning live-model budget while never surfacing the underlying reasoning failure.
+- SC-10: Reproducing the false-signal costs minutes. Skipping costs days — monitor false positives (the #2454 class) silently retry, discarding the only evidence that the monitor itself is defective.
+- SC-11: Running the new scenario costs minutes. Skipping costs weeks — the gate itself has no enforcement test, so any future regression in the resume gate ships undetected and every determination-gate guarantee above becomes unenforceable documentation.
+- SC-12: Running advisory doc-alignment checks costs seconds. Skipping costs weeks — documentation drifts from the implemented predicates, and agents following §10.7/§14 follow stale rules instead of the shipped gate.
 
 ## Edge Cases
 
@@ -193,7 +206,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** Determination record exists but classification is `undetermined`. **Expected behavior:** The gate blocks resume/re-run (only non-undetermined determinations authorize resume); the undetermined cycle counter increments on orchestrator-continue. **Resolution:** Third cycle → CEILING_REACHED until developer-level remediation.
 - **Condition:** Concurrent scenario runs contending for the ceiling counter. **Expected behavior:** Counter persistence respects the existing `tmp/.behavior-run.lock` flock discipline — no new locking scheme. **Resolution:** Contention serialized by the existing lock; no counter corruption.
 - **Condition:** Monitor false-positive abort (parser duplicate-event over-count). **Expected behavior:** Folded into the determination record as a false_signal annotation; not silently retried. **Resolution:** Record carries the annotation; run state resumes only through the recorded determination path.
-- **Condition:** Scenario goal context unavailable or empty for the classification dispatch. **Expected behavior:** Classification cannot anchor direction → classified undetermined, halting with orchestrator notification (fail-fast; no default classification). **Resolution:** Orchestrator decision loop (SC-6) governs continuation.
+- **Condition:** Scenario goal context unavailable or empty for the classification dispatch. **Expected behavior:** Classification cannot anchor direction → classified undetermined, halting with orchestrator notification (fail-fast; no default classification). **Resolution:** Halt+notify (SC-6) then orchestrator decision loop (SC-7) governs continuation.
 - **Condition:** Sub-agent dispatch of the classifier fails (model/harness error). **Expected behavior:** Halt + orchestrator notification — never a silent fallback to shell-heuristic classification. **Resolution:** Determination record records the failure; orchestrator decides continue/terminate.
 - **Condition:** `BEHAVIOR_SEMANTIC_MONITOR` unset (default invocations). **Expected behavior:** No monitor, no gate coupling — fresh invocations unchanged (backward compatible). **Resolution:** Out of the determination lifecycle entirely.
 
@@ -204,6 +217,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-09-21 | Retyped SC-8 (former SC-5, ceiling gate) from behavioral to structural evidence type — ceiling gate is mechanical bookkeeping; behavioral gate enforcement remains covered by the live scenario SC. Testability-assessment artifact's 'mixed' label retired with artifact regeneration. | Validation finding 1 (EVIDENCE_TYPE_MISMATCH) | spec-creation validate pipeline (`.opencode#2456`) |
 | 2026-09-21 | Decomposed compound SCs into atomic single-target SCs: former SC-1 → SC-1/SC-2/SC-3; former SC-2 → SC-4/SC-5; former SC-7 → SC-10/SC-11. 1 SC per item maintained; items/sc-summary/traceability/cost frame renumbered consistently. | Validation finding 2 (compound SCs) | spec-creation validate pipeline (`.opencode#2456`) |
 | 2026-09-21 | Reworded disjunctive phrasing: orchestrator decision now a recorded decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (SC-6, R-4); resume gate enumerates `--resume-home`/`--continue` as invocation variants of one mechanism (SC-7, R-5 unchanged in scope). | Validation finding 3 (disjunctive phrasing) | spec-creation validate pipeline (`.opencode#2456`) |
+| 2026-09-21 | Decomposed compound SC-6: split into SC-6 (halt+notify on the halt-class trigger states — single-mechanism justification added: the three conditions are the three non-progressing outcomes of the SC-2 classification taxonomy sharing one halt+notify path) and SC-7 (recorded decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}). Former SC-7→SC-8, SC-8→SC-9, SC-9→SC-10, SC-10→SC-11, SC-11→SC-12. Reworded SC-10 (false_signal annotation presence as the single assertion) and SC-11 (scenario passing via run as the single assertion, `--list` registration as enabling precondition) per single-assertion/single-deliverable justification. Items split/renumbered (Items 6-12), R-3/R-4 traceability split, cost frame and edge cases renumbered consistently. Restored analytical artifacts directory `.opencode/.issues/2456/artifacts/` from `tmp/issue-2456/artifacts/` (10 artifacts present there; copied all 10 — the finding's "12" count did not match the source directory contents, no artifacts were fabricated). Restored artifacts reflect the pre-split SC numbering (they predate this decomposition); they are the latest generated generation available and were not regenerated (no analysis steps in this task). | Validation findings 1 (compound SC-6), 2 (SC-10/SC-11 sub-flags), 3 (missing artifacts dir) | spec-creation validate pipeline (`.opencode#2456`) |
 | 2026-09-21 | Initial spec. | — | Developer (`.opencode#2456`) |
 
 ---

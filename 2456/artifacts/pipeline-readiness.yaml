@@ -1,0 +1,27 @@
+# Pipeline Readiness — .opencode#2456
+status: passed
+
+atomicity:
+  passed: true
+  detail: "Each of SC-1..SC-7 maps to exactly one RED→GREEN→COMMIT cycle (see contracts/decompose-output.yaml); no item spans multiple SCs."
+
+dependency_ordering:
+  passed: true
+  detail: "SC DAG: SC-1 root; SC-2/3/4/6 depend on SC-1; SC-5 on SC-4; SC-7 on SC-4. Acyclic — verified by inspection of decompose-output.yaml edges."
+
+single_concern:
+  passed: true
+  detail: "All items target one file category (tests-v2 test framework: shell harness + tests-v2/AGENTS.md docs) and one verification domain (behavioral harness enforcement)."
+
+phase_dependency:
+  passed: true
+  detail: "Phase graph acyclic: pre (determination record schema) → per-file (helpers.sh monitor, with-test-home gate, AGENTS.md) → post (behavioral scenario + regression)."
+
+three_tier_structure:
+  passed: true
+  detail: "Multi-phase spec has pre/per-file/post structure per decompose-output.yaml phase_structure field."
+
+gate_evidence:
+  command: "./.opencode/tools/local-issues validate-yaml --number .opencode#2456"
+  exit_code: 0
+  note: "First invocation failed (issue directory absent — remote stub not yet in local store); resolved by local-issues create binding .opencode#2456, then gate re-run exit 0."

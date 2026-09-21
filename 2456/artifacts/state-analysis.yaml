@@ -1,0 +1,23 @@
+# State Analysis — .opencode#2456
+status: complete
+
+state_machine_per_phase:
+  run_state (per behavioral dispatch):
+    states: [running, progressing_directionally, off_track, undetermined, aborted_determined, aborted_false_signal, terminated]
+    transitions:
+      - "running → progressing_directionally: monitor sub-agent classification (goal-directed activity); continue polling, no duration cap"
+      - "running → off_track: activity not toward scenario goal (exploration/loops/drift) → notify orchestrator, never continue silently"
+      - "running → undetermined: classification cannot be made / excessive without classification / direction deviation → halt + notify orchestrator"
+      - "off_track → terminated: orchestrator decision terminate + remediation with root-cause determination"
+      - "off_track → progressing_directionally: orchestrator decision continue via new monitoring dispatch (determination updated)"
+      - "undetermined → running: orchestrator decision continue (new sub-agent dispatch); undetermined_cycle_count += 1"
+      - "undetermined → CEILING_REACHED (mechanical block): undetermined_cycle_count >= 3"
+      - "any → aborted_false_signal: wrong abort detected → fold false_signal annotation into determination record; NOT silently retried"
+      - "aborted/killed (no determination) → resume/re-run request → BLOCKED by gate (no non-undetermined determination on record)"
+  ceiling_state:
+    states: [below_ceiling, at_ceiling]
+    transitions: ["below_ceiling → at_ceiling: 3rd undetermined cycle → CEILING_REACHED block persists until developer-level remediation"]
+  invariants:
+    - "No resume/re-run after abort without a recorded non-undetermined determination"
+    - "Off-track runs never continue silently"
+    - "Wrong aborts always leave a determination-record trace"

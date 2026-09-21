@@ -1,0 +1,36 @@
+issue: ".opencode#2456"
+topic: "tests-v2 test-framework semantic-determination gate for behavioral opencode run dispatches"
+brainstorm_handoff: unavailable
+handoff_note: "No brainstorm_handoff_path in dispatch and no handoff-pointer.yaml at .opencode/.issues/2456/ (remote stub only, local issue dir not yet created). Design input taken from dispatch context's approved brainstorming design summary (7 design items + live #2454 evidence)."
+
+affected_files:
+  - path: ".opencode/tests-v2/with-test-home"
+    role: "harness wrapper — clone+checkout gates, --resume-home, flock; hosts behavior_run monitor wiring (632 lines)"
+  - path: ".opencode/tests-v2/behaviors/helpers.sh"
+    role: "behavior_run() + __semantic_monitor() — current opt-in (BEHAVIOR_SEMANTIC_MONITOR=1) mechanical-signal monitor with per-poll log, abort reasons, per-poll report (R-11/R-12), signal-2 false-fire hardening (#2430)"
+  - path: ".opencode/tests-v2/AGENTS.md"
+    role: "§14 Semantic Continuous Monitoring Mandate, §10.7 Session Resumption, §17 R-18 cause-analysis mandate — must be aligned"
+  - path: ".opencode/tests-v2/behaviors/<new-scenario>.sh"
+    role: "new behavioral enforcement scenario asserting the gate blocks re-dispatch without determination"
+
+existing_patterns:
+  - "__semantic_monitor polls live session DB at intervals, extracts event stream (tool calls, reasoning sizes, text parts), writes monitor-attempt{N}.log"
+  - "Current signals are mechanical shell heuristics: identical tool input >=3x, stuck task() >=2 polls, reasoning >N chars with <=1 new tool call, semantically off-track 2+ polls — semantic judgment is currently embedded in shell, NOT in a sub-agent context"
+  - "§14 abort recovery: kill + §10.5 export + semantic diagnosis recorded alongside session.yaml"
+  - "§10.7 --resume-home: cross-invocation resumption for genuinely progressing runs (e.g., bash tool timeout kill)"
+  - "R-18/§17: excessive run time is a primary defect signal; cause analysis mandatory"
+  - "R-19/§18: unavailability claims require personal inspection of session deliberation evidence"
+
+live_evidence_from_2454:
+  - "SC-2 required 2+ aborted runs; one abort was a false-positive monitor abort (parser over-count of duplicate running events) — motivates monitor false-signal guard"
+  - "SC-3 required two §10.7 resumptions — resumption currently ungated by any determination record"
+  - "SC-1 RED flagged harness per-run re-provisioning cost (fresh-home clone + 27B smoke tests, ~15+ min) as an unfixed infrastructure defect"
+
+gaps_identified:
+  - "No determination record artifact exists; monitor aborts are not folded into a durable non-undetermined determination"
+  - "No gate blocks resume/re-run of an aborted/killed dispatch without a recorded determination"
+  - "No orchestrator notification path from monitoring; undetermined runs can silently continue"
+  - "No ceiling on undetermined cycles"
+  - "Semantic classification is shell-heuristic, not sub-agent-context semantic classification"
+
+ungrounded_assumptions: []

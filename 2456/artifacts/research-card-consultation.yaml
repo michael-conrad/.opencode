@@ -1,0 +1,10 @@
+issue: ".opencode#2456"
+cards_reviewed: 14
+matched_cards:
+  - card: "per-sc-decomposition-industry-standards.md"
+    confidence: 0.95
+    relevance: "high — decomposition in Step 4 follows per-SC one-item/one-cycle rule already applied below"
+  - card: "writing-plans-flattening.md"
+    confidence: 0.9
+    relevance: "moderate — plan phase (downstream) must not flatten monitor/gate structure; noted for create task"
+unmatched_summary: "No research card addresses semantic run monitoring, determination gating, or test-harness orchestration. No card on this topic exists with confidence >= 0.7; findings incorporated only from the two cards above."

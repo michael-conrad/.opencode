@@ -1,5 +1,5 @@
 issue: ".opencode#2456"
-sc_count: 11
+sc_count: 12
 scs:
   - id: "SC-1"
     description: "Monitor persists poll evidence for every monitored run to the scenario evidence directory."
@@ -22,26 +22,30 @@ scs:
     evidence_type: "behavioral"
     plan_item: 5
   - id: "SC-6"
-    description: "Undetermined / excessive-without-classification / direction-deviation halts monitoring and notifies the orchestrator; decision recorded as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause for terminate)."
+    description: "Halt-class trigger states — undetermined, excessive-without-classification, or direction-deviation — halt monitoring and notify the orchestrator before any further dispatch (single halt+notify mechanism for the three non-progressing classification outcomes)."
     evidence_type: "behavioral"
     plan_item: 6
   - id: "SC-7"
-    description: "Hard gate blocks resume (--resume-home or --continue invocation variants) or re-run of an aborted/killed dispatch without a recorded non-undetermined determination (FATAL block); valid determination permits resume."
+    description: "Orchestrator decision recorded in the determination record as a decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (root-cause present for terminate-with-root-cause)."
     evidence_type: "behavioral"
     plan_item: 7
   - id: "SC-8"
-    description: "Ceiling (default 3) on undetermined determination cycles, persisted across invocations, produces CEILING_REACHED mechanical block until developer-level remediation."
-    evidence_type: "structural"
+    description: "Hard gate blocks resume (--resume-home or --continue invocation variants) or re-run of an aborted/killed dispatch without a recorded non-undetermined determination (FATAL block); valid determination permits resume."
+    evidence_type: "behavioral"
     plan_item: 8
   - id: "SC-9"
-    description: "Monitor false-signal guard: wrong aborts folded into the determination record as false_signal annotations, never silently retried."
-    evidence_type: "behavioral"
+    description: "Ceiling (default 3) on undetermined determination cycles, persisted across invocations, produces CEILING_REACHED mechanical block until developer-level remediation."
+    evidence_type: "structural"
     plan_item: 9
   - id: "SC-10"
-    description: "New behavioral enforcement scenario asserts the gate blocks re-dispatch without determination (RED→GREEN), registered and passing."
+    description: "A reproduced wrong abort produces a false_signal annotation in the determination record (annotation presence is the single assertion)."
     evidence_type: "behavioral"
     plan_item: 10
   - id: "SC-11"
+    description: "New behavioral enforcement scenario asserting the gate blocks re-dispatch without determination passes via the test-enforcement.sh run (RED→GREEN); --list registration is the enabling precondition."
+    evidence_type: "behavioral"
+    plan_item: 11
+  - id: "SC-12"
     description: "AGENTS.md §10.7/§14/R-18 mirror the implemented gate predicates."
     evidence_type: "structural"
-    plan_item: 11
+    plan_item: 12

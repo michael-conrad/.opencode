@@ -1,0 +1,31 @@
+# Concern Map — .opencode#2456
+status: complete
+
+concern_boundaries:
+  - concern: "Evidence collection (mechanical)"
+    owner: "helpers.sh poll loop (existing)"
+    boundary: "Reads session DB, extracts event stream, writes poll log — NO semantic judgment"
+  - concern: "Semantic classification"
+    owner: "monitoring sub-agent (own context)"
+    boundary: "Receives poll evidence + scenario goal; emits one classification: progressing-directionally | off-track | undetermined — no kills, no file writes beyond its result contract"
+  - concern: "Determination record persistence"
+    owner: "harness (helpers.sh / with-test-home)"
+    boundary: "YAML artifact in scenario evidence directory; single writer; read by resume gate"
+  - concern: "Orchestrator decision"
+    owner: "orchestrator agent (chat-level)"
+    boundary: "continue-monitoring (new sub-agent dispatch) vs terminate+remediate with root-cause; recorded in determination record"
+  - concern: "Mechanical gating"
+    owner: "harness (CEILING_REACHED, resume gate)"
+    boundary: "Pure predicate checks on determination records — no semantic judgment"
+  - concern: "Documentation"
+    owner: "tests-v2/AGENTS.md §10.7/§14/R-18"
+    boundary: "Mirrors implemented predicates; no divergent inline variants (R-10)"
+
+separation_per_phase:
+  SC-1: "classification concern extracted from shell into sub-agent; evidence collection stays mechanical"
+  SC-2: "notification concern added at harness boundary; classification stays pure"
+  SC-3: "orchestrator decision concern isolated from both classification and gating"
+  SC-4: "gating concern isolated: gate reads records only, never judges"
+  SC-5: "ceiling concern layered on gating, no classification coupling"
+  SC-6: "false-signal annotation folded into record-writing concern"
+  SC-7: "verification + docs concern only; no new logic"

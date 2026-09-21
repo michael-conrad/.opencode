@@ -1,0 +1,38 @@
+# Interface Compatibility — .opencode#2456
+status: complete
+
+interfaces:
+  - name: "BEHAVIOR_SEMANTIC_MONITOR=1 opt-in flag"
+    type: modified
+    detail: "Same opt-in trigger; when enabled, monitor now requires/records determinations and can notify orchestrator. Fresh invocations without the flag unchanged."
+    compatibility: backward_compatible (default path unchanged)
+  - name: "with-test-home --resume-home <path>"
+    type: modified
+    detail: "New guard: blocks when prior dispatch ended aborted/killed without a recorded non-undetermined determination, or ceiling reached"
+    compatibility: backward_compatible for progressing/normal prior runs (valid determination present)
+  - name: "__semantic_monitor poll log (monitor-attempt{N}.log)"
+    type: unchanged
+    detail: "Poll evidence format retained; determination record added alongside"
+  - name: "determination record (NEW)"
+    type: new
+    detail: "YAML artifact in scenario evidence directory: classification, poll evidence refs, false_signal annotations, orchestrator decisions, root_cause, undetermined cycle count"
+  - name: "FATAL:/HARNESS_FAILURE:/NOTIFY: stderr conventions"
+    type: extended
+    detail: "New NOTIFICATION:/ORCHESTRATOR_DECISION_REQUIRED: prefix for monitor-halt notifications"
+
+breaking_changes: []
+removed_interfaces: []
+
+dependency_contract:
+  - source: "SC-1 classification sub-agent result contract"
+    target: "SC-4 determination gate"
+    type: "artifact schema"
+    constraint: "Gate reads the determination record written by SC-1/SC-3 path; field names fixed at SC-1 (classification, cycle_count, status) — SC-4 depends on exact schema"
+  - source: "SC-3 orchestrator decision entry"
+    target: "SC-6 false_signal annotation"
+    type: "artifact schema"
+    constraint: "Both append to the same determination record; append-only semantics"
+  - source: "AGENTS.md §10.7/§14/§17"
+    target: "implemented gate predicates"
+    type: "artifact schema"
+    constraint: "Docs mirror the exact predicates (single definition, R-10)"

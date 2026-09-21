@@ -1,0 +1,28 @@
+# Cross-Cutting Matrix — .opencode#2456
+status: complete
+
+matrix:
+  - concern: "Error handling"
+    phases: "SC-1..SC-7"
+    rule: "Fail fast with FATAL:/HARNESS_FAILURE: stderr conventions; gate blocks are exits, never silent continues (200-errors)"
+  - concern: "LLM-to-LLM data format"
+    phases: "SC-1, SC-3, SC-4, SC-6"
+    rule: "Determination record is YAML (080-code-standards YAML standard); result contracts YAML"
+  - concern: "Evidence integrity"
+    phases: "SC-1, SC-3, SC-6, SC-7"
+    rule: "Poll log + determination recorded alongside session.yaml (§14 evidence mandate); no lobotomizing assertions (test-integrity mandate)"
+  - concern: "Cost-blind verification"
+    phases: "SC-2, SC-7"
+    rule: "Progressing runs continue regardless of duration; behavioral scenario runs via with-test-home + real model (020 §1)"
+  - concern: "Verification honesty"
+    phases: "SC-7"
+    rule: "Behavioral evidence from stderr agent actions; prose recall invalid (091)"
+  - concern: "Concurrency"
+    phases: "SC-4, SC-5"
+    rule: "flock discipline (tmp/.behavior-run.lock) unchanged; ceiling counter persisted under same lock"
+  - concern: "R-18 cause analysis"
+    phases: "SC-3, SC-6"
+    rule: "Excessive/aborted runs require recorded root-cause determination before any retry"
+  - concern: "Docs-as-spec (R-10)"
+    phases: "SC-7"
+    rule: "AGENTS.md documents the exact implemented predicates, single definition"
