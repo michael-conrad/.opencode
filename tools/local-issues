@@ -1343,7 +1343,7 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
                         MALFORMED_FRONTMATTER,
                     )
             else:
-                result["issue"] = {"body": spec.strip(), "status": "artifact-only"}
+                result["issue"] = {"body": spec.strip()}
     return result
 
 
