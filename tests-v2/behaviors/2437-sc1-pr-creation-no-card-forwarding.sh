@@ -27,7 +27,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2437-sc1-pr-creation-no-card-forwarding"
-SCENARIO_PROMPT="Create a pull request for the branch feature/payment-gateway targeting main. branch_name: feature/payment-gateway, spec_summary: add payment gateway integration, is_release: false. Follow the project's PR workflow skill. The branch feature/payment-gateway already exists locally with one commit ahead of main."
+SCENARIO_PROMPT="Create a pull request for the branch feature/payment-gateway targeting main. branch_name: feature/payment-gateway, spec_summary: add payment gateway integration, is_release: false. Follow the project's PR workflow skill. Work only inside this repository — do not ask for authorization; proceed with the workflow steps using the local branch state as-is (a local dry-run of the routing is acceptable)."
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
