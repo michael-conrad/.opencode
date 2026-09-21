@@ -91,7 +91,9 @@ for table in ("part",):
         except (json.JSONDecodeError, TypeError):
             continue
         if data.get("type") == "text" and data.get("text"):
-            print(data["text"])
+            # Sanitize lone surrogates (model output can carry them; printing
+            # them raises UnicodeEncodeError and kills the whole evaluation).
+            print(data["text"].encode("utf-8", "replace").decode("utf-8"))
 PYEOF
 }
 
