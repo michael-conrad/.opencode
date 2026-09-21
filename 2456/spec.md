@@ -36,10 +36,13 @@
 | SC-10 | A reproduced wrong abort (e.g., the #2454 duplicate-running-event over-count) produces a false_signal annotation in the determination record. | behavioral | Reproduce the #2454-style over-count; assert the false_signal annotation is present in the record. |
 | SC-11 | The new behavioral enforcement scenario asserting the gate blocks re-dispatch without determination passes via the `test-enforcement.sh` run (RED→GREEN). | behavioral | New scenario passes via `test-enforcement.sh` run; `--list` registration is the enabling precondition of the same single deliverable. |
 | SC-12 | `.opencode/tests-v2/AGENTS.md` §10.7, §14, and R-18/§17 mirror the exact implemented gate predicates. | structural | Doc alignment verified by structural advisory checks (mdformat/pymarkdownlnt) against the implemented predicates. |
+| SC-13 | A stalled run with zero progress evidence and an identifiable external cause in the run evidence (orphaned run processes, provider quota/error output) produces a determination record whose decision field is `terminate-with-root-cause` naming the diagnosed cause; a `continue-new-dispatch` that merely raises a timeout without a recorded diagnosis is prohibited. | behavioral | Stall fixture (hung child + provider-error evidence): the determination record carries decision=`terminate-with-root-cause` with a root-cause naming the identified problem; no timer-escalation continue is possible without a diagnosis. |
 
 **SC-6 trigger-class single-mechanism justification:** The three halt-class conditions (undetermined / excessive-without-classification / direction-deviation) share one mechanism — they are exactly the three non-`progressing-directionally` outcomes of the single classification taxonomy defined in SC-2, and each routes through the identical halt+notify path (the same code path as SC-4's off-track notification, minus the distinct classification label). One classification enum, one halt+notify mechanism → one trigger class → one SC. The recorded decision field is a distinct deliverable (record schema + orchestrator write path) and is therefore verified separately as SC-7.
 
 **SC-10 / SC-11 single-deliverable justification:** SC-10's single verification target is the presence of the false_signal annotation in the determination record after a reproduced wrong abort; the annotation's presence is the sole assertion (its existence is precisely what prevents silent retry — the "no silent retry" property is the absence-side of the same single deliverable, not a separate mechanism). SC-11's single deliverable is the enforcement scenario; "passing via run" is the one assertion, and `--list` registration is the enabling precondition of that same scenario deliverable, not an independent verification target.
+
+**SC-13 single-assertion justification:** The single verification target is the recorded decision field on the stall fixture's determination record — `terminate-with-root-cause` with a root-cause naming the identified problem. The prohibition on timer-escalation re-dispatch is the absence-side of the same deliverable: without a recorded diagnosis, SC-8's gate blocks any resume/re-run, so a blind continue-new-dispatch is structurally impossible once the record carries terminate-with-root-cause. One mechanism (diagnosis-before-retry), one assertion.
 
 ## Requirements
 
@@ -58,6 +61,8 @@ R-6. The harness SHALL fold wrong aborts (false-positive monitor signals) into t
 R-7. The repository SHALL contain a behavioral enforcement scenario asserting the gate blocks re-dispatch without a determination, and `.opencode/tests-v2/AGENTS.md` (§10.7, §14, R-18/§17) SHALL mirror the exact implemented gate predicates.
 
 R-8. The determination record SHALL be a durable YAML artifact written in the scenario evidence directory alongside session.yaml and the poll log, with append-only semantics for false_signal annotations and orchestrator decisions.
+
+R-9. When a run stalls with zero progress evidence and the run evidence identifies an external cause (orphaned run processes, provider quota/error output), the recorded orchestrator decision SHALL be terminate-with-root-cause naming the diagnosed cause. Re-dispatching with an increased timeout, or repeated timer escalation in a loop, without a recorded root-cause diagnosis SHALL be prohibited — the SC-8 gate blocks any resume/re-run until the diagnosis-bearing determination exists.
 
 ## Items
 
@@ -145,6 +150,13 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 - verify: Advisory markdown checks (mdformat/pymarkdownlnt) clean; content matches implemented predicates.
 - commit: AGENTS.md sections.
 
+### Item 13 (SC-13): Diagnosis-before-retry on stalled runs
+
+- RED: Stall fixture (hung child process + provider-error evidence in the run logs) produces a determination record with no decision or a bare continue-new-dispatch — assertion fails.
+- GREEN: The recorded decision is terminate-with-root-cause naming the diagnosed external cause; SC-8's gate blocks any timer-escalation re-dispatch until that record exists.
+- verify: Behavioral stall fixture asserts decision=terminate-with-root-cause with a root-cause naming the identified problem.
+- commit: helpers.sh stall-classification → decision-record path + §14 alignment.
+
 ## Dependencies
 
 | Reference | Relationship | Status |
@@ -167,6 +179,7 @@ R-8. The determination record SHALL be a durable YAML artifact written in the sc
 | R-6 | SC-10 | Per-item (helpers.sh) |
 | R-7 | SC-11, SC-12 | Post (scenario; docs) |
 | R-8 | SC-3, SC-7, SC-8 | Per-item (determination record schema; decision field; gate reads record) |
+| R-9 | SC-13 | Per-item (helpers.sh stall-classification → decision-record path) |
 
 ## Documentation Sources
 
@@ -199,6 +212,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - SC-10: Reproducing the false-signal costs minutes. Skipping costs days — monitor false positives (the #2454 class) silently retry, discarding the only evidence that the monitor itself is defective.
 - SC-11: Running the new scenario costs minutes. Skipping costs weeks — the gate itself has no enforcement test, so any future regression in the resume gate ships undetected and every determination-gate guarantee above becomes unenforceable documentation.
 - SC-12: Running advisory doc-alignment checks costs seconds. Skipping costs weeks — documentation drifts from the implemented predicates, and agents following §10.7/§14 follow stale rules instead of the shipped gate.
+- SC-13: Running the stall fixture costs minutes. Skipping costs days — stalls with identifiable causes (orphaned processes, provider quota exhaustion) get answered with endlessly increasing timers and blind re-dispatch (live evidence: the 2026-09-21 #2437 RED run hung ~4 hours on an orphaned `opencode run` while a provider quota error sat unread in the logs), burning hours per occurrence with zero diagnostic output and never surfacing the actual blocker.
 
 ## Edge Cases
 
@@ -209,6 +223,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - **Condition:** Scenario goal context unavailable or empty for the classification dispatch. **Expected behavior:** Classification cannot anchor direction → classified undetermined, halting with orchestrator notification (fail-fast; no default classification). **Resolution:** Halt+notify (SC-6) then orchestrator decision loop (SC-7) governs continuation.
 - **Condition:** Sub-agent dispatch of the classifier fails (model/harness error). **Expected behavior:** Halt + orchestrator notification — never a silent fallback to shell-heuristic classification. **Resolution:** Determination record records the failure; orchestrator decides continue/terminate.
 - **Condition:** `BEHAVIOR_SEMANTIC_MONITOR` unset (default invocations). **Expected behavior:** No monitor, no gate coupling — fresh invocations unchanged (backward compatible). **Resolution:** Out of the determination lifecycle entirely.
+- **Condition:** Stalled run with zero progress evidence and an identifiable external cause (orphaned processes, provider quota error in run output). **Expected behavior:** Recorded decision is terminate-with-root-cause naming the diagnosed cause; SC-8's gate blocks any re-dispatch or timer escalation until the diagnosis-bearing record exists. **Resolution:** Diagnose from run evidence, record root cause, remediate (kill orphans, clean locks, resolve provider state), then re-dispatch.
 
 ## Change Control
 
@@ -218,6 +233,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-09-21 | Decomposed compound SCs into atomic single-target SCs: former SC-1 → SC-1/SC-2/SC-3; former SC-2 → SC-4/SC-5; former SC-7 → SC-10/SC-11. 1 SC per item maintained; items/sc-summary/traceability/cost frame renumbered consistently. | Validation finding 2 (compound SCs) | spec-creation validate pipeline (`.opencode#2456`) |
 | 2026-09-21 | Reworded disjunctive phrasing: orchestrator decision now a recorded decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause} (SC-6, R-4); resume gate enumerates `--resume-home`/`--continue` as invocation variants of one mechanism (SC-7, R-5 unchanged in scope). | Validation finding 3 (disjunctive phrasing) | spec-creation validate pipeline (`.opencode#2456`) |
 | 2026-09-21 | Decomposed compound SC-6: split into SC-6 (halt+notify on the halt-class trigger states — single-mechanism justification added: the three conditions are the three non-progressing outcomes of the SC-2 classification taxonomy sharing one halt+notify path) and SC-7 (recorded decision field with allowed value-set {continue-new-dispatch, terminate-with-root-cause}). Former SC-7→SC-8, SC-8→SC-9, SC-9→SC-10, SC-10→SC-11, SC-11→SC-12. Reworded SC-10 (false_signal annotation presence as the single assertion) and SC-11 (scenario passing via run as the single assertion, `--list` registration as enabling precondition) per single-assertion/single-deliverable justification. Items split/renumbered (Items 6-12), R-3/R-4 traceability split, cost frame and edge cases renumbered consistently. Restored analytical artifacts directory `.opencode/.issues/2456/artifacts/` from `tmp/issue-2456/artifacts/` (10 artifacts present there; copied all 10 — the finding's "12" count did not match the source directory contents, no artifacts were fabricated). Restored artifacts reflect the pre-split SC numbering (they predate this decomposition); they are the latest generated generation available and were not regenerated (no analysis steps in this task). | Validation findings 1 (compound SC-6), 2 (SC-10/SC-11 sub-flags), 3 (missing artifacts dir) | spec-creation validate pipeline (`.opencode#2456`) |
+| 2026-09-21 | Added SC-13 / R-9 / Item 13 (diagnosis-before-retry on stalled runs): a stall with zero progress evidence and an identifiable external cause must produce decision=terminate-with-root-cause naming the diagnosed cause; timer-escalation re-dispatch without diagnosis is prohibited and blocked by the SC-8 gate. Motivating evidence: 2026-09-21 #2437 RED behavioral run hung ~4 hours on orphaned `opencode run`/scenario processes while a provider quota error ("monthly spending limit for Inference Providers") sat in the dispatch failure output — root cause was diagnosable in seconds from `ps` + logs, but the response loop raised timers/re-dispatched instead. | Developer directive (2026-09-21, "add an SC to the spec to address this repeated defect … with NOT addressing issues identified during test runs") | Developer (`.opencode#2456`) |
 | 2026-09-21 | Initial spec. | — | Developer (`.opencode#2456`) |
 
 ---
