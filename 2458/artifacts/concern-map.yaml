@@ -1,34 +1,40 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
+# Concern Map — issue 2458 (Deprecation Encounter Protocol)
+# SCs decomposed into concern groups; each group maps to a phase boundary.
+# All items are Phase 1 per spec Section 7 traceability (single-phase spec).
+
 concern_groups:
-  - name: fragment-registration-and-placement
-    label: Canonical fragment registration + inline placement in six cards
-    scs: [SC-1, SC-2, SC-3]
-    phase: Phase 1
-    summary: >
-      Registers the canonical deprecation-encounter directive fragment with
-      skill-creator fragment-management (SC-1), inlines the full directive text
-      in the six SKILL.md cards with no pointer/conditional/load-on-encounter
-      forms (SC-2), and enforces byte-identical six-copy equality (SC-3).
-  - name: runtime-constraint-documentation
-    label: Full-detail + compact runtime-constraint documentation
+  - name: "fragment-registration"
+    description: "Canonical directive fragment registered with skill-creator fragment-management"
+    scs: [SC-1]
+    phase: "Phase 1"
+    dependency: "precedes inlining (SC-2) — DAG edge 1 → 2"
+  - name: "card-inlining"
+    description: "Directive text inlined in the six SKILL.md cards; byte-identical to canonical fragment; no pointer forms"
+    scs: [SC-2, SC-3]
+    phase: "Phase 1"
+    dependency: "depends on SC-1 (canonical fragment); DAG edge 2 → 3 → 6"
+  - name: "runtime-constraint-documentation"
+    description: "Full-detail runtime-constraint docs in the two C2 reference standards; compact statement in AGENTS.md"
     scs: [SC-4, SC-5]
-    phase: Phase 1
-    summary: >
-      Full-detail runtime-constraint text in both reference standards docs
-      (SC-4); compact 2-3 sentence runtime-mechanics statement in
-      .opencode/AGENTS.md (SC-5) — the only always-loaded addition (R-14).
-  - name: encounter-behavior
-    label: Behavioral encounter protocol — classification, filing, routing, gate
-    scs: [SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
-    phase: Phase 1
-    summary: >
-      Agent classifies encountered deprecated items as pending breakage (SC-6);
-      orchestrator dispatches filing on every encounter with result-contract
-      propagation (SC-7); platform-state channel routing (SC-8); search-then-
-      create-or-comment ordering (SC-9); dependent-encounter scope assessment
-      (SC-10); SC-eligibility fold-in gate (SC-11).
-phase_boundaries:
-  - phase: Phase 1
-    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
-    note: Single-phase spec — all 11 SCs map to Phase 1 (spec §7 traceability).
+    phase: "Phase 1"
+    dependency: "independent of the inlined directive chain (DAG: 4 and 5 independent)"
+  - name: "encounter-classification"
+    description: "Agent classifies a deprecated item encountered during workflow as pending breakage/bitrot — never ignorable noise"
+    scs: [SC-6]
+    phase: "Phase 1"
+    dependency: "depends on inlined directive (SC-2/SC-3) — DAG edge 3 → 6"
+  - name: "filing-dispatch"
+    description: "Orchestrator dispatches filing for every encounter (dependent + observed variants); sub-agent encounters propagate via result contracts"
+    scs: [SC-7]
+    phase: "Phase 1"
+    dependency: "depends on SC-6 (classified encounter triggers dispatch) — DAG edge 6 → 7"
+  - name: "filing-channel-and-ordering"
+    description: "Platform-state channel routing (SC-8); search-then-create-or-comment ordering (SC-9)"
+    scs: [SC-8, SC-9]
+    phase: "Phase 1"
+    dependency: "depend on SC-7 (dispatched filing path) — DAG edges 7 → 8, 7 → 9"
+  - name: "scope-assessment-and-fold-in-gate"
+    description: "Dependent-encounter scope assessment surfaced to developer (SC-10); SC-eligibility gate on fold-in, never raised on observed-only (SC-11)"
+    scs: [SC-10, SC-11]
+    phase: "Phase 1"
+    dependency: "SC-10 depends on SC-7 (edge 7 → 10); SC-11 depends on SC-10 (edge 10 → 11)"

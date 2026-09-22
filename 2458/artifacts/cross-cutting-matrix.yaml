@@ -1,43 +1,16 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
-cross_cutting_edges:
+# Cross-Cutting Matrix — issue 2458 (Deprecation Encounter Protocol)
+# SCs that span multiple concerns.
+
+cross_cutting:
   - sc: SC-2
-    spans:
-      - fragment-registration-and-placement (inline directive)
-      - deck-validation (skildeck-lint / validate_skill_cards.py green on edited cards, R-13)
-    note: Placement concern overlaps the validator-interface concern — card-body edits must not violate deck validators.
-  - sc: SC-3
-    spans:
-      - fragment-registration-and-placement (equality)
-      - fragment-management-mechanism (byte-identical vs canonical store)
-    note: Equality check couples the six card bodies to the fragment store; mechanism unmodified (R-13).
-  - sc: SC-6
-    spans:
-      - encounter-behavior (classification)
-      - behavioral-harness (tests-v2, R-15 run ordering)
-    note: Classification behavior is only observable through the clean-room harness with commit → push → fetch-verify ordering.
+    concerns: [card-inlining, runtime-constraint-documentation]
+    notes: "Inlining (SC-2) touches the six cards; the absence-of-pointer-forms check is grounded in the same runtime-constraint rationale documented in SC-4/SC-5 (full cards load before decision-making)."
   - sc: SC-7
-    spans:
-      - encounter-behavior (filing dispatch)
-      - orchestration (sub-agent result-contract propagation, R-8)
-    note: Dispatch-on-every-encounter composes with the orchestrator/sub-agent boundary — sub-agents cannot task().
-  - sc: SC-8
-    spans:
-      - encounter-behavior (channel routing)
-      - platform-state (remote / transient failure / structurally local)
-    note: Routing branches are substrate-dependent on platform state; no persisted routing state.
-  - sc: SC-9
-    spans:
-      - encounter-behavior (search-before-POST)
-      - spec-creation-pipeline (create-or-comment via normal pipeline, R-3/R-9)
-    note: Filing reuses the normal spec-creation pipeline for the create branch — cross-cutting with spec-creation.
-  - sc: SC-10
-    spans:
-      - encounter-behavior (dependent-encounter assessment)
-      - scope-assessment (current change touches deprecated path)
-    note: Assessment surfacing precedes the SC-eligibility gate (DAG 10 → 11).
+    concerns: [filing-dispatch, filing-channel-and-ordering]
+    notes: "Dispatch (SC-7) is the entry into the filing path that SC-8/SC-9/SC-10 each exercise — the dispatched filing is the shared subject of the three downstream behavioral concerns."
+  - sc: SC-6
+    concerns: [encounter-classification, card-inlining]
+    notes: "The classification behavior (SC-6) is only possible because the directive is inlined in the six cards (SC-2/SC-3); the classification concern consumes the card-inlining deliverable."
   - sc: SC-11
-    spans:
-      - encounter-behavior (fold-in gate)
-      - approval-gate (plan-approval-revocation cost, approval-gate-006)
-    note: SC-eligibility gate guards against unauthorized plan-approval revocation.
+    concerns: [scope-assessment-and-fold-in-gate, filing-channel-and-ordering]
+    notes: "The SC-eligibility gate (SC-11) is evaluated only after the dependent-encounter assessment surfaces (SC-10), which in turn runs on the dispatched filing path (SC-7) — the gate is coupled to both the assessment and the filing concerns."

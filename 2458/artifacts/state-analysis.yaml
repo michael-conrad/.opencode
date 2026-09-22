@@ -1,42 +1,19 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
+# State Analysis — issue 2458 (Deprecation Encounter Protocol)
+# State transitions required by each SC. No executable runtime state exists in this
+# spec (additive doc/behavioral-scenario scope); transitions below are the decision
+# states the protocol introduces. Routing branch selection carries NO persisted
+# state (spec §11 — per-invocation decision; state-analysis: not-applicable).
+
 state_transitions:
-  - name: encounter-classification
-    trigger: agent encounters a deprecated item (called, depended on, recommended, validated against, routed through, or merely observed)
-    transition: unhandled/noise → pending-breakage-classified
-    guard: classification per R-1/R-2 — never ignorable noise, never build-on
-    sc: SC-6
-  - name: filing-dispatch
-    trigger: classified encounter received by orchestrator
-    transition: classified → filing-dispatched (dependent and observed variants both fire; sub-agent-observed encounters propagate via result contracts)
-    guard: dispatch immediately at encounter receipt (R-8)
-    sc: SC-7
-  - name: search-before-post
-    trigger: filing path initialized
-    transition: filing → search-remote-tracker → (found: append-comment | not-found: create-[BITROT]-spec)
-    guard: no POST before search (critical-rules-029; R-9)
-    sc: SC-9
-  - name: routing-branch-selection
-    trigger: filing channel selection
-    transition: per-invocation branch selection — remote-available / transient-failure (chat exec summary + defer-and-retry) / structurally-local (.issues/ standard tracking)
-    guard: no persisted routing state; branch is a per-invocation decision (spec §11 state transitions: not-applicable)
-    sc: SC-8
-  - name: dependent-vs-observed-classification
-    trigger: encounter classified as dependent (current change touches the deprecated path) vs observed-only
-    transition: dependent → add scope assessment + evaluate SC-eligibility gate (PATH-1 branch); observed-only → record + file only, never raise the SC question
-    guard: R-11; both variants dispatch filing (SC-7)
-    sc: SC-10, SC-11
-  - name: resolution-sc-fold-in-gate
-    trigger: dependent-encounter assessment suggests folding a resolution SC into the current spec
-    transition: fold-in-proposed → (dev brainstorm presenting plan-approval-revocation cost: allowed | no brainstorm: blocked)
-    guard: approval-gate-006 — no unauthorized plan-approval revocation
-    sc: SC-11
-persistent_state:
-  - name: bitrot-tracker
-    kind: external-store (remote API or local .issues/ standard tracking)
-    description: [BITROT]-prefixed specs/comments + bitrot label; no special tracking file (NREQ-1). Search-before-POST keeps single-spec-per-deprecation; duplicate [BITROT] specs consolidated by appending evidence to the first and closing the duplicate (concurrency edge case).
-    sc: SC-8, SC-9
-  - name: routing-state
-    kind: none
-    description: No persisted routing state — branch selection is a per-invocation decision (spec §11).
-    sc: SC-8
+  - sc: SC-6
+    description: "Encounter state machine: deprecated item encountered → classification (pending breakage/bitrot) vs. ignorable-noise (forbidden). Classified encounter is the precondition for filing dispatch (SC-7)."
+  - sc: SC-7
+    description: "Dispatch state: classified encounter → orchestrator dispatches filing sub-agent (dependent variant) or propagates via result contract (observed variant). Both variants MUST file (R-4)."
+  - sc: SC-8
+    description: "Routing state (per-invocation, not persisted): remote API available → remote filing; transient API failure → chat executive summary + defer-and-retry; structurally local → .issues/ standard tracking. No state carried across invocations."
+  - sc: SC-9
+    description: "Search-then-POST state: search remote tracker → existing [BITROT] spec found → append encounter evidence as comment; not found → create spec with [BITROT] title prefix + bitrot label (label created on first filing if absent)."
+  - sc: SC-10
+    description: "Dependent-encounter state: dependent classification adds scope-assessment surfacing to the developer; observed-only proceeds to filing without assessment."
+  - sc: SC-11
+    description: "Fold-in gate state: resolution SC fold-in requires dev brainstorm presenting plan-approval-revocation cost; observed-only encounters never raise the SC question (R-11)."

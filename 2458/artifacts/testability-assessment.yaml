@@ -1,52 +1,44 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
+# Testability Assessment — issue 2458 (Deprecation Encounter Protocol)
+# Evidence types per SC (from spec Section 3). Placement/docs SCs = string evidence;
+# encounter-behavior SCs = behavioral evidence per critical-rules-BEH-EV (R-12).
+
 sc_evidence:
   - sc: SC-1
     evidence_type: string
-    verification_method: Fragment store inspection via the fragment-management registration check
-    substrate: placement/docs — static registration presence
+    method: "Fragment store inspection via the fragment-management registration check"
   - sc: SC-2
     evidence_type: string
-    verification_method: Static text check — full directive ×6; pattern search for pointer-form absence; deck validators (skildeck-lint / validate_skill_cards.py) green on edited cards (R-13)
-    substrate: placement/docs — static content + validator run
+    method: "Static text check: full directive present in each of the six card bodies; pattern search confirming absence of pointer forms; deck validators (skildeck-lint / validate_skill_cards.py) green (R-13)"
   - sc: SC-3
     evidence_type: string
-    verification_method: Equality check across the six card bodies against the registered canonical fragment
-    substrate: placement/docs — byte-identical comparison
+    method: "Equality check across the six card bodies against the registered canonical fragment"
   - sc: SC-4
     evidence_type: string
-    verification_method: Static text check on the two reference docs
-    substrate: placement/docs — static content
+    method: "Static text check on the two reference docs: full-detail runtime-constraint text present in each"
   - sc: SC-5
     evidence_type: string
-    verification_method: Static text check on .opencode/AGENTS.md — statement present, within 2-3 sentence bound
-    substrate: placement/docs — static content
+    method: "Static text check on AGENTS.md: statement present and within the 2-3 sentence bound"
   - sc: SC-6
     evidence_type: behavioral
-    verification_method: tests-v2 clean-room opencode run via with-test-home; stderr behavioral evidence of classification (commit → push → fetch-verify before run)
-    substrate: encounter-behavior — runtime agent behavior (R-12)
+    method: "tests-v2 clean-room opencode run via with-test-home; stderr behavioral evidence of classification (commit → push → fetch-verify before run)"
   - sc: SC-7
     evidence_type: behavioral
-    verification_method: tests-v2 clean-room opencode run; stderr evidence of filing dispatch on both encounter variants
-    substrate: encounter-behavior — runtime agent behavior (R-12)
+    method: "tests-v2 clean-room opencode run; stderr behavioral evidence of filing dispatch on both encounter variants (commit → push → fetch-verify before run)"
   - sc: SC-8
     evidence_type: behavioral
-    verification_method: tests-v2 behavioral scenario(s) — table-driven routing branches asserting the branch-appropriate channel per platform state
-    substrate: encounter-behavior — runtime routing (R-12)
+    method: "tests-v2 behavioral scenario(s), table-driven routing branches asserting the branch-appropriate channel per platform state"
   - sc: SC-9
     evidence_type: behavioral
-    verification_method: tests-v2 behavioral scenario asserting search-before-POST ordering and create-or-comment branch outcomes
-    substrate: encounter-behavior — runtime filing (R-12)
+    method: "tests-v2 behavioral scenario asserting search-before-POST ordering and the branch-appropriate create-or-comment outcome"
   - sc: SC-10
     evidence_type: behavioral
-    verification_method: tests-v2 behavioral scenario asserting scope-assessment surfacing on the dependent-encounter variant
-    substrate: encounter-behavior — runtime surfacing (R-12)
+    method: "tests-v2 behavioral scenario asserting scope-assessment surfacing on the dependent-encounter variant"
   - sc: SC-11
     evidence_type: behavioral
-    verification_method: tests-v2 behavioral scenario asserting no unauthorized fold-in and no SC question on observed-only encounters
-    substrate: encounter-behavior — runtime gate (R-12)
-testability_note: >
-  Evidence types match R-12's substrate classification: SC-1..SC-5 (placement/
-  docs) = string evidence; SC-6..SC-11 (encounter behavior) = behavioral evidence
-  per critical-rules-BEH-EV and critical-rules-009. Behavioral runs follow R-15
-  (commit → push → fresh-fetch-verify, ≥600s timeout, with-test-home mandatory).
+    method: "tests-v2 behavioral scenario asserting no unauthorized fold-in and no SC question on observed-only encounters"
+
+behavioral_run_constraints:
+  - "commit → push → fresh-fetch-verify ordering before the run (tests-v2 §4)"
+  - "≥600s bash timeout (tests-v2 §10.2)"
+  - "with-test-home wrapper mandatory"
+  - "stderr behavioral evidence only — prose recall in stdout is NOT evidence (tests-v2 §9)"

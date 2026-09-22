@@ -1,60 +1,48 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
-interface_boundaries:
-  - boundary: six-skill-cards ↔ fragment-store
-    description: The six SKILL.md card bodies must carry the canonical directive fragment byte-identically to the fragment store registration (SC-3). Boundary contract: exact-string equality; no pointer/conditional/load-on-encounter forms (SC-2). Fragment-management mechanism unmodified (R-13).
-    compatible: true
-    constraint: R-5, R-13, SC-2, SC-3
-  - boundary: card-bodies ↔ deck-validators
-    description: Card-body additions must pass skildeck-lint / validate_skill_cards.py. Validators reject meta-instruction patterns in frontmatter/description, not body sections — body additions pass; validators remain unmodified (R-13).
-    compatible: true
-    constraint: R-13, SC-2
-  - boundary: directive-content ↔ C2-reference-docs
-    description: Runtime-constraint documentation added to skill-card-description-standards.md and task-card-structure-standards.md (SC-4); the domain directive itself stays out of C2 files (R-17).
-    compatible: true
-    constraint: R-6, R-17, SC-4
-  - boundary: always-loaded-surface ↔ tier-1-guidelines
-    description: The .opencode/AGENTS.md compact statement is the only always-loaded addition; Tier 1 guidelines untouched (R-14); statement scoped to runtime mechanics only (R-17).
-    compatible: true
-    constraint: R-7, R-14, R-17, SC-5
-  - boundary: filing-path ↔ spec-creation-pipeline
-    description: Filing (create branch) goes through the normal spec-creation pipeline in the owning module (R-3); search-before-POST per critical-rules-029 (R-9).
-    compatible: true
-    constraint: R-3, R-9, SC-9
-  - boundary: encounter-behavior ↔ tests-v2-harness
-    description: Behavioral scenarios SC-6..SC-11 slot into test-enforcement.sh existing --scenario/--tag/--changed filters; runs via with-test-home with commit → push → fresh-fetch-verify ordering and ≥600s timeout (R-15).
-    compatible: true
-    constraint: R-12, R-15, SC-6..SC-11
-  - boundary: orchestration ↔ sub-agent-result-contracts
-    description: Sub-agents cannot dispatch task(); encounters observed by sub-agents propagate to the orchestrator via result contracts (R-8, SC-7).
-    compatible: true
-    constraint: R-8, SC-7
+# Interface Compatibility — issue 2458 (Deprecation Encounter Protocol)
+# Interface boundaries between affected modules. No executable code is touched;
+# all boundaries are documentation/harness interfaces. Additive-only (REQ-C1).
+
+interfaces:
+  - name: "fragment-management → six cards"
+    source: "skills/skill-creator/tasks/fragment-management.md (fragment store)"
+    target: "skills/{research,systematic-debugging,programming-principles,audit,skill-creator,engineering-approach}/SKILL.md"
+    compatibility: "The fragment-management mechanism registers the canonical fragment (SC-1) and the six cards inline byte-identical copies (SC-2/SC-3). Mechanism MUST remain unmodified (R-13) — the interface is write-once (registration) + read-only (inlined copies)."
+  - name: "C2 reference docs → card bodies"
+    source: "reference/skill-card-description-standards.md, reference/task-card-structure-standards.md"
+    target: "all skill card bodies (six cards herein)"
+    compatibility: "Full-detail runtime-constraint documentation (SC-4) governs how decision-point directives are placed (inline, never Read-link-only / load-on-encounter). Cards must conform to these constraints; no mechanism conflict (the directive is placed inline per the docs)."
+  - name: "AGENTS.md compact statement"
+    source: "AGENTS.md"
+    target: "every agent session (always-loaded surface)"
+    compatibility: "Compact 2-3 sentence runtime-mechanics statement (SC-5). Only always-loaded addition (R-14); Tier 1 guidelines untouched; directive stays out of C2 (R-17)."
+  - name: "tests-v2 harness → behavioral scenarios"
+    source: "tests-v2/test-enforcement.sh, tests-v2/with-test-home"
+    target: "new scenarios for SC-6..SC-11"
+    compatibility: "Scenarios slot into existing --scenario/--tag/--changed filters (spec §6). Harness pre-flight gates (commit → push → fetch-verify; ≥600s timeout; with-test-home mandatory) remain binding (R-15). Harness mechanism MUST remain unmodified (R-13)."
+  - name: "deck validators → card bodies"
+    source: "skildeck-lint / validate_skill_cards.py"
+    target: "six SKILL.md cards"
+    compatibility: "Validators reject meta-instruction patterns in frontmatter/description, not body sections — body additions pass; a rejection indicates frontmatter contamination to be corrected (spec §11 Failure modes). Validators remain unmodified (R-13)."
+
 dependency_contract:
-  - source: fragment-management mechanism
-    target: six SKILL.md cards
-    contract: canonical fragment registration read/write; byte-identical equality check per SC-3
-    constraint: R-5, R-13
-  - source: skill-creator fragment store
-    target: SC-1 verification
-    contract: fragment-store inspection asserts the deprecation-encounter fragment is registered with the canonical directive text
-    constraint: SC-1
-  - source: deck validators (skildeck-lint / validate_skill_cards.py)
-    target: six SKILL.md card bodies
-    contract: edited cards must pass validator runs; validators reject meta-instruction patterns in frontmatter/description, not body sections
-    constraint: R-13, SC-2
-  - source: research card spec-writing-ai-agents-opencode-skill-architecture (confidence 0.90)
-    target: C2 runtime-constraint documentation (SC-4)
-    contract: skill() auto-loads full cards before decision-making; task() does not auto-load task cards — grounds the inline-only placement decision
-    constraint: SC-4, R-6
-  - source: tests-v2 harness (test-enforcement.sh + with-test-home)
-    target: behavioral scenarios SC-6..SC-11
-    contract: clean-room opencode run via with-test-home; stderr behavioral evidence; commit → push → fresh-fetch-verify before run; ≥600s timeout
-    constraint: R-15, R-12
-  - source: spec-creation pipeline
-    target: filing create branch (SC-9)
-    contract: create-or-comment via normal spec-creation pipeline; [BITROT] title prefix; bitrot label created on first filing if platform lacks it
-    constraint: R-3, R-9, SC-9
-  - source: platform state
-    target: filing channel routing (SC-8)
-    contract: remote API when available; transient failure → chat exec summary + defer-and-retry; structurally local → local .issues/ standard tracking with [BITROT] prefix + label; no special tracking file
-    constraint: R-10, SC-8
+  - source: "skills/skill-creator/tasks/fragment-management.md"
+    target: "six SKILL.md cards (SC-1, SC-2, SC-3)"
+    constraint: "fragment-management registration check must locate the canonical deprecation-encounter fragment (string evidence); six inlined copies byte-identical to the registered fragment (string evidence, SC-3)."
+  - source: "reference/skill-card-description-standards.md"
+    target: "six SKILL.md cards (SC-4)"
+    constraint: "full-detail runtime-constraint text present in the reference doc (string evidence); cards place decision-point directives inline per that documentation."
+  - source: "reference/task-card-structure-standards.md"
+    target: "six SKILL.md cards (SC-4)"
+    constraint: "full-detail runtime-constraint text present in the reference doc (string evidence); no mid-card content insertion mechanism."
+  - source: "AGENTS.md"
+    target: "all agent sessions (SC-5)"
+    constraint: "compact 2-3 sentence runtime-mechanics statement present and within the sentence bound (string evidence); scoped to runtime mechanics only (R-7, R-17)."
+  - source: "tests-v2/test-enforcement.sh + tests-v2/with-test-home"
+    target: "SC-6..SC-11 behavioral scenarios"
+    constraint: "clean-room opencode run via with-test-home; stderr behavioral evidence; commit → push → fresh-fetch-verify before run; ≥600s bash timeout (R-15, tests-v2 §4, §10.2)."
+  - source: "skildeck-lint / validate_skill_cards.py"
+    target: "six SKILL.md cards (R-13)"
+    constraint: "deck validators green after card-body edits; validators themselves unmodified."
+  - source: "skill()/task() load semantics (research card, confidence 0.90)"
+    target: "SC-2/SC-4 runtime-constraint design"
+    constraint: "skill() auto-loads full SKILL.md cards before decision-making; task() does NOT auto-load task cards — grounds the inline-only placement decision."

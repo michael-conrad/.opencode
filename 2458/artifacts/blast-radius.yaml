@@ -1,47 +1,52 @@
-spec_path: .opencode/.issues/2458/spec.md
-issue_number: 2458
+# Blast Radius — issue 2458 (Deprecation Encounter Protocol)
+# Affected files extracted from spec Section 8 (12 files), verified against codebase
+# (paths relative to the .opencode/ submodule root; verified present 2026-09-22).
+
 affected_files:
-  - path: .opencode/skills/research/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+  - path: "skills/research/SKILL.md"
     exists: true
-  - path: .opencode/skills/systematic-debugging/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/systematic-debugging/SKILL.md"
     exists: true
-  - path: .opencode/skills/programming-principles/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/programming-principles/SKILL.md"
     exists: true
-  - path: .opencode/skills/audit/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/audit/SKILL.md"
     exists: true
-  - path: .opencode/skills/skill-creator/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/skill-creator/SKILL.md"
     exists: true
-  - path: .opencode/skills/engineering-approach/SKILL.md
-    role: modified — directive inlined (SC-2/SC-3)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/engineering-approach/SKILL.md"
     exists: true
-  - path: .opencode/skills/skill-creator/tasks/fragment-management.md
-    role: used, unmodified — canonical fragment registration store (SC-1/SC-3); mechanism must remain unmodified (R-13)
+    role: "SC-2/SC-3 — directive inlined in this card; byte-identical copy of canonical fragment"
+  - path: "skills/skill-creator/tasks/fragment-management.md"
     exists: true
-  - path: .opencode/reference/skill-card-description-standards.md
-    role: modified — full-detail runtime-constraint documentation (SC-4)
+    role: "SC-1 — canonical fragment registered in the fragment store; mechanism must remain unmodified (R-13)"
+  - path: "reference/skill-card-description-standards.md"
     exists: true
-  - path: .opencode/reference/task-card-structure-standards.md
-    role: modified — full-detail runtime-constraint documentation (SC-4)
+    role: "SC-4 — full-detail runtime-constraint documentation (C2 doc)"
+  - path: "reference/task-card-structure-standards.md"
     exists: true
-  - path: .opencode/AGENTS.md
-    role: modified — compact 2-3 sentence runtime-constraint statement (SC-5); only always-loaded addition (R-14)
+    role: "SC-4 — full-detail runtime-constraint documentation (C2 doc)"
+  - path: "AGENTS.md"
     exists: true
-  - path: .opencode/tests-v2/test-enforcement.sh
-    role: modified — hosts new behavioral scenarios SC-6..SC-11 via existing --scenario/--tag/--changed filters
+    role: "SC-5 — compact 2-3 sentence runtime-constraint statement; only always-loaded addition (R-14, R-17)"
+  - path: "tests-v2/test-enforcement.sh"
     exists: true
-  - path: .opencode/tests-v2/with-test-home
-    role: used, unmodified — mandatory clean-room wrapper for behavioral runs (R-15)
+    role: "SC-6..SC-11 — behavioral harness hosting new scenarios (--scenario/--tag/--changed filters); must remain unmodified beyond scenario additions (R-13)"
+  - path: "tests-v2/with-test-home"
     exists: true
-impact_summary: >
-  Additive content only (R-16): six SKILL.md cards gain the inlined canonical
-  directive fragment; two reference standards docs and .opencode/AGENTS.md gain
-  runtime-constraint prose; tests-v2 gains behavioral scenarios. Zero existing
-  output-side deprecation text modified or superseded. All touched files live in
-  the .opencode submodule (repo: michael-conrad/.opencode). Deck validators
-  (skildeck-lint / validate_skill_cards.py) and the fragment-management mechanism
-  remain unmodified (R-13).
+    role: "SC-6..SC-11 — mandatory clean-room isolation wrapper for opencode run; must remain unmodified (R-13)"
+
+verification:
+  method: "bash -f existence check of all 12 paths relative to .opencode/ submodule root"
+  result: "12/12 present"
+  date: "2026-09-22"
+
+scope_boundary:
+  - "Additive-only: zero existing output-side deprecation text modified (REQ-C1)"
+  - "No runtime code changes — deliverables are card bodies, reference-standards prose, AGENTS.md statement, test scenarios"
+  - "Tier 1 guidelines untouched (R-14)"
+  - "Files in the .opencode submodule only — implementation routes to michael-conrad/.opencode"

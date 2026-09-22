@@ -1,29 +1,23 @@
-spec_path: .opencode/.issues/2458/spec.md
+# Analysis Summary — issue 2458 (Deprecation Encounter Protocol)
+spec_path: ".opencode/.issues/2458/spec.md"
 issue_number: 2458
+mode: retroactive
+pipeline_phase: audit-reaudit-artifact-backfill-2
 sc_count: 11
-scope_summary: >
-  Additive-only Deprecation Encounter Protocol spec. Inlines one canonical
-  directive fragment in six SKILL.md cards (research, systematic-debugging,
-  programming-principles, audit, skill-creator, engineering-approach); adds
-  full-detail runtime-constraint documentation to the two reference standards
-  docs and a compact statement to .opencode/AGENTS.md; adds behavioral
-  scenarios to tests-v2. Single-phase (Phase 1) spec; 5 string SCs (SC-1..SC-5)
-  + 6 behavioral SCs (SC-6..SC-11). All touched files live in the .opencode
-  submodule. SC set unchanged by the non-substantive revision (R-18→R-12
-  repoint; constraint-code definitions table added; deprecat* grep counts
-  corrected to 24 scoped / 95 full deck).
+
 artifact_status:
-  - artifact: blast-radius.yaml
-    status: backfilled
-  - artifact: concern-map.yaml
-    status: backfilled
-  - artifact: code-path-inventory.yaml
-    status: backfilled
-  - artifact: cross-cutting-matrix.yaml
-    status: backfilled
-  - artifact: interface-compatibility.yaml
-    status: backfilled
-  - artifact: state-analysis.yaml
-    status: backfilled
-  - artifact: testability-assessment.yaml
-    status: backfilled
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+
+scope_summary:
+  affected_files: 12
+  affected_files_verified: "12/12 present (bash -f check, paths relative to .opencode/ submodule root, 2026-09-22)"
+  evidence_types: "5 string SCs (SC-1..SC-5), 6 behavioral SCs (SC-6..SC-11)"
+  phases: "Single phase (Phase 1) — all items map to Phase 1 per spec Section 7 traceability"
+  additive_only: true
+  notes: "Backfill triggered by audit-reaudit iteration 2: spec-creation revise task deleted the artifacts directory per its Step 7; SC set unchanged (11 SCs); regenerated from current spec body with provenance corrections (22 deprecat* matches / 12 files; 169+107=276 open [SPEC]/[SPEC-FIX] issues; 12/12 files)."
