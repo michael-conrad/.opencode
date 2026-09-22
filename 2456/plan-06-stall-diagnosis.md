@@ -1,13 +1,13 @@
 # Phase 6 — Semantic poll discipline + stall diagnosis
 
-**Concern:** Every poll performs a full semantic check of progress so far (SC-14); polls occur no less often than every 5 minutes (SC-15); a semantically classified non-progressing run with an identifiable external cause produces decision=`terminate-with-root-cause` naming the diagnosed cause, with timer-escalation re-dispatch blocked (SC-13); GREEN-phase behavioral dispatches commit+push test-needed changes mechanically before the isolated run, with commit deliberation prohibited (SC-16).
+**Concern:** Every poll performs a full semantic check of progress so far (SC-14); polls occur no less often than every 5 minutes (SC-15); a semantically classified non-progressing run with an identifiable external cause produces decision=`terminate-with-root-cause` naming the diagnosed cause, with timer-escalation re-dispatch blocked (SC-13); GREEN-phase behavioral dispatches commit+push test-needed changes mechanically before the isolated run, with commit deliberation prohibited (SC-16); agent supervisors poll runs at ≤5-min intervals with a full semantic check per poll, retry loops without checks prohibited (SC-17); the mandate is mirrored into AGENTS.md §14 as default deck behavior (SC-18).
 
 **Files:**
 - `.opencode/tests-v2/behaviors/helpers.sh` (`__semantic_monitor` poll loop, per-poll semantic-check path, stall-classification path)
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -62,7 +62,18 @@
 - [ ] 111. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-16**
 - [ ] 112. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: task/push tool calls precede the run invocation. **→ SC-16**
 - [ ] 113. **commit-inline (**direct**).** Commit the ordering fixture + §14 alignment. **→ SC-16**
-- [ ] 114. **VbC (**task-card**).** Verify SC-13/SC-14/SC-15/SC-16 (behavioral) verdicts are PASS with matching evidence types. **→ SC-13, SC-14, SC-15, SC-16**
-- [ ] 115. **VbC consolidation (**direct**).** Consolidate the four verdicts into the phase evidence table.
+- [ ] 114. **RED — supervisor cadence (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture loops run invocations (1..4 retries) with 5-minute waits and NO semantic checks between iterations (or single waits >300s); the cadence assertion fails. **→ SC-17**
+- [ ] 115. **GREEN — supervisor cadence (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — supervisor polls at ≤5-min intervals, every poll a full semantic check from message/reasoning/tool-call parts; retry loops carry a semantic check between iterations. **→ SC-17**
+- [ ] 116. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-17**
+- [ ] 117. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: consecutive supervision gaps ≤300s, each closed by a content-derived classification. **→ SC-17**
+- [ ] 118. **commit-inline (**direct**).** Commit the supervisor-cadence scenario. **→ SC-17**
+- [ ] 119. **RED — §14 mirror (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — AGENTS.md §14 does not carry the supervisor polling mandate (≤5-min cadence, per-poll full semantic check, no-check retry loops prohibited); advisory structural check fails. **→ SC-18**
+- [ ] 120. **GREEN — §14 mirror (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — §14 updated to mirror the exact predicate. **→ SC-18**
+- [ ] 121. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-18**
+- [ ] 122. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — advisory markdown checks clean; content matches the predicate. **→ SC-18**
+- [ ] 123. **commit-inline (**direct**).** Commit the AGENTS.md §14 sections. **→ SC-18**
+- [ ] 124. **VbC (**task-card**).** Verify SC-13/SC-14/SC-15/SC-16/SC-17/SC-18 verdicts are PASS with matching evidence types. **→ SC-13..SC-18**
+- [ ] 125. **VbC consolidation (**direct**).** Consolidate the six verdicts into the phase evidence table.
+- [ ] 126. **Phase 6 gate (**direct**).** Confirm all six phase-6 SCs verified before post-implementation.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
