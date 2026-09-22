@@ -39,8 +39,8 @@ promoted_at: '2026-09-22T14:55:30+00:00'
 
 - **Modification of existing output-side deprecation text** — audit coherence-maintenance, changelog `deprecate:` category, and 087-no-backward-compat govern deprecation authoring/removal; this spec adds encounter-side handling only, so nothing existing is modified or superseded (additive-only constraint, REQ-C1).
 - **Runtime code changes** — no executable code paths are touched; deliverables are SKILL.md card bodies, reference-standards prose, the .opencode/AGENTS.md statement, and test scenarios.
-- **Auto-folding resolution SCs into current specs** — the SC-eligibility gate prohibits folding a resolution SC into the current spec without a dev brainstorm (NREQ-4).
-- **Mid-card content insertion mechanism or Read-link-only/load-on-encounter directive forms** — explicitly invalid per developer correction; the runtime-constraint documentation (SC-4) exists precisely to keep these forms out (NREQ-5).
+- **Auto-folding resolution SCs into current specs** — the SC-eligibility gate (SC-11) prohibits folding a resolution SC into the current spec without a dev brainstorm (NREQ-4).
+- **Mid-card content insertion mechanism or Read-link-only/load-on-encounter directive forms** — explicitly invalid per developer correction; the runtime-constraint documentation (SC-4, SC-5) exists precisely to keep these forms out (NREQ-5).
 - **A special tracking file for bitrot encounters** — standard issue tracking only ([BITROT]-prefixed specs/comments); no new tracking artifact is introduced (NREQ-1).
 - **Tier 1 guideline changes** — progressive-disclosure constraint: the compact runtime-mechanics statement in .opencode/AGENTS.md is the only always-loaded addition (REQ-I3).
 
@@ -49,14 +49,18 @@ promoted_at: '2026-09-22T14:55:30+00:00'
 | ID | Criterion | Evidence Type | Verification Method | Documentation Sources |
 |----|-----------|---------------|---------------------|----------------------|
 | SC-1 | The canonical deprecation-encounter directive fragment is registered with skill-creator fragment-management | string | Fragment store inspection via the fragment-management registration check | `.opencode/skills/skill-creator/tasks/fragment-management.md` |
-| SC-2 | The full directive text is inlined in each of the six SKILL.md cards (research, systematic-debugging, programming-principles, audit, skill-creator, engineering-approach); no Read-link-only, conditional-insert, or load-on-encounter form exists anywhere | string | Static text check: full directive present in each of the six card bodies; pattern search confirming absence of pointer forms | `.opencode/skills/research/SKILL.md`, `.opencode/skills/systematic-debugging/SKILL.md`, `.opencode/skills/programming-principles/SKILL.md`, `.opencode/skills/audit/SKILL.md`, `.opencode/skills/skill-creator/SKILL.md`, `.opencode/skills/engineering-approach/SKILL.md` |
+| SC-2 | The full directive text is inlined in each of the six SKILL.md cards (research, systematic-debugging, programming-principles, audit, skill-creator, engineering-approach); no Read-link-only, conditional-insert, or load-on-encounter form exists anywhere | string | Static text check: full directive present in each of the six card bodies; pattern search confirming absence of pointer forms; deck validators (skildeck-lint / validate_skill_cards.py) run green on the edited cards (R-13) | `.opencode/skills/research/SKILL.md`, `.opencode/skills/systematic-debugging/SKILL.md`, `.opencode/skills/programming-principles/SKILL.md`, `.opencode/skills/audit/SKILL.md`, `.opencode/skills/skill-creator/SKILL.md`, `.opencode/skills/engineering-approach/SKILL.md` |
 | SC-3 | The six card copies are byte-identical to the canonical fragment | string | Equality check across the six card bodies against the registered canonical fragment | The six SKILL.md card files + `.opencode/skills/skill-creator/tasks/fragment-management.md` fragment store |
-| SC-4 | Runtime-constraint documentation is present: full detail in `skill-card-description-standards.md` and `task-card-structure-standards.md`, plus a compact 2-3 sentence statement scoped to runtime mechanics in `.opencode/AGENTS.md` | string | Static text check on the three files: constraint text present in both reference docs; statement present and 2-3 sentences in .opencode/AGENTS.md | `.opencode/reference/skill-card-description-standards.md`, `.opencode/reference/task-card-structure-standards.md`, `.opencode/AGENTS.md` |
-| SC-5 | An agent encountering a deprecated item classifies it as pending breakage/bitrot (never ignores it, never builds on it) and the orchestrator dispatches filing for every encounter, dependent or observed | behavioral | tests-v2 clean-room `opencode run` via with-test-home; stderr behavioral evidence of classification + filing dispatch, with dependent AND observed encounter variants (commit → push → fetch-verify ordering before run) | `.opencode/tests-v2/test-enforcement.sh` harness (existing --scenario/--tag filters) |
-| SC-6 | Filing routes by platform state: remote API when available; chat executive summary + defer-and-retry on transient API failure; local `.issues/` standard tracking ([BITROT] prefix + bitrot label) on structural absence of remote — and search-then-create-or-comment is observed (search precedes POST; comment on found, create on not-found) | behavioral | tests-v2 behavioral scenario(s), table-driven routing branches asserting search-before-POST and branch-appropriate channel | `.opencode/tests-v2/test-enforcement.sh` harness |
-| SC-7 | A dependent encounter (the encountered deprecated item is a code path the current change touches) surfaces a scope assessment to the developer; no resolution SC is folded into the current spec without a dev brainstorm | behavioral | tests-v2 behavioral scenario asserting scope-assessment surfacing and no unauthorized fold-in | `.opencode/tests-v2/test-enforcement.sh` harness |
+| SC-4 | Full-detail runtime-constraint documentation is present in both reference standards docs — `skill-card-description-standards.md` and `task-card-structure-standards.md` (full cards load before any decision-making; no mid-card content insertion; decision-point directives SHALL be inline, never Read-link-only or load-on-encounter) | string | Static text check on the two reference docs: full-detail runtime-constraint text present in each | `.opencode/reference/skill-card-description-standards.md`, `.opencode/reference/task-card-structure-standards.md` |
+| SC-5 | A compact 2-3 sentence runtime-constraint statement, scoped to runtime mechanics only (not domain rules), is present in `.opencode/AGENTS.md` | string | Static text check on `.opencode/AGENTS.md`: statement present and within the 2-3 sentence bound | `.opencode/AGENTS.md` |
+| SC-6 | An agent encountering a deprecated item during workflow classifies it as pending breakage/bitrot — never as ignorable noise, never as something to build on | behavioral | tests-v2 clean-room `opencode run` via with-test-home; stderr behavioral evidence of classification without reliance (commit → push → fetch-verify ordering before run) | `.opencode/tests-v2/test-enforcement.sh` harness (existing --scenario/--tag filters) |
+| SC-7 | The orchestrator dispatches filing for every encounter, immediately at encounter receipt (the dependent-encounter variant and the observed-encounter variant are each exercised); encounters observed by sub-agents propagate to the orchestrator via result contracts | behavioral | tests-v2 clean-room `opencode run` via with-test-home; stderr behavioral evidence of filing dispatch on both encounter variants (commit → push → fetch-verify ordering before run) | `.opencode/tests-v2/test-enforcement.sh` harness |
+| SC-8 | Filing channel routing follows platform state per the routing table: remote API when available; transient API failure → chat executive summary with defer-and-retry; structural absence of remote (platform: local) → local `.issues/` standard tracking with the same [BITROT] prefix and bitrot label — no special tracking file | behavioral | tests-v2 behavioral scenario(s), table-driven routing branches asserting the branch-appropriate channel per platform state | `.opencode/tests-v2/test-enforcement.sh` harness |
+| SC-9 | The filing path searches the remote tracker for an existing [BITROT] spec on that deprecation before any POST: found → append the encounter evidence as a comment; not found → create a spec with the [BITROT] title prefix and the bitrot label (created with the first filing if the platform lacks it) | behavioral | tests-v2 behavioral scenario asserting search-before-POST ordering and the branch-appropriate create-or-comment outcome | `.opencode/tests-v2/test-enforcement.sh` harness |
+| SC-10 | A dependent encounter (the encountered deprecated item is a code path the current change touches) surfaces the finding to the developer with a scope assessment | behavioral | tests-v2 behavioral scenario asserting scope-assessment surfacing on the dependent-encounter variant | `.opencode/tests-v2/test-enforcement.sh` harness |
+| SC-11 | No resolution SC is folded into the current spec without a dev brainstorm presenting the plan-approval-revocation cost; the SC question is never raised on observed-only encounters | behavioral | tests-v2 behavioral scenario asserting no unauthorized fold-in and no SC question on observed-only encounters | `.opencode/tests-v2/test-enforcement.sh` harness |
 
-Each SC maps to exactly one item in the Items section (items 1-7, one per SC).
+Each SC maps to exactly one item in the Items section (items 1-11, one per SC).
 
 ## 4. Requirements
 
@@ -76,7 +80,7 @@ R-7. A compact 2-3 sentence runtime-constraint statement, scoped to runtime mech
 
 R-8. The orchestrator SHALL dispatch a filing sub-agent immediately at encounter receipt; encounters observed by sub-agents SHALL propagate to the orchestrator via result contracts (sub-agents cannot dispatch task()).
 
-R-9. The filing path SHALL search the remote tracker for an existing [BITROT] spec on that deprecation before any POST: found → append the encounter evidence as a comment (check-before-POST per critical-rules-029); not found → create a spec with the [BITROT] title prefix and the bitrot label.
+R-9. The filing path SHALL search the remote tracker for an existing [BITROT] spec on that deprecation before any POST: found → append the encounter evidence as a comment (check-before-POST per critical-rules-029); not found → create a spec with the [BITROT] title prefix and the bitrot label (the bitrot label is created with the first [BITROT] filing if the platform does not yet carry it).
 
 R-10. Channel routing SHALL follow platform state: remote API when available; transient API failure → chat executive summary + defer-and-retry; structurally no remote (platform: local) → local `.issues/` standard tracking with the same [BITROT] prefix and label — no special tracking file.
 
@@ -107,7 +111,7 @@ R-17. The encounter directive (domain rule) SHALL stay out of the C2 files — t
 
 - RED: Static check finds no full directive text in at least one of the six cards (or finds a pointer-only form).
 - GREEN: All six cards carry the full directive inline in their natural per-card sections (findings classification in research/audit; root-cause hypothesis in systematic-debugging; review findings in programming-principles; deck-internal lifecycle in skill-creator; design/implementation discipline in engineering-approach).
-- verify: Static text check — full directive present ×6; absence of pointer forms.
+- verify: Static text check — full directive present ×6; absence of pointer forms; deck validators (skildeck-lint / validate_skill_cards.py) green on the edited cards.
 - commit: Six card edits + test artifact.
 
 ### Item 3 (SC-3): Six-copy equality against canonical fragment
@@ -117,42 +121,70 @@ R-17. The encounter directive (domain rule) SHALL stay out of the C2 files — t
 - verify: Equality check.
 - commit: Divergence fix + test artifact.
 
-### Item 4 (SC-4): Runtime-constraint documentation in C2 files
+### Item 4 (SC-4): Full-detail runtime-constraint documentation in the two reference standards docs
 
-- RED: Static check finds no runtime-constraint text in at least one of the three C2 files.
-- GREEN: Full-detail constraint in both reference standards docs; compact 2-3 sentence statement in .opencode/AGENTS.md.
-- verify: Static text check on the three files.
-- commit: Three doc edits + test artifact.
+- RED: Static check finds no runtime-constraint text in at least one of the two reference docs.
+- GREEN: Full-detail constraint text present in `skill-card-description-standards.md` and `task-card-structure-standards.md`.
+- verify: Static text check on the two reference docs.
+- commit: Two doc edits + test artifact.
 
-### Item 5 (SC-5): Behavioral — encounter → classify → dispatch filing
+### Item 5 (SC-5): Compact runtime-constraint statement in .opencode/AGENTS.md
 
-- RED: Clean-room opencode run on the unmodified deck — the agent ignores the deprecated item (no classification/dispatch evidence in stderr).
-- GREEN: Agent classifies the deprecated item as pending breakage/bitrot and the orchestrator dispatches filing for dependent AND observed encounters.
+- RED: Static check finds no compact runtime-constraint statement in `.opencode/AGENTS.md`.
+- GREEN: Compact 2-3 sentence statement present, scoped to runtime mechanics only.
+- verify: Static text check on `.opencode/AGENTS.md`.
+- commit: `.opencode/AGENTS.md` edit + test artifact.
+
+### Item 6 (SC-6): Behavioral — encounter classification
+
+- RED: Clean-room opencode run on the unmodified deck — the agent ignores the deprecated item (no classification evidence in stderr).
+- GREEN: Agent classifies the deprecated item as pending breakage/bitrot — never ignores it, never builds on it.
 - verify: tests-v2 clean-room run; stderr behavioral evidence (commit → push → fetch-verify before run).
 - commit: Scenario + harness wiring.
 
-### Item 6 (SC-6): Behavioral — platform-routed filing (search-then-create-or-comment)
+### Item 7 (SC-7): Behavioral — filing dispatch on every encounter
 
-- RED: No routing behavior — no search-before-POST, no [BITROT] prefix/label, no local fallback on structural absence.
-- GREEN: Filing searches existing [BITROT] specs first (comment on found, create on not-found) and routes per platform state.
+- RED: Clean-room opencode run — no filing dispatch for the encounter on the dependent or observed variant.
+- GREEN: Orchestrator dispatches filing on the dependent-encounter variant and the observed-encounter variant; sub-agent-observed encounters propagate via result contracts.
+- verify: tests-v2 clean-room run; stderr behavioral evidence (commit → push → fetch-verify before run).
+- commit: Scenario + harness wiring.
+
+### Item 8 (SC-8): Behavioral — platform-state channel routing
+
+- RED: No routing behavior — filing ignores platform state (no remote/local/transient-failure branch differentiation).
+- GREEN: Filing routes per platform state: remote API when available; chat executive summary + defer-and-retry on transient failure; local `.issues/` standard tracking on structural absence of remote.
 - verify: tests-v2 behavioral scenario(s) — table-driven routing branches.
 - commit: Scenario + harness wiring.
 
-### Item 7 (SC-7): Behavioral — dependent-encounter dev-brainstorm gate
+### Item 9 (SC-9): Behavioral — search-then-create-or-comment ordering
 
-- RED: Agent folds a resolution SC into the current spec without a dev brainstorm (or fails to surface a scope assessment).
-- GREEN: Agent surfaces the scope assessment; no inline SC addition without a dev brainstorm.
+- RED: Filing POSTs without searching — duplicate [BITROT] spec creation or a missed evidence comment.
+- GREEN: Filing searches existing [BITROT] specs first; comment on found, create on not-found with [BITROT] title prefix and bitrot label.
+- verify: tests-v2 behavioral scenario asserting search-before-POST and both create-or-comment branches.
+- commit: Scenario + harness wiring.
+
+### Item 10 (SC-10): Behavioral — dependent-encounter scope assessment
+
+- RED: Dependent encounter produces no scope assessment to the developer.
+- GREEN: Scope assessment surfaced on the dependent-encounter variant.
+- verify: tests-v2 behavioral scenario asserting scope-assessment surfacing.
+- commit: Scenario + harness wiring.
+
+### Item 11 (SC-11): Behavioral — fold-in gate
+
+- RED: Agent folds a resolution SC into the current spec without a dev brainstorm (or raises the SC question on an observed-only encounter).
+- GREEN: No inline SC addition without a dev brainstorm presenting the plan-approval-revocation cost; SC question never raised on observed-only encounters.
 - verify: tests-v2 behavioral scenario asserting no unauthorized fold-in.
 - commit: Scenario + harness wiring.
 
-Dependency DAG: 1 → 2 → 3 → 5 → 6, 5 → 7; 4 independent (string docs). Behavioral items (5-7) carry a PUSH step before the behavioral run per the 091 behavioral variant — commit and push precede the fresh-fetch verification and the run itself.
+Dependency DAG: 1 → 2 → 3 → 6 → 7 (the inlined directive chain feeds the behavioral encounter tests, and dispatch triggers on a classified encounter); 7 → 8, 7 → 9, 7 → 10 (routing, search ordering, and the dependent-encounter assessment each exercise the dispatched filing path); 10 → 11 (the SC-eligibility gate is evaluated after the assessment surfaces); 4 and 5 independent (string docs). Behavioral items (6-11) carry a PUSH step before the behavioral run per the 091 behavioral variant — commit and push precede the fresh-fetch verification and the run itself.
 
 ## 6. Dependencies
 
 | Reference | Relationship | Status |
 |-----------|--------------|--------|
 | `.opencode/skills/skill-creator/tasks/fragment-management.md` | Mechanism used to register the canonical fragment (SC-1) — must exist; mechanism must remain unmodified (R-13) | Satisfied — file exists (session check; `grep -ril 'fragment'` confirms the mechanism) |
-| `.opencode/tests-v2/test-enforcement.sh` + with-test-home wrapper | Behavioral harness hosting the new scenarios (SC-5/6/7) — scenarios slot into existing --scenario/--tag/--changed filters | Satisfied — harness referenced in the .opencode/AGENTS.md Build/Lint/Test table |
+| `.opencode/tests-v2/test-enforcement.sh` + with-test-home wrapper | Behavioral harness hosting the new scenarios (SC-6..SC-11) — scenarios slot into existing --scenario/--tag/--changed filters | Satisfied — harness referenced in the .opencode/AGENTS.md Build/Lint/Test table |
 | skildeck-lint / validate_skill_cards.py | Deck validators must stay green after card-body edits (R-13) — validators reject meta-instruction patterns in frontmatter/description, not body sections | Satisfied — verified in the brainstorming handoff |
 | Research card `spec-writing-ai-agents-opencode-skill-architecture` (confidence 0.90) | Grounds the C2 runtime-constraint documentation: skill() auto-loads full cards before decision-making, task() does not auto-load task cards | Satisfied — consulted (`.issues/research-cards/`) |
 | Cross-spec: 4 CONFLICT-RISK deck-wide structural specs (#2056, #1199, #1204, #1358) touch the same six cards | Merge-sequence coordination required — additive-only content here minimizes conflict surface; sequencing is a coordination note, not a scope change | Pending — carried as pipeline coordination note |
@@ -163,25 +195,25 @@ Dependency DAG: 1 → 2 → 3 → 5 → 6, 5 → 7; 4 independent (string docs).
 
 | Requirement | SC(s) | Phase(s) |
 |-------------|-------|----------|
-| R-1 | SC-5 | Phase 1 |
-| R-2 | SC-5 | Phase 1 |
-| R-3 | SC-5, SC-6 | Phase 1 |
-| R-4 | SC-5 | Phase 1 |
+| R-1 | SC-6 | Phase 1 |
+| R-2 | SC-6 | Phase 1 |
+| R-3 | SC-7, SC-9 | Phase 1 |
+| R-4 | SC-7 | Phase 1 |
 | R-5 | SC-1, SC-2, SC-3 | Phase 1 |
 | R-6 | SC-4 | Phase 1 |
-| R-7 | SC-4 | Phase 1 |
-| R-8 | SC-5, SC-6 | Phase 1 |
-| R-9 | SC-6 | Phase 1 |
-| R-10 | SC-6 | Phase 1 |
-| R-11 | SC-7 | Phase 1 |
-| R-12 | SC-5, SC-6, SC-7 | Phase 1 |
+| R-7 | SC-5 | Phase 1 |
+| R-8 | SC-7 | Phase 1 |
+| R-9 | SC-9 | Phase 1 |
+| R-10 | SC-8 | Phase 1 |
+| R-11 | SC-10, SC-11 | Phase 1 |
+| R-12 | SC-6, SC-7, SC-8, SC-9, SC-10, SC-11 | Phase 1 |
 | R-13 | SC-2 | Phase 1 |
-| R-14 | SC-4 | Phase 1 |
-| R-15 | SC-5, SC-6, SC-7 | Phase 1 |
-| R-16 | SC-1, SC-2, SC-4 | Phase 1 |
-| R-17 | SC-2, SC-4 | Phase 1 |
+| R-14 | SC-5 | Phase 1 |
+| R-15 | SC-6, SC-7, SC-8, SC-9, SC-10, SC-11 | Phase 1 |
+| R-16 | SC-1, SC-2, SC-4, SC-5 | Phase 1 |
+| R-17 | SC-2, SC-4, SC-5 | Phase 1 |
 
-Every requirement traces to at least one SC; every SC traces to at least one requirement (SC-1 ← R-5, R-16; SC-2 ← R-5, R-13, R-16, R-17; SC-3 ← R-5; SC-4 ← R-6, R-7, R-14, R-16, R-17; SC-5 ← R-1..R-4, R-8, R-12, R-15; SC-6 ← R-3, R-8..R-10, R-12, R-15; SC-7 ← R-11, R-12, R-15).
+Every requirement traces to at least one SC; every SC traces to at least one requirement (SC-1 ← R-5, R-16; SC-2 ← R-5, R-13, R-16, R-17; SC-3 ← R-5; SC-4 ← R-6, R-16, R-17; SC-5 ← R-7, R-14, R-16, R-17; SC-6 ← R-1, R-2, R-12, R-15; SC-7 ← R-3, R-4, R-8, R-12, R-15; SC-8 ← R-10, R-12, R-15; SC-9 ← R-3, R-9, R-12, R-15; SC-10 ← R-11, R-12, R-15; SC-11 ← R-11, R-12, R-15).
 
 ## 8. Documentation Sources
 
@@ -206,22 +238,26 @@ Every requirement traces to at least one SC; every SC traces to at least one req
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
 - **SC-1:** Inspecting the fragment store for the canonical registration costs one read — seconds. Skipping costs weeks of silent drift remediation — divergent copies surface only when an agent follows a stale directive at an encounter point.
-- **SC-2:** Verifying full inline text across the six cards costs one static text pass — seconds. Skipping means a pointer-only card routes agents through a Read that may never execute — the directive is absent at the exact decision point where the encounter occurs, and the gap surfaces only after a deprecated dependency ships into an agent workflow.
+- **SC-2:** Verifying full inline text across the six cards plus the deck-validator run costs one static text pass and one validator run — seconds. Skipping means a pointer-only card routes agents through a Read that may never execute — the directive is absent at the exact decision point where the encounter occurs, and the gap surfaces only after a deprecated dependency ships into an agent workflow.
 - **SC-3:** Running the six-copy equality check costs one comparison run — seconds. Skipping costs the drift window — one edited copy silently diverges and agents receive contradictory directives depending on which card they loaded, discovered only by cross-card incident forensics.
-- **SC-4:** Verifying the three C2 files costs three reads — seconds. Skipping costs every future skill author the placement decision — pointer forms re-enter the deck spec by spec, and the inline guarantee decays until an encounter directive is once again invisible at decision time.
-- **SC-5:** Running the behavioral encounter test costs minutes of clean-room execution. Skipping costs the death spiral: the untested encounter behavior ships, agents treat the next deprecated item as ignorable noise, and the breakage surfaces in production as an unresearched failure — orders of magnitude beyond the bounded test cost.
-- **SC-6:** Running the routing behavioral branches costs minutes per branch. Skipping means filing silently routes to the wrong channel — a transient API failure drops the encounter entirely and the developer never learns of the pending breakage until it fires.
-- **SC-7:** Running the dependent-encounter scenario costs minutes. Skipping means a resolution SC gets folded into an approved plan without the developer's brainstorm — plan-approval revocation surfaces as mid-implementation rework instead of a decision made at the gate.
+- **SC-4:** Verifying the two reference standards docs costs two reads — seconds. Skipping costs every future skill author the placement decision — pointer forms re-enter the deck spec by spec, and the inline guarantee decays until an encounter directive is once again invisible at decision time.
+- **SC-5:** Verifying the `.opencode/AGENTS.md` statement costs one read — seconds. Skipping costs the always-loaded surface — the compact statement is the only global addition (R-14); without verification, runtime mechanics are either absent from every session or silently accrete domain rules into Tier 1, both of which defeat the progressive-disclosure constraint.
+- **SC-6:** Running the classification behavioral test costs minutes of clean-room execution. Skipping costs the death spiral: the untested classification behavior ships, agents treat the next deprecated item as ignorable noise, and the breakage surfaces in production as an unresearched failure — orders of magnitude beyond the bounded test cost.
+- **SC-7:** Running the filing-dispatch behavioral test costs minutes per encounter variant. Skipping means encounters are classified but never filed — the developer's knowledge of pending breakage never materializes and the protocol degrades to observation without action.
+- **SC-8:** Running the routing behavioral branches costs minutes per branch. Skipping means filing silently routes to the wrong channel — a transient API failure drops the encounter entirely and the developer never learns of the pending breakage until it fires.
+- **SC-9:** Running the search-then-create-or-comment scenario costs minutes. Skipping means duplicate [BITROT] specs or missed evidence comments — the encounter record fragments across duplicate specs and consolidation cost compounds with every encounter.
+- **SC-10:** Running the dependent-encounter assessment scenario costs minutes. Skipping means the developer never learns the current change touches a deprecated path — the scope risk surfaces mid-implementation instead of at the gate.
+- **SC-11:** Running the fold-in-gate scenario costs minutes. Skipping means a resolution SC gets folded into an approved plan without the developer's brainstorm — plan-approval revocation surfaces as mid-implementation rework instead of a decision made at the gate.
 
 ## 11. Edge Cases
 
 **Input boundaries:**
-- *Condition:* The deprecation already has an existing [BITROT] spec on the remote. *Expected behavior:* The filing path appends the encounter evidence as a comment — no duplicate spec POST (check-before-POST per critical-rules-029). *Resolution:* SC-6 search-then-create-or-comment branch.
-- *Condition:* The owning module of the deprecated item cannot be resolved from the item identity. *Expected behavior:* The filing agent resolves the owner from the encounter context (file path, card identity, or config namespace) before creating; if still unresolvable, the filing agent SHALL NOT guess — it surfaces the unresolved ownership in the encounter record to the developer. *Resolution:* scope assessment surfacing (SC-7 path) rather than a misdirected spec.
+- *Condition:* The deprecation already has an existing [BITROT] spec on the remote. *Expected behavior:* The filing path appends the encounter evidence as a comment — no duplicate spec POST (check-before-POST per critical-rules-029). *Resolution:* SC-9 search-then-create-or-comment branch.
+- *Condition:* The owning module of the deprecated item cannot be resolved from the item identity. *Expected behavior:* The filing agent resolves the owner from the encounter context (file path, card identity, or config namespace) before creating; if still unresolvable, the filing agent SHALL NOT guess — it surfaces the unresolved ownership in the encounter record to the developer. *Resolution:* scope assessment surfacing (SC-10 path) rather than a misdirected spec.
 
 **State transitions:**
-- *Condition:* Dependent versus observed classification boundary. *Expected behavior:* A dependent encounter (current change touches the deprecated code path) adds the scope assessment and the SC-eligibility gate; an observed-only encounter records and files only — the SC question is never raised (R-11). *Resolution:* PATH-1 decision branch; both variants dispatch filing (SC-5).
-- *Condition:* Routing branch selection (remote available / transient failure / structurally local). *Expected behavior:* Branch selection is a per-invocation decision with no state carried across invocations — no persisted routing state exists (state-analysis: not-applicable). *Resolution:* SC-6 table-driven branches.
+- *Condition:* Dependent versus observed classification boundary. *Expected behavior:* A dependent encounter (current change touches the deprecated code path) adds the scope assessment and the SC-eligibility gate; an observed-only encounter records and files only — the SC question is never raised (R-11). *Resolution:* PATH-1 decision branch; both variants dispatch filing (SC-7).
+- *Condition:* Routing branch selection (remote available / transient failure / structurally local). *Expected behavior:* Branch selection is a per-invocation decision with no state carried across invocations — no persisted routing state exists (state-analysis: not-applicable). *Resolution:* SC-8 table-driven branches.
 
 **Failure modes:**
 - *Condition:* Transient remote API failure during filing. *Expected behavior:* Chat executive summary of the encounter + defer-and-retry on availability — the encounter is never silently dropped. *Resolution:* R-10 routing branch.
@@ -236,6 +272,14 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 **Recovery:**
 - *Condition:* Behavioral run killed by a too-short bash timeout. *Expected behavior:* Behavioral scenarios use a ≥600s timeout; on a kill, the SQLite session DB in the test home survives. *Resolution:* Post-timeout export per tests-v2 §10.5; re-run after lock cleanup.
 - *Condition:* Filing attempted during an API outage window. *Expected behavior:* Defer-and-retry resumes filing when the API recovers. *Resolution:* R-10; the chat executive summary preserves the encounter evidence until the retry succeeds.
+
+## 12. Change Control
+
+| Date | Change | Reason | Authorized By |
+|------|--------|--------|---------------|
+| 2026-09-22 | Decomposed the four compound SCs flagged by validation into atomic sub-SCs: SC-4 → SC-4 (full-detail runtime-constraint documentation in the two reference standards docs) + SC-5 (compact 2-3 sentence statement in .opencode/AGENTS.md); SC-5 → SC-6 (encounter classification) + SC-7 (filing dispatch on every encounter); SC-6 → SC-8 (platform-state channel routing) + SC-9 (search-then-create-or-comment ordering); SC-7 → SC-10 (dependent-encounter scope assessment) + SC-11 (fold-in gate). Items renumbered 1-11 with 1:1 SC mapping; DAG updated to 1→2→3→6→7; 7→8, 7→9, 7→10; 10→11; 4-5 independent; traceability re-mapped (all 17 requirements covered, every SC traces to ≥1 requirement); per-SC cost frames expanded to 11; edge-case SC references updated. Advisory tightenings: SC-2 verification method now includes the deck-validator-green run (R-13); R-9 clarifies bitrot-label provenance (created with the first [BITROT] filing if the platform lacks it). | Validation findings: aggregate FAIL — compound-SC structure (checks compound-sc-detection and decomposition-atomicity FAIL; all other 24 checks PASS). SC-4/5/6/7 bundled multiple claim forms joined by "and"/"plus"/semicolon | spec-creation revise task, dispatched by the orchestrator with the validator findings (pipeline-initiated revision, 2026-09-22) |
+
+Out-of-scope advisory (won't-fix in this revision): validator note that `spec-creation/tasks/validate.md` links `../../../audit/reference/decomposition-criteria.md` (nonexistent path; master definition lives at `.opencode/audit/reference/decomposition-criteria.md`). This is a skill task-file defect outside the spec — fixing it belongs to a separate skill-maintenance change, not a spec revision.
 
 ---
 
