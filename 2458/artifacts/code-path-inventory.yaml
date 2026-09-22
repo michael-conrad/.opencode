@@ -1,0 +1,39 @@
+schema: code-path-inventory
+issue: ".opencode#2458"
+generated: 2026-09-22
+status: complete
+source: "handoff code-paths.md (complete, used directly)"
+path_class: "agent-behavioral runtime paths, not executable code — no executable code paths touched by this spec"
+runtime_paths:
+  - id: PATH-1
+    name: "Encounter → classify → file (any of six skills, orchestrator level)"
+    steps:
+      - "agent loads full SKILL.md (six cards carry inline directive)"
+      - "agent encounters deprecated item during workflow"
+      - "classify: pending breakage / bitrot (every encounter: dependent OR observed)"
+      - "dependent? (current change touches the code path)"
+      - "yes → record encounter + scope assessment → surface to dev → brainstorm gate → dev folds resolution SC into current spec (accepting plan-approval revocation) OR leaves it to bitrot spec alone"
+      - "no → record encounter only"
+      - "orchestrator dispatches filing sub-agent immediately on encounter receipt (sub-agents cannot dispatch task() — encounters propagate via result contracts)"
+    sc_ids: [SC-5, SC-7]
+  - id: PATH-2
+    name: "Filing sub-agent → platform routing"
+    steps:
+      - "filing sub-agent receives encounter record (item identity, encounter context, owning module)"
+      - "search remote API for existing [BITROT] spec on that deprecation"
+      - "found → append encounter evidence as comment (check-before-POST, critical-rules-029)"
+      - "not found → create spec: [BITROT] title prefix + bitrot label"
+      - "channel routing: remote API available → GitHub/GitBucket API; transient API failure → chat executive summary + defer, retry on availability; structurally no remote (platform: local) → local .issues/ via local-issues, same [BITROT] prefix + label in frontmatter — standard tracking mechanism, no special tracking file"
+    sc_ids: [SC-6]
+  - id: PATH-3
+    name: "Enforcement test path"
+    steps:
+      - "tests-v2 behavioral harness → with-test-home → opencode run (clean-room)"
+      - "assert stderr evidence of directive-following behavior"
+      - "string checks for inline card text (placement SCs)"
+    sc_ids: [SC-5, SC-6, SC-7]
+static_paths:
+  - "card body insertion points: per-card natural sections (findings classification in research/audit; root-cause hypothesis in systematic-debugging; review findings in programming-principles; deck-internal lifecycle in skill-creator; design/implementation discipline in engineering-approach)"
+  - "placement is per-card; fragment text identical across all six"
+  - "reference docs insertion: runtime-constraint sections in both standards docs; compact statement in .opencode/AGENTS.md"
+execution_surface_change: "none — all changes are static text (card bodies, docs) + test scenarios; no executable code modified"

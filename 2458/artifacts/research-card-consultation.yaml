@@ -1,0 +1,22 @@
+schema: research-card-consultation
+issue: ".opencode#2458"
+generated: 2026-09-22
+
+search:
+  method: "glob .issues/research-cards/*.md (path-parameter form; 14 cards found) + grep frontmatter/content for deprecat|bitrot|encounter|pending breakage|inline directive|fragment"
+  matching_cards: 1
+  confidence_threshold: 0.7
+
+cards_consulted:
+  - name: spec-writing-ai-agents-opencode-skill-architecture
+    path: .issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md
+    confidence: 0.90
+    status: active
+    relevance: indirect-but-applicable
+    incorporated_findings:
+      - "skill() auto-loads SKILL.md into the calling agent's context; task() does NOT auto-load task cards (sub-agent reads via file tools) — direct grounding for the C2 runtime-constraint documentation: full cards load before decision-making, so decision-point directives MUST be inline"
+      - "description field is a semantic router — agent evaluates its OWN intent; relevant to how the six-card directive is discovered (cards must be loaded for the directive to be visible, reinforcing inline placement)"
+    usage: "Cited as evidence in concern-map (C2) and testability (string-evidence rationale for placement SCs); spec format follows BDD/RFC-2119 dual-audience pattern per finding (2)"
+
+cards_not_matching:
+  note: "13 remaining cards target unrelated topics (per-sc decomposition, DIMO auditor divergence, markdown link patterns, authorization state, thinking-block checkpoints, etc.) — zero deprecation/bitrot/encounter coverage; no other findings incorporated"

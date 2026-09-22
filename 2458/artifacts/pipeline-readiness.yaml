@@ -1,0 +1,29 @@
+schema: pipeline-readiness
+issue: ".opencode#2458"
+generated: 2026-09-22
+validated_from: [tmp/2458/contracts/decompose-output.yaml, tmp/2458/artifacts/*.yaml]
+
+checks:
+  atomicity:
+    status: PASS
+    evidence: "7 SCs (SC-1..SC-7) map 1:1 to 7 implementation items (ITEM-1..ITEM-7), each with exactly one RED→GREEN→COMMIT cycle; behavioral items (5-7) add the PUSH step per 091 behavioral variant — no item covers multiple SCs"
+  dependency_ordering:
+    status: PASS
+    evidence: "item DAG: 1→2→3→5→6, 5→7, 4 independent — acyclic (verified by inspection of depends_on edges in decompose-output.yaml)"
+  single_concern:
+    status: PASS
+    evidence: "each SC targets exactly one file category and one verification domain (SC-1 fragment store / SC-2+SC-3 six card bodies / SC-4 three C2 docs / SC-5,6,7 tests-v2 behavioral scenarios); string vs behavioral evidence split per critical-rules-BEH-EV substrate classification"
+  phase_dependency:
+    status: PASS
+    evidence: "single-phase spec (spec_shape: single-task); trivially acyclic"
+  three_tier_structure:
+    status: PASS
+    evidence: "N/A — single-phase spec; pre/per-file/post structure applies to multi-phase specs only"
+  validate_yaml_gate:
+    status: PASS
+    evidence: "command: ./.opencode/tools/local-issues validate-yaml --number .opencode#2458 — exit code 0 (executed directly by this agent, 2026-09-22)"
+
+overall: PASS
+notes:
+  - "cross-spec merge-sequence coordination (4 conflict-risk specs #2056/#1199/#1204/#1358, 17 partial-overlap) is a pipeline coordination note carried in blast-radius.yaml and concern-map.yaml — not a readiness blocker; content is additive-only"
+  - "SC table in the spec (authored by create task) must remain consistent with sc_definitions in decompose-output.yaml"

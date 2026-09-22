@@ -1,0 +1,33 @@
+schema: concern-map
+issue: ".opencode#2458"
+generated: 2026-09-22
+status: complete
+source: "handoff concern-map.md (complete, used directly) refined to artifact schema"
+concerns:
+  - id: C1
+    name: encounter classification + filing directive
+    boundary: "deprecated item = pending breakage = bitrot; file/update spec in owning module; every encounter (dependent or observed) triggers filing; dependent encounters raise dev-brainstorm SC-eligibility gate"
+    owner_files: "six SKILL.md cards (identical fragment text)"
+    sc_ids: [SC-1, SC-2, SC-3, SC-5, SC-6, SC-7]
+  - id: C2
+    name: runtime-constraint documentation
+    boundary: "full cards load before decision-making; no mid-card content insertion; decision-point directives must be inline"
+    owner_files: ".opencode/reference/skill-card-description-standards.md, .opencode/reference/task-card-structure-standards.md, .opencode/AGENTS.md"
+    sc_ids: [SC-4]
+  - id: C3
+    name: fragment drift control
+    boundary: "single canonical text, six inline copies, managed via skill-creator fragment-management"
+    owner_files: ".opencode/skills/skill-creator/tasks/fragment-management.md + six cards"
+    sc_ids: [SC-1, SC-3]
+  - id: C4
+    name: behavioral enforcement
+    boundary: "encounter behavior (classify → record → orchestrator dispatch → file) tested via clean-room opencode run"
+    owner_files: ".opencode/tests-v2/"
+    sc_ids: [SC-5, SC-6, SC-7]
+boundary_notes:
+  - "C1 stays out of C2 files: domain rule scoped to the six cards; only runtime mechanics go global — explicit developer decision"
+  - "C1 spans one unit (directive fragment) across six units (cards) — cross-unit single-text requirement is why C3 exists"
+  - "C4 covers C1 behavior; C2 documentation is string-verifiable — evidence types split per critical-rules-BEH-EV (placement = string, encounter behavior = behavioral)"
+separation_verification: "each SC maps to exactly one concern and one file category (see decompose-output.yaml atomicity)"
+overlap_coordination:
+  note: "17 PARTIAL-OVERLAP additive specs (#2094 on all three C2 docs; #2369/#2368/#2365/#2196 on P1 cards); 4 CONFLICT-RISK structural specs (#2056, #1199, #1204, #1358) — additive-only content here; PR sequencing is a coordination note, not a scope change"
