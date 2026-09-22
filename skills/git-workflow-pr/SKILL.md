@@ -34,6 +34,7 @@ When the agent needs to create a pull request, squash commits to a single commit
 - [ ] 1. **Pr-creation** — Creates a pull request with a structured body and compare URL
   - **Context passed:** `{branch_name, spec_summary, is_release}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
+  - **Dispatch value:** `task-card` — dispatch this step's task card ([pr-creation](.opencode/skills/git-workflow-pr/tasks/pr-creation.md)) via `task()`, per the canonical dispatch-vocabulary table: Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md)
   - On completion, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Step 9 Ticket Status Reconciliation in `tasks/pr-creation.md`).
 
 ### Prepare for review
@@ -110,4 +111,5 @@ PR organization IS branch organization. Stacked PR IS the only valid organizatio
 Every authorization scope declares exactly one strategy: stacked or none.
 Creating N branches for N issues IS a critical violation — Period.
 
+*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
