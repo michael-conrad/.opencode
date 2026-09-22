@@ -15,7 +15,7 @@ promoted_at: '2026-09-22T14:55:30+00:00'
 
 ## 1. Intent and Executive Summary
 
-**Problem Statement:** The skill deck has no encounter-side rule governing how agents respond when they meet a deprecated item (API, config key, library function, skill card, format) during workflow — called, depended on, recommended, validated against, routed through, or merely observed. All 14 existing deck-wide `deprecat*` matches are output-side (creation/removal notices: audit coherence-maintenance, changelog `deprecate:` category, 087-no-backward-compat); zero encounter-side coverage exists. Encountered deprecated items are currently treated as ignorable noise, so possible future breakage never surfaces to the developer.
+**Problem Statement:** The skill deck has no encounter-side rule governing how agents respond when they meet a deprecated item (API, config key, library function, skill card, format) during workflow — called, depended on, recommended, validated against, routed through, or merely observed. All 24 existing `deprecat*` matches in the scoped skills+guidelines+AGENTS.md search (95 across the full deck) are output-side (creation/removal notices: audit coherence-maintenance, changelog `deprecate:` category, 087-no-backward-compat); zero encounter-side coverage exists. Encountered deprecated items are currently treated as ignorable noise, so possible future breakage never surfaces to the developer.
 
 **Root Cause / Motivation:** Deprecation handling evolved only on the authoring side — every existing rule describes creating, announcing, or removing deprecations, none describes consuming a deprecation encounter. Now that the deck is the primary agent surface, every unhandled encounter is silent bitrot accrual: an agent builds on a deprecated path and the breakage is discovered only when it fires, at maximum fix latency. This is solvable now with one additive directive fragment and its enforcement — before more bitrot accrues.
 
@@ -43,6 +43,16 @@ promoted_at: '2026-09-22T14:55:30+00:00'
 - **Mid-card content insertion mechanism or Read-link-only/load-on-encounter directive forms** — explicitly invalid per developer correction; the runtime-constraint documentation (SC-4, SC-5) exists precisely to keep these forms out (NREQ-5).
 - **A special tracking file for bitrot encounters** — standard issue tracking only ([BITROT]-prefixed specs/comments); no new tracking artifact is introduced (NREQ-1).
 - **Tier 1 guideline changes** — progressive-disclosure constraint: the compact runtime-mechanics statement in .opencode/AGENTS.md is the only always-loaded addition (REQ-I3).
+
+The constraint codes used above are defined here:
+
+| Code | Definition |
+|------|------------|
+| REQ-C1 | Additive-only constraint — the spec adds encounter-side handling only; no existing output-side deprecation text is modified or superseded |
+| NREQ-1 | No special tracking file for bitrot encounters — standard issue tracking only ([BITROT]-prefixed specs/comments); no new tracking artifact is introduced |
+| NREQ-4 | No auto-folding of a resolution SC into the current spec without a dev brainstorm — the SC-eligibility gate (SC-11) enforces this |
+| NREQ-5 | No mid-card content insertion mechanism and no Read-link-only / load-on-encounter directive forms — explicitly invalid per developer correction |
+| REQ-I3 | Tier 1 guideline changes are out of scope — progressive-disclosure constraint keeps Tier 1 minimal; the compact runtime-mechanics statement in .opencode/AGENTS.md is the only always-loaded addition |
 
 ## 3. Success Criteria
 
@@ -94,7 +104,7 @@ R-14. Tier 1 guidelines SHALL remain untouched; the .opencode/AGENTS.md compact 
 
 R-15. Behavioral runs SHALL follow the commit → push → fresh-fetch-verify ordering before the run (tests-v2 §4), with a ≥600s bash timeout and the with-test-home wrapper mandatory.
 
-R-16. Content SHALL be additive-only — zero existing rules modified or superseded (deck-wide grep: 14 `deprecat*` matches, all output-side).
+R-16. Content SHALL be additive-only — zero existing rules modified or superseded (scoped skills+guidelines+AGENTS.md grep: 24 `deprecat*` matches; 95 across the full deck — all output-side/authoring-side, zero encounter-side).
 
 R-17. The encounter directive (domain rule) SHALL stay out of the C2 files — the directive lives only in the six cards; only runtime mechanics go global.
 
@@ -219,13 +229,13 @@ Every requirement traces to at least one SC; every SC traces to at least one req
 
 | Source | Type | Location | Verification |
 |--------|------|----------|--------------|
-| Six SKILL.md cards (research, systematic-debugging, programming-principles, audit, skill-creator, engineering-approach) | code | `.opencode/skills/<name>/SKILL.md` | Bash existence checks, 10/10 files present, session 2026-09-22 (bounded grounding per R-18) |
+| Six SKILL.md cards (research, systematic-debugging, programming-principles, audit, skill-creator, engineering-approach) | code | `.opencode/skills/<name>/SKILL.md` | Bash existence checks, 10/10 files present, session 2026-09-22 (bounded string-evidence grounding per R-12) |
 | skill-creator fragment-management mechanism | code | `.opencode/skills/skill-creator/tasks/fragment-management.md` | Existence check + `grep -ril 'fragment'` hit in skill-creator SKILL.md + 2 task files, session 2026-09-22 |
 | skill-card-description-standards.md | doc | `.opencode/reference/skill-card-description-standards.md` | Read, session 2026-09-22 |
 | task-card-structure-standards.md | doc | `.opencode/reference/task-card-structure-standards.md` | Read, session 2026-09-22 |
 | .opencode/AGENTS.md | doc | `.opencode/AGENTS.md` | Read, session 2026-09-22 |
 | tests-v2 behavioral harness | code | `.opencode/tests-v2/test-enforcement.sh`, `.opencode/tests-v2/with-test-home` | .opencode/AGENTS.md Build/Lint/Test table + harness pre-flight gates (tests-v2 §4, §10.2) |
-| Deck-wide deprecation coverage grep | evidence | brainstorming handoff (re-staged: `tmp/2458/artifacts/pre-spec-inspection.yaml`) | Deck-wide `deprecat*` grep — 14 matches, all output-side, zero encounter-side |
+| Deck-wide deprecation coverage grep | evidence | live `deprecat*` grep, session 2026-09-22 (scoped: skills + guidelines + AGENTS.md; full deck) | Scoped grep — 24 matches; full-deck grep — 95 matches; all output-side/authoring-side, zero encounter-side in either |
 | Research card: skill architecture | doc | `.issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md` | Read + frontmatter confidence 0.90, session 2026-09-22 |
 | Deck validators | code | skildeck-lint / validate_skill_cards.py | Handoff verification: validators reject meta-instruction patterns in frontmatter/description, not body sections |
 
@@ -278,6 +288,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | Date | Change | Reason | Authorized By |
 |------|--------|--------|---------------|
 | 2026-09-22 | Decomposed the four compound SCs flagged by validation into atomic sub-SCs: SC-4 → SC-4 (full-detail runtime-constraint documentation in the two reference standards docs) + SC-5 (compact 2-3 sentence statement in .opencode/AGENTS.md); SC-5 → SC-6 (encounter classification) + SC-7 (filing dispatch on every encounter); SC-6 → SC-8 (platform-state channel routing) + SC-9 (search-then-create-or-comment ordering); SC-7 → SC-10 (dependent-encounter scope assessment) + SC-11 (fold-in gate). Items renumbered 1-11 with 1:1 SC mapping; DAG updated to 1→2→3→6→7; 7→8, 7→9, 7→10; 10→11; 4-5 independent; traceability re-mapped (all 17 requirements covered, every SC traces to ≥1 requirement); per-SC cost frames expanded to 11; edge-case SC references updated. Advisory tightenings: SC-2 verification method now includes the deck-validator-green run (R-13); R-9 clarifies bitrot-label provenance (created with the first [BITROT] filing if the platform lacks it). | Validation findings: aggregate FAIL — compound-SC structure (checks compound-sc-detection and decomposition-atomicity FAIL; all other 24 checks PASS). SC-4/5/6/7 bundled multiple claim forms joined by "and"/"plus"/semicolon | spec-creation revise task, dispatched by the orchestrator with the validator findings (pipeline-initiated revision, 2026-09-22) |
+| 2026-09-22 | Non-substantive consistency/provenance corrections. (1) INTERNAL-CONSISTENCY: repointed the dangling R-18 reference in Section 8 to R-12 (bounded string-evidence grounding — R-12 governs evidence-type grounding for placement/docs SCs); added a constraint-code definitions table in Section 2 defining REQ-C1, NREQ-1/4/5, and REQ-I3 (previously referenced but never defined). (2) PROVENANCE: corrected the deck-wide `deprecat*` grep counts from the stale "14 matches" to the live state — 24 matches in the scoped skills+guidelines+AGENTS.md search and 95 across the full deck — in the Problem Statement (§1), R-16, and the Section 8 evidence row. The substantive claim (zero encounter-side coverage; all matches output-side/authoring-side) is verified TRUE and unchanged; SC semantics and evidence types unchanged. | Spec-audit final judgment (holistic): INTERNAL-CONSISTENCY FAIL (dangling R-18; undefined constraint codes REQ-C1, NREQ-1/4/5, REQ-I3) and PROVENANCE FAIL (grep count contradicted by live state) | spec-creation revise task, dispatched by the orchestrator with the audit final judgment, next_step remediate_holistic (pipeline-initiated revision, 2026-09-22) |
 
 Out-of-scope advisory (won't-fix in this revision): validator note that `spec-creation/tasks/validate.md` links `../../../audit/reference/decomposition-criteria.md` (nonexistent path; master definition lives at `.opencode/audit/reference/decomposition-criteria.md`). This is a skill task-file defect outside the spec — fixing it belongs to a separate skill-maintenance change, not a spec revision.
 

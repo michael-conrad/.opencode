@@ -1,0 +1,47 @@
+spec_path: .opencode/.issues/2458/spec.md
+issue_number: 2458
+affected_files:
+  - path: .opencode/skills/research/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/systematic-debugging/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/programming-principles/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/audit/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/skill-creator/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/engineering-approach/SKILL.md
+    role: modified — directive inlined (SC-2/SC-3)
+    exists: true
+  - path: .opencode/skills/skill-creator/tasks/fragment-management.md
+    role: used, unmodified — canonical fragment registration store (SC-1/SC-3); mechanism must remain unmodified (R-13)
+    exists: true
+  - path: .opencode/reference/skill-card-description-standards.md
+    role: modified — full-detail runtime-constraint documentation (SC-4)
+    exists: true
+  - path: .opencode/reference/task-card-structure-standards.md
+    role: modified — full-detail runtime-constraint documentation (SC-4)
+    exists: true
+  - path: .opencode/AGENTS.md
+    role: modified — compact 2-3 sentence runtime-constraint statement (SC-5); only always-loaded addition (R-14)
+    exists: true
+  - path: .opencode/tests-v2/test-enforcement.sh
+    role: modified — hosts new behavioral scenarios SC-6..SC-11 via existing --scenario/--tag/--changed filters
+    exists: true
+  - path: .opencode/tests-v2/with-test-home
+    role: used, unmodified — mandatory clean-room wrapper for behavioral runs (R-15)
+    exists: true
+impact_summary: >
+  Additive content only (R-16): six SKILL.md cards gain the inlined canonical
+  directive fragment; two reference standards docs and .opencode/AGENTS.md gain
+  runtime-constraint prose; tests-v2 gains behavioral scenarios. Zero existing
+  output-side deprecation text modified or superseded. All touched files live in
+  the .opencode submodule (repo: michael-conrad/.opencode). Deck validators
+  (skildeck-lint / validate_skill_cards.py) and the fragment-management mechanism
+  remain unmodified (R-13).

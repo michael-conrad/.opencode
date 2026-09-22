@@ -1,0 +1,34 @@
+spec_path: .opencode/.issues/2458/spec.md
+issue_number: 2458
+concern_groups:
+  - name: fragment-registration-and-placement
+    label: Canonical fragment registration + inline placement in six cards
+    scs: [SC-1, SC-2, SC-3]
+    phase: Phase 1
+    summary: >
+      Registers the canonical deprecation-encounter directive fragment with
+      skill-creator fragment-management (SC-1), inlines the full directive text
+      in the six SKILL.md cards with no pointer/conditional/load-on-encounter
+      forms (SC-2), and enforces byte-identical six-copy equality (SC-3).
+  - name: runtime-constraint-documentation
+    label: Full-detail + compact runtime-constraint documentation
+    scs: [SC-4, SC-5]
+    phase: Phase 1
+    summary: >
+      Full-detail runtime-constraint text in both reference standards docs
+      (SC-4); compact 2-3 sentence runtime-mechanics statement in
+      .opencode/AGENTS.md (SC-5) — the only always-loaded addition (R-14).
+  - name: encounter-behavior
+    label: Behavioral encounter protocol — classification, filing, routing, gate
+    scs: [SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
+    phase: Phase 1
+    summary: >
+      Agent classifies encountered deprecated items as pending breakage (SC-6);
+      orchestrator dispatches filing on every encounter with result-contract
+      propagation (SC-7); platform-state channel routing (SC-8); search-then-
+      create-or-comment ordering (SC-9); dependent-encounter scope assessment
+      (SC-10); SC-eligibility fold-in gate (SC-11).
+phase_boundaries:
+  - phase: Phase 1
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11]
+    note: Single-phase spec — all 11 SCs map to Phase 1 (spec §7 traceability).

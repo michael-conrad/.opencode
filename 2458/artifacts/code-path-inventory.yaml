@@ -1,0 +1,36 @@
+spec_path: .opencode/.issues/2458/spec.md
+issue_number: 2458
+code_paths:
+  - sc: SC-1
+    path: .opencode/skills/skill-creator/tasks/fragment-management.md
+    description: Fragment store inspection — registration check asserts the deprecation-encounter fragment is present with the canonical directive text.
+  - sc: SC-2
+    path: .opencode/skills/{research,systematic-debugging,programming-principles,audit,skill-creator,engineering-approach}/SKILL.md
+    description: Static text check — full directive present in each of the six card bodies; pattern search confirms absence of Read-link-only / conditional-insert / load-on-encounter pointer forms; skildeck-lint / validate_skill_cards.py run green on edited cards (R-13).
+  - sc: SC-3
+    path: .opencode/skills/{six cards}/SKILL.md + fragment store
+    description: Six-copy equality check — each card body compared byte-identically against the registered canonical fragment.
+  - sc: SC-4
+    path: .opencode/reference/skill-card-description-standards.md, .opencode/reference/task-card-structure-standards.md
+    description: Static text check — full-detail runtime-constraint text present in both reference docs.
+  - sc: SC-5
+    path: .opencode/AGENTS.md
+    description: Static text check — compact 2-3 sentence runtime-mechanics statement present and within the sentence bound.
+  - sc: SC-6
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral clean-room opencode run — stderr evidence that agent classifies an encountered deprecated item as pending breakage (not ignorable noise, not build-on). Commit → push → fetch-verify before run.
+  - sc: SC-7
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral run — stderr evidence of filing dispatch on both dependent and observed encounter variants; sub-agent-observed encounters propagate via result contracts.
+  - sc: SC-8
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral run — table-driven routing branches assert the branch-appropriate channel per platform state (remote / transient failure / structurally local).
+  - sc: SC-9
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral run — asserts search-before-POST ordering and the create-or-comment branch outcome ([BITROT] title prefix, bitrot label).
+  - sc: SC-10
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral run — asserts scope-assessment surfacing to the developer on the dependent-encounter variant.
+  - sc: SC-11
+    path: .opencode/tests-v2/test-enforcement.sh + with-test-home
+    description: Behavioral run — asserts no unauthorized fold-in of a resolution SC (no dev brainstorm) and no SC question on observed-only encounters.

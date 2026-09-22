@@ -1,0 +1,43 @@
+spec_path: .opencode/.issues/2458/spec.md
+issue_number: 2458
+cross_cutting_edges:
+  - sc: SC-2
+    spans:
+      - fragment-registration-and-placement (inline directive)
+      - deck-validation (skildeck-lint / validate_skill_cards.py green on edited cards, R-13)
+    note: Placement concern overlaps the validator-interface concern — card-body edits must not violate deck validators.
+  - sc: SC-3
+    spans:
+      - fragment-registration-and-placement (equality)
+      - fragment-management-mechanism (byte-identical vs canonical store)
+    note: Equality check couples the six card bodies to the fragment store; mechanism unmodified (R-13).
+  - sc: SC-6
+    spans:
+      - encounter-behavior (classification)
+      - behavioral-harness (tests-v2, R-15 run ordering)
+    note: Classification behavior is only observable through the clean-room harness with commit → push → fetch-verify ordering.
+  - sc: SC-7
+    spans:
+      - encounter-behavior (filing dispatch)
+      - orchestration (sub-agent result-contract propagation, R-8)
+    note: Dispatch-on-every-encounter composes with the orchestrator/sub-agent boundary — sub-agents cannot task().
+  - sc: SC-8
+    spans:
+      - encounter-behavior (channel routing)
+      - platform-state (remote / transient failure / structurally local)
+    note: Routing branches are substrate-dependent on platform state; no persisted routing state.
+  - sc: SC-9
+    spans:
+      - encounter-behavior (search-before-POST)
+      - spec-creation-pipeline (create-or-comment via normal pipeline, R-3/R-9)
+    note: Filing reuses the normal spec-creation pipeline for the create branch — cross-cutting with spec-creation.
+  - sc: SC-10
+    spans:
+      - encounter-behavior (dependent-encounter assessment)
+      - scope-assessment (current change touches deprecated path)
+    note: Assessment surfacing precedes the SC-eligibility gate (DAG 10 → 11).
+  - sc: SC-11
+    spans:
+      - encounter-behavior (fold-in gate)
+      - approval-gate (plan-approval-revocation cost, approval-gate-006)
+    note: SC-eligibility gate guards against unauthorized plan-approval revocation.
