@@ -504,6 +504,211 @@ BEHAVIOR_MONITOR_MAX_POLLS="${BEHAVIOR_MONITOR_MAX_POLLS:-30}"
 # R-18 fold-in (2432): 20000 killed productive write-transitions on 27B models (trace: 25K cumulative during valid derivation); calibrated to 60000, env-respecting
 BEHAVIOR_MONITOR_MAX_REASONING="${BEHAVIOR_MONITOR_MAX_REASONING:-60000}"
 BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD:-3}"
+# .opencode#2456 SC-2 (plan-01 Item 2): classification dispatch configuration.
+# The monitor dispatches a monitoring classification sub-agent that semantically
+# classifies run state in the sub-agent's OWN context (never shell heuristics),
+# anchored to the scenario's goal/expected-behavior context (the monitored
+# run's prompt). Enum: progressing-directionally / off-track / undetermined.
+# Checkpoint policy bounds per-poll cost (§14): a dispatch fires on a poll
+# where the event stream changed since the last classification, after a
+# minimum poll gap, under a per-attempt dispatch ceiling; a final dispatch is
+# guaranteed before MONITOR-COMPLETE (at least one classification per
+# monitored run). The classifier runs in its OWN lightweight test home
+# (harness standalone binary, env -i isolation) — never the parent shell,
+# never the monitored run's session DB. Its session export is persisted to
+# the scenario evidence directory as classifier-session.yaml (a separate
+# dispatch — never a re-export of the monitored run's session.yaml). All of
+# this only executes inside __semantic_monitor (BEHAVIOR_SEMANTIC_MONITOR=1);
+# unset → no monitor, no classifier (backward compat).
+BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS="${BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS:-3}"
+BEHAVIOR_MONITOR_CLASSIFY_MAX="${BEHAVIOR_MONITOR_CLASSIFY_MAX:-3}"
+BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT="${BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT:-600}"
+
+# .opencode#2456 SC-2: dispatch the monitoring classification sub-agent.
+# Runs the harness's own standalone opencode binary in a lightweight,
+# freshly-provisioned classifier test home (env -i isolation, seeded model
+# config in the same shape seed_model_config() writes for behavioral runs) so
+# the classification is produced in the sub-agent's OWN context and session
+# DB — never in the parent shell, never in the monitored run's session DB,
+# never production state (standalone binary only; /snap/bin/opencode and
+# `snap run` are forbidden). Classification input = the scenario goal context
+# + run evidence excerpts derived ONLY from message parts, reasoning parts,
+# and tool calls in the run's live session DB (SC-14 admissible-evidence
+# rule; activity counters are never the classification basis). The
+# classifier's session DB is exported to
+# $BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml
+# (canonical staging path — the post-run and abort artifact blocks copy it
+# into the scenario evidence directory as classifier-session.yaml; a
+# per-dispatch audit copy lands as ...-poll${poll}.yaml). Echoes the parsed
+# classification value (progressing-directionally|off-track|undetermined), or
+# empty when the response carried none. Bounded: the dispatch is killed by
+# the monitor after BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT seconds (the monitor's
+# own kill signal handler — GNU `timeout` stays forbidden per §5).
+__classify_run_state() {
+    local db="$1"
+    local goal_context="$2"
+    local model="$3"
+    local scenario_name="$4"
+    local attempt="$5"
+    local poll="$6"
+
+    local digest
+    digest=$(python3 - "$db" <<'CLSDIGEST'
+import json, os, sqlite3, sys
+db = sys.argv[1]
+try:
+    conn = sqlite3.connect(db)
+    c = conn.cursor()
+    rows = c.execute("SELECT seq, data FROM event ORDER BY seq").fetchall()
+    conn.close()
+except Exception as e:
+    print(json.dumps({"error": str(e)}))
+    sys.exit(0)
+tools = []; texts = []; reasons = []; goal_hits = []
+declared = [n.strip() for n in (os.environ.get("BEHAVIOR_GOAL_ACTIONS", "") or "").split(",") if n.strip()]
+for seq, data in rows:
+    try:
+        d = json.loads(data or "{}")
+    except Exception:
+        continue
+    part = d.get("part")
+    if not isinstance(part, dict):
+        continue
+    ptype = part.get("type", "")
+    if ptype == "tool":
+        st = (part.get("state") or {}).get("status", "?")
+        inp = json.dumps((part.get("state") or {}).get("input", {}), sort_keys=True)[:120]
+        name = part.get("tool", "?")
+        tools.append(f"{name}[{st}] {inp}")
+        if st == "completed" and name in declared:
+            goal_hits.append(name)
+    elif ptype == "text" and str(part.get("text", "")).strip():
+        texts.append(str(part.get("text"))[:200])
+    elif "reasoning" in ptype and str(part.get("text", "")):
+        reasons.append(str(part.get("text"))[-300:])
+print(json.dumps({
+    "event_count": len(rows),
+    "declared_goal_actions_hit": sorted(set(goal_hits)),
+    "tool_calls_recent": tools[-12:],
+    "message_parts_recent": texts[-3:],
+    "reasoning_tails_recent": reasons[-2:],
+    "reasoning_parts_total": len(reasons),
+}, indent=1))
+CLSDIGEST
+) || digest='{"error": "digest_read_failed"}'
+
+    # Lightweight classifier test home: fresh XDG-isolated home per dispatch so
+    # the classifier session DB is its OWN (separate dispatch — its export can
+    # never be byte-identical to the monitored run's session.yaml).
+    local cls_home="$PARENT_REPO_DIR/tmp/classifier-home-$(date +%Y%m%d-%H%M%S)-${poll}-$$"
+    mkdir -p "$cls_home/.config/opencode" "$cls_home/workdir" "$cls_home/.cache" "$cls_home/.local/share" "$cls_home/.local/state"
+    local bare="${model#ollama/}"
+    cat > "$cls_home/.config/opencode/opencode.jsonc" <<JSONC
+{
+  "\$schema": "https://opencode.ai/config.json",
+  "model": "$model",
+  "provider": {
+    "ollama": {
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "$bare": {}
+      }
+    }
+  },
+  "permission": {
+    "external_directory": {
+      "**": "allow"
+    }
+  }
+}
+JSONC
+    git -q init "$cls_home/workdir" 2>/dev/null || true
+
+    local cls_prompt
+    cls_prompt=$(cat <<CLSPROMPT
+You are the monitoring classification sub-agent of an automated behavioral-test harness (tests-v2/AGENTS.md §14 semantic monitoring). Your ONLY job is to semantically classify the monitored run's progress. Do NOT use any tools. Respond with EXACTLY one line and nothing else:
+
+classification: <progressing-directionally|off-track|undetermined>
+
+SCENARIO GOAL — the task the monitored agent was given:
+${goal_context}
+
+MONITORED RUN EVIDENCE — excerpts derived from the run's message parts, reasoning parts, and tool calls in its session DB:
+${digest}
+
+Direction-anchored classification definitions:
+- progressing-directionally: the recent evidence (tool calls / message parts / reasoning parts) is moving toward completing the scenario goal.
+- off-track: the recent evidence is NOT directed at the goal (repetition, loops, unrelated actions, stalled deliberation).
+- undetermined: the evidence is insufficient to judge direction.
+Respond with only the classification line.
+CLSPROMPT
+)
+
+    local cls_stdout="$cls_home/stdout.log"
+    local cls_stderr="$cls_home/stderr.log"
+    echo "TEST_HOME=$cls_home" > "$cls_home/test-home-marker.txt"
+
+    # setsid: cls_pid becomes session/group leader so the bounded-wait kill
+    # takes down the full opencode process tree (same pattern as the §14 abort
+    # path — wrapper-only kills orphan grandchildren). fd 200 (the behavior_run
+    # flock) is closed for the classifier so a killed/killed-out dispatch can
+    # never hold the lock past behavior_run (#2432 lock-inheritance lesson).
+    local cls_pid=""
+    setsid env -i \
+        HOME="$cls_home" \
+        PATH="$PARENT_REPO_DIR/.tools/opencode:$PATH" \
+        XDG_CONFIG_HOME="$cls_home/.config" \
+        XDG_CACHE_HOME="$cls_home/.cache" \
+        XDG_DATA_HOME="$cls_home/.local/share" \
+        XDG_STATE_HOME="$cls_home/.local/state" \
+        XDG_RUNTIME_DIR="$cls_home" \
+        SNAP_USER_DATA="$cls_home/snap" \
+        SNAP_USER_COMMON="$cls_home/snap-common" \
+        GIT_CONFIG_NOSYSTEM=1 \
+        SHELL="${SHELL:-/bin/bash}" \
+        USER=opencode-test-user \
+        LOGNAME=opencode-test-user \
+        LANG="${LANG:-C.UTF-8}" \
+        TERM="${TERM:-dumb}" \
+        opencode run "$cls_prompt" --model "$model" \
+        > "$cls_stdout" 2> "$cls_stderr" 200>&- &
+    cls_pid=$!
+
+    local waited=0
+    while kill -0 "$cls_pid" 2>/dev/null && [ "$waited" -lt "$BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT" ]; do
+        sleep 5
+        waited=$((waited + 5))
+    done
+    if kill -0 "$cls_pid" 2>/dev/null; then
+        kill -TERM -- "-$cls_pid" 2>/dev/null || kill "$cls_pid" 2>/dev/null || true
+        sleep 2
+        kill -KILL -- "-$cls_pid" 2>/dev/null || kill -9 "$cls_pid" 2>/dev/null || true
+    fi
+    wait "$cls_pid" 2>/dev/null || true
+
+    # Persist the classifier's OWN session export to the canonical staging
+    # path (last dispatch of the attempt wins = final classified state) plus a
+    # per-dispatch audit copy. Reuses the harness exporter via a TEST_HOME
+    # marker file (the classifier home is known by construction — no stdout/
+    # stderr grep of the monitored run's output).
+    local staging_yaml="$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml"
+    mkdir -p "$(dirname "$staging_yaml")"
+    __export_sqlite_to_yaml "$staging_yaml" "" "$cls_home/test-home-marker.txt" || true
+    cp "$staging_yaml" "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}-poll${poll}.yaml" 2>/dev/null || true
+
+    local classification_value=""
+    classification_value=$(grep -oE 'progressing-directionally|off-track|undetermined' "$cls_stdout" 2>/dev/null | head -1 || true)
+
+    # Disposable home on a successful export (evidence already staged); keep
+    # it on export failure so the classifier DB stays diagnosable.
+    if ! grep -q "source_db: MISSING" "$staging_yaml" 2>/dev/null; then
+        rm -rf "$cls_home"
+    fi
+
+    echo "$classification_value"
+}
 
 __semantic_monitor() {
     # .opencode#2441 hardening: the poll body is best-effort reads under the
@@ -517,6 +722,8 @@ __semantic_monitor() {
     local attempt="$3"
     local output_file="$4"
     local err_file="$5"
+    local model="$6"
+    local goal_context="$7"
 
     (
     set +e
@@ -540,6 +747,11 @@ __semantic_monitor() {
     local reasoning_total=0
     local test_home_dir=""
     local abort_reason=""
+    # .opencode#2456 SC-2 classification-dispatch state (checkpoint policy).
+    local classified_count=0
+    local polls_since_classify=0
+    local last_classified_event_count=0
+    local classification_value=""
 
     while kill -0 "$run_pid" 2>/dev/null; do
         poll=$((poll + 1))
@@ -670,6 +882,32 @@ MONPY
         echo "  stdout-tail: ${out_tail}" >> "$poll_log"
         echo "  stderr-tail: ${err_tail}" >> "$poll_log"
 
+        # ── .opencode#2456 SC-2: classification checkpoint — dispatch the
+        # monitoring classification sub-agent per the §14 checkpoint policy
+        # (bounded per-poll cost): fire on a poll where the event stream
+        # changed since the last classification, after the minimum poll gap,
+        # under the per-attempt ceiling. The judgment is produced in the
+        # sub-agent's OWN context from message/reasoning/tool-call content
+        # (SC-14 admissible evidence — never shell counters); the value is
+        # recorded here and ROUTED by later items (SC-4/SC-6 halt+notify).
+        if [ "$classified_count" -lt "$BEHAVIOR_MONITOR_CLASSIFY_MAX" ] \
+            && [ "$polls_since_classify" -ge "$BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS" ] \
+            && [ "$event_count" -gt "$last_classified_event_count" ]; then
+            local dispatch_value
+            dispatch_value=$(__classify_run_state "$db" "$goal_context" "$model" "$scenario_name" "$attempt" "$poll")
+            classified_count=$((classified_count + 1))
+            polls_since_classify=0
+            last_classified_event_count=$event_count
+            if [ -n "$dispatch_value" ]; then
+                classification_value="$dispatch_value"
+                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count} → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+            else
+                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count} → UNPARSED (no taxonomy value in classifier response; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+            fi
+        else
+            polls_since_classify=$((polls_since_classify + 1))
+        fi
+
         # ── GREEN termination (.opencode#2441 R-3/R-4): expected artifact exists
         # on disk AND >=1 declared goal action present in the event stream.
         if [ "$art_status" = "present" ] && [ "$goal_json" != "[]" ]; then  # partial (exists, content pattern absent) does NOT fire GREEN
@@ -774,6 +1012,9 @@ MONPY
         mkdir -p "$artifact_dir"
         __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file" || true
         cp "$poll_log" "$artifact_dir/monitor.log" 2>/dev/null || true
+        # .opencode#2456 SC-2: the classification sub-agent's own session
+        # export rides alongside session.yaml on the abort path too.
+        cp "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml" "$artifact_dir/classifier-session.yaml" 2>/dev/null || true
 
         cat > "$artifact_dir/semantic-diagnosis.yaml" <<DIAGEOF
 diagnosis: monitor-abort
@@ -790,7 +1031,28 @@ DIAGEOF
         exit 1
     fi
 
-    echo "MONITOR-COMPLETE polls=${poll} run finished without abort signal" >> "$poll_log"
+    # .opencode#2456 SC-2: dispatch guarantee — at least one classification
+    # per monitored run before MONITOR-COMPLETE. When no checkpoint fired
+    # (short run, stalled event stream), classify the final session state now.
+    if [ "$classified_count" -eq 0 ]; then
+        local final_db
+        final_db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
+        if [ -n "$final_db" ] && [ -f "$final_db" ]; then
+            local final_value
+            final_value=$(__classify_run_state "$final_db" "$goal_context" "$model" "$scenario_name" "$attempt" "${poll:-0}")
+            classified_count=1
+            if [ -n "$final_value" ]; then
+                classification_value="$final_value"
+                echo "CLASSIFY[final]: guarantee dispatch → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+            else
+                echo "CLASSIFY[final]: guarantee dispatch → UNPARSED (no taxonomy value in classifier response; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+            fi
+        else
+            echo "CLASSIFY[final]: guarantee dispatch SKIPPED — no session DB found for the monitored run" >> "$poll_log"
+        fi
+    fi
+
+    echo "MONITOR-COMPLETE polls=${poll} run finished without abort signal classifications=${classified_count} final_classification=${classification_value:-none}" >> "$poll_log"
     exit 0
     )
 }
@@ -1048,7 +1310,11 @@ behavior_run() {
                 > "$output_file" 2> "$err_file" \
                 &
             local run_pid=$!
-            __semantic_monitor "$run_pid" "$scenario_name" "$attempt" "$output_file" "$err_file"
+            # Params 6-7 (.opencode#2456 SC-2): the run's model (Default-Model
+            # Mandate R-20 — the classifier uses the same harness default, no
+            # substitution) and the scenario's goal/expected-behavior context
+            # (the monitored run's prompt, as declared by the scenario script).
+            __semantic_monitor "$run_pid" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" "$message"
             local monitor_result=$?
             wait "$run_pid" 2>/dev/null || true
             if [ "$monitor_result" -eq 0 ]; then
@@ -1151,6 +1417,13 @@ MANIFESTEOF
     # unset → no change (backward compat).
     if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
         cp "$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log" "$artifact_dir/monitor.log" 2>/dev/null || true
+        # .opencode#2456 SC-2: the classification sub-agent's own session
+        # export — persisted during polling to the staging path (a
+        # monitor-internal natural-path mkdir would collide with this block's
+        # __artifact_dir suffix walk, same reason as monitor.log above); the
+        # authoritative alongside-session.yaml copy lands here. The last
+        # classification of the attempt wins (final classified state).
+        cp "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml" "$artifact_dir/classifier-session.yaml" 2>/dev/null || true
     fi
 
     local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
