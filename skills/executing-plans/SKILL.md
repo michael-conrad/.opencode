@@ -35,6 +35,13 @@ Check your tool list for a tool named `task`.
 
 This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
 
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
 ## Workflows
 
 ### Read the plan
