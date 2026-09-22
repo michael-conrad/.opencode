@@ -54,4 +54,4 @@ When the agent needs to begin executing an approved implementation plan and must
 - Read [skill-card-schema.md](.opencode/reference/skill-card-schema.md) — frontmatter binary constraints
 - Read [skill-card-description-standards.md](.opencode/reference/skill-card-description-standards.md) — description field semantic router
 
-Co-authored with AI: OpenCode (deepseek-v4-flash)
+Co-authored with AI: <AgentName> (<ModelId>)
