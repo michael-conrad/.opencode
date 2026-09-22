@@ -27,11 +27,11 @@
 #
 # PROGRESSING-CONTINUES FIXTURE (SC-5): a monitored run that keeps progressing
 # toward its declared verifiable goal condition over many polls and RUNS
-# LONGER than the monitor's duration cap. The run prompt prescribes building a
-# documentation artifact INCREMENTALLY — one write tool call per section across
-# 16 sections — so the run produces a steady stream of distinct, goal-directed
-# completed tool calls (progressing-directionally under the SC-2-amendment
-# direction anchor) and outlives the cap. The scenario DECLARES a mechanically
+# LONGER than the monitor's duration cap. The run prompt prescribes a
+# mechanical append-loop — one write tool call per line across 40 lines —
+# so the run produces a steady stream of distinct, goal-directed completed
+# tool calls (progressing-directionally under the SC-2-amendment direction
+# anchor) and outlives the cap. The scenario DECLARES a mechanically
 # verifiable goal condition in the harness goal-declaration convention
 # (BEHAVIOR_EXPECTED_ARTIFACT=2456-sc5-goal-marker.txt +
 # BEHAVIOR_EXPECTED_ARTIFACT_GREP=2456-sc5-goal-marker-line): the goal artifact
@@ -51,19 +51,21 @@
 # declared: the run keeps producing new completed tool calls, so no hopeless
 # early-exit is wanted.
 #
-# DURATION-CAP SETUP: BEHAVIOR_MONITOR_MAX_POLLS is set small (12 polls x 30s =
-# 360s nominal cap + classification-dispatch time) so the run reliably
+# DURATION-CAP SETUP: BEHAVIOR_MONITOR_MAX_POLLS is set small (14 polls x 30s =
+# 420s nominal cap + classification-dispatch time) so the run reliably
 # OUTLIVES the cap. The SC-2 classification checkpoint policy fires a dispatch
 # when event_count grew and polls_since_classify >= BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS
-# (default 3) — with max_polls=12 the checkpoint dispatches land at polls 4, 8
+# (default 3) — with max_polls=14 the checkpoint dispatches land at polls 4, 8
 # and 12 (3 chances to record a progressing-directionally classification)
-# before the abort at poll 13. BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT is raised
-# 600 -> 900s (R-18 fold-in, run 1 diagnosis: the classifier dispatch was
+# before the abort at poll 15. BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT is raised
+# 600 -> 900s (R-18 fold-in, run-1 diagnosis: the classifier dispatch was
 # starved/killed at 600s under GPU contention with the monitored 27B run before
-# emitting its classification — the poll-8 dispatch had reached the reasoning
-# stage at 600s, so 900s lets it complete). A 16-section incremental doc takes
-# the 27B model many minutes, so the run is still alive (still progressing) at
-# the abort poll.
+# emitting its classification). The 40-line mechanical append-loop (fold-in,
+# run-2 diagnosis: the 16-section runbook + repo exploration produced a 70k-char
+# reasoning runaway and starved the classifier) keeps reasoning small, creates
+# tool-execution gaps for the classifier, and writes ~1 line/1-2 min on the
+# slow 27B, so the run is still alive (still progressing) at the abort poll
+# and does not finish within the cap.
 #
 # RED condition (known gap): helpers.sh __semantic_monitor terminates the
 # poll loop unconditionally at the max-polls budget regardless of
@@ -108,21 +110,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
 SCENARIO_NAME="2456-sc5-progressing-continues-red"
-# §11 real-domain prompt: build a documentation artifact INCREMENTALLY — one
-# write tool call per section, 16 sections, ending with the declared goal
-# marker line. The run produces a steady stream of distinct, goal-directed
-# completed tool calls over many polls (progressing-directionally under the
-# SC-2-amendment anchor against the declared goal_condition) and outlives the
-# duration cap.
-SCENARIO_PROMPT="Create an operations runbook file named 2456-sc5-goal-marker.txt in the current project root. Build it incrementally: use a separate write tool call for EACH of the following 16 sections, appending each section's content to the file as you go, in this exact order: (1) Title and Purpose, (2) Scope, (3) Prerequisites, (4) Environment Setup, (5) Configuration, (6) Startup and Shutdown, (7) Health Checks, (8) Backup and Restore, (9) Incident Response, (10) Monitoring and Alerting, (11) Troubleshooting Guide, (12) Security Practices, (13) Capacity Planning, (14) Deployment Procedure, (15) Rollback Procedure, (16) Conclusion. Each section must contain a heading line and a 2-3 sentence paragraph describing that topic. When all 16 sections have been written to the file, append the exact final marker line as the last line of the file: 2456-sc5-goal-marker-line. Do not stop until the file contains all 16 sections and the final marker line."
+# §11 real-domain prompt (R-18 fold-in, run-2 redesign): a MECHANICAL,
+# LOW-REASONING append-loop task — write 40 short lines to the declared goal
+# artifact, one line per write tool call, ending with the declared goal marker
+# line. The explicit "do not explore/read/search the repo, do not use skills"
+# directive prevents the run-2 defects: (a) the run's tool-execution gaps give
+# the classifier dispatch windows to use the shared ollama server (SC-4's
+# successful pattern — otherwise the monitored run's continuous heavy
+# inference starves the classifier at its dispatch timeout); (b) low reasoning
+# keeps signal 3 (reasoning runaway) from firing. The run produces a steady
+# stream of distinct, goal-directed completed tool calls (progressing toward
+# 2456-sc5-goal-marker.txt) and outlives the duration cap (40 lines at ~1
+# line/1-2 min on the slow 27B never finishes within the cap).
+SCENARIO_PROMPT="Create a file named 2456-sc5-goal-marker.txt in the current project root. This is the ENTIRE task — do not read, search, or explore the repository, and do not use any skills. Write the file incrementally: append the following 40 lines to the file in order, using exactly one write/append tool call per line (never batch multiple lines into a single call): line-01, line-02, line-03, line-04, line-05, line-06, line-07, line-08, line-09, line-10, line-11, line-12, line-13, line-14, line-15, line-16, line-17, line-18, line-19, line-20, line-21, line-22, line-23, line-24, line-25, line-26, line-27, line-28, line-29, line-30, line-31, line-32, line-33, line-34, line-35, line-36, line-37, line-38, line-39, line-40. After appending all 40 lines, append the exact final line as the last line of the file: 2456-sc5-goal-marker-line. Keep appending one line per tool call until all 40 lines and the final marker line are present, then stop."
 
 # SC-5 monitored run (opt-in flag per spec — fresh invocations without the
 # flag are unchanged; backward compat preserved).
 BEHAVIOR_SEMANTIC_MONITOR=1
-# Duration cap (the SC-5 assertion surface): 12 polls x 30s = 360s nominal cap
-# + classification-dispatch time. The 16-section run reliably outlives it.
-BEHAVIOR_MONITOR_MAX_POLLS=12
-# R-18 fold-in (run 1 diagnosis): classifier dispatch starved/killed at the
+# Duration cap (the SC-5 assertion surface): 14 polls x 30s = 420s nominal cap
+# + classification-dispatch time. The 40-line mechanical run reliably outlives
+# it (40 lines at ~1 line/1-2 min on the slow 27B never finishes within the
+# cap) and reaches the max-polls abort (RED termination path).
+BEHAVIOR_MONITOR_MAX_POLLS=14
+# R-18 fold-in (run-1 diagnosis): classifier dispatch starved/killed at the
 # default 600s under GPU contention before emitting its classification — raise
 # to 900s so a dispatch that has reached the reasoning stage can complete.
 BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT=900
