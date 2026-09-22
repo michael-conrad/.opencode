@@ -1141,6 +1141,18 @@ MANIFESTEOF
 
     __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file"
 
+    # .opencode#2456 SC-1: poll-evidence persistence — the §14 semantic
+    # monitor's poll log is persisted to the scenario evidence directory
+    # (alongside session.yaml) for EVERY monitored run, natural completion
+    # AND abort paths alike (both flow through this post-run block). The
+    # monitor's internal abort-path copy lands in a pre-walk sibling dir;
+    # this copy into the final artifact_dir is the authoritative
+    # alongside-session.yaml location. Flag-gated: BEHAVIOR_SEMANTIC_MONITOR
+    # unset → no change (backward compat).
+    if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
+        cp "$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log" "$artifact_dir/monitor.log" 2>/dev/null || true
+    fi
+
     local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
     if [ -f "$timeline_tool" ] && [ -f "$artifact_dir/session.yaml" ]; then
         uv run "$timeline_tool" "$artifact_dir/session.yaml" "$artifact_dir/timeline.yaml" 2>/dev/null || true
