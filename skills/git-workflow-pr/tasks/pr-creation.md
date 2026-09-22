@@ -41,6 +41,8 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 ### Step 0-1: Enforcement Gate and PR State Check
 
+**Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
+
 **Route to:** `pr-creation/enforcement-gate`
 
 Route a sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
@@ -61,11 +63,15 @@ Before squash and push, verify dirty submodule pointers are included in staged c
 
 ### Step 2-4: Changelog, Squash, Rebase, Push
 
+**Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
+
 **Route to:** `pr-creation/squash-push`
 
 Generates changelog (or skips with `[skip changelog]`), squashes commits, rebases on current trunk, and pushes to remote with verification.
 
 ### Step 5-7: Collect Sub-Issues, Create PR, Extract URL
+
+**Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
 **Route to:** `pr-creation/create-pr`
 
@@ -124,5 +130,7 @@ A PR body without Summary/Outcome/Fixes structure buries the intent of your chan
 
 ### [critical-rules-016] Wrong Compare URL Base Branch
 Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. PR compare URL base: `$DEFAULT_BRANCH` (the trunk).
+
+*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
 
 
