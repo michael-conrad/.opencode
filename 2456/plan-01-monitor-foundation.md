@@ -60,4 +60,11 @@
 
 - [ ] 24. **VbC (**task-card**).** Verify all three SC-1/SC-2/SC-3 verdicts are PASS with behavioral evidence artifacts in `{project_root}/tmp/issue-2456/artifacts/`. **→ SC-1, SC-2, SC-3**
 
+#### Item 2R (SC-2 amendment, pipeline-initiated FALSE_PREMISE remediation)
+
+> Spec revision 2026-09-22: the classification dispatch's direction anchor SHALL be a mechanically verifiable goal condition (scenario-declared goal artifact + content pattern), never the run prompt prose (R-2); starved/UNPARSED dispatches recorded as undetermined (R-13). SC-2 re-verified after the anchoring change.
+
+- [ ] 24a. **GREEN — verifiable goal-condition anchoring (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — helpers.sh `__classify_run_state`/classifier prompt: goal context becomes the scenario-declared verifiable goal condition (goal artifact + content pattern, already computed per poll as art_status) folded into the digest; prompt-prose anchor removed; UNPARSED dispatches recorded as undetermined per R-13. **→ SC-2**
+- [ ] 24b. **verify — SC-2 re-verification (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — re-run 2456-sc2-classification-dispatch-red.sh BEHAVIOR_PHASE=GREEN → exit 0 (classifier dispatched with verifiable goal condition; classification in own context). **→ SC-2**
+
 **Concern transition:** Leaving record lifecycle foundation → entering classification routing. Phase 2 depends on Phase 1's classification taxonomy and determination-record schema.
