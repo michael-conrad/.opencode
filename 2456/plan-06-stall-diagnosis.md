@@ -72,8 +72,12 @@
 - [ ] 121. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-18**
 - [ ] 122. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — advisory markdown checks clean; content matches the predicate. **→ SC-18**
 - [ ] 123. **commit-inline (**direct**).** Commit the AGENTS.md §14 sections. **→ SC-18**
-- [ ] 124. **VbC (**task-card**).** Verify SC-13/SC-14/SC-15/SC-16/SC-17/SC-18 verdicts are PASS with matching evidence types. **→ SC-13..SC-18**
-- [ ] 125. **VbC consolidation (**direct**).** Consolidate the six verdicts into the phase evidence table.
-- [ ] 126. **Phase 6 gate (**direct**).** Confirm all six phase-6 SCs verified before post-implementation.
+- [ ] 124. **RED — async launch form (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture launches the run in the FOREGROUND (blocking wait, no periodic SQLite-DB semantic checks) or without an attached ≤5-min SQLite-DB supervision schedule; the launch-form assertion fails. **→ SC-19**
+- [ ] 125. **GREEN — async launch form (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — the run is launched asynchronously (backgrounded/detached) with an attached supervision loop reading that run's SQLite session DB at intervals ≤300s. **→ SC-19**
+- [ ] 126. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-19**
+- [ ] 127. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: async launch + ≤5-min SQLite-DB supervision schedule attached at/prior to launch. **→ SC-19**
+- [ ] 128. **commit-inline (**direct**).** Commit the async-launch scenario. **→ SC-19**
+- [ ] 129. **VbC (**task-card**).** Verify SC-13/SC-14/SC-15/SC-16/SC-17/SC-18/SC-19 verdicts are PASS with matching evidence types. **→ SC-13..SC-19**
+- [ ] 130. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the seven verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
