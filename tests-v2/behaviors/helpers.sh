@@ -531,29 +531,45 @@ BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT="${BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT:-600}"
 # the classification is produced in the sub-agent's OWN context and session
 # DB — never in the parent shell, never in the monitored run's session DB,
 # never production state (standalone binary only; /snap/bin/opencode and
-# `snap run` are forbidden). Classification input = the scenario goal context
-# + run evidence excerpts derived ONLY from message parts, reasoning parts,
+# `snap run` are forbidden). Classification input = the scenario's mechanically
+# verifiable goal condition (SC-2 amendment 2026-09-22: the scenario-declared
+# goal artifact + required content pattern + declared goal actions, with the
+# per-poll art_status — folded into the digest's goal_condition object; the
+# monitored run's prompt prose is NEVER the direction anchor) + run evidence
+# excerpts derived ONLY from message parts, reasoning parts,
 # and tool calls in the run's live session DB (SC-14 admissible-evidence
 # rule; activity counters are never the classification basis). The
 # classifier's session DB is exported to
 # $BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml
 # (canonical staging path — the post-run and abort artifact blocks copy it
 # into the scenario evidence directory as classifier-session.yaml; a
-# per-dispatch audit copy lands as ...-poll${poll}.yaml). Echoes the parsed
-# classification value (progressing-directionally|off-track|undetermined), or
-# empty when the response carried none. Bounded: the dispatch is killed by
-# the monitor after BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT seconds (the monitor's
-# own kill signal handler — GNU `timeout` stays forbidden per §5).
+# per-dispatch audit copy lands as ...-poll${poll}.yaml). Echoes
+# "<classification>|<failure_mode>": classification is the parsed taxonomy
+# value (progressing-directionally|off-track|undetermined) or EMPTY when the
+# response carried none; failure_mode ∈ {ok, starved-timeout-kill,
+# digest-read-failed, empty-response, unparsed-response} (R-13: the caller
+# records an empty classification as undetermined in the poll evidence
+# together with its failure mode — never silently). Bounded: the dispatch is
+# killed by the monitor after BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT seconds (the
+# monitor's own kill signal handler — GNU `timeout` stays forbidden per §5).
 __classify_run_state() {
     local db="$1"
-    local goal_context="$2"
+    local art_status="$2"
     local model="$3"
     local scenario_name="$4"
     local attempt="$5"
     local poll="$6"
 
     local digest
-    digest=$(python3 - "$db" <<'CLSDIGEST'
+    # SC-2 amendment 2026-09-22: the scenario-declared verifiable goal
+    # condition is folded into the digest (goal_condition object) — passed via
+    # command-scoped env so the digest subprocess sees the declared values
+    # regardless of the caller's export state. art_status (arg 2) is the
+    # per-poll mechanically computed artifact status.
+    digest=$(__CLS_GOAL_ARTIFACT="${BEHAVIOR_EXPECTED_ARTIFACT:-}" \
+        __CLS_GOAL_PATTERN="${BEHAVIOR_EXPECTED_ARTIFACT_GREP:-}" \
+        __CLS_GOAL_ART_STATUS="$art_status" \
+        python3 - "$db" <<'CLSDIGEST'
 import json, os, sqlite3, sys
 db = sys.argv[1]
 try:
@@ -586,9 +602,16 @@ for seq, data in rows:
         texts.append(str(part.get("text"))[:200])
     elif "reasoning" in ptype and str(part.get("text", "")):
         reasons.append(str(part.get("text"))[-300:])
+goal_condition = {
+    "goal_artifact": os.environ.get("__CLS_GOAL_ARTIFACT", "") or None,
+    "required_content_pattern": os.environ.get("__CLS_GOAL_PATTERN", "") or None,
+    "declared_goal_actions": declared,
+    "declared_goal_actions_hit": sorted(set(goal_hits)),
+    "artifact_status_at_dispatch": os.environ.get("__CLS_GOAL_ART_STATUS", "") or None,
+}
 print(json.dumps({
     "event_count": len(rows),
-    "declared_goal_actions_hit": sorted(set(goal_hits)),
+    "goal_condition": goal_condition,
     "tool_calls_recent": tools[-12:],
     "message_parts_recent": texts[-3:],
     "reasoning_tails_recent": reasons[-2:],
@@ -632,16 +655,16 @@ You are the monitoring classification sub-agent of an automated behavioral-test 
 
 classification: <progressing-directionally|off-track|undetermined>
 
-SCENARIO GOAL — the task the monitored agent was given:
-${goal_context}
+DIRECTION ANCHOR — the scenario's mechanically verifiable goal condition is the goal_condition object in the digest below (scenario-declared goal artifact + required content pattern + declared goal actions, plus the artifact status mechanically computed at this dispatch). It is the ONLY direction anchor. Classify the run evidence against THAT condition — never against the monitored run's prompt prose (prompt text appearing in the evidence excerpts is context, not the goal; only the declared verifiable condition defines the goal).
 
-MONITORED RUN EVIDENCE — excerpts derived from the run's message parts, reasoning parts, and tool calls in its session DB:
+Classification definitions (direction-anchored to goal_condition):
+- progressing-directionally: the evidence shows work moving toward satisfying the goal_condition — the goal artifact being produced with the required content pattern, and/or declared goal actions completing.
+- off-track: the evidence is NOT directed at satisfying the goal_condition (repetition, loops, unrelated actions, prescribed busy-work the condition never requires, stalled deliberation).
+- undetermined: the evidence is insufficient to judge direction against the condition, OR the scenario declares no verifiable condition (no goal artifact, no content pattern, no goal actions).
+
+MONITORED RUN EVIDENCE — excerpts derived from the run's message parts, reasoning parts, and tool calls in its session DB, with the scenario's verifiable goal_condition folded in:
 ${digest}
 
-Direction-anchored classification definitions:
-- progressing-directionally: the recent evidence (tool calls / message parts / reasoning parts) is moving toward completing the scenario goal.
-- off-track: the recent evidence is NOT directed at the goal (repetition, loops, unrelated actions, stalled deliberation).
-- undetermined: the evidence is insufficient to judge direction.
 Respond with only the classification line.
 CLSPROMPT
 )
@@ -676,12 +699,17 @@ CLSPROMPT
         > "$cls_stdout" 2> "$cls_stderr" 200>&- &
     cls_pid=$!
 
+    # R-13: starvation tracking — a dispatch killed at the bounded-wait cap
+    # produced no parseable classification; the failure mode is reported to
+    # the caller (recorded in the poll evidence, never silent).
+    local starved=0
     local waited=0
     while kill -0 "$cls_pid" 2>/dev/null && [ "$waited" -lt "$BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT" ]; do
         sleep 5
         waited=$((waited + 5))
     done
     if kill -0 "$cls_pid" 2>/dev/null; then
+        starved=1
         kill -TERM -- "-$cls_pid" 2>/dev/null || kill "$cls_pid" 2>/dev/null || true
         sleep 2
         kill -KILL -- "-$cls_pid" 2>/dev/null || kill -9 "$cls_pid" 2>/dev/null || true
@@ -701,13 +729,36 @@ CLSPROMPT
     local classification_value=""
     classification_value=$(grep -oE 'progressing-directionally|off-track|undetermined' "$cls_stdout" 2>/dev/null | head -1 || true)
 
+    # R-13: on a dispatch that produced no parseable classification, preserve
+    # the raw classifier stdout/stderr next to the session export — the
+    # disposable home would otherwise destroy the raw response evidence the
+    # recorded failure mode refers to.
+    if [ -z "$classification_value" ]; then
+        cp "$cls_stdout" "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-attempt${attempt}-poll${poll}.stdout.log" 2>/dev/null || true
+        cp "$cls_stderr" "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-attempt${attempt}-poll${poll}.stderr.log" 2>/dev/null || true
+    fi
+
+    # R-13 failure-mode classification for the poll-evidence record.
+    local fail_mode="ok"
+    if [ -n "$classification_value" ]; then
+        fail_mode="ok"
+    elif [ "$starved" -eq 1 ]; then
+        fail_mode="starved-timeout-kill"
+    elif [ "${digest:0:10}" = '{"error": ' ]; then
+        fail_mode="digest-read-failed"
+    elif [ ! -s "$cls_stdout" ]; then
+        fail_mode="empty-response"
+    else
+        fail_mode="unparsed-response"
+    fi
+
     # Disposable home on a successful export (evidence already staged); keep
     # it on export failure so the classifier DB stays diagnosable.
     if ! grep -q "source_db: MISSING" "$staging_yaml" 2>/dev/null; then
         rm -rf "$cls_home"
     fi
 
-    echo "$classification_value"
+    echo "${classification_value}|${fail_mode}"
 }
 
 # .opencode#2456 SC-3: write the durable determination record for a monitored
@@ -807,7 +858,12 @@ __semantic_monitor() {
     local output_file="$4"
     local err_file="$5"
     local model="$6"
-    local goal_context="$7"
+    # No run-prompt parameter (SC-2 amendment 2026-09-22): the classification
+    # direction anchor is the scenario-declared verifiable goal condition
+    # (BEHAVIOR_EXPECTED_ARTIFACT + BEHAVIOR_EXPECTED_ARTIFACT_GREP +
+    # BEHAVIOR_GOAL_ACTIONS, resolved per poll as art_status) — folded into
+    # the classifier digest by __classify_run_state. The monitored run's
+    # prompt prose is never the anchor.
 
     (
     set +e
@@ -972,21 +1028,31 @@ MONPY
         # changed since the last classification, after the minimum poll gap,
         # under the per-attempt ceiling. The judgment is produced in the
         # sub-agent's OWN context from message/reasoning/tool-call content
-        # (SC-14 admissible evidence — never shell counters); the value is
-        # recorded here and ROUTED by later items (SC-4/SC-6 halt+notify).
+        # against the digest's verifiable goal_condition (SC-14 admissible
+        # evidence — never shell counters; never the run prompt prose); the
+        # value is recorded here and ROUTED by later items (SC-4/SC-6
+        # halt+notify).
         if [ "$classified_count" -lt "$BEHAVIOR_MONITOR_CLASSIFY_MAX" ] \
             && [ "$polls_since_classify" -ge "$BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS" ] \
             && [ "$event_count" -gt "$last_classified_event_count" ]; then
-            local dispatch_value
-            dispatch_value=$(__classify_run_state "$db" "$goal_context" "$model" "$scenario_name" "$attempt" "$poll")
+            local dispatch_raw
+            dispatch_raw=$(__classify_run_state "$db" "${art_status:-not_declared}" "$model" "$scenario_name" "$attempt" "$poll")
             classified_count=$((classified_count + 1))
             polls_since_classify=0
             last_classified_event_count=$event_count
+            local dispatch_value="${dispatch_raw%%|*}"
+            local dispatch_mode="${dispatch_raw#*|}"
             if [ -n "$dispatch_value" ]; then
                 classification_value="$dispatch_value"
-                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count} → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
             else
-                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count} → UNPARSED (no taxonomy value in classifier response; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                # R-13 (.opencode#2456): a dispatch producing no parseable
+                # classification (starved / UNPARSED / model failure) is
+                # recorded as undetermined in the poll evidence TOGETHER WITH
+                # its failure mode and the ceiling slot it consumed — never
+                # silent. Halt-class handling (SC-6) governs continuation.
+                classification_value="undetermined"
+                echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → undetermined (R-13: no parseable classification, mode=${dispatch_mode}; failed dispatch consumed ceiling slot ${classified_count} of ${BEHAVIOR_MONITOR_CLASSIFY_MAX}; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
             fi
         else
             polls_since_classify=$((polls_since_classify + 1))
@@ -1122,14 +1188,19 @@ DIAGEOF
         local final_db
         final_db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
         if [ -n "$final_db" ] && [ -f "$final_db" ]; then
-            local final_value
-            final_value=$(__classify_run_state "$final_db" "$goal_context" "$model" "$scenario_name" "$attempt" "${poll:-0}")
+            local final_raw
+            final_raw=$(__classify_run_state "$final_db" "${art_status:-not_declared}" "$model" "$scenario_name" "$attempt" "${poll:-0}")
             classified_count=1
+            local final_value="${final_raw%%|*}"
+            local final_mode="${final_raw#*|}"
             if [ -n "$final_value" ]; then
                 classification_value="$final_value"
                 echo "CLASSIFY[final]: guarantee dispatch → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
             else
-                echo "CLASSIFY[final]: guarantee dispatch → UNPARSED (no taxonomy value in classifier response; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                # R-13: the guarantee dispatch's failure mode is recorded the
+                # same way — undetermined + mode, never silent.
+                classification_value="undetermined"
+                echo "CLASSIFY[final]: guarantee dispatch → undetermined (R-13: no parseable classification, mode=${final_mode}; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
             fi
         else
             echo "CLASSIFY[final]: guarantee dispatch SKIPPED — no session DB found for the monitored run" >> "$poll_log"
@@ -1394,11 +1465,15 @@ behavior_run() {
                 > "$output_file" 2> "$err_file" \
                 &
             local run_pid=$!
-            # Params 6-7 (.opencode#2456 SC-2): the run's model (Default-Model
+            # Param 6 (.opencode#2456 SC-2): the run's model (Default-Model
             # Mandate R-20 — the classifier uses the same harness default, no
-            # substitution) and the scenario's goal/expected-behavior context
-            # (the monitored run's prompt, as declared by the scenario script).
-            __semantic_monitor "$run_pid" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" "$message"
+            # substitution). The classification direction anchor is the
+            # scenario's mechanically verifiable goal condition
+            # (BEHAVIOR_EXPECTED_ARTIFACT + BEHAVIOR_EXPECTED_ARTIFACT_GREP +
+            # BEHAVIOR_GOAL_ACTIONS, resolved per poll as art_status) — folded
+            # into the classifier digest; the run prompt is never passed as
+            # the anchor (SC-2 amendment 2026-09-22, FALSE_PREMISE remediation).
+            __semantic_monitor "$run_pid" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model"
             local monitor_result=$?
             wait "$run_pid" 2>/dev/null || true
             if [ "$monitor_result" -eq 0 ]; then
