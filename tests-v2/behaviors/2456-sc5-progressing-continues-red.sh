@@ -51,14 +51,19 @@
 # declared: the run keeps producing new completed tool calls, so no hopeless
 # early-exit is wanted.
 #
-# DURATION-CAP SETUP: BEHAVIOR_MONITOR_MAX_POLLS is set small (8 polls x 30s =
-# 240s nominal cap + classification-dispatch time) so the run reliably
+# DURATION-CAP SETUP: BEHAVIOR_MONITOR_MAX_POLLS is set small (12 polls x 30s =
+# 360s nominal cap + classification-dispatch time) so the run reliably
 # OUTLIVES the cap. The SC-2 classification checkpoint policy fires a dispatch
 # when event_count grew and polls_since_classify >= BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS
-# (default 3) — with max_polls=8 the checkpoint dispatches land at polls 4 and
-# 7 (2 chances to record a progressing-directionally classification) before
-# the abort at poll 9. A 16-section incremental doc takes the 27B model many
-# minutes, so the run is still alive (still progressing) at the abort poll.
+# (default 3) — with max_polls=12 the checkpoint dispatches land at polls 4, 8
+# and 12 (3 chances to record a progressing-directionally classification)
+# before the abort at poll 13. BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT is raised
+# 600 -> 900s (R-18 fold-in, run 1 diagnosis: the classifier dispatch was
+# starved/killed at 600s under GPU contention with the monitored 27B run before
+# emitting its classification — the poll-8 dispatch had reached the reasoning
+# stage at 600s, so 900s lets it complete). A 16-section incremental doc takes
+# the 27B model many minutes, so the run is still alive (still progressing) at
+# the abort poll.
 #
 # RED condition (known gap): helpers.sh __semantic_monitor terminates the
 # poll loop unconditionally at the max-polls budget regardless of
@@ -114,10 +119,14 @@ SCENARIO_PROMPT="Create an operations runbook file named 2456-sc5-goal-marker.tx
 # SC-5 monitored run (opt-in flag per spec — fresh invocations without the
 # flag are unchanged; backward compat preserved).
 BEHAVIOR_SEMANTIC_MONITOR=1
-# Duration cap (the SC-5 assertion surface): 8 polls x 30s = 240s nominal cap
+# Duration cap (the SC-5 assertion surface): 12 polls x 30s = 360s nominal cap
 # + classification-dispatch time. The 16-section run reliably outlives it.
-BEHAVIOR_MONITOR_MAX_POLLS=8
-export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS
+BEHAVIOR_MONITOR_MAX_POLLS=12
+# R-18 fold-in (run 1 diagnosis): classifier dispatch starved/killed at the
+# default 600s under GPU contention before emitting its classification — raise
+# to 900s so a dispatch that has reached the reasoning stage can complete.
+BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT=900
+export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT
 
 # DECLARED VERIFIABLE GOAL CONDITION — the classifier's ONLY direction anchor
 # (SC-2 amendment, commit 197a9d14): goal artifact + required content pattern,
