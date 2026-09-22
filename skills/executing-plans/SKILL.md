@@ -40,7 +40,7 @@ This skill operates in the main repo directory (direct-branch mode). When `WORKT
 ### Read the plan
 When the agent needs to begin executing an approved implementation plan and must first read the plan file to understand its phases and dependency order.
 
-1. **Read the plan file** — the orchestrator reads the approved plan itself and inventories its phases in dependency order (**orchestrator, own context** — follow [the read-plan procedure](tasks/read-plan.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [inventory plan phases](tasks/read-plan.md). issue_number: ", issue_number, ", plan_path: ", plan_path, ", project_root: ", project_root))`)
+1. **Read the plan file** — the orchestrator reads the approved plan itself and inventories its phases in dependency order (**orchestrator, own context** — follow [inventory plan phases](tasks/read-plan.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [inventory plan phases](tasks/read-plan.md). issue_number: ", issue_number, ", plan_path: ", plan_path, ", project_root: ", project_root))`)
   - Context: `{issue_number, plan_path, project_root}`
   - Returns: `{phase_order}`
   - Execution mode: orchestrator (own context)
