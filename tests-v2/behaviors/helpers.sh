@@ -845,6 +845,29 @@ determination_record:
 DET.EOF
 }
 
+# .opencode#2456 SC-4: off-track notification routing (R-2). When the SC-2
+# classification dispatch returns off-track, the monitor emits the orchestrator
+# notification on stderr — the ORCHESTRATOR_DECISION_REQUIRED-class stderr
+# convention (§14 stderr conventions, alongside FATAL:/HARNESS_FAILURE:) — and
+# records the notification in the poll log (NOTIFY line, persisted to
+# monitor.log per SC-1). Off-track runs NEVER continue silently: every
+# off-track classification carries its notification (continuation without
+# notification is the R-2 violation SC-4 closes). The halt mechanics (halting
+# monitoring before any further dispatch) are SC-6's mechanism and are NOT
+# part of this notification path. Flag-gated: reachable only inside
+# __semantic_monitor (BEHAVIOR_SEMANTIC_MONITOR=1); unset → no monitor, no
+# notification (backward compat).
+__notify_offtrack() {
+    local poll_id="$1"
+    local dispatch_n="$2"
+    local art_status_n="$3"
+    local poll_log="$4"
+    local scenario_name="$5"
+    local attempt="$6"
+    echo "ORCHESTRATOR_DECISION_REQUIRED: off-track — the SC-2 classification sub-agent classified monitored run '${scenario_name}' attempt ${attempt} OFF-TRACK (classification=off-track, dispatch #${dispatch_n}, poll ${poll_id}, artifact_status=${art_status_n}): the run is not progressing toward the scenario's declared verifiable goal condition. Off-track runs never continue silently (R-2, .opencode#2456 SC-4). Evidence: poll log ${poll_log} (CLASSIFY[poll ${poll_id}] line + run tails), classifier session export ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml. Orchestrator decision required (SC-6 halt+notify / SC-7 decision field)." >&2
+    echo "NOTIFY[poll ${poll_id}]: ORCHESTRATOR_DECISION_REQUIRED emitted on stderr — classification=off-track, dispatch #${dispatch_n}/${BEHAVIOR_MONITOR_CLASSIFY_MAX}, artifact=${art_status_n} (R-2: off-track runs never continue silently; evidence pointers in the stderr notification)" >> "$poll_log"
+}
+
 __semantic_monitor() {
     # .opencode#2441 hardening: the poll body is best-effort reads under the
     # caller's `set -euo pipefail` — any transient read failure (log file not
@@ -1030,8 +1053,9 @@ MONPY
         # sub-agent's OWN context from message/reasoning/tool-call content
         # against the digest's verifiable goal_condition (SC-14 admissible
         # evidence — never shell counters; never the run prompt prose); the
-        # value is recorded here and ROUTED by later items (SC-4/SC-6
-        # halt+notify).
+        # value is recorded here and the off-track classification is ROUTED
+        # to the orchestrator notification (SC-4 __notify_offtrack); the
+        # halt-class halt+notify routing is SC-6's mechanism (later item).
         if [ "$classified_count" -lt "$BEHAVIOR_MONITOR_CLASSIFY_MAX" ] \
             && [ "$polls_since_classify" -ge "$BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS" ] \
             && [ "$event_count" -gt "$last_classified_event_count" ]; then
@@ -1045,6 +1069,12 @@ MONPY
             if [ -n "$dispatch_value" ]; then
                 classification_value="$dispatch_value"
                 echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                # .opencode#2456 SC-4: an off-track classification is routed to
+                # the orchestrator notification — emitted on stderr AND
+                # recorded in the poll log (R-2: never silent continuation).
+                if [ "$classification_value" = "off-track" ]; then
+                    __notify_offtrack "$poll" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt"
+                fi
             else
                 # R-13 (.opencode#2456): a dispatch producing no parseable
                 # classification (starved / UNPARSED / model failure) is
@@ -1196,6 +1226,12 @@ DIAGEOF
             if [ -n "$final_value" ]; then
                 classification_value="$final_value"
                 echo "CLASSIFY[final]: guarantee dispatch → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                # .opencode#2456 SC-4: the guarantee dispatch routes an
+                # off-track final classification to the orchestrator
+                # notification too (R-2: never silent continuation).
+                if [ "$classification_value" = "off-track" ]; then
+                    __notify_offtrack "final-guarantee" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt"
+                fi
             else
                 # R-13: the guarantee dispatch's failure mode is recorded the
                 # same way — undetermined + mode, never silent.
