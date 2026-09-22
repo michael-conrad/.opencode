@@ -66,3 +66,5 @@ if [ "$FAILURES" -gt 0 ]; then
 fi
 echo "EXIT: 0"
 exit 0
+
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

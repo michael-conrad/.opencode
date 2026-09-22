@@ -112,4 +112,3 @@ Every authorization scope declares exactly one strategy: stacked or none.
 Creating N branches for N issues IS a critical violation — Period.
 
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
-*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*

@@ -31,3 +31,5 @@ SCENARIO_PROMPT="Create a pull request for the branch feature/payment-gateway ta
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0
+
+# Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
