@@ -31,6 +31,10 @@ Check your tool list for a tool named `task`.
 - Present ⇒ orchestrator — proceed.
 - Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
 ## Workflows
 
 ### Read the plan
