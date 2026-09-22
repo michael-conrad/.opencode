@@ -45,7 +45,7 @@ When the agent needs to begin executing an approved implementation plan and must
   - Returns: `{phase_order}`
   - Execution mode: orchestrator (own context)
 
-2. **Execute phases in sequence** — execute each phase's steps in the plan's dependency order, performing each step in the orchestrator's own context and dispatching a step's task card via `task()` ONLY where that step marks dispatch (**orchestrator, own context** — follow [the execute-phase procedure](tasks/execute-phase.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [execute plan phase](tasks/execute-phase.md). issue_number: ", issue_number, ", phase: ", phase, ", plan_path: ", plan_path, ", project_root: ", project_root, ", phase_order: ", phase_order))`)
+2. **Execute phases in sequence** — execute each phase's steps in the plan's dependency order, performing each step in the orchestrator's own context and dispatching a step's task card via `task()` ONLY where that step marks dispatch (**orchestrator, own context** — follow [dispatch one plan phase](tasks/execute-phase.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [dispatch one plan phase](tasks/execute-phase.md). issue_number: ", issue_number, ", phase: ", phase, ", plan_path: ", plan_path, ", project_root: ", project_root, ", phase_order: ", phase_order))`)
   - Context: `{issue_number, phase, plan_path, project_root, phase_order}`
   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
   - Execution mode: orchestrator (own context), with step-marked `task()` dispatches
