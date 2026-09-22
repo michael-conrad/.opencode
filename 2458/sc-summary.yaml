@@ -1,0 +1,30 @@
+sc_count: 7
+scs:
+  - id: "SC-1"
+    description: "Canonical deprecation-encounter directive fragment registered with skill-creator fragment-management"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Directive inlined in full in each of six SKILL.md cards (research, systematic-debugging, programming-principles, audit, skill-creator, engineering-approach); no Read-link-only / conditional-insert / load-on-encounter form anywhere"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Six card copies byte-identical to the canonical fragment"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Runtime-constraint documentation present in skill-card-description-standards.md and task-card-structure-standards.md (full detail) plus compact 2-3 sentence statement in .opencode/AGENTS.md"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Agent encountering a deprecated item classifies it as pending breakage/bitrot (never ignores, never builds on it) and dispatches filing for every encounter, dependent or observed"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Filing routes by platform state: remote API when available / chat executive summary + defer-and-retry on transient failure / local .issues/ standard tracking ([BITROT] prefix + bitrot label) on structural absence of remote; search-then-create-or-comment observed"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Dependent encounter (current change touches the deprecated code path) surfaces scope assessment to developer; no resolution SC folded into current spec without dev brainstorm"
+    evidence_type: "behavioral"
+    plan_item: 7

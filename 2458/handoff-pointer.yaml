@@ -1,0 +1,14 @@
+brainstorm_handoff:
+  source: brainstorming
+  target: spec-creation
+  status: consumed
+  original_path: "{project_root}/tmp/issue-pending-deprecation-bitrot/artifacts/preliminary/handoff.yaml"
+  restaged_note: "Preliminary artifacts re-staged into tmp/2458/artifacts/ by the spec-creation analyze task (2026-09-22); canonical .yaml artifacts derive from the complete preliminary artifacts"
+  artifacts_status:
+    blast-radius: complete
+    concern-map: complete
+    code-paths: complete
+    cross-cutting: complete
+    interface-compat: not-applicable
+    state-analysis: not-applicable
+    testability: complete
