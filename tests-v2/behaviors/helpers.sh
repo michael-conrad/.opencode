@@ -710,6 +710,90 @@ CLSPROMPT
     echo "$classification_value"
 }
 
+# .opencode#2456 SC-3: write the durable determination record for a monitored
+# run. Called from behavior_run()'s flag-gated post-run block, which both the
+# natural-completion and monitor-abort paths flow through, so EVERY monitored
+# run gets a record (R-8: written in the scenario evidence directory
+# alongside session.yaml and the poll log). The record carries (a) the run's
+# final classification — the taxonomy value produced by the SC-2
+# classification dispatch (__classify_run_state), parsed from the persisted
+# poll log's MONITOR-COMPLETE final_classification field, falling back to the
+# last CLASSIFY dispatch value on the abort path — (b) poll-evidence
+# references (monitor.log path + polls executed) and (c) run provenance
+# (model, exit code). Schema is append-only-ready (R-8): the empty
+# false_signal_annotations / orchestrator_decisions lists are the append
+# targets for later lifecycle events (.opencode#2456 SC-10 false_signal
+# annotations, SC-7 orchestrator decisions) — future fields are allowed by
+# appending list items, never by rewriting recorded fields. YAML per the
+# LLM-to-LLM data standard (080-code-standards.md). Flag-gated: only invoked
+# under BEHAVIOR_SEMANTIC_MONITOR=1 (backward compat).
+__write_determination_record() {
+    local artifact_dir="$1"
+    local poll_log="$2"
+    local model="$3"
+    local exit_code="$4"
+    local scenario_name="$5"
+    local attempt="$6"
+    local phase="${BEHAVIOR_PHASE:-GREEN}"
+
+    # Final classification: MONITOR-COMPLETE's final_classification field is
+    # authoritative on the natural-completion path; on the abort path (no
+    # MONITOR-COMPLETE line) fall back to the last CLASSIFY dispatch value.
+    # "none"/UNPARSED means no taxonomy value was ever produced — recorded
+    # honestly; downstream consumers treat a non-taxonomy classification as
+    # undetermined-class.
+    local classification=""
+    classification=$(grep -oE 'final_classification=[a-z-]+' "$poll_log" 2>/dev/null | tail -1 | cut -d= -f2 || true)
+    if [ -z "$classification" ] || [ "$classification" = "none" ]; then
+        classification=$(grep -oE '→ (progressing-directionally|off-track|undetermined)' "$poll_log" 2>/dev/null | tail -1 | sed 's/^→ //' || true)
+    fi
+    [ -n "$classification" ] || classification="none"
+
+    # Polls executed: MONITOR-COMPLETE polls=N (natural completion) or
+    # ABORTED ... poll=N (§14 abort path).
+    local polls=""
+    polls=$(grep -oE 'polls=[0-9]+' "$poll_log" 2>/dev/null | tail -1 | cut -d= -f2 || true)
+    if [ -z "$polls" ]; then
+        polls=$(grep -oE 'poll=[0-9]+' "$poll_log" 2>/dev/null | tail -1 | cut -d= -f2 || true)
+    fi
+    [ -n "$polls" ] || polls=0
+
+    # Run path: natural completion carries the MONITOR-COMPLETE marker; its
+    # absence means the monitor aborted the run (§14 abort path).
+    local run_path="natural-completion"
+    if ! grep -q "MONITOR-COMPLETE" "$poll_log" 2>/dev/null; then
+        run_path="monitor-abort"
+    fi
+
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || true)
+
+    cat > "$artifact_dir/determination.yaml" <<DET.EOF
+determination_record:
+  schema: determination-record
+  schema_version: 1
+  scenario_name: ${scenario_name}
+  phase: ${phase}
+  attempt: ${attempt}
+  model: ${model}
+  exit_code: ${exit_code}
+  run_path: ${run_path}
+  classification: ${classification}
+  poll_evidence:
+    monitor_log: ${artifact_dir}/monitor.log
+    polls_executed: ${polls}
+    classifier_session: ${artifact_dir}/classifier-session.yaml
+  harness_version: ${BEHAVIOR_HARNESS_VERSION}
+  recorded_at: ${timestamp}
+  # Append-only lifecycle sections — future fields are allowed by appending
+  # list items (never by rewriting recorded fields):
+  #   false_signal_annotations — .opencode#2456 SC-10 monitor false-signal annotations
+  #   orchestrator_decisions   — .opencode#2456 SC-7 recorded orchestrator decisions
+  false_signal_annotations: []
+  orchestrator_decisions: []
+DET.EOF
+}
+
 __semantic_monitor() {
     # .opencode#2441 hardening: the poll body is best-effort reads under the
     # caller's `set -euo pipefail` — any transient read failure (log file not
@@ -1424,6 +1508,18 @@ MANIFESTEOF
         # authoritative alongside-session.yaml copy lands here. The last
         # classification of the attempt wins (final classified state).
         cp "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml" "$artifact_dir/classifier-session.yaml" 2>/dev/null || true
+        # .opencode#2456 SC-3: durable determination record — written for
+        # EVERY monitored run (natural completion AND abort paths both flow
+        # through this post-run block), carrying the final classification
+        # (SC-2 taxonomy value), poll-evidence references (monitor.log path
+        # + poll count), and run provenance (model, exit code). Append-only
+        # schema (R-8): false_signal annotations (SC-10) and orchestrator
+        # decisions (SC-7) append to the record's list sections in later
+        # phases. Flag-gated by the enclosing BEHAVIOR_SEMANTIC_MONITOR
+        # block — unset → no record, no change (backward compat).
+        __write_determination_record "$artifact_dir" \
+            "$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log" \
+            "$model" "$exit_code" "$scenario_name" "$attempt"
     fi
 
     local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
