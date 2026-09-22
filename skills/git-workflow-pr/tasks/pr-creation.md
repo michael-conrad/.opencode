@@ -43,7 +43,7 @@ if [ -z "$DEFAULT_BRANCH" ]; then DEFAULT_BRANCH="main"; fi
 
 **Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
-**Route to:** `pr-creation/enforcement-gate`
+**Route to:** `pr-creation/enforcement-gate` — `task-card` dispatch point: the orchestrator dispatches this nested sub-task card via `task()` with the task-card path and scoped context (step-scoped dispatch), per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
 Route a sub-agent for report-only SHA verification (no auto-remediation). Then verifies explicit PR instruction, branch push status, existing PR state, and merge conflict detection.
 
@@ -65,7 +65,7 @@ Before squash and push, verify dirty submodule pointers are included in staged c
 
 **Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
-**Route to:** `pr-creation/squash-push`
+**Route to:** `pr-creation/squash-push` — `task-card` dispatch point: the orchestrator dispatches this nested sub-task card via `task()` with the task-card path and scoped context (step-scoped dispatch), per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
 Generates changelog (or skips with `[skip changelog]`), squashes commits, rebases on current trunk, and pushes to remote with verification.
 
@@ -73,7 +73,7 @@ Generates changelog (or skips with `[skip changelog]`), squashes commits, rebase
 
 **Dispatch classification:** `orchestrator-direct` — the orchestrator executes this step group directly in its own context, per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
-**Route to:** `pr-creation/create-pr`
+**Route to:** `pr-creation/create-pr` — `task-card` dispatch point: the orchestrator dispatches this nested sub-task card via `task()` with the task-card path and scoped context (step-scoped dispatch), per the canonical dispatch-vocabulary table in `.opencode/reference/skill-card-description-standards.md`.
 
 Collects sub-issues from parent spec, creates PR with executive summary body, extracts URL from API response, reports in chat and HALTs.
 
@@ -131,6 +131,7 @@ A PR body without Summary/Outcome/Fixes structure buries the intent of your chan
 ### [critical-rules-016] Wrong Compare URL Base Branch
 Using the wrong base branch in a compare URL sends reviewers to the wrong diff — your changes look different against the wrong baseline. Professional engineers verify the base branch before every compare URL — amateurs send reviewers to the wrong diff and waste everyone's time. PR compare URL base: `$DEFAULT_BRANCH` (the trunk).
 
+*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
 
 
