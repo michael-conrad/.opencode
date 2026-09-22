@@ -32,10 +32,8 @@ Check your tool list for a tool named `task`.
 When the agent needs to create a pull request, squash commits to a single commit, push the branch, and create the PR targeting `$DEFAULT_BRANCH`.
 
 - [ ] 1. **Pr-creation** — Creates a pull request with a structured body and compare URL
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pull request](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
   - **Context passed:** `{branch_name, spec_summary, is_release}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
-  - **Execution mode:** sub-agent dispatch
   - On completion, MUST read the ticket's current status via `local-issues read` BEFORE reporting completion, then updates it to the PR-created state (`for_pr`/`approved-for-pr`) when an update is warranted, skipping the update only when the read shows the status is already correct (see Step 9 Ticket Status Reconciliation in `tasks/pr-creation.md`).
 
 ### Prepare for review
@@ -111,3 +109,5 @@ Bright-line companion:
 PR organization IS branch organization. Stacked PR IS the only valid organization.
 Every authorization scope declares exactly one strategy: stacked or none.
 Creating N branches for N issues IS a critical violation — Period.
+
+*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
