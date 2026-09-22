@@ -57,8 +57,8 @@ dispatch:
 | 3 | Resume gate + undetermined-cycle ceiling | Mechanical gate + counter in `with-test-home` | SC-8, SC-9 | 1 | 54-68 | direct (54-55) + task-card (56-67) + direct (68) |
 | 4 | False-signal folding + enforcement scenario | False-signal-and-enforcement (concern-map) | SC-10, SC-11 | 3 | 69-83 | direct (69-70) + task-card (71-82) + direct (83) |
 | 5 | Doc alignment | Docs-alignment (concern-map) | SC-12 | 4 | 84-91 | direct (84-85) + task-card (86-90) + direct (91) |
-| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13) | SC-13, SC-14, SC-15 | 4 | 92-109 | direct (92-93) + task-card (94-108) + direct (109) |
-| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 110-117 | mixed — see post-implementation section |
+| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13), mechanical commit+push before isolated runs (SC-16) | SC-13, SC-14, SC-15, SC-16 | 4 | 92-115 | direct (92-93) + task-card (94-114) + direct (115) |
+| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 116-123 | mixed — see post-implementation section |
 
 ## Exit Criteria
 
@@ -77,10 +77,11 @@ dispatch:
 - [ ] C13. Semantically classified non-progressing run + identifiable cause → decision=terminate-with-root-cause naming the cause; timer-escalation re-dispatch without diagnosis blocked (SC-13)
 - [ ] C14. Every poll performs a full semantic check derived from message parts, reasoning parts, and tool calls; activity-only classification defective (SC-14)
 - [ ] C15. Poll interval ≤ 300s on monitored runs (SC-15)
+- [ ] C16. GREEN-phase behavioral dispatches commit+push test-needed changes mechanically before the isolated run; no commit deliberation (SC-16)
 
 ## Pre-Implementation
 
-- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (15 SCs — SC-13/14/15 added by developer directives 2026-09-21) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
+- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (16 SCs — SC-13/14/15/16 added by developer directives 2026-09-21) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
 - [ ] 2. **Baseline check (**direct**).** Verify trunk-tip state per git-workflow pre-work: parent repo and `.opencode` submodule on `$DEFAULT_BRANCH`, zero pending changes, at remote tracking tip, submodule pointer matches committed SHA; create the feature branch; record the baseline test-enforcement.sh result for regression comparison.
 
 ## Pre-Implementation Steps (per-item TDD cycle — all phases)
@@ -89,14 +90,14 @@ Every phase item below enumerates the full per-task cycle from the implementatio
 
 ## Post-Implementation
 
-- [ ] 110. **Audit (**task-card**).** Dispatch adversarial audit: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read 'audit/tasks/verification-audit-investigator.md' first")` — followed by validator, evaluator, arbiter in sequence. **→ all SCs**
-- [ ] 111. **Z3 check (**direct**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` on the pipeline state and dependency contract. **→ all SCs**
-- [ ] 112. **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11, SC-12, SC-13, SC-14, SC-15**
-- [ ] 113. **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
-- [ ] 114. **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
-- [ ] 115. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
-- [ ] 116. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
-- [ ] 117. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
+- [ ] 116. **Audit (**task-card**).** Dispatch adversarial audit: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read 'audit/tasks/verification-audit-investigator.md' first")` — followed by validator, evaluator, arbiter in sequence. **→ all SCs**
+- [ ] 117. **Z3 check (**direct**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` on the pipeline state and dependency contract. **→ all SCs**
+- [ ] 118. **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11, SC-12, SC-13, SC-14, SC-15, SC-16**
+- [ ] 119. **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
+- [ ] 120. **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
+- [ ] 121. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
+- [ ] 122. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
+- [ ] 123. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
 
 ## Self-Remediation Protocol
 
@@ -120,6 +121,11 @@ Check your tool list for a tool named `task`.
 
 ## lifecycle_events
 
+- timestamp: 2026-09-21T19:30:00Z
+  event: plan_revised
+  plan_path: .opencode/.issues/2456/plan.md
+  phase_count: 6
+  note: Developer directive 2026-09-21 (third revision) — SC-16/R-12/Item 16 added (mechanical commit+push before isolated test-home runs; commit deliberation prohibited); Phase 6 now SC-13/14/15/16 (steps 92-115); post-implementation renumbered 116-123. Prior plan approval revoked by spec revision and re-authorized by the same developer directive.
 - timestamp: 2026-09-21T18:55:00Z
   event: plan_revised
   plan_path: .opencode/.issues/2456/plan.md
