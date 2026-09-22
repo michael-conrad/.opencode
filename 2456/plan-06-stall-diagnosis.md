@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
