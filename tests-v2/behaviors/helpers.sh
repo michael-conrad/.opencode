@@ -919,9 +919,25 @@ __semantic_monitor() {
     while kill -0 "$run_pid" 2>/dev/null; do
         poll=$((poll + 1))
         if [ "$poll" -gt "$BEHAVIOR_MONITOR_MAX_POLLS" ]; then
-            echo "POLL ${poll}: max-polls budget exhausted — run outlived monitor budget, aborting" >> "$poll_log"
-            abort_reason="max_polls_exhausted"
-            break
+            # .opencode#2456 SC-5 (progressing-continues, R-2): the max-polls
+            # duration-cap termination path applies ONLY to non-progressing
+            # states — undetermined / off-track / no-classification / silent.
+            # A run whose last SC-2 classification is progressing-directionally
+            # SHALL continue polling past the cap regardless of duration (R-2:
+            # "Progressing runs SHALL continue polling regardless of duration").
+            # The carve-out consults the LAST completed classification (the
+            # checkpoint dispatches land before the cap when the event stream
+            # is growing; an empty value means never-classified → non-progressing
+            # → halted). Flag-gated by the enclosing BEHAVIOR_SEMANTIC_MONITOR=1
+            # block — unset → no monitor, no classification, no carve-out
+            # (backward compat, plan-02 "no flag changes in this phase").
+            if [ "${classification_value:-}" = "progressing-directionally" ]; then
+                echo "POLL ${poll}: max-polls budget exceeded but run classified progressing-directionally (${classification_value}) — progressing runs continue polling regardless of duration (R-2, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
+            else
+                echo "POLL ${poll}: max-polls budget exhausted — run outlived monitor budget, aborting (last classification=${classification_value:-none})" >> "$poll_log"
+                abort_reason="max_polls_exhausted"
+                break
+            fi
         fi
         sleep "$BEHAVIOR_MONITOR_INTERVAL"
 
