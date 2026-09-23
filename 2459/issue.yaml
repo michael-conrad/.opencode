@@ -6,6 +6,128 @@ github_url: https://github.com/michael-conrad/.opencode/issues/2459
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2459/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2459/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2459/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Problem
+
+
+  The .opencode agent deck has no guideline governing conversational accuracy-vs-agreement
+  posture: live-verified research shows LLM agents fold under user pushback, mirror
+  user confidence regardless of correctness, and soften correct findings to preserve
+  approval (Sharma et al., arXiv:2310.13548 — preference data rewards sycophancy;
+  Kim & Khashabi 2025 — rebuttal folding), and deck-wide search verified zero existing
+  coverage. The deck''s adjacent content is domain-mismatched — 065 governs factual
+  claim-evidence honesty, 255''s dist-shift-004 is a content-generation pattern, 257
+  covers pipeline discipline — so no canonized countermeasure reaches any agent''s
+  session context. This spec canonizes the user-approved 9-directive anti-sycophancy
+  set (grounded in Dubois et al. arXiv:2602.23971 and Lindsey, transformer-circuits.pub/2025/introspection,
+  showing process directives outperform trait admonitions) as an evergreen Tier 1
+  guideline. Validation on the draft spec failed 4 structural decomposition checks,
+  so the verification set was revised from 2 compound SCs to 6 atomic SCs — scope
+  and requirements are unchanged.
+
+
+  ## Scope
+
+
+  - Create `.opencode/guidelines/027-anti-sycophancy.md`: new Tier 1 guideline carrying
+  the 9 approved directives with semantics preserved — accuracy outranks approval;
+  user confidence is zero information about correctness; restate assertions as open
+  questions before answering; label epistemic status (known/believed/guessed/unverified);
+  correct wrong premises in the first sentence; hold correct positions under pushback
+  (restate once with evidence); disagreement requires evidence, not attitude; never
+  announce honesty; state falsifiability or mark claims unverified.
+
+  - Register the guideline in the `.opencode/opencode.jsonc` instructions array (numeric
+  order, JSONC validity preserved) so every session loads it upfront — including build/plan
+  agents.
+
+  - Route via a `guidelines/INDEX.md` row following the 4-column schema for on-demand
+  sub-agent load.
+
+  - Define domain boundaries as cross-references against 065 (claim-evidence), 255
+  (dist-shift-004 remains canonical for content-generation), and 257 (pipeline discipline)
+  — no restatement, no edits to existing cards.
+
+  - Verify through 6 atomic SCs on a single phase with DAG SC-1 → {SC-2, SC-3} → SC-4
+  → SC-5 → SC-6: three static-content criteria — guideline file content (SC-1), jsonc
+  registration (SC-2), INDEX row (SC-3), each a deterministic no-model content-verification
+  script — followed by three runtime criteria — behavioral load-and-cite (SC-4) and
+  provocation-scenario posture compliance (SC-5), both executable via `bash .opencode/tests-v2/with-test-home
+  opencode run` with clean-room session.yaml evaluation, and non-regression (SC-6)
+  with the subset named explicitly: `bash .opencode/tests-v2/test-skill-deck-completeness.sh`
+  (no-model, baseline-verified exit 0).
+
+
+  **Out of scope:** implementation, branch creation, or PR (pipeline ends at the spec_created
+  boundary under `for_analysis` scope); `.opencode/prompts/default.txt` changes (single-source-of-truth
+  — the instructions array already reaches build/plan agents); modifications to 065/250/255/257;
+  model-level intervention (fine-tuning/RLHF); new skill creation; model-executing
+  scenarios in the non-regression subset (existing guideline files are static text
+  — the R-8 non-modification guard plus SC-4''s live harness run carry existing-behavior
+  equivalence).
+
+
+  ## Approach
+
+
+  Create one new Tier 1 guideline file and register it in the deck''s two routing
+  surfaces, with verification decomposed so each target owns one deliverable, one
+  evidence type, and one RED/GREEN/verify/commit cycle. The deliverable is a declarative
+  always-on posture card, not a skill: it loads upfront in every session via the instructions
+  array and governs conversational behavior through process directives — restating
+  assertions as open questions, labeling epistemic status, correcting premises in
+  the first sentence, and holding correct positions under pushback. Domain boundaries
+  are cross-references, not restatements: 065 keeps the claim-evidence verification
+  machinery, 255 keeps dist-shift-004 for content-generation text patterns, 257 keeps
+  pipeline discipline, and the new card owns only accuracy-vs-agreement conversational
+  posture. The research basis travels with the directives as verified citations. Static-content
+  SCs (file, config entry, routing row) are verified by no-model content-verification
+  scripts; runtime SCs run through the existing tests-v2 harness with clean-room evaluation
+  of session.yaml — no new infrastructure. All edits are additive — risk is LOW-MEDIUM,
+  with the single elevated risk (JSONC validity of the instructions array, which feeds
+  every session''s system prompt) guarded by SC-2''s parse assertion.
+
+
+  ## Impact
+
+
+  **Top 3 risks:**
+
+
+  - JSONC syntax error in the instructions-array edit breaks agent config loading
+  for all sessions → mitigation: SC-2 scenario script asserts JSONC parse validity
+  before GREEN.
+
+  - Directive phrasing passes content checks but fails behavioral compliance (folding
+  persists) → mitigation: SC-5 provocation scenarios catch folding behavior; the remediation
+  loop is confined to 027 phrasing.
+
+  - Boundary drift — directive text duplicated into other files or 065 machinery restated
+  → mitigation: single-source-of-truth cross-references asserted in SC-1 content checks;
+  existing cards frozen by R-8 and verified by SC-6''s unmodification guard.
+
+
+  **Key dependencies:** the tests-v2 behavioral harness; the named non-regression
+  subset member `test-skill-deck-completeness.sh` (baseline green); existing guideline
+  files 065/250/255/257 as boundary targets; live-resolvable citation URLs for the
+  research basis.
+
+
+  **Call to action:** Review the full spec at `.opencode/.issues/2459/spec.md` on
+  the `issues-data` branch — the pipeline halts at the spec_created boundary.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-09-23T03:43:59+00:00'
-updated_at: '2026-09-23T03:44:16+00:00'
+updated_at: '2026-09-23T04:07:13+00:00'
