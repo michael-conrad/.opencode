@@ -1069,6 +1069,48 @@ __notify_offtrack() {
     echo "NOTIFY[poll ${poll_id}]: ORCHESTRATOR_DECISION_REQUIRED emitted on stderr — classification=off-track, dispatch #${dispatch_n}/${BEHAVIOR_MONITOR_CLASSIFY_MAX}, artifact=${art_status_n} (R-2: off-track runs never continue silently; evidence pointers in the stderr notification)" >> "$poll_log"
 }
 
+# .opencode#2456 R-13 amendment (2026-09-23): pure decision function for one
+# classification-dispatch result — the decoupling surface. A dispatch that
+# returns a parsed taxonomy value is a CLASSIFICATION; a dispatch that
+# returns none is a DISPATCH FAILURE (attempt + failure mode recorded by the
+# caller), never a classification: no halt-class trigger of its own, no
+# undetermined-cycle ceiling increment, retried per the checkpoint policy.
+# Args: current_classification current_halt_class current_dispatch_failures
+# dispatch_value. Echoes "<classification>|<halt_class>|<dispatch_failures>|<harness_failure_flag>".
+# Dispatch-failure ceiling application (harness_failure_flag=1) is decided
+# here; the HARNESS_FAILURE stderr emission (scenario context) stays with
+# the caller.
+__interpret_classify_dispatch() {
+    local cur_cls="$1"
+    local cur_halt="$2"
+    local cur_fails="$3"
+    local d_value="$4"
+    local ceiling="${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING:-3}"
+    if [ -n "$d_value" ]; then
+        # Parsed classification: resets the consecutive dispatch-failure
+        # counter and carries the routed halt-class state (SC-6 governs
+        # parsed outcomes only — unchanged by the amendment).
+        local new_halt=""
+        case "$d_value" in
+            off-track|undetermined) new_halt="$d_value" ;;
+        esac
+        echo "$d_value|$new_halt|0|0"
+        return 0
+    fi
+    # Dispatch failure: no classification produced — classification_value is
+    # UNCHANGED, halt_class is UNTOUCHED (parameters, not the failure itself,
+    # decide halts), the failure counter increments, and the checkpoint
+    # policy retries on a later qualifying poll. 3 consecutive failures trip
+    # the harness-failure flag (ceiling configurable via env override).
+    local new_fails=$((cur_fails + 1))
+    local ceil_flag=0
+    if [ "$new_fails" -ge "$ceiling" ]; then
+        ceil_flag=1
+    fi
+    echo "$cur_cls|$cur_halt|$new_fails|$ceil_flag"
+    return 0
+}
+
 # .opencode#2456 SC-6: halt-class notification routing (R-3). When the SC-2
 # classification dispatch returns a halt-class trigger state (undetermined /
 # excessive-without-classification / direction-deviation — the non-progressing
@@ -1462,47 +1504,6 @@ MONPY
     done
 
     # .opencode#2456 R-13 amendment (2026-09-23): pure decision function for one
-# classification-dispatch result — the decoupling surface. A dispatch that
-# returns a parsed taxonomy value is a CLASSIFICATION; a dispatch that
-# returns none is a DISPATCH FAILURE (attempt + failure mode recorded by the
-# caller), never a classification: no halt-class trigger of its own, no
-# undetermined-cycle ceiling increment, retried per the checkpoint policy.
-# Args: current_classification current_halt_class current_dispatch_failures
-# dispatch_value. Echoes "<classification>|<halt_class>|<dispatch_failures>|<harness_failure_flag>".
-# Dispatch-failure ceiling application (harness_failure_flag=1) is decided
-# here; the HARNESS_FAILURE stderr emission (scenario context) stays with
-# the caller.
-__interpret_classify_dispatch() {
-    local cur_cls="$1"
-    local cur_halt="$2"
-    local cur_fails="$3"
-    local d_value="$4"
-    local ceiling="${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING:-3}"
-    if [ -n "$d_value" ]; then
-        # Parsed classification: resets the consecutive dispatch-failure
-        # counter and carries the routed halt-class state (SC-6 governs
-        # parsed outcomes only — unchanged by the amendment).
-        local new_halt=""
-        case "$d_value" in
-            off-track|undetermined) new_halt="$d_value" ;;
-        esac
-        echo "$d_value|$new_halt|0|0"
-        return 0
-    fi
-    # Dispatch failure: no classification produced — classification_value is
-    # UNCHANGED, halt_class is UNTOUCHED (parameters, not the failure itself,
-    # decide halts), the failure counter increments, and the checkpoint
-    # policy retries on a later qualifying poll. 3 consecutive failures trip
-    # the harness-failure flag (ceiling configurable via env override).
-    local new_fails=$((cur_fails + 1))
-    local ceil_flag=0
-    if [ "$new_fails" -ge "$ceiling" ]; then
-        ceil_flag=1
-    fi
-    echo "$cur_cls|$cur_halt|$new_fails|$ceil_flag"
-    return 0
-}
-
 # .opencode#2456 R-13 amendment (2026-09-23): dispatch-failure ceiling exit
     # — monitoring was halted after BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING
     # consecutive unparseable dispatches. Checked BEFORE the halt-class exit:
