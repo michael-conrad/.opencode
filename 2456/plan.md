@@ -52,7 +52,7 @@ dispatch:
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
-| 1 | Monitor evidence + classification + determination record foundation | Record lifecycle foundation in `__semantic_monitor` | SC-1, SC-2, SC-3 | — | 3-24 | direct (3-4) + task-card (5-23) + direct (24) |
+| 1 | Monitor evidence + classification + determination record foundation | Record lifecycle foundation in `__semantic_monitor` | SC-1, SC-2, SC-3 | — | 3-24 (+2R cycles 24a-24d) | direct (3-4) + task-card (5-23, 24a-d) + direct (24) |
 | 2 | Classification routing (off-track / progressing / halt-class / decision) | Route classifications to notify/halt/continue paths | SC-4, SC-5, SC-6, SC-7 | 1 | 25-53 | direct (25-26) + task-card (27-52) + direct (53) |
 | 3 | Resume gate + undetermined-cycle ceiling | Mechanical gate + counter in `with-test-home` | SC-8, SC-9 | 1 | 54-68 | direct (54-55) + task-card (56-67) + direct (68) |
 | 4 | False-signal folding + enforcement scenario | False-signal-and-enforcement (concern-map) | SC-10, SC-11 | 3 | 69-83 | direct (69-70) + task-card (71-82) + direct (83) |
