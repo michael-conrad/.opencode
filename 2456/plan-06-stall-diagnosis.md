@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -82,7 +82,12 @@
 - [ ] 131. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-20**
 - [ ] 132. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts marker fires on the deliberation loop and not on the latency-dominated progressing control. **→ SC-20**
 - [ ] 133. **commit-inline (**direct**).** Commit the efficiency-marker path + §14 alignment. **→ SC-20**
-- [ ] 134. **VbC (**task-card**).** Verify SC-13..SC-20 verdicts are PASS with matching evidence types. **→ SC-13..SC-20**
-- [ ] 135. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the eight verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
+- [ ] 134. **RED — defect-marker gate (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture records a defect marker (deliberation loop) and then launches another run/dispatch, or self-remediates/resumes without orchestrator involvement; the gating assertion fails. **→ SC-21**
+- [ ] 135. **GREEN — defect-marker gate (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — after the marker is recorded the sub-agent halts with an ORCHESTRATOR_DECISION_REQUIRED-class notification; the orchestrator researches and remediates; only the orchestrator resumes. **→ SC-21**
+- [ ] 136. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-21**
+- [ ] 137. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: marker → halt + orchestrator notification → orchestrator research/remediation → orchestrator resumption. **→ SC-21**
+- [ ] 138. **commit-inline (**direct**).** Commit the gating scenario + §14 alignment. **→ SC-21**
+- [ ] 139. **VbC (**task-card**).** Verify SC-13..SC-21 verdicts are PASS with matching evidence types. **→ SC-13..SC-21**
+- [ ] 140. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the nine verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
