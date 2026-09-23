@@ -1,4 +1,4 @@
-> **Full spec and artifacts: [`.issues/2460/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2460/)** — authoritative spec, `issues-data` branch.
+> **Full spec and artifacts: [`.opencode/.issues/2460/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2460/)** — authoritative spec, `issues-data` branch.
 >
 > **Remote issue:** https://github.com/michael-conrad/.opencode/issues/2460
 
