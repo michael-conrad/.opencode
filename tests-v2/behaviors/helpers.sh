@@ -868,7 +868,13 @@ __undetermined_cycle_state_file() {
         scenario_name=$(sed -n 's/^  scenario_name: //p' "$det" 2>/dev/null | head -1 || true)
     fi
     if [ -n "$scenario_name" ] && [[ "$scenario_name" == *-synthetic ]]; then
-        echo "$(dirname "$artifact_dir")/../${scenario_name%-synthetic}/undetermined-cycle-count"
+        # rep = the determination.yaml found; its dirname is the attempt dir,
+        # the attempt dir's parent is the shared container — the state file
+        # lives in evidence-root (the attempt dir's grandparent) regardless of
+        # whether the caller passed the attempt dir or its container.
+        local attempt_dir
+        attempt_dir=$(dirname "$det")
+        echo "$(dirname "$attempt_dir")/../${scenario_name%-synthetic}/undetermined-cycle-count"
     else
         echo "$PARENT_REPO_DIR/tmp/.undetermined-cycle-count"
     fi
