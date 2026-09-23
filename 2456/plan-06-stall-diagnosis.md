@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -77,7 +77,12 @@
 - [ ] 126. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-19**
 - [ ] 127. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: async launch + ≤5-min SQLite-DB supervision schedule attached at/prior to launch. **→ SC-19**
 - [ ] 128. **commit-inline (**direct**).** Commit the async-launch scenario. **→ SC-19**
-- [ ] 129. **VbC (**task-card**).** Verify SC-13/SC-14/SC-15/SC-16/SC-17/SC-18/SC-19 verdicts are PASS with matching evidence types. **→ SC-13..SC-19**
-- [ ] 130. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the seven verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
+- [ ] 129. **RED — efficiency marker (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — deliberation-loop fixture run (large reasoning growth, repeated self-correction, minimal tool-call progress on a straightforward goal) produces no efficiency defect marker in the poll evidence and no defect notification; assertion fails. **→ SC-20**
+- [ ] 130. **GREEN — efficiency marker (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — every supervision poll includes the efficiency analysis; excessive deliberation recorded as a defect marker and routed to the defect notification path; latency-dominated progressing runs carry no marker (discrimination). **→ SC-20**
+- [ ] 131. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-20**
+- [ ] 132. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts marker fires on the deliberation loop and not on the latency-dominated progressing control. **→ SC-20**
+- [ ] 133. **commit-inline (**direct**).** Commit the efficiency-marker path + §14 alignment. **→ SC-20**
+- [ ] 134. **VbC (**task-card**).** Verify SC-13..SC-20 verdicts are PASS with matching evidence types. **→ SC-13..SC-20**
+- [ ] 135. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the eight verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.

@@ -57,8 +57,8 @@ dispatch:
 | 3 | Resume gate + undetermined-cycle ceiling | Mechanical gate + counter in `with-test-home` | SC-8, SC-9 | 1 | 54-68 | direct (54-55) + task-card (56-67) + direct (68) |
 | 4 | False-signal folding + enforcement scenario | False-signal-and-enforcement (concern-map) | SC-10, SC-11 | 3 | 69-83 | direct (69-70) + task-card (71-82) + direct (83) |
 | 5 | Doc alignment | Docs-alignment (concern-map) | SC-12 | 4 | 84-91 | direct (84-85) + task-card (86-90) + direct (91) |
-| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13), mechanical commit+push before isolated runs (SC-16), supervisor polling mandate enforcement (SC-17), mandate mirrored into AGENTS.md §14 (SC-18), async launch with attached supervision loop (SC-19) | SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19 | 4 | 92-130 | direct (92-93) + task-card (94-129) + direct (130) |
-| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 131-138 | mixed — see post-implementation section |
+| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13), mechanical commit+push before isolated runs (SC-16), supervisor polling mandate enforcement (SC-17), mandate mirrored into AGENTS.md §14 (SC-18), async launch with attached supervision loop (SC-19), efficiency-defect marker at every poll (SC-20) | SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20 | 4 | 92-135 | direct (92-93) + task-card (94-134) + direct (135) |
+| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 136-143 | mixed — see post-implementation section |
 
 ## Exit Criteria
 
@@ -81,10 +81,11 @@ dispatch:
 - [ ] C17. Supervisor polls runs at ≤5-min intervals with a full semantic check per poll; no-check retry loops prohibited (SC-17)
 - [ ] C18. Supervisor mandate mirrored into AGENTS.md §14 — default deck behavior (SC-18)
 - [ ] C19. Agent-supervised runs launched asynchronously with an attached ≤5-min supervision loop; blocking launches prohibited (SC-19)
+- [ ] C20. Efficiency-defect marker evaluated at every supervision poll; excessive deliberation recorded + notified; latency not a marker (SC-20)
 
 ## Pre-Implementation
 
-- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (19 SCs — SC-13..16 added 2026-09-21; SC-17/18 added 2026-09-22; SC-19 added 2026-09-22 recurrence remediation; SC-2 amended 2026-09-22) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
+- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (20 SCs — SC-13..16 added 2026-09-21; SC-17/18/19/20 added 2026-09-22; SC-2 amended 2026-09-22) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
 - [ ] 2. **Baseline check (**direct**).** Verify trunk-tip state per git-workflow pre-work: parent repo and `.opencode` submodule on `$DEFAULT_BRANCH`, zero pending changes, at remote tracking tip, submodule pointer matches committed SHA; create the feature branch; record the baseline test-enforcement.sh result for regression comparison.
 
 ## Pre-Implementation Steps (per-item TDD cycle — all phases)
@@ -93,14 +94,14 @@ Every phase item below enumerates the full per-task cycle from the implementatio
 
 ## Post-Implementation
 
-- [ ] 131. **Audit (**task-card**).** Dispatch adversarial audit: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read 'audit/tasks/verification-audit-investigator.md' first")` — followed by validator, evaluator, arbiter in sequence. **→ all SCs**
-- [ ] 132. **Z3 check (**direct**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` on the pipeline state and dependency contract. **→ all SCs**
-- [ ] 133. **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11..SC-19**
-- [ ] 134. **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
-- [ ] 135. **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
-- [ ] 136. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
-- [ ] 137. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
-- [ ] 138. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
+- [ ] 136. **Audit (**task-card**).** Dispatch adversarial audit: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read 'audit/tasks/verification-audit-investigator.md' first")` — followed by validator, evaluator, arbiter in sequence. **→ all SCs**
+- [ ] 137. **Z3 check (**direct**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` on the pipeline state and dependency contract. **→ all SCs**
+- [ ] 138. **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11..SC-20**
+- [ ] 139. **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
+- [ ] 140. **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
+- [ ] 141. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
+- [ ] 142. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
+- [ ] 143. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
 
 ## Self-Remediation Protocol
 
@@ -124,6 +125,11 @@ Check your tool list for a tool named `task`.
 
 ## lifecycle_events
 
+- timestamp: 2026-09-22T21:05:00Z
+  event: plan_revised
+  plan_path: .opencode/.issues/2456/plan.md
+  phase_count: 6
+  note: Developer directive 2026-09-22 (fifth revision) — SC-20/R-17/Item 20 added (efficiency-defect marker at every supervision poll: excessive deliberation on a straightforward post-spec/post-plan task is a defect signal recorded + notified; raw model latency is not a marker). Phase 6 now SC-13..20 (steps 92-135); post-implementation renumbered 136-143. Prior plan approval revoked by spec revision and re-authorized by the same developer directive.
 - timestamp: 2026-09-22T20:10:00Z
   event: plan_revised
   plan_path: .opencode/.issues/2456/plan.md
