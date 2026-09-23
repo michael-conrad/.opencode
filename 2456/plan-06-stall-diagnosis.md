@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -99,7 +99,13 @@
 - [ ] 148. **commit-inline (**direct**).** Commit the isolation path. **→ SC-23**
 - [ ] 149. **VbC (**task-card**).** Verify SC-13..SC-23 verdicts are PASS with matching evidence types. **→ SC-13..SC-23**
 - [ ] 150. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the eleven verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
-- [ ] 151. **Phase 6 gate confirmation (**direct**).** Final phase-6 completeness confirmation (all eleven SCs) before post-implementation entry.
-- [ ] 152. **Phase 6 closeout (**direct**).** Record phase-6 completion state.
+- [ ] 153. **RED — early termination (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture confirms the RED verdict then waits for the scenario to fully exit (no termination); early-termination assertion fails. **→ SC-24**
+- [ ] 154. **GREEN — early termination (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — on a decided verdict the supervisor terminates run + monitor within one poll cycle and captures exit/artifact evidence. **→ SC-24**
+- [ ] 155. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-24**
+- [ ] 156. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: termination within one poll cycle of the decided verdict. **→ SC-24**
+- [ ] 157. **commit-inline (**direct**).** Commit the early-termination scenario. **→ SC-24**
+- [ ] 158. **VbC (**task-card**).** Verify SC-13..SC-24 verdicts are PASS with matching evidence types. **→ SC-13..SC-24**
+- [ ] 159. **VbC consolidation (**direct**).** Consolidate the twelve verdicts into the phase evidence table.
+- [ ] 160. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all twelve SCs) before post-implementation entry.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
