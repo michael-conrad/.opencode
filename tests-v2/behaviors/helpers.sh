@@ -845,6 +845,103 @@ determination_record:
 DET.EOF
 }
 
+# .opencode#2456 SC-7: orchestrator decision-record write path. Validates the
+# value-set {continue-new-dispatch, terminate-with-root-cause} (terminate
+# requires a root cause) and appends exactly one entry to the determination
+# record's orchestrator_decisions section (append-only semantics: entries are
+# only added, existing fields are never rewritten). The decision is recorded
+# AFTER the halt-class notification decision point (SC-6) — the entry this
+# path writes is the record the SC-8 gate reads. Callers:
+#   __record_orchestrator_decision <artifact_dir> --decision <value> \
+#       [--root-cause "<text>"]
+# Fails (non-zero) with a HARNESS_FAILURE message on value-set violation,
+# missing root cause, or missing determination record — never silently no-ops.
+__record_orchestrator_decision() {
+    local artifact_dir="$1"
+    shift
+    local decision=""
+    local root_cause=""
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --decision) decision="${2:-}"; shift 2 ;;
+            --root-cause) root_cause="${2:-}"; shift 2 ;;
+            *)
+                echo "HARNESS_FAILURE: __record_orchestrator_decision invalid argument '$1' (usage: __record_orchestrator_decision <artifact_dir> --decision <continue-new-dispatch|terminate-with-root-cause> [--root-cause \"...\"])" >&2
+                return 1
+                ;;
+        esac
+    done
+    case "$decision" in
+        continue-new-dispatch) ;;
+        terminate-with-root-cause)
+            if [ -z "$root_cause" ]; then
+                echo "HARNESS_FAILURE: decision 'terminate-with-root-cause' requires a root-cause (--root-cause) — SC-7 value-set contract (.opencode#2456: root-cause present when terminate-with-root-cause)" >&2
+                return 1
+            fi
+            ;;
+        *)
+            echo "HARNESS_FAILURE: invalid decision '${decision}' — allowed value-set is {continue-new-dispatch, terminate-with-root-cause} (.opencode#2456 SC-7)" >&2
+            return 1
+            ;;
+    esac
+    local det="$artifact_dir/determination.yaml"
+    if [ ! -f "$det" ]; then
+        echo "HARNESS_FAILURE: no determination record at $det — SC-3 __write_determination_record must have run first (SC-7 appends to the existing record, never creates it)" >&2
+        return 1
+    fi
+    local timestamp
+    timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || true)
+    local entry="    - decision: ${decision}"
+    if [ -n "$root_cause" ]; then
+        entry="${entry}
+      root_cause: ${root_cause}"
+    fi
+    entry="${entry}
+      recorded_at: ${timestamp}"
+    # Append-only: expand an empty orchestrator_decisions list inline on the
+    # first entry; insert subsequent entries AFTER the last existing list
+    # entry so recorded entries are preserved in insertion order (no rewrite
+    # of recorded fields, R-8).
+    awk -v block="$entry" '
+        NR==FNR {
+            if ($0 ~ /^  orchestrator_decisions: \[\][[:space:]]*$/) { key=FNR; empty=1 }
+            else if ($0 ~ /^  orchestrator_decisions:/) key=FNR
+            if (key && FNR > key) {
+                indent = match($0, /[^ ]/) - 1
+                if ($0 ~ /^[[:space:]]*$/) { blank=1 } else { blank=0 }
+                if (blank) {
+                    if (insec) { sect_end=FNR-1; insec=0 }
+                }
+                else if (indent <= 2) { if (insec) { sect_end=FNR-1 }; insec=0 }
+                else { sect_end=FNR; insec=1 }
+            }
+            flines=FNR
+            next
+        }
+        END { if (insec) sect_end=flines }
+        empty && FNR==key {
+            print "  orchestrator_decisions:"
+            print block
+            next
+        }
+        !empty && sect_end && FNR==sect_end {
+            print
+            print block
+            next
+        }
+        !empty && !sect_end && FNR==key {
+            print
+            print block
+            next
+        }
+        { print }
+    ' "$det" "$det" > "$det.tmp" 2>/dev/null && mv "$det.tmp" "$det" || {
+        rm -f "$det.tmp"
+        echo "HARNESS_FAILURE: failed to append orchestrator decision entry to $det — record-rewrite failed (SC-7)" >&2
+        return 1
+    }
+}
+
 # .opencode#2456 SC-4: off-track notification routing (R-2). When the SC-2
 # classification dispatch returns off-track, the monitor emits the orchestrator
 # notification on stderr — the ORCHESTRATOR_DECISION_REQUIRED-class stderr
@@ -1729,6 +1826,24 @@ MANIFESTEOF
         __write_determination_record "$artifact_dir" \
             "$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log" \
             "$model" "$exit_code" "$scenario_name" "$attempt"
+        # .opencode#2456 SC-7: orchestrator decision-record write path. After
+        # the halt-class notification (SC-6) the orchestrator decision point
+        # occurred; the entry mechanism records the decision the run's
+        # verified outcome supports — the left-running run completing
+        # naturally records continue-new-dispatch; a failed run records
+        # terminate-with-root-cause with the run-outcome root cause. The
+        # value-set is validated by __record_orchestrator_decision, and the
+        # appended entry is what the SC-8 gate reads. The decision happens
+        # OUTSIDE the monitored run — this is the harness's entry mechanism,
+        # exercised after the halt-class path.
+        local sc7_poll_log="$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log"
+        if grep -q "MONITOR-HALTED" "$sc7_poll_log" 2>/dev/null; then
+            if [ "$exit_code" = "0" ]; then
+                __record_orchestrator_decision "$artifact_dir" --decision continue-new-dispatch || true
+            else
+                __record_orchestrator_decision "$artifact_dir" --decision terminate-with-root-cause --root-cause "run exit_code=${exit_code} after the halt-class notification (monitor halted per SC-6); outcome evidence in stdout.log/stderr.log of $artifact_dir" || true
+            fi
+        fi
     fi
 
     local timeline_tool="$PARENT_REPO_DIR/.opencode/tools/session-to-timeline"
