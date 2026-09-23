@@ -868,6 +868,32 @@ __notify_offtrack() {
     echo "NOTIFY[poll ${poll_id}]: ORCHESTRATOR_DECISION_REQUIRED emitted on stderr — classification=off-track, dispatch #${dispatch_n}/${BEHAVIOR_MONITOR_CLASSIFY_MAX}, artifact=${art_status_n} (R-2: off-track runs never continue silently; evidence pointers in the stderr notification)" >> "$poll_log"
 }
 
+# .opencode#2456 SC-6: halt-class notification routing (R-3). When the SC-2
+# classification dispatch returns a halt-class trigger state (undetermined /
+# excessive-without-classification / direction-deviation — the non-progressing
+# outcomes of the classification taxonomy), the monitor emits the orchestrator
+# notification on stderr — the ORCHESTRATOR_DECISION_REQUIRED-class stderr
+# convention (SC-4's __notify_offtrack pattern, with the halt-class label) —
+# and records the notification in the poll log (NOTIFY line, persisted to
+# monitor.log per SC-1). The halt-class halt+notify path shares SC-4's
+# notification shape; the halt mechanics (stop polling, stop dispatching,
+# leave the run state for the orchestrator decision record per SC-7) are
+# enforced by the caller. Flag-gated: reachable only inside __semantic_monitor
+# (BEHAVIOR_SEMANTIC_MONITOR=1); unset → no monitor, no notification
+# (backward compat).
+__notify_haltclass() {
+    local halt_state="$1"
+    local poll_id="$2"
+    local dispatch_n="$3"
+    local art_status_n="$4"
+    local poll_log="$5"
+    local scenario_name="$6"
+    local attempt="$7"
+    local fail_mode_n="${8:-}"
+    echo "ORCHESTRATOR_DECISION_REQUIRED: halt-class — the SC-2 classification sub-agent returned halt-class trigger state '${halt_state}' for monitored run '${scenario_name}' attempt ${attempt} (classification=${halt_state}, dispatch #${dispatch_n}, poll ${poll_id}, artifact_status=${art_status_n}${fail_mode_n:+, failure_mode=${fail_mode_n}}): the run state is non-progressing or unverifiable (halt-class trigger states: undetermined / excessive-without-classification / direction-deviation — the non-progressing outcomes of the classification taxonomy, .opencode#2456 SC-6). Monitoring is halted before any further dispatch (R-3); the run state is left for the orchestrator decision record (SC-7). Evidence: poll log ${poll_log} (CLASSIFY[poll ${poll_id}] line + run tails), classifier session export ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml." >&2
+    echo "NOTIFY[poll ${poll_id}]: ORCHESTRATOR_DECISION_REQUIRED emitted on stderr — halt-class classification=${halt_state}, dispatch #${dispatch_n}/${BEHAVIOR_MONITOR_CLASSIFY_MAX}, artifact=${art_status_n}${fail_mode_n:+, failure_mode=${fail_mode_n}} (R-3: halt-class states halt monitoring and notify before any further dispatch; evidence pointers in the stderr notification)" >> "$poll_log"
+}
+
 __semantic_monitor() {
     # .opencode#2441 hardening: the poll body is best-effort reads under the
     # caller's `set -euo pipefail` — any transient read failure (log file not
@@ -915,6 +941,8 @@ __semantic_monitor() {
     local polls_since_classify=0
     local last_classified_event_count=0
     local classification_value=""
+    # .opencode#2456 SC-6 halt-class trigger state (non-empty = halt+notify fired).
+    local halt_class=""
 
     while kill -0 "$run_pid" 2>/dev/null; do
         poll=$((poll + 1))
@@ -1090,6 +1118,15 @@ MONPY
                 # recorded in the poll log (R-2: never silent continuation).
                 if [ "$classification_value" = "off-track" ]; then
                     __notify_offtrack "$poll" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt"
+                    # .opencode#2456 SC-6: the halt mechanics (halt before any
+                    # further dispatch) are SC-6's mechanism — direction
+                    # deviation (off-track) is a halt-class trigger state.
+                    halt_class="off-track"
+                elif [ "$classification_value" = "undetermined" ]; then
+                    # .opencode#2456 SC-6: a parsed undetermined classification
+                    # is a halt-class trigger state — halt monitoring and
+                    # notify the orchestrator before any further dispatch (R-3).
+                    halt_class="undetermined"
                 fi
             else
                 # R-13 (.opencode#2456): a dispatch producing no parseable
@@ -1099,6 +1136,21 @@ MONPY
                 # silent. Halt-class handling (SC-6) governs continuation.
                 classification_value="undetermined"
                 echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → undetermined (R-13: no parseable classification, mode=${dispatch_mode}; failed dispatch consumed ceiling slot ${classified_count} of ${BEHAVIOR_MONITOR_CLASSIFY_MAX}; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                # .opencode#2456 SC-6: no parseable classification on an active
+                # run is the excessive-without-classification halt-class
+                # trigger state — halt monitoring and notify before any
+                # further dispatch (R-3). The R-13 failure mode rides in the
+                # notification.
+                halt_class="excessive-without-classification"
+            fi
+            # .opencode#2456 SC-6: halt-class halt+notify (R-3) — emit the
+            # orchestrator notification on stderr and in the poll log, then
+            # stop polling and dispatching. The run state is left as-is for
+            # the orchestrator decision record (SC-7); the run process is NOT
+            # killed and no further classification dispatch fires.
+            if [ -n "${halt_class:-}" ]; then
+                __notify_haltclass "$halt_class" "$poll" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt" "${dispatch_mode:-}"
+                break
             fi
         else
             polls_since_classify=$((polls_since_classify + 1))
@@ -1207,6 +1259,18 @@ MONPY
             break
         fi
     done
+
+    # .opencode#2456 SC-6: halt-class exit — monitoring was halted on a
+    # halt-class classification (R-3) BEFORE any further dispatch. The run
+    # process is left running (its natural completion is awaited by
+    # behavior_run's post-monitor wait) and its state is left for the
+    # orchestrator decision record (SC-7). No kill, no session export here
+    # (the natural-completion path in behavior_run produces the artifacts),
+    # and NO MONITOR-COMPLETE line — the monitor did not complete; it halted.
+    if [ -n "${halt_class:-}" ]; then
+        echo "MONITOR-HALTED polls=${poll} halt_class=${halt_class} last_classification=${classification_value:-none} monitoring halted before any further dispatch (R-3, .opencode#2456 SC-6); run left running for the orchestrator decision record (SC-7)" >> "$poll_log"
+        exit 0
+    fi
 
     if [ -n "${abort_reason:-}" ]; then
         # §14 abort path: kill the run, export session.yaml per §10.5, record diagnosis.
