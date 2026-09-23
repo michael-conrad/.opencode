@@ -139,6 +139,55 @@ do_clean_all() {
     return 0
 }
 
+# .opencode#2456 SC-8: resume/re-run determination gate. INTERNAL precondition
+# only (CLI surface unchanged): when --resume-home is used (the resume/re-run
+# mechanism; --continue is a pass-through message variant of the same resume),
+# BEFORE provisioning/resuming, read the target home's scenario determination
+# record (determination.yaml in the scenario evidence dir — located by scanning
+# tmp/ for determination records whose evidence tree references the target
+# home). When NO non-undetermined determination exists (missing record, or
+# classification undetermined with no valid orchestrator decision: continue-
+# new-dispatch, or terminate-with-root-cause carrying a root cause), EXIT with
+# a FATAL-class message naming the missing determination — no inference is
+# dispatched. A valid record permits the resume pass-through. Plain scenario
+# invocations (fresh runs) never call this gate — it is inert there.
+__sc8_determination_gate() {
+    local home="$1"
+    local det="" cand="" tup=""
+    local dir="" domain=""
+    while IFS= read -r -d '' cand; do
+        dir="$(dirname "$cand")"
+        # The record targets this resume when any file in its evidence tree
+        # (the record's directory, up to depth 2) names the home path.
+        if find "$dir" -maxdepth 2 -type f -print0 2>/dev/null \
+            | xargs -0 -r grep -qsF "$home"; then
+            det="$cand"
+            domain="$dir"
+        fi
+    done < <(find "$TMP_DIR" -mindepth 2 -type f -name 'determination.yaml' -print0 2>/dev/null || true)
+    if [ -n "$det" ]; then
+        local classification=""
+        classification=$(grep -E '^  classification: ' "$det" 2>/dev/null | head -1 | sed 's/^  classification: //' || true)
+        case "$classification" in
+            progressing-directionally|off-track) return 0 ;;
+        esac
+        local decision_entry=""
+        decision_entry=$(grep -E '^    - decision: (continue-new-dispatch|terminate-with-root-cause)' "$det" 2>/dev/null | head -1 || true)
+        if [ -n "$decision_entry" ]; then
+            case "$decision_entry" in
+                *continue-new-dispatch*) return 0 ;;
+                *terminate-with-root-cause*)
+                    if grep -qsE '^      root_cause: .+' "$det"; then
+                        return 0
+                    fi
+                    ;;
+            esac
+        fi
+    fi
+    echo "FATAL: resume failed — no non-undetermined determination exists for test home '$home': ${det:+determination record '${det}' carries an undetermined classification with no valid orchestrator decision; required decision (continue-new-dispatch, or terminate-with-root-cause with root cause) is missing locally}${det:-determination.yaml not found in any scenario evidence dir for this resume/re-run target (evidence tree scanned: $TMP_DIR)} — resume/re-run (--resume-home / re-run --continue) requires a recorded non-undetermined determination or a valid orchestrator decision (.opencode#2456 SC-8 determination gate); no inference dispatched" >&2
+    exit 1
+}
+
 seed_model_config() {
     mkdir -p "$TEST_HOME/.config/opencode"
 
@@ -438,6 +487,7 @@ PYRESUME
         echo "FATAL: resume failed — session store corrupted or unreadable: $SESSION_STORE" >&2
         exit 1
     fi
+    __sc8_determination_gate "$TEST_HOME"
     KEEP_TEST_HOME=1
 elif [ "${BEHAVIOR_SHARED_HOME:-0}" = "1" ]; then
     TEST_HOME="$TMP_DIR/test-home-shared"
