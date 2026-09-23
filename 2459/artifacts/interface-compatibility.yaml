@@ -1,0 +1,32 @@
+interface_compatibility:
+  issue: ".opencode#2459"
+  interfaces:
+    unchanged:
+      - "065-verification-honesty.md semantics (claim-evidence domain)"
+      - "250/255/257 reference-card patterns (dist-shift-004, p-dis-001..007, dark-prose-001..007)"
+      - "tests-v2 harness contract (with-test-home invocation shape)"
+      - "local-issues tooling and .issues/ store conventions"
+    modified:
+      - interface: ".opencode/opencode.jsonc instructions array"
+        change: "additive entry '.opencode/guidelines/027-anti-sycophancy.md' in numeric order"
+        backward_compatible: true
+      - interface: ".opencode/guidelines/INDEX.md routing table"
+        change: "additive row following 4-column schema"
+        backward_compatible: true
+    new:
+      - interface: ".opencode/guidelines/027-anti-sycophancy.md"
+        role: "new routing target; new trigger keywords for on-demand load; new Tier 1 upfront-loaded file"
+    removed: []
+  breaking_changes: []
+  backward_compatible: true
+  internal_only: false
+  notes: "all changes additive; consumers of the instructions array and INDEX.md are pattern-based (path strings, row schema), not position-indexed — verified: INDEX.md line 4 references the array semantically, not by index; array consumers enumerate entries rather than fixed positions"
+  dependency_contract:
+    - source: "opencode.jsonc instructions-array entry"
+      target: "guidelines/027-anti-sycophancy.md (registered path must resolve to an existing file at load time)"
+      type: "artifact schema"
+      constraint: "entry string must equal the created file path exactly; JSONC validity preserved; no divergent inline variants of directive text outside 027 (single-source-of-truth rule)"
+    - source: "INDEX.md routing row"
+      target: "guidelines/027-anti-sycophancy.md"
+      type: "artifact schema"
+      constraint: "row follows 4-column schema (Guideline|Tier|Trigger Pattern|Load When); tier field must match the file's declared tier; trigger keywords must not collide with existing rows' routing semantics"

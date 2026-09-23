@@ -1,0 +1,23 @@
+code_path_inventory:
+  issue: ".opencode#2459"
+  paths:
+    - path: "session system-prompt assembly"
+      trigger: "every opencode session start using the .opencode submodule"
+      touched_by: "SC-1"
+      mechanism: "opencode.jsonc instructions array (lines 69-84) -> Tier 1 files loaded upfront; INDEX.md loaded last per array order; new 027 entry inserted between 020 and 060 entries"
+      note: "markdown/config path — not indexed by srclight (indexes Python/TS code only); verified by direct read"
+    - path: "on-demand guideline routing (sub-agents)"
+      trigger: "trigger-pattern match against INDEX.md"
+      touched_by: "SC-1"
+      mechanism: "INDEX.md routing table row -> guideline loaded on-demand"
+    - path: "build/plan agent base prompt"
+      trigger: "build and plan agents (opencode.jsonc lines 85-92, {file:./prompts/default.txt})"
+      touched_by: "none — excluded per REQ-C4; noted because the instructions array applies to these agents globally, so 027 reaches them without touching default.txt"
+    - path: "behavioral harness"
+      trigger: "test execution"
+      touched_by: "SC-1, SC-2"
+      mechanism: "bash .opencode/tests-v2/with-test-home opencode run '<message>' -> session export -> scenario assertions (existing harness, unmodified contract)"
+  excluded_paths:
+    - "src/, test/ (no application code touched)"
+    - ".opencode/tools/ (no tool changes)"
+    - "guidelines 065/250/255/257 internals (boundary cross-references only, no content edits)"

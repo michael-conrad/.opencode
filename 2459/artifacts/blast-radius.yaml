@@ -1,0 +1,33 @@
+blast_radius:
+  issue: ".opencode#2459"
+  grounding: "derived from pre-spec-inspection.yaml affected_files (all surfaces read and verified this session); bounded per R-18 — spec scope sections plus primary-target reads were sufficient; no expanded grounding reads required"
+  ungrounded_assumptions: []
+  phases:
+    - phase: 1
+      sc: SC-1
+      title: "Injection (new guideline + registration)"
+      affected:
+        - component: ".opencode/guidelines/027-anti-sycophancy.md (new)"
+          ripple: "none until registered — no existing file references it; creation is additive and inert"
+        - component: ".opencode/opencode.jsonc instructions array (additive entry)"
+          ripple: "HIGH-VALUE / HIGH-CAUTION: the array feeds session system-prompt assembly for EVERY opencode session using this submodule — a JSONC syntax error would break ALL agent config loading. Mitigation: JSONC validity assertion in SC-1 scenario script"
+          blast_radius: "all sessions (context budget grows by one Tier 1 file, bounded ~100-150 lines)"
+        - component: ".opencode/guidelines/INDEX.md (additive row)"
+          ripple: "routing surface for on-demand sub-agent loads; malformed row degrades discoverability only"
+      unaffected:
+        - "065/250/255/257 content (constraint REQ-C1: no modification)"
+        - ".opencode/prompts/default.txt (excluded per REQ-C4)"
+        - "skills/ deck (no skill changes)"
+        - "src/, test/, tools/ (no code paths)"
+    - phase: 1
+      sc: SC-2
+      title: "Runtime posture + non-regression"
+      affected:
+        - component: "agent conversational behavior at runtime"
+          ripple: "intended effect — posture changes under provocation scenarios; no structural ripple"
+        - component: "tests-v2 suite"
+          ripple: "gains 1-2 scenario scripts (test-2459-sc*); full-suite runtime grows marginally; no existing script modified"
+      unaffected:
+        - "existing 100+ tests-v2 scenario scripts (non-regression asserted in SC-2)"
+  risk_level: "LOW-MEDIUM"
+  risk_rationale: "all edits additive; sole elevated risk is JSONC validity of opencode.jsonc (guarded by SC-1 assertion); no removals, no semantic changes to existing files"

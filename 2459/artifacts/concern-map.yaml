@@ -1,0 +1,20 @@
+concern_map:
+  issue: ".opencode#2459"
+  concerns:
+    - concern: "conversational epistemic posture (the 9 directives)"
+      owns: "accuracy-vs-agreement posture during live dialogue"
+      explicitly_not_owned:
+        - "factual claim-evidence verification machinery (owned by 065-verification-honesty.md — cross-referenced, never restated)"
+        - "content-generation anti-sycophancy text patterns (owned by 255 dist-shift-004 — remains canonical for that domain)"
+        - "pipeline ordering / verification-signal / dispatch discipline (owned by 257)"
+        - "identity-framing prose patterns (owned by 250 — the new guideline CONSUMES dark-prose-004 authority frame as pattern selection, does not define patterns)"
+      phase: 1
+    - concern: "deck registration and routing"
+      owns: "instructions-array membership, numeric ordering, JSONC validity, INDEX.md 4-column row"
+      explicitly_not_owned: "guideline content semantics (owned by the concern above)"
+      phase: 1
+    - concern: "behavioral enforcement"
+      owns: "provocation scenarios, compliance assertions, non-regression run"
+      explicitly_not_owned: "implementation content and registration"
+      phase: 1
+  separation_integrity: "no concern spans multiple owners; each SC maps to exactly one concern; boundary definitions are cross-references inside the new guideline per INDEX.md single-source-of-truth rule (no divergent inline variants in 065/255/257)"

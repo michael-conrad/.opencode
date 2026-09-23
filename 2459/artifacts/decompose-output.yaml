@@ -1,0 +1,52 @@
+decompose_output:
+  issue: ".opencode#2459"
+  decomposed_at: "2026-09-23"
+  principle: "one SC = one implementation item = one RED/GREEN/verify/commit cycle; every SC declares behavioral evidence executable via bash .opencode/tests-v2/with-test-home opencode run"
+
+  success_criteria:
+    - sc_id: SC-1
+      title: "Deck injects the anti-sycophancy guideline"
+      requirement: "A new Tier 1 guideline file .opencode/guidelines/027-anti-sycophancy.md exists carrying all 9 user-approved directives with semantics preserved, research basis with verified citations, Tier 1 authority-frame format, and boundary definitions (cross-references only, no restatement) against 065-verification-honesty.md (claim-evidence domain), 255-distribution-shifting-reference.md (dist-shift-004 remains canonical for content-generation), 257-procedural-discipline-reference.md (no p-dis overlap); the file is registered in the .opencode/opencode.jsonc instructions array in numeric order (valid JSONC preserved) and routed via a guidelines/INDEX.md row following the 4-column schema"
+      evidence_type: "behavioral"
+      evidence: "with-test-home opencode run asserts the session context loads 027 and the agent identifies it as the governing guideline for conversational accuracy posture; auxiliary structural assertions (9 directives present, JSONC parse, INDEX row schema) validated within the same scenario script as pre-checks"
+      phase: 1
+    - sc_id: SC-2
+      title: "Directive-governed conversational posture at runtime"
+      requirement: "Under sycophancy-provoking scenarios the registered agent exhibits directive-governed behavior: restates a user assertion as an open question before answering, labels epistemic status (known/believed/guessed/unverified), corrects a wrong premise in the first sentence, and holds a correct position once under pushback (restate with evidence) instead of folding; existing guideline semantics (065/250/255/257) unchanged and the existing behavioral suite shows no regression"
+      evidence_type: "behavioral"
+      evidence: "with-test-home opencode run provocation scenarios assert each directive behavior; non-regression via existing tests-v2 suite"
+      phase: 1
+
+  items:
+    - item: 1
+      sc_id: SC-1
+      title: "Create 027-anti-sycophancy.md and register it in the deck"
+      red: "test-2459-sc1-injection.sh — behavioral run shows no 027 in session context and no posture guideline cited; structural pre-checks fail (file absent, array entry absent, INDEX row absent)"
+      green: "Create the guideline file (9 directives + research basis + boundaries, Tier 1 authority-frame format, provenance headers) and register it (instructions-array entry in numeric order; INDEX.md routing row). Re-run: session context loads 027; agent cites it as governing conversational posture; JSONC parses; row schema valid"
+      verify: "scenario script exits 0; guidelines content asserts 9/9 directives; mdformat/pymarkdownlnt advisory checks on modified markdown"
+      commit: "single commit: new guideline file + opencode.jsonc entry + INDEX.md row + scenario script"
+      push: "required (behavioral item) — commit pushed to remote branch, fresh fetch verifies effective commit contained in remote ref BEFORE behavioral run per 091"
+      depends_on: []
+    - item: 2
+      sc_id: SC-2
+      title: "Behavioral posture compliance and non-regression scenarios"
+      red: "test-2459-sc2-posture-compliance.sh — provocation scenarios absent (or first run reveals directive phrasing gaps producing non-compliant folding behavior)"
+      green: "Author provocation scenarios (assertion with false premise; multi-turn pushback on a correct claim; confidence-laden phrasing) and assert directive-governed responses; refine directive phrasing within 027 only if the run exposes a compliance gap; run existing suite subset for non-regression"
+      verify: "all scenario scripts exit 0; existing suite unaffected"
+      commit: "single commit: scenario script(s) + any in-scope phrasing refinement to 027"
+      push: "required (behavioral item) — same commit-push-fetch-verify cycle before the behavioral run"
+      depends_on: [1]
+
+  dependency_dag:
+    nodes: [1, 2]
+    edges: ["1 -> 2"]
+    acyclic: true
+
+  phases:
+    - phase: 1
+      title: "Anti-sycophancy injection and behavioral verification"
+      items: [1, 2]
+      structure: "single-phase spec (compact change); pre/per-file/post three-tier structure not applicable — no multi-phase decomposition required"
+
+  atomicity_check: "each item covers exactly one SC-ID; no item spans multiple SCs"
+  single_concern_check: "SC-1 targets deck-definition surfaces (guidelines/, opencode.jsonc, INDEX.md) with one verification domain (load-and-cite); SC-2 targets runtime behavior with one verification domain (posture compliance + non-regression)"
