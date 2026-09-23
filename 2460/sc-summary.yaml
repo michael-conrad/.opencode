@@ -1,0 +1,35 @@
+issue: ".opencode#2460"
+sc_count: 8
+scs:
+  - id: "SC-1"
+    description: "SKILL.md description contains zero prohibited meta-instruction patterns (Load via skill() when, User phrases:, Also load when, Dispatch when, Also dispatch when, Use when, Also use when, Trigger phrases:, Triggers on:); validate_skill_cards.py REQ-1/SC-LINT-001 clean for playwright-cli"
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "Description states the escalation capability class per approved draft (browser-grade rendering vs static HTTP fetching; JS-rendered, bot-blocked, login-gated, interactive verification flows)"
+    evidence_type: "string"
+    plan_item: 2
+  - id: "SC-3"
+    description: "Frontmatter binary constraints hold: description <=1024 chars; name, license, compatibility, allowed-tools, upstream, upstream_license unchanged vs pre-change snapshot"
+    evidence_type: "structural"
+    plan_item: 3
+  - id: "SC-4"
+    description: "Browse-the-web workflow When clause covers the escalation intent family (static HTTP fetching returns empty, incomplete, or JavaScript-dependent); dispatch contract strings unchanged"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "Behavioral positive probe: agent given a browser-appropriate capture task (JS-rendered/bot-blocked page fetch) dispatches the playwright-cli skill; RED under old description (no dispatch) then GREEN under new description (dispatch); artifact-only generator per tests-v2 two-SC pattern"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "Clean-room evaluation of SC-5 session.yaml confirms the skill-dispatch event in the event table; early termination permitted once dispatch evidence confirmed in live session DB"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "Negative-control behavioral probe: agent performing a routine static-fetch task does not dispatch playwright-cli (false-activation boundary); artifact-only generator"
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Clean-room evaluation of SC-7 session.yaml confirms absence of any playwright-cli dispatch event"
+    evidence_type: "behavioral"
+    plan_item: 8
