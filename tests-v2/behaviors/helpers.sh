@@ -1316,50 +1316,33 @@ MONPY
             last_classified_event_count=$event_count
             local dispatch_value="${dispatch_raw%%|*}"
             local dispatch_mode="${dispatch_raw#*|}"
+            # R-13 amendment: the state decision is the pure function's —
+            # parsed outcome = classification (+ routed halt-class state);
+            # no-parseable outcome = DISPATCH FAILURE (attempt + mode recorded
+            # below), unchanged classification, untouched halt state, retry.
+            local dec
+            dec=$(__interpret_classify_dispatch "${classification_value:-}" "${halt_class:-}" "$dispatch_failures" "$dispatch_value")
+            IFS='|' read -r classification_value halt_class dispatch_failures harness_failure_halt <<< "$dec"
             if [ -n "$dispatch_value" ]; then
                 classified_count=$((classified_count + 1))
-                classification_value="$dispatch_value"
-                # .opencode#2456 R-13 amendment: a parsed classification
-                # resets the consecutive dispatch-failure counter — the
-                # consecutive-failure ceiling counts unparseable dispatches
-                # only.
-                dispatch_failures=0
                 echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → ${classification_value} (classified in sub-agent context; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
                 # .opencode#2456 SC-4: an off-track classification is routed to
                 # the orchestrator notification — emitted on stderr AND
                 # recorded in the poll log (R-2: never silent continuation).
+                # .opencode#2456 SC-6: the halt mechanics (halt before any
+                # further dispatch) are SC-6's mechanism — direction
+                # deviation (off-track) and a parsed undetermined
+                # classification are halt-class trigger states; the halt-class
+                # state is carried by __interpret_classify_dispatch.
                 if [ "$classification_value" = "off-track" ]; then
                     __notify_offtrack "$poll" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt"
-                    # .opencode#2456 SC-6: the halt mechanics (halt before any
-                    # further dispatch) are SC-6's mechanism — direction
-                    # deviation (off-track) is a halt-class trigger state.
-                    halt_class="off-track"
-                elif [ "$classification_value" = "undetermined" ]; then
-                    # .opencode#2456 SC-6: a parsed undetermined classification
-                    # is a halt-class trigger state — halt monitoring and
-                    # notify the orchestrator before any further dispatch (R-3).
-                    halt_class="undetermined"
                 fi
             else
-                # R-13 amendment (.opencode#2456, 2026-09-23): a dispatch
-                # producing no parseable classification is recorded as a
-                # DISPATCH FAILURE event — the attempt + its failure mode are
-                # recorded in the poll evidence, never silent — but it is NOT
-                # an undetermined classification: no halt-class trigger (SC-6
-                # governs parsed outcomes only), no undetermined-cycle ceiling
-                # increment (SC-9's counter counts parsed-undetermined
-                # CLASSIFICATIONS only), and the checkpoint policy retries the
-                # dispatch on a later qualifying poll (min-poll gap + event
-                # growth as usual). 3 consecutive dispatch failures (default
-                # BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING=3) halt monitoring
-                # with a HARNESS_FAILURE-class stderr notification naming the
-                # infrastructure surface.
-                dispatch_failures=$((dispatch_failures + 1))
                 echo "DISPATCH-FAILURE[poll ${poll}]: classification dispatch attempt ${dispatch_failures} failed — mode=${dispatch_mode} (R-13 amended: not a classification — no halt-class trigger, no undetermined-cycle ceiling increment; checkpoint policy retries; consecutive-failure ceiling ${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING}; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
-                if [ "$dispatch_failures" -ge "$BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING" ]; then
-                    echo "HARNESS_FAILURE: monitored run '${scenario_name}' attempt ${attempt} monitoring halted after ${dispatch_failures} consecutive classification-dispatch failures (ceiling ${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING}). Infrastructure surface: classifier-dispatch model inference queue/provisioning (developer-level remediation surface — model availability/queue). The failures are recorded as DISPATCH-FAILURE events in poll log ${poll_log}; the monitored run process is left running for the orchestrator." >&2
-                    harness_failure_halt=1
-                fi
+            fi
+            if [ "${harness_failure_halt:-0}" -eq 1 ]; then
+                echo "HARNESS_FAILURE: monitored run '${scenario_name}' attempt ${attempt} monitoring halted after ${dispatch_failures} consecutive classification-dispatch failures (ceiling ${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING}). Infrastructure surface: classifier-dispatch model inference queue/provisioning (developer-level remediation surface — model availability/queue). The failures are recorded as DISPATCH-FAILURE events in poll log ${poll_log}; the monitored run process is left running for the orchestrator." >&2
+                break
             fi
             # .opencode#2456 SC-6: halt-class halt+notify (R-3) — emit the
             # orchestrator notification on stderr and in the poll log, then
@@ -1478,7 +1461,49 @@ MONPY
         fi
     done
 
-    # .opencode#2456 R-13 amendment (2026-09-23): dispatch-failure ceiling exit
+    # .opencode#2456 R-13 amendment (2026-09-23): pure decision function for one
+# classification-dispatch result — the decoupling surface. A dispatch that
+# returns a parsed taxonomy value is a CLASSIFICATION; a dispatch that
+# returns none is a DISPATCH FAILURE (attempt + failure mode recorded by the
+# caller), never a classification: no halt-class trigger of its own, no
+# undetermined-cycle ceiling increment, retried per the checkpoint policy.
+# Args: current_classification current_halt_class current_dispatch_failures
+# dispatch_value. Echoes "<classification>|<halt_class>|<dispatch_failures>|<harness_failure_flag>".
+# Dispatch-failure ceiling application (harness_failure_flag=1) is decided
+# here; the HARNESS_FAILURE stderr emission (scenario context) stays with
+# the caller.
+__interpret_classify_dispatch() {
+    local cur_cls="$1"
+    local cur_halt="$2"
+    local cur_fails="$3"
+    local d_value="$4"
+    local ceiling="${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING:-3}"
+    if [ -n "$d_value" ]; then
+        # Parsed classification: resets the consecutive dispatch-failure
+        # counter and carries the routed halt-class state (SC-6 governs
+        # parsed outcomes only — unchanged by the amendment).
+        local new_halt=""
+        case "$d_value" in
+            off-track|undetermined) new_halt="$d_value" ;;
+        esac
+        echo "$d_value|$new_halt|0|0"
+        return 0
+    fi
+    # Dispatch failure: no classification produced — classification_value is
+    # UNCHANGED, halt_class is UNTOUCHED (parameters, not the failure itself,
+    # decide halts), the failure counter increments, and the checkpoint
+    # policy retries on a later qualifying poll. 3 consecutive failures trip
+    # the harness-failure flag (ceiling configurable via env override).
+    local new_fails=$((cur_fails + 1))
+    local ceil_flag=0
+    if [ "$new_fails" -ge "$ceiling" ]; then
+        ceil_flag=1
+    fi
+    echo "$cur_cls|$cur_halt|$new_fails|$ceil_flag"
+    return 0
+}
+
+# .opencode#2456 R-13 amendment (2026-09-23): dispatch-failure ceiling exit
     # — monitoring was halted after BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING
     # consecutive unparseable dispatches. Checked BEFORE the halt-class exit:
     # this is an infrastructure halt (HARNESS_FAILURE class), not a
