@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -87,7 +87,19 @@
 - [ ] 136. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-21**
 - [ ] 137. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: marker → halt + orchestrator notification → orchestrator research/remediation → orchestrator resumption. **→ SC-21**
 - [ ] 138. **commit-inline (**direct**).** Commit the gating scenario + §14 alignment. **→ SC-21**
-- [ ] 139. **VbC (**task-card**).** Verify SC-13..SC-21 verdicts are PASS with matching evidence types. **→ SC-13..SC-21**
-- [ ] 140. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the nine verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
+- [ ] 139. **RED — classification freshness (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — fixture run derails after a progressing classification; the stale verdict suppresses every subsequent abort signal with no re-classification; freshness assertion fails. **→ SC-22**
+- [ ] 140. **GREEN — classification freshness (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — monitor re-classifies at least every N polls and on new abort-signal events; derailed run re-classified and aborted; genuinely progressing run continues. **→ SC-22**
+- [ ] 141. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-22**
+- [ ] 142. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts re-classification within the bound. **→ SC-22**
+- [ ] 143. **commit-inline (**direct**).** Commit the freshness-bound path. **→ SC-22**
+- [ ] 144. **RED — fresh-session isolation (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — fixture reuses a prior attempt's test home/session DB; the run's context contains foreign prior-session instructions; isolation assertion fails. **→ SC-23**
+- [ ] 145. **GREEN — fresh-session isolation (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — each monitored run starts from a fresh test home + fresh session; no prior-session content in context. **→ SC-23**
+- [ ] 146. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-23**
+- [ ] 147. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts fresh session id and zero prior-session messages. **→ SC-23**
+- [ ] 148. **commit-inline (**direct**).** Commit the isolation path. **→ SC-23**
+- [ ] 149. **VbC (**task-card**).** Verify SC-13..SC-23 verdicts are PASS with matching evidence types. **→ SC-13..SC-23**
+- [ ] 150. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the eleven verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
+- [ ] 151. **Phase 6 gate confirmation (**direct**).** Final phase-6 completeness confirmation (all eleven SCs) before post-implementation entry.
+- [ ] 152. **Phase 6 closeout (**direct**).** Record phase-6 completion state.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
