@@ -163,17 +163,15 @@ else
 fi
 
 # ═ Assertion 4 — block persists until developer-level remediation ═════════════
-persist_ok=1
+persist_observed=0
 if [ "$(type -t __undetermined_ceiling_check)" = function ]; then
     if out4="$(__undetermined_ceiling_check "$FIX_ROOT" 2>&1)"; then
-        persist_ok=0
+        persist_observed=0   # gate returned success after ceiling reached — no persistence
     else
-        if ! printf '%s' "$out4" | grep -q 'CEILING_REACHED'; then persist_ok=0; fi
+        if printf '%s' "$out4" | grep -q 'CEILING_REACHED'; then persist_observed=1; fi
     fi
-else
-    persist_ok=0
 fi
-if [ "$persist_ok" = 0 ]; then
+if [ "$persist_observed" = 1 ]; then
     echo "  PASS: block persists across subsequent invocations (no auto-expiry)"; PASS=$((PASS+1))
 else
     echo "  FAIL: block persists across subsequent invocations — gate absent, no persistent block state to observe (RED)" >&2
