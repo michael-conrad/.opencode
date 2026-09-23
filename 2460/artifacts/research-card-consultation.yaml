@@ -1,0 +1,38 @@
+issue: ".opencode#2460"
+consulted_at: "2026-09-23"
+method: "glob .issues/research-cards/*.md + frontmatter grep for description/skill-card/semantic-router topics"
+cards_found: 14
+matching_cards:
+  - path: ".issues/research-cards/spec-writing-ai-agents-opencode-skill-architecture.md"
+    confidence: 0.90
+    incorporated: true
+    key_findings_used:
+      - "description field is the sole mechanism for semantic dispatch matching; agent evaluates its OWN intent against descriptions, not the user's literal utterance"
+      - "description must be self-contained (Level-1 metadata, ~100 tokens) — the ONLY thing the agent sees before deciding to load"
+      - "frontmatter constraint: description 1-1024 chars"
+      - "description is a classifier boundary — vague descriptions cause false activations; overly specific ones cause missed opportunities"
+    caveat: "Card's Finding 9 example recommends embedding user trigger phrases — superseded by the newer enforced deck standard (skill-card-description-standards.md + SC-LINT-001), which prohibits meta-instruction patterns. The deck standard wins; the card's core semantic-router principle remains authoritative."
+  - path: ".issues/research-cards/audit-skill-dimo-role-chain-defects.md"
+    confidence: 0.95
+    incorporated: true
+    key_findings_used:
+      - "description field is the sole dispatch signal — no other mechanism exists for skill selection (source: opencode.ai/docs/skills)"
+      - "Defect 1 precedent: user-utterance matching ('User phrases:') in a description is the classified defect pattern this spec fixes for playwright-cli"
+  - path: ".issues/research-cards/imperative-verb-forms-load-directives.md"
+    confidence: 0.85
+    incorporated: true
+    key_findings_used:
+      - "Imperative verb forms for load directives; informs the When-clause wording (imperative, agent-intent phrasing)"
+non_matching_cards_skipped:
+  - per-sc-decomposition-industry-standards.md
+  - dimo-same-model-auditor-divergence.md
+  - writing-plans-flattening.md
+  - microsoft-markdown-link-patterns.md
+  - for_analysis-scope-investigation.md
+  - agent-config-path-rules.md
+  - self-attribution-bias-independent-verification.md
+  - authorization-session-vs-workflow-state.md
+  - thinking-block-verification-checkpoint.md
+  - writing-plans-skill-contradiction.md
+  - cross-reference-lobotomization.md
+gap_report: "No research card covers behavioral dispatch-probe test design specifically; the tests-v2/AGENTS.md two-SC pattern and existing behavior scripts serve as the operative pattern source (handoff testability artifact already grounds this)."

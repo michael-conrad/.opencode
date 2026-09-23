@@ -1,0 +1,18 @@
+issue: ".opencode#2460"
+artifact: concern-map
+status: complete-not-applicable-with-boundaries
+rationale: "handoff marked concern-map not-applicable — the change is single-concern (agent-facing routing text for one skill). Boundaries recorded below to keep the separation explicit for writing-plans."
+concern_boundaries:
+  - concern: "skill-routing-metadata"
+    scope: "playwright-cli SKILL.md description frontmatter + Browse-the-web When clause"
+    owner_phase: "phase-1-content"
+    separation: "description text is Level-1 routing metadata only — no behavioral body logic changes; dispatch contract strings untouched (invariant item 4)"
+  - concern: "static-verification"
+    scope: "content-verification test (SC-1..SC-7)"
+    owner_phase: "phase-1-content"
+    separation: "grep/schema assertions only — no model, no network; independent of behavioral probes"
+  - concern: "behavioral-dispatch-evidence"
+    scope: "behavioral probe generators (SC-8, SC-10) + clean-room evaluations (SC-9, SC-11)"
+    owner_phase: "phase-2-behavioral"
+    separation: "two-SC pattern — artifact generation strictly separated from clean-room evaluation; evaluation reads session.yaml only"
+single_concern_justification: "Every touched file serves one of the three boundaries above; no cross-concern file edits (blast-radius artifact confirms 1 modified file + 3 added test files, each single-concern)"

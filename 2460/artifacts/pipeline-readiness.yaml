@@ -1,0 +1,26 @@
+issue: ".opencode#2460"
+artifact: pipeline-readiness
+validated_at: "2026-09-23"
+gates:
+  atomicity:
+    verdict: PASS
+    detail: "11 SCs -> 11 implementation items (decompose-output.yaml); each item owns exactly one RED/GREEN/verify/commit cycle"
+  dependency_ordering:
+    verdict: PASS
+    detail: "SC dependency DAG acyclic — edges 1->2, 1->3, 1->4, 1->5, 1->8, 2->8, 3->8, 4->8, 5->8, 8->9, 1->10, 2->10, 3->10, 4->10, 5->10, 10->11; no back-edges"
+  single_concern:
+    verdict: PASS
+    detail: "SC-1..SC-7 target one file category (agent-facing routing text + static verification) and one verification domain (content/schema); SC-8..SC-11 target one verification domain (behavioral dispatch evidence) — concern-map.yaml records the three boundaries with no cross-concern file edits"
+  phase_dependency:
+    verdict: PASS
+    detail: "Two phases: phase-1-content -> phase-2-behavioral; acyclic; behavioral GREEN runs strictly depend on content items landing"
+  three_tier_structure:
+    verdict: PASS
+    detail: "Spec is 2-phase (single-file text fix + behavioral verification). Pre-tier collapses into the per-file RED content tests (no setup/precondition work exists beyond the test files themselves); structure is per-file -> post (behavioral). Deviation from literal pre/per-file/post is a scope-driven collapse, recorded here as the analysis-level judgment for writing-plans to confirm or re-expand."
+gate_evidence:
+  validate_yaml_gate:
+    command: "./.opencode/tools/local-issues validate-yaml --number .opencode#2460"
+    exit_code: 0
+    executed_directly_by_agent: true
+    notes: "Scoped check gated only on the target issue's own records; workspace-wide scan not run and not gating"
+readiness: READY

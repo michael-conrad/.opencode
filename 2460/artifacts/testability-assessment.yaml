@@ -1,0 +1,68 @@
+issue: ".opencode#2460"
+artifact: testability-assessment
+status: complete
+source: "spec.md Success Criteria table (11-SC revision) + live convention verification"
+renumbering_note: "Regenerated 2026-09-23 after validate-round-1 compound-SC decomposition (8 SCs -> 11 SCs); transcribed from spec.md SC table"
+sc_evidence_map:
+  - sc: SC-1
+    evidence_type: string
+    instrument: "content-verification test greps description frontmatter for each of the 9 patterns (8 SC-LINT-001 + 'Also load when'), asserts absence"
+    feasibility: deterministic
+    note: "draft text verified clean (zero prohibited patterns); SC-1 stricter than validator — 'Also load when' not in SC-LINT-001 list"
+  - sc: SC-2
+    evidence_type: string
+    instrument: "validate_skill_cards.py run against post-change SKILL.md; clean verdict recorded by content test"
+    feasibility: deterministic
+  - sc: SC-3
+    evidence_type: string
+    instrument: "content test asserts capability-class phrases (browser-grade rendering, static HTTP fetching, JavaScript-rendered, bot-blocked, login-gated, interactive verification)"
+    feasibility: deterministic
+  - sc: SC-4
+    evidence_type: structural
+    instrument: "structural test enforces 1-1024 char bound from skill-card-schema.md; RED uses deliberately overlong fixture"
+    feasibility: deterministic
+  - sc: SC-5
+    evidence_type: structural
+    instrument: "structural test diffs 6 frontmatter fields (name, license, compatibility, allowed-tools, upstream, upstream_license) vs pre-change snapshot; RED uses mutated fixture"
+    feasibility: deterministic
+  - sc: SC-6
+    evidence_type: string
+    instrument: "content test asserts escalation-family phrases in Browse-the-web When clause"
+    feasibility: deterministic
+  - sc: SC-7
+    evidence_type: string
+    instrument: "content test asserts byte-equality of dispatch prompt strings vs pre-change snapshot; RED uses altered-string fixture"
+    feasibility: deterministic
+  - sc: SC-8
+    evidence_type: behavioral
+    instrument: "artifact-only generator -> with-test-home opencode run -> session.yaml"
+    feasibility: feasible
+    note: "RED runs against current remote state; GREEN requires commit+push cycle"
+  - sc: SC-9
+    evidence_type: behavioral
+    instrument: "clean-room sub-agent reads SC-8 session.yaml"
+    feasibility: feasible
+    note: "skill-load events recorded in SQLite event table; early termination per developer directive 2026-09-23 once dispatch evidence confirmed in live session DB"
+  - sc: SC-10
+    evidence_type: behavioral
+    instrument: "artifact-only generator, routine static-fetch prompt (no browser need)"
+    feasibility: feasible
+  - sc: SC-11
+    evidence_type: behavioral
+    instrument: "clean-room sub-agent reads SC-10 session.yaml"
+    feasibility: feasible
+    note: "absence assertion over event table; never loosened (test-integrity mandate)"
+harness_requirements:
+  - "bash tool timeout >=600s for all behavioral runs; no GNU timeout in scripts"
+  - "DEFAULT_TEST_MODEL (default-model.sh) — no model substitution"
+  - "ordered precondition cycle before every behavioral run: commit -> push -> fresh fetch -> verify effective commit contained in remote ref -> run"
+  - "two-SC pattern (§6a): artifact generation (SC-8, SC-10) strictly separated from clean-room evaluation (SC-9, SC-11); evaluation reads session.yaml, never stdout/stderr"
+  - "§14 semantic monitoring with recorded poll log; early-termination directive applies to GREEN/negative runs once judged evidence confirmed"
+red_phase_precondition:
+  behavioral: "agent must NOT dispatch playwright-cli under OLD description — satisfied by running against current remote main (old description is effective remote state) before fix branch lands"
+  content: "content-verification RED runs against working tree before the description edit"
+test_integrity_guards:
+  - "no assertion weakening to pass timeouts (test-integrity mandate)"
+  - "behavioral uplift automatic per critical-rules-BEH-EV: description change alters Level-1 dispatch decision at runtime — string evidence for SC-8..SC-11 is EVIDENCE_TYPE_MISMATCH"
+known_limitation:
+  - "execution binaries (playwright-cli, npx) absent — behavioral evidence covers the dispatch decision (skill-load event), not end-to-end page capture; environment provisioning is a future spec (recorded non-goal)"

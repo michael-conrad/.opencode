@@ -1,0 +1,132 @@
+issue: ".opencode#2460"
+decomposed_at: "2026-09-23"
+method: "per-SC decomposition — one implementation item per SC, each with its own RED/GREEN/verify/commit cycle (091-incremental-build)"
+renumbering_note: "Regenerated 2026-09-23 after validate-round-1 compound-SC decomposition (8 items -> 11 items); transcribed from spec.md Items section"
+items:
+  - item: 1
+    sc: SC-1
+    title: "Description with zero prohibited patterns"
+    interface:
+      input: "current SKILL.md line 3 description (contains 'Load via skill() when', 'Also load when', 'User phrases:')"
+      output: "SKILL.md description = approved 665-char draft; content test asserting zero prohibited patterns (all 8 SC-LINT-001 patterns + 'Also load when')"
+      invariant: "No other frontmatter field changes"
+    red: "Pattern-absence grep fails against current description (3 deprecated patterns present)"
+    green: "Draft applied — zero of the 9 patterns remain"
+    failure_modes: ["partial pattern removal leaves 'Also load when' (not validator-checked — test must check all 9)", "draft text drift from approved design"]
+  - item: 2
+    sc: SC-2
+    title: "Validator REQ-1/SC-LINT-001 clean"
+    interface:
+      input: "post-item-1 SKILL.md"
+      output: "Validator-clean assertion wired into the content test"
+      invariant: "Validator is a verification instrument only — no validator change"
+    red: "Validator run against current description flags REQ-1/SC-LINT-001"
+    green: "Validator run against post-item-1 description reports clean verdict"
+    failure_modes: ["validator invoked with wrong path scope", "verdict recorded without executing the validator"]
+    depends_on: [1]
+  - item: 3
+    sc: SC-3
+    title: "Escalation capability class stated in description"
+    interface:
+      input: "post-item-1 description"
+      output: "Content test assertion: capability-class phrases present (browser-grade rendering, static HTTP fetching, JavaScript-rendered, bot-blocked, login-gated, interactive verification)"
+      invariant: "Assertion phrases derived from approved draft sentence 2"
+    red: "Assertion fails against pre-change description snapshot (capability class absent)"
+    green: "Assertion passes against post-item-1 description"
+    failure_modes: ["assertion phrases too narrow (miss draft synonyms)", "RED not demonstrated against pre-change snapshot"]
+    depends_on: [1]
+  - item: 4
+    sc: SC-4
+    title: "Description length within schema limit"
+    interface:
+      input: "post-change SKILL.md frontmatter"
+      output: "Structural test enforcing the 1-1024 char bound from skill-card-schema.md"
+      invariant: "Length bound sourced from the schema doc, not hardcoded"
+    red: "Length-bound check fails against a deliberately overlong fixture (test validates its own sensitivity)"
+    green: "Check passes against post-change description — within the 1-1024 char limit"
+    failure_modes: ["bound compared against wrong schema value"]
+    depends_on: [1]
+  - item: 5
+    sc: SC-5
+    title: "Frontmatter fields byte-identical to snapshot"
+    interface:
+      input: "post-change SKILL.md frontmatter vs pre-change snapshot"
+      output: "Structural test diffing the 6 fields (name, license, compatibility, allowed-tools, upstream, upstream_license)"
+      invariant: "Only the description field differs from baseline"
+    red: "Field-diff check fails against a deliberately mutated fixture (test validates its own sensitivity)"
+    green: "Check passes — all 6 fields byte-identical to pre-change snapshot"
+    failure_modes: ["field diff compares against wrong baseline commit"]
+    depends_on: [1]
+  - item: 6
+    sc: SC-6
+    title: "Browse-the-web When clause covers escalation intent family"
+    interface:
+      input: "SKILL.md line 55 When clause (current: 'open a browser, navigate to a page, or perform web automation')"
+      output: "Extended When clause (189-char approved extension); content test asserts escalation-family phrases present"
+      invariant: "Workflow dispatch contract (task prompt string) unchanged"
+    red: "Escalation-family assertion fails against current line 55 (no escalation coverage)"
+    green: "Extended clause passes assertion"
+    failure_modes: ["extension applied to wrong workflow heading", "dispatch string accidentally altered"]
+  - item: 7
+    sc: SC-7
+    title: "Dispatch contract strings unchanged"
+    interface:
+      input: "post-change Browse-the-web workflow dispatch strings vs pre-change snapshot"
+      output: "Content test asserting byte-equality of dispatch prompt strings"
+      invariant: "Dispatch prompt strings byte-identical to pre-change snapshot"
+    red: "Byte-equality check fails against a deliberately mutated fixture (altered dispatch string)"
+    green: "Dispatch prompt strings byte-identical to pre-change snapshot"
+    failure_modes: ["snapshot taken from wrong commit", "check misses second workflow's dispatch strings"]
+  - item: 8
+    sc: SC-8
+    title: "Behavioral positive probe — dispatch on browser-appropriate task"
+    interface:
+      input: "browser-appropriate capture prompt (JS-rendered/bot-blocked page fetch) via with-test-home opencode run"
+      output: "Artifact-only generator script in tests-v2/behaviors/ + session.yaml export"
+      invariant: "Prompt is real-domain (no prose-recall); two-SC pattern — generation separate from evaluation"
+    red: "Probe run under OLD description (effective pre-fix remote state) shows NO playwright-cli dispatch"
+    green: "Probe run under NEW description shows dispatch event"
+    failure_modes: ["RED run executed against post-fix state (invalid RED)", "model substitution", "GNU timeout usage"]
+    depends_on: [1, 2, 3, 4, 5]
+    ordering_constraint: "RED run requires pre-fix effective remote state (old description on remote main) — run RED before fix commits reach the probed ref, or probe a remote ref still carrying the old description; final sequencing owned by writing-plans"
+  - item: 9
+    sc: SC-9
+    title: "Clean-room evaluation of positive-probe session.yaml"
+    interface:
+      input: "item-8 session.yaml (GREEN run)"
+      output: "Clean-room evaluation sub-agent verdict confirming skill-dispatch event in event table"
+      invariant: "Evaluation reads session.yaml only, never stdout/stderr; early termination permitted once dispatch evidence confirmed in live session DB (developer directive 2026-09-23)"
+    red: "Evaluation of RED-run session.yaml reports dispatch absence"
+    green: "Evaluation of GREEN-run session.yaml reports dispatch presence"
+    failure_modes: ["evaluation sub-agent contaminated with expected outcome", "session export missing (TEST_HOME fallback per §10.3)"]
+    depends_on: [8]
+  - item: 10
+    sc: SC-10
+    title: "Behavioral negative control — no false activation on static fetch"
+    interface:
+      input: "routine static-fetch prompt (no browser need) via with-test-home opencode run"
+      output: "Artifact-only generator script + session.yaml export"
+      invariant: "False-activation boundary: description escalation language must not trigger dispatch for plain-fetch tasks"
+    red: "Boundary demonstrated by test sensitivity check (fixture assertion)"
+    green: "Probe run under NEW description shows no playwright-cli dispatch"
+    failure_modes: ["prompt accidentally implies browser need", "false activation caused by escalation language"]
+    depends_on: [1, 2, 3, 4, 5]
+  - item: 11
+    sc: SC-11
+    title: "Clean-room evaluation of negative-control session.yaml"
+    interface:
+      input: "item-10 session.yaml"
+      output: "Clean-room evaluation verdict confirming absence of playwright-cli dispatch event"
+      invariant: "Absence assertion over event table; evaluation reads session.yaml only"
+    red: "Sensitivity check: evaluation reports presence when dispatch event injected into fixture"
+    green: "Evaluation of item-10 session.yaml confirms absence"
+    failure_modes: ["absence assertion loosened to mask false activation (test-integrity violation)"]
+    depends_on: [10]
+non_item_actions:
+  - action: "Supersede #1520 — close as superseded with cross-link comment on new-spec approval; resolve playwright-cli entry of #1384 (umbrella stays open); #1959 untouched"
+    channel: "issue-operations at spec approval / PR time — pipeline state, not an implementation item"
+dependency_dag:
+  edges: ["1->2", "1->3", "1->4", "1->5", "1->8", "2->8", "3->8", "4->8", "5->8", "8->9", "1->10", "2->10", "3->10", "4->10", "5->10", "10->11"]
+  acyclic: true
+  parallel_safe: "Items 6 and 7 (When-clause coverage, dispatch-string invariance) independent of items 1-5 content edits; items 10-RED scaffolding independent of item 8"
+atomicity_check: "11 SCs -> 11 items, exactly one RED/GREEN/verify/commit cycle each"

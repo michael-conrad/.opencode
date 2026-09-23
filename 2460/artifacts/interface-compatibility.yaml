@@ -1,0 +1,44 @@
+issue: ".opencode#2460"
+artifact: interface-compatibility
+status: complete
+rationale: "handoff marked interface-compat not-applicable — no code interfaces change. Analysis records the one modified external surface (description string) and the dependency contracts writing-plans must honor."
+interfaces:
+  modified:
+    - interface: "playwright-cli skill description (frontmatter `description` field)"
+      visibility: external-to-deck
+      consumers: ["opencode skill indexer (<available_skills>)", "orchestrator Level-1 Pre-Response Gate", "validate_skill_cards.py REQ-1/SC-LINT-001"]
+      backward_compatible: true
+      detail: "string content change only; field name, position, and quoting unchanged; length 665 <= 1024; semantic effect intended (dispatch-decision flip)"
+  unchanged:
+    - interface: "playwright-cli workflow dispatch contract (task() prompt strings, context passed, returns)"
+      detail: "SC-6 extends the When clause prose only; dispatch strings byte-identical (invariant items 6-7)"
+    - interface: "SKILL.md frontmatter non-description fields (name, allowed-tools, license, compatibility, upstream, upstream_license)"
+      detail: "SC-5 asserts byte-identical vs pre-change snapshot"
+    - interface: "tests-v2 harness contracts (behavior_run(), with-test-home, session.yaml export, clean-room eval contract)"
+      detail: "new scripts conform to existing contracts; no harness modification"
+  new:
+    - interface: "3 new test scripts (content test + 2 behavioral generators)"
+      visibility: internal-to-tests-v2
+      detail: "follow existing naming and invocation conventions; no external consumers"
+  removed: []
+dependency_contract:
+  - source: "playwright-cli SKILL.md description"
+    target: "opencode <available_skills> Level-1 metadata"
+    type: "artifact schema"
+    constraint: "description 1-1024 chars; YAML frontmatter quoting valid; agent-intent format per skill-card-description-standards.md (no deprecated meta-instruction patterns)"
+  - source: "playwright-cli SKILL.md description"
+    target: "validate_skill_cards.py REQ-1/SC-LINT-001"
+    type: "artifact schema"
+    constraint: "zero occurrences of the 8 SC-LINT-001 patterns; plus 'Also load when' absent per SC-1/SC-2 (stricter than validator)"
+  - source: "behavioral probe scripts"
+    target: "tests-v2/AGENTS.md harness mandates"
+    type: "artifact schema"
+    constraint: "no GNU timeout; >=600s bash timeout; with-test-home wrapper; two-SC pattern (generation separate from evaluation); commit->push->fetch/verify ordered cycle before runs"
+  - source: "clean-room evaluations (SC-9, SC-11)"
+    target: "session.yaml event table"
+    type: "artifact schema"
+    constraint: "verdicts derived from exported session.yaml only — never stdout/stderr prose; early-termination directive honored (developer directive 2026-09-23)"
+  - source: "playwright-cli skill set changes"
+    target: "umbrella #1384 deck-wide compliance wave"
+    type: "artifact schema"
+    constraint: "this spec resolves only the playwright-cli entry; no other card touched; #1520 superseded, #1959 untouched"

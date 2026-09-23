@@ -1,0 +1,42 @@
+issue: ".opencode#2460"
+artifact: state-analysis
+status: complete-not-applicable-with-transitions
+rationale: "handoff marked state-analysis not-applicable — no runtime state machine exists in the changed artifact (static routing text). The relevant state transitions are pipeline states, recorded below."
+runtime_state: "none — description text is stateless Level-1 metadata; no state machine to model"
+pipeline_state_transitions:
+  - entity: "issue .opencode#2460"
+    transitions:
+      - from: open
+        to: spec_created
+        phase: "spec-creation create step (after analyze)"
+      - from: spec_created
+        to: approved
+        phase: "developer approval (approved-for-* label)"
+      - from: approved
+        to: plan_created
+        phase: "writing-plans"
+      - from: plan_created
+        to: implementation
+        phase: "per-SC RED/GREEN/COMMIT cycles"
+      - from: implementation
+        to: pr_created
+        phase: "git-workflow-pr (stacked PR, single branch)"
+    side_effects:
+      - "#1520 -> closed as superseded (cross-link comment on new-spec approval)"
+      - "#1384 playwright-cli entry resolved (umbrella stays open)"
+      - "#1959 state unchanged"
+  - entity: "playwright-cli card dispatch behavior"
+    transitions:
+      - from: "no-dispatch on browser-appropriate intent (defect)"
+        to: "dispatch on browser-appropriate intent (fixed)"
+        trigger: "description replacement (items 1-5) + When-clause extension (item 6)"
+        verified_by: "SC-8/SC-9 (positive) and SC-10/SC-11 (false-activation boundary)"
+  - entity: "validate_skill_cards.py verdict for playwright-cli"
+    transitions:
+      - from: FAIL (SC-LINT-001 violations)
+        to: PASS
+        trigger: "description replacement"
+behavioral_run_state:
+  ordered_cycle: "commit -> push -> fresh fetch -> verify effective commit in remote ref -> run (per tests-v2/AGENTS.md §4)"
+  red_state: "pre-fix effective remote state (old description on remote main)"
+  green_state: "post-fix effective remote state (new description on feature branch)"

@@ -1,0 +1,31 @@
+issue: ".opencode#2460"
+artifact: code-path-inventory
+status: complete
+source: "handoff code-paths artifact (complete) + live verification of SKILL.md and validate_skill_cards.py"
+note: "Changed artifact is agent-facing routing text, not executable code — inventory covers the paths that consume it"
+paths:
+  - id: path-1-skill-indexing
+    phase: phase-1-content
+    flow: "opencode startup -> skill indexer parses SKILL.md YAML frontmatter -> description surfaced in <available_skills> (Level-1 metadata)"
+    touched_by: "SC-1..SC-5 (description replacement)"
+    constraints: "binary constraints: name regex, description 1-1024 chars — 665 chars verified within limit"
+  - id: path-2-level1-semantic-routing
+    phase: phase-2-behavioral
+    flow: "Orchestrator Pre-Response Gate evaluates own intent against every <available_skills> description -> skill({name}) load decision"
+    touched_by: "SC-8, SC-9, SC-10, SC-11 (the defect site — dispatch decision)"
+    detail: "current description offers only user-utterance phrases -> missed activation for research/verification intents; new description adds escalation capability class (sentence 2)"
+  - id: path-3-post-load-dispatch
+    phase: none-unchanged
+    flow: "orchestrator loads card -> reads Workflows -> task() dispatch -> sub-agent reads tasks/commands-reference.md -> executes playwright-cli commands"
+    touched_by: "SC-6, SC-7 (When-clause coverage changes workflow entry description; dispatch-string invariance guards the contract)"
+    limitation: "execution binaries (playwright-cli, npx) absent in this environment — behavioral SCs scoped to dispatch decision, not execution (non-goal)"
+  - id: path-4-static-validation
+    phase: phase-1-content
+    flow: "validate_skill_cards.py (REQ-1 description checks, SC-LINT-001 deprecated patterns) -> FAIL on playwright-cli today -> PASS after fix"
+    touched_by: "SC-1, SC-2 (indirect — no validator change); new content test reads same frontmatter"
+    verified: "SC-LINT-001 pattern list read live at .opencode/skills/skill-creator/scripts/validate_skill_cards.py lines 202-211"
+  - id: path-5-behavioral-harness
+    phase: phase-2-behavioral
+    flow: "tests-v2/behaviors/<scenario>.sh -> behavior_run() -> pre-flight git-state gate (commit -> push -> fetch/verify) -> with-test-home clone+checkout -> opencode run -> session.yaml export -> clean-room evaluation sub-agent"
+    touched_by: "SC-8..SC-11"
+    ordering: "RED phase executes against pre-change remote state (old description on remote main); GREEN requires fix commit pushed to remote branch"

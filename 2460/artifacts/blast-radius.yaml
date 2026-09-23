@@ -1,0 +1,51 @@
+issue: ".opencode#2460"
+artifact: blast-radius
+status: complete
+grounding_coverage:
+  primary_source: "handoff blast-radius artifact (complete) + pre-spec-inspection.yaml live verification"
+  bounded_grounding: "Grounded from spec scope sections (handoff approved_design + blast-radius) FIRST; primary target surface (SKILL.md) verified live; no exhaustive implementation reads required"
+  ungrounded_assumptions: []
+phases:
+  phase-1-content:
+    description: "SKILL.md description + When-clause rewrite; content test for SC-1..SC-7"
+    affected_components:
+      - component: ".opencode/skills/playwright-cli/SKILL.md"
+        change_type: modify
+        detail: "description frontmatter (line 3) replaced with 665-char agent-intent draft; Browse-the-web When clause (line 55) extended (189 chars)"
+        verified_live: true
+      - component: ".opencode/tests-v2/test-playwright-description-agent-intent.sh"
+        change_type: add
+        detail: "grep-based content test, no model"
+    ripple_effects:
+      - "opencode startup skill indexer re-parses description into <available_skills> — 665 chars within 1-1024 limit (verified)"
+      - "Orchestrator Pre-Response Gate Level-1 intent-match surface changes — the intended behavioral effect"
+      - "validate_skill_cards.py REQ-1/SC-LINT-001: violations clear (patterns removed; 'Also load when' removal exceeds validator requirement)"
+  phase-2-behavioral:
+    description: "Behavioral probe scripts + clean-room evaluation"
+    affected_components:
+      - component: ".opencode/tests-v2/behaviors/playwright-dispatch-escalation.sh"
+        change_type: add
+        detail: "positive-probe artifact-only generator (SC-8)"
+      - component: ".opencode/tests-v2/behaviors/playwright-no-false-activation.sh"
+        change_type: add
+        detail: "negative-control artifact-only generator (SC-10)"
+    ripple_effects:
+      - "tests-v2 harness: commit -> push -> fetch/verify cycle gates the runs; RED requires pre-fix effective remote state"
+      - "Session SQLite export + clean-room evaluation sub-agents (SC-9, SC-11)"
+files_not_modified_verified:
+  - "All other 50 skill cards — descoped (umbrella #1384 wave)"
+  - "research/, verification/, audit/, mcp-tool-usage/ pipelines — escalation wiring descoped per developer scope ruling"
+  - ".opencode/skills/skill-creator/scripts/validate_skill_cards.py — no change; existing checks already prohibit removed patterns"
+  - "Guidelines/reference docs — skill-card-description-standards.md and skill-card-schema.md already codify target format"
+downstream_consumers:
+  - consumer: "opencode skill indexer -> <available_skills>"
+    impact: "description re-parsed at startup; <=1024 limit respected"
+  - consumer: "Orchestrator Pre-Response Gate (Level-1 classifier)"
+    impact: "intent-match surface changes — intended (SC-8/SC-9)"
+  - consumer: "validate_skill_cards.py REQ-1/SC-LINT-001"
+    impact: "FAIL -> PASS (draft verified zero prohibited patterns)"
+  - consumer: "test-2296-sc3-canonical-format.sh"
+    impact: "unaffected — checks body dispatch format, not description"
+repo_routing:
+  - "All changed files under .opencode/ -> issue and PR against michael-conrad/.opencode"
+  - "Parent repo affected only via submodule pointer riding next real parent-repo change (never standalone)"

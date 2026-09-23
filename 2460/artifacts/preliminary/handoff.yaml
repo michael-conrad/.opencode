@@ -1,0 +1,60 @@
+handoff:
+  source: brainstorming
+  target: spec-creation
+  issue: "PENDING — issue number assigned by spec-creation at remote issue creation; re-path this directory to {project_root}/tmp/{issue-N}/artifacts/preliminary/ when assigned"
+  repo_routing: "michael-conrad/.opencode (all changed files under .opencode/)"
+  artifacts:
+    - name: blast-radius
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/blast-radius.md"
+      status: complete
+    - name: concern-map
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/not-applicable.md"
+      status: not-applicable
+    - name: code-paths
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/code-paths.md"
+      status: complete
+    - name: cross-cutting
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/not-applicable.md"
+      status: not-applicable
+    - name: interface-compat
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/not-applicable.md"
+      status: not-applicable
+    - name: state-analysis
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/not-applicable.md"
+      status: not-applicable
+    - name: testability
+      path: "{project_root}/tmp/playwright-cli-description-spec/artifacts/preliminary/testability.md"
+      status: complete
+  exploration_summary:
+    turns_completed: 5
+    design_approved: true
+    key_findings:
+      - "Defect confirmed: playwright-cli description uses deprecated format (Load via skill() when / User phrases:) prohibited by skill-card-description-standards.md and flagged by validate_skill_cards.py (REQ-1, SC-LINT-001)"
+      - "Description defect is one of six layers; other layers (zero-dispatch competitors, no escalation trigger, research/audit pipeline gaps, missing web tier in tool hierarchy, absent binaries) are explicit non-goals per developer scope ruling"
+      - "Stale open ticket #1520 quotes pre-#1855 text and proposes a no-op — new spec supersedes it; closes resolving playwright-cli entry of umbrella #1384 (which stays open)"
+      - "Deck-wide context: 49/51 cards fail the same description check — playwright-cli fix is the scoped first entry, not the whole remediation"
+      - "Behavioral uplift mandatory per critical-rules-BEH-EV: description change alters Level-1 dispatch decision at runtime"
+      - "Developer directives: early test-session termination approved once evidence of correct operation confirmed in live session DB; no optional SCs — negative control included as full SC"
+  approved_design:
+    scope: "playwright-cli skill set only (description + body When-clause consistency + its test scripts)"
+    description_draft: "Automate browser interactions with playwright-cli: navigate pages, fill forms, click, hover, and type into elements, capture accessibility snapshots and screenshots, evaluate JavaScript, mock network requests, manage cookies, storage, and tabs, record traces and video, and generate or run Playwright tests. Provides browser-grade rendering that static HTTP fetching cannot: captures page content from JavaScript-rendered single-page applications, bot-blocked sites, login-gated pages, and interactive verification flows that plain fetchers return empty or incomplete. Browser-grade capture is REQUIRED for verifying dynamically rendered or access-restricted pages."
+    description_length_chars: 665
+    when_clause_extension: "When the agent needs to open a browser, navigate to a page, perform web automation, or capture page content that static HTTP fetching returns empty, incomplete, or JavaScript-dependent for."
+    supersession: "Supersedes #1520 (close as superseded with cross-link comment on new-spec approval); resolves playwright-cli entry of #1384; #1959 adjacent, out of scope, not superseded"
+    non_goals:
+      - "Environment provisioning of playwright-cli binary / node toolchain (behavioral SCs scoped to dispatch decision, not execution)"
+      - "Deck-wide description compliance (49 other cards) — umbrella #1384 wave"
+      - "Escalation wiring in research/verification/audit/mcp-tool-usage pipelines"
+      - "#1959 task-card reconciliation with upstream"
+    success_criteria:
+      - {id: SC-1, evidence_type: string, criterion: "Description contains zero prohibited patterns — all 8 SC-LINT-001 patterns plus 'Also load when' (stricter than validator); enforced by new content test"}
+      - {id: SC-2, evidence_type: string, criterion: "validate_skill_cards.py REQ-1/SC-LINT-001 reports clean verdict for playwright-cli"}
+      - {id: SC-3, evidence_type: string, criterion: "Description states the escalation capability class per approved draft (browser-grade rendering vs static HTTP fetching; JS-rendered, bot-blocked, login-gated, interactive verification)"}
+      - {id: SC-4, evidence_type: structural, criterion: "Description length within the 1-1024 char frontmatter schema limit"}
+      - {id: SC-5, evidence_type: structural, criterion: "name, license, compatibility, allowed-tools, upstream, upstream_license byte-identical to pre-change snapshot"}
+      - {id: SC-6, evidence_type: string, criterion: "Browse-the-web workflow When clause covers the escalation intent family (static HTTP fetching returns empty, incomplete, or JavaScript-dependent)"}
+      - {id: SC-7, evidence_type: string, criterion: "Browse-the-web workflow dispatch contract strings unchanged (byte-identical to pre-change snapshot)"}
+      - {id: SC-8, evidence_type: behavioral, criterion: "Behavioral probe artifact generation: agent given a browser-appropriate capture task (JS-rendered/bot-blocked page fetch) dispatches playwright-cli skill; RED (old description, no dispatch) then GREEN (new description, dispatch); artifact-only generator per tests-v2 paradigm"}
+      - {id: SC-9, evidence_type: behavioral, criterion: "Clean-room evaluation of SC-8 session.yaml confirms the skill-dispatch event in the event table; early termination permitted once dispatch evidence confirmed in live session DB (developer directive 2026-09-23)"}
+      - {id: SC-10, evidence_type: behavioral, criterion: "Negative-control artifact generation: agent performing a routine static-fetch task does not dispatch playwright-cli (false-activation boundary); artifact-only generator"}
+      - {id: SC-11, evidence_type: behavioral, criterion: "Clean-room evaluation of SC-10 session.yaml confirms absence of any playwright-cli dispatch event"}

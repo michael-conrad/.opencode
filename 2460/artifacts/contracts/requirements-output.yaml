@@ -1,0 +1,70 @@
+issue: ".opencode#2460"
+extracted_at: "2026-09-23"
+source: "handoff.yaml approved_design + key_findings + developer directives; verified against live codebase 2026-09-23"
+explicit_requirements:
+  - id: REQ-E1
+    requirement: "Replace playwright-cli description with approved agent-intent draft (665 chars, verified)"
+    verification: "Draft text wc -c = 665; current line-3 description read live and contains deprecated patterns"
+  - id: REQ-E2
+    requirement: "Description contains zero deprecated meta-instruction patterns (Load via skill() when, User phrases:, Also load when, Dispatch when, Use when, Also use when, Trigger phrases:, Triggers on:)"
+    verification: "Current description confirmed containing 3 of these (live read); SC-LINT-001 list confirmed at validate_skill_cards.py lines 202-211"
+  - id: REQ-E3
+    requirement: "Description states the escalation capability class: browser-grade rendering vs static HTTP fetching; JS-rendered, bot-blocked, login-gated, interactive verification flows"
+    verification: "Draft sentence 2 verified present in approved_design text (handoff.yaml line 40)"
+  - id: REQ-E4
+    requirement: "Frontmatter binary constraints hold: description <=1024 chars; name, license, compatibility, allowed-tools, upstream, upstream_license unchanged"
+    verification: "Current frontmatter fields read live (SKILL.md lines 1-9); draft 665 <= 1024 verified"
+  - id: REQ-E5
+    requirement: "Browse-the-web workflow When clause extended to cover escalation intent family (static HTTP fetching returns empty, incomplete, or JavaScript-dependent)"
+    verification: "Current When clause (line 55) read live; 189-char extension verified via wc -c"
+  - id: REQ-E6
+    requirement: "Content-verification test covering SC-1..SC-7 (grep-based, no model) added to tests-v2/"
+    verification: "test-{issue}-sc{N}-{slug}.sh convention confirmed via glob of tests-v2/ (100+ precedents)"
+  - id: REQ-E7
+    requirement: "Behavioral positive probe: agent given browser-appropriate capture task dispatches playwright-cli (RED on old description, GREEN on new)"
+    verification: "tests-v2/behaviors/ conventions confirmed; two-SC pattern per tests-v2/AGENTS.md; RED precondition = current description on remote main (handoff testability artifact)"
+  - id: REQ-E8
+    requirement: "Clean-room evaluation of positive-probe session.yaml confirms skill-dispatch event; early termination permitted once dispatch evidence confirmed in live session DB"
+    verification: "Developer directive 2026-09-23 recorded in handoff (SC-9); clean-room eval precedent test-cleanroom-eval-contract.sh exists in tests-v2/"
+  - id: REQ-E9
+    requirement: "Negative-control behavioral probe: routine static-fetch task does NOT dispatch playwright-cli"
+    verification: "False-activation boundary per research card (classifier boundary principle); handoff SC-10"
+  - id: REQ-E10
+    requirement: "Clean-room evaluation of negative-control session.yaml confirms absence of playwright-cli dispatch event"
+    verification: "Handoff SC-11; absence assertion over event table per handoff testability artifact"
+  - id: REQ-E11
+    requirement: "Supersede #1520 (close as superseded with cross-link comment on new-spec approval); resolve playwright-cli entry of umbrella #1384; #1959 adjacent, out of scope, not superseded"
+    verification: "handoff-pointer.yaml supersedes: '#1520' (read live); handoff approved_design.supersession field"
+implicit_requirements:
+  - id: REQ-I1
+    requirement: "Test naming follows deck convention: content tests test-{issue}-sc{N}-{slug}.sh; behavioral scripts {issue}-sc{N}-{slug}.sh (unnumbered slugs precedented)"
+    verification: "Glob of tests-v2/ and tests-v2/behaviors/ confirmed both conventions"
+  - id: REQ-I2
+    requirement: "Behavioral runs follow harness mandates: bash timeout >=600s, no GNU timeout, with-test-home wrapper, commit->push->fresh-fetch->verify before run, semantic monitoring with poll log"
+    verification: "tests-v2/AGENTS.md sections cited in handoff testability artifact; conventions verified in AGENTS.md instructions"
+  - id: REQ-I3
+    requirement: "SC-1/SC-2 enforcement is stricter than SC-LINT-001: 'Also load when' must be absent even though validator does not check it — enforced by the new content test, no validator change"
+    verification: "SC-LINT-001 prohibited list (lines 202-211) read live; 'Also load when' absent from list"
+constraint_requirements:
+  - id: REQ-C1
+    constraint: "Scope limited to playwright-cli skill set (description + body When-clause consistency + its test scripts)"
+    verification: "handoff approved_design.scope; blast-radius artifact lists files NOT modified"
+  - id: REQ-C2
+    constraint: "Behavioral SCs scoped to the dispatch decision, not execution — playwright-cli/npx binaries absent in this environment"
+    verification: "handoff code-paths.md Path 3 NOTE + testability.md known limitation"
+  - id: REQ-C3
+    constraint: "Behavioral RED must run against pre-change remote state (old description on remote main) before the fix branch lands"
+    verification: "handoff testability.md RED phase precondition; tests-v2/AGENTS.md commit->push->fetch/verify cycle"
+  - id: REQ-C4
+    constraint: "No optional SCs — negative control included as full SC (developer ruling)"
+    verification: "handoff developer_directives"
+  - id: REQ-C5
+    constraint: "Repo routing: all changed files under .opencode/ -> michael-conrad/.opencode; submodule pointer rides next real parent-repo change (never standalone)"
+    verification: "handoff repo_routing + blast-radius; AGENTS.md submodule pointer rules"
+non_requirements:
+  - "Environment provisioning of playwright-cli binary / node toolchain"
+  - "Deck-wide description compliance across the other 49 non-compliant cards (umbrella #1384 wave)"
+  - "Escalation wiring in research/verification/audit/mcp-tool-usage pipelines"
+  - "#1959 task-card reconciliation with upstream"
+  - "validate_skill_cards.py changes"
+  - "Guidelines/reference-doc changes (skill-card-description-standards.md and skill-card-schema.md already codify target format)"

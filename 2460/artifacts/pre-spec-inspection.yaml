@@ -1,0 +1,44 @@
+issue: ".opencode#2460"
+title: "[SPEC] Rewrite playwright-cli description as agent-intent semantic router"
+analyzed_at: "2026-09-23"
+brainstorm_handoff:
+  status: consumed
+  channel: "issue-directory pointer (.opencode/.issues/2460/handoff-pointer.yaml)"
+  path: "{project_root}/tmp/2460/artifacts/preliminary/handoff.yaml"
+  complete_artifacts_used: [blast-radius, code-paths, testability]
+  not_applicable_artifacts_skipped: [concern-map, cross-cutting, interface-compat, state-analysis]
+  approved_design: "description_draft (665 chars) + When-clause extension (189 chars) from handoff.yaml"
+design_input_verification:
+  description_draft_chars: 665
+  description_draft_chars_method: "wc -c on draft text, 2026-09-23"
+  when_clause_extension_chars: 189
+  when_clause_extension_method: "wc -c on extension text, 2026-09-23"
+  both_within_frontmatter_limit: true  # 1-1024 chars per skill-card-schema
+affected_files:
+  modify:
+    - path: ".opencode/skills/playwright-cli/SKILL.md"
+      change: "description frontmatter (line 3) replaced with approved agent-intent draft; Browse-the-web workflow When clause (line 55) extended with escalation intent family"
+      verified_live: true
+  add:
+    - path: ".opencode/tests-v2/test-playwright-description-agent-intent.sh"
+      purpose: "Content-verification test for SC-1..SC-7 (grep-based, no model)"
+    - path: ".opencode/tests-v2/behaviors/playwright-dispatch-escalation.sh"
+      purpose: "Behavioral artifact-only generator for positive probe (SC-8)"
+    - path: ".opencode/tests-v2/behaviors/playwright-no-false-activation.sh"
+      purpose: "Behavioral artifact-only generator for negative control (SC-10)"
+existing_patterns:
+  content_test_naming: "test-{issue}-sc{N}-{slug}.sh in tests-v2/ (e.g., test-2296-sc3-canonical-format.sh, test-2421-sc2-read-link-070.sh)"
+  behavioral_test_naming: "{issue}-sc{N}-{slug}.sh in tests-v2/behaviors/; unnumbered slugs also precedented (dispatch-gate-rejection.sh, solicitation-gate.sh)"
+  validator: ".opencode/skills/skill-creator/scripts/validate_skill_cards.py — REQ-1 frontmatter checks (lines 105-194); SC-LINT-001 deprecated-pattern list (lines 202-211)"
+  harness_conventions: "tests-v2/AGENTS.md: bash timeout >=600s, no GNU timeout, with-test-home wrapper, two-SC pattern (artifact generation separate from clean-room evaluation), commit->push->fetch/verify before behavioral run"
+live_verification_notes:
+  - "Defect confirmed live: line 3 description contains 'Load via skill() when', 'Also load when', 'User phrases:' (SKILL.md read 2026-09-23)"
+  - "Current Browse-the-web When clause confirmed at line 55: 'When the agent needs to open a browser, navigate to a page, or perform web automation.'"
+  - "SC-LINT-001 prohibited list verified (lines 202-211): 'Load via skill() when', 'User phrases:', 'Dispatch when', 'Also dispatch when', 'Use when', 'Also use when', 'Trigger phrases:', 'Triggers on:'"
+  - "NUANCE: 'Also load when' is NOT in SC-LINT-001's list — spec SC-1/SC-2 are stricter than the validator; SC-1 (pattern absence) is enforced by the new content test, no validator change in scope (validator is out of blast radius per handoff)"
+  - "MANDATORY_KEYWORDS regex exists in validator (line 224) — draft description already contains 'REQUIRED', so no conflict if applied to description"
+  - "validate_skill_cards.py located at .opencode/skills/skill-creator/scripts/validate_skill_cards.py (12 REQ-1/SC-LINT-001 grep matches)"
+handoff_coverage_respected:
+  - "Blast radius, code paths, and testability consumed directly from handoff complete artifacts — not re-derived"
+  - "Non-goals honored: deck-wide description compliance (umbrella #1384), escalation wiring in research/verification/audit/mcp-tool-usage, #1959 reconciliation, playwright-cli binary provisioning"
+  - "Repo routing: all changed files under .opencode/ -> michael-conrad/.opencode; parent repo touched only via submodule pointer riding next real parent change"

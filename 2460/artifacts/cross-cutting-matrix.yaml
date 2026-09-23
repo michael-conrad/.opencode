@@ -1,0 +1,27 @@
+issue: ".opencode#2460"
+artifact: cross-cutting-matrix
+status: complete-not-applicable-with-matrix
+rationale: "handoff marked cross-cutting not-applicable — single-skill text change. Minimal matrix recorded for the cross-cutting concerns writing-plans must still respect."
+matrix:
+  - concern: attribution-provenance
+    applies_to: "new test scripts (3 added files)"
+    requirement: "AI-authored scripts carry provenance/byline per 080-code-standards; SKILL.md edit preserves any existing byline"
+    risk: low
+  - concern: test-framework-discipline
+    applies_to: "behavioral scripts (SC-8..SC-11)"
+    requirement: "no GNU timeout; bash tool timeout >=600s; with-test-home wrapper; DEFAULT_TEST_MODEL, no substitution"
+    risk: high
+    note: "Tier 1 mandates from AGENTS.md — the dominant cross-cutting risk in this spec"
+  - concern: behavioral-evidence-integrity
+    applies_to: "RED/GREEN ordering + clean-room evaluation"
+    requirement: "RED against pre-fix effective remote state; commit -> push -> fresh fetch -> verify before runs; evaluation reads session.yaml only; no lobotomized assertions (test-integrity mandate)"
+    risk: high
+  - concern: authorization-scope
+    applies_to: "spec -> plan -> implementation pipeline"
+    requirement: "implementation needs for_implementation+ scope; issue creation/labeling authorization-free"
+    risk: low
+  - concern: scope-containment
+    applies_to: "all phases"
+    requirement: "no deck-wide edits, no validator changes, no pipeline escalation wiring — guarded by non-goals"
+    risk: medium
+    note: "temptation risk: 49 other cards fail the same check — scope ruling forbids fixing them here"
