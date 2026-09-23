@@ -1185,6 +1185,24 @@ MONPY
         prev_event_count=$event_count
         prev_reasoning_chars=$reasoning_total
 
+        # .opencode#2456 SC-5 (progressing-continues, R-2): the mechanical
+        # stuck/off-track signals (1 identical-input, 2 stuck-task, 3
+        # reasoning-runaway, 4 semantic-offtrack, 5 reasoning-loop) are
+        # heuristics for detecting NON-progressing runs. When the SC-2
+        # classifier has judged the run progressing-directionally, the
+        # semantic classification is authoritative over these heuristics:
+        # a progressing run continues regardless of duration (R-2), so a
+        # mechanical signal that fires against a progressing run is a false
+        # positive (e.g. signal 3's CUMULATIVE reasoning total crosses its
+        # threshold during a momentary tool-call gap on a slow but steadily
+        # writing run). Suppress the mechanical signal and log it — the
+        # progressing run keeps polling. Flag-gated by the enclosing
+        # BEHAVIOR_SEMANTIC_MONITOR=1 block (backward compat).
+        if [ -n "${abort_reason:-}" ] && [ "${classification_value:-}" = "progressing-directionally" ]; then
+            echo "POLL ${poll}: mechanical signal ${abort_reason} suppressed — run classified progressing-directionally (R-2: progressing runs continue regardless of duration, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
+            abort_reason=""
+        fi
+
         if [ -n "${abort_reason:-}" ]; then
             break
         fi
