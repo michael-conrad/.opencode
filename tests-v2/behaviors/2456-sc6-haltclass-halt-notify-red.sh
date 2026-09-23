@@ -92,7 +92,11 @@
 # that undetermined classification (a subsequent CLASSIFY line or
 # MONITOR-COMPLETE) — without continuation the halt-class surface was not
 # exercised (the run died before/at the classification), a fixture or
-# classifier-variance problem, never a RED verdict.
+# classifier-variance problem, never a RED verdict. Guards (b) and (c) are
+# RED-phase-only: in the GREEN phase the halt-class routing fix halts
+# monitoring AT the undetermined classification, so the ABSENCE of
+# continuation evidence IS the GREEN condition (see the phase-branching block
+# below) and is checked directly as the pass condition, not a blocker.
 #
 # §15 targeted-execution mandate: run this ONE named scenario via
 #   BEHAVIOR_PHASE=RED bash .opencode/tests-v2/behaviors/2456-sc6-haltclass-halt-notify-red.sh
@@ -189,18 +193,43 @@ undetermined_poll="$(printf '%s' "$undetermined_line" | sed -n 's/^CLASSIFY\[pol
 # a "further dispatch" in the SC-6 continuation sense.
 later_classify="$(awk -v target="$undetermined_line" 'found && /^CLASSIFY\[poll/{print; exit} $0==target{found=1}' "$monitor_log" || true)"
 monitor_complete="$(grep -oE 'MONITOR-COMPLETE polls=[0-9]+' "$monitor_log" | tail -1 || true)"
-if [ -z "$later_classify" ] && [ -z "$monitor_complete" ]; then
-    echo "PRECONDITION-FAIL: no continuation evidence after the in-loop undetermined classification (poll ${undetermined_poll}) — no subsequent CLASSIFY line and no MONITOR-COMPLETE in $monitor_log; the run did not continue past the classification, so the halt-class continuation surface was never exercised; not a RED verdict" >&2
+
+# PHASE BRANCHING: the continuation-evidence guard (c) is a RED-phase-only
+# precondition. In the RED phase (pre-fix helpers.sh) monitoring continues past
+# the undetermined classification, so continuation evidence (a later CLASSIFY
+# line or MONITOR-COMPLETE) must exist for the halt-class continuation surface
+# to have been exercised. In the GREEN phase the halt-class routing fix halts
+# monitoring AT the undetermined classification, so the ABSENCE of continuation
+# evidence is exactly the GREEN condition's halt-before-further-dispatch half —
+# treating it as a precondition blocker would structurally exit-2 every
+# passing GREEN run (the classified abort root cause, BAD_TEST_NEEDS_REVISION
+# remediation). GREEN therefore checks the GREEN condition directly as its
+# pass condition instead.
+PHASE="${BEHAVIOR_PHASE:-RED}"
+
+if [ "$PHASE" = "GREEN" ]; then
+    # GREEN condition: the FIRST in-loop undetermined classification halted
+    # monitoring and notified the orchestrator BEFORE any further dispatch —
+    # notification present, no further CLASSIFY dispatch, no natural completion.
+    if grep -q "ORCHESTRATOR_DECISION_REQUIRED" "$artifact_dir/harness-stderr.log" \
+        && [ -z "$later_classify" ] && [ -z "$monitor_complete" ]; then
+        echo "GREEN: undetermined (halt-class) classification halted monitoring and notified the orchestrator — ORCHESTRATOR_DECISION_REQUIRED present in the harness stderr capture ($artifact_dir/harness-stderr.log); no further CLASSIFY dispatch after the undetermined classification (poll ${undetermined_poll}) and no MONITOR-COMPLETE (monitoring halted before any further dispatch, R-3)" >&2
+        exit 0
+    fi
+    if ! grep -q "ORCHESTRATOR_DECISION_REQUIRED" "$artifact_dir/harness-stderr.log"; then
+        echo "GREEN NOT SATISFIED (RED confirmed in GREEN phase): ORCHESTRATOR_DECISION_REQUIRED absent from the harness stderr capture ($artifact_dir/harness-stderr.log) — the undetermined classification did not halt+notify the orchestrator (continuation evidence: later_classify='${later_classify:-none}', monitor_complete='${monitor_complete:-none}')" >&2
+        exit 1
+    fi
+    echo "PRECONDITION-FAIL: ORCHESTRATOR_DECISION_REQUIRED present in the harness stderr capture but the halt-before-further-dispatch half of SC-6 is not satisfied (later_classify='${later_classify:-none}', monitor_complete='${monitor_complete:-none}') — partial implementation state needs diagnosis; not a clean GREEN verdict" >&2
     exit 2
 fi
 
-# GREEN condition: the FIRST in-loop undetermined classification halted
-# monitoring and notified the orchestrator BEFORE any further dispatch —
-# notification present, no further CLASSIFY dispatch, no natural completion.
-if grep -q "ORCHESTRATOR_DECISION_REQUIRED" "$artifact_dir/harness-stderr.log" \
-    && [ -z "$later_classify" ] && [ -z "$monitor_complete" ]; then
-    echo "GREEN: undetermined (halt-class) classification halted monitoring and notified the orchestrator — ORCHESTRATOR_DECISION_REQUIRED present in the harness stderr capture ($artifact_dir/harness-stderr.log); no further CLASSIFY dispatch after the undetermined classification (poll ${undetermined_poll}) and no MONITOR-COMPLETE (monitoring halted before any further dispatch, R-3)" >&2
-    exit 0
+# RED phase continuation guard: without continuation evidence past the
+# undetermined classification the run died before/at the classification and the
+# halt-class continuation surface was never exercised.
+if [ -z "$later_classify" ] && [ -z "$monitor_complete" ]; then
+    echo "PRECONDITION-FAIL: no continuation evidence after the in-loop undetermined classification (poll ${undetermined_poll}) — no subsequent CLASSIFY line and no MONITOR-COMPLETE in $monitor_log; the run did not continue past the classification, so the halt-class continuation surface was never exercised; not a RED verdict" >&2
+    exit 2
 fi
 
 # RED condition: the undetermined classification did NOT halt+notify — no
