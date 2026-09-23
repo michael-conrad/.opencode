@@ -43,6 +43,8 @@ BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests-v2/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
 BEHAVIOR_HARNESS_VERSION="${BEHAVIOR_HARNESS_VERSION:-1}"
+# .opencode#2456 SC-9 (plan-03 Item 9): undetermined-cycle ceiling default.
+UNDETERMINED_CYCLE_CEILING="${UNDETERMINED_CYCLE_CEILING:-3}"
 
 # Discover project root by walking up from helpers location
 BEHAVIOR_HELPERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -843,6 +845,95 @@ determination_record:
   false_signal_annotations: []
   orchestrator_decisions: []
 DET.EOF
+}
+
+# .opencode#2456 SC-9 (plan-03 Item 9): undetermined-cycle ceiling — state
+# resolution. The cycle-counter state file is persisted ON DISK (survives
+# process exit) so the count carries across invocations. Resolution rules:
+#   synthetic fixtures (determination.yaml scenario_name ending in
+#   "-synthetic"): the state file lives in the scenario's evidence root —
+#   the parent directory two levels above the synthetic fixture dir, named
+#   by the stripped scenario name (e.g.
+#   tmp/2456/artifacts/<scenario>/undetermined-cycle-count).
+#   real monitored runs: a fixed harness state file under tmp/ (never inside
+#   the repo source tree, never touching production state).
+__undetermined_cycle_state_file() {
+    local artifact_dir="$1"
+    local det="$artifact_dir/determination.yaml"
+    if [ ! -f "$det" ]; then
+        det=$(ls "$artifact_dir"/*/determination.yaml 2>/dev/null | head -1 || true)
+    fi
+    local scenario_name=""
+    if [ -n "$det" ] && [ -f "$det" ]; then
+        scenario_name=$(sed -n 's/^  scenario_name: //p' "$det" 2>/dev/null | head -1 || true)
+    fi
+    if [ -n "$scenario_name" ] && [[ "$scenario_name" == *-synthetic ]]; then
+        echo "$(dirname "$artifact_dir")/../${scenario_name%-synthetic}/undetermined-cycle-count"
+    else
+        echo "$PARENT_REPO_DIR/tmp/.undetermined-cycle-count"
+    fi
+}
+
+# .opencode#2456 SC-9: undetermined-cycle counter. Increments the persisted
+# counter ONLY when the determination record at <artifact_dir> carries
+# classification: undetermined — non-undetermined determinations permit
+# continuation and never touch the counter. The increment runs under the
+# EXISTING flock discipline (tmp/.behavior-run.lock, flocked exclusive in a
+# subshell so the fd is released on exit) — no new locking scheme.
+__count_undetermined_cycle() {
+    local artifact_dir="$1"
+    local det="$artifact_dir/determination.yaml"
+    if [ ! -f "$det" ]; then
+        det=$(ls "$artifact_dir"/*/determination.yaml 2>/dev/null | head -1 || true)
+    fi
+    if [ -z "$det" ] || [ ! -f "$det" ]; then
+        echo "HARNESS_FAILURE: __count_undetermined_cycle no determination record found under $artifact_dir (SC-9 counter requires a determination record)" >&2
+        return 1
+    fi
+    if ! grep -q '^  classification: undetermined$' "$det"; then
+        return 0
+    fi
+    local state_file
+    state_file=$(__undetermined_cycle_state_file "$artifact_dir")
+    mkdir -p "$(dirname "$state_file")"
+    (
+        flock -x -w 30 9 || {
+            echo "HARNESS_FAILURE: lock contention acquiring $PARENT_REPO_DIR/tmp/.behavior-run.lock for the undetermined-cycle counter (waited 30s)" >&2
+            return 1
+        }
+        SC9_CUR=$(cat "$state_file" 2>/dev/null || echo 0)
+        case "$SC9_CUR" in ''|*[!0-9]*) SC9_CUR=0 ;; esac
+        echo $((SC9_CUR + 1)) > "$state_file"
+    ) 9>>"$PARENT_REPO_DIR/tmp/.behavior-run.lock"
+    return $?
+}
+
+# .opencode#2456 SC-9: undetermined-ceiling gate. Returns 0 (continuation
+# permitted) while the persisted counter is below the ceiling (default 3,
+# UNDETERMINED_CYCLE_CEILING). At/above the ceiling emits a CEILING_REACHED
+# mechanical block on stderr (FATAL: ... CEILING_REACHED ... stderr
+# convention) and returns non-zero — undetermined retries are blocked. The
+# block PERSISTS: the counter/state file survives on disk and the gate
+# re-fires on every subsequent invocation until cleared by an explicit
+# developer-remediation marker (<state_file>.developer-cleared — its
+# presence authorizes the clearance, resets the counter, and permits
+# continuation again).
+__undetermined_ceiling_check() {
+    local artifact_dir="$1"
+    local state_file
+    state_file=$(__undetermined_cycle_state_file "$artifact_dir")
+    if [ -f "${state_file}.developer-cleared" ]; then
+        echo 0 > "$state_file"
+        return 0
+    fi
+    local count
+    count=$(cat "$state_file" 2>/dev/null || echo 0)
+    case "$count" in ''|*[!0-9]*) count=0 ;; esac
+    if [ "$count" -ge "$UNDETERMINED_CYCLE_CEILING" ]; then
+        echo "FATAL: CEILING_REACHED mechanical block — persisted undetermined-cycle counter at ${count} of ceiling ${UNDETERMINED_CYCLE_CEILING} (state file ${state_file}); undetermined retries are blocked. The block persists until developer-level remediation (create ${state_file}.developer-cleared to authorize the clearance, or remove the state file manually)." >&2
+        return 1
+    fi
+    return 0
 }
 
 # .opencode#2456 SC-7: orchestrator decision-record write path. Validates the
@@ -1826,6 +1917,16 @@ MANIFESTEOF
         __write_determination_record "$artifact_dir" \
             "$BEHAVIOR_LOG_DIR/$scenario_name/monitor-attempt${attempt}.log" \
             "$model" "$exit_code" "$scenario_name" "$attempt"
+        # .opencode#2456 SC-9: undetermined-cycle counter — increments only
+        # on undetermined determinations (self-checked); the ceiling gate
+        # produces the persistent CEILING_REACHED mechanical block. The gate
+        # is checked BEFORE the next retry dispatch: with the budget spent,
+        # no further undetermined retry is attempted. The block/state file
+        # persists until developer-level remediation.
+        __count_undetermined_cycle "$artifact_dir" || true
+        __undetermined_ceiling_check "$artifact_dir" || {
+            return 1
+        }
         # .opencode#2456 SC-7: orchestrator decision-record write path. After
         # the halt-class notification (SC-6) the orchestrator decision point
         # occurred; the entry mechanism records the decision the run's
