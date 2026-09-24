@@ -103,7 +103,8 @@ fi
 
 # The cadence assertion needs at least 2 consecutive POLL records on ONE
 # monitored run — a single-poll run has no gap to assert.
-poll_count=$(grep -c '^POLL [0-9]' "$monitor_log" 2>/dev/null || echo 0)
+poll_count=$(grep -c '^POLL [0-9]' "$monitor_log" 2>/dev/null || true)
+poll_count="${poll_count:-0}"
 if [ "${poll_count:-0}" -lt 2 ]; then
     echo "PRECONDITION-FAIL: only ${poll_count} POLL record(s) in $monitor_log — fewer than 2 consecutive polls, so no consecutive-poll gap exists and the SC-15 cadence assertion surface is absent; not a RED verdict" >&2
     exit 2
@@ -116,7 +117,8 @@ fi
 # no ts= field — so the cadence bound (≤300s) is neither measured nor
 # detectable: a run could silently exceed 300s between polls with zero
 # detection.
-ts_count=$(grep -c '^POLL [0-9].*\bts=[0-9]' "$monitor_log" 2>/dev/null || echo 0)
+ts_count=$(grep -c '^POLL [0-9].*\bts=[0-9]' "$monitor_log" 2>/dev/null || true)
+ts_count="${ts_count:-0}"
 
 # ── SC-15 assertion layer 2: the cadence holds (measured) ────────────────
 # When ts= stamps exist, measure the maximum gap between consecutive POLL
