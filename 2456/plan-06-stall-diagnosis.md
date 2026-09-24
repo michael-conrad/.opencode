@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -105,7 +105,13 @@
 - [ ] 156. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: termination within one poll cycle of the decided verdict. **→ SC-24**
 - [ ] 157. **commit-inline (**direct**).** Commit the early-termination scenario. **→ SC-24**
 - [ ] 158. **VbC (**task-card**).** Verify SC-13..SC-24 verdicts are PASS with matching evidence types. **→ SC-13..SC-24**
-- [ ] 159. **VbC consolidation (**direct**).** Consolidate the twelve verdicts into the phase evidence table.
-- [ ] 160. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all twelve SCs) before post-implementation entry.
+- [ ] 161. **RED — cleanup target selection (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — cleanup fixture uses a broad grep-kill matching "opencode run" (targets include the own tree); target-selection assertion fails. **→ SC-25**
+- [ ] 162. **GREEN — cleanup target selection (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — cleanup selects by scenario-specific markers (scenario name, test-home path) with own-PID/parent-PID exclusion; own-session-alive verified after cleanup. **→ SC-25**
+- [ ] 163. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
+- [ ] 164. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: kill-target selection excludes the own process tree. **→ SC-25**
+- [ ] 165. **commit-inline (**direct**).** Commit the cleanup-selection scenario. **→ SC-25**
+- [ ] 166. **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
+- [ ] 167. **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
+- [ ] 168. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.

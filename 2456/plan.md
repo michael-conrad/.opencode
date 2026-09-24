@@ -57,8 +57,8 @@ dispatch:
 | 3 | Resume gate + undetermined-cycle ceiling | Mechanical gate + counter in `with-test-home` | SC-8, SC-9 | 1 | 54-68 | direct (54-55) + task-card (56-67) + direct (68) |
 | 4 | False-signal folding + enforcement scenario | False-signal-and-enforcement (concern-map) | SC-10, SC-11 | 3 | 69-83 | direct (69-70) + task-card (71-82) + direct (83) |
 | 5 | Doc alignment | Docs-alignment (concern-map) | SC-12 | 4 | 84-91 | direct (84-85) + task-card (86-90) + direct (91) |
-| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13), mechanical commit+push before isolated runs (SC-16), supervisor polling mandate enforcement (SC-17), mandate mirrored into AGENTS.md §14 (SC-18), async launch with attached supervision loop (SC-19), efficiency-defect marker at every poll (SC-20), defect marker = hard gate with orchestrator research/remediation/resumption (SC-21), classification freshness bound (SC-22), fresh-session isolation (SC-23), early termination on decided verdict (SC-24) | SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24 | 4 | 92-160 | direct (92-93) + task-card (94-159) + direct (160) |
-| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 161-168 | mixed — see post-implementation section |
+| 6 | Semantic poll discipline + stall diagnosis | Full semantic check on every poll (SC-14), poll cadence ≤ 5 min (SC-15), diagnosis-before-retry on semantically classified non-progressing runs (SC-13), mechanical commit+push before isolated runs (SC-16), supervisor polling mandate enforcement (SC-17), mandate mirrored into AGENTS.md §14 (SC-18), async launch with attached supervision loop (SC-19), efficiency-defect marker at every poll (SC-20), defect marker = hard gate with orchestrator research/remediation/resumption (SC-21), classification freshness bound (SC-22), fresh-session isolation (SC-23), early termination on decided verdict (SC-24), self-kill prevention in process cleanup (SC-25) | SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25 | 4 | 92-168 | direct (92-93) + task-card (94-167) + direct (168) |
+| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 169-176 | mixed — see post-implementation section |
 
 ## Exit Criteria
 
@@ -86,6 +86,7 @@ dispatch:
 - [ ] C22. Abort suppression valid only within the classification freshness window; stale verdicts never suppress aborts (SC-22)
 - [ ] C23. Each monitored run starts from a fresh test home + fresh session; reuse prohibited (SC-23)
 - [ ] C24. Decided verdict ⇒ terminate run + monitor within one poll cycle; wait-for-exit prohibited (SC-24)
+- [ ] C25. Cleanup kill-targets select by scenario markers with own-PID/parent-PID exclusion; broad "opencode run" patterns prohibited (SC-25)
 
 ## Pre-Implementation
 
@@ -103,9 +104,9 @@ Every phase item below enumerates the full per-task cycle from the implementatio
 - [ ] 138. **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11..SC-20**
 - [ ] 139. **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
 - [ ] 140. **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
-- [ ] 161. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
-- [ ] 162. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
-- [ ] 163. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
+- [ ] 169. **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
+- [ ] 170. **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
+- [ ] 171. **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
 
 ## Self-Remediation Protocol
 
@@ -129,6 +130,11 @@ Check your tool list for a tool named `task`.
 
 ## lifecycle_events
 
+- timestamp: 2026-09-23T20:00:00Z
+  event: plan_revised
+  plan_path: .opencode/.issues/2456/plan.md
+  phase_count: 6
+  note: Developer directive 2026-09-23 — SC-25/R-24/Item 25 added (self-kill prevention: cleanup kill-targets select by scenario-specific markers, own-PID/parent-PID excluded; broad "opencode run" grep-kill prohibited — live self-kill evidence). Phase 6 now SC-13..25 (steps 92-168); post-implementation renumbered 169-176.
 - timestamp: 2026-09-23T09:15:00Z
   event: plan_revised
   plan_path: .opencode/.issues/2456/plan.md
