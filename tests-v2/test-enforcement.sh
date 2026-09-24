@@ -105,6 +105,7 @@ SCENARIOS["2451-sc7-rule-text-placement"]="__STANDALONE__"
 # with-test-home resume gate — re-dispatch/re-run without a recorded
 # non-undetermined determination must be blocked.
 SCENARIOS["2456-sc11-redetermination-gate-enforcement"]="__STANDALONE__"
+SCENARIOS["2456-sc13-diagnosis-before-retry-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
