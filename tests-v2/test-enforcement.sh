@@ -110,6 +110,11 @@ SCENARIOS["2456-sc13-diagnosis-before-retry-red"]="__STANDALONE__"
 # per-poll full semantic check — every classification is derived from the
 # run's message/reasoning/tool-call parts; activity counters are inadmissible.
 SCENARIOS["2456-sc14-full-semantic-check-per-poll-red"]="__STANDALONE__"
+# .opencode#2456 SC-15: standalone behavioral enforcement scenario for the
+# poll-cadence floor — no gap between consecutive poll-log POLL records
+# exceeds 300 seconds; the cadence is enforced by construction via the
+# recorded per-poll timestamps.
+SCENARIOS["2456-sc15-poll-cadence-floor-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
