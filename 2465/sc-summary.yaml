@@ -1,0 +1,47 @@
+issue: ".opencode#2465"
+sc_count: 11
+scs:
+  - id: "SC-1"
+    description: "git-workflow-branch carries a canonical freshness-gate task card (read-only mode of trunk-tip-verification): verifies parent repo + .gitmodules-enumerated submodules against remote trunk tip (fetch + rev compare), zero pending changes, clean submodule trees — fail-open on unreachable network, no mutations performed by the gate itself"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "submodule-sync.md (+ git-workflow-branch/SKILL.md routing) defines the sync action: on trunk ff-only pull; on feature branch rebase onto origin/$DEFAULT_BRANCH + submodule sync; conflict halts to developer; sync never commits parent pointers"
+    evidence_type: "behavioral"
+    plan_item: 2
+  - id: "SC-3"
+    description: "brainstorming/tasks/explore/pre-spec-inspection.md carries a freshness entry criterion dispatching the canonical gate read-only mode before file reads"
+    evidence_type: "behavioral"
+    plan_item: 3
+  - id: "SC-4"
+    description: "spec-creation/SKILL.md (+ analyze task) carries a freshness entry criterion for the analyze step"
+    evidence_type: "behavioral"
+    plan_item: 4
+  - id: "SC-5"
+    description: "writing-plans/SKILL.md (+ create task) carries a freshness entry criterion for plan creation"
+    evidence_type: "behavioral"
+    plan_item: 5
+  - id: "SC-6"
+    description: "executing-plans/SKILL.md carries a freshness entry criterion on plan read AND a mid-plan currency check (resume after idle re-verifies before continuing)"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "research/SKILL.md carries a freshness entry criterion before investigation reads"
+    evidence_type: "behavioral"
+    plan_item: 7
+  - id: "SC-8"
+    description: "issue-review/SKILL.md carries a freshness entry criterion before issue-review reads"
+    evidence_type: "behavioral"
+    plan_item: 8
+  - id: "SC-9"
+    description: "000-critical-rules.md extends the non-trunk-tip rule (currently write-side only) to read-side phases with bright-line trigger list; step-count language reconciled with the canonical card"
+    evidence_type: "behavioral"
+    plan_item: 9
+  - id: "SC-10"
+    description: "010-approval-gate.md classifies sync (pull/rebase/trunk submodule sync) as authorization-free hygiene with explicit no-deliberation framing"
+    evidence_type: "behavioral"
+    plan_item: 10
+  - id: "SC-11"
+    description: ".opencode/AGENTS.md replaces the advisory 'periodically' mid-feature wording with a bright-line trigger list (session resume, feature-branch rebase, PR creation)"
+    evidence_type: "behavioral"
+    plan_item: 11
