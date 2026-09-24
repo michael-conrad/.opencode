@@ -7,7 +7,7 @@
 - `.opencode/tests-v2/behaviors/<stall-fixture-scenario>.sh` (new fixture scenario)
 - `.opencode/tests-v2/AGENTS.md` (§14 alignment for the poll-discipline predicates — minimal delta)
 
-**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25
+**SCs:** SC-13, SC-14, SC-15, SC-16, SC-17, SC-18, SC-19, SC-20, SC-21, SC-22, SC-23, SC-24, SC-25, SC-26
 
 **Dependencies:** Phase 4 (uses the SC-8 resume gate and the SC-3 determination-record schema; Phase 4 transitively depends on Phase 3)
 
@@ -107,7 +107,14 @@
 - [ ] 156 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
 - [ ] 157 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-25**
 - [ ] 158 **commit-inline (**direct**).** Commit the slice. **→ SC-25**
-- [ ] 159 **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
+- [ ] 159 **RED — hang bound (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — hung-stream fixture (no events/output across the bounded window, no provider-error on record); the supervisor lets it proceed — clear-FAIL assertion fails. **→ SC-26**
+- [ ] 160 **GREEN — hang bound (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — at the bound the supervisor records FAILED(stall) with root-cause provider-stream-hung and terminates run + monitor within one poll cycle. **→ SC-26**
+- [ ] 161 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-26**
+- [ ] 162 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: bound exceeded ⇒ FAILED verdict + termination; no wait-on-hang. **→ SC-26**
+- [ ] 163 **commit-inline (**direct**).** Commit the hang-bound scenario. **→ SC-26**
+- [ ] 164 **VbC (**task-card**).** Verify SC-13..SC-26 verdicts are PASS with matching evidence types. **→ SC-13..SC-26**
+- [ ] 165 **VbC consolidation (**direct**).** Consolidate the fourteen verdicts into the phase evidence table.
+- [ ] 166 **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all fourteen SCs) before post-implementation entry.
 - [ ] 160 **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
 - [ ] 161 **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
 
