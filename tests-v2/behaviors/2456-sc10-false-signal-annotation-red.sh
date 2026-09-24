@@ -231,6 +231,34 @@ fi
 PHASE="${BEHAVIOR_PHASE:-RED}"
 
 if [ "$PHASE" = "GREEN" ]; then
+    # SC-10 evaluation wiring (Item 10 GREEN): the reproduced wrong abort —
+    # the precondition gates above determined the identical-input signal
+    # fired against the healthy injected heartbeat run (the #2454
+    # duplicate-event over-count false-positive class) — is now MARKED WRONG
+    # by this evaluation phase and folded into the determination record as a
+    # false_signal annotation via the SC-10 appender
+    # (`__fold_false_signal <evidence-dir> <annotation>`), under the R-8
+    # append-only semantics (recorded fields never rewritten). The fold
+    # fires ONLY on this identified wrong abort — never blanket: if any
+    # precondition gate above failed (exit 2), the fold is never reached.
+    ANNOTATION="- abort_reason: identical_tool_input
+  wrong_abort_determination: monitor false positive — the identical-input signal fired against a HEALTHY heartbeat run; the duplicate tool parts came from the #2454 duplicate-event injection fixture, not from the agent looping
+  trigger: ABORT: signal 1 (identical tool input) after the injected duplicate-event over-count
+  evidence:
+    monitor_log: ${artifact_dir}/monitor.log
+    injection_mark: ${INJECTION_MARK}
+    determination_record: ${det}
+  folded_by: __fold_false_signal"
+    if ! __fold_false_signal "$artifact_dir" "$ANNOTATION"; then
+        echo "GREEN ABORT — FOLD_FAILURE: __fold_false_signal could not append the annotation to $det (harness failure, .opencode#2456 SC-10)" >&2
+        exit 2
+    fi
+    annotated=0
+    if grep -q '^  false_signal_annotations: \[\( *\)\]$' "$det"; then
+        annotated=0
+    elif grep -q 'false_signal_annotations' "$det" && ! grep -q '^  false_signal_annotations: \[\]$' "$det"; then
+        annotated=1
+    fi
     if [ "$annotated" = "1" ]; then
         echo "GREEN: the wrong abort was annotated — false_signal_annotations carries an appended annotation naming the over-count wrong abort (record: $det)" >&2
         exit 0

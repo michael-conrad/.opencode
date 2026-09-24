@@ -854,6 +854,68 @@ determination_record:
 DET.EOF
 }
 
+# .opencode#2456 SC-10: false_signal appender. Appends ONE caller-provided
+# annotation entry (a YAML list item, first line beginning with "- ") to the
+# determination record's false_signal_annotations list under the R-8
+# append-only semantics: recorded fields are NEVER rewritten — the
+# declared-empty seed ("[]") is replaced only by the act of appending the
+# first item; subsequent items are appended in place after the existing
+# list block (never after later keys, never by rewriting). Annotations
+# appear ONLY when an evaluation path has identified a wrong abort (never
+# blanket). Invoked by the scenario's/evaluation phase at
+# `__fold_false_signal <evidence-dir> <annotation>`.
+__fold_false_signal() {
+    local artifact_dir="$1"
+    local annotation="$2"
+    local det="$artifact_dir/determination.yaml"
+    if [ ! -f "$det" ]; then
+        det=$(ls "$artifact_dir"/*/determination.yaml 2>/dev/null | head -1 || true)
+    fi
+    if [ -z "$det" ] || [ ! -f "$det" ]; then
+        echo "HARNESS_FAILURE: __fold_false_signal no determination record found under $artifact_dir (SC-10 fold requires a determination record)" >&2
+        return 1
+    fi
+    if [ -z "$annotation" ]; then
+        echo "HARNESS_FAILURE: __fold_false_signal called with an EMPTY annotation (SC-10 folds only identified wrong aborts — no blanket/empty folds)" >&2
+        return 1
+    fi
+    local tmpf
+    tmpf="$det.fold.$$"
+    FOLD_ANNOTATION="$annotation" awk '
+        BEGIN { ann = ENVIRON["FOLD_ANNOTATION"] }
+        function flush_ann(    n, i, A) {
+            n = split(ann, A, "\n")
+            for (i = 1; i <= n; i++) print "    " A[i]
+        }
+        { lines[NR] = $0 }
+        END {
+            emitted = 0
+            for (r = 1; r <= NR; r++) {
+                line = lines[r]
+                if (!emitted && line == "  false_signal_annotations: []") {
+                    print "  false_signal_annotations:"
+                    flush_ann()
+                    emitted = 1
+                    continue
+                }
+                print line
+                if (!emitted && line == "  false_signal_annotations:") {
+                    r++
+                    while (r <= NR && lines[r] ~ /^    /) { print lines[r]; r++ }
+                    flush_ann()
+                    emitted = 1
+                    r--
+                }
+            }
+            if (!emitted) {
+                printf "HARNESS_FAILURE: no false_signal_annotations field in %s (SC-10 appender requires the determination-record schema)\n", FILENAME > "/dev/stderr"
+                exit 1
+            }
+        }
+    ' "$det" > "$tmpf" && mv "$tmpf" "$det"
+    return $?
+}
+
 # .opencode#2456 SC-9 (plan-03 Item 9): undetermined-cycle ceiling — state
 # resolution. The cycle-counter state file is persisted ON DISK (survives
 # process exit) so the count carries across invocations. Resolution rules:
