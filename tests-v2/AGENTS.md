@@ -715,6 +715,12 @@ bash .opencode/tests-v2/with-test-home --resume-home <prior-test-home> opencode 
 
 Guards: a missing/unreachable prior test home fails fast naming the home; a missing session store fails fast naming the store path; a corrupted/unreadable session store reports `FATAL:` naming the store path (R-5 analog). Fresh invocations (no `--resume-home`) are unchanged — a new test home per invocation. The flock/locking discipline in `behavior_run()` is unaffected (a resumed run passes through the same single-flock path).
 
+**Implemented predicate mirror (SC-12):** the §10.7 resume path is guarded by the implemented predicates:
+
+- `__undetermined_ceiling_check` — the SC-9 undetermined-ceiling gate: continuation permitted while the persisted undetermined-cycle counter is below `UNDETERMINED_CYCLE_CEILING` (default 3); at/above the ceiling it emits a `FATAL: ... CEILING_REACHED` mechanical block on stderr and blocks undetermined retries. The block PERSISTS: the state file survives on disk, the gate re-fires on every subsequent invocation, and clearance requires an explicit developer-remediation marker (`<state_file>.developer-cleared`).
+- `__record_orchestrator_decision` — the SC-7 orchestrator decision-record write path: appends a decision entry to the existing `determination.yaml` record (never creates it); validates the value-set `{continue-new-dispatch, terminate-with-root-cause}` and requires `--root-cause` for `terminate-with-root-cause`; fails (non-zero, `HARNESS_FAILURE`) on value-set violation, missing root cause, or missing determination record — never silently no-ops.
+- `__sc8_determination_gate` — the SC-8 determination gate in `with-test-home` (INTERNAL precondition at resume/re-run time): scans the evidence tree for a determination record for the resume target and FAILS FAST (no inference dispatched) with a `FATAL:`-class message naming the missing determination when no non-undetermined determination exists — a record carrying an undetermined classification with no valid recorded decision (`continue-new-dispatch`, or `terminate-with-root-cause` with root cause) is also blocked; a run carrying a valid recorded decision is permitted to resume.
+
 ## 11. Prompt Construction Mandate
 
 Behavioral test prompts MUST trigger natural agent behavior — they MUST NOT interview the agent about what it *would* do.
@@ -926,6 +932,15 @@ Anchor target for the §10.7 cross-reference — same content as the "Cross-Invo
 
 Any behavioral SC verdict whose evidence comes from a monitored run MUST record the monitoring evidence (poll log or semantic diagnosis) alongside session.yaml in the scenario's evidence directory. A session.yaml alone does not prove the poll protocol executed — the poll log is the artifact that shows per-poll event-stream reads and judgments. Verdicts from unmonitored runs that burned a full timeout on an off-track state are a monitoring-mandate violation, not a valid verification path.
 
+**Implemented predicate mirror (SC-12):** the monitoring loop's implemented predicates and their monitor.log evidence:
+
+- monitor.log poll evidence — the per-attempt poll log persisted as `monitor.log` (SC-1); each poll appends `POLL`/`CLASSIFY`/`NOTIFY` records, and the determination record references monitor.log in its poll_evidence block.
+- classifier dispatch — the SC-2 classification sub-agent (`__classify_run_state`) runs the classification in the classifier's OWN context and session DB (`classifier-session-attempt${attempt}.yaml`), bounded by `BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS`/`BEHAVIOR_MONITOR_CLASSIFY_MAX` (default 3), producing a taxonomy value (progressing-directionally | off-track | undetermined) or a dispatch failure.
+- verifiable goal condition — the direction anchor: classification is judged ONLY against the scenario-declared `goal_condition` object (goal artifact + required content pattern + declared goal actions + per-poll artifact status) folded into the classifier digest — never against the monitored run's prompt prose or activity counters.
+- determination.yaml record — `__write_determination_record` (SC-3) writes the durable determination record for EVERY monitored run (natural completion AND abort path), carrying final classification, poll-evidence references (monitor.log path + polls executed + classifier session), and run provenance (model, exit code, run_path, schema_version) under append-only (R-8) semantics.
+- off-track notify — `__notify_offtrack` (SC-4, R-2): emits `ORCHESTRATOR_DECISION_REQUIRED: off-track` on stderr (off-track runs never continue silently) AND records a `NOTIFY[poll N]` line in monitor.log.
+- halt-class halt+notify — `__notify_haltclass` (SC-6, R-3): when the classification dispatch returns a halt-class trigger state (undetermined / excessive-without-classification / direction-deviation), the monitor performs the halt-class halt+notify — emits `ORCHESTRATOR_DECISION_REQUIRED: halt-class` on stderr with the failure-mode annotation, records the NOTIFY line, and halts monitoring before any further dispatch, leaving the run state for the SC-7 orchestrator decision record.
+
 ---
 
 ## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
@@ -967,6 +982,13 @@ The stacked-PR ordering-gate behavioral tests (e.g., `2431-sc*.sh` in `behaviors
 **Excessive run time in a behavioral run is a PRIMARY defect signal, not a nuisance to be tolerated.** Excessive run time means: repeated bash-tool timeouts, semantic-monitor aborts (§14 hard-abort signals), large single-turn reasoning blocks, or inference-budget exhaustion. A run that exhibits any of these is usually slow because something is wrong — bad instructions, a skill-deck defect, or another harness problem — not because the model is merely "slow."
 
 **AUTHORITY:** Spec `.opencode/.issues/2432/spec.md` R-18 (extension of the SC-12 deliberation-review directive R-17).
+
+**Implemented predicate mirror (SC-12):** the cause-analysis mandate is exercised by the implemented predicates:
+
+- __fold_false_signal — the SC-10 monitor false-signal annotation appender: appends ONE caller-provided annotation to the `determination.yaml` record's `false_signal_annotations` list under append-only semantics (recorded fields are NEVER rewritten); annotations appear ONLY when an evaluation path identified a wrong abort — an empty/blanket annotation fails (non-zero, `HARNESS_FAILURE`), and missing determination record fails.
+- dispatch-failure decoupling — `__interpret_classify_dispatch` (R-13 amendment, pure decision function): a classification dispatch that returns a parsed taxonomy value is a CLASSIFICATION; a dispatch that returns none is a DISPATCH FAILURE — never a classification of its own (no halt-class trigger, no undetermined-ceiling increment), the consecutive-failure counter increments, and checkpoint policy retries on a later qualifying poll.
+- dispatch-failure ceiling (`BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING`, default 3) — 3 consecutive unparseable dispatches trip the harness-failure flag: `MONITOR-HALTED ... halt_reason=dispatch_failure_ceiling` (HARNESS_FAILURE infra halt, checked BEFORE the halt-class exit); the run process is left running for the orchestrator.
+- efficiency-defect marker — excessive run time (repeated bash-tool timeouts, §14 monitor aborts, large single-turn reasoning blocks, budget exhaustion) is classified as a PRIMARY efficiency defect signal requiring the R-18 cause analysis above, never written off as model-speed.
 
 ### The Mandate
 
