@@ -1,0 +1,43 @@
+# Solve output — issue #2315
+# Z3 + planner verification results from research task (2026-09-24)
+
+# Command substitution notes (task-card vs CLI drift, recorded for audit):
+# - research.md step 10 says `--query sat`; the solver rejects a bare 'sat'
+#   expression ("cannot evaluate expression 'sat': name 'sat' is not defined").
+#   The goal-conjunction query z3.And(phase_1, phase_2) was used instead,
+#   matching precedent (issue #2264) — the intent (full goal state SAT) is
+#   unchanged.
+# - research.md step 12 says `plan plan --contract-path ... --output ...`;
+#   the actual CLI is `plan plan --problem <problem.yaml>` (see
+#   skills/plan/tasks/plan.md Step 2). A problem.yaml was derived from the
+#   dependency-contract DAG and saved to artifacts/problem.yaml; stdout YAML
+#   was captured to artifacts/plan-output.yaml per skills/plan/tasks/plan.md
+#   Step 4.
+
+solve_model:
+  command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2315/dependency-contract.yaml --query z3.And(phase_1, phase_2)"
+  status: SAT
+  assignment:
+    phase_1: true
+    phase_2: true
+  interpretation: "Goal state (both phases complete) is satisfiable under the contract precondition z3.Implies(phase_2, phase_1). Two phases, single forward edge — SAT."
+
+solve_check:
+  command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2315/dependency-contract.yaml --state-path .opencode/.issues/2315/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+    phase_2: false
+  interpretation: "Initial state analysis (both phases false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "./.opencode/tools/plan plan --problem .opencode/.issues/2315/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  plan_length: 2
+  plan:
+    - run_p1
+    - run_p2
+  interpretation: "Planner produced a 2-step sequential plan run_p1 -> run_p2, enforcing the contract DAG edge phase_1 -> phase_2: configuration/registration first (SC-1..SC-5, SC-7), then documentation + deck purge (SC-6, SC-8, SC-9)."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING

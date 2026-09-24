@@ -1,0 +1,52 @@
+# testability-assessment.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+source: "Spec §4 Success Criteria table Evidence Type column + §4 evidence-type statement + §11 Cost Frame"
+sc_evidence_types:
+  SC-1:
+    evidence_type: behavioral
+    verification_method: "Launch opencode; confirm the ragsync service spawns and lists its tools; confirm the opencode.jsonc mcp block contains the ragsync entry, parses as valid JSONC, and lists the service as enabled"
+    uplift_note: "Behaviorally uplifted per the 2026-09-02 corpus-scope revision (runtime service spawn + tool listing)"
+  SC-2:
+    evidence_type: behavioral
+    verification_method: "Run a network-monitored retrieval query through the fastembed local path; confirm no external embedding API call is made; confirm the config references fastembed and a pinned default local model"
+    uplift_note: "Behaviorally uplifted 2026-09-02 (network-monitored retrieval)"
+  SC-3:
+    evidence_type: behavioral
+    verification_method: "Run a cross-source search asserting no retrieval leakage between corpus namespaces; confirm the config declares one section per §3.1 source with isolated index namespaces"
+    uplift_note: "Behaviorally uplifted 2026-09-02 (cross-source leakage search)"
+  SC-4:
+    evidence_type: structural
+    verification_method: "Review checklist exists in the .opencode tree and contains the topic-presence criteria: one config section per §3.1 source, isolated index namespaces, empty-source handling"
+    uplift_note: "Text-state criterion; topic-presence criteria made explicit by the 2026-09-02 §3.1 revision"
+  SC-5:
+    evidence_type: behavioral
+    verification_method: "Modify a source file, observe index freshness without manual re-indexing, and confirm the config enables auto-sync for each declared source"
+    uplift_note: "Behaviorally uplifted 2026-09-02 (index-freshness observation)"
+  SC-6:
+    evidence_type: structural
+    verification_method: "Documentation file exists in the .opencode tree and contains the topic-presence criteria: service configuration, per-source layout per §3.1, usage, offline/cache path, validation"
+    uplift_note: "Text-state criterion; topic-presence criteria made explicit 2026-09-02"
+  SC-7:
+    evidence_type: behavioral
+    verification_method: "Enumerate indexed sources at runtime; assert main-repo and registered-submodule coverage with non-registered sub-repos (the .issues/ orphan-branch worktrees) excluded absent a carveout"
+    uplift_note: "Behavioral from birth (2026-09-02 CON-8 revision): runtime indexed-source enumeration"
+  SC-8:
+    evidence_type: structural
+    verification_method: "Run the §3.2 deck sweep (rg -i 'srclight' .opencode/ --hidden --no-ignore with §3.2 exclusions) and assert zero matches; spot-check genericized sites for capability-only wording (no product name)"
+    uplift_note: "Deliberate text-state criterion — the sweep IS the verification; no behavioral claim is attached to SC-8 itself"
+  SC-9:
+    evidence_type: behavioral
+    verification_method: "Isolated opencode run on a code-verification task (signature/blast-radius lookup) shows the agent selecting available tooling or the built-in read/grep fallback, with zero srclight_* tool-call attempts in the session evidence"
+    uplift_note: "Runtime-behavioral per the spec §4 deliberate evidence-type statement — the SC-8 sweep alone would be EVIDENCE_TYPE_MISMATCH for this behavior claim"
+evidence_type_distribution:
+  behavioral: 6
+  structural: 3
+  total_scs: 9
+behavioral_item_ordering:
+  - "SC-9 is the behavioral variant item (spec Item 9): Item 8's COMMIT and PUSH to the remote branch precede the behavioral run; a fresh git fetch verifies the effective commit is contained in a remote ref before the run executes"
+  - "Behavioral evidence = agent actions in session evidence (tool selection, dispatches); prose recall is NOT behavioral evidence"
+runtime_dependency_warnings:
+  - "SC-1/SC-2/SC-3/SC-5/SC-7 verifications require the RAGSync service and fastembed runtime to be operational — external dependencies (jsbroks/ragsync-mcp, fastembed) are Pending per spec §7"
+  - "SC-9 requires an isolated opencode run environment (with-test-home wrapper per repo test discipline)"

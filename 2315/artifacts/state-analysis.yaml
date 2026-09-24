@@ -1,0 +1,60 @@
+# state-analysis.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+state_transitions:
+  - sc: SC-1
+    entity: ".opencode/opencode.jsonc mcp block"
+    from: "no ragsync entry (verified 2026-09-24: mcp block declares only the-notebook-mcp and editor)"
+    to: "ragsync entry present — type: local, stdio transport, enabled: true; JSONC parses"
+    transition_type: config_state
+    failure_mode: "Malformed entry → opencode rejects the config rather than silently loading a broken service (spec §12 Edge Case)"
+  - sc: SC-2
+    entity: "RAGSync embedding configuration + fastembed model cache"
+    from: "no embedding configuration; no local model present"
+    to: "fastembed declared with pinned default local model, no external embedding API dependency; model cached locally on first run (offline/cache path available as fallback)"
+    transition_type: config_state_plus_runtime_state
+    failure_mode: "First-run model download fails → fall back to documented offline/cache path (CON-7)"
+  - sc: SC-3
+    entity: "RAGSync config sources list + index namespaces"
+    from: "no per-source sections declared"
+    to: "exactly one config section per §3.1-designated corpus (opencode-agent-config, .opencode-deck), each with isolated index namespace and per-corpus include/exclude globs"
+    transition_type: config_state
+    failure_mode: "Cross-source isolation misconfigured → retrieval leaks material between corpora (spec §12 Edge Case); resolution: one section per §3.1 source + review checklist (CON-6)"
+  - sc: SC-4
+    entity: ".opencode tree review checklist file"
+    from: "checklist absent"
+    to: "checklist present with the three topic-presence criteria (one config section per §3.1 source; isolated index namespaces; empty-source handling)"
+    transition_type: file_state
+    failure_mode: "None direct — structural topic-presence verified by file read"
+  - sc: SC-5
+    entity: "RAGSync auto-sync setting + index freshness state"
+    from: "auto-sync not configured; index built only by manual re-index"
+    to: "auto-sync enabled per declared source; index updates on source file change without manual re-indexing"
+    transition_type: config_state_plus_runtime_state
+    failure_mode: "Concurrency — source file changes while retrieval is in flight → RAGSync updates the index without corrupting in-flight queries; re-sync is non-destructive (spec §12 Edge Case)"
+  - sc: SC-6
+    entity: ".opencode tree documentation file"
+    from: "no RAGSync documentation in the deck tree"
+    to: "documentation present covering service configuration, per-source layout per §3.1, usage, offline/cache path, and validation step"
+    transition_type: file_state
+    failure_mode: "Documentation drift from landed config if written before config finalization (CON-5) — mitigated by phase_2 sequencing"
+  - sc: SC-7
+    entity: "RAGSync corpus scope declaration + runtime indexed-source set"
+    from: "corpus scope undeclared; a naive file walk would silently index non-registered sub-repos (the .issues/ orphan-branch worktrees)"
+    to: "scope declared as main repo + every registered submodule per .gitmodules; non-registered git sub-repos excluded absent a declared carveout"
+    transition_type: config_state_plus_runtime_state
+    failure_mode: "Submodule list drift → newly registered submodule missing from scope; SC-7 coverage assertions catch drift between .gitmodules and the declared scope (spec §12 Edge Case)"
+  - sc: SC-8
+    entity: ".opencode deck tree text state (srclight references)"
+    from: "162 srclight matches across 46 files (§3.2 enumeration, verified 2026-09-24: 46 files confirmed by sweep re-run)"
+    to: "zero srclight matches within the §3.2 sweep boundary; genericized sites carry capability-only wording with intact fallback rows"
+    transition_type: text_state
+    failure_mode: "Historical evidence artifacts under .opencode/.issues/** retain srclight_* references by design — they are on the sweep exclusion list and MUST NOT be rewritten (CON-10, spec §12 Edge Case)"
+  - sc: SC-9
+    entity: "Agent tool-selection behavior (session evidence state)"
+    from: "agent guidance routes toward srclight_* tools (stale tier tables / task cards)"
+    to: "agent selects available local index tooling or the built-in read/grep fallback; zero srclight_* tool-call attempts in session evidence"
+    transition_type: behavioral_state
+    failure_mode: "Genericized capability has no available tool at runtime → preserved graceful-degradation fallback row applies: proceed with file-path-only evidence, mark affected evidence unverified, do NOT BLOCK (spec §12 Edge Case, CON-10)"
+durable_state_note: "All config_state and file_state transitions are persistent (tracked-tree or co-located config artifacts). Runtime states (spawned service, cached model, fresh index, agent behavior) are re-derived at runtime but bounded by the persistent config state."

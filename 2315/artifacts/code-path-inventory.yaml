@@ -1,0 +1,59 @@
+# code-path-inventory.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+note: "This spec is configuration/documentation/text-purge scoped; code paths are config-declaration and runtime-service paths rather than in-repo source code. No bespoke implementation code paths exist (CON-1 — RAGSync adopted as-is)."
+code_paths:
+  - sc: SC-1
+    path: ".opencode/opencode.jsonc mcp block → opencode runtime MCP loader → spawned `ragsync` stdio server process (uvx jsbroks/ragsync-mcp) → tool listing"
+    touchpoints:
+      - ".opencode/opencode.jsonc (mcp block — add ragsync entry; existing pattern: type: local, stdio command array, enabled: true)"
+      - "opencode runtime service-spawn behavior (launch + list tools)"
+    verification_path: "Launch opencode; confirm ragsync spawns and lists tools; confirm mcp block parses as valid JSONC with the enabled ragsync entry"
+  - sc: SC-2
+    path: "RAGSync config → fastembed embedding runtime → pinned default local model (first-run download → documented offline/cache path)"
+    touchpoints:
+      - "RAGSync config file (embedding section: fastembed, pinned model name)"
+      - "fastembed model cache path (offline mitigation, CON-7)"
+    verification_path: "Network-monitored retrieval query through the fastembed local path; assert no external embedding API call; config references fastembed + pinned model"
+  - sc: SC-3
+    path: "RAGSync config sources list (one section per §3.1 corpus: opencode-agent-config over main repo working tree; .opencode-deck over the .opencode submodule) → per-source isolated vector_store.collection index namespaces → cross-source retrieval query path"
+    touchpoints:
+      - "RAGSync config file (sources list; per-corpus include/exclude globs per §3.1 tables)"
+      - "RAGSync per-source namespace isolation at query time"
+    verification_path: "Cross-source search asserting no retrieval leakage between corpus namespaces; config declares one section per §3.1 source with isolated namespaces"
+  - sc: SC-4
+    path: "Static documentation path — review checklist file in the .opencode tree (no runtime code path)"
+    touchpoints:
+      - ".opencode tree checklist file (topic presence: one config section per §3.1 source, isolated index namespaces, empty-source handling)"
+    verification_path: "File read asserting the three topic-presence criteria"
+  - sc: SC-5
+    path: "RAGSync auto-sync watcher → index update on source file change → fresh index without manual re-indexing"
+    touchpoints:
+      - "RAGSync config file (auto-sync enabled per declared source)"
+      - "RAGSync sync behavior at runtime (non-destructive re-sync; concurrent-retrieval edge case)"
+    verification_path: "Modify a source file; observe index freshness without manual re-indexing; confirm auto-sync enabled per source in config"
+  - sc: SC-6
+    path: "Static documentation path — documentation file in the .opencode skill/guideline tree (no runtime code path)"
+    touchpoints:
+      - ".opencode tree documentation file (topics: service configuration, per-source layout per §3.1, usage, offline/cache path, validation step)"
+    verification_path: "File read asserting the five topic-presence criteria"
+  - sc: SC-7
+    path: ".gitmodules registered submodule list → RAGSync config corpus scope declaration → runtime indexed-source enumeration (main repo + registered submodules; non-registered sub-repos — the .issues/ orphan-branch worktrees at root and under .opencode/ — excluded absent a carveout)"
+    touchpoints:
+      - ".gitmodules (read-only authority: registers exactly .opencode)"
+      - "RAGSync config corpus-scope declaration"
+      - "RAGSync runtime indexed-source enumeration"
+    verification_path: "Enumerate indexed sources at runtime; assert main-repo and registered-submodule coverage with non-registered sub-repos excluded absent a carveout"
+  - sc: SC-8
+    path: "Text-state path across the 46 §3.2-enumerated deck files: guidelines (9), skills/audit tasks (12), skills/brainstorming tasks (4), misc skills task/SKILL files (15), README.md (mcp-block example), tools/session-init (check_srclight() probe + startup message), tools/session-to-timeline (srclight_* normalizers)"
+    touchpoints:
+      - "Each of the 46 files listed in spec §3.2 (GENERICIZE or REMOVE disposition per site)"
+      - "Sweep boundary: .opencode/.git/**, .opencode/.issues/**, node_modules/**, tmp/**, .pytest_cache/**, .ruff_cache/** excluded; reference/** verified zero matches"
+    verification_path: "rg -i 'srclight' .opencode/ --hidden --no-ignore with §3.2 exclusions → zero matches; spot-check genericized sites for capability-only wording and intact fallback rows"
+  - sc: SC-9
+    path: "Agent tool-selection runtime path: agent reads genericized deck text (tier tables, task-card fallback rows) → selects available local index tooling or built-in read/grep fallback → session evidence contains zero srclight_* tool-call attempts"
+    touchpoints:
+      - "Genericized deck text (output of SC-8)"
+      - "opencode run session evidence (isolated run on a signature/blast-radius code-verification task)"
+    verification_path: "Isolated opencode run; inspect session evidence for tool-selection behavior and zero srclight_* attempts (behavioral item — evidence-type uplift per spec §4 statement)"

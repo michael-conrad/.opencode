@@ -1,0 +1,155 @@
+# validate-findings.yaml — structural validation of plan #2315
+# Produced by writing-plans/tasks/validate (2026-09-24, post-remediation re-validation)
+issue: 2315
+validated_at: "2026-09-24T13:34:31Z"
+validation_pass: 2   # re-validation after remediation of F-1/F-2 from pass 1 (2026-09-24T13:24:36Z)
+post_remediation_context: >-
+  Pass 1 returned overall_status FAIL with findings F-1 (plan-01 dispatch vocabulary) and
+  F-2 (stale coherence-gate SC enumeration), both remediated per the plan.md lifecycle event
+  2026-09-24T13:28:11Z. This pass re-executes all 6 categories against the remediated plan
+  and verifies both remediations.
+inputs:
+  solve_output: .opencode/.issues/2315/artifacts/solve-output.yaml   # solve_status: SAT (entry criterion met)
+  plan_index: .opencode/.issues/2315/plan.md
+  phase_files:
+    - .opencode/.issues/2315/plan-01-configuration-registration.md
+    - .opencode/.issues/2315/plan-02-documentation-work.md
+  dependency_contract: .opencode/.issues/2315/dependency-contract.yaml
+  spec: .opencode/.issues/2315/spec.md
+  concern_map: .opencode/.issues/2315/artifacts/concern-map.yaml
+  reference_cards:
+    - .opencode/skills/writing-plans/reference/implementation-workflow.md
+    - .opencode/skills/writing-plans/reference/plan-artifact-format.md
+
+remediation_verification:
+  F-1: >-
+    VERIFIED. plan-01 now uses the canonical two-indicator vocabulary exclusively:
+    12x (**direct**) + 27x (**task-card**), zero retired tokens (inline/sub-agent/clean-room
+    all 0 by rg count) — matching the remediation record's 12x inline→direct and
+    18x sub-agent + 9x clean-room→task-card. plan-02 unchanged and conformant
+    (6x direct + 12x task-card). plan-01 and plan-02 are now mutually consistent.
+  F-2: >-
+    VERIFIED. plan-01 Pre-implementation step 1 (coherence gate) now enumerates
+    "every SC-1..SC-9" with the correct evidence-type mapping (behavioral for
+    SC-1/2/3/5/7/9; structural for SC-4/6/8) — matching spec §4's evidence-type column.
+  observation_fix: >-
+    VERIFIED. plan-01 step 17 (Item 3 GREEN) now names the §3.1-designated corpora
+    (opencode-agent-config, .opencode-deck), matching plan.md's Context block and
+    Phase-1 procedure.
+
+category_1_structural:
+  status: PASS
+  checks:
+    phase_table_required_columns:
+      result: PASS
+      evidence: "plan.md Phase Table header: Phase | Skill | Task | Target | SCs | Depends On — all six columns required by plan-artifact-format §3.3 present"
+    phase_procedure_numbered_steps:
+      result: PASS
+      evidence: "plan.md Phase Details carry **Procedure:** sections with numbered steps (Phase 1: steps 1-8; Phase 2: steps 1-6); phase files carry the executable step lists (see checkbox check in category 6)"
+    exit_criteria_sc_mapping:
+      result: PASS
+      evidence: "plan.md '## Exit Criteria' checklist C1-C9, each criterion naming one SC (SC-1..SC-9); phase SC sets (phase 1: SC-1,2,3,4,5,7; phase 2: SC-6,8,9) partition the criteria"
+  supporting_format_conformance:
+    frontmatter: "plan_schema_version 1.0, issue 2315, title, authorization_scope for_implementation, pr_strategy stacked, phase_count 2 — complete per §3.1"
+    required_index_sections: "all 8 per §3.2 present (Title with issue URL, Goal, Architecture, Files, Phase Table, Phase Details, Exit Criteria, Pre-Flight Guard)"
+    split_file_format: "plan.md + plan-01-configuration-registration.md + plan-02-documentation-work.md per §2 (multi-phase MUST split)"
+    preflight_guard: "plan.md §Pre-Flight Guard matches the canonical §3.5 block verbatim (reason code ORCHESTRATOR_ONLY_PLAN)"
+    phase_file_sections: "both phase files carry the 9 required §4.1 sections (Title, Concern, Files, SCs, Dependencies, Entry Conditions, Exit Conditions, Step-by-step, Phase Completion Block/VbC); step lists are organized under per-item headings rather than a single literal 'Step-by-step' heading — content-conformant (checkbox steps with dispatch indicators fully present)"
+    global_step_numbering: "steps 1-39 (phase 1) then 40-57 (phase 2) — continuous across files per §4.3"
+
+category_2_skill_task_validity:
+  status: PASS
+  checks:
+    phase_table_skill_task_pairs:
+      result: PASS
+      evidence: "both phases declare test-driven-development/red — a valid row in the implementation-workflow reference card RED-GREEN Daisy-Chain table"
+    embedded_dispatch_references:
+      result: PASS
+      evidence: "canonical dispatch strings used in phase files match the reference card verbatim: red/green (test-driven-development), phase-4 (post-regression), verify (verification-before-completion), audit DiMo investigator chain, z3-check and commit-inline as orchestrator-direct entries"
+    referenced_task_files_exist:
+      result: PASS
+      evidence: "on-disk check 2026-09-24: test-driven-development/tasks/{red,green,phase-4}.md, verification-before-completion/tasks/verify.md, audit/tasks/verification-audit-{investigator,validator,evaluator,arbiter}.md all exist"
+  invalid_references: []
+
+category_3_sc_coverage:
+  status: PASS
+  spec_sc_set: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]   # spec.md §4 (9 SCs)
+  phase_coverage:
+    phase_1: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-7]
+    phase_2: [SC-6, SC-8, SC-9]
+  checks:
+    all_scs_covered:
+      result: PASS
+      evidence: "union of phase SC sets equals the spec SC set; no uncovered SC, no extra SC; exit criteria C1-C9 map 1:1"
+    triplet_split_detection:
+      result: PASS
+      evidence: "per-SC RED/GREEN/COMMIT co-located in one phase: Items 1-5,7 in phase 1 (plan-01 steps 3-38); Items 6,8 in phase 2 (plan-02 steps 40-53). SC-9: RED (step 46), GREEN delivered by Item 8 (steps 49/52), verify (step 54) — all phase 2; commit is 'None beyond Item 8's purge commit' per spec Item 9 — no split"
+
+category_4_concern_separation:
+  status: PASS
+  interpretation_note: >-
+    "Each phase addresses exactly one concern" is evaluated as per-concern single-phase
+    assignment: the concern-map artifact itself assigns multiple concerns per phase, so the
+    checkable invariants are (a) each concern maps to exactly one phase, (b) concern sets of
+    the phases are pairwise disjoint, (c) phase concern sets equal the artifact assignment.
+  checks:
+    phase_concern_sets_match_artifact:
+      result: PASS
+      evidence: "phase 1 concerns = {service-registration, embedding-configuration, source-isolation, sync-and-corpus-scope}; phase 2 concerns = {service-documentation, deck-purge} — exactly the concern-map phase_boundaries assignment"
+    no_concern_straddles_phases:
+      result: PASS
+      evidence: "every SC appears in exactly one phase; concerns are SC-partitioned, so no concern is addressed by two phases"
+    no_shared_concern_between_phases:
+      result: PASS
+      evidence: "phase concern sets are disjoint; phase labels ('Configuration and registration work' / 'Documentation and deck-purge work') match the artifact boundary labels"
+
+category_5_dag_validation:
+  status: PASS
+  contract_shape: "variables phase_1, phase_2; precondition z3.Implies(phase_2, phase_1); single edge phase_1 -> phase_2; no invariants/postconditions"
+  checks:
+    acyclic:
+      result: PASS
+      evidence: "single forward edge phase_1→phase_2; no cycle possible"
+    all_phases_reachable_from_start:
+      result: PASS
+      evidence: "phase_1 is the start node (no incoming edge); phase_2 reachable via the single edge"
+    no_orphan_phases:
+      result: PASS
+      evidence: "phase_1 has an outgoing edge; phase_2 has an incoming edge"
+    plan_depends_on_matches_contract:
+      result: PASS
+      evidence: "plan.md phase table: phase 1 Depends On '—', phase 2 Depends On '1' — matches contract edges"
+  corroboration: "solve-output.yaml: solve_model SAT (goal z3.And(phase_1, phase_2)), solve_check SAT (initial state), planner SOLVED_SATISFICING with 2-step plan run_p1 → run_p2"
+
+category_6_holistic_quality:
+  status: PASS
+  checks:
+    no_tbd_todo_placeholders:
+      result: PASS
+      evidence: "rg -in 'TBD|TODO|FIXME' across plan.md, plan-01, plan-02: zero matches (the Phase-1 context token '<pinned default local embedding model>' mirrors the spec's own wording — the model is pinned at implementation time — and contains no placeholder marker token)"
+    checkbox_step_format:
+      result: PASS
+      evidence: "all 57 executable steps across both phase files use '- [ ] N.' checkbox format with explicit dispatch indicators and → SC arrows (39 in plan-01, 18 in plan-02, counted by rg)"
+    dispatch_mode_consistency:
+      result: PASS
+      evidence: "canonical two-indicator vocabulary (§4.2) throughout: 12x direct + 27x task-card (plan-01), 6x direct + 12x task-card (plan-02), zero retired tokens in either phase file. All (**direct**) steps contain no task() dispatch strings (verified by rg — none). All (**task-card**) item steps carry explicit canonical dispatch strings. No mode contradiction between index prose and executable steps: plan.md's '(clean-room)' parentheticals (3x, index Procedure prose only) describe the same steps the phase files mark (**task-card**) — semantics agree; the executable step indicators are the normative dispatch truth per the §2 split-file format."
+  findings: []   # none — pass-1 findings F-1/F-2 verified remediated (see remediation_verification)
+
+observations:   # recorded; no FAIL
+  - "plan-01 Pre-implementation steps 1-2 (coherence gate, baseline check) are marked (**task-card**) without an explicit task(...) dispatch string. This is an established deck pattern (plan 2456's entry conditions reference 'Coherence gate passed (plan step 1); baseline check passed (plan step 2)'), the coherence gate is a mandatory pre-RED gate (spec-creation SKILL.md, critical-rules-042), the mode marker is correct, and each step's text is self-contained sub-agent instructions — no routing ambiguity. Recommend a future deck-level convention for naming gate-step dispatch payloads; not a plan defect."
+  - "plan.md index Procedure prose retains 3x '(clean-room)' parentheticals (lines 83, 90, 132) — retired vocabulary per plan-artifact-format §4.2, but in non-executable index summary prose whose semantics match the phase files' canonical (**task-card**) markers. Recommend migrating to '(task-card)' in the next plan revision pass; no execution-routing ambiguity."
+  - "The plan does not schedule the reference card's one-time pre-regression step (test-driven-development phase-0); it uses per-item Pre-clean + post-regression instead. Not a check failure under the task card's categories; noted for the orchestrator (carried forward from pass 1)."
+
+overall_status: PASS
+finding_summary: >-
+  All 6 categories PASS. Category 1: plan structure complete and format-conformant (phase
+  table columns, numbered procedures, C1-C9 exit criteria, verbatim pre-flight guard, split
+  files with continuous step numbering). Category 2: every skill+task reference valid with
+  referenced task files on disk. Category 3: SC-1..SC-9 fully covered with no triplet split.
+  Category 4: concern separation matches the concern-map artifact (disjoint, single-phase
+  per concern). Category 5: acyclic, reachable, orphan-free DAG corroborated by the SAT
+  solve output. Category 6: zero placeholder tokens, 57/57 checkbox steps, canonical
+  two-indicator dispatch vocabulary with consistent modes. Pass-1 findings F-1 (dispatch
+  vocabulary) and F-2 (coherence-gate SC enumeration) are verified remediated; three
+  non-blocking observations recorded (gate-step dispatch-payload naming convention, index
+  prose '(clean-room)' vocabulary drift, absent pre-regression step).

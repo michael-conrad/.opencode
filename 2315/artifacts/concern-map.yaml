@@ -1,0 +1,50 @@
+# concern-map.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+concern_groups:
+  - concern: service-registration
+    description: "Registering RAGSync as a default MCP service in the opencode config (type: local, stdio, enabled: true) following the existing uvx runner pattern"
+    scs: [SC-1]
+    requirements: [R-1, R-2, R-7]
+    phase: phase_1
+  - concern: embedding-configuration
+    description: "Local embeddings via fastembed with a pinned default local model and no external embedding API dependency; offline/cache path mitigation (CON-7)"
+    scs: [SC-2]
+    requirements: [R-3, R-10]
+    phase: phase_1
+  - concern: source-isolation
+    description: "Per-source isolation over the §3.1-designated corpora — exactly one config section per source (opencode-agent-config, .opencode-deck) with isolated index namespaces (CON-6), plus the enforcing review checklist"
+    scs: [SC-3, SC-4]
+    requirements: [R-4, R-8, R-11]
+    phase: phase_1
+  - concern: sync-and-corpus-scope
+    description: "Auto-sync on source file change (R-5) and the bounded indexing corpus scope — main repo plus every registered submodule per .gitmodules; non-registered git sub-repos (the .issues/ orphan-branch worktrees) excluded absent a declared carveout (CON-8)"
+    scs: [SC-5, SC-7]
+    requirements: [R-5, R-12]
+    phase: phase_1
+  - concern: service-documentation
+    description: "Documenting service configuration, per-source layout per §3.1, usage, offline/cache path, and validation step in the .opencode skill/guideline tree; the validation step is the CON-5 config-drift mitigation"
+    scs: [SC-6]
+    requirements: [R-6, R-9]
+    phase: phase_2
+  - concern: deck-purge
+    description: "Purging srclight references from the .opencode deck tree per the §3.2 disposition rule — GENERICIZE to capability-class wording where the capability mapping has value, REMOVE where it does not (CLI troubleshooting, tier-table entries, check_srclight() probe, session-to-timeline normalizers, README mcp-block line); preserve graceful-degradation fallback rows; no replacement product-name hardwiring (CON-10, R-14); verified behaviorally by SC-9"
+    scs: [SC-8, SC-9]
+    requirements: [R-13, R-14]
+    phase: phase_2
+phase_boundaries:
+  - phase: phase_1
+    label: "Configuration and registration"
+    concerns: [service-registration, embedding-configuration, source-isolation, sync-and-corpus-scope]
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-7]
+    boundary_rationale: "All configuration-state SCs (config file, registration entry, checklist file) are phase_1; the RAGSync config must exist before it can be documented or before deck text is rewritten against capability classes with no product coupling"
+  - phase: phase_2
+    label: "Documentation and deck purge"
+    concerns: [service-documentation, deck-purge]
+    scs: [SC-6, SC-8, SC-9]
+    boundary_rationale: "SC-6 documents the phase_1 configuration artifacts (CON-5 co-location validation; dependency-contract edge phase_1 → phase_2). SC-8/SC-9 deck purge is sequenced in phase_2 per spec traceability (R-13/R-14 → Phase 2); SC-9's verify behavioral run executes only after Item 8's COMMIT and PUSH with a fresh fetch verifying the effective commit is contained in a remote ref"
+concern_dependency_notes:
+  - "service-documentation (SC-6) depends on phase_1 configuration existing — it documents artifacts produced there"
+  - "deck-purge (SC-8/SC-9) is deliberately product-agnostic (CON-10/R-14): it does not depend on the RAGSync registration landing first, but phase sequencing keeps the sweep after the config work for review coherence"
+  - "source-isolation (SC-3/SC-4) and sync-and-corpus-scope (SC-5/SC-7) both write the same RAGSync config file — sequential ordering within phase_1 avoids concurrent edits"

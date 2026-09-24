@@ -1,0 +1,34 @@
+# Planning problem — issue #2315
+# Derived from dependency-contract.yaml DAG (phase_1 -> phase_2 edge
+# z3.Implies(phase_2, phase_1)) per the contract→problem mapping.
+# Phase 1: RAGSync configuration and registration (SC-1..SC-5, SC-7)
+# Phase 2: Documentation and deck srclight purge (SC-6, SC-8, SC-9)
+domain: ragsync-adoption-plan
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+fluents:
+  - name: done
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run_p1
+    params: []
+    preconditions:
+      - not done(p1)
+    effects:
+      - done(p1)
+  - name: run_p2
+    params: []
+    preconditions:
+      - done(p1)
+      - not done(p2)
+    effects:
+      - done(p2)
+init: []
+goals:
+  - done(p1)
+  - done(p2)

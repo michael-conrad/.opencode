@@ -1,0 +1,59 @@
+# blast-radius.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+affected_files:
+  - path: .opencode/opencode.jsonc
+    area: mcp block
+    scs: [SC-1]
+    change: "Add `ragsync` service entry with type: local, stdio transport, enabled: true (R-1, R-2); existing services (the-notebook-mcp, editor) unmodified"
+    verified: true
+    verification_evidence: "Read .opencode/opencode.jsonc 2026-09-24 — mcp block declares the-notebook-mcp and editor, both type: local / enabled: true; no srclight, no ragsync entry present"
+  - path: .opencode/ragsync-config.yaml
+    area: RAGSync config file (to be created; co-located per CON-5)
+    scs: [SC-2, SC-3, SC-5, SC-7]
+    change: "Create config declaring fastembed pinned local embedding model, one source section per §3.1-designated corpus (opencode-agent-config, .opencode-deck) with isolated index namespaces and per-corpus include/exclude globs, auto-sync enabled, corpus scope bounded to main repo + registered submodules (CON-8)"
+    verified: false
+    verification_evidence: "File does not exist yet — it is a deliverable of Items 2/3/5/7; co-location target recorded in dependency-contract.yaml phase_1 files list"
+  - path: .opencode/skills/ or .opencode/guidelines/ (review checklist, new file)
+    area: per-source isolation review checklist (SC-4, R-11)
+    scs: [SC-4]
+    change: "New checklist file enforcing per-source isolation: one config section per §3.1 source, isolated index namespaces, empty-source handling"
+    verified: false
+    verification_evidence: "Deliverable of Item 4; exact filename deferred to plan (spec R-11 leaves tree location to implementor)"
+  - path: .opencode/skills/ or .opencode/guidelines/ (documentation file, new)
+    area: service documentation (SC-6, R-6)
+    scs: [SC-6]
+    change: "New documentation covering service configuration, per-source layout per §3.1, usage, offline/cache path, validation step"
+    verified: false
+    verification_evidence: "Deliverable of Item 6; exact filename deferred to plan"
+  - path: .opencode/ deck tree (46 files enumerated in spec §3.2)
+    area: deck srclight purge (SC-8, CON-10)
+    scs: [SC-8, SC-9]
+    change: "Per-site GENERICIZE or REMOVE disposition across all 46 files: guidelines (9 files), skills/audit tasks (12), skills/brainstorming tasks (4), misc skills (15), README.md, tools/session-init, tools/session-to-timeline; preserve graceful-degradation fallback rows; no replacement product-name hardwiring (R-14)"
+    verified: true
+    verification_evidence: "rg -i 'srclight' .opencode/ --hidden --no-ignore with sweep exclusions run 2026-09-24 → 46 files with matches (matches spec §3.2 file count); per-file match counts differ slightly from §3.2 table (e.g. concern-separation-validator.md 26 vs 24, tools/session-init 8 vs 6) — file set matches exactly"
+  - path: .gitmodules
+    area: main repo registered submodule list (read-only dependency)
+    scs: [SC-7]
+    change: "No change — authoritative source for CON-8 corpus scope derivation; registers exactly one submodule (.opencode)"
+    verified: true
+    verification_evidence: "Read .gitmodules 2026-09-24 — [submodule \".opencode\"] path = .opencode, url = git@github.com:michael-conrad/.opencode.git, branch = main"
+  - path: "{project_root}/tmp/ (behavioral evidence artifacts)"
+    area: SC-9 behavioral run evidence
+    scs: [SC-9]
+    change: "Evidence artifacts recorded under tmp/ per the spec Item 9 commit note; no tracked-tree change"
+    verified: false
+    verification_evidence: "Directory is the designated evidence location per Item 9; populated at run time"
+non_affected_files:
+  - path: .opencode/opencode.jsonc (existing service entries)
+    reason: "the-notebook-mcp and editor SHALL NOT be modified (Not-Included); srclight is already unregistered and re-registration is banned (CON-9)"
+  - path: .opencode/reference/**
+    reason: "Verified zero srclight matches (spec §3.2); outside the purge footprint"
+  - path: .opencode/.issues/**
+    reason: "On the §3.2 sweep exclusion list — historical evidence artifacts MUST NOT be rewritten (CON-10)"
+  - path: .srclight/ working-tree cache directory
+    reason: "Deletion out of scope (Not-Included carveout); kept out of the RAG index by the §3.1 .srclight/** exclude glob"
+  - path: root repo .issues/ tree
+    reason: "CON-4 — no changes to the root snea-phonetics repo's .issues/ tree"
+blast_radius_summary: "The change is additive at the config layer (one new mcp entry + one new co-located RAGSync config + two new .opencode tree documents) plus a text-only sweep across 46 existing deck files. Runtime blast radius: opencode loads one additional stdio service at startup; fastembed downloads a local model on first run; existing services and the tracked corpus are untouched. The widest text-state blast radius is the deck sweep (162 matches across 46 files per §3.2)."

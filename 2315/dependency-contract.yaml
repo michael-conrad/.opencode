@@ -1,6 +1,7 @@
 # Dependency contract — issue #2315
-# Generated from interface-compatibility.yaml dependency_contract section.
-# Phase dependency: phase_2 (SC-6 documentation) depends on phase_1 (SC-1..SC-5, SC-7 config).
+# Extracted as-is from .opencode/.issues/2315/artifacts/interface-compatibility.yaml
+# dependency_contract section (research.md step 9, 2026-09-24).
+# Phase dependency: phase_2 (SC-6 documentation + SC-8/SC-9 deck purge) depends on phase_1 (SC-1..SC-5, SC-7 config).
 
 variables:
   phase_1:
@@ -8,7 +9,7 @@ variables:
     description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation over the §3.1-designated corpora (opencode-agent-config, .opencode-deck), review checklist, auto-sync, bounded corpus scope"
   phase_2:
     type: bool
-    description: "Documentation work (SC-6): service config, per-source layout, corpus scope, usage, offline/cache path, validation step"
+    description: "Documentation and deck-purge work (SC-6, SC-8, SC-9): service config, per-source layout, corpus scope, usage, offline/cache path, validation step documentation; deck srclight purge per the §3.2 disposition rule (CON-10, R-13, R-14); behavioral srclight-free tool-selection verification (SC-9)"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
 invariants: []
@@ -29,12 +30,20 @@ phases:
   phase_2:
     files:
       - .opencode/skills/ or .opencode/guidelines/ (documentation)
+      - .opencode/guidelines/ (deck srclight purge — §3.2 sweep scope)
+      - .opencode/skills/ (deck srclight purge — §3.2 sweep scope)
+      - .opencode/tools/ (session-init, session-to-timeline — §3.2 sweep scope)
+      - .opencode/README.md (mcp-block example srclight line — §3.2 sweep scope)
     scs:
       - SC-6
+      - SC-8
+      - SC-9
 edges:
   - from: phase_1
     to: phase_2
-    rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place."
+    rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place. SC-8/SC-9 deck-purge work is sequenced in phase 2 per the spec traceability (R-13/R-14 → Phase 2); its text is capability-class worded and carries no product-name coupling to the phase-1 RAGSync registration (CON-10, R-14)."
 notes:
   - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation), including the CON-8 corpus-scope declaration."
   - "Corpus designation authority is the RAGSync config sources list per spec §3.1: two designated corpora (opencode-agent-config over the main repo working tree; .opencode-deck over the .opencode submodule) with per-corpus include/exclude globs. Source sections outside the CON-8 surface are config defects caught by SC-7 verification."
+  - "SC-9 is the behavioral variant item: its RED behavioral run executes against the pre-purge deck state (before Item 8's GREEN lands in the working tree), and its verify behavioral run executes only after Item 8's COMMIT and PUSH with a fresh `git fetch` verifying the effective commit is contained in a remote ref (incremental-build behavioral ordering, per spec Item 9)."
+  - "Deck purge scope boundary is the §3.2 sweep exclusion list (.opencode/.git/**, .opencode/.issues/**, node_modules/**, tmp/**, .pytest_cache/**, .ruff_cache/**); the .opencode/.issues/ issue store MUST NOT be rewritten — historical srclight_* references in evidence artifacts are records of past work, not agent-facing instructions (CON-10)."

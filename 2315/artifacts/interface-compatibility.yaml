@@ -1,0 +1,74 @@
+# interface-compatibility.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+interface_boundaries:
+  - boundary: "opencode.jsonc mcp block ↔ opencode runtime MCP loader"
+    contract: "Service entries follow the existing pattern: object keyed by service name with type: local, command array (stdio), enabled: true. Verified 2026-09-24 against the-notebook-mcp and editor entries."
+    compatibility: "Purely additive — a new `ragsync` key alongside the two existing entries; no existing entry is modified (Not-Included). srclight is already unregistered and re-registration is banned (CON-9)."
+    break_risk: "Malformed entry or invalid JSONC → opencode rejects the config rather than silently loading a broken service (spec Edge Case; SC-1 verification asserts JSONC validity)"
+  - boundary: "opencode.jsonc registration ↔ RAGSync config file"
+    contract: "The two must be co-located and validated together (CON-5, R-9) — the registration points at a service whose runtime reads the co-located config; drift between them loads a service pointing at stale configuration"
+    compatibility: "New co-located config file (e.g. .opencode/ragsync-config.yaml per dependency-contract phase_1 files list); validation step documented per SC-6"
+    break_risk: "Config drift (spec Edge Case: state transition — config drift); mitigated by co-location + documented validation step"
+  - boundary: "RAGSync config sources list ↔ §3.1 designated corpora"
+    contract: "The config's sources list is the sole designation mechanism (CON-6 authority): one folder-type source per corpus — opencode-agent-config (main repo working tree, config root ../..) and .opencode-deck (.opencode submodule, source root .) — each with gitignore-style include globs (*.md, *.txt, *.tex) and the §3.1 mandatory exclude globs"
+    compatibility: "Matches RAGSync README source semantics (folder sources, gitignore-style include/exclude, per-source vector_store.collection namespaces) — verified per spec §9 Documentation Sources"
+    break_risk: "A source section outside the CON-8 surface is a config defect caught by SC-7 verification; an undeclared new corpus within the surface is caught by the SC-4 review checklist (spec Edge Case: new reference corpus appears)"
+  - boundary: "RAGSync ↔ fastembed embedding runtime"
+    contract: "Local embeddings via fastembed with a pinned default local model; no external embedding API dependency (CON-7, R-3, R-10)"
+    compatibility: "External runtime dependency (jsbroks/ragsync-mcp + fastembed), adopted as-is (CON-1); first-run model download mitigated by a documented offline/cache path"
+    break_risk: "First-run model download failure → fallback to the documented offline/cache path (spec Edge Case)"
+  - boundary: "RAGSync corpus scope ↔ repository git structure"
+    contract: "Scope covers all files in the main repo plus every submodule in .gitmodules (exactly one: .opencode); non-registered git sub-repos — the .issues/ orphan-branch worktrees at root and under .opencode/ — are not indexed absent a declared carveout (CON-8, R-12)"
+    compatibility: "Derived from the registered submodule list; verified against .gitmodules read 2026-09-24"
+    break_risk: "Submodule-list drift requires scope update; SC-7 runtime enumeration assertions catch drift (spec Edge Case)"
+  - boundary: "Existing MCP services ↔ new service"
+    contract: "the-notebook-mcp and editor continue to function unmodified alongside ragsync"
+    compatibility: "No shared state; one additional service loads at startup (Key Design Decision (a) tradeoff)"
+    break_risk: "Startup load cost only; no interface conflict"
+  - boundary: "Genericized deck text ↔ agent tool-selection behavior"
+    contract: "Capability-class wording (symbol/signature lookup, callers/callees/dependents blast-radius lookup, code search) with graceful-degradation fallback rows preserved; no replacement product name in tool-selection text (CON-10, R-14)"
+    compatibility: "Procedures remain usable by ANY available local index tooling; built-in read/grep fallback stays valid when no index tool provides the capability (spec Edge Case)"
+    break_risk: "Removing a fallback row would hard-halt agents when no index tool exists — fallback preservation is a hard GREEN requirement (R-13)"
+  - boundary: "Deck purge ↔ historical evidence artifacts"
+    contract: "The sweep excludes .opencode/.issues/** — historical srclight_* tool calls in evidence artifacts are records of past work, not agent-facing instructions, and MUST NOT be rewritten (CON-10, spec Edge Case)"
+    compatibility: "Exclusion list is the determinate sweep boundary; no interaction otherwise"
+    break_risk: "Rewriting exclusion-list content would falsify historical audit trails"
+dependency_contract:
+  variables:
+    phase_1:
+      type: bool
+      description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation over the §3.1-designated corpora (opencode-agent-config, .opencode-deck), review checklist, auto-sync, bounded corpus scope"
+    phase_2:
+      type: bool
+      description: "Documentation and deck-purge work (SC-6, SC-8, SC-9): service config, per-source layout, corpus scope, usage, offline/cache path, validation step documentation; deck srclight purge per the §3.2 disposition rule (CON-10, R-13, R-14); behavioral srclight-free tool-selection verification (SC-9)"
+  preconditions:
+    - "z3.Implies(phase_2, phase_1)"
+  invariants: []
+  postconditions: []
+  phases:
+    phase_1:
+      files:
+        - .opencode/opencode.jsonc
+        - .opencode/ragsync-config.yaml
+        - .opencode/skills/ or .opencode/guidelines/ (review checklist)
+      scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-7]
+    phase_2:
+      files:
+        - .opencode/skills/ or .opencode/guidelines/ (documentation)
+        - .opencode/guidelines/ (deck srclight purge — §3.2 sweep scope)
+        - .opencode/skills/ (deck srclight purge — §3.2 sweep scope)
+        - .opencode/tools/ (session-init, session-to-timeline — §3.2 sweep scope)
+        - .opencode/README.md (mcp-block example srclight line — §3.2 sweep scope)
+      scs: [SC-6, SC-8, SC-9]
+  edges:
+    - from: phase_1
+      to: phase_2
+      rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, offline/cache path, and validation step produced in phase 1. Documentation work depends on the configuration being in place. SC-8/SC-9 deck-purge work is sequenced in phase 2 per the spec traceability (R-13/R-14 → Phase 2); its text is capability-class worded and carries no product-name coupling to the phase-1 RAGSync registration (CON-10, R-14)."
+  notes:
+    - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation), including the CON-8 corpus-scope declaration."
+    - "Corpus designation authority is the RAGSync config sources list per spec §3.1: two designated corpora (opencode-agent-config over the main repo working tree; .opencode-deck over the .opencode submodule) with per-corpus include/exclude globs. Source sections outside the CON-8 surface are config defects caught by SC-7 verification."
+    - "SC-9 is the behavioral variant item: its RED behavioral run executes against the pre-purge deck state (before Item 8's GREEN lands in the working tree), and its verify behavioral run executes only after Item 8's COMMIT and PUSH with a fresh `git fetch` verifying the effective commit is contained in a remote ref (incremental-build behavioral ordering, per spec Item 9)."
+    - "Deck purge scope boundary is the §3.2 sweep exclusion list (.opencode/.git/**, .opencode/.issues/**, node_modules/**, tmp/**, .pytest_cache/**, .ruff_cache/**); the .opencode/.issues/ issue store MUST NOT be rewritten — historical srclight_* references in evidence artifacts are records of past work, not agent-facing instructions (CON-10)."
+  consistency_note: " dependency_contract section mirrors the existing .opencode/.issues/2315/dependency-contract.yaml (read 2026-09-24) so research.md step 9 extraction remains idempotent."

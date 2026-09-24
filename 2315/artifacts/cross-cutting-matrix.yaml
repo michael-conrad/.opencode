@@ -1,0 +1,41 @@
+# cross-cutting-matrix.yaml — backfilled from spec #2315 (retroactive)
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+status: complete
+cross_cutting_scs:
+  - sc: SC-1
+    spans: [service-registration, runtime-verification]
+    description: "The registration entry (config state) is verified through runtime service-spawn behavior — a config concern that cannot be verified without crossing into the opencode runtime concern"
+    coupling_risk: "A malformed JSONC entry passes static inspection but fails only at runtime spawn (spec Edge Case: malformed MCP registration → opencode SHALL reject the config)"
+  - sc: SC-3
+    spans: [source-isolation, corpus-designation, repository-structure]
+    description: "Per-source isolation depends on the §3.1 corpus designation authority (the RAGSync config sources list) which in turn is bounded by the CON-8 repo-structure surface (main repo + registered submodules)"
+    coupling_risk: "A source section declared outside the CON-8 surface is a config defect caught only by SC-7 verification — SC-3 and SC-7 must be reviewed together"
+  - sc: SC-4
+    spans: [source-isolation, documentation]
+    description: "The review checklist is documentation-shaped but enforces the SC-3 isolation configuration; its topic criteria reference §3.1 designated corpora and empty-source handling (spec Edge Case)"
+    coupling_risk: "Checklist drift from the actual config layout defeats its purpose; CON-6 mandates the review checklist accompany the per-source config"
+  - sc: SC-5
+    spans: [sync-configuration, retrieval-freshness]
+    description: "Auto-sync is a config declaration verified only through runtime index-freshness observation after a source-file modification"
+    coupling_risk: "Stale index ships silently if config enables auto-sync but runtime behavior diverges — the silent-correctness defect named in the Cost Frame"
+  - sc: SC-6
+    spans: [service-documentation, all-phase-1-config-concerns]
+    description: "The documentation file must cover service configuration, per-source layout per §3.1, usage, offline/cache path, and validation step — i.e., the deliverables of SC-1, SC-2, SC-3, SC-5, SC-7; the validation step is the CON-5 config-drift mitigation"
+    coupling_risk: "Documentation written before or during config finalization drifts from the landed config (CON-5) — hence phase_2 sequencing per the dependency-contract edge phase_1 → phase_2"
+  - sc: SC-7
+    spans: [corpus-scope, repository-structure, data-integrity]
+    description: "Corpus scope derives from .gitmodules (repo structure) and enforces a data-integrity boundary (non-registered sub-repos and their issue-tracking content must not enter retrieval)"
+    coupling_risk: "Submodule-list drift (spec Edge Case): a newly registered submodule must be added to the scope; SC-7 coverage assertions catch drift between .gitmodules and the declared scope"
+  - sc: SC-8
+    spans: [deck-purge, tool-usage-guidelines, session-tooling-scripts]
+    description: "The sweep spans agent-facing guidelines (tier tables in 060-tool-usage.md, mcp-tool-usage), task cards with fallback rows, README.md, and executable session tooling (tools/session-init probe, tools/session-to-timeline normalizers) — prose and script state in one disposition pass"
+    coupling_risk: "Script-side removal (check_srclight(), srclight_* normalizers) changes script behavior, not just prose; the fallback-preservation rule must hold in task cards while the REMOVE disposition applies to scripts and CLI rows"
+  - sc: SC-9
+    spans: [deck-purge, behavioral-verification-infrastructure]
+    description: "SC-9's evidence is produced by an isolated opencode run whose validity depends on SC-8's purge being COMMITted and PUSHed to a remote ref (incremental-build behavioral ordering) — it spans the text-state concern and the behavioral-evidence concern"
+    coupling_risk: "Running the behavioral verification against unpushed deck state produces verdicts about code the branch does not contain; the sweep alone would be EVIDENCE_TYPE_MISMATCH for the behavior claim (spec §4 evidence-type statement)"
+non_cross_cutting_scs:
+  - sc: SC-2
+    note: "Embedding configuration is self-contained within the RAGSync config + fastembed runtime boundary; its only external dependency is the documented offline/cache path (CON-7)"
+matrix_summary: "6 of 9 SCs span multiple concerns. The dominant cross-cutting axes are (a) config-state vs runtime-verification (SC-1, SC-5), (b) config vs documentation (SC-3/SC-4/SC-6, CON-5), (c) config vs repo structure (SC-3/SC-7, CON-8), and (d) text-state vs behavior (SC-8/SC-9, CON-10)."

@@ -1,0 +1,9 @@
+actions:
+- name: run_p1
+  parameters: []
+- name: run_p2
+  parameters: []
+domain: ragsync-adoption-plan
+engine: tamer
+plan_length: 2
+status: SOLVED_SATISFICING

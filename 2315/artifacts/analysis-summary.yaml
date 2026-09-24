@@ -1,0 +1,25 @@
+# analysis-summary.yaml — backfill run for issue #2315
+issue: 2315
+generated_by: writing-plans/tasks/backfill (retroactive)
+generated_at: "2026-09-24"
+spec_path: ".opencode/.issues/2315/spec.md"
+issues_prefix: ".opencode/.issues"
+mode: retroactive
+sc_count: 9
+requirement_count: 14
+constraint_count: 10
+artifact_status:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+pre_existing_artifacts: []
+scope_summary: "Spec #2315 adopts the RAGSync MCP server (jsbroks/ragsync-mcp) as-is as a default local stdio MCP service in .opencode/opencode.jsonc, configured with local fastembed embeddings (pinned model, offline/cache path), per-source isolation over the two §3.1-designated corpora (opencode-agent-config over the main repo working tree; .opencode-deck over the .opencode submodule), auto-sync, and a CON-8-bounded corpus scope (main repo + registered submodules; the .issues/ orphan-branch worktrees excluded absent a carveout). A review checklist (SC-4) and tree documentation (SC-6) govern the configuration. The spec additionally purges srclight references from the .opencode deck tree (162 matches across 46 files per §3.2) via a GENERICIZE/REMOVE disposition rule with graceful-degradation fallback preservation and no replacement product-name hardwiring (SC-8), verified behaviorally by an isolated opencode run (SC-9). Phase structure: phase_1 = SC-1..SC-5, SC-7 (configuration/registration); phase_2 = SC-6, SC-8, SC-9 (documentation + deck purge), per the existing dependency-contract.yaml."
+grounding_notes:
+  - "Affected files verified against the working tree 2026-09-24: .opencode/opencode.jsonc (mcp block: the-notebook-mcp + editor, both type: local / enabled: true; no srclight, no ragsync), .gitmodules (one registered submodule: .opencode), §3.2 sweep re-run (46 files with srclight matches, matching the spec's file count; per-file counts differ slightly from the §3.2 table)"
+  - "dependency_contract section in interface-compatibility.yaml mirrors the pre-existing .opencode/.issues/2315/dependency-contract.yaml so the research.md step-9 extraction remains idempotent"
+  - "Phase structure sourced from spec §8 Traceability + existing dependency-contract.yaml (phase_1: SC-1..SC-5, SC-7; phase_2: SC-6, SC-8, SC-9; edge z3.Implies(phase_2, phase_1))"
+  - "Evidence types sourced verbatim from spec §4 including the deliberate evidence-type statement for SC-8/SC-9 (uplift rule)"
