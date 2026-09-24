@@ -1,0 +1,51 @@
+issue: ".opencode#2465"
+artifact: interface-compatibility
+status: complete
+grounding_coverage:
+  primary_source: "derived from spec scope + reads already performed (handoff omitted this artifact with note: 'no public API surface — deck-internal change only')"
+  bounded_grounding: "dispatch surface verified via grep -l 'trunk-tip-verification' skills/ (2 consumers) and task-dir listings; no implementation reads needed — deck-internal text change"
+  ungrounded_assumptions:
+    - "exact parameterization mechanism (mode flag vs separate read-only card) is a spec-authoring decision; both analyzed below as compatible variants"
+interfaces:
+  - interface: "trunk-tip-verification task card dispatch contract"
+    classification: modified
+    detail: "currently write-gate only (entry: 'Authorization has been verified'); parameterization adds a read-only mode with fail-open and no authorization requirement"
+    backward_compatible: true
+    consumers: ["git-workflow/SKILL.md (pre-work routing)", "git-workflow-branch/SKILL.md", "six read-phase cards (new callers, SC-3..SC-8)"]
+  - interface: "submodule-sync task card entry/exit contract"
+    classification: modified
+    detail: "entry today: 'dirty pointers in parent repo'; extends to stale-trunk state (clean but behind) + feature-branch rebase path; exit adds 'already current' reporting"
+    backward_compatible: true
+    consumers: ["pre-work", "mid-feature sync requests", "freshness-gate callers (new)"]
+  - interface: "read-phase skill card entry criteria (six cards)"
+    classification: new
+    detail: "each card gains one entry criterion referencing the canonical gate card"
+    backward_compatible: true
+  - interface: "000-critical-rules non-trunk-tip rule"
+    classification: modified
+    detail: "scope extends from write-side ('before any file modification') to read-side phases; rule ID and Tier-1 status unchanged"
+    backward_compatible: true
+  - interface: "010-approval-gate authorization-free actions"
+    classification: new
+    detail: "sync (pull/rebase/trunk submodule sync) added to authorization-free list"
+    backward_compatible: true
+  - interface: ".opencode/AGENTS.md mid-feature submodule discipline wording"
+    classification: modified
+    detail: "advisory 'periodically' -> bright-line trigger list (same section, same audience)"
+    backward_compatible: true
+removed_interfaces: []
+breaking_changes: []
+assessment: "all changes additive or conservative modifications — no public API surface, no behavioral contract broken for existing write-side consumers"
+dependency_contract:
+  - source: "git-workflow-branch canonical freshness gate card (trunk-tip-verification read-only mode)"
+    target: "wired read-phase skill cards (SC-3..SC-8)"
+    type: "artifact schema"
+    constraint: "wired cards must reference the canonical card by Read [Text](path) dispatch — no inline restatement of the 8 steps; card name/path stability is the contract (renames break six callers)"
+  - source: "submodule-sync sync-action card"
+    target: "canonical freshness gate card"
+    type: "artifact schema"
+    constraint: "gate output (stale/dirty detection result) is the sync card's input; sync exit ('already current' / failed-reported) feeds gate re-verification"
+  - source: "010-approval-gate sync classification"
+    target: "all wired cards + gate card"
+    type: "artifact schema"
+    constraint: "wired cards may only instruct sync because the guideline classifies it authorization-free — guideline and card text must stay consistent (no card text that implies authorization is needed)"

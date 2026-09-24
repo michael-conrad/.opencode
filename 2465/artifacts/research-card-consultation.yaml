@@ -1,0 +1,29 @@
+issue: ".opencode#2465"
+artifact: research-card-consultation
+status: complete
+cards_considered:
+  - card: "per-sc-decomposition-industry-standards"
+    path: ".issues/research-cards/per-sc-decomposition-industry-standards.md"
+    confidence: 0.95
+    status: active
+    topic_match: "methodology (not trunk-freshness specific)"
+    findings_incorporated:
+      - "Per-SC RED/GREEN decomposition aligns with industry standards (one-reason-to-fail, RTM traceability per ISO 26262/DO-178C); already codified in analyze.md Step 4 — decomposition methodology validated"
+  - card: "spec-creation-state"
+    path: ".opencode/.issues/research-cards/spec-creation-state.md"
+    confidence: 0.9
+    topic_match: "adjacent (spec-creation pipeline state, post-#1834)"
+    findings_incorporated:
+      - "Research-card consultation is a mandated step in requirements extraction; spec-creation pipeline is in a stable patched state — freshness wiring into spec-creation/SKILL.md must not regress #1834 gates"
+    caveats:
+      - "Card references requirements.md / operating-protocol.md task files that predate the current 4-task pipeline (analyze/create/validate/revise) — card content partially stale; used only for gate-preservation context"
+  - card: "multi-feature-branch-main-with-submodules"
+    path: ".opencode/.issues/research-cards/multi-feature-branch-main-with-submodules.md"
+    confidence: 0.7
+    status: draft
+    topic_match: "adjacent (submodule sync during feature work)"
+    findings_incorporated:
+      - "Submodule pointers are the most frequently conflicted merge target — sync/rebase discipline (approach item 2) must handle feature-branch rebase + submodule sync together"
+    caveats:
+      - "Card written when dev branch existed; dev has since been removed (repo AGENTS.md) — rebase-before-merge framing is stale, sync-during-feature framing remains valid"
+cards_reviewed_not_matching: "Remaining 22 cards (root + .opencode) scanned by title/frontmatter; none address repo-state freshness/trunk-tip staleness — this spec introduces the first read-side freshness gate"

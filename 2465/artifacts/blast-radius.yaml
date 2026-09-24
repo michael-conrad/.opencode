@@ -1,0 +1,89 @@
+issue: ".opencode#2465"
+artifact: blast-radius
+status: complete
+grounding_coverage:
+  primary_source: "handoff blast-radius artifact (complete) + pre-spec-inspection.yaml live verification"
+  bounded_grounding: "Grounded from spec scope sections (remote body Affected files + handoff) FIRST; primary target surface (trunk-tip-verification.md, submodule-sync.md) verified live; no exhaustive implementation reads required"
+  ungrounded_assumptions:
+    - "review-prep/push-and-cleanup.md and pr-creation/enforcement-gate.md path names from handoff NOT-affected list were not individually liveness-checked (handoff marked complete; write-side gates declared out of scope by spec)"
+phases:
+  phase-1-canonical-gate:
+    description: "Canonical freshness gate card (read-only trunk-tip-verification mode) + sync action card"
+    affected_components:
+      - component: ".opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md"
+        change_type: modify
+        detail: "Parameterize with read-only mode; keep 8-step gate and fail-open precedent intact"
+        verified_live: true
+      - component: ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md"
+        change_type: modify
+        detail: "Add trunk ff-only pull + feature-branch rebase path; .gitmodules-only enumeration stays"
+        verified_live: true
+      - component: ".opencode/skills/git-workflow-branch/SKILL.md"
+        change_type: modify
+        detail: "Routing/Trigger Dispatch Table additions for the read-only gate + sync entry"
+        verified_live: true
+    ripple_effects:
+      - "Existing pre-work dispatch of trunk-tip-verification must remain backward compatible (parameterization, not replacement)"
+      - "Behavioral tests for SC-1/SC-2 added under tests-v2/behaviors/"
+  phase-2-read-phase-wiring:
+    description: "Freshness entry criteria in six read-phase skill cards"
+    affected_components:
+      - component: ".opencode/skills/brainstorming/tasks/explore/pre-spec-inspection.md"
+        change_type: modify
+        detail: "Freshness entry criterion (Step 0) before file reads"
+        verified_live: true
+      - component: ".opencode/skills/spec-creation/SKILL.md"
+        change_type: modify
+        detail: "Analyze-step freshness entry criterion"
+        verified_live: true
+      - component: ".opencode/skills/writing-plans/SKILL.md"
+        change_type: modify
+        detail: "Plan-creation freshness entry criterion (+ create task reference)"
+        verified_live: true
+      - component: ".opencode/skills/executing-plans/SKILL.md"
+        change_type: modify
+        detail: "Entry criterion + mid-plan currency check (read-plan/execute-phase tasks exist)"
+        verified_live: true
+      - component: ".opencode/skills/research/SKILL.md"
+        change_type: modify
+        detail: "Freshness entry criterion before investigation reads"
+        verified_live: true
+      - component: ".opencode/skills/issue-review/SKILL.md"
+        change_type: modify
+        detail: "Freshness entry criterion before issue-review reads"
+        verified_live: true
+    ripple_effects:
+      - "Each wired card adds one task() dispatch target (the canonical card) — clean-room dispatch pattern preserved"
+      - "First skill invocation of a session becomes the de-facto session-start freshness check (GAP-1 indirect coverage)"
+  phase-3-rules-and-agents:
+    description: "Bright-line rule text + authorization-free classification + AGENTS.md trigger list"
+    affected_components:
+      - component: ".opencode/guidelines/000-critical-rules.md"
+        change_type: modify
+        detail: "Extend non-trunk-tip rule (lines 225-239) to read-side phases; reconcile 6-step vs 8-step language"
+        verified_live: true
+      - component: ".opencode/guidelines/010-approval-gate.md"
+        change_type: modify
+        detail: "Add sync (pull/rebase/trunk submodule sync) to authorization-free actions"
+        verified_live: true
+      - component: ".opencode/AGENTS.md"
+        change_type: modify
+        detail: "Replace line 286 'periodically' with bright-line trigger list"
+        verified_live: true
+    ripple_effects:
+      - "Session-enforcement tier1 block may re-emit extended rule text — wording changes propagate to injected context"
+      - "AGENTS.md is injected into every session — bright-line wording must stay concise"
+files_not_modified_verified:
+  - "pre-work.md and all write-side gates — out of scope (must remain intact)"
+  - "session-init/tools, hooks/, plugins/ — no coded fixes (scope exclusion)"
+  - ".issues/ worktrees — excluded from freshness scope"
+downstream_consumers:
+  - consumer: "Orchestrators dispatching read-phase skills (brainstorming/spec-creation/writing-plans/executing-plans/research/issue-review)"
+    impact: "Each gains a freshness entry gate + sync path"
+  - consumer: "pre-work (implementation start gate)"
+    impact: "Unchanged; continues to own pointer capture"
+  - consumer: "tests-v2/behaviors/"
+    impact: "New read-side behavioral test scripts added"
+repo_routing:
+  - "All changed files under .opencode/ -> issue and PR against michael-conrad/.opencode"
+  - "Parent repo affected only via submodule pointer riding next real parent-repo change (never standalone)"

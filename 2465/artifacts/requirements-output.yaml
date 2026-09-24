@@ -1,0 +1,59 @@
+issue: ".opencode#2465"
+requirements:
+  explicit:
+    - id: R1
+      text: "Read-phase workflow boundaries (analysis, spec creation, planning, plan execution, mid-feature resume) acquire trunk-tip freshness gates — read activity must verify repo freshness, not just write activity"
+      verified: "Gap map (remote body + handoff gap-map.md): write-side gates exist at pre-work/push/PR-creation; read-side phases have none; live grep of read-side skill cards shows zero trunk-tip-verification references"
+    - id: R2
+      text: "Canonical freshness gate task card in git-workflow-branch reusing/parameterizing the existing 8-step trunk-tip verification as a read-only mode"
+      verified: "trunk-tip-verification.md exists (lines 1-60 read): 8-step gate with parent branch check, porcelain check w/ safe-state WARN, fetch+rev compare — parameterization target confirmed"
+    - id: R3
+      text: "Sync action: ff-only pull on trunk; on feature branch rebase onto origin/$DEFAULT_BRANCH + submodule sync; conflict halts to developer; sync never commits parent pointers (pre-work's job)"
+      verified: "submodule-sync.md read (lines 1-49): ff-only + divergence handling exists; feature-branch rebase path and never-commit-pointers constraint are the new text"
+    - id: R4
+      text: "Freshness entry criteria wired into read-phase skill cards: brainstorming pre-spec-inspection, spec-creation analyze, writing-plans create, executing-plans (entry + mid-plan currency), research, issue-review"
+      verified: "grep -l trunk-tip-verification skills/ -> only git-workflow SKILL.md + git-workflow-branch SKILL.md; all six read-phase cards lack the entry criterion (verified absent)"
+    - id: R5
+      text: "Bright-line rule text in 000-critical-rules.md extending the non-trunk-tip rule from write-side to read-side phases"
+      verified: "000-critical-rules.md lines 225-239: rule exists but scopes to 'before any file modification' (write-side only)"
+    - id: R6
+      text: "010-approval-gate.md classifies sync as authorization-free hygiene"
+      verified: "grep pull guidelines/010-approval-gate.md -> only 'Creating pull requests' (line 185); no pull/sync classification exists (GAP-8 confirmed)"
+    - id: R7
+      text: "AGENTS.md mid-feature 'periodically' advisory wording replaced with bright-line trigger list"
+      verified: "grep -n periodically AGENTS.md -> line 286 'Mid-feature: Sync submodules to upstream `$DEFAULT_BRANCH` periodically'"
+    - id: R8
+      text: "Freshness scope = parent repo + submodules enumerated from .gitmodules ONLY; unregistered/gitignored sub-repos (e.g. .issues/ worktrees) excluded"
+      verified: "submodule-sync.md step 1 already enumerates from .gitmodules — reuse that pattern (read verified)"
+    - id: R9
+      text: "Skill-card text fixes ONLY; enforcement behavioral via skill-card instructions proven by behavioral enforcement tests"
+      verified: "Scope section of remote issue body (developer directive); tests-v2 behavioral framework exists (trunk-tip-enforcement.sh, submodule-pointer-enforcement.sh verified present)"
+  implicit:
+    - id: R10
+      text: "Existing write-side gates remain intact — no regression to pre-work, review-prep/push-and-cleanup, pr-creation enforcement gate, finishing prepare"
+    - id: R11
+      text: "Gate and sync are distinct actions: gate verifies freshness (read-only); when stale, agent runs sync BEFORE proceeding; sync itself is state-changing (pull/rebase) but hygiene-classified"
+    - id: R12
+      text: "Sync must be executable under for_analysis default scope without authorization stalls — the authorization-free classification (R6) is what prevents agents from skipping sync during analysis"
+    - id: R13
+      text: "Deck step-count language reconciled when extending the rule (000-critical-rules says '6-step gate' while listing 7 items and the canonical card is 8-step)"
+      verified: "line 234 vs trunk-tip-verification.md 'This is the 8-step gate' — live inconsistency"
+    - id: R14
+      text: "Each read-phase wiring references the canonical card via Read [Text](path) pattern (deck read-link rule) rather than restating the 8 steps inline"
+  constraints:
+    - id: C1
+      text: "NO coded fixes: no session-init changes, no hooks, no plugins, no static/mechanical checks (developer scope directive)"
+    - id: C2
+      text: "Sync conflicts (rebase failures) halt to developer — never auto-resolve beyond the existing divergence logic in submodule-sync"
+    - id: C3
+      text: "Sync never commits parent repo submodule pointers"
+    - id: C4
+      text: "Fail-open on unreachable network per existing trunk-tip-verification precedent"
+    - id: C5
+      text: "All changed files live in .opencode submodule — spec routes to michael-conrad/.opencode"
+  non_requirements:
+    - "Session-start freshness via session-init (GAP-1) — excluded by no-coded-fixes scope; covered indirectly by first read-phase skill invocation"
+    - "No hooks/plugins/static-check enforcement"
+    - "No .issues/ worktree freshness handling (explicitly excluded)"
+    - "No write-side gate changes"
+    - "Remote-first spec numbering is a standing .issues/AGENTS.md mandate — no new deck change required for it"

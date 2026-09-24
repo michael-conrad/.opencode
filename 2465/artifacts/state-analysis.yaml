@@ -1,0 +1,30 @@
+issue: ".opencode#2465"
+artifact: state-analysis
+status: complete
+grounding_coverage:
+  primary_source: "handoff state-analysis artifact (complete) — verified consistent with trunk-tip-verification safe-state semantics read live"
+  ungrounded_assumptions: []
+persistent_state_affected:
+  - state: "Parent repo HEAD on $DEFAULT_BRANCH"
+    transition: "sync: ff-only pull to origin tip; local trunk commits should be none per hook rules — if present, ff-only fails and halts to developer"
+    phase: "all phases (gate + sync)"
+  - state: "Registered submodule checkouts (.opencode today)"
+    transition: "sync: checkout $DEFAULT_BRANCH + ff-only pull; clears '+' pointer-drift state; gate re-reads drift flags after sync"
+    phase: "all phases"
+  - state: "Parent repo gitlink entries (submodule pointers)"
+    transition: "NO transition from sync — pointer capture stays pre-work's job; freshness sync must NOT commit pointers (avoids fabricating parent commits)"
+    phase: "constraint, no transition"
+  - state: "Feature branch mid-session state"
+    transition: "sync: rebase onto origin/$DEFAULT_BRANCH + submodule sync; rebase conflict -> HALT to developer (state preserved, no partial remediation)"
+    phase: "phase-2 wiring + mid-feature"
+  - state: "observe/* scratch branches"
+    transition: "created from $DEFAULT_BRANCH; a mid-session sync invalidates their base (accepted: scratch, discardable before halt per for_analysis allowlist)"
+    phase: "mid-feature"
+  - state: "session.yaml / tmp/ artifacts"
+    transition: "unaffected by git state change"
+    phase: "none"
+state_machine_summary: "stale-read risk state: [fresh | stale-parent | stale-submodule | dirty-parent | dirty-submodule | network-unreachable]; gate classifies current state (read-only); sync transitions stale->fresh (and dirty-parent with pointer-only drift -> safe-state WARN per existing predicate); conflict/network = halt-or-fail-open terminals"
+non_affected:
+  - ".issues/ worktrees (own branch, own remote issues-data) — excluded from freshness scope"
+  - "unregistered nested repos — excluded (.gitmodules-only enumeration)"
+  - "tmp/{N} artifact stores — filesystem, not git state"

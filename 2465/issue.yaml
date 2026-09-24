@@ -6,5 +6,6 @@ labels:
 body: ''
 created_at: '2026-09-24T04:30:44+00:00'
 updated_at: '2026-09-24T05:00:34+00:00'
+remote_issue: 2465
 github_url: https://github.com/michael-conrad/.opencode/issues/2465
 remote_url: https://github.com/michael-conrad/.opencode/issues/2465

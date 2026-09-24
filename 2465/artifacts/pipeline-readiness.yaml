@@ -1,0 +1,22 @@
+issue: ".opencode#2465"
+artifact: pipeline-readiness
+status: pass
+checks:
+  atomicity:
+    result: pass
+    detail: "Each of SC-1..SC-11 maps to exactly one RED→GREEN→COMMIT cycle; each SC's behavioral test is embedded in its own cycle; no SC spans multiple independent claims"
+  dependency_ordering:
+    result: pass
+    detail: "SC dependency DAG acyclic: SC-1 and SC-2 are roots; SC-3..SC-8 depend on {SC-1, SC-2}; SC-9/SC-11 on SC-1; SC-10 on SC-2"
+  single_concern:
+    result: pass
+    detail: "SC-1/SC-2 git-workflow-branch deck; SC-3..SC-8 one read-phase card each; SC-9/SC-10 one guideline each; SC-11 AGENTS.md — one file category + one verification domain (behavioral) per SC"
+  phase_dependency:
+    result: pass
+    detail: "phase-1-canonical-gate (SC-1, SC-2) -> phase-2-read-phase-wiring (SC-3..SC-8) -> phase-3-rules-and-agents (SC-9..SC-11); phase DAG acyclic"
+  three_tier_structure:
+    result: pass
+    detail: "Multi-phase spec structure present: pre (canonical gate + sync foundation), per-file (six wired cards), post (rules/guideline/AGENTS.md consolidation)"
+open_flags_for_spec_author:
+  - "GAP-1 session-start scoping decision (out-of-scope statement recommended)"
+  - "canonical-card parameterization mechanism (mode flag vs read-only variant card) left to spec author — both variants analyzed compatible"

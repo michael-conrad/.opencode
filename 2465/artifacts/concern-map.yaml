@@ -1,0 +1,38 @@
+issue: ".opencode#2465"
+artifact: concern-map
+status: complete
+grounding_coverage:
+  primary_source: "handoff gap-map artifact (complete) + live verification of gap claims"
+  ungrounded_assumptions: []
+concern_boundaries:
+  - concern: "Freshness verification (read-only gate)"
+    boundary: "Canonical card in git-workflow-branch — owns all verification logic (trunk-tip compare, cleanliness, fail-open)"
+    separation: "Wired cards reference the gate via Read [Text](path); they do NOT restate the 8 steps inline (single-source-of-truth)"
+  - concern: "Freshness remediation (sync action)"
+    boundary: "submodule-sync card extension — owns pull/rebase/trunk-submodule-sync semantics; never commits pointers"
+    separation: "Gate says WHEN (stale detected), sync card says HOW (remediate); conflicts halt to developer"
+  - concern: "Entry-criteria wiring"
+    boundary: "Six read-phase skill cards (brainstorming, spec-creation, writing-plans, executing-plans, research, issue-review)"
+    separation: "Each card adds only its own entry criterion; no cross-card duplication of gate content"
+  - concern: "Authorization classification"
+    boundary: "010-approval-gate.md — owns the sync-is-authorization-free-hygiene rule"
+    separation: "Skill cards rely on the guideline classification; they do not re-derive authorization scope"
+  - concern: "Bright-line rule text"
+    boundary: "000-critical-rules.md (Tier 1 rule) + .opencode/AGENTS.md (trigger list)"
+    separation: "Rule states the mandate; AGENTS.md states mid-feature triggers; cards state the procedure"
+gap_map:
+  root_cause: "Deck freshness gates anchor at workflow WRITE boundaries (pre-work, push, PR-creation); READ activity (analysis, spec, planning, execution entry) has no gate — stale-read contamination propagates downstream (spec/plan anchors drift, discovered at PR time or never)"
+  gaps_addressed_by_this_spec:
+    - {gap: GAP-2, phase: "Analysis (brainstorming, pre-spec-inspection, research, issue-review)", fix: "SC-3, SC-7, SC-8"}
+    - {gap: GAP-3, phase: "spec-creation (issue-state staleness only)", fix: "SC-4"}
+    - {gap: GAP-4, phase: "writing-plans", fix: "SC-5"}
+    - {gap: GAP-5, phase: "executing-plans", fix: "SC-6"}
+    - {gap: GAP-6, phase: "Mid-feature resume (advisory only)", fix: "SC-11 (bright-line triggers) + SC-2 (sync action)"}
+    - {gap: GAP-8, phase: "pull/sync not authorization-classified", fix: "SC-10"}
+    - {gap: GAP-9, phase: "submodule enumeration source", fix: "SC-1/SC-2 (.gitmodules-only enumeration, session-init dir-scan misclassification excluded by no-coded-fixes)"}
+  gaps_out_of_scope:
+    - {gap: GAP-1, phase: "Session start", reason: "no coded fixes allowed (session-init untouched); covered indirectly by first read-phase skill invocation"}
+  gaps_already_covered:
+    - {phase: "Push feature branch", coverage: "review-prep auto-rebase if behind"}
+    - {phase: "Implementation start (pre-work)", coverage: "8-step gate + sync"}
+    - {phase: "PR creation", coverage: "enforcement gate"}

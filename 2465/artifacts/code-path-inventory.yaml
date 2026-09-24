@@ -1,0 +1,39 @@
+issue: ".opencode#2465"
+artifact: code-path-inventory
+status: complete
+grounding_coverage:
+  primary_source: "handoff code-paths artifact (complete) — deck execution paths, no implementation code touched by this spec"
+  ungrounded_assumptions: []
+paths:
+  - id: PATH-1
+    path: "Session start -> session-init (Python) -> context emitted -> agent reads files -> analysis"
+    touched_by_spec: false
+    detail: "session-init unchanged (no coded fixes); stale entry prevented downstream at first read-phase skill invocation (PATH-2)"
+  - id: PATH-2
+    path: "brainstorming skill() -> pre-spec-inspection task -> file reads -> findings"
+    touched_by_spec: true
+    detail: "SC-3 adds freshness entry criterion (Step 0) before file reads"
+  - id: PATH-3
+    path: "spec-creation skill() -> analyze/create tasks -> file reads -> spec SCs anchored to code paths"
+    touched_by_spec: true
+    detail: "SC-4 adds analyze freshness entry criterion (this dispatch path is live right now — analyze ran on possibly-stale state, which is the incident that motivated the spec)"
+  - id: PATH-4
+    path: "writing-plans skill() -> create task -> file reads -> plan items reference code paths"
+    touched_by_spec: true
+    detail: "SC-5 adds plan-creation freshness entry criterion"
+  - id: PATH-5
+    path: "executing-plans skill() -> plan execution -> file reads -> edits against possibly-changed code"
+    touched_by_spec: true
+    detail: "SC-6 adds entry criterion + mid-plan currency check (resume after idle)"
+  - id: PATH-6
+    path: "Long-session resume: user returns hours later -> agent continues -> trunk has moved -> subsequent reads stale"
+    touched_by_spec: true
+    detail: "SC-11 bright-line triggers + SC-2 sync action cover resume; executing-plans mid-plan check (SC-6) is the mechanical anchor"
+  - id: PATH-7
+    path: "pre-work (write gate) -> catches state only at implementation start — downstream of PATH-1..6"
+    touched_by_spec: false
+    detail: "Existing write-side gate remains intact; this spec adds upstream read-side gates so pre-work rarely encounters surprises"
+failure_chain: "stale read at PATH-1..6 -> spec/plan anchors drift -> implementation conflicts or silent divergence -> discovered at PR time (expensive) or not at all (worst)"
+sync_path_added:
+  - "Freshness gate detects stale -> agent runs sync action (SC-2): trunk ff-only pull / feature-branch rebase onto origin/$DEFAULT_BRANCH + submodule sync -> re-verify -> proceed"
+  - "Conflict during rebase -> halt to developer (never auto-merge)"

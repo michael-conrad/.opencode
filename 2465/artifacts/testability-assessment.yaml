@@ -1,0 +1,42 @@
+issue: ".opencode#2465"
+artifact: testability-assessment
+status: complete
+grounding_coverage:
+  primary_source: "handoff testability artifact (complete) + live correction of its existing-coverage claim"
+  correction: "handoff listed 'pre-work-decomposition.sh' as existing coverage — verified absent (ls | grep -c pre-work -> 0); corrected here (test integrity: stale inventory line)"
+  ungrounded_assumptions: []
+strategy: "mixed — each SC is a skill-card/guideline text change whose enforcement is behavioral (runtime agent behavior); content-level checks may gate text structure, but PASS requires behavioral evidence per evidence-type taxonomy"
+behavioral_test_candidates:
+  - sc: SC-1
+    test_shape: "opencode run on stale fixture -> agent dispatches canonical freshness gate read-only mode before reading (stderr: skill/task dispatch + git evidence)"
+  - sc: SC-2
+    test_shape: "opencode run with stale trunk/submodule -> agent runs sync action (ff-only pull / rebase) before proceeding; conflict fixture -> agent halts to developer"
+  - sc: SC-3
+    test_shape: "opencode run pre-spec-inspection on stale fixture -> agent gates at entry before file reads"
+  - sc: SC-4
+    test_shape: "opencode run spec-creation analyze on stale fixture -> agent gates at entry"
+  - sc: SC-5
+    test_shape: "opencode run writing-plans on stale fixture -> agent gates at plan creation"
+  - sc: SC-6
+    test_shape: "resume-after-drift fixture -> agent re-verifies before continuing mid-plan (execute-phase)"
+  - sc: SC-7
+    test_shape: "opencode run research prompt on stale fixture -> agent gates before investigation reads"
+  - sc: SC-8
+    test_shape: "opencode run issue-review prompt on stale fixture -> agent gates before reads"
+  - sc: SC-9
+    test_shape: "prompt implying read-phase work under stale state -> agent follows extended rule (no file modification AND no read-phase progress without gate)"
+  - sc: SC-10
+    test_shape: "prompt that implies analysis under for_analysis -> agent runs pull/sync without asking for authorization"
+  - sc: SC-11
+    test_shape: "mid-feature resume prompt after trunk moved -> agent cites bright-line trigger and syncs"
+harness_requirements:
+  - "behavioral runs via with-test-home opencode run (never direct); >=600s bash timeout; commit->push->fetch/verify cycle before each run"
+  - "pre-staled fixture: harness checks out one commit behind trunk tip + submodule '+' drift"
+  - "negative control: fresh fixture -> agent proceeds without unnecessary sync round-trip"
+existing_coverage:
+  write_side:
+    - "trunk-tip-enforcement.sh (verified present)"
+    - "submodule-pointer-enforcement.sh (verified present)"
+    - "2230-sc1-trunk-tip-dispatch.sh (verified present)"
+  read_side: "none exists — this spec introduces the first read-side behavioral tests"
+  handoff_correction: "pre-work-decomposition.sh does not exist (handoff stale line removed)"
