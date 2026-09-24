@@ -1304,6 +1304,17 @@ __semantic_monitor() {
     # (parsed-classification dispatch resets it) up to DISPATCH_FAIL_CEILING.
     local dispatch_failures=0
     local harness_failure_halt=0
+    # .opencode#2456 SC-15 (plan-06 phase-6 item): poll-cadence floor state —
+    # every POLL record is stamped with ts=<epoch> and the maximum
+    # consecutive-poll gap is bounded by BEHAVIOR_POLL_CADENCE_MAX (default
+    # 300s). A gap exceeding the floor emits a MONITOR-CADENCE-VIOLATION
+    # stderr record naming the gap; the sleep loop is cadence-bounded so a
+    # tick never overshoots the floor (long operations poll immediately).
+    local BEHAVIOR_POLL_CADENCE_MAX="${BEHAVIOR_POLL_CADENCE_MAX:-300}"
+    local prev_poll_ts=""
+    local cadence_max_gap=0
+    local now_ts
+    now_ts=$(date +%s)
 
     while kill -0 "$run_pid" 2>/dev/null; do
         poll=$((poll + 1))
@@ -1321,20 +1332,55 @@ __semantic_monitor() {
             # block — unset → no monitor, no classification, no carve-out
             # (backward compat, plan-02 "no flag changes in this phase").
             if [ "${classification_value:-}" = "progressing-directionally" ]; then
-                echo "POLL ${poll}: max-polls budget exceeded but run classified progressing-directionally (${classification_value}) — progressing runs continue polling regardless of duration (R-2, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
+                echo "POLL ${poll}: ts=${ts} max-polls budget exceeded but run classified progressing-directionally (${classification_value}) — progressing runs continue polling regardless of duration (R-2, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
             else
-                echo "POLL ${poll}: max-polls budget exhausted — run outlived monitor budget, aborting (last classification=${classification_value:-none})" >> "$poll_log"
+                echo "POLL ${poll}: ts=${ts} max-polls budget exhausted — run outlived monitor budget, aborting (last classification=${classification_value:-none})" >> "$poll_log"
                 abort_reason="max_polls_exhausted"
                 break
             fi
         fi
-        sleep "$BEHAVIOR_MONITOR_INTERVAL"
+        # .opencode#2456 SC-15: cadence-bounded sleep — poll immediately after
+        # long operations (classification dispatches, DB reads) instead of a
+        # fixed interval, so no tick overshoots the ≤300s floor. Sleep at most
+        # the remaining budget since the previous poll's timestamp.
+        local sleep_for="$BEHAVIOR_MONITOR_INTERVAL"
+        if [ -n "$prev_poll_ts" ]; then
+            now_ts=$(date +%s)
+            local elapsed=$((now_ts - prev_poll_ts))
+            local remaining=$((BEHAVIOR_POLL_CADENCE_MAX - elapsed))
+            if [ "$remaining" -lt "$sleep_for" ]; then
+                if [ "$remaining" -lt 0 ]; then
+                    remaining=0
+                fi
+                sleep_for="$remaining"
+            fi
+        fi
+        sleep "$sleep_for"
+
+        # .opencode#2456 SC-15: stamp this poll's epoch and measure the
+        # consecutive-poll gap against the floor. A gap exceeding
+        # BEHAVIOR_POLL_CADENCE_MAX emits a MONITOR-CADENCE-VIOLATION stderr
+        # record naming the gap (the violation record, not the sleep bound,
+        # is the enforceable predicate surface).
+        now_ts=$(date +%s)
+        local gap=""
+        if [ -n "$prev_poll_ts" ]; then
+            gap=$((now_ts - prev_poll_ts))
+            if [ "$gap" -gt "$cadence_max_gap" ]; then
+                cadence_max_gap=$gap
+            fi
+            if [ "$gap" -gt "$BEHAVIOR_POLL_CADENCE_MAX" ]; then
+                echo "MONITOR-CADENCE-VIOLATION gap=${gap}s max=${BEHAVIOR_POLL_CADENCE_MAX}s poll=${poll} consecutive-poll gap exceeded the poll-cadence floor (SC-15, .opencode#2456)" >&2
+            fi
+        fi
+        prev_poll_ts=$now_ts
+        local ts="$now_ts"
 
         # Newest test home DB = the current run's live session DB (§14 step 3).
         local db
         db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
         if [ -z "$db" ] || [ ! -f "$db" ]; then
-            echo "POLL ${poll}: DB not yet provisioned (test home not created yet)" >> "$poll_log"
+            echo "POLL ${poll}: ts=${ts} DB not yet provisioned (test home not created yet)" >> "$poll_log"
             continue
         fi
 
@@ -1444,7 +1490,7 @@ MONPY
         local out_tail=""; local err_tail=""
         out_tail=$(tail -c 200 "$output_file" 2>/dev/null | tr '\n' ' ' | tail -c 120)
         err_tail=$(tail -c 200 "$err_file" 2>/dev/null | tr '\n' ' ' | tail -c 120)
-        echo "POLL ${poll}: ev=${event_count} tools=${tool_parts} completed=${completed} running=${running} ident=${identical_max} artifact=${art_status} goal=${goal_json}" >> "$poll_log"
+        echo "POLL ${poll}: ts=${ts} ev=${event_count} tools=${tool_parts} completed=${completed} running=${running} ident=${identical_max} artifact=${art_status} goal=${goal_json}" >> "$poll_log"
         echo "  text: ${last_text}" >> "$poll_log"
         echo "  reason-tail: ${last_reason}" >> "$poll_log"
         echo "  stdout-tail: ${out_tail}" >> "$poll_log"
@@ -1606,7 +1652,7 @@ MONPY
         # progressing run keeps polling. Flag-gated by the enclosing
         # BEHAVIOR_SEMANTIC_MONITOR=1 block (backward compat).
         if [ -n "${abort_reason:-}" ] && [ "${classification_value:-}" = "progressing-directionally" ]; then
-            echo "POLL ${poll}: mechanical signal ${abort_reason} suppressed — run classified progressing-directionally (R-2: progressing runs continue regardless of duration, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
+            echo "POLL ${poll}: ts=${ts} mechanical signal ${abort_reason} suppressed — run classified progressing-directionally (R-2: progressing runs continue regardless of duration, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
             abort_reason=""
         fi
 
