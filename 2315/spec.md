@@ -6,12 +6,12 @@ labels:
 - needs-approval
 - spec-draft
 created: 2026-08-21T14:54:28Z
-updated: 2026-09-02T03:01:25Z
+updated: 2026-09-24T04:48:39Z
 remote_issue: 2315
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2315"
 promoted_at: 2026-08-23T21:00:00Z
 promotion_type: retroactive_import
-last_sync: 2026-09-02T03:01:25Z
+last_sync: 2026-09-24T04:48:39Z
 author: michael-conrad
 ---
 
