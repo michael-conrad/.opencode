@@ -97,21 +97,19 @@
 - [ ] 146. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-23**
 - [ ] 147. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts fresh session id and zero prior-session messages. **→ SC-23**
 - [ ] 148. **commit-inline (**direct**).** Commit the isolation path. **→ SC-23**
-- [ ] 149. **VbC (**task-card**).** Verify SC-13..SC-23 verdicts are PASS with matching evidence types. **→ SC-13..SC-23**
-- [ ] 150. **VbC consolidation + Phase 6 gate (**direct**).** Consolidate the eleven verdicts into the phase evidence table; confirm all phase-6 SCs verified before post-implementation.
-- [ ] 153. **RED — early termination (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture confirms the RED verdict then waits for the scenario to fully exit (no termination); early-termination assertion fails. **→ SC-24**
-- [ ] 154. **GREEN — early termination (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — on a decided verdict the supervisor terminates run + monitor within one poll cycle and captures exit/artifact evidence. **→ SC-24**
-- [ ] 155. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-24**
-- [ ] 156. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: termination within one poll cycle of the decided verdict. **→ SC-24**
-- [ ] 157. **commit-inline (**direct**).** Commit the early-termination scenario. **→ SC-24**
-- [ ] 158. **VbC (**task-card**).** Verify SC-13..SC-24 verdicts are PASS with matching evidence types. **→ SC-13..SC-24**
-- [ ] 161. **RED — cleanup target selection (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — cleanup fixture uses a broad grep-kill matching "opencode run" (targets include the own tree); target-selection assertion fails. **→ SC-25**
-- [ ] 162. **GREEN — cleanup target selection (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — cleanup selects by scenario-specific markers (scenario name, test-home path) with own-PID/parent-PID exclusion; own-session-alive verified after cleanup. **→ SC-25**
-- [ ] 163. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
-- [ ] 164. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: kill-target selection excludes the own process tree. **→ SC-25**
-- [ ] 165. **commit-inline (**direct**).** Commit the cleanup-selection scenario. **→ SC-25**
-- [ ] 166. **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
-- [ ] 167. **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
-- [ ] 168. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
+- [ ] 149. **RED — early termination (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture confirms the RED verdict then waits for the scenario to fully exit (no termination); early-termination assertion fails. **→ SC-24**
+- [ ] 150. **GREEN — early termination (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — on a decided verdict the supervisor terminates run + monitor within one poll cycle and captures exit/artifact evidence. **→ SC-24**
+- [ ] 149. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-24**
+- [ ] 150. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: termination within one poll cycle of the decided verdict. **→ SC-24**
+- [ ] 149. **commit-inline (**direct**).** Commit the early-termination scenario. **→ SC-24**
+- [ ] 150. **VbC (**task-card**).** Verify SC-13..SC-24 verdicts are PASS with matching evidence types. **→ SC-13..SC-24**
+- [ ] 149. **RED — cleanup target selection (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — cleanup fixture uses a broad grep-kill matching "opencode run" (targets include the own tree); target-selection assertion fails. **→ SC-25**
+- [ ] 150. **GREEN — cleanup target selection (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — cleanup selects by scenario-specific markers (scenario name, test-home path) with own-PID/parent-PID exclusion; own-session-alive verified after cleanup. **→ SC-25**
+- [ ] 149. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
+- [ ] 150. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: kill-target selection excludes the own process tree. **→ SC-25**
+- [ ] 149. **commit-inline (**direct**).** Commit the cleanup-selection scenario. **→ SC-25**
+- [ ] 150. **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
+- [ ] 149. **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
+- [ ] 150. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
