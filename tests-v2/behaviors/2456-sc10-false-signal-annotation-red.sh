@@ -69,7 +69,12 @@
 #     before any classifier boundary can suppress (progressing) or divert
 #     (undetermined halt-class) the §14 abort path;
 # (3) the injection window is poll-count bound (240 polls x 5s), surviving
-#     slow first-tool-call latency on the default model.
+#     slow first-tool-call latency on the default model;
+# (4) CURRENT-RUN home guard — the watcher only acts on a test home newer
+#     than the pre-launch snapshot (a stale prior run's home made the
+#     watcher false-fire on iteration 1: set -e + pipefail + failing ls also
+#     killed the subshell at iteration 1 when NO home existed; both defects
+#     produced the 0-byte/false marker state this revision closes).
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -91,6 +96,15 @@ SCENARIO_PROMPT="Follow this repository working protocol exactly — it is the e
 
 rm -f tmp/.behavior-run.lock
 
+# CURRENT-RUN home guard: snapshot the newest test home BEFORE the watcher
+# launches; behavior_run provisions the CURRENT run's FRESH home AFTER this —
+# the watcher only acts when a home NEWER than the snapshot exists. Without
+# this guard a stale prior run's home (whose DB may still carry injected
+# rows) makes the watcher false-fire on iteration 1 and exit early — the
+# false-signal fixture state then never lands on the monitored run.
+PRE_HOME=""
+PRE_HOME=$(ls -dt "$PARENT_REPO_DIR"/tmp/test-home-* 2>/dev/null | head -1 || echo "")
+
 # ── Fixture: duplicate-event over-count injection watcher (background) ───────
 # Waits for the run's live session DB to carry >=1 COMPLETED tool part, then
 # inserts 2 duplicate rows (fresh event ids, same tool+input) — the
@@ -100,7 +114,8 @@ INJECTION_MARK="$EV_ROOT/injection-done"
     for i in $(seq 1 240); do
         inj_win=$((inj_win + 1))
         db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1 || echo "")
-        if [ -n "$db" ] && [ -f "$db" ]; then
+        cur_home=$(dirname "$(dirname "$(dirname "$db")")")
+        if [ -n "$db" ] && [ -f "$db" ] && [ "$cur_home" != "$PRE_HOME" ]; then
             python3 - "$db" <<INJPY
 import json, sqlite3, sys, time
 db = sys.argv[1]
