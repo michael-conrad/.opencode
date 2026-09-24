@@ -101,6 +101,10 @@ SCENARIOS["skill-deck-completeness"]="__STANDALONE__"
 SCENARIOS["2292-sc4-live-root-mutation"]="__STANDALONE__"
 SCENARIOS["2334-sc8-glob-path-param-invocation"]="__STANDALONE__"
 SCENARIOS["2451-sc7-rule-text-placement"]="__STANDALONE__"
+# .opencode#2456 SC-11: standalone behavioral enforcement scenario for the
+# with-test-home resume gate — re-dispatch/re-run without a recorded
+# non-undetermined determination must be blocked.
+SCENARIOS["2456-sc11-redetermination-gate-enforcement"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
