@@ -1055,6 +1055,56 @@ __record_orchestrator_decision() {
         echo "HARNESS_FAILURE: no determination record at $det — SC-3 __write_determination_record must have run first (SC-7 appends to the existing record, never creates it)" >&2
         return 1
     fi
+    # .opencode#2456 SC-13: diagnosis-before-retry gate. When the determination
+    # record's final classification is non-progressing (off-track or
+    # undetermined) AND an identifiable external cause exists in the run
+    # evidence (orphaned/left-running run processes, provider quota/error
+    # output, harness failure), the recorded decision MUST be
+    # terminate-with-root-cause whose root_cause names the diagnosed cause —
+    # a continue-new-dispatch on such a record is REJECTED with a validation
+    # error naming the missing diagnosis (timer-escalation re-dispatch without
+    # diagnosis is prohibited, R-9). The gate rewrites the decision to the
+    # diagnosis-derived terminate-with-root-cause and records the diagnosed
+    # root cause. Records without an identified cause keep the existing
+    # value-set behavior (SC-7 unchanged); the SC-8 gate reads these records
+    # unchanged (backward compatible).
+    local sc13_class
+    sc13_class="$(grep -E '^  classification: ' "$det" | head -1 | sed 's/^  classification: //' || true)"
+    case "$sc13_class" in
+        off-track|undetermined)
+            local sc13_cause=""
+            local sc13_diag_orphans=0
+            local sc13_diag_provider=0
+            local sc13_monitor="$artifact_dir/monitor.log"
+            if grep -qiE 'left[ -]running|orphan' "$sc13_monitor" "$det" 2>/dev/null; then
+                sc13_diag_orphans=1
+            fi
+            if grep -qiE 'spending limit|quota|rate.?limit|provider.*error|inference providers' \
+                "$artifact_dir/stdout.log" "$artifact_dir/stderr.log" \
+                "$artifact_dir/harness-stderr.log" "$sc13_monitor" 2>/dev/null; then
+                sc13_diag_provider=1
+            fi
+            if [ "$sc13_diag_orphans" = "1" ]; then
+                sc13_cause="orphaned/left-running run processes after the halt-class notification"
+            fi
+            if [ "$sc13_diag_provider" = "1" ]; then
+                if [ -n "$sc13_cause" ]; then
+                    sc13_cause="${sc13_cause}; provider quota/error output in the run evidence"
+                else
+                    sc13_cause="provider quota/error output in the run evidence"
+                fi
+            fi
+            if [ -n "$sc13_cause" ]; then
+                if [ "$decision" = "continue-new-dispatch" ]; then
+                    echo "VALIDATION-ERROR: continue-new-dispatch REJECTED on the non-progressing record (classification '${sc13_class}') — the run evidence carries an identifiable external cause (${sc13_cause}) and the decision names no diagnosis; timer-escalation re-dispatch without diagnosis is prohibited (SC-13/R-9, .opencode#2456). Recording the diagnosis-derived terminate-with-root-cause decision instead." >&2
+                elif [ -n "$root_cause" ] && ! printf '%s' "$root_cause" | grep -qiE 'orphan|left[ -]running|quota|spending limit|rate.?limit|provider'; then
+                    echo "VALIDATION-ERROR: terminate-with-root-cause root_cause does not name the diagnosed external cause (${sc13_cause}) — a generic exit-code restatement is not diagnosis-derived (SC-13, .opencode#2456). Recording the diagnosed root cause instead." >&2
+                fi
+                decision="terminate-with-root-cause"
+                root_cause="diagnosed external cause: ${sc13_cause} (run evidence: monitor.log/stdout.log/stderr.log of ${artifact_dir})"
+            fi
+            ;;
+    esac
     local timestamp
     timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || true)
     local entry="    - decision: ${decision}"
