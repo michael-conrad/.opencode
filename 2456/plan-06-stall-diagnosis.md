@@ -40,76 +40,75 @@
 
 ---
 
-- [ ] 92. **pre-regression (**task-card**).** `task(..., prompt: "execute phase-0 task from test-driven-development")`. **→ SC-13, SC-14, SC-15, SC-16**
-- [ ] 93. **pre-regression-verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")`. **→ SC-13, SC-14, SC-15, SC-16**
-- [ ] 94. **RED — full-semantic-per-poll (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — monitor poll issues a classification without deriving it from message/reasoning/tool-call parts (activity-only short-circuit); assertion fails. **→ SC-14**
-- [ ] 95. **GREEN — full-semantic-per-poll (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — every poll performs a full semantic check of progress so far; classification record cites content parts; activity/uptime/tool-call count inadmissible. **→ SC-14**
-- [ ] 96. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-14**
-- [ ] 97. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts content-citing classification; activity-only classification fails. **→ SC-14**
-- [ ] 98. **commit-inline (**direct**).** Commit the per-poll semantic-check path. **→ SC-14**
-- [ ] 99. **RED — cadence floor (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — monitored fixture run shows a poll gap exceeding 300 seconds; assertion fails. **→ SC-15**
-- [ ] 100. **GREEN — cadence floor (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — monitor polls at least every 5 minutes; no consecutive-poll gap exceeds 300s. **→ SC-15**
-- [ ] 101. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-15**
-- [ ] 102. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — poll-log gaps asserted ≤ 300s. **→ SC-15**
-- [ ] 103. **commit-inline (**direct**).** Commit the monitor-loop interval. **→ SC-15**
-- [ ] 104. **RED — diagnosis-before-retry (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — fixture run classified non-progressing by the full semantic check, with an identifiable external cause, produces no decision or a bare continue-new-dispatch; assertion fails. **→ SC-13**
-- [ ] 105. **GREEN — diagnosis-before-retry (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — recorded decision is terminate-with-root-cause naming the diagnosed external cause; SC-8's gate blocks timer-escalation re-dispatch until the record exists. **→ SC-13**
-- [ ] 106. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-13**
-- [ ] 107. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral assertion: determination record carries decision=terminate-with-root-cause with a root-cause naming the identified problem. **→ SC-13**
-- [ ] 108. **commit-inline (**direct**).** Commit the stall-classification path + fixture. **→ SC-13**
-- [ ] 109. **RED — commit ordering (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — GREEN-phase fixture agent deliberates about whether to commit (or runs against uncommitted state) before the isolated run; session-export ordering assertion fails. **→ SC-16**
-- [ ] 110. **GREEN — commit ordering (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — all test-needed changes committed and pushed mechanically before the `with-test-home` run invocation. **→ SC-16**
-- [ ] 111. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-16**
-- [ ] 112. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: task/push tool calls precede the run invocation. **→ SC-16**
-- [ ] 113. **commit-inline (**direct**).** Commit the ordering fixture + §14 alignment. **→ SC-16**
-- [ ] 114. **RED — supervisor cadence (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture loops run invocations (1..4 retries) with 5-minute waits and NO semantic checks between iterations (or single waits >300s); the cadence assertion fails. **→ SC-17**
-- [ ] 115. **GREEN — supervisor cadence (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — supervisor polls at ≤5-min intervals, every poll a full semantic check from message/reasoning/tool-call parts; retry loops carry a semantic check between iterations. **→ SC-17**
-- [ ] 116. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-17**
-- [ ] 117. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: consecutive supervision gaps ≤300s, each closed by a content-derived classification. **→ SC-17**
-- [ ] 118. **commit-inline (**direct**).** Commit the supervisor-cadence scenario. **→ SC-17**
-- [ ] 119. **RED — §14 mirror (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — AGENTS.md §14 does not carry the supervisor polling mandate (≤5-min cadence, per-poll full semantic check, no-check retry loops prohibited); advisory structural check fails. **→ SC-18**
-- [ ] 120. **GREEN — §14 mirror (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — §14 updated to mirror the exact predicate. **→ SC-18**
-- [ ] 121. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-18**
-- [ ] 122. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — advisory markdown checks clean; content matches the predicate. **→ SC-18**
-- [ ] 123. **commit-inline (**direct**).** Commit the AGENTS.md §14 sections. **→ SC-18**
-- [ ] 124. **RED — async launch form (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture launches the run in the FOREGROUND (blocking wait, no periodic SQLite-DB semantic checks) or without an attached ≤5-min SQLite-DB supervision schedule; the launch-form assertion fails. **→ SC-19**
-- [ ] 125. **GREEN — async launch form (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — the run is launched asynchronously (backgrounded/detached) with an attached supervision loop reading that run's SQLite session DB at intervals ≤300s. **→ SC-19**
-- [ ] 126. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-19**
-- [ ] 127. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: async launch + ≤5-min SQLite-DB supervision schedule attached at/prior to launch. **→ SC-19**
-- [ ] 128. **commit-inline (**direct**).** Commit the async-launch scenario. **→ SC-19**
-- [ ] 129. **RED — efficiency marker (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — deliberation-loop fixture run (large reasoning growth, repeated self-correction, minimal tool-call progress on a straightforward goal) produces no efficiency defect marker in the poll evidence and no defect notification; assertion fails. **→ SC-20**
-- [ ] 130. **GREEN — efficiency marker (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — every supervision poll includes the efficiency analysis; excessive deliberation recorded as a defect marker and routed to the defect notification path; latency-dominated progressing runs carry no marker (discrimination). **→ SC-20**
-- [ ] 131. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-20**
-- [ ] 132. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts marker fires on the deliberation loop and not on the latency-dominated progressing control. **→ SC-20**
-- [ ] 133. **commit-inline (**direct**).** Commit the efficiency-marker path + §14 alignment. **→ SC-20**
-- [ ] 134. **RED — defect-marker gate (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture records a defect marker (deliberation loop) and then launches another run/dispatch, or self-remediates/resumes without orchestrator involvement; the gating assertion fails. **→ SC-21**
-- [ ] 135. **GREEN — defect-marker gate (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — after the marker is recorded the sub-agent halts with an ORCHESTRATOR_DECISION_REQUIRED-class notification; the orchestrator researches and remediates; only the orchestrator resumes. **→ SC-21**
-- [ ] 136. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-21**
-- [ ] 137. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: marker → halt + orchestrator notification → orchestrator research/remediation → orchestrator resumption. **→ SC-21**
-- [ ] 138. **commit-inline (**direct**).** Commit the gating scenario + §14 alignment. **→ SC-21**
-- [ ] 139. **RED — classification freshness (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — fixture run derails after a progressing classification; the stale verdict suppresses every subsequent abort signal with no re-classification; freshness assertion fails. **→ SC-22**
-- [ ] 140. **GREEN — classification freshness (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — monitor re-classifies at least every N polls and on new abort-signal events; derailed run re-classified and aborted; genuinely progressing run continues. **→ SC-22**
-- [ ] 141. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-22**
-- [ ] 142. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts re-classification within the bound. **→ SC-22**
-- [ ] 143. **commit-inline (**direct**).** Commit the freshness-bound path. **→ SC-22**
-- [ ] 144. **RED — fresh-session isolation (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — fixture reuses a prior attempt's test home/session DB; the run's context contains foreign prior-session instructions; isolation assertion fails. **→ SC-23**
-- [ ] 145. **GREEN — fresh-session isolation (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — each monitored run starts from a fresh test home + fresh session; no prior-session content in context. **→ SC-23**
-- [ ] 146. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-23**
-- [ ] 147. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — behavioral fixture asserts fresh session id and zero prior-session messages. **→ SC-23**
-- [ ] 148. **commit-inline (**direct**).** Commit the isolation path. **→ SC-23**
-- [ ] 149. **RED — early termination (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — supervising-agent fixture confirms the RED verdict then waits for the scenario to fully exit (no termination); early-termination assertion fails. **→ SC-24**
-- [ ] 150. **GREEN — early termination (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — on a decided verdict the supervisor terminates run + monitor within one poll cycle and captures exit/artifact evidence. **→ SC-24**
-- [ ] 149. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-24**
-- [ ] 150. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: termination within one poll cycle of the decided verdict. **→ SC-24**
-- [ ] 149. **commit-inline (**direct**).** Commit the early-termination scenario. **→ SC-24**
-- [ ] 150. **VbC (**task-card**).** Verify SC-13..SC-24 verdicts are PASS with matching evidence types. **→ SC-13..SC-24**
-- [ ] 149. **RED — cleanup target selection (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — cleanup fixture uses a broad grep-kill matching "opencode run" (targets include the own tree); target-selection assertion fails. **→ SC-25**
-- [ ] 150. **GREEN — cleanup target selection (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — cleanup selects by scenario-specific markers (scenario name, test-home path) with own-PID/parent-PID exclusion; own-session-alive verified after cleanup. **→ SC-25**
-- [ ] 149. **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
-- [ ] 150. **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — session-export assertion: kill-target selection excludes the own process tree. **→ SC-25**
-- [ ] 149. **commit-inline (**direct**).** Commit the cleanup-selection scenario. **→ SC-25**
-- [ ] 150. **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
-- [ ] 149. **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
-- [ ] 150. **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
+- [ ] 92 **pre-regression (**task-card**).** `task(..., prompt: "execute phase-0 task from test-driven-development")`. **→ SC-13..SC-25**
+- [ ] 93 **pre-regression-verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")`. **→ SC-13..SC-25**
+- [ ] 94 **RED — diagnosis-before-retry (terminate-with-root-cause on identified-cause non-progressing classification; SC-8 gate blocks timer-escalation re-dispatch) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-13**
+- [ ] 95 **GREEN — diagnosis-before-retry (terminate-with-root-cause on identified-cause non-progressing classification; SC-8 gate blocks timer-escalation re-dispatch) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-13**
+- [ ] 96 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-13**
+- [ ] 97 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-13**
+- [ ] 98 **commit-inline (**direct**).** Commit the slice. **→ SC-13**
+- [ ] 99 **RED — full-semantic-per-poll (classification derived from message/reasoning/tool-call parts; activity-only inadmissible) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-14**
+- [ ] 100 **GREEN — full-semantic-per-poll (classification derived from message/reasoning/tool-call parts; activity-only inadmissible) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-14**
+- [ ] 101 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-14**
+- [ ] 102 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-14**
+- [ ] 103 **commit-inline (**direct**).** Commit the slice. **→ SC-14**
+- [ ] 104 **RED — cadence floor (no consecutive-poll gap exceeds 300s) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-15**
+- [ ] 105 **GREEN — cadence floor (no consecutive-poll gap exceeds 300s) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-15**
+- [ ] 106 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-15**
+- [ ] 107 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-15**
+- [ ] 108 **commit-inline (**direct**).** Commit the slice. **→ SC-15**
+- [ ] 109 **RED — commit ordering (task/push precede the run invocation; no commit deliberation) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-16**
+- [ ] 110 **GREEN — commit ordering (task/push precede the run invocation; no commit deliberation) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-16**
+- [ ] 111 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-16**
+- [ ] 112 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-16**
+- [ ] 113 **commit-inline (**direct**).** Commit the slice. **→ SC-16**
+- [ ] 114 **RED — supervisor cadence (≤300s gaps, each closed by a content-derived classification; no-check retry loops prohibited) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-17**
+- [ ] 115 **GREEN — supervisor cadence (≤300s gaps, each closed by a content-derived classification; no-check retry loops prohibited) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-17**
+- [ ] 116 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-17**
+- [ ] 117 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-17**
+- [ ] 118 **commit-inline (**direct**).** Commit the slice. **→ SC-17**
+- [ ] 119 **RED — §14 mirror (supervisor mandate mirrored into AGENTS.md §14) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-18**
+- [ ] 120 **GREEN — §14 mirror (supervisor mandate mirrored into AGENTS.md §14) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-18**
+- [ ] 121 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-18**
+- [ ] 122 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-18**
+- [ ] 123 **commit-inline (**direct**).** Commit the slice. **→ SC-18**
+- [ ] 124 **RED — async launch form (backgrounded launch + attached ≤300s SQLite-DB supervision schedule) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-19**
+- [ ] 125 **GREEN — async launch form (backgrounded launch + attached ≤300s SQLite-DB supervision schedule) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-19**
+- [ ] 126 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-19**
+- [ ] 127 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-19**
+- [ ] 128 **commit-inline (**direct**).** Commit the slice. **→ SC-19**
+- [ ] 129 **RED — efficiency-defect marker (excessive deliberation recorded + notified; latency not a marker) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-20**
+- [ ] 130 **GREEN — efficiency-defect marker (excessive deliberation recorded + notified; latency not a marker) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-20**
+- [ ] 131 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-20**
+- [ ] 132 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-20**
+- [ ] 133 **commit-inline (**direct**).** Commit the slice. **→ SC-20**
+- [ ] 134 **RED — defect-marker gate (recorded marker ⇒ sub-agent halt + ORCHESTRATOR_DECISION_REQUIRED; orchestrator researches/remediates; new dispatch or resume per orchestrator determination) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-21**
+- [ ] 135 **GREEN — defect-marker gate (recorded marker ⇒ sub-agent halt + ORCHESTRATOR_DECISION_REQUIRED; orchestrator researches/remediates; new dispatch or resume per orchestrator determination) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-21**
+- [ ] 136 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-21**
+- [ ] 137 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-21**
+- [ ] 138 **commit-inline (**direct**).** Commit the slice. **→ SC-21**
+- [ ] 139 **RED — classification freshness (abort suppression valid only within the freshness window; stale verdicts never suppress) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-22**
+- [ ] 140 **GREEN — classification freshness (abort suppression valid only within the freshness window; stale verdicts never suppress) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-22**
+- [ ] 141 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-22**
+- [ ] 142 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-22**
+- [ ] 143 **commit-inline (**direct**).** Commit the slice. **→ SC-22**
+- [ ] 144 **RED — fresh-session isolation (fresh test home + fresh session; no prior-session content) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-23**
+- [ ] 145 **GREEN — fresh-session isolation (fresh test home + fresh session; no prior-session content) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-23**
+- [ ] 146 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-23**
+- [ ] 147 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-23**
+- [ ] 148 **commit-inline (**direct**).** Commit the slice. **→ SC-23**
+- [ ] 149 **RED — early termination (decided verdict ⇒ terminate run + monitor within one poll cycle) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-24**
+- [ ] 150 **GREEN — early termination (decided verdict ⇒ terminate run + monitor within one poll cycle) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-24**
+- [ ] 151 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-24**
+- [ ] 152 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-24**
+- [ ] 153 **commit-inline (**direct**).** Commit the slice. **→ SC-24**
+- [ ] 154 **RED — cleanup target selection (kill targets by scenario markers; own-PID/parent-PID excluded) (**task-card**).** `task(..., prompt: "execute red task from test-driven-development")` — the predicate is absent/unenforced on the current harness; the enforcement scenario fails. **→ SC-25**
+- [ ] 155 **GREEN — cleanup target selection (kill targets by scenario markers; own-PID/parent-PID excluded) (**task-card**).** `task(..., prompt: "execute green task from test-driven-development")` — implement the minimal predicate; the enforcement scenario passes. **→ SC-25**
+- [ ] 156 **post-regression (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-25**
+- [ ] 157 **verify (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — evidence per the SC's declared type. **→ SC-25**
+- [ ] 158 **commit-inline (**direct**).** Commit the slice. **→ SC-25**
+- [ ] 159 **VbC (**task-card**).** Verify SC-13..SC-25 verdicts are PASS with matching evidence types. **→ SC-13..SC-25**
+- [ ] 160 **VbC consolidation (**direct**).** Consolidate the thirteen verdicts into the phase evidence table.
+- [ ] 161 **Phase 6 gate (**direct**).** Final phase-6 completeness confirmation (all thirteen SCs) before post-implementation entry.
 
 **Concern transition:** Leaving Phase 6 (semantic poll discipline + stall diagnosis) → entering the post-implementation pipeline.
