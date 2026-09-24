@@ -99,7 +99,7 @@ INJECTION_MARK="$EV_ROOT/injection-done"
 (inj_win=0
     for i in $(seq 1 240); do
         inj_win=$((inj_win + 1))
-        db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
+        db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1 || echo "")
         if [ -n "$db" ] && [ -f "$db" ]; then
             python3 - "$db" <<INJPY
 import json, sqlite3, sys, time
