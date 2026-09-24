@@ -1,8 +1,15 @@
 labels:
 - approved-for-pr
 - spec-cleared
-updated_at: '2026-09-02T03:30:51+00:00'
-body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+updated_at: '2026-09-24T04:49:43+00:00'
+body: '> **Full spec and artifacts: [`.opencode/.issues/2315/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2315)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2315/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
 
 
   ## Problem
@@ -14,7 +21,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   retrieve grounded content from that corpus without leaking source material into
   the tracked repository. This spec registers the RAGSync MCP server (`jsbroks/ragsync-mcp`)
   as a default local stdio MCP service with local embeddings, per-source isolation,
-  auto-sync, and a bounded indexing corpus scope.
+  auto-sync, and a bounded indexing corpus scope, replacing the retired srclight service.
 
 
   ## Scope
@@ -57,7 +64,8 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   - Backfilling existing research cards or dictionaries into the RAG index (CON-3).
 
   - Any changes to the root `snea-phonetics` repo''s `.issues/` tree (CON-4), or modifying
-  any existing MCP service (the-notebook-mcp, srclight, editor).
+  any existing MCP service (the-notebook-mcp, editor). The already-unregistered srclight
+  service is not re-registered — RAGSync replaces its role (CON-9).
 
 
   ## Approach
@@ -106,15 +114,23 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   mitigated by the pinned model and documented offline/cache path, CON-7).
 
 
-  **Call to action:** Review the revised spec — this revision adds the §3.1 Reference
-  Source Corpus Designation (config-as-authority with two live-verified corpora),
-  resolving the validation FAIL on the previously undefined "reference source corpus"
-  concept, and states explicit topic-presence criteria for SC-4/SC-6. Full spec text
-  and artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
+  **Call to action:** Review the 2026-09-24 revision — per developer directive it
+  records the srclight retirement (RAGSync replaces srclight''s role; recurring init
+  failures and Python dependency conflicts, an external embedding API dependency conflicting
+  with the spec''s local-embeddings direction, and Python-only indexing vs the Java/C#/GDScript
+  portfolio), adds CON-9 prohibiting srclight re-registration, corrects the stale
+  "three local services" claim (the `mcp` block currently declares the-notebook-mcp
+  and editor only, verified 2026-09-24), and updates the §3.1 `.srclight/**` exclude-glob
+  rationale. No SC, Item, or scope changes — the RAGSync implementation intent is
+  unchanged. Full spec text and artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2315/
 
 
   ---
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
-  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
