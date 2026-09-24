@@ -60,6 +60,16 @@
 # Ordered precondition cycle (§4): the scenario file is committed and pushed
 # to the submodule remote BEFORE the isolated run (SC-16 commit discipline;
 # NEVER --no-verify).
+#
+# REVISION (2026-09-23, resumed RED attempt after the interrupted prior one):
+# (1) injected duplicate rows now carry FRESH part.ids — the monitor keys
+#     completed tool parts by part.id, so same-part-id dups never raised
+#     identical_max (prior attempt reproduced no wrong abort);
+# (2) BEHAVIOR_MONITOR_CLASSIFY_MAX=0 — the wrong abort fires mechanically
+#     before any classifier boundary can suppress (progressing) or divert
+#     (undetermined halt-class) the §14 abort path;
+# (3) the injection window is poll-count bound (240 polls x 5s), surviving
+#     slow first-tool-call latency on the default model.
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -86,8 +96,9 @@ rm -f tmp/.behavior-run.lock
 # inserts 2 duplicate rows (fresh event ids, same tool+input) — the
 # duplicate-event over-count that reproduced the #2454 wrong abort.
 INJECTION_MARK="$EV_ROOT/injection-done"
-(
-    for i in $(seq 1 40); do
+(inj_win=0
+    for i in $(seq 1 240); do
+        inj_win=$((inj_win + 1))
         db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
         if [ -n "$db" ] && [ -f "$db" ]; then
             python3 - "$db" <<INJPY
@@ -111,14 +122,26 @@ if target:
     rid, agg, seq, typ, data = target
     nxt = c.execute("SELECT MAX(seq) FROM event WHERE aggregate_id=?", (agg,)).fetchone()[0] + 1
     base = rid.rstrip()
+    # FRESH part ids (SC-10 revision, 2026-09-23): the semantic monitor keys
+    # completed tool parts by part.id (helpers.sh __semantic_monitor), so an
+    # injected row reusing the SAME part.id collapses back into one dict
+    # entry and the over-count never fires (the defect the interrupted
+    # prior attempt hit: ident stayed 1). Each injected row gets a fresh
+    # part.id — a distinct tool part with IDENTICAL tool+input — which is
+    # exactly the #2454 over-count class: 3 identical completed calls now
+    # exist with only 1 genuine tool call.
+    d = json.loads(data or "{}")
+    orig_pid = (d.get("part") or {}).get("id", "prt_unknown")
     for k in (1, 2):
+        dd = json.loads(data or "{}")
+        dd["part"]["id"] = f"{orig_pid}dup{k}"
         c.execute(
             "INSERT OR IGNORE INTO event (id, aggregate_id, seq, type, data) VALUES (?,?,?,?,?)",
-            (f"{base}dup{k}", agg, nxt, typ, data),
+            (f"{base}dup{k}", agg, nxt, typ, json.dumps(dd)),
         )
         nxt += 1
     conn.commit()
-    print(f"injected dup of {rid} into {db}", flush=True)
+    print(f"injected 2 dups of {rid} (fresh part ids) into {db}", flush=True)
 else:
     print("no completed tool part found", flush=True)
 conn.close()
@@ -130,6 +153,7 @@ INJPY
         fi
         sleep 5
     done
+    echo "injection window exhausted (poll-count bound: ${inj_win} polls)" >> "$EV_ROOT/injection.log"
 ) > "$EV_ROOT/injection.log" 2>&1 &
 inject_pid=$!
 
@@ -137,7 +161,17 @@ inject_pid=$!
 BEHAVIOR_SEMANTIC_MONITOR=1
 # 60 polls x 30s = 30 min monitored budget; SHORT run (three tool calls)
 BEHAVIOR_MONITOR_MAX_POLLS=60
-export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS
+# SC-10 revision (2026-09-23): CLASSIFY_MAX=0 — no classifier dispatch in
+# this RED scenario. The distinctly-reproduced #2454 wrong abort is a
+# pre-SC-2 mechanical over-count abort: the §14 signal-1 path must fire and
+# abort BEFORE any classification boundary can suppress or re-classify it
+# (a progressing judgment strips abort_reason; an undetermined judgment is
+# halt-class and never produces the abort path at all). Classification is
+# therefore out of scope for this fixture: no dispatch, no suppression, no
+# DISPATCH-FAILURE/ceiling conflation (R-13 semantics untouched for other
+# scenarios); the guarantee-final dispatch never fires on the abort path.
+BEHAVIOR_MONITOR_CLASSIFY_MAX=0
+export BEHAVIOR_SEMANTIC_MONITOR BEHAVIOR_MONITOR_MAX_POLLS BEHAVIOR_MONITOR_CLASSIFY_MAX
 
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" || true
 kill "$inject_pid" 2>/dev/null || true
