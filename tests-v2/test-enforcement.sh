@@ -128,6 +128,12 @@ SCENARIOS["2456-sc16-commit-ordering-red"]="__STANDALONE__"
 # semantic check; asserted from synthetic session-export fixtures (no live
 # model runs).
 SCENARIOS["2456-sc17-supervision-cadence-red"]="__STANDALONE__"
+# .opencode#2456 SC-18: standalone structural enforcement scenario for the
+# §14 supervisor-mandate mirror — AGENTS.md §14 carries the supervisor
+# polling mandate (SC-17's predicate) as agent-facing instruction text:
+# the ≤300s cadence, the per-poll full semantic check for agent-supervised
+# runs, and the no-check retry-loop prohibition.
+SCENARIOS["2456-sc18-supervisor-mirror-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -152,6 +158,7 @@ SCENARIO_TAGS["skill-deck-completeness"]="content-verification skildeck"
 SCENARIO_TAGS["2292-sc4-live-root-mutation"]="content-verification live-root-mutation"
 SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glob-invocation"
 SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-placement"
+SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirror"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
