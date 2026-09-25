@@ -2806,9 +2806,9 @@ with open(verdict_out, "w") as f:
                 "a defect marker and routed to the defect notification path\n")
     f.write("reasoning_parts: %d\n" % len(reasoning))
     f.write("completed_tool_calls: %d\n" % len(tools))
-    # PASS verdicts carry no defect-marker record and no violation term — the
-    # marker is keyed on the deliberation-to-progress ratio, and a clean run's
-    # verdict must not match defect-marker patterns (latency discrimination side).
+    # FAIL verdicts carry markers[] + violations[]; a clean (PASS) verdict
+    # omits the defect-marker keys entirely — no defect-marker record matches
+    # the defect-marker patterns on the latency discrimination side.
     if markers:
         f.write("markers:\n")
         for m in markers:
@@ -2816,14 +2816,11 @@ with open(verdict_out, "w") as f:
             for k, v in m.items():
                 if k != "type":
                     f.write("    %s: %s\n" % (k, v))
-    else:
-        f.write("markers: none\n")
     if violations:
         f.write("violations:\n")
         for v in violations:
             f.write("  - %s\n" % v)
-    else:
-        f.write("violations: none\n")
+
 sys.exit(0 if verdict == "PASS" else 1)
 PYEOF
 }
