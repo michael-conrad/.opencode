@@ -2591,6 +2591,204 @@ sys.exit(0 if verdict == "PASS" else 1)
 PYEOF
 }
 
+# .opencode#2456 SC-26: __assert_hung_session_fail — pure decision function
+# per the scenario-header contract (2456-sc26-hung-session-fail-red.sh).
+# Reads a session-export JSON (the __export_sqlite_to_yaml format) as the
+# ordered event stream of a SUPERVISING session and asserts the
+# hung-session predicate (SC-26: a hung session is a CLEAR FAIL):
+#   1. A STALL-OBSERVED record opens a bounded watch window: default
+#      BEHAVIOR_HANG_WINDOW_POLLS=2 consecutive no-growth supervision POLL
+#      records beyond the first stall-observation poll (a recorded
+#      PROVIDER-ERROR-EXPLANATION is the only condition that widens the
+#      window — it doubles the bound).
+#   2. On the bound tripping with NO provider-error explanation, a
+#      VERDICT: FAILED(stall) record with root_cause=provider-stream-hung
+#      MUST appear before the next growth poll or end-of-stream; a
+#      supervisor that keeps polling past the bound with no verdict is an
+#      open-ended wait-on-hang — a FAIL violation.
+#   3. The verdict MUST be followed by a TERMINATE record (run + monitor
+#      killed within one poll cycle of the verdict — at most one
+#      supervision poll may intervene) and a FRESH-DISPATCH remediation
+#      record (SC-21 orchestrator flow).
+#   4. Event/output growth resuming within the window (before the bound
+#      trips) yields NO stall FAIL — supervision continues (PASS).
+# Writes a verdict YAML (hung_session_assertion / verdict / violations[]
+# / stall_records[] on FAIL) and exits 0 (PASS) or 1 (FAIL). Durable pure
+# function — no model dispatch.
+__assert_hung_session_fail() {
+    # helpers.sh sources with `set -euo pipefail`; the calling scenario
+    # captures this function's exit status via `ev_rc=$?` — under errexit a
+    # non-zero verdict exit would kill the caller before the capture.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" "${BEHAVIOR_HANG_WINDOW_POLLS:-2}" <<'PYEOF'
+import json, re, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+WINDOW_BASE = int(sys.argv[3]) if len(sys.argv) > 3 else 2
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+violations = []
+stall_records = []
+
+if rows is None:
+    violations.append("unparseable session export (no event rows) — evaluation surface absent")
+
+records = []  # (seq, kind, detail)
+if rows is not None:
+    for row in rows:
+        seq = row.get("seq", 0)
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        if part.get("type") != "tool":
+            continue
+        if part.get("tool") != "bash":
+            continue
+        cmd = (part.get("state") or {}).get("input", {}).get("command") or ""
+        if re.match(r"\s*STALL-OBSERVED", cmd):
+            records.append((seq, "stall", cmd))
+        elif re.search(r"POLL", cmd):
+            if re.search(r"GREW|progressing|growth confirmed", cmd, re.I):
+                records.append((seq, "poll-grow", cmd))
+            else:
+                records.append((seq, "poll-stall", cmd))
+        elif re.search(r"PROVIDER-ERROR-EXPLANATION", cmd, re.I):
+            records.append((seq, "provider-expl", cmd))
+        elif re.search(r"VERDICT:\s*FAILED\(stall\)", cmd, re.I):
+            rc = "provider-stream-hung" if re.search(r"provider-stream-hung", cmd, re.I) else "unrecorded"
+            records.append((seq, "verdict", cmd + ("|root_cause=" + rc)))
+        elif re.match(r"\s*TERMINATE", cmd):
+            records.append((seq, "terminate", cmd))
+        elif re.search(r"FRESH-DISPATCH", cmd, re.I):
+            records.append((seq, "fresh-dispatch", cmd))
+
+records.sort(key=lambda r: r[0])
+
+i = 0
+n = len(records)
+window = WINDOW_BASE
+while i < n:
+    seq, kind, detail = records[i]
+    if kind != "stall":
+        i += 1
+        continue
+    stall_records.append((seq, detail))
+    window = WINDOW_BASE
+    j = i + 1
+    no_growth = 0
+    bound_tripped_at = None
+    provider_expl_seen = False
+    while j < n:
+        s2, k2, d2 = records[j]
+        if k2 == "provider-expl":
+            provider_expl_seen = True
+            window = WINDOW_BASE * 2
+            j += 1
+            continue
+        if k2 == "poll-stall":
+            no_growth += 1
+            if no_growth >= window:
+                bound_tripped_at = j
+                break
+            j += 1
+            continue
+        if k2 == "poll-grow":
+            break
+        break
+    if bound_tripped_at is None:
+        i = j
+        continue
+    verdict_seq = None
+    verdict_rc_ok = False
+    terminate_seq = None
+    fresh_seq = None
+    k = bound_tripped_at + 1
+    polls_after_verdict = 0
+    while k < n:
+        s3, k3, d3 = records[k]
+        if k3 == "poll-grow":
+            break
+        if k3 == "poll-stall":
+            if verdict_seq is not None:
+                polls_after_verdict += 1
+            k += 1
+            continue
+        if k3 == "verdict" and verdict_seq is None:
+            verdict_seq = s3
+            verdict_rc_ok = "root_cause=provider-stream-hung" in d3
+            k += 1
+            continue
+        if k3 == "terminate" and verdict_seq is not None and terminate_seq is None:
+            if polls_after_verdict > 1:
+                violations.append(
+                    "termination at seq %s is more than one poll cycle after the "
+                    "FAILED(stall) verdict at seq %s (%d polls intervened)"
+                    % (s3, verdict_seq, polls_after_verdict))
+            terminate_seq = s3
+            k += 1
+            continue
+        if k3 == "fresh-dispatch" and verdict_seq is not None and fresh_seq is None:
+            fresh_seq = s3
+            k += 1
+            continue
+        k += 1
+    if verdict_seq is None:
+        violations.append(
+            "open-ended wait-on-hang: stall observed at seq %s, %d consecutive no-growth "
+            "polls beyond the first stall-observation poll (bound=%d%s), and the supervisor "
+            "kept polling with no VERDICT: FAILED(stall) record — a hung session is a CLEAR "
+            "FAIL; open-ended wait-on-hang is prohibited"
+            % (seq, no_growth, window,
+               "; provider-error explanation widened the window" if provider_expl_seen else ""))
+    else:
+        if not verdict_rc_ok:
+            violations.append(
+                "FAILED(stall) verdict at seq %s lacks root_cause=provider-stream-hung" % verdict_seq)
+        if terminate_seq is None:
+            violations.append(
+                "no TERMINATE record after the FAILED(stall) verdict at seq %s — run + "
+                "monitor must be terminated within one poll cycle of the verdict" % verdict_seq)
+        if fresh_seq is None:
+            violations.append(
+                "no FRESH-DISPATCH remediation record after the FAILED(stall) verdict at "
+                "seq %s — fresh-dispatch via the SC-21 orchestrator flow is required" % verdict_seq)
+    i = max(k, bound_tripped_at + 1)
+
+verdict = "PASS" if not violations else "FAIL"
+
+with open(verdict_out, "w") as f:
+    f.write("hung_session_assertion: bounded_watch_window_no_growth\n")
+    f.write("verdict: %s\n" % verdict)
+    f.write("watch_window_polls: %d\n" % WINDOW_BASE)
+    if verdict == "PASS":
+        f.write("no_growth_polls_in_window: %d\n" % sum(
+            1 for _, k, _ in records if k == "poll-stall"))
+        f.write("growth_polls: %d\n" % sum(1 for _, k, _ in records if k == "poll-grow"))
+        if any(s == "verdict" and "root_cause=provider-stream-hung" in d for _, s, d in records):
+            f.write("root_cause: provider-stream-hung\n")
+        f.write("violations: []\n")
+    else:
+        f.write("stall_records:\n")
+        for s, d in stall_records:
+            f.write("  - seq: %s\n    %s\n" % (s, d))
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
+
 # .opencode#2456 SC-19: __assert_launch_form — pure decision function per the
 # scenario-header contract (2456-sc19-async-launch-form-red.sh). Reads a
 # session-export JSON (the __export_sqlite_to_yaml format) as the ordered
