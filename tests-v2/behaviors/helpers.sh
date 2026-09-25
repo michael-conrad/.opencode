@@ -3345,3 +3345,202 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 SC23PYEOF
 }
+
+__assert_early_termination() {
+    # SC-24 (.opencode#2456): session-export early-termination evaluator.
+    # Pure decision function — no model dispatch. Asserts the
+    # terminate-within-one-poll-cycle-of-decided-verdict predicate from the
+    # ordered event stream of a supervisor session export:
+    #   - wait-after-decided (VERDICT-DECIDED, monitor keeps polling a
+    #     still-running run, no KILL within one poll cycle) => FAIL
+    #   - terminate-on-decided (KILL of run + monitor within one poll cycle,
+    #     EXIT-CAPTURE + ARTIFACT-CAPTURE present) => PASS
+    #   - continue-surface-endpoint (SURFACE-CONTINUE marker: the verdict
+    #     surface itself requires continued running; no premature mid-run
+    #     termination; SURFACE-ENDPOINT + KILL + captures at the surface's
+    #     own endpoint) => PASS
+    # Emits verdict: PASS|FAIL with violations[] and post_decision_polls[]
+    # to <verdict-yaml-out>; exits 0 on PASS, 1 on FAIL. The calling
+    # scenario captures the exit status via `ev_rc=$?` under `set +e`.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'SC24PYEOF'
+import json, sys, re
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+violations = []
+post_decision_polls = []   # poll numbers observed after VERDICT-DECIDED before termination
+poll_nums_after_endpoint = []
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+if rows is None:
+    violations.append(
+        "unparseable session export (no event rows) — evaluation surface absent")
+    markers = []
+else:
+    markers = []
+    for row in rows:
+        if row.get("type") != "message.part.updated.1":
+            continue
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        seq = row.get("seq", 0)
+        # Marker text lives in text parts and in bash tool inputs
+        # (the supervisor's poll-log lifecycle commands).
+        texts = []
+        t = part.get("text")
+        if t:
+            texts.append(t)
+        if part.get("type") == "tool":
+            state = part.get("state") or {}
+            cmd = (state.get("input") or {}).get("command")
+            if cmd:
+                texts.append(cmd)
+        for text in texts:
+            for line in text.splitlines():
+                line = line.strip()
+                if line.startswith(("POLL ", "VERDICT-DECIDED", "SURFACE-CONTINUE",
+                                    "SURFACE-ENDPOINT", "KILL", "EXIT-CAPTURE",
+                                    "ARTIFACT-CAPTURE")):
+                    markers.append((seq, line))
+
+    markers.sort(key=lambda m: m[0])
+
+decided_seq = None
+continue_marker_seq = None
+endpoint_seq = None
+kill_events = []        # (seq, line)
+exit_capture_seqs = []
+artifact_capture_seqs = []
+poll_seq_by_num = {}
+
+for seq, line in markers:
+    if line.startswith("POLL "):
+        m = re.match(r"^POLL (\d+)", line)
+        if m:
+            poll_seq_by_num[m.group(1)] = seq
+    elif line.startswith("VERDICT-DECIDED"):
+        if decided_seq is None:
+            decided_seq = seq
+    elif line.startswith("SURFACE-CONTINUE"):
+        if continue_marker_seq is None:
+            continue_marker_seq = seq
+    elif line.startswith("SURFACE-ENDPOINT"):
+        if endpoint_seq is None:
+            endpoint_seq = seq
+    elif line.startswith("KILL"):
+        kill_events.append((seq, line))
+    elif line.startswith("EXIT-CAPTURE"):
+        exit_capture_seqs.append(seq)
+    elif line.startswith("ARTIFACT-CAPTURE"):
+        artifact_capture_seqs.append(seq)
+
+first_kill_seq = kill_events[0][0] if kill_events else None
+
+if decided_seq is None and continue_marker_seq is None:
+    # No decided verdict and no surface-continue exception — nothing to
+    # terminate early; the predicate is vacuously satisfied.
+    verdict = "PASS"
+elif continue_marker_seq is not None:
+    # SURFACE-CONTINUE exception: the verdict surface itself requires
+    # continued running. Termination must happen at the surface's own
+    # endpoint (SURFACE-ENDPOINT record) with capture evidence; no
+    # premature mid-run termination.
+    if endpoint_seq is None:
+        violations.append(
+            "SURFACE-CONTINUE present but no SURFACE-ENDPOINT record — the "
+            "continue-surface scenario never reached its own endpoint with a "
+            "recorded termination")
+    for num, pseq in poll_seq_by_num.items():
+        if endpoint_seq is not None and pseq > endpoint_seq and first_kill_seq is None:
+            poll_nums_after_endpoint.append(num)
+    if endpoint_seq is not None and first_kill_seq is None:
+        violations.append(
+            "surface endpoint reached but no KILL record (run + monitor "
+            "terminated) — termination at the surface's own endpoint did not "
+            "fire")
+    if endpoint_seq is not None and first_kill_seq is not None and first_kill_seq < endpoint_seq:
+        violations.append(
+            "premature mid-run termination: KILL at seq %s fired before the "
+            "SURFACE-ENDPOINT record at seq %s — the surface requires "
+            "continued running and must not be terminated early"
+            % (first_kill_seq, endpoint_seq))
+    if endpoint_seq is not None and not exit_capture_seqs:
+        violations.append(
+            "no EXIT-CAPTURE record after the surface-endpoint termination — "
+            "run exit status was not captured")
+    if endpoint_seq is not None and not artifact_capture_seqs:
+        violations.append(
+            "no ARTIFACT-CAPTURE record after the surface-endpoint "
+            "termination — artifact evidence was not persisted")
+    verdict = "FAIL" if violations else "PASS"
+else:
+    # Decided verdict, no exception — the KILL (run + monitor) must fire
+    # within one poll cycle after VERDICT-DECIDED, with exit/artifact
+    # evidence captured.
+    for num, pseq in poll_seq_by_num.items():
+        if pseq > decided_seq and (first_kill_seq is None or pseq < first_kill_seq):
+            post_decision_polls.append(int(num))
+    post_decision_polls.sort()
+    if not kill_events:
+        violations.append(
+            "VERDICT-DECIDED recorded but no KILL record (run + monitor "
+            "terminated) — the run kept burning poll budget after the "
+            "verdict was decided and exit/artifact evidence was never "
+            "captured")
+    else:
+        kill_seq = first_kill_seq
+        if kill_seq < decided_seq:
+            violations.append(
+                "KILL at seq %s fired before VERDICT-DECIDED at seq %s — "
+                "termination cannot precede the decided verdict"
+                % (kill_seq, decided_seq))
+        elif len(post_decision_polls) > 1:
+            violations.append(
+                "wait-after-decided: %d monitor poll cycles (polls %s) "
+                "elapsed after VERDICT-DECIDED before the KILL at seq %s — "
+                "waiting after a decided verdict is prohibited (kill run + "
+                "monitor within one poll cycle)"
+                % (len(post_decision_polls), post_decision_polls, kill_seq))
+        if not exit_capture_seqs:
+            violations.append(
+                "no EXIT-CAPTURE record — run exit status was not captured "
+                "at termination")
+        if not artifact_capture_seqs:
+            violations.append(
+                "no ARTIFACT-CAPTURE record — artifact evidence was not "
+                "persisted at termination")
+    verdict = "FAIL" if violations else "PASS"
+
+with open(verdict_out, "w") as f:
+    f.write("assertion: terminate_within_one_poll_cycle_of_decided_verdict\n")
+    f.write("decided_seq: %s\n" % (decided_seq if decided_seq is not None else "none"))
+    f.write("surface_continue: %s\n" % ("true" if continue_marker_seq is not None else "false"))
+    f.write("verdict: %s\n" % verdict)
+    if post_decision_polls:
+        f.write("post_decision_polls:\n")
+        for num in post_decision_polls:
+            f.write("  - %d\n" % num)
+    if poll_nums_after_endpoint:
+        f.write("post_endpoint_polls:\n")
+        for num in poll_nums_after_endpoint:
+            f.write("  - %d\n" % num)
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+
+sys.exit(0 if verdict == "PASS" else 1)
+SC24PYEOF
+}
