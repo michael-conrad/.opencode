@@ -33,3 +33,7 @@ Implement a minimal greeting utility by executing the plan's steps honoring each
   - Direct step: execute with your own tool calls. Do NOT dispatch this step.
 
 > **Enforcement gate:** Dispatch occurs ONLY at the `(**task-card**)`-marked step (Step 2). Steps 1 and 3 are direct and MUST be executed by the orchestrator with its own tool calls.
+
+---
+
+*Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)*

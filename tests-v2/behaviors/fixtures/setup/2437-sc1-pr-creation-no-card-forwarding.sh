@@ -15,3 +15,5 @@ setup_2437_sc1_branch() {
     git -C "$wd" checkout - 2>/dev/null || true
 }
 setup_2437_sc1_branch "$1"
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

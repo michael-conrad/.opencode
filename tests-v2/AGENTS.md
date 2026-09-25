@@ -1048,3 +1048,7 @@ Absent that evidence, the claim is a fabricated excuse (extends §10.4): "the mo
 | Treating sub-agent summary verdicts as evidence of unavailability | Citing the specific session, events, and reasoning excerpts reviewed |
 
 This mandate extends the SC-12 deliberation-review directive (R-17): the same deliberation evidence that identifies test-effectiveness findings is also the only admissible basis for a hardware/model-unavailability claim. Read [§10.4 Fabricated Model Excuses](#104-fabricated-model-excuses--absolute-prohibition) for the narrower tool-call-evidence requirement this section generalizes.
+
+---
+
+*Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)*

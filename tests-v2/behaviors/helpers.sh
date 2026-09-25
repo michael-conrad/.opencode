@@ -3890,3 +3890,5 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 SC25PYEOF
 }
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

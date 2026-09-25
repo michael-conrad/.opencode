@@ -35,3 +35,7 @@ Implement a minimal greeting utility by executing the plan's direct steps. Every
   - Direct step: report directly; do not delegate the report.
 
 > **Enforcement gate:** All steps in this phase are direct — execute them yourself.
+
+---
+
+*Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)*

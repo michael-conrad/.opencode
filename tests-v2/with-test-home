@@ -680,3 +680,5 @@ if [ "${KEEP_TEST_HOME:-0}" != "1" ]; then
 fi
 
 exit $RC
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

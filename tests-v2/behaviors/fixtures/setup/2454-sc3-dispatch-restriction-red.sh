@@ -14,3 +14,5 @@ mkdir -p "$workdir/.issues/2454"
 cp "$src_plan" "$workdir/.issues/2454/plan.md"
 cp "$src_spec" "$workdir/.issues/2454/spec.md"
 echo "  [setup] 2454-sc3: mixed dispatch-mode plan installed at .issues/2454/plan.md"
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

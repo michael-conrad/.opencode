@@ -53,3 +53,5 @@ finding_summary: "<1-3 sentences summarizing the phase execution outcome>"
 artifact_path: "<path to execution evidence on disk>"
 blocker_reason: "<reason if BLOCKED>"
 ```
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
