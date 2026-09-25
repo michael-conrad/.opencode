@@ -2663,3 +2663,165 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 PYEOF
 }
+
+# .opencode#2456 SC-20: __assert_efficiency_marker — pure decision function
+# per the scenario-header contract (2456-sc20-efficiency-marker-red.sh).
+# Reads a session-export JSON (the __export_sqlite_to_yaml format) as the
+# ordered event stream of a SUPERVISED run within a poll window and asserts
+# the efficiency predicate (deliberation-to-progress ratio, NOT wall-clock):
+#   1. deliberation-loop: large reasoning growth with no corresponding
+#      completed tool-call progress ⇒ DEFECT marker recorded + routed to the
+#      defect notification path (ORCHESTRATOR_DECISION_REQUIRED)
+#   2. latency-dominated-progressing: slow wall-clock but growing completed
+#      tool calls ⇒ NO marker (raw model latency is not a defect)
+#   3. self-correction-loop: repeated identical tool inputs ⇒ DEFECT marker
+# Writes a verdict YAML (efficiency_marker / verdict / notification /
+# ORCHESTRATOR_DECISION_REQUIRED routing / violations[] / markers[]) and
+# exits 0 (PASS, no marker) or 1 (FAIL, defect marker recorded). Durable
+# pure function — no model dispatch.
+__assert_efficiency_marker() {
+    # helpers.sh sources with `set -euo pipefail`; the calling scenario
+    # captures this function's exit status via `ev_rc=$?` — under errexit a
+    # non-zero verdict exit would kill the caller before the capture.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'PYEOF'
+import json, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+# Deliberation-to-progress ratio thresholds (per-poll window semantics).
+DELIB_WINDOW_MS = 120000          # poll window: 2 minutes
+MIN_REASONING_PER_WINDOW = 4000  # chars of reasoning growth per window
+REPEAT_INPUT_THRESHOLD = 2       # identical tool inputs >= 2 repeats = loop
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+violations = []
+markers = []
+
+if rows is None:
+    violations.append("unparseable session export (no event rows) — evaluation surface absent")
+else:
+    reasoning = []  # (ts_ms, seq, char_count)
+    tools = []      # (ts_ms, seq, tool, input_key)
+
+    for row in rows:
+        seq = row.get("seq", 0)
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        ptype = part.get("type")
+        if ptype == "reasoning":
+            text = part.get("text") or ""
+            ts = row.get("createdAt")
+            if isinstance(ts, (int, float)):
+                reasoning.append((ts, seq, len(text)))
+        elif ptype == "tool":
+            st = part.get("state") or {}
+            if (st.get("status") or "") != "completed":
+                continue
+            inp = st.get("input") or {}
+            t = st.get("time") or {}
+            ts = t.get("start") if isinstance(t.get("start"), (int, float)) else row.get("createdAt")
+            if not isinstance(ts, (int, float)):
+                continue
+            try:
+                input_key = json.dumps(inp, sort_keys=True)
+            except Exception:
+                input_key = str(inp)
+            tools.append((ts, seq, part.get("tool"), input_key))
+
+    reasoning.sort(key=lambda e: (e[0], e[1]))
+    tools.sort(key=lambda e: (e[0], e[1]))
+
+    # Predicate 1: deliberation-loop — large reasoning growth per poll window
+    # with no corresponding completed tool-call progress. Windows are sliced
+    # at DELIB_WINDOW_MS boundaries; a window whose reasoning growth exceeds
+    # MIN_REASONING_PER_WINDOW and yields zero completed tool calls is a
+    # deliberation-loop window.
+    if reasoning:
+        start_ts = reasoning[0][0]
+        end_ts = reasoning[-1][0]
+        if tools:
+            end_ts = max(end_ts, tools[-1][0])
+            start_ts = min(start_ts, tools[0][0])
+        windows = []
+        ws = start_ts
+        while ws <= end_ts:
+            windows.append((ws, ws + DELIB_WINDOW_MS))
+            ws += DELIB_WINDOW_MS
+        for w_start, w_end in windows:
+            r_growth = sum(c for ts, _, c in reasoning if w_start <= ts < w_end)
+            t_count = sum(1 for ts, _, _, _ in tools if w_start <= ts < w_end)
+            if r_growth > MIN_REASONING_PER_WINDOW and t_count == 0:
+                violations.append(
+                    "deliberation-loop in poll window [%ss..%ss): %d reasoning chars "
+                    "with %d completed tool calls — large reasoning growth without "
+                    "corresponding tool-call progress (excessive deliberation)"
+                    % (w_start // 1000, w_end // 1000, r_growth, t_count))
+                markers.append(
+                    {"type": "deliberation_loop",
+                     "window_start_s": w_start // 1000,
+                     "window_end_s": w_end // 1000,
+                     "reasoning_chars": r_growth,
+                     "completed_tool_calls": t_count})
+
+    # Predicate 3: self-correction-loop — repeated identical tool inputs.
+    seen = {}
+    for ts, seq, tool, input_key in tools:
+        seen.setdefault((tool, input_key), []).append((ts, seq))
+    for (tool, input_key), occurrences in sorted(seen.items()):
+        if len(occurrences) >= REPEAT_INPUT_THRESHOLD:
+            violations.append(
+                "self-correction-loop: tool '%s' invoked %d times with identical "
+                "input (first at seq %s, repeat at seq %s) — repeated identical "
+                "tool inputs indicate a self-correction loop"
+                % (tool, len(occurrences), occurrences[0][1], occurrences[-1][1]))
+            markers.append(
+                {"type": "self_correction_loop",
+                 "tool": tool,
+                 "repeats": len(occurrences),
+                 "first_seq": occurrences[0][1],
+                 "last_seq": occurrences[-1][1]})
+
+verdict = "FAIL" if violations else "PASS"
+notify = "ORCHESTRATOR_DECISION_REQUIRED" if violations else "none"
+
+with open(verdict_out, "w") as f:
+    f.write("efficiency_marker: deliberation_to_progress\n")
+    f.write("verdict: %s\n" % verdict)
+    f.write("notification: %s\n" % notify)
+    if violations:
+        f.write("ORCHESTRATOR_DECISION_REQUIRED: efficiency-defect — excessive "
+                "deliberation (deliberation-to-progress ratio breach) recorded as "
+                "a defect marker and routed to the defect notification path\n")
+    f.write("reasoning_parts: %d\n" % len(reasoning))
+    f.write("completed_tool_calls: %d\n" % len(tools))
+    if markers:
+        f.write("markers:\n")
+        for m in markers:
+            f.write("  - type: %s\n" % m["type"])
+            for k, v in m.items():
+                if k != "type":
+                    f.write("    %s: %s\n" % (k, v))
+    else:
+        f.write("markers: []\n")
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+    else:
+        f.write("violations: []\n")
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
