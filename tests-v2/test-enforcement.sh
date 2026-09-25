@@ -169,6 +169,15 @@ SCENARIOS["2456-sc22-classification-freshness-red"]="__STANDALONE__"
 # earlier sessions never appear in the run's context; asserted from synthetic
 # session-export fixtures (no live model runs).
 SCENARIOS["2456-sc23-session-isolation-red"]="__STANDALONE__"
+# .opencode#2456 SC-24: standalone behavioral enforcement scenario for the
+# early-termination predicate — once a scenario's declared verdict surface is
+# decided (RED condition confirmed or the assertion satisfied), the supervisor
+# terminates the monitored run immediately (kill run + monitor within one
+# poll cycle, capture exit/artifact evidence) instead of waiting for natural
+# completion; exception: surfaces requiring continued running terminate at
+# their own endpoint; asserted from synthetic session-export fixtures (no
+# live model runs).
+SCENARIOS["2456-sc24-early-termination-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -199,6 +208,7 @@ SCENARIO_TAGS["2456-sc20-efficiency-marker-red"]="behavioral-enforcement supervi
 SCENARIO_TAGS["2456-sc21-defect-marker-gate-red"]="behavioral-enforcement supervision-defect-marker-gate"
 SCENARIO_TAGS["2456-sc22-classification-freshness-red"]="behavioral-enforcement supervision-classification-freshness"
 SCENARIO_TAGS["2456-sc23-session-isolation-red"]="behavioral-enforcement supervision-session-isolation"
+SCENARIO_TAGS["2456-sc24-early-termination-red"]="behavioral-enforcement supervision-early-termination"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
