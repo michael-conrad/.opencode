@@ -141,6 +141,14 @@ SCENARIOS["2456-sc18-supervisor-mirror-red"]="__STANDALONE__"
 # no attached schedule fail; asserted from synthetic session-export fixtures
 # (no live model runs).
 SCENARIOS["2456-sc19-async-launch-form-red"]="__STANDALONE__"
+# .opencode#2456 SC-20: standalone behavioral enforcement scenario for the
+# efficiency-defect marker predicate — every 5-minute semantic check of a
+# supervised run's session DB includes an efficiency analysis; excessive
+# deliberation (deliberation loops, self-correction loops) is recorded as a
+# defect marker and routed to the defect notification path while raw model
+# latency is not a marker; asserted from synthetic session-export fixtures
+# (no live model runs).
+SCENARIOS["2456-sc20-efficiency-marker-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -167,6 +175,7 @@ SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glo
 SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-placement"
 SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirror"
 SCENARIO_TAGS["2456-sc19-async-launch-form-red"]="behavioral-enforcement supervision-launch-form"
+SCENARIO_TAGS["2456-sc20-efficiency-marker-red"]="behavioral-enforcement supervision-efficiency-marker"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
