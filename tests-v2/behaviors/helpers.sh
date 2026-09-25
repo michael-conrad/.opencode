@@ -3229,3 +3229,119 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 PYEOF
 }
+
+# .opencode#2456 SC-23 (plan-06 phase-6, step 145, R-22): session-isolation
+# evaluator — a pure decision function over a monitored run's session export
+# (the __export_sqlite_to_yaml format; §2 PRIMARY evaluation source; no model
+# dispatch). Parses the ordered event stream and asserts the fresh-session
+# isolation predicate:
+#   1. exactly ONE session id in the export (a fresh session; no
+#      prior-session ids present)
+#   2. ZERO prior-session messages or foreign task instructions in the
+#      run's context — every message part must belong to the run's own
+#      session; parts carrying another session's id are prior-session
+#      content (the live 2026-09-23 contamination shape: a prior session's
+#      user turns injected into the run's context by test-home reuse)
+# A reused home/session DB (multiple session ids, or foreign prior-session
+# parts in the event stream) fails. Writes a verdict YAML
+# (verdict: PASS|FAIL with violations[]) and exits 0 (PASS) or non-zero
+# (FAIL). Durable pure function — consumable by future GREEN-phase
+# enforcement.
+__assert_session_isolation() {
+    # helpers.sh sources with `set -euo pipefail`; the calling scenario
+    # captures this function's exit status via `ev_rc=$?` — under errexit a
+    # non-zero verdict exit would kill the caller before the capture.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'SC23PYEOF'
+import json, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+violations = []
+session_ids = []   # ordered unique session ids from session.created events
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+if rows is None:
+    violations.append(
+        "unparseable session export (no event rows) — evaluation surface absent")
+    events = []
+else:
+    events = []
+    for row in rows:
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        etype = row.get("type") or ""
+        agg = row.get("aggregate_id") or ""
+        seq = row.get("seq", 0)
+        if etype == "session.created.1":
+            sid = data.get("sessionID") or agg
+            if sid not in session_ids:
+                session_ids.append(sid)
+            events.append((seq, "session-created", sid, ""))
+            continue
+        if etype == "message.part.updated.1":
+            part = data.get("part") or {}
+            pid = part.get("sessionID") or data.get("sessionID") or agg
+            snippet = (part.get("text") or "")[:200]
+            events.append((seq, "part", pid, snippet))
+
+    events.sort(key=lambda e: e[0])
+
+# Predicate 1: exactly one session id in the export.
+run_session = None
+if len(session_ids) == 0:
+    violations.append(
+        "no session.created event found in the export — no fresh session id "
+        "is provable (a monitored run's export must record its fresh session)")
+elif len(session_ids) == 1:
+    run_session = session_ids[0]
+else:
+    run_session = session_ids[-1]  # latest created = the run's own attempt
+    for sid in session_ids[:-1]:
+        violations.append(
+            "prior-session id '%s' present in the export alongside the run "
+            "session '%s' — the run did not start from a fresh session; "
+            "test-home/session-DB reuse (multiple sessions in one monitored "
+            "run's store) is prohibited (R-22)" % (sid, run_session))
+
+# Predicate 2: zero prior-session message parts in the run's context. Every
+# message part must belong to the run's own session; a part carrying another
+# session's id is prior-session content / a foreign task instruction from an
+# earlier session leaking into this run's context.
+if run_session is not None:
+    for seq, kind, pid, snippet in events:
+        if kind != "part":
+            continue
+        if pid != run_session:
+            violations.append(
+                "prior-session message part at seq %s belongs to foreign "
+                "session '%s' (run session '%s') — foreign task instructions "
+                "from an earlier session are in the run's context; snippet: %s "
+                "(R-22)" % (seq, pid, run_session, snippet or "<non-text part>"))
+
+verdict = "FAIL" if violations else "PASS"
+
+with open(verdict_out, "w") as f:
+    f.write("assertion: fresh_test_home_fresh_session\n")
+    f.write("session_count: %d\n" % len(session_ids))
+    if run_session is not None:
+        f.write("run_session: %s\n" % run_session)
+    f.write("verdict: %s\n" % verdict)
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+
+sys.exit(0 if verdict == "PASS" else 1)
+SC23PYEOF
+}
