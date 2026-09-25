@@ -2526,3 +2526,140 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 PYEOF
 }
+
+# .opencode#2456 SC-19: __assert_launch_form — pure decision function per the
+# scenario-header contract (2456-sc19-async-launch-form-red.sh). Reads a
+# session-export JSON (the __export_sqlite_to_yaml format) as the ordered
+# event stream of a SUPERVISING session and asserts the launch-form predicate:
+#   1. every opencode run invocation (bash tool call whose command contains
+#      `with-test-home` and `opencode run`) is launched ASYNCHRONOUSLY —
+#      backgrounded with &, setsid, nohup, or disown (a bare blocking
+#      foreground invocation fails)
+#   2. the launch carries an attached supervision schedule: a semantic check
+#      of the run's SQLite session DB (read tool calls targeting
+#      session.yaml / session-DB paths, or bash calls invoking the export
+#      procedure / reading opencode.db on the run's test home) within <=300s
+#      of the launch
+# Writes a verdict YAML (launch_form / verdict / violations[]) and exits 0 on
+# PASS, 1 on FAIL. Durable, no model dispatch.
+__assert_launch_form() {
+    # helpers.sh sources with `set -euo pipefail`; the calling scenario
+    # captures this function's exit status via `ev_rc=$?` — under errexit a
+    # non-zero verdict exit would kill the caller before the capture.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'PYEOF'
+import json, re, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+SCHEDULE_WINDOW_MS = 300000  # semantic check within <=300s of the launch
+ASYNC_RE = re.compile(
+    r"(^|\s|;|&&)(setsid|nohup|disown)\b|(\s|;|&&|^)&(\s|$)|\bdisown\b",
+    re.I)
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+violations = []
+launches = []  # (ts_ms, seq, cmd, async)
+checks = []    # (ts_ms, seq, detail)
+
+if rows is None:
+    violations.append("unparseable session export (no event rows) — evaluation surface absent")
+else:
+    for row in rows:
+        seq = row.get("seq", 0)
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        if part.get("type") != "tool":
+            continue
+        tool = part.get("tool")
+        st = part.get("state") or {}
+        inp = st.get("input") or {}
+        t = st.get("time") or {}
+        ts = t.get("start") if isinstance(t.get("start"), (int, float)) else row.get("createdAt")
+        if not isinstance(ts, (int, float)):
+            continue
+        if tool == "bash":
+            cmd = inp.get("command") or ""
+            low = cmd.lower()
+            if "with-test-home" in low and "opencode run" in low:
+                # classify launch form: ASYNC when backgrounded/detached
+                # (setsid/nohup/&/disown); BLOCKING when a bare foreground
+                # invocation with no backgrounding marker
+                is_async = bool(ASYNC_RE.search(cmd))
+                launches.append((ts, seq, cmd, is_async))
+            elif (
+                "--export-session" in low
+                or "opencode.db" in low
+                or "sqlite3" in low
+                or "session.yaml" in low
+            ):
+                checks.append((ts, seq, cmd))
+        elif tool == "read":
+            path = (inp.get("filePath") or inp.get("path") or "").lower()
+            if (
+                "session.yaml" in path
+                or "opencode.db" in path
+                or "session.db" in path
+                or (".db" in path and "session" in path)
+            ):
+                checks.append((ts, seq, path))
+
+launches.sort(key=lambda e: (e[0], e[1]))
+checks.sort(key=lambda e: (e[0], e[1]))
+
+blocking = []
+for ts, seq, cmd, is_async in launches:
+    if not is_async:
+        blocking.append((seq, cmd))
+        violations.append(
+            "blocking launch at seq %s — opencode run invoked in a bare "
+            "foreground command line with no backgrounding/detach marker "
+            "(setsid/nohup/&/disown); blocking foreground invocation violates "
+            "the async-launch-form predicate" % seq)
+
+for ts, seq, cmd, is_async in launches:
+    scheduled = any(
+        cts >= ts and cts - ts <= SCHEDULE_WINDOW_MS
+        for cts, _, _ in checks)
+    if not scheduled:
+        violations.append(
+            "missing schedule at seq %s — no SQLite-DB semantic-poll action "
+            "(session-export read / export-procedure invocation / session-DB "
+            "read) within 300s of the launch; the launch carries no attached "
+            "supervision schedule" % seq)
+
+verdict = "PASS" if not violations else "FAIL"
+
+with open(verdict_out, "w") as f:
+    f.write("launch_form: async_with_sqlite_poll_schedule\n")
+    f.write("verdict: %s\n" % verdict)
+    f.write("launches: %d\n" % len(launches))
+    f.write("semantic_checks: %d\n" % len(checks))
+    f.write("async_launches: %d\n" % sum(1 for _, _, _, a in launches if a))
+    if blocking:
+        f.write("blocking_launches:\n")
+        for seq, cmd in blocking:
+            f.write("  - seq: %s\n    command: '%s'\n" % (seq, cmd))
+    else:
+        f.write("blocking_launches: []\n")
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+    else:
+        f.write("violations: []\n")
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
