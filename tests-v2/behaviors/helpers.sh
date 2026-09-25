@@ -530,6 +530,17 @@ BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT="${BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT:-600}"
 # is a DISPATCH FAILURE event (not a classification); 3 consecutive failures
 # halt monitoring with a HARNESS_FAILURE-class notification.
 BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING="${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING:-3}"
+# .opencode#2456 SC-22 (plan-06, R-21): classification-freshness bound on
+# abort suppression. A progressing classification suppresses mechanical
+# abort signals ONLY while the verdict is FRESH: the monitor re-classifies
+# at least every BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW polls (default 3)
+# and on every new abort-signal event BEFORE the suppression decision. A
+# stale progressing verdict never suppresses. Alias env
+# BEHAVIOR_CLASSIFY_FRESHNESS_POLLS is honored when the primary name is
+# unset. Set BEHAVIOR_MONITOR_FRESHNESS_ENFORCE=0 to restore pre-SC-22
+# suppression behavior (backward-compat escape hatch).
+BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW="${BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW:-${BEHAVIOR_CLASSIFY_FRESHNESS_POLLS:-3}}"
+BEHAVIOR_MONITOR_FRESHNESS_ENFORCE="${BEHAVIOR_MONITOR_FRESHNESS_ENFORCE:-1}"
 
 # .opencode#2456 SC-2: dispatch the monitoring classification sub-agent.
 # Runs the harness's own standalone opencode binary in a lightweight,
@@ -1652,8 +1663,46 @@ MONPY
         # progressing run keeps polling. Flag-gated by the enclosing
         # BEHAVIOR_SEMANTIC_MONITOR=1 block (backward compat).
         if [ -n "${abort_reason:-}" ] && [ "${classification_value:-}" = "progressing-directionally" ]; then
-            echo "POLL ${poll}: ts=${ts} mechanical signal ${abort_reason} suppressed — run classified progressing-directionally (R-2: progressing runs continue regardless of duration, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
-            abort_reason=""
+            # .opencode#2456 SC-22 (R-21): suppression is valid ONLY on a
+            # FRESH progressing verdict — re-classified at least every
+            # BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW polls AND after
+            # every new abort-signal event. A stale verdict must never
+            # suppress: re-classify FIRST (immediate dispatch, exempt from
+            # the checkpoint gap), then decide on the fresh verdict.
+            # Flag-gated (BEHAVIOR_MONITOR_FRESHNESS_ENFORCE=1, default);
+            # =0 restores the pre-SC-22 unconditional suppression.
+            if [ "${BEHAVIOR_MONITOR_FRESHNESS_ENFORCE:-1}" = "1" ] \
+                && [ "$polls_since_classify" -gt "${BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW:-3}" ] \
+                && [ "$classified_count" -lt "$BEHAVIOR_MONITOR_CLASSIFY_MAX" ]; then
+                echo "POLL ${poll}: ts=${ts} freshness-window re-classification before suppression decision (verdict ${polls_since_classify} polls old > window ${BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW:-3}; R-21, .opencode#2456 SC-22)" >> "$poll_log"
+                local fw_dispatch_raw
+                fw_dispatch_raw=$(__classify_run_state "$db" "${art_status:-not_declared}" "$model" "$scenario_name" "$attempt" "$poll")
+                polls_since_classify=0
+                last_classified_event_count=$event_count
+                local fw_value="${fw_dispatch_raw%%|*}"
+                local fw_mode="${fw_dispatch_raw#*|}"
+                local fw_dec
+                fw_dec=$(__interpret_classify_dispatch "${classification_value:-}" "${halt_class:-}" "$dispatch_failures" "$fw_value")
+                IFS='|' read -r classification_value halt_class dispatch_failures harness_failure_halt <<< "$fw_dec"
+                if [ -n "$fw_value" ]; then
+                    classified_count=$((classified_count + 1))
+                    echo "CLASSIFY[poll ${poll}]: dispatch #${classified_count}/${BEHAVIOR_MONITOR_CLASSIFY_MAX} → ${classification_value} (freshness-window re-classification before suppression; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                else
+                    echo "DISPATCH-FAILURE[poll ${poll}]: freshness re-classification dispatch attempt ${dispatch_failures} failed — mode=${fw_mode} (R-13 amended; export: ${BEHAVIOR_LOG_DIR}/${scenario_name}/classifier-session-attempt${attempt}.yaml)" >> "$poll_log"
+                fi
+                if [ "${harness_failure_halt:-0}" -eq 1 ]; then
+                    echo "HARNESS_FAILURE: monitored run '${scenario_name}' attempt ${attempt} monitoring halted after ${dispatch_failures} consecutive classification-dispatch failures (ceiling ${BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING}) in the SC-22 freshness gate. Infrastructure surface: classifier-dispatch model inference queue/provisioning. The failures are recorded as DISPATCH-FAILURE events in poll log ${poll_log}; the monitored run process is left running for the orchestrator." >&2
+                    break
+                fi
+                if [ -n "${halt_class:-}" ]; then
+                    __notify_haltclass "$halt_class" "$poll" "$classified_count" "${art_status:-not_declared}" "$poll_log" "$scenario_name" "$attempt" "${fw_mode:-}"
+                    break
+                fi
+            fi
+            if [ -n "${abort_reason:-}" ] && [ "${classification_value:-}" = "progressing-directionally" ]; then
+                echo "POLL ${poll}: ts=${ts} mechanical signal ${abort_reason} suppressed — run classified progressing-directionally (R-2: progressing runs continue regardless of duration, .opencode#2456 SC-5; verdict fresh within window ${BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW:-3}, .opencode#2456 SC-22); continuing to poll" >> "$poll_log"
+                abort_reason=""
+            fi
         fi
 
         if [ -n "${abort_reason:-}" ]; then
@@ -3022,6 +3071,141 @@ with open(verdict_out, "w") as f:
             for k, v in m.items():
                 if k != "type":
                     f.write("    %s: %s\n" % (k, v))
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
+
+# .opencode#2456 SC-22 (plan-06 phase-6, R-21): classification-freshness
+# evaluator — a pure decision function over a monitor poll log (no model
+# dispatch). Parses the poll log's ordered CLASSIFY[poll N] lines and the
+# mechanical-signal detection/suppression records and asserts the R-21
+# freshness bound on abort suppression:
+#   1. While suppression is active (a progressing verdict suppressing
+#      signals), re-classification must occur at least every
+#      BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW polls (default 3 — alias
+#      env BEHAVIOR_CLASSIFY_FRESHNESS_POLLS honored).
+#   2. Every NEW abort-signal event under an active progressing verdict
+#      must trigger a re-classification BEFORE the suppression decision.
+# A suppression decided on a verdict older than the window, or without a
+# signal-triggered re-classification, is a freshness violation — recorded
+# as a stale-suppression violation. Verdict: PASS|FAIL with violations[];
+# exit 0 on PASS, 1 on FAIL (caller captures the rc under set +e).
+__assert_classification_freshness() {
+    set +e
+    local poll_log="$1"
+    local verdict_out="$2"
+    local window="${BEHAVIOR_MONITOR_CLASSIFY_FRESHNESS_WINDOW:-3}"
+    python3 - "$poll_log" "$verdict_out" "$window" <<'PYEOF'
+import re, sys
+
+poll_log, verdict_out, window = sys.argv[1], sys.argv[2], int(sys.argv[3])
+
+CLASSIFY = re.compile(r"^CLASSIFY\[poll (\d+)\].*→ ([\w-]+)")
+# A mechanical signal detected in the poll log: "POLL n: ... mechanical
+# signal <reason> ..." (detected line) — the event that demands either a
+# signal-triggered re-classification or a suppression decision.
+SIGNAL = re.compile(r"POLL (\d+):.*mechanical signal ([\w_]+)")
+# A suppression decision against the progressing classification.
+SUPPRESS = re.compile(
+    r"POLL (\d+):.*mechanical signal ([\w_]+) suppressed.*"
+    r"progressing-directionally")
+NEW_SIGNAL = re.compile(r"NEW abort-signal event")
+
+violations = []
+notes = []
+events = []  # ordered (poll, kind, detail)
+
+try:
+    with open(poll_log) as f:
+        lines = [ln.rstrip("\n") for ln in f]
+except Exception as e:
+    print("PRECONDITION-FAIL: unparseable poll log %s: %s" % (poll_log, e),
+          file=sys.stderr)
+    with open(verdict_out, "w") as f:
+        f.write("classification_freshness: poll_log\nverdict: NOT_EVALUABLE\n")
+    sys.exit(2)
+
+for ln in lines:
+    m = CLASSIFY.search(ln)
+    if m:
+        events.append((int(m.group(1)), "classify", m.group(2)))
+        continue
+    if "mechanical signal" in ln and "suppressed" in ln:
+        m = re.search(r"POLL (\d+):.*mechanical signal ([\w_]+) suppressed", ln)
+        if m:
+            events.append((int(m.group(1)), "suppress", m.group(2)))
+        continue
+    m = SIGNAL.search(ln)
+    if m:
+        events.append((int(m.group(1)), "signal", m.group(2),
+                       bool(NEW_SIGNAL.search(ln))))
+
+if not any(k == "classify" for _, k, *_ in events):
+    with open(verdict_out, "w") as f:
+        f.write("classification_freshness: poll_log\nverdict: NOT_EVALUABLE\n"
+                "notes:\n  - no CLASSIFY[poll N] line in the poll log — no "
+                "classification to evaluate freshness against\n")
+    sys.exit(2)
+
+last_cls_poll = None
+last_cls_value = None
+pending_signal = False  # a signal fired since the last re-classification
+
+for ev in events:
+    poll, kind = ev[0], ev[1]
+    if kind == "classify":
+        last_cls_poll = poll
+        last_cls_value = ev[2]
+        pending_signal = False
+        notes.append("re-classification at poll %d → %s" % (poll, ev[2]))
+    elif kind == "signal":
+        pending_signal = True
+        # R-21 clause 2: a NEW abort-signal event requires re-classification
+        # BEFORE the suppression decision. The signal is only a violation
+        # once a suppression decision follows on a stale verdict; the
+        # suppression handler below checks signal freshness.
+    elif kind == "suppress":
+        reason = ev[2]
+        if last_cls_value != "progressing-directionally" or last_cls_poll is None:
+            # Suppression without an active progressing verdict is outside
+            # this predicate's scope (not a freshness violation).
+            notes.append("suppression at poll %d (%s) without an active "
+                         "progressing verdict — out of scope" % (poll, reason))
+            continue
+        age = poll - last_cls_poll
+        if age > window:
+            violations.append(
+                "stale_suppression: mechanical signal '%s' at poll %d "
+                "suppressed on a progressing verdict classified at poll %d "
+                "(age %d polls > freshness window %d) with NO intervening "
+                "re-classification — a stale progressing verdict never "
+                "suppresses an abort signal (R-21)" % (reason, poll,
+                                                       last_cls_poll, age,
+                                                       window))
+        elif pending_signal:
+            violations.append(
+                "suppression_without_signal_reclassification: mechanical "
+                "signal '%s' at poll %d suppressed without a re-classification "
+                "after the new abort-signal event (R-21: every new "
+                "abort-signal event triggers re-classification BEFORE the "
+                "suppression decision)" % (reason, poll))
+        else:
+            notes.append("suppression of '%s' at poll %d on a fresh verdict "
+                         "(age %d <= %d)" % (reason, poll, age, window))
+
+verdict = "FAIL" if violations else "PASS"
+with open(verdict_out, "w") as f:
+    f.write("classification_freshness: poll_log\n")
+    f.write("freshness_window_polls: %d\n" % window)
+    f.write("verdict: %s\n" % verdict)
+    f.write("notes:\n")
+    for n in notes:
+        f.write("  - %s\n" % n)
     if violations:
         f.write("violations:\n")
         for v in violations:
