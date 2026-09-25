@@ -149,6 +149,13 @@ SCENARIOS["2456-sc19-async-launch-form-red"]="__STANDALONE__"
 # latency is not a marker; asserted from synthetic session-export fixtures
 # (no live model runs).
 SCENARIOS["2456-sc20-efficiency-marker-red"]="__STANDALONE__"
+# .opencode#2456 SC-21: standalone behavioral enforcement scenario for the
+# recorded-defect-marker hard gate — a defect marker with an identified cause
+# halts the sub-agent and notifies via the ORCHESTRATOR_DECISION_REQUIRED
+# path; the orchestrator researches/remediates and dispatches/resumes;
+# sub-agent self-remediation/self-resumption is prohibited; asserted from
+# synthetic session-export fixtures (no live model runs).
+SCENARIOS["2456-sc21-defect-marker-gate-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -176,6 +183,7 @@ SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-pl
 SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirror"
 SCENARIO_TAGS["2456-sc19-async-launch-form-red"]="behavioral-enforcement supervision-launch-form"
 SCENARIO_TAGS["2456-sc20-efficiency-marker-red"]="behavioral-enforcement supervision-efficiency-marker"
+SCENARIO_TAGS["2456-sc21-defect-marker-gate-red"]="behavioral-enforcement supervision-defect-marker-gate"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
