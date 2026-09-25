@@ -121,6 +121,13 @@ SCENARIOS["2456-sc15-poll-cadence-floor-red"]="__STANDALONE__"
 # with no commit-deliberation turns; asserted from synthetic session-export
 # fixtures (no live model runs).
 SCENARIOS["2456-sc16-commit-ordering-red"]="__STANDALONE__"
+# .opencode#2456 SC-17: standalone behavioral enforcement scenario for the
+# supervision-cadence predicate — consecutive supervision gaps ≤300s, each
+# gap closed by a semantic-check action (a read of the run's session DB /
+# session export), and run-retry invocations separated by an intervening
+# semantic check; asserted from synthetic session-export fixtures (no live
+# model runs).
+SCENARIOS["2456-sc17-supervision-cadence-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
