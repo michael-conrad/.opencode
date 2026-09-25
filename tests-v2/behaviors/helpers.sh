@@ -2165,6 +2165,21 @@ MANIFESTEOF
 
     __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file"
 
+    # .opencode#2456 SC-23 (R-22): post-run session-isolation assertion — the
+    # fresh-session isolation predicate is enforced mechanically on EVERY
+    # monitored run's session export (the §2 PRIMARY evaluation source):
+    # exactly one session id, zero prior-session messages / foreign task
+    # instructions in the run's context. A violation means the run reused a
+    # prior attempt's test home/session DB — the run's evidence is not
+    # self-contained. Flag-gated (BEHAVIOR_SESSION_ISOLATION_ENFORCE=1,
+    # default): =0 restores pre-SC-23 behavior (no check, no verdict file).
+    if [ "${BEHAVIOR_SESSION_ISOLATION_ENFORCE:-1}" = "1" ] && [ -s "$artifact_dir/session.yaml" ]; then
+        __assert_session_isolation "$artifact_dir/session.yaml" "$artifact_dir/session-isolation.yaml" || {
+            echo "HARNESS_FAILURE: session-isolation violation in monitored run '${scenario_name}' (attempt ${attempt}) — the run's session export carries prior-session content (reused test home/session DB prohibited per R-22); verdict: $artifact_dir/session-isolation.yaml" >&2
+            return 1
+        }
+    fi
+
     # .opencode#2456 SC-1: poll-evidence persistence — the §14 semantic
     # monitor's poll log is persisted to the scenario evidence directory
     # (alongside session.yaml) for EVERY monitored run, natural completion
