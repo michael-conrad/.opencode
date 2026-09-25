@@ -941,6 +941,18 @@ Any behavioral SC verdict whose evidence comes from a monitored run MUST record 
 - off-track notify — `__notify_offtrack` (SC-4, R-2): emits `ORCHESTRATOR_DECISION_REQUIRED: off-track` on stderr (off-track runs never continue silently) AND records a `NOTIFY[poll N]` line in monitor.log.
 - halt-class halt+notify — `__notify_haltclass` (SC-6, R-3): when the classification dispatch returns a halt-class trigger state (undetermined / excessive-without-classification / direction-deviation), the monitor performs the halt-class halt+notify — emits `ORCHESTRATOR_DECISION_REQUIRED: halt-class` on stderr with the failure-mode annotation, records the NOTIFY line, and halts monitoring before any further dispatch, leaving the run state for the SC-7 orchestrator decision record.
 
+### Agent-Supervisor Mandate (≤300s Polling with Full Semantic Checks)
+
+**Any agent supervising an `opencode run` polls at intervals ≤300s (5 minutes) — each poll is a full semantic check, and a check is the ONLY admissible closing of a supervision gap.** (SC-17/SC-18, #2456.)
+
+| Mandate | Rule |
+|---------|------|
+| Poll cadence | Consecutive supervision gaps MUST NOT exceed 300 seconds (5 minutes) for agent-supervised runs |
+| Per-poll semantic check | Every poll is a FULL SEMANTIC CHECK derived from the run's session DB/export — message parts, reasoning parts, and tool calls. Activity/uptime proxies are INADMISSIBLE as poll checks |
+| Retry discipline | Run-retry invocations WITHOUT an intervening semantic check are PROHIBITED; a single wait longer than 300s without a semantic check is likewise prohibited |
+
+The harness's 30-60s monitor polling above covers the monitor loop; this mandate binds the AGENT supervisor — the agent watching a run (e.g., a long behavioral verification it launched) is NOT exempt from polling just because the harness monitor exists. A hung session under a supervisor that idled >300s without a semantic check is a CLEAR FAIL (SC-26), not an infrastructure excuse.
+
 ---
 
 ## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
