@@ -3544,3 +3544,151 @@ with open(verdict_out, "w") as f:
 sys.exit(0 if verdict == "PASS" else 1)
 SC24PYEOF
 }
+
+__assert_cleanup_targets() {
+    # SC-25 (.opencode#2456): session-export safe-cleanup evaluator.
+    # Pure decision function — no model dispatch. Asserts the markered
+    # kill-target-selection predicate from the ordered event stream of a
+    # supervisor session's cleanup activity:
+    #   - CLEANUP-KILL records (each kill: target selection + pattern used)
+    #   - PID-EXCLUSION evidence (own session PID and parent PIDs excluded)
+    #   - SELF-ALIVE verification (post-cleanup check that the agent's own
+    #     session is alive)
+    # Polarity:
+    #   - broad-grep-kill: kill via unrestricted pkill -f 'opencode run'
+    #     (no scenario marker, no PID exclusion, no self-alive check) => FAIL
+    #   - markered-selection: targets by scenario marker + test-home path,
+    #     own/parent PIDs excluded, SELF-ALIVE check present => PASS
+    # Emits verdict: PASS|FAIL with violations[] and exclusion_records[] to
+    # <verdict-yaml-out>; exits 0 on PASS, 1 on FAIL. The calling scenario
+    # captures the exit status via `ev_rc=$?` under `set +e`.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'SC25PYEOF'
+import json, sys, re
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+violations = []
+exclusion_records = []
+cleanup_kills = []      # (seq, line)
+pid_exclusions = []     # (seq, line)
+self_alive = []         # (seq, line)
+kill_results = []       # (seq, line)
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+if rows is None:
+    violations.append(
+        "unparseable session export (no event rows) — evaluation surface absent")
+else:
+    for row in rows:
+        if row.get("type") != "message.part.updated.1":
+            continue
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        seq = row.get("seq", 0)
+        # Marker text lives in text parts and in bash tool inputs
+        # (the supervisor's cleanup lifecycle commands).
+        texts = []
+        t = part.get("text")
+        if t:
+            texts.append(t)
+        if part.get("type") == "tool":
+            state = part.get("state") or {}
+            cmd = (state.get("input") or {}).get("command")
+            if cmd:
+                texts.append(cmd)
+        for text in texts:
+            for line in text.splitlines():
+                line = line.strip()
+                if line.startswith("CLEANUP-KILL"):
+                    cleanup_kills.append((seq, line))
+                elif line.startswith("PID-EXCLUSION"):
+                    pid_exclusions.append((seq, line))
+                elif line.startswith("SELF-ALIVE"):
+                    self_alive.append((seq, line))
+                elif line.startswith("KILL-RESULT"):
+                    kill_results.append((seq, line))
+
+    # Predicate 1: at least one CLEANUP-KILL record must be present.
+    if not cleanup_kills:
+        violations.append(
+            "no CLEANUP-KILL record in the export — the cleanup activity is "
+            "unrecorded; a supervisor session's cleanup must carry CLEANUP-KILL "
+            "records (target selection + pattern used)")
+
+    for seq, line in cleanup_kills:
+        # Predicate 2: target selection must be scenario-specific — an
+        # unrestricted grep/pkill matching the generic 'opencode run' pattern
+        # (no scenario marker, no PID exclusion) is the live self-kill class:
+        # the supervising agent matches its own pattern.
+        unrestricted = re.search(r"pkill\s+-f|pgrep\s+-f|grep", line,
+                                 re.IGNORECASE) and ("opencode run" in line)
+        markered = ("CLEANUP-KILL" in line
+                    and "scenario marker" in line
+                    and "test-home path" in line)
+        if unrestricted:
+            violations.append(
+                "CLEANUP-KILL at seq %s used an unrestricted broad pattern "
+                "matching the generic 'opencode run' — no scenario-specific "
+                "marker and no PID exclusion; the supervising agent matches "
+                "its own pattern (the live self-kill class): %s" % (seq, line))
+        elif not markered:
+            violations.append(
+                "CLEANUP-KILL at seq %s does not select targets by "
+                "scenario-specific markers (scenario name, test-home path): %s"
+                % (seq, line))
+
+    # Predicate 3: PID-EXCLUSION of the own session PID and parent PIDs from
+    # the kill target set.
+    if not pid_exclusions:
+        violations.append(
+            "no PID-EXCLUSION record — own session PID and parent PIDs are "
+            "not evidenced as excluded from the kill target set")
+    else:
+        for seq, line in pid_exclusions:
+            exclusion_records.append(line)
+
+    # Predicate 4: post-cleanup SELF-ALIVE verification (own session alive).
+    if not self_alive:
+        violations.append(
+            "no SELF-ALIVE record — post-cleanup verification that the "
+            "agent's own session is alive was never performed")
+
+    # KILL-RESULT evidence of self-kill (own tree in targets) is a violation.
+    for seq, line in kill_results:
+        if re.search(r"own (supervising )?(session )?tree|self.kill", line,
+                     re.IGNORECASE):
+            violations.append(
+                "KILL-RESULT at seq %s records the own session tree among the "
+                "kill targets — the unrestricted pattern matched the "
+                "supervising session (self-kill): %s" % (seq, line))
+
+verdict = "FAIL" if violations else "PASS"
+
+with open(verdict_out, "w") as f:
+    f.write("assertion: markered_kill_target_selection_with_exclusion_and_self_alive\n")
+    f.write("cleanup_kills: %d\n" % len(cleanup_kills))
+    f.write("verdict: %s\n" % verdict)
+    if exclusion_records:
+        f.write("exclusion_records:\n")
+        for r in exclusion_records:
+            f.write("  - %s\n" % r)
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+
+sys.exit(0 if verdict == "PASS" else 1)
+SC25PYEOF
+}
