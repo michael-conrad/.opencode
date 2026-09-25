@@ -156,6 +156,12 @@ SCENARIOS["2456-sc20-efficiency-marker-red"]="__STANDALONE__"
 # sub-agent self-remediation/self-resumption is prohibited; asserted from
 # synthetic session-export fixtures (no live model runs).
 SCENARIOS["2456-sc21-defect-marker-gate-red"]="__STANDALONE__"
+# .opencode#2456 SC-22: standalone behavioral enforcement scenario for the
+# classification-freshness bound on abort suppression — a progressing verdict
+# suppresses aborts only while FRESH (re-classification at least every N polls
+# and on every new abort-signal event; stale verdicts never suppress); asserted
+# from synthetic poll-log/classification fixtures (no live model runs).
+SCENARIOS["2456-sc22-classification-freshness-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -184,6 +190,7 @@ SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirro
 SCENARIO_TAGS["2456-sc19-async-launch-form-red"]="behavioral-enforcement supervision-launch-form"
 SCENARIO_TAGS["2456-sc20-efficiency-marker-red"]="behavioral-enforcement supervision-efficiency-marker"
 SCENARIO_TAGS["2456-sc21-defect-marker-gate-red"]="behavioral-enforcement supervision-defect-marker-gate"
+SCENARIO_TAGS["2456-sc22-classification-freshness-red"]="behavioral-enforcement supervision-classification-freshness"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
