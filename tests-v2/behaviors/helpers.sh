@@ -2233,3 +2233,296 @@ behavior_run_pool() {
     export BEHAVIOR_POOL_OUTPUTS BEHAVIOR_POOL_STDERRS
     return $((1 - any_success))
 }
+
+# .opencode#2456 SC-16: __assert_commit_ordering — pure decision function per
+# the scenario-header contract (2456-sc16-commit-ordering-red.sh). Reads a
+# session-export JSON (the __export_sqlite_to_yaml format), asserts the §4
+# ordering predicate: the agent's git commit + push tool calls precede the
+# with-test-home run invocation. Commit-deliberation turns (reasoning/text
+# parts between the first test-needed change and the first run) and
+# --no-verify commit/push usage are violations. Writes a verdict YAML and
+# exits 0 (PASS) or non-zero (FAIL). Consumable by future GREEN-phase
+# enforcement. No model dispatch — pure mechanical parsing.
+__assert_commit_ordering() {
+    # helpers.sh sources with `set -euo pipefail`; this function's contract is
+    # a non-zero exit on violation, and the calling scenario captures the exit
+    # status via `ev_rc=$?` in an untested context — under errexit that would
+    # kill the caller before the capture. Disable errexit for the remainder of
+    # the caller's script so the verdict exit code reaches the caller's
+    # capture (the scenario's own logic uses explicit if-checks, not errexit).
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'PYEOF'
+import json, re, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+DELIB_MARKERS = [
+    r"should i commit",
+    r"whether to commit",
+    r"whether to push",
+    r"commit or not",
+    r"do i need to commit",
+    r"do i need to push",
+    r"commit now or",
+    r"push now or",
+    r"authorization to commit",
+    r"authorization to push",
+    r"ask .* authorization .*(commit|push)",
+    r"wait .* before (commit|push)",
+]
+DELIB_RE = re.compile("|".join(DELIB_MARKERS), re.I)
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+violations = []
+delib_turns = []
+prohibited_flags = []
+seqs = {"change": None, "commit": None, "push": None, "run": None, "fetch": None}
+
+if rows is None:
+    violations.append("unparseable session export (no event rows) — evaluation surface absent")
+else:
+    def cmd_of(part):
+        st = part.get("state") or {}
+        inp = st.get("input") or {}
+        return inp.get("command") or ""
+
+    events = []
+    for row in rows:
+        seq = row.get("seq", 0)
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        ptype = part.get("type")
+        if ptype == "tool":
+            tool = part.get("tool")
+            if tool == "bash":
+                events.append((seq, "bash", cmd_of(part)))
+            elif tool in ("write", "edit"):
+                events.append((seq, "change", part.get("filePath") or ""))
+        elif ptype in ("text", "reasoning"):
+            events.append((seq, ptype, part.get("text") or ""))
+
+    events.sort(key=lambda e: e[0])
+    for seq, kind, payload in events:
+        if kind == "change" and seqs["change"] is None:
+            seqs["change"] = seq
+        elif kind == "bash":
+            low = payload.lower()
+            if "--no-verify" in low and ("git commit" in low or "git push" in low):
+                prohibited_flags.append((seq, payload))
+            if seqs["commit"] is None and re.search(r"git(-.+)?\s+commit\b|git add .*&&\s*git commit", low):
+                seqs["commit"] = seq
+            if seqs["push"] is None and re.search(r"git(-.+)?\s+push\b", low):
+                seqs["push"] = seq
+            if seqs["run"] is None and "with-test-home" in low and "opencode run" in low:
+                seqs["run"] = seq
+            if seqs["fetch"] is None and re.search(r"git(-.+)?\s+fetch\b", low):
+                seqs["fetch"] = seq
+
+    first_change = seqs["change"]
+    first_run = seqs["run"]
+    if first_change is not None and first_run is not None:
+        for seq, kind, payload in events:
+            if kind in ("text", "reasoning") and first_change < seq < first_run:
+                m = DELIB_RE.search(payload)
+                if m:
+                    delib_turns.append((seq, m.group(0)))
+                    violations.append(
+                        "deliberation turn at seq %s — matched marker '%s' "
+                        "(commit deliberation between the change and the run is prohibited)" % (seq, m.group(0)))
+    if first_run is not None:
+        if seqs["commit"] is None or seqs["commit"] > first_run:
+            violations.append(
+                "first git commit (seq %s) does not precede the with-test-home run (seq %s)"
+                % (seqs["commit"], first_run))
+        if seqs["push"] is None or seqs["push"] > first_run:
+            violations.append(
+                "first git push (seq %s) does not precede the with-test-home run (seq %s)"
+                % (seqs["push"], first_run))
+    for seq, cmd in prohibited_flags:
+        violations.append(
+            "prohibited --no-verify flag at seq %s (command: %s) — commit/push --no-verify is never permitted"
+            % (seq, cmd))
+
+verdict = "PASS" if not violations else "FAIL"
+
+def fmt_pairs(pairs, label):
+    if not pairs:
+        return "%s: []" % label
+    return "%s:\n" % label + "".join(
+        "  - seq: %s\n    %s\n" % (s, label.rstrip("s")) + (
+            "      matched_marker: '%s'\n" % v if label == "deliberation_turns"
+            else "      command: '%s'\n" % v) for s, v in pairs)
+
+with open(verdict_out, "w") as f:
+    f.write("ordering_assertion: commit_push_before_run\n")
+    f.write("verdict: %s\n" % verdict)
+    for label in ("first_change_seq", "first_commit_seq", "first_push_seq",
+                  "first_run_seq", "first_fetch_seq"):
+        key = label.split("_")[1]
+        f.write("%s: %s\n" % (label, seqs[key] if seqs[key] is not None else "none"))
+    f.write(fmt_pairs(delib_turns, "deliberation_turns"))
+    f.write(fmt_pairs(prohibited_flags, "prohibited_flags"))
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+    else:
+        f.write("violations: []\n")
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
+
+# .opencode#2456 SC-17: __assert_supervision_cadence — pure decision function
+# per the scenario-header contract (2456-sc17-supervision-cadence-red.sh).
+# Reads a session-export JSON (the __export_sqlite_to_yaml format) as the
+# ordered event stream of a SUPERVISING session and asserts the
+# supervision-cadence predicate:
+#   1. consecutive supervision gaps ≤ 300s (poll at most every 5 minutes)
+#   2. each gap closed by a semantic-check action (a read of the run's
+#      session DB / session export content parts — read tool calls targeting
+#      session.yaml / session-DB paths, or bash calls invoking the export
+#      procedure on the run's DB)
+#   3. run-retry invocations always separated by an intervening semantic check
+# Supervision actions: with-test-home run invocations (bash tool calls whose
+# command contains `with-test-home` and `opencode run`) and semantic-check
+# actions, each stamped with the part's start epoch. Writes a verdict YAML
+# with verdict: PASS|FAIL and violations[] and exits 0 (PASS) or 1 (FAIL).
+# Durable pure function — no model dispatch.
+__assert_supervision_cadence() {
+    # helpers.sh sources with `set -euo pipefail`; the calling scenario
+    # captures this function's exit status via `ev_rc=$?` — under errexit a
+    # non-zero verdict exit would kill the caller before the capture.
+    set +e
+    local session_export="$1"
+    local verdict_out="$2"
+    python3 - "$session_export" "$verdict_out" <<'PYEOF'
+import json, sys
+
+session_export, verdict_out = sys.argv[1], sys.argv[2]
+
+GAP_LIMIT_MS = 300000  # consecutive supervision gaps <= 300s
+
+try:
+    with open(session_export) as f:
+        doc = json.load(f)
+    rows = doc.get("tables", {}).get("event", {}).get("rows") or []
+except Exception:
+    rows = None
+
+violations = []
+runs = []       # (ts_ms, seq)
+checks = []     # (ts_ms, seq)
+
+if rows is None:
+    violations.append("unparseable session export (no event rows) — evaluation surface absent")
+else:
+    events = []
+    for row in rows:
+        seq = row.get("seq", 0)
+        try:
+            data = json.loads(row.get("data") or "{}")
+        except Exception:
+            continue
+        part = data.get("part") or {}
+        if part.get("type") != "tool":
+            continue
+        tool = part.get("tool")
+        st = part.get("state") or {}
+        inp = st.get("input") or {}
+        ts = None
+        t = st.get("time") or {}
+        if isinstance(t.get("start"), (int, float)):
+            ts = t["start"]
+        elif isinstance(row.get("createdAt"), (int, float)):
+            ts = row["createdAt"]
+        if ts is None:
+            continue
+        if tool == "bash":
+            cmd = (inp.get("command") or "").lower()
+            if "with-test-home" in cmd and "opencode run" in cmd:
+                events.append((ts, seq, "run", inp.get("command") or ""))
+            elif (
+                "--export-session" in cmd
+                or "opencode.db" in cmd
+                or "sqlite3" in cmd
+                or "session.yaml" in cmd
+            ):
+                events.append((ts, seq, "check", inp.get("command") or ""))
+        elif tool == "read":
+            path = (inp.get("filePath") or inp.get("path") or "").lower()
+            if (
+                "session.yaml" in path
+                or "opencode.db" in path
+                or "session.db" in path
+                or ".db" in path and "session" in path
+            ):
+                events.append((ts, seq, "check", inp.get("filePath") or ""))
+
+    events.sort(key=lambda e: (e[0], e[1]))
+    for ts, seq, kind, detail in events:
+        if kind == "run":
+            runs.append((ts, seq))
+        else:
+            checks.append((ts, seq))
+
+    ordered = events
+    max_gap = 0
+    # Predicate 1: consecutive supervision gaps <= 300s
+    for i in range(1, len(ordered)):
+        gap = ordered[i][0] - ordered[i - 1][0]
+        if gap > max_gap:
+            max_gap = gap
+        if gap > GAP_LIMIT_MS:
+            violations.append(
+                "max_gap violation: %ss gap between supervision actions at seq %s and seq %s "
+                "(>300s poll cadence breach)" % (gap // 1000, ordered[i - 1][1], ordered[i][1]))
+
+    # Predicate 2: every gap closed by a semantic-check action — a run must be
+    # followed (before the next run or end-of-stream) by a semantic check.
+    for i, (ts, seq) in enumerate(runs):
+        next_run_ts = runs[i + 1][0] if i + 1 < len(runs) else None
+        close_ts = next_run_ts if next_run_ts is not None else None
+        closed = any(
+            cts > ts and (close_ts is None or cts <= close_ts)
+            for cts, _ in checks
+        )
+        if not closed:
+            if next_run_ts is not None:
+                violations.append(
+                    "unchecked retry: run-retry invocation at seq %s with no semantic check "
+                    "since the previous run (retry-without-check violation)" % seq)
+            else:
+                violations.append(
+                    "missing semantic check: run at seq %s closed by no session-DB/export read "
+                    "(trailing supervision gap without a semantic check)" % seq)
+
+verdict = "PASS" if not violations else "FAIL"
+
+with open(verdict_out, "w") as f:
+    f.write("supervision_cadence: poll_gap_semantic_check_retry\n")
+    f.write("verdict: %s\n" % verdict)
+    f.write("runs: %d\n" % len(runs))
+    f.write("semantic_checks: %d\n" % len(checks))
+    f.write("max_gap_s: %d\n" % (max_gap // 1000 if max_gap else 0))
+    if violations:
+        f.write("violations:\n")
+        for v in violations:
+            f.write("  - %s\n" % v)
+    else:
+        f.write("violations: []\n")
+
+sys.exit(0 if verdict == "PASS" else 1)
+PYEOF
+}
