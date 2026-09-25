@@ -115,6 +115,12 @@ SCENARIOS["2456-sc14-full-semantic-check-per-poll-red"]="__STANDALONE__"
 # exceeds 300 seconds; the cadence is enforced by construction via the
 # recorded per-poll timestamps.
 SCENARIOS["2456-sc15-poll-cadence-floor-red"]="__STANDALONE__"
+# .opencode#2456 SC-16: standalone structural enforcement scenario for the
+# §4 commit-ordering predicate — GREEN-phase dispatches commit+push all
+# test-needed changes to the feature branch BEFORE the with-test-home run,
+# with no commit-deliberation turns; asserted from synthetic session-export
+# fixtures (no live model runs).
+SCENARIOS["2456-sc16-commit-ordering-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
