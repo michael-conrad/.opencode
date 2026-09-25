@@ -134,6 +134,13 @@ SCENARIOS["2456-sc17-supervision-cadence-red"]="__STANDALONE__"
 # the ≤300s cadence, the per-poll full semantic check for agent-supervised
 # runs, and the no-check retry-loop prohibition.
 SCENARIOS["2456-sc18-supervisor-mirror-red"]="__STANDALONE__"
+# .opencode#2456 SC-19: standalone behavioral enforcement scenario for the
+# launch-form predicate — opencode runs set up for supervision are launched
+# ASYNCHRONOUSLY (backgrounded/detached) with an attached ≤5-min SQLite-DB
+# semantic-poll schedule; blocking foreground invocations and launches with
+# no attached schedule fail; asserted from synthetic session-export fixtures
+# (no live model runs).
+SCENARIOS["2456-sc19-async-launch-form-red"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -159,6 +166,7 @@ SCENARIO_TAGS["2292-sc4-live-root-mutation"]="content-verification live-root-mut
 SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glob-invocation"
 SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-placement"
 SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirror"
+SCENARIO_TAGS["2456-sc19-async-launch-form-red"]="behavioral-enforcement supervision-launch-form"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
