@@ -13,7 +13,8 @@ Explore project context, check scope, potentially decompose project, and conduct
 
 - Project context explored and documented
 - Scope assessed and decomposition decided (if applicable)
-- Design incrementally approved by user
+- Explicit user finalization signal received (unforgeable user statement the design is final — never agent inference); NOT "design incrementally approved"
+- `awaiting_finalization` cleared by the finalization signal
 - `spec-creation` skill invoked as terminal state
 
 ## Procedure
@@ -171,11 +172,19 @@ written: <UTC timestamp>
 
 This pointer makes the handoff discoverable by the spec-creation analyze task's fallback channel when the dispatch context does not carry `brainstorm_handoff_path` directly.
 
-### Step 7: Transition to spec-creation
+### Step 7: Finalization Gate → Transition to spec-creation
 
-**Terminal state: invoking spec-creation.**
+⚠️ **HARD GATE — user finalization is REQUIRED before spec-creation dispatch.** Do NOT proceed to Step 7 dispatch without it.
 
-> "Exploration complete. I'll now call the spec-creation skill to structure and write the spec from our investigation results."
+**Finalization-signal semantics:** A finalization signal is a recognized, unforgeable user statement that the design is final — e.g., the user explicitly stating the design is settled/final/complete and to proceed to spec writing. It is NEVER agent inference: the agent MUST NOT infer finalization from silence, from the user agreeing with sections, from absence of objections, or from the incremental design exchange appearing done.
+
+**Non-finalization classification:** User responses containing refinements, corrections, or clarifications (answers to clarifying questions) are NOT finalization signals — classify them as discussion mode, incorporate the input, and continue holding the `awaiting_finalization` state.
+
+**Approved/go vocabulary separation:** A finalization signal for brainstorming design is distinct from implementation authorization. The words "approved" and "go" are implementation-authorization vocabulary, not brainstorming finalization vocabulary. Read [010-approval-gate.md](../../guidelines/010-approval-gate.md) for the authorization scope model and why implementation authorization is a separate, later gate.
+
+**On recognized finalization signal only:**
+
+> "Design finalized. I'll now call the spec-creation skill to structure and write the spec from our investigation results."
 
 `spec-creation` handles:
 - Requirements extraction, problem decomposition
@@ -214,3 +223,7 @@ This is conversational — follows from developer's answer, not a predetermined 
 
 - Related skill: `spec-creation` (terminal step)
 - Related task: `explore/pre-spec-inspection`
+
+---
+
+*Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)*
