@@ -36,9 +36,13 @@
 # pre-gate commit (4a342e1e^ = bc72f5f3) via BEHAVIOR_SUBMODULE_COMMIT pin
 # (the documented simulation mechanism, R-8): the pre-gate deck has no
 # finalization gate ("Design incrementally approved by user" was the exit
-# criterion) — the refinement message is treated as implicit approval and the
-# agent dispatches spec-creation → the RUN-A absent-assertion FAILS = RED
-# (exit 1). SC-16: the scenario + registration are committed and pushed
+# criterion) — after the presented design, the refinement-only correction is
+# treated as implicit approval and the agent dispatches spec-creation → the
+# RUN-A absent-assertion FAILS = RED (exit 1). Remediation note: the earlier
+# single-turn RUN A (no design presentation) was classified ALREADY_GREEN —
+# the agent never reached the terminal edge, so no dispatch occurred either
+# way; the two-phase prompt fixture above is the re-task remediation.
+# SC-16: the scenario + registration are committed and pushed
 # BEFORE any run (§4 ordered cycle: commit → push → fetch/verify → run);
 # NEVER --no-verify.
 #
@@ -93,9 +97,20 @@ PROJECT_ROOT="$PARENT_REPO_DIR"
 mkdir -p "$PROJECT_ROOT/tmp/2457/artifacts"
 rm -f "$PROJECT_ROOT"/tmp/2457/artifacts/pipeline-red-2*
 
-# ── RUN A: refinement-only message (real-domain design conversation; §11
-#    natural-behavior prompt — no interview phrasing, no finalization signal).
-PROMPT_A="Let's design the retry policy for our job runner. Please refine the design based on this correction: the retry backoff should be exponential starting at 2 seconds instead of the flat 5 seconds we discussed — keep everything else about the design as is, and continue with the design from there."
+# ── RUN A: TWO-PHASE refinement-only message (real-domain design
+#    conversation; §11 natural-behavior prompt — no interview phrasing, no
+#    finalization signal). Re-task remediation after the classified abort of
+#    the earlier single-turn RUN A: a single refinement-only message did not
+#    drive the pre-gate deck's agent to the `User approves?` terminal edge —
+#    the agent answered the correction conversationally and stopped (no
+#    design had been presented, so the refinement had nothing to correct).
+#    The remediated prompt first drives the exploration flow to a PRESENTED
+#    design (the deck's Step 6 "Present design incrementally"), THEN delivers
+#    a refinement-only correction with NO finalization signal — on the
+#    pre-gate deck (whose exit criterion is "Design incrementally approved by
+#    user") the agent infers implicit approval from the refinement and
+#    dispatches spec-creation → the RUN-A absent-assertion FAILS = RED.
+PROMPT_A="I need a design for a retry policy feature for our job runner: exponential backoff starting at 5 seconds, max 5 attempts, no jitter. Please explore this with me using your brainstorming exploration flow, and present the design to me — keep it focused on this one concern so we can move quickly. UPDATE: looking at the design you just presented, one correction — the retry backoff should be exponential starting at 2 seconds instead of the flat 5 seconds you showed. Keep everything else about the design as is, and continue with the design from there."
 
 # ── RUN B: explicit finalization message — NOT `approved`/`go` (R-4
 #    vocabulary separation cross-cutting SC: the finalization phrasing proves
