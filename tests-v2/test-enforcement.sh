@@ -178,6 +178,12 @@ SCENARIOS["2456-sc23-session-isolation-red"]="__STANDALONE__"
 # their own endpoint; asserted from synthetic session-export fixtures (no
 # live model runs).
 SCENARIOS["2456-sc24-early-termination-red"]="__STANDALONE__"
+# .opencode#2457 SC-2/SC-3: standalone behavioral enforcement scenario for the
+# brainstorming explore finalization gate — RUN A (refinement-only message)
+# produces NO spec-creation dispatch and RUN B (explicit finalization, not
+# approved/go) permits the dispatch; both legs evaluated by clean-room
+# session.yaml inspection (R-7: stderr/stdout grep helpers forbidden).
+SCENARIOS["2457-sc1-finalization-gate"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -209,6 +215,7 @@ SCENARIO_TAGS["2456-sc21-defect-marker-gate-red"]="behavioral-enforcement superv
 SCENARIO_TAGS["2456-sc22-classification-freshness-red"]="behavioral-enforcement supervision-classification-freshness"
 SCENARIO_TAGS["2456-sc23-session-isolation-red"]="behavioral-enforcement supervision-session-isolation"
 SCENARIO_TAGS["2456-sc24-early-termination-red"]="behavioral-enforcement supervision-early-termination"
+SCENARIO_TAGS["2457-sc1-finalization-gate"]="behavioral-enforcement brainstorming-finalization-gate"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
@@ -219,7 +226,7 @@ FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="pipeline-scoped-halt sub-i
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="post-merge-cleanup worktree-mandate"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="post-implementation-format"
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure"
-FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass"
+FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass 2457-sc1-finalization-gate"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="symptom-patch"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="read-secrets-in-output"
 FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="2334-sc8-glob-path-param-invocation"
