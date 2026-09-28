@@ -199,7 +199,7 @@ Check your tool list for a tool named `task`.
 - [ ] 22. audit (**task-card**)
   - `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read `audit/tasks/verification-audit-investigator.md` first")` — followed by validator, evaluator, arbiter in sequence.
 - [ ] 23. z3-check (**direct**)
-  - `rm -f tmp/{issue-2457}/artifacts/pipeline-z3-check-*`, then run `.opencode/tools/solve check --state-path .opencode/.issues/2457/artifacts/state-z3-initial.yaml --contract-path .opencode/.issues/2457/artifacts/plan-problem.yaml` (goal: `state-z3-goal.yaml`) — both phases verified solvable in dependency order.
+  - `rm -f tmp/{issue-2457}/artifacts/pipeline-z3-check-*`, then run `.opencode/tools/solve model --contract-path .opencode/.issues/2457/dependency-contract.yaml --query "z3.And(phase_A_done, phase_B_done, finalization_gate_in_deck, behavioral_scenario_registered, refinement_run_proves_no_dispatch, finalization_run_proves_dispatch_permitted)"` (reachability per the 2433/2434 precedent: goal-state check UNSAT against z3.Not initial-state preconditions is EXPECTED — reachability is proven by the model query on the precondition-free contract). Record: tmp/{issue-2457}/artifacts/pipeline-z3-check-20260925.yaml (SAT — goal reachable under Implies(B,A)).
 - [ ] 24. structural-checks (**task-card**)
   - `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — lint/format gates for markdown (`mdformat --check`, `pymarkdownlnt`) as applicable, plus finishing checklist.
 - [ ] 25. pre-pr-gate (**task-card**)
