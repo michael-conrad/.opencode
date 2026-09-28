@@ -1,0 +1,44 @@
+# Analytical Artifact: State Analysis — `.opencode#2467`
+
+basis: handoff state-analysis.md (consumed, complete)
+
+## Persistent state transitions per phase
+
+### Phase 1: Guideline scope qualifiers (SC-1, SC-2, SC-3)
+- Transition: `.opencode` submodule tracked files (guidelines) — text state
+  changes from unqualified → qualified clause. Versioned; reversible via git.
+- State machine: none (static text; no runtime state).
+
+### Phase 2: Skill card + reference (SC-4, SC-5)
+- Transition: SKILL.md taxonomy section + reference table — text state change.
+  Taxonomy TYPE set is immutable across the transition (C2 invariant).
+- State machine: none.
+
+### Phase 3: Scope anchor (SC-6)
+- Transition: tests-v2/AGENTS.md gains a scope statement section — additive
+  text state. No existing state modified.
+
+### Phase 4: Parent repo (SC-7)
+- Transition: parent `AGENTS.md` text change; `.opencode` gitlink pointer
+  advances to the submodule commit carrying SC-1..SC-6. Pointer rides in the
+  same parent-repo commit (C5).
+- Issue store state: `.opencode/.issues/` records for #2467 progress through
+  spec → approved-for-implementation → implemented → PR (lifecycle via
+  local-issues; tracked in issue records, not in spec body).
+
+## Behavioral evidence artifacts
+- `./tmp/behavioral-evidence-*` files created by this spec's own verification
+  runs (deck change → behavioral SCs). Exempt from cleanup until PR merge.
+
+## Propagation state (accepted)
+- Downstream vendored copies hold OLD text until submodule sync —
+  propagation-delayed, not instant. No migration.
+
+## Non-state
+- No database, no runtime state, no serialized formats, no config files with
+  versioned schemas (rule text is not a versioned serialized format — no
+  migration-integrity obligations).
+
+## Rollback
+- All transitions are git-reversible (text edits + pointer bump). No
+  irreversible state.

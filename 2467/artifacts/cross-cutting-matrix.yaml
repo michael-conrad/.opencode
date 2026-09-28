@@ -1,0 +1,20 @@
+# Analytical Artifact: Cross-Cutting Matrix — `.opencode#2467`
+
+basis: handoff cross-cutting.md (consumed, complete) + phases SC-1..SC-7
+
+| Concern | Phases spanning it | Handling |
+|---------|-------------------|----------|
+| Evidence-type rigor (universal) | SC-4 (taxonomy), SC-2 (080 BEH-EV), SC-1 (020), SC-3 (091) | Preserved unqualified in duty language; instrument mechanics scoped. 080 BEH-EV gate unchanged — classification gate remains substrate-determined. |
+| Harness mechanics (deck-scoped) | SC-1, SC-2, SC-3, SC-6 | Qualifiers Read-link to SC-6 anchor; identical semantics, single canonical anchor. |
+| Deck-copy integrity | SC-1, SC-2, SC-3 (qualifier text), SC-7 (root AGENTS.md) | Qualifiers close Path B (local-copy escape) by giving the correct resolution: defer instrument, keep rigor, route deck defects via issue-operations to michael-conrad/.opencode. |
+| Cross-repo spec routing | SC-7 (parent-repo surface) | Root AGENTS.md change routes through parent-repo PR with submodule pointer (C5). Companion-spec alternative recorded as open item O1 in requirements. |
+| Enforcement-test mandate (self-referential case) | All SCs (this spec's own verification) | The fix is itself a deck change → its behavioral SCs run in the deck repo via tests-v2 §6a two-SC pattern. The fix must handle this case correctly — qualifier must NOT exempt deck-repo work from behavioral testing. |
+| Non-substantive vs substantive revision | None (no spec bodies edited) | Verified: rule text changes only; no existing spec body requires revision; approval-gate revocation rules not triggered. |
+| Synchronized restatement risk | SC-1/SC-2 (020 §1 + 080 critical-rules-060 duplicate prohibition) | Both land with identical scoping semantics in the same PR; content-verification patterns asserting old strings bounded-checked during implementation. |
+
+## Conflict-risk notes (carried forward)
+
+- Divergent inline variants prohibited (skill-card-description-standards
+  canonical-anchor rule) — enforced by concern-map phase boundaries.
+- tests-v2/AGENTS.md is the natural anchor — established by SC-6 rather than
+  invented.

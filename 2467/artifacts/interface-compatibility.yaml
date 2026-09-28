@@ -1,0 +1,43 @@
+# Analytical Artifact: Interface Compatibility — `.opencode#2467`
+
+basis: handoff interface-compat.md (consumed, complete) + R/C verification
+
+## Interfaces inventory
+
+| Interface | Type | Status | Compatibility |
+|-----------|------|--------|---------------|
+| Guideline rule text (020 §1, 080 critical-rules-060, 091 behavioral variant) | Agent-facing rule text | Modified (additive scope qualifiers) | Backward compatible — duty language unchanged; qualifiers narrow instrument applicability only |
+| TDD SKILL.md §Evidence Type Taxonomy | Spec SC evidence-type schema consumed by spec-creation/audit/VbC | Modified (instrument column qualifier; types + precedence unchanged) | Backward compatible for deck work; additive for non-deck fallback |
+| spec-structure-standards.md evidence table | Spec template reference | Modified (fallback wording in behavioral row) | Backward compatible — table schema, row count unchanged |
+| tests-v2/AGENTS.md | Harness operating manual | New section (scope statement) | Additive; harness CLI untouched |
+| Parent AGENTS.md Test Framework Discipline | Parent-repo rule text | Modified (scope qualifier) | Backward compatible — mandate preserved, scoped |
+| Skill names / TDT entries / dispatch strings | Routing metadata | Unchanged | No routing breakage |
+| tests-v2 harness CLI (behavior_run, with-test-home, helpers) | Executable harness | Unchanged | Fully compatible |
+| Existing spec/plan artifacts | Historical specs with behavioral SCs | Unchanged | Remain valid for deck-repo work (N2 — no retroactive re-reading) |
+| Downstream vendored .opencode copies | Submodule consumers | Updated via sync | Propagation-delayed (accepted); no interface change |
+
+## dependency_contract
+
+- source: TDD SKILL.md §Evidence Type Taxonomy (interfaces)
+  target: spec-structure-standards.md evidence table (removed_interfaces/related)
+  type: artifact schema
+  constraint: behavioral-row instrument wording must align with taxonomy
+  qualifier — no divergent inline variants (breaking_changes/implied coupling:
+  a taxonomy edit without the table edit leaves spec templates hardcoding
+  `opencode run`)
+- source: tests-v2/AGENTS.md scope statement (interfaces)
+  target: 020/080/091 Read-links (related)
+  type: artifact schema
+  constraint: qualifier Read-links require the anchor section to exist before
+  merge — SC-6 must land in the same PR as SC-1/2/3
+- source: parent AGENTS.md scope qualifier (interfaces)
+  target: submodule pointer (related)
+  type: artifact schema
+  constraint: pointer rides alongside the parent-repo change in the same commit
+  (submodule discipline C5)
+
+## Verdict
+
+No incompatible interface changes. All modifications are additive scope
+qualifiers; schema types, precedence, routing metadata, and harness CLIs
+untouched. Backward compatible throughout.
