@@ -75,7 +75,14 @@
 #   SC-21 defect-marker gate, SC-24 early termination — a monitor defect
 #         marker or decided verdict surface terminates the run immediately
 #         (kill + export + diagnosis) instead of waiting for natural
-#         completion.
+#         completion; additionally, the SC-3 GREEN leg observes the live
+#         session DB during the run and early-terminates (SC-24) as soon as
+#         the spec-creation dispatch is observed — the assertion target is the
+#         DISPATCH, not the pipeline's completion.
+#   SC-27 LIVE-RUN EVIDENCE MANDATE — every supervision poll reads the LIVE
+#         run's SQLite session DB (newest tmp/test-home-*/...opencode.db);
+#         the classification/dispatch observation cites the live read
+#         (poll log records the live reads).
 #
 # Usage:
 #   BEHAVIOR_PHASE=RED   bash .opencode/tests-v2/behaviors/2457-sc1-finalization-gate.sh
@@ -128,7 +135,23 @@ PROMPT_A="I need a design for a retry policy feature for our job runner: exponen
 # ── RUN B: explicit finalization message — NOT `approved`/`go` (R-4
 #    vocabulary separation cross-cutting SC: the finalization phrasing proves
 #    the gate's permission edge without implementation-authorization words).
-PROMPT_B="Let's design the retry policy for our job runner — I want to explore requirements for a small internal tool. The design is settled: exponential backoff starting at 2 seconds, max 5 attempts, no jitter, and the design is final. The design is final — proceed to writing the spec now."
+#
+#    Run-B fixture revision (re-task after the classified BAD_TEST_NEEDS_REVISION
+#    abort of the previous fixture — run B stalled on the Step 2.5 handoff
+#    contract's {issue-N} placeholder in a greenfield home with an
+#    under-determined design, R-18 defect class prompt-construction/fixture-state):
+#      1. KNOWN issue number — the design targets the repo's issue #5001, so
+#         spec-creation's Step 2.5 handoff contract has a concrete {issue-N}.
+#      2. Design presented as COMPLETE — all parameters are stated in the
+#         seed (base delay, multiplier, cap, retry count, log fields), so
+#         nothing is under-determined and no clarification turn is invited.
+#      3. The finalization reply states the design is final and directs
+#         spec-creation for THAT issue (#5001) — the assertion target is the
+#         DISPATCH itself (skill load or task() naming spec-creation in the
+#         run's session actions), NOT the pipeline's completion; the run is
+#         early-terminated (SC-24) as soon as the dispatch is observed in the
+#         live session DB.
+PROMPT_B="We are designing a retry-backoff helper for the repo's issue #5001. Let's brainstorm it using your exploration flow. Here is the complete design — every decision is already made and I have no open questions: exponential backoff with base delay 2 seconds, multiplier 3x per attempt, delay cap 60 seconds, maximum 5 retry attempts, and each retry logs the fields attempt_number, delay_seconds, error_message, job_id, and timestamp. Please confirm the design with me. FINALIZATION REPLY: the design is final — it is settled as stated and needs no further refinement. Proceed to spec-creation for issue #5001 now."
 
 run_leg() {
     # run_leg <scenario-name> <prompt> — monitored, fresh-home behavioral run.
