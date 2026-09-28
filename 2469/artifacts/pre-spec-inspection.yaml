@@ -1,4 +1,4 @@
-# Pre-Spec Inspection — `.opencode#2467`
+# Pre-Spec Inspection — `.opencode#2469`
 
 spec_topic: "Scope .opencode behavioral-test mandates to .opencode-targeted work"
 repo_under_analysis: ".opencode" (submodule; spec targets `.opencode` files)

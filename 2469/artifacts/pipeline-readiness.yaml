@@ -1,4 +1,4 @@
-# Pipeline Readiness Gate — `.opencode#2467`
+# Pipeline Readiness Gate — `.opencode#2469`
 
 validated_date: 2026-09-27
 basis: decompose-output.yaml items 1-7 (SC-1..SC-7)

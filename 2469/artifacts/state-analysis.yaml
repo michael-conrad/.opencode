@@ -1,4 +1,4 @@
-# Analytical Artifact: State Analysis — `.opencode#2467`
+# Analytical Artifact: State Analysis — `.opencode#2469`
 
 basis: handoff state-analysis.md (consumed, complete)
 
@@ -22,7 +22,7 @@ basis: handoff state-analysis.md (consumed, complete)
 - Transition: parent `AGENTS.md` text change; `.opencode` gitlink pointer
   advances to the submodule commit carrying SC-1..SC-6. Pointer rides in the
   same parent-repo commit (C5).
-- Issue store state: `.opencode/.issues/` records for #2467 progress through
+- Issue store state: `.opencode/.issues/` records for #2469 progress through
   spec → approved-for-implementation → implemented → PR (lifecycle via
   local-issues; tracked in issue records, not in spec body).
 

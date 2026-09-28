@@ -3,13 +3,13 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '> **Full spec and artifacts: [`.issues/2467/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2467)**
+body: '> **Full spec and artifacts: [`.issues/2469/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2469)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
 
   >
 
-  > **Local artifacts:** `.issues/2467/` — implementation plan, card catalogue, dependency
+  > **Local artifacts:** `.issues/2469/` — implementation plan, card catalogue, dependency
   contracts, research, designs, audit findings
 
   '

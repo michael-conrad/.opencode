@@ -1,4 +1,4 @@
-# Analytical Artifact: Code Path Inventory — `.opencode#2467`
+# Analytical Artifact: Code Path Inventory — `.opencode#2469`
 
 basis: handoff code-paths.md (consumed, complete) — instruction-consumption
 paths (text-scoping spec; no runtime code paths)
