@@ -64,9 +64,9 @@
 #   SC-19 async launch + ≤300s SQLite-DB supervision — monitored runs are
 #         launched detached (setsid) by the monitor path and polled with a
 #         full semantic check each ≤300s poll.
-#   SC-25 SAFE CLEANUP — only tmp/2457/artifacts/pipeline-red-2* (this
-#         scenario's own per-step artifacts) are removed pre-step; behavioral
-#         evidence artifacts are NEVER deleted.
+#   SC-25 SAFE CLEANUP — only tmp/2457/artifacts/pipeline-{red-2,green-2}*
+#         (this scenario's own per-step artifacts) are removed pre-step;
+#         behavioral evidence artifacts are NEVER deleted.
 #   SC-26 hung session = CLEAR FAIL — a supervised run that hangs (no
 #         progress, no dispatch) is a FAIL, not an infrastructure excuse.
 #   R-13  dispatch-failure decoupling — the monitor's classifier dispatch
@@ -80,6 +80,9 @@
 # Usage:
 #   BEHAVIOR_PHASE=RED   bash .opencode/tests-v2/behaviors/2457-sc1-finalization-gate.sh
 #   BEHAVIOR_PHASE=GREEN bash .opencode/tests-v2/behaviors/2457-sc1-finalization-gate.sh
+# GREEN runs at the gated tip: BEHAVIOR_SUBMODULE_COMMIT (the RED pre-gate-deck
+# simulation pin) is unset defensively in GREEN phase — no pre-gate pin, no
+# leak; the run targets the current gated submodule tip (9a036f65-era).
 # Bash tool timeout >= 600000ms per supervised cycle.
 
 set -euo pipefail
@@ -90,12 +93,22 @@ PHASE="${BEHAVIOR_PHASE:-RED}"
 SCENARIO_A="2457-sc1-finalization-gate-run-a-refinement"
 SCENARIO_B="2457-sc1-finalization-gate-run-b-finalize"
 
+# GREEN phase runs at the GATED submodule tip: the BEHAVIOR_SUBMODULE_COMMIT
+# pin is the RED-phase pre-gate-deck simulation mechanism only — it MUST NOT
+# leak into the GREEN run. Unset it defensively when phase=GREEN (GREEN leg 2
+# step 16, .opencode#2457).
+if [ "$PHASE" = "GREEN" ] && [ -n "${BEHAVIOR_SUBMODULE_COMMIT:-}" ]; then
+    echo "GREEN phase: unsetting BEHAVIOR_SUBMODULE_COMMIT — the gate run targets the gated tip, not a pinned pre-gate commit" >&2
+    unset BEHAVIOR_SUBMODULE_COMMIT
+fi
+
 # ── SC-25 SAFE CLEANUP: remove ONLY this scenario's own per-step artifacts
 #    (tmp/2457/artifacts/pipeline-red-2*); behavioral evidence artifacts under
 #    tmp/behavioral-evidence-* are NEVER touched (§3 Tool Usage).
 PROJECT_ROOT="$PARENT_REPO_DIR"
 mkdir -p "$PROJECT_ROOT/tmp/2457/artifacts"
 rm -f "$PROJECT_ROOT"/tmp/2457/artifacts/pipeline-red-2*
+rm -f "$PROJECT_ROOT"/tmp/2457/artifacts/pipeline-green-2*
 
 # ── RUN A: TWO-PHASE refinement-only message (real-domain design
 #    conversation; §11 natural-behavior prompt — no interview phrasing, no
