@@ -58,7 +58,7 @@ dispatch:
 | 4 | False-signal folding + enforcement scenario | False-signal-and-enforcement (concern-map) | SC-10, SC-11 | 3 | 69-83 | direct (69-70) + task-card (71-82) + direct (83) |
 | 5 | Doc alignment | Docs-alignment (concern-map) | SC-12 | 4 | 84-91 | direct (84-85) + task-card (86-90) + direct (91) |
 | 6 | Semantic poll discipline + stall diagnosis | Per-poll full semantic checks (SC-14), cadence floor (SC-15), diagnosis-before-retry (SC-13), commit ordering (SC-16), supervisor mandate (SC-17) + §14 mirror (SC-18), async launch (SC-19), efficiency marker (SC-20), defect-marker gate (SC-21), classification freshness (SC-22), fresh-session isolation (SC-23), early termination (SC-24), safe cleanup (SC-25), hung session = clear FAIL (SC-26) | SC-13..SC-26 | 4 | 92-166 | direct (commit steps 98+5i for SC-13..25 cycles, 163, 164-166) + task-card (92-97 per-SC cycles, 159-162) |
-| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 167-174 | mixed — see post-implementation section |
+| 7 | Post-implementation pipeline | Audit, checks, PR | all | 1-6 | 172-179 | mixed — see post-implementation section |
 
 ## Exit Criteria
 
@@ -88,10 +88,11 @@ dispatch:
 - [ ] C24. Decided verdict ⇒ terminate run + monitor within one poll cycle; wait-for-exit prohibited (SC-24)
 - [ ] C25. Cleanup kill-targets select by scenario markers with own-PID/parent-PID exclusion; broad "opencode run" patterns prohibited (SC-25)
 - [ ] C26. Hung session = clear FAIL at the bound; verdict FAILED(stall) + termination; wait-on-hang prohibited (SC-26)
+- [ ] C27. Every supervision poll reads the live run's SQLite session DB; static substitution prohibited (SC-27)
 
 ## Pre-Implementation
 
-- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (26 SCs — SC-13..16 added 2026-09-21; SC-17..21 added 2026-09-22; SC-22..25 added 2026-09-23; SC-26 added 2026-09-24; SC-2 amended 2026-09-22) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
+- [ ] 1. **Coherence gate (**direct**).** Confirm spec `.opencode/.issues/2456/spec.md` is current (27 SCs — SC-13..16 added 2026-09-21; SC-17..21 added 2026-09-22; SC-22..25 added 2026-09-23; SC-26/27 added 2026-09-24; SC-2 amended 2026-09-22) and every SC maps to exactly one phase item; confirm the phase DAG (1→2, 1→3, 3→4, 4→5, 4→6) is acyclic.
 - [ ] 2. **Baseline check (**direct**).** Verify trunk-tip state per git-workflow pre-work: parent repo and `.opencode` submodule on `$DEFAULT_BRANCH`, zero pending changes, at remote tracking tip, submodule pointer matches committed SHA; create the feature branch; record the baseline test-enforcement.sh result for regression comparison.
 
 ## Pre-Implementation Steps (per-item TDD cycle — all phases)
@@ -103,8 +104,8 @@ Every phase item below enumerates the full per-task cycle from the implementatio
 - [ ] 167 **Audit (**task-card**).** Dispatch adversarial audit: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read 'audit/tasks/verification-audit-investigator.md' first")` — followed by validator, evaluator, arbiter in sequence. **→ all SCs**
 - [ ] 168 **Z3 check (**direct**).** Run `.opencode/tools/solve check --state-path ... --contract-path ...` on the pipeline state and dependency contract. **→ all SCs**
 - [ ] 169 **Structural checks (**task-card**).** `task(..., prompt: "execute checklist task from finishing-a-development-branch")` — shellcheck-style review of modified shell scripts, advisory markdown checks on AGENTS.md. **→ SC-11..SC-25**
-- [ ] 170 **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
-- [ ] 171 **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
+- [ ] 175 **Pre-PR gate (**task-card**).** `task(..., prompt: "execute verify task from verification-before-completion")` — read all SC verdicts; BLOCK if any FAIL (DONE_WITH_CONCERNS coerces to FAIL). **→ all SCs**
+- [ ] 176 **Regression check (**task-card**).** `task(..., prompt: "execute phase-4 task from test-driven-development")` — final regression run of existing scenarios against the modified harness. **→ all SCs**
 - [ ] 172 **Review prep (**task-card**).** `task(..., prompt: "execute review-prep from git-workflow-pr. Read 'git-workflow-pr/tasks/review-prep.md' first")`. **→ all SCs**
 - [ ] 173 **Create PR (**task-card**).** `task(..., prompt: "execute create task from git-workflow-pr")` — squash to one commit per issue; human-only merge; HALT after creation. **→ all SCs**
 - [ ] 174 **Completion summary (**task-card**).** `task(..., prompt: "execute completion task from completion-core")` — executive summary with lifecycle closeout. **→ all SCs**
@@ -131,6 +132,11 @@ Check your tool list for a tool named `task`.
 
 ## lifecycle_events
 
+- timestamp: 2026-09-24T06:30:00Z
+  event: plan_revised
+  plan_path: .opencode/.issues/2456/plan.md
+  phase_count: 6
+  note: Developer directive 2026-09-24 — SC-27/R-26/Item 27 added (live-run evidence mandate: every supervision poll reads the live run's SQLite session DB; static-check substitution prohibited). Phase 6 now SC-13..27; post-implementation renumbered 172-179.
 - timestamp: 2026-09-24T05:10:00Z
   event: plan_revised
   plan_path: .opencode/.issues/2456/plan.md
