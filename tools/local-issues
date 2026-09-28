@@ -312,18 +312,27 @@ def read_issue_data(number: int, repo_path: Path | None = None) -> dict:
     return result
 
 
+ARTIFACT_ONLY_STATUS = "artifact-only"
+
+
 def _read_issue_title_status(entry: Path) -> tuple[str, str]:
-    """Read title and status from an issue directory entry."""
+    """Read title and status from an issue directory entry.
+
+    Returns the ARTIFACT_ONLY_STATUS sentinel when the directory holds
+    only artifact files (e.g. spec.md) without issue.yaml — readers stay
+    total functions and never raise.
+    """
     issue_file = entry / "issue.yaml"
-    spec_file = entry / "spec.md"
     if issue_file.exists():
         data = yaml_load(
             read_file(issue_file), path=_rel_issue_path(entry, "issue.yaml")
         )
         if isinstance(data, dict):
             return data.get("title", ""), data.get("status", "open")
-    elif spec_file.exists():
-        return "", "open"
+    if any(p.is_file() for p in entry.iterdir()):
+        # Any metadata yaml variant (spec.md, comments.yaml, links.yaml,
+        # ...) without issue.yaml is an artifact-only directory.
+        return "", ARTIFACT_ONLY_STATUS
     return "", "open"
 
 
@@ -1335,7 +1344,7 @@ def _read_issue_data_in_repo(number: int, repo_path: Path) -> dict:
                         MALFORMED_FRONTMATTER,
                     )
             else:
-                result["issue"] = {"body": spec.strip(), "status": "open"}
+                result["issue"] = {"body": spec.strip()}
     return result
 
 
@@ -1609,7 +1618,7 @@ def _search_in_repo(
         if query not in haystack:
             continue
         title = issue.get("title", "")
-        status = issue.get("status", "open")
+        status = issue.get("status", "artifact-only")
         results.append((repo_name, f"{repo_name}#{num}", status, title, spec_path))
     return results
 
@@ -1663,6 +1672,9 @@ def _list_issues_in_repo(
             continue
         seen.add(num)
         _validate_issue_dir(entry)
+        if not any(p.is_file() for p in entry.iterdir()):
+            # Empty issue directories are excluded from list enumeration.
+            continue
         spec_path = _spec_path_for_issue(num, repo_path)
         title, status = _read_issue_title_status(entry)
         entries.append(

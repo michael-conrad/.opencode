@@ -101,6 +101,89 @@ SCENARIOS["skill-deck-completeness"]="__STANDALONE__"
 SCENARIOS["2292-sc4-live-root-mutation"]="__STANDALONE__"
 SCENARIOS["2334-sc8-glob-path-param-invocation"]="__STANDALONE__"
 SCENARIOS["2451-sc7-rule-text-placement"]="__STANDALONE__"
+# .opencode#2456 SC-11: standalone behavioral enforcement scenario for the
+# with-test-home resume gate — re-dispatch/re-run without a recorded
+# non-undetermined determination must be blocked.
+SCENARIOS["2456-sc11-redetermination-gate-enforcement"]="__STANDALONE__"
+SCENARIOS["2456-sc13-diagnosis-before-retry-red"]="__STANDALONE__"
+# .opencode#2456 SC-14: standalone behavioral enforcement scenario for the
+# per-poll full semantic check — every classification is derived from the
+# run's message/reasoning/tool-call parts; activity counters are inadmissible.
+SCENARIOS["2456-sc14-full-semantic-check-per-poll-red"]="__STANDALONE__"
+# .opencode#2456 SC-15: standalone behavioral enforcement scenario for the
+# poll-cadence floor — no gap between consecutive poll-log POLL records
+# exceeds 300 seconds; the cadence is enforced by construction via the
+# recorded per-poll timestamps.
+SCENARIOS["2456-sc15-poll-cadence-floor-red"]="__STANDALONE__"
+# .opencode#2456 SC-16: standalone structural enforcement scenario for the
+# §4 commit-ordering predicate — GREEN-phase dispatches commit+push all
+# test-needed changes to the feature branch BEFORE the with-test-home run,
+# with no commit-deliberation turns; asserted from synthetic session-export
+# fixtures (no live model runs).
+SCENARIOS["2456-sc16-commit-ordering-red"]="__STANDALONE__"
+# .opencode#2456 SC-17: standalone behavioral enforcement scenario for the
+# supervision-cadence predicate — consecutive supervision gaps ≤300s, each
+# gap closed by a semantic-check action (a read of the run's session DB /
+# session export), and run-retry invocations separated by an intervening
+# semantic check; asserted from synthetic session-export fixtures (no live
+# model runs).
+SCENARIOS["2456-sc17-supervision-cadence-red"]="__STANDALONE__"
+# .opencode#2456 SC-18: standalone structural enforcement scenario for the
+# §14 supervisor-mandate mirror — AGENTS.md §14 carries the supervisor
+# polling mandate (SC-17's predicate) as agent-facing instruction text:
+# the ≤300s cadence, the per-poll full semantic check for agent-supervised
+# runs, and the no-check retry-loop prohibition.
+SCENARIOS["2456-sc18-supervisor-mirror-red"]="__STANDALONE__"
+# .opencode#2456 SC-19: standalone behavioral enforcement scenario for the
+# launch-form predicate — opencode runs set up for supervision are launched
+# ASYNCHRONOUSLY (backgrounded/detached) with an attached ≤5-min SQLite-DB
+# semantic-poll schedule; blocking foreground invocations and launches with
+# no attached schedule fail; asserted from synthetic session-export fixtures
+# (no live model runs).
+SCENARIOS["2456-sc19-async-launch-form-red"]="__STANDALONE__"
+# .opencode#2456 SC-20: standalone behavioral enforcement scenario for the
+# efficiency-defect marker predicate — every 5-minute semantic check of a
+# supervised run's session DB includes an efficiency analysis; excessive
+# deliberation (deliberation loops, self-correction loops) is recorded as a
+# defect marker and routed to the defect notification path while raw model
+# latency is not a marker; asserted from synthetic session-export fixtures
+# (no live model runs).
+SCENARIOS["2456-sc20-efficiency-marker-red"]="__STANDALONE__"
+# .opencode#2456 SC-21: standalone behavioral enforcement scenario for the
+# recorded-defect-marker hard gate — a defect marker with an identified cause
+# halts the sub-agent and notifies via the ORCHESTRATOR_DECISION_REQUIRED
+# path; the orchestrator researches/remediates and dispatches/resumes;
+# sub-agent self-remediation/self-resumption is prohibited; asserted from
+# synthetic session-export fixtures (no live model runs).
+SCENARIOS["2456-sc21-defect-marker-gate-red"]="__STANDALONE__"
+# .opencode#2456 SC-22: standalone behavioral enforcement scenario for the
+# classification-freshness bound on abort suppression — a progressing verdict
+# suppresses aborts only while FRESH (re-classification at least every N polls
+# and on every new abort-signal event; stale verdicts never suppress); asserted
+# from synthetic poll-log/classification fixtures (no live model runs).
+SCENARIOS["2456-sc22-classification-freshness-red"]="__STANDALONE__"
+# .opencode#2456 SC-23: standalone behavioral enforcement scenario for the
+# fresh-session isolation bound on monitored fixture runs (R-22) — each
+# monitored run starts from a FRESH test home and a fresh session; reuse of a
+# prior attempt's home/session DB is prohibited; foreign instructions from
+# earlier sessions never appear in the run's context; asserted from synthetic
+# session-export fixtures (no live model runs).
+SCENARIOS["2456-sc23-session-isolation-red"]="__STANDALONE__"
+# .opencode#2456 SC-24: standalone behavioral enforcement scenario for the
+# early-termination predicate — once a scenario's declared verdict surface is
+# decided (RED condition confirmed or the assertion satisfied), the supervisor
+# terminates the monitored run immediately (kill run + monitor within one
+# poll cycle, capture exit/artifact evidence) instead of waiting for natural
+# completion; exception: surfaces requiring continued running terminate at
+# their own endpoint; asserted from synthetic session-export fixtures (no
+# live model runs).
+SCENARIOS["2456-sc24-early-termination-red"]="__STANDALONE__"
+# .opencode#2457 SC-2/SC-3: standalone behavioral enforcement scenario for the
+# brainstorming explore finalization gate — RUN A (refinement-only message)
+# produces NO spec-creation dispatch and RUN B (explicit finalization, not
+# approved/go) permits the dispatch; both legs evaluated by clean-room
+# session.yaml inspection (R-7: stderr/stdout grep helpers forbidden).
+SCENARIOS["2457-sc1-finalization-gate"]="__STANDALONE__"
 
 # Tags per scenario for --tag filtering
 declare -A SCENARIO_TAGS
@@ -125,6 +208,14 @@ SCENARIO_TAGS["skill-deck-completeness"]="content-verification skildeck"
 SCENARIO_TAGS["2292-sc4-live-root-mutation"]="content-verification live-root-mutation"
 SCENARIO_TAGS["2334-sc8-glob-path-param-invocation"]="behavioral-enforcement glob-invocation"
 SCENARIO_TAGS["2451-sc7-rule-text-placement"]="content-verification rule-text-placement"
+SCENARIO_TAGS["2456-sc18-supervisor-mirror-red"]="content-verification doc-mirror"
+SCENARIO_TAGS["2456-sc19-async-launch-form-red"]="behavioral-enforcement supervision-launch-form"
+SCENARIO_TAGS["2456-sc20-efficiency-marker-red"]="behavioral-enforcement supervision-efficiency-marker"
+SCENARIO_TAGS["2456-sc21-defect-marker-gate-red"]="behavioral-enforcement supervision-defect-marker-gate"
+SCENARIO_TAGS["2456-sc22-classification-freshness-red"]="behavioral-enforcement supervision-classification-freshness"
+SCENARIO_TAGS["2456-sc23-session-isolation-red"]="behavioral-enforcement supervision-session-isolation"
+SCENARIO_TAGS["2456-sc24-early-termination-red"]="behavioral-enforcement supervision-early-termination"
+SCENARIO_TAGS["2457-sc1-finalization-gate"]="behavioral-enforcement brainstorming-finalization-gate"
 
 # File-to-scenario mapping for --changed filtering
 declare -A FILE_SCENARIO_MAP
@@ -135,7 +226,7 @@ FILE_SCENARIO_MAP[".opencode/skills/approval-gate/"]="pipeline-scoped-halt sub-i
 FILE_SCENARIO_MAP[".opencode/skills/git-workflow/"]="post-merge-cleanup worktree-mandate"
 FILE_SCENARIO_MAP[".opencode/skills/verification-before-completion/"]="post-implementation-format"
 FILE_SCENARIO_MAP[".opencode/skills/issue-operations/"]="sub-issue-structure"
-FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass"
+FILE_SCENARIO_MAP[".opencode/skills/brainstorming/"]="create-spec offer-to-edit-bypass 2457-sc1-finalization-gate"
 FILE_SCENARIO_MAP[".opencode/skills/issue-review/"]="symptom-patch"
 FILE_SCENARIO_MAP[".opencode/plugins/session-enforcement.ts"]="read-secrets-in-output"
 FILE_SCENARIO_MAP[".opencode/guidelines/060-tool-usage.md"]="2334-sc8-glob-path-param-invocation"
@@ -293,3 +384,5 @@ if [ "$FAIL_COUNT" -gt 0 ]; then
 fi
 
 exit 0
+
+# Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

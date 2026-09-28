@@ -83,22 +83,19 @@ When the agent needs to implement changes and commit them with a structured mess
 When the agent needs to create a PR, prepare for review, or run post-implementation and completion tasks after implementation.
 
 - [ ] 1. **Review-prep** — Prepares a branch for review by verifying readiness and generating context
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [prepare PR review context](.opencode/skills/git-workflow-pr/tasks/review-prep.md). branch_name: ", branch_name))`
   - **Context passed:** `{branch_name}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
-  - **Execution mode:** sub-agent dispatch
+  - **Dispatch value:** `task-card` — dispatch this step's task card ([review-prep](.opencode/skills/git-workflow-pr/tasks/review-prep.md)) via `task()`, per the canonical dispatch-vocabulary table: Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md)
 
 - [ ] 2. **Pr-creation** — Creates a pull request with a structured body and compare URL
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create pull request](.opencode/skills/git-workflow-pr/tasks/pr-creation.md). branch_name: ", branch_name, ", spec_summary: ", spec_summary, ", is_release: ", is_release))`
   - **Context passed:** `{branch_name, spec_summary, is_release}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason, pr_url}`
-  - **Execution mode:** sub-agent dispatch
+  - **Dispatch value:** `task-card` — dispatch this step's task card ([pr-creation](.opencode/skills/git-workflow-pr/tasks/pr-creation.md)) via `task()`, per the canonical dispatch-vocabulary table: Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md)
 
 - [ ] 3. **Completion** — Runs PR lifecycle completion, final status, and URL reporting
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete git-workflow](.opencode/skills/git-workflow-pr/tasks/completion.md). workflow_state: ", workflow_state))`
   - **Context passed:** `{workflow_state}`
   - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
-  - **Execution mode:** sub-agent dispatch
+  - **Dispatch value:** `task-card` — dispatch this step's task card ([completion](.opencode/skills/git-workflow-pr/tasks/completion.md)) via `task()`, per the canonical dispatch-vocabulary table: Read [the canonical dispatch-vocabulary table](.opencode/reference/skill-card-description-standards.md)
 
 ### Clean up after a PR merge
 
@@ -130,3 +127,5 @@ A halt without structured output leaves the developer guessing what happened, wh
 
 ### [critical-rules-016] Missing Progress Reports
 Halting without structured output means leaving the developer guessing what happened — and that is amateur-hour behavior. Professional engineers always produce: Summary → URL → Byline. Issue comments are for substantive information only.
+
+*Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*

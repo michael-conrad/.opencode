@@ -20,7 +20,7 @@ Enables the orchestrator to execute an approved implementation plan by reading t
 The orchestrator does NOT forward the plan or workflow to a sub-agent:
 
 - **Read the plan in own context** — the orchestrator reads the plan file itself and inventories phases in dependency order.
-- **Execute steps in own context** — the orchestrator performs each plan step directly with its own tool calls, in the plan's dependency order.
+- **Execute steps in own context** — the orchestrator performs each plan step directly with its OWN tool calls (read/write/edit/bash issued by the orchestrator itself), in the plan's dependency order. A `direct` step MUST NOT be delegated into a `task()` dispatch — wholesale delegation of a direct step to a sub-agent is a violation of this mandate.
 - **Dispatch only at marked points** — a step's task card goes to a sub-agent via `task()` ONLY when that step explicitly marks dispatch (per-step dispatch mode `task-card`); steps marked `direct` are executed in the orchestrator's own context.
 - **Never forward whole artifacts** — the plan body, a whole phase, or a whole workflow body MUST NOT appear inside any `task()` prompt. A leaf sub-agent receiving a whole plan body rejects with `ORCHESTRATOR_ONLY_PLAN` and halts.
 
@@ -31,17 +31,28 @@ Check your tool list for a tool named `task`.
 - Present ⇒ orchestrator — proceed.
 - Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
 
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
 ## Workflows
 
 ### Read the plan
 When the agent needs to begin executing an approved implementation plan and must first read the plan file to understand its phases and dependency order.
 
-- [ ] 1. **Read the plan file** — the orchestrator reads the approved plan itself and inventories its phases in dependency order (**orchestrator, own context** — follow [the read-plan procedure](tasks/read-plan.md))
+1. **Read the plan file** — the orchestrator reads the approved plan itself and inventories its phases in dependency order (**orchestrator, own context** — follow [inventory plan phases](tasks/read-plan.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [inventory plan phases](tasks/read-plan.md). issue_number: ", issue_number, ", plan_path: ", plan_path, ", project_root: ", project_root))`)
   - Context: `{issue_number, plan_path, project_root}`
   - Returns: `{phase_order}`
   - Execution mode: orchestrator (own context)
 
-- [ ] 2. **Execute phases in sequence** — execute each phase's steps in the plan's dependency order, performing each step in the orchestrator's own context and dispatching a step's task card via `task()` ONLY where that step marks dispatch (**orchestrator, own context** — follow [the execute-phase procedure](tasks/execute-phase.md))
+2. **Execute phases in sequence** — execute each phase's steps in the plan's dependency order, performing each step in the orchestrator's own context and dispatching a step's task card via `task()` ONLY where that step marks dispatch (**orchestrator, own context** — follow [dispatch one plan phase](tasks/execute-phase.md); canonical dispatch prompt: `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [dispatch one plan phase](tasks/execute-phase.md). issue_number: ", issue_number, ", phase: ", phase, ", plan_path: ", plan_path, ", project_root: ", project_root, ", phase_order: ", phase_order))`)
   - Context: `{issue_number, phase, plan_path, project_root, phase_order}`
   - Returns: `{status, finding_summary, artifact_path, blocker_reason}`
   - Execution mode: orchestrator (own context), with step-marked `task()` dispatches
@@ -54,4 +65,4 @@ When the agent needs to begin executing an approved implementation plan and must
 - Read [skill-card-schema.md](.opencode/reference/skill-card-schema.md) — frontmatter binary constraints
 - Read [skill-card-description-standards.md](.opencode/reference/skill-card-description-standards.md) — description field semantic router
 
-Co-authored with AI: OpenCode (deepseek-v4-flash)
+Co-authored with AI: <AgentName> (<ModelId>)
