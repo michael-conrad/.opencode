@@ -8,6 +8,12 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 > No `timeout` command inside scripts (nested timeouts create orphaned processes).
 > See §Infrastructure Details — Bash Tool Timeout Mandate.
 
+## Scope Anchor
+
+**This behavioral test harness spec applies to `.opencode`-targeted work ONLY.** The harness and `opencode run` mechanics described here apply only to `.opencode`-targeted work; for any other spec target the harness is out of scope and `.opencode` SHALL NOT be modified — do not touch the `.opencode` submodule (or its test harness) to satisfy a mis-scoped mandate whose deliverables live elsewhere.
+
+**R-6 routing directive:** Skill-deck defects discovered while working under a mis-scoped or differently-scoped mandate route via issue-operations to `michael-conrad/.opencode` — agents do NOT patch local `.opencode` copies to escape a mis-scoped mandate.
+
 ## Key Differences from v1
 
 | Aspect | v1 (`.opencode/tests/`) | v2 (`.opencode/tests-v2/`) |

@@ -166,7 +166,9 @@ Each edge case MUST include:
 | `structural` | File existence | `ls path/to/file` |
 | `string` | grep/pattern match | `grep for pattern` |
 | `semantic` | Sub-agent read + judgment | Clean-room sub-agent reads and evaluates |
-| `behavioral` | Test execution with output inspection | `opencode run` with assertion helpers |
+| `behavioral` | Test execution with output inspection | Primary (deck repo): `opencode run` with output inspection; fallback (non-deck-repo): strongest available in-repo execution-based evidence, with any instrument unavailability reported and never worked around |
+
+**Instrument scoping (aligned to SC-5 semantics):** the `behavioral` instrument is scoped per repo — `opencode run` is the primary instrument for `.opencode`-targeted (deck-repo) work; for any other repo, the fallback instrument is the strongest available in-repo execution-based instrument, and any instrument unavailability is reported and never worked around. This mirrors the harness spec's own scoping. Read [the tests-v2 Scope Anchor](../tests-v2/AGENTS.md#scope-anchor) for the canonical scope-anchor semantics.
 
 **EVIDENCE_TYPE_MISMATCH rules:**
 - Declared type `behavioral` with only structural evidence → FAIL
