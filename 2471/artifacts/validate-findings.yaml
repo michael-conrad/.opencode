@@ -1,0 +1,92 @@
+# Validation findings — issue #2471 plan.md
+# Executed by writing-plans tasks/validate (sub-agent)
+
+solve_status: SAT
+plan_path: .opencode/.issues/2471/plan.md
+dependency_contract: .opencode/.issues/2471/dependency-contract.yaml
+
+category_results:
+  category_1_structural:
+    status: PASS
+    checks:
+      - name: phase-table-columns
+        result: PASS
+        detail: "Phase Table has all required columns: Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch (plan.md line 58)."
+      - name: phase-procedure-sections
+        result: PASS
+        detail: "Phase 1 has Step-by-step section with numbered checkbox steps 8-12; pre-implementation (1-7), completion (13-14), and post-implementation (15-22) sections also numbered."
+      - name: exit-criteria-sc-mapping
+        result: PASS
+        detail: "Exit Criteria section (C1-C5) present; Phase Table SCs column maps SC1 to phase 1; exit condition states SC1 verified with string evidence."
+
+  category_2_skill_task_validity:
+    status: PASS
+    checks:
+      - name: reference-card-match
+        result: PASS
+        detail: "All skill+task references match valid entries in implementation-workflow.md: pre-regression (TDD phase-0), pre-regression-verify (vbc verify), red/green/post-regression (TDD), verify (vbc), commit-inline (orchestrator, no dispatch), audit (verification-audit DiMo string verbatim), z3-check (orchestrator direct), structural-checks (finishing-a-development-branch checklist), pre-pr-gate (vbc verify), regression-check (TDD phase-4), review-prep (git-workflow-pr), create-pr (git-workflow-pr), exec-summary (completion-core)."
+      - name: no-invalid-references
+        result: PASS
+        detail: "No skill+task reference outside the reference card. Direct steps (3,4,5,6,7,12,14,16) carry no dispatched skill-task string; concern-transition (14) and commit-inline/z3-check are sanctioned orchestrator-direct steps per the card."
+
+  category_3_sc_coverage:
+    status: PASS
+    checks:
+      - name: sc-coverage
+        result: PASS
+        detail: "Spec has no formal SC table (bug-report format, analysis-summary notes SC count: 0; derivable SC1 from Expected behavior). SC1 appears in Phase Table SCs column, dependency-contract phases.phase_1.scs (SC-1), and every RED/GREEN/verify step."
+      - name: triplet-split-detection
+        result: PASS
+        detail: "No triplet split: SC1 RED (step 8), GREEN (step 9), post-regression (step 10), verify (step 11), COMMIT (step 12) all in Phase 1 — the single phase. Zero cross-phase SC steps."
+
+  category_4_concern_separation:
+    status: PASS
+    checks:
+      - name: one-concern-per-phase
+        result: PASS
+        detail: "Phase 1 concern 'no approval-mechanism indicators in spec issue bodies' matches concern-map C1 (body-template-normative-rule); concern-map P1 ↔ plan Phase 1 one-to-one."
+      - name: no-duplicate-concerns
+        result: PASS
+        detail: "Single phase — no duplicate concern assignment possible."
+
+  category_5_dag_validation:
+    status: PASS
+    checks:
+      - name: no-cycles
+        result: PASS
+        detail: "dependency-contract.yaml edges: [] — zero edges, acyclic trivially; consistent with solve-output (SAT, single-phase)."
+      - name: reachability
+        result: PASS
+        detail: "phase_1 reachable from start node (zero edges, single node; solve model assignment phase_1: true)."
+      - name: no-orphans
+        result: PASS
+        detail: "phase_1 has postcondition 'phase_1' and is the contract goal — not an orphan. No other phases exist."
+
+  category_6_holistic_quality:
+    status: PASS
+    checks:
+      - name: no-tbd-todo
+        result: PASS
+        detail: "No TBD/TODO/placeholder tokens in plan body."
+      - name: checkbox-format
+        result: PASS
+        detail: "All executable steps (1-22) and exit criteria (C1-C5) use '- [ ]' checkbox format."
+      - name: dispatch-mode-consistency
+        result: PASS
+        detail: "Inline (direct) steps 3,4,5,6,7,12,14,16 carry no task-card dispatch strings; task-card steps (1-2,8-11,13,15,17-22) use canonical dispatch strings from the reference card. No mismatched mode assignments."
+
+overall_status: PASS
+
+finding_summary: >
+  All 6 validation categories PASS. Single-phase (phase_1), single-SC (SC1) plan;
+  zero-edge DAG consistent with SAT solve output; no triplet split; dispatch
+  modes consistent; one non-blocking pre-existing note: spec is bug-report
+  format with no formal SC table (derivable SC1 used — recorded in
+  analysis-summary.yaml).
+
+notes:
+  - "Plan matches concern-map P1 and dependency-contract phase_1 file set exactly (3 task cards)."
+  - "Exit criteria C1-C5 all trace to SC1; no SCs added or dropped vs derivable spec outcome."
+  - "validate-findings.yaml rewritten at validate task execution (overwrites earlier draft)."
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

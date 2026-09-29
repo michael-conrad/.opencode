@@ -6,7 +6,7 @@ authorization_scope: for_pr
 pr_strategy: stacked
 phase_count: 1
 dispatch:
-  - "phase-1: test-driven-development (pre-regression, red, green, post-regression), verification-before-completion (pre-regression-verify, verify), finishing-a-development-branch (structural-checks), git-workflow-pr (review-prep, create-pr), completion-core (exec-summary); orchestrator-direct: commit-inline, z3-check"
+  - "phase-1: task-card: test-driven-development (pre-regression: 1, red: 8, post-regression: 10, final regression: 19), verification-before-completion (pre-regression-verify: 2, verify: 11, verify: 13, verify: 18), audit (verification-audit: 15), finishing-a-development-branch (structural-checks: 17), git-workflow-pr (review-prep: 20, create-pr: 21), completion-core (exec-summary: 22); orchestrator-direct: artifact-cleanup (3), branch-check (4), readiness-report (5), coherence-gate (6), baseline-check (7), commit-inline (12), concern-transition (14), z3-check (16)"
 ---
 
 # Implementation Plan — Issue #2471
@@ -35,7 +35,7 @@ Make the deck normatively forbid approval-mechanism language in spec issue bodie
 
 ## Dispatch
 
-- Phase 1: direct (1-5) + task-card (6-10)
+- Phase 1: direct (3-7, 12, 14, 16) + task-card (1-2, 8-11, 13, 15, 17-22)
 
 ## Blast Radius
 
@@ -57,7 +57,7 @@ Direct: the three task cards above. Indirect: other platform creation paths (git
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|-----------|----------|
-| 1 | task-card footer allowlist rule | no approval-mechanism indicators in spec issue bodies | SC1 | — | 1-21 | direct (1-5) + task-card (6-10, 13-16) + direct (11-12, 17-21) |
+| 1 | task-card footer allowlist rule | no approval-mechanism indicators in spec issue bodies | SC1 | — | 1-22 | direct (3-7, 12, 14, 16) + task-card (1-2, 8-11, 13, 15, 17-22) |
 
 ## Pre-Flight Guard (Mandatory)
 
@@ -192,6 +192,10 @@ Item SC1-body-template (daisy chain: this is the only item; its commit is the ph
 - [ ] C3 — Zero approval-mechanism literals ("Approval Tracking", "AI: Approved") remain in the three task cards
 - [ ] C4 — Test + card changes are committed as one atomic slice via commit-inline
 - [ ] C5 — All SC verdicts are PASS with string evidence before PR creation
+
+## Lifecycle Events
+
+- 2026-09-29T09:57:00Z (approx; schema-version timestamp on append) — `plan_created` — plan file: `.opencode/.issues/2471/plan.md` — phase count: 1
 
 ---
 
