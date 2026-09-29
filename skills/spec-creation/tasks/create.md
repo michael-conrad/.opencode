@@ -147,6 +147,8 @@ Route the remote issue body to the canonical exec-summary body format defined in
 
 **Post-creation enforcement:** Run this check after the remote issue body is written. If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to Step 5 until all 5 sections are verified present.
 
+**Body footer allowlist — no process/tracking indicators (NORMATIVE):** Approval state lives exclusively in `approved-for-*` labels (the local `issue.yaml` labels array is the canonical source). The spec/issue body MUST NEVER carry approval-mechanism language of any kind — no approval-tracking sections, no AI-approval comment-tracker notes, no approval-state markers inline. The body footer carries ONLY the byline (`🤖 <AgentName> (<ModelId>) created`). Any process/tracking indicator found in the body is a defect: remove it and keep the footer allowlist = byline only.
+
 ### Step 5: Write local spec
 
 Write the full spec to the correct local path:

@@ -49,7 +49,7 @@ Create a local-only draft issue. No API calls, no remote.
 | 1    | Dedup check     | `./.opencode/tools/local-issues search --query "<keywords>"` — non-empty = DUPLICATE → HALT        |
 | 2    | Create issue    | `./.opencode/tools/local-issues create --number <repo>#<N> --title "TITLE" --labels "L1,L2"` — reserve N from `.issues/.counter` first |
 | 3    | Verify label    | `./.opencode/tools/local-issues read-labels --number <repo>#<N>` — check `needs-approval` is in labels list. If missing: `./.opencode/tools/local-issues update N --labels needs-approval` |
-| 4    | Write spec body | Full fidelity spec body content written to `.issues/N/spec.md`                   |
+| 4    | Write spec body | Full fidelity spec body content written to `.issues/N/spec.md`. **Body footer allowlist — no process/tracking indicators (NORMATIVE):** approval state lives exclusively in `approved-for-*` labels (the local `issue.yaml` labels array is canonical); the body MUST NEVER carry approval-mechanism language of any kind — no approval-tracking sections, no AI-approval comment-tracker notes, no approval-state markers inline. The body footer carries ONLY the byline (`🤖 <AgentName> (<ModelId>) created`). Any process/tracking indicator found in the body is a defect: remove it and keep the footer allowlist = byline only. |
 | 5    | Set phase       | Phase set to `draft` in `.issues/N/state.md`                                     |
 | 6    | Verify          | `./.opencode/tools/local-issues read <repo>#<N>` — exit 0 = PASS                                            |
 
