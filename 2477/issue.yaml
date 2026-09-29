@@ -4,6 +4,69 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2477/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2477/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+
+  ## Problem
+
+
+  The `issue-operations-sync` `import-remote` task card instructs agents to produce
+  mirror files `comments.md`, `remote.md`, `state.md` — filenames that do not exist
+  in the `local-issues` tool schema (`YAML_FILES = ("issue.yaml", "comments.yaml",
+  "links.yaml")`, `MARKDOWN_FILES = ("spec.md",)`). Imports following the card verbatim
+  produce tool-invisible mirrors, and Step 7''s blind `.counter` echo risks silent
+  counter corruption.
+
+
+  ## Scope
+
+
+  - Rewrite `import-remote.md` mirror-file contract to the actual schema (zero legacy-name
+  references — SC-1)
+
+  - Rewrite the Step 4 completeness gate to enumerate `issue.yaml`, `comments.yaml`,
+  `links.yaml` [+ `spec.md`] and recognize already-migrated directories — SC-2
+
+  - Rewrite Step 7 counter instructions to the named counter-write validation procedure
+  (digit-parse + monotonic invariant) — SC-3
+
+  - Correct the Live-Verification evidence table to verify new filenames
+
+
+  **Out of scope:** sibling task cards with legacy references; `local-issues` tool
+  source changes; adding `remote.md`/`state.md` support; changes to `sync-from-remote`/`sync-pull-to-local`.
+
+
+  ## Approach
+
+
+  Documentation-layer correction of the task card only. The card''s enumerated mirror
+  file set is coupled to the tool''s verified constants as single ground truth; Step
+  7 counter guidance aligns with `_next_number` fail-fast digit-parse semantics without
+  modifying the tool. Three per-SC TDD items (1:1 SC↔item mapping): card-wide legacy-name
+  elimination, completeness-gate rewrite, counter-procedure rewrite.
+
+
+  ## Impact
+
+
+  - **Risk:** future tool schema changes re-drift the card — mitigation: follow-up
+  re-sync issue (accepted tradeoff, documented in Key Design Decisions)
+
+  - **Risk:** sibling cards still reference legacy names — mitigation: tracked as
+  candidate follow-up issue, excluded from this scope
+
+  - **Dependency:** read-only reference to `local-issues` source as schema ground
+  truth
+
+  - **Call to action:** review and approve; implementation is one task card rewrite
+  in three sequential TDD commits.
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+
+  '
 created_at: '2026-09-29T23:31:59+00:00'
-updated_at: '2026-09-29T23:41:41+00:00'
+updated_at: '2026-09-29T23:57:01+00:00'
