@@ -1,0 +1,63 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+code_paths:
+  - sc: SC-1
+    file: .opencode/tests-v2/AGENTS.md
+    action: add-scope-anchor-section
+    details: >-
+      New scope-anchor section carrying harness-scope statement + R-6 routing
+      directive; consumed by Read-links from SC-2/SC-3/SC-4 files.
+  - sc: SC-2
+    file: .opencode/guidelines/020-go-prohibitions.md#§1-cost-blind-clause
+    action: edit-existing-clause
+    details: >-
+      Qualify the cost-blind verification clause text (the "opencode run is ZERO in
+      the decision calculus" bullet list) with instrument conditionality and add
+      Read-link to the SC-1 anchor.
+  - sc: SC-3
+    file: .opencode/guidelines/080-code-standards.md#critical-rules-060
+    action: edit-existing-rule-block
+    details: >-
+      Add scope qualifier + Read-link to critical-rules-060 (Functional/Behavioral
+      Test Substitution Prohibition); identical semantics to SC-2.
+  - sc: SC-4
+    file: .opencode/guidelines/091-incremental-build.md#behavioral-variant
+    action: edit-existing-section
+    details: >-
+      Restate the behavioral variant paragraph with instrument conditionality
+      (opencode run for .opencode-targeted items; strongest in-repo instrument
+      otherwise) + Read-link to anchor.
+  - sc: SC-5
+    file: .opencode/skills/test-driven-development/SKILL.md#Evidence-Type-Taxonomy
+    action: add-prose-separation
+    details: >-
+      Add prose separating universal evidence-type rigor from deck-repo instrument
+      mechanics; the taxonomy type table and EVIDENCE_TYPE_MISMATCH semantics must
+      remain byte-identical (verified by diff in Item 5 verify).
+  - sc: SC-6
+    file: .opencode/reference/spec-structure-standards.md#evidence-table-behavioral-row
+    action: edit-table-row
+    details: >-
+      Extend behavioral row with primary instrument (deck repo: opencode run) +
+      fallback instrument (strongest available execution-based evidence), Read-linked
+      to SC-5 semantics.
+  - sc: SC-7
+    file: .opencode/tests-v2/behaviors/ (new behavioral scenario script)
+    action: create-scenario-script
+    details: >-
+      New artifact-generation scenario: real-domain non-.opencode change prompt via
+      opencode run with-test-home; artifact-only generator produces session.yaml,
+      exit 0.
+  - sc: SC-8
+    file: .opencode/tests-v2/behaviors/ (clean-room evaluation leg of the SC-7 scenario)
+    action: run-clean-room-evaluation
+    details: >-
+      Clean-room sub-agent reads session.yaml from SC-7 artifacts and evaluates agent
+      actions against the GREEN criterion; verdict artifact written.
+execution_notes:
+  - >-
+    All edits are markdown/guideline text within .opencode repo; SC-7/SC-8 add only
+    tests-v2 behavioral scenario files (test infrastructure — permitted, harness
+    scripts themselves are explicitly not modified per spec Not Included).

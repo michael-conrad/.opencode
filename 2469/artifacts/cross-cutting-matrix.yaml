@@ -1,0 +1,41 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+cross_cutting:
+  - sc: SC-2
+    spans: [scope-qualifier-alignment, scope-anchor-authoring]
+    detail: >-
+      SC-2 file text depends on the SC-1 anchor existing (Read-link target) while
+      itself touching the evidence-rigor concern shared with SC-3 and SC-5 — the
+      qualifier must use identical semantics to the anchor and to SC-3, no divergent
+      variant.
+  - sc: SC-3
+    spans: [scope-qualifier-alignment, scope-anchor-authoring]
+    detail: >-
+      Same cross-cutting structure as SC-2: Read-link dependency on SC-1 anchor plus
+      semantic-identity constraint with SC-2 (both carry the deck-repo scope
+      qualifier).
+  - sc: SC-4
+    spans: [scope-qualifier-alignment, behavioral-verification]
+    detail: >-
+      SC-4's instrument conditionality directly determines how SC-7/SC-8 behavioral
+      items are run: deck-repo (self-referential) items keep full opencode run
+      behavioral testing; the spec's own behavioral SCs must NOT be exempted.
+  - sc: SC-5
+    spans: [evidence-taxonomy-instrument-separation, scope-qualifier-alignment]
+    detail: >-
+      SC-5 establishes the semantics that SC-6's table row aligns to via Read-link;
+      both files sit at the evidence-type rigor / instrument-mechanics boundary this
+      spec draws.
+  - sc: SC-8
+    spans: [behavioral-verification, scope-anchor-authoring]
+    detail: >-
+      SC-8's clean-room criterion evaluates the R-6 routing directive carried by the
+      SC-1 anchor (no deck patching, issue-operations routing) plus instrument
+      conditionality (SC-4 semantics) — it cross-validates multiple concern groups.
+state_change_safety_notes:
+  - >-
+    Text-only changes; the only execution coupling is Read-link resolvability
+    (Phase 2/3 depend on Phase 1) and scenario-script vs verdict ordering
+    (SC-7 before SC-8).

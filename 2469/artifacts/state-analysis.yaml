@@ -1,0 +1,53 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+state_transitions:
+  - sc: SC-1
+    transition: >-
+      tests-v2/AGENTS.md state: no scope anchor → scope anchor present (harness-scope
+      statement + R-6 routing directive). Terminal state; consumed by Read-links in
+      SC-2/SC-3/SC-4.
+  - sc: SC-2
+    transition: >-
+      020 §1 cost-blind clause state: unqualified harness mandate → qualifier +
+      Read-link to anchor. Terminal state.
+  - sc: SC-3
+    transition: >-
+      080 critical-rules-060 state: unqualified harness mandate → qualifier +
+      Read-link to anchor. Terminal state.
+  - sc: SC-4
+    transition: >-
+      091 behavioral variant state: unconditional opencode run mandate → instrument
+      conditionality (deck items: opencode run; other repos: strongest in-repo
+      instrument) + Read-link. Universal duty unchanged. Terminal state.
+  - sc: SC-5
+    transition: >-
+      TDD taxonomy prose state: fused rigor/instrument text → separated universal
+      rigor from instrument mechanics; type table and EVIDENCE_TYPE_MISMATCH
+      semantics pinned unchanged (diff-verified). Terminal state.
+  - sc: SC-6
+    transition: >-
+      spec-structure-standards behavioral row state: primary instrument only →
+      primary + fallback instrument, aligned to SC-5. Terminal state.
+  - sc: SC-7
+    transition: >-
+      Behavioral evidence state: no artifact-generation scenario exists → scenario
+      script exists and produces session.yaml from a real-domain non-.opencode
+      prompt (pre-change: mis-scoped behavior recorded; post-change: deferred
+      in-repo instrument behavior recorded). Two legs: pre-change RED session,
+      post-change GREEN session.
+  - sc: SC-8
+    transition: >-
+      Evaluation state: no clean-room verdict → pre-change verdict FAIL (mis-scoped
+      behavior confirmed) and post-change verdict PASS (defers to in-repo
+      instruments, no harness invocation, no .opencode modification,
+      issue-operations routing). Both verdicts recorded in the verdict artifact.
+invariants:
+  - >-
+    Universal evidence-type taxonomy (types, precedence, EVIDENCE_TYPE_MISMATCH)
+    unchanged across all state transitions — only instrument availability becomes
+    conditional.
+  - >-
+    Deck-copy integrity: local .opencode copies are never patched by agents
+    working in other repos — routing to michael-conrad/.opencode instead.

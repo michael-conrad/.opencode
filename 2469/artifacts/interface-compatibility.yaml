@@ -1,0 +1,41 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+dependency_contract:
+  spec_source: .opencode/.issues/2469/spec.md
+  affected_files:
+    - consumer_file: .opencode/guidelines/020-go-prohibitions.md
+      depends_on: .opencode/tests-v2/AGENTS.md
+      contract: Read-link from SC-2 qualifier text resolves to the SC-1 scope anchor section
+      type_constraint: anchor section must exist before SC-2 edit; Read [Text](path) pattern
+    - consumer_file: .opencode/guidelines/080-code-standards.md
+      depends_on: .opencode/tests-v2/AGENTS.md
+      contract: Read-link from critical-rules-060 resolves to the SC-1 scope anchor section
+      type_constraint: identical qualifier semantics as SC-2 — no divergent inline variant
+    - consumer_file: .opencode/guidelines/091-incremental-build.md
+      depends_on: .opencode/tests-v2/AGENTS.md
+      contract: Read-link from behavioral variant resolves to the SC-1 scope anchor section
+      type_constraint: instrument conditionality semantics match R-3 / R-6 routing semantics
+    - consumer_file: .opencode/reference/spec-structure-standards.md
+      depends_on: .opencode/skills/test-driven-development/SKILL.md
+      contract: behavioral row aligns to SC-5 taxonomy-separation semantics via Read-link
+      type_constraint: primary + fallback instrument wording only; taxonomy table untouched
+    - consumer_file: SC-7 behavioral scenario script
+      depends_on: .opencode/tests-v2/with-test-home
+      contract: all opencode run execution goes through with-test-home wrapper
+      type_constraint: per tests-v2 §4 — commit/push/fetch/verify cycle before run
+    - consumer_file: SC-8 clean-room evaluation
+      depends_on: SC-7 session.yaml artifact
+      contract: evaluation sub-agent consumes session.yaml from SC-7 artifacts directory
+      type_constraint: two-SC pattern per tests-v2 §6a — never merged into one dispatch
+ordering_constraints:
+  - SC-1 before SC-2, SC-3, SC-4 (anchor existence required by Read-links)
+  - SC-5 before SC-6 (semantics alignment target)
+  - SC-7 before SC-8 (evaluation consumes SC-7 artifact)
+  - Behavioral items require commit → push → fresh fetch → verify effective commit in remote ref before run (tests-v2 §4)
+constraint_notes:
+  - >-
+    The tests-v2 harness itself (tests-v2 scripts, with-test-home mechanics) is NOT
+    modified — harness mechanics are already correct for .opencode-targeted work
+    (spec Not Included). Only rule text and one new behavioral scenario file change.

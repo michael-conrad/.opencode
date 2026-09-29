@@ -1,0 +1,35 @@
+issue: 2469
+generated_by: research task (writing-plans) — sub-agent
+generated_at: '2026-09-29'
+solve_status: SAT
+model_command: './.opencode/tools/solve model --contract-path .opencode/.issues/2469/dependency-contract.yaml --query "z3.Implies(sc1_anchor_landed, sc8_cleanroom_evaluation)"'
+model_result: |-
+  SAT
+    sc1_anchor_landed = True
+    sc2_020_qualifier = True
+    sc3_080_qualifier = True
+    sc4_091_conditionality = True
+    sc5_taxonomy_separation = True
+    sc6_evidence_table_fallback = True
+    sc7_behavioral_artifact = True
+    sc8_cleanroom_evaluation = True
+check_status: SAT
+check_command: './.opencode/tools/solve check --contract-path .opencode/.issues/2469/dependency-contract.yaml --state-path .opencode/.issues/2469/artifacts/state-analysis.yaml'
+check_result: |-
+  SAT (pre-state: all SC variables False — satisfies preconditions)
+  SAT (+ postconditions + invariants: all SC variables True — satisfies Enforcement Gate)
+plan_status: SOLVED_SATISFICING
+plan_command: './.opencode/tools/plan plan --problem tmp/problem-file > plan-output.yaml (problem encoded from dependency-contract ordering constraints)'
+plan_result: |-
+  plan length: 8
+  1. implement-scope-anchor(sc1)
+  2-8. guideline-qualifier / taxonomy / evidence-table / behavioral actions complete remaining SCs
+  status: SOLVED_SATISFICING
+planner_note: >-
+  The tamer engine is satisficing; action-to-SC assignment in the generated plan is
+  generic (parameters do not pin specific files). The authoritative phase ordering
+  and DAG is structure.yaml; the plan run verifies solvability (no UNSOLVABLE verdict).
+sat_unsat:
+  solve_model: SAT
+  solve_check: SAT
+  plan_plan: SOLVED_SATISFICING

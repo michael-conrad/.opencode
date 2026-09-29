@@ -1,0 +1,42 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+concern_groups:
+  - group: scope-anchor-authoring
+    description: >-
+      Author the canonical scope statement (harness + opencode run mechanics apply only
+      to .opencode-targeted work; other spec targets out of scope; .opencode NOT modified;
+      R-6 routing directive) as the single source of truth.
+    scs: [SC-1]
+    phase_boundary: Phase 1
+  - group: scope-qualifier-alignment
+    description: >-
+      Align the three guideline restatements (020 §1 cost-blind clause, 080
+      critical-rules-060, 091 behavioral variant) with the anchor via Read-links —
+      identical semantics, no divergent inline variants.
+    scs: [SC-2, SC-3, SC-4]
+    phase_boundary: Phase 2
+  - group: evidence-taxonomy-instrument-separation
+    description: >-
+      Separate universal evidence-type rigor from deck-repo instrument mechanics in
+      TDD SKILL.md taxonomy prose and spec-structure-standards behavioral row
+      (primary + fallback instrument).
+    scs: [SC-5, SC-6]
+    phase_boundary: Phase 3
+  - group: behavioral-verification
+    description: >-
+      Two-SC behavioral pair per tests-v2 §6a: artifact-generation scenario (SC-7)
+      then clean-room evaluation of the produced session.yaml (SC-8), run in the deck
+      repo itself (self-referential case).
+    scs: [SC-7, SC-8]
+    phase_boundary: Phase 4
+dependency_order:
+  - scope-anchor-authoring
+  - scope-qualifier-alignment
+  - evidence-taxonomy-instrument-separation
+  - behavioral-verification
+notes:
+  - >-
+    Phase 2 and Phase 3 depend on Phase 1's anchor existing (Read-links must resolve);
+    Phase 4 behavioral GREEN leg requires Items 1-6 landed (per Item 7 GREEN wording).

@@ -1,0 +1,52 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+affected_files:
+  - path: .opencode/tests-v2/AGENTS.md
+    role: anchor carrier (SC-1)
+    sc_refs: [SC-1]
+    status: verified-exists
+  - path: .opencode/guidelines/020-go-prohibitions.md
+    role: scope qualifier (SC-2)
+    sc_refs: [SC-2]
+    status: verified-exists
+  - path: .opencode/guidelines/080-code-standards.md
+    role: scope qualifier (SC-3)
+    sc_refs: [SC-3]
+    status: verified-exists
+  - path: .opencode/guidelines/091-incremental-build.md
+    role: instrument conditionality (SC-4)
+    sc_refs: [SC-4]
+    status: verified-exists
+  - path: .opencode/skills/test-driven-development/SKILL.md
+    role: taxonomy prose separation (SC-5)
+    sc_refs: [SC-5]
+    status: verified-exists
+  - path: .opencode/reference/spec-structure-standards.md
+    role: evidence table behavioral row (SC-6)
+    sc_refs: [SC-6]
+    status: verified-exists
+  - path: .opencode/tests-v2/with-test-home
+    role: behavioral harness wrapper (SC-7/SC-8 execution dependency)
+    sc_refs: [SC-7, SC-8]
+    status: verified-exists
+  - path: .opencode/tools/local-issues
+    role: deck-defect routing path (R-6)
+    sc_refs: [SC-1, SC-8]
+    status: verified-exists
+  - path: .opencode/tests-v2/AGENTS.md#6a
+    role: two-SC behavioral pattern definition (SC-7/SC-8)
+    sc_refs: [SC-7, SC-8]
+    status: verified-exists
+blast_radius_notes:
+  - >-
+    All changes are documentation/guideline text inside the .opencode repo — no runtime
+    code, no harness scripts. Blast radius is limited to agents reading the six
+    rule-text consumer files and behavioral test infrastructure for SC-7/SC-8.
+  - >-
+    Propagation risk: downstream vendored .opencode copies carry old unqualified text
+    until submodule sync — accepted in spec Edge Cases, delayed not instant.
+  - >-
+    Cross-repo boundary: parent-repo AGENTS.md Test Framework Discipline conflict is
+    explicitly out of scope (reported separately as parent-repo bug issue).

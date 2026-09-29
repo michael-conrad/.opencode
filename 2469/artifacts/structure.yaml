@@ -1,0 +1,61 @@
+issue: 2469
+generated_by: research task (writing-plans) — sub-agent
+generated_at: '2026-09-29'
+phase_decomposition:
+  - phase: 1
+    name: Scope anchor in tests-v2/AGENTS.md
+    scs: [SC-1]
+    items: [Item 1]
+    rationale: The canonical anchor must exist before any Read-link consumer file can reference it (ordering_constraints[0]).
+  - phase: 2
+    name: Read-link qualifiers in guideline restatements
+    scs: [SC-2, SC-3, SC-4]
+    items: [Item 2, Item 3, Item 4]
+    rationale: "Three guideline files consume the SC-1 anchor via Read-links; same concern boundary (guideline text), none interdependent."
+  - phase: 3
+    name: Evidence-taxonomy separation and table alignment
+    scs: [SC-5, SC-6]
+    items: [Item 5, Item 6]
+    rationale: "SC-6 aligns to SC-5 semantics via Read-link (ordering_constraints[1]); internal ordering within the phase."
+  - phase: 4
+    name: "Behavioral RED — artifact generation"
+    scs: [SC-7]
+    items: [Item 7]
+    rationale: "Artifact-generation scenario run via with-test-home; GREEN leg requires Items 1-6 landed (phases 1-3 complete)."
+  - phase: 5
+    name: "Behavioral GREEN — clean-room evaluation"
+    scs: [SC-8]
+    items: [Item 8]
+    rationale: "Clean-room evaluation sub-agent consumes SC-7 session.yaml artifact (ordering_constraints[2]); never merged into one dispatch (tests-v2 §6a)."
+dependency_dag:
+  edges:
+    - { from: phase-2, to: phase-1, reason: "SC-2/SC-3/SC-4 Read-links resolve to the SC-1 anchor section" }
+    - { from: phase-3, to: phase-1, reason: "SC-5 taxonomy prose and SC-6 table wording align to the anchor-driven scope semantics; SC-6 Read-links SC-5" }
+    - { from: phase-4, to: phase-1, reason: "SC-7 GREEN leg requires the anchor landed before re-run" }
+    - { from: phase-4, to: phase-2, reason: "SC-7 GREEN leg requires guideline qualifiers landed" }
+    - { from: phase-4, to: phase-3, reason: "SC-7 GREEN leg requires taxonomy/evidence-table changes landed" }
+    - { from: phase-5, to: phase-4, reason: "SC-8 evaluation consumes SC-7 session.yaml artifact" }
+triplet_colocation:
+  verified: true
+  detail: "Each SC's RED, GREEN, and COMMIT steps are assigned to exactly one phase (per-SC TDD cycle per Items 1-8 in spec §5)."
+cross_phase_dependency:
+  verified: true
+  detail: "No RED test depends on SC output from a later phase. Phase-4 RED runs against the unqualified deck (pre-change state), not against later-phase output; its GREEN leg runs after phases 1-3 within the same phase. Item-8 RED evaluates pre-change SC-7 artifacts produced in the phase-4 RED leg — forward direction only."
+skill_task_selection:
+  - phase: 1
+    skill_task: "test-driven-development red/green + verification-before-completion verify + commit-inline (orchestrator)"
+    dispatch: "task(..., prompt: \"execute red task from test-driven-development\") / task(..., prompt: \"execute green task from test-driven-development\") / task(..., prompt: \"execute verify task from verification-before-completion\") / orchestrator git commit"
+  - phase: 2
+    skill_task: "test-driven-development red/green + verification-before-completion verify + commit-inline (orchestrator); one cycle per SC"
+    dispatch: "Same cycle per SC-2, SC-3, SC-4 — one dispatch = one discrete step (091 one-dispatch-one-step gate)"
+  - phase: 3
+    skill_task: "test-driven-development red/green + verification-before-completion verify + commit-inline (orchestrator); SC-5 precedes SC-6"
+    dispatch: "Same cycle per SC-5, SC-6"
+  - phase: 4
+    skill_task: "test-driven-development red/green (behavioral) + verification-before-completion verify + commit-inline + PUSH (behavioral variant, 091)"
+    dispatch: "bash .opencode/tests-v2/with-test-home opencode run '<scenario>'; artifact-only generator produces session.yaml; commit → push → fresh fetch → verify effective commit in remote ref before run (tests-v2 §4)"
+  - phase: 5
+    skill_task: "clean-room evaluation dispatch (tests-v2 §6a) + verification-before-completion verify + commit-inline (orchestrator)"
+    dispatch: "task(... clean-room sub-agent reads SC-7 session.yaml artifacts and evaluates against SC-8 criterion) / orchestrator git commit of verdict artifact"
+behavioral_precondition:
+  tests_v2_section_4: "commit → push → fresh fetch → verify effective commit in remote ref → run; enforced for phases 4 and 5."

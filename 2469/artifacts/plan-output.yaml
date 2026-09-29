@@ -1,0 +1,55 @@
+problem built: issue-2469-sc-implementation
+  objects: 8
+  fluents: 4
+  actions: 6
+  goals:   8
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 523 of `/home/muksihs/git/opencode-config/./.opencode/tools/plan`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0m
+plan length: 8
+
+- [ ] 1. implement-scope-anchor(sc1)
+- [ ] 2. implement-guideline-qualifier(sc8)
+- [ ] 3. implement-taxonomy-separation(sc6)
+- [ ] 4. implement-evidence-table(sc7)
+- [ ] 5. implement-evidence-table(sc5)
+- [ ] 6. implement-evidence-table(sc4)
+- [ ] 7. implement-evidence-table(sc3)
+- [ ] 8. implement-evidence-table(sc2)
+
+---
+actions:
+- name: implement-scope-anchor
+  parameters:
+  - sc1
+- name: implement-guideline-qualifier
+  parameters:
+  - sc8
+- name: implement-taxonomy-separation
+  parameters:
+  - sc6
+- name: implement-evidence-table
+  parameters:
+  - sc7
+- name: implement-evidence-table
+  parameters:
+  - sc5
+- name: implement-evidence-table
+  parameters:
+  - sc4
+- name: implement-evidence-table
+  parameters:
+  - sc3
+- name: implement-evidence-table
+  parameters:
+  - sc2
+domain: issue-2469-sc-implementation
+engine: tamer
+plan_length: 8
+status: SOLVED_SATISFICING

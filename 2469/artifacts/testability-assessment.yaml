@@ -1,0 +1,51 @@
+issue: 2469
+mode: retroactive
+generated_by: backfill task (writing-plans)
+generated_at: '2026-09-29'
+sc_evidence:
+  - sc: SC-1
+    evidence_type: string
+    method: grep for scope anchor text in tests-v2/AGENTS.md
+    sources: .opencode/tests-v2/AGENTS.md
+  - sc: SC-2
+    evidence_type: string
+    method: grep qualifier + Read-link in 020-go-prohibitions.md
+    sources: .opencode/guidelines/020-go-prohibitions.md
+  - sc: SC-3
+    evidence_type: string
+    method: grep qualifier + Read-link in 080-code-standards.md critical-rules-060
+    sources: .opencode/guidelines/080-code-standards.md
+  - sc: SC-4
+    evidence_type: string
+    method: grep 091 behavioral-variant conditionality text + Read-link
+    sources: .opencode/guidelines/091-incremental-build.md
+  - sc: SC-5
+    evidence_type: string
+    method: grep taxonomy prose separation + diff confirms type table / EVIDENCE_TYPE_MISMATCH unchanged
+    sources: .opencode/skills/test-driven-development/SKILL.md
+  - sc: SC-6
+    evidence_type: string
+    method: grep behavioral table row (primary + fallback instrument)
+    sources: .opencode/reference/spec-structure-standards.md
+  - sc: SC-7
+    evidence_type: behavioral
+    method: >-
+      artifact-generation scenario via opencode run (with-test-home); artifact-only
+      generator produces session.yaml; exit 0. Requires commit → push → fresh fetch →
+      verify effective commit in remote ref before run (tests-v2 §4).
+    sources: .opencode/tests-v2/AGENTS.md §6a, .opencode/tests-v2/with-test-home
+  - sc: SC-8
+    evidence_type: behavioral
+    method: clean-room sub-agent reads session.yaml from SC-7 artifacts and evaluates
+      agent actions against the GREEN criterion; separate dispatch per §6a
+    sources: .opencode/tests-v2/AGENTS.md §6a
+uplift_flags: []
+notes:
+  - >-
+    SC-1..SC-6 are string-evidence per spec SC table — rule-text changes verified by
+    grep; SC-5 additionally requires an unchanged-table diff. All SCs affect agent
+    behavior, but the spec declares the string table deliberately; the runtime proof
+    is carried by SC-7/SC-8, which remain behavioral (no uplift).
+  - >-
+    Self-referential case: SC-7/SC-8 run in the deck repo itself — qualifiers MUST
+    NOT exempt .opencode-targeted work from behavioral testing (R-7).
