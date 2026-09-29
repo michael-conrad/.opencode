@@ -5,7 +5,10 @@ labels:
 - spec-draft
 - spec
 - needs-approval
-body: '## Problem
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2478/
+
+
+  ## Problem
 
 
   BLUF: the `opencode-vibeguard@0.1.0` redaction plugin substitutes `__VG_*__` placeholders
@@ -196,5 +199,5 @@ body: '## Problem
 
   Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-29T20:21:24+00:00'
-updated_at: '2026-09-29T20:21:37+00:00'
+updated_at: '2026-09-29T20:21:55+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2478
