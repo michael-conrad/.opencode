@@ -54,3 +54,10 @@ steps read THIS ledger, not the sources.
 - CLI quirks verified live: positional issue argument is rejected by both `update` (requires
   `--number`) and bare numbers (requires `repo#N` qualifier on `--number` values). Live-tested
   `./.opencode/tools/local-issues update --number ".opencode#2469" --labels ...` — result below.
+
+## Results (appended at task end)
+
+- Plan written: `.opencode/.issues/2469/plan.md` (staged: skeleton → 5 section edits → guard + read-back)
+- Verification ledger: this file
+- Pre-Flight Guard: `ORCHESTRATOR_ONLY_PLAN` block embedded verbatim at plan line 18
+- Label `spec-cleared`: written to local `issue.yaml` (canonical, verified) + remote via `gh issue edit` (best-effort, succeeded)

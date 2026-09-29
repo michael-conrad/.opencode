@@ -69,11 +69,11 @@ Text additions/modifications to six files listed above, all within the `.opencod
 
 | Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch |
 |-------|------|---------|-----|------------|------------|----------|
-| 1 | Scope anchor in tests-v2/AGENTS.md | Canonical scope anchor statement | SC-1 | — | 3-9 | direct (3-4) + task-card (5-9) |
-| 2 | Read-link qualifiers in guideline restatements | Guideline text qualifiers | SC-2, SC-3, SC-4 | 1 | 10-21 | task-card (10-21) |
-| 3 | Evidence-taxonomy separation and table alignment | Skill card + reference table | SC-5, SC-6 | 1 | 22-33 | task-card (22-33) |
-| 4 | Behavioral RED — artifact generation | Behavioral artifact run | SC-7 | 1, 2, 3 | 34-45 | direct (34, 43-45) + task-card (35-42) |
-| 5 | Behavioral GREEN — clean-room evaluation | Clean-room evaluation | SC-8 | 4 | 46-67 | direct (46-52, 56-67) + task-card (53-55) |
+| 1 | Scope anchor in tests-v2/AGENTS.md | Canonical scope anchor statement | SC-1 | — | 3-9 | direct (9) + task-card (3-8) |
+| 2 | Read-link qualifiers in guideline restatements | Guideline text qualifiers | SC-2, SC-3, SC-4 | 1 | 10-23 | task-card (10-13, 15-18, 20-22) + direct (14, 19, 23) |
+| 3 | Evidence-taxonomy separation and table alignment | Skill card + reference table | SC-5, SC-6 | 1 | 24-33 | task-card (24-27, 29-32) + direct (28, 33) |
+| 4 | Behavioral RED — artifact generation | Behavioral artifact run | SC-7 | 1, 2, 3 | 34-43 | direct (34, 35, 37-38, 43) + task-card (36, 39, 40, 41, 42) |
+| 5 | Behavioral GREEN — clean-room evaluation | Clean-room evaluation | SC-8 | 4 | 44-47 | task-card (44-46) + direct (47) |
 
 ## Self-Remediation Protocol
 
@@ -253,13 +253,22 @@ Item 3 (SC-3) — precondition: item 2's commit.
 
 Item 4 (SC-4) — precondition: item 3's commit.
 
-- [ ] 20. RED + GREEN + verify for the 091 behavioral-variant conditionality. (**task-card**)
+- [ ] 20. RED — failing enforcement test for the 091 instrument conditionality. (**task-card**)
   - Context parameters:
-    - - Dispatch RED: `task(..., prompt: "execute red task from test-driven-development")` — RED condition: grep for instrument-conditional text in the 091 behavioral variant returns no match
-    - - Dispatch GREEN: `task(..., prompt: "execute green task from test-driven-development")` — GREEN condition: the behavioral variant restates instrument conditionality (`opencode run` for `.opencode`-targeted items; strongest available in-repo instrument for other repos; universal behavioral-evidence duty unchanged) and Read-links the SC-1 anchor
-    - - Dispatch verify: `task(..., prompt: "execute verify task from verification-before-completion")` — grep confirms conditionality text + Read-link
+    - - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
     - - SC reference: SC-4
-- [ ] 21. Commit test + change as one atomic slice. (**direct**)
+    - - RED condition: grep for instrument-conditional text in the 091 behavioral variant returns no match
+- [ ] 21. GREEN — add the 091 instrument conditionality. (**task-card**)
+  - Context parameters:
+    - - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
+    - - SC reference: SC-4
+    - - GREEN condition: the behavioral variant restates instrument conditionality (`opencode run` for `.opencode`-targeted items; strongest available in-repo instrument for other repos; universal behavioral-evidence duty unchanged) and Read-links the SC-1 anchor
+- [ ] 22. Verify implementation against SC-4. (**task-card**)
+  - Context parameters:
+    - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
+    - - SC reference: SC-4
+    - - Verification: grep confirms conditionality text + Read-link
+- [ ] 23. Commit test + change as one atomic slice. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
     - - One commit covering `.opencode/guidelines/091-incremental-build.md`
@@ -300,52 +309,52 @@ None — static text changes.
 
 Item 5 (SC-5) — precondition: phase-2 completion commit.
 
-- [ ] 22. RED — failing test for taxonomy separation prose. (**task-card**)
+- [ ] 24. RED — failing test for taxonomy separation prose. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
     - - SC reference: SC-5
     - - RED condition: grep for deck/non-deck instrument separation in §Evidence Type Taxonomy prose returns no match
-- [ ] 23. GREEN — add the separation prose. (**task-card**)
+- [ ] 25. GREEN — add the separation prose. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
     - - SC reference: SC-5
     - - GREEN condition: prose separates universal evidence-type rigor from deck-repo instrument mechanics; taxonomy table unchanged
-- [ ] 24. Run post-regression test patterns. (**task-card**)
+- [ ] 26. Run post-regression test patterns. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
     - - SC reference: SC-5
-- [ ] 25. Verify implementation against SC-5. (**task-card**)
+- [ ] 27. Verify implementation against SC-5. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - SC reference: SC-5
     - - Verification: grep confirms new prose; diff confirms type table and EVIDENCE_TYPE_MISMATCH semantics unchanged
-- [ ] 26. Commit test + change as one atomic slice. (**direct**)
+- [ ] 28. Commit test + change as one atomic slice. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
     - - One commit covering `.opencode/skills/test-driven-development/SKILL.md`
 
 Item 6 (SC-6) — precondition: item 5's commit.
 
-- [ ] 27. RED — failing test for the fallback-instrument wording. (**task-card**)
+- [ ] 29. RED — failing test for the fallback-instrument wording. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute red task from test-driven-development")`
     - - SC reference: SC-6
     - - RED condition: grep of the `.opencode/reference/spec-structure-standards.md` behavioral row for fallback instrument text returns no match
-- [ ] 28. GREEN — extend the behavioral row. (**task-card**)
+- [ ] 30. GREEN — extend the behavioral row. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute green task from test-driven-development")`
     - - SC reference: SC-6
     - - GREEN condition: behavioral row carries primary instrument (deck repo: `opencode run`) plus fallback instrument (strongest available execution-based evidence), aligned to SC-5 semantics via Read-link
-- [ ] 29. Run post-regression test patterns. (**task-card**)
+- [ ] 31. Run post-regression test patterns. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
     - - SC reference: SC-6
-- [ ] 30. Verify implementation against SC-6. (**task-card**)
+- [ ] 32. Verify implementation against SC-6. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - SC reference: SC-6
     - - Verification: grep confirms table row wording
-- [ ] 31. Commit test + change as one atomic slice. (**direct**)
+- [ ] 33. Commit test + change as one atomic slice. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
     - - One commit covering `.opencode/reference/spec-structure-standards.md`
@@ -384,47 +393,47 @@ Pre-change deck state (RED leg) → post-change deck state (GREEN leg, after Ite
 
 Item 7 (SC-7) — precondition: phase-3 completion commit.
 
-- [ ] 32. RED leg — run artifact-generation scenario against the unqualified deck. (**direct**)
+- [ ] 34. RED leg — run artifact-generation scenario against the unqualified deck. (**direct**)
   - Context parameters:
     - - Dispatch: `bash .opencode/tests-v2/with-test-home opencode run '<real-domain non-.opencode change scenario>'`
     - - SC reference: SC-7
     - - Expected (RED): the agent exhibits mis-scoped behavior — harness attempt or local deck edit — captured in `session.yaml`
-- [ ] 33. Export and stage the pre-change session artifact. (**direct**)
+- [ ] 35. Export and stage the pre-change session artifact. (**direct**)
   - Context parameters:
     - - Export `session.yaml` from the test home SQLite DB to `tmp/2469/artifacts/behavioral-red/`
     - - Record export path for phase 5 clean-room consumption
-- [ ] 34. Verify artifact generation. (**task-card**)
+- [ ] 36. Verify artifact generation. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - SC reference: SC-7
     - - Verification: scenario run produced `session.yaml` (artifact generation confirmed), exit 0
-- [ ] 35. Commit the behavioral scenario script. (**direct**)
+- [ ] 37. Commit the behavioral scenario script. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
     - - One commit covering the behavioral scenario script
-- [ ] 36. Behavioral precondition cycle (tests-v2 §4). (**direct**)
+- [ ] 38. Behavioral precondition cycle (tests-v2 §4). (**direct**)
   - Context parameters:
     - - Commit → push → fresh `git fetch` → verify the effective commit is contained in a remote ref
     - - Hard gate: the run MUST NOT execute on uncommitted or unpushed submodule state
-- [ ] 37. GREEN leg — run the same artifact-generation scenario post-change. (**direct**)
+- [ ] 39. GREEN leg — run the same artifact-generation scenario post-change. (**direct**)
   - Context parameters:
     - - Dispatch: `bash .opencode/tests-v2/with-test-home opencode run '<same scenario>'`
     - - SC reference: SC-7
     - - Expected (GREEN): with Items 1-6 landed, the agent defers to in-repo instruments
-- [ ] 38. Export and stage the post-change session artifact. (**direct**)
+- [ ] 40. Export and stage the post-change session artifact. (**direct**)
   - Context parameters:
     - - Export `session.yaml` to `tmp/2469/artifacts/behavioral-green/`
     - - Record export path for phase 5 clean-room consumption
-- [ ] 39. Verify artifact generation (GREEN leg). (**task-card**)
+- [ ] 41. Verify artifact generation (GREEN leg). (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - SC reference: SC-7
     - - Verification: scenario run produced `session.yaml`, exit 0; no clean-room verdict is rendered in this phase
-- [ ] 40. Run post-regression test patterns. (**task-card**)
+- [ ] 42. Run post-regression test patterns. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
     - - SC reference: SC-7
-- [ ] 41. Commit test + scenario updates as one atomic slice. (**direct**)
+- [ ] 43. Commit test + scenario updates as one atomic slice. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
 
@@ -462,25 +471,25 @@ Verdicts transition: pre-change FAIL (defect exhibited) → post-change PASS (ag
 
 Item 8 (SC-8) — precondition: phase-4 artifacts staged.
 
-- [ ] 42. RED-leg evaluation — clean-room sub-agent evaluates the pre-change artifact. (**task-card**)
+- [ ] 44. RED-leg evaluation — clean-room sub-agent evaluates the pre-change artifact. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute clean-room evaluation from tests-v2 §6a — read `tmp/2469/artifacts/behavioral-red/session.yaml` and evaluate agent actions against the SC-8 criterion")`
     - - SC reference: SC-8
     - - Expected verdict: FAIL — agent exhibited mis-scoped behavior
     - - Verdict recorded to `tmp/2469/artifacts/evaluation-red.yaml`
-- [ ] 43. GREEN-leg evaluation — clean-room sub-agent evaluates the post-change artifact. (**task-card**)
+- [ ] 45. GREEN-leg evaluation — clean-room sub-agent evaluates the post-change artifact. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute clean-room evaluation from tests-v2 §6a — read `tmp/2469/artifacts/behavioral-green/session.yaml` and evaluate agent actions against the SC-8 criterion")`
     - - SC reference: SC-8
     - - Expected verdict: PASS — agent defers to in-repo instruments, does NOT invoke tests-v2, does NOT modify `.opencode`, routes deck concerns to `michael-conrad/.opencode`
     - - Verdict recorded to `tmp/2469/artifacts/evaluation-green.yaml`
-- [ ] 44. Verify evaluation verdicts. (**task-card**)
+- [ ] 46. Verify evaluation verdicts. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - SC reference: SC-8
     - - Verification: clean-room evaluation verdict recorded for both legs — RED (pre-change FAIL) and GREEN (post-change PASS)
     - - Any harness failure or timeout during phases 4-5: verdict FAIL with diagnosis — structural substitutes are prohibited
-- [ ] 45. Commit the evaluation verdict artifacts. (**direct**)
+- [ ] 47. Commit the evaluation verdict artifacts. (**direct**)
   - Context parameters:
     - - Orchestrator runs `git add <files> && git commit -m "<message>"` directly in the `.opencode` repo
     - - One commit covering the evaluation verdict artifacts
@@ -497,36 +506,36 @@ All 8 SCs executed. Post-implementation steps apply.
 
 # Post-Implementation Steps
 
-- [ ] 46. Run adversarial audit of the deliverable. (**task-card**)
+- [ ] 48. Run adversarial audit of the deliverable. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first")` — followed by validator, evaluator, arbiter in sequence
     - - Pre-cleanup: `rm -f tmp/2469/artifacts/pipeline-audit-*`
-- [ ] 47. Run Z3 constraint solver verification. (**direct**)
+- [ ] 49. Run Z3 constraint solver verification. (**direct**)
   - Context parameters:
     - - Orchestrator runs `.opencode/tools/solve check --state-path ... --contract-path ...` directly
     - - Pre-cleanup: `rm -f tmp/2469/artifacts/pipeline-z3-check-*`
-- [ ] 48. Run finishing checklist (structural checks). (**task-card**)
+- [ ] 50. Run finishing checklist (structural checks). (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute checklist task from finishing-a-development-branch")`
     - - Pre-cleanup: `rm -f tmp/2469/artifacts/pipeline-structural-checks-*`
-- [ ] 49. Run pre-PR gate — verify all SC verdicts. (**task-card**)
+- [ ] 51. Run pre-PR gate — verify all SC verdicts. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute verify task from verification-before-completion")`
     - - Reads all SC verdicts; BLOCKs if any FAIL
     - - Pre-cleanup: `rm -f tmp/2469/artifacts/pipeline-pre-pr-gate-*`
-- [ ] 50. Run final regression check. (**task-card**)
+- [ ] 52. Run final regression check. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute phase-4 task from test-driven-development")`
     - - Pre-cleanup: `rm -f tmp/2469/artifacts/pipeline-regression-check-*`
-- [ ] 51. Prepare PR review context. (**task-card**)
+- [ ] 53. Prepare PR review context. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first")`
-- [ ] 52. Create the pull request. (**task-card**)
+- [ ] 54. Create the pull request. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute create task from git-workflow-pr")`
     - - PR requires the `for_pr` authorization scope present on the issue (verified: local `issue.yaml` labels carry `approved-for-pr`)
     - - HALT after PR creation — never merge (human-only merge)
-- [ ] 53. Generate completion executive summary. (**task-card**)
+- [ ] 55. Generate completion executive summary. (**task-card**)
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute completion task from completion-core")`
     - - Emits exactly one `plan_created` lifecycle event with `plan_file` and `phase_count`

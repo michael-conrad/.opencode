@@ -24,19 +24,35 @@ concern_groups:
       (primary + fallback instrument).
     scs: [SC-5, SC-6]
     phase_boundary: Phase 3
-  - group: behavioral-verification
+  - group: behavioral-artifact-generation
     description: >-
-      Two-SC behavioral pair per tests-v2 §6a: artifact-generation scenario (SC-7)
-      then clean-room evaluation of the produced session.yaml (SC-8), run in the deck
-      repo itself (self-referential case).
-    scs: [SC-7, SC-8]
+      RED/GREEN artifact-generation scenario runs per tests-v2 §6a RED-leg: real
+      agent behavior captured via with-test-home opencode run, session.yaml staged
+      for downstream clean-room evaluation, run in the deck repo itself
+      (self-referential case).
+    scs: [SC-7]
     phase_boundary: Phase 4
+  - group: clean-room-evaluation
+    description: >-
+      Clean-room evaluation of the session.yaml artifacts produced by the
+      artifact-generation concern (SC-7), per tests-v2 §6a: RED-leg (pre-change
+      FAIL) then GREEN-leg (post-change PASS) verdicts rendered by evaluation
+      sub-agents — never merged into the artifact-generation dispatch.
+    scs: [SC-8]
+    phase_boundary: Phase 5
 dependency_order:
   - scope-anchor-authoring
   - scope-qualifier-alignment
   - evidence-taxonomy-instrument-separation
-  - behavioral-verification
+  - behavioral-artifact-generation
+  - clean-room-evaluation
 notes:
   - >-
     Phase 2 and Phase 3 depend on Phase 1's anchor existing (Read-links must resolve);
     Phase 4 behavioral GREEN leg requires Items 1-6 landed (per Item 7 GREEN wording).
+  - >-
+    SC-7/SC-8 split into separate concerns (behavioral-artifact-generation @ Phase 4,
+    clean-room-evaluation @ Phase 5) per tests-v2 §6a two-SC pattern — RED-leg run
+    and GREEN-leg clean-room evaluation are never merged into one phase/dispatch.
+    Revised 2026-09-29 from validate-findings CONCERN_MAP_PHASE_BOUNDARY_MISMATCH
+    (backfill artifact was stale relative to the plan's correct split).
