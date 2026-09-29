@@ -1,6 +1,6 @@
 title: '[SPEC-FIX] Fix: Credential redaction gap — URL-embedded creds bypass vibeguard;
   silent fail-open config; no filtered-read rule'
-status: open
+status: closed
 labels:
 - spec
 - rejected
@@ -279,6 +279,8 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ — round-3 channel correction (SC-3 stderr→stdout-preamble) design amendment\n\n\
   \n\n\n"
 created_at: '2026-09-29T16:33:21+00:00'
-updated_at: '2026-09-29T23:15:41+00:00'
+updated_at: '2026-09-29T23:15:50+00:00'
 github_url: '2474'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2474
+closed_at: '2026-09-29T23:15:50+00:00'
+close_reason: not_planned
