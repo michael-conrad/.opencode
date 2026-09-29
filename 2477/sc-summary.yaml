@@ -1,0 +1,13 @@
+# SC Summary — issue #2477
+issue_number: 2477
+repo: .opencode
+sc_count: 2
+scs:
+  - id: "SC-1"
+    description: "import-remote.md contains zero references to legacy mirror filenames (comments.md, remote.md, state.md) and its completeness gate/evidence table enumerate the actual schema files (spec.md, issue.yaml, comments.yaml, links.yaml)."
+    evidence_type: "string"
+    plan_item: 1
+  - id: "SC-2"
+    description: "import-remote.md Step 7 counter instructions align with local-issues _next_number fail-fast semantics (validated write or tool-mediated mechanism) and no longer imply an unvalidated blind echo."
+    evidence_type: "string"
+    plan_item: 2
