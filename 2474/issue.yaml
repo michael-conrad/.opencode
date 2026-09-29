@@ -2,9 +2,9 @@ title: '[SPEC-FIX] Fix: Credential redaction gap — URL-embedded creds bypass v
   silent fail-open config; no filtered-read rule'
 status: open
 labels:
-- needs-approval
 - spec
-- approved-for-review
+- rejected
+- closed
 body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2474/\n\
   \n## Problem\n\nBLUF: tool-result ingestion of credential-bearing file content is\
   \ the one exposure path with no mechanical gate — the redaction mandate was delegated\
@@ -279,6 +279,6 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ — round-3 channel correction (SC-3 stderr→stdout-preamble) design amendment\n\n\
   \n\n\n"
 created_at: '2026-09-29T16:33:21+00:00'
-updated_at: '2026-09-29T23:12:34+00:00'
+updated_at: '2026-09-29T23:15:41+00:00'
 github_url: '2474'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2474
