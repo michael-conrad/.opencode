@@ -4,6 +4,196 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '## Problem
+
+
+  BLUF: the `opencode-vibeguard@0.1.0` redaction plugin substitutes `__VG_*__` placeholders
+  into every agent-visible view but publishes no semantics for them anywhere in the
+  agent-facing deck, and its assignment regexes re-match their own placeholder output
+  — text degrades request over request. Agents therefore treat placeholders as corrupt
+  data, fight the plugin (attempt "repairs"), and get reliably confused mid-task.
+  Both mechanisms were live-verified 2026-09-29 against the cached `opencode-vibeguard@0.1.0`
+  sources, and the analyst additionally reproduced M1 inside its own LLM-context read
+  (a placeholder hash observed in a read while sha256 + match-exitcode grep proved
+  the on-disk bytes intact).
+
+
+  Root cause (two independently verified mechanisms):
+
+
+  1. **M1 — Silent placeholder substitution with zero published semantics (primary).**
+  `experimental.chat.messages.transform` rewrites text parts and tool `state.input`/`state.output`/`state.error`/`state.raw`
+  on every request with no stderr warning and debug defaulting false — placeholders
+  appear in agent context with no explanation, and differing hashes across sessions
+  confirm the per-session HMAC (`randomBytes(32)` secret per session) means placeholders
+  are session-scoped, unresolvable outside the session, and unrecoverable by design.
+
+  2. **M2 — Assignment regexes self-consume their own placeholder output.** The `SECRET_ASSIGNMENT`
+  and `PASSWORD_ASSIGNMENT` patterns match placeholder-bearing spans: a pass over
+  `__VG_PASSWORD_ASSIGNMENT_<hash>__` creates a NEW placeholder whose original is
+  the entire previous span; a second pass creates a third — and since `messages.transform`
+  re-runs redaction over the full conversation history every request, nested/double-redaction
+  degrades text request over request. Bare placeholders alone are not matched (no
+  key prefix), which is why degradation appears specifically in nested/assignment
+  forms.
+
+
+  Bug source: developer report this session (2026-09-29): "agents get confused by
+  redaction placeholders and fight the plugin — the agent does not like the placeholders
+  it keeps encountering." No parent GitHub issue exists for this report. Related (cross-references,
+  NOT links): parent bug #2468 (adjacent tool-result leak exposure that motivated
+  vibeguard); sibling leak-prevention spec #2474 (owns G1-G4: URL-credential patterns,
+  fail-open warning, filtered-read rule, credscan, citation repair) — this spec duplicates
+  none of its success criteria; #2177 and #1974 are closed historical adjacency.
+
+
+  ## Scope
+
+
+  In scope:
+
+
+  - SC-1/SC-1b: value-lookahead guard `(?!__VG_)` added ONLY to the two assignment
+  regexes in `.opencode/vibeguard.config.json` — terminates the M2 self-consumption
+  chain at the source while keeping every genuine match (SC-2 runtime vectors pin
+  redaction power unchanged).
+
+  - SC-3: agent-facing `## 11. Vibeguard Placeholder Protocol` section in `.opencode/guidelines/060-tool-usage.md`
+  — placeholders are secret redactions and underlying files are intact (never corruption);
+  no counter-forensics/checksums/"repair" attempts; never copy placeholders into tool
+  arguments, files, commit messages, or artifacts; rely on the redacted view for placeholder-bearing
+  code. (M1''s confusion cure.)
+
+  - SC-5: "Placeholder semantics" subsection in `.opencode/docs/secret-detection.md`
+  documenting format `__VG_<CATEGORY>_<hash12>__`, per-session HMAC derivation, restoreText
+  pass-through of unknown placeholders, and the orphan risk of persisted placeholders
+  (human/operator-facing twin of SC-3).
+
+  - SC-4: behavioral scenario `vibeguard-placeholder-protocol` registered in `tests-v2/test-enforcement.sh`
+  (both `SCENARIOS[` and `SCENARIO_TAGS[` maps) with fixture `.opencode/tests-v2/behaviors/fixtures/issues/vibeguard-placeholder/app.properties`;
+  a behavioral run''s recorded session evidence must show the agent neither fights
+  redacted content nor attempts placeholder recovery, and zero placeholders copied
+  into tool-output artifacts (PRIMARY behavioral gate).
+
+
+  **Out of scope:**
+
+
+  - URL-embedded credential patterns, fail-open config warning, filtered-read rule,
+  credscan tool, and critical-rules-021 citation repair — all owned by the OPEN approved-for-review
+  spec #2474; no SC duplication.
+
+  - Patching the vendored `opencode-vibeguard` plugin internals (e.g., stderr warnings
+  per redaction) — upstream internals are mitigated in-repo per the #2474 precedent
+  boundary.
+
+  - Suppressing placeholders from agent views entirely — rejected: reintroduces the
+  #2468/#2474 credential-leak exposure.
+
+  - Assignment-pattern over-match on ordinary code identifiers (`this.__VG_SECRET_ASSIGNMENT_<hash>__`
+  still redacts once post-fix) — accepted residual; the confusion cure is semantic
+  (SC-3), not redaction-shape tuning.
+
+  - A session-start system-prompt legend of live placeholder hashes — rejected: the
+  legend would embed session-specific hashes into the system prompt; SC-3''s protocol
+  is session-independent.
+
+
+  ## Approach
+
+
+  Repository-side root-cause fix across both mechanisms, matching the #2474 precedent
+  that vendor plugin internals are out-of-scope. First, the mechanical guard: extend
+  only the two assignment regexes in `.opencode/vibeguard.config.json` with a value-position
+  lookahead `(?!__VG_)`, which refuses to re-match placeholder-valued assignments
+  and makes the nested degradation chain impossible at the source, verified live to
+  keep every genuine match. Second, the semantic cure: publish the placeholder protocol
+  to agents as a Tier-1 guideline section in `060-tool-usage.md` — a naive "make the
+  regex ignore anything containing `__VG_`" cannot restore agent comprehension, and
+  documentation alone leaves text degradation in place, so both halves are required.
+  Third, the human-facing twin: document format, per-session derivation, restore pass-through,
+  and orphan risk in `docs/secret-detection.md`. Fourth, enforcement: a behavioral
+  scenario in `tests-v2/test-enforcement.sh` with a placeholder-bearing fixture asserts
+  from recorded session evidence that agents neither fight redacted content nor copy
+  placeholders anywhere (behavioral evidence, not prose — string registration checks
+  are the taxonomy minimum only).
+
+
+  ## Impact
+
+
+  Top risks (each with a one-line mitigation):
+
+
+  1. **Guard regex misses a novel assignment form** — lookahead is anchored at the
+  value position after `[=:]`; forms outside the current pattern''s reach are already
+  uncovered pre-fix; no regression, and SC-2 runtime vectors pin the exact behavior.
+
+  2. **Agent discipline decays without enforcement** — SC-4 behavioral scenario is
+  the PRIMARY gate; SC-3/SC-5 content checks are the string minimums under the evidence
+  taxonomy, with automatic behavioral uplift for runtime-behavioral claims.
+
+  3. **Config drift between plugin and spec expectations** — SC-1/SC-1b assertions
+  parse the live config JSON via node extraction (no string-grep brittleness) and
+  pin the exact guarded pattern text.
+
+
+  Key dependencies: `tests-v2` behavioral harness for SC-4; node execution (CJS +
+  dynamic import) for SC-2 — both proven in the RED-gate method-soundness pass (`tmp/vibeguard-agent-confusion-20260929/red-gate-evidence.md`,
+  8/8 assertions failing RED with a live GREEN-reachability proof).
+
+
+  Call to action: implement per the success criteria; SC-4 is the PRIMARY behavioral
+  gate.
+
+
+  ## Success Criteria (summary)
+
+
+  | SC | Criterion | Type |
+
+  |----|-----------|------|
+
+  | SC-1 | `SECRET_ASSIGNMENT` entry in `.opencode/vibeguard.config.json` carries
+  pattern `(?:secret|api_key|api-key|secret_key|secret_token)\s*[=:]\s*(?!__VG_)\S+`
+  (parsed from live config JSON via node) | structural (string minimum) |
+
+  | SC-1b | `PASSWORD_ASSIGNMENT` entry carries pattern `(?:password|passwd|pwd)\s*[=:]\s*(?!__VG_)\S+`
+  | structural (string minimum) |
+
+  | SC-2 | Real-engine redactText run against real config patterns with counting session
+  stub: placeholder-valued assignment creates ZERO new mappings; bare placeholder
+  in key position creates exactly ONE; re-running redaction on guarded output creates
+  ZERO new mappings (chain terminated) | behavioral |
+
+  | SC-3 | `060-tool-usage.md` contains `## 11. Vibeguard Placeholder Protocol` with
+  all four protocol clauses (intact-file semantics; no counter-forensics/restore;
+  never copy into tool args/files/commits/artifacts; execution-arg placeholders restore
+  to live secrets and persisted placeholders become orphans) | structural (string
+  minimum) |
+
+  | SC-4 | Scenario `vibeguard-placeholder-protocol` registered in both harness maps
+  + fixture exists (six lines; line 4 = `db.__VG_PASSWORD_ASSIGNMENT_3d84ac707f62__`,
+  line 5 = `auth.token=__VG_SECRET_ASSIGNMENT_8e2c4ebf7fd5__`, `hunter2` sentinel
+  elsewhere) + behavioral run: agent neither fights redaction nor recovers placeholders;
+  zero placeholders in tool-output artifacts | behavioral (PRIMARY) |
+
+  | SC-5 | `docs/secret-detection.md` contains a "Placeholder semantics" subsection
+  with format, per-session HMAC derivation, restoreText pass-through, orphan risk
+  | structural (string minimum) |
+
+
+  Affected files: `.opencode/vibeguard.config.json` (SC-1/1b), `.opencode/guidelines/060-tool-usage.md`
+  (SC-3), `.opencode/docs/secret-detection.md` (SC-5), `.opencode/tests-v2/test-enforcement.sh`
+  (SC-4), `.opencode/tests-v2/behaviors/fixtures/issues/vibeguard-placeholder/app.properties`
+  (SC-4). All resolve to the `.opencode` sub-repo.
+
+
+  ---
+
+  🤖 OpenCode (ollama-cloud/glm-5.3-flash) created
+
+  Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-29T20:21:24+00:00'
-updated_at: '2026-09-29T20:21:24+00:00'
+updated_at: '2026-09-29T20:21:30+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2478
