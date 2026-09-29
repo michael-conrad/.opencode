@@ -72,7 +72,7 @@ Text additions/modifications to six files listed above, all within the `.opencod
 | 1 | Scope anchor in tests-v2/AGENTS.md | Canonical scope anchor statement | SC-1 | — | 3-9 | direct (9) + task-card (3-8) |
 | 2 | Read-link qualifiers in guideline restatements | Guideline text qualifiers | SC-2, SC-3, SC-4 | 1 | 10-23 | task-card (10-13, 15-18, 20-22) + direct (14, 19, 23) |
 | 3 | Evidence-taxonomy separation and table alignment | Skill card + reference table | SC-5, SC-6 | 1 | 24-33 | task-card (24-27, 29-32) + direct (28, 33) |
-| 4 | Behavioral RED — artifact generation | Behavioral artifact run | SC-7 | 1, 2, 3 | 34-43 | direct (34, 35, 37-38, 43) + task-card (36, 39, 40, 41, 42) |
+| 4 | Behavioral RED — artifact generation | Behavioral artifact run | SC-7 | 1, 2, 3 | 34-43 | direct (34, 35, 37-40, 43) + task-card (36, 41, 42) |
 | 5 | Behavioral GREEN — clean-room evaluation | Clean-room evaluation | SC-8 | 4 | 44-47 | task-card (44-46) + direct (47) |
 
 ## Self-Remediation Protocol
@@ -539,6 +539,10 @@ All 8 SCs executed. Post-implementation steps apply.
   - Context parameters:
     - - Dispatch: `task(..., prompt: "execute completion task from completion-core")`
     - - Emits exactly one `plan_created` lifecycle event with `plan_file` and `phase_count`
+
+## lifecycle_events
+
+- `2026-09-29T04:30:30Z` — `plan_created` — plan file: `.opencode/.issues/2469/plan.md`; phase_count: 5; structural validation iteration 3 passed with zero findings.
 
 ---
 

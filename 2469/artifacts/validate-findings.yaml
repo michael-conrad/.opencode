@@ -1,148 +1,77 @@
 issue: 2469
-artifact: validate-findings
-generated_by: validate task (writing-plans) — sub-agent
-generated_at: '2026-09-29'
-solve_output: .opencode/.issues/2469/artifacts/solve-output.yaml (SAT — entry criterion met)
-plan: .opencode/.issues/2469/plan.md
-dependency_contract: .opencode/.issues/2469/dependency-contract.yaml
-overall_status: FAIL
-
-categories:
-
-  - category: 1 — Structural validation
-    result: PASS
+validated_at: '2026-09-29'
+validation_iteration: 3
+validator: writing-plans validate task (sub-agent)
+plan_path: .opencode/.issues/2469/plan.md
+solve_status: SAT
+category_results:
+  - category: 1-structural
+    status: PASS
     checks:
-      - check: phase table present with all required columns (Phase|Name|Concern|SCs|Depends On|Step Range|Dispatch)
-        verdict: PASS
-      - check: each phase has a procedure section with numbered (checkbox) steps
-        verdict: PASS
-      - check: Exit Criteria section exists with SC-to-phase mapping (C1-C8)
-        verdict: PASS
-      - check: frontmatter phase_count (5) matches actual phase count
-        verdict: PASS
-
-  - category: 2 — Skill+task validity
-    result: PASS
+      - check: phase_table_with_required_columns
+        result: PASS
+        detail: Phase Table has all required columns (Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch); 5 phases listed.
+      - check: per_phase_procedure_sections
+        result: PASS
+        detail: Every phase carries Code Path Coverage, Cross-Cutting SCs, Interface Boundaries, State Transitions, Step-by-Step, Phase Completion, and Concern Transition sections with numbered checkbox steps.
+      - check: exit_criteria_sc_to_phase_mapping
+        result: PASS
+        detail: Exit Criteria section exists; C1-C8 map in order to phases 1-5 (C1→P1; C2-C4→P2; C5-C6→P3; C7→P4; C8→P5) and step ranges align (3-9, 10-23, 24-33, 34-43, 44-47).
+  - category: 2-skill-task-validity
+    status: PASS
     checks:
-      - check: >-
-          Every dispatch string matches the implementation-workflow reference card
-          (skills/writing-plans/reference/implementation-workflow.md): pre-regression
-          (phase-0), red, green, post-regression (phase-4), verify, commit-inline
-          (orchestrator direct), audit DiMo, z3-check (direct), structural-checks,
-          pre-pr-gate, regression-check, review-prep, create-pr, exec-summary.
-        verdict: PASS
-      - check: commit-inline steps correctly marked **direct** (orchestrator, no dispatch)
-        verdict: PASS
-
-  - category: 3 — SC coverage
-    result: PASS
+      - check: dispatch_strings_match_workflow_card
+        result: PASS
+        detail: All skill+task dispatch strings (pre-regression/phase-0, red, green, post-regression/phase-4, verify, audit DiMo investigator, z3-check, finishing checklist, pre-pr-gate verify, regression check, review-prep, create, completion) match canonical entries in skills/writing-plans/reference/implementation-workflow.md.
+      - check: behavioral_variant_reference
+        result: PASS
+        detail: Phase 4 behavioral run steps (with-test-home opencode run, §4 push cycle) and Phase 5 clean-room evaluation (tests-v2 §6a) are direct/orchestrator steps and behavioral instruments declared in the plan Dispatch frontmatter and structure.yaml — not workflow-card skill+task references, so no invalid card reference exists.
+  - category: 3-sc-coverage
+    status: PASS
     checks:
-      - check: all 8 SCs from the spec/dependency-contract appear in phase exit criteria (C1-C8)
-        verdict: PASS
-      - check: triplet split — every SC's RED/GREEN/COMMIT steps are within a single phase
-        verdict: PASS
-        note: >-
-          SC-1 (steps 3-9, phase 1); SC-2 (10-14), SC-3 (15-19), SC-4 (20-21) in
-          phase 2; SC-5 (22-26), SC-6 (27-31) in phase 3; SC-7 legs (32-41) in
-          phase 4; SC-8 (42-45) in phase 5. SC-7/SC-8 split across phases 4/5 is
-          the tests-v2 §6a two-SC pattern (RED artifact generation vs GREEN
-          clean-room evaluation are separate SCs by design), not a triplet split.
-
-  - category: 4 — Concern separation
-    result: FAIL
+      - check: all_scs_covered
+        result: PASS
+        detail: All 8 SCs appear in phase exit criteria (SC-1→P1; SC-2/3/4→P2; SC-5/6→P3; SC-7→P4; SC-8→P5).
+      - check: triplet_colocation
+        result: PASS
+        detail: No triplet split — SC-1 RED/GREEN/COMMIT steps 5/6/9 all in P1; SC-2 10/11/14; SC-3 15/16/19; SC-4 20/21/23; SC-5 24/25/28; SC-6 29/30/33 all within their single phase. Behavioral SCs SC-7 (P4 steps 34-43) and SC-8 (P5 steps 44-47) each fully colocated.
+  - category: 4-concern-separation
+    status: PASS
     checks:
-      - check: each phase addresses exactly one concern
-        verdict: PASS
-        note: >-
-          Phase 1 = scope anchor; Phase 2 = guideline qualifiers; Phase 3 =
-          taxonomy/table alignment; Phase 4 = artifact generation; Phase 5 =
-          clean-room evaluation — the plan's own phase table declares 5 distinct
-          concerns, each phase addressing exactly one.
-      - check: no two phases address the same concern (checked against concern-map.yaml)
-        verdict: FAIL
-        reason: CONCERN_MAP_PHASE_BOUNDARY_MISMATCH
-        detail: >-
-          The concern-map backfill artifact (.opencode/.issues/2469/artifacts/concern-map.yaml)
-          groups SC-7 and SC-8 into a single concern group
-          `behavioral-verification` with phase_boundary "Phase 4", while the plan
-          splits them into Phase 4 (SC-7 artifact generation) and Phase 5 (SC-8
-          clean-room evaluation). Two declared phases consume one concern-map
-          group. The plan's split is CORRECT per tests-v2 §6a (RED-leg run and
-          GREEN-leg clean-room evaluation are never merged into one phase/dispatch)
-          — the backfilled concern-map artifact is stale relative to the plan.
-        remediation_note: >-
-          Hygiene repair to concern-map.yaml (split behavioral-verification into
-          artifact-generation @ Phase 4 + clean-room-evaluation @ Phase 5) or
-          regeneration of the concern-map from the plan. Issue-ticket data repair,
-          authorization-free per issues-data hygiene mandate.
-
-  - category: 5 — DAG validation
-    result: PASS
+      - check: one_concern_per_phase
+        result: PASS
+        detail: Concern-map groups (scope-anchor-authoring, scope-qualifier-alignment, evidence-taxonomy-instrument-separation, behavioral-artifact-generation, clean-room-evaluation) map 1:1 in dependency order to phases 1-5.
+      - check: no_duplicate_concerns
+        result: PASS
+        detail: No concern appears in more than one phase; SC-7/SC-8 are correctly split as separate concerns (behavioral-artifact-generation @ P4, clean-room-evaluation @ P5) per the revised concern-map.
+  - category: 5-dag-validation
+    status: PASS
     checks:
-      - check: phase DAG acyclic (1 → {2,3}; {1,2,3} → 4; 4 → 5)
-        verdict: PASS
-      - check: all phases reachable from start node
-        verdict: PASS
-      - check: no orphan phases
-        verdict: PASS
-      - check: >-
-          dependency-contract ordering constraints satisfied by phase structure —
-          SC-1 before SC-2/3/4 (phase 1 → 2); SC-5 before SC-6 (in-phase order,
-          steps 22-31); SC-7 before SC-8 (phase 4 → 5); SC-7 GREEN requires
-          phases 1-3 landed (phase 4 Depends On 1,2,3); behavioral §4
-          precondition cycle declared in phase 4 Interface Boundaries.
-        verdict: PASS
-
-  - category: 6 — Holistic quality
-    result: FAIL
+      - check: acyclic
+        result: PASS
+        detail: Edges P2→P1, P3→P1, P4→{P1,P2,P3}, P5→P4 form a DAG with no cycles; consistent with dependency-contract ordering constraints; Z3 solve check_status SAT.
+      - check: all_phases_reachable
+        result: PASS
+        detail: All phases 2-5 reachable from the root (phase-1, no incoming edges).
+      - check: no_orphan_phases
+        result: PASS
+        detail: Phase 1 is root; every other phase has both incoming and outgoing edges (P5→P4 terminates the chain).
+  - category: 6-holistic-quality
+    status: PASS
     checks:
-      - check: no TBD/TODO/FIXME placeholders in plan body (grep verified — zero matches)
-        verdict: PASS
-      - check: all steps use checkbox format (- [ ]) — verified, 53 checkbox steps
-        verdict: PASS
-      - check: dispatch mode consistency
-        verdict: FAIL
-        findings:
-          - finding: DISPATCH_TABLE_STEP_RANGE_MISMATCH
-            detail: >-
-              Phase Table "Step Range" and "Dispatch" columns are stale relative to
-              actual step markers. Actual: phase 1 steps are 3-9 with task-card on
-              3-8 and direct on 9 (table claims direct 3-4 + task-card 5-9);
-              phase 2 has direct commits at 14, 19, 21 (table claims all task-card
-              10-21); phase 3 has direct commits at 26, 31 (table claims all
-              task-card 22-33); phase 4 steps are 32-41 with direct on 32,33,35-
-              38,41 and task-card on 34,39,40 (table claims direct 34 + 43-45,
-              task-card 35-42); phase 5 steps are 42-45 with task-card on 42-44
-              and direct on 45 (table claims direct 46-52,56-67 + task-card
-              53-55 — steps 46-53 are Post-Implementation steps, not phase 5).
-          - finding: MULTI_DISPATCH_SINGLE_STEP_PDIS007
-            detail: >-
-              Step 20 (SC-4) bundles three dispatches in one step (RED + GREEN +
-              verify). Violates the One-Dispatch-One-Step gate (091 / 257
-              p-dis-007): one dispatch = one discrete step. Should be split into
-              three numbered steps like SC-2/SC-3/SC-5/SC-6.
-          - finding: PHASE4_DUPLICATE_STEP_MARKER
-            detail: >-
-              The plan uses step number 41 twice? Verified: no — numbering check
-              shows phases 1-4 use steps 1-41 uniquely and phase 5 uses 42-45
-              uniquely; Post-Implementation reuses 46-53 following phase numbering
-              consistently. No duplicate markers found. Recorded here because the
-              stale Step Range column suggested numbering drift (re-verified PASS).
-        note: >-
-          Core dispatch markers on individual steps are correct (
-          **task-card** vs **direct**); only the phase-table summary columns are
-          stale, plus the step-20 bundling defect.
-
-summary_counts:
-  pass: 4
-  fail: 2
-  total_categories: 6
-
-blocker_level: FINDINGS_ONLY
-plan_executable: true
-execution_note: >-
-  Category 6 findings (stale phase-table columns, step-20 bundling) are plan-level
-  defects that the executing orchestrator can compensate for by following step
-  markers, but step 20's bundling violates the One-Dispatch-One-Step gate and the
-  phase-table step ranges must be corrected to prevent dispatch misrouting.
-  Recommend plan revision before dispatch per writing-plans revise flow.
+      - check: no_placeholders
+        result: PASS
+        detail: grep for TBD/TODO/PLACEHOLDER/XXX across plan.md returned no matches.
+      - check: checkbox_format
+        result: PASS
+        detail: All steps (1-2 pre-implementation, 3-55 implementation/post-implementation) use `- [ ]` checkbox format.
+      - check: dispatch_mode_consistency
+        result: PASS
+        detail: Phase table Dispatch column matches body step markers for all phases — re-verified P4 (direct 34,35,37-40,43 + task-card 36,41,42) now matches the body after revision 2; P1, P2, P3, P5 also exact matches. Inline (direct/commit/orchestrator) phases contain no dispatched skill steps and task-card steps declare dispatch strings.
+overall_status: PASS
+finding_summary: >-
+  All 6 validation categories PASS with zero findings. Prior-iteration finding
+  (P4 Dispatch column mismatch) confirmed resolved: the Phase 4 table's Dispatch
+  column now reads direct (34,35,37-40,43) + task-card (36,41,42), exactly
+  matching the body markers. Triplet colocation verified for all 8 SCs; DAG
+  acyclic with SAT solve-status backing; concern separation clean.
