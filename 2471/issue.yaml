@@ -1,0 +1,10 @@
+title: '[BUG] spec-creation/issue-operations body template stamps Approval Tracking
+  comment-tracker note into every spec issue body — approval mechanism must not appear
+  in spec bodies at all'
+status: open
+labels:
+- needs-approval
+- approved-for-pr
+body: ''
+created_at: '2026-09-29T13:37:03+00:00'
+updated_at: '2026-09-29T13:37:03+00:00'
