@@ -1,0 +1,8 @@
+title: '[ENHANCEMENT] issue-operations-sync import-remote task card references legacy
+  mirror filenames comments.md/state.md not used by local-issues schema'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-09-29T23:31:59+00:00'
+updated_at: '2026-09-29T23:31:59+00:00'
