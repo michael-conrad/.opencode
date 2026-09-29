@@ -231,6 +231,8 @@ The Issue URL MUST be extracted from the API response `html_url` field — NEVER
 
 **No separate comment needed.** The byline is part of the issue body content, not a standalone comment.
 
+**Body footer mandate — no process/tracking indicators (NORMATIVE):** Approval state lives exclusively in `approved-for-*` labels (the local `issue.yaml` labels array is the canonical source). The issue body MUST NEVER carry approval-mechanism language of any kind — no approval-tracking sections, no AI-approval comment-tracker notes, no approval-state markers inline. The body footer carries ONLY the byline (`🤖 <AgentName> (<ModelId>) created`). Any process/tracking indicator found in the body is a defect: remove it and keep the footer allowlist = byline only.
+
 ### Step 3.5: Verify `needs-approval` Label
 
 **The PRIMARY canonical verification is the local `issue.yaml`.** The `needs-approval` label MUST be present in the local `{issues_prefix}/{N}/issue.yaml` labels array (written in Step 2 via `local-issues update --labels`). Remote label verification is best-effort/secondary and NEVER blocks the pipeline.
@@ -333,6 +335,8 @@ The body must contain the following 6 sections in order:
 - [ ] 1. **Impact** (mandatory) — Top 3 risks with one-line mitigation each, key dependencies, and a call to action.
 
 **Post-creation enforcement:** Run this check after Step 2 (issue created) and before Step 4 (report). If any section is missing, call `issue-operations → update-issue` to amend the body with the missing section(s). Do NOT proceed to report until all 5 sections are verified present.
+
+**Body footnote — the 6th structural rule — no process/tracking indicators (NORMATIVE):** Approval state lives exclusively in `approved-for-*` labels (the local `issue.yaml` labels array is the canonical source). The issue body MUST NEVER carry approval-mechanism language of any kind — no approval-tracking sections, no AI-approval comment-tracker notes, no approval-state markers inline. The body footer carries ONLY the byline (`🤖 <AgentName> (<ModelId>) created`). Any process/tracking indicator found in the body is a defect: amend the body via `issue-operations → update-issue` to remove it.
 
 **AI Agent Instructions enforcement:** Per #1902, AI Agent Instructions are now gate-level enforcement, not inline body sections. Read [Channel-Routing Table](.opencode/guidelines/000-critical-rules.md) and Read [Audience Separation](.opencode/guidelines/000-critical-rules.md) for the gate-level routing rules. The agent MUST NOT include an "AI Agent Instructions" section in the issue body — that content is internal agent guidance, not stakeholder-facing.
 
