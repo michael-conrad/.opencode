@@ -1,1 +1,10 @@
-comments: []
+comments:
+- type: internal
+  body: 'Phase 5 (SC-8 clean-room evaluation) complete. Verdicts: RED-leg PASS (pre-change
+    session, mis-scoping NOT behaviorally reproduced — deviation from plan expectation
+    recorded), GREEN-leg PASS (post-change session, criterion satisfied). Evidence
+    artifacts in ./tmp/2469/artifacts/: evaluation-red.yaml, evaluation-green.yaml,
+    behavioral-red-official/session.yaml (161 events), behavioral-green-official/session.yaml
+    (300 events pruned by aggregate_id). Behavioral two-leg directionality proof not
+    established (both legs compliant); text defect proven via SC-1..SC-6.'
+  timestamp: '2026-09-29T09:08:29+00:00'
