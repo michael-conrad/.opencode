@@ -8,3 +8,12 @@ comments:
     (300 events pruned by aggregate_id). Behavioral two-leg directionality proof not
     established (both legs compliant); text defect proven via SC-1..SC-6.'
   timestamp: '2026-09-29T09:08:29+00:00'
+- type: internal
+  body: 'Step 49 Z3 post-verification: solve check SAT (all SC variables True — postconditions
+    + invariants satisfied; run: solve check --contract-path dependency-contract.yaml
+    --state-path post-verify-state.yaml). Note: plan-output.yaml contained terminal
+    ANSI artifacts from the research sub-agent capture; cosmetic repair applied to
+    the issues-data record (hygiene mandate), no semantic change. SC-8 deviation note
+    stands: evaluation recorded per-leg PASS on both legs with directionality proof
+    withheld (audit F1-F4 non-blocking findings acknowledged).'
+  timestamp: '2026-09-29T09:12:28+00:00'
