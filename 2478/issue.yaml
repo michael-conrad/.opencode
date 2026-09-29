@@ -2,8 +2,9 @@ title: '[SPEC-FIX] Fix: Vibeguard placeholders confuse agents — silent substit
   semantics + assignment-regex self-consumption'
 status: open
 labels:
-- needs-approval
+- spec-draft
 - spec
+- needs-approval
 body: '## Problem
 
 
@@ -195,5 +196,5 @@ body: '## Problem
 
   Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
 created_at: '2026-09-29T20:21:24+00:00'
-updated_at: '2026-09-29T20:21:30+00:00'
+updated_at: '2026-09-29T20:21:37+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2478
