@@ -576,4 +576,8 @@ Verify byline presence before ANY API call posting AI-authored content.
 3. Exhaustive remediation before escalation: only after ALL available model selection, infrastructure check, and alternative model paths have been verified as failed may the agent HALT with escalation
 4. There is NO valid path from "test cannot run" to "PASS" or "UNVERIFIED with structural substitute"
 
+#### Repo-Scope Qualifier
+
+This instrument is conditional on `.opencode`-targeted work: the `opencode run` instrument applies only to `.opencode`-targeted work — for other repos, the strongest available in-repo execution-based instrument applies, with any unavailability reported and never worked around. The universal evidence duty above (no structural/grep/metadata substitution for behavioral evidence) is unchanged in all repos. Read [the tests-v2 Scope Anchor](tests-v2/AGENTS.md#scope-anchor).
+
 

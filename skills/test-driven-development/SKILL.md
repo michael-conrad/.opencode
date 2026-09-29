@@ -303,6 +303,8 @@ Evidence below the minimum type for an SC's declared evidence type is a CRITICAL
 
 **EVIDENCE_TYPE_MISMATCH** classification: When an auditor or VbC sub-agent provides structural evidence for a behavioral SC, the verdict MUST be reported as FAIL with `EVIDENCE_TYPE_MISMATCH` classification. This is not a soft-pass — it is a hard FAIL. Cross-validate MUST downgrade any PASS verdict with wrong evidence type to FAIL with `EVIDENCE_TYPE_MISMATCH`.
 
+**Instrument scope separation — universal rigor vs deck-repo mechanics:** The evidence-type rigor defined above is UNIVERSAL in all repositories: the four-type taxonomy, the precedence ordering (`behavioral` > `semantic` > `string` > `structural`), the minimum-acceptable rule, and EVIDENCE_TYPE_MISMATCH semantics apply in ALL repos — they are never scoped to a particular deck, harness, or repo layout. Only the verification INSTRUMENT mechanics are deck-repo-scoped: the `opencode run` instrument is scoped to `.opencode`-targeted work per the tests-v2 Scope Anchor — Read [the tests-v2 Scope Anchor](tests-v2/AGENTS.md#scope-anchor) — while other repos use the strongest available in-repo execution-based instrument, with any unavailability reported and never worked around. An agent working in a non-`.opencode` repo still enforces the four-type taxonomy and its precedence against the strongest available in-repo execution-based instrument; instrument substitution does not lower the evidence-type floor.
+
 ### SC-to-Test Traceability (MANDATORY) — Behavioral PRIMARY
 
 Every spec success criterion MUST have at least one corresponding BEHAVIORAL enforcement test assertion that references the SC ID. The assertion must include a comment linking it to the specific SC:
