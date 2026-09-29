@@ -58,8 +58,10 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ rules (jdbc + generic `scheme://user:SECRET@host` userinfo form), scoped to non-excluded\
   \ hosts.\n- G2: fail-open visibility — sibling check in `.opencode/tools/session-init`\
   \ probing the vibeguard config candidate paths (mirroring the plugin's lookup order),\
-  \ emitting a non-blocking `VIBEGUARD_CONFIG_UNRESOLVED` stderr warning when redaction\
-  \ would be no-op; document the fail-open semantics in `.opencode/docs/secret-detection.md`.\n\
+  \ emitting a non-blocking `VIBEGUARD_CONFIG_UNRESOLVED` stdout-preamble warning\
+  \ when redaction would be no-op (delivered on session-init stdout so `runSessionInit()`\
+  \ captures it and the system-prompt injection path carries it into the agent's actual\
+  \ reading context); document the fail-open semantics in `.opencode/docs/secret-detection.md`.\n\
   - G3: Tier-1 agent-facing filtered-read rule in `.opencode/guidelines/060-tool-usage.md`\
   \ for credential-bearing files, plus `.opencode/tools/credscan` — a scanner returning\
   \ line numbers + value-masked previews (e.g., `password=████(len 12)`) so files\
@@ -79,23 +81,25 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ so URL-borne secrets are placeholder-substituted before provider send, using the\
   \ same mechanism as the existing assignment-form classes. G2 removes silent disablement\
   \ by having session-init probe the same config-candidate paths the plugin uses and\
-  \ emit a warn-only, never-blocking `VIBEGUARD_CONFIG_UNRESOLVED` stderr warning\
-  \ when redaction would be no-op — fail-open stays, but becomes visible, with semantics\
-  \ documented in `.opencode/docs/secret-detection.md`. G3 attacks ingestion at the\
-  \ source: a Tier-1 filtered-read rule in `060-tool-usage.md` (credential-key exclusion\
-  \ in grep; ranges avoiding credential lines) plus a `credscan` helper returning\
-  \ credential-line positions with masked-value previews for structural inspection\
-  \ without value ingestion. G4 repairs the dead critical-rules-021 citation to point\
-  \ at the active vibeguard pipeline. Enforcement is wired as behavioral scenario\
-  \ `2468-sc1-ingest-no-plaintext` in `tests-v2/test-enforcement.sh`, asserting on\
-  \ recorded session tool-output parts — behavioral evidence, not stdout prose. Rationale\
-  \ for the architectural split: pattern extension (G1) is the mechanical gate matching\
-  \ parent #2468's \"tool-result redaction gate\" requirement; the filtered-read rule\
-  \ (G3) matches its \"guidance/rule addition\" requirement; credscan matches its\
-  \ \"detection helper\" requirement.\n\nAlternatives considered and rejected: (i)\
-  \ patch the vendored plugin's `getConfigCandidates` to warn directly on config resolution\
-  \ failure — rejected because it violates the vendored-plugin out-of-scope boundary\
-  \ (upstream internals are mitigated in-repo, not patched); (ii) exclusion-list-based\
+  \ emit a warn-only, never-blocking `VIBEGUARD_CONFIG_UNRESOLVED` stdout-preamble\
+  \ warning when redaction would be no-op — delivered on session-init stdout so the\
+  \ existing `runSessionInit()` capture + system-prompt injection path carries it\
+  \ into the agent's actual reading context — fail-open stays, but becomes visible,\
+  \ with semantics documented in `.opencode/docs/secret-detection.md`. G3 attacks\
+  \ ingestion at the source: a Tier-1 filtered-read rule in `060-tool-usage.md` (credential-key\
+  \ exclusion in grep; ranges avoiding credential lines) plus a `credscan` helper\
+  \ returning credential-line positions with masked-value previews for structural\
+  \ inspection without value ingestion. G4 repairs the dead critical-rules-021 citation\
+  \ to point at the active vibeguard pipeline. Enforcement is wired as behavioral\
+  \ scenario `2468-sc1-ingest-no-plaintext` in `tests-v2/test-enforcement.sh`, asserting\
+  \ on recorded session tool-output parts — behavioral evidence, not stdout prose.\
+  \ Rationale for the architectural split: pattern extension (G1) is the mechanical\
+  \ gate matching parent #2468's \"tool-result redaction gate\" requirement; the filtered-read\
+  \ rule (G3) matches its \"guidance/rule addition\" requirement; credscan matches\
+  \ its \"detection helper\" requirement.\n\nAlternatives considered and rejected:\
+  \ (i) patch the vendored plugin's `getConfigCandidates` to warn directly on config\
+  \ resolution failure — rejected because it violates the vendored-plugin out-of-scope\
+  \ boundary (upstream internals are mitigated in-repo, not patched); (ii) exclusion-list-based\
   \ host scoping (put the excluded hosts in `patterns.exclude` instead of the regex\
   \ lookahead) — rejected because the engine's full-span exclude semantics (`patterns.exclude.has(original)`\
   \ cannot veto sub-spans) make it unimplementable for userinfo sub-matches.\n\n##\
@@ -115,29 +119,36 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ peeled, empty-string category falls back to `TEXT`, and the entry is appended\
   \ to the global regex rule list; the two SC-1 entries use only already-supported\
   \ keys, and their SC-1 content verification re-checks acceptance); `session-init`\
-  \ is a Python tool whose stdout is captured into the system prompt while its stderr\
-  \ is discarded by `runSessionInit()` in `session-enforcement.ts` (verified: `stdio:\
-  \ [\"pipe\",\"pipe\",\"pipe\"]`, exceptions swallowed) — the SC-3 warning therefore\
-  \ runs inside the existing `run_guard_checks()` block at session-init startup, and\
-  \ its stderr surface is exercised by the SC-3 scenario invoking `.opencode/tools/session-init`\
-  \ directly in a config-less cwd, not through the plugin's system-prompt capture.\n\
-  \nCall to action: implement per the success criteria below; SC-5 is the PRIMARY\
-  \ behavioral gate.\n\n## Root Cause\n\nThe redaction mandate for tool-result ingestion\
-  \ was delegated to `opencode-vibeguard@0.1.0` when the inline `redactSecrets()`\
-  \ pipeline was removed from `session-enforcement.ts` (plugin now 84 lines: system-prompt\
-  \ injection + mode-switch stripping only). The delegation left three verified gaps\
-  \ plus one guideline-drift defect — G1 (pattern coverage gap: no URL-embedded-credential\
-  \ patterns), G2 (silent fail-open config gate), G3 (no ingestion-prevention rule\
-  \ or visibility), G4 (dead `redactSecrets()` citation at `000-critical-rules.md`\
-  \ line 140) — each detailed under Problem above.\n\nMechanism clause (why the fix\
-  \ is regex-internal): the vibeguard engine's exclude list compares full matched\
-  \ spans only — `patterns.exclude.has(original)` (`src/patterns.js`, live-verified\
-  \ 2026-09-29) compares the literal full span and cannot veto a sub-span hit — so\
-  \ exclude-list-based host scoping is unimplementable and host scoping MUST be regex-internal\
-  \ (negative lookahead inside the pattern itself).\n\n## Success Criteria\n\n- **SC-1:**\
-  \ `.opencode/vibeguard.config.json` `patterns.regex[]` contains exactly these two\
-  \ new entries appended to the six existing regex entries:\n  - entry A — `{\"pattern\"\
-  : \"(?:jdbc:)?(?:postgresql|mysql|mariadb|sqlserver|oracle|db2|clickhouse)://[^:/\\\
+  \ is a Python tool whose stdout is the agent-visible surface while its stderr is\
+  \ never forwarded by `runSessionInit()` in `session-enforcement.ts` (verified: `stdio:\
+  \ [\"pipe\",\"pipe\",\"pipe\"]`, only `result.trim()` stdout is returned, stderr\
+  \ is piped but never drained, exceptions swallowed) — the SC-3 warning therefore\
+  \ runs inside the existing `run_guard_checks()` block at session-init startup and\
+  \ its channel is session-init STDOUT: as a clearly-marked non-contextualized preamble/warning\
+  \ block emitted into the session-init stdout stream, it is captured by `runSessionInit()`\
+  \ (which returns only stdout) and injected into the system prompt by `systemTransformHook`\
+  \ — the path the agent actually reads. The SC-3 scenario exercises this actual visibility\
+  \ path (invoking `.opencode/tools/session-init` in a config-less cwd and asserting\
+  \ the warning block appears in the stdout stream the plugin captures and injects);\
+  \ it may additionally assert stderr-side diagnostics remain available for humans/debug,\
+  \ but the agent-visible assertion is on stdout — the stderr channel is never read\
+  \ by the agent (developer-confirmed design constraint).\n\nCall to action: implement\
+  \ per the success criteria below; SC-5 is the PRIMARY behavioral gate.\n\n## Root\
+  \ Cause\n\nThe redaction mandate for tool-result ingestion was delegated to `opencode-vibeguard@0.1.0`\
+  \ when the inline `redactSecrets()` pipeline was removed from `session-enforcement.ts`\
+  \ (plugin now 84 lines: system-prompt injection + mode-switch stripping only). The\
+  \ delegation left three verified gaps plus one guideline-drift defect — G1 (pattern\
+  \ coverage gap: no URL-embedded-credential patterns), G2 (silent fail-open config\
+  \ gate), G3 (no ingestion-prevention rule or visibility), G4 (dead `redactSecrets()`\
+  \ citation at `000-critical-rules.md` line 140) — each detailed under Problem above.\n\
+  \nMechanism clause (why the fix is regex-internal): the vibeguard engine's exclude\
+  \ list compares full matched spans only — `patterns.exclude.has(original)` (`src/patterns.js`,\
+  \ live-verified 2026-09-29) compares the literal full span and cannot veto a sub-span\
+  \ hit — so exclude-list-based host scoping is unimplementable and host scoping MUST\
+  \ be regex-internal (negative lookahead inside the pattern itself).\n\n## Success\
+  \ Criteria\n\n- **SC-1:** `.opencode/vibeguard.config.json` `patterns.regex[]` contains\
+  \ exactly these two new entries appended to the six existing regex entries:\n  -\
+  \ entry A — `{\"pattern\": \"(?:jdbc:)?(?:postgresql|mysql|mariadb|sqlserver|oracle|db2|clickhouse)://[^:/\\\
   \\s@]+:[^@/\\\\s]+@(?!(?:localhost|127\\\\.0\\\\.0\\\\.1|0\\\\.0\\\\.0\\\\.0|example\\\
   \\.com))\", \"category\": \"JDBC_CREDENTIAL\"}` and\n  - entry B — `{\"pattern\"\
   : \"(?:https?|ftps?|ssh|sftp|mongodb(?:\\\\+srv)?|redis|amqps?)://[^:/\\\\s@]+:[^@/\\\
@@ -171,21 +182,32 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ execution with output inspection); its config-verification content check (credscan\
   \ present/executable before the run) is the string component of this two-part SC\
   \ (string for the content check, behavioral for the fixture-run).\n- **SC-3:** `.opencode/tools/session-init`\
-  \ emits on its own stderr the exact single line `VIBEGUARD_CONFIG_UNRESOLVED: no\
-  \ vibeguard config resolved — secret redaction is DISABLED for this session` when\
-  \ none of the four candidate paths exists (checked in the plugin's `getConfigCandidates()`\
+  \ emits on its own stdout, as a clearly-marked non-contextualized preamble/warning\
+  \ block inside the session-init stdout stream, the exact trigger line `VIBEGUARD_CONFIG_UNRESOLVED:\
+  \ no vibeguard config resolved — secret redaction is DISABLED for this session`\
+  \ when none of the four candidate paths exists (checked in the plugin's `getConfigCandidates()`\
   \ order, live-verified): the `OPENCODE_VIBEGUARD_CONFIG` env path checked first\
   \ when set, then `<project_root>/vibeguard.config.json`, `<project_root>/.opencode/vibeguard.config.json`,\
   \ `~/.config/opencode/vibeguard.config.json` — project root from the same cwd-based\
   \ directory the plugin probe uses. Non-resolution is fully operationalized: env\
   \ path (when set) plus all three fixed candidates fail the file-existence check;\
   \ resolution is ANY candidate existing. No warning when any candidate resolves;\
-  \ exit code 0 in both states. Evidence type: behavioral (stderr-capture execution:\
-  \ the `.opencode/tools/session-init` invocation in a harness temp-home cwd with\
-  \ output inspection — the warning emission is runtime behavior, so the declared\
-  \ type is behavioral, not structural).\n- **SC-4:** `.opencode/guidelines/060-tool-usage.md`\
-  \ contains a new `## 10. Credential-Bearing File Reads` section inserted immediately\
-  \ before the existing `## 9. Identity Source Semantics` heading (the existing mis-numbered\
+  \ exit code 0 in both states. The warning is emitted on stdout — not stderr — because\
+  \ `runSessionInit()` in `session-enforcement.ts` (lines 28-41) pipes stderr without\
+  \ draining it and returns only `result.trim()` stdout, so the stderr channel is\
+  \ invisible in every real session (developer-confirmed design constraint); the stdout\
+  \ block is what `runSessionInit()` captures and `systemTransformHook` injects into\
+  \ the system prompt where the agent actually reads it, while warn-only/never-blocking\
+  \ semantics and exit 0 keep the preamble from disturbing the session-init context\
+  \ contract. Evidence type: behavioral (stdout-capture execution: the `.opencode/tools/session-init`\
+  \ invocation in a harness temp-home cwd with output inspection, asserting the warning\
+  \ block appears in the stdout stream that the plugin captures and injects into the\
+  \ system prompt — the warning emission is runtime behavior, so the declared type\
+  \ is behavioral, not structural; the scenario may additionally assert stderr-side\
+  \ diagnostics remain available for humans/debug, but the agent-visible assertion\
+  \ is on stdout).\n- **SC-4:** `.opencode/guidelines/060-tool-usage.md` contains\
+  \ a new `## 10. Credential-Bearing File Reads` section inserted immediately before\
+  \ the existing `## 9. Identity Source Semantics` heading (the existing mis-numbered\
   \ `## 9` heading stays unchanged — renumbering is out of scope), whose body is exactly\
   \ this rule text: `\U0001F6AB ZERO TOLERANCE — NEVER read credential-bearing files\
   \ raw. For any file that may contain credentials (.env, secrets.toml, *.pem, *.key,\
@@ -241,18 +263,22 @@ body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   \ |\n| SC-2 | `test-enforcement.sh` content-verification (string part: credscan\
   \ config check) + credscan fixture run (behavioral part: execution with output inspection)\
   \ | string (content check) + behavioral (fixture-run) |\n| SC-3 | session-init warning\
-  \ scenario (config unresolved → VIBEGUARD_CONFIG_UNRESOLVED on stderr) | behavioral\
-  \ (stderr-capture execution with output inspection) |\n| SC-4 | `test-enforcement.sh`\
-  \ content-verification: filtered-read rule text in 060-tool-usage.md | structural\
-  \ |\n| SC-5 | `2468-sc1-ingest-no-plaintext` scenario registration + behavioral\
-  \ run | behavioral (PRIMARY) |\n| SC-6 | `test-enforcement.sh` content-verification:\
-  \ 000-critical-rules.md cites vibeguard, not redactSecrets() | structural |\n\n\
-  RED-gate evidence: `tmp/red-gate-2468/sc-assertions.sh` — 6/6 assertions failing\
-  \ (RED verified) before fix implementation; re-run flips to GREEN.\n\n---\n\U0001F916\
-  \ OpenCode (ollama-cloud/glm-5.3-flash) created\nCo-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)\n\
-  Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash) — round-2 spec-content\
-  \ remediation edit\n\n\n\n"
+  \ scenario (config unresolved → `VIBEGUARD_CONFIG_UNRESOLVED` stdout-preamble block,\
+  \ captured by `runSessionInit()` and injected into the system prompt) | behavioral\
+  \ (stdout-capture execution with output inspection; agent-visible assertion on the\
+  \ stdout stream the plugin injects; stderr-side diagnostics may additionally remain\
+  \ for humans/debug) |\n| SC-4 | `test-enforcement.sh` content-verification: filtered-read\
+  \ rule text in 060-tool-usage.md | structural |\n| SC-5 | `2468-sc1-ingest-no-plaintext`\
+  \ scenario registration + behavioral run | behavioral (PRIMARY) |\n| SC-6 | `test-enforcement.sh`\
+  \ content-verification: 000-critical-rules.md cites vibeguard, not redactSecrets()\
+  \ | structural |\n\nRED-gate evidence: `tmp/red-gate-2468/sc-assertions.sh` — 6/6\
+  \ assertions failing (RED verified) before fix implementation; re-run flips to GREEN.\n\
+  \n---\n\U0001F916 OpenCode (ollama-cloud/glm-5.3-flash) created\nCo-authored with\
+  \ AI: OpenCode (ollama-cloud/glm-5.3-flash)\nCo-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)\
+  \ — round-2 spec-content remediation edit\nCo-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)\
+  \ — round-3 channel correction (SC-3 stderr→stdout-preamble) design amendment\n\n\
+  \n\n\n"
 created_at: '2026-09-29T16:33:21+00:00'
-updated_at: '2026-09-29T20:00:54+00:00'
+updated_at: '2026-09-29T23:12:34+00:00'
 github_url: '2474'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2474
