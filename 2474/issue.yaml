@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] Fix: Credential redaction gap — URL-embedded creds bypass vibeguard;
+  silent fail-open config; no filtered-read rule'
+status: open
+labels:
+- needs-approval
+- spec
+body: ''
+created_at: '2026-09-29T16:33:21+00:00'
+updated_at: '2026-09-29T16:33:21+00:00'
