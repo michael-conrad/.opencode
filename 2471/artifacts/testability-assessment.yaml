@@ -1,0 +1,28 @@
+# Testability Assessment — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+assessments:
+  - sc: SC1
+    statement: >
+      Spec issue bodies contain no approval-mechanism language; deck task cards
+      normatively state the footer allowlist (byline + spec sections only).
+    evidence_type: string
+    rationale: >
+      The deliverable is agent-facing task-card text (a documented body template
+      rule), not runtime behavior. Verifiable by grep-based assertion: no
+      "Approval Tracking" / "AI: Approved" literal remains in the three target task
+      cards, and the footer allowlist / no-indicator rule is present.
+    verification_method: >
+      String assertions over task-card content: absence of approval-mechanism
+      literals in `.opencode/skills/spec-creation/tasks/create.md`,
+      `.opencode/skills/issue-operations-core/tasks/creation.md`,
+      `.opencode/skills/issue-operations/platforms/local/tasks/creation.md`;
+      presence of the normative no-indicator rule (e.g., "no process/tracking
+      indicators", footer allowlist). Runtime-behavioral uplift not triggered — the
+      change does not alter agent dispatch decisions, gate outcomes, or tool
+      selection; it constrains emitted body content, testable structurally.
+    instrument: >
+      .opencode-targeted work → behavioral framework per tests-v2 scope; however the
+      substrate of this SC is static template text, so string-level assertions are
+      the correct evidence class (substrate classification governs, per
+      critical-rules-BEH-EV).

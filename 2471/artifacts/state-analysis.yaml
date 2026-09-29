@@ -1,0 +1,19 @@
+# State Analysis — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+transitions:
+  - sc: SC1
+    entity: spec issue body template (deck)
+    from: unspecified footer content (sub-agents may invent approval-mechanism blockquotes)
+    to: normative footer allowlist — byline only; no process/tracking indicators
+    persistence: task-card markdown in `.opencode` submodule
+  - sc: SC1
+    entity: remote issue bodies created after fix
+    from: n/a (no runtime state)
+    to: bodies rendered from template contain zero approval-mechanism language
+    persistence: github issue body
+notes: >
+  No application state, database, or serialized-format transitions are involved.
+  The state change is confined to agent-facing task-card content and the issue
+  bodies produced by following it. Already-created specs #36/#1385 were repaired
+  2026-09-29 and are outside this change's transition set.

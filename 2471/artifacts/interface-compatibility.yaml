@@ -1,0 +1,24 @@
+# Interface Compatibility — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+boundaries:
+  - boundary: spec-creation create → issue-operations-core creation body conventions
+    interfaces:
+      - remote issue body structure (blockquote / sections / footer)
+    compatibility: >
+      Adding a normative exclusion rule to both task cards does not break any existing
+      interface; the 5-section exec-summary format (Blockquote/Problem/Scope/Approach/Impact)
+      and byline footer are preserved, with approval-mechanism content excluded.
+dependency_contract:
+  sources:
+    - id: SC1-body-template
+      real_source: ".opencode/.issues/2471/spec.md (Expected behavior + Component affected)"
+      real_targets:
+        - ".opencode/skills/spec-creation/tasks/create.md"
+        - ".opencode/skills/issue-operations-core/tasks/creation.md"
+        - ".opencode/skills/issue-operations/platforms/local/tasks/creation.md"
+      type_constraints: >
+        Yaml/markdown task-card text only; no code, schema, or serialized-format changes.
+        Footer allowlist must match existing byline format conventions in 080-code-standards.
+  change_nature: additive-task-card-text
+  breaking_changes: none

@@ -1,0 +1,38 @@
+# Analysis Summary — Issue #2471
+
+## Preconditions
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| spec.md exists | PASS | `.opencode/.issues/2471/spec.md` (36 lines, bug-report format) |
+| issue.yaml exists | PASS | `.opencode/.issues/2471/issue.yaml` |
+| approved-for-* label | PASS | `approved-for-pr` in labels list |
+| Issue number provided | PASS | 2471 |
+| project_root set | PASS | `/home/muksihs/git/opencode-config` |
+| issues_prefix set | PASS | `.opencode/.issues` |
+
+## Success Criteria Verification
+
+SC table NOT FOUND in spec.md. The spec is in bug-report format (Observed behavior / Expected behavior / Steps to reproduce / Component affected / Discovered during) and contains no success-criteria table. SC count: 0. A verifiable outcome is derivable from Expected behavior ("no approval-mechanism language in spec issue bodies"; deck carries only the normative body template). Recorded as a finding, not a hard block, since the bug-classification mandates repair of deck templates named in Component affected.
+
+## Analytical Artifact Presence
+
+Backfilled 2026-09-29 by writing-plans/tasks/backfill (issue #2471). All 7 artifacts present (7/7):
+
+- blast-radius.yaml: backfilled
+- concern-map.yaml: backfilled
+- code-path-inventory.yaml: backfilled
+- cross-cutting-matrix.yaml: backfilled
+- interface-compatibility.yaml: backfilled (includes dependency_contract)
+- state-analysis.yaml: backfilled
+- testability-assessment.yaml: backfilled (SC1 evidence_type: string — static template text)
+
+## Scope Boundary Findings
+
+Files named in Component affected, verified in codebase:
+
+- `.opencode/skills/spec-creation/tasks/create.md`: EXISTS
+- `.opencode/skills/issue-operations-core/tasks/creation.md`: EXISTS
+- `.opencode/skills/issue-operations/platforms/local/tasks/creation.md`: EXISTS (candidate emitter named in Observed behavior)
+
+No referenced files are missing.

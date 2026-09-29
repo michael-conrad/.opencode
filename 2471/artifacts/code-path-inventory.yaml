@@ -1,0 +1,20 @@
+# Code Path Inventory — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+paths:
+  - sc: SC1
+    path: spec-creation create body assembly
+    entry: ".opencode/skills/spec-creation/tasks/create.md (Step 4 template → remote-body write)"
+    notes: template defines spec issue body sections; must normatively exclude approval-mechanism content
+  - sc: SC1
+    path: issue-operations-core exec-summary assembly
+    entry: ".opencode/skills/issue-operations-core/tasks/creation.md (Step 3 footer mandate; Step 5 body format)"
+    notes: footer currently allows byline only; exec-summary format defines 5 sections; both must state the no-indicator rule
+  - sc: SC1
+    path: local platform creation
+    entry: ".opencode/skills/issue-operations/platforms/local/tasks/creation.md"
+    notes: candidate emitter of the stale 'Approval Tracking' literal named in Observed behavior; must be searched and cleared or rule-added
+  - sc: SC1
+    path: approval state authority (unchanged)
+    entry: "approval-gate skill + approved-for-* labels (local issue.yaml canonical)"
+    notes: spec body must reference zero approval mechanism; approval state documentation lives in approval-gate deck, untouched

@@ -1,0 +1,35 @@
+# Solve output — issue #2471
+# Z3 + planner verification results from research task
+
+solve_model:
+  command: "tools/solve model --contract-path .opencode/.issues/2471/dependency-contract.yaml --query phase_1"
+  status: SAT
+  assignment:
+    phase_1: true
+  interpretation: "Goal state (phase_1 complete) is satisfiable. Single-phase, zero-edge dependency contract."
+
+solve_check:
+  command: "tools/solve check --contract-path .opencode/.issues/2471/dependency-contract.yaml --state-path .opencode/.issues/2471/artifacts/state-analysis.yaml"
+  status: SAT
+  assignment:
+    phase_1: false
+  interpretation: "Initial state analysis (phase_1 false, closed-world) is consistent with the contract. SAT (+ postconditions + invariants)."
+
+planner:
+  command: "tools/plan plan --problem .opencode/.issues/2471/artifacts/problem.yaml"
+  status: SOLVED_SATISFICING
+  engine: tamer
+  plan_length: 1
+  plan:
+    - run_p1()
+  interpretation: "Planner produced a valid 1-step plan for the single-phase decomposition; no dependency edges to enforce."
+
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+notes:
+  - "Task-card CLI forms in writing-plans/tasks/research.md steps 10-12 do not match current solve/plan tool signatures. Resolved using actual tool interfaces per prior-issue convention (see #2376, #2301, #2318)."
+  - "solve model: --contract-path + --query <z3 expr> (not --query sat). solve check: --state-path + --contract-path. plan plan: --problem <problem.yaml> (no --contract-path/--output; emits to stdout)."
+  - "dependency-contract.yaml generated from interface-compatibility.yaml dependency_contract section (step 9) — interface-compatibility.yaml present with a dependency_contract section (extracted as-is, mapped to variables/preconditions/postconditions/phases schema)."
+  - "sc-summary.yaml not present at issue root or artifacts/; SC/item mapping derived from testability-assessment.yaml (single SC1, string evidence class) — consistent with analysis-summary.yaml sc_count: 1."
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

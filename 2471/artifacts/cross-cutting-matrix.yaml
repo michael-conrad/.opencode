@@ -1,0 +1,26 @@
+# Cross-Cutting Matrix — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+matrix:
+  - sc: SC1
+    spans:
+      - concern: C1
+      - cross_cutting: true
+    reason: >
+      The single derivable SC spans all three creation-path task cards
+      (spec-creation, issue-operations-core, local platform) because the footer rule
+      must be consistent across every body-assembly path; a change touching only one
+      path leaves the others free to re-invent approval-mechanism content.
+  - sc: SC1
+    spans:
+      - skill: spec-creation
+      - skill: issue-operations-core
+    cross_cutting: true
+    reason: >
+      Body-assembly responsibility is split between the spec-creation template and
+      the issue-operations-core creation task; the normative no-indicator rule must
+      land in both to close the deck gap named in Observed behavior.
+single_concern_scs: []
+notes: >
+  All remediation is documentation-of-agent-behavior (task-card text); no runtime,
+  state, or interface concerns are spanned.

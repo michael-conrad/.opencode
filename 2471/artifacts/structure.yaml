@@ -1,0 +1,43 @@
+# Structure — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+phases:
+  - id: phase-1
+    name: task-card footer allowlist rule
+    scs: [SC1]
+    items:
+      - id: SC1-body-template
+        sc: SC1
+        evidence_type: string
+        cycle:
+          red: >
+            Write a failing string-level enforcement test asserting zero
+            approval-mechanism literals ("Approval Tracking", "AI: Approved") in the
+            three target task cards AND presence of the normative no-indicator rule
+            ("no process/tracking indicators" footer allowlist). Test FAILS before GREEN.
+          green: >
+            Add the normative footer allowlist / no process/tracking-indicator rule to:
+            .opencode/skills/spec-creation/tasks/create.md,
+            .opencode/skills/issue-operations-core/tasks/creation.md,
+            .opencode/skills/issue-operations/platforms/local/tasks/creation.md.
+            Remove any approval-mechanism literals found in those cards.
+          commit: commit-inline (orchestrator; git add test + changed task cards, one atomic commit)
+    skill_selection:
+      red: test-driven-development ("execute red task from test-driven-development")
+      green: test-driven-development ("execute green task from test-driven-development")
+      verify: verification-before-completion ("execute verify task from verification-before-completion")
+      commit: (orchestrator) commit-inline
+dependency_dag:
+  edges: []
+  notes: >
+    Single-phase, single-SC decomposition. No intra-phase or cross-phase
+    dependencies exist; the DAG has zero edges.
+triplet_colocation:
+  SC1:
+    red: phase-1
+    green: phase-1
+    commit: phase-1
+    verified: true
+cross_phase_dependencies:
+  violations: []
+  verified: true

@@ -1,0 +1,36 @@
+# Dependency contract — issue #2471
+# Generated from interface-compatibility.yaml dependency_contract section (writing-plans research task step 9)
+
+variables:
+  phase_1:
+    type: bool
+    description: "SC-1 — deck task cards normatively state the footer allowlist (byline + spec sections only; no process/tracking indicators); zero approval-mechanism literals in the three target task cards"
+preconditions: []
+invariants: []
+postconditions:
+  - "phase_1"
+phases:
+  phase_1:
+    files:
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+      - .opencode/skills/issue-operations/platforms/local/tasks/creation.md
+    scs:
+      - SC-1
+edges: []
+notes:
+  - "Single-phase, single-SC decomposition. Zero dependency edges; no cross-phase output consumption."
+  - "SC1 substrate is static template text (string evidence class per testability-assessment.yaml); structural/string verification applies."
+  - "Dependency contract extracted from interface-compatibility.yaml 'dependency_contract' section per writing-plans research task step 9."
+  - real_source: ".opencode/.issues/2471/spec.md (Expected behavior + Component affected)"
+    real_targets:
+      - ".opencode/skills/spec-creation/tasks/create.md"
+      - ".opencode/skills/issue-operations-core/tasks/creation.md"
+      - ".opencode/skills/issue-operations/platforms/local/tasks/creation.md"
+    type_constraints: >
+      Yaml/markdown task-card text only; no code, schema, or serialized-format changes.
+      Footer allowlist must match existing byline format conventions in 080-code-standards.
+    change_nature: additive-task-card-text
+    breaking_changes: none
+
+Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)

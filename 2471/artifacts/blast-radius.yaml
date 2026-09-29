@@ -1,0 +1,25 @@
+# Blast Radius — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+affected_files:
+  - path: .opencode/skills/spec-creation/tasks/create.md
+    exists: true
+    role: remote-body write path (spec creation body assembly)
+    change: add normative rule — no process/tracking/approval-mechanism indicators in spec issue bodies
+  - path: .opencode/skills/issue-operations-core/tasks/creation.md
+    exists: true
+    role: exec-summary body format (Step 5) and footer mandate (Step 3)
+    change: add explicit footer allowlist — no approval-mechanism blockquote
+  - path: .opencode/skills/issue-operations/platforms/local/tasks/creation.md
+    exists: true
+    role: candidate emitting source of stale approval-tracking literal
+    change: verify no approval-tracking literal; add footer allowlist if body assembled here
+blast_scope:
+  direct: [".opencode/skills/spec-creation/tasks/create.md", ".opencode/skills/issue-operations-core/tasks/creation.md", ".opencode/skills/issue-operations/platforms/local/tasks/creation.md"]
+  indirect:
+    - path: ".opencode/skills/issue-operations/platforms/"
+      role: other platform creation paths (github-mcp, gitbucket-api) may share the body-assembly convention
+  unaffected:
+    - rationale: >
+        No runtime code affected — changes are to agent-facing task-card text only.
+        Remote issue bodies of already-created specs (#36, #1385) already repaired 2026-09-29.

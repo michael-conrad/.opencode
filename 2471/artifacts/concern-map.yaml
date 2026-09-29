@@ -1,0 +1,23 @@
+# Concern Map — Issue #2471
+spec_path: .opencode/.issues/2471/spec.md
+sc_count: 1
+concerns:
+  - id: C1
+    name: body-template-normative-rule
+    scs: ["SC1 (derivable): spec issue bodies contain zero approval-mechanism language; deck states normative footer allowlist"]
+    files:
+      - .opencode/skills/spec-creation/tasks/create.md
+      - .opencode/skills/issue-operations-core/tasks/creation.md
+      - .opencode/skills/issue-operations/platforms/local/tasks/creation.md
+    phase_boundary: >
+      All edits belong to a single body-template phase — the rule must be applied
+      consistently across the three creation-path task cards in one coherent change;
+      splitting by file would allow divergent footer conventions between paths.
+phases:
+  - id: P1
+    name: body-template-remediation
+    concerns: [C1]
+    items: >
+      Add "no process/tracking/approval-mechanism indicators in issue bodies" rule to
+      spec-creation create.md template, issue-operations-core creation.md Step 3/Step 5
+      footer mandate, and local platform creation.md; verify no stale literal exists.
