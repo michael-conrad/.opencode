@@ -1,5 +1,7 @@
 # Solve output — issue #2315
 # Z3 + planner verification results from research task (2026-09-24)
+# Re-verified live 2026-09-29 (research task re-run): all three solver steps re-executed
+# with identical results — SAT / SAT (+postconditions+invariants) / SOLVED_SATISFICING.
 
 # Command substitution notes (task-card vs CLI drift, recorded for audit):
 # - research.md step 10 says `--query sat`; the solver rejects a bare 'sat'
@@ -41,3 +43,10 @@ planner:
 
 solve_status: SAT
 plan_status: SOLVED_SATISFICING
+reverification:
+  reverified_at: "2026-09-29"
+  solve_model_last_lines: ["SAT", "  phase_1 = True", "  phase_2 = True"]
+  solve_check_last_lines: ["SAT", "  phase_1 = False", "  phase_2 = False", "SAT (+ postconditions + invariants)"]
+  plan_plan_status: "SOLVED_SATISFICING"
+  plan_plan_plan: ["run_p1", "run_p2"]
+  result: "All exit criteria hold: model SAT, check SAT, planner SOLVED_SATISFICING."

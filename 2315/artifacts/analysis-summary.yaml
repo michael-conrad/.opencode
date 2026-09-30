@@ -1,10 +1,19 @@
-# analysis-summary.yaml — backfill run for issue #2315
+# analysis-summary.yaml — backfill + analyze preconditions verification for issue #2315
 issue: 2315
-generated_by: writing-plans/tasks/backfill (retroactive)
+generated_by: writing-plans/tasks/backfill (retroactive); refreshed by writing-plans/tasks/analyze
 generated_at: "2026-09-24"
+reverified_at: "2026-09-29"
 spec_path: ".opencode/.issues/2315/spec.md"
 issues_prefix: ".opencode/.issues"
 mode: retroactive
+approval:
+  status: approved
+  labels_source: ".opencode/.issues/2315/issue.yaml labels field"
+  labels:
+    - approved-for-pr
+    - spec-cleared
+  scope: for_pr
+  evidence: "Verified by reading issue.yaml 2026-09-29: labels field contains approved-for-pr and spec-cleared; scope determined by approved-for-pr label per canonical local-record authority rule."
 sc_count: 9
 requirement_count: 14
 constraint_count: 10
@@ -23,3 +32,31 @@ grounding_notes:
   - "dependency_contract section in interface-compatibility.yaml mirrors the pre-existing .opencode/.issues/2315/dependency-contract.yaml so the research.md step-9 extraction remains idempotent"
   - "Phase structure sourced from spec §8 Traceability + existing dependency-contract.yaml (phase_1: SC-1..SC-5, SC-7; phase_2: SC-6, SC-8, SC-9; edge z3.Implies(phase_2, phase_1))"
   - "Evidence types sourced verbatim from spec §4 including the deliberate evidence-type statement for SC-8/SC-9 (uplift rule)"
+
+# analysis-summary.yaml — writing-plans analyze preconditions verification (2026-09-29)
+analyze_preconditions:
+  verified_at: "2026-09-29"
+  spec_exists: true
+  spec_path_resolved: ".opencode/.issues/2315/spec.md"
+  spec_approved: true
+  approval_labels:
+    - approved-for-pr
+    - spec-cleared
+  sc_count: 9
+  sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+  artifact_presence:
+    blast-radius.yaml: present
+    concern-map.yaml: present
+    code-path-inventory.yaml: present
+    cross-cutting-matrix.yaml: present
+    interface-compatibility.yaml: present
+    state-analysis.yaml: present
+    testability-assessment.yaml: present
+  missing_artifacts: []
+  scope_boundary_findings:
+    - "opencode.jsonc: verified present (main .opencode/opencode.jsonc)"
+    - ".gitmodules: verified present (main repo root)"
+    - "§3.1 corpus directories: main-repo tracked agent-facing text (AGENTS.md, README.md, CHANGELOG.md, docs/, skills/) and .opencode/ submodule deck (AGENTS.md, README.md, guidelines/, skills/, reference/, docs/) — enumerated live 2026-09-29"
+    - "§3.2 deck sweep re-run 2026-09-29: 46 files, 162 total matches, per-file counts exactly match the spec §3.2 table (all 46 files individually verified; .opencode/reference/** verified zero matches)"
+  scope_boundary_missing_files: []
+  findings: []
