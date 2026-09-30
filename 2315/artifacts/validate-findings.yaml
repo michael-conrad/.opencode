@@ -1,0 +1,190 @@
+# validate-findings.yaml — structural validation of plan #2315
+# Produced by writing-plans/tasks/validate (validation_pass 5 — fresh full validation
+# after the 2026-09-30 caching-!=/-pinning spec revision (name-only pin
+# `Qwen/Qwen3-Embedding-0.6B-Q` + kept local runtime caching + hard-fail/best-effort-
+# no-RAG semantics; SC set unchanged SC-1..SC-9; spec validation PASS, all 25 checks).
+# Inputs: plan.md rev 2026-09-30 + plan-01 + plan-02 (422f0a86), research artifacts
+# refreshed ccbaa206, solve-output re-verified live 2026-09-30. Supersedes the
+# deleted pass-4 record (b6618c73 deleted the stale pre-revision artifact set;
+# validate-findings was not among ccbaa206's regenerated set — this file re-establishes it).
+
+issue: 2315
+validated_at: "2026-09-30"
+validation_pass: 5   # fresh full re-validation after the 2026-09-30 spec revision cycle + plan revision 422f0a86 + artifact refresh ccbaa206
+inputs:
+  solve_output: .opencode/.issues/2315/artifacts/solve-output.yaml   # solve_status: SAT, plan_status: SOLVED_SATISFICING (re-verified live 2026-09-30 against the revised plan; command-substitution notes recorded) — entry criterion met
+  plan_index: .opencode/.issues/2315/plan.md                         # rev 2026-09-30 (422f0a86)
+  phase_files:
+    - .opencode/.issues/2315/plan-01-configuration-registration.md
+    - .opencode/.issues/2315/plan-02-documentation-work.md
+  dependency_contract: .opencode/.issues/2315/dependency-contract.yaml   # 2026-09-30 revision note appended (caching-!=/-pinning reconciliation)
+  spec: .opencode/.issues/2315/spec.md                               # substantively revised 2026-09-30; SC set SC-1..SC-9
+  concern_basis: .opencode/.issues/2315/artifacts/structure.yaml     # concern-map.yaml absent (see category_4 note) — phase concern fields in the refreshed structure artifact carry the concern content
+  structure_artifact: .opencode/.issues/2315/artifacts/structure.yaml
+  reference_cards:
+    - .opencode/skills/writing-plans/reference/implementation-workflow.md
+    - .opencode/skills/writing-plans/reference/plan-artifact-format.md
+
+spec_fidelity_recheck:
+  status: PASS
+  checks:
+    sc_set_matches_revised_spec:
+      result: PASS
+      evidence: "spec.md section 4 enumerates exactly SC-1..SC-9; plan phase sets phase_1={SC-1,2,3,4,5,7}, phase_2={SC-6,8,9}; union equals the spec set with no extras."
+    sc2_name_only_pin_wording:
+      result: PASS
+      evidence: "plan.md Architecture line 20, Phase-1 context line 92, Exit C2 line 52, plan-01 steps 10/11/13 all carry the name-only pin `Qwen/Qwen3-Embedding-0.6B-Q` with 'nothing beyond the name', no revision pin, no checksums; step 13 verify adds the cache-warm no-refetch observation and the blocked-HF-Hub hard-fail run — matching revised spec SC-2/R-10/CON-7 wording."
+    sc2_cache_kept_no_mitigation_machinery:
+      result: PASS
+      evidence: "every active-plan-text occurrence of 'offline' is the negation 'no offline/cache-path contingency machinery' (plan.md lines 20/92/127; plan-01 step 11; plan-02 step 42); the only non-negated occurrences sit inside the lifecycle-events history table (records, not instructions). No offline prepopulation/prefill/first-run-failure-mitigation machinery remains; caching is explicitly distinguished from pinning with cache-warm evidence in C2."
+    sc2_hard_fail_semantics:
+      result: PASS
+      evidence: "plan.md C2 ('hard-fail/no-RAG semantics'), line 20 ('hard-fail semantics when the model is not retrievable (no external embedding API; CON-7)'), plan-01 steps 11/13, Phase-1 cost frame ('a hard-fail that masks as silent degradation') match CON-7 hard-fail/best-effort-no-RAG wording."
+    sc6_five_topic_set:
+      result: PASS
+      evidence: "plan.md C6, Phase-2 context line 127, plan-02 Concern/Exit/step-42 GREEN/step-44 VERIFY all name the five topics (service configuration, per-source layout per 3.1, usage, local model-cache behavior, validation step); zero matches for a standalone 'corpus scope' SC-6 topic in plan-02 (live grep); the index Phase-2 field-table Concern cell matches. Matches spec SC-6 topic criteria folded with Item-6 GREEN local model-cache topic."
+    pre_flight_guard_verbatim:
+      result: PASS
+      evidence: "plan.md '## Pre-Flight Guard (Mandatory)' matches the canonical guard (plan-artifact-format 3.5/4.2): tool-named-task probe, ORCHESTRATOR_ONLY_SKILL_CARD (cards) / ORCHESTRATOR_ONLY_PLAN (plans) reason codes — verbatim."
+
+category_1_structural:
+  status: PASS
+  checks:
+    phase_table_required_columns:
+      result: PASS
+      evidence: "plan.md Phase Table carries all required columns (Phase | Name | Concern | SCs | Depends On | Step Range | Dispatch), populated for phases 1, 2, and Post; step ranges 1-39 / 40-55 / 56-63 continuous and agree with the phase files."
+    phase_procedure_numbered_steps:
+      result: PASS
+      evidence: "Phase 1 procedure lives in plan-01 (numbered checkbox steps 1-39); Phase 2 in plan-02 (40-55); both referenced normatively from the index per plan-artifact-format 4.2; Post-implementation steps 56-63 are index-resident by design. Global numbering continuous 1-63."
+    exit_criteria_sc_mapping:
+      result: PASS
+      evidence: "'## Exit Criteria' C1-C9 each names exactly one SC in 1:1 mapping (C1. SC-1 ... C9. SC-9); phase-table SCs column maps SC-1,2,3,4,5,7 to phase 1 and SC-6,8,9 to phase 2, Post to all."
+
+category_2_skill_task_validity:
+  status: PASS
+  checks:
+    dispatch_strings_match_reference_card:
+      result: PASS
+      evidence: "every skill+task dispatch string matches the implementation-workflow reference card verbatim: red/green/'execute phase-4 task'/'execute phase-0 task' from test-driven-development, verify/pre-pr-gate from verification-before-completion, audit DiMo chain (investigator string with Read-first clause, then validator/evaluator/arbiter), structural-checks ('execute checklist task from finishing-a-development-branch'), review-prep (with Read-first clause), create-pr ('execute create task from git-workflow-pr'), exec-summary ('execute completion task from completion-core'); commit-inline (steps 8/14/20/26/32/38/45/52), push (step 53), z3-check (step 57) are orchestrator-direct rows without sub-agent dispatch, matching the reference card's (orchestrator) rows."
+    retired_vocabulary:
+      result: PASS
+      evidence: "zero retired dispatch tokens (inline/sub-agent/clean-room as indicators) across plan.md, plan-01, plan-02 (live grep); canonical two-indicator vocabulary throughout per plan-artifact-format 4.2 — historical vocabulary mentions appear only inside the lifecycle-events table as records."
+    referenced_task_files_exist:
+      result: PASS
+      evidence: "on-disk check 2026-09-30: all referenced task files exist in the .opencode deck — test-driven-development/tasks/{red,green,phase-0,phase-4}.md, verification-before-completion/tasks/verify.md, audit/tasks/verification-audit-{investigator,validator,evaluator,arbiter}.md, finishing-a-development-branch/tasks/checklist.md, git-workflow-pr/tasks/{review-prep.md,pr-creation.md}, completion-core/tasks/completion.md."
+  invalid_references: []
+
+category_3_sc_coverage:
+  status: PASS
+  spec_sc_set: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9]
+  phase_coverage:
+    phase_1: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-7]
+    phase_2: [SC-6, SC-8, SC-9]
+  checks:
+    all_scs_covered:
+      result: PASS
+      evidence: "union of phase SC sets = spec SC set; exit criteria C1-C9 map 1:1; item sequence plan-01 (items 1,2,3,4,5,7) + plan-02 (items 6,8,9) covers spec Items 1-9 exactly."
+    triplet_split_detection:
+      result: PASS
+      evidence: "per-SC RED/GREEN/COMMIT verified from the normative per-step indicators (live extraction, this pass): SC-1 (RED 4 / GREEN 5 / COMMIT 8), SC-2 (10/11/14), SC-3 (16/17/20), SC-4 (22/23/26), SC-5 (28/29/32), SC-7 (34/35/38) — all phase 1. SC-6 (41/42/45), SC-8 (48/49/52) — all phase 2. SC-9 behavioral variant fully phase-2 resident: RED behavioral run step 46 (executes BEFORE Item 8's GREEN lands, against pre-purge deck), GREEN delivered by Item 8's genericized deck text (step 49), COMMIT = Item 8's purge commit (step 52), PUSH + fresh-fetch remote-ref containment gate step 53 MUST precede verify run step 54 (spec Item 9: commit 'None beyond Item 8's purge commit'). No triplet split across phases; the intra-phase behavioral ordering is correctly encoded in plan-02 and mirrored in the dependency contract and structure artifact."
+
+category_4_concern_separation:
+  status: PASS
+  basis_note: >-
+    concern-map.yaml is absent from the current artifacts directory: commit b6618c73
+    (2026-09-30, spec-revision cycle) deleted the stale pre-revision backfill artifact set
+    (concern-map, blast-radius, code-path-inventory, cross-cutting-matrix, testability-
+    assessment, problem, plan-output, plan-input-verification, prior validate-findings)
+    per the spec-creation revise Step-7 stale-artifact hygiene, and the research re-run
+    (ccbaa206) regenerated only the research artifact set (analysis-summary, interface-
+    compatibility, solve-output, state-analysis, structure). The checkable concern invariants
+    were evaluated against the concern content that DOES survive, refreshed post-revision:
+    structure.yaml phase concern fields + phase SC sets, interface-compatibility.yaml
+    dependency_contract phase descriptions, and the dependency-contract variables descriptions
+    — all current as of 2026-09-30 with the caching-!=/-pinning wording.
+  interpretation_note: >-
+    "Each phase addresses exactly one concern" evaluated as per-concern single-phase
+    assignment (the concern structure groups four configuration concerns to phase 1 and
+    two documentation/purge concerns to phase 2): (a) every concern maps to exactly one
+    phase, (b) no concern is split across phases, (c) phase concern sets are pairwise disjoint.
+  checks:
+    phase_concern_sets:
+      result: PASS
+      evidence: "phase 1 = configuration and registration concerns (service registration SC-1; embedding configuration SC-2; source isolation SC-3+SC-4; sync + corpus scope SC-5+SC-7); phase 2 = documentation (SC-6) + deck purge (SC-8+SC-9) — consistent across plan.md phase-table Concern cells, plan-01/plan-02 Concern lines, structure.yaml phase concern fields, and the dependency-contract phase variable descriptions."
+    no_concern_straddles_phases:
+      result: PASS
+      evidence: "each concern's SCs lie entirely within one phase; no SC is claimed by both phases' tables, files, or exit criteria; the CON-5-motivated SC-6 documentation crosses INTO phase-1 config only conceptually (it documents landed artifacts) and its executable work remains phase-2."
+    no_shared_concern_between_phases:
+      result: PASS
+      evidence: "phase concern sets pairwise disjoint; no two phases address the same concern."
+
+category_5_dag_validation:
+  status: PASS
+  contract_shape: "variables phase_1, phase_2 (bool); precondition z3.Implies(phase_2, phase_1); single edge phase_1 -> phase_2; no invariants/postconditions; phase SC sets and file targets match plan.md Files; 2026-09-30 revision notes appended and consistent."
+  checks:
+    acyclic:
+      result: PASS
+      evidence: "node set {phase_1, phase_2, Post}; contract edge phase_1->phase_2; plan adds Post Depends On {1, 2} — all edges point forward, no cycle possible."
+    all_phases_reachable_from_start:
+      result: PASS
+      evidence: "phase_1 is the start node (no incoming edge); phase_2 reachable via the single contract edge; Post reachable via {1, 2}."
+    no_orphan_phases:
+      result: PASS
+      evidence: "phase_1: outgoing edge; phase_2: incoming and outgoing (to Post); Post: incoming edges, terminal — no node lacks both."
+    plan_depends_on_matches_contract:
+      result: PASS
+      evidence: "plan.md Depends On (—, 1, 1,2) consistent with z3.Implies(phase_2, phase_1) and the single contract edge; contract phase SC sets match the plan phase table and exit criteria."
+  corroboration: "solve-output.yaml (re-verified live 2026-09-30, this artifact current at HEAD): solve_model SAT (goal z3.And(phase_1, phase_2); assignment phase_1=True, phase_2=True), solve_check SAT (+ postconditions + invariants; initial state both False), planner SOLVED_SATISFICING (2-step plan run_p1 -> run_p2 enforcing the phase_1->phase_2 edge). Entry criterion (SAT) met."
+
+category_6_holistic_quality:
+  status: PASS
+  checks:
+    no_tbd_todo_placeholders:
+      result: PASS
+      evidence: "live grep across plan.md, plan-01, plan-02 for TBD|TODO|FIXME|TBC: zero matches. Angle-bracket tokens (<registration message>, <deck srclight purge message>, <feature branch>) are concrete-value substitution slots per plan-artifact-format 5 convention, not TBD markers."
+    checkbox_step_format:
+      result: PASS
+      evidence: "live grep '- [ ] N.' counts: plan-01 = 39 (steps 1-39), plan-02 = 16 (steps 40-55), plan.md = 8 (post-implementation 56-63 only — F-3's duplicated inline step lists remain removed); every step carries a dispatch indicator and an arrow target; numbering continuous 1-63 (Item 9 split RED/verify around Item 8 by behavioral design)."
+    dispatch_mode_consistency:
+      result: PASS
+      evidence: "VERIFIED FRESH against live per-step indicator extraction (this pass, not memory): plan-01 normative direct = {3, 8, 9, 14, 15, 20, 21, 26, 27, 32, 33, 38} (12 steps) and task-card = {1, 2, 4-7, 10-13, 16-19, 22-25, 28-31, 34-37, 39} (27 steps) — plan.md phase-table Dispatch cell and dispatch summary carry exactly these enumerations. plan-02 normative direct = {40, 45, 47, 52, 53} and task-card = {41-44, 46, 48-51, 54, 55} (11 steps) — plan.md phase-table cell AND plan-02 line-26 dispatch summary carry exactly these, disjoint. plan.md post-implementation: task-card {56, 58-63} + direct {57} — matches the phase table Post cell 'direct (57) + task-card (56, 58-63)'. Zero direct steps contain task() dispatch strings (count = 0); every task-card step with a skill+task mapping carries an explicit task() dispatch string; steps 1-2 (coherence gate / baseline check) are producer-mandated pre-implementation gates with no canonical dispatch string (see finding F-6)."
+
+findings:
+  - id: O-1
+    severity: non-blocking
+    summary: "concern-map.yaml (and the other four backfill analytical artifacts) absent from the artifacts directory after the 2026-09-30 spec-revision cycle; Category 4 evaluated against the refreshed concern-bearing artifacts (structure.yaml, interface-compatibility.yaml, dependency-contract.yaml)."
+    detail: "Deletion is sanctioned staleness hygiene (spec-creation revise Step 7 pattern; artifacts described the superseded SC-6 six-topic / offline-cache-path wording). Concern content verified consistent across all surviving sources, so the concern-separation checks are evidentially satisfied. If the audit stage consumes concern-map, regenerate the backfill set against the current revised spec before that dispatch. Related staleness: the re-created analysis-summary.yaml still carries pre-revision blocks (analyze_preconditions verified_at 2026-09-29) whose artifact_presence lists all seven backfill artifacts as present — a stale bookkeeping claim; the remaining active content (approval labels, SC inventory, scope summary) is current."
+  - id: O-2
+    severity: non-blocking
+    summary: "Reference-card<->skill-file token drift on create-pr (carried from pass 4 as F-4): implementation-workflow.md dispatches 'execute create task from git-workflow-pr' while the skill's task file is named pr-creation.md. The plan matches the reference card (operative validity criterion); deck-level follow-up out of scope for this plan artifact."
+  - id: O-3
+    severity: non-blocking
+    summary: "Frontmatter dispatch list and structure.yaml still declare a phase pre-regression (phase-0) step while the plan schedules per-item Pre-clean + post-regression instead (carried from pass 4 as F-5, advisory): the orchestrator should not expect a fleet-wide phase-0 dispatch; post-regression preserves regression coverage."
+  - id: O-4
+    severity: non-blocking
+    summary: "Pre-implementation steps 1-2 (coherence gate / baseline check) are marked (**task-card**) without explicit task() dispatch strings — these are producer-mandated gates (writing-plans create.md step 6) for which no reference-card canonical row exists; newer sibling plans (issue 2477) emit the coherence gate as (**direct**)/dispatch-free. Advisory: treat the gate steps as orchestrator-context checks or dispatch with the step text as prompt; they reference no skill+task pair, so Category 2 is unaffected."
+  - id: C-1
+    severity: cosmetic
+    summary: "plan-01 uses the 'RAG-Sync' spelling inside config-artifact step texts while plan.md uses 'RAGSync'; plan-01 Pre-clean steps use '{project_root}/tmp/{issue-2315}/...' token style while plan.md/plan-02 use '{project_root}/tmp/2315/...' — equivalent tokens, no execution ambiguity."
+
+overall_status: PASS
+blocking_findings: []
+finding_summary: >-
+  All 6 validation categories PASS on fresh full validation of the revised plan
+  artifacts (plan.md + plan-01 + plan-02 @ 422f0a86; research artifacts @ ccbaa206),
+  including the spec-fidelity recheck against the REVISED spec (SC-2 name-only pin
+  `Qwen/Qwen3-Embedding-0.6B-Q`, cache-kept cache-warm observation, hard-fail/no-RAG
+  semantics, no offline/cache-path mitigation machinery; SC-6 five-topic set with the
+  stale corpus-scope topic removed everywhere). Structural, skill+task validity
+  (verbatim reference-card strings, all referenced task files on disk, zero retired
+  dispatch vocabulary), full SC-1..SC-9 coverage with triplet colocation including the
+  SC-9 behavioral ordering (step 46 pre-purge RED; step 53 push+fresh-fetch containment
+  gate before step 54), concern separation (evaluated against the refreshed structure/
+  interface artifacts after the sanctioned concern-map deletion), acyclic DAG with live
+  SAT/SOLVED_SATISFICING corroboration, and holistic quality (zero placeholders, 63
+  contiguous checkbox steps, disjoint and consistent direct/task-card dispatch
+  enumerations) all verified against current files. No blocking findings; four
+  non-blocking observations (O-1 concern-map artifact absent downstream input, stale
+  backfill-artifact presence claims in a refreshed analysis-summary; O-2 create-pr
+  token drift; O-3 phase-0 advisory; O-4 coherence/baseline step marker advisory) and
+  one cosmetic note recorded.
