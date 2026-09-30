@@ -1,95 +1,80 @@
-# Validation findings for issue 2477 plan
+# Validation findings for issue 2477 plan structure
 issue: 2477
-plan_path: .opencode/.issues/2477/plan.md
-validated_at: '2026-09-29'
-overall_status: FAIL
+plan: .opencode/.issues/2477/plan.md
+validated_at: 2026-09-29T20:30:00-04:00
+solve_status: SAT
 
 category_1_structural:
-  status: FAIL
   checks:
-    - name: phase-table-required-columns
+    phase_table_required_columns:
       result: PASS
-      detail: "Phase Table (plan.md lines 34-40) has all required columns: Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch."
-    - name: phase-procedure-sections-with-numbered-steps
-      result: FAIL
-      detail: "Plan body ends at the Pre-Flight Guard section (line 68). No phase procedure sections exist. The Phase Table references step ranges 3-9, 10-16, 17-31 that are not present anywhere in the plan body. Only pre-implementation steps 1-2 exist; steps 3 through 31 are dangling references to missing procedure content."
-    - name: exit-criteria-with-sc-to-phase-mapping
+      detail: "Phase table has all required columns: Phase, Name, Concern, SCs, Depends On, Step Range, Dispatch (plan.md lines 34-40)."
+    phase_procedure_section_numbered_steps:
       result: PASS
-      detail: "Exit Criteria section (lines 56-61) exists with C1-C4 mapping to SC-1, SC-2, SC-3, and pipeline completion (C4)."
+      detail: "Each phase (1: steps 3-9; 2: steps 10-16; 3: steps 17-23 plus 24-31 post) has numbered checkbox steps."
+    exit_criteria_with_sc_mapping:
+      result: PASS
+      detail: "Exit Criteria section (C1-C4) maps C1->SC-1, C2->SC-2, C3->SC-3, C4->pipeline completion."
+  category_result: PASS
 
 category_2_skill_task_validity:
-  status: PASS
   checks:
-    - name: dispatch-references-match-implementation-workflow
+    reference_card_match:
       result: PASS
-      detail: "Frontmatter dispatch block references test-driven-development (pre-regression, red, green, post-regression), verification-before-completion (pre-regression-verify, verify), and orchestrator commit-inline — all present in skills/writing-plans/reference/implementation-workflow.md."
-    - name: post-implementation-references
+      detail: "All skill+task dispatch strings match implementation-workflow.md: pre-regression, pre-regression-verify, red, green, post-regression, verify, commit-inline, audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary."
+    orchestrator_direct_rows:
       result: PASS
-      detail: "Architecture prose references audit, Z3 check, structural checks, pre-PR gate, regression check, review-prep, PR creation, completion summary — all match implementation-workflow.md post-implementation table (audit, z3-check, structural-checks, pre-pr-gate, regression-check, review-prep, create-pr, exec-summary). No invalid skill+task reference found."
+      detail: "commit-inline (steps 9/16/23) and z3-check (step 25) are marked direct per reference card (orchestrator) rows; no sub-agent dispatch on those steps."
+    pre_implementation_gates:
+      result: PASS
+      detail: "Steps 1-2 (coherence gate, baseline check) are dispatch-free gates, not skill+task references — no invalid reference recorded."
+  category_result: PASS
 
 category_3_sc_coverage:
-  status: FAIL
   checks:
-    - name: every-sc-in-exit-criteria
+    all_scs_covered:
       result: PASS
-      detail: "SC-1 (C1), SC-2 (C2), SC-3 (C3) each appear in Exit Criteria; spec SCs fully covered."
-    - name: triplet-split-detection
-      result: FAIL
-      detail: "TRIPLET_SPLIT_DETECTION_IMPOSSIBLE: RED/GREEN/COMMIT steps cannot be verified as same-phase because phase procedure sections (containing the step bodies the Phase Table's step ranges point to) are absent from plan.md. With no step bodies present, each SC's triplet placement is unverifiable — recorded as FAIL with indeterminate split status rather than a confirmed cross-phase split."
+      detail: "SC-1 (C1/Phase 1), SC-2 (C2/Phase 2), SC-3 (C3/Phase 3) each appear in at least one phase's exit criteria and the plan Exit Criteria section."
+    triplet_split:
+      result: PASS
+      detail: "SC-1: RED(5)/GREEN(6)/COMMIT(9) all Phase 1. SC-2: RED(12)/GREEN(13)/COMMIT(16) all Phase 2. SC-3: RED(19)/GREEN(20)/COMMIT(23) all Phase 3. No cross-phase triplet split."
+  category_result: PASS
 
 category_4_concern_separation:
-  status: PASS
   checks:
-    - name: one-concern-per-phase
+    one_concern_per_phase:
       result: PASS
-      detail: "Phase 1→C-1 (legacy-filename-purge/SC-1), Phase 2→C-2 (schema-enumeration/SC-2), Phase 3→C-3 (counter-write-validation/SC-3) — exact 1:1 match with concern-map.yaml."
-    - name: no-shared-concerns
+      detail: "Phase 1->C-1 legacy-filename-purge, Phase 2->C-2 schema-enumeration, Phase 3->C-3 counter-write-validation — exact 1:1 with concern-map.yaml."
+    no_concern_duplication:
       result: PASS
-      detail: "No concern is addressed by two phases; cross_concern_span note (SC-1 evidence table) resolved by spec one-target reduction."
+      detail: "No concern is addressed by two phases. SC-1 evidence-table overlap is resolved by the spec one-target reduction (concern-map cross_concern_span note)."
+  category_result: PASS
 
 category_5_dag_validation:
-  status: PASS
   checks:
-    - name: no-cycles
+    no_cycles:
       result: PASS
-      detail: "Solver output (artifacts/solve-output.yaml) reports check result SAT with sequential phases 1→2→3; dependency chain 1→2, 2→3 is acyclic."
-    - name: all-phases-reachable
+      detail: "Phases form a chain 1->2->3 (Dependency On column: -/1/2); dependency-contract invariants acyclic."
+    all_phases_reachable:
       result: PASS
-      detail: "Phase 1 has no predecessor (start), phases 2 and 3 daisy-chained; all reachable from start."
-    - name: no-orphan-phases
+      detail: "Phase 1 is the start node; phases 2 and 3 reachable via Depends On edges."
+    no_orphan_phases:
       result: PASS
-      detail: "Every phase has at least one incoming edge (2: from 1; 3: from 2) or is the start node (1, with outgoing edge to 2)."
+      detail: "Every phase has at least one incoming (2,3) or outgoing (1,2) edge; post-implementation steps 24-31 ride Phase 3."
+  category_result: PASS
 
 category_6_holistic_quality:
-  status: FAIL
   checks:
-    - name: no-tbd-todo-placeholders
+    no_placeholders:
       result: PASS
-      detail: "No TBD/TODO/placeholder tokens found in plan body."
-    - name: checkbox-format-steps
-      result: INDETERMINATE
-      detail: "Pre-implementation steps 1-2 and exit criteria use checkbox format. Steps 3-31 (declared step ranges in the Phase Table) have no bodies in the plan, so their checkbox format cannot be verified. Recorded as INDETERMINATE due to the same Category 1 gap."
-    - name: dispatch-mode-consistency
-      result: FAIL
-      detail: "Phase Table declares dispatch mode per phase (task-card steps 3-8, 10-15, 17-22/24/26-31 and direct steps 9/16/23/25) but the corresponding procedure sections are missing, so dispatch-mode consistency between declared phases and actual steps cannot be confirmed. Declared step numbering (direct step 9 with task-card range 3-8 interleaved at 9-16) cannot be checked against actual step labels."
+      detail: "No TBD/TODO/placeholder tokens in plan body."
+    checkbox_format:
+      result: PASS
+      detail: "All 31 executable steps use `- [ ]` checkbox format."
+    dispatch_mode_consistency:
+      result: PASS
+      detail: "task-card steps contain no inline execution; direct steps (9, 16, 23 commit-inline; 25 z3-check; 1-2 gates) contain no dispatched steps — consistent with frontmatter dispatch block."
+  category_result: PASS
 
-blockers:
-  - id: B-1
-    category: 1
-    severity: FAIL
-    summary: "Plan is structurally incomplete: phase procedure sections containing steps 3-31 are absent; the Phase Table's step ranges and dispatch column reference content that does not exist in plan.md."
-  - id: B-2
-    category: 3
-    severity: FAIL
-    summary: "Triplet-split detection unverifiable (RED/GREEN/COMMIT per-SC placement not confirmable without step bodies)."
-  - id: B-3
-    category: 6
-    severity: FAIL
-    summary: "Dispatch-mode consistency and step checkbox format unverifiable for the missing step ranges."
-
-aggregate_verdict: FAIL
-
-remediation_directives:
-  - "Write the missing phase procedure sections for phases 1, 2, and 3 so that the step ranges 3-9, 10-16, and 17-31 referenced by the Phase Table exist as numbered checkbox steps, with each SC's RED/GREEN/COMMIT triplet contained in its single phase."
-  - "Ensure each phase's procedure includes its dispatch-mode markers ((task-card N-M) / (direct N)) consistent with the Phase Table Dispatch column and the frontmatter dispatch block."
-  - "After the step bodies are restored, re-run this validation — Categories 1, 3 (triplet), and 6 should then resolve to PASS."
+overall_status: PASS
+finding_summary: "All 6 categories PASS: structural (phase table columns, procedures, exit criteria), skill+task validity (all dispatch strings match reference card), SC coverage (SC-1/2/3 covered, triplets contained), concern separation (1:1 phase-concern), DAG (acyclic chain, no orphans), holistic quality (no placeholders, checkboxes, dispatch-mode consistency)."
