@@ -23,7 +23,7 @@
 - §3.2 deck sweep returns zero srclight matches within the sweep boundary; genericized sites carry capability-only wording with intact fallback rows
 - Isolated behavioral run shows srclight-free tool selection with zero `srclight_*` tool-call attempts in the session evidence; purge commit pushed and fresh-fetch-verified before that run
 
-**Dispatch summary:** direct (steps 40, 45, 47, 52, 53) + task-card (steps 41-46, 48-51, 54, 55).
+**Dispatch summary:** direct (steps 40, 45, 47, 52, 53) + task-card (steps 41-44, 46, 48-51, 54, 55). Corrected 2026-09-30 per validate-findings F-2: the prior inclusive range "41-46" double-listed step 45 (Commit, direct) as task-card; direct and task-card enumerations are now disjoint and match the normative per-step indicators above.
 
 **Phase sections (from analytical artifacts):**
 - Code path coverage: static documentation path with the five topic-presence criteria (SC-6); text-state path across the 46 §3.2 files with per-site dispositions and the sweep boundary (SC-8); agent tool-selection runtime path reading genericized deck text and selecting available tooling or the built-in `read`/`grep` fallback (SC-9)
