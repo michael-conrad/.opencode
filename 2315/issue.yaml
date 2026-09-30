@@ -168,8 +168,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2315/`](https://github.c
   '
 labels:
 - approved-for-for_pr
+- approved-for-pr
 remote_issue: 2315
 remote_url: https://github.com/michael-conrad/.opencode/issues/2315
 title: '[SPEC] Adopt RAGSync MCP as default retrieval service and retire srclight
   (deck purge)'
-updated_at: '2026-09-30T12:54:44+00:00'
+updated_at: '2026-09-30T14:06:41+00:00'
