@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.2.0] - Unreleased
 
+### Fixed
+
+- **import-remote mirror-file schema alignment** (#2477) - Rewrote the `issue-operations-sync` `import-remote` task card to use the real `local-issues` mirror schema (`spec.md`, `issue.yaml`, `comments.yaml`, `links.yaml`) instead of legacy mirror filenames (`comments.md`, `remote.md`, `state.md`) that the tool cannot read. Comment import now uses YAML list format, the completeness gate and evidence table enumerate the actual schema files, and Step 7 counter advancement specifies a validated write procedure consistent with the tool's `_next_number` fail-fast semantics.
+
 ### Added
 
 - **Skill card pre-flight guard for sub-agent dispatch** (#2339) - Added a pre-flight guard to all skill cards (SKILL.md) that detects sub-agent context and returns `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` before any orchestrator-only routing metadata (Trigger Dispatch Table, DISPATCH_GATE, Invocation) is consumed. Defined a single canonical guard definition in the skill card requirements documentation, updated the skill card template generator (`init_skill.py`) so new cards are born with the guard, and enforced presence via `skildeck-lint` and `validate_skill_cards.py`. Added behavioral enforcement tests verifying sub-agents halt on skill-card receipt.

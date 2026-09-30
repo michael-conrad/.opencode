@@ -13,8 +13,8 @@ Retroactively import a pre-existing remote issue into the local `.issues/` direc
 
 ## Exit Criteria
 
-- Full local mirror created at `.issues/{remote_number}/remote.md` (remote body) and `spec.md` (local frontmatter)
-- Comments imported to `.issues/{remote_number}/comments.md`
+- Full local mirror created at `.issues/{remote_number}/issue.yaml` (remote body) and `spec.md` (local frontmatter)
+- Comments imported to `.issues/{remote_number}/comments.yaml`
 - Frontmatter written with remote metadata and `promotion_type: retroactive_import`
 - `.counter` advanced if `counter <= remote_number`
 
@@ -79,7 +79,7 @@ If `.issues/` directory does not exist, route to `platforms/local/tasks/creation
 
 When the local issue directory `.issues/{remote_number}/` already exists, do NOT halt on directory existence alone. Enumerate the required mirror files and materialize any that are missing rather than halting:
 
-- [ ] 1. Required mirror files: `spec.md`, `comments.md`, `remote.md`, `state.md`
+- [ ] 1. Required mirror files: `spec.md`, `issue.yaml`, `comments.yaml`, `links.yaml`
 - [ ] 1. Required frontmatter fields: `github_issue`, `remote_url`
 - [ ] 1. For each required mirror file that is ABSENT, materialize it (fetch the remote body/comments/frontmatter as needed and write the file)
 - [ ] 1. For each required frontmatter field that is ABSENT, materialize it by writing the field into the file's frontmatter
@@ -92,7 +92,7 @@ When the local issue directory `.issues/{remote_number}/` already exists, do NOT
 Create the local issue directory manually (not via `local-issues create`, because we need to set the number to match the remote):
 
 - [ ] 1. Create directory: `.issues/{remote_number}/`
-- [ ] 1. Write `remote.md` with minimal frontmatter + full remote body:
+- [ ] 1. Write `issue.yaml` with minimal frontmatter + full remote body:
 
 ```yaml
 ---
@@ -105,7 +105,7 @@ source: <github.platform>
 <full_remote_issue_body>
 ```
 
-- [ ] 4. Write `spec.md` with local frontmatter only — the remote body is NEVER written to spec.md, only to remote.md above:
+- [ ] 4. Write `spec.md` with local frontmatter only — the remote body is NEVER written to spec.md, only to issue.yaml above:
 
 ```yaml
 ---
@@ -126,46 +126,50 @@ author: <remote_author>
 
 ### Step 6: Import Comments
 
-Write all fetched comments to `.issues/{remote_number}/comments.md`:
+Write all fetched comments to `.issues/{remote_number}/comments.yaml` as YAML validated by the `local-issues` tool (`cmd_comment` writes `{type, body, timestamp}` entries under a top-level `comments:` list):
 
-```markdown
----
-
-## YYYY-MM-DDTHH:MM:SSZ
-
-**<author>**:
-
-<comment_body>
+```yaml
+comments:
+  - type: internal
+    body: "<comment_body>"
+    timestamp: "YYYY-MM-DDTHH:MM:SSZ"
 ```
 
-Each comment gets its own `---` separator and timestamp header. Order by oldest first.
+Each comment is one dict entry in the `comments:` list with:
+
+- `type:` — `internal` or `stakeholder` (comment classification)
+- `body:` — the comment body text; remote author attribution is included here as documented (`<author>: <comment_body>`) since the YAML format has no separate author field
+- `timestamp:` — the remote comment date, ISO 8601 format
+
+List order is oldest-first (chronological). Entries are appended in that order so the list matches `local-issues` read-back ordering.
 
 ### Step 7: Advance .counter
 
-Read `.issues/.counter`. If `counter <= remote_number`, advance the counter to `remote_number + 1` to prevent number collision:
+Use the named counter-write validation procedure — the sole documented mechanism for advancing `.counter` during import. Rationale: `_next_number` in `.opencode/tools/local-issues` (~line 1089) enforces fail-fast digit-parse semantics — it errors `FATAL: .counter file is corrupt — expected a number` and exits on any malformed counter rather than silently consuming corrupt state. The import procedure mirrors that semantics.
 
-```bash
-echo $((remote_number + 1)) > .issues/.counter
-```
+1. Read `.issues/.counter`.
+2. Digit-parse check: `read_text().strip()` must satisfy `isdigit()`; if the value is non-digit or corrupt, fail fast with `FATAL: .counter file is corrupt — expected a number` (do not write, do not guess a replacement value).
+3. If `counter <= remote_number`: write the successor value `remote_number + 1`, satisfying the monotonic invariant — counter after write >= `remote_number + 1` (never below, never overwrite a higher existing counter).
+4. If `counter > remote_number`: leave the counter unchanged (local issues already exist beyond this number).
 
-If `counter > remote_number`, leave the counter unchanged (local issues already exist beyond this number).
+No unvalidated write is permitted — never run a bare `echo`/arithmetic write to `.counter` without the digit-parse check above. No alternative mechanism is documented or offered.
 
 ### Step 8: Verify Import
 
 Verify the full local mirror:
 
-- [ ] 1. Read remote.md: body matches remote; Read spec.md: frontmatter has all required fields (verify no remote body content)
-- [ ] 1. Read comments.md: all comments present, ordered chronologically
-- [ ] 1. Verify counter: `cat .issues/.counter` shows `remote_number + 1` or greater
+- [ ] 1. Read issue.yaml: body matches remote; Read spec.md: frontmatter has all required fields (verify no remote body content)
+- [ ] 1. Read comments.yaml: all comments present, ordered chronologically
+- [ ] 1. Verify counter: read `.issues/.counter` and confirm the value satisfies the digit-parse check and the monotonic invariant (counter >= `remote_number + 1`, per Step 7)
 
 ## Edge Cases
 
 | Case | Resolution |
 | -- | -- |
-| Issue already imported (matching `remote_issue` found) | Run the completeness gate — enumerate required mirror files (`spec.md`, `comments.md`, `remote.md`, `state.md`, frontmatter `github_issue`/`remote_url`) and materialize any that are missing; only HALT when the directory is genuinely complete |
+| Issue already imported (matching `remote_issue` found) | Run the completeness gate — enumerate required mirror files (`spec.md`, `issue.yaml`, `comments.yaml`, `links.yaml`, frontmatter `github_issue`/`remote_url`) and materialize any that are missing; only HALT when the directory is genuinely complete |
 | Issue number conflicts with existing local issue | Use next available number, record remote_number in frontmatter |
 | Remote issue is closed | Import as closed: create at `.issues/{N}/` with `status: closed` |
-| Remote has zero comments | Write empty `comments.md` |
+| Remote has zero comments | Write empty `comments.yaml` |
 | Remote body is empty | Write "*(No body content)*" placeholder |
 | Platform API returns error | HALT — report the error, do not create partial import |
 | `.issues/` setup fails | HALT — report setup error |
@@ -182,12 +186,12 @@ Verify the full local mirror:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "remote.md exists (body)" | Verify file at `.issues/{N}/remote.md` | `local-issues read <repo>#<number>` | MISSING-ELEMENT |
+| "issue.yaml exists (body)" | Verify file at `.issues/{N}/issue.yaml` | `local-issues read <repo>#<number>` | MISSING-ELEMENT |
 | "spec.md exists (frontmatter only)" | Verify file at `.issues/{N}/spec.md` | `local-issues read <repo>#<number>` | MISSING-ELEMENT |
-| "comments.md exists with all comments" | Verify file and comment count matches remote | `ls .issues/{N}/comments.md` | MISSING-ELEMENT |
+| "comments.yaml exists with all comments" | Verify file and comment count matches remote | `ls .issues/{N}/comments.yaml` | MISSING-ELEMENT |
 | "promotion_type in frontmatter" | Verify `promotion_type: retroactive_import` present | `local-issues read <repo>#<number>` → parse frontmatter | STRUCTURE-VIOLATION |
-| "Counter advanced correctly" | Verify `.counter` value >= remote_number + 1 | `cat .issues/.counter` | VERIFICATION-GAP |
-| "Body matches remote (remote.md)" | Compare remote.md body against remote issue body | `local-issues read <repo>#<number>` | VERIFICATION-GAP |
+| "Counter advanced correctly" | Verify `.counter` value passes digit-parse check and satisfies monotonic invariant (>= remote_number + 1) per Step 7 | read `.issues/.counter` | VERIFICATION-GAP |
+| "Body matches remote (issue.yaml)" | Compare issue.yaml body against remote issue body | `local-issues read <repo>#<number>` | VERIFICATION-GAP |
 | "spec.md has no remote body" | Verify spec.md has no body content below frontmatter | `local-issues read <repo>#<number>` → check body is empty after frontmatter | VERIFICATION-GAP |
 
-**Evidence artifact:** remote.md readback showing body, spec.md readback showing frontmatter only, comments.md showing imported comments, .counter value.
+**Evidence artifact:** issue.yaml readback showing body, spec.md readback showing frontmatter only, comments.yaml showing imported comments, .counter value.
