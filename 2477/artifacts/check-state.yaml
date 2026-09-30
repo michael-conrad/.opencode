@@ -1,0 +1,5 @@
+# Check-state file for issue 2477 (target post-implementation state)
+schema_enumeration_aligned: true
+counter_validation_documented: true
+legacy_references_removed: true
+completeness_gate_enumerates_actual_schema: true

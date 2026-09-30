@@ -1,0 +1,28 @@
+# Analysis summary for issue 2477 (import-remote mirror-file schema alignment)
+spec_path: .opencode/.issues/2477/spec.md
+mode: retroactive-backfill
+approval_status:
+  labels: [approved-for-for_pr]
+  approved: true
+  scope: for_pr
+success_criteria:
+  count: 3
+  ids: [SC-1, SC-2, SC-3]
+  evidence_types: [string, string, string]
+artifacts:
+  blast-radius.yaml: backfilled
+  concern-map.yaml: backfilled
+  code-path-inventory.yaml: backfilled
+  cross-cutting-matrix.yaml: backfilled
+  interface-compatibility.yaml: backfilled
+  state-analysis.yaml: backfilled
+  testability-assessment.yaml: backfilled
+  analysis-summary.yaml: this-file
+scope_summary: >-
+  Documentation-only spec rewriting the import-remote task card's mirror-file
+  contract to the real local-issues schema (issue.yaml, comments.yaml, links.yaml,
+  spec.md), rewriting the Step 4 completeness gate to recognize already-migrated
+  directories, and naming the counter-write validation procedure in Step 7.
+  Single target file; tool source and dispatcher skill unchanged.
+affected_files:
+  - .opencode/skills/issue-operations-sync/tasks/import-remote.md

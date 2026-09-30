@@ -1,0 +1,29 @@
+# Concern map for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+concerns:
+  - id: C-1
+    name: legacy-filename-purge
+    description: card-wide removal of comments.md / remote.md / state.md references, including Live-Verification evidence table
+    scs: [SC-1]
+    phase_boundary: Item 1
+    files: [.opencode/skills/issue-operations-sync/tasks/import-remote.md]
+  - id: C-2
+    name: schema-enumeration
+    description: Step 4 completeness gate enumerates actual schema files and recognizes already-migrated directories
+    scs: [SC-2]
+    phase_boundary: Item 2
+    files: [.opencode/skills/issue-operations-sync/tasks/import-remote.md]
+  - id: C-3
+    name: counter-write-validation
+    description: Step 7 presents the named counter-write validation procedure (digit-parse check + monotonic invariant) as sole mechanism
+    scs: [SC-3]
+    phase_boundary: Item 3
+    files: [.opencode/skills/issue-operations-sync/tasks/import-remote.md]
+
+ordering: C-1 -> C-2 -> C-3 (sequential TDD cycles on the same file)
+
+cross_concern_span:
+  - sc: SC-1
+    note: card-wide grep covers evidence-table rows that C-2 also touches contextually; resolved by one-target reduction in spec

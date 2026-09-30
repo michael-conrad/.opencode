@@ -1,0 +1,30 @@
+# Testability assessment for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+assessments:
+  - sc: SC-1
+    criterion: zero legacy mirror-filename references card-wide
+    evidence_type: string
+    verification_method: grep -c 'comments\.md\|remote\.md\|state\.md' import-remote.md == 0
+    automatable: true
+    deterministic: true
+    notes: single verification target — one card-wide grep covers every section (one-target reduction)
+  - sc: SC-2
+    criterion: Step 4 completeness gate enumerates actual schema files
+    evidence_type: string
+    verification_method: positive grep for issue.yaml/comments.yaml/links.yaml anchored at gate block; read-back confirms frontmatter example preserved
+    automatable: true
+    deterministic: true
+    notes: read-back supplies positively verified element for R-2/R-6
+  - sc: SC-3
+    criterion: Step 7 specifies named counter-write validation procedure
+    evidence_type: string
+    verification_method: read-back of Step 7 (single anchor) + grep showing no bare unvalidated echo counter write
+    automatable: true
+    deterministic: true
+    notes: sole documented mechanism — absence of alternatives asserted by the read-back
+
+substrate_note: documentation-only change; no runtime behavior change, so string/structural evidence is not uplifted to behavioral
+
+coverage: all 3 SCs have executable deterministic verification; no SC requires behavioral opencode-run evidence

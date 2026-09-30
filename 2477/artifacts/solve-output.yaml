@@ -1,0 +1,36 @@
+# Solve output for issue 2477 (research task)
+issue: 2477
+solve_status: SAT
+plan_status: SOLVED_SATISFICING
+checks:
+  solve_model:
+    query: "z3.And(schema_enumeration_aligned, counter_validation_documented, completeness_gate_enumerates_actual_schema, legacy_references_removed)"
+    result: SAT
+    model:
+      schema_enumeration_aligned: True
+      counter_validation_documented: True
+      legacy_references_removed: True
+      completeness_gate_enumerates_actual_schema: True
+  solve_check:
+    state_path: .opencode/.issues/2477/artifacts/check-state.yaml
+    contract_path: .opencode/.issues/2477/dependency-contract.yaml
+    result: SAT (+ postconditions + invariants)
+    state:
+      schema_enumeration_aligned: True
+      counter_validation_documented: True
+      legacy_references_removed: True
+      completeness_gate_enumerates_actual_schema: True
+  plan_plan:
+    problem_path: .opencode/.issues/2477/artifacts/plan-problem.yaml
+    engine: tamer
+    status: SOLVED_SATISFICING
+    plan_length: 3
+    actions:
+      - run-item1-schema-accuracy
+      - run-item2-completeness-gate
+      - run-item3-counter-validation
+planner_result: SOLVED_SATISFICING (plan length 3, sequential phases 1→2→3, exit code 0)
+sat_unsat_summary:
+  model: SAT
+  check: SAT
+  planner: SOLVED_SATISFICING

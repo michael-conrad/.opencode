@@ -1,0 +1,42 @@
+# Dependency contract for issue 2477 (extracted from interface-compatibility.yaml)
+contract_id: 2477-tool-schema-ground-truth
+real_sources:
+  - path: .opencode/tools/local-issues
+    role: schema constants and counter semantics authority
+    real_type: bash script constants (YAML_FILES tuple, MARKDOWN_FILES tuple, _next_number function)
+real_targets:
+  - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+    role: documented contract re-synced to source constants
+    real_type: markdown task card (prose enumerations)
+real_type_constraints:
+  - constraint: card file-set enumeration == YAML_FILES ∪ MARKDOWN_FILES
+    enforced_by: SC-1/SC-2 greps
+  - constraint: counter write value is integer successor passing digit-parse and monotonic invariant
+    enforced_by: SC-3 read-back
+unmodified_dependencies:
+  - .opencode/tools/local-issues (read-only reference)
+  - .opencode/skills/issue-operations-sync/SKILL.md (unchanged dispatcher)
+
+# Z3 solver sections (derived from real_type_constraints per solve/contract.md schema)
+variables:
+  schema_enumeration_aligned:
+    type: bool
+    nullable: false
+  counter_validation_documented:
+    type: bool
+    nullable: false
+  legacy_references_removed:
+    type: bool
+    nullable: false
+  completeness_gate_enumerates_actual_schema:
+    type: bool
+    nullable: false
+preconditions:
+  - "z3.Or(schema_enumeration_aligned, z3.Not(schema_enumeration_aligned))"
+invariants:
+  - "z3.Implies(legacy_references_removed, schema_enumeration_aligned)"
+postconditions:
+  - "schema_enumeration_aligned"
+  - "counter_validation_documented"
+  - "completeness_gate_enumerates_actual_schema"
+  - "legacy_references_removed"

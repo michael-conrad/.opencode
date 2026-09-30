@@ -1,0 +1,39 @@
+# Blast radius for issue 2477 (import-remote mirror-file schema alignment)
+issue: 2477
+spec_path: .opencode/.issues/2477/spec.md
+mode: retroactive-backfill
+
+primary_target:
+  path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+  exists: true
+  change_kind: documentation-rewrite
+  sections_touched:
+    - Steps (mirror-file enumeration, Step 4 completeness gate, Step 6 comment import, Step 7 counter write)
+    - Exit Criteria
+    - Edge Cases
+    - Live-Verification evidence table
+
+read_only_references:
+  - path: .opencode/tools/local-issues
+    exists: true
+    relationship: ground truth for YAML_FILES / MARKDOWN_FILES constants and _next_number semantics
+    modified: false
+  - path: .opencode/skills/issue-operations-sync/SKILL.md
+    exists: true
+    relationship: dispatches import-remote card; unchanged
+    modified: false
+  - path: .opencode/.issues/2477/
+    exists: true
+    relationship: live store record exemplifying new schema
+    modified: false
+
+excluded_scope:
+  - .opencode/skills/issue-operations-sync/tasks/sync-pull-to-local.md
+  - .opencode/skills/issue-operations-sync/tasks/sync-from-remote.md
+  - .opencode/skills/issue-operations/platforms/local/tasks/
+  - .opencode/skills/issue-operations/platforms/github-mcp/tasks/spec-mirror.md
+  - .opencode/skills/issue-operations-comments/tasks/comment.md
+  - .opencode/skills/issue-operations/platforms/local/SKILL.md
+  rationale: sibling drift scoped to follow-up issue per spec Not-Included
+
+radius_assessment: single-file, documentation-only; no runtime code paths affected

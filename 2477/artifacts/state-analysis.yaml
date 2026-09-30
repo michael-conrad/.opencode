@@ -1,0 +1,24 @@
+# State analysis for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+state_entities:
+  - entity: .counter
+    location: .opencode/.issues/.counter (issues-data branch)
+    states:
+      - current: integer string, digits only
+      - transition_read: read current value, verify digit-parse (consistent with _next_number)
+      - transition_write: write successor value where counter_after_write >= remote_number + 1 (monotonic invariant)
+    invalid_states: non-digit content, values < remote_number + 1, blind unvalidated echo writes
+    failure_mode: tool fail-fast at next create (defect surfaces at next use, hence validation at write time)
+  - entity: mirror directory (.opencode/.issues/{N}/)
+    states:
+      - legacy-schema: contains comments.md / remote.md / state.md (invisible to tool)
+      - new-schema-complete: issue.yaml + comments.yaml + links.yaml [+ spec.md] — recognized complete
+      - new-schema-minimal: empty comments.yaml with empty comments: list — still materialized, still complete
+    transitions: legacy or absent -> new-schema-complete via card-guided import; already-migrated directories recognized complete (no demotion)
+  - entity: spec frontmatter examples
+    states: keys within tolerated set (number, title, status, labels, created, updated; unknown keys tolerated by parser)
+    transitions: none required — R-6 preserves parser-valid examples
+
+no_runtime_process_states: documentation-only change; all state transitions are issues-data store states documented by the card

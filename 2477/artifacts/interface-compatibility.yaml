@@ -1,0 +1,36 @@
+# Interface compatibility for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+interface_boundaries:
+  - boundary: task-card contract <-> local-issues tool schema
+    parties:
+      producer: .opencode/skills/issue-operations-sync/tasks/import-remote.md (documented contract)
+      consumer: .opencode/tools/local-issues (implemented schema)
+    compatibility_check: card's enumerated mirror file set must equal YAML_FILES + MARKDOWN_FILES (issue.yaml, comments.yaml, links.yaml, spec.md)
+    verdict: aligned after Items 1-2
+  - boundary: task-card counter instruction <-> _next_number semantics
+    parties:
+      producer: import-remote.md Step 7
+      consumer: local-issues .counter manager (_next_number fail-fast digit parse)
+    compatibility_check: documented write must satisfy digit-parse + monotonic invariant (counter after write >= remote_number + 1)
+    verdict: aligned after Item 3
+
+dependency_contract:
+  contract_id: 2477-tool-schema-ground-truth
+  real_sources:
+    - path: .opencode/tools/local-issues
+      role: schema constants and counter semantics authority
+      real_type: bash script constants (YAML_FILES tuple, MARKDOWN_FILES tuple, _next_number function)
+  real_targets:
+    - path: .opencode/skills/issue-operations-sync/tasks/import-remote.md
+      role: documented contract re-synced to source constants
+      real_type: markdown task card (prose enumerations)
+  real_type_constraints:
+    - constraint: card file-set enumeration == YAML_FILES ∪ MARKDOWN_FILES
+      enforced_by: SC-1/SC-2 greps
+    - constraint: counter write value is integer successor passing digit-parse and monotonic invariant
+      enforced_by: SC-3 read-back
+  unmodified_dependencies:
+    - .opencode/tools/local-issues (read-only reference)
+    - .opencode/skills/issue-operations-sync/SKILL.md (unchanged dispatcher)

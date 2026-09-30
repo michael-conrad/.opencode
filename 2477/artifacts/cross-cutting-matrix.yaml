@@ -1,0 +1,20 @@
+# Cross-cutting matrix for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+matrix:
+  - sc: SC-1
+    concerns: [legacy-filename-purge]
+    sections: [Steps, Exit Criteria, Step 4 completeness gate, Edge Cases, Live-Verification evidence table]
+    spans_multiple_concerns: false
+  - sc: SC-2
+    concerns: [schema-enumeration]
+    sections: [Step 4 completeness gate block]
+    spans_multiple_concerns: false
+    note: evidence-table legacy removal is carried by SC-1 card-wide grep (one-target reduction)
+  - sc: SC-3
+    concerns: [counter-write-validation]
+    sections: [Step 7, referencing edge-case/verification rows]
+    spans_multiple_concerns: false
+
+findings: no SC spans multiple concerns; single-target-per-SC mapping holds; shared sections (Steps, Edge Cases) are edited per-item but verified by exactly one SC each

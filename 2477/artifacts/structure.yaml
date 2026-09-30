@@ -1,0 +1,137 @@
+# Structure artifact for issue 2477 (research task — phase decomposition)
+issue: 2477
+mode: retroactive-backfill
+issues_prefix: .opencode/.issues
+
+phases:
+  - phase: 1
+    name: schema-accuracy-item-1
+    scs: [SC-1]
+    sc_ids: [SC-1]
+    description: >-
+      Rewrite every legacy mirror-filename reference in import-remote.md
+      (comments.md -> comments.yaml; remote.md/state.md references removed or
+      rewritten), including the Live-Verification evidence table (R-1, R-5).
+      Single SC-item: RED (grep legacy names -> matches) / GREEN / verify
+      (grep -c returns 0) / COMMIT — all steps colocated in this phase.
+    skill_task_selection:
+      - step: pre-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-0 task from test-driven-development\")"
+      - step: pre-regression-verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: red
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+      - step: green
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly — no sub-agent dispatch"
+    dependency_edges: []
+
+  - phase: 2
+    name: completeness-gate-item-2
+    scs: [SC-2]
+    sc_ids: [SC-2]
+    description: >-
+      Rewrite the Step 4 completeness gate to enumerate the actual schema file
+      set (issue.yaml, comments.yaml, links.yaml [+ spec.md]) and recognize
+      already-migrated directories (R-2, R-3, R-6). Single SC-item: RED
+      (positive gate-anchored grep -> no matches) / GREEN / verify / COMMIT —
+      all steps colocated in this phase. Commits after phase 1 (sequential TDD
+      cycles on the same file).
+    skill_task_selection:
+      - step: pre-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-0 task from test-driven-development\")"
+      - step: pre-regression-verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: red
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+      - step: green
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly — no sub-agent dispatch"
+    dependency_edges:
+      - from: 1
+        to: 2
+        reason: same-file sequential TDD; item 2 commits after item 1
+
+  - phase: 3
+    name: counter-validation-item-3
+    scs: [SC-3]
+    sc_ids: [SC-3]
+    description: >-
+      Rewrite Step 7 to present the single named counter-write validation
+      procedure (read .counter, digit-parse check, successor write satisfying
+      monotonic invariant counter after write >= remote_number + 1) as the sole
+      documented mechanism, citing _next_number semantics (R-4). Single
+      SC-item: RED (bare echo-style write present -> test fails) / GREEN /
+      verify (read-back + no bare echo grep) / COMMIT — all steps colocated in
+      this phase. Commits after phase 2 (sequential TDD cycles).
+    skill_task_selection:
+      - step: pre-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-0 task from test-driven-development\")"
+      - step: pre-regression-verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: red
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute red task from test-driven-development\")"
+      - step: green
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute green task from test-driven-development\")"
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+      - step: verify
+        skill: verification-before-completion
+        dispatch: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: "orchestrator runs git add/commit directly — no sub-agent dispatch"
+    dependency_edges:
+      - from: 2
+        to: 3
+        reason: same-file sequential TDD; item 3 commits after item 2
+
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      type: sequential-same-file
+    - from: phase-2
+      to: phase-3
+      type: sequential-same-file
+  acyclic: true
+
+verifications:
+  triplet_colocation:
+    SC-1: RED+GREEN+COMMIT all in phase 1 — PASS
+    SC-2: RED+GREEN+COMMIT all in phase 2 — PASS
+    SC-3: RED+GREEN+COMMIT all in phase 3 — PASS
+  cross_phase_dependency:
+    check: "No RED test in phase X depends on SC output from a later phase Y"
+    SC-1: RED depends only on current (untouched) card content — PASS
+    SC-2: RED depends only on card post-phase-1 state (SC-1 committed same-chain predecessor) — PASS
+    SC-3: RED depends only on card post-phase-2 state (SC-2 committed same-chain predecessor) — PASS

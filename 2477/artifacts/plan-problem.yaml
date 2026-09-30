@@ -1,0 +1,38 @@
+domain: issue-2477-schema-alignment
+types:
+  - name: phase
+objects:
+  - name: p1
+    type: phase
+  - name: p2
+    type: phase
+  - name: p3
+    type: phase
+fluents:
+  - name: completed
+    params:
+      - name: p
+        type: phase
+actions:
+  - name: run-item1-schema-accuracy
+    preconditions:
+      - not completed(p1)
+    effects:
+      - completed(p1)
+  - name: run-item2-completeness-gate
+    preconditions:
+      - not completed(p2)
+      - completed(p1)
+    effects:
+      - completed(p2)
+  - name: run-item3-counter-validation
+    preconditions:
+      - not completed(p3)
+      - completed(p2)
+    effects:
+      - completed(p3)
+init: []
+goals:
+  - completed(p1)
+  - completed(p2)
+  - completed(p3)

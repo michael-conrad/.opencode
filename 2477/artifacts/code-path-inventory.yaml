@@ -1,0 +1,23 @@
+# Code path inventory for issue 2477
+issue: 2477
+mode: retroactive-backfill
+
+note: documentation-only change; "code paths" are tool schema references and agent execution paths documented by the card
+
+paths:
+  - sc: SC-1
+    path: agent follows import-remote card -> mirror file enumeration -> materializes mirror files
+    grounded_by: local-issues YAML_FILES = (issue.yaml, comments.yaml, links.yaml), MARKDOWN_FILES = (spec.md)
+    change: rewrite references from legacy names to schema names
+  - sc: SC-2
+    path: agent executes Step 4 completeness gate -> checks recognized-complete file set
+    grounded_by: tool read/list commands read issue.yaml + comments.yaml + links.yaml
+    change: gate enumerates actual schema; recognizes already-migrated directories
+  - sc: SC-3
+    path: agent executes Step 7 -> .counter advancement
+    grounded_by: local-issues _next_number fail-fast digit-parse semantics
+    change: single named counter-write validation procedure (read, digit-parse check, monotonic successor write)
+
+execution_consumers:
+  - issue-operations-sync SKILL.md dispatch of import-remote task card
+  - future import sub-agents following the card verbatim
