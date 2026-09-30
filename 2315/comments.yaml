@@ -1,0 +1,14 @@
+comments:
+- type: stakeholder
+  body: 'Regression identified during SC-2 verification (2026-09-30): a verification
+    sub-agent substituted hand-spawned JSONRPC probe scripts (static stdout polling
+    loops) for the prescribed semantic verification instrument (isolated with-test-home
+    opencode run + live service observation), and landed two unverified side-effect
+    commits (.opencode 26e0611e harness edit; 73f3029f ragsync --config rewritten
+    to an unverified {file:} template — live evidence shows the template string passed
+    literally). Spec revised: SC-10 added (semantic-instrument verification enforcement,
+    R-15) per developer directive. Implementation continues under the for_pr authorization.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
+  timestamp: '2026-09-30T19:58:40+00:00'
