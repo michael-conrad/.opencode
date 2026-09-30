@@ -1,10 +1,10 @@
 # Phase 2 — Documentation and deck srclight purge
 
-**Concern:** Document the RAGSync service configuration, per-source layout per §3.1, corpus scope, usage, local model-cache behavior, and validation step in the `.opencode` skill/guideline tree; purge srclight references from the deck tree per the §3.2 disposition rule; verify srclight-free tool-selection behavior.
+**Concern:** Document the RAGSync service configuration, per-source layout per §3.1, usage, local model-cache behavior, and validation step in the `.opencode` skill/guideline tree; purge srclight references from the deck tree per the §3.2 disposition rule; verify srclight-free tool-selection behavior.
 
 **Files:**
 - `.opencode/skills/` or `.opencode/guidelines/` tree (service documentation, new)
-- `.opencode/` deck tree — srclight reference purge (§3.2 sweep scope: `guidelines/` (9 files), `skills/audit` tasks (12), `skills/brainstorming` tasks (4), misc `skills/` (15), `README.md`, `tools/session-init`, `tools/session-to-timeline`)
+- `.opencode/` deck tree — srclight reference purge (§3.2 sweep scope: `guidelines/` (9 files), `skills/audit` tasks (13), `skills/brainstorming` tasks (4), misc `skills/` (17), `README.md`, `tools/session-init`, `tools/session-to-timeline`)
 - `{project_root}/tmp/` (SC-9 behavioral evidence artifacts)
 
 **SCs:** SC-6, SC-8, SC-9
@@ -19,7 +19,7 @@
 
 **Exit Conditions:**
 - SC-6, SC-8, SC-9 verified clean PASS (SC-9 has no commit beyond Item 8's purge commit)
-- Documentation exists covering service configuration, per-source layout per §3.1, corpus scope, usage, local model-cache behavior, and validation step
+- Documentation exists covering service configuration, per-source layout per §3.1, usage, local model-cache behavior, and validation step
 - §3.2 deck sweep returns zero srclight matches within the sweep boundary; genericized sites carry capability-only wording with intact fallback rows
 - Isolated behavioral run shows srclight-free tool selection with zero `srclight_*` tool-call attempts in the session evidence; purge commit pushed and fresh-fetch-verified before that run
 
@@ -39,7 +39,7 @@
 
 - [ ] 40. **Pre-clean (**direct**).** Remove stale prior-run artifacts for this and subsequent steps: `rm -f {project_root}/tmp/2315/artifacts/pipeline-red-* {project_root}/tmp/2315/artifacts/pipeline-green-* {project_root}/tmp/2315/artifacts/pipeline-post-regression-* {project_root}/tmp/2315/artifacts/pipeline-verify-*`. **→ SC-6**
 - [ ] 41. **RED (**task-card**).** Write a failing check asserting a RAGSync service documentation file exists in the `.opencode` skill/guideline tree — the check FAILS because no RAGSync documentation is present yet. Dispatch `task(..., prompt: "execute red task from test-driven-development")`. **→ SC-6**
-- [ ] 42. **GREEN (**task-card**).** Write documentation in the `.opencode` skill/guideline tree covering the five required topics: service configuration, per-source layout per §3.1, corpus scope (CON-8), usage, and the local model-cache behavior (caching is NOT pinning — the embedding stack's standard runtime cache keeps the model from refetching on every service start; no offline/cache-path contingency machinery) plus the validation step (R-6, R-9; CON-5, CON-7). The documentation describes the landed phase-1 configuration — no new config surface invented here. Minimum change only. Dispatch `task(..., prompt: "execute green task from test-driven-development")`. **→ SC-6**
+- [ ] 42. **GREEN (**task-card**).** Write documentation in the `.opencode` skill/guideline tree covering the five required topics: service configuration, per-source layout per §3.1, usage, and the local model-cache behavior (caching is NOT pinning — the embedding stack's standard runtime cache keeps the model from refetching on every service start; no offline/cache-path contingency machinery) plus the validation step (R-6, R-9; CON-5, CON-7). The documentation describes the landed phase-1 configuration — no new config surface invented here. Minimum change only. Dispatch `task(..., prompt: "execute green task from test-driven-development")`. **→ SC-6**
 - [ ] 43. **Post-regression (**task-card**).** Run regression patterns after GREEN. Dispatch `task(..., prompt: "execute phase-4 task from test-driven-development")`. **→ SC-6**
 - [ ] 44. **Verify (**task-card**).** Verify SC-6 (structural): the documentation file exists and contains the topic-presence criteria for service configuration, per-source layout per §3.1, usage, local model-cache behavior, and the validation step — file read is the evidence. Dispatch `task(..., prompt: "execute verify task from verification-before-completion")`. **→ SC-6**
 - [ ] 45. **Commit (**direct**).** Stage and commit the documentation + test as one atomic slice: `git add .opencode/ && git commit -m "<documentation message>"`. This commit is the precondition for the SC-9 RED behavioral run. **→ SC-6**

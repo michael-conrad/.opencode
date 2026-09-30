@@ -3,6 +3,14 @@
 # dependency_contract section (research.md step 9, 2026-09-24).
 # Phase dependency: phase_2 (SC-6 documentation + SC-8/SC-9 deck purge) depends on phase_1 (SC-1..SC-5, SC-7 config).
 #
+# REVISION (writing-plans/tasks/revise, 2026-09-30T05:09:38Z): SC-6 documentation topics
+# reconciled to the spec Item-6/SC-6 five-topic set per the 2026-09-30 caching-≠-pinning
+# spec revision — removed the stale standalone "corpus scope" topic from the phase_2
+# description, the phase_1→phase_2 edge rationale, and the SC-6 sequencing note (corpus
+# scope remains CON-8-verified at SC-7 in phase 1; per-source layout per §3.1 carries it
+# for SC-6). SC set unchanged (SC-1..SC-9); phase SC sets, preconditions, edges, and file
+# targets unchanged.
+#
 # RE-VERIFICATION (writing-plans/tasks/research re-run after plan revision, 2026-09-29):
 # variables, preconditions (z3.Implies(phase_2, phase_1)), phase SC sets, edges, and
 # file targets re-checked against the current revised plan artifacts (plan.md rev
@@ -16,7 +24,7 @@ variables:
     description: "Configuration and registration work (SC-1..SC-5, SC-7): ragsync MCP registration, fastembed embeddings, per-source isolation over the §3.1-designated corpora (opencode-agent-config, .opencode-deck), review checklist, auto-sync, bounded corpus scope"
   phase_2:
     type: bool
-    description: "Documentation and deck-purge work (SC-6, SC-8, SC-9): service config, per-source layout, corpus scope, usage, local model-cache behavior, validation step documentation; deck srclight purge per the §3.2 disposition rule (CON-10, R-13, R-14); behavioral srclight-free tool-selection verification (SC-9)"
+    description: "Documentation and deck-purge work (SC-6, SC-8, SC-9): service config, per-source layout, usage, local model-cache behavior, validation step documentation; deck srclight purge per the §3.2 disposition rule (CON-10, R-13, R-14); behavioral srclight-free tool-selection verification (SC-9)"
 preconditions:
   - "z3.Implies(phase_2, phase_1)"
 invariants: []
@@ -48,9 +56,9 @@ phases:
 edges:
   - from: phase_1
     to: phase_2
-    rationale: "SC-6 documentation covers the service configuration, per-source layout, corpus scope, usage, local model-cache behavior (caching is NOT pinning — runtime cache kept, offline/cache-path contingency machinery dropped, 2026-09-30 developer correction), and validation step produced in phase 1. Documentation work depends on the configuration being in place. SC-8/SC-9 deck-purge work is sequenced in phase 2 per the spec traceability (R-13/R-14 → Phase 2); its text is capability-class worded and carries no product-name coupling to the phase-1 RAGSync registration (CON-10, R-14)."
+    rationale: "SC-6 documentation covers the service configuration, per-source layout, usage, local model-cache behavior (caching is NOT pinning — runtime cache kept, offline/cache-path contingency machinery dropped, 2026-09-30 developer correction), and validation step produced in phase 1. Documentation work depends on the configuration being in place. SC-8/SC-9 deck-purge work is sequenced in phase 2 per the spec traceability (R-13/R-14 → Phase 2); its text is capability-class worded and carries no product-name coupling to the phase-1 RAGSync registration (CON-10, R-14)."
 notes:
-  - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation), including the CON-8 corpus-scope declaration."
+  - "SC-6 (documentation) is sequenced after phase 1 because it documents the configuration artifacts created in phase 1 (CON-5 config-drift mitigation); the phase-1 corpus-scope declaration itself is CON-8-verified at SC-7, not a SC-6 topic criterion."
   - "Spec revision 2026-09-30 (caching-≠-pinning developer correction): SC-2 wording revised (name-only pin + kept local runtime cache + hard-fail semantics; cache-warm refetch observation added to the verify method) — SC set unchanged (SC-1..SC-9), phase SC sets and file targets above remain consistent; no structural change required."
   - "Corpus designation authority is the RAGSync config sources list per spec §3.1: two designated corpora (opencode-agent-config over the main repo working tree; .opencode-deck over the .opencode submodule) with per-corpus include/exclude globs. Source sections outside the CON-8 surface are config defects caught by SC-7 verification."
   - "SC-9 is the behavioral variant item: its RED behavioral run executes against the pre-purge deck state (before Item 8's GREEN lands in the working tree), and its verify behavioral run executes only after Item 8's COMMIT and PUSH with a fresh `git fetch` verifying the effective commit is contained in a remote ref (incremental-build behavioral ordering, per spec Item 9)."
