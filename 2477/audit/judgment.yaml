@@ -1,0 +1,99 @@
+judgment:
+  generated_at: "2026-09-29T23:00:00-04:00"
+  spec_issue_number: 2477
+  evidence_source: "./tmp/2477/artifacts/verification-audit/evidence.yaml"
+  reasoning_source: "./tmp/2477/artifacts/verification-audit/reasoning.yaml"
+  verdict_source: "./tmp/2477/artifacts/verification-audit/verdict.yaml"
+  evidence_generated_at: "2026-09-29T22:45:00-04:00"
+  reasoning_generated_at: "2026-09-29T22:50:00-04:00"
+  verdict_generated_at: "2026-09-29T22:55:00-04:00"
+  synthesis:
+    sc_coverage:
+      - sc_id: "SC-1"
+        in_evidence: true
+        in_reasoning: true
+        in_verdict: true
+        coverage_complete: true
+      - sc_id: "SC-2"
+        in_evidence: true
+        in_reasoning: true
+        in_verdict: true
+        coverage_complete: true
+      - sc_id: "SC-3"
+        in_evidence: true
+        in_reasoning: true
+        in_verdict: true
+        coverage_complete: true
+    evidence_chain:
+      - sc_id: "SC-1"
+        chain_complete: true
+        broken_link: null
+      - sc_id: "SC-2"
+        chain_complete: true
+        broken_link: null
+      - sc_id: "SC-3"
+        chain_complete: true
+        broken_link: null
+    verdict_consistency:
+      - sc_id: "SC-1"
+        evaluator_verdict: "PASS"
+        knowledge_supporter_issues: 0
+        consistent: true
+        conflict_description: null
+      - sc_id: "SC-2"
+        evaluator_verdict: "PASS"
+        knowledge_supporter_issues: 0
+        consistent: true
+        conflict_description: null
+      - sc_id: "SC-3"
+        evaluator_verdict: "PASS"
+        knowledge_supporter_issues: 0
+        consistent: true
+        conflict_description: null
+    evidence_type_alignment:
+      - sc_id: "SC-1"
+        spec_declared_type: "string"
+        evaluator_used_type: "string"
+        aligned: true
+        mismatch_description: null
+      - sc_id: "SC-2"
+        spec_declared_type: "string"
+        evaluator_used_type: "string"
+        aligned: true
+        mismatch_description: null
+      - sc_id: "SC-3"
+        spec_declared_type: "string"
+        evaluator_used_type: "string"
+        aligned: true
+        mismatch_description: null
+  summary:
+    total_criteria: 3
+    pass: 3
+    fail: 0
+    synthesis_downgrades: 0
+    all_criteria_pass: true
+  per_criterion:
+    - criterion_id: "SC-1"
+      evaluator_verdict: "PASS"
+      synthesis_correction: null
+      final_verdict: "PASS"
+      explanation: "Card-wide grep zero legacy references — verified live this audit session, consistent across all four roles."
+      remediation: ""
+      next_step: "proceed"
+    - criterion_id: "SC-2"
+      evaluator_verdict: "PASS"
+      synthesis_correction: null
+      final_verdict: "PASS"
+      explanation: "Step 4 gate enumerates the actual local-issues schema set; comments.yaml list format and frontmatter validity cross-verified against tool source."
+      remediation: ""
+      next_step: "proceed"
+    - criterion_id: "SC-3"
+      evaluator_verdict: "PASS"
+      synthesis_correction: null
+      final_verdict: "PASS"
+      explanation: "Named counter-write validation procedure is the sole documented mechanism in Step 7, consistent with _next_number digit-parse source semantics."
+      remediation: ""
+      next_step: "proceed"
+  overall_verdict: "PASS"
+  next_step: "proceed"
+  remediation_required: false

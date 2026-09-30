@@ -1,0 +1,83 @@
+evidence:
+  generated_at: "2026-09-29T22:45:00-04:00"
+  spec_issue_number: 2477
+  spec_source: ".opencode/.issues/2477"
+  evidence_source: "tmp/2477/artifacts"
+  spec:
+    files:
+      - ".opencode/.issues/2477/spec.md"
+    sc_count: 3
+    behavioral_sc_count: 0
+    string_sc_count: 3
+    structural_sc_count: 0
+    semantic_sc_count: 0
+  evidence_artifacts:
+    - filename: "vbc-table-2477-sc1-20260929T211500.md"
+      path: "tmp/2477/artifacts/vbc-table-2477-sc1-20260929T211500.md"
+      size_bytes: 554
+      modified: "2026-09-29T20:55:00-04:00"
+      category: "yaml_verdict"
+    - filename: "verify-sc2-20260929T2118.yaml"
+      path: "tmp/2477/artifacts/verify-sc2-20260929T2118.yaml"
+      size_bytes: 3252
+      modified: "2026-09-29T21:19:00-04:00"
+      category: "yaml_verdict"
+    - filename: "pipeline-verify-sc3-verdict-20260929T2230.md"
+      path: "tmp/2477/artifacts/pipeline-verify-sc3-verdict-20260929T2230.md"
+      size_bytes: 2664
+      modified: "2026-09-29T22:18:00-04:00"
+      category: "yaml_verdict"
+    - filename: "pipeline-red-sc3-output.log"
+      path: "tmp/2477/artifacts/pipeline-red-sc3-output.log"
+      size_bytes: 350
+      modified: "2026-09-29T22:12:00-04:00"
+      category: "behavioral_test_output"
+    - filename: "pipeline-green-sc3-evidence.md"
+      path: "tmp/2477/artifacts/pipeline-green-sc3-evidence.md"
+      size_bytes: 2169
+      modified: "2026-09-29T22:14:00-04:00"
+      category: "behavioral_test_output"
+    - filename: "pipeline-post-regression-sc3-20260929T2220.md"
+      path: "tmp/2477/artifacts/pipeline-post-regression-sc3-20260929T2220.md"
+      size_bytes: 1292
+      modified: "2026-09-29T22:17:00-04:00"
+      category: "behavioral_test_output"
+    - filename: "fresh-audit-grep-2026-09-29T22:45Z"
+      path: "(session tool-call evidence, not a disk artifact)"
+      size_bytes: 0
+      modified: "2026-09-29T22:45:00-04:00"
+      category: "stdout_capture"
+  sc_evidence_map:
+    - sc_id: "SC-1"
+      criterion: "import-remote.md contains zero references to legacy mirror filenames (comments.md, remote.md, state.md) — single verification target: card-wide grep"
+      declared_evidence_type: "string"
+      evidence_artifacts:
+        - "tmp/2477/artifacts/vbc-table-2477-sc1-20260929T211500.md"
+      fresh_reverification:
+        command: "grep -n 'comments\\.md\\|remote\\.md\\|state\\.md' .opencode/skills/issue-operations-sync/tasks/import-remote.md"
+        result: "no matches, exit 1 (2026-09-29 audit session)"
+        ground_truth_anchor: "local-issues YAML_FILES line 51 = (issue.yaml, comments.yaml, links.yaml); MARKDOWN_FILES line 52 = (spec.md)"
+      evidence_status: "present"
+    - sc_id: "SC-2"
+      criterion: "Step 4 completeness gate enumerates actual schema files (issue.yaml, comments.yaml, links.yaml [+ spec.md]) as recognized-complete file set"
+      declared_evidence_type: "string"
+      evidence_artifacts:
+        - "tmp/2477/artifacts/verify-sc2-20260929T2118.yaml"
+      fresh_reverification:
+        command: "grep -n 'comments\\.yaml\\|issue\\.yaml\\|links\\.yaml' .opencode/skills/issue-operations-sync/tasks/import-remote.md"
+        result: "line 82 gate block enumerates spec.md, issue.yaml, comments.yaml, links.yaml; Step 6 line 129 comments.yaml list format; Edge Cases line 169/172; Live-Verification rows 189-197 all use new names"
+      evidence_status: "present"
+    - sc_id: "SC-3"
+      criterion: "Step 7 specifies named counter-write validation procedure as sole documented mechanism citing _next_number semantics"
+      declared_evidence_type: "string"
+      evidence_artifacts:
+        - "tmp/2477/artifacts/pipeline-verify-sc3-verdict-20260929T2230.md"
+        - "tmp/2477/artifacts/pipeline-red-sc3-output.log"
+        - "tmp/2477/artifacts/pipeline-green-sc3-evidence.md"
+        - "tmp/2477/artifacts/pipeline-post-regression-sc3-20260929T2220.md"
+      fresh_reverification:
+        commands:
+          - "grep -n 'echo \\$(' .opencode/skills/issue-operations-sync/tasks/import-remote.md"
+          - "sed -n 1085,1110p .opencode/tools/local-issues  (_next_number read)"
+        result: "bare-echo grep: no matches, exit 1. Step 7 (lines 146-155) names counter-write validation procedure, cites _next_number FATAL digit-parse semantics (source line ~1101 verified verbatim), monotonic invariant remote_number + 1; 'No alternative mechanism is documented or offered' present line 155"
+      evidence_status: "present"

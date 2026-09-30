@@ -1,0 +1,37 @@
+verdict:
+  generated_at: "2026-09-29T22:55:00-04:00"
+  spec_issue_number: 2477
+  evidence_source: "./tmp/2477/artifacts/verification-audit/evidence.yaml"
+  reasoning_source: "./tmp/2477/artifacts/verification-audit/reasoning.yaml"
+  evidence_generated_at: "2026-09-29T22:45:00-04:00"
+  reasoning_generated_at: "2026-09-29T22:50:00-04:00"
+  summary:
+    total_criteria: 3
+    pass: 3
+    fail: 0
+    all_criteria_pass: true
+  per_criterion:
+    - criterion_id: "SC-1"
+      declared_evidence_type: "string"
+      result: "PASS"
+      evidence: "fresh in-session grep (no matches, exit 1) + tmp/2477/artifacts/vbc-table-2477-sc1-20260929T211500.md"
+      explanation: "Live grep executed this audit session: `grep -n 'comments\\.md\\|remote\\.md\\|state\\.md' .opencode/skills/issue-operations-sync/tasks/import-remote.md` returned zero matches (exit 1) across every section including Edge Cases and the Live-Verification evidence table (rows 189-197). All enumerated mirror filenames match local-issues ground truth YAML_FILES (line 51) / MARKDOWN_FILES (line 52). Criterion is a string-type card-wide grep; the grep is authoritative and clean."
+      remediation: ""
+      next_step: "proceed"
+    - criterion_id: "SC-2"
+      declared_evidence_type: "string"
+      result: "PASS"
+      evidence: "fresh in-session positive grep + verify-sc2-20260929T2118.yaml + direct read of card lines 78-89"
+      explanation: "Direct read this audit session confirms Step 4 completeness gate (lines 78-89) enumerates exactly `spec.md, issue.yaml, comments.yaml, links.yaml` (line 82) with frontmatter fields, materialize-missing behavior, and never-overwrite semantics — recognizing already-migrated directories per R-3. Step 6 (line 129-144) instructs comments.yaml in the tool's `comments:` list format matching cmd_comment (source lines 1512-1526 write {type, body, timestamp} under top-level comments:). Frontmatter keys (number, title, status, labels, created, updated + tolerated extras) parse under yaml.safe_load key-tolerant reads — R-6 preserved."
+      remediation: ""
+      next_step: "proceed"
+    - criterion_id: "SC-3"
+      declared_evidence_type: "string"
+      result: "PASS"
+      evidence: "fresh in-session grep + read of Step 7 lines 146-155 + pipeline-verify-sc3-verdict-20260929T2230.md + pipeline-red/green/post-regression SC-3 artifacts"
+      explanation: "Direct read this audit session confirms Step 7 (lines 146-155) defines a single named procedure — 'the named counter-write validation procedure — the sole documented mechanism' — citing _next_number fail-fast digit-parse semantics (verified verbatim against local-issues source lines 1089-1105: `if not raw.isdigit(): print('FATAL: .counter file is corrupt — expected a number', file=sys.stderr); sys.exit(1)`), with the monotonic invariant (counter after write >= remote_number + 1) and the explicit close 'No unvalidated write is permitted... No alternative mechanism is documented or offered' (line 155). Grep for a bare unvalidated `echo $((` counter write returned no matches (exit 1). Step 8 (line 163) and the Live-Verification counter row (line 193) both reference the Step 7 procedure. RED/GREEN/post-regression evidence chain (85/85 unit, doctor HEALTHY, 35 enforcement scenarios) is present and consistent."
+      remediation: ""
+      next_step: "proceed"
+  remediation_required: false
+  needs_clean_room: []
+self_consistency_downgrades: []

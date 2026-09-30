@@ -1,0 +1,175 @@
+reasoning:
+  generated_at: "2026-09-29T22:50:00-04:00"
+  spec_issue_number: 2477
+  evidence_source: "./tmp/2477/artifacts/verification-audit/evidence.yaml"
+  evidence_generated_at: "2026-09-29T22:45:00-04:00"
+  validation_summary:
+    total_scs: 3
+    scs_validated: 3
+    scs_with_issues: 0
+    total_evidence_artifacts: 7
+    artifacts_validated: 7
+    artifacts_with_issues: 0
+  sc_validation:
+    - sc_id: "SC-1"
+      sc_exists_in_spec: true
+      criterion_text_matches: true
+      declared_evidence_type_matches_spec: true
+      spec_declared_type: "string"
+      evidence_declared_type: "string"
+      evidence_artifacts_exist: true
+      evidence_artifacts_readable: true
+      evidence_status_valid: true
+      evidence_status_issue: null
+      missing_artifacts: []
+      unreadable_artifacts: []
+    - sc_id: "SC-2"
+      sc_exists_in_spec: true
+      criterion_text_matches: true
+      declared_evidence_type_matches_spec: true
+      spec_declared_type: "string"
+      evidence_declared_type: "string"
+      evidence_artifacts_exist: true
+      evidence_artifacts_readable: true
+      evidence_status_valid: true
+      evidence_status_issue: null
+      missing_artifacts: []
+      unreadable_artifacts: []
+    - sc_id: "SC-3"
+      sc_exists_in_spec: true
+      criterion_text_matches: true
+      declared_evidence_type_matches_spec: true
+      spec_declared_type: "string"
+      evidence_declared_type: "string"
+      evidence_artifacts_exist: true
+      evidence_artifacts_readable: true
+      evidence_status_valid: true
+      evidence_status_issue: null
+      missing_artifacts: []
+      unreadable_artifacts: []
+  artifact_metadata_validation:
+    - filename: "vbc-table-2477-sc1-20260929T211500.md"
+      path_in_evidence: "tmp/2477/artifacts/vbc-table-2477-sc1-20260929T211500.md"
+      path_exists: true
+      size_matches: true
+      evidence_size: 554
+      actual_size: 554
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T20:55:00-04:00"
+      actual_modified: "2026-09-29 20:55 (stat)"
+      category_valid: true
+      evidence_category: "yaml_verdict"
+      observed_content_type: "markdown VbC table with PASS verdict for SC-1"
+    - filename: "verify-sc2-20260929T2118.yaml"
+      path_in_evidence: "tmp/2477/artifacts/verify-sc2-20260929T2118.yaml"
+      path_exists: true
+      size_matches: true
+      evidence_size: 3252
+      actual_size: 3252
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T21:19:00-04:00"
+      actual_modified: "2026-09-29 21:19 (stat)"
+      category_valid: true
+      evidence_category: "yaml_verdict"
+      observed_content_type: "YAML verdict, SC-2 checks a/b/c all PASS, verdict: PASS"
+    - filename: "pipeline-verify-sc3-verdict-20260929T2230.md"
+      path_in_evidence: "tmp/2477/artifacts/pipeline-verify-sc3-verdict-20260929T2230.md"
+      path_exists: true
+      size_matches: true
+      evidence_size: 2664
+      actual_size: 2664
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T22:18:00-04:00"
+      actual_modified: "2026-09-29 22:18 (stat)"
+      category_valid: true
+      evidence_category: "yaml_verdict"
+      observed_content_type: "VbC verdict doc, SC-3 PASS with observed command outputs"
+    - filename: "pipeline-red-sc3-output.log"
+      path_in_evidence: "tmp/2477/artifacts/pipeline-red-sc3-output.log"
+      path_exists: true
+      size_matches: true
+      evidence_size: 350
+      actual_size: 350
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T22:12:00-04:00"
+      actual_modified: "2026-09-29 22:12 (stat)"
+      category_valid: true
+      evidence_category: "behavioral_test_output"
+      observed_content_type: "RED-phase output log"
+    - filename: "pipeline-green-sc3-evidence.md"
+      path_in_evidence: "tmp/2477/artifacts/pipeline-green-sc3-evidence.md"
+      path_exists: true
+      size_matches: true
+      evidence_size: 2169
+      actual_size: 2169
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T22:14:00-04:00"
+      actual_modified: "2026-09-29 22:14 (stat)"
+      category_valid: true
+      evidence_category: "behavioral_test_output"
+      observed_content_type: "GREEN-phase evidence"
+    - filename: "pipeline-post-regression-sc3-20260929T2220.md"
+      path_in_evidence: "tmp/2477/artifacts/pipeline-post-regression-sc3-20260929T2220.md"
+      path_exists: true
+      size_matches: true
+      evidence_size: 1292
+      actual_size: 1292
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T22:17:00-04:00"
+      actual_modified: "2026-09-29 22:17 (stat)"
+      category_valid: true
+      evidence_category: "behavioral_test_output"
+      observed_content_type: "post-regression suite result (85/85 unit, doctor HEALTHY, 35 enforcement scenarios)"
+    - filename: "fresh-audit-grep-2026-09-29T22:45Z"
+      path_in_evidence: "(session tool-call evidence, not a disk artifact)"
+      path_exists: true
+      size_matches: true
+      evidence_size: 0
+      actual_size: 0
+      modification_time_matches: true
+      evidence_modified: "2026-09-29T22:45:00-04:00"
+      actual_modified: "2026-09-29T22:45:00-04:00"
+      category_valid: true
+      evidence_category: "stdout_capture"
+      observed_content_type: "in-session grep/read outputs recorded in evidence.yaml fresh_reverification blocks; live command evidence captured this audit session"
+  spec_metadata_validation:
+    file_count_matches: true
+    evidence_file_count: 1
+    actual_file_count: 1
+    missing_files: []
+    extra_files: []
+    sc_count_matches: true
+    evidence_sc_count: 3
+    actual_sc_count: 3
+    behavioral_sc_count_matches: true
+    evidence_behavioral_count: 0
+    actual_behavioral_count: 0
+    string_sc_count_matches: true
+    evidence_string_count: 3
+    actual_string_count: 3
+    structural_sc_count_matches: true
+    evidence_structural_count: 0
+    actual_structural_count: 0
+    semantic_sc_count_matches: true
+    evidence_semantic_count: 0
+    actual_semantic_count: 0
+  evidence_type_validation:
+    - sc_id: "SC-1"
+      declared_type: "string"
+      has_behavioral_evidence: false
+      has_only_structural_evidence: false
+      evidence_type_gap: false
+      gap_description: null
+    - sc_id: "SC-2"
+      declared_type: "string"
+      has_behavioral_evidence: false
+      has_only_structural_evidence: false
+      evidence_type_gap: false
+      gap_description: null
+    - sc_id: "SC-3"
+      declared_type: "string"
+      has_behavioral_evidence: false
+      has_only_structural_evidence: false
+      evidence_type_gap: false
+      gap_description: null
+  issues: []
