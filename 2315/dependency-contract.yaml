@@ -2,6 +2,13 @@
 # Extracted as-is from .opencode/.issues/2315/artifacts/interface-compatibility.yaml
 # dependency_contract section (research.md step 9, 2026-09-24).
 # Phase dependency: phase_2 (SC-6 documentation + SC-8/SC-9 deck purge) depends on phase_1 (SC-1..SC-5, SC-7 config).
+#
+# RE-VERIFICATION (writing-plans/tasks/research re-run after plan revision, 2026-09-29):
+# variables, preconditions (z3.Implies(phase_2, phase_1)), phase SC sets, edges, and
+# file targets re-checked against the current revised plan artifacts (plan.md rev
+# 2026-09-30T03:22:00Z index + plan-01 + plan-02) — structurally consistent, no
+# change required. Solver steps re-run live against this file: model SAT,
+# check SAT, planner SOLVED_SATISFICING.
 
 variables:
   phase_1:

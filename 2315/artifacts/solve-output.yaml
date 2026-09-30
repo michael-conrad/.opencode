@@ -50,3 +50,20 @@ reverification:
   plan_plan_status: "SOLVED_SATISFICING"
   plan_plan_plan: ["run_p1", "run_p2"]
   result: "All exit criteria hold: model SAT, check SAT, planner SOLVED_SATISFICING."
+reverification_2:
+  reverified_at: "2026-09-29 (second research re-run after plan revision, revise iteration 1 of 3)"
+  plan_inputs: "Re-verified against current revised plan artifacts: plan.md index (rev 2026-09-30T03:22:00Z) + plan-01-configuration-registration.md + plan-02-documentation-work.md. Phase decomposition, triplet colocation, cross-phase deps, and dispatch vocabulary re-verified; contract structurally consistent (no change)."
+  solve_model:
+    command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2315/dependency-contract.yaml --query 'z3.And(phase_1, phase_2)'"
+    status: SAT
+    assignment: { phase_1: true, phase_2: true }
+  solve_check:
+    command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2315/dependency-contract.yaml --state-path .opencode/.issues/2315/artifacts/state-analysis.yaml"
+    status: SAT
+    detail: "SAT (+ postconditions + invariants); initial state phase_1=False, phase_2=False consistent"
+  planner:
+    command: "./.opencode/tools/plan plan --problem .opencode/.issues/2315/artifacts/problem.yaml"
+    status: SOLVED_SATISFICING
+    plan_length: 2
+    plan: [run_p1, run_p2]
+  result: "All exit criteria hold after re-run: model SAT, check SAT, planner SOLVED_SATISFICING."

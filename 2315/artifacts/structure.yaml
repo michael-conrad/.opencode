@@ -9,6 +9,36 @@
 #   - spec.md §6 Items (Items 1-9, per-SC RED/GREEN/verify/commit)
 #   - analysis-summary.yaml scope_summary + spec §8 Traceability (phase grouping)
 # This substitution is recorded here for audit traceability.
+#
+# RE-VERIFICATION (writing-plans/tasks/research re-run after plan revision,
+# 2026-09-29): phase decomposition re-verified against the CURRENT revised plan
+# artifacts — plan.md index (rev 2026-09-30T03:22:00Z, validation_pass 3
+# remediation iteration 1 of 3), plan-01-configuration-registration.md (steps
+# 1-39), and plan-02-documentation-work.md (steps 40-55). Verified:
+# - Phase table agrees: phase_1 = SC-1, SC-2, SC-3, SC-4, SC-5, SC-7 (steps 1-39,
+#   plan-01); phase_2 = SC-6, SC-8, SC-9 (steps 40-55, plan-02, Depends On 1).
+# - Triplet colocation re-checked against per-step indicators: SC-1 (RED 4 /
+#   GREEN 5 / COMMIT 8), SC-2 (10/11/14), SC-3 (16/17/20), SC-4 (22/23/26),
+#   SC-5 (28/29/32), SC-7 (34/35/38) all in phase_1; SC-6 (41/42/45), SC-8
+#   (48/49/52) all in phase_2; SC-9 behavioral variant RED step 46, GREEN
+#   delivered by item-08 step 49, COMMIT = item-08 step 52 — all in phase_2.
+#   No triplet split.
+# - Cross-phase dependency re-checked: no forward RED dependency; SC-9 RED
+#   (pre-purge behavioral run) is an intra-phase_2 ordering constraint
+#   satisfied by the step-46-before-49 sequence per plan-02; SC-9 verify (54)
+#   gated on item-08 COMMIT (52) + PUSH (53) with fresh-fetch remote-ref
+#   containment. No cross-phase violation.
+# - Dispatch vocabulary re-checked: plan-01 direct {3, 8, 9, 14, 15, 20, 21,
+#   26, 27, 32, 33, 38} / task-card {1, 2, 4-7, 10-13, 16-19, 22-25, 28-31,
+#   34-37, 39}; plan-02 direct {40, 45, 47, 52, 53} / task-card {41-44, 46,
+#   48-51, 54, 55} — disjoint within each phase file and matching the plan.md
+#   phase-table Dispatch cells (prior F-1/F-2/F-3 remediations hold).
+# - Dependency contract re-verified structurally consistent with the revised
+#   plan (variables, z3.Implies(phase_2, phase_1), phase SC sets, file
+#   targets); refreshed with re-verification note, no structural change.
+# - Solver steps re-run live: model SAT (phase_1 True, phase_2 True), check
+#   SAT (+ postconditions + invariants, initial state), planner
+#   SOLVED_SATISFICING (run_p1 -> run_p2, plan_length 2).
 
 phases:
   - id: phase_1
