@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Validate every evidence item in the Investigator's `evidence.yaml` against live source data. Reads the Investigator's raw evidence, cross-checks each claim against spec files, plan files, and srclight symbol data, and writes `reasoning.yaml` with validated evidence. Does NOT evaluate or judge — validates and supports the evidence.
+Validate every evidence item in the Investigator's `evidence.yaml` against live source data. Reads the Investigator's raw evidence, cross-checks each claim against spec files, plan files, and local-index symbol data, and writes `reasoning.yaml` with validated evidence. Does NOT evaluate or judge — validates and supports the evidence.
 
 
 ## Dispatch Contract
@@ -97,7 +97,7 @@ For each phase in `evidence.phases`, cross-check against spec source files:
 - [ ] 3. Verify `declared_dependencies` match spec text — check if each dependency is declared in the spec
 - [ ] 4. Verify `concern_keywords` are present in phase text — grep for each keyword in the phase's steps
 - [ ] 5. Verify `referenced_files` exist in the codebase — glob each file path
-- [ ] 6. Verify `referenced_symbols` exist via srclight — call `srclight_get_signature(name=<symbol>)` for each
+- [ ] 6. Verify `referenced_symbols` exist via available local index tooling — call `symbol_signature_lookup(name=<symbol>)` for each
 
 Record validation results:
 
@@ -122,17 +122,17 @@ phase_validation:
         source: "glob confirmed file exists: <path>"
       - field: "referenced_symbols"
         validation_status: "VALIDATED"
-        source: "srclight_get_signature confirmed symbol: <symbol>"
+        source: "symbol-signature lookup confirmed symbol: <symbol>"
 ```
 
 ### Step 5: Validate Symbol-Level Evidence
 
-For each entry in `evidence.symbol_evidence`, cross-check against live srclight data:
+For each entry in `evidence.symbol_evidence`, cross-check against live local-index symbol data:
 
-- [ ] 1. Verify the symbol exists — call `srclight_get_signature(name=<symbol>)`
-- [ ] 2. Verify `callers` — call `srclight_get_callers(symbol_name=<symbol>)` and compare
-- [ ] 3. Verify `callees` — call `srclight_get_callees(symbol_name=<symbol>)` and compare
-- [ ] 4. Verify `dependents` — call `srclight_get_dependents(symbol_name=<symbol>, transitive=true)` and compare
+- [ ] 1. Verify the symbol exists — call `symbol_signature_lookup(name=<symbol>)`
+- [ ] 2. Verify `callers` — call `callers_lookup(symbol_name=<symbol>)` and compare
+- [ ] 3. Verify `callees` — call `callees_lookup(symbol_name=<symbol>)` and compare
+- [ ] 4. Verify `dependents` — call `dependents_blast_radius_lookup(symbol_name=<symbol>, transitive=true)` and compare
 
 Record validation results:
 
@@ -143,16 +143,16 @@ symbol_validation:
     validations:
       - field: "symbol_existence"
         validation_status: "VALIDATED"
-        source: "srclight_get_signature returned <N> matches"
+        source: "symbol-signature lookup returned <N> matches"
       - field: "callers"
         validation_status: "VALIDATED"
-        source: "srclight_get_callers returned <N> callers, <M> match evidence"
+        source: "callers lookup returned <N> callers, <M> match evidence"
       - field: "callees"
         validation_status: "VALIDATED"
-        source: "srclight_get_callees returned <N> callees, <M> match evidence"
+        source: "callees lookup returned <N> callees, <M> match evidence"
       - field: "dependents"
         validation_status: "VALIDATED"
-        source: "srclight_get_dependents returned <N> dependents, <M> match evidence"
+        source: "dependents blast-radius lookup returned <N> dependents, <M> match evidence"
     discrepancies:
       - field: "<field>"
         evidence_has: ["<symbol>", ...]
@@ -166,7 +166,7 @@ symbol_validation:
 For each entry in `evidence.cross_phase_overlaps`, cross-check against live data:
 
 - [ ] 1. Verify `shared_files` — glob each file path to confirm existence
-- [ ] 2. Verify `shared_symbols` — call `srclight_get_signature(name=<symbol>)` for each
+- [ ] 2. Verify `shared_symbols` — call `symbol_signature_lookup(name=<symbol>)` for each
 - [ ] 3. Verify the overlap is genuine — check that both phases actually reference the shared file/symbol in the spec
 
 Record validation results:
@@ -181,7 +181,7 @@ cross_phase_validation:
         source: "glob confirmed <N>/<N> files exist"
       - field: "shared_symbols"
         validation_status: "VALIDATED"
-        source: "srclight confirmed <N>/<N> symbols exist"
+        source: "local index tooling confirmed <N>/<N> symbols exist"
       - field: "overlap_genuine"
         validation_status: "VALIDATED"
         source: "both phases reference <file/symbol> in spec text"
@@ -190,11 +190,11 @@ cross_phase_validation:
 
 ### Step 7: Validate Blast Radius Evidence
 
-For each entry in `evidence.blast_radius`, cross-check against live srclight data:
+For each entry in `evidence.blast_radius`, cross-check against live local-index symbol data:
 
 - [ ] 1. Verify the file exists — glob the file path
-- [ ] 2. Verify the symbol exists in that file — call `srclight_symbols_in_file(path=<file>)` and check
-- [ ] 3. Verify `dependents` — call `srclight_get_dependents(symbol_name=<symbol>, transitive=true)` and compare
+- [ ] 2. Verify the symbol exists in that file — call `file_symbol_enumeration(path=<file>)` and check
+- [ ] 3. Verify `dependents` — call `dependents_blast_radius_lookup(symbol_name=<symbol>, transitive=true)` and compare
 - [ ] 4. Verify `cross_phase_dependents` — check that each cross-phase dependent is actually referenced by another phase in the spec
 
 Record validation results:
@@ -210,10 +210,10 @@ blast_radius_validation:
         source: "glob confirmed file exists"
       - field: "symbol_in_file"
         validation_status: "VALIDATED"
-        source: "srclight_symbols_in_file confirmed symbol in file"
+        source: "file symbol enumeration confirmed symbol in file"
       - field: "dependents"
         validation_status: "VALIDATED"
-        source: "srclight_get_dependents returned <N> dependents, <M> match evidence"
+        source: "dependents blast-radius lookup returned <N> dependents, <M> match evidence"
       - field: "cross_phase_dependents"
         validation_status: "VALIDATED"
         source: "<N>/<M> cross-phase dependents confirmed in other phase specs"
@@ -254,7 +254,7 @@ For each entry in `evidence.sc_orthogonality`, cross-check against spec source:
 - [ ] 1. Verify each SC exists in the spec — grep for SC ID in spec files
 - [ ] 2. Verify `criterion` text matches spec text — compare character-for-character
 - [ ] 3. Verify `evidence_type` matches spec declaration
-- [ ] 4. Verify `referenced_symbols` exist via srclight
+- [ ] 4. Verify `referenced_symbols` exist via available local index tooling
 - [ ] 5. Verify `referenced_files` exist via glob
 - [ ] 6. For each `sc_overlap`, verify both SCs actually share the claimed symbols/files
 
@@ -276,7 +276,7 @@ sc_orthogonality_validation:
           source: "type '<type>' matches spec declaration"
         - field: "referenced_symbols"
           validation_status: "VALIDATED"
-          source: "srclight confirmed <N>/<N> symbols exist"
+          source: "local index tooling confirmed <N>/<N> symbols exist"
         - field: "referenced_files"
           validation_status: "VALIDATED"
           source: "glob confirmed <N>/<N> files exist"
@@ -287,7 +287,7 @@ sc_orthogonality_validation:
       validations:
         - field: "shared_symbols"
           validation_status: "VALIDATED"
-          source: "srclight confirmed <N>/<N> shared symbols exist"
+          source: "local index tooling confirmed <N>/<N> shared symbols exist"
         - field: "shared_files"
           validation_status: "VALIDATED"
           source: "glob confirmed <N>/<N> shared files exist"
@@ -424,8 +424,8 @@ summary: "Evidence validated: {N} items checked, {M} VALIDATED, {K} UNVERIFIED, 
 |-------|--------|
 | `evidence.yaml` not found | Return BLOCKED — Investigator must produce evidence first |
 | `spec_local_dir` missing or empty | Return BLOCKED — cannot validate without source data |
-| Symbol not found in srclight | Record `validation_status: UNVERIFIED` with note, continue |
-| srclight unavailable | Record `validation_status: UNVERIFIED` with `srclight_unavailable: true`, continue with file-path-only validation |
+| Symbol not found in local index tooling | Record `validation_status: UNVERIFIED` with note, continue |
+| local index tooling unavailable | Record `validation_status: UNVERIFIED` with `index_tooling_unavailable: true`, continue with file-path-only validation |
 | File path in evidence does not exist | Record `validation_status: CONTRADICTED` with note, continue |
 | Evidence field missing from evidence.yaml | Record `validation_status: UNVERIFIED` with `field_missing: true`, continue |
 | Write permission denied | Return BLOCKED — cannot write reasoning.yaml |

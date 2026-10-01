@@ -152,7 +152,7 @@ The verification honesty principle extends to metadata claims in specs, plans, a
 | Label | Verify label claims match actual issue state | Read labels from local `{issues_prefix}/{N}/issue.yaml` as PRIMARY via `local-issues read-labels --number <repo>#<N>`; compare against authorization state. Remote read (`github_issue_read(method=get_labels)`) is FALLBACK ONLY — used only when the local `issue.yaml` is missing or unreadable. |
 | Comments/body claims | Verify factual claims in issue body against live state | Re-read issue comments; verify claims against current data |
 | Cross-references | Verify `#N` references point to existing, matching content | Call `github_issue_read(method=get, issue_number=N)` for each reference |
-| Code references | Verify file paths, function names, and code references exist | Use `srclight_search_symbols`, `glob`, or `srclight_get_signature` |
+| Code references | Verify file paths, function names, and code references exist | Use `code search`, `glob`, or `symbol-signature lookup` |
 | Process-completion flags | Verify completion markers reflect actual completion | Check referenced artifacts (branches, commits, PRs) exist and are merged |
 | Authorization currency | Check whether authorization claims are superseded by revisions | Compare comment timestamps: latest authorization vs. latest revision |
 | Authorization author identity | Verify comments claiming authorization come from a developer, not a bot or agent | `github_issue_read(method=get_comments)` → filter by `author_association` (MEMBER/OWNER/COLLABORATOR = human; FIRST_TIME_CONTRIBUTOR/NONE = untrusted; bot login = rejected) |

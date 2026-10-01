@@ -98,11 +98,11 @@ Before creating a spec, investigation MUST be complete. This is a hard gate, not
 | Codebase explored | Existing patterns, reusable components identified |
 | Alternatives considered | At least 2 approaches for significant decisions |
 | Risks identified | Risk assessment with mitigation strategies |
-| Blast radius assessed | Affected files/symbols identified via `srclight_get_dependents` |
+| Blast radius assessed | Affected files/symbols identified via `dependents blast-radius lookup` |
 | Concern map drafted | Concern boundaries mapped to affected areas |
 | Code paths inventoried | Execution paths through affected code listed |
 | Cross-cutting concerns identified | Concerns spanning multiple areas documented |
-| Interface compatibility checked | Public API compatibility verified via `srclight_get_signature` |
+| Interface compatibility checked | Public API compatibility verified via `symbol-signature lookup` |
 | State analysis performed | Persistent state affected by change identified |
 | Testability assessed | Existing test coverage of affected paths evaluated |
 | Success criteria defined | Testable, measurable completion criteria |
@@ -132,7 +132,7 @@ Before creating a spec, investigation MUST be complete. This is a hard gate, not
 | Process Flag | Verification Action | Tool Call | Problem Class |
 |-------------|-------------------|-----------|---------------|
 | "Exploration complete" | Verify all investigation checklist items have evidence artifacts (not just assertions) | Check that tool-call artifacts exist for each of the 6 checklist items | VERIFICATION-GAP |
-| "Code inspection done" | Verify actual tool calls were made for call paths, imports, dead code, formats, layers, alternatives | `srclight_get_callers`, `srclight_get_symbol`, etc. — confirm in artifacts | MISSING-ELEMENT |
+| "Code inspection done" | Verify actual tool calls were made for call paths, imports, dead code, formats, layers, alternatives | `callers lookup`, `symbol lookup`, etc. — confirm in artifacts | MISSING-ELEMENT |
 | "Problem understood" | Verify a clear problem statement exists in the spec or exploration notes | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check body for problem section | STRUCTURE-VIOLATION | <!-- Routes through issue-operations per SPEC #683 -->
 | "Alternatives considered" | Verify at least 2 approaches were documented for significant decisions | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check for approach comparison | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->
 | "Risks identified" | Verify risk assessment with mitigation is documented | `issue-operations -> read-issue (github_issue_read(method=get, issue_number=N)` → check for risk section | MISSING-ELEMENT | <!-- Routes through issue-operations per SPEC #683 -->

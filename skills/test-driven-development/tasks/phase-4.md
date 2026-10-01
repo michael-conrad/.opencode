@@ -23,7 +23,7 @@ Blast radius re-verified GREEN, or entered remediation loop. If BLOCKED after 2 
 Re-run dependency analysis on the changed area:
 
 ```bash
-srclight_get_dependents(symbol_name="<function/class under change>", transitive=True)
+dependents_blast_radius_lookup(symbol_name="<function/class under change>", transitive=True)
 ```
 
 Compare against the Phase 0 blast radius. If new dependents appeared (code was added), verify they are tested.

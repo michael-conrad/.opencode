@@ -447,7 +447,7 @@ needs_clean_room: [SC-IDs]
 | Testing | Validates all layers — report as intentional, do not FAIL CS-2 or CS-5 |
 | Single-step | Already atomic — no split needed, PASS CS-2 |
 | No routing evidence | CS-ROUTING evaluates to PASS (no task files removed or delegated) |
-| srclight unavailable | Evidence items with `validation_status: UNVERIFIED` due to srclight — evaluate on available evidence, note limitation in explanation |
+| local index tooling unavailable | Evidence items with `validation_status: UNVERIFIED` due to local index tooling unavailability — evaluate on available evidence, note limitation in explanation |
 
 ## Error Handling
 

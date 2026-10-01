@@ -136,9 +136,9 @@ Documentation Sources section: standard and complex specs MUST include a table d
 > | Source Category | What Was Consulted | Purpose |
 > |----------------|-------------------|---------|
 > | Local docs | `README.md`, `docs/architecture.md` | Understand existing caching architecture |
-> | Direct source search | `srclight_search_symbols("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
+> | Direct source search | `code_search("cache")`, `grep -r "redis" src/` | Identify existing cache patterns |
 > | Documentation URLs | [redis-py docs](https://redis-py.readthedocs.io/) | Verify Redis client API signatures |
-> | MCP search | `srclight_get_signature("get_article_metadata")` | Verify function signature for cache integration |
+> | MCP search | `symbol_signature_lookup("get_article_metadata")` | Verify function signature for cache integration |
 > | Live verification | `uv run pytest test/test_articles.py -k "metadata"` | Confirm test coverage before making changes |
 
 ### Comprehensive Feature Spec (large, cross-cutting change)

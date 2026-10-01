@@ -203,7 +203,7 @@ Evaluate the plan's blast radius analysis using evidence from `reasoning.yaml`:
 - [ ] 1. **Plan scope verification** — verify the plan's scope matches the spec's scope:
   - Does the plan cover all files listed in the spec's Files Affected table?
   - Does the plan add files not in the spec? If so, flag as `BLAST_RADIUS_GAP` with `plan_overscoped`
-- [ ] 2. **Impact trace** — for each file in the plan, use `srclight_get_dependents` to verify blast radius:
+- [ ] 2. **Impact trace** — for each file in the plan, use `dependents blast-radius lookup` to verify blast radius:
   - If dependents exist that the plan doesn't address, flag as `BLAST_RADIUS_GAP` with `missing_dependent`
 
 Record results:

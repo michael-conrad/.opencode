@@ -255,7 +255,7 @@ Cross-check the `documentation_source_evidence` section against live sources:
   - `http_status` matches the actual HTTP status
   - `page_title` matches the actual page title
   - `referenced_content_found` is consistent with the actual page content
-- [ ] 2. **API reference validation** — For each API reference in `api_references`, re-lookup using `srclight_get_signature` and verify:
+- [ ] 2. **API reference validation** — For each API reference in `api_references`, re-lookup using `symbol-signature lookup` and verify:
   - `found` matches the actual lookup result
   - `actual_signature` matches the actual signature returned
 - [ ] 3. **Environment variable validation** — For each env variable in `env_variables`, re-check `.env.example` or config schema and verify:
@@ -629,7 +629,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
 | webfetch fails during URL re-verification | Record as `unvalidated` with error — do NOT BLOCK |
-| srclight_get_signature fails during API re-verification | Record as `unvalidated` with error — do NOT BLOCK |
+| symbol-signature lookup fails during API re-verification | Record as `unvalidated` with error — do NOT BLOCK |
 | Evidence item references a file that does not exist | Record as `corrected` with `file_not_found` — do NOT BLOCK |
 | Evidence section is missing from evidence.yaml | Record as `section_missing` — do NOT BLOCK |
 

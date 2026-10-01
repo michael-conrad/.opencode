@@ -153,7 +153,7 @@ Title/objective comparison alone is insufficient. Before classifying overlap, pe
   - **PARTIAL-OVERLAP:** Specs share files/symbols but have different core concerns → Surface to developer, suggest scoping to avoid overlap
   - **CONFLICT-RISK:** Same files modified with conflicting intent → HALT, suggest coordination
   - **INDEPENDENT:** No meaningful overlap → Proceed normally
-- [ ] **Evidence artifacts:** For each overlap classification, record: `{Check: overlap search, Tool: github_list_issues + srclight_get_dependents, Result: shared files/symbols/concerns, Classification: FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT, Action: HALT|surface|surface|proceed}`
+- [ ] **Evidence artifacts:** For each overlap classification, record: `{Check: overlap search, Tool: github_list_issues + dependents blast-radius lookup, Result: shared files/symbols/concerns, Classification: FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT, Action: HALT|surface|surface|proceed}`
 
 ## Plan Audit Code Deep Dive
 

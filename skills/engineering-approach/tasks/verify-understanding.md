@@ -119,10 +119,10 @@ Report understanding verification to chat (NOT as GitHub Issue comment). The und
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Codebase understands confirmed" | Verify relevant code was actually read | `srclight_get_symbol(name="target")` → confirm non-empty | VERIFICATION-GAP |
-| "Dependencies verified" | Verify import/call chains checked | `srclight_get_callers(symbol_name="target")` | VERIFICATION-GAP |
-| "Problem statement accurate" | Verify problem matches actual code state | `srclight_get_callees(symbol_name="target")` → confirm | CONFLICTING |
-| "Success criteria testable" | Verify criteria reference actual measurable artifacts | Review criteria against codebase via `grep` or `srclight` | STRUCTURE-VIOLATION |
+| "Codebase understands confirmed" | Verify relevant code was actually read | `symbol_lookup(name="target")` → confirm non-empty | VERIFICATION-GAP |
+| "Dependencies verified" | Verify import/call chains checked | `callers_lookup(symbol_name="target")` | VERIFICATION-GAP |
+| "Problem statement accurate" | Verify problem matches actual code state | `callees_lookup(symbol_name="target")` → confirm | CONFLICTING |
+| "Success criteria testable" | Verify criteria reference actual measurable artifacts | Review criteria against codebase via `grep` or available local index tooling | STRUCTURE-VIOLATION |
 
 **Evidence artifact:** Tool call results for each understanding verification step.
 

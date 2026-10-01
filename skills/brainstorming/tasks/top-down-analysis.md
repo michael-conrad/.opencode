@@ -16,18 +16,18 @@ Produces code-level preliminary analytical artifacts (blast radius, code path in
 - Pre-spec inspection completed — results available from `explore/pre-spec-inspection.md`
 - Issue number (`{issue_number}`) provided in context
 - Project root (`{project_root}`) provided in context
-- `srclight` tools available for code analysis
+- local index tooling available for code analysis
 
 If any entry criterion is not met, return BLOCKED with the unmet criterion as the reason.
 
 ## Procedure
 
 - [ ] 1. Read the pre-spec-inspection results from the exploration artifacts produced by `explore/pre-spec-inspection.md`. Do not re-investigate code already inspected.
-- [ ] 2. For each affected symbol/file identified, use `srclight` tools to trace dependents, callers, callees, and signatures:
-   - [ ] a. `srclight_get_dependents(symbol_name=..., transitive=True)` — trace dependents for blast radius
-   - [ ] b. `srclight_get_callers` / `srclight_get_callees` — trace execution paths
-   - [ ] c. `srclight_get_signature` — verify public API compatibility
-   - [ ] d. `srclight_get_tests_for` — evaluate existing test coverage
+- [ ] 2. For each affected symbol/file identified, use local index tooling to trace dependents, callers, callees, and signatures:
+   - [ ] a. `dependents_blast_radius_lookup(symbol_name=..., transitive=True)` — trace dependents for blast radius
+   - [ ] b. `callers lookup` / `callees lookup` — trace execution paths
+   - [ ] c. `symbol-signature lookup` — verify public API compatibility
+   - [ ] d. `test-coverage lookup` — evaluate existing test coverage
 - [ ] 3. Write preliminary artifact files to `{project_root}/tmp/{issue-N}/artifacts/preliminary/`:
    - [ ] a. `blast-radius.md` — files/symbols affected by the change, with impact classification (direct consumer, indirect consumer, data-flow dependent)
    - [ ] b. `code-paths.md` — execution paths through affected code, with path inventory

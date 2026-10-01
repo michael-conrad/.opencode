@@ -22,7 +22,7 @@ Explore project context, check scope, potentially decompose project, and conduct
 ### Step 1: Explore Project Context
 
 Check current project state:
-- Files, docs, recent commits (`srclight_recent_changes(n=10)`)
+- Files, docs, recent commits (`recent_changes_lookup(n=10)`)
 - Existing patterns, reusable components
 - README, CHANGELOG, relevant documentation
 - **Reference code inspection results from Step 0** — do not re-investigate

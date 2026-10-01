@@ -195,15 +195,15 @@ Cross-check the `code_implementation` section against the actual code files:
 
 - [ ] 1. **File existence validation** — For each file entry in `code_implementation.files`, verify `exists` by checking the actual filesystem via `glob` or `read` tool
 - [ ] 2. **File metadata validation** — For each existing file, verify `size_bytes`, `line_count`, and `modified_at` match the actual file
-- [ ] 3. **Symbol validation** — For each symbol in `symbols`, re-lookup using `srclight_get_signature` and verify:
+- [ ] 3. **Symbol validation** — For each symbol in `symbols`, re-lookup using `symbol-signature lookup` and verify:
   - `name` matches the actual symbol name
   - `kind` matches the actual symbol kind
   - `signature` matches the actual signature returned
   - `line` matches the actual line number
-- [ ] 4. **Symbol completeness** — For each existing file, use `srclight_symbols_in_file` to extract all symbols and verify the Investigator captured all of them. Record any missed symbols.
+- [ ] 4. **Symbol completeness** — For each existing file, use `file symbol enumeration` to extract all symbols and verify the Investigator captured all of them. Record any missed symbols.
 - [ ] 5. **Content hash validation** — If `raw_content_hash` is present, verify it matches the actual file content hash
 
-If `srclight_get_signature` or `srclight_symbols_in_file` is unavailable, mark affected items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
+If `symbol-signature lookup` or `file symbol enumeration` is unavailable, mark affected items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
 
 Record in reasoning:
 
@@ -252,10 +252,10 @@ Cross-check the `raw_comparisons` section against source data:
 - [ ] 3. **Signature comparison validation** — For each entry in `raw_comparisons.signature_comparisons`, verify:
   - `spec_function` exists in the spec's function references
   - `expected_signature` matches the spec's expected signature
-  - `actual_signature` matches the actual code signature from `srclight_get_signature`
+  - `actual_signature` matches the actual code signature from `symbol-signature lookup`
   - `spec_has_signature` and `code_has_signature` are consistent with the actual data
 - [ ] 4. **Extra code validation** — For each entry in `raw_comparisons.extra_code`, verify:
-  - The symbol actually exists in the stated file via `srclight_get_signature`
+  - The symbol actually exists in the stated file via `symbol-signature lookup`
   - The symbol is genuinely not mentioned in the spec (cross-check against spec function references)
   - `not_in_spec` is accurate
 - [ ] 5. **Edge case coverage validation** — For each entry in `raw_comparisons.edge_case_coverage`, verify:
@@ -318,7 +318,7 @@ Cross-check the `untracked_files` section against the actual filesystem and spec
 - [ ] 3. For each file entry in `untracked_files.files`, verify:
   - The file actually exists on the filesystem via `glob` or `read` tool
   - `size_bytes` matches the actual file size
-  - `symbol_count` is consistent with `srclight_symbols_in_file` output
+  - `symbol_count` is consistent with `file symbol enumeration` output
   - The file is genuinely not mentioned in the spec's file requirements (cross-check against validated spec file requirements from Step 3)
 - [ ] 4. If a file the Investigator reported as untracked is actually mentioned in the spec, flag as `corrected` with `false_untracked`
 - [ ] 5. If the spec defines a scope and the Investigator missed files within that scope, record as `missed_untracked`
@@ -354,12 +354,12 @@ Cross-check the `documentation_sources` section against live sources:
   - `accessible` matches the actual fetch result
   - `http_status` matches the actual HTTP status
   - `page_title` matches the actual page title
-- [ ] 2. **API reference validation** — For each API reference in `documentation_sources.api_references`, re-lookup using `srclight_get_signature` and verify:
+- [ ] 2. **API reference validation** — For each API reference in `documentation_sources.api_references`, re-lookup using `symbol-signature lookup` and verify:
   - `found` matches the actual lookup result
   - `actual_signature` matches the actual signature returned
   - `lookup_method` is recorded
 
-If `webfetch` or `srclight_get_signature` is unavailable, mark affected items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
+If `webfetch` or `symbol-signature lookup` is unavailable, mark affected items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
 
 Record in reasoning:
 
@@ -456,8 +456,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir missing or empty | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
-| srclight_get_signature unavailable | Mark symbol and signature items as `unverifiable: true` with reason `TOOL_UNAVAILABLE` — do NOT BLOCK |
-| srclight_symbols_in_file unavailable | Mark symbol completeness items as `unverifiable: true` with reason `TOOL_UNAVAILABLE` — do NOT BLOCK |
+| symbol-signature lookup unavailable | Mark symbol and signature items as `unverifiable: true` with reason `TOOL_UNAVAILABLE` — do NOT BLOCK |
+| file symbol enumeration unavailable | Mark symbol completeness items as `unverifiable: true` with reason `TOOL_UNAVAILABLE` — do NOT BLOCK |
 | webfetch fails during URL re-verification | Record as `unverifiable` with error — do NOT BLOCK |
 | Evidence item references a file that does not exist | Record as `corrected` with `file_not_found` — do NOT BLOCK |
 | Evidence section is missing from evidence.yaml | Record as `section_missing` — do NOT BLOCK |

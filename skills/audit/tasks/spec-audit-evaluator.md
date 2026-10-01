@@ -322,7 +322,7 @@ Evaluate the spec's claims for accuracy using validated evidence:
   - If the claim is presented as factual but has zero supporting evidence → `FABRICATED` verdict
   - Record as: `result: "FABRICATED"` with `explanation: "Claim asserted without source evidence"`
 - [ ] 3. **Negation verification** — When a claim asserts absence, verify the upstream reasoning role confirmed via exhaustive search
-- [ ] 4. **Interface contract verification** — When a spec references function signatures, verify the upstream reasoning role confirmed via `srclight_get_signature`
+- [ ] 4. **Interface contract verification** — When a spec references function signatures, verify the upstream reasoning role confirmed via `symbol-signature lookup`
 
 Record results:
 

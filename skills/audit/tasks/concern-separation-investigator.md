@@ -27,9 +27,9 @@ Collect raw evidence about concern boundaries and scope isolation from spec and 
 
 - All spec files read and phase structure extracted
 - All plan files read (if available) and task structure extracted
-- Symbol-level evidence collected via srclight for each phase
+- Symbol-level evidence collected via available local index tooling for each phase
 - Dependency chain data collected
-- Blast radius data collected via `srclight_get_dependents`
+- Blast radius data collected via `dependents blast-radius lookup`
 - `evidence.yaml` written to `{project_root}/tmp/{issue-N}/artifacts/concern-separation/evidence.yaml`
 
 ## Procedure
@@ -123,14 +123,14 @@ Concern keyword mapping (record, do not judge):
 
 ### Step 5: Collect Symbol-Level Evidence
 
-For each phase, collect symbol data via srclight:
+For each phase, collect symbol data via available local index tooling:
 
 ```python
 for phase in phases:
     for symbol in phase.referenced_symbols:
-        callers = srclight_get_callers(symbol_name=symbol)
-        callees = srclight_get_callees(symbol_name=symbol)
-        dependents = srclight_get_dependents(symbol_name=symbol, transitive=true)
+        callers = callers_lookup(symbol_name=symbol)
+        callees = callees_lookup(symbol_name=symbol)
+        dependents = dependents_blast_radius_lookup(symbol_name=symbol, transitive=true)
         record({
             "phase": phase.phase_name,
             "symbol": symbol,
@@ -167,9 +167,9 @@ For each phase, trace the full impact chain:
 blast_radius_evidence = []
 for phase in phases:
     for file_path in phase.referenced_files:
-        symbols_in_file = srclight_symbols_in_file(path=file_path)
+        symbols_in_file = file_symbol_enumeration(path=file_path)
         for symbol in symbols_in_file:
-            dependents = srclight_get_dependents(symbol_name=symbol.name, transitive=true)
+            dependents = dependents_blast_radius_lookup(symbol_name=symbol.name, transitive=true)
             blast_radius_evidence.append({
                 "phase": phase.phase_name,
                 "file": file_path,
@@ -325,8 +325,8 @@ summary: "Evidence collected: {N} phases, {M} symbols, {K} cross-phase overlaps,
 |-------|--------|
 | No spec files found | Return BLOCKED — spec_local_dir required |
 | No phases extracted from spec | Return BLOCKED — spec must contain phases |
-| srclight unavailable | Record `srclight_unavailable: true` in evidence, proceed with file-path-only evidence |
-| Symbol not found in srclight | Record `symbol_not_found: true` for that symbol, continue |
+| local index tooling unavailable | Record `index_tooling_unavailable: true` in evidence, proceed with file-path-only evidence |
+| Symbol not found in local index tooling | Record `symbol_not_found: true` for that symbol, continue |
 | Write permission denied | Return BLOCKED — cannot write evidence.yaml |
 
 ## Cross-References

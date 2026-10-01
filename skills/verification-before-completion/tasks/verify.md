@@ -675,7 +675,7 @@ Please replace placeholder with actual evidence.
 
 | Claim | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| "Success criterion met" | Verify criterion against actual code/test output | `read` or `srclight_get_symbol` or test execution | VERIFICATION-GAP |
+| "Success criterion met" | Verify criterion against actual code/test output | `read` or `symbol lookup` or test execution | VERIFICATION-GAP |
 | "Test passing" | Run the actual test command | `uv run pytest test/test_file.py` | VERIFICATION-GAP |
 | "Files modified as specified" | Verify file changes match spec | `git diff "$DEFAULT_BRANCH" --name-only` → compare with spec | CONFLICTING |
 | "No uncommitted changes" | Verify clean working tree | `git status --porcelain` | VERIFICATION-GAP |

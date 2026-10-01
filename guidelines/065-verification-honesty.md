@@ -18,7 +18,7 @@ The agent must never shortcut verification by recalling information from memory 
 
 When the agent performs verification, it MUST show evidence:
 
-- **Tool calls visible**: The actual `read`, `bash`, `grep`, `pycharm_*`, or `srclight_*` call used
+- **Tool calls visible**: The actual `read`, `bash`, `grep`, `pycharm_*`, or index-tool call used
 - **Command output shown**: The relevant portion of output confirming the result
 - **Explicit attribution**: "Verified by running `git status`" not just "git status is clean"
 
@@ -55,7 +55,7 @@ When the agent performs verification, it MUST show evidence:
 
 2. **For each claim, check if it has been verified by a tool call in the current session.** Session-scoped verification: verify once per fact per session, not per exchange. If the fact was verified in an earlier exchange in the same session and no state-change trigger has occurred, it MAY be reused without re-verification.
 
-3. **If not verified, make a tool call before producing the claim.** Use the appropriate tool for the claim type: `read` for file contents, `srclight_get_signature` for API signatures, `grep` for code patterns, `bash` for command output, `github_*` for issue/PR state.
+3. **If not verified, make a tool call before producing the claim.** Use the appropriate tool for the claim type: `read` for file contents, `symbol-signature lookup` for API signatures, `grep` for code patterns, `bash` for command output, `github_*` for issue/PR state.
 
 4. **If the tool call contradicts the claim, correct it.** The tool call result is authoritative — the claim must match the evidence.
 

@@ -219,7 +219,7 @@ For each analytical artifact, read the artifact file and verify each claim again
 - [ ] 1. Read `{project_root}/tmp/{issue-N}/artifacts/interface-compatibility.yaml`
 - [ ] 2. Extract the list of interfaces and their compatibility requirements
 - [ ] 3. For each interface, verify the implementation maintains backward compatibility
-- [ ] 4. Collect evidence: signature verification via `srclight_get_signature`, diff analysis
+- [ ] 4. Collect evidence: signature verification via `symbol-signature lookup`, diff analysis
 
 #### State Analysis Artifact
 

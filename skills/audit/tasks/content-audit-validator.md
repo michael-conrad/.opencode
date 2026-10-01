@@ -7,7 +7,7 @@
 
 ## Purpose
 
-Produce `reasoning.yaml` with validated evidence by checking each evidence item against source data (local files, config files, srclight symbols). Validates and supports only — does not evaluate, judge, or produce verdicts.
+Produce `reasoning.yaml` with validated evidence by checking each evidence item against source data (local files, config files, local index tooling symbols). Validates and supports only — does not evaluate, judge, or produce verdicts.
 
 
 ## Dispatch Contract
@@ -226,13 +226,13 @@ config_value_evidence_validation:
 
 For each claim in `per_claim_evidence` with `domain: "code-behavior"`, cross-check the evidence against live code:
 
-- [ ] 1. Re-lookup the symbol using `srclight_get_signature(name=<symbol>)`
+- [ ] 1. Re-lookup the symbol using `symbol_signature_lookup(name=<symbol>)`
 - [ ] 2. Compare `found` in evidence against the actual lookup result
 - [ ] 3. If the symbol is found, compare `actual_signature` in evidence against the actual signature returned
 - [ ] 4. Verify the `source_file` exists on disk
 - [ ] 5. Verify the `lookup_method` is consistent with the tool used
 
-If `srclight_get_signature` is unavailable, mark the item as `unverifiable` with reason `TOOL_UNAVAILABLE`.
+If `symbol-signature lookup` is unavailable, mark the item as `unverifiable` with reason `TOOL_UNAVAILABLE`.
 
 Record validation results:
 
@@ -404,7 +404,7 @@ summary: "Evidence validated: {claims_validated}/{total_claims} claims validated
 | GitHub routing fields present | Return BLOCKED with PRELOADED_CONTEXT_REJECTED |
 | No claims in evidence.yaml | Return BLOCKED — evidence.yaml must contain claims |
 | Source data file not found | Record as issue in reasoning.yaml — do NOT BLOCK |
-| srclight_get_signature unavailable | Mark code-behavior items as unverifiable — do NOT BLOCK |
+| symbol-signature lookup unavailable | Mark code-behavior items as unverifiable — do NOT BLOCK |
 | Measurement method not reproducible | Record as issue in reasoning.yaml — do NOT BLOCK |
 | Evidence value mismatch with source | Record as issue in reasoning.yaml — do NOT BLOCK |
 | Write permission denied | Return BLOCKED — cannot write reasoning.yaml |

@@ -44,6 +44,11 @@
       "type": "local",
       "command": ["uvx", "--from", "git+https://github.com/michael-conrad/viewport-editor@v0.5.0", "viewport-editor"],
       "enabled": true
+    },
+    "ragsync": {
+      "type": "local",
+      "command": ["uvx", "--with", "mcp<2", "ragsync", "--config", "/home/muksihs/git/opencode-config/.opencode/ragsync-config.yaml"],
+      "enabled": true
     }
   },
   "plugin": [
