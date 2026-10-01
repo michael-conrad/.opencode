@@ -1,0 +1,25 @@
+---
+issue: 2314
+artifact: concern-map
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+sections:
+  derived_scs:
+    - id: SC-1
+      statement: An enforcement gate exists at the spec-creation → implementation dispatch boundary that checks whether a local plan.md exists for the target issue before allowing an implementation dispatch.
+    - id: SC-2
+      statement: When no plan exists, the implementation dispatch is BLOCKED with reason PLAN_MISSING.
+    - id: SC-3
+      statement: When a plan exists at the expected path, implementation dispatch proceeds without a false-positive block.
+    - id: SC-4
+      statement: A behavioral enforcement test demonstrates the gate blocks plan-less implementation dispatch and permits dispatch with a plan present.
+  concern_groups:
+    - name: dispatch-gate-logic
+      scs: [SC-1, SC-2, SC-3]
+      description: The gate mechanism itself — plan-existence check and BLOCKED reason code, expressed in skill-card routing text and critical-rule entry.
+      phase_boundary: Phase 1
+    - name: behavioral-enforcement
+      scs: [SC-4]
+      description: The behavioral test scenario proving agents do not implement from a spec without a plan (RED) and do implement when a plan exists (GREEN).
+      phase_boundary: Phase 2

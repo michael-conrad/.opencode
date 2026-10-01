@@ -1,0 +1,127 @@
+---
+issue: 2314
+artifact: structure
+status: done
+generated: 2026-10-01T22:40:00Z
+source_of_scs: concern-map.yaml derived_scs (sc-summary.yaml absent; SC list taken from concern-map.yaml — disclosed substitution)
+phases:
+  - id: phase-1
+    name: dispatch-gate-logic
+    concern_group: dispatch-gate-logic
+    scs: [SC-1, SC-2, SC-3]
+    items:
+      - sc: SC-1
+        statement: Gate exists at spec-creation → implementation dispatch boundary checking plan.md existence before allowing dispatch
+        evidence_type: structural
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+            note: structural RED — grep/read check asserting gate entries absent in the four deck files
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+            note: add gate routing entries to spec-creation + executing-plans skill cards, 000-critical-rules.md CRITICAL VIOLATION entry, PLAN_MISSING vocabulary registration
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit-inline
+            skill: (orchestrator)
+            dispatch: 'git add <files> && git commit -m "..."'
+      - sc: SC-2
+        statement: When no plan exists, implementation dispatch is BLOCKED with PLAN_MISSING
+        evidence_type: behavioral
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+            note: create behavioral scenario (plan-absent) asserting agent does NOT block — RED before gate exists
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+            note: gate text change makes dispatch block with PLAN_MISSING; behavioral run asserts blocked outcome via stderr
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'git add <files> && git commit -m "..."'
+          - step: push
+            skill: (orchestrator)
+            dispatch: 'git push; git fetch; verify effective commit contained in remote ref'
+          - step: behavioral-run
+            skill: test-driven-development
+            dispatch: 'bash .opencode/tests-v2/with-test-home opencode run ... (timeout >=600s)'
+      - sc: SC-3
+        statement: When plan.md exists at expected path, dispatch proceeds without false-positive block
+        evidence_type: behavioral
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+            note: plan-present scenario leg asserts dispatch proceeds — RED while gate over-blocks or absent
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+            note: gate change permits plan-bearing dispatch; behavioral run asserts no PLAN_MISSING block
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'git add <files> && git commit -m "..."'
+          - step: push
+            skill: (orchestrator)
+            dispatch: 'git push; git fetch; verify effective commit contained in remote ref'
+          - step: behavioral-run
+            skill: test-driven-development
+            dispatch: 'bash .opencode/tests-v2/with-test-home opencode run ... (timeout >=600s)'
+  - id: phase-2
+    name: behavioral-enforcement
+    concern_group: behavioral-enforcement
+    scs: [SC-4]
+    items:
+      - sc: SC-4
+        statement: Behavioral enforcement test demonstrates gate blocks plan-less dispatch and permits plan-bearing dispatch
+        evidence_type: behavioral
+        steps:
+          - step: red
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+            note: full RED run — agent implements from spec without plan (gate absent/undemonstrated end-to-end)
+          - step: green
+            skill: test-driven-development
+            dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+            note: scenario registered in test-enforcement.sh; GREEN run asserts block + permit pair via stderr behavioral evidence
+          - step: verify
+            skill: verification-before-completion
+            dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+          - step: commit
+            skill: (orchestrator)
+            dispatch: 'git add <files> && git commit -m "..."'
+          - step: push
+            skill: (orchestrator)
+            dispatch: 'git push; git fetch; verify effective commit contained in remote ref'
+          - step: behavioral-run
+            skill: test-driven-development
+            dispatch: 'bash .opencode/tests-v2/test-enforcement.sh --scenario <name> (timeout >=600s)'
+dependency_dag:
+  edges:
+    - from: phase-1
+      to: phase-2
+      reason: SC-4 GREEN behavioral run requires SC-1/SC-2/SC-3 gate outputs committed (phase-2 depends on phase-1)
+    - from: phase-1
+      to: phase-1
+      reason: SC-1 gate text precedes SC-2/SC-3 GREEN behavioral runs within phase (intra-phase ordering)
+triplet_colocation:
+  verified: true
+  detail: >
+    Every SC has RED, GREEN, and COMMIT assigned to a single phase — SC-1/SC-2/SC-3 all in
+    phase-1, SC-4 all in phase-2. The behavioral scenario script legs for SC-2/SC-3 are created
+    inside phase-1 RED steps so no verification in phase-1 depends on phase-2 outputs.
+cross_phase_dependency_check:
+  verified: true
+  detail: >
+    No RED test in any phase depends on output committed in a later phase. SC-4 RED depends only
+    on the pre-existing gate-absent state. SC-2/SC-3 verification instruments are built within
+    phase-1 itself.

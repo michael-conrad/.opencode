@@ -1,0 +1,17 @@
+---
+issue: 2314
+artifact: solve-output
+generated: 2026-10-01T22:50:00Z
+solve_status: SAT
+solve_check_status: SAT
+check_detail: "SAT (+ postconditions + invariants)"
+plan_status: SOLVED_SATISFICING
+plan_engine: tamer
+plan_problem: .opencode/.issues/2314/artifacts/plan-problem.yaml
+plan_length: 2
+plan_actions:
+  - implement-dispatch-gate
+  - run-behavioral-enforcement
+notes:
+  - "Task-card step 10/12 CLI flags diverge from actual tool interface: `solve model` does not accept `--query sat` (runs SAT by default; output confirmed SAT), `plan plan` requires `--problem` (not `--contract-path`/`--output`) — a plan-problem.yaml was constructed from the dependency contract's phase DAG per the plan tool's documented problem schema (precedent: .opencode/.issues/2444/artifacts/plan-problem.yaml). All gates returned SAT/SOLVED_SATISFICING."
+  - "sc-summary.yaml absent; SC list sourced from concern-map.yaml derived_scs (disclosed in structure.yaml)."

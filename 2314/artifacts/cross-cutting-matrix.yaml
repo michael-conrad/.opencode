@@ -1,0 +1,23 @@
+---
+issue: 2314
+artifact: cross-cutting-matrix
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+sections:
+  cross_cutting_scs:
+    - sc: SC-1
+      spans: [routing-text, guideline-enforcement, dispatch-vocabulary]
+      note: The gate touches skill-card routing (spec-creation, executing-plans), a Tier-1 critical rule, and the canonical dispatch-vocabulary table — one gate, three deck layers that must stay consistent.
+    - sc: SC-2
+      spans: [dispatch-vocabulary, behavioral-testing]
+      note: The PLAN_MISSING reason code must be registered in the vocabulary table and asserted by the behavioral test — a shared contract between reference doc and test harness.
+    - sc: SC-4
+      spans: [behavioral-testing, all-deck-layers]
+      note: The behavioral test exercises the integrated result of every other artifact change; it is inherently cross-cutting and depends on all of them landing together.
+  coordination_note: |
+    SC-1 through SC-3 are text-coordinated changes across deck layers; a partial
+    landing (gate text without vocabulary registration, or without the critical
+    rule) leaves the enforcement inconsistent. Phase ordering: all gate-logic
+    changes in one phase, behavioral test in the next.
+

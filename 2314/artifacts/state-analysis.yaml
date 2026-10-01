@@ -1,0 +1,31 @@
+---
+issue: 2314
+artifact: state-analysis
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+sections:
+  state_transitions:
+    - sc: SC-1
+      states:
+        from: pipeline state = spec_created (plan.md absent at {issues_prefix}/{N}/)
+        to: gate active; dispatch decision point evaluates plan.md existence
+      trigger: orchestrator or sub-agent receives an implementation dispatch referencing a spec
+    - sc: SC-2
+      states:
+        from: plan.md absent
+        to: dispatch result = BLOCKED with blocker_reason PLAN_MISSING; no implementation work begins; pipeline state remains spec_created
+      trigger: gate check finds no plan.md
+      note: state transition is terminal for the dispatch — remediation path is running writing-plans, not retrying the dispatch
+    - sc: SC-3
+      states:
+        from: plan.md present at {issues_prefix}/{N}/plan.md
+        to: dispatch proceeds to executing-plans entry; pipeline state advances plan_created → implementation
+      trigger: gate check finds plan.md
+    - sc: SC-4
+      states:
+        from: test harness state = no gate scenario registered
+        to: scenario registered; RED run asserts blocked behavior, GREEN run asserts permitted behavior
+      trigger: enforcement test execution via test-enforcement.sh
+  side_effects: none identified — gate is a read-only existence check; no state files are mutated by the gate itself
+

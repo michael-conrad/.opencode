@@ -1,0 +1,50 @@
+---
+issue: 2314
+artifact: interface-compatibility
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+sections:
+  interfaces:
+    - boundary: spec-creation → downstream skills
+      producer: .opencode/skills/spec-creation/SKILL.md (routing table)
+      consumer: .opencode/skills/executing-plans/SKILL.md (entry criteria)
+      contract: Implementation dispatch requires an approved plan; gate adds plan.md existence check before entry
+      compatibility: Additive — existing plan-bearing dispatches unchanged; only plan-less dispatches gain a new BLOCKED path
+    - boundary: critical-rules → all agents
+      producer: .opencode/guidelines/000-critical-rules.md
+      consumer: every agent dispatching implementation work
+      contract: New CRITICAL VIOLATION classification for spec-without-plan implementation
+      compatibility: Additive rule entry; no existing rule altered
+    - boundary: dispatch-vocabulary → skill/task cards
+      producer: .opencode/reference/skill-card-description-standards.md
+      consumer: skill cards referencing BLOCKED reason codes
+      contract: PLAN_MISSING registered as a canonical reason code
+      compatibility: Additive vocabulary entry
+    - boundary: enforcement harness → test scenarios
+      producer: .opencode/tests-v2/test-enforcement.sh
+      consumer: .opencode/tests-v2/behaviors/ scenario script
+      contract: New scenario invocable via --scenario flag, following existing scenario conventions
+      compatibility: Additive scenario registration
+  dependency_contract:
+    description: |
+      Concrete dependency data derived from the spec's affected files and success
+      criteria — real sources, real targets, real type constraints.
+    entries:
+      - source: .opencode/skills/spec-creation/SKILL.md
+        target: .opencode/skills/executing-plans/SKILL.md
+        constraint: plan_path parameter (string, path to {issues_prefix}/{N}/plan.md) must resolve to an existing readable file before executing-plans entry criteria pass
+        sc: SC-1
+      - source: orchestrator dispatch context
+        target: gate check
+        constraint: issue_number (integer) and issues_prefix (string) must be present in dispatch context to resolve the plan.md path
+        sc: SC-1, SC-2
+      - source: gate BLOCKED result
+        target: .opencode/reference/skill-card-description-standards.md vocabulary
+        constraint: blocker_reason must equal the registered literal "PLAN_MISSING" (string, uppercase snake_case, matching existing reason-code convention)
+        sc: SC-2
+      - source: .opencode/tests-v2/test-enforcement.sh
+        target: behavioral scenario in .opencode/tests-v2/behaviors/
+        constraint: scenario must run via with-test-home opencode run (bash script, >=600s timeout) and produce stderr-based behavioral evidence
+        sc: SC-4
+

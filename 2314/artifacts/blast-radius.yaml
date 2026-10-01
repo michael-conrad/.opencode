@@ -1,0 +1,31 @@
+---
+issue: 2314
+artifact: blast-radius
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+sections:
+  affected_files:
+    - path: .opencode/skills/spec-creation/SKILL.md
+      exists: verified
+      role: spec-creation pipeline skill card — hosts the pipeline completion boundary that must gate downstream implementation dispatch
+    - path: .opencode/skills/executing-plans/SKILL.md
+      exists: verified
+      role: implementation dispatch entry point — the receiving side of the spec → plan → implementation boundary
+    - path: .opencode/guidelines/000-critical-rules.md
+      exists: verified
+      role: Tier-1 critical rules — hosts the CRITICAL VIOLATION entry for bypassing the plan-existence gate
+    - path: .opencode/reference/skill-card-description-standards.md
+      exists: verified
+      role: canonical dispatch-vocabulary table — new gate reason code PLAN_MISSING must be registered here
+    - path: .opencode/tests-v2/test-enforcement.sh
+      exists: verified
+      role: enforcement test harness — target for the behavioral enforcement test (SC-4)
+  blast_radius_summary: |
+    Change is confined to the .opencode agent deck: skill-card routing text, one
+    guideline entry, one dispatch-vocabulary reference, and one behavioral test
+    scenario. No runtime application code is affected. Downstream consumers
+    (sub-agents receiving implementation dispatches) gain a new BLOCKED path.
+  out_of_scope:
+    - writing-plans pipeline internals (plan creation itself is unchanged)
+    - approval-gate skill (authorization scope model unchanged)

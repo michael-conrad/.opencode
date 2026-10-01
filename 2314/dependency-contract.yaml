@@ -1,0 +1,24 @@
+---
+issue: 2314
+artifact: dependency-contract
+source: .opencode/.issues/2314/artifacts/interface-compatibility.yaml (dependency_contract section extracted as-is)
+description: |
+  Concrete dependency data derived from the spec's affected files and success
+  criteria — real sources, real targets, real type constraints.
+entries:
+  - source: .opencode/skills/spec-creation/SKILL.md
+    target: .opencode/skills/executing-plans/SKILL.md
+    constraint: plan_path parameter (string, path to {issues_prefix}/{N}/plan.md) must resolve to an existing readable file before executing-plans entry criteria pass
+    sc: SC-1
+  - source: orchestrator dispatch context
+    target: gate check
+    constraint: issue_number (integer) and issues_prefix (string) must be present in dispatch context to resolve the plan.md path
+    sc: SC-1, SC-2
+  - source: gate BLOCKED result
+    target: .opencode/reference/skill-card-description-standards.md vocabulary
+    constraint: blocker_reason must equal the registered literal "PLAN_MISSING" (string, uppercase snake_case, matching existing reason-code convention)
+    sc: SC-2
+  - source: .opencode/tests-v2/test-enforcement.sh
+    target: behavioral scenario in .opencode/tests-v2/behaviors/
+    constraint: scenario must run via with-test-home opencode run (bash script, >=600s timeout) and produce stderr-based behavioral evidence
+    sc: SC-4
