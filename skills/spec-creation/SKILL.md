@@ -92,6 +92,10 @@ The tier counter resets when validate returns PASS (successful exit from the loo
 - [ ] 3. If validate returns FAIL, return to step 1 (with tiered escalation per the Tiered Escalation section above). If PASS, spec is ready.
   - **Execution mode:** orchestrator
 
+## Implementation Dispatch Boundary Gate
+
+Before dispatching any downstream implementation work (execution sub-agents, RED/GREEN task dispatches), the orchestrator MUST verify an approved implementation plan exists at the expected `{issue}/plan.md` path. If `plan.md` does not exist, the dispatch is BLOCKED with reason code `PLAN_MISSING` — no implementation dispatch proceeds without a plan. Plan-bearing dispatches (approved `plan.md` present) proceed normally.
+
 ## Cross-References
 
 Skills: `brainstorming` (upstream handoff), `writing-plans` (downstream consumer), `audit` (spec-audit), `approval-gate`. Guidelines: `000-critical-rules.md` (clean-room discipline), `080-code-standards.md` (evidence type taxonomy).

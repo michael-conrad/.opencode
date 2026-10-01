@@ -24,6 +24,10 @@ The orchestrator does NOT forward the plan or workflow to a sub-agent:
 - **Dispatch only at marked points** — a step's task card goes to a sub-agent via `task()` ONLY when that step explicitly marks dispatch (per-step dispatch mode `task-card`); steps marked `direct` are executed in the orchestrator's own context.
 - **Never forward whole artifacts** — the plan body, a whole phase, or a whole workflow body MUST NOT appear inside any `task()` prompt. A leaf sub-agent receiving a whole plan body rejects with `ORCHESTRATOR_ONLY_PLAN` and halts.
 
+## Plan-Missing Gate (Mandatory)
+
+Before executing any plan step, the orchestrator MUST verify the approved plan file (`plan.md`) exists. If the plan file is missing, the execution is BLOCKED with reason code `PLAN_MISSING` — no plan execution proceeds without a plan. Plan-bearing execution (approved `plan.md` present) proceeds normally.
+
 ## Pre-Flight Guard (Mandatory)
 
 Check your tool list for a tool named `task`.

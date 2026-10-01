@@ -369,6 +369,9 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 4. **Binary decision:** Action is safe and reversible → act and disclose. Action is destructive, irreversible, or authorization-gated → existing gates apply unchanged; this clause creates no new authorization.
 5. **Recitation defect:** Producing citation-only turns (restating critical-rules, approval-gate, or scope rules without performing the requested safe action) is a process-integrity failure — act, then disclose; do not deliberate in citations.
 
+### [critical-rules-PLAN-MISSING] CRITICAL VIOLATION — PLAN_MISSING — implementation dispatch without an approved plan
+Dispatching implementation work (execution sub-agents, RED/GREEN task dispatches) when no approved `plan.md` exists is a CRITICAL VIOLATION. The dispatch MUST be BLOCKED with reason code `PLAN_MISSING` — gate routing entries at the spec-creation → implementation boundary in the spec-creation and executing-plans skill cards enforce plan.md existence checking before any implementation dispatch proceeds.
+
 
 
 
