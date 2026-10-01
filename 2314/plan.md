@@ -78,6 +78,16 @@ dispatch:
 - [ ] C5. All SC verdicts are PASS with evidence-type-matched artifacts; no DONE_WITH_CONCERNS coercion applies
 - [ ] C6. PR created (stacked strategy, one branch) with plan, test, and gate changes committed
 
+## Lifecycle Events
+
+```yaml
+lifecycle_events:
+  - timestamp: "2026-10-01T18:16:00-04:00"
+    event: plan_created
+    plan_file: ".opencode/.issues/2314/plan.md"
+    phase_count: 2
+```
+
 ## Pre-Flight Guard (Mandatory)
 
 Check your tool list for a tool named `task`.

@@ -1,0 +1,75 @@
+---
+issue: 2314
+artifact: validate-findings
+generated: "2026-10-01T22:15:00Z"
+validator: writing-plans --task validate
+plan_file: .opencode/.issues/2314/plan.md
+solve_status: SAT
+overall_status: PASS
+categories:
+  - category: 1-structural
+    result: PASS
+    checks:
+      - check: phase-table-required-columns
+        result: PASS
+        evidence: "plan.md Phase Table has columns Phase|Name|Concern|SCs|Depends On|Step Range|Dispatch; 2 phases (1 dispatch-gate-logic, 2 behavioral-enforcement)"
+      - check: phase-procedure-numbered-steps
+        result: PASS
+        evidence: "Phase 1: plan-01-dispatch-gate-logic.md steps 3-22; Phase 2: plan-02-behavioral-enforcement.md steps 23-39; pre-implementation steps 1-2 in plan.md"
+      - check: exit-criteria-sc-mapping
+        result: PASS
+        evidence: "plan.md Exit Criteria C1->SC-1, C2->SC-2, C3->SC-3, C4->SC-4, C5 (verdicts clean), C6 (PR stacked)"
+  - category: 2-skill-task-validity
+    result: PASS
+    checks:
+      - check: references-match-implementation-workflow-card
+        result: PASS
+        evidence: "All skill+task references valid against skills/writing-plans/reference/implementation-workflow.md: test-driven-development (red, green, phase-4), verification-before-completion (verify), audit (verification-audit DiMo), finishing-a-development-branch (checklist), git-workflow-pr (review-prep, create), completion-core (completion); orchestrator-direct steps (commit-inline, push, z3-check) match card's '(orchestrator) direct' entries"
+  - category: 3-sc-coverage
+    result: PASS
+    checks:
+      - check: every-sc-covered
+        result: PASS
+        evidence: "SC-1 steps 3-7 (phase 1), SC-2 steps 8-15 (phase 1), SC-3 steps 16-21 (phase 1), SC-4 steps 23-30 (phase 2); SC list sourced from concern-map derived_scs (sc-summary.yaml absent, disclosed in solve-output notes)"
+      - check: triplet-split-detection
+        result: PASS
+        evidence: "SC-1 RED(3)/GREEN(4)/COMMIT(7) phase 1; SC-2 RED(8)/GREEN(9)/COMMIT(12+13) phase 1; SC-3 RED(16)/GREEN(17)/COMMIT(20) phase 1; SC-4 RED(23)/GREEN(24)/COMMIT(27+28) phase 2 — no SC has RED/GREEN/COMMIT split across phases"
+  - category: 4-concern-separation
+    result: PASS
+    checks:
+      - check: one-concern-per-phase
+        result: PASS
+        evidence: "Phase 1 concern = dispatch-gate-logic (SC-1..SC-3); Phase 2 concern = behavioral-enforcement (SC-4) — matches concern-map concern_groups and phase_boundary fields"
+      - check: no-duplicate-concern
+        result: PASS
+        evidence: "No concern appears in more than one phase"
+  - category: 5-dag-validation
+    result: PASS
+    checks:
+      - check: no-cycles
+        result: PASS
+        evidence: "Dependency edges form a chain (SC-1 -> SC-2 -> SC-3 gate outputs -> SC-4 scenario); Phase 2 Depends On Phase 1 only; acyclic"
+      - check: all-phases-reachable
+        result: PASS
+        evidence: "Phase 1 is the root; Phase 2 reachable via phase-1 dependency"
+      - check: no-orphan-phases
+        result: PASS
+        evidence: "Phase 1 has outgoing edge to Phase 2; Phase 2 has incoming edge from Phase 1"
+      - check: solve-gate-agreement
+        result: PASS
+        evidence: "solve-output.yaml solve_status SAT, check_detail 'SAT (+ postconditions + invariants)'"
+  - category: 6-holistic-quality
+    result: PASS
+    checks:
+      - check: no-tbd-todo-placeholders
+        result: PASS
+        evidence: "No TBD/TODO markers in plan body; step 32 '... --state-path ... --contract-path ...' and '<plan-absent dispatch prompt>' / '<plan-present dispatch prompt>' are runtime parameter placeholders resolved at dispatch time, not unfinished-planning markers (noted, not a violation)"
+      - check: checkbox-format
+        result: PASS
+        evidence: "All steps 1-39 use '- [ ] N.' checkbox format"
+      - check: dispatch-mode-consistency
+        result: PASS
+        evidence: "Frontmatter dispatch declares test-driven-development (red, green, phase-4) + verification-before-completion (verify) per phase; direct steps are exclusively commit/push/z3-check per the reference card's orchestrator-direct entries; no inline implementation steps in task-card items, no dispatched steps for commit/push"
+findings: []
+notes:
+  - "sc-summary.yaml absent; SC list taken from concern-map.yaml derived_scs per solve-output disclosure"
