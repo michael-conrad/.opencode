@@ -45,7 +45,7 @@ If NOT a bug, report the misclassification in chat and suggest re-triage. HALT.
 Systematically analyze the bug report to identify the root cause:
 
 - [ ] 1. **Read the bug report** — extract error description, reproduction steps, expected vs actual behavior
-- [ ] 2. **Examine referenced code** — use `srclight` or code search to find relevant source
+- [ ] 2. **Examine referenced code** — use available local index tooling or code search to find relevant source
 - [ ] 3. **Trace the call path** — identify the failing component and its callers
 - [ ] 4. **Form hypotheses** — generate at least 2 root cause hypotheses
 - [ ] 5. **Document analysis** — produce a prose root cause summary

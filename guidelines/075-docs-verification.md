@@ -42,7 +42,7 @@ Before writing ANY implementation code, verify against authoritative sources:
 
 2. **Source code and type hints**
 
-   - `pycharm_get_symbol_info` or `srclight_get_signature`
+   - `pycharm_get_symbol_info` or `symbol-signature lookup`
    - Inline type hints and docstrings
 
 3. **Example files in codebase**
@@ -58,7 +58,7 @@ Before writing ANY implementation code, verify against authoritative sources:
 
 ✅ **Verification Required:**
 
-- Calling `srclight_get_signature` to check function parameters
+- Calling `symbol-signature lookup` to check function parameters
 - Reading source code to confirm API usage
 - Checking official documentation URLs
 - Reviewing type hints in IDE or via MCP tools
@@ -173,7 +173,7 @@ Implementing from memory means implementing from training data — always stale,
 
 - Verify API signatures against official docs or source before calling
 - Check environment variable names against `.env.example` or config documentation
-- Verify function signatures via `srclight_get_signature` or source code inspection
+- Verify function signatures via `symbol-signature lookup` or source code inspection
 
 #### Why This Matters
 

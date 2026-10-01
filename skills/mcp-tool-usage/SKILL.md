@@ -107,7 +107,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 | Task | Call via task() |
 
-| `selection-guide` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [troubleshoot srclight and respect file-type tool boundaries](.opencode/skills/mcp-tool-usage/tasks/selection-guide.md). "))` |
+| `selection-guide` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [respect file-type tool boundaries](.opencode/skills/mcp-tool-usage/tasks/selection-guide.md). "))` |
 
 **CLI equivalent (for human TUI use):** `` `skill({name: "mcp-tool-usage"})` ``
 
@@ -115,7 +115,7 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 
 ```
 TIER 1 — PRIMARY: opencode built-in tools (read/write/edit/glob/grep)
-TIER 2 — PRIMARY: Domain MCP (srclight, the-notebook-mcp, GitHub MCP)
+TIER 2 — PRIMARY: Domain MCP (the-notebook-mcp, GitHub MCP)
 TIER 3 — PRIMARY: .opencode/tools/ (guidelines, md, py ls/mkpkg)
 TIER 4 — FALLBACK: JetBrains MCP (pycharm_*) — only for unique capabilities
 TIER 5 — LAST RESORT: Direct CLI (bash)
@@ -137,7 +137,6 @@ ABSOLUTE EXCEPTION: .ipynb files → the-notebook-mcp MANDATORY (zero tolerance,
 
 ### TIER 2: Domain MCP (PRIMARY for their specialties)
 
-- **srclight**: Python code analysis (search symbols, callers, callees, type hierarchy, tests)
 - **the-notebook-mcp**: All notebook operations (zero tolerance, no fallback)
 - **GitHub MCP**: Issue/PR operations, branch management, file contents
 

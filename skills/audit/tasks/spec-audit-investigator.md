@@ -188,7 +188,7 @@ For each URL, API reference, or documentation claim in the spec, collect verific
   - Record whether the referenced content appears to exist on the page
   - Do NOT judge whether the content is correct — only record what was found
 - [ ] 2. **API reference verification** — For each API function, method, or class reference:
-  - Use `srclight_get_signature` to look up the referenced symbol
+  - Use `symbol-signature lookup` to look up the referenced symbol
   - Record the actual signature found (or note if not found)
   - Do NOT compare against the spec's claim — only record what exists
 - [ ] 3. **Environment variable verification** — For each environment variable reference:
@@ -213,7 +213,7 @@ documentation_source_evidence:
     - source: "<function/class/method name>"
       found: true | false
       actual_signature: "<signature or absent>"
-      lookup_method: "srclight_get_signature"
+      lookup_method: "symbol-signature lookup"
   env_variables:
     - source: "<variable name>"
       found_in_config: true | false
@@ -473,7 +473,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | spec_local_dir contains no .md files | Return BLOCKED with SPEC_NOT_FOUND |
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
 | webfetch fails for a URL | Record as `accessible: false` with error — do NOT BLOCK |
-| srclight_get_signature fails | Record as `found: false` — do NOT BLOCK |
+| symbol-signature lookup fails | Record as `found: false` — do NOT BLOCK |
 | Analytical artifact path missing from dispatch | Record as `provided: false` — do NOT BLOCK |
 
 ## Cross-References

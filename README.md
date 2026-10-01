@@ -151,8 +151,7 @@ Self-contained modules with YAML frontmatter for self-discovery:
     ".opencode/guidelines/060-tool-usage.md"
   ],
   "mcp": {
-    "the-notebook-mcp": { ... },
-    "srclight": { ... }
+    "the-notebook-mcp": { ... }
   }
 }
 ```

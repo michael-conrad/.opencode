@@ -87,7 +87,7 @@ Read [the TDD cycle diagram](skills/test-driven-development/tasks/operating-prot
 
 ### Phase 0 — Pre-Regression Baseline
 
-Invoked before the first RED phase. AI-driven dependency analysis (`srclight_get_dependents`), full test suite execution. BLOCKED on test failure — cycle cannot start until existing failures are resolved. Empty blast radius = silent proceed.
+Invoked before the first RED phase. AI-driven dependency analysis (`dependents blast-radius lookup`), full test suite execution. BLOCKED on test failure — cycle cannot start until existing failures are resolved. Empty blast radius = silent proceed.
 
 ### Phase 4 — Post-Regression Verification
 

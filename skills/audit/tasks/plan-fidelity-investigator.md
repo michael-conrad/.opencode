@@ -206,7 +206,7 @@ content_evidence:
 
 ### Step 6: Collect Blast Radius Evidence
 
-- [ ] 1. For each file in the plan's scope, use `srclight_get_dependents` to discover dependents
+- [ ] 1. For each file in the plan's scope, use `dependents blast-radius lookup` to discover dependents
 - [ ] 2. Record dependents that the plan does not address
 
 ```yaml
@@ -295,7 +295,7 @@ summary: "Evidence collected: {N} SCs, {M} plan steps, {K} phases. {X} structura
 |-------|--------|
 | `spec_local_dir` missing or empty | Return BLOCKED — `MISSING_REQUIRED_INPUT` |
 | No plan files found in `spec_local_dir/` | Return BLOCKED — `MISSING_PLAN` |
-| `srclight_get_dependents` unavailable | Skip blast radius collection, note in evidence |
+| `dependents blast-radius lookup` unavailable | Skip blast radius collection, note in evidence |
 | `github_issue_read` unavailable | Skip cross-reference verification, note in evidence |
 | Write permission denied | Return BLOCKED — cannot write evidence |
 

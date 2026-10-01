@@ -1,0 +1,65 @@
+defaults:
+  embedding:
+    provider: fastembed
+    model: Qwen/Qwen3-Embedding-0.6B-Q
+  vector_store:
+    backend: chroma
+    persist_directory: ./vector_db
+sources:
+  - name: opencode-agent-config
+    type: folder
+    description: >-
+      Tracked agent-facing text of the main repo working tree: AGENTS.md,
+      README.md, CHANGELOG.md, docs/ (research decks and papers), skills/
+      task verification files.
+    connection:
+      path: ..
+      include: ["*.md", "*.txt", "*.tex"]
+      exclude:
+        - ".git/**"
+        - "node_modules/**"
+        - ".opencode/**"
+        - ".issues/**"
+        - ".worktrees/**"
+        - "tmp/**"
+        - ".tools/**"
+        - ".pytest_cache/**"
+        - ".ruff_cache/**"
+        - ".srclight/**"
+        - ".idea/**"
+        - ".github/**"
+        - "tests/**"
+        - "docs/**/results/**"
+        - "docs/**/eval*/**"
+        - "LICENSE"
+    vector_store:
+      collection: opencode_agent_config
+    watch:
+      enabled: true
+  - name: .opencode-deck
+    type: folder
+    description: >-
+      Tracked agent-deck content of the .opencode/ submodule: AGENTS.md,
+      README.md, guidelines/, skills/ (skill and task cards), reference/,
+      docs/.
+    connection:
+      path: .
+      include: ["*.md", "*.txt", "*.tex"]
+      exclude:
+        - "node_modules/**"
+        - ".issues/**"
+        - "tmp/**"
+        - ".tools/**"
+        - ".node/**"
+        - ".opencode/**"
+        - "test-artifacts/**"
+        - "tests-v2/**"
+        - ".pytest_cache/**"
+        - ".venv/**"
+        - "uv.lock"
+        - "package-lock.json"
+        - "bun.lock"
+    vector_store:
+      collection: opencode_deck
+    watch:
+      enabled: true

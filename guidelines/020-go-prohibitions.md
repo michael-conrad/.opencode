@@ -190,7 +190,7 @@ After EVERY `task(subagent_type=...)` call, the agent MUST produce output — ne
 
 #### Post-Tool Execution Output Checkpoint
 
-After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, srclight_*, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
+After EVERY batch of tool calls (ALL types: bash, read, write, edit, github_*, index-tool calls, task, etc.), the agent MUST produce visible chat output before halting. This checkpoint applies regardless of tool success/failure, sub-agent results, or workflow end-state. The output MUST include:
 1. What operation/tool was invoked
 2. What the result was (success/failure/error)
 3. What state this leaves the workflow in

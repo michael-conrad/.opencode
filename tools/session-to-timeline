@@ -154,11 +154,6 @@ TOOL_INPUT_SUMMARIZERS = {
     "github_create_pull_request": lambda inp: {
         "title": inp.get("title"), "head": inp.get("head"), "base": inp.get("base"),
     },
-    "srclight_search_symbols": lambda inp: {
-        "query": inp.get("query", "")[:100], "kind": inp.get("kind"),
-    },
-    "srclight_get_signature": lambda inp: {"name": inp.get("name", "")},
-    "srclight_get_symbol": lambda inp: {"name": inp.get("name", "")},
     "task": lambda inp: {
         "subagent_type": inp.get("subagent_type", ""),
         "description": inp.get("description", "")[:120],

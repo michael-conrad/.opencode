@@ -91,7 +91,7 @@ result = some_function(timeout=60, retries=3)
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Fix resolves root cause" | Verify fix targets identified root cause location | `srclight_get_symbol(name="target")` → confirm change location | VERIFICATION-GAP |
+| "Fix resolves root cause" | Verify fix targets identified root cause location | `symbol_lookup(name="target")` → confirm change location | VERIFICATION-GAP |
 | "Tests pass after fix" | Run actual test suite | `uv run pytest test/` → check exit code | VERIFICATION-GAP |
 | "No unrelated changes" | Verify diff scope matches fix spec | `git diff --name-only` → compare with spec file list | CONFLICTING |
 | "Fix is minimal" | Verify no refactoring or enhancement included | `git diff "$DEFAULT_BRANCH"` → check change scope | CONFLICTING |

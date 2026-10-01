@@ -22,18 +22,18 @@ Mandatory pre-spec code inspection and evidence artifact collection before any s
 
 | Checklist Item | Verification Action | Tool Call | Problem Class |
 | -- | -- | -- | -- |
-| Trace call paths | Verify actual import/call relationships | `srclight_get_callers(symbol_name="target")`, `srclight_get_callees(symbol_name="target")` | VERIFICATION-GAP |
-| Verify imports | Confirm actual import path | `srclight_get_symbol(name="module.symbol")` → check file location | VERIFICATION-GAP |
-| Detect dead code | Verify referenced symbols are used | `srclight_get_dependents(symbol_name="symbol")` | MISSING-ELEMENT |
-| Verify format/protocol | Confirm data format matches assumption | `srclight_get_signature(name="function_name")` | CONFLICTING |
-| Confirm architectural layer | Verify code is in correct layer | `srclight_search_symbols(query="target", kind="function")` → check file path | STRUCTURE-VIOLATION |
-| Check for existing alternatives | Search for existing solutions | `srclight_search_symbols(query="feature description")` | MISSING-ELEMENT |
-| Preliminary blast radius | Identify all files/symbols that would be affected by the change | `srclight_get_dependents(symbol_name="target", transitive=True)` | STRUCTURE-VIOLATION |
-| Preliminary concern map | Map affected areas to concern boundaries | `srclight_search_symbols(query="concern area")` + file path analysis | STRUCTURE-VIOLATION |
-| Code path inventory | List all execution paths through the affected code | `srclight_get_callers(symbol_name="target")` + `srclight_get_callees(symbol_name="target")` | MISSING-ELEMENT |
-| Interface compatibility | Verify public API compatibility with proposed changes | `srclight_get_signature(name="interface_name")` | CONFLICTING |
-| State analysis | Identify persistent state affected by the change | `srclight_search_symbols(query="state|persist|store")` | MISSING-ELEMENT |
-| Testability assessment | Evaluate whether existing tests cover the affected paths | `srclight_get_tests_for(symbol_name="target")` | MISSING-ELEMENT |
+| Trace call paths | Verify actual import/call relationships | `callers_lookup(symbol_name="target")`, `callees_lookup(symbol_name="target")` | VERIFICATION-GAP |
+| Verify imports | Confirm actual import path | `symbol_lookup(name="module.symbol")` → check file location | VERIFICATION-GAP |
+| Detect dead code | Verify referenced symbols are used | `dependents_blast_radius_lookup(symbol_name="symbol")` | MISSING-ELEMENT |
+| Verify format/protocol | Confirm data format matches assumption | `symbol_signature_lookup(name="function_name")` | CONFLICTING |
+| Confirm architectural layer | Verify code is in correct layer | `code_search(query="target", kind="function")` → check file path | STRUCTURE-VIOLATION |
+| Check for existing alternatives | Search for existing solutions | `code_search(query="feature description")` | MISSING-ELEMENT |
+| Preliminary blast radius | Identify all files/symbols that would be affected by the change | `dependents_blast_radius_lookup(symbol_name="target", transitive=True)` | STRUCTURE-VIOLATION |
+| Preliminary concern map | Map affected areas to concern boundaries | `code_search(query="concern area")` + file path analysis | STRUCTURE-VIOLATION |
+| Code path inventory | List all execution paths through the affected code | `callers_lookup(symbol_name="target")` + `callees_lookup(symbol_name="target")` | MISSING-ELEMENT |
+| Interface compatibility | Verify public API compatibility with proposed changes | `symbol_signature_lookup(name="interface_name")` | CONFLICTING |
+| State analysis | Identify persistent state affected by the change | `code_search(query="state|persist|store")` | MISSING-ELEMENT |
+| Testability assessment | Evaluate whether existing tests cover the affected paths | `test_coverage_lookup(symbol_name="target")` | MISSING-ELEMENT |
 
 ## Evidence Format
 

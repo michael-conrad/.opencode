@@ -87,7 +87,7 @@ For specs that pass the quick filter, extract and compare:
 - **Symbol references:** Extract function, class, and module names referenced in the spec body
 - **Concern boundaries:** Extract the concern area each phase addresses (what problem each phase solves)
 
-Use `srclight_get_dependents` or `srclight_get_callers` where possible to verify actual dependencies overlap, not just spec-claimed overlap.
+Use `dependents blast-radius lookup` or `callers lookup` where possible to verify actual dependencies overlap, not just spec-claimed overlap.
 
 #### 1c: Classify Overlap Using Four-Tier Model
 
@@ -102,7 +102,7 @@ Use `srclight_get_dependents` or `srclight_get_callers` where possible to verify
 
 ```
 Check: [existing spec #N overlap with new spec]
-Tool: `issue-operations → read-issue` + srclight_get_dependents/srclight_get_callers
+Tool: `issue-operations → read-issue` + dependents blast-radius lookup/callers lookup
 Result: [shared files, shared symbols, overlap classification]
 Classification: [FULL-SUPERSESSION|PARTIAL-OVERLAP|CONFLICT-RISK|INDEPENDENT]
 Action: [BLOCK|surface|surface|proceed]
@@ -236,8 +236,8 @@ Before proceeding, verify ALL:
 
 | Staleness Claim | Verification Action | Tool Call | Problem Class |
 |-----------------|-------------------|-----------|---------------|
-| "Spec may be implemented but left open" | Verify referenced code exists and matches spec claims | `srclight_get_symbol(name="symbol")` or `glob(pattern="**/file")` | VERIFICATION-GAP |
-| "Referenced code locations changed" | Verify file paths and symbols still exist as referenced | `srclight_get_symbol(name="symbol")` → confirm location | CONFLICTING |
+| "Spec may be implemented but left open" | Verify referenced code exists and matches spec claims | `symbol_lookup(name="symbol")` or `glob(pattern="**/file")` | VERIFICATION-GAP |
+| "Referenced code locations changed" | Verify file paths and symbols still exist as referenced | `symbol_lookup(name="symbol")` → confirm location | CONFLICTING |
 | "Problem statement still applies" | Verify the original problem is not resolved | `issue-operations → read-comments` → check for resolution comments | VERIFICATION-GAP |
 | "Superseding issue found" | Verify superseding issue actually supersedes (compare objectives) | `issue-operations → read-issue` → compare objectives | CONFLICTING |
 

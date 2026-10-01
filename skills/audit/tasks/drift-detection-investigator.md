@@ -22,7 +22,7 @@ The verification honesty principle extends to metadata claims in specs, plans, a
 | Label | Verify label claims match actual issue state | Read labels from local `{issues_prefix}/{N}/issue.yaml` as primary via `local-issues read-labels --number <repo>#<N>`; remote API read (`github_issue_read(method=get_labels)` or `gitbucket-api get-labels`) only as fallback when the local file is unavailable |
 | Comments/body claims | Verify factual claims in issue body against live state | Re-read issue comments; verify claims against current data |
 | Cross-references | Verify `#N` references point to existing, matching content | Call `github_issue_read(method=get, issue_number=N)` for each reference |
-| Code references | Verify file paths, function names, and code references exist | Use `srclight_search_symbols`, `glob`, or `srclight_get_signature` |
+| Code references | Verify file paths, function names, and code references exist | Use `code search`, `glob`, or `symbol-signature lookup` |
 | Process-completion flags | Verify completion markers reflect actual completion | Check referenced artifacts (branches, commits, PRs) exist and are merged |
 | Sub-issue state | Verify sub-issue open/closed state via GitHub API, not cached or claimed state | `github_issue_read(method=get, issue_number=N)` → check `state` field; `github_issue_read(method=get_sub_issues)` |
 
@@ -156,8 +156,8 @@ For each target file that exists, collect raw implementation evidence:
 
 - [ ] 1. **File existence check** — For each file path from spec requirements, record whether the file exists
 - [ ] 2. **File content read** — For each existing file, read its full content
-- [ ] 3. **Symbol extraction** — Use `srclight_symbols_in_file` to extract all functions, classes, and methods defined in the file
-- [ ] 4. **Signature extraction** — For each function/class/method, use `srclight_get_signature` to record the actual signature
+- [ ] 3. **Symbol extraction** — Use `file symbol enumeration` to extract all functions, classes, and methods defined in the file
+- [ ] 4. **Signature extraction** — For each function/class/method, use `symbol-signature lookup` to record the actual signature
 - [ ] 5. **File size and metadata** — Record file size, line count, and modification timestamp
 - [ ] 6. Do NOT judge whether the implementation is correct — record what exists
 
@@ -174,7 +174,7 @@ code_implementation:
       symbols:
         - name: "<symbol name>"
           kind: "function | class | method | enum | struct"
-          signature: "<actual signature from srclight_get_signature>"
+          signature: "<actual signature from symbol-signature lookup>"
           line: <N>
       raw_content_hash: "<sha256 or absent>"
 ```
@@ -206,7 +206,7 @@ raw_comparisons:
   signature_comparisons:
     - spec_function: "<name>"
       expected_signature: "<text from spec or absent>"
-      actual_signature: "<text from srclight_get_signature or absent>"
+      actual_signature: "<text from symbol-signature lookup or absent>"
       spec_has_signature: true | false
       code_has_signature: true | false
   extra_code:
@@ -250,7 +250,7 @@ untracked_files:
 For any documentation URLs, API references, or external sources cited in the spec, collect verification evidence:
 
 - [ ] 1. **URL verification** — For each URL in the spec, fetch using `webfetch` and record accessibility
-- [ ] 2. **API reference verification** — For each API reference, use `srclight_get_signature` to record the actual signature
+- [ ] 2. **API reference verification** — For each API reference, use `symbol-signature lookup` to record the actual signature
 - [ ] 3. Do NOT judge whether the documentation is correct — record what exists
 
 Record in evidence:
@@ -266,7 +266,7 @@ documentation_sources:
     - source: "<function/class/method name>"
       found: true | false
       actual_signature: "<signature or absent>"
-      lookup_method: "srclight_get_signature"
+      lookup_method: "symbol-signature lookup"
 ```
 
 ### Step 8: Write evidence.yaml
@@ -336,8 +336,8 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | artifact_evidence_dir not writable | Return BLOCKED with PERMISSION_DENIED |
 | No target files identified | Return BLOCKED — need file paths or spec with file requirements |
 | Code file not parseable | Record as `exists: true` with `parse_error: "<message>"` — do NOT BLOCK |
-| srclight_get_signature fails | Record as `found: false` — do NOT BLOCK |
-| srclight_symbols_in_file fails | Record as `symbols: []` with `extraction_error: "<message>"` — do NOT BLOCK |
+| symbol-signature lookup fails | Record as `found: false` — do NOT BLOCK |
+| file symbol enumeration fails | Record as `symbols: []` with `extraction_error: "<message>"` — do NOT BLOCK |
 | webfetch fails for a URL | Record as `accessible: false` with error — do NOT BLOCK |
 
 ## Cross-References

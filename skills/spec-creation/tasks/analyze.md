@@ -13,7 +13,7 @@ Perform pre-spec inspection, research card consultation, requirements extraction
 - [ ] `issue_number` and `project_root` received in dispatch context
 - [ ] `issue_number` is a bound, real issue number — NOT an unbound/placeholder value (e.g., `N`, `TBD`, `0`, a literal placeholder token, or a number with no corresponding issue record)
 - [ ] No preloaded analysis, orchestrator reasoning, or expected outcomes in the prompt
-- [ ] Codebase is indexed (srclight available)
+- [ ] Codebase is indexed (local index tooling available)
 
 ## BLOCK Precondition
 
@@ -34,7 +34,7 @@ The dispatch context MAY carry `brainstorm_handoff_path` — the path to the bra
 
 ### Step 1: Pre-spec inspection
 
-- [ ] 1.1. Search the codebase for affected files, existing patterns, and conventions relevant to the spec topic. Use `srclight_hybrid_search` and `srclight_get_dependents` to identify:
+- [ ] 1.1. Search the codebase for affected files, existing patterns, and conventions relevant to the spec topic. Use `code search` and `dependents blast-radius lookup` to identify:
 
   - Files that would be modified by the spec
   - Existing patterns and conventions in those files
@@ -57,7 +57,7 @@ The dispatch context MAY carry `brainstorm_handoff_path` — the path to the bra
   - Constraint requirements (boundary conditions)
   - Non-requirements (explicitly excluded)
 
-- [ ] 3.2. Verify every requirement against the actual codebase using srclight, file reads, and config checks. Write structured YAML to `{project_root}/tmp/{issue_number}/contracts/requirements-output.yaml`.
+- [ ] 3.2. Verify every requirement against the actual codebase using local index tooling, file reads, and config checks. Write structured YAML to `{project_root}/tmp/{issue_number}/contracts/requirements-output.yaml`.
 
 ### Step 4: Problem decomposition
 

@@ -175,16 +175,16 @@ For each item, record:
 Validate each item in the `blast_radius` section:
 
 - [ ] 1. For each entry in `blast_radius`, verify the file exists in the plan's scope
-- [ ] 2. For each dependent symbol, verify it is a real symbol via `srclight_get_dependents` on the file
+- [ ] 2. For each dependent symbol, verify it is a real symbol via `dependents blast-radius lookup` on the file
 - [ ] 3. Verify `addressed_in_plan` by checking whether the dependent symbol appears in plan steps
 
-If `srclight_get_dependents` is unavailable, mark blast radius items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
+If `dependents blast-radius lookup` is unavailable, mark blast radius items as `unverifiable: true` with reason `TOOL_UNAVAILABLE`.
 
 For each item, record:
 
 ```yaml
 - item: "blast_radius[0]"
-  source: "srclight_get_dependents on <file>"
+  source: "dependents blast-radius lookup on <file>"
   validated: true | false
   unverifiable: false
   unverifiable_reason: ""
@@ -253,7 +253,7 @@ content_evidence_validation:
     discrepancy: ""
 blast_radius_validation:
   - item: "blast_radius[0]"
-    source: "srclight_get_dependents on <file>"
+    source: "dependents blast-radius lookup on <file>"
     validated: true | false
     unverifiable: false
     unverifiable_reason: ""
@@ -282,7 +282,7 @@ summary: "Evidence validated: {validated_count}/{total_items} items confirmed. {
 | `evidence.yaml` missing | Return BLOCKED — `MISSING_REQUIRED_INPUT` |
 | `spec_local_dir` missing or empty | Return BLOCKED — `MISSING_REQUIRED_INPUT` |
 | No plan files found in `spec_local_dir/` | Return BLOCKED — `MISSING_PLAN` |
-| `srclight_get_dependents` unavailable | Mark blast radius items as `unverifiable: true`, continue |
+| `dependents blast-radius lookup` unavailable | Mark blast radius items as `unverifiable: true`, continue |
 | `github_issue_read` unavailable | Mark cross-reference items as `unverifiable: true`, continue |
 | Write permission denied | Return BLOCKED — cannot write reasoning |
 | Evidence item references non-existent source | Record `validated: false` with `discrepancy` describing what was found (or not found) |

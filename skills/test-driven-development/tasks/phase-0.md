@@ -20,11 +20,11 @@ Blast radius computed, existing tests verified GREEN. If tests fail, cycle is BL
 
 ### Step 1: AI-Driven Dependency Analysis
 
-Use `srclight_get_dependents` (or equivalent) to identify the blast radius of the code area being touched:
+Use `dependents blast-radius lookup` (or equivalent) to identify the blast radius of the code area being touched:
 
 ```bash
 # Identify dependents of the area under change
-srclight_get_dependents(symbol_name="<function/class under test>", transitive=True)
+dependents_blast_radius_lookup(symbol_name="<function/class under test>", transitive=True)
 ```
 
 Document the blast radius in the task context:

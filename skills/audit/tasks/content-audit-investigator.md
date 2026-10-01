@@ -182,7 +182,7 @@ For each claim extracted in Step 2, collect raw evidence from source data:
 
 #### Code-Behavior Claims
 
-- [ ] 1. Use `srclight_get_signature` to look up the referenced function or method
+- [ ] 1. Use `symbol-signature lookup` to look up the referenced function or method
 - [ ] 2. If the symbol is found, record its actual signature
 - [ ] 3. If the symbol is not found, record `found: false`
 - [ ] 4. Use `read` to inspect the source file for behavioral evidence
@@ -197,7 +197,7 @@ For each claim extracted in Step 2, collect raw evidence from source data:
     found: true | false
     actual_signature: "<signature or absent>"
     source_file: "<path>"
-    lookup_method: "srclight_get_signature"
+    lookup_method: "symbol-signature lookup"
 ```
 
 #### Documentation Claims
@@ -333,7 +333,7 @@ Every step in this task is a mandatory dependency. Skipping any step produces an
 | `source_data_paths` absent | Return BLOCKED with MISSING_REQUIRED_INPUT |
 | GitHub routing fields present | Return BLOCKED with PRELOADED_CONTEXT_REJECTED |
 | Source data file not found | Record `exists: false` for affected claims — do NOT BLOCK |
-| `srclight_get_signature` fails | Record `found: false` for affected claims — do NOT BLOCK |
+| `symbol-signature lookup` fails | Record `found: false` for affected claims — do NOT BLOCK |
 | `glob` returns empty for a source path | Disambiguate per the empty-result rule (confirm canonical path-parameter form and reachable `path`); only then record directory as empty — do NOT BLOCK |
 | Write permission denied | Return BLOCKED — cannot write evidence.yaml |
 

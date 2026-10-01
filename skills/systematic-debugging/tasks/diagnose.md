@@ -91,8 +91,8 @@ If the agent catches itself about to edit code without an approved spec:
 
 | Claim | Verification Action | Tool Call | Problem Class |
 |-------|-------------------|-----------|---------------|
-| "Hypothesis verified" | Verify hypothesis via actual code read | `read` or `srclight_get_symbol` → confirm or refute | VERIFICATION-GAP |
-| "Root cause identified" | Verify root cause location in code | `srclight_get_callers(symbol_name="target")` → trace path | VERIFICATION-GAP |
+| "Hypothesis verified" | Verify hypothesis via actual code read | `read` or `symbol lookup` → confirm or refute | VERIFICATION-GAP |
+| "Root cause identified" | Verify root cause location in code | `callers_lookup(symbol_name="target")` → trace path | VERIFICATION-GAP |
 | "Error pattern confirmed" | Verify error occurs at claimed location | `grep(pattern="error_pattern")` → confirm matches | CONFLICTING |
 | "Read-only analysis maintained" | Verify no code modifications during diagnosis | `git status --porcelain` → check empty | STRUCTURE-VIOLATION |
 
