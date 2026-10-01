@@ -12,3 +12,21 @@ comments:
 
     🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
   timestamp: '2026-09-30T19:58:40+00:00'
+- type: stakeholder
+  body: '**Scope correction** (developer directive 2026-10-01): the out-of-scope remote-bridge
+    registration of ragsync was reverted. Commit b7fc967c restores the SC-1 letter
+    exactly — type: local, stdio, uvx, enabled: true — and the temporary bridge infrastructure
+    (.tools/ragsync venv, mcp-proxy launcher, port 6185 resident process) was removed.
+
+
+    Constraint discovered during verification (recorded as a known limitation, not
+    worked around): opencode 1.18.3 hard-codes a 30s MCP connect window while the
+    ragsync CPU embedding-model load takes ~75s — cold-local-spawn behavioral verification
+    of this service is expected to fail connect in isolated test homes (a fresh test
+    home has a cold uv cache). This is an environmental constraint of the behavioral
+    harness, not a config defect; the committed config itself is correct and self-contained
+    per the spec.
+
+
+    🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)'
+  timestamp: '2026-10-01T18:21:36+00:00'
