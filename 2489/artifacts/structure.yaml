@@ -1,0 +1,96 @@
+# Structure artifact — phase decomposition, dependency DAG, skill+task selection
+issue: ".opencode#2489"
+generated_at: "2026-10-02"
+source:
+  spec: ".opencode/.issues/2489/spec.md"
+  sc_count: 13
+  sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13]
+  coordination_mandates: [CM-1, CM-2]
+notes:
+  - "sc-summary.yaml at .opencode/.issues/2489/sc-summary.yaml is STALE (8 SCs, pre-revision numbering; spec change-control rows 2026-10-02 decomposed compound SCs into 13 atomic SCs and reclassified R-8/R-9 to CM-1/CM-2). Decomposition below uses the authoritative spec SC table."
+phases:
+  - id: phase-1
+    name: "Hook gate removal (commit-time authority transfer)"
+    scs: [SC-1, SC-2]
+    items: [1, 2]
+    mandates: [CM-2]
+    rationale: "Gate 2 + SKIP hatch removal is the root-cause fix; SC-2 guards against over-deletion in the same behavioral harness; CM-2 issue-graph handover depends on SC-1 landing."
+  - id: phase-2
+    name: "Dependent test retirement + ceremony policy"
+    scs: [SC-3, SC-4]
+    items: [3, 4]
+    mandates: [CM-1]
+    rationale: "Tests asserting removed Gate 2 behavior must retire immediately after hook removal; SC-4 (orphaned-runner scan) depends on SC-3 deletions; CM-1 policy record depends on SC-3 retire path."
+  - id: phase-3
+    name: "Advisory text rewrite"
+    scs: [SC-5, SC-6]
+    items: [5, 6]
+    rationale: "pre-commit-pointer-check.md advisory must stop referencing the removed gate (depends SC-1) and reference PR-time gates; SC-6 follows SC-5 in the same file."
+  - id: phase-4
+    name: "Reference-integrity enforcement check implementation"
+    scs: [SC-12]
+    items: [12]
+    rationale: "The check must exist BEFORE reference repairs so repairs are validated by the new tool (spec DAG: SC-12 → SC-8/SC-9/SC-10)."
+  - id: phase-5
+    name: "Reference repair (tag canon repointing)"
+    scs: [SC-8, SC-9, SC-10]
+    items: [8, 9, 10]
+    rationale: "Repoint 15 dead references per the Dead-Reference → Live-Target Mapping; SC-10 inline-form verification folds into Items 8/9 sites."
+  - id: phase-6
+    name: "Integrity verification + tag-format correction"
+    scs: [SC-13, SC-11]
+    items: [13, 11]
+    rationale: "SC-13 (check passes on repaired repo) closes the repair loop; SC-11 tag-format sites then verified/edited with the integrity check green. SC-13 is verification-only (no commit per Item 13)."
+dependency_dag:
+  edges:
+    - {from: SC-12, to: SC-8}
+    - {from: SC-12, to: SC-9}
+    - {from: SC-12, to: SC-10}
+    - {from: SC-8, to: SC-13}
+    - {from: SC-9, to: SC-13}
+    - {from: SC-10, to: SC-13}
+    - {from: SC-13, to: SC-11}
+    - {from: SC-1, to: SC-3}
+    - {from: SC-1, to: SC-5}
+    - {from: SC-1, to: CM-2}
+    - {from: SC-3, to: SC-4}
+    - {from: SC-3, to: CM-1}
+    - {from: SC-5, to: SC-6}
+  phase_edges:
+    - {from: phase-1, to: phase-2, via: "SC-1 → SC-3"}
+    - {from: phase-1, to: phase-3, via: "SC-1 → SC-5"}
+    - {from: phase-4, to: phase-5, via: "SC-12 → SC-8/9/10"}
+    - {from: phase-5, to: phase-6, via: "SC-8/9/10 → SC-13"}
+    - {from: phase-2, to: phase-4, via: "no code dependency — ordering only (test retirement before tool build keeps runner index clean)"}
+  cycles: []
+  acyclic: true
+verification_checks:
+  triplet_colocation: "PASS — every SC's RED/GREEN/COMMIT steps are in a single phase (SC-13 is verification-only with no commit, all its steps in phase-6)"
+  cross_phase_dependencies: "PASS — no RED test depends on SC output from a later phase; all forward dependencies are intra-phase sequential (SC-3→SC-4, SC-5→SC-6) or from earlier phases"
+skill_task_selection:
+  workflow_reference: ".opencode/skills/writing-plans/reference/implementation-workflow.md"
+  pre_implementation:
+    - {step: pre-regression, skill: test-driven-development, dispatch: "task(..., prompt: 'execute phase-0 task from test-driven-development')"}
+    - {step: pre-regression-verify, skill: verification-before-completion, dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"}
+  per_sc_cycle:
+    - {step: red, skill: test-driven-development, dispatch: "task(..., prompt: 'execute red task from test-driven-development')"}
+    - {step: green, skill: test-driven-development, dispatch: "task(..., prompt: 'execute green task from test-driven-development')"}
+    - {step: post-regression, skill: test-driven-development, dispatch: "task(..., prompt: 'execute phase-4 task from test-driven-development')"}
+    - {step: verify, skill: verification-before-completion, dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"}
+    - {step: commit-inline, skill: "(orchestrator)", dispatch: "orchestrator runs git add && git commit directly — no sub-agent dispatch"}
+  post_implementation:
+    - {step: audit, skill: audit, dispatch: "task(..., prompt: 'execute verification-audit DiMo investigator from audit. Read audit/tasks/verification-audit-investigator.md first')"}
+    - {step: z3-check, skill: "(orchestrator)", dispatch: "orchestrator runs .opencode/tools/solve check directly"}
+    - {step: structural-checks, skill: finishing-a-development-branch, dispatch: "task(..., prompt: 'execute checklist task from finishing-a-development-branch')"}
+    - {step: pre-pr-gate, skill: verification-before-completion, dispatch: "task(..., prompt: 'execute verify task from verification-before-completion')"}
+    - {step: regression-check, skill: test-driven-development, dispatch: "task(..., prompt: 'execute phase-4 task from test-driven-development')"}
+    - {step: review-prep, skill: git-workflow-pr, dispatch: "task(..., prompt: 'execute review-prep from git-workflow-pr. Read git-workflow-pr/tasks/review-prep.md first')"}
+    - {step: create-pr, skill: git-workflow-pr, dispatch: "task(..., prompt: 'execute create task from git-workflow-pr')"}
+    - {step: exec-summary, skill: completion-core, dispatch: "task(..., prompt: 'execute completion task from completion-core')"}
+  phase_specific:
+    - {phase: phase-1, evidence_type: behavioral, note: "SC-1/SC-2 behavioral runs via bash .opencode/tests-v2/with-test-home opencode run (>=600s timeout); R-10 forbids structural substitutes"}
+    - {phase: phase-2, evidence_type: structural, note: "SC-3 file-existence; SC-4 string (tests-v2 index grep)"}
+    - {phase: phase-3, evidence_type: string, note: "SC-5/SC-6 grep of advisory file"}
+    - {phase: phase-4, evidence_type: behavioral, note: "SC-12: deliberate broken probe must fail with file path + missing-section name"}
+    - {phase: phase-5, evidence_type: "string/semantic", note: "SC-8/SC-9 grep zero dead targets; SC-10 semantic inspection of inline Read [Text](path) form"}
+    - {phase: phase-6, evidence_type: behavioral/string, note: "SC-13 behavioral (check passes on repaired repo); SC-11 string (grep six phrase-anchored sites)"}

@@ -1,0 +1,19 @@
+# Solve output — .opencode#2489
+issue: ".opencode#2489"
+checked_at: "2026-10-02"
+solve_status: SAT
+model_query: "z3.And(SC_11, SC_13)"
+model_result: "SAT — terminal deliverables (SC-11 tag-format correction, SC-13 integrity check green) are achievable; solver forced SC-12, SC-8, SC-9, SC-10, SC-1 true along the dependency chain"
+check_result: "SAT (+ postconditions + invariants) — all 13 SCs + CM-1/CM-2 satisfiable together under the contract implications"
+plan_status: SOLVED_SATISFICING
+plan_engine: tamer
+plan_length: 15
+plan_result: "15-step linearization of the SC DAG found; grouped into 6 phases in structure.yaml"
+artifacts:
+  structure: .opencode/.issues/2489/artifacts/structure.yaml
+  dependency_contract: .opencode/.issues/2489/dependency-contract.yaml
+  plan_output: .opencode/.issues/2489/artifacts/plan-output.yaml
+verdicts:
+  solve_model: SAT
+  solve_check: SAT
+  planner: SOLVED_SATISFICING

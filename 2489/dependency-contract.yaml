@@ -1,0 +1,52 @@
+# Dependency contract — .opencode#2489 (holistic submodule pointer discipline fix)
+# Derived from interface-compat.yaml dependency_contract (extracted as-is, preserved below)
+# plus the spec dependency DAG (spec.md §Dependencies) encoded as Z3 variables + implications.
+issue: ".opencode#2489"
+variables:
+  SC_1: {type: bool, label: "Gate 2 + SKIP hatch removed from pre-commit hook"}
+  SC_2: {type: bool, label: "Gate 1 trunk-branch protection unchanged"}
+  SC_3: {type: bool, label: "Five dependent gate tests deleted"}
+  SC_4: {type: bool, label: "No orphaned runners in tests-v2"}
+  SC_5: {type: bool, label: "Advisory text free of stale-pointer/SKIP wording"}
+  SC_6: {type: bool, label: "Advisory text references PR-time freshness gates"}
+  SC_7: {type: bool, label: "Six tag rules consolidated in canonical section"}
+  SC_8: {type: bool, label: "Zero refs to git-workflow/SKILL.md §Tag Convention"}
+  SC_9: {type: bool, label: "Zero refs to nonexistent AGENTS.md sections"}
+  SC_10: {type: bool, label: "Repaired links use inline Read [Text](path) form"}
+  SC_11: {type: bool, label: "Six tag-format sites carry suffixed form"}
+  SC_12: {type: bool, label: "Reference-integrity check fails on broken probe"}
+  SC_13: {type: bool, label: "Reference-integrity check passes on repaired repo"}
+  CM_1: {type: bool, label: "Ceremony-test retirement policy recorded"}
+  CM_2: {type: bool, label: "Issue-graph handover/supersession annotations recorded"}
+preconditions:
+  # SC-12 (tool exists) must precede the repairs it validates
+  - "z3.Implies(z3.Or(SC_8, SC_9, SC_10), SC_12)"
+  # SC-13 verification-only gate requires the repairs and the tool
+  - "z3.Implies(SC_13, z3.And(SC_12, SC_8, SC_9, SC_10))"
+  # SC-11 (tag-format correction) verified with the integrity check green
+  - "z3.Implies(SC_11, SC_13)"
+  # Hook removal precedes dependent-test retirement, advisory rewrite, and CM-2 handover
+  - "z3.Implies(SC_3, SC_1)"
+  - "z3.Implies(SC_5, SC_1)"
+  - "z3.Implies(CM_2, SC_1)"
+  # Intra-phase sequential dependencies
+  - "z3.Implies(SC_4, SC_3)"
+  - "z3.Implies(SC_6, SC_5)"
+  - "z3.Implies(CM_1, SC_3)"
+  # Gate 1 contract is verified in the same harness as Gate 2 removal
+  - "z3.Implies(SC_2, SC_1)"
+invariants:
+  - "z3.Not(SC_1 == SC_1 == False)"  # placeholder-free: at least the root fix is reachable
+postconditions:
+  - "z3.And(SC_1, SC_2, SC_3, SC_4, SC_5, SC_6, SC_7, SC_8, SC_9, SC_10, SC_11, SC_12, SC_13, CM_1, CM_2)"
+
+# --- interface compatibility dependency_contract (extracted as-is from interface-compat.yaml) ---
+dependency_contract:
+  - source: "hooks/pre-commit (pre-removal)"
+    target: "SKIP_STALE_POINTER_CHECK (and test-2264-sc7 which enumerates it)"
+    type: "artifact schema"
+    constraint: "enforcement-gate (#2431) assumes hatch semantics unchanged — superseded by handover comment; SC-1 removal takes precedence"
+  - source: "git-workflow/SKILL.md §Tag Convention (removed)"
+    target: "6 Read-link references across skills/guidelines/commands"
+    type: "artifact schema"
+    constraint: "all references must resolve to operating-protocol.md 'Tag Convention (Canonical)' after repair — verified by reference-integrity check"

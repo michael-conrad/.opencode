@@ -1,0 +1,12 @@
+# Plan output — .opencode#2489 (AI planning tool, engine: tamer)
+issue: ".opencode#2489"
+status: SOLVED_SATISFICING
+problem: tmp/issue-2489-plan-problem.yaml
+stats:
+  objects: 15
+  fluents: 1
+  actions: 15
+  goals: 15
+  plan_length: 15
+plan_order: [SC12, SC1, SC10, SC3, SC8, SC9, SC13, SC5, CM1, SC11, CM2, SC4, SC2, SC6, SC7]
+note: "Planner order is a valid linearization of the SC dependency DAG; orchestrator groups steps into the six phases recorded in structure.yaml."
