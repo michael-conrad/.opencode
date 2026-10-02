@@ -1,0 +1,30 @@
+artifact_name: state-analysis
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "State model analysis for the PLAN_MISSING gate change"
+  states:
+    - state: "plan_absent"
+      detection: "No approved plan.md at canonical path {issues_prefix}/{N}/plan.md"
+      transition: "Implementation dispatch BLOCKED with PLAN_MISSING on all five gate surfaces (SC-1, SC-2, SC-14, SC-15; behavioral SC-5, SC-16, SC-17)"
+    - state: "plan_present"
+      detection: "Approved plan.md exists at canonical path"
+      transition: "Dispatch proceeds normally — no false-positive block (SC-6, SC-8)"
+    - state: "plan_stale_but_present"
+      detection: "Plan exists but is stale relative to spec"
+      transition: "Gate checks existence only; staleness governed by the coherence gate — NO PLAN_MISSING (edge case)"
+    - state: "plan_at_unexpected_path"
+      detection: "Plan exists outside canonical path"
+      transition: "Treated as absent → block is correct behavior, not a false positive (edge case)"
+    - state: "authorized_but_plan_less"
+      detection: "Developer authorization present, no plan"
+      transition: "Block still applies — Tier 1 never yields to authorization (SC-16, SC-17)"
+    - state: "run_unmonitored"
+      detection: "BEHAVIOR_SEMANTIC_MONITOR unset at behavior_run time"
+      transition: "ELIMINATED for 2314 legs — each script sets the flag explicitly before invocation (SC-9)"
+    - state: "run_aborted_mid_poll"
+      detection: "§14 hard-abort signal during supervised run"
+      transition: "Kill + §10.5 export + recorded semantic diagnosis; never silently retried as unmonitored (SC-13)"
+  state_invariants:
+    - "No path from spec content to implementation exists without passing a plan-existence check on at least one traversed surface"
+    - "Monitor flag is never inherited from ambient environment for 2314 legs"

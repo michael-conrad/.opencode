@@ -1,0 +1,26 @@
+artifact_name: testability-assessment
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "Testability assessment for all 17 SCs"
+  evidence_type_split:
+    structural: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-9", "SC-10", "SC-14", "SC-15"]
+    behavioral: ["SC-5", "SC-6", "SC-7", "SC-8", "SC-11", "SC-12", "SC-13", "SC-16", "SC-17"]
+  assessment:
+    - scs: ["SC-1", "SC-2", "SC-3", "SC-4", "SC-14", "SC-15"]
+      testability: "HIGH — one file read per SC; content inspection of the named file for the gate entry text"
+    - scs: ["SC-9", "SC-10"]
+      testability: "HIGH — grep-level inspection of leg scripts (env flag) and plan run-step text (§14 Read-link)"
+    - scs: ["SC-5", "SC-6", "SC-16", "SC-17"]
+      testability: "MEDIUM — requires real opencode run through the enforcement harness with BEHAVIOR_SEMANTIC_MONITOR=1; stderr behavioral evidence of block/proceed outcomes; run-time minutes-scale"
+    - scs: ["SC-7", "SC-8"]
+      testability: "MEDIUM — registered scenario invocation via test-enforcement.sh --scenario; block and permit legs asserted independently"
+    - scs: ["SC-11", "SC-12", "SC-13"]
+      testability: "MEDIUM — supervised run produces monitor.log/determination.yaml; poll timestamps inspected for ≤300s cadence; abort-handling artifacts inspected"
+  constraints:
+    - "Behavioral SCs MUST use execution-based evidence from real opencode run executions; structural/string substitution is EVIDENCE_TYPE_MISMATCH → FAIL (Enforcement Gate)"
+    - "All behavioral legs run under §14 semantic continuous monitoring (R-7)"
+    - "Behavioral runs require committed+pushed submodule state per tests-v2 §4 pre-flight gate"
+  risks:
+    - "SC-12 cadence assertion depends on monitor poll timestamp fidelity in monitor.log"
+    - "SC-13 abort path requires inducing or simulating a hard-abort signal per §14"

@@ -1,0 +1,43 @@
+artifact_name: blast-radius
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "All files affected by the PLAN_MISSING dispatch-boundary gate and bypass-path closure"
+  affected_files:
+    - path: ".opencode/skills/spec-creation/SKILL.md"
+      change: "Add PLAN_MISSING gate entry at the spec-creation → implementation dispatch boundary checking plan.md existence (SC-1)"
+      exists: true
+    - path: ".opencode/skills/executing-plans/SKILL.md"
+      change: "Add gate routing so plan-bearing and plan-less dispatch attempts route on PLAN_MISSING consistently (SC-2)"
+      exists: true
+    - path: ".opencode/guidelines/000-critical-rules.md"
+      change: "Add CRITICAL VIOLATION entry (PLAN_MISSING) classifying implementation dispatch without an approved plan as Tier 1 (SC-3)"
+      exists: true
+    - path: ".opencode/reference/skill-card-description-standards.md"
+      change: "Register PLAN_MISSING in the canonical dispatch-vocabulary table (SC-4)"
+      exists: true
+    - path: ".opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh"
+      change: "Set BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run invocation (SC-9)"
+      exists: true
+    - path: ".opencode/tests-v2/behaviors/ (sibling 2314 scenario legs)"
+      change: "Set BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run invocation in each 2314 leg (SC-9)"
+      exists: true
+    - path: ".opencode/.issues/2314/plan-01-dispatch-gate-logic.md"
+      change: "Add §14 Read-link to run-step instruction text (SC-10)"
+      exists: true
+    - path: ".opencode/.issues/2314/plan-02-behavioral-enforcement.md"
+      change: "Add §14 Read-link to run-step instruction text (SC-10)"
+      exists: true
+    - path: ".opencode/skills/git-workflow-branch/tasks/pre-work.md"
+      change: "Add plan-existence gate entry blocking with PLAN_MISSING before branch creation completes (SC-14)"
+      exists: true
+    - path: ".opencode/skills/test-driven-development/tasks/red.md"
+      change: "Add plan-existence gate entry blocking with PLAN_MISSING before RED work begins (SC-15)"
+      exists: true
+  related_surfaces_unchanged:
+    - path: ".opencode/skills/approval-gate/SKILL.md"
+      change: "References PLAN_MISSING in the authorization-scope table already; behavior unchanged by this spec"
+    - path: ".opencode/tests-v2/AGENTS.md"
+      change: "§14 Semantic Continuous Monitoring Mandate already exists; NOT re-specified by this spec (Not Included boundary)"
+    - path: ".opencode/skills/writing-plans/"
+      change: "Plan-generation behavior unchanged; this spec only blocks dispatches that skip it"

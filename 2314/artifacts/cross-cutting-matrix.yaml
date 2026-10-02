@@ -1,0 +1,21 @@
+artifact_name: cross-cutting-matrix
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "Cross-cutting concerns matrix for the PLAN_MISSING gate change"
+  matrix:
+    - concern: "Authorization interplay"
+      affected_scs: ["SC-3", "SC-14", "SC-15", "SC-16", "SC-17"]
+      analysis: "PLAN_MISSING is Tier 1 and never yields to developer authorization; SC-16/SC-17 exercise the authorized-but-plan-less case expecting a block. Edge case documented in spec."
+    - concern: "Consistency across deck surfaces"
+      affected_scs: ["SC-1", "SC-2", "SC-4", "SC-14", "SC-15"]
+      analysis: "All five surfaces route on the single registered PLAN_MISSING reason code; the dispatch-vocabulary table is the shared source."
+    - concern: "False-positive availability risk"
+      affected_scs: ["SC-6", "SC-8"]
+      analysis: "Permit legs prove plan-bearing dispatch proceeds without a false block; plan-at-unexpected-path is treated as absent (block is correct, not false positive)."
+    - concern: "Supervision / observability"
+      affected_scs: ["SC-9", "SC-10", "SC-11", "SC-12", "SC-13"]
+      analysis: "Env flag set explicitly per leg (no ambient reliance); §14 Read-link in run text; monitor evidence, poll cadence ≤300s, and hard-abort handling all asserted."
+    - concern: "Test integrity / evidence types"
+      affected_scs: ["SC-5", "SC-6", "SC-7", "SC-8", "SC-11", "SC-12", "SC-13", "SC-16", "SC-17"]
+      analysis: "Behavioral SCs require real opencode run stderr evidence; structural substitution is EVIDENCE_TYPE_MISMATCH → FAIL. No DONE_WITH_CONCERNS coercion."

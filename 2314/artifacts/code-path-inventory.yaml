@@ -1,0 +1,30 @@
+artifact_name: code-path-inventory
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "Code/instruction paths involved in the bypass and the gate fix"
+  paths:
+    - entry: "Orchestrator dispatch from spec body directly to implementation sub-agent (observed bypass)"
+      files: [".opencode/skills/spec-creation/SKILL.md"]
+      change: "Gate entry blocks with PLAN_MISSING when no approved plan.md at canonical path (SC-1)"
+    - entry: "Plan-bearing/plan-less dispatch routing decision in executing-plans"
+      files: [".opencode/skills/executing-plans/SKILL.md"]
+      change: "Same gate routing for consistent reason-code handling (SC-2)"
+    - entry: "Tier 1 violation classification consumed by enforcement surfaces"
+      files: [".opencode/guidelines/000-critical-rules.md"]
+      change: "CRITICAL VIOLATION entry for PLAN_MISSING (SC-3)"
+    - entry: "Deck-wide reason-code routing"
+      files: [".opencode/reference/skill-card-description-standards.md"]
+      change: "PLAN_MISSING registered as vocabulary entry (SC-4)"
+    - entry: "Behavioral run legs invoking behavior_run"
+      files: [".opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh", ".opencode/tests-v2/behaviors/ (sibling 2314 legs)"]
+      change: "BEHAVIOR_SEMANTIC_MONITOR=1 set explicitly before behavior_run (SC-9); block/permit legs prove gate behavior (SC-5..SC-8, SC-16, SC-17)"
+    - entry: "Plan run-step instruction text consumed by run sub-agents"
+      files: [".opencode/.issues/2314/plan-01-dispatch-gate-logic.md", ".opencode/.issues/2314/plan-02-behavioral-enforcement.md"]
+      change: "§14 Read-link added so run sub-agents load the supervision mandate (SC-10)"
+    - entry: "Pre-work (branch creation) surface on the bypass path"
+      files: [".opencode/skills/git-workflow-branch/tasks/pre-work.md"]
+      change: "Plan-existence gate entry blocks with PLAN_MISSING before branch creation completes (SC-14, SC-16)"
+    - entry: "RED dispatch surface on the bypass path"
+      files: [".opencode/skills/test-driven-development/tasks/red.md"]
+      change: "Plan-existence gate entry blocks with PLAN_MISSING before RED work begins (SC-15, SC-17)"

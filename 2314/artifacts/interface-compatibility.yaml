@@ -1,0 +1,21 @@
+artifact_name: interface-compatibility
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  description: "Interface compatibility analysis for the PLAN_MISSING gate change"
+  interfaces:
+    - interface: "Dispatch reason-code vocabulary (BLOCKED reason strings)"
+      consumers: ["spec-creation", "executing-plans", "git-workflow-branch", "test-driven-development", "approval-gate"]
+      compatibility: "ADDITIVE — PLAN_MISSING is a new vocabulary entry registered in the canonical table (SC-4); existing reason codes unchanged; no consumer breaks"
+    - interface: "behavior_run harness contract (BEHAVIOR_SEMANTIC_MONITOR env flag)"
+      consumers: ["tests-v2/behaviors/2314-* scenario legs", "tests-v2/helpers.sh"]
+      compatibility: "UNCHANGED — the flag already exists (implemented for #2456); leg scripts only set it explicitly (SC-9); helpers default (no-monitor) untouched"
+    - interface: "Task-card entry-criteria contracts (pre-work, red)"
+      consumers: ["git-workflow-branch/tasks/pre-work.md", "test-driven-development/tasks/red.md"]
+      compatibility: "ADDITIVE gate entry — a new blocking check precedes existing steps; existing steps' semantics unchanged; plan-bearing dispatches proceed normally (SC-6 permit analog applies)"
+    - interface: "tests-v2 §14 supervision protocol"
+      consumers: ["2314 scenario legs", "plan run-step instruction text"]
+      compatibility: "CONSUMED, NOT MODIFIED — the §14 protocol already exists in tests-v2/AGENTS.md; this spec only requires compliance (Not Included boundary)"
+    - interface: "Plan file canonical path contract ({issues_prefix}/{N}/plan.md)"
+      consumers: ["all gate surfaces"]
+      compatibility: "UNCHANGED — all five gate surfaces check the same canonical path; a plan elsewhere is treated as absent (documented edge case)"

@@ -1,0 +1,38 @@
+artifact_name: analysis-summary
+generated_at: 2026-10-02
+source: "Spec #2314 (Spec-creation → implementation can bypass writing-plans pipeline when spec contains SCs and affected files)"
+content:
+  spec_path: ".opencode/.issues/2314/spec.md"
+  sc_count: 17
+  requirement_count: 9
+  root_causes: 5
+  artifact_status:
+    blast-radius: regenerated
+    concern-map: regenerated
+    code-path-inventory: regenerated
+    cross-cutting-matrix: regenerated
+    interface-compatibility: regenerated
+    state-analysis: regenerated
+    testability-assessment: regenerated
+  scope_summary: |
+    Spec #2314 closes the spec-creation → implementation dispatch bypass. A plan-existence
+    gate checking the canonical {issues_prefix}/{N}/plan.md path blocks implementation
+    dispatch with PLAN_MISSING (Tier 1, non-overridable by authorization) on five deck
+    surfaces: spec-creation SKILL.md (SC-1), executing-plans SKILL.md (SC-2), the
+    000-critical-rules.md CRITICAL VIOLATION entry (SC-3), the dispatch-vocabulary table
+    (SC-4), plus the bypass-path surfaces git-workflow-branch/tasks/pre-work.md (SC-14)
+    and test-driven-development/tasks/red.md (SC-15). Behavioral legs (SC-5..SC-8, SC-16,
+    SC-17) prove block and permit outcomes via real opencode run stderr evidence.
+    Supervision SCs (SC-9..SC-13) require every 2314 behavioral leg to run under the
+    tests-v2 §14 semantic continuous monitoring protocol (explicit env flag, §14
+    Read-link in run text, monitor evidence artifacts, ≤300s poll cadence with semantic
+    checks, hard-abort handling).
+  root_cause_summary:
+    - "RC1-3: no mechanical gate prevents a sub-agent from receiving a spec body and implementing directly; only orchestrator discipline existed and it failed"
+    - "RC4: behavioral-run supervision defect — ~59-minute synchronous unmonitored run with no §14 monitor evidence (SC-9..SC-13)"
+    - "RC5: gate-placement defect — bypass path via git-workflow pre-work / TDD RED never traverses spec-creation/executing-plans cards, so the boundary gate is unreachable (SC-14..SC-17)"
+  dependencies_noted:
+    - "BEHAVIOR_SEMANTIC_MONITOR flag already exists in helpers.sh (implemented for #2456); leg scripts only need to set it explicitly"
+    - "PLAN_MISSING already appears in the approval-gate authorization-scope table; the dispatch-vocabulary registration (SC-4) completes deck-wide routing"
+    - "tests-v2 §14 protocol already exists and is NOT re-specified (Not Included boundary)"
+    - "Behavioral runs require committed+pushed submodule state per tests-v2 §4 pre-flight gate"
