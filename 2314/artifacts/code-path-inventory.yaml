@@ -1,0 +1,48 @@
+---
+issue: 2314
+artifact: code-path-inventory
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+generated: "2026-10-01T23:55:00Z"
+note: Backfilled retroactively to reflect the current spec — 13 atomic SCs (SC-1..SC-13) and 8 affected files.
+sections:
+  code_paths:
+    - path_name: spec-creation-to-implementation-dispatch
+      description: Orchestrator finishes spec-creation and dispatches implementation — the gated boundary. Entry at the spec-creation SKILL.md completion routing; gate checks plan.md existence at the canonical path {issues_prefix}/{N}/plan.md; absent plan routes BLOCKED with PLAN_MISSING.
+      scs: [SC-1, SC-3, SC-4, SC-5]
+      files:
+        - .opencode/skills/spec-creation/SKILL.md
+        - .opencode/guidelines/000-critical-rules.md
+        - .opencode/reference/skill-card-description-standards.md
+    - path_name: executing-plans-dispatch-routing
+      description: Implementation dispatch routed through the executing-plans SKILL.md — the receiving side of the boundary. Gate routing checks plan-bearing vs plan-less dispatch and routes on the same PLAN_MISSING reason code; plan present permits dispatch to proceed (no false-positive block).
+      scs: [SC-2, SC-6]
+      files:
+        - .opencode/skills/executing-plans/SKILL.md
+    - path_name: behavioral-leg-execution
+      description: Enforcement harness leg execution — leg script invokes behavior_run, which resolves the plan-absent/plan-present fixture and asserts the blocked/proceeding outcome from opencode run stderr evidence.
+      scs: [SC-5, SC-6]
+      files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+    - path_name: registered-scenario-invocation
+      description: test-enforcement.sh --scenario <name> invocation path — block leg and permit leg run sequentially and are asserted independently end-to-end.
+      scs: [SC-7, SC-8]
+      files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+    - path_name: semantic-monitor-gated-run
+      description: helpers.sh behavior_run flag-gated monitor path — BEHAVIOR_SEMANTIC_MONITOR=1 set by the leg script selects supervised execution instead of the synchronous blocking path; monitor polls the live session-DB event stream and emits monitor evidence artifacts.
+      scs: [SC-9, SC-11, SC-12]
+      files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+    - path_name: plan-run-step-instruction-consumption
+      description: Dispatched run sub-agent reads the plan run-step instruction text; the §14 Read-link in the text is the consumption surface that surfaces the agent-supervisor mandate (otherwise the sub-agent improvises blind polling).
+      scs: [SC-10]
+      files:
+        - .opencode/.issues/2314/plan-01-dispatch-gate-logic.md
+        - .opencode/.issues/2314/plan-02-behavioral-enforcement.md
+    - path_name: hard-abort-handling
+      description: §14 hard-abort signal path during a supervised run — kill the run, §10.5 post-timeout export of the surviving session-DB, and a recorded semantic diagnosis; aborted runs are never silently retried as unmonitored.
+      scs: [SC-13]
+      files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh

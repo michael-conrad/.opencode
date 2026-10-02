@@ -1,0 +1,74 @@
+---
+issue: 2314
+artifact: state-analysis
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+generated: "2026-10-01T23:58:00Z"
+note: Backfilled retroactively to reflect the current spec — 13 atomic SCs (SC-1..SC-13) and 8 affected files.
+sections:
+  state_transitions:
+    - state_machine: implementation-dispatch
+      scs: [SC-1, SC-2, SC-5, SC-6]
+      states:
+        - state: dispatch_requested_plan_absent
+          trigger: Implementation dispatch initiated with no plan.md at the canonical path {issues_prefix}/{N}/plan.md
+          transition: gate check evaluates plan.md existence → dispatch BLOCKED
+          outcome: BLOCKED with reason code PLAN_MISSING; no implementation sub-agent starts
+        - state: dispatch_requested_plan_present
+          trigger: Implementation dispatch initiated with plan.md present at the canonical path
+          transition: gate check evaluates plan.md existence → dispatch proceeds
+          outcome: No PLAN_MISSING block; pipeline continues normally (false-positive absence is a defect per SC-6)
+        - state: plan_elsewhere
+          trigger: plan.md exists at a non-canonical path
+          transition: gate treats plan as absent
+          outcome: BLOCKED with PLAN_MISSING — correct behavior, not a false positive (spec Edge Cases)
+        - state: plan_stale_but_present
+          trigger: plan.md exists but is stale relative to the spec
+          transition: gate checks existence only
+          outcome: Dispatch proceeds — staleness is governed by the coherence gate, not this gate
+    - state_machine: behavioral-run-monitoring
+      scs: [SC-9, SC-11, SC-12, SC-13]
+      states:
+        - state: run_start_unconfigured
+          trigger: Leg script invokes behavior_run without explicitly setting BEHAVIOR_SEMANTIC_MONITOR
+          transition: helpers.sh takes the synchronous blocking path (no-monitor default)
+          outcome: Unmonitored run — the regression mode SC-9 exists to eliminate
+        - state: run_start_supervised
+          trigger: Leg script sets BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run
+          transition: helpers.sh selects the flag-gated semantic-monitor path; supervisor begins polling
+          outcome: Supervised run with semantic checks of the live session-DB event stream between polls
+        - state: polling
+          trigger: Supervisor poll cycle
+          transition: Poll at interval ≤ 300s, each poll performs a full semantic check of the event stream
+          outcome: Poll records appended to monitor.log; run continues while healthy
+        - state: hard_abort_signal
+          trigger: §14 hard-abort signal detected during the supervised run
+          transition: Kill the run process → §10.5 post-timeout export of the surviving session-DB → record semantic diagnosis
+          outcome: Aborted run is documented; it is NOT silently retried as unmonitored
+        - state: run_complete
+          trigger: Behavioral leg finishes
+          transition: Monitor evidence (poll log / monitor.log / determination.yaml) finalized alongside session.yaml per §14 step 6
+          outcome: Verifiable supervision evidence for SC-11/SC-12/SC-13 inspection
+    - state_machine: instruction-chain-supervision-surfacing
+      scs: [SC-10]
+      states:
+        - state: run_step_text_without_link
+          trigger: Plan run-step instruction text lacks the §14 Read-link
+          transition: Dispatched run sub-agent never loads the agent-supervisor mandate
+          outcome: Sub-agent improvises blind long-sleep polling — the root cause 4 regression
+        - state: run_step_text_with_link
+          trigger: Plan run-step instruction text carries Read [§14 Semantic Continuous Monitoring Mandate (Behavioral Runs)](../../tests-v2/AGENTS.md)
+          transition: Sub-agent reads the mandate at instruction-consumption time
+          outcome: Supervised polling protocol followed per §14
+  persistence:
+    - artifact: monitor.log / determination.yaml
+      location: run evidence directory, alongside session.yaml
+      lifetime: preserved as behavioral evidence per §14 step 6
+    - artifact: §10.5 export
+      location: exported from the surviving test-home session-DB after a hard abort
+      lifetime: recorded with the semantic diagnosis in the run evidence
+  invariants:
+    - Gate is existence-only: no staleness, content, or validity evaluation at this boundary
+    - Reason code PLAN_MISSING is identical across all routing surfaces
+    - An aborted supervised run is never silently retried as unmonitored

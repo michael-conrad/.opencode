@@ -1,0 +1,179 @@
+---
+issue: 2314
+artifact: structure
+generated: "2026-10-02T02:55:00Z"
+source_spec: .opencode/.issues/2314/spec.md
+source_analysis: .opencode/.issues/2314/artifacts/analysis-summary.yaml
+sc_count: 13
+phases:
+  - phase: 1
+    name: dispatch-gate-logic
+    concern: Gate existence and block/permit behavior at the spec-creation → implementation boundary
+    scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+    depends_on: []
+    evidence_types:
+      structural: [SC-1, SC-2, SC-3, SC-4]
+      behavioral: [SC-5, SC-6]
+  - phase: 2
+    name: behavioral-enforcement
+    concern: End-to-end behavioral enforcement scenario (block + permit legs)
+    scs: [SC-7, SC-8]
+    depends_on: [1]
+    evidence_types:
+      behavioral: [SC-7, SC-8]
+  - phase: 3
+    name: behavioral-run-supervision
+    concern: Semantic monitoring of this issue's behavioral run legs per tests-v2 §14
+    scs: [SC-9, SC-10, SC-11, SC-12, SC-13]
+    depends_on: [1, 2]
+    evidence_types:
+      structural: [SC-9, SC-10]
+      behavioral: [SC-11, SC-12, SC-13]
+dependency_dag:
+  - from: 2
+    to: 1
+    reason: SC-7/SC-8 behavioral legs exercise the gate logic and reason-code registration committed in Phase 1 (SC-1..SC-6)
+  - from: 3
+    to: 1
+    reason: SC-9 leg scripts and SC-11..SC-13 supervised runs execute the 2314 behavioral legs whose existence depends on Phase 1 gate outputs
+  - from: 3
+    to: 2
+    reason: SC-11..SC-13 supervised runs monitor the registered Phase 2 behavioral scenario legs
+items:
+  - sc: SC-1
+    phase: 1
+    title: spec-creation card gate entry (plan.md existence check at dispatch boundary)
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-2
+    phase: 1
+    title: executing-plans card gate routing (PLAN_MISSING block)
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-3
+    phase: 1
+    title: PLAN_MISSING Tier 1 CRITICAL VIOLATION entry in 000-critical-rules.md
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-4
+    phase: 1
+    title: PLAN_MISSING registration in canonical dispatch-vocabulary table
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-5
+    phase: 1
+    title: Behavioral leg — plan-less dispatch BLOCKED with PLAN_MISSING
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-6
+    phase: 1
+    title: Behavioral leg — plan-bearing dispatch proceeds (no false-positive block)
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-7
+    phase: 2
+    title: Registered scenario block leg — gate blocks plan-less dispatch end-to-end
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-8
+    phase: 2
+    title: Registered scenario permit leg — gate permits plan-bearing dispatch end-to-end
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-9
+    phase: 3
+    title: Every 2314 leg script sets BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-10
+    phase: 3
+    title: Plan run-step instruction text carries §14 Read-link
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-11
+    phase: 3
+    title: Supervised run produces §14 monitor evidence alongside session.yaml
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-12
+    phase: 3
+    title: Poll intervals ≤300s with full semantic checks between polls
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+  - sc: SC-13
+    phase: 3
+    title: §14 hard-abort handled per §14 (kill + §10.5 export + semantic diagnosis)
+    red: test-driven-development
+    green: test-driven-development
+    commit: commit-inline (orchestrator)
+skill_task_selection:
+  - phase: 1
+    steps:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: git add <files> && git commit -m "<message>" — no sub-agent dispatch
+  - phase: 2
+    steps:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: git add <files> && git commit -m "<message>" — no sub-agent dispatch
+  - phase: 3
+    steps:
+      - step: red
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute red task from test-driven-development")'
+      - step: green
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute green task from test-driven-development")'
+      - step: post-regression
+        skill: test-driven-development
+        dispatch: 'task(..., prompt: "execute phase-4 task from test-driven-development")'
+      - step: verify
+        skill: verification-before-completion
+        dispatch: 'task(..., prompt: "execute verify task from verification-before-completion")'
+      - step: commit-inline
+        skill: (orchestrator)
+        dispatch: git add <files> && git commit -m "<message>" — no sub-agent dispatch
+verification:
+  triplet_colocation:
+    status: PASS
+    detail: Every SC-1..SC-13 has RED, GREEN, and COMMIT assigned to the same phase as the SC (items table above) — no triplet split detected.
+  cross_phase_dependency:
+    status: PASS
+    detail: No RED test depends on output committed in a later phase. Phase 2 RED legs depend on Phase 1 outputs (backward edge, permitted); Phase 3 RED steps depend on Phase 1/2 outputs (backward edges, permitted).

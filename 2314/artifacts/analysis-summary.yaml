@@ -1,0 +1,44 @@
+---
+issue: 2314
+artifact: analysis-summary
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+generated: "2026-10-01T24:00:00Z"
+note: Backfill executed in retroactive mode against the current spec (13 atomic SCs, 8 affected files) — only artifacts absent from the directory were generated; blast-radius.yaml and concern-map.yaml were already current and untouched.
+sections:
+  spec_path: .opencode/.issues/2314/spec.md
+  sc_count: 13
+  affected_file_count: 8
+  artifact_status:
+    - artifact: blast-radius
+      status: existing (pre-current; matches final SC numbering per spec revision #2 note)
+    - artifact: concern-map
+      status: existing (pre-current; matches current SC text — 13 atomic SCs)
+    - artifact: code-path-inventory
+      status: backfilled
+    - artifact: cross-cutting-matrix
+      status: backfilled
+    - artifact: interface-compatibility
+      status: backfilled
+    - artifact: state-analysis
+      status: backfilled
+    - artifact: testability-assessment
+      status: backfilled
+  scope_summary: |
+    Adds a PLAN_MISSING enforcement gate at the spec-creation → implementation
+    dispatch boundary (skill-card routing in spec-creation and executing-plans,
+    a Tier-1 CRITICAL VIOLATION entry in 000-critical-rules.md, and a
+    PLAN_MISSING registration in the canonical dispatch-vocabulary table),
+    proves the gate with behavioral block/permit legs and a registered
+    test-enforcement scenario, and puts this issue's behavioral-run legs under
+    the tests-v2 §14 semantic continuous monitoring protocol (env flag in leg
+    scripts, §14 Read-link in plan run-step text, monitored run evidence,
+    ≤300s poll cadence with semantic checks, §14 hard-abort handling).
+  concern_groups:
+    - dispatch-gate-logic: SC-1..SC-4 (Phase 1)
+    - behavioral-enforcement: SC-5..SC-8 (Phase 2)
+    - behavioral-run-supervision: SC-9..SC-13 (Phase 3)
+  evidence_type_distribution:
+    structural: [SC-1, SC-2, SC-3, SC-4, SC-9, SC-10]
+    behavioral: [SC-5, SC-6, SC-7, SC-8, SC-11, SC-12, SC-13]

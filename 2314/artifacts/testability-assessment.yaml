@@ -1,0 +1,73 @@
+---
+issue: 2314
+artifact: testability-assessment
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+generated: "2026-10-01T23:59:00Z"
+note: Backfilled retroactively to reflect the current spec — 13 atomic SCs. Evidence types match the spec's SC table exactly; substrate classification confirms each declared type (skill-card/guideline text changes are static content → structural; run-execution outcomes are runtime behavior → behavioral).
+sections:
+  per_sc_assessment:
+    - sc: SC-1
+      evidence_type: structural
+      substrate_check: static routing text in a skill card — no runtime behavior change → structural holds
+      verification: Content inspection of .opencode/skills/spec-creation/SKILL.md for the gate entry (plan.md existence check → PLAN_MISSING routing) at the spec-creation → implementation boundary
+    - sc: SC-2
+      evidence_type: structural
+      substrate_check: static routing text in a skill card → structural holds
+      verification: Content inspection of .opencode/skills/executing-plans/SKILL.md for the plan-bearing/plan-less gate routing
+    - sc: SC-3
+      evidence_type: structural
+      substrate_check: static guideline text → structural holds
+      verification: Content inspection of .opencode/guidelines/000-critical-rules.md for the PLAN_MISSING CRITICAL VIOLATION entry classified Tier 1
+    - sc: SC-4
+      evidence_type: structural
+      substrate_check: static table registration → structural holds
+      verification: Content inspection of .opencode/reference/skill-card-description-standards.md for the PLAN_MISSING vocabulary entry
+    - sc: SC-5
+      evidence_type: behavioral
+      substrate_check: dispatch-decision outcome during a real opencode run is runtime behavior → behavioral mandatory; structural substitute would be EVIDENCE_TYPE_MISMATCH
+      verification: Enforcement harness opencode run with no plan.md at the expected path; PLAN_MISSING block asserted from stderr behavioral evidence; BEHAVIOR_SEMANTIC_MONITOR=1 enabled
+    - sc: SC-6
+      evidence_type: behavioral
+      substrate_check: dispatch-proceeding outcome during a real opencode run is runtime behavior → behavioral mandatory
+      verification: Enforcement harness opencode run with plan.md present at the expected path; absence of a false-positive PLAN_MISSING block asserted from stderr behavioral evidence; BEHAVIOR_SEMANTIC_MONITOR=1 enabled
+    - sc: SC-7
+      evidence_type: behavioral
+      substrate_check: end-to-end scenario execution is runtime behavior → behavioral mandatory
+      verification: Execute the registered scenario's block leg via test-enforcement.sh --scenario <name> and observe the blocked outcome
+    - sc: SC-8
+      evidence_type: behavioral
+      substrate_check: end-to-end scenario execution is runtime behavior → behavioral mandatory
+      verification: Execute the registered scenario's permit leg and observe the dispatch-proceeding outcome
+    - sc: SC-9
+      evidence_type: structural
+      substrate_check: presence of an env assignment in a static script is content, not runtime behavior (the runtime effect is separately covered by SC-11/SC-12) → structural holds
+      verification: Content inspection (grep-level) of the 2314 scenario leg scripts for BEHAVIOR_SEMANTIC_MONITOR=1 set before each behavior_run invocation
+    - sc: SC-10
+      evidence_type: structural
+      substrate_check: presence of a Read-link in static plan text → structural holds
+      verification: Content inspection of the plan run-step instruction text for the exact §14 Read-link
+    - sc: SC-11
+      evidence_type: behavioral
+      substrate_check: artifact production during a supervised run is runtime behavior → behavioral mandatory
+      verification: Execute a supervised run leg and inspect monitor evidence (poll log / monitor.log / determination.yaml) recorded alongside session.yaml per §14 step 6
+    - sc: SC-12
+      evidence_type: behavioral
+      substrate_check: observed poll timing during a live run is runtime behavior → behavioral mandatory
+      verification: Inspect monitor poll timestamps and semantic-check records — intervals ≤ 300s with full semantic checks between polls
+    - sc: SC-13
+      evidence_type: behavioral
+      substrate_check: abort handling during a live run is runtime behavior → behavioral mandatory
+      verification: Execute/inspect the supervised run leg and the recorded semantic diagnosis + §10.5 export artifacts
+  enforcement_gate_note: |
+    Per the spec's Enforcement Gate: structural SCs (SC-1..SC-4, SC-9, SC-10) are
+    verified with file/artifact inspection evidence; behavioral SCs (SC-5..SC-8,
+    SC-11..SC-13) require execution-based behavioral evidence from real opencode
+    run executions. A behavioral SC verified only by structural or string evidence
+    is EVIDENCE_TYPE_MISMATCH and is recorded as FAIL. No DONE_WITH_CONCERNS coercion.
+  testability_risks:
+    - risk: SC-13 (hard-abort path) only manifests when an abort actually occurs
+      mitigation: Leg may need to exercise/inject a §14 hard-abort condition, or verify from a recorded abort occurrence during the supervised run; absence of any abort across all legs is not PASS evidence for SC-13 by itself.
+    - risk: SC-5/SC-6 require controlled plan-absent/plan-present fixtures at the canonical path
+      mitigation: The harness fixture setup creates/removes plan.md at {issues_prefix}/{N}/plan.md per leg; the plan-elsewhere edge case is covered by the spec's Edge Cases, not a separate SC.

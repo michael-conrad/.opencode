@@ -1,0 +1,60 @@
+---
+issue: 2314
+artifact: cross-cutting-matrix
+status: backfilled
+mode: retroactive
+source_spec: .opencode/.issues/2314/spec.md
+generated: "2026-10-01T23:56:00Z"
+note: Backfilled retroactively to reflect the current spec — 13 atomic SCs (SC-1..SC-13) across the three concern groups from concern-map.yaml (dispatch-gate-logic, behavioral-enforcement, behavioral-run-supervision).
+sections:
+  cross_cutting_scs:
+    - id: SC-4
+      spans_concerns: [dispatch-gate-logic, behavioral-enforcement]
+      spans_files:
+        - .opencode/reference/skill-card-description-standards.md
+      reason: The PLAN_MISSING vocabulary registration is consumed by every deck surface — the gate entries (SC-1/SC-2), the critical-rule entry (SC-3), and the behavioral legs that assert on the reason code (SC-5/SC-7). A divergent reason code breaks routing consistency across all surfaces.
+    - id: SC-5
+      spans_concerns: [dispatch-gate-logic, behavioral-enforcement]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+        - .opencode/skills/spec-creation/SKILL.md
+      reason: The plan-absent block leg exercises the gate created by the dispatch-gate-logic concern — the behavioral evidence only materializes if SC-1's gate entry routes correctly.
+    - id: SC-6
+      spans_concerns: [dispatch-gate-logic, behavioral-enforcement]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+        - .opencode/skills/executing-plans/SKILL.md
+      reason: The plan-present permit leg exercises the executing-plans gate routing (SC-2) — proves no false-positive block, i.e., the gate did not over-block.
+    - id: SC-7
+      spans_concerns: [behavioral-enforcement, behavioral-run-supervision]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+      reason: The registered scenario block leg runs end-to-end through the harness and — per SC-9 — under BEHAVIOR_SEMANTIC_MONITOR=1, so its execution surface crosses into the supervision concern.
+    - id: SC-8
+      spans_concerns: [behavioral-enforcement, behavioral-run-supervision]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+      reason: Same leg-execution surface as SC-7; the permit leg also runs supervised.
+    - id: SC-11
+      spans_concerns: [behavioral-run-supervision, behavioral-enforcement]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+      reason: Monitor evidence (monitor.log / determination.yaml) is produced by a supervised run OF a behavioral leg — supervision configuration (SC-9/SC-10) and leg mechanics (I-5/I-6/I-7/I-8) must both be in place.
+    - id: SC-12
+      spans_concerns: [behavioral-run-supervision, behavioral-enforcement]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+      reason: Poll cadence is observed during the same supervised leg run that produces behavioral evidence; poll records live in the monitor.log alongside session.yaml.
+    - id: SC-13
+      spans_concerns: [behavioral-run-supervision, behavioral-enforcement]
+      spans_files:
+        - .opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh
+      reason: Hard-abort handling (kill + §10.5 export + semantic diagnosis) applies to the leg's run process — abort artifacts are recorded in the leg's evidence directory alongside behavioral evidence.
+  non_cross_cutting_scs:
+    - scs: [SC-1, SC-2, SC-3, SC-9, SC-10]
+      reason: Single-concern structural SCs — each verified by content inspection of exactly one file within one concern group.
+  coordination_notes: |
+    Dependency order (from the spec's Dependencies table): dispatch-gate-logic
+    (I-1..I-4) precedes behavioral-enforcement (I-5..I-8), which precedes the
+    supervised runs (I-11..I-13). Supervision configuration (I-9/I-10) is
+    independent of gate behavior and may proceed in parallel with Phase 1.

@@ -1,36 +1,48 @@
 ---
 issue: 2314
 artifact: dependency-contract
-source: .opencode/.issues/2314/artifacts/interface-compatibility.yaml (dependency_contract section extracted as-is)
+source: .opencode/.issues/2314/artifacts/interface-compatibility.yaml (dependency_contract section extracted as-is per research task step 9)
 description: |
-  Concrete dependency data derived from the spec's affected files and success
-  criteria — real sources, real targets, real type constraints.
+  Dependency contract extracted verbatim from the interface-compatibility
+  artifact's dependency_contract section (current 13-atomic-SC spec revision).
+  Regenerated during plan-revision research after the prior contract drifted
+  from the renumbered SC set.
+variables:
+  phase1_dispatch_gate_logic_complete:
+    type: bool
+  phase2_behavioral_enforcement_complete:
+    type: bool
+  phase3_behavioral_run_supervision_complete:
+    type: bool
+  plan_missing_reason_code_registered:
+    type: bool
+preconditions:
+  - phase1_dispatch_gate_logic_complete
+invariants:
+  - z3.Implies(phase2_behavioral_enforcement_complete, phase1_dispatch_gate_logic_complete)
+  - z3.Implies(phase3_behavioral_run_supervision_complete, z3.And(phase1_dispatch_gate_logic_complete, phase2_behavioral_enforcement_complete))
+  - z3.Implies(plan_missing_reason_code_registered, phase1_dispatch_gate_logic_complete)
+postconditions:
+  - phase3_behavioral_run_supervision_complete
+  - plan_missing_reason_code_registered
 entries:
-  - source: .opencode/skills/spec-creation/SKILL.md
-    target: .opencode/skills/executing-plans/SKILL.md
-    constraint: plan_path parameter (string, path to {issues_prefix}/{N}/plan.md) must resolve to an existing readable file before executing-plans entry criteria pass
-    sc: SC-1, SC-2
-  - source: orchestrator dispatch context
-    target: gate check
-    constraint: issue_number (integer) and issues_prefix (string) must be present in dispatch context to resolve the plan.md path
-    sc: SC-1, SC-2
-  - source: gate BLOCKED result
-    target: .opencode/reference/skill-card-description-standards.md vocabulary
-    constraint: blocker_reason must equal the registered literal "PLAN_MISSING" (string, uppercase snake_case, matching existing reason-code convention)
-    sc: SC-3, SC-4
-  - source: .opencode/tests-v2/test-enforcement.sh
-    target: behavioral scenario in .opencode/tests-v2/behaviors/
-    constraint: scenario must run via with-test-home opencode run (bash script, >=600s timeout) and produce stderr-based behavioral evidence
-    sc: SC-7, SC-8
-  - source: .opencode/tests-v2/behaviors/helpers.sh BEHAVIOR_SEMANTIC_MONITOR flag
-    target: 2314 scenario leg scripts calling behavior_run
-    constraint: every 2314 leg must export BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run so helpers.sh takes the §14 semantic-monitor path instead of the synchronous blocking path
-    sc: SC-9
-  - source: .opencode/tests-v2/AGENTS.md §14 mandate
-    target: plan run-step instruction text (plan-01 steps 25/31, plan-02 steps 39/45)
-    constraint: run-step instruction text must carry a Read-link to tests-v2/AGENTS.md §14 and specify <=300s poll intervals with full semantic checks and §14 hard-abort handling
-    sc: SC-10, SC-12, SC-13
-  - source: monitored behavioral run leg
+  - source: spec-creation SKILL.md gate entry
+    target: executing-plans SKILL.md gate routing
+    type_constraint: "reason_code: string enum — value MUST be exactly 'PLAN_MISSING' on both sides (registered in the canonical dispatch-vocabulary table)"
+    scs: [SC-1, SC-2, SC-4]
+  - source: 000-critical-rules.md PLAN_MISSING entry
+    target: dispatch-vocabulary table (reference/skill-card-description-standards.md)
+    type_constraint: "vocabulary_entry: string — the guideline's violation name MUST match the registered table entry 'PLAN_MISSING'; tier: literal Tier 1"
+    scs: [SC-3, SC-4]
+  - source: 2314 leg script environment
+    target: helpers.sh behavior_run
+    type_constraint: "env_var: BEHAVIOR_SEMANTIC_MONITOR, value: literal '1', set before the behavior_run call in the leg script process environment; unset ⇒ no-monitor synchronous path (documented default)"
+    scs: [SC-9, SC-11, SC-12]
+  - source: plan run-step instruction text
+    target: tests-v2/AGENTS.md §14 mandate
+    type_constraint: "read_link: markdown Read-link with relative path ../../tests-v2/AGENTS.md targeting the §14 section heading — the link MUST be present verbatim in the run-step text of both 2314 plans"
+    scs: [SC-10]
+  - source: supervised run monitor
     target: run evidence directory
-    constraint: supervised run must produce monitor evidence (poll log / monitor.log / determination.yaml) recorded alongside session.yaml per §14 step 6
-    sc: SC-11
+    type_constraint: "artifacts: monitor.log + determination.yaml recorded alongside session.yaml (per §14 step 6); poll_interval: integer seconds ≤ 300; hard_abort: {action: kill, export: §10.5 procedure, record: semantic diagnosis}"
+    scs: [SC-11, SC-12, SC-13]
