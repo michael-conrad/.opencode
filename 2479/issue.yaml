@@ -4,6 +4,101 @@ status: open
 labels:
 - needs-approval
 - SPEC-FIX
-body: ''
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2479/
+
+
+  ## Problem
+
+
+  Submodule pointer discipline regressed across the enforcement chain:
+
+
+  1. **pre-commit hook Gate 2 (stale pointer check)** enforces "pointer == remote
+  trunk tip" at every commit — an invariant that is only true before development starts.
+  Mid-development, pointers to unmerged feature SHAs are legal under the stacked-PR
+  model, so the gate''s only effect is forcing `SKIP_STALE_POINTER_CHECK=1` habituation,
+  and its remediation message instructs the wrong action. It also carries a known
+  false-positive bug (#2258). Real pointer-freshness authority already exists at PR
+  creation (enforcement-gate Steps 0/0.5/0.75, per #2313/#2431) and on the release
+  path.
+
+
+  2. **Tag canon rot**: the canonical Tag Convention moved from `git-workflow/SKILL.md`
+  (removed 2026-07-09, commit bfb0a212) to `git-workflow-branch/tasks/operating-protocol.md`,
+  but six references still point at the dead section — including one in Tier-1 always-loaded
+  `000-critical-rules.md:119`. Seven more references point at AGENTS.md sections that
+  do not exist (§Tag Layers ×4, §Tag-Based Hash Permanence ×2, §Idempotent Tag-if-Untagged
+  ×1). Two additional dead references in `pre-work.md` (line 125 §Skipping Git Pre-Check;
+  line 398 enforcement/halt-conditions.md — directory does not exist).
+
+
+  3. **Tag format rot**: `pre-work.md` documents the unsuffixed `<parent-repo>/<issue-number>`
+  format (never corrected since the 5-way skill split) while the canonical rule (#950)
+  and all 191 existing tags use `<parent>/<issue>-<submodule>`; format rot also in
+  `pre-work.md:254` and `provenance.md:37`.
+
+
+  ## Scope
+
+
+  - Remove pre-commit hook Gate 2 entirely (gate + SKIP hatch); retire its dependent
+  tests (test-2264-sc3/4/6/7, behavioral 2219-sc16); supersede #2258
+
+  - Consolidate ALL tag rules into the one canonical home (operating-protocol.md §Tag
+  Convention (Canonical)); repoint all dead/wrong references
+
+  - Correct the three unsuffixed tag-format sites
+
+  - Add a standing reference-integrity enforcement check (agent-facing Read-links
+  must resolve to sections their target files contain)
+
+  - Coordinate with open #2431 (its "SKIP semantics unchanged" no-ripple assumption
+  is invalidated; PR-time scope unaffected)
+
+
+  ## Approach
+
+
+  Treat the three defects as one discipline because they share a root cause: enforcement
+  authority for submodule pointers drifted from the pre-commit stage to the PR/release
+  stage, and the documentation canon followed the authority without repointing its
+  dependents. Remove the redundant commit-time gate so the stacked-PR model is enforced
+  where it is actually true (PR creation), consolidate every tag-format/tag-convention
+  rule into the single canonical section in `git-workflow-branch/tasks/operating-protocol.md`,
+  and repair each dead Read-link to its correct live target. Guard against recurrence
+  with a standing reference-integrity check that verifies agent-facing Read-links
+  resolve to sections that exist in the target file, so future canon moves cannot
+  silently strand references.
+
+
+  ## Impact
+
+
+  - **Risk: removal widens a window** — stale pointers could reach a PR undetected
+  if enforcement-gate Steps 0/0.5/0.75 regress. Mitigation: the PR-time gates (#2313/#2431)
+  remain the authority and their tests stay green; coordinate this change with #2431
+  explicitly.
+
+  - **Risk: reference churn** — repointing 13+ dead references touches Tier-1 always-loaded
+  files. Mitigation: mechanical one-line repoints validated by the new reference-integrity
+  check in the same change.
+
+  - **Risk: superseding #2258 mid-flight** — if #2258 work is in progress, this spec
+  supersedes it; verify its branch state before closure. Mitigation: supersession
+  noted in the #2258 thread when this lands.
+
+
+  Key dependencies: #2431 (stacked-PR ordering gate), #2313 (merged-commit verification
+  gate), #950 (tag format canon).
+
+
+  Call to action: review the scope boundary — commit-time gate removal is a behavior
+  change to every developer''s commit flow, so confirm the PR-time authority is trusted
+  before approving.
+
+
+  🤖 OpenCode (huggingface/zai-org/GLM-5.3-Flash) created
+
+  '
 created_at: '2026-10-02T20:23:01+00:00'
-updated_at: '2026-10-02T20:23:01+00:00'
+updated_at: '2026-10-02T20:23:20+00:00'
