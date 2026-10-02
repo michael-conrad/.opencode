@@ -62,5 +62,24 @@ SCENARIO_PROMPT="You are authorized (for_implementation scope) for issue #2314. 
 echo "=== Behavioral Test: $SCENARIO_NAME (SC-2 plan-absent leg, GREEN) ==="
 echo "SC-2: implementation dispatch with NO plan present — GREEN requires BLOCKED with PLAN_MISSING"
 
+# DECLARED VERIFIABLE GOAL CONDITION (harness convention, helpers.sh — R-18
+# fold-in, .opencode#2314 SC-5 diagnosis: this scenario previously declared NO
+# goal condition, so the §14 classifier had no direction anchor and returned
+# halt-class=undetermined at the first legal checkpoint, halting monitoring
+# before the dispatch boundary was reached). The goal of this block-leg
+# scenario is the run agent reaching and honoring the plan-existence check at
+# the spec-creation → implementation dispatch boundary: it locates the injected
+# spec (.issues/2314/spec.md), checks for the plan (which the fixture removed),
+# and blocks the implementation dispatch with PLAN_MISSING. The declared goal
+# actions are exactly those boundary-check actions (read/grep/glob of the spec
+# dir, bash status/list checks) — they anchor the classifier's direction
+# judgment while the run agent works toward the boundary. No goal artifact is
+# declared: the expected GREEN outcome is a BLOCK (no implementation dispatch,
+# no produced artifact), so GREEN-termination early exit stays structurally
+# unreachable — matching the fixture's block-leg semantics (predecessor:
+# 2456-sc13's no-condition defect fixed by declaring the direction anchor).
+BEHAVIOR_GOAL_ACTIONS="read,grep,glob,bash"
+export BEHAVIOR_GOAL_ACTIONS
+
 behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"
 exit 0

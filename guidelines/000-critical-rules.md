@@ -370,7 +370,7 @@ Rules that prevent **quality defects**: skipped verification, inline work, skill
 5. **Recitation defect:** Producing citation-only turns (restating critical-rules, approval-gate, or scope rules without performing the requested safe action) is a process-integrity failure — act, then disclose; do not deliberate in citations.
 
 ### [critical-rules-PLAN-MISSING] CRITICAL VIOLATION — PLAN_MISSING — implementation dispatch without an approved plan
-Dispatching implementation work (execution sub-agents, RED/GREEN task dispatches) when no approved `plan.md` exists is a CRITICAL VIOLATION. The dispatch MUST be BLOCKED with reason code `PLAN_MISSING` — gate routing entries at the spec-creation → implementation boundary in the spec-creation and executing-plans skill cards enforce plan.md existence checking before any implementation dispatch proceeds.
+Dispatching implementation work (execution sub-agents, RED/GREEN task dispatches) when no approved `plan.md` exists is a CRITICAL VIOLATION. The dispatch MUST be BLOCKED with reason code `PLAN_MISSING` — gate routing entries at the spec-creation → implementation boundary in the spec-creation and executing-plans skill cards enforce plan.md existence checking before any implementation dispatch proceeds. This mandate is Tier 1 (Safety-Critical) — it NEVER yields to developer authorization; a developer directive to implement without a plan does not authorize bypassing the PLAN_MISSING block (Tier-2 process-integrity reasoning such as "developer auth takes precedence" is not a valid override here). The authorized path is plan creation, not dispatch without one.
 
 
 
