@@ -17,6 +17,12 @@ Apply the `approved-for-<scope>` label to the issue and remove the `needs-approv
    - `./.opencode/tools/local-issues update <repo>#<N> --labels approved-for-{scope}`
    - This replaces the labels array with `approved-for-{scope}` (removing `needs-approval`). This is the authoritative authorization record.
    - If this write fails: return BLOCKED with `LOCAL_LABEL_WRITE_FAILED` — the pipeline MUST NOT proceed without the canonical local record.
+
+   **CLI usage note (do NOT re-derive `local-issues` semantics at runtime):**
+   - Invoke as `./.opencode/tools/local-issues` from the project root.
+   - Issue references MUST use the **qualified name** `<repo>#<N>` (e.g. `.opencode#2314`, `opencode-config#2314`). The `#` prefix routes the operation to that repo's `.issues/` store; a bare number is rejected. For `.opencode` issues use `.opencode#N` (resolves to `.opencode/.issues/{N}/`).
+   - `update --labels` REPLACES the entire labels array — pass the full desired label set, not just the additions.
+   - Mutations MUST use qualified names. Read [the `.issues/` workspace guide](.opencode/.issues/AGENTS.md) and [.opencode/AGENTS.md § Issues Path Resolution](.opencode/AGENTS.md) for the authoritative resolution rules.
 3. **SECONDARY — best-effort remote write (never blocking):** Dispatch to `issue-operations` skill for platform-aware label management:
    - `skill({name: "issue-operations"})` → `task("execute update-issue from issue-operations-core")`
    - Context: `{issue_number, labels: ["approved-for-{scope}"]}`
