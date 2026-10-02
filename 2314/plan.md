@@ -58,7 +58,7 @@ dispatch:
 | 1 | dispatch-gate-logic | Gate existence and block/permit behavior at the spec-creation → implementation boundary | SC-1..SC-6 | — | 3-32 | direct (6, 10, 14, 18, 23, 24, 30) + task-card (3-5, 7-9, 11-13, 15-17, 19-22, 25-29, 31-32) |
 | 2 | behavioral-enforcement | End-to-end behavioral enforcement scenario (block + permit legs) | SC-7, SC-8 | 1 | 33-54 | direct (37, 38, 44, 47) + task-card (33-36, 39-43, 45-46, 48-54) |
 | 3 | behavioral-run-supervision | Semantic monitoring of this issue's behavioral run legs per tests-v2 §14 | SC-9..SC-13 | 1, 2 | 55-70 | direct (58, 62, 69) + task-card (55-57, 59-61, 63-68, 70) |
-| 4 | bypass-path-gates | Plan-existence gates on the bypass-path surfaces (git-workflow pre-work, TDD RED dispatch) + behavioral block legs | SC-14..SC-17 | 1, 3 | 71-88 | direct (71, 75, 79, 83, 84, 88) + task-card (72-74, 76-78, 80-82, 85-87) |
+| 4 | bypass-path-gates | Plan-existence gates on the bypass-path surfaces (git-workflow pre-work, TDD RED dispatch) + behavioral block legs | SC-14..SC-17 | 1, 3 | 71-88 | direct (71, 75, 79, 83, 88) + task-card (72-74, 76-78, 80-82, 84, 85-87) |
 
 ## Pre-Implementation
 

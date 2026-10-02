@@ -1,0 +1,79 @@
+artifact_name: validate-findings
+generated_at: 2026-10-02
+issue: 2314
+validated_inputs:
+  plan: .opencode/.issues/2314/plan.md
+  phase_files:
+    - .opencode/.issues/2314/plan-01-dispatch-gate-logic.md
+    - .opencode/.issues/2314/plan-02-behavioral-enforcement.md
+    - .opencode/.issues/2314/plan-03-behavioral-run-supervision.md
+    - .opencode/.issues/2314/plan-04-bypass-path-gates.md
+  spec: .opencode/.issues/2314/spec.md
+  dependency_contract: .opencode/.issues/2314/dependency-contract.yaml
+  solve_output: .opencode/.issues/2314/artifacts/solve-output.yaml
+  reference: .opencode/skills/writing-plans/reference/implementation-workflow.md
+  concern_map: .opencode/.issues/2314/artifacts/concern-map.yaml
+categories:
+  - category: 1-structural
+    status: PASS
+    checks:
+      - check: plan.md phase table has all required columns
+        result: PASS
+        detail: "Phase Table carries Phase / Name / Concern / SCs / Depends On / Step Range / Dispatch for all 4 phases"
+      - check: each phase has a procedure section with numbered steps
+        result: PASS
+        detail: "plan-01..plan-04 each carry numbered checkbox steps; step ranges in the phase table (3-32, 33-54, 55-70, 71-88) match the phase files"
+      - check: exit criteria section exists with SC-to-phase mapping
+        result: PASS
+        detail: "plan.md Exit Criteria C1..C17 map 1:1 to SC-1..SC-17 (plus C18/C19 pipeline gates); phase table maps SC ranges to phases"
+  - category: 2-skill-task-validity
+    status: PASS
+    checks:
+      - check: every skill+task reference matches implementation-workflow.md
+        result: PASS
+        detail: "red/green/phase-4 (test-driven-development), verify (verification-before-completion), verification-audit DiMo investigator (audit), z3-check (orchestrator-direct), checklist (finishing-a-development-branch), review-prep/create (git-workflow-pr), completion (completion-core) — all match reference-card entries; commit/push as orchestrator-direct steps are consistent with commit-inline and the 091 PUSH step"
+  - category: 3-sc-coverage
+    status: PASS
+    checks:
+      - check: every SC from the spec appears in at least one phase exit criteria
+        result: PASS
+        detail: "SC-1..SC-6 → phase 1; SC-7,SC-8 → phase 2; SC-9..SC-13 → phase 3; SC-14..SC-17 → phase 4; all 17 spec SCs covered; exit criteria C1..C17 mirror them"
+      - check: no RED/GREEN/COMMIT triplet split across phases
+        result: PASS
+        detail: "Every SC's RED/GREEN/COMMIT steps reside in a single phase. SC-14's commit (step 75) and SC-15's commit (step 79) sit under the next item's heading but remain in phase 4 — same-phase placement, not a triplet split. SC-12/SC-13 are verify-only inspection SCs whose evidence comes from the phase-3 supervised run; no cross-phase step exists"
+  - category: 4-concern-separation
+    status: PASS
+    checks:
+      - check: each phase addresses exactly one concern-map concern
+        result: PASS
+        detail: "concern-map.yaml lists 4 concerns (pipeline integrity / enforcement authority / behavioral-run supervision / gate-placement coverage); phases map 1:1 (dispatch-gate-logic / behavioral-enforcement / behavioral-run-supervision / bypass-path-gates)"
+      - check: no two phases address the same concern
+        result: PASS
+        detail: "No overlap — each phase's Concern statement matches a distinct concern-map entry"
+  - category: 5-dag-validation
+    status: PASS
+    checks:
+      - check: dependency contract DAG has no cycles
+        result: PASS
+        detail: "Edges p2→p1, p3→{p1,p2}, p4→{p1,p3}; topological order 1→2→3→4 exists (solve plan_output confirms)"
+      - check: all phases reachable from start node
+        result: PASS
+        detail: "Phase 1 is the root (no incoming edges); all other phases reachable via transitive dependency edges"
+      - check: no orphan phases
+        result: PASS
+        detail: "Every phase has at least one edge (phase 1 outgoing to 2,3,4)"
+  - category: 6-holistic-quality
+    status: FAIL
+    checks:
+      - check: no TBD/TODO placeholders in plan body
+        result: PASS
+        detail: "grep across plan.md and plan-01..plan-04 returns zero TBD/TODO matches"
+      - check: all steps use checkbox format
+        result: PASS
+        detail: "All procedure steps in plan.md and phase files use '- [ ] N.' checkbox format"
+      - check: dispatch mode consistency between phase table and phase files
+        result: FAIL
+        finding: "DISPATCH_MODE_MISMATCH: plan.md Phase Table lists phase 4 direct steps as (71, 75, 79, 83, 84, 88) and task-card as (72-74, 76-78, 80-82, 85-87), but plan-04-bypass-path-gates.md step 84 is 'RED (task-card)' (dispatch the red task from test-driven-development). Step 84 is declared direct in the table but task-card in the phase file."
+        remediation: "Correct plan.md phase-table Dispatch column to move 84 from the direct list into the task-card range (direct: 71, 75, 79, 83, 88; task-card: 72-74, 76-78, 80-84, 85-87 — or renumber), or reclassify step 84 in plan-04 to match the table. One of the two surfaces must be corrected; the phase file's task-card classification is the semantically correct one (it is a RED dispatch)."
+overall_status: FAIL
+aggregate_note: "5 of 6 categories PASS; category 6 FAIL on a single dispatch-mode mismatch at plan-04 step 84. Remediation is a one-row phase-table correction in plan.md (or a one-step reclassification in plan-04); no SC coverage, DAG, or concern change is implied."
