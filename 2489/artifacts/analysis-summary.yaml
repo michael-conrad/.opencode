@@ -1,0 +1,39 @@
+# Analysis summary — writing-plans preconditions (task: analyze)
+issue: .opencode#2489
+checked_at: 2026-10-02T19:50:00-04:00
+spec_path: .opencode/.issues/2489/spec.md
+approval_status:
+  issue_yaml: .opencode/.issues/2489/issue.yaml
+  labels: [approved-for-pr]
+  approved: true
+success_criteria:
+  sc_count: 13
+  sc_ids: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13]
+artifact_presence:
+  directory: .opencode/.issues/2489/artifacts/
+  local_present: true
+  pushed_to_issues_data: true  # worktree clean; HEAD contained in origin/issues-data (verified via fetch + branch --contains)
+  required:
+    blast-radius.yaml: present
+    concern-map.yaml: present
+    code-path-inventory.yaml: present
+    cross-cutting-matrix.yaml: present
+    interface-compatibility.yaml: present-as-interface-compat.yaml  # naming mismatch — same artifact, different filename
+    state-analysis.yaml: present
+    testability-assessment.yaml: present-as-testability.yaml  # naming mismatch — same artifact, different filename
+  additional:
+    - decompose-output.yaml
+    - pipeline-readiness.yaml
+    - pre-spec-inspection.yaml
+    - requirements-output.yaml
+    - research-card-consultation.yaml
+scope_boundary_findings:
+  - OK: .opencode/skills/git-workflow-branch/tasks/pre-work.md
+  - OK: .opencode/skills/git-workflow-branch/tasks/provenance.md
+  - OK: .opencode/skills/git-workflow-branch/tasks/operating-protocol.md
+  - OK: .opencode/hooks/pre-commit
+  - OK: .opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md
+  - OK: .opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md
+  - OK: .opencode/tools (directory)
+  - NOTE: branch-cleanup.md exists at .opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md (not under git-workflow-branch/tasks/ as the spec's Dead-Reference Mapping implies) — spec cites it by basename; live path differs
+  - NOTE: all five dependent tests (test-2264-sc3/sc4/sc6/sc7, behaviors/2219-sc16) verified present pre-implementation (expected RED state)
