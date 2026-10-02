@@ -40,6 +40,28 @@ remove_plan_for_sc2() {
     git -C "$wd" add -A .issues/ 2>/dev/null || true
 }
 
+# sandbox_issue_store: confine issue-store access to the injected .issues/2314
+# fixture data. .issues/{N}/ paths outside the #2314 fixture are removed from the
+# workdir so the run agent reaches ONLY the injected fixture issue data, and
+# the fixture issue directory is made read-only so the plan-absent
+# precondition cannot be defeated at runtime (the attempt-5 escape: the run
+# agent created .issues/2314/plan.md against the real issue and read real
+# issue-store data for other issues). This function is 2314-scenario-only —
+# it is NOT wired into for_pr_apply_common_remediations, so the 1364
+# scenarios (which require their own issue data and plan state) are unaffected.
+sandbox_issue_store() {
+    local wd="$1"
+    local issue_dir
+    for issue_dir in "$wd"/.issues/*; do
+        [ -d "$issue_dir" ] || continue
+        if [ "$(basename "$issue_dir")" != "2314" ]; then
+            rm -rf "$issue_dir"
+        fi
+    done
+    chmod 0555 "$wd/.issues/2314" 2>/dev/null || true
+}
+
 wd="$1"
 remove_plan_for_sc2 "$wd"
+sandbox_issue_store "$wd"
 for_pr_apply_common_remediations "$wd"
