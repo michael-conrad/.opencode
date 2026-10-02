@@ -32,16 +32,29 @@
 | SC-1 | The pre-commit hook contains no Gate 2 stale-pointer check: no `SKIP_STALE_POINTER_CHECK` env hatch, no stale-pointer loop, no Gate 2 BLOCK message. | behavioral | Behavioral test run via `bash .opencode/tests-v2/with-test-home opencode run '<message>'`: a submodule pointer commit at an unmerged feature-branch SHA in a feature branch succeeds with no hook block and no hatch set; grep for absence of `SKIP_STALE_POINTER_CHECK` in the hook |
 | SC-2 | A trunk-branch submodule commit is still blocked by the pre-commit hook (Gate 1 trunk-branch protection contract unchanged: exit 1 on trunk commit). | behavioral | Behavioral test run: trunk-branch commit attempt is blocked (exit 1) in the same harness as SC-1 |
 | SC-3 | The five dependent gate tests (test-2264-sc3-different-trunk-submodule.sh, test-2264-sc4-shared-trunk-submodule.sh, test-2264-sc6-two-submodule-verification.sh, test-2264-sc7-bug-only-override-uses.sh, behaviors/2219-sc16-stale-pointer-block.sh) no longer exist. | structural | File-existence check (`ls`) |
-| SC-4 | The tests-v2 directory lists no orphaned runners referencing the five deleted tests. | structural | tests-v2 index scan |
+| SC-4 | The tests-v2 directory lists no orphaned runners referencing the five deleted tests. | string | grep/pattern scan of the tests-v2 directory (test-runner registrations and index files) for references to the five deleted test filenames; PASS = zero matches |
 | SC-5 | `git-workflow-branch/tasks/pre-commit-pointer-check.md` advisory text contains no stale-pointer-gate or SKIP-hatch wording. | string | grep of the advisory file for stale-pointer-gate / SKIP-hatch patterns |
 | SC-6 | `git-workflow-branch/tasks/pre-commit-pointer-check.md` advisory text references the PR-time freshness gates (enforcement-gate Steps 0/0.5/0.75). | string | grep of the advisory file for the PR-time gate references |
-| SC-7 | All tag rules are present in `operating-protocol.md` "Tag Convention (Canonical)". | string | Read of the canonical section confirming complete rule coverage |
+| SC-7 | All six rules of the closed tag-rule inventory (see "Tag-Rule Inventory" below) are present in `operating-protocol.md` "Tag Convention (Canonical)". | string | grep the canonical section for each of the six inventory entries on the closed list; PASS requires all six present |
 | SC-8 | Zero references to `git-workflow/SKILL.md` §Tag Convention remain. | string | grep for the dead-target pattern |
 | SC-9 | Zero references to nonexistent AGENTS.md sections (§Tag Layers, §Tag-Based Hash Permanence, §Idempotent Tag-if-Untagged, §Skipping Git Pre-Check, enforcement/halt-conditions.md) remain. | string | grep for each dead-target pattern |
 | SC-10 | Every repaired reference uses inline `Read [Text](path)` form. | string | Inspection of each repaired link site |
 | SC-11 | The three tag-format sites (pre-work.md Step 3 tag creation, pre-work.md Step 4 commit message, provenance/trunk-push-provenance.md) use the suffixed `<parent-repo>/<issue-number>-<submodule>` form with no unsuffixed variant remaining. | string | grep of the three sites for the unsuffixed pattern |
 | SC-12 | A reference-integrity enforcement check exists in `.opencode/tools/` that fails on a deliberately introduced broken Read-link (a link pointing at a section absent from the target file). | behavioral | Test execution: run the check against a deliberate broken probe; inspect exit code and report lines |
 | SC-13 | The reference-integrity enforcement check passes on the repaired repository. | behavioral | Test execution: run the check against the repaired repo; inspect exit code |
+
+### Tag-Rule Inventory (closed list for SC-7)
+
+SC-7's PASS state is checkable against exactly these six rules — no judgment call, no open-ended "complete coverage" reading:
+
+1. **Suffix Rule:** Tag suffix MUST be derived from the discovered repo's directory name via `git submodule status`; the suffixed form is `<parent-repo>/<issue-number>-<submodule>`; issue title, phase name, or any ad-hoc string MUST NOT be used.
+2. **Hash-permanence tag type:** format `<parent>/<issue>-<submodule>` — pins the submodule SHA at feature-branch tip.
+3. **Checkpoint tag type:** format `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` — rollback anchor; created during plan execution, deleted during branch cleanup.
+4. **Release tag type:** format `<parent>/v<version>` — release marker, no suffix.
+5. **Idempotent tag-if-untagged rule:** before branch cleanup, verify the current submodule SHA is reachable via a tag; if not, tag it.
+6. **Hash permanence replaces dependency-sync PRs:** no dependency-sync PRs; submodule SHAs are preserved via parent-repo-prefixed tags.
+
+Rules currently stranded elsewhere (the idempotent tag-if-untagged rule is only stated in dead-reference prose) SHALL be consolidated into the canonical section per R-4 so the inventory is fully present there.
 
 ### Enforcement Gate
 
@@ -68,6 +81,21 @@ These mandates trace to drivers elevated into Root Cause / Motivation (user dire
 8. R-10. Gate 2 removal evidence SHALL be behavioral (the removal changes runtime behavior and auto-uplifts per critical-rules-BEH-EV); no structural or string substitute MAY be reported as PASS for SC-1/SC-2.
 
 Requirements R-8 (issue-graph handover/supersession recording) and R-9 (ceremony-test retirement policy) are reclassified as Coordination Mandates CM-2 and CM-1 respectively — see the Coordination Mandates section.
+
+### Dead-Reference → Live-Target Mapping (R-5)
+
+Every repair under Items 8-10 uses this mapping — the replacement target for each dead reference is fixed, not agent-discretionary:
+
+| Dead Reference | Sites | Live Replacement Target |
+|----------------|-------|-------------------------|
+| `git-workflow/SKILL.md` §Tag Convention | 6 (per blast-radius artifact inventory) | `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)" |
+| `AGENTS.md` §Tag Layers | 4 (`provenance.md` ×2, `provenance/trunk-push-provenance.md` ×2) | `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)" (tag-type table) |
+| `AGENTS.md` §Tag-Based Hash Permanence | 2 (`branch-cleanup.md`, `provenance.md`) | `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)" |
+| `AGENTS.md` §Idempotent Tag-if-Untagged | 1 (`branch-cleanup.md`) | `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)" (rule consolidated there per R-4) |
+| `guidelines/000-critical-rules.md` "Skipping Git Pre-Check" | 1 (`pre-work.md` Step-4 table) | `.opencode/skills/git-workflow-branch/SKILL.md` §[critical-rules-005] Skipping Git Pre-Check |
+| `enforcement/halt-conditions.md` (relative path, unresolvable from `git-workflow-branch/tasks/`) | 1 (`pre-work.md` observe/ discard note) | `.opencode/skills/git-workflow/enforcement/halt-conditions.md` "observe/ Branch Discard Enforcement" |
+
+Total: 15 reference sites (6 + 7 AGENTS.md-section references + 2 pre-work.md references).
 
 ## Items
 
@@ -115,22 +143,22 @@ Requirements R-8 (issue-graph handover/supersession recording) and R-9 (ceremony
 
 ### Item 7 (SC-7): Consolidate tag rules into canonical home
 
-- RED: `operating-protocol.md` "Tag Convention (Canonical)" is missing at least one tag rule that lives stranded/duplicated elsewhere.
-- GREEN: Consolidate every tag rule into the canonical section.
-- verify: Read of the canonical section confirms complete rule coverage.
+- RED: `operating-protocol.md` "Tag Convention (Canonical)" is missing at least one rule from the closed Tag-Rule Inventory (six entries).
+- GREEN: Consolidate every tag rule into the canonical section so all six inventory entries are present.
+- verify: grep the canonical section for each of the six inventory entries — all six must be present.
 - commit: One commit.
 
 ### Item 8 (SC-8): Zero references to git-workflow/SKILL.md §Tag Convention
 
 - RED: grep finds the 6 dead refs to git-workflow/SKILL.md §Tag Convention.
-- GREEN: Repoint all 6 references to their correct live targets.
+- GREEN: Repoint all 6 references to their live target per the Dead-Reference → Live-Target Mapping (R-5) — `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)".
 - verify: grep for the dead-target pattern returns zero.
 - commit: One commit.
 
 ### Item 9 (SC-9): Zero references to nonexistent AGENTS.md sections
 
-- RED: grep finds the 7 refs to nonexistent AGENTS.md sections (§Tag Layers, §Tag-Based Hash Permanence, §Idempotent Tag-if-Untagged, §Skipping Git Pre-Check, enforcement/halt-conditions.md).
-- GREEN: Repoint all 7 references to their correct live targets.
+- RED: grep finds the 9 dead refs (7 AGENTS.md-section references: §Tag Layers ×4, §Tag-Based Hash Permanence ×2, §Idempotent Tag-if-Untagged ×1; plus 2 pre-work.md references: §Skipping Git Pre-Check, `enforcement/halt-conditions.md`).
+- GREEN: Repoint all 9 references to their live targets per the Dead-Reference → Live-Target Mapping (R-5).
 - verify: grep for each dead-target pattern returns zero.
 - commit: One commit.
 
@@ -249,3 +277,4 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-10-02 | Moved the reference-integrity-check execution out of SC-4's method (it was already SC-12's deliverable); SC-4 (now SC-8/SC-9) remains string with grep-only verification | evidence_type_crosscheck FAIL — SC-4 declared string but method included behavioral check execution | Validation findings (Aggregate FAIL) |
 | 2026-10-02 | Relabeled all analysis artifacts from provisional .opencode#2479 to .opencode#2489 (tmp/pointer-discipline-fix/artifacts/, tmp/pointer-discipline-fix/contracts/, .opencode/.issues/2489/artifacts/); recorded provisional-number provenance in §6 | artifact_cross_reference WARNING — artifacts labeled issue .opencode#2479 while spec is #2489 | Validation findings (Aggregate FAIL) |
 | 2026-10-02 | Skipped artifacts-directory deletion (revise Step 7): the artifacts in `.opencode/.issues/2489/artifacts/` are the current-version artifacts relabeled per the artifact_cross_reference finding — deleting them would destroy the analytical artifacts this spec cites (blast-radius artifact referenced in Documentation Sources). No stale previous-version artifacts exist to remove. | Step 7 purpose is stale-artifact prevention; artifacts are current after relabel | Validation findings context |
+| 2026-10-02 | Revise iteration 2: (a) SC-7 rewritten against an enumerated closed six-entry Tag-Rule Inventory with a pattern-checkable grep method — SUBSTANTIVE (changes what PASS means); (b) SC-4 reclassified structural → string (tests-v2 index scan is grep/pattern-match, not file-listing) — non-substantive method-wording fix; (c) R-5 supplemented with the Dead-Reference → Live-Target Mapping table (15 sites: 6 SKILL.md §Tag Convention + 7 AGENTS.md-section refs + 2 pre-work.md refs) and Item 9 count corrected to 9 — non-substantive completeness fix; (d) blast-radius.yaml and testability.yaml refreshed (2219-sc16 fate 'RETIRE or INVERT' → 'RETIRE', aligned with SC-3's deletion); artifacts deletion again skipped per the Step 7 precedent above — refreshed artifacts are current-version | Aggregate FAIL, 2 defect concentrations (validate iteration 2); advisory artifact-text discrepancies | Validation findings (.opencode#2489 revise dispatch) |

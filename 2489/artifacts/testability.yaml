@@ -10,7 +10,7 @@ testability:
     - test: "tests-v2/test-2264-sc7-bug-only-override-uses.sh"
       fate: "RETIRE — verified performative offender (grep enumeration of env-var string of the deleted hatch)"
     - test: "tests-v2/behaviors/2219-sc16-stale-pointer-block.sh"
-      fate: "RETIRE or INVERT (commit must now succeed)"
+      fate: "RETIRE (SC-3 deletes it; the block it asserts no longer exists)"
     - test: "test-2431-*, test-2434-* (PR-time gates)"
       fate: "KEEP — become the sole pointer-freshness enforcement; no modification"
   coverage_gaps_driving_new_scs:

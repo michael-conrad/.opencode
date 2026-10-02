@@ -10,7 +10,7 @@ blast_radius:
       - ".opencode/tests-v2/test-2264-sc4-shared-trunk-submodule.sh — retire"
       - ".opencode/tests-v2/test-2264-sc6-two-submodule-verification.sh — retire"
       - ".opencode/tests-v2/test-2264-sc7-bug-only-override-uses.sh — retire"
-      - ".opencode/tests-v2/behaviors/2219-sc16-stale-pointer-block.sh — retire or invert"
+      - ".opencode/tests-v2/behaviors/2219-sc16-stale-pointer-block.sh — retire (SC-3 deletes it)"
     - file: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
       change: "advisory text update (line 38 region)"
     - issue: ".opencode#2258"
