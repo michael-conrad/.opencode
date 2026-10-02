@@ -1,0 +1,31 @@
+requirements:
+  issue: ".opencode#2479"
+  explicit:
+    - R1: "Remove pre-commit hook Gate 2 entirely — gate + SKIP_STALE_POINTER_CHECK hatch (leave Gate 1 trunk-branch protection untouched)."
+    - R2: "Retire dependent tests of removed gate: test-2264-sc3/sc4/sc6/sc7 and behavioral 2219-sc16."
+    - R3: "Update pre-commit-pointer-check.md advisory text that references the removed hook gate + SKIP hatch."
+    - R4: "Consolidate ALL tag rules into the single canonical home: operating-protocol.md 'Tag Convention (Canonical)'."
+    - R5: "Repoint all dead references: 6 to git-workflow/SKILL.md §Tag Convention, 7 to nonexistent AGENTS.md sections (§Tag Layers x4, §Tag-Based Hash Permanence x2, §Idempotent Tag-if-Untagged x1), 2 in pre-work.md (§Skipping Git Pre-Check, enforcement/halt-conditions.md)."
+    - R6: "Correct the three unsuffixed tag-format sites: pre-work.md:182, pre-work.md:254, provenance.md:37 — canonical form <parent-repo>/<issue-number>-<submodule>."
+    - R7: "Add a standing reference-integrity enforcement check: agent-facing Read-links must resolve to sections their target files contain."
+    - R8: "Coordinate with #2431 (its 'SKIP semantics unchanged' assumption invalidated) and supersede #2258 with a thread annotation; #2313 unaffected."
+  performative_test_elimination:  # per brainstorm confirmed decision (user directive 2026-10-02)
+    - R9: "Cull performative/string-only ceremony tests in the affected subsystem alongside Gate 2 test retirement — a test survives only if a real defect would escape without it. Verified offenders: test-2264-sc7 (grep enumeration of env var string), string SCs that grep task cards for documentation phrasing."
+    - R10: "Every NEW SC's verification must justify its cost against the defect it catches — no string-grep documentation-phrasing checks."
+    - R11: "Prevent re-accumulation of ceremony tests in this subsystem going forward (enforced via the reference-integrity check scope + retirement policy note in spec)."
+  implicit:
+    - I1: "Pre-work trunk-tip-verification 7-step gate remains the pre-work-time invariant owner (untouched by this spec)."
+    - I2: "Removal propagates to installed .git/hooks copies on next session start via session-enforcement.ts installer (no manual reinstall in scope)."
+    - I3: "Repaired refs stay in inline Read-link form per research-card finding (access-rate evidence)."
+    - I4: "Existing 191 suffixed tags stay valid — no migration."
+  constraints:
+    - C1: "Gate 1 (trunk branch protection) exit contract unchanged; hook remains exit 0 for non-trunk commits, exit 1 on trunk commit."
+    - C2: "PR-time gates (enforcement-gate Steps 0/0.5/0.75) and release pointer check must remain green/become the sole freshness authority — their tests unmodified."
+    - C3: "No spec status/completion markers written into spec content; implementation tracked via pipeline state."
+    - C4: "Gateway: removal is runtime-behavioral → behavioral evidence mandatory (EVIDENCE_TYPE auto-uplift, critical-rules-BEH-EV)."
+    - C5: "All affected files live in .opencode submodule; .opencode#2479 repo-scope."
+  non_requirements:
+    - N1: "No fix for the #2258 awk-substr false-positive bug (target code deleted)."
+    - N2: "No cleanup/migration of historical malformed tag opencode-config/1059-.opencode (out of scope)."
+    - N3: "No changes to PR-creation or release-path gate content."
+    - N4: "No new env vars, commands, skills, or file formats."

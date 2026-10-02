@@ -1,0 +1,65 @@
+decomposition:
+  issue: ".opencode#2479"
+  single_task_spec: true
+  concern: "Submodule pointer lifecycle discipline (one causal chain, one subsystem)"
+  items:
+    - item: 1
+      sc_id: "SC-1"
+      title: "Remove Gate 2 + SKIP hatch from pre-commit hook"
+      red: "Behavioral test: commit a submodule pointer at an unmerged feature-branch SHA in a feature branch expecting success — current hook BLOCKS (RED); after removal commit succeeds with no hook block; trunk-branch commit still blocked (Gate 1 contract unchanged)"
+      green: "Delete hook lines implementing Gate 2 (**incl. SKIP_STALE_POINTER_CHECK env + stale-pointer loop + BLOCK message)**"
+      verify_commit: "behavioral + grep absence of SKIP_STALE_POINTER_CHECK in hook; one commit"
+      dependency: []
+    - item: 2
+      sc_id: "SC-2"
+      title: "Retire dependent gate tests (incl. performative ones)"
+      red: "File-existence check: the 5 test files (test-2264-sc3/sc4/sc6/sc7, behaviors/2219-sc16) still exist → RED; after deletion they are gone and test-suite directory lists clean (no orphaned runners)"
+      green: "Delete those 5 test files"
+      verify_commit: "file-existence + tests-v2 index scan; one commit"
+      dependency: ["SC-1"]
+      justification: "test-2264-sc7 is a verified performative offender (greps env-var string of deleted hatch); 2219-sc16 asserts removed behavior — retirement is itself the defect catching missing orphans"
+    - item: 3
+      sc_id: "SC-3"
+      title: "Update pre-commit-pointer-check.md advisory text"
+      red: "grep of pre-commit-pointer-check.md for stale-pointer-gate/SKIP hatch wording returns matches (RED); after edit returns zero"
+      green: "Rewrite advisory text (line 38 region) to reference PR-time freshness gates"
+      verify_commit: "grep + section-existence on referenced target; one commit"
+      dependency: ["SC-1"]
+    - item: 4
+      sc_id: "SC-4"
+      title: "Consolidate tag rules into canonical home and repoint dead references"
+      red: "grep finds 6 refs to git-workflow/SKILL.md §Tag Convention + 7 to nonexistent AGENTS.md § sections + pre-work.md refs at 125/398 (targeting dead targets) → RED; after repair zero"
+      green: "Ensure operating-protocol.md Tag Convention (Canonical) holds complete tag rules; repoint all 15 dead references to it or their correct live targets in inline Read-link form"
+      verify_commit: "grep + link-target section verification via new reference-integrity check; one commit"
+      dependency: ["SC-6"]  # check exists first to validate the repair
+      justification: "defect: agents following dead Read-links (incl. one in Tier-1 always-loaded file) cannot reach tag-canonical content — real escape vector, not documentation phrasing"
+    - item: 5
+      sc_id: "SC-5"
+      title: "Correct 3 unsuffixed tag-format sites"
+      red: "grep of the 3 sites for '<parent-repo>/<issue-number>' without '-<submodule>' suffix returns matches (RED); after correction zero"
+      green: "pre-work.md:182, pre-work.md:254, provenance.md:37 — append '-<submodule>' suffix per canonical rule (#950)"
+      verify_commit: "grep; one commit"
+      dependency: ["SC-4"]
+    - item: 6
+      sc_id: "SC-6"
+      title: "Standing reference-integrity enforcement check"
+      red: "Check powered on a known-broken reference returns failure (RED on current repo); on repaired repo passes"
+      green: "Implement check (script in .opencode/tools/) validating agent-facing Read-links resolve to sections contained in target files; wire into enforcement workflow note"
+      verify_commit: "behavioral (executes against live files incl. deliberate broken probe); one commit"
+      dependency: []
+    - item: 7
+      sc_id: "SC-7"
+      title: "Ceremony-test policy for the subsystem"
+      red: "Spec/policy text absent (RED); after edit present and auditable"
+      green: "Record the performative-test retirement policy as a note in the retire path (test card header/AGENTS note) — survives only if a real defect escapes; new test SCs must justify cost vs catch"
+      verify_commit: "string + policy audit; one commit"
+      dependency: ["SC-2"]
+    - item: 8
+      sc_id: "SC-8"
+      title: "Issue-graph coordination (#2431 handover note, #2258 supersession)"
+      red: "No handover/supersession annotations present on #2431 / #2258 threads (RED)"
+      green: "Non-substantive coordination comments: #2431 hand-over of commit-time semantics (SKIP hatch removed, PR-time scope untouched); #2258 superseded-with-rationale; confirm their branch states"
+      verify_commit: "API evidence (comment id / issue yaml); no code commit"
+      dependency: ["SC-1"]
+  atomicity: "every item = one RED → GREEN → verify → COMMIT cycle (behavioral items add PUSH before behavioral run)"
+  dependency_dag_acyclic: true

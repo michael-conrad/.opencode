@@ -1,0 +1,31 @@
+testability:
+  issue: ".opencode#2479"
+  existing_coverage_and_fate:
+    - test: "tests-v2/test-2264-sc3-different-trunk-submodule.sh"
+      fate: "RETIRE (asserts removed gate allow/block)"
+    - test: "tests-v2/test-2264-sc4-shared-trunk-submodule.sh"
+      fate: "RETIRE"
+    - test: "tests-v2/test-2264-sc6-two-submodule-verification.sh"
+      fate: "RETIRE"
+    - test: "tests-v2/test-2264-sc7-bug-only-override-uses.sh"
+      fate: "RETIRE — verified performative offender (grep enumeration of env-var string of the deleted hatch)"
+    - test: "tests-v2/behaviors/2219-sc16-stale-pointer-block.sh"
+      fate: "RETIRE or INVERT (commit must now succeed)"
+    - test: "test-2431-*, test-2434-* (PR-time gates)"
+      fate: "KEEP — become the sole pointer-freshness enforcement; no modification"
+  coverage_gaps_driving_new_scs:
+    - "BEHAVIORAL: agent commits submodule pointer to unmerged feature-branch SHA WITHOUT SKIP → commit succeeds, no hook block (RED: current hook blocks)"
+    - "BEHAVIORAL: trunk-branch commit still blocked by Gate 1 (contract preserved)"
+    - "BEHAVIORAL: PR-creation enforcement-gate still blocks parent PR with stale pointers (existing coverage survives hook removal)"
+    - "BEHAVIORAL: reference-integrity check fails on deliberate broken link and passes on repaired repo"
+    - "STRING: hook contains no SKIP_STALE_POINTER_CHECK / stale-pointer remnants"
+    - "STRING: zero dead references to git-workflow/SKILL.md §Tag Convention / nonexistent AGENTS.md § sections remain"
+    - "STRING: 3 format sites carry -<submodule> suffix"
+  evidence_type_classification:
+    - "Component A removal: runtime-behavioral → SC evidence auto-uplift to behavioral (critical-rules-BEH-EV)"
+    - "Components B/C: text-state changes → string evidence valid"
+  performative_test_cost_justification:
+    - "every NEW SC's verification must justify cost vs the defect it catches (user directive 2026-10-02)"
+    - "no string-grep documentation-phrasing checks that assert phrasing rather than behavior"
+    - "policy: a test survives only if a real defect would escape without it; ceremony tests culled alongside gate-test retirement"
+  strategy_per_phase: "mixed — behavioral for hook removal + integrity check; string for ref/format repairs"

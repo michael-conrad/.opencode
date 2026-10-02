@@ -1,0 +1,9 @@
+research_card_consultation:
+  issue: ".opencode#2479"
+  consulted:
+    - card: ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
+      confidence: 0.95
+      relevance: "Repair of dead Read-links (Component B) — the card empirically establishes inline markdown Read-links as the form with the highest access rate (100% Tier 1) vs bare-§ + resolution tables (50%)."
+      finding: "Repaired references MUST keep the inline `Read [Text](path)` form and point at `git-workflow-branch/tasks/operating-protocol.md` 'Tag Convention (Canonical)' — no repointing into resolution-table style."
+  skipped:
+    - reason: "Remaining cards (.opencode/.issues/research-cards/*) target plan-auditor, search backends, branch strategies, attribution, and directory formats — none match the pointer-discipline/tag-canon reference-repair topic (topic grep, frontmatter review)."

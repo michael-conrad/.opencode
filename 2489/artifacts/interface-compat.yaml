@@ -1,0 +1,35 @@
+interface_compatibility:
+  issue: ".opencode#2479"
+  interfaces:
+    - name: "hooks/pre-commit exit contract"
+      change: "Gate 2 removed; Gate 1 unchanged (exit 1 on trunk commit, exit 0 otherwise)"
+      compatibility: "backward compatible — one fewer blocking condition"
+    - name: "SKIP_STALE_POINTER_CHECK env var"
+      change: "becomes dead (no consumer)"
+      compatibility: "compatible — setters see no behavior change"
+    - name: "Tag naming convention"
+      change: "none — canonical <parent>/<issue>-<submodule> already canonical (operating-protocol.md + 191 existing tags)"
+      compatibility: "existing tags remain valid"
+    - name: "pre-work.md result contract"
+      change: "none — submodule_tags_created field already exists"
+      compatibility: "compatible"
+    - name: "enforcement-gate result contract"
+      change: "none — no fields added"
+      compatibility: "compatible"
+  new_interfaces:
+    - name: "reference-integrity enforcement check"
+      type: "internal tool in .opencode/tools/"
+      compatibility: "new — additive only, internal to agent enforcement"
+  removed_interfaces:
+    - name: "SKIP_STALE_POINTER_CHECK hatch"
+      target: "hooks/pre-commit consumers (agents/scripts using during mid-development commits)"
+  dependency_contract:
+    - source: "hooks/pre-commit (pre-removal)"
+      target: "SKIP_STALE_POINTER_CHECK (and test-2264-sc7 which enumerates it)"
+      type: "artifact schema"
+      constraint: "enforcement-gate (#2431) assumes hatch semantics unchanged — superseded by handover comment; SC-1 removal takes precedence"
+    - source: "git-workflow/SKILL.md §Tag Convention (removed)"
+      target: "6 Read-link references across skills/guidelines/commands"
+      type: "artifact schema"
+      constraint: "all references must resolve to operating-protocol.md 'Tag Convention (Canonical)' after repair — verified by reference-integrity check"
+  breaking_changes: []

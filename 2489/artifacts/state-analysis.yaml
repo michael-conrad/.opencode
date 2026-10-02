@@ -1,0 +1,24 @@
+state_analysis:
+  issue: ".opencode#2479"
+  persistent_state:
+    - state: "installed git hooks (.git/hooks/pre-commit from .opencode/hooks/ via session-enforcement.ts)"
+      impact: "old Gate 2 persists in installed copies until next session start re-install; verify installer overwrites each start"
+    - state: "existing tags (191 in .opencode, 78 in parent repo; all suffixed form)"
+      impact: "none — no migration"
+    - state: "malformed historical tag opencode-config/1059-.opencode"
+      impact: "out of scope; evidence of raw-basename ambiguity (canonical -opencode rule disambiguates)"
+    - state: "tag push state (pushed per pre-work Step 3 items 6-7)"
+      impact: "unchanged"
+    - state: "issue store (.opencode/.issues/{2258,2431,2313})"
+      impact: "metadata-only updates: supersession/handover annotations, label moves"
+  state_machine_transitions:
+    commit_time:
+      before: "commit(non-trunk, stale/feature pointer) → BLOCK by Gate 2 (unless SKIP=1) → agent may habituate SKIP → commit"
+      after: "commit(non-trunk, any pointer) → pass (Gate 1 only)"
+    pointer_freshness:
+      before: "distributed authority (pre-commit + PR-time)"
+      after: "single authoritative site: PR creation (Steps 0/0.5/0.75) + release path"
+  must_not_change:
+    - "submodule pointer SHAs already committed on open feature branches"
+    - "tag objects and remote tag copies"
+    - "enforcement-gate Step 0/0.5/0.75 contract fields"

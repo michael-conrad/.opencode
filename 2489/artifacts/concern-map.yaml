@@ -1,0 +1,26 @@
+concern_map:
+  issue: ".opencode#2479"
+  single_concern: "Submodule pointer lifecycle discipline"
+  spec_shape: "single-task spec (one subsystem, one causal chain — not multi-task)"
+  lifecycle_phases:
+    - phase: "pre-work"
+      site: "trunk-tip-verification.md 7-step gate + Step 3 tag creation"
+      action: "Fix tag format only; gate untouched"
+    - phase: "commit-time"
+      site: "hooks/pre-commit Gate 1 (trunk branch protection)"
+      action: "Gate 2 REMOVED — boundary misplacement corrected (pre-work invariant enforced at commit)"
+    - phase: "pr-creation"
+      site: "pr-creation/enforcement-gate.md Steps 0/0.5/0.75"
+      action: "Unchanged — authoritative freshness owner (reference only)"
+    - phase: "release"
+      site: "create-pr.md release pointer check"
+      action: "Unchanged"
+  concern_boundaries:
+    - "hook removal restores each invariant to its correct lifecycle phase; no new enforcement site created"
+    - "test retirement concerns: orphaned assertions, replacement behavioral coverage for legal-pointer commits"
+    - "issue-graph concerns: #2258 supersession, #2431 assumption annotation"
+    - "tier-1 guideline integrity: 000-critical-rules.md:119 dead Read-link affects every session"
+    - "agent-behavior concern: hook remediation message instructed wrong action mid-development; removal removes behavioral poison"
+  separation_of_concerns:
+    - "enforcement site placement (hook) is separate from rule canon placement (operating-protocol.md §Tag Convention (Canonical))"
+    - "reference-integrity check enforces link resolution, not rule content"

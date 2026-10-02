@@ -1,0 +1,46 @@
+blast_radius:
+  issue: ".opencode#2479"
+  grounding_source: "brainstorm handoff (complete artifact, verified 2026-10-02) + bounded hook/reference spot-checks"
+  component_a_hook_removal:
+    - file: ".opencode/hooks/pre-commit"
+      change: "Delete Gate 2 (lines 31-75: SKIP_STALE_POINTER_CHECK env, .gitmodules loop, SHA extraction, BLOCK message)"
+      verified: "grep: SKIP at 34-35, stale loop at 35, BLOCK at 60-68"
+    - tests_v2:
+      - ".opencode/tests-v2/test-2264-sc3-different-trunk-submodule.sh — retire"
+      - ".opencode/tests-v2/test-2264-sc4-shared-trunk-submodule.sh — retire"
+      - ".opencode/tests-v2/test-2264-sc6-two-submodule-verification.sh — retire"
+      - ".opencode/tests-v2/test-2264-sc7-bug-only-override-uses.sh — retire"
+      - ".opencode/tests-v2/behaviors/2219-sc16-stale-pointer-block.sh — retire or invert"
+    - file: ".opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md"
+      change: "advisory text update (line 38 region)"
+    - issue: ".opencode#2258"
+      change: "supersede (fix target deleted)"
+  component_b_ref_drift:
+    dead_refs_to_SKILL.md_Tag Convention (6):
+      - ".opencode/commands/submodule-tag-prework.md:3"
+      - ".opencode/commands/submodule-tag-prework.md:31"
+      - ".opencode/guidelines/000-critical-rules.md:119 (Tier-1 always-loaded)"
+      - ".opencode/skills/git-workflow-branch/tasks/provenance/trunk-push-provenance.md:67"
+      - ".opencode/skills/git-workflow-branch/tasks/submodule-sync.md:48"
+      - ".opencode/skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md:418"
+    dead_refs_to_AGENTS.md_sections (7): "§Tag Layers x4, §Tag-Based Hash Permanence x2, §Idempotent Tag-if-Untagged x1"
+    extra_dead_refs_in_pre-work.md:
+      - "line 125 §Skipping Git Pre-Check (not in 000-critical-rules.md)"
+      - "line 398 enforcement/halt-conditions.md (directory does not exist)"
+  component_c_format_fix:
+    - "pre-work.md:182 (Step 3 item 5) → append -<submodule>"
+    - "pre-work.md:254 (Step 4 commit msg) → append -<submodule>"
+    - "provenance.md:37 → append -<submodule>"
+  explicit_not_affected:
+    - "hooks/pre-push (Gate 2 = submodule-only push blocker, distinct concern)"
+    - "pr-creation/enforcement-gate.md Steps 0/0.5/0.75 — PR-time freshness authority (#2313/#2431)"
+    - "create-pr.md release pointer check"
+    - "trunk-tip-verification.md 7-step gate"
+    - "session-enforcement.ts (no pointer gate; installer propagates removal on next session start)"
+  ripple_effects:
+    - "Skip-habituation path disappears: agents no longer prompted to set SKIP_STALE_POINTER_CHECK"
+    - "#2431's 'SKIP semantics unchanged' assumption invalidated → coordination comment required"
+    - "Installed .git/hooks copies carry old Gate 2 until re-install — verify installer overwrite behavior"
+  classification: "STRUCTURE-VIOLATION (pre-existing): dead instructions at tag-decision points incl. one Tier-1 file"
+  grounding_coverage: "Component surfaces from handoff verified by bounded grep/sed spot-checks (hook lines, canonical section line 22, format lines, dead-ref files). No deep implementation reading performed — spec scope sections sufficient."
+  ungrounded_assumptions: []

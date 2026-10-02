@@ -1,0 +1,22 @@
+code_path_inventory:
+  issue: ".opencode#2479"
+  paths:
+    - path: 1
+      name: "commit-time (MODIFIED — Gate 2 removed)"
+      flow: "git commit → hooks/pre-commit → Gate 1 trunk branch protection [KEPT] → Gate 2 stale pointer check [REMOVED: SKIP hatch + SHA extraction + BLOCK msg] → exit 0 for non-trunk commits"
+    - path: 2
+      name: "pre-work (KEPT — format fix only)"
+      flow: "pre-work.md → Step 2.5 trunk-tip-verification [KEPT] → Step 3 submodule sync + tag at trunk tip [FIX format suffix] → Step 4.3 pointer commit (no longer passes Gate 2) → Step 5 feature branch from tagged commit [KEPT]"
+    - path: 3
+      name: "PR creation (KEPT — sole freshness authority)"
+      flow: "pr-creation/enforcement-gate.md → Step 0 merged-commit reachability [KEPT, #2313] → Step 0.5 Submodule-Bump-Only gate [KEPT] → Step 0.75 ordering gate (live-API merge state, pointer ancestry, clean status, stale-pointer category) [KEPT, #2431]"
+    - path: 4
+      name: "release PR (KEPT)"
+      flow: "create-pr.md → release pointer == remote trunk tip verification [KEPT]"
+    - path: 5
+      name: "hook installation (propagation)")
+      flow: "session-enforcement.ts auto-installs .opencode/hooks/* to .git/hooks/ at session start → removal propagates on next session start; verify installer overwrites stale installed copies"
+  touched_in_this_spec:
+    - "Path 1 (removal)"
+    - "Path 2 (format strings + 2 dead link lines)"
+    - "Path 5 (verification only — no installer code change)"
