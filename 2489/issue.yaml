@@ -3,7 +3,7 @@ title: '[SPEC-FIX] Holistic submodule pointer discipline: remove pre-commit stal
 status: open
 labels:
 - needs-approval
-- SPEC-FIX
+- spec-draft
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2479/
 
 
@@ -101,4 +101,6 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-10-02T20:23:01+00:00'
-updated_at: '2026-10-02T20:23:20+00:00'
+updated_at: '2026-10-02T20:52:14+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2489
+remote_url: https://github.com/michael-conrad/.opencode/issues/2489
