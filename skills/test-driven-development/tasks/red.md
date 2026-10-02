@@ -8,6 +8,20 @@
 
 Dispatch `test-driven-development` with `task(..., prompt: "execute red task from test-driven-development")`
 
+## Entry Criteria
+
+- **Approved plan exists:** Before RED work begins, verify an approved `plan.md` exists at the canonical path `{issues_prefix}/{N}/plan.md`; if absent, block with `PLAN_MISSING` (Tier 1 — developer authorization does not waive; the authorized path is plan creation, not dispatch without one).
+
+```bash
+if [ ! -f "{issues_prefix}/{N}/plan.md" ]; then
+    echo "status: BLOCKED" >&2
+    echo "blocker_reason: PLAN_MISSING" >&2
+    exit 1
+fi
+```
+
+**Permit side:** existence-only — a present plan never blocks; staleness is the coherence gate's concern, not this gate's.
+
 ## Exit Criteria
 
 Test written and confirmed FAILING (or ERROR if function doesn't exist yet).
