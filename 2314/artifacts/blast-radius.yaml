@@ -35,7 +35,7 @@ content:
       change: "Add plan-existence gate entry blocking with PLAN_MISSING before RED work begins (SC-15)"
       exists: true
     - path: ".opencode/tests-v2/helpers.sh"
-      change: "Add absolute termination bound to the monitor loop — wall-clock deadline / hard max-polls ceiling via documented env knob, terminate-with-root-cause classification even for progressing runs (SC-18)"
+      change: "Add absolute termination bound to the monitor loop — hard max-polls ceiling via documented env knob, terminate-with-root-cause classification even for progressing runs (SC-18)"
       exists: true
     - path: ".opencode/tests-v2/AGENTS.md"
       change: "Document the absolute termination bound and its env knob in §14 (SC-18 supporting method step)"

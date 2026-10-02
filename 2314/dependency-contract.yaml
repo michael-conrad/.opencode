@@ -62,7 +62,7 @@ entries:
     scs: [SC-14, SC-15, SC-16, SC-17]
   - source: tests-v2/AGENTS.md §14 absolute termination bound (env knob, documented bounded default)
     target: helpers.sh monitor loop termination condition
-    type_constraint: "knob: env var(s) with documented bounded default (never unbounded); bound semantics: applies AFTER suppression rules — a progressing-directionally-classified run past the deadline/ceiling is terminated with terminal classification 'terminate-with-root-cause' recorded in monitor.log/determination.yaml"
+    type_constraint: "knob: env var with documented bounded default (never unbounded); bound semantics: applies AFTER suppression rules — a progressing-directionally-classified run past the max-polls ceiling is terminated with terminal classification 'terminate-with-root-cause' recorded in monitor.log/determination.yaml"
     scs: [SC-18]
   - source: 2314 scenario fixture setup
     target: run-agent issue-store access inside the behavioral test

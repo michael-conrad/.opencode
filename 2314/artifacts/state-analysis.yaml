@@ -26,7 +26,7 @@ content:
       detection: "§14 hard-abort signal during supervised run"
       transition: "Kill + §10.5 export + recorded semantic diagnosis; never silently retried as unmonitored (SC-13)"
     - state: "run_progressing_past_bound"
-      detection: "Supervised run's latest classification is progressing-directionally AND wall-clock deadline or hard max-polls ceiling exceeded"
+      detection: "Supervised run's latest classification is progressing-directionally AND hard max-polls ceiling exceeded"
       transition: "ELIMINATED 'poll forever' path — absolute bound terminates the run and records terminate-with-root-cause terminal classification regardless of classification; suppression rules may defer individual aborts but never the bound (SC-18)"
     - state: "run_agent_inside_fixture"
       detection: "Run agent's issue-store accesses during the behavioral test"

@@ -30,7 +30,7 @@ content:
       change: "Plan-existence gate entry blocks with PLAN_MISSING before RED work begins (SC-15, SC-17)"
     - entry: "§14 monitor loop termination decision (helpers.sh)"
       files: [".opencode/tests-v2/helpers.sh", ".opencode/tests-v2/AGENTS.md"]
-      change: "Absolute termination bound (wall-clock deadline / hard max-polls ceiling via documented env knob) terminates any run past the bound with terminate-with-root-cause, even when classified progressing-directionally; bound documented in §14 (SC-18)"
+      change: "Absolute termination bound (hard max-polls ceiling via documented env knob) terminates any run past the bound with terminate-with-root-cause, even when classified progressing-directionally; bound documented in §14 (SC-18)"
     - entry: "Fixture setup for 2314 behavioral legs"
       files: [".opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh", ".opencode/tests-v2/behaviors/ (sibling 2314 fixture setup)"]
       change: "Sandbox issue-store access — the run agent reaches only the injected fixture issue data; real {issues_prefix}/{N}/ paths are isolated (SC-19)"
