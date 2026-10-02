@@ -58,6 +58,7 @@ This is the FIRST and MOST CRITICAL rule. Before writing any code, editing any f
 - User has authorized implementation (explicit `approved` or `go`)
 - Authorization is for the correct issue
 - Sub-issue structure verified (for multi-task specs)
+- **Approved plan exists:** Before branch creation completes, verify an approved `plan.md` exists at the canonical path `{issues_prefix}/{N}/plan.md`; if absent, block with `PLAN_MISSING` (Tier 1 — developer authorization does not waive; the authorized path is plan creation, not dispatch without one)
 
 ## Branch Workflow Context
 
@@ -198,6 +199,20 @@ submodule_tags_created: <list of (path, tag_name)>
 **If on `main` worktree:** The sub-agent uses `git submodule update --init` (no `--remote`) to lock submodules to their committed SHAs instead of advancing to remote $DEFAULT_BRANCH tip. Pass `worktree_type: main` in the task context.
 
 **Do NOT inline the submodule operations.** The orchestrator never runs `git submodule` commands or reads submodule logs directly.
+
+### Step 3.5: Plan-Existence Gate (Before Branch Creation)
+
+**Before branch creation completes, verify an approved `plan.md` exists at the canonical path `{issues_prefix}/{N}/plan.md`.** If absent, block with `PLAN_MISSING` (Tier 1 — developer authorization does not waive; the authorized path is plan creation, not dispatch without one).
+
+```bash
+if [ ! -f "{issues_prefix}/{N}/plan.md" ]; then
+    echo "status: BLOCKED" >&2
+    echo "blocker_reason: PLAN_MISSING" >&2
+    exit 1
+fi
+```
+
+**Permit side:** existence-only — a present plan never blocks; staleness is the coherence gate's concern, not this gate's.
 
 ### Step 4: Update Main Repo Submodule Pointer and Create Feature Branch
 
