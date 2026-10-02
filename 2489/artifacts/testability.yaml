@@ -20,7 +20,7 @@ testability:
     - "BEHAVIORAL: reference-integrity check fails on deliberate broken link and passes on repaired repo"
     - "STRING: hook contains no SKIP_STALE_POINTER_CHECK / stale-pointer remnants"
     - "STRING: zero dead references to git-workflow/SKILL.md §Tag Convention / nonexistent AGENTS.md § sections remain"
-    - "STRING: 3 format sites carry -<submodule> suffix"
+    - "STRING: all 6 sites in the spec Tag-Format Site Inventory (4 primary + 2 consequential same-cluster; phrase-anchored, single-source table) carry the suffixed -<submodule> form; trunk-push-provenance.md trunk-push tagging step excluded (already suffixed)"
   evidence_type_classification:
     - "Component A removal: runtime-behavioral → SC evidence auto-uplift to behavioral (critical-rules-BEH-EV)"
     - "Components B/C: text-state changes → string evidence valid"

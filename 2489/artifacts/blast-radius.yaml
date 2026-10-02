@@ -28,9 +28,17 @@ blast_radius:
       - "line 125 §Skipping Git Pre-Check (not in 000-critical-rules.md)"
       - "line 398 enforcement/halt-conditions.md (directory does not exist)"
   component_c_format_fix:
-    - "pre-work.md:182 (Step 3 item 5) → append -<submodule>"
-    - "pre-work.md:254 (Step 4 commit msg) → append -<submodule>"
-    - "provenance.md:37 → append -<submodule>"
+    inventory_source: "regenerated from live grep 2026-10-02; single source = spec Tag-Format Site Inventory (closed list for SC-11); phrase anchors only — line anchors banned"
+    primary_defect_sites:
+      - "pre-work.md Step 3, item 5 tag line — pattern '<parent-repo>/<issue-number>' format (git tag -a) without -<submodule> suffix"
+      - "pre-work.md Step 4 commit-message template — pattern 'update submodule pointer to <parent-repo>/<issue-number> tag' without suffix"
+      - "provenance.md 'Tag-based provenance (Tier 3)' paragraph — pattern '<parent>/<issue-number>' tags without suffix"
+      - "provenance.md tier-table row (Pre-work / feature dev start) — pattern '<parent>/<issue-number>' without suffix"
+    consequential_same_cluster_sites:
+      - "pre-work.md Step 5 rebase command line — 'git rebase <parent-repo>/<issue-number>' references the unsuffixed tag form; becomes inconsistent once format corrected"
+      - "pre-work.md Step 5 checkout command line — 'git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>' references the unsuffixed tag form"
+    excluded_verified_live:
+      - "provenance/trunk-push-provenance.md trunk-push tagging step — ALREADY suffixed ('<parent>/<issue-number>-<submodule>'); NOT a defect site"
   explicit_not_affected:
     - "hooks/pre-push (Gate 2 = submodule-only push blocker, distinct concern)"
     - "pr-creation/enforcement-gate.md Steps 0/0.5/0.75 — PR-time freshness authority (#2313/#2431)"

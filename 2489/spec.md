@@ -2,11 +2,11 @@
 
 ## Intent and Executive Summary
 
-1. **Problem Statement:** Submodule pointer discipline regressed across the enforcement chain: the pre-commit hook Gate 2 (stale pointer check) enforces a pre-work-only invariant at commit time where it is legitimately false, the tag canon moved without repointing 15 dead references (6 to git-workflow/SKILL.md §Tag Convention, 7 to nonexistent AGENTS.md sections, 2 in pre-work.md), and 3 tag-format sites still document the unsuffixed `<parent-repo>/<issue-number>` form. Additionally, ceremony (performative) tests have re-accumulated in this subsystem, and the issue graph (#2431, #2258) carries assumptions this change invalidates.
+1. **Problem Statement:** Submodule pointer discipline regressed across the enforcement chain: the pre-commit hook Gate 2 (stale pointer check) enforces a pre-work-only invariant at commit time where it is legitimately false, the tag canon moved without repointing 15 dead references (6 to git-workflow/SKILL.md §Tag Convention, 7 to nonexistent AGENTS.md sections, 2 in pre-work.md), and 6 tag-format sites in the same cluster (4 in `pre-work.md`, 2 in `provenance.md` — see the Tag-Format Site Inventory below) still document or reference the unsuffixed `<parent-repo>/<issue-number>` form. Additionally, ceremony (performative) tests have re-accumulated in this subsystem, and the issue graph (#2431, #2258) carries assumptions this change invalidates.
 
 2. **Root Cause / Motivation:** Enforcement authority for submodule pointers drifted from the pre-commit stage to the PR/release stage (enforcement-gate Steps 0/0.5/0.75 per #2313/#2431, plus the release pointer check), and the documentation canon followed that authority without repointing its dependents. It must be solved now because one dead reference sits in Tier-1 always-loaded `000-critical-rules.md`, so every session loads a Read-link that resolves to nothing, and the commit-time gate habituates agents to `SKIP_STALE_POINTER_CHECK=1` while carrying a known false-positive bug (#2258). Two compounding drivers elevate the coordination and policy work into scope: (a) **user directive 2026-10-02** — ceremony tests that assert documentation phrasing rather than catching real defects must stop re-accumulating; a retirement policy is required so every retained test justifies its verification cost against the defect it catches; (b) **#2431 assumption invalidation** — #2431's "SKIP semantics unchanged" no-ripple assumption is false once the SKIP hatch is removed, so the commit-time→PR-time semantics handover must be recorded on the issue graph before the branches collide at PR-creation time.
 
-3. **Approach Chosen:** Remove pre-commit hook Gate 2 entirely (gate + SKIP hatch) so the stacked-PR model is enforced where it is actually true (PR creation); consolidate all tag rules into the single canonical section `operating-protocol.md` "Tag Convention (Canonical)"; repoint every dead Read-link to its live target in inline Read-link form; correct the three unsuffixed format sites; add a standing reference-integrity enforcement check so future canon moves cannot silently strand references; retire the five dependent tests and record a ceremony-test retirement policy; record the issue-graph handover and supersession annotations.
+3. **Approach Chosen:** Remove pre-commit hook Gate 2 entirely (gate + SKIP hatch) so the stacked-PR model is enforced where it is actually true (PR creation); consolidate all tag rules into the single canonical section `operating-protocol.md` "Tag Convention (Canonical)"; repoint every dead Read-link to its live target in inline Read-link form; correct the tag-format sites per the single Tag-Format Site Inventory (4 unsuffixed documentation sites + 2 consequential same-cluster command references, all phrase-anchored); add a standing reference-integrity enforcement check so future canon moves cannot silently strand references; retire the five dependent tests and record a ceremony-test retirement policy; record the issue-graph handover and supersession annotations.
 
 4. **Alternatives Considered & Why Discarded:** (a) Keep Gate 2 and fix its SHA-extraction false positive (#2258's approach) — discarded: the fix repairs a gate whose enforcement target is legitimately false mid-development; the gate's whole premise is wrong, and #2431/#2313 already own pointer freshness at PR time. (b) Keep the SKILL.md §Tag Convention section as a second canon copy — discarded: two canonical homes is what caused the drift; the 5-way skill split moved the section and partial duplicates rotted.
 
@@ -38,8 +38,8 @@
 | SC-7 | All six rules of the closed tag-rule inventory (see "Tag-Rule Inventory" below) are present in `operating-protocol.md` "Tag Convention (Canonical)". | string | grep the canonical section for each of the six inventory entries on the closed list; PASS requires all six present |
 | SC-8 | Zero references to `git-workflow/SKILL.md` §Tag Convention remain. | string | grep for the dead-target pattern |
 | SC-9 | Zero references to nonexistent AGENTS.md sections (§Tag Layers, §Tag-Based Hash Permanence, §Idempotent Tag-if-Untagged, §Skipping Git Pre-Check, enforcement/halt-conditions.md) remain. | string | grep for each dead-target pattern |
-| SC-10 | Every repaired reference uses inline `Read [Text](path)` form. | string | Inspection of each repaired link site |
-| SC-11 | The three tag-format sites (pre-work.md Step 3 tag creation, pre-work.md Step 4 commit message, provenance/trunk-push-provenance.md) use the suffixed `<parent-repo>/<issue-number>-<submodule>` form with no unsuffixed variant remaining. | string | grep of the three sites for the unsuffixed pattern |
+| SC-10 | Every repaired reference uses inline `Read [Text](path)` form. | semantic | Inspection of each repaired link site |
+| SC-11 | All six tag-format sites in the Tag-Format Site Inventory (closed list above) carry the suffixed `<parent-repo>/<issue-number>-<submodule>` form: the 4 primary-defect sites use the suffixed form with no unsuffixed variant remaining, and the 2 consequential same-cluster sites (pre-work.md Step 5 rebase/checkout commands) reference the suffixed tag form consistently with the corrected format. `trunk-push-provenance.md` trunk-push tagging step is already suffixed — excluded, not a defect site. | string | grep each inventory site (located by its phrase anchor, not line number) for the unsuffixed pattern; PASS requires all six sites suffixed/consistent |
 | SC-12 | A reference-integrity enforcement check exists in `.opencode/tools/` that fails on a deliberately introduced broken Read-link (a link pointing at a section absent from the target file). | behavioral | Test execution: run the check against a deliberate broken probe; inspect exit code and report lines |
 | SC-13 | The reference-integrity enforcement check passes on the repaired repository. | behavioral | Test execution: run the check against the repaired repo; inspect exit code |
 
@@ -47,7 +47,7 @@
 
 SC-7's PASS state is checkable against exactly these six rules — no judgment call, no open-ended "complete coverage" reading:
 
-1. **Suffix Rule:** Tag suffix MUST be derived from the discovered repo's directory name via `git submodule status`; the suffixed form is `<parent-repo>/<issue-number>-<submodule>`; issue title, phase name, or any ad-hoc string MUST NOT be used.
+1. **Suffix Rule:** Tag suffix SHALL be derived from the discovered repo's directory name via `git submodule status`; the suffixed form is `<parent-repo>/<issue-number>-<submodule>`; issue title, phase name, or any ad-hoc string SHALL NOT be used.
 2. **Hash-permanence tag type:** format `<parent>/<issue>-<submodule>` — pins the submodule SHA at feature-branch tip.
 3. **Checkpoint tag type:** format `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` — rollback anchor; created during plan execution, deleted during branch cleanup.
 4. **Release tag type:** format `<parent>/v<version>` — release marker, no suffix.
@@ -55,6 +55,25 @@ SC-7's PASS state is checkable against exactly these six rules — no judgment c
 6. **Hash permanence replaces dependency-sync PRs:** no dependency-sync PRs; submodule SHAs are preserved via parent-repo-prefixed tags.
 
 Rules currently stranded elsewhere (the idempotent tag-if-untagged rule is only stated in dead-reference prose) SHALL be consolidated into the canonical section per R-4 so the inventory is fully present there.
+
+### Tag-Format Site Inventory (closed list for SC-11)
+
+SC-11's PASS state is checkable against exactly these six sites, identified by phrase anchors (file path + step/section name + defective content pattern) — NEVER line numbers, which break on every edit and caused site loss in prior revise iterations. The inventory was regenerated from live grep 2026-10-02; SC-11, R-6, Item 11, and the §1/§3 prose all cite THIS table as their single source.
+
+| # | Site | Phrase Anchor | Defective Content Pattern | Classification |
+|---|------|---------------|---------------------------|----------------|
+| 1 | `pre-work.md` | Step 3, item 5 (tag step) | `` `<parent-repo>/<issue-number>` format (`git tag -a`) `` without `-<submodule>` suffix | primary defect |
+| 2 | `pre-work.md` | Step 4 commit-message template | `update submodule pointer to <parent-repo>/<issue-number> tag` without `-<submodule>` suffix | primary defect |
+| 3 | `provenance.md` | "Tag-based provenance (Tier 3)" paragraph | `` `<parent>/<issue-number>` tags `` without `-<submodule>` suffix | primary defect |
+| 4 | `provenance.md` | tier-table row (Pre-work / feature dev start) | `` `<parent>/<issue-number>` `` without `-<submodule>` suffix | primary defect |
+| 5 | `pre-work.md` | Step 5 rebase command line | `git rebase <parent-repo>/<issue-number>` referencing the unsuffixed tag form | consequential same-cluster |
+| 6 | `pre-work.md` | Step 5 checkout command line | `git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>` referencing the unsuffixed tag form | consequential same-cluster |
+
+**Consequential-site scope rationale:** Sites 5-6 do not define the tag format but reference the unsuffixed tag form in the Step 5 rebase/checkout commands; once Sites 1-2 correct the format, these command lines become internally inconsistent with the corrected format. They are included in SC-11 coverage to keep the Step 3→4→5 command chain coherent in one change.
+
+**Explicitly excluded (verified live, not defect sites):** `provenance/trunk-push-provenance.md` trunk-push tagging step ("Tag the pushed submodule SHA with `<parent>/<issue-number>-<submodule>`) already uses the suffixed form — do NOT re-add it to the defect list.
+
+All sites are in `.opencode/skills/git-workflow-branch/tasks/`.
 
 ### Enforcement Gate
 
@@ -76,7 +95,7 @@ These mandates trace to drivers elevated into Root Cause / Motivation (user dire
 3. R-3. The `pre-commit-pointer-check.md` advisory text SHALL reference the PR-time freshness gates and SHALL NOT reference the removed hook stale-pointer gate or SKIP hatch.
 4. R-4. The single canonical home for all tag rules SHALL be `operating-protocol.md` "Tag Convention (Canonical)"; every tag rule currently duplicated or stranded elsewhere SHALL be consolidated there.
 5. R-5. Every dead reference to `git-workflow/SKILL.md` §Tag Convention, to nonexistent AGENTS.md sections (§Tag Layers, §Tag-Based Hash Permanence, §Idempotent Tag-if-Untagged, §Skipping Git Pre-Check, enforcement/halt-conditions.md), and to the dead SKILL.md Tag Convention target in the git-workflow-cleanup path SHALL be repointed to the correct live target in inline `Read [Text](path)` form.
-6. R-6. The three tag-format sites (pre-work.md Step 3, pre-work.md Step 4 commit message, trunk-push-provenance.md) SHALL use the suffixed `<parent-repo>/<issue-number>-<submodule>` form per the #950 canonical rule.
+6. R-6. All six tag-format sites in the Tag-Format Site Inventory (closed list for SC-11) SHALL use the suffixed `<parent-repo>/<issue-number>-<submodule>` form per the #950 canonical rule; the 2 consequential same-cluster sites (pre-work.md Step 5 rebase/checkout command lines) SHALL reference the suffixed form consistently.
 7. R-7. A standing reference-integrity enforcement check SHALL exist in `.opencode/tools/` that validates agent-facing Read-links resolve to sections contained in their target files.
 8. R-10. Gate 2 removal evidence SHALL be behavioral (the removal changes runtime behavior and auto-uplifts per critical-rules-BEH-EV); no structural or string substitute MAY be reported as PASS for SC-1/SC-2.
 
@@ -169,17 +188,17 @@ Total: 15 reference sites (6 + 7 AGENTS.md-section references + 2 pre-work.md re
 - verify: Inspection of each repaired link site confirms inline form.
 - commit: One commit (may fold into Items 8/9 commits where the same sites are touched).
 
-### Item 11 (SC-11): Correct 3 unsuffixed tag-format sites
+### Item 11 (SC-11): Correct the unsuffixed tag-format sites
 
-- RED: grep of the three sites for the unsuffixed `<parent-repo>/<issue-number>` pattern returns matches.
-- GREEN: Append the `-<submodule>` suffix in pre-work.md Step 3, pre-work.md Step 4 commit message, and trunk-push-provenance.md per the canonical rule.
-- verify: grep for the unsuffixed pattern returns zero at all three sites.
+- RED: grep each of the six Tag-Format Site Inventory sites (located by phrase anchor) for the unsuffixed `<parent-repo>/<issue-number>` pattern — all six return matches.
+- GREEN: Append the `-<submodule>` suffix at the 4 primary-defect sites (pre-work.md Step 3 tag line and Step 4 commit-message template; provenance.md "Tag-based provenance (Tier 3)" paragraph and tier-table Pre-work row) and update the 2 consequential same-cluster sites (pre-work.md Step 5 rebase/checkout command lines) to reference the suffixed tag form per the canonical rule. (`trunk-push-provenance.md` trunk-push tagging step already uses the suffixed form — verified live, no change.)
+- verify: grep for the unsuffixed pattern returns zero at all six sites.
 - commit: One commit.
 
 ### Item 12 (SC-12): Reference-integrity check fails on broken probe
 
 - RED: The check, run on a deliberately introduced broken Read-link, does not report failure (RED — no check exists).
-- GREEN: Implement the check in `.opencode/tools/` validating that agent-facing Read-links resolve to sections contained in the target files; wire it into the enforcement workflow note.
+- GREEN: Implement the check in `.opencode/tools/` validating that agent-facing Read-links resolve to sections contained in the target files; wire it into the enforcement workflow note (`.opencode/tests-v2/AGENTS.md`).
 - verify: Run the check against the deliberate broken probe — must fail with file path and missing-section name.
 - commit: One commit.
 
@@ -222,7 +241,7 @@ Dependency ordering (DAG): SC-12 → SC-8, SC-9, SC-10 → SC-13; SC-13 → SC-1
 
 | Source | Type | Location | Verification |
 |--------|------|----------|--------------|
-| pre-commit hook Gate 2 / SKIP hatch | code | `.opencode/hooks/pre-commit` | grep verified: SKIP at lines 34-35, BLOCK at 60-68 |
+| pre-commit hook Gate 2 / SKIP hatch | code | `.opencode/hooks/pre-commit` | grep verified: `SKIP_STALE_POINTER_CHECK` env hatch and Gate 2 BLOCK message present (located by pattern, not line number) |
 | Canonical tag section | code | `.opencode/skills/git-workflow-branch/tasks/operating-protocol.md` "Tag Convention (Canonical)" | read verified (section present) |
 | Dead references inventory | code | `.opencode/commands/submodule-tag-prework.md`, `.opencode/guidelines/000-critical-rules.md`, provenance/trunk-push-provenance.md, submodule-sync.md, branch-cleanup.md, pre-work.md | grep verified per blast-radius artifact |
 | Tag format canon (#950) | issue | https://github.com/michael-conrad/.opencode/issues/950 | read (issue thread) |
@@ -278,3 +297,5 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 | 2026-10-02 | Relabeled all analysis artifacts from provisional .opencode#2479 to .opencode#2489 (tmp/pointer-discipline-fix/artifacts/, tmp/pointer-discipline-fix/contracts/, .opencode/.issues/2489/artifacts/); recorded provisional-number provenance in §6 | artifact_cross_reference WARNING — artifacts labeled issue .opencode#2479 while spec is #2489 | Validation findings (Aggregate FAIL) |
 | 2026-10-02 | Skipped artifacts-directory deletion (revise Step 7): the artifacts in `.opencode/.issues/2489/artifacts/` are the current-version artifacts relabeled per the artifact_cross_reference finding — deleting them would destroy the analytical artifacts this spec cites (blast-radius artifact referenced in Documentation Sources). No stale previous-version artifacts exist to remove. | Step 7 purpose is stale-artifact prevention; artifacts are current after relabel | Validation findings context |
 | 2026-10-02 | Revise iteration 2: (a) SC-7 rewritten against an enumerated closed six-entry Tag-Rule Inventory with a pattern-checkable grep method — SUBSTANTIVE (changes what PASS means); (b) SC-4 reclassified structural → string (tests-v2 index scan is grep/pattern-match, not file-listing) — non-substantive method-wording fix; (c) R-5 supplemented with the Dead-Reference → Live-Target Mapping table (15 sites: 6 SKILL.md §Tag Convention + 7 AGENTS.md-section refs + 2 pre-work.md refs) and Item 9 count corrected to 9 — non-substantive completeness fix; (d) blast-radius.yaml and testability.yaml refreshed (2219-sc16 fate 'RETIRE or INVERT' → 'RETIRE', aligned with SC-3's deletion); artifacts deletion again skipped per the Step 7 precedent above — refreshed artifacts are current-version | Aggregate FAIL, 2 defect concentrations (validate iteration 2); advisory artifact-text discrepancies | Validation findings (.opencode#2489 revise dispatch) |
+| 2026-10-02 | Revise iteration 3: (a) SC-11 site list corrected — provenance/trunk-push-provenance.md:72 verified live to ALREADY use the suffixed form, so it is not a defect site; the actual unsuffixed sites are provenance.md:37 and provenance.md:75 (the latter added per validator flag). SC-11, R-6, Item 11, and the §1/§3 prose updated from 3 sites to 2 sites accordingly — SUBSTANTIVE (changes which sites must pass); (b) SC-10 evidence type reclassified string → semantic (method "Inspection of each repaired link site" is semantic per the canonical taxonomy) — SUBSTANTIVE (evidence-type change); (c) Item 12 GREEN names the concrete enforcement-workflow-note target `.opencode/tests-v2/AGENTS.md` (existence verified) — non-substantive specificity fix; (d) Tag-Rule Inventory rule 1 normalized MUST/MUST NOT → SHALL/SHALL NOT per the sanctioned RFC-2119 keyword set — non-substantive wording fix. Artifacts deletion skipped per the Step 7 precedent above; no plan.md exists at `.opencode/.issues/2489/plan.md` so plan regeneration (Step 8) does not apply | dimension-7 provenance FAIL + evidence-type-crosscheck FAIL (validate iteration 3); non-blocking warnings folded in | Validation findings (.opencode#2489 revise dispatch) |
+| 2026-10-02 | Revise iteration 4 (anti-oscillation structural remediation): (a) LINE-ANCHOR BAN — all file:line anchors in SC-11, R-6, Item 11, and Documentation Sources replaced with phrase-anchored form (file path + step/section name + defective content pattern); historical line references in change-control rows above are retained as audit-trail records of prior iterations, not live site references. Root cause: line anchors break on every edit, so each revise re-derived sites from moved anchors and silently dropped sites (this is how pre-work.md:182/:254 fell out of coverage) — SUBSTANTIVE (fixes the recurrence mechanism). (b) SITE-INVENTORY REGENERATION from live grep BEFORE editing: verified live defect set is SIX sites, not two — pre-work.md Step-3-item-5 tag line, pre-work.md Step-4 commit-message template, provenance.md "Tag-based provenance (Tier 3)" paragraph, provenance.md tier-table Pre-work row (4 primary), PLUS consequential same-cluster pre-work.md Step-5 rebase/checkout command lines (2 consequential; they reference the unsuffixed tag form and become inconsistent once the format is corrected — inclusion rationale recorded in the inventory). trunk-push-provenance.md trunk-push tagging step verified ALREADY suffixed — correctly excluded. New "Tag-Format Site Inventory (closed list for SC-11)" section added; SC-11, R-6, Item 11, and §1/§3 prose all rewritten FROM that single table so the four locations cannot diverge — SUBSTANTIVE (changes which sites must pass, 2 → 6). (c) blast-radius.yaml and testability.yaml refreshed from the live tree so artifact and spec cite the same inventory; artifacts deletion again skipped per the Step 7 precedent (refreshed artifacts are current-version). No plan.md exists at `.opencode/.issues/2489/plan.md` so plan regeneration (Step 8) does not apply. Previously-PASSing sections untouched | Aggregate FAIL (validate iteration 4) + completed Tier-2 structural diagnostic: oscillation caused by line-anchor erosion + four lossy hand-transcribed site copies | Validation findings (.opencode#2489 revise dispatch, mandated remediation strategy) |
