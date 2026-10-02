@@ -1,5 +1,5 @@
 decomposition:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   single_task_spec: true
   concern: "Submodule pointer lifecycle discipline (one causal chain, one subsystem)"
   items:

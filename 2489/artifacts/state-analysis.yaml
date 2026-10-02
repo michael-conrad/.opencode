@@ -1,5 +1,5 @@
 state_analysis:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   persistent_state:
     - state: "installed git hooks (.git/hooks/pre-commit from .opencode/hooks/ via session-enforcement.ts)"
       impact: "old Gate 2 persists in installed copies until next session start re-install; verify installer overwrites each start"

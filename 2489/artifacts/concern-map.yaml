@@ -1,5 +1,5 @@
 concern_map:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   single_concern: "Submodule pointer lifecycle discipline"
   spec_shape: "single-task spec (one subsystem, one causal chain — not multi-task)"
   lifecycle_phases:

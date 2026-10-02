@@ -1,5 +1,5 @@
 testability:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   existing_coverage_and_fate:
     - test: "tests-v2/test-2264-sc3-different-trunk-submodule.sh"
       fate: "RETIRE (asserts removed gate allow/block)"

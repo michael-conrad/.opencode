@@ -1,5 +1,5 @@
 cross_cutting_matrix:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   matrix:
     - concern: "runtime behavior"
       component_a_hook_removal: "YES — hook exit behavior changes"

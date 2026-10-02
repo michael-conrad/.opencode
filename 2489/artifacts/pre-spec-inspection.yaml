@@ -1,5 +1,5 @@
 pre_spec_inspection:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   handoff_consumed: true
   handoff_path: "tmp/pointer-discipline-fix/artifacts/preliminary/handoff.yaml"
   handoff_channel: "dispatch (primary)"

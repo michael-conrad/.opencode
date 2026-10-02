@@ -1,5 +1,5 @@
 blast_radius:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   grounding_source: "brainstorm handoff (complete artifact, verified 2026-10-02) + bounded hook/reference spot-checks"
   component_a_hook_removal:
     - file: ".opencode/hooks/pre-commit"

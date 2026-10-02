@@ -1,5 +1,5 @@
 research_card_consultation:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   consulted:
     - card: ".opencode/.issues/research-cards/cross-reference-form-comparison.md"
       confidence: 0.95

@@ -1,5 +1,5 @@
 code_path_inventory:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   paths:
     - path: 1
       name: "commit-time (MODIFIED — Gate 2 removed)"

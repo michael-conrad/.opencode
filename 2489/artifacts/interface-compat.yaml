@@ -1,5 +1,5 @@
 interface_compatibility:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   interfaces:
     - name: "hooks/pre-commit exit contract"
       change: "Gate 2 removed; Gate 1 unchanged (exit 1 on trunk commit, exit 0 otherwise)"

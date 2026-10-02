@@ -1,5 +1,5 @@
 requirements:
-  issue: ".opencode#2479"
+  issue: ".opencode#2489"
   explicit:
     - R1: "Remove pre-commit hook Gate 2 entirely — gate + SKIP_STALE_POINTER_CHECK hatch (leave Gate 1 trunk-branch protection untouched)."
     - R2: "Retire dependent tests of removed gate: test-2264-sc3/sc4/sc6/sc7 and behavioral 2219-sc16."
@@ -23,7 +23,7 @@ requirements:
     - C2: "PR-time gates (enforcement-gate Steps 0/0.5/0.75) and release pointer check must remain green/become the sole freshness authority — their tests unmodified."
     - C3: "No spec status/completion markers written into spec content; implementation tracked via pipeline state."
     - C4: "Gateway: removal is runtime-behavioral → behavioral evidence mandatory (EVIDENCE_TYPE auto-uplift, critical-rules-BEH-EV)."
-    - C5: "All affected files live in .opencode submodule; .opencode#2479 repo-scope."
+    - C5: "All affected files live in .opencode submodule; .opencode#2489 repo-scope."
   non_requirements:
     - N1: "No fix for the #2258 awk-substr false-positive bug (target code deleted)."
     - N2: "No cleanup/migration of historical malformed tag opencode-config/1059-.opencode (out of scope)."
