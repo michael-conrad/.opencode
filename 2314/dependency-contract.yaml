@@ -9,7 +9,7 @@ entries:
   - source: .opencode/skills/spec-creation/SKILL.md
     target: .opencode/skills/executing-plans/SKILL.md
     constraint: plan_path parameter (string, path to {issues_prefix}/{N}/plan.md) must resolve to an existing readable file before executing-plans entry criteria pass
-    sc: SC-1
+    sc: SC-1, SC-2
   - source: orchestrator dispatch context
     target: gate check
     constraint: issue_number (integer) and issues_prefix (string) must be present in dispatch context to resolve the plan.md path
@@ -17,8 +17,20 @@ entries:
   - source: gate BLOCKED result
     target: .opencode/reference/skill-card-description-standards.md vocabulary
     constraint: blocker_reason must equal the registered literal "PLAN_MISSING" (string, uppercase snake_case, matching existing reason-code convention)
-    sc: SC-2
+    sc: SC-3, SC-4
   - source: .opencode/tests-v2/test-enforcement.sh
     target: behavioral scenario in .opencode/tests-v2/behaviors/
     constraint: scenario must run via with-test-home opencode run (bash script, >=600s timeout) and produce stderr-based behavioral evidence
-    sc: SC-4
+    sc: SC-7, SC-8
+  - source: .opencode/tests-v2/behaviors/helpers.sh BEHAVIOR_SEMANTIC_MONITOR flag
+    target: 2314 scenario leg scripts calling behavior_run
+    constraint: every 2314 leg must export BEHAVIOR_SEMANTIC_MONITOR=1 before behavior_run so helpers.sh takes the §14 semantic-monitor path instead of the synchronous blocking path
+    sc: SC-9
+  - source: .opencode/tests-v2/AGENTS.md §14 mandate
+    target: plan run-step instruction text (plan-01 steps 25/31, plan-02 steps 39/45)
+    constraint: run-step instruction text must carry a Read-link to tests-v2/AGENTS.md §14 and specify <=300s poll intervals with full semantic checks and §14 hard-abort handling
+    sc: SC-9
+  - source: monitored behavioral run leg
+    target: run evidence directory
+    constraint: supervised run must produce monitor evidence (poll log / monitor.log / determination.yaml) recorded alongside session.yaml per §14 step 6
+    sc: SC-10
