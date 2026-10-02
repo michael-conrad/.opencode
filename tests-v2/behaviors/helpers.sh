@@ -523,6 +523,17 @@ BEHAVIOR_MONITOR_IDENTICAL_INPUT_THRESHOLD="${BEHAVIOR_MONITOR_IDENTICAL_INPUT_T
 # this only executes inside __semantic_monitor (BEHAVIOR_SEMANTIC_MONITOR=1);
 # unset → no monitor, no classifier (backward compat).
 BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS="${BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS:-3}"
+# Minimum-observation window before the FIRST classification checkpoint
+# dispatch (poll-count floor). Large-instruction-deck runs on the 27B model
+# legitimately have long silent inference turns before the first tool call —
+# a checkpoint dispatch inside this window observes a near-empty event stream
+# and classifies undetermined (a halt-class state), structurally halting
+# runs that are merely still warming up. Classification dispatches are
+# deferred until at least this poll; mechanical abort signals (identical
+# input, stuck task, reasoning runaway, no-delta stalls) are UNAFFECTED and
+# still abort during the window. Default 10 polls (~300s at the default 30s
+# interval) tolerates the 27B model's first-tool-call latency.
+BEHAVIOR_MONITOR_CLASSIFY_GRACE_POLLS="${BEHAVIOR_MONITOR_CLASSIFY_GRACE_POLLS:-10}"
 BEHAVIOR_MONITOR_CLASSIFY_MAX="${BEHAVIOR_MONITOR_CLASSIFY_MAX:-3}"
 BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT="${BEHAVIOR_MONITOR_CLASSIFY_TIMEOUT:-600}"
 # .opencode#2456 R-13 amendment (2026-09-23): consecutive dispatch-failure
@@ -1518,7 +1529,14 @@ MONPY
         # value is recorded here and the off-track classification is ROUTED
         # to the orchestrator notification (SC-4 __notify_offtrack); the
         # halt-class halt+notify routing is SC-6's mechanism (later item).
+        # Minimum-observation window: classification dispatches are deferred
+        # until at least BEHAVIOR_MONITOR_CLASSIFY_GRACE_POLLS polls of
+        # observation (large-instruction-deck runs have long silent inference
+        # turns before the first tool call — early dispatches classify as
+        # undetermined and halt structurally; see the knob comment block).
+        local classify_grace="${BEHAVIOR_MONITOR_CLASSIFY_GRACE_POLLS:-10}"
         if [ "$classified_count" -lt "$BEHAVIOR_MONITOR_CLASSIFY_MAX" ] \
+            && [ "$poll" -ge "$classify_grace" ] \
             && [ "$polls_since_classify" -ge "$BEHAVIOR_MONITOR_CLASSIFY_MIN_POLLS" ] \
             && [ "$event_count" -gt "$last_classified_event_count" ]; then
             local dispatch_raw
@@ -1565,6 +1583,9 @@ MONPY
                 break
             fi
         else
+            if [ "$poll" -lt "$classify_grace" ]; then
+                echo "POLL ${poll}: ts=${ts} classify-grace observation window active (${poll}/${classify_grace}) — classification dispatch deferred (early-silent polls classify as undetermined; mechanical abort signals remain active)" >> "$poll_log"
+            fi
             polls_since_classify=$((polls_since_classify + 1))
         fi
 
