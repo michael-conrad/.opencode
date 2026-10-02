@@ -17,5 +17,11 @@ content:
       affected_scs: ["SC-9", "SC-10", "SC-11", "SC-12", "SC-13"]
       analysis: "Env flag set explicitly per leg (no ambient reliance); §14 Read-link in run text; monitor evidence, poll cadence ≤300s, and hard-abort handling all asserted."
     - concern: "Test integrity / evidence types"
-      affected_scs: ["SC-5", "SC-6", "SC-7", "SC-8", "SC-11", "SC-12", "SC-13", "SC-16", "SC-17"]
-      analysis: "Behavioral SCs require real opencode run stderr evidence; structural substitution is EVIDENCE_TYPE_MISMATCH → FAIL. No DONE_WITH_CONCERNS coercion."
+      affected_scs: ["SC-5", "SC-6", "SC-7", "SC-8", "SC-11", "SC-12", "SC-13", "SC-16", "SC-17", "SC-18", "SC-19"]
+      analysis: "Behavioral SCs require real opencode run stderr evidence; structural substitution is EVIDENCE_TYPE_MISMATCH → FAIL. No DONE_WITH_CONCERNS coercion. SC-19 pairs fixture-setup structural inspection with behavioral session evidence — the deciding evidence is behavioral."
+    - concern: "Supervision termination vs. suppression interplay"
+      affected_scs: ["SC-18"]
+      analysis: "The absolute bound composes AFTER suppression rules (R-2 deferrals still apply to individual aborts) but is itself non-deferrable: past the deadline/polls ceiling, termination with terminate-with-root-cause occurs regardless of classification. Env knob default is bounded, never unbounded."
+    - concern: "Behavioral evidence contamination"
+      affected_scs: ["SC-19"]
+      analysis: "Fixture escape (attempt 5: real plan read, real create-plan dispatch) produces pseudo-progress verdicts that are not attributable to fixture-scoped behavior; the sandbox confines the run agent so §14 monitor evidence and verdicts remain valid."

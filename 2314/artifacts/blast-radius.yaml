@@ -34,10 +34,19 @@ content:
     - path: ".opencode/skills/test-driven-development/tasks/red.md"
       change: "Add plan-existence gate entry blocking with PLAN_MISSING before RED work begins (SC-15)"
       exists: true
+    - path: ".opencode/tests-v2/helpers.sh"
+      change: "Add absolute termination bound to the monitor loop — wall-clock deadline / hard max-polls ceiling via documented env knob, terminate-with-root-cause classification even for progressing runs (SC-18)"
+      exists: true
+    - path: ".opencode/tests-v2/AGENTS.md"
+      change: "Document the absolute termination bound and its env knob in §14 (SC-18 supporting method step)"
+      exists: true
+    - path: ".opencode/tests-v2/behaviors/2314-sc2-plan-absent-dispatch-red.sh (and sibling 2314 fixture setup)"
+      change: "Sandbox issue-store access to the injected fixture data — run agent never reaches real {issues_prefix}/{N}/ data (SC-19)"
+      exists: true
   related_surfaces_unchanged:
     - path: ".opencode/skills/approval-gate/SKILL.md"
       change: "References PLAN_MISSING in the authorization-scope table already; behavior unchanged by this spec"
     - path: ".opencode/tests-v2/AGENTS.md"
-      change: "§14 Semantic Continuous Monitoring Mandate already exists; NOT re-specified by this spec (Not Included boundary)"
+      change: "§14 poll cadence and abort semantics NOT re-specified; only the developer-directed absolute termination bound is amended (revised from blanket NOT-re-specified by revision #5)"
     - path: ".opencode/skills/writing-plans/"
       change: "Plan-generation behavior unchanged; this spec only blocks dispatches that skip it"

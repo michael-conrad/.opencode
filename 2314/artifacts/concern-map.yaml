@@ -16,7 +16,14 @@ content:
     - concern: "Gate-placement coverage — bypass path via git-workflow pre-work / TDD RED never traverses spec-creation/executing-plans cards, so the boundary gate is unreachable there"
       scs: ["SC-14", "SC-15", "SC-16", "SC-17"]
       root_causes: [5]
+    - concern: "Supervision termination — the §14 monitor has no absolute termination bound; suppression rules defer aborts and an exceeded max-polls budget keeps polling for progressing runs (~5h, no terminal verdict)"
+      scs: ["SC-18"]
+      root_causes: [6]
+    - concern: "Evidence integrity — the run agent inside the behavioral test escapes the fixture and operates on the real issue store, producing pseudo-progress and contaminating behavioral evidence"
+      scs: ["SC-19"]
+      root_causes: [7]
   cross_cutting_links:
     - "Approval gate (Tier 1 classification) interacts with SC-3: PLAN_MISSING is declared non-overridable by developer authorization"
     - "Dispatch-vocabulary table (SC-4) is the shared reason-code surface used by all deck routing"
-    - "tests-v2 §14 mandate governs SC-9..SC-13 supervision behavior without being re-specified"
+    - "tests-v2 §14 mandate governs SC-9..SC-13 supervision behavior without being re-specified (poll cadence/abort semantics); SC-18 amends the monitor implementation additively (bound composes after suppression, R-2 unchanged)"
+    - "SC-19 composes with §14 monitoring: a sandboxed run's session evidence is the isolation proof, so behavioral verdicts remain attributable to fixture-scoped behavior"

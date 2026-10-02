@@ -10,6 +10,8 @@ objects:
     type: phase
   - name: p4
     type: phase
+  - name: p5
+    type: phase
 fluents:
   - name: done
     params:
@@ -41,9 +43,17 @@ actions:
       - done(p3)
     effects:
       - done(p4)
+  - name: complete-phase5
+    params: []
+    preconditions:
+      - done(p3)
+      - done(p4)
+    effects:
+      - done(p5)
 init: []
 goals:
   - done(p1)
   - done(p2)
   - done(p3)
   - done(p4)
+  - done(p5)

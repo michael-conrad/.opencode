@@ -4,8 +4,9 @@ artifact: dependency-contract
 source: .opencode/.issues/2314/artifacts/interface-compatibility.yaml (dependency_contract section extracted as-is per research task step 9)
 description: |
   Dependency contract extracted verbatim from the interface-compatibility
-  artifact's dependency_contract section (current 17-atomic-SC spec revision
-  after the 2026-10-02 bypass-path closure revision, root cause 5).
+  artifact's dependency_contract section (current 19-atomic-SC spec revision
+  after the 2026-10-02 revision #5: supervision termination bound + fixture
+  sandbox, root causes 6-7).
   Regenerated during plan revision after the prior contract drifted
   from the SC set.
 variables:
@@ -17,6 +18,8 @@ variables:
     type: bool
   phase4_bypass_path_gates_complete:
     type: bool
+  phase5_regression_hardening_complete:
+    type: bool
   plan_missing_reason_code_registered:
     type: bool
 preconditions:
@@ -26,9 +29,11 @@ invariants:
   - z3.Implies(phase3_behavioral_run_supervision_complete, z3.And(phase1_dispatch_gate_logic_complete, phase2_behavioral_enforcement_complete))
   - z3.Implies(plan_missing_reason_code_registered, phase1_dispatch_gate_logic_complete)
   - z3.Implies(phase4_bypass_path_gates_complete, z3.And(phase1_dispatch_gate_logic_complete, phase3_behavioral_run_supervision_complete))
+  - z3.Implies(phase5_regression_hardening_complete, z3.And(phase3_behavioral_run_supervision_complete, phase4_bypass_path_gates_complete))
 postconditions:
   - phase3_behavioral_run_supervision_complete
   - phase4_bypass_path_gates_complete
+  - phase5_regression_hardening_complete
   - plan_missing_reason_code_registered
 entries:
   - source: spec-creation SKILL.md gate entry
@@ -55,3 +60,11 @@ entries:
     target: registered PLAN_MISSING vocabulary + canonical plan path {issues_prefix}/{N}/plan.md
     type_constraint: "reason_code: string enum — value MUST be exactly 'PLAN_MISSING' (registered in the canonical dispatch-vocabulary table); gate semantics: existence-only — an approved plan.md present at the canonical path never blocks; developer authorization does NOT waive the block (Tier 1)"
     scs: [SC-14, SC-15, SC-16, SC-17]
+  - source: tests-v2/AGENTS.md §14 absolute termination bound (env knob, documented bounded default)
+    target: helpers.sh monitor loop termination condition
+    type_constraint: "knob: env var(s) with documented bounded default (never unbounded); bound semantics: applies AFTER suppression rules — a progressing-directionally-classified run past the deadline/ceiling is terminated with terminal classification 'terminate-with-root-cause' recorded in monitor.log/determination.yaml"
+    scs: [SC-18]
+  - source: 2314 scenario fixture setup
+    target: run-agent issue-store access inside the behavioral test
+    type_constraint: "sandbox: the run agent reaches only the injected fixture issue data; real {issues_prefix}/{N}/ paths outside the fixture are isolated; fixture-issue access itself remains permitted; verified by fixture-setup inspection plus behavioral session evidence"
+    scs: [SC-19]

@@ -7,12 +7,15 @@ actions:
   parameters: []
 - name: complete-phase4
   parameters: []
+- name: complete-phase5
+  parameters: []
 domain: phase-execution
 engine: tamer
-plan_length: 4
+plan_length: 5
 status: SOLVED_SATISFICING
 plan:
   - complete-phase1()
   - complete-phase2()
   - complete-phase3()
   - complete-phase4()
+  - complete-phase5()

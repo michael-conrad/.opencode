@@ -1,29 +1,31 @@
 artifact_name: solve-output
 generated_at: 2026-10-02
 issue: 2314
-source: "research task (writing-plans/tasks/research.md) — regenerated after the 2026-10-02 bypass-path closure revision (4 phases, SC-1..SC-17)"
+source: "research task (writing-plans/tasks/research.md) — updated after the 2026-10-02 revision #5 (5 phases, SC-1..SC-19; updated in place)"
 content:
   solve_status: SAT
-  solve_command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2314/dependency-contract.yaml --query 'z3.And(phase3_behavioral_run_supervision_complete, phase4_bypass_path_gates_complete, plan_missing_reason_code_registered)'"
+  solve_command: "./.opencode/tools/solve model --contract-path .opencode/.issues/2314/dependency-contract.yaml --query 'z3.And(phase3_behavioral_run_supervision_complete, phase4_bypass_path_gates_complete, phase5_regression_hardening_complete, plan_missing_reason_code_registered)'"
   solve_query_note: "The task card's literal '--query sat' form is rejected by the current solve CLI ('sat' is not a defined z3 name); the query was expressed as the z3 conjunction of the contract's postconditions, which is the SAT-feasibility query the step intends"
   solve_model:
     phase1_dispatch_gate_logic_complete: true
     phase2_behavioral_enforcement_complete: true
     phase3_behavioral_run_supervision_complete: true
     phase4_bypass_path_gates_complete: true
+    phase5_regression_hardening_complete: true
     plan_missing_reason_code_registered: true
   check_status: SAT
   check_command: "./.opencode/tools/solve check --contract-path .opencode/.issues/2314/dependency-contract.yaml --state-path .opencode/.issues/2314/artifacts/state-analysis.yaml"
   check_output: "SAT (+ postconditions + invariants)"
   plan_status: SOLVED_SATISFICING
   plan_command: "./.opencode/tools/plan plan -p .opencode/.issues/2314/artifacts/plan-problem.yaml"
-  plan_command_note: "The task card's step-12 invocation form (--contract-path/--output) does not exist in the current plan CLI; the planner consumes a YAML problem file. plan-problem.yaml encodes the 4-phase DAG (phase2 pre p1; phase3 pre p1,p2; phase4 pre p1,p3) and the resulting plan is the canonical phase order 1→2→3→4"
-  plan_length: 4
+  plan_command_note: "The task card's step-12 invocation form (--contract-path/--output) does not exist in the current plan CLI; the planner consumes a YAML problem file. plan-problem.yaml encodes the 5-phase DAG (phase2 pre p1; phase3 pre p1,p2; phase4 pre p1,p3; phase5 pre p3,p4) and the resulting plan is the canonical phase order 1→2→3→4→5"
+  plan_length: 5
   plan:
     - complete-phase1()
     - complete-phase2()
     - complete-phase3()
     - complete-phase4()
+    - complete-phase5()
   structure_artifact: ".opencode/.issues/2314/artifacts/structure.yaml"
   dependency_contract: ".opencode/.issues/2314/dependency-contract.yaml"
-  contract_provenance_note: "The regenerated interface-compatibility.yaml carries no dependency_contract section; the issue-root dependency-contract.yaml is the current 4-phase contract whose entries map the interface-compatibility interfaces (reason-code vocabulary, behavior_run env flag, §14 protocol, canonical plan path) — retained as the authoritative contract rather than replaced by a degenerate auto-backfill"
+  contract_provenance_note: "The regenerated interface-compatibility.yaml carries no dependency_contract section; the issue-root dependency-contract.yaml is the current 5-phase contract (revision #5 added the phase5 variable, invariant, and SC-18/SC-19 entries) mapping the interface-compatibility interfaces (reason-code vocabulary, behavior_run env flag, §14 protocol + termination bound, canonical plan path, fixture sandbox) — retained as the authoritative contract rather than replaced by a degenerate auto-backfill"

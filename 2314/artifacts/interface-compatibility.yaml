@@ -15,7 +15,10 @@ content:
       compatibility: "ADDITIVE gate entry — a new blocking check precedes existing steps; existing steps' semantics unchanged; plan-bearing dispatches proceed normally (SC-6 permit analog applies)"
     - interface: "tests-v2 §14 supervision protocol"
       consumers: ["2314 scenario legs", "plan run-step instruction text"]
-      compatibility: "CONSUMED, NOT MODIFIED — the §14 protocol already exists in tests-v2/AGENTS.md; this spec only requires compliance (Not Included boundary)"
+      compatibility: "CONSUMED, NOT MODIFIED for poll cadence/abort semantics; ADDITIVE amendment for the absolute termination bound (SC-18) — new env knob with bounded default; R-2 suppression semantics unchanged (bound composes after suppression); consumers that set the knob explicitly get the documented bound, unset consumers get the documented default (never unbounded)"
+    - interface: "Behavioral-scenario fixture contract (issue-store access)"
+      consumers: ["tests-v2/behaviors/2314-* scenario legs", "run agents inside the tests"]
+      compatibility: "CONSTRAINING, NOT BREAKING — fixture setup now sandboxes issue-store access (SC-19); leg-script invocation interface unchanged; run agents see the injected fixture issue data exactly as before, but can no longer reach real {issues_prefix}/{N}/ data"
     - interface: "Plan file canonical path contract ({issues_prefix}/{N}/plan.md)"
       consumers: ["all gate surfaces"]
       compatibility: "UNCHANGED — all five gate surfaces check the same canonical path; a plan elsewhere is treated as absent (documented edge case)"

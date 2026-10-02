@@ -4,12 +4,13 @@ issue: 2314
 title: "Enforcement gate blocking spec-creation → implementation dispatch without plan.md"
 authorization_scope: for_pr
 pr_strategy: stacked
-phase_count: 4
+phase_count: 5
 dispatch:
   - phase-1: test-driven-development (red, green, phase-4), verification-before-completion (verify)
   - phase-2: test-driven-development (red, green, phase-4), verification-before-completion (verify)
   - phase-3: test-driven-development (red, green, phase-4), verification-before-completion (verify)
   - phase-4: test-driven-development (red, green, phase-4), verification-before-completion (verify)
+  - phase-5: test-driven-development (red, green, phase-4), verification-before-completion (verify)
 ---
 
 # Implementation Plan — #2314 — Enforcement Gate Blocking Spec-to-Implementation Dispatch Without a Plan
@@ -20,7 +21,7 @@ dispatch:
 
 **Architecture:** The gate is a routing entry in the skill deck (spec-creation and executing-plans skill cards) backed by a CRITICAL VIOLATION rule in the core guidelines and a PLAN_MISSING vocabulary registration in the canonical dispatch-vocabulary table. Behavioral enforcement tests then prove the gate blocks plan-less dispatch and permits plan-bearing dispatch — each leg as its own atomic SC.
 
-**SC set (revised 2026-10-02 per bypass-path closure revision):** SC-1 (spec-creation card gate), SC-2 (executing-plans card gate), SC-3 (CRITICAL VIOLATION entry), SC-4 (PLAN_MISSING vocabulary), SC-5 (plan-less dispatch blocked — behavioral), SC-6 (plan-bearing dispatch proceeds — behavioral), SC-7 (scenario block leg — behavioral), SC-8 (scenario permit leg — behavioral), SC-9 (leg scripts set `BEHAVIOR_SEMANTIC_MONITOR=1` — structural), SC-10 (plan run-step text carries §14 Read-link — structural), SC-11 (supervised run produces §14 monitor evidence — behavioral), SC-12 (poll intervals ≤300s with semantic checks between polls — behavioral), SC-13 (§14 hard-abort handling — behavioral), SC-14 (pre-work task plan-existence gate — structural), SC-15 (RED task plan-existence gate — structural), SC-16 (bypass-path block via pre-work — behavioral), SC-17 (bypass-path block via RED dispatch — behavioral).
+**SC set (revised 2026-10-02 per bypass-path closure revision):** SC-1 (spec-creation card gate), SC-2 (executing-plans card gate), SC-3 (CRITICAL VIOLATION entry), SC-4 (PLAN_MISSING vocabulary), SC-5 (plan-less dispatch blocked — behavioral), SC-6 (plan-bearing dispatch proceeds — behavioral), SC-7 (scenario block leg — behavioral), SC-8 (scenario permit leg — behavioral), SC-9 (leg scripts set `BEHAVIOR_SEMANTIC_MONITOR=1` — structural), SC-10 (plan run-step text carries §14 Read-link — structural), SC-11 (supervised run produces §14 monitor evidence — behavioral), SC-12 (poll intervals ≤300s with semantic checks between polls — behavioral), SC-13 (§14 hard-abort handling — behavioral), SC-14 (pre-work task plan-existence gate — structural), SC-15 (RED task plan-existence gate — structural), SC-16 (bypass-path block via pre-work — behavioral), SC-17 (bypass-path block via RED dispatch — behavioral), SC-18 (absolute §14-monitor termination bound — behavioral), SC-19 (fixture issue-store sandbox — behavioral).
 
 **Files:**
 - `.opencode/skills/spec-creation/`
@@ -30,6 +31,8 @@ dispatch:
 - `.opencode/tests-v2/behaviors/`
 - `.opencode/skills/git-workflow-branch/tasks/pre-work.md`
 - `.opencode/skills/test-driven-development/tasks/red.md`
+- `.opencode/tests-v2/helpers.sh`
+- `.opencode/tests-v2/AGENTS.md`
 
 ## Blast Radius
 
@@ -59,6 +62,7 @@ dispatch:
 | 2 | behavioral-enforcement | End-to-end behavioral enforcement scenario (block + permit legs) | SC-7, SC-8 | 1 | 33-54 | direct (37, 38, 44, 47) + task-card (33-36, 39-43, 45-46, 48-54) |
 | 3 | behavioral-run-supervision | Semantic monitoring of this issue's behavioral run legs per tests-v2 §14 | SC-9..SC-13 | 1, 2 | 55-70 | direct (58, 62, 69) + task-card (55-57, 59-61, 63-68, 70) |
 | 4 | bypass-path-gates | Plan-existence gates on the bypass-path surfaces (git-workflow pre-work, TDD RED dispatch) + behavioral block legs | SC-14..SC-17 | 1, 3 | 71-88 | direct (71, 75, 79, 83, 88) + task-card (72-74, 76-78, 80-82, 84, 85-87) |
+| 5 | regression-hardening | Absolute monitor termination bound + fixture issue-store sandbox (SC-5 attempt-5 regression closure) | SC-18, SC-19 | 3, 4 | 89-100 | direct (89, 93, 94, 99) + task-card (90-92, 95-98, 100) |
 
 ## Pre-Implementation
 
@@ -73,6 +77,7 @@ dispatch:
 - Phase 2 file: `plan-02-behavioral-enforcement.md` (includes post-implementation steps)
 - Phase 3 file: `plan-03-behavioral-run-supervision.md`
 - Phase 4 file: `plan-04-bypass-path-gates.md`
+- Phase 5 file: `plan-05-regression-hardening.md`
 
 ## Self-Remediation and Enforcement
 
@@ -99,8 +104,10 @@ dispatch:
 - [ ] C15. A plan-existence gate entry exists in `test-driven-development/tasks/red.md` blocking with PLAN_MISSING when no approved plan.md exists (SC-15)
 - [ ] C16. A plan-less developer-authorized dispatch entering via the pre-work path is BLOCKED with PLAN_MISSING before file modification (SC-16)
 - [ ] C17. A plan-less developer-authorized dispatch entering via the RED dispatch path is BLOCKED with PLAN_MISSING before implementation work (SC-17)
-- [ ] C18. All SC verdicts are PASS with evidence-type-matched artifacts; no DONE_WITH_CONCERNS coercion applies
-- [ ] C19. PR created (stacked strategy, one branch) with plan, test, and gate changes committed
+- [ ] C18. The §14 monitor enforces an absolute termination bound (documented env knob) that terminates a progressing run with a terminate-with-root-cause terminal classification (SC-18)
+- [ ] C19. The 2314 scenario fixtures sandbox issue-store access — the run agent never touches real {issues_prefix}/{N}/ data outside the fixture (SC-19)
+- [ ] C20. All SC verdicts are PASS with evidence-type-matched artifacts; no DONE_WITH_CONCERNS coercion applies
+- [ ] C21. PR created (stacked strategy, one branch) with plan, test, and gate changes committed
 
 ## Lifecycle Events
 
@@ -130,6 +137,11 @@ lifecycle_events:
     plan_file: ".opencode/.issues/2314/plan.md"
     revision_reason: "Spec bypass-path closure revision (root cause 5) — SC-5 behavioral attempts 3-4 proved the spec-creation/executing-plans boundary gate is unreachable on the plan-less developer-authorized dispatch path that enters implementation via git-workflow pre-work / TDD RED; added Phase 4 (bypass-path gates) covering SC-14..SC-17 (structural gate entries in pre-work.md and red.md; behavioral block legs per surface), regenerated exit criteria and dependency contract"
     phase_count: 4
+  - timestamp: "2026-10-02T12:05:00-04:00"
+    event: plan_revised
+    plan_file: ".opencode/.issues/2314/plan.md"
+    revision_reason: "Developer-directed SC additions after a second regression during SC-5 behavioral run attempt 5 (monitor log: tmp/behavior-test-20261002-062454/2314-sc2-plan-absent-dispatch-red/monitor-attempt1.log — 603+ polls over ~5 hours) — added Phase 5 (regression-hardening) covering SC-18 (absolute §14-monitor termination bound via documented env knob, root cause 6) and SC-19 (fixture issue-store sandbox, root cause 7); regenerated exit criteria and dependency contract; artifacts updated in place"
+    phase_count: 5
 ```
 
 ## Pre-Flight Guard (Mandatory)

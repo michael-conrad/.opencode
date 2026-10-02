@@ -1,6 +1,6 @@
 artifact_name: structure
 generated_at: 2026-10-02
-source: "Spec #2314 — regenerated after the 2026-10-02 bypass-path closure revision (17 atomic SCs, 4 phases)"
+source: "Spec #2314 — updated after the 2026-10-02 revision #5 (19 atomic SCs, 5 phases; updated in place)"
 content:
   phase_decomposition:
     - phase: 1
@@ -27,6 +27,12 @@ content:
       scs: [SC-14, SC-15, SC-16, SC-17]
       plan_file: plan-04-bypass-path-gates.md
       steps: [71, 88]
+    - phase: 5
+      name: regression-hardening
+      concern: "Absolute monitor termination bound + fixture issue-store sandbox (SC-5 attempt-5 regression closure)"
+      scs: [SC-18, SC-19]
+      plan_file: plan-05-regression-hardening.md
+      steps: [89, 100]
   dependency_dag:
     edges:
       - from: 1
@@ -44,6 +50,12 @@ content:
       - from: 3
         to: 4
         reason: "Phase 4 behavioral legs run under the Phase 3 §14 supervision configuration"
+      - from: 3
+        to: 5
+        reason: "Phase 5 proves the termination bound against the Phase 3 supervised-run infrastructure"
+      - from: 4
+        to: 5
+        reason: "Phase 5 sandbox applies to the Phase 4 scenario fixtures/legs"
     cross_phase_dependency_check: "PASS — no RED test in phase X depends on SC output from a later phase Y > X"
   triplet_co_location:
     check: "PASS — every SC's RED/GREEN/verify/commit steps are assigned to a single phase"
@@ -65,8 +77,17 @@ content:
       "SC-15": {phase: 4, red: 76, green: 77, verify: 78, commit: 79}
       "SC-16": {phase: 4, red: 80, green: 81, verify: 82, commit: 83}
       "SC-17": {phase: 4, red: 84, green: 85, verify: 86, commit: 87}
+      "SC-18": {phase: 5, red: 90, green: 91, verify: 92, commit: 93}
+      "SC-19": {phase: 5, red: 94, green: 95, verify: 96, commit: 98}
   skill_task_selection:
     per_phase:
+      - phase: 5
+        items:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          post_regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator direct (commit-inline)"
       - phase: 1
         items:
           red: "task(..., prompt: \"execute red task from test-driven-development\")"
