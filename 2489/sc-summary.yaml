@@ -1,0 +1,34 @@
+sc_count: 8
+scs:
+  - id: "SC-1"
+    description: "Pre-commit hook Gate 2 (stale pointer check incl. SKIP_STALE_POINTER_CHECK hatch and BLOCK message) is removed; Gate 1 trunk-branch protection exit contract unchanged"
+    evidence_type: "behavioral"
+    plan_item: 1
+  - id: "SC-2"
+    description: "The five dependent gate tests (test-2264-sc3/sc4/sc6/sc7, behaviors/2219-sc16) are deleted and no orphaned runners remain in the tests-v2 directory"
+    evidence_type: "structural"
+    plan_item: 2
+  - id: "SC-3"
+    description: "pre-commit-pointer-check.md advisory text no longer references the removed hook stale-pointer gate or SKIP hatch and references the PR-time freshness gates instead"
+    evidence_type: "string"
+    plan_item: 3
+  - id: "SC-4"
+    description: "All tag rules are consolidated in operating-protocol.md 'Tag Convention (Canonical)' and the 15 dead references (6 to git-workflow/SKILL.md §Tag Convention, 7 to nonexistent AGENTS.md § sections, 2 in pre-work.md) are repointed to live targets in inline Read-link form"
+    evidence_type: "string"
+    plan_item: 4
+  - id: "SC-5"
+    description: "The three unsuffixed tag-format sites (pre-work.md Step 3 tag format, pre-work.md Step 4 commit message, provenance.md) use the canonical <parent-repo>/<issue-number>-<submodule> form"
+    evidence_type: "string"
+    plan_item: 5
+  - id: "SC-6"
+    description: "A standing reference-integrity check exists in .opencode/tools/ that fails on agent-facing Read-links pointing at sections absent from their target files and passes on the repaired repository"
+    evidence_type: "behavioral"
+    plan_item: 6
+  - id: "SC-7"
+    description: "The ceremony-test retirement policy is recorded in the retire path note: a test survives only if a real defect would escape without it, and every new test SC must justify its verification cost against the defect it catches"
+    evidence_type: "string"
+    plan_item: 7
+  - id: "SC-8"
+    description: "Coordination annotations exist: #2431 carries a commit-time semantics handover comment (SKIP hatch removed, PR-time scope untouched) and #2258 carries a superseded-with-rationale annotation"
+    evidence_type: "semantic"
+    plan_item: 8

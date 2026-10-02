@@ -4,7 +4,7 @@ status: open
 labels:
 - needs-approval
 - spec-draft
-body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2479/
+body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2489/
 
 
   ## Problem
@@ -52,8 +52,17 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   - Add a standing reference-integrity enforcement check (agent-facing Read-links
   must resolve to sections their target files contain)
 
+  - Record the ceremony-test retirement policy (a test survives only if a real defect
+  would escape without it; new test SCs must justify cost vs catch)
+
   - Coordinate with open #2431 (its "SKIP semantics unchanged" no-ripple assumption
   is invalidated; PR-time scope unaffected)
+
+
+  **Out of scope:** hooks/pre-push submodule-only gate; enforcement-gate Steps 0/0.5/0.75
+  content; create-pr.md release pointer check; trunk-tip-verification 7-step gate;
+  #2258 awk-substr fix (target deleted); historical malformed tag migration; any tag
+  migration.
 
 
   ## Approach
@@ -65,10 +74,11 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   dependents. Remove the redundant commit-time gate so the stacked-PR model is enforced
   where it is actually true (PR creation), consolidate every tag-format/tag-convention
   rule into the single canonical section in `git-workflow-branch/tasks/operating-protocol.md`,
-  and repair each dead Read-link to its correct live target. Guard against recurrence
-  with a standing reference-integrity check that verifies agent-facing Read-links
-  resolve to sections that exist in the target file, so future canon moves cannot
-  silently strand references.
+  and repair each dead Read-link to its correct live target in inline `Read [Text](path)`
+  form. Guard against recurrence with a standing reference-integrity check that verifies
+  agent-facing Read-links resolve to sections that exist in the target file, so future
+  canon moves cannot silently strand references — and prevent ceremony tests from
+  re-accumulating in this subsystem via the recorded retirement policy.
 
 
   ## Impact
@@ -79,7 +89,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   remain the authority and their tests stay green; coordinate this change with #2431
   explicitly.
 
-  - **Risk: reference churn** — repointing 13+ dead references touches Tier-1 always-loaded
+  - **Risk: reference churn** — repointing 15 dead references touches Tier-1 always-loaded
   files. Mitigation: mechanical one-line repoints validated by the new reference-integrity
   check in the same change.
 
@@ -101,6 +111,6 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-10-02T20:23:01+00:00'
-updated_at: '2026-10-02T20:52:14+00:00'
+updated_at: '2026-10-02T20:58:41+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2489
 remote_url: https://github.com/michael-conrad/.opencode/issues/2489
