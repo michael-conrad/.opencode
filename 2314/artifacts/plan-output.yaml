@@ -1,0 +1,18 @@
+actions:
+- name: complete-phase1
+  parameters: []
+- name: complete-phase2
+  parameters: []
+- name: complete-phase3
+  parameters: []
+- name: complete-phase4
+  parameters: []
+domain: phase-execution
+engine: tamer
+plan_length: 4
+status: SOLVED_SATISFICING
+plan:
+  - complete-phase1()
+  - complete-phase2()
+  - complete-phase3()
+  - complete-phase4()

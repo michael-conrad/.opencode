@@ -1,0 +1,99 @@
+artifact_name: structure
+generated_at: 2026-10-02
+source: "Spec #2314 — regenerated after the 2026-10-02 bypass-path closure revision (17 atomic SCs, 4 phases)"
+content:
+  phase_decomposition:
+    - phase: 1
+      name: dispatch-gate-logic
+      concern: "Gate existence and block/permit behavior at the spec-creation → implementation boundary"
+      scs: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6]
+      plan_file: plan-01-dispatch-gate-logic.md
+      steps: [3, 32]
+    - phase: 2
+      name: behavioral-enforcement
+      concern: "End-to-end behavioral enforcement scenario (block + permit legs)"
+      scs: [SC-7, SC-8]
+      plan_file: plan-02-behavioral-enforcement.md
+      steps: [33, 54]
+    - phase: 3
+      name: behavioral-run-supervision
+      concern: "Semantic monitoring of this issue's behavioral run legs per tests-v2 §14"
+      scs: [SC-9, SC-10, SC-11, SC-12, SC-13]
+      plan_file: plan-03-behavioral-run-supervision.md
+      steps: [55, 70]
+    - phase: 4
+      name: bypass-path-gates
+      concern: "Plan-existence gates on the bypass-path surfaces (git-workflow pre-work, TDD RED dispatch) + behavioral block legs"
+      scs: [SC-14, SC-15, SC-16, SC-17]
+      plan_file: plan-04-bypass-path-gates.md
+      steps: [71, 88]
+  dependency_dag:
+    edges:
+      - from: 1
+        to: 2
+        reason: "Phase 2 behavioral legs exercise the Phase 1 gate surfaces"
+      - from: 1
+        to: 3
+        reason: "Phase 3 supervision configures/runs the Phase 1+2 behavioral legs"
+      - from: 2
+        to: 3
+        reason: "Phase 3 monitors the registered Phase 2 scenario legs"
+      - from: 1
+        to: 4
+        reason: "Phase 4 bypass-path gates reuse the Phase 1 PLAN_MISSING vocabulary and CRITICAL VIOLATION entry"
+      - from: 3
+        to: 4
+        reason: "Phase 4 behavioral legs run under the Phase 3 §14 supervision configuration"
+    cross_phase_dependency_check: "PASS — no RED test in phase X depends on SC output from a later phase Y > X"
+  triplet_co_location:
+    check: "PASS — every SC's RED/GREEN/verify/commit steps are assigned to a single phase"
+    per_sc:
+      "SC-1": {phase: 1, red: 3, green: 4, verify: 5, commit: 6}
+      "SC-2": {phase: 1, red: 7, green: 8, verify: 9, commit: 10}
+      "SC-3": {phase: 1, red: 11, green: 12, verify: 13, commit: 14}
+      "SC-4": {phase: 1, red: 15, green: 16, verify: 17, commit: 18}
+      "SC-5": {phase: 1, red: 19, green: 20, verify: 22, commit: 23}
+      "SC-6": {phase: 1, red: 26, green: 27, verify: 29, commit: 30}
+      "SC-7": {phase: 2, red: 33, green: 34, verify: 36, commit: 37}
+      "SC-8": {phase: 2, red: 40, green: 41, verify: 43, commit: 44}
+      "SC-9": {phase: 3, red: 55, green: 56, verify: 57, commit: 58}
+      "SC-10": {phase: 3, red: 59, green: 60, verify: 61, commit: 62}
+      "SC-11": {phase: 3, red: 63, green: 64, verify: 65, commit: 69}
+      "SC-12": {phase: 3, verify: 66, commit: 69, note: "verified from the SC-11 supervised run evidence — no separate RED/GREEN"}
+      "SC-13": {phase: 3, verify: 67, commit: 69, note: "verified from the SC-11 supervised run evidence — no separate RED/GREEN"}
+      "SC-14": {phase: 4, red: 72, green: 73, verify: 74, commit: 75}
+      "SC-15": {phase: 4, red: 76, green: 77, verify: 78, commit: 79}
+      "SC-16": {phase: 4, red: 80, green: 81, verify: 82, commit: 83}
+      "SC-17": {phase: 4, red: 84, green: 85, verify: 86, commit: 87}
+  skill_task_selection:
+    per_phase:
+      - phase: 1
+        items:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          post_regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator direct (commit-inline)"
+      - phase: 2
+        items:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          post_regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator direct (commit-inline)"
+      - phase: 3
+        items:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          post_regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator direct (commit-inline)"
+      - phase: 4
+        items:
+          red: "task(..., prompt: \"execute red task from test-driven-development\")"
+          green: "task(..., prompt: \"execute green task from test-driven-development\")"
+          post_regression: "task(..., prompt: \"execute phase-4 task from test-driven-development\")"
+          verify: "task(..., prompt: \"execute verify task from verification-before-completion\")"
+          commit: "orchestrator direct (commit-inline)"
+    source: "skills/writing-plans/reference/implementation-workflow.md RED-GREEN Daisy-Chain table"
+  sc_mapping_note: "sc-summary.yaml does not exist for this issue; SC-to-item mapping was derived from plan.md SC set (17 atomic SCs, revised 2026-10-02) and the per-item structure of plan-01..plan-04, which carry exactly one item per SC"
