@@ -843,7 +843,10 @@ __write_determination_record() {
     # Run path: natural completion carries the MONITOR-COMPLETE marker; its
     # absence means the monitor aborted the run (§14 abort path).
     local run_path="natural-completion"
-    if ! grep -q "MONITOR-COMPLETE" "$poll_log" 2>/dev/null; then
+    if grep -q "MONITOR-TERMINATED-BY-ABSOLUTE-BOUND" "$poll_log" 2>/dev/null; then
+        # .opencode#2314 SC-18: run terminated by the absolute termination bound.
+        run_path="monitor-terminate-with-root-cause"
+    elif ! grep -q "MONITOR-COMPLETE" "$poll_log" 2>/dev/null; then
         run_path="monitor-abort"
     fi
 
@@ -1313,6 +1316,11 @@ __semantic_monitor() {
     local reasoning_total=0
     local test_home_dir=""
     local abort_reason=""
+    # .opencode#2314 SC-18: absolute-bound termination state — distinct from
+    # abort_reason so the bound path routes to its own termination flow
+    # (kill + §10.5 export + terminate-with-root-cause record + MONITOR-COMPLETE)
+    # instead of the generic exit-1 abort path.
+    local abs_terminated=0
     # .opencode#2456 SC-2 classification-dispatch state (checkpoint policy).
     local classified_count=0
     local polls_since_classify=0
@@ -1333,6 +1341,11 @@ __semantic_monitor() {
     # stderr record naming the gap; the sleep loop is cadence-bounded so a
     # tick never overshoots the floor (long operations poll immediately).
     local BEHAVIOR_POLL_CADENCE_MAX="${BEHAVIOR_POLL_CADENCE_MAX:-300}"
+    # .opencode#2314 SC-18 (plan-05): absolute termination bound — a hard
+    # max-polls ceiling that composes AFTER the R-2 suppression rules. The
+    # default is bounded (2× the soft max-polls budget) and documented in
+    # tests-v2/AGENTS.md §14; the knob is never unbounded.
+    local BEHAVIOR_MONITOR_ABS_MAX_POLLS="${BEHAVIOR_MONITOR_ABS_MAX_POLLS:-$((BEHAVIOR_MONITOR_MAX_POLLS * 2))}"
     local prev_poll_ts=""
     local cadence_max_gap=0
     local now_ts
@@ -1341,20 +1354,37 @@ __semantic_monitor() {
     while kill -0 "$run_pid" 2>/dev/null; do
         poll=$((poll + 1))
         if [ "$poll" -gt "$BEHAVIOR_MONITOR_MAX_POLLS" ]; then
+            # .opencode#2314 SC-18 (plan-05): ABSOLUTE termination bound — the
+            # hard max-polls ceiling. The R-2 progressing carve-out may DEFER
+            # the duration-cap termination (and may defer mechanical aborts,
+            # unchanged below), but it SHALL NOT defeat this bound: once the
+            # poll count exceeds BEHAVIOR_MONITOR_ABS_MAX_POLLS the monitor
+            # TERMINATES the run (kill + §10.5 export via the abort path) and
+            # records the terminate-with-root-cause terminal classification in
+            # the monitor artifacts regardless of the run's latest
+            # classification. The bound composes AFTER suppression.
+            if [ "$poll" -gt "$BEHAVIOR_MONITOR_ABS_MAX_POLLS" ]; then
+                echo "POLL ${poll}: ts=${ts} ABSOLUTE termination bound exceeded (poll ${poll} > BEHAVIOR_MONITOR_ABS_MAX_POLLS=${BEHAVIOR_MONITOR_ABS_MAX_POLLS}) — TERMINATING the run with terminal classification terminate-with-root-cause regardless of the run's latest classification (${classification_value:-none}); suppression rules (R-2 progressing carve-out) may defer mechanical aborts but cannot defeat the absolute bound (SC-18, .opencode#2314)" >> "$poll_log"
+                abs_terminated=1
+                break
+            fi
             # .opencode#2456 SC-5 (progressing-continues, R-2): the max-polls
             # duration-cap termination path applies ONLY to non-progressing
             # states — undetermined / off-track / no-classification / silent.
             # A run whose last SC-2 classification is progressing-directionally
             # SHALL continue polling past the cap regardless of duration (R-2:
-            # "Progressing runs SHALL continue polling regardless of duration").
-            # The carve-out consults the LAST completed classification (the
-            # checkpoint dispatches land before the cap when the event stream
-            # is growing; an empty value means never-classified → non-progressing
-            # → halted). Flag-gated by the enclosing BEHAVIOR_SEMANTIC_MONITOR=1
-            # block — unset → no monitor, no classification, no carve-out
-            # (backward compat, plan-02 "no flag changes in this phase").
+            # "Progressing runs SHALL continue polling regardless of duration")
+            # — up to the ABSOLUTE bound above, which terminates the run with
+            # the terminate-with-root-cause terminal classification regardless
+            # of classification (SC-18, .opencode#2314). The carve-out consults
+            # the LAST completed classification (the checkpoint dispatches land
+            # before the cap when the event stream is growing; an empty value
+            # means never-classified → non-progressing → halted). Flag-gated by
+            # the enclosing BEHAVIOR_SEMANTIC_MONITOR=1 block — unset → no
+            # monitor, no classification, no carve-out (backward compat,
+            # plan-02 "no flag changes in this phase").
             if [ "${classification_value:-}" = "progressing-directionally" ]; then
-                echo "POLL ${poll}: ts=${ts} max-polls budget exceeded but run classified progressing-directionally (${classification_value}) — progressing runs continue polling regardless of duration (R-2, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
+                echo "POLL ${poll}: ts=${ts} max-polls budget exceeded but run classified progressing — R-2 deferral active: mechanical aborts are suppressed and the run continues until the ABSOLUTE bound (BEHAVIOR_MONITOR_ABS_MAX_POLLS=${BEHAVIOR_MONITOR_ABS_MAX_POLLS}, terminate-with-root-cause fires there regardless of classification; SC-18, .opencode#2314; R-2, .opencode#2456 SC-5); continuing to poll" >> "$poll_log"
             else
                 echo "POLL ${poll}: ts=${ts} max-polls budget exhausted — run outlived monitor budget, aborting (last classification=${classification_value:-none})" >> "$poll_log"
                 abort_reason="max_polls_exhausted"
@@ -1731,6 +1761,43 @@ MONPY
         fi
     done
 
+    # .opencode#2314 SC-18: absolute-bound termination path — the monitor
+    # TERMINATED the run because the poll count exceeded
+    # BEHAVIOR_MONITOR_ABS_MAX_POLLS. Kill the run process group + §10.5
+    # export + terminate-with-root-cause terminal record (same process-group
+    # kill rationale as the §14 abort path below, .opencode#2432 SC-10), then
+    # MONITOR-COMPLETE with final_classification=terminate-with-root-cause —
+    # recorded REGARDLESS of the run's latest classification (the R-2
+    # progressing verdict deferred the soft-budget termination but could not
+    # defeat this absolute bound).
+    if [ "${abs_terminated:-0}" -eq 1 ]; then
+        kill -TERM -- "-$run_pid" 2>/dev/null || kill "$run_pid" 2>/dev/null || true
+        sleep 2
+        kill -KILL -- "-$run_pid" 2>/dev/null || kill -9 "$run_pid" 2>/dev/null || true
+        echo "ABORTED run_pid=${run_pid} reason=absolute_bound_max_polls poll=${poll}" >> "$poll_log"
+        local abs_artifact_dir
+        abs_artifact_dir=$(__artifact_dir "$scenario_name" "${model:-monitor}")
+        mkdir -p "$abs_artifact_dir"
+        __export_sqlite_to_yaml "$abs_artifact_dir/session.yaml" "$output_file" "$err_file" || true
+        cp "$poll_log" "$abs_artifact_dir/monitor.log" 2>/dev/null || true
+        cp "$BEHAVIOR_LOG_DIR/$scenario_name/classifier-session-attempt${attempt}.yaml" "$abs_artifact_dir/classifier-session.yaml" 2>/dev/null || true
+        cat > "$abs_artifact_dir/semantic-diagnosis.yaml" <<DIAG2.EOF
+diagnosis: monitor-absolute-bound-termination
+terminal_classification: terminate-with-root-cause
+root_cause: absolute monitor termination bound exceeded (poll ${poll} > BEHAVIOR_MONITOR_ABS_MAX_POLLS=${BEHAVIOR_MONITOR_ABS_MAX_POLLS}) — the run was terminated regardless of its latest classification (${classification_value:-none}); the R-2 suppression rules may defer mechanical aborts but cannot defeat the absolute bound (SC-18, .opencode#2314).
+abort_reason: absolute_bound_max_polls
+polls_executed: ${poll}
+poll_log: ${poll_log}
+session_db: ${db:-unknown}
+session_yaml: ${abs_artifact_dir}/session.yaml
+mandate: tests-v2/AGENTS.md §14 (semantic continuous monitoring, #2427 scope G; SC-18 absolute bound)
+note: Run TERMINATED by the §14 absolute termination bound after the suppression compose point; session.yaml exported per §10.5.
+DIAG2.EOF
+        echo "  [harness] SEMANTIC MONITOR: ABSOLUTE bound termination — run terminated with terminate-with-root-cause after ${poll} polls (bound=${BEHAVIOR_MONITOR_ABS_MAX_POLLS}; diagnosis: ${abs_artifact_dir}/semantic-diagnosis.yaml)" >&2
+        classification_value="terminate-with-root-cause"
+        echo "MONITOR-TERMINATED-BY-ABSOLUTE-BOUND polls=${poll} bound=${BEHAVIOR_MONITOR_ABS_MAX_POLLS} terminal_classification=${classification_value}" >> "$poll_log"
+    fi
+
     # .opencode#2456 R-13 amendment (2026-09-23): pure decision function for one
 # .opencode#2456 R-13 amendment (2026-09-23): dispatch-failure ceiling exit
     # — monitoring was halted after BEHAVIOR_MONITOR_DISPATCH_FAIL_CEILING
@@ -1827,7 +1894,11 @@ DIAGEOF
         fi
     fi
 
-    echo "MONITOR-COMPLETE polls=${poll} run finished without abort signal classifications=${classified_count} final_classification=${classification_value:-none}" >> "$poll_log"
+    local done_phrase="run finished without abort signal"
+    if [ "${abs_terminated:-0}" -eq 1 ]; then
+        done_phrase="run TERMINATED by the absolute termination bound (terminate-with-root-cause recorded regardless of latest classification, SC-18 .opencode#2314)"
+    fi
+    echo "MONITOR-COMPLETE polls=${poll} ${done_phrase} classifications=${classified_count} final_classification=${classification_value:-none}" >> "$poll_log"
     exit 0
     )
 }
