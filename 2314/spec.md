@@ -4,7 +4,7 @@ title: "[BUG] Spec-creation → implementation can bypass writing-plans pipeline
 status: open
 labels: []
 created: 2026-08-21T02:09:25Z
-updated: 2026-10-01T23:00:00Z
+updated: 2026-10-01T23:30:00Z
 remote_issue: 2314
 remote_url: "https://github.com/michael-conrad/.opencode/issues/2314"
 promoted_at: 2026-08-23T21:00:00Z
@@ -19,7 +19,7 @@ author: michael-newsrx
 
 **Objective:** Add an enforcement gate at the spec-creation → implementation dispatch boundary that checks whether a local `plan.md` exists before allowing implementation dispatch, blocking with `PLAN_MISSING` when it does not.
 
-**Approach Chosen:** Add the gate as routing entries in the skill deck (spec-creation SKILL.md and executing-plans SKILL.md), backed by a CRITICAL VIOLATION rule in `000-critical-rules.md` and a `PLAN_MISSING` vocabulary registration in the canonical dispatch-vocabulary table. Behavioral enforcement tests then prove the gate blocks plan-less dispatch and permits plan-bearing dispatch. Developer-directed addition: this issue's behavioral-run legs MUST run under the tests-v2 §14 semantic continuous monitoring protocol.
+**Approach Chosen:** Add the gate as routing entries in the skill deck (spec-creation SKILL.md and executing-plans SKILL.md), backed by a CRITICAL VIOLATION rule in `000-critical-rules.md` and a `PLAN_MISSING` vocabulary registration in the canonical dispatch-vocabulary table. Behavioral enforcement tests then prove the gate blocks plan-less dispatch and permits plan-bearing dispatch. Developer-directed addition: this issue's behavioral-run legs SHALL run under the tests-v2 §14 semantic continuous monitoring protocol.
 
 **Alternatives Considered & Why Discarded:**
 
@@ -32,7 +32,7 @@ author: michael-newsrx
 1. The gate lives at the dispatch boundary (routing entries in skill cards), not at file-write time — dispatch is where the bypass decision is made.
 2. `PLAN_MISSING` is registered in the canonical dispatch-vocabulary table so every deck surface routes on the same reason code.
 3. The permit leg (plan present → dispatch proceeds) is enforced as its own SC — a false-positive block is a pipeline-availability defect, not a lesser sibling of the block leg.
-4. SC-10 (behavioral-run supervision, developer-directed) is scoped strictly to this issue's scenario legs; the general §14 protocol already exists in tests-v2 and is NOT re-specified here.
+4. The behavioral-run supervision SCs (developer-directed; SC-9 through SC-13) are scoped strictly to this issue's scenario legs; the general §14 protocol already exists in tests-v2 and is NOT re-specified here.
 
 **User Intent:** The developer flagged the observed bypass as a deck bug ("there is no path to not have a plan") and directed that every path from spec to implementation route through plan creation, with mechanical enforcement rather than discipline-only routing. The developer additionally directed (2026-10-01) that behavioral-run supervision for this issue's scenario legs follow the tests-v2 §14 semantic continuous monitoring protocol after an unmonitored ~59-minute synchronous run regression.
 
@@ -48,7 +48,7 @@ The DISPATCH_GATE in the skill deck relies on orchestrator routing discipline (p
 2. The orchestrator can skip `tasks/writing-plans/SKILL.md` entirely and still produce working code.
 3. The only enforcement is the orchestrator's own discipline — which failed in the observed session (see Evidence).
 
-**Root cause 4 (behavioral-run supervision defect; developer-directed):** the SC-5→SC-10 GREEN behavioral run for this issue executed synchronously and unmonitored (~59 minutes, no `monitor.log`/`determination.yaml` in the run's evidence directory) because (a) the plan step instruction text omits the tests-v2 §14 Semantic Continuous Monitoring Mandate and agent-supervisor protocol (no Read-link, no poll cadence), (b) the scenario leg `2314-sc2-plan-absent-dispatch-red.sh` calls `behavior_run` without `BEHAVIOR_SEMANTIC_MONITOR=1`, so `helpers.sh` took the synchronous blocking path, and (c) the instruction chain never surfaced the agent-supervisor mandate at `tests-v2/AGENTS.md` §14, so the dispatched run sub-agent improvised blind long-sleep polling with zero semantic checks between polls. SC-10 traces to this root cause.
+**Root cause 4 (behavioral-run supervision defect; developer-directed):** the SC-5→SC-10 GREEN behavioral run for this issue executed synchronously and unmonitored (~59 minutes, no `monitor.log`/`determination.yaml` in the run's evidence directory) because (a) the plan step instruction text omits the tests-v2 §14 Semantic Continuous Monitoring Mandate and agent-supervisor protocol (no Read-link, no poll cadence), (b) the scenario leg `2314-sc2-plan-absent-dispatch-red.sh` calls `behavior_run` without `BEHAVIOR_SEMANTIC_MONITOR=1`, so `helpers.sh` took the synchronous blocking path, and (c) the instruction chain never surfaced the agent-supervisor mandate at `tests-v2/AGENTS.md` §14, so the dispatched run sub-agent improvised blind long-sleep polling with zero semantic checks between polls. SC-9 through SC-13 trace to this root cause.
 
 ## Evidence
 
@@ -66,10 +66,10 @@ Process-integrity defect. Bypassing plan creation means phase decomposition, dep
 
 ## Not Included (Scope Boundary)
 
-- **General §14 protocol re-specification is out of scope.** The §14 Semantic Continuous Monitoring Mandate already exists in `tests-v2/AGENTS.md`. This spec does not change, extend, or re-derive the §14 protocol; SC-9/SC-10 only require that THIS issue's scenario legs and instruction text comply with it.
+- **General §14 protocol re-specification is out of scope.** The §14 Semantic Continuous Monitoring Mandate already exists in `tests-v2/AGENTS.md`. This spec does not change, extend, or re-derive the §14 protocol; SC-9 through SC-13 only require that THIS issue's scenario legs and instruction text comply with it.
 - **Gate enforcement for other dispatch boundaries is out of scope.** Only the spec-creation → implementation boundary is gated. Other skill-to-skill handoffs are unaffected.
 - **Changing plan-generation behavior is out of scope.** The writing-plans pipeline itself is unchanged; this spec only blocks dispatches that skip it.
-- **Behavioral-run supervision for OTHER issues' scenario legs is out of scope.** SC-9/SC-10 apply only to the 2314 scenario legs and this issue's plan run-step instruction text.
+- **Behavioral-run supervision for OTHER issues' scenario legs is out of scope.** SC-9 through SC-13 apply only to the 2314 scenario legs and this issue's plan run-step instruction text.
 
 ## Requirements
 
@@ -83,45 +83,49 @@ Process-integrity defect. Bypassing plan creation means phase decomposition, dep
 
 ## Success Criteria
 
-### SC-1 (structural)
+| ID | Criterion | Evidence Type | Verification Method |
+|----|-----------|---------------|---------------------|
+| SC-1 | The spec-creation SKILL.md contains a gate entry at the spec-creation → implementation dispatch boundary that checks `plan.md` existence and routes to `PLAN_MISSING` blocking when the plan is absent | structural | Content inspection of `.opencode/skills/spec-creation/SKILL.md` |
+| SC-2 | The executing-plans SKILL.md contains the same gate routing for the plan-bearing/plan-less dispatch decision | structural | Content inspection of `.opencode/skills/executing-plans/SKILL.md` |
+| SC-3 | `000-critical-rules.md` contains a CRITICAL VIOLATION entry for `PLAN_MISSING` (implementation dispatch without an approved plan) classified as Tier 1 | structural | Content inspection of `.opencode/guidelines/000-critical-rules.md` |
+| SC-4 | The canonical dispatch-vocabulary table registers `PLAN_MISSING` as a routing vocabulary entry | structural | Content inspection of `.opencode/reference/skill-card-description-standards.md` |
+| SC-5 | A dispatch attempt executed through a real `opencode run` with no `plan.md` present at the expected path is BLOCKED with `PLAN_MISSING` — the blocked outcome is visible in stderr behavioral evidence | behavioral | Enforcement harness `opencode run` stderr evidence with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled |
+| SC-6 | A dispatch attempt executed through a real `opencode run` with `plan.md` present at the expected path proceeds WITHOUT a false-positive `PLAN_MISSING` block — the dispatch-proceeding outcome is visible in stderr behavioral evidence | behavioral | Enforcement harness `opencode run` stderr evidence with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled |
+| SC-7 | The registered behavioral enforcement scenario (via `test-enforcement.sh --scenario <name>`) demonstrates the gate blocks plan-less dispatch end-to-end | behavioral | Executing the scenario's block leg and observing the blocked outcome |
+| SC-8 | The registered behavioral enforcement scenario demonstrates the gate permits plan-bearing dispatch end-to-end | behavioral | Executing the scenario's permit leg and observing the dispatch-proceeding outcome |
+| SC-9 | Every 2314 scenario leg script sets `BEHAVIOR_SEMANTIC_MONITOR=1` before its `behavior_run` invocation | structural | Content inspection of the 2314 scenario leg scripts |
+| SC-10 | The plan run-step instruction text carries a Read-link to the §14 mandate — Read [§14 Semantic Continuous Monitoring Mandate (Behavioral Runs)](../../tests-v2/AGENTS.md) | structural | Content inspection of the plan run-step instruction text |
+| SC-11 | A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence (poll log / `monitor.log` / `determination.yaml`) recorded alongside `session.yaml` per §14 step 6 | behavioral | Executing a supervised run leg and inspecting the monitor evidence artifacts |
+| SC-12 | The supervised run's poll intervals are no longer than 300s with full semantic checks of the live session-DB event stream between polls | behavioral | Inspecting the monitor poll timestamps and semantic-check records from the supervised run's `monitor.log` |
+| SC-13 | Any §14 hard-abort signal during the supervised run is handled per §14 (kill + §10.5 export + recorded semantic diagnosis) | behavioral | Executing/inspecting the supervised run leg and the recorded semantic diagnosis + §10.5 export artifacts |
 
-The spec-creation SKILL.md contains a gate entry at the spec-creation → implementation dispatch boundary that checks `plan.md` existence and routes to `PLAN_MISSING` blocking when the plan is absent. Verified by content inspection of `.opencode/skills/spec-creation/SKILL.md`.
+### Per-SC Detail
 
-### SC-2 (structural)
+**SC-1 (structural):** Verified by content inspection of `.opencode/skills/spec-creation/SKILL.md`.
 
-The executing-plans SKILL.md contains the same gate routing for the plan-bearing/plan-less dispatch decision. Verified by content inspection of `.opencode/skills/executing-plans/SKILL.md`.
+**SC-2 (structural):** Verified by content inspection of `.opencode/skills/executing-plans/SKILL.md`.
 
-### SC-3 (structural)
+**SC-3 (structural):** Verified by content inspection of `.opencode/guidelines/000-critical-rules.md`.
 
-`000-critical-rules.md` contains a CRITICAL VIOLATION entry for `PLAN_MISSING` (implementation dispatch without an approved plan) classified as Tier 1. Verified by content inspection of `.opencode/guidelines/000-critical-rules.md`.
+**SC-4 (structural):** Verified by content inspection of `.opencode/reference/skill-card-description-standards.md`.
 
-### SC-4 (structural)
+**SC-5 (behavioral):** Verified via the enforcement harness with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled.
 
-The canonical dispatch-vocabulary table registers `PLAN_MISSING` as a routing vocabulary entry. Verified by content inspection of `.opencode/reference/skill-card-description-standards.md`.
+**SC-6 (behavioral):** Verified via the enforcement harness with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled.
 
-### SC-5 (behavioral)
+**SC-7 (behavioral):** Verified by executing the scenario's block leg and observing the blocked outcome.
 
-A dispatch attempt executed through a real `opencode run` with no `plan.md` present at the expected path is BLOCKED with `PLAN_MISSING` — the blocked outcome is visible in stderr behavioral evidence. Verified via the enforcement harness with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled.
+**SC-8 (behavioral):** Verified by executing the scenario's permit leg and observing the dispatch-proceeding outcome.
 
-### SC-6 (behavioral)
+**SC-9 (structural):** Verified by content inspection of the scenario leg scripts.
 
-A dispatch attempt executed through a real `opencode run` with `plan.md` present at the expected path proceeds WITHOUT a false-positive `PLAN_MISSING` block — the dispatch-proceeding outcome is visible in stderr behavioral evidence. Verified via the enforcement harness with `BEHAVIOR_SEMANTIC_MONITOR=1` enabled.
+**SC-10 (structural):** Verified by content inspection of the plan run-step text.
 
-### SC-7 (behavioral)
+**SC-11 (behavioral):** Verified by executing a supervised run leg and inspecting the monitor evidence artifacts.
 
-The registered behavioral enforcement scenario (via `test-enforcement.sh --scenario <name>`) demonstrates the gate blocks plan-less dispatch end-to-end. Verified by executing the scenario's block leg and observing the blocked outcome.
+**SC-12 (behavioral):** Verified by inspecting the supervised run's monitor poll records.
 
-### SC-8 (behavioral)
-
-The registered behavioral enforcement scenario demonstrates the gate permits plan-bearing dispatch end-to-end. Verified by executing the scenario's permit leg and observing the dispatch-proceeding outcome.
-
-### SC-9 (structural)
-
-This issue's behavioral-run supervision is configured: every 2314 scenario leg script sets `BEHAVIOR_SEMANTIC_MONITOR=1` before `behavior_run`, and the plan run-step instruction text carries a Read-link to the §14 mandate — Read [§14 Semantic Continuous Monitoring Mandate (Behavioral Runs)](../../tests-v2/AGENTS.md). Verified by content inspection of the scenario leg scripts and plan run-step text.
-
-### SC-10 (behavioral)
-
-A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence (poll log / `monitor.log` / `determination.yaml`) recorded alongside `session.yaml` per §14 step 6, with poll intervals no longer than 300s and any hard-abort handled per §14 (kill + §10.5 export + recorded semantic diagnosis). Verified by executing a supervised run leg and inspecting the monitor evidence artifacts.
+**SC-13 (behavioral):** Verified by inspecting the supervised run's abort-handling records.
 
 ## Per-SC Cost Frames
 
@@ -135,8 +139,11 @@ A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence
 | SC-6 | One behavioral run leg (~minutes, monitored) | False-positive blocks silently break pipeline availability |
 | SC-7 | One scenario execution (block leg) | End-to-end wiring unproven |
 | SC-8 | One scenario execution (permit leg) | Permit path unproven — availability regression ships |
-| SC-9 | Grep-level inspection of leg scripts + plan text | Regression recurs: unmonitored 59-minute burns with zero diagnostic yield |
-| SC-10 | One supervised run leg + artifact inspection | Hung or looping runs burn full-timeout unmonitored |
+| SC-9 | Grep-level inspection of leg scripts | Regression recurs: unmonitored 59-minute burns with zero diagnostic yield |
+| SC-10 | Grep-level inspection of plan run-step text | Run sub-agents never see the §14 mandate and improvise blind polling |
+| SC-11 | One supervised run leg + artifact inspection | Monitor evidence absent — supervision unverifiable |
+| SC-12 | Inspection of monitor poll timestamps | Long-sleep blind polling returns — zero semantic checks between polls |
+| SC-13 | Inspection of abort-handling records | Hung or looping runs burn full-timeout unmonitored |
 
 ## Items
 
@@ -150,8 +157,11 @@ A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence
 | I-6 | Plan-present dispatch leg (RED/GREEN behavioral) | SC-6 |
 | I-7 | Registered scenario block leg | SC-7 |
 | I-8 | Registered scenario permit leg | SC-8 |
-| I-9 | Supervision configuration: env flag in leg scripts + §14 Read-link in plan run-step text | SC-9 |
-| I-10 | Supervised monitored run with §14 evidence artifacts | SC-10 |
+| I-9 | Supervision configuration: env flag in 2314 leg scripts | SC-9 |
+| I-10 | Supervision configuration: §14 Read-link in plan run-step text | SC-10 |
+| I-11 | Supervised monitored run with §14 evidence artifacts | SC-11 |
+| I-12 | Supervised run poll-interval compliance (≤300s, semantic checks between polls) | SC-12 |
+| I-13 | Supervised run §14 hard-abort handling | SC-13 |
 
 ## Dependencies
 
@@ -159,8 +169,9 @@ A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence
 |------|-----------|-----|
 | I-5, I-6 | I-1, I-2, I-3, I-4 | The behavioral legs exercise the gate the deck changes create |
 | I-7, I-8 | I-5, I-6 | The registered scenario re-uses the leg mechanics proven at item level |
-| I-10 | I-9, I-7 | A supervised run requires configured supervision and a runnable leg |
-| I-9 | — | Supervision configuration is independent of gate behavior |
+| I-11 | I-9, I-10, I-7 | A supervised run requires configured supervision and a runnable leg |
+| I-12, I-13 | I-11 | Poll cadence and abort handling are observed during the supervised run |
+| I-9, I-10 | — | Supervision configuration is independent of gate behavior |
 
 ## Traceability
 
@@ -174,28 +185,31 @@ A monitored behavioral run of a 2314 scenario leg produces §14 monitor evidence
 | SC-6 | R-5 | I-6 | behavioral | `opencode run` stderr evidence |
 | SC-7 | R-6 | I-7 | behavioral | Scenario block-leg execution |
 | SC-8 | R-6 | I-8 | behavioral | Scenario permit-leg execution |
-| SC-9 | R-7 | I-9 | structural | Leg script + plan text inspection |
-| SC-10 | R-7 | I-10 | behavioral | Supervised run + monitor evidence artifacts |
+| SC-9 | R-7 | I-9 | structural | Leg script inspection |
+| SC-10 | R-7 | I-10 | structural | Plan text inspection |
+| SC-11 | R-7 | I-11 | behavioral | Supervised run + monitor evidence artifacts |
+| SC-12 | R-7 | I-12 | behavioral | Monitor poll timestamp inspection |
+| SC-13 | R-7 | I-13 | behavioral | Abort-handling record inspection |
 
 ## Enforcement Gate
 
-All SCs SHALL be verified with evidence-type-matched artifacts before completion: structural SCs (SC-1..SC-4, SC-9) with file/artifact inspection evidence; behavioral SCs (SC-5..SC-8, SC-10) with execution-based behavioral evidence from real `opencode run` executions. A behavioral SC verified only by structural or string evidence is EVIDENCE_TYPE_MISMATCH and SHALL be recorded as FAIL. No DONE_WITH_CONCERNS coercion applies.
+All SCs SHALL be verified with evidence-type-matched artifacts before completion: structural SCs (SC-1..SC-4, SC-9, SC-10) with file/artifact inspection evidence; behavioral SCs (SC-5..SC-8, SC-11..SC-13) with execution-based behavioral evidence from real `opencode run` executions. A behavioral SC verified only by structural or string evidence is EVIDENCE_TYPE_MISMATCH and SHALL be recorded as FAIL. No DONE_WITH_CONCERNS coercion applies.
 
 ## Edge Cases
 
 - **Plan exists but is stale relative to the spec:** the gate checks existence only — staleness is governed by the coherence gate, not this gate. A stale-but-present plan does NOT trigger `PLAN_MISSING`.
 - **Plan at an unexpected path:** the gate checks the canonical path `{issues_prefix}/{N}/plan.md`; a plan elsewhere is treated as absent (block is correct behavior, not a false positive).
 - **Monitor flag unset in an inherited environment:** `helpers.sh` defaults to no-monitor; SC-9 requires each leg script to set the flag explicitly rather than relying on ambient environment state.
-- **Run aborts mid-poll:** §14 hard-abort handling applies (kill + §10.5 export + recorded semantic diagnosis); an aborted run is not silently retried as unmonitored.
+- **Run aborts mid-poll:** §14 hard-abort handling applies (kill + §10.5 export + recorded semantic diagnosis); an aborted run is not silently retried as unmonitored (SC-13).
 - **Both block and permit legs in one scenario invocation:** legs run sequentially and are asserted independently; a permit-leg failure does not mask a block-leg pass (and vice versa).
 
 ## Documentation Sources
 
 | Source Category | What Was Consulted | Purpose |
 |-----------------|-------------------|---------|
-| Local docs | `tests-v2/AGENTS.md` §14 (Semantic Continuous Monitoring Mandate), §10.5 (post-timeout recovery) | Define the supervision protocol SC-9/SC-10 reference |
+| Local docs | `tests-v2/AGENTS.md` §14 (Semantic Continuous Monitoring Mandate), §10.5 (post-timeout recovery) | Define the supervision protocol SC-9 through SC-13 reference |
 | Direct source search | `helpers.sh` `__semantic_monitor` flag-gated path; `behavior_run` invocations in 2314 scenario legs | Confirm `BEHAVIOR_SEMANTIC_MONITOR=1` is the existing monitor gate (implemented for #2456) |
-| Live session evidence | SC-2 GREEN run regression: ~59-minute unmonitored synchronous run, no `monitor.log`/`determination.yaml` in evidence directory | Root cause 4 derivation and SC-10 justification |
+| Live session evidence | SC-2 GREEN run regression: ~59-minute unmonitored synchronous run, no `monitor.log`/`determination.yaml` in evidence directory | Root cause 4 derivation and SC-11..SC-13 justification |
 | Canonical reference | `reference/skill-card-description-standards.md` dispatch-vocabulary table | Verify `PLAN_MISSING` registration surface and format |
 
 ## Affected Files
@@ -215,3 +229,4 @@ All SCs SHALL be verified with evidence-type-matched artifacts before completion
 
 - **2026-10-01 — Added SC-5 (behavioral-run supervision mandate).** Developer-directed revision after a regression discovered during plan step 14 (SC-2 behavioral run): the SC-2 GREEN behavioral run executed synchronously and unmonitored (~59 minutes, no `monitor.log`/`determination.yaml` in the run's evidence directory). SC-1 through SC-4 unchanged. Authorized by developer directive in the revision dispatch context.
 - **2026-10-01 — Validation-finding revision (aggregate verdict FAIL).** Restructured per validation findings: (1) added the full required spec structure — 6-field preamble, Not Included, Requirements (R-N SHALL), Items, Dependencies, Traceability, Enforcement Gate, per-SC Cost Frames, Documentation Sources, Edge Cases; (2) split compound SCs — SC-1's four deck surfaces split into SC-1..SC-4, SC-4's block+permit legs split into SC-7/SC-8; (3) converted the developer-directed behavioral-run supervision SC from the dual evidence type "behavioral + structural" into a single canonical behavioral SC (SC-10) plus a companion structural SC (SC-9), removing EVIDENCE_TYPE_MISMATCH; (4) added root cause 4 (behavioral-run supervision defect) so the supervision SC traces to a root cause, with the scope boundary declared in Not Included; (5) replaced unqualified "must" with SHALL throughout; (6) restored the artifacts directory at `.opencode/.issues/2314/artifacts/` that the prior revision deleted (issues-data defect — restored from `issues-data` branch history rather than regenerated). SC-1..SC-4 intent preserved unaltered in meaning; the covered behavior does not shrink. Authorized by developer directive in the revision dispatch context.
+- **2026-10-01 — Validation-finding revision #2 (aggregate verdict FAIL, 3 structural checks; 9 of 11 holistic dimensions PASS).** Per validation findings: (1) shall-language-conformance — replaced the single unqualified "MUST" at the Approach Chosen paragraph (behavioral-run legs sentence) with SHALL; (2) documentation-sources-column — converted the per-SC-heading Success Criteria section into the canonical 4-column SC table (ID / Criterion / Evidence Type / Verification Method), keeping per-SC detail sections below the table; (3) compound-sc and decomposition-criteria — decomposed compound SC-9 into atomic SC-9 (leg scripts set `BEHAVIOR_SEMANTIC_MONITOR=1`) and SC-10 (plan run-step text carries the §14 Read-link), and compound SC-10 into atomic SC-11 (§14 monitor evidence artifacts recorded alongside `session.yaml`), SC-12 (poll intervals ≤300s with full semantic checks between polls), and SC-13 (§14 hard-abort handling: kill + §10.5 export + recorded semantic diagnosis). Covered behavior preserved — no shrinkage; all other SC meanings unchanged; downstream sections (Cost Frames, Items, Dependencies, Traceability, Enforcement Gate, cross-references) renumbered to match. Analytical artifacts regenerated to the final SC numbering (blast-radius with all 8 affected files; concern-map matching current SC text). Authorized by developer directive in the revision dispatch context.

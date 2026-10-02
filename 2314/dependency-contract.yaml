@@ -29,8 +29,8 @@ entries:
   - source: .opencode/tests-v2/AGENTS.md §14 mandate
     target: plan run-step instruction text (plan-01 steps 25/31, plan-02 steps 39/45)
     constraint: run-step instruction text must carry a Read-link to tests-v2/AGENTS.md §14 and specify <=300s poll intervals with full semantic checks and §14 hard-abort handling
-    sc: SC-9
+    sc: SC-10, SC-12, SC-13
   - source: monitored behavioral run leg
     target: run evidence directory
     constraint: supervised run must produce monitor evidence (poll log / monitor.log / determination.yaml) recorded alongside session.yaml per §14 step 6
-    sc: SC-10
+    sc: SC-11

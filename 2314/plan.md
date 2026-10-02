@@ -19,7 +19,7 @@ dispatch:
 
 **Architecture:** The gate is a routing entry in the skill deck (spec-creation and executing-plans skill cards) backed by a CRITICAL VIOLATION rule in the core guidelines and a PLAN_MISSING vocabulary registration in the canonical dispatch-vocabulary table. Behavioral enforcement tests then prove the gate blocks plan-less dispatch and permits plan-bearing dispatch — each leg as its own atomic SC.
 
-**SC set (revised 2026-10-01 per validation findings):** SC-1 (spec-creation card gate), SC-2 (executing-plans card gate), SC-3 (CRITICAL VIOLATION entry), SC-4 (PLAN_MISSING vocabulary), SC-5 (plan-less dispatch blocked — behavioral), SC-6 (plan-bearing dispatch proceeds — behavioral), SC-7 (scenario block leg — behavioral), SC-8 (scenario permit leg — behavioral), SC-9 (supervision configuration — structural), SC-10 (supervised run §14 evidence — behavioral).
+**SC set (revised 2026-10-01 per validation findings #2):** SC-1 (spec-creation card gate), SC-2 (executing-plans card gate), SC-3 (CRITICAL VIOLATION entry), SC-4 (PLAN_MISSING vocabulary), SC-5 (plan-less dispatch blocked — behavioral), SC-6 (plan-bearing dispatch proceeds — behavioral), SC-7 (scenario block leg — behavioral), SC-8 (scenario permit leg — behavioral), SC-9 (leg scripts set `BEHAVIOR_SEMANTIC_MONITOR=1` — structural), SC-10 (plan run-step text carries §14 Read-link — structural), SC-11 (supervised run produces §14 monitor evidence — behavioral), SC-12 (poll intervals ≤300s with semantic checks between polls — behavioral), SC-13 (§14 hard-abort handling — behavioral).
 
 **Files:**
 - `.opencode/skills/spec-creation/`
@@ -53,7 +53,7 @@ dispatch:
 |-------|------|---------|-----|------------|------------|----------|
 | 1 | dispatch-gate-logic | Gate existence and block/permit behavior at the spec-creation → implementation boundary | SC-1..SC-6 | — | 3-32 | direct (6, 10, 14, 18, 23, 24, 30) + task-card (3-5, 7-9, 11-13, 15-17, 19-22, 25-29, 31-32) |
 | 2 | behavioral-enforcement | End-to-end behavioral enforcement scenario (block + permit legs) | SC-7, SC-8 | 1 | 33-54 | direct (37, 38, 44, 47) + task-card (33-36, 39-43, 45-46, 48-54) |
-| 3 | behavioral-run-supervision | Semantic monitoring of this issue's behavioral run legs per tests-v2 §14 | SC-9, SC-10 | 1, 2 | 55-62 | direct (58, 61) + task-card (55-57, 59-60, 62) |
+| 3 | behavioral-run-supervision | Semantic monitoring of this issue's behavioral run legs per tests-v2 §14 | SC-9..SC-13 | 1, 2 | 55-70 | direct (58, 62, 69) + task-card (55-57, 59-61, 63-68, 70) |
 
 ## Pre-Implementation
 
@@ -84,10 +84,13 @@ dispatch:
 - [ ] C6. A plan-bearing dispatch attempt proceeds without a false-positive block (SC-6)
 - [ ] C7. The registered scenario demonstrates the gate blocks plan-less dispatch end-to-end (SC-7)
 - [ ] C8. The registered scenario demonstrates the gate permits plan-bearing dispatch end-to-end (SC-8)
-- [ ] C9. 2314 scenario leg scripts set `BEHAVIOR_SEMANTIC_MONITOR=1` and plan run-step text carries the §14 Read-link (SC-9)
-- [ ] C10. A supervised run produces §14 monitor evidence recorded alongside session.yaml (SC-10)
-- [ ] C11. All SC verdicts are PASS with evidence-type-matched artifacts; no DONE_WITH_CONCERNS coercion applies
-- [ ] C12. PR created (stacked strategy, one branch) with plan, test, and gate changes committed
+- [ ] C9. Every 2314 scenario leg script sets `BEHAVIOR_SEMANTIC_MONITOR=1` before `behavior_run` (SC-9)
+- [ ] C10. Plan run-step instruction text carries the §14 Read-link (SC-10)
+- [ ] C11. A supervised run produces §14 monitor evidence recorded alongside session.yaml (SC-11)
+- [ ] C12. The supervised run's poll intervals are ≤300s with full semantic checks between polls (SC-12)
+- [ ] C13. Any §14 hard-abort during the supervised run is handled per §14 (SC-13)
+- [ ] C14. All SC verdicts are PASS with evidence-type-matched artifacts; no DONE_WITH_CONCERNS coercion applies
+- [ ] C15. PR created (stacked strategy, one branch) with plan, test, and gate changes committed
 
 ## Lifecycle Events
 
@@ -106,6 +109,11 @@ lifecycle_events:
     event: plan_revised
     plan_file: ".opencode/.issues/2314/plan.md"
     revision_reason: "Spec validation findings (aggregate FAIL) — renumbered SC set to atomic 1:1 mapping (SC-1..SC-4 split from compound deck-surface SC; block/permit legs split into SC-7/SC-8 and SC-5/SC-6; supervision SC split into SC-9 structural + SC-10 behavioral); regenerated phase files and step ranges to match"
+    phase_count: 3
+  - timestamp: "2026-10-01T23:40:00-04:00"
+    event: plan_revised
+    plan_file: ".opencode/.issues/2314/plan.md"
+    revision_reason: "Spec validation findings #2 (aggregate FAIL, 3 structural checks) — compound SC-9 decomposed into atomic SC-9 (leg-script env flag) + SC-10 (plan run-step §14 Read-link); compound SC-10 decomposed into atomic SC-11 (§14 monitor evidence artifacts) + SC-12 (poll intervals ≤300s) + SC-13 (§14 hard-abort handling); Phase 3 SCs, exit criteria, and plan-03 step ranges regenerated to match the revised spec SC set"
     phase_count: 3
 ```
 
