@@ -16,7 +16,7 @@ content:
     - scs: ["SC-7", "SC-8"]
       testability: "MEDIUM — registered scenario invocation via test-enforcement.sh --scenario; block and permit legs asserted independently"
     - scs: ["SC-11", "SC-12", "SC-13"]
-      testability: "MEDIUM — supervised run produces monitor.log/determination.yaml; poll timestamps inspected for ≤300s cadence; abort-handling artifacts inspected"
+      testability: "MEDIUM — supervised run produces monitor.log/determination.yaml; poll timestamps inspected for ≤300s cadence; SC-13 verified unconditionally via the induced-abort path (controlled mid-poll kill in a test invocation asserting §14 handling), not dependent on a spontaneous abort"
   constraints:
     - "Behavioral SCs MUST use execution-based evidence from real opencode run executions; structural/string substitution is EVIDENCE_TYPE_MISMATCH → FAIL (Enforcement Gate)"
     - "All behavioral legs run under §14 semantic continuous monitoring (R-7)"
