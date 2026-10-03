@@ -30,7 +30,6 @@ declare -A EXPECTED_RUN=(
     ["2219-sc10-non-pointer-guard"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"'
     ["2219-sc11-existing-cleanup"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"'
     ["2219-sc15-decline-submodule-pr"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"'
-    ["2219-sc16-stale-pointer-block"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"'
     ["2219-sc19-release-pr-prework"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"'
     ["2219-sc3-prework-ordering"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT"'
     ["2219-sc6-dead-branch-detection"]='behavior_run "$SCENARIO_NAME" "$SCENARIO_PROMPT" "" "" "general"'
@@ -53,7 +52,6 @@ SCENARIOS=(
     "2219-sc10-non-pointer-guard"
     "2219-sc11-existing-cleanup"
     "2219-sc15-decline-submodule-pr"
-    "2219-sc16-stale-pointer-block"
     "2219-sc19-release-pr-prework"
     "2219-sc3-prework-ordering"
     "2219-sc6-dead-branch-detection"

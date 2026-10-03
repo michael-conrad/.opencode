@@ -1,6 +1,6 @@
 # submodule-tag-prework
 
-Tag submodules at remote trunk tip BEFORE feature branch creation. Uses the unified tag convention from `git-workflow/SKILL.md` §Tag Convention.
+Tag submodules at remote trunk tip BEFORE feature branch creation. Uses the unified tag convention from Read [Tag Convention (Canonical)](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md).
 
 **Suffix Rule:** Tag suffix MUST be derived from submodule directory name in `.gitmodules` (e.g., `.opencode` → `-opencode`). DO NOT use issue title, phase name, or any ad-hoc string.
 
@@ -28,7 +28,7 @@ Tag submodules at remote trunk tip BEFORE feature branch creation. Uses the unif
 | `<submodule>` | Submodule directory name from `.gitmodules` | `opencode` |
 | Full tag | `<parent-repo>/<issue-number>-<submodule>` | `opencode-config/950-opencode` |
 
-See `git-workflow/SKILL.md` §Tag Convention for the canonical definition of all tag types.
+Read [Tag Convention (Canonical)](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md) for the canonical definition of all tag types.
 
 ## Verification
 

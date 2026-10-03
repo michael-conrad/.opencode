@@ -121,7 +121,7 @@ These operations are deterministic, mechanical steps that are either Tier 1 mand
 | `git fetch origin` | Step 1.5/2 | Pipeline prerequisite | Remote exists |
 | `git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"` | Step 2 | Tier 1 mandate prerequisite | Always when remote exists |
 | Task() sub-agent for submodule ops | Step 2.5/3 | Tier 1 mandate prerequisite | Submodules detected via `git submodule status` |
-| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by Read [Skipping Git Pre-Check](guidelines/000-critical-rules.md) | Always |
+| `git checkout -b feature/N-xyz` or `git switch -c feature/N-xyz` | Step 4 | Tier 1 mandate — required by Read [Skipping Git Pre-Check](.opencode/skills/git-workflow-branch/SKILL.md) | Always |
 | `git push -u origin feature/N-xyz` | Post-Step 7 | Pipeline prerequisite for `for_pr` scope | Remote exists, `halt_at >= pr_created` |
 
 **Automatic classification conditions (ALL must be true):**
@@ -176,9 +176,9 @@ When submodules are detected via `git submodule status`, the orchestrator routes
 - [ ] 2. Initializes submodules if needed (`git submodule init`)
 - [ ] 3. Resolves the trunk branch via `DEFAULT_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')` and checks out each submodule to remote trunk tip (`git submodule foreach "git checkout \"$DEFAULT_BRANCH\" && git pull origin \"$DEFAULT_BRANCH\" --ff-only"`)
    - **HALT on failure:** If `git pull --ff-only` fails (non-ff or network error), the sub-agent MUST produce a structured divergence report. Do NOT fall back to merge or rebase — `--ff-only` is a hard gate that prevents accidental divergence from trunk.
-   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution per Read [the submodule divergence reference](reference/submodule-divergence.md).
+   - **Autonomous divergence handling (MANDATORY):** On `--ff-only` failure, the agent autonomously analyzes the divergence and attempts resolution per Read [the Submodule Divergence Handling reference](reference/submodule-divergence.md).
 - [ ] 4. Logs submodule status (`git submodule status`)
-- [ ] 5. Tags each submodule at remote $DEFAULT_BRANCH tip with `<parent-repo>/<issue-number>` format (`git tag -a`)
+- [ ] 5. Tags each submodule at remote $DEFAULT_BRANCH tip with `<parent-repo>/<issue-number>-<submodule>` format (`git tag -a`)
 - [ ] 6. Pushes tags to submodule remote (`git push origin <tag>`)
 - [ ] 7. Verifies tags exist on remote (`git ls-remote --tags origin <tag>`)
 
@@ -236,7 +236,7 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 - [ ] 3. **Commit the submodule pointer update as the first commit on the feature branch:**
      ```bash
-     git commit -m "chore: update submodule pointer to <parent-repo>/<issue-number> tag"
+     git commit -m "chore: update submodule pointer to <parent-repo>/<issue-number>-<submodule> tag"
      ```
      This ensures the feature branch's first commit captures the correct submodule SHA. Subsequent implementation commits build on this foundation.
 
@@ -244,7 +244,7 @@ Invoke `using-git-worktrees` skill to create an isolated worktree:
 
 After committing the submodule pointer, if the branch has NO additional commits with source code changes by the time PR creation is requested, the branch MUST be deleted instead of creating a PR. A parent-repo PR whose sole change is bumping submodule pointers is against policy. A submodule repo filing its own PR for its own changes is normal and NOT covered by this prohibition.
 
-Read [the dirty pointer lifecycle rule in branch-cleanup.md](skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md) — submodule pointer commits only happen alongside real code changes on a feature branch, never during cleanup.
+Read [the dirty pointer lifecycle rule (Step 1.7: Park Parent Repo on Trunk) in branch-cleanup.md](skills/git-workflow-cleanup/tasks/cleanup/branch-cleanup.md) — submodule pointer commits only happen alongside real code changes on a feature branch, never during cleanup.
 
 **After branch creation and pointer commit:**
 
@@ -270,12 +270,12 @@ git status --porcelain
 - [ ] 2. If branch exists: rebase it onto the tagged commit to pick up the latest trunk changes:
      ```bash
      git checkout feature/<issue-number>-<slug>
-     git rebase <parent-repo>/<issue-number>
+     git rebase <parent-repo>/<issue-number>-<submodule>
      ```
      This ensures the submodule branch is up-to-date with the tagged SHA that the main repo now references. Do NOT skip — a stale submodule branch recreates the pointer mismatch.
 - [ ] 3. If branch does not exist: create feature branch from the tagged commit:
      ```bash
-     git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>
+     git checkout -b feature/<issue-number>-<slug> <parent-repo>/<issue-number>-<submodule>
      ```
 - [ ] 4. Push the feature branch to the submodule remote: `git push -u origin feature/<issue-number>-<slug>`
 - [ ] 5. Reports results in its result contract
@@ -380,7 +380,7 @@ Examples: `observe/parsing-bug`, `observe/missing-env-var`, `observe/test-failur
 git branch -D observe/<topic>
 ```
 
-This is a hard requirement — leaving `observe/` branches in the repo pollutes branch space. The enforcement in `enforcement/halt-conditions.md` verifies this.
+This is a hard requirement — leaving `observe/` branches in the repo pollutes branch space. The enforcement in Read [`observe/` Branch Discard Enforcement](.opencode/skills/git-workflow/enforcement/halt-conditions.md) verifies this.
 
 ### `feature/` and `spec/` Branch Scope Gate
 

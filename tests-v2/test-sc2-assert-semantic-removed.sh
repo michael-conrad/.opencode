@@ -21,7 +21,6 @@ SCENARIOS=(
     "2219-sc10-non-pointer-guard"
     "2219-sc11-existing-cleanup"
     "2219-sc15-decline-submodule-pr"
-    "2219-sc16-stale-pointer-block"
     "2219-sc19-release-pr-prework"
     "2219-sc3-prework-ordering"
     "2219-sc6-dead-branch-detection"

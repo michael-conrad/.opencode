@@ -280,7 +280,7 @@ blocked_reason: <if BLOCKED, explanation of divergence>
    **Authorization note:** Remote branch deletion (`git push origin --delete`) is a destructive command per `000-critical-rules.md` §critical-rules-026. This operation is authorized as part of the cleanup pipeline scope — no separate authorization is required. However, the content verification gate (Step 4 above) MUST pass first.
 
 7. **Tag-based hash permanence — tag-if-untagged:**
-   Per `AGENTS.md` §Tag-Based Hash Permanence and §Idempotent Tag-if-Untagged Rule, verify the current submodule SHA is reachable via a tag. If not, tag it:
+   Per Read [the Tag Convention (Canonical) hash-permanence tag rule](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md) and Read [the Tag Convention (Canonical) idempotent tag-if-untagged rule](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md), verify the current submodule SHA is reachable via a tag. If not, tag it:
    ```bash
    CURRENT_SHA=$(git rev-parse HEAD)
    TAG_EXISTS=$(git tag --points-at "$CURRENT_SHA" | head -1)
@@ -415,7 +415,7 @@ if [ -n "$LOCAL_TAGS" ]; then
 fi
 ```
 
-Checkpoint tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per `git-workflow/SKILL.md` §Tag Convention. Tags are workflow-ephemeral — deleted on branch cleanup.
+Checkpoint tag format: `<parent>/checkpoint/<issue>/phase-<N>-<submodule>` per Read [Tag Convention (Canonical)](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md). Tags are workflow-ephemeral — deleted on branch cleanup.
 
 ### Step 3.4: Delete Current Merged Branch
 

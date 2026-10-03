@@ -30,11 +30,11 @@ Create provenance tracking issues and PRs in submodule repositories after push o
 | -- | -- | -- |
 | **Tier 1** | `full` | Create issue + PR in submodule repo |
 | **Tier 2** | `issue-only` | Create issue only in submodule repo |
-| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see Read [Tag Layers](AGENTS.md)) |
+| **Tier 3** | `no-access`, `auth-failed`, `no-repo` | Tag-based provenance via parent-prefixed tags (see Read [Tag Convention (Canonical)](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md)) |
 
 **HALT on fallback:** Any fallback from primary path causes HALT with degradation report in the halt message. No issue comments for chat-level status.
 
-**Tag-based provenance (Tier 3):** Submodule SHAs are tagged with `<parent>/<issue-number>` tags per Read [Tag-Based Hash Permanence](AGENTS.md). These tags serve as the provenance record — no separate issue or PR needed.
+**Tag-based provenance (Tier 3):** Submodule SHAs are tagged with `<parent>/<issue-number>-<submodule>` tags per Read [the Tag Convention (Canonical) hash-permanence tag rule](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md). These tags serve as the provenance record — no separate issue or PR needed.
 
 ## Procedure
 
@@ -68,11 +68,11 @@ For submodule push operations during review-prep: creates issue + PR (Tier 1), i
 | submodule_path | Path of pushed submodule in parent |
 | change_description | Brief description of what changed |
 
-**Tag layer reference:** Read [Tag Layers](AGENTS.md) for the tag types:
+**Tag layer reference:** Read [the Tag Convention (Canonical) tag-type table](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md) for the tag types:
 
 | Tag | When Created | Example |
 |-----|-------------|---------|
-| `<parent>/<issue-number>` | Pre-work (feature dev start) | `opencode-config/221` |
+| `<parent>/<issue-number>-<submodule>` | Pre-work (feature dev start) | `opencode-config/221-opencode` |
 | `<parent>/<issue-number>-<sub>` | Feature-branch push | `opencode-config/221-opencode` |
 
 ## Context Required

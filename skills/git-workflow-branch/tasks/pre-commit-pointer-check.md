@@ -35,7 +35,11 @@ The submodule pointer rides ALONGSIDE the next real root-repo change on a featur
 
 ## Ordering-Gate Role (Advisory — No Blocking Authority)
 
-This task runs pre-commit — before any in-scope submodule PR merge state can be verified — and its stale-pointer gate legally proceeds under `SKIP_STALE_POINTER_CHECK=1`, so it cannot serve as a blocking check for stacked-PR ordering. Its role relative to the stacked-PR ordering gate is advisory/consistency only: it exercises **no blocking authority** over parent stacked PR creation. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
+This task runs pre-commit — before any in-scope submodule PR merge state can be verified. Its role relative to the stacked-PR ordering gate is advisory/consistency only: it exercises **no blocking authority** over parent stacked PR creation. The sole authoritative blocking checks are the PR-time freshness gates at `pr-creation/enforcement-gate`:
+
+- Read [Step 0: Submodule PR Dependency Check (MANDATORY GATE)](.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md)
+- Read [Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)](.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md)
+- Read [Step 0.75: Ordering Gate — In-Scope Submodule Set Enumeration (MANDATORY GATE)](.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md)
 
 **AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
 
