@@ -33,6 +33,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 4. [Running Tests](#4-running-tests)
 5. [Infrastructure Details](#5-infrastructure-details)
 6. [Relationship to Content-Verification Tests](#6-relationship-to-content-verification-tests)
+6b. [Ceremony-Test Retirement Policy](#6b-ceremony-test-retirement-policy-cm-1-2489)
 7. [Cleanup](#7-cleanup)
 8. [Triple Co-Application Reference](#8-triple-co-application-reference)
 9. [Change Control](#9-change-control)
@@ -505,6 +506,32 @@ It does NOT receive:
 - Orchestrator reasoning about what the agent should have done
 - Expected outcomes or pre-determined verdicts
 - Cached results from prior runs
+
+## 6b. Ceremony-Test Retirement Policy (CM-1, #2489)
+
+**A test survives only if a real defect would escape without it. Every new test SC must justify its verification cost against the defect it catches — no string-grep documentation-phrasing checks. Ceremony tests that grep for prose/phrasing without behavioral consequence do not earn their cost and are retired.**
+
+Both clauses are mandatory gates for test admission and retention:
+
+1. **Survival condition:** a test survives only if a real defect would escape without it. A test that cannot fail on any realistic defect is ceremony.
+2. **Verification-cost justification:** every new test SC must justify its verification cost (runtime, tokens, harness load) against the defect it catches. String-grep documentation-phrasing checks — greps for prose/phrasing with no behavioral consequence — do not earn their cost.
+
+**Rationale driver (user directive 2026-10-02):** performative tests re-accumulated in the submodule-pointer subsystem. Precedent: `test-2264-sc7-bug-only-override-uses.sh` grep-enumerated the `SKIP_STALE_POINTER_CHECK` hatch in a narrative fixture — zero defect coverage, wasted a full behavioral run. It and the other four dependent Gate 2 tests were retired in #2489 Phase 2. Any future test that matches this pattern MUST NOT be admitted; existing tests matching it are retired on encounter.
+
+**Issue context:** `.opencode/.issues/2489/` (CM-1) — policy recorded in this section as the authoritative retire-path record.
+
+## 6c. Reference-Integrity Enforcement Check (SC-12, #2489)
+
+**Run `./.opencode/tools/reference-integrity` before committing any change to agent-facing markdown.** The check validates that every `Read [Text](path)` link resolves to a section contained in its target file (link text matched against #/##/### headings in the target, quoted section names and `§`-suffix links supported). It fails closed on malformed input — empty files and heading-less targets are reported broken, never passed vacuously.
+
+| Mode | Invocation |
+|------|------------|
+| Default scan (guidelines/, skills/, reference/, commands/, tests-v2/AGENTS.md) | `./.opencode/tools/reference-integrity --scan` |
+| Single file / directory | `./.opencode/tools/reference-integrity <file.md> [<path> ...]` |
+
+Exit 0 = all Read-links resolve. Non-zero = broken references; each report line carries the source file path AND the missing-section name. Run it after any edit that moves, renames, or deletes a section other documents Read-link into — a canon move that silently strands dependents is the defect class this check guards. Broken references found by the scan must be repaired in the same change (or filed as a spec issue), never left for a later pass.
+
+**Issue context:** `.opencode/.issues/2489/` (SC-12) — tool built in #2489 Phase 4 before the Phase 5 reference repairs it validates.
 
 ## 7. Cleanup
 

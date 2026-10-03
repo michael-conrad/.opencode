@@ -1,0 +1,236 @@
+#!/usr/bin/env -S uv run --script
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+# SPDX-FileCopyrightText: 2026 michael-conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-generated
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = "~=3.12"
+# dependencies = []
+# ///
+
+# fmt: on
+"""Reference-integrity enforcement check.
+
+Validates that agent-facing ``Read [Text](path)`` links resolve to sections
+contained in their target files. Fails closed on malformed input: an empty
+file or a target with no headings is reported broken — never passed vacuously.
+
+Usage: ./.opencode/tools/reference-integrity [<file.md> ...]      # single-file mode
+       ./.opencode/tools/reference-integrity <dir> [<dir> ...]    # scan mode (directory tree)
+       ./.opencode/tools/reference-integrity --scan               # default scan: .opencode agent-facing md files
+
+Exit 0 = all links resolve; non-zero = broken/malformed references found
+(file path + missing-section name reported).
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+"""
+
+import re
+import sys
+from pathlib import Path
+
+_path = Path(__file__).resolve().parent
+while _path.name != ".opencode":
+    parent = _path.parent
+    if parent == _path:
+        raise RuntimeError("Could not find .opencode/ directory")
+    _path = parent
+OPENCODE_ROOT = _path
+PROJECT_ROOT = _path.parent
+
+DEFAULT_SCAN_DIRS = ["guidelines", "skills", "reference", "commands"]
+DEFAULT_SCAN_FILES = ["tests-v2/AGENTS.md"]
+
+READ_LINK_RE = re.compile(r"Read\s+\[([^\]]+)\]\(([^)]+)\)")
+HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
+
+
+def _normalize(text: str) -> str:
+    """Normalize text for section matching: strip backticks/quotes, lowercase, collapse whitespace, drop leading article."""
+    text = text.replace("`", "")
+    text = text.strip().strip('"').strip("'")
+    text = re.sub(r"\s+", " ", text).lower()
+    text = text.replace("-", " ").replace("_", " ")
+    text = text.removeprefix("the ")
+    # SKILL.md top heading "# Skill: <name>" — match "<name>" too
+    text = text.removeprefix("skill: ")
+    return text.strip()
+
+
+def _extract_section_name(link_text: str) -> str | None:
+    """Return the section name a Read-link claims to point at, or None for file-level links."""
+    if "§" in link_text:
+        return link_text.split("§", 1)[1].strip()
+    stripped = link_text.strip()
+    if re.fullmatch(r"[\w./-]+\.md", stripped):
+        return None
+    # "X in path/SKILL.md" — the section is the part before "in <path>"
+    m = re.match(r"(.+?)\s+in\s+[\w./-]+\.md$", stripped)
+    if m:
+        return m.group(1).strip()
+    # Descriptive skill/task references — the section is the named skill/task
+    m = re.fullmatch(r"(.+?)\s+(skill|task)s?", stripped)
+    if m:
+        return m.group(1).strip()
+    return stripped
+
+
+def _resolve_target(link_path: str, source_file: Path) -> Path | None:
+    """Resolve a link path against repo root, .opencode root, then the source file's directory."""
+    link_path = link_path.strip()
+    if not link_path:
+        return None
+    if link_path.startswith("#"):
+        return source_file
+    link_path = link_path.split("#", 1)[0].strip()
+    if not link_path:
+        return source_file
+    p = Path(link_path)
+    candidates = (
+        [p]
+        if p.is_absolute()
+        else [PROJECT_ROOT / p, OPENCODE_ROOT / p, source_file.parent / p]
+    )
+    candidates.extend(ancestor / p for ancestor in source_file.parents)
+    for c in candidates:
+        if c.is_file() or c.is_dir():
+            return c
+    return None
+
+
+def _strip_code_blocks(content: str) -> str:
+    lines = content.splitlines()
+    out = []
+    in_fence = False
+    for line in lines:
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            out.append("")
+            continue
+        out.append("" if in_fence else line)
+    return "\n".join(out)
+
+
+def _headings(target: Path) -> list[str]:
+    """Extract #/##/### ATX heading texts from a file; empty list on unreadable or heading-less file (fail closed)."""
+    try:
+        content = target.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return []
+    content = _strip_code_blocks(content)
+    headings = []
+    for line in content.splitlines():
+        m = HEADING_RE.match(line)
+        if m:
+            headings.append(m.group(2))
+    return headings
+
+
+def _is_syntax_placeholder(link_text: str, link_path: str) -> bool:
+    """The literal ``Read [Text](path)`` pattern quoted in documentation is syntax, not a link."""
+    return link_text.strip() == "Text" and link_path.strip() == "path"
+
+
+def check_file(source: Path) -> list[str]:
+    """Return a list of problem report lines for one source file (empty list = clean)."""
+    try:
+        raw = source.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        return [f"BROKEN  {source}: unreadable file ({exc})"]
+    if not raw.strip():
+        return [f"BROKEN  {source}: empty file — malformed input, fail closed"]
+    content = _strip_code_blocks(raw)
+    problems: list[str] = []
+    for m in READ_LINK_RE.finditer(content):
+        link_text, link_path = m.group(1), m.group(2)
+        if _is_syntax_placeholder(link_text, link_path):
+            continue
+        target = _resolve_target(link_path, source)
+        if target is None:
+            problems.append(
+                f'BROKEN  {source}: Read-link target not found ["{link_text}"]({link_path})'
+            )
+            continue
+        if target.is_dir():
+            continue
+        section = _extract_section_name(link_text)
+        if section is None:
+            continue
+        headings = _headings(target)
+        if not headings:
+            problems.append(
+                f'BROKEN  {source}: target {target} has no headings — cannot contain section "{section}" (fail closed)'
+            )
+            continue
+        norm_section = _normalize(section)
+        if not norm_section:
+            continue
+        resolved = any(
+            norm_section in _normalize(h) or _normalize(h) in norm_section
+            for h in headings
+        )
+        if not resolved:
+            problems.append(
+                f'BROKEN  {source}: missing section "{section}" — not found in {target}'
+            )
+    return problems
+
+
+def _collect_sources(args: list[str]) -> list[Path]:
+    if "--scan" in args or not args:
+        sources: list[Path] = []
+        for d in DEFAULT_SCAN_DIRS:
+            sources.extend(sorted((OPENCODE_ROOT / d).rglob("*.md")))
+        for f in DEFAULT_SCAN_FILES:
+            sources.append(OPENCODE_ROOT / f)
+        return sources
+    sources = []
+    for a in args:
+        if a.startswith("-"):
+            continue
+        p = Path(a) if Path(a).is_absolute() else PROJECT_ROOT / a
+        if p.is_dir():
+            sources.extend(sorted(p.rglob("*.md")))
+        else:
+            sources.append(p)
+    return sources
+
+
+def main() -> None:
+    if len(sys.argv) == 2 and sys.argv[1] == "--description":
+        print("Reference-integrity enforcement check for agent-facing Read-links.")
+        return
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print(__doc__)
+        return
+    sources = _collect_sources(sys.argv[1:])
+    if not sources:
+        print(
+            "Usage: ./.opencode/tools/reference-integrity [<file.md>|<dir> ...|--scan]"
+        )
+        sys.exit(1)
+    all_problems: list[str] = []
+    for src in sources:
+        if not src.is_file():
+            all_problems.append(f"BROKEN  {src}: file not found")
+            continue
+        all_problems.extend(check_file(src))
+    if all_problems:
+        print("REFERENCE-INTEGRITY: FAIL")
+        for line in all_problems:
+            print(line)
+        print(
+            f"Checked {len(sources)} file(s); {len(all_problems)} broken reference(s)."
+        )
+        sys.exit(1)
+    print(
+        f"REFERENCE-INTEGRITY: PASS — checked {len(sources)} file(s); all Read-links resolve."
+    )
+    sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()

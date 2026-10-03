@@ -45,5 +45,5 @@ Sync dirty submodule pointers to latest remote trunk tip. Used for mid-feature s
 All accessible submodules point to latest remote trunk tip. Failed submodules reported but do not block.
 
 ## Cross-References
-- Read [Tag Convention](skills/git-workflow/SKILL.md) — hash permanence tags preserve SHAs before sync
+- Read [Tag Convention (Canonical)](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md) — hash permanence tags preserve SHAs before sync
 - `pre-work` task — submodule tagging at feature start
