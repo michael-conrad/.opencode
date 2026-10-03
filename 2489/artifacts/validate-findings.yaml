@@ -4,36 +4,38 @@ validated_at: "2026-10-02"
 plan_schema_version: "1.0"
 solve_output: ".opencode/.issues/2489/artifacts/solve-output.yaml"
 solve_status: SAT
+validation_iteration: 2
+revalidation_of: "iteration-1 findings VF-2489-01, VF-2489-05 (fixes committed as 137acc24 on issues-data)"
 
 category_1_structural:
   check_plan_phase_table_columns: PASS
   check_phase_procedure_numbered_steps: PASS
   check_exit_criteria_sc_mapping: PASS
+  check_step_range_consistency: PASS
   findings:
-    - id: VF-2489-01
-      check: step-range consistency
-      result: FAIL
-      detail: "plan.md Phase Table lists Phase 6 Step Range 53-68, but plan-06-verification-tag-format.md ends at step 67. Step 68 does not exist in any phase file."
-    - id: VF-2489-02
-      check: dispatch column consistency (cross-noted under Category 6)
-      result: FAIL
-      detail: "plan.md Phase Table Phase 6 Dispatch 'direct (58, 59, 62)' does not match the phase file: step 59 (Verify + VbC) and step 62 (structural checks) are task-card, while step 61 (Z3 check) is direct. Correct direct set is 58, 61."
+    - id: VF-2489-01-R
+      prior_result: FAIL
+      result: PASS
+      detail: "RE-VERIFIED: plan.md Phase Table Phase 6 Step Range now reads 53-67, matching plan-06-verification-tag-format.md (last step 67). Iteration-1 defect remediated."
+    - id: VF-2489-RANGE-ALL
+      result: PASS
+      detail: "All six phase step ranges verified against phase files: P1 5-15 (plan-01 ends 15), P2 16-25 (plan-02 ends 25), P3 26-34 (plan-03 ends 34), P4 35-39 (plan-04 ends 39), P5 40-52 (plan-05 ends 52), P6 53-67 (plan-06 ends 67). Contiguous 5-67, no gaps, no overlaps."
 
 category_2_skill_task_validity:
   check_workflow_step_references: PASS
   check_coordination_mandate_dispatches: PASS
   findings:
-    - id: VF-2489-03
+    - id: VF-2489-02
       result: PASS (note)
-      detail: "All workflow steps (red/green/phase-0/phase-4, verify, commit-inline, audit, z3-check, checklist, review-prep/create, completion) match the implementation-workflow reference card. issue-operations dispatches (steps 14, 24) serve CM-2/CM-1 coordination per the spec's Coordination Mandates — outside the workflow tables by design; the skill exists in the deck."
+      detail: "All workflow steps (red/green/phase-0/phase-4, verify, commit-inline, audit, z3-check, checklist, review-prep/create, completion) match the implementation-workflow reference card (skills/writing-plans/reference/implementation-workflow.md). issue-operations dispatches (steps 14, 24) serve CM-2/CM-1 coordination per the spec's Coordination Mandates — outside the workflow tables by design; the skill exists in the deck."
 
 category_3_sc_coverage:
   scs_in_spec: 13
   scs_covered_in_phase_exit_criteria: [SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7, SC-8, SC-9, SC-10, SC-11, SC-12, SC-13]
   check_all_scs_covered: PASS
   check_mandates_covered:
-    CM-1: PASS  # phase 2
-    CM-2: PASS  # phase 1
+    CM-1: PASS  # phase 2 (step 24)
+    CM-2: PASS  # phase 1 (step 14)
   triplet_split_detection: PASS
   triplet_detail:
     SC-1: {red: 5, green: 6, commit: 9, phase: 1}
@@ -48,6 +50,7 @@ category_3_sc_coverage:
     SC-10: {red: "folded (45/49)", green: "folded (45/49)", commit: "folded (47/51)", phase: 5, note: "permitted by spec Item 10 commit rule (folds into Items 8/9 commits); colocation within phase 5 holds"}
     SC-12: {red: 35, green: 36, commit: 38, phase: 4}
     SC-13: {red: 53, green: 54, verify: 55, phase: 6, note: "verification-only item — no commit per spec Item 13"}
+    SC-11: {red: 56, green: 57, commit: 58, phase: 6}
 
 category_4_concern_separation:
   check_each_phase_one_concern: PASS
@@ -66,37 +69,31 @@ category_5_dag_validation:
   all_phases_reachable_from_start: PASS
   orphan_phases: none
   findings:
-    - id: VF-2489-04
+    - id: VF-2489-03
       result: PASS (note)
-      detail: "plan-04 entry conditions require Phases 1-3 complete, which is stronger than its declared dependency (Phase 2, ordering-only). Not a cycle; stricter-than-declared entry is gate tightening, not a defect."
+      detail: "plan-04 entry conditions require Phases 1-3 complete, which is stronger than its declared dependency (Phase 2, ordering-only). Not a cycle; stricter-than-declared entry is gate tightening, not a defect. Phase edges match dependency-contract.yaml preconditions: SC-12 → SC-8/9/10 (P4→P5), SC-8/9/10 → SC-13 (P5→P6), SC-13 → SC-11 (intra-P6), SC-1 → SC-3/SC-5/CM-2 (P1→P2, P1→P3), SC-3 → SC-4/CM-1 (intra-P2), SC-5 → SC-6 (intra-P3)."
 
 category_6_holistic_quality:
   check_no_tbd_todo_placeholders: PASS
   check_checkbox_step_format: PASS
-  check_dispatch_mode_consistency: FAIL
+  check_dispatch_mode_consistency: PASS
   findings:
-    - id: VF-2489-05
-      result: FAIL
-      detail: "Dispatch mode inconsistency: plan.md Phase Table 'direct (58, 59, 62)' for Phase 6 conflicts with plan-06 file (step 59 = task-card, step 61 = direct, step 62 = task-card). Frontmatter dispatch block correctly lists 'orchestrator z3-check' — the phase-table Dispatch column is the divergent artifact."
+    - id: VF-2489-05-R
+      prior_result: FAIL
+      result: PASS
+      detail: "RE-VERIFIED: plan.md Phase Table Phase 6 Dispatch now reads 'direct (58, 61) + task-card (rest)', matching plan-06 step modes: step 58 COMMIT (direct), step 61 Z3 check (direct), all others task-card. Iteration-1 defect remediated. Also re-verified all other phases' dispatch columns against phase files: P1 direct (9, 13), P2 direct (19, 23), P3 direct (29, 33), P4 direct (38), P5 direct (43, 47, 51) — all match. Frontmatter dispatch block consistent with phase tables."
+    - id: VF-2489-06
+      result: PASS (note)
+      detail: "No TBD/TODO/placeholder strings in plan.md or any of the six phase files. All steps use '- [ ]' checkbox format. Direct steps contain only COMMIT/structural/coherence/Z3 orchestrator actions; task-card steps contain only red/green/verify/VbC/dispatch content — no cross-mode leakage."
 
-overall_status: FAIL
-blocking_findings: [VF-2489-01, VF-2489-05]
+overall_status: PASS
+blocking_findings: []
 verdict: |
-  Plan is structurally sound: all 13 SCs + CM-1/CM-2 covered with in-phase triplet colocation, acyclic DAG
-  matching dependency-contract.yaml, clean concern separation, valid skill+task references, no placeholders,
-  uniform checkbox format. Two consistency defects block: (1) Phase 6 step-range 53-68 vs actual 53-67, and
-  (2) Phase 6 phase-table dispatch markers (direct 58/59/62) contradict the phase file (direct 58/61).
-  Both are plan.md header/table metadata drift — fix the phase table (Step Range 53-67; direct (58, 61))
-  and re-validate.
-
-revision_log:
-  - iteration: 2
-    revised_at: "2026-10-02"
-    source: validate-findings.yaml (FAIL iteration 1)
-    changes:
-      - finding: VF-2489-01
-        fix: "plan.md Phase Table Phase 6 Step Range corrected 53-68 → 53-67 (matches plan-06 last step)"
-      - finding: VF-2489-05
-        fix: "plan.md Phase Table Phase 6 Dispatch corrected direct (58, 59, 62) → direct (58, 61) (matches plan-06 step modes)"
-    files_modified: [plan.md]
-    dependency_contract_modified: false
+  Re-validation iteration 2: PASS — all 6 categories PASS with zero blocking findings.
+  Both iteration-1 blocking defects (VF-2489-01 Phase 6 step range, VF-2489-05 Phase 6 dispatch
+  markers) are verified remediated in plan.md as committed in 137acc24 on issues-data. All 13 SCs
+  + CM-1/CM-2 covered with in-phase triplet colocation; acyclic DAG consistent with
+  dependency-contract.yaml; clean concern separation; valid skill+task references against the
+  implementation-workflow reference card; no placeholders; uniform checkbox format; dispatch
+  columns consistent with phase files across all six phases. Plan is validated and ready for
+  pipeline execution.
