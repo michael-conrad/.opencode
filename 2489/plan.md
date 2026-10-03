@@ -60,7 +60,7 @@ dispatch:
 | 3 | Advisory text rewrite | Agent-facing text consistency | SC-5, SC-6 | 1 | 26-34 | direct (29, 33) + task-card (rest) |
 | 4 | Reference-integrity check build | Recurrence-guard tool exists | SC-12 | 2 | 35-39 | direct (38) + task-card (rest) |
 | 5 | Reference repair | Dead references repointed | SC-8, SC-9, SC-10 | 4 | 40-52 | direct (43, 47, 51) + task-card (rest) |
-| 6 | Integrity verification + tag-format correction | Repair loop closure + format fix + post-implementation | SC-13, SC-11 | 5 | 53-68 | direct (58, 59, 62) + task-card (rest) |
+| 6 | Integrity verification + tag-format correction | Repair loop closure + format fix + post-implementation | SC-13, SC-11 | 5 | 53-67 | direct (58, 61) + task-card (rest) |
 
 ## Pre-Implementation Steps (once per plan)
 
