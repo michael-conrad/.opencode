@@ -16,6 +16,15 @@ if [ -z "$trunk" ]; then
 fi
 
 branch="$(git branch --show-current)"
+
+# Issue-store carve-out (.opencode#2512): hooks must not police issue-store
+# worktrees. Store worktrees commit on the issues-data branch; the gates
+# below are written for real repos — the store-path gate misfires there
+# because store worktree paths are bare and its exclusion cannot match.
+if [ "$branch" = "issues-data" ]; then
+  exit 0
+fi
+
 if [ "$branch" = "$trunk" ]; then
   echo "" >&2
   echo "BLOCKED: direct commit to trunk branch '$trunk'." >&2
