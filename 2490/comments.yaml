@@ -48,3 +48,9 @@ comments:
     single fresh-context reviewer OVERALL PASS on all stage-4 GREEN items. HALTED
     before PR creation per instruction. Stage 5 (attic deletion) awaits the soak verdict.'
   timestamp: '2026-10-05T04:41:55+00:00'
+- type: internal
+  body: 'Stage-4 PR opened: michael-conrad/.opencode#2493 (feature/2490-stage4 → main,
+    7 atomic stage commits retained per the approved plan structure; merge available
+    via merge commit). Human merge gate applies — agent halted at PR creation. Stage
+    5 (attic deletion) remains gated on the soak verdict after this PR merges.'
+  timestamp: '2026-10-05T04:45:36+00:00'
