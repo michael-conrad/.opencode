@@ -1,0 +1,9 @@
+title: Stale deck references in plans/specs cause sub-agent dispatch failures — routing
+  metadata must track the live deck
+status: open
+labels:
+- needs-approval
+- spec
+body: ''
+created_at: '2026-10-05T19:40:55+00:00'
+updated_at: '2026-10-05T19:40:55+00:00'
