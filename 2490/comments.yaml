@@ -1,1 +1,11 @@
-comments: []
+comments:
+- type: internal
+  body: 'Stage-2 dispatch probes (fresh sessions, with-test-home, qwen3.8): (1) deck-edit
+    intent — governance routed: skill-creator loaded, admission gate applied, ungoverned
+    edit refused with evidence/consumer/trigger demanded; zero old-deck content in
+    session record (000-critical-rules: 0). (2) commit intent — first probe undertriggered
+    (outcome correct, dispatch absent); descriptions made pushier (a739f83a); re-probe
+    dispatched git-workflow-branch + git-workflow-commit with atomic-commit evidence.
+    Routing targets complete: 25 cards. Merge point (plan stage 3 end) reached; PR
+    boundary next.'
+  timestamp: '2026-10-05T03:01:28+00:00'
