@@ -1,2 +1,8 @@
 comments:
-  []
+- type: internal
+  body: 'Resolution recorded ahead of #2504 merge: moot-by-replacement — tools/plan
+    and tools/solve are retired to attic/tools/; the replacement tooling (tools/formal
+    + the up CLI) owns the affected semantics (prove asserts only assumptions+invariants+not-theorem;
+    engine selection and UNSOLVABLE_INCOMPLETELY handling belong to the up CLI). Closure
+    rides the #2504 merge.'
+  timestamp: '2026-10-05T21:00:35+00:00'
