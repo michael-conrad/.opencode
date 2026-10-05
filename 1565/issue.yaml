@@ -1,4 +1,7 @@
 number: 1565
 title: '[SKILL-FIX] writing-plans: verify all contract file references resolve correctly'
 labels: '[]'
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans contract files retired
+closed_at: '2026-10-05T00:00:00+00:00'

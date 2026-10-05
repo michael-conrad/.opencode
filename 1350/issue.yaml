@@ -4,4 +4,7 @@ number: 1350
 title: '[SPEC] Platform-agnostic PR operations skill — route github_create_pull_request,"  github_pull_request_read,
   github_search_pull_requests through dispatcher'
 github_url: https://github.com/michael-conrad/.opencode/issues/1350
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: same retired github_* dispatcher target; duplicate of 1349
+closed_at: '2026-10-05T00:00:00+00:00'

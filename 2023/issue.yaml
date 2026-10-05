@@ -4,4 +4,7 @@ number: 2023
 title: '[SPEC-FIX] Revise workflow missing local spec update step — spec mirror"  drifts
   after revision'
 github_url: https://github.com/michael-conrad/.opencode/issues/2023
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: retired spec-revision workflow
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -3,4 +3,7 @@ title: '[SPEC-FIX] plan and solve tool breakage lacks escalation protocol — no
   halt, no developer notification, no auth revocation'
 labels: '[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1286
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: targets retired tools/plan and tools/solve
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] Resolve Conflicting Skill Description Format Mandates'
-status: open
+status: closed
 labels:
 - '[SPEC-FIX]'
 body: ''
@@ -9,3 +9,6 @@ closed_at: '2026-07-24T22:53:54+00:00'
 close_reason: completed
 number: 2100
 github_url: https://github.com/michael-conrad/.opencode/issues/2100
+sweep_verdict: CLOSE-CONFLICT
+sweep_evidence: sources of the description-format conflict retired with guidelines/;
+  live skill-creator has single mandate

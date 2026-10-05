@@ -4,4 +4,8 @@ labels:
 number: 1417
 title: '[SPEC] Self-Detection Gate — current-violation remediation before new"  work'
 github_url: https://github.com/michael-conrad/.opencode/issues/1417
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: self-detection gate is enforcement ceremony rejected
+  by new deck'

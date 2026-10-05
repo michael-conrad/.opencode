@@ -5,4 +5,7 @@ number: 1399
 title: '[SPEC] Remove skip/optional/opt-out language from spec-creation task file
   Entry Criteria'
 github_url: https://github.com/michael-conrad/.opencode/issues/1399
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: spec-creation task file entry criteria retired
+closed_at: '2026-10-05T00:00:00+00:00'

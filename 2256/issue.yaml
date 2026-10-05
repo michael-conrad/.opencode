@@ -1,6 +1,6 @@
 title: '[SPEC] Plan skill card remediation: split canon, tool invocations, plan/solve
   scope, plan-fidelity basis, writing-plans consistency'
-status: open
+status: closed
 labels:
 - approved-for-pr
 body: '> **Full spec and artifacts: [`.opencode/.issues/2256/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2256/)**
@@ -480,9 +480,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'All card targets are old-deck structure: skills/writing-plans/, skills/solve/,
-  skills/audit/plan-fidelity-* (attic-only) and reference/plan-structure-standards.md
-  (no live reference/ dir); the SCs fix Z3/planner research-step invocations, clean-room
-  plan-fidelity basis, and dispatch ceremony retired by the reorg.'
+sweep_evidence: writing-plans/solve + plan task cards retired
 number: 2256
 github_url: https://github.com/michael-conrad/.opencode/issues/2256

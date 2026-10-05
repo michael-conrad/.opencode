@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] Audit arbiter false PASS for never-evaluated criteria'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
@@ -128,11 +128,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'SPEC-FIX against the audit-triad: its targets are the *-audit-arbiter
-  cards, evaluator cards, and audit/SKILL.md orchestrator, which have zero occurrences
-  in the live tree (grep excluding attic) — the audit skill exists only at attic/skills/audit.
-  All 14 SCs (arbiter aggregation, release-handshake gates in release-promoter tasks,
-  remediate-and-restart loops) target retired ceremony that no longer exists in the
-  live deck.'
+sweep_evidence: audit-arbiter task cards retired
 number: 2317
 github_url: https://github.com/michael-conrad/.opencode/issues/2317

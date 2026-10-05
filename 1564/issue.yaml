@@ -1,4 +1,7 @@
 number: 1564
 title: '[SKILL-FIX] writing-plans: add missing dispatch table entries for all 10 sub-agent'
 labels: '[]'
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans dispatch entries retired
+closed_at: '2026-10-05T00:00:00+00:00'

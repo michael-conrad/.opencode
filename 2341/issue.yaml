@@ -2,7 +2,7 @@ number: 2341
 title: '[BUG] spec-creation validate/create task-card relative references (reference/...)
   resolve to skills/spec-creation/reference/ which lacks the files — the cited docs
   live at repo-root .opencode/reference/'
-status: open
+status: closed
 labels: []
 body: "## Problem\n\nThe spec-creation task cards cite reference documents via skill-relative\
   \ paths (`reference/spec-structure-standards.md`, `reference/holistic-dimensions.yaml`,\
@@ -48,8 +48,5 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets skills/spec-creation/tasks/{validate,create}.md and skills/audit/
-  task cards, which exist only under .opencode/attic/ (retired); the live deck has
-  the new 'spec' card with no such relative-reference defect. The cited repo-root
-  .opencode/reference/ layout is also part of the retired deck structure.
+sweep_evidence: spec-creation task cards retired
 github_url: https://github.com/michael-conrad/.opencode/issues/2341

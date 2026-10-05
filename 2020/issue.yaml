@@ -1,4 +1,7 @@
 number: 2020
 title: '[BUG] Systemic: multiple skill SKILL.md Invocation sections dispatch pipelines'
 labels: '[]'
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: retired task-card invocation ceremony
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -5,4 +5,7 @@ labels:
 number: 1531
 title: '[SPEC] Fix: test-driven-development Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1531
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'test-driven-development stub retired (live: implement)'
+closed_at: '2026-10-05T00:00:00+00:00'

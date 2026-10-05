@@ -7,4 +7,7 @@ number: 1860
 title: '[SPEC-FIX] CRITICAL: Prohibit sycophantic action-on-question — agent"  MUST
   investigate and answer before any modification'
 github_url: https://github.com/michael-conrad/.opencode/issues/1860
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: guidelines/000-critical-rules + 020-go-prohibitions retired
+closed_at: '2026-10-05T00:00:00+00:00'

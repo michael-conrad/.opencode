@@ -1,5 +1,5 @@
 title: '[SPEC] Phase 5: Add plan-level decomposition criteria to writing-plans validate'
-status: open
+status: closed
 labels:
 - spec
 body: '## Problem
@@ -74,8 +74,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets writing-plans/tasks/validate.md, which exists only at .opencode/attic/skills/writing-plans/tasks/validate.md
-  — the live skills/ directory has no writing-plans skill. The validate-task decomposition
-  gate is retired attic ceremony.
+sweep_evidence: retired writing-plans/tasks/validate.md
 number: 2120
 github_url: https://github.com/michael-conrad/.opencode/issues/2120

@@ -1,7 +1,7 @@
 number: 2343
 title: '[BUG] writing-plans create→validate contract mismatch: validate requires a
   numbered-step Procedure section per phase, create produces none'
-status: open
+status: closed
 labels: []
 body: "## Problem\n\nwriting-plans validate.md Category 1 requires every phase to\
   \ have a `Procedure` section with numbered steps ('Verify each phase has a procedure\
@@ -45,7 +45,5 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: The create/validate contract mismatch is between .opencode/skills/writing-plans/tasks/{create,validate}.md,
-  both of which exist only under .opencode/attic/; the live deck has the new single
-  'plan' card with no phase-Procedure validation contract. Superseded by the reorg.
+sweep_evidence: writing-plans contract mismatch retired
 github_url: https://github.com/michael-conrad/.opencode/issues/2343

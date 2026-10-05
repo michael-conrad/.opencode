@@ -5,4 +5,7 @@ labels:
 number: 1523
 title: '[SPEC] Fix: researcher Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1523
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'researcher stub retired (live: research)'
+closed_at: '2026-10-05T00:00:00+00:00'

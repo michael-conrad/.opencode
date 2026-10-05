@@ -4,4 +4,8 @@ title: '[SPEC-FIX] Pipeline Dependency: Plan Creation Must Precede Pre-Work (Bra
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
   a bug fix"}, {"name": "pipeline", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1236
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: mechanism edits retired approval-gate tasks/ and dispatch
+  tables'

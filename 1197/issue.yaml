@@ -3,4 +3,7 @@ title: '[SPEC] remove STATUS markers and all STATUS verification tasks — plans
   are static artifacts, not tracking documents'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1197
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: STATUS markers are a retired ceremony
+closed_at: '2026-10-05T00:00:00+00:00'

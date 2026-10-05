@@ -3,4 +3,6 @@ title: '[SPEC-FIX] Audit reconcile_issue_graph callers for signature compatibili
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
   a bug fix"}, {"name": "git-workflow", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1190
-status: open
+status: closed
+sweep_evidence: 'semantic pass on real spec.md content: reconciles callers of a function
+  inside retired cleanup task-card family'

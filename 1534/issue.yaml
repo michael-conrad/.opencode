@@ -5,4 +5,7 @@ labels:
 number: 1534
 title: '[SPEC] Fix: verification Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1534
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'verification stub retired (live: verify)'
+closed_at: '2026-10-05T00:00:00+00:00'

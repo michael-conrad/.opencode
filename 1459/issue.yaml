@@ -3,4 +3,7 @@ number: 1459
 title: '[BUG] Writing-plans pipeline generates format-noncompliant plans — validate.md"  lacks
   format-compliance checks'
 github_url: https://github.com/michael-conrad/.opencode/issues/1459
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans/tasks/validate.md retired
+closed_at: '2026-10-05T00:00:00+00:00'

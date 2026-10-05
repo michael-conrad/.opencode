@@ -4,4 +4,7 @@ labels:
 number: 1452
 title: '[SPEC-FIX] Clean-room plan generator overwrites plan being audited'
 github_url: https://github.com/michael-conrad/.opencode/issues/1452
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans/tasks/create.md retired
+closed_at: '2026-10-05T00:00:00+00:00'

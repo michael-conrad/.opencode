@@ -70,17 +70,13 @@ body: "---\ntitle: '[SPEC] Remove 13 sub-skill SKILL.md files from available_ski
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
-status: open
+status: closed
 title: '[SPEC] Remove 13 sub-skill SKILL.md files from available_skills — cleanup
   after per-step dispatch fix'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Cleanup spec (C-1) to remove 13 sub-skill SKILL.md files (approval-gate-scope,
-  spec-creation-*, writing-plans-*) from available_skills after per-step dispatch/TDT
-  fixes; those sub-skill directories exist only under .opencode/attic/skills/ and
-  the live deck uses flat cards with no TDT/available_skills dispatch machinery, so
-  the cleanup is superseded by the reorg.
+sweep_evidence: sub-skill stubs + TDT retired
 number: 2055
 github_url: https://github.com/michael-conrad/.opencode/issues/2055

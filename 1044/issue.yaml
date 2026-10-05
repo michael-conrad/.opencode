@@ -1,7 +1,7 @@
 number: 1044
 title: '[SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed
   defaults'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed
@@ -114,12 +114,7 @@ last_sync: '2026-08-27T03:25:12.564317+00:00'
 author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
-sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The spec builds an MCP layer over tools/plan whose entire usage model
-  was retired ceremony: the deck cards that drove tools/plan (attic/skills/plan, attic/skills/solve
-  — ''Planning is REQUIRED before implementation'', ''Workflow constraints MUST be
-  validated with Z3'') are retired to attic, and the live deck (skills/, floor.md,
-  routing.md, hooks/, prompts/) contains zero references to tools/plan. No plan-mcp
-  exists and opencode.jsonc (live) registers no plan MCP server — the target workflow
-  no longer exists, only the orphaned file lingers.'
+sweep_verdict: SUPERSEDED
+sweep_evidence: 'semantic pass: plan-tool MCP gate machinery is retired ceremony;
+  no plan pipeline in new deck'
 github_url: https://github.com/michael-conrad/.opencode/issues/1044

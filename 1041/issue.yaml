@@ -1,7 +1,7 @@
 number: 1041
 title: '[BUG] local-issues WORKTREE_BRANCH "issues" mismatches actual orphan branch
   "issues-data"'
-status: open
+status: closed
 labels:
 - bug
 - needs-approval
@@ -123,10 +123,5 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The reported defect is fixed in the live deck: .opencode/tools/local-issues:49
-  now reads WORKTREE_BRANCH = "issues-data" and .opencode/.issues is mounted as a
-  worktree on [issues-data] (git worktree list), with .issues/ untracked from .opencode
-  main (commit da160a84). The only remaining tracked file (.issues/research-cards/.gitkeep)
-  was deliberately added with the #1271 research-cards feature in the same commit
-  (b7014d07) as the #1272 fix, so no work remains.'
+sweep_evidence: defect already fixed in live tool (WORKTREE_BRANCH=issues-data matches)
 github_url: https://github.com/michael-conrad/.opencode/issues/1041

@@ -339,5 +339,5 @@ sweep_evidence: Targets concat()/pr_merge_status dispatch machinery in .opencode
   rewrite with no concat(), no dispatch strings, no tasks/ directory, and no submodule
   handling — the old card lives only in attic/skills/git-workflow-cleanup/. The defect's
   target machinery no longer exists in the live deck.
-number: 2418
+number: 2417
 github_url: https://github.com/michael-conrad/.opencode/issues/2418

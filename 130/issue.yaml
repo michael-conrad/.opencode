@@ -1,4 +1,4 @@
-number: 837
+number: 130
 title: '[SPEC] Remove commit-per-issue enforcement from pre-push hook — defer to PR-time
   enforcement'
 labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name":

@@ -1,5 +1,5 @@
 title: 'SPEC-FIX: 4 naming inconsistency patterns across skill deck task cards'
-status: open
+status: closed
 labels:
 - spec-fix
 body: '> **Full spec and artifacts: [`.issues/2041/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2041/)**
@@ -88,10 +88,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'All four naming patterns concern the old deck''s tasks/ directories
-  and TDT entries (pre_impl/, screen/, route, writing-plans tasks/) which are retired:
-  no tasks/ dirs or TDTs exist in the live deck, and the named skills (approval-gate-scope,
-  multimodal-dispatch old form, writing-plans) are absent or re-authored without this
-  structure.'
+sweep_evidence: naming patterns for TDT/task cards retired
 number: 2041
 github_url: https://github.com/michael-conrad/.opencode/issues/2041

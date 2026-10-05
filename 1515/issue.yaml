@@ -4,4 +4,7 @@ labels:
 number: 1515
 title: '[SPEC-FIX] github-mcp: NO_TDT + narrative-only content (D3=NO_TDT, D4=FAIL)'
 github_url: https://github.com/michael-conrad/.opencode/issues/1515
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: github-mcp skill nonexistent; gh-cli is live path
+closed_at: '2026-10-05T00:00:00+00:00'

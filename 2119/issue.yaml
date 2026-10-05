@@ -1,6 +1,6 @@
 title: '[SPEC] Phase 6: Add plan-level decomposition criteria to audit plan-fidelity
   evaluator'
-status: open
+status: closed
 labels:
 - spec
 body: '## Problem
@@ -77,9 +77,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets audit/tasks/plan-fidelity-evaluator.md, which exists only
-  at .opencode/attic/skills/audit/tasks/plan-fidelity-evaluator.md — the live deck
-  has no audit skill or plan-fidelity evaluator. Plan-level decomposition gate machinery
-  no longer exists in the live deck.
+sweep_evidence: retired audit plan-fidelity-evaluator
 number: 2119
 github_url: https://github.com/michael-conrad/.opencode/issues/2119

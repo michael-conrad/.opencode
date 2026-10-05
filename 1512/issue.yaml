@@ -5,4 +5,7 @@ number: 1512
 title: '[SPEC-FIX] completion-core: description missing mandatory dispatch signal
   (D2=FAIL, D4=FAIL)'
 github_url: https://github.com/michael-conrad/.opencode/issues/1512
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: completion-core skill retired
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -3,4 +3,7 @@ title: '[SPEC-FIX] Missing task cards in spec-creation pipeline: research-card-c
   and interdependency-check'
 labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/2026
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: retired spec-creation pipeline task cards
+closed_at: '2026-10-05T00:00:00+00:00'

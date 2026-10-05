@@ -1,6 +1,6 @@
 title: '[SPEC-FIX] Auditors and plan writer must BLOCK with dispatch directive when
   local spec file is missing'
-status: open
+status: closed
 labels:
 - bug,spec,tier-2
 body: ''
@@ -8,10 +8,7 @@ created_at: '2026-07-24T17:31:06+00:00'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
-sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'SPEC-FIX against retired ceremony: skills/adversarial-audit (spec-audit/verification-audit/plan-fidelity
-  audit triad) and skills/writing-plans with dispatch-string BLOCK format; grep of
-  live skills/, agents/, floor.md, routing.md finds zero references — only the retired
-  audit machinery under attic/. Live deck uses verify/plan instead.'
+sweep_verdict: SUPERSEDED
+sweep_evidence: 'semantic pass: live plan card: no spec source = scope creep'
 number: 2099
 github_url: https://github.com/michael-conrad/.opencode/issues/2099

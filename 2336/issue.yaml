@@ -1,7 +1,7 @@
 number: 2336
 title: '[SPEC-FIX] Narrow critical-rules-070 session-survival closure rule to work-performed-no-PR
   closures only'
-status: open
+status: closed
 labels: []
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2336/
 
@@ -81,9 +81,6 @@ last_sync: '2026-08-27T03:25:12.627593+00:00'
 author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
-sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'SPEC-FIX for #2335 amending critical-rules-070 in git-workflow-cleanup/SKILL.md
-  (line 83) — the rule text no longer exists in the live 23-line git-workflow-cleanup/SKILL.md,
-  and the referenced test pattern 1188-sc3-already-implemented-closure-routing.sh
-  is absent from live tests-v2/behaviors/.'
+sweep_verdict: CLOSE-CONFLICT
+sweep_evidence: duplicate of 2335
 github_url: https://github.com/michael-conrad/.opencode/issues/2336

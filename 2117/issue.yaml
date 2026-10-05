@@ -1,5 +1,5 @@
 title: '[SPEC] Phase 3: Add decomposition criteria to audit spec-audit evaluator'
-status: open
+status: closed
 labels:
 - approved-for-review
 - approved-for-implementation
@@ -832,9 +832,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Targets skills/audit/tasks/spec-audit-evaluator.md, which exists
-  only at .opencode/attic/skills/audit/tasks/spec-audit-evaluator.md — the live deck
-  has no audit skill or audit-triad evaluator machinery. The whole audit evaluator/lockstep
-  ceremony was retired to attic by the #2501 rip-and-replace.'
+sweep_evidence: retired audit spec-audit-evaluator
 number: 2117
 github_url: https://github.com/michael-conrad/.opencode/issues/2117

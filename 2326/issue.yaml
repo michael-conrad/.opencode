@@ -1,6 +1,6 @@
 title: '[SPEC-FIX] 22 dangling references to removed spec-auditor skill across 12
   files (referers not updated after #469 consolidation)'
-status: open
+status: closed
 labels:
 - needs-approval
 body: "> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2326/\n\
@@ -100,3 +100,6 @@ updated_at: '2026-08-26T03:24:46Z'
 github_url: https://github.com/michael-conrad/.opencode/issues/2326
 remote_url: https://github.com/michael-conrad/.opencode/issues/2326
 number: 2326
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'dangling refs into pre-rip deck; superseded by #2501'
+closed_at: '2026-10-05T00:00:00+00:00'

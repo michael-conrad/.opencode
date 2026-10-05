@@ -4,4 +4,7 @@ title: '[SPEC-FIX] check-pr: fix phase ordering — submodule cleanup before par
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
   a bug fix"}, {"name": "approved-for-pr", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1266
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: check-pr task card retired
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -6,4 +6,7 @@ number: 1969
 title: '[SPEC-FIX] Mandatory full compliance with spec-creation task procedure —"  no
   exceptions, no bypasses, no escape hatches'
 github_url: https://github.com/michael-conrad/.opencode/issues/1969
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: spec-creation-validation + critical-rules retired
+closed_at: '2026-10-05T00:00:00+00:00'

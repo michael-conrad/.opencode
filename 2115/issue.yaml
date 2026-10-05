@@ -1,6 +1,6 @@
 title: '[SPEC] Phase 4: Add file collision and dependency graph production to writing-plans
   structure'
-status: open
+status: closed
 labels:
 - spec
 body: '## Problem
@@ -77,9 +77,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Target retired: the writing-plans skill exists only at .opencode/attic/skills/writing-plans
-  (retained-but-unloaded), and writing-plans/tasks/structure.md does not exist anywhere
-  in the live tree — no live deck component produces the file-collision/DAG artifacts
-  this spec requires.'
+sweep_evidence: writing-plans/tasks/structure.md retired
 number: 2115
 github_url: https://github.com/michael-conrad/.opencode/issues/2115

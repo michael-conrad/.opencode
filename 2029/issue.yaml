@@ -3,4 +3,7 @@ title: '[BUG] pipeline-readiness-gate.md in wrong task directory — spec-creati
   references spec-creation-decomposition/tasks/ but file is in spec-creation-validation/tasks/'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/2029
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: retired pipeline-readiness-gate task card
+closed_at: '2026-10-05T00:00:00+00:00'

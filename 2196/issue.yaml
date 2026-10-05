@@ -1,5 +1,5 @@
 title: '[SPEC] Merge upstream research methodology into existing research skill'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '---
@@ -179,10 +179,7 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Targets .opencode/skills/research/tasks/{research,research-multi,completion}.md,
-  which exist only under .opencode/attic/skills/research/tasks/ — the live research
-  skill is a single SKILL.md card with no tasks/ directory. The SC-10 description
-  fix is also moot: the live SKILL.md contains no ''User phrases''/''Load via skill''
-  trigger text (0 grep hits).'
+sweep_evidence: 'semantic pass: description already fixed; targets retired tasks/
+  files'
 number: 2196
 github_url: https://github.com/michael-conrad/.opencode/issues/2196

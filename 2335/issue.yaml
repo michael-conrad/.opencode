@@ -1,7 +1,7 @@
 number: 2335
 title: '[BUG] critical-rules-070 session-survival closure rule over-broad — should
   apply only to work-performed-no-PR closures, not verified-moot/duplicate issues'
-status: open
+status: closed
 labels: []
 body: '## Problem
 
@@ -72,7 +72,5 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets the critical-rules-070 session-survival rule at .opencode/skills/git-workflow-cleanup/SKILL.md:84;
-  the live git-workflow-cleanup/SKILL.md is 23 lines with no session-survival rule,
-  and no critical-rules file exists anywhere in the live (non-attic) deck.
+sweep_evidence: 'semantic pass: session-survival prose mandate retired with critical-rules'
 github_url: https://github.com/michael-conrad/.opencode/issues/2335

@@ -1,4 +1,7 @@
 number: 1562
 title: '[SKILL-FIX] writing-plans: restructure 21-step pipeline for hard limit (sub-agents'
 labels: '[]'
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans 21-step pipeline retired
+closed_at: '2026-10-05T00:00:00+00:00'

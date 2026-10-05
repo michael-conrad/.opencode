@@ -1,5 +1,5 @@
 title: '[SPEC] Audit and Remediation: Split Overloaded Skill Cards'
-status: open
+status: closed
 labels:
 - spec,audit,skill-refactor
 body: ''
@@ -8,9 +8,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets five old mega-skills (issue-operations, approval-gate, git-workflow,
-  writing-plans, spec-creation); none exist in live .opencode/skills/ — the first
-  four survive only under attic/skills/ and the git-workflow split exists in the live
-  deck via the reorg (#2501), not this spec. Superseded by the rip-and-replace.
+sweep_evidence: 'semantic pass: nothing overloaded; tasks/ splitting structure gone'
 number: 2098
 github_url: https://github.com/michael-conrad/.opencode/issues/2098

@@ -4,4 +4,8 @@ number: 1995
 title: '[SPEC] Plan writer skill: mandate indented sub-bullet format for step parameters
   in write.md'
 github_url: https://github.com/michael-conrad/.opencode/issues/1995
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: write.md format mandate targets retired multi-file
+  plan skill'

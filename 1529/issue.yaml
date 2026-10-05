@@ -5,4 +5,7 @@ labels:
 number: 1529
 title: '[SPEC] Fix: sync-guidelines Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1529
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: sync-guidelines/guidelines retired
+closed_at: '2026-10-05T00:00:00+00:00'

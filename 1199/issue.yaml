@@ -3,4 +3,7 @@ title: '[SPEC] extract DISPATCH_GATE protocol to single reference, mandate as G1
   every task dispatch table'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1199
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: dispatch tables retired
+closed_at: '2026-10-05T00:00:00+00:00'

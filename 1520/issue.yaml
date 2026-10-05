@@ -5,4 +5,8 @@ labels:
 number: 1520
 title: '[SPEC] Fix: playwright-cli Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1520
-status: open
+status: closed
+sweep_verdict: SUPERSEDED
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: current playwright-cli description already enumerates
+  operations'

@@ -1,4 +1,4 @@
-number: 811
+number: 126
 title: '[SPEC] Add Ollama web-search-mcp.py as PEP 723 MCP server for agent research'
 labels: '[[{"name": "spec", "color": "ededed", "description": ""}]""'
 github_url: https://github.com/michael-conrad/.opencode/issues/811

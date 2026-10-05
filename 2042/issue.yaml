@@ -1,6 +1,6 @@
 title: 'SPEC-FIX: 6 skills have task directories but no Trigger Dispatch Table in
   SKILL.md'
-status: open
+status: closed
 labels:
 - spec-fix
 body: '> **Full spec and artifacts: [`.issues/2042/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2042/)**
@@ -89,9 +89,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Every affected skill (spec-creation-change-control/decomposition/requirements/validation,
-  writing-plans-creation/holistic) survives only under .opencode/attic/skills/; the
-  live deck has zero tasks/ directories and zero '## Trigger Dispatch Table' sections,
-  so the SC-1/SC-2 work targets retired ceremony.
+sweep_evidence: 6 named skills all retired sub-skill containers
 number: 2042
 github_url: https://github.com/michael-conrad/.opencode/issues/2042

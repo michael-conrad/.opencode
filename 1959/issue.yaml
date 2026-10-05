@@ -3,4 +3,7 @@ labels:
 number: 1959
 title: '[SPEC] Restore playwright-cli skill task cards and reconcile with upstream'
 github_url: https://github.com/michael-conrad/.opencode/issues/1959
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: playwright-cli task cards + TDT ceremony retired
+closed_at: '2026-10-05T00:00:00+00:00'

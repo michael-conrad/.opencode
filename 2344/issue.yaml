@@ -1,7 +1,7 @@
 number: 2344
 title: '[BUG] executing-plans dispatch-phase returns after the RED sub-step only —
   phase GREEN/verify/commit never executed nor reported, stranding the orchestrator'
-status: open
+status: closed
 labels: []
 body: "## Problem\n\nThe executing-plans dispatch-phase task card documents routing\
   \ only (per task discipline 'Do not dispatch sub-agents from within this task' it\
@@ -50,8 +50,5 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target .opencode/skills/executing-plans/tasks/dispatch-phase.md exists
-  only under attic/skills/executing-plans/; the live deck's 'implement' card has no
-  dispatch-phase orchestrator or RED/GREEN sub-agent dispatch machinery. Superseded
-  by the reorg.
+sweep_evidence: executing-plans retired
 github_url: https://github.com/michael-conrad/.opencode/issues/2344

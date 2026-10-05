@@ -5,4 +5,8 @@ labels:
 number: 1524
 title: '[SPEC] Fix: research Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1524
-status: open
+status: closed
+sweep_verdict: SUPERSEDED
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: current research description already distinct and
+  modality-aware'

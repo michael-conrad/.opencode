@@ -6,4 +6,7 @@ labels:
 number: 1462
 title: '[SPEC-FIX] Writing-plans skill: document plan tool applicability domain boundaries'
 github_url: https://github.com/michael-conrad/.opencode/issues/1462
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans SKILL.md retired
+closed_at: '2026-10-05T00:00:00+00:00'

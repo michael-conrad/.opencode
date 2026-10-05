@@ -5,4 +5,7 @@ number: 1398
 title: '[SPEC] Fix spec-creation SKILL.md: remove dead diagram entry, add missing
   change-control entry'
 github_url: https://github.com/michael-conrad/.opencode/issues/1398
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: spec-creation SKILL.md retired
+closed_at: '2026-10-05T00:00:00+00:00'

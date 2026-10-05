@@ -1,4 +1,7 @@
 number: 1966
 title: '[BUG] VbC DISPATCH_CHAIN_VIOLATION gate requires skill() call logging that'
 labels: '[]'
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: verification-before-completion gate retired
+closed_at: '2026-10-05T00:00:00+00:00'

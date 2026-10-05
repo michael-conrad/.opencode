@@ -4,4 +4,7 @@ number: 2024
 title: '[SPEC-FIX] change-control task mandates useless notification comments on spec
   revisions'
 github_url: https://github.com/michael-conrad/.opencode/issues/2024
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: retired change-control task card
+closed_at: '2026-10-05T00:00:00+00:00'

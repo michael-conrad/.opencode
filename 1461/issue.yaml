@@ -7,4 +7,7 @@ number: 1461
 title: '[SPEC-FIX] Writing-plans pipeline: replace inline Z3 passthrough with real
   contract verification'
 github_url: https://github.com/michael-conrad/.opencode/issues/1461
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: writing-plans Z3 gates retired; formal tool live
+closed_at: '2026-10-05T00:00:00+00:00'

@@ -48,14 +48,12 @@ body: "---\ntitle: '[SPEC] Fix implementation-pipeline — update TDT for per-st
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
-status: open
+status: closed
 title: '[SPEC] Fix implementation-pipeline — update TDT for per-step dispatch'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets implementation-pipeline/SKILL.md TDT update, but implementation-pipeline
-  exists neither in the live skills/ nor in attic/ (live deck has the new implement
-  card); the TDT/dispatch-vocabulary ceremony it fixes is retired.
+sweep_evidence: implementation-pipeline TDT retired
 number: 2051
 github_url: https://github.com/michael-conrad/.opencode/issues/2051

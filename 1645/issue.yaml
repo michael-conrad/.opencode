@@ -1,6 +1,6 @@
 title: '[SPEC] Baseline generation for audit — first-run audit snapshots with schema
   and lifecycle'
-status: open
+status: closed
 labels:
 - spec,adversarial-audit,drift-detection,baseline
 body: "---\ntype: SPEC\nstatus: DRAFT\nversion: 3.0\ncreated: 2026-07-01\nupdated:\
@@ -121,11 +121,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Every Files-Affected target is retired ceremony: .opencode/skills/audit/
-  survives only as attic/skills/audit/, the Trigger Dispatch Table lives in attic/dispatch-table.yaml,
-  git-workflow/tasks/cleanup.md structure does not exist in the live deck (live uses
-  git-workflow-* cards), and .opencode/tests/behaviors/ does not exist (live is tests-v2/).
-  The spec''s subject (audit drift-detection/coherence baselines) is retired audit-triad
-  machinery.'
+sweep_evidence: audit baseline-generation + 080-code-standards retired
 number: 1645
 github_url: https://github.com/michael-conrad/.opencode/issues/1645

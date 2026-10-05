@@ -6,4 +6,7 @@ number: 1358
 title: '[SPEC] Reorganize Skill Cards and Task Cards with Workflow-Grouped Checklist
   Dispatch'
 github_url: https://github.com/michael-conrad/.opencode/issues/1358
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: task cards retired
+closed_at: '2026-10-05T00:00:00+00:00'

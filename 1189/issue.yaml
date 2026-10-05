@@ -4,4 +4,7 @@ title: '[SPEC-FIX] Restore cross-reference invalidation in screen-issue-gate2 â€
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
   a bug fix"}, {"name": "approval-gate", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1189
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: targets retired screen-issue-gate2 evidence gate
+closed_at: '2026-10-05T00:00:00+00:00'

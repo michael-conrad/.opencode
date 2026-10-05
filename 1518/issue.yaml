@@ -5,4 +5,7 @@ labels:
 number: 1518
 title: '[SPEC] Fix: issue-operations Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1518
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'issue-operations retired (live: issues)'
+closed_at: '2026-10-05T00:00:00+00:00'

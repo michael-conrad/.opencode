@@ -28,4 +28,7 @@ body: "## Plan for #1217: Replace .gitmodules detection with filesystem glob sca
   - No external dependencies\n\n## PR Strategy\n- Single PR with 4 commits (one per\
   \ phase)\n- Target: dev\n"
 github_url: https://github.com/michael-conrad/.opencode/issues/1217
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: targets retired tasks/ artifacts of git-workflow
+closed_at: '2026-10-05T00:00:00+00:00'

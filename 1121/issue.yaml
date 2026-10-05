@@ -1,9 +1,9 @@
 title: '[PLAN] local-issues: print available repo qualifiers on repo-not-found errors'
-status: open
+status: closed
 labels:
 - plan
 body: ''
 created_at: '2026-06-12T03:20:16+00:00'
 updated_at: '2026-06-12T03:20:16+00:00'
-number: 2026
-github_url: https://github.com/michael-conrad/.opencode/issues/2026
+number: 1121
+github_url: https://github.com/michael-conrad/.opencode/issues/1121

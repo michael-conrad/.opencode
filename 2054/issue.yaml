@@ -65,17 +65,13 @@ body: "---\ntitle: '[SPEC] Behavioral enforcement tests for per-step dispatch �
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
-status: open
+status: closed
 title: '[SPEC] Behavioral enforcement tests for per-step dispatch — orchestrator dispatches
   task files, not SKILL.md'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Creates behavioral tests in .opencode/tests-v2/behaviors/ for the
-  per-step dispatch pattern (pre-flight-block and task-file dispatch, SC-11/SC-12
-  of the retired master spec) — no live skill contains per-step dispatch or DISPATCH_GATE
-  machinery, and its entire BLOCKED_BY chain (#2053/#2057/#2049/#2048/#2050/#2051/#2056/#2055)
-  targets attic-only or nonexistent content.
+sweep_evidence: tests-v2 per-step dispatch tests retired ceremony
 number: 2054
 github_url: https://github.com/michael-conrad/.opencode/issues/2054

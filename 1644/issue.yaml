@@ -6,4 +6,7 @@ number: 1644
 title: '[SPEC] Branch-Verification Mandate for audit — Pre-Flight Validation"  Gate
   branch check, BRANCH_MISMATCH handling'
 github_url: https://github.com/michael-conrad/.opencode/issues/1644
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: audit skill task files retired
+closed_at: '2026-10-05T00:00:00+00:00'

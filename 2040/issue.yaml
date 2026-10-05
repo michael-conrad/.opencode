@@ -1,6 +1,6 @@
 title: 'SPEC-FIX: 42 orphaned task card files not referenced by any Trigger Dispatch
   Table'
-status: open
+status: closed
 labels:
 - spec-fix
 body: '> **Full spec and artifacts: [`.issues/2040/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2040/)**
@@ -98,9 +98,6 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: All affected skills (implementation-pipeline, executing-plans, spec-creation-*,
-  writing-plans-*) exist only under .opencode/attic/skills/, and the live tree has
-  no tasks/ directories or TDTs at all, so 'orphaned task cards not referenced by
-  a TDT' is a defect against retired structure.
+sweep_evidence: 42 orphaned task cards all in retired families
 number: 2040
 github_url: https://github.com/michael-conrad/.opencode/issues/2040

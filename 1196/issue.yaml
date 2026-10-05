@@ -3,4 +3,7 @@ title: '[SPEC] feed yaml+symbolic rule blocks as Z3 solver contracts for pipelin
   gate enforcement'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1196
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: Z3 pipeline gates rejected; formal tool remains voluntary-only'

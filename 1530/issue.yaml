@@ -5,4 +5,8 @@ labels:
 number: 1530
 title: '[SPEC] Fix: systematic-debugging Skill Description Compliance'
 github_url: https://github.com/michael-conrad/.opencode/issues/1530
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+closed_at: '2026-10-05T00:00:00+00:00'
+sweep_evidence: 'semantic pass: mechanism mandates retired TDT tasks + RED/GREEN in
+  descriptions'

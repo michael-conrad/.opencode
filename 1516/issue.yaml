@@ -4,4 +4,7 @@ labels:
 number: 1516
 title: '[SPEC-FIX] local: NO_TDT + narrative-only content (D3=NO_TDT, D4=FAIL)'
 github_url: https://github.com/michael-conrad/.opencode/issues/1516
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: '"local" skill nonexistent; issues skill covers it'
+closed_at: '2026-10-05T00:00:00+00:00'

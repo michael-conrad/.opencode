@@ -4,4 +4,7 @@ title: '[SPEC-FIX] Adversarial-audit: 2-retry PRELOADED_CONTEXT_REJECTED exhaust
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
   a bug fix"}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1251
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: adversarial-audit auditor cards retired
+closed_at: '2026-10-05T00:00:00+00:00'

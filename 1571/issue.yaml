@@ -4,4 +4,7 @@ number: 1571
 title: '[BUG] 20+ content-verification checks report MISSING — guideline and"  task
   file patterns out of sync'
 github_url: https://github.com/michael-conrad/.opencode/issues/1571
-status: open
+status: closed
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: guideline file patterns retired; coverage moved to live test script
+closed_at: '2026-10-05T00:00:00+00:00'

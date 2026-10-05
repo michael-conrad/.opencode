@@ -1,7 +1,7 @@
 number: 2342
 title: '[BUG] writing-plans create Step 9 replaces the local labels array with spec-cleared,
   wiping approved-for-* authorization labels'
-status: open
+status: closed
 labels: []
 body: "## Problem\n\n`writing-plans/tasks/create.md` Step 9 writes `spec-cleared`\
   \ via `local-issues update <repo>#<N> --labels spec-cleared`. The `local-issues\
@@ -41,8 +41,5 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target .opencode/skills/writing-plans/tasks/create.md exists only
-  under attic/skills/writing-plans/, and the spec-cleared/approved-for-* authorization-label
-  machinery it depends on no longer appears anywhere in the live skills or local-issues
-  tool. Retired approval-gate ceremony, superseded by the reorg.
+sweep_evidence: 'semantic pass: task-card trigger gone; tool residue needs fresh ticket'
 github_url: https://github.com/michael-conrad/.opencode/issues/2342
