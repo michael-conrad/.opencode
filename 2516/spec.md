@@ -86,6 +86,22 @@ repo#N --title …`, never hand-crafted; the issues-data branch is pushed and
   --number repo#N` succeeding immediately after registration. Store hygiene:
   `git -C .opencode/.issues status` clean and pushed after filing.
 
+### SC-7 (structural) — spec-filing cards carry a counter-update runbook step
+
+The skill cards that file remote specs (`skills/spec/SKILL.md`, and any card
+whose workflow files remote issues into a synced store — `issues` included)
+carry a runbook step: when filing a remote issue into a synced issue store,
+the store's `.counter` is updated to the filed number (max(counter, filed)) so
+the store's reserve mechanism never falls behind the remote tracker. At filing
+time the counter read 2488 against store dirs reaching 2512 — the drift that
+made the counter unusable for reservation.
+
+- **Verify:** read `skills/spec/SKILL.md` (and `skills/issues/SKILL.md`):
+  a counter-update step exists in the filing workflow, stated as a fact-decidable
+  action; a store whose counter is behind its directories is detectable by
+  comparing `.counter` to the highest `{N}/` directory — remediation guidance
+  (advance the counter to the highest known number) is included.
+
 ## Out of scope
 
 - Moving the entire authorization vocabulary out of the floor (it is
