@@ -1,1 +1,7 @@
-comments: []
+comments:
+- type: internal
+  body: 'Resolution recorded ahead of #2504 merge: fixed by replacement — tools/formal
+    ''state init'' accepts --var name=value in one step (executed: .opencode/tests-v2/formal-tooling/fixtures/state-roundtrip-transcript.txt).
+    The defective tools/solve code is retired to attic/tools/. Closure rides the #2504
+    merge.'
+  timestamp: '2026-10-05T21:00:34+00:00'
