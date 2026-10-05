@@ -4,7 +4,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-Default retrieval service for the agent's reference-corpus queries (spec `.opencode/.issues/2315/spec.md`; adopted per CON-1 as `jsbroks/ragsync-mcp`).
+Default retrieval service for the agent's reference-corpus queries (spec CON-1 recorded in the `issues-data` store; adopted as `jsbroks/ragsync-mcp`).
 
 ## Service configuration
 

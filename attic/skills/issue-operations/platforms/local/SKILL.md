@@ -290,4 +290,4 @@ After loading this skill and reading the Trigger Dispatch Table, the orchestrato
 | GitHub platform    | `../github-mcp/SKILL.md`                                                  |
 | Worktree exemption | `060-tool-usage.md` §Worktree Exemption                                   |
 | Critical rules     | `000-critical-rules.md` §Creating .opencode/.opencode/ Nested Directories |
-| Card-020           | `.issues/979/cards/card-020-local-skill-capability-contract.md`           |
+| Card-020           | `issues-data` store, card catalogue (card-020-local-skill-capability-contract) |

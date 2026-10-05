@@ -4,7 +4,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-generated -->
 
-> Enforces spec `.opencode/.issues/2315/spec.md` CON-6 / R-11 / SC-3 / SC-4.
+> Enforces spec CON-6 / R-11 / SC-3 / SC-4 (spec recorded in the `issues-data` store).
 > Scope: any change to `.opencode/ragsync-config.yaml` or the `ragsync` MCP registration.
 
 ## Checklist

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Test isolation structural verification — maps to spec #309 SCs.
-# See .opencode/.issues/309/spec.md for the full specification.
+# Specification recorded in the issues-data store.
 #
 # Usage: bash .opencode/tests-v2/test-isolation.sh
 # Exit: 0 if all checks pass, 1 if any check fails

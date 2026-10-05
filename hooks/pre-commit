@@ -23,4 +23,27 @@ if [ "$branch" = "$trunk" ]; then
   echo "Create the feature branch first: git checkout -b feature/<issue>-<slug>" >&2
   exit 1
 fi
+
+# Store-path reference gate — tracked files outside the issue store must not
+# reference issue-store paths. The store renumbers issues without updating
+# dependents, so any such pointer dangles (see .opencode#2506). Excluded:
+#   - paths under .issues/ — the store worktree itself
+#   - tests-v2/behaviors/fixtures/ — fabricated store content injected into
+#     test repos, not references to the real store
+# pattern is split across quotes so the gate's own source never matches it
+pattern='\.''issues/'"[0-9]"
+while IFS= read -r f; do
+  case "$f" in
+    .issues/*|*/.issues/*) continue ;;
+    tests-v2/behaviors/fixtures/*) continue ;;
+  esac
+  if git show ":$f" 2>/dev/null | grep -nE "$pattern" >/dev/null 2>&1; then
+    echo "" >&2
+    echo "BLOCKED: staged file '$f' references an issue-store path (matching *$pattern*)." >&2
+    echo "Issue-store paths renumber without updating dependents and dangle in fresh clones." >&2
+    echo "Spec/issue content lives in the issues-data store; do not point tracked files into it." >&2
+    exit 1
+  fi
+done < <(git diff --cached --name-only --diff-filter=ACM)
+
 exit 0

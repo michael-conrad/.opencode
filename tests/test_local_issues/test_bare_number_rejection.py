@@ -45,7 +45,7 @@ def sandbox() -> Path:
     """Isolated sandbox repo with a copy of local-issues and a fixture issue.
 
     Sandbox layout mirrors the real repo: <root>/opencode-config/.opencode/
-    tools/local-issues plus .opencode/.issues/2432/issue.yaml so reads
+    tools/local-issues plus a fabricated issue dir (2432/issue.yaml) in the test store so reads
     succeed today (exit 0) and the bare-number rejection is the only
     behavior under test.
     """

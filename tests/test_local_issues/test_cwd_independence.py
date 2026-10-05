@@ -53,7 +53,7 @@ def sandbox() -> Path:
 
     <root>/opencode-config/
       .gitmodules            -> submodule ".opencode" path .opencode
-      .opencode/             -> child git repo with .issues/2432/issue.yaml
+      .opencode/             -> child git repo with fabricated issue dir 2432/issue.yaml
       .opencode/tools/local-issues  (copy of the real tool)
       docs/                  -> nested non-repo directory (second CWD)
     """

@@ -12,7 +12,7 @@
 # Invalid: "Describe how you would implement SC-3" (tests prose recall, not behavior)
 #
 # FIXTURE REQUIREMENT:
-# If the prompt references issue content (e.g., .issues/2211/spec.md), fixture files
+# If the prompt references issue content (e.g., a fixture issue spec), fixture files
 # MUST be created at fixtures/issues/{N}/ BEFORE running the test. The harness
 # auto-injects all fixture directories into the test repo. Without fixtures, the
 # test will fail at runtime because the issue directory doesn't exist.

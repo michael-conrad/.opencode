@@ -168,7 +168,7 @@ The `merged` / `merged_at` fields from the platform pulls API (or `state` / `mer
 - **Unmerged in-scope submodule PR → BLOCK.** While any in-scope submodule PR is unmerged, parent stacked PR creation is blocked. Do NOT create the parent PR. Do NOT auto-remediate. Report the block naming the submodule and its open PR, then halt.
 - The merge-state blocking condition applies only to the enumerated in-scope set. An empty in-scope set means no submodule PR can block — recorded with the enumeration skip above.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-1 — block parent stacked PR creation while any in-scope submodule PR is unmerged.
+**AUTHORITY:** Spec R-1 — block parent stacked PR creation while any in-scope submodule PR is unmerged.
 
 #### No-`+`-Prefix Freshness Assertion (MANDATORY)
 
@@ -183,7 +183,7 @@ git submodule status | grep -E '^\+' | awk '{print $2}'
 - This assertion is separate from the Step 0 merged-commit reachability check: a clean working tree with a stale (unmerged) pointer is a different failure category (stale pointer) from a `+`-prefixed working tree, and the two conditions are not interchangeable.
 - The assertion applies only to the enumerated in-scope set. A `+` prefix on an out-of-scope submodule does not block.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-6 — the gate asserts `git submodule status` shows no `+` prefixes for in-scope submodules before parent stacked PR creation.
+**AUTHORITY:** Spec R-6 — the gate asserts `git submodule status` shows no `+` prefixes for in-scope submodules before parent stacked PR creation.
 
 #### Pointer-SHA Ancestry Assertion (MANDATORY)
 
@@ -202,7 +202,7 @@ On exit code `0` (ancestor): the recorded pointer is fresh on the submodule's re
 - This ancestry assertion is separate from the live-API merge-state verification above: the two checks are not interchangeable and carry separate failure categories — a stale pointer (recorded SHA absent from the remote trunk) is not an unmerged PR. Merge state is never inferred from this ancestry result.
 - The assertion applies only to the enumerated in-scope set. A pointer on an out-of-scope submodule that is absent from its remote trunk does not block.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-7 — the gate asserts each in-scope recorded pointer SHA is an ancestor of the submodule's remote trunk `origin/$DEFAULT_BRANCH` before parent stacked PR creation.
+**AUTHORITY:** Spec R-7 — the gate asserts each in-scope recorded pointer SHA is an ancestor of the submodule's remote trunk `origin/$DEFAULT_BRANCH` before parent stacked PR creation.
 
 #### Pointers-Ride-Alongside Timing Rule (MANDATORY)
 
@@ -212,7 +212,7 @@ Submodule pointer bumps are committed on the parent feature branch only after th
 - The pointers-ride-alongside timing is enforced together with the assertions above: the merge-state verification confirms the in-scope submodule merges have landed before any pointer bump is committed, and the `+`-prefix and Pointer-SHA Ancestry assertions confirm the committed pointers are clean and fresh.
 - Pointer bumps are never committed before merges land for in-scope submodules and never committed standalone — the bump-after-merge timing preserves the pointers-ride-alongside convention that the pointer rides alongside the next real parent-repo change.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-5 — submodule pointer bumps are committed on the parent feature branch after the submodule merges land per the pointers-ride-alongside rule, so the parent PR's squashed commit carries fresh pointers.
+**AUTHORITY:** Spec R-5 — submodule pointer bumps are committed on the parent feature branch after the submodule merges land per the pointers-ride-alongside rule, so the parent PR's squashed commit carries fresh pointers.
 
 #### Waiting Behavior — Parent Branch Sits Idle (MANDATORY)
 
@@ -222,7 +222,7 @@ While any in-scope submodule PR is unmerged, the parent branch sits idle: no new
 - Pushes and PR mutations are equally barred during the wait: the parent stacked PR is created only after every in-scope submodule PR has landed, so there is nothing to push to and nothing to mutate on the parent branch while the idle wait is in effect.
 - The wait ends only when all in-scope submodule PRs have landed: the idle period is then over, and the gate proceeds to the Pointers-Ride-Alongside Timing Rule above (pointer bumps committed alongside the real parent-repo change) before parent stacked PR creation.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-11 — while waiting, the parent branch sits idle: no new commits, pushes, or PR mutations occur on the parent branch until all in-scope submodule PRs land.
+**AUTHORITY:** Spec R-11 — while waiting, the parent branch sits idle: no new commits, pushes, or PR mutations occur on the parent branch until all in-scope submodule PRs land.
 
 #### Enforcement Placement — Sole Authoritative Blocking Check (MANDATORY)
 
@@ -235,7 +235,7 @@ This Step 0.75 ordering gate is the **sole authoritative blocking check** for st
 
 pr-creation/enforcement-gate satisfies all four criteria. The three non-selected candidate sites carry advisory/consistency roles with no blocking authority over stacked-PR ordering: the git-workflow-branch pre-commit-pointer-check, the executing-plans post-implementation steps, and the tests-v2 behavioral ordering-gate tests (behavioral-evidence instrument, not a runtime enforcement site). Exactly one site owns blocking authority for the ordering gate — this one.
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-8 and D-1 — the ordering gate's authoritative blocking check is assigned to exactly one enforcement site, the spec-designated site pr-creation/enforcement-gate.
+**AUTHORITY:** Spec R-8 and D-1 — the ordering gate's authoritative blocking check is assigned to exactly one enforcement site, the spec-designated site pr-creation/enforcement-gate.
 
 ### Step 1: Verify PR Instruction (MANDATORY)
 
