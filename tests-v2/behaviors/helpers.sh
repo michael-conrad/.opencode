@@ -1825,7 +1825,8 @@ behavior_run() {
         submodule_remote_url=$(git -C "$PARENT_REPO_DIR" config --get submodule..opencode.url 2>/dev/null || true)
     fi
     if [ -z "$submodule_remote_url" ]; then
-        submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+        echo "FATAL: submodule .opencode URL not resolvable — set submodule..opencode.url in the project's .gitmodules (property-based lookup; no hardcoded fallback)" >&2
+        return 1
     fi
     submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
