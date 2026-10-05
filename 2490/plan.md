@@ -1,6 +1,6 @@
 # Plan — Deck rip-and-replace (.opencode#2490)
 
-**Branch strategy**: single feature branch on the .opencode submodule (stacked); each stage below is a commit; every stage is followed by a fresh-session behavioral acceptance via `with-test-home` before the next stage begins; one PR carries the replacement. The RED state for SC-1..SC-7 is the current deck itself — each acceptance assertion is written against the recorded failure evidence, confirmed failing before the stage's GREEN.
+**Branch strategy**: single feature branch on the .opencode submodule (stacked); each stage below is a commit; every stage is followed by a fresh-session behavioral acceptance via `with-test-home` on the branch (merge is not the acceptance gate — the harness runs branch state). **Merge point: end of Stage 3** — the first merged state must be self-consistent (floor + routing + every card the routing index references). The developer's restart after merge begins the real-use soak; Stages 4–5 follow as the soak passes. The RED state for SC-1..SC-7 is the current deck itself — each acceptance assertion is written against the recorded failure evidence, confirmed failing before the stage's GREEN.
 
 ## Stage 1 — Injection surface (PR-1 content) — SC-1, SC-6, SC-8 partial
 
