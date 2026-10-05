@@ -29,3 +29,5 @@ Consult before touching files.
    PRs are merged by the developer only — never by the agent.
 
 Unsure which path fits? Halt with an open-ended clarification request.
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
