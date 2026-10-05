@@ -2,5 +2,6 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1939
-state: CLOSED
 title: '[SPEC-FIX] Pre-push hook Gate 2 DEFAULT_BRANCH fallback hardcodes "main"'
+github_url: https://github.com/michael-conrad/.opencode/issues/1939
+status: closed

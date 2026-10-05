@@ -3,5 +3,6 @@ labels:
 - plan
 - fix
 number: 1469
-state: CLOSED
 title: '[PLAN] Fix completion-core description and dispatch mapping'
+github_url: https://github.com/michael-conrad/.opencode/issues/1469
+status: closed

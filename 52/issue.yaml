@@ -1,4 +1,0 @@
-number: 52
-title: "[SPEC] needs-approval label lifecycle — restore as default, not deprecated"
-state: CLOSED
-labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec", "color": "ededed", "description": ""}]""'

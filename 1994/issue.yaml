@@ -3,6 +3,7 @@ labels:
 - spec-fix
 - process-integrity
 number: 1994
-state: OPEN
-title: "[SPEC-FIX] Plan writer produces structurally defective plans \u2014 6 defect\"
-  \ categories identified"
+title: '[SPEC-FIX] Plan writer produces structurally defective plans — 6 defect"  categories
+  identified'
+github_url: https://github.com/michael-conrad/.opencode/issues/1994
+status: open

@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1670
-state: CLOSED
 title: '[SPEC-FIX] #1669 spec body contains unresolved template placeholder and broken
   URL'
+github_url: https://github.com/michael-conrad/.opencode/issues/1670
+status: closed

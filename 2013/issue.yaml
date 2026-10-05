@@ -1,9 +1,14 @@
 number: 2013
 title: '[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows'
-status: closed
+status: open
 labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn''t working"}]'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: The targeted 'pre-red-baseline' task in 'implementation-pipeline' and its SUBMODULE-DRIFT check exist nowhere in .opencode (grep over the whole tree including attic/ returns no matches), and live hooks/pre-commit, pre-push, implement, and git-workflow-branch contain no submodule-drift blocking check — the machinery this bug targets was retired with the old deck.
+sweep_evidence: The targeted 'pre-red-baseline' task in 'implementation-pipeline'
+  and its SUBMODULE-DRIFT check exist nowhere in .opencode (grep over the whole tree
+  including attic/ returns no matches), and live hooks/pre-commit, pre-push, implement,
+  and git-workflow-branch contain no submodule-drift blocking check — the machinery
+  this bug targets was retired with the old deck.
 updated_at: '2026-10-05T19:39:01+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2013

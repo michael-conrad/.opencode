@@ -3,6 +3,7 @@ labels:
 - enforcement
 - behavioral-test
 number: 1951
-state: CLOSED
 title: '[SPEC-FIX] Pre-Response Gate enforcement: behavioral test for cascading rationalization
   bypass'
+github_url: https://github.com/michael-conrad/.opencode/issues/1951
+status: closed

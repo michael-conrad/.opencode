@@ -12,4 +12,11 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The defect (deprecated meta-instruction description with ''Load via skill() when''/''Also load when''/''User phrases:'') is already addressed: the live .opencode/skills/playwright-cli/SKILL.md (provenance .opencode#2490, the reorg) carries an agent-intent description (''Load before any browser automation — ... Use when a web interaction must be observed rather than assumed'') with zero prohibited patterns. Supporting targets (reference/skill-card-description-standards.md, validate_skill_cards.py) no longer exist live.'
+sweep_evidence: 'The defect (deprecated meta-instruction description with ''Load via
+  skill() when''/''Also load when''/''User phrases:'') is already addressed: the live
+  .opencode/skills/playwright-cli/SKILL.md (provenance .opencode#2490, the reorg)
+  carries an agent-intent description (''Load before any browser automation — ...
+  Use when a web interaction must be observed rather than assumed'') with zero prohibited
+  patterns. Supporting targets (reference/skill-card-description-standards.md, validate_skill_cards.py)
+  no longer exist live.'
+number: 2460

@@ -1,0 +1,8 @@
+number: 438
+title: '[SPEC-FIX] GREEN phase allows structural verification as proxy for execution-based
+  SC verification'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "critical",
+  "color": "ededed", "description": ""}, {"name": "tier-1", "color": "ededed", "description":
+  ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/438
+status: closed

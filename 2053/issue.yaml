@@ -77,3 +77,5 @@ title: '[SPEC] Fix audit skill card — DiMo chain per-step dispatch, pre-flight
 updated_at: '2026-07-21T21:36:30+00:00'
 closed_at: '2026-07-21T21:36:30+00:00'
 close_reason: completed
+number: 2053
+github_url: https://github.com/michael-conrad/.opencode/issues/2053

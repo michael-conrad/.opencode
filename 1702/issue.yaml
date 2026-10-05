@@ -2,5 +2,6 @@ labels:
 - spec-fix
 - phase
 number: 1702
-state: CLOSED
 title: Add behavioral-test-remediation step to implementation-pipeline
+github_url: https://github.com/michael-conrad/.opencode/issues/1702
+status: closed

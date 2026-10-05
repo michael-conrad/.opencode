@@ -1,9 +1,18 @@
 number: 1305
-title: 'Bug: Incorrect Scope Classification Blocks Technical Investigation Capability Under for_analysis'
-status: closed
-labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn''t working"}, {"name": "spec", "color": "ededed", "description": ""}, {"name": "investigation", "color": "ededed", "description": ""}, {"name": "governance", "color": "ededed", "description": ""}]'
+title: 'Bug: Incorrect Scope Classification Blocks Technical Investigation Capability
+  Under for_analysis'
+status: open
+labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn''t working"},
+  {"name": "spec", "color": "ededed", "description": ""}, {"name": "investigation",
+  "color": "ededed", "description": ""}, {"name": "governance", "color": "ededed",
+  "description": ""}]'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'SPEC-FIX against retired approval-gate/scope-classification ceremony: for_analysis/for_implementation vocabulary appears nowhere in the live deck outside CHANGELOG history, tests-v2 fixtures, and the issues store — the live floor.md uses ''approved for implementation'' whitelist language instead, so the classification bug it targets no longer exists.'
+sweep_evidence: 'SPEC-FIX against retired approval-gate/scope-classification ceremony:
+  for_analysis/for_implementation vocabulary appears nowhere in the live deck outside
+  CHANGELOG history, tests-v2 fixtures, and the issues store — the live floor.md uses
+  ''approved for implementation'' whitelist language instead, so the classification
+  bug it targets no longer exists.'
 updated_at: '2026-10-05T19:39:01+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/1305

@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1480
-state: CLOSED
-title: "'[SPEC] Fix: pre-analysis Skill Description Compliance'"
+title: '''[SPEC] Fix: pre-analysis Skill Description Compliance'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1480
+status: closed

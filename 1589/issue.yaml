@@ -2,6 +2,7 @@ labels:
 - '[SPEC]'
 - critical
 number: 1589
-state: CLOSED
-title: "[SPEC] Pre-Response Gate re-entry for gap-fill cascade \u2014 skill dispatch\"
-  \ on sub-decisions"
+title: '[SPEC] Pre-Response Gate re-entry for gap-fill cascade — skill dispatch"  on
+  sub-decisions'
+github_url: https://github.com/michael-conrad/.opencode/issues/1589
+status: closed

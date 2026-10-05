@@ -1,4 +1,5 @@
-title: '[SPEC] Orchestrator bypasses spec-creation pipeline — direct github_issue_write for spec content'
+title: '[SPEC] Orchestrator bypasses spec-creation pipeline — direct github_issue_write
+  for spec content'
 status: closed
 labels:
 - '[SPEC],needs-approval'
@@ -8,4 +9,10 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Targets a ''spec-creation'' orchestrator-dispatch behavioral test and an entry in guidelines/000-critical-rules.md — neither exists in the live deck: there is no .opencode/guidelines/ directory (000-critical-rules.md exists only at attic/guidelines/000-critical-rules.md) and no spec-creation pipeline/orchestrator dispatch machinery outside attic/; this is SPEC-FIX against retired ceremony.'
+sweep_evidence: 'Targets a ''spec-creation'' orchestrator-dispatch behavioral test
+  and an entry in guidelines/000-critical-rules.md — neither exists in the live deck:
+  there is no .opencode/guidelines/ directory (000-critical-rules.md exists only at
+  attic/guidelines/000-critical-rules.md) and no spec-creation pipeline/orchestrator
+  dispatch machinery outside attic/; this is SPEC-FIX against retired ceremony.'
+number: 2003
+github_url: https://github.com/michael-conrad/.opencode/issues/2003

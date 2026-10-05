@@ -1,5 +1,6 @@
 labels:
 - approved-for-pr
 number: 1812
-state: CLOSED
 title: '[SPEC-FIX] Stop submodule-only PR creation at every gate'
+github_url: https://github.com/michael-conrad/.opencode/issues/1812
+status: closed

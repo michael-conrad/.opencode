@@ -1,5 +1,6 @@
 labels:
 - plan
 number: 1764
-state: CLOSED
 title: '[PLAN] #1302: Three-Part Phase Structure for Plan Writer'
+github_url: https://github.com/michael-conrad/.opencode/issues/1764
+status: closed

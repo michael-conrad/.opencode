@@ -1,4 +1,4 @@
 number: 112
-title: "[SPEC] Non-adversarial double-check gate after RED/GREEN before audit"
-state: CLOSED
+title: '[SPEC] Non-adversarial double-check gate after RED/GREEN before audit'
 labels: '[[{"name": "spec", "color": "ededed", "description": ""}]""'
+status: closed

@@ -16,7 +16,8 @@ body: 'STATUS: 1.0
 
   - File: `skills/pr-creation-workflow/SKILL.md`
 
-  - Action: Remove `individual` from pr_strategy type definition, leaving only `none` and `stacked`
+  - Action: Remove `individual` from pr_strategy type definition, leaving only `none`
+  and `stacked`
 
 
   ### Item 2: Update scope-parsing table
@@ -30,7 +31,8 @@ body: 'STATUS: 1.0
 
   - File: `guidelines/010-approval-gate.md`
 
-  - Action: Remove `individual` row, update scope table entries for for_review_prep, for_implementation, for_review_only, for_next_phase, for_phase_N
+  - Action: Remove `individual` row, update scope table entries for for_review_prep,
+  for_implementation, for_review_only, for_next_phase, for_phase_N
 
 
   ### Item 4: Simplify squash-push.md
@@ -117,4 +119,9 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Every target path is retired: skills/pr-creation-workflow, skills/approval-gate, skills/finishing-a-development-branch, guidelines/010-approval-gate.md, guidelines/000-critical-rules.md, and tests/behaviors are all absent from the live tree (guidelines/ directory does not exist; attic/ retains the old deck). The plan targets approval-gate ceremony the reorg removed.'
+sweep_evidence: 'Every target path is retired: skills/pr-creation-workflow, skills/approval-gate,
+  skills/finishing-a-development-branch, guidelines/010-approval-gate.md, guidelines/000-critical-rules.md,
+  and tests/behaviors are all absent from the live tree (guidelines/ directory does
+  not exist; attic/ retains the old deck). The plan targets approval-gate ceremony
+  the reorg removed.'
+github_url: https://github.com/michael-conrad/.opencode/issues/828

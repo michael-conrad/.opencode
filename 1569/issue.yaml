@@ -1,6 +1,7 @@
 labels:
 - bug
 number: 1569
-state: OPEN
-title: "[BUG] 26 test scenarios missing from EXPECTED_SKILLS array \u2014 script crashes\"
-  \ with unbound variable"
+title: '[BUG] 26 test scenarios missing from EXPECTED_SKILLS array — script crashes"  with
+  unbound variable'
+github_url: https://github.com/michael-conrad/.opencode/issues/1569
+status: open

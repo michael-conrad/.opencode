@@ -1,4 +1,7 @@
-number: 130
-title: "[SPEC] Remove commit-per-issue enforcement from pre-push hook — defer to PR-time enforcement"
-state: CLOSED
-labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "spec", "color": "ededed", "description": ""}]""'
+number: 837
+title: '[SPEC] Remove commit-per-issue enforcement from pre-push hook — defer to PR-time
+  enforcement'
+labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name":
+  "spec", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/837
+status: closed

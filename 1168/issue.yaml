@@ -1,7 +1,7 @@
 number: 1168
 title: '[BUG] solve state init rejects --var-name/--var-value — requires two-step
   init+update dance'
-status: open
+status: closed
 labels:
 - bug
 body: '## Bug
@@ -72,3 +72,4 @@ promoted_at: '2026-08-27T03:25:12.575194+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.575194+00:00'
 author: michael-conrad
+github_url: https://github.com/michael-conrad/.opencode/issues/1168

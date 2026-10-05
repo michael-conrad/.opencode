@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1804
-state: CLOSED
 title: '[SUB] Phase 6: Update validation script'
+github_url: https://github.com/michael-conrad/.opencode/issues/1804
+status: closed

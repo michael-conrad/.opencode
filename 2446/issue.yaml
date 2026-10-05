@@ -1,4 +1,5 @@
-title: '[BUG] local-issues update --labels: help text implies comma-separated input but nargs=''*'' parses space-separated'
+title: '[BUG] local-issues update --labels: help text implies comma-separated input
+  but nargs=''*'' parses space-separated'
 status: closed
 labels:
 - approved-for-pr
@@ -6,22 +7,29 @@ labels:
 body: '## Observed
 
 
-  The help text for `local-issues update --labels` implies comma-separated label input, but the argparse definition uses `nargs=''*''` (space-separated). Passing a quoted comma-separated string (e.g. `--labels ''spec-passed-review, other''`) silently produces a single malformed label containing the comma/space.
+  The help text for `local-issues update --labels` implies comma-separated label input,
+  but the argparse definition uses `nargs=''*''` (space-separated). Passing a quoted
+  comma-separated string (e.g. `--labels ''spec-passed-review, other''`) silently
+  produces a single malformed label containing the comma/space.
 
 
-  Discovered during spec-audit label updates on `NewsRx/hermes-ingest-pubmed#139` (2026-09-14).
+  Discovered during spec-audit label updates on `NewsRx/hermes-ingest-pubmed#139`
+  (2026-09-14).
 
 
   ## Expected
 
 
-  Help text matches parsing behavior (either document space-separated usage or split on commas in code), and malformed labels should be rejected rather than silently created.
+  Help text matches parsing behavior (either document space-separated usage or split
+  on commas in code), and malformed labels should be rejected rather than silently
+  created.
 
 
   ## Steps to reproduce
 
 
-  `./.opencode/tools/local-issues update --number <repo>#<N> --labels ''a, b''` then read the issue labels.
+  `./.opencode/tools/local-issues update --number <repo>#<N> --labels ''a, b''` then
+  read the issue labels.
 
 
   ## Component
@@ -39,4 +47,9 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2446
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Fixed in the live tool: .opencode/tools/local-issues now has _normalize_labels() that splits tokens on commas, _reject_malformed_labels() that exits 2 instead of silently creating malformed labels, and --labels help text reading ''Comma-separated or space-separated labels; malformed tokens...'' — exactly the bug''s Expected state.'
+sweep_evidence: 'Fixed in the live tool: .opencode/tools/local-issues now has _normalize_labels()
+  that splits tokens on commas, _reject_malformed_labels() that exits 2 instead of
+  silently creating malformed labels, and --labels help text reading ''Comma-separated
+  or space-separated labels; malformed tokens...'' — exactly the bug''s Expected state.'
+number: 2446
+github_url: https://github.com/michael-conrad/.opencode/issues/2446

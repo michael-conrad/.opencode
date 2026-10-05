@@ -1,4 +1,5 @@
-title: '[SPEC] Fix writing-plans task cards: spec-is-not-tracking mandate, dependency-contract generation'
+title: '[SPEC] Fix writing-plans task cards: spec-is-not-tracking mandate, dependency-contract
+  generation'
 status: closed
 labels:
 - approved-for-pr
@@ -9,4 +10,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Fixes writing-plans task cards (spec-is-not-tracking mandate, dependency-contract generation) — skills/writing-plans/ exists only under attic/skills/ and no live deck component carries its task-card structure. The target is retired content.
+sweep_evidence: Fixes writing-plans task cards (spec-is-not-tracking mandate, dependency-contract
+  generation) — skills/writing-plans/ exists only under attic/skills/ and no live
+  deck component carries its task-card structure. The target is retired content.
+number: 2232
+github_url: https://github.com/michael-conrad/.opencode/issues/2232

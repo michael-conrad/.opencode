@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 2014
-state: CLOSED
-title: "'[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows'"
+title: '''[BUG] pre-red-baseline SUBMODULE-DRIFT check too strict for stacked PR workflows'''
+github_url: https://github.com/michael-conrad/.opencode/issues/2014
+status: closed

@@ -1,29 +1,36 @@
 number: 2357
-title: '[SPEC] Condense 090-data-integrity.md — move batch/retention/classification to shared ref'
+title: '[SPEC] Condense 090-data-integrity.md — move batch/retention/classification
+  to shared ref'
 status: closed
 labels:
 - needs-approval
 - spec-draft
 body: '## Problem
 
-  Preloaded `.opencode/guidelines/090-data-integrity.md` costs ~5.5k tokens. ~50% procedural (batch operations, long-running tasks, serialization integrity, data classification, migration integrity, audit trail, retention).
+  Preloaded `.opencode/guidelines/090-data-integrity.md` costs ~5.5k tokens. ~50%
+  procedural (batch operations, long-running tasks, serialization integrity, data
+  classification, migration integrity, audit trail, retention).
 
 
   ## Scope
 
-  - **In:** Relocate batch/serialization/classification/migration/retention to a shared data-integrity reference; retain global no-synthetic-data, no-false-data, no-default-data, hard-fail-on-missing-data, no-unauthorized-semantic-change cores.
+  - **In:** Relocate batch/serialization/classification/migration/retention to a shared
+  data-integrity reference; retain global no-synthetic-data, no-false-data, no-default-data,
+  hard-fail-on-missing-data, no-unauthorized-semantic-change cores.
 
   - **Out:** Removing any data-integrity zero-tolerance core.
 
 
   ## Approach
 
-  Move procedural sections to shared data-integrity reference loaded via mandatory Read-links; retain the no-synthetic-data cores preloaded.
+  Move procedural sections to shared data-integrity reference loaded via mandatory
+  Read-links; retain the no-synthetic-data cores preloaded.
 
 
   ## Impact
 
-  ~2.7k savings. Risk: losing no-synthetic-data prohibition. Mitigation: retain those cores verbatim. Depends on shared ref + config. Action: approve.'
+  ~2.7k savings. Risk: losing no-synthetic-data prohibition. Mitigation: retain those
+  cores verbatim. Depends on shared ref + config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2357
@@ -35,4 +42,7 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target .opencode/guidelines/090-data-integrity.md exists only under .opencode/attic/guidelines/; no guidelines/ or shared reference/ directory exists in the live deck, so the extraction-and-condense plan has no live target.
+sweep_evidence: Target .opencode/guidelines/090-data-integrity.md exists only under
+  .opencode/attic/guidelines/; no guidelines/ or shared reference/ directory exists
+  in the live deck, so the extraction-and-condense plan has no live target.
+github_url: https://github.com/michael-conrad/.opencode/issues/2357

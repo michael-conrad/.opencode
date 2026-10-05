@@ -6,24 +6,29 @@ labels:
 - spec-draft
 body: '## Problem
 
-  Preloaded `.opencode/guidelines/075-docs-verification.md` costs ~1.9k tokens. ~55% procedural (verification-source priority list, code-review checklist, examples) that overlaps engineering-approach / verification-enforcement.
+  Preloaded `.opencode/guidelines/075-docs-verification.md` costs ~1.9k tokens. ~55%
+  procedural (verification-source priority list, code-review checklist, examples)
+  that overlaps engineering-approach / verification-enforcement.
 
 
   ## Scope
 
-  - **In:** Relocate source-priority list + checklist + examples; retain the zero-tolerance verify-against-live-docs-before-implementing core.
+  - **In:** Relocate source-priority list + checklist + examples; retain the zero-tolerance
+  verify-against-live-docs-before-implementing core.
 
   - **Out:** Removing the live-docs-verification core.
 
 
   ## Approach
 
-  Move the duplicated procedural detail to engineering-approach / verification-enforcement; keep the live-docs core preloaded.
+  Move the duplicated procedural detail to engineering-approach / verification-enforcement;
+  keep the live-docs core preloaded.
 
 
   ## Impact
 
-  File-size reduction is an emergent property of the content-based SCs. Risk: low. Depends on engineering-approach update + config. Action: approve.'
+  File-size reduction is an emergent property of the content-based SCs. Risk: low.
+  Depends on engineering-approach update + config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2353
@@ -35,4 +40,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target .opencode/guidelines/075-docs-verification.md exists only under .opencode/attic/guidelines/ and the relocation destination 'engineering-approach' skill does not exist in the live skills/ list. Preload condensation of a retired guideline is superseded by the reorg.
+sweep_evidence: Target .opencode/guidelines/075-docs-verification.md exists only under
+  .opencode/attic/guidelines/ and the relocation destination 'engineering-approach'
+  skill does not exist in the live skills/ list. Preload condensation of a retired
+  guideline is superseded by the reorg.
+github_url: https://github.com/michael-conrad/.opencode/issues/2353

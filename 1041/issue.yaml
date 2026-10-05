@@ -1,6 +1,7 @@
 number: 1041
-title: '[BUG] local-issues WORKTREE_BRANCH "issues" mismatches actual orphan branch "issues-data"'
-status: closed
+title: '[BUG] local-issues WORKTREE_BRANCH "issues" mismatches actual orphan branch
+  "issues-data"'
+status: open
 labels:
 - bug
 - needs-approval
@@ -8,7 +9,10 @@ labels:
 body: '## Summary
 
 
-  The `local-issues` tool at `tools/local-issues:41` hardcodes `WORKTREE_BRANCH = "issues"`, but the orphan branch created and pushed to `.opencode/` remote is named `issues-data`. The tool will never find the existing orphan branch via `_ensure_worktree()` and will silently create a new redundant `issues` branch if invoked.
+  The `local-issues` tool at `tools/local-issues:41` hardcodes `WORKTREE_BRANCH =
+  "issues"`, but the orphan branch created and pushed to `.opencode/` remote is named
+  `issues-data`. The tool will never find the existing orphan branch via `_ensure_worktree()`
+  and will silently create a new redundant `issues` branch if invoked.
 
 
   ## Root Cause
@@ -32,15 +36,22 @@ body: '## Summary
   ```
 
 
-  The `_ensure_worktree()` function at line 183 scans `git worktree list` for a branch named `[issues]`. Since the branch is `issues-data`, it never matches, and the tool either creates a new orphan `issues` branch or falls back to plain-file mode — defeating the worktree isolation purpose.
+  The `_ensure_worktree()` function at line 183 scans `git worktree list` for a branch
+  named `[issues]`. Since the branch is `issues-data`, it never matches, and the tool
+  either creates a new orphan `issues` branch or falls back to plain-file mode — defeating
+  the worktree isolation purpose.
 
 
   ## Impact
 
 
-  - Any `local-issues` mutation (create, update, close) operating in the `.opencode/` submodule will write to the `.issues/` directory tracked in `dev` rather than on the orphan branch
+  - Any `local-issues` mutation (create, update, close) operating in the `.opencode/`
+  submodule will write to the `.issues/` directory tracked in `dev` rather than on
+  the orphan branch
 
-  - File tracking in `dev` was fixed by adding `/.issues/` to `.gitignore` (commit `37dbbeb`), but already-tracked files remain in the git index — the gitignore only prevents NEW files from being tracked (see #794/#801/#804)
+  - File tracking in `dev` was fixed by adding `/.issues/` to `.gitignore` (commit
+  `37dbbeb`), but already-tracked files remain in the git index — the gitignore only
+  prevents NEW files from being tracked (see #794/#801/#804)
 
 
   ## Remediation Required
@@ -61,7 +72,8 @@ body: '## Summary
   ```
 
 
-  This makes `_ensure_worktree()` detect the existing orphan branch and create a worktree from it at `.issues/`.
+  This makes `_ensure_worktree()` detect the existing orphan branch and create a worktree
+  from it at `.issues/`.
 
 
   ### Part B — Remediation: Stop Tracking .issues/ in dev
@@ -71,12 +83,16 @@ body: '## Summary
 
   git rm --cached -r .issues/
 
-  git commit -m "fix: stop tracking .issues/ in dev — managed via issues-data orphan worktree"
+  git commit -m "fix: stop tracking .issues/ in dev — managed via issues-data orphan
+  worktree"
 
   ```
 
 
-  This removes the 26 already-tracked files from the git index while preserving them on disk. The `.gitignore` entry (`/.issues/`) prevents re-addition. Subsequent `local-issues` tool invocations will then correctly route through the worktree to the `issues-data` branch.
+  This removes the 26 already-tracked files from the git index while preserving them
+  on disk. The `.gitignore` entry (`/.issues/`) prevents re-addition. Subsequent `local-issues`
+  tool invocations will then correctly route through the worktree to the `issues-data`
+  branch.
 
 
   ## Verification
@@ -88,7 +104,8 @@ body: '## Summary
 
   2. `git -C .opencode worktree list` → shows `.issues/` as linked to `[issues-data]`
 
-  3. `.opencode/tools/local-issues create --title "test"` → writes to worktree, commit on `issues-data` branch
+  3. `.opencode/tools/local-issues create --title "test"` → writes to worktree, commit
+  on `issues-data` branch
 
 
   ## Labels
@@ -106,4 +123,10 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The reported defect is fixed in the live deck: .opencode/tools/local-issues:49 now reads WORKTREE_BRANCH = "issues-data" and .opencode/.issues is mounted as a worktree on [issues-data] (git worktree list), with .issues/ untracked from .opencode main (commit da160a84). The only remaining tracked file (.issues/research-cards/.gitkeep) was deliberately added with the #1271 research-cards feature in the same commit (b7014d07) as the #1272 fix, so no work remains.'
+sweep_evidence: 'The reported defect is fixed in the live deck: .opencode/tools/local-issues:49
+  now reads WORKTREE_BRANCH = "issues-data" and .opencode/.issues is mounted as a
+  worktree on [issues-data] (git worktree list), with .issues/ untracked from .opencode
+  main (commit da160a84). The only remaining tracked file (.issues/research-cards/.gitkeep)
+  was deliberately added with the #1271 research-cards feature in the same commit
+  (b7014d07) as the #1272 fix, so no work remains.'
+github_url: https://github.com/michael-conrad/.opencode/issues/1041

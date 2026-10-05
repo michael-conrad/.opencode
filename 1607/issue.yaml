@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1607
-state: CLOSED
-title: "Phase 0 \u2014 Behavioral tests RED"
+title: Phase 0 — Behavioral tests RED
+github_url: https://github.com/michael-conrad/.opencode/issues/1607
+status: closed

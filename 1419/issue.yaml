@@ -2,6 +2,7 @@ labels:
 - needs-approval
 - '[SPEC-FIX]'
 number: 1419
-state: CLOSED
 title: '[SPEC-FIX] #1418: missing mandatory loop counter SC for gap-fill cascade orchestrator
   loop'
+github_url: https://github.com/michael-conrad/.opencode/issues/1419
+status: closed

@@ -1,4 +1,5 @@
 number: 42
-title: "[SPEC-FIX] Remove duplicate plugin injections that opencode-cli already provides natively"
-state: CLOSED
+title: '[SPEC-FIX] Remove duplicate plugin injections that opencode-cli already provides
+  natively'
 labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}]""'
+status: closed

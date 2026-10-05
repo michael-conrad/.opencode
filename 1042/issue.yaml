@@ -1,6 +1,7 @@
 number: 1042
-title: '[BUG] local-issues _ensure_worktree() silently degrades to plain-file mode when .issues/ already exists'
-status: closed
+title: '[BUG] local-issues _ensure_worktree() silently degrades to plain-file mode
+  when .issues/ already exists'
+status: open
 labels:
 - bug
 - needs-approval
@@ -8,35 +9,46 @@ labels:
 body: '## Summary
 
 
-  `_ensure_worktree()` in `tools/local-issues` has a silent exception handler that masks worktree creation failures. When `.issues/` already exists as a plain directory on disk (e.g., from `git checkout` restoring it after `git rm --cached`), the function silently returns plain-file mode with zero warning to the user.
+  `_ensure_worktree()` in `tools/local-issues` has a silent exception handler that
+  masks worktree creation failures. When `.issues/` already exists as a plain directory
+  on disk (e.g., from `git checkout` restoring it after `git rm --cached`), the function
+  silently returns plain-file mode with zero warning to the user.
 
 
   ## Root Cause
 
 
-  The broad `except Exception` at line 323 catches the `git worktree add` failure (fatal: already exists) and returns `False`. The caller has no way to distinguish "worktree created successfully" from "worktree creation failed, operating in degraded mode."
+  The broad `except Exception` at line 323 catches the `git worktree add` failure
+  (fatal: already exists) and returns `False`. The caller has no way to distinguish
+  "worktree created successfully" from "worktree creation failed, operating in degraded
+  mode."
 
 
   ## Affected Path
 
 
-  1. `.issues/` exists as a plain directory (from checkout, clone, or previous plain-file use)
+  1. `.issues/` exists as a plain directory (from checkout, clone, or previous plain-file
+  use)
 
-  2. `_ensure_worktree()` saves content and removes directory (lines 282-299) — BUT only if `has_existing` is True
+  2. `_ensure_worktree()` saves content and removes directory (lines 282-299) — BUT
+  only if `has_existing` is True
 
-  3. If `has_existing` is False (directory exists but wasn''t created by the tool), save is skipped
+  3. If `has_existing` is False (directory exists but wasn''t created by the tool),
+  save is skipped
 
   4. Plain directory is not removed, so `git worktree add .issues issues-data` fails
 
   5. Silent `except Exception` handler returns False with zero diagnostic output
 
-  6. Tool continues in plain-file mode — user sees output but data is NOT on the orphan branch
+  6. Tool continues in plain-file mode — user sees output but data is NOT on the orphan
+  branch
 
 
   ## Reproduction
 
 
-  Within a fresh `.opencode/` checkout (where `.issues/` was previously `git rm --cached`d and `.gitignore`d but the directory persists on disk):
+  Within a fresh `.opencode/` checkout (where `.issues/` was previously `git rm --cached`d
+  and `.gitignore`d but the directory persists on disk):
 
 
   ```bash
@@ -65,4 +77,10 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Addressed in the live tools/local-issues: _create_issues_worktree (line 811) now calls _migrate_existing_issues() and _setup_worktree() rmtree''s any pre-existing .issues/ directory before ''git worktree add'' (local-issues:761-776), eliminating the existing-plain-directory failure path, and every failure branch emits a ''warn:'' diagnostic to stderr instead of returning silently. The silent plain-file degradation described no longer exists.'
+sweep_evidence: 'Addressed in the live tools/local-issues: _create_issues_worktree
+  (line 811) now calls _migrate_existing_issues() and _setup_worktree() rmtree''s
+  any pre-existing .issues/ directory before ''git worktree add'' (local-issues:761-776),
+  eliminating the existing-plain-directory failure path, and every failure branch
+  emits a ''warn:'' diagnostic to stderr instead of returning silently. The silent
+  plain-file degradation described no longer exists.'
+github_url: https://github.com/michael-conrad/.opencode/issues/1042

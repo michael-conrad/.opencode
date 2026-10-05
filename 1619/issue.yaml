@@ -3,5 +3,6 @@ labels:
 - '[SPEC-FIX]'
 - critical
 number: 1619
-state: CLOSED
 title: '[SPEC-FIX] Remove sub-step entries from spec-creation dispatch table and invocation'
+github_url: https://github.com/michael-conrad/.opencode/issues/1619
+status: closed

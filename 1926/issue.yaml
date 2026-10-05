@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1926
-state: OPEN
-title: "'[SPEC] Cross-Reference Behavioral Enforcement Tests'"
+title: '''[SPEC] Cross-Reference Behavioral Enforcement Tests'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1926
+status: open

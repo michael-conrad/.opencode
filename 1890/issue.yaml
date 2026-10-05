@@ -2,5 +2,6 @@ labels:
 - TRASH
 - REJECTED
 number: 1890
-state: CLOSED
-title: "[Task: #1881] Phase 4 \u2014 Split git-workflow"
+title: '[Task: #1881] Phase 4 — Split git-workflow'
+github_url: https://github.com/michael-conrad/.opencode/issues/1890
+status: closed

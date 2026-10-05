@@ -6,24 +6,29 @@ labels:
 - spec-draft
 body: '## Problem
 
-  Preloaded `.opencode/guidelines/117-session-trigger-behavior.md` costs ~1.9k tokens. ~30% procedural (self-simulation prohibition prose, trigger behavior map, suppression rule).
+  Preloaded `.opencode/guidelines/117-session-trigger-behavior.md` costs ~1.9k tokens.
+  ~30% procedural (self-simulation prohibition prose, trigger behavior map, suppression
+  rule).
 
 
   ## Scope
 
-  - **In:** Relocate self-simulation prose + trigger map + suppression detail; retain the nested_opencode_fatal hard-halt core and the no-echo mandate.
+  - **In:** Relocate self-simulation prose + trigger map + suppression detail; retain
+  the nested_opencode_fatal hard-halt core and the no-echo mandate.
 
   - **Out:** Removing the nested-opencode-fatal hard halt.
 
 
   ## Approach
 
-  Move the procedural detail to the session-enforcement plugin / git-workflow; keep the hard-halt core preloaded.
+  Move the procedural detail to the session-enforcement plugin / git-workflow; keep
+  the hard-halt core preloaded.
 
 
   ## Impact
 
-  Reduced per-session token load. Risk: losing the nested_opencode_fatal halt. Mitigation: retain that core verbatim. Depends on config. Action: approve.'
+  Reduced per-session token load. Risk: losing the nested_opencode_fatal halt. Mitigation:
+  retain that core verbatim. Depends on config. Action: approve.'
 created_at: '2026-08-27T03:14:22Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2354
@@ -35,4 +40,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target .opencode/guidelines/117-session-trigger-behavior.md exists only under .opencode/attic/guidelines/; the session-enforcement plugin destination and the session-trigger/SESSION_TRIGGER machinery belong to the retired trigger-routing ceremony absent from the live deck.
+sweep_evidence: Target .opencode/guidelines/117-session-trigger-behavior.md exists
+  only under .opencode/attic/guidelines/; the session-enforcement plugin destination
+  and the session-trigger/SESSION_TRIGGER machinery belong to the retired trigger-routing
+  ceremony absent from the live deck.
+github_url: https://github.com/michael-conrad/.opencode/issues/2354

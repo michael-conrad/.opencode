@@ -1,4 +1,6 @@
 number: 1199
-title: "[SPEC] extract DISPATCH_GATE protocol to single reference, mandate as G1 in every task dispatch table"
-state: OPEN
+title: '[SPEC] extract DISPATCH_GATE protocol to single reference, mandate as G1 in
+  every task dispatch table'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1199
+status: open

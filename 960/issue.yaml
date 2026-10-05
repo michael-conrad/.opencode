@@ -1,0 +1,6 @@
+number: 960
+title: '[SPEC-FIX] Update auditor agent card temperature values per model recommendations'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "spec",
+  "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/960
+status: closed

@@ -2,6 +2,7 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1908
-state: CLOSED
-title: "[SPEC-FIX] Post-remediation re-audit mandate \u2014 guideline clarification\"
-  \ and audit skill trigger"
+title: '[SPEC-FIX] Post-remediation re-audit mandate — guideline clarification"  and
+  audit skill trigger'
+github_url: https://github.com/michael-conrad/.opencode/issues/1908
+status: closed

@@ -2,5 +2,6 @@ labels:
 - spec
 - phase-1
 number: 1689
-state: CLOSED
-title: "[Phase 1] Trigger Phrase Expansion \u2014 spec-creation and writing-plans"
+title: '[Phase 1] Trigger Phrase Expansion — spec-creation and writing-plans'
+github_url: https://github.com/michael-conrad/.opencode/issues/1689
+status: closed

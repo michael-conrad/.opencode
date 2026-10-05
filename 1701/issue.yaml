@@ -2,5 +2,6 @@ labels:
 - spec-fix
 - phase
 number: 1701
-state: CLOSED
 title: Add validate-behavioral-prompt task to TDD skill
+github_url: https://github.com/michael-conrad/.opencode/issues/1701
+status: closed

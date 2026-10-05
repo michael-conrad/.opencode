@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1575
-state: CLOSED
-title: "'[BUG] solve tool referenced by writing-plans pipeline does not exist'"
+title: '''[BUG] solve tool referenced by writing-plans pipeline does not exist'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1575
+status: closed

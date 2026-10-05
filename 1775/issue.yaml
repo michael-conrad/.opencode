@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1775
-state: CLOSED
 title: Fix SC-9 Behavioral Test Timeout + Add Pre-PR Gate
+github_url: https://github.com/michael-conrad/.opencode/issues/1775
+status: closed

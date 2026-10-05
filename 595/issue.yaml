@@ -1,9 +1,11 @@
 number: 595
-title: 'ai agent bypass opportunity: manual completion is a narrow exception (see SKILL.md Recovery Mode for conditions'
+title: 'ai agent bypass opportunity: manual completion is a narrow exception (see
+  SKILL.md Recovery Mode for conditions'
 status: closed
 labels:
 - needs-approval
-body: 'ai agent bypass opportunity: manual completion is a narrow exception (see SKILL.md Recovery Mode for conditions
+body: 'ai agent bypass opportunity: manual completion is a narrow exception (see SKILL.md
+  Recovery Mode for conditions
 
 
   remove this loophole'
@@ -18,4 +20,9 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target 'SKILL.md Recovery Mode' (manual-completion bypass loophole) matches nowhere in the deck — zero hits for 'Recovery Mode' or 'manual completion' across .opencode/ live and attic; the old approval/completion ceremony it targeted was ripped to .opencode/attic/. The loophole does not exist in the live minimal deck.
+sweep_evidence: Target 'SKILL.md Recovery Mode' (manual-completion bypass loophole)
+  matches nowhere in the deck — zero hits for 'Recovery Mode' or 'manual completion'
+  across .opencode/ live and attic; the old approval/completion ceremony it targeted
+  was ripped to .opencode/attic/. The loophole does not exist in the live minimal
+  deck.
+github_url: https://github.com/michael-conrad/.opencode/issues/595

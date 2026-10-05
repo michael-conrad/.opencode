@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1525
-state: OPEN
 title: '[SPEC] Fix: skill-creator Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1525
+status: open

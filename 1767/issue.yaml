@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1767
-state: CLOSED
-title: "Skill Description Compliance Fixes \u2014 Defect Group D2/D3"
+title: Skill Description Compliance Fixes — Defect Group D2/D3
+github_url: https://github.com/michael-conrad/.opencode/issues/1767
+status: closed

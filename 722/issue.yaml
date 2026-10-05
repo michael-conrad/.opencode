@@ -16,13 +16,18 @@ body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
   ## Objective
 
 
-  Add documentation for the `q/a` command (question/answer mode for spec creation, revision, and closure) and create a `qa-workflow` skill that implements the interactive spec workflow.
+  Add documentation for the `q/a` command (question/answer mode for spec creation,
+  revision, and closure) and create a `qa-workflow` skill that implements the interactive
+  spec workflow.
 
 
   ## Problem Statement
 
 
-  The `q/a` command exists as a user directive but is not documented in any guideline or skill. There is no dedicated skill implementing the Q/A workflow. Agents and users need to know how to trigger it, what it does, and how multi-spec handling works.
+  The `q/a` command exists as a user directive but is not documented in any guideline
+  or skill. There is no dedicated skill implementing the Q/A workflow. Agents and
+  users need to know how to trigger it, what it does, and how multi-spec handling
+  works.
 
 
   ## Live Codebase Audit (2026-05-19)
@@ -34,21 +39,26 @@ body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
 
   | `.opencode/skills/qa-workflow/SKILL.md` | ❌ Does not exist |
 
-  | `.opencode/guidelines/000-session-init.md` | ❌ Does not exist — session-init is a tool (`tools/session-init`), not a guideline |
+  | `.opencode/guidelines/000-session-init.md` | ❌ Does not exist — session-init is
+  a tool (`tools/session-init`), not a guideline |
 
   | `.opencode/guidelines/045-open-questions.md` | ✅ Exists, no Q/A section |
 
-  | `.opencode/guidelines/120-github-issue-first.md` | ❌ Does not exist — issue-first workflow is in `issue-operations` skill |
+  | `.opencode/guidelines/120-github-issue-first.md` | ❌ Does not exist — issue-first
+  workflow is in `issue-operations` skill |
 
-  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists, no Q/A invocation |
+  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists, no Q/A invocation
+  |
 
-  | `.opencode/guidelines/INDEX.md` | ✅ Exists, no `q/a` or `qa-workflow` reference |
+  | `.opencode/guidelines/INDEX.md` | ✅ Exists, no `q/a` or `qa-workflow` reference
+  |
 
 
   **No `q/a` references exist anywhere** in guidelines, skills, or session-init output.
 
 
-  The `brainstorming` skill partially covers spec creation Q&A but is not invoked by a `q/a` command and does not document the command syntax.
+  The `brainstorming` skill partially covers spec creation Q&A but is not invoked
+  by a `q/a` command and does not document the command syntax.
 
 
   ## Proposed Change
@@ -61,13 +71,15 @@ body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
 
   1. Skill metadata (name, description, license, compatibility)
 
-  2. Automatic invocation triggers: `q/a`, `q/a <context>`, `q/a revise <spec>`, `q/a close <spec>`, `q/a replace <spec>`
+  2. Automatic invocation triggers: `q/a`, `q/a <context>`, `q/a revise <spec>`, `q/a
+  close <spec>`, `q/a replace <spec>`
 
   3. Phase-based workflow for Q/A interactions
 
   4. Four modes: creation, revision, closure, replacement
 
-  5. Adherence to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility clause
+  5. Adherence to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility
+  clause
 
   6. Integration with `brainstorming` skill for spec creation phases
 
@@ -75,13 +87,15 @@ body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
   ### Update: `.opencode/guidelines/INDEX.md`
 
 
-  Add `qa-workflow` to the skill index and add trigger patterns: `q/a, qa workflow, question/answer, interactive spec`.
+  Add `qa-workflow` to the skill index and add trigger patterns: `q/a, qa workflow,
+  question/answer, interactive spec`.
 
 
   ### Update: `.opencode/guidelines/045-open-questions.md`
 
 
-  Add §0: Q/A Command Mode section documenting the command, modes, automatic invocation, and exit conditions.
+  Add §0: Q/A Command Mode section documenting the command, modes, automatic invocation,
+  and exit conditions.
 
 
   ### Update: `.opencode/guidelines/140-planning-spec-creation.md`
@@ -99,9 +113,11 @@ body: '# Spec: Add q/a Command Documentation and Q/A Workflow Skill
   ## Success Criteria
 
 
-  1. `qa-workflow` skill created at `.opencode/skills/qa-workflow/SKILL.md` with full workflow implementation
+  1. `qa-workflow` skill created at `.opencode/skills/qa-workflow/SKILL.md` with full
+  workflow implementation
 
-  2. Skill adheres to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility clause
+  2. Skill adheres to `docs/specs/how-to-write-good-spec-ai-agents.md` with flexibility
+  clause
 
   3. Skill includes automatic invocation rules in its SKILL.md
 
@@ -172,4 +188,9 @@ author: michael-newsrx
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'All target files are retired: guidelines/ (INDEX.md, 045-open-questions.md, 140-planning-spec-creation.md) exists only under attic/guidelines/, the brainstorming skill is attic-only, and live AGENTS.md is pointer-only forbidden to carry rules; the q/a user-phrase trigger is exactly the retired user-phrase trigger-routing ceremony — live routing.md dispatches on descriptions, not user phrasings.'
+sweep_evidence: 'All target files are retired: guidelines/ (INDEX.md, 045-open-questions.md,
+  140-planning-spec-creation.md) exists only under attic/guidelines/, the brainstorming
+  skill is attic-only, and live AGENTS.md is pointer-only forbidden to carry rules;
+  the q/a user-phrase trigger is exactly the retired user-phrase trigger-routing ceremony
+  — live routing.md dispatches on descriptions, not user phrasings.'
+github_url: https://github.com/michael-conrad/.opencode/issues/722

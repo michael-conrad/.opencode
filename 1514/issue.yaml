@@ -2,5 +2,6 @@ labels:
 - needs-approval
 - spec-fix
 number: 1514
-state: OPEN
 title: '[SPEC-FIX] gitbucket-api: NO_TDT + narrative-only content (D3=NO_TDT, D4=FAIL)'
+github_url: https://github.com/michael-conrad/.opencode/issues/1514
+status: open

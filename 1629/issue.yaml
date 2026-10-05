@@ -1,6 +1,7 @@
 labels:
 - approved-for-plan
 number: 1629
-state: CLOSED
 title: '[SPEC] Add mandatory submodule sync verification to implementation pipeline
   entry point'
+github_url: https://github.com/michael-conrad/.opencode/issues/1629
+status: closed

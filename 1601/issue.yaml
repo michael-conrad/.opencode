@@ -2,5 +2,6 @@ labels:
 - needs-approval
 - spec
 number: 1601
-state: CLOSED
 title: '[SPEC] Apply farmage YAML description pattern to all skill cards'
+github_url: https://github.com/michael-conrad/.opencode/issues/1601
+status: closed

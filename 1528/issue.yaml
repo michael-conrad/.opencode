@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1528
-state: OPEN
 title: '[SPEC] Fix: sre-runbook Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1528
+status: open

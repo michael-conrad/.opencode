@@ -1,4 +1,7 @@
 number: 2043
-title: "SPEC-FIX: with-test-home isolation check — .cache/uv/ files leak into test home"
-state: OPEN
-labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'
+title: 'SPEC-FIX: with-test-home isolation check — .cache/uv/ files leak into test
+  home'
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
+  a bug fix"}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/2043
+status: open

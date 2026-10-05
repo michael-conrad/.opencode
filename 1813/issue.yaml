@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1813
-state: CLOSED
-title: "'[SPEC-FIX] Stop submodule-only PR creation at every gate'"
+title: '''[SPEC-FIX] Stop submodule-only PR creation at every gate'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1813
+status: closed

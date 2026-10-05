@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1508
-state: CLOSED
 title: '[SPEC] Fix: verification-before-completion Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1508
+status: closed

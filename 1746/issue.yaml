@@ -1,5 +1,6 @@
 labels:
 - plan
 number: 1746
-state: CLOSED
 title: Add adversarial content-audit task
+github_url: https://github.com/michael-conrad/.opencode/issues/1746
+status: closed

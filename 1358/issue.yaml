@@ -3,6 +3,7 @@ labels:
 - skill-creator
 - adversarial-audit
 number: 1358
-state: OPEN
 title: '[SPEC] Reorganize Skill Cards and Task Cards with Workflow-Grouped Checklist
   Dispatch'
+github_url: https://github.com/michael-conrad/.opencode/issues/1358
+status: open

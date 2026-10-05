@@ -2,5 +2,6 @@ labels:
 - spec
 - cleanup
 number: 1950
-state: CLOSED
-title: "[SPEC] Replace bare \xA7N Read links with descriptive link text across .opencode/"
+title: '[SPEC] Replace bare §N Read links with descriptive link text across .opencode/'
+github_url: https://github.com/michael-conrad/.opencode/issues/1950
+status: closed

@@ -1,4 +1,4 @@
 number: 168
-title: "SPEC: .opencode/tools/plan — unified-planning PEP 723 tool"
-state: CLOSED
+title: 'SPEC: .opencode/tools/plan — unified-planning PEP 723 tool'
 labels: '[[{"name": "[SPEC]", "color": "ededed", "description": ""}]"'
+status: closed

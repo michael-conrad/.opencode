@@ -1,0 +1,7 @@
+number: 407
+title: '[SPEC-FIX] Blacklist deepseek-v4-pro (expense) and devstral-2 (performance)
+  from auditor pool'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "needs-approval",
+  "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/407
+status: closed

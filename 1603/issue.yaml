@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1603
-state: CLOSED
 title: '[SPEC-FIX] Pipeline-readiness gate not explicitly positioned in spec-creation
   Operating Protocol'
+github_url: https://github.com/michael-conrad/.opencode/issues/1603
+status: closed

@@ -6,12 +6,14 @@ labels:
 - spec-draft
 body: '## Problem
 
-  `.opencode/guidelines/020-go-prohibitions.md` §1.6 Discussion Mode Mandates is procedural content consumed by brainstorming and approval-gate skill cards, currently preloaded.
+  `.opencode/guidelines/020-go-prohibitions.md` §1.6 Discussion Mode Mandates is procedural
+  content consumed by brainstorming and approval-gate skill cards, currently preloaded.
 
 
   ## Scope
 
-  - **In:** Create `.opencode/reference/discussion-mode-mandates.md`; add mandatory Read-links to brainstorming + approval-gate.
+  - **In:** Create `.opencode/reference/discussion-mode-mandates.md`; add mandatory
+  Read-links to brainstorming + approval-gate.
 
   - **Out:** Re-inlining into each card.
 
@@ -35,4 +37,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Source .opencode/guidelines/020-go-prohibitions.md exists only in attic/, and the consuming cards brainstorming and approval-gate exist only under .opencode/attic/skills/ — none in the live skills/ set. Superseded by the deck reorg (#2501).
+sweep_evidence: Source .opencode/guidelines/020-go-prohibitions.md exists only in
+  attic/, and the consuming cards brainstorming and approval-gate exist only under
+  .opencode/attic/skills/ — none in the live skills/ set. Superseded by the deck reorg
+  (#2501).
+github_url: https://github.com/michael-conrad/.opencode/issues/2358

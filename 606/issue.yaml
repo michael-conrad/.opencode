@@ -1,0 +1,8 @@
+number: 606
+title: '[SPEC-FIX] Adversarial re-verification for re-approved completed specs + no-PR
+  cleanup handler'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "critical",
+  "color": "ededed", "description": ""}, {"name": "tier-1", "color": "ededed", "description":
+  ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/606
+status: closed

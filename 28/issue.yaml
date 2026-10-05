@@ -1,4 +1,6 @@
-number: 28
-title: "[SPEC-FIX] Walk-up root detection loops lack filesystem-root guard — infinite loop on missing .opencode/"
-state: CLOSED
+number: 317
+title: '[SPEC-FIX] Walk-up root detection loops lack filesystem-root guard — infinite
+  loop on missing .opencode/'
 labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/317
+status: closed

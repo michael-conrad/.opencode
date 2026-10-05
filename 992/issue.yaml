@@ -19,4 +19,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Phase 1.6 work is already delivered: .opencode/tools/local-issues:1409 cmd_read_comments reads .issues/NNN/comments.yaml and dumps it as YAML pass-through (with empty-file handling), registered as the ''read-comments'' subcommand at line 2361. Target is live and the work is addressed.'
+sweep_evidence: 'Phase 1.6 work is already delivered: .opencode/tools/local-issues:1409
+  cmd_read_comments reads .issues/NNN/comments.yaml and dumps it as YAML pass-through
+  (with empty-file handling), registered as the ''read-comments'' subcommand at line
+  2361. Target is live and the work is addressed.'
+github_url: https://github.com/michael-conrad/.opencode/issues/992

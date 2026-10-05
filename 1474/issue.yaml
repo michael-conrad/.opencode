@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1474
-state: CLOSED
 title: '[SPEC] Fix: local Platform Sub-Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1474
+status: closed

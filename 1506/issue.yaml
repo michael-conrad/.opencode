@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1506
-state: CLOSED
 title: '[SPEC] Fix: systematic-debugging Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1506
+status: closed

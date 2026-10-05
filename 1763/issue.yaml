@@ -1,6 +1,6 @@
 labels:
 - plan
 number: 1763
-state: CLOSED
-title: "[SPEC-FIX] orchestrator DISPATCH_GATE violation \u2014 canonical dispatch\"
-  \ enforcement"
+title: '[SPEC-FIX] orchestrator DISPATCH_GATE violation — canonical dispatch"  enforcement'
+github_url: https://github.com/michael-conrad/.opencode/issues/1763
+status: closed

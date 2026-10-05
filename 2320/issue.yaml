@@ -1,4 +1,5 @@
-title: '[SPEC] Fix submodule pointer guidance: pointer rides alongside real root changes (not dropped)'
+title: '[SPEC] Fix submodule pointer guidance: pointer rides alongside real root changes
+  (not dropped)'
 status: closed
 labels:
 - approved-for-pr
@@ -8,4 +9,12 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Four of five spec targets (enforcement-gate.md Step 0.5, pre-commit-pointer-check.md, pr-creation.md Pre-Push, branch-cleanup.md Step 1.7) are attic-only retired task files, and the ambiguous ''No parent PR needed'' wording that caused the defect exists nowhere live. The demanded end state already exists live: root AGENTS.md ''Submodule Pointer Discipline'' states the pointer rides with real parent-repo changes (never pointer-only), as do live git-workflow-branch SKILL.md rule 3 and git-workflow-commit SKILL.md rule 5.'
+sweep_evidence: 'Four of five spec targets (enforcement-gate.md Step 0.5, pre-commit-pointer-check.md,
+  pr-creation.md Pre-Push, branch-cleanup.md Step 1.7) are attic-only retired task
+  files, and the ambiguous ''No parent PR needed'' wording that caused the defect
+  exists nowhere live. The demanded end state already exists live: root AGENTS.md
+  ''Submodule Pointer Discipline'' states the pointer rides with real parent-repo
+  changes (never pointer-only), as do live git-workflow-branch SKILL.md rule 3 and
+  git-workflow-commit SKILL.md rule 5.'
+number: 2320
+github_url: https://github.com/michael-conrad/.opencode/issues/2320

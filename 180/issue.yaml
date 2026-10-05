@@ -1,4 +1,6 @@
-number: 180
-title: "[SPEC] TDD: RED/GREEN Sequential Pair Discipline — explicit prohibition against combined or parallel phases"
-state: CLOSED
+number: 1086
+title: '[SPEC] TDD: RED/GREEN Sequential Pair Discipline — explicit prohibition against
+  combined or parallel phases'
 labels: '[[{"name": "spec", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/1086
+status: closed

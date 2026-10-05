@@ -1,0 +1,6 @@
+number: 950
+title: '[SPEC] Fix submodule tag protocol — codify suffix convention, prevent ad-hoc
+  tag names, enforce dev-tip anchor'
+labels: '[[{"name": "spec", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/950
+status: closed

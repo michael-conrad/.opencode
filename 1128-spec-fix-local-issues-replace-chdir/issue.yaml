@@ -1,9 +1,11 @@
-title: "[SPEC-FIX] local-issues: replace global-state chdir design with PROJECT_DIR-anchored operations"
-status: open
+title: '[SPEC-FIX] local-issues: replace global-state chdir design with PROJECT_DIR-anchored
+  operations'
+status: closed
 labels:
-  - SPEC-FIX
-  - bug
-body: ""
-created_at: "2026-06-12T04:48:07Z"
-updated_at: "2026-06-12T04:48:07Z"
-github_url: "https://github.com/michael-conrad/.opencode/issues/1128"
+- SPEC-FIX
+- bug
+body: ''
+created_at: '2026-06-12T04:48:07Z'
+updated_at: '2026-06-12T04:48:07Z'
+github_url: https://github.com/michael-conrad/.opencode/issues/1128
+number: 1128

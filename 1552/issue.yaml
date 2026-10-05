@@ -1,4 +1,5 @@
-title: '[SPEC-FIX] Remove ''simple specs may skip'' complexity classification escape hatch in spec-creation'
+title: '[SPEC-FIX] Remove ''simple specs may skip'' complexity classification escape
+  hatch in spec-creation'
 status: closed
 labels:
 - spec-fix
@@ -9,4 +10,9 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/1552
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets the spec-creation skill, retired to .opencode/attic/skills/spec-creation/; the live deck's replacement card .opencode/skills/spec/SKILL.md contains no 'simple specs may skip' complexity-classification escape hatch (grep over live deck found zero matches).
+sweep_evidence: Targets the spec-creation skill, retired to .opencode/attic/skills/spec-creation/;
+  the live deck's replacement card .opencode/skills/spec/SKILL.md contains no 'simple
+  specs may skip' complexity-classification escape hatch (grep over live deck found
+  zero matches).
+number: 1552
+github_url: https://github.com/michael-conrad/.opencode/issues/1552

@@ -1,5 +1,6 @@
 labels:
 - task
 number: 1333
-state: CLOSED
-title: "[Task: #1324] Phase 2 \u2014 Rewrite gitbucket-api platform sub-skill"
+title: '[Task: #1324] Phase 2 — Rewrite gitbucket-api platform sub-skill'
+github_url: https://github.com/michael-conrad/.opencode/issues/1333
+status: closed

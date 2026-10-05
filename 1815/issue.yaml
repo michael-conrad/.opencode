@@ -2,6 +2,7 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1815
-state: CLOSED
-title: "[SPEC-FIX] .issues/ gitignore enforcement \u2014 agents ignore .gitignore\"
-  \ and corrupt git state"
+title: '[SPEC-FIX] .issues/ gitignore enforcement — agents ignore .gitignore"  and
+  corrupt git state'
+github_url: https://github.com/michael-conrad/.opencode/issues/1815
+status: closed

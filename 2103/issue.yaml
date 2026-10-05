@@ -1,4 +1,6 @@
 number: 2103
-title: "[SPEC] Per-SC RED/GREEN Decomposition"
-state: OPEN
-labels: '[{"name": "spec", "color": "ededed", "description": ""}, {"name": "approved-for-pr", "color": "ededed", "description": ""}]'
+title: '[SPEC] Per-SC RED/GREEN Decomposition'
+labels: '[{"name": "spec", "color": "ededed", "description": ""}, {"name": "approved-for-pr",
+  "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/2103
+status: closed

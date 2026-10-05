@@ -1,5 +1,6 @@
 labels:
 - bug
 number: 1572
-state: CLOSED
 title: '[BUG] playwright-cli/SKILL.md YAML frontmatter fails to parse'
+github_url: https://github.com/michael-conrad/.opencode/issues/1572
+status: closed

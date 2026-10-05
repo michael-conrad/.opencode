@@ -2,6 +2,7 @@ labels:
 - bug
 - needs-approval
 number: 1563
-state: OPEN
 title: 'Fix critical-rules-044: Remove overbroad verification_sub_agent condition
   from symbolic rules'
+github_url: https://github.com/michael-conrad/.opencode/issues/1563
+status: open

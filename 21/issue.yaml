@@ -1,4 +1,5 @@
-number: 21
-title: "[SPEC] Fork Detection — Resolve Parent Repo for Submodule/Forked Repo Identity"
-state: CLOSED
+number: 601
+title: '[SPEC] Fork Detection — Resolve Parent Repo for Submodule/Forked Repo Identity'
 labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/601
+status: open

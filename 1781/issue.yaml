@@ -1,4 +1,4 @@
 number: 1781
-title: "[SPEC-FIX] pre-push hook silent failure on branches without numeric issue"
-state: CLOSED
+title: '[SPEC-FIX] pre-push hook silent failure on branches without numeric issue'
 labels: '[]'
+status: closed

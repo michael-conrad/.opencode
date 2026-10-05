@@ -1,0 +1,5 @@
+number: 856
+title: '[SPEC-FIX] Change default BEHAVIOR_MODEL from glm-5.1:cloud to deepseek-v4-flash:cloud'
+labels: '[[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/856
+status: closed

@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1761
-state: CLOSED
 title: '[SPEC] local-issues tool: AI-consumable output format and cross-repo operations'
+github_url: https://github.com/michael-conrad/.opencode/issues/1761
+status: closed

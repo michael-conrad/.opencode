@@ -1,4 +1,5 @@
-title: '[SPEC-FIX] Remove ''simple specs may omit'' documentation sources escape hatch in verification-enforcement'
+title: '[SPEC-FIX] Remove ''simple specs may omit'' documentation sources escape hatch
+  in verification-enforcement'
 status: closed
 labels:
 - spec-fix
@@ -9,4 +10,10 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/1551
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets the verification-enforcement skill, which exists only at .opencode/attic/skills/verification-enforcement/ (retained, unloaded); no verification-enforcement skill or 'simple specs may omit' language exists anywhere in the live deck (grep over skills/, floor.md, routing.md, hooks/, tools/, prompts/ returned zero matches). SPEC-FIX against retired verification-enforcement ceremony.
+sweep_evidence: Targets the verification-enforcement skill, which exists only at .opencode/attic/skills/verification-enforcement/
+  (retained, unloaded); no verification-enforcement skill or 'simple specs may omit'
+  language exists anywhere in the live deck (grep over skills/, floor.md, routing.md,
+  hooks/, tools/, prompts/ returned zero matches). SPEC-FIX against retired verification-enforcement
+  ceremony.
+number: 1551
+github_url: https://github.com/michael-conrad/.opencode/issues/1551

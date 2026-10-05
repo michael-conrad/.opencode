@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 2023
-state: OPEN
-title: "[SPEC-FIX] Revise workflow missing local spec update step \u2014 spec mirror\"
-  \ drifts after revision"
+title: '[SPEC-FIX] Revise workflow missing local spec update step — spec mirror"  drifts
+  after revision'
+github_url: https://github.com/michael-conrad/.opencode/issues/2023
+status: open

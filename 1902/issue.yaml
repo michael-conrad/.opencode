@@ -1,6 +1,6 @@
 id: 1902
-title: '[SPEC-FIX] spec-creation create.md — align local/remote spec formats with de facto industry standards'
-state: open
+title: '[SPEC-FIX] spec-creation create.md — align local/remote spec formats with
+  de facto industry standards'
 labels:
 - spec-fix
 - needs-approval
@@ -8,3 +8,5 @@ created_at: '2026-07-12T15:50:00Z'
 updated_at: '2026-07-12T15:50:00Z'
 html_url: https://github.com/michael-conrad/.opencode/issues/1902
 github_url: https://github.com/michael-conrad/.opencode/issues/1902
+number: 1902
+status: closed

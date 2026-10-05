@@ -1,0 +1,7 @@
+number: 814
+title: '[SPEC-FIX] Preserve existing AI co-authored bylines — prevent identity overwrite
+  on edit'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "guidelines",
+  "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/814
+status: closed

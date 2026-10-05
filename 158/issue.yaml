@@ -1,4 +1,5 @@
 number: 158
-title: "[SPEC] session-init: emit all repo entries including .issues worktrees"
-state: CLOSED
-labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name": "[SPEC]", "color": "ededed", "description": ""}]""'
+title: '[SPEC] session-init: emit all repo entries including .issues worktrees'
+labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}, {"name":
+  "[SPEC]", "color": "ededed", "description": ""}]""'
+status: closed

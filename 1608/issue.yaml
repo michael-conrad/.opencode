@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1608
-state: CLOSED
-title: "Phase 7 \u2014 Global Post-Phase"
+title: Phase 7 — Global Post-Phase
+github_url: https://github.com/michael-conrad/.opencode/issues/1608
+status: closed

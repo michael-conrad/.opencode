@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1685
-state: CLOSED
-title: "[SPEC-FIX] \"attempted\" \u2192 \"performed\" in executing-plans completion\"
-  \ gate wording"
+title: '[SPEC-FIX] "attempted" → "performed" in executing-plans completion"  gate
+  wording'
+github_url: https://github.com/michael-conrad/.opencode/issues/1685
+status: closed

@@ -1,4 +1,6 @@
 number: 1201
-title: "[SPEC] extract completion checklist to flat reference card, replace 15+ inline copies"
-state: OPEN
+title: '[SPEC] extract completion checklist to flat reference card, replace 15+ inline
+  copies'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1201
+status: open

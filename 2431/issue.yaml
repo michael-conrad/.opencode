@@ -1,56 +1,96 @@
-title: '[SPEC-FIX] Stacked-PR ordering gate: parent PR must wait for submodule PR merges (stale pointers on parent PR tree)'
+title: '[SPEC-FIX] Stacked-PR ordering gate: parent PR must wait for submodule PR
+  merges (stale pointers on parent PR tree)'
 status: closed
 labels:
 - approved-for-review
 - approved-for-pr
-body: '> **Full spec and artifacts: [`.opencode/.issues/2431/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2431/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+body: '> **Full spec and artifacts: [`.opencode/.issues/2431/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2431/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
   >
 
-  > **Local artifacts:** `.opencode/.issues/2431/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+  > **Local artifacts:** `.opencode/.issues/2431/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
 
 
   ## Problem
 
 
-  The stacked-PR workflow has no ordering gate requiring a parent-repo stacked PR to wait for its in-scope submodule PRs to merge first. The pipeline creates parent PRs whose commit predates the submodule merges and carries stale submodule pointers — an open, structurally incomplete PR whose tree resolves pre-fix submodule SHAs and is unmergeable as-is. This fired for real during Butter #304 and slipped through every existing pipeline gate.
+  The stacked-PR workflow has no ordering gate requiring a parent-repo stacked PR
+  to wait for its in-scope submodule PRs to merge first. The pipeline creates parent
+  PRs whose commit predates the submodule merges and carries stale submodule pointers
+  — an open, structurally incomplete PR whose tree resolves pre-fix submodule SHAs
+  and is unmergeable as-is. This fired for real during Butter #304 and slipped through
+  every existing pipeline gate.
 
 
   ## Scope
 
 
-  - Add a mandatory ordering gate: parent stacked PR is created only after every in-scope submodule PR is verified merged via live platform API
+  - Add a mandatory ordering gate: parent stacked PR is created only after every in-scope
+  submodule PR is verified merged via live platform API
 
-  - Define the in-scope submodule set enumeration mechanism (changed submodule paths relative to the trunk base) and the bounded retry/report path for inconclusive merge state (up to 3 probes at 60-second intervals, then block with a clear reason reported in chat)
+  - Define the in-scope submodule set enumeration mechanism (changed submodule paths
+  relative to the trunk base) and the bounded retry/report path for inconclusive merge
+  state (up to 3 probes at 60-second intervals, then block with a clear reason reported
+  in chat)
 
-  - Require submodule pointer bumps committed on the parent feature branch after merges land (pointers-ride-alongside rule)
+  - Require submodule pointer bumps committed on the parent feature branch after merges
+  land (pointers-ride-alongside rule)
 
-  - Add pre-PR gate asserting clean `git submodule status` (no `+` prefix) for in-scope submodules and pointer SHA ancestry to the submodule''s remote trunk `origin/$DEFAULT_BRANCH`
+  - Add pre-PR gate asserting clean `git submodule status` (no `+` prefix) for in-scope
+  submodules and pointer SHA ancestry to the submodule''s remote trunk `origin/$DEFAULT_BRANCH`
 
-  - Evaluate enforcement placement across the four candidate sites with published selection criteria; designate pr-creation/enforcement-gate as the single authoritative blocking check
+  - Evaluate enforcement placement across the four candidate sites with published
+  selection criteria; designate pr-creation/enforcement-gate as the single authoritative
+  blocking check
 
 
-  **Out of scope:** automatic submodule PR creation/cleanup; SKIP_STALE_POINTER_CHECK commit-time semantics; human merge behavior; non-stacked PR flows.
+  **Out of scope:** automatic submodule PR creation/cleanup; SKIP_STALE_POINTER_CHECK
+  commit-time semantics; human merge behavior; non-stacked PR flows.
 
 
   ## Approach
 
 
-  Introduce a three-condition ordering gate evaluated immediately before parent stacked PR creation, hosted as exactly one authoritative blocking check in pr-creation/enforcement-gate. Condition 1: enumerate the in-scope submodule set from the parent branch''s changed submodule paths and verify each corresponding submodule PR merged via a live platform API call — never inferred from local state or ancestry — with a bounded retry that blocks on inconclusive state. Condition 2: pointer bumps committed on the parent feature branch after merges land per pointers-ride-alongside. Condition 3: pre-PR assertion that `git submodule status` shows no `+` prefixes for in-scope submodules and each in-scope pointer SHA is an ancestor of the submodule''s remote trunk `origin/$DEFAULT_BRANCH`. Gate placement is evaluated across four candidate sites against published selection criteria (every-path coverage, post-commit execution, existing blocking authority, fail-closed capability); pr-creation/enforcement-gate satisfies all four and the other three sites remain advisory/consistency. While waiting, the parent branch sits idle — no commits, pushes, or PR mutations until the submodule PRs land.
+  Introduce a three-condition ordering gate evaluated immediately before parent stacked
+  PR creation, hosted as exactly one authoritative blocking check in pr-creation/enforcement-gate.
+  Condition 1: enumerate the in-scope submodule set from the parent branch''s changed
+  submodule paths and verify each corresponding submodule PR merged via a live platform
+  API call — never inferred from local state or ancestry — with a bounded retry that
+  blocks on inconclusive state. Condition 2: pointer bumps committed on the parent
+  feature branch after merges land per pointers-ride-alongside. Condition 3: pre-PR
+  assertion that `git submodule status` shows no `+` prefixes for in-scope submodules
+  and each in-scope pointer SHA is an ancestor of the submodule''s remote trunk `origin/$DEFAULT_BRANCH`.
+  Gate placement is evaluated across four candidate sites against published selection
+  criteria (every-path coverage, post-commit execution, existing blocking authority,
+  fail-closed capability); pr-creation/enforcement-gate satisfies all four and the
+  other three sites remain advisory/consistency. While waiting, the parent branch
+  sits idle — no commits, pushes, or PR mutations until the submodule PRs land.
 
 
   ## Impact
 
 
-  - **Risk:** Live-API merge verification can false-block when platform checks lag — *mitigation:* bounded retry (up to 3 probes at 60-second intervals); inconclusive state blocks with a clear reason naming the submodule PR rather than guessing.
+  - **Risk:** Live-API merge verification can false-block when platform checks lag
+  — *mitigation:* bounded retry (up to 3 probes at 60-second intervals); inconclusive
+  state blocks with a clear reason naming the submodule PR rather than guessing.
 
-  - **Risk:** Ordering gate adds latency to multi-submodule releases — *mitigation:* latency is the cost of a mergeable parent PR; the gate reports which submodule PR is pending.
+  - **Risk:** Ordering gate adds latency to multi-submodule releases — *mitigation:*
+  latency is the cost of a mergeable parent PR; the gate reports which submodule PR
+  is pending.
 
-  - **Risk:** Four candidate gate sites could produce redundant/conflicting checks — *mitigation:* spec assigns exactly one authoritative blocking check (pr-creation/enforcement-gate) with published selection criteria; the others are advisory/consistency.
+  - **Risk:** Four candidate gate sites could produce redundant/conflicting checks
+  — *mitigation:* spec assigns exactly one authoritative blocking check (pr-creation/enforcement-gate)
+  with published selection criteria; the others are advisory/consistency.
 
-  - **Dependencies:** None external. Touches task cards in git-workflow-pr (authoritative + advisory sites), git-workflow-branch (advisory), executing-plans (advisory), and the tests-v2 behavioral suite.
+  - **Dependencies:** None external. Touches task cards in git-workflow-pr (authoritative
+  + advisory sites), git-workflow-branch (advisory), executing-plans (advisory), and
+  the tests-v2 behavioral suite.
 
-  - **Call to action:** Review and approve this spec to add the submodule-merge ordering gate to the stacked-PR workflow.
+  - **Call to action:** Review and approve this spec to add the submodule-merge ordering
+  gate to the stacked-PR workflow.
 
 
   ---
@@ -63,4 +103,9 @@ github_url: https://github.com/michael-conrad/.opencode/issues/2431
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: The spec's gate sites (git-workflow-pr task cards incl. pr-creation/enforcement-gate.md, executing-plans advisory card, old four-site enforcement-gate evaluation) are all retired; the live git-workflow-pr/SKILL.md is a 26-line minimal card (provenance .opencode#2490) with no tasks/ directory and no stacked-PR submodule-merge ordering machinery.
+sweep_evidence: The spec's gate sites (git-workflow-pr task cards incl. pr-creation/enforcement-gate.md,
+  executing-plans advisory card, old four-site enforcement-gate evaluation) are all
+  retired; the live git-workflow-pr/SKILL.md is a 26-line minimal card (provenance
+  .opencode#2490) with no tasks/ directory and no stacked-PR submodule-merge ordering
+  machinery.
+number: 2431

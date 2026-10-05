@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1496
-state: CLOSED
 title: '[SPEC] Fix: issue-operations Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1496
+status: closed

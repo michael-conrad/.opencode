@@ -1,4 +1,5 @@
-title: '[BUG] Branch-finishing checklist mandates plan-phase sub-issue creation — floods public tracker with retrospective task tickets'
+title: '[BUG] Branch-finishing checklist mandates plan-phase sub-issue creation —
+  floods public tracker with retrospective task tickets'
 status: closed
 labels:
 - approved-for-pr
@@ -11,4 +12,10 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2283
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Targets retired ceremony: finishing-a-development-branch skill and issue-operations-sub-issues skill are not in the live skills/ list (attic-only), and .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md no longer exists (live git-workflow-pr is a single SKILL.md). Grep of live skills/ finds no autoclose_issues and no sub-issue creation mandate (skills/issues/SKILL.md only links existing sub-issues), so the retrospective sub-issue-flood defect is gone.'
+sweep_evidence: 'Targets retired ceremony: finishing-a-development-branch skill and
+  issue-operations-sub-issues skill are not in the live skills/ list (attic-only),
+  and .opencode/skills/git-workflow-pr/tasks/pr-creation/create-pr.md no longer exists
+  (live git-workflow-pr is a single SKILL.md). Grep of live skills/ finds no autoclose_issues
+  and no sub-issue creation mandate (skills/issues/SKILL.md only links existing sub-issues),
+  so the retrospective sub-issue-flood defect is gone.'
+number: 2283

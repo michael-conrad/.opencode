@@ -1,4 +1,6 @@
 number: 147
-title: "[SPEC-FIX] Cross-Validate Output-Integrity Gate — Zero-Tolerance Verdict Agreement, No Fail Reclassification"
-state: CLOSED
-labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "needs-approval", "color": "ededed", "description": ""}]""'
+title: '[SPEC-FIX] Cross-Validate Output-Integrity Gate — Zero-Tolerance Verdict Agreement,
+  No Fail Reclassification'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "needs-approval",
+  "color": "ededed", "description": ""}]""'
+status: closed

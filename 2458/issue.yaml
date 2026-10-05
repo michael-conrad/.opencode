@@ -1,5 +1,6 @@
-title: '[SPEC] Deprecation Encounter Protocol — pending-breakage directive across skill cards'
-status: closed
+title: '[SPEC] Deprecation Encounter Protocol — pending-breakage directive across
+  skill cards'
+status: open
 labels:
 - approved-for-review
 body: ''
@@ -8,4 +9,12 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Targets retired old-deck machinery: six-card inlining includes attic-only cards (audit, engineering-approach per .opencode/attic/skills/), skill-creator fragment-management (skills/skill-creator/ has only SKILL.md live, no tasks/), and reference/ standards docs (no reference/ dir live); R-7/SC-5 also require adding rules to .opencode/AGENTS.md, which the live deck mandates stays a pointer carrying no rules. Live grep shows zero ''deprecat'' coverage in live skills/floor/routing, but the delivery mechanism no longer exists.'
+sweep_evidence: 'Targets retired old-deck machinery: six-card inlining includes attic-only
+  cards (audit, engineering-approach per .opencode/attic/skills/), skill-creator fragment-management
+  (skills/skill-creator/ has only SKILL.md live, no tasks/), and reference/ standards
+  docs (no reference/ dir live); R-7/SC-5 also require adding rules to .opencode/AGENTS.md,
+  which the live deck mandates stays a pointer carrying no rules. Live grep shows
+  zero ''deprecat'' coverage in live skills/floor/routing, but the delivery mechanism
+  no longer exists.'
+number: 2458
+github_url: https://github.com/michael-conrad/.opencode/issues/2458

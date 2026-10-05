@@ -10,7 +10,8 @@ body: 'Parent: #746
 
   ## Concern
 
-  Spec audit layer — spec auditor must verify that every SC carries cost-frame prose and requires runtime execution.
+  Spec audit layer — spec auditor must verify that every SC carries cost-frame prose
+  and requires runtime execution.
 
 
   ## Files
@@ -43,4 +44,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets adversarial-audit/audit-triad machinery that no longer exists in the live deck; the spec-audit arbiter/evaluator/investigator/validator files survive only under .opencode/attic/skills/audit/tasks/, and no live skill contains the SC-12 cost-frame criterion.
+sweep_evidence: Targets adversarial-audit/audit-triad machinery that no longer exists
+  in the live deck; the spec-audit arbiter/evaluator/investigator/validator files
+  survive only under .opencode/attic/skills/audit/tasks/, and no live skill contains
+  the SC-12 cost-frame criterion.
+github_url: https://github.com/michael-conrad/.opencode/issues/751

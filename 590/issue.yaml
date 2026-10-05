@@ -14,7 +14,10 @@ body: '# SPEC: brainstorming — Terminal State Is User-Approved
   ## Problem
 
 
-  `skills/brainstorming/SKILL.md` Operating Protocol §5 says "Terminal state invokes spec-creation" — implying the orchestrator autonomously detects when exploration is done. Terminal state cannot be auto-detected because the user decides when brainstorming is complete.
+  `skills/brainstorming/SKILL.md` Operating Protocol §5 says "Terminal state invokes
+  spec-creation" — implying the orchestrator autonomously detects when exploration
+  is done. Terminal state cannot be auto-detected because the user decides when brainstorming
+  is complete.
 
 
   ## Success Criteria
@@ -23,22 +26,32 @@ body: '# SPEC: brainstorming — Terminal State Is User-Approved
   ### SC-1: Terminal state defined as user-approved
 
 
-  `skills/brainstorming/SKILL.md` Operating Protocol §5 updated. When the brainstorming session appears concluded, the orchestrator provides a detailed executive summary (concise, not flooding chat). The user decides: continue discussion, write the spec, defer to later, or discard.
+  `skills/brainstorming/SKILL.md` Operating Protocol §5 updated. When the brainstorming
+  session appears concluded, the orchestrator provides a detailed executive summary
+  (concise, not flooding chat). The user decides: continue discussion, write the spec,
+  defer to later, or discard.
 
 
-  No `question` tool usage — the summary is the deliverable, and the user responds naturally. Terminal transition (to spec-creation, deferral, or discard) is a natural response, not a prompted choice.
+  No `question` tool usage — the summary is the deliverable, and the user responds
+  naturally. Terminal transition (to spec-creation, deferral, or discard) is a natural
+  response, not a prompted choice.
 
 
   ### SC-2: Explore task reflects user-approved terminal state
 
 
-  `skills/brainstorming/tasks/explore.md` updated — if the explore task sub-agent detects saturation (no new user information, user confirms/agrees), it returns a result contract indicating the session may be concluded. The orchestrator then produces the executive summary for user approval.
+  `skills/brainstorming/tasks/explore.md` updated — if the explore task sub-agent
+  detects saturation (no new user information, user confirms/agrees), it returns a
+  result contract indicating the session may be concluded. The orchestrator then produces
+  the executive summary for user approval.
 
 
   ### SC-3: Completion task updated
 
 
-  `skills/brainstorming/tasks/completion.md` — the pipeline signal output should reflect the three possible user outcomes: `CONTINUE: spec-creation`, `CONTINUE: defer`, or `HALT` (for discard). Currently only `CONTINUE: spec-creation` is hardcoded.
+  `skills/brainstorming/tasks/completion.md` — the pipeline signal output should reflect
+  the three possible user outcomes: `CONTINUE: spec-creation`, `CONTINUE: defer`,
+  or `HALT` (for discard). Currently only `CONTINUE: spec-creation` is hardcoded.
 
 
   ## Files Affected
@@ -50,9 +63,11 @@ body: '# SPEC: brainstorming — Terminal State Is User-Approved
 
   | `skills/brainstorming/SKILL.md` | §5 rewrite |
 
-  | `skills/brainstorming/tasks/explore.md` | Saturation detection in result contract |
+  | `skills/brainstorming/tasks/explore.md` | Saturation detection in result contract
+  |
 
-  | `skills/brainstorming/tasks/completion.md` | Pipeline signal for three outcomes |
+  | `skills/brainstorming/tasks/completion.md` | Pipeline signal for three outcomes
+  |
 
 
   ## Out of Scope
@@ -79,4 +94,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets skills/brainstorming/SKILL.md and tasks/explore.md/completion.md, which exist only under .opencode/attic/skills/brainstorming/ — absent from the live deck, which replaced this with the explore card. Terminal-state remediation for retired content is moot.
+sweep_evidence: Targets skills/brainstorming/SKILL.md and tasks/explore.md/completion.md,
+  which exist only under .opencode/attic/skills/brainstorming/ — absent from the live
+  deck, which replaced this with the explore card. Terminal-state remediation for
+  retired content is moot.
+github_url: https://github.com/michael-conrad/.opencode/issues/590

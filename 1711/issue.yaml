@@ -1,6 +1,7 @@
 labels:
 - approved-for-pr
 number: 1711
-state: CLOSED
-title: "[SPEC] Fix implementation-pipeline dispatch table \u2014 route to owning skills,\"
-  \ remove phantom entries"
+title: '[SPEC] Fix implementation-pipeline dispatch table — route to owning skills,"  remove
+  phantom entries'
+github_url: https://github.com/michael-conrad/.opencode/issues/1711
+status: closed

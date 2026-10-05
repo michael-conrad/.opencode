@@ -17,7 +17,9 @@ body: '## Problem
   ```
 
 
-  All tokens are concatenated into a single string with no spaces or quotes. Bash interprets this as one token instead of `exec` + `uv` + `run` + `--script` + `$0` + `$@`.
+  All tokens are concatenated into a single string with no spaces or quotes. Bash
+  interprets this as one token instead of `exec` + `uv` + `run` + `--script` + `$0`
+  + `$@`.
 
 
   The correct form (matching `tools/guidelines` and `tools/md`):
@@ -33,7 +35,10 @@ body: '## Problem
   ## Impact
 
 
-  When invoked as `bash .opencode/tools/local-issues setup`, bash falls through the guard and interprets Python `import` statements as shell commands (`import fcntl` → creates a file called `fcntl`, etc.), producing stray artifact files in the project root.
+  When invoked as `bash .opencode/tools/local-issues setup`, bash falls through the
+  guard and interprets Python `import` statements as shell commands (`import fcntl`
+  → creates a file called `fcntl`, etc.), producing stray artifact files in the project
+  root.
 
 
   ## Fix
@@ -54,4 +59,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The reported malformed guard ("execuvrun--script$0$@") no longer exists: line 3 of live .opencode/tools/local-issues reads "exec" "uv" "run" "--script" "$0" "$@" with correct tokenization — the defect was already fixed in the rewritten tool.'
+sweep_evidence: 'The reported malformed guard ("execuvrun--script$0$@") no longer
+  exists: line 3 of live .opencode/tools/local-issues reads "exec" "uv" "run" "--script"
+  "$0" "$@" with correct tokenization — the defect was already fixed in the rewritten
+  tool.'
+github_url: https://github.com/michael-conrad/.opencode/issues/977

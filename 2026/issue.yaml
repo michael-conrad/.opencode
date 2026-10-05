@@ -1,4 +1,6 @@
 number: 2026
-title: "[SPEC-FIX] Missing task cards in spec-creation pipeline: research-card-consultation and interdependency-check"
-state: OPEN
+title: '[SPEC-FIX] Missing task cards in spec-creation pipeline: research-card-consultation
+  and interdependency-check'
 labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/2026
+status: open

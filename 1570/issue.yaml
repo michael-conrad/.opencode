@@ -1,6 +1,6 @@
 labels:
 - bug
 number: 1570
-state: OPEN
-title: "[BUG] 3 skill-invocation scenarios fail \u2014 model does not dispatch expected\"
-  \ skills"
+title: '[BUG] 3 skill-invocation scenarios fail — model does not dispatch expected"  skills'
+github_url: https://github.com/michael-conrad/.opencode/issues/1570
+status: open

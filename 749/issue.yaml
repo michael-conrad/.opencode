@@ -10,7 +10,8 @@ body: 'Parent: #746
 
   ## Concern
 
-  Spec writer output layer — generated specs must carry cost-frame intent in their success criteria.
+  Spec writer output layer — generated specs must carry cost-frame intent in their
+  success criteria.
 
 
   ## Files
@@ -43,4 +44,7 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target skill `skills/spec-creation/` exists only under .opencode/attic/ (retired); the live deck's spec skill is .opencode/skills/spec/ (SKILL.md only, no tasks/write.md), and no live deck file carries the cost-frame Step 0.5 concept.
+sweep_evidence: Target skill `skills/spec-creation/` exists only under .opencode/attic/
+  (retired); the live deck's spec skill is .opencode/skills/spec/ (SKILL.md only,
+  no tasks/write.md), and no live deck file carries the cost-frame Step 0.5 concept.
+github_url: https://github.com/michael-conrad/.opencode/issues/749

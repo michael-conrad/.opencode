@@ -1,6 +1,7 @@
 labels:
 - spec
 number: 1758
-state: CLOSED
 title: '[SPEC] Revise spec-creation, writing-plans, and adversarial-audit workflows
   with lessons from #46'
+github_url: https://github.com/michael-conrad/.opencode/issues/1758
+status: closed

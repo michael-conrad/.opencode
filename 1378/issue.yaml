@@ -3,6 +3,7 @@ labels:
 - guideline
 - skill
 number: 1378
-state: CLOSED
 title: '[SPEC-FIX] Evidence type classification gate for agent-facing configuration
   changes'
+github_url: https://github.com/michael-conrad/.opencode/issues/1378
+status: closed

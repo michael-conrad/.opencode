@@ -9,4 +9,8 @@ github_url: https://github.com/michael-conrad/.opencode/issues/1223
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Fix already implemented in live .opencode/tools/local-issues: _has_remote() helper (line 397) guards _rebase_issues_branch (line 1814) and _push_issues_branch_safe (line 1833), and _sync_repo returns {"status": "no_remote"} (lines 1854-1855) — SC-1 through SC-4 are satisfied, so nothing remains to do.'
+sweep_evidence: 'Fix already implemented in live .opencode/tools/local-issues: _has_remote()
+  helper (line 397) guards _rebase_issues_branch (line 1814) and _push_issues_branch_safe
+  (line 1833), and _sync_repo returns {"status": "no_remote"} (lines 1854-1855) —
+  SC-1 through SC-4 are satisfied, so nothing remains to do.'
+number: 1223

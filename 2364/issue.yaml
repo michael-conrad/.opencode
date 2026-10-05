@@ -6,24 +6,30 @@ labels:
 - spec-draft
 body: '## Problem
 
-  The five-tier tool hierarchy and glob LIM-1..6 semantics currently live in the preloaded 060-tool-usage.md guideline and will be removed from preload. mcp-tool-usage must become the single canonical home.
+  The five-tier tool hierarchy and glob LIM-1..6 semantics currently live in the preloaded
+  060-tool-usage.md guideline and will be removed from preload. mcp-tool-usage must
+  become the single canonical home.
 
 
   ## Scope
 
-  - **In:** Make mcp-tool-usage the authoritative source for the five-tier hierarchy + glob semantics; add mandatory Read [Text](path) links for any consuming cards.
+  - **In:** Make mcp-tool-usage the authoritative source for the five-tier hierarchy
+  + glob semantics; add mandatory Read [Text](path) links for any consuming cards.
 
   - **Out:** Duplicating the content elsewhere.
 
 
   ## Approach
 
-  Consolidate tool-hierarchy + glob semantics into the mcp-tool-usage skill card as the single source of truth.
+  Consolidate tool-hierarchy + glob semantics into the mcp-tool-usage skill card as
+  the single source of truth.
 
 
   ## Impact
 
-  Enables 060 condensation (~2.9k savings). Risk: tool-misrouting if hierarchy lost. Mitigation: mcp-tool-usage is authoritative. Depends on 060 condensation. Action: approve.'
+  Enables 060 condensation (~2.9k savings). Risk: tool-misrouting if hierarchy lost.
+  Mitigation: mcp-tool-usage is authoritative. Depends on 060 condensation. Action:
+  approve.'
 created_at: '2026-08-27T03:14:48Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2364
@@ -35,4 +41,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target mcp-tool-usage skill exists only in .opencode/attic/skills/ (absent from live skills/), and its source content 060-tool-usage.md (five-tier hierarchy, glob LIM-1..6) is attic-only; grep of live floor.md/routing.md/skills/ finds no reference to any of them.
+sweep_evidence: Target mcp-tool-usage skill exists only in .opencode/attic/skills/
+  (absent from live skills/), and its source content 060-tool-usage.md (five-tier
+  hierarchy, glob LIM-1..6) is attic-only; grep of live floor.md/routing.md/skills/
+  finds no reference to any of them.
+github_url: https://github.com/michael-conrad/.opencode/issues/2364

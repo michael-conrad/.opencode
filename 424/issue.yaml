@@ -1,0 +1,11 @@
+number: 424
+title: '[SPEC-FIX] Plugin export pattern: env-loader.ts fails to load'
+labels: '[{"name": "{\"name\": \"bug\""}, {"name": "\"color\": \"d73a4a\""}, {"name":
+  "\"description\": \"Something isn''t working\"}"}, {"name": "{\"name\": \"SPEC-FIX\""},
+  {"name": "\"color\": \"ededed\""}, {"name": "\"description\": \"\"}"}, {"name":
+  "{\"name\": \"plugin\""}, {"name": "\"color\": \"ededed\""}, {"name": "\"description\":
+  \"\"}]\"\""}]
+
+  '
+github_url: https://github.com/michael-conrad/.opencode/issues/424
+status: closed

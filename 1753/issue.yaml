@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1753
-state: CLOSED
 title: '[SPEC-FIX] review-prep generates compare URL without pushing branch to remote'
+github_url: https://github.com/michael-conrad/.opencode/issues/1753
+status: closed

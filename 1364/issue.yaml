@@ -1,7 +1,8 @@
 labels:
 - approved-for-pr
 number: 1364
-state: OPEN
 title: '[SPEC-FIX] for_pr scope model bypasses plan execution — gap-fill must"  route
   through executing-plans, not skip to PR'
 updated_at: '2026-08-25T12:50:03+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/1364
+status: closed

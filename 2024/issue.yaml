@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 2024
-state: OPEN
 title: '[SPEC-FIX] change-control task mandates useless notification comments on spec
   revisions'
+github_url: https://github.com/michael-conrad/.opencode/issues/2024
+status: open

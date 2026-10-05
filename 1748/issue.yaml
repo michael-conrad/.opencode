@@ -1,5 +1,6 @@
 labels:
 - plan
 number: 1748
-state: CLOSED
 title: Staleness Check for PR-Creation Enforcement Gate
+github_url: https://github.com/michael-conrad/.opencode/issues/1748
+status: closed

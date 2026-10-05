@@ -1,4 +1,0 @@
-number: 165
-title: "[SPEC-FIX] Remove github MCP perms from all auditor agent cards"
-state: CLOSED
-labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "platform-routing", "color": "ededed", "description": ""}, {"name": "auditor", "color": "ededed", "description": ""}]""'

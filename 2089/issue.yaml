@@ -1,4 +1,6 @@
 number: 2089
-title: "[SPEC] Agent cost-blindness enforcement — watchdog detection and hard halt for speed-rationalization and process-killing"
-state: OPEN
+title: '[SPEC] Agent cost-blindness enforcement — watchdog detection and hard halt
+  for speed-rationalization and process-killing'
 labels: '[{"name": "needs-approval", "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/2089
+status: open

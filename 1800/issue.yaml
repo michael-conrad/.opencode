@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1800
-state: CLOSED
-title: "[SPEC-FIX] Destructive git operations require spec + authorization \u2014\"
-  \ prevent unauthorized file deletion"
+title: '[SPEC-FIX] Destructive git operations require spec + authorization —"  prevent
+  unauthorized file deletion'
+github_url: https://github.com/michael-conrad/.opencode/issues/1800
+status: closed

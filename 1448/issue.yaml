@@ -2,6 +2,7 @@ labels:
 - needs-approval
 - spec-fix
 number: 1448
-state: OPEN
-title: "[SPEC-FIX] Orchestrator bypasses cross-validate FAIL \u2014 hard gate treated\"
-  \ as advisory note"
+title: '[SPEC-FIX] Orchestrator bypasses cross-validate FAIL — hard gate treated"  as
+  advisory note'
+github_url: https://github.com/michael-conrad/.opencode/issues/1448
+status: open

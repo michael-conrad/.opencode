@@ -1,5 +1,6 @@
 labels:
 - '[SPEC-FIX]'
 number: 1735
-state: CLOSED
 title: '[Phase 1] Checklist files and dispatcher'
+github_url: https://github.com/michael-conrad/.opencode/issues/1735
+status: closed

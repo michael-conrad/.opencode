@@ -2,6 +2,7 @@ labels:
 - needs-approval
 - spec
 number: 1675
-state: CLOSED
-title: "[SPEC] Fix implementation pipeline workflow model \u2014 delete assemble-work.md\"
-  \ and pipeline-executor.md, make SKILL.md dispatch table the single source of truth"
+title: '[SPEC] Fix implementation pipeline workflow model — delete assemble-work.md"  and
+  pipeline-executor.md, make SKILL.md dispatch table the single source of truth'
+github_url: https://github.com/michael-conrad/.opencode/issues/1675
+status: closed

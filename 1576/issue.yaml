@@ -1,4 +1,4 @@
 number: 1576
 title: '[BUG] local-issues link --help returns "Error: invalid issue number" instead'
-state: OPEN
 labels: []
+status: open

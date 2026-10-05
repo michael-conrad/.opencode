@@ -1,4 +1,7 @@
 number: 1266
-title: "[SPEC-FIX] check-pr: fix phase ordering — submodule cleanup before parent, depth-first parking with dirty-pointer admonishment"
-state: OPEN
-labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}, {"name": "approved-for-pr", "color": "ededed", "description": ""}]'
+title: '[SPEC-FIX] check-pr: fix phase ordering — submodule cleanup before parent,
+  depth-first parking with dirty-pointer admonishment'
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
+  a bug fix"}, {"name": "approved-for-pr", "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1266
+status: open

@@ -1,6 +1,6 @@
 title: '[SPEC-FIX] Remove description truncation from buildSkillIndex() and all plugin/tool
   outputs'
-status: open
+status: closed
 labels:
 - SPEC-FIX
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1124
@@ -12,26 +12,26 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   The `buildSkillIndex()` function in `plugins/session-enforcement.ts:568` truncates
   all skill descriptions to the first sentence only via `s.description.split(".")[0].trim()
   + "."`. This silently removes the routing mandate and procedural instructions from
-  skill descriptions in the `available_skills` index that the system prompt shows to
-  AI agents, causing them to bypass mandatory routing gates like `issue-operations`.
+  skill descriptions in the `available_skills` index that the system prompt shows
+  to AI agents, causing them to bypass mandatory routing gates like `issue-operations`.
 
 
   ### Fix
 
 
-  1. Remove the truncation line at `session-enforcement.ts:568`
-  2. Use the full `s.description` instead of `shortDesc`
-  3. Search and eliminate any similar truncation patterns in `plugins/` and `tools/`
+  1. Remove the truncation line at `session-enforcement.ts:568` 2. Use the full `s.description`
+  instead of `shortDesc` 3. Search and eliminate any similar truncation patterns in
+  `plugins/` and `tools/`
 
 
   ### Success Criteria
 
 
-  | ID | Criterion | Evidence Type |
-  |----|-----------|---------------|
-  | SC-1 | No `split(".")[0]` or equivalent first-sentence truncation exists in any `.ts` plugin file | `string` |
-  | SC-2 | No first-sentence truncation exists in any `tools/` script output | `string` |
-  | SC-3 | `buildSkillIndex()` uses full `s.description` instead of `shortDesc` | `string` |
+  | ID | Criterion | Evidence Type | |----|-----------|---------------| | SC-1 | No
+  `split(".")[0]` or equivalent first-sentence truncation exists in any `.ts` plugin
+  file | `string` | | SC-2 | No first-sentence truncation exists in any `tools/` script
+  output | `string` | | SC-3 | `buildSkillIndex()` uses full `s.description` instead
+  of `shortDesc` | `string` |
 
 
   ## AI Agent Instructions
@@ -44,3 +44,5 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   '
 created_at: '2026-06-12T04:43:57+00:00'
 updated_at: '2026-06-12T04:43:57+00:00'
+number: 1124
+github_url: https://github.com/michael-conrad/.opencode/issues/1124

@@ -1,4 +1,7 @@
 number: 1256
-title: "[SPEC-FIX] Auditor Prompt Integrity Scan scope too broad — flags system-level context as dispatch contamination"
-state: OPEN
-labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}]'
+title: '[SPEC-FIX] Auditor Prompt Integrity Scan scope too broad — flags system-level
+  context as dispatch contamination'
+labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for
+  a bug fix"}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1256
+status: open

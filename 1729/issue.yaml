@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1729
-state: CLOSED
-title: "[SPEC-FIX] Pre-push hook Gate 2 fails on new branch pushes \u2014 REMOTE_SHA\"
-  \ is all zeros"
+title: '[SPEC-FIX] Pre-push hook Gate 2 fails on new branch pushes — REMOTE_SHA"  is
+  all zeros'
+github_url: https://github.com/michael-conrad/.opencode/issues/1729
+status: closed

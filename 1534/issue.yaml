@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1534
-state: OPEN
 title: '[SPEC] Fix: verification Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1534
+status: open

@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1406
-state: OPEN
-title: "[SPEC-FIX] Orchestrator dispatch-gate bypass prevention \u2014 structural\"
-  \ enforcement for inline-work prohibition"
+title: '[SPEC-FIX] Orchestrator dispatch-gate bypass prevention — structural"  enforcement
+  for inline-work prohibition'
+github_url: https://github.com/michael-conrad/.opencode/issues/1406
+status: open

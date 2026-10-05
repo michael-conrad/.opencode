@@ -2,33 +2,48 @@ title: '[SPEC] Root-repo-only tooling in multi-module checkouts'
 status: closed
 labels:
 - approved-for-pr
-body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2318)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2318)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
   >
 
-  > **Local artifacts:** `.opencode/.issues/2318/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
+  > **Local artifacts:** `.opencode/.issues/2318/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
 
-  > Revised 2026-08-24: decomposed four compound SCs into nine atomic SCs; placement and cross-referencing made deterministic; Phase 1/2/3 numbering carried through. Evidence types: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string.
+  > Revised 2026-08-24: decomposed four compound SCs into nine atomic SCs; placement
+  and cross-referencing made deterministic; Phase 1/2/3 numbering carried through.
+  Evidence types: SC-1..SC-5 behavioral, SC-6/SC-7 structural, SC-8/SC-9 string.
 
 
   ## Problem
 
 
-  In a multi-module checkout (git submodules or a toolchain-native multi-module arrangement), the AI agent invents and alters submodules to add dedicated tooling (package.json/build.gradle/Node/gradle/etc.) that immediately conflicts with the root repo''s existing toolkit and project-local tools. This produces competing toolchains, wasted work, and build/test breakage.
+  In a multi-module checkout (git submodules or a toolchain-native multi-module arrangement),
+  the AI agent invents and alters submodules to add dedicated tooling (package.json/build.gradle/Node/gradle/etc.)
+  that immediately conflicts with the root repo''s existing toolkit and project-local
+  tools. This produces competing toolchains, wasted work, and build/test breakage.
 
 
   ## Scope
 
 
-  - Add a process-integrity rule requiring agents to use ONLY the root repo''s build tool (e.g. gradlew/build.gradle) or the root repo''s project-local tools (per guideline `085-project-local-tools.md`) for build and test in a multi-module checkout.
+  - Add a process-integrity rule requiring agents to use ONLY the root repo''s build
+  tool (e.g. gradlew/build.gradle) or the root repo''s project-local tools (per guideline
+  `085-project-local-tools.md`) for build and test in a multi-module checkout.
 
   - Prohibit creating or modifying submodules to add competing toolchains.
 
-  - Classify as Tier 2 (process-integrity): HALT by default when a submodule toolchain is invented or altered; a developer may explicitly authorize setting up submodule tooling.
+  - Classify as Tier 2 (process-integrity): HALT by default when a submodule toolchain
+  is invented or altered; a developer may explicitly authorize setting up submodule
+  tooling.
 
-  - Keep guidance framework-agnostic (git submodules OR toolchain-native multi-module) and general (applies to any repo using this config) — no hardcoded repo-specific build commands.
+  - Keep guidance framework-agnostic (git submodules OR toolchain-native multi-module)
+  and general (applies to any repo using this config) — no hardcoded repo-specific
+  build commands.
 
-  - Update `.opencode/AGENTS.md` (canonical agent rules) and/or any referenced guideline/skill as the sub-agent determines appropriate.
+  - Update `.opencode/AGENTS.md` (canonical agent rules) and/or any referenced guideline/skill
+  as the sub-agent determines appropriate.
 
 
   **Out of scope:**
@@ -44,20 +59,32 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2318/`](https://github.c
   ## Approach
 
 
-  Author the new process-integrity rule in the canonical agent rules so it is carried into every repo that consumes this config. The rule states that in a multi-module checkout, build and test must use only the root repo''s build tool or its project-local tools, and that submodules may not be created or modified to add competing toolchains. Enforce at Tier 2 (process-integrity): default HALT on invention/alteration of a submodule toolchain, with an explicit developer-authorized carve-out for setting up submodule tooling. Keep the phrasing general and framework-agnostic so it applies uniformly across git submodules and toolchain-native multi-module arrangements.
+  Author the new process-integrity rule in the canonical agent rules so it is carried
+  into every repo that consumes this config. The rule states that in a multi-module
+  checkout, build and test must use only the root repo''s build tool or its project-local
+  tools, and that submodules may not be created or modified to add competing toolchains.
+  Enforce at Tier 2 (process-integrity): default HALT on invention/alteration of a
+  submodule toolchain, with an explicit developer-authorized carve-out for setting
+  up submodule tooling. Keep the phrasing general and framework-agnostic so it applies
+  uniformly across git submodules and toolchain-native multi-module arrangements.
 
 
   ## Impact
 
 
-  - Risk: Rule is too vague to enforce. Mitigation: phrase as a concrete Tier 2 gate with explicit HALT plus developer-authorization carve-out.
+  - Risk: Rule is too vague to enforce. Mitigation: phrase as a concrete Tier 2 gate
+  with explicit HALT plus developer-authorization carve-out.
 
-  - Risk: Conflicts with legitimate submodule-local tooling that is intentional. Mitigation: the developer-authorization path explicitly covers intentional submodule tooling setup.
+  - Risk: Conflicts with legitimate submodule-local tooling that is intentional. Mitigation:
+  the developer-authorization path explicitly covers intentional submodule tooling
+  setup.
 
-  - Risk: Repo-specific wording limits generality. Mitigation: keep guidance framework-agnostic and free of repo-specific build commands.
+  - Risk: Repo-specific wording limits generality. Mitigation: keep guidance framework-agnostic
+  and free of repo-specific build commands.
 
 
-  **Dependencies:** canonical `.opencode/AGENTS.md`; guideline `085-project-local-tools.md` referenced for project-local tools.
+  **Dependencies:** canonical `.opencode/AGENTS.md`; guideline `085-project-local-tools.md`
+  referenced for project-local tools.
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
@@ -70,4 +97,10 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2318
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Co-target .opencode/guidelines/085-project-local-tools.md exists only at attic/guidelines/ (no guidelines/ dir in the live tree), and the primary target .opencode/AGENTS.md is now pointer-only by explicit design ('must stay a pointer and carry no rules'), so the canonical agent-rules write-target the spec is built on no longer accepts rule content. The Tier 2 (process-integrity) classification machinery is retired old-deck ceremony.
+sweep_evidence: Co-target .opencode/guidelines/085-project-local-tools.md exists only
+  at attic/guidelines/ (no guidelines/ dir in the live tree), and the primary target
+  .opencode/AGENTS.md is now pointer-only by explicit design ('must stay a pointer
+  and carry no rules'), so the canonical agent-rules write-target the spec is built
+  on no longer accepts rule content. The Tier 2 (process-integrity) classification
+  machinery is retired old-deck ceremony.
+number: 2318

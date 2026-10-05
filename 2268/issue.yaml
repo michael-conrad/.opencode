@@ -10,4 +10,9 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2268
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The requested deliverables already exist in the live tree: .opencode/agents/vision-agent.md and .opencode/agents/visual-design-agent.md are byte-identical (4223 and 3672 chars) to the exact file bodies embedded in the spec, so the work is fully delivered in the live deck.'
+sweep_evidence: 'The requested deliverables already exist in the live tree: .opencode/agents/vision-agent.md
+  and .opencode/agents/visual-design-agent.md are byte-identical (4223 and 3672 chars)
+  to the exact file bodies embedded in the spec, so the work is fully delivered in
+  the live deck.'
+number: 2268
+github_url: https://github.com/michael-conrad/.opencode/issues/2268

@@ -35,7 +35,8 @@ body: '## Phase 1: Audit — Identify all `task()` calls in task files
 
   ### Risk
 
-  - Grep may match false positives (comments, prose examples) — each match verified by reading file context'
+  - Grep may match false positives (comments, prose examples) — each match verified
+  by reading file context'
 created_at: '2026-05-24T17:35:44Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 868
@@ -47,4 +48,9 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Phase ticket auditing `task()` calls under `.opencode/skills/*/tasks/` — no live skill has a tasks/ directory (all live skills are bare SKILL.md); the affected files live only in attic/skills (git-workflow, verification-before-completion, research, multimodal-dispatch, changelog-generator old forms). Target surface was retired by the #2501 rip-and-replace.'
+sweep_evidence: 'Phase ticket auditing `task()` calls under `.opencode/skills/*/tasks/`
+  — no live skill has a tasks/ directory (all live skills are bare SKILL.md); the
+  affected files live only in attic/skills (git-workflow, verification-before-completion,
+  research, multimodal-dispatch, changelog-generator old forms). Target surface was
+  retired by the #2501 rip-and-replace.'
+github_url: https://github.com/michael-conrad/.opencode/issues/868

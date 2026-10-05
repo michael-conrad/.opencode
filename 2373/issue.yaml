@@ -6,12 +6,14 @@ labels:
 - spec-draft
 body: '## Problem
 
-  Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to a shared reference; git-workflow consumes it.
+  Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to
+  a shared reference; git-workflow consumes it.
 
 
   ## Scope
 
-  - **In:** Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in the git-workflow skill card.
+  - **In:** Add mandatory Read [Text](path) link to orchestrator-context-discipline.md
+  in the git-workflow skill card.
 
   - **Out:** Losing the context-discipline rules.
 
@@ -23,7 +25,8 @@ body: '## Problem
 
   ## Impact
 
-  Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline ref + 020. Action: approve.'
+  Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline
+  ref + 020. Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
 updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2373
@@ -35,4 +38,9 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: The change is a mandatory Read-link to orchestrator-context-discipline.md (sourced from 020-go-prohibitions.md §1.1), but that shared reference exists only at attic/guidelines/022-orchestrator-context-discipline.md and grep shows no reference to it in live skills/, floor.md, or routing.md; the live git-workflow-* cards are flat SKILL.md files. The dependency target is retired, so the work cannot apply.
+sweep_evidence: The change is a mandatory Read-link to orchestrator-context-discipline.md
+  (sourced from 020-go-prohibitions.md §1.1), but that shared reference exists only
+  at attic/guidelines/022-orchestrator-context-discipline.md and grep shows no reference
+  to it in live skills/, floor.md, or routing.md; the live git-workflow-* cards are
+  flat SKILL.md files. The dependency target is retired, so the work cannot apply.
+github_url: https://github.com/michael-conrad/.opencode/issues/2373

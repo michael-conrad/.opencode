@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1531
-state: OPEN
 title: '[SPEC] Fix: test-driven-development Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1531
+status: open

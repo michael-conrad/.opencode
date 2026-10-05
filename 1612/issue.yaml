@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1612
-state: CLOSED
-title: "Phase 2 \u2014 Farmage Description Expansion"
+title: Phase 2 — Farmage Description Expansion
+github_url: https://github.com/michael-conrad/.opencode/issues/1612
+status: closed

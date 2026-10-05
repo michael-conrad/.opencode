@@ -1,4 +1,5 @@
-title: '[SPEC-FIX] git-workflow-cleanup: orchestrator pre-investigation reverses submodule-first ordering'
+title: '[SPEC-FIX] git-workflow-cleanup: orchestrator pre-investigation reverses submodule-first
+  ordering'
 status: closed
 labels:
 - approved-for-pr
@@ -9,4 +10,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: duplicate
 sweep_verdict: CLOSE-CONFLICT
-sweep_evidence: 'Duplicate of #2417 — identical title (''[SPEC-FIX] git-workflow-cleanup: orchestrator pre-investigation reverses submodule-first ordering''), empty remote body, and its own spec.md points to .issues/2417/ as the authoritative artifacts location.'
+sweep_evidence: 'Duplicate of #2417 — identical title (''[SPEC-FIX] git-workflow-cleanup:
+  orchestrator pre-investigation reverses submodule-first ordering''), empty remote
+  body, and its own spec.md points to .issues/2417/ as the authoritative artifacts
+  location.'
+number: 2418
+github_url: https://github.com/michael-conrad/.opencode/issues/2418

@@ -4,6 +4,7 @@ labels:
 - skill-creator
 - adversarial-audit
 number: 1357
-state: CLOSED
 title: '[SPEC] Add Mandatory Task Discipline Admonishment to All Skill Cards and Task
   Cards'
+github_url: https://github.com/michael-conrad/.opencode/issues/1357
+status: closed

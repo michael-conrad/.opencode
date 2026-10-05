@@ -3,6 +3,7 @@ labels:
 - audit
 - branch-verification
 number: 1644
-state: OPEN
-title: "[SPEC] Branch-Verification Mandate for audit \u2014 Pre-Flight Validation\"
-  \ Gate branch check, BRANCH_MISMATCH handling"
+title: '[SPEC] Branch-Verification Mandate for audit — Pre-Flight Validation"  Gate
+  branch check, BRANCH_MISMATCH handling'
+github_url: https://github.com/michael-conrad/.opencode/issues/1644
+status: open

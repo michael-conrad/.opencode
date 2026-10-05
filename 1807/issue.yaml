@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1807
-state: CLOSED
 title: '[SUB] Phase 9: Update guidelines'
+github_url: https://github.com/michael-conrad/.opencode/issues/1807
+status: closed

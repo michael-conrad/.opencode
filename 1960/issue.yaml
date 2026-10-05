@@ -3,10 +3,97 @@ status: closed
 labels:
 - spec-fix
 - plugin
-body: "---\ntitle: \"[PLAN] Git binary path resolution for snap confinement\"\nstatus: draft\ncreated: 2026-07-16\nlicense: MIT\nprovenance: AI-generated\nissue: 1960\n---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-16\n\n## Phase Table\n\n| Phase | Name | Description | Depends On |\n|-------|------|-------------|------------|\n| 1 | Git path resolution and plugin updates | Add `resolveGitPath()` utility, update `session-enforcement.ts` and `env-loader.ts` to use resolved path | None |\n\n## SC-to-Step Traceability\n\n| SC ID | Criterion | Phase | Step(s) |\n|-------|-----------|-------|---------|\n| SC-1 | Both plugins resolve git path at startup using `Bun.which(\"git\")` with fallback to common paths, verifying each candidate with `--version` | 1 | 1.1, 1.2, 1.3 |\n| SC-2 | All `execSync` git calls in `session-enforcement.ts` use the resolved path (not bare `\"git\"`) | 1 | 1.4 |\n| SC-3 | All `$.nothrow()` git calls in `env-loader.ts` use the resolved path (not bare `\"git\"`) | 1 | 1.5 |\n| SC-4 | Graceful fallback when no git binary is found: plugin loads without crash, skips git operations, logs diagnostic | 1 | 1.6 |\n| SC-5 | Plugin loads without `command not found` errors in normal (non-snap) environments | 1 | 1.7 |\n\n## Phase 1: Git path resolution and plugin updates\n\n### Steps\n\n#### Step 1.1: Create `resolveGitPath()` utility in `session-enforcement.ts`\n\n- Add a `resolveGitPath()` function at module scope in `plugins/session-enforcement.ts`\n- Implementation:\n  1. Call `Bun.which(\"git\")` — returns resolved full path if git is in PATH\n  2. If null, check fallback paths in order: `/usr/bin/git`, `/usr/local/bin/git`, `/snap/bin/git`\n  3. For each candidate, verify with `fs.existsSync(path)` + `execSync(path + \" --version\")`\n  4. Return the first working path, or `null` if none found\n- Store result in a module-scoped `let gitPath: string | null = null` variable\n- Call `resolveGitPath()` once at module scope (or at startup in the plugin function)\n\n#### Step 1.2: Add `resolveGitPath()` to `env-loader.ts`\n\n- Add the same `resolveGitPath()` function in `plugins/env-loader.ts`\n- Store result in a module-scoped variable\n- Call at startup in the plugin function\n\n#### Step 1.3: Handle `Bun` availability\n\n- `Bun.which` is only available in Bun runtime. Wrap in a try/catch or check `typeof Bun !== \"undefined\"`\n- When `Bun` is not available, skip `Bun.which` and go directly to fallback paths\n\n#### Step 1.4: Update `session-enforcement.ts` — replace bare `\"git\"` in execSync calls\n\nReplace all `execSync(\"git ...\")` calls with `execSync(gitPath + \" ...\")`:\n\n| Location | Current | After |\n|----------|---------|-------|\n| `captureGitConfigBaseline` line 88 | `execSync(\"git config --local --list\", ...)` | `execSync(gitPath + \" config --local --list\", ...)` |\n| `captureGitConfigBaseline` line 102 | `execSync(\"git remote -v\", ...)` | `execSync(gitPath + \" remote -v\", ...)` |\n| `resolveGitDir` line 300 | `execSync(\"git rev-parse --git-dir\", ...)` | `execSync(gitPath + \" rev-parse --git-dir\", ...)` |\n| Startup baseline line 756 | `execSync(\"git config --local --list\", ...)` | `execSync(gitPath + \" config --local --list\", ...)` |\n| Mutation watchdog line 976 | `execSync(\"git config --local --list\", ...)` | `execSync(gitPath + \" config --local --list\", ...)` |\n\nWhen `gitPath` is null, skip git operations and log a diagnostic via `writeDiagnostic`.\n\n#### Step 1.5: Update `env-loader.ts` — use resolved path in `gitCmd`\n\n- Modify the `gitCmd` function to use the resolved path instead of bare `\"git\"`\n- Change `$.nothrow()`\\`${cmd}\\`` to `$.nothrow()`\\`${gitPath} ${cmd}\\``\n- All four `gitCmd` call sites (branch, remote, user.name, user.email) use the resolved path\n- When `gitPath` is null, skip all git operations and log a diagnostic\n\n#### Step 1.6: Graceful degradation\n\n- In `session-enforcement.ts`: when `gitPath` is null, `captureGitConfigBaseline` returns null, `resolveGitDir` returns null, `ensureHooksInstalled` skips, mutation watchdog skips\n- In `env-loader.ts`: when `gitPath` is null, `gitCmd` returns null for all calls, git env vars are not set\n- Both plugins log a diagnostic via `writeDiagnostic` when git is unavailable\n\n#### Step 1.7: Behavioral verification\n\n- Run `opencode run` in normal environment → verify no `command not found` errors in stderr (SC-5)\n- Run `opencode run` with simulated missing git → verify no crash, diagnostic logged (SC-4)\n- Verify all execSync calls use resolved path via grep (SC-2)\n- Verify all gitCmd calls use resolved path via grep (SC-3)\n\n### Safety/Rollback\n\n**Phase 1 — Safety/Rollback:**\n- Destructive operations: None — file edits are additive (adding `resolveGitPath()`, modifying execSync/gitCmd arguments)\n- Rollback plan: `git checkout` the original files if any change causes regression\n- Data loss risk: none\n\n### Feasibility Verification\n\n| Step | Reference | Verified? | Evidence |\n|------|-----------|-----------|----------|\n| 1.1 | `plugins/session-enforcement.ts` `execSync` | ✅ | `editor_read_file` confirmed execSync calls at lines 88, 102, 300, 756, 976 |\n| 1.2 | `plugins/env-loader.ts` `gitCmd` | ✅ | `editor_read_file` confirmed gitCmd at lines 263-275, call sites at 278, 286, 317, 325 |\n| 1.3 | `Bun.which` API | ✅ | Bun docs: `Bun.which(\"git\")` returns resolved path or null |\n| 1.4 | `fs.existsSync` | ✅ | Node.js built-in, available in both plugins (already imported) |\n| 1.5 | `writeDiagnostic` | ✅ | Both plugins already have `writeDiagnostic` function |\n\n### Evidence/Provenance\n\n| Claim | Evidence Source | Verified? |\n|-------|----------------|----------|\n| `session-enforcement.ts` has 5 execSync(\"git ...\") call sites | `editor_read_file` lines 88, 102, 300, 756, 976 | ✅ |\n| `env-loader.ts` has 4 gitCmd call sites | `editor_read_file` lines 278, 286, 317, 325 | ✅ |\n| Both plugins import `fs` from \"fs\" | `editor_read_file` line 27 (session-enforcement), line 23 (env-loader) | ✅ |\n| `Bun.which` returns full path or null | Bun documentation | ✅ |\n\n## Exit Criteria\n\n- [ ] `resolveGitPath()` function exists in both plugins\n- [ ] All execSync git calls in `session-enforcement.ts` use resolved path\n- [ ] All gitCmd calls in `env-loader.ts` use resolved path\n- [ ] Graceful degradation when git is unavailable (no crash, diagnostic logged)\n- [ ] No regression in normal environments (behavioral test PASS)\n- [ ] TypeScript compilation passes (`tsc --noEmit`)\n- [ ] All 5 SCs verified PASS\n\n## Approval Cascade\n\n| Scope | Plan Approval | Implementation |\n|-------|--------------|----------------|\n| `for_pr` | Auto-approved | Auto-approved |\n\n"
+body: "---\ntitle: \"[PLAN] Git binary path resolution for snap confinement\"\nstatus:\
+  \ draft\ncreated: 2026-07-16\nlicense: MIT\nprovenance: AI-generated\nissue: 1960\n\
+  ---\n\n**STATUS:** DRAFT\n**CREATED:** 2026-07-16\n\n## Phase Table\n\n| Phase |\
+  \ Name | Description | Depends On |\n|-------|------|-------------|------------|\n\
+  | 1 | Git path resolution and plugin updates | Add `resolveGitPath()` utility, update\
+  \ `session-enforcement.ts` and `env-loader.ts` to use resolved path | None |\n\n\
+  ## SC-to-Step Traceability\n\n| SC ID | Criterion | Phase | Step(s) |\n|-------|-----------|-------|---------|\n\
+  | SC-1 | Both plugins resolve git path at startup using `Bun.which(\"git\")` with\
+  \ fallback to common paths, verifying each candidate with `--version` | 1 | 1.1,\
+  \ 1.2, 1.3 |\n| SC-2 | All `execSync` git calls in `session-enforcement.ts` use\
+  \ the resolved path (not bare `\"git\"`) | 1 | 1.4 |\n| SC-3 | All `$.nothrow()`\
+  \ git calls in `env-loader.ts` use the resolved path (not bare `\"git\"`) | 1 |\
+  \ 1.5 |\n| SC-4 | Graceful fallback when no git binary is found: plugin loads without\
+  \ crash, skips git operations, logs diagnostic | 1 | 1.6 |\n| SC-5 | Plugin loads\
+  \ without `command not found` errors in normal (non-snap) environments | 1 | 1.7\
+  \ |\n\n## Phase 1: Git path resolution and plugin updates\n\n### Steps\n\n#### Step\
+  \ 1.1: Create `resolveGitPath()` utility in `session-enforcement.ts`\n\n- Add a\
+  \ `resolveGitPath()` function at module scope in `plugins/session-enforcement.ts`\n\
+  - Implementation:\n  1. Call `Bun.which(\"git\")` — returns resolved full path if\
+  \ git is in PATH\n  2. If null, check fallback paths in order: `/usr/bin/git`, `/usr/local/bin/git`,\
+  \ `/snap/bin/git`\n  3. For each candidate, verify with `fs.existsSync(path)` +\
+  \ `execSync(path + \" --version\")`\n  4. Return the first working path, or `null`\
+  \ if none found\n- Store result in a module-scoped `let gitPath: string | null =\
+  \ null` variable\n- Call `resolveGitPath()` once at module scope (or at startup\
+  \ in the plugin function)\n\n#### Step 1.2: Add `resolveGitPath()` to `env-loader.ts`\n\
+  \n- Add the same `resolveGitPath()` function in `plugins/env-loader.ts`\n- Store\
+  \ result in a module-scoped variable\n- Call at startup in the plugin function\n\
+  \n#### Step 1.3: Handle `Bun` availability\n\n- `Bun.which` is only available in\
+  \ Bun runtime. Wrap in a try/catch or check `typeof Bun !== \"undefined\"`\n- When\
+  \ `Bun` is not available, skip `Bun.which` and go directly to fallback paths\n\n\
+  #### Step 1.4: Update `session-enforcement.ts` — replace bare `\"git\"` in execSync\
+  \ calls\n\nReplace all `execSync(\"git ...\")` calls with `execSync(gitPath + \"\
+  \ ...\")`:\n\n| Location | Current | After |\n|----------|---------|-------|\n|\
+  \ `captureGitConfigBaseline` line 88 | `execSync(\"git config --local --list\",\
+  \ ...)` | `execSync(gitPath + \" config --local --list\", ...)` |\n| `captureGitConfigBaseline`\
+  \ line 102 | `execSync(\"git remote -v\", ...)` | `execSync(gitPath + \" remote\
+  \ -v\", ...)` |\n| `resolveGitDir` line 300 | `execSync(\"git rev-parse --git-dir\"\
+  , ...)` | `execSync(gitPath + \" rev-parse --git-dir\", ...)` |\n| Startup baseline\
+  \ line 756 | `execSync(\"git config --local --list\", ...)` | `execSync(gitPath\
+  \ + \" config --local --list\", ...)` |\n| Mutation watchdog line 976 | `execSync(\"\
+  git config --local --list\", ...)` | `execSync(gitPath + \" config --local --list\"\
+  , ...)` |\n\nWhen `gitPath` is null, skip git operations and log a diagnostic via\
+  \ `writeDiagnostic`.\n\n#### Step 1.5: Update `env-loader.ts` — use resolved path\
+  \ in `gitCmd`\n\n- Modify the `gitCmd` function to use the resolved path instead\
+  \ of bare `\"git\"`\n- Change `$.nothrow()`\\`${cmd}\\`` to `$.nothrow()`\\`${gitPath}\
+  \ ${cmd}\\``\n- All four `gitCmd` call sites (branch, remote, user.name, user.email)\
+  \ use the resolved path\n- When `gitPath` is null, skip all git operations and log\
+  \ a diagnostic\n\n#### Step 1.6: Graceful degradation\n\n- In `session-enforcement.ts`:\
+  \ when `gitPath` is null, `captureGitConfigBaseline` returns null, `resolveGitDir`\
+  \ returns null, `ensureHooksInstalled` skips, mutation watchdog skips\n- In `env-loader.ts`:\
+  \ when `gitPath` is null, `gitCmd` returns null for all calls, git env vars are\
+  \ not set\n- Both plugins log a diagnostic via `writeDiagnostic` when git is unavailable\n\
+  \n#### Step 1.7: Behavioral verification\n\n- Run `opencode run` in normal environment\
+  \ → verify no `command not found` errors in stderr (SC-5)\n- Run `opencode run`\
+  \ with simulated missing git → verify no crash, diagnostic logged (SC-4)\n- Verify\
+  \ all execSync calls use resolved path via grep (SC-2)\n- Verify all gitCmd calls\
+  \ use resolved path via grep (SC-3)\n\n### Safety/Rollback\n\n**Phase 1 — Safety/Rollback:**\n\
+  - Destructive operations: None — file edits are additive (adding `resolveGitPath()`,\
+  \ modifying execSync/gitCmd arguments)\n- Rollback plan: `git checkout` the original\
+  \ files if any change causes regression\n- Data loss risk: none\n\n### Feasibility\
+  \ Verification\n\n| Step | Reference | Verified? | Evidence |\n|------|-----------|-----------|----------|\n\
+  | 1.1 | `plugins/session-enforcement.ts` `execSync` | ✅ | `editor_read_file` confirmed\
+  \ execSync calls at lines 88, 102, 300, 756, 976 |\n| 1.2 | `plugins/env-loader.ts`\
+  \ `gitCmd` | ✅ | `editor_read_file` confirmed gitCmd at lines 263-275, call sites\
+  \ at 278, 286, 317, 325 |\n| 1.3 | `Bun.which` API | ✅ | Bun docs: `Bun.which(\"\
+  git\")` returns resolved path or null |\n| 1.4 | `fs.existsSync` | ✅ | Node.js built-in,\
+  \ available in both plugins (already imported) |\n| 1.5 | `writeDiagnostic` | ✅\
+  \ | Both plugins already have `writeDiagnostic` function |\n\n### Evidence/Provenance\n\
+  \n| Claim | Evidence Source | Verified? |\n|-------|----------------|----------|\n\
+  | `session-enforcement.ts` has 5 execSync(\"git ...\") call sites | `editor_read_file`\
+  \ lines 88, 102, 300, 756, 976 | ✅ |\n| `env-loader.ts` has 4 gitCmd call sites\
+  \ | `editor_read_file` lines 278, 286, 317, 325 | ✅ |\n| Both plugins import `fs`\
+  \ from \"fs\" | `editor_read_file` line 27 (session-enforcement), line 23 (env-loader)\
+  \ | ✅ |\n| `Bun.which` returns full path or null | Bun documentation | ✅ |\n\n##\
+  \ Exit Criteria\n\n- [ ] `resolveGitPath()` function exists in both plugins\n- [\
+  \ ] All execSync git calls in `session-enforcement.ts` use resolved path\n- [ ]\
+  \ All gitCmd calls in `env-loader.ts` use resolved path\n- [ ] Graceful degradation\
+  \ when git is unavailable (no crash, diagnostic logged)\n- [ ] No regression in\
+  \ normal environments (behavioral test PASS)\n- [ ] TypeScript compilation passes\
+  \ (`tsc --noEmit`)\n- [ ] All 5 SCs verified PASS\n\n## Approval Cascade\n\n| Scope\
+  \ | Plan Approval | Implementation |\n|-------|--------------|----------------|\n\
+  | `for_pr` | Auto-approved | Auto-approved |\n\n"
 created_at: '2026-07-16T04:04:36+00:00'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The targeted git call sites no longer exist: live plugins/session-enforcement.ts is 84 lines with zero git execSync calls (only the session-init script invocation), and plugins/env-loader.ts is now a pure .env shell.env loader with no git operations at all. The minimal plugin rewrite eliminated every bare-git call this fix targeted, so resolveGitPath() has nothing left to fix.'
+sweep_evidence: 'The targeted git call sites no longer exist: live plugins/session-enforcement.ts
+  is 84 lines with zero git execSync calls (only the session-init script invocation),
+  and plugins/env-loader.ts is now a pure .env shell.env loader with no git operations
+  at all. The minimal plugin rewrite eliminated every bare-git call this fix targeted,
+  so resolveGitPath() has nothing left to fix.'
+number: 1960
+github_url: https://github.com/michael-conrad/.opencode/issues/1960

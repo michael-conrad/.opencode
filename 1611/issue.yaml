@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1611
-state: CLOSED
-title: "Phase 1 \u2014 Frontmatter Fixes"
+title: Phase 1 — Frontmatter Fixes
+github_url: https://github.com/michael-conrad/.opencode/issues/1611
+status: closed

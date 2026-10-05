@@ -1,4 +1,5 @@
 number: 148
-title: "[SPEC] Orchestrator-Serial Pipeline — Replace divide-and-conquer monolithic sub-agent dispatch with 11-step orchestrator-routed serial pipeline"
-state: CLOSED
+title: '[SPEC] Orchestrator-Serial Pipeline — Replace divide-and-conquer monolithic
+  sub-agent dispatch with 11-step orchestrator-routed serial pipeline'
 labels: '[[]""'
+status: closed

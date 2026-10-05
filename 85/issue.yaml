@@ -1,4 +1,7 @@
-number: 85
-title: "[SPEC] Phase-level plans with TDD as mandate (not micromanagement script)"
-state: CLOSED
-labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "writing-plans", "color": "ededed", "description": ""}, {"name": "plan-autonomy", "color": "ededed", "description": ""}]""'
+number: 594
+title: '[SPEC] Phase-level plans with TDD as mandate (not micromanagement script)'
+labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "writing-plans",
+  "color": "ededed", "description": ""}, {"name": "plan-autonomy", "color": "ededed",
+  "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/594
+status: closed

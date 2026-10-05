@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1927
-state: CLOSED
-title: "[SPEC-FIX] Rewrite test framework from scratch: opencode-cli \u2192 opencode,\"
-  \ correct test env setup"
+title: '[SPEC-FIX] Rewrite test framework from scratch: opencode-cli → opencode,"  correct
+  test env setup'
+github_url: https://github.com/michael-conrad/.opencode/issues/1927
+status: closed

@@ -1,5 +1,6 @@
 labels:
 - sub-issue
 number: 1610
-state: CLOSED
-title: "Phase 5 \u2014 SC-LINT-004 Resolution"
+title: Phase 5 — SC-LINT-004 Resolution
+github_url: https://github.com/michael-conrad/.opencode/issues/1610
+status: closed

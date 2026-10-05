@@ -1,4 +1,5 @@
 number: 1253
-title: "[SPEC-FIX] Fix requires-python tilde specifier in all PEP 723 scripts"
-state: OPEN
+title: '[SPEC-FIX] Fix requires-python tilde specifier in all PEP 723 scripts'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1253
+status: open

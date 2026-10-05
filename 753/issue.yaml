@@ -10,7 +10,8 @@ body: 'Parent: #746
 
   ## Concern
 
-  VbC enforcement layer — verification-before-completion must require saved artifact files for every behavioral SC.
+  VbC enforcement layer — verification-before-completion must require saved artifact
+  files for every behavioral SC.
 
 
   ## Files
@@ -43,4 +44,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target `skills/verification-before-completion/tasks/verify.md` exists only at .opencode/attic/skills/verification-before-completion/tasks/verify.md; verification-before-completion is retired ceremony and the live verify skill (.opencode/skills/verify/) is a fresh-context reviewer card, not the old Behavioral Evidence table.
+sweep_evidence: Target `skills/verification-before-completion/tasks/verify.md` exists
+  only at .opencode/attic/skills/verification-before-completion/tasks/verify.md; verification-before-completion
+  is retired ceremony and the live verify skill (.opencode/skills/verify/) is a fresh-context
+  reviewer card, not the old Behavioral Evidence table.
+github_url: https://github.com/michael-conrad/.opencode/issues/753

@@ -1,5 +1,6 @@
 number: 1024
-title: '[BUG] implementation-pipeline step 10 missing prerequisite: spec_local_dir and artifact_evidence_dir not created before audit dispatch'
+title: '[BUG] implementation-pipeline step 10 missing prerequisite: spec_local_dir
+  and artifact_evidence_dir not created before audit dispatch'
 status: closed
 labels:
 - bug
@@ -7,7 +8,11 @@ labels:
 body: '## Summary
 
 
-  The implementation-pipeline SKILL.md defines step 10 as `adversarial-audit --task verification-audit` but does not specify that the orchestrator must create `spec_local_dir` and `artifact_evidence_dir` before dispatching auditors. The adversarial-audit skill''s `verification-audit` task requires both directories populated — the pipeline provides no prerequisite step for this.
+  The implementation-pipeline SKILL.md defines step 10 as `adversarial-audit --task
+  verification-audit` but does not specify that the orchestrator must create `spec_local_dir`
+  and `artifact_evidence_dir` before dispatching auditors. The adversarial-audit skill''s
+  `verification-audit` task requires both directories populated — the pipeline provides
+  no prerequisite step for this.
 
 
   ## Root Cause
@@ -18,7 +23,8 @@ body: '## Summary
 
   ```
 
-  | adversarial-audit | adversarial-audit --task verification-audit | dual-auditor YAML verdicts |
+  | adversarial-audit | adversarial-audit --task verification-audit | dual-auditor
+  YAML verdicts |
 
   ```
 
@@ -30,14 +36,16 @@ body: '## Summary
 
   |-------|-------------|
 
-  | `spec_local_dir` | Path to local Markdown spec files (mirrored from GitHub Issue) |
+  | `spec_local_dir` | Path to local Markdown spec files (mirrored from GitHub Issue)
+  |
 
   | `artifact_evidence_dir` | Path to behavioral evidence artifacts |
 
   | `audit_phase` | verification_audit |
 
 
-  The pipeline SKILL.md has no mention of these prerequisites. The orchestrator is not told to:
+  The pipeline SKILL.md has no mention of these prerequisites. The orchestrator is
+  not told to:
 
   1. Fetch the issue and write a local `.md` spec to a known directory
 
@@ -49,7 +57,8 @@ body: '## Summary
   ## Evidence
 
 
-  During viewport-editor #46 step 10.2, the `auditor-qwen3.5` sub-agent correctly rejected the dispatch:
+  During viewport-editor #46 step 10.2, the `auditor-qwen3.5` sub-agent correctly
+  rejected the dispatch:
 
 
   ```
@@ -61,7 +70,8 @@ body: '## Summary
   ```
 
 
-  The auditor behavior was correct. The pipeline lacked the prerequisite steps to populate these directories.
+  The auditor behavior was correct. The pipeline lacked the prerequisite steps to
+  populate these directories.
 
 
   ## Resolution Needed
@@ -72,11 +82,14 @@ body: '## Summary
 
   ```
 
-  | pre-audit-spec-mirror | orchestrator: fetch issue #N, write spec_local_dir locally | spec_local_dir populated |
+  | pre-audit-spec-mirror | orchestrator: fetch issue #N, write spec_local_dir locally
+  | spec_local_dir populated |
 
-  | pre-audit-evidence | orchestrator: collect behavioral evidence artifacts | artifact_evidence_dir populated |
+  | pre-audit-evidence | orchestrator: collect behavioral evidence artifacts | artifact_evidence_dir
+  populated |
 
-  | adversarial-audit | dispatch with spec_local_dir + artifact_evidence_dir | dual-auditor YAML verdicts |
+  | adversarial-audit | dispatch with spec_local_dir + artifact_evidence_dir | dual-auditor
+  YAML verdicts |
 
   ```
 
@@ -93,4 +106,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets the implementation-pipeline skill's step-10 dispatch table and the adversarial-audit dual-auditor verification-audit task (spec_local_dir/artifact_evidence_dir) — neither skill exists in the live deck (only .opencode/attic/skills/); retired audit-triad machinery, moot after the reorg.
+sweep_evidence: Targets the implementation-pipeline skill's step-10 dispatch table
+  and the adversarial-audit dual-auditor verification-audit task (spec_local_dir/artifact_evidence_dir)
+  — neither skill exists in the live deck (only .opencode/attic/skills/); retired
+  audit-triad machinery, moot after the reorg.
+github_url: https://github.com/michael-conrad/.opencode/issues/1024

@@ -19,4 +19,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'push-body/pull-body were never implemented (absent from the tool since rewrite commit 46121e98 and from tools/ and tests-v2/ today) and the design is superseded: closed spec #2241 declared local issue.yaml the canonical source and its SC-27 deleted the dead push-body task card as a ''non-existent sync operation''.'
+sweep_evidence: 'push-body/pull-body were never implemented (absent from the tool
+  since rewrite commit 46121e98 and from tools/ and tests-v2/ today) and the design
+  is superseded: closed spec #2241 declared local issue.yaml the canonical source
+  and its SC-27 deleted the dead push-body task card as a ''non-existent sync operation''.'
+github_url: https://github.com/michael-conrad/.opencode/issues/998

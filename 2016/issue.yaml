@@ -1,4 +1,4 @@
 number: 2016
-title: "[BUG] with-test-home isolation check false-positive when production DB modified"
-state: CLOSED
+title: '[BUG] with-test-home isolation check false-positive when production DB modified'
 labels: '[]'
+status: closed

@@ -9,4 +9,12 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Every targeted path is gone from the live tree: skills/executing-plans/ exists only under attic/skills/, dispatch-table.yaml and guidelines/ no longer exist, and live grep for ''implementation-pipeline'' matches only CHANGELOG.md (spec says preserve-as-is) and historical test fixtures for issues 1364/2431/2433. All 18 SCs are satisfied or vacuous in the live tree; the residual old-skill row in README.md:100 is wholesale reorg staleness covering the entire pre-rip deck, beyond this spec''s scoped SCs.'
+sweep_evidence: 'Every targeted path is gone from the live tree: skills/executing-plans/
+  exists only under attic/skills/, dispatch-table.yaml and guidelines/ no longer exist,
+  and live grep for ''implementation-pipeline'' matches only CHANGELOG.md (spec says
+  preserve-as-is) and historical test fixtures for issues 1364/2431/2433. All 18 SCs
+  are satisfied or vacuous in the live tree; the residual old-skill row in README.md:100
+  is wholesale reorg staleness covering the entire pre-rip deck, beyond this spec''s
+  scoped SCs.'
+number: 2205
+github_url: https://github.com/michael-conrad/.opencode/issues/2205

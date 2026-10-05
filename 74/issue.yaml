@@ -1,4 +1,6 @@
 number: 74
-title: "[SPEC] Functional/Behavioral Test Substitution Prohibition — critical-rules-049"
-state: CLOSED
-labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "critical", "color": "ededed", "description": ""}, {"name": "tier-1", "color": "ededed", "description": ""}]""'
+title: '[SPEC] Functional/Behavioral Test Substitution Prohibition — critical-rules-049'
+labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "critical",
+  "color": "ededed", "description": ""}, {"name": "tier-1", "color": "ededed", "description":
+  ""}]""'
+status: closed

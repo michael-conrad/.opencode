@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1708
-state: CLOSED
-title: "[BUG] Agent bypasses release PR workflow skills \u2014 creates submodule-pointer-only\"
-  \ PRs instead of using changelog-generator + git-workflow pr-creation"
+title: '[BUG] Agent bypasses release PR workflow skills — creates submodule-pointer-only"  PRs
+  instead of using changelog-generator + git-workflow pr-creation'
+github_url: https://github.com/michael-conrad/.opencode/issues/1708
+status: closed

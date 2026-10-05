@@ -1,5 +1,6 @@
 labels:
 - phase
 number: 1721
-state: CLOSED
 title: '[Phase 3] Refactor 15 Task Files'
+github_url: https://github.com/michael-conrad/.opencode/issues/1721
+status: closed

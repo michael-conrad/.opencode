@@ -1,4 +1,4 @@
 number: 1966
-title: "[BUG] VbC DISPATCH_CHAIN_VIOLATION gate requires skill() call logging that"
-state: OPEN
+title: '[BUG] VbC DISPATCH_CHAIN_VIOLATION gate requires skill() call logging that'
 labels: '[]'
+status: open

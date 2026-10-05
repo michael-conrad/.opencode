@@ -1,0 +1,7 @@
+number: 604
+title: '[SPEC-FIX] Cleanup pipeline: auto-authorize destructive git ops on non-protected
+  branches'
+labels: '[[{"name": "SPEC-FIX", "color": "ededed", "description": ""}, {"name": "skill-fix",
+  "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/604
+status: closed

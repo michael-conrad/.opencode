@@ -1,5 +1,6 @@
 labels:
 - approved-for-pr
 number: 1985
-state: CLOSED
 title: '[SPEC-FIX] read-link-pattern-clean-room.sh bypasses with-test-home isolation'
+github_url: https://github.com/michael-conrad/.opencode/issues/1985
+status: closed

@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1441
-state: OPEN
-title: "[BUG] Git workflow cleanup tasks lack hard-gate dependency ordering \u2014\"
-  \ issue closure is skippable"
+title: '[BUG] Git workflow cleanup tasks lack hard-gate dependency ordering —"  issue
+  closure is skippable'
+github_url: https://github.com/michael-conrad/.opencode/issues/1441
+status: open

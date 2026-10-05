@@ -1,0 +1,6 @@
+number: 436
+title: '[SPEC] Remove Identity Validation from session-enforcement.ts — Circular Self-Check
+  with Broken Parser'
+labels: '[[{"name": "[SPEC]", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/436
+status: closed

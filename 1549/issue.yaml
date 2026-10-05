@@ -9,4 +9,8 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/1549
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets .opencode/guidelines/000-critical-rules.md:580 and the issue-operations/github_issue_write routing-bypass machinery — the live deck has no guidelines/ directory at all and the file exists only at .opencode/attic/guidelines/000-critical-rules.md (retired).
+sweep_evidence: Targets .opencode/guidelines/000-critical-rules.md:580 and the issue-operations/github_issue_write
+  routing-bypass machinery — the live deck has no guidelines/ directory at all and
+  the file exists only at .opencode/attic/guidelines/000-critical-rules.md (retired).
+number: 1549
+github_url: https://github.com/michael-conrad/.opencode/issues/1549

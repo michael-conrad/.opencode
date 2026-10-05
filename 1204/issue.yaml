@@ -1,9 +1,15 @@
 number: 1204
-title: '[SPEC] convert self-policing "agent MUST" rules to dispatch-table SCs verified by clean-room VbC sub-agent'
-status: closed
+title: '[SPEC] convert self-policing "agent MUST" rules to dispatch-table SCs verified
+  by clean-room VbC sub-agent'
+status: open
 labels: '[]'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Every affected component is retired: skills/verification-before-completion and skills/implementation-pipeline are absent from live skills/ (verification-before-completion confirmed under attic/skills/), the G11/G12 dispatch-table gate set is retired (attic/dispatch-table.yaml), and all rule_refs cite attic guideline files; no rules-registry.yaml exists in the live tree, whose .guidelines/ uses a different new-deck mechanism.'
+sweep_evidence: 'Every affected component is retired: skills/verification-before-completion
+  and skills/implementation-pipeline are absent from live skills/ (verification-before-completion
+  confirmed under attic/skills/), the G11/G12 dispatch-table gate set is retired (attic/dispatch-table.yaml),
+  and all rule_refs cite attic guideline files; no rules-registry.yaml exists in the
+  live tree, whose .guidelines/ uses a different new-deck mechanism.'
 updated_at: '2026-10-05T19:39:01+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/1204

@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1517
-state: OPEN
 title: '[SPEC] Fix: implementation-pipeline Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1517
+status: open

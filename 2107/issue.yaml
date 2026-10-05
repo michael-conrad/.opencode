@@ -8,4 +8,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Superseded/done: .opencode/opencode.jsonc:33 already pins viewport-editor@v0.5.0 (past the v0.4.0 target, so SC-1/SC-2 are satisfied and exceeded), and the live .opencode/AGENTS.md was rewritten as a pointer-only file in the reorg with no editor MCP section (the lines 370-376 the spec would edit no longer exist).'
+sweep_evidence: 'Superseded/done: .opencode/opencode.jsonc:33 already pins viewport-editor@v0.5.0
+  (past the v0.4.0 target, so SC-1/SC-2 are satisfied and exceeded), and the live
+  .opencode/AGENTS.md was rewritten as a pointer-only file in the reorg with no editor
+  MCP section (the lines 370-376 the spec would edit no longer exist).'
+number: 2107
+github_url: https://github.com/michael-conrad/.opencode/issues/2107

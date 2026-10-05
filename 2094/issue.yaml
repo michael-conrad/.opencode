@@ -1,5 +1,6 @@
-title: '[SPEC] Update AGENTS.md files to cross-reference new .opencode/reference/ documentation standards'
-status: closed
+title: '[SPEC] Update AGENTS.md files to cross-reference new .opencode/reference/
+  documentation standards'
+status: open
 labels:
 - needs-approval,[SPEC]
 body: ''
@@ -8,4 +9,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: The cross-reference target .opencode/reference/ does not exist in the live deck (only .opencode/attic/reference/); both AGENTS.md files are now slim pointers. The retired reference-document ceremony the ticket builds on is gone.
+sweep_evidence: The cross-reference target .opencode/reference/ does not exist in
+  the live deck (only .opencode/attic/reference/); both AGENTS.md files are now slim
+  pointers. The retired reference-document ceremony the ticket builds on is gone.
+number: 2094
+github_url: https://github.com/michael-conrad/.opencode/issues/2094

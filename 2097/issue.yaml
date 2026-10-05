@@ -8,4 +8,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Target files .opencode/plugins/session-enforcement.ts, .opencode/plugins/env-loader.ts, and tools/session-init are live (not attic), but the work is already done: zero matches for console.error/warn/log, writeDiagnostic, ENV_LOADER_SECURITY_WARNING, or file=sys.stderr in the live tree — all SCs satisfied, nothing left to do.'
+sweep_evidence: 'Target files .opencode/plugins/session-enforcement.ts, .opencode/plugins/env-loader.ts,
+  and tools/session-init are live (not attic), but the work is already done: zero
+  matches for console.error/warn/log, writeDiagnostic, ENV_LOADER_SECURITY_WARNING,
+  or file=sys.stderr in the live tree — all SCs satisfied, nothing left to do.'
+number: 2097
+github_url: https://github.com/michael-conrad/.opencode/issues/2097

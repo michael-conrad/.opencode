@@ -1,4 +1,6 @@
 number: 95
-title: "[SPEC] Weave behavioral test infrastructure references into verification task files (#627 dark prose compliance)"
-state: CLOSED
-labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "triage", "color": "ededed", "description": ""}]""'
+title: '[SPEC] Weave behavioral test infrastructure references into verification task
+  files (#627 dark prose compliance)'
+labels: '[[{"name": "spec", "color": "ededed", "description": ""}, {"name": "triage",
+  "color": "ededed", "description": ""}]""'
+status: closed

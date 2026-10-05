@@ -4,6 +4,7 @@ labels:
 - pipeline
 - touchpoint
 number: 1646
-state: CLOSED
-title: "[SPEC] Pipeline touchpoint verification \u2014 auto-invocation of adversarial-audit\"
-  \ at each pipeline stage"
+title: '[SPEC] Pipeline touchpoint verification — auto-invocation of adversarial-audit"  at
+  each pipeline stage'
+github_url: https://github.com/michael-conrad/.opencode/issues/1646
+status: closed

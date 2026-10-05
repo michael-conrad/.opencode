@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1492
-state: CLOSED
 title: '[SPEC] Fix: gitbucket-api Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1492
+status: closed

@@ -1,4 +1,5 @@
 number: 1202
-title: "[SPEC-FIX] mandate RED/REGRESSION concern-boundary separation — no test mixing"
-state: OPEN
+title: '[SPEC-FIX] mandate RED/REGRESSION concern-boundary separation — no test mixing'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1202
+status: open

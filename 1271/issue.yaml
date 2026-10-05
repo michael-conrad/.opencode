@@ -1,4 +1,6 @@
 number: 1271
-title: "[SPEC] Research card catalogue: .issues/research-cards/ for persistent agent research memory"
-state: OPEN
+title: '[SPEC] Research card catalogue: .issues/research-cards/ for persistent agent
+  research memory'
 labels: '[{"name": "spec", "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1271
+status: open

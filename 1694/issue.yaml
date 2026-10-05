@@ -2,5 +2,6 @@ labels:
 - spec
 - phase-4
 number: 1694
-state: CLOSED
-title: "[Phase 4] Execution Model Contradiction \u2014 writing-plans SKILL.md"
+title: '[Phase 4] Execution Model Contradiction — writing-plans SKILL.md'
+github_url: https://github.com/michael-conrad/.opencode/issues/1694
+status: closed

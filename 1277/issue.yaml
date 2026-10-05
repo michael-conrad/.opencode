@@ -1,4 +1,8 @@
 number: 1277
-title: "[SPEC-FIX] Verification Command Integrity — Prohibit error-suppression patterns in verification commands"
-state: OPEN
-labels: '[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}, {"name": "enforcement", "color": "ededed", "description": ""}, {"name": "verification", "color": "ededed", "description": ""}]'
+title: '[SPEC-FIX] Verification Command Integrity — Prohibit error-suppression patterns
+  in verification commands'
+labels: '[{"name": "[SPEC-FIX]", "color": "ededed", "description": ""}, {"name": "enforcement",
+  "color": "ededed", "description": ""}, {"name": "verification", "color": "ededed",
+  "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1277
+status: open

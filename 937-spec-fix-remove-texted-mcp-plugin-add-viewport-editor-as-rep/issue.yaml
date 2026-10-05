@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] Remove texted MCP plugin, add viewport-editor as replacement'
-status: open
+status: closed
 labels:
 - SPEC-FIX
 body: "# [SPEC-FIX] Remove texted MCP plugin, add viewport-editor as replacement\n\
@@ -48,3 +48,5 @@ body: "# [SPEC-FIX] Remove texted MCP plugin, add viewport-editor as replacement
   \ (ollama-cloud/deepseek-v4-flash)\n"
 created_at: '2026-06-07T22:59:34+00:00'
 updated_at: '2026-06-07T23:01:52+00:00'
+number: 937
+github_url: https://github.com/michael-conrad/.opencode/issues/937

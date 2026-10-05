@@ -2,6 +2,7 @@ labels:
 - spec
 - audit
 number: 1541
-state: CLOSED
-title: "[AUDIT] Skill deck guidelines incorrectly use word/line/token counts as implementation\"
-  \ effort proxies \u2014 holistic audit + fix needed"
+title: '[AUDIT] Skill deck guidelines incorrectly use word/line/token counts as implementation"  effort
+  proxies — holistic audit + fix needed'
+github_url: https://github.com/michael-conrad/.opencode/issues/1541
+status: closed

@@ -2,6 +2,7 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1513
-state: CLOSED
 title: '[SPEC-FIX] git-workflow: description omits provenance/submodule-sync TDT items
   (D2=FAIL, D3=INCOMPLETE)'
+github_url: https://github.com/michael-conrad/.opencode/issues/1513
+status: closed

@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1584
-state: CLOSED
-title: "[TRACKING] Open issue interdependency map \u2014 file overlap, ordering concerns,\"
-  \ and conflict risk"
+title: '[TRACKING] Open issue interdependency map — file overlap, ordering concerns,"  and
+  conflict risk'
+github_url: https://github.com/michael-conrad/.opencode/issues/1584
+status: closed

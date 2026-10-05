@@ -1,4 +1,5 @@
-title: '[SPEC] Fix test harness model config, add timeout export procedure, close #1188'
+title: '[SPEC] Fix test harness model config, add timeout export procedure, close
+  #1188'
 status: closed
 labels:
 - needs-approval
@@ -9,4 +10,11 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The harness defects are already fixed in the live tree: tests-v2/with-test-home:199 seed_model_config() uses $default_model from DEFAULT_TEST_MODEL (no ornith), tests-v2/behaviors/helpers.sh:1817 falls back to $DEFAULT_TEST_MODEL, and tests-v2/AGENTS.md:384 carries ''Timeout Export Procedure — MANDATORY''; no ornith remains in docs/README. The leftover #1188-closure item targets retired approval-gate-scope/tasks/pre-impl/reconcile-status.md and its behavioral test does not exist in the live tests-v2 tree.'
+sweep_evidence: 'The harness defects are already fixed in the live tree: tests-v2/with-test-home:199
+  seed_model_config() uses $default_model from DEFAULT_TEST_MODEL (no ornith), tests-v2/behaviors/helpers.sh:1817
+  falls back to $DEFAULT_TEST_MODEL, and tests-v2/AGENTS.md:384 carries ''Timeout
+  Export Procedure — MANDATORY''; no ornith remains in docs/README. The leftover #1188-closure
+  item targets retired approval-gate-scope/tasks/pre-impl/reconcile-status.md and
+  its behavioral test does not exist in the live tests-v2 tree.'
+number: 2217
+github_url: https://github.com/michael-conrad/.opencode/issues/2217

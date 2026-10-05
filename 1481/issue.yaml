@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1481
-state: CLOSED
-title: "'[SPEC] Fix: researcher Skill Description Compliance'"
+title: '''[SPEC] Fix: researcher Skill Description Compliance'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1481
+status: closed

@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1489
-state: CLOSED
-title: "'[SPEC] Fix: verification-enforcement Skill Description Compliance'"
+title: '''[SPEC] Fix: verification-enforcement Skill Description Compliance'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1489
+status: closed

@@ -1,11 +1,13 @@
-title: '[SPEC] PR body VbC results table — standard 4-column format with test-type annotation'
+title: '[SPEC] PR body VbC results table — standard 4-column format with test-type
+  annotation'
 status: closed
 labels:
 - spec
 body: '## Goal
 
 
-  Standardize PR body VbC results into a 4-column table format (ID, Criterion, Test, Result) with auto-detected test-type annotations, populated from VbC output.
+  Standardize PR body VbC results into a 4-column table format (ID, Criterion, Test,
+  Result) with auto-detected test-type annotations, populated from VbC output.
 
 
   ## Architecture
@@ -13,14 +15,18 @@ body: '## Goal
 
   The VbC table flows through three pipeline stages:
 
-  1. **VbC output** (`verification-before-completion`) produces structured per-SC evidence with test-type annotations
+  1. **VbC output** (`verification-before-completion`) produces structured per-SC
+  evidence with test-type annotations
 
-  2. **PR body generation** (`git-workflow/pr-creation`) reads VbC artifacts and renders the 4-column table
+  2. **PR body generation** (`git-workflow/pr-creation`) reads VbC artifacts and renders
+  the 4-column table
 
-  3. **Finishing checklist** (`finishing-a-development-branch/checklist`) verifies the table exists in the PR body
+  3. **Finishing checklist** (`finishing-a-development-branch/checklist`) verifies
+  the table exists in the PR body
 
 
-  Test-type annotations are auto-detected by a new detection module that inspects test infrastructure usage (fixtures, mocks, testcontainers).
+  Test-type annotations are auto-detected by a new detection module that inspects
+  test infrastructure usage (fixtures, mocks, testcontainers).
 
 
   ## Affected Files
@@ -30,15 +36,20 @@ body: '## Goal
 
   |------|--------|
 
-  | `.opencode/skills/verification-before-completion/tasks/verify.md` | Add structured VbC table output format with test-type annotations |
+  | `.opencode/skills/verification-before-completion/tasks/verify.md` | Add structured
+  VbC table output format with test-type annotations |
 
-  | `.opencode/skills/verification-before-completion/tasks/collect.md` | Add test-type detection step during evidence collection |
+  | `.opencode/skills/verification-before-completion/tasks/collect.md` | Add test-type
+  detection step during evidence collection |
 
-  | `.opencode/skills/git-workflow/tasks/pr-creation/create-pr.md` | Update PR body template to include VbC 4-column table |
+  | `.opencode/skills/git-workflow/tasks/pr-creation/create-pr.md` | Update PR body
+  template to include VbC 4-column table |
 
-  | `.opencode/skills/finishing-a-development-branch/tasks/checklist.md` | Add checklist item verifying VbC table presence in PR body |
+  | `.opencode/skills/finishing-a-development-branch/tasks/checklist.md` | Add checklist
+  item verifying VbC table presence in PR body |
 
-  | `.opencode/skills/verification-before-completion/tasks/behavioral-test-evaluation.md` | Add test-type annotation output to evaluation results |
+  | `.opencode/skills/verification-before-completion/tasks/behavioral-test-evaluation.md`
+  | Add test-type annotation output to evaluation results |
 
 
   ## Phase Table
@@ -48,19 +59,25 @@ body: '## Goal
 
   |-------|-------------|----------------|------------------|
 
-  | 1 | Update VbC output to produce structured 4-column table data with test-type annotations | `verify.md`, `collect.md`, `behavioral-test-evaluation.md` | None (foundation) |
+  | 1 | Update VbC output to produce structured 4-column table data with test-type
+  annotations | `verify.md`, `collect.md`, `behavioral-test-evaluation.md` | None
+  (foundation) |
 
-  | 2 | Update PR body generation to include the VbC table | `create-pr.md` | Phase 1 |
+  | 2 | Update PR body generation to include the VbC table | `create-pr.md` | Phase
+  1 |
 
-  | 3 | Update finishing checklist to verify table presence | `checklist.md` | Phase 2 |
+  | 3 | Update finishing checklist to verify table presence | `checklist.md` | Phase
+  2 |
 
-  | 4 | Auto-detect test-type annotations from infrastructure usage | `collect.md`, `behavioral-test-evaluation.md` | Phase 1 |
+  | 4 | Auto-detect test-type annotations from infrastructure usage | `collect.md`,
+  `behavioral-test-evaluation.md` | Phase 1 |
 
 
   ## Exit Criteria
 
 
-  - VbC verification output includes a structured 4-column table (ID, Criterion, Test, Result) with test-type annotations
+  - VbC verification output includes a structured 4-column table (ID, Criterion, Test,
+  Result) with test-type annotations
 
   - PR body template renders the VbC table from VbC artifacts
 
@@ -136,4 +153,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: All target paths (.opencode/skills/verification-before-completion/*, skills/git-workflow/tasks/pr-creation/create-pr.md, skills/finishing-a-development-branch/tasks/checklist.md) exist only under .opencode/attic/skills/ — none exist in the live skills/ tree, and the spec's pipeline is built entirely on retired VbC/Z3-gate ceremony.
+sweep_evidence: All target paths (.opencode/skills/verification-before-completion/*,
+  skills/git-workflow/tasks/pr-creation/create-pr.md, skills/finishing-a-development-branch/tasks/checklist.md)
+  exist only under .opencode/attic/skills/ — none exist in the live skills/ tree,
+  and the spec's pipeline is built entirely on retired VbC/Z3-gate ceremony.
+number: 1802
+github_url: https://github.com/michael-conrad/.opencode/issues/1802

@@ -1,4 +1,5 @@
 number: 1255
-title: "[SPEC] Add git worktree list output to session init injection"
-state: OPEN
+title: '[SPEC] Add git worktree list output to session init injection'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1255
+status: open

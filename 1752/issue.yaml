@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1752
-state: CLOSED
 title: '[SPEC-FIX] Cross-validate: context pollution checks + clean contract requirement'
+github_url: https://github.com/michael-conrad/.opencode/issues/1752
+status: closed

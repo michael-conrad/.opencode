@@ -1,5 +1,6 @@
 number: 2372
-title: '[SPEC] Update verification skill — anchor verification-honesty & authority-source link'
+title: '[SPEC] Update verification skill — anchor verification-honesty & authority-source
+  link'
 status: closed
 labels:
 - needs-approval
@@ -8,19 +9,24 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   ## Problem
 
-  Verification-honesty evidence examples (065) and docs-verification detail (075) move out of preload; the verification skill is the canonical home.
+  Verification-honesty evidence examples (065) and docs-verification detail (075)
+  move out of preload; the verification skill is the canonical home.
 
 
   ## Scope
 
-  - **In:** Make verification skill the authoritative source for evidence-requirement examples + session-scoped verification detail (anchored in the verify/verify-single task cards); add mandatory Read [Text](path) link to the authority-source shared content; convert the defective "per 065" citation to the imperative Read-link form.
+  - **In:** Make verification skill the authoritative source for evidence-requirement
+  examples + session-scoped verification detail (anchored in the verify/verify-single
+  task cards); add mandatory Read [Text](path) link to the authority-source shared
+  content; convert the defective "per 065" citation to the imperative Read-link form.
 
   - **Out:** Losing the verification-honesty core; modifying 065/075/130.
 
 
   ## Approach
 
-  Anchor the evidence/detail content into the verification skill task cards and add the imperative authority-source Read-link.
+  Anchor the evidence/detail content into the verification skill task cards and add
+  the imperative authority-source Read-link.
 
 
   ## Impact
@@ -37,4 +43,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets the retired verification skill and its verify/verify-single task cards plus attic guidelines 065-verification-honesty.md and 075-docs-verification.md; live deck has only a flat skills/verify/SKILL.md (no task cards) and no verification-honesty content. SPEC-FIX against retired verification ceremony.
+sweep_evidence: Targets the retired verification skill and its verify/verify-single
+  task cards plus attic guidelines 065-verification-honesty.md and 075-docs-verification.md;
+  live deck has only a flat skills/verify/SKILL.md (no task cards) and no verification-honesty
+  content. SPEC-FIX against retired verification ceremony.
+github_url: https://github.com/michael-conrad/.opencode/issues/2372

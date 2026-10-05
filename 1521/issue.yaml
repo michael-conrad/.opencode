@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1521
-state: OPEN
 title: '[SPEC] Fix: pr-creation-workflow Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1521
+status: open

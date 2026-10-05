@@ -9,4 +9,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: duplicate
 sweep_verdict: CLOSE-CONFLICT
-sweep_evidence: issue.yaml body is empty and spec.md is byte-identical (diff exit 0) to .opencode/.issues/2250/spec.md — same title '[SPEC] Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation' filed 30 minutes after 2250; a contentless duplicate of 2250.
+sweep_evidence: issue.yaml body is empty and spec.md is byte-identical (diff exit
+  0) to .opencode/.issues/2250/spec.md — same title '[SPEC] Plan Writer and Plan Audit
+  Skill Card Internal-Consistency Audit Remediation' filed 30 minutes after 2250;
+  a contentless duplicate of 2250.
+number: 2252
+github_url: https://github.com/michael-conrad/.opencode/issues/2252

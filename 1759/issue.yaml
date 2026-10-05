@@ -1,6 +1,7 @@
 labels:
 - spec
 number: 1759
-state: CLOSED
-title: "[SPEC] Handoff Gates \u2014 Spec-to-Plan, Plan-to-Pipeline, SC Close-Out,\"
-  \ Revision Re-Entry"
+title: '[SPEC] Handoff Gates — Spec-to-Plan, Plan-to-Pipeline, SC Close-Out,"  Revision
+  Re-Entry'
+github_url: https://github.com/michael-conrad/.opencode/issues/1759
+status: closed

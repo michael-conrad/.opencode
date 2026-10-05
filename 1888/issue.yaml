@@ -2,5 +2,6 @@ labels:
 - TRASH
 - REJECTED
 number: 1888
-state: CLOSED
-title: "[Task: #1881] Phase 2 \u2014 Split issue-operations"
+title: '[Task: #1881] Phase 2 — Split issue-operations'
+github_url: https://github.com/michael-conrad/.opencode/issues/1888
+status: closed

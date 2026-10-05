@@ -1,4 +1,6 @@
 number: 1272
-title: "[SPEC] Fix local-issues _discover_all_repos(): replace dot-skip with /*/.git pattern matching"
-state: OPEN
+title: '[SPEC] Fix local-issues _discover_all_repos(): replace dot-skip with /*/.git
+  pattern matching'
 labels: '[{"name": "spec", "color": "ededed", "description": ""}]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1272
+status: open

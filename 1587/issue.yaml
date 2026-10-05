@@ -1,6 +1,7 @@
 labels:
 - approved-for-pr
 number: 1587
-state: CLOSED
-title: "[SPEC-FIX] Orchestrator read-then-inline pattern \u2014 enforce canonical\"
-  \ dispatch and sub-agent rejection of preloaded context"
+title: '[SPEC-FIX] Orchestrator read-then-inline pattern — enforce canonical"  dispatch
+  and sub-agent rejection of preloaded context'
+github_url: https://github.com/michael-conrad/.opencode/issues/1587
+status: closed

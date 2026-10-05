@@ -1,0 +1,5 @@
+number: 798
+title: '[SPEC-FIX] local-issues autosetup for worktrees and main repo migration'
+labels: '[[{"name": "needs-approval", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/798
+status: closed

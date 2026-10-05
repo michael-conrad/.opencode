@@ -1,5 +1,6 @@
 labels:
 - task
 number: 1332
-state: CLOSED
-title: "[Task: #1324] Phase 7 \u2014 Update test infrastructure"
+title: '[Task: #1324] Phase 7 — Update test infrastructure'
+github_url: https://github.com/michael-conrad/.opencode/issues/1332
+status: closed

@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1932
-state: CLOSED
-title: "[SPEC-FIX] Orchestrator dispatches SKILL.md to sub-agents \u2014 category\"
-  \ error: skill cards are orchestrator routing instructions, not sub-agent tasks"
+title: '[SPEC-FIX] Orchestrator dispatches SKILL.md to sub-agents — category"  error:
+  skill cards are orchestrator routing instructions, not sub-agent tasks'
+github_url: https://github.com/michael-conrad/.opencode/issues/1932
+status: closed

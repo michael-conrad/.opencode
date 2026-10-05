@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 1446
-state: CLOSED
-title: "[SPEC-FIX] Plan phase structure inconsistency \u2014 structure.md and write.md\"
-  \ disagree on pre/post phase organization"
+title: '[SPEC-FIX] Plan phase structure inconsistency — structure.md and write.md"  disagree
+  on pre/post phase organization'
+github_url: https://github.com/michael-conrad/.opencode/issues/1446
+status: closed

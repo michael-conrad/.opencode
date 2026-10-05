@@ -9,4 +9,7 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-CONFLICT
-sweep_evidence: 'Empty husk: no spec.md/plan.md, issue.yaml body empty; only a stale authorization comment. Invalid ticket.'
+sweep_evidence: 'Empty husk: no spec.md/plan.md, issue.yaml body empty; only a stale
+  authorization comment. Invalid ticket.'
+number: 2189
+github_url: https://github.com/michael-conrad/.opencode/issues/2189

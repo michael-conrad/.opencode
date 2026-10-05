@@ -1,5 +1,6 @@
 labels:
 - '[PLAN]'
 number: 1597
-state: CLOSED
-title: "[PLAN] Phase 1: guideline-exception \u2014 add approval-gate-015 rule"
+title: '[PLAN] Phase 1: guideline-exception — add approval-gate-015 rule'
+github_url: https://github.com/michael-conrad/.opencode/issues/1597
+status: closed

@@ -2,6 +2,7 @@ labels:
 - bug
 - spec-fix
 number: 1353
-state: CLOSED
-title: "[SPEC-FIX] PR #1174 left 3 task files uncommitted \u2014 post-red-enforcement,\"
-  \ post-green-enforcement, pre-red-baseline"
+title: '[SPEC-FIX] PR #1174 left 3 task files uncommitted — post-red-enforcement,"  post-green-enforcement,
+  pre-red-baseline'
+github_url: https://github.com/michael-conrad/.opencode/issues/1353
+status: closed

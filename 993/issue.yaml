@@ -19,4 +19,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Phase 1.7''s deliverable already ships in the live deck: cmd_read_labels with its read-labels subparser exists in live .opencode/tools/local-issues (defs at lines 1435 and 2060), included in the #981 rewrite commit 46121e98. The work is complete; only the ticket was never closed.'
+sweep_evidence: 'Phase 1.7''s deliverable already ships in the live deck: cmd_read_labels
+  with its read-labels subparser exists in live .opencode/tools/local-issues (defs
+  at lines 1435 and 2060), included in the #981 rewrite commit 46121e98. The work
+  is complete; only the ticket was never closed.'
+github_url: https://github.com/michael-conrad/.opencode/issues/993

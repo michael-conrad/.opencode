@@ -10,7 +10,8 @@ body: 'Parent: #746
 
   ## Concern
 
-  Application layer — the cost-blind procedural rule block needs identity-frame dark prose alongside it.
+  Application layer — the cost-blind procedural rule block needs identity-frame dark
+  prose alongside it.
 
 
   ## Files
@@ -43,4 +44,7 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Target `guidelines/020-go-prohibitions.md` exists only at .opencode/attic/guidelines/020-go-prohibitions.md; the live deck has no guidelines/ directory at all, and the dark-prose-007 identity-frame campaign belongs to the retired pre-rip deck (parent #746).'
+sweep_evidence: 'Target `guidelines/020-go-prohibitions.md` exists only at .opencode/attic/guidelines/020-go-prohibitions.md;
+  the live deck has no guidelines/ directory at all, and the dark-prose-007 identity-frame
+  campaign belongs to the retired pre-rip deck (parent #746).'
+github_url: https://github.com/michael-conrad/.opencode/issues/748

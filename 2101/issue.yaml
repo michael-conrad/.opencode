@@ -8,4 +8,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Live .opencode/opencode.jsonc line 33 already pins viewport-editor@v0.5.0 and no v0.3.4 references remain in opencode.jsonc or package.json — SC-1/SC-2 already satisfied, work complete.
+sweep_evidence: Live .opencode/opencode.jsonc line 33 already pins viewport-editor@v0.5.0
+  and no v0.3.4 references remain in opencode.jsonc or package.json — SC-1/SC-2 already
+  satisfied, work complete.
+number: 2101
+github_url: https://github.com/michael-conrad/.opencode/issues/2101

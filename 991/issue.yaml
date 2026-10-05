@@ -19,4 +19,8 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Phase 1.5 work is already delivered: .opencode/tools/local-issues:2041-2046 registers the ''read'' subcommand with --number and --type (full|comments|labels|links|all), implemented by cmd_read (line 1392) with YAML output. Target is live and the work is addressed.'
+sweep_evidence: 'Phase 1.5 work is already delivered: .opencode/tools/local-issues:2041-2046
+  registers the ''read'' subcommand with --number and --type (full|comments|labels|links|all),
+  implemented by cmd_read (line 1392) with YAML output. Target is live and the work
+  is addressed.'
+github_url: https://github.com/michael-conrad/.opencode/issues/991

@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] Add critical rule prohibiting gh pr merge to .opencode/AGENTS.md'
-status: closed
+status: open
 labels:
 - '[SPEC-FIX]'
 body: ''
@@ -8,4 +8,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'The new .opencode/AGENTS.md is pointer-only (''must stay a pointer and carry no rules''), and the prohibition now lives in live floor.md:65-66 (''Human-only merge: PRs are merged by the developer, never by the agent''). Adding a CRITICAL RULE section to AGENTS.md targets retired ceremony; the concern is already addressed.'
+sweep_evidence: 'The new .opencode/AGENTS.md is pointer-only (''must stay a pointer
+  and carry no rules''), and the prohibition now lives in live floor.md:65-66 (''Human-only
+  merge: PRs are merged by the developer, never by the agent''). Adding a CRITICAL
+  RULE section to AGENTS.md targets retired ceremony; the concern is already addressed.'
+number: 2095
+github_url: https://github.com/michael-conrad/.opencode/issues/2095

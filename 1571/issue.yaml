@@ -1,6 +1,7 @@
 labels:
 - bug
 number: 1571
-state: OPEN
-title: "[BUG] 20+ content-verification checks report MISSING \u2014 guideline and\"
-  \ task file patterns out of sync"
+title: '[BUG] 20+ content-verification checks report MISSING — guideline and"  task
+  file patterns out of sync'
+github_url: https://github.com/michael-conrad/.opencode/issues/1571
+status: open

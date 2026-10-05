@@ -4,5 +4,6 @@ labels:
 - spec-fix
 - writing-plans
 number: 1462
-state: OPEN
 title: '[SPEC-FIX] Writing-plans skill: document plan tool applicability domain boundaries'
+github_url: https://github.com/michael-conrad/.opencode/issues/1462
+status: open

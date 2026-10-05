@@ -1,4 +1,5 @@
 number: 2008
-title: "'[SPEC-FIX] writing-plans workflow defects: missing TDT, contract paths, orphaned"
-state: CLOSED
+title: '''[SPEC-FIX] writing-plans workflow defects: missing TDT, contract paths,
+  orphaned'
 labels: '[]'
+status: closed

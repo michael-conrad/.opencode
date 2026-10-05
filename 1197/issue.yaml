@@ -1,4 +1,6 @@
 number: 1197
-title: "[SPEC] remove STATUS markers and all STATUS verification tasks — plans/specs are static artifacts, not tracking documents"
-state: OPEN
+title: '[SPEC] remove STATUS markers and all STATUS verification tasks — plans/specs
+  are static artifacts, not tracking documents'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1197
+status: open

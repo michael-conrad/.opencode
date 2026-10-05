@@ -2,6 +2,7 @@ labels:
 - wontfix
 - spec-fix
 number: 2022
-state: CLOSED
 title: '[SPEC-FIX] Shell escaping in inline --body bash commands causes trash comments
   on spec revisions'
+github_url: https://github.com/michael-conrad/.opencode/issues/2022
+status: closed

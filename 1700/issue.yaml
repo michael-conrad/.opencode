@@ -2,5 +2,6 @@ labels:
 - spec-fix
 - phase
 number: 1700
-state: CLOSED
-title: "Add \"Artifact generated \u2260 PASS\" rule to code standards guideline"
+title: Add "Artifact generated ≠ PASS" rule to code standards guideline
+github_url: https://github.com/michael-conrad/.opencode/issues/1700
+status: closed

@@ -2,5 +2,6 @@ labels:
 - bug
 - needs-approval
 number: 1368
-state: CLOSED
 title: 'test: repo ownership gate'
+github_url: https://github.com/michael-conrad/.opencode/issues/1368
+status: closed

@@ -2,6 +2,7 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1679
-state: CLOSED
 title: '[SPEC-FIX] Orchestrator MUST revise defective sub-agent deliverables, not
   replace or inline-fix them'
+github_url: https://github.com/michael-conrad/.opencode/issues/1679
+status: closed

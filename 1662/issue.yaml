@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1662
-state: CLOSED
-title: "'[PLAN] Replace /skill CLI convention with proper skill() invocation syntax'"
+title: '''[PLAN] Replace /skill CLI convention with proper skill() invocation syntax'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1662
+status: closed

@@ -1,5 +1,6 @@
 number: 851
-title: '[SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output Touchpoints with Dark Prose and Distribution-Shifting Patterns'
+title: '[SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output Touchpoints
+  with Dark Prose and Distribution-Shifting Patterns'
 status: closed
 labels:
 - needs-approval
@@ -18,10 +19,17 @@ body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output To
   ### Problem
 
 
-  Even with the distribution-shifting card (#848) and co-application policy (#849) in place, existing AI-agent-facing text across 19+ skill cards, guideline enforcement blocks, task file enforcement gates, and the system prompt still uses mean-tail framing. New text will be expert-framed, but all existing text remains in the mean of the training distribution.
+  Even with the distribution-shifting card (#848) and co-application policy (#849)
+  in place, existing AI-agent-facing text across 19+ skill cards, guideline enforcement
+  blocks, task file enforcement gates, and the system prompt still uses mean-tail
+  framing. New text will be expert-framed, but all existing text remains in the mean
+  of the training distribution.
 
 
-  Research shows context drift causes models to revert toward the mean. The highest-impact intervention is **re-priming at enforcement gates** (dist-shift-003). The second is **persona descriptor stacking** (dist-shift-005) — most SKILL.md personas use 1-2 descriptors where 4-5 are needed.
+  Research shows context drift causes models to revert toward the mean. The highest-impact
+  intervention is **re-priming at enforcement gates** (dist-shift-003). The second
+  is **persona descriptor stacking** (dist-shift-005) — most SKILL.md personas use
+  1-2 descriptors where 4-5 are needed.
 
 
   ### Solution
@@ -45,12 +53,14 @@ body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output To
   - divide-and-conquer/tasks/assemble-work.md
 
 
-  Pattern: Single sentence restating core identity + key constraint at every enforcement gate.
+  Pattern: Single sentence restating core identity + key constraint at every enforcement
+  gate.
 
 
   **Priority 2: Persona Descriptor Stacking (High Impact)**
 
-  Update all 19+ SKILL.md Persona sections from 1-2 descriptors to 4-5 descriptor clusters using dist-shift-005 formula:
+  Update all 19+ SKILL.md Persona sections from 1-2 descriptors to 4-5 descriptor
+  clusters using dist-shift-005 formula:
 
   ```
 
@@ -63,7 +73,8 @@ body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output To
   ```
 
 
-  Highest priority: systematic-debugging (most vulnerable to mean-convergence — "vibe debugging" is the training-data mean).
+  Highest priority: systematic-debugging (most vulnerable to mean-convergence — "vibe
+  debugging" is the training-data mean).
 
 
   **Priority 3: Tier 1 Guideline Anti-Mean Additions (Medium Impact)**
@@ -118,23 +129,32 @@ body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output To
 
   |-------|-----------|--------------|---------------------|
 
-  | SC-1 | All 6-8 Priority 1 task files contain dist-shift-003 re-priming anchors | string | grep in each task file |
+  | SC-1 | All 6-8 Priority 1 task files contain dist-shift-003 re-priming anchors
+  | string | grep in each task file |
 
-  | SC-2 | All 19+ SKILL.md files have Persona sections with 4-5 descriptor clusters | structural | Read each SKILL.md Persona section |
+  | SC-2 | All 19+ SKILL.md files have Persona sections with 4-5 descriptor clusters
+  | structural | Read each SKILL.md Persona section |
 
-  | SC-3 | All 6 Tier 1 guidelines have at least one dist-shift-002 contrast pair | structural | grep for "The mean response is" |
+  | SC-3 | All 6 Tier 1 guidelines have at least one dist-shift-002 contrast pair
+  | structural | grep for "The mean response is" |
 
-  | SC-4 | 000-critical-rules.md has contrast pairs on 5+ bright-line rules | structural | grep for "The mean response is" |
+  | SC-4 | 000-critical-rules.md has contrast pairs on 5+ bright-line rules | structural
+  | grep for "The mean response is" |
 
-  | SC-5 | default.txt has descriptor cluster and anti-consensus template | structural | Read default.txt |
+  | SC-5 | default.txt has descriptor cluster and anti-consensus template | structural
+  | Read default.txt |
 
-  | SC-6 | No SKILL.md Persona section has fewer than 4 descriptors | string | Count descriptors in each Persona |
+  | SC-6 | No SKILL.md Persona section has fewer than 4 descriptors | string | Count
+  descriptors in each Persona |
 
-  | SC-7 | systematic-debugging Persona specifically addresses "vibe debugging" as the mean response | string | grep for "vibe" or "symptom" |
+  | SC-7 | systematic-debugging Persona specifically addresses "vibe debugging" as
+  the mean response | string | grep for "vibe" or "symptom" |
 
-  | SC-8 | verification-before-completion Persona addresses "reporting done without verification" as mean response | string | grep for "unverified" |
+  | SC-8 | verification-before-completion Persona addresses "reporting done without
+  verification" as mean response | string | grep for "unverified" |
 
-  | SC-9 | Behavioral test: agent with updated persona produces expert-tail framing | behavioral | opencode-cli run, assert_semantic |
+  | SC-9 | Behavioral test: agent with updated persona produces expert-tail framing
+  | behavioral | opencode-cli run, assert_semantic |
 
 
   ### References
@@ -146,7 +166,8 @@ body: '## [SPEC] Systematic Embedding — Backfill All AI-Agent-Facing Output To
 
   - guidelines/250-dark-prose-reference.md — Dark Prose Reference Card
 
-  - guidelines/255-distribution-shifting-reference.md — Distribution-Shifting Reference Card
+  - guidelines/255-distribution-shifting-reference.md — Distribution-Shifting Reference
+  Card
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.1)'
@@ -161,4 +182,9 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Priorities target verification-before-completion, adversarial-audit, approval-gate task files and guidelines 000/010/020/060/065/080 — all retired to attic/ with no live counterparts; the dist-shift-XXX pattern machinery itself is retired. Live prompts/default.txt exists but the speced change is distribution-shifting backfill against retired ceremony.
+sweep_evidence: Priorities target verification-before-completion, adversarial-audit,
+  approval-gate task files and guidelines 000/010/020/060/065/080 — all retired to
+  attic/ with no live counterparts; the dist-shift-XXX pattern machinery itself is
+  retired. Live prompts/default.txt exists but the speced change is distribution-shifting
+  backfill against retired ceremony.
+github_url: https://github.com/michael-conrad/.opencode/issues/851

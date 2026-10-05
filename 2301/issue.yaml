@@ -1,5 +1,6 @@
 number: 2301
-title: '[SPEC-FIX] import-remote must materialize missing mirror files instead of halting on directory existence'
+title: '[SPEC-FIX] import-remote must materialize missing mirror files instead of
+  halting on directory existence'
 status: closed
 labels:
 - approved-for-pr
@@ -15,4 +16,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target 'import-remote' exists only at .opencode/attic/skills/issue-operations-sync/tasks/import-remote.md (retained-but-unloaded attic); grep across live skills/, tools/, floor.md, and routing.md finds no import-remote reference. The old issue-operations-sync import machinery was ripped with the deck.
+sweep_evidence: Target 'import-remote' exists only at .opencode/attic/skills/issue-operations-sync/tasks/import-remote.md
+  (retained-but-unloaded attic); grep across live skills/, tools/, floor.md, and routing.md
+  finds no import-remote reference. The old issue-operations-sync import machinery
+  was ripped with the deck.
+github_url: https://github.com/michael-conrad/.opencode/issues/2301

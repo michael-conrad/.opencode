@@ -1,5 +1,6 @@
 labels: '[[]"'
 number: 1820
-state: CLOSED
-title: "[SPEC-FIX] Add create-pr pipeline step \u2014 PR creation as mandatory gate,\"
-  \ not ad-hoc action"
+title: '[SPEC-FIX] Add create-pr pipeline step — PR creation as mandatory gate,"  not
+  ad-hoc action'
+github_url: https://github.com/michael-conrad/.opencode/issues/1820
+status: closed

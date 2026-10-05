@@ -1,4 +1,5 @@
-title: '[SPEC] local-issues: scope repo discovery to .gitmodules instead of filesystem glob'
+title: '[SPEC] local-issues: scope repo discovery to .gitmodules instead of filesystem
+  glob'
 status: closed
 labels:
 - spec
@@ -8,4 +9,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: _discover_all_repos() in live .opencode/tools/local-issues (line 369) already parses .gitmodules — its docstring states 'Discover parent repo + child repos via .gitmodules parsing... No filesystem glob'. The requested change is implemented in the live deck.
+sweep_evidence: _discover_all_repos() in live .opencode/tools/local-issues (line 369)
+  already parses .gitmodules — its docstring states 'Discover parent repo + child
+  repos via .gitmodules parsing... No filesystem glob'. The requested change is implemented
+  in the live deck.
+number: 2093
+github_url: https://github.com/michael-conrad/.opencode/issues/2093

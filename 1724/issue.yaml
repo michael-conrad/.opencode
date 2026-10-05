@@ -1,5 +1,6 @@
 labels:
 - phase
 number: 1724
-state: CLOSED
 title: '[Phase 4] Update SKILL.md and Dispatch Logic'
+github_url: https://github.com/michael-conrad/.opencode/issues/1724
+status: closed

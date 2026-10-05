@@ -176,3 +176,5 @@ updated_at: '2026-10-01T21:20:14+00:00'
 status: closed
 closed_at: '2026-10-01T21:20:14+00:00'
 close_reason: completed
+number: 2315
+github_url: https://github.com/michael-conrad/.opencode/issues/2315

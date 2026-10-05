@@ -1,4 +1,5 @@
-title: '[SPEC] Rewrite 117-session-trigger-behavior.md — cover self-simulation attack surface'
+title: '[SPEC] Rewrite 117-session-trigger-behavior.md — cover self-simulation attack
+  surface'
 status: closed
 labels:
 - spec
@@ -10,4 +11,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target guidelines/117-session-trigger-behavior.md exists only at .opencode/attic/guidelines/117-session-trigger-behavior.md; the live deck has no guidelines/ directory and session-trigger/user-phrase trigger routing is retired ceremony.
+sweep_evidence: Target guidelines/117-session-trigger-behavior.md exists only at .opencode/attic/guidelines/117-session-trigger-behavior.md;
+  the live deck has no guidelines/ directory and session-trigger/user-phrase trigger
+  routing is retired ceremony.
+number: 2134
+github_url: https://github.com/michael-conrad/.opencode/issues/2134

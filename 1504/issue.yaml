@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1504
-state: CLOSED
 title: '[SPEC] Fix: sre-runbook Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1504
+status: closed

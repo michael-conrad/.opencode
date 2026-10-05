@@ -3,5 +3,6 @@ labels:
 - spec
 - fix
 number: 1524
-state: OPEN
 title: '[SPEC] Fix: research Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1524
+status: open

@@ -1,16 +1,32 @@
-title: '[BUG] Regression — agent created multiple concurrent PRs for one for_pr scope instead of a single stacked PR'
+title: '[BUG] Regression — agent created multiple concurrent PRs for one for_pr scope
+  instead of a single stacked PR'
 status: closed
 labels:
 - spec-cleared
 - approved-for-for_pr
 body: '## Problem
 
-  During implementation of a single `for_pr` authorization covering issues #2249 and #2264, the agent created TWO separate feature branches (`feature/2249-generic-di-mandate`, `feature/2264-submodule-trunk-lookup`) and created/opened-toward two concurrent PRs instead of ONE stacked PR. The required discipline is: one PR for the authorization scope, whose branch carries one commit per issue ticket at PR creation time. Multiple concurrent PRs cause merge conflicts (each rebase/squash breaks the sibling), hidden defects (the #2264 verification falsely flagged #2249 commits as contamination), and loss of proper human reviewability (reviewers cannot review one coherent change-set).
+  During implementation of a single `for_pr` authorization covering issues #2249 and
+  #2264, the agent created TWO separate feature branches (`feature/2249-generic-di-mandate`,
+  `feature/2264-submodule-trunk-lookup`) and created/opened-toward two concurrent
+  PRs instead of ONE stacked PR. The required discipline is: one PR for the authorization
+  scope, whose branch carries one commit per issue ticket at PR creation time. Multiple
+  concurrent PRs cause merge conflicts (each rebase/squash breaks the sibling), hidden
+  defects (the #2264 verification falsely flagged #2249 commits as contamination),
+  and loss of proper human reviewability (reviewers cannot review one coherent change-set).
 
 
   ## Root Cause
 
-  The stacked-PR rule (`critical-rules-PR-ORG` "Stacked PR Is the Only Valid Organization") is declared in `.opencode/skills/git-workflow-pr/SKILL.md` line 89 and cross-referenced (line 74) as living in `.opencode/guidelines/000-critical-rules.md`, but it does NOT actually exist in `000-critical-rules.md` (grep count = 0). Additionally, the rule is enforced only by prose in the skill card — the behavioral enforcement test `stacked-pr-organization.sh` required by fixture spec `tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md` SC-4 does NOT exist as a scenario script. Without a critical-rule entry and without a behavioral test, the agent has no enforced gate preventing N-branch/N-PR creation for a single scope.
+  The stacked-PR rule (`critical-rules-PR-ORG` "Stacked PR Is the Only Valid Organization")
+  is declared in `.opencode/skills/git-workflow-pr/SKILL.md` line 89 and cross-referenced
+  (line 74) as living in `.opencode/guidelines/000-critical-rules.md`, but it does
+  NOT actually exist in `000-critical-rules.md` (grep count = 0). Additionally, the
+  rule is enforced only by prose in the skill card — the behavioral enforcement test
+  `stacked-pr-organization.sh` required by fixture spec `tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md`
+  SC-4 does NOT exist as a scenario script. Without a critical-rule entry and without
+  a behavioral test, the agent has no enforced gate preventing N-branch/N-PR creation
+  for a single scope.
 
 
   ## Success Criteria
@@ -19,31 +35,51 @@ body: '## Problem
 
   |----|-----------|---------------|---------------------|
 
-  | SC-1 | `critical-rules-PR-ORG` (or equivalent) SHALL be present in `.opencode/guidelines/000-critical-rules.md` with the "Stacked PR Is the Only Valid Organization" bright-line text (one branch, N commits, one PR per authorization scope; N branches for N issues is a critical violation). | string | grep `000-critical-rules.md` for `critical-rules-PR-ORG` |
+  | SC-1 | `critical-rules-PR-ORG` (or equivalent) SHALL be present in `.opencode/guidelines/000-critical-rules.md`
+  with the "Stacked PR Is the Only Valid Organization" bright-line text (one branch,
+  N commits, one PR per authorization scope; N branches for N issues is a critical
+  violation). | string | grep `000-critical-rules.md` for `critical-rules-PR-ORG`
+  |
 
-  | SC-2 | A behavioral enforcement test `stacked-pr-organization.sh` SHALL be added under `.opencode/tests-v2/behaviors/` that dispatches a real-domain prompt via `opencode run` requiring the agent to implement multiple issues under a single `for_pr` authorization, and verifies the agent creates exactly ONE feature branch and ONE PR (stacked commits, one per issue). | behavioral | Run the scenario via `with-test-home`; clean-room sub-agent reads `session.yaml` and confirms single-branch/single-PR creation. |
+  | SC-2 | A behavioral enforcement test `stacked-pr-organization.sh` SHALL be added
+  under `.opencode/tests-v2/behaviors/` that dispatches a real-domain prompt via `opencode
+  run` requiring the agent to implement multiple issues under a single `for_pr` authorization,
+  and verifies the agent creates exactly ONE feature branch and ONE PR (stacked commits,
+  one per issue). | behavioral | Run the scenario via `with-test-home`; clean-room
+  sub-agent reads `session.yaml` and confirms single-branch/single-PR creation. |
 
-  | SC-3 | `.opencode/skills/git-workflow-pr/SKILL.md` line 74 cross-reference SHALL resolve to the actual rule location (the rule MUST exist where the reference points). | string | grep confirms the referenced rule exists at the referenced path. |
+  | SC-3 | `.opencode/skills/git-workflow-pr/SKILL.md` line 74 cross-reference SHALL
+  resolve to the actual rule location (the rule MUST exist where the reference points).
+  | string | grep confirms the referenced rule exists at the referenced path. |
 
 
   ## Approach
 
-  1. Add the `critical-rules-PR-ORG` rule to `000-critical-rules.md` (the text already exists in the SKILL.md — promote it to the canonical critical-rules location). 2. Write the behavioral enforcement test `stacked-pr-organization.sh` that forces the single-scope/multi-issue scenario and asserts one branch + one PR. 3. Fix the cross-reference so it points to the real location.
+  1. Add the `critical-rules-PR-ORG` rule to `000-critical-rules.md` (the text already
+  exists in the SKILL.md — promote it to the canonical critical-rules location). 2.
+  Write the behavioral enforcement test `stacked-pr-organization.sh` that forces the
+  single-scope/multi-issue scenario and asserts one branch + one PR. 3. Fix the cross-reference
+  so it points to the real location.
 
 
   ## Evidence
 
-  - `grep -c "PR-ORG" .opencode/guidelines/000-critical-rules.md` → `0` (rule missing from canonical location)
+  - `grep -c "PR-ORG" .opencode/guidelines/000-critical-rules.md` → `0` (rule missing
+  from canonical location)
 
-  - `git-workflow-pr/SKILL.md:74` reads `Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md)` but the target does not exist
+  - `git-workflow-pr/SKILL.md:74` reads `Read [critical-rules-PR-ORG](guidelines/000-critical-rules.md)`
+  but the target does not exist
 
   - `git-workflow-pr/SKILL.md:89` contains the rule text but only in the skill card
 
-  - `find tests-v2 -name "stacked-pr-organization.sh"` → not found (behavioral test missing)
+  - `find tests-v2 -name "stacked-pr-organization.sh"` → not found (behavioral test
+  missing)
 
-  - Fixture `tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md` SC-4 requires `stacked-pr-organization.sh` but no scenario script exists
+  - Fixture `tests-v2/behaviors/fixtures/issues/100-stacked-branch-for-pr/spec.md`
+  SC-4 requires `stacked-pr-organization.sh` but no scenario script exists
 
-  - Session regression: during #2249/#2264 `for_pr` implementation, two branches + two PRs were created
+  - Session regression: during #2249/#2264 `for_pr` implementation, two branches +
+  two PRs were created
 
 
   ## Out of scope
@@ -52,16 +88,23 @@ body: '## Problem
 
   - Authorization scope model changes (#1007)
 
-  - This is scoped to enforcing the EXISTING stacked-PR rule (canonical location + behavioral test)
+  - This is scoped to enforcing the EXISTING stacked-PR rule (canonical location +
+  behavioral test)
 
 
   ## Impact
 
-  - **Risk 1: Rule remains unenforced** — without a critical-rule entry and behavioral test, agents continue creating N-branch/N-PR for a single scope. Mitigation: SC-1 + SC-2 add both the canonical rule and the enforcement gate.
+  - **Risk 1: Rule remains unenforced** — without a critical-rule entry and behavioral
+  test, agents continue creating N-branch/N-PR for a single scope. Mitigation: SC-1
+  + SC-2 add both the canonical rule and the enforcement gate.
 
-  - **Risk 2: Cross-reference stays dangling** — a broken `Read [critical-rules-PR-ORG]` link misleads agents to a non-existent rule. Mitigation: SC-3 fixes the reference to the real location.
+  - **Risk 2: Cross-reference stays dangling** — a broken `Read [critical-rules-PR-ORG]`
+  link misleads agents to a non-existent rule. Mitigation: SC-3 fixes the reference
+  to the real location.
 
-  - **Risk 3: Behavioral test flakiness** — the `opencode run` scenario may be slow or model-dependent. Mitigation: scope-limited execution via `with-test-home` and clean-room `session.yaml` inspection.
+  - **Risk 3: Behavioral test flakiness** — the `opencode run` scenario may be slow
+  or model-dependent. Mitigation: scope-limited execution via `with-test-home` and
+  clean-room `session.yaml` inspection.
 
   - **Dependencies:** None beyond the existing `.opencode` test harness.
 
@@ -77,4 +120,10 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2271
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Implemented pre-reorg in commit ef291e6e ('#2271 Promote stacked-PR organization rule'); the reorg's stage-4c tests-v2 harvest (86bec533) then deliberately deleted guidelines/000-critical-rules.md, tests-v2/behaviors/stacked-pr-organization.sh, and test-2271-sc1-critical-rules-pr-org.sh, and the live 26-line git-workflow-pr/SKILL.md re-expresses the stacked-PR discipline (item 2) with no dangling cross-reference.
+sweep_evidence: Implemented pre-reorg in commit ef291e6e ('#2271 Promote stacked-PR
+  organization rule'); the reorg's stage-4c tests-v2 harvest (86bec533) then deliberately
+  deleted guidelines/000-critical-rules.md, tests-v2/behaviors/stacked-pr-organization.sh,
+  and test-2271-sc1-critical-rules-pr-org.sh, and the live 26-line git-workflow-pr/SKILL.md
+  re-expresses the stacked-PR discipline (item 2) with no dangling cross-reference.
+number: 2271
+github_url: https://github.com/michael-conrad/.opencode/issues/2271

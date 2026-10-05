@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1509
-state: CLOSED
 title: '[SPEC] Fix: verification-enforcement Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1509
+status: closed

@@ -1,0 +1,6 @@
+number: 431
+title: '[SPEC] Purge branch status trigger noise (protected_branch_with_changes, on_main_branch,
+  stale_submodule) and resulting dead code'
+labels: '[[{"name": "spec", "color": "ededed", "description": ""}]""'
+github_url: https://github.com/michael-conrad/.opencode/issues/431
+status: closed

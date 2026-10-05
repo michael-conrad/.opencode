@@ -2,5 +2,6 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1842
-state: CLOSED
 title: '[SPEC-FIX] Legacy format warning does not state correct format'
+github_url: https://github.com/michael-conrad/.opencode/issues/1842
+status: closed

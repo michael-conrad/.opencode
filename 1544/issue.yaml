@@ -1,4 +1,5 @@
 labels: '[[]"'
 number: 1544
-state: CLOSED
-title: "'[BUG-FIX] critical-rules-044 overbroad condition for verification sub-agents'"
+title: '''[BUG-FIX] critical-rules-044 overbroad condition for verification sub-agents'''
+github_url: https://github.com/michael-conrad/.opencode/issues/1544
+status: closed

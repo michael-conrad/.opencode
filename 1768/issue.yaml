@@ -1,5 +1,6 @@
 labels:
 - spec
 number: 1768
-state: CLOSED
 title: 'Platform Sub-Skill Fix Specs (Audit #1384)'
+github_url: https://github.com/michael-conrad/.opencode/issues/1768
+status: closed

@@ -2,5 +2,6 @@ labels:
 - spec
 - fix
 number: 1471
-state: CLOSED
 title: '[SPEC] Fix: completion-core Skill Description Compliance'
+github_url: https://github.com/michael-conrad/.opencode/issues/1471
+status: closed

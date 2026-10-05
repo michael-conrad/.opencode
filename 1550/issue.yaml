@@ -1,4 +1,5 @@
-title: '[SPEC-FIX] Remove ''simple fixes skip straight to design'' escape hatch in brainstorming'
+title: '[SPEC-FIX] Remove ''simple fixes skip straight to design'' escape hatch in
+  brainstorming'
 status: closed
 labels:
 - spec-fix
@@ -9,4 +10,9 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/1550
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets brainstorming/tasks/explore/exploration-workflow.md lines 58/83 (plus 000-critical-rules.md:42) — the brainstorming skill exists only at .opencode/attic/skills/brainstorming/tasks/explore/exploration-workflow.md in the retired attic deck; live routing uses the explore skill with no such escape-hatch language.
+sweep_evidence: Targets brainstorming/tasks/explore/exploration-workflow.md lines
+  58/83 (plus 000-critical-rules.md:42) — the brainstorming skill exists only at .opencode/attic/skills/brainstorming/tasks/explore/exploration-workflow.md
+  in the retired attic deck; live routing uses the explore skill with no such escape-hatch
+  language.
+number: 1550
+github_url: https://github.com/michael-conrad/.opencode/issues/1550

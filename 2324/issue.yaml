@@ -1,38 +1,58 @@
-title: '[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills — blocks for_pr plan-execution gate'
+title: '[SPEC-FIX] executing-plans skill present on disk but not registered in available_skills
+  — blocks for_pr plan-execution gate'
 status: closed
 labels:
 - needs-approval
-body: '> **Full spec and plan artifacts: [`.issues/2324/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2324/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
+body: '> **Full spec and plan artifacts: [`.issues/2324/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2324/)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
 
   >
 
-  > **Local artifacts:** `.opencode/.issues/2324/` — implementation plan, research records, dependency contracts, audit findings
+  > **Local artifacts:** `.opencode/.issues/2324/` — implementation plan, research
+  records, dependency contracts, audit findings
 
 
   ## Problem
 
 
-  The `executing-plans` skill exists on disk with frontmatter satisfying every discovery rule the opencode runtime documents, yet it is missing from the live `<available_skills>` registry: the registry presents 51 entries whose set differs from the 51-card disk deck by one swap — built-in `customize-opencode` present, `executing-plans` absent. Because approval-gate''s Mandatory Routing Rule requires dispatching `executing-plans` under `for_pr` scope before PR creation, the mandatory plan-execution gate is unexecutable for all `for_pr`-scoped work. There is no repo-side registration manifest to edit — the registry is generated solely by runtime filesystem scan — so the defect locus is runtime registry state, established by exhaustive live elimination of all documented failure causes.
+  The `executing-plans` skill exists on disk with frontmatter satisfying every discovery
+  rule the opencode runtime documents, yet it is missing from the live `<available_skills>`
+  registry: the registry presents 51 entries whose set differs from the 51-card disk
+  deck by one swap — built-in `customize-opencode` present, `executing-plans` absent.
+  Because approval-gate''s Mandatory Routing Rule requires dispatching `executing-plans`
+  under `for_pr` scope before PR creation, the mandatory plan-execution gate is unexecutable
+  for all `for_pr`-scoped work. There is no repo-side registration manifest to edit
+  — the registry is generated solely by runtime filesystem scan — so the defect locus
+  is runtime registry state, established by exhaustive live elimination of all documented
+  failure causes.
 
 
   ## Scope
 
 
-  - Reproduce the registry omission in a fresh isolated opencode runtime (`with-test-home`) using the exact probe prompt specified in SC-1, separating repository state from long-running host-process state
+  - Reproduce the registry omission in a fresh isolated opencode runtime (`with-test-home`)
+  using the exact probe prompt specified in SC-1, separating repository state from
+  long-running host-process state
 
-  - Branch A — fresh runtime lists the card: apply the registry-refresh remediation (host process restart), record the operational resolution
+  - Branch A — fresh runtime lists the card: apply the registry-refresh remediation
+  (host process restart), record the operational resolution
 
-  - Branch B — fresh runtime also omits the card: file an evidence-backed defect report against the upstream opencode runtime and record its URL here (R-4); no workaround is permitted
+  - Branch B — fresh runtime also omits the card: file an evidence-backed defect report
+  against the upstream opencode runtime and record its URL here (R-4); no workaround
+  is permitted
 
   - Verify `skill({name: "executing-plans"})` loads the card content in a fresh session
 
-  - Verify the approval-gate `for_pr` routing rule dispatches `executing-plans` using the existing #1364 behavioral scenarios
+  - Verify the approval-gate `for_pr` routing rule dispatches `executing-plans` using
+  the existing #1364 behavioral scenarios
 
 
   **Out of scope:**
 
 
-  - Changes to the `executing-plans` SKILL.md content or task cards — frontmatter verified valid; card content is not the defect locus
+  - Changes to the `executing-plans` SKILL.md content or task cards — frontmatter
+  verified valid; card content is not the defect locus
 
   - Changes to the approval-gate routing rule text — rule text verified correct
 
@@ -40,29 +60,47 @@ body: '> **Full spec and plan artifacts: [`.issues/2324/`](https://github.com/mi
 
   - Full-skill-deck registration-gap audit — exceeds single-skill scope; tracked separately
 
-  - Source changes to the opencode runtime project — different repository; addressed via the R-4 upstream defect report
+  - Source changes to the opencode runtime project — different repository; addressed
+  via the R-4 upstream defect report
 
 
   ## Approach
 
 
-  Diagnose-before-modify: a fresh-runtime reproduction decides between two branches. Branch A treats the omission as stale host-process snapshot state and remediates operationally; Branch B escalates upstream with a complete evidence package (disk state, frontmatter validation, permission-config absence, competing-definition absence, registry observation, runtime version) and reports BLOCKED pending the upstream fix — no workaround is permitted. Restoration is then verified in sequence: registry presence (SC-1), successful `skill()` load (SC-2), and `for_pr` dispatch routing through `executing-plans` via the existing behavioral scenario (SC-3). The escalation-before-workaround decision guarantees the gate is never bypassed to fake completion.
+  Diagnose-before-modify: a fresh-runtime reproduction decides between two branches.
+  Branch A treats the omission as stale host-process snapshot state and remediates
+  operationally; Branch B escalates upstream with a complete evidence package (disk
+  state, frontmatter validation, permission-config absence, competing-definition absence,
+  registry observation, runtime version) and reports BLOCKED pending the upstream
+  fix — no workaround is permitted. Restoration is then verified in sequence: registry
+  presence (SC-1), successful `skill()` load (SC-2), and `for_pr` dispatch routing
+  through `executing-plans` via the existing behavioral scenario (SC-3). The escalation-before-workaround
+  decision guarantees the gate is never bypassed to fake completion.
 
 
   ## Impact
 
 
-  1. **Risk:** Misdiagnosing the defect locus produces another wrong-locus edit. **Mitigation:** exhaustive precondition elimination plus isolated-runtime reproduction before any change.
+  1. **Risk:** Misdiagnosing the defect locus produces another wrong-locus edit. **Mitigation:**
+  exhaustive precondition elimination plus isolated-runtime reproduction before any
+  change.
 
-  2. **Risk:** Branch B leaves the `for_pr` gate blocked on an upstream fix. **Mitigation:** evidence-backed upstream report per R-4 with honest BLOCKED status on this issue — no workaround, no silent bypass.
+  2. **Risk:** Branch B leaves the `for_pr` gate blocked on an upstream fix. **Mitigation:**
+  evidence-backed upstream report per R-4 with honest BLOCKED status on this issue
+  — no workaround, no silent bypass.
 
-  3. **Risk:** A restored registry entry that still fails at load or dispatch would fake success. **Mitigation:** three-stage verification chain (SC-1 presence, SC-2 load, SC-3 dispatch) with behavioral evidence artifacts.
+  3. **Risk:** A restored registry entry that still fails at load or dispatch would
+  fake success. **Mitigation:** three-stage verification chain (SC-1 presence, SC-2
+  load, SC-3 dispatch) with behavioral evidence artifacts.
 
 
-  **Dependencies:** merged state of #1364 / PR #2321; `with-test-home` harness; existing `1364-sc1`/`1364-sc2` behavioral scenarios; approval-gate Mandatory Routing Rule as the SC-3 oracle.
+  **Dependencies:** merged state of #1364 / PR #2321; `with-test-home` harness; existing
+  `1364-sc1`/`1364-sc2` behavioral scenarios; approval-gate Mandatory Routing Rule
+  as the SC-3 oracle.
 
 
-  **Call to action:** Run the fresh-runtime diagnosis, apply the indicated branch, and restore the mandatory plan-execution gate for `for_pr`-scoped work.
+  **Call to action:** Run the fresh-runtime diagnosis, apply the indicated branch,
+  and restore the mandatory plan-execution gate for `for_pr`-scoped work.
 
 
   ---
@@ -80,4 +118,7 @@ remote_url: https://github.com/michael-conrad/.opencode/issues/2324
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Target `executing-plans` exists only under `.opencode/attic/skills/` (absent from live skills/), and the gate it would restore is the retired approval-gate for_pr routing machinery that no longer exists in the live deck.
+sweep_evidence: Target `executing-plans` exists only under `.opencode/attic/skills/`
+  (absent from live skills/), and the gate it would restore is the retired approval-gate
+  for_pr routing machinery that no longer exists in the live deck.
+number: 2324

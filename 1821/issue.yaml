@@ -1,6 +1,7 @@
 labels:
 - plan
 number: 1821
-state: CLOSED
-title: "[PLAN] Audit tasks produce PASS+hedging verdicts \u2014 no self-consistency\"
-  \ gate prevents \"minor defects are acceptable\" persona"
+title: '[PLAN] Audit tasks produce PASS+hedging verdicts — no self-consistency"  gate
+  prevents "minor defects are acceptable" persona'
+github_url: https://github.com/michael-conrad/.opencode/issues/1821
+status: closed

@@ -8,4 +8,8 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-CONFLICT
-sweep_evidence: 'Placeholder ticket: title ''Verify #1799'' with empty body and spec.md containing only the word ''test''; referenced issue #1799 does not exist in .opencode/.issues/. No actionable content.'
+sweep_evidence: 'Placeholder ticket: title ''Verify #1799'' with empty body and spec.md
+  containing only the word ''test''; referenced issue #1799 does not exist in .opencode/.issues/.
+  No actionable content.'
+number: 2096
+github_url: https://github.com/michael-conrad/.opencode/issues/2096

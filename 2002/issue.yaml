@@ -1,6 +1,7 @@
 labels:
 - spec-fix
 number: 2002
-state: CLOSED
-title: "[SPEC-FIX] Orchestrator bypasses spec-creation pipeline \u2014 writes spec\"
-  \ content directly via github_issue_write"
+title: '[SPEC-FIX] Orchestrator bypasses spec-creation pipeline — writes spec"  content
+  directly via github_issue_write'
+github_url: https://github.com/michael-conrad/.opencode/issues/2002
+status: closed

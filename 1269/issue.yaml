@@ -1,4 +1,6 @@
 number: 1269
-title: "[BUG] Agent proposes fix specs that bypass issue-operations skill and hardcode platform"
-state: OPEN
+title: '[BUG] Agent proposes fix specs that bypass issue-operations skill and hardcode
+  platform'
 labels: '[]'
+github_url: https://github.com/michael-conrad/.opencode/issues/1269
+status: open

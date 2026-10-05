@@ -2,5 +2,6 @@ labels:
 - needs-approval
 - spec-fix
 number: 1516
-state: OPEN
 title: '[SPEC-FIX] local: NO_TDT + narrative-only content (D3=NO_TDT, D4=FAIL)'
+github_url: https://github.com/michael-conrad/.opencode/issues/1516
+status: open

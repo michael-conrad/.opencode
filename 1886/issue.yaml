@@ -3,6 +3,7 @@ labels:
 - spec-fix
 - approved-for-pr
 number: 1886
-state: CLOSED
-title: "[SPEC-FIX] cross-validate YAML template includes unconditional mandatory_remediation\"
-  \ field \u2014 contradictory on clean PASS"
+title: '[SPEC-FIX] cross-validate YAML template includes unconditional mandatory_remediation"  field
+  — contradictory on clean PASS'
+github_url: https://github.com/michael-conrad/.opencode/issues/1886
+status: closed

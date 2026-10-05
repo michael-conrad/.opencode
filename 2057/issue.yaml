@@ -1,7 +1,9 @@
 body: '## Problem
 
 
-  `approval-gate` routes 16 task references through `approval-gate-scope --task <name>`. The sub-agent loads `approval-gate-scope/SKILL.md`, gets a file list with no TDT, and has to find the task file by name. The sub-skill SKILL.md is dead weight.
+  `approval-gate` routes 16 task references through `approval-gate-scope --task <name>`.
+  The sub-agent loads `approval-gate-scope/SKILL.md`, gets a file list with no TDT,
+  and has to find the task file by name. The sub-skill SKILL.md is dead weight.
 
 
   ## Scope
@@ -27,7 +29,8 @@ body: '## Problem
 
   2. Remove global Invocation and DISPATCH_GATE sections
 
-  3. Update TDT to reference task files by direct path (`approval-gate-scope/tasks/verify-authorization.md`) instead of `--task` qualifiers
+  3. Update TDT to reference task files by direct path (`approval-gate-scope/tasks/verify-authorization.md`)
+  instead of `--task` qualifiers
 
   4. Add workflow sections for each task type
 
@@ -47,11 +50,14 @@ body: '## Problem
 
   | SC-2 | No global Invocation or DISPATCH_GATE | `string` |
 
-  | SC-3 | TDT references task files by direct path, not `--task` qualifiers | `string` |
+  | SC-3 | TDT references task files by direct path, not `--task` qualifiers | `string`
+  |
 
-  | SC-4 | All task files have Dispatch Contract, Output Contract, Frugal Contract | `string` |
+  | SC-4 | All task files have Dispatch Contract, Output Contract, Frugal Contract
+  | `string` |
 
-  | SC-5 | approval-gate-scope/SKILL.md removed from <available_skills> | `string` |
+  | SC-5 | approval-gate-scope/SKILL.md removed from <available_skills> | `string`
+  |
 
 
   ## Dependencies
@@ -61,10 +67,15 @@ body: '## Problem
 created_at: '2026-07-21T17:42:18+00:00'
 labels:
 - spec
-status: closed
-title: '[SPEC] Fix approval-gate + approval-gate-scope — remove sub-skill indirection, per-step dispatch'
+status: open
+title: '[SPEC] Fix approval-gate + approval-gate-scope — remove sub-skill indirection,
+  per-step dispatch'
 updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: Targets .opencode/skills/approval-gate/SKILL.md and approval-gate-scope/ sub-skill indirection; approval-gate and approval-gate-scope exist only in .opencode/attic/skills/ — the live deck has no approval-gate machinery at all.
+sweep_evidence: Targets .opencode/skills/approval-gate/SKILL.md and approval-gate-scope/
+  sub-skill indirection; approval-gate and approval-gate-scope exist only in .opencode/attic/skills/
+  — the live deck has no approval-gate machinery at all.
+number: 2057
+github_url: https://github.com/michael-conrad/.opencode/issues/2057

@@ -19,4 +19,7 @@ author: michael-conrad
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Phase 1.11 sub-issue of plan #985; live .opencode/tools/local-issues contains cmd_close (line 1541) implementing the close command with --reason handling — deliverable exists, work is done.'
+sweep_evidence: 'Phase 1.11 sub-issue of plan #985; live .opencode/tools/local-issues
+  contains cmd_close (line 1541) implementing the close command with --reason handling
+  — deliverable exists, work is done.'
+github_url: https://github.com/michael-conrad/.opencode/issues/987

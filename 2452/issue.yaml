@@ -1,4 +1,5 @@
-title: '[BUG] spec-creation analyze never consumes the brainstorming handoff — specs drift from developer-approved designs'
+title: '[BUG] spec-creation analyze never consumes the brainstorming handoff — specs
+  drift from developer-approved designs'
 status: closed
 labels:
 - approved-for-pr
@@ -9,4 +10,9 @@ updated_at: '2026-10-05T19:39:01+00:00'
 closed_at: '2026-10-05T19:39:01+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
-sweep_evidence: 'Spec targets the brainstorming skill handoff contract (handoff.yaml, Step 2.5) and the spec-creation TDT analyze dispatch/task card — both retired: skills/brainstorming and skills/spec-creation exist only under .opencode/attic/skills/, and the new deck''s explore→spec flow has no handoff/analyze machinery to fix.'
+sweep_evidence: 'Spec targets the brainstorming skill handoff contract (handoff.yaml,
+  Step 2.5) and the spec-creation TDT analyze dispatch/task card — both retired: skills/brainstorming
+  and skills/spec-creation exist only under .opencode/attic/skills/, and the new deck''s
+  explore→spec flow has no handoff/analyze machinery to fix.'
+number: 2452
+github_url: https://github.com/michael-conrad/.opencode/issues/2452
