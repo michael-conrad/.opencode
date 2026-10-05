@@ -1,44 +1,24 @@
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-conflict
-description: "Resolve git conflicts during rebase, merge, or cherry-pick operations, analyzing intent before applying changes. Conflict resolution MUST analyze intent before applying changes."
+description: Load when git reports conflicts during any rebase, merge, or cherry-pick, or when a push/PR shows merge contention. Analyze the intent behind both sides before resolving — never mechanically take ours or theirs — and verify the build and tests after resolution.
 license: MIT
-provenance: AI-generated
+provenance: AI-authored, .opencode#2490
 ---
 
-# Skill: git-workflow-conflict
+# git-workflow-conflict
 
-## Overview
+1. **Intent before resolution.** For each conflicted hunk: what was each side
+   trying to do? Classify — complementary (merge both), conflicting (one
+   intent wins, justify), or stale (drop).
+2. **Resolve by intent**, preserving both sides' meaning where complementary.
+   Mechanical `--ours`/`--theirs` without analysis is a defect.
+3. **Verify.** After resolution: build + run the relevant tests before
+   continuing the operation.
+4. **Abort is valid.** If intent cannot be determined confidently, abort the
+   operation and consult the developer with the specific conflict — a wrong
+   silent resolution is worse than a halted one.
 
-Conflict resolution sub-skill of git-workflow. Handles rebase-pending conflict resolution during rebase, merge, or cherry-pick operations. Delegates intent analysis and tier classification to the `conflict-resolution` skill. Enforces the three-tier conflict model: Trivial (auto-resolve), Textual (note), Intent (HALT).
-
-## Mandatory Task Discipline
-
-- [ ] 1. Every task and sub-task in this skill is mandatory
-- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
-- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
-
-## Pre-Flight Guard (Mandatory)
-
-Check your tool list for a tool named `task`.
-
-- Present ⇒ orchestrator — proceed.
-- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
-
-## Workflows
-
-### Resolve a rebase, merge, or cherry-pick conflict
-
-When the agent needs to resolve git conflicts during a rebase, merge, or cherry-pick operation, rebase pending PRs onto the updated default branch, or classify conflicts by tier.
-
-- [ ] 1. **Rebase pending** — Resolves rebase/merge/cherry-pick conflicts by classifying tier and applying resolution
-  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [rebase pending PRs after merge](.opencode/skills/git-workflow-conflict/tasks/rebase-pending.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
-  - **Context passed:** `{branch_name, worktree.path, merged_at}`
-  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
-  - **Execution mode:** sub-agent dispatch
-
-## Cross-References
-
-- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
-- Read [conflict-resolution skill](skills/conflict-resolution/SKILL.md) for intent analysis and tier classification
-- Read [critical-rules-042](guidelines/000-critical-rules.md) for blind conflict resolution prohibition
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

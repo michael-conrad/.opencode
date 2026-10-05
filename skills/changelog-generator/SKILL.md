@@ -1,116 +1,22 @@
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: changelog-generator
-description: "Release note and changelog generator for version-to-version change documentation. Load via skill() when creating release notes, documenting changes between versions, or preparing a changelog. Also load when comparing diffs between releases or generating structured version history. Changelog generation is REQUIRED before every release — not optional. User phrases: create changelog, generate release notes, document changes, version history"
+description: Load when creating release notes or a changelog, documenting changes between versions, or preparing the body of a release. Every entry traces to a real commit between release tags — nothing is invented, nothing generic. Also load when a release PR needs its changelog body.
 license: MIT
-compatibility: opencode
+provenance: AI-authored, .opencode#2490
 ---
 
-# Skill: changelog-generator
+# changelog-generator
 
-## Overview
+1. **Source of truth:** the commit log since the last release tag
+   (`git log <last-tag>..HEAD --oneline`) — every entry maps to a commit.
+2. **Categorize** Added / Changed / Fixed / Removed, in human-readable
+   language; group by issue where commits carry issue numbers.
+3. **Breaking changes lead** and are stated plainly with migration impact.
+4. **No fabrication.** If the log is unclear, read the commit; never invent an
+   entry to fill a category.
+5. **Format** matches the repo's existing changelog style.
 
-Transforms git commits into polished, user-friendly changelogs. Category-based organization into Added, Changed, Deprecated, Removed, Fixed, Security.
-
-## Persona
-
-Changelog assembler. Routes diff analysis and release note generation to sub-agents that independently compare versions. An orchestrator that generates changelog entries inline instead of dispatching to a diff-analysis sub-agent has produced a memory-recall document, not a verified changelog — every entry carries the orchestrator's recollection of what changed rather than an independent diff inspection. Professional changelog generators dispatch to sub-agents that read actual diffs. Inlining means the changelog was never verified against source.
-
-## Worktree Mode
-
-This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
-
-## Mandatory Task Discipline
-
-- [ ] 1. Every task and sub-task in this skill is mandatory
-- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
-- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
-- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
-
-## Pre-Flight Guard (Mandatory)
-
-Check your tool list for a tool named `task`.
-
-- Present ⇒ orchestrator — proceed.
-- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
-
-## Trigger Dispatch Table
-
-| User says / Context | Task | Dispatch | Context passed |
-|---------------------|------|----------|----------------|
-| "changelog" / "since last release" | `since-last-release` | `task-card` | {date_range} |
-| "release PR" / "release notes" | `since-last-release` | `task-card` | {date_range} |
-| "changelog date range" / "changes between dates" | `date-range` | `task-card` | {from_date, to_date} |
-| "backfill changelog" | `backfill` | `task-card` | {date_range} |
-| completion / workflow end | `completion` | `task-card` | {workflow_state} |
-
-## Tasks
-
-
-| `since-last-release` |
-| `date-range` |
-| `backfill` |
-| `completion` |
-
-## Invocation
-
-`skill({name: "changelog-generator"})` — call the skill, then dispatch each task-card row via task():
-
-| Task | Call via task() |
-
-| `since-last-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog since last release](.opencode/skills/changelog-generator/tasks/since-last-release.md). "))` |
-| `date-range` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [changelog for date range](.opencode/skills/changelog-generator/tasks/date-range.md). from_date: ", from_date, ", to_date: ", to_date))` |
-| `backfill` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [backfill changelog entries](.opencode/skills/changelog-generator/tasks/backfill.md). "))` |
-| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete changelog workflow](.opencode/skills/changelog-generator/tasks/completion.md). "))` |
-
-**CLI equivalent (for human TUI use):** `` `skill({name: "changelog-generator"})` ``
-
-## Sub-Agent Routing
-
-Sub-agents run via `task(subagent_type="general")` with `{ date_range, worktree.path, github.owner, github.repo }`. Exclusions: implementation context, agent memory. `pre-analysis` receives only `{ issue_number, task_description, github.owner, github.repo }`. No inline work.
-
-### DISPATCH_GATE — Orchestrator task() Prompt Protocol
-
-> **Context cost frame:** These are internal operational bookkeeping notes describing how context flows through the pipeline — they are NOT implementation complexity measures. Implementation work is measured ONLY by whether tested verified correct code operations pass with 100% clean PASS.
-> This cost frame applies to orchestrator context only — it does NOT mean the agent should minimize message count, pipeline steps, or user-facing output.
-
-The orchestrator MUST NOT preload execution context into `task()` prompts.
-Every sub-agent MUST independently discover scope and produce its own result contract.
-
-#### Forbidden in task() Prompts
-
-| Violation | Forbidden Pattern | Correct Pattern |
-|-----------|-------------------|-----------------|
-| Preloaded file paths | "Read cleanup/branch-cleanup.md then execute step 1" | "execute cleanup task from git-workflow" |
-| Preloaded step sequences | "Step 1: sync $DEFAULT_BRANCH. Step 2: delete branch." | "execute cleanup task from git-workflow" |
-| Preloaded expected outcomes | "Return { cleanup_status, branch_deleted }" | Let sub-agent define its own result contract |
-| Preloaded orchestrator reasoning | "The merge was just completed so we need to..." | Pure objective, no narrative |
-
-#### Dispatch Context Contract
-
-Every `task()` call MUST include only:
-
-- `worktree.path`
-- `github.owner`
-- `github.repo`
-- `authorization_scope`
-- `halt_at`
-- `pipeline_phase`
-
-Plus skill-specific fields per the `## Sub-Agent Routing` section above.
-
-Exclusions (MUST NOT be in prompt):
-- `orchestrator_reasoning`
-- `expected_outcomes`
-- `inline_file_paths`
-- `agent_memory`
-- `cached_verification_results`
-
-#### Orchestrator Entry Criteria
-
-Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
-
-After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
-- Use the exact `task(..., prompt: "...")` string from the table
-- NOT write a custom prompt with preloaded context
-- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
-- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

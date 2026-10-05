@@ -1,0 +1,130 @@
+---
+name: release-promoter
+description: "Git tag and release promoter for creating annotated tags and GitHub Releases with changelog bodies. Load via skill() when creating git tags for releases or promoting releases to GitHub. Also load when creating annotated tags with v prefix or creating GitHub Releases from tags with changelog body. Release promotion is REQUIRED after every release PR merge — not optional. User phrases: create tag, promote release, create GitHub Release, annotate tag"
+license: MIT
+compatibility: opencode
+---
+
+# Skill: release-promoter
+
+## Overview
+
+Creates annotated git tags with v prefix and promotes releases to GitHub. After a release PR merges, this skill creates the tag and creates a GitHub Release with the changelog body.
+
+## Persona
+
+Release promoter. Routes tag creation and release promotion to sub-agents that independently verify the merge state. An orchestrator that creates tags from memory instead of dispatching to a verification sub-agent has produced a tag that may point to the wrong commit — every tag carries the orchestrator's recollection of what was merged rather than an independent merge-state check. Professional release promoters dispatch to sub-agents that verify the actual merge commit. Inlining means the tag was never verified against the merge state.
+
+## Worktree Mode
+
+This skill operates in the main repo directory (direct-branch mode). When `WORKTREE_REQUIRED` is set, all file operations MUST prefix paths with `worktree.path`.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Pre-Flight Guard (Mandatory)
+
+Check your tool list for a tool named `task`.
+
+- Present ⇒ orchestrator — proceed.
+- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+
+## Trigger Dispatch Table
+
+| User says / Context | Task | Dispatch | Context passed |
+|---------------------|------|----------|----------------|
+| "tag" / "create tag" / "annotated tag" | `tag` | `task-card` | {next_version, merge_commit_sha} |
+| "create release" / "github release" / "promote release" | `create-release` | `task-card` | {next_version, changelog_body} |
+| completion / workflow end | `completion` | `task-card` | {workflow_state} |
+
+## Tasks
+
+| Task | Description |
+|------|-------------|
+| `tag` | Create annotated git tag with v prefix and push |
+| `create-release` | Create GitHub Release from tag with changelog body |
+| `completion` | Push, URL generation, lifecycle event append, executive summary |
+
+## Invocation
+
+`skill({name: "release-promoter"})` — call the skill, then dispatch each task-card row via task():
+
+| Task | Call via task() |
+|------|----------------|
+| `tag` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create annotated release tag](.opencode/skills/release-promoter/tasks/tag.md). "))` |
+| `create-release` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create GitHub release](.opencode/skills/release-promoter/tasks/create-release.md). "))` |
+| `completion` | `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [complete release promotion](.opencode/skills/release-promoter/tasks/completion.md). "))` |
+
+## Operating Protocol
+
+Read [the full operating protocol](release-promoter/tasks/operating-protocol.md)
+
+**Verification gate:** Release promotion includes a verification-gate step (before tag creation) that performs a shallow temp-copy checkout (`git clone --depth 1` into a temp directory, checkout of the release commit) and never modifies the source tree. The gate runs exactly ONCE per release, before any tagging; any gate FAIL (`DRIFT_FAIL`, `MANIFEST_FAIL`, `BUILD_FAIL`) blocks promotion with no retries within the release run. See the operating protocol for the full procedure.
+
+## Sub-Agent Routing
+
+All tasks run via `task(subagent_type="general")` with `{ next_version, worktree.path, github.owner, github.repo }`, excluding implementation context and agent memory. No inline work.
+
+### DISPATCH_GATE — Orchestrator task() Prompt Protocol
+
+The orchestrator MUST NOT preload execution context into `task()` prompts. Every sub-agent MUST independently discover scope and produce its own result contract.
+
+#### Forbidden in task() Prompts
+
+| Violation | Forbidden Pattern | Correct Pattern |
+|-----------|-------------------|-----------------|
+| Preloaded file paths | "Run git tag -a v1.2.3" | "execute tag from release-promoter" |
+| Preloaded step sequences | "Step 1: create tag. Step 2: push." | "execute tag from release-promoter" |
+| Preloaded expected outcomes | "Return { tag_name, tag_sha }" | Let sub-agent define its own result contract |
+| Preloaded orchestrator reasoning | "The release PR just merged so we need..." | Pure objective, no narrative |
+| Missing task file discovery directive | "execute tag from release-promoter" without task file path | "execute tag from release-promoter. Read `release-promoter/tasks/tag.md` first" |
+
+## Required: Sub-agent Task File Discovery Directive
+
+Every `task()` prompt that dispatches a named task MUST include a discovery directive in the format:
+
+```
+execute <task> from <skill>. Read `<skill>/tasks/<task>.md` first
+```
+
+#### Dispatch Context Contract
+
+Every `task()` call MUST include only:
+
+- `worktree.path`
+- `github.owner`
+- `github.repo`
+- `authorization_scope`
+- `halt_at`
+- `pipeline_phase`
+
+Plus skill-specific fields per the `## Sub-Agent Routing` section above.
+
+Exclusions (MUST NOT be in prompt):
+- `orchestrator_reasoning`
+- `expected_outcomes`
+- `inline_file_paths`
+- `agent_memory`
+- `cached_verification_results`
+
+#### Orchestrator Entry Criteria
+
+Reading the Trigger Dispatch Table and Invocation section in the orchestrator's own context is small, necessary, routing-relevant work assigned to the orchestrator by allocation-by-context-cost: the skill card is routing metadata the orchestrator must hold, and sub-agents cannot call `skill()` or load skills. The no-preloaded-context substance below is unchanged.
+
+After loading this skill and reading the Trigger Dispatch Table, the orchestrator MUST:
+- Use the exact `task(..., prompt: "...")` string from the table
+- NOT write a custom prompt with preloaded context
+- NOT add orchestrator reasoning, file paths, step sequences, or expected outcomes
+- If the canonical dispatch produces an empty result: re-task clean-room with the same canonical string (max 2 retries)
+
+## Cross-References
+
+Skills: `version-manager`, `changelog-generator`, `git-workflow`, `gh-cli` (gh release commands for release creation and asset upload), `gb-cli` (gb release commands for GitBucket releases). Guidelines: `080-code-standards.md`.
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-generated -->

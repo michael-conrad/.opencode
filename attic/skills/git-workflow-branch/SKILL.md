@@ -1,0 +1,139 @@
+---
+name: git-workflow-branch
+description: "Create and manage feature branches, sync submodules, verify provenance, set up pair mode branches, and resume pair mode sessions. Branch creation is REQUIRED before any file modification and requires `for_implementation` or above authorization scope."
+license: MIT
+provenance: AI-generated
+---
+
+# Skill: git-workflow-branch
+
+## Overview
+
+Branch management sub-skill of git-workflow. Handles feature branch creation, submodule synchronization, provenance verification, pair mode setup and resume, pre-commit pointer checks, and operating protocol enforcement.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Pre-Flight Guard (Mandatory)
+
+Check your tool list for a tool named `task`.
+
+- Present ⇒ orchestrator — proceed.
+- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+
+## Workflows
+
+### Set up a feature branch
+
+When the agent needs to create a feature branch before any implementation work, syncing submodules and verifying remote trunk tip first.
+
+- [ ] 1. **Verify remote trunk tip** — Verifies that parent repo and submodules are at remote trunk tip with clean working trees
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify trunk-tip state](.opencode/skills/git-workflow-branch/tasks/trunk-tip-verification.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, checks, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 2. **Sync submodules** — Syncs dirty submodule pointers to latest remote trunk tip
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [sync submodules to remote trunk tip](.opencode/skills/git-workflow-branch/tasks/submodule-sync.md). branch_name: ", branch_name, ", submodule_paths: ", submodule_paths))`
+  - **Context passed:** `{branch_name, submodule_paths}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 3. **Pre-work** — Creates the feature branch and sets up the working environment
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up feature branch pre-work](.opencode/skills/git-workflow-branch/tasks/pre-work.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
+  - **Context passed:** `{branch_name, worktree.path, approved}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+### Set up a pair mode branch
+
+When the agent needs to set up a pair mode branch or resume a pair mode session.
+
+- [ ] 1. **Pair pre-work** — Sets up a pair mode branch and workspace
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [set up pair-mode pre-work](.opencode/skills/git-workflow-branch/tasks/pair-pre-work.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, task, pair_mode, branch_name, wip_commit_created, working_directory}`
+  - **Execution mode:** sub-agent dispatch
+
+- [ ] 2. **Pair mode resume** — Resumes a pair mode session from saved state
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [resume pair-mode session](.opencode/skills/git-workflow-branch/tasks/pair-mode-resume.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, task, pair_branch, issue_number, changes_summary, uncommitted_count, unpushed_count}`
+  - **Execution mode:** sub-agent dispatch
+
+### Manage submodule pointers before commit
+
+When the agent needs to verify submodule pointers are staged alongside non-submodule changes before committing.
+
+- [ ] 1. **Pre-commit pointer check** — Verifies submodule pointers are staged before commit
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [verify submodule pointer pre-commit](.opencode/skills/git-workflow-branch/tasks/pre-commit-pointer-check.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+### Verify provenance
+
+When the agent needs to create provenance tracking issues and PRs in submodule repositories after push operations.
+
+- [ ] 1. **Provenance** — Verifies provenance of submodule state
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [create provenance tracking](.opencode/skills/git-workflow-branch/tasks/provenance.md). submodule_path: ", submodule_path))`
+  - **Context passed:** `{submodule_path}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+### Enforce operating protocol
+
+When the agent needs to enforce the git operating protocol and tag conventions.
+
+- [ ] 1. **Operating protocol** — Enforces operating protocol and tag conventions
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [apply git-workflow operating protocol](.opencode/skills/git-workflow-branch/tasks/operating-protocol.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+## Cross-References
+
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [approval-gate skill](skills/approval-gate/SKILL.md) for authorization scope requirements
+- Read [critical-rules-005](guidelines/000-critical-rules.md) for branch creation rules
+- Read [critical-rules-051](guidelines/000-critical-rules.md) for submodule tagging requirements
+- Read [trunk-tip-verification task](tasks/trunk-tip-verification.md) for the 7-step remote trunk tip verification gate
+- Read [submodule-divergence reference](reference/submodule-divergence.md) for submodule divergence detection and resolution
+- Read [022-orchestrator-context-discipline.md §`for_analysis` Branch Restrictions](guidelines/022-orchestrator-context-discipline.md) for `for_analysis` branch restrictions
+
+### [critical-rules-042] Treating Branch Stacking as Optional
+Skipping branch stacking means merging chaos into your commit history. Professional engineers stack branches as prerequisite — amateurs treat stacking as optional and produce unreviewable history.
+
+
+### [critical-rules-051] Skipping mandatory submodule tagging at pre-work
+Skipping submodule tagging means the starting SHA becomes unreachable after squash merge and branch deletion — the work still exists but nobody can find it. Professional engineers tag every submodule at pre-work. Amateurs lose history that their future selves need.
+
+
+### [critical-rules-005] Direct-Branch Default — feature branch without worktree is the norm
+Default: `git checkout -b feature/X` in main repo. Worktree opt-in when `WORKTREE_REQUIRED` set. Read [git-workflow --task pre-work](skills/git-workflow/SKILL.md).
+
+
+### [critical-rules-005] Skipping Git Pre-Check — working without feature branch
+Must verify git state and create feature branch before any file modification. Creating `feature/*` or `spec/*` branches additionally requires `for_implementation` or above authorization scope.
+
+#### 🚫 FORBIDDEN
+
+- Working without a feature branch
+- Creating `feature/*` or `spec/*` branches without `for_implementation` or above authorization scope
+
+#### ✅ REQUIRED
+
+- Verify git state before any file modification
+- Create feature branch before starting work
+- Ensure `for_implementation` or above scope before creating `feature/*` or `spec/*` branches
+
+#### Why This Matters
+
+| Violation Pattern | Consequence |
+|-------------------|-------------|
+| Working without feature branch | Changes land directly on trunk branches, breaking branch discipline |
+| Creating branches without authorization | Feature/spec branches created without proper scope approval |

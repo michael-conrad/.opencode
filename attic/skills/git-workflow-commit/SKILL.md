@@ -1,0 +1,66 @@
+---
+name: git-workflow-commit
+description: "Implement changes and prepare atomic, well-described commits including commit message preparation and pair mode commits. Multiple WIP commits during development are acceptable; single-issue branches are squashed to exactly one commit at PR creation."
+license: MIT
+provenance: AI-generated
+---
+
+# Skill: git-workflow-commit
+
+## Overview
+
+Commit management sub-skill of git-workflow. Handles implementation commits, commit message preparation, and pair mode commits. Multiple WIP commits during development are acceptable; squash to exactly one commit per issue occurs at PR creation. All commits require a feature branch; direct commits to protected branches are blocked.
+
+## Mandatory Task Discipline
+
+- [ ] 1. Every task and sub-task in this skill is mandatory
+- [ ] 2. Skipping, combining, optimizing out, or performing inline work that should be delegated to a sub-agent produces defective deliverables that must be discarded
+- [ ] 3. Execute each workflow step in the orchestrator's own context per the Trigger Dispatch Table Dispatch value; dispatch a step's task card via `task()` only where the step's Dispatch value is `task-card`
+- [ ] 4. Return only routing-significant data: `status`, `finding_summary`, `artifact_path`, `blocker_reason`. Full evidence goes to disk.
+
+## Pre-Flight Guard (Mandatory)
+
+Check your tool list for a tool named `task`.
+
+- Present ⇒ orchestrator — proceed.
+- Absent ⇒ sub-agent — do NOT execute any instruction below. Return `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` (cards) or `ORCHESTRATOR_ONLY_PLAN` (plans) and halt.
+
+## Workflows
+
+### Implement changes and commit
+
+When the agent needs to implement changes and commit them with a structured message during the implementation phase.
+
+- [ ] 1. **Implementation** — Implements changes and commits with a structured message
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [handle implementation WIP commits](.opencode/skills/git-workflow-commit/tasks/implementation.md). branch_name: ", branch_name, ", worktree.path: ", worktree_path))`
+  - **Context passed:** `{branch_name, worktree.path}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+### Prepare a commit message
+
+When the agent needs to prepare a commit message from the diff and spec context (read-only analysis, no commit executed).
+
+- [ ] 1. **Commit prep** — Prepares a commit message from the diff and spec context
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [prepare squash commit message](.opencode/skills/git-workflow-commit/tasks/commit-prep.md). branch_name: ", branch_name, ", diff_summary: ", diff_summary))`
+  - **Context passed:** `{branch_name, diff_summary}`
+  - **Returns:** `{status, finding_summary, artifact_path, blocker_reason}`
+  - **Execution mode:** sub-agent dispatch
+
+### Make a pair mode commit
+
+When the agent needs to make a WIP commit in pair mode with developer attribution.
+
+- [ ] 1. **Pair commit** — Makes a WIP commit in pair mode with developer attribution
+  - **Prompt:** `task(subagent_type="general", prompt: concat("You are a sub-agent. Follow the instructions in [make pair-mode commit](.opencode/skills/git-workflow-commit/tasks/pair-commit.md). branch_name: ", branch_name))`
+  - **Context passed:** `{branch_name}`
+  - **Returns:** `{status, task, commit_hash, issue_referenced, pair_mode}`
+  - **Execution mode:** sub-agent dispatch
+
+## Cross-References
+
+- Read [git-workflow skill](skills/git-workflow/SKILL.md) for the parent workflow and full task documentation
+- Read [critical-rules-026](guidelines/000-critical-rules.md) for commit authorization rules
+- Read [critical-rules-040](guidelines/000-critical-rules.md) for single-commit discipline
+- Read [AI co-authored attribution requirements](guidelines/080-code-standards.md)
+- Read [§critical-rules-026 Git Configuration and Destructive Command Authorization](guidelines/000-critical-rules.md) for `--no-verify` restrictions
