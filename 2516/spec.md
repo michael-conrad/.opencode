@@ -64,6 +64,28 @@ must be visible before any card dispatch; everything else is card-level.
 
 - **Verify:** `wc -l .opencode/floor.md` ≤ 81.
 
+### SC-6 (behavioral) — issue numbering flows remote-first through the store's tools
+
+The regression this SC closes (observed at spec-filing time for this very
+ticket, 2026-10-05): the agent derived the next issue number by listing
+remote GitHub issues and then hand-created the local `{N}/` folder with
+`mkdir` + direct file writes, bypassing `local-issues create`. The store's
+registry never learned the issue (`update --number` failed; the `.counter`
+read 2488 against store dirs reaching 2512) — store state diverged from the
+remote tracker, which is the corruption mode.
+
+Required workflow: the remote issue is filed first (`gh`/`gb`, per spec-card
+item 3); the number comes from that filing, never from listing remote issues;
+the local folder and metadata are created only via `local-issues create --number
+repo#N --title …`, never hand-crafted; the issues-data branch is pushed and
+`local-issues read` confirms the store resolves the issue.
+
+- **Verify:** on the next spec-filing run (SC-3's `opencode run` or a live
+  filing), the session log shows `gh issue create` preceding `local-issues
+  create`, no manual `mkdir`/direct-write of `{N}/`, and `local-issues read
+  --number repo#N` succeeding immediately after registration. Store hygiene:
+  `git -C .opencode/.issues status` clean and pushed after filing.
+
 ## Out of scope
 
 - Moving the entire authorization vocabulary out of the floor (it is
