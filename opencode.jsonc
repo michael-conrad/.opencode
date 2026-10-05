@@ -1,20 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "instructions": [
-    ".opencode/AGENTS.md",
-    ".opencode/guidelines/000-critical-rules.md",
-    ".opencode/guidelines/010-approval-gate.md",
-    ".opencode/guidelines/020-go-prohibitions.md",
-    ".opencode/guidelines/060-tool-usage.md",
-    ".opencode/guidelines/065-verification-honesty.md",
-    ".opencode/guidelines/067-context-completeness.md",
-    ".opencode/guidelines/075-docs-verification.md",
-    ".opencode/guidelines/080-code-standards.md",
-    ".opencode/guidelines/090-data-integrity.md",
-    ".opencode/guidelines/091-incremental-build.md",
-    ".opencode/guidelines/117-session-trigger-behavior.md",
-    ".opencode/guidelines/130-authority-source.md",
-    ".opencode/guidelines/INDEX.md"
+    ".opencode/floor.md",
+    ".opencode/routing.md"
   ],
   "agent": {
     "build": {
@@ -47,11 +35,9 @@
     },
     "ragsync": {
       "type": "local",
-      "command": ["uvx", "--with", "mcp<2", "ragsync", "--config", "/home/muksihs/git/opencode-config/.opencode/ragsync-config.yaml"],
+      "command": ["uvx", "--with", "mcp<2", "ragsync", "--config", ".opencode/ragsync-config.yaml"],
       "enabled": true
     }
   },
-  "plugin": [
-    "opencode-vibeguard@0.1.0"
-  ]
+  "plugin": []
 }
