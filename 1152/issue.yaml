@@ -1,6 +1,6 @@
 number: 1152
 title: '[SPEC] issue-operations --task locate: local-first routing gate for issue resolution'
-status: open
+status: closed
 labels:
 - spec
 body: '> **Full spec and artifacts: [`.issues/1152/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1152)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
@@ -24,7 +24,7 @@ body: '> **Full spec and artifacts: [`.issues/1152/`](https://github.com/michael
 
   SC-4: Agent uses locate before direct github_issue_read when resolving repo#N (carried forward from #1151 SC-7)'
 created_at: '2026-06-13T03:02:37Z'
-updated_at: '2026-06-13T03:23:33Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 1152
 remote_url: https://github.com/michael-conrad/.opencode/issues/1152
 promoted_at: '2026-08-27T03:25:12.568205+00:00'
@@ -32,3 +32,7 @@ promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.568205+00:00'
 author: michael-conrad
 github_url: https://github.com/michael-conrad/.opencode/issues/1152
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The spec''s direct target, the issue-operations skill and its ''--task locate'' dispatch, was retired to attic (.opencode/attic/skills/issue-operations/) by the reorg; the live deck''s replacement ''issues'' skill has no task-dispatch locate machinery. The spec is written entirely against the retired skill''s task interface, so it is moot even though its dependency #1151 partially survives.'

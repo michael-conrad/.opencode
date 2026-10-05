@@ -1,78 +1,56 @@
 title: '[SPEC] Scope .opencode behavioral-test mandates to .opencode-targeted work'
-status: open
+status: closed
 labels:
 - approved-for-pr
 - spec-cleared
-body: '> **Full spec and artifacts: [`.issues/2469/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2469)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
+body: '> **Full spec and artifacts: [`.issues/2469/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2469)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 
   >
 
-  > **Local artifacts:** `.issues/2469/` — implementation plan, card catalogue, dependency
-  contracts, research, designs, audit findings
+  > **Local artifacts:** `.issues/2469/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
 
   ## Problem
 
 
-  Agents using the .opencode deck outside the deck repo mis-apply the `opencode run`
-  behavioral-test mandate: they attempt tests-v2 harness runs in repos that do not
-  provide the harness, and they patch local `.opencode` copies as an escape hatch.
-  Root cause: deck rule text fuses universal evidence rigor with deck-specific harness
-  mechanics.
+  Agents using the .opencode deck outside the deck repo mis-apply the `opencode run` behavioral-test mandate: they attempt tests-v2 harness runs in repos that do not provide the harness, and they patch local `.opencode` copies as an escape hatch. Root cause: deck rule text fuses universal evidence rigor with deck-specific harness mechanics.
 
 
   ## Scope
 
 
-  - Scope-anchor statement in `tests-v2/AGENTS.md`: harness applies only to `.opencode`-targeted
-  work; the anchor also carries the R-6 routing directive (deck defects route via
-  issue-operations to `michael-conrad/.opencode`; no local deck patching)
+  - Scope-anchor statement in `tests-v2/AGENTS.md`: harness applies only to `.opencode`-targeted work; the anchor also carries the R-6 routing directive (deck defects route via issue-operations to `michael-conrad/.opencode`; no local deck patching)
 
-  - Scope qualifiers in 020-go-prohibitions.md §1, 080-code-standards.md critical-rules-060,
-  091-incremental-build.md behavioral variant (Read-link the anchor)
+  - Scope qualifiers in 020-go-prohibitions.md §1, 080-code-standards.md critical-rules-060, 091-incremental-build.md behavioral variant (Read-link the anchor)
 
-  - TDD SKILL.md §Evidence Type Taxonomy prose: separate universal rigor from deck
-  instrument mechanics
+  - TDD SKILL.md §Evidence Type Taxonomy prose: separate universal rigor from deck instrument mechanics
 
   - spec-structure-standards.md evidence table: behavioral row gains fallback instrument
 
-  - **Out of scope:** any file outside the `.opencode` repo (parent-repo AGENTS.md
-  conflict filed separately as parent-repo bug issue); tests-v2 harness scripts; runtime
-  plugins/tools
+  - **Out of scope:** any file outside the `.opencode` repo (parent-repo AGENTS.md conflict filed separately as parent-repo bug issue); tests-v2 harness scripts; runtime plugins/tools
 
 
   ## Approach
 
 
-  Single canonical scope anchor in tests-v2/AGENTS.md with Read-linked qualifiers
-  in the three guideline restatements — identical semantics, no divergent inline variants.
-  The anchor statement carries both the harness-scope conditionality and the R-6 deck-defect
-  routing directive, giving R-6 a string-verifiable carrier file. Universal evidence-type
-  taxonomy (types, precedence, EVIDENCE_TYPE_MISMATCH) is UNCHANGED; only instrument
-  availability becomes conditional. Deck-copy integrity is stated as a prohibition
-  with the issue-operations routing path. Behavioral verification follows the tests-v2
-  §6a two-SC pattern (artifact generation + clean-room evaluation), running in the
-  deck repo itself.
+  Single canonical scope anchor in tests-v2/AGENTS.md with Read-linked qualifiers in the three guideline restatements — identical semantics, no divergent inline variants. The anchor statement carries both the harness-scope conditionality and the R-6 deck-defect routing directive, giving R-6 a string-verifiable carrier file. Universal evidence-type taxonomy (types, precedence, EVIDENCE_TYPE_MISMATCH) is UNCHANGED; only instrument availability becomes conditional. Deck-copy integrity is stated as a prohibition with the issue-operations routing path. Behavioral verification follows the tests-v2 §6a two-SC pattern (artifact generation + clean-room evaluation), running in the deck repo itself.
 
 
   ## Impact
 
 
-  - **Risk 1:** tests-v2 behavioral scenarios asserting OLD unqualified text may fail
-  — mitigation: bounded synchronized expectation check during implementation.
+  - **Risk 1:** tests-v2 behavioral scenarios asserting OLD unqualified text may fail — mitigation: bounded synchronized expectation check during implementation.
 
-  - **Risk 2:** propagation to vendored deck copies is submodule-sync-delayed — mitigation:
-  accepted; sync propagates.
+  - **Risk 2:** propagation to vendored deck copies is submodule-sync-delayed — mitigation: accepted; sync propagates.
 
-  - **Risk 3:** qualifier wording could over-exempt deck work from behavioral testing
-  — mitigation: SC-8 clean-room criterion explicitly verifies deck work stays behaviorally
-  tested.
+  - **Risk 3:** qualifier wording could over-exempt deck work from behavioral testing — mitigation: SC-8 clean-room criterion explicitly verifies deck work stays behaviorally tested.
 
-  - Key dependencies: tests-v2 §6a pattern, with-test-home wrapper, local-issues tool
-  — all exist.
+  - Key dependencies: tests-v2 §6a pattern, with-test-home wrapper, local-issues tool — all exist.
 
   - Call to action: approve the spec to proceed to plan creation.'
 created_at: '2026-09-28T00:44:58+00:00'
-updated_at: '2026-09-29T04:14:34+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The primary deliverable is already implemented live: .opencode/tests-v2/AGENTS.md contains the ''Scope Anchor'' section (''applies to `.opencode`-targeted work ONLY'') and the R-6 routing directive (no local deck patching). The remaining qualifier targets (020-go-prohibitions.md, 080-code-standards.md, 091-incremental-build.md, TDD SKILL.md, spec-structure-standards.md) exist only under attic/ or the retired reference/ tree.'

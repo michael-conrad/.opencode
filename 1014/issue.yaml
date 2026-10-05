@@ -1,22 +1,18 @@
 number: 1014
-title: '[SPEC-FIX] Spec guidelines prescribe tracking-document patterns — status markers,
-  checkboxes, step numbering in specs'
-status: open
+title: '[SPEC-FIX] Spec guidelines prescribe tracking-document patterns — status markers, checkboxes, step numbering in specs'
+status: closed
 labels:
 - needs-approval
 body: '## Problem
 
 
-  Issue #39 on viewport-editor was written with `[x]` completion checkboxes and a
-  "Changes Made" section — as if the spec was a tracking document updated during implementation.
-  This pattern was not accidental: the guidelines prescribe it.
+  Issue #39 on viewport-editor was written with `[x]` completion checkboxes and a "Changes Made" section — as if the spec was a tracking document updated during implementation. This pattern was not accidental: the guidelines prescribe it.
 
 
   ## Root Cause
 
 
-  The spec guidelines in `.opencode/guidelines/142-planning-archive-workflow.md` §7
-  "Required Elements" explicitly mandate:
+  The spec guidelines in `.opencode/guidelines/142-planning-archive-workflow.md` §7 "Required Elements" explicitly mandate:
 
 
   - `STATUS: phase.step` header (e.g. `STATUS: 1.2`)
@@ -28,8 +24,7 @@ body: '## Problem
   - The template in §6 shows `☐` checkboxes per step
 
 
-  `140-planning-spec-creation.md` §101-108 shows the same template with step checkboxes
-  and STATUS header.
+  `140-planning-spec-creation.md` §101-108 shows the same template with step checkboxes and STATUS header.
 
 
   This conflates two concerns:
@@ -40,22 +35,18 @@ body: '## Problem
   2. **Plan / sub-issues = tracking mechanism** (progress, status, completion)
 
 
-  A spec should state requirements. Period. Status markers, checkboxes, and phase-step
-  numbering belong in the plan and its sub-issues — never in the spec itself.
+  A spec should state requirements. Period. Status markers, checkboxes, and phase-step numbering belong in the plan and its sub-issues — never in the spec itself.
 
 
   ## What Happens
 
 
-  When a spec has checkboxes and status markers, agents naturally update them during
-  implementation tracking — turning the spec into a hybrid requirements-tracking document.
-  This:
+  When a spec has checkboxes and status markers, agents naturally update them during implementation tracking — turning the spec into a hybrid requirements-tracking document. This:
 
 
   - Pollutes the spec with implementation status that belongs in sub-issues
 
-  - Causes spec drift (spec no longer states what needs to be done — it states what
-  was done)
+  - Causes spec drift (spec no longer states what needs to be done — it states what was done)
 
   - Breaks the spec-first workflow because the spec mutates during implementation
 
@@ -66,18 +57,15 @@ body: '## Problem
   ### `142-planning-archive-workflow.md`
 
 
-  - Remove §7 "Required Elements" — replace with a simple rule: "Spec states requirements
-  only"
+  - Remove §7 "Required Elements" — replace with a simple rule: "Spec states requirements only"
 
   - Remove STATUS header requirement from specs
 
   - Remove `☐`/`↻`/`☑`/`☒` marker requirement from specs
 
-  - Remove numbered phase-step from specs (phases are fine as section headers, not
-  for tracking)
+  - Remove numbered phase-step from specs (phases are fine as section headers, not for tracking)
 
-  - Update the template in §6: remove checkboxes, remove STATUS header, remove numbered
-  steps
+  - Update the template in §6: remove checkboxes, remove STATUS header, remove numbered steps
 
   - Remove rule `spec-structure-007` which enforces status markers
 
@@ -85,13 +73,9 @@ body: '## Problem
   ### `140-planning-spec-creation.md`
 
 
-  - Update the template in §101-108: remove checkboxes, remove STATUS header, remove
-  numbered step tracking
+  - Update the template in §101-108: remove checkboxes, remove STATUS header, remove numbered step tracking
 
-  - Remove §143 "Executable Verification Commands in Success Criteria" — verification
-  commands in the spec is fine, but the "must contain shell commands" prescription
-  conflates SCs with test scripts. SCs should state conditions, not prescribe exact
-  test commands.
+  - Remove §143 "Executable Verification Commands in Success Criteria" — verification commands in the spec is fine, but the "must contain shell commands" prescription conflates SCs with test scripts. SCs should state conditions, not prescribe exact test commands.
 
   - Remove rule `spec-creation-006` which enforces executable verification commands
 
@@ -99,12 +83,9 @@ body: '## Problem
   ### `143-planning-spec-templates.md`
 
 
-  - Update examples to show spec as requirements-only — no checkboxes, no completion
-  markers
+  - Update examples to show spec as requirements-only — no checkboxes, no completion markers
 
-  - The "Success Criteria" examples with `✅` prefixes are borderline — these show
-  examples of already-completed SCs, which is fine for illustration, but the convention
-  of using `✅`/`☐` in specs should be removed
+  - The "Success Criteria" examples with `✅` prefixes are borderline — these show examples of already-completed SCs, which is fine for illustration, but the convention of using `✅`/`☐` in specs should be removed
 
 
   ## Acceptance Criteria
@@ -118,10 +99,14 @@ body: '## Problem
 
   4. SCs state conditions without prescribing exact verification commands'
 created_at: '2026-06-04T05:13:17Z'
-updated_at: '2026-06-12T03:45:28Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 1014
 remote_url: https://github.com/michael-conrad/.opencode/issues/1014
 promoted_at: '2026-08-27T03:25:12.517179+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.517179+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: SPEC-FIX against .opencode/guidelines/142-planning-archive-workflow.md, 140-planning-spec-creation.md, and 143-planning-spec-templates.md — the live .opencode/guidelines/ directory is empty and those files exist only under .opencode/attic/guidelines/. Targets retired ceremony, moot after the reorg.

@@ -1,6 +1,6 @@
 number: 749
 title: 'Phase 3: Inject cost-frame into spec-creation write.md Step 0.5'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan
@@ -10,8 +10,7 @@ body: 'Parent: #746
 
   ## Concern
 
-  Spec writer output layer — generated specs must carry cost-frame intent in their
-  success criteria.
+  Spec writer output layer — generated specs must carry cost-frame intent in their success criteria.
 
 
   ## Files
@@ -34,10 +33,14 @@ body: 'Parent: #746
 
   - Phase 1 complete'
 created_at: '2026-05-20T17:05:51Z'
-updated_at: '2026-06-12T03:45:41Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 749
 remote_url: https://github.com/michael-conrad/.opencode/issues/749
 promoted_at: '2026-08-27T03:25:12.023004+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.023004+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Target skill `skills/spec-creation/` exists only under .opencode/attic/ (retired); the live deck's spec skill is .opencode/skills/spec/ (SKILL.md only, no tasks/write.md), and no live deck file carries the cost-frame Step 0.5 concept.

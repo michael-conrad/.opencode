@@ -1,6 +1,6 @@
 number: 952
 title: '[SPEC] solve tool enforcement tests, docs, and submodule update'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -16,8 +16,7 @@ body: '
   ## Z3-Verified Placement
 
 
-  This spec is in **Phase 3** of the 909 cluster ordering. Depends on #951 (Phase
-  2), which depends on #915 (Phase 1).
+  This spec is in **Phase 3** of the 909 cluster ordering. Depends on #951 (Phase 2), which depends on #915 (Phase 1).
 
 
   ### Dependency Graph (encoded in `.issues/909/909-phase-contract.yaml`)
@@ -30,8 +29,7 @@ body: '
   ```
 
 
-  Verified SAT by Z3. Enforcement tests can only be written after the solve gate integration
-  (#951) exists in skill task files. 3-phase minimum is proven (UNSAT for 2).
+  Verified SAT by Z3. Enforcement tests can only be written after the solve gate integration (#951) exists in skill task files. 3-phase minimum is proven (UNSAT for 2).
 
 
   ## Problem
@@ -39,11 +37,9 @@ body: '
 
   The `solve` tool and its skill task integration have been implemented, but:
 
-  1. No behavioral enforcement tests verify the agent actually uses `solve check`
-  and `solve state update` in workflows
+  1. No behavioral enforcement tests verify the agent actually uses `solve check` and `solve state update` in workflows
 
-  2. No documentation describes how to write contracts, use the tool, or interpret
-  UNSAT results
+  2. No documentation describes how to write contracts, use the tool, or interpret UNSAT results
 
   3. The parent submodule pointer hasn''t been updated
 
@@ -65,14 +61,11 @@ body: '
 
   |---|---|---|
 
-  | SC-1 | Behavioral test verifies agent runs `solve check` pre-dispatch | behavioral
-  |
+  | SC-1 | Behavioral test verifies agent runs `solve check` pre-dispatch | behavioral |
 
-  | SC-2 | Behavioral test verifies agent runs `solve state update` post-dispatch
-  | behavioral |
+  | SC-2 | Behavioral test verifies agent runs `solve state update` post-dispatch | behavioral |
 
-  | SC-3 | Documentation at `.opencode/tools/solve/README.md` exists | structural
-  |
+  | SC-3 | Documentation at `.opencode/tools/solve/README.md` exists | structural |
 
   | SC-4 | Submodule tagged and parent pointer updated | structural |
 
@@ -87,10 +80,14 @@ body: '
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash-free)'
 created_at: '2026-05-30T00:38:10Z'
-updated_at: '2026-06-12T03:45:33Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 952
 remote_url: https://github.com/michael-conrad/.opencode/issues/952
 promoted_at: '2026-08-27T03:25:12.406741+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.406741+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: The Z3 solve skill-task integration these enforcement tests would verify lives in the retired deck (.opencode/attic/skills/solve/); live floor.md, routing.md, and all 26 live skill cards contain no Z3/solve workflow references (tools/solve survives only as a standalone script). SC-3's target path .opencode/tools/solve/README.md is invalid — tools/solve is now a single Python script file, not a directory — and the ticket's own Z3 phase-contract machinery (.issues/909/) is retired ceremony.

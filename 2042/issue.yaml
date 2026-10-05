@@ -1,24 +1,18 @@
-title: 'SPEC-FIX: 6 skills have task directories but no Trigger Dispatch Table in
-  SKILL.md'
-status: open
+title: 'SPEC-FIX: 6 skills have task directories but no Trigger Dispatch Table in SKILL.md'
+status: closed
 labels:
 - spec-fix
-body: '> **Full spec and artifacts: [`.issues/2042/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2042/)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
+body: '> **Full spec and artifacts: [`.issues/2042/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2042/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 
   >
 
-  > **Local artifacts:** `.issues/2042/` — implementation plan, card catalogue, dependency
-  contracts, research, designs, audit findings
+  > **Local artifacts:** `.issues/2042/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
 
   ## Problem
 
 
-  6 skills have `tasks/` directories with task card files but their SKILL.md files
-  lack a Trigger Dispatch Table section. Without a TDT, the orchestrator has no routing
-  information for these tasks.
+  6 skills have `tasks/` directories with task card files but their SKILL.md files lack a Trigger Dispatch Table section. Without a TDT, the orchestrator has no routing information for these tasks.
 
 
   ## Affected Skills
@@ -44,16 +38,13 @@ body: '> **Full spec and artifacts: [`.issues/2042/`](https://github.com/michael
   ## Root Cause
 
 
-  These skills were created as sub-skills (task containers) without their own TDT.
-  The parent skills reference them via Invocation sections, but the sub-skills themselves
-  have no TDT.
+  These skills were created as sub-skills (task containers) without their own TDT. The parent skills reference them via Invocation sections, but the sub-skills themselves have no TDT.
 
 
   ## Fix
 
 
-  For each skill, add a Trigger Dispatch Table to the SKILL.md that references all
-  task card files in its `tasks/` directory.
+  For each skill, add a Trigger Dispatch Table to the SKILL.md that references all task card files in its `tasks/` directory.
 
 
   ## Success Criteria
@@ -63,26 +54,24 @@ body: '> **Full spec and artifacts: [`.issues/2042/`](https://github.com/michael
 
   |----|-----------|---------------|---------------------|
 
-  | SC-1 | All 6 skills have a TDT in their SKILL.md | `string` | Verify each SKILL.md
-  has a `## Trigger Dispatch Table` section |
+  | SC-1 | All 6 skills have a TDT in their SKILL.md | `string` | Verify each SKILL.md has a `## Trigger Dispatch Table` section |
 
-  | SC-2 | Each TDT references all task card files in the skill''s `tasks/` directory
-  | `string` | Cross-reference TDT entries against filesystem |
+  | SC-2 | Each TDT references all task card files in the skill''s `tasks/` directory | `string` | Cross-reference TDT entries against filesystem |
 
 
   ## Anti-Lobotomization
 
 
-  Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion
-  to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION.
-  SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified
-  to a lower evidence type to evade implementation. Load [Test Integrity Mandate](guidelines/080-code-standards.md).
+  Tests MUST NOT be lobotomized. Removing or weakening a behavioral test assertion to work around a timeout, failure, or infrastructure issue is a CRITICAL VIOLATION. SCs must achieve 100% clean PASS. No SC may be weakened, deferred, or reclassified to a lower evidence type to evade implementation. Load [Test Integrity Mandate](guidelines/080-code-standards.md).
 
 
-  After this spec is approved, invoke `writing-plans` to create `.issues/2042/plan.md`
-  before implementation begins.
+  After this spec is approved, invoke `writing-plans` to create `.issues/2042/plan.md` before implementation begins.
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
 created_at: '2026-07-21T00:43:29+00:00'
-updated_at: '2026-07-21T00:45:28Z'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Every affected skill (spec-creation-change-control/decomposition/requirements/validation, writing-plans-creation/holistic) survives only under .opencode/attic/skills/; the live deck has zero tasks/ directories and zero '## Trigger Dispatch Table' sections, so the SC-1/SC-2 work targets retired ceremony.

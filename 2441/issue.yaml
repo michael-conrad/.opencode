@@ -1,10 +1,13 @@
-title: '[SPEC] Early-termination semantic monitoring for behavioral runs (GREEN/HOPELESS
-  signals + artifact checks)'
-status: open
+title: '[SPEC] Early-termination semantic monitoring for behavioral runs (GREEN/HOPELESS signals + artifact checks)'
+status: closed
 labels:
 - needs-approval
 - spec-draft
 - '[SPEC]'
 body: ''
 created_at: '2026-09-10T02:34:48+00:00'
-updated_at: '2026-09-10T02:38:13+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The GREEN/HOPELESS early-termination work is already implemented in the live deck: .opencode/tests-v2/behaviors/helpers.sh contains BEHAVIOR_EXPECTED_ARTIFACT/_GREP, BEHAVIOR_GOAL_ACTIONS, BEHAVIOR_HOPELESS_NO_PROGRESS_POLLS, GREEN-SIGNAL/HOPELESS-SIGNAL termination branches citing ''#2441 R-3/R-4'' and ''R-5/R-6'', and the §14 Semantic Continuous Monitoring Mandate exists in live tests-v2/AGENTS.md. Nothing of the spec remains unaddressed in the live tree.'

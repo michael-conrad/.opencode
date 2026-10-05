@@ -1,104 +1,55 @@
-title: '[SPEC] local-issues: qualifier enforcement, PROJECT_DIR anchoring, YAML hardening
-  and repair'
-status: open
+title: '[SPEC] local-issues: qualifier enforcement, PROJECT_DIR anchoring, YAML hardening and repair'
+status: closed
 labels:
 - approved-for-pr
-body: '> **Full spec and artifacts: [`.opencode/.issues/2432/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2432/)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
+body: '> **Full spec and artifacts: [`.opencode/.issues/2432/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.issues/2432/)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 
   >
 
-  > **Local artifacts:** `.opencode/.issues/2432/` — implementation plan, dependency
-  contract, card catalogue, research, audit findings
+  > **Local artifacts:** `.opencode/.issues/2432/` — implementation plan, dependency contract, card catalogue, research, audit findings
 
 
   ## Problem
 
 
-  `local-issues` mixes CWD-derived repo identity with `PROJECT_DIR` anchoring and
-  enforces the `repo#N` qualifier only on mutation commands, so creates misroute to
-  the parent repo, the root counter drifted 50→52, and first-run bootstrap created
-  an unrelated-histories orphan branch diverged from `origin/issues-data`. Separately,
-  `yaml_load` has zero exception handling, so 10 confirmed malformed tracking files
-  crash `search`/`list`/`read` across the whole tree. The behavioral test framework
-  additionally lacks three agent-facing mandates: session resumption after timeout
-  kills (guidance buried in harness docs), deliberation review of the run agent''s
-  reasoning traces, and a default-model rule — agents model-shop to work around failures
-  instead of remediating deck/prompt/fixture defects.
+  `local-issues` mixes CWD-derived repo identity with `PROJECT_DIR` anchoring and enforces the `repo#N` qualifier only on mutation commands, so creates misroute to the parent repo, the root counter drifted 50→52, and first-run bootstrap created an unrelated-histories orphan branch diverged from `origin/issues-data`. Separately, `yaml_load` has zero exception handling, so 10 confirmed malformed tracking files crash `search`/`list`/`read` across the whole tree. The behavioral test framework additionally lacks three agent-facing mandates: session resumption after timeout kills (guidance buried in harness docs), deliberation review of the run agent''s reasoning traces, and a default-model rule — agents model-shop to work around failures instead of remediating deck/prompt/fixture defects.
 
 
   ## Scope
 
 
-  - Qualifier enforcement + `PROJECT_DIR` anchoring: ALL commands require `repo#N`;
-  identity/discovery resolve identically from any invocation directory (BREAKING —
-  no compat shims; in-repo consumers updated in-phase).
+  - Qualifier enforcement + `PROJECT_DIR` anchoring: ALL commands require `repo#N`; identity/discovery resolve identically from any invocation directory (BREAKING — no compat shims; in-repo consumers updated in-phase).
 
-  - Worktree bootstrap + counter hygiene: fetch/track `origin/issues-data` instead
-  of creating unrelated-histories orphans; counter writes target the qualifier-resolved
-  repo''s `.issues/.counter`.
+  - Worktree bootstrap + counter hygiene: fetch/track `origin/issues-data` instead of creating unrelated-histories orphans; counter writes target the qualifier-resolved repo''s `.issues/.counter`.
 
-  - YAML hardening: warn-and-skip parsing, `validate-yaml` and `doctor` subcommands,
-  mechanical repair of the 10 confirmed malformed files, `validate-yaml` pipeline
-  gate in spec-creation and writing-plans task cards.
+  - YAML hardening: warn-and-skip parsing, `validate-yaml` and `doctor` subcommands, mechanical repair of the 10 confirmed malformed files, `validate-yaml` pipeline gate in spec-creation and writing-plans task cards.
 
-  - Test-framework mandates: session-resumption rules surfaced at the point of timeout-kill
-  (SC-10), persistent/shared test-home resumption as an implementation-agnostic capability
-  contract (SC-11), deliberation-review mandate with excessive-run-time cause tracing
-  and the unavailability-claim evidence rule (SC-12, R-17/R-18/R-19), and the default-model
-  mandate (SC-13, R-20) — run the harness default unless the user explicitly directs
-  otherwise; no model-shopping.
+  - Test-framework mandates: session-resumption rules surfaced at the point of timeout-kill (SC-10), persistent/shared test-home resumption as an implementation-agnostic capability contract (SC-11), deliberation-review mandate with excessive-run-time cause tracing and the unavailability-claim evidence rule (SC-12, R-17/R-18/R-19), and the default-model mandate (SC-13, R-20) — run the harness default unless the user explicitly directs otherwise; no model-shopping.
 
 
-  **Out of scope:** `owner/repo#NNN` qualifier migration (supersedes #2319); filesystem-glob
-  child discovery (supersedes #1224); reconstruction of semantically broken historical
-  artifacts (flagged, not guessed); root counter value repair (doctor reports, does
-  not mutate); counter format changes; changing the default test model itself (governed
-  by tests-v2 AGENTS.md §9 — approved-spec gate only).
+  **Out of scope:** `owner/repo#NNN` qualifier migration (supersedes #2319); filesystem-glob child discovery (supersedes #1224); reconstruction of semantically broken historical artifacts (flagged, not guessed); root counter value repair (doctor reports, does not mutate); counter format changes; changing the default test model itself (governed by tests-v2 AGENTS.md §9 — approved-spec gate only).
 
 
   ## Approach
 
 
-  Thirteen per-SC changes land in DAG order as single-concern TDD items across six
-  phases: tool-core identity/infrastructure fixes (SC-01..SC-04, SC-08), YAML parse-gate
-  hardening with `validate-yaml` (SC-05..SC-07), pipeline gate insertion (SC-09),
-  and test-framework mandates (SC-10..SC-13). The error-class taxonomy and exit-code
-  contract are fixed at SC-05/SC-06 so repair and pipeline consumers share one verification
-  gate. SC-10..SC-13 are implementation-agnostic: framework-agnostic resumption rules,
-  a capability-contract test home, a schema/provider-agnostic deliberation review
-  over whatever reasoning evidence the session store provides, and a default-model
-  mandate bound to the harness''s single source of truth (`DEFAULT_TEST_MODEL`, currently
-  `ollama/qwen3.8:27b-256k-gguf4`) rather than a hardcoded model string. All work
-  lives in the `.opencode` repo; repair commits land on issues-data worktree branches
-  via tool auto-commit, never as parent-repo tracked changes.
+  Thirteen per-SC changes land in DAG order as single-concern TDD items across six phases: tool-core identity/infrastructure fixes (SC-01..SC-04, SC-08), YAML parse-gate hardening with `validate-yaml` (SC-05..SC-07), pipeline gate insertion (SC-09), and test-framework mandates (SC-10..SC-13). The error-class taxonomy and exit-code contract are fixed at SC-05/SC-06 so repair and pipeline consumers share one verification gate. SC-10..SC-13 are implementation-agnostic: framework-agnostic resumption rules, a capability-contract test home, a schema/provider-agnostic deliberation review over whatever reasoning evidence the session store provides, and a default-model mandate bound to the harness''s single source of truth (`DEFAULT_TEST_MODEL`, currently `ollama/qwen3.8:27b-256k-gguf4`) rather than a hardcoded model string. All work lives in the `.opencode` repo; repair commits land on issues-data worktree branches via tool auto-commit, never as parent-repo tracked changes.
 
 
   ## Impact
 
 
-  - **Risk: breaking CLI change** (bare-number rejection, create auto-number removal)
-  breaks ~36 skill/task files and behavioral fixtures — **Mitigation:** in-phase consumer
-  sweep with SC-01; no shims per the no-backward-compat guideline.
+  - **Risk: breaking CLI change** (bare-number rejection, create auto-number removal) breaks ~36 skill/task files and behavioral fixtures — **Mitigation:** in-phase consumer sweep with SC-01; no shims per the no-backward-compat guideline.
 
-  - **Risk: repair touches live tracking data** — **Mitigation:** mechanical transforms
-  only, `validate-yaml` before/after evidence, commits confined to issues-data branches;
-  semantic cases flagged, not rewritten.
+  - **Risk: repair touches live tracking data** — **Mitigation:** mechanical transforms only, `validate-yaml` before/after evidence, commits confined to issues-data branches; semantic cases flagged, not rewritten.
 
-  - **Risk: behavioral-run mandates change test execution workflow** (resumption,
-  deliberation review, default-model) — **Mitigation:** all three are implementation-agnostic
-  behavioral rules verified through the isolated harness; findings feed test effectiveness
-  and never alter SC pass/fail verdicts.
+  - **Risk: behavioral-run mandates change test execution workflow** (resumption, deliberation review, default-model) — **Mitigation:** all three are implementation-agnostic behavioral rules verified through the isolated harness; findings feed test effectiveness and never alter SC pass/fail verdicts.
 
 
-  **Key dependencies:** `local-issues` tool (SC-01..SC-08); new pytest unit module;
-  behavioral enforcement harness (SC-09..SC-13); `.opencode/tests-v2/default-model.sh`
-  (SC-13 single source of truth); issues-data branches on both repos (SC-07).
+  **Key dependencies:** `local-issues` tool (SC-01..SC-08); new pytest unit module; behavioral enforcement harness (SC-09..SC-13); `.opencode/tests-v2/default-model.sh` (SC-13 single source of truth); issues-data branches on both repos (SC-07).
 
 
-  **Call to action:** Review the full spec on the `issues-data` branch (`.opencode/.issues/2432/spec.md`)
-  — all thirteen success criteria are gated; partial implementation is not permitted.
+  **Call to action:** Review the full spec on the `issues-data` branch (`.opencode/.issues/2432/spec.md`) — all thirteen success criteria are gated; partial implementation is not permitted.
 
 
   ---
@@ -110,4 +61,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2432/`](https://github.c
 
   '
 created_at: '2026-09-03T03:55:47+00:00'
-updated_at: '2026-09-17T21:20:09+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The spec''s core work is already in the live tree: tools/local-issues has repo#N qualifier enforcement (bare-number rejection), hardened yaml_load exception handling, doctor + validate-yaml subcommands, and script-dir PROJECT_DIR anchoring, while tests-v2/default-model.sh plus tests-v2/AGENTS.md implement the default-model mandate (R-20); the only unaddressed piece (pipeline gate inside spec-creation/writing-plans task cards) targets retired cards.'

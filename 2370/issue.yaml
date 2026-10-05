@@ -1,19 +1,17 @@
 number: 2370
 title: '[SPEC] Update writing-plans skill — Read-link orchestrator-context-discipline'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
 body: '## Problem
 
-  Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to
-  a shared reference; writing-plans consumes it during plan creation.
+  Orchestrator-context-discipline content from 020-go-prohibitions.md §1.1 moves to a shared reference; writing-plans consumes it during plan creation.
 
 
   ## Scope
 
-  - **In:** Add mandatory Read [Text](path) link to orchestrator-context-discipline.md
-  in the writing-plans skill card.
+  - **In:** Add mandatory Read [Text](path) link to orchestrator-context-discipline.md in the writing-plans skill card.
 
   - **Out:** Losing the context-discipline rules.
 
@@ -25,13 +23,16 @@ body: '## Problem
 
   ## Impact
 
-  Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline
-  ref + 020. Action: approve.'
+  Enables 020 condensation. Risk: low. Depends on orchestrator-context-discipline ref + 020. Action: approve.'
 created_at: '2026-08-27T03:14:57Z'
-updated_at: '2026-08-28T01:46:06+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 2370
 remote_url: https://github.com/michael-conrad/.opencode/issues/2370
 promoted_at: '2026-08-27T03:25:12.695628+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.695628+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets the writing-plans skill card, which exists only as .opencode/attic/skills/writing-plans/; the shared ref orchestrator-context-discipline.md it links is attic guideline 022-orchestrator-context-discipline.md and does not exist live.

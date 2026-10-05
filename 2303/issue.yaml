@@ -1,6 +1,5 @@
-title: plan tool fails to resolve dependencies under CPython 3.14 (pytamer has no
-  cp314 wheels)
-status: open
+title: plan tool fails to resolve dependencies under CPython 3.14 (pytamer has no cp314 wheels)
+status: closed
 labels:
 - approved-for-pr
 - spec-cleared
@@ -10,20 +9,15 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   **Problem**
 
 
-  The `.opencode/tools/plan` tool (PEP 723 script) fails to resolve its dependencies
-  when `uv run --script` selects CPython 3.14, because the `up-tamer>=1.1.0` requirement
-  cannot be satisfied under 3.14 (pytamer has no cp314 wheels).
+  The `.opencode/tools/plan` tool (PEP 723 script) fails to resolve its dependencies when `uv run --script` selects CPython 3.14, because the `up-tamer>=1.1.0` requirement cannot be satisfied under 3.14 (pytamer has no cp314 wheels).
 
 
   **Scope**
 
 
-  - Tighten the `requires-python` constraint in `.opencode/tools/plan` from `~=3.12`
-  to the exact constraint `>=3.12,<3.14` so uv selects a Python version with available
-  pytamer wheels. This is the sole deterministic requirement.
+  - Tighten the `requires-python` constraint in `.opencode/tools/plan` from `~=3.12` to the exact constraint `>=3.12,<3.14` so uv selects a Python version with available pytamer wheels. This is the sole deterministic requirement.
 
-  - Add a usage note documenting `UV_PYTHON=3.12` as an optional workaround for environments
-  that do not adopt the tightened constraint.
+  - Add a usage note documenting `UV_PYTHON=3.12` as an optional workaround for environments that do not adopt the tightened constraint.
 
   - Verify the tool still resolves and executes under Python 3.12.
 
@@ -38,30 +32,25 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   **Approach**
 
 
-  The PEP 723 header currently declares `requires-python = "~=3.12"` with dependencies
-  `unified-planning>=1.3.0`, `pyyaml>=6.0`, `networkx>=3.0`, `up-tamer>=1.1.0`. The
-  `~=3.12` constraint permits CPython 3.14, but `pytamer` only publishes wheels for
-  `cp36m..cp312`, so `up-tamer>=1.1.0` is unsatisfiable under 3.14. Tightening the
-  `requires-python` constraint to the exact value `>=3.12,<3.14` ensures uv selects
-  a compatible interpreter. The minimal fix is a one-line change to the PEP 723 header
-  plus a usage note for the `UV_PYTHON` workaround.
+  The PEP 723 header currently declares `requires-python = "~=3.12"` with dependencies `unified-planning>=1.3.0`, `pyyaml>=6.0`, `networkx>=3.0`, `up-tamer>=1.1.0`. The `~=3.12` constraint permits CPython 3.14, but `pytamer` only publishes wheels for `cp36m..cp312`, so `up-tamer>=1.1.0` is unsatisfiable under 3.14. Tightening the `requires-python` constraint to the exact value `>=3.12,<3.14` ensures uv selects a compatible interpreter. The minimal fix is a one-line change to the PEP 723 header plus a usage note for the `UV_PYTHON` workaround.
 
 
   **Impact**
 
 
-  - Risk: tightening the constraint could affect environments pinned to 3.13+; mitigation:
-  all current usage targets 3.12, and the `UV_PYTHON=3.12` override covers edge cases.
+  - Risk: tightening the constraint could affect environments pinned to 3.13+; mitigation: all current usage targets 3.12, and the `UV_PYTHON=3.12` override covers edge cases.
 
-  - Dependency: `.opencode/tools/plan` is invoked via `uv run --script`; the fix must
-  not break the bash guard at the top of the file.
+  - Dependency: `.opencode/tools/plan` is invoked via `uv run --script`; the fix must not break the bash guard at the top of the file.
 
-  - Call to action: apply the `requires-python` constraint change and add a usage
-  note documenting `UV_PYTHON=3.12` as the workaround.
+  - Call to action: apply the `requires-python` constraint change and add a usage note documenting `UV_PYTHON=3.12` as the workaround.
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
   '
 created_at: '2026-08-20T02:24:31+00:00'
-updated_at: '2026-08-20T03:40:12+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Target .opencode/tools/plan survives the reorg but the specced fix is already materialized: its PEP 723 header reads requires-python = ">=3.12,<3.14" — exactly the ''sole deterministic requirement'' the ticket demanded — so the cp314/pytamer failure mode no longer applies; the optional UV_PYTHON note is moot since the constraint was adopted.'

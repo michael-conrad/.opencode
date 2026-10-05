@@ -1,5 +1,5 @@
 title: '[SPEC] Orchestrator-direct plan execution — task() only at plan-marked dispatch points'
-status: open
+status: closed
 labels:
 - approved-for-pr
 - spec-cleared
@@ -227,5 +227,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2454/`](https://github.c
 
   '
 created_at: '2026-09-20T17:07:41+00:00'
-updated_at: '2026-09-20T17:34:49+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2454
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Every target is retired: .opencode/skills/executing-plans/ (SKILL.md, tasks/execute-phase.md, read-plan.md) exists only under .opencode/attic/skills/, guideline 023-pre-flight-guard.md is under attic/guidelines/, and the writing-plans dispatch-indicator grammar is gone — the direct/task-card dispatch vocabulary is retired ceremony absent from the live deck.'

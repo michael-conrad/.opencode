@@ -1,6 +1,6 @@
 number: 1225
 title: '[SPEC-FIX] cleanup: add post-merge issue closure check'
-status: open
+status: closed
 created: 2026-06-15
 remote_url: https://github.com/michael-conrad/.opencode/issues/1225
 labels:
@@ -8,3 +8,8 @@ labels:
 - cleanup
 created_at: '2026-06-15T16:22:22+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/1225
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Both target paths (.opencode/skills/git-workflow/tasks/cleanup.md and tasks/cleanup/issue-closure.md) exist only under .opencode/attic/; the live replacement .opencode/skills/git-workflow-cleanup/SKILL.md step 3 already performs merge-verified post-merge issue closure ("Close issues whose work the merged PR delivered"), superseding the requested sweep sub-task.
+updated_at: '2026-10-05T19:39:01+00:00'

@@ -1,4 +1,9 @@
 number: 1296
-title: "[BUG] local-issues sync creates nested .issues/.issues/ directory in submodule repos"
-status: open
+title: '[BUG] local-issues sync creates nested .issues/.issues/ directory in submodule repos'
+status: closed
 labels: '[{"name": "bug", "color": "d73a4a", "description": "Something isn''t working"}]'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Target .opencode/tools/local-issues exists and is live, but the defect is already addressed: _discover_all_repos() (tools/local-issues:369) is now .gitmodules-only (''No filesystem glob, no worktree detection''), eliminating the root-.issues-worktree misdetection named as root cause in the ticket''s own comment, and the nested .opencode/.issues/.issues/ directory no longer exists.'
+updated_at: '2026-10-05T19:39:01+00:00'

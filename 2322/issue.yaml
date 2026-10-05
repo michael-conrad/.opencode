@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] writing-plans research.md step 12 uses invalid plan tool flags'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-passed-review
@@ -62,6 +62,10 @@ body: '> **Full spec and plan artifacts:** https://github.com/michael-conrad/.op
 
   '
 created_at: '2026-08-25T14:01:27+00:00'
-updated_at: '2026-08-26T14:29:56Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2322
 remote_url: https://github.com/michael-conrad/.opencode/issues/2322
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Target file `.opencode/skills/writing-plans/tasks/research.md` exists only under `.opencode/attic/skills/writing-plans/` after the reorg (no writing-plans in live skills/), and the fix rides on the retired Z3 plan/solve contract-driven ceremony the task card encoded.

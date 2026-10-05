@@ -1,16 +1,12 @@
 number: 579
-title: '[SPEC] Upstream bug report filing — standalone skill for respectful, focused
-  external reports'
-status: open
+title: '[SPEC] Upstream bug report filing — standalone skill for respectful, focused external reports'
+status: closed
 labels:
 - approved-for-plan
 body: '## Objective
 
 
-  Create a standalone `upstream-report` skill in the `.opencode/skills/` skilldeck
-  that codifies the proper approach to filing bug reports with upstream projects.
-  The approach was validated during the JuiceFS 1.4.0-beta1 Windows crash filing (see
-  NewsRx/hermes#68 and juicedata/juicefs#7031).
+  Create a standalone `upstream-report` skill in the `.opencode/skills/` skilldeck that codifies the proper approach to filing bug reports with upstream projects. The approach was validated during the JuiceFS 1.4.0-beta1 Windows crash filing (see NewsRx/hermes#68 and juicedata/juicefs#7031).
 
 
   ## Problem
@@ -29,9 +25,7 @@ body: '## Objective
   - This wastes upstream maintainers'' time and makes our reports look unprofessional
 
 
-  **Core principle:** We are not managing the upstream project. We are submitting
-  a signal for their triage work. The report must be respectful, brief, and focused
-  — nothing more than what the upstream maintainer needs to reproduce and triage.
+  **Core principle:** We are not managing the upstream project. We are submitting a signal for their triage work. The report must be respectful, brief, and focused — nothing more than what the upstream maintainer needs to reproduce and triage.
 
 
   ## Constraints
@@ -47,8 +41,7 @@ body: '## Objective
 
   5. NO excessive documentation of upstream-internal implementation details
 
-  6. Documentation section (if present) MUST contain ONLY verified claims needed for
-  reproduction — not analysis
+  6. Documentation section (if present) MUST contain ONLY verified claims needed for reproduction — not analysis
 
   7. This applies to ALL upstream bug reports filed by the agent, regardless of project
 
@@ -56,66 +49,50 @@ body: '## Objective
   ## Context Classifier
 
 
-  The skill MUST include a gate that distinguishes **internal bugs** (in our own repos)
-  from **upstream reports** (external repos). This resolves the tension with existing
-  rules that mandate root cause analysis for internal fix specs:
+  The skill MUST include a gate that distinguishes **internal bugs** (in our own repos) from **upstream reports** (external repos). This resolves the tension with existing rules that mandate root cause analysis for internal fix specs:
 
 
   | Context | Rule | Skill |
 
   |---------|------|-------|
 
-  | Internal bug (our repo) | RCA required per `000-critical-rules.md` §critical-rules-011
-  | `issue-review --task analyze-and-spec` |
+  | Internal bug (our repo) | RCA required per `000-critical-rules.md` §critical-rules-011 | `issue-review --task analyze-and-spec` |
 
-  | Upstream report (external repo) | NO RCA, NO fix suggestions, NO botsplaining
-  | `upstream-report` skill |
+  | Upstream report (external repo) | NO RCA, NO fix suggestions, NO botsplaining | `upstream-report` skill |
 
 
-  The classifier checks: does the target repo''s owner match any owner in the session-init
-  repo information? If no match, it is an upstream report.
+  The classifier checks: does the target repo''s owner match any owner in the session-init repo information? If no match, it is an upstream report.
 
 
   ## Deliverable
 
 
-  A standalone **`upstream-report` skill** at `.opencode/skills/upstream-report/`
-  with:
+  A standalone **`upstream-report` skill** at `.opencode/skills/upstream-report/` with:
 
 
-  1. **Target resolution** — determine the upstream repo owner/name (depends on #601
-  Fork Detection for fork scenarios)
+  1. **Target resolution** — determine the upstream repo owner/name (depends on #601 Fork Detection for fork scenarios)
 
-  2. **Template discovery** — fetch the upstream repo''s `.github/ISSUE_TEMPLATE/bug-report.md`
-  and respect its structure
+  2. **Template discovery** — fetch the upstream repo''s `.github/ISSUE_TEMPLATE/bug-report.md` and respect its structure
 
-  3. **Content stripping** — remove RCA, fix suggestions, botsplaining, and internal
-  implementation details from the report body
+  3. **Content stripping** — remove RCA, fix suggestions, botsplaining, and internal implementation details from the report body
 
-  4. **Claim verification** — verify all reproduction claims against live sources
-  before filing
+  4. **Claim verification** — verify all reproduction claims against live sources before filing
 
-  5. **Filing** — file via the appropriate platform API (GitHub MCP for github.com,
-  `gb` for GitBucket)
+  5. **Filing** — file via the appropriate platform API (GitHub MCP for github.com, `gb` for GitBucket)
 
-  6. **Local tracking** — create a local `.issues/` entry mirroring the filed report
-  for audit trail
+  6. **Local tracking** — create a local `.issues/` entry mirroring the filed report for audit trail
 
 
   ## Authorization
 
 
-  Upstream bug report filing is a **reporting action**, not an implementation action.
-  Per `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation, it
-  is covered by `for_analysis` scope. No separate authorization is required.
+  Upstream bug report filing is a **reporting action**, not an implementation action. Per `010-approval-gate.md` §Issue Creation Is Reporting, Not Implementation, it is covered by `for_analysis` scope. No separate authorization is required.
 
 
   ## Dependencies
 
 
-  - **#601 (Fork Detection)** — required to resolve the upstream repo when working
-  in a fork. Without fork detection, the agent cannot determine the correct target
-  owner/repo for upstream reports filed from forked clones.
+  - **#601 (Fork Detection)** — required to resolve the upstream repo when working in a fork. Without fork detection, the agent cannot determine the correct target owner/repo for upstream reports filed from forked clones.
 
 
   ## Pre-existing Artifacts to Reference
@@ -123,8 +100,7 @@ body: '## Objective
 
   - NewsRx/hermes#68 (internal tracking issue used to prepare the report)
 
-  - juicedata/juicefs#7031 (the final filed bug report — clean, no botsplaining, no
-  RCA)
+  - juicedata/juicefs#7031 (the final filed bug report — clean, no botsplaining, no RCA)
 
   - The upstream''s own `.github/ISSUE_TEMPLATE/bug-report.md` must be respected
 
@@ -132,8 +108,7 @@ body: '## Objective
   ## Documentation Sources
 
 
-  - The actual JuiceFS bug report filing session (2026-05-14) demonstrated the correct
-  vs incorrect approach
+  - The actual JuiceFS bug report filing session (2026-05-14) demonstrated the correct vs incorrect approach
 
   - juicedata/juicefs uses `.github/ISSUE_TEMPLATE/bug-report.md` template
 
@@ -145,40 +120,35 @@ body: '## Objective
 
   |----|-----------|---------------|
 
-  | SC-1 | `upstream-report` skill exists at `.opencode/skills/upstream-report/` with
-  SKILL.md and task files | structural |
+  | SC-1 | `upstream-report` skill exists at `.opencode/skills/upstream-report/` with SKILL.md and task files | structural |
 
-  | SC-2 | Skill includes a context classifier gate that routes internal bugs to `analyze-and-spec`
-  and upstream reports to the upstream-report workflow | behavioral |
+  | SC-2 | Skill includes a context classifier gate that routes internal bugs to `analyze-and-spec` and upstream reports to the upstream-report workflow | behavioral |
 
-  | SC-3 | Skill fetches and respects the upstream repo''s `.github/ISSUE_TEMPLATE/bug-report.md`
-  when filing | behavioral |
+  | SC-3 | Skill fetches and respects the upstream repo''s `.github/ISSUE_TEMPLATE/bug-report.md` when filing | behavioral |
 
-  | SC-4 | Skill strips RCA, fix suggestions, and botsplaining from the report body
-  before filing | behavioral |
+  | SC-4 | Skill strips RCA, fix suggestions, and botsplaining from the report body before filing | behavioral |
 
-  | SC-5 | Skill verifies all reproduction claims against live sources before filing
-  | behavioral |
+  | SC-5 | Skill verifies all reproduction claims against live sources before filing | behavioral |
 
-  | SC-6 | Skill files via the correct platform API (GitHub MCP or `gb`) based on
-  the target repo''s platform | behavioral |
+  | SC-6 | Skill files via the correct platform API (GitHub MCP or `gb`) based on the target repo''s platform | behavioral |
 
-  | SC-7 | Skill creates a local `.issues/` tracking entry mirroring the filed report
-  | behavioral |
+  | SC-7 | Skill creates a local `.issues/` tracking entry mirroring the filed report | behavioral |
 
-  | SC-8 | Skill declares dependency on #601 (Fork Detection) for upstream repo resolution
-  | structural |
+  | SC-8 | Skill declares dependency on #601 (Fork Detection) for upstream repo resolution | structural |
 
-  | SC-9 | Authorization model documented: upstream filing is `for_analysis` scope
-  (reporting action) | structural |
+  | SC-9 | Authorization model documented: upstream filing is `for_analysis` scope (reporting action) | structural |
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
 created_at: '2026-05-14T22:38:07Z'
-updated_at: '2026-07-02T12:10:13Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 579
 remote_url: https://github.com/michael-conrad/.opencode/issues/579
 promoted_at: '2026-08-27T03:25:11.751905+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.751905+00:00'
 author: michael-newsrx
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The target .opencode/skills/upstream-report/ exists in neither the live skills/ tree nor attic/ — the skill was never created — and the spec is anchored to retired ceremony: it cites attic/guidelines/010-approval-gate.md (''Issue Creation Is Reporting'') and attic/guidelines/000-critical-rules.md §critical-rules-011, and routes internal bugs via the retired issue-review skill. Under the reorg, any such skill would need a fresh deck-governance proposal, so this spec is superseded.'

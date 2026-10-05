@@ -1,5 +1,5 @@
 title: '[SPEC] Re-scope orchestrator inline-work rule to allocation-by-context-cost model'
-status: open
+status: closed
 labels:
 - approved-for-pr
 - spec-cleared
@@ -64,6 +64,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2263/`](https://github.c
 
   '
 created_at: '2026-08-10T15:32:00+00:00'
-updated_at: '2026-08-11T00:34:02+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2263
 remote_url: https://github.com/michael-conrad/.opencode/issues/2263
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets .opencode/guidelines/020-go-prohibitions.md, .opencode/guidelines/000-critical-rules.md, and DISPATCH_GATE sections of 36 old skill cards — .opencode/guidelines/ does not exist in the live tree and no live card (e.g., 26-line git-workflow-pr/SKILL.md) contains a DISPATCH_GATE section, making this a spec-fix against retired dispatch-table ceremony.

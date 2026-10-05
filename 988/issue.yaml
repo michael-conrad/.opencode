@@ -1,20 +1,22 @@
 number: 988
-title: '[Phase 1.2] _ensure_worktree(): Worktree detection, stale remediation, creation,
-  migration, rollback'
-status: open
+title: '[Phase 1.2] _ensure_worktree(): Worktree detection, stale remediation, creation, migration, rollback'
+status: closed
 labels:
 - needs-approval
 - sub-issue
 body: '**Parent Plan:** #985
 
 
-  Phase 1.2 — _ensure_worktree(): Worktree detection, stale remediation, creation,
-  migration, rollback'
+  Phase 1.2 — _ensure_worktree(): Worktree detection, stale remediation, creation, migration, rollback'
 created_at: '2026-06-02T05:09:30Z'
-updated_at: '2026-06-12T03:45:31Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 988
 remote_url: https://github.com/michael-conrad/.opencode/issues/988
 promoted_at: '2026-08-27T03:25:12.462830+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.462830+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Phase 1.2 work is already delivered in the live deck: .opencode/tools/local-issues:836 defines _ensure_worktree() with worktree detection, stale prune+recreate (_prune_stale_worktree), orphan-branch creation, and plain-.issues/ fallback — exactly the described scope. Target is live (not attic) and the work is addressed, so nothing remains to do.'

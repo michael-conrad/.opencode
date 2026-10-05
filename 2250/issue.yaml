@@ -1,5 +1,5 @@
 title: '[SPEC] Plan Writer and Plan Audit Skill Card Internal-Consistency Audit Remediation'
-status: open
+status: closed
 labels:
 - needs-approval
 - SPEC
@@ -597,6 +597,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2250/`](https://github.c
 
   '
 created_at: '2026-08-06T03:08:46+00:00'
-updated_at: '2026-08-06T03:29:49+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2250
 remote_url: git@github.com:michael-conrad/.opencode.git
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Targets old-deck ceremony: skills/audit/, skills/writing-plans/ (tasks/, contracts/), and .opencode/reference/ — all absent from the live tree and present only under .opencode/attic/ (attic/skills/{audit,writing-plans}). Its SCs fix DiMo 4-role chains, dispatch-contract invariants, TDT fields, and plan-fidelity audit machinery that the reorg retired.'

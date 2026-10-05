@@ -1,6 +1,6 @@
 number: 958
 title: '[SPEC] Audit skill deck: add workflow checklist to all skill cards'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -8,18 +8,13 @@ labels:
 body: '## Problem
 
 
-  The auditor agent cards now have a 10-step workflow checklist (`- [ ] N. Description`)
-  at the top that provides a quick mental model of the full pipeline. Other skill
-  cards (SKILL.md files) lack this checklist pattern, making it harder for agents
-  to orient themselves when dispatched.
+  The auditor agent cards now have a 10-step workflow checklist (`- [ ] N. Description`) at the top that provides a quick mental model of the full pipeline. Other skill cards (SKILL.md files) lack this checklist pattern, making it harder for agents to orient themselves when dispatched.
 
 
   ## Scope
 
 
-  Audit all SKILL.md files in `.opencode/skills/*/` and add a workflow checklist where
-  applicable (cards with sequential multi-step procedures). Exclude single-step or
-  reference-only skills where a checklist adds no value.
+  Audit all SKILL.md files in `.opencode/skills/*/` and add a workflow checklist where applicable (cards with sequential multi-step procedures). Exclude single-step or reference-only skills where a checklist adds no value.
 
 
   ## Pattern
@@ -41,8 +36,7 @@ body: '## Problem
   ```
 
 
-  Checklist items map to the skill''s procedural steps. The number of items depends
-  on the skill''s complexity.
+  Checklist items map to the skill''s procedural steps. The number of items depends on the skill''s complexity.
 
 
   ## Audit Criteria
@@ -52,21 +46,23 @@ body: '## Problem
 
   |----|-----------|---------------|
 
-  | SC-1 | All multi-step skill cards have a workflow checklist after the YAML frontmatter
-  | `structural` |
+  | SC-1 | All multi-step skill cards have a workflow checklist after the YAML frontmatter | `structural` |
 
   | SC-2 | Checklist uses `- [ ] N. Description` format | `string` |
 
-  | SC-3 | Checklist items match the skill''s actual procedural steps | `semantic`
-  |
+  | SC-3 | Checklist items match the skill''s actual procedural steps | `semantic` |
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
 created_at: '2026-05-31T02:29:43Z'
-updated_at: '2026-07-11T14:38:58Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 958
 remote_url: https://github.com/michael-conrad/.opencode/issues/958
 promoted_at: '2026-08-27T03:25:12.425342+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.425342+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The ticket''s audit universe is retired: the old skill cards it enumerates are in .opencode/attic/skills/ and its anchor pattern (auditor agent cards with 10-step checklists) no longer exists anywhere in the live tree. The live SKILL.md cards were authored fresh under governing spec #2501 with an intentional minimal numbered-step format (no ''Workflow Checklist'' sections, no ''- [ ] N.'' items in any of the 26 live cards), so applying this old-deck formatting sweep would be a new deck-governance decision, not this ticket''s work.'

@@ -1,8 +1,12 @@
 title: '[SPEC] Fix GitBucket label operation documentation (local test instance validation)'
-status: open
+status: closed
 labels:
 - spec-cleared
 - approved-for-for_pr
 body: ''
 created_at: '2026-08-07T16:18:50+00:00'
-updated_at: '2026-08-08T16:17:27+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Deliverable files (gitbucket-api label-operations.md, its SKILL.md capability manifest, issue-operations.md, mcp-operations.md) exist only at .opencode/attic/skills/issue-operations/platforms/gitbucket-api/; the live skills/gb-cli/SKILL.md carries no BROKEN label-operation claims, so the documentation defect targets retired content.

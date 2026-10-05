@@ -1,5 +1,5 @@
 title: '[SPEC-FIX] Built-in glob silent failures - document limitations and remediate broken invocations across agent deck'
-status: open
+status: closed
 labels:
 - approved-for-pr
 body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2334/
@@ -78,6 +78,10 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-26T03:22:03+00:00'
-updated_at: '2026-08-26T17:26:53+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2334
 remote_url: https://github.com/michael-conrad/.opencode/issues/2334
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Every remediation target is retired: no .opencode/guidelines/ dir exists in the live deck (SC-1/SC-7), verification-before-completion and the 27-file audit task family are attic-only (SC-4/5/6), live skills/sre-runbook/ has only SKILL.md with no generate.md (SC-2/3), and no ''Built-in glob'' limitations anchor exists anywhere in the live skills/, floor.md, or routing.md.'

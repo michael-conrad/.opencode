@@ -1,25 +1,19 @@
 number: 1180
-title: 28 of 39 SKILL.md files fail to load due to unquoted YAML descriptions containing
-  colon-space
-status: open
+title: 28 of 39 SKILL.md files fail to load due to unquoted YAML descriptions containing colon-space
+status: closed
 labels:
 - bug
 - skills
 body: '## Summary
 
 
-  28 of 39 SKILL.md files under `.opencode/skills/` are silently skipped by opencode''s
-  skill loader because their `description:` YAML frontmatter values are unquoted and
-  contain `Triggers on:` — a pattern with `: ` (colon followed by space). OpenCode''s
-  `ConfigMarkdown.parse()` interprets the colon-space as a YAML key-value separator,
-  causing parse errors. Skills that fail parsing are silently discarded.
+  28 of 39 SKILL.md files under `.opencode/skills/` are silently skipped by opencode''s skill loader because their `description:` YAML frontmatter values are unquoted and contain `Triggers on:` — a pattern with `: ` (colon followed by space). OpenCode''s `ConfigMarkdown.parse()` interprets the colon-space as a YAML key-value separator, causing parse errors. Skills that fail parsing are silently discarded.
 
 
   ## Root Cause
 
 
-  Standard YAML parsers treat `: ` (colon + space) as a mapping key-value separator.
-  When an unquoted description like:
+  Standard YAML parsers treat `: ` (colon + space) as a mapping key-value separator. When an unquoted description like:
 
 
   ```yaml
@@ -29,15 +23,13 @@ body: '## Summary
   ```
 
 
-  is parsed, YAML sees `Triggers on:` as the start of a new mapping entry, producing
-  invalid structure and a parse error.
+  is parsed, YAML sees `Triggers on:` as the start of a new mapping entry, producing invalid structure and a parse error.
 
 
   ## Affected Skills (28)
 
 
-  Skills NOT in `<available_skills>` — all have unquoted descriptions with `Triggers
-  on:`:
+  Skills NOT in `<available_skills>` — all have unquoted descriptions with `Triggers on:`:
 
 
   - brainstorming
@@ -136,21 +128,17 @@ body: '## Summary
   ## Fix
 
 
-  Wrap `description:` values in all 28 affected SKILL.md files with double quotes
-  (`"..."`). The two unquoted skills without colons (`gitbucket-api`, `github-mcp`)
-  can optionally be left unquoted or quoted for consistency.
+  Wrap `description:` values in all 28 affected SKILL.md files with double quotes (`"..."`). The two unquoted skills without colons (`gitbucket-api`, `github-mcp`) can optionally be left unquoted or quoted for consistency.
 
 
   ## Evidence
 
 
-  - opencode source: `packages/opencode/src/skill/index.ts` uses `ConfigMarkdown.parse()`
-  for frontmatter parsing
+  - opencode source: `packages/opencode/src/skill/index.ts` uses `ConfigMarkdown.parse()` for frontmatter parsing
 
   - `isSkillFrontmatter()` requires `typeof data.description === "string"` (or undefined)
 
-  - Failed parses are caught and silently discarded per `Effect.catch()` in the `add()`
-  function
+  - Failed parses are caught and silently discarded per `Effect.catch()` in the `add()` function
 
   - Only skills with `name` + valid `description` survive to `<available_skills>`
 
@@ -166,10 +154,14 @@ body: '## Summary
 
   '
 created_at: '2026-06-14T04:50:25Z'
-updated_at: '2026-06-14T06:43:48Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 1180
 remote_url: https://github.com/michael-conrad/.opencode/issues/1180
 promoted_at: '2026-08-27T03:25:12.577379+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.577379+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: All 26 live .opencode/skills/*/SKILL.md files have double-quoted description values and none contain 'Triggers on:'; the 28 named affected skills are retired (e.g. brainstorming and verification-before-completion exist only under .opencode/attic/), so the parse-failure defect no longer exists in the live deck.

@@ -1,5 +1,5 @@
 title: '[SPEC] Rewrite playwright-cli description as agent-intent semantic router'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
@@ -8,4 +8,8 @@ remote_issue: 2460
 remote_url: https://github.com/michael-conrad/.opencode/issues/2460
 github_url: https://github.com/michael-conrad/.opencode/issues/2460
 created_at: '2026-09-23T04:40:50+00:00'
-updated_at: '2026-09-23T04:48:16+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The defect (deprecated meta-instruction description with ''Load via skill() when''/''Also load when''/''User phrases:'') is already addressed: the live .opencode/skills/playwright-cli/SKILL.md (provenance .opencode#2490, the reorg) carries an agent-intent description (''Load before any browser automation — ... Use when a web interaction must be observed rather than assumed'') with zero prohibited patterns. Supporting targets (reference/skill-card-description-standards.md, validate_skill_cards.py) no longer exist live.'

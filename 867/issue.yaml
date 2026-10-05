@@ -1,6 +1,6 @@
 number: 867
 title: '[PHASE] #866: Update SKILL.md Routing Table'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan-phase
@@ -14,8 +14,7 @@ body: '## Phase 5: Update SKILL.md Routing Table
 
   ### What must be accomplished
 
-  Update `git-workflow/SKILL.md` routing table to reference the 4 sub-agent configs
-  created in Phase 3.
+  Update `git-workflow/SKILL.md` routing table to reference the 4 sub-agent configs created in Phase 3.
 
 
   ### Success criteria
@@ -29,10 +28,14 @@ body: '## Phase 5: Update SKILL.md Routing Table
 
   - Phase 3 (agent configs must exist before routing references are valid)'
 created_at: '2026-05-24T17:35:44Z'
-updated_at: '2026-06-12T03:45:36Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 867
 remote_url: https://github.com/michael-conrad/.opencode/issues/867
 promoted_at: '2026-08-27T03:25:12.252906+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.252906+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Targets the routing table of the monolithic git-workflow/SKILL.md, which exists only at attic/skills/git-workflow/SKILL.md — the live deck replaced it with git-workflow-branch/-commit/-pr/-cleanup/-conflict cards. It is Phase 5 of plan #866, whose Phase 3 agent-config premise is itself retired, so the phase has no live target.'

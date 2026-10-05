@@ -1,15 +1,13 @@
 number: 974
 title: '[SPEC-FIX] Mandatory pre-flight: use behavior_run before custom test env construction'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-fix
 body: '## Problem
 
 
-  Repeated pattern: agent hand-crafts bespoke test environments (mkdir, opencode.jsonc
-  with one model, git init, manual opencode-cli run) when the existing `behavior_run`
-  helper in `.opencode/tests/behaviors/helpers.sh` already does this correctly:
+  Repeated pattern: agent hand-crafts bespoke test environments (mkdir, opencode.jsonc with one model, git init, manual opencode-cli run) when the existing `behavior_run` helper in `.opencode/tests/behaviors/helpers.sh` already does this correctly:
 
 
   1. Creates isolated git repo (line 144-148)
@@ -23,21 +21,17 @@ body: '## Problem
   5. Writes manifest.yaml, stdout.log, stderr.log, exit_code (lines 278-296)
 
 
-  No agent reads the test AGENTS.md carefully enough to discover this before building
-  their own infrastructure.
+  No agent reads the test AGENTS.md carefully enough to discover this before building their own infrastructure.
 
 
   ## Fix
 
 
-  1. Add a **Mandatory Pre-Flight Check** section to `.opencode/tests/AGENTS.md` —
-  before ANY test env construction, agent MUST check if `behavior_run` meets the need
+  1. Add a **Mandatory Pre-Flight Check** section to `.opencode/tests/AGENTS.md` — before ANY test env construction, agent MUST check if `behavior_run` meets the need
 
-  2. Add cross-reference comments to `helpers.sh` key functions documenting the artifact
-  pipeline
+  2. Add cross-reference comments to `helpers.sh` key functions documenting the artifact pipeline
 
-  3. Add comments to `with-test-home` noting its role in the artifact pipeline and
-  the `TEST_WORKDIR` contract
+  3. Add comments to `with-test-home` noting its role in the artifact pipeline and the `TEST_WORKDIR` contract
 
 
   ## Success Criteria
@@ -47,22 +41,15 @@ body: '## Problem
 
   |----|-----------|---------------|
 
-  | SC-1 | AGENTS.md has Mandatory Pre-Flight Check section before the Paradigm section
-  | `string` |
+  | SC-1 | AGENTS.md has Mandatory Pre-Flight Check section before the Paradigm section | `string` |
 
-  | SC-2 | AGENTS.md specifies: "Before constructing any test environment, verify
-  whether behavior_run (or behavior_run_pool) already meets the need. If it does,
-  DO NOT hand-craft." | `string` |
+  | SC-2 | AGENTS.md specifies: "Before constructing any test environment, verify whether behavior_run (or behavior_run_pool) already meets the need. If it does, DO NOT hand-craft." | `string` |
 
-  | SC-3 | helpers.sh has docstring on behavior_run stating it is THE canonical test
-  runner, not an option | `string` |
+  | SC-3 | helpers.sh has docstring on behavior_run stating it is THE canonical test runner, not an option | `string` |
 
-  | SC-4 | with-test-home has comment about TEST_WORKDIR contract for isolated test
-  repos | `string` |
+  | SC-4 | with-test-home has comment about TEST_WORKDIR contract for isolated test repos | `string` |
 
-  | SC-5 | All existing behavioral test scripts in tests/behaviors/ use behavior_run
-  (grep returns 0 hits for hand-crafted opencode-cli run patterns) | `structural`
-  |
+  | SC-5 | All existing behavioral test scripts in tests/behaviors/ use behavior_run (grep returns 0 hits for hand-crafted opencode-cli run patterns) | `structural` |
 
 
   🤖 Co-authored with AI: DeepSeek V4 Flash (ollama-cloud/deepseek-v4-flash)
@@ -70,10 +57,14 @@ body: '## Problem
 
   *Originally filed in michael-conrad/opencode-config#166. Moved to correct repo.*'
 created_at: '2026-06-01T15:42:09Z'
-updated_at: '2026-06-12T03:45:32Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 974
 remote_url: https://github.com/michael-conrad/.opencode/issues/974
 promoted_at: '2026-08-27T03:25:12.435659+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.435659+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Both fix targets are retired: .opencode/tests/AGENTS.md does not exist and .opencode/tests/behaviors/helpers.sh is gone (live tests/ holds only Python unit tests). The behavior harness now lives at tests-v2/behaviors/helpers.sh, and tests-v2/AGENTS.md already makes behavior_run the canonical, documented runner (§1 template: source helpers.sh → behavior_run → exit 0, with mandated artifact structure), superseding the ticket''s substance.'

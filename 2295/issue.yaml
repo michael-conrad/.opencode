@@ -1,6 +1,5 @@
-title: '[SPEC] Prevent agents from storing source/tests/fixtures in .issues/ worktree
-  (non-deployable repos, lost work)'
-status: open
+title: '[SPEC] Prevent agents from storing source/tests/fixtures in .issues/ worktree (non-deployable repos, lost work)'
+status: closed
 labels:
 - spec-cleared
 - approved-for-pr
@@ -10,36 +9,23 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Problem
 
 
-  The AI agent has begun storing tests, test fixtures, and other source/project items
-  in the `.issues/` worktree folders. `.issues/` is a git worktree on the `issues-data`
-  branch — a separate git repository gitignored in the parent repo. Any file written
-  there never reaches the deployable repo and is lost. Confirmed misrouted test files
-  exist on the issues-data branch: `.issues/1279/tests/`, `.issues/1308/tests/`, `.issues/1314/tests/`,
-  `.issues/1321/tests/`, `.issues/1712/tests/`, `.issues/2254/tests/`.
+  The AI agent has begun storing tests, test fixtures, and other source/project items in the `.issues/` worktree folders. `.issues/` is a git worktree on the `issues-data` branch — a separate git repository gitignored in the parent repo. Any file written there never reaches the deployable repo and is lost. Confirmed misrouted test files exist on the issues-data branch: `.issues/1279/tests/`, `.issues/1308/tests/`, `.issues/1314/tests/`, `.issues/1321/tests/`, `.issues/1712/tests/`, `.issues/2254/tests/`.
 
 
   ## Scope
 
 
-  - Add an explicit exclusions list to `.opencode/.issues/AGENTS.md` stating `.issues/`
-  holds issue metadata only, never source/test/fixture/code.
+  - Add an explicit exclusions list to `.opencode/.issues/AGENTS.md` stating `.issues/` holds issue metadata only, never source/test/fixture/code.
 
-  - Fix `.opencode/skills/test-driven-development/tasks/red.md` to remove `.issues/{N}/tests/`
-  as a valid test storage path and direct test placement by the owning-repo principle.
+  - Fix `.opencode/skills/test-driven-development/tasks/red.md` to remove `.issues/{N}/tests/` as a valid test storage path and direct test placement by the owning-repo principle.
 
-  - Fix `.opencode/skills/writing-plans/reference/implementation-workflow.md` Rule
-  1 to clarify `.issues/{N}/` holds issue metadata only, not arbitrary source/test/fixture
-  artifacts.
+  - Fix `.opencode/skills/writing-plans/reference/implementation-workflow.md` Rule 1 to clarify `.issues/{N}/` holds issue metadata only, not arbitrary source/test/fixture artifacts.
 
-  - Fix `.opencode/skills/spec-creation/tasks/create.md` Step 6 to disambiguate the
-  "analytical artifacts" copy target so only analysis artifacts (not source/test/fixture)
-  are copied to `.issues/{N}/artifacts/`.
+  - Fix `.opencode/skills/spec-creation/tasks/create.md` Step 6 to disambiguate the "analytical artifacts" copy target so only analysis artifacts (not source/test/fixture) are copied to `.issues/{N}/artifacts/`.
 
-  - Fix `.opencode/skills/git-workflow-pr/tasks/review-prep.md` Step 0 to remove the
-  unconditional auto-commit of dirty `.issues/<N>/` files into feature PRs.
+  - Fix `.opencode/skills/git-workflow-pr/tasks/review-prep.md` Step 0 to remove the unconditional auto-commit of dirty `.issues/<N>/` files into feature PRs.
 
-  - Add a behavioral enforcement test asserting an agent does NOT write test files
-  under `.issues/`.
+  - Add a behavioral enforcement test asserting an agent does NOT write test files under `.issues/`.
 
 
   **Out of scope:**
@@ -55,30 +41,17 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Approach
 
 
-  Establish a universal principle: tests and source artifacts are tracked in the git
-  repository that owns the code under test, never in `.issues/`. The `.issues/` worktree
-  is a gitignored, non-deployable git repository — any source/test/fixture written
-  there is lost. The fix removes the explicit authorization in `red.md`, corrects
-  the misleading "permanent" framing in `implementation-workflow.md`, disambiguates
-  the artifact copy in `create.md`, and stops auto-committing `.issues/` files into
-  feature PRs. An explicit exclusions list in `.opencode/.issues/AGENTS.md` establishes
-  the content-type boundary. A behavioral enforcement test verifies agents do not
-  write test files under `.issues/`.
+  Establish a universal principle: tests and source artifacts are tracked in the git repository that owns the code under test, never in `.issues/`. The `.issues/` worktree is a gitignored, non-deployable git repository — any source/test/fixture written there is lost. The fix removes the explicit authorization in `red.md`, corrects the misleading "permanent" framing in `implementation-workflow.md`, disambiguates the artifact copy in `create.md`, and stops auto-committing `.issues/` files into feature PRs. An explicit exclusions list in `.opencode/.issues/AGENTS.md` establishes the content-type boundary. A behavioral enforcement test verifies agents do not write test files under `.issues/`.
 
 
   ## Impact
 
 
-  - **Risk 1:** Agents may still route tests to `.issues/` via other paths not covered
-  by the fix. *Mitigation:* The exclusions list in AGENTS.md is the universal boundary;
-  the behavioral test covers the primary path.
+  - **Risk 1:** Agents may still route tests to `.issues/` via other paths not covered by the fix. *Mitigation:* The exclusions list in AGENTS.md is the universal boundary; the behavioral test covers the primary path.
 
-  - **Risk 2:** Removing `.issues/{N}/tests/` from `red.md` may break existing workflows
-  that relied on it. *Mitigation:* The owning-repo principle provides a clear replacement
-  path.
+  - **Risk 2:** Removing `.issues/{N}/tests/` from `red.md` may break existing workflows that relied on it. *Mitigation:* The owning-repo principle provides a clear replacement path.
 
-  - **Risk 3:** The behavioral enforcement test may be flaky. *Mitigation:* Follow
-  the canonical behavioral test framework in `.opencode/tests-v2/`.
+  - **Risk 3:** The behavioral enforcement test may be flaky. *Mitigation:* Follow the canonical behavioral test framework in `.opencode/tests-v2/`.
 
 
   **Dependencies:** None. **Call to action:** Review and approve this spec for implementation.
@@ -88,4 +61,8 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-18T03:14:25+00:00'
-updated_at: '2026-08-18T20:44:10+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Primary remediation already present in the live tree: .opencode/.issues/AGENTS.md contains the ''Exclusions — Content Boundary'' section stating .issues/ holds issue metadata only, never source/test/fixture/code. The remaining SC targets (test-driven-development red.md, writing-plans implementation-workflow.md, spec-creation create.md, git-workflow-pr/tasks/review-prep.md) are all retired skills absent from the live skills/ list.'

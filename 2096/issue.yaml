@@ -1,7 +1,11 @@
 title: 'Verify #1799'
-status: open
+status: closed
 labels:
 - ''
 body: ''
 created_at: '2026-07-24T17:31:06+00:00'
-updated_at: '2026-07-24T17:31:06+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-CONFLICT
+sweep_evidence: 'Placeholder ticket: title ''Verify #1799'' with empty body and spec.md containing only the word ''test''; referenced issue #1799 does not exist in .opencode/.issues/. No actionable content.'

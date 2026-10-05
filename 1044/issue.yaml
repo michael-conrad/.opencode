@@ -1,11 +1,9 @@
 number: 1044
-title: '[SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed
-  defaults'
-status: open
+title: '[SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed defaults'
+status: closed
 labels:
 - needs-approval
-body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed
-  defaults
+body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement, fail-closed defaults
 
 
   **STATUS: 0.1 (DRAFT — follow-on to #980)**
@@ -14,16 +12,13 @@ body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement
   ## Purpose
 
 
-  After #980 ships the working CLI `tools/plan` PEP 723 utility, add an MCP server
-  mode, regenerate-loop enforcement, and fail-closed defaults as a separate MCP wrapper.
+  After #980 ships the working CLI `tools/plan` PEP 723 utility, add an MCP server mode, regenerate-loop enforcement, and fail-closed defaults as a separate MCP wrapper.
 
 
   ## Prerequisite
 
 
-  **#980 must ship first.** This spec builds on top of the CLI tool. The MCP server
-  calls `tools/plan plan`, `tools/plan validate`, etc. via subprocess — it does not
-  reimplement the planning logic.
+  **#980 must ship first.** This spec builds on top of the CLI tool. The MCP server calls `tools/plan plan`, `tools/plan validate`, etc. via subprocess — it does not reimplement the planning logic.
 
 
   ## Scope
@@ -37,8 +32,7 @@ body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement
 
   | MCP server mode + regenerate-loop + fail-closed | #1011 | Follow-on |
 
-  | `tools/plan repair` subcommand | #1011 | Follow-on — auto-repair after validate
-  FAIL |
+  | `tools/plan repair` subcommand | #1011 | Follow-on — auto-repair after validate FAIL |
 
 
   ## MCP Server
@@ -57,22 +51,18 @@ body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement
   ## Regenerate-Loop Enforcement
 
 
-  `validate` currently returns PASS/FAIL via exit code. The MCP layer enforces the
-  loop at the wrapper level:
+  `validate` currently returns PASS/FAIL via exit code. The MCP layer enforces the loop at the wrapper level:
 
 
-  - On `validate` FAIL (exit 2): wrapper calls `repair` automatically, returns composite
-  result
+  - On `validate` FAIL (exit 2): wrapper calls `repair` automatically, returns composite result
 
-  - Agent sees validated plan or unrepairable error — never sees raw FAIL without
-  repair attempt
+  - Agent sees validated plan or unrepairable error — never sees raw FAIL without repair attempt
 
 
   ## Fail-Closed Default
 
 
-  MCP wrapper defaults to fail-closed: if subprocess times out, returns unexpected
-  output, or engine fails → tool response says BLOCKED, not PASS.
+  MCP wrapper defaults to fail-closed: if subprocess times out, returns unexpected output, or engine fails → tool response says BLOCKED, not PASS.
 
 
   ## Files
@@ -105,10 +95,14 @@ body: '# [SPEC] tools/plan MCP layer — MCP server, regenerate-loop enforcement
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
 created_at: '2026-06-06T06:11:37Z'
-updated_at: '2026-06-12T03:45:26Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 1044
 remote_url: https://github.com/michael-conrad/.opencode/issues/1044
 promoted_at: '2026-08-27T03:25:12.564317+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.564317+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The spec builds an MCP layer over tools/plan whose entire usage model was retired ceremony: the deck cards that drove tools/plan (attic/skills/plan, attic/skills/solve — ''Planning is REQUIRED before implementation'', ''Workflow constraints MUST be validated with Z3'') are retired to attic, and the live deck (skills/, floor.md, routing.md, hooks/, prompts/) contains zero references to tools/plan. No plan-mcp exists and opencode.jsonc (live) registers no plan MCP server — the target workflow no longer exists, only the orphaned file lingers.'

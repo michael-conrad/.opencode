@@ -1,6 +1,6 @@
 number: 999
 title: '[Phase 1.14] search / list / link / renumber / promote: Bulk operations'
-status: open
+status: closed
 labels:
 - needs-approval
 - sub-issue
@@ -9,10 +9,14 @@ body: '**Parent Plan:** #985
 
   Phase 1.14 — search / list / link / renumber / promote: Bulk operations'
 created_at: '2026-06-02T05:10:50Z'
-updated_at: '2026-06-12T03:45:30Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 999
 remote_url: https://github.com/michael-conrad/.opencode/issues/999
 promoted_at: '2026-08-27T03:25:12.475300+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.475300+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Phase 1.14 sub-issue of old build-out plan #985 asking for search/list/link/renumber/promote bulk operations; all five are already implemented in the live deck''s .opencode/tools/local-issues (cmd_search:1632, cmd_list:1696, cmd_link:1707, cmd_renumber:1735, cmd_promote:1774, all wired into the parser/dispatch). No spec.md/plan.md/comments exist and the work is fully addressed in the live tree, so nothing remains to do.'

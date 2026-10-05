@@ -1,7 +1,6 @@
 number: 829
-title: '[PLAN] git-workflow: restore missing frontmatter triggers + submodule-aware
-  check-pr'
-status: open
+title: '[PLAN] git-workflow: restore missing frontmatter triggers + submodule-aware check-pr'
+status: closed
 labels:
 - needs-approval
 - '[PLAN]'
@@ -36,8 +35,7 @@ body: 'STATUS: 1.0
 
   - File: `skills/git-workflow/SKILL.md`
 
-  - Verification: `dependency sync`, `submodule tag/verify/liveness` still absent
-  from frontmatter
+  - Verification: `dependency sync`, `submodule tag/verify/liveness` still absent from frontmatter
 
 
   ## Phase 2 — Submodule-Aware check-pr
@@ -69,10 +67,14 @@ body: 'STATUS: 1.0
 
   '
 created_at: '2026-05-22T21:06:05Z'
-updated_at: '2026-06-12T03:45:38Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 829
 remote_url: https://github.com/michael-conrad/.opencode/issues/829
 promoted_at: '2026-08-27T03:25:12.141935+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.141935+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets the retired monolithic skills/git-workflow/SKILL.md and tasks/check-pr.md — the old git-workflow skill is unloaded in attic/ and the live deck splits its duties into git-workflow-pr/-cleanup cards with no frontmatter trigger or dispatch-table routing, so both phases (trigger additions, dispatch-absence checks) target ceremony that no longer exists.

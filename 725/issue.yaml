@@ -1,6 +1,6 @@
 number: 725
 title: '[SPEC] Allow Nested Sub-Issues for Better Organization'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '# Spec: Allow Nested Sub-Issues for Better Organization
@@ -16,9 +16,7 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
   ## Objective
 
 
-  Update the `issue-operations` skill to explicitly allow and document nested sub-issues
-  (sub-issues with their own sub-issues) when such decomposition improves organization
-  and spec implementation tracking.
+  Update the `issue-operations` skill to explicitly allow and document nested sub-issues (sub-issues with their own sub-issues) when such decomposition improves organization and spec implementation tracking.
 
 
   ## Problem Statement
@@ -31,8 +29,7 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
   - Child `[Task]` issues linked via sub-issues (`link-sub-issue` task)
 
 
-  **Gap:** No guidance exists for deeper hierarchies where a Task itself benefits
-  from further decomposition into sub-tasks. This creates ambiguity when:
+  **Gap:** No guidance exists for deeper hierarchies where a Task itself benefits from further decomposition into sub-tasks. This creates ambiguity when:
 
   1. A Task is complex enough to warrant its own implementation steps
 
@@ -41,8 +38,7 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
   3. An agent needs to track progress on sub-sub-tasks
 
 
-  **Impact:** Agents may create flat lists of tasks even when a hierarchical structure
-  would be clearer, or may avoid needed decomposition due to perceived prohibition.
+  **Impact:** Agents may create flat lists of tasks even when a hierarchical structure would be clearer, or may avoid needed decomposition due to perceived prohibition.
 
 
   ## Live Codebase Audit (2026-05-19)
@@ -52,29 +48,21 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
 
   |---------------------|----------------|-------|
 
-  | `.opencode/guidelines/120-github-issue-first.md` | ❌ Does not exist | Issue-first
-  workflow consolidated into `issue-operations` skill |
+  | `.opencode/guidelines/120-github-issue-first.md` | ❌ Does not exist | Issue-first workflow consolidated into `issue-operations` skill |
 
-  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | Has sub-issue verification
-  gate (Step 5) but no nested sub-issue guidance |
+  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | Has sub-issue verification gate (Step 5) but no nested sub-issue guidance |
 
-  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists | Has spec creation
-  workflow but no sub-task decomposition guidance |
+  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists | Has spec creation workflow but no sub-task decomposition guidance |
 
-  | `.opencode/skills/issue-operations/SKILL.md` | ✅ Exists | Has `link-sub-issue`
-  task but no nested sub-issue documentation |
+  | `.opencode/skills/issue-operations/SKILL.md` | ✅ Exists | Has `link-sub-issue` task but no nested sub-issue documentation |
 
-  | `.opencode/skills/issue-operations/tasks/link-sub-issue.md` | ✅ Exists | Handles
-  sub-issue creation and linking, no nesting guidance |
+  | `.opencode/skills/issue-operations/tasks/link-sub-issue.md` | ✅ Exists | Handles sub-issue creation and linking, no nesting guidance |
 
 
-  **Developer direction** (from #290 comments): "Apply this to the skills and not
-  the generic guidelines."
+  **Developer direction** (from #290 comments): "Apply this to the skills and not the generic guidelines."
 
 
-  **Related spec:** #724 (dependency-ordered phases) — both modify planning/issue
-  structure. Recommended review together. If #724 changes phase design to be dependency-driven,
-  nested sub-issue structure may need to account for dependency depth.
+  **Related spec:** #724 (dependency-ordered phases) — both modify planning/issue structure. Recommended review together. If #724 changes phase design to be dependency-driven, nested sub-issue structure may need to account for dependency depth.
 
 
   ## Proposed Change
@@ -120,8 +108,7 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
 
   ### Files NOT being modified (no longer exist):
 
-  - ~~`.opencode/guidelines/120-github-issue-first.md`~~ — consolidated into `issue-operations`
-  skill
+  - ~~`.opencode/guidelines/120-github-issue-first.md`~~ — consolidated into `issue-operations` skill
 
 
   ## Success Criteria
@@ -133,8 +120,7 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
 
   3. ✅ `010-approval-gate.md` references authorization cascade through nested links
 
-  4. ✅ Clear criteria for when nesting is appropriate (3+ sub-tasks, independently
-  completable)
+  4. ✅ Clear criteria for when nesting is appropriate (3+ sub-tasks, independently completable)
 
   5. ✅ Maximum depth guidance (3 levels: SPEC → Task → Sub-task)
 
@@ -183,10 +169,14 @@ body: '# Spec: Allow Nested Sub-Issues for Better Organization
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)'
 created_at: '2026-05-19T19:01:12Z'
-updated_at: '2026-06-12T03:45:41Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 725
 remote_url: https://github.com/michael-conrad/.opencode/issues/725
 promoted_at: '2026-08-27T03:25:11.958947+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.958947+00:00'
 author: michael-newsrx
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets `skills/issue-operations/SKILL.md`, `skills/issue-operations/tasks/link-sub-issue.md`, and guidelines/010-approval-gate.md — all attic-only; the live issues card covers sub-issue linking with hierarchy semantics ('the hierarchy carries the authorization cascade') and contains no two-level restriction, so the old ambiguity gap no longer exists.

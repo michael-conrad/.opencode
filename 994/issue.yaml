@@ -1,6 +1,6 @@
 number: 994
 title: '[Phase 1.8] read-sub-issues command: YAML from links.yaml'
-status: open
+status: closed
 labels:
 - needs-approval
 - sub-issue
@@ -9,10 +9,14 @@ body: '**Parent Plan:** #985
 
   Phase 1.8 — read-sub-issues command: YAML from links.yaml'
 created_at: '2026-06-02T05:10:16Z'
-updated_at: '2026-06-12T03:45:31Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 994
 remote_url: https://github.com/michael-conrad/.opencode/issues/994
 promoted_at: '2026-08-27T03:25:12.470351+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.470351+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Phase 1.8''s deliverable already ships in the live deck: cmd_read_sub_issues reading links.yaml exists in live .opencode/tools/local-issues (defs at lines 1462 and 2067), included in the #981 rewrite commit 46121e98. The work is complete; only the ticket was never closed.'

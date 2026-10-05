@@ -1,4 +1,9 @@
 number: 1235
-title: "[SPEC-FIX] \"pr merged\" trigger should carry implicit authorization for post-merge cleanup"
-status: open
+title: '[SPEC-FIX] "pr merged" trigger should carry implicit authorization for post-merge cleanup'
+status: closed
 labels: '[{"name": "spec-fix", "color": "d73a4a", "description": "Specification for a bug fix"}, {"name": "git-workflow", "color": "ededed", "description": ""}, {"name": "authorization", "color": "ededed", "description": ""}]'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: All five affected files (check-pr.md, branch-cleanup.md, 010-approval-gate.md, 020-go-prohibitions.md, approval-gate/SKILL.md) exist only under .opencode/attic/ (approval-gate machinery retired by the reorg); the live floor.md line 46 authorization vocabulary already carries `pr merged` → cleanup, granting exactly the implicit post-merge cleanup authorization this SPEC-FIX requested.
+updated_at: '2026-10-05T19:39:01+00:00'

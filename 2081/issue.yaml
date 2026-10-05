@@ -1,8 +1,11 @@
-title: '[SPEC] Replace writing-plans skill with flat architecture (routing-table plan
-  artifact)'
-status: open
+title: '[SPEC] Replace writing-plans skill with flat architecture (routing-table plan artifact)'
+status: closed
 labels:
 - SPEC
 body: ''
 created_at: '2026-07-23T18:04:50+00:00'
-updated_at: '2026-07-23T18:04:50+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Body is empty but plan.md confirms the target is the writing-plans skill (3 SKILL.md, 19 task files, routing-table plan artifacts, solve task); writing-plans exists only in .opencode/attic/skills/ — the live deck uses the flat 'plan' card, superseding this rework.

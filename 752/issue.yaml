@@ -1,6 +1,6 @@
 number: 752
 title: 'Phase 6: Update plan-fidelity auditor with PF-7 criterion'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan
@@ -10,14 +10,12 @@ body: 'Parent: #746
 
   ## Concern
 
-  Plan fidelity audit layer — plan auditor must verify that every phase''s implementation
-  instructions carry cost-frame prose and require real test execution.
+  Plan fidelity audit layer — plan auditor must verify that every phase''s implementation instructions carry cost-frame prose and require real test execution.
 
 
   ## Files
 
-  - `skills/adversarial-audit/tasks/plan-fidelity.md` (Step 3 evaluation criteria
-  table)
+  - `skills/adversarial-audit/tasks/plan-fidelity.md` (Step 3 evaluation criteria table)
 
 
   ## Tasks
@@ -35,10 +33,14 @@ body: 'Parent: #746
 
   - Phase 1, Phase 4 complete'
 created_at: '2026-05-20T17:05:54Z'
-updated_at: '2026-06-12T03:45:40Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 752
 remote_url: https://github.com/michael-conrad/.opencode/issues/752
 promoted_at: '2026-08-27T03:25:12.026217+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.026217+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets plan-fidelity audit-triad machinery retired with the old deck; plan-fidelity-{arbiter,evaluator,investigator,validator}.md exist only under .opencode/attic/skills/audit/tasks/, with no PF-7 concept anywhere in the live deck.

@@ -1,8 +1,12 @@
 title: '[SPEC-FIX] Remove ''RED may be omitted'' TDD RED-phase bypass escape hatch'
-status: open
+status: closed
 labels:
 - spec-fix
 body: ''
 created_at: '2026-06-29T02:35:18Z'
-updated_at: '2026-06-29T02:35:18Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/1554
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The ''RED may be omitted'' TDD escape hatch lived in the retired test-driven-development skill (.opencode/attic/skills/test-driven-development/); the live implement card (.opencode/skills/implement/SKILL.md) mandates ''Per item: RED → GREEN → verify → commit'' with no RED-omission clause and grep finds no such language in the live deck.'

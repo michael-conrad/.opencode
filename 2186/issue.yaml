@@ -1,64 +1,12 @@
-title: '[SPEC-FIX] spec-audit-validator applies review-passed labels before Arbiter
-  renders final judgment'
-status: open
+title: '[SPEC-FIX] spec-audit-validator applies review-passed labels before Arbiter renders final judgment'
+status: closed
 labels:
 - needs-approval
 - bug,spec-fix
-body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review`\
-  \ and removes `spec-under-review` labels during Step 0.1 — **before** the Evaluator\
-  \ and Arbiter have rendered their verdicts. In the actual run for `.opencode#2180`,\
-  \ the Validator applied `spec-passed-review` despite the Evaluator later finding\
-  \ 7 FAIL criteria. Labels should only be applied after the Arbiter produces a clean\
-  \ PASS judgment.\n\n## Root Cause\n\nTwo roles in the DiMo chain apply lifecycle\
-  \ labels prematurely:\n\n1. **Validator** (`spec-audit-validator.md`, Step 0.1,\
-  \ lines 48-54): Applies `spec-passed-review` and removes `spec-under-review` when\
-  \ validation completes successfully. But validation is only the second step in a\
-  \ 3-step chain — the Evaluator and Arbiter haven't run yet.\n\n2. **Evaluator**\
-  \ (`spec-audit-evaluator.md`, Step 4, lines 157-160): Applies `spec-passed-review`\
-  \ and removes `spec-under-review` when the holistic evaluation gate PASSes. But\
-  \ holistic evaluation is only one part of the full audit — narrow criteria evaluation\
-  \ and the Arbiter synthesis haven't run yet.\n\n3. **Arbiter** (`spec-audit-arbiter.md`):\
-  \ Has **no** label application logic at all, despite being the role that produces\
-  \ the final `PASS|DRAFT|FAIL` judgment.\n\n## Requirements\n\n| ID | Requirement\
-  \ | MUST / SHOULD |\n|----|-------------|---------------|\n| R12 | Lifecycle labels\
-  \ (`spec-passed-review`, `spec-under-review`) MUST only be applied after the Arbiter\
-  \ renders a final PASS judgment | MUST |\n\n## Fix\n\nMove all lifecycle label application\
-  \ to the Arbiter role, gated on a clean PASS judgment (`final_judgment.status ==\
-  \ \"PASS\"`). The Validator should only validate evidence — not apply lifecycle\
-  \ labels. The Evaluator should only evaluate criteria — not apply lifecycle labels.\n\
-  \n### Specific changes:\n\n1. **Validator**: Remove Step 0.1 entirely (lines 48-54).\
-  \ The Validator validates evidence and writes `reasoning.yaml` — it should not touch\
-  \ issue labels.\n\n2. **Evaluator**: Remove the label application from Step 4 (lines\
-  \ 157-160, the `spec-passed-review` / `spec-under-review` block). The Evaluator\
-  \ evaluates criteria and writes `verdict.yaml` — it should not touch issue labels.\
-  \ Keep the `spec-under-review` application in Step 0.1 (lines 63-68) as that marks\
-  \ the start of the audit.\n\n3. **Arbiter**: Add a new step after Step 8 (Determine\
-  \ Final Judgment) that applies labels:\n   - If `final_judgment.status == \"PASS\"\
-  `: apply `spec-passed-review`, remove `spec-under-review`\n   - If `final_judgment.status\
-  \ == \"DRAFT\"` or `\"FAIL\"`: leave labels as-is (spec remains `spec-under-review`)\n\
-  \n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n\
-  | SC-1a | SKILL.md file exists | `structural` |\n| SC-1b | Frontmatter validates\
-  \ | `string` |\n| SC-3 | Arbiter task file contains label-application logic gated\
-  \ on clean PASS | `string` |\n| SC-4 | No other role in the spec-audit chain applies\
-  \ lifecycle labels (except Evaluator Step 0.1 `spec-under-review` which marks audit\
-  \ start) | `string` |\n\n## Traceability\n\n| Requirement ID | SC ID | Phase |\n\
-  |----------------|-------|-------|\n| R12 | SC-1a | Phase 1 |\n| R12 | SC-1b | Phase\
-  \ 1 |\n| R12 | SC-3 | Phase 1 |\n| R12 | SC-4 | Phase 1 |\n\n## Items\n\n| Item\
-  \ ID | SC ID | Description |\n|---------|-------|-------------|\n| I-1 | SC-1a |\
-  \ Verify SKILL.md file exists |\n| I-1 | SC-1b | Validate frontmatter |\n| I-2 |\
-  \ SC-3 | Add label-application logic to Arbiter gated on clean PASS |\n| I-3 | SC-4\
-  \ | Verify no other role applies lifecycle labels |\n\n## Phases\n\n| Phase ID |\
-  \ Description | SC IDs |\n|----------|-------------|--------|\n| Phase 1 | Fix label\
-  \ application timing — move all lifecycle label application to Arbiter | SC-1a,\
-  \ SC-1b, SC-3, SC-4 |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md`\
-  \ — Remove Step 0.1 label application\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md`\
-  \ — Remove Step 4 label application (keep Step 0.1 `spec-under-review`)\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md`\
-  \ — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n\
-  \n\n## Change Control\n\n| Date | Change | Reason | Author |\n|------|--------|--------|--------|\n\
-  | 2026-07-29 | Split SC-1 into SC-1a (structural) and SC-1b (string); added R12\
-  \ requirement with traceability; renumbered SC-2→SC-3, SC-3→SC-4; added Requirements,\
-  \ Traceability, Items, Phases sections | Validation findings: (1) R12 traceability\
-  \ gap, (2) SC-1 non-atomic, (3) SC-1 evidence type mismatch | spec-creation revise\
-  \ pipeline |\n\n"
+body: "## Problem\n\nThe `spec-audit-validator` task applies `spec-passed-review` and removes `spec-under-review` labels during Step 0.1 — **before** the Evaluator and Arbiter have rendered their verdicts. In the actual run for `.opencode#2180`, the Validator applied `spec-passed-review` despite the Evaluator later finding 7 FAIL criteria. Labels should only be applied after the Arbiter produces a clean PASS judgment.\n\n## Root Cause\n\nTwo roles in the DiMo chain apply lifecycle labels prematurely:\n\n1. **Validator** (`spec-audit-validator.md`, Step 0.1, lines 48-54): Applies `spec-passed-review` and removes `spec-under-review` when validation completes successfully. But validation is only the second step in a 3-step chain — the Evaluator and Arbiter haven't run yet.\n\n2. **Evaluator** (`spec-audit-evaluator.md`, Step 4, lines 157-160): Applies `spec-passed-review` and removes `spec-under-review` when the holistic evaluation gate PASSes. But holistic evaluation is only one part of the full audit — narrow criteria evaluation and the Arbiter synthesis haven't run yet.\n\n3. **Arbiter** (`spec-audit-arbiter.md`): Has **no** label application logic at all, despite being the role that produces the final `PASS|DRAFT|FAIL` judgment.\n\n## Requirements\n\n| ID | Requirement | MUST / SHOULD |\n|----|-------------|---------------|\n| R12 | Lifecycle labels (`spec-passed-review`, `spec-under-review`) MUST only be applied after the Arbiter renders a final PASS judgment | MUST |\n\n## Fix\n\nMove all lifecycle label application to the Arbiter role, gated on a clean PASS judgment (`final_judgment.status == \"PASS\"`). The Validator should only validate evidence — not apply lifecycle labels. The Evaluator should only evaluate criteria — not apply lifecycle labels.\n\n### Specific changes:\n\n1. **Validator**: Remove Step 0.1 entirely (lines 48-54). The Validator validates evidence and writes `reasoning.yaml` — it should not touch issue labels.\n\n2. **Evaluator**: Remove the label application from Step 4 (lines 157-160, the `spec-passed-review` / `spec-under-review` block). The Evaluator evaluates criteria and writes `verdict.yaml` — it should not touch issue labels. Keep the `spec-under-review` application in Step 0.1 (lines 63-68) as that marks the start of the audit.\n\n3. **Arbiter**: Add a new step after Step 8 (Determine Final Judgment) that applies labels:\n   - If `final_judgment.status == \"PASS\"`: apply `spec-passed-review`, remove `spec-under-review`\n   - If `final_judgment.status == \"DRAFT\"` or `\"FAIL\"`: leave labels as-is (spec remains `spec-under-review`)\n\n## Success Criteria\n\n| ID | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1a | SKILL.md file exists | `structural` |\n| SC-1b | Frontmatter validates | `string` |\n| SC-3 | Arbiter task file contains label-application logic gated on clean PASS | `string` |\n| SC-4 | No other role in the spec-audit chain applies lifecycle labels (except Evaluator Step 0.1 `spec-under-review` which marks audit start) | `string` |\n\n## Traceability\n\n| Requirement ID | SC ID | Phase |\n|----------------|-------|-------|\n| R12 | SC-1a | Phase 1 |\n| R12 | SC-1b | Phase 1 |\n| R12 | SC-3 | Phase 1 |\n| R12 | SC-4 | Phase 1 |\n\n## Items\n\n| Item ID | SC ID | Description |\n|---------|-------|-------------|\n| I-1 | SC-1a | Verify SKILL.md file exists |\n| I-1 | SC-1b | Validate frontmatter |\n| I-2 | SC-3 | Add label-application logic to Arbiter gated on clean PASS |\n| I-3 | SC-4 | Verify no other role applies lifecycle labels |\n\n## Phases\n\n| Phase ID | Description | SC IDs |\n|----------|-------------|--------|\n| Phase 1 | Fix label application timing — move all lifecycle label application to Arbiter | SC-1a, SC-1b, SC-3, SC-4 |\n\n## Affected Files\n\n- `.opencode/skills/audit/tasks/spec-audit-validator.md` — Remove Step 0.1 label application\n- `.opencode/skills/audit/tasks/spec-audit-evaluator.md` — Remove Step 4 label application (keep Step 0.1 `spec-under-review`)\n- `.opencode/skills/audit/tasks/spec-audit-arbiter.md` — Add label application step gated on clean PASS\n\n## Dependencies\n\nNone.\n\n\n## Change Control\n\n| Date | Change | Reason | Author |\n|------|--------|--------|--------|\n| 2026-07-29 | Split SC-1 into SC-1a (structural) and SC-1b (string); added R12 requirement with traceability; renumbered SC-2→SC-3, SC-3→SC-4; added Requirements, Traceability, Items, Phases sections | Validation findings: (1) R12 traceability gap, (2) SC-1 non-atomic, (3) SC-1 evidence type mismatch | spec-creation revise pipeline |\n\n"
 created_at: '2026-07-29T23:56:28+00:00'
-updated_at: '2026-07-30T00:17:45+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets .opencode/skills/audit/tasks/spec-audit-{validator,evaluator,arbiter}.md — the audit-triad DiMo role chain — which exist only under .opencode/attic/skills/audit/tasks/; the live deck has no audit skill (its role is covered by the verify card). SPEC-FIX against retired audit-triad/DiMo machinery.

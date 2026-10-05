@@ -1,12 +1,10 @@
 number: 682
-title: '[SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP dispatch
-  contracts'
-status: open
+title: '[SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP dispatch contracts'
+status: closed
 labels:
 - needs-approval
 - spec
-body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP
-  dispatch contracts
+body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to MCP dispatch contracts
 
 
   **Canonical spec:** `.issues/682/spec.md` in the parent repo (local tracking mirror)
@@ -17,10 +15,7 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
   ## Summary
 
 
-  Re-architect the `git-workflow` skill from Junie-era procedural runbooks (pseudo-code,
-  bash blocks, numbered steps) to MCP dispatch contracts. Task files become purpose/entry/exit-only
-  contracts that sub-agents fulfill autonomously. The SKILL.md card is redesigned
-  with dark prose, composition chains, and no protocol/word-count sections.
+  Re-architect the `git-workflow` skill from Junie-era procedural runbooks (pseudo-code, bash blocks, numbered steps) to MCP dispatch contracts. Task files become purpose/entry/exit-only contracts that sub-agents fulfill autonomously. The SKILL.md card is redesigned with dark prose, composition chains, and no protocol/word-count sections.
 
 
   ## What Changes
@@ -33,8 +28,7 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
 
   |------|--------|----------|
 
-  | `setup-feature` | pre-work (renamed) | Branch, sync submodules, init .issues/
-  |
+  | `setup-feature` | pre-work (renamed) | Branch, sync submodules, init .issues/ |
 
   | `sync-branch` | NEW | Mid-feature trunk sync |
 
@@ -72,8 +66,7 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
 
   - Direct-branch universal default; worktrees handled internally by `setup-feature`
 
-  - Internal subtasks (verify-merge, branch-cleanup, etc.) remain as files but NOT
-  independently dispatchable — reachable only through parent chains
+  - Internal subtasks (verify-merge, branch-cleanup, etc.) remain as files but NOT independently dispatchable — reachable only through parent chains
 
 
   ## Chains
@@ -91,75 +84,58 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
   ## SKILL.md Card
 
 
-  Redesigned to contain only: Overview (dark-prose-001), Task Card with chains, Dispatch
-  Enforcement (dark-prose-003), Sub-Agent Routing table, Cross-References. No Operating
-  Protocol, no word counts, no bash/pseudo-code.
+  Redesigned to contain only: Overview (dark-prose-001), Task Card with chains, Dispatch Enforcement (dark-prose-003), Sub-Agent Routing table, Cross-References. No Operating Protocol, no word counts, no bash/pseudo-code.
 
 
   ## Supersedes
 
 
-  This spec supersedes issues #232, #269, #591, #597, #598, #604, #606 — each was
-  a patch to the broken architecture; the architectural fix renders each unnecessary.
+  This spec supersedes issues #232, #269, #591, #597, #598, #604, #606 — each was a patch to the broken architecture; the architectural fix renders each unnecessary.
 
 
   ## Scope Gaps (Amendment)
 
 
-  After reviewing the superseded issues and the rollback history, the following gaps
-  exist in this spec''s current scope. Each must be incorporated into the relevant
-  task contracts below.
+  After reviewing the superseded issues and the rollback history, the following gaps exist in this spec''s current scope. Each must be incorporated into the relevant task contracts below.
 
 
   ### Gap 1 (Critical): `check-pull-requests` Missing Submodule PR Status Check
 
 
-  **Source:** Rollback casualty from #232. Step 3.5 (submodule PR status check) was
-  lost in commit `6db0610d` (Apr 29) and never restored.
+  **Source:** Rollback casualty from #232. Step 3.5 (submodule PR status check) was lost in commit `6db0610d` (Apr 29) and never restored.
 
 
-  The `check-pull-requests` task contract must include a submodule PR status check.
-  Currently, `check-pr.md` Step 3 evaluates only parent-repo branches. Without a submodule
-  PR query, merged submodule PRs with uncleaned branches are never detected, so submodule
-  cleanup is never triggered. The `post-merge-cleanup` task already has submodule
-  handling (Steps 0, 1.9, 4) — the gap is in the trigger, not the handler.
+  The `check-pull-requests` task contract must include a submodule PR status check. Currently, `check-pr.md` Step 3 evaluates only parent-repo branches. Without a submodule PR query, merged submodule PRs with uncleaned branches are never detected, so submodule cleanup is never triggered. The `post-merge-cleanup` task already has submodule handling (Steps 0, 1.9, 4) — the gap is in the trigger, not the handler.
 
 
   **Required in contract:**
 
-  - Query submodule repos (parsed from `.gitmodules` at project root) for merged PRs
-  with uncleaned branches
+  - Query submodule repos (parsed from `.gitmodules` at project root) for merged PRs with uncleaned branches
 
   - If found, cascade to submodule cleanup as part of the post-merge chain
 
-  - The submodule path routing context (owner/repo per submodule path) must be built
-  identically to `post-merge-cleanup` Step 0
+  - The submodule path routing context (owner/repo per submodule path) must be built identically to `post-merge-cleanup` Step 0
 
 
-  ### Gap 2 (Moderate): `post-merge-cleanup` Authorization Boundaries for Destructive
-  Ops
+  ### Gap 2 (Moderate): `post-merge-cleanup` Authorization Boundaries for Destructive Ops
 
 
   **Source:** #604
 
 
-  The `post-merge-cleanup` task contract must explicitly document which operations
-  are auto-authorized on non-protected branches during cleanup:
+  The `post-merge-cleanup` task contract must explicitly document which operations are auto-authorized on non-protected branches during cleanup:
 
 
   | Operation | Non-protected branches | Protected branches (main/master) |
 
   |-----------|----------------------|----------------------------------|
 
-  | `git push --force` | Auto-authorized | Requires explicit auth per critical-rules-026
-  |
+  | `git push --force` | Auto-authorized | Requires explicit auth per critical-rules-026 |
 
-  | `git push origin --delete` | Auto-authorized | Requires explicit auth per critical-rules-026
-  |
+  | `git push origin --delete` | Auto-authorized | Requires explicit auth per critical-rules-026 |
 
 
-  Protected branch list: `main`, `master`. Any branch not in this list is non-protected.
-  (`dev` is not a protected branch under trunk-based development.)
+  Protected branch list: `main`, `master`. Any branch not in this list is non-protected. (`dev` is not a protected branch under trunk-based development.)
 
 
   ### Gap 3 (Minor): `sync-branch` Conflict Detection Protocol
@@ -168,8 +144,7 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
   **Source:** #591
 
 
-  The new `sync-branch` task (mid-feature trunk sync) must include an explicit conflict
-  detection precondition. Conflict detection mechanisms:
+  The new `sync-branch` task (mid-feature trunk sync) must include an explicit conflict detection precondition. Conflict detection mechanisms:
 
   - Failed `git rebase`/`git merge` exit codes (non-zero)
 
@@ -186,16 +161,12 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
   **Source:** #606 (partial)
 
 
-  When `post-merge-cleanup` runs and there is no PR body (e.g., `for_implementation`
-  scope that halted at `implementation_complete`, documentation-only changes), the
-  issue-closure path currently cannot discover closure candidates because it depends
-  entirely on PR body parsing.
+  When `post-merge-cleanup` runs and there is no PR body (e.g., `for_implementation` scope that halted at `implementation_complete`, documentation-only changes), the issue-closure path currently cannot discover closure candidates because it depends entirely on PR body parsing.
 
 
   The contract must include an alternative entry path for no-PR scenarios:
 
-  1. Build closure candidate list from GitHub Issue state: open issues with `approved-for-*`
-  labels and verified-complete phase markers
+  1. Build closure candidate list from GitHub Issue state: open issues with `approved-for-*` labels and verified-complete phase markers
 
   2. Scan for stale issues (100% DONE markers or all `- [x]` checked but still OPEN)
 
@@ -211,9 +182,7 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
 
   |-------|-------------|--------|
 
-  | **#580** (PR staleness verification) | HIGH | #580 adds a staleness check to `pr-creation/enforcement-gate.md`.
-  Since this spec renames `pr-creation` → `create-pr`, #580 should be sequenced after
-  this spec to avoid modifying files that will be relocated. |
+  | **#580** (PR staleness verification) | HIGH | #580 adds a staleness check to `pr-creation/enforcement-gate.md`. Since this spec renames `pr-creation` → `create-pr`, #580 should be sequenced after this spec to avoid modifying files that will be relocated. |
 
 
   ---
@@ -221,10 +190,14 @@ body: '# [SPEC] Re-architect git-workflow skill — from procedural runbooks to 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)'
 created_at: '2026-05-18T02:19:13Z'
-updated_at: '2026-07-11T14:37:15Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 682
 remote_url: https://github.com/michael-conrad/.opencode/issues/682
 promoted_at: '2026-08-27T03:25:11.902088+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.902088+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Re-architects the monolithic .opencode/skills/git-workflow (task contracts, dispatch chains, dark-prose SKILL.md card) — that skill now lives only at attic/skills/git-workflow/, and the live deck replaced it with freshly authored git-workflow-branch/commit/pr/cleanup/conflict cards under reorg spec #2501. The 9-task contract table, dispatch enforcement, and dark prose card design target retired architecture; any surviving gap (e.g., submodule PR check) belongs in a new ticket against the new cards.'

@@ -1,5 +1,5 @@
 title: '[BUG] interface-compatibility.yaml artifact missing dependency_contract section blocks writing-plans research'
-status: open
+status: closed
 labels:
 - approved-for-for_pr
 - spec-cleared
@@ -86,6 +86,10 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-29T16:06:35+00:00'
-updated_at: '2026-08-29T23:23:18+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2413
 remote_url: https://github.com/michael-conrad/.opencode/issues/2413
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets the old-deck spec-creation/brainstorming/writing-plans artifact pipeline (interface-compatibility.yaml dependency_contract feeding Z3 solve/plan via writing-plans research.md step 9); those skills exist only under .opencode/attic/skills/ (spec-creation, brainstorming, writing-plans) and the Z3 dependency_contract ceremony is retired. No live-deck target remains.

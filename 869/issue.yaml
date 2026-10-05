@@ -1,6 +1,6 @@
 number: 869
 title: '[PHASE] #866: Edit Task Files — Replace task() with orchestrator-routing markers'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan-phase
@@ -14,8 +14,7 @@ body: '## Phase 2: Edit Task Files — Replace `task()` with orchestrator-routin
 
   ### What must be accomplished
 
-  For each of 8 affected files, replace every `task()` with orchestrator-routing language
-  including `must_receive`/`must_not_receive` context schema and result contract fragment.
+  For each of 8 affected files, replace every `task()` with orchestrator-routing language including `must_receive`/`must_not_receive` context schema and result contract fragment.
 
 
   Affected files:
@@ -41,18 +40,21 @@ body: '## Phase 2: Edit Task Files — Replace `task()` with orchestrator-routin
 
   - `grep -rn "task()" .opencode/skills/*/tasks/` returns zero matches
 
-  - Each edited section has `must_receive`/`must_not_receive` and result contract
-  fragment
+  - Each edited section has `must_receive`/`must_not_receive` and result contract fragment
 
 
   ### Dependencies
 
   - Phase 1 (audit results used as the definitive target list)'
 created_at: '2026-05-24T17:35:44Z'
-updated_at: '2026-06-12T03:45:36Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 869
 remote_url: https://github.com/michael-conrad/.opencode/issues/869
 promoted_at: '2026-08-27T03:25:12.256001+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.256001+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Phase ticket editing the same eight `skills/*/tasks/*.md` files (e.g. git-workflow/tasks/cleanup/branch-cleanup.md, verification-before-completion/tasks/verify.md) to insert orchestrator-routing must_receive/must_not_receive markers — none of those paths exist in the live tree (only attic/skills), and the must_receive/must_not_receive dispatch ceremony no longer exists in the live deck.

@@ -1,6 +1,6 @@
 number: 754
 title: 'Phase 8: Update VbC collect.md — artifact generation method'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan
@@ -10,8 +10,7 @@ body: 'Parent: #746
 
   ## Concern
 
-  VbC collection layer — evidence collection must have "test artifact generation"
-  as a first-class collection method.
+  VbC collection layer — evidence collection must have "test artifact generation" as a first-class collection method.
 
 
   ## Files
@@ -34,10 +33,14 @@ body: 'Parent: #746
 
   - Phase 7 complete'
 created_at: '2026-05-20T17:05:57Z'
-updated_at: '2026-06-12T03:45:40Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 754
 remote_url: https://github.com/michael-conrad/.opencode/issues/754
 promoted_at: '2026-08-27T03:25:12.029592+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.029592+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Target skills/verification-before-completion/tasks/collect.md exists only at .opencode/attic/skills/verification-before-completion/tasks/collect.md; the VbC skill is retired and no verification-before-completion exists in the live skills/ tree. VbC collect-layer ceremony was ripped with the old deck (.opencode#2501).

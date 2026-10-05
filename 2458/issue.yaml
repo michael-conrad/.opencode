@@ -1,8 +1,11 @@
-title: '[SPEC] Deprecation Encounter Protocol — pending-breakage directive across
-  skill cards'
-status: open
+title: '[SPEC] Deprecation Encounter Protocol — pending-breakage directive across skill cards'
+status: closed
 labels:
 - approved-for-review
 body: ''
 created_at: '2026-09-22T14:54:51+00:00'
-updated_at: '2026-09-22T20:07:12+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Targets retired old-deck machinery: six-card inlining includes attic-only cards (audit, engineering-approach per .opencode/attic/skills/), skill-creator fragment-management (skills/skill-creator/ has only SKILL.md live, no tasks/), and reference/ standards docs (no reference/ dir live); R-7/SC-5 also require adding rules to .opencode/AGENTS.md, which the live deck mandates stays a pointer carrying no rules. Live grep shows zero ''deprecat'' coverage in live skills/floor/routing, but the delivery mechanism no longer exists.'

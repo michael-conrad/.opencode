@@ -1,6 +1,6 @@
 number: 724
 title: '[SPEC] Phases Should Represent Dependency-Ordered Implementation Groups'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
@@ -16,19 +16,15 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
   ## Objective
 
 
-  Update spec planning guidelines to require that phases represent actual implementation
-  phases based on dependency relationships between code changes, using a flexible
-  dependency-graph-driven approach rather than a fixed template.
+  Update spec planning guidelines to require that phases represent actual implementation phases based on dependency relationships between code changes, using a flexible dependency-graph-driven approach rather than a fixed template.
 
 
   ## Problem Statement
 
 
-  Guidelines prescribe a fixed "Implementation → Testing → Review" phase structure.
-  This template approach:
+  Guidelines prescribe a fixed "Implementation → Testing → Review" phase structure. This template approach:
 
-  1. Ignores actual code dependencies — forces all implementation into one massive
-  phase
+  1. Ignores actual code dependencies — forces all implementation into one massive phase
 
   2. Hides dependency violations in flat task lists
 
@@ -44,35 +40,22 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
 
   |---------------------|----------------|-------|
 
-  | `.opencode/guidelines/141-planning-status-tracking.md` | ✅ Exists | Has phase
-  numbering and STATUS tracking, but NO dependency-driven phase design requirement
-  |
+  | `.opencode/guidelines/141-planning-status-tracking.md` | ✅ Exists | Has phase numbering and STATUS tracking, but NO dependency-driven phase design requirement |
 
-  | `.opencode/guidelines/142-planning-archive-workflow.md` | ✅ Exists | Has spec
-  template with phase naming quality rules (§8), but NO dependency graph analysis
-  requirement |
+  | `.opencode/guidelines/142-planning-archive-workflow.md` | ✅ Exists | Has spec template with phase naming quality rules (§8), but NO dependency graph analysis requirement |
 
-  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists | Has spec creation
-  workflow, references investigation/planning phases, but NO dependency analysis step
-  |
+  | `.opencode/guidelines/140-planning-spec-creation.md` | ✅ Exists | Has spec creation workflow, references investigation/planning phases, but NO dependency analysis step |
 
-  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | Has sub-issue structure
-  and multi-task authorization, but NO phase-level dependency enforcement |
+  | `.opencode/guidelines/010-approval-gate.md` | ✅ Exists | Has sub-issue structure and multi-task authorization, but NO phase-level dependency enforcement |
 
   | `docs/specs/spec-flow-control.md` | ❌ Does not exist | Already removed |
 
-  | `docs/specs/spec-flow-control-design.md` | ❌ Does not exist | Already removed
-  |
+  | `docs/specs/spec-flow-control-design.md` | ❌ Does not exist | Already removed |
 
-  | `docs/specs/spec-flow-control-implementation.md` | ❌ Does not exist | Already
-  removed |
+  | `docs/specs/spec-flow-control-implementation.md` | ❌ Does not exist | Already removed |
 
 
-  **Key finding:** Phase naming quality rules (boilerplate prohibition) exist in `142-planning-archive-workflow.md`
-  §8, but the critical dependency analysis step — "analyze dependencies before defining
-  phases" — is completely absent. The fixed 3-phase template (Implementation/Testing/Review)
-  is no longer explicitly prescribed, but there is no alternative dependency-driven
-  guidance replacing it.
+  **Key finding:** Phase naming quality rules (boilerplate prohibition) exist in `142-planning-archive-workflow.md` §8, but the critical dependency analysis step — "analyze dependencies before defining phases" — is completely absent. The fixed 3-phase template (Implementation/Testing/Review) is no longer explicitly prescribed, but there is no alternative dependency-driven guidance replacing it.
 
 
   ## Proposed Change
@@ -142,11 +125,9 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
   ## Success Criteria
 
 
-  1. ✅ `141-planning-status-tracking.md` includes mandatory "Phase Design Process"
-  requiring dependency analysis
+  1. ✅ `141-planning-status-tracking.md` includes mandatory "Phase Design Process" requiring dependency analysis
 
-  2. ✅ `142-planning-archive-workflow.md` spec template includes Prerequisites and
-  Dependency Graph sections
+  2. ✅ `142-planning-archive-workflow.md` spec template includes Prerequisites and Dependency Graph sections
 
   3. ✅ `010-approval-gate.md` references phase-level dependency ordering
 
@@ -168,8 +149,7 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
 
   1. ☐ Add "Phase Design Process" section to `141-planning-status-tracking.md`
 
-  2. ☐ Update spec template in `142-planning-archive-workflow.md` with Prerequisites
-  and Dependency Graph
+  2. ☐ Update spec template in `142-planning-archive-workflow.md` with Prerequisites and Dependency Graph
 
   3. ☐ Add phase-level dependency ordering to `010-approval-gate.md`
 
@@ -180,16 +160,13 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
 
   ### Phase 2: Testing
 
-  1. ☐ Verify `guidelines read 141-planning-status-tracking` shows dependency design
-  process
+  1. ☐ Verify `guidelines read 141-planning-status-tracking` shows dependency design process
 
-  2. ☐ Verify `guidelines read 142-planning-archive-workflow` shows dependency graph
-  template
+  2. ☐ Verify `guidelines read 142-planning-archive-workflow` shows dependency graph template
 
   3. ☐ Verify `guidelines search "dependency"` returns updated files
 
-  4. ☐ Verify behavioral enforcement: agent creates dependency-ordered phases in new
-  specs
+  4. ☐ Verify behavioral enforcement: agent creates dependency-ordered phases in new specs
 
 
   ### Phase 3: Review
@@ -204,16 +181,19 @@ body: '# Spec: Phases Should Represent Dependency-Ordered Implementation Groups
 
   - Original issue: https://github.com/NewsRx/newsrx-genai-python/issues/291
 
-  - Related: #290 (nested sub-issues) — both modify planning guidelines, coordinate
-  implementation
+  - Related: #290 (nested sub-issues) — both modify planning guidelines, coordinate implementation
 
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5)'
 created_at: '2026-05-19T18:58:31Z'
-updated_at: '2026-06-12T03:45:41Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 724
 remote_url: https://github.com/michael-conrad/.opencode/issues/724
 promoted_at: '2026-08-27T03:25:11.953165+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.953165+00:00'
 author: michael-newsrx
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: All four target files (guidelines/141-planning-status-tracking.md, 142-planning-archive-workflow.md, 010-approval-gate.md, 140-planning-spec-creation.md) exist only under attic/guidelines/ — no live guidelines/ directory; the substance (dependency-driven planning) is already a live rule in the plan card §2 'Dependency order'.

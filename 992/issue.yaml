@@ -1,6 +1,6 @@
 number: 992
 title: '[Phase 1.6] read-comments command: YAML pass-through'
-status: open
+status: closed
 labels:
 - needs-approval
 - sub-issue
@@ -9,10 +9,14 @@ body: '**Parent Plan:** #985
 
   Phase 1.6 — read-comments command: YAML pass-through'
 created_at: '2026-06-02T05:10:00Z'
-updated_at: '2026-06-12T03:45:31Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 992
 remote_url: https://github.com/michael-conrad/.opencode/issues/992
 promoted_at: '2026-08-27T03:25:12.467930+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.467930+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Phase 1.6 work is already delivered: .opencode/tools/local-issues:1409 cmd_read_comments reads .issues/NNN/comments.yaml and dumps it as YAML pass-through (with empty-file handling), registered as the ''read-comments'' subcommand at line 2361. Target is live and the work is addressed.'

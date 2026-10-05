@@ -1,8 +1,12 @@
 title: '[BUG] local-issues list reports [open] for artifact-only dirs without issue.yaml — phantom ticket state'
-status: open
+status: closed
 labels:
 - approved-for-review
 body: ''
 created_at: '2026-09-20T02:14:20+00:00'
-updated_at: '2026-09-21T16:32:18+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2449
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Fixed in the live tool: .opencode/tools/local-issues _read_issue_title_status() now returns the ARTIFACT_ONLY_STATUS sentinel for directories holding only artifact files without issue.yaml, so `list` no longer reports phantom [open] state.'

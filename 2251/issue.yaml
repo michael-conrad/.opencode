@@ -1,5 +1,5 @@
 title: '[SPEC] Remediate spec-creation Documentation-Sources column drift and analytical-artifact line-number references'
-status: open
+status: closed
 labels:
 - SPEC
 - needs-approval
@@ -278,5 +278,9 @@ body: '# SPEC — Remediate spec-creation Documentation-Sources column drift and
 
   '
 created_at: '2026-08-06T03:31:15+00:00'
-updated_at: '2026-08-06T03:31:45+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2251
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Primary target skills/spec-creation/tasks/{validate,create}.md exists only at .opencode/attic/skills/spec-creation/; the remaining SCs strip line numbers from #2250''s analytical artifacts, which document the same retired plan/audit ceremony.'

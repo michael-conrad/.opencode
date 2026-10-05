@@ -1,6 +1,6 @@
 number: 786
 title: 'Phase 6: Persona Sections (Contingent on #625)'
-status: open
+status: closed
 labels:
 - needs-approval
 - sub-issue
@@ -11,18 +11,14 @@ body: '**Parent Plan:** #783
   **SCs:** SC-7a, SC-7b
 
 
-  **Contingent on #625.** After #625 adds Persona sections to verification-before-completion,
-  completion-core, and finishing-a-development-branch:
+  **Contingent on #625.** After #625 adds Persona sections to verification-before-completion, completion-core, and finishing-a-development-branch:
 
 
-  - verification-before-completion Persona: strengthen with goal-hijacking fusion
-  language
+  - verification-before-completion Persona: strengthen with goal-hijacking fusion language
 
-  - completion-core Persona: append "And there is no completion without verification
-  PASS."
+  - completion-core Persona: append "And there is no completion without verification PASS."
 
-  - finishing-a-development-branch Persona: append "Branch finishing without verification
-  means the branch is not finished."
+  - finishing-a-development-branch Persona: append "Branch finishing without verification means the branch is not finished."
 
 
   **Deferred if #625 not yet merged.**
@@ -30,10 +26,14 @@ body: '**Parent Plan:** #783
 
   TDD: Verify #625 merged → RED → GREEN → REFACTOR → COMMIT'
 created_at: '2026-05-20T23:13:02Z'
-updated_at: '2026-06-12T03:45:40Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 786
 remote_url: https://github.com/michael-conrad/.opencode/issues/786
 promoted_at: '2026-08-27T03:25:12.032856+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.032856+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: All three target skills — verification-before-completion, completion-core, finishing-a-development-branch — exist only under .opencode/attic/skills/ (e.g. attic/skills/completion-core/); none exist in the live deck, so the Persona-section edits have no live target.

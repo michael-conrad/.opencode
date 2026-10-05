@@ -1,8 +1,12 @@
 labels:
 - approved-for-pr
 - spec-cleared
-updated_at: '2026-08-31T23:21:51+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 title: '[SPEC] Change default test model to ollama/qwen3.8:27b-256k-gguf4'
-status: open
+status: closed
 github_url: https://github.com/michael-conrad/.opencode/issues/2425
 remote_url: https://github.com/michael-conrad/.opencode/issues/2425
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'The requested end-state already holds in the live deck: .opencode/tests-v2/default-model.sh and both with-test-home fallbacks carry ollama/qwen3.8:27b-256k-gguf4, docs (tests-v2/AGENTS.md, docs/model-dependency.md, README.md) name gguf4, and the old literal qwen3.8:27b-256k (non-gguf4) is absent from the live tree — no remaining work.'

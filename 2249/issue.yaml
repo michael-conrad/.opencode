@@ -1,5 +1,5 @@
 title: '[SPEC] Generalize the dependency-injection mandate to a generic multi-language DI approach'
-status: open
+status: closed
 labels:
 - SPEC
 - approved-for-for_pr
@@ -345,5 +345,9 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2249/`](https://github.c
 
   '
 created_at: '2026-08-06T02:32:44+00:00'
-updated_at: '2026-08-11T16:42:45+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2249
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Targets .opencode/guidelines/080-code-standards.md and guidelines/INDEX.md, which exist only under .opencode/attic/guidelines/ — no live guidelines/ directory. Parent mandate #2243 lives in the same retired file, and the spec''s enforcement machinery (DiMo chain, Two-SC behavioral pattern) is retired ceremony.'

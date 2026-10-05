@@ -1,5 +1,5 @@
 title: '[SPEC] Full-environment simulation support in .opencode/tests-v2 test harness'
-status: open
+status: closed
 labels:
 - approved-for-pr
 - spec-draft
@@ -297,5 +297,9 @@ body: '# [SPEC] Full-Environment Simulation Support in `.opencode/tests-v2` Test
 
   - **Why:** The 2242-sc6 cleanup-dispatch test dead-ended because `gh pr list` fails against a `local`-platform repo with no origin remote. This capability is prerequisite infrastructure for #2242 SC6/SC7.'
 created_at: '2026-08-04T03:14:31+00:00'
-updated_at: '2026-08-05T17:29:00+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2244
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Implemented by commit 9a67009c and verified live: BEHAVIOR_NEEDS_MULTI_SUBMODULES/BEHAVIOR_NEEDS_REMOTE/BEHAVIOR_SET_BARE_REMOTE mutual-exclusion in tests-v2/behaviors/helpers.sh, GB_* constants + gb config.toml seeding in tests-v2/with-test-home. Residual SC10-SC12 target the 2242-sc6 cleanup-dispatch test, which the reorg deleted (86bec533, stage 4c) leaving only an orphaned fixture — retired old-deck cleanup-dispatch behavior.'

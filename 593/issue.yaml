@@ -1,28 +1,20 @@
 number: 593
-title: '[SPEC] Adversarial-audit dispatch boilerplate — correct skill() call format,
-  next_step routing'
-status: open
+title: '[SPEC] Adversarial-audit dispatch boilerplate — correct skill() call format, next_step routing'
+status: closed
 labels:
 - needs-approval
 - spec
 - skill-deck
-body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + Next_Step
-  Routing
+body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + Next_Step Routing
 
 
   ## Problem
 
 
-  Six SKILL.md files contain copy-paste boilerplate routing to `adversarial-audit`
-  that uses incorrect CLI-style invocation (`adversarial-audit --task <task> --issue
-  <N>`) instead of the correct MCP call (`skill({name: "adversarial-audit"})` with
-  dispatch context). None of the six references tell the orchestrator what to do with
-  the audit result — they just dispatch.
+  Six SKILL.md files contain copy-paste boilerplate routing to `adversarial-audit` that uses incorrect CLI-style invocation (`adversarial-audit --task <task> --issue <N>`) instead of the correct MCP call (`skill({name: "adversarial-audit"})` with dispatch context). None of the six references tell the orchestrator what to do with the audit result — they just dispatch.
 
 
-  The verdict format standardized by #529 includes a `next_step` field that the orchestrator
-  reads literally to determine routing. The boilerplate should reference this so the
-  orchestrator knows it reads `next_step`, not interprets PASS/FAIL.
+  The verdict format standardized by #529 includes a `next_step` field that the orchestrator reads literally to determine routing. The boilerplate should reference this so the orchestrator knows it reads `next_step`, not interprets PASS/FAIL.
 
 
   ## Success Criteria
@@ -34,11 +26,9 @@ body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + 
   Update the six boilerplate instances to:
 
 
-  1. Use correct MCP invocation format: `skill({name: "adversarial-audit"})` with
-  `audit_phase: <phase>` in dispatch context
+  1. Use correct MCP invocation format: `skill({name: "adversarial-audit"})` with `audit_phase: <phase>` in dispatch context
 
-  2. Reference that the orchestrator reads `next_step` from the YAML verdict to determine
-  routing — it does not interpret PASS/FAIL itself
+  2. Reference that the orchestrator reads `next_step` from the YAML verdict to determine routing — it does not interpret PASS/FAIL itself
 
 
   #### Affected locations:
@@ -48,23 +38,17 @@ body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + 
 
   |---|---|---|
 
-  | `skills/issue-operations/SKILL.md` | §6 | `adversarial-audit --task concern-separation
-  --issue <N>` |
+  | `skills/issue-operations/SKILL.md` | §6 | `adversarial-audit --task concern-separation --issue <N>` |
 
-  | `skills/pr-creation-workflow/SKILL.md` | §5 | `adversarial-audit --task spec-summary
-  --pr <N>` |
+  | `skills/pr-creation-workflow/SKILL.md` | §5 | `adversarial-audit --task spec-summary --pr <N>` |
 
-  | `skills/spec-creation/SKILL.md` | §6 | `adversarial-audit --task spec-audit --issue
-  <N>` |
+  | `skills/spec-creation/SKILL.md` | §6 | `adversarial-audit --task spec-audit --issue <N>` |
 
-  | `skills/verification-before-completion/SKILL.md` | §2 | `adversarial-audit --task
-  drift-detection --issue <N>` |
+  | `skills/verification-before-completion/SKILL.md` | §2 | `adversarial-audit --task drift-detection --issue <N>` |
 
-  | `skills/writing-plans/SKILL.md` | §2 | `adversarial-audit --task plan-fidelity`
-  and `concern-separation` |
+  | `skills/writing-plans/SKILL.md` | §2 | `adversarial-audit --task plan-fidelity` and `concern-separation` |
 
-  | `skills/git-workflow/SKILL.md` | §8 | `adversarial-audit --task closure-verification
-  --pr <N>` |
+  | `skills/git-workflow/SKILL.md` | §8 | `adversarial-audit --task closure-verification --pr <N>` |
 
 
   ### SC-2: Format consistency across all six
@@ -75,10 +59,7 @@ body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + 
 
   ```
 
-  **Adversarial-audit call:** after <event>, call `skill({name: "adversarial-audit"})`
-  with `audit_phase: <phase>` in dispatch context. The orchestrator reads the `next_step`
-  field from the YAML verdict to determine routing — it does not interpret PASS/FAIL
-  status values.
+  **Adversarial-audit call:** after <event>, call `skill({name: "adversarial-audit"})` with `audit_phase: <phase>` in dispatch context. The orchestrator reads the `next_step` field from the YAML verdict to determine routing — it does not interpret PASS/FAIL status values.
 
 
   ## Files Affected
@@ -104,8 +85,7 @@ body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + 
   ## Out of Scope
 
 
-  - Changes to adversarial-audit SKILL.md or task files (verdict format is already
-  correct per #529)
+  - Changes to adversarial-audit SKILL.md or task files (verdict format is already correct per #529)
 
   - Changes to the verdict parsing logic or `next_step` vocabulary
 
@@ -116,10 +96,14 @@ body: '# SPEC: Adversarial-Audit Dispatch Boilerplate — Correct Call Format + 
 
   '
 created_at: '2026-05-15T05:29:16Z'
-updated_at: '2026-06-12T03:45:44Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 593
 remote_url: https://github.com/michael-conrad/.opencode/issues/593
 promoted_at: '2026-08-27T03:25:11.770883+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.770883+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: All six target files (skills/issue-operations, pr-creation-workflow, spec-creation, verification-before-completion, writing-plans, git-workflow SKILL.md) are absent from the live tree, and the adversarial-audit dispatch-string/next_step routing it fixes is retired audit-triad machinery per the reorg.

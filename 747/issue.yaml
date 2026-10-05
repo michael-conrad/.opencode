@@ -1,6 +1,6 @@
 number: 747
 title: 'Phase 1: Define dark-prose-007 in 250-dark-prose-reference.md'
-status: open
+status: closed
 labels:
 - needs-approval
 - plan
@@ -10,8 +10,7 @@ body: 'Parent: #746
 
   ## Concern
 
-  Pattern definition layer — the reference card must gain a new pattern entry before
-  any downstream file can reference it. Follows Section 8 Adding New Patterns protocol.
+  Pattern definition layer — the reference card must gain a new pattern entry before any downstream file can reference it. Follows Section 8 Adding New Patterns protocol.
 
 
   ## Files
@@ -21,8 +20,7 @@ body: 'Parent: #746
 
   ## Tasks
 
-  1. Add `dark-prose-007 | Cost-Frame Reformation | #734 | Tier 1+` row to Section
-  1 Pattern ID Allocation table
+  1. Add `dark-prose-007 | Cost-Frame Reformation | #734 | Tier 1+` row to Section 1 Pattern ID Allocation table
 
   2. Add cost-blind guideline block row to Section 2 Selection Matrix
 
@@ -30,10 +28,14 @@ body: 'Parent: #746
 
   4. Increment Section 6 version and update SHA'
 created_at: '2026-05-20T17:05:48Z'
-updated_at: '2026-06-12T03:45:41Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 747
 remote_url: https://github.com/michael-conrad/.opencode/issues/747
 promoted_at: '2026-08-27T03:25:12.019735+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.019735+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Sub-issue of #746 with the single target guidelines/250-dark-prose-reference.md, which exists only at .opencode/attic/guidelines/ — the live deck has no guidelines/ directory.'

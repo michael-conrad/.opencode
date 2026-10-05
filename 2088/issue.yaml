@@ -1,8 +1,11 @@
-title: '[SPEC-FIX] session-init: fix --no-interactive regression + mandatory unit
-  tests for .opencode/ tools'
-status: open
+title: '[SPEC-FIX] session-init: fix --no-interactive regression + mandatory unit tests for .opencode/ tools'
+status: closed
 labels:
 - spec-fix
 body: ''
 created_at: '2026-07-24T20:36:54+00:00'
-updated_at: '2026-07-24T20:36:54+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'All SCs are already satisfied in the live tree: grep for --no-interactive in .opencode/tools/session-init returns zero matches (bug fixed), .opencode/pyproject.toml and .opencode/tests/test_session_init/test_auth.py exist, and plugins/ contains no CACHE_TTL_MS. The reorg supersedes the ticket.'

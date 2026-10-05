@@ -1,5 +1,5 @@
 title: '[SPEC] Remediate executing-plans SKILL.md — missing sub-agent dispatch text and validator conformance defects'
-status: open
+status: closed
 labels:
 - approved-for-pr
 - spec-cleared
@@ -368,6 +368,10 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2424/`](https://github.c
 
   '
 created_at: '2026-08-31T19:10:26+00:00'
-updated_at: '2026-09-20T17:56:48+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2424
 remote_url: https://github.com/michael-conrad/.opencode/issues/2424
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Targets .opencode/skills/executing-plans/SKILL.md and its validator (validate_skill_cards.py) conformance defects; executing-plans exists only under .opencode/attic/skills/executing-plans/ and is not among the live deck's active cards. The DISPATCH_GATE/validator ceremony it remediates is retired.

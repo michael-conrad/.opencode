@@ -1,7 +1,6 @@
 number: 890
-title: '[SPEC-FIX] Mandate install of project-local tooling when needed for proper
-  test execution'
-status: open
+title: '[SPEC-FIX] Mandate install of project-local tooling when needed for proper test execution'
+status: closed
 labels:
 - needs-approval
 - spec-fix
@@ -14,20 +13,10 @@ body: '## Problem
   > the agent MAY install them project-locally
 
 
-  This creates a gap: when the only valid test infrastructure requires a tool not
-  on the host (e.g., Node.js for TypeScript unit tests, Java for JVM plugin tests),
-  the agent falls back to grep or `behavior_run` — neither of which exercises the
-  actual code path. The root cause is not malice but that the guideline permits skipping
-  tool installation.
+  This creates a gap: when the only valid test infrastructure requires a tool not on the host (e.g., Node.js for TypeScript unit tests, Java for JVM plugin tests), the agent falls back to grep or `behavior_run` — neither of which exercises the actual code path. The root cause is not malice but that the guideline permits skipping tool installation.
 
 
-  Real-world trigger: spec #602 requires testing a `session-enforcement.ts` plugin
-  function (`handleModeSwitchParts`) that runs inside opencode''s `messages.transform`
-  hook. This is deterministic TypeScript code — `behavior_run` (single-turn isolated
-  CLI) cannot trigger the hook, and grep doesn''t test the code path. The only valid
-  test is a TypeScript unit test that calls the function with mock parts. Node.js
-  was available as a project-local install (`.tools/node/`) but was never installed
-  because the guideline says "MAY" not "MUST."
+  Real-world trigger: spec #602 requires testing a `session-enforcement.ts` plugin function (`handleModeSwitchParts`) that runs inside opencode''s `messages.transform` hook. This is deterministic TypeScript code — `behavior_run` (single-turn isolated CLI) cannot trigger the hook, and grep doesn''t test the code path. The only valid test is a TypeScript unit test that calls the function with mock parts. Node.js was available as a project-local install (`.tools/node/`) but was never installed because the guideline says "MAY" not "MUST."
 
 
   ## Solution
@@ -39,17 +28,12 @@ body: '## Problem
   ### 1. Change `085-project-local-tools.md` from permissive to conditional-mandatory
 
 
-  **New rule:** When the only valid test infrastructure for a change requires a tool
-  not present on the host system, the agent MUST install that tool project-locally
-  (per the existing installation rules in 085) and write a proper test that exercises
-  the code path. The agent MUST NOT fall back to grep, string-matching, or structural-only
-  verification for code-path behavior.
+  **New rule:** When the only valid test infrastructure for a change requires a tool not present on the host system, the agent MUST install that tool project-locally (per the existing installation rules in 085) and write a proper test that exercises the code path. The agent MUST NOT fall back to grep, string-matching, or structural-only verification for code-path behavior.
 
 
   **Scope:** Applies to any change where:
 
-  - The change modifies deterministic code (TypeScript plugin, Python function, shell
-  script) with an independently testable code path
+  - The change modifies deterministic code (TypeScript plugin, Python function, shell script) with an independently testable code path
 
   - No existing test infrastructure on the host can execute that code path
 
@@ -60,42 +44,31 @@ body: '## Problem
 
   - Purely structural changes (file layout, naming)
 
-  - Changes where tool installation would take longer than implementation AND a behavioral
-  test via `behavior_run` exercises the same code path (e.g., plugin code called through
-  opencode-cli in multi-turn sessions)
+  - Changes where tool installation would take longer than implementation AND a behavioral test via `behavior_run` exercises the same code path (e.g., plugin code called through opencode-cli in multi-turn sessions)
 
 
   ### 2. Update `spec-creation` and `writing-plans` skills to account for tooling
 
 
-  Rather than injecting a static text block into every SPEC/PLAN (which agents habituate
-  to), fix the **workflow** that produces them:
+  Rather than injecting a static text block into every SPEC/PLAN (which agents habituate to), fix the **workflow** that produces them:
 
 
-  - **`spec-creation` → verification-method section**: Before declaring how to verify
-  each SC, check whether the method requires tooling not on the host. If yes, note
-  the tooling prerequisite in the verification approach section of the spec.
+  - **`spec-creation` → verification-method section**: Before declaring how to verify each SC, check whether the method requires tooling not on the host. If yes, note the tooling prerequisite in the verification approach section of the spec.
 
-  - **`writing-plans` → per-item decomposition**: For any verification step requiring
-  host-absent tooling, prepend a project-local tool installation step in the execution
-  sequence before the verification step.
+  - **`writing-plans` → per-item decomposition**: For any verification step requiring host-absent tooling, prepend a project-local tool installation step in the execution sequence before the verification step.
 
 
-  This way every spec and plan implicitly accounts for tooling needs through the workflow
-  that produces them, without static text injection.
+  This way every spec and plan implicitly accounts for tooling needs through the workflow that produces them, without static text injection.
 
 
   ## Affected Files
 
 
-  - `.opencode/guidelines/085-project-local-tools.md` — change MAY to conditional
-  MUST, add new mandatory-install rule
+  - `.opencode/guidelines/085-project-local-tools.md` — change MAY to conditional MUST, add new mandatory-install rule
 
-  - `.opencode/skills/spec-creation/` — add tooling-availability check to verification-method
-  section
+  - `.opencode/skills/spec-creation/` — add tooling-availability check to verification-method section
 
-  - `.opencode/skills/writing-plans/` — add tooling prerequisite step to per-item
-  decomposition
+  - `.opencode/skills/writing-plans/` — add tooling prerequisite step to per-item decomposition
 
 
   ## Success Criteria
@@ -105,24 +78,25 @@ body: '## Problem
 
   |----|-----------|--------------|
 
-  | SC-1 | `085-project-local-tools.md` adds conditional-mandatory rule for testing
-  tool installation | structural |
+  | SC-1 | `085-project-local-tools.md` adds conditional-mandatory rule for testing tool installation | structural |
 
-  | SC-2 | `spec-creation` verification-method section includes tooling-availability
-  check | structural |
+  | SC-2 | `spec-creation` verification-method section includes tooling-availability check | structural |
 
-  | SC-3 | `writing-plans` per-item decomposition includes tooling prerequisite step
-  | structural |
+  | SC-3 | `writing-plans` per-item decomposition includes tooling prerequisite step | structural |
 
 
   🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
 
   '
 created_at: '2026-05-25T15:52:13Z'
-updated_at: '2026-06-12T03:45:34Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 890
 remote_url: https://github.com/michael-conrad/.opencode/issues/890
 promoted_at: '2026-08-27T03:25:12.275855+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.275855+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'All three targets are retired: .opencode/guidelines/ does not exist in the live tree (085-project-local-tools.md lives only in .opencode/attic/guidelines/), and skills/spec-creation and skills/writing-plans exist only under .opencode/attic/skills/. A SPEC-FIX against retired ceremony (spec-creation/writing-plans workflow, guidelines deck) is moot after the #2500s reorg.'

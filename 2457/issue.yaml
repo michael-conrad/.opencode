@@ -1,5 +1,5 @@
 title: '[SPEC] brainstorming terminal-state gate — explicit user finalization required before spec-creation dispatch'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
@@ -7,5 +7,9 @@ labels:
 - spec-cleared
 body: ''
 created_at: '2026-09-21T14:38:44+00:00'
-updated_at: '2026-09-21T15:44:33+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2457
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Targets .opencode/skills/brainstorming/tasks/explore.md and explore/exploration-workflow.md are retired under .opencode/attic/skills/brainstorming/ (only a stale FILE_SCENARIO_MAP entry in test-enforcement.sh references the dead path); the finalization rule now lives in the live explore card (''Design approval is NOT finalization: only the developer''s explicit final statement moves this to spec creation'').'

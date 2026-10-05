@@ -1,37 +1,32 @@
 title: '[SPEC-FIX] Remove ''use judgment'' git hook bypass escape hatch in critical-rules'
-status: open
+status: closed
 labels:
 - spec-fix
 body: '## Executive Summary
 
 
-  **Finding:** C2 — `000-critical-rules.md:92` states "The agent is NOT an enforcement
-  robot for hook scripts — use judgment."
+  **Finding:** C2 — `000-critical-rules.md:92` states "The agent is NOT an enforcement robot for hook scripts — use judgment."
 
 
-  **Problem:** The "use judgment" language authorizes the agent to self-diagnose a
-  pre-commit hook failure as a "false positive" and use `--no-verify` to bypass it.
-  This directly conflicts with `critical-rules-026` (Tier 1) which requires explicit
-  authorization for `git commit --no-verify`. The agent decides when a hook violation
-  is "legitimate" vs. "false positive" and grants itself permission to bypass.
+  **Problem:** The "use judgment" language authorizes the agent to self-diagnose a pre-commit hook failure as a "false positive" and use `--no-verify` to bypass it. This directly conflicts with `critical-rules-026` (Tier 1) which requires explicit authorization for `git commit --no-verify`. The agent decides when a hook violation is "legitimate" vs. "false positive" and grants itself permission to bypass.
 
 
-  **Fix:** Remove "The agent is NOT an enforcement robot for hook scripts — use judgment."
-  Replace with: "Pre-commit hook output is binding. If a hook blocks a commit, fix
-  the violation. `--no-verify` is FORBIDDEN regardless of hook output content."
+  **Fix:** Remove "The agent is NOT an enforcement robot for hook scripts — use judgment." Replace with: "Pre-commit hook output is binding. If a hook blocks a commit, fix the violation. `--no-verify` is FORBIDDEN regardless of hook output content."
 
 
   **Files affected:**
 
-  - `.opencode/guidelines/000-critical-rules.md` lines 90-92 — remove "use judgment"
-  language
+  - `.opencode/guidelines/000-critical-rules.md` lines 90-92 — remove "use judgment" language
 
 
-  **Behavioral test needed:** Prompt agent with a pre-commit hook that blocks with
-  a "false positive" message. Assert agent fixes the violation, does not use `--no-verify`.
+  **Behavioral test needed:** Prompt agent with a pre-commit hook that blocks with a "false positive" message. Assert agent fixes the violation, does not use `--no-verify`.
 
 
   **Dependencies:** None'
 created_at: '2026-06-29T02:35:18Z'
-updated_at: '2026-07-04T21:35:33Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/1553
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: Fix target .opencode/guidelines/000-critical-rules.md exists only as .opencode/attic/guidelines/000-critical-rules.md (guidelines/ directory absent from live deck); the 'use judgment' hook-bypass language appears nowhere in the live floor.md, routing.md, or hooks/, so the defect no longer exists in the live deck.

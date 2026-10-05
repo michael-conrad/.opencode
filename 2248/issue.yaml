@@ -1,9 +1,12 @@
-title: '[SPEC] Enforce no-outguess of harness model/GPU selection during behavioral
-  testing'
-status: open
+title: '[SPEC] Enforce no-outguess of harness model/GPU selection during behavioral testing'
+status: closed
 labels:
 - approved-for-pr
 - '[SPEC]'
 body: ''
 created_at: '2026-08-05T17:21:10+00:00'
-updated_at: '2026-08-05T20:28:11+00:00'
+updated_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: 'Implemented by commit 9a67009c: the no-outguess mandate survives live at tests-v2/AGENTS.md §10.6, but the SC-1/SC-2 behavioral enforcement scripts (2248-sc1-no-outguess-model.sh, 2248-sc2-no-outguess-failure-path.sh) were deleted by the reorg''s lean-corpus cut (d5c0fc71, #2490 stage 4e, per developer direction) — the work was superseded by the reorg.'

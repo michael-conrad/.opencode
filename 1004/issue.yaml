@@ -1,29 +1,22 @@
 number: 1004
 title: '[SPEC-FIX] Canonicalize all local-issues CLI references to .opencode/tools/local-issues'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-fix
 body: '## Problem
 
 
-  Every task card and skill card referencing the `local-issues` tool uses bare `local-issues`
-  as the invocation command. This is ambiguous — agents attempt `python3 local-issues`,
-  `uv run local-issues`, or `local-issues` with incorrect working directories, all
-  of which fail on a PEP 723 shebang script.
+  Every task card and skill card referencing the `local-issues` tool uses bare `local-issues` as the invocation command. This is ambiguous — agents attempt `python3 local-issues`, `uv run local-issues`, or `local-issues` with incorrect working directories, all of which fail on a PEP 723 shebang script.
 
 
-  The canonical invocation is `./.opencode/tools/local-issues` — works from any working
-  directory within the repo, the `./` prefix forces direct-execution mental model
-  (not interpreter prefix).
+  The canonical invocation is `./.opencode/tools/local-issues` — works from any working directory within the repo, the `./` prefix forces direct-execution mental model (not interpreter prefix).
 
 
   ## Affected Files
 
 
-  All `.opencode/skills/issue-operations/platforms/local/tasks/*.md` files — ~100+
-  references across 15 task files using bare `local-issues` instead of the canonical
-  path.
+  All `.opencode/skills/issue-operations/platforms/local/tasks/*.md` files — ~100+ references across 15 task files using bare `local-issues` instead of the canonical path.
 
 
   ## Fix
@@ -36,22 +29,18 @@ body: '## Problem
 
   |--------|-------|
 
-  | `local-issues create --title T` | `./.opencode/tools/local-issues create --title
-  T` |
+  | `local-issues create --title T` | `./.opencode/tools/local-issues create --title T` |
 
   | `local-issues read N` | `./.opencode/tools/local-issues read N` |
 
-  | `local-issues update N --body X` | `./.opencode/tools/local-issues update N --body
-  X` |
+  | `local-issues update N --body X` | `./.opencode/tools/local-issues update N --body X` |
 
   | `local-issues close N` | `./.opencode/tools/local-issues close N` |
 
   | (etc for all 14 command references) | |
 
 
-  Also added bash guard to `tools/local-issues` (line 2: `"exec" "uv" "run" "--script"
-  "$0" "$@"` matching session-init pattern) to re-exec via uv run --script on direct
-  invocation.
+  Also added bash guard to `tools/local-issues` (line 2: `"exec" "uv" "run" "--script" "$0" "$@"` matching session-init pattern) to re-exec via uv run --script on direct invocation.
 
 
   ## SCOPE-CONTROLLED
@@ -88,9 +77,7 @@ body: '## Problem
 
   **NOT in scope:**
 
-  - Dispatcher-level `issue-operations/tasks/*.md` — already updated in Phase 3 to
-  route through platform sub-skills, and any remaining CLI references there are verification
-  commands (read operations), not invocation points
+  - Dispatcher-level `issue-operations/tasks/*.md` — already updated in Phase 3 to route through platform sub-skills, and any remaining CLI references there are verification commands (read operations), not invocation points
 
   - `git-workflow/tasks/*.md` — already cleaned in Phase 3, no remaining tool invocations
 
@@ -102,18 +89,21 @@ body: '## Problem
 
   |----|-----------|---------------|
 
-  | SC-1 | All bare `local-issues` references replaced with `./.opencode/tools/local-issues`
-  in platform task files | string |
+  | SC-1 | All bare `local-issues` references replaced with `./.opencode/tools/local-issues` in platform task files | string |
 
   | SC-2 | bash guard added to `tools/local-issues` line 2 | string |
 
 
   🤖 OpenCode (ollama-cloud/deepseek-v4-flash) updated'
 created_at: '2026-06-03T05:21:41Z'
-updated_at: '2026-06-12T03:45:29Z'
+updated_at: '2026-10-05T19:39:01+00:00'
 remote_issue: 1004
 remote_url: https://github.com/michael-conrad/.opencode/issues/1004
 promoted_at: '2026-08-27T03:25:12.486580+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.486580+00:00'
 author: michael-conrad
+closed_at: '2026-10-05T19:39:01+00:00'
+close_reason: not_planned
+sweep_verdict: CLOSE-MOOT
+sweep_evidence: SC-1's target files (.opencode/skills/issue-operations/platforms/local/tasks/*.md) exist only under .opencode/attic/skills/issue-operations*; SC-2's bash guard is already present in the live tree at tools/local-issues line 3 ("exec" "uv" "run" "--script" "$0" "$@"). The live issues skill references the canonical tool path, so the defect is gone from the live deck.
