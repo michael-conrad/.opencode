@@ -67,7 +67,7 @@ First invocation auto-initializes `.issues/` — creates the orphan branch, work
 
 ## Workflow
 
-**Remote-first spec-number reservation (MANDATORY when a remote spec system exists).** When the platform is not local (a remote issue tracker is reachable), file the remote spec FIRST — with clear intent and context sufficient for a clean-room restart — to reserve the spec number, BEFORE any local spec folder setup. Local-first reservation is a violation: it forks the number space and produces split-brain collisions (recorded precedent: issue 2450's local-vs-remote number divergence). This mandate composes with (and does not duplicate) the numbers-must-match rule and the `.counter` drift defect: the remote API is the sole number source whenever a remote exists; the local counter is used only in local-only mode.
+**Remote-first issue-number reservation (MANDATORY when a remote issue tracker exists).** When the platform is not local (a remote issue tracker is reachable), file the remote issue FIRST — for EVERY issue creation (spec, bug, defect, artifact — anything that mints a number) — with clear intent and context sufficient for a clean-room restart — to reserve the issue number, BEFORE any local issue folder setup. Local-first reservation is a violation: it forks the number space and produces split-brain collisions (recorded precedent: issue 2450's local-vs-remote number divergence; recurrence 2026-10-05: `opencode-config#373` minted from the stale local counter while remote-synced issues had reached 2161 — deleted unfiled). This mandate composes with (and does not duplicate) the numbers-must-match rule and the `.counter` drift defect: the remote API is the sole number source whenever a remote exists; the local counter is used only in local-only mode.
 
 All git operations (commit, push) are handled automatically by the tool after mutation commands. You do NOT need to run `git -C .issues` commands manually.
 
@@ -114,7 +114,7 @@ Session start comprises three sequential steps:
 ```
 .issues/
   {issue_number}/
-    spec.md                    — The spec (authoritative, may mirror remote or be sole copy)
+    spec.md                    — The full authoritative spec (the store is primary; the remote body is a condensed exec summary)
     plan.md                    — Implementation plan (RED/GREEN items, dependency graph)
     cards.md                   — Card catalogue with status and decision log
     dependency-contract.yaml   — Dependency contracts and phase ordering
@@ -176,7 +176,7 @@ This extends the authorization-free reading/writing rule above: the agent does n
 
 - **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
 - **GitHub/GitBucket is the mirrored user-facing exec summary only.** The remote issue body contains a condensed summary and a single link to the spec folder (`.issues/{N}/` on the `issues-data` branch). AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
-- `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a summary copy with a cross-reference link to this folder.
+- `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a detailed exec summary — clear intent on the why and clear intent on the final what — with a cross-reference link to this folder. Detail lives locally, never on the remote.
 - `.issues/{N}/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
 - When reading or acting on an issue, always read from `.issues/{N}/` first. Only use the remote issue body for user-facing context (comments, labels, assignees).
 
