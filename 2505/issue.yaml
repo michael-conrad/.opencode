@@ -4,6 +4,62 @@ status: open
 labels:
 - needs-approval
 - bug
-body: ''
+body: '# [BUG] Agent halts on `approved for pr` instead of proceeding through all
+  phases up to the approved phase
+
+
+  **Repo**: michael-conrad/.opencode · **Remote**: https://github.com/michael-conrad/.opencode/issues/2505
+
+
+  ## Why
+
+
+  Session 2026-10-05: the developer authorized `.opencode#2504` with "approved for
+  pr". The agent read the authorization strictly as PR-boundary-only, observed that
+  no plan or implementation existed yet, and halted with an open-ended clarification
+  request instead of proceeding. The developer''s intent: authorization naming a boundary
+  carries the item through **all phases up to and including the named phase** — plan,
+  implement, verify, then open the PR. The pipeline stalled on an unambiguous directive.
+
+
+  ## What
+
+
+  Correct the authorization vocabulary so `approved for pr[: refs]` (and the general
+  `approved for <phase>` pattern) is defined as:
+
+
+  > Authorizes all pipeline phases up to and including the named phase — intermediate
+  stage authorizations are implied, not separately required.
+
+
+  Remediation targets the vocabulary definition in `.opencode/floor.md` (and any routing/work-gate
+  text that restates stage-boundary authorization, e.g. the `work` card''s authorization
+  check).
+
+
+  ## Evidence
+
+
+  - Transcript: after `approved for pr`, the agent replied that no branch/implementation
+  exists and asked whether the scope was "full path or plan-only".
+
+  - Developer correction: "regression. you are supposed to implement all phases up
+  to and including the approved phase."
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2505/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2505)**
+  — this issue is a condensed exec summary; the authoritative content lives in the
+  `issues-data` branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2505/`
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-10-05T20:47:03+00:00'
-updated_at: '2026-10-05T20:47:03+00:00'
+updated_at: '2026-10-05T20:47:19+00:00'
+github_url: '2505'
