@@ -10,80 +10,46 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Problem
 
 
-  Agent-facing documents cite ephemeral artifact paths — gitignored tmp trees, isolated
-  test homes, lock files — as evidence locations; citations break silently at merge
-  cleanup, and no validation can detect the breakage because standard tooling is blind
-  to gitignored targets. Three conflicting documented conventions for behavioral-evidence
-  locations disagree with actual harness output, and orphaned evidence directories
-  accrete unowned.
+  Agent-facing documents cite ephemeral artifact paths — gitignored tmp trees, isolated test homes, lock files — as evidence locations; citations break silently at merge cleanup, and no validation can detect the breakage because standard tooling is blind to gitignored targets. Three conflicting documented conventions for behavioral-evidence locations disagree with actual harness output, and orphaned evidence directories accrete unowned.
 
 
   ## Scope
 
 
-  - Canonicalize the harness directory layout as the single documented behavioral-evidence
-  convention across all four agent-facing surfaces, and rename the VbC working-copy
-  pattern out of the behavioral-evidence namespace so staging copies cannot collide
-  with harness output
+  - Canonicalize the harness directory layout as the single documented behavioral-evidence convention across all four agent-facing surfaces, and rename the VbC working-copy pattern out of the behavioral-evidence namespace so staging copies cannot collide with harness output
 
-  - Author a durable-anchor citation rule (claim-vs-procedure distinction; citable
-  vs never-citable classes) extending the verification-honesty guideline
+  - Author a durable-anchor citation rule (claim-vs-procedure distinction; citable vs never-citable classes) extending the verification-honesty guideline
 
-  - Steer spec templates toward durable evidence anchors and insert a deterministic
-  reference-classifier gate into the audit cycle using repo-aware queries only
+  - Steer spec templates toward durable evidence anchors and insert a deterministic reference-classifier gate into the audit cycle using repo-aware queries only
 
-  - Persist durable per-SC verification verdict records into the issues-data artifact
-  store as analysis content
+  - Persist durable per-SC verification verdict records into the issues-data artifact store as analysis content
 
-  - Wire retention/cleanup policies for every ephemeral class into the cleanup contract
-  with directory-aware, merge-gated removal
+  - Wire retention/cleanup policies for every ephemeral class into the cleanup contract with directory-aware, merge-gated removal
 
 
-  **Out of scope:** retro-deletion of accumulated tmp state; harness output changes;
-  spec-creation pipeline restructuring; parent-repo text edits; observe/* mandate
-  changes; the dangling spec-auditor reference fix.
+  **Out of scope:** retro-deletion of accumulated tmp state; harness output changes; spec-creation pipeline restructuring; parent-repo text edits; observe/* mandate changes; the dangling spec-auditor reference fix.
 
 
   ## Approach
 
 
-  The harness output shape is ground truth and becomes canonical — documentation converges
-  to it rather than the reverse, and the verification-before-completion working-copy
-  prefix moves out of the behavioral-evidence namespace so staging copies cannot collide
-  with harness output. A durable-anchor rule extends the existing verification-honesty
-  guideline, defining once which path classes may back evidentiary claims while keeping
-  procedural writes to tmp fully legal. The audit cycle gains a deterministic classifier
-  gate resolving cited-path validity through repo-aware queries (tracked-tree membership,
-  GitHub API reads, pushed issues-data membership), never filesystem presence checks,
-  which are blind to gitignored targets by construction. Verification-before-completion
-  persists per-SC verdict records into the issues-data artifact store; the cleanup
-  contract gains owner/mechanism/timing coverage for every ephemeral class behind
-  the existing merge-gated deletion invariant. Self-compliance closes the loop: the
-  finished spec is itself classified, expecting zero flags.
+  The harness output shape is ground truth and becomes canonical — documentation converges to it rather than the reverse, and the verification-before-completion working-copy prefix moves out of the behavioral-evidence namespace so staging copies cannot collide with harness output. A durable-anchor rule extends the existing verification-honesty guideline, defining once which path classes may back evidentiary claims while keeping procedural writes to tmp fully legal. The audit cycle gains a deterministic classifier gate resolving cited-path validity through repo-aware queries (tracked-tree membership, GitHub API reads, pushed issues-data membership), never filesystem presence checks, which are blind to gitignored targets by construction. Verification-before-completion persists per-SC verdict records into the issues-data artifact store; the cleanup contract gains owner/mechanism/timing coverage for every ephemeral class behind the existing merge-gated deletion invariant. Self-compliance closes the loop: the finished spec is itself classified, expecting zero flags.
 
 
   ## Impact
 
 
-  - Risk: classifier false positives on legitimate procedural mentions of tmp paths
-  → mitigation: mandatory positive-case procedural-mention assertion in the classifier
-  fixture tests
+  - Risk: classifier false positives on legitimate procedural mentions of tmp paths → mitigation: mandatory positive-case procedural-mention assertion in the classifier fixture tests
 
-  - Risk: collection-card rewrite breaks downstream verification flows other scenarios
-  depend on → mitigation: full --changed behavioral sweep post-implementation, never
-  spot-checks
+  - Risk: collection-card rewrite breaks downstream verification flows other scenarios depend on → mitigation: full --changed behavioral sweep post-implementation, never spot-checks
 
-  - Risk: cleanup expansion weakens evidence preservation timing → mitigation: negative-case
-  assertion that no deletion fires during verification or review-prep stages
+  - Risk: cleanup expansion weakens evidence preservation timing → mitigation: negative-case assertion that no deletion fires during verification or review-prep stages
 
 
-  Dependencies: the existing harness-artifact exit-0 test constrains canonicalization
-  to the harness layout; the local-issues push machinery provides issues-data durability;
-  research findings mandate inline-link cross-reference form for all rule text.
+  Dependencies: the existing harness-artifact exit-0 test constrains canonicalization to the harness layout; the local-issues push machinery provides issues-data durability; research findings mandate inline-link cross-reference form for all rule text.
 
 
-  Action required: developer approval of this spec advances it to plan creation per
-  the standard pipeline.
+  Action required: developer approval of this spec advances it to plan creation per the standard pipeline.
 
 
   🤖 Co-authored with AI: OpenCode (opencode/x-preview-f-free)
@@ -91,5 +57,5 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   '
 created_at: '2026-08-26T03:40:32+00:00'
 updated_at: '2026-08-26T04:42:23Z'
-github_url: '2327'
+github_url: https://github.com/michael-conrad/.opencode/issues/2327
 remote_url: https://github.com/michael-conrad/.opencode/issues/2327

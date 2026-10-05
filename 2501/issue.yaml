@@ -1,175 +1,85 @@
-title: '[SPEC] Rip-and-replace agent instruction deck with progressive-disclosure
-  architecture'
+title: '[SPEC] Rip-and-replace agent instruction deck with progressive-disclosure architecture'
 status: open
 labels:
 - needs-approval
 - spec
-body: '# [SPEC] Rip-and-replace agent instruction deck with progressive-disclosure
-  architecture
+body: '# [SPEC] Rip-and-replace agent instruction deck with progressive-disclosure architecture
 
 
-  **Repo**: michael-conrad/.opencode · **Scope**: full deck replacement (clean slate)
-  · **Evidence basis**: three session databases (WS1 live 249K parts, WS1 deep-history
-  backup 2.34M parts, WS2 merged 537K+605K parts), deck git history (2,798 commits),
-  1,208 local issue tickets, and primary-source research (arXiv, vendor docs).
+  **Repo**: michael-conrad/.opencode · **Scope**: full deck replacement (clean slate) · **Evidence basis**: three session databases (WS1 live 249K parts, WS1 deep-history backup 2.34M parts, WS2 merged 537K+605K parts), deck git history (2,798 commits), 1,208 local issue tickets, and primary-source research (arXiv, vendor docs).
 
 
   ## Problem Statement
 
 
-  The deck injects ~49K tokens of instructions into every session before the first
-  user message (14 files via `opencode.jsonc` instructions array, both AGENTS.md auto-loads,
-  a 16KB `prompts/default.txt` for build/plan agents, and the vibeguard plugin runtime
-  injection). A 3-SC feature costs 57–65 mandatory sub-agent dispatches, ~10 mandatory
-  artifacts, 5 distinct re-verification loops, and ~52K tokens of skill-card/protocol
-  reading. 238 of ~404 specs (59%) are SPEC-FIX — the pipeline remediating its own
-  output. The deck''s own history documents the enforcement doom loop: the April 2026
-  rollback (`6db0610d`) after +11,953 lines degraded dispatch-chain compliance to
-  zero; `000-critical-rules.md` regrew +35% within two months of its compaction; #2489
-  (2026-10-03) removed pre-commit Gate 2 because "ceremony tests have re-accumulated."
+  The deck injects ~49K tokens of instructions into every session before the first user message (14 files via `opencode.jsonc` instructions array, both AGENTS.md auto-loads, a 16KB `prompts/default.txt` for build/plan agents, and the vibeguard plugin runtime injection). A 3-SC feature costs 57–65 mandatory sub-agent dispatches, ~10 mandatory artifacts, 5 distinct re-verification loops, and ~52K tokens of skill-card/protocol reading. 238 of ~404 specs (59%) are SPEC-FIX — the pipeline remediating its own output. The deck''s own history documents the enforcement doom loop: the April 2026 rollback (`6db0610d`) after +11,953 lines degraded dispatch-chain compliance to zero; `000-critical-rules.md` regrew +35% within two months of its compaction; #2489 (2026-10-03) removed pre-commit Gate 2 because "ceremony tests have re-accumulated."
 
 
   Measured failure modes:
 
 
-  1. **Context load** degrades instruction-following (Chroma context rot; IFScale:
-  best frontier models 68% accuracy at 500 instructions with primacy bias; multi-turn
-  −39%; "Bloated CLAUDE.md files cause Claude to ignore your actual instructions"
-  — Anthropic).
+  1. **Context load** degrades instruction-following (Chroma context rot; IFScale: best frontier models 68% accuracy at 500 instructions with primacy bias; multi-turn −39%; "Bloated CLAUDE.md files cause Claude to ignore your actual instructions" — Anthropic).
 
-  2. **Audit/verification ceremony**: the DiMo 4-role chain was adopted from arXiv:2510.16645
-  without a domain-match check (the paper evaluates zero code tasks; its accuracy
-  mechanism is bounded iterative debate, which the implementation omitted while keeping
-  the cost structure; literature shows multi-agent debate loses to budget-matched
-  single agents on code tasks — TOSEM arXiv:2503.12029 negative ROI, ICLR 2025 blogpost,
-  arXiv:2604.02460 equal-budget result).
+  2. **Audit/verification ceremony**: the DiMo 4-role chain was adopted from arXiv:2510.16645 without a domain-match check (the paper evaluates zero code tasks; its accuracy mechanism is bounded iterative debate, which the implementation omitted while keeping the cost structure; literature shows multi-agent debate loses to budget-matched single agents on code tasks — TOSEM arXiv:2503.12029 negative ROI, ICLR 2025 blogpost, arXiv:2604.02460 equal-budget result).
 
-  3. **Routing gaps** (dispatched-with rates from 27K+ sessions): commit 19%/14%,
-  release 21%/15%, spec 26%/28%, **deck edit 0.5% across ~27,700 sessions** — the
-  deck mutated itself essentially ungoverned for seven months.
+  3. **Routing gaps** (dispatched-with rates from 27K+ sessions): commit 19%/14%, release 21%/15%, spec 26%/28%, **deck edit 0.5% across ~27,700 sessions** — the deck mutated itself essentially ungoverned for seven months.
 
-  4. **Static-script intent enforcement**: pre-flight guard blocked a legitimate research
-  dispatch in-session; vibeguard regex self-consumption confused agents (#2478); #918
-  found 15–20% of tests were prose-recall false-PASS.
+  4. **Static-script intent enforcement**: pre-flight guard blocked a legitimate research dispatch in-session; vibeguard regex self-consumption confused agents (#2478); #918 found 15–20% of tests were prose-recall false-PASS.
 
-  5. **Performative tests**: assertions on build-tool-guaranteed artifacts; structural
-  checks substituting for behavioral evidence.
+  5. **Performative tests**: assertions on build-tool-guaranteed artifacts; structural checks substituting for behavioral evidence.
 
-  6. **Bespoke code over libraries/connectors** (#1324: 955-line bespoke tool replaced
-  by gb CLI; #2315: srclight → RAGSync MCP).
+  6. **Bespoke code over libraries/connectors** (#1324: 955-line bespoke tool replaced by gb CLI; #2315: srclight → RAGSync MCP).
 
 
   ## Success Criteria
 
 
-  All SCs are verified behaviorally in fresh sessions via `with-test-home` (`opencode
-  run`), except where noted. Acceptance is external to the current deck''s audit machinery
-  — no byte/token thresholds anywhere (per #2411); size derives from the membership
-  tests and provenance below.
+  All SCs are verified behaviorally in fresh sessions via `with-test-home` (`opencode run`), except where noted. Acceptance is external to the current deck''s audit machinery — no byte/token thresholds anywhere (per #2411); size derives from the membership tests and provenance below.
 
 
-  - **SC-1 — Floor-only injection.** A fresh session''s loaded instruction content
-  consists solely of the floor (identity/repo map + external-access inventory, authorization
-  vocabulary, pipeline sentence, deck-governance line, safety rules, routing index)
-  plus the platform''s native skill-description list. Root-repo-agnostic: zero hardcoded
-  root names/paths in any loaded file.
+  - **SC-1 — Floor-only injection.** A fresh session''s loaded instruction content consists solely of the floor (identity/repo map + external-access inventory, authorization vocabulary, pipeline sentence, deck-governance line, safety rules, routing index) plus the platform''s native skill-description list. Root-repo-agnostic: zero hardcoded root names/paths in any loaded file.
 
-  - **SC-2 — Intent-only routing.** No user-phrase trigger machinery survives (TDT
-  "User says" columns, `trigger_on:` frontmatter phrase routing, `session_context_triggers.py`).
-  Dispatch decisions are agent-intent ↔ description matches. Dispatched-with rates
-  for commit, release, and deck-edit improve measurably over the recorded baselines
-  (19%/21%/0.5%).
+  - **SC-2 — Intent-only routing.** No user-phrase trigger machinery survives (TDT "User says" columns, `trigger_on:` frontmatter phrase routing, `session_context_triggers.py`). Dispatch decisions are agent-intent ↔ description matches. Dispatched-with rates for commit, release, and deck-edit improve measurably over the recorded baselines (19%/21%/0.5%).
 
-  - **SC-3 — Needs-scaled pipeline, single verification.** Spec → plan → implement
-  → PR stages fire scaled to the change (agent judgment, human backstop at review;
-  no thresholds). One verification pass per deliverable: single fresh-context reviewer
-  reading primary artifacts, churn rule ("flag only gaps affecting correctness or
-  stated requirements"), bounded loop (FAIL → remediate → one re-review → halt). No
-  DiMo role chain; own-test execution stays with the implementor.
+  - **SC-3 — Needs-scaled pipeline, single verification.** Spec → plan → implement → PR stages fire scaled to the change (agent judgment, human backstop at review; no thresholds). One verification pass per deliverable: single fresh-context reviewer reading primary artifacts, churn rule ("flag only gaps affecting correctness or stated requirements"), bounded loop (FAIL → remediate → one re-review → halt). No DiMo role chain; own-test execution stays with the implementor.
 
-  - **SC-4 — Test value.** No test asserts an artifact the build tool guarantees.
-  Prose-recall and structural-only tests are retired; outcome-asserting behavioral
-  tests are harvested from the existing corpus.
+  - **SC-4 — Test value.** No test asserts an artifact the build tool guarantees. Prose-recall and structural-only tests are retired; outcome-asserting behavioral tests are harvested from the existing corpus.
 
-  - **SC-5 — Connector-first.** Agent uses project connectors/CLIs/MCP servers with
-  built-in auth over bespoke connection code; credential-hunting behavior absent.
-  Floor inventory lists every authenticated access point.
+  - **SC-5 — Connector-first.** Agent uses project connectors/CLIs/MCP servers with built-in auth over bespoke connection code; credential-hunting behavior absent. Floor inventory lists every authenticated access point.
 
-  - **SC-6 — Fact/intent enforcement split.** Every enforcement mechanism''s predicate
-  is classified: fact-decidable (script allowed) vs intent-decidable (script forbidden).
-  Exactly one hook survives: no direct commit/push to the identified trunk branch
-  (pre-commit + pre-push branch-name check). vibeguard removed from config.
+  - **SC-6 — Fact/intent enforcement split.** Every enforcement mechanism''s predicate is classified: fact-decidable (script allowed) vs intent-decidable (script forbidden). Exactly one hook survives: no direct commit/push to the identified trunk branch (pre-commit + pre-push branch-name check). vibeguard removed from config.
 
-  - **SC-7 — Governance operational.** The governance card enforces: admission (observed
-  failure + consumer + mechanism-or-trigger + predicate classification + protocol
-  domain-match + root-agnostic rule), retirement (lost provenance / declining trend
-  / structural obsolescence), the deck-debt ledger (cross-deployment aggregation via
-  the synced issue store), and the vendor-card boundary (vendor-generated cards referenced,
-  never hand-edited). Deck edits route through governance in fresh-session probes.
+  - **SC-7 — Governance operational.** The governance card enforces: admission (observed failure + consumer + mechanism-or-trigger + predicate classification + protocol domain-match + root-agnostic rule), retirement (lost provenance / declining trend / structural obsolescence), the deck-debt ledger (cross-deployment aggregation via the synced issue store), and the vendor-card boundary (vendor-generated cards referenced, never hand-edited). Deck edits route through governance in fresh-session probes.
 
-  - **SC-8 — Root-agnostic remediation.** Structural (fact-decidable): no root-repo
-  names or absolute paths in deck prose; ragsync config path deck-relative; `__pycache__`
-  removed; stray `skills/reference/` folded into governance; SPDX copyright headers
-  retained (attribution is not routing).
+  - **SC-8 — Root-agnostic remediation.** Structural (fact-decidable): no root-repo names or absolute paths in deck prose; ragsync config path deck-relative; `__pycache__` removed; stray `skills/reference/` folded into governance; SPDX copyright headers retained (attribution is not routing).
 
 
   ## Approach
 
 
-  1. **Floor**: single charter file + routing index (~3K tokens class, membership-tested
-  — no numeric target). Authorization vocabulary is a positive whitelist mined from
-  observed usage (4,493 utterances; grammar `approved for <scope> [: <issue-refs>]`,
-  compound directives, confirmation≠authorization, stop/stop-X distinction, the standing
-  continue-or-clarify formula). Two pragmatic floor exceptions carried deliberately:
-  the pipeline sentence and the deck-governance line.
+  1. **Floor**: single charter file + routing index (~3K tokens class, membership-tested — no numeric target). Authorization vocabulary is a positive whitelist mined from observed usage (4,493 utterances; grammar `approved for <scope> [: <issue-refs>]`, compound directives, confirmation≠authorization, stop/stop-X distinction, the standing continue-or-clarify formula). Two pragmatic floor exceptions carried deliberately: the pipeline sentence and the deck-governance line.
 
-  2. **Skill layer**: ~18–20 sharp cards (down from 51) preserving every exercised
-  intent; ceremony consolidated within cards, never across intents. Two-level intent
-  descriptions (domain-level and implementation-level framings both route — the bespoke-code
-  cure). Boilerplate (DISPATCH_GATE/Entry-Criteria/Pre-Flight Guard, duplicated across
-  39 cards) deduplicated into the single `task()` contract. `implementation-workflow`
-  restored as the `implement` card''s core reference (consult-anytime intent restored).
+  2. **Skill layer**: ~18–20 sharp cards (down from 51) preserving every exercised intent; ceremony consolidated within cards, never across intents. Two-level intent descriptions (domain-level and implementation-level framings both route — the bespoke-code cure). Boilerplate (DISPATCH_GATE/Entry-Criteria/Pre-Flight Guard, duplicated across 39 cards) deduplicated into the single `task()` contract. `implementation-workflow` restored as the `implement` card''s core reference (consult-anytime intent restored).
 
-  3. **Governance**: `skill-creator` extended as the governance card; admission +
-  retirement gates; deck-debt ledger; vendor-card slot (deck-authored / vendor-generated
-  / project-local origins).
+  3. **Governance**: `skill-creator` extended as the governance card; admission + retirement gates; deck-debt ledger; vendor-card slot (deck-authored / vendor-generated / project-local origins).
 
-  4. **Verification**: single bounded fresh-context reviewer per deliverable (SC-3
-  design), replacing verification-before-completion + completeness-gate + audit (62
-  task cards, ~10 dispatches → 1).
+  4. **Verification**: single bounded fresh-context reviewer per deliverable (SC-3 design), replacing verification-before-completion + completeness-gate + audit (62 task cards, ~10 dispatches → 1).
 
-  5. **Enforcement**: judgment primary, human backstop (human-only merge, PR review),
-  one trunk hook, `session-init` verifies hook presence report-only.
+  5. **Enforcement**: judgment primary, human backstop (human-only merge, PR review), one trunk hook, `session-init` verifies hook presence report-only.
 
-  6. **Migration — clean slate**: `git mv` the entire old deck to `attic/` + `pre-rip`
-  tag; new deck authored from this spec (zero cargo-culting — no file is edited in
-  place; every card admitted from zero under the provenance gate). PR sequence with
-  reload boundaries: PR-1 floor+routing+attic+array flip+prompts slim+vibeguard removal;
-  PR-2 skill layer; PR-3 governance+verify; PR-4 tests-v2 harvest + trunk hook + agnostic
-  remediation; PR-5 attic deletion after soak. Each PR merges → fresh session reload
-  → behavioral acceptance → next PR. Old deck remains consultable-but-unloaded until
-  soak passes.
+  6. **Migration — clean slate**: `git mv` the entire old deck to `attic/` + `pre-rip` tag; new deck authored from this spec (zero cargo-culting — no file is edited in place; every card admitted from zero under the provenance gate). PR sequence with reload boundaries: PR-1 floor+routing+attic+array flip+prompts slim+vibeguard removal; PR-2 skill layer; PR-3 governance+verify; PR-4 tests-v2 harvest + trunk hook + agnostic remediation; PR-5 attic deletion after soak. Each PR merges → fresh session reload → behavioral acceptance → next PR. Old deck remains consultable-but-unloaded until soak passes.
 
-  7. **Content disposition** (deep-history evidence): keep — sre-runbook, correspondence,
-  release trio, connector cards, worktrees, conflict handling (one card), issues family,
-  multimodal-dispatch, research, systematic-debugging, programming-principles, skill-creator;
-  fold — engineering-approach→implement, mcp-tool-usage→floor, requesting/receiving-code-review→pr,
-  pre-analysis→work gate; retire — sync-guidelines (obsolete under canonical upstream
-  distribution), approval-gate/completeness-gate/verification-before-completion/audit
-  (folded), Z3 solve/plan tooling (no observed need); hf-cli — vendor pattern, not
-  deck-owned.
+  7. **Content disposition** (deep-history evidence): keep — sre-runbook, correspondence, release trio, connector cards, worktrees, conflict handling (one card), issues family, multimodal-dispatch, research, systematic-debugging, programming-principles, skill-creator; fold — engineering-approach→implement, mcp-tool-usage→floor, requesting/receiving-code-review→pr, pre-analysis→work gate; retire — sync-guidelines (obsolete under canonical upstream distribution), approval-gate/completeness-gate/verification-before-completion/audit (folded), Z3 solve/plan tooling (no observed need); hf-cli — vendor pattern, not deck-owned.
 
 
   ## Non-Goals
 
 
-  - No change to the pipeline stage functions themselves (spec/plan/implement/PR remain;
-  programming standards remain as routed references).
+  - No change to the pipeline stage functions themselves (spec/plan/implement/PR remain; programming standards remain as routed references).
 
   - No numeric size/token/dispatch targets anywhere (needs-based derivation only).
 
-  - No per-repo deck copies; distribution is the shared upstream repo via https; drift/sync
-  out of scope.
+  - No per-repo deck copies; distribution is the shared upstream repo via https; drift/sync out of scope.
 
   - No change to the human-only merge rule or to identity/attribution conventions.
 
@@ -177,4 +87,4 @@ body: '# [SPEC] Rip-and-replace agent instruction deck with progressive-disclosu
   🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
 created_at: '2026-10-05T02:07:25+00:00'
 updated_at: '2026-10-05T18:05:04+00:00'
-github_url: '2501'
+github_url: https://github.com/michael-conrad/.opencode/issues/2501

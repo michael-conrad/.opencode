@@ -1,34 +1,27 @@
 number: 1151
-title: '[SPEC] Agent-local spec artifact routing: session-init labels, local-issues
-  locate, and repo information prose'
+title: '[SPEC] Agent-local spec artifact routing: session-init labels, local-issues locate, and repo information prose'
 status: open
 labels:
 - spec
-body: '> **Full spec and artifacts: [`.issues/1151/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1151-spec-agent-local-spec-artifact-routing-session-init)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
+body: '> **Full spec and artifacts: [`.issues/1151/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1151-spec-agent-local-spec-artifact-routing-session-init)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 
   >
 
-  > **Local artifacts:** `.issues/1151/spec-artifacts/` — implementation plan, card
-  catalogue, dependency contracts, research, designs, audit findings
+  > **Local artifacts:** `.issues/1151/spec-artifacts/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
 
 
-  Five session-init/tool changes to make the agent resolve `repo#N` references locally
-  before hitting the GitHub API:
+  Five session-init/tool changes to make the agent resolve `repo#N` references locally before hitting the GitHub API:
 
 
   1. Replace Repo Information routing-verb prose with short disambiguation prose
 
-  2. Rename `## Local Issue Artifacts` to `## Local Spec Artifacts` with `repo#:`/`spec
-  artifacts:` keys
+  2. Rename `## Local Issue Artifacts` to `## Local Spec Artifacts` with `repo#:`/`spec artifacts:` keys
 
   3. Reorder sections: Local Spec Artifacts before Repo Information
 
   4. Add `local-issues locate` subcommand returning tree skeleton
 
-  5. Update tool description to `Locate repo#N spec and plan artifacts. Create, read,
-  and manage them.`
+  5. Update tool description to `Locate repo#N spec and plan artifacts. Create, read, and manage them.`
 
 
   SC-1: `## Local Spec Artifacts` emitted before `## Repo Information`
@@ -50,3 +43,4 @@ promoted_at: '2026-08-27T03:25:12.566581+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.566581+00:00'
 author: michael-conrad
+github_url: https://github.com/michael-conrad/.opencode/issues/1151

@@ -1,5 +1,4 @@
-title: '[BUG] Branch-finishing checklist mandates plan-phase sub-issue creation —
-  floods public tracker with retrospective task tickets'
+title: '[BUG] Branch-finishing checklist mandates plan-phase sub-issue creation — floods public tracker with retrospective task tickets'
 status: open
 labels:
 - approved-for-pr
@@ -7,5 +6,5 @@ labels:
 body: ''
 created_at: '2026-08-12T03:19:02+00:00'
 updated_at: '2026-08-12T06:54:42+00:00'
-github_url: '2283'
+github_url: https://github.com/michael-conrad/.opencode/issues/2283
 remote_url: https://github.com/michael-conrad/.opencode/issues/2283

@@ -9,11 +9,7 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Problem
 
 
-  Sub-agents receive issue numbers in unqualified bare form (`#N`, `issue_number`,
-  `spec_issue_number`), resolve the repository from ambient context, and read or implement
-  specs from the wrong repository. This failure is on record: lessons-learned session-2026-06-20
-  lesson 4 (systemic cross-repo contamination; the `.opencode/.issues/1308-spec-clean-up-session-enforcement-ts/plan.md`
-  incident) and the standing "Wrong repo for spec creation" entry in `.opencode/AGENTS.md`.
+  Sub-agents receive issue numbers in unqualified bare form (`#N`, `issue_number`, `spec_issue_number`), resolve the repository from ambient context, and read or implement specs from the wrong repository. This failure is on record: lessons-learned session-2026-06-20 lesson 4 (systemic cross-repo contamination; the `.opencode/.issues/1308-spec-clean-up-session-enforcement-ts/plan.md` incident) and the standing "Wrong repo for spec creation" entry in `.opencode/AGENTS.md`.
 
 
   ## Scope
@@ -21,23 +17,15 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   **In scope:**
 
-  - Define `{owner}/{repo}#NNN` as the single self-describing internal issue identity
-  token for every internal handoff whose repository resolves to an owner/repo pair
-  (Edge Case 5 governs identity form under `identity_source: local`).
+  - Define `{owner}/{repo}#NNN` as the single self-describing internal issue identity token for every internal handoff whose repository resolves to an owner/repo pair (Edge Case 5 governs identity form under `identity_source: local`).
 
-  - Replace all enumerated split-identity Context-passed contracts with the composite
-  `issue_ref` field.
+  - Replace all enumerated split-identity Context-passed contracts with the composite `issue_ref` field.
 
-  - Remove direct platform API calls carrying bare issue numbers from non-platform
-  task cards; such calls concentrate in the platform task-card set consuming the composite.
+  - Remove direct platform API calls carrying bare issue numbers from non-platform task cards; such calls concentrate in the platform task-card set consuming the composite.
 
-  - Add guideline `.opencode/guidelines/118-issue-reference-qualification.md` defining
-  the parse convention (derived-variable carve-out; bare-reference prohibition), including
-  its registration (INDEX.md slot-118 row plus opencode.jsonc instructions-array tier
-  decision) so it loads into agent sessions.
+  - Add guideline `.opencode/guidelines/118-issue-reference-qualification.md` defining the parse convention (derived-variable carve-out; bare-reference prohibition), including its registration (INDEX.md slot-118 row plus opencode.jsonc instructions-array tier decision) so it loads into agent sessions.
 
-  - Extend the skildeck semantic lint (`.opencode/tools/impl/skildeck/skildeck-lint`)
-  to flag concrete bare issue references.
+  - Extend the skildeck semantic lint (`.opencode/tools/impl/skildeck/skildeck-lint`) to flag concrete bare issue references.
 
   - Update consuming task files in audit, issue-operations, spec-creation, and writing-plans.
 
@@ -52,49 +40,30 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
   ## Approach
 
 
-  Introduce a single self-describing issue identity token (`{owner}/{repo}#NNN`) that
-  binds repo identity to the issue number at the point of handoff. Sub-agents consume
-  this composite and derive `owner`, `repo`, and `issue_number` locally for artifact-path
-  construction under a documented derived-variable carve-out, instead of guessing
-  repo identity from an unqualified number. The `skildeck` semantic lint enforces
-  the convention mechanically with that carve-out. Platform resolution remains the
-  responsibility of the platform-aware issue-operations dispatcher — the token deliberately
-  does not carry platform.
+  Introduce a single self-describing issue identity token (`{owner}/{repo}#NNN`) that binds repo identity to the issue number at the point of handoff. Sub-agents consume this composite and derive `owner`, `repo`, and `issue_number` locally for artifact-path construction under a documented derived-variable carve-out, instead of guessing repo identity from an unqualified number. The `skildeck` semantic lint enforces the convention mechanically with that carve-out. Platform resolution remains the responsibility of the platform-aware issue-operations dispatcher — the token deliberately does not carry platform.
 
 
   ## Impact
 
 
-  - **Risk:** Broader contract-shape change across ten enumerated card sites and 21
-  non-platform task files — mitigation: the composite is a drop-in replacement consumed
-  at the same Context-passed boundary.
+  - **Risk:** Broader contract-shape change across ten enumerated card sites and 21 non-platform task files — mitigation: the composite is a drop-in replacement consumed at the same Context-passed boundary.
 
-  - **Risk:** Lint false positives on legitimate references — mitigation: derived-variable
-  carve-out plus fail-fast recovery that rewrites the reference rather than weakening
-  the rule.
+  - **Risk:** Lint false positives on legitimate references — mitigation: derived-variable carve-out plus fail-fast recovery that rewrites the reference rather than weakening the rule.
 
-  - **Risk:** Verification scope spans behavioral evidence for routing changes — mitigation:
-  per-SC verification methods are declared in the spec''s Success Criteria table;
-  behavioral runs go through `.opencode/tests-v2/with-test-home` and report FAIL (no
-  static substitution) when no model is available.
+  - **Risk:** Verification scope spans behavioral evidence for routing changes — mitigation: per-SC verification methods are declared in the spec''s Success Criteria table; behavioral runs go through `.opencode/tests-v2/with-test-home` and report FAIL (no static substitution) when no model is available.
 
-  - **Key dependency:** session-init Repo Information supplies authoritative owner/repo
-  values; under `identity_source: local` no composite is fabricated (edge case documented
-  in the spec). Guideline registration (INDEX.md slot-118 + opencode.jsonc instructions-array
-  decision) is a required GREEN-phase step.
+  - **Key dependency:** session-init Repo Information supplies authoritative owner/repo values; under `identity_source: local` no composite is fabricated (edge case documented in the spec). Guideline registration (INDEX.md slot-118 + opencode.jsonc instructions-array decision) is a required GREEN-phase step.
 
 
-  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-26 — spec-audit
-  cycle-3 remediation (provenance count fix)
+  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-26 — spec-audit cycle-3 remediation (provenance count fix)
 
 
 
 
-  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-26 — spec-audit
-  cycle-4 remediation (cost-frame preamble)
+  🤖 OpenCode (opencode/x-preview-f-free) revised exec summary 2026-08-26 — spec-audit cycle-4 remediation (cost-frame preamble)
 
   '
 created_at: '2026-08-24T21:53:55+00:00'
 updated_at: '2026-08-26T09:30:06Z'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2319
-github_url: '2319'
+github_url: https://github.com/michael-conrad/.opencode/issues/2319

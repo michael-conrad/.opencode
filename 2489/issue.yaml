@@ -1,70 +1,44 @@
-title: '[SPEC-FIX] Holistic submodule pointer discipline: remove pre-commit stale-pointer
-  gate, consolidate tag canon, repair dead references'
+title: '[SPEC-FIX] Holistic submodule pointer discipline: remove pre-commit stale-pointer gate, consolidate tag canon, repair dead references'
 status: open
 labels:
 - spec-cleared
 - approved-for-pr
-body: '> **Full spec and artifacts: [`.opencode/.issues/2489/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2489)**
-  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
-  branch.
+body: '> **Full spec and artifacts: [`.opencode/.issues/2489/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2489)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
 
 
   ## Problem
 
 
-  Submodule pointer discipline regressed across the enforcement chain: the pre-commit
-  hook Gate 2 enforces a pre-work-only invariant at commit time where it is legitimately
-  false, the tag canon moved without repointing 15 dead references, and 3 tag-format
-  sites still document the unsuffixed `<parent-repo>/<issue-number>` form. Ceremony
-  tests have re-accumulated in this subsystem, and the issue graph (#2431, #2258)
-  carries assumptions this change invalidates.
+  Submodule pointer discipline regressed across the enforcement chain: the pre-commit hook Gate 2 enforces a pre-work-only invariant at commit time where it is legitimately false, the tag canon moved without repointing 15 dead references, and 3 tag-format sites still document the unsuffixed `<parent-repo>/<issue-number>` form. Ceremony tests have re-accumulated in this subsystem, and the issue graph (#2431, #2258) carries assumptions this change invalidates.
 
 
   ## Scope
 
 
-  - Remove pre-commit hook Gate 2 (stale-pointer check + `SKIP_STALE_POINTER_CHECK`
-  hatch) and its five dependent tests.
+  - Remove pre-commit hook Gate 2 (stale-pointer check + `SKIP_STALE_POINTER_CHECK` hatch) and its five dependent tests.
 
-  - Consolidate all tag rules into the single canonical section `operating-protocol.md`
-  "Tag Convention (Canonical)" and repoint all 15 dead references via a fixed mapping
-  table.
+  - Consolidate all tag rules into the single canonical section `operating-protocol.md` "Tag Convention (Canonical)" and repoint all 15 dead references via a fixed mapping table.
 
-  - Correct the three unsuffixed tag-format sites; add a standing reference-integrity
-  enforcement check in `.opencode/tools/`.
+  - Correct the three unsuffixed tag-format sites; add a standing reference-integrity enforcement check in `.opencode/tools/`.
 
 
-  **Out of scope:** pre-push Gate 2 (submodule-only push blocker), PR-time enforcement-gate
-  Steps 0/0.5/0.75 content, create-pr.md release pointer check, trunk-tip-verification
-  pre-work gate, #2258 fix (superseded), any migration of existing 191 suffixed tags
-  or the historical malformed tag.
+  **Out of scope:** pre-push Gate 2 (submodule-only push blocker), PR-time enforcement-gate Steps 0/0.5/0.75 content, create-pr.md release pointer check, trunk-tip-verification pre-work gate, #2258 fix (superseded), any migration of existing 191 suffixed tags or the historical malformed tag.
 
 
   ## Approach
 
 
-  Full deletion of Gate 2 so stacked-PR enforcement lives where it is actually true
-  (PR creation); single canonical tag section with a closed six-entry rule inventory;
-  dead references repointed in inline `Read [Text](path)` form per the cross-reference
-  research card; ceremony-test retirement policy recorded (user directive 2026-10-02);
-  commit-time→PR-time semantics handover recorded on #2431 and #2258 superseded with
-  rationale.
+  Full deletion of Gate 2 so stacked-PR enforcement lives where it is actually true (PR creation); single canonical tag section with a closed six-entry rule inventory; dead references repointed in inline `Read [Text](path)` form per the cross-reference research card; ceremony-test retirement policy recorded (user directive 2026-10-02); commit-time→PR-time semantics handover recorded on #2431 and #2258 superseded with rationale.
 
 
   ## Impact
 
 
-  - **Risk:** commit-time stale-pointer defense is lost — mitigated: PR-time gates
-  (Steps 0/0.5/0.75) remain the sole authoritative freshness site with their tests
-  kept.
+  - **Risk:** commit-time stale-pointer defense is lost — mitigated: PR-time gates (Steps 0/0.5/0.75) remain the sole authoritative freshness site with their tests kept.
 
-  - **Risk:** installed hook copies carry old Gate 2 until session start — mitigated:
-  session-enforcement.ts re-installs hooks at session start (verified during Item
-  1).
+  - **Risk:** installed hook copies carry old Gate 2 until session start — mitigated: session-enforcement.ts re-installs hooks at session start (verified during Item 1).
 
-  - **Dependencies:** #2431 (PR-time authority, handover comment required), #2313
-  (unaffected, must stay green), #950 (tag format canon), #2258 (superseded). Call
-  to action: review the revised spec at the issues-data branch link above.
+  - **Dependencies:** #2431 (PR-time authority, handover comment required), #2313 (unaffected, must stay green), #950 (tag format canon), #2258 (superseded). Call to action: review the revised spec at the issues-data branch link above.
 
 
   🤖 OpenCode (huggingface/zai-org/GLM-5.3-Flash) created
@@ -72,5 +46,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2489/`](https://github.c
   '
 created_at: '2026-10-02T20:23:01+00:00'
 updated_at: '2026-10-02T23:56:01+00:00'
-github_url: 'true'
+github_url: https://github.com/michael-conrad/.opencode/issues/2489
 remote_url: git@github.com:michael-conrad/.opencode.git
