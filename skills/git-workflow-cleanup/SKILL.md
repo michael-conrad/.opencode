@@ -1,0 +1,22 @@
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
+---
+name: git-workflow-cleanup
+description: Load after any pull request merges — when the developer says "pr merged", "merged", or a merge event is otherwise confirmed. Verify the merge via the platform API, delete the feature branch, close the completed issues (the sole authorized closure path), sync the trunk, and remove work-state artifacts.
+license: MIT
+provenance: AI-authored, .opencode#2490
+---
+
+# git-workflow-cleanup
+
+1. **Verify the merge** via the platform API (`gh`/`gb`) — never assume from
+   memory or cache; the API call is the evidence.
+2. **Delete the feature branch** locally and on the remote.
+3. **Close issues** whose work the merged PR delivered — closure happens only
+   here or on explicit developer instruction, never speculatively.
+4. **Sync the trunk** locally so the next branch starts from the tip.
+5. **Remove work-state artifacts** (work files, scratch state) so stale state
+   never misleads a later session.
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
