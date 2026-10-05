@@ -16,7 +16,11 @@ not user phrasing — are the dispatch mechanism.
 | writing an implementation plan from an approved spec | `plan` |
 | executing an approved plan, or making any change during the implementation cycle | `implement` — loads the implementation-workflow reference first |
 | checking a deliverable against stated requirements before claiming completion | `verify` — single fresh-context reviewer, churn rule, bounded loop |
-| branching / committing / pushing / opening a PR / post-merge cleanup / resolving conflicts | the matching `git` family card |
+| branching | `git-workflow-branch` |
+| committing / staging files | `git-workflow-commit` |
+| opening or updating a PR / preparing work for review | `git-workflow-pr` |
+| post-merge cleanup | `git-workflow-cleanup` |
+| rebase/merge/cherry-pick conflicts | `git-workflow-conflict` |
 | creating, commenting, linking, or closing issues | `issues` |
 | operating GitHub / GitBucket / the browser / notebooks | the matching connector card (`gh-cli`, `gb-cli`, vendor hf card, `playwright-cli`) |
 | creating or modifying CI — pipelines, runners, workflows, or submodule checkout configuration | `ci-boundary` |
