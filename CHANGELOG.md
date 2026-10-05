@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.2.0] - Unreleased
 
+### Added
+
+- **Vendored formal tooling: `tools/formal` + `formal-tooling` skill card** (#2504) - Replaced the bespoke `tools/plan` and `tools/solve` wrappers (retired to `attic/tools/`) with a single thin adapter over mature off-the-shelf engines: the vendored z3 5.1.0 binary (SMT-LIB2 `check`/`model`/`prove` with named unsat-cores; binary installed at runtime under gitignored `.tools/` per the card's install runbook) and unified-planning's `up` CLI (`plan`/`validate`/`ground`). One shared YAML state schema with a single `state` subcommand eliminates the conflicting state formats between the two retired tools. Added the progressive `formal-tooling` skill card (runbook-grade usage content, intent-routed from `routing.md`) with executed-transcript fixtures under `tests-v2/formal-tooling/fixtures/`. Resolves #1168 (`state init` accepts `--var name=value` in one step); #1169–#1171 are moot-by-replacement.
+
 ### Fixed
+
+- **Authorization vocabulary: phase approval carries prior phases** (#2505) - `approved for <phase>` in the floor's vocabulary is now defined as carrying the item through all pipeline phases up to and including the named phase; intermediate stage authorizations are implied, not separately required. Fixes a regression where `approved for pr` was read as PR-boundary-only and the pipeline stalled awaiting per-stage confirmation.
 
 - **import-remote mirror-file schema alignment** (#2477) - Rewrote the `issue-operations-sync` `import-remote` task card to use the real `local-issues` mirror schema (`spec.md`, `issue.yaml`, `comments.yaml`, `links.yaml`) instead of legacy mirror filenames (`comments.md`, `remote.md`, `state.md`) that the tool cannot read. Comment import now uses YAML list format, the completeness gate and evidence table enumerate the actual schema files, and Step 7 counter advancement specifies a validated write procedure consistent with the tool's `_next_number` fail-fast semantics.
 

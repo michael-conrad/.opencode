@@ -1,0 +1,16 @@
+# SC-4 — one state schema round-trips between the state subcommand and the solver path (executed 2026-10-05)
+$ formal state init st.yaml --var ready=false --var done=false --var count=0
+state initialised at st.yaml
+$ formal check (state as written by state init)
+UNSAT
+  violated: state-done
+  violated: postcondition-1
+exit=1
+$ formal state update st.yaml --var done=true --var count=3
+state updated at st.yaml
+$ formal check (same file after update)
+UNSAT
+  violated: state-done
+  violated: state-ready
+  violated: pre-ready-or-not-done
+exit=1

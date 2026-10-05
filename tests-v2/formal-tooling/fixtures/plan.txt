@@ -1,0 +1,2 @@
+(move depot hub)
+(unload pkg1 hub)

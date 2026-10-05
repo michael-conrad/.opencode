@@ -1,0 +1,36 @@
+# SC-3 plan — generation via up oneshot-planning (executed 2026-10-05)
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `OneshotPlanner` at line 72 of `/home/muksihs/.cache/uv/environments-v2/formal-4d4028e80f48819f/lib/python3.12/site-packages/unified_planning/cmd/up.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0mStatus returned by Tamer: SOLVED_SATISFICING
+Plan found:
+SequentialPlan:
+    move(depot, hub)
+    unload(pkg1, hub)
+exit=0
+--- plan.txt ---
+(move depot hub)
+(unload pkg1 hub)
+
+# SC-3 validate — via up plan-validation
+[96m[1mNOTE: To disable printing of planning engine credits, add this line to your code: `up.shortcuts.get_environment().credits_stream = None`
+[0m[96m  *** Credits ***
+[0m[96m  * In operation mode `PlanValidator` at line 166 of `/home/muksihs/.cache/uv/environments-v2/formal-4d4028e80f48819f/lib/python3.12/site-packages/unified_planning/cmd/up.py`, [0m[96myou are using the following planning engine:
+[0m[96m  * Engine name: Tamer
+  * Developers:  FBK Tamer Development Team
+[0m[96m  * Description: [0m[96mTamer offers the capability to generate a plan for classical, numerical and temporal problems.
+  *              For those kind of problems tamer also offers the possibility of validating a submitted plan.[0m[96m
+[0m[96m
+[0mstatus: VALID
+engine: Tamer
+exit=0
+
+# SC-3 ground — via up compile --kind grounding
+exit=0
+grounded-domain.pddl
+grounded-problem.pddl

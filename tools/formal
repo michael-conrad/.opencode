@@ -1,0 +1,472 @@
+#!/usr/bin/env -S uv run --script
+# fmt: off
+"exec" "uv" "run" "--script" "$0" "$@"  # MUST GO BEFORE PEP 723 HEADER
+
+# PEP 723 HEADER MUST BE AFTER BASH GUARD
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["pyyaml>=6.0", "unified-planning>=1.3.0", "up-tamer>=1.1.0"]
+# ///
+
+# fmt: on
+
+# SPDX-FileCopyrightText: 2026 Michael Conrad
+# SPDX-License-Identifier: MIT
+# Provenance: AI-authored, .opencode#2504
+
+"""
+DESCRIPTION: Thin formal tooling adapter — vendored z3 (SMT-LIB2) + unified-planning `up` CLI.
+
+Operations:
+  check    — state vs contract: sat/unsat, unsat-cores name violated clauses
+  model    — satisfiable query over contract clauses: sat + assignment
+  prove    — preconditions ∧ invariants ∧ ¬theorem: unsat = VALID, sat = INVALID
+  plan     — oneshot planning via `up oneshot-planning` (PDDL domain/problem)
+  validate — plan validation via `up plan-validation`
+  ground   — grounding via `up compile --kind grounding`
+  state    — one shared state schema (init, update, status)
+
+The adapter contains no solver or planner logic: it translates YAML into
+SMT-LIB2 / CLI invocations, execs the vendored z3 binary or the `up` CLI,
+and parses their output. The z3 binary is installed under `.tools/z3/`
+(gitignored) — see the formal-tooling skill card for the install runbook.
+
+State schema (single owner — this file; consumed by solver and planning paths):
+
+  variables:
+    <name>: <literal>            # typed by value
+    <name>: {type: bool|int|real|string, value: <literal>}
+
+Contract schema:
+
+  variables: {<name>: {type: bool|int|real|string}}
+  assumptions: [<smt-expr> | {name: <id>, expr: <smt-expr>}]   # preconditions
+  invariants:  [<smt-expr> | {name: <id>, expr: <smt-expr>}]
+  postconditions: [...]           # used by `check` after assumptions
+
+Expressions are SMT-LIB2 s-expressions over the declared variable names,
+e.g. "(and a (not b))", "(=> ready done)", "(> count 0)".
+
+Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+"""
+
+import argparse
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+import yaml
+
+_SORTS = {
+    "bool": "Bool",
+    "int": "Int",
+    "real": "Real",
+    "string": "String",
+}
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+
+def _die(msg: str, code: int = 2) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def _load_yaml(path: str) -> dict:
+    p = Path(path)
+    if not p.exists():
+        _die(f"file not found: {path}")
+    with p.open() as f:
+        data = yaml.safe_load(f) or {}
+    if not isinstance(data, dict):
+        _die(f"expected a YAML mapping in {path}")
+    return data
+
+
+def _tool_root() -> Path:
+    """Resolve the vendored-binary root from this script's own location:
+    <script_dir>/../.tools/z3/."""
+    here = Path(__file__).resolve().parent
+    return here.parent / ".tools" / "z3"
+
+
+def _z3_binary() -> str:
+    local = _tool_root() / "z3"
+    if local.exists():
+        return str(local)
+    found = shutil.which("z3")
+    if found:
+        return found
+    _die(
+        "z3 binary not found: expected .tools/z3/z3 next to this script's "
+        "repo root, or z3 on PATH. See the formal-tooling skill card for "
+        "the install runbook."
+    )
+
+
+def _quote(v) -> str:
+    """Render a YAML literal as an SMT-LIB2 term."""
+    if isinstance(v, bool):
+        return "true" if v else "false"
+    if isinstance(v, (int,)):
+        return str(v)
+    if isinstance(v, float):
+        return f"{v}"
+    if isinstance(v, str):
+        escaped = v.replace('"', '\\"')
+        return f'"{escaped}"'
+    _die(f"unsupported literal {v!r}")
+
+
+def _decl_sort(decl) -> tuple[str, str]:
+    """Return (sort, value) for a state variable entry."""
+    if isinstance(decl, dict):
+        typ = decl.get("type", "bool")
+        if typ not in _SORTS:
+            _die(f"unsupported variable type {typ!r}")
+        return _SORTS[typ], _quote(decl.get("value"))
+    return None, _quote(decl)
+
+
+def _clauses(section, prefix: str) -> list[tuple[str, str]]:
+    """Normalize a clause section to [(name, smt-expr)].
+
+    Each item is a string (auto-named `<prefix>-N`) or a mapping with
+    `name` + `expr`. Names feed get-unsat-core output.
+    """
+    if section is None:
+        return []
+    if not isinstance(section, list):
+        section = [section]
+    out = []
+    for i, item in enumerate(section, 1):
+        if isinstance(item, dict):
+            name = item.get("name") or f"{prefix}-{i}"
+            expr = item.get("expr")
+            if expr is None:
+                _die(f"clause {name!r} is missing 'expr'")
+        elif isinstance(item, str):
+            name, expr = f"{prefix}-{i}", item
+        else:
+            _die(f"clause must be a string or mapping, got {type(item).__name__}")
+        out.append((name, expr))
+    return out
+
+
+# ---------------------------------------------------------------------------
+# SMT-LIB2 translation + z3 execution (no solver logic lives here)
+# ---------------------------------------------------------------------------
+
+
+def _smt_script(contract: dict, state: dict | None, extra_asserts, probes: list[str],
+                sections=("assumptions", "invariants")) -> str:
+    lines = ["(set-option :produce-unsat-cores true)",
+             "(set-option :produce-models true)"]
+
+    variables = contract.get("variables", {}) or {}
+    if not isinstance(variables, dict):
+        _die("contract 'variables' must be a mapping")
+
+    decls = {}
+    for name, decl in variables.items():
+        if not isinstance(decl, dict) or "type" not in decl:
+            _die(f"contract variable {name!r} must declare {{type: ...}}")
+        if decl["type"] not in _SORTS:
+            _die(f"unsupported variable type {decl['type']!r} for {name!r}")
+        decls[name] = _SORTS[decl["type"]]
+        lines.append(f"(declare-const {name} {decls[name]})")
+
+    named = []
+    if state:
+        state_vars = state.get("variables", state)
+        if not isinstance(state_vars, dict):
+            _die("state 'variables' must be a mapping")
+        for name, val in state_vars.items():
+            if name not in decls:
+                _die(f"state variable {name!r} is not declared in the contract")
+            named.append((f"state-{name}", f"(= {name} {_quote(val)})"))
+    for prefix in sections:
+        for cname, expr in _clauses(contract.get(prefix), prefix.rstrip("s")):
+            named.append((cname, expr))
+    for cname, expr in extra_asserts:
+        named.append((cname, expr))
+
+    for name, expr in named:
+        lines.append(f"(assert (! {expr} :named {name}))")
+
+    lines.append("(check-sat)")
+    lines.extend(probes)
+    lines.append("(exit)")
+    return "\n".join(lines) + "\n"
+
+
+def _run_z3(script: str) -> list[str]:
+    proc = subprocess.run(
+        [_z3_binary(), "-in"],
+        input=script,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        _die(f"z3 exited {proc.returncode}: {proc.stderr.strip()}")
+    out = [ln for ln in proc.stdout.splitlines() if ln.strip()]
+    if not out:
+        _die(f"z3 produced no output; stderr: {proc.stderr.strip()}")
+    return out
+
+
+def _print_model(lines: list[str], declared=None) -> None:
+    """Print the (get-model) response as readable assignments.
+
+    `declared` restricts output to the contract's declared variables —
+    z3 also defines funs for named assertions, which are noise.
+    """
+    start = next(
+        (i for i, ln in enumerate(lines)
+         if ln.strip() in ("(", "(model") or ln.startswith("(model")),
+        None,
+    )
+    if start is None:
+        return
+    depth = 0
+    entries: list[str] = []
+    i = start
+    while i < len(lines):
+        stripped = lines[i].strip()
+        depth += stripped.count("(") - stripped.count(")")
+        if depth == 0 and entries:
+            break
+        if stripped.startswith("(define-fun"):
+            # z3 wraps long definitions: value may sit on following lines
+            # until parens balance.
+            piece = stripped
+            bal = piece.count("(") - piece.count(")")
+            while bal > 0 and i + 1 < len(lines):
+                i += 1
+                nxt = lines[i].strip()
+                piece += " " + nxt
+                bal += nxt.count("(") - nxt.count(")")
+            name = piece.split()[1] if len(piece.split()) > 1 else ""
+            if declared is None or name in declared:
+                entries.append(piece)
+        i += 1
+    if entries:
+        for entry in entries:
+            print(f"  {entry}")
+    else:
+        print("  (empty model)")
+
+
+def _run_solver(contract: dict, state: dict | None, extra_asserts, cores: bool,
+                sections=("assumptions", "invariants")):
+    """Run z3 on the translated script; return (verdict, output lines).
+
+    Two passes: (check-sat) alone first, then the probe the verdict allows —
+    z3 errors on (get-unsat-core) after sat and (get-model) after unsat.
+    """
+    lines = _run_z3(_smt_script(contract, state, extra_asserts, [], sections))
+    verdict = lines[0].strip()
+    declared = set(contract.get("variables", {}) or {})
+    if verdict not in ("sat", "unsat"):
+        _die(f"unexpected z3 verdict: {verdict!r}; output: {lines}")
+    if verdict == "unsat" and cores:
+        probes = ["(get-unsat-core)"]
+    elif verdict == "sat":
+        probes = ["(get-model)"]
+    else:
+        probes = []
+    if probes:
+        lines = _run_z3(_smt_script(contract, state, extra_asserts, probes, sections))
+    return verdict, lines, declared
+
+
+def _print_unsat_core(lines: list[str]) -> None:
+    core_line = next((ln for ln in lines[1:] if ln.startswith("(") and "define-fun" not in ln), None)
+    names = core_line.strip("()").split() if core_line else []
+    names = [n for n in names if n]
+    for n in names:
+        print(f"  violated: {n}")
+    if not names:
+        print("  violated: (no core returned)")
+
+
+# ---------------------------------------------------------------------------
+# Planning via unified-planning's `up` CLI (no bespoke planner logic)
+# ---------------------------------------------------------------------------
+
+
+def _run_up(mode: str, args: list[str]) -> None:
+    up = shutil.which("up")
+    cmd = (
+        ["uv", "run", "--with", "unified-planning", "--with", "up-tamer", "up", mode, *args]
+        if up is None
+        else [up, mode, *args]
+    )
+    proc = subprocess.run(cmd)
+    sys.exit(proc.returncode)
+
+
+# ---------------------------------------------------------------------------
+# State — the one shared state schema
+# ---------------------------------------------------------------------------
+
+
+def _state_path(path: str) -> Path:
+    p = Path(path)
+    return p / "state.yaml" if not p.suffix else p
+
+
+def _parse_var(pair: str) -> tuple[str, object]:
+    name, sep, raw = pair.partition("=")
+    if not sep:
+        _die(f"--var expects name=value, got {pair!r}")
+    name, raw = name.strip(), raw.strip()
+    if raw in ("true", "false"):
+        return name, raw == "true"
+    try:
+        return name, int(raw)
+    except ValueError:
+        pass
+    try:
+        return name, float(raw)
+    except ValueError:
+        pass
+    return name, raw
+
+
+def _action_state(args) -> None:
+    p = _state_path(args.state_path)
+    if args.state_sub == "init":
+        if p.exists() and not args.force:
+            _die(f"state file already exists: {p} (use --force)")
+        state = {"variables": dict(_parse_var(v) for v in args.var)}
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("w") as f:
+            yaml.dump(state, f, default_flow_style=False)
+        print(f"state initialised at {p}")
+    elif args.state_sub == "update":
+        if not p.exists():
+            _die(f"state file not found: {p} (run state init first)")
+        with p.open() as f:
+            state = yaml.safe_load(f) or {"variables": {}}
+        for pair in args.var:
+            name, val = _parse_var(pair)
+            state.setdefault("variables", {})[name] = val
+        with p.open("w") as f:
+            yaml.dump(state, f, default_flow_style=False)
+        print(f"state updated at {p}")
+    elif args.state_sub == "status":
+        if not p.exists():
+            _die(f"state file not found: {p}")
+        with p.open() as f:
+            state = yaml.safe_load(f) or {}
+        print(yaml.dump(state, default_flow_style=False))
+
+
+# ---------------------------------------------------------------------------
+# Argument parser
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Thin formal tooling adapter: vendored z3 (SMT-LIB2) + unified-planning `up` CLI.",
+    )
+    sub = parser.add_subparsers(dest="action", required=True)
+
+    p = sub.add_parser("check", help="validate state against contract (unsat-cores name violated clauses)")
+    p.add_argument("--state-path", required=True)
+    p.add_argument("--contract-path", required=True)
+
+    p = sub.add_parser("model", help="satisfying assignment for a query over contract clauses")
+    p.add_argument("--contract-path", required=True)
+    p.add_argument("--query", required=True, help="SMT-LIB2 expression")
+
+    p = sub.add_parser("prove", help="prove theorem: assumptions ∧ invariants ∧ ¬theorem must be unsat")
+    p.add_argument("--contract-path", required=True)
+    p.add_argument("--theorem", required=True, help="SMT-LIB2 expression")
+
+    p = sub.add_parser("plan", help="generate a plan via `up oneshot-planning`")
+    p.add_argument("--domain", required=True)
+    p.add_argument("--problem", required=True)
+    p.add_argument("--plan-out", default="plan.txt")
+
+    p = sub.add_parser("validate", help="validate a plan via `up plan-validation`")
+    p.add_argument("--domain", required=True)
+    p.add_argument("--problem", required=True)
+    p.add_argument("--plan", required=True)
+
+    p = sub.add_parser("ground", help="ground a problem via `up compile --kind grounding`")
+    p.add_argument("--domain", required=True)
+    p.add_argument("--problem", required=True)
+    p.add_argument("--out-prefix", default="grounded",
+                   help="writes <prefix>-domain.pddl and <prefix>-problem.pddl")
+
+    p = sub.add_parser("state", help="shared state file management")
+    p.add_argument("state_sub", choices=["init", "update", "status"])
+    p.add_argument("state_path")
+    p.add_argument("--var", "-n", action="append", default=[],
+                   help="name=value (repeatable)")
+    p.add_argument("--force", "-f", action="store_true")
+
+    args = parser.parse_args()
+
+    if args.action == "check":
+        state = _load_yaml(args.state_path)
+        contract = _load_yaml(args.contract_path)
+        verdict, lines, declared = _run_solver(
+            contract, state, [], cores=True,
+            sections=("assumptions", "invariants", "postconditions"),
+        )
+        if verdict == "sat":
+            print("SAT")
+            _print_model(lines, declared)
+        else:
+            print("UNSAT")
+            _print_unsat_core(lines)
+            sys.exit(1)
+    elif args.action == "model":
+        contract = _load_yaml(args.contract_path)
+        verdict, lines, declared = _run_solver(
+            contract, None, [("query", args.query)], cores=False
+        )
+        if verdict == "sat":
+            print("SAT")
+            _print_model(lines, declared)
+        else:
+            print("UNSAT")
+            sys.exit(1)
+    elif args.action == "prove":
+        contract = _load_yaml(args.contract_path)
+        verdict, lines, declared = _run_solver(
+            contract, None, [("theorem-negated", f"(not {args.theorem})")], cores=False
+        )
+        if verdict == "unsat":
+            print("VALID")
+        else:
+            print("INVALID")
+            _print_model(lines, declared)
+            sys.exit(1)
+    elif args.action in ("plan", "validate", "ground"):
+        if args.action == "plan":
+            _run_up("oneshot-planning",
+                    ["--pddl", args.domain, args.problem, "--plan", args.plan_out])
+        elif args.action == "validate":
+            _run_up("plan-validation",
+                    ["--pddl", args.domain, args.problem, "--plan", args.plan])
+        else:
+            _run_up("compile",
+                    ["--pddl", args.domain, args.problem,
+                     "--pddl-output", f"{args.out_prefix}-domain.pddl",
+                     f"{args.out_prefix}-problem.pddl",
+                     "--kind", "grounding"])
+    elif args.action == "state":
+        _action_state(args)
+
+
+if __name__ == "__main__":
+    main()

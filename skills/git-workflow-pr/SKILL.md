@@ -7,15 +7,17 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2509 stacked-PR definition -->
 
 # git-workflow-pr
 
 1. **Readiness.** The verify pass has produced PASS on the deliverable's SCs;
    structural checks (lint/typecheck/build) ran clean. Not ready → `verify`
    first, not a PR.
-2. **Shape.** One PR per issue. Multiple WIP commits squash to one commit at
-   PR creation; stacked work keeps its stack honest.
+2. **Shape.** A stacked PR is **one PR against the trunk containing one
+   squashed commit per issue ticket** — the body closes every stacked issue.
+   Squash WIP to one commit per issue at PR creation; a stacked branch chain
+   rides in that one PR, never as one PR per stacked layer.
 3. **Body.** Executive summary of what changed and why; the executed-test
    evidence (real output, not assertions); linked issue; provenance pointers.
 4. **Create via the platform CLI** (`gh pr create` / `gb` equivalent) —

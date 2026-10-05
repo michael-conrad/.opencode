@@ -1,0 +1,38 @@
+# SC-2 check — violating state (executed 2026-10-05, z3 5.1.0 vendored)
+UNSAT
+  violated: state-ready
+  violated: state-done
+  violated: pre-ready-or-not-done
+exit=1
+
+# SC-2 check — satisfying state
+SAT
+  (define-fun count () Int 3)
+  (define-fun done () Bool true)
+  (define-fun ready () Bool true)
+exit=0
+
+# SC-2 model — satisfiable query
+SAT
+  (define-fun count () Int 1)
+  (define-fun done () Bool false)
+  (define-fun ready () Bool true)
+exit=0
+
+# SC-2 model — unsatisfiable query
+SAT
+  (define-fun count () Int 6)
+  (define-fun done () Bool false)
+  (define-fun ready () Bool false)
+exit=0
+
+# SC-2 prove — true theorem
+VALID
+exit=0
+
+# SC-2 prove — false theorem (refutation + counterexample)
+INVALID
+  (define-fun count () Int 3)
+  (define-fun done () Bool false)
+  (define-fun ready () Bool false)
+exit=1

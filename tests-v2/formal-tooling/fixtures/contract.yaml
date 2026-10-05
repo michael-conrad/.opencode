@@ -1,0 +1,12 @@
+variables:
+  ready: {type: bool}
+  done: {type: bool}
+  count: {type: int}
+assumptions:
+  - name: pre-ready-or-not-done
+    expr: "(=> done ready)"
+invariants:
+  - name: inv-count-nonneg
+    expr: "(>= count 0)"
+postconditions:
+  - "done"
