@@ -21,6 +21,9 @@ provenance: AI-authored, .opencode#2490
 4. **No status tracking in the body** — no STATUS fields, completion markers,
    or progress indicators. State lives in the pipeline, not the plan.
 5. Plans wait for the developer's authorization before `implement` when the
-   scope requires it; short-path changes execute directly under `work`.
+   scope requires it; short-path changes execute directly under `work`. A
+   terminal-stage approval (`approved for pr`, `approved for
+   implementation`, …) from the vocabulary in `floor.md` carries the item
+   through plan into implement — the stage is not re-asked.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

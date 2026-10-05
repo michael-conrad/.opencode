@@ -27,6 +27,8 @@ provenance: AI-authored, .opencode#2490
    superseded criteria are removed, never accumulated. No STATUS fields — the
    spec defines what is required, implemented or not.
 5. **Approval is a human gate.** The spec waits for the developer's
-   authorization before `plan`.
+   authorization before `plan` — and a terminal-stage approval
+   (`approved for pr`, `approved for implementation`, …) from the vocabulary
+   in `floor.md` *is* that authorization; the stage is not re-asked.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

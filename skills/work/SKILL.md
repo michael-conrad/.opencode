@@ -25,8 +25,12 @@ Consult before touching files.
    - Short: `git-workflow-branch` → `implement` → `verify` → `git-workflow-pr`
    - Full: `explore` → `spec` → developer approval → `plan` → `implement` →
      `verify` → `git-workflow-pr`
-4. **Boundaries.** Spec approval, plan approval, and merge are human gates.
-   PRs are merged by the developer only — never by the agent.
+4. **Boundaries.** Spec approval, plan approval, and merge are human gates —
+   and a developer-issued terminal-stage approval (`approved for pr`,
+   `approved for implementation`, …) *is* that human gate for the upstream
+   stages it carries, per the vocabulary in `floor.md`. It authorizes the
+   item through every phase up to and including the named one; only merge
+   remains human-only unconditionally.
 
 Unsure which path fits? Halt with an open-ended clarification request.
 

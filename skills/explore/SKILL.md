@@ -22,6 +22,8 @@ provenance: AI-authored, .opencode#2490
 - **Finalization gate:** design approval is raw input to `spec`. Only an
   explicit, unforgeable developer statement that the design is final ends this
   stage. Never infer it from silence, agreement with sections, or momentum.
-  Refinements and clarifications are not finalization.
+  Refinements and clarifications are not finalization. A terminal-stage
+  approval (`approved for pr`, …) from the vocabulary in `floor.md` is such a
+  statement — it finalizes the design and carries the item onward.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
