@@ -26,6 +26,7 @@ not user phrasing — are the dispatch mechanism.
 | creating or modifying CI — pipelines, runners, workflows, or submodule checkout configuration | `ci-boundary` |
 | discovering information or investigating root causes | `research` / `systematic-debugging` |
 | designing, reviewing, or auditing code | `programming-principles` |
+| authoring a plan or spec that references deck paths or dispatch strings, or acting on an embedded routing reference that may be stale or dead | `reference-currency` — consuming side owns reference currency, remediate before continuing |
 | creating or editing any file under `skills/`, `guidelines/`, `floor.md`, or `routing.md` | deck governance (`skill-creator`) — admission gate first |
 | producing a changelog, version bump, tag, or GitHub release | the matching release-trio card |
 | producing an operational runbook | `sre-runbook` |
