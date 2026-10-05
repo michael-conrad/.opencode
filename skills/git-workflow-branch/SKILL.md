@@ -3,7 +3,7 @@
 <!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-branch
-description: Load before creating any git branch or starting work on a new task in any repo — branch naming, trunk-freshness checks, submodule sync, provenance recording. Also load whenever work is about to begin and no branch exists yet. Never commit directly to the trunk-identified primary branch; feature branches are created before the first file modification.
+description: Always load before creating any git branch or starting any work on a task in any repo — however small the task seems. Branch naming, trunk-freshness checks, submodule sync, provenance recording. Never commit directly to the trunk-identified primary branch; the feature branch exists before the first file modification.
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---

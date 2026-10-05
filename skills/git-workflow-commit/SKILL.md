@@ -3,7 +3,7 @@
 <!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-commit
-description: Load before staging files, creating any commit, or writing a commit message in any repo — including when the developer says "commit this" or "save my work". Atomic commits stage only intended files; messages follow the repo convention; secrets never enter history. Submodule pointer updates ride with real parent-repo changes in the same commit.
+description: Always load before staging files or creating ANY commit — however small — in any repo, including when the developer says "commit this" or "save my work". Atomic commits stage only intended files; messages follow the repo convention; secrets never enter history. Submodule pointer updates ride with real parent-repo changes in the same commit.
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
