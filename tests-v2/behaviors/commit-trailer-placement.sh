@@ -5,7 +5,7 @@
 #
 # SC-1a: The four contradictory sources (.guidelines/commit-workflow.md,
 # git-workflow-commit/tasks/commit-prep.md, git-workflow-commit/tasks/implementation.md,
-# writing-plans/reference/implementation-workflow.md) SHALL state that no co-author
+# the implementation-workflow reference) SHALL state that no co-author
 # trailers are required on intermediate implementation/WIP commits.
 #
 # SC-1b: The four contradictory sources SHALL state that dual co-author trailers
