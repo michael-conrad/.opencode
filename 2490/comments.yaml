@@ -9,3 +9,10 @@ comments:
     Routing targets complete: 25 cards. Merge point (plan stage 3 end) reached; PR
     boundary next.'
   timestamp: '2026-10-05T03:01:28+00:00'
+- type: internal
+  body: 'PR #2492 merged (cb3d84b6, 2026-10-05T03:08:42Z); trunk synced, branch deleted.
+    Stages 1-3 merged. Remaining per plan: real-use soak (begins at developer reload),
+    stage 4 (tests-v2 harvest, trunk-only hook, agnostic remediation), stage 5 (attic
+    deletion). Parent-repo submodule pointer rides with next real parent change. Issue
+    stays open until stages 4-5 complete.'
+  timestamp: '2026-10-05T03:31:44+00:00'
