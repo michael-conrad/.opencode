@@ -93,6 +93,10 @@ chk "prohibits no-check retry loops" -iE 'no-check retry|retry loop|without a se
 echo ""
 echo "mirror-present: ${pass}/${total}"
 
+# Standalone-runner contract footer (PASSED/FAILED totals)
+echo "PASSED: ${pass}"
+echo "FAILED: ${#missing[@]}"
+
 if [ "$pass" -eq 0 ]; then
     echo "RED condition met: §14 carries NO part of the supervisor polling mandate (SC-17 predicate unmirrored)"
     exit 1
