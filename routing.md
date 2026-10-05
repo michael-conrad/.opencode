@@ -19,6 +19,7 @@ not user phrasing — are the dispatch mechanism.
 | branching / committing / pushing / opening a PR / post-merge cleanup / resolving conflicts | the matching `git` family card |
 | creating, commenting, linking, or closing issues | `issues` |
 | operating GitHub / GitBucket / the browser / notebooks | the matching connector card (`gh-cli`, `gb-cli`, vendor hf card, `playwright-cli`) |
+| creating or modifying CI — pipelines, runners, workflows, or submodule checkout configuration | `ci-boundary` |
 | discovering information or investigating root causes | `research` / `systematic-debugging` |
 | designing, reviewing, or auditing code | `programming-principles` |
 | creating or editing any file under `skills/`, `guidelines/`, `floor.md`, or `routing.md` | deck governance (`skill-creator`) — admission gate first |
