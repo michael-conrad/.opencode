@@ -1,4 +1,4 @@
-title: '[SPEC] stacked into existing work (#2456)'
+title: '[SPEC] brainstorming terminal-state gate — explicit user finalization required before spec-creation dispatch'
 status: open
 labels:
 - needs-approval
@@ -8,3 +8,4 @@ labels:
 body: ''
 created_at: '2026-09-21T14:38:44+00:00'
 updated_at: '2026-09-21T15:44:33+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2457
