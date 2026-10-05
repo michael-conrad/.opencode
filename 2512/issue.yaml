@@ -1,6 +1,6 @@
 title: '[BUG] Store-path pre-commit gate misfires inside issue-store worktrees — all
   store commits with internal .issues/<N> references are uncommittable'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '## Problem
@@ -35,3 +35,4 @@ github_url: https://github.com/michael-conrad/.opencode/issues/2512
 sweep_evidence: 'Developer direction: hooks must not police issues-data branches;
   fix = hook no-ops in store worktrees + inventory stops reporting store worktrees
   as hook targets'
+closed_at: '2026-10-05T23:51:20+00:00'
