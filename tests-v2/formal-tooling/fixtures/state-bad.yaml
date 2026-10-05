@@ -1,0 +1,4 @@
+variables:
+  ready: false
+  done: true
+  count: -1
