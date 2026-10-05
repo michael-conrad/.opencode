@@ -17,8 +17,12 @@ provenance: AI-authored, .opencode#2490
 2. **Every SC is testable.** State what to check and how: behavioral SCs get a
    runtime verification instrument; structural SCs get a fact-decidable check.
    Evidence types are classified by the change's nature, not by intent.
-3. **Write and persist.** `local-issues create` (or update); `spec.md` in the
-   issue directory; the issue body mirrors the spec.
+3. **Write and persist.** Reserve the number from the store's remote tracker
+   first — file the remote issue (`gh`/`gb`) for EVERY issue creation when a
+   remote tracker exists; the local `{N}/` folder and `spec.md` follow, linked
+   via `update --github`. The remote body is a detailed exec summary (why +
+   final what); the full spec and all artifacts live in `.issues/{N}/`. The
+   local counter reserves numbers only in remoteless stores.
 4. **Revision discipline.** Findings from review produce targeted revisions;
    superseded criteria are removed, never accumulated. No STATUS fields — the
    spec defines what is required, implemented or not.
