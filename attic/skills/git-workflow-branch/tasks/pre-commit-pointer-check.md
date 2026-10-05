@@ -41,7 +41,7 @@ This task runs pre-commit — before any in-scope submodule PR merge state can b
 - Read [Step 0.5: Submodule-Bump-Only PR Gate (MANDATORY — parent repo only)](.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md)
 - Read [Step 0.75: Ordering Gate — In-Scope Submodule Set Enumeration (MANDATORY GATE)](.opencode/skills/git-workflow-pr/tasks/pr-creation/enforcement-gate.md)
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
+**AUTHORITY:** Spec R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
 
 ## Cross-References
 

@@ -9,4 +9,4 @@ The agent instruction floor is [floor.md](floor.md); routing is
 AGENTS.md — it must stay a pointer and carry no rules.
 
 The full pre-replacement deck is preserved, unloaded, under `attic/`
-(tag `pre-rip`) pending soak and deletion. See `.opencode/.issues/2490/`.
+(tag `pre-rip`) pending soak and deletion.

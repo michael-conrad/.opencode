@@ -97,6 +97,33 @@ else
     check_pass "hooks are branch-name-free (property-based trunk)"
 fi
 
+# 6. pre-commit BLOCKS a staged file referencing an issue-store path (.opencode#2506)
+# the reference string is built dynamically so this test file does not itself
+# carry a literal issue-store path (the gate would block the test's own commit)
+printf 'see the spec at .issues/%d/spec.md for details\n' 2490 > "$SCRATCH/work/store-ref.md"
+git -C "$SCRATCH/work" add store-ref.md
+OUT=$(git -C "$SCRATCH/work" commit -q -m "store path reference" 2>&1)
+RC=$?
+if [ $RC -ne 0 ] && echo "$OUT" | grep -q "issue-store path"; then
+    check_pass "pre-commit blocks staged issue-store path reference"
+else
+    check_fail "pre-commit blocks staged issue-store path reference" "exit=$RC out=$OUT"
+fi
+git -C "$SCRATCH/work" reset -q store-ref.md
+
+# 7. pre-commit ALLOWS store content and fixture files (excluded from the gate)
+mkdir -p "$SCRATCH/work/tests-v2/behaviors/fixtures/issues/1234"
+echo "fixture spec content (exclusion is by path, not content)" > "$SCRATCH/work/tests-v2/behaviors/fixtures/issues/1234/spec.md"
+echo "ordinary content" > "$SCRATCH/work/clean.md"
+git -C "$SCRATCH/work" add tests-v2/behaviors/fixtures/issues/1234/spec.md clean.md
+OUT=$(git -C "$SCRATCH/work" commit -q -m "fixture and clean content" 2>&1)
+RC=$?
+if [ $RC -eq 0 ]; then
+    check_pass "pre-commit allows fixture-excluded and clean content"
+else
+    check_fail "pre-commit allows fixture-excluded and clean content" "exit=$RC out=$OUT"
+fi
+
 echo ""
 echo "=== Results ==="
 echo "PASSED: $PASS_COUNT"

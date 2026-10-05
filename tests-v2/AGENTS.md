@@ -141,7 +141,7 @@ If `session.yaml` contains `source_db: MISSING`, the SQLite DB was not found in 
 
 ### Step 0: Create Fixture Issues (MANDATORY if test references issue content)
 
-If the test prompt references a spec, plan, or any issue content (e.g., `.issues/2211/spec.md`), the test MUST have corresponding fixture files in `fixtures/issues/{N}/`. The harness auto-injects all fixture issue directories into the test repo's `.issues/` directory via `setup_fixture_issues()`.
+If the test prompt references a spec, plan, or any issue content (e.g., a fixture issue's `spec.md` path), the test MUST have corresponding fixture files in `fixtures/issues/{N}/`. The harness auto-injects all fixture issue directories into the test repo's `.issues/` directory via `setup_fixture_issues()`.
 
 **Fixture creation procedure:**
 
@@ -518,7 +518,7 @@ Both clauses are mandatory gates for test admission and retention:
 
 **Rationale driver (user directive 2026-10-02):** performative tests re-accumulated in the submodule-pointer subsystem. Precedent: `test-2264-sc7-bug-only-override-uses.sh` grep-enumerated the `SKIP_STALE_POINTER_CHECK` hatch in a narrative fixture — zero defect coverage, wasted a full behavioral run. It and the other four dependent Gate 2 tests were retired in #2489 Phase 2. Any future test that matches this pattern MUST NOT be admitted; existing tests matching it are retired on encounter.
 
-**Issue context:** `.opencode/.issues/2489/` (CM-1) — policy recorded in this section as the authoritative retire-path record.
+**Issue context:** #2489 (CM-1) — policy recorded in this section as the authoritative retire-path record.
 
 ## 6c. Reference-Integrity Enforcement Check (SC-12, #2489)
 
@@ -531,7 +531,7 @@ Both clauses are mandatory gates for test admission and retention:
 
 Exit 0 = all Read-links resolve. Non-zero = broken references; each report line carries the source file path AND the missing-section name. Run it after any edit that moves, renames, or deletes a section other documents Read-link into — a canon move that silently strands dependents is the defect class this check guards. Broken references found by the scan must be repaired in the same change (or filed as a spec issue), never left for a later pass.
 
-**Issue context:** `.opencode/.issues/2489/` (SC-12) — tool built in #2489 Phase 4 before the Phase 5 reference repairs it validates.
+**Issue context:** #2489 (SC-12) — tool built in #2489 Phase 4 before the Phase 5 reference repairs it validates.
 
 ## 7. Cleanup
 
@@ -1020,13 +1020,13 @@ No whole-suite invocation mechanism exists in this harness: each `opencode run` 
 
 The stacked-PR ordering-gate behavioral tests (e.g., `2431-sc*.sh` in `behaviors/`) are the **behavioral-evidence instrument** for the ordering gate's blocking SCs: they generate clean-room model-run artifacts (`session.yaml`) that the two-SC pattern (§6a) pairs with clean-room evaluation — they prove what an agent DOES at parent-PR-creation time, and nothing else. They exercise **no runtime blocking authority** over stacked-PR ordering: a test script runs, produces artifacts, and exits — it never gates, blocks, or permits a real parent stacked PR. The sole authoritative blocking check is the ordering gate at `pr-creation/enforcement-gate` (Step 0.75).
 
-**AUTHORITY:** Spec `.opencode/.issues/2431/spec.md` R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
+**AUTHORITY:** Spec R-9 — this site carries an advisory/consistency role for the ordering gate and SHALL NOT block PR creation.
 
 ## 17. Excessive Run Time — R-18 Cause-Analysis Mandate
 
 **Excessive run time in a behavioral run is a PRIMARY defect signal, not a nuisance to be tolerated.** Excessive run time means: repeated bash-tool timeouts, semantic-monitor aborts (§14 hard-abort signals), large single-turn reasoning blocks, or inference-budget exhaustion. A run that exhibits any of these is usually slow because something is wrong — bad instructions, a skill-deck defect, or another harness problem — not because the model is merely "slow."
 
-**AUTHORITY:** Spec `.opencode/.issues/2432/spec.md` R-18 (extension of the SC-12 deliberation-review directive R-17).
+**AUTHORITY:** Spec R-18 (extension of the SC-12 deliberation-review directive R-17).
 
 **Implemented predicate mirror (SC-12):** the cause-analysis mandate is exercised by the implemented predicates:
 
@@ -1060,7 +1060,7 @@ This mandate extends the SC-12 deliberation-review directive (R-17): the same ev
 
 **An agent MUST NOT classify a behavioral-run failure as "hardware limit", "model unavailability", "unobtainable on this hardware", or any equivalent resource excuse without FIRST directly reviewing the actual session evidence of the failed run(s).** (Issue #2432 — extension of the §10.4 fabricated-model-excuse prohibition, and broader: it covers concluding "hardware/model cannot do this" at all.)
 
-**AUTHORITY:** Spec `.opencode/.issues/2432/spec.md` R-19 (extension of the SC-12 deliberation-review directive R-17).
+**AUTHORITY:** Spec R-19 (extension of the SC-12 deliberation-review directive R-17).
 
 ### The Mandate
 

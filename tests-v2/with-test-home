@@ -226,7 +226,7 @@ JSONC
 # gb authenticates deterministically without `gb auth login`. The config carries the
 # harness's test-env default_host constant; the host token is present only when a test
 # GitBucket was provisioned (BEHAVIOR_NEEDS_REMOTE=1), matching the provisioned test
-# instance. Mirrors the fixture format in .opencode/.issues/2059/spec.md.
+# instance. Mirrors the fixture format in the fixture spec in the issues-data store.
 seed_gb_config() {
     mkdir -p "$TEST_HOME/.config/gb"
 
