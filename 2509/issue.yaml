@@ -3,6 +3,59 @@ status: open
 labels:
 - needs-approval
 - bug
-body: ''
+body: '# [BUG] Agent created two PRs for stacked work — stacked PR ceremony is forbidden
+
+
+  **Repo**: michael-conrad/.opencode · **Remote**: https://github.com/michael-conrad/.opencode/issues/2509
+
+
+  ## Why
+
+
+  Session 2026-10-05: after implementing `.opencode#2505` (one-line floor.md vocabulary
+  fix) stacked under `.opencode#2504` (tooling replacement) on a single branch chain,
+  the agent created two PRs — #2507 (base main) and #2508 (base = #2507''s branch)
+  — justified as "one PR per issue" plus stacked-PR review hygiene. The developer
+  ruled the stacked-PR ceremony forbidden: stacked work gets one PR covering the stack.
+  The extra PR is agent-invented review overhead.
+
+
+  ## What
+
+
+  Tighten the PR-shape rule so a stacked branch chain produces **one PR** (base trunk,
+  body closing every stacked issue), not one PR per layer:
+
+
+  - `.opencode/skills/git-workflow-pr` — "One PR per issue" needs the stacked-work
+  carve-out: a stacked chain is one reviewable unit → one PR naming all stacked issues.
+
+  - The "Stacked work keeps its stack honest" line is ambiguous enough to be read
+  as permission for multi-PR stacks — tighten it to forbid them.
+
+
+  ## Evidence
+
+
+  - Transcript: agent created PR #2507 and stacked PR #2508, then defended the two-PR
+  shape as review hygiene.
+
+  - Developer correction: "so bullshit ceremony that is forbidden. file a regression
+  bug report upstream with .opencode"
+
+
+  > **Full spec and artifacts: [`.opencode/.issues/2509/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2509)**
+  — this issue is a condensed exec summary; the authoritative content lives in the
+  `issues-data` branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2509/`
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-10-05T21:44:43+00:00'
-updated_at: '2026-10-05T21:44:43+00:00'
+updated_at: '2026-10-05T21:44:49+00:00'
+github_url: '2509'
