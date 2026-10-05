@@ -54,3 +54,12 @@ comments:
     via merge commit). Human merge gate applies — agent halted at PR creation. Stage
     5 (attic deletion) remains gated on the soak verdict after this PR merges.'
   timestamp: '2026-10-05T04:45:36+00:00'
+- type: internal
+  body: 'PR #2493 merged (8e1861ad). Submodule trunk synced, local + remote feature
+    branch deleted, stage-4 tmp evidence cleaned per the merge-cleanup provision.
+    Parent-repo submodule pointer is now two-merge forward (41e3a7be → 8e1861ad) staged-but-uncommitted
+    in the parent working tree — it rides with the next real parent-repo change (root
+    AGENTS.md slimming; the parent AGENTS.md reference-file rows are dead links since
+    4d moved reference/ to attic). Real-use soak continues; stage 5 (attic deletion)
+    awaits the soak verdict. Issue stays open.'
+  timestamp: '2026-10-05T04:52:20+00:00'
