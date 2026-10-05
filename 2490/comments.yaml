@@ -16,3 +16,35 @@ comments:
     deletion). Parent-repo submodule pointer rides with next real parent change. Issue
     stays open until stages 4-5 complete.'
   timestamp: '2026-10-05T03:31:44+00:00'
+- type: internal
+  body: 'Stage 4 complete on feature/2490-stage4 (6 commits, pushed: 08112303, 0e77286a→0e772bc4,
+    86bec533, 58e24916, 04f272fd, d5c0fc71, 59307b53). (1) 4a — measured live-session
+    defect: the platform presented only 6/25 skill cards; every card whose SPDX header
+    preceded the frontmatter fence was silently dropped (perfect 19/25 correlation).
+    Fixed by relocating SPDX/provenance into card bodies; skildeck-lint aligned with
+    the new deck (retired-machinery rules and numeric word limits removed; provenance
+    field accepted; descriptions YAML-quoted); skills/reference fold: skildeck global-ignore
+    repointed to governance-owned skills/skill-creator/.skilldeck-ignore; completeness
+    test rewritten (asserted the deck HAS defects before — now asserts zero findings
+    + non-vacuous mechanism proof). (2) 4b — trunk-only hook per SC-6: two property-based
+    hook scripts in tracked .opencode/hooks/ (trunk derived from origin HEAD, no hardcoded
+    branch names, no bypass env var); post-commit/pre-merge-commit/prepare-commit-msg
+    retired; session-init installs via rev-parse --git-path hooks (closes the submodule
+    gap), reports Hook Inventory report-only. (3) 4c — harvest: 340 per-SC scripts
+    retired; kept outcome-asserting standing checks. (4) 4d — repo-agnostic remediation:
+    all hardcoded owner-URL fallbacks → fail-fast on the submodule..opencode.url property;
+    multi-submodule fixtures now local bare remotes; R-6 directive routes via session-init
+    per-root facts; reference/ + commands/ retired to attic; tracked pycache removed;
+    fact-decidable grep 0 hits. (5) 4e — lean corpus cut per developer direction:
+    all issue-named per-SC pre-PR verification artifacts removed (~135 more files);
+    retained corpus = concept-named standing checks (trunk-hook, completeness, isolation,
+    assert-semantic-removed, exit0-artifact, cleanroom-contract) + intent-named probes
+    (vocabulary, connectors, issues ops, commit discipline) + harness infra; the three
+    standing checks rewritten as property-based dynamic scans. Evidence: corpus --tag
+    standalone 6 PASSED/0 FAILED; trunk-hook test 5/0; fresh-session acceptance probe
+    (with-test-home, qwen3.8) OVERALL PASS via clean-room evaluation — the probe session
+    dispatched work, git-workflow-branch, implement, git-workflow-commit, verify (cards
+    invisible pre-fix now platform-presented), kept the commit off main on feature/2490-stage-4-probe;
+    single fresh-context reviewer OVERALL PASS on all stage-4 GREEN items. HALTED
+    before PR creation per instruction. Stage 5 (attic deletion) awaits the soak verdict.'
+  timestamp: '2026-10-05T04:41:55+00:00'
