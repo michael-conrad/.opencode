@@ -3,21 +3,14 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-1a: The four contradictory sources (.guidelines/commit-workflow.md,
-# git-workflow-commit/tasks/commit-prep.md, git-workflow-commit/tasks/implementation.md,
-# the implementation-workflow reference) SHALL state that no co-author
-# trailers are required on intermediate implementation/WIP commits.
+# Scenario: co-author trailer placement — intermediate implementation/WIP
+# commits carry no co-author trailers; the final squashed commit carries the
+# dual trailers (AI + human) per the attribution conventions (retained as a
+# non-goal under .opencode#2490).
 #
-# SC-1b: The four contradictory sources SHALL state that dual co-author trailers
-# (AI + human) are required on the final squashed commit.
-#
-# RED phase: the current .guidelines/commit-workflow.md:23 and
-# git-workflow-commit/tasks/commit-prep.md:34 require TWO co-author trailers on EVERY
-# implementation commit, contradicting implementation.md:60 and
-# implementation-workflow.md:51 which state no trailers during implementation. So an
-# agent performing an implementation commit reads contradictory guidance and may add
-# co-author trailers to the implementation commit (SC-1a FAILS) and may not reliably
-# add dual trailers to the squashed commit (SC-1b FAILS). The session.yaml (SQLite DB
+# Evidence basis: the pre-rip deck carried contradictory trailer guidance
+# across sources (recorded in the deck history); this probe exercises the
+# reconciled convention under the current deck.
 # export) is the PRIMARY evidence source — a clean-room sub-agent evaluates whether
 # the agent added trailers to the implementation commit and whether it added dual
 # trailers to the squashed commit.

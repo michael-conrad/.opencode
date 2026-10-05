@@ -17,19 +17,10 @@ while [ "$(basename "$PROJECT_DIR")" != ".opencode" ]; do
 done
 PROJECT_DIR="$(dirname "$PROJECT_DIR")"
 
-SCENARIOS=(
-    "2219-sc10-non-pointer-guard"
-    "2219-sc11-existing-cleanup"
-    "2219-sc15-decline-submodule-pr"
-    "2219-sc19-release-pr-prework"
-    "2219-sc3-prework-ordering"
-    "2219-sc6-dead-branch-detection"
-    "2219-sc7-submodule-pr-verification"
-    "2219-sc8-dead-branch-deletion"
-    "2219-sc9-dirty-pointer"
-    "2239-sc8-check-pr-routing"
-    "skill-deck-completeness"
-)
+# Dynamic scan: every behaviors script (including subdirectories) must be free
+# of the forbidden self-evaluation tokens — the artifact-only paradigm forbids
+# scripts evaluating model output (tests-v2/AGENTS.md §1).
+EXCLUDE="helpers.sh"
 
 PASS_COUNT=0
 FAIL_COUNT=0
@@ -39,16 +30,13 @@ echo ""
 echo "=== SC-2 (#2245): assert_semantic removed from 12 behavior scripts ==="
 echo ""
 
-for scenario in "${SCENARIOS[@]}"; do
-    script="$PROJECT_DIR/.opencode/tests-v2/behaviors/${scenario}.sh"
-    if [ ! -f "$script" ]; then
-        echo "  FAIL: $scenario -- script not found: $script"
-        FAIL_COUNT=$((FAIL_COUNT + 1))
-        FAILED_SCRIPTS+=("$scenario (missing)")
-        continue
-    fi
-    if grep -q "assert_semantic" "$script"; then
-        echo "  FAIL: $scenario -- assert_semantic token still present in $script"
+for f in "$PROJECT_DIR"/.opencode/tests-v2/behaviors/*.sh \
+         "$PROJECT_DIR"/.opencode/tests-v2/behaviors/secret-redaction/*.sh; do
+    [ -f "$f" ] || continue
+    scenario=$(basename "$f")
+    [ "$scenario" = "$EXCLUDE" ] && continue
+    if grep -q "assert_semantic" "$f"; then
+        echo "  FAIL: $scenario -- assert_semantic token still present"
         FAIL_COUNT=$((FAIL_COUNT + 1))
         FAILED_SCRIPTS+=("$scenario")
     else
