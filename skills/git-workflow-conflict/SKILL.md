@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-conflict
-description: Load when git reports conflicts during any rebase, merge, or cherry-pick, or when a push/PR shows merge contention. Analyze the intent behind both sides before resolving — never mechanically take ours or theirs — and verify the build and tests after resolution.
+description: "Load when git reports conflicts during any rebase, merge, or cherry-pick, or when a push/PR shows merge contention. Analyze the intent behind both sides before resolving — never mechanically take ours or theirs — and verify the build and tests after resolution."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # git-workflow-conflict
 

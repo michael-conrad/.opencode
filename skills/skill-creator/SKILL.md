@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: skill-creator
-description: Load before creating or editing ANY file under skills/, guidelines/, floor.md, or routing.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, deck-debt ledger, predicate classification, and vendor-card boundary. This card governs the deck itself.
+description: "Load before creating or editing ANY file under skills/, guidelines/, floor.md, or routing.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, deck-debt ledger, predicate classification, and vendor-card boundary. This card governs the deck itself."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # skill-creator — deck governance
 

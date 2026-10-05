@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: multimodal-dispatch
-description: Load when routing work to models by content modality — vision tasks, image or screen inspection, or when probing Ollama/local model capabilities to pick the right model for a task. Also load when a sub-agent's task clearly needs a capability the current model lacks.
+description: "Load when routing work to models by content modality — vision tasks, image or screen inspection, or when probing Ollama/local model capabilities to pick the right model for a task. Also load when a sub-agent's task clearly needs a capability the current model lacks."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # multimodal-dispatch
 

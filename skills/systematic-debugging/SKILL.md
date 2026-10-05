@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: systematic-debugging
-description: Load when encountering a bug, error, unexpected behavior, or failing test — or before changing any code to fix an issue. Root cause comes from evidence, not guesses: reproduce first, form hypotheses, test them, and fix the cause rather than the symptom. Also load when a fix "works" but the cause is unexplained.
+description: "Load when encountering a bug, error, unexpected behavior, or failing test — or before changing any code to fix an issue. Root cause comes from evidence, not guesses: reproduce first, form hypotheses, test them, and fix the cause rather than the symptom. Also load when a fix \"works\" but the cause is unexplained."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # systematic-debugging
 

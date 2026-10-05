@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: sre-runbook
-description: Load when documenting an operational runbook, incident response procedure, or recovery playbook — or when working through one during an incident. Runbooks are written for the responder under stress: exact commands, expected outputs, decision points, and rollback steps in execution order.
+description: "Load when documenting an operational runbook, incident response procedure, or recovery playbook — or when working through one during an incident. Runbooks are written for the responder under stress: exact commands, expected outputs, decision points, and rollback steps in execution order."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # sre-runbook
 

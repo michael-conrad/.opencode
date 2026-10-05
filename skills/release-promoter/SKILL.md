@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: release-promoter
-description: Load when creating a git tag for a release or promoting a release to GitHub — after a release PR merges. Creates the annotated v-prefixed tag and the GitHub Release from it with the changelog body, verifying each step via the live API.
+description: "Load when creating a git tag for a release or promoting a release to GitHub — after a release PR merges. Creates the annotated v-prefixed tag and the GitHub Release from it with the changelog body, verifying each step via the live API."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # release-promoter
 

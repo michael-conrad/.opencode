@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: gh-cli
-description: Load before any command or code that contacts GitHub — using the gh CLI, making GitHub API calls in any language, opening or updating PRs/issues/releases, reading repositories, or anything needing GitHub credentials. Authentication is built into gh; never hand-roll GitHub API calls, never hunt for tokens or passwords. Also load when GitHub operations fail unexpectedly.
+description: "Load before any command or code that contacts GitHub — using the gh CLI, making GitHub API calls in any language, opening or updating PRs/issues/releases, reading repositories, or anything needing GitHub credentials. Authentication is built into gh; never hand-roll GitHub API calls, never hunt for tokens or passwords. Also load when GitHub operations fail unexpectedly."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # gh-cli — GitHub operations
 

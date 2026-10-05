@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: version-manager
-description: Load when discovering version strings in a codebase or bumping a version for a release — before editing any version number anywhere. Finds every location a version lives (config, metadata, constants), determines the semver level from the changelog category, and updates all of them consistently.
+description: "Load when discovering version strings in a codebase or bumping a version for a release — before editing any version number anywhere. Finds every location a version lives (config, metadata, constants), determines the semver level from the changelog category, and updates all of them consistently."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # version-manager
 

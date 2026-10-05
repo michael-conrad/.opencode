@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: correspondence
-description: Load when drafting stakeholder emails, status updates, or any external communication — and when deciding whether content belongs in a stakeholder channel at all. Audience separation is the core rule: internal findings, raw status, and audit output stay in chat; stakeholder channels carry executive-summary correspondence only.
+description: "Load when drafting stakeholder emails, status updates, or any external communication — and when deciding whether content belongs in a stakeholder channel at all. Audience separation is the core rule: internal findings, raw status, and audit output stay in chat; stakeholder channels carry executive-summary correspondence only."
 license: MIT
 provenance: AI-authored, .opencode#2026
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # correspondence — stakeholder communication
 

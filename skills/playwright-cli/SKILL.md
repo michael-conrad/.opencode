@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: playwright-cli
-description: Load before any browser automation — navigating pages, filling forms, capturing snapshots, verifying web UIs, scraping rendered content, or recording browser traces. Use when a web interaction must be observed rather than assumed; close managed browser sessions when done.
+description: "Load before any browser automation — navigating pages, filling forms, capturing snapshots, verifying web UIs, scraping rendered content, or recording browser traces. Use when a web interaction must be observed rather than assumed; close managed browser sessions when done."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # playwright-cli — browser automation
 
