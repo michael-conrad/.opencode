@@ -63,3 +63,11 @@ comments:
     4d moved reference/ to attic). Real-use soak continues; stage 5 (attic deletion)
     awaits the soak verdict. Issue stays open.'
   timestamp: '2026-10-05T04:52:20+00:00'
+- type: internal
+  body: 'Item 2 complete: parent PR opencode-config#376 merged (3b1803e0) — root AGENTS.md
+    slimmed to deck pointer (112->42 lines), submodule pointer updated in the same
+    commit. Deck trunk subsequently advanced (e8e1efbc/#2499 reference-currency card
+    via #2503); that pointer rides with the next real parent change. Remaining: stage
+    5 attic deletion (developer soak verdict) then closure. Note: this issue was renumbered
+    2490->2501 by the remote-first reservation alignment.'
+  timestamp: '2026-10-05T20:27:57+00:00'
