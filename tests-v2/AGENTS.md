@@ -12,7 +12,7 @@ Every behavioral test script generates model-run artifacts and exits 0. Evaluati
 
 **This behavioral test harness spec applies to `.opencode`-targeted work ONLY.** The harness and `opencode run` mechanics described here apply only to `.opencode`-targeted work; for any other spec target the harness is out of scope and `.opencode` SHALL NOT be modified — do not touch the `.opencode` submodule (or its test harness) to satisfy a mis-scoped mandate whose deliverables live elsewhere.
 
-**R-6 routing directive:** Skill-deck defects discovered while working under a mis-scoped or differently-scoped mandate route via issue-operations to `michael-conrad/.opencode` — agents do NOT patch local `.opencode` copies to escape a mis-scoped mandate.
+**R-6 routing directive:** Skill-deck defects discovered while working under a mis-scoped or differently-scoped mandate route via issue-operations to this deck's upstream repo (the `owner`/`repo` whose `path` is `.opencode` in session-init's Repo Information) — agents do NOT patch local `.opencode` copies to escape a mis-scoped mandate.
 
 ## Key Differences from v1
 

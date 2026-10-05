@@ -61,7 +61,6 @@ echo ""
 WITH_TEST_HOME="$PROJECT_DIR/.opencode/tests-v2/with-test-home"
 HELPERS="$PROJECT_DIR/.opencode/tests-v2/behaviors/helpers.sh"
 SC2_SCRIPT="$PROJECT_DIR/.opencode/tests-v2/behaviors/secret-redaction/SC-3.sh"
-VERB_VARIANT="$PROJECT_DIR/.opencode/tests-v2/behaviors/test-verb-variant.sh"
 
 # SC-1: with-test-home execution block uses env -i with explicit allowlist
 # The env -i mechanism is the ONLY way to guarantee no parent env leaks.
@@ -119,19 +118,33 @@ grep_assert_present \
     "$SC2_SCRIPT" \
     'behavior_run'
 
-# SC-8: test-verb-variant.sh does NOT use snap run
+# SC-8 (dynamic): NO behaviors script contains an executable `snap run` —
+# occurrences must be comment-only (forbidden-pattern examples are allowed).
 # snap run opencode hardcodes SNAP_USER_DATA=~/snap/opencode/ and writes to production DB.
-grep_assert_absent \
-    "SC-8: test-verb-variant.sh no snap run" \
-    "$VERB_VARIANT" \
-    'snap run'
+for f in "$PROJECT_DIR"/.opencode/tests-v2/behaviors/*.sh \
+         "$PROJECT_DIR"/.opencode/tests-v2/behaviors/secret-redaction/*.sh; do
+    [ -f "$f" ] || continue
+    bad=$(grep -n 'snap run' "$f" 2>/dev/null | grep -v '^[0-9]*:[[:space:]]*#' || true)
+    if [ -n "$bad" ]; then
+        check_fail "SC-8: no executable snap run ($(basename "$f"))" "$bad"
+    else
+        check_pass "SC-8: no executable snap run ($(basename "$f"))"
+    fi
+done
 
-# SC-9: test-verb-variant.sh uses with-test-home wrapper
-# Must use the isolation wrapper instead of manual XDG export + direct opencode.
-grep_assert_present \
-    "SC-9: test-verb-variant.sh uses with-test-home" \
-    "$VERB_VARIANT" \
-    'with-test-home'
+# SC-9 (dynamic): every model-executing behaviors script isolates through
+# behavior_run() (helpers.sh) or with-test-home directly; the library
+# (helpers.sh) and the harness diagnostic (source-db-missing.sh) are exempt.
+for f in "$PROJECT_DIR"/.opencode/tests-v2/behaviors/*.sh; do
+    base=$(basename "$f")
+    [ "$base" = "helpers.sh" ] && continue
+    [ "$base" = "source-db-missing.sh" ] && continue
+    if grep -qE 'behavior_run|with-test-home' "$f"; then
+        check_pass "SC-9: $base isolates via behavior_run/with-test-home"
+    else
+        check_fail "SC-9: $base isolation entry point" "no behavior_run or with-test-home reference"
+    fi
+done
 
 # SC-12: with-test-home prints diagnostic [test-env] lines before running command
 # Diagnostic output proves the test environment variables are set correctly.

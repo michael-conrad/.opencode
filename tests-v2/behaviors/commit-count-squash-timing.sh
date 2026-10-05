@@ -3,21 +3,13 @@
 # See .opencode/tests-v2/AGENTS.md for the test harness specification and paradigm.
 # This script is an artifact-only generator — it does NOT evaluate model output.
 #
-# SC-2a: The commit-count sources (000-critical-rules.md,
-# git-workflow-commit/tasks/implementation.md, git-workflow-commit/SKILL.md,
-# git-workflow-pr/tasks/pr-creation.md, git-workflow-pr/tasks/review-prep.md,
-# git-workflow-branch/tasks/operating-protocol.md, 115-branch-naming.md) SHALL state
-# that multiple WIP commits during development are acceptable.
+# Scenario: the agent's commit discipline during development — multiple WIP
+# commits are acceptable while implementing; squash to one commit per issue
+# happens at PR creation, not during development (git-workflow-commit card).
 #
-# SC-2b: The commit-count sources SHALL state that squash to exactly one commit per
-# issue occurs at PR creation.
-#
-# RED phase: the sources conflict on commit count. 000-critical-rules.md:173 states
-# "one commit per issue" while implementation.md:105-115 permits multiple
-# implementation commits during dev, and review-prep.md:45-75 forces squash to exactly
-# one commit at review-prep (BEFORE PR creation). So an agent performing development
-# work reads conflicting guidance and may squash during development (SC-2a FAILS) and
-# may squash at review-prep rather than deferring to PR creation (SC-2b FAILS). The
+# Evidence basis: pre-rip deck carried conflicting commit-count guidance
+# across sources (recorded in the deck history); this probe exercises the
+# reconciled discipline under the current deck.
 # session.yaml (SQLite DB export) is the PRIMARY evidence source — a clean-room
 # sub-agent evaluates whether the agent made multiple WIP commits during development
 # and whether it deferred squash to PR creation.

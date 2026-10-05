@@ -1,9 +1,13 @@
 ---
 name: work
-description: Load before any file modification, branch creation, or implementation start in any repo. Routes every change through spec → plan → implement → PR scaled to the change's need — trivial fixes take the short path, multi-part features take the full path — and checks authorization at each stage boundary. Also load when unsure which stage applies: halt with an open-ended clarification request rather than guess.
+description: "Load before any file modification, branch creation, or implementation start in any repo. Routes every change through spec → plan → implement → PR scaled to the change's need — trivial fixes take the short path, multi-part features take the full path — and checks authorization at each stage boundary. Also load when unsure which stage applies: halt with an open-ended clarification request rather than guess."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # work — the change gate
 

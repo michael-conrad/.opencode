@@ -1,9 +1,13 @@
 ---
 name: explore
-description: Load when requirements are being explored, decomposed, or brainstormed before a spec exists — open-ended discussion of what to build, problem decomposition, design tradeoffs. One topic at a time, no constrained-choice prompts, research dispatches continue during discussion. Design approval is NOT finalization: only the developer's explicit final statement moves this to spec creation.
+description: "Load when requirements are being explored, decomposed, or brainstormed before a spec exists — open-ended discussion of what to build, problem decomposition, design tradeoffs. One topic at a time, no constrained-choice prompts, research dispatches continue during discussion. Design approval is NOT finalization: only the developer's explicit final statement moves this to spec creation."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # explore — requirements exploration
 

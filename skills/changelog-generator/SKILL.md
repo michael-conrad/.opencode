@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: changelog-generator
-description: Load when creating release notes or a changelog, documenting changes between versions, or preparing the body of a release. Every entry traces to a real commit between release tags — nothing is invented, nothing generic. Also load when a release PR needs its changelog body.
+description: "Load when creating release notes or a changelog, documenting changes between versions, or preparing the body of a release. Every entry traces to a real commit between release tags — nothing is invented, nothing generic. Also load when a release PR needs its changelog body."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # changelog-generator
 

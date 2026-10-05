@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: research
-description: Load when information is needed beyond current context — web research on tools, APIs, models, or practices; codebase or document investigation; verifying a claim against live sources; gathering evidence for root-cause analysis. Dispatches scoped research sub-agents while conversation continues; findings carry source URLs and explicit gap reporting. Never answer factual questions from training data without a live check.
+description: "Load when information is needed beyond current context — web research on tools, APIs, models, or practices; codebase or document investigation; verifying a claim against live sources; gathering evidence for root-cause analysis. Dispatches scoped research sub-agents while conversation continues; findings carry source URLs and explicit gap reporting. Never answer factual questions from training data without a live check."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # research — information discovery
 

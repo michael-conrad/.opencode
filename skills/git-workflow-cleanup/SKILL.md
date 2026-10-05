@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-cleanup
-description: Load after any pull request merges — when the developer says "pr merged", "merged", or a merge event is otherwise confirmed. Verify the merge via the platform API, delete the feature branch, close the completed issues (the sole authorized closure path), sync the trunk, and remove work-state artifacts.
+description: "Load after any pull request merges — when the developer says \"pr merged\", \"merged\", or a merge event is otherwise confirmed. Verify the merge via the platform API, delete the feature branch, close the completed issues (the sole authorized closure path), sync the trunk, and remove work-state artifacts."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # git-workflow-cleanup
 

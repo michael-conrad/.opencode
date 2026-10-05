@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: programming-principles
-description: Load when designing or writing code, deciding architecture or module boundaries, reviewing code, or evaluating a design tradeoff. Enforces the working principles: minimal change, composition over cleverness, existing patterns over invented ones, and code-size discipline — plus honest tradeoff reasoning when principles conflict.
+description: "Load when designing or writing code, deciding architecture or module boundaries, reviewing code, or evaluating a design tradeoff. Enforces the working principles: minimal change, composition over cleverness, existing patterns over invented ones, and code-size discipline — plus honest tradeoff reasoning when principles conflict."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # programming-principles
 

@@ -283,8 +283,41 @@ def _resolve_git_dir() -> str | None:
     return os.path.normpath(os.path.join(cwd, result))
 
 
+def _resolve_hooks_target(repo_dir: str) -> str | None:
+    """Resolve the effective hooks directory for a repo via git itself.
+
+    Property-based (no gitdir-layout guessing): `git rev-parse --git-path
+    hooks` returns the path git actually reads hooks from for that repo —
+    the submodule's module gitdir for submodules, and the common .git/hooks
+    for linked worktrees (which then dedupes with the root install).
+    """
+    result = run_git_command(["-C", repo_dir, "rev-parse", "--git-path", "hooks"])
+    if not result:
+        return None
+    if os.path.isabs(result):
+        return os.path.normpath(result)
+    return os.path.normpath(os.path.join(repo_dir, result))
+
+
+def _install_hooks_into(target_hooks_dir: str, source_dir: str, source_hooks: list[str]) -> None:
+    """Copy source hooks into a target hooks directory, making them executable."""
+    os.makedirs(target_hooks_dir, exist_ok=True)
+    for hook_name in source_hooks:
+        src = os.path.join(source_dir, hook_name)
+        dst = os.path.join(target_hooks_dir, hook_name)
+        if _hooks_match(src, dst):
+            continue
+        _copy_hook(src, dst)
+
+
 def install_hooks() -> None:
-    """Install git hooks from .opencode/hooks/. Reports failures to stderr."""
+    """Install git hooks from .opencode/hooks/ into every repo in the workspace.
+
+    Covers the root repo and every linked repo discovered by collect_repo_info,
+    including .git-file submodules (resolved via `rev-parse --git-path hooks`).
+    Linked worktrees resolve to the common hooks dir and dedupe naturally.
+    Reports failures to stderr.
+    """
     source_dir = get_source_hooks_dir()
     if not source_dir:
         return
@@ -297,25 +330,15 @@ def install_hooks() -> None:
     if not source_hooks:
         return
 
+    installed_dirs: list[str] = []
+
     git_dir = _resolve_git_dir()
     if git_dir:
         parent_hooks_dir = os.path.join(git_dir, "hooks")
     else:
         parent_hooks_dir = os.path.join(os.getcwd(), ".git", "hooks")
-
-    if os.path.isdir(parent_hooks_dir):
-        for hook_name in source_hooks:
-            src = os.path.join(source_dir, hook_name)
-            dst = os.path.join(parent_hooks_dir, hook_name)
-            if _hooks_match(src, dst):
-                continue
-            _copy_hook(src, dst)
-    else:
-        os.makedirs(parent_hooks_dir, exist_ok=True)
-        for hook_name in source_hooks:
-            src = os.path.join(source_dir, hook_name)
-            dst = os.path.join(parent_hooks_dir, hook_name)
-            _copy_hook(src, dst)
+    _install_hooks_into(parent_hooks_dir, source_dir, source_hooks)
+    installed_dirs.append(parent_hooks_dir)
 
     linked_repos = collect_repo_info()
     for repo_entry in linked_repos:
@@ -323,30 +346,54 @@ def install_hooks() -> None:
         if dir_name == "." or not os.path.isdir(dir_name):
             continue
 
-        dir_git_path = os.path.join(os.getcwd(), dir_name, ".git")
-
-        # .git is a file (worktree/submodule ref) — skip; hooks belong to parent repo
-        if os.path.isfile(dir_git_path):
+        target = _resolve_hooks_target(os.path.join(os.getcwd(), dir_name))
+        if not target:
             continue
-
-        # .git is absent — skip
-        if not os.path.isdir(dir_git_path):
+        normalized = os.path.normpath(target)
+        if normalized in [os.path.normpath(d) for d in installed_dirs]:
             continue
-
-        # .git is a directory but has no hooks/ subdirectory — skip silently
-        hooks_target = os.path.join(dir_git_path, "hooks")
-        if not os.path.isdir(hooks_target):
-            continue
-
-        for hook_name in source_hooks:
-            src = os.path.join(source_dir, hook_name)
-            dst = os.path.join(hooks_target, hook_name)
-            if _hooks_match(src, dst):
-                continue
-            _copy_hook(src, dst)
+        _install_hooks_into(normalized, source_dir, source_hooks)
+        installed_dirs.append(normalized)
 
     if get_hooks_path():
         run_git_command(["config", "--unset", "core.hooksPath"])
+
+
+def collect_hook_inventory() -> list[str]:
+    """Report-only hook inventory: trunk-check hook presence per repo.
+
+    Verification and visibility only — never installs, never blocks.
+    """
+    source_dir = get_source_hooks_dir()
+    lines: list[str] = []
+    source_names: list[str] = []
+    if source_dir:
+        source_names = sorted(
+            f
+            for f in os.listdir(source_dir)
+            if os.path.isfile(os.path.join(source_dir, f)) and not f.endswith(".sample")
+        )
+    names = ", ".join(source_names) if source_names else "none"
+    lines.append(f"- hook source: .opencode/hooks/ ({names})")
+
+    for repo in collect_repo_info():
+        path = repo["path"]
+        repo_dir = os.getcwd() if path == "." else os.path.join(os.getcwd(), path)
+        target = _resolve_hooks_target(repo_dir)
+        if not target or not os.path.isdir(target):
+            lines.append(f"- {path}: hooks target not resolvable")
+            continue
+        states = []
+        for name in source_names:
+            dst = os.path.join(target, name)
+            if not os.path.isfile(dst):
+                states.append(f"{name}: MISSING")
+            elif _hooks_match(os.path.join(source_dir, name), dst):
+                states.append(f"{name}: ok")
+            else:
+                states.append(f"{name}: stale")
+        lines.append(f"- {path}: {'; '.join(states) if states else 'no trunk hooks installed'}")
+    return lines
 
 
 def _extract_version_from_pyproject() -> str:
@@ -574,6 +621,11 @@ def main() -> int:
         print("## CLI Auth Status")
         for line in cli_status:
             print(line)
+
+    # Emit ## Hook Inventory — report-only verification of the trunk-check hook
+    print("## Hook Inventory (report-only)")
+    for line in collect_hook_inventory():
+        print(line)
 
     # Emit ## Local Issue Folders section
     issue_folders = collect_issue_artifact_paths(repo_info)

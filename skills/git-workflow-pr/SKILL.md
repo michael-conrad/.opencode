@@ -1,12 +1,13 @@
-<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
-<!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
 ---
 name: git-workflow-pr
-description: Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whether the developer says "create pr", "open a PR", or the work simply reaches the review boundary. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent.
+description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whether the developer says \"create pr\", \"open a PR\", or the work simply reaches the review boundary. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
+
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: AI-authored, .opencode#2490 -->
 
 # git-workflow-pr
 

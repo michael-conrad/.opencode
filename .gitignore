@@ -25,3 +25,4 @@ htmlcov/
 
 /.issues/
 vector_db/
+tests-v2/tmp/

@@ -1825,7 +1825,8 @@ behavior_run() {
         submodule_remote_url=$(git -C "$PARENT_REPO_DIR" config --get submodule..opencode.url 2>/dev/null || true)
     fi
     if [ -z "$submodule_remote_url" ]; then
-        submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+        echo "FATAL: submodule .opencode URL not resolvable — set submodule..opencode.url in the project's .gitmodules (property-based lookup; no hardcoded fallback)" >&2
+        return 1
     fi
     submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
@@ -1995,32 +1996,45 @@ behavior_run() {
         # discover. Kept strictly inside the guard — the flag-off path provisions
         # only the single .opencode clone, preserving the default provisioning.
         if [ "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-0}" = "1" ]; then
-            # SC-4: Provision test-submodule-1 and test-submodule-2 as REACHABLE remotes
-            # referencing the real test repos. test-submodule-1
-            # (git@github.com:michael-conrad/test-submodule-1.git, default branch `dev`,
-            # has commits) is cloned so origin/dev is a genuine reachable ref; test-submodule-2
-            # (git@github.com:michael-conrad/test-submodule-2.git, empty) is initialized and
-            # wired to the real empty remote as origin. This lets the SC-1/SC-2/SC-3
-            # reachability checks run `git merge-base --is-ancestor` against a genuine
-            # reachable origin/$DEFAULT_BRANCH. Kept strictly inside the guard — the flag-off
-            # path provisions only the single .opencode clone, preserving the default provisioning.
-            local test_submodule_1_url="git@github.com:michael-conrad/test-submodule-1.git"
-            local test_submodule_2_url="git@github.com:michael-conrad/test-submodule-2.git"
+            # SC-4: Provision test-submodule-1 and test-submodule-2 as REACHABLE
+            # remotes backed by LOCAL bare repositories (property-based, no
+            # network, no owner-specific URLs). test-submodule-1 is seeded with
+            # a `dev` branch commit so origin/dev is a genuine reachable ref;
+            # test-submodule-2 is an empty bare remote. This lets the
+            # SC-1/SC-2/SC-3 reachability checks run `git merge-base
+            # --is-ancestor` against a genuine reachable origin/$DEFAULT_BRANCH.
+            # Kept strictly inside the guard — the flag-off path provisions only
+            # the single .opencode clone, preserving the default provisioning.
+            local test_submodule_1_url="$attempt_workdir/../test-submodule-1.git"
+            local test_submodule_2_url="$attempt_workdir/../test-submodule-2.git"
             local submodule_dir_1="$attempt_workdir/test-submodule-1"
             local submodule_dir_2="$attempt_workdir/test-submodule-2"
-            # test-submodule-1: clone the real repo so origin/dev is a genuine reachable ref.
+            # test-submodule-1: seed a local bare remote with a dev-branch commit.
+            if [ ! -d "$test_submodule_1_url" ]; then
+                git init -q --bare "$test_submodule_1_url" 2>/dev/null || true
+                local ts1_seed="$attempt_workdir/../.ts1-seed"
+                git init -q "$ts1_seed" 2>/dev/null || true
+                git -C "$ts1_seed" config user.email "test@test.dev" 2>/dev/null || true
+                git -C "$ts1_seed" config user.name "Test" 2>/dev/null || true
+                git -C "$ts1_seed" commit -q --allow-empty -m "seed" 2>/dev/null || true
+                git -C "$ts1_seed" checkout -q -B dev 2>/dev/null || true
+                git -C "$ts1_seed" push -q "$test_submodule_1_url" dev 2>/dev/null || true
+                rm -rf "$ts1_seed"
+            fi
+            # test-submodule-1: clone the local bare so origin/dev is a genuine reachable ref.
             git clone -q "$test_submodule_1_url" "$submodule_dir_1" 2>/dev/null || {
                 git init -q "$submodule_dir_1" 2>/dev/null || true
                 git -C "$submodule_dir_1" remote add origin "$test_submodule_1_url" 2>/dev/null || true
             }
             git -C "$submodule_dir_1" config user.email "test@test.dev" 2>/dev/null || true
             git -C "$submodule_dir_1" config user.name "Test" 2>/dev/null || true
-            # test-submodule-2: init + wire the real empty remote as origin.
+            # test-submodule-2: empty local bare remote, wired as origin.
+            git init -q --bare "$test_submodule_2_url" 2>/dev/null || true
             git init -q "$submodule_dir_2" 2>/dev/null || true
             git -C "$submodule_dir_2" remote add origin "$test_submodule_2_url" 2>/dev/null || true
             git -C "$submodule_dir_2" config user.email "test@test.dev" 2>/dev/null || true
             git -C "$submodule_dir_2" config user.name "Test" 2>/dev/null || true
-            echo "  [harness] multi-submodule fixtures provisioned as reachable remotes (test-submodule-1, test-submodule-2)" >&2
+            echo "  [harness] multi-submodule fixtures provisioned as reachable local remotes (test-submodule-1, test-submodule-2)" >&2
         fi
 
         if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
@@ -2043,7 +2057,7 @@ behavior_run() {
             # SC-2: guard the git-mutating target — abort if it resolves to the live repo.
             __assert_not_live_root "$attempt_workdir" || return 1
             git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
-            git -C "$attempt_workdir" push -u origin main 2>/dev/null || true
+            git -C "$attempt_workdir" push -u origin HEAD 2>/dev/null || true
             echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
         fi
 

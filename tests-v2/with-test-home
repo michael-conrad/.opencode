@@ -273,7 +273,8 @@ do_setup() {
             submodule_remote_url=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
         fi
         if [ -z "$submodule_remote_url" ]; then
-            submodule_remote_url="https://github.com/michael-conrad/.opencode.git"
+            echo "HARNESS_FAILURE: submodule .opencode URL not resolvable — set submodule..opencode.url in the project's .gitmodules (property-based lookup; no hardcoded fallback)" >&2
+            exit 1
         fi
         submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 
@@ -525,9 +526,13 @@ else
     git -C "$TEST_PROJECT" config user.email "test@test.dev"
     git -C "$TEST_PROJECT" config user.name "Test"
 
-    SUBMODULE_REMOTE_URL="https://github.com/michael-conrad/.opencode.git"
+    SUBMODULE_REMOTE_URL=""
     if [ -f "$PROJECT_DIR/.gitmodules" ]; then
-        SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || echo "https://github.com/michael-conrad/.opencode.git")
+        SUBMODULE_REMOTE_URL=$(git -C "$PROJECT_DIR" config --get submodule..opencode.url 2>/dev/null || true)
+    fi
+    if [ -z "$SUBMODULE_REMOTE_URL" ]; then
+        echo "HARNESS_FAILURE: submodule .opencode URL not resolvable — set submodule..opencode.url in the project's .gitmodules (property-based lookup; no hardcoded fallback)" >&2
+        exit 1
     fi
     SUBMODULE_REMOTE_URL=$(echo "$SUBMODULE_REMOTE_URL" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
 

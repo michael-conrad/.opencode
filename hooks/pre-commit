@@ -1,31 +1,26 @@
 #!/bin/bash
-# Pre-commit hook: Branch protection gate.
-# Exits 1 if gate fails.
+# Trunk-protection hook (pre-commit half) — the single surviving hook.
+# Per .opencode#2490 SC-6: exactly one hook survives — no direct commit to the
+# trunk branch. Property-based: the trunk is derived from this repo's own
+# origin remote, never hardcoded. Installed by session-init from
+# .opencode/hooks/ into each repo's git-dir hooks/.
+set -euo pipefail
 
-set -e
-
-CURRENT_BRANCH=$(git branch --show-current)
-TRUNK_BRANCH=$(git remote show origin 2>/dev/null | sed -n 's/.*HEAD branch: //p')
-[ -z "$TRUNK_BRANCH" ] && TRUNK_BRANCH="main"
-
-# --- Gate 1: Branch protection (trunk) ---
-if [ "$CURRENT_BRANCH" = "$TRUNK_BRANCH" ]; then
-  echo ""
-  echo "ERROR: Direct commits to '$TRUNK_BRANCH' are blocked."
-  echo ""
-  echo "Branch protection policy:"
-  echo "  - $TRUNK_BRANCH: Single trunk — all changes through PRs"
-  echo ""
-  echo "To commit your changes:"
-  echo "  1. Create a feature branch: git checkout -b feature/<name>"
-  echo "  2. Or create a hotfix branch: git checkout -b hotfix/<name>"
-  echo ""
-  echo "BLOCKED: Direct commit to protected branch — unreviewed changes entering production integration."
-  echo "No PR means no verification occurred. Every unprotected commit is an unreviewed deployment risk."
-  echo ""
-  echo "Remediate: call skill({name: \"git-workflow\"}) --task pre-work"
-  echo ""
-  exit 1
+trunk="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's|^origin/||' || true)"
+if [ -z "$trunk" ]; then
+  trunk="$(git remote show origin 2>/dev/null | sed -n 's/^[[:space:]]*HEAD branch:[[:space:]]*//p' || true)"
+fi
+if [ -z "$trunk" ]; then
+  echo "trunk-hook: could not determine trunk branch (no origin remote configured?) — allowing commit" >&2
+  exit 0
 fi
 
+branch="$(git branch --show-current)"
+if [ "$branch" = "$trunk" ]; then
+  echo "" >&2
+  echo "BLOCKED: direct commit to trunk branch '$trunk'." >&2
+  echo "All changes go through a feature branch and a PR; PRs are merged by humans only." >&2
+  echo "Create the feature branch first: git checkout -b feature/<issue>-<slug>" >&2
+  exit 1
+fi
 exit 0
