@@ -4,7 +4,32 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: "## Problem\n\nPlans and specs embed routing metadata — task-card dispatch strings\
+  \ and\nskill-path references into the deck. When the deck is reorganized\nmid-pipeline,\
+  \ those references go stale: dispatched sub-agents hit dead\npaths, silently resolve\
+  \ from unauthoritative copies, or improvise\ninconsistently. Observed in the snea-phonetics\
+  \ #116 execution (2026-10-05):\nplan-authored dispatch strings for test-driven-development,\n\
+  verification-before-completion, and spec-creation hit dead active-deck\npaths after\
+  \ a deck reorganization; reliability recovered only through\nper-dispatch improvisation\
+  \ (attic/.issues-sourced copies, live-equivalent\nsubstitution).\n\n## Requirement\n\
+  \nRouting references in plans and specs must track the deck copy available to\n\
+  the repo that holds them. The consuming side owns keeping them current:\nstale references\
+  \ are remediated — re-conformed to the live deck or its\npreserved governing copies\
+  \ — before the work that depends on them\ncontinues; remediation is never silent.\
+  \ Fail-loud is reserved for the case\nwhere remediation is impossible (no live or\
+  \ preserved copy exists).\n\nScope and mechanism are deliberately unstated here;\
+  \ they emerge through the\nspec pipeline when this ticket is picked up.\n\n## Provenance\n\
+  \n- Developer directive 2026-10-05: \"add the regeneration into the prompt so\n\
+  \  that bad specs and plans with stale information don't cause the\n  implementation\
+  \ to fail or be defective\" — then trimmed per the\n  progressive minimal disclosure\
+  \ mandate after the first draft\n  over-specified mechanism.\n- Re-evaluated 2026-10-05\
+  \ per developer correction: deck-change operations\n  do not have access to repos\
+  \ outside the deck's own tree — the obligation\n  was re-located to the consuming\
+  \ side.\n- Agent reasoning (detection mechanism, moment/agent decomposition)\n \
+  \ removed from the requirement per developer correction; it belongs to the\n  spec\
+  \ pipeline.\n- Posture corrected 2026-10-05 per developer challenge: stale references\n\
+  \  are remediated, not fail-loud — fail-loud is reserved for\n  unremediable cases\
+  \ (no live or preserved copy).\n"
 created_at: '2026-10-05T19:40:55+00:00'
-updated_at: '2026-10-05T19:41:00+00:00'
+updated_at: '2026-10-05T19:41:20+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2499
