@@ -1,4 +1,7 @@
 labels:
 - spec
 github_url: https://github.com/michael-conrad/.opencode/issues/2496
-updated_at: '2026-10-05T14:57:53+00:00'
+updated_at: '2026-10-05T15:00:07+00:00'
+status: closed
+closed_at: '2026-10-05T15:00:07+00:00'
+close_reason: completed
