@@ -39,8 +39,8 @@ are handled by the tools above — never search for tokens or passwords.
 
 Positive whitelist — what the developer's utterances mean:
 
-- `approved for pr[: refs]` / `#N approved for pr` → PR-boundary authorization for those issues
-- `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope
+- `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase** — plan → implement → verify → PR are all covered by `approved for pr`; intermediate stage authorizations are implied, not separately required. Halt only on genuine ambiguity, never on absent intermediate stages.
+- `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope (same up-to-and-including rule applies)
 - `approved` (bare, mid-discussion) → authorizes the item just discussed; clarify if it implies implementation
 - `go` / `proceed` / `go ahead and <action>` → proceed with the stated action
 - `create a release pr` → release pipeline · `pr merged` → cleanup · `stack into existing work: refs` · `audit` · `remediate [and re-audit]`
