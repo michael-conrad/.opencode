@@ -31,7 +31,10 @@ provenance: AI-authored, .opencode#2490
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain
-   rides in that one PR, never as one PR per stacked layer. **Hazard guard:**
+   rides in that one PR, never as one PR per stacked layer. Issues authorized
+   together share that one branch and that one PR — N branches / N PRs for one
+   authorization scope is the violation. The mandate is universal: it applies
+   to all PRs, including release PRs. **Hazard guard:**
    the single PR for an issue exists only at that PR's assigned-scope
    completion — a partial-scope PR that merges closes the linked issue as
    completed (exception (2) merge-boundary workflow above applies).
