@@ -122,6 +122,15 @@ progressive-disclosure mechanism:
   touches only deck content (skills/, routing.md, governance artifacts) — no
   files under `tools/`, no MCP configuration entries, no new scripts or
   dependencies. Verification: diff inspection.
+- [ ] **SC-5 (behavioral, stacked 2026-10-06):** Orchestrator supervision of
+  the SC-4 behavioral run follows the tests-v2 monitoring discipline: poll
+  cadence never exceeds 300s between consecutive polls, every poll is a full
+  semantic check of the live session DB (message parts, reasoning, tool
+  calls) with an explicit progressing/off-track judgment, and each poll
+  reports a brief status line to the developer. Verification: inspection of
+  the recorded poll log — per-poll timestamps (gaps ≤ 300s), per-poll semantic
+  judgment, and status-line records; blank mechanical polls or absent
+  judgments are FAIL evidence.
 - [ ] **SC-4 (behavioral):** An agent session equipped only with the card set
   and existing generic tools performs a correct wiki edit on a GitBucket wiki
   hosted on the **local GitBucket container provisioned by the tests-v2
