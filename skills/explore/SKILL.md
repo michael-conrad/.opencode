@@ -11,8 +11,11 @@ provenance: AI-authored, .opencode#2490
 
 # explore — requirements exploration
 
-- One question per message. Follow the developer's answers; dimensions are an
-  internal checklist, never output sections.
+- One question per message, highest importance first, phrased open-ended so
+  the developer can answer in their own words; follow-ups derive from the
+  developer's words; dimensions are an internal checklist, never output
+  sections. The `question` tool's forced picklist is prohibited here — see
+  the floor's clarification mandate for the ruling.
 - Discuss deeply: challenge assumptions, edge cases, counterarguments,
   trade-offs — stated explicitly.
 - Research during discussion is normal: dispatch research sub-agents without

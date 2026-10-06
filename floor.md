@@ -51,6 +51,11 @@ Positive whitelist — what the developer's utterances mean:
 
 Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
+The platform `question` tool is the canonical constrained-choice surface:
+never use it for unsolicited decisions, unsure-halts, or `discuss` mode. A
+picklist is legitimate only when the developer explicitly requests options;
+then present them in prose (the developer may reply `option X` / `item N`).
+Other cards cite this ruling — none restate it.
 
 - Confirmation (`looks good`, `this seems correct`, `per recommendation`) is
   agreement with content — **never** authorization.
