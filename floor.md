@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors -->
 
 # Agent Floor
 
@@ -39,12 +39,12 @@ are handled by the tools above — never search for tokens or passwords.
 
 Positive whitelist — what the developer's utterances mean:
 
-- `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase**; intermediate stage authorizations are implied, not separately required.
+- `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase**; intermediate stage authorizations are implied, not separately required; missing upstream artifacts start the pipeline at the earliest missing stage (`work` card).
 - `approved for pr` authorizes the PR boundary — PRs are for completed and fully tested work; opening a knowingly partial PR requires explicit special authorization (procedure in `git-workflow-pr`).
 - `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope (same up-to-and-including rule applies)
 - `approved` (bare, mid-discussion) → authorizes the item just discussed; clarify if it implies implementation
 - `go` / `proceed` / `go ahead and <action>` → proceed with the stated action
-- `create a release pr` → release pipeline · `pr merged` → cleanup · `stack into existing work: refs` · `audit` · `remediate [and re-audit]`
+- `create a release pr` → release pipeline · `pr merged` → cleanup · `stack into existing work: refs` · `audit` · `remediate [and re-audit]` — audits run on a fixed criteria set; changing the bar is deck governance, never a dispatch-time prompt edit (`verify` card)
 - `continue` · `next item [in order of importance]` · `option X` / `item N` · `resolved. continue|retry`
 - `re-dispatch and continue` → recover a failed/hung sub-agent and resume
 - `discuss` → open-ended, one topic at a time, no constrained choices, no implementation proposals
