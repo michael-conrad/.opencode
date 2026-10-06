@@ -196,3 +196,46 @@ Secondary (snippet-level): github.com/huggingface/skills; github.com/microsoft/s
 ## Confidence: HIGH
 
 Central negative claims rest on a live registry API search of the dominant directory plus full scans of the two leading curated lists. Central positive claims (wk-j skill contents, agentskills.io standard, npx skills mechanics) verified against primary documents fetched this session. Long-tail registries are snippet-level (medium).
+
+---
+
+# Appendix D: Local Wiki Preview Tooling (2026-10-06)
+
+## Question
+
+Can a Gollum-convention wiki repo be previewed locally before push — candidate review surface in lieu of a PR (direct-publish wikis have no review stage)?
+
+## Answer: Gollum is the preview engine
+
+Official Docker image `gollumwiki/gollum` (CI-built + tested via Capybara, multi-arch amd64/arm64, image pushed 2025-08-22, 322k pulls; no `latest` tag by design — use `:6.1.0` or `:master`):
+
+```
+docker run --rm -p 4567:4567 -v "$(pwd)":/wiki gollumwiki/gollum   # → http://localhost:4567
+```
+
+Natively renders `Home`/`_Sidebar`/`_Footer`/`_Header`, resolves `[[Page Name]]` links, selects renderers per file extension, generates anchors "according to the same scheme as GitHub". Ruby ≥ 2.6 `gem install gollum` is the alternative path (gem 6.1.0, 2024-12-23; master activity through 2025-11-24; docs edited Sep 2026).
+
+## Fidelity Caveats (verified)
+
+- **Divergence officially acknowledged** by gollum maintainers (wiki home page, edited Sep 2026): gollum-only macros (`<<Note()>>`-style), `[[include:Page]]` transclusion, `[[_TOC_]]`; GitHub-only post-processing (sanitization, emoji, task lists, autolinking, syntax highlighting). GitHub treats `[[_TOC_]]` as a plain link and does not support transclusion or TOC tags.
+- `github/markup` CLI (`github-markup FILE`) is "step 1 only" per its README: no sanitization, no wikilink resolution (`[[...]]` passes through literal) — markup conversion, not a wiki preview.
+- Markdown-engine mismatch: gollum defaults to kramdown + kramdown-parser-GFM; GitHub uses commonmarker (cmark-gfm). Installing `commonmarker` for gollum + its documented flag config narrows the gap; edge-case rendering may still differ.
+- Opt-in features: gollum emoji needs `--emoji` (GitHub always renders); math/Mermaid need flags.
+- Bottom line: local preview validates **structure, links, sidebar/footer behavior** faithfully — it does not guarantee pixel-identical GitHub output. Live page remains the final look.
+
+## GitBucket Specifics
+
+- No lightweight local renderer; the faithful preview is GitBucket itself (`java -jar gitbucket.war`, Java 17; 4.46.0 released 2026-03-07). Gollum serves as a structural approximation for either platform.
+- **Verified gotcha (sidebar-maintenance rule content):** relative markdown links inside `_Sidebar.md` resolve to broken `_blob/` paths — gitbucket#2629, open since 2021-01. Use `[[...]]` or absolute links in GitBucket-destined sidebars.
+
+## Non-Matches (verified)
+
+mdBook (requires `SUMMARY.md`, no native wikilinks); ikiwiki (own PageSpec conventions); Foam / Obsidian (render `[[wikilinks]]` but no `_Sidebar.md`/`_Footer.md` conventions); github/markup CLI (no wikilinks). No maintained standalone "wiki previewer" exists — the ecosystem answer is gollum.
+
+## Sources (all accessed 2026-10-06)
+
+Primary (fetched): github.com/gollum/gollum (+ gemspec, releases, commits atom, wiki incl. Gollum-via-Docker); hub.docker.com/v2/repositories/gollumwiki/gollum/ (+ /tags); github.com/github/markup (+ bin/github-markup); docs.github.com wiki pages (about/adding-or-editing/creating-a-footer-or-sidebar); github.com/gitbucket/gitbucket#2629 + 4.46.0 release notes; gollum wiki divergence + wikilink-resolution + commonmarker-flag pages. Secondary: mdBook summary docs, ikiwiki release note, Foam marketplace page, Obsidian internal-links help.
+
+## Confidence: HIGH
+
+Central positive claims (gollum capabilities, Docker image, divergence acknowledgment, GitBucket sidebar defect) verified against primary sources fetched this session. Obsidian "no `_Sidebar.md` rendering" is absence-of-evidence (medium).
