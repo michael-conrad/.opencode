@@ -1,0 +1,10 @@
+title: '[SPEC] Restore stacked-PR mandate: one branch, one squashed commit per issue,
+  one PR per authorization scope'
+status: open
+labels:
+- needs-approval
+- spec
+- regression
+body: ''
+created_at: '2026-10-06T15:40:48+00:00'
+updated_at: '2026-10-06T15:40:48+00:00'
