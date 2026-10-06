@@ -1,95 +1,104 @@
 # Wiki Operations Support — Spec
 
+> **Rev 2 — refocused 2026-10-06** per developer direction: no bespoke tooling; the
+> deliverable is wiki rules and best practices packaged as a progressive skill card
+> set. Rev 1's architecture (MCP server pattern exposing `wiki-check`/`wiki-list`/
+> `wiki-get`/`wiki-create`/`wiki-update`/`wiki-delete`/`wiki-clone` commands,
+> SC-1..10 command criteria, phased CLI plan) is superseded and removed, not
+> accumulated.
+
 ## Problem Statement
 
-Agents cannot edit wiki pages on GitBucket and GitHub repositories because no skill or tool understands `.wiki.git` repos as editable markdown wikis. Wikis are stored as plain git repos of markdown files with layout conventions (`Home.md`, `_Sidebar.md`, `_Footer.md`) that require format-aware handling — generic file ops don't understand wiki semantics like double-bracket internal links (`[[Page Name]]`).
+Agents can mechanically edit GitHub and GitBucket wikis — wikis are plain git
+repos of markdown files (`.wiki.git`), so clone, edit files, commit, and push
+all work through existing generic mechanisms (`git -C`, standard file tools).
+What agents lack is the **domain knowledge to do it correctly**: Gollum layout
+conventions, `[[Page Name]]` internal-link semantics, per-extension rendering
+formats, and the rendering differences between platforms. Without these rules,
+agents produce wiki pages that render incorrectly or break sidebar navigation.
+
+## Architecture: Progressive Skill Card Set
+
+The deliverable is a governed skill card set in the deck's existing
+progressive-disclosure mechanism:
+
+- One dispatchable card (`skills/wiki-operations/SKILL.md`) plus referenced
+  detail files — the routing index dispatches wiki-editing intent to it, the
+  SKILL.md loads on match, and referenced detail files load on demand.
+- **No bespoke tooling.** All mechanics stay generic: existing file-editing
+  tools for markdown edits; `git -C <wiki-repo>` for clone/commit/push; `gh` /
+  `gb` for platform queries. No MCP server, no new CLI commands, no scripts,
+  no new dependencies.
+- The card enters through the skill-creator deck-governance admission gate;
+  `routing.md` gains its dispatch entry through the same governance path.
 
 ## Scope
 
-### In Scope
-- Detect wiki availability on GitHub and GitBucket repos
-- Read, create, update, delete wiki pages via git clone-modify-push workflow
-- Maintain sidebar navigation structure (parse/generate `[[...]]` wiki-links in `_Sidebar.md`)
-- Format neutrality: default to `.md` but respect existing file formats per-page
+### In Scope — knowledge content the card set encodes
+
+- Layout conventions: `Home.<ext>` / `_Sidebar.<ext>` / `_Footer.<ext>` roles;
+  the file extension controls that file's rendering format.
+- `[[Page Name]]` link semantics: the double-bracket syntax both platforms
+  parse for internal linking, plus GitHub wiki gotchas (extensionless
+  `[text](Page)` links preferred; bare `---` frontmatter renders as a
+  horizontal rule; `#NNN` issue references do not autolink on wikis).
+- Platform rendering differences: GitHub's pre-render pipeline
+  (`github/markup`) vs GitBucket's render-time format selection; supported
+  format matrix; feature differences (tables, callouts/admonitions, Mermaid,
+  math).
+- Sidebar/footer maintenance rules: when to append `_Sidebar.md` entries on
+  page creation; cleanup on page deletion or rename; preserving link syntax
+  across edits.
+- Page lifecycle best practices: page naming, layout patterns (flat vs
+  hierarchical with subfolder landing pages), orphan/broken-link hygiene.
+- Publish discipline as agent rules: verify the rendered diff before pushing;
+  never force-push a wiki; confirm wiki availability before editing.
 
 ### Out of Scope
-- API-based wiki operations for platforms that expose HTTP endpoints (future extension point)
-- Migration of non-git wikis to git-backed format
-- Multi-wiki synchronization or cross-repo wiki management
 
-## Architecture Decision: Platform-Agnostic Skill with Local Git Backend
-
-**Decision:** Implement `wiki-operations` skill using the existing MCP server pattern with two platform implementations:
-
-```
-.opencode/skills/wiki-operations/
-├── SKILL.md                          # Platform-agnostic operations (unchanged from spec)
-└── platforms/
-    ├── local/SKILL.md                # git clone → modify markdown files → commit → push
-    └── remote/SKILL.md               # API fallback for platforms without .wiki repos
-```
-
-**Rationale:** `local/SKILL.md` handles the `.wiki.git` git workflow directly — no external dependency needed since it's just standard git + markdown ops on known file conventions. `remote/SKILL.md` provides API-based wiki access for platforms that expose HTTP endpoints but don't have a public `.wiki.git` repo (future-proofing). The MCP server exposes the same tools regardless of backend, so agents call `wiki-list`, `wiki-get`, etc. without knowing which platform they're on.
+- Bespoke tooling of any kind — MCP servers, `wiki-*` CLI commands, helper
+  scripts, new dependencies (supersedes rev 1).
+- API-based wiki operations for platforms that expose HTTP endpoints but no
+  public `.wiki.git` repo (future extension point).
+- Migration of non-git wikis to git-backed format; multi-wiki synchronization.
+- Disposition of the bespoke `tools/md` script (separate item; the card set
+  must not depend on it).
+- Generic git / `gh` / `gb` instruction — the agent already has this surface.
 
 ## Success Criteria
 
-- [ ] **SC-1:** `wiki-check` detects wiki availability via git probe (`git ls-remote --exit-code <repo>.wiki.git HEAD`) with API heuristic fallback
-- [ ] **SC-2:** `wiki-list` returns list of pages by parsing `_Sidebar.md` for `[[...]]` links (not just glob files) — preserves sidebar navigation structure
-- [ ] **SC-3:** `wiki-get` retrieves page content respecting existing file format per-page (`.md`, `.markdown`, `.textile`, etc.)
-- [ ] **SC-4:** `wiki-create` creates new pages with auto-detected layout conventions (`Home.md` if no Home exists, `_Sidebar.md` entry if sidebar present)
-- [ ] **SC-5:** `wiki-update` modifies existing pages and updates `_Sidebar.md` to append new entries when appropriate
-- [ ] **SC-6:** `wiki-delete` removes wiki page and cleans up `_Sidebar.md` references
-- [ ] **SC-7:** `wiki-clone` clones wiki repo for manual editing workflow
-- [ ] **SC-8:** All commands support auth options (token, SSH, basic)
-- [ ] **SC-9:** Documentation added to skill manifest
-- [ ] **SC-10:** Integration tests for wiki operations
-
-## Implementation Plan
-
-### Phase 1: Detection & Read Operations (Priority: High)
-- Add `_wiki_repo_url()` helper that detects `.wiki.git` availability via git probe
-- Add `wiki_check()` detection with API heuristic fallback
-- Add `wiki_list_pages()` method — parses `_Sidebar.md` for `[[...]]` wiki-links to build page tree, falls back to directory glob if no sidebar
-- Add `wiki_get_page()` method — respects existing file format per-page
-- Add CLI commands: `wiki-check`, `wiki-list`, `wiki-get`
-
-### Phase 2: Write Operations (Priority: Medium)
-- Add `wiki_create_page()` method — creates `.md` files by default, auto-detects layout conventions (`Home.md` if missing, appends to `_Sidebar.md`)
-- Add `wiki_update_page()` method — modifies existing pages and updates sidebar entries
-- Add `wiki_delete_page()` method — removes page and cleans up sidebar references
-- Add CLI commands: `wiki-create`, `wiki-update`, `wiki-delete`
-
-### Phase 3: Advanced Features (Priority: Low)
-- Add `wiki_clone()` for manual editing workflow
-- Add batch operations
-- Add wiki history/revisions support if platform exposes it
-
-## Layout Conventions — Implementation Details
-
-Both GitHub and GitBucket wikis share these de facto standard filenames:
-
-| Filename | Purpose | Semantic Role |
-|----------|---------|---------------|
-| `Home.<ext>` | Root/landing page | Entry point, TOC anchor |
-| `_Sidebar.<ext>` | Left sidebar navigation panel | Site-wide table of contents / navigation tree |
-| `_Footer.<ext>` | Bottom footer content | Copyright, version info, links |
-
-The extension on these files controls the rendering format. Both platforms parse `[[Page Name]]` double-bracket wiki-links for internal linking — this is what enables sidebar navigation and must be maintained by all write operations.
-
-### Layout Patterns Found in Real `.wiki` Repos
-- **Pattern A: Flat structure** (most common) — all pages at repo root with `_Sidebar.md`
-- **Pattern B: Hierarchical with folders** — `Home.md`, `_Sidebar.md` + subfolder landing pages (`Getting-Started/Home.md`)
-
-## Authentication
-- HTTPS: Inject token into git URL (`https://token@host/...`)
-- SSH: Use existing SSH keys from main repo
+- [ ] **SC-1 (structural):** A dispatchable skill card exists at
+  `skills/wiki-operations/SKILL.md` with a routing-index entry that dispatches
+  wiki-editing intent to it, admitted through the skill-creator governance
+  gate. Verification: reference-integrity check over the card's references +
+  inspection of `routing.md` and the governance record.
+- [ ] **SC-2 (structural):** The card set encodes the rule domains listed
+  In Scope — layout conventions, `[[...]]` link semantics with platform-correct
+  gotchas, GitHub-vs-GitBucket rendering differences, sidebar/footer
+  maintenance, page lifecycle, publish discipline — with each rule traceable to
+  the research card (Appendix A/B/C) or a fetched primary source. Verification:
+  content check of card facts against their cited sources.
+- [ ] **SC-3 (structural):** No bespoke tooling is introduced: the change
+  touches only deck content (skills/, routing.md, governance artifacts) — no
+  files under `tools/`, no MCP configuration entries, no new scripts or
+  dependencies. Verification: diff inspection.
+- [ ] **SC-4 (behavioral):** An agent session equipped only with the card set
+  and existing generic tools performs a wiki edit on a GitHub test repo
+  following the rules — correct link syntax, `_Sidebar.md` maintained, diff
+  verified before publish. Verification: behavioral run with session evidence
+  per the behavioral-testing card.
 
 ## References
-- GitHub Wiki docs: https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis
+
+- Research card: `.opencode/.issues/research-cards/wiki-operations-agent-tools-survey.md`
+  — Appendix A (wiki-editing tool survey), Appendix B (syntax & layout
+  conventions), Appendix C (skill-deck/registry landscape; `wk-j/skills/maintain-github-wiki`
+  verified as a reference rule source, GitHub facet).
+- GitHub wiki docs: https://docs.github.com/en/communities/documenting-your-project-with-wikis/about-wikis
 - GitHub Markup library (pre-renderer): https://github.com/github/markup/blob/master/README.md
 - GitBucket wiki editor (multi-format support): https://github.com/gitbucket/gitbucket/wiki
-- Research card: `.opencode/.issues/research-cards/wiki-operations-agent-tools-survey.md`
+- Agent Skills standard (packaging format this deck already uses): https://agentskills.io
 
 ---
 
-🤖 Co-authored with AI: <AgentName> (<ModelId>)
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
