@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2519 placement rule -->
 
 # skill-creator — deck governance
 
@@ -47,6 +47,11 @@ edits produced the doom loop this deck replaced.
   matching anywhere** — the floor's vocabulary table defines utterance
   meanings; descriptions match agent intent.
 - Bodies stay lean; details go one level deep in `references/`.
+- **Placement follows the load path**: content goes where its consumer already
+  is. If the failure happened *after* a card loaded (routing fired), the fix
+  lives in that card — the always-injected surface carries at most a one-line
+  semantic anchor, never duplicated card text, because duplicated text drifts:
+  the floor cites, the card states.
 - No TDTs, no dispatch-gate boilerplate, no artifact chains, no numeric size
   targets.
 
