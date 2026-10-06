@@ -4,13 +4,9 @@ title: "Contract Format Standardization — YAML for All LLM-Consumed Content"
 status: DRAFT
 author: michael-conrad
 created: 2026-05-15
-updated: 2026-07-11
+updated: 2026-10-06
 license: MIT
 provenance: AI-generated
-interdependent:
-  - .opencode#1208 (Skillcard routing overhaul — sequencing: #582 must run AFTER #1208 Workstream A)
-  - .opencode#1222 (Enforcement-Gated Contract Schema — shared YAML contract format concern)
-  - .opencode#936 (Deterministic consensus gate — SC-8 requires YAML result contract)
 supersedes:
   - .opencode#1420 (closed — YAML mandate rule; #582 is the implementation)
 ---
@@ -19,23 +15,26 @@ supersedes:
 
 ## Problem
 
-`.opencode/` contains a systemic mix of ` ```json ` code fences, prose-embedded JSON templates, and references to "structured JSON verdicts" across skill task files, SKILL.md files, agent cards, and related documentation. The principle was already established — anything the LLM reads, parses, or is instructed to generate should be YAML — but was never audited or remediated.
+When an agent directly parses or writes structured data for consumption by another agent — result contracts, hand-off state, structured verdicts, evidence artifacts — it must default to YAML, not JSON. The agent, not the format, is the subject of this mandate: models default to JSON in agent-to-agent exchanges because training data is JSON-heavy, and JSON is error-prone when embedded in prompts due to brace/quote escaping.
 
-This is a correctness issue, not a style preference. Independent benchmarks (improvingagents.com, 2025) show YAML delivers 11–18 percentage points better comprehension accuracy over JSON for nested data presented to LLMs, with ~30% fewer tokens. This aligns with opencode.ai's own design language: SKILL.md uses YAML frontmatter, agent cards use YAML frontmatter, `opencode.json` is JSON only because it's machine-level configuration.
+The original audit (2026-05) found the pre-replacement deck instructing the opposite: ` ```json ` contract templates in task files, prose-embedded JSON output instructions, and "structured JSON verdict" language across SKILL.md files, auditor agent cards, and guidelines. The deck has since been reorganized into single-file skill cards; the pre-replacement deck is preserved unloaded under `attic/` (tag `pre-rip`) pending soak and deletion. That reorganization absorbed the file migration the original spec enumerated — but it also left the codified rule homeless: the YAML Standard now survives only in the preserved attic copy, and nothing in the live deck tells an agent to default to YAML when exchanging structured data with another agent.
 
-The YAML mandate was codified in `080-code-standards.md` §YAML Standard for LLM-to-LLM Data Transfers (issue #1420, closed). This spec is the comprehensive implementation of that rule.
-
-## Current State
-
-As of 2026-07-11, the codebase has:
-- **18 files** with ` ```json ` blocks remaining (down from ~25+ originally)
-- **88 files** already using ` ```yaml ` blocks
-- **0 guideline files** with ` ```json ` blocks (already clean)
-- No branch or PR exists for this issue
+This spec re-baselines the mandate onto the current deck: verify live-deck conformance, and give the rule a live, on-demand disclosure home.
 
 ## Principle
 
 **YAML for everything an LLM reads, parses, or is instructed to generate. JSON only for tool-to-tool file I/O, CLI output, and external tool configuration.**
+
+Operationally: the agent uses YAML, not JSON, as the default communication format for structured data it directly parses or writes for consumption by other agents. The governing rule text (§YAML Standard for LLM-to-LLM Data Transfers) survives in the preserved governing copy `attic/guidelines/080-code-standards.md`; the live deck no longer carries `guidelines/`. In the current deck, conventions are disclosed via skill cards loaded on demand — never via the slim pointer surfaces (`floor.md`, `routing.md`, `AGENTS.md`, `prompts/default.txt`), which carry no contract content and gain none from this spec.
+
+## Current State (live deck)
+
+- Exactly **1** true ` ```json ` fence: `skills/email-management/references/search-read.md` — documents the mail CLI's JSON output; excluded category (CLI output), not an LLM-output instruction.
+- Exactly **1** ` ```jsonc ` fence: `README.md` — `opencode.jsonc` config example; excluded.
+- **0** "JSON verdict" / "structured JSON" references in live content.
+- **0** prose instructions directing an LLM to produce JSON output in live content.
+- **0** `yaml+symbolic` blocks in live content (the construct is attic-only).
+- The pre-replacement deck's 21 fenced ` ```json ` sites (task cards, references) are preserved unloaded under `attic/`; the auditor agent cards were removed outright. Migrating attic content is dead work.
 
 ## Contract Format Specification
 
@@ -44,120 +43,95 @@ As of 2026-07-11, the codebase has:
 | Outer boundary | ` ```yaml ` code fence | ` ```yaml ` |
 | Multi-record inside a single fence | `---` separator between records | `---\nstatus: PASS\n---\nstatus: FAIL` |
 | Prose contract description | YAML-style, not JSON brace syntax | `status: DONE, evidence: path to file` |
-| Existing yaml+symbolic blocks | Unchanged | ` ```yaml+symbolic ` |
+| Agent re-serialization of tool JSON for another agent | YAML (the hand-off representation; the tool's raw output stays JSON) | convert before hand-off |
 | Tool I/O, CLI output, file persistence | JSON (unchanged) | excluded from migration |
 
 ## Scope
 
-Every owned file in `.opencode/` — skill task files (`tasks/*.md`), SKILL.md files, agent cards (`agents/auditor-*.md`), guidelines, prompts, and any other file containing LLM-consumed structured content — must be checked and remediated where JSON is used as an instruction template, output template, or contract format.
+Live, LLM-consumed, owned content in `.opencode/`: skill cards (`skills/**` — `SKILL.md` and `references/**`), agent-facing harness documentation (`tests-v2/AGENTS.md`), `docs/`, `README.md`, agent cards (`agents/*.md`), and the pointer surfaces (`floor.md`, `routing.md`, `AGENTS.md`, `prompts/`). The implementing agent discovers affected content per block, not per file. Card and routing-index edits go through the deck-governance card (`skill-creator`) — this spec defines the requirement; deck governance governs the edit.
 
 ### Excluded
 
-- Tool I/O files written to disk by one tool and read by another (coherence baselines, capability snapshots, provenance logs)
-- External CLI output formats (gitbucket-api)
-- Script `--json` flags for programmatic consumption
-- `yaml+symbolic` rule blocks (already YAML)
+- `attic/` — preserved, unloaded pre-replacement deck (pending soak and deletion)
+- `.issues/` and `.opencode/.issues/` — issue metadata stores
+- Tool I/O files written to disk by one tool and read by another (capability snapshots, provenance logs, session exports)
+- CLI output documentation and examples (including the mail CLI block in `skills/email-management/references/search-read.md`)
+- Script `--json` flags for programmatic consumption (`skildeck` suite, test tooling)
+- ` ```jsonc ` blocks (config-file examples)
+- Behavioral-test fixtures and generated artifacts (`tests-v2/behaviors/fixtures/`, `tmp/`, `test-artifacts/`, `vector_db/`)
+- Vendor-generated files (`agents/vision-agent.md`, `agents/visual-design-agent.md` — vendor-card boundary: regenerated by the owning tool, never hand-edited)
 - Vendor dependencies (`.node/`, `node_modules/`, `.tools/`)
-
-## Files Affected
-
-The scope is systemic — the implementing agent must discover all affected files autonomously. Known categories include but are not limited to:
-
-- Skill task files with ` ```json ` result contract templates (18 files identified: verification, research, multimodal-dispatch, TDD, issue-operations, git-workflow, playwright-cli)
-- Agent cards with ` ```json ` clean-room output blocks (7 auditor-*.md files)
-- Task files with prose instructions telling a sub-agent to "return a JSON with..."
-- SKILL.md overviews referencing "structured JSON verdicts" or similar language
-- Any guideline or rule referencing JSON in the context of LLM-consumed output
-- `.opencode/README.md`
-
-The implementing agent searches for and determines on a file-by-file basis what needs updating.
-
-## Interdependencies
-
-| Issue | Relationship | Action Required |
-|---|---|---|
-| `.opencode#1208` | **Sequencing dependency** — #1208 Workstream A modifies YAML frontmatter in all 39 SKILL.md files. #582 converts ` ```json `→` ```yaml ` in the same files. | #582 MUST run AFTER #1208 Workstream A to avoid merge conflicts. Mark this dependency in both issues. |
-| `.opencode#1222` | **Shared concern** — #1222 defines standardized YAML contract schema. #582 ensures all ` ```json ` blocks are converted. | #582's migrated YAML blocks should conform to #1222's schema where applicable. No sequencing dependency. |
-| `.opencode#936` | **Shared concern** — SC-8 requires cross-validate to return YAML result contract. #582 handles this conversion. | #582's Phase 1 covers the cross-validate.md conversion. No sequencing dependency. |
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type | Verification Method |
 |---|---|---|---|
-| SC-1 | Every ` ```json ` code fence that serves as an LLM-consumed contract template has been converted to ` ```yaml ` with semantically equivalent YAML content. | `string + behavioral` | Full content scan — zero ` ```json ` blocks in owned `.opencode/` files outside the excluded categories. Behavioral: run `rg '```json' .opencode/ --include '*.md'` and confirm count is 0 for non-excluded files. |
-| SC-2 | Every prose-embedded contract instruction (e.g., "Return a JSON with fields: status, evidence..." or "Result: { status, files_changed }") has been converted to YAML prose. | `string + semantic` | Read-through audit — zero prose instructions telling an LLM to produce JSON output. Semantic: sub-agent reads sampled files and confirms no JSON-output instructions remain. |
-| SC-3 | Every SKILL.md overview, guideline reference, or rule that references "JSON verdicts" or "structured JSON" has been updated to "YAML verdicts" or "structured YAML" where the referenced output is LLM-consumed. | `string` | `grep` — zero "JSON verdict" or "structured JSON" in owned files. |
-| SC-4 | All 7 auditor agent cards have clean-room output blocks in ` ```yaml `. | `string` | Read each `auditor-*.md` — zero ` ```json ` in output instructions. |
-| SC-5 | Multi-record verdicts use `---` separators inside a single ` ```yaml ` fence, not separate fences per record. | `string + semantic` | Sampled audit — adversarial-audit task files show `---` inside a single fence for multi-record examples. |
-| SC-6 | Excluded files (tool I/O, CLI output, script flags) remain unchanged. | `structural` | Diff check — no changes to coherence-extraction.md baseline structure, probe.md CapabilitySnapshot, gitbucket-api references, provenance log records, `validate_skill_cards.py --json` references. |
-| SC-7 | All migrated ` ```yaml ` blocks contain semantically equivalent data to the original ` ```json `. No fields lost, values changed, or structural information dropped. | `semantic` | Representative sample comparison — cross-validate.md, verify.md, TDD phase-4.md, one auditor card: YAML matches JSON original field-for-field. Sub-agent reads both versions and confirms equivalence. |
-| SC-8 | All existing enforcement tests and behavioral tests pass after migration. | `behavioral` | `bash .opencode/tests/test-enforcement.sh && bash .opencode/tests/behaviors/run-all.sh` — zero failures. |
-| SC-9 | **Zero-tolerance for lobotomized tests.** No SC may be removed, weakened, deferred, or blocked to evade implementation. Any attempt to bypass an SC (skip, defer, mark as "blocked", weaken evidence type) marks ALL SCs as FAIL. The PR must be immediately rejected and trashed as defective and unusable. | `behavioral` | Clean-room audit of implementation verifies all 8 SCs (SC-1 through SC-8) are addressed with full behavioral/string/semantic evidence. Any missing or weakened SC → ALL SCs FAIL. |
-| SC-10 | All SCs must achieve 100% clean PASS. No "PASS with caveats", "functionally equivalent", "PASS with concerns", or any partial-PASS verdict is accepted. A single FAIL on any SC means the entire implementation is rejected. | `behavioral` | Post-implementation audit produces binary PASS/FAIL per SC. Any FAIL → full rejection. |
+| SC-1 | Zero ` ```json ` code fences serving as LLM-consumed contract templates in live owned `.opencode/` content. Any block encountered during the sweep is converted to ` ```yaml ` with semantically equivalent content — no fields lost, values changed, or structural information dropped. | `string + semantic` | Fenced scan (`rg -n '^```json'`) over live content (Excluded categories out of scan scope) — expected zero outside excluded categories. If a block is found: migrate, then representative sample comparison — a sub-agent reads original and migrated versions and confirms field-for-field equivalence. |
+| SC-2 | Zero prose instructions directing an LLM to produce JSON output in live owned content (e.g., "Return a JSON with fields: status, evidence…" or `Result: { status, files_changed }` templates). | `string + semantic` | Pattern scan plus sampled read-through — a fresh-context sub-agent reads sampled live content and confirms no JSON-output instructions remain. |
+| SC-3 | Zero "JSON verdict" or "structured JSON" references in live owned content where the referenced output is LLM-consumed. | `string` | `rg -in 'json verdict\|structured json'` over live content — zero hits. |
+| SC-4 | The YAML-default communication rule is disclosed in the live deck via a skill card: the agent uses YAML, not JSON, as the default format for structured data it directly parses or writes for consumption by other agents (exceptions: tool I/O, CLI output, external configuration). The rule is discoverable through the routing index; the pointer surfaces carry none of the rule text. | `structural` | Read the live deck: a card carries the rule; `routing.md` routes structured-data-format intent to it (an index entry, not rule text); `skildeck lint` passes on the amended card; `floor.md`, `AGENTS.md`, and `prompts/default.txt` remain slim (diff shows no rule text added). |
+| SC-5 | Excluded content remains byte-identical: no modifications outside the migration set, and excluded categories keep their JSON where JSON is correct. | `structural` | Diff check — no changes to `attic/`, `.issues/` stores, vendor-generated agent cards, fixtures, generated artifacts, tool I/O files, or CLI-output documentation; the one live ` ```json ` block (`search-read.md`) is byte-identical. |
+| SC-6 | Verification instruments pass post-remediation. | `behavioral` | `bash .opencode/tests-v2/test-enforcement.sh` — zero failures (content-verification runner; no model runs; full run permitted). Behavioral scenarios run only where card text changed, one targeted run per SC's RED/GREEN need per `.opencode#2433`'s targeted-run mandate — whole-suite behavioral enumeration is prohibited — under the harness precondition cycle (commit → push → fetch/verify → run, `tests-v2/AGENTS.md` §4). |
+| SC-7 | **Zero-tolerance for lobotomized tests.** No SC may be removed, weakened, deferred, or blocked to evade implementation. Any attempt to bypass an SC (skip, defer, mark as "blocked", weaken evidence type) marks ALL SCs as FAIL. The PR must be immediately rejected and trashed as defective and unusable. | `behavioral` | The `verify` card's single fresh-context reviewer pass confirms every SC in this spec is addressed with its declared evidence. Any missing or weakened SC → ALL SCs FAIL. |
+| SC-8 | All SCs must achieve 100% clean PASS. No "PASS with caveats", "functionally equivalent", "PASS with concerns", or any partial-PASS verdict is accepted. A single FAIL on any SC means the entire implementation is rejected. | `behavioral` | Verification produces binary PASS/FAIL per SC. Any FAIL → full rejection. |
 
 ## Phases
 
-### Phase 1: Code-Fenced JSON → YAML
+### Phase 1 — Live-deck residual sweep
 
-Every ` ```json ` block that is an LLM-consumed contract template. One-to-one fence type replacement plus structural migration from JSON syntax to YAML syntax — braces and commas become indentation, quoted keys become unquoted, trailing commas removed, array brackets become dash lists.
+Scan live LLM-consumed content (the Scope set) for fenced JSON contract templates, prose JSON-output instructions, and JSON-verdict language. Classify each hit per block: migrate (LLM-consumed contract) vs exclude (tool I/O, CLI output, config example). Migrate where required: fence-type replacement plus structural JSON→YAML conversion — braces and commas become indentation, quoted keys become unquoted, trailing commas removed, array brackets become dash lists — with semantic equivalence preserved. The Current State scan found no live block requiring migration; this sweep exists to catch anything the pattern scan missed, and its findings drive this phase's work.
 
-**Files (18 identified):** verification tasks (verify, verify-single), research tasks (research), multimodal-dispatch tasks (dispatch, dispatch-multi, resolve, probe), TDD tasks (red, green, refactor, phase-0, phase-4), issue-operations tasks (body-edit, platforms/local/body-edit, platforms/local/tag-gate), git-workflow tasks (provenance/trunk-push-provenance), playwright-cli references (storage-state), 7 auditor agent cards, README.md.
+### Phase 2 — Mandate disclosure via skill card
 
-### Phase 2: Prose-Embedded JSON Instructions
+Amend or create the skill card that carries the YAML-default communication rule (Principle section, operational phrasing), through the deck-governance card: admission gate, predicate classification, deck-debt ledger. Add the routing-index entry that dispatches structured-data-format intent to that card. The card choice is an implementation decision under the admission gate; the requirement is that the rule be live, on-demand discoverable, and absent from the pointer surfaces.
 
-Every inline instruction in task files telling a sub-agent to format output as JSON. These are prose patterns like "Return a JSON object with fields: status, evidence..." or inline `{status, evidence, files_changed}` notation used as templates. Convert to equivalent YAML prose: "Return status, evidence, files_changed fields in YAML format."
+### Phase 3 — Verification pass
 
-**Concern:** These are scattered across many task files and require reading comprehension to distinguish "describing JSON output of an external tool" from "instructing an LLM to produce JSON."
-
-### Phase 3: Rule and Reference Updates
-
-SKILL.md files and guidelines that reference "JSON" in the context of contract output. For example, adversarial-audit/SKILL.md says "collects structured JSON verdicts" — this is a rule an LLM reads that tells it what format to produce.
-
-**Files:** adversarial-audit/SKILL.md (overview, symbolic rules), any guideline mentioning JSON verdict format.
-
-### Phase 4: Verification Pass
-
-- Run content-verification tests: `bash .opencode/tests/test-enforcement.sh`
-- Run behavioral tests: `bash .opencode/tests/behaviors/run-all.sh`
-- Spot-check representative sample: verify excluded files untouched, verify migrated blocks semantically equivalent
-- Run clean-room audit to verify all SCs (SC-1 through SC-10) pass with 100% clean PASS
-- Close the issue only when all SCs pass
+- `bash .opencode/tests-v2/test-enforcement.sh` — zero failures.
+- Behavioral scenarios only where card text changed (targeted runs, precondition cycle).
+- Spot-check the excluded set byte-identical.
+- The `verify` card's single fresh-context reviewer pass over all SCs against the diff and executed output; close the issue only when all SCs pass.
 
 ## Edge Cases
 
-- **Multi-record verdict examples** — auditor returning N criterion evaluations. Use `---` separators inside a single ` ```yaml ` fence to keep them in one block without losing individual record boundaries.
-- **Mixed JSON/YAML in a single file** — some files may contain both LLM-consumed JSON (migrate) and tool-I/O JSON (exclude). The implementing agent must distinguish per block.
-- **` ```jsonc ` blocks** (opencode.json config examples) — excluded; they illustrate JSON config files, not LLM contracts.
-- **yaml+symbolic rule titles referencing JSON** — update the rule title text to say "YAML" but leave the `yaml+symbolic` block structure and schema unchanged.
-- **Prose describing a tool's JSON output** — left as-is; the prose is documenting a CLI tool, not instructing an LLM to produce JSON.
-- **Ambiguous prose contracts** — patterns like `Result: { status: DONE, evidence: "..." }` are JSON-adjacent (braces, commas) but use YAML-style `key: value`. Resolve to unambiguous YAML: `status: DONE\nevidence: "..."`.
-- **#1208 sequencing** — if #1208 Workstream A has not been completed, the implementing agent MUST NOT modify SKILL.md files that #1208 will touch. Coordinate with #1208's implementation first.
+- **Agent-parsed tool JSON** — when an agent parses a tool's JSON output and re-serializes it for another agent, the hand-off representation is YAML; the tool's raw output stays JSON.
+- **Multi-record contract content** — N records in one block use `---` separators inside a single ` ```yaml ` fence, never separate fences per record.
+- **Mixed JSON/YAML in a single file** — classify per block: LLM-consumed JSON migrates, tool-I/O JSON stays.
+- **` ```jsonc ` blocks** — excluded; they illustrate JSON config files, not LLM contracts.
+- **Prose describing a tool's JSON output** — left as-is; documenting a CLI tool is not instructing an LLM to produce JSON.
+- **Ambiguous JSON-adjacent prose contracts** — patterns like `Result: { status: DONE, evidence: "..." }` resolve to unambiguous YAML: `status: DONE\nevidence: "..."`.
+- **Pointer-surface hits** — a contract template found in `floor.md`, `routing.md`, `AGENTS.md`, or `prompts/` is a deck-governance matter, never an inline edit; the fix routes the content to a skill card, never moves rule text into the pointer surfaces.
+- **Vendor-generated agent cards** — regenerate via the owning tool; never hand-edit.
 
 ## Risk Analysis
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| JSON→YAML conversion loses structural information in edge cases | Low | Medium | SC-7 requires post-migration spot-check on representative files |
-| Excluded files accidentally modified | Low | Medium | SC-6 verification; implementing agent checks file contents before modifying |
-| Prose-embedded JSON ambiguous with tool-describing JSON | Medium | Low | Phase 2 requires reading comprehension — the implementing agent reads context before converting |
-| Enforcement test references to "JSON" updated but test expects old text | Medium | Medium | SC-8 requires running full enforcement suite post-migration; failing tests indicate missed references |
-| Multi-record YAML inside ` ```yaml ` with `---` separators confuses LLM parsing | Low | Low | This is the same multi-doc YAML pattern used by the YAML spec itself; well-established |
-| Merge conflict with #1208 on SKILL.md files | Medium | High | Sequencing dependency: #582 must run AFTER #1208 Workstream A. Marked in both issues. |
-| SC lobotomization (weakening SCs to pass) | Low | Critical | SC-9 explicitly prohibits this. Any attempt marks ALL SCs as FAIL and rejects the PR. |
+| Agents default to JSON in agent-to-agent structured exchanges (training-data bias) | High | High | SC-4 discloses the YAML-default rule via a live skill card the agent loads when exchanging structured data |
+| Attic deletion orphans the codified rule | Medium | High | SC-4 moves the rule's live home into the deck before `attic/` ages out |
+| JSON→YAML conversion loses structural information in an edge case | Low | Medium | SC-1's semantic-equivalence verification applies to any block the sweep migrates |
+| Excluded files accidentally modified | Low | Medium | SC-5 diff check; the implementor classifies per block before editing |
+| Prose-embedded JSON ambiguous with tool-describing JSON | Medium | Low | Per-block reading comprehension — the implementor reads context before converting |
+| Enforcement tests expect pre-migration text | Medium | Medium | SC-6 runs the enforcement suite post-remediation; failures indicate missed references |
+| Multi-record YAML with `---` separators confuses LLM parsing | Low | Low | Same multi-doc pattern as the YAML spec itself; well-established |
+| SC lobotomization (weakening SCs to pass) | Low | Critical | SC-7 explicitly prohibits this; any attempt marks ALL SCs as FAIL and rejects the PR |
 
 ## Change Control
 
-- Single-PR boundary. All phases ship together — partial delivery leaves a worse state than the current mixed format.
-- Spec revision only: content or edge case clarification. SC definitions and the core principle (YAML for LLM-consumed content) are frozen.
-- Post-implementation: run `audit --task spec-audit` against this spec to verify spec fidelity.
-- SC-9 and SC-10 are non-waivable. No authorization, scope, or developer instruction can override them.
-- Sequencing dependency on `.opencode#1208`: this issue MUST NOT be implemented until #1208 Workstream A is complete.
+- Single-PR boundary. All phases ship together.
+- The core principle (YAML as the default format for structured data exchanged between agents) is frozen. SC-set changes happen only through a developer-directed spec revision — never agent-initiated weakening (SC-7 governs).
+- Deck edits during implementation (card amendment, routing-index entry) go through the deck-governance card — the admission gate applies; this spec does not bypass it.
+- Post-implementation verification is the `verify` card's single fresh-context reviewer pass against this spec.
+- SC-7 and SC-8 are non-waivable. No authorization, scope, or developer instruction can override them.
 
 ## References
 
-- `080-code-standards.md` §YAML Standard for LLM-to-LLM Data Transfers — the mandate this spec implements
-- `.opencode#1420` (closed) — original issue that added the YAML mandate rule
-- `.opencode#1208` — Skillcard routing overhaul (sequencing dependency)
-- `.opencode#1222` — Enforcement-Gated Contract Schema (shared YAML contract format concern)
-- `.opencode#936` — Deterministic consensus gate (SC-8 requires YAML result contract)
+- `attic/guidelines/080-code-standards.md` §YAML Standard for LLM-to-LLM Data Transfers — the mandate this spec implements (preserved governing copy; the live deck no longer carries `guidelines/`)
+- `.opencode#1420` (closed) — issue that codified the YAML mandate rule
+- `.opencode#2433` (closed) — dispatch-discipline remediation that reorganized the deck to skill cards and superseded #1208/#1222/#936 (§12); its SC-9 defines the targeted behavioral-run mandate
+- `.opencode#1208`, `.opencode#1222`, `.opencode#936` (closed) — former interdependencies; dispositions recorded here, no live dependency remains
+- `.opencode#2489` (CM-1) — ceremony-test retirement policy: no new enforcement tests without a defect they alone catch
+- `tests-v2/AGENTS.md` — behavioral harness specification (precondition cycle, artifact-only paradigm)
 - improvingagents.com (2025) — YAML vs JSON comprehension benchmarks for LLMs
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
