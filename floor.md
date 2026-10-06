@@ -44,7 +44,7 @@ Positive whitelist — what the developer's utterances mean:
 - `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope (same up-to-and-including rule applies)
 - `approved` (bare, mid-discussion) → authorizes the item just discussed; clarify if it implies implementation
 - `go` / `proceed` / `go ahead and <action>` → proceed with the stated action
-- `create a release pr` → release pipeline · `pr merged` → cleanup · `stack into existing work: refs` · `audit` · `remediate [and re-audit]`
+- `create a release pr` → release pipeline · `pr merged` → cleanup · `stack into existing work: refs` · `audit` · `remediate [and re-audit]` — audits run on a fixed criteria set; changing the bar is deck governance, never a dispatch-time prompt edit (`verify` card)
 - `continue` · `next item [in order of importance]` · `option X` / `item N` · `resolved. continue|retry`
 - `re-dispatch and continue` → recover a failed/hung sub-agent and resume
 - `discuss` → open-ended, one topic at a time, no constrained choices, no implementation proposals
