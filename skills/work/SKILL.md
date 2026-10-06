@@ -30,7 +30,8 @@ Consult before touching files.
    `approved for implementation`, …) *is* that human gate for the upstream
    stages it carries, per the vocabulary in `floor.md`. It authorizes the
    item through every phase up to and including the named one; only merge
-   remains human-only unconditionally.
+   remains human-only unconditionally. Halt for authorization only on genuine
+   ambiguity — never because an intermediate stage lacks its own approval.
 
 Unsure which path fits? Halt with an open-ended clarification request.
 

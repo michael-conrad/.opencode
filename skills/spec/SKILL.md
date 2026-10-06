@@ -22,7 +22,11 @@ provenance: AI-authored, .opencode#2490
    remote tracker exists; the local `{N}/` folder and `spec.md` follow, linked
    via `update --github`. The remote body is a detailed exec summary (why +
    final what); the full spec and all artifacts live in `.issues/{N}/`. The
-   local counter reserves numbers only in remoteless stores.
+   local counter reserves numbers only in remoteless stores. On every remote
+   filing into a synced store, advance `.counter` to max(counter, filed
+   number); if it has drifted behind the store's highest `{N}/`, advance it to
+   that number — the counter is reserve state, and a stale counter corrupts
+   numbering.
 4. **Revision discipline.** Findings from review produce targeted revisions;
    superseded criteria are removed, never accumulated. No STATUS fields — the
    spec defines what is required, implemented or not.
