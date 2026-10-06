@@ -22,9 +22,12 @@ provenance: AI-authored, .opencode#2490
    locally. Title states the work; labels describe pipeline state. Never
    derive the number by listing remote issues and never hand-create the
    `{N}/` folder — register it via `local-issues create --number repo#N`.
-3. **Comment gate.** Post only substantive content — findings, decisions,
-   evidence. Progress narration ("working on it", "halfway done") stays in
-   chat. Internal audit findings go to chat, never to stakeholder channels.
+3. **Comment gate.** A remote comment is posted only for a major substantive
+   change that needs special attention — findings or decisions a stakeholder
+   must see. Progress narration ("working on it", "halfway done"), internal
+   reasoning, and routine status stay in chat or the local store. Spec and
+   plan corrections always edit the artifact in place — never route to
+   comments.
 4. **Relationships.** Link sub-issues to parents; the hierarchy carries the
    authorization cascade and closure order.
 5. **Closure.** Issue closure follows delivered work (post-merge cleanup) or

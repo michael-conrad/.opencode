@@ -28,8 +28,15 @@ provenance: AI-authored, .opencode#2490
    that number — the counter is reserve state, and a stale counter corrupts
    numbering.
 4. **Revision discipline.** Findings from review produce targeted revisions;
-   superseded criteria are removed, never accumulated. No STATUS fields — the
-   spec defines what is required, implemented or not.
+   superseded criteria are removed, never accumulated. **Self-containment
+   (normative):** the artifact is the single source of truth and must read
+   standalone — revisions edit the artifact in place, superseded text is
+   deleted in the same action, and spec content never lives in comments. The
+   body footer allowlist is normative: only spec content (behavior, analysis,
+   SCs, fixes, evidence) plus the byline footer — no process or tracking
+   indicators of any kind (no revision-history blocks, approval-state
+   markers, comment-policy statements, or superseded-content pointers). No
+   STATUS fields — the spec defines what is required, implemented or not.
 5. **Approval is a human gate.** The spec waits for the developer's
    authorization before `plan` — and a terminal-stage approval
    (`approved for pr`, `approved for implementation`, …) from the vocabulary
