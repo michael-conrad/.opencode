@@ -5,6 +5,50 @@ labels:
 - needs-approval
 - spec
 - regression
-body: ''
+body: "# Restore Stacked-PR Mandate — Spec\n\n## Problem Statement\n\nThe pre-rip\
+  \ deck (tag `pre-rip`, preserved under `attic/`) carried\n`[critical-rules-PR-ORG]`\
+  \ — \"Stacked PR Is the Only Valid Organization\":\n\n> All issues within an authorization\
+  \ scope share one feature branch with one\n> commit per issue. The only valid PR\
+  \ strategy is `stacked` — one branch, N\n> commits, one PR. The `individual` strategy\
+  \ (N branches, N PRs) does not\n> exist. Creating N branches for N issues under\
+  \ any authorization scope is a\n> critical violation.\n\nThe post-rewrite deck lost\
+  \ that invariant's bright line. The current\n`git-workflow-branch` card reads as\
+  \ one-branch-per-issue\n(`feature/<issue>-<slug>`, no multi-issue scope rule), and\
+  \ `git-workflow-pr`\ndefines the stacked-PR shape only for stacked *layer chains*\
+  \ — never binding\nissues authorized together into one branch and one PR.\n\n**Observed\
+  \ regression 2026-10-06:** issues `.opencode#2527` and `.opencode#2528`\nwere authorized\
+  \ in one utterance (\"approved for PR: .opencode#2527\n.opencode#2528\") and the\
+  \ agent produced two branches and two PRs\n(`.opencode#2529`, `.opencode#2530`).\
+  \ `.opencode#2530` was closed as redundant\nand its commit stacked into `.opencode#2529`\
+  \ by hand. The old deck's rule\nexisted precisely to prevent this.\n\n## Scope\n\
+  \n### In Scope\n\n- Add the single-PR-with-squashed-commits-per-issue mandate to\
+  \ **only** the\n  cards that need it at their dispatch surfaces, preserving progressive\n\
+  \  disclosure:\n  - `git-workflow-branch` — issues sharing an authorization scope\
+  \ share **one\n    feature branch**; branch naming follows from the scope's primary\
+  \ issue.\n  - `git-workflow-pr` — that branch becomes **one PR** containing **one\n\
+  \    squashed commit per issue ticket**; the body closes every stacked issue;\n\
+  \    the mandate is declared universal — it applies to **all PRs, including\n  \
+  \  release PRs**. N branches / N PRs for one authorization scope is named as\n \
+  \   the violation.\n- Skill-creator governance admission for both card edits.\n\n\
+  ### Out of Scope\n\n- `floor.md`, `routing.md`, `work` card, and every other card\
+  \ — no mandate\n  duplication (progressive disclosure: the mandate lives at the\
+  \ two boundary\n  surfaces that consume it).\n- Release-trio cards (`changelog-generator`,\
+  \ `version-manager`,\n  `release-promoter`): release PRs already flow through the\
+  \ `git-workflow-pr`\n  surface, which declares the mandate universal — no duplication\
+  \ needed.\n- Harness/tests changes; any change to the tool chain.\n\n## Success\
+  \ Criteria\n\n- [ ] **SC-1 (structural):** `git-workflow-branch` card states that\
+  \ issues\n  sharing an authorization scope share one feature branch, with the\n\
+  \  branch-naming implication. Verification: card inspection.\n- [ ] **SC-2 (structural):**\
+  \ `git-workflow-pr` card binds the stacked-PR shape\n  to the authorization scope\
+  \ — one branch, one squashed commit per issue, one\n  PR; declares the mandate universal\
+  \ (all PRs including release PRs); names\n  N-branches/N-PRs as the violation. Verification:\
+  \ card inspection.\n- [ ] **SC-3 (structural):** No other agent-facing surface gained\
+  \ the mandate;\n  both edits carry a skill-creator governance record; reference-integrity\n\
+  \  check passes. Verification: sweep + governance record + executed\n  reference-integrity\
+  \ output.\n\n## References\n\n- `attic/skills/git-workflow-pr/SKILL.md` and\n  `attic/guidelines/000-critical-rules.md`\
+  \ `[critical-rules-PR-ORG]` — the\n  pre-rip authority for this invariant\n- Regression\
+  \ record: `.opencode#2529` / `.opencode#2530` (2026-10-06)\n\n---\n\n\U0001F916\
+  \ Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-10-06T15:40:48+00:00'
-updated_at: '2026-10-06T15:40:48+00:00'
+updated_at: '2026-10-06T15:41:56+00:00'
+github_url: 'true'
