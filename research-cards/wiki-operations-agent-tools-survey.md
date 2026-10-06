@@ -144,3 +144,55 @@ All URLs confirmed live via API/resolver:
 ## Confidence: HIGH
 
 Verified against GitHub's actual markup library source code and official docs. GitBucket confirmed via its wiki editor UI showing the same multi-format dropdown. The layout file names (`Home.md`, `_Sidebar.md`, `_Footer.md`) are documented by GitHub and observed in real `.wiki` repos across both platforms.
+
+---
+
+# Appendix C: Skill-Deck / Registry & Progressive-Disclosure Landscape (2026-10-06)
+
+## Question
+
+Does any online/published skill deck, agent-skill registry, or progressive-disclosure-oriented tooling exist that the agent could use for #169? Two facets: (1) reusable wiki-operations skills in published collections; (2) packaging/distribution infrastructure for progressive-disclosure skills.
+
+## Facet 1 — Wiki-Operations Skills in Published Collections
+
+| Skill | Source | Relevance to #169 |
+|-------|--------|-------------------|
+| `maintain-github-wiki` (wk-j/skills) | https://github.com/wk-j/skills (2★, 8 installs) | **Closest match found anywhere.** Clones `OWNER/REPO.wiki.git` as sibling dir, maintains `Home`/`_Sidebar`/`_Footer`, audits/creates/renames/deletes pages, publishes after diff verification, `gh api …has_wiki` availability check, no-force-push safety rules. Documents GitHub-wiki link gotchas: `[[Page]]` works but extensionless `[text](Page)` preferred; bare `---` frontmatter renders as horizontal rule; `#NNN` does not autolink on wikis. Limits: hardcoded natural-Thai output policy, opinionated OKF metadata, GitHub-only, personal project. **Proven pattern to adapt, not a dependency to adopt.** |
+| `pkulik0/gitea-skill` | https://github.com/pkulik0/gitea-skill (9★, MIT, 39 installs) | `tea` CLI skill with wiki page CRUD on a Gollum-convention platform. Structural template for a `gb`-CLI GitBucket wiki facet; Gitea API ≠ GitBucket API so not directly reusable. |
+| `azure-devops-wiki-markdown` (jpcaparas/skills) | https://github.com/jpcaparas/skills (55★, 112 installs) | Azure DevOps git-backed-wiki Markdown-dialect authoring conventions. Content-authoring reference only; no repo mechanics, wrong platform. |
+| `obsidian-wiki` (Ar9av) | https://github.com/Ar9av/obsidian-wiki (3.5k★) | Obsidian vault KB framework; `[[wikilink]]`-maintenance, lint (orphans/broken links), cross-linker concepts transferable to sidebar/link hygiene. |
+| `plasma-ai/wiki` | https://github.com/plasma-ai/wiki (104★, Apache-2.0) | Deterministic CLI + `/wiki` skill for `_index.md`-indexed local markdown wikis: lint, search, merge driver for generated regions. Nearest prior art for link-integrity linting; different layout (not `.wiki.git`/Gollum). |
+| Karpathy llm-wiki family + API-driven skills (lark-wiki ~744k installs, `outline`, Confluence-class) | skills.sh / awesome lists | Confirms prior survey's ruled-out categories by name in registry searches. |
+| `anthropics/skills` | https://github.com/anthropics/skills (179.9k★, 19 skills) | **No wiki skill in the official set — confirms the gap.** `skill-creator` + `template/` are canonical authoring references. |
+
+## Facet 2 — Progressive-Disclosure / Skill-Deck Infrastructure
+
+| Tool | Source | Relevance |
+|------|--------|-----------|
+| Agent Skills standard | https://agentskills.io | Open SKILL.md format: three-stage progressive disclosure (name/description at startup → full load on match → referenced files on execute). Spec co-developed with Anthropic, 40+ client implementations including OpenCode. The packaging format #169's skill should follow; this deck already uses it. |
+| `vercel-labs/skills` (`npx skills`) + skills.sh | https://github.com/vercel-labs/skills (33.3k★) | Install CLI for ~80 agents incl. **OpenCode**; installs from any git URL (SSH/HTTPS, private-repo aware via gh); skills.sh directory has public JSON search API and install counts. Distribution path: `npx skills add michael-conrad/.opencode --skill wiki-operations -a opencode`. |
+| `huggingface/skills` | https://github.com/huggingface/skills | SKILL.md folders generated from the CLI surface, regenerable via `hf skills add` — live ecosystem precedent validating this deck's vendor-card boundary. |
+| `obra/superpowers` | https://github.com/obra/superpowers (295.9k★) | Methodology skill library (TDD, debugging, plans); **no wiki or GitHub-operations skills**. Demonstrates multi-harness packaging at scale (16 harnesses incl. OpenCode). |
+| Registry long tail | skillsmd.dev, skillregistry.io, skillmarketplace.ai, askill.sh, agenticskills.io, skillmd.com, agentskill.sh (~69k), awesomeagentskills.dev, awesomeskill.ai | Secondary discovery surfaces; nothing wiki-specific beyond skills.sh results. |
+
+## Gaps — What Does NOT Exist (2026-10-06)
+
+1. **No GitBucket wiki skill of any kind** — no skill, CLI wrapper guidance, or `.wiki.git`-editing skill mentions GitBucket anywhere surveyed. GitBucket facet of #169 is greenfield.
+2. **No dual-platform (GitHub + GitBucket) wiki skill.** The single GitHub-wiki skill (`wk-j`) is GitHub-only, hardcoded-Thai, personal-grade (2★, 8 installs).
+3. **No maintained/adopted skill combining wiki-git editing with Gollum layout conventions.** The pattern exists once (wk-j), works, and is unadopted.
+4. **No wiki-repo-aware linting machinery** for `_Sidebar`/`_Footer`/`[[links]]` integrity (plasma-ai/wiki nearest, different layout).
+5. **Source caveat:** the mr.technology agent-skills-marketplace overview (2026-07) contains demonstrable errors (attributes skills.sh to "the LangChain team"; skills.sh footer says Vercel; its `huggingface.co/skills` URL is a user profile). Treat its statistics as unverified; not load-bearing here.
+
+## Bottom Line for #169
+
+Build, don't adopt — but not from scratch. Adapt `wk-j/maintain-github-wiki`'s pattern (clone-`.wiki.git`-as-sibling + Gollum conventions + publish-after-verify) for the GitHub facet; mirror `pkulik0/gitea-skill`'s platform-CLI skill structure for a GitBucket facet via `gb`. Package per agentskills.io (format already in use by this deck). Distribution infrastructure (`npx skills add <git-url>`, OpenCode as first-class target) already exists and needs nothing new.
+
+## Sources (all accessed 2026-10-06)
+
+Primary (fetched in full): agentskills.io; github.com/anthropics/skills; github.com/wk-j/skills (+ raw SKILL.md); github.com/pkulik0/gitea-skill; github.com/jpcaparas/skills; github.com/Ar9av/obsidian-wiki; github.com/plasma-ai/wiki; github.com/rarce/git-wiki; github.com/infranodus/skills; github.com/yugasun/llm-wiki-skills; github.com/inkeep/open-knowledge-skills; github.com/obra/superpowers; github.com/vercel-labs/skills; skills.sh/api/search?q=wiki; github.com/BehiSecc/awesome-claude-skills (full scan: zero GitHub/GitBucket wiki-ops entries).
+
+Secondary (snippet-level): github.com/huggingface/skills; github.com/microsoft/skills; registry long tail above.
+
+## Confidence: HIGH
+
+Central negative claims rest on a live registry API search of the dominant directory plus full scans of the two leading curated lists. Central positive claims (wk-j skill contents, agentskills.io standard, npx skills mechanics) verified against primary documents fetched this session. Long-tail registries are snippet-level (medium).
