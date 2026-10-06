@@ -13,6 +13,8 @@ provenance: AI-authored, .opencode#2490
 
 1. **Branch before files.** Create the feature branch before any modification:
    `feature/<issue>-<slug>` (or `<issue>-<slug>` for parent-repo submodule work).
+   Issues sharing an authorization scope share **one** feature branch — name it
+   after the scope's primary issue; one branch per issue is the violation.
 2. **Trunk freshness.** Verify the trunk tip before branching — sync and rebase
    if the trunk moved; state the verified tip in the work record.
 3. **Submodules.** When work spans the parent and `.opencode`, sync the
