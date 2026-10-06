@@ -59,6 +59,42 @@ All Read-links added or moved by this change resolve (§6c check).
 - **Verify:** `./.opencode/tools/reference-integrity --scan` exits 0 after the
   edits.
 
+### SC-5 (structural) — dedicated behavioral-testing skill card
+
+A deck skill card exists whose description matches any intent to run, check,
+or evaluate opencode behavior — behavioral SC runs, agent-behavior tests,
+`opencode run` verification, harness monitoring — so the platform dispatches
+it (descriptions are the router; a routing-index row alone is not a dispatch
+surface). The card body is a lean index into `tests-v2/AGENTS.md`: harness
+only (`with-test-home` + `behavior_run`), two-SC pattern, §11 prompt
+construction, §14 monitoring protocol (launch in background, poll at 30–60s
+intervals, record a semantic judgment on every poll — never a blind wait or
+blind DB read), R-20 default-model mandate, and the §10 remediation paths.
+
+- **Verify:** the card exists under `skills/` with frontmatter (`name`,
+  `description`, `license`, provenance); the description names both the
+  domain framing ("behavioral evidence") and the implementation framing
+  ("any `opencode run` testing"); the body references `tests-v2/AGENTS.md`
+  for detail without restating it.
+
+### SC-6 (structural) — routing row dispatches to the card
+
+The routing-index row for behavioral evidence points at the card, not
+directly at `tests-v2/AGENTS.md`.
+
+- **Verify:** read `.opencode/routing.md`; the row's target is the card.
+
+### SC-7 (behavioral, monitored-run evidence) — monitoring compliance is itself recorded
+
+Any behavioral run executed under this spec (and the runs serving #2516
+SC-3/#2517 SC-3) carries monitoring evidence: a poll log with a semantic
+judgment per poll (progression vs. off-track) at 30–60s intervals, recorded
+alongside `session.yaml`.
+
+- **Verify:** the evidence directory for each run contains the poll log with
+  per-poll semantic judgments; no poll gap exceeds 60s without a recorded
+  reason.
+
 ## Out of scope
 
 - Changes to `tests-v2/AGENTS.md` isolation mandates or the harness itself
