@@ -71,3 +71,12 @@ comments:
     5 attic deletion (developer soak verdict) then closure. Note: this issue was renumbered
     2490->2501 by the remote-first reservation alignment.'
   timestamp: '2026-10-05T20:27:57+00:00'
+- type: internal
+  body: 'Governance admission 2026-10-06 (stacked-PR mandate, .opencode#2531): restored
+    the pre-rip [critical-rules-PR-ORG] invariant into git-workflow-branch (issues
+    in one authorization scope share one feature branch) and git-workflow-pr (one
+    PR, one squashed commit per issue; universal incl. release PRs; N-branches/N-PRs
+    named as violation). Observed failure: 2026-10-06 two-authorized-issues split
+    into two branches/PRs (#2529, #2530 closed redundant). Predicate intent-decidable,
+    no static check. Replaces the lost invariant — net-zero.'
+  timestamp: '2026-10-06T15:50:13+00:00'
