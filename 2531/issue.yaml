@@ -1,6 +1,6 @@
 title: '[SPEC] Restore stacked-PR mandate: one branch, one squashed commit per issue,
   one PR per authorization scope'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -50,5 +50,7 @@ body: "# Restore Stacked-PR Mandate — Spec\n\n## Problem Statement\n\nThe pre-
   \ record: `.opencode#2529` / `.opencode#2530` (2026-10-06)\n\n---\n\n\U0001F916\
   \ Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-10-06T15:40:48+00:00'
-updated_at: '2026-10-06T15:41:56+00:00'
+updated_at: '2026-10-06T16:13:37+00:00'
 github_url: 'true'
+closed_at: '2026-10-06T16:13:37+00:00'
+close_reason: completed
