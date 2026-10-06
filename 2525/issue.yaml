@@ -1,0 +1,8 @@
+title: '[BUG] Regression of #2505/#2502: ''approved for pr'' on unstarted ticket halts
+  with clarification instead of running the pipeline'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-06T04:45:31+00:00'
+updated_at: '2026-10-06T04:45:31+00:00'
