@@ -19,7 +19,9 @@ provenance: AI-authored, .opencode#2490
    issue type; the local `{N}/` mirror follows, linked via `update --github`.
    Remoteless stores reserve via the local counter. The remote body is a
    detailed exec summary (why + final what); the full spec and artifacts live
-   locally. Title states the work; labels describe pipeline state.
+   locally. Title states the work; labels describe pipeline state. Never
+   derive the number by listing remote issues and never hand-create the
+   `{N}/` folder — register it via `local-issues create --number repo#N`.
 3. **Comment gate.** Post only substantive content — findings, decisions,
    evidence. Progress narration ("working on it", "halfway done") stays in
    chat. Internal audit findings go to chat, never to stakeholder channels.

@@ -30,5 +30,9 @@ provenance: AI-authored, .opencode#2490
 6. **Test-value judgment lives here.** Whether a test asserts behavior the
    build tool already guarantees is intent-decidable — the reviewer judges it;
    no script decides it.
+7. **Behavioral evidence provenance.** Evidence for a behavioral SC is
+   accepted only from the `tests-v2` harness (`tests-v2/AGENTS.md` —
+   session.yaml from `behavior_run`, plus the clean-room evaluation). An
+   ad-hoc `opencode run` produces no evidence the reviewer can consume.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

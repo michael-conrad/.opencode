@@ -31,6 +31,11 @@ edits produced the doom loop this deck replaced.
    arrive via session-init.
 7. **What it replaces** — an admission that adds without retiring grows the
    deck; name the displaced content or justify the net-zero.
+8. **Always-loaded surface discipline** — content enters `floor.md` or any
+   always-injected file only if it must be visible **before any card
+   dispatch** (definitions the proceed-or-halt decision depends on). Worked
+   examples, stage mandates, and card-scoped directives are card-level; each
+   slip fattens every session, and the slips add up.
 
 ## Card standards
 

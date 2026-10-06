@@ -39,7 +39,7 @@ are handled by the tools above — never search for tokens or passwords.
 
 Positive whitelist — what the developer's utterances mean:
 
-- `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase** — plan → implement → verify → PR are all covered by `approved for pr`; intermediate stage authorizations are implied, not separately required. Halt only on genuine ambiguity, never on absent intermediate stages.
+- `approved for <phase>[: refs]` / `#N approved for <phase>` → authorization carries the item through **all pipeline phases up to and including the named phase**; intermediate stage authorizations are implied, not separately required.
 - `approved for implementation` / `approved for spec` / `approved for plan` / `approved for stacked implementation: refs` → the named scope (same up-to-and-including rule applies)
 - `approved` (bare, mid-discussion) → authorizes the item just discussed; clarify if it implies implementation
 - `go` / `proceed` / `go ahead and <action>` → proceed with the stated action
@@ -51,6 +51,11 @@ Positive whitelist — what the developer's utterances mean:
 
 Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
+The platform `question` tool is the canonical constrained-choice surface:
+never use it for unsolicited decisions, unsure-halts, or `discuss` mode. A
+picklist is legitimate only when the developer explicitly requests options;
+then present them in prose (the developer may reply `option X` / `item N`).
+Other cards cite this ruling — none restate it.
 
 - Confirmation (`looks good`, `this seems correct`, `per recommendation`) is
   agreement with content — **never** authorization.
