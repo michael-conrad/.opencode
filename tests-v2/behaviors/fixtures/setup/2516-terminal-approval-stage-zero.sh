@@ -15,7 +15,7 @@ cat > "$workdir/README.md" <<'EOF'
 
 Screenshot of the main window:
 
-![  ](docs/screenshot.png)
+![](docs/screenshot.png)
 EOF
 git -C "$workdir" add README.md docs/screenshot.png
 git -C "$workdir" commit -q -m "add README with screenshot embed"
