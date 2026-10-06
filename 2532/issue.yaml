@@ -3,6 +3,105 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: "# [SPEC] Add email-management skill card with install and workflow details\
+  \ cards\n\n## Problem Statement\n\nThe deck has no email-management capability:\
+  \ `routing.md` has no email row,\nthe skill deck contains no email card, and ecosystem\
+  \ research (2026-10-06,\n`.issues/research-cards/thunderbird-cli-ecosystem.md` in\
+  \ the root store) found\nzero email skills in `anthropics/skills` or the major awesome\
+  \ lists. When a\nsession needs to find, read, or draft mail, agents have no governed\
+  \ entry\npoint and reach for ad-hoc tooling.\n\nThe same research session live-validated\
+  \ the underlying tool read-only against\na real populated profile: the prebuilt\
+  \ Go `thunderbird-cli` v3.5.0\n(SHA256-verified release artifact, zero runtime dependencies)\
+  \ searched 30\nfolders, returned JSON with self-describing follow-up commands, and\
+  \ performed\n**zero writes to the Thunderbird profile** — its cache lives outside\
+  \ the\nprofile. The extension/MCP-based alternatives were rejected by the developer\n\
+  specifically because they require installing an add-on into the Thunderbird\nprofile.\n\
+  \n## Design Decision (developer-selected)\n\n- **Underlying tool**: prebuilt Go\
+  \ `thunderbird-cli` release binary\n  (v3.5.0 at spec time), checksum-verified at\
+  \ install time, no profile\n  modification required.\n- **Layering** (developer\
+  \ requirement): the skill description matches intent\n  only — no platform or tooling\
+  \ tokens. The tool identity, install procedure,\n  and command syntax live one level\
+  \ down in the details cards, so the router\n  surface survives a future tool replacement.\n\
+  - **Governance**: the card set enters through the skill-creator admission\n  gate.\
+  \ Gate evidence:\n  1. *Observed failure* — capability gap demonstrated 2026-10-06\
+  \ (developer\n     request + research card showing zero coverage anywhere).\n  2.\
+  \ *Consumer* — agent sessions tasked with email search, reading, drafting.\n  3.\
+  \ *Mechanism/trigger* — routing.md row + platform skill-description match.\n  4.\
+  \ *Predicate classification* — install verification and checksum checks are\n  \
+  \   fact-decidable (scripts allowed); send/move decisions are intent-decidable\n\
+  \     (no scripts — cards state the rule, judgment decides).\n  5. *Domain match*\
+  \ — tool live-verified in THIS domain (read-only behavioral\n     run on the reference\
+  \ machine, 2026-10-06).\n  6. *Root-agnostic* — no repo names or absolute paths\
+  \ in any card.\n  7. *What it replaces* — nothing displaced; first email capability\
+  \ in the\n     deck (net-new, justified).\n\n## Scope\n\n### In Scope\n\n- New card\
+  \ set `.opencode/skills/email-management/`:\n  - `SKILL.md` — intent-phrased description\
+  \ (what the skill does AND when to\n    load it, at both abstraction levels, deliberately\
+  \ pushy; no user-phrase\n    matching; no tooling tokens). Lean body delegating\
+  \ to the details cards.\n  - `references/install.md` — details card: checksum-verified\
+  \ prebuilt-binary\n    install into a repo-local tools directory; runtime verification\
+  \ via the\n    tool's doctor command; per-machine profile-root discovery including\
+  \ the\n    documented override for non-standard roots (snap/flatpak); explicit\n\
+  \    no-profile-modification property.\n  - `references/search-read.md` — details\
+  \ card: one-shot search (JSON when\n    piped), following the returned self-describing\
+  \ read command verbatim,\n    thread/message reading, attachment extraction.\n \
+  \ - `references/draft-send.md` — details card: reply/compose workflow with\n   \
+  \ dry-run-by-default discipline; real send requires explicit developer\n    instruction\
+  \ in the session; post-send verification (sent-check /\n    auth-check).\n- One\
+  \ `routing.md` row: email-management intent → the card (same PR; governed\n  deck\
+  \ edit).\n- Skill-creator governance record for the card set + routing edit; deck-debt\n\
+  \  ledger entry recording the admission.\n\n### Out of Scope\n\n- Installing the\
+  \ binary into any specific root's tools directory as a tracked\n  artifact — adoption\
+  \ happens per-session by following the install card (SC-7\n  exercises it in a scratch\
+  \ location).\n- The extension/MCP-based alternatives (developer-rejected: profile\n\
+  \  modification required).\n- Any change to the Thunderbird profile, extensions,\
+  \ or account configuration.\n- `floor.md` changes.\n\n## Success Criteria\n\n- [\
+  \ ] **SC-1 (structural):** `SKILL.md` exists with valid frontmatter (name,\n  description,\
+  \ license, provenance line). Verification: `skildeck lint` over\n  the card set,\
+  \ exit clean.\n- [ ] **SC-2 (structural):** The `SKILL.md` description contains\
+  \ no\n  platform/tooling tokens (thunderbird, betterbird, tb, go, golang, npm, cli,\n\
+  \  mail-client names) while stating what the skill does and when to load it at\n\
+  \  both abstraction levels. Verification: token grep over the description\n  field;\
+  \ framing quality reviewed against card standards.\n- [ ] **SC-3 (structural):**\
+  \ Details cards exist under `references/` — exactly\n  one install card plus workflow\
+  \ cards covering search/read (incl.\n  attachments) and draft/send (incl. send verification)\
+  \ — each linked from\n  `SKILL.md`, one level deep. Underlying-tool command syntax\
+  \ appears only in\n  details cards, never in `SKILL.md` body or description. Verification:\
+  \ file\n  listing, link check (`reference-integrity`), token grep on `SKILL.md`.\n\
+  - [ ] **SC-4 (structural):** All card files are root-agnostic: no repository\n \
+  \ names, no absolute machine paths; per-root facts arrive via session-init or\n\
+  \  runtime discovery (doctor). Verification: grep sweep for repo names and\n  `/home/`-style\
+  \ absolute paths across the card set.\n- [ ] **SC-5 (structural):** `routing.md`\
+  \ contains one new email-management\n  intent row loading the card; no other routing\
+  \ rows changed. Verification:\n  routing.md diff inspection.\n- [ ] **SC-6 (structural):**\
+  \ Governance admission recorded: skill-creator gate\n  evidence in the PR body and\
+  \ a deck-debt ledger entry. Verification: PR body\n  inspection + ledger issue search.\n\
+  - [ ] **SC-7 (behavioral):** A fresh-context agent given only the skill can\n  execute\
+  \ the install details card on a clean location and reach a\n  verified-working state\
+  \ (doctor success) without writing to any Thunderbird\n  profile. Verification:\
+  \ behavioral run (`opencode run` per behavioral-testing\n  card) with doctor exit-status\
+  \ assertion and profile-hash pre/post\n  comparison.\n- [ ] **SC-8 (behavioral):**\
+  \ A fresh-context agent can execute the search-read\n  workflow against the populated\
+  \ local profile: produce search results, follow\n  the returned read command, retrieve\
+  \ a message body and an attachment — with\n  zero writes to the profile. Verification:\
+  \ behavioral run; profile integrity\n  hash unchanged pre/post.\n- [ ] **SC-9 (behavioral):**\
+  \ The draft-send workflow's documented default is\n  dry-run: a behavioral run that\
+  \ drafts a reply WITHOUT explicit send\n  authorization produces a dry-run/draft\
+  \ result and no sent message.\n  Verification: behavioral run against a disposable\
+  \ profile fixture — never\n  the production profile. (Fixture construction is plan-level\
+  \ work; if\n  infeasible, the SC returns for revision rather than silent deletion.)\n\
+  \n## Constraints (inherited)\n\n- Floor safety: no production data access without\
+  \ explicit instruction in the\n  current session; send/move operations documented\
+  \ in the cards must require\n  explicit developer instruction (intent-decidable\
+  \ — no script enforcement).\n- Progressive disclosure: details one level deep (`references/`).\n\
+  - Tool-neutral router surface (SC-2) is the developer's stated layering\n  requirement,\
+  \ not a style preference.\n\n## References\n\n- Research card: `.issues/research-cards/thunderbird-cli-ecosystem.md`\
+  \ (root\n  store; live read-only test evidence, 2026-10-06)\n- Upstream tool: `github.com/avikalpa/thunderbird-cli`\
+  \ v3.5.0 — its own\n  `SKILL.md` / `AGENTS.md` / `PLAYBOOK.md` are reference material\
+  \ for the\n  details cards, not adopted verbatim\n- Deck: `skill-creator` (admission\
+  \ gate), `routing.md`, `behavioral-testing`\n  (SC-7/8/9 instruments), `skildeck`\
+  \ (lint / verify-acceptance)\n\n---\n\n\U0001F916 Co-authored with AI: OpenCode\
+  \ (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-10-06T17:41:25+00:00'
-updated_at: '2026-10-06T17:41:25+00:00'
+updated_at: '2026-10-06T17:41:39+00:00'
+github_url: 'true'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2532
