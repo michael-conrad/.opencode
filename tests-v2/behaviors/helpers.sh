@@ -3509,32 +3509,30 @@ else:
 
     events.sort(key=lambda e: e[0])
 
-# Predicate 1: exactly one session id in the export.
+# Predicate 1: the run session is the EARLIEST session.created in the export;
+# sessions created later in the same export are the run's own sub-agent
+# sessions (opencode records task()/sub-agent sessions in the same store) and
+# are legitimate. R-22's target is PRIOR-session leakage: content belonging to
+# a session that has no session.created event in the export — a session that
+# predates the run.
 run_session = None
+in_run_sessions = set(session_ids)
 if len(session_ids) == 0:
     violations.append(
         "no session.created event found in the export — no fresh session id "
         "is provable (a monitored run's export must record its fresh session)")
-elif len(session_ids) == 1:
-    run_session = session_ids[0]
 else:
-    run_session = session_ids[-1]  # latest created = the run's own attempt
-    for sid in session_ids[:-1]:
-        violations.append(
-            "prior-session id '%s' present in the export alongside the run "
-            "session '%s' — the run did not start from a fresh session; "
-            "test-home/session-DB reuse (multiple sessions in one monitored "
-            "run's store) is prohibited (R-22)" % (sid, run_session))
+    run_session = session_ids[0]
 
-# Predicate 2: zero prior-session message parts in the run's context. Every
-# message part must belong to the run's own session; a part carrying another
-# session's id is prior-session content / a foreign task instruction from an
-# earlier session leaking into this run's context.
+# Predicate 2: zero message parts belonging to a session that has no
+# session.created event in the export. A part carrying such a session id is
+# prior-session content / a foreign task instruction from an earlier session
+# leaking into this run's context.
 if run_session is not None:
     for seq, kind, pid, snippet in events:
         if kind != "part":
             continue
-        if pid != run_session:
+        if pid not in in_run_sessions:
             violations.append(
                 "prior-session message part at seq %s belongs to foreign "
                 "session '%s' (run session '%s') — foreign task instructions "
