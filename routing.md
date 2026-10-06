@@ -23,6 +23,7 @@ not user phrasing — are the dispatch mechanism.
 | rebase/merge/cherry-pick conflicts | `git-workflow-conflict` |
 | creating, commenting, linking, or closing issues | `issues` |
 | operating GitHub / GitBucket / the browser / notebooks | the matching connector card (`gh-cli`, `gb-cli`, vendor hf card, `playwright-cli`) |
+| editing, creating, or syncing pages on a GitHub or GitBucket wiki — locating or provisioning a `.wiki.git` checkout, sidebar/footer maintenance, publishing wiki changes, or a wiki submodule conversion | `wiki-operations` |
 | creating or modifying CI — pipelines, runners, workflows, or submodule checkout configuration | `ci-boundary` |
 | discovering information or investigating root causes | `research` / `systematic-debugging` |
 | designing, reviewing, or auditing code | `programming-principles` |
