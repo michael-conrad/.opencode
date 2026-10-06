@@ -47,3 +47,16 @@ dependency order 1→2→3→4.
   `session.yaml`; (b) clean-room evaluation — separate sub-agent reads the
   artifacts and judges against the SC.
 - **Verification:** session evidence + clean-room evaluation verdict.
+
+## Item 5 — SC-5 (behavioral, stacked 2026-10-06): monitoring-discipline regression
+
+- **Observed failure (developer-flagged regression, 2026-10-06):** during the
+  first SC-4 run the orchestrator polled at >300s gaps with no semantic
+  analysis, no brief status line, and no poll-log artifact — a violation of
+  tests-v2 §14 and the agent-supervisor mandate (SC-17/SC-18, #2456).
+- **Deliverable:** resumed supervision with full semantic checks per poll at
+  ≤300s cadence, a brief status line per poll, and a durable poll log artifact
+  recording timestamps + judgments.
+- **Verification:** inspection of the poll log — gaps ≤ 300s, a semantic
+  judgment on every poll, status lines recorded; blank mechanical polls are
+  FAIL evidence.
