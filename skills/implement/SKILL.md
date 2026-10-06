@@ -32,5 +32,10 @@ provenance: AI-authored, .opencode#2490
 6. **Sub-agents are judgment, not ritual.** Dispatch one when a scoped task
    genuinely benefits; work inline when that is simply better. Dispatched work
    gets a clean-room prompt and a result back — no chain theater.
+7. **Behavioral evidence goes through the harness.** Evidence for a behavioral
+   SC is produced only by the `tests-v2` behavioral harness
+   (`tests-v2/AGENTS.md` — `with-test-home` + `behavior_run`, artifact +
+   clean-room evaluation). An ad-hoc `opencode run` is not behavioral
+   evidence.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
