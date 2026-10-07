@@ -1,7 +1,7 @@
 number: 629
 title: '[BUG] session-enforcement.ts has no abort/retry recovery — sibling flooding
   + no execSync timeout resubmit'
-status: open
+status: closed
 labels:
 - bug
 - needs-approval
@@ -215,7 +215,7 @@ body: '# [BUG] session-enforcement.ts has no abort/retry recovery — sibling fl
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
 created_at: '2026-05-16T14:39:34Z'
-updated_at: '2026-06-12T03:45:42Z'
+updated_at: '2026-10-07T03:16:07+00:00'
 remote_issue: 629
 remote_url: https://github.com/michael-conrad/.opencode/issues/629
 promoted_at: '2026-08-27T03:25:11.873884+00:00'
@@ -223,3 +223,5 @@ promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:11.873884+00:00'
 author: michael-conrad
 github_url: https://github.com/michael-conrad/.opencode/issues/629
+closed_at: '2026-10-07T03:16:07+00:00'
+close_reason: not_planned
