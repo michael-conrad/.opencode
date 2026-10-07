@@ -1,9 +1,11 @@
 title: '[SPEC-FIX] Test-contract currency: behavior changes update dependent tests;
   suite-green at the PR boundary'
-status: open
+status: closed
 labels:
 - needs-approval
 - SPEC-FIX
 body: ''
 created_at: '2026-10-07T19:10:50+00:00'
-updated_at: '2026-10-07T19:10:50+00:00'
+updated_at: '2026-10-07T19:15:13+00:00'
+closed_at: '2026-10-07T19:15:13+00:00'
+close_reason: completed
