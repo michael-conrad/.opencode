@@ -111,16 +111,18 @@ def _validate_issue_dir(entry: Path) -> None:
 def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
     """Collect (path, error-class) findings for one issue directory (SC-06).
 
-    Reuses the SC-05 error-class taxonomy (malformed-frontmatter,
-    invalid-yaml, schema-violation) without emitting warn-and-skip
-    warnings — callers own reporting. Read-only: never mutates files.
+    Sweeps **/*.yaml under the issue directory: every YAML found is
+    parse-validated (invalid-yaml on failure); the three canonical files
+    retain their schema checks; non-canonical YAML (e.g. artifacts/*.yaml)
+    is parse-validated only. Reuses the SC-05 error-class taxonomy
+    (malformed-frontmatter, invalid-yaml, schema-violation) without
+    emitting warn-and-skip warnings — callers own reporting. Read-only:
+    never mutates files.
     """
     errors: list[tuple[str, str]] = []
-    for name in YAML_FILES:
-        f = entry / name
-        if not f.exists():
-            continue
-        rel = _rel_issue_path(entry, name)
+    canonical = set(YAML_FILES)
+    for f in sorted(entry.rglob("*.yaml")):
+        rel = f"{entry.name}/{f.relative_to(entry)}"
         content = read_file(f)
         if not content.strip():
             continue
@@ -129,9 +131,10 @@ def _scan_issue_dir_errors(entry: Path) -> list[tuple[str, str]]:
         except yaml.YAMLError:
             errors.append((rel, INVALID_YAML))
             continue
-        problem = _schema_problem(name.removesuffix(".yaml"), data)
-        if problem:
-            errors.append((rel, problem))
+        if f.name in canonical:
+            problem = _schema_problem(f.name.removesuffix(".yaml"), data)
+            if problem:
+                errors.append((rel, problem))
     spec_file = entry / "spec.md"
     if spec_file.exists():
         spec = read_file(spec_file)
@@ -153,7 +156,8 @@ def cmd_validate_yaml(args: argparse.Namespace) -> None:
     the same shared scan machinery and report format. Scoped exit
     semantics: exit 0 on a clean target regardless of unrelated
     workspace violations; exit 1 when the target's own files violate.
-    Fail-fast (exit 1) when the target directory is absent. Bare
+    When the target directory does not exist locally (remote-only
+    issue), exits 0 printing a no-local-records status line. Bare
     unqualified numbers are rejected.
     """
     scoped_number = getattr(args, "number", None)
@@ -162,11 +166,8 @@ def cmd_validate_yaml(args: argparse.Namespace) -> None:
         repo_path = _resolve_and_validate_repo(repo_name)
         target = _find_issue_dir_in_repo(num, repo_path)
         if target is None:
-            print(
-                f"error: issue directory for {repo_name}#{num} not found",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            print(f"no-local-records: {repo_name}#{num}")
+            return
         errors = _scan_issue_dir_errors(target)
         for rel, error_class in errors:
             print(f"{rel}: {error_class}")
@@ -258,8 +259,7 @@ def yaml_load(content: str, path: str | None = None) -> Any:
     On a YAML parse error, emits a stderr warning carrying the source
     file path (when provided) and the invalid-yaml error class, then
     returns an empty dict so iteration paths skip the malformed record
-    exception-free. Control state (e.g. .counter) never goes through
-    this function and keeps its fail-fast behavior.
+    exception-free.
     """
     if not content.strip():
         return {}
@@ -522,109 +522,44 @@ def _ensure_all_worktrees() -> bool:
     return all_ok
 
 
-def _init_orphan_branch(root: Path) -> str | None:
-    """Create a temp worktree and orphan branch. Returns temp worktree path or None."""
-    git_dir = str(root)
-    wt_tmp = str(root / ".issues-worktree-tmp")
+def _create_orphan_branch(root: Path) -> bool:
+    """Create the orphan issues-data branch via git plumbing.
 
-    r1 = subprocess.run(
-        ["git", "-C", git_dir, "worktree", "add", "--detach", wt_tmp],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
-    if r1.returncode != 0:
-        print(
-            f"warn: worktree add --detach failed: {r1.stderr.strip()}", file=sys.stderr
-        )
-        return None
-
-    r2 = subprocess.run(
-        ["git", "checkout", "--orphan", WORKTREE_BRANCH],
-        capture_output=True,
-        text=True,
-        timeout=15,
-        cwd=wt_tmp,
-    )
-    if r2.returncode != 0:
-        print(f"warn: checkout --orphan failed: {r2.stderr.strip()}", file=sys.stderr)
-        return None
-
-    return wt_tmp
-
-
-def _commit_orphan_init(git_dir: str, wt_tmp: str) -> bool:
-    """Create the initial empty commit on the orphan branch."""
-    r = subprocess.run(
-        ["git", "commit", "--allow-empty", "-m", "Init issues branch"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-        cwd=wt_tmp,
-    )
-    if r.returncode != 0:
-        print(f"warn: empty commit failed: {r.stderr.strip()}", file=sys.stderr)
-        return False
-    return True
-
-
-def _name_orphan_branch(git_dir: str, wt_tmp: str) -> bool:
-    """Create a named branch at the orphan commit's HEAD."""
-    r = subprocess.run(
-        ["git", "-C", git_dir, "branch", WORKTREE_BRANCH, "HEAD"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-        cwd=wt_tmp,
-    )
-    if r.returncode != 0:
-        print(f"warn: branch create failed: {r.stderr.strip()}", file=sys.stderr)
-    return r.returncode == 0
-
-
-def _remove_temp_worktree(git_dir: str, wt_tmp: str) -> bool:
-    """Return to previous branch and remove the temporary worktree."""
-    r5 = subprocess.run(
-        ["git", "checkout", "-"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-        cwd=wt_tmp,
-    )
-    if r5.returncode != 0:
-        print(f"warn: checkout - failed: {r5.stderr.strip()}", file=sys.stderr)
-
-    r6 = subprocess.run(
-        ["git", "-C", git_dir, "worktree", "remove", wt_tmp],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
-    if r6.returncode != 0:
-        print(f"warn: worktree remove failed: {r6.stderr.strip()}", file=sys.stderr)
-
-    r7 = subprocess.run(
-        ["git", "-C", git_dir, "worktree", "prune"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
-    if r7.returncode != 0:
-        print(f"warn: final prune failed: {r7.stderr.strip()}", file=sys.stderr)
-
-    return True
-
-
-def _populate_orphan_branch(root: Path, wt_tmp: str) -> bool:
-    """Add initial content to the orphan branch and clean up temp worktree.
-
-    The initial commit already creates the branch ref — _name_orphan_branch()
-    is redundant and removed per #1299.
+    Empty tree object (git hash-object -t tree /dev/null) → git
+    commit-tree onto it → git update-ref refs/heads/issues-data. No temp
+    worktree exists at any point; no porcelain commit runs, so hook
+    contact is structurally impossible; the branch tree is empty by
+    construction; zero-commit repositories are supported. Returns True
+    on success, False on failure.
     """
     git_dir = str(root)
-    if not _commit_orphan_init(git_dir, wt_tmp):
+    tree = subprocess.run(
+        ["git", "-C", git_dir, "hash-object", "-t", "tree", "/dev/null"],
+        capture_output=True, text=True, timeout=15,
+    )
+    if tree.returncode != 0:
+        print(f"warn: empty tree hash failed: {tree.stderr.strip()}", file=sys.stderr)
         return False
-    _remove_temp_worktree(git_dir, wt_tmp)
+    commit = subprocess.run(
+        [
+            "git", "-C", git_dir, "commit-tree", tree.stdout.strip(),
+            "-m", "Init issues branch",
+        ],
+        capture_output=True, text=True, timeout=15,
+    )
+    if commit.returncode != 0:
+        print(f"warn: commit-tree failed: {commit.stderr.strip()}", file=sys.stderr)
+        return False
+    ref = subprocess.run(
+        [
+            "git", "-C", git_dir, "update-ref",
+            f"refs/heads/{WORKTREE_BRANCH}", commit.stdout.strip(),
+        ],
+        capture_output=True, text=True, timeout=15,
+    )
+    if ref.returncode != 0:
+        print(f"warn: update-ref failed: {ref.stderr.strip()}", file=sys.stderr)
+        return False
     return True
 
 
@@ -695,17 +630,6 @@ def _bootstrap_from_remote(root: Path) -> bool:
         )
         return False
     return True
-
-
-def _create_orphan_branch(root: Path) -> bool:
-    """Create an orphan issues-data branch with an initial empty commit.
-
-    Returns True on success, False on failure.
-    """
-    wt_tmp = _init_orphan_branch(root)
-    if wt_tmp is None:
-        return False
-    return _populate_orphan_branch(root, wt_tmp)
 
 
 def _migrate_existing_issues(root: Path) -> list[tuple[str, str, str]]:
@@ -812,17 +736,6 @@ def _create_issues_worktree(root: Path) -> bool:
     """Create the issues worktree: migrate, branch, setup, restore, push."""
     saved = _migrate_existing_issues(root)
     if not _issues_branch_exists(repo_path=root):
-        # Clean up stale temp worktree from a prior failed run
-        wt_tmp = str(root / ".issues-worktree-tmp")
-        if os.path.isdir(wt_tmp):
-            subprocess.run(
-                ["git", "-C", str(root), "worktree", "remove", "--force", wt_tmp],
-                capture_output=True, text=True, timeout=15,
-            )
-            subprocess.run(
-                ["git", "-C", str(root), "worktree", "prune"],
-                capture_output=True, text=True, timeout=15,
-            )
         if not _bootstrap_from_remote(root) and not _create_orphan_branch(root):
             print("error: failed to create orphan issues-data branch", file=sys.stderr)
             return False
@@ -833,9 +746,27 @@ def _create_issues_worktree(root: Path) -> bool:
     return True
 
 
+def _fail_worktree(root: Path, detail: str) -> None:
+    """Exit non-zero: worktree establishment failed (fail-fatal contract).
+
+    No caller continues in plain-file mode; no plain .issues/ directory
+    is created or written after this fires.
+    """
+    issues_dir = root / ISSUES_DIR
+    print(
+        f"error: failed to establish {WORKTREE_BRANCH} worktree for {root}: {detail}",
+        file=sys.stderr,
+    )
+    print(
+        f"  remediation: git -C {root} worktree add {issues_dir} {WORKTREE_BRANCH}",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+
 def _ensure_worktree(repo_path: Path | None = None) -> bool:
     """
-    Ensure a git worktree is available for issue tracking.
+    Ensure a git worktree is available for issue tracking (fail-fatal).
 
     Detection logic:
     1. Check if already inside a worktree (_worktree_active returns True)
@@ -843,10 +774,13 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
     3. Check if stale worktree (listed but directory missing) -> prune + recreate
     4. If no worktree exists on 'issues' branch:
        a. If 'issues' branch exists, create worktree from it
-       b. If 'issues' branch doesn't exist, create orphan branch + worktree
-    5. On failure: fall back to plain .issues/ directory (return False)
+       b. If 'issues' branch doesn't exist, bootstrap from remote or create
+          orphan branch + worktree
+    5. Any failure is terminal: exit non-zero with a diagnostic naming the
+       failure and the remediation command. There is no plain-file
+       fallback mode; no plain .issues/ directory is created on failure.
 
-    Returns: True if worktree is active, False if using plain files.
+    Returns: True if worktree is active (never returns False).
     """
     root = repo_path or Path(os.getcwd())
     git_dir = str(root)
@@ -856,18 +790,18 @@ def _ensure_worktree(repo_path: Path | None = None) -> bool:
 
     try:
         issues_wt_path = _find_issues_worktree(git_dir)
-        if issues_wt_path is None:
-            return _create_issues_worktree(root)
-
-        if os.path.isdir(issues_wt_path):
+        if issues_wt_path is not None and os.path.isdir(issues_wt_path):
             return True
+        if issues_wt_path is not None:
+            _prune_stale_worktree(git_dir, issues_wt_path)
+        if not _create_issues_worktree(root):
+            _fail_worktree(root, "worktree setup failed")
+        return True
 
-        _prune_stale_worktree(git_dir, issues_wt_path)
-        return _create_issues_worktree(root)
-
+    except SystemExit:
+        raise
     except Exception as e:
-        print(f"warn: worktree setup failed for {root}: {e}", file=sys.stderr)
-        return False
+        _fail_worktree(root, str(e))
 
 
 def _count_issues(repo_path: Path) -> int:
@@ -1086,50 +1020,20 @@ def _auto_commit(message: str = "", repo_path: Path | None = None) -> None:
     _push_issues_changes(root)
 
 
-def _next_number(repo_path: Path | None = None) -> int:
-    """Read next issue number from .counter, increment, and write back.
+def _check_duplicate_issue(number: int, repo_path: Path, repo_name: str) -> None:
+    """Exit with error if issue number already exists in the target repo.
 
-    Creates .counter at 1 if missing. Corrupt/unreadable counter fails hard.
+    Uniqueness is enforced within the target repo's own .issues/{N}
+    namespace only. Remote trackers number per-repo and the qualified
+    form (repo#N) mandated on every command disambiguates collisions —
+    no cross-repo check or warning is performed.
     """
-    root = repo_path or PROJECT_DIR
-    counter_path = root / ISSUES_DIR / ".counter"
-    if not counter_path.exists():
-        _ensure_worktree()
-        counter_path.parent.mkdir(parents=True, exist_ok=True)
-        counter_path.write_text("1\n")
-        return 1
-    raw = counter_path.read_text().strip()
-    if not raw.isdigit():
-        print("FATAL: .counter file is corrupt — expected a number", file=sys.stderr)
-        sys.exit(1)
-    n = int(raw)
-    counter_path.write_text(f"{n + 1}\n")
-    return n
-
-
-def _check_duplicate_issue(
-    number: int,
-    repo_path: Path,
-    repo_name: str,
-    child_repos: list[Path],
-) -> None:
-    """Exit with error if issue number already exists in any repo."""
     if issue_exists(number, repo_path):
         print(
             f"Issue #{number} already exists in {repo_name}.",
             file=sys.stderr,
         )
         sys.exit(1)
-    for child in child_repos:
-        child_issues_dir = child / ISSUES_DIR
-        if child_issues_dir.is_dir():
-            child_issue_path = _find_issue_dir_in_repo(number, child)
-            if child_issue_path is not None:
-                print(
-                    f"Issue #{number} already exists in {child.name}. Use qualified form {child.name}#{number}.",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
 
 
 def _normalize_labels(labels: list[str]) -> list[str]:
@@ -1210,12 +1114,10 @@ def cmd_create(args: argparse.Namespace) -> None:
     current_repo_name = repo_path.name
     args.number = num
     qualified = f"{current_repo_name}#{args.number}"
-    child_repos = _discover_all_repos()
-    _check_duplicate_issue(args.number, repo_path, current_repo_name, child_repos)
+    _check_duplicate_issue(args.number, repo_path, current_repo_name)
     labels = _normalize_labels(args.labels)
     _reject_malformed_labels(labels, "create")
-    _ensure_all_worktrees()
-    _next_number(repo_path)
+    _ensure_worktree(repo_path=repo_path)
     _create_issue_files(args.number, args.title, labels, repo_path, qualified)
 
 
@@ -1771,21 +1673,45 @@ def cmd_renumber(args: argparse.Namespace) -> None:
             write_file(links_path, yaml_dump(data))
 
 
-def cmd_promote(args: argparse.Namespace) -> None:
-    _repo_name, args.number = _require_qualified(args.number)
-    repo_path = _resolve_and_validate_repo(_repo_name)
-    if not issue_exists(args.number, repo_path):
-        _not_found(args.number, repo_path)
-    data = read_issue_data(args.number, repo_path)
-    issue = data["issue"]
-    print(f"[dry-run] promote #{args.number}: {issue.get('title', '')}")
-    status = issue.get("status", "open")
-    print(f"  status: {status}")
-    print(f"  labels: {', '.join(issue.get('labels', [])) or '(none)'}")
-    comments = data.get("comments", {}).get("comments", [])
-    print(f"  comments: {len(comments)}")
-    gh_url = issue.get("github_url", "")
-    print(f"  github_url: {gh_url or '(not set)'}")
+def _remote_browser_base(repo_path: Path) -> str | None:
+    """Return the https browser base URL for the repo's origin remote.
+
+    Parses SSH (git@host:owner/repo.git) and HTTPS URLs, converts to
+    https://host/owner/repo. Returns None when no remote is configured
+    or the URL is unparseable.
+    """
+    result = subprocess.run(
+        ["git", "-C", str(repo_path), "remote", "get-url", "origin"],
+        capture_output=True, text=True, timeout=15,
+    )
+    if result.returncode != 0:
+        return None
+    url = result.stdout.strip()
+    match = re.match(r"^git@([^:]+):([^/]+)/(.+?)(?:\.git)?$", url)
+    if not match:
+        match = re.match(r"^https?://([^/]+)/([^/]+)/(.+?)(?:\.git)?$", url)
+    if not match:
+        return None
+    host, owner, repo_name = match.groups()
+    return f"https://{host}/{owner}/{repo_name}"
+
+
+def cmd_url(args: argparse.Namespace) -> None:
+    """Emit the platform-correct URL for a qualified issue."""
+    repo_name, num = _require_qualified(args.number)
+    repo_path = _resolve_and_validate_repo(repo_name)
+    base = _remote_browser_base(repo_path)
+    if base is None:
+        print(
+            f"error: no usable origin remote for repo '{repo_name}'",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    if args.artifacts:
+        # Branch-root-relative path — never the worktree path (.issues/N/).
+        print(f"{base}/tree/{WORKTREE_BRANCH}/{num}/")
+    else:
+        print(f"{base}/issues/{num}")
 
 
 def _fetch_issues_branch(issues_dir: Path) -> dict | None:
@@ -2023,7 +1949,7 @@ def _add_create_parser(subparsers: argparse._SubParsersAction) -> None:
         "--number",
         type=str,
         required=True,
-        help="Qualified repo#N form (required — reserve a number via the counter first)",
+        help="Qualified repo#N form (required — reserve the number via the remote tracker first)",
     )
     p.add_argument("--title", type=str, required=True)
     p.add_argument(
@@ -2150,10 +2076,17 @@ def _add_renumber_parser(subparsers: argparse._SubParsersAction) -> None:
     p.add_argument("--to", type=str, required=True, dest="to_num")
 
 
-def _add_promote_parser(subparsers: argparse._SubParsersAction) -> None:
-    p = subparsers.add_parser("promote", help="Check promotion readiness")
-    p.add_argument("--number", type=str, required=True)
-    p.add_argument("--dry-run", action="store_true")
+def _add_url_parser(subparsers: argparse._SubParsersAction) -> None:
+    p = subparsers.add_parser(
+        "url",
+        help="Emit the platform-correct issue URL for a qualified issue. Flags: --number repo#N, --artifacts",
+    )
+    p.add_argument("--number", type=str, required=True, help="Qualified repo#N form")
+    p.add_argument(
+        "--artifacts",
+        action="store_true",
+        help="Emit the branch-root artifacts URL (tree/issues-data/N/) instead of the issue URL",
+    )
 
 
 def _add_init_parser(subparsers: argparse._SubParsersAction) -> None:
@@ -2180,7 +2113,7 @@ def _add_sync_parser(subparsers: argparse._SubParsersAction) -> None:
 def _add_doctor_parser(subparsers: argparse._SubParsersAction) -> None:
     subparsers.add_parser(
         "doctor",
-        help="Emit per-repo health markers (read-only): branch state, merge-base delta vs origin/issues-data, counter state, worktree presence",
+        help="Emit per-repo health markers (read-only): branch state, merge-base delta vs origin/issues-data, worktree presence",
     )
 
 
@@ -2215,26 +2148,11 @@ def _doctor_remote_branch_exists(repo_path: Path) -> bool:
     return result.returncode == 0
 
 
-def _doctor_counter_state(issues_dir: Path) -> str:
-    """Report counter state for a repo's .issues/ directory (read-only)."""
-    counter_path = issues_dir / ".counter"
-    if not counter_path.exists():
-        return "missing"
-    try:
-        raw = counter_path.read_text(encoding="utf-8").strip()
-    except OSError:
-        return "corrupt"
-    if raw.isdigit():
-        return raw
-    return "corrupt"
-
-
 def _doctor_repo_report(repo: Path) -> str:
     """Build one machine-greppable health-marker line for a repo (read-only).
 
     Markers: repo=<path> branch_state={HEALTHY|UNHEALTHY}
-    merge_base_delta={absent|<ahead>/<behind>} counter={missing|corrupt|<n>}
-    worktree={active|absent}
+    merge_base_delta={absent|<ahead>/<behind>} worktree={active|absent}
     """
     issues_dir = repo / ISSUES_DIR
     local_exists = _issues_branch_exists(repo_path=repo)
@@ -2248,18 +2166,17 @@ def _doctor_repo_report(repo: Path) -> str:
     else:
         delta = "absent"
     worktree = "active" if (issues_dir / ".git").is_file() else "absent"
-    counter = _doctor_counter_state(issues_dir)
     return (
         f"repo={repo} issues_dir={issues_dir} branch_state={branch_state} "
-        f"merge_base_delta={delta} counter={counter} worktree={worktree}"
+        f"merge_base_delta={delta} worktree={worktree}"
     )
 
 
 def cmd_doctor(args: argparse.Namespace) -> None:
     """Emit per-repo health markers for root and all discovered repos.
 
-    Read-only: never mutates state (no worktree bootstrap, no counter
-    writes, no sentinel files).
+    Read-only: never mutates state (no worktree bootstrap, no sentinel
+    files).
     """
     for repo in _discover_all_repos():
         try:
@@ -2291,7 +2208,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_list_parser(sub)
     _add_link_parser(sub)
     _add_renumber_parser(sub)
-    _add_promote_parser(sub)
+    _add_url_parser(sub)
     _add_init_parser(sub)
     _add_sync_parser(sub)
     _add_sync_file_parser(sub)
@@ -2369,7 +2286,7 @@ def main() -> None:
         "list": cmd_list,
         "link": cmd_link,
         "renumber": cmd_renumber,
-        "promote": cmd_promote,
+        "url": cmd_url,
         "init": cmd_init,
         "sync": cmd_sync,
         "sync-file": cmd_sync_file,
