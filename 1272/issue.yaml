@@ -3,4 +3,7 @@ title: '[SPEC] Fix local-issues _discover_all_repos(): replace dot-skip with /*/
   pattern matching'
 labels: '[{"name": "spec", "color": "ededed", "description": ""}]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1272
-status: open
+status: closed
+closed_at: '2026-10-07T12:53:36+00:00'
+close_reason: not_planned
+updated_at: '2026-10-07T12:53:36+00:00'
