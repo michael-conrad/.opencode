@@ -30,7 +30,9 @@ benefits from a clean-room dispatch — judgment, not ritual.
 
 | Step | How | Purpose |
 |------|-----|---------|
+| test-contract currency | a behavior change updates its dependent tests in the same cycle — when behavior is spec-removed, the stale tests are removed/updated on the same branch | tests contract on behavior; a merged behavior change that leaves its old tests behind re-breaks the suite for every later PR |
 | structural | project-local lint/typecheck/build commands | cheap mechanical facts first |
+| suite-green | run the full test suite; every failure is remediated or dispositioned via a filed fix — never passed through as "pre-existing" (#2553) | a red suite at the PR boundary ships the regression forward |
 | verify pass | dispatch the `verify` card's single fresh-context reviewer | one bounded review; churn rule applies |
 | PR prep | `git-workflow-pr` conventions | review context for the human gate |
 

@@ -23,11 +23,14 @@ provenance: AI-authored, .opencode#2490
    verify pass PASS on the deliverable's SCs; structural checks
    (lint/typecheck/build) ran clean. Not ready → `verify` first, not a PR.
 2. **Pre-create checklist — every item before `gh pr create` / `gb` create.**
-   (a) every item assigned to this PR by the spec or by recorded special
-   authorization has an implementation commit or an explicit N/A; (b) the
-   full test suite ran this session with captured output; (c) fresh-context
-   `verify` PASS recorded against the issue's spec. Any failure → halt and
-   report the gap — never create the PR anyway.
+(a) every item assigned to this PR by the spec or by recorded special
+authorization has an implementation commit or an explicit N/A; (b) the full
+test suite ran **green** this session with captured output — red output
+blocks PR creation until every failure is remediated or dispositioned via a
+filed fix issue; "the failures pre-existed" is a defect to file, never a
+pass-through (#2553); (c) fresh-context
+`verify` PASS recorded against the issue's spec. Any failure → halt and
+report the gap — never create the PR anyway.
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain

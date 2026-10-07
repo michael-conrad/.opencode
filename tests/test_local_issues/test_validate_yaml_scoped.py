@@ -191,19 +191,27 @@ def test_scoped_report_lines_target_only(violating_target_workspace: Path) -> No
         )
 
 
-def test_scoped_fail_fast_on_absent_target(
+def test_scoped_no_local_records_on_absent_target(
     dirty_workspace_clean_target: Path,
 ) -> None:
+    # #2543 contract: scoped validate-yaml on an absent target exits 0 and
+    # reports no-local-records — absent local records are not a failure.
     result = _run_tool(
         dirty_workspace_clean_target,
         "validate-yaml",
         "--number",
         f"{REPO_QUALIFIER}#{MISSING_TARGET_NUMBER}",
     )
-    assert result.returncode != 0, (
-        f"scoped validate-yaml expected fail-fast (non-zero exit) on absent "
-        f"target directory, got exit 0; stdout: {result.stdout!r} "
-        f"stderr: {result.stderr!r}"
+    assert result.returncode == 0, (
+        f"scoped validate-yaml expected exit 0 on absent target (#2543 "
+        f"no-local-records contract), got {result.returncode}; "
+        f"stdout: {result.stdout!r} stderr: {result.stderr!r}"
+    )
+    assert f"no-local-records: {REPO_QUALIFIER}#{MISSING_TARGET_NUMBER}" in (
+        result.stdout + result.stderr
+    ), (
+        f"scoped validate-yaml missing no-local-records line on absent target; "
+        f"stdout: {result.stdout!r} stderr: {result.stderr!r}"
     )
 
 
