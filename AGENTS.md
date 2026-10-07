@@ -46,8 +46,7 @@ card and its sync detail card.
     designs/                   — UI wireframes, architecture diagrams, design artifacts
     audit/                     — Adversarial audit verdicts, cross-validate consensus
   AGENTS.md                    — This file
-  open/                        — Symlinks or references to open issues
-  closed/                      — Archived issues
+  _legacy/                     — Archived pre-worktree-format content ({N}-{slug}/, open/, closed/ remnants); not parseable issue numbers — never create here
   lessons-learned/             — Per-session corrections and defect patterns for clean-room review
     session-YYYY-MM-DD/
       README.md                — Correction catalog with root cause analysis
