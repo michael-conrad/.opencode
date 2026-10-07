@@ -4,7 +4,7 @@ status: draft
 created: 2026-07-20
 license: MIT
 provenance: AI-generated
-issue: 1
+issue: 2027
 authors:
   - OpenCode (deepseek-v4-flash)
 ---
