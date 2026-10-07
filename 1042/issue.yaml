@@ -1,7 +1,7 @@
 number: 1042
 title: '[BUG] local-issues _ensure_worktree() silently degrades to plain-file mode
   when .issues/ already exists'
-status: open
+status: closed
 labels:
 - bug
 - needs-approval
@@ -67,14 +67,14 @@ body: '## Summary
 
   `BUG`, `SPEC-FIX`'
 created_at: '2026-06-06T04:48:01Z'
-updated_at: '2026-10-05T19:39:01+00:00'
+updated_at: '2026-10-07T16:30:11+00:00'
 remote_issue: 1042
 remote_url: https://github.com/michael-conrad/.opencode/issues/1042
 promoted_at: '2026-08-27T03:25:12.562475+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.562475+00:00'
 author: michael-conrad
-closed_at: '2026-10-05T19:39:01+00:00'
+closed_at: '2026-10-07T16:30:11+00:00'
 close_reason: not_planned
 sweep_verdict: CLOSE-MOOT
 sweep_evidence: 'Addressed in the live tools/local-issues: _create_issues_worktree
