@@ -1,7 +1,7 @@
 number: 2323
 title: '[BUG] local-issues list crashes on malformed issue.yaml title with unquoted
   double-quotes'
-status: open
+status: closed
 labels: []
 body: "## Bug\n\n`local-issues list` crashes with a YAML `ParserError` when any issue's\
   \ `issue.yaml` contains a title with unquoted double-quotes.\n\n## Root cause\n\n\
@@ -24,15 +24,15 @@ body: "## Bug\n\n`local-issues list` crashes with a YAML `ParserError` when any 
   \ local issue mirror, not a branch-structure problem. The `.opencode` worktree itself\
   \ is structurally clean (0 contamination)."
 created_at: '2026-08-25T15:21:31Z'
-updated_at: '2026-10-05T19:39:01+00:00'
+updated_at: '2026-10-07T12:53:33+00:00'
 remote_issue: 2323
 remote_url: https://github.com/michael-conrad/.opencode/issues/2323
 promoted_at: '2026-08-27T03:25:12.587351+00:00'
 promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.587351+00:00'
 author: michael-newsrx
-closed_at: '2026-10-05T19:39:01+00:00'
-close_reason: not_planned
+closed_at: '2026-10-07T12:53:33+00:00'
+close_reason: completed
 sweep_verdict: CLOSE-MOOT
 sweep_evidence: 'The data defect is already repaired: `.opencode/.issues/1204/issue.yaml`
   title is now properly escaped (`\"agent MUST\"`) and live tool `./.opencode/tools/local-issues
