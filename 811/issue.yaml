@@ -8,47 +8,75 @@ body: "## Summary\n\nAdd the `web-search-mcp.py` example from the official ollam
   \ repository as a PEP 723 inline-script MCP server in `.opencode/tools/`. This exposes\
   \ Ollama's hosted `web_search` and `web_fetch` APIs as MCP tools, giving the AI\
   \ agent a secondary, Ollama-native search backend alongside the existing DuckDuckGo\
-  \ web search.\n\n## Motivation\n\nThe agent already has web search and web fetch\
-  \ tools via DuckDuckGo and general fetch backends. However:\n\n1. **Search backend\
-  \ diversity**: Ollama's hosted search API uses a different infrastructure than DuckDuckGo\
-  \ — it may serve different content, provide different freshness, or be available\
-  \ when DuckDuckGo is not.\n2. **Ollama-native integration**: The Ollama Python SDK's\
-  \ `web_search` and `web_fetch` methods are first-class API endpoints designed for\
-  \ programmatic use, giving predictable result schemas.\n3. **PEP 723 zero-install**:\
-  \ Because the script uses PEP 723 inline metadata, `uv run .opencode/tools/web-search-mcp.py`\
-  \ automatically provisions dependencies (`mcp`, `rich`, `ollama`) — no manual environment\
-  \ setup.\n4. **Rejecting training data as stale**: A secondary independent search\
-  \ backend strengthens the \"verify live\" principle — the agent has more paths to\
-  \ verify claims against live sources, reducing the risk of falling back to stale\
-  \ training data.\n\n## Proposal\n\n### 1. Add script: `.opencode/tools/web-search-mcp.py`\n\
+  \ web search. The script pins its Python interpreter to the 3.12 series (`requires-python\
+  \ = \"~=3.12.0\"`) so `uv run` provisions and selects a 3.12.x interpreter with\
+  \ no shell wrapper and no `--python` flag in the MCP stanza.\n\n## Motivation\n\n\
+  The agent already has web search and web fetch tools via DuckDuckGo and general\
+  \ fetch backends. However:\n\n1. **Search backend diversity**: Ollama's hosted search\
+  \ API uses a different infrastructure than DuckDuckGo — it may serve different content,\
+  \ provide different freshness, or be available when DuckDuckGo is not.\n2. **Ollama-native\
+  \ integration**: The Ollama Python SDK's `web_search` and `web_fetch` methods are\
+  \ first-class API endpoints designed for programmatic use, giving predictable result\
+  \ schemas.\n3. **PEP 723 zero-install**: Because the script uses PEP 723 inline\
+  \ metadata, `uv run .opencode/tools/web-search-mcp.py` automatically provisions\
+  \ dependencies (`mcp`, `rich`, `ollama`) — no manual environment setup.\n4. **Rejecting\
+  \ training data as stale**: A secondary independent search backend strengthens the\
+  \ \"verify live\" principle — the agent has more paths to verify claims against\
+  \ live sources, reducing the risk of falling back to stale training data.\n5. **Pinned,\
+  \ compatible interpreter**: a bare floor (`>=3.NN`) lets `uv run` float onto untested\
+  \ future interpreters between environment bumps, and a hard `==` pin breaks as the\
+  \ ecosystem moves on. The three-part compatible release `~=3.NN.0` pins the minor\
+  \ series (`>=3.12.0, ==3.12.*`), verified on uv 0.11.19: `~=3.12.0` resolves 3.12.x\
+  \ and does not float to 3.13.\n\n## Proposal\n\n### 1. Add script: `.opencode/tools/web-search-mcp.py`\n\
   \nCopy the upstream script from `https://raw.githubusercontent.com/ollama/ollama-python/refs/heads/main/examples/web-search-mcp.py`\
-  \ with appropriate SPDX/provenance/co-author headers.\n\nThe script is a PEP 723\
-  \ inline-script (`# /// script` block) that creates an MCP stdio server with two\
-  \ tools:\n\n| Tool | Parameters | Description |\n|------|-----------|-------------|\n\
+  \ with appropriate SPDX/provenance/co-author headers, replacing the upstream header's\
+  \ `requires-python = \">=3.11\"` with `requires-python = \"~=3.12.0\"`.\n\nThe script\
+  \ is a PEP 723 inline-script (`# /// script` block) that creates an MCP stdio server\
+  \ with two tools:\n\n| Tool | Parameters | Description |\n|------|-----------|-------------|\n\
   | `web_search` | `query: str, max_results: int = 3` | Calls `ollama.Client().web_search()`\
   \ |\n| `web_fetch` | `url: str` | Calls `ollama.Client().web_fetch()` |\n\nSupports\
   \ both FastMCP (high-level) and low-level stdio server (fallback) APIs.\n\n### 2.\
-  \ Configure in `opencode.jsonc`\n\nAdd an `mcp` entry:\n\n```jsonc\n\"ollama-web-search\"\
+  \ Python version pinning\n\n- The PEP 723 header is the single source of truth for\
+  \ the interpreter: `requires-python = \"~=3.12.0\"`. uv selects a compatible interpreter\
+  \ and downloads one if no 3.12.x is installed.\n- No shell script wrapper and no\
+  \ `--python` flag in the MCP `command`. opencode's `command` is a plain argv array,\
+  \ so a flag could be inserted, but an explicit `--python` overrides the header with\
+  \ only a warning on conflict (exit 0 in both directions, verified on uv 0.11.19);\
+  \ omitting it keeps one source of truth.\n- First-launch caveat: on a machine with\
+  \ no 3.12.x interpreter, uv downloads one before the server starts, which can exceed\
+  \ opencode's default MCP `timeout` (5000 ms) and fail tool discovery. Pre-install\
+  \ the interpreter (`uv python install 3.12`) or raise `timeout` in the MCP entry.\n\
+  \n### 3. Configure in `opencode.jsonc`\n\nAdd an `mcp` entry:\n\n```jsonc\n\"ollama-web-search\"\
   : {\n  \"type\": \"local\",\n  \"command\": [\"uv\", \"run\", \".opencode/tools/web-search-mcp.py\"\
   ],\n  \"enabled\": true,\n  \"environment\": {\n    \"OLLAMA_API_KEY\": \"${OLLAMA_API_KEY}\"\
   \n  }\n}\n```\n\nThe `OLLAMA_API_KEY` env var is optional per the script source\
-  \ — if set, it's used as an Authorization header.\n\n### 3. Register in agent instructions\
+  \ — if set, it's used as an Authorization header.\n\n### 4. Register in agent instructions\
   \ or tool allowlist\n\nOptionally register the tool names in the agent's tool allowlist\
   \ so the agent is aware of and prompted to use them for research tasks.\n\n## Verification\n\
   \n| SC | Criterion | Evidence Type |\n|----|-----------|---------------|\n| SC-1\
   \ | Script exists at `.opencode/tools/web-search-mcp.py` with PEP 723 header intact\
-  \ | structural |\n| SC-2 | Script runs without import errors: `uv run .opencode/tools/web-search-mcp.py\
-  \ --help` exits 0 | behavioral |\n| SC-3 | `opencode.jsonc` contains `ollama-web-search`\
-  \ MCP entry | string |\n| SC-4 | MCP server exposes `web_search` and `web_fetch`\
-  \ tools (verify via `opencode mcp list` or MCP protocol handshake) | behavioral\
-  \ |\n| SC-5 | Agent can invoke `web_search` and `web_fetch` tools in a test prompt\
-  \ | behavioral |\n\n## Affected Files\n\n- `.opencode/tools/web-search-mcp.py` —\
-  \ NEW\n- `.opencode/opencode.jsonc` — MODIFY (add MCP entry)\n\n## Reference\n\n\
-  - Source: https://raw.githubusercontent.com/ollama/ollama-python/refs/heads/main/examples/web-search-mcp.py\n\
-  - PEP 723: https://peps.python.org/pep-0723/\n- OpenCode MCP config: https://opencode-tutorial.com/en/docs/mcp-servers\n\
-  \n\U0001F916 Co-authored with AI: OpenCode (opencode/deepseek-v4-flash-free)"
+  \ | structural |\n| SC-2 | Script runs without import errors: `timeout 15 uv run\
+  \ .opencode/tools/web-search-mcp.py < /dev/null` exits 0 (stdin EOF ends the stdio\
+  \ server; an import error exits nonzero before the server loop) | behavioral |\n\
+  | SC-3 | `opencode.jsonc` contains `ollama-web-search` MCP entry | string |\n| SC-4\
+  \ | MCP server exposes `web_search` and `web_fetch` tools (verify via `opencode\
+  \ mcp list` or MCP protocol handshake) | behavioral |\n| SC-5 | Agent can invoke\
+  \ `web_search` and `web_fetch` tools in a test prompt | behavioral |\n| SC-6 | PEP\
+  \ 723 header pins the interpreter with `requires-python = \"~=3.12.0\"` (three-part\
+  \ compatible release — not a bare floor, not a hard minor pin) | structural |\n\
+  | SC-7 | `uv run .opencode/tools/web-search-mcp.py` resolves a Python 3.12.x interpreter\
+  \ (uv 0.11.19 verified: `~=3.12.0` → 3.12.x; a two-part `~=3.12` would float to\
+  \ 3.13) | behavioral |\n\n## Affected Files\n\n- `.opencode/tools/web-search-mcp.py`\
+  \ — NEW\n- `.opencode/opencode.jsonc` — MODIFY (add MCP entry)\n\n## Reference\n\
+  \n- Source: https://raw.githubusercontent.com/ollama/ollama-python/refs/heads/main/examples/web-search-mcp.py\n\
+  - PEP 723: https://peps.python.org/pep-0723/\n- OpenCode MCP config (official):\
+  \ https://opencode.ai/docs/mcp-servers/ — `command` is \"Command and arguments to\
+  \ run the MCP server\" (argv array)\n- uv scripts guide: https://docs.astral.sh/uv/guides/scripts/\
+  \ — `requires-python` handling and per-invocation `--python` override semantics\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (opencode/deepseek-v4-flash-free)\n\U0001F916\
+  \ Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-05-22T05:02:30Z'
-updated_at: '2026-06-12T03:45:39Z'
+updated_at: '2026-10-07T03:20:55+00:00'
 remote_issue: 811
 remote_url: https://github.com/michael-conrad/.opencode/issues/811
 promoted_at: '2026-08-27T03:25:12.130964+00:00'
