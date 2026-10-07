@@ -1,3 +1,7 @@
+---
+consumed: 2026-10-07
+---
+
 # Session Lessons: 2026-06-20 — Skipped Pre-RED Verification Gates on Issue #1308
 
 ## Summary

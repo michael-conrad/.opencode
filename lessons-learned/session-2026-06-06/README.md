@@ -1,3 +1,7 @@
+---
+consumed: 2026-10-07
+---
+
 # Session Lessons: 2026-06-06 — Batch Implementation (#1046, #1047, #1048, #1049) + PR Creation
 
 ## Summary

@@ -1,3 +1,7 @@
+---
+consumed: 2026-10-07
+---
+
 # Session Lessons: 2026-06-07 — Instructional Language in Professional Deliverables + Implementation-Without-Spec Violation
 
 ## Summary
