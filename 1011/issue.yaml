@@ -1,0 +1,10 @@
+labels:
+- spec
+- needs-approval
+- sub-agent
+- bug
+number: 1011
+title: '[SPEC] Dispatch-Scope Containment for Dispatched Sub-Agents (revises: git-workflow
+  cleanup sub-agent oversteps scope)'
+github_url: https://github.com/michael-conrad/.opencode/issues/1011
+status: open
