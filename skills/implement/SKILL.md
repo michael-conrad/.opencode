@@ -19,6 +19,10 @@ provenance: AI-authored, .opencode#2490
    - GREEN: the minimal change that turns it green — no speculative additions.
    - Verify: run the check; the output itself is the evidence. Never assert
      success without an executed check.
+   - Test tiers: smoke + regression are the default for every cycle and PR —
+     never the full suite (tier definitions in the implementation-workflow
+     reference). Full-suite runs are for release boundaries or explicit
+     developer request.
 3. **Mid-cycle changes.** Re-consult the workflow reference first. A change
    beyond the current plan item's scope stops the cycle: report and get
    direction rather than expand silently.
