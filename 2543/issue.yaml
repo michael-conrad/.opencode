@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] local-issues consolidated defect repair: fail-fatal worktree contract,
+  per-repo numbering, plumbing init, contract alignment'
+status: open
+labels:
+- needs-approval
+- SPEC
+body: ''
+created_at: '2026-10-07T12:51:10+00:00'
+updated_at: '2026-10-07T12:51:10+00:00'
