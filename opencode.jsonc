@@ -37,6 +37,14 @@
       "type": "local",
       "command": ["uvx", "--with", "mcp<2", "ragsync", "--config", ".opencode/ragsync-config.yaml"],
       "enabled": true
+    },
+    "ollama-web-search": {
+      "type": "local",
+      "command": ["uv", "run", ".opencode/tools/web-search-mcp.py"],
+      "enabled": true,
+      "environment": {
+        "OLLAMA_API_KEY": "{env:OLLAMA_API_KEY}"
+      }
     }
   },
   "plugin": []
