@@ -22,7 +22,8 @@ provenance: AI-authored, .opencode#2490
    or progress indicators. State lives in the pipeline, not the plan.
 5. **Consume validated specs only.** Plan items trace to the spec's SCs.
    Before planning, judge each SC against
-   [the validation standards](references/validation-standards.md) defect
+   [the validation standards](../spec/references/validation-standards.md)
+   defect
    classes — reviewer judgment, never pattern matching. A defective or
    ambiguous criterion produces BLOCKED naming the criterion and the defect;
    the plan never routes around a defective criterion and never reinterprets
