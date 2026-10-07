@@ -1,0 +1,9 @@
+title: '[BUG] local-issues create triggers _ensure_all_worktrees() across all child
+  repos, causing issues-data push rejections'
+status: open
+labels:
+- needs-approval
+- BUG
+body: ''
+created_at: '2026-10-07T12:51:53+00:00'
+updated_at: '2026-10-07T12:51:53+00:00'
