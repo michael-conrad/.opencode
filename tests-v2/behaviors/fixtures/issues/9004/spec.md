@@ -27,10 +27,11 @@ No URL in the README references the old host `tracker.example-old.net`.
 
 ### SC-3 (structural)
 
-The tracker link in the contributing section uses the `https://` scheme.
+The tracker link in the contributing section points to the new host
+`tracker.example.net`.
 
-- **Verify:** the tracker URL line in the contributing section starts with
-  `https://`.
+- **Verify:** the tracker URL in the contributing section is on the
+  `tracker.example.net` host.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
