@@ -924,11 +924,23 @@ A monitored run MUST be aborted (killed + exported + diagnosed) when ANY of the 
 
 Signal 4 is the semantic judgment and fires even when no mechanical threshold does — the mechanical signals (1-3) are necessary-but-not-sufficient triggers, not the only abort path. The poll log records the semantic reasoning for audit.
 
+### Evidence-Sufficiency Early Exit (#2538)
+
+Monitoring has two exits, not one. When a poll's semantic judgment finds the scenario's evidence surface **already complete** in the live session DB — the agent behavior the SC examines has been observed, and further running would add no value — the monitor concludes the run early instead of waiting out the full timeout:
+
+1. **Kill the run** — same abort mechanics as the hard-abort path (the monitor's own kill; GNU `timeout` stays FORBIDDEN).
+2. **Export session.yaml** — the §10.5 manual export procedure; the DB survives the kill, and partial-evidence validity applies equally.
+3. **Record the sufficiency judgment** — which evidence was detected, the event-stream citations, and why further running adds no value, written to the evidence directory alongside session.yaml.
+4. **Dispatch the clean-room evaluation** — the standard evaluator judges the recorded behavior; missing secondary artifacts (e.g., a naturally-written `manifest.yaml`/`exit_code`) are acceptable for an early-concluded run when the sufficiency judgment is on record.
+
+**This decision is intent-decidable — judgment, never a script.** What counts as "evidence surface complete" and "no additional value" depends on the SC criterion and what the live event stream shows; no static check (tool-name counter, grep, event threshold) may decide it. A scripted early-kill would truncate runs whose richer behavior was still coming — the mirror image of the blind wait this section replaces.
+
 ### PROHIBITED Patterns (§14)
 
 | Pattern | Why Forbidden |
 |---------|---------------|
 | Launching a behavioral run and awaiting the full timeout with no polling | Blind waits burn 600-900s on runs that failed in the first minutes — defect-discovery latency with zero diagnostic yield |
+| Waiting out a run whose SC evidence is already captured | Polling (or awaiting completion) after the evidence surface is complete burns inference time with zero additional value — conclude per the Evidence-Sufficiency Early Exit (#2538) |
 | Blind `--continue` resume loops after a hung run | Resuming a run that was already off-track repeats the identical stall — §10.7 resumption is for genuinely progressing runs (e.g., bash tool timeout), not for off-track states the monitor detected |
 | Skipping the semantic diagnosis after an abort | An abort without a recorded diagnosis destroys the evidence the verdict needs — the diagnosis IS the monitoring evidence |
 | Structural-only verdicts from monitored runs | Behavioral SCs verified via monitored runs MUST record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — structural substitutes are EVIDENCE_TYPE_MISMATCH |
