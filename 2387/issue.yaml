@@ -1,9 +1,11 @@
 title: '[BUG] local-issues init fails when remote issues-data branch exists but local
   branch is missing'
-status: open
+status: closed
 labels:
 - needs-approval
 - BUG
 body: ''
 created_at: '2026-10-07T12:53:51+00:00'
-updated_at: '2026-10-07T12:53:51+00:00'
+updated_at: '2026-10-07T12:53:54+00:00'
+closed_at: '2026-10-07T12:53:54+00:00'
+close_reason: completed
