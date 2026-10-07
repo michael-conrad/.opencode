@@ -1,1 +1,38 @@
-comments: []
+comments:
+- type: internal
+  body: '### 2026-10-07 — Admission: spec-validation discipline restoration (.opencode#2550)
+
+
+    - **What:** governed edits to `skills/spec/SKILL.md` (validate step: one fresh-context
+    validation dispatch before the approval gate, bounded FAIL→revise→re-validate,
+    halt-on-persistent-FAIL), new `skills/spec/references/validation-standards.md`
+    (criteria as judgment-target defect descriptions, verdict contract, anti-churn
+    binding, criteria invariance), `skills/plan/SKILL.md` (consume-validated-specs
+    mandate, BLOCKED on defective criterion), `skills/implement/SKILL.md` (SC-fidelity
+    mandate, BLOCKED on unimplementable criterion). Routing and floor untouched.
+
+
+    - **Gate evidence:** observed failure — the #2490 rip (stage 4a, `08112303`) removed
+    the prior deck''s spec-validation and pre-implementation audit machinery (preserved
+    under `attic/`, tag `pre-rip`); ~20 specs authored under the no-validation regime
+    in the 2026-10-04→10-07 window, several already merged (defective-criteria risk
+    in shipped deck behavior). Corroborated by lessons-learned 2026-06-20 lesson 6
+    (advisory text without enforcement does not change behavior). Consumers = spec
+    authors, plan/implement executors, on-demand spec auditors. Mechanism/trigger
+    = card-internal definition-of-done (no new stage gates; zero always-loaded surface
+    growth). **Predicate classification = intent-decidable, judgment-only throughout**
+    — no keyword lists, trigger-word tables, or scripted checks anywhere in the new
+    content (lexical checks are gameable; the founding defect). Domain match = n/a
+    (internal restoration, criteria restated from the pre-rip bar). Root-agnostic
+    (no repo names, no absolute paths). **Displaces/replaces:** the validation gap
+    left by the #2490 attic retirement — the slim spec card''s unverified "every SC
+    is testable" authoring instruction and the dropped determinism/disjunctive checks;
+    forward-only, window specs are not swept (on-demand audits restate the same criteria
+    verbatim).
+
+
+    - **PR:** to be linked on PR creation for #2550.
+
+
+    🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-10-07T19:19:12+00:00'
