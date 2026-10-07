@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention -->
 
 # verify — the single verification pass
 
@@ -41,5 +41,10 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
    accepted only from the `tests-v2` harness (`tests-v2/AGENTS.md` —
    session.yaml from `behavior_run`, plus the clean-room evaluation). An
    ad-hoc `opencode run` produces no evidence the reviewer can consume.
+
+**Agent-to-agent format:** structured data one agent creates for another — or
+ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
+each reference; tool I/O, CLI output, and external configuration keep their
+native format; chat prose carries no token.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

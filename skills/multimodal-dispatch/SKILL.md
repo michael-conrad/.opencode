@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention -->
 
 # multimodal-dispatch
 
@@ -19,5 +19,10 @@ provenance: AI-authored, .opencode#2490
    they need — clean-room, no orchestrator narration.
 4. **Report provenance** of model-routed results (which model produced what)
    when outcomes feed decisions.
+
+**Agent-to-agent format:** structured data one agent creates for another — or
+ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
+each reference; tool I/O, CLI output, and external configuration keep their
+native format; chat prose carries no token.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
