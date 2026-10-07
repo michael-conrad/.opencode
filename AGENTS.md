@@ -65,6 +65,24 @@ card and its sync detail card.
 | Adversarial audit consensus verdict | `.issues/46/audit/consensus.yaml` |
 | Session 2026-06-06 corrections | `.issues/lessons-learned/session-2026-06-06/README.md` |
 
+## Git Display Quirks Inside This Workspace
+
+Observed quirks when inspecting git from inside this workspace (#2548 C11):
+
+- **`git worktree list` inside `.opencode`** reports the submodule's main
+  worktree row as the module gitdir (`.git/modules/.opencode`) — not a real
+  worktree path. `git -C .opencode rev-parse --show-toplevel` returns the
+  correct `.opencode`; trust that over the worktree-list row.
+- **`git submodule status` `+` prefix** means checked-out commit differs from
+  the recorded gitlink pointer (parent `git status --porcelain` shows
+  ` M .opencode`) — pointer drift for the next real parent-repo change to
+  carry, NOT a request for `git submodule update` (which would check out the
+  recorded SHA and disrupt in-progress submodule work).
+- **This guide lives on the `issues-data` worktree** and is unreadable in a
+  fresh clone before `local-issues init` runs. The tracked `issues` skill
+  card (`.opencode/skills/issues/SKILL.md`) is the
+  bootstrap-order-independent entry point.
+
 ## Exclusions — Content Boundary
 
 `.issues/` holds issue metadata only — never source/test/fixture/code.
