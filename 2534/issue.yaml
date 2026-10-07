@@ -33,10 +33,15 @@ body: 'Standing ledger per the skill-creator governance card: usage observations
   ### 2026-10-07 — Admission: dispatch-scope containment floor section (.opencode#1011)
 
 
-  - **What:** new always-loaded floor section `Dispatched sub-agent scope` (prompt-bounded
-  execution; referenced-artifact import exclusion with enumeration-governs; conflict-over-expansion;
-  destructive-action gate) + `git-workflow-cleanup` amendment (deletion and closure
-  steps gate-bound, description updated).
+  - **What:** new always-loaded floor section `Dispatched sub-agent scope` — ONE consolidated
+  rule (scope-bounded authorization extended to the dispatch boundary) carrying the
+  four predicates: prompt-bounded execution with referenced-artifact import exclusion
+  (enumeration governs); conflict-over-expansion (report + open-ended direction request
+  per the standing formula, never completion over unrequested work); destructive-action
+  gate (feature-branch deletion local/remote, issue closure, force/history-changing
+  git operations, comparable irreversible changes — only on explicit dispatch-prompt
+  naming). Plus `git-workflow-cleanup` amendment (deletion and closure steps gate-bound,
+  description updated).
 
   - **Gate evidence:** observed failure (June 2026 viewport-editor incident, recorded
   in #1011); consumers = dispatched sub-agents (receiving side); mechanism/trigger
@@ -51,14 +56,22 @@ body: 'Standing ledger per the skill-creator governance card: usage observations
   - **Floor-placement justification:** a dispatched sub-agent''s only guaranteed instruction
   surface is the always-injected floor, and the proceed-or-halt decision (execute
   vs conflict-report) depends on the rule being visible before any card dispatch —
-  satisfies the always-loaded surface criterion.
+  satisfies the always-loaded surface criterion. Load accounting (developer-directed
+  revision, 2026-10-07): measured in always-on tokens and decision-surface complexity,
+  not lines — one consolidated rule (~220 tokens delta vs pre-change floor), class
+  enumeration kept as the canonical anchor in the floor with per-instance gates in
+  the owning cards (no class-list duplication); `implement` §3 generalization (collapsing
+  scope governance to two sites) recorded as follow-up ledger material. Old-deck caveat:
+  the June 2026 incident evidences the failure class''s mechanism; the current-deck
+  admission rests on the spec''s clean-room derivation (four requirement parts unmet,
+  re-verified by inspection) and the behavioral SCs'' regression-guard role.
 
   - **Spec/plan:** `.opencode/.issues/1011/spec.md` (admission-gate record), `.opencode/.issues/1011/plan.md`.
 
-  - **PR:** to be linked on PR creation for #1011.
+  - **PR:** https://github.com/michael-conrad/.opencode/pull/2545
 
   '
 created_at: '2026-10-07T12:24:35+00:00'
-updated_at: '2026-10-07T12:24:57+00:00'
+updated_at: '2026-10-07T15:50:58+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2534
 remote_url: https://github.com/michael-conrad/.opencode/issues/2534

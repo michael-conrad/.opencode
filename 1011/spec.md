@@ -235,4 +235,33 @@ path would contradict existing deck content rather than prevent the failure.
    always-injected floor, which is the argument to weigh; the decision is
    recorded in the deck-debt ledger at implementation.
 
+## Revision record
+
+**2026-10-07 (post-review, developer-directed).** Two review findings revise
+the placement and shape requirements; the SC predicates are unchanged.
+
+1. **Progressive-disclosure load is measured in tokens and decision-surface
+   complexity, not lines or bytes.** The deck requirement above (SC-1–SC-4)
+   is satisfied by ONE consolidated rule — the existing concept
+   *scope-bounded authorization* extended to the dispatch boundary — carrying
+   the four predicates as clauses of a single rule, not as three separately
+   named rules. Target always-on load: ~200 tokens. The destructive-action
+   class enumeration in the floor is the canonical anchor; per-instance gates
+   stay in the cards that own them (no class-list duplication across
+   surfaces).
+2. **The June 2026 incident is old-deck evidence.** Its enabling card text
+   no longer exists (deck restructured); it evidences the failure class's
+   mechanism, not a current-deck defect. What carries the current-deck
+   admission is the clean-room derivation above (all four requirement parts
+   unmet in the current deck — re-verified by inspection at implementation),
+   the class's self-renewal property (any future card pairing a narrow
+   trigger with mandated destructive steps recreates the exposure while the
+   receiving side is unbound), and the behavioral SCs' role as regression
+   guards under the harness's ceremony-test survival condition.
+
+Ledger note for follow-up material: generalizing `implement` §3's
+plan-item-anchored scope rule to reference the floor rule (collapsing scope
+governance to two sites) is retirement-review material, not part of this
+change.
+
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
