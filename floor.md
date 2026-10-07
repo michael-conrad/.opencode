@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518/#2525 authorization anchors; #1011 dispatch-scope containment -->
 
 # Agent Floor
 
@@ -63,6 +63,23 @@ Other cards cite this ruling — none restate it.
 - `stop` alone = terminal halt, immediately, no output. `stop <doing X>` = a
   correction: cease that behavior, keep working.
 - Anything unlisted falls to default agent judgment.
+
+## Dispatched sub-agent scope
+
+Scope-bounded authorization extends to dispatch — a dispatched sub-agent's
+authorization is exactly its dispatch prompt:
+
+- No action beyond those the dispatch prompt requests; referencing a skill,
+  card, or named task does not authorize the referenced artifact's other
+  steps (where the prompt enumerates narrower actions, the enumeration
+  governs).
+- Loaded instructions mandating more than the prompt requests: perform none,
+  report the conflict, request direction (open-ended, per the standing
+  formula) — never report completion over unrequested work.
+- Destructive, hard-to-reverse actions — feature-branch deletion (local or
+  remote), issue closure, force/history-changing git operations, comparable
+  irreversible changes — only when the prompt explicitly names the action
+  and its target.
 
 ## Pipeline
 
