@@ -1,7 +1,7 @@
 number: 2338
 title: '[BUG] local-issues duplicate guard checks issue numbers globally instead of
   per-repo namespace'
-status: open
+status: closed
 labels: []
 body: '## Problem
 
@@ -55,7 +55,7 @@ body: '## Problem
 
   🤖 Co-authored with AI: OpenCode (ollama-cloud/deepseek-v4-flash)'
 created_at: '2026-08-26T17:55:40Z'
-updated_at: '2026-08-26T17:55:40Z'
+updated_at: '2026-10-07T16:30:12+00:00'
 remote_issue: 2338
 remote_url: https://github.com/michael-conrad/.opencode/issues/2338
 promoted_at: '2026-08-27T03:25:12.631321+00:00'
@@ -63,3 +63,5 @@ promotion_type: retroactive_import
 last_sync: '2026-08-27T03:25:12.631321+00:00'
 author: michael-newsrx
 github_url: https://github.com/michael-conrad/.opencode/issues/2338
+closed_at: '2026-10-07T16:30:12+00:00'
+close_reason: not_planned
