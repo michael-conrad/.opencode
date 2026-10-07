@@ -4,6 +4,39 @@ status: open
 labels:
 - needs-approval
 - bug
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2542/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2542)**
+  — this issue is a condensed exec summary; the authoritative details live in the
+  `issues-data` branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2542/`
+
+
+  ## Why
+
+
+  `local-issues create --number .opencode#1011` refuses with "Issue #1011 already
+  exists in opencode-config" even though the `.opencode` store has no folder 1011
+  and the `.opencode` remote issue #1011 exists (remote-verified reservation). `_check_duplicate_issue`
+  treats the parent repo''s store (`opencode-config`) as blocking any child repo''s
+  use of the same number — but the two repos have independent remote trackers, and
+  the exact-match rule REQUIRES the local mirror to carry the remote number. The guard
+  turns the sanctioned mirror-registration path into a dead end; the only recourse
+  is hand-creating the folder (permitted only when the tool cannot perform the operation).
+
+
+  ## What
+
+
+  The duplicate guard must distinguish "number already used in THIS repo''s store"
+  (blocking — correct) from "number used in a DIFFERENT repo''s store" (non-blocking
+  for qualified-name registration; at most a warning). Observed 2026-10-07 while registering
+  the local mirror for remote issue .opencode#1011 after the store-numbering repair.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-10-07T04:29:27+00:00'
-updated_at: '2026-10-07T04:29:27+00:00'
+updated_at: '2026-10-07T04:29:28+00:00'
