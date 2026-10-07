@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate -->
 
 # plan — implementation planning
 
@@ -20,7 +20,15 @@ provenance: AI-authored, .opencode#2490
    removed, not justified.
 4. **No status tracking in the body** — no STATUS fields, completion markers,
    or progress indicators. State lives in the pipeline, not the plan.
-5. Plans wait for the developer's authorization before `implement` when the
+5. **Consume validated specs only.** Plan items trace to the spec's SCs.
+   Before planning, judge each SC against
+   [the validation standards](../spec/references/validation-standards.md)
+   defect
+   classes — reviewer judgment, never pattern matching. A defective or
+   ambiguous criterion produces BLOCKED naming the criterion and the defect;
+   the plan never routes around a defective criterion and never reinterprets
+   it to make it plannable.
+6. Plans wait for the developer's authorization before `implement` when the
    scope requires it; short-path changes execute directly under `work`. A
    terminal-stage approval (`approved for pr`, `approved for
    implementation`, …) from the vocabulary in `floor.md` carries the item

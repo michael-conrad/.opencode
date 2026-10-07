@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference -->
 
 # spec — specification creation and revision
 
@@ -37,7 +37,18 @@ provenance: AI-authored, .opencode#2490
    indicators of any kind (no revision-history blocks, approval-state
    markers, comment-policy statements, or superseded-content pointers). No
    STATUS fields — the spec defines what is required, implemented or not.
-5. **Approval is a human gate.** The spec waits for the developer's
+5. **Validate before approval.** A completed spec includes one fresh-context
+   validation dispatch executed before the developer approval gate: a reviewer
+   with no prior context on the spec reads it against
+   [the validation standards](references/validation-standards.md) and returns
+   PASS or FAIL. On FAIL, revise the named criteria and re-validate; a FAIL
+   that persists after revision halts to the developer, naming the failing
+   criteria. The approval gate is unchanged and follows validation. Revising
+   an existing spec (this card's revision path) validates the revised spec
+   against the same standards reference — one criteria source exists in the
+   deck; an on-demand audit of a prior spec restates those criteria verbatim
+   from the same reference.
+6. **Approval is a human gate.** The spec waits for the developer's
    authorization before `plan` — and a terminal-stage approval
    (`approved for pr`, `approved for implementation`, …) from the vocabulary
    in `floor.md` *is* that authorization; the stage is not re-asked.

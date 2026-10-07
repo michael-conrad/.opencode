@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate -->
 
 # implement — executing the work
 
@@ -32,7 +32,11 @@ provenance: AI-authored, .opencode#2490
 6. **Sub-agents are judgment, not ritual.** Dispatch one when a scoped task
    genuinely benefits; work inline when that is simply better. Dispatched work
    gets a clean-room prompt and a result back (YAML) — no chain theater.
-7. **Behavioral evidence goes through the harness.** Evidence for a behavioral
+7. **SC fidelity.** Implementation satisfies each criterion as written — no
+   weakening, skipping, deferring, or reinterpreting a criterion to make it
+   passable. An unimplementable criterion produces BLOCKED with the root
+   cause; the criterion itself is never modified to admit the implementation.
+8. **Behavioral evidence goes through the harness.** Evidence for a behavioral
    SC is produced only by the `tests-v2` behavioral harness
    (`tests-v2/AGENTS.md` — `with-test-home` + `behavior_run`, artifact +
    clean-room evaluation). An ad-hoc `opencode run` is not behavioral
