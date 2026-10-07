@@ -21,7 +21,7 @@ Developer constraints that shape the fix (stated this session):
 | Card | Change |
 |---|---|
 | `skills/spec/SKILL.md` | Gains a validate step in its definition of done: one fresh-context validation dispatch after authoring; FAIL → targeted revision → re-validate; still failing → halt to the developer naming the failing criteria. The developer approval gate is unchanged and follows validation. |
-| `skills/spec/references/validation-standards.md` (new) | The validation criteria set as defect descriptions — judgment targets, not patterns — plus the bounded-loop discipline. On-demand audits restate it verbatim (criteria invariance per #2518 semantics). |
+| `skills/spec/references/validation-standards.md` (new) | The validation criteria set as defect descriptions — judgment targets, not patterns — plus the bounded-loop discipline and the anti-churn binding: the validator, like the verify reviewer, reports only gaps affecting correctness or the stated requirements. On-demand audits restate the criteria set verbatim (criteria invariance per #2518 semantics). |
 | `skills/plan/SKILL.md` | Consume-only-validated-specs mandate: plan items trace to SCs; a defective or ambiguous criterion discovered at plan time produces BLOCKED naming the defect. |
 | `skills/implement/SKILL.md` | SC fidelity mandate: no weakening, skipping, deferring, or reinterpreting a criterion to make it passable; an unimplementable criterion produces BLOCKED with root cause. |
 
