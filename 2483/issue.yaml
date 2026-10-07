@@ -1,0 +1,9 @@
+title: '[BUG] local-issues validate-yaml reports exit 1 issue directory not found
+  for issues that exist only remotely (analyze-task ordering gap)'
+status: open
+labels:
+- needs-approval
+- BUG
+body: ''
+created_at: '2026-10-07T12:51:57+00:00'
+updated_at: '2026-10-07T12:51:57+00:00'
