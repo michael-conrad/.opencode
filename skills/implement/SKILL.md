@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention -->
 
 # implement — executing the work
 
@@ -31,11 +31,16 @@ provenance: AI-authored, .opencode#2490
    test an artifact the build system already guarantees.
 6. **Sub-agents are judgment, not ritual.** Dispatch one when a scoped task
    genuinely benefits; work inline when that is simply better. Dispatched work
-   gets a clean-room prompt and a result back — no chain theater.
+   gets a clean-room prompt and a result back (YAML) — no chain theater.
 7. **Behavioral evidence goes through the harness.** Evidence for a behavioral
    SC is produced only by the `tests-v2` behavioral harness
    (`tests-v2/AGENTS.md` — `with-test-home` + `behavior_run`, artifact +
    clean-room evaluation). An ad-hoc `opencode run` is not behavioral
    evidence.
+
+**Agent-to-agent format:** structured data one agent creates for another — or
+ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
+each reference; tool I/O, CLI output, and external configuration keep their
+native format; chat prose carries no token.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

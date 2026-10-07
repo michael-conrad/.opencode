@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention -->
 
 # research — information discovery
 
@@ -22,5 +22,10 @@ provenance: AI-authored, .opencode#2490
    against current sources in this session — training data is a liability.
 5. **Record back.** Write or update a research card so the next session
    inherits the finding instead of re-paying for it.
+
+**Agent-to-agent format:** structured data one agent creates for another — or
+ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
+each reference; tool I/O, CLI output, and external configuration keep their
+native format; chat prose carries no token.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
