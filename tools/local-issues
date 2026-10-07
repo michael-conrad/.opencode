@@ -15,7 +15,7 @@
 
 # ruff: noqa: E402
 """
-DESCRIPTION: Local issue tracking CLI tool for .issues/ directory.
+DESCRIPTION: Local issue tracking CLI for .issues/ stores; resolves qualified repo#N references to local artifacts.
 
 Manages a local .issues/ directory with YAML frontmatter files.
 Worktree-aware: transparently manages a git worktree for issue tracking.
@@ -1376,6 +1376,20 @@ def _not_found(number: int, repo_path: Path | None = None) -> None:
     msg = f"Issue #{number} not found."
     if recent:
         msg += f" Recent issue numbers: {', '.join(f'#{n}' for n in recent)}"
+    if repo_path is not None:
+        # Remote fallback: url needs no local record (#2549 change 1).
+        remote = subprocess.run(
+            ["git", "-C", str(repo_path), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if remote.returncode == 0 and remote.stdout.strip():
+            qualifier = repo_path.name
+            msg += (
+                f"\nLocal record absent — remote mirror may know this number: "
+                f"local-issues url --number {qualifier}#{number}"
+            )
     print(msg, file=sys.stderr)
     sys.exit(1)
 
@@ -1386,7 +1400,7 @@ def cmd_read(args: argparse.Namespace) -> None:
     matches = _collect_read_results(targets)
     if not matches:
         _, number = _parse_qualified(args.number)
-        _not_found(number)
+        _not_found(number, targets[0][0])
     if len(targets) == 1 and targets[0][1] != _resolve_repo_name():
         repo_path, repo_name, number_str = targets[0]
         number = int(number_str)
@@ -1416,7 +1430,7 @@ def cmd_read_comments(args: argparse.Namespace) -> None:
             )
     if not matches:
         _, number = _parse_qualified(args.number)
-        _not_found(number)
+        _not_found(number, targets[0][0])
     if len(matches) == 1:
         print(yaml_dump(matches[0]))
     else:
@@ -1443,7 +1457,7 @@ def cmd_read_labels(args: argparse.Namespace) -> None:
             )
     if not matches:
         _, number = _parse_qualified(args.number)
-        _not_found(number)
+        _not_found(number, targets[0][0])
     if len(matches) == 1:
         print(yaml_dump(matches[0]))
     else:
@@ -1469,7 +1483,7 @@ def cmd_read_sub_issues(args: argparse.Namespace) -> None:
             )
     if not matches:
         _, number = _parse_qualified(args.number)
-        _not_found(number)
+        _not_found(number, targets[0][0])
     if len(matches) == 1:
         print(yaml_dump(matches[0]))
     else:
@@ -2422,7 +2436,7 @@ def _check_legacy_formats(issues_dir: Path) -> None:
 
 def main() -> None:
     if len(sys.argv) == 2 and sys.argv[1] == "--description":
-        print("Local issue tracking CLI tool for .issues/ directory.")
+        print("Local issue tracking CLI for .issues/ stores; resolves qualified repo#N references to local artifacts.")
         return
     parser = build_parser()
     args = parser.parse_args()
