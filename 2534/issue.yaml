@@ -3,6 +3,62 @@ status: open
 labels:
 - needs-approval
 - governance
-body: ''
+body: 'Standing ledger per the skill-creator governance card: usage observations,
+  governance decisions, and retirement candidates are recorded here — the cross-deployment
+  evidence base for admission and retirement verdicts.
+
+
+  ## Entries
+
+
+  ### 2026-10-06 — Admission: `email-management` card set (.opencode#2532)
+
+
+  - **What:** new governed card set `.opencode/skills/email-management/` (SKILL.md
+  + 3 references cards) + one routing.md row.
+
+  - **Gate evidence:** observed capability gap (developer request, 2026-10-06; ecosystem
+  research found zero email cards in `anthropics/skills` and major awesome lists);
+  consumers = agent sessions needing mail search/read/draft; mechanism/trigger = routing
+  row + platform description match; predicate classification = install verification
+  fact-decidable, send/move intent-decidable (no scripts); domain match = tool live-validated
+  read-only on the reference machine same day; root-agnostic; displaces nothing (net-new).
+
+  - **PR:** to be linked on PR creation for #2532.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+
+  ### 2026-10-07 — Admission: dispatch-scope containment floor section (.opencode#1011)
+
+
+  - **What:** new always-loaded floor section `Dispatched sub-agent scope` (prompt-bounded
+  execution; referenced-artifact import exclusion with enumeration-governs; conflict-over-expansion;
+  destructive-action gate) + `git-workflow-cleanup` amendment (deletion and closure
+  steps gate-bound, description updated).
+
+  - **Gate evidence:** observed failure (June 2026 viewport-editor incident, recorded
+  in #1011); consumers = dispatched sub-agents (receiving side); mechanism/trigger
+  = always-injected floor text visible before any card dispatch + cleanup-card gate;
+  predicate classification = rules bind the output of judgment (what may execute),
+  not judgment itself — deck text and executed session behavior are the fact-decidable
+  verification surfaces; domain match = n/a; root-agnostic (no repo names, no absolute
+  paths in deck text); displaces `git-workflow-cleanup`''s unconditional branch-deletion
+  step and generalizes `implement` §3''s plan-item-anchored scope rule to the dispatch
+  boundary.
+
+  - **Floor-placement justification:** a dispatched sub-agent''s only guaranteed instruction
+  surface is the always-injected floor, and the proceed-or-halt decision (execute
+  vs conflict-report) depends on the rule being visible before any card dispatch —
+  satisfies the always-loaded surface criterion.
+
+  - **Spec/plan:** `.opencode/.issues/1011/spec.md` (admission-gate record), `.opencode/.issues/1011/plan.md`.
+
+  - **PR:** to be linked on PR creation for #1011.
+
+  '
 created_at: '2026-10-07T12:24:35+00:00'
-updated_at: '2026-10-07T12:24:35+00:00'
+updated_at: '2026-10-07T12:24:44+00:00'
+github_url: 'true'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2534
