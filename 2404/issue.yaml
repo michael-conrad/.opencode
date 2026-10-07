@@ -1,0 +1,9 @@
+title: '[BUG] local-issues autonumber assigns in-use issue number — .counter untracked,
+  reinitializes at 1 after worktree reset'
+status: open
+labels:
+- needs-approval
+- BUG
+body: ''
+created_at: '2026-10-07T12:51:55+00:00'
+updated_at: '2026-10-07T12:51:55+00:00'
