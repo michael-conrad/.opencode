@@ -1,10 +1,12 @@
 title: '[SPEC-FIX] Replace .gitmodules-based repo discovery in local-issues with filesystem
   glob scan'
-status: open
+status: closed
 labels:
 - SPEC-FIX
 body: ''
 created_at: '2026-06-15T16:23:41+00:00'
-updated_at: '2026-06-15T16:23:41+00:00'
+updated_at: '2026-10-07T12:53:34+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/1224
 number: 1224
+closed_at: '2026-10-07T12:53:34+00:00'
+close_reason: not_planned
