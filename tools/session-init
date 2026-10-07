@@ -55,6 +55,7 @@ if str(_parent_dir) not in sys.path:
     sys.path.insert(0, str(_parent_dir))
 
 from session_init.auth import check_cli_auth_status  # type: ignore[import-untyped]
+from session_init import fork_stamp  # type: ignore[import-untyped]
 
 GIT_TIMEOUT = 10
 
@@ -634,6 +635,23 @@ def main() -> int:
         print(cmd)
 
     # Emit unified ## Repo Information section
+    # Fork stamps: local, untrusted context — informational only, never a
+    # routing input. The probe itself is spawned detached, fire-and-forget;
+    # any failure here is silent (no annotation, no warnings).
+    fork_parents: dict[str, str] = {}
+    try:
+        fork_stamp.spawn_background_probe(repo_info)
+        git_common_dir = fork_stamp.run_git_command_quiet(
+            ["git", "rev-parse", "--git-common-dir"]
+        )
+        if git_common_dir:
+            if not os.path.isabs(git_common_dir):
+                git_common_dir = os.path.abspath(git_common_dir)
+            fork_parents = fork_stamp.fresh_fork_parents(
+                fork_stamp.load_stamps(git_common_dir)
+            )
+    except Exception:
+        fork_parents = {}
     print("## Repo Information")
     print("Professional engineers route issue operations by matching affected file paths to the `path` prefix below, then using that entry's `owner` and `repo`. Amateurs default to root and route to the wrong repo.")
     for entry in repo_info:
@@ -642,6 +660,9 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+        parent = fork_parents.get(entry["url"])
+        if parent:
+            print(f"  fork_of: {parent}")
 
     # Emit project_root — absolute top-level git root for submodule-aware path resolution
     project_root = run_git_command(["rev-parse", "--show-toplevel"])
