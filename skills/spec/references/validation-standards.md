@@ -26,8 +26,10 @@ A criterion is defective when it exhibits any of the following:
 
 1. **Invented requirement.** The criterion cannot be traced to a developer
    statement or an observed failure recorded in the spec's provenance — it
-   encodes something nobody asked for. This is scope creep stated as a
-   criterion.
+   encodes something nobody asked for. A criterion that is the direct
+   remediation of the stated problem or observed failure is traceable; a
+   property of the solution with no bearing on the stated problem is not.
+   This is scope creep stated as a criterion.
 2. **Untestable criterion.** No check exists that could show the criterion
    satisfied or violated: the criterion states a goal without any stated or
    derivable verification instrument, so completion would be asserted rather
