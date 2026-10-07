@@ -1,0 +1,9 @@
+title: '[BUG] local-issues promote subcommand is a dry-run check only - no remote
+  creation, no binding write, contrary to its documented contract'
+status: open
+labels:
+- needs-approval
+- BUG
+body: ''
+created_at: '2026-10-07T12:52:00+00:00'
+updated_at: '2026-10-07T12:52:00+00:00'
