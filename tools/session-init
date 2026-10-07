@@ -146,11 +146,22 @@ def get_current_branch() -> str | None:
     return run_git_command(["branch", "--show-current"])
 
 
+def _is_issues_store_path(path: str) -> bool:
+    """True for issue-store worktree paths (.issues, .opencode/.issues).
+
+    Stores are orphan-branch worktrees, not repos in their own right —
+    their identity duplicates the parent repo entry (#2549 change 2).
+    """
+    return path == ".issues" or path.endswith("/.issues")
+
+
 def collect_repo_info() -> list[dict[str, str]]:
     """Collect all repo identity entries.
 
     Returns a list of dicts with keys: path, owner, repo, platform, url.
-    Root entry always first; subdirectory entries follow.
+    Root entry always first; subdirectory entries follow. Issue-store
+    worktrees are skipped — real repos only; each entry later carries an
+    `issues:` field naming its store path.
     """
     entries: list[dict[str, str]] = []
     cwd = os.getcwd()
@@ -190,6 +201,8 @@ def collect_repo_info() -> list[dict[str, str]]:
         git_path = os.path.join(entry_path, ".git")
         if not os.path.exists(git_path):
             continue
+        if _is_issues_store_path(entry_name):
+            continue
         sub_url = run_git_command(["-C", entry_name, "remote", "get-url", "origin"])
         if not sub_url:
             continue
@@ -205,7 +218,8 @@ def collect_repo_info() -> list[dict[str, str]]:
         })
 
     # Submodule recursion: one level deep into each submodule directory
-    # Catches nested worktrees like .opencode/.issues/
+    # (issue-store worktrees like .opencode/.issues/ are skipped above —
+    # they are stores, not repos)
     for entry_name in dir_entries:
         entry_path = os.path.join(cwd, entry_name)
         if not os.path.isdir(entry_path):
@@ -223,6 +237,9 @@ def collect_repo_info() -> list[dict[str, str]]:
                 continue
             nested_git = os.path.join(nested_path, ".git")
             if not os.path.exists(nested_git):
+                continue
+            nested_rel = f"{entry_name}/{nested_name}"
+            if _is_issues_store_path(nested_rel):
                 continue
             nested_url = run_git_command(["-C", nested_path, "remote", "get-url", "origin"])
             if not nested_url:
@@ -536,14 +553,20 @@ def run_guard_checks() -> list[str]:
 
 
 def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
-    """Collect local .issues/ folder paths for each repo entry.
+    """Collect local .issues/ folder entries for each repo entry.
 
-    Returns a list of inline `git -C` command strings.
-    No setup hint is emitted for repo entries whose .issues/ directory
-    does not exist.
+    Emits one vocabulary line stating that local artifacts for a qualified
+    reference `repo#N` live at that repo's `issues:` path under `{N}/`
+    (#2549 change 3), then one `git -C` pointer per repo whose store
+    exists — or a setup hint naming `local-issues init` when the store is
+    absent (fresh clones bootstrap the store on first init).
     """
     cwd = os.getcwd()
-    entries: list[str] = []
+    entries: list[str] = [
+        "- Local artifacts for a qualified reference repo#N live at that "
+        "repo's `issues:` path under {N}/ — read from the store first; the "
+        "remote issue body is a condensed exec summary only."
+    ]
     for repo in repo_info:
         repo_path = repo["path"]
         # Skip .issues worktrees — they are the issue store, not repos
@@ -556,8 +579,13 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
         else:
             issues_rel = f"{repo_path}/.issues/"
             issues_abs = os.path.join(cwd, repo_path, ".issues")
-        cmd = f"- {issues_rel}: git -C {issues_rel}"
-        entries.append(cmd)
+        if os.path.exists(issues_abs):
+            entries.append(f"- {issues_rel}: git -C {issues_rel}")
+        else:
+            entries.append(
+                f"- {issues_rel}: absent — run ./.opencode/tools/local-issues init "
+                "to bootstrap the issue store worktree"
+            )
     return entries
 
 
@@ -660,6 +688,12 @@ def main() -> int:
         print(f"  repo: {entry['repo']}")
         print(f"  platform: {entry['platform']}")
         print(f"  url: {entry['url']}")
+        # Store path for qualified-reference resolution: local artifacts
+        # for repo#N live under {issues}/{N}/ (#2549 change 2)
+        if entry["path"] == ".":
+            print("  issues: .issues/")
+        else:
+            print(f"  issues: {entry['path']}/.issues/")
         parent = fork_parents.get(entry["url"])
         if parent:
             print(f"  fork_of: {parent}")

@@ -69,8 +69,6 @@ def sandbox() -> Path:
     child_issues.mkdir(parents=True)
     shutil.copy2(REAL_TOOL, tools_dir / TOOL_NAME)
     (root / ".gitmodules").write_text(GITMODULES, encoding="utf-8")
-    (root_issues / ".counter").write_text("5\n", encoding="utf-8")
-    (child_issues / ".counter").write_text("10\n", encoding="utf-8")
     _write_fake_worktree_gitlink(root_issues)
     _write_fake_worktree_gitlink(child_issues)
     subprocess.run(["git", "init", "-q", str(root)], check=True)

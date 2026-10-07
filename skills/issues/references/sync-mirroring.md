@@ -42,7 +42,18 @@ number in that repo's own namespace.
   `origin` (push is skipped when the remote is HTTPS without a credential
   helper).
 - `sync` = commit pending + `pull --rebase origin issues-data` + push, per
-  repo. On conflict it reports the qualifier and the exact
-  `git -C <worktree> pull --rebase` command for manual resolution.
+  repo. Transient push failures are retried once; when any repo reports a
+  failure status (`push_failed`, `conflict`, `timeout`,
+  `rebase_in_progress`), `sync` exits non-zero so shell-level chaining
+  cannot sail past a diverged store. On conflict it reports the qualifier
+  and the exact `git -C <worktree> pull --rebase` command for manual
+  resolution; if the worktree is stopped mid-rebase (`rebase-merge`/
+  `rebase-apply` present), it reports `rebase_in_progress` with the actual
+  remedy — `git -C <worktree> rebase --abort`, or resolve conflicts and
+  `git -C <worktree> rebase --continue` (#2548 C2/C3).
 - `init` = ensure worktrees in all repos (root first, then `.gitmodules`
-  children) + pull; pair it with `sync` at session start.
+  children) + commit pending changes + `pull --rebase origin issues-data` +
+  push; pair it with `sync` at session start. First establishment requires a
+  reachable remote when `origin/issues-data` may exist — a failed fetch
+  fails fatally rather than minting a divergent empty orphan branch
+  (#2548 C4).

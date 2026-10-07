@@ -16,7 +16,10 @@ provenance: AI-authored, .opencode#2490
    Issues sharing an authorization scope share **one** feature branch — name it
    after the scope's primary issue; one branch per issue is the violation.
 2. **Trunk freshness.** Verify the trunk tip before branching — sync and rebase
-   if the trunk moved; state the verified tip in the work record.
+   if the trunk moved; state the verified tip in the work record. When scanning
+   branches, `issues-data` is a reserved orphan-branch issue-store ref, checked
+   out in a linked worktree (the `+` marker in `git branch -a`) — never a
+   feature-branch naming or cleanup candidate (#2548 C8).
 3. **Submodules.** When work spans the parent and `.opencode`, sync the
    submodule pointer discipline: the pointer update rides with the next real
    parent-repo change — never a pointer-only commit.

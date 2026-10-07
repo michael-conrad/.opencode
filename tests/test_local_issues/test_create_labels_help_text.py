@@ -36,7 +36,7 @@ def create_help_output(tmp_path_factory):
     copy = tool_dir / "local-issues"
     shutil.copy(TOOL_PATH, copy)
     result = subprocess.run(
-        [sys.executable, str(copy), "create", "--help"],
+        ["uv", "run", "--script", str(copy), "create", "--help"],
         capture_output=True,
         text=True,
         cwd=tmp,
