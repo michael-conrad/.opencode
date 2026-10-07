@@ -1,1 +1,31 @@
-comments: []
+comments:
+- type: internal
+  body: 'Closing as obsolete — superseded by #1308 (cleanup of session-enforcement.ts),
+    which removed the code this bug describes rather than fixing it in place.
+
+
+    Codebase comparison at close time (plugins/session-enforcement.ts, 83 lines; was
+    1,229 at filing):
+
+
+    - 9 of the 10 execSync call sites no longer exist (captureGitConfigBaseline, resolveGitDir,
+    runSessionContextTriggers, getCurrentBranch, getWorkingTreeStatus, baselineLocalConfig,
+    config-mutation watchdog, no-verify detection — removed by 02d19d17 2026-06-23
+    and 84c01a8b 2026-07-16 strip-to-minimal). SC-2 targets deleted code.
+
+    - writeDiagnostic and the enforcement machinery SC-3 requires are gone — no enforcement
+    left to disable.
+
+    - The single remaining execSync (runSessionInit, 10s timeout) is already fail-safe
+    by construction: catch → return null → hook skips session-init injection, session
+    continues. The "session becomes unresponsive" mechanism no longer exists in this
+    plugin.
+
+    - Residual kernel: the platform-level sibling-flood phenomenon (aborted assistant
+    siblings accumulating in context) is not addressed by the current minimal messages.transform
+    — but it is no longer this plugin''s defect. If the bloat reappears post-strip,
+    it warrants a fresh issue against the current code, not this one.
+
+
+    🤖 OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-10-07T03:16:05+00:00'
