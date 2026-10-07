@@ -8,104 +8,28 @@
 
 ## Tool
 
-Always use `.opencode/tools/local-issues` for issue tracking operations within `.issues/`. Do not manipulate `.issues/` files manually unless the tool cannot perform the required operation.
-
-### Invocation
-
-```
-.opencode/tools/local-issues <command> [flags]
-```
-
-First invocation auto-initializes `.issues/` — creates the orphan branch, worktree, and initial commit. No separate setup step needed.
-
-### Usage Examples
-
-```
-# List all issues
-.opencode/tools/local-issues list
-
-# Sample output:
-# #1 [open]
-# #46 [open]
-# #47 [open]
-
-# Read an issue
-.opencode/tools/local-issues read --number 46
-
-# Create a new issue (auto-numbered)
-.opencode/tools/local-issues create --title "My spec" --labels SPEC
-
-# Create with explicit number
-.opencode/tools/local-issues create --number 99 --title "Bug fix" --labels BUG
-
-# Search issues
-.opencode/tools/local-issues search --query "fastmcp"
-
-# Link sub-issues to a parent
-.opencode/tools/local-issues link --number 46 --sub 47 48 --type sub-issue
-
-# Add a comment
-.opencode/tools/local-issues comment --number 46 --type internal --body "Investigation complete"
-
-# Close an issue
-.opencode/tools/local-issues close --number 99 --reason completed
-
-# Update an issue body from file
-.opencode/tools/local-issues update --number 46 --body-file ./tmp/spec-v2.md
-
-# Check promotion readiness
-.opencode/tools/local-issues promote --number 46
-```
-
-### Standards
-
-- All spec files use `.md` extension with optional YAML frontmatter
-- All metadata files use `.yaml` extension
-- Comments are stored as YAML with `type: internal|stakeholder` field
-- Sub-issues use the `link` command for parent-child relationships
-- GitHub/GitBucket sync uses `--github` / `--remote-url` flags on `update` and `comment`
+All issue-tracking operations go through the `local-issues` tool. The tool's
+operating contract — invocation, qualified `repo#N` names, command behavior,
+sync/mirroring mechanics, session-start sequence — lives in the **`issues`
+skill card** (`.opencode/skills/issues/SKILL.md`) and its detail cards under
+`.opencode/skills/issues/references/`; the script's `--help` is the
+flag-level source of truth. This guide does not duplicate tool usage
+documentation. Do not manipulate `.issues/` files manually unless the tool
+cannot perform the required operation.
 
 ## Workflow
 
-**Remote-first issue-number reservation (MANDATORY when a remote issue tracker exists).** When the platform is not local (a remote issue tracker is reachable), file the remote issue FIRST — for EVERY issue creation (spec, bug, defect, artifact — anything that mints a number) — with clear intent and context sufficient for a clean-room restart — to reserve the issue number, BEFORE any local issue folder setup. Local-first reservation is a violation: it forks the number space and produces split-brain collisions (recorded precedent: issue 2450's local-vs-remote number divergence; recurrence 2026-10-05: `opencode-config#373` minted from the stale local counter while remote-synced issues had reached 2161 — deleted unfiled). This mandate composes with (and does not duplicate) the numbers-must-match rule and the `.counter` drift defect: the remote API is the sole number source whenever a remote exists; the local counter is used only in local-only mode.
+**Remote-first issue-number reservation (MANDATORY when a remote issue tracker exists).** When the platform is not local (a remote issue tracker is reachable), file the remote issue FIRST — for EVERY issue creation (spec, bug, defect, artifact — anything that mints a number) — with clear intent and context sufficient for a clean-room restart — to reserve the issue number, BEFORE any local issue folder setup. Local-first reservation is a violation: it forks the number space and produces split-brain collisions (recorded precedent: issue 2450's local-vs-remote number divergence; recurrence 2026-10-05: `opencode-config#373` minted from a stale local number while remote-synced issues had reached 2161 — deleted unfiled). This mandate composes with (and does not duplicate) the numbers-must-match rule: the remote API is the sole number source whenever a remote exists; remoteless stores pick the next free number in that repo's own namespace.
 
-All git operations (commit, push) are handled automatically by the tool after mutation commands. You do NOT need to run `git -C .issues` commands manually.
-
-| Action | Command | Auto-commit? | Auto-push? |
-|--------|---------|-------------|-------------|
-| Init worktrees + pull remote | `local-issues init` | N/A (bootstrap) | N/A |
-| Sync (commit + pull-rebase + push) | `local-issues sync` | ✅ Yes | ✅ Yes |
-| List issues | `local-issues list` | N/A (read-only) | N/A |
-| Read issue | `local-issues read --number N` | N/A (read-only) | N/A |
-| Search | `local-issues search --query "..."` | N/A (read-only) | N/A |
-| Create issue | `local-issues create --title "..."` | ✅ Yes | ✅ Yes |
-| Update issue | `local-issues update --number N ...` | ✅ Yes | ✅ Yes |
-| Add comment | `local-issues comment --number N --body "..."` | ✅ Yes | ✅ Yes |
-| Close issue | `local-issues close --number N --reason completed` | ✅ Yes | ✅ Yes |
-| Link sub-issues | `local-issues link --number N --sub M --type sub-issue` | ✅ Yes | ✅ Yes |
-| Renumber | `local-issues renumber --from N --to M` | ✅ Yes | ✅ Yes |
+All git operations (commit, push) on the issues worktree are handled automatically by the tool after mutation commands. You do NOT need to run `git -C .issues` commands manually.
 
 ### Session start
 
-Session start comprises three sequential steps:
-
-1. **init** — Bootstrap `.issues/` worktrees in all repos and pull latest remote `issues-data`:
-   ```bash
-   .opencode/tools/local-issues init
-   ```
-   If the pull encounters a merge conflict, it reports the qualifier and a `git -C` command for manual resolution.
-
-2. **sync** — Commit any local changes, pull-rebase, and push to ensure bidirectional currency:
-   ```bash
-   .opencode/tools/local-issues sync
-   ```
-
-3. **sync-from-remote** — Reconcile remote issue content against local `.issues/`:
-   ```bash
-   # Via skill invocation:
-   skill({name: "issue-operations"})
-   task(..., prompt: "execute sync-from-remote task from issue-operations")
-   ```
+At session start, run the tool's `init` and `sync` sequence (bootstrap
+worktrees, pull remote `issues-data`, commit + pull-rebase + push for
+bidirectional currency) and reconcile remote issue content against local
+`.issues/` — exact commands and failure handling are in the `issues` skill
+card and its sync detail card.
 
 > **Cross-reference:** [`lessons-learned/`](lessons-learned/) — per-session correction catalogs for systemic defect patterns. Agents read this at session start per §When to Read below.
 
