@@ -1,1 +1,9 @@
-comments: []
+comments:
+- type: internal
+  body: 'C5 remediation executed 2026-10-07: non-colliding legacy content archived
+    under _legacy/ in both stores; collision twins (4, 9, 1158 root) deleted after
+    content comparison — each was an empty shell/duplicate draft with no unique content
+    vs the authoritative flat record; open//closed/ entries with identical flat twins
+    deleted, unique ones archived; deleted ''differs'' copies remain recoverable from
+    issues-data history. .legacy-warned sentinels removed from both trees.'
+  timestamp: '2026-10-07T18:41:08+00:00'
