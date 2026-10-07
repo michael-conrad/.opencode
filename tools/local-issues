@@ -30,6 +30,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -568,8 +569,14 @@ def _bootstrap_from_remote(root: Path) -> bool:
 
     Fetches the remote branch and creates a local tracking branch. Returns
     True when the local branch was created from the remote ref. Returns
-    False when the remote branch does not exist or the fetch failed
-    (warned) — the caller then falls back to the orphan-branch path.
+    False when the remote branch is verified absent — the caller then
+    falls back to the orphan-branch path.
+
+    A failed fetch is NOT treated as "remote absent" (#2548 C4): the
+    remote branch's existence is verified via ls-remote, and when it
+    exists (or existence cannot be verified because the network is
+    down) establishment fails fatally instead of minting a fresh empty
+    orphan that would diverge from the real remote history.
     """
     fetch = subprocess.run(
         [
@@ -586,9 +593,35 @@ def _bootstrap_from_remote(root: Path) -> bool:
         timeout=30,
     )
     if fetch.returncode != 0:
+        # Disambiguate fetch failure from a genuinely absent remote ref.
+        ls_remote = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "ls-remote",
+                "--heads",
+                "origin",
+                WORKTREE_BRANCH,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if ls_remote.returncode != 0 or ls_remote.stdout.strip():
+            _fail_worktree(
+                root,
+                (
+                    f"fetch of origin/{WORKTREE_BRANCH} failed "
+                    f"({fetch.stderr.strip()}); remote branch exists or "
+                    "existence cannot be verified — retry when the network "
+                    "recovers; never bootstrap an empty orphan over real "
+                    "remote history"
+                ),
+            )
         print(
-            f"warn: fetch of origin/{WORKTREE_BRANCH} failed: "
-            f"{fetch.stderr.strip()}",
+            f"warn: remote branch {WORKTREE_BRANCH} verified absent on origin; "
+            "creating orphan branch",
             file=sys.stderr,
         )
         return False
@@ -966,10 +999,54 @@ def _commit_issues_changes(root: Path, msg: str) -> None:
         )
 
 
+# Transient push/rebase failure markers (#2548 C2) — retried once, then
+# reported. Non-transient failures (non-fast-forward, rejected) are NOT
+# retried; retrying cannot help and would mask divergence.
+TRANSIENT_GIT_MARKERS = (
+    "connection closed",
+    "connection refused",
+    "connection reset",
+    "could not read from remote repository",
+    "the remote end hung up",
+    "timed out",
+    "early eof",
+    "temporarily unavailable",
+    "name or service not known",
+    "temporary failure in name resolution",
+    "ssl",
+)
+
+# Sync statuses that mean the store failed to converge (#2548 C2). Steady
+# states (no_worktree, no_remote) are informational and do not fail sync.
+SYNC_FAILURE_STATUSES = (
+    "add_failed",
+    "commit_failed",
+    "push_failed",
+    "conflict",
+    "timeout",
+    "rebase_in_progress",
+)
+
+
+def _is_transient_git_error(stderr: str) -> bool:
+    low = stderr.lower()
+    return any(marker in low for marker in TRANSIENT_GIT_MARKERS)
+
+
+def _push_with_retry(args: list[str], timeout: int) -> subprocess.CompletedProcess:
+    """Run a git push once, retrying a single time on transient failure."""
+    result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+    if result.returncode != 0 and _is_transient_git_error(result.stderr):
+        time.sleep(1)
+        result = subprocess.run(args, capture_output=True, text=True, timeout=timeout)
+    return result
+
+
 def _push_issues_changes(root: Path) -> None:
     """Push the issues worktree branch to origin.
 
     Skips push when remote is HTTPS without credential helper (#1299).
+    Retries once on transient network failures (#2548 C2).
     """
     issues_git_dir = str(root / ISSUES_DIR)
     if _is_https_without_creds(issues_git_dir):
@@ -983,11 +1060,8 @@ def _push_issues_changes(root: Path) -> None:
         )
         if result.returncode != 0:
             return
-        push_result = subprocess.run(
-            ["git", "-C", issues_git_dir, "push", "origin", WORKTREE_BRANCH],
-            capture_output=True,
-            text=True,
-            timeout=30,
+        push_result = _push_with_retry(
+            ["git", "-C", issues_git_dir, "push", "origin", WORKTREE_BRANCH], 30
         )
         if push_result.returncode != 0:
             print(
@@ -1027,6 +1101,11 @@ def _check_duplicate_issue(number: int, repo_path: Path, repo_name: str) -> None
     namespace only. Remote trackers number per-repo and the qualified
     form (repo#N) mandated on every command disambiguates collisions —
     no cross-repo check or warning is performed.
+
+    Honors _parse_number semantics (#2548 C6): any directory that parses
+    to the requested number (including legacy {N}-{slug} names) blocks
+    creation — exact-name matching alone let a second dir for the same
+    number be minted.
     """
     if issue_exists(number, repo_path):
         print(
@@ -1034,6 +1113,16 @@ def _check_duplicate_issue(number: int, repo_path: Path, repo_name: str) -> None
             file=sys.stderr,
         )
         sys.exit(1)
+    issues_dir = (repo_path or PROJECT_DIR) / ISSUES_DIR
+    if issues_dir.is_dir():
+        for entry in issues_dir.iterdir():
+            if entry.is_dir() and _parse_number(entry) == number:
+                print(
+                    f"Issue #{number} already exists in {repo_name} "
+                    f"(directory '{entry.name}' parses to this number).",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
 
 
 def _normalize_labels(labels: list[str]) -> list[str]:
@@ -1715,7 +1804,21 @@ def cmd_url(args: argparse.Namespace) -> None:
 
 
 def _fetch_issues_branch(issues_dir: Path) -> dict | None:
-    """Git add + commit. Returns entry dict on failure, None on success."""
+    """Git add + commit. Returns entry dict on failure, None on success.
+
+    Skips the commit entirely when the worktree is clean — an idle sync
+    must never mint an empty "auto: sync" commit (#2548 C1).
+    """
+    status = subprocess.run(
+        ["git", "-C", str(issues_dir), "status", "--porcelain"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    if status.returncode != 0:
+        return {"status": "add_failed", "add_result": status.stderr.strip()}
+    if not status.stdout.strip():
+        return None
     add = subprocess.run(
         ["git", "-C", str(issues_dir), "add", "-A"],
         capture_output=True,
@@ -1735,8 +1838,47 @@ def _fetch_issues_branch(issues_dir: Path) -> dict | None:
     return None
 
 
+def _rebase_in_progress(issues_dir: Path) -> bool:
+    """True when the issues worktree is stopped mid-rebase (#2548 C3).
+
+    git leaves rebase-merge/ or rebase-apply/ in the worktree's git dir
+    while a rebase is paused on a conflict.
+    """
+    for state in ("rebase-merge", "rebase-apply"):
+        p = subprocess.run(
+            ["git", "-C", str(issues_dir), "rev-parse", "--git-path", state],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        if p.returncode != 0:
+            continue
+        state_path = Path(p.stdout.strip())
+        if not state_path.is_absolute():
+            state_path = issues_dir / state_path
+        if state_path.exists():
+            return True
+    return False
+
+
+def _rebase_status_entry(issues_dir: Path) -> dict:
+    """Status dict for a worktree stopped mid-rebase (#2548 C3)."""
+    return {
+        "status": "rebase_in_progress",
+        "conflict_hint": (
+            f"git -C {issues_dir} rebase --abort   "
+            f"(or resolve conflicts, then: git -C {issues_dir} rebase --continue)"
+        ),
+    }
+
+
 def _rebase_issues_branch(issues_dir: Path) -> dict | None:
-    """Git pull --rebase. Returns entry dict on failure, None on success."""
+    """Git pull --rebase. Returns entry dict on failure, None on success.
+
+    When the pull leaves the worktree stopped mid-rebase (or one was
+    already in progress), the re-running-pull hint is replaced with the
+    actual remedy: abort, or resolve + continue (#2548 C3).
+    """
     if not _has_remote(issues_dir.parent):
         return None
     pull = subprocess.run(
@@ -1746,6 +1888,8 @@ def _rebase_issues_branch(issues_dir: Path) -> dict | None:
         timeout=30,
     )
     if pull.returncode != 0:
+        if _rebase_in_progress(issues_dir):
+            return {**_rebase_status_entry(issues_dir), "pull_result": pull.stderr.strip()}
         return {
             "status": "conflict",
             "pull_result": pull.stderr.strip(),
@@ -1755,14 +1899,14 @@ def _rebase_issues_branch(issues_dir: Path) -> dict | None:
 
 
 def _push_issues_branch_safe(issues_dir: Path) -> dict | None:
-    """Git push. Returns entry dict on failure, None on success."""
+    """Git push. Returns entry dict on failure, None on success.
+
+    Retries once on transient network failures (#2548 C2).
+    """
     if not _has_remote(issues_dir.parent):
         return None
-    push = subprocess.run(
-        ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH],
-        capture_output=True,
-        text=True,
-        timeout=30,
+    push = _push_with_retry(
+        ["git", "-C", str(issues_dir), "push", "origin", WORKTREE_BRANCH], 30
     )
     if push.returncode != 0:
         return {"status": "push_failed", "push_result": push.stderr.strip()}
@@ -1780,6 +1924,8 @@ def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) 
     if not _has_remote(repo_path):
         entry["status"] = "no_remote"
         return entry
+    if _rebase_in_progress(issues_dir):
+        return {**entry, **_rebase_status_entry(issues_dir)}
     try:
         fail = _fetch_issues_branch(issues_dir)
         if fail:
@@ -1797,6 +1943,17 @@ def _sync_repo(repo_path: Path, qualifier: str, issues_dir: Path | None = None) 
     return entry
 
 
+def _exit_on_sync_failures(repos_info: list[dict]) -> None:
+    """Exit non-zero when any repo's sync status is a failure (#2548 C2).
+
+    The per-repo YAML is already printed by the caller; this only turns a
+    diverged store into a shell-visible failure so `sync && next-step`
+    cannot sail past a push failure or conflict.
+    """
+    if any(r.get("status") in SYNC_FAILURE_STATUSES for r in repos_info):
+        sys.exit(1)
+
+
 def cmd_init(args: argparse.Namespace) -> None:
     """Bootstrap worktrees and sync for all repos. Delegates to _sync_repo()."""
     _ensure_all_worktrees()
@@ -1807,6 +1964,7 @@ def cmd_init(args: argparse.Namespace) -> None:
         result["issues_count"] = issues_count
         repos_info.append(result)
     print(yaml_dump({"init": True, "repos": repos_info}))
+    _exit_on_sync_failures(repos_info)
 
 
 def cmd_sync(args: argparse.Namespace) -> None:
@@ -1815,6 +1973,7 @@ def cmd_sync(args: argparse.Namespace) -> None:
     for repo_path, qualifier in _collect_repos():
         repos_info.append(_sync_repo(repo_path, qualifier))
     print(yaml_dump({"sync": True, "repos": repos_info}))
+    _exit_on_sync_failures(repos_info)
 
 
 def _resolve_worktree_from_path(file_path: str) -> tuple[Path, str, str] | None:
@@ -2225,10 +2384,13 @@ def _check_legacy_formats(issues_dir: Path) -> None:
     1. .issues/open/ or .issues/closed/ subdirectories
     2. Directories matching legacy slug format {N}-{slug} (regex: ^\\d+-.+)
 
-    Fires at most once per session via .issues/.legacy-warned sentinel.
+    Warns on EVERY run — the once-only `.legacy-warned` sentinel was
+    swept into the tracked branch by `git add -A`, permanently muting
+    the warning while legacy content remained live (#2548 C5). The
+    sanctioned archive name `_legacy/` is not flagged (it parses to no
+    issue number).
     """
-    sentinel = issues_dir / ".legacy-warned"
-    if sentinel.exists():
+    if not issues_dir.is_dir():
         return
 
     legacy_found = False
@@ -2240,7 +2402,7 @@ def _check_legacy_formats(issues_dir: Path) -> None:
             break
 
     # Check for legacy slug-format directories (^\d+-.+)
-    if not legacy_found and issues_dir.is_dir():
+    if not legacy_found:
         for entry in issues_dir.iterdir():
             if not entry.is_dir():
                 continue
@@ -2256,8 +2418,6 @@ def _check_legacy_formats(issues_dir: Path) -> None:
             "AI agent must inspect and remediate manually.",
             file=sys.stderr,
         )
-        sentinel.parent.mkdir(parents=True, exist_ok=True)
-        sentinel.touch()
 
 
 def main() -> None:
@@ -2267,8 +2427,9 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    # doctor and validate-yaml are strictly read-only — skip the legacy
-    # sentinel (which writes a file)
+    # doctor and validate-yaml are strictly read-only — no legacy-format
+    # warning there (the check itself is read-only since #2548 C5 dropped
+    # the sentinel write, but keep read-only commands fully read-only)
     if args.command not in ("doctor", "validate-yaml"):
         _check_legacy_formats(Path(ISSUES_DIR))
 

@@ -17,6 +17,10 @@ provenance: AI-authored, .opencode#2490; #1011 destructive-action gate
    floor's destructive-action gate: on a dispatched task, only when the
    dispatch prompt explicitly names the deletion and its target; direct
    developer instruction (`pr merged` → cleanup) remains the sanctioned flow.
+   `issues-data` is a reserved orphan-branch issue-store ref, checked out in a
+   linked worktree (the `+` marker in `git branch -a`) — it is never a
+   feature-branch cleanup candidate and never receives worktree removal
+   (#2548 C8).
 3. **Close issues** whose work the merged PR delivered — closure happens only
    here or on explicit developer instruction, never speculatively; on a
    dispatched task, the dispatch prompt must explicitly name the closure and
