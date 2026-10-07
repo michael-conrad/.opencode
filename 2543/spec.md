@@ -14,17 +14,21 @@
 
 Five further reports verified already fixed and closed with evidence at filing time: .opencode#1574, .opencode#1576 (argparse rewrite), .opencode#2387 (`_bootstrap_from_remote`), .opencode#2388 (.opencode#2512 hook carve-out; the reported submodule Gate 2 no longer exists), .opencode#2323 (.opencode#2432 warn-and-skip `yaml_load`). Two proposals are rejected as regression: .opencode#1224 and .opencode#1272 — filesystem repo discovery cannot distinguish worktree `.git` files from submodule `.git` files and would reintroduce the .opencode#1296 defect class; the current `.gitmodules`-based discovery already includes the parent repo first.
 
+Beyond the tool defects, the doc-surface review found the agent-facing documentation for `local-issues` living outside both live doc surfaces: the invocation walkthrough, usage examples, and command tables sit in `.opencode/.issues/AGENTS.md` — inside the `issues-data` worktree, not the repo that owns the tool — and no deck card carries the tool's operating contract. Documentation about a tool that lives neither in the script nor in the routed skill card and its detail cards is drift-prone duplication and a removal target. The repair consolidates tool documentation onto two surfaces: the script's parser help text, and the `issues` skill card with detail cards for progressive disclosure.
+
 ## What
 
-Repairs are scoped to `.opencode/tools/local-issues`, the create-parser help text, and `.opencode/.issues/AGENTS.md` examples. Deck task-card edits for URL construction ride deck governance separately.
+Repairs are scoped to `.opencode/tools/local-issues` (code and parser help text). Agent-facing tool documentation is consolidated onto two surfaces — the script's help text, and the `issues` skill card with detail cards under `references/` as needed — and `.opencode/.issues/AGENTS.md` is reduced to the `.issues/` workspace guide; the file itself remains in the worktree. The skill-card revision is a deck edit and passes the skill-creator admission gate. Deck task-card edits for URL construction ride deck governance separately.
 
 1. **Fail-fatal worktree contract.** `_ensure_worktree()` failure is terminal: exit non-zero with a diagnostic naming the failure and the remediation (the exact `git worktree add` / init command). No caller continues in plain-file mode; no plain `.issues/` directory is created or written on failure. The migration path (`_migrate_existing_issues`, `_restore_migrated_content`) is unchanged.
 
-2. **Per-repo numbering.** `_check_duplicate_issue()` loses the child-repos iteration: uniqueness is enforced within the target repo's own `.issues/{N}` namespace only, with no cross-repo warning. `.counter` and `_next_number()` are removed entirely, including the advance-on-create call and the corrupt-counter hard-fail. `_recent_issue_numbers()` remains the directory-derived hint surface. Create-parser help text and AGENTS.md invocation examples drop counter references.
+2. **Per-repo numbering.** `_check_duplicate_issue()` loses the child-repos iteration: uniqueness is enforced within the target repo's own `.issues/{N}` namespace only, with no cross-repo warning. `.counter` and `_next_number()` are removed entirely, including the advance-on-create call and the corrupt-counter hard-fail. `_recent_issue_numbers()` remains the directory-derived hint surface. Create-parser help text drops counter references.
 
 3. **Plumbing-based init.** `_init_orphan_branch`, `_populate_orphan_branch`, `_commit_orphan_init`, `_remove_temp_worktree`, and the stale-temp-worktree cleanup block are replaced by: empty tree object (`git hash-object -t tree /dev/null`), `git commit-tree` onto it, `git update-ref refs/heads/issues-data` — then the unchanged `_setup_worktree`. No temp worktree exists at any point; no porcelain commit runs, so hook contact is structurally impossible; the branch tree is empty by construction; zero-commit repositories are supported. `cmd_create` calls `_ensure_worktree(repo_path=target)` instead of `_ensure_all_worktrees()`; `cmd_init` keeps all-repo behavior.
 
-4. **Contract alignment.** `_scan_issue_dir_errors` sweeps `**/*.yaml` under the issue directory: every YAML found is parse-validated (`invalid-yaml` on failure); the three canonical filenames retain their schema checks; non-canonical YAML is parse-validated only. Scoped `validate-yaml` on an absent target exits 0 printing a `no-local-records` status line. `promote` is removed (subcommand, parser entry, dispatch, AGENTS.md example). A `url` subcommand emits the platform-correct issue URL derived from the repo's origin remote (SSH→HTTPS), with `--artifacts` emitting the branch-root-relative path (`N/`, never `.issues/N/`).
+4. **Contract alignment.** `_scan_issue_dir_errors` sweeps `**/*.yaml` under the issue directory: every YAML found is parse-validated (`invalid-yaml` on failure); the three canonical filenames retain their schema checks; non-canonical YAML is parse-validated only. Scoped `validate-yaml` on an absent target exits 0 printing a `no-local-records` status line. `promote` is removed (subcommand, parser entry, dispatch). A `url` subcommand emits the platform-correct issue URL derived from the repo's origin remote (SSH→HTTPS), with `--artifacts` emitting the branch-root-relative path (`N/`, never `.issues/N/`).
+
+5. **Tooling-doc consolidation.** The `issues` skill card (`.opencode/skills/issues/SKILL.md`) carries the agent-facing local-issues operating contract inline — the tool path, qualified-name (`repo#N`) invocation, remote-first number reservation, session-start init/sync — and detail cards under `references/` as needed to handle the workflow requirements and document the tooling properly (CLI options, command behavior, sync/mirroring mechanics), with the script's `--help` remaining the flag-level source of truth. `.opencode/.issues/AGENTS.md` sheds its tool-usage documentation (invocation walkthrough, usage examples, command/auto-commit tables, tool standards) in favor of a pointer to the skill card; workspace-guide content (identity, directory layout, content boundary, authorization, remote-mirror relationship) is retained.
 
 ## Success criteria
 
@@ -38,7 +42,7 @@ In a scratch repository where issues-data worktree establishment is induced to f
 `create --number R#N` succeeds when `N` exists in a sibling repo's store and `R` has no `N`; it exits non-zero only when `R` itself has `N`. No cross-repo warning is emitted.
 
 **SC-4 — Counter mechanism absent** (structural)
-No `.counter` read/write, no `_next_number`, and no counter-reservation reference in the create-parser help text or `.opencode/.issues/AGENTS.md` examples.
+No `.counter` read/write, no `_next_number`, and no counter-reservation reference in the create-parser help text, the `issues` skill card, or its detail cards.
 
 **SC-5 — Plumbing init, empty tree** (behavioral)
 In a scratch repository with commits, init produces the `issues-data` branch with a zero-file tree; no `.issues-worktree-tmp` path is created at any point; the same sequence succeeds on a zero-commit repository.
@@ -53,13 +57,19 @@ A malformed `artifacts/*.yaml` inside an issue directory is reported `invalid-ya
 `validate-yaml --number R#N` where `.issues/{N}/` does not exist locally exits 0 and prints a `no-local-records` status line.
 
 **SC-9 — promote removed** (behavioral)
-`local-issues promote ...` exits with an unrecognized-command error; `.opencode/.issues/AGENTS.md` contains no promote reference.
+`local-issues promote ...` exits with an unrecognized-command error; the `issues` skill card and its detail cards contain no promote reference.
 
 **SC-10 — url subcommand** (behavioral)
 `local-issues url R#N` emits the platform-correct issue URL for R's origin remote; `--artifacts` emits a URL whose path is `tree/issues-data/{N}/` (never `.issues/{N}/`).
 
 **SC-11 — Text inventory consistent** (string)
-Grep finds no counter-reservation or promote references in the create-parser help text or `.opencode/.issues/AGENTS.md`.
+Grep finds no counter-reservation or promote references in the create-parser help text, the `issues` skill card and its detail cards, or `.opencode/.issues/AGENTS.md`.
+
+**SC-12 — AGENTS.md carries no tool-usage docs** (structural)
+`.opencode/.issues/AGENTS.md` contains no local-issues usage examples or command tables — no line invoking a `local-issues` subcommand — and delegates tool usage to the `issues` skill card by pointer; workspace-guide sections are retained.
+
+**SC-13 — Skill card and detail cards carry the tooling docs** (structural)
+`.opencode/skills/issues/SKILL.md` references the tool path and the qualified-name (`repo#N`) invocation rule; detail cards under `.opencode/skills/issues/references/` document the local-issues tooling — CLI options and command behavior — covering the workflow requirements the card routes to.
 
 ## Out of scope
 
@@ -78,5 +88,6 @@ Recorded at filing (2026-10-07), scratch workspaces under /tmp:
 - **.opencode#2323**: real tool run — malformed `issue.yaml` beside a valid one: `list` emits `warn: skipping ... invalid-yaml` to stderr, lists both records (malformed one title-less, status open), exit 0.
 - **Live CLI probes**: `create` with unknown flags → argparse error exit 2 (.opencode#1574); `link --help` → full usage (.opencode#1576).
 - **Source verification**: duplicate-guard cross-repo iteration (`_check_duplicate_issue`), counter advance-on-create (`cmd_create`), `_ensure_all_worktrees()` in `cmd_create`, `YAML_FILES` scan scope, `cmd_promote` print-only body — all confirmed at current HEAD.
+- **Doc-surface check (2026-10-07)**: `.opencode/skills/issues/SKILL.md` is a five-point routing card carrying no local-issues tool documentation; `.opencode/.issues/AGENTS.md` carries the invocation walkthrough, usage examples (including `promote` and counter-era auto-numbered create), the command/auto-commit table, and tool standards; the retired detail-card pattern survives in `attic/skills/issue-operations/platforms/local/`; no tooling-doc file exists under `.opencode/docs/`.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
