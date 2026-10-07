@@ -8,3 +8,64 @@ title: '[SPEC] Dispatch-Scope Containment for Dispatched Sub-Agents (revises: gi
   cleanup sub-agent oversteps scope)'
 github_url: https://github.com/michael-conrad/.opencode/issues/1011
 status: open
+body: '> **Full spec and artifacts: [`.opencode/.issues/1011/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1011)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/1011/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Why
+
+
+  June 2026 incident (viewport-editor): a `general` sub-agent was dispatched to verify
+  a PR merge, with a prompt that referenced "the cleanup task from the git-workflow
+  skill". The sub-agent executed the full cleanup — deleting the local and remote
+  feature branches — though only verification was requested; the branches had to be
+  recreated. The deck has since been fully restructured. A clean-room derivation against
+  the current deck confirms all four requirement parts of this failure class remain
+  unmet, and the original fix suggestions were revised accordingly: orchestrator-phrasing
+  rules and platform training mechanisms are excluded (the dispatch side already requires
+  scoped prompts; under-execution on an ambiguous prompt is cheap and recoverable,
+  while destructive over-execution is not), and the cleanup-specific gate is generalized
+  to the destructive-action class.
+
+
+  ## What
+
+
+  The spec requires the deck to make the dispatch prompt the sub-agent''s scope boundary:
+
+
+  - **SC-1 (structural)** — a dispatched sub-agent performs no action beyond its dispatch
+  prompt''s request; the prompt is its work order and scope boundary.
+
+  - **SC-2 (structural)** — referencing a skill/card/task does not authorize the referenced
+  artifact''s other steps; where a prompt names a task and enumerates narrower actions,
+  the enumeration governs.
+
+  - **SC-3 (structural)** — loaded instructions that mandate more than the prompt
+  requests trigger a conflict report and a halt for direction; never a completion
+  report over unrequested work.
+
+  - **SC-4 (structural)** — destructive, hard-to-reverse actions (branch deletion,
+  issue closure, force/history-changing git operations) execute only when the dispatch
+  prompt explicitly names the action and its target; `git-workflow-cleanup`''s deletion
+  steps are subject to this gate.
+
+  - **SC-5 (behavioral)** — failure-scenario regression via the tests-v2 harness:
+  a verification-only dispatch that references the cleanup card performs verification
+  only.
+
+  - **SC-6 (behavioral)** — gate precision: (a) the conflict path reports without
+  executing unrequested mandatory steps; (b) positive control — explicitly-named destructive
+  work still executes.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
+updated_at: '2026-10-07T04:28:12+00:00'
