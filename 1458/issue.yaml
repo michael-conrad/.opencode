@@ -1,4 +1,7 @@
 number: 1458
 title: '[SPEC-FIX] Artifact URL construction uses worktree path instead of branch'
 labels: '[]'
-status: open
+status: closed
+closed_at: '2026-10-07T16:30:23+00:00'
+close_reason: not_planned
+updated_at: '2026-10-07T16:30:23+00:00'
