@@ -1,11 +1,16 @@
 ---
 type: LESSON
 session: 2026-07-02
-consumed: false
+consumed: 2026-10-07
 severity: systemic
 ---
 
 # Lesson: Behavioral test harness bootstrap timeout — `--setup` dead code and cumulative test home creation
+
+> **consumed 2026-10-07:** v1 harness replaced wholesale by `tests-v2/` (commit 5d3255e6,
+> PR #2493) — v2's one-scenario-per-script structure, TEST_HOME reuse emission, and
+> absence of the dead `--setup` path remediate both bugs. Target files `tests/behaviors/helpers.sh`
+> and `tests/AGENTS.md` no longer exist.
 
 ## Root Cause
 
