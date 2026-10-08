@@ -8,82 +8,75 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2557/`](https://github.c
   branch.
 
 
-  **Why — a live regression with three facets, one root cause.** The `#2490` deck
-  re-rip retired the pre-rip corpus to `attic/` and cut the behavioral test suite
-  (stage 4e). Three pieces of agent behavior retired with it, reported as live regressions
-  this session:
+  **Why — a live regression with three facets, one root cause, plus measured telemetry.**
+  The `#2490` deck re-rip retired the pre-rip corpus to `attic/` and cut the behavioral
+  test suite. Three pieces of agent behavior retired with it, reported as live regressions:
 
 
   1. **Build-verification practice lost.** The agent no longer verifies build-affecting
   changes by shallow temp-copy checkout + canonical build run + final-outputs assertion
-  (e.g. `./gradlew shadowJar`, `./gradlew build`) — and this impacts all build frameworks
+  (e.g. `./gradlew shadowJar`, `./gradlew build`) — impacting all build frameworks
   and languages. Provenance: spec `.opencode#365` → implementation `.opencode#2439`
   (release-promoter verification gate, behavioral SCs 1–6); the gate now exists only
-  under `attic/`, the live `release-promoter` card carries no gate, and the live `implement`
-  workflow demands only "an executed check" — a weaker rule that lets both "build
-  never run" and "outputs never inspected" through.
+  under `attic/`, and the live `implement` workflow demands only "an executed check."
+
+  2. **shadowJar/SPI packaging knowledge absent** — INCLUDE semantics and `META-INF/services`
+  preservation; never in the live deck, and the retired prompt''s canonical-command
+  habit (ask + record in the project''s AGENTS.md) died with the re-rip.
+
+  3. **Dependency-injection mandate missing** — the generic multi-language mandate
+  and curated recommended-packages tier table (`#2243` → `#2249`) did not survive
+  the re-rip; the live deck has zero DI content.
 
 
-  2. **shadowJar/SPI packaging knowledge absent.** The agent no longer configures
-  shadowJar correctly — INCLUDE semantics and SPI (`META-INF/services`) preservation
-  in fat jars. The live deck never carried this knowledge, and the retired default
-  prompt''s habit (unknown canonical build command → ask + record it in the project''s
-  AGENTS.md) died with the re-rip.
+  **Telemetry.** A read-only analysis of the opencode session store (784 skill loads)
+  measured the routing law: pipeline cards fire constantly, `programming-principles`
+  has zero loads ever, and no domain-knowledge card ever dispatched in the three largest
+  product repos — while the demand is real (a 1,087-session Python product, active
+  Godot projects whose dominant verbs are run/export/scenes, `uv run` in hundreds
+  of real requests).
 
 
-  3. **Dependency-injection mandate missing.** The generic multi-language DI mandate
-  and its curated recommended-packages tier table (`#2243` → `#2249`) lived in the
-  defunct guidelines corpus and did not survive the re-rip; the live deck has zero
-  DI content.
+  **Final what — the deck change.** A skill-card family under progressive disclosure,
+  implemented as skill cards and skill detail cards only:
 
 
-  **Final what — the deck change.** A skill-card family under progressive disclosure
-  (lean bodies, detail cards one level deep in `references/`, descriptions as the
-  router; implementation creates/updates skill cards and skill detail cards only):
+  - **New top-level cards:** `python` (umbrella for the Python-project ecosystem,
+  absorbing `uv` and `pyproject` as detail cards), `java`, `gradle` (top-level — its
+  intent space is not contained by Java work), `godot`.
+
+  - **Extended card:** `programming-principles` — widened from design principles to
+  the general engineering space, gaining two detail cards: the shared `dependency-injection`
+  detail card (generic mandate + canonical recommended-packages tier table restored
+  from `#2249` through a live currency pass; mandatory read via its body, covering
+  cardless languages too) and `practices` (industry-standard expectations incl. semver
+  discipline; expectation-not-operation, seamed against `version-manager`/`changelog-generator`).
+
+  - **Detail cards:** `python/references/{uv,pyproject,conventions}.md`, `java/references/dependency-injection.md`
+  (Spring/Dagger/Guice practice), `gradle/references/packaging-spi.md` (shadowJar
+  INCLUDE, SPI preservation, fat-jar outputs verification), the two shared cards above.
+
+  - **Dispatch edges (the measured fix):** `spec`, `plan`, and `implement` main bodies
+  gain explicit call outs to load the language/tool cards for the languages in scope
+  — language standards shape spec requirements and plan item structure, not just implementation
+  — and `programming-principles` for the engineering layer.
+
+  - **Updates:** `implement` workflow reference gains the build-verification row (shallow
+  checkout, manifest-sourced canonical build, final-outputs assertion, triggered on
+  build-affecting changes); `verify` evidence bar extended; `release-promoter` regains
+  the verification gate and its restored detail card.
 
 
-  - `dependency-injection` (topic card) — generic mandate: "use a DI approach, not
-  framework X"; the canonical three-tier recommended-packages table restored from
-  `#2249` through a live currency pass (the defunct table carries verified drift,
-  e.g. "Dagger for GWT-style"); selection guidance; HTML/CSS exclusion; root-agnostic
-  infra-tooling carveout.
-
-  - `java` (language card) — Java conventions/practices detail cards, including DI
-  practice (Spring, Dagger, Guice) deferring to the canonical card.
-
-  - `python` (language card) — deck-level restoration of defunct 082 content: typing,
-  pathlib, f-strings, print discipline, `dependency-injector` pin; project-local items
-  (pipeline rerun, DB enum mapping) excluded.
-
-  - `gradle` (tool card) — wrapper discipline, canonical commands from the repo''s
-  build manifest, `references/packaging-spi.md`: shadowJar INCLUDE semantics, `mergeServiceFiles()`/SPI
-  preservation, fat-jar outputs verification.
-
-  - `uv` (tool card) — runner discipline (`uv run`/`sync`/`lock`), canonical commands
-  from the build manifest, shallow-checkout build verification specialized for the
-  Python ecosystem.
-
-  - `pyproject` (config-surface card) — pyproject.toml authoring: PEP 621 metadata,
-  dependency declaration, build-backend selection, tool sections.
-
-  - `godot` (tool card) — project structure, headless run/import, export presets.
-
-  - Updates — `implement` workflow reference gains the build-verification row (shallow
-  temp-copy checkout, canonical build run, final-outputs assertion, triggered on build-affecting
-  changes); `verify` evidence bar extended to demand that evidence; `release-promoter`
-  regains the verification gate and its restored detail card.
-
-
-  Card taxonomy: language / build-run tool / config-surface / topic; a config format
-  consumed by multiple tools earns its own card, a single-tool config lives inside
-  its tool''s card. All admissions pass the skill-creator gate; behavioral SCs are
-  verified through the tests-v2 harness. The full spec and artifacts live in this
-  issue''s `.issues/` directory on the `issues-data` branch.
+  Descriptions match agent intent semantically — activities and decision moments in
+  the served intents'' vocabulary, never keyword/glob matching — with wide territories,
+  crisp seams, and one claimant per intent territory. All admissions pass the skill-creator
+  gate; behavioral SCs run through the `tests-v2` harness, with the session-store
+  dispatch query as a second instrument (before/after load counts).
 
 
   🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
 
   '
 created_at: '2026-10-07T22:28:12+00:00'
-updated_at: '2026-10-07T22:29:09+00:00'
+updated_at: '2026-10-08T02:37:15+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2557
