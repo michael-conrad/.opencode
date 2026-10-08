@@ -75,7 +75,7 @@ Session directives, in order: report of the regression ("the agent is no longer 
 - **Project-local rules** — the defunct 082 pipeline-rerun constraint and DB enum-mapping rule belong in project AGENTS.md files, not the deck.
 - **A speculative industry-practices corpus** — `references/practices.md` starts with the stated expectation (semver discipline) and the defunct-provenance backward-compatibility/deprecation rules (`087-no-backward-compat`); further practices grow evidence-gated.
 - **Per-change shallow checkout for changes that do not affect build configuration or packaging** — the practice triggers on build-affecting changes; the full pristine-tree gate remains once-per-release in `release-promoter`.
-- **Changes to `tests-v2` harness mechanics** — scenarios are added under the existing contract; the harness itself is not modified.
+- **Changes to `tests-v2` harness mechanics** — scenarios are added under the existing contract; the harness *scripts* are not modified. (R-15's §14 edit is agent-facing mandate text in the harness spec — documentation, not mechanics.)
 
 ## 3. Success Criteria
 
@@ -97,6 +97,7 @@ Session directives, in order: report of the regression ("the agent is no longer 
 | SC-14 | Reference integrity and deck hygiene hold across the change: reference-integrity PASS on all new/updated files; `skildeck lint` 0 findings; no repository names or absolute paths in new card content. | structural | Run `reference-integrity`, `skildeck lint`, and a repository-name/absolute-path grep over the changed set. |
 | SC-15 | A currency-pass record exists for the restored recommended-packages table: each package attribution verified against live sources with the verification date and source, and the verified drift corrections documented (including the Java row correction). | structural | The record file exists under `.issues/2557/artifacts/` with per-row live-source citations. |
 | SC-16 | When a task touches a language, tool, or engineering-practice concern whose card exists, the agent loads that card via the pipeline call outs before the first code modification of the task: `session.yaml` shows the language/tool cards and `programming-principles` loaded before any code is written. | behavioral | `tests-v2` behavioral scenario: a real-domain prompt runs the pipeline against a carded language; clean-room evaluation of `session.yaml` confirms the call-out-directed loads precede code modification. As a second instrument, the session-store dispatch query (skill-load counts per card) is re-run after landing and compared to the pre-change baseline stated in the Problem Statement. |
+| SC-17 | When supervising an `opencode run` (behavioral or otherwise), the agent polls at intervals of at most 60 seconds; every poll performs a full semantic check derived from the run's session database (message parts, reasoning, and tool calls — activity/uptime proxies are inadmissible); and every poll's semantic finding is reported in the work record as it happens, so the supervision record shows per-poll findings spaced ≤60 s apart with no unreported gaps. | behavioral | `tests-v2` behavioral scenario (`2557-sc17-supervised-polling`): the run agent launches a nested `opencode run` through the harness and supervises it to completion, recording each check-in; clean-room evaluation of the supervisor session's `session.yaml` confirms poll tool calls spaced ≤60 s apart, each reading the nested run's session DB, each followed by a reported finding. As a second instrument, the supervision poll records of this issue's own remaining behavioral runs show per-poll semantic findings at ≤60 s spacing. |
 
 ## 4. Requirements
 
@@ -121,6 +122,9 @@ Session directives, in order: report of the regression ("the agent is no longer 
   - **`godot`**: "Load when building, running, or exporting a Godot project — working with its scenes, resources, and project configuration, running it without a display, or producing export builds."
   - **`programming-principles` (widened)**: "Load when designing or writing code — before creating a module, service, or abstraction; choosing between alternative approaches; deciding whether to reuse, extend, or replace existing code; or when reviewing code — and whenever industry-standard engineering expectations come into question: versioning discipline, compatibility and deprecation, how code is structured and evolved. Owns the working design principles, the cross-language dependency-injection mandate, and general programming practices; language-specific conventions belong to the language cards."
 
+- **R-15. Supervision poll discipline (stacked, developer directive 2026-10-08).** The `behavioral-testing` skill card is the owning surface for how behavior tests are run and supervised with `opencode run`: its monitor mandate is strengthened to — polls at intervals of at most 60 seconds; every poll a full semantic check derived from the run's session database (message parts, reasoning, tool calls — activity/uptime proxies inadmissible); every poll's semantic finding reported in the work record as it happens (an unreported poll did not happen); a sleep or wait longer than 60 seconds without a semantic check and its report is a violation. `tests-v2/AGENTS.md` §14's Agent-Supervisor Mandate is aligned to the same cadence and reporting rule (mirroring the card, replacing the former ≤300 s statement; the #2456 provenance citation is retained and the #2557 revision noted) — one rule, one cadence, two surfaces.
+
+
 ## 5. Items
 
 | Item | Scope | SCs |
@@ -133,6 +137,7 @@ Session directives, in order: report of the regression ("the agent is no longer 
 | 6 | Pipeline call outs in `spec`, `plan`, `implement` bodies (R-7) | SC-13, SC-14 |
 | 7 | `implement` reference, `verify`, `release-promoter` updates (R-8, R-9, R-10) | SC-1, SC-6, SC-7, SC-11, SC-14 |
 | 8 | Behavioral scenarios for SC-1..SC-7 and SC-16 under the `tests-v2` contract (R-12) | SC-1..SC-7, SC-16 |
+| 9 | Supervision poll discipline (stacked, developer directive 2026-10-08): `behavioral-testing` card monitor-mandate strengthening, `tests-v2/AGENTS.md` §14 alignment, and the `2557-sc17-supervised-polling` scenario (R-15) | SC-17 |
 
 Sequencing note: the currency pass (Item 1, SC-15) precedes writing the tier table into the shared DI card, so the canonical content lands verified.
 

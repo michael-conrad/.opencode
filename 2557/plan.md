@@ -269,6 +269,23 @@ misclassified/self-impure/trivial classes).
   modification (SC-16).
 - **Instrument:** `tests-v2` harness runs + clean-room evals.
 
+### Item 14 — Supervision poll discipline (stacked, developer directive 2026-10-08; SC-17)
+
+- **Deliverable:** `behavioral-testing` card item 9 strengthened (poll ≤60 s,
+  full semantic check per poll from the run's session DB, per-poll finding
+  reported in the work record); `tests-v2/AGENTS.md` §14 Agent-Supervisor
+  Mandate aligned (≤300 s → ≤60 s, per-poll report row added, card named as the
+  owning surface); scenario `2557-sc17-supervised-polling.sh` (nested-supervision
+  run agent; clean-room evaluation of the supervisor's session.yaml poll
+  pattern) — RED run against the pre-fix deck, GREEN run against the fixed deck.
+- **RED:** the run agent supervising a nested run without the strengthened
+  mandate shows poll gaps >60 s and/or activity-proxy checks and/or unreported
+  polls in its session.yaml.
+- **GREEN:** poll tool calls spaced ≤60 s, each a DB read, each followed by a
+  reported finding; the supervision-log.md artifact grows per poll.
+- **Instrument:** `tests-v2` harness run + clean-room eval (SC-17); plus this
+  issue's own remaining-run supervision records (second instrument).
+
 ## Traceability
 
 | Plan item | Spec SCs |
@@ -286,6 +303,7 @@ misclassified/self-impure/trivial classes).
 | 11 | SC-1, SC-6, SC-7, SC-11, SC-14 |
 | 12 | SC-8, SC-9, SC-14 |
 | 13 | SC-1..SC-7, SC-16 (GREEN evidence) |
+| 14 | SC-17 (supervision poll discipline — stacked) |
 
 SC-16's second instrument (session-store dispatch query re-run after landing,
 compared to the Problem Statement baseline) is temporally bound to post-merge —
