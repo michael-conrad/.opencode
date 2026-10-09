@@ -33,18 +33,22 @@ if [ "$branch" = "$trunk" ]; then
   exit 1
 fi
 
-# Store-path reference gate — tracked files outside the issue store must not
-# reference issue-store paths. The store renumbers issues without updating
-# dependents, so any such pointer dangles (see .opencode#2506). Excluded:
+# Store-path reference gate — deck-facing files must not reference issue-store
+# paths. The store renumbers issues without updating dependents, so any such
+# pointer dangles (see .opencode#2506). Scope (narrowed per .opencode#2562):
+# the gate exists to protect agent-read deck instructions — test-harness
+# scenario scripts are excluded; their `.issues/<N>` references point at the
+# fixture store the harness injects into ephemeral test repos, not the real
+# store. Excluded:
 #   - paths under .issues/ — the store worktree itself
-#   - tests-v2/behaviors/fixtures/ — fabricated store content injected into
-#     test repos, not references to the real store
+#   - tests-v2/ — fabricated fixture content and scenario scripts; neither
+#     references the real store
 # pattern is split across quotes so the gate's own source never matches it
 pattern='\.''issues/'"[0-9]"
 while IFS= read -r f; do
   case "$f" in
     .issues/*|*/.issues/*) continue ;;
-    tests-v2/behaviors/fixtures/*) continue ;;
+    tests-v2/*) continue ;;
   esac
   if git show ":$f" 2>/dev/null | grep -nE "$pattern" >/dev/null 2>&1; then
     echo "" >&2
