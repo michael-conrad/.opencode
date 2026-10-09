@@ -7,20 +7,25 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out -->
 
 # plan — implementation planning
 
 1. **One item per SC.** Each item states: deliverable, RED (the failing
    assertion, written against current behavior), GREEN (the change), and the
    verification instrument (a check the agent can run — never prose recall).
-2. **Dependency order.** Sequence items so each RED/GREEN cycle builds on
+2. **Load the cards in scope.** Identify the languages and build tools the
+   plan's items touch and load their cards (where cards exist), and load
+   `programming-principles` for the engineering-principles layer — conventions
+   and packaging expectations shape item decomposition and per-item
+   verification.
+3. **Dependency order.** Sequence items so each RED/GREEN cycle builds on
    verified prior state. Needs-based sizing: no padding items, no filler.
-3. **Derivation guard.** Every item traces to an SC. Untraceable items are
+4. **Derivation guard.** Every item traces to an SC. Untraceable items are
    removed, not justified.
-4. **No status tracking in the body** — no STATUS fields, completion markers,
+5. **No status tracking in the body** — no STATUS fields, completion markers,
    or progress indicators. State lives in the pipeline, not the plan.
-5. **Consume validated specs only.** Plan items trace to the spec's SCs.
+6. **Consume validated specs only.** Plan items trace to the spec's SCs.
    Before planning, judge each SC against
    [the validation standards](../spec/references/validation-standards.md)
    defect
@@ -28,7 +33,7 @@ provenance: AI-authored, .opencode#2490
    ambiguous criterion produces BLOCKED naming the criterion and the defect;
    the plan never routes around a defective criterion and never reinterprets
    it to make it plannable.
-6. Plans wait for the developer's authorization before `implement` when the
+7. Plans wait for the developer's authorization before `implement` when the
    scope requires it; short-path changes execute directly under `work`. A
    terminal-stage approval (`approved for pr`, `approved for
    implementation`, …) from the vocabulary in `floor.md` carries the item

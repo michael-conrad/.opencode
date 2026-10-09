@@ -1,18 +1,13 @@
 ---
 name: formal-tooling
-description: >-
-  Load when workflow correctness needs machine checking — constraint solving,
-  satisfiability checks, counterexamples, proofs over contract/state YAML, or
-  plan generation, validation, and grounding over PDDL. Runs the vendored z3
-  binary (SMT-LIB2) and unified-planning's `up` CLI through the thin
-  `tools/formal` adapter. Also load when a check/model/prove/plan/validate/
-  ground operation fails unexpectedly, or before first use on a machine where
-  the vendored binary has not been installed yet.
+description: "Load when workflow correctness needs machine checking — constraint solving, satisfiability checks, counterexamples, proofs over contract/state YAML, or plan generation, validation, and grounding over PDDL. Runs the vendored z3 binary (SMT-LIB2) and unified-planning's `up` CLI through the thin `tools/formal` adapter. Also load when a check/model/prove/plan/validate/ground operation fails unexpectedly, or before first use on a machine where the vendored binary has not been installed yet."
 license: MIT
+provenance: AI-authored, .opencode#2504
+---
+
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: AI-authored, .opencode#2504 -->
----
 
 # formal-tooling — vendored z3 + unified-planning via the `tools/formal` adapter
 

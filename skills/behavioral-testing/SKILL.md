@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2517; #2538 clean-room isolation mandate and evaluator contract restored from pre-rip verification-before-completion -->
+<!-- Provenance: AI-authored, .opencode#2517; #2538 clean-room isolation mandate and evaluator contract restored from pre-rip verification-before-completion; #2557 supervision poll discipline (≤60s, semantic check per poll, per-poll report) -->
 
 # behavioral-testing — the tests-v2 harness gate
 
@@ -58,16 +58,54 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
 8. **Default model is single-sourced.** `DEFAULT_TEST_MODEL` in
    `default-model.sh` runs every test; model-shopping is prohibited (R-20,
    §10.6). Remediation targets the defect classes, never model selection.
-9. **Monitor every run.** Launch in background; poll the live session DB at
-   30–60s intervals; record a semantic judgment on **every** poll (progressing
-   vs. off-track) in the poll log. A blind wait or a mechanical-only DB read
-   is a violation (§14). Abort on the hard-abort signals and record the
-   diagnosis. **Early exit on evidence sufficiency (#2538):** when a poll's
-   judgment finds the SC's evidence surface already complete and further
-   running adds no value, conclude the run — kill, export per §10.5, record
-   the sufficiency judgment, and proceed to evaluation. Waiting out a run
-   whose evidence is captured burns inference for nothing. This is a judgment
-   call — never scripted.
+9. **Supervise every run — 60-second poll cycle, update turn follows the poll's reminder.**
+   Launch the run in background. **The supervision cycle is two turns, strictly
+   alternating: (1) a tool call — `sleep 60`, then read the run's live session
+   DB — whose output ENDS WITH THE REMINDER to deliver the analysis in chat
+   (the poll script prints it); (2) the very next message is the text-only
+   update — the analysis and NO tool call.** The reminder block in the poll
+   output is the trigger; never chain another tool call before delivering the
+   update. The update turn ends the cycle and yields to the developer, who
+   resumes the loop; supervision continues on their prompt. The developer's UI
+   collapses Shell calls to bare command lines, so tool results, echo-carried
+   updates, and text riding in tool-call turns all fail to surface (verified
+   live, #2557; the standalone text turn is the only delivery that works). The
+   update states: what the run agent is doing right now, what it intends next,
+   whether that serves the scenario's goal, and which hard-abort signals (§14)
+   have fired — read from the agent's actual words and work, not counters.
+   **Keep the todo list current with the run's state** — it renders
+   persistently between updates. **Pin the polled DB to the active run's test
+   home** (env-passed path, not newest-by-mtime): a zombie run from a prior
+   kill can outlive its supervisor and pollute mtime-based selection — kill
+   survivors with `kill -9` by PID and re-verify with `pgrep`. Activity or
+   uptime proxies are INADMISSIBLE as the check; counters alone are not a
+   finding. **When the DB is flat, distinguish generating from stalled by
+   inference-load evidence — GPU utilization (`nvidia-smi`) and `ollama ps`:
+   a busy GPU is generation in progress; an idle GPU with a flat DB is a
+   stall signal. The supervision loop stays inside the repository: no
+   system-journal or system-log reads (journalctl and the like) in recurring
+   polls.**
+   **Cadence and gap claims are computed, never estimated:** record the nested
+   run's launch time and every poll time, and derive any cadence or gap
+   statement from those recorded timestamps — an assertion of compliance (or a
+   "no gap" framing) built from an elapsed-time impression is a fabricated
+   finding. If the run completed before the first poll, state that plainly,
+   take the early-exit path, and report the actual timeline. **No blocking
+   action longer than 60 s starts while a run is active** —
+   dispatch clean-room evaluations at run boundaries (after the run ends),
+   never mid-run. Abort on the hard-abort signals and record the diagnosis in
+   the next update. **Early exit on evidence sufficiency (#2538):** when a
+   poll's judgment finds the SC's evidence surface already complete and
+   further running adds no value, conclude the run — kill, export per §10.5,
+   record the sufficiency judgment, and proceed to evaluation. Waiting out a
+   run whose evidence is captured burns inference for nothing. Whether the
+   evidence surface is complete is a judgment call — never scripted. **Verdict
+   for ceremony-escalation aborts:** a run aborted for ceremony escalation
+   (self-inflicted detours — summoned machinery, tooling debugging, store
+   initialization — the task never requires) whose root cause traces to deck
+   wording is a **FAIL** verdict, remediated by the easy deck correction, and
+   the scenario re-runs — never reclassified as inconclusive or worked around
+   in the prompt.
 10. **Timeouts and recovery.** Bash-tool timeout ≥ 600000 ms; on timeout,
     session resumption (`--continue`/`--session`) is the first-line recovery
     (§10.7); the §10 remediation paths replace model excuses and blind retries.

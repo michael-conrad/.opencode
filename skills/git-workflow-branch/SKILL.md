@@ -23,8 +23,11 @@ provenance: AI-authored, .opencode#2490
 3. **Submodules.** When work spans the parent and `.opencode`, sync the
    submodule pointer discipline: the pointer update rides with the next real
    parent-repo change — never a pointer-only commit.
-4. **Provenance.** Record branch, base tip, and issue in the work state so PR
-   preparation can verify the chain later.
+ 4. **Provenance.** Record branch, base tip, and the issue in the work state so
+    PR preparation can verify the chain later. **When the work has no issue,
+    record branch and base tip only** — never create an issue, or initialize an
+    issue store, to satisfy provenance; the record is input to PR prep, not a
+    checklist that summons new machinery.
 5. **Trunk protection.** The trunk commit/push check is enforced mechanically;
    treat any block as the hard boundary it is.
 

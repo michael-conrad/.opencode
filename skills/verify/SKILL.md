@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar -->
 
 # verify — the single verification pass
 
@@ -30,14 +30,22 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 6. **Test-value judgment lives here.** Whether a test asserts behavior the
    build tool already guarantees is intent-decidable — the reviewer judges it;
    no script decides it.
-7. **Criteria invariance.** Every audit and re-audit runs on the same declared
+7. **Build evidence for build-affecting changes.** When the change affects
+   build configuration or packaging (or the deliverable is a build artifact),
+   the executed evidence includes the build run's output (the canonical build,
+   sourced from the repo's declared build manifest, run in the shallow
+   temp-copy checkout) and the final-outputs assertion — the built artifact
+   exists and is sound. The reviewer consumes these as executed evidence, not
+   assertions; a review claiming build verification without the build's real
+   output is an unverified claim.
+8. **Criteria invariance.** Every audit and re-audit runs on the same declared
    criteria set: re-audit prompts restate it verbatim, and the pass condition
    is never re-authored at dispatch time. Post-verdict notes and directives
    feed the loop's revision step (fix the artifact), not a new bar. Changing
    the bar itself is deck governance — amend the criteria set so every audit
    runs on it. A directive that redefines the bar mid-stream is a
    halt-and-clarify trigger, not a re-dispatch trigger.
-8. **Behavioral evidence provenance.** Evidence for a behavioral SC is
+9. **Behavioral evidence provenance.** Evidence for a behavioral SC is
    accepted only from the `tests-v2` harness (`tests-v2/AGENTS.md` —
    session.yaml from `behavior_run`, plus the clean-room evaluation). An
    ad-hoc `opencode run` produces no evidence the reviewer can consume.

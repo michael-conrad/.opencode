@@ -1,0 +1,99 @@
+<!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Provenance: restored from the pre-rip release-promoter operating protocol (tag pre-rip; gate implemented as .opencode#2439), re-homed and root-agnosticized, .opencode#2557 -->
+
+# Release Promotion — Operating Protocol
+
+## Entry criteria
+
+- Release PR has been merged
+- Next version determined
+
+## Procedure
+
+0. **Verification gate (before tag creation):** Verify the release tree against
+   a clean, shallow temp-copy checkout of the release commit. This step runs
+   BEFORE any tag is created and NEVER modifies the source tree.
+
+   1. Determine the release commit (the commit to be tagged).
+   2. Create a temp directory (`mktemp -d`) and perform a shallow clone of the
+      repository into it:
+      ```bash
+      git clone --depth 1 <repo-url-or-path> <tmpdir>
+      ```
+   3. Check out the release commit inside the temp copy:
+      ```bash
+      git -C <tmpdir> checkout <release-commit>
+      ```
+   4. State `CHECKOUT_OK` when the temp copy is at the release commit. If the
+      clone or checkout fails, hard-fail and do not proceed to tagging.
+   5. Initialize submodules inside the temp checkout at their gitlink-pinned
+      SHAs:
+      ```bash
+      git -C <tmpdir> submodule update --init --depth 1
+      ```
+      This resolves every submodule to the exact SHA pinned by the release
+      commit's gitlink. `--remote` and `--recursive` are FORBIDDEN anywhere in
+      this gate — `--remote` would resolve submodules to branch tips instead of
+      pinned SHAs, and `--recursive` would pull in unintended nested
+      submodules.
+   6. **Submodule drift assertion (resolved SHA == pinned SHA):** after
+      `git submodule update --init --depth 1`, compare each resolved submodule
+      SHA against the SHA pinned by the release commit's gitlink:
+      ```bash
+      resolved=$(git -C <tmpdir>/<submodule-path> rev-parse HEAD)
+      pinned=$(git -C <tmpdir> ls-tree HEAD <submodule-path> | awk '{print $3}')
+      [ "$resolved" = "$pinned" ] || { echo "DRIFT_FAIL: <submodule-path> resolved $resolved != pinned $pinned"; exit 1; }
+      ```
+      Repeat for EVERY submodule. Any mismatch is a hard fail: state
+      `DRIFT_FAIL`, exit non-zero, and do NOT proceed to tagging — promotion is
+      blocked. `git submodule status` may be used as a cross-check (a `+`
+      prefix on a submodule line indicates drift from the gitlink).
+   7. **Canonical build and test command discovery (build manifest):** after
+      the submodule drift assertion, discover the repository's canonical build
+      and test commands from the repo's **build manifest** — the file the
+      repository itself declares as the source of its canonical commands (its
+      AGENTS.md or an equivalent the repository names). Never assume or
+      hardcode a specific build system.
+      1. Read the root build manifest of the temp checkout first and look for
+         a build/test commands section.
+      2. If the root manifest has no build commands section, fall back to the
+         submodule manifests it names for the declared commands.
+      3. Identify the canonical build command and the canonical test command
+         from the discovered section.
+      4. If the commands cannot be discovered from the manifest, hard-fail:
+         state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed to tagging —
+         promotion is blocked.
+      5. All discovery reads happen inside `<tmpdir>` against the
+         release-commit checkout — never against the source working tree.
+   8. **Build and test execution with zero-failure assertion:** execute the
+      discovered build command, then the discovered test command, inside the
+      temp checkout `<tmpdir>` — never in the source working tree:
+      ```bash
+      (cd <tmpdir> && <build-command>) || { echo "BUILD_FAIL: build command exited non-zero"; exit 1; }
+      (cd <tmpdir> && <test-command>) || { echo "BUILD_FAIL: test command exited non-zero"; exit 1; }
+      ```
+      Both commands MUST exit zero. Any non-zero exit is `BUILD_FAIL`: exit
+      non-zero, state `BUILD_FAIL` with the failing command and its exit code,
+      and do NOT proceed to tagging — promotion is blocked; no tag is created
+      and no tag is pushed.
+   9. All verification work happens inside `<tmpdir>`. The gate is read-only
+      with respect to the source working tree — never touch, checkout, or
+      reset the source repo.
+   10. **Invocation guarantee:** the verification gate runs EXACTLY ONCE per
+       release, before tag creation. Any gate FAIL (`DRIFT_FAIL`,
+       `MANIFEST_FAIL`, `BUILD_FAIL`) blocks promotion with NO retries within
+       the release run — a failed gate must not be re-run, remediated inline,
+       or re-attempted in the same release; promotion stops.
+
+1. **Tag format:** `v{semver}` (v prefix — de facto standard, Semver FAQ)
+2. **Annotated tags:** always use `git tag -a` with a message
+3. **Release body:** changelog entries for that version (standard practice)
+4. **Post-merge only:** only create tags after the release PR has merged
+
+## Exit criteria
+
+- Tag created and pushed
+- Release created with the changelog body
+
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

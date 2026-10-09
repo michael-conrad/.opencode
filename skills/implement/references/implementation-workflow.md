@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip) -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row -->
 
 # Implementation Workflow Reference
 
@@ -13,6 +13,7 @@ benefits from a clean-room dispatch — judgment, not ritual.
 | Step | How | Purpose |
 |------|-----|---------|
 | baseline | run the project's existing test suite; record results | confirm a green baseline — a failing baseline is a defect to report, not code around |
+| language/toolchain | identify the languages and build tools of the files about to be modified; load their cards (where cards exist) and `programming-principles` | language standards shape the change before the first edit, not after the first defect |
 | authorization | check floor vocabulary + current session state | confirm the change's scope is authorized before modifying files |
 | branch | `git-workflow-branch` conventions | feature branch exists before the first file modification |
 
@@ -31,7 +32,8 @@ benefits from a clean-room dispatch — judgment, not ritual.
 | Step | How | Purpose |
 |------|-----|---------|
 | test-contract currency | a behavior change updates its dependent tests in the same cycle — when behavior is spec-removed, the stale tests are removed/updated on the same branch | tests contract on behavior; a merged behavior change that leaves its old tests behind re-breaks the suite for every later PR |
-| structural | project-local lint/typecheck/build commands | cheap mechanical facts first |
+| structural | project-local lint/typecheck commands | cheap mechanical facts first |
+| build verification | when the change affects build configuration or packaging (or the deliverable is a build artifact): a shallow temp-copy checkout (`git clone --depth 1`) of the tree; the repo's canonical build command sourced from the repo's declared build manifest (ask rather than guess when the manifest does not declare one, and record the confirmed command); assertion that the final outputs exist and are sound (e.g. the built artifact present, its contents inspected) | "lint passed" is not "build works" — the built artifact is the deliverable, verified in a pristine checkout, never asserted from the working tree alone |
 | suite-green | run the full test suite; every failure is remediated or dispositioned via a filed fix — never passed through as "pre-existing" (#2553) | a red suite at the PR boundary ships the regression forward |
 | verify pass | dispatch the `verify` card's single fresh-context reviewer | one bounded review; churn rule applies |
 | PR prep | `git-workflow-pr` conventions | review context for the human gate |
