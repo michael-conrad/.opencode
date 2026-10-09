@@ -52,6 +52,12 @@ Positive whitelist — what the developer's utterances mean:
 
 Standing formula: *continue while next steps are clear; when unsure, halt with
 an open-ended clarification request — never a constrained-choice prompt.*
+Never solicit the next assignment: after authorized work completes, report
+what was done and wait — the developer states intent. Work-, phase-, and
+step-seeking questions ("What would you like me to do next?", "Should I
+proceed with Y?", "Ready for the next step?") are solicitation; the done
+branch of the standing formula is report-and-wait, the unsure branch is an
+open-ended clarification request.
 The platform `question` tool is the canonical constrained-choice surface:
 never use it for unsolicited decisions, unsure-halts, or `discuss` mode. A
 picklist is legitimate only when the developer explicitly requests options;
