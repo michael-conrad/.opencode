@@ -1,0 +1,55 @@
+#!/bin/bash
+# gitbucket-issue-state — non-interactive GitBucket issue close/reopen.
+#
+# GitBucket's GitHub-compatible API does not implement issue state mutation
+# (PATCH/POST on issue state returns 404), and `gb issue close` falls back to
+# an interactive web flow that requires a TTY (.opencode#2564). This tool
+# implements the web route non-interactively: sign-in session cookie, then
+# POST to /{owner}/{repo}/issue_comments/state with action=close|reopen.
+#
+# Usage: gitbucket-issue-state <owner/repo> <number> <close|reopen> [comment]
+# Env:   GB_HOST (required), GB_PASSWORD (required — GitBucket offers no
+#        token-based state mutation; the harness exports GB_PASSWORD=root
+#        for its fixture instance). Never embed credentials in code.
+set -euo pipefail
+
+usage() { echo "usage: gitbucket-issue-state <owner/repo> <number> <close|reopen> [comment]" >&2; exit 2; }
+[ $# -ge 3 ] || usage
+REPO_SLASH_NUM="$1"; NUMBER="$2"; STATE="$3"; COMMENT="${4:-}"
+REPO="${REPO_SLASH_NUM%%/*}"; REPO2="${REPO_SLASH_NUM#*/}"
+# accept owner/repo or bare repo when GB_REPO is set
+[ "$REPO" = "$REPO2" ] || OWNER="$REPO"
+REPO_NAME="$REPO2"
+[ -n "${OWNER:-}" ] || OWNER="${GB_REPO%%/*}"
+HOST="${GB_HOST:?GB_HOST is required}"
+USER_NAME="${GB_USER:-root}"
+PASSWORD="${GB_PASSWORD:?GB_PASSWORD is required (GitBucket has no token-based issue state mutation)}"
+case "$STATE" in close|reopen) ;; *) usage ;; esac
+
+JAR="$(mktemp)"
+trap 'rm -f "$JAR"' EXIT
+
+# 1. Sign in — session cookie (GitBucket answers 302 on success)
+CODE=$(curl -s -c "$JAR" -o /dev/null -w '%{http_code}' -X POST "$HOST/signin" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "userName=$USER_NAME" --data-urlencode "password=$PASSWORD" \
+  --data-urlencode "hash=")
+case "$CODE" in 200|302) ;; *) echo "gitbucket-issue-state: sign-in failed (HTTP $CODE) — check GB_PASSWORD" >&2; exit 1 ;; esac
+
+# 2. Scrape the issue's internal issueId from the issue page (falls back to NUMBER)
+PAGE=$(curl -s -b "$JAR" "$HOST/$OWNER/$REPO_NAME/issues/$NUMBER")
+ISSUE_ID=$(printf '%s' "$PAGE" | grep -oE 'name="issueId" value="[0-9]+"' | head -1 | grep -oE '[0-9]+')
+ISSUE_ID="${ISSUE_ID:-$NUMBER}"
+
+# 3. Post the state change (GitBucket redirects to the issue page on success)
+CODE=$(curl -s -b "$JAR" -o /dev/null -w '%{http_code}' -X POST \
+  "$HOST/$OWNER/$REPO_NAME/issue_comments/state" \
+  --data-urlencode "issueId=$ISSUE_ID" \
+  --data-urlencode "action=$STATE" \
+  --data-urlencode "content=$COMMENT")
+case "$CODE" in 200|302) ;; *) echo "gitbucket-issue-state: state change failed (HTTP $CODE)" >&2; exit 1 ;; esac
+
+# 4. Verify via REST read (tolerates unavailable auth — best-effort confirmation)
+NEW_STATE=$(curl -s "$HOST/api/v3/repos/$OWNER/$REPO_NAME/issues/$NUMBER" \
+  -H "Authorization: token ${GB_TOKEN:-}" | grep -oE '"state"[: ]*"[a-z]+"' | head -1 | grep -oE '[a-z]+"$' | tr -d '"') || true
+echo "$STATE: $OWNER/$REPO_NAME#$NUMBER -> ${NEW_STATE:-unknown}"
