@@ -1,76 +1,72 @@
 ---
 number: 1195
-title: "[SPEC] re-establish agent communication discipline: no question tool, open-ended discussion, single-point back-and-forth, no solicitation"
+title: "[SPEC] re-establish agent communication discipline: no question tool, open-ended
+  discussion, single-point back-and-forth, no solicitation"
 state: OPEN
 ---
 
 ## Summary
 
-The agent communication pattern has regressed. The `question` tool is used to pigeon-hole the developer into pre-defined choices instead of engaging in natural, open-ended discussion. The agent solicits work ("how should I handle X?") instead of acting or asking a single clear question. This spec codifies four mandates in `.opencode/AGENTS.md` to restore discipline.
+The agent communication pattern regressed: forced-choice `question` tool usage, shotgun multi-topic messages, and work solicitation ("what should I do next?"). A 2026-10-09 review of this spec against the rewritten deck (floor.md + routing.md + skills/, `.opencode#2490`) found mandates 1–3 absorbed or superseded by live deck content, leaving one unimplemented gap: no card states the no-solicitation rule. This revision narrows the spec to that gap; original scope that is now dead or satisfied is recorded in the re-evaluation below and removed from the work.
 
 ## Root Cause
 
-The `question` tool bypasses natural conversation by presenting forced-choice options. The agent's training toward "offering choices" and "surfacing options" creates solicitation patterns that push work back to the developer. The regression was identified during session work on #1191/#1194.
+The original root cause stands: the agent's training bias toward offering choices and surfacing options produces solicitation patterns that push work back to the developer (identified during #1191/#1194 session work). The specific surviving gap: the floor's standing formula covers the unsure branch ("when unsure, halt with an open-ended clarification request") but not the done branch — nothing prohibits open-ended work solicitation once authorized work completes and is reported.
 
-## Affected File
+## Deck Re-evaluation (2026-10-09)
 
-| File | Change |
-|------|--------|
-| `.opencode/AGENTS.md` | Add communication discipline section with four mandates |
+Disposition of the original four mandates against the live deck:
+
+| Mandate | Disposition | Evidence |
+|---|---|---|
+| 1 — no question tool | Superseded by a later floor ruling | floor.md authorization vocabulary: the `question` tool is the canonical constrained-choice surface — prohibited for unsolicited decisions, unsure-halts, and `discuss` mode; picklists only when the developer requests options, presented in prose |
+| 2 — open-ended, research-informed | Absorbed | `discuss` vocabulary entry (open-ended, no constrained choices); `explore` (research dispatches during discussion, live tool calls behind findings); `research` ("Never answer factual questions from training data without a live check") |
+| 3 — single-point back-and-forth | Absorbed, scoped narrower | `discuss` ("one topic at a time"); `explore` ("one question per message, highest importance first") — scoped to discussion modes, not universal |
+| 4 — no solicitation | Gap — unimplemented | Deck-wide sweep found zero solicitation patterns (compliant by absence) but also zero statements of the prohibition |
+
+Original success criteria disposition: SC-1 targeted a section in `.opencode/AGENTS.md` — that file is now pointer-only and carries no rules, so the target is dead; the always-injected surface is `floor.md`. Original SC-3 (no question-tool solicitation patterns in active skill files) was verified satisfied on 2026-10-09 — the only `question`-tool reference in skills/ is `explore`'s citation of the floor's prohibition. Original SC-2 (mandates carry prohibitions and examples) carries forward onto the one surviving mandate below.
+
+Deck edits route through the deck-governance card (`skill-creator`), admission gate first — the trace below supplies its inputs.
 
 ## Spec
 
-### Phase 1: Add Communication Discipline Section to AGENTS.md
+### Phase 1: Add the no-solicitation rule to floor.md
 
-Add the following as a new section in `.opencode/AGENTS.md` (placement: after Identity Detection, before Pipeline Re-Priming, or in a logical position near Boundaries):
+Add to the floor's authorization-vocabulary section, adjacent to the standing formula, a rule to this effect:
 
-```
-## Communication Discipline
+> After completing authorized work: act within scope, report what was done, and wait. Never solicit the next assignment — no work-seeking, phase-seeking, or step-seeking questions ("How should I handle X?", "Should I proceed with Y?", "What would you like me to do next?", "Ready for the next step?"). When unsure, halt with an open-ended clarification request; when done, stop and wait — the developer states intent.
 
-### Mandate 1: No question tool usage — no pigeon-holing
+The rule composes with the standing formula: unsure → open-ended clarification request; done → report and wait without soliciting. Final wording is a plan/implementation decision within this constraint.
 
-The `question` tool is prohibited. It pigeon-holes the developer into predefined choices instead of allowing natural discussion. All communication must use plain text — ask a direct question, make a statement, or propose a course of action. The tool creates an asymmetric interaction where the agent controls the options. This is not collaboration.
+### Phase 2 [deferred]: behavioral evidence
 
-### Mandate 2: Collaborative discussion — open-ended, research-informed
+Optional follow-up: produce behavioral evidence that the agent does not solicit after reporting — a session transcript reviewed by judgment, not a scripted check. Solicitation is intent-decidable; scripts are forbidden on it. Deferred unless the developer requests it.
 
-Every interaction must be collaborative and open-ended. Do not present multiple-choice options, decision matrices, or "choose from the following" patterns. Do research to answer questions and inform the discussion. Dispatch sub-agents as needed during the chat to be fully informed with the latest true information. Eschew training data and guessing before responding to or bringing up any topic or discussion point. Correctness and being fully informed trumps quick responses — a quick response many times assumes false premises. Metadata about issues, work, or anything else is generally not to be trusted at face value. Verify metadata as needed and appropriate to the discussion at hand.
+## Admission-Gate Trace (skill-creator)
 
-### Mandate 3: Single-point back-and-forth discussion
+1. **Observed failure** — solicitation patterns identified during #1191/#1194 session work; confirmed as a live gap by this revision's 2026-10-09 deck review.
+2. **Consumer** — every agent conversation turn, including turns where no card is dispatched.
+3. **Mechanism/trigger** — `floor.md` always-injected surface; no dispatch needed to reach it.
+4. **Predicate classification** — intent-decidable (solicitation is conversational intent); scripts forbidden; judgment decides.
+5. **Domain match** — native to this domain (agent conversation discipline); nothing adopted from another domain.
+6. **Root-agnostic** — no repo names or absolute paths in the rule.
+7. **What it replaces** — nothing displaced; gap-fill complementing the standing formula, net one rule.
+8. **Always-loaded surface discipline** — solicitation risk exists in conversational moments before or outside any card dispatch; the rule must be visible before any card dispatch, so floor placement is justified.
 
-Discuss exactly one thing at a time. Do not bundle multiple questions, options, or decisions into a single message. Each turn addresses one point, the developer responds, and the next turn builds on that response. This prevents the shotgun-pattern where the developer must address 3-5 items before the conversation can proceed.
-
-### Mandate 4: No solicitation — no work-seeking, phase-seeking, or step-seeking
-
-The agent must never solicit work, phases, steps, specs, or any form of task assignment from the developer. This includes:
-- "How should I handle X?" — do not ask; either state what you intend or ask a single yes/no question
-- "Should I proceed with Y?" — do not ask; either proceed within authorization or halt cleanly
-- "What would you like me to do next?" — do not ask; the developer will state intent
-- "Ready for the next step?" — do not ask; the developer will say when
-
-This is a known regression pattern. The agent must default to: act within scope, report what was done, and wait. Never solicit the next assignment.
-```
-
-### Phase 2 [if needed]: Add enforcement gate
-
-If behavioral enforcement is desired, add a test that verifies the agent does not use the `question` tool during implementation or discussion phases. This may be deferred if the prose mandate is deemed sufficient for a behavioral rule.
+Deck-debt ledger: the implementation records the admission decision in the deck-debt issue (synced issue store).
 
 ## Success Criteria
 
 | ID | Criterion | Evidence Type |
 |----|-----------|---------------|
-| SC-1 | AGENTS.md contains a Communication Discipline section with all 4 mandates | `string` |
-| SC-2 | Each mandate has clear prohibitions and examples | `string` |
-| SC-3 | No question tool solicitation patterns remain in active skill/guideline files (e.g., "ask the developer" patterns) | `string` |
+| SC-1 | floor.md contains an explicit no-solicitation rule: after authorized work completes, the agent reports and waits, and never solicits work, phases, steps, or assignments | `string` |
+| SC-2 | The rule sits adjacent to the standing formula and composes with it — unsure → open-ended clarification request; done → report and wait without soliciting | `string` |
+| SC-3 | No other deck file restates or contradicts the rule; existing citations (e.g. `explore`'s pointer to the floor's clarification ruling) remain consistent | `string` |
 
 ## Non-Goals
 
-- Not removing the `question` tool from the codebase — it may have legitimate use cases not yet identified
-- Not modifying individual skills or guidelines to remove existing question patterns (scope boundary — AGENTS.md only)
-- Not specifying whether the question tool is blocked in tool-use configuration (may be a follow-up)
+- Not revisiting the floor's `question`-tool ruling — it supersedes this spec's original Mandate 1
+- Not adding scripted enforcement — solicitation is intent-decidable; scripts are forbidden on it (judgment-reviewed behavioral evidence remains available under Phase 2)
+- Not modifying the `explore`, `discuss`, or `research` cards — Mandates 2–3 are absorbed there
 
-## Environment
-
-- Repo: `michael-conrad/.opencode`
-- Branch: `feature/communication-discipline`
-
-🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
