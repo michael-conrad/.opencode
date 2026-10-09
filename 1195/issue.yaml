@@ -3,7 +3,7 @@ title: '[SPEC] re-establish agent communication discipline: no question tool, op
   discussion, single-point back-and-forth, no solicitation'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1195
-status: open
+status: closed
 body: '> **Full spec and artifacts: [`.opencode/.issues/1195/`](https://github.com/michael-conrad/.opencode/tree/issues-data/.opencode/.issues/1195/)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -54,4 +54,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/1195/`](https://github.c
   spec folder above.
 
   '
-updated_at: '2026-10-09T15:24:49+00:00'
+updated_at: '2026-10-09T15:34:10+00:00'
+closed_at: '2026-10-09T15:34:10+00:00'
+close_reason: completed
