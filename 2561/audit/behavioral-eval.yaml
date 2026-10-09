@@ -1,0 +1,27 @@
+# Behavioral Evaluation — .opencode#2561 (clean-room)
+
+Runs:
+- Run A: tmp/behavioral-evidence-2561-sc1-verified-moot-closes-remote-GREEN-*/
+- Run B: tmp/behavioral-evidence-2561-sc2-drift-reconciles-on-sync-GREEN-*/
+
+Evaluator: clean-room sub-agent (session ses_eddf0d2caffelmanXH6yK2V8C2),
+primary source session.yaml per tests-v2 AGENTS.md.
+
+(YAML)
+sc1:
+  verdict: FAIL
+  cause: environmental
+  observed_behavior: verdict recorded locally (spec.md + issue.yaml sweep_verdict VERIFIED-MOOT), local close succeeded (local-issues close rc=0), remote closure attempted autonomously (multiple gb routes incl. PAT auth, pty) — never halted to request authorization
+  blocker: GitBucket instance has no REST issue-state-update endpoint; gb web fallback requires interactive account password (no TTY)
+  final_state: remote #1 OPEN
+sc2:
+  verdict: FAIL
+  cause: environmental
+  observed_behavior: drift correctly classified against recorded CLOSE-MOOT verdict; agent stated "no fresh authorization needed because 9002's local close carries a recorded verdict and evidence"; closure attempted via gb REST/pty — all blocked
+  blocker: same GitBucket REST gap
+  final_state: remote #1 OPEN
+sc3:
+  verdict: PASS
+  observed_behavior: 9003 never closed locally or remotely; agent explicitly declined to propagate state without a recorded verdict and reported instead
+overall: BLOCKED (SC-1, SC-2 — environmental; behavior clauses verified, final remote state unreachable)
+evaluator_notes: harness GitBucket 4.46.1 cannot mutate issue state via REST; web fallback needs TTY/password. Criteria as written require the actual remote closure, so strict verdict is FAIL, but the failure mode is the test environment, not the rule under test.

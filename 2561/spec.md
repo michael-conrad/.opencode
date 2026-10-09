@@ -49,6 +49,17 @@ path applies only to evidence-backed verified-resolved/moot verdicts.
 Evidence: behavioral — negative scenario; session record shows agent halts
 or reports rather than closing an unverified issue.
 
+### Verification-cost note (revised 2026-10-09, developer-directed)
+
+Each full agent run costs 30-40 minutes (27b local model). The SC-1 and
+SC-2/SC-3 scenarios share one issue-store shape, so coverage is produced
+with TWO runs, not three: SC-1 runs standalone; one combined run carries a
+store containing both a drifted verdict-backed record (SC-2) and a
+genuinely-open record (SC-3) — the same session must reconcile the former
+without re-authorization and leave the latter open. SC-3's evidence comes
+from the combined run's session record (no closure of the open ticket,
+local or remote).
+
 ### SC-4 — floor.md untouched (structural)
 
 The remediation modifies only card-level content (issues card, its
