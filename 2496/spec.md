@@ -4,7 +4,7 @@
 
 ## Problem
 
-Observed in a downstream project (snea-phonetics, tracked in opencode-config#116): an agent designed CI crossing repo boundaries into submodules and treated submodule checkout itself as a cross-repo CI issue. Developer correction (2026-10-05): submodules are mandatory for checkout — not a cross-repo CI issue; they must be checked out for root repo CI, but submodule CI is each submodule's responsibility. The deck has no dispatch surface for CI intent: no card's description routes CI design, so the defect recurs in every downstream project that grows CI.
+Observed in a downstream project (snea-phonetics): an agent designed CI crossing repo boundaries into submodules and treated submodule checkout itself as a cross-repo CI issue. Developer correction (2026-10-05): submodules are mandatory for checkout — not a cross-repo CI issue; they must be checked out for root repo CI, but submodule CI is each submodule's responsibility. The deck has no dispatch surface for CI intent: no card's description routes CI design, so the defect recurs in every downstream project that grows CI.
 
 ## Success criteria
 
@@ -20,7 +20,7 @@ All SCs structural (fact-decidable) — content and dispatch-surface checks.
 
 ## Governance admission (skill-creator gate)
 
-1. **Observed failure**: the snea-phonetics instance (opencode-config#116); developer correction 2026-10-05.
+1. **Observed failure**: the snea-phonetics instance; developer correction 2026-10-05.
 2. **Consumer**: agents creating or modifying CI in any downstream repo.
 3. **Mechanism**: routing-index entry + card — documentation dispatch surface.
 4. **Predicate classification**: the boundary's violations are fact-decidable (does the CI config execute another repo's test framework? grep-able at review); compliance is judgment + review backstop.
