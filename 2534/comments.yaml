@@ -36,3 +36,29 @@ comments:
 
     🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
   timestamp: '2026-10-07T19:19:12+00:00'
+- type: internal
+  body: '### 2026-10-09 — Admission: floor no-solicitation rule (.opencode#1195, revised
+    spec)
+
+
+    - **What:** single governed edit to `floor.md` — the no-solicitation rule added
+    adjacent to the standing formula (done branch: after authorized work completes,
+    report and wait; work-/phase-/step-seeking questions are solicitation). Routing,
+    skills, and AGENTS.md untouched.
+
+
+    - **Gate evidence:** observed failure — solicitation patterns identified during
+    #1191/#1194 session work (original 2026-06-14 spec); 2026-10-09 deck review confirmed
+    the gap survives the #2490 rewrite (the standing formula covers the unsure branch
+    only; deck-wide sweep found zero statements of the prohibition — compliant by
+    absence). Consumer = every agent conversation turn, including turns before/outside
+    any card dispatch. Mechanism/trigger = floor always-injected surface; no dispatch
+    needed to reach it. **Predicate classification = intent-decidable (solicitation
+    is conversational intent) — scripts forbidden; judgment decides.** Domain match
+    = n/a (native to agent conversation discipline). Root-agnostic (no repo names,
+    no absolute paths). **Displaces/replaces:** nothing — net one rule, gap-fill complementing
+    the standing formula (revised spec records mandates 1–3 as absorbed/superseded;
+    original AGENTS.md target dead since #2490). Spec: `.opencode/.issues/1195/spec.md`
+    (validated PASS 2026-10-09); branch `feature/1195-no-solicitation-rule`, commit
+    `6c4fe04b`.'
+  timestamp: '2026-10-09T15:30:19+00:00'
