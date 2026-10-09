@@ -1,1 +1,18 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Closing as superseded by #2549 (opened and completed 2026-10-07), which delivered
+    this spec''s top-level intent — the agent resolving repo#N references from local
+    .issues/ stores before any network call — through a different architecture. Change
+    2/3 (section rename, keys, ordering): superseded — the targeted ## Local Issue
+    Artifacts section no longer exists; the mapping now lives as an issues: field
+    inside each Repo Information entry plus a vocabulary line in ## Local Issue Folders
+    (emitted before Repo Information, satisfying the ordering intent). Change 4 (locate
+    subcommand): explicitly dropped by developer decision recorded in #2549 — read/list/search
+    already emit spec_path=. Change 5 (tool description): delivered by #2549 with
+    revised wording. Change 1 (Repo Information prose replacement, SC-3): the sole
+    fragment still unimplemented — demoted from root-cause fix to minor polish, since
+    #2549''s mechanisms and the deck''s local-first doctrine counterbalance the network-first
+    drive the prose originally caused. All file/line anchors in this spec are stale
+    post-deck-rewrite. Net: ~80% superseded; spec not actionable as written. The prose-polish
+    fragment, if pursued, needs a fresh small spec with current anchors.'
+  timestamp: '2026-10-09T15:15:41+00:00'
