@@ -178,7 +178,7 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 | `.opencode/skills/git-workflow-branch/SKILL.md` | carries R-1, R-2, R-7 | Satisfied (present) |
 | `.opencode/skills/git-workflow-commit/SKILL.md` | carries the R-3 amendment | Satisfied (present) |
 | `.opencode/skills/git-workflow-pr/SKILL.md` | carries R-3, R-4 | Satisfied (present) |
-| `.opencode/skills/ci-boundary/SKILL.md` | carries R-6, R-9, the SC-7 pointer | Satisfied (present) |
+| `.opencode/skills/ci-boundary/SKILL.md` | carries R-6 and the SC-7 pointer | Satisfied (present) |
 | `.opencode/skills/implement/references/implementation-workflow.md` | carries R-5 | Satisfied (present, verified 2026-10-09) |
 | `.opencode/skills/issues/SKILL.md` | carries R-8 | Satisfied (present) |
 | `.opencode/tests-v2/AGENTS.md` | behavioral harness contract presupposed by SC-12 | Satisfied (present) |
