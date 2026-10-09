@@ -9,11 +9,11 @@
 | # | Field | Description |
 |---|-------|-------------|
 | 1 | **Problem Statement** | Agents developing in parent repos with submodules repeatedly ship bitrot: PRs are cut against stale submodule pointers; recursive/nested submodule checkouts move nested HEADs and incorporate bitrot into products; agents execute a submodule's own build tooling directly instead of the parent repo's framework; and stale ticket state feeds the developer wrong facts that become bad instructions to the agent. Every failure class has a recorded incident (Documentation Sources). |
-| 2 | **Root Cause / Motivation** | The #2490 rip-and-replace retired the pre-rip guidelines that carried these rules (e.g. "NEVER use --recursive with any git submodule command"; the root-repo-only tooling rule) and the surviving cards never re-admitted them: `git-workflow-branch` has a pointer-rides-alongside note but no trunk-tip freshness or capture-commit sequence; `git-workflow-pr`'s pre-create checklist has no pointer-inclusion, pointer-only-PR, or submodule-PR-ordering language; `ci-boundary` mandates pinned submodule checkout but takes no stance on recursion and carries a dead cross-reference; `git-workflow-commit` #5 calls pointer-only commits a defect without distinguishing branch-level capture commits from review-surface commits; `issues` has sync mechanics but no state-divergence correction rule; the implementation-workflow reference has no execution boundary. |
-| 3 | **Approach Chosen** | Re-admit the rule set scoped into the existing skill cards (no new card, no floor.md or routing.md changes): trunk-tip freshness, real-work sequence, and deinit remediation in `git-workflow-branch`; PR-surface and ordering-gate clauses in `git-workflow-pr`; the branch-level/review-surface amendment in `git-workflow-commit`; the non-recursive checkout mandate and dead-reference fix in `ci-boundary`; the agent-execution boundary in the implementation-workflow reference with a pointer line in `ci-boundary`; ticket-state hygiene in `issues`. Restore the execution-behavior RULE-D test adapted to the new placement under the tests-v2 harness. Correct the stale local mirror of #2306 as the hygiene rule's first application. Record the admission in the deck-debt ledger. |
+| 2 | **Root Cause / Motivation** | The #2490 rip-and-replace retired the pre-rip guidelines that carried these rules (e.g. "NEVER use --recursive with any git submodule command"; the root-repo-only tooling rule) and the surviving cards never re-admitted them: `git-workflow-branch` has a pointer-rides-alongside note but no trunk-tip freshness or capture-commit sequence; `git-workflow-pr`'s pre-create checklist has no pointer-inclusion, pointer-only-PR, or submodule-PR-ordering language; `ci-boundary` mandates pinned submodule checkout but takes no stance on recursion; `git-workflow-commit` #5 calls pointer-only commits a defect without distinguishing branch-level capture commits from review-surface commits; `issues` has sync mechanics but no state-divergence correction rule; the implementation-workflow reference has no execution boundary. |
+| 3 | **Approach Chosen** | Re-admit the rule set scoped into the existing skill cards (no new card, no floor.md or routing.md changes): trunk-tip freshness, real-work sequence, and deinit remediation in `git-workflow-branch`; PR-surface and ordering-gate clauses in `git-workflow-pr`; the branch-level/review-surface amendment in `git-workflow-commit`; the non-recursive checkout mandate in `ci-boundary`; the agent-execution boundary in the implementation-workflow reference with a pointer line in `ci-boundary`; ticket-state hygiene in `issues`. Restore the execution-behavior RULE-D test adapted to the new placement under the tests-v2 harness. Correct the stale local mirror of #2306 as the hygiene rule's first application. Record the admission in the deck-debt ledger. |
 | 4 | **Alternatives Considered & Why Discarded** | (a) Re-inject RULE-D into the always-injected surface (floor.md / canonical AGENTS.md, as pre-rip) — discarded: surface discipline forbids re-injecting work-scoped directives into the always-loaded floor. (b) A new standalone skill card for the rule set — discarded: fails the admission gate's net-zero test; the affected cards are already routed and already loaded at the failure moments. (c) Restoring the pre-rip mid-work pointer-freshness gate — discarded: recorded as unsatisfiable (freshness is legitimately false mid-development; a gate asserting pointer-equals-live-tip fails after any legitimate tip movement); the new rules are a start-of-work sync action plus fact-decidable PR checks, not a resurrected gate. (d) Mechanical enforcement scripts (hooks/lint) for the new rules — discarded: the rules are intent-decidable in operation; static checks on intent-decidable rules are the deck's founding defect; the existing pre-commit hook was verified this session to place no constraint on the capture-commit sequence. (e) Restoring all five pre-rip RULE-D behavioral tests verbatim — discarded: two of them verify the retired Tier classification (HALT framing, developer-authorization carve-out) that no longer exists in the live deck; only the execution-behavior tests are re-admitted. |
 | 5 | **Key Design Decisions** | (1) "Up-to-date" means the submodule's remote trunk tip — the tracked-branch tip per `.gitmodules`, fetched from the remote — not the recorded pointer; syncing to the recorded pointer reproduces possibly-stale state, which is the bitrot trap itself. (2) The pointer committed is the one the parent developed against: the start-of-work capture guarantees a non-bitrot baseline, and the ordering gate plus post-merge re-sync guarantee the PR never references unmerged submodule state. (3) The ordering gate is strict: any pending submodule PR blocks any parent PR creation, including unrelated changes — the accepted serialization cost of zero-bitrot PRs (developer-stated). (4) Pointer-only commits are sanctioned at branch level as capture commits and forbidden as standalone PRs, with release PRs exempt because their changelog/version/tag-prep content is real content; the squash-at-PR convention folds the capture commit into the per-issue commit, preserving the ride-along invariant at the review surface. (5) The deinit incantation is the session-verified form `git submodule foreach git submodule deinit --all --force` — the unadorned form exits 128 on modern git (bare `deinit` requires `--all` or a pathspec), making it a complete no-op; `--force` destroys nested uncommitted content by design, safe under the no-recursion rule because agents never legitimately write nested worktrees. (6) Ticket-state correction direction: the remote tracker anchors reality for changes made remotely (e.g. #2306's closure); the local store's authority per .opencode#2561 governs the closure workflow it drives — the two govern different moments and do not collide. (7) False-modified trigger conditions, verified empirically: divergent nested state (dirty worktree or moved HEAD) produces the phantom parent status; mere initialization of clean nested submodules does not on git 2.43.0. |
-| 6 | **User Intent / Original Prompt** | "brainstorm: we need appropriate anti-bitrot anti-cargo culting use modern up-to-date coding practices admonishments added to the appropriate skill cards. pointers must be brought up-to-date before doing any implementation work and always always always included in any root repo PRs, release or otherwise. additional admonishment which needs adding is to never do a recursive checkout and that a 'git submodule foreach git submodule deinit --force' may need to be run to ensure clean submodules don't show up as falsely modified in the root repository." Refined in-session by the developer: up-to-date = remote trunk tip; the synced pointer is what gets committed because it is what the root repo developed against; no parent PR for only pointer bumps unless a release PR has been requested; submodules are simply no recursion; the capture-commit sequence applies only when the parent has something to actually commit beyond pointer bumps; parent PR creation blocks while submodule PRs are pending; the corrected incantation is `git submodule foreach git submodule deinit --all --force`; RULE-D is re-admitted scoped into the appropriate skill cards; stale ticket states are always corrected to prevent the developer providing bad instructions to the agent; SCs added as needed to fix discovered defects (the ci-boundary cross-reference); the rule set is complete. |
+| 6 | **User Intent / Original Prompt** | "brainstorm: we need appropriate anti-bitrot anti-cargo culting use modern up-to-date coding practices admonishments added to the appropriate skill cards. pointers must be brought up-to-date before doing any implementation work and always always always included in any root repo PRs, release or otherwise. additional admonishment which needs adding is to never do a recursive checkout and that a 'git submodule foreach git submodule deinit --force' may need to be run to ensure clean submodules don't show up as falsely modified in the root repository." Refined in-session by the developer: up-to-date = remote trunk tip; the synced pointer is what gets committed because it is what the root repo developed against; no parent PR for only pointer bumps unless a release PR has been requested; submodules are simply no recursion; the capture-commit sequence applies only when the parent has something to actually commit beyond pointer bumps; parent PR creation blocks while submodule PRs are pending; the corrected incantation is `git submodule foreach git submodule deinit --all --force`; RULE-D is re-admitted scoped into the appropriate skill cards; stale ticket states are always corrected to prevent the developer providing bad instructions to the agent; SCs added as needed to fix discovered defects; the rule set is complete. |
 
 ## 2. Not Included
 
@@ -55,20 +55,19 @@ Each SC is a single atomic, independently verifiable claim. Evidence types are c
 | SC-10 | `issues` states the ticket-state hygiene rule: a stale ticket state — the local store mirror's record diverging from the remote tracker's state — is corrected on discovery, with the remote tracker anchoring reality for changes made outside the local workflow and the local-authoritative closure ruling (.opencode#2561) governing the closure workflow it drives. | structural | Inspect the card text for the rule and the boundary against the closure ruling |
 | SC-11 | The local store mirror of .opencode#2306 carries the same state as the remote tracker (closed), correcting the stale-open divergence recorded 2026-10-09. | structural | Compare the local record's status (`local-issues read`) against `gh issue view 2306 -R michael-conrad/.opencode --json state` |
 
-### Phase 4 — Defect fix, governance record, behavioral restoration
+### Phase 4 — Governance record and behavioral restoration
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-12 | `ci-boundary` contains no cross-reference to opencode-config#116. | structural | Search the card text for `opencode-config#116` — zero occurrences |
-| SC-13 | Adapted RULE-D behavioral enforcement test(s) exist under the tests-v2 harness and pass: in a multi-module checkout, the agent runs build/test through the parent repo's own framework and does not execute a submodule's own tooling. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, adapted from 2318-sc1..sc3; no structural substitution |
-| SC-14 | The deck-debt ledger issue records this admission: the evidence base (#2431, #2555, #2467, #2306, #2318, #2496, #372, #2469, opencode-config#255, #2440/#2489) and the placement decisions. | structural | Inspect the ledger issue's body/comments for the admission entry |
+| SC-12 | Adapted RULE-D behavioral enforcement test(s) exist under the tests-v2 harness and pass: in a multi-module checkout, the agent runs build/test through the parent repo's own framework and does not execute a submodule's own tooling. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, adapted from 2318-sc1..sc3; no structural substitution |
+| SC-13 | The deck-debt ledger issue records this admission: the evidence base (#2431, #2555, #2467, #2306, #2318, #2496, #372, #2469, opencode-config#255, #2440/#2489) and the placement decisions. | structural | Inspect the ledger issue's body/comments for the admission entry |
 
 ### Cost Frame
 
 Cost is measured in defect-discovery-latency, not tool calls. Correctness is the only metric.
 
-- SC-1 through SC-12, SC-14: each is a read of an edited card or a store-vs-remote comparison — one read call each. Skipping one means a rule ships to every consumer repo with a hole the next incident pays for.
-- SC-13: minutes of bounded behavioral execution. Skipping it means the re-admitted execution boundary ships without enforcement evidence — the exact loss the rip inflicted on #2318.
+- SC-1 through SC-11 and SC-13: each is a read of an edited card or a store-vs-remote comparison — one read call each. Skipping one means a rule ships to every consumer repo with a hole the next incident pays for.
+- SC-12: minutes of bounded behavioral execution. Skipping it means the re-admitted execution boundary ships without enforcement evidence — the exact loss the rip inflicted on #2318.
 
 ## 4. Requirements
 
@@ -80,8 +79,7 @@ Cost is measured in defect-discovery-latency, not tool calls. Correctness is the
 - R-6. The agent SHALL NOT perform a recursive submodule checkout in any form: CI checkout configured with `submodules: recursive`, `git clone --recursive`, or `git submodule update --init --recursive`.
 - R-7. False-modified submodule status caused by divergent nested submodule state SHALL be remediated with `git submodule foreach git submodule deinit --all --force` run from the parent repo root.
 - R-8. A stale ticket state — the local store mirror's record diverging from the remote tracker's state — SHALL be corrected on discovery, reconciling both sides to the true state.
-- R-9. The `ci-boundary` card SHALL NOT carry a cross-reference to opencode-config#116.
-- R-10. The deck-debt ledger SHALL record this admission's evidence base and placement decisions.
+- R-9. The deck-debt ledger SHALL record this admission's evidence base and placement decisions.
 
 ## 5. Phases and Items
 
@@ -159,21 +157,15 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 - verify: state comparison matches.
 - commit: store mutation (auto-committed by the tool).
 
-### Phase 4 — Defect fix, governance record, behavioral restoration
+### Phase 4 — Governance record and behavioral restoration
 
-#### Item 12 (SC-12): Dead cross-reference removal
-- RED: search finds `opencode-config#116` in `ci-boundary` — verified present.
-- GREEN: remove the reference; the card's provenance line remains the incident anchor.
-- verify: zero-occurrence search.
-- commit: card edit.
-
-#### Item 13 (SC-13): Adapted RULE-D behavioral test
+#### Item 12 (SC-12): Adapted RULE-D behavioral test
 - RED: no adapted test exists under tests-v2 (2318-sc1..sc3 exist only at tag `pre-rip`).
 - GREEN: adapt the scenario to the new placement (the boundary lives in the implementation-workflow reference) and author it per the tests-v2 harness.
 - verify: the behavioral test passes via `session.yaml` clean-room sub-agent inspection.
 - commit: test scenario.
 
-#### Item 14 (SC-14): Ledger admission record
+#### Item 13 (SC-13): Ledger admission record
 - RED: the deck-debt ledger carries no submodule entries — verified.
 - GREEN: record the admission (evidence base and placement decisions).
 - verify: ledger inspection.
@@ -189,9 +181,10 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 | `.opencode/skills/ci-boundary/SKILL.md` | carries R-6, R-9, the SC-7 pointer | Satisfied (present) |
 | `.opencode/skills/implement/references/implementation-workflow.md` | carries R-5 | Satisfied (present, verified 2026-10-09) |
 | `.opencode/skills/issues/SKILL.md` | carries R-8 | Satisfied (present) |
-| `.opencode/tests-v2/AGENTS.md` | behavioral harness contract presupposed by SC-13 | Satisfied (present) |
+| `.opencode/tests-v2/AGENTS.md` | behavioral harness contract presupposed by SC-12 | Satisfied (present) |
 | Tag `pre-rip` in the `.opencode` repo | source for the 2318-sc1..sc3 adaptation | Satisfied (present) |
-| `local-issues` tool | store mutations for SC-11, SC-14 | Satisfied (present) |
+| `local-issues` tool | store mutations for SC-11, SC-13 | Satisfied (present) |
+| Deck-debt ledger (.opencode#2534) | receives the SC-13 admission record | Satisfied (present) |
 | Session experiment 2026-10-09 (git 2.43.0, super→sub→nested scaffold) | established the verified deinit incantation, its failure modes, and the false-modification trigger conditions | Satisfied (executed; outputs recorded in session) |
 
 ## 7. Traceability
@@ -202,12 +195,11 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 | R-2 | SC-2 | Phase 1 |
 | R-3 | SC-3, SC-4 | Phase 1 |
 | R-4 | SC-5 | Phase 1 |
-| R-5 | SC-6, SC-7, SC-13 | Phase 2, Phase 4 |
+| R-5 | SC-6, SC-7, SC-12 | Phase 2, Phase 4 |
 | R-6 | SC-8 | Phase 2 |
 | R-7 | SC-9 | Phase 3 |
 | R-8 | SC-10, SC-11 | Phase 3 |
-| R-9 | SC-12 | Phase 4 |
-| R-10 | SC-14 | Phase 4 |
+| R-9 | SC-13 | Phase 4 |
 
 ## 8. Documentation Sources
 
@@ -218,7 +210,7 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 | .opencode#2467 | incident + developer directive (nested checkout) | github.com/michael-conrad/.opencode/issues/2467 | Read during evidence research 2026-10-09 |
 | .opencode#2306 | incident (second recursion violation) + stale store state | github.com/michael-conrad/.opencode/issues/2306; local mirror `.opencode/.issues/2306/` | Read during evidence research 2026-10-09 |
 | .opencode#2318 | pre-rip rule + behavioral tests | github.com/michael-conrad/.opencode/issues/2318; spec at `.opencode/.issues/2318/spec.md`; tests at tag `pre-rip` | Read during evidence research 2026-10-09 |
-| .opencode#2496 | incident (ci-boundary origin) | github.com/michael-conrad/.opencode/issues/2496 | Read during evidence research 2026-10-09 |
+| .opencode#2496 | incident (ci-boundary origin) | github.com/michael-conrad/.opencode/issues/2496 | Read during evidence research 2026-10-09; its dangling "tracked in opencode-config#116" citation (remote #116 is an unrelated spec) was re-attributed from the card to this record at validation and remediated as store hygiene — the card itself never carried it |
 | .opencode#372, #2469 | misapplication family (unscoped test-framework mandates) | github.com/michael-conrad/.opencode/issues/372, 2469; parent `.issues/372/` | Read during evidence research 2026-10-09 |
 | opencode-config#255 | pre-work ordering defect | github.com/michael-conrad/opencode-config/issues/255 | Read during evidence research 2026-10-09 |
 | opencode-config#2440, .opencode#2489 | freshness-gate removal history | issue records | Read during evidence research 2026-10-09 |
