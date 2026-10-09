@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2543 -->
+<!-- Provenance: AI-authored, .opencode#2543; .opencode#2561 remote-state reconciliation -->
 
 # local-issues sync and worktree mechanics
 
@@ -57,3 +57,13 @@ number in that repo's own namespace.
   reachable remote when `origin/issues-data` may exist — a failed fetch
   fails fatally rather than minting a divergent empty orphan branch
   (#2548 C4).
+
+## Remote-state reconciliation (#2561)
+
+The local store is authoritative for issue status. When the local record is
+closed and the remote tracker still reports OPEN, that drift is repaired by
+reconciling the remote to the local state during the closure workflow — no
+fresh authorization is required, provided the local closure carries a
+recorded verdict or evidence (e.g. a CLOSE-MOOT sweep verdict). An
+unexplained status flip with no recorded verdict is not reconciliation
+material: it is store drift to investigate, not to propagate.

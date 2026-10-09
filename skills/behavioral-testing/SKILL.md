@@ -60,19 +60,28 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    §10.6). Remediation targets the defect classes, never model selection.
 9. **Supervise every run — 60-second poll cycle, update turn follows the poll's reminder.**
    Launch the run in background. **The supervision cycle is two turns, strictly
-   alternating: (1) a tool call — `sleep 60`, then read the run's live session
-   DB — whose output ENDS WITH THE REMINDER to deliver the analysis in chat
-   (the poll script prints it); (2) the very next message is the text-only
-   update — the analysis and NO tool call.** The reminder block in the poll
+   alternating: (1) a tool call — `sleep 60`, then `.opencode/tests-v2/poll-run.sh
+   <pinned-session-db> <poll#>` — whose output ENDS WITH THE REMINDER to
+   deliver the analysis in chat (the poll script prints it); (2) the very next
+   message is the text-only update — the analysis and NO tool call.** The reminder block in the poll
    output is the trigger; never chain another tool call before delivering the
-   update. The update turn ends the cycle and yields to the developer, who
-   resumes the loop; supervision continues on their prompt. The developer's UI
+   update. The supervision loop is continuous — it does NOT yield to the
+   developer between polls; mid-cycle yielding exits the loop and is the
+   defect corrected in #2561. The cycle ends only when monitoring is
+   conclusive: run completion, a handled hard-abort signal, or the
+   evidence-sufficiency early exit. The developer's UI
    collapses Shell calls to bare command lines, so tool results, echo-carried
    updates, and text riding in tool-call turns all fail to surface (verified
    live, #2557; the standalone text turn is the only delivery that works). The
    update states: what the run agent is doing right now, what it intends next,
    whether that serves the scenario's goal, and which hard-abort signals (§14)
    have fired — read from the agent's actual words and work, not counters.
+   **The loop is CONTINUOUS until conclusive (#2561 developer correction):
+   never yield to the developer mid-cycle — a poll cycle ends only when the
+   run is conclusive (run completion, a fired hard-abort signal handled, or
+   the evidence-sufficiency early exit), not on a schedule or after each
+   update. The per-poll sequence is: poll tool call → analyze its evidence →
+   report in chat → next poll tool call, repeating inside the working turn.**
    **Keep the todo list current with the run's state** — it renders
    persistently between updates. **Pin the polled DB to the active run's test
    home** (env-passed path, not newest-by-mtime): a zombie run from a prior
