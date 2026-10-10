@@ -1,0 +1,9 @@
+title: '[SPEC] email-ops dispatch reports gmail-tool unavailability — never falls
+  back to other mail pathways'
+status: open
+labels:
+- needs-approval
+- spec
+body: ''
+created_at: '2026-10-10T03:42:38+00:00'
+updated_at: '2026-10-10T03:42:38+00:00'
