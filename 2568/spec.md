@@ -34,7 +34,7 @@ optimization.
 1. The deck config `.opencode/opencode.jsonc` contains, in its `permission`
    block, the rule `"gmail_*": "deny"`. The gmail MCP server definition remains
    exactly as configured (no `mcp` block changes of any kind).
-2. A subagent card exists at `.opencode/agent/email-ops.md` with:
+2. A subagent card exists at `.opencode/agents/email-ops.md` with:
    - `mode: subagent` and a description of at most 30 words that contains the
      trigger vocabulary for email work (email, gmail, inbox, draft, send);
    - an explicit `permission` entry `"gmail_*": "allow"` (the MCP-tool default
@@ -45,8 +45,12 @@ optimization.
      the session.
 3. The `email-management` skill description no longer describes direct gmail
    tool handling; it states email-intent recognition, dispatch to the
-   email-ops subagent, and the outward-send authorization gate. The detailed
-   tool workflows it previously carried live in the card body.
+   email-ops subagent, and the outward-send authorization gate. The card's
+   own `tb` CLI workflows remain in its body and references; the gmail
+   tool-handling instructions are new content authored into the email-ops
+   card body (item 2). [Remediated during planning: the card never carried
+   gmail tool workflows — its pathway is the `tb` thunderbird-cli over a
+   desktop profile.]
 4. Deck task cards whose workflows send email mid-task (issue and spec flows
    were observed doing so in session history) carry a line routing email
    actions through the email-ops dispatch.
@@ -69,7 +73,7 @@ optimization.
   `"gmail_*": "deny"`, and the change's diff removes no `mcp` server
   definition from any config file. Instrument: direct config inspection of the
   implementation diff.
-- **SC-5 (structural).** `.opencode/agent/email-ops.md` exists with
+- **SC-5 (structural).** `.opencode/agents/email-ops.md` exists with
   `mode: subagent`, an explicit `"gmail_*": "allow"` permission entry, and a
   description of at most 30 words containing the trigger vocabulary named
   above. Instrument: file inspection and word count.
