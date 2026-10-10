@@ -4,6 +4,65 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2567/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2567)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2567/` — spec, plan, card catalogue, research,
+  audit findings
+
+
+  **Why**
+
+
+  - Both deck agent cards (`agents/vision-agent.md`, `agents/visual-design-agent.md`)
+  pin `model: ollama-cloud/qwen3.5:397b-cloud`. That id does not resolve in opencode''s
+  provider catalog — the listed cloud id is `ollama-cloud/qwen3.5:397b` (the `-cloud`
+  suffix is the ollama CLI tag form). Subagent dispatch is intent-matched against
+  card descriptions, so vision-flavored tasks are steered into a card whose model
+  reference is dead.
+
+  - The cards'' sampling profiles are qwen-era (temperature 0.3–0.8, top_k 20–40,
+  presence_penalty 1.5–2.0). The session primary, GLM-5.3-Flash, is natively multimodal;
+  vendor-documented recommended settings are temperature 1.0 / top_p 0.95 with task
+  differentiation via `reasoning_effort` (low/high/max only) — penalty parameters
+  and top_k are absent from the model''s serving schema. Research card: `research-cards/glm-5.3-flash-agent-card-settings.md`
+  (opencode-config store, 2026-10-09, confidence 0.85).
+
+  - The vision-specialist subagent is redundant against the primary''s native vision
+  and has seen negligible use (developer: never used more than once or twice).
+
+
+  **Final what**
+
+
+  1. Retire `agents/vision-agent.md`; its analysis rubric moves to `skills/multimodal-dispatch/references/vision-critique.md`
+  (caller-agnostic, native-first framing, image-as-file-path mechanics, capability-probe
+  commands).
+
+  2. `skills/multimodal-dispatch/SKILL.md` gains a native-first rule and links the
+  reference.
+
+  3. `agents/visual-design-agent.md` rebuilt frontmatter: `model:` removed; `temperature:
+  1.0`, `top_p: 0.95`, `reasoningEffort: max`; `top_k`/`options` (penalties) removed;
+  permissions unchanged; prompt body''s temperature-profile narrative corrected.
+
+  4. Model/agent claims remediated in `README.md` and `docs/model-dependency.md`:
+  dead auditor-pool / resolve-models / dispatch-table references removed; the "hard-wired
+  to Ollama / no alternate provider" claim and the "`ollama/:cloud` and `ollama-cloud/`
+  resolve to the same namespace" claim corrected.
+
+  5. Deck governance: skill-creator admission gate for the new reference + SKILL.md
+  edit; retirement gate for vision-agent (evidence: developer usage statement + structural
+  obsolescence); deck-debt ledger entry.
+
+
+  Scope boundary: a full README rewrite is out of scope — only model/agent claims
+  ride this pass.
+
+  '
 created_at: '2026-10-10T02:33:42+00:00'
-updated_at: '2026-10-10T02:33:42+00:00'
+updated_at: '2026-10-10T02:34:11+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2567
