@@ -38,7 +38,7 @@ optimization.
 1. The deck config `.opencode/opencode.jsonc` contains, in its `permission`
    block, the rule `"math_*": "deny"`. The math MCP server definition remains
    exactly as configured (no `mcp` block changes of any kind).
-2. A subagent card exists at `.opencode/agent/math-ops.md` with:
+2. A subagent card exists at `.opencode/agents/math-ops.md` with:
    - `mode: subagent` and a description of at most 30 words that contains the
      trigger vocabulary for math work (math, calculate, statistics,
      conversion, matrix, number theory);
@@ -66,7 +66,7 @@ optimization.
   `"math_*": "deny"`, and the change's diff removes no `mcp` server definition
   from any config file. Instrument: direct config inspection of the
   implementation diff.
-- **SC-5 (structural).** `.opencode/agent/math-ops.md` exists with
+- **SC-5 (structural).** `.opencode/agents/math-ops.md` exists with
   `mode: subagent`, an explicit `"math_*": "allow"` permission entry, and a
   description of at most 30 words containing the trigger vocabulary named
   above. Instrument: file inspection and word count.
