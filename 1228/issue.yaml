@@ -6,8 +6,8 @@ labels:
 created: 2026-06-15
 remote_url: https://github.com/michael-conrad/.opencode/issues/1228
 github_url: https://github.com/michael-conrad/.opencode/issues/1228
-status: open
-updated_at: '2026-10-10T01:59:50+00:00'
+status: closed
+updated_at: '2026-10-10T02:05:54+00:00'
 body: '> **Full spec and artifacts: [`.opencode/.issues/1228/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1228)**
   — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
   branch.
@@ -72,3 +72,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/1228/`](https://github.c
   and MUST NOT base implementation on this summary.
 
   '
+closed_at: '2026-10-10T02:05:54+00:00'
+close_reason: completed
