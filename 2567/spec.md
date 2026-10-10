@@ -120,8 +120,7 @@ Dispatching `visual-design-agent` from a live opencode session completes: the
 subagent resolves to the invoking primary's model (no model-resolution
 failure) and the pinned options are accepted by the provider (no parameter
 rejection). The execution evidence includes the subagent's effective model
-identity. This execution also closes the research gap on whether
-`reasoning_effort` forwards end-to-end through the huggingface provider.
+identity.
 
 Evidence: behavioral — executed `opencode run` (or tests-v2 harness scenario)
 transcript.
