@@ -652,6 +652,12 @@ echo "[test-env] opencode=$TEST_HOME/bin/opencode"
 GB_ENV_ARGS=(GB_HOST="${GB_HOST:-$GB_HOST_CONSTANT}" GITBUCKET_PORT="${GITBUCKET_PORT:-$GITBUCKET_PORT_CONSTANT}" GB_REPO="${GB_REPO:-$GB_REPO_CONSTANT}" GB_PROTOCOL="${GB_PROTOCOL:-$GB_PROTOCOL_CONSTANT}")
 if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ]; then
     GB_ENV_ARGS+=(GB_TOKEN="${GB_TOKEN:-}")
+    # .opencode#2564: GitBucket has no token-based issue state mutation; the
+    # gitbucket-issue-state tool signs in with a session cookie. The fixture
+    # account credentials are HARNESS-OWNED CONSTANTS minted below — they are
+    # NEVER read from the parent/production environment (zero-tolerance
+    # isolation mandate: no production env passthrough, #2538).
+    GB_ENV_ARGS+=(GB_USER="root" GB_PASSWORD="root")
 fi
 
 # Isolate XDG state AND snap data to test home using env -i with explicit allowlist.
