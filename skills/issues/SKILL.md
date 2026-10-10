@@ -39,6 +39,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    developer instruction — never closure to tidy up. A verdict-backed closure
    reconciles the remote tracker to the same closed state in the same
    workflow; the local store is authoritative (#2561).
+6. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
+   checks — dispatches to the `email-ops` subagent, which holds the gmail
+   tool permissions; the flow itself never calls gmail tools directly.
 
 ## local-issues operating contract
 

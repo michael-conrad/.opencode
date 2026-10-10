@@ -1,6 +1,6 @@
 ---
 name: email-management
-description: "Load when the session needs to search, read, or draft email that lives in an existing desktop mail profile — finding messages, following threads, extracting attachments, composing or replying, or verifying that a send actually arrived. Also load when a mail search returns nothing and the mailbox contents must be checked directly, or when any send or mailbox-move is proposed: drafting defaults to a dry run, and every outward-facing action requires explicit developer instruction in the session."
+description: "Load when the session involves email — gmail, inbox, drafts, sending, or mail searches: recognize the intent and dispatch gmail tool work to the email-ops subagent, which holds the gmail tool permissions. Drafting defaults to a dry run, and every outward-facing send requires explicit developer instruction in the session."
 license: MIT
 provenance: AI-authored, .opencode#2532
 ---

@@ -56,5 +56,8 @@ provenance: AI-authored, .opencode#2490
    authorization before `plan` — and a terminal-stage approval
    (`approved for pr`, `approved for implementation`, …) from the vocabulary
    in `floor.md` *is* that authorization; the stage is not re-asked.
+8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
+   checks — dispatches to the `email-ops` subagent, which holds the gmail
+   tool permissions; the flow itself never calls gmail tools directly.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
