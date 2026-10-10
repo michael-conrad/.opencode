@@ -47,5 +47,8 @@
       }
     }
   },
+  "permission": {
+    "gmail_*": "deny"
+  },
   "plugin": []
 }
