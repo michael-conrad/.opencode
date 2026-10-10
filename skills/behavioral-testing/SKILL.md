@@ -2,7 +2,7 @@
 name: behavioral-testing
 description: "Load for ANY opencode behavior testing — running a behavioral SC, verifying agent behavior, executing or monitoring an `opencode run`, evaluating session evidence, or deciding how to produce behavioral evidence at all. Also load when a spec SC is classified behavioral, when a test scenario script under tests-v2/ is authored or run, when a behavioral test needs a real remote API (the harness provisions a self-contained GitBucket container — §12), or when a behavioral run stalls, times out, or fails. Routes to the tests-v2 behavioral harness — never an ad-hoc `opencode run`."
 license: MIT
-provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck
+provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator contract restored from pre-rip deck; #2570 supervision-cycle absoluteness + no-output-filtering
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
@@ -65,7 +65,13 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    deliver the analysis in chat (the poll script prints it); (2) the very next
    message is the text-only update — the analysis and NO tool call.** The reminder block in the poll
    output is the trigger; never chain another tool call before delivering the
-   update. The supervision loop is continuous — it does NOT yield to the
+   update. **The 60-second cycle is absolute — no longer sleeps (240s/300s+)
+   between polls, ever (observed defect, #2570). Never pipe, grep, head, tail,
+   or otherwise filter or truncate the poll output — the trailing reminder is
+   the update trigger, and filtering it out silently suppresses the update
+   turn (observed defect, #2570: a `grep | head` poll invocation dropped the
+   reminder and produced a run of bare bash calls with zero in-chat updates).**
+   The supervision loop is continuous — it does NOT yield to the
    developer between polls; mid-cycle yielding exits the loop and is the
    defect corrected in #2561. The cycle ends only when monitoring is
    conclusive: run completion, a handled hard-abort signal, or the

@@ -17,14 +17,17 @@
       "type": "local",
       "command": [
         "uvx",
+        "--python",
+        "3.13",
         "--with",
         "fastmcp==2.3.3",
-        "the-notebook-mcp",
-        "start",
-        "--allow-root",
-        "{env:PWD}",
-        "--transport",
-        "stdio"
+        "--with",
+        "jupyter_kernel_client==0.9.0",
+        "--with",
+        "the-notebook-mcp==0.9.0",
+        "python",
+        "-c",
+        "import os, sys\nimport the_notebook_mcp.core.branding as branding\nbranding.get_server_startup_message = lambda config: 'the-notebook-mcp %s ready (stdio); root dirs: %s' % (config.version, ', '.join(config.allow_root_dirs))\nfrom the_notebook_mcp.server import main\nsys.argv = ['the-notebook-mcp', 'start', '--allow-root', os.environ.get('PWD') or os.getcwd(), '--transport', 'stdio']\nmain()"
       ],
       "enabled": true
     },
@@ -49,7 +52,8 @@
   },
   "permission": {
     "gmail_*": "deny",
-    "math_*": "deny"
+    "math_*": "deny",
+    "the-notebook-mcp_*": "deny"
   },
   "plugin": []
 }

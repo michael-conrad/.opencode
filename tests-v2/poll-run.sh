@@ -46,9 +46,9 @@ if texts:
     print("  " + texts[-1].replace("\n", "\n  ")[:600])
 PYEOF
 
-cat <<'REMINDER'
+cat <<'REMINDER' >&2
 
-=== ORCHESTRATOR REMINDER (card §9, .opencode#2561) ===
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
 This poll's evidence now requires YOUR semantic analysis — the next turn
 MUST be a text-only in-chat update with NO tool call, stating:
   1. what the run agent is doing right now (from its actual words/work),
@@ -57,5 +57,25 @@ MUST be a text-only in-chat update with NO tool call, stating:
   4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
 Deliver the update in chat text. Only after that update may polling continue.
 Chaining another tool call before the update turn is the supervision defect.
+This reminder is emitted on stderr as well as stdout so it survives output
+filtering — filtering or truncating poll output is itself a supervision
+defect; never pipe poll output through grep/head/tail.
+=========================================================
+REMINDER
+
+cat <<'REMINDER'
+
+=== ORCHESTRATOR REMINDER (card §9, .opencode#2561; #2570) ===
+This poll's evidence now requires YOUR semantic analysis — the next turn
+MUST be a text-only in-chat update with NO tool call, stating:
+  1. what the run agent is doing right now (from its actual words/work),
+  2. what it intends next,
+  3. whether that serves the scenario's declared goal condition,
+  4. which hard-abort signals (tests-v2 AGENTS.md §14) have fired, if any.
+Deliver the update in chat text. Only after that update may polling continue.
+Chaining another tool call before the update turn is the supervision defect.
+This reminder is emitted on stderr as well as stdout so it survives output
+filtering — filtering or truncating poll output is itself a supervision
+defect; never pipe poll output through grep/head/tail.
 =========================================================
 REMINDER
