@@ -46,6 +46,13 @@ provenance: AI-authored, .opencode#2490
    (`tests-v2/AGENTS.md` — `with-test-home` + `behavior_run`, artifact +
    clean-room evaluation). An ad-hoc `opencode run` is not behavioral
    evidence.
+10. **Workflow fidelity.** Every step of the pre-implementation checklist, the
+    RED/GREEN chain, and the post-implementation gates — including steps
+    defined in the implementation-workflow reference — runs in order. A step
+    that appears redundant or unnecessary is not grounds to skip, compress,
+    reorder, or defer it; the cost of an extra step is negligible against the
+    cost of a skipped one. A step that cannot complete stops the cycle per the
+    reference's escalation rule — never silently omitted.
 
 **Agent-to-agent format:** structured data one agent creates for another — or
 ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
