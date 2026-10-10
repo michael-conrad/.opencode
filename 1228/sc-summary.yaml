@@ -1,27 +1,15 @@
 spec: 1228
-title: "[SPEC-FIX] Mandate compliance statement in every spec and plan body"
+title: "[SPEC-FIX] Forbid workflow-step skipping in the implement card"
 scs:
   - id: SC-1
-    criterion: spec-creation/tasks/write.md Step 1 mandates compliance statement at top and bottom of spec body
+    criterion: implement/SKILL.md contains a rule stating that a workflow step appearing redundant or unnecessary is not grounds to skip, compress, reorder, or defer it
     evidence_type: string
-    phase_binding: 1
   - id: SC-2
-    criterion: writing-plans/tasks/create/create-and-validate.md Step 7 mandates compliance statement at top and bottom of plan body
+    criterion: The new rule covers the full workflow — pre-implementation checklist, RED/GREEN chain, post-implementation steps — including steps defined in the implementation-workflow reference
     evidence_type: string
-    phase_binding: 1
   - id: SC-3
-    criterion: Behavioral test exists at .opencode/tests/behaviors/compliance-statement-spec.sh and passes after GREEN
-    evidence_type: behavioral
-    phase_binding: 1
-  - id: SC-4
-    criterion: Behavioral test exists at .opencode/tests/behaviors/compliance-statement-plan.sh and passes after GREEN
-    evidence_type: behavioral
-    phase_binding: 1
-  - id: SC-5
-    criterion: The compliance statement uses the exact wording specified in this spec
+    criterion: The new rule routes steps that cannot complete to the escalation path rather than silent omission
     evidence_type: string
-    phase_binding: 1
-  - id: SC-6
-    criterion: Compliance statement appears at both top and bottom of generated artifacts
-    evidence_type: behavioral
-    phase_binding: 1
+  - id: SC-4
+    criterion: The change is append-only — rules 1–9 of implement/SKILL.md unchanged in numbering and content
+    evidence_type: string

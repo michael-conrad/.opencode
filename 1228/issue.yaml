@@ -1,5 +1,5 @@
 number: 1228
-title: '[SPEC-FIX] Mandate compliance statement in every spec and plan body'
+title: '[SPEC-FIX] Forbid workflow-step skipping in the implement card'
 labels:
 - spec-fix
 - approved-for-plan
@@ -7,4 +7,68 @@ created: 2026-06-15
 remote_url: https://github.com/michael-conrad/.opencode/issues/1228
 github_url: https://github.com/michael-conrad/.opencode/issues/1228
 status: open
-updated_at: '2026-10-10T01:55:12+00:00'
+updated_at: '2026-10-10T01:59:50+00:00'
+body: '> **Full spec and artifacts: [`.opencode/.issues/1228/`](https://github.com/michael-conrad/.opencode/tree/issues-data/1228)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/1228/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Exec Summary
+
+
+  Agents executing plans sometimes skip, compress, reorder, or defer procedural workflow
+  steps — baseline runs, RED-phase assertions, post-regression suite re-runs, verification
+  dispatches — on the rationale that a step looks redundant or unnecessary. The defect
+  surfaces at review or after merge, when the skipped step''s protection is missing.
+  The current `implement` card forbids weakening criteria (rule 8, SC fidelity) but
+  does not name this procedural rationalization.
+
+
+  **Fix:** append one rule to `.opencode/skills/implement/SKILL.md` stating that every
+  step of the pre-implementation checklist, the RED/GREEN chain, and the post-implementation
+  gates (including steps defined in the implementation-workflow reference) runs in
+  order; perceived redundancy is not grounds to skip a step; a step that cannot complete
+  stops the cycle per the reference''s escalation rule instead of being silently omitted.
+
+
+  ### Key Decisions
+
+
+  - **Card-level, not artifact-level**: the admonishment lives where the temptation
+  arises (`implement` loads before work and before every mid-cycle change). Stamping
+  compliance boilerplate into every generated spec/plan body — the original proposal
+  — would violate the `spec` card''s normative body footer allowlist, which bans process
+  indicators from artifact bodies.
+
+  - **One home**: `implement` only — the failure mode lives at execution; scattering
+  the rule across other cards re-imports the boilerplate pattern.
+
+  - **Structural verification only**: step-skipping is intent-decidable; the floor
+  assigns intent-decidable rules to judgment, never mechanical enforcement, so the
+  original behavioral tests and exact-wording lock are retired.
+
+
+  ## Full Spec
+
+
+  See local artifact directory at `.opencode/.issues/1228/` for the complete spec
+  with success criteria table, risk analysis, and documentation sources.
+
+
+  ## AI Agent Instructions
+
+
+  This issue is an executive summary for human stakeholders.
+
+  The authoritative spec and plan artifacts are at the path above.
+
+  AI agents MUST read the local spec/plan files for implementation
+
+  and MUST NOT base implementation on this summary.
+
+  '
