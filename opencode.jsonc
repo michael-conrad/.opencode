@@ -48,7 +48,8 @@
     }
   },
   "permission": {
-    "gmail_*": "deny"
+    "gmail_*": "deny",
+    "math_*": "deny"
   },
   "plugin": []
 }
