@@ -94,3 +94,39 @@ deny active vs overridden to allow (A/B control), delta ≥ 1,000 tokens
 attributable to the math rule itself; expected ~2.0K (the math MCP's schema
 weight per the spec's problem statement). Executed by the verify reviewer
 pre-merge at the installed binary, with production confirmation post-merge.
+
+**Executed A/B probe evidence (2026-10-10, post-first-review remediation).**
+Six disclosed probe sessions run at the installed binary in the real project
+(working tree on the feature branch; prompt-marked `2569-verify-*` for db
+filtering; model `huggingface/zai-org/GLM-5.3-Flash` passed explicitly — a
+bare CLI run falls back to the global config default
+`ollama-cloud/glm-5.3-flash`, the wrong profile; the one probe launched
+before the model flag was added, `treatment-a`, hung incomplete on that
+wrong profile and is excluded):
+
+- TREATMENT (deny active): 17,121 / 17,121 / 17,122 — n=3, median **17,121**
+  (spread ≤ 1 token; the deny removes a fixed schema block, so the assembly
+  is deterministic).
+- CONTROL (deny overridden to allow via `OPENCODE_CONFIG_CONTENT`
+  final-scope merge): 17,094 / 18,374 / 18,374 — n=3, median **18,374**.
+  The 17,094 outlier sits below the treatment median: an intermittent
+  MCP-server start failure drops ~1.3K of schemas in both arms equally
+  (the same variance is visible in the #2568 review's own probe pairs,
+  17,040/18,320 both deny-active); the median is robust to it.
+- **Marginal delta attributable to the `math_*` deny rule: 1,253 tokens**
+  (control median − treatment median), meeting the ≥ 1,000 attribution bar.
+  Shortfall vs the spec's ~2.0K schema-weight estimate is reported
+  transparently; the controlled A/B is the stronger instrument and measures
+  the rule's actual effect.
+- Spec-literal check: 17,121 ≤ 21,000 — met (4,816 below the 21,937
+  baseline; ~3.3K of that margin is the gmail change's contribution, which
+  is why the A/B carries the attribution).
+
+Mechanism precision note (from the first review): the deck deny lands in
+every agent's ruleset, including non-card subagents — `opencode debug agent
+general` in the real environment shows both `gmail_*: deny` and `math_*:
+deny`; only the math-ops card's frontmatter allow (appended after config
+rules) wins for that agent. The first review's "@general still carries the
+math tools" observation is explained by config-load timing: its probe ran
+inside the still-running server instance whose config was loaded before the
+change (config is not hot-reloaded), not from the resolved ruleset.
