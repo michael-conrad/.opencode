@@ -1,5 +1,5 @@
 title: '[SPEC] Gmail MCP deny-by-default + dedicated email-ops subagent'
-status: open
+status: closed
 labels:
 - spec
 - plan
@@ -8,6 +8,8 @@ labels:
 - verify
 body: ''
 created_at: '2026-10-10T02:47:38+00:00'
-updated_at: '2026-10-10T03:39:33+00:00'
+updated_at: '2026-10-10T04:09:29+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2568
 phase: verify
+closed_at: '2026-10-10T04:09:29+00:00'
+close_reason: completed
