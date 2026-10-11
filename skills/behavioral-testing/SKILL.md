@@ -71,6 +71,14 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    the update trigger, and filtering it out silently suppresses the update
    turn (observed defect, #2570: a `grep | head` poll invocation dropped the
    reminder and produced a run of bare bash calls with zero in-chat updates).**
+   **Never kill by name pattern.** Run cleanup and abort kill only the PIDs the
+   agent itself launched — record the PID at launch and re-verify survivors by
+   PID (`kill -9 <pid>`, `ps -p <pid>`), never by a name match. A pattern kill
+   (`pkill -9 -f opencode`, or any pattern broad enough to match unrelated
+   processes) kills every matching process on the machine — observed
+   2026-10-11: a cleanup pass pattern-matched `opencode` and terminated the
+   developer's main opencode session mid-work. Scoped diagnosis greps are fine;
+   kill signals are PID-addressed only.
    The supervision loop is continuous — it does NOT yield to the
    developer between polls; mid-cycle yielding exits the loop and is the
    defect corrected in #2561. The cycle ends only when monitoring is

@@ -7,17 +7,21 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; native-first rule + reference link, .opencode#2567 -->
 
 # multimodal-dispatch
 
 1. **Classify the modality** first: text reasoning, code, vision/screen
    inspection, audio. The modality chooses the model — not habit.
-2. **Probe capabilities** when the target model's abilities are unknown
+2. **Native-first.** Prefer the invoking model's own multimodal capability —
+   dispatch vision work to a subagent only for context separation or bulk
+   work, not because a "vision specialist" exists. Visual critique follows
+   [references/vision-critique.md](references/vision-critique.md).
+3. **Probe capabilities** when the target model's abilities are unknown
    (`ollama-probe` / live check) rather than assuming.
-3. **Dispatch with context.** Sub-agents get the scoped goal and the material
+4. **Dispatch with context.** Sub-agents get the scoped goal and the material
    they need — clean-room, no orchestrator narration.
-4. **Report provenance** of model-routed results (which model produced what)
+5. **Report provenance** of model-routed results (which model produced what)
    when outcomes feed decisions.
 
 **Agent-to-agent format:** structured data one agent creates for another — or
