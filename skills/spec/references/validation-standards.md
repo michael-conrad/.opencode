@@ -58,12 +58,17 @@ A criterion is defective when it exhibits any of the following:
 7. **Trivially-true restatement.** The criterion restates existing behavior
    or a tautology, so it can never fail and verifies nothing.
 
-## Bounded loop
+## Loop
 
-FAIL → targeted revision of the named criteria → re-validate. One bounded
-loop: a FAIL that persists after revision halts to the developer naming the
-failing criteria — the validator does not negotiate criteria into passing,
-and the loop is not retried indefinitely.
+FAIL → revise the named findings in the artifact in place → re-validate. The
+revise → re-validate cycle repeats until a verdict with zero findings.
+Findings are never negotiated away — each revision genuinely fixes every
+named finding. Escalation to the developer fires only when the audit cannot
+reach a zero-finding verdict by revision: a finding persists after genuine
+remediation, or findings continue to surface across iterations without
+converging. The escalation carries the specific findings, their root cause,
+and what is needed to resolve them. Escalation and the clean PASS are the
+loop's only exits.
 
 ## Criteria invariance
 
