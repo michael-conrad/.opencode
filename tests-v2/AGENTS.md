@@ -316,6 +316,18 @@ The `model` field MUST match the `DEFAULT_TEST_MODEL` value. Previously the func
 
 It does NOT copy the production `opencode.jsonc` — that file contains secrets, API keys, and environment-specific settings that must not leak into test environments.
 
+#### Seeded Permission Policy — `external_directory` Containment
+
+The seeded config carries a `permission.external_directory` block that denies tool access to paths outside the test home (`#2579` containment layer, spec `.issues/2579/spec.md` in the issues-data store). The policy, in last-match-wins order:
+
+1. `"**": "deny"` — catch-all deny for every external path;
+2. `"~"` and `"~/**": "allow"` — the test home itself (`~` expands against the runtime `HOME`, which is the test home under `env -i`), covering the seeded gb config, test-home tooling, and the harness's auto-allowed tool-output directory;
+3. `"/tmp"`, `"/tmp/**"`, `"/var/tmp"`, `"/var/tmp/**": "allow"` — public scratch space normal tooling legitimately uses (`mktemp`, compilers, editors); no harness isolation surface lives there (the harness `tmp/` is the project's `tmp/`, not `/tmp`).
+
+Both config seeders carry the identical policy: `seed_model_config()` and the §14 classifier-home seeder in `behaviors/helpers.sh`.
+
+**Known residual — tool-surface hardening, not structural containment.** The permission layer fires on path-argument tools (`read`, `edit`, `glob`, `grep`) and is command-selective for bash: `cat` with an external path is caught, while `ls`, `grep`, `head`, and `sed` with absolute host paths bypass it (observed 2026-10-11; a run agent adapted from denied reads to bash extraction within one turn). Structural containment — the filesystem boundary that makes host paths unreachable regardless of tool — is the `.opencode#2582` layer (Dockerized execution, only-`tmp/` mounts). This policy composes with that layer; it does not replace it. A behavioral SC that legitimately needs a production path is a spec problem: re-scope the SC, never weaken this policy (clean-room mandate).
+
 #### uv/uvx Copy
 
 `do_setup()` copies `uv` and `uvx` from `.tools/uv/` into `$TEST_HOME/bin/` so opencode can use them for Python-based plugin operations (e.g., vibeguard plugin npm installs). If `uv` is not found at `.tools/uv/uv`, the script exits with a FATAL error.

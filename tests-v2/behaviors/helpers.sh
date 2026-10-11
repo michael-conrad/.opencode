@@ -662,7 +662,13 @@ CLSDIGEST
   },
   "permission": {
     "external_directory": {
-      "**": "allow"
+      "**": "deny",
+      "~": "allow",
+      "~/**": "allow",
+      "/tmp": "allow",
+      "/tmp/**": "allow",
+      "/var/tmp": "allow",
+      "/var/tmp/**": "allow"
     }
   }
 }
