@@ -1,11 +1,13 @@
 title: '[REGRESSION] Spec validation lost the automatic-fail rule — any audit finding
   must force revision and re-audit until clean'
-status: open
+status: closed
 labels:
 - needs-approval
 - bug
 - spec
 body: ''
 created_at: '2026-10-11T01:28:15+00:00'
-updated_at: '2026-10-11T01:28:18+00:00'
+updated_at: '2026-10-11T01:52:30+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2575
+closed_at: '2026-10-11T01:52:30+00:00'
+close_reason: completed
