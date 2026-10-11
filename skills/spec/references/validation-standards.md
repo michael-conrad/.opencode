@@ -12,10 +12,17 @@ lexical check is gamed by rephrasing; judgment is not.
 
 ## Verdict contract
 
-- **PASS** — no defect below is present in any criterion.
-- **FAIL** — names each failing criterion and the defect class it exhibits.
-  A FAIL without named criteria is not a verdict.
-- The validator reports only gaps affecting correctness or the stated
+- **PASS** — the reviewer reports zero findings, and no caveat, concern, or
+  note is attached to any criterion's verdict. A PASS with any disclosed
+  observation is not a verdict.
+- **FAIL** — any reported finding produces FAIL: an enumerated defect class
+  below, or any other correction, imprecision, factual error, or gap affecting
+  the artifact's correctness or its stated requirements. The verdict names
+  each finding and its ground. A FAIL without named findings is not a verdict.
+- **Findings are what the reviewer reports.** A substantive observation about
+  the artifact is always reported as a finding — the non-finding-note
+  disclosure path does not exist.
+- The reviewer reports only findings affecting correctness or the stated
   requirements — the same anti-churn binding as the verify card's reviewer.
   Style preferences, phrasing taste, and hypothetical improvements are not
   findings.
