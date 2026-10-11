@@ -77,8 +77,18 @@ body: "Standing ledger per the skill-creator governance card: usage observations
   \ registry as of 2026-09-25),\n  and redundant against the session primary's native\
   \ vision capability.\n  Admission of the replacement reference recorded same issue.\n\
   \n\n- **Spec/plan:** `.opencode/.issues/2567/spec.md`, `.opencode/.issues/2567/plan.md`.\n\
+  \n\n- **PR:** to be linked on PR creation for #2567.\n\n\n### 2026-10-11 — Correction:\
+  \ no pattern-based process kills (.opencode#2567 session)\n\n\n- **What:** behavioral-testing\
+  \ card rule 9 gains the no-pattern-kill rule — run\n  cleanup and aborts address\
+  \ only PIDs the agent itself launched (recorded at\n  launch, re-verified by PID),\
+  \ never a name-pattern match; observed failure:\n  an agent cleanup pass pattern-matched\
+  \ `opencode` and killed the developer's\n  main opencode session mid-work (session\
+  \ 2026-10-11, issue #2567 behavioral\n  verification).\n\n\n- **Gate evidence:**\
+  \ observed failure is the incident itself; consumer = any\n  agent supervising/aborting\
+  \ behavioral runs; mechanism = card rule in the\n  supervision section (intent-decidable\
+  \ in operation — no script); displaces\n  nothing (tightens the existing abort mechanics).\n\
   \n\n- **PR:** to be linked on PR creation for #2567.\n"
 created_at: '2026-10-07T12:24:35+00:00'
-updated_at: '2026-10-11T16:41:37+00:00'
+updated_at: '2026-10-11T17:29:12+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2534
 remote_url: https://github.com/michael-conrad/.opencode/issues/2534
