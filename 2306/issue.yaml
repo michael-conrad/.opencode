@@ -1,7 +1,7 @@
 labels:
 - spec-cleared
 - approved-for-pr
-updated_at: '2026-08-23T18:24:42+00:00'
+updated_at: '2026-10-11T03:02:29+00:00'
 body: "---\nnumber: 2306\ntitle: \"git-workflow-branch submodule-sync task card invites\
   \ submodule recursion, violating the standing no-`--recursive` guideline and producing\
   \ false \\\"changed submodule\\\" flags\"\nstatus: open\nlabels: [needs-approval,\
@@ -215,3 +215,4 @@ body: "---\nnumber: 2306\ntitle: \"git-workflow-branch submodule-sync task card 
   \ critical-rules-BEH-EV classification gate, declared string is automatically uplifted\
   \ to behavioral regardless of author declaration, and read-and-assert-presence verification\
   \ methods cannot produce behavioral evidence. | Pipeline validation gate |"
+status: closed
