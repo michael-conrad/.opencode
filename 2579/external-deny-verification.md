@@ -101,3 +101,52 @@ GPU/`ollama ps` inference-load checks at polls 4 and 7; run completed
 naturally after delivering its final report (process exited before a
 sufficiency-exit kill was needed). No §14 hard-abort signals fired; no
 blocking actions >60s mid-run.
+
+## Amendment — public /tmp and /var/tmp allows (verified 2026-10-11)
+
+Developer directive: "allowing explicit access to public /tmp and /var/tmp is
+probably good to do." Commit `c2e5bbb0` (same branch) extended both seeders:
+
+```jsonc
+"external_directory": {
+  "**": "deny",
+  "~": "allow",
+  "~/**": "allow",
+  "/tmp": "allow",
+  "/tmp/**": "allow",
+  "/var/tmp": "allow",
+  "/var/tmp/**": "allow"
+}
+```
+
+Rationale: normal-course tooling legitimately uses public scratch space
+(`mktemp`, compilers, editors); no harness isolation surface lives there (the
+harness `tmp/` is the project's `tmp/`, not `/tmp`).
+
+**Verification (attempt 3, complete run, 54 events, default model, 6 polls):**
+all four policy cases positively verified through the read tool in one record:
+
+| Case | Input | Outcome |
+|------|-------|---------|
+| Public /tmp allow | `read /tmp/external-deny-probe-marker.txt` | **completed** — contents returned |
+| Public /var/tmp allow | `read /var/tmp/external-deny-probe-marker2.txt` | **completed** — contents returned |
+| Host repo deny (catch-all) | `read /home/muksihs/git/opencode-config/.issues/42/spec.md` | **error** — permission block |
+| In-home allow, absolute form | `read <test-home>/.config/gb/config.toml` | **completed** — `default_host` returned |
+
+Attempt 2 had already verified the in-home allow via a relative-climb path
+(`../.config/gb/config.toml` completed) and the temp allows via relative
+escape paths (`../../../../../../../tmp/…` completed) — so the allow set
+matches correctly whether the agent writes absolute or climbing paths.
+Attempt 3's prompt constrained steps 1–3/5 to the read tool specifically; the
+agent complied and attempted no shell workaround, so this record isolates the
+read-tool policy surface cleanly. The bash-command bypass set from attempt 2
+(`ls`/`grep`/`head`/`sed` on host paths) remains the known residual of the
+permission layer and is unchanged by this amendment.
+
+The run agent's own report quoted the resolved rule structure (allows:
+test-home `**`, `/tmp`, `/var/tmp`, tool-output dir; deny: `**`), confirming
+the config resolves as authored.
+
+**Artifacts:** `tmp/2579/artifacts/external-deny-probe-attempt3-tmp-allow/`
+(session.yaml 54 events, stdout.log with the full agent report, stderr.log);
+test home preserved at `tmp/test-home-20261011-184450/`.
