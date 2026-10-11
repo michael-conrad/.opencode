@@ -1,8 +1,11 @@
 title: 'Pre-PR checklist gap: git-workflow-pr never mandates trunk-tip submodule pointer
   capture'
-status: open
+status: closed
 labels:
 - needs-approval
 body: ''
 created_at: '2026-10-09T18:19:39+00:00'
-updated_at: '2026-10-09T18:19:39+00:00'
+updated_at: '2026-10-11T02:20:00+00:00'
+closed_at: '2026-10-11T02:20:00+00:00'
+close_reason: duplicate
+duplicate_of: 2563
