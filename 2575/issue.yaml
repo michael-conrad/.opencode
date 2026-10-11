@@ -1,0 +1,10 @@
+title: '[REGRESSION] Spec validation lost the automatic-fail rule — any audit finding
+  must force revision and re-audit until clean'
+status: open
+labels:
+- needs-approval
+- bug
+- spec
+body: ''
+created_at: '2026-10-11T01:28:15+00:00'
+updated_at: '2026-10-11T01:28:15+00:00'
