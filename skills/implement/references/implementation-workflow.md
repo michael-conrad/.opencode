@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563 -->
 
 # Implementation Workflow Reference
 
@@ -16,6 +16,15 @@ benefits from a clean-room dispatch — judgment, not ritual.
 | language/toolchain | identify the languages and build tools of the files about to be modified; load their cards (where cards exist) and `programming-principles` | language standards shape the change before the first edit, not after the first defect |
 | authorization | check floor vocabulary + current session state | confirm the change's scope is authorized before modifying files |
 | branch | `git-workflow-branch` conventions | feature branch exists before the first file modification |
+
+## Submodule execution boundary
+
+In a parent repo with submodules, build, test, and verification runs through
+the parent repo's own build framework. The agent does not execute a
+submodule's own build tooling (its test runner, gates, or quality bars)
+directly — foreign verification machinery enforces or silently skips
+standards it does not own. The parent's own suite is the gate; the submodule
+evolves its CI on its own tracker.
 
 ## RED-GREEN chain (per plan item / SC)
 

@@ -42,9 +42,11 @@ provenance: AI-authored, .opencode#2490
    passable. An unimplementable criterion produces BLOCKED with the root
    cause; the criterion itself is never modified to admit the implementation.
 9. **Behavioral evidence goes through the harness.** Evidence for a behavioral
-   SC is produced only by the `tests-v2` behavioral harness
-   (`tests-v2/AGENTS.md` — `with-test-home` + `behavior_run`, artifact +
-   clean-room evaluation). An ad-hoc `opencode run` is not behavioral
+   SC is produced only by the `tests-v2` behavioral harness — load the
+   `behavioral-testing` card first and read
+   `.opencode/tests-v2/AGENTS.md` as its step 1 requires (`with-test-home` +
+   `behavior_run`, artifact + clean-room evaluation, 60-second supervision
+   cycle). An ad-hoc `opencode run` is not behavioral
    evidence.
 10. **Workflow fidelity.** Every step of the pre-implementation checklist, the
     RED/GREEN chain, and the post-implementation gates — including steps

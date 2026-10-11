@@ -2,12 +2,12 @@
 name: git-workflow-branch
 description: "Always load before creating any git branch or starting any work on a task in any repo — however small the task seems. Branch naming, trunk-freshness checks, submodule sync, provenance recording. Never commit directly to the trunk-identified primary branch; the feature branch exists before the first file modification."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563 -->
 
 # git-workflow-branch
 
@@ -15,20 +15,47 @@ provenance: AI-authored, .opencode#2490
    `feature/<issue>-<slug>` (or `<issue>-<slug>` for parent-repo submodule work).
    Issues sharing an authorization scope share **one** feature branch — name it
    after the scope's primary issue; one branch per issue is the violation.
-2. **Trunk freshness.** Verify the trunk tip before branching — sync and rebase
+2. **Trunk freshness.** Before any work in the repo: (a) pull the parent
+   repo's trunk to its remote tip; (b) sync each submodule's pointer to that
+   submodule's remote trunk tip — the tracked-branch tip per `.gitmodules`,
+   fetched from the remote, **not** the recorded pointer (syncing to the
+   recorded pointer reproduces possibly-stale state, which is the bitrot trap
+   itself); (c) when the parent has nothing to contribute beyond pointer
+   bumps, create no branch and make no commit — the drift rides with the next
+   real parent change. Verify the trunk tip before branching — sync and rebase
    if the trunk moved; state the verified tip in the work record. When scanning
    branches, `issues-data` is a reserved orphan-branch issue-store ref, checked
    out in a linked worktree (the `+` marker in `git branch -a`) — never a
    feature-branch naming or cleanup candidate (#2548 C8).
-3. **Submodules.** When work spans the parent and `.opencode`, sync the
-   submodule pointer discipline: the pointer update rides with the next real
-   parent-repo change — never a pointer-only commit.
- 4. **Provenance.** Record branch, base tip, and the issue in the work state so
-    PR preparation can verify the chain later. **When the work has no issue,
-    record branch and base tip only** — never create an issue, or initialize an
-    issue store, to satisfy provenance; the record is input to PR prep, not a
-    checklist that summons new machinery.
-5. **Trunk protection.** The trunk commit/push check is enforced mechanically;
+3. **Submodules — real-work sequence.** When the parent repo has real content
+   beyond pointer bumps, work proceeds in this fixed order: sync (per rule 2)
+   first, then feature-branch creation, then an immediate pointer-capture
+   commit — **pointer-only commits are sanctioned at branch level as capture
+   commits** — and only then commence work. At the review surface the
+   pointer-only prohibition applies (see `git-workflow-commit` #5 and
+   `git-workflow-pr`): the pointer rides with real changes in the squashed
+   per-issue commit, never as a standalone parent PR.
+4. **Submodule deinit remediation.** False-modified submodule status (a
+   phantom ` M <submodule>` in the parent) caused by divergent nested
+   submodule state is remediated with, run from the parent repo root:
+
+   ```
+   git submodule foreach git submodule deinit --all --force
+   ```
+
+   The deinit mandate is a special carve-out whose purpose is removing
+   unwanted recursive-checkout residue that causes agent-behavior issues and
+   bitrot. Caveat: `--force` destroys uncommitted content in nested submodule
+   worktrees — safe under the no-recursion rule (`ci-boundary`), because
+   agents never legitimately hold uncommitted content in nested submodule
+   worktrees. The card prescribes no restore path: restoring nested submodule
+   worktrees is not an agent operation.
+5. **Provenance.** Record branch, base tip, and the issue in the work state so
+   PR preparation can verify the chain later. **When the work has no issue,
+   record branch and base tip only** — never create an issue, or initialize an
+   issue store, to satisfy provenance; the record is input to PR prep, not a
+   checklist that summons new machinery.
+6. **Trunk protection.** The trunk commit/push check is enforced mechanically;
    treat any block as the hard boundary it is.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

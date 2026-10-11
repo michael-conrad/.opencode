@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578 -->
 
 # verify — the single verification pass
 
@@ -46,8 +46,9 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
    runs on it. A directive that redefines the bar mid-stream is a
    halt-and-clarify trigger, not a re-dispatch trigger.
 9. **Behavioral evidence provenance.** Evidence for a behavioral SC is
-   accepted only from the `tests-v2` harness (`tests-v2/AGENTS.md` —
-   session.yaml from `behavior_run`, plus the clean-room evaluation). An
+   accepted only from the `tests-v2` harness — load the `behavioral-testing`
+   card first and read `.opencode/tests-v2/AGENTS.md` as its step 1 requires
+   (session.yaml from `behavior_run`, plus the clean-room evaluation). An
    ad-hoc `opencode run` produces no evidence the reviewer can consume.
 
 **Agent-to-agent format:** structured data one agent creates for another — or
