@@ -53,5 +53,11 @@ Accounts and structure first, then content:
 - Lead with the answer; keep message lists tabular (from, subject, date).
 - If the dispatched task needs something the Gmail tools cannot do, say so
   explicitly rather than approximating with another tool.
+- **If the gmail tools are unavailable in this session's environment, report
+  that unavailability to the dispatching agent and stop.** Inside a dispatched
+  task you never install, configure, or substitute other mail tooling to work
+  around it — the `tb` (thunderbird-cli) pathway included. The
+  email-management card's setup-on-need install path is for main-agent use
+  only and is out of reach here.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
