@@ -26,9 +26,12 @@ also seen negligible use.
 
 Session 2026-10-09 evaluation of the deck's agent cards: `opencode models`
 lists `ollama-cloud/qwen3.5:397b` but not the cards' pinned
-`ollama-cloud/qwen3.5:397b-cloud`; `ollama show qwen3.5:397b-cloud` confirms
-the model exists and is vision-capable under the CLI tag, so the defect is the
-reference form, not the model. Research card
+`ollama-cloud/qwen3.5:397b-cloud`, so the defect is the reference form. Audit
+re-verification 2026-10-11 confirms the `-cloud` form is still absent from
+the catalog and finds the backing model retired from the ollama registry as
+of 2026-09-25 (`ollama show qwen3.5:397b-cloud` returns a retirement error) —
+reinforcing the unpin/removal rationale; the remediation is unaffected either
+way. Research card
 `research-cards/glm-5.3-flash-agent-card-settings.md` (opencode-config store,
 2026-10-09, confidence 0.85) verified the GLM-5.3-Flash settings from the
 Z.ai OpenAPI schema, Z.ai guides, HF model card, `generation_config.json`,
@@ -85,8 +88,9 @@ Evidence: structural — filesystem existence check plus repo grep.
 
 ### SC-2 — visual-design-agent profile matches GLM-5.3-Flash (structural)
 
-`agents/visual-design-agent.md` contains: no `model:` key in frontmatter;
-`temperature: 1.0`; `top_p: 0.95`; `reasoningEffort: max`; no occurrence of
+`agents/visual-design-agent.md` contains: no `model:` key in frontmatter; no
+`options:` key in frontmatter; `temperature: 1.0`; `top_p: 0.95`;
+`reasoningEffort: max`; no occurrence of
 `top_k`, `presence_penalty`, or `repetition_penalty` anywhere in the file;
 `mode: subagent` and the existing permission block unchanged; and a prompt
 body that no longer claims a temperature-differentiated creative profile.
@@ -100,7 +104,11 @@ the rubric's load-bearing content: resolution-adequacy assessment (do not
 guess at illegible detail; state what could not be verified),
 look-before-concluding workflow, evidence-anchored critique (region,
 coordinates, or exact text), facts-vs-recommendations separation, and explicit
-confidence statementing. `skills/multimodal-dispatch/SKILL.md` contains a
+confidence statementing. The reference is caller-agnostic — written for use by
+the primary agent reading images natively and by any subagent — and states
+the image-as-file-path mechanics (subagents receive images only as paths they
+read themselves) and the capability-probe commands (`ollama show <model>`,
+`opencode models`). `skills/multimodal-dispatch/SKILL.md` contains a
 native-first rule referencing that file.
 
 Evidence: structural — file inspection.
@@ -116,19 +124,32 @@ Evidence: structural — grep plus read of the changed sections.
 
 ### SC-5 — unpinned design card dispatches and runs (behavioral)
 
-Dispatching `visual-design-agent` from a live opencode session completes: the
-subagent resolves to the invoking primary's model (no model-resolution
-failure) and the pinned options are accepted by the provider (no parameter
-rejection). The execution evidence includes the subagent's effective model
-identity.
+A tests-v2 harness scenario dispatches `visual-design-agent` from a live
+opencode session. The run completes: the subagent resolves to the invoking
+primary's model (no model-resolution failure) and the pinned options are
+accepted by the provider (no parameter rejection). The execution evidence
+includes the subagent's effective model identity.
 
-Evidence: behavioral — executed `opencode run` (or tests-v2 harness scenario)
-transcript.
+Evidence: behavioral — harness artifact generation via
+`bash .opencode/tests-v2/behaviors/<scenario>.sh` from the project root,
+producing `session.yaml` per the harness contract.
+
+### SC-6 — clean-room evaluation of the dispatch run (behavioral)
+
+A clean-room evaluator sub-agent receives only the artifact directory and the
+SC-5 criteria — no orchestrator context, no expected outcomes — reads
+`session.yaml` as the primary source, and returns a verdict record
+(`evaluation-<timestamp>.yaml`) finding the dispatch completed with the
+subagent's effective model identity recorded and no model-resolution or
+parameter-rejection failure.
+
+Evidence: behavioral — clean-room evaluation verdict record per the harness
+contract; artifact generation alone is never a PASS.
 
 ## Predicate Classification
 
-Fact-decidable at the file and mechanism level for SC-1 through SC-4;
-SC-5 is an execution fact. No intent-decidable criteria remain — the design
+Fact-decidable at the file and mechanism level for SC-1 through SC-4; SC-5
+and SC-6 are execution facts. No intent-decidable criteria remain — the design
 choices (retire vs. keep, the unpinning principle, the effort level) were
 settled by the developer this session.
 
@@ -138,7 +159,9 @@ Implementation passes the deck-governance card (`skill-creator`): admission
 gate for the new reference file and SKILL.md edit; retirement gate for
 `vision-agent` — evidence on record: the developer's usage statement and the
 structural obsolescence documented above; the retirement decision is recorded
-in the deck-debt ledger per that card.
+in the deck-debt ledger per that card. Behavioral verification (SC-5/SC-6)
+passes the `behavioral-testing` card's harness gate: tests-v2 only, with the
+clean-room evaluation as a separate dispatch.
 
 ## Provenance
 
