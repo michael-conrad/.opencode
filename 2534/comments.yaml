@@ -62,3 +62,49 @@ comments:
     (validated PASS 2026-10-09); branch `feature/1195-no-solicitation-rule`, commit
     `6c4fe04b`.'
   timestamp: '2026-10-09T15:30:19+00:00'
+- type: internal
+  body: '### 2026-10-10 — Admission: automatic-fail restoration (.opencode#2575)
+
+
+    - **What:** governed edits to `skills/spec/references/validation-standards.md`
+    (Verdict contract: PASS only on zero findings with no caveats/concerns/notes attached
+    to any criterion''s verdict; any reported finding — enumerated defect class or
+    any other correction, imprecision, factual error, or gap affecting correctness
+    or the stated requirements — produces FAIL naming each finding and its ground;
+    substantive observations are always reported as findings, the non-finding-note
+    disclosure path abolished; loop section: revise → re-validate cycle repeats until
+    a zero-finding verdict, findings revised in place and never negotiated away, escalation
+    fires only on unremediable findings or non-convergence and carries the specific
+    findings, their root cause, and what is needed) and `skills/spec/SKILL.md` §6
+    (validate step loop semantics aligned — repeats until zero findings; one-round-cap
+    and persists-then-halt language removed). Routing and floor untouched.
+
+
+    - **Gate evidence:** observed failure — the 2026-10-10 on-demand spec audit of
+    .opencode#2563 returned PASS while the reviewer disclosed a factual imprecision
+    as a "non-finding observation". Root cause: the #2490 rip retired the old audit
+    machinery wholesale; the #2550 restoration re-admitted only the defect-class taxonomy
+    with an anti-churn binding and a one-bounded-loop cap — the automatic-fail consequence
+    and the iterate-to-clean loop were not restored (old rule preserved under `attic/`,
+    tag `pre-rip`: `attic/skills/audit/tasks/spec-audit-evaluator.md` line 14 default-FAIL
+    with "no caveats, concerns, or notes", line 43 "no INCONCLUSIVE, no ''PASS with
+    concerns''"; `attic/skills/audit/SKILL.md` diagnose → remediate → re-audit → escalate).
+    Consumers = every spec validator and on-demand spec auditor — the criteria source
+    is restated verbatim at every audit (criteria-invariance section). Mechanism/trigger
+    = the verdict contract every validation dispatch restates; no new routing entry
+    needed (routing already lands spec authoring/revision and audits on the spec card).
+    **Predicate classification = intent-decidable, judgment-only** — "finding" is
+    defined by the reviewer''s report; no scripted check (a scripted check on the
+    rule would repeat the deck''s founding defect; structural text SCs make the standard
+    falsifiable and every audit applies it by judgment). Domain match = n/a (internal
+    restoration from the pre-rip bar). Root-agnostic (no repo names, no absolute paths).
+    **Displaces/replaces:** within the same two files — the defect-only PASS bar and
+    the one-bounded-loop cap are replaced by the zero-findings bar and the iterate-until-clean
+    loop with escalation; anti-churn binding deliberately retained (style and hypothetical
+    improvements are not findings; the regression was the missing consequence, not
+    the filter). Net-zero always-loaded surface growth. Spec: `.opencode/.issues/2575/spec.md`;
+    branch `feature/2575-automatic-fail-restoration`.
+
+
+    🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-10-11T01:49:45+00:00'
