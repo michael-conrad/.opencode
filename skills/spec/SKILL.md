@@ -44,10 +44,11 @@ provenance: AI-authored, .opencode#2490
 6. **Validate before approval.** A completed spec includes one fresh-context
    validation dispatch executed before the developer approval gate: a reviewer
    with no prior context on the spec reads it against
-   [the validation standards](references/validation-standards.md) and returns
-   PASS or FAIL. On FAIL, revise the named criteria and re-validate; a FAIL
-   that persists after revision halts to the developer, naming the failing
-   criteria. The approval gate is unchanged and follows validation. Revising
+    [the validation standards](references/validation-standards.md) and returns
+    PASS or FAIL. On FAIL, revise the named findings in place and re-validate;
+    the loop repeats until a verdict with zero findings, per the standards
+    reference's loop section. The approval gate is unchanged and follows
+    validation. Revising
    an existing spec (this card's revision path) validates the revised spec
    against the same standards reference — one criteria source exists in the
    deck; an on-demand audit of a prior spec restates those criteria verbatim
