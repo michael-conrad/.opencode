@@ -224,29 +224,11 @@ All six criteria PASS. Judgment notes:
 
 ```
 Item 1 (SC-3) → Item 2 (SC-1) → Item 3 (SC-2) → Item 4 (SC-4) → [commit + push] → Item 5 (SC-5) → Item 6 (SC-6)
-Item 7 (SC-7, upstream filing) — independent of Items 5/6; may run in parallel with them
 ```
 
 The rubric relocates before its source card retires (no content-loss window);
 doc claims are written against the settled deck state; the behavioral run
 executes against the pushed effective commit, so it gates on every structural
 item; the clean-room evaluation follows the run at a run boundary.
-
-### Item 7 — SC-7 (structural): upstream defect filed
-
-- **Deliverable:** file an issue on github.com/anomalyco/opencode via `gh`
-  reporting the silent-hang behavior (provider 500 on a subagent request →
-  child message created, zero parts, task stuck `running`, no error
-  surfaced) with the reproduction evidence (`reasoning_effort: max` →
-  deterministic HTTP 500 from Ollama `/v1` on `qwen3.8:27b-256k-gguf4`,
-  chat-template crash; `low`/`none`/plain pass). Record the filed issue URL
-  in `.opencode/.issues/2567/research/sc5-stall-root-cause.md`.
-- **RED:** no such issue exists on the upstream tracker (search first to
-  avoid a duplicate; if an existing issue covers it, record that URL instead
-  and link evidence as a comment only if substantive).
-- **GREEN:** issue filed (or existing one recorded) with the URL recorded
-  locally.
-- **Instrument:** the recorded URL resolves to the filed issue carrying the
-  reproduction steps.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

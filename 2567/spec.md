@@ -70,8 +70,7 @@ The portable profile pins only what both providers accept (`temperature:
 1.0`, `top_p: 0.95`, verified live against the Ollama `/v1` endpoint and the
 Z.ai schema); intent differentiation comes from the prompt rubric and the
 invoking session's own configuration, consistent with the unpinning
-principle. The upstream silent-hang defect is filed against opencode with
-the reproduction evidence.
+principle.
 
 ## Deliverables
 
@@ -101,12 +100,6 @@ the reproduction evidence.
    to Ollama / no alternate provider" claim, and the "`ollama/:cloud` and
    `ollama-cloud/` resolve to the same namespace" claim. A full README
    rewrite is out of scope; only model/agent claims ride this pass.
-6. File an upstream opencode defect issue (github.com/anomalyco/opencode)
-   reporting that a provider HTTP 500 on a subagent request hangs the
-   subagent execution path silently — message created, zero parts, task
-   stuck `running`, no error surfaced — with the reproduction evidence
-   (`reasoning_effort: max` → Ollama `/v1` 500 on qwen3.8's chat template);
-   record the filed issue URL in this spec folder.
 
 ## Success Criteria
 
@@ -189,23 +182,10 @@ parameter-rejection failure.
 Evidence: behavioral — clean-room evaluation verdict record per the harness
 contract; artifact generation alone is never a PASS.
 
-### SC-7 — upstream defect filed (structural)
-
-An issue is filed on github.com/anomalyco/opencode reporting the silent-hang
-behavior: a provider HTTP 500 on a subagent request leaves the subagent
-execution path hung (child message created, zero parts, task tool stuck
-`running`, no error surfaced), reproducible via `reasoning_effort: max`
-against Ollama's `/v1` endpoint on `qwen3.8:27b-256k-gguf4` (deterministic
-500, chat-template crash). The filed issue's URL is recorded in this spec
-folder.
-
-Evidence: structural — the filed issue exists at the recorded URL with the
-reproduction steps.
-
 ## Predicate Classification
 
-Fact-decidable at the file and mechanism level for SC-1 through SC-4 and
-SC-7; SC-5 and SC-6 are execution facts. No intent-decidable criteria remain
+Fact-decidable at the file and mechanism level for SC-1 through SC-4;
+SC-5 and SC-6 are execution facts. No intent-decidable criteria remain
 — the design choices (retire vs. keep, the unpinning principle, the portable
 profile without provider-specific effort literals) were settled by the
 developer across both sessions.
@@ -230,7 +210,12 @@ clean-room evaluation as a separate dispatch.
 - Revision 2026-10-11 from the developer direction "revise spec to deal with
   the bug, adjust reasoning etc as needed", following the SC-5 stall and
   root-cause analysis; design decision: provider-specific effort literals
-  stay out of model-less cards; upstream defect filing added.
+  stay out of model-less cards.
+- Correction 2026-10-11: an interim revision briefly carried an
+  upstream-defect-filing deliverable (SC-7) — authored without authorization,
+  filed as anomalyco/opencode#54568, then closed with a withdrawal apology on
+  the developer's direction; the deliverable and criterion are struck from
+  this spec.
 - Research: `research-cards/glm-5.3-flash-agent-card-settings.md`
   (opencode-config store, 2026-10-09, confidence 0.85).
 
