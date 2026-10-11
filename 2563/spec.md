@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-generated; evidence base: .opencode#2431, #2555, #2467, #2306, #2318, #2496, #372, #2469; opencode-config#255, #2440, #2489 -->
+<!-- Provenance: AI-generated; evidence base: .opencode#2431, #2555, #2467, #2306, #2318, #2496, #2469; opencode-config#255, #372; .opencode#2440, #2489 -->
 
 # [SPEC] Submodule discipline rule set for deck skill cards
 
@@ -60,7 +60,7 @@ Each SC is a single atomic, independently verifiable claim. Evidence types are c
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
 | SC-12 | Adapted RULE-D behavioral enforcement test(s) exist under the tests-v2 harness and pass: in a multi-module checkout, the agent runs build/test through the parent repo's own framework and does not execute a submodule's own tooling. | behavioral | Behavioral enforcement test via `opencode run` wrapped by `with-test-home` (>=600s bash-tool timeout); evaluation of the exported `session.yaml` via clean-room sub-agent inspection per `.opencode/tests-v2/AGENTS.md`, adapted from 2318-sc1..sc3; no structural substitution |
-| SC-13 | The deck-debt ledger issue records this admission: the evidence base (#2431, #2555, #2467, #2306, #2318, #2496, #372, #2469, opencode-config#255, #2440/#2489) and the placement decisions. | structural | Inspect the ledger issue's body/comments for the admission entry |
+| SC-13 | The deck-debt ledger issue records this admission: the evidence base (#2431, #2555, #2467, #2306, #2318, #2496, #2469, opencode-config#255, opencode-config#372, .opencode#2440/#2489) and the placement decisions. | structural | Inspect the ledger issue's body/comments for the admission entry |
 
 ### Cost Frame
 
@@ -160,7 +160,7 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 ### Phase 4 — Governance record and behavioral restoration
 
 #### Item 12 (SC-12): Adapted RULE-D behavioral test
-- RED: no adapted test exists under tests-v2 (2318-sc1..sc3 exist only at tag `pre-rip`).
+- RED: no adapted test exists under tests-v2 (the 2318-sc1..sc3 behavioral scenarios exist only at tag `pre-rip`; the byte-identical same-named files under `tests-v2/behaviors/fixtures/setup/` are fixture setup scripts carried in HEAD, not the scenarios — verified 2026-10-10).
 - GREEN: adapt the scenario to the new placement (the boundary lives in the implementation-workflow reference) and author it per the tests-v2 harness.
 - verify: the behavioral test passes via `session.yaml` clean-room sub-agent inspection.
 - commit: test scenario.
@@ -208,12 +208,12 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 | .opencode#2431 | incident (stale pointers, "Butter #304") | github.com/michael-conrad/.opencode/issues/2431 | Read during evidence research 2026-10-09 |
 | .opencode#2555 | incident (open regression 2026-10-07) | github.com/michael-conrad/.opencode/issues/2555 | Read during evidence research 2026-10-09 |
 | .opencode#2467 | incident + developer directive (nested checkout) | github.com/michael-conrad/.opencode/issues/2467 | Read during evidence research 2026-10-09 |
-| .opencode#2306 | incident (second recursion violation) + stale store state | github.com/michael-conrad/.opencode/issues/2306; local mirror `.opencode/.issues/2306/` | Read during evidence research 2026-10-09 |
+| .opencode#2306 | incident (recursion violation) + stale store state | github.com/michael-conrad/.opencode/issues/2306; local mirror `.opencode/.issues/2306/` | Read during evidence research 2026-10-09; the unsupported "second violation" ordinal was removed and the record re-verified 2026-10-10 |
 | .opencode#2318 | pre-rip rule + behavioral tests | github.com/michael-conrad/.opencode/issues/2318; spec at `.opencode/.issues/2318/spec.md`; tests at tag `pre-rip` | Read during evidence research 2026-10-09 |
 | .opencode#2496 | incident (ci-boundary origin) | github.com/michael-conrad/.opencode/issues/2496 | Read during evidence research 2026-10-09; its dangling "tracked in opencode-config#116" citation (remote #116 is an unrelated spec) was re-attributed from the card to this record at validation and remediated as store hygiene — the card itself never carried it |
-| .opencode#372, #2469 | misapplication family (unscoped test-framework mandates) | github.com/michael-conrad/.opencode/issues/372, 2469; parent `.issues/372/` | Read during evidence research 2026-10-09 |
+| opencode-config#372, .opencode#2469 | misapplication family (unscoped test-framework mandates) | github.com/michael-conrad/opencode-config/issues/372; github.com/michael-conrad/.opencode/issues/2469; parent record `.issues/372/` | Read during evidence research 2026-10-09; the #372 qualification was corrected from .opencode to opencode-config and re-verified 2026-10-10 |
 | opencode-config#255 | pre-work ordering defect | github.com/michael-conrad/opencode-config/issues/255 | Read during evidence research 2026-10-09 |
-| opencode-config#2440, .opencode#2489 | freshness-gate removal history | issue records | Read during evidence research 2026-10-09 |
+| .opencode#2440, .opencode#2489 | freshness-gate removal history | github.com/michael-conrad/.opencode/issues/2440, 2489 | Read during evidence research 2026-10-09; the #2440 qualification was corrected from opencode-config to .opencode and re-verified 2026-10-10 |
 | Affected cards (six) | current-state verification | paths in Dependencies | Read 2026-10-09 — RED states verified |
 | Deinit incantation experiment | empirical evidence | sandbox scaffold, git 2.43.0 | Executed 2026-10-09; outputs recorded in session |
 
@@ -237,7 +237,7 @@ Per-SC item enumeration; each SC maps to exactly one item. RED states were verif
 
 - **Condition:** The submodule's remote trunk tip advances mid-work, after the capture commit.
 - **Expected behavior:** The parent does not chase the tip mid-work; the PR carries the pointer the parent developed against — unless a submodule PR from this cycle merges, in which case R-4's post-merge re-sync applies before PR creation.
-- **Resolution:** Distinguishes the freshness action (start of work) from the freshness gate the deck removed (opencode-config#2440, .opencode#2489); no mid-work freshness gate is reinstated.
+- **Resolution:** Distinguishes the freshness action (start of work) from the freshness gate the deck removed (.opencode#2440, .opencode#2489); no mid-work freshness gate is reinstated.
 
 - **Condition:** The submodule's trunk tip is red on its own CI.
 - **Expected behavior:** The tip is post-gate by the submodule's own pipeline (ci-boundary's execution-isolation rules); a red tip reaching the parent surfaces through the parent's own suite, which gates the PR.
