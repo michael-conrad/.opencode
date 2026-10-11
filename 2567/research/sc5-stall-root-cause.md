@@ -36,6 +36,10 @@ open ticket anomalyco/opencode#43293 — Ollama reasoning models hang through
 opencode while direct `/v1` calls are fast; and #21632/#25026 on the
 subagent reasoningEffort path).
 
+**Upstream filing (SC-7):** anomalyco/opencode#54568 —
+https://github.com/anomalyco/opencode/issues/54568 (filed 2026-10-11; no
+duplicate found at filing time).
+
 ## Consequence for the spec
 
 SC-2 (`reasoningEffort: max` in the card) and SC-5 (the behavioral dispatch

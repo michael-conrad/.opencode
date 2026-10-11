@@ -38,6 +38,18 @@ Z.ai OpenAPI schema, Z.ai guides, HF model card, `generation_config.json`,
 `chat_template.jinja`, models.dev, and opencode source
 (`provider-options.ts` normalizes `reasoningEffort` → `reasoning_effort`).
 
+Revision evidence 2026-10-11: the first SC-5 behavioral run and two
+diagnostic probes stalled identically on the rebuilt card — subagent session
+created, zero/few parts, flat event stream, idle GPU, held connection, task
+stuck `running`; an unmodified card (`math-ops`) completed cleanly. Root
+cause isolated by direct API probes: Ollama's `/v1` endpoint returns a
+deterministic HTTP 500 for `reasoning_effort: max` on
+`qwen3.8:27b-256k-gguf4` (chat-template crash), while `low`, `none`, plain,
+and `temperature`/`top_p`-only requests pass; opencode's subagent path
+hangs silently on the provider 500 instead of surfacing an error.
+Full analysis: `research/sc5-stall-root-cause.md`; clean-room evaluation
+verdict on record (`evaluation-1791737526.yaml`).
+
 ## Approved Design
 
 Developer decisions this session: adopt the card-shape split ("item d") —
@@ -46,6 +58,20 @@ retire `vision-agent` and move its analysis rubric into the
 as a card that does not specify a model but pins the adjustments agent cards
 support to match desired behavior; remediate the stale model/agent doc claims
 in the same pass.
+
+Revision decision (developer direction 2026-10-11, after the SC-5 behavioral
+stall and its root-cause analysis — see
+`research/sc5-stall-root-cause.md`): a model-less card must not pin
+provider-specific reasoning-effort literals. `reasoningEffort: max` is the
+GLM-5.3-Flash vendor recommendation but crashes other providers — observed:
+deterministic HTTP 500 from Ollama's `/v1` endpoint on the default test
+model's chat template, which opencode's subagent path then hangs on silently.
+The portable profile pins only what both providers accept (`temperature:
+1.0`, `top_p: 0.95`, verified live against the Ollama `/v1` endpoint and the
+Z.ai schema); intent differentiation comes from the prompt rubric and the
+invoking session's own configuration, consistent with the unpinning
+principle. The upstream silent-hang defect is filed against opencode with
+the reproduction evidence.
 
 ## Deliverables
 
@@ -58,22 +84,29 @@ in the same pass.
    (`ollama show <model>`, `opencode models`).
 3. Edit `skills/multimodal-dispatch/SKILL.md`: add a native-first rule —
    prefer the invoking model's own multimodal capability; dispatch to a
-   subagent only for context separation or bulk work; probe capability when
-   unknown — and link the reference file.
-4. Edit `agents/visual-design-agent.md`: frontmatter drops `model:`, `top_k:`,
-   and `options:` (presence_penalty/repetition_penalty — unsupported for this
-   model); sets `temperature: 1.0`, `top_p: 0.95`, `reasoningEffort: max`
-   (vendor recommendation for complex coding work, which design generation
-   is); keeps `mode: subagent` and the permission block; revises the prompt
-   body's "creative generation profile (higher temperature, broad sampling)"
-   paragraph, which would be false under the new profile.
+   subagent only for context separation or bulk work — and link the
+   reference file.
+4. Edit `agents/visual-design-agent.md`: frontmatter drops `model:`,
+   `top_k:`, `options:` (presence_penalty/repetition_penalty — unsupported
+   for this model), and `reasoningEffort` (provider-specific literal;
+   crashes non-GLM providers — see Approved Design revision); sets
+   `temperature: 1.0`, `top_p: 0.95`; keeps `mode: subagent` and the
+   permission block; the prompt body's profile paragraph attributes intent
+   differentiation to the prompt rubric and the invoking session's
+   configuration.
 5. Edit `README.md` and `docs/model-dependency.md`: remove or correct the
    model/agent claims that no longer match the live deck — auditor agent
    cards (`agents/auditor-*.md`), `tests-v2/qualification/qualified-auditor-pool.sh`,
-   `tools/resolve-models`, `dispatch-table.yaml`, the "hard-wired to Ollama /
-   no alternate provider" claim, and the "`ollama/:cloud` and `ollama-cloud/`
-   resolve to the same namespace" claim. A full README rewrite is out of
-   scope; only model/agent claims ride this pass.
+   `tools/resolve-models`, `dispatch-table.yaml`, the "hard-wired
+   to Ollama / no alternate provider" claim, and the "`ollama/:cloud` and
+   `ollama-cloud/` resolve to the same namespace" claim. A full README
+   rewrite is out of scope; only model/agent claims ride this pass.
+6. File an upstream opencode defect issue (github.com/anomalyco/opencode)
+   reporting that a provider HTTP 500 on a subagent request hangs the
+   subagent execution path silently — message created, zero parts, task
+   stuck `running`, no error surfaced — with the reproduction evidence
+   (`reasoning_effort: max` → Ollama `/v1` 500 on qwen3.8's chat template);
+   record the filed issue URL in this spec folder.
 
 ## Success Criteria
 
@@ -86,16 +119,26 @@ routing.md, README.md, docs/) for `vision-agent` returns no matches outside
 
 Evidence: structural — filesystem existence check plus repo grep.
 
-### SC-2 — visual-design-agent profile matches GLM-5.3-Flash (structural)
+### SC-2 — visual-design-agent profile is portable and GLM-aligned (structural)
 
 `agents/visual-design-agent.md` contains: no `model:` key in frontmatter; no
-`options:` key in frontmatter; `temperature: 1.0`; `top_p: 0.95`;
-`reasoningEffort: max`; no occurrence of
-`top_k`, `presence_penalty`, or `repetition_penalty` anywhere in the file;
-`mode: subagent` and the existing permission block unchanged; and a prompt
-body that no longer claims a temperature-differentiated creative profile.
+`options:` key in frontmatter; no `reasoningEffort` key in frontmatter;
+`temperature: 1.0`; `top_p: 0.95`; no occurrence of
+`top_k`, `presence_penalty`, `repetition_penalty`, or `reasoningEffort`
+anywhere in the file; `mode: subagent` and the existing permission block
+unchanged; and a prompt body that attributes intent differentiation to the
+prompt rubric and the invoking session's configuration rather than to
+card-pinned sampling or effort knobs.
 
 Evidence: structural — file inspection.
+
+### SC-2b — the pinned options are provider-portable (behavioral, subsumed in SC-5)
+
+The behavioral run in SC-5 doubles as the portability check: `temperature:
+1.0` and `top_p: 0.95` must be accepted by the default test model's provider
+(no parameter rejection). Direct-API evidence on record (2026-10-11): the
+Ollama `/v1` endpoint accepts both values. No separate criterion — SC-5's
+completion covers it.
 
 ### SC-3 — vision rubric reachable from the dispatch skill (structural)
 
@@ -146,12 +189,26 @@ parameter-rejection failure.
 Evidence: behavioral — clean-room evaluation verdict record per the harness
 contract; artifact generation alone is never a PASS.
 
+### SC-7 — upstream defect filed (structural)
+
+An issue is filed on github.com/anomalyco/opencode reporting the silent-hang
+behavior: a provider HTTP 500 on a subagent request leaves the subagent
+execution path hung (child message created, zero parts, task tool stuck
+`running`, no error surfaced), reproducible via `reasoning_effort: max`
+against Ollama's `/v1` endpoint on `qwen3.8:27b-256k-gguf4` (deterministic
+500, chat-template crash). The filed issue's URL is recorded in this spec
+folder.
+
+Evidence: structural — the filed issue exists at the recorded URL with the
+reproduction steps.
+
 ## Predicate Classification
 
-Fact-decidable at the file and mechanism level for SC-1 through SC-4; SC-5
-and SC-6 are execution facts. No intent-decidable criteria remain — the design
-choices (retire vs. keep, the unpinning principle, the effort level) were
-settled by the developer this session.
+Fact-decidable at the file and mechanism level for SC-1 through SC-4 and
+SC-7; SC-5 and SC-6 are execution facts. No intent-decidable criteria remain
+— the design choices (retire vs. keep, the unpinning principle, the portable
+profile without provider-specific effort literals) were settled by the
+developer across both sessions.
 
 ## Constraints
 
@@ -170,6 +227,10 @@ clean-room evaluation as a separate dispatch.
 - Developer decisions: option D (split by card-shape); "cards that don't
   specify the model but include temperature and other adjustments"; vision
   card usage statement ("never used more than once or twice").
+- Revision 2026-10-11 from the developer direction "revise spec to deal with
+  the bug, adjust reasoning etc as needed", following the SC-5 stall and
+  root-cause analysis; design decision: provider-specific effort literals
+  stay out of model-less cards; upstream defect filing added.
 - Research: `research-cards/glm-5.3-flash-agent-card-settings.md`
   (opencode-config store, 2026-10-09, confidence 0.85).
 

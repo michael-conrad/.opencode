@@ -104,35 +104,31 @@ All six criteria PASS. Judgment notes:
   `grep -ri vision-agent` over `skills/`, `agents/`, `prompts/`, `plugins/`,
   `floor.md`, `routing.md`, `README.md`, `docs/` (attic excluded per SC-1).
 
-### Item 3 — SC-2 (structural): visual-design-agent profile aligned to GLM-5.3-Flash
+### Item 3 — SC-2 (structural): visual-design-agent profile portable and GLM-aligned
 
 - **Deliverable:** rebuild the frontmatter of
   `agents/visual-design-agent.md`: remove `model:`
-  (`ollama-cloud/qwen3.5:397b-cloud`), `top_k: 40`, and the `options:` block
+  (`ollama-cloud/qwen3.5:397b-cloud`), `top_k: 40`, the `options:` block
   (`presence_penalty: 2.0`, `repetition_penalty: 1.0` — absent from the
-  model's serving schema); set `temperature: 1.0` (from 0.8) and `top_p: 0.95`
-  (from 1.0); add `reasoningEffort: max` (camelCase — opencode normalizes to
-  `reasoning_effort` per the research card; vendor recommendation for complex
-  generation work, which design generation is); keep `mode: subagent` and the
-  permission block byte-identical; revise the prompt body's
-  "creative generation profile (higher temperature, broad sampling)"
-  paragraph (current lines 28–32), which is false under the new profile —
-  replace with profile-accurate guidance (temperature is capped at 1.0 — no
-  "hotter = more creative" headroom; intent differentiation happens via
-  `reasoningEffort` and the prompt rubric; the vary-layouts-deliberately
-  instruction survives in rubric form).
+  model's serving schema), and `reasoningEffort: max` (provider-specific
+  literal — crashes non-GLM providers: Ollama `/v1` returns deterministic
+  HTTP 500 on the default test model's template; see spec revision evidence);
+  set `temperature: 1.0` (from 0.8) and `top_p: 0.95` (from 1.0); keep
+  `mode: subagent` and the permission block byte-identical; revise the prompt
+  body's profile paragraph — intent differentiation attributed to the prompt
+  rubric and the invoking session's configuration, not card-pinned knobs.
 - **Grounding:** `research-cards/glm-5.3-flash-agent-card-settings.md`
-  (opencode-config store, 2026-10-09, confidence 0.85) — Z.ai OpenAPI schema
-  (temp default 1.0 range [0,1]; top_p default 0.95; `reasoning_effort` enum
-  [max,high,low]; NO penalties/top_k in schema), Z.ai guide recommendations,
-  HF `generation_config.json`, opencode `provider-options.ts` normalization.
-- **RED:** the current file carries the unresolvable model id, `top_k: 40`,
-  the `options:` penalties, `temperature: 0.8`/`top_p: 1.0`, and the
-  temperature-profile narrative.
+  (temperature/top_p rows), `research/sc5-stall-root-cause.md` (the
+  reasoningEffort portability failure, verified by direct API probes
+  2026-10-11).
+- **Status:** partially implemented on branch (frontmatter + narrative
+  committed); remaining change: drop the `reasoningEffort` line and reword
+  the narrative's effort sentence.
+- **RED:** `reasoningEffort` present in the file (committed state).
 - **GREEN:** the edits above.
 - **Instrument:** structural inspection — grep assertions for absence of
-  `model:`, `top_k`, `presence_penalty`, `repetition_penalty`, `options:` and
-  presence of `temperature: 1.0`, `top_p: 0.95`, `reasoningEffort: max`,
+  `model:`, `top_k`, `presence_penalty`, `repetition_penalty`, `options:`,
+  `reasoningEffort` and presence of `temperature: 1.0`, `top_p: 0.95`,
   `mode: subagent`; diff confirms the permission block unchanged.
 
 ### Item 4 — SC-4 (structural): doc claims match the live deck
@@ -228,11 +224,29 @@ All six criteria PASS. Judgment notes:
 
 ```
 Item 1 (SC-3) → Item 2 (SC-1) → Item 3 (SC-2) → Item 4 (SC-4) → [commit + push] → Item 5 (SC-5) → Item 6 (SC-6)
+Item 7 (SC-7, upstream filing) — independent of Items 5/6; may run in parallel with them
 ```
 
 The rubric relocates before its source card retires (no content-loss window);
 doc claims are written against the settled deck state; the behavioral run
 executes against the pushed effective commit, so it gates on every structural
 item; the clean-room evaluation follows the run at a run boundary.
+
+### Item 7 — SC-7 (structural): upstream defect filed
+
+- **Deliverable:** file an issue on github.com/anomalyco/opencode via `gh`
+  reporting the silent-hang behavior (provider 500 on a subagent request →
+  child message created, zero parts, task stuck `running`, no error
+  surfaced) with the reproduction evidence (`reasoning_effort: max` →
+  deterministic HTTP 500 from Ollama `/v1` on `qwen3.8:27b-256k-gguf4`,
+  chat-template crash; `low`/`none`/plain pass). Record the filed issue URL
+  in `.opencode/.issues/2567/research/sc5-stall-root-cause.md`.
+- **RED:** no such issue exists on the upstream tracker (search first to
+  avoid a duplicate; if an existing issue covers it, record that URL instead
+  and link evidence as a comment only if substantive).
+- **GREEN:** issue filed (or existing one recorded) with the URL recorded
+  locally.
+- **Instrument:** the recorded URL resolves to the filed issue carrying the
+  reproduction steps.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
