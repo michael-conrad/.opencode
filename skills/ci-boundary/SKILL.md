@@ -2,7 +2,7 @@
 name: ci-boundary
 description: "Load before creating or modifying CI for ANY repository — pipelines, runners, workflows, or submodule checkout configuration — in any repo, with or without submodules. Owns the CI repo boundary: checkout is consumption; CI execution is responsibility."
 license: MIT
-provenance: AI-authored, .opencode#2496
+provenance: AI-authored, .opencode#2496; submodule discipline rules, .opencode#2563
 ---
 
 # ci-boundary — CI repo boundaries
@@ -23,7 +23,17 @@ Checkout is consumption; CI execution is responsibility.
    read that outcome; it never runs it.
 4. **Failure isolation.** A red submodule pipeline never blocks a parent run
    except through the pointer not advancing.
-5. **Anti-pattern:** one pipeline, one green checkmark spanning multiple
+5. **Non-recursive checkout.** Never perform a recursive submodule checkout in
+   any form: CI checkout configured with `submodules: recursive`,
+   `git clone --recursive`, or `git submodule update --init --recursive`.
+   Nested submodule worktrees are unwanted recursive-checkout residue (see
+   `git-workflow-branch` rule 4 for the deinit remediation).
+6. **Agent execution boundary.** In a parent repo with submodules, the agent
+   runs build, test, and verification through the parent repo's own build
+   framework and does not execute a submodule's own build tooling directly —
+   see the implementation-workflow reference
+   (`.opencode/skills/implement/references/implementation-workflow.md`).
+7. **Anti-pattern:** one pipeline, one green checkmark spanning multiple
    repos — the convenience is the coupling.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

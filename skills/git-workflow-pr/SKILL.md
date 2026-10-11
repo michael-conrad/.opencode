@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2509 stacked-PR definition; #2519 PR-completion invariant -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant -->
 
 # git-workflow-pr
 
@@ -28,9 +28,21 @@ authorization has an implementation commit or an explicit N/A; (b) the full
 test suite ran **green** this session with captured output — red output
 blocks PR creation until every failure is remediated or dispositioned via a
 filed fix issue; "the failures pre-existed" is a defect to file, never a
-pass-through (#2553); (c) fresh-context
-`verify` PASS recorded against the issue's spec. Any failure → halt and
-report the gap — never create the PR anyway.
+   pass-through (#2553); (c) fresh-context
+   `verify` PASS recorded against the issue's spec. Any failure → halt and
+   report the gap — never create the PR anyway.
+   (d) **Submodule pointer inclusion:** a parent-repo PR includes pending
+   submodule pointer bumps — a bump exists when the submodule's checked-out
+   HEAD differs from the recorded gitlink.
+   (e) **No pointer-only parent PRs:** a parent-repo PR consisting only of
+   pointer bumps is forbidden; release PRs are exempt because their
+   changelog, version, and tag-prep content is the real content.
+   (f) **Submodule-PR ordering gate:** parent-repo PR creation is blocked
+   while any submodule PR is pending (filed and unmerged on the submodule's
+   tracker) — this applies to every parent PR, including unrelated changes.
+   After the submodule PRs merge, the parent PR carries the pointer to the
+   merged submodule trunk tip, re-synced with the parent's verification
+   re-run against the composed state before creation.
 3. **Shape.** A stacked PR is **one PR against the trunk containing one
    squashed commit per issue ticket** — the body closes every stacked issue.
    Squash WIP to one commit per issue at PR creation; a stacked branch chain

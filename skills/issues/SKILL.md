@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563 -->
 
 # issues — issue operations
 
@@ -39,7 +39,14 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    developer instruction — never closure to tidy up. A verdict-backed closure
    reconciles the remote tracker to the same closed state in the same
    workflow; the local store is authoritative (#2561).
-6. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
+6. **Ticket-state hygiene.** A stale ticket state — the local store mirror's
+   record diverging from the remote tracker's state — is corrected on
+   discovery, reconciling both sides to the true state. The remote tracker
+   anchors reality for changes made outside the local workflow (e.g. a
+   remote-side closure the local mirror missed); the local-authoritative
+   closure ruling (#2561) governs the closure workflow it drives. The two
+   govern different moments and do not collide.
+7. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
    tool permissions; the flow itself never calls gmail tools directly.
 
