@@ -1,1 +1,8 @@
-comments: []
+comments:
+- type: internal
+  body: 'Closure verdict: subsumed by .opencode#2563 — the spec carries this incident
+    in its evidence base and covers the requested fix via SC-3 (PR-surface clauses),
+    SC-1/SC-2 (trunk-tip freshness + capture-commit sequence). Closed as duplicate
+    of #2563 per developer direction; reopens nothing — the deck gap''s fix is tracked
+    by the spec pipeline.'
+  timestamp: '2026-10-11T02:20:14+00:00'
