@@ -1,7 +1,14 @@
 ---
 session: 2026-06-29
-consumed: false
+consumed: 2026-10-11
 ---
+
+> **consumed 2026-10-11:** remediation targets retired — the pre-replacement deck
+> (writing-plans, spec-creation, `130-authority-source.md`) was replaced wholesale by
+> the #2490 rip-and-replace; the target files survive only unloaded under `attic/`
+> (tag `pre-rip`) and no longer exist in the live deck. No live-deck defect remains
+> actionable from this catalog; the replacement deck's pipeline-gate structure is
+> governed by the current skill cards.
 
 # Session 2026-06-29 — Correction Catalog
 
