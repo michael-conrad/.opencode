@@ -70,8 +70,39 @@ body: 'Standing ledger per the skill-creator governance card: usage observations
 
   - **PR:** https://github.com/michael-conrad/.opencode/pull/2545
 
+
+
+  ### 2026-10-10 — Admission: submodule discipline rule set (.opencode#2563)
+
+
+  - **What:** re-admission of the pre-rip submodule-discipline rule set scoped into
+  existing cards (no new card, no floor/routing changes): trunk-tip freshness + real-work
+  sequence + deinit remediation in `git-workflow-branch`; PR-surface clauses + submodule-PR
+  ordering gate in `git-workflow-pr`; branch-level/review-surface amendment in `git-workflow-commit`
+  #5; non-recursive checkout mandate + agent-execution-boundary pointer in `ci-boundary`;
+  execution boundary in the implementation-workflow reference; ticket-state hygiene
+  in `issues`. Adapted RULE-D behavioral enforcement test restored under tests-v2,
+  adapted to the new placement.
+
+  - **Evidence base:** #2431, #2555, #2467, #2306, #2318, #2496, #2469, opencode-config#255,
+  opencode-config#372, .opencode#2440/#2489; deinit/restore incantation experiments
+  (git 2.43.0 scaffolds, 2026-10-09/10).
+
+  - **Placement decisions:** card-scoped re-admission (fails no admission gate — affected
+  cards already routed at the failure moments); mid-work freshness gate NOT restored
+  (recorded unsatisfiable, #2440/#2489); no mechanical enforcement scripts (rules
+  are intent-decidable in operation); only execution-behavior RULE-D tests re-admitted
+  (HALT-framing tests verify the retired Tier model).
+
+  - **Spec/plan:** `.opencode/.issues/2563/spec.md`, `.opencode/.issues/2563/plan.md`.
+
+  - **PR:** to be linked on PR creation for #2563.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
   '
 created_at: '2026-10-07T12:24:35+00:00'
-updated_at: '2026-10-07T15:50:58+00:00'
+updated_at: '2026-10-11T03:02:40+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2534
 remote_url: https://github.com/michael-conrad/.opencode/issues/2534
