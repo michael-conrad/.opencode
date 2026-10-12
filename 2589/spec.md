@@ -22,8 +22,9 @@ escape hatch that triggers credential hunting and spelunking of config files
 outside the main repo being worked on.
 
 Mechanism of the credential hunt: the tool requires `GB_PASSWORD` — an account
-password, not a token — which exists in no production configuration. The only
- occurrence anywhere in the tree is the harness fixture export
+password, not a token — which exists in no production configuration. On the
+production surface (the tree excluding `attic/` and the `.issues/` store) the
+only occurrence is the harness fixture export
 (`with-test-home`: `GB_USER=root` / `GB_PASSWORD=root` under
 `BEHAVIOR_NEEDS_REMOTE=1`). Outside the harness the tool is unusable, and its own
 error output (`check GB_PASSWORD`) directs the agent to hunt for the password —
@@ -93,8 +94,8 @@ itself (`__ensure_gitbucket` — test infrastructure, not agent-facing tooling);
 
 | ID | Criterion | Type | Instrument |
 |----|-----------|------|------------|
-| SC-1 | `.opencode/tools/gitbucket-issue-state` does not exist, and no reference to it remains anywhere under `.opencode/` excluding `attic/` | structural | file-existence check + recursive grep for `gitbucket-issue-state` over `.opencode` (excluding `attic/`) → 0 matches |
-| SC-2 | No `GB_PASSWORD` occurrence remains anywhere under `.opencode/` excluding `attic/` | structural | recursive grep over `.opencode` (excluding `attic/`) → 0 matches |
+| SC-1 | `.opencode/tools/gitbucket-issue-state` does not exist, and no reference to it remains anywhere under `.opencode/` on the production surface (excluding `attic/` and the `.issues/` store — historical issue records are evidence and are never rewritten to satisfy a grep) | structural | file-existence check + recursive grep for `gitbucket-issue-state` over `.opencode` (excluding `attic/` and `.issues/`) → 0 matches |
+| SC-2 | No `GB_USER` and no `GB_PASSWORD` occurrence remains anywhere under `.opencode/` on the production surface (excluding `attic/` and the `.issues/` store) | structural | recursive grep for each variable over `.opencode` (excluding `attic/` and `.issues/`) → 0 matches |
 | SC-3 | `gb-cli` SKILL.md contains no bespoke-tool reference and no password-credential instruction, and documents (a) the non-interactive issue state-mutation route via `gb api` (`POST repos/{o}/{r}/issues/{n}/comments?action=close\|reopen`, token auth, non-empty body), (b) `--long-option="$(cat file.md)"` as the preferred arg-passing pattern for content-bearing options with at least one concrete `gb` example, (c) the platform-awareness facts (plain-issue PATCH → 404; PR state PATCH exists) | structural | file read + grep; `./.opencode/tools/reference-integrity` passes on the file |
 | SC-4 | `needs-approval-remote-verification.sh` prompt contains no curl/basic-auth credential instruction and the script sets `BEHAVIOR_NEEDS_REMOTE=1` | structural | file read + grep (`curl -u`, `root:root` → 0 matches; flag assignment present) |
 | SC-5 | A targeted run of `2561-sc1-verified-moot-closes-remote.sh` (`BEHAVIOR_NEEDS_REMOTE=1`) completes with the full artifact set, and a post-run remote-state check shows the scenario's remote issue closed — the documented `gb` path closes a GitBucket issue non-interactively | behavioral | harness run (`with-test-home`, `session.yaml` export) + post-run API read of the remote issue's state |
@@ -116,9 +117,12 @@ separate clean-room evaluation dispatch.
   capability question to the developer.
 - **Visible side effect.** The comment-route close writes a system "Close"
   comment on the issue — the same effect as the web UI button; acceptable.
-- **Removal consumer inventory.** `GB_PASSWORD` consumers are exactly: the tool
-  (deleted), the card text (rewritten), the harness export block (removed).
-  No other consumer exists (grep-verified 2026-10-12).
+- **Removal consumer inventory** (production surface, excluding `attic/` and
+  the `.issues/` store): `GB_PASSWORD`/`GB_USER` consumers are exactly the tool
+  (deleted), the card text (rewritten), and the harness export block (removed).
+  No other consumer exists (grep-verified 2026-10-12). Historical
+  `.issues/` records mentioning the tool or the variables are evidence of the
+  defect chain and are deliberately untouched.
 - **`2561-sc1` needs no prompt change.** Its prompt names the `gb` CLI and the
   reachable remote tracker without prescribing a mechanism (valid prompt
   construction); the fixed card supplies the how.
