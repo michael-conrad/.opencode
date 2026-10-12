@@ -37,6 +37,17 @@ edits produced the doom loop this deck replaced.
    examples, stage mandates, and card-scoped directives are card-level; each
    slip fattens every session, and the slips add up.
 
+## Developer-instruction carve-out
+
+A **developer-directed** deck edit — one the developer explicitly requested in
+the session — carries its own observed-failure evidence and authorization; the
+gate governs agent-proposed deck content, not instruction execution. The gate's
+standards still bind the *content* of what is written (frontmatter, predicate
+classification, root-agnostic discipline hold), but the proposal-time evidence
+hunt does not re-run at instruction-execution time: never perform archaeology
+to manufacture evidence for an edit the developer just directed, and never
+halt for direction the instruction already carries.
+
 ## Card standards
 
 - Frontmatter: `name`, `description`, `license`; provenance line.
