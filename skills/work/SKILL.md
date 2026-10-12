@@ -18,6 +18,11 @@ Consult before touching files.
      itself is the spec; it is verified at PR review.
    - *Full path*: feature, multi-part change, anything with success criteria —
      spec before code.
+   The short path is the **default** for single-file, developer-specified
+   changes — a developer's direct request is the spec; machinery beyond the
+   short path (extra card loads, evidence hunts, approval-seeking) requires a
+   reason visible in the work record. Excess ceremony on a direct order is a
+   defect signal, never thoroughness.
 2. **Authorization check.** The vocabulary in `floor.md` defines authorization.
    No authorization at the required scope → prepare the spec/proposal and stop
    at the boundary. A question, complaint, or confirmation is not authorization.
