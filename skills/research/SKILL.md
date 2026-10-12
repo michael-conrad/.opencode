@@ -15,7 +15,9 @@ provenance: AI-authored, .opencode#2490
    confident answer (confidence ≥ 0.7, current) — reuse it before dispatching.
 2. **Dispatch scoped sub-agents** for web/heavy research: one clear question
    per dispatch, primary sources preferred, snippets never trusted without
-   fetching the page.
+   fetching the page. JS-rendered or interaction-dependent pages → load
+   playwright-cli (browser rendering when search/fetch tooling returns shell
+   HTML).
 3. **Every finding carries its source** (URL, date) and an honest confidence
    level. Gaps are stated, not papered over.
 4. **Live verification.** Facts about the world, tools, or APIs are checked
