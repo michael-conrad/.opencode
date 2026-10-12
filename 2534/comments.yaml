@@ -108,3 +108,45 @@ comments:
 
     🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
   timestamp: '2026-10-11T01:49:45+00:00'
+- type: internal
+  body: '### 2026-10-11 — Admission: ainglish writing-discipline floor trigger + guidelines
+    reference (.opencode#2554)
+
+
+    - **What:** one trigger line in `floor.md` (consult the writing discipline when
+    authoring normative prose — anything binding an actor, granting or withholding
+    authorization, or stating scope) + new governed reference `guidelines/ainglish-writing-discipline.md`
+    (four ambiguity-rule families mapped to the deck''s incident classes; losslessness
+    boundary; anti-pedantry boundary — constructs optional, no construct-counting;
+    scope statement with intensity following normativity; forwards-only / whole-card-on-touch
+    adoption rules; cite-not-mirror evergreen consumer posture with live register
+    URLs). Routing, skill cards, and the tests-v2 harness untouched.
+
+    - **Gate evidence:** observed failure — ambient accidental ambiguity in normative
+    prose, invisible to developer review (developer reads intent, agent reads words);
+    patterned recurrence of the scope/utterance-misbinding family across ≥4 dated
+    sessions (.opencode#1011, .opencode#1860/.opencode#492, .opencode#2293, .opencode#1031,
+    .opencode#2319, .opencode#1650; lessons-learned 2026-06-29 Defect 2); ledger #2534
+    founding-defect record: "lexical checks are gameable." Consumers = the agent at
+    every authoring moment, including cardless chat (where the dominant incident class
+    lives); agents consuming marked prose at read time. Mechanism/trigger = single
+    floor pointer line (author position, universal reach) + referenced guideline file;
+    no routing change. **Predicate classification = intent-decidable, judgment-only**
+    — scripts forbidden; the fact-decidable components are file facts about the change''s
+    own artifacts (pointer present, links resolve), not runtime prose enforcement.
+    Domain match = Ainglish targets agent-to-agent prose; deck/spec prose is agent-facing
+    — same domain; rule families map onto the mined incident classes (actor binding
+    → #2293/#1011/#1031; claim confidence → unhedged-claim lessons; known-vs-decided
+    → #1650; distributive/collective taught as general grammar without an incident-backed
+    claim). Root-agnostic (no root repo names, no absolute paths; register URLs are
+    public external resources).
+
+    - **What it replaces:** nothing displaced — net growth is one pointer line + one
+    reference file; the alternative shape (per-card mandates in every authoring card)
+    would be strictly larger. Always-loaded surface: the floor line qualifies (must
+    be visible before any card dispatch; shapes cardless authoring) and is held to
+    pointer form so the slip cost is one line.
+
+
+    🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-10-12T02:33:08+00:00'
