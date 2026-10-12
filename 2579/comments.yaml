@@ -1,0 +1,9 @@
+comments:
+- type: stakeholder
+  body: 'Verified-resolved closure verdict: spec SC-1/SC-2/SC-3 implemented and verified
+    (fresh-context verify PASS, zero findings), delivered by PR #2583 (merged 2026-10-11,
+    dc69525c). The PR body''s ''intentionally not Closes'' disposition was incorrect
+    under the open-ticket ruling: deferred structural-containment work is separately
+    ticketed as #2582; the bash-command residual is documented upstream behavior (tests-v2/AGENTS.md
+    §5) — neither is this ticket''s incomplete work.'
+  timestamp: '2026-10-12T02:19:07+00:00'
