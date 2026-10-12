@@ -10,15 +10,14 @@
 
 # fmt: on
 """
-DESCRIPTION: Lint skill and guideline files for consistency, completeness, and gate compliance.
-Usage: ./.opencode/tools/skildeck lint [--skill NAME] [--gate NAME] [--scope SCOPE] [--json]
+DESCRIPTION: Lint skill and guideline files for consistency and completeness.
+Usage: ./.opencode/tools/skildeck lint [--dir PATH] [--json]
 """
 
 import json
 import os as _os
 import subprocess
 import sys
-import types
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -39,10 +38,6 @@ if SKILLS_DIR is None:
 
 DEFAULT_SCAN_DIR = SKILLS_DIR
 
-FENCE_PATTERN = __import__("re").compile(
-    r"```yaml\+symbolic\n(.*?)```", __import__("re").DOTALL
-)
-
 @dataclass
 class LintFinding:
     severity: str
@@ -53,20 +48,6 @@ class LintFinding:
 
     def to_dict(self) -> dict:
         return asdict(self)
-
-def _load_sym_extract():
-    source = (IMPL_DIR.parent / "sym-extract").read_text()
-    mod = types.ModuleType("sym_extract")
-    mod.__file__ = str(IMPL_DIR.parent / "sym-extract")
-    sys.modules["sym_extract"] = mod
-    exec(compile(source, str(IMPL_DIR.parent / "sym-extract"), "exec"), mod.__dict__)
-    return mod
-
-def _extract_source_label(filepath: Path, scan_dir: Path) -> str:
-    try:
-        return str(filepath.relative_to(scan_dir))
-    except ValueError:
-        return str(filepath)
 
 def _extract_yaml_frontmatter(text: str) -> dict | None:
     """Extract YAML frontmatter if present (between --- delimiters at start)."""
@@ -235,175 +216,6 @@ def lint_skill_frontmatter(base_dir: Path) -> list[LintFinding]:
     return findings
 
 
-def lint_all(
-    scan_dir: Path,
-    skill_filter: str = "",
-    gate_filter: str = "",
-    scope_filter: str = "",
-) -> list[LintFinding]:
-    import yaml
-
-    findings: list[LintFinding] = []
-    md_files = sorted(scan_dir.rglob("*.md"))
-
-    for md_file in md_files:
-        rel = _extract_source_label(md_file, scan_dir)
-        if skill_filter and skill_filter.lower() not in rel.lower():
-            continue
-        if scope_filter and scope_filter.lower() not in rel.lower():
-            continue
-        try:
-            text = md_file.read_text()
-        except Exception as e:
-            findings.append(
-                LintFinding(
-                    severity="error",
-                    category="io",
-                    source=rel,
-                    message=f"cannot read: {e}",
-                )
-            )
-            continue
-
-        for match in FENCE_PATTERN.finditer(text):
-            yaml_text = match.group(1)
-            try:
-                data = yaml.safe_load(yaml_text)
-            except yaml.YAMLError as e:
-                findings.append(
-                    LintFinding(
-                        severity="error",
-                        category="parse",
-                        source=rel,
-                        message=f"YAML parse error: {e}",
-                    )
-                )
-                continue
-            if not isinstance(data, dict):
-                findings.append(
-                    LintFinding(
-                        severity="error",
-                        category="structure",
-                        source=rel,
-                        message=f"expected dict, got {type(data).__name__}",
-                    )
-                )
-                continue
-
-            sv = data.get("schema_version", "")
-            if sv not in ("1.0", "2.0"):
-                findings.append(
-                    LintFinding(
-                        severity="error",
-                        category="schema",
-                        source=rel,
-                        message=f"unsupported schema_version: {sv!r}",
-                    )
-                )
-                continue
-
-            for rule_raw in data.get("rules", []):
-                if not isinstance(rule_raw, dict):
-                    continue
-                rid = rule_raw.get("id", "?")
-                if gate_filter and gate_filter.lower() not in rid.lower():
-                    continue
-                if "title" not in rule_raw:
-                    findings.append(
-                        LintFinding(
-                            severity="warning",
-                            category="completeness",
-                            source=rel,
-                            rule_id=rid,
-                            message="rule missing 'title'",
-                        )
-                    )
-                if "actions" not in rule_raw or not rule_raw["actions"]:
-                    findings.append(
-                        LintFinding(
-                            severity="warning",
-                            category="completeness",
-                            source=rel,
-                            rule_id=rid,
-                            message="rule has empty or missing 'actions'",
-                        )
-                    )
-                if "source" not in rule_raw or not rule_raw["source"]:
-                    findings.append(
-                        LintFinding(
-                            severity="warning",
-                            category="traceability",
-                            source=rel,
-                            rule_id=rid,
-                            message="rule missing 'source'",
-                        )
-                    )
-
-            for gate_raw in data.get("gates", []):
-                if not isinstance(gate_raw, dict):
-                    continue
-                gid = gate_raw.get("id", "?")
-                if gate_filter and gate_filter.lower() not in gid.lower():
-                    continue
-                if "condition" not in gate_raw:
-                    findings.append(
-                        LintFinding(
-                            severity="error",
-                            category="completeness",
-                            source=rel,
-                            rule_id=gid,
-                            message="gate missing 'condition'",
-                        )
-                    )
-
-            for ea_raw in data.get("evidence_artifacts", []):
-                if not isinstance(ea_raw, dict):
-                    continue
-                name = ea_raw.get("name", "?")
-                if "verification" not in ea_raw or not ea_raw["verification"]:
-                    findings.append(
-                        LintFinding(
-                            severity="warning",
-                            category="completeness",
-                            source=rel,
-                            rule_id=name,
-                            message="evidence_artifact missing 'verification'",
-                        )
-                    )
-
-            for sm_raw in data.get("state_machines", []):
-                if not isinstance(sm_raw, dict):
-                    continue
-                sm_id = sm_raw.get("id", "?")
-                if gate_filter and gate_filter.lower() not in sm_id.lower():
-                    continue
-                if "start_state" not in sm_raw:
-                    findings.append(
-                        LintFinding(
-                            severity="warning",
-                            category="completeness",
-                            source=rel,
-                            rule_id=sm_id,
-                            message="state_machine missing 'start_state'",
-                        )
-                    )
-                states = sm_raw.get("states", [])
-                transitions = sm_raw.get("transitions", [])
-                for t in transitions:
-                    if isinstance(t, dict):
-                        if t.get("from") not in states:
-                            findings.append(
-                                LintFinding(
-                                    severity="warning",
-                                    category="consistency",
-                                    source=rel,
-                                    rule_id=sm_id,
-                                    message=f"transition from={t.get('from')} not in states list",
-                                )
-                            )
-
-    return findings
-
 def _load_skilldeck_ignore(skill_dir: Path) -> set[str]:
     """Load .skilldeck-ignore patterns from a skill directory."""
     ignore_file = skill_dir / ".skilldeck-ignore"
@@ -525,9 +337,6 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description="Lint skill and guideline files")
     parser.add_argument("--dir", type=str, default=str(DEFAULT_SCAN_DIR))
-    parser.add_argument("--skill", type=str, default="", help="Filter by skill name")
-    parser.add_argument("--gate", type=str, default="", help="Filter by gate name")
-    parser.add_argument("--scope", type=str, default="", help="Filter by scope")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
     args = parser.parse_args()
 
@@ -536,13 +345,7 @@ def main() -> None:
         print(f"Error: directory not found: {scan_dir}", file=sys.stderr)
         sys.exit(1)
 
-    findings = lint_all(
-        scan_dir,
-        skill_filter=args.skill,
-        gate_filter=args.gate,
-        scope_filter=args.scope,
-    )
-
+    findings: list[LintFinding] = []
     base_dir = scan_dir.parent if scan_dir.name == "skills" else scan_dir
     findings.extend(lint_skill_frontmatter(base_dir))
     findings.extend(lint_skill_deck_completeness(base_dir))
