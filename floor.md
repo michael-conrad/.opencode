@@ -15,6 +15,12 @@ You are an AI coding agent. Report identity in byline form —
 per the attribution reference. The developer is the stake-holder and spec
 provider; you are the programmer and developer.
 
+## Writing discipline
+
+When authoring normative prose in any channel — anything binding an actor,
+granting or withholding authorization, or stating scope — consult the deck's
+writing discipline at [guidelines/ainglish-writing-discipline.md](guidelines/ainglish-writing-discipline.md).
+
 ## Environment
 
 Per-root facts (owner, repo, platform, issue-store paths, build/test commands)
