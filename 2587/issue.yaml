@@ -4,6 +4,63 @@ labels:
 - needs-approval
 - spec
 - fix
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2587/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2587)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2587/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Why
+
+
+  Two-part regression from the `.opencode#2490` deck rip (stage 2c, commit `839190c1`),
+  against evidence gathered live in the working checkout:
+
+
+  1. **Agents never route to playwright-cli during web research.** `routing.md` maps
+  "discovering information" to `research`/`systematic-debugging`; the `research` card''s
+  toolkit is search + fetch MCP tooling and never mentions rendered pages; the playwright-cli
+  description matches only browser-automation intents. A JS-heavy page returned as
+  shell HTML by fetch tooling has no on-demand path to rendered observation. The pre-rip
+  card (now `attic/skills/playwright-cli/`) explicitly covered "browsing the web";
+  the slim rewrite dropped it.
+
+  2. **When instructed to use playwright, invocation fails.** The card carries no
+  provisioning mechanics. The CLI exists vendored per-project at `<project-root>/.tools/node/`
+  (`@playwright/cli@0.1.21` on Node v22.14.0), but bare invocation resolves the ambient
+  system node (18.19.1 observed) and dies at Playwright''s Node-20 version check.
+  Verified live: bare `playwright-cli --help` fails; `PATH=<project-root>/.tools/node/bin:$PATH
+  playwright-cli --help` works.
+
+
+  ## What
+
+
+  Narrow fix on on-demand surfaces only — `routing.md` and `floor.md` untouched (progressive-disclosure
+  constraint):
+
+
+  - **A2 — routing into research:** research-adjacent intent phrases added to the
+  playwright-cli card description (rendering a JS-heavy page the fetch tools return
+  as shell HTML; observing what a page actually renders; interactive web verification);
+  one-line bridge in the `research` card body: JS-rendered or interaction-dependent
+  pages → load playwright-cli.
+
+  - **B2 — provisioning, email-management pattern:** two-line provisioning pointer
+  in the playwright-cli card body (vendored per-project at `<project-root>/.tools/node/`,
+  PATH-prefixed invocation, runbook in `references/install.md`); full grounded install
+  runbook at `skills/playwright-cli/references/install.md` — Node dist unpack, `npm
+  install -g @playwright/cli` under the vendored toolchain, PATH-prefixed verification,
+  gitignored `.tools/` note, ambient-node hazard named.
+
+
+  Implementation routes through deck governance (skill-creator admission gate).
+
+  '
 created_at: '2026-10-12T15:40:51+00:00'
-updated_at: '2026-10-12T15:40:51+00:00'
+updated_at: '2026-10-12T15:42:37+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2587
