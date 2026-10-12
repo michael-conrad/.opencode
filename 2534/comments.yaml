@@ -150,3 +150,42 @@ comments:
 
     🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
   timestamp: '2026-10-12T02:33:08+00:00'
+- type: internal
+  body: 'Retirement record — skildeck symbolic-processing half (.opencode#2587, developer
+    disposition after dev review 2026-10-12).
+
+
+    Decision: full retirement of skildeck''s symbolic-processing machinery. Provenance:
+    the input data was removed deck-wide by #1838 (commit 242fe174 — yaml+symbolic
+    blocks removed from the 64 files that carried them; 67 files touched, 88 block
+    lines removed) and the engine was declared dead and replaced by the Z3 solve tool
+    by #872 (commit ac01ea75 — all 15 sym-* scripts + the symbolic dispatcher deleted).
+    Commit a348eed0 (shared sym_extract_lib.py) re-pointed only skildeck-extract and
+    skildeck-gates; the remaining loaders still referenced the purged tools/impl/sym-extract
+    and crashed on use (skildeck analyze: FileNotFoundError, verified live; dispatcher
+    ANALYSIS actions: ''analysis script not found''). The only consumer of skildeck
+    in the active deck or test corpus is lint (tests-v2/test-skill-deck-completeness.sh).
+
+
+    Retired: dispatcher ANALYSIS table + SYM_DIR + analysis help block + symbolic
+    docstring (tools/skildeck); deleted skildeck-analyze, skildeck-export, skildeck-watch,
+    skildeck-extract, skildeck-gates, skildeck-verify-structure, sym_extract_lib.py,
+    schema_v2.py; lint residue removed from skildeck-lint (dead _load_sym_extract,
+    lint_all + FENCE_PATTERN, --gate/--skill/--scope filters). Retained prose-era
+    machinery: lint, validate, verify-acceptance, verify-issue.
+
+
+    Not payload: vector_db/chroma.sqlite3 (untracked, gitignored .opencode/.gitignore:27)
+    is the live ragsync retrieval index (ragsync-config.yaml persist_directory), regenerated
+    by reindex — its embedded historical yaml+symbolic strings come from indexed attic
+    content and are not symbolic payloads.
+
+
+    Bitrot sweep: no symbolic-processing example payload exists in the active deck
+    (the formal-tooling yaml block is the live formal adapter''s state-schema example;
+    the behavioral-testing evaluation yaml is the live artifact format; the #2272
+    fixtures use evidence_artifacts as the behavioral harness''s own contract vocabulary).
+
+
+    Remediation issue: .opencode#2587.'
+  timestamp: '2026-10-12T17:49:29+00:00'
