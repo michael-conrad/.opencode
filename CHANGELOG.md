@@ -4,13 +4,17 @@ All notable changes to the `.opencode/` directory (skills, guidelines, agent con
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.2.0] - Unreleased
+## [0.3.0] - 2026-10-13
 
 ### Added
+
+- **playwright-cli browser-automation card** (#2587) - Added the `playwright-cli` skill card for browser automation (navigation, forms, snapshots, web-UI verification, traces), routed from `routing.md`, with a provisioning runbook; retired the skildeck symbolic-processing half. Research routing now dispatches browser-observation work to the card.
 
 - **Vendored formal tooling: `tools/formal` + `formal-tooling` skill card** (#2504) - Replaced the bespoke `tools/plan` and `tools/solve` wrappers (retired to `attic/tools/`) with a single thin adapter over mature off-the-shelf engines: the vendored z3 5.1.0 binary (SMT-LIB2 `check`/`model`/`prove` with named unsat-cores; binary installed at runtime under gitignored `.tools/` per the card's install runbook) and unified-planning's `up` CLI (`plan`/`validate`/`ground`). One shared YAML state schema with a single `state` subcommand eliminates the conflicting state formats between the two retired tools. Added the progressive `formal-tooling` skill card (runbook-grade usage content, intent-routed from `routing.md`) with executed-transcript fixtures under `tests-v2/formal-tooling/fixtures/`. Resolves #1168 (`state init` accepts `--var name=value` in one step); #1169–#1171 are moot-by-replacement.
 
 ### Fixed
+
+- **local-issues defect repair** (#2543) - Repaired defects in the `local-issues` tool surfaced in store operation, restoring reliable mirror resolution and sync behavior for the synced issue stores.
 
 - **Authorization vocabulary: phase approval carries prior phases** (#2505) - `approved for <phase>` in the floor's vocabulary is now defined as carrying the item through all pipeline phases up to and including the named phase; intermediate stage authorizations are implied, not separately required. Fixes a regression where `approved for pr` was read as PR-boundary-only and the pipeline stalled awaiting per-stage confirmation.
 
@@ -18,11 +22,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- **ainglish writing-discipline guideline** (#2554) - Added the writing-discipline guideline for authoring normative prose in any channel (authority frame, signal marking, procedural structure), with a floor trigger routing normative-authoring intent to it, plus behavioral scenarios.
+
 - **Skill card pre-flight guard for sub-agent dispatch** (#2339) - Added a pre-flight guard to all skill cards (SKILL.md) that detects sub-agent context and returns `BLOCKED` with `ORCHESTRATOR_ONLY_SKILL_CARD` before any orchestrator-only routing metadata (Trigger Dispatch Table, DISPATCH_GATE, Invocation) is consumed. Defined a single canonical guard definition in the skill card requirements documentation, updated the skill card template generator (`init_skill.py`) so new cards are born with the guard, and enforced presence via `skildeck-lint` and `validate_skill_cards.py`. Added behavioral enforcement tests verifying sub-agents halt on skill-card receipt.
 
 - **for_pr scope routes through executing-plans** (#1364) - Eliminated the for_pr gap-fill bypass where the agent jumped straight to PR creation without executing the plan. Added Pre-Flight + Pipeline columns to the Authorization Scope Model table, a mandatory executing-plans routing rule for `for_pr` scope with an existing plan, a new `executing-plans` skill with a plan-reading mandate, and behavioral enforcement tests verifying the agent routes through executing-plans (not direct PR creation).
 
 ### Changed
+
+- **Release-promoter clean-room gate moved pre-PR** (#2590) - The verification gate (shallow clone, pinned-SHA submodule resolution, drift assertion, manifest-sourced canonical build and test) now runs after the release branch is pushed and BEFORE the release PR is filed, against the branch head — the PR is filed only for a state already proven from a clean room. The gate clone uses the same parent URL as the root project repo, remote transport only; local-path clones are forbidden (a file-protocol origin resolves relative submodule URLs to the `file` protocol, which git's default `protocol.file.allow` policy refuses for submodule fetches — the observed `transport 'file' not allowed` incident — and `--depth 1` is ignored on local clones). The once-per-release no-retry rule is scoped to assertion failures (`DRIFT_FAIL`, `MANIFEST_FAIL`, `BUILD_FAIL`); environment/transport setup failures are diagnosed and the gate re-run. Post-merge, the pre-tag step reduces to a drift assertion against the merged commit plus a tree-content-identity re-check against the tree the gate verified — `TREE_MISMATCH` blocks promotion with no tag. The `2557-sc6` behavioral scenario was repointed to the pre-PR placement to keep its build-failure coverage.
+
+- **Language/tool card family and verification-gate restoration** (#2557) - Added language and build-tool cards (`java`, `gradle`, `python`) with dependency-injection ownership split across the family, and restored the release verification gate from the #2439 design into the release-promoter card.
+
+- **Submodule discipline ruleset** (#2563) - Tightened submodule pointer and worktree discipline across the git-workflow cards: trunk-freshness sync semantics, pointer-capture commits at branch level, submodule-PR ordering, and worktree guard rails.
+
+- **Verified-resolved closure path** (#2561) - Issue closure now supports an evidence-backed verified-resolved/moot triage verdict that reconciles the remote tracker to the same closed state in the same workflow; the local store remains authoritative for the closure workflow.
+
+- **Test-home external-directory containment policy** (#2579) - The behavioral harness's seeded config carries a `permission.external_directory` policy denying tool access outside the test home (with test-home and `/tmp` carve-outs), composing with the structural containment layer.
 
 - **Prohibit false numerical reduction targets in condensation specs** (#2411) - Added a rule to the Prohibited Content Patterns section of `reference/spec-structure-standards.md` establishing that hard byte/token/percentage/line-count thresholds as PASS/FAIL criteria are false targets (savings are an emergent property of content-based SCs). Anchored the SC-NUMERICAL-TARGET audit narrow criterion in `skills/audit/tasks/spec-audit-evaluator.md` and added content-verification plus behavioral enforcement tests.
 
