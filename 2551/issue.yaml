@@ -3,8 +3,9 @@ title: '[BUG] Consumable-framework effort bound absent — agent performed hours
   tests'
 status: open
 labels:
+- bug
 - needs-approval
 body: ''
 created_at: '2026-10-13T19:54:29+00:00'
-updated_at: '2026-10-13T19:54:54+00:00'
+updated_at: '2026-10-13T19:55:22+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2551
