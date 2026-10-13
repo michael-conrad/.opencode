@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; release documentation is a parent-repo artifact, .opencode#2592 -->
 
 # changelog-generator
 
@@ -19,5 +19,11 @@ provenance: AI-authored, .opencode#2490
 4. **No fabrication.** If the log is unclear, read the commit; never invent an
    entry to fill a category.
 5. **Format** matches the repo's existing changelog style.
+6. **Release documentation is a parent-repo artifact.** In a parent/submodule
+   repository family, the changelog section dated for a release, the version,
+   and the tag belong to the parent repository's release PR — a submodule
+   repository never hosts its own release documentation for the release
+   surface; its changelog records content history and ships through the
+   parent's pointer capture.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

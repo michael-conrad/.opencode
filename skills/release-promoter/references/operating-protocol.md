@@ -1,97 +1,112 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: restored from the pre-rip release-promoter operating protocol (tag pre-rip; gate implemented as .opencode#2439), re-homed and root-agnosticized, .opencode#2557; gate moved pre-PR (after branch push, before PR filing), remote-transport-only clone, no-retry rescope, TREE_MISMATCH re-check, .opencode#2590 -->
+<!-- Provenance: restored from the pre-rip release-promoter operating protocol (tag pre-rip; gate implemented as .opencode#2439), re-homed and root-agnosticized, .opencode#2557; gate moved pre-PR with no-retry rescope and TREE_MISMATCH re-check, .opencode#2590; parent-checkout boundary — the initial clone is of the parent repository and submodules resolve through its recorded pointers, .opencode#2592 -->
 
 # Release Promotion — Operating Protocol
 
 Promotion runs in two verification phases around the human merge gate: the
-clean-room gate proves the release candidate before the PR exists, and a
-reduced re-check confirms the merge delivered exactly that verified tree
-before any tag is created.
+clean-room gate proves the release candidate before the release PR exists,
+and a reduced re-check confirms the merge delivered exactly that verified
+state before any tag is created. The release PR, the tag, and the GitHub
+Release are parent-repository artifacts; a submodule repository never hosts
+them.
 
 ## Phase A — clean-room verification gate
 
 Entry criteria:
 
-- Release branch has been pushed to the remote
+- The parent repository's release branch has been pushed to the remote
+- The release branch records the submodule pointers for the release
+  candidate (pointer capture)
 - Next version determined
 - The release PR has NOT been filed yet
 
-Procedure — verify the release candidate (the release branch's head) so the
-PR is filed only for a state already proven from a clean room:
+Procedure — verify the release candidate in the composed consumption layout,
+so the release PR is filed only for a state already proven from a clean room:
 
-1. Determine the release candidate: the head of the pushed release branch.
+1. Determine the release candidate: the head of the pushed release branch of
+   the parent repository.
 2. Create a temp directory (`mktemp -d`) and perform a shallow clone of the
-   repository into it, using the SAME parent URL the root project repo itself
-   is cloned from — remote transport only:
+   **parent repository** into it, using the parent repository's remote URL —
+   remote transport only:
    ```bash
-   git clone --depth 1 --branch <branch> <remote-url> <tmpdir>
+   git clone --depth 1 --branch <branch> <parent-remote-url> <tmpdir>
    ```
    The clone flags are normative: `--depth 1` makes the clone shallow, and
-   `--branch <branch>` selects and checks out the release branch's head in the
-   clone itself — a shallow clone fetches only the named branch's tip, never
-   full history. A local-path clone is FORBIDDEN: git resolves relative
-   submodule URLs against the parent's origin, and a file-protocol origin is
-   refused for submodule fetches by git's default security policy
+   `--branch <branch>` selects and checks out the release branch's head in
+   the clone itself — a shallow clone fetches only the named branch's tip,
+   never full history. The initial clone is of the parent repository, never
+   of a submodule repository directly: the parent clone is what carries every
+   submodule at its recorded pointer (siblings included) and reproduces the
+   real consumption layout; a direct submodule clone resolves nothing and
+   stands in no parent. A local-path clone is FORBIDDEN: git resolves
+   relative submodule URLs against the parent's origin, and a file-protocol
+   origin is refused for submodule fetches by git's default security policy
    (`protocol.file.allow`), before any assertion runs; `--depth 1` is also
    ignored on local clones.
 3. State `CHECKOUT_OK` when the temp copy is at the release branch's head. If
    the clone or checkout fails, hard-fail and do not proceed to PR creation —
    this is an environment/transport setup defect: diagnose it and re-run the
    gate.
-4. Resolve submodules inside the temp checkout at their gitlink-pinned SHAs:
+4. Resolve submodules inside the temp checkout at the gitlink-pinned SHAs the
+   parent's release branch records — this populates the release candidate and
+   its sibling submodules exactly as in a real checkout:
    ```bash
    git -C <tmpdir> submodule update --init --depth 1
    ```
-   This resolves every submodule to the exact SHA pinned by the release
-   candidate's gitlink. `--remote` and `--recursive` are FORBIDDEN anywhere in
-   this protocol — `--remote` would resolve submodules to branch tips instead
-   of pinned SHAs, and `--recursive` would pull in unintended nested
-   submodules.
+   `--remote` and `--recursive` are FORBIDDEN anywhere in this protocol —
+   `--remote` would resolve submodules to branch tips instead of pinned SHAs,
+   and `--recursive` would pull in unintended nested submodules.
 5. **Submodule drift assertion (resolved SHA == pinned SHA):** after
    `git submodule update --init --depth 1`, compare each resolved submodule
-   SHA against the SHA pinned by the release candidate's gitlink:
+   SHA against the SHA pinned by the parent's recorded gitlink:
    ```bash
    resolved=$(git -C <tmpdir>/<submodule-path> rev-parse HEAD)
    pinned=$(git -C <tmpdir> ls-tree HEAD <submodule-path> | awk '{print $3}')
    [ "$resolved" = "$pinned" ] || { echo "DRIFT_FAIL: <submodule-path> resolved $resolved != pinned $pinned"; exit 1; }
    ```
    Repeat for EVERY submodule. Any mismatch is a hard fail: state
-   `DRIFT_FAIL`, exit non-zero, and do NOT proceed — the PR is blocked.
-   `git submodule status` may be used as a cross-check (a `+` prefix on a
-   submodule line indicates drift from the gitlink).
+   `DRIFT_FAIL`, exit non-zero, and do NOT proceed — the release PR is
+   blocked. `git submodule status` may be used as a cross-check (a `+`
+   prefix on a submodule line indicates drift from the gitlink).
 6. Record the verified state for the post-merge re-check: the release
    branch's head SHA and its tree SHA
    (`git -C <tmpdir> rev-parse HEAD HEAD^{tree}`) go into the release work
    record.
 7. **Canonical build and test command discovery (build manifest):** discover
-   the repository's canonical build and test commands from the repo's **build
-   manifest** — the file the repository itself declares as the source of its
-   canonical commands (its AGENTS.md or an equivalent the repository names).
-   Never assume or hardcode a specific build system.
-   1. Read the root build manifest of the temp checkout first and look for a
-      build/test commands section.
+   the canonical build and test commands from the **parent repository's build
+   manifest** — the file the parent repository itself declares as the source
+   of its canonical commands (its AGENTS.md or an equivalent the repository
+   names). The parent's build framework governs how the composed tree is
+   built and tested; never assume or hardcode a specific build system, and
+   never substitute a submodule's own tooling run in isolation for the
+   parent's framework.
+   1. Read the root build manifest of the temp checkout (the parent
+      repository's) first and look for a build/test commands section.
    2. If the root manifest has no build commands section, fall back to the
       submodule manifests it names for the declared commands.
    3. Identify the canonical build command and the canonical test command
       from the discovered section.
    4. If the commands cannot be discovered from the manifest, hard-fail:
-      state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed — the PR is
-      blocked. Manifest discoverability is a property of the release tree, so
-      `MANIFEST_FAIL` is an assertion failure: no retry within the release.
-   5. All discovery reads happen inside `<tmpdir>` against the
-      release-branch checkout — never against the source working tree.
+      state `MANIFEST_FAIL`, exit non-zero, and do NOT proceed — the release
+      PR is blocked. Manifest discoverability is a property of the release
+      tree, so `MANIFEST_FAIL` is an assertion failure: no retry within the
+      release.
+   5. All discovery reads happen inside `<tmpdir>` against the composed
+      checkout — never against the source working tree.
 8. **Build and test execution with zero-failure assertion:** execute the
    discovered build command, then the discovered test command, inside the
-   temp checkout `<tmpdir>` — never in the source working tree:
+   temp checkout `<tmpdir>` — through the parent's build framework in the
+   composed layout, never in the source working tree and never against a
+   submodule checked out in isolation:
    ```bash
    (cd <tmpdir> && <build-command>) || { echo "BUILD_FAIL: build command exited non-zero"; exit 1; }
    (cd <tmpdir> && <test-command>) || { echo "BUILD_FAIL: test command exited non-zero"; exit 1; }
    ```
    Both commands MUST exit zero. Any non-zero exit is `BUILD_FAIL`: exit
    non-zero, state `BUILD_FAIL` with the failing command and its exit code,
-   and do NOT proceed — the PR is blocked; no PR is filed for an unproven
-   candidate.
+   and do NOT proceed — the release PR is blocked; no PR is filed for an
+   unproven candidate.
 9. All verification work happens inside `<tmpdir>`. The gate is read-only
    with respect to the source working tree — never touch, checkout, or
    reset the source repo.
@@ -102,7 +117,8 @@ PR is filed only for a state already proven from a clean room:
     failures (clone, checkout, transport policy) are NOT release-blockers:
     they are diagnosed and the gate is re-run. Only when the gate completes
     clean (`CHECKOUT_OK`, drift asserted, build and test zero-failure) is the
-    release PR filed — from the verified branch head.
+    release PR filed — from the verified release branch head, in the parent
+    repository.
 
 ## Phase B — post-merge pre-tag re-check
 
@@ -110,15 +126,15 @@ Entry criteria:
 
 - Release PR has been merged (the merge is a human gate)
 
-Procedure — confirm the merge delivered exactly the verified tree before any
+Procedure — confirm the merge delivered exactly the verified state before any
 tag is created:
 
-1. Determine the merged commit (the commit to be tagged) — the trunk tip
-   after the merge.
+1. Determine the merged commit (the commit to be tagged) — the parent
+   repository's trunk tip after the merge.
 2. Create a temp directory (`mktemp -d`) and perform a shallow clone from the
-   same parent URL, remote transport only:
+   same parent repository remote URL, remote transport only:
    ```bash
-   git clone --depth 1 <remote-url> <tmpdir>
+   git clone --depth 1 <parent-remote-url> <tmpdir>
    ```
    State `CHECKOUT_OK` when the temp copy is at the merged commit. Clone or
    checkout failures are environment/transport setup defects: diagnose and
@@ -126,8 +142,8 @@ tag is created:
 3. **Submodule drift assertion** against the merged commit: resolve submodules
    (`git -C <tmpdir> submodule update --init --depth 1`) and run the same
    resolved-SHA == pinned-SHA comparison as in Phase A step 5, against the
-   merged commit's gitlinks. Any mismatch is `DRIFT_FAIL`: exit non-zero, no
-   tag — promotion is blocked.
+   parent's recorded gitlinks as updated by the merge. Any mismatch is
+   `DRIFT_FAIL`: exit non-zero, no tag — promotion is blocked.
 4. **Tree-content-identity re-check:** compare the merged tree against the
    tree the clean-room gate recorded (Phase A step 6):
    ```bash

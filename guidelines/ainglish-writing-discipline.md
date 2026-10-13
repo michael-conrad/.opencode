@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2554; consumer-side use of the Ainglish register (ainglish.org, CC0) -->
+<!-- Provenance: AI-authored, .opencode#2554; consumer-side use of the Ainglish register (ainglish.org, CC0); fifth ambiguity family (referent binding) with recorded failure, cover-claim as-of anchor, and spec-revision conversion trigger, .opencode#2592 -->
 
 # Writing discipline — normative prose
 
@@ -18,11 +18,12 @@ commits, PR bodies, issues, code comments. Intensity follows normativity —
 rules, authorizations, and scope statements get the full discipline;
 descriptive prose gets none.
 
-## The four ambiguity-rule families
-
-Ambiguity is a property of English itself, so incident-by-incident fixes do
-not converge. These families cover the deck's recorded misbinding classes.
-Write so the reader cannot misbind.
+## The ambiguity-rule families
+Ambiguity is a property of English itself, so
+incident-by-incident fixes do
+not converge. These families cover the deck's recorded misbinding classes as
+of 2026-10-13; a new misbind class amends the set rather than being forced
+into an existing family. Write so the reader cannot misbind.
 
 ### 1. Actor binding — who does this bind?
 
@@ -71,6 +72,31 @@ fail on a fresh checkout." Date evergreen claims: state what the claim was
 current as of. The register's `unless(<F>)` wording and `as_of(<t>)` pin are
 optional; plain "unless…" and "as of <date>" carry the same meaning.
 
+### 5. Referent binding through possessive/relational compounds
+
+A compound or possessive noun phrase can denote either the entity named or a
+property of its container, and which one is meant depends on an unstated
+topology. Recorded failure: "the same parent URL the root project repo itself
+is cloned from" was read as the repository's own origin when the mandated
+referent was the parent repository's remote URL — the misbind survived three
+fresh-context audits and produced two invalid clean-room gate invocations and
+a submodule-level release branch (`.opencode#2592`).
+
+- Name the referent directly and completely: not "the parent URL the repo is
+  cloned from" but "the remote URL of the parent repository — the repository
+  this one is consumed as a submodule of".
+- State the topology once (which repositories exist, which contains which,
+  which hosts releases and tags) before using relational nouns ("parent",
+  "the tree", "the store", "the registry").
+- When a relational noun ("parent", "root", "trunk", "base") could attach to
+  either the entity or its container, qualify the relationship explicitly in
+  the same sentence.
+
+The register ratifies no form for this class as of 2026-10-13 (the
+uniquely-resolvable-reference demands inside `search-empty`, `supersedes`,
+and `meaning-fixed` are the nearest neighbours); the plain-English fix above
+is the whole fix.
+
 ## Losslessness boundary
 
 Deck prose stays plain English that happens to be precise. A disambiguation
@@ -90,8 +116,9 @@ any construct is fully conformant.
 
 - **Forwards-only.** Existing content is grandfathered; nothing is
   retroactively converted.
-- **Whole-card-on-touch.** A substantive write to a card obligates the
-  editor to return the entire card's normative prose under this
+- **Whole-card-on-touch.** A substantive write to a card — or to a
+  specification, in its creation or any revision — obligates the editor to
+  return the entire card's — or specification's — normative prose under this
   discipline — not just the edited passage. The touch is the conversion
   trigger: sections the request did not name are still in scope, and
   "not asked to touch it" does not exempt them.
