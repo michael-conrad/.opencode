@@ -20,7 +20,14 @@ Duplicate the Submodule execution boundary in adjusted form:
 
 ### Placement
 
-git-workflow-pr; release-promoter SKILL.md + references/operating-protocol.md (Phase A rewrite); changelog-generator; version-manager. Whole-card-on-touch applies to each touched card.
+git-workflow-pr; release-promoter SKILL.md + references/operating-protocol.md (Phase A rewrite); changelog-generator; version-manager; guidelines/ainglish-writing-discipline.md. Whole-card-on-touch applies to each touched artifact.
+
+### Scope addition — Ainglish writing-discipline updates (2026-10-13, developer directive)
+
+- **R1 — fifth ambiguity family:** add *referent binding through possessive/relational compounds* to the writing-discipline guideline, with the #2590-flow "parent URL" misbind as the recorded failure. Family rule: name the referent directly and completely — state the topology (which repositories exist, which contains which, which hosts releases) before using relational nouns, and never leave a compound like "parent URL" to resolve the relationship by inference.
+- **R2 — cover-claim anchor:** the guideline's "These families cover the deck's recorded misbinding classes" is an unhedged evergreen claim that the #2592 class falsifies until amended; anchor it with an as-of date (the guideline's own family-4 discipline applied to itself).
+- **R3 — adoption trigger:** the whole-card-on-touch adoption rule explicitly names specification creation and revision as conversion triggers — the #2590 ambiguity was authored in the spec and survived five revisions unconverted because the trigger read card-local.
+- **R4 (out of deck scope):** the register-side observation — no ratified form covers referent binding in unmarked prose — is recorded as an upstream ainglish.org proposal candidate only; the deck cites the register, never mirrors it.
 
 ## Evidence
 
