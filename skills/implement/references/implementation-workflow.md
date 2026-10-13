@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563 -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step -->
 
 # Implementation Workflow Reference
 
@@ -31,6 +31,7 @@ evolves its CI on its own tracker.
 | Step | How | Purpose |
 |------|-----|---------|
 | red | write or run the failing assertion; confirm it fails for the stated reason | the defect is demonstrated, not assumed |
+| test-value gate | the RED assertion targets application behavior — not source-content inspection of the agent's own files, not an environment/framework re-read tautology, not an assertion-shaped placeholder (implement card, Test value) | fabricated evidence never enters the chain |
 | green | minimal change that turns it green | no speculative additions |
 | post-regression | re-run the suite | nothing previously working broke |
 | verify-inline | the executed check's output is the evidence | never assert success without a run |
