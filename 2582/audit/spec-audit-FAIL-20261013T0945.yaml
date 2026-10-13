@@ -1,0 +1,47 @@
+# Spec audit — .opencode#2582 (FAIL, round 1)
+# (YAML) On-demand spec audit per .opencode/skills/spec §6; criteria restated
+# verbatim from .opencode/skills/spec/references/validation-standards.md
+# (criteria invariance). One fresh-context reviewer; churn rule included verbatim.
+issue: .opencode#2582
+artifact: .opencode/.issues/2582/spec.md
+audited_at: 2026-10-13
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: FAIL
+findings:
+  - id: F1
+    sc_or_section: SC-5 Verification Method (interacts with R-4 / Item 5 verify)
+    defect_class: other correction/factual error (defective verification instrument)
+    ground: >
+      SC-5's instrument "grep -r 'gitbucket/gitbucket' tests-v2/ returns no match
+      in executable (non-comment) code" can never pass a compliant implementation:
+      R-4/Item 5 mandate retaining the existing release-resolution logic, whose
+      GitHub-API URL at helpers.sh L187 contains the grep string in executable code.
+      Instrument mechanism (bare string grep) does not match its intent (no code
+      builds or runs the public image).
+    remediation: >
+      SC-5 instrument restated to target image usage: grep returns only the
+      release-resolution API URL and comment/doc text — no `FROM gitbucket/gitbucket`,
+      no docker run/create/pull of the public image. Item 5 verify line aligned.
+  - id: F2
+    sc_or_section: "§5 Item 10 RED (helpers.sh line citation)"
+    defect_class: other correction/factual error (stale line-number citation)
+    ground: >
+      Spec (store commit 2026-10-11 14:45 EDT) cited helpers.sh L2101–2104 for the
+      host-process launch; #2579 (aeeb6ed2, 19:11 EDT same day) shifted it to
+      L2107–2110. Live L2101–2104 is the semantic-monitor abort comment block.
+      Verified against both trees.
+    remediation: "Item 10 RED citation updated to L2107–2110."
+reviewed_files:
+  - .opencode/.issues/2582/spec.md
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+  - .opencode/skills/behavioral-testing/SKILL.md
+claims_sampled: 17
+claims_failed: 2
+notes: >
+  All other sampled claims held (AGENTS.md §-structure, card RED, 4/5 helpers.sh
+  ranges, both with-test-home ranges, RED-state absences, traceability matrix,
+  one-SC-per-item, cost frame). L2071–2079 setsid citation shifted +6 by the same
+  commit but still lands inside the setsid/monitor block — not a finding.
+  Remediation applied in place; re-validation follows this record.
