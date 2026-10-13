@@ -98,7 +98,7 @@ Per-SC item enumeration; each SC maps to exactly one item. Items are ordered so 
 ### Phase 1 — Image foundation
 
 #### Item 1 (SC-1): Committed test-agent Dockerfile
-- RED: `.opencode/tests-v2/docker/` does not exist; no Dockerfile is committed anywhere under `tests-v2/`; zero Docker references exist in `tests-v2/` (verified 2026-10-11).
+- RED: `.opencode/tests-v2/docker/` does not exist; no Dockerfile exists anywhere under `tests-v2/`; no executable Docker usage exists in `tests-v2/` — the sole "Docker" text is a doc cross-reference in `tests-v2/AGENTS.md` §5 (Known-residual paragraph) naming this spec's planned Dockerized-execution layer, added post-verification by the 2026-10-11 #2579 commit (re-verified 2026-10-13).
 - GREEN: author `Dockerfile.test-agent` (digest-pinned Ubuntu base; headless `ubuntu-desktop-minimal` userland; build-time installs of opencode/uv/uvx/git/python3/curl at pinned versions; xvfb, openbox, screenshot tool, xdotool; SHELL/LANG/TERM env; no GPU tooling) and build it.
 - verify: structural inspection (including the metapackage line) + successful build + digest-pin confirmation in `docker image inspect`.
 - commit: Dockerfile (+ any committed build-support files).
