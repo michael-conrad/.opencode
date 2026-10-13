@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out; route-to-repair clause, .opencode#2597 -->
 
 # plan — implementation planning
 
@@ -32,7 +32,9 @@ provenance: AI-authored, .opencode#2490
    classes — reviewer judgment, never pattern matching. A defective or
    ambiguous criterion produces BLOCKED naming the criterion and the defect;
    the plan never routes around a defective criterion and never reinterprets
-   it to make it plannable.
+   it to make it plannable. When the spec's local record is absent, the plan
+   consumes it only after the `issues` card's mirror-repair — the route runs
+   through that repair before the plan work proceeds.
 7. Plans wait for the developer's authorization before `implement` when the
    scope requires it; short-path changes execute directly under `work`. A
    terminal-stage approval (`approved for pr`, `approved for

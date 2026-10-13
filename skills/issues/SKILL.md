@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597 -->
 
 # issues — issue operations
 
@@ -21,6 +21,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    remote issue to reserve the number before any local folder setup — every
    issue type; the local `{N}/` mirror follows, linked via `update --github`.
    Remoteless stores pick the next free number in that repo's own namespace.
+   The local-artifacts pointer written into the remote body must resolve to
+   the actual local folder at write time — an unresolvable pointer is a flow
+   defect to fix in the same action, not a formatting choice.
    The remote body is a detailed exec summary (why + final what); the full
    spec and artifacts live locally. Title states the work; labels describe
    pipeline state. Never derive the number by listing remote issues and never
@@ -46,7 +49,16 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    remote-side closure the local mirror missed); the local-authoritative
    closure ruling (#2561) governs the closure workflow it drives. The two
    govern different moments and do not collide.
-7. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
+7. **Mirror-repair.** On discovery that a remote issue's local record is
+   absent, or that the issue's local-artifacts pointer does not resolve to
+   the local folder it names, repair instead of reporting: create the local
+   record at the remote-assigned number via `local-issues create --number
+   repo#N`, mirror the remote-tracked content into `{N}/`, and correct the
+   remote body's pointer via `update --github`. The repair is fact work
+   performed on discovery — never a blocker or fail reason by itself. This
+   rule governs a record's absence; ticket-state hygiene (§6) governs state
+   divergence for an existing record.
+8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
    tool permissions; the flow itself never calls gmail tools directly.
 

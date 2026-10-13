@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597 -->
 
 # spec — specification creation and revision
 
@@ -24,7 +24,10 @@ provenance: AI-authored, .opencode#2490
 4. **Write and persist.** Reserve the number from the store's remote tracker
    first — file the remote issue (`gh`/`gb`) for EVERY issue creation when a
    remote tracker exists; the local `{N}/` folder and `spec.md` follow, linked
-   via `update --github`. The remote body is a detailed exec summary (why +
+   via `update --github`. The local-artifacts pointer written into the remote
+   body must resolve to the actual local folder at write time; a mid-flow
+   local write failure BLOCKs the flow — the remote body is never left
+   carrying an unresolvable pointer. The remote body is a detailed exec summary (why +
    final what); the full spec and all artifacts live in `.issues/{N}/`. The
    local counter reserves numbers only in remoteless stores. On every remote
    filing into a synced store, advance `.counter` to max(counter, filed
