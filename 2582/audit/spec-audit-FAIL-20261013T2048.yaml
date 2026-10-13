@@ -1,0 +1,51 @@
+# Spec audit — .opencode#2582 (FAIL, round 3)
+# (YAML) On-demand spec audit per .opencode/skills/spec §6; criteria restated
+# verbatim from .opencode/skills/spec/references/validation-standards.md
+# (criteria invariance — same bar as rounds 1–2). One fresh-context reviewer;
+# churn rule included verbatim; independent of all prior audit records.
+issue: .opencode#2582
+artifact: .opencode/.issues/2582/spec.md
+audited_at: 2026-10-13
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: FAIL
+findings:
+  - id: F1
+    sc_or_section: Item 1 RED (§5 Phase 1) — Docker-references existence claim
+    defect_class: other correction/factual error (stale RED-state claim)
+    ground: >
+      Item 1 RED stated "zero Docker references exist in `tests-v2/` (verified
+      2026-10-11)". Live grep finds a Docker reference at
+      tests-v2/AGENTS.md:329 (§5 Known-residual paragraph: "…is the
+      `.opencode#2582` layer (Dockerized execution, only-`tmp/` mounts)"),
+      introduced by submodule commit aeeb6ed2 (2026-10-11 19:11:30, the #2579
+      fix) — after the spec's authorship commit (store 14:45:09) and not
+      re-checked by the 2026-10-13 revision. The absolute claim fails ground
+      truth as of this audit. The substantive RED still holds: no
+      tests-v2/docker/ directory, no Dockerfile anywhere under tests-v2/, no
+      executable Docker usage.
+    remediation: >
+      RED reworded to the state that actually holds: no Dockerfile anywhere
+      under tests-v2/ and no executable Docker usage; the sole "Docker" text
+      identified as the tests-v2/AGENTS.md §5 Known-residual doc
+      cross-reference naming this spec's planned layer, added post-verification
+      by the 2026-10-11 #2579 commit (re-verified 2026-10-13).
+reviewed_files:
+  - .opencode/.issues/2582/spec.md
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+  - .opencode/skills/behavioral-testing/SKILL.md
+  - .opencode/tests-v2/poll-run.sh
+claims_sampled: 44
+claims_failed: 1
+notes: >
+  All other sampled claims held: every other line citation (L97–197, L187,
+  L199–232, L303+, L2071–2079, L2107–2110; with-test-home L110–140, L560–579),
+  RED-state absences, traceability matrix bijection (19 SCs ↔ 19 items),
+  phase prerequisites, evidence-type classification, footer allowlist,
+  deck-path resolution. Environment facts re-verified live and all matching
+  (Docker 29.1.3 rootful/systemd cgroup; Ollama 0.33.0 loopback-bound;
+  unauthenticated HTTPS ls-remote; cached gitbucket image JDK8-base
+  jdk8u292-b10; binaries dynamically-linked glibc x86-64; zero GPU references
+  in scenarios). Remediation applied in place (store commit a578eed7);
+  re-validation follows this record.
