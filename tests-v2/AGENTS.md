@@ -938,7 +938,7 @@ Signal 4 is the semantic judgment and fires even when no mechanical threshold do
 
 ### Evidence-Sufficiency Early Exit (#2538)
 
-Monitoring has two exits, not one. When a poll's semantic judgment finds the scenario's evidence surface **already complete** in the live session DB — the agent behavior the SC examines has been observed, and further running would add no value — the monitor concludes the run early instead of waiting out the full timeout:
+Monitoring has three exits, not one: the hard-abort signals above, the evidence-sufficiency early exit (below), and the verdict-confirmed conclusion (below that). When a poll's semantic judgment finds the scenario's evidence surface **already complete** in the live session DB — the agent behavior the SC examines has been observed, and further running would add no value — the monitor concludes the run early instead of waiting out the full timeout:
 
 1. **Kill the run** — same abort mechanics as the hard-abort path (the monitor's own kill; GNU `timeout` stays FORBIDDEN).
 2. **Export session.yaml** — the §10.5 manual export procedure; the DB survives the kill, and partial-evidence validity applies equally.
@@ -947,12 +947,24 @@ Monitoring has two exits, not one. When a poll's semantic judgment finds the sce
 
 **This decision is intent-decidable — judgment, never a script.** What counts as "evidence surface complete" and "no additional value" depends on the SC criterion and what the live event stream shows; no static check (tool-name counter, grep, event threshold) may decide it. A scripted early-kill would truncate runs whose richer behavior was still coming — the mirror image of the blind wait this section replaces.
 
+### Verdict-Confirmed Conclusion — MANDATORY, same cycle (.opencode#2594)
+
+Stronger than the sufficiency exit above, and **not a judgment call about value**: when a poll's semantic check confirms the SC's **verdict state** — green (the scenario's goal condition observed met in the run agent's actual words and work) or red (the goal condition observed failed, or a run-fatal defect observed) — the supervisor MUST conclude the run in that same cycle:
+
+1. **Kill the run** — PID-addressed kill of the run process tree (the monitor's own kill; GNU `timeout` stays FORBIDDEN); re-verify gone by PID.
+2. **Export session.yaml** — the §10.5 manual export procedure when the artifact set is incomplete.
+3. **Record the confirmation** — which poll confirmed the verdict state, the event-stream citations, and the verdict state, written to the evidence directory alongside session.yaml; `manifest.yaml`/`exit_code` may be absent for an early-concluded run when this record is on file.
+4. **Dispatch the clean-room evaluation** — the standard evaluator judges the recorded behavior.
+
+Polling past the confirming poll is a supervision defect (observed 2026-10-13, #2594: green confirmed at poll 47, polling continued through poll 50 — wasted cycles, project delay). Post-confirmation tail hygiene by the run agent is not evidence. Whether a poll confirms the verdict state is intent-decidable — judgment on the event stream, never a scripted pattern match; the post-confirmation actions are mechanical.
+
 ### PROHIBITED Patterns (§14)
 
 | Pattern | Why Forbidden |
 |---------|---------------|
 | Launching a behavioral run and awaiting the full timeout with no polling | Blind waits burn 600-900s on runs that failed in the first minutes — defect-discovery latency with zero diagnostic yield |
 | Waiting out a run whose SC evidence is already captured | Polling (or awaiting completion) after the evidence surface is complete burns inference time with zero additional value — conclude per the Evidence-Sufficiency Early Exit (#2538) |
+| Polling past the confirming poll (#2594) | Once a poll's semantic check confirms the verdict state (green or red), further cycles cannot change the verdict and are waste by definition — conclude in the confirming poll's cycle per Verdict-Confirmed Conclusion; post-confirmation tail hygiene is not evidence |
 | Blind `--continue` resume loops after a hung run | Resuming a run that was already off-track repeats the identical stall — §10.7 resumption is for genuinely progressing runs (e.g., bash tool timeout), not for off-track states the monitor detected |
 | Skipping the semantic diagnosis after an abort | An abort without a recorded diagnosis destroys the evidence the verdict needs — the diagnosis IS the monitoring evidence |
 | Structural-only verdicts from monitored runs | Behavioral SCs verified via monitored runs MUST record monitoring evidence (poll log or semantic diagnosis) alongside session.yaml — structural substitutes are EVIDENCE_TYPE_MISMATCH |

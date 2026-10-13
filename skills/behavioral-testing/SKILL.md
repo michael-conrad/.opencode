@@ -82,8 +82,9 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    The supervision loop is continuous — it does NOT yield to the
    developer between polls; mid-cycle yielding exits the loop and is the
    defect corrected in #2561. The cycle ends only when monitoring is
-   conclusive: run completion, a handled hard-abort signal, or the
-   evidence-sufficiency early exit. The developer's UI
+   conclusive: run completion, a handled hard-abort signal, the
+   evidence-sufficiency early exit, or the verdict-confirmed conclusion
+   (below). The developer's UI
    collapses Shell calls to bare command lines, so tool results, echo-carried
    updates, and text riding in tool-call turns all fail to surface (verified
    live, #2557; the standalone text turn is the only delivery that works). The
@@ -92,11 +93,31 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    have fired — read from the agent's actual words and work, not counters.
    **The loop is CONTINUOUS until conclusive (#2561 developer correction):
    never yield to the developer mid-cycle — a poll cycle ends only when the
-   run is conclusive (run completion, a fired hard-abort signal handled, or
-   the evidence-sufficiency early exit), not on a schedule or after each
+   run is conclusive (run completion, a fired hard-abort signal handled, the
+   evidence-sufficiency early exit, or the verdict-confirmed conclusion), not
+   on a schedule or after each
    update. The per-poll sequence is: poll tool call → analyze its evidence →
    report in chat → next poll tool call, repeating inside the working turn.**
-   **Keep the todo list current with the run's state** — it renders
+   **Verdict-confirmed conclusion — MANDATORY, same cycle (.opencode#2594).**
+   When a poll's semantic check confirms the SC's verdict state — **green**
+   (the scenario's goal condition observed met in the run agent's actual
+   words and work) or **red** (the goal condition observed failed, or a
+   run-fatal defect observed) — the supervisor MUST conclude the run in that
+   same cycle: PID-addressed kill of the run process tree (re-verify gone by
+   PID), §10.5 export when the artifact set is incomplete, and a recorded
+   confirmation in the evidence directory naming the confirming poll, the
+   event citations, and the verdict state — then proceed to evaluation.
+   Polling past the confirming poll is a supervision defect: once the
+   outcome is known, further cycles cannot change the verdict and are waste
+   by definition (observed defect, #2594: green confirmed at poll 47, polls
+   continued through 50). Post-confirmation tail hygiene by the run agent is
+   not evidence — do not wait for it. This trigger is stronger than the
+   evidence-sufficiency early exit (#2538): sufficiency judges value;
+   verdict-confirmed is mandatory once the outcome is known. The
+   confirmation judgment is intent-decidable — judgment on the event
+   stream, never a scripted pattern match; the post-confirmation actions are
+   mechanical.
+    **Keep the todo list current with the run's state** — it renders
    persistently between updates. **Pin the polled DB to the active run's test
    home** (env-passed path, not newest-by-mtime): a zombie run from a prior
    kill can outlive its supervisor and pollute mtime-based selection — kill
