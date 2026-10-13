@@ -1,11 +1,13 @@
 title: '[SPEC] Remove bespoke gitbucket-issue-state tool; gb-cli card documents correct
   gb usage'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
 body: ''
 created_at: '2026-10-12T20:07:07+00:00'
-updated_at: '2026-10-12T20:13:00+00:00'
+updated_at: '2026-10-13T18:05:02+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2589
 remote_url: https://github.com/michael-conrad/.opencode/issues/2589
+closed_at: '2026-10-13T18:05:02+00:00'
+close_reason: completed
