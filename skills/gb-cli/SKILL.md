@@ -2,31 +2,37 @@
 name: gb-cli
 description: "Load before any command or code that contacts GitBucket — using the gb CLI, GitBucket API calls, or anything needing GitBucket credentials for issues, pull requests, releases, or repository operations. Also load when authoring or running test-harness scenarios, scripts, or automation that will invoke gb or GitBucket endpoints at runtime, and when any GitBucket operation fails or behaves unexpectedly. Authentication is built into gb; never hand-roll GitBucket API code or hunt for credentials."
 license: MIT
-provenance: AI-authored, .opencode#2490; .opencode#2564
+provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589 -->
 
 # gb-cli — GitBucket operations
 
 1. **Auth first.** Verify gb authentication before operations; credentials are
    the CLI's job — no bespoke auth code, no credential hunting.
 2. **Prefer native commands.** Issues, PRs, labels, milestones, releases have
-   gb subcommands; `gb api` is the passthrough for gaps.
+   gb subcommands; `gb api` is the passthrough for gaps. Pass content-bearing
+   arguments from files — the preferred pattern is
+   `--long-option="$(cat file.md)"` (e.g. `gb issue comment 12
+   --body="$(cat msg.md)"`, `gb pr create --body="$(cat body.md)"`); `gb api`
+   JSON payloads go via `--input <file|->`.
 3. **Construct carefully, inspect output.** Verify command shape; inspect real
    output rather than assuming success. `gb <cmd> --help` before guessing.
 4. **Platform awareness.** GitBucket API differs from GitHub's — consult the
-   gb help, not GitHub assumptions, when behavior surprises. Known gap
-   (#2564): GitBucket implements NO issue state mutation over its
-   GitHub-compatible API (`PATCH .../issues/{n}` with `state` → 404), so
-   `gb issue close`/`reopen` fall back to an interactive web flow that needs
-   a TTY and fails in scripts and harness runs.
-5. **Non-interactive state changes.** For closing/reopening an issue without
-   a terminal, use the `gitbucket-issue-state` tool (session-cookie web
-   route; requires `GB_PASSWORD`/`GB_USER` — GitBucket offers no token-based
-   state mutation). Do not re-implement that route with curl anywhere else.
+   gb help, not GitHub assumptions, when behavior surprises. Known gaps:
+   plain-issue state mutation is absent from GitBucket's GitHub-compatible
+   API (`PATCH .../issues/{n}` → 404); PRs differ (`PATCH .../pulls/{n}`
+   accepts `state`).
+5. **Non-interactive issue state changes.** Close/reopen an issue in scripts
+   via the comments route's `action` parameter:
+   `gb api -X POST repos/{owner}/{repo}/issues/{number}/comments?action=close --input <file|->`
+   (`?action=reopen` to reopen). The JSON body must be
+   non-empty (e.g. `{"body":"closing"}`); token auth; each change writes the
+   same system comment the web UI button writes. Never implement this with
+   session cookies or account passwords.
 6. **Failures are information.** Diagnose from stderr; never retry blind.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
