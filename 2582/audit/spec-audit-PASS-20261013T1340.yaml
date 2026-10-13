@@ -1,0 +1,39 @@
+# Spec audit — .opencode#2582 (PASS, round 2 / re-validation)
+# (YAML) On-demand spec audit per .opencode/skills/spec §6; criteria restated
+# verbatim from .opencode/skills/spec/references/validation-standards.md
+# (criteria invariance — same bar as round 1). One fresh-context reviewer;
+# churn rule included verbatim. Round-1 record:
+# spec-audit-FAIL-20261013T0945.yaml
+issue: .opencode#2582
+artifact: .opencode/.issues/2582/spec.md
+audited_at: 2026-10-13
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: PASS
+findings: []
+prior_findings_status:
+  - id: F1
+    fixed: true
+    detail: >
+      SC-5 instrument now targets image usage (no `FROM gitbucket/gitbucket`,
+      no docker run/create/pull of the public image) and permits the
+      release-resolution API URL — the only executable-code occurrence of the
+      string in tests-v2/ is helpers.sh:187, which a compliant implementation
+      retains; instrument passes it while still catching public-image use.
+  - id: F2
+    fixed: true
+    detail: >
+      helpers.sh L2107–2110 verified live as the host-process launch of
+      with-test-home; Item 10 RED citation is current.
+reviewed_files:
+  - .opencode/.issues/2582/spec.md
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+  - .opencode/skills/behavioral-testing/SKILL.md
+claims_sampled: 13
+claims_failed: 0
+notes: >
+  Round 1 (FAIL, 2 findings) remediated in place via store commits 6ff2669b
+  (audit record) and fac9d832 (spec edits). Round 2 fresh-context review
+  confirms both fixes genuine, samples 13 factual claims against the live
+  tree with zero failures, and reports zero findings. Loop exit: clean PASS.
