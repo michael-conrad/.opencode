@@ -1,9 +1,11 @@
 title: '[SPEC] Dockerized test environment for tests-v2 with tiered execution (clean-room
   probe / Docker / host)'
-status: open
+status: closed
 labels:
 - needs-approval
 body: ''
 created_at: '2026-10-11T18:35:51+00:00'
-updated_at: '2026-10-11T18:45:09+00:00'
+updated_at: '2026-10-13T22:27:59+00:00'
 github_url: .opencode#2582
+closed_at: '2026-10-13T22:27:59+00:00'
+close_reason: completed
