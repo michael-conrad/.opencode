@@ -1,0 +1,66 @@
+# Spec audit — .opencode#2582 (FAIL, round 4 / re-validation)
+# (YAML) On-demand spec audit per .opencode/skills/spec §6; criteria restated
+# verbatim from .opencode/skills/spec/references/validation-standards.md
+# (criteria invariance — same bar as rounds 1–3). One fresh-context reviewer;
+# churn rule included verbatim; independent of all prior audit records.
+# Round-3 record: spec-audit-FAIL-20261013T2048.yaml
+issue: .opencode#2582
+artifact: .opencode/.issues/2582/spec.md
+audited_at: 2026-10-13
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: FAIL
+findings:
+  - id: F2
+    sc_or_section: SC-13 (§3 Phase 3) / Item 9 (§5) — verification instrument under-coverage
+    defect_class: other correction/imprecision (instrument does not cover the criterion's stated scope; instrument sentence additionally ambiguous over non-scenario files)
+    ground: >
+      SC-13's criterion claims every scenario script under
+      `.opencode/tests-v2/behaviors/` and "no scenario is left un-designated",
+      but its instrument grepped only the top-level glob `behaviors/*.sh`.
+      The live tree contains nested scenario scripts satisfying every defining
+      property the harness uses (behavioral-test header, SCENARIO_NAME/
+      SCENARIO_PROMPT, source ../helpers.sh, behavior_run invocation) that the
+      glob never inspects: behaviors/secret-redaction/SC-2.sh and SC-3.sh
+      (the directory's other two files, SC-9-isolation-verify.sh and
+      SC-10-env-allowlist.sh, contain no behavior_run reference — verification
+      helpers, not scenarios; fixtures/setup behavior_run strings are
+      fixture-authored content, not live calls). An implementer executing the
+      verification as written could leave both nested scenarios un-designated
+      while the instrument passes. Secondary imprecision: the top-level glob
+      also matches helpers.sh, a non-scenario, so read literally the method
+      demands a tier value there too.
+    remediation: >
+      SC-13 criterion states recursive scope (nested scenarios named);
+      instrument restated as recursive enumeration of behaviors/ excluding
+      fixtures/ over files whose body invokes behavior_run, requiring
+      template.sh to carry the tier-2 default marker and exempting
+      helpers.sh/non-scenario support files. Item 9 RED/GREEN/verify aligned
+      (recursive RED verification; designation at any depth).
+prior_findings_status:
+  - id: F1
+    fixed: true
+    detail: >
+      Revised Item 1 RED verified against the live tree now: grep -rn -i
+      docker over tests-v2/ returns exactly the AGENTS.md:329 doc
+      cross-reference; tests-v2/docker absent; no Dockerfile anywhere; no
+      executable docker subcommand usage; blame confirms aeeb6ed2 (#2579,
+      2026-10-11 19:11:30) as the line's origin — the revised RED's
+      provenance sentence is exact.
+reviewed_files:
+  - .opencode/.issues/2582/spec.md
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+  - .opencode/skills/behavioral-testing/SKILL.md
+  - .opencode/tests-v2/behaviors/template.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-2.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-3.sh
+  - .opencode/tests-v2/behaviors/fixtures/setup/2432-sc13-model-substitution-red.sh
+claims_sampled: 36
+claims_failed: 1
+notes: >
+  All other sampled claims held, including all helpers.sh/with-test-home line
+  citations, RED-state absences (recursive), traceability bijection, phase
+  prerequisites, evidence-type classification, footer allowlist, and live
+  environment facts. Remediation applied in place (store commit c7bd8fa2);
+  re-validation follows this record.
