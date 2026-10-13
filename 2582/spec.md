@@ -53,7 +53,7 @@ Each SC is a single atomic, independently verifiable claim. Evidence types are c
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-13 | Every scenario script under `.opencode/tests-v2/behaviors/` carries a machine-readable tier designation (tier-1, tier-2, or tier-3); the template used for new scenarios defaults new scenarios to tier-2 (Docker); and no scenario is left un-designated. | structural | Grep the designation marker across `behaviors/*.sh` and `template.sh`; every file matches exactly one tier value |
+| SC-13 | Every scenario script under `.opencode/tests-v2/behaviors/` — recursively; the tree nests scenario scripts (e.g. `secret-redaction/SC-2.sh`, `secret-redaction/SC-3.sh`) — carries a machine-readable tier designation (tier-1, tier-2, or tier-3); the template used for new scenarios defaults new scenarios to tier-2 (Docker); and no scenario is left un-designated. | structural | Enumerate `behaviors/` recursively with `fixtures/` excluded: every file whose body invokes `behavior_run` (a scenario script, at any depth) matches exactly one tier value; `template.sh` carries the tier-2 default marker; `helpers.sh` and other non-scenario support files carry none |
 | SC-9 | A tier-2-designated scenario script executes end-to-end through the Docker execution path — `behavior_run` staging the harness scripts under `tmp/` scratch, launching `with-test-home` inside the container via `docker run -d --network host`, running the model — and produces the complete artifact set (`manifest.yaml`, `session.yaml` with `source_db` present, `stdout.log`, `stderr.log`, `exit_code`) under the host's `tmp/behavioral-evidence-*/`. | behavioral | Run one designated tier-2 scenario script (`bash .opencode/tests-v2/behaviors/<scenario>.sh`, bash-tool timeout ≥ 600000 ms); assert the artifact set's existence and `session.yaml` `source_db` validity — artifact production is the claim, not agent behavior |
 | SC-10 | During an active Docker-mode run, the live session DB is readable from the host: `poll-run.sh` against the active run's session DB exits 0 and prints a digest. | structural | Execute `poll-run.sh <active-run-session-db>` mid-run (concurrent with SC-9's run or a dedicated short run); assert exit 0 and non-empty digest output |
 | SC-11 | The abort path kills the whole run tree: `docker stop`/`docker rm -f` against a running Docker-mode run leaves no `opencode` process alive in the container and releases the flock. | structural | Launch a run, execute the abort path, then assert no container remains and a subsequent `behavior_run` acquires the lock without stale-lock contention |
@@ -150,9 +150,9 @@ Per-SC item enumeration; each SC maps to exactly one item. Items are ordered so 
 ### Phase 3 — Tier designation and Docker integration
 
 #### Item 9 (SC-13): Tier designation on scenario scripts
-- RED: no scenario carries a tier designation (verified: no tier markers exist in `behaviors/*.sh`).
-- GREEN: add the designation marker to every scenario script and to `template.sh` (default tier-2); designate the host-tier exception set per scenario judgment.
-- verify: grep shows exactly one tier value per script; template defaults to tier-2.
+- RED: no scenario carries a tier designation (verified: no tier designation markers exist anywhere under `behaviors/`, recursively — including the nested `secret-redaction/` scenario scripts).
+- GREEN: add the designation marker to every scenario script at any depth under `behaviors/` and to `template.sh` (default tier-2); designate the host-tier exception set per scenario judgment.
+- verify: recursive enumeration of `behaviors/` (fixtures excluded) shows exactly one tier value on every file that invokes `behavior_run`; `template.sh` carries the tier-2 default.
 - commit: scenario script markers.
 
 #### Item 10 (SC-9): Docker-mode end-to-end artifact production
