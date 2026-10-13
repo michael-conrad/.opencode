@@ -39,6 +39,10 @@
 
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../default-model.sh"
+# Docker harness primitives (.opencode#2582): containerized GitBucket
+# lifecycle, staging, docker-mode launch/abort/wait. The docker/ dir sits
+# alongside behaviors/ under tests-v2/.
+source "$(dirname "${BASH_SOURCE[0]}")/../docker/docker-harness.sh"
 BEHAVIOR_PHASE="${BEHAVIOR_PHASE:-GREEN}"
 BEHAVIOR_TEST_HOME="${BEHAVIOR_TEST_HOME:-.opencode/tests-v2/with-test-home}"
 BEHAVIOR_FIXTURE_ISSUES="${BEHAVIOR_FIXTURE_ISSUES:-1}"
@@ -89,272 +93,9 @@ __assert_not_live_root() {
 }
 
 # --- GitBucket container provisioning ---
-
-GITBUCKET_PID_FILE=""
-GITBUCKET_PORT_FILE=""
-GITBUCKET_DATA_DIR=""
-
-__ensure_gitbucket() {
-    # Provisions JDK, downloads GitBucket JAR, starts GitBucket, generates token.
-    # Idempotent: skips provisioning if already running.
-    local project_root="$PARENT_REPO_DIR"
-    local tools_dir="$project_root/.tools"
-    local jdk_dir="$tools_dir/jdk"
-    local gb_dir="$tools_dir/gitbucket"
-    local gb_war="$gb_dir/gitbucket.war"
-    local data_dir="$project_root/tmp/gitbucket-data"
-    local pid_file="$project_root/tmp/.gitbucket.pid"
-    local port_file="$project_root/tmp/.gitbucket.port"
-
-    GITBUCKET_PID_FILE="$pid_file"
-    GITBUCKET_PORT_FILE="$port_file"
-    GITBUCKET_DATA_DIR="$data_dir"
-
-    # Check if already running
-    if [ -f "$pid_file" ] && kill -0 "$(cat "$pid_file")" 2>/dev/null; then
-        local port
-        port=$(cat "$port_file" 2>/dev/null || echo "")
-        if [ -n "$port" ]; then
-            export GITBUCKET_PORT="$port"
-            export GB_HOST="http://localhost:$port"
-            export GB_REPO="root/test-repo"
-            export GB_PROTOCOL="http"
-            # Re-authenticate gb CLI against the running instance so the full
-            # GB_* set (including GB_TOKEN) is available on the idempotent path.
-            # The token is read from the account page; fall back to root:root if
-            # token generation fails so gb auth login still succeeds.
-            local token=""
-            local cookie_jar
-            cookie_jar=$(mktemp)
-            curl -s -c "$cookie_jar" -X POST "http://localhost:$port/signin" \
-                -H "Content-Type: application/x-www-form-urlencoded" \
-                --data-urlencode "userName=root" \
-                --data-urlencode "password=root" \
-                --data-urlencode "hash=" -o /dev/null 2>/dev/null || true
-            curl -s -b "$cookie_jar" -X POST "http://localhost:$port/root/_personalToken" \
-                -H "Content-Type: application/x-www-form-urlencoded" \
-                --data-urlencode "note=test-token" -o /dev/null 2>/dev/null || true
-            token=$(curl -s -b "$cookie_jar" "http://localhost:$port/root/_application" 2>/dev/null | grep -oE '[0-9a-f]{40}' | head -1 || true)
-            rm -f "$cookie_jar"
-            if [ -z "$token" ]; then
-                export GB_TOKEN="root"
-            else
-                export GB_TOKEN="$token"
-            fi
-            gb auth login -H "$GB_HOST" -t "$GB_TOKEN" --protocol "$GB_PROTOCOL" >/dev/null 2>&1 || true
-            return 0
-        fi
-    fi
-
-    # SC-1: Provision JDK
-    mkdir -p "$jdk_dir"
-    if [ ! -f "$jdk_dir/.provisioned" ]; then
-        echo "  [gitbucket] provisioning JDK..." >&2
-        local jdk_url
-        jdk_url=$(curl -sL "https://api.adoptium.net/v3/assets/version/%5B21%2C22%29?os=linux&architecture=x64&image_type=jre&project=jdk&page_size=1" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['binaries'][0]['package']['link'])" 2>/dev/null || true)
-        if [ -z "$jdk_url" ]; then
-            echo "  [gitbucket] FATAL: could not resolve JDK download URL" >&2
-            return 1
-        fi
-        local jdk_archive="$jdk_dir/jdk.tar.gz"
-        curl -sL -o "$jdk_archive" "$jdk_url" 2>/dev/null || {
-            echo "  [gitbucket] FATAL: JDK download failed" >&2
-            return 1
-        }
-        tar -xzf "$jdk_archive" -C "$jdk_dir" --strip-components=1 2>/dev/null || {
-            echo "  [gitbucket] FATAL: JDK extraction failed" >&2
-            return 1
-        }
-        rm -f "$jdk_archive"
-        touch "$jdk_dir/.provisioned"
-        echo "  [gitbucket] JDK provisioned at $jdk_dir" >&2
-    fi
-    local java_cmd="$jdk_dir/bin/java"
-    if [ ! -x "$java_cmd" ]; then
-        # Try alternate extraction layout (some archives use jdk-*/ subdir)
-        java_cmd=$(find "$jdk_dir" -name 'java' -type f 2>/dev/null | head -1)
-    fi
-    if [ -z "$java_cmd" ] || [ ! -x "$java_cmd" ]; then
-        echo "  [gitbucket] FATAL: java binary not found in $jdk_dir" >&2
-        return 1
-    fi
-
-    # SC-2: Download GitBucket JAR
-    mkdir -p "$gb_dir"
-    if [ ! -f "$gb_war" ]; then
-        echo "  [gitbucket] downloading GitBucket JAR..." >&2
-        local release_url
-        release_url=$(curl -sL "https://api.github.com/repos/gitbucket/gitbucket/releases/latest" 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print([a['browser_download_url'] for a in d['assets'] if a['name'].endswith('.war')][0])" 2>/dev/null || true)
-        if [ -z "$release_url" ]; then
-            echo "  [gitbucket] FATAL: could not resolve GitBucket release URL" >&2
-            return 1
-        fi
-        curl -sL -o "$gb_war" "$release_url" 2>/dev/null || {
-            echo "  [gitbucket] FATAL: GitBucket download failed" >&2
-            return 1
-        }
-        echo "  [gitbucket] GitBucket JAR downloaded to $gb_war" >&2
-    fi
-
-    # SC-3: Start GitBucket on auto-assigned port
-    mkdir -p "$data_dir"
-    echo "  [gitbucket] starting GitBucket..." >&2
-    "$java_cmd" -jar "$gb_war" --port=0 --gitbucket.home="$data_dir" &
-    local gb_pid=$!
-    echo "$gb_pid" > "$pid_file"
-
-    # Wait for GitBucket to start and discover the auto-assigned port
-    local port=""
-    local wait_seconds=0
-    while [ $wait_seconds -lt 30 ]; do
-        # Discover port from process listening on 127.0.0.1 or *
-        port=$(ss -tlnp 2>/dev/null | grep "$gb_pid" | awk '{print $4}' | grep -oP '\d+$' | head -1 || true)
-        if [ -n "$port" ]; then
-            break
-        fi
-        sleep 1
-        wait_seconds=$((wait_seconds + 1))
-    done
-
-    if [ -z "$port" ]; then
-        echo "  [gitbucket] FATAL: GitBucket did not write port file within 30s" >&2
-        kill "$gb_pid" 2>/dev/null || true
-        return 1
-    fi
-    echo "$port" > "$port_file"
-    export GITBUCKET_PORT="$port"
-    export GB_HOST="http://localhost:$port"
-    # SC19: export the test-env constants GB_REPO and GB_PROTOCOL for the provisioned
-    # test instance, alongside GB_HOST/GITBUCKET_PORT/GB_TOKEN, so the full GB_* suite
-    # reaches the isolated executor. These are the harness's test-env constants.
-    export GB_REPO="root/test-repo"
-    export GB_PROTOCOL="http"
-    echo "  [gitbucket] started on port $port (PID $gb_pid)" >&2
-
-    # Wait for HTTP readiness
-    local ready=0
-    wait_seconds=0
-    while [ $wait_seconds -lt 30 ]; do
-        if curl -s "http://localhost:$port/" >/dev/null 2>&1; then
-            ready=1
-            break
-        fi
-        sleep 1
-        wait_seconds=$((wait_seconds + 1))
-    done
-    if [ "$ready" -ne 1 ]; then
-        echo "  [gitbucket] FATAL: GitBucket not ready after 30s" >&2
-        kill "$gb_pid" 2>/dev/null || true
-        return 1
-    fi
-
-    # SC-4: Generate admin token.
-    # GitBucket 4.46.1 exposes NO REST token endpoint — POST /api/v3/tokens
-    # returns {"message":"Not Found"} — so the token must be generated through
-    # the web form: sign in as root/root to obtain a session cookie, then POST
-    # /:userName/_personalToken and read the generated token back from the
-    # account page. A real token is required because `gb auth login` rejects
-    # the raw password with HTTP 401.
-    local token=""
-    local cookie_jar
-    cookie_jar=$(mktemp)
-    # Sign in to obtain a session cookie (GitBucket default admin: root/root).
-    curl -s -c "$cookie_jar" -X POST "http://localhost:$port/signin" \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "userName=root" \
-        --data-urlencode "password=root" \
-        --data-urlencode "hash=" -o /dev/null 2>/dev/null || true
-    # Generate a personal access token via the web form.
-    curl -s -b "$cookie_jar" -X POST "http://localhost:$port/root/_personalToken" \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "note=test-token" -o /dev/null 2>/dev/null || true
-    # Read the generated token back from the account page.
-    token=$(curl -s -b "$cookie_jar" "http://localhost:$port/root/_application" 2>/dev/null | grep -oE '[0-9a-f]{40}' | head -1 || true)
-    rm -f "$cookie_jar"
-    if [ -z "$token" ]; then
-        echo "  [gitbucket] WARNING: could not generate admin token — using default root:root" >&2
-        export GB_TOKEN="root"
-    else
-        export GB_TOKEN="$token"
-        echo "  [gitbucket] admin token generated" >&2
-    fi
-
-    # SC-1: Authenticate the gb CLI against the provisioned instance so that
-    # `gb auth status` succeeds and `gb repo view` is authorized. Without this
-    # login the CLI reports not-authenticated even though the instance is up.
-    gb auth login -H "$GB_HOST" -t "$GB_TOKEN" --protocol "$GB_PROTOCOL" >/dev/null 2>&1 || {
-        echo "  [gitbucket] WARNING: gb auth login failed" >&2
-    }
-
-    # SC-5: Create test repo via API (no gb config needed — curl with basic auth)
-    curl -s -u root:root -X POST "http://localhost:$port/api/v3/user/repos" \
-        -H "Content-Type: application/json" \
-        -d '{"name":"test-repo"}' >/dev/null 2>&1 || true
-    echo "  [gitbucket] test repo created via API" >&2
-
-    # SC-3: remote-wiring is deliberately NOT performed here. This function is a
-    # pure provisioner (JDK, GitBucket, token, test repo) — it performs NO git-mutating
-    # operation. The GitBucket origin is wired by behavior_run() against the validated
-    # isolated attempt_workdir AFTER that isolated repo is established (helpers.sh
-    # lines 645-654). Keeping remote-wiring out of __ensure_gitbucket() ensures the
-    # block cannot run before an isolated target exists and cannot hit the live repo.
-}
-
-__reset_gitbucket() {
-    # SC-6: Kill process, delete data dir, re-start fresh
-    local pid_file="${GITBUCKET_PID_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.pid}"
-    local data_dir="${GITBUCKET_DATA_DIR:-$PARENT_REPO_DIR/tmp/gitbucket-data}"
-
-    if [ -f "$pid_file" ]; then
-        local pid
-        pid=$(cat "$pid_file" 2>/dev/null || true)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-            echo "  [gitbucket] killing PID $pid..." >&2
-            kill "$pid" 2>/dev/null || true
-            sleep 2
-            # Force kill if still alive
-            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
-        fi
-        rm -f "$pid_file"
-    fi
-
-    if [ -d "$data_dir" ]; then
-        echo "  [gitbucket] removing data dir..." >&2
-        rm -rf "$data_dir"
-    fi
-
-    rm -f "${GITBUCKET_PORT_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.port}"
-    unset GITBUCKET_PORT
-
-    # Re-start fresh
-    __ensure_gitbucket
-}
-
-__kill_gitbucket() {
-    # Kill GitBucket process without restarting (for --clean-all)
-    local pid_file="${GITBUCKET_PID_FILE:-$PARENT_REPO_DIR/tmp/.gitbucket.pid}"
-    local data_dir="${GITBUCKET_DATA_DIR:-$PARENT_REPO_DIR/tmp/gitbucket-data}"
-    if [ -f "$pid_file" ]; then
-        local pid
-        pid=$(cat "$pid_file" 2>/dev/null || true)
-        if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-            kill "$pid" 2>/dev/null || true
-            sleep 1
-            kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
-        fi
-        rm -f "$pid_file"
-    fi
-    rm -f "$PARENT_REPO_DIR/tmp/.gitbucket.port"
-    # SC9: remove the GitBucket data dir so --clean-all leaves no provisioned state.
-    rm -rf "$GITBUCKET_DATA_DIR"
-    # SC9: remove behavior-isolated workdirs, which may hold the multi-submodule
-    # fixture clones (test-submodule-1, test-submodule-2) provisioned by Phase 3.
-    if [ -d "$PARENT_REPO_DIR/tmp/behavior-isolated" ]; then
-        rm -rf "$PARENT_REPO_DIR/tmp/behavior-isolated"*
-    fi
-    unset GITBUCKET_PORT
-}
-
+# Moved to ../docker/docker-harness.sh (.opencode#2582): GitBucket runs as
+# its own container (SC-5..SC-7) — committed Dockerfile, digest-pinned base,
+# WAR staged from tmp/ scratch, Docker-assigned port via `docker port`.
 # --- End GitBucket container provisioning ---
 
 # Prepend .tools/opencode/ to PATH so the standalone binary is found before /snap/bin/opencode.
@@ -1333,7 +1074,10 @@ __semantic_monitor() {
     local now_ts
     now_ts=$(date +%s)
 
-    while kill -0 "$run_pid" 2>/dev/null; do
+    # run target may be a host PID (tier-3) or container:<name> (tier-2,
+    # .opencode#2582) — __run_target_alive / __abort_run_target dispatch on
+    # the form; the container abort is docker stop + docker rm -f (R-5).
+    while __run_target_alive "$run_pid"; do
         poll=$((poll + 1))
         if [ "$poll" -gt "$BEHAVIOR_MONITOR_MAX_POLLS" ]; then
             # .opencode#2456 SC-5 (progressing-continues, R-2): the max-polls
@@ -1394,8 +1138,11 @@ __semantic_monitor() {
         local ts="$now_ts"
 
         # Newest test home DB = the current run's live session DB (§14 step 3).
+        # Host-tier homes live under tmp/test-home-*; Docker-tier homes under
+        # tmp/docker-staging/tmp/test-home-* (.opencode#2582) — check both.
         local db
-        db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
+        db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db \
+                  "$PARENT_REPO_DIR"/tmp/docker-staging/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
         if [ -z "$db" ] || [ ! -f "$db" ]; then
             echo "POLL ${poll}: ts=${ts} DB not yet provisioned (test home not created yet)" >> "$poll_log"
             continue
@@ -1748,10 +1495,11 @@ MONPY
         # behavior_run with HARNESS_FAILURE lock contention. The run is
         # launched under setsid, so run_pid is a session/group leader: kill
         # the whole process group to take down wrapper + opencode children.
-        kill -TERM -- "-$run_pid" 2>/dev/null || kill "$run_pid" 2>/dev/null || true
-        sleep 2
-        kill -KILL -- "-$run_pid" 2>/dev/null || kill -9 "$run_pid" 2>/dev/null || true
-        echo "ABORTED run_pid=${run_pid} reason=${abort_reason} poll=${poll}" >> "$poll_log"
+        # Container targets (.opencode#2582): docker stop + docker rm -f — a
+        # guaranteed whole-tree kill, strictly stronger than the host-mode
+        # process-group mechanism.
+        __abort_run_target "$run_pid"
+        echo "ABORTED run_target=${run_pid} reason=${abort_reason} poll=${poll}" >> "$poll_log"
 
         local artifact_dir
         artifact_dir=$(__artifact_dir "$scenario_name" "${model:-monitor}")
@@ -1782,7 +1530,10 @@ DIAGEOF
     # (short run, stalled event stream), classify the final session state now.
     if [ "$classified_count" -eq 0 ]; then
         local final_db
-        final_db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
+        # Test homes live under the project's tmp/ on the host tier and under
+        # tmp/docker-staging/tmp/ on the Docker tier (.opencode#2582) — check both.
+        final_db=$(ls -t "$PARENT_REPO_DIR"/tmp/test-home-*/.local/share/opencode/opencode.db \
+                        "$PARENT_REPO_DIR"/tmp/docker-staging/tmp/test-home-*/.local/share/opencode/opencode.db 2>/dev/null | head -1)
         if [ -n "$final_db" ] && [ -f "$final_db" ]; then
             local final_raw
             final_raw=$(__classify_run_state "$final_db" "${art_status:-not_declared}" "$model" "$scenario_name" "$attempt" "${poll:-0}")
@@ -1826,15 +1577,18 @@ behavior_run() {
     local log_dir="$BEHAVIOR_LOG_DIR/$scenario_name"
     mkdir -p "$log_dir"
 
-    local submodule_remote_url=""
-    if [ -f "$PARENT_REPO_DIR/.gitmodules" ]; then
-        submodule_remote_url=$(git -C "$PARENT_REPO_DIR" config --get submodule..opencode.url 2>/dev/null || true)
-    fi
-    if [ -z "$submodule_remote_url" ]; then
-        echo "FATAL: submodule .opencode URL not resolvable — set submodule..opencode.url in the project's .gitmodules (property-based lookup; no hardcoded fallback)" >&2
+    # Tier designation (.opencode#2582 SC-13, R-6): the scenario script sets
+    # SCENARIO_TIER (1|2|3) before calling behavior_run. Tier-2 → Docker
+    # launch path; tier-3 → unchanged host path; tier-1 → never a model run.
+    local tier="${SCENARIO_TIER:-}"
+    if [ -z "$tier" ]; then
+        echo "HARNESS_FAILURE: no tier designation — set SCENARIO_TIER (1|2|3) in the scenario script before behavior_run (.opencode#2582 R-6)" >&2
         return 1
     fi
-    submodule_remote_url=$(echo "$submodule_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
+    if [ "$tier" = "1" ]; then
+        echo "HARNESS_FAILURE: tier-1 scenario invoked behavior_run — tier-1 evidence is a recorded clean-room sub-agent dispatch (prompt + verdict), never a model run (.opencode#2582 R-6)" >&2
+        return 1
+    fi
 
     local submodule_commit="${BEHAVIOR_SUBMODULE_COMMIT:-}"
     # Default to trunk tip (remote default branch). Only pin to a specific commit
@@ -1931,21 +1685,32 @@ behavior_run() {
         else
             # Create a fresh workdir per attempt — with-test-home moves it into the test home.
             attempt_workdir=$(mktemp -d "$PARENT_REPO_DIR/tmp/behavior-isolated-XXXXXX")
-            git init -q "$attempt_workdir"
+        fi
+
+        # Test-project provisioning (.opencode#2582, developer directive
+        # 2026-10-13): the attempt workdir is ALWAYS a clone of the root
+        # project from its single remote URL — git resolves the .opencode
+        # submodule URL automatically from the cloned .gitmodules (an
+        # insteadOf rewrite maps the SSH form to HTTPS). No per-path
+        # submodule URL lookups. Shared-home reuse skips the clone.
+        if [ ! -d "$attempt_workdir/.opencode/.git" ]; then
+            local parent_remote_url
+            parent_remote_url=$(git -C "$PARENT_REPO_DIR" config --get remote.origin.url 2>/dev/null || true)
+            if [ -z "$parent_remote_url" ]; then
+                echo "FATAL: parent project remote URL not resolvable — set remote.origin.url on the parent checkout" >&2
+                exit 1
+            fi
+            parent_remote_url=$(echo "$parent_remote_url" | sed 's|^git@github.com:|https://github.com/|' | sed 's|\.git$||')
+            git clone -q -c "url.https://github.com/.insteadOf=git@github.com:" \
+                --recurse-submodules "$parent_remote_url" "$attempt_workdir" 2>/dev/null || {
+                echo "FATAL: git clone failed for the parent project from $parent_remote_url" >&2
+                exit 1
+            }
             git -C "$attempt_workdir" config user.email "test@test.dev"
             git -C "$attempt_workdir" config user.name "Test"
         fi
 
-        # In shared-home reuse, the .opencode clone already exists — skip cloning.
-        if [ ! -d "$attempt_workdir/.opencode/.git" ]; then
-            git clone -q "$submodule_remote_url" "$attempt_workdir/.opencode" 2>/dev/null || {
-                echo "FATAL: git clone failed for .opencode from $submodule_remote_url" >&2
-                exit 1
-            }
-        fi
-
         # Pin to local submodule commit so test agent sees feature branch changes.
-        # Mirrors the pattern in with-test-home --setup (lines 153-159).
         # BEHAVIOR_SUBMODULE_COMMIT override still works via the guard below.
         if [ -z "$submodule_commit" ]; then
             local local_submodule_commit
@@ -1960,10 +1725,6 @@ behavior_run() {
                 echo "FATAL: could not checkout submodule commit $submodule_commit" >&2
                 exit 1
             }
-        fi
-
-        if [ ! -f "$attempt_workdir/.gitmodules" ] || ! grep -q '.opencode' "$attempt_workdir/.gitmodules" 2>/dev/null; then
-            git -C "$attempt_workdir" submodule add -q "$submodule_remote_url" .opencode 2>/dev/null || true
         fi
 
         git -C "$attempt_workdir" add -A 2>/dev/null || true
@@ -2074,7 +1835,31 @@ behavior_run() {
         # the hard-abort signals in tests-v2/AGENTS.md §14. On signal: kill the
         # run, export session.yaml per §10.5, record the semantic diagnosis, and
         # break out of the retry loop (no blind re-run after an off-track abort).
-        if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
+        #
+        # Tier dispatch (.opencode#2582 R-5): tier-2 launches the run inside the
+        # test container (docker run -d --network host, only-tmp/ mounts); the
+        # monitor's liveness/abort contract is container-aware (docker stop +
+        # docker rm -f = whole-tree kill). Tier-3 keeps the unchanged host path.
+        if [ "$tier" = "2" ]; then
+            local run_target
+            run_target=$(__docker_launch_run "$scenario_name" "$message" "$model" "$agent" "$attempt_workdir" "$output_file" "$err_file") || {
+                echo "HARNESS_FAILURE: docker launch failed for scenario '${scenario_name}' (attempt ${attempt})" >&2
+                return 1
+            }
+            if [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
+                __semantic_monitor "$run_target" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model"
+                local monitor_result=$?
+                __wait_run_target "$run_target" >/dev/null 2>&1 || true
+                docker rm -f "${run_target#container:}" >/dev/null 2>&1 || true
+                if [ "$monitor_result" -eq 0 ]; then
+                    break
+                fi
+                echo "  [harness] semantic monitor aborted attempt $attempt (off-track/loop state) — no blind retry" >&2
+                break
+            fi
+            __wait_run_target "$run_target" >/dev/null 2>&1 || true
+            docker rm -f "${run_target#container:}" >/dev/null 2>&1 || true
+        elif [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ]; then
             # setsid: run_pid becomes session/group leader so the §14 abort
             # path can kill the full wrapper+opencode process group (see the
             # abort-path comment in __semantic_monitor — wrapper-only kill
@@ -2102,12 +1887,12 @@ behavior_run() {
             # a resumed/retried off-track run repeats the identical stall (§14).
             echo "  [harness] semantic monitor aborted attempt $attempt (off-track/loop state) — no blind retry" >&2
             break
+        else
+            TEST_WORKDIR="$attempt_workdir" \
+            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+                > "$output_file" 2> "$err_file" \
+                || true
         fi
-
-        TEST_WORKDIR="$attempt_workdir" \
-        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
-            > "$output_file" 2> "$err_file" \
-            || true
 
         local output
         output=$(cat "$output_file" 2>/dev/null || true)

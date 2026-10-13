@@ -19,6 +19,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2557-sc3-di-approach"
 SCENARIO_PROMPT="Add a NotificationService to this project that sends messages through an SmtpGateway, with unit tests covering it. Follow the project's standards and the way the codebase is organized."
 

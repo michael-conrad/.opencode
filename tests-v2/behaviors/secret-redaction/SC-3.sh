@@ -7,6 +7,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers.sh"
 
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
+
 SCENARIO_NAME="SC-3-mode-switch-stripping"
 SCENARIO_PROMPT="Refactor .opencode/plugins/session-enforcement.ts to remove all mode-switch handling code that is no longer needed. The isModeSwitchSynthetic function must be preserved — it is used by other parts of the system and must remain intact."
 

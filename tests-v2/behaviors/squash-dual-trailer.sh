@@ -15,6 +15,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="squash-dual-trailer"
 SCENARIO_PROMPT="I'm on a feature branch in this repo. I just finished implementing a feature for issue #123 (src/feature.txt was added) and made two WIP commits during development. Prepare this branch for PR creation following the git-workflow-pr pr-creation and finishing-a-development-branch procedures. Squash the commits to the canonical commit structure and prepare the squash commit message with the required co-author trailers. Report how many commits the branch should have for this single issue and what co-author trailers the squashed commit must include."
 

@@ -1,0 +1,21 @@
+# GitBucket image for the tests-v2 Docker harness.
+#
+# Spec: .opencode#2582 (SC-5) — R-4.
+#
+# Base is a digest-pinned Eclipse Temurin 21 JRE image (the host harness
+# already runs the current WAR on Temurin 21, proving compatibility). The
+# public `gitbucket/gitbucket` image is NOT used (stale JDK8-base build) —
+# the WAR is downloaded by the existing release-resolution logic into tmp/
+# scratch and staged into the image at provision-time build:
+#
+#   docker build -f Dockerfile.gitbucket \
+#     --build-context war=<project>/tmp/gitbucket-staging \
+#     -t tests-v2-gitbucket <this dir>
+FROM eclipse-temurin:21-jre@sha256:80b6aebe2f990697ada73fdbe451c7e9ec5e4adbde7a1e3625bc665e3b2fc06e
+
+COPY --from=war gitbucket.war /app/gitbucket.war
+
+# GitBucket home is mounted from the project's tmp/ scratch at run time.
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "/app/gitbucket.war", "--gitbucket.home=/gitbucket-home"]

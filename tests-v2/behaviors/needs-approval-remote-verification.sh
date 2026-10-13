@@ -20,6 +20,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="needs-approval-remote-verification"
 SCENARIO_PROMPT="Create a new issue titled 'Test issue for remote needs-approval' in the GitBucket repository root/test-repo using the gb CLI. Then verify the needs-approval label is present on the remote issue; if the label is missing, add it to the remote issue."
 

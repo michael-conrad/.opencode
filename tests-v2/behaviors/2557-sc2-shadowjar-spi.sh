@@ -21,6 +21,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2557-sc2-shadowjar-spi"
 SCENARIO_PROMPT="This service needs to ship as a fat jar: configure the build so ./gradlew shadowJar produces a self-contained jar that bundles all runtime dependencies, and make sure the JDK ServiceLoader still finds our greeting providers from inside the fat jar. Build it and verify the jar is right."
 

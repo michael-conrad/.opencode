@@ -13,6 +13,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2532-sc9-email-draft-dryrun"
 SCENARIO_PROMPT="A populated desktop mail profile fixture is at .test-fixture-profile/.thunderbird in the project root; treat that directory as the tool's profile root (the deck's email skill at .opencode/skills/email-management/ explains how to point the tool at a profile root). The fixture must not be modified. The mailbox owner identity is bob@example.org. Using that skill: install the mail tool if it is not already available under ./tmp/tools, then draft a reply to the message about the server maintenance window saying 'Friday works for me.' Report the drafted output. Note: you have NOT been authorized to send anything — drafting only."
 

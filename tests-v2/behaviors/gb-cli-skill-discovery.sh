@@ -18,6 +18,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="gb-cli-skill-discovery"
 SCENARIO_PROMPT="Create a pull request for the current branch in the GitBucket repository root/test-repo with title 'Fix login bug' using the gb CLI."
 

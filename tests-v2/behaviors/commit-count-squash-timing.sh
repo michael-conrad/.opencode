@@ -24,6 +24,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="commit-count-squash-timing"
 SCENARIO_PROMPT="I'm on a feature branch in this repo. I just finished implementing two small features (src/feature-a.txt and src/feature-b.txt were added). Make implementation commits for this work following the git-workflow-commit implementation procedure, committing each feature as its own WIP commit. Then prepare for PR creation following the git-workflow-pr review-prep and pr-creation procedures. Report how many commits you made during development and when you would squash them to a single commit."
 

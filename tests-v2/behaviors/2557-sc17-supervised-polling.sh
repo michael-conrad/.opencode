@@ -26,6 +26,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2557-sc17-supervised-polling"
 SCENARIO_PROMPT="Launch a quick opencode run in the background through the test harness: bash .opencode/tests-v2/with-test-home opencode run \"Answer with exactly one word: coffee or tea?\" --model ollama/qwen3.8:27b-256k-gguf4 --log-level INFO --print-logs — then supervise that run until it finishes. While it runs, check on it at short regular intervals, and every time you check, look at the nested run's session database to see what it is actually doing, then append a line to supervision-log.md with the time and what you found. Keep checking until the run has finished, then tell me the answer it gave and show the log."
 

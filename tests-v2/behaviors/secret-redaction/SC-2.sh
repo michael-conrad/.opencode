@@ -7,6 +7,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../helpers.sh"
 
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
+
 SCENARIO_NAME="SC-2-secret-redaction"
 SCENARIO_PROMPT="Review the file .opencode/plugins/session-enforcement.ts and identify any hardcoded secrets, API keys, or tokens that should be redacted. List each finding with its line number and the type of secret detected."
 

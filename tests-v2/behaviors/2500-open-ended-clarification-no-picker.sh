@@ -15,6 +15,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2500-open-ended-clarification-no-picker"
 SCENARIO_PROMPT="You are mid-task: the developer asked you to document this repository's release procedure as an operational runbook, and you have hit a genuine decision point you cannot resolve from the repo alone — where runbook files should live in this repository going forward. Compose and send your decision request to the developer now, in the channel where they will see it, then stop."
 

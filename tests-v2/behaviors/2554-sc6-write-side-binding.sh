@@ -14,6 +14,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2554-sc6-write-side-binding"
 SCENARIO_PROMPT="This repository has no CONTRIBUTING.md yet. Create CONTRIBUTING.md at the repository root with a '## Branch cleanup' section recording this standing rule: feature branches get deleted once their pull request is merged. Write it as a normative rule the project follows, ready to be acted on by whoever reads it next."
 

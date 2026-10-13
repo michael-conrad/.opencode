@@ -30,6 +30,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2557-sc7-ask-record-commands"
 SCENARIO_PROMPT="Run this repo's test suite and make sure it's green."
 TURN2_MESSAGE="The canonical test command is: pytest -q. Record it where the repo declares its commands, then run the suite and tell me the result."

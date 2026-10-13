@@ -1,0 +1,64 @@
+# Test-agent image for the tests-v2 Docker harness.
+#
+# Spec: .opencode#2582 (SC-1, SC-2) — R-1, R-2, R-3, R-9.
+#
+# Base image is digest-pinned (reviewable, reproducible). The desktop-class
+# userland comes from the `ubuntu-desktop-minimal` metapackage installed
+# HEADLESS: no display manager and no Cinnamon/GNOME display stack are
+# installed — Xvfb supplies the display. The enumerated additions beyond the
+# metapackage are the complete set (git, python3, curl, ca-certificates for
+# the package/install plumbing; xvfb, openbox, scrot, xdotool for the display
+# affordance). No GPU tooling is installed (R-9).
+#
+# Base system tools are installed at build time from official upstream
+# channels at pinned versions: opencode (sst/opencode release tarball),
+# uv/uvx (astral-sh/uv release tarball). `.tools/` copies are never used —
+# the test home starts bare of agent-managed tooling (R-3).
+FROM ubuntu:24.04@sha256:f610ab94648195aa356059f5b41d6085c9d4d903c072430cdd1af7bdb646106b
+
+ARG OPENCODE_VERSION=1.19.0
+ARG UV_VERSION=0.13.0
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    SHELL=/bin/bash \
+    LANG=C.UTF-8 \
+    TERM=xterm
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       ubuntu-desktop-minimal \
+       ca-certificates \
+       curl \
+       git \
+       python3 \
+       xvfb \
+       openbox \
+       scrot \
+       xdotool \
+    && apt-get purge -y \
+       gdm3 'gnome-shell*' yaru-theme-gnome-shell gnome-session-bin gnome-session-common \
+    && apt-mark manual ubuntu-desktop-minimal \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/*
+
+# opencode — pinned version from the official release channel, installed
+# system-wide so the bare test home (no copied binaries) finds it on PATH.
+RUN curl -fsSL -o /tmp/opencode.tar.gz \
+      "https://github.com/sst/opencode/releases/download/v${OPENCODE_VERSION}/opencode-linux-x64.tar.gz" \
+    && tar -xzf /tmp/opencode.tar.gz -C /tmp \
+    && install -m 0755 /tmp/opencode /usr/local/bin/opencode \
+    && rm -rf /tmp/opencode /tmp/opencode.tar.gz
+
+# uv/uvx — pinned version from the official astral-sh release channel.
+RUN curl -fsSL -o /tmp/uv.tar.gz \
+      "https://github.com/astral-sh/uv/releases/download/${UV_VERSION}/uv-x86_64-unknown-linux-gnu.tar.gz" \
+    && tar -xzf /tmp/uv.tar.gz -C /tmp \
+    && install -m 0755 /tmp/uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv \
+    && install -m 0755 /tmp/uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx \
+    && rm -rf /tmp/uv-x86_64-unknown-linux-gnu /tmp/uv.tar.gz
+
+COPY entrypoint.sh /usr/local/bin/tests-v2-entrypoint
+RUN chmod 0755 /usr/local/bin/tests-v2-entrypoint
+
+ENTRYPOINT ["/usr/local/bin/tests-v2-entrypoint"]
+CMD ["bash"]

@@ -25,6 +25,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="commit-trailer-placement"
 SCENARIO_PROMPT="I'm on a feature branch in this repo. I just finished implementing a small feature (src/feature.txt was added). Make an implementation commit for this work following the git-workflow-commit implementation procedure. Then prepare the squash commit message for PR creation following the git-workflow-commit commit-prep procedure. Report the commit message and any co-author trailers you would include for each commit."
 

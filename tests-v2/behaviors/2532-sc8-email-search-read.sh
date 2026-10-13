@@ -15,6 +15,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2532-sc8-email-search-read"
 SCENARIO_PROMPT="A populated desktop mail profile fixture is at .test-fixture-profile/.thunderbird in the project root; treat that directory as the tool's profile root (the deck's email skill at .opencode/skills/email-management/ explains how to point the tool at a profile root). The fixture must not be modified. Using that skill: install the mail tool if it is not already available under ./tmp/tools, then search the profile for the invoice message, open the full message, and extract its attachment to ./tmp/attachments. Report the search results, the exact read command you used, the message body, and the extracted attachment. The profile must remain byte-for-byte unchanged."
 

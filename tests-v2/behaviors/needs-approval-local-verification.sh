@@ -19,6 +19,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="needs-approval-local-verification"
 SCENARIO_PROMPT="Create a new local issue titled 'Test issue for needs-approval' using local-issues create. Then check the issue.yaml file to verify the needs-approval label is present. If it's missing, add it to the labels array."
 

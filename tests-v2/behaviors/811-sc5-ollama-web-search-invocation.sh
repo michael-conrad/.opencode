@@ -13,6 +13,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="811-sc5-ollama-web-search-invocation"
 SCENARIO_PROMPT="Use the ollama-web-search MCP server's web_search tool to search the web for 'PEP 723 inline script metadata', then use its web_fetch tool to fetch the first result URL. Report the search result titles and what the fetched page is about."
 
