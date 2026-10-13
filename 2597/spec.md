@@ -23,7 +23,8 @@ labels: [needs-approval, bug, spec]
 - **The full attic BLOCKED-state matrix for spec creation** — the creation path already constructs the local record; only the repair path is restored (Alternative (b)).
 - **A retroactive mirror sweep over historical issues** — forwards-only on discovery (Alternative (c)).
 - **Changes to the `spec` card's verdict semantics or `validation-standards.md`** — #2575 governs that surface; the verdict semantics are not this item's defect. Re-wording inside the four affected cards is in scope (Design Decision 7) but bounded: it carries the restored rules in each card's voice without altering the cards' other semantics.
-- **Changes to `floor.md` or `routing.md`** — routing already lands issue operations on the `issues` card and audits on the `verify` card; no routing entry is needed.- **Remediation of `.opencode#2551` itself** (mirroring its artifacts, running its audit) — that is the observed failure's own remediation, executed under the restored rules once this spec is implemented; it is not part of this change's deliverables.
+- **Changes to `floor.md` or `routing.md`** — routing already lands issue operations on the `issues` card and audits on the `verify` card; no routing entry is needed.
+- **Remediation of `.opencode#2551` itself** (mirroring its artifacts, running its audit) — that is the observed failure's own remediation, executed under the restored rules once this spec is implemented; it is not part of this change's deliverables.
 
 ## 3. Success Criteria
 
@@ -40,7 +41,7 @@ All structural (card text and ledger state are file facts). RED states verified 
 
 ### Cost Frame
 
-Card-text amendments plus one ledger comment — the smallest surface that restores both lost moments. The `issues` card grows by one numbered rule (and one sentence inside the creation rule); the `verify` card grows by one numbered rule. No new cards, no routing changes, no new references. Behavioral SCs are not included: the rules are intent-decidable in operation (an agent decides when discovery occurs and how to mirror), and the deck's founding defect is scripted checks on judgment; the structural SCs make the text falsifiable and every future audit and issue operation applies the rules by judgment — the same rationale recorded in #2575's cost frame.
+Card-text amendments across four cards plus one ledger comment — the smallest surface that restores both lost moments. The `issues` card grows by one numbered rule (and one sentence inside the creation rule); the `spec` card gains two sentences inside its write-and-persist step; the `verify` card grows by one numbered rule; the `plan` card gains one clause inside its consume-validated-specs rule. No new cards, no routing changes, no new references. Behavioral SCs are not included: the rules are intent-decidable in operation (an agent decides when discovery occurs and how to mirror), and the deck's founding defect is scripted checks on judgment; the structural SCs make the text falsifiable and every future audit and issue operation applies the rules by judgment — the same rationale recorded in #2575's cost frame.
 
 ---
 *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
