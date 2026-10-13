@@ -1,0 +1,8 @@
+title: '[SPEC-FIX] release-promoter gate: shallow clone must precede PR creation and
+  use the root project''s parent URL (not a local path); non-recursive'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-13T15:49:37+00:00'
+updated_at: '2026-10-13T15:49:37+00:00'
