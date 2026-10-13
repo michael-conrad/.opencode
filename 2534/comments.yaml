@@ -215,3 +215,57 @@ comments:
     9 and tests-v2/AGENTS.md §14. Observed defect: #2589 SC-5 supervision, green confirmed
     at poll 47, polls continued through 50. Commit f7015b0f on feature/2594-supervision-early-abort.'
   timestamp: '2026-10-13T17:53:00+00:00'
+- type: internal
+  body: 'Admission entry — restoration of the local issue-record mirroring discipline
+    and the audit local-artifact gate (.opencode#2597)
+
+
+    **What was retired:** the #2490 rip-and-replace dropped the attic''s local-record
+    construction and audit entry machinery along with the DiMo chain.
+
+
+    **Attic rule text and sources:**
+
+    - `attic/skills/audit/tasks/spec-audit-investigator.md` (Entry Criteria): "If
+    the spec is only on GitHub (not locally mirrored), the orchestrator MUST mirror
+    it as .md files in spec_local_dir/ first. Dispatching without a valid spec_local_dir
+    is a CRITICAL VIOLATION."
+
+    - `attic/skills/spec-creation/tasks/create.md` (Steps 2–3): local == remote by
+    construction, remote-first number reservation, explicit renumber/migrate repair
+    pattern for collisions, BLOCKED states instead of silent fallbacks.
+
+
+    **Observed failure (2026-10-13):** `.opencode#2551` was filed with a local-artifacts
+    pointer naming `.opencode/.issues/2554/` (an unrelated, closed issue''s folder);
+    no `2551/` record existed and no store commit ever added one. When the developer
+    authorized `spec audit: .opencode#2551`, the audit halted on fabricated fail reasons
+    about local-artifact absence — a repairable fact-work gap narrated as blockers.
+
+
+    **Placement decisions (one mechanism, four moments, no duplicated procedure text):**
+
+    - `issues` card — store lifecycle owner: mirror-repair rule (new §7: trigger,
+    `local-issues create --number repo#N` + content mirror + `update --github` pointer
+    correction, fact-work statement, §6 cross-reference) and creation-time pointer-resolution
+    check in §2.
+
+    - `spec` card — authoring side: pointer must resolve at write time; mid-flow local
+    write failure BLOCKs the flow (never an unresolvable pointer left in the remote
+    body).
+
+    - `verify` card — audit dispatch side: artifact-presence gate; absent artifact
+    → mirror-repair per the issues card, then proceed; absence is never a fail reason
+    or halt ground by itself.
+
+    - `plan` card — pipeline consumer: one clause routing absent-record consumption
+    through the issues card''s mirror-repair.
+
+    - `work` card excluded: it already states the stage-level principle (missing upstream
+    artifacts trigger the pipeline, never reasons to halt); other cards cite it.
+
+
+    **Not restored (deliberate):** the attic DiMo dispatch topology (single-fresh-context-reviewer
+    stays per #2550) and the full attic BLOCKED-state matrix (creation path already
+    constructs the record; only the repair path was lost).'
+  timestamp: '2026-10-13T19:43:13+00:00'
