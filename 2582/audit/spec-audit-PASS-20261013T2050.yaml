@@ -1,0 +1,68 @@
+# Spec audit — .opencode#2582 (PASS, round 5 / re-validation)
+# (YAML) On-demand spec audit per .opencode/skills/spec §6; criteria restated
+# verbatim from .opencode/skills/spec/references/validation-standards.md
+# (criteria invariance — same bar as rounds 1–4). One fresh-context reviewer;
+# churn rule included verbatim; independent of all prior audit records.
+# Round-3 record: spec-audit-FAIL-20261013T2048.yaml
+# Round-4 record: spec-audit-FAIL-20261013T2049.yaml
+issue: .opencode#2582
+artifact: .opencode/.issues/2582/spec.md
+audited_at: 2026-10-13
+criteria_source: .opencode/skills/spec/references/validation-standards.md
+verdict: PASS
+findings: []
+prior_findings_status:
+  - id: F1
+    fixed: true
+    detail: >
+      Revised Item 1 RED re-verified live: exactly one "Docker" text hit in
+      tests-v2/ (AGENTS.md:329 §5 Known-residual cross-reference); no
+      tests-v2/docker/; no Dockerfile anywhere under tests-v2/; no script
+      contains the string "docker" at all, so no executable usage; blame
+      confirms aeeb6ed2 (#2579, 2026-10-11 19:11:30) origin matching the
+      revised provenance sentence. Old claim fully replaced, not negotiated
+      away.
+  - id: F2
+    fixed: true
+    detail: >
+      Nested scripts' nature verified independently: secret-redaction/SC-2.sh
+      and SC-3.sh are genuine scenarios (behavioral-test header,
+      SCENARIO_NAME/SCENARIO_PROMPT, source ../helpers.sh, behavior_run
+      invocation); SC-9-isolation-verify.sh and SC-10-env-allowlist.sh are
+      non-scenario verification helpers (no behavior_run, no SCENARIO_*).
+      Revised SC-13 states recursive scope and the instrument enumerates
+      recursively with fixtures/ excluded over behavior_run-invoking files,
+      requires template.sh's tier-2 default, exempts helpers.sh/support
+      files. RED re-verified recursively (no tier markers anywhere; fixture
+      "Tier" hits are unrelated content the instrument excludes). Only nested
+      directories are secret-redaction/ and fixtures/ — the recursive
+      instrument demonstrably covers the criterion's claimed scope. Item 9
+      RED/GREEN/verify aligned.
+reviewed_files:
+  - .opencode/.issues/2582/spec.md
+  - .opencode/tests-v2/AGENTS.md
+  - .opencode/tests-v2/behaviors/helpers.sh
+  - .opencode/tests-v2/with-test-home
+  - .opencode/tests-v2/behaviors/template.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-2.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-3.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-9-isolation-verify.sh
+  - .opencode/tests-v2/behaviors/secret-redaction/SC-10-env-allowlist.sh
+  - .opencode/skills/behavioral-testing/SKILL.md
+claims_sampled: 65
+claims_failed: 0
+notes: >
+  All sampled claims held: every line citation, RED-state absences
+  (recursive), traceability matrix bijection (19 SCs ↔ 19 items, every R
+  mapped), phase prerequisites, evidence-type classification, footer
+  allowlist, deck-path and tool-reference resolution, and all live
+  environment facts (Docker 29.1.3 rootful/systemd cgroup v2; Ollama 0.33.0
+  loopback-bound at 127.0.0.1:11434; unauthenticated HTTPS ls-remote;
+  gitbucket/gitbucket:latest JDK8-base jdk8u292-b10 stale image;
+  eclipse-temurin:21-jre absent from cache; .tools binaries
+  dynamically-linked glibc x86-64; zero GPU references in scenarios). Two
+  sub-churn line-range drifts disclosed by the reviewer as non-findings
+  (with-test-home copy steps cited L560–579 vs actual L568–585; setsid cited
+  L2071–2079 vs comment/launch at L2077–2085) — off by a few lines with
+  correct content, no effect on correctness or stated requirements. Loop
+  exit: clean PASS.
