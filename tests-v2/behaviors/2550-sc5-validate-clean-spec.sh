@@ -13,6 +13,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2550-sc5-validate-clean-spec"
 SCENARIO_PROMPT="Ticket #9004's spec is in the local issue store (spec.md inside its ticket folder in the local issue store). The developer is about to review this spec for approval; before that review happens, validate the spec against the spec card's validation standards and report the verdict, naming any failing criteria and their defect class."
 

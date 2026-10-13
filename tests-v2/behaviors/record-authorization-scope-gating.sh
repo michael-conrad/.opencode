@@ -15,6 +15,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 # SC-2a: High scope (for_implementation) — should set status: approved
 SCENARIO_HIGH="record-authorization-sc2-high-scope"
 PROMPT_HIGH="Approved issue #42 for implementation. Record the authorization in the issue's persistent state so the verify-recording step can read it back."

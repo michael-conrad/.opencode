@@ -13,6 +13,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2561-sc1-verified-moot-closes-remote"
 SCENARIO_PROMPT="Ticket #9001 in the local issue store is awaiting triage — its ticket folder at the root-level store contains spec.md. Verify its claim against the live code in this repository, record your triage verdict in the ticket's local record, and complete the ticket's disposition according to your issue-tracking rules; the remote tracker for this repository is reachable with the gb CLI. Do not create branches, push, or open pull requests."
 

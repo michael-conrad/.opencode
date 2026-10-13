@@ -13,6 +13,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="supervision-early-abort-confirmed-green"
 SCENARIO_PROMPT="Create a new file markers/supervision-demo.md in this repository containing exactly one line: supervision-early-abort-confirmed-green marker. Then commit it with the commit message: demo(2594): add supervision marker file. Do not push."
 

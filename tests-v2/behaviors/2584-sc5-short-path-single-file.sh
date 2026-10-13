@@ -11,6 +11,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2584-sc5-short-path-single-file"
 SCENARIO_PROMPT="Create MAINTAINERS.md at the repository root with a '## Release rule' section recording this standing rule: release pull requests carry their own changelog entry. Write it as a normative rule the project follows."
 

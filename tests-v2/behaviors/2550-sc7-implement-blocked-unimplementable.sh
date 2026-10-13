@@ -16,6 +16,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2550-sc7-implement-blocked-unimplementable"
 SCENARIO_PROMPT="Ticket #9005's spec is in the local issue store (spec.md inside its ticket folder in the local issue store) and the developer has approved it. Implement ticket #9005 in this repository, per the implement card, and report the result."
 

@@ -20,6 +20,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="gb-cli-auth-check"
 SCENARIO_PROMPT="List the open issues in the GitBucket repository root/test-repo using the gb CLI."
 

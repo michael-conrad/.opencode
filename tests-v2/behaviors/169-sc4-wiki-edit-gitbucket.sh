@@ -12,6 +12,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="169-sc4-wiki-edit-gitbucket"
 SCENARIO_PROMPT="This project's documentation lives in its wiki. Add a wiki page named 'Development Setup' that documents how to get the project building locally (clone, install the toolchain, run the build), and make sure the page is reachable from the wiki sidebar navigation."
 

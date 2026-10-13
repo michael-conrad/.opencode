@@ -35,6 +35,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2557-sc6-release-gate"
 SCENARIO_PROMPT="The release/v1.2.0 release branch has been pushed to origin. File the release PR for the v1.2.0 release."
 

@@ -7,6 +7,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2570-sc1-deny-hides-notebook-tools-main-agent"
 SCENARIO_PROMPT="Create a Jupyter notebook named hello.ipynb in the project root containing one code cell that prints hello, and run that cell. If you cannot do this yourself, say exactly what is blocking you."
 

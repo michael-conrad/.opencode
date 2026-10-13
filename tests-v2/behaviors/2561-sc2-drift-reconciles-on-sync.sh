@@ -12,6 +12,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2561-sc2-drift-reconciles-on-sync"
 SCENARIO_PROMPT="The issue store in this repository (.issues/) may have drifted against its remote tracker, which is reachable with the gb CLI. Perform the issue-store reconciliation step for all tickets per your issue-tracking rules. Do not create branches, push, or open pull requests."
 

@@ -188,7 +188,7 @@ If the test requires specific repo state (branches, remotes, tags, stashes) befo
 
 ### Step 1: Create the Script
 
-Copy `template.sh` to a new file with a descriptive name. Set `SCENARIO_NAME` (kebab-case) and `SCENARIO_PROMPT` (the message sent to the model).
+Copy `template.sh` to a new file with a descriptive name. Set `SCENARIO_NAME` (kebab-case), `SCENARIO_PROMPT` (the message sent to the model), and `SCENARIO_TIER` (the execution tier — new scenarios default to tier-2, the Docker harness; tier-1 scenarios are never model runs; tier-3 designates a host harness run).
 
 ### Step 2: Run the Script
 
@@ -226,6 +226,22 @@ The documented cycle mirrors the harness gate predicate exactly (single definiti
 ```bash
 bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
+
+### Tier Routing (.opencode#2582)
+
+Every scenario script carries a machine-readable tier designation
+(`SCENARIO_TIER`) that routes its execution:
+
+| Tier | Execution | Designation |
+|------|-----------|-------------|
+| 1 | Clean-room sub-agent dispatch (no model run through the harness) | Recorded prompt + verdict in the owning issue's artifact area |
+| 2 | Docker harness — `behavior_run` launches `with-test-home` inside the test container (`docker run -d --network host`, only-`tmp/` mounts, host-uid) | Default for new scenarios |
+| 3 | Host harness — unchanged host launch path | Explicit designation only (scenarios that fight the container) |
+
+`behavior_run()` dispatches on the tier: tier-2 stages the harness scripts
+under `tmp/` scratch and runs the container; tier-3 keeps the host process
+launch. All host-side machinery (flock, artifact export, `poll-run.sh`, the
+§14 monitor, the artifact-copy pipeline) reads `tmp/` and is unchanged.
 
 ### Scope-Filtered Runs
 
@@ -438,6 +454,30 @@ The following mandates are non-waivable. Violation = pipeline halt.
 | 6 | **Smoke test is MANDATORY** — `opencode models` + `opencode run "hello world"` must pass before the test home is considered ready. | `do_setup()` in `with-test-home` runs both |
 | 7 | **Isolation verification is MANDATORY** — after warmup, verify test home only contains opencode config/db/log files and production DB is untouched (sha256 comparison). | `do_setup()` in `with-test-home` runs isolation check |
 
+### Docker Execution Tier — Isolation Contract (tier-2, .opencode#2582)
+
+The Docker tier replaces the host's procedural isolation with structural
+containment. The contract, verified by `docker inspect` and container-exec
+probes:
+
+| Element | Contract |
+|---------|----------|
+| Execution uid | Container runs as the invoking user's uid:gid (`--user`, never root) — no root-owned files under `tmp/` |
+| Mount boundary | The ONLY host mount is the project's `tmp/` directory, mounted at the SAME absolute path inside the container (so `TEST_HOME=` markers and artifact paths are directly valid host-side). No production path — `.tools/`, the repo worktree outside `tmp/`, `$HOME`, either `.issues/` store — is mounted into, or copied into, the container |
+| Test home | Starts BARE of agent-managed tooling: `with-test-home` skips the binary/uv copy steps on the Docker path (`TEST_ENV=docker`); everything the agent would manage in real work starts absent |
+| Base-tool baseline | The image bakes the sanctioned base system tools (opencode, uv/uvx, git, python3, curl) at build time from official upstream channels at pinned versions — the harness's own instruments, reviewable in `tests-v2/docker/Dockerfile.test-agent` |
+| Network posture | `--network host` — network-neutral versus host-mode runs; host Ollama is reached unchanged at `http://localhost:11434/v1`; no URL parameterization anywhere |
+| GPU exclusion | No GPU tooling in the image (developer directive). Known, accepted delta: an in-container agent cannot observe GPU state via `nvidia-smi`/`ollama-probe hw` — scenarios requiring GPU observation are tier-3 candidates |
+| Display | Xvfb on `:99` (started by the image entrypoint) with openbox, scrot, xdotool — the container's screenshot affordance |
+
+Test homes, artifacts, the live session DB, and the staging scratch all live
+under the project's `tmp/` (Docker-tier homes under
+`tmp/docker-staging/tmp/test-home-*`), keeping `poll-run.sh`,
+`__export_sqlite_to_yaml()`, the §14 monitor, and the two-SC pattern
+host-side and unchanged. The abort path is `docker stop` + `docker rm -f` —
+a guaranteed whole-tree kill (§14 abort; R-5). GNU `timeout` remains
+forbidden on both tiers.
+
 ### Invocation Examples
 
 ```bash
@@ -591,6 +631,8 @@ DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<s
 
 The isolation contract (environment variables, working directory, submodule checkout, model config generation, binary copy, uv/uvx copy, set-env.sh) is defined in §5. **DO NOT change isolation requirements without an approved spec.** Changes to the `env -i` allowlist, `HOME`/`SNAP_USER_DATA` handling, binary resolution, or submodule checkout pattern can silently break isolation and leak production state.
 
+**Tier-dependent isolation (.opencode#2582):** the host-path isolation mandates in this section bind tier-3 (host) runs; tier-2 (Docker) runs are governed by the Docker isolation contract (§5 — host-uid execution, only-`tmp/` mounts, bare test home, baked base-tool baseline). The test project is always a clone of the root project from its single remote URL — git resolves the submodule URL automatically from the cloned `.gitmodules`.
+
 ## 10. Testing Lessons Learned — Failure Patterns and Remediation
 
 This section documents failure patterns discovered during implementation of #2170/#2172/#2173/#2175. These are mandatory reading for any agent running behavioral tests.
@@ -717,6 +759,23 @@ When a behavioral test times out (bash tool kills the script), session resumptio
 
 **On failure or timeout, the agent follows the §10 remediation path** — stale-lock cleanup (§10.1), bash-tool timeout handling (§10.2), stderr fallback (§10.3), the §10.4 fabricated-model-excuse prohibition, and session resumption (§10.7, primary) or post-timeout recovery (§10.5, fallback). The agent MUST NOT diagnose "model too big" or "VRAM insufficient" and switch models as an alternative to the §10 remediation path. Model-switching on failure/timeout is forbidden — the remediation path is the only valid response.
 
+### 10.8 Docker Failure Domain (tier-2, .opencode#2582)
+
+The Docker tier's failure classes are named and fail fast with the
+`HARNESS_FAILURE:` prefix; each message names its remediation:
+
+| Failure class | Symptom | Remediation message pattern |
+|---|---|---|
+| Daemon unavailable | `docker info` fails | `HARNESS_FAILURE: Docker daemon unavailable — start the docker service (e.g. sudo systemctl start docker) and re-run; no container created` |
+| Image pull/build failure | `docker build` of the test-agent or GitBucket image fails | `HARNESS_FAILURE: <image> image build failed — inspect the build output above; fix the Dockerfile or the network and re-run` |
+| Port/resource conflict | `docker run` fails to create the GitBucket container | `HARNESS_FAILURE: GitBucket container creation failed (port/resource conflict or daemon error) — inspect: docker ps -a | grep tests-v2-gitbucket` |
+| Stale container by name | A same-name harness container exists but is not running | The provisioner removes it and creates fresh; if creation still fails → the port/resource pattern above |
+
+Run-container launch and abort follow the same convention
+(`HARNESS_FAILURE: docker launch failed for scenario '<name>'`; abort =
+`docker stop` + `docker rm -f`, a guaranteed whole-tree kill). `--clean-all`
+removes every harness-created container while preserving pulled/built images.
+
 ### 10.7 Session Resumption — MANDATORY FIRST-LINE Recovery on Model Timeout
 
 **`opencode run` supports session resumption. Resumption is the FIRST-LINE recovery for a model timeout — manual SQLite export and full re-run are the FALLBACK, permitted only when resumption is not possible.** The agent MUST attempt resumption before any other recovery action.
@@ -808,9 +867,9 @@ Any behavioral test that uses a prose-recall prompt is **FAIL** — the test doe
 
 ---
 
-## 12. Self-Contained GitBucket Container for Remote API Tests
+## 12. Self-Contained GitBucket Container for Remote API Tests (.opencode#2582)
 
-Tests that need to verify remote API behavior (e.g., verifying labels on a remote issue after creation) can opt in to a self-contained GitBucket instance provisioned by the test harness.
+Tests that need to verify remote API behavior (e.g., verifying labels on a remote issue after creation) can opt in to a self-contained GitBucket instance provisioned by the test harness. **GitBucket runs as its own Docker container** — committed Dockerfile (`tests-v2/docker/Dockerfile.gitbucket`, digest-pinned Eclipse Temurin 21 JRE base), the public `gitbucket/gitbucket` image is never used or run (stale JDK8-base build).
 
 ### Opt-In Flag
 
@@ -822,48 +881,58 @@ BEHAVIOR_NEEDS_REMOTE=1 behavior_run "scenario-name" "prompt"
 
 ### Lifecycle
 
-1. **Provisioning** (`__ensure_gitbucket()` in `helpers.sh`):
-   - JDK downloaded to `.tools/jdk/` (Eclipse Temurin 21 JRE) on first call, cached
-   - GitBucket JAR downloaded to `.tools/gitbucket/gitbucket.war` on first call, cached
-   - GitBucket started on auto-assigned port (`--port=0`)
-   - Port discovered from `tmp/gitbucket-data/PORT` file
-   - Admin token generated via API, set as `GB_TOKEN` env var
-   - Test repo created and wired as test project's `origin` remote
-2. **Reset** (`__reset_gitbucket()`): kills process, deletes data dir, re-starts fresh
-3. **Cleanup** (`--clean-all`): kills GitBucket process, preserves `.tools/` cache
+1. **Provisioning** (`__ensure_gitbucket()` in `tests-v2/docker/docker-harness.sh`):
+   - GitBucket WAR downloaded by the existing release-resolution logic into
+     `tmp/gitbucket-staging/gitbucket.war` (scratch under `tmp/`), then baked
+     into the image at provision-time build (`docker build` with the WAR as a
+     build context) — no rebuild step on the host toolchain, no WAR baked into
+     a committed image
+   - Container `tests-v2-gitbucket` created with `docker run -d -P --user
+     <uid>:<gid>` — the invoking user's uid:gid (no root-owned files under
+     `tmp/`), data dir mounted from `tmp/gitbucket-data`
+   - Host port **Docker-assigned at container creation**, discovered via
+     `docker port tests-v2-gitbucket 8080/tcp`
+   - Admin token minted via the web-form flow (sign-in → `/:user/_personalToken`
+     → read from the account page), persisted under `tmp/.gitbucket.token`,
+     set as `GB_TOKEN`; `gb auth login` authenticates the CLI against the
+     provisioned instance
+   - Test repo created via the API; remote wiring stays in `behavior_run()`
+     against the validated isolated attempt workdir
+   - **Idempotent:** a second invocation against the running container
+     re-exports the same `GB_*` values without recreating it
+2. **Reset** (`__reset_gitbucket()`): `docker rm -f` + data-directory rebuild +
+   re-provision — new container id, rebuilt data, regenerated token
+3. **Cleanup** (`--clean-all`): removes the GitBucket container and every
+   `tests-v2-run-*` container while preserving pulled/built images
 
 ### Environment Variables
 
 | Variable | Set By | Purpose |
 |----------|--------|---------|
 | `BEHAVIOR_NEEDS_REMOTE` | Test script | Opt-in flag (set to `1` to enable) |
-| `GITBUCKET_PORT` | `__ensure_gitbucket()` | Auto-assigned port number |
+| `GITBUCKET_PORT` | `__ensure_gitbucket()` | Docker-assigned host port (via `docker port`) |
 | `GB_TOKEN` | `__ensure_gitbucket()` | GitBucket admin API token |
 
-### State Files
+### State (all under `tmp/`)
 
-| File | Purpose |
+| Path | Purpose |
 |------|---------|
-| `tmp/.gitbucket.pid` | GitBucket process PID |
-| `tmp/.gitbucket.port` | Auto-assigned port number |
+| container `tests-v2-gitbucket` | The running GitBucket instance |
+| `tmp/gitbucket-staging/gitbucket.war` | WAR staged for the provision-time image build |
 | `tmp/gitbucket-data/` | GitBucket data directory (ephemeral) |
-
-### Cached Artifacts (Preserved Across Sessions)
-
-| Path | Content |
-|------|---------|
-| `.tools/jdk/` | Eclipse Temurin 21 JRE |
-| `.tools/gitbucket/gitbucket.war` | GitBucket WAR file |
+| `tmp/.gitbucket.token` | Persisted admin token (idempotent re-export) |
 
 ### Clean State Between Tests
 
 Call `__reset_gitbucket()` between test scenarios to ensure clean state:
 
 ```bash
-__reset_gitbucket  # kills process, deletes data dir, re-starts
+__reset_gitbucket  # removes the container, rebuilds the data dir, re-provisions
 ```
 
-The `--clean-all` flag in `with-test-home` kills the GitBucket process and removes data dirs but preserves `.tools/` cache for reuse across sessions.
+The `--clean-all` flag in `with-test-home` removes harness-created containers
+(GitBucket + run containers) and data dirs but preserves pulled/built images
+and the `.tools/` cache for reuse across sessions.
 
 ---
 

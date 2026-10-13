@@ -11,24 +11,42 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
 
 # behavioral-testing — the tests-v2 harness gate
 
-1. **Harness only.** Behavioral evidence is produced by `.opencode/tests-v2/`
-   — read [`tests-v2/AGENTS.md`](../../tests-v2/AGENTS.md) first, every time.
-   Scenario scripts via `behavior_run()`, environment via `with-test-home`;
-   an ad-hoc `opencode run` is never behavioral evidence. Invoke only as
-   `bash .opencode/tests-v2/behaviors/<scenario>.sh` from the project root —
+1. **Harness only, scoped per tier (.opencode#2582).** Scenario scripts carry a
+   tier designation (`SCENARIO_TIER`): tier-2 (Docker harness) and tier-3 (host
+   harness) behavioral evidence is produced by `.opencode/tests-v2/` — read
+   [`tests-v2/AGENTS.md`](../../tests-v2/AGENTS.md) first, every time. Scenario
+   scripts via `behavior_run()`, environment via `with-test-home`; an ad-hoc
+   `opencode run` is never behavioral evidence for tier-2/tier-3. Invoke only
+   as `bash .opencode/tests-v2/behaviors/<scenario>.sh` from the project root —
    never bare `opencode run` (SQLite session conflicts with the desktop app),
    never inline or from-scratch test infrastructure.
+   **Tier-1 (simple card changes, eligibility by agent judgment — never a
+   scripted checklist):** evidence is a recorded clean-room sub-agent dispatch
+   that verifies the change directly — the dispatch prompt, the criterion
+   judged, and the returned verdict are persisted into the owning issue's
+   artifact area (audit dir). No harness run is required for tier-1 evidence.
 2. **Clean-room isolation is inviolable.** The test home is built from the
-   pushed effective commit — never from session state. Do NOT pass session
-   credentials through the `env -i` allowlist, do NOT inject config entries
-   or secrets into the seeded test environment (including via per-scenario
-   fixtures), do NOT weaken isolation to make a failing test pass. If a
-   behavioral SC needs something the isolated environment cannot provide,
-   that is a spec problem — re-scope the SC at the spec, never the isolation.
-   (Observed regression, #2538: a fixture was authored to inject an MCP entry
-   into the seeded test config and an allowlist credential passthrough was
-   proposed; both ruled a bypass of the isolation the harness exists to
-   enforce.)
+    pushed effective commit — never from session state. Do NOT pass session
+    credentials through the `env -i` allowlist, do NOT inject config entries
+    or secrets into the seeded test environment (including via per-scenario
+    fixtures), do NOT weaken isolation to make a failing test pass. If a
+    behavioral SC needs something the isolated environment cannot provide,
+    that is a spec problem — re-scope the SC at the spec, never the isolation.
+    (Observed regression, #2538: a fixture was authored to inject an MCP entry
+    into the seeded test config and an allowlist credential passthrough was
+    proposed; both ruled a bypass of the isolation the harness exists to
+    enforce.)
+    **Docker-tier isolation contract (tier-2, .opencode#2582):** containers run
+    as the invoking uid:gid, the only host mount is the project's `tmp/`
+    (mounted at the same absolute path), no production folder (`.tools/`, repo
+    worktree outside `tmp/`, `$HOME`, either `.issues/` store) is mounted into
+    or copied into the container, the test home starts bare of agent-managed
+    tooling (no binary/uv copies), and the image's baked base tools (pinned
+    upstream versions) are the harness's instruments. **Host-path isolation
+    mandates** — the snap prohibitions (`snap run`, `/snap/bin/opencode`),
+    `USER=opencode-test-user`, and the production-DB sha256 check — apply to
+    **tier-3 (host) runs**; on the Docker tier the equivalent protections are
+    structural (the container cannot reach production paths at all).
 3. **Scenario authoring.** Copy `template.sh`; the script is an artifact-only
    generator — it runs `behavior_run`, exits 0, and NEVER evaluates output.
    `SCENARIO_NAME` is kebab-case and MUST match any

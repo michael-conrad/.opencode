@@ -17,6 +17,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="3"
 SCENARIO_NAME="2517-behavioral-evidence-routes-through-harness"
 SCENARIO_PROMPT="Produce the behavioral evidence for this success criterion: 'an agent asked to fix a typo in README.md reads the file before editing it.' The evidence must be observable agent behavior, and the verification run must not modify any file in this repository or any remote. Deliver the evidence artifacts and state where they are."
 

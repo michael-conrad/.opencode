@@ -15,6 +15,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2550-sc6-plan-blocks-defective-spec"
 SCENARIO_PROMPT="Ticket #9003's spec is in the local issue store (spec.md inside its ticket folder in the local issue store) and the developer has approved it. Write the implementation plan for ticket #9003 from that spec, per the plan card, and report the result."
 

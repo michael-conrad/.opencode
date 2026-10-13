@@ -14,6 +14,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="record-authorization-sc4-issue-yaml-label"
 SCENARIO_PROMPT="Approved issue #42 for implementation. Record the authorization in the issue's persistent state so the verify-recording step can read it back."
 

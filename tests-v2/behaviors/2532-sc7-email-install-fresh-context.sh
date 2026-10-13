@@ -12,6 +12,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/helpers.sh"
 
+
+# Tier designation (.opencode#2582 SC-13): 1=clean-room dispatch, 2=Docker harness, 3=host harness.
+SCENARIO_TIER="2"
 SCENARIO_NAME="2532-sc7-email-install-fresh-context"
 SCENARIO_PROMPT="This repository's agent deck has an email skill at .opencode/skills/email-management/. Install the mail tool its details card describes into ./tmp/tools under the project root (a scratch location, not on PATH), following the card's procedure exactly, then verify the installation the way the card specifies and report the verification output. There is no mail profile on this machine and none must be created or modified — the tool must be installed and verified without touching any existing mail profile."
 
