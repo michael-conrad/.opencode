@@ -1,6 +1,7 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
 <!-- Provenance: mirrored from the remote-tracked content of .opencode#2551 (github.com/michael-conrad/.opencode/issues/2551) on 2026-10-13 under the mirror-repair rule (issues §7); remote body pointer corrected 2554 → 2551 in the same action. Authoritative analysis lives here. -->
+<!-- Remediation 2026-10-13 (post-audit): implement-card § numerals (authoring-time §5/§4) replaced with item-name anchors — the #2557 renumbering (commit 82aa84f5, 2026-10-09) moved the test-value principle to item 6 and Library-first to item 5; citations now anchor on item names and quoted text so future renumbering cannot stale them. -->
 
 # Spec: .opencode#2551 — Consumable-framework effort bound absent — agent performed hours of hand-verification of Gradle-resolved library internals and wrote fabricated verification tests
 
@@ -52,8 +53,8 @@ hours with no mechanism firing on the narration/deliverable ratio.
 
 | Guiding artifact | Content | Why it failed |
 |---|---|---|
-| implement §5 | "never test an artifact the build system already guarantees" | principle bullet, no enforcement hook, no offenders; did not fire mid-cycle |
-| implement §4 | library-first | positive-side only; no verification-effort bound |
+| implement (Test value item) | "never test an artifact the build system already guarantees" | principle bullet, no enforcement hook, no offenders; did not fire mid-cycle |
+| implement (Library-first item) | library-first | positive-side only; no verification-effort bound |
 | research card | live verification | mandates verification without depth boundary; read as license for archaeology |
 | floor standing formula | halt when unsure | agent wasn't unsure — over-verifying; no halt |
 | work card | stage gates | gates authorization, not effort; correctly-scoped plan still ballooned |
