@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592 -->
 
 # git-workflow-pr
 
@@ -53,6 +53,13 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
    the single PR for an issue exists only at that PR's assigned-scope
    completion — a partial-scope PR that merges closes the linked issue as
    completed (exception (2) merge-boundary workflow above applies).
+   **Release PRs are parent-repo artifacts only.** In a parent/submodule
+   repository family, a submodule repository never hosts its own release PR,
+   changelog release section, version bump, or tag — its content ships via
+   the parent's pointer capture, and the release PR's verification runs in
+   the parent's composed checkout: the clean-room gate clones the parent
+   repository and resolves every submodule through the parent's recorded
+   pointers (the release-promoter card owns the gate mechanics).
 4. **Body.** Executive summary of what changed and why; the executed-test
    evidence (real output, not assertions); linked issue; provenance pointers.
 5. **Create via the platform CLI** (`gh pr create` / `gb` equivalent) —

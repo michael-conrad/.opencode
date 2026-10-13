@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; release versioning is a parent-repo surface, .opencode#2592 -->
 
 # version-manager
 
@@ -19,5 +19,10 @@ provenance: AI-authored, .opencode#2490
 3. **Update every location** in one commit; a missed location is a broken
    release artifact.
 4. **Verify** the release tooling reads the new version before proceeding.
+5. **Release versioning is a parent-repo surface.** In a parent/submodule
+   repository family, the version locations that gate a release are the
+   parent repository's; a submodule's own package metadata versions its
+   tooling independently and is a release-version location only when the
+   parent's release names it.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
