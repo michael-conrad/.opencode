@@ -1,0 +1,38 @@
+# Tier-1 dispatch record — SC-15 (.opencode#2582)
+# Clean-room sub-agent verification of the Item 16 card amendment
+# (behavioral-testing SKILL.md), the tier-1 mechanism demonstrated on a real
+# simple card change from this spec's own implementation.
+
+dispatched_at: 2026-10-13
+dispatch_target: .opencode/skills/behavioral-testing/SKILL.md (the R-7 amendment, Item 16)
+
+criterion_judged: >
+  The amended card carries all three R-7 elements: (1) the harness-only
+  behavioral-evidence mandate scoped per tier — tier-2/tier-3 evidence through
+  tests-v2/, tier-1 evidence a recorded clean-room sub-agent dispatch (prompt +
+  verdict) persisted into the owning issue's artifact area, tier-1 eligibility
+  by agent judgment, never a scripted checklist; (2) host-path isolation
+  mandates (snap prohibitions, USER=opencode-test-user, production-DB sha256
+  check) scoped to tier-3 runs; (3) the Docker-path isolation contract stated
+  (host-uid execution, only-tmp/ mount, no production mounts/copies, bare test
+  home, baked base-tool baseline).
+
+dispatch_prompt: >
+  "You are a clean-room verifier. You have NO prior context on why this check
+  is being performed. Judge ONLY the criterion below against the artifact you
+  read. Do not read any other files, do not infer intent beyond the criterion.
+  Criterion: [criterion_judged, restated in full with the three elements]...
+  Read .opencode/skills/behavioral-testing/SKILL.md and return a verdict
+  record in exactly this YAML form: verdict / element_1..3 / justification."
+
+verdict: PASS
+verdict_record: >
+  element_1: present — §1 states tier-2/tier-3 evidence produced by
+    tests-v2/ while tier-1 evidence is a recorded clean-room sub-agent dispatch
+    (prompt + verdict persisted into the owning issue's artifact area).
+  element_2: present — §2 states the host-path isolation mandates apply to
+    tier-3 (host) runs.
+  element_3: present — §2's Docker-tier isolation contract states host-uid
+    execution, only-tmp/ mount, no production mounts/copies, bare test home,
+    baked base-tool instruments.
+  justification: All three elements appear in the file's text.
