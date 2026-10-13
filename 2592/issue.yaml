@@ -1,0 +1,9 @@
+title: '[SPEC-FIX] parent-checkout boundary for PR and release cards: release PRs
+  are parent-repo artifacts; the clean-room gate clones the parent and resolves submodules
+  through it'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-13T16:28:02+00:00'
+updated_at: '2026-10-13T16:28:02+00:00'
