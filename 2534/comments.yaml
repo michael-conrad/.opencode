@@ -189,3 +189,23 @@ comments:
 
     Remediation issue: .opencode#2587.'
   timestamp: '2026-10-12T17:49:29+00:00'
+- type: internal
+  body: 'Governance decision (2026-10-13): the Submodule execution boundary principle
+    (implementation-workflow reference) is duplicated in adjusted form into the PR/release
+    surfaces — git-workflow-pr, release-promoter (SKILL.md + operating-protocol),
+    changelog-generator, version-manager — because cross-referencing demonstrably
+    fails at dispatch: during the 2026-10-13 release-gate incident (spec .opencode#2590,
+    PR #2591), the agent created a release branch and release PR inside the submodule
+    repo and ran the clean-room gate by cloning the submodule directly (twice — once
+    bare, once with a path-named fake parent), because the release-trio cards'' clone/PR
+    wording is repo-local and the boundary text lives only in the implement-side card
+    that loses the intent match. Adjusted form: release PRs are parent-repo artifacts
+    only; the gate''s initial clone is of the parent repository''s remote URL; submodule
+    resolution runs through the parent''s recorded pointers (siblings included); build/test
+    executes through the parent''s build framework in the composed layout. Admission
+    gate: first-hand observed failure, existing consumers/trigger, intent-decidable
+    predicate, root-agnostic wording, replaces the repo-local wording it corrects.
+    Origin wording defect inherited from spec #2590 section 2 (''the same parent URL
+    the project itself is cloned from'' — referent ambiguity, recorded as a candidate
+    fifth family in the writing-discipline review).'
+  timestamp: '2026-10-13T16:27:36+00:00'
