@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597 -->
 
 # verify — the single verification pass
 
@@ -45,7 +45,12 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
    the bar itself is deck governance — amend the criteria set so every audit
    runs on it. A directive that redefines the bar mid-stream is a
    halt-and-clarify trigger, not a re-dispatch trigger.
-9. **Behavioral evidence provenance.** Evidence for a behavioral SC is
+9. **Artifact-presence gate.** An audit requires the audited artifact present
+   at a verified local path, verified before the audit's substance begins.
+   When the artifact is absent locally, the auditor performs the mirror-repair
+   per the `issues` card and proceeds with the audit — absence of a local
+   artifact is never a fail reason or halt ground by itself.
+10. **Behavioral evidence provenance.** Evidence for a behavioral SC is
    accepted only from the `tests-v2` harness — load the `behavioral-testing`
    card first and read `.opencode/tests-v2/AGENTS.md` as its step 1 requires
    (session.yaml from `behavior_run`, plus the clean-room evaluation). An
