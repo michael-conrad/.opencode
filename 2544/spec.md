@@ -25,7 +25,7 @@ labels: [needs-approval]
 
 1. **Strict discovery**: `collect_repo_info()` enumerates child repos exclusively via `git config --file .gitmodules` + `git submodule status` verification; the `os.listdir` `.git`-entry scan is deleted, not feature-flagged.
 2. **Hooks + inventory cover root repo + registered submodules only** — ignored sub-repos receive nothing, appear nowhere.
-3. **Self-healing**: prior-version pollution (source-hook-set-named, hash-identical hooks) inside non-registered repos' hooks dirs is removed and reported (samples and unknown files untouched).
+3. **Self-healing**: in non-registered repos' hooks dirs, session-init pollution is removed and reported — a file named for the source hook set (`pre-commit`, `pre-push`) whose content matches **any version the corresponding `.opencode/hooks/` source has ever had**: the current source hash or any historical blob hash of that source path in the deck's git history (prior installs pin the source content at install time, and the sources drift). Removals are reported as removal events in session-init's output; the non-registered repos themselves still appear nowhere in inventory (item 2). Samples and files matching no source version — foreign hooks — are untouched.
 4. Regression invariant: root / registered submodules / `.issues/` carve-outs behave exactly as today.
 
 ---
