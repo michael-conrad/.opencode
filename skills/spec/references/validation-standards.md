@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2550; criteria-depth restoration, .opencode#2601; spin-bounded loop, .opencode#2606 -->
 
 # Validation Standards
 
@@ -153,12 +153,24 @@ judgment call about the artifact's substance, not a pattern to scan for.
 FAIL → revise the named findings in the artifact in place → re-validate. The
 revise → re-validate cycle repeats until a verdict with zero findings.
 Findings are never negotiated away — each revision genuinely fixes every
-named finding. Escalation to the developer fires only when the audit cannot
-reach a zero-finding verdict by revision: a finding persists after genuine
-remediation, or findings continue to surface across iterations without
-converging. The escalation carries the specific findings, their root cause,
-and what is needed to resolve them. Escalation and the clean PASS are the
-loop's only exits.
+named finding.
+
+Each cycle, the agent running the loop judges — never a script — whether the
+loop is spinning: findings recurring or reshuffling without genuine resolution
+relative to the remediation performed. On spin, the revision step moves up a
+level: diagnose the cause and attempt higher-level fixing of it —
+artifact-level structural revision such as breaking up a composite success
+criterion, splitting an over-fat spec, resolving a spec conflict,
+restructuring into atomic work units, or re-evaluating the approach — and the
+loop continues on the revised artifact. These cause classes are judgment
+examples — exemplary and open, never a closed checklist.
+
+Escalation to the developer fires when spin persists after genuine
+higher-level fixing attempts, or when the validation cannot reach a
+zero-finding verdict by revision. The escalation carries the specific
+findings, the suspected cause class(es), the root cause, what was tried, and
+what is needed to resolve them. Escalation and the clean PASS are the loop's
+only exits.
 
 ## Criteria invariance
 

@@ -1,13 +1,13 @@
 ---
 name: verify
-description: "Load when checking a deliverable against its stated requirements before any completion or PR-readiness claim. Dispatches exactly ONE fresh-context reviewer — never the implementor — who reads the primary artifacts (spec/SCs, the diff, actual executed test output) and flags only gaps affecting correctness or stated requirements. FAIL → remediate → one re-review → still FAIL → halt to the developer. Never proceed past an unremediated FAIL. One verdict record; no artifact chains, no re-audit loops."
+description: "Load when checking a deliverable against its stated requirements before any completion or PR-readiness claim. Dispatches exactly ONE fresh-context reviewer — never the implementor — who reads the primary artifacts (spec/SCs, the diff, actual executed test output) and flags only gaps affecting correctness or stated requirements. FAIL → remediate → fresh re-review → repeat until a zero-finding verdict, with semantic spin detection; on spin, fix the diagnosed cause at a higher level; escalate when spin persists. Never proceed past an unremediated FAIL. One verdict record; no artifact chains."
 license: MIT
 provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606 -->
 
 # verify — the single verification pass
 
@@ -21,9 +21,19 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 3. **Verdict.** PASS / FAIL per SC, grounded in the reviewer's findings and
    the executed evidence. Record it once — chat or PR description. No YAML
    artifact chains.
-4. **FAIL path.** Remediate → one re-review. Still failing → halt to the
-   developer with the specific failing SCs, the root cause, and what is needed.
-   Never proceed past an unremediated FAIL.
+4. **FAIL path.** Remediate → fresh re-review → repeat until a zero-finding
+   verdict. Each cycle, the agent running the loop judges — never a script —
+   whether the loop is spinning (findings recurring or reshuffling without
+   genuine resolution relative to the remediation performed). On spin, the
+   revision step moves up a level: diagnose the cause and attempt higher-level
+   fixing of it — artifact-level structural revision such as breaking up a
+   composite SC, splitting an over-fat spec, resolving a spec conflict,
+   restructuring into atomic work units, or re-evaluating the approach — and
+   the loop continues on the revised artifact. Escalation to the developer
+   fires when spin persists after genuine higher-level fixing attempts,
+   carrying the specific failing SCs, the suspected cause class(es), the root
+   cause, what was tried, and what is needed. Never proceed past an
+   unremediated FAIL.
 5. **Own-test execution stays with the implementor.** Running tests and showing
    output is fact work, not review — it happens in `implement`, and the
    reviewer consumes its output.
