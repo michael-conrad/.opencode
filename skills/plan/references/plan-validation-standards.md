@@ -47,10 +47,35 @@ A plan is defective when it exhibits any of the following:
 9. **Feasibility.** The plan references files, functions, libraries, or
    capabilities that do not exist, or sequences work against surfaces its
    own RED steps show are absent.
-10. **Safety.** Failure modes that could cause irreversible harm are
+10. **Item atomicity.** Each plan item is one concern: an item that bundles
+    multiple independently verifiable changes cannot be independently
+    verified, committed, or reverted, and its RED demonstrates nothing
+    about which bundled change fixed what. Bundled work decomposes into
+    items, each with its own cycle.
+11. **Broken grain.** An item is mis-sized in either direction: so small
+    it is bookkeeping — a step that produces no verifiable change and only
+    narrates work — or so large it hides decisions, bundling choice points
+    that should have been resolved before the item was written. Grain is
+    judged by whether each item can be completed, checked, and corrected
+    without disturbing the plan around it.
+12. **Instrument-nature mismatch.** The item's verification instrument is
+    not merely runnable but of the right kind: a criterion whose failure
+    exists only at runtime requires a runtime instrument, and a file-fact
+    criterion is verified by a fact check. A plan whose verification
+    instructions accept reading files where behavior is claimed verifies
+    nothing, however runnable the check is.
+13. **Approach divergence.** The plan implements the spec's chosen
+    approach: no strategy substitution, no phase the spec requires
+    silently omitted, no goal drift between what the spec decided and
+    what the plan builds.
+14. **Surface coverage.** The set of files and surfaces the plan touches
+    matches the spec's affected set in both directions — a file the spec
+    names that no item touches is an uncovered surface; a file an item
+    modifies that the spec never accounts for is undeclared blast radius.
+15. **Safety.** Failure modes that could cause irreversible harm are
     unaccounted for: an item performs destructive operations without a
-    rollback step, or the plan's order creates a data-loss window the spec's
-    safety criteria do not cover.
+    rollback step, or the plan's order creates a data-loss window the
+    spec's safety criteria do not cover.
 
 ## Verdict contract
 

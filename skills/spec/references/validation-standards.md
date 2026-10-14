@@ -76,6 +76,23 @@ judgment call about the artifact's substance, not a pattern to scan for.
   covered by at least one criterion. An orphan criterion — one answering to
   nothing the developer said — is a finding; so is a root cause the criteria
   never test.
+- **Causal sufficiency of the solution.** The spec's chosen approach follows
+  from its stated root causes: every element of the fix answers to at least
+  one cause the spec states, and the stated causes collectively call for
+  the approach taken. A solution element no stated cause accounts for is
+  scope creep arriving by another route; a stated cause the approach
+  silently ignores breaks the chain between problem and fix.
+- **Problem fit.** The spec solves the problem it states: the intent
+  statement and the criteria describe the same defect, the stated root
+  cause and the chosen fix aim at the same thing, and a reader who
+  implemented every criterion as written would find the stated problem
+  actually solved. An intent section that promises one thing while the
+  criteria deliver another, or a diagnosis and a fix that point in
+  different directions, is a finding even when every individual criterion
+  is well-formed. The same family bounds what evidence can show: a
+  deliverable that passes every criterion demonstrates code-matches-spec,
+  never spec-matches-problem — spec correctness is judged by review
+  against the problem, not by implementation success.
 - **Fabricated claims.** A claim asserted without source evidence behind it:
   a current-state assertion never checked against the artifact or code it
   describes, or a negation claim ("nothing does X") whose exhaustiveness was
@@ -90,13 +107,19 @@ judgment call about the artifact's substance, not a pattern to scan for.
   "as appropriate" that hands the decision to the party being constrained,
   or a criterion written so that any outcome satisfies it.
 - **Feasibility.** The spec references files, functions, libraries, or
-  capabilities that do not exist in the codebase or environment it targets.
-  A requirement built on a nonexistent surface cannot be implemented as
-  written.
+  capabilities that do not exist in the codebase or environment it targets,
+  or states a set of criteria that are each satisfiable alone but jointly
+  impossible. A requirement built on a nonexistent surface cannot be
+  implemented as written; a criterion set with no satisfying assignment
+  cannot be satisfied at all.
 - **Gap analysis.** Implicit preconditions the spec relies on without
   stating, and boundary conditions the criteria never exercise. The change
   may be correct on the stated path and still fail on the unstated one the
-  spec silently assumes.
+  spec silently assumes. The same family covers absence: prohibitions the
+  stated problem implies but no criterion states — a requirement of
+  "must not happen" is as verifiable as a requirement of behavior — and
+  unchanged behavior the change puts at risk but no criterion preserves,
+  which is how a fix ships with a silent regression.
 - **Scope narrowness.** The spec fixes a symptom where its own analysis
   points at a cause, demands more than the minimum viable fix for the stated
   problem, or leaves a systemic implication of the change unaddressed when
