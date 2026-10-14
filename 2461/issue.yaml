@@ -31,13 +31,16 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2461/`](https://github.c
   ```
 
 
-  Environment: gh CLI 2.45.0 (2025-07-18, Ubuntu package `2.45.0-1ubuntu0.3`).
+  Environment: gh CLI 2.45.0 (2025-07-18, Ubuntu package `2.45.0-1ubuntu0.3`). The
+  deck itself documents `gh issue edit` rather than `gh pr edit`, so agents following
+  the deck have no documented `pr edit` path or fallback.
 
 
-  Because the skill deck documents `gh issue edit` (tasks/triage-issues.md) rather
-  than `gh pr edit`, agents amending PR bodies via `gh issue edit <PR-number>` hit
-  the same GraphQL read path (`repository.pullRequest.projectCards`) and the same
-  failure.
+  **Triage scope correction (2026-10-14, verified live):** the failure is `gh pr edit`
+  only. `gh issue edit` was tested on the same build and succeeds (exit 0) — the original
+  report''s claim that issue-edit "hits the same GraphQL read path and the same failure"
+  is wrong and is corrected here in place. The fix spec must not document issue-edit
+  as affected.
 
 
   ## Expected Behavior
@@ -45,7 +48,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2461/`](https://github.c
 
   `gh pr edit <N> --repo <owner/repo> --body-file <file>` amends the PR body and exits
   0. Agents following the gh-cli skill deck should be able to amend PR bodies without
-  a silent hard failure from a deprecated GitHub GraphQL field.
+  a silent hard failure from a deprecated GitHub GraphQL field — and, where the failure
+  occurs, find the recovery path in the deck.
 
 
   ## Steps to Reproduce
@@ -57,11 +61,15 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2461/`](https://github.c
   2. Command exits 1 with the `projectCards` deprecation error above.
 
 
+  Reproduced live 2026-10-14 on a disposable PR in `michael-conrad/test-submodule-1`
+  (same error, exit 1); the workaround below returned exit 0 in the same session.
+
+
   ## Verified Workaround
 
 
   REST API PATCH via `gh api` (applied 2026-09-23 to PR #204 of `NewsRx/hermes-ingest-pubmed`
-  — body amendment confirmed in the live response):
+  — body amendment confirmed in the live response; re-verified live 2026-10-14):
 
 
   ```bash
@@ -74,26 +82,22 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2461/`](https://github.c
   ## Component Affected
 
 
-  gh-cli skill (`gh-cli/`): the skill deck covers issue/label/gist/repo edit flows
-  but has no `pr edit` task card and no documented fallback for PR-body amendment
-  when `gh pr edit` fails against the deprecated endpoint.
+  gh-cli skill (`.opencode/skills/gh-cli/SKILL.md`): the card covers issue/repo flows
+  and PR create/view/merge but has no `pr edit` operation and no documented fallback
+  for PR-body amendment when `gh pr edit` fails against the deprecated endpoint.
 
 
-  ## Remediation Options
+  ## Remediation
 
 
-  - Upgrade gh CLI past the Projects-classic sunset handling (Ubuntu-packaged 2.45.0
-  is stale), and/or
-
-  - Document the verified `gh api -X PATCH` REST fallback in the gh-cli skill deck
-  for PR-body amendments.
-
-
-  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
-
+  Fix the skill card — upgrade is unavailable as a general remedy (the system is package-current;
+  the deck runs on machines outside this project''s package control). Fix spec filed
+  at `.opencode/.issues/2461/spec.md`: extend the card''s operations list with `gh
+  pr edit` and its failure rule with the verified REST fallback, symptom-mapped to
+  the stderr text (version-agnostic), scoped to PR operations only.
 
   '
 created_at: '2026-10-14T22:21:09+00:00'
-updated_at: '2026-10-14T22:41:22+00:00'
+updated_at: '2026-10-14T22:47:56+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2461
 remote_url: https://github.com/michael-conrad/.opencode/issues/2461
