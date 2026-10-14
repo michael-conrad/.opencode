@@ -42,6 +42,7 @@ Exit codes:
     0: Success
 """
 
+import hashlib
 import os
 import re
 import shutil
@@ -146,21 +147,59 @@ def get_current_branch() -> str | None:
     return run_git_command(["branch", "--show-current"])
 
 
-def _is_issues_store_path(path: str) -> bool:
-    """True for issue-store worktree paths (.issues, .opencode/.issues).
+def _is_wiki_origin(url: str) -> bool:
+    """True when a git origin URL points at a wiki repo (#2544).
 
-    Stores are orphan-branch worktrees, not repos in their own right —
-    their identity duplicates the parent repo entry (#2549 change 2).
+    Origin-based, not wiring-based: the final path segment ending in
+    `.wiki` or `.wiki.git` marks a wiki repo whether it is wired as an
+    ignored sub-repo or a registered submodule. GitHub/GitBucket wikis
+    render only from the default branch and have no branch/PR mechanism —
+    trunk-protection hooks would block every publish.
     """
-    return path == ".issues" or path.endswith("/.issues")
+    segment = re.split(r"[/\\:]", url.rstrip("/"))[-1]
+    return segment.endswith(".wiki") or segment.endswith(".wiki.git")
+
+
+def _registered_submodule_paths(repo_dir: str) -> list[str]:
+    """Paths of a repo's registered submodules (#2544 strict discovery).
+
+    Enumerates `.gitmodules` entries, each verified present in
+    `git submodule status` output — git's registered-submodule mechanism is
+    the authoritative answer to which child repos the workspace orchestrates;
+    filesystem shape is not.
+    """
+    gitmodules = run_git_command([
+        "-C", repo_dir, "config", "-f", ".gitmodules",
+        "--get-regexp", r"submodule\..*\.path",
+    ])
+    if not gitmodules:
+        return []
+    status = run_git_command(["-C", repo_dir, "submodule", "status"]) or ""
+    status_paths = {
+        line.split()[1]
+        for line in status.splitlines()
+        if len(line.split()) >= 2
+    }
+    paths: list[str] = []
+    for line in gitmodules.splitlines():
+        value = line.partition(" ")[2].strip()
+        if value and value in status_paths:
+            paths.append(value)
+    return sorted(paths)
 
 
 def collect_repo_info() -> list[dict[str, str]]:
     """Collect all repo identity entries.
 
     Returns a list of dicts with keys: path, owner, repo, platform, url.
-    Root entry always first; subdirectory entries follow. Issue-store
-    worktrees are skipped — real repos only; each entry later carries an
+    Root entry always first; child entries follow. Discovery is strictly
+    git's registered-submodule mechanism applied over the registered tree
+    (transitively, #2544 item 1) — ignored sub-repos are never enumerated.
+    A registered entry is covered only when a checkout is present
+    (uninitialized submodules produce no entry) and the checkout's
+    `remote.origin.url` exists and parses to an owner/repo pair (no
+    `.gitmodules` fallback). Wiki-origin repos (`.wiki`/`.wiki.git`) are
+    excluded at every level (#2544 item 2). Each entry later carries an
     `issues:` field naming its store path.
     """
     entries: list[dict[str, str]] = []
@@ -188,73 +227,30 @@ def collect_repo_info() -> list[dict[str, str]]:
         "url": url_str,
     })
 
-    # Subdirectory scan: immediate subdirs with .git entries
-    try:
-        dir_entries = sorted(os.listdir(cwd))
-    except OSError:
-        return entries
-
-    for entry_name in dir_entries:
-        entry_path = os.path.join(cwd, entry_name)
-        if not os.path.isdir(entry_path):
-            continue
-        git_path = os.path.join(entry_path, ".git")
-        if not os.path.exists(git_path):
-            continue
-        if _is_issues_store_path(entry_name):
-            continue
-        sub_url = run_git_command(["-C", entry_name, "remote", "get-url", "origin"])
-        if not sub_url:
-            continue
-        sub_owner, sub_repo, sub_platform = parse_repo_url(sub_url)
-        if not sub_owner or not sub_repo:
-            continue
-        entries.append({
-            "path": entry_name,
-            "owner": sub_owner,
-            "repo": sub_repo,
-            "platform": sub_platform or "unknown",
-            "url": sub_url,
-        })
-
-    # Submodule recursion: one level deep into each submodule directory
-    # (issue-store worktrees like .opencode/.issues/ are skipped above —
-    # they are stores, not repos)
-    for entry_name in dir_entries:
-        entry_path = os.path.join(cwd, entry_name)
-        if not os.path.isdir(entry_path):
-            continue
-        git_path = os.path.join(entry_path, ".git")
-        if not os.path.exists(git_path):
-            continue
-        try:
-            nested_entries = sorted(os.listdir(entry_path))
-        except OSError:
-            continue
-        for nested_name in nested_entries:
-            nested_path = os.path.join(entry_path, nested_name)
-            if not os.path.isdir(nested_path):
+    def walk(base_dir: str, base_rel: str) -> None:
+        for name in _registered_submodule_paths(base_dir):
+            child_dir = os.path.join(base_dir, name)
+            child_rel = f"{base_rel}/{name}" if base_rel else name
+            if not os.path.exists(os.path.join(child_dir, ".git")):
+                continue  # no checkout (uninitialized) — no coverage
+            sub_url = run_git_command(["-C", child_dir, "remote", "get-url", "origin"])
+            if not sub_url:
                 continue
-            nested_git = os.path.join(nested_path, ".git")
-            if not os.path.exists(nested_git):
+            sub_owner, sub_repo, sub_platform = parse_repo_url(sub_url)
+            if not sub_owner or not sub_repo:
                 continue
-            nested_rel = f"{entry_name}/{nested_name}"
-            if _is_issues_store_path(nested_rel):
-                continue
-            nested_url = run_git_command(["-C", nested_path, "remote", "get-url", "origin"])
-            if not nested_url:
-                continue
-            nested_owner, nested_repo, nested_platform = parse_repo_url(nested_url)
-            if not nested_owner or not nested_repo:
-                continue
+            if _is_wiki_origin(sub_url):
+                continue  # wiki repos are never hooked and never inventoried
             entries.append({
-                "path": f"{entry_name}/{nested_name}",
-                "owner": nested_owner,
-                "repo": nested_repo,
-                "platform": nested_platform or "unknown",
-                "url": nested_url,
+                "path": child_rel,
+                "owner": sub_owner,
+                "repo": sub_repo,
+                "platform": sub_platform or "unknown",
+                "url": sub_url,
             })
+            walk(child_dir, child_rel)
 
+    walk(cwd, "")
     return entries
 
 
@@ -375,6 +371,172 @@ def install_hooks() -> None:
 
     if get_hooks_path():
         run_git_command(["config", "--unset", "core.hooksPath"])
+
+    # Self-heal: session-init pollution in repos outside the coverage set is
+    # removed and reported (#2544 items 3-4); the affected repos themselves
+    # stay out of inventory. Side-effect reporting goes to stderr.
+    for removal in self_heal_hooks():
+        print(removal, file=sys.stderr)
+
+
+def _coverage_hooks_dirs() -> set[str]:
+    """Resolved hooks dirs of the coverage set: root + covered entries (#2544).
+
+    Linked worktrees resolve to the same common hooks dir and dedupe here
+    exactly as they dedupe out of double-install.
+    """
+    covered: set[str] = set()
+    git_dir = _resolve_git_dir()
+    if git_dir:
+        covered.add(os.path.normpath(os.path.join(git_dir, "hooks")))
+    else:
+        covered.add(os.path.normpath(os.path.join(os.getcwd(), ".git", "hooks")))
+    for repo_entry in collect_repo_info():
+        dir_name = repo_entry["path"]
+        if dir_name == ".":
+            continue
+        target = _resolve_hooks_target(os.path.join(os.getcwd(), dir_name))
+        if target:
+            covered.add(os.path.normpath(target))
+    return covered
+
+
+def _legacy_scan_candidates() -> list[str]:
+    """Bounded filesystem enumeration mirroring the old scan's traversal
+    exactly (#2544 item 3) — cleanup-only: installs nothing, inventories
+    nothing.
+
+    Every immediate child dir with a `.git` entry (descended into regardless
+    of origin), plus every depth-2 dir with a `.git` entry inside them. The
+    old installer only reached dirs with a parseable origin remote, so this
+    bound is complete for cleanup.
+    """
+    cwd = os.getcwd()
+    candidates: list[str] = []
+    try:
+        dir_entries = sorted(os.listdir(cwd))
+    except OSError:
+        return candidates
+    for entry_name in dir_entries:
+        entry_path = os.path.join(cwd, entry_name)
+        if not os.path.isdir(entry_path):
+            continue
+        if not os.path.exists(os.path.join(entry_path, ".git")):
+            continue
+        candidates.append(entry_name)
+        try:
+            nested_entries = sorted(os.listdir(entry_path))
+        except OSError:
+            continue
+        for nested_name in nested_entries:
+            nested_path = os.path.join(entry_path, nested_name)
+            if not os.path.isdir(nested_path):
+                continue
+            if os.path.exists(os.path.join(nested_path, ".git")):
+                candidates.append(os.path.join(entry_name, nested_name))
+    return candidates
+
+
+def _blob_sha1(path: str) -> str | None:
+    """Git blob sha1 of a file's content (the object id `git hash-object`
+    would produce), or None on read failure."""
+    try:
+        with open(path, "rb") as f:
+            data = f.read()
+    except OSError:
+        return None
+    header = f"blob {len(data)}\0".encode()
+    return hashlib.sha1(header + data).hexdigest()
+
+
+def _historical_hook_signatures(deck_root: str | None) -> dict[str, set[str]]:
+    """Every hook name + content blob hash ever carried by `.opencode/hooks/`
+    in the deck's git history (#2544 item 4).
+
+    Prior installs pin the source content at install time; both the name set
+    and the source content drift, so the historical set — not the current
+    source set — classifies pollution. Foreign hooks (matching no historical
+    name-plus-version) are untouched.
+    """
+    signatures: dict[str, set[str]] = {}
+    if not deck_root or not os.path.isdir(deck_root):
+        return signatures
+    names_out = run_git_command([
+        "-C", deck_root, "log", "--all", "--pretty=format:", "--name-only",
+        "--", "hooks",
+    ])
+    if not names_out:
+        return signatures
+    names: set[str] = set()
+    for line in names_out.splitlines():
+        line = line.strip()
+        if line.startswith("hooks/") and line.count("/") == 1:
+            names.add(line.split("/", 1)[1])
+    for name in sorted(names):
+        shas: set[str] = set()
+        commits = run_git_command([
+            "-C", deck_root, "log", "--all", "--format=%H", "--", f"hooks/{name}",
+        ])
+        for sha in (commits or "").split():
+            blob = run_git_command(["-C", deck_root, "rev-parse", f"{sha}:hooks/{name}"])
+            if blob:
+                shas.add(blob)
+        if shas:
+            signatures[name] = shas
+    return signatures
+
+
+def self_heal_hooks() -> list[str]:
+    """Remove session-init pollution from repos outside the coverage set
+    (#2544 items 3-4) and report removal events.
+
+    A pollution file's name matches any hook name the hook source directory
+    has ever carried, and its content matches any blob hash ever recorded at
+    that name's source path. Classification is by the resolved hooks dir —
+    cleanup never acts on a hooks dir resolving to a coverage-set repo's.
+    Returns the removal-event lines (reported on stderr by the caller).
+    """
+    source_dir = get_source_hooks_dir()
+    deck_root = os.path.dirname(source_dir) if source_dir else None
+    signatures = _historical_hook_signatures(deck_root)
+    if not signatures:
+        return []
+    coverage = _coverage_hooks_dirs()
+    removals: list[str] = []
+    seen: set[str] = set()
+    for candidate in _legacy_scan_candidates():
+        repo_dir = os.path.join(os.getcwd(), candidate)
+        origin = run_git_command(["-C", repo_dir, "remote", "get-url", "origin"])
+        if not origin:
+            continue  # the old installer never reached origin-less repos
+        owner, _repo, _platform = parse_repo_url(origin)
+        if not owner:
+            continue  # only parseable-origin repos were pollution-tested
+        target = _resolve_hooks_target(repo_dir)
+        if not target:
+            continue
+        normalized = os.path.normpath(target)
+        if normalized in coverage or normalized in seen:
+            continue  # coverage-set repos and deduped worktree aliases
+        seen.add(normalized)
+        if not os.path.isdir(normalized):
+            continue
+        for fname in sorted(os.listdir(normalized)):
+            fpath = os.path.join(normalized, fname)
+            if not os.path.isfile(fpath):
+                continue
+            hashes = signatures.get(fname)
+            if not hashes:
+                continue  # foreign hook name — untouched
+            digest = _blob_sha1(fpath)
+            if digest is None or digest not in hashes:
+                continue  # foreign content — untouched
+            try:
+                os.remove(fpath)
+            except OSError:
+                continue
+            removals.append(f"- {candidate}: removed {fname} (self-heal)")
+    return removals
 
 
 def collect_hook_inventory() -> list[str]:
