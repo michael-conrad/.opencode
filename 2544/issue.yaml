@@ -38,10 +38,15 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
 
 
-  **Root cause:** a path-shape heuristic where git''s registered-submodule mechanism
-  (`.gitmodules` + `git submodule status`) is the authoritative answer to which child
-  repos the workspace orchestrates. Filesystem shape ≠ orchestration intent: ignored
-  sub-repos (wikis, independent repos, worktrees) all match the heuristic.
+  **Root cause (two defects):** (1) a path-shape heuristic where git''s registered-submodule
+  mechanism (`.gitmodules` + `git submodule status`) is the authoritative answer to
+  which child repos the workspace orchestrates — filesystem shape ≠ orchestration
+  intent; ignored sub-repos (wikis, independent repos, worktrees) all match the heuristic.
+  (2) Registration alone does not exclude wikis: the wiki-operations card''s provisioning
+  reference documents inherited submodule wikis (existing `.gitmodules` entries wiring
+  a wiki, operated in place), so a wiki-origin registered submodule would still be
+  hooked and inventoried — reproducing this failure. The wiki rule is origin-based,
+  not wiring-based: origin `*.wiki.git` = wiki repo, however it is wired.
 
 
 
@@ -54,22 +59,25 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
   `.git`-entry scan is deleted, not feature-flagged.
 
 
-  2. **Hooks + inventory cover root repo + registered submodules only** — ignored
-  sub-repos receive nothing, appear nowhere.
+  2. **Hooks + inventory cover root repo + registered submodules, minus wikis**: excluding
+  every child repo whose origin matches `*.wiki.git` — wiki repos are never hooked
+  and never inventoried, whether wired as ignored sub-repos or registered submodules.
+  Ignored sub-repos receive nothing, appear nowhere.
 
 
-  3. **Self-healing**: in non-registered repos'' hooks dirs, session-init pollution
-  — a file named for the source hook set (`pre-commit`, `pre-push`) whose content
-  matches any version the corresponding `.opencode/hooks/` source has ever had (current
-  source hash or any historical blob hash of that path in the deck''s git history;
-  prior installs pin the source content at install time, and the sources drift) —
-  is removed and reported as a removal event in session-init''s output (the repos
-  themselves still appear nowhere in inventory, per item 2). Samples and files matching
-  no source version — foreign hooks — are untouched.
+  3. **Self-healing**: in the hooks dirs of repos outside the coverage set — non-registered
+  repos and wiki-origin repos (registered or not) — session-init pollution (a file
+  named for the source hook set whose content matches any version the corresponding
+  `.opencode/hooks/` source has ever had: current source hash or any historical blob
+  hash of that path in the deck''s git history; prior installs pin the source content
+  at install time, and the sources drift) is removed and reported as a removal event
+  in session-init''s output (the affected repos themselves still appear nowhere in
+  inventory, per item 2). Samples and files matching no source version — foreign hooks
+  — are untouched.
 
 
-  4. **Regression invariant**: root / registered submodules / `.issues/` carve-outs
-  behave exactly as today.
+  4. **Regression invariant**: root / registered non-wiki submodules / `.issues/`
+  carve-outs behave exactly as today.
 
 
 
@@ -78,5 +86,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T16:37:16+00:00'
+updated_at: '2026-10-14T16:47:16+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
