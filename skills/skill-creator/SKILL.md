@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Load before creating or editing ANY file under skills/, guidelines/, floor.md, or routing.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, deck-debt ledger, predicate classification, and vendor-card boundary. This card governs the deck itself."
+description: "Load before creating or editing ANY file under skills/, guidelines/, floor.md, or routing.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, predicate classification, and vendor-card boundary. This card governs the deck itself."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
@@ -66,14 +66,7 @@ halt for direction the instruction already carries.
 Content with lost provenance (no consumer/trigger), a declining usage trend
 across deployments, or structural obsolescence is retired. Absence in a live
 database is NOT evidence — retention vacuums delete history; verdicts use
-deep history or the cross-deployment ledger. Resurrection via git history is
-cheap; hoarding is not.
-
-## Deck-debt ledger
-
-Usage observations, governance decisions, and retirement candidates are
-recorded in the deck-debt issue (synced issue store) — the cross-deployment
-evidence base.
+deep history. Resurrection via git history is cheap; hoarding is not.
 
 ## Vendor-card boundary
 
