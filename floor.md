@@ -104,7 +104,7 @@ are merged by the developer, never by the agent.
 
 Creating or editing anything under `skills/`, `guidelines/`, this floor, or the
 routing index goes through the deck-governance card — admission gate, retirement
-gate, deck-debt ledger, vendor-card boundary. This line is a deliberate floor
+gate, vendor-card boundary. This line is a deliberate floor
 exception, evidence-backed (~27,700 historically ungoverned deck edits).
 
 ## Safety (irreducible)
