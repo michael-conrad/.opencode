@@ -5,8 +5,84 @@ labels:
 - needs-approval
 - bug
 - confirmed
-body: ''
+body: '## Observed Behavior
+
+
+  `gh pr edit 204 --repo NewsRx/hermes-ingest-pubmed --body-file <new-body-file>`
+  fails with exit status 1:
+
+
+  ```
+
+  GraphQL: Projects (classic) is being deprecated in favor of the new Projects experience,
+  see: https://github.blog/changelog/2024-05-23-sunset-notice-projects-classic/. (repository.pullRequest.projectCards)
+
+  ```
+
+
+  Environment: gh CLI 2.45.0 (2025-07-18, Ubuntu package `2.45.0-1ubuntu0.3`).
+
+
+  Because the skill deck documents `gh issue edit` (tasks/triage-issues.md) rather
+  than `gh pr edit`, agents amending PR bodies via `gh issue edit <PR-number>` hit
+  the same GraphQL read path (`repository.pullRequest.projectCards`) and the same
+  failure.
+
+
+  ## Expected Behavior
+
+
+  `gh pr edit <N> --repo <owner/repo> --body-file <file>` amends the PR body and exits
+  0. Agents following the gh-cli skill deck should be able to amend PR bodies without
+  a silent hard failure from a deprecated GitHub GraphQL field.
+
+
+  ## Steps to Reproduce
+
+
+  1. On gh 2.45.0, run: `gh pr edit 204 --repo NewsRx/hermes-ingest-pubmed --body-file
+  <any-file>`
+
+  2. Command exits 1 with the `projectCards` deprecation error above.
+
+
+  ## Verified Workaround
+
+
+  REST API PATCH via `gh api` (applied 2026-09-23 to PR #204 of `NewsRx/hermes-ingest-pubmed`
+  — body amendment confirmed in the live response):
+
+
+  ```bash
+
+  gh api -X PATCH "repos/{owner}/{repo}/pulls/{N}" -F body=@<new-body-file>
+
+  ```
+
+
+  ## Component Affected
+
+
+  gh-cli skill (`gh-cli/`): the skill deck covers issue/label/gist/repo edit flows
+  but has no `pr edit` task card and no documented fallback for PR-body amendment
+  when `gh pr edit` fails against the deprecated endpoint.
+
+
+  ## Remediation Options
+
+
+  - Upgrade gh CLI past the Projects-classic sunset handling (Ubuntu-packaged 2.45.0
+  is stale), and/or
+
+  - Document the verified `gh api -X PATCH` REST fallback in the gh-cli skill deck
+  for PR-body amendments.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+
+  '
 created_at: '2026-10-14T22:21:09+00:00'
-updated_at: '2026-10-14T22:21:22+00:00'
+updated_at: '2026-10-14T22:21:45+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2461
 remote_url: https://github.com/michael-conrad/.opencode/issues/2461
