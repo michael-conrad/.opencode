@@ -95,36 +95,42 @@ file modification), `git-workflow-commit` (atomic commits), `implement`
   `exit_code`; evaluation record in the artifact directory; monitor.log /
   poll-log evidence recorded alongside.
 
-## Item 2 — gb-cli description edit (SC-1, SC-2)
+## Item 2 — gb-cli description edit (SC-1, SC-2) — revised per spec revision 2
 
-- **Deliverable:** `skills/gb-cli/SKILL.md` frontmatter `description`
-  extended additively with both reload semantics: (a) once loaded, the card
-  stays in force for the rest of the session; (b) a new operation class under
-  the same utility (issues vs PRs vs API passthrough) is a fresh trigger —
-  reload before the first use of each class. Pushy phrasing per card
-  standards; no user-phrase matching; no existing clause removed, weakened,
-  or re-ordered.
-- **RED:** run SC-1's instrument against the current description — read the
-  frontmatter; neither semantics is stated (verified 2026-10-14, F2 of the
-  spec). The check fails on current text.
-- **GREEN:** the additive extension described above.
-- **Verification instrument:** SC-1 (read; both semantics stated) and SC-2
-  (read; every F2-baseline clause still present) — plus
-  `./.opencode/tools/skildeck lint` exits clean for the edited file and
-  `./.opencode/tools/reference-integrity skills/gb-cli/SKILL.md` exits 0.
+- **Deliverable:** `skills/gb-cli/SKILL.md` — (a) frontmatter `description`
+  gains the agent-addressed reload directive replacing the revision-1
+  sentence: "One load does not carry across operation classes: before your
+  first GitBucket contact in a new class (issues ↔ pull requests ↔ API
+  passthrough), load this card again — even though it is already in
+  context." ("stays in force" phrasing absent, per SC-1.); (b) the card
+  body's numbered "Construct carefully" rule carries the three-line
+  class-check checklist (last class contacted / class of the command about
+  to run / different class → load this card again first), no rule
+  renumbering (SC-8). No existing clause removed, weakened, or re-ordered.
+- **RED:** SC-1's instrument against the current text — the revision-1
+  wording is present and the revision-2 directive is absent; the check
+  fails. SC-8's instrument fails (no checklist in the body).
+- **GREEN:** the revised description sentence and the body checklist.
+- **Verification instrument:** SC-1, SC-2, SC-8 (read-based), plus
+  `./.opencode/tools/skildeck lint` clean and
+  `./.opencode/tools/reference-integrity skills/gb-cli/SKILL.md` exit 0.
 
-## Item 3 — gh-cli description edit (SC-1, SC-2)
+## Item 3 — gh-cli description edit (SC-1, SC-2) — revised per spec revision 2
 
-- **Deliverable:** `skills/gh-cli/SKILL.md` frontmatter `description`
-  extended with the identical semantics, same constraints as Item 2.
-- **RED:** SC-1's instrument against the current gh-cli description — both
-  semantics absent (verified 2026-10-14).
-- **GREEN:** the additive extension.
-- **Verification instrument:** SC-1 and SC-2 against the gh-cli F2 baseline;
-  `./.opencode/tools/skildeck lint` clean;
-  `./.opencode/tools/reference-integrity skills/gh-cli/SKILL.md` exits 0.
+- **Deliverable:** `skills/gh-cli/SKILL.md` — identical revision: the
+  agent-addressed directive (GitHub contact) replaces the revision-1
+  sentence, and the body checklist lands in the "Construct carefully" rule.
+- **RED:** SC-1/SC-8 instruments fail against the current text.
+- **GREEN:** the revised sentence and the body checklist.
+- **Verification instrument:** SC-1, SC-2, SC-8; skildeck lint;
+  reference-integrity on the file.
 
 ## Item 4 — GREEN evidence: run the scenario against the fixed deck (SC-4 GREEN)
+
+(Re-run sanctioned: the first GREEN run, commit `d0449688`, was clean-room-
+evaluated VIOLATED — spec revision 2's recorded observed failure. This item's
+re-run follows the revision-2 implementation, per the verified-FAIL
+remediation path.)
 
 - **Deliverable:** GREEN-run artifact set + clean-room evaluation record
   showing the SC-4 criterion HOLDS: the evaluator finds a gb-cli Skill-load
