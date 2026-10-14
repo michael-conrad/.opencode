@@ -3,6 +3,35 @@ title: '[BUG] srclight get_dependents/get_callers/reindex/record_learning fail w
 status: open
 labels:
 - needs-approval
-body: ''
+body: 'Observed across session 2026-09-30 (hermes-ingest-pubmed issue 133 pipeline):
+  srclight MCP graph tools get_dependents, get_callers, srclight_reindex, and srclight_record_learning
+  all return "Error executing tool" repeatedly (11+ occurrences across gates in one
+  session). Sub-agents fell back to grep-based sweeps consistently, but the failure
+  mode is a recurring server-side defect.
+
+
+  **Observed behavior:** srclight_get_dependents(symbol), srclight_get_callers(symbol),
+  srclight_reindex(), srclight_record_learning() each raise "Error executing tool"
+  with no actionable detail.
+
+
+  **Expected behavior:** tools return structured results (or a clear actionable error
+  with remediation hints).
+
+
+  **Steps to reproduce:** call srclight_get_dependents on any hermes-ingest-pubmed
+  symbol, e.g. ProjectConfig or load_config.
+
+
+  **Component affected:** srclight MCP server integration.
+
+
+  Local artifacts: .opencode/.issues/2481/
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+
+  '
 created_at: '2026-10-14T22:04:54+00:00'
-updated_at: '2026-10-14T22:04:54+00:00'
+updated_at: '2026-10-14T22:05:19+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2481
