@@ -1,0 +1,8 @@
+title: '[BUG] gb-cli card description lacks reload semantics — one-shot load then
+  discard observed, ungoverned gb contacts follow'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-14T02:57:55+00:00'
+updated_at: '2026-10-14T02:57:55+00:00'
