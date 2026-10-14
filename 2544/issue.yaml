@@ -54,30 +54,44 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
 
 
-  1. **Strict discovery**: `collect_repo_info()` enumerates child repos exclusively
-  via `git config --file .gitmodules` + `git submodule status` verification; the `os.listdir`
-  `.git`-entry scan is deleted, not feature-flagged.
+  1. **Strict discovery (coverage set)**: `collect_repo_info()` enumerates child repos
+  exclusively via git''s registered-submodule mechanism — each repo''s `.gitmodules`
+  verified with `git submodule status`, applied recursively into each registered submodule
+  (submodules of submodules stay covered). The `os.listdir` `.git`-entry scan is deleted
+  from discovery, not feature-flagged.
 
 
-  2. **Hooks + inventory cover root repo + registered submodules, minus wikis**: excluding
-  every child repo whose origin matches `*.wiki.git` — wiki repos are never hooked
-  and never inventoried, whether wired as ignored sub-repos or registered submodules.
-  Ignored sub-repos receive nothing, appear nowhere.
+  2. **Wiki exclusion (origin-based, every level)**: hooks + inventory cover the root
+  repo and every registered submodule, excluding every child repo whose origin matches
+  `*.wiki.git` — wiki repos are never hooked and never inventoried, whether wired
+  as ignored sub-repos or registered submodules. Ignored sub-repos receive nothing,
+  appear nowhere.
 
 
-  3. **Self-healing**: in the hooks dirs of repos outside the coverage set — non-registered
-  repos and wiki-origin repos (registered or not) — session-init pollution (a file
-  named for the source hook set whose content matches any version the corresponding
-  `.opencode/hooks/` source has ever had: current source hash or any historical blob
-  hash of that path in the deck''s git history; prior installs pin the source content
-  at install time, and the sources drift) is removed and reported as a removal event
-  in session-init''s output (the affected repos themselves still appear nowhere in
-  inventory, per item 2). Samples and files matching no source version — foreign hooks
-  — are untouched.
+  3. **Cleanup enumeration (cleanup only)**: locating pollution uses a bounded filesystem
+  enumeration — the exact shape the old scan reached (immediate child dirs with `.git`
+  + origin, plus one nested level) — used solely to find repos outside the coverage
+  set for pollution removal; it installs nothing and inventories nothing. The bound
+  is complete: pollution can only exist where the old install path reached (depth
+  ≤ 2).
 
 
-  4. **Regression invariant**: root / registered non-wiki submodules / `.issues/`
-  carve-outs behave exactly as today.
+  4. **Self-healing**: in the hooks dirs of enumerated repos outside the coverage
+  set, pollution (a file named for the source hook set whose content matches any version
+  the corresponding `.opencode/hooks/` source has ever had — current source hash or
+  any historical blob hash of that path in the deck''s git history; prior installs
+  pin the source content at install time, and the sources drift) is removed and reported
+  as a removal event in session-init''s output (the affected repos themselves still
+  appear nowhere in inventory, per item 2). Classification is by the resolved hooks
+  dir (`git rev-parse --git-path hooks`): cleanup never acts on a hooks dir resolving
+  to a coverage-set repo''s — linked worktrees (`.issues/`, `.opencode/.issues/`)
+  alias the root/submodule common hooks dir and dedupe out of cleanup scope exactly
+  as they dedupe out of double-install today. Samples and files matching no source
+  version — foreign hooks — are untouched.
+
+
+  5. **Regression invariant**: root / registered non-wiki submodules at every depth
+  / `.issues/` carve-outs behave exactly as today.
 
 
 
@@ -86,5 +100,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T16:47:16+00:00'
+updated_at: '2026-10-14T16:54:31+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
