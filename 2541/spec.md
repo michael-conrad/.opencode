@@ -21,7 +21,7 @@ running tests. Verification must stay proportional to the change.
 | Artifact | Change |
 |----------|--------|
 | `.opencode/skills/implement/SKILL.md` | card-level mandate: smoke + regression default, full suite non-default |
-| `.opencode/skills/implement/references/implementation-workflow.md` | tier definitions table; amend full-suite baseline and post-regression rows to tiered form |
+| `.opencode/skills/implement/references/implementation-workflow.md` | tier definitions table; amend full-suite baseline, post-regression, and suite-green rows to tiered form |
 
 Out of scope: the `verify` card (its reviewer runs evidence checks against
 stated requirements, not scheduled suites); floor.md (always-loaded surface
@@ -42,14 +42,17 @@ the tiered test mandate, with progressive-disclosure structure:
    regression, full), states when each runs, and notes that tier selection
    is judgment (intent-decidable — no script decides scope).
 3. The reference's full-suite mandates are gone: the pre-implementation
-   baseline row and the RED-GREEN post-regression row no longer say "run the
-   suite" / "re-run the suite" in unscoped form.
+   baseline row, the RED-GREEN post-regression row, and the suite-green
+   post-implementation row no longer mandate the full suite in unscoped
+   form — each is amended to tiered form (smoke + regression default; full
+   suite reserved for release boundaries or explicit developer request,
+   matching SC-1.1).
 4. `floor.md` is unchanged by this spec's implementation.
 
 **Verification instrument:** read both files; fact-decidable checks —
 `grep` the card for the tier mandate, the reference for the tier table and
-the judgment note, and confirm the two amended rows reference tiers instead
-of the whole suite.
+the judgment note, and confirm the three amended rows (baseline, post-regression,
+   suite-green) reference tiers instead of the whole suite.
 
 ## Admission-gate record (deck governance)
 
@@ -68,9 +71,9 @@ of the whole suite.
 5. **Domain match** — n/a; no external protocol adopted.
 6. **Root-agnostic** — no repo names or absolute paths in the added text.
 7. **What it replaces** — amends the reference's unscoped full-suite
-   baseline/post-regression mandates to tiered form; adds one card-level
-   bullet. Nothing retired wholesale; net addition is one bullet and one
-   section.
+   baseline/post-regression/suite-green mandates to tiered form; adds one
+   card-level bullet. Nothing retired wholesale; net addition is one bullet
+   and one section.
 8. **Always-loaded surface** — no floor.md change; card-level only.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
