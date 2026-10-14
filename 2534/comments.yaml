@@ -269,3 +269,64 @@ comments:
     stays per #2550) and the full attic BLOCKED-state matrix (creation path already
     constructs the record; only the repair path was lost).'
   timestamp: '2026-10-13T19:43:13+00:00'
+- type: internal
+  body: 'Admission entry — criteria-depth restoration across the audit surface (.opencode#2601)
+
+
+    - **What:** governed edits restoring the audit criteria substance lost in the
+    #2490 re-rip — `skills/spec/references/validation-standards.md` gains the restored
+    analysis families (traceability both directions, fabricated claims, internal contradiction,
+    escape hatches, feasibility, gap analysis, scope narrowness, research adequacy,
+    blast radius, cross-reference sufficiency, decomposition, safety) and defect class
+    5 sharpened to the general instrument-capability form; new `skills/plan/references/plan-validation-standards.md`
+    (plan-side families re-authored for the per-SC item format, self-contained verdict
+    contract and revise→re-validate loop); `skills/plan/SKILL.md` gains the validation
+    dispatch (pre-dispatch writer self-check + fresh-context reviewer, full path only);
+    `skills/spec/SKILL.md` step 6 gains the producer-side self-check (duty-of-care,
+    never replaces the dispatch); `skills/implement/SKILL.md` + `references/implementation-workflow.md`
+    gain the test-quality families (edge-case completeness, cross-boundary assertion
+    reality, no assertion weakening, confirmed-then-sequenced RED→GREEN) integrated
+    with the test-value gate, and the SC-fidelity rule gains the reverse drift direction
+    (no unlisted deliverable, no missing spec-required surface, stated interface contracts
+    matched as written); `skills/verify/SKILL.md` gains the general instrument-capability
+    rule (behavioral provenance stated as its instance) and the criteria-set ownership
+    mechanism (the audited artifact''s producing card owns its audit criteria reference;
+    spec and plan references named); `routing.md` gains one row routing on-demand
+    audits to the verify card. Floor untouched (zero always-injected growth).
+
+    - **Attic sources (re-authored, not transplanted):** `attic/skills/audit/tasks/spec-audit-evaluator.md`
+    (analysis families A1–A9), `attic/skills/audit/tasks/plan-fidelity-evaluator.md`
+    (plan-side families), `attic/skills/audit/tasks/test-quality-audit-evaluator.md`
+    (TQ-1–TQ-6), `attic/skills/audit/tasks/drift-detection-evaluator.md` (DD-1–DD-5
+    bidirectional drift), `attic/reference/holistic-dimensions.yaml` (producer self-check
+    concept), `attic/audit-reference/reference/decomposition-criteria.md` (decomposition
+    families), `attic/skills/spec-creation/tasks/validate.md` (writer-side validation).
+
+    - **Retirement:** #2490 rip-and-replace retired the audit card set (~17,000 lines,
+    12 audit types, 4-role DiMo chains) together with the criteria sets; subsequent
+    restorations (#2550, #2557, #2597) rebuilt reviewer-side mechanics but not the
+    criteria base, leaving the deck''s audit dispatch language pointing at nothing.
+
+    - **Observed failure:** 2026-10-13 developer statement ("spec, plan, implementation,
+    and other audits have regressed into a lobotomized state") plus a full attic-vs-live-deck
+    comparison on the same date; corroborated by #2601''s own spec validation — three
+    FAIL rounds, all eight findings writer-catchable mechanical-consistency defects.
+
+    - **Placements:** spec (reference families + step-6 self-check), plan (new reference
+    + dispatch step), implement (test-quality + reverse drift), verify (instrument
+    capability + criteria-set ownership), routing (audit row).
+
+    - **Declined candidates:** 4-type evidence taxonomy + DDL cost model (enumerated
+    instances of one instrument-capability principle; load-bearing only for the retired
+    cost model); 4-role DiMo dispatch chains (single-reviewer shape is the #2550 design);
+    verdict.yaml/evidence.yaml artifact chains (banned by skill-creator standards);
+    lexical self-consistency gate (keyword scanning over judgment is the deck''s founding
+    defect class); dedicated `audit` card (re-creates the routing ambiguity the re-rip
+    resolved; audits route through verify); fixed 7-analytical-artifacts mandate (explore''s
+    conditional production stands; fixed sets are TDT-era ceremony); closure-verification
+    depth, PR-body template audit, deck-content audit criteria (partial live coverage
+    exists, no observed failure of their own — returnable only with one).
+
+    - **Governance path:** developer-directed card edit per the deck''s governance
+    card — observed failure recorded above, admissions recorded here, `floor.md` untouched.'
+  timestamp: '2026-10-14T02:38:24+00:00'
