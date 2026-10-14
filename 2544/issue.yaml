@@ -56,29 +56,32 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
 
   1. **Strict discovery (coverage set)**: `collect_repo_info()` enumerates child repos
-  exclusively via git''s registered-submodule mechanism — each repo''s `.gitmodules`
-  verified with `git submodule status`, applied recursively into each registered submodule
-  (submodules of submodules stay covered). Registered entries without a checkout present
-  (uninitialized submodules) are skipped: not hooked, not inventoried. The `os.listdir`
-  `.git`-entry scan is deleted from discovery, not feature-flagged.
+  exclusively via git''s registered-submodule mechanism — `.gitmodules` verified with
+  `git submodule status`, applied over the registered tree (root''s registered submodules
+  transitively). Covered only when today''s membership conditions also hold: checkout
+  present (uninitialized skipped, as today no inventory line) and origin URL (`remote.origin.url`,
+  else the `.gitmodules`-recorded URL) parses to owner/repo (unparseable skipped,
+  as today). The `os.listdir` `.git`-entry scan is deleted from discovery. Stated
+  intended extension: registered-tree submodules deeper than the old two-level scan
+  reach become covered — the mechanism decides reach, not filesystem shape.
 
 
   2. **Wiki exclusion (origin-based, every level)**: hooks + inventory cover the root
   repo and every registered submodule with a checkout, excluding every child repo
-  whose origin URL — or, for a registered submodule, its `.gitmodules`-recorded URL
-  — has a final path segment ending in `.wiki` or `.wiki.git`, at every level. Wiki
-  repos are never hooked and never inventoried, whether wired as ignored sub-repos
-  or registered submodules. Ignored sub-repos receive nothing, appear nowhere.
+  whose origin URL (or `.gitmodules`-recorded URL when the checkout has none) has
+  a final path segment ending in `.wiki` or `.wiki.git` — at every level. Wiki repos
+  are never hooked and never inventoried, whether wired as ignored sub-repos or registered
+  submodules. Ignored sub-repos receive nothing, appear nowhere.
 
 
   3. **Cleanup enumeration (cleanup only)**: locating pollution uses a bounded filesystem
   enumeration mirroring the old scan''s traversal exactly: every immediate child dir
-  with a `.git` entry — pollution-tested when it has an origin remote (the only ones
-  the old installer reached) and descended into regardless of origin — and every depth-2
-  dir with a `.git` entry and an origin remote inside them (the old nested recursion
-  required no origin on the container). Cleanup-only: it installs nothing and inventories
-  nothing. The old installer never reached anything else, so this bound is complete
-  for cleanup.
+  with a `.git` entry — pollution-tested when it has a parseable origin remote (the
+  only ones the old installer reached) and descended into regardless of origin — and
+  every depth-2 dir with a `.git` entry and a parseable origin remote inside them
+  (the old nested recursion required no origin on the container). Cleanup-only: installs
+  nothing, inventories nothing. The old installer never reached anything else, so
+  this bound is complete for cleanup.
 
 
   4. **Self-healing**: in the hooks dirs of enumerated repos outside the coverage
@@ -97,8 +100,15 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
   source name-plus-version — foreign hooks — are untouched.
 
 
-  5. **Regression invariant**: root / registered non-wiki submodules at every depth
-  / `.issues/` carve-outs behave exactly as today.
+  5. **Regression invariant**: within the old scan''s reach (depth ≤ 2), the root
+  repo, every non-wiki registered-tree submodule with a checkout and parseable origin
+  URL, and the `.issues/` carve-outs behave exactly as today — same coverage, same
+  inventory lines, same hooks. Behavior changes are confined to the stated classes:
+  ignored/independent sub-repos and wiki-origin repos drop out of coverage and are
+  self-healed; registered-tree submodules deeper than the old reach are newly covered
+  (stated extension, item 1); registered submodules declared inside non-registered
+  containers are no longer reached by coverage (the workspace orchestrates only its
+  registered tree) and are handled by cleanup.
 
 
 
@@ -107,5 +117,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T17:04:18+00:00'
+updated_at: '2026-10-14T17:15:59+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
