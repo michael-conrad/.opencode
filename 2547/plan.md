@@ -18,6 +18,39 @@ file modification), `git-workflow-commit` (atomic commits), `implement`
 
 ---
 
+## Item 0 — Harness remote-wiring contract completion (R-18 fix fold-in; serves SC-4 instrument feasibility)
+
+- **Provenance:** observed during Item 1's first RED attempt (2026-10-14, aborted
+  run-fatal). `behavior_run()` sources the per-scenario setup fixture
+  (helpers.sh ~1752) BEFORE the GitBucket remote wiring (~1821), and the wiring
+  itself no-ops silently: `git remote add origin <gitbucket-url> || true`
+  fails on the clone's pre-existing origin (production GitHub) and is
+  swallowed. Net effect: for every `BEHAVIOR_NEEDS_REMOTE` scenario, the test
+  project's origin remains the production remote for the whole run, and the
+  harness's own `push -u origin HEAD` pushes the workdir to production. The
+  `BEHAVIOR_SET_BARE_REMOTE` block (~1810) carries the identical
+  `remote add || true` pattern. This completes the documented §13 contract
+  ("wire its test repo as the test project's origin remote") — an
+  infrastructure-maintenance fix per tests-v2 §4, not an isolation-contract
+  change.
+- **Deliverable:** in `behaviors/helpers.sh`: (a) move the GitBucket remote
+  wiring block BEFORE the per-scenario fixture sourcing; (b) wire with
+  `remote set-url origin` (fallback `remote add` when no origin exists);
+  (c) drop `|| true` from the wiring steps — a wiring failure is fatal with a
+  `HARNESS_FAILURE:` message naming the remediation; (d) apply the same
+  set-url + fail-loud correction to the `BEHAVIOR_SET_BARE_REMOTE` block;
+  `__assert_not_live_root` guard retained.
+- **RED:** the first RED attempt's evidence (abort-diagnosis artifact) is the
+  failing state: fixture push landed on production and the GitBucket repo had
+  zero branches. Fact check on current code: wiring block sits after fixture
+  sourcing; `remote add || true` pattern present in both blocks.
+- **GREEN:** the reordering + set-url + fail-loud edits.
+- **Verification instrument:** the Item 1 RED re-run — the fixture records
+  `git remote get-url origin` into the pre-run state file; the evaluator sees
+  the origin URL pointing at the GitBucket container (localhost:
+  $GITBUCKET_PORT), and the production remote carries no new refs after the
+  run (checked post-run from the orchestrator side).
+
 ## Item 1 — RED evidence: author and run the reload scenario against the pre-change deck (SC-4 RED)
 
 - **Deliverable:** a tests-v2 behavioral scenario that reproduces the
@@ -31,13 +64,14 @@ file modification), `git-workflow-commit` (atomic commits), `implement`
     pattern for gb-contacting scenarios, e.g. `2561-sc1-*`), `BEHAVIOR_NEEDS_REMOTE=1`,
     artifact-only generator, `exit 0`.
   - `tests-v2/behaviors/fixtures/setup/2547-sc1-gb-cli-reload-on-class-change.sh`
-    — seeds the GitBucket test repo (`root/test-repo`) with: a PR (branch with
-    a real commit, merged via the GitBucket merge API — verified live against
-    the provisioned container at authoring time; if the merge endpoint is
-    unsupported, fall back to an open PR and a "review-ready" first-class
-    task, recorded in the scenario header comment) and one open issue whose
-    claim is verifiable against the code. Also records pre-run remote state
-    for the evaluator (pattern: `2561-sc1` fixture).
+    — seeds the GitBucket test repo (`root/test-repo`) via the workdir's
+    origin (wired to the container by Item 0's harness fix): pushes the
+    default branch and a feature branch carrying `docs/notes.md` (with a
+    changelog section), opens a PR (base main) that stays open by design —
+    no GitBucket merge-API dependence (recorded in the scenario header) — and
+    creates one open issue whose claim is verifiably false against
+    `docs/notes.md`. Records pre-run remote state AND the workdir's origin
+    URL for the evaluator (pattern: `2561-sc1` fixture).
 - **Scenario prompt** (real-domain task, §11 — no leading questions, no
   interview; bounded like `2561-sc1`): directs the agent to do the post-merge
   work for the merged PR as its workflow requires, then reconcile the open
@@ -132,14 +166,13 @@ file modification), `git-workflow-commit` (atomic commits), `implement`
 
 ## Ordering
 
-1 → 2, 3 (parallel) → 4 → 5. Item 1's RED run must complete before Items
-2–3 are committed and pushed: the harness tests the pushed effective commit,
-so the pre-change RED evidence requires the submodule HEAD to still carry the
-unmodified descriptions when the RED run executes (the scenario-script commit
-itself is test-infrastructure and rides the same feature branch ahead of the
-description commits). Item 4's GREEN run requires Items 2–3 pushed. Item 5
-follows 4 so the entry can record verified outcomes; the PR link is filled at
-PR creation.
+0 → 1 → 2, 3 (parallel) → 4 → 5. Item 0 (harness fix) precedes Item 1's RED
+run — the scenario's fixture depends on a correctly wired origin, and the RED
+run must execute with the submodule HEAD still carrying unmodified
+descriptions (the scenario+fixture+harness commit is test-infrastructure and
+rides the same feature branch ahead of the description commits). Item 4's
+GREEN run requires Items 2–3 pushed. Item 5 follows 4 so the entry can record
+verified outcomes; the PR link is filled at PR creation.
 
 ## Final verification
 
