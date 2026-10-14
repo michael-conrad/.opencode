@@ -3,6 +3,63 @@ title: '[SPEC] session-init: exclude wiki checkouts (origin *.wiki.git) from hoo
 status: open
 labels:
 - needs-approval
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2544)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2544/` — spec
+
+
+  ## Why
+
+
+  **Ruling (Michael Conrad, 2026-10-07):** *"session-init should only be doing registered
+  submodules, not ignored sub-repos, it should be strictly on git submodule for listing
+  the submodules correctly."* And the same session: *"git hooks are to never be applied
+  to wiki repos."*
+
+
+  session-init''s filesystem-scan discovery (`collect_repo_info()`: any immediate
+  subdir with a `.git` entry + origin remote) found the ignored in-tree wiki checkout
+  `hermes-admin/hermes-admin.wiki/` and `install_hooks()` installed trunk-protection
+  `pre-commit`/`pre-push` into it — blocking every wiki publish. This is structurally
+  unsatisfiable: GitHub/GitBucket wikis render only from the default branch and have
+  no branch/PR mechanism; the wiki-operations card defines pre-push diff review +
+  rule-based checks as the review substitute, by design. Evidence trail: hook files
+  hash-identical to `.opencode/hooks/` sources, mtimes inherited from source (copy2),
+  session-init inventory output policing the wiki, reflog clone→blocked-commit sequence.
+
+
+  **Root cause:** a path-shape heuristic where git''s registered-submodule mechanism
+  (`.gitmodules` + `git submodule status`) is the authoritative answer to which child
+  repos the workspace orchestrates. Filesystem shape ≠ orchestration intent: ignored
+  sub-repos (wikis, independent repos, worktrees) all match the heuristic.
+
+
+  ## Final what
+
+
+  1. **Strict discovery**: `collect_repo_info()` enumerates child repos exclusively
+  via `git config --file .gitmodules` + `git submodule status` verification; the `os.listdir`
+  `.git`-entry scan is deleted, not feature-flagged.
+
+  2. **Hooks + inventory cover root repo + registered submodules only** — ignored
+  sub-repos receive nothing, appear nowhere.
+
+  3. **Self-healing**: prior-version pollution (source-hook-set-named, hash-identical
+  hooks) inside non-registered repos'' hooks dirs is removed and reported (samples
+  and unknown files untouched).
+
+  4. **Regression invariant**: root / registered submodules / `.issues/` carve-outs
+  behave exactly as today.
+
+
+  🤖 OpenCode (ollama-cloud/glm-5.3-flash) — filed from hermes-admin session per developer
+  directive
+
+  '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T14:50:42+00:00'
+updated_at: '2026-10-14T14:58:35+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2544
