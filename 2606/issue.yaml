@@ -46,10 +46,11 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
 
   **Developer direction (2026-10-14):** the revise/re-audit loop needs to exist; it
-  needs semantic checking to determine if it is "spinning" in place; spinning is usually
-  caused by a spec conflict, a composite SC that needs breaking up, a spec too fat
-  and needing splitting into multiple specs, atomic work unit violations, or needed
-  re-evaluation — and so forth.
+  needs semantic checking to determine if it is "spinning" in place; on spin the agent
+  should try higher-level fixing of the cause based on the enumerated potential causes
+  (spec conflict, composite SC needing breakup, spec too fat needing splitting into
+  multiple specs, atomic work unit violations, needed re-evaluation — and so forth);
+  AI agent intelligence is to be used.
 
 
   ## Final what
@@ -60,17 +61,23 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
   one-re-review bound is retired, subsumed by a **semantic spin condition**: each
   cycle, the agent running the loop judges — never a script — whether the loop is
   spinning (findings recurring or reshuffling without genuine resolution relative
-  to the remediation performed). On spin, the loop halts to the developer carrying
-  the specific findings, the suspected cause class(es), the root cause, and what is
-  needed. The enumerated cause classes are recorded in the validation-standards Loop
-  section as judgment examples — exemplary and open, never a closed checklist.
+  to the remediation performed). On spin, the revision step moves up a level: the
+  agent diagnoses the cause and attempts **higher-level fixing of the diagnosed cause**
+  — artifact-level structural revision such as breaking up a composite SC, splitting
+  an over-fat spec, resolving a spec conflict, restructuring into atomic work units,
+  or re-evaluating the approach — using AI agent intelligence, never a scripted procedure;
+  the loop continues on the revised artifact. Escalation fires when spin persists
+  after genuine higher-level fixing attempts, carrying the specific findings, the
+  suspected cause class(es), the root cause, what was tried, and what is needed. The
+  enumerated cause classes are recorded in the validation-standards Loop section as
+  judgment examples — exemplary and open, never a closed checklist.
 
 
   Surfaces: `verify` card §4 (FAIL path restated) + frontmatter description (re-worded),
   `routing.md` verify entry ("bounded loop" → spin-bounded shape), `validation-standards.md`
-  Loop section (spin semantic + example classes), deck-debt ledger #2534 (governance-decision
-  entry). The `spec` card §6 already defers to the standards'' loop section and inherits
-  the amendment unchanged.
+  Loop section (spin semantic + example classes + attempt-before-escalate escalation),
+  deck-debt ledger #2534 (governance-decision entry). The `spec` card §6 already defers
+  to the standards'' loop section and inherits the amendment unchanged.
 
 
   Deck edits go through the skill-creator admission gate; this item is developer-directed
@@ -81,5 +88,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
   '
 created_at: '2026-10-14T15:05:38+00:00'
-updated_at: '2026-10-14T15:06:43+00:00'
+updated_at: '2026-10-14T15:32:15+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2606
