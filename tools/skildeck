@@ -9,11 +9,10 @@
 # ///
 
 # fmt: on
-__doc__ = """DESCRIPTION: Skill deck analysis CLI. Lint and validate skill and guideline files.
+__doc__ = """DESCRIPTION: Skill deck analysis CLI. Lint skill and guideline files.
 Usage: ./.opencode/tools/skildeck <action> [options]
-Actions: lint, validate, verify-acceptance, verify-issue, help
+Actions: lint, verify-acceptance, verify-issue, help
 Example: ./.opencode/tools/skildeck lint
-Example: ./.opencode/tools/skildeck validate
 Example: ./.opencode/tools/skildeck verify-acceptance --spec tmp/spec.md
 Example: ./.opencode/tools/skildeck verify-issue --issue 91 --body "issue body from github_issue_read"
 """
@@ -35,7 +34,6 @@ IMPL_DIR = BASE_DIR / "impl" / "skildeck"
 
 ACTIONS = {
     "lint": "skildeck-lint",
-    "validate": "skildeck-validate",
     "verify-acceptance": "skildeck-verify-acceptance",
     "verify-issue": "skildeck-verify-issue",
 }
