@@ -46,7 +46,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
   reference documents inherited submodule wikis (existing `.gitmodules` entries wiring
   a wiki, operated in place), so a wiki-origin registered submodule would still be
   hooked and inventoried — reproducing this failure. The wiki rule is origin-based,
-  not wiring-based: origin `*.wiki.git` = wiki repo, however it is wired.
+  not wiring-based: a final path segment ending in `.wiki` or `.wiki.git` = wiki repo,
+  however it is wired.
 
 
 
@@ -57,37 +58,43 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
   1. **Strict discovery (coverage set)**: `collect_repo_info()` enumerates child repos
   exclusively via git''s registered-submodule mechanism — each repo''s `.gitmodules`
   verified with `git submodule status`, applied recursively into each registered submodule
-  (submodules of submodules stay covered). The `os.listdir` `.git`-entry scan is deleted
-  from discovery, not feature-flagged.
+  (submodules of submodules stay covered). Registered entries without a checkout present
+  (uninitialized submodules) are skipped: not hooked, not inventoried. The `os.listdir`
+  `.git`-entry scan is deleted from discovery, not feature-flagged.
 
 
   2. **Wiki exclusion (origin-based, every level)**: hooks + inventory cover the root
-  repo and every registered submodule, excluding every child repo whose origin matches
-  `*.wiki.git` — wiki repos are never hooked and never inventoried, whether wired
-  as ignored sub-repos or registered submodules. Ignored sub-repos receive nothing,
-  appear nowhere.
+  repo and every registered submodule with a checkout, excluding every child repo
+  whose origin URL — or, for a registered submodule, its `.gitmodules`-recorded URL
+  — has a final path segment ending in `.wiki` or `.wiki.git`, at every level. Wiki
+  repos are never hooked and never inventoried, whether wired as ignored sub-repos
+  or registered submodules. Ignored sub-repos receive nothing, appear nowhere.
 
 
   3. **Cleanup enumeration (cleanup only)**: locating pollution uses a bounded filesystem
-  enumeration — the exact shape the old scan reached (immediate child dirs with `.git`
-  + origin, plus one nested level) — used solely to find repos outside the coverage
-  set for pollution removal; it installs nothing and inventories nothing. The bound
-  is complete: pollution can only exist where the old install path reached (depth
-  ≤ 2).
+  enumeration mirroring the old scan''s traversal exactly: every immediate child dir
+  with a `.git` entry — pollution-tested when it has an origin remote (the only ones
+  the old installer reached) and descended into regardless of origin — and every depth-2
+  dir with a `.git` entry and an origin remote inside them (the old nested recursion
+  required no origin on the container). Cleanup-only: it installs nothing and inventories
+  nothing. The old installer never reached anything else, so this bound is complete
+  for cleanup.
 
 
   4. **Self-healing**: in the hooks dirs of enumerated repos outside the coverage
-  set, pollution (a file named for the source hook set whose content matches any version
-  the corresponding `.opencode/hooks/` source has ever had — current source hash or
-  any historical blob hash of that path in the deck''s git history; prior installs
-  pin the source content at install time, and the sources drift) is removed and reported
+  set, pollution — a file whose name matches any hook name `.opencode/hooks/` has
+  ever carried (the source set also included `post-commit`, `pre-merge-commit`, and
+  `prepare-commit-msg` until 2026-10-04; the scan-era installer copied every file
+  present) and whose content matches any blob hash ever recorded in the deck''s git
+  history at that hook name''s source path (prior installs pin the source content
+  at install time; both the name set and the content drift) — is removed and reported
   as a removal event in session-init''s output (the affected repos themselves still
   appear nowhere in inventory, per item 2). Classification is by the resolved hooks
   dir (`git rev-parse --git-path hooks`): cleanup never acts on a hooks dir resolving
   to a coverage-set repo''s — linked worktrees (`.issues/`, `.opencode/.issues/`)
   alias the root/submodule common hooks dir and dedupe out of cleanup scope exactly
-  as they dedupe out of double-install today. Samples and files matching no source
-  version — foreign hooks — are untouched.
+  as they dedupe out of double-install today. Samples and files matching no historical
+  source name-plus-version — foreign hooks — are untouched.
 
 
   5. **Regression invariant**: root / registered non-wiki submodules at every depth
@@ -100,5 +107,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T16:54:31+00:00'
+updated_at: '2026-10-14T17:04:18+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
