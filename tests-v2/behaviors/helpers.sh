@@ -75,6 +75,21 @@ PARENT_REPO_DIR="$(__find_project_root "$BEHAVIOR_HELPERS_DIR")"
 # that resolves to any of these paths is the live repo and MUST NOT be mutated.
 # A legitimate isolated target (e.g. $TEST_PROJECT / $attempt_workdir inside the
 # test home) is NOT the live repo and passes through unblocked.
+# __wire_origin <workdir> <url> — point the workdir's origin at <url>,
+# replacing any pre-existing origin. The test project is a clone of the root
+# project, so origin exists and must be REWIRED, not added — a `remote add`
+# on the existing origin fails and leaves the production remote in place.
+# Fails loudly: a silently unwired origin is a production-contamination path.
+__wire_origin() {
+    local wd="$1" url="$2"
+    if git -C "$wd" remote get-url origin >/dev/null 2>&1; then
+        git -C "$wd" remote set-url origin "$url" || return 1
+    else
+        git -C "$wd" remote add origin "$url" || return 1
+    fi
+    return 0
+}
+
 __assert_not_live_root() {
     local target="$1"
     if [ -z "$target" ]; then
@@ -1732,6 +1747,39 @@ behavior_run() {
 
         mkdir -p "$attempt_workdir/.issues"
 
+        # Remote wiring — BEFORE per-scenario fixtures, so scenario setup and
+        # the run agent both see the isolated remote and never the clone's
+        # production origin (.opencode#2547 Item 0: the previous
+        # `remote add ... || true` silently no-oped on the existing clone
+        # origin, leaving origin on the production remote for the whole run —
+        # including the harness's own `push -u origin HEAD`). This completes
+        # the documented §13 wiring contract; it changes no isolation rule.
+        if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
+            local bare_repo="$attempt_workdir/../origin.git"
+            git init --bare "$bare_repo" 2>/dev/null || true
+            __wire_origin "$attempt_workdir" "$bare_repo" || {
+                echo "HARNESS_FAILURE: could not wire the bare remote origin — inspect '$bare_repo' and re-run" >&2
+                return 1
+            }
+            echo "  [harness] bare remote set up at $bare_repo"
+        fi
+
+        if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
+            local gb_port="${GITBUCKET_PORT}"
+            local gb_token="${GB_TOKEN:-root}"
+            # SC-2: guard the git-mutating target — abort if it resolves to the live repo.
+            __assert_not_live_root "$attempt_workdir" || return 1
+            __wire_origin "$attempt_workdir" "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" || {
+                echo "HARNESS_FAILURE: could not wire the GitBucket test repo as origin — check GITBUCKET_PORT/GB_TOKEN and re-run" >&2
+                return 1
+            }
+            git -C "$attempt_workdir" push -u origin HEAD || {
+                echo "HARNESS_FAILURE: could not push HEAD to the GitBucket test repo — check container state and token, then re-run" >&2
+                return 1
+            }
+            echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
+        fi
+
         if [ "${BEHAVIOR_FIXTURE_ISSUES:-1}" = "1" ]; then
             FIXTURE_SETUP="$(dirname "${BASH_SOURCE[0]}")/fixtures/setup-fixture-issues.sh"
             if [ -f "$FIXTURE_SETUP" ]; then
@@ -1804,28 +1852,10 @@ behavior_run() {
             echo "  [harness] multi-submodule fixtures provisioned as reachable local remotes (test-submodule-1, test-submodule-2)" >&2
         fi
 
-        if [ "${BEHAVIOR_SET_BARE_REMOTE:-0}" = "1" ]; then
-            local bare_repo="$attempt_workdir/../origin.git"
-            git init --bare "$bare_repo" 2>/dev/null || true
-            git -C "$attempt_workdir" remote add origin "$bare_repo" 2>/dev/null || true
-            echo "  [harness] bare remote set up at $bare_repo"
-        fi
-
         if [ "${BEHAVIOR_SETUP_STALE_WORKTREE:-0}" = "1" ]; then
             (cd "$attempt_workdir" && ./.opencode/tools/local-issues create --number "$(basename "$attempt_workdir")#1" --title "stale-test" 2>/dev/null) || true
             rm -rf "$attempt_workdir/.issues"
             echo "  [harness] stale worktree state set up (issue created, .issues/ deleted)"
-        fi
-
-        # Wire GitBucket remote on the attempt workdir if GitBucket is provisioned
-        if [ "${BEHAVIOR_NEEDS_REMOTE:-0}" = "1" ] && [ -n "${GITBUCKET_PORT:-}" ]; then
-            local gb_port="${GITBUCKET_PORT}"
-            local gb_token="${GB_TOKEN:-root}"
-            # SC-2: guard the git-mutating target — abort if it resolves to the live repo.
-            __assert_not_live_root "$attempt_workdir" || return 1
-            git -C "$attempt_workdir" remote add origin "http://root:${gb_token}@localhost:${gb_port}/git/root/test-repo.git" 2>/dev/null || true
-            git -C "$attempt_workdir" push -u origin HEAD 2>/dev/null || true
-            echo "  [harness] GitBucket remote wired on attempt workdir (port $gb_port)" >&2
         fi
 
         # Scope G (#2427): semantic continuous monitoring — opt-in via
