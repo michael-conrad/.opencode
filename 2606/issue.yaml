@@ -1,6 +1,6 @@
 title: '[SPEC] unify the review-audit loop: repeat-until-zero with semantic spin detection
   and diagnosis-driven escalation; retire the fixed one-re-review bound'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -97,5 +97,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
   '
 created_at: '2026-10-14T15:05:38+00:00'
-updated_at: '2026-10-14T16:02:56+00:00'
+updated_at: '2026-10-14T16:24:34+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2606
+closed_at: '2026-10-14T16:24:34+00:00'
+close_reason: completed
