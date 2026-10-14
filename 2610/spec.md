@@ -106,9 +106,11 @@ governing substance.
 The active deck — `floor.md`, `routing.md`, `skills/**`, `guidelines/**` —
 contains zero occurrences of "ledger" or "deck-debt".
 
-**Verification instrument:** `rg -in "ledger" .opencode/floor.md
+**Verification instrument:** `rg -in "ledger|deck-debt" .opencode/floor.md
 .opencode/routing.md .opencode/skills .opencode/guidelines` returns zero
-matches.
+matches — the alternation covers both tokens the criterion names, so a
+reference reworded as "deck-debt X" without the substring "ledger" cannot
+pass.
 
 ### SC-4 — no agent re-creates or pushes a ledger artifact (behavioral)
 
