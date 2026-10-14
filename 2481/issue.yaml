@@ -1,6 +1,6 @@
 title: '[BUG] srclight get_dependents/get_callers/reindex/record_learning fail with
   Error executing tool'
-status: open
+status: closed
 labels:
 - needs-approval
 body: 'Observed across session 2026-09-30 (hermes-ingest-pubmed issue 133 pipeline):
@@ -33,5 +33,7 @@ body: 'Observed across session 2026-09-30 (hermes-ingest-pubmed issue 133 pipeli
 
   '
 created_at: '2026-10-14T22:04:54+00:00'
-updated_at: '2026-10-14T22:05:19+00:00'
+updated_at: '2026-10-14T22:05:25+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2481
+closed_at: '2026-10-14T22:05:25+00:00'
+close_reason: not_planned
