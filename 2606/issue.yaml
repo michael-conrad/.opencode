@@ -1,0 +1,9 @@
+title: '[SPEC] unify the review-audit loop: repeat-until-zero with semantic spin detection
+  and diagnosis-driven escalation; retire the fixed one-re-review bound'
+status: open
+labels:
+- needs-approval
+- spec
+body: ''
+created_at: '2026-10-14T15:05:38+00:00'
+updated_at: '2026-10-14T15:05:38+00:00'
