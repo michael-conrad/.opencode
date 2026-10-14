@@ -973,6 +973,10 @@ Combining `BEHAVIOR_NEEDS_MULTI_SUBMODULES=1` and `BEHAVIOR_NEEDS_REMOTE=1` enab
 
 This is the recommended configuration for remote-dependent tests that also need multi-submodule context, such as `2242-sc6`. Because full-environment simulation uses `BEHAVIOR_NEEDS_REMOTE` (not `BEHAVIOR_SET_BARE_REMOTE`), it does not trigger the mutual-exclusion rejection.
 
+### GitHub-Side Test Repo Targets
+
+The designated throwaway GitHub test repos are **`test-submodule-1`** and **`test-submodule-2`** ("Test repository for verifying git workflow skills and submodule handling"). A scenario needing a real GitHub-side repo target uses these repos in the authenticated owner's namespace — owner resolution is deployment-local (the authenticated session context), never a hardcoded owner path — and never targets production repos. These are the live GitHub counterparts of the local fixture repos provisioned by `BEHAVIOR_NEEDS_MULTI_SUBMODULES`; the GitBucket container (`BEHAVIOR_NEEDS_REMOTE`) remains the default self-contained remote strategy.
+
 ---
 
 ## 14. Semantic Continuous Monitoring Mandate (Behavioral Runs)
