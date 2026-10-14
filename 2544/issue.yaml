@@ -59,19 +59,19 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
   exclusively via git''s registered-submodule mechanism — `.gitmodules` verified with
   `git submodule status`, applied over the registered tree (root''s registered submodules
   transitively). Covered only when today''s membership conditions also hold: checkout
-  present (uninitialized skipped, as today no inventory line) and origin URL (`remote.origin.url`,
-  else the `.gitmodules`-recorded URL) parses to owner/repo (unparseable skipped,
-  as today). The `os.listdir` `.git`-entry scan is deleted from discovery. Stated
-  intended extension: registered-tree submodules deeper than the old two-level scan
-  reach become covered — the mechanism decides reach, not filesystem shape.
+  present (uninitialized skipped — today they produce no inventory line) and the checkout''s
+  `remote.origin.url` exists and parses to owner/repo (absent or unparseable origins
+  skipped, as today — no `.gitmodules` fallback exists). The `os.listdir` `.git`-entry
+  scan is deleted from discovery. Stated intended extension: registered-tree submodules
+  deeper than the old two-level scan reach become covered — the mechanism decides
+  reach, not filesystem shape.
 
 
   2. **Wiki exclusion (origin-based, every level)**: hooks + inventory cover the root
   repo and every registered submodule with a checkout, excluding every child repo
-  whose origin URL (or `.gitmodules`-recorded URL when the checkout has none) has
-  a final path segment ending in `.wiki` or `.wiki.git` — at every level. Wiki repos
-  are never hooked and never inventoried, whether wired as ignored sub-repos or registered
-  submodules. Ignored sub-repos receive nothing, appear nowhere.
+  whose origin URL''s final path segment ends in `.wiki` or `.wiki.git` — at every
+  level. Wiki repos are never hooked and never inventoried, whether wired as ignored
+  sub-repos or registered submodules. Ignored sub-repos receive nothing, appear nowhere.
 
 
   3. **Cleanup enumeration (cleanup only)**: locating pollution uses a bounded filesystem
@@ -117,5 +117,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T17:15:59+00:00'
+updated_at: '2026-10-14T17:24:32+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
