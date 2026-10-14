@@ -1,1 +1,8 @@
-comments: []
+comments:
+- type: internal
+  body: 'Closed not_planned on developer instruction: feasibility evaluation (2026-10-14)
+    found the no-additional-setup embedder requirement unsatisfiable — srclight has
+    no in-process embedding engine (Ollama/OpenAI-compatible/Cohere/Voyage all need
+    an external service or API key; local Ollama has no embedding model pulled). Full
+    verdict comment posted on remote #2481.'
+  timestamp: '2026-10-14T22:05:26+00:00'
