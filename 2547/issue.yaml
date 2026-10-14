@@ -3,6 +3,94 @@ title: '[BUG] gb-cli card description lacks reload semantics — one-shot load t
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Defect
+
+
+  **Severity: MEDIUM (process-integrity, observed)**
+
+
+  `gb-cli`/`gh-cli` card descriptions say "Load before **any** command or code that
+  contacts GitBucket/GitHub …" but say nothing about **reload semantics**. An agent
+  that loaded the card once for a matched intent (PR operations) treated the trigger
+  as satisfied for the rest of the session, then contacted GitBucket repeatedly for
+  a *different* intent class (issue view / raw API) without reloading. The card''s
+  rules 3–5 (`--help` before guessing; platform-awareness over GitHub assumptions;
+  failures are information, never retry blind) were consequently out of force during
+  exactly the window they were needed.
+
+
+  ## Observed incident (CrossrefAbstracts deploy, 2026-10-07)
+
+
+  1. `available_skills` listed gb-cli description all session (deployed copy verified
+  NO-DRIFT vs `michael-conrad/.opencode` HEAD for both gb-cli and gh-cli).
+
+  2. "approved for PR" → `git-workflow-pr` loaded → `gb-cli` loaded ✓ (compliant segment).
+
+  3. "pr merged" → `git-workflow-cleanup` loaded; `gb issue view` + `gb api` used
+  with **gb-cli not loaded** ✗.
+
+  4. Later instruction to reconcile an already-delivered-but-still-open issue → `gb
+  issue view` again, card still absent ✗.
+
+  5. "work around tooling defects" → six `gb api` probes guessing GitHub-shaped PATCH
+  endpoints against a GitBucket build lacking the route (repeated 404), and an empty-label
+  `PUT` that wiped the `spec` label (restored) — all with card rules 3/4/5 out of
+  force ✗.
+
+
+  ## Root cause
+
+
+  Description is **under-specified on reload scope**: "any command" is satisfied by
+  the first load; nothing states the card remains in force across the session nor
+  that a new operation class under the same utility is a fresh trigger. The failure
+  mode is load-then-discard, and it recurred *within* one session, so it''s not a
+  hypothetical — the pushy phrasing the card standards require did not survive the
+  checklist-mentality of the consuming agent.
+
+
+  ## Affected files
+
+
+  | File | Location |
+
+  |---|---|
+
+  | `.opencode/skills/gb-cli/SKILL.md` | frontmatter `description` |
+
+  | `.opencode/skills/gh-cli/SKILL.md` | frontmatter `description` (same pattern;
+  latent for the same miss) |
+
+  | `routing.md` | connector row only names the cards; carries no duration semantics
+  |
+
+
+  ## Suggested remediation (card-body description only, no always-loaded floor growth
+  — respects surface discipline)
+
+
+  - Extend both descriptions with reload semantics, e.g.: "Once loaded, the card stays
+  in force for the rest of the session; a new operation class under the same utility
+  (issues vs PRs vs API passthrough) is a fresh trigger — reload before the first
+  use of each class."
+
+  - Optional ledger note documenting the 2026-10-07 incident as the admission-gate
+  observed failure.
+
+
+  ## Non-goals
+
+
+  - No rule change to when raw `gb api` is allowed (rule 2 already covers it).
+
+  - No floor.md addition (criteria 8: this is card-scoped, not pre-dispatch decision
+  surface).
+
+
+  🤖 Co-authored with AI: OpenCode (ollama-cloud/glm-5.3-flash)
+
+  '
 created_at: '2026-10-14T02:57:55+00:00'
-updated_at: '2026-10-14T02:57:55+00:00'
+updated_at: '2026-10-14T02:58:54+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2547
