@@ -188,6 +188,10 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
 11. **Remote API tests are self-contained.** A behavioral SC requiring real
     remote API behavior opts into the harness's provisioned GitBucket container
     (`BEHAVIOR_NEEDS_REMOTE`; mechanics in tests-v2 §12) — no external server,
-    no mock stand-in by default.
+    no mock stand-in by default. For scenarios needing real **GitHub**-side
+    repo targets, use the designated throwaway test repos (`test-submodule-1`,
+    `test-submodule-2`) in the authenticated owner's namespace — owner
+    resolution is deployment-local, never hardcoded — and never target
+    production repos (developer direction, 2026-10-14).
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
