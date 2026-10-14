@@ -1,6 +1,6 @@
 title: '[BUG] skildeck validate flags MISSING_DISPATCH_TABLE on all 35 skill cards
   — deck-wide pre-existing finding'
-status: open
+status: closed
 labels:
 - needs-approval
 - bug
@@ -31,5 +31,7 @@ body: 'Disposition vehicle for a pre-existing red structural check encountered d
 
   '
 created_at: '2026-10-14T02:57:06+00:00'
-updated_at: '2026-10-14T03:05:56+00:00'
+updated_at: '2026-10-14T14:55:11+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2599
+closed_at: '2026-10-14T14:55:11+00:00'
+close_reason: completed
