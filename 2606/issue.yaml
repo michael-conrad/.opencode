@@ -42,10 +42,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
 
   **Root cause:** the rules entered the deck at different moments and were never reconciled
-  — the one-re-review bound predates the #2490 re-rip restorations; the repeat-until-zero
-  Loop was (re)authored by the #2601 criteria-depth restoration (2026-10-13), with
-  the plan side carrying the same pre-amendment escalation shape. #2597 explicitly
-  deferred the dispatch-topology question, leaving the loop-count conflict standing.
+  — the one-re-review bound was authored by the #2490 re-rip itself (commit 28b0c238,
+  2026-10-04, the commit that created the verify card; the pre-rip attic deck carries
+  no re-review bound); the repeat-until-zero Loop was (re)authored by the #2601 criteria-depth
+  restoration (2026-10-13), with the plan side carrying the same pre-amendment escalation
+  shape. #2597 explicitly deferred the dispatch-topology question, leaving the loop-count
+  conflict standing.
 
 
   **Developer direction (2026-10-14):** the revise/re-audit loop needs to exist; it
@@ -93,5 +95,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
   '
 created_at: '2026-10-14T15:05:38+00:00'
-updated_at: '2026-10-14T15:41:36+00:00'
+updated_at: '2026-10-14T15:54:10+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2606
