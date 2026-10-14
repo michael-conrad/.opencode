@@ -87,8 +87,29 @@ body: "Standing ledger per the skill-creator governance card: usage observations
   \ observed failure is the incident itself; consumer = any\n  agent supervising/aborting\
   \ behavioral runs; mechanism = card rule in the\n  supervision section (intent-decidable\
   \ in operation — no script); displaces\n  nothing (tightens the existing abort mechanics).\n\
-  \n\n- **PR:** to be linked on PR creation for #2567.\n"
+  \n\n- **PR:** to be linked on PR creation for #2567.\n\n### 2026-10-14 — Admission:\
+  \ connector-card reload semantics (.opencode#2547)\n\n- **What:** the `gb-cli` and\
+  \ `gh-cli` card descriptions gain an agent-addressed reload directive (\"one load\
+  \ does not carry across operation classes — before the first contact in a new class\
+  \ (issues ↔ PRs ↔ API passthrough), load this card again, even though it is already\
+  \ in context\"), and both card bodies' \"Construct carefully\" rules gain a three-line\
+  \ class-check checklist (last class contacted / class of the command about to run\
+  \ / different class → reload first). No floor/routing change; card-scoped only.\n\
+  - **Gate evidence:** observed failure — the 2026-10-07 deploy-session incident (recorded\
+  \ in .opencode#2547): one card load treated as session-satisfying, then ungoverned\
+  \ gb contacts across operation classes, blind GitHub-shaped API probes, and a label\
+  \ wipe. Behavioral evidence (tests-v2, SC-4): the revision-1 description wording\
+  \ alone did NOT change behavior (first GREEN run clean-room-evaluated VIOLATED —\
+  \ one load spanning PR↔issue transitions); the revised wording + body class-check\
+  \ DID (second GREEN run clean-room-evaluated SATISFIED — reload observed between\
+  \ the PR-class contacts and the first issue-class contact). Reload mechanics verified\
+  \ at the binary level: the skill tool re-injects the full card body on every load\
+  \ (no dedupe, no marker).\n- **Predicate classification:** the class-transition\
+  \ trigger is intent-decidable (agent judgment at dispatch time); the SCs are structural\
+  \ (text facts) plus one behavioral SC.\n- **Spec/plan:** `.opencode/.issues/2547/spec.md`,\
+  \ `.opencode/.issues/2547/plan.md`.\n- **PR:** to be linked on PR creation for #2547.\n\
+  \n\U0001F916 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
 created_at: '2026-10-07T12:24:35+00:00'
-updated_at: '2026-10-11T17:29:12+00:00'
+updated_at: '2026-10-14T14:21:26+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2534
 remote_url: https://github.com/michael-conrad/.opencode/issues/2534
