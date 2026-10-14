@@ -330,3 +330,37 @@ comments:
     - **Governance path:** developer-directed card edit per the deck''s governance
     card — observed failure recorded above, admissions recorded here, `floor.md` untouched.'
   timestamp: '2026-10-14T02:38:24+00:00'
+- type: internal
+  body: 'Scope-expansion addendum to the #2601 admission (2026-10-14, developer-directed
+    during implementation): the criteria sets above were widened beyond the original
+    SC-1..13.
+
+
+    - **Adopted (attic-derived gaps):** spec reference gains causal sufficiency of
+    the solution (from spec-audit-evaluator A1/A6 fix-side mapping) and problem fit
+    (holistic dimension 11 ''Correctness''); plan reference gains item atomicity (PF-SUBSTEP-EXPAND
+    + decomposition criteria), instrument-nature mismatch (PF-STRUCTURAL-FAIL''s behavioral-evidence
+    uplift, judgment-phrased), approach divergence (plan dimension 11), surface coverage
+    (plan-fidelity blast radius).
+
+    - **Adopted (external research, card `spec-plan-dimensions-external-2026.md`):**
+    meaningful grain (agentengineering.org execution-grain test), explicit prohibitions
+    + regression preservation (deliberate.codes SHALL-NOT discipline, Kiro ''SHALL
+    CONTINUE TO''), joint infeasibility (Kiro cross-requirement consistency analysis),
+    the false-confidence bound (arxiv 2602.00180: passing criteria demonstrate code-matches-spec,
+    never spec-matches-problem).
+
+    - **Declined (with reasons):** EARS/RFC-2119 as mandated notation (keyword format
+    = the deck''s founding defect class; judgment classes carry the substance); NEEDS
+    CLARIFICATION markers and reviewer checklist marker semantics (artifact/marker
+    machinery); constitution files and complexity-tracking tables (deck governance
+    owns this); fixed plan artifacts research/data-model/contracts (the declined 7-artifact
+    mandate restated); property-based testing, context-shaped modularity, delta-spec
+    stores, task-list reality sync, design-first-vs-requirements-first selection (technique
+    or lifecycle concerns outside criteria sets); revisability as a named class (implement
+    card''s mid-cycle gate already stops the cycle); spec-level decomposition and
+    /clarify interview (per-issue scoping and the explore card own these).
+
+    - Spec revised in place: SC-14/SC-15 added to .opencode#2601; provenance recorded
+    in its intent table.'
+  timestamp: '2026-10-14T02:48:19+00:00'
