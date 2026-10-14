@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 validate step, validation-standards reference; #2557 language/tool call out; pointer-resolution guarantee, .opencode#2597; producer-side self-check, .opencode#2601 -->
 
 # spec — specification creation and revision
 
@@ -45,13 +45,19 @@ provenance: AI-authored, .opencode#2490
    markers, comment-policy statements, or superseded-content pointers). No
    STATUS fields — the spec defines what is required, implemented or not.
 6. **Validate before approval.** A completed spec includes one fresh-context
-   validation dispatch executed before the developer approval gate: a reviewer
-   with no prior context on the spec reads it against
-    [the validation standards](references/validation-standards.md) and returns
-    PASS or FAIL. On FAIL, revise the named findings in place and re-validate;
-    the loop repeats until a verdict with zero findings, per the standards
-    reference's loop section. The approval gate is unchanged and follows
-    validation. Revising
+   validation dispatch executed before the developer approval gate. Before
+   dispatching, the writer applies
+   [the validation standards](references/validation-standards.md) to the
+   completed draft in their own context and remediates what they find — a
+   duty-of-care pass whose purpose is to spend the fresh-context dispatch on
+   judgment-level defects rather than mechanical-consistency ones. It is
+   hygiene, not a gate: it never replaces the dispatch, and a self-passed
+   verdict is no verdict. The dispatch itself is unchanged: a reviewer
+   with no prior context on the spec reads it against the same standards
+   and returns PASS or FAIL. On FAIL, revise the named findings in place
+   and re-validate; the loop repeats until a verdict with zero findings, per
+   the standards reference's loop section. The approval gate is unchanged
+   and follows validation. Revising
    an existing spec (this card's revision path) validates the revised spec
    against the same standards reference — one criteria source exists in the
    deck; an on-demand audit of a prior spec restates those criteria verbatim

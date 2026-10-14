@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step -->
+<!-- Provenance: AI-authored, .opencode#2490 (restructured from the pre-rip reference, tag pre-rip); #2557 build-verification row + language/toolchain row; submodule execution boundary, .opencode#2563; #2551 test-value gate at the RED step; test-quality rows, .opencode#2601 -->
 
 # Implementation Workflow Reference
 
@@ -32,10 +32,11 @@ evolves its CI on its own tracker.
 |------|-----|---------|
 | red | write or run the failing assertion; confirm it fails for the stated reason | the defect is demonstrated, not assumed |
 | test-value gate | the RED assertion targets application behavior — not source-content inspection of the agent's own files, not an environment/framework re-read tautology, not an assertion-shaped placeholder (implement card, Test value) | fabricated evidence never enters the chain |
+| test-quality gate | the item's tests cover the edge cases and error conditions relevant to the item's behavior; where the change crosses a module boundary at least one assertion crosses it; no assertion's expected value changes without the asserted behavior changing (implement card, Test value) | a green suite that never exercised the failure shapes or crossed the boundary is not evidence for the item |
 | green | minimal change that turns it green | no speculative additions |
 | post-regression | re-run the suite | nothing previously working broke |
 | verify-inline | the executed check's output is the evidence | never assert success without a run |
-| commit | stage the item's files; atomic, descriptive message | one item, one commit |
+| commit | stage the item's files; atomic, descriptive message | one item, one commit — the next item's RED follows this commit, never a later batch RED |
 
 ## Post-implementation
 
