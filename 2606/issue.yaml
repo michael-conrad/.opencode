@@ -25,8 +25,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
   → one re-review. Still failing → halt to the developer"* — description: *"no re-audit
   loops"*; routing: *"bounded loop"*.
 
-  - **`validation-standards.md` Loop section (the #2601 restoration) + `spec` card
-  §6:** *"The revise → re-validate cycle repeats until a verdict with zero findings"*
+  - **`validation-standards.md` Loop section (the #2575 item 2 restoration) + `spec`
+  card §6:** *"The revise → re-validate cycle repeats until a verdict with zero findings"*
   — escalation fires *"only when the audit cannot reach a zero-finding verdict by
   revision."*
 
@@ -44,10 +44,12 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
   **Root cause:** the rules entered the deck at different moments and were never reconciled
   — the one-re-review bound was authored by the #2490 re-rip itself (commit 28b0c238,
   2026-10-04, the commit that created the verify card; the pre-rip attic deck carries
-  no re-review bound); the repeat-until-zero Loop was (re)authored by the #2601 criteria-depth
-  restoration (2026-10-13), with the plan side carrying the same pre-amendment escalation
-  shape. #2597 explicitly deferred the dispatch-topology question, leaving the loop-count
-  conflict standing.
+  no re-review bound); the spec-side repeat-until-zero Loop was authored by the #2575
+  item 2 restoration (commit 65673de1, 2026-10-10, replacing the standards'' former
+  "Bounded loop" section) — the conflict''s birth: the cap came out of the standards
+  while the verify bound remained; the plan side''s `plan-validation-standards.md`
+  (a #2601 authorship, 2026-10-13) carries the same repeat-until-zero escalation shape.
+  #2597 explicitly deferred the dispatch-topology question, leaving the conflict standing.
 
 
   **Developer direction (2026-10-14):** the revise/re-audit loop needs to exist; it
@@ -95,5 +97,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2606/`](https://github.c
 
   '
 created_at: '2026-10-14T15:05:38+00:00'
-updated_at: '2026-10-14T15:54:10+00:00'
+updated_at: '2026-10-14T16:02:56+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2606
