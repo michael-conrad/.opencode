@@ -1,13 +1,13 @@
 ---
 name: gb-cli
-description: "Load before any command or code that contacts GitBucket — using the gb CLI, GitBucket API calls, or anything needing GitBucket credentials for issues, pull requests, releases, or repository operations. Also load when authoring or running test-harness scenarios, scripts, or automation that will invoke gb or GitBucket endpoints at runtime, and when any GitBucket operation fails or behaves unexpectedly. Authentication is built into gb; never hand-roll GitBucket API code or hunt for credentials."
+description: "Load before any command or code that contacts GitBucket — using the gb CLI, GitBucket API calls, or anything needing GitBucket credentials for issues, pull requests, releases, or repository operations. Also load when authoring or running test-harness scenarios, scripts, or automation that will invoke gb or GitBucket endpoints at runtime, and when any GitBucket operation fails or behaves unexpectedly. Authentication is built into gb; never hand-roll GitBucket API code or hunt for credentials. One load does not carry across operation classes: before your first GitBucket contact in a new class (issues ↔ pull requests ↔ API passthrough), load this card again — even though it is already in context."
 license: MIT
-provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589
+provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547 -->
 
 # gb-cli — GitBucket operations
 
@@ -21,6 +21,11 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589
    JSON payloads go via `--input <file|->`.
 3. **Construct carefully, inspect output.** Verify command shape; inspect real
    output rather than assuming success. `gb <cmd> --help` before guessing.
+   Before every gb contact, run the class check —
+   - last gb class contacted: issues / PRs / API / none
+   - class of the command about to run
+   - different class → load this card again first (one load does not carry
+     across classes).
 4. **Platform awareness.** GitBucket API differs from GitHub's — consult the
    gb help, not GitHub assumptions, when behavior surprises. Known gaps:
    plain-issue state mutation is absent from GitBucket's GitHub-compatible

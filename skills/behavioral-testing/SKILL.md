@@ -144,9 +144,23 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    finding. **When the DB is flat, distinguish generating from stalled by
    inference-load evidence — GPU utilization (`nvidia-smi`) and `ollama ps`:
    a busy GPU is generation in progress; an idle GPU with a flat DB is a
-   stall signal. The supervision loop stays inside the repository: no
-   system-journal or system-log reads (journalctl and the like) in recurring
-   polls.**
+   stall signal. **Layered hang diagnosis (`.opencode#2547`): a hang verdict
+   requires converging signals — session-DB flatness, WAL-growth stall, GPU
+   utilization, and the ollama service log (`journalctl -u ollama`) — never a
+   single one: a frozen WAL has a legitimate post-smoke steady state, and the
+   server log is the tiebreaker (active `n_gen`/task activity in
+   `journalctl -u ollama` means the run is generating regardless of
+   client-side flatness). A server restart or error in the service log during
+   a run marks the run environment-suspect: abort by PID, export, diagnose —
+   never blind retry. Read-only host checks (`journalctl -u ollama`,
+   `nvidia-smi`) are sanctioned per-poll supervision surfaces (developer
+   direction, 2026-10-14); no host-state mutation. Abort completeness: after
+   any run kill, enumerate survivors by recorded-PID descendants AND by
+   test-home environment (a command-line check misses env-only carriers —
+   observed orphan), kill them, and verify zero before proceeding. Orchestrated
+   SC-verification runs launch with `BEHAVIOR_SEMANTIC_MONITOR=1` so
+   determination records exist — unmonitored runs cannot resume through the
+   §10.7 path (SC-8 determination gate).**
    **Cadence and gap claims are computed, never estimated:** record the nested
    run's launch time and every poll time, and derive any cadence or gap
    statement from those recorded timestamps — an assertion of compliance (or a

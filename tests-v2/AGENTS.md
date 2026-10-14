@@ -1094,6 +1094,19 @@ Any behavioral SC verdict whose evidence comes from a monitored run MUST record 
 
 The harness's 30-60s monitor polling above covers the monitor loop; this mandate binds the AGENT supervisor — the agent watching a run (e.g., a long behavioral verification it launched) is NOT exempt from polling just because the harness monitor exists, and the harness monitor's existence does not substitute for the supervisor's own per-poll semantic checks and text-message updates. The owning surface for this mandate is the `behavioral-testing` skill card (its supervise-every-run rule); this section mirrors it for the harness-spec reader. A hung session under a supervisor that idled past the cycle without a semantic check and update is a CLEAR FAIL (SC-26, #2456), not an infrastructure excuse.
 
+### Layered Hang Diagnosis and Abort Completeness (.opencode#2547)
+
+Observed failures driving this subsection (2026-10-14, #2547 SC-4 verification): a frozen session-WAL was misread as a hang when it was the legitimate post-smoke steady state; an aborted run's orphaned processes (reparented to init, carrying the test home only in their environment) kept generating for 15+ minutes after a wrapper kill; and a mid-run ollama restart killed a generation stream whose client then waited indefinitely. The rules:
+
+| # | Rule |
+|---|------|
+| 1 | **A hang verdict requires converging signals — never a single one.** The per-poll stack: session-DB flatness (via `poll-run.sh`), WAL-growth delta, GPU utilization (`nvidia-smi`), and the ollama service log (`journalctl -u ollama`). A frozen WAL alone is NOT a hang verdict — the WAL has a legitimate post-smoke steady state before model dispatch, and opencode batches part persistence behind long generation turns. An instantaneous GPU 0% is sampling noise or a CPU/GPU-offload split, not proof of stall. |
+| 2 | **The server log is the tiebreaker.** `journalctl -u ollama` showing active generation (`slot print_timing ... n_gen` incrementing, task processing) means the run is generating regardless of client-side flatness — keep polling. Absent generation activity there, combined with a frozen WAL and a flat DB, is a hang: abort. |
+| 3 | **A server restart or error in the service log during a run marks the run environment-suspect.** Abort by PID, export the session DB, and record the diagnosis — never blind-retry into a server whose state changed under the run (a restarted/wedged ollama leaves the client waiting on a stream that will never advance; observed: generation frozen mid-turn at the second a new `ollama serve` instance came up). |
+| 4 | **Abort completeness — verify the whole tree is dead.** After any run kill, enumerate the run's surviving processes by recorded-PID descendants AND by test-home environment (the `HOME` env var of every process — a command-line-based check MISSES env-only carriers: an orphaned `opencode run` survives its wrapper with the test home visible only in its environment, observed 2026-10-14). Kill survivors; verify zero before proceeding. |
+| 5 | **Read-only host checks are sanctioned supervision surfaces.** `journalctl -u ollama` and `nvidia-smi` are mandated per-poll diagnostics for behavioral-run supervision (developer direction, 2026-10-14). They are read-only: no host-state mutation — host services are not the agent's to manage. |
+| 6 | **Orchestrated SC-verification runs launch with `BEHAVIOR_SEMANTIC_MONITOR=1`.** Unmonitored runs produce no determination record, and the §10.7 resumption path hard-blocks on the SC-8 determination gate — a hang in an unmonitored run is only recoverable via the §10.5 full re-run fallback (observed: a resume attempt refused with `determination.yaml not found`). |
+
 ---
 
 ## 15. Targeted Behavioral-Test Execution Mandate (Tier 1)
