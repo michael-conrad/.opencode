@@ -73,11 +73,14 @@ The reload rule itself is **intent-decidable**: what counts as a "new operation
 class" is judgment, and the description is consumed by agent judgment at
 dispatch time — no scripted enforcement exists or is admitted (static checks on
 intent are the deck's founding defect). The success criteria split accordingly:
-SC-1/SC-2/SC-3 and SC-5/SC-6/SC-7 are fact-decidable (readable text facts);
-SC-4 is behavioral (runtime evidence via the tests-v2 harness and its
+SC-1/SC-2/SC-3 and SC-5/SC-6/SC-7/SC-8 are fact-decidable (readable text
+facts); SC-4 is behavioral (runtime evidence via the tests-v2 harness and its
 clean-room evaluator, never a scripted pattern match over a transcript).
-SC-5–SC-7 amend agent-facing markdown: the reference-integrity check runs on
-both edited files before commit (SC-12 enforcement, #2489).
+SC-5–SC-8 amend agent-facing markdown: the reference-integrity check runs on
+every edited file before commit (SC-12 enforcement, #2489). SC-4's evidence
+chain: RED run (pre-change, VIOLATED) → first GREEN run (post-change,
+VIOLATED — revision 2's observed failure) → re-run after the revised
+implementation.
 
 ---
 
@@ -91,6 +94,30 @@ both edited files before commit (SC-12 enforcement, #2489).
   standards (agents undertrigger); no user-phrase matching; both abstraction
   levels preserved. No rule-body change, no `floor.md` change, no `routing.md`
   change.
+
+### Revision 2, 2026-10-14 — developer-directed: wording revision and card-body class-check after the GREEN run violated SC-4
+
+SC-4's first GREEN run (commit `d0449688`, deployment fact-checked) was
+clean-room-evaluated VIOLATED: one gb-cli load, then multiple PR↔issue class
+transitions with no reload — the description-only wording did not change
+behavior. Developer-directed re-analysis established two corrections:
+the original wording's "stays in force" lead clause is a deactivating signal
+to a checklist-minded agent and its "fresh trigger" phrasing describes the
+router rather than commanding the agent; and the reload mechanism is verified
+effective at the binary level (the skill tool re-injects the full card body
+on every load — no dedupe, no marker), so a reload is a genuine recency
+re-anchor at the decision point.
+
+- **C1 (revised) — reword the description additions and add a card-body
+  class-check to both cards.** Description (both cards, replacing the
+  revision-1 sentence): "One load does not carry across operation classes:
+  before your first GitBucket/GitHub contact in a new class (issues ↔ pull
+  requests ↔ API passthrough), load this card again — even though it is
+  already in context." Card body (both cards, inside the existing numbered
+  "Construct carefully" rule, no renumbering): a three-line class-check
+  checklist — last gb class contacted, class of the command about to run,
+  different class → load this card again first. No `floor.md` or `routing.md`
+  change. The pre-edit baseline clauses (SC-2) remain untouched.
 - **C2 — Record the governance decision in the deck-debt ledger
   (`.opencode#2534`).** One ledger entry following the ledger's entry format:
   the 2026-10-07 incident as the admission-gate observed failure, the decision
@@ -152,13 +179,14 @@ test-framework skill card. Observed failures (this session, GREEN attempts
 
 | ID | Criterion | Evidence type | Verification instrument |
 |----|-----------|---------------|-------------------------|
-| SC-1 | Both connector-card frontmatter descriptions (`skills/gb-cli/SKILL.md`, `skills/gh-cli/SKILL.md`) state the reload semantics: (a) once loaded the card remains in force for the rest of the session, and (b) a new operation class under the same utility is a fresh load trigger requiring reload before the first use of that class. | structural | Read both frontmatter descriptions; each states both semantics. |
+| SC-1 | Both connector-card frontmatter descriptions (`skills/gb-cli/SKILL.md`, `skills/gh-cli/SKILL.md`) state the reload semantics as an agent-addressed directive: one load does not carry across operation classes, and before the first contact in a new class (issues, PRs, API passthrough) the card is to be loaded again — even though it is already in context. The deactivating "stays in force" phrasing is absent. | structural | Read both frontmatter descriptions; each states the directive with the already-in-context clause, and neither contains "stays in force". |
 | SC-2 | The description edits are additive: every clause of the pre-edit text quoted under F2 remains present and unweakened post-edit in both files — the first-contact trigger with its operation enumeration, the gb-cli runtime-automation trigger, the failure-trigger clause, and the never-hand-roll / no-credential-hunting prohibitions. | structural | Read both post-edit descriptions; each pre-edit clause still present. |
 | SC-3 | The deck-debt ledger (`.opencode#2534`) carries an entry recording the 2026-10-07 incident as the observed failure, the reload-semantics decision, and a reference to `.opencode#2547`. | structural | Read the #2534 issue record (body and comments); an entry with those three elements is present. |
 | SC-4 | In a fresh behavioral session against the updated deck, an agent that has loaded gb-cli for one operation class loads gb-cli again before its first gb contact in a different operation class. | behavioral | tests-v2 harness scenario (`behavior_run`; GitBucket container per `BEHAVIOR_NEEDS_REMOTE`) reproducing the incident's transition shape — card-loaded PR segment, post-merge cleanup, then an issue-operation contact — with a real-domain task against the container repo; the clean-room evaluator reads `session.yaml` as the primary source (Skill-load event for gb-cli positioned between the class transition and the new class's first gb tool call) and returns the verdict per the behavioral-testing card. |
 | SC-5 | `tests-v2/AGENTS.md` documents the layered hang-diagnosis rule: a hang verdict requires converging signals (session-DB flatness, WAL-growth stall, GPU utilization, ollama service log via `journalctl -u ollama`), no single signal alone is a hang verdict, the server log is the tiebreaker, and a server restart/error during a run marks the run environment-suspect (abort, export, diagnose — never blind retry). | structural | Read §14 of `tests-v2/AGENTS.md`; the layered rule, the single-signal prohibition, and the environment-suspect handling are all stated. |
 | SC-6 | `tests-v2/AGENTS.md` documents abort completeness: after any run kill, the run's surviving processes are enumerated (recorded-PID descendants and test-home environment) and killed, with zero survivors verified before proceeding. | structural | Read §14 of `tests-v2/AGENTS.md`; the kill-tree verification step is stated. |
 | SC-7 | The behavioral-testing skill card's supervision rule states: the layered hang-diagnosis signals including `journalctl -u ollama` as the server-side tiebreaker (read-only host checks authorized for run supervision), the abort-completeness step, and the launch mandate that orchestrated SC-verification runs set `BEHAVIOR_SEMANTIC_MONITOR=1` for determination-record compliance. | structural | Read the behavioral-testing `SKILL.md` supervision rule; all three elements are stated and no other rule text is weakened. |
+| SC-8 | Both card bodies carry the class-check checklist inside their existing numbered "Construct carefully" rule (no rule renumbering): last class contacted, class of the command about to run, and different-class → load the card again first. | structural | Read both SKILL.md bodies; the three-line checklist is present in each, the rule numbering is unchanged, and no existing rule text is weakened. |
 
 ---
 
