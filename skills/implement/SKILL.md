@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound -->
+<!-- Provenance: AI-authored, .opencode#2490; #582 yaml-contract-format convention; #2550 SC-fidelity mandate; #2557 language/tool call out; #2551 consumables effort bound, fabricated-tests offender classes, narration-to-deliverable bound; test-quality + reverse drift, .opencode#2601 -->
 
 # implement — executing the work
 
@@ -18,7 +18,10 @@ provenance: AI-authored, .opencode#2490
    their cards (where cards exist), and load `programming-principles` for the
    engineering-principles layer — the load happens before the first code
    modification, not after the first defect.
-3. **Per item: RED → GREEN → verify → commit.**
+3. **Per item: RED → GREEN → verify → commit.** Each RED is confirmed
+   failing for the stated reason before its GREEN begins, and multi-item
+   work runs per-item cycles — never batch RED then batch GREEN, which
+   severs the failing state each GREEN is measured against.
    - RED: write or run the failing assertion; confirm it fails for the stated
      reason.
    - GREEN: the minimal change that turns it green — no speculative additions.
@@ -40,7 +43,15 @@ provenance: AI-authored, .opencode#2490
    instruction; never self-directed diligence.
 7. **Test value.** Tests assert behavior, are insensitive to internal
    structure, and cost less to write than the code under test warrants.
-   Never test an artifact the build system already guarantees. Offender
+   Never test an artifact the build system already guarantees. The tests
+   written for an item cover the edge cases and error conditions relevant
+   to that item's behavior — the failure shapes the item's own analysis
+   points at — and where the change crosses a module boundary, at least one
+   assertion crosses that boundary rather than testing both sides in
+   isolation. An assertion's expected value never changes without the
+   asserted behavior changing: a test edited to expect the new output while
+   the behavior it named did not change is a weakened assertion, not a
+   passing one. Offender
    classes — each reads as verification while asserting nothing the
    application owns: (a) source-content inspection of the agent's own files
    ("does this file contain this string"); (b) environment/framework re-read
@@ -58,9 +69,16 @@ provenance: AI-authored, .opencode#2490
    genuinely benefits; work inline when that is simply better. Dispatched work
    gets a clean-room prompt and a result back (YAML) — no chain theater.
 10. **SC fidelity.** Implementation satisfies each criterion as written — no
-   weakening, skipping, deferring, or reinterpreting a criterion to make it
-   passable. An unimplementable criterion produces BLOCKED with the root
-   cause; the criterion itself is never modified to admit the implementation.
+    weakening, skipping, deferring, or reinterpreting a criterion to make it
+    passable. Fidelity runs in both directions: the implementation adds no
+    deliverable the spec or plan does not state, leaves no spec-required
+    surface missing, and matches every interface contract the spec or plan
+    states as written — a signature, command shape, flag, or other declared
+    contract that is present but diverges from what was stated is a finding.
+    Drift in any direction is reported — BLOCKED or a reported defect —
+    never silently absorbed or silently added. An unimplementable criterion
+    produces BLOCKED with the root
+    cause; the criterion itself is never modified to admit the implementation.
 11. **Behavioral evidence goes through the harness.** Evidence for a behavioral
    SC is produced only by the `tests-v2` behavioral harness — load the
    `behavioral-testing` card first and read

@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; audit row, .opencode#2601 -->
 
 # Routing Index
 
@@ -16,6 +16,7 @@ not user phrasing — are the dispatch mechanism.
 | writing an implementation plan from an approved spec | `plan` |
 | executing an approved plan, or making any change during the implementation cycle | `implement` — loads the implementation-workflow reference first |
 | checking a deliverable against stated requirements before claiming completion | `verify` — single fresh-context reviewer, churn rule, bounded loop |
+| auditing an existing artifact on demand — a spec, plan, or deliverable re-checked against the criteria set its producing card owns | `verify`, with the owning card's criteria reference |
 | branching | `git-workflow-branch` |
 | committing / staging files | `git-workflow-commit` |
 | opening or updating a PR / preparing work for review | `git-workflow-pr` |

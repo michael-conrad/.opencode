@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out; route-to-repair clause, .opencode#2597 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2550 consume-validated-specs mandate; #2557 language/tool call out; route-to-repair clause, .opencode#2597; validation dispatch, .opencode#2601 -->
 
 # plan — implementation planning
 
@@ -35,7 +35,20 @@ provenance: AI-authored, .opencode#2490
    it to make it plannable. When the spec's local record is absent, the plan
    consumes it only after the `issues` card's mirror-repair — the route runs
    through that repair before the plan work proceeds.
-7. Plans wait for the developer's authorization before `implement` when the
+7. **Validate before implement.** On the full path, before `implement`
+   consumes the plan, the plan passes one validation dispatch: the writer
+   first applies
+   [the plan validation standards](references/plan-validation-standards.md)
+   to the completed draft in their own context and remediates what they
+   find — a duty-of-care pass that spends the fresh-context dispatch on
+   judgment-level defects rather than mechanical-consistency ones; it never
+   replaces the dispatch, and a self-passed verdict is no verdict. Then a
+   reviewer with no prior context on the plan reads it against the same
+   reference and returns PASS or FAIL. On FAIL, revise the named findings in
+   place and re-validate; the loop repeats until a zero-finding verdict, per
+   the reference's loop section. Short-path changes produce no plan and run
+   no dispatch.
+8. Plans wait for the developer's authorization before `implement` when the
    scope requires it; short-path changes execute directly under `work`. A
    terminal-stage approval (`approved for pr`, `approved for
    implementation`, …) from the vocabulary in `floor.md` carries the item
