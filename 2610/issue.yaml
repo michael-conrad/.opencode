@@ -3,6 +3,53 @@ status: open
 labels:
 - needs-approval
 - governance
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2610/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2610)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2610/` — spec, plan, research
+
+
+  ## Why
+
+
+  The deck-debt ledger was never developer-requested. It was agent-created (2026-10-07,
+  .opencode#2534) to satisfy the skill-creator card''s ledger mandate, filed as a
+  standing issue in the stakeholder-facing GitHub tracker — an artifact with no lifecycle
+  (open-forever by design), a misleading `needs-approval` label, and no work to summarize.
+  Developer rulings (2026-10-14): a ledger is a tracking tool, not tracked work; it
+  does not belong in the issues system; the mechanism was never asked for. .opencode#2534
+  is closed (not planned) at developer direction; its content is preserved in issue
+  history and the `issues-data` branch.
+
+
+  ## Final what
+
+
+  Remove every deck-debt-ledger mandate and reference from the active deck instruction
+  surfaces:
+
+
+  - `floor.md` — the deck-governance line stops listing the deck-debt ledger.
+
+  - `skills/skill-creator/SKILL.md` — frontmatter description drops the ledger; the
+  "Deck-debt ledger" section is deleted; the retirement-gate evidence sentence rests
+  on deep history (git history) alone.
+
+  - Post-condition: zero ledger references in the active deck; no deck instruction
+  surface directs agents to create, maintain, or record entries in any ledger artifact.
+
+
+  Out of scope: `attic/` (preserved retired content), closed-issue history and the
+  `issues-data` branch (preserved evidence), and any replacement ledger or successor
+  tracking mechanism.
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
 created_at: '2026-10-14T21:16:32+00:00'
-updated_at: '2026-10-14T21:16:32+00:00'
+updated_at: '2026-10-14T21:17:03+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2610
