@@ -1,1 +1,23 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict 2026-10-14: validator-side, not card-side. skildeck-validate
+    (tools/impl/skildeck/skildeck-validate) enforces the pre-rip deck''s per-card
+    ''## Trigger Dispatch Table'' standard (4 columns: User says / Context, Task,
+    Dispatch, Context passed). Evidence chain: (1) validator added 2026-06-15 (#1213,
+    c6539d82) when 39 pre-rip cards carried the table — verified via git grep at that
+    commit; (2) #2490 stage 1 (6dbac1ae) attic''d the old deck and installed the current
+    deck — zero cards carry the heading at HEAD; (3) #2490 stage 4a (08112303, 2026-10-04)
+    aligned skildeck with the new deck by removing dispatch-format rules from skildeck-lint
+    but never touched skildeck-validate — sole commit in its history is its creation;
+    (4) #2587 (b110a6c9, 2026-10-12) retired skildeck''s symbolic-processing half
+    and validate survived as the last stale instrument; (5) validate is invoked nowhere
+    automatically (no CI/hook/test reference) — fires only on manual run, which is
+    how #2551 prep hit it. Verdict: cards conform to the current deck standard (routing.md
+    centralizes dispatch; platform descriptions carry per-card dispatch); the validator''s
+    expectation is stale. Re-adopting per-card TDTs would re-create #2490-retired
+    machinery and require deck governance. Recommended fix: retire the validate action
+    (dispatcher entry + script), consistent with stage-4a alignment intent and the
+    #2587 retirement pattern; repurposing it adds nothing skildeck-lint does not already
+    check. The issue stays open as the fix vehicle; implementation requires the usual
+    pipeline.'
+  timestamp: '2026-10-14T02:59:54+00:00'
