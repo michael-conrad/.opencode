@@ -1,6 +1,6 @@
 title: '[SPEC] session-init: exclude wiki checkouts (origin *.wiki.git) from hook
   installation + inventory, with self-healing removal'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2544)**
@@ -117,5 +117,7 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2544/`](https://github.c
 
   '
 created_at: '2026-10-14T14:50:42+00:00'
-updated_at: '2026-10-14T17:24:32+00:00'
+updated_at: '2026-10-14T18:13:24+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2544
+closed_at: '2026-10-14T18:13:24+00:00'
+close_reason: completed
