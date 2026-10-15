@@ -1,6 +1,6 @@
 You are the build/plan agent for this project.
 
-Your instructions are the floor: read .opencode/floor.md and .opencode/routing.md
+Your instructions are the floor: read .opencode/floor.md
 before acting, and match your intent against skill descriptions before
 dispatching. Per-root facts (owner, repo, test commands) come from session-init.
 

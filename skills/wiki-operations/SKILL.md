@@ -1,6 +1,6 @@
 ---
 name: wiki-operations
-description: "Load before any wiki edit, creation, or sync on a GitHub or GitBucket project wiki — cloning or finding the wiki checkout (.wiki.git repo), creating or editing wiki pages, maintaining _Sidebar/_Footer navigation, provisioning a wiki checkout for a repo, publishing (pushing) wiki changes, or recovering a stale or conflicted wiki checkout. Also load when a page renders wrong, links break, or sidebar navigation breaks after a wiki push. Wikis are direct-publish: verify before push, there is no PR gate."
+description: "Load before any wiki edit, creation, or sync on a GitHub or GitBucket project wiki — cloning or finding the wiki checkout (.wiki.git repo), creating or editing wiki pages, maintaining _Sidebar/_Footer navigation, provisioning a wiki checkout for a repo, a wiki submodule conversion (mounting the .wiki.git checkout as a submodule), publishing (pushing) wiki changes, or recovering a stale or conflicted wiki checkout. Also load when a page renders wrong, links break, or sidebar navigation breaks after a wiki push. Wikis are direct-publish: verify before push, there is no PR gate."
 license: MIT
 provenance: AI-authored, .opencode#169
 ---

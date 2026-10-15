@@ -5,7 +5,7 @@
 # Agent Floor
 
 This file is the entire always-injected instruction surface. Everything else is
-loaded on demand: match your current intent against `.opencode/routing.md` and
+loaded on demand: match your current intent against
 the skill descriptions the platform presents, then load only what matches.
 
 ## Identity
@@ -102,8 +102,8 @@ are merged by the developer, never by the agent.
 
 ## Deck governance
 
-Creating or editing anything under `skills/`, `guidelines/`, this floor, or the
-routing index goes through the deck-governance card — admission gate, retirement
+Creating or editing anything under `skills/`, `guidelines/`, or this floor goes
+through the deck-governance card — admission gate, retirement
 gate, vendor-card boundary. This line is a deliberate floor
 exception, evidence-backed (~27,700 historically ungoverned deck edits).
 

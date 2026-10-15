@@ -1,6 +1,6 @@
 ---
 name: programming-principles
-description: "Load when designing or writing code — before creating a module, service, or abstraction; choosing between alternative approaches; deciding whether to reuse, extend, or replace existing code; or when reviewing code — and whenever industry-standard engineering expectations come into question: versioning discipline, compatibility and deprecation, how code is structured and evolved. Owns the working design principles, the cross-language dependency-injection mandate, and general programming practices; language-specific conventions belong to the language cards."
+description: "Load when designing or writing code — before creating a module, service, or abstraction; choosing between alternative approaches; deciding whether to reuse, extend, or replace existing code; or when reviewing or auditing code — and whenever industry-standard engineering expectations come into question: versioning discipline, compatibility and deprecation, how code is structured and evolved. Owns the working design principles, the cross-language dependency-injection mandate, and general programming practices; language-specific conventions belong to the language cards."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
