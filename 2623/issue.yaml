@@ -22,22 +22,31 @@ body: '## Problem
 
 
   - **R-1** `_remote_browser_base` SHALL parse `ssh://[user@]host[:port]/owner/repo(.git)`
-  and `git+ssh://` origin forms, preserving the existing scp-style and https behavior.
+  and `git+ssh://` origin forms — user, port, and `.git` suffix each optional — preserving
+  the existing scp-style and https behavior for origins with no applicable mapping
+  entry.
 
   - **R-2** The tool SHALL consume a committed, versioned host-mapping configuration
-  — shipped with the tool in the deck repo — mapping ssh `host[:port]` to a browser
-  base; a matching entry overrides derived conversion (family entry: `tomcat-0002.newsrx.com:29418`
-  → `https://gitbucket.newsrx.com/gitbucket`).
+  — shipped with the tool in the deck repo — mapping a hostname to a browser base.
+  The mapping is scheme-independent: any origin (ssh://, git+ssh://, scp-form, https)
+  whose hostname matches an entry resolves to the mapped base; the family entry `tomcat-0002.newsrx.com:29418`
+  → `https://gitbucket.newsrx.com/gitbucket` covers all family origins regardless
+  of form or port.
 
-  - **R-3** An ssh origin whose host has no mapping entry SHALL fall back to same-host
-  conversion (`https://host/owner/repo`).
+  - **R-3** An origin whose hostname has no mapping entry SHALL behave as the tool
+  does today: scp-style and https origins derive same-host https; ssh:// origins fall
+  back to same-host `https://host/owner/repo`.
 
   - **R-4** The no-origin and unparseable-URL error paths SHALL be preserved (exit
   1, `error: no usable origin remote`).
 
-  - **R-5** Every scheme × mapping case SHALL carry a unit test: scp-style, https,
-  ssh with port mapped, ssh unmapped, git+ssh, ssh with user, `.git` suffix present
-  and absent, no-origin error.
+  - **R-5** A present-but-unparseable mapping config file SHALL NOT crash the command:
+  stderr warning naming the path and error class (the tool''s existing warn-and-skip
+  pattern), then pure derived conversion.
+
+  - **R-6** Unit tests SHALL cover the full scheme × mapping matrix — mapped family
+  host (all origin forms), unmapped ssh/scp/https, git+ssh, userless/portless/`.git`-absent
+  variants, config absent/present-unmapped/corrupt, no-origin error.
 
 
   ## Scope
@@ -113,5 +122,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-15T16:06:55+00:00'
-updated_at: '2026-10-15T16:06:58+00:00'
+updated_at: '2026-10-15T16:37:11+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2623
