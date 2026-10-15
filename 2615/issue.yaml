@@ -6,6 +6,8 @@ labels:
 - spec
 body: ''
 created_at: '2026-10-15T02:46:53+00:00'
-updated_at: '2026-10-15T03:33:19+00:00'
+updated_at: '2026-10-15T03:33:20+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2615
 remote_url: https://github.com/michael-conrad/.opencode/issues/2615
+closed_at: '2026-10-15T03:33:20+00:00'
+close_reason: completed
