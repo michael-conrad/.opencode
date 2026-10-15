@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615 -->
 
 # git-workflow-pr
 
@@ -60,8 +60,33 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
    the parent's composed checkout: the clean-room gate clones the parent
    repository and resolves every submodule through the parent's recorded
    pointers (the release-promoter card owns the gate mechanics).
-4. **Body.** Executive summary of what changed and why; the executed-test
-   evidence (real output, not assertions); linked issue; provenance pointers.
+4. **Body.** A fixed contract — closing lines at the top, then the sections
+   below; no other sections are added (release PR bodies follow the release
+   composition the `release-promoter` card states).
+   - **Closing lines (body top).** Uniform keyword `Closes` — same-repo
+     `Closes #N`, cross-repo `Closes owner/repo#N`. `Refs #N` for references
+     that must not auto-close. Prohibited: a bare `#N` with no keyword, and
+     the deck-qualified `repo#N` form in a closing-keyword position —
+     neither closes anything. Closing keywords auto-close the remote issue
+     at default-branch merge on platforms that support it: GitHub confirmed
+     for both forms; GitBucket has no closing-keyword auto-close — cleanup
+     performs closure there. Cleanup verifies and syncs from the closure
+     state the keywords produced.
+   - `## Summary` (required) — 2–4 sentences, executive voice, sourced from
+     the authorizing spec/issue intent; implementation-detail narration is
+     the defect form.
+   - `## Changes` (optional) — short bullets; omitted for single-purpose PRs.
+   - `## Evidence` (required) — real executed output: test results with
+     actual numbers, the fresh-context verify verdict, structural gate
+     results. Assertions in place of output are not accepted.
+   - `## Submodule bump` — required exactly when the PR carries pointer
+     bumps, omitted otherwise. Per bump: the old→new SHA, the submodule
+     PRs/issues it delivers (one line each), and the effect on the project.
+   - `## Provenance` — spec path, verify record; byline footer.
+   - **Anti-bloat:** no attestation boilerplate, no evidence-taxonomy
+     tables, no artifact-chain output. A normal body fits ~30 lines;
+     longer requires justification (release PRs exempt as
+     changelog-bearing).
 5. **Create via the platform CLI** (`gh pr create` / `gb` equivalent) —
    authenticated tooling, never raw API calls.
 6. **HALT after creation.** PR merge is a human gate. Notify and stop; update
