@@ -83,12 +83,21 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    deliver the analysis in chat (the poll script prints it); (2) the very next
    message is the text-only update — the analysis and NO tool call.** The reminder block in the poll
    output is the trigger; never chain another tool call before delivering the
-   update. **The 60-second cycle is absolute — no longer sleeps (240s/300s+)
-   between polls, ever (observed defect, #2570). Never pipe, grep, head, tail,
-   or otherwise filter or truncate the poll output — the trailing reminder is
-   the update trigger, and filtering it out silently suppresses the update
-   turn (observed defect, #2570: a `grep | head` poll invocation dropped the
-   reminder and produced a run of bare bash calls with zero in-chat updates).**
+    update. **The 60-second cycle is absolute — no longer sleeps (240s/300s+)
+    between polls, ever (observed defect, #2570). Never pipe, grep, head, tail,
+    or otherwise filter or truncate the poll output — the trailing reminder is
+    the update trigger, and filtering it out silently suppresses the update
+    turn (observed defect, #2570: a `grep | head` poll invocation dropped the
+    reminder and produced a run of bare bash calls with zero in-chat updates).**
+    **The mandate binds any actively supervised long-running operation — model
+    runs AND background jobs (reindex, export, migration) the agent is watching
+    in a working turn (observed defect, #2619: a reindex was policed at
+    escalating 90–270s intervals with updates riding in tool outputs).** The
+    60-second interval is a **ceiling, not a target** — it never escalates while
+    the supervised operation is pending. The per-poll in-chat update is
+    **unconditional**: a poll with no new evidence still delivers its update —
+    "no change" stated plainly is the update (the developer cannot read tool
+    outputs or agent reasoning; an unreported interval is invisible time).
    **Never kill by name pattern.** Run cleanup and abort kill only the PIDs the
    agent itself launched — record the PID at launch and re-verify survivors by
    PID (`kill -9 <pid>`, `ps -p <pid>`), never by a name match. A pattern kill
