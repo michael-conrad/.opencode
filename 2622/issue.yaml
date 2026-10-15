@@ -3,6 +3,169 @@ title: 'Deck: restore remote-body format, blockquoted artifacts link, and {N}/ r
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Problem
+
+
+  The active deck''s `spec` and `issues` cards do not mandate (a) the remote-API issue-body
+  format, (b) the blockquoted artifacts link, or (c) the local `{N}/` record set.
+  An agent dispatch following the routed cards verbatim files a thin "## Why / ##
+  What" remote body; two such filings were judged "not a proper remote spec" by the
+  owner in a single session (NewsRxUI#64, ProcessFinishedNotify#36 — 2026-10-15).
+  Root cause, diagnosed in #2620: the deck rip dropped `issue-operations-core`''s
+  remote-body/blockquote/folder mandates without translating them into the replacement
+  cards, which instead carry a weaker, contradicting "detailed exec summary" rule.
+  A second, related defect: the one in-deck mechanic for the required link (`local-issues
+  url --artifacts`) fails on ssh:// origins — that tool defect is carved out to a
+  separate spec (cross-referenced below).
+
+
+  ## Developer doctrine (this session, 2026-10-15)
+
+
+  - The remote body is a **fuller but still exec-summary-style spec** — self-sufficient
+  so the developer can understand and judge the spec without hunting down the local
+  full spec — while the full agent-ingest detail (exhaustive traceability, edge cases,
+  evidence) stays local-authoritative in the issues-data store. The remote body is
+  not a two-line pointer, and it is not a mirror of the full spec.
+
+  - Operational format requirements belong in the **deck**, not in workspace documentation:
+  the blockquote-URL convention currently stranded in `.opencode/.issues/AGENTS.md`
+  (and its `.issues/AGENTS.md` mirror) is misplaced deck verbiage and is relocated
+  by this change. Workspace guides are reduced to layout/tooling description.
+
+  - The mandate''s trigger is **any remote issue that has a matching issues-data branch
+  folder** (`{N}/`) — fact-decidable, no issue-type taxonomy. Issues filed first gain
+  the mandate at reconciliation, when their folder comes to exist.
+
+
+  ## Requirements
+
+
+  - **R-1** The deck SHALL contain exactly one shared reference defining the remote-API
+  issue-body format for folder-backed issues — mandatory sections, section content
+  standards, and the sizing rule (self-sufficient for developer judgment; full detail
+  stays local) — replacing the independent "detailed exec summary" rules in both `spec/SKILL.md`
+  and `issues/SKILL.md` with pointers to it.
+
+  - **R-2** The shared reference SHALL state the trigger rule: the body-format and
+  blockquote mandates bind to every remote issue with a matching issues-data `{N}/`
+  folder.
+
+  - **R-3** The shared reference SHALL require the closing blockquoted artifacts link
+  (`> Full spec and plan artifacts: <url>`), built via `local-issues url --number
+  repo#N --artifacts`, present in the remote body at filing and reconciled on every
+  remote-body edit.
+
+  - **R-4** The shared reference SHALL require the local `{N}/` record set — `spec.md`
+  plus the tool-managed record files (`issue.yaml`, `comments.yaml`, `links.yaml`)
+  and artifact subdirectories — consistent with `local-issues-cli.md` store semantics.
+
+  - **R-5** The shared reference SHALL define the mandatory remote-body section set
+  for a spec filing: Problem, Scope (success criteria classified behavioral/structural,
+  each with a verification instrument), Out of scope, Requirements (R-x SHALL statements),
+  Approach, Impact, and a success-criteria table; plan-shaped sections (Items RED/GREEN,
+  Dependencies, Traceability, Enforcement Gate, Edge Cases, Not Included) are required
+  once a plan exists.
+
+  - **R-6** `.opencode/.issues/AGENTS.md` and `.issues/AGENTS.md` SHALL no longer
+  carry operational body-format/link requirements; they SHALL describe store layout
+  and tooling and point to the deck-owned reference for format rules.
+
+  - **R-7** The change SHALL satisfy the skill-creator admission gate: admission evidence
+  (the #2620 defect record, the NewsRxUI#64 / ProcessFinishedNotify#36 verdicts, the
+  stranded guide verbiage) accompanies the edit through deck governance; the attic
+  stays preserved-but-unloaded (no attic restoration — translation, not resurrection).
+
+
+  ## Scope
+
+
+  | ID | Class | Criterion | Instrument |
+
+  |----|-------|-----------|------------|
+
+  | SC-1 | structural | The active deck contains one shared remote-body-format reference
+  under `skills/spec/references/` defining the R-1 sizing rule and the R-5 section
+  set. | File inspection: read the reference; each mandatory section and the sizing
+  rule appear. |
+
+  | SC-2 | structural | `spec/SKILL.md` and `issues/SKILL.md` carry no independent
+  body-format rule; each cites the shared reference at the point the old rule occupied.
+  | `grep -rn "exec summary" .opencode/skills/` returns no body-format rule outside
+  the reference; both cards contain the pointer. |
+
+  | SC-3 | structural | The reference states the folder-trigger rule (R-2) verbatim
+  enough that an issue without a `{N}/` folder is out of scope. | Read the reference.
+  |
+
+  | SC-4 | structural | The reference states the closing-blockquote requirement and
+  the reconcile-on-edit rule (R-3), naming `local-issues url --number repo#N --artifacts`
+  as the build mechanic. | Read the reference. |
+
+  | SC-5 | structural | The reference states the `{N}/` record set (R-4). | Read the
+  reference. |
+
+  | SC-6 | structural | Neither workspace guide carries operational format requirements
+  (R-6). | Read `.opencode/.issues/AGENTS.md` and `.issues/AGENTS.md`: no mandatory
+  body sections, blockquote patterns, or link rules remain; a pointer to the deck
+  reference exists. |
+
+  | SC-7 | structural | The deck edit''s admission evidence travels with it per the
+  skill-creator gate (R-7). | Read the skill-creator-gated PR/diff: evidence sections
+  present. |
+
+  | SC-8 | behavioral | A fresh-session agent routing `spec`/`issues` by description,
+  filing a folder-backed issue, composes a remote body containing all R-5 mandatory
+  sections and the closing blockquote. | Behavioral session test (tests-v2 harness):
+  file a spec-issue flow end to end and inspect the produced remote body. |
+
+
+  ## Out of scope
+
+
+  - The `local-issues` URL-builder fix for ssh:// origins and per-host browser-base
+  mapping — separate spec, filed alongside this one (same source: #2620''s second
+  defect).
+
+  - Any change to store-primaryity: `.issues/{N}/spec.md` stays the authoritative
+  full spec; the remote body stays a structured summary.
+
+  - Retiring or loading the attic (`attic/` stays preserved per `.opencode/AGENTS.md`).
+
+  - Changing `plan-validation-standards.md` or the validation-standards criteria set
+  (deck governance on those files is out of this change''s authorization).
+
+
+  ## Approach
+
+
+  Author the shared reference translating the three mandates (body format, blockquote
+  link, record set) from the #2620 diagnosis and family precedent; replace the two
+  card rules with pointers; strip the workspace guides'' operational verbiage into
+  the deck reference; run the edit through skill-creator deck governance.
+
+
+  ## Impact
+
+
+  - Consumers: every future spec/issue filing on any family root using this deck;
+  the `spec`, `issues` cards; both workspace guides.
+
+  - Risk: card description changes alter routing matches — kept to rule-replacement
+  in place, not description rewrites.
+
+  - No runtime code changes in this spec; the behavioral SC-8 depends on the companion
+  tool spec only for the link-building mechanic (`url --artifacts`), which the reference
+  may build manually (platform-URL derivation per repo facts) until the tool fix lands.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2622/
+
+
+  🤖 OpenCode session evidence: filed from a real opencode session (model id: huggingface/zai-org/GLM-5.3-Flash),
+  2026-10-15.
+
+  '
 created_at: '2026-10-15T16:06:54+00:00'
-updated_at: '2026-10-15T16:06:54+00:00'
+updated_at: '2026-10-15T16:06:57+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2622
