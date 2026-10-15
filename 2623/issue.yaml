@@ -3,6 +3,115 @@ title: 'local-issues: parse ssh:// origins and support per-host browser-base map
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Problem
+
+
+  `local-issues url --number repo#N --artifacts` fails family-wide with `error: no
+  usable origin remote for repo ''<name>''`. The tool''s `_remote_browser_base` (`.opencode/tools/local-issues`,
+  ~line 1779) parses only two origin shapes — scp-style `git@host:owner/repo.git`
+  and `https://` — while every family origin is the `ssh://git@host:port/owner/repo.git`
+  form. Second, independently: a generic ssh→https conversion is insufficient for
+  the family, because the ssh host and the web host differ (`ssh://git@tomcat-0002.newsrx.com:29418/NewSRX-Tech-LLC/<repo>.git`
+  → web face `https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/<repo>`) and
+  the mapping is not derivable from the URL alone. This is the second defect recorded
+  in #2620: the deck''s mandated blockquoted artifacts link cannot be built with the
+  documented tool on any family root.
+
+
+  ## Requirements
+
+
+  - **R-1** `_remote_browser_base` SHALL parse `ssh://[user@]host[:port]/owner/repo(.git)`
+  and `git+ssh://` origin forms, preserving the existing scp-style and https behavior.
+
+  - **R-2** The tool SHALL consume a committed, versioned host-mapping configuration
+  — shipped with the tool in the deck repo — mapping ssh `host[:port]` to a browser
+  base; a matching entry overrides derived conversion (family entry: `tomcat-0002.newsrx.com:29418`
+  → `https://gitbucket.newsrx.com/gitbucket`).
+
+  - **R-3** An ssh origin whose host has no mapping entry SHALL fall back to same-host
+  conversion (`https://host/owner/repo`).
+
+  - **R-4** The no-origin and unparseable-URL error paths SHALL be preserved (exit
+  1, `error: no usable origin remote`).
+
+  - **R-5** Every scheme × mapping case SHALL carry a unit test: scp-style, https,
+  ssh with port mapped, ssh unmapped, git+ssh, ssh with user, `.git` suffix present
+  and absent, no-origin error.
+
+
+  ## Scope
+
+
+  | ID | Class | Criterion | Instrument |
+
+  |----|-------|-----------|------------|
+
+  | SC-1 | behavioral | `local-issues url --number repo#N` and `--artifacts` succeed
+  on a repo whose origin is `ssh://git@tomcat-0002.newsrx.com:29418/NewSRX-Tech-LLC/<repo>.git`,
+  emitting `https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/<repo>` and `.../<repo>/tree/issues-data/<N>/`.
+  | Executed unit test output (fixture repo with that origin). |
+
+  | SC-2 | behavioral | Unmapped ssh origin emits the same-host https base. | Executed
+  unit test output. |
+
+  | SC-3 | behavioral | scp-style (`git@github.com:owner/repo.git`) and https origins
+  emit unchanged results versus current behavior. | Executed unit test output diffed
+  against current known outputs. |
+
+  | SC-4 | behavioral | git+ssh origins parse. | Executed unit test output. |
+
+  | SC-5 | behavioral | Missing origin / unparseable URL still exit 1 with the current
+  error text. | Executed unit test output. |
+
+  | SC-6 | structural | The host-mapping configuration is committed and versioned
+  with the tool, documented in `local-issues-cli.md`, and read by `_remote_browser_base`.
+  | File inspection + grep. |
+
+  | SC-7 | behavioral | Mapping entry wins over derived conversion for a host where
+  both would produce a base. | Executed unit test output. |
+
+
+  ## Out of scope
+
+
+  - The deck body-format/blockquote mandates (companion spec, same source #2620) —
+  this spec only makes the documented mechanic work.
+
+  - Non-`url` subcommands'' remote handling (push/fetch auth stays as-is).
+
+  - Credential handling of any kind.
+
+
+  ## Approach
+
+
+  Extend the regex set in `_remote_browser_base` with ssh:// and git+ssh:// forms;
+  add a committed host-mapping config file beside the tool, loaded at parse time;
+  mapping match → override, else same-host https fallback; tests for the R-5 matrix.
+
+
+  ## Impact
+
+
+  - Consumers: `url`, and every deck rule or agent flow that builds the artifacts
+  blockquote with `url --artifacts`; family repos with ssh origins gain a working
+  link builder.
+
+  - Risk: low — additive parsing plus config lookup; existing parse shapes are regression-protected
+  by SC-3/SC-5.
+
+  - Cross-repo note: the mapping config lives in the deck repo and therefore ships
+  to every family mount with the deck.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2623/
+
+
+  🤖 OpenCode session evidence: filed from a real opencode session (model id: huggingface/zai-org/GLM-5.3-Flash),
+  2026-10-15.
+
+  '
 created_at: '2026-10-15T16:06:55+00:00'
-updated_at: '2026-10-15T16:06:55+00:00'
+updated_at: '2026-10-15T16:06:58+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2623
