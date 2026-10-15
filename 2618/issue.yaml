@@ -5,6 +5,76 @@ labels:
 - needs-approval
 - spec
 - spec-draft
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2618/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2618)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2618/` — implementation plan, card catalogue,
+  dependency contracts, research, designs, audit findings
+
+
+  ## Why
+
+
+  The live skill deck has no encounter-side rule for deprecations: every `deprecat*`
+  match in the live deck is authoring-side or a factual note (10 matches across 4
+  files, grep 2026-10-15) — nothing tells an agent what to do when it *meets* a deprecated
+  API, config key, or wire format mid-work. New code gets written against deprecated
+  surface and existing reliance accrues invisibly until it breaks. Predecessor .opencode#2458
+  identified the same gap but targeted retired old-deck machinery (closed-moot locally;
+  remote still open).
+
+
+  ## Final what
+
+
+  A Deprecation Encounter Protocol, shaped by developer exploration (2026-10-15):
+
+
+  - **Bright line:** new code is never developed against deprecated surface.
+
+  - **In-passing swap:** migrating a drop-in replacement inside already-rewritten
+  code is compliance, not scope expansion.
+
+  - **Unrouteable encounters** (load-bearing, no way around): the agent adjusts the
+  current spec with a temporary-use exception carve-out cross-referencing the owning
+  `[BITROT]` ticket and escalates with the proposed text; the deprecation-touching
+  portion pauses, the rest proceeds; plan approvals stay intact.
+
+  - **Everything else:** a light `[BITROT]` initial spec filed via sub-agent — search-before-POST
+  dedup, witnessed evidence cited, proximity/mechanical-ness metadata, triage-and-promote
+  path to a full spec.
+
+  - **Not-in-use observations are ticketed too** — cross-project usage is unknowable
+  from one repo; tickets trigger doc corrections when the real picture is known.
+
+  - **Evidence-based trigger only:** deprecation must be witnessed in the current
+  environment (annotations, doc notices, changelogs, compiler/linter warnings, live
+  research with sources); training data and agent memory are never trigger-grade;
+  developer-supplied knowledge enters tickets as information.
+
+  - **Code-facing scope only** — deck-internal staleness stays with `reference-currency`.
+
+
+  **Delivery:** progressive disclosure — one canonical protocol document (`guidelines/deprecation-encounter-protocol.md`)
+  plus compact domain-appropriate slices in seven cards (implement, programming-principles,
+  research, systematic-debugging, spec, plan, work), Read-linked to the canonical
+  doc. `floor.md` and `routing.md` untouched; copies differ by design, so drift control
+  is link integrity (`reference-integrity`), not byte-equality.
+
+
+  **Enforcement:** placement string evidence (doc, slices, link integrity, untouched
+  surfaces, `skildeck lint`) plus ONE behavioral pickup check (clean-room run evidencing
+  directive registration); no multi-scenario matrix — production usage and developer-reported
+  bugs are the living test.
+
+
+  **Scope:** 6 items — canonical doc, seven card slices, link integrity, untouched-surface
+  verification, validator run, pickup scenario.
+
+  '
 created_at: '2026-10-15T04:10:44+00:00'
-updated_at: '2026-10-15T04:10:44+00:00'
+updated_at: '2026-10-15T04:11:46+00:00'
+github_url: 'true'
