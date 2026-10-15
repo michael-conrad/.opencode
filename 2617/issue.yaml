@@ -4,6 +4,69 @@ status: open
 labels:
 - needs-approval
 - spec
-body: ''
+body: '> **Full spec and artifacts: [`.opencode/.issues/2617/`](https://github.com/michael-conrad/.opencode/tree/issues-data/2617)**
+  — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data`
+  branch.
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/2617/` — spec
+
+
+  ## Why
+
+
+  `routing.md` (27 dispatch rows + card-origins footer) is an always-injected manual
+  dispatch table duplicating the dispatch trigger surface the platform already presents
+  through skill card descriptions: 26 of the 27 rows restate a card description''s
+  opening clause — several verbatim — and the deck''s own governance card (`skill-creator`)
+  already declares *"Descriptions are the router."* The duplicate surface is a standing
+  drift hazard, with drift already demonstrated: the table references a **vendor hf
+  card that does not exist in the deck**, maps **"notebooks" to a connector card that
+  does not exist** (notebook dispatch is carried by floor''s external-access table),
+  and hand-waves *"the matching release-trio card"* without naming cards; every description
+  revision creates a second update point that must be manually kept in sync. Four
+  cards (`java`, `python`, `gradle`, `godot`) already dispatch description-only with
+  no routing row — the description mechanism demonstrably works without the table.
+  The table costs ~527 words in every session on two surfaces (`opencode.jsonc` instructions
+  + `prompts/default.txt`).
+
+
+  **Developer ruling (2026-10-15):** routing is supposed to be handled by skill card
+  descriptions, not by a manual dispatch table; *"the table is a danger."*
+
+
+  ## Final what
+
+
+  `routing.md` is deleted from the deck and every reference to it is conformed — `opencode.jsonc`
+  instructions array, `prompts/default.txt`, `floor.md` (description-matching directive
+  + deck-governance line), both `AGENTS.md` pointers (submodule and parent), and `skill-creator`
+  (frontmatter description file list + the admission gate''s "a routing entry" mechanism
+  vocabulary). The parent-repo `AGENTS.md` conformance rides with the submodule pointer
+  bump in the same parent commit (pointer-only commits prohibited).
+
+
+  Before the removal lands, a **coverage audit** maps every row of the pre-removal
+  table to its post-removal dispatch surface (card description and/or floor content)
+  so no intent that used to dispatch loses its dispatch surface — no lobotomization.
+  Preliminary analysis (2026-10-15): 25 of 27 rows fully description/floor-covered
+  today; the on-demand-audit row is a description-remediation candidate (`verify`''s
+  description lacks an explicit audit trigger; the audit semantics live in floor''s
+  authorization vocabulary); the hf reference is a dead row removed with the table
+  (no card exists — nothing is owed); the card-origins footer needs no relocation
+  (`skill-creator` §Vendor-card boundary already carries the taxonomy verbatim). The
+  audit re-verifies the map fresh, remediates under-triggering descriptions through
+  skill-creator governance, and gates the removal on **zero uncovered rows**. A scripted
+  rows→descriptions keyword match is prohibited — the coverage judgment is intent-decidable;
+  scripts verify only mechanical facts (file absence, reference grep).
+
+
+  All deck edits go through the skill-creator admission gate; this item is developer-directed
+  (carve-out applies; the gate''s content standards bind). The retirement decision
+  is recorded in the deck-debt ledger (#2534).
+
+  '
 created_at: '2026-10-15T04:04:24+00:00'
-updated_at: '2026-10-15T04:04:24+00:00'
+updated_at: '2026-10-15T04:04:41+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2617
