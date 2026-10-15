@@ -1,6 +1,6 @@
 ---
 name: skill-creator
-description: "Load before creating or editing ANY file under skills/, guidelines/, floor.md, or routing.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, predicate classification, and vendor-card boundary. This card governs the deck itself."
+description: "Load before creating or editing ANY file under skills/, guidelines/, or floor.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, predicate classification, and vendor-card boundary. This card governs the deck itself."
 license: MIT
 provenance: AI-authored, .opencode#2490
 ---
@@ -20,7 +20,7 @@ edits produced the doom loop this deck replaced.
 1. **Observed failure** — a named incident or measured pattern, with evidence
    (session record, issue, database finding). No hypothetical failures.
 2. **Consumer** — what reads or executes it, and when.
-3. **Mechanism or trigger** — a routing entry, a skill reference, or a
+3. **Mechanism or trigger** — a skill-description trigger or a
    fact-decidable enforcement point.
 4. **Predicate classification** — fact-decidable (scripts allowed: file
    exists, token in diff, tests pass) vs intent-decidable (scripts FORBIDDEN —

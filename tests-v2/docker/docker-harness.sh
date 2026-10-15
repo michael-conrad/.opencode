@@ -337,6 +337,12 @@ __docker_launch_run() {
     [ -n "${BEHAVIOR_SET_BARE_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_SET_BARE_REMOTE=$BEHAVIOR_SET_BARE_REMOTE")
     [ -n "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_MULTI_SUBMODULES=$BEHAVIOR_NEEDS_MULTI_SUBMODULES")
     [ -n "${BEHAVIOR_SHARED_HOME:-}" ] && docker_env+=(-e "BEHAVIOR_SHARED_HOME=$BEHAVIOR_SHARED_HOME")
+    # Xvfb display override: --network host shares the host network namespace,
+    # and Xvfb's abstract-socket listener (@/tmp/.X11-unix/X<n>) is
+    # namespace-scoped — a host Xvfb on the same display number collides and
+    # the entrypoint dies before the command runs. Propagate the entrypoint's
+    # existing TEST_XVFB_DISPLAY hook so callers can move the container display.
+    [ -n "${TEST_XVFB_DISPLAY:-}" ] && docker_env+=(-e "TEST_XVFB_DISPLAY=$TEST_XVFB_DISPLAY")
 
     local -a cmd=(bash "$staged_wth" opencode run "$message" --model "$model" --log-level INFO --print-logs)
     [ -n "$agent" ] && cmd+=(--agent "$agent")

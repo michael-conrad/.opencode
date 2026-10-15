@@ -1,6 +1,6 @@
 ---
 name: verify
-description: "Load when checking a deliverable against its stated requirements before any completion or PR-readiness claim. Dispatches exactly ONE fresh-context reviewer — never the implementor — who reads the primary artifacts (spec/SCs, the diff, actual executed test output) and flags only gaps affecting correctness or stated requirements. FAIL → remediate → fresh re-review → repeat until a zero-finding verdict, with semantic spin detection; on spin, fix the diagnosed cause at a higher level; escalate when spin persists. Never proceed past an unremediated FAIL. One verdict record; no artifact chains."
+description: "Load when checking a deliverable against its stated requirements before any completion or PR-readiness claim, or when auditing an existing artifact on demand — a spec, plan, or deliverable re-checked against the criteria set its producing card owns. Dispatches exactly ONE fresh-context reviewer — never the implementor — who reads the primary artifacts (spec/SCs, the diff, actual executed test output) and flags only gaps affecting correctness or stated requirements. FAIL → remediate → fresh re-review → repeat until a zero-finding verdict, with semantic spin detection; on spin, fix the diagnosed cause at a higher level; escalate when spin persists. Never proceed past an unremediated FAIL. One verdict record; no artifact chains."
 license: MIT
 provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 ---
