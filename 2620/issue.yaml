@@ -3,6 +3,184 @@ title: spec-writer card lacks mandatory local-spec-folder, remote-API spec body,
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Summary
+
+
+  The active deck''s spec-writer (`spec`) and `issues` cards do not mandate (a) the
+  local spec folder requirements, (b) the remote-API spec-issue body format, or (c)
+  the required blockquoted artifacts links. An agent dispatch following the routed
+  cards verbatim files a thin "## Why / ## What" exec-summary remote body. Two such
+  filings were judged "not a proper remote spec" by the family owner in a single session
+  (2026-10-15). The full format machinery exists only in the preserved-but-unloaded
+  attic (`attic/skills/issue-operations-core/`) and by family precedent (NewsRxUI#57''s
+  accepted remote body). Root cause: the deck rip (attic, tag pre-rip) never translated
+  the issue-operations-core pipeline''s remote-body/local-folder/blockquote mandates
+  into the active spec/issues cards, which instead carry a weaker, contradicting replacement
+  rule.
+
+
+  ## The mandatory format the owner applies (family precedent)
+
+
+  The owner''s proper remote-spec body (reference: NewsRxUI#57 — https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/NewsRxUI/issues/57)
+  carries, in the remote body itself:
+
+
+  - Problem, Scope (success criteria with classification — behavioral/structural —
+  and verification instrument), Out of scope, Approach, Impact, a Success Criteria
+  table, Requirements (R-x SHALL statements);
+
+  - plan-shaped sections once a plan exists (Items RED/GREEN, Dependencies, Traceability,
+  Documentation Sources, Enforcement Gate, Cost Frame, Edge Cases, Not Included);
+
+  - the closing blockquote: `> Full spec and plan artifacts: <html_url>/tree/issues-data/<N>/`
+  — mechanically available in the active deck as `local-issues url --number repo#N
+  --artifacts` (`.opencode/skills/issues/references/local-issues-cli.md` line 29:
+  "emits the branch-root artifacts URL (`tree/issues-data/N/`)"), but no active rule
+  mandates using it;
+
+  - the local `{N}/` store folder holds `issue.yaml`, `comments.yaml`, `links.yaml`,
+  `spec.md`, plus artifact subdirectories (documented only as "Store semantics" in
+  local-issues-cli.md; no card mandates the set).
+
+
+  ## Environment (for your test env)
+
+
+  - A family root project with git submodules, each repo owning an `.issues/` orphan-branch
+  store (`issues-data`); the .opencode deck repo is this repository, mounted as `<project_root>/.opencode`.
+
+  - Agent session tooling: floor (`.opencode/floor.md`) + routing (`.opencode/routing.md`)
+  + on-demand skill-card loading by description (the `skill` tool). GitBucket is the
+  family platform (issue/PR ops via `gb`); the deck repo itself is GitHub-hosted.
+
+
+  ## Reproduction steps (fresh session)
+
+
+  1. Start an opencode session at the family root project with this deck mounted.
+
+  2. Dispatch: "triage the build fails; create needed specs" — i.e. any authorized
+  spec-filing stage with observed failures to anchor.
+
+  3. The agent loads the `spec` card by routing match, files the remote spec issue
+  first (remote-first reservation per `issues` card §2), and composes the remote body
+  per the card''s literal rule: "The remote body is a detailed exec summary (why +
+  final what); the full spec and all artifacts live in `.issues/{N}/`" (`.opencode/skills/spec/SKILL.md`,
+  and identically at `.opencode/skills/issues/SKILL.md`).
+
+  4. Observed agent behavior: the remote body carries only "## Why" + "## What" +
+  a path-style pointer (`Full spec: .issues/64/spec.md (local store of this repo)`);
+  no full-spec content, no Requirements (R-x), no SC table, and no blockquoted artifacts
+  link — even though the agent had read `local-issues-cli.md` (which documents `url
+  --artifacts`) earlier in the same session.
+
+  5. Ask the owner to judge the filing. Expected (deck-as-written): accepted. Observed:
+  "not a proper remote spec", twice.
+
+
+  ## Failure evidence (the actual filings)
+
+
+  - NewsRxUI#64 — https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/NewsRxUI/issues/64
+  — body "## Why / ## What / Full spec: .issues/64/spec.md"; owner verdict: "NewsRxUI#64
+  is not a proper remote spec".
+
+  - ProcessFinishedNotify#36 — https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/ProcessFinishedNotify/issues/36
+  — same shape; owner verdict: "ProcessFinishedNotify#36 is not a proper remote spec".
+
+
+  ## Evidence that the active deck lacks the mandates
+
+
+  Complete enumeration (2026-10-15), inside the deck:
+
+
+  - `.opencode/skills/spec/` = `SKILL.md` + `references/validation-standards.md` only.
+
+  - `.opencode/skills/issues/` = `SKILL.md` + `references/local-issues-cli.md` + `references/sync-mirroring.md`
+  only.
+
+  - `.opencode/skills/plan/` = `SKILL.md` + `references/plan-validation-standards.md`
+  only (validation criteria; no artifact format).
+
+  - `.opencode/guidelines/` = `ainglish-writing-discipline.md` only.
+
+  - grep of the entire active deck for "exec summary": exactly `spec/SKILL.md` and
+  `issues/SKILL.md` — the only remote-body rule; no active document specifies the
+  remote spec-issue body format, the local spec folder requirements, or the blockquoted-links
+  mandate.
+
+
+  Second defect instance in the same flow (2026-10-15): the one in-deck mechanic for
+  the required link, `local-issues url --number repo#N --artifacts`, fails in this
+  family''s layout with "error: no usable origin remote for repo ''<name>''" — every
+  family origin is the ssh:// form (`ssh://git@tomcat-0002.newsrx.com:29418/NewSRX-Tech-LLC/<repo>.git`),
+  which the tool''s URL builder does not translate to the platform web URL (`https://gitbucket.newsrx.com/gitbucket/NewSRX-Tech-LLC/<repo>/tree/issues-data/<N>/`).
+  The artifacts-link mechanic is therefore unusable family-wide, reinforcing the defect:
+  even an agent that knows the blockquote requirement cannot build the link with the
+  documented tool.
+
+
+  The attic (preserved, unloaded, per `.opencode/AGENTS.md`: "The full pre-replacement
+  deck is preserved, unloaded, under attic/ (tag pre-rip) pending soak and deletion")
+  documents the missing machinery:
+
+
+  - `attic/skills/issue-operations-core/tasks/push-artifacts.md`: "Capture the `artifact_url`
+  returned by the platform implementation. This is the spec artifacts URL for the
+  `issues-data` branch (`<html_url>/tree/issues-data/<N>/`)" and "Feed the `artifact_url`
+  to the downstream consumer: `spec-creation/tasks/reconcile-push.md` runs after this
+  task and uses the returned `artifact_url` to reconcile the Spec Reference Blockquote
+  in the remote issue body."
+
+  - `attic/skills/issue-operations-core/tasks/creation.md` and `tasks/body-edit.md`:
+  the remote-body composition/update flow ("For GitHub platform, also update the remote
+  issue body").
+
+
+  ## Root cause
+
+
+  The deck rip did not translate `issue-operations-core`''s remote-body (local-folder
+  requirements, remote-API spec format, blockquoted artifacts link) into the active
+  `spec`/`issues` cards; the cards instead carry a weaker, contradicting "exec summary"
+  rule. An agent obeying the routed deck verbatim therefore produces thin remote specs
+  — a deck-content defect recurring for any session that has never seen the family
+  precedent or the unloaded attic.
+
+
+  Not a platform skill-sampling defect: the active cards'' file lists are complete
+  (nothing was hidden), and the cards'' own text leads to the observed filing.
+
+
+  ## Suggested remediation
+
+
+  Restore into the active spec-writer card (or a shared `skills/spec/references/`
+  doc it cites):
+
+
+  1. Local spec folder requirements — `{N}/` must hold `spec.md` plus the record set
+  (`issue.yaml`, `comments.yaml`, `links.yaml`, artifact subdirectories) per local-issues-cli.md
+  store semantics.
+
+  2. Remote-API spec body requirements — the full-spec body in the family''s shape
+  (Problem, Scope with classified SCs and instruments, Requirements R-x SHALL, plan
+  sections when a plan exists, closing "Full Spec" summary), not a thin exec summary.
+
+  3. Blockquoted links — build the artifacts link via `local-issues url --number repo#N
+  --artifacts` and append as `> Full spec and plan artifacts: <url>` in the remote
+  body, reconciled on every remote-body edit.
+
+
+  Until remediated, agents routing by card description reproduce the defect on any
+  family root.
+
+
+  🤖 OpenCode session evidence: filed from a real opencode session (model id: ollama-cloud/glm-5.3-flash),
+  2026-10-15.
+
+  '
 created_at: '2026-10-15T15:59:52+00:00'
-updated_at: '2026-10-15T15:59:52+00:00'
+updated_at: '2026-10-15T16:00:12+00:00'
