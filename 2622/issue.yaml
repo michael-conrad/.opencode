@@ -13,10 +13,11 @@ body: '## Problem
   owner in a single session (NewsRxUI#64, ProcessFinishedNotify#36 — 2026-10-15).
   Root cause, diagnosed in #2620: the deck rip dropped `issue-operations-core`''s
   remote-body/blockquote/folder mandates without translating them into the replacement
-  cards, which instead carry a weaker, contradicting "detailed exec summary" rule.
-  A second, related defect: the one in-deck mechanic for the required link (`local-issues
-  url --artifacts`) fails on ssh:// origins — that tool defect is carved out to a
-  separate spec (cross-referenced below).
+  cards, which instead carry weak "detailed exec summary" rules. A third doctrine
+  emission lives outside deck text: `.opencode/tools/session-init` injects "the remote
+  issue body is a condensed exec summary only" into every session. A fourth, related
+  defect — the one in-deck mechanic for the required link (`local-issues url --artifacts`)
+  fails on ssh:// origins — is carved out to the companion spec (#2623).
 
 
   ## Developer doctrine (this session, 2026-10-15)
@@ -30,51 +31,60 @@ body: '## Problem
 
   - Operational format requirements belong in the **deck**, not in workspace documentation:
   the blockquote-URL convention currently stranded in `.opencode/.issues/AGENTS.md`
-  (and its `.issues/AGENTS.md` mirror) is misplaced deck verbiage and is relocated
-  by this change. Workspace guides are reduced to layout/tooling description.
+  is misplaced deck verbiage and is relocated by this change. Workspace guides are
+  reduced to layout/tooling description.
 
   - The mandate''s trigger is **any remote issue that has a matching issues-data branch
   folder** (`{N}/`) — fact-decidable, no issue-type taxonomy. Issues filed first gain
   the mandate at reconciliation, when their folder comes to exist.
 
+  - Spec structure was delegated ("You are the one analyzing the requirements") →
+  two-spec split adopted; "proceed" finalized the design.
+
 
   ## Requirements
 
 
-  - **R-1** The deck SHALL contain exactly one shared reference defining the remote-API
-  issue-body format for folder-backed issues — mandatory sections, section content
-  standards, and the sizing rule (self-sufficient for developer judgment; full detail
-  stays local) — replacing the independent "detailed exec summary" rules in both `spec/SKILL.md`
-  and `issues/SKILL.md` with pointers to it.
+  - **R-1** The deck SHALL contain exactly one shared reference (`skills/spec/references/remote-body-format.md`)
+  defining a two-tier body mandate for folder-backed issues: a universal minimum (Problem;
+  Scope — what the change requires; Requirements as R-x SHALL statements; Impact)
+  and a spec-filing extension (success criteria classified behavioral/structural each
+  carrying a verification instrument; success-criteria table; Out of scope; Approach;
+  plan-shaped sections — Items RED/GREEN, Dependencies, Traceability, Documentation
+  Sources, Enforcement Gate, Cost Frame, Edge Cases, Not Included — once a plan exists).
 
-  - **R-2** The shared reference SHALL state the trigger rule: the body-format and
-  blockquote mandates bind to every remote issue with a matching issues-data `{N}/`
-  folder.
+  - **R-2** The shared reference SHALL state the trigger rule: the body mandate binds
+  to every remote issue with a matching issues-data `{N}/` folder, and to no remote
+  issue without one.
 
-  - **R-3** The shared reference SHALL require the closing blockquoted artifacts link
-  (`> Full spec and plan artifacts: <url>`), built via `local-issues url --number
-  repo#N --artifacts`, present in the remote body at filing and reconciled on every
-  remote-body edit.
+  - **R-3** The shared reference SHALL require the blockquote convention — the closing
+  blockquoted artifacts link (`> Full spec and plan artifacts: <url>`, built via `local-issues
+  url --number repo#N --artifacts`, with manual platform-URL derivation as fallback),
+  present at filing and reconciled on every remote-body edit; the AI-facing relative-path
+  artifacts pointer line adjacent; and the no-hardcoded-file-lists rule (agents glob
+  `{issues_prefix}{N}/`).
 
-  - **R-4** The shared reference SHALL require the local `{N}/` record set — `spec.md`
-  plus the tool-managed record files (`issue.yaml`, `comments.yaml`, `links.yaml`)
-  and artifact subdirectories — consistent with `local-issues-cli.md` store semantics.
+  - **R-4** The shared reference SHALL state the sizing doctrine (a developer reading
+  only the remote body can understand and judge the spec; full agent-ingest detail
+  stays local-authoritative) and the `{N}/` record set — `spec.md` plus `issue.yaml`,
+  `comments.yaml`, `links.yaml`, artifact subdirectories.
 
-  - **R-5** The shared reference SHALL define the mandatory remote-body section set
-  for a spec filing: Problem, Scope (success criteria classified behavioral/structural,
-  each with a verification instrument), Out of scope, Requirements (R-x SHALL statements),
-  Approach, Impact, and a success-criteria table; plan-shaped sections (Items RED/GREEN,
-  Dependencies, Traceability, Enforcement Gate, Edge Cases, Not Included) are required
-  once a plan exists.
+  - **R-5** `spec/SKILL.md` and `issues/SKILL.md` SHALL replace their weak body-format
+  sentences with pointers to the shared reference, preserving the local-authoritative
+  doctrine at each site.
 
-  - **R-6** `.opencode/.issues/AGENTS.md` and `.issues/AGENTS.md` SHALL no longer
-  carry operational body-format/link requirements; they SHALL describe store layout
-  and tooling and point to the deck-owned reference for format rules.
+  - **R-6** `.opencode/tools/session-init`''s injected store-first note SHALL no longer
+  state "condensed exec summary only"; it SHALL state the new sizing doctrine.
 
-  - **R-7** The change SHALL satisfy the skill-creator admission gate: admission evidence
-  (the #2620 defect record, the NewsRxUI#64 / ProcessFinishedNotify#36 verdicts, the
-  stranded guide verbiage) accompanies the edit through deck governance; the attic
-  stays preserved-but-unloaded (no attic restoration — translation, not resurrection).
+  - **R-7** `.opencode/.issues/AGENTS.md` SHALL lose its operational "GitHub URL Convention"
+  section and exec-summary doctrine phrasing (normative form relocated into the reference),
+  keeping layout/tooling description plus a pointer; `.issues/AGENTS.md`''s pointer
+  description SHALL cite the deck reference for format rules.
+
+  - **R-8** The change SHALL satisfy the skill-creator admission gate, carrying the
+  #2620 defect record, the NewsRxUI#64 / ProcessFinishedNotify#36 verdicts, and the
+  stranded-guide-verbiage finding as admission evidence; the attic stays preserved-but-unloaded
+  (translation, not resurrection).
 
 
   ## Scope
@@ -84,79 +94,71 @@ body: '## Problem
 
   |----|-------|-----------|------------|
 
-  | SC-1 | structural | The active deck contains one shared remote-body-format reference
-  under `skills/spec/references/` defining the R-1 sizing rule and the R-5 section
-  set. | File inspection: read the reference; each mandatory section and the sizing
-  rule appear. |
+  | SC-1 | structural | The reference defines the two-tier body mandate (universal
+  minimum + spec extension, every listed section per tier, classification/instrument
+  requirement, R-x SHALL style). | Read the file. |
 
-  | SC-2 | structural | `spec/SKILL.md` and `issues/SKILL.md` carry no independent
-  body-format rule; each cites the shared reference at the point the old rule occupied.
-  | `grep -rn "exec summary" .opencode/skills/` returns no body-format rule outside
-  the reference; both cards contain the pointer. |
-
-  | SC-3 | structural | The reference states the folder-trigger rule (R-2) verbatim
-  enough that an issue without a `{N}/` folder is out of scope. | Read the reference.
+  | SC-2 | structural | The reference states the folder-trigger rule. | Read the file.
   |
 
-  | SC-4 | structural | The reference states the closing-blockquote requirement and
-  the reconcile-on-edit rule (R-3), naming `local-issues url --number repo#N --artifacts`
-  as the build mechanic. | Read the reference. |
+  | SC-3 | structural | The reference states the relocated blockquote convention (closing
+  link, reconcile-on-edit, build mechanics, AI-facing pointer, no-hardcoded-file-lists
+  rule). | Read the file. |
 
-  | SC-5 | structural | The reference states the `{N}/` record set (R-4). | Read the
-  reference. |
+  | SC-4 | structural | The reference states the sizing doctrine and the `{N}/` record
+  set (cross-checked against `local-issues-cli.md`). | Read the file. |
 
-  | SC-6 | structural | Neither workspace guide carries operational format requirements
-  (R-6). | Read `.opencode/.issues/AGENTS.md` and `.issues/AGENTS.md`: no mandatory
-  body sections, blockquote patterns, or link rules remain; a pointer to the deck
-  reference exists. |
+  | SC-5 | structural | Both cards carry no independent body-format rule; each cites
+  the reference. | `grep -rn "exec summary" .opencode/skills/` matches only the reference;
+  both cards contain the pointer. |
 
-  | SC-7 | structural | The deck edit''s admission evidence travels with it per the
-  skill-creator gate (R-7). | Read the skill-creator-gated PR/diff: evidence sections
-  present. |
+  | SC-6 | structural | `.opencode/.issues/AGENTS.md` carries no operational format
+  requirements; `.issues/AGENTS.md`''s pointer description cites the deck reference.
+  | Read both guides in full. |
 
-  | SC-8 | behavioral | A fresh-session agent routing `spec`/`issues` by description,
-  filing a folder-backed issue, composes a remote body containing all R-5 mandatory
-  sections and the closing blockquote. | Behavioral session test (tests-v2 harness):
-  file a spec-issue flow end to end and inspect the produced remote body. |
+  | SC-7 | structural | session-init''s injected note states the new sizing doctrine;
+  "condensed exec summary" no longer appears in the tool. | Source read + grep. |
+
+  | SC-8 | structural | Admission evidence travels with the change per the skill-creator
+  gate. | Read the gated change record. |
+
+  | SC-9 | behavioral | A fresh-session agent routing `spec`/`issues` by description,
+  filing a folder-backed issue, composes a remote body with the universal-minimum
+  sections, the spec extension, and the closing blockquote. | Behavioral session test
+  (tests-v2 harness); inspect the produced remote body. |
 
 
   ## Out of scope
 
 
-  - The `local-issues` URL-builder fix for ssh:// origins and per-host browser-base
-  mapping — separate spec, filed alongside this one (same source: #2620''s second
-  defect).
+  - The `local-issues` URL-builder fix (companion spec #2623).
 
-  - Any change to store-primaryity: `.issues/{N}/spec.md` stays the authoritative
-  full spec; the remote body stays a structured summary.
+  - Store-primaryity changes — `.issues/{N}/spec.md` stays the authoritative full
+  spec.
 
-  - Retiring or loading the attic (`attic/` stays preserved per `.opencode/AGENTS.md`).
-
-  - Changing `plan-validation-standards.md` or the validation-standards criteria set
-  (deck governance on those files is out of this change''s authorization).
+  - Attic changes; validation/plan-validation-standards changes; retroactive remediation
+  of the two judged filings; card description rewrites; session-init beyond the one
+  doctrine string.
 
 
   ## Approach
 
 
-  Author the shared reference translating the three mandates (body format, blockquote
-  link, record set) from the #2620 diagnosis and family precedent; replace the two
-  card rules with pointers; strip the workspace guides'' operational verbiage into
-  the deck reference; run the edit through skill-creator deck governance.
+  Author the shared reference translating the mandates; replace the two card rules
+  with pointers; update the session-init doctrine string; strip and re-point the workspace
+  guides; run the edit through skill-creator deck governance.
 
 
   ## Impact
 
 
-  - Consumers: every future spec/issue filing on any family root using this deck;
-  the `spec`, `issues` cards; both workspace guides.
+  - Consumers: every future filing on any family root using this deck; the `spec`/`issues`
+  cards; both workspace guides; every session''s init context (session-init doctrine
+  string — one string, machinery untouched).
 
-  - Risk: card description changes alter routing matches — kept to rule-replacement
-  in place, not description rewrites.
-
-  - No runtime code changes in this spec; the behavioral SC-8 depends on the companion
-  tool spec only for the link-building mechanic (`url --artifacts`), which the reference
-  may build manually (platform-URL derivation per repo facts) until the tool fix lands.
+  - One runtime-code line changes (the session-init string). The behavioral SC-9 does
+  not block on #2623: the reference carries the manual platform-URL derivation as
+  fallback build mechanic.
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2622/
@@ -167,5 +169,5 @@ body: '## Problem
 
   '
 created_at: '2026-10-15T16:06:54+00:00'
-updated_at: '2026-10-15T16:06:57+00:00'
+updated_at: '2026-10-15T16:40:19+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2622
