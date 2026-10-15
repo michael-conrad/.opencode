@@ -35,7 +35,11 @@ Resolves `.opencode#2622` (remediation of `.opencode#2620`). Consumes `.opencode
 - **Deliverable:** `.opencode/.issues/AGENTS.md` loses its operational "GitHub URL Convention for Remote Issue Body" section and exec-summary doctrine phrasing — normative content relocated into the reference — keeping layout/tooling description plus a pointer to the deck reference. `.issues/AGENTS.md`'s pointer description cites the deck reference for format rules instead of the weak phrasing.
 - **RED:** both guides currently carry the operational sections/phrasings.
 - **GREEN:** strip and re-point both guides.
-- **Instrument:** read both guides in full.
+- **Commit mechanics (the two files live in different repositories):**
+  - `.opencode/.issues/AGENTS.md` is a deck-submodule file on the `issues-data` orphan branch of the deck repo — edited directly and committed via `git -C .opencode/.issues` on that branch (issues-data hygiene path); it does NOT ride the feature branch or the PR diff.
+  - `.issues/AGENTS.md` is the parent repo's issues-data worktree — same hygiene path, `git -C .issues`.
+  - The deck-side PR body (Item 5) records both guide edits in its narrative; the parent-guide edit itself is an authorization-free issues-data hygiene write per the store guide.
+- **Instrument:** read both guides in full (post-edit state in the respective worktrees).
 
 ### Item 5 — Admission evidence with the change (SC-8)
 
@@ -47,8 +51,8 @@ Resolves `.opencode#2622` (remediation of `.opencode#2620`). Consumes `.opencode
 ### Item 6 — Behavioral filing test (SC-9)
 
 - **Deliverable:** a tests-v2 behavioral session test: a fresh-session agent routing `spec`/`issues` by description alone files a folder-backed issue and composes a remote body with the universal-minimum sections, the spec extension, and the closing blockquote. The reference's manual platform-URL derivation is the fallback build mechanic, so this does not block on #2623.
-- **RED:** current deck produces the thin "## Why / ## What" body (the recorded defect behavior).
-- **GREEN:** with the deck changes, the session produces the mandated body shape.
+- **RED (verified pre-change, 2026-10-15):** the deck as-written produces the thin "## Why / ## What" body — the recorded defect behavior (NewsRxUI#64, ProcessFinishedNotify#36). The test is authored against that pre-change deck; after Items 1–4 land, the GREEN assertion is that the session now produces the mandated body shape.
+- **GREEN:** with the deck changes (Items 1–4), the session produces the mandated body shape.
 - **Instrument:** behavioral session run via the tests-v2 harness; inspect the produced remote body.
 
 ## Dependencies
