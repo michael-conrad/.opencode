@@ -38,7 +38,7 @@ card and its sync detail card.
 ```
 .issues/
   {issue_number}/
-    spec.md                    — The full authoritative spec (the store is primary; the remote body is a condensed exec summary)
+    spec.md                    — The full authoritative spec (the store is primary; the remote body carries the structured summary per the deck's remote-body-format reference)
     plan.md                    — Implementation plan (RED/GREEN items, dependency graph)
     cards.md                   — Card catalogue with status and decision log
     dependency-contract.yaml   — Dependency contracts and phase ordering
@@ -116,42 +116,10 @@ This extends the authorization-free reading/writing rule above: the agent does n
 ## Relationship to Remote Issue Tracker
 
 - **`.issues/` is the PRIMARY spec/plan store.** All authoritative content — specs, plans, card catalogues, dependency contracts, research — lives here in the `issues-data` branch.
-- **GitHub/GitBucket is the mirrored user-facing exec summary only.** The remote issue body contains a condensed summary and a single link to the spec folder (`.issues/{N}/` on the `issues-data` branch). AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
-- `.issues/{N}/spec.md` is the full authoritative spec. The remote issue body is a detailed exec summary — clear intent on the why and clear intent on the final what — with a cross-reference link to this folder. Detail lives locally, never on the remote.
-- `.issues/{N}/` contains plan.md, cards.md, dependency-contract.yaml, and sub-directories (research/, designs/, audit/) — these are NEVER mirrored to the remote tracker.
+- **GitHub/GitBucket is the mirrored user-facing surface.** The remote issue body's required shape is defined by the deck's [remote-body-format reference](../skills/spec/references/remote-body-format.md) — this guide carries no operational format rules.
+- AI agents MUST read from `.issues/` — never treat the remote issue body as authoritative.
+- `.issues/{N}/` contents beyond the record set (plan.md, cards.md, sub-directories) are NEVER mirrored to the remote tracker.
 - When reading or acting on an issue, always read from `.issues/{N}/` first. Only use the remote issue body for user-facing context (comments, labels, assignees).
-
-## GitHub URL Convention for Remote Issue Body
-
-The remote issue body is a human-facing exec summary. It must include two blockquotes at the top:
-
-1. **User-facing folder URL** — a full browser URL so the user can browse the spec folder on the remote platform
-2. **AI-facing sub-folder references** — relative paths to the issue directory, so agents know where to glob for additional files. Do NOT list individual files — agents should discover content by reading `{issues_prefix}{N}/` and globbing `*` automatically.
-
-### Pattern
-
-```
-> **Full spec and artifacts: [`{issues_prefix}{N}/`]({browser_url}/{owner}/{repo}/tree/issues-data/{N})** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `{issues_prefix}{N}/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-```
-
-The `{browser_url}` is derived from the repo entry's `url` field in the session-init `## Repo Information` table (SSH-to-HTTPS conversion, strip `.git`). The `{issues_prefix}` is the repo entry's `issues:` field — NOT a hardcoded value. The submodule folder name is not known until checkout, so the prefix must never be hardcoded.
-
-### Rules
-
-- **User-facing: One full browser URL** — the spec folder, as a blockquote
-- **AI-facing: Sub-folder paths only** — reference the issue directory (not individual files). Agents glob `*` to discover content
-- **NO hardcoded file lists** — don't list `plan.md`, `cards.md`, etc. individually in the remote body. They go stale. Agents discover by globbing.
-- AI agents read from `{issues_prefix}{N}/` directly — the remote body just tells them where to look
-
-### Example
-
-```
-> **Full spec and artifacts: [`.issues/46/`](https://github.com/michael-conrad/viewport-editor/tree/issues-data/46)** — this issue is a condensed exec summary; the authoritative spec lives in the `issues-data` branch.
->
-> **Local artifacts:** `.issues/46/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
-```
 
 ## Lessons Learned Registry
 
