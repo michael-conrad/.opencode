@@ -364,3 +364,45 @@ comments:
     - Spec revised in place: SC-14/SC-15 added to .opencode#2601; provenance recorded
     in its intent table.'
   timestamp: '2026-10-14T02:48:19+00:00'
+- type: internal
+  body: '### 2026-10-15 — Retirement: the routing.md dispatch table (.opencode#2617)
+
+
+    - **What was retired:** `.opencode/routing.md` — the 27-row manual dispatch table
+    (+ card-origins footer, ~527 words) injected into every session via `opencode.jsonc`''s
+    instructions array and `prompts/default.txt`. Every live reference conformed:
+    `opencode.jsonc`, `prompts/default.txt`, `floor.md` (loading-on-demand paragraph
+    + deck-governance line), both `AGENTS.md` pointers, `skill-creator` (frontmatter
+    file list + admission-gate mechanism vocabulary).
+
+    - **Why:** duplicate dispatch surface — skill card frontmatter descriptions are
+    the router per the skill-creator card standards, and 26 of 27 rows restated a
+    description''s load-when clause. The duplicate had already drifted: it referenced
+    a vendor hf card that does not exist, mapped "notebooks" to a nonexistent connector
+    card, and named no cards for the release trio. Four cards (java, python, gradle,
+    godot) already dispatched description-only with no routing row — the mechanism
+    was demonstrably complete without the table.
+
+    - **Authorization anchor:** developer ruling 2026-10-15 — routing is handled by
+    skill card descriptions, not a manual dispatch table; "the table is a danger."
+    Developer-directed item (skill-creator carve-out applied; content standards bound).
+
+    - **Coverage-audit outcome:** two independent fresh-context audit passes re-derived
+    all 28 rows (27 + footer) against the live deck; zero uncovered rows. Three under-triggering
+    descriptions remediated before removal: `verify` (on-demand audit trigger), `wiki-operations`
+    (wiki submodule conversion), `programming-principles` (auditing code). Audit artifact:
+    `.opencode/.issues/2617/audit/coverage-map.md`.
+
+    - **Runtime evidence:** before/after prompt-token pair on identical hello-probe
+    runs (same scenario script sha256, same DEFAULT_TEST_MODEL, same prompt; deck
+    commit the only differing input): 17,449 → 16,546 prompt tokens, delta −903. Artifacts:
+    `{project_root}/tmp/2617/artifacts/` (clean-room evaluation verdict SATISFIED).
+
+    - **Note:** this ledger issue was closed not_planned by the #2610 purge (a ledger
+    is a tracking tool, not tracked work); the #2617 spec (authored after that merge)
+    targets this closed issue''s comments as the record location. This entry records
+    the decision without reopening the issue.
+
+
+    🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)'
+  timestamp: '2026-10-15T14:02:44+00:00'
