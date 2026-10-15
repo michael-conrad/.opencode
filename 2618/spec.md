@@ -216,12 +216,6 @@ Cost is measured in defect-discovery latency, not tool calls. Correctness is the
 **Concurrency:**
 - *Condition:* Two encounters of the same deprecation near-simultaneously. *Expected behavior:* Search-before-POST narrows but does not eliminate duplicate creation; a duplicate `[BITROT]` ticket SHALL be consolidated by appending its evidence to the first and closing the duplicate. *Resolution:* R-4 plus the consolidation rule.
 
-## 12. Change Control
-
-| Date | Change | Reason | Authorized By |
-|------|--------|--------|---------------|
-| 2026-10-15 | Initial spec authored from the exploration session (design finalized by the developer's "proceed to spec creation"). Contract re-shaped from predecessor .opencode#2458: bright line narrowed to new code; in-passing swap legalized; carve-out re-scoped to a temporary-use exception; "closely related" criterion abandoned; delivery re-based onto progressive slices + canonical guideline doc; enforcement reduced to pickup-only. | Developer-directed exploration and rulings, 2026-10-15 session | Developer |
-
 ---
 
 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

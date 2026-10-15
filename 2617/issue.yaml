@@ -50,16 +50,26 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2617/`](https://github.c
   Before the removal lands, a **coverage audit** maps every row of the pre-removal
   table to its post-removal dispatch surface (card description and/or floor content)
   so no intent that used to dispatch loses its dispatch surface — no lobotomization.
-  Preliminary analysis (2026-10-15): 25 of 27 rows fully description/floor-covered
-  today; the on-demand-audit row is a description-remediation candidate (`verify`''s
-  description lacks an explicit audit trigger; the audit semantics live in floor''s
-  authorization vocabulary); the hf reference is a dead row removed with the table
-  (no card exists — nothing is owed); the card-origins footer needs no relocation
-  (`skill-creator` §Vendor-card boundary already carries the taxonomy verbatim). The
+  Preliminary analysis (2026-10-15): every row''s payload lands on a live surface
+  today except two **description-remediation candidates** — the on-demand-audit row
+  (`verify`''s description lacks an explicit audit trigger; the audit semantics are
+  floor-carried) and the wiki row''s "submodule conversion" element (absent from `wiki-operations`''s
+  description trigger list) — plus one floor-carried element (notebooks) and one dead
+  reference (vendor hf card: no card exists; removing the table remediates it). The
   audit re-verifies the map fresh, remediates under-triggering descriptions through
   skill-creator governance, and gates the removal on **zero uncovered rows**. A scripted
   rows→descriptions keyword match is prohibited — the coverage judgment is intent-decidable;
-  scripts verify only mechanical facts (file absence, reference grep).
+  scripts verify only mechanical facts (file absence, reference grep). The card-origins
+  footer needs no relocation: `skill-creator` §Vendor-card boundary already carries
+  the taxonomy verbatim.
+
+
+  Per the developer''s direction, the change also produces **before/after prompt-token
+  evidence**: tests-v2 harness sessions driven by an identical hello-style trivial
+  prompt against the pre-change and post-change deck commits (same scenario, same
+  model, same prompt; the deck commit is the only differing input), with a clean-room
+  evaluation recording both prompt-token counts and the delta — the injected-surface
+  reduction demonstrated at runtime, not by word count.
 
 
   All deck edits go through the skill-creator admission gate; this item is developer-directed
@@ -68,5 +78,5 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2617/`](https://github.c
 
   '
 created_at: '2026-10-15T04:04:24+00:00'
-updated_at: '2026-10-15T04:04:41+00:00'
+updated_at: '2026-10-15T04:20:40+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2617
