@@ -30,6 +30,20 @@ remains the flag-level source of truth. All numbers use the qualified
 | `doctor` | — | Per-repo health markers (read-only): branch state, merge-base delta, worktree presence |
 | `validate-yaml` | `--number` (optional) | Validate YAML across issue directories; `**/*.yaml` subtree sweep; scoped mode on a remote-only issue prints `no-local-records` and exits 0 |
 
+### Host→browser-base mapping (`url`)
+
+`url` derives the https browser base from the repo's `origin` remote. When the
+web face is not derivable from the remote URL — the ssh host differs from the
+web host, or the URL carries a non-standard port — a committed mapping table
+ships beside the tool at `.opencode/tools/local-issues-host-maps.conf`:
+`hostname[:port] = https://browser-base` per line. Matching is on the hostname
+only and is scheme-independent — every origin form (ssh://, git+ssh://,
+scp-form, https) carrying a mapped hostname resolves to the mapped base. Hosts
+with no entry convert to same-host `https://host/owner/repo`; a malformed
+config line is warn-and-skipped on stderr (the tool's warn-and-skip taxonomy)
+and never crashes the command. Family platforms add their entry to that file —
+the file ships with the deck to every mount.
+
 ## Store semantics
 
 - Numbers are per-repo: `michael-conrad/.opencode#2543` and
