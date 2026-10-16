@@ -76,6 +76,13 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
 8. **Default model is single-sourced.** `DEFAULT_TEST_MODEL` in
    `default-model.sh` runs every test; model-shopping is prohibited (R-20,
    §10.6). Remediation targets the defect classes, never model selection.
+8a. **Pre-supplied environment.** The harness pre-supplies everything the
+   scenario's task needs — deck-mandated CLIs baked into the image,
+   authenticated remote, bootstrapped store, seeded credentials/env
+   (tests-v2/AGENTS.md §3a). Run time spent on environment discovery
+   (finding CLIs, reverse-engineering APIs, deriving auth shapes,
+   discovering store layout) is a harness/scenario defect to fix at the
+   fixture/image layer — never model behavior, never prompt-tolerated.
 9. **Supervise every run — 60-second poll cycle, update turn follows the poll's reminder.**
    Launch the run in background. **The supervision cycle is two turns, strictly
    alternating: (1) a tool call — `sleep 60`, then `.opencode/tests-v2/poll-run.sh

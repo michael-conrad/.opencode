@@ -46,8 +46,25 @@ __ensure_image_test_agent() {
         return 0
     fi
     echo "  [docker] building test-agent image ($TESTS_V2_AGENT_IMAGE)..." >&2
-    if ! docker build -f "$TESTS_V2_DOCKER_DIR/Dockerfile.test-agent" \
-            -t "$TESTS_V2_AGENT_IMAGE" "$TESTS_V2_DOCKER_DIR" >&2; then
+    # Pre-supplied environment mandate (tests-v2/AGENTS.md §3a): the image
+    # bakes the deck-mandated platform CLIs. gh installs from the Ubuntu
+    # archive inside the Dockerfile; gb has no public upstream (deck
+    # built-in) and is staged from the host's built-in install at provision
+    # time — the same staging pattern as the GitBucket WAR.
+    local gb_src
+    gb_src=$(command -v gb 2>/dev/null || true)
+    if [ -z "$gb_src" ]; then
+        echo "HARNESS_FAILURE: gb CLI not found on host — the deck mandates gb for GitBucket operations and the image must bake it (§3a); install the deck built-in gb and re-run" >&2
+        return 1
+    fi
+    local build_ctx="$PARENT_REPO_DIR/tmp/docker-build-agent"
+    rm -rf "$build_ctx"
+    mkdir -p "$build_ctx"
+    cp "$TESTS_V2_DOCKER_DIR/Dockerfile.test-agent" "$build_ctx/"
+    cp "$TESTS_V2_DOCKER_DIR/entrypoint.sh" "$build_ctx/"
+    cp "$gb_src" "$build_ctx/gb"
+    if ! docker build -f "$build_ctx/Dockerfile.test-agent" \
+            -t "$TESTS_V2_AGENT_IMAGE" "$build_ctx" >&2; then
         echo "HARNESS_FAILURE: test-agent image build failed for $TESTS_V2_AGENT_IMAGE — inspect the build output above; fix the Dockerfile or the network and re-run" >&2
         return 1
     fi

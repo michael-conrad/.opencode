@@ -24,8 +24,11 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    The local-artifacts pointer written into the remote body must resolve to
    the actual local folder at write time — an unresolvable pointer is a flow
    defect to fix in the same action, not a formatting choice.
-   The remote body is a detailed exec summary (why + final what); the full
-   spec and artifacts live locally. Title states the work; labels describe
+   The remote body follows
+   [the remote-body-format reference](../spec/references/remote-body-format.md)
+   — sizing doctrine, required sections, and the closing blockquoted
+   artifacts link, reconciled on every remote-body edit; the full
+   spec and artifacts live locally and stay local-authoritative. Title states the work; labels describe
    pipeline state. Never derive the number by listing remote issues and never
    hand-create the `{N}/` folder — register it via
    `local-issues create --number repo#N`.

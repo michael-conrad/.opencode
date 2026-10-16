@@ -204,6 +204,26 @@ ls ./tmp/behavioral-evidence-<scenario>-GREEN-<model>/
 
 Expected: `manifest.yaml`, `stdout.log`, `stderr.log`, `exit_code`, `session.yaml`.
 
+## 3a. Pre-Supplied Environment Mandate (developer directive 2026-10-15)
+
+**Every behavioral test run MUST be pre-supplied with everything its task needs. The run agent starts at the task's action step — never at environment archaeology.** This is a hard mandate on the harness and scenario authors, not on the model:
+
+| Need | Pre-supplied by |
+|------|-----------------|
+| Platform tooling | The image bakes the deck-mandated CLIs (`gb`, `gh`) at build time — a deck-mandated tool the run agent cannot find is a harness defect (see §5 base-tool baseline) |
+| Authenticated remote | `BEHAVIOR_NEEDS_REMOTE` (GitBucket container + minted `GB_TOKEN`) or `BEHAVIOR_SET_BARE_REMOTE` — wired before the model runs |
+| Issue store | The per-scenario setup fixture bootstraps the store (`local-issues init`/`sync`) when the scenario involves issue operations — the agent never discovers store layout from zero |
+| Repo state | Branches/remotes/tags/stashes via `fixtures/setup/<scenario>.sh` |
+| Credentials/env | Isolated env (`GB_TOKEN`, `GITBUCKET_PORT`, …) exported by the harness — never hunted by the agent |
+
+**Corollaries:**
+
+1. **The run agent is never required to discover or improvise infrastructure** — platform identity, API surface, auth shape, CLI availability, or store layout. A scenario whose task only becomes executable after the agent reverse-engineers the environment is mis-authored: fix the fixtures/image, never the prompt's tolerance for improvisation.
+2. **Run time spent on environment discovery is a harness/scenario defect** (R-18 classes: fixture state, harness behavior) — never attributed to the model. Do not remediate discovery burn by changing prompts to "explore more carefully"; remove the need to explore.
+3. A scenario authoring a task the pre-supplied environment cannot start is a spec/scenario defect — re-scope at the spec; never weaken isolation and never change the model (R-20).
+
+---
+
 ## 4. Running Tests
 
 ### The Ordered Precondition Cycle — Required for ALL Behavioral Runs
@@ -465,7 +485,7 @@ probes:
 | Execution uid | Container runs as the invoking user's uid:gid (`--user`, never root) — no root-owned files under `tmp/` |
 | Mount boundary | The ONLY host mount is the project's `tmp/` directory, mounted at the SAME absolute path inside the container (so `TEST_HOME=` markers and artifact paths are directly valid host-side). No production path — `.tools/`, the repo worktree outside `tmp/`, `$HOME`, either `.issues/` store — is mounted into, or copied into, the container |
 | Test home | Starts BARE of agent-managed tooling: `with-test-home` skips the binary/uv copy steps on the Docker path (`TEST_ENV=docker`); everything the agent would manage in real work starts absent |
-| Base-tool baseline | The image bakes the sanctioned base system tools (opencode, uv/uvx, git, python3, curl) at build time from official upstream channels at pinned versions — the harness's own instruments, reviewable in `tests-v2/docker/Dockerfile.test-agent` |
+| Base-tool baseline | The image bakes the sanctioned base system tools (opencode, uv/uvx, git, python3, curl) at build time from official upstream channels at pinned versions — the harness's own instruments, reviewable in `tests-v2/docker/Dockerfile.test-agent` — **plus every deck-mandated platform CLI the scenarios exercise (`gb`, `gh`)**. A deck-mandated tool absent from the image is a harness defect: fix the image, never work around it in the scenario or the run agent. |
 | Network posture | `--network host` — network-neutral versus host-mode runs; host Ollama is reached unchanged at `http://localhost:11434/v1`; no URL parameterization anywhere |
 | GPU exclusion | No GPU tooling in the image (developer directive). Known, accepted delta: an in-container agent cannot observe GPU state via `nvidia-smi`/`ollama-probe hw` — scenarios requiring GPU observation are tier-3 candidates |
 | Display | Xvfb on `:99` (started by the image entrypoint) with openbox, scrot, xdotool — the container's screenshot affordance |
@@ -621,7 +641,7 @@ If a spec requires a different model, override via environment variable:
 DEFAULT_TEST_MODEL="ollama/other-model:tag" bash .opencode/tests-v2/behaviors/<scenario>.sh
 ```
 
-**Default-Model Mandate (R-20):** Every behavioral test run uses the default test model defined by this single source of truth (`DEFAULT_TEST_MODEL` in `default-model.sh`) unless the user explicitly directs otherwise. Substituting another model on the agent's own initiative is PROHIBITED: model-shopping to work around a failing or slow test is a defect signal, and remediation targets the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, or harness behavior) — never model selection. A model override is legitimate only on explicit user direction (e.g., a user-directed per-run `DEFAULT_TEST_MODEL` env override as above, or a spec-directed default change gated by this section) and MUST be recorded with the direction that authorized it. The mandate binds the single-source-of-truth mechanism, not a hardcoded model string, so future default-model changes (gated by approved spec per this section) are picked up automatically.
+**Default-Model Mandate (R-20, hardened by developer directive 2026-10-15):** Every behavioral test run uses the default test model defined by this single source of truth (`DEFAULT_TEST_MODEL` in `default-model.sh`). **No model changes are allowed — no exceptions.** Substituting another model on the agent's own initiative is PROHIBITED, and a per-run `DEFAULT_TEST_MODEL` env override is no longer a sanctioned remediation or work-around surface for any test problem — failures, timeouts, slow runs, or any other execution issue are remediated exclusively through the R-18 defect classes (instructions, task-card/skill-deck wording, prompt construction, fixture state, harness behavior) or by re-scoping the SC at the spec; if none of those produce a PASS, the SC is reported BLOCKED to the developer. The agent never proposes, requests, or offers a model change as an option — raising it is itself a defect. Default-model *value* changes are gated by an approved spec per this section; the mandate binds the single-source-of-truth mechanism, not a hardcoded model string.
 
 ### Binary Resolution
 

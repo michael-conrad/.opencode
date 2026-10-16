@@ -31,6 +31,7 @@ RUN apt-get update \
        curl \
        git \
        python3 \
+       gh \
        xvfb \
        openbox \
        scrot \
@@ -56,6 +57,18 @@ RUN curl -fsSL -o /tmp/uv.tar.gz \
     && install -m 0755 /tmp/uv-x86_64-unknown-linux-gnu/uv /usr/local/bin/uv \
     && install -m 0755 /tmp/uv-x86_64-unknown-linux-gnu/uvx /usr/local/bin/uvx \
     && rm -rf /tmp/uv-x86_64-unknown-linux-gnu /tmp/uv.tar.gz
+
+# gh — Ubuntu-archive package (2.45.0 on 24.04 at time of pinning), installed
+# above with the apt set: a deck-mandated platform CLI baked into the image
+# (pre-supplied environment mandate, tests-v2/AGENTS.md §3a / §5).
+
+# gb — the deck's built-in GitBucket CLI has no public upstream, so it is
+# staged into the build context at provision time by __ensure_image_test_agent
+# (docker-harness.sh) from the host's deck-builtin install — the same
+# provision-time staging pattern as the GitBucket WAR. A deck-mandated tool
+# absent from the image is a harness defect, never a run-agent work-around.
+COPY gb /usr/local/bin/gb
+RUN chmod 0755 /usr/local/bin/gb
 
 COPY entrypoint.sh /usr/local/bin/tests-v2-entrypoint
 RUN chmod 0755 /usr/local/bin/tests-v2-entrypoint
