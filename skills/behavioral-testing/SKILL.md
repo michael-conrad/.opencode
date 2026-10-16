@@ -96,6 +96,16 @@ provenance: AI-authored, .opencode#2517; #2538 isolation mandate + evaluator con
    the update trigger, and filtering it out silently suppresses the update
    turn (observed defect, #2570: a `grep | head` poll invocation dropped the
    reminder and produced a run of bare bash calls with zero in-chat updates).**
+   **This mandate binds ANY operation under the agent's active supervision in a
+   working turn — model runs and background jobs (reindex, export, migration)
+   alike, with no duration or operation-kind qualifier (observed defect,
+   #2619: a reindex was policed at escalating 90–270s intervals with updates
+   riding in tool outputs).** Within the bound scope the 60-second interval is
+   a **ceiling, not a target** — it never escalates while the supervised
+   operation is pending. The per-poll in-chat text update is **unconditional**:
+   a poll with no new evidence still delivers its update — "no change" stated
+   plainly is the update (the developer cannot read tool outputs or agent
+   reasoning; an unreported interval is invisible time).
    **Never kill by name pattern.** Run cleanup and abort kill only the PIDs the
    agent itself launched — record the PID at launch and re-verify survivors by
    PID (`kill -9 <pid>`, `ps -p <pid>`), never by a name match. A pattern kill
