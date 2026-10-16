@@ -1095,7 +1095,7 @@ Any behavioral SC verdict whose evidence comes from a monitored run MUST record 
 | Timestamp accounting | Cadence and gap claims are computed from recorded timestamps (nested-run launch time, every poll time) — never estimated. An asserted compliance claim built from an elapsed-time impression is a fabricated finding. If the run completed before the first poll, state that plainly and take the early-exit path |
 | No blocking actions | No blocking action longer than 60 s starts while a run is active — clean-room evaluations dispatch at run boundaries, never mid-run |
 | Retry discipline | Run-retry invocations WITHOUT an intervening semantic check are PROHIBITED; a single cycle longer than 60s without a semantic check and its update is likewise prohibited |
-| Operation scope (.opencode#2619) | The mandate binds ANY actively supervised long-running operation — model runs AND background jobs (reindex, export, migration) the agent watches in a working turn — not only `opencode run` sessions |
+| Operation scope (.opencode#2619) | The mandate binds ANY operation under the agent's active supervision in a working turn — model runs and background jobs (reindex, export, migration) alike, with no duration or operation-kind qualifier — not only `opencode run` sessions |
 | Interval ceiling (.opencode#2619) | The 60-second interval is a ceiling, not a target: it never escalates while the supervised operation is pending (no 90/120/240s drift between polls) |
 | Unconditional update (.opencode#2619) | The per-poll in-chat text update is unconditional — a poll with no new evidence still delivers its update; "no change" stated plainly is the update (the developer cannot read tool outputs or agent reasoning; an unreported interval is invisible time) |
 
