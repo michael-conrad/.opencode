@@ -1,6 +1,6 @@
 title: '[SPEC] Deprecation Encounter Protocol — code-facing deprecation triage for
   the live deck'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
@@ -77,6 +77,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2618/`](https://github.c
 
   '
 created_at: '2026-10-15T04:10:44+00:00'
-updated_at: '2026-10-16T16:17:59+00:00'
+updated_at: '2026-10-16T19:01:49+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2618
 remote_url: https://github.com/michael-conrad/.opencode/issues/2618
