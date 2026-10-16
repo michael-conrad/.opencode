@@ -42,7 +42,7 @@
     },
     "ollama-web-search": {
       "type": "local",
-      "command": ["uv", "run", ".opencode/tools/web-search-mcp.py"],
+      "command": ["uv", "run", "--script", "--python-preference", "only-managed", ".opencode/tools/web-search-mcp.py"],
       "enabled": true,
       "environment": {
         "OLLAMA_API_KEY": "{env:OLLAMA_API_KEY}"

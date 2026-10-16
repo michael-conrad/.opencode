@@ -1,10 +1,10 @@
-#!/usr/bin/env -S uv run --script
+#!/usr/bin/env -S uv run --script --python-preference only-managed
 # fmt: off
-"exec" "uv" "run" "--script" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
+"exec" "uv" "run" "--script" "--python-preference" "only-managed" "$0" "$@" # MUST GO BEFORE PEP 723 HEADER
 
 # PEP 723 HEADER MUST BE AFTER BASH GUARD
 # /// script
-# requires-python = "~=3.12"
+# requires-python = "~=3.12.0"
 # dependencies = []
 # ///
 
