@@ -42,6 +42,11 @@ Consult before touching files.
    authorization. Downstream card gates (e.g. PR readiness) are reached by
    running the pipeline — they are never reasons to halt; the artifacts the
    gate checks are what the pipeline exists to produce.
+5. **Deprecation encounters.** A deprecation witnessed during the change is
+   triaged per [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md)
+   — new code never builds on deprecated surface; the encounter-carrying
+   cards (implement, programming-principles, research, systematic-debugging,
+   spec, plan) hold the domain slices.
 
 Unsure which path fits? Halt with an open-ended clarification request.
 

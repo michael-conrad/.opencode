@@ -24,6 +24,12 @@ provenance: AI-authored, .opencode#2490
    against current sources in this session — training data is a liability.
 5. **Record back.** Write or update a research card so the next session
    inherits the finding instead of re-paying for it.
+6. **Deprecation encounters are observed facts.** A deprecation surfaced
+   during research (changelog entry, doc notice, migration guide) is witnessed
+   evidence for [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md):
+   carry the source into the encounter — the `[BITROT]` ticket cites it, and
+   a research finding alone never licenses building new code on the
+   deprecated surface.
 
 **Agent-to-agent format:** structured data one agent creates for another — or
 ingests from another — defaults to YAML, marked by the bare `(YAML)` token at

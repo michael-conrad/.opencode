@@ -73,5 +73,12 @@ provenance: AI-authored, .opencode#2490
 8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
    tool permissions; the flow itself never calls gmail tools directly.
+9. **Deprecation encounters at authoring time.** A spec that touches a
+   witnessed deprecation follows [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md):
+   new requirements never specify deprecated surface; a load-bearing
+   deprecation with no route around becomes a temporary-use exception
+   carve-out cross-referencing the owning `[BITROT]` ticket and is escalated
+   with the proposed text — the carve-out adjusts this spec, it never widens
+   its scope.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
