@@ -1,9 +1,11 @@
 title: 'Fix spec: supervision poll discipline regression — 60s cycle drifts and updates
   leave chat'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec
 body: ''
 created_at: '2026-10-15T14:48:51+00:00'
-updated_at: '2026-10-15T14:48:51+00:00'
+updated_at: '2026-10-16T16:14:49+00:00'
+closed_at: '2026-10-16T16:14:49+00:00'
+close_reason: completed
