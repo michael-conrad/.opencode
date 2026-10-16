@@ -1,1 +1,25 @@
-comments: []
+comments:
+- type: stakeholder
+  body: "**Triage verdict: verified-resolved** (triaged 2026-10-16). Every defect\
+    \ this issue records is remediated and merged to trunk. No spec is filed from\
+    \ this issue because the remediation already exists as specced, executed, merged\
+    \ work:\n\n- **Deck mandates defect** (remote-body format, blockquoted artifacts\
+    \ link, `{N}/` record set) — remediated by #2622 (PR #2628, merged; closed completed\
+    \ 2026-10-16). Verified live in this session:\n  - `skills/spec/references/remote-body-format.md`\
+    \ carries the folder-existence trigger rule, the sizing doctrine, the universal\
+    \ minimum (Problem / Scope / Requirements R-x SHALL / Impact), the spec-filing\
+    \ extension (classified SCs with instruments, SC table, out of scope, approach,\
+    \ plan-shaped sections once a plan exists), the blockquote convention with tool-plus-manual-fallback\
+    \ build mechanics, and the `{N}/` record set — covering all three of this issue's\
+    \ suggested remediation items.\n  - `spec/SKILL.md` and `issues/SKILL.md` each\
+    \ point to the reference instead of carrying a body-format rule; `grep -rn \"\
+    exec summary\" .opencode/skills/` matches only the reference.\n  - session-init\
+    \ injects no \"condensed exec summary\" doctrine (zero matches); `.opencode/.issues/AGENTS.md`\
+    \ carries no operational format rules.\n\n- **`local-issues url --artifacts` ssh://\
+    \ origin failure** (this issue's second defect instance) — remediated by #2623\
+    \ (closed completed 2026-10-16): the tool parses `ssh://` and `git+ssh://` origins\
+    \ and consumes the committed `local-issues-host-maps.conf` family mapping. Verified\
+    \ live: `url --number opencode-config#376 --artifacts` → `https://github.com/michael-conrad/opencode-config/tree/issues-data/376/`,\
+    \ exit 0.\n\nThis issue remains the defect record cited as admission evidence\
+    \ by #2622. Closing verified-resolved.\n\n\U0001F916 OpenCode (huggingface/zai-org/GLM-5.3-Flash)"
+  timestamp: '2026-10-16T15:43:00+00:00'
