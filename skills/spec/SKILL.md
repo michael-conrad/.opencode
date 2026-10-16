@@ -27,8 +27,12 @@ provenance: AI-authored, .opencode#2490
    via `update --github`. The local-artifacts pointer written into the remote
    body must resolve to the actual local folder at write time; a mid-flow
    local write failure BLOCKs the flow — the remote body is never left
-   carrying an unresolvable pointer. The remote body is a detailed exec summary (why +
-   final what); the full spec and all artifacts live in `.issues/{N}/`. The
+   carrying an unresolvable pointer. The remote body follows
+   [the remote-body-format reference](references/remote-body-format.md)
+   — sizing doctrine (fuller-but-still-exec-summary, self-sufficient for
+   developer judgment), required sections, and the closing blockquoted
+   artifacts link; the full spec and all artifacts live in
+   `.issues/{N}/` and stay local-authoritative. The
    local counter reserves numbers only in remoteless stores. On every remote
    filing into a synced store, advance `.counter` to max(counter, filed
    number); if it has drifted behind the store's highest `{N}/`, advance it to

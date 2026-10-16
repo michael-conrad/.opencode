@@ -727,7 +727,8 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
     entries: list[str] = [
         "- Local artifacts for a qualified reference repo#N live at that "
         "repo's `issues:` path under {N}/ — read from the store first; the "
-        "remote issue body is a condensed exec summary only."
+        "remote issue body carries the structured summary; the store holds "
+        "the full spec."
     ]
     for repo in repo_info:
         repo_path = repo["path"]

@@ -1776,11 +1776,67 @@ def cmd_renumber(args: argparse.Namespace) -> None:
             write_file(links_path, yaml_dump(data))
 
 
+def _load_host_browser_maps(tool_dir: Path) -> dict[str, str]:
+    """Load the committed host→browser-base mapping table.
+
+    The config lives beside the tool (`local-issues-host-maps.conf`),
+    `key = value` lines where the key is a hostname optionally carrying
+    an informative `:port` (matching is on the hostname only). Blank
+    lines and `#` comments are skipped. A present-but-unparseable line
+    is warn-and-skipped (stderr, path + error class) per the tool's
+    SC-05 taxonomy — a broken config degrades to derived conversion,
+    never a crash.
+    """
+    config_path = tool_dir / "local-issues-host-maps.conf"
+    if not config_path.exists():
+        return {}
+    maps: dict[str, str] = {}
+    try:
+        text = config_path.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(
+            f"warn: skipping {config_path}: config-read-error ({exc})",
+            file=sys.stderr,
+        )
+        return {}
+    for lineno, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            print(
+                f"warn: skipping {config_path}:{lineno}: "
+                "config-invalid-line (missing '=')",
+                file=sys.stderr,
+            )
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if not key or not value:
+            print(
+                f"warn: skipping {config_path}:{lineno}: "
+                "config-invalid-line (empty key or value)",
+                file=sys.stderr,
+            )
+            continue
+        # An entry key may carry an informative :port — matching is on
+        # the hostname.
+        hostname = key.split(":", 1)[0]
+        maps[hostname] = value.rstrip("/")
+    return maps
+
+
 def _remote_browser_base(repo_path: Path) -> str | None:
     """Return the https browser base URL for the repo's origin remote.
 
-    Parses SSH (git@host:owner/repo.git) and HTTPS URLs, converts to
-    https://host/owner/repo. Returns None when no remote is configured
+    Parses SSH (`git@host:owner/repo.git` scp-form, `ssh://` and
+    `git+ssh://` URLs) and HTTPS URLs. A hostname with an entry in the
+    committed host-mapping config (`local-issues-host-maps.conf` beside
+    the tool) resolves to the mapped browser base — scheme-independently
+    (#2623): the web face is a fact about the host, not the URL scheme
+    or port. Unmapped hostnames convert to same-host
+    `https://host/owner/repo`. Returns None when no remote is configured
     or the URL is unparseable.
     """
     result = subprocess.run(
@@ -1790,12 +1846,21 @@ def _remote_browser_base(repo_path: Path) -> str | None:
     if result.returncode != 0:
         return None
     url = result.stdout.strip()
-    match = re.match(r"^git@([^:]+):([^/]+)/(.+?)(?:\.git)?$", url)
+    match = re.match(r"^git@([^:/]+):([^/]+)/(.+?)(?:\.git)?$", url)
+    if not match:
+        match = re.match(
+            r"^(?:git\+ssh|ssh)://(?:[^@/]+@)?([^/:]+)(?::\d+)?/([^/]+)/(.+?)(?:\.git)?$",
+            url,
+        )
     if not match:
         match = re.match(r"^https?://([^/]+)/([^/]+)/(.+?)(?:\.git)?$", url)
     if not match:
         return None
     host, owner, repo_name = match.groups()
+    maps = _load_host_browser_maps(Path(__file__).resolve().parent)
+    mapped = maps.get(host)
+    if mapped:
+        return f"{mapped}/{owner}/{repo_name}"
     return f"https://{host}/{owner}/{repo_name}"
 
 
