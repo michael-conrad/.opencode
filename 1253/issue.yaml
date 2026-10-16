@@ -3,3 +3,211 @@ title: '[SPEC-FIX] Fix requires-python tilde specifier in all PEP 723 scripts'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1253
 status: open
+body: '## Problem
+
+
+  The deck''s PEP 723 scripts do not pin their runtime environments:
+
+
+  1. **Python pin too broad** (observed failure recorded in this issue''s filing,
+  2026-06-16): two-part tilde `requires-python = "~=3.12"` is PEP 440 for `>=3.12,
+  <4` — uv resolved a 3.13+ interpreter whose environment lacked the script''s dependencies,
+  failing with `ModuleNotFoundError` at import time, before argument dispatch.
+
+  2. **Interpreter isolation is not enforced** (live-verified 2026-10-16, uv 0.11.19):
+  even with a correct `~=3.12.0` header, plain `uv run --script` resolved the system
+  interpreter (`/usr/bin/python3.12`) on first resolution — only `--python-preference
+  only-managed` forced uv''s managed cpython. The project `.venv` exists at `.opencode/.venv`,
+  so project-python contamination is a live risk too. Invocation forms vary across
+  the live tree (direct shebang exec, `bash <tool>` guard, plain `uv run <tool>` —
+  the tests-v2 harness uses the latter at `tests-v2/behaviors/helpers.sh:2079`); flags
+  carried in the shebang and guard lines make every form resolve the managed interpreter,
+  since plain `uv run` on a polyglot execs the file and honors the shebang.
+
+  3. **Dependency specs permit remote breakage**: bare names and `>=` admit untested
+  future versions — a remote package update can break a script overnight between two
+  runs of the same unchanged file. Live violations: `pyyaml>=6.0` in `tools/skildeck`,
+  the three `tools/impl/skildeck/*` scripts, and `tools/formal` (plus `unified-planning>=1.3.0`,
+  `up-tamer>=1.1.0`); bare `rich` and `ollama` in `tools/web-search-mcp.py`.
+
+  4. **The project manifest shares the defect**: `.opencode/pyproject.toml:5` declares
+  the same two-part tilde, so the project''s own environment remains resolvable to
+  3.13+ — the manifest defines "the project''s python" that the isolation mandate
+  excludes.
+
+
+  Current state: of the 22 live PEP 723 scripts (marker scan excluding `attic/`),
+  19 declare `~=3.12`, 1 declares bare `>=3.12` (`tools/formal`), 2 declare `~=3.12.0`
+  — and one of those still violates the dependency rule. No script enforces managed-python
+  resolution in its shebang or guard.
+
+
+  ## Root Cause
+
+
+  Two-part tilde ambiguity (PEP 440 `~=X.Y` spans to the next major); dep specs with
+  no ceiling re-expose scripts to every upstream release on each environment build;
+  interpreter selection is a property of the invocation, not the header; the pinning
+  norm''s former home (the environment guideline) was attic''d in the deck revision,
+  leaving the rule unstated and the scripts unconverted; the project manifest carries
+  the same two-part tilde.
+
+
+  ## Scope
+
+
+  **In scope:** all 22 PEP 723 scripts in the live deck (`.opencode/` excluding `attic/`);
+  the `ollama-web-search` MCP command in `.opencode/opencode.jsonc:45` (plain `uv
+  run`, no enforcement); `.opencode/pyproject.toml` `requires-python` + derived `uv.lock`.
+
+
+  **Out of scope:** `attic/` (pre-revision deck, pending deletion); tests-v2 fixture
+  heredoc `pyproject.toml` payloads (scratch manifests, not PEP 723 scripts); `uvx`-based
+  MCP entries; the parent repo (no PEP 723 scripts, no `opencode.json`); `pyproject.toml`
+  dependency-group pins; re-homing the pinning norm into a live deck card (deck governance,
+  own pipeline).
+
+
+  ## Requirements
+
+
+  - **R-1.** Every PEP 723 script in the live deck SHALL declare `requires-python
+  = "~=3.12.0"` (three-part compatible release); two-part tilde, bare `>=X.Y`, and
+  bare versions prohibited.
+
+  - **R-2.** Every dependency entry SHALL use the `~=` compatible-release operator;
+  bare names, `>=`, `==` prohibited. Converted pins preserve recorded floors (`pyyaml>=6.0`
+  → `pyyaml~=6.0`, `unified-planning>=1.3.0` → `unified-planning~=1.3`, `up-tamer>=1.1.0`
+  → `up-tamer~=1.1`); floorless deps (`rich`, `ollama`) get `~=` pins at the current
+  stable verified against the live PyPI registry (major.minor form, e.g. stable 14.2.1
+  → `~=14.2`), never from recall.
+
+  - **R-3.** Executing a PEP 723 script SHALL resolve its interpreter through uv''s
+  managed python toolchain satisfying the pin; the project''s python (`.venv` or any
+  project environment) and ambient system interpreters SHALL NOT participate. Every
+  script carrying a shebang or polyglot bash guard SHALL carry `--python-preference
+  only-managed` on both lines. An extensionless bash caller invoking the python script
+  with equivalent uv flags is an approved equivalent structure (developer-authorized
+  latitude).
+
+  - **R-4.** The `ollama-web-search` MCP command in `.opencode/opencode.jsonc` SHALL
+  carry the same enforcement: `uv run --script --python-preference only-managed .opencode/tools/web-search-mcp.py`.
+
+  - **R-5.** `.opencode/pyproject.toml` SHALL declare `requires-python = "~=3.12.0"`,
+  and `uv.lock` SHALL be regenerated to match.
+
+
+  ## Approach
+
+
+  Per-file transform, no restructuring: convert the 19 two-part headers; convert `tools/formal`''s
+  bare `>=` header + three dep specs; convert the four `pyyaml>=6.0` entries; pin
+  `rich`/`ollama` from a live registry query; append `--python-preference only-managed`
+  to every shebang and guard line (both forms live-verified to resolve managed cpython
+  3.12.13); update the config command; `uv lock` to regenerate. `tools/local-issues`
+  is already header/deps-conforming and changes only in shebang/guard. Alternatives
+  weighed: header pin alone (rejected on live evidence — system interpreter picked
+  on first resolution); explicit `--python 3.12` flag (duplicates the version literal;
+  header stays single source of truth); bash-caller wrappers (permitted latitude,
+  heavier than needed).
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | Live PEP 723 script set (marker scan excl. `attic/`) equals the 22-file
+  inventory | structural | marker scan + file-list diff |
+
+  | SC-2 | Every script declares `requires-python = "~=3.12.0"` | structural | grep;
+  zero nonconforming |
+
+  | SC-3 | Every non-empty dependency entry uses `~=`; no bare names, `>=`, `==` |
+  structural | grep; zero nonconforming |
+
+  | SC-4 | Floors preserved (`pyyaml~=6.0` ×5, `unified-planning~=1.3`, `up-tamer~=1.1`,
+  `mcp~=1.0`); `rich`/`ollama` pinned at registry-verified stable | structural | grep
+  + recorded PyPI query in evidence |
+
+  | SC-5 | Every script with shebang/guard carries `--python-preference only-managed`
+  on both lines | structural | grep both lines per file |
+
+  | SC-6 | `ollama-web-search` command is `["uv", "run", "--script", "--python-preference",
+  "only-managed", ".opencode/tools/web-search-mcp.py"]` | structural | grep config
+  entry |
+
+  | SC-7 | `pyproject.toml` `~=3.12.0`; `uv.lock` consistent | structural | grep +
+  `uv lock --check` exit 0 |
+
+  | SC-8 | Behavioral, direct exec: probe via shebang with foreign `VIRTUAL_ENV`,
+  cwd in `.opencode` reports 3.12.x + `sys.base_prefix` under uv''s managed dir |
+  behavioral | run probe; capture version + base_prefix |
+
+  | SC-9 | Behavioral, bash-guard path: same probe via `bash <script>` reports the
+  same managed identity | behavioral | run probe via bash; capture output |
+
+  | SC-10 | Behavioral, tools run clean: `./.opencode/tools/local-issues --help` and
+  `./.opencode/tools/py --description` exit 0, no `ModuleNotFoundError`, no resolution
+  warnings, foreign `VIRTUAL_ENV` active | behavioral | run both; capture exit codes/output
+  |
+
+  | SC-11 | Behavioral, harness-style plain invocation: `uv run <probe>` (no caller
+  flags — the helpers.sh:2079 form) resolves the managed interpreter | behavioral
+  | run; capture version + base_prefix |
+
+  | SC-12 | No live call site invokes a PEP 723 tool via caller-supplied `uv run --script`
+  lacking the enforcement flags | structural | grep live tree excl. `attic/`; zero
+  unflagged hits |
+
+  | SC-13 | Behavioral, new pins viable: registry-verified `rich`/`ollama` pins resolve
+  and both import | behavioral | `uv run --no-project --with ''rich~=X'' --with ''ollama~=Y''
+  python -c "import rich, ollama"` exits 0 |
+
+  | SC-14 | Behavioral, config path end-to-end: in the `811-sc5-ollama-web-search-invocation`
+  scenario artifacts, the MCP server launches and serves `web_search`/`web_fetch`
+  under the modified flagged command | behavioral | run the scenario via the tests-v2
+  harness to generate artifacts (exit code = artifact generation, not a verdict),
+  then clean-room sub-agent evaluation of `session.yaml` tool evidence; outcome is
+  the evaluation verdict |
+
+
+  ## Impact
+
+
+  - `tools/session-init` runs at every session start — must keep working (SC-10 class).
+
+  - The `formal-tooling` card documents `tools/formal`; tests-v2 harness scripts invoke
+  `tools/skildeck` + impl scripts — CLI arguments unchanged.
+
+  - `tests-v2/behaviors/helpers.sh:2079` launches `tools/session-to-timeline` via
+  plain `uv run` — resolves through the flagged shebang after the change (SC-11);
+  no harness edit required.
+
+  - The existing Tier-2 fixture `811-sc5-ollama-web-search-invocation.sh` exercises
+  the changed config entry end-to-end (SC-14).
+
+  - First-run cost: machines without a managed 3.12 download it once (observed: seconds).
+
+  - Resolution stability: floor-preserving conversions are resolution-neutral today
+  (`pyyaml~=6.0` → 6.0.3, `unified-planning~=1.3` → 1.3.0 verified); `rich`/`ollama`
+  are new constraints verified at implementation (SC-13).
+
+  - `tools/web-search-mcp.py` is vendored; only its dependency pins change — body
+  untouched.
+
+  - `.opencode/hooks/` reference no tools (verified).
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1253/
+
+
+  AI-facing artifacts pointer: `.opencode/.issues/1253/`
+
+
+  *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
+
+  '
+updated_at: '2026-10-16T20:37:15+00:00'
