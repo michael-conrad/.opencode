@@ -56,6 +56,12 @@ Two expectations are visible at this level; the depth is one hop away:
   public APIs with external consumers take deprecation cycles per standard
   practice.
 
+On the consuming side of that expectation: a witnessed deprecation is an
+encounter — new code never builds on deprecated surface; a drop-in swap inside
+already-rewritten code is compliance, not scope expansion; everything else
+tickets. [The deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md)
+owns the encounter side.
+
 Read [industry-standard practices](references/practices.md) when versioning,
 compatibility, deprecation, or industry-standard practice questions arise in
 design or review.

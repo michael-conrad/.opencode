@@ -22,5 +22,10 @@ provenance: AI-authored, .opencode#2490
    The fix explains why the symptom existed.
 5. **Regression-proof.** Add the failing case as a behavioral test; verify the
    fix against the full suite, not just the repro.
+6. **Deprecation encounters in the failure path.** A deprecation warning or
+   notice surfaced while debugging (compiler, linter, runtime, logs) is an
+   encounter under [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md):
+   the fix does not lean further on the deprecated surface, and dependent
+   usage found during debugging is ticketed, never silently absorbed.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

@@ -53,5 +53,11 @@ provenance: AI-authored, .opencode#2490
    terminal-stage approval (`approved for pr`, `approved for
    implementation`, …) from the vocabulary in `floor.md` carries the item
    through plan into implement — the stage is not re-asked.
+9. **Deprecation encounters at planning time.** Items touching a witnessed
+   deprecation follow [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md):
+   items never build new code on deprecated surface; an in-passing drop-in
+   swap rides inside the item it already belongs to; a load-bearing
+   deprecation surfaces as the spec's temporary-use exception — the plan's
+   implementable content is unchanged, and an encounter never adds plan items.
 
 🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)

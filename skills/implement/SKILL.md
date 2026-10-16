@@ -98,6 +98,16 @@ provenance: AI-authored, .opencode#2490
     cost of a skipped one. A step that cannot complete stops the cycle per the
     reference's escalation rule — never silently omitted.
 
+13. **Deprecation encounters.** A deprecation witnessed in the current
+    environment (annotation, doc notice, changelog entry, compiler/linter
+    warning, live research with sources) is an encounter, not ignorable noise.
+    New code never builds on deprecated surface; a drop-in replacement inside
+    code the change is already rewriting swaps in-passing — no ceremony; a
+    load-bearing deprecation with no route around takes the temporary-use
+    exception path (ticket + spec carve-out + escalation); everything else
+    files or appends to a `[BITROT]` ticket via a sub-agent. Full protocol:
+    [the deprecation encounter protocol](../guidelines/deprecation-encounter-protocol.md).
+
 **Agent-to-agent format:** structured data one agent creates for another — or
 ingests from another — defaults to YAML, marked by the bare `(YAML)` token at
 each reference; tool I/O, CLI output, and external configuration keep their
