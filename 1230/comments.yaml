@@ -1,0 +1,15 @@
+comments:
+- type: internal
+  body: 'Verified-resolved verdict (2026-10-16): outcome delivered by #2544; spec
+    mechanism rendered obsolete by the #2490 deck revision. Evidence: (1) session-init
+    now excludes wiki-origin repos (origin final segment ending .wiki/.wiki.git —
+    GitHub/GitBucket both use .wiki.git) from hook installation and inventory, with
+    self-healing removal of stale hook pollution — wikis are never hooked, so nothing
+    blocks wiki default-branch publishes; (2) the targeted hook was rewritten in 0e772bc4
+    (#2490 stage 4b) into a single property-based trunk-only guard — Gate 0, $2 remote-URL
+    matching, and SKIP_BRANCH_PROTECTION=1 no longer exist; (3) no wiki detection
+    ever landed in the hook (git log --all -S wiki -- hooks/pre-push is empty); (4)
+    SC-5''s test path .opencode/tests/behaviors/ no longer exists; (5) Bitbucket /wiki
+    pattern fragment is moot — workspace platforms are GitHub + GitBucket, both .wiki.git.
+    Zero live fragments; closing as completed.'
+  timestamp: '2026-10-16T19:11:41+00:00'
