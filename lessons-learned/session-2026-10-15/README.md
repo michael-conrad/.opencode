@@ -17,13 +17,22 @@ until a developer abort stopped an unreported 270-second poll.
    as outside the mandate and let the cadence decay "while just waiting." Anything actively
    supervised by the agent in a working turn is the same problem: the developer is waiting on
    an invisible process.
-2. *Cadence-anchoring gap* — no prior correction bound the interval itself as a ceiling that
-   never escalates while waiting, and none required the per-poll update when a poll yields no
-   new evidence — which is exactly when skipping the update is most tempting.
+2. *Cadence-anchoring gap, scope-relative* — the anchoring the prior corrections
+   wrote is real but scoped with the mandate. #2557's R-15 caps polls at 60
+   seconds and requires every poll's report ("an unreported poll did not
+   happen"); #2570 hardened the cycle to "absolute — no longer sleeps between
+   polls, ever." Both clauses live inside the Agent-Supervisor Mandate, whose
+   scope is `opencode run` supervision — so for any operation the agent
+   supervises that is not an `opencode run`, none of it applies: no stated
+   ceiling, no stated per-poll update duty. And within the mandate itself, the
+   update's content is defined only in terms of the run agent's state, leaving
+   the update form for a poll that yields no new evidence on a non-run
+   operation unstated — exactly the poll most likely to tempt omission.
 
 **Remediation (implemented in this change, .opencode#2619):** behavioral-testing card §9
-amended — the mandate now binds ANY actively supervised long-running operation (model runs
-and background jobs), fixes 60 seconds as a ceiling that never escalates while pending, and
+amended — the mandate now binds ANY operation under the agent's active supervision in a
+working turn (model runs and background jobs alike, with no duration or operation-kind
+qualifier), fixes 60 seconds as a ceiling that never escalates while pending, and
 makes the per-poll in-chat update unconditional ("no change" stated plainly is the update).
 Mirrored into tests-v2/AGENTS.md's Agent-Supervisor Mandate.
 
