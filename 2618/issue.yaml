@@ -24,8 +24,8 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2618/`](https://github.c
   files, grep 2026-10-15) — nothing tells an agent what to do when it *meets* a deprecated
   API, config key, or wire format mid-work. New code gets written against deprecated
   surface and existing reliance accrues invisibly until it breaks. Predecessor .opencode#2458
-  identified the same gap but targeted retired old-deck machinery (closed-moot locally;
-  remote still open).
+  identified the same gap but targeted retired old-deck machinery (closed-moot 2026-10-05;
+  remote reconciled closed 2026-10-16; successor: this spec).
 
 
   ## Final what
@@ -77,6 +77,6 @@ body: '> **Full spec and artifacts: [`.opencode/.issues/2618/`](https://github.c
 
   '
 created_at: '2026-10-15T04:10:44+00:00'
-updated_at: '2026-10-15T04:26:55+00:00'
+updated_at: '2026-10-16T16:17:59+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2618
 remote_url: https://github.com/michael-conrad/.opencode/issues/2618
