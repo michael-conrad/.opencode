@@ -30,16 +30,21 @@ Resolves `.opencode#2622` (remediation of `.opencode#2620`). Consumes `.opencode
 - **GREEN:** edit the one string; grep returns no match.
 - **Instrument:** source read + grep.
 
-### Item 4 — Workspace guides stripped to layout/tooling (SC-6)
+### Item 4a — Deck workspace guide stripped (SC-6, deck side)
 
-- **Deliverable:** `.opencode/.issues/AGENTS.md` loses its operational "GitHub URL Convention for Remote Issue Body" section and exec-summary doctrine phrasing — normative content relocated into the reference — keeping layout/tooling description plus a pointer to the deck reference. `.issues/AGENTS.md`'s pointer description cites the deck reference for format rules instead of the weak phrasing.
-- **RED:** both guides currently carry the operational sections/phrasings.
-- **GREEN:** strip and re-point both guides.
-- **Commit mechanics (the two files live in different repositories):**
-  - `.opencode/.issues/AGENTS.md` is a deck-submodule file on the `issues-data` orphan branch of the deck repo — edited directly and committed via `git -C .opencode/.issues` on that branch (issues-data hygiene path); it does NOT ride the feature branch or the PR diff.
-  - `.issues/AGENTS.md` is the parent repo's issues-data worktree — same hygiene path, `git -C .issues`.
-  - The deck-side PR body (Item 5) records both guide edits in its narrative; the parent-guide edit itself is an authorization-free issues-data hygiene write per the store guide.
-- **Instrument:** read both guides in full (post-edit state in the respective worktrees).
+- **Deliverable:** `.opencode/.issues/AGENTS.md` loses its operational "GitHub URL Convention for Remote Issue Body" section and exec-summary doctrine phrasing — normative content relocated into the reference — keeping layout/tooling description plus a pointer to the deck reference.
+- **RED:** the deck guide currently carries the operational section and phrasing.
+- **GREEN:** strip and re-point the deck guide.
+- **Commit mechanics:** deck-submodule file on the `issues-data` orphan branch of the deck repo — edited directly and committed via `git -C .opencode/.issues` on that branch (issues-data hygiene path); it does NOT ride the feature branch or the PR diff. The deck-side PR body (Item 5) records this edit in its narrative.
+- **Instrument:** read the deck guide in full (post-edit state in the deck worktree).
+
+### Item 4b — Parent workspace guide re-pointed (SC-6, parent side)
+
+- **Deliverable:** `.issues/AGENTS.md`'s pointer description cites the deck reference for format rules instead of the weak "detailed exec summary" phrasing.
+- **RED:** the parent guide's pointer description currently embeds the weak phrasing.
+- **GREEN:** re-point the parent guide description at the deck reference.
+- **Commit mechanics:** parent repo's issues-data worktree — hygiene path via `git -C .issues`; an authorization-free issues-data hygiene write per the store guide, independent of the deck-side branch and PR.
+- **Instrument:** read the parent guide in full (post-edit state in the parent worktree).
 
 ### Item 5 — Admission evidence with the change (SC-8)
 
@@ -48,22 +53,22 @@ Resolves `.opencode#2622` (remediation of `.opencode#2620`). Consumes `.opencode
 - **GREEN:** evidence cited in the per-issue commit and PR body at PR creation.
 - **Instrument:** read the commit message + PR body.
 
-### Item 6 — Behavioral filing test (SC-9)
+### Item 6 — Behavioral composition check (SC-9)
 
-- **Deliverable:** a tests-v2 behavioral session test: a fresh-session agent routing `spec`/`issues` by description alone files a folder-backed issue and composes a remote body with the universal-minimum sections, the spec extension, and the closing blockquote. The reference's manual platform-URL derivation is the fallback build mechanic, so this does not block on #2623.
-- **RED (verified pre-change, 2026-10-15):** the deck as-written produces the thin "## Why / ## What" body — the recorded defect behavior (NewsRxUI#64, ProcessFinishedNotify#36). The test is authored against that pre-change deck; after Items 1–4 land, the GREEN assertion is that the session now produces the mandated body shape.
-- **GREEN:** with the deck changes (Items 1–4), the session produces the mandated body shape.
-- **Instrument:** behavioral session run via the tests-v2 harness; inspect the produced remote body.
+- **Deliverable:** a tier-1 clean-room dispatch: a fresh-context agent routing `spec`/`issues` by description alone, loading only the changed cards plus the new reference, composes the remote body for a stated folder-backed defect and returns the body; the orchestrator inspects the returned body for the universal-minimum sections, the spec extension, and the closing blockquote, and persists the prompt plus verdict into the issue artifact area. The reference's manual platform-URL derivation is the fallback build mechanic, so this does not block on #2623.
+- **RED (verified pre-change, 2026-10-15):** the deck as-written produces the thin "## Why / ## What" body — the recorded defect behavior (NewsRxUI#64, ProcessFinishedNotify#36). The dispatch is authored against that pre-change deck; after Items 1–3 plus 4a land, the GREEN assertion is that the dispatch now produces the mandated body shape.
+- **GREEN:** with the deck changes (Items 1–3 plus 4a), the dispatch produces the mandated body shape.
+- **Instrument:** tier-1 clean-room dispatch record (prompt, returned body, verdict) in the issue artifact area; inspect the returned body.
 
 ## Dependencies
 
-Item 1 → Item 2 → Items 3, 4 (pointers must exist before the sites referencing them are rewritten); Item 5 rides the commit/PR; Item 6 runs after Items 1–4 land on the branch.
+Item 1 → Item 2 → Items 3, 4a (pointers must exist before the sites referencing them are rewritten); Item 4b proceeds independently on the parent hygiene path; Item 5 rides the commit/PR; Item 6 runs after Items 1–3 plus 4a are complete (branch-landed items on the branch, 4a in the deck worktree).
 
 ## Traceability
 
-- Item 1 → SC-1–SC-4; Item 2 → SC-5; Item 3 → SC-7; Item 4 → SC-6; Item 5 → SC-8; Item 6 → SC-9. All nine SCs covered; no untraceable items.
+- Item 1 → SC-1–SC-4; Item 2 → SC-5; Item 3 → SC-7; Items 4a + 4b → SC-6; Item 5 → SC-8; Item 6 → SC-9. All nine SCs covered; no untraceable items.
 
 ## Verification instruments
 
 - Structural: file reads and greps named per item.
-- Behavioral: tests-v2 harness session run (Item 6), per the behavioral-testing card.
+- Behavioral: tier-1 clean-room dispatch record (Item 6), per the behavioral-testing card.

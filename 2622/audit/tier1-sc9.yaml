@@ -1,0 +1,82 @@
+status: PASS
+sc_id: SC-9
+tier: 1
+date: '2026-10-16'
+dispatch_task_id: ses_ebabb21bbffeaB6vrMlq2GrWtj
+prompt: "Fresh-session agent routing spec/issues by description alone; compose the
+  folder-backed spec-filing remote body for the README build/usage defect
+  (repo#1 with matching {1}/ folder) per the remote-body-format reference."
+criterion: universal-minimum sections plus spec-filing extension plus closing
+  blockquoted artifacts link
+coverage:
+  problem: true
+  scope: true
+  requirements_rx_shall: true
+  impact: true
+  success_criteria_classified_with_instruments: true
+  success_criteria_table: true
+  out_of_scope: true
+  approach: true
+  closing_blockquote_artifacts_link: true
+  ai_facing_relative_path_pointer: true
+  no_hardcoded_file_lists: true
+verdict: PASS
+verdict_justification: Returned body contains every mandated section and the
+  closing blockquote with adjacent relative-path pointer; plan-shaped sections
+  correctly absent since no plan exists in the dispatch context.
+note: Plan-shaped sections bind once a plan exists per the reference; the
+  dispatch context carried no plan, so their absence is conformant, not a gap.
+body: |
+  ## Problem
+
+  This repo's `README.md` has no build or usage instructions. A new contributor reading only the README cannot determine prerequisites, how to set up the checkout (including the `.opencode` submodule), how to verify the setup, or how to use the repo day-to-day. This blocks onboarding and forces discovery by inspection and word-of-mouth.
+
+  ## Scope
+
+  Add concise, verified build and usage instructions to the root `README.md` so a new contributor can clone, initialize, verify, and use this repo without prior context:
+
+  - Document prerequisites needed to work in this repo.
+  - Document clone plus submodule initialization steps.
+  - Document how to verify the checkout is correct.
+  - Document minimal day-to-day usage pointers for this harness repo.
+
+  ## Requirements
+
+  - **R-1:** The `README.md` SHALL document the prerequisites required to clone and work in this repo.
+  - **R-2:** The `README.md` SHALL document the clone and `.opencode` submodule initialization steps a new contributor must run.
+  - **R-3:** The `README.md` SHALL document how to verify the checkout (submodule present, expected layout present).
+  - **R-4:** The `README.md` SHALL document minimal usage guidance distinguishing this parent harness repo from the `.opencode` submodule source of truth.
+
+  ## Success Criteria
+
+  - **SC-1 (structural):** `README.md` contains a prerequisites/build-setup section covering required tooling — Verification instrument: `grep -iE 'prereq|requirement|getting started|setup' README.md`.
+  - **SC-2 (structural):** `README.md` contains copy-pasteable clone and submodule init commands — Verification instrument: `grep -E 'git clone|submodule (init|update)' README.md`.
+  - **SC-3 (structural):** `README.md` states how to verify the checkout and what correct looks like — Verification instrument: `grep -iE 'verify|check|expected' README.md`.
+  - **SC-4 (behavioral):** The documented setup sequence succeeds from a clean state — Verification instrument: `bash -c` clean-clone walkthrough executing only the README-listed commands and asserting zero exit plus expected layout.
+
+  | ID | Criterion | Class | Instrument |
+  |----|-----------|-------|------------|
+  | SC-1 | README documents prerequisites / setup requirements | structural | `grep -iE 'prereq\|requirement\|getting started\|setup' README.md` |
+  | SC-2 | README gives copy-pasteable clone + submodule init commands | structural | `grep -E 'git clone\|submodule (init\|update)' README.md` |
+  | SC-3 | README states how to verify the checkout | structural | `grep -iE 'verify\|check\|expected' README.md` |
+  | SC-4 | Documented setup succeeds from a clean state | behavioral | `bash` clean-clone walkthrough of README commands only |
+
+  ## Out of Scope
+
+  - Application source code or behavior changes; docs-only change.
+  - Restructuring the `.opencode` submodule or duplicating its guidelines/skills/tools docs here.
+  - CI, release, or build-system changes.
+  - Video tutorials, external site docs, or exhaustive contributor guides.
+
+  ## Approach
+
+  Extend the root `README.md` in place with a short Getting Started / Build and Usage section: prerequisites, clone + `git submodule init/update`, verification check, and usage pointers clarifying this repo is the harness and `.opencode/` holds the source of truth. Verify by grepping the new sections and by walking the listed commands once from a clean checkout.
+
+  ## Impact
+
+  - **Consumers:** New contributors and evaluators onboarding to this repo; existing maintainers gain fewer setup questions.
+  - **Risk:** Low — documentation-only, no code paths affected. Residual risk is stale instructions; mitigated by the clean-walkthrough verification.
+  - **Blast radius:** `README.md` only; no runtime, submodule, or pipeline changes.
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/opencode-config/tree/issues-data/1/
+  > **Local artifacts:** `.issues/1/` — implementation plan, card catalogue, dependency contracts, research, designs, audit findings
