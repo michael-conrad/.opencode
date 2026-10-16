@@ -1,1 +1,11 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Superseded by #2504 (a2de87c2): the bespoke `tools/plan` init-expression
+    parser was retired to `attic/` and replaced by `tools/formal`, which delegates
+    planning to unified-planning''s `up` CLI with no bespoke init-expression parsing;
+    its `state init` takes typed YAML literals, so the discarded-negation bug is structurally
+    impossible in the active tool. Note: the single-line fix claimed in the issue
+    body ("fix already applied and verified") was never committed to any live tool
+    — the buggy line survives only in dead attic code. Closing as moot/superseded;
+    no implementation needed.'
+  timestamp: '2026-10-16T19:32:31+00:00'
