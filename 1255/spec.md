@@ -117,6 +117,8 @@ submodule <relpath>:
 
 - One group per enumerated repo, in `## Repo Information` order; rows are
   the repo's linked worktrees excluding its main worktree, one row each.
+- The fenced template is normative: the `## Worktree Map` title line and
+  the blank line separating groups are part of the section grammar (SC-6).
 - `<relpath>` is project_root-relative (`.issues`, `.worktrees/main`,
   `.opencode/.issues`); single-quoted when it contains whitespace.
 - `<branch>` is the checked-out branch without `refs/heads/`; a detached
@@ -139,12 +141,13 @@ submodule <relpath>:
 | SC-3 | With a linked worktree outside the standard set present, session-init emits `## Worktree Map` containing that worktree's project-relative path and its actual checked-out branch | behavioral | In a scratch fixture workspace: create a linked worktree on a new branch; run session-init; assert the map contains the worktree's relative path and that the displayed branch equals `git -C <worktree> rev-parse --abbrev-ref HEAD`; remove the worktree, prune, delete the branch, and verify cleanup |
 | SC-4 | With a linked worktree whose directory has been removed, the map marks that row `prunable` | behavioral | In a scratch fixture workspace: create a linked worktree, delete its directory, run session-init, assert the row carries `prunable`; then `git worktree prune` and verify the registration is gone |
 | SC-5 | When session-init runs from inside a linked worktree that is itself outside the standard set, that worktree's map row carries `current` | behavioral | In a scratch fixture workspace: create a non-standard linked worktree (its existence is trigger T1), run session-init with cwd set to that worktree, and assert its row carries `current` |
-| SC-6 | Every line of the emitted map conforms to the specified grammar: group headers (`<owner>/<repo>:` or `submodule <relpath>:`) or rows (`<relpath> [<branch>\|detached] [current] [prunable]`) — no other line shape, no SHA, no absolute path, no prose | structural | Parse the emitted map section line-by-line against the grammar; assert zero non-conforming lines |
-| SC-7 | When the map is emitted it is complete: each enumerated repo's group lists all of that repo's linked worktrees, including submodule `.issues` store rows | behavioral | In a scratch fixture workspace with a submodule carrying an `.issues` store plus a parent deviation trigger: run session-init; assert the submodule group contains the store row with `[issues-data]` |
+| SC-6 | Every line of the emitted map section — defined as the `## Worktree Map` title line through the line before the next `## ` section marker — conforms to the section grammar: the title line, blank separator lines, group headers (`<owner>/<repo>:` or `submodule <relpath>:`), or rows (`<relpath> [<branch>\|detached] [current] [prunable]`) — no other line shape, no SHA, no absolute path, no prose | structural | Parse the emitted map section line-by-line against the section grammar; assert zero non-conforming lines |
+| SC-7 | When the map is emitted it is exactly complete: every enumerated repo has a group, each group lists exactly that repo's linked worktrees (one row each, main worktree excluded, no duplicates, no omissions), and groups appear in `## Repo Information` order | behavioral | In a scratch fixture workspace with a submodule carrying an `.issues` store plus a parent deviation trigger: construct the expected ordered row set from the fixture topology; run session-init; assert the map's groups and rows equal the expected set exactly |
 | SC-8 | No `.git/modules/` path appears anywhere in the emitted map; submodule rows resolve to real worktree paths | structural | Run session-init with a map-triggering fixture; assert the substring `.git/modules` does not occur in the map section |
 | SC-9 | An embedded non-submodule repo under a gitignored path neither triggers the map nor appears in it or in `## Repo Information` | behavioral | In a scratch fixture workspace with standard topology plus an embedded repo (`git init` under an ignored path): run session-init; assert no `## Worktree Map` and no group or entry naming the embedded path |
 | SC-10 | With a linked worktree in detached-HEAD state, the map is emitted and that row renders `[detached]` with no SHA | behavioral | In a scratch fixture workspace: create a detached-HEAD linked worktree (`git worktree add --detach`); run session-init; assert the map is emitted and the row renders `[detached]` with no hexadecimal string; remove the worktree, prune, verify cleanup |
 | SC-11 | With an `.issues` store worktree on a branch other than `issues-data`, the map is emitted and the store row shows that branch | behavioral | In a scratch fixture workspace: create a `.issues` worktree checked out on a branch other than `issues-data`; run session-init; assert the map is emitted and the store row displays the alternate branch; remove the worktree, prune, delete the branch, verify cleanup |
+| SC-12 | When the map is emitted it appears immediately after `## Local Issue Folders` and before `## Repo Information` | behavioral | In a scratch fixture workspace with a map-triggering fixture worktree: run session-init; assert the `## Worktree Map` marker occurs after `## Local Issue Folders` and before `## Repo Information`; remove the worktree, prune, verify cleanup |
 
 SC traceability: SC-3, SC-4, SC-7, SC-10, SC-11 answer RC1 (existence,
 branch accuracy, staleness, detached state, store-branch anomaly, submodule
@@ -154,8 +157,9 @@ RC2 and the 2026-10-16 directive (no misrepresentation of worktree or
 foreign-repo class in the injected surface); SC-1 carries the approved
 deviation-triggered design (no constant-fact restatement in the standard
 shape); SC-2 preserves unchanged behavior the change puts at risk; SC-5
-carries the approved design direction (deviation-triggered map with
-`current`/`prunable` flags, 2026-10-16).
+and SC-12 carry the approved design direction (deviation-triggered map
+with `current`/`prunable` flags, placed after `## Local Issue Folders`,
+2026-10-16).
 
 ## Edge Cases
 
@@ -221,13 +225,13 @@ carries the approved design direction (deviation-triggered map with
   one toplevel resolution per emitted row; bounded by the registered
   submodule count and emitted only on deviation.
 - **Fixture hygiene** — the fixture-creating instruments (SC-3, SC-4,
-  SC-5, SC-10, SC-11) create and destroy real worktrees; each instrument's
-  cleanup steps (remove, prune, branch delete where applicable, verify)
-  are part of the check, and all instruments run in scratch fixture
-  workspaces rather than the live checkout. The probe pattern was verified
-  live this session (worktree add → verify → directory removal →
-  `prunable` observed → prune → branch delete → zero residual
-  registrations).
+  SC-5, SC-10, SC-11, SC-12) create and destroy real worktrees; each
+  instrument's cleanup steps (remove, prune, branch delete where
+  applicable, verify) are part of the check, and all instruments run in
+  scratch fixture workspaces rather than the live checkout. The probe
+  pattern was verified live this session (worktree add → verify →
+  directory removal → `prunable` observed → prune → branch delete →
+  zero residual registrations).
 
 ## Interplay with .opencode#2102
 

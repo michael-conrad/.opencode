@@ -118,13 +118,15 @@ body: '## Problem
   | SC-5 | Running from inside a non-standard linked worktree marks that row `current`
   | behavioral | Fixture worktree as cwd; assert `current` on its row |
 
-  | SC-6 | Every map line conforms to the grammar (group header or row); no other
-  line shape, no SHA, no absolute path, no prose | structural | Line-by-line grammar
-  parse; zero non-conforming lines |
+  | SC-6 | Every map-section line conforms to the section grammar (title line, blank
+  separators, group headers, rows); no other line shape, no SHA, no absolute path,
+  no prose | structural | Line-by-line grammar parse of the map section (title through
+  next `## ` marker); zero non-conforming lines |
 
-  | SC-7 | Emitted map is complete, including submodule `.issues` store rows | behavioral
-  | Scratch fixture with submodule + parent trigger; assert store row `[issues-data]`
-  |
+  | SC-7 | Emitted map is exactly complete: every enumerated repo group lists exactly
+  its linked worktrees (one row each, main worktree excluded, no duplicates), groups
+  in Repo Information order | behavioral | Scratch fixture with submodule + parent
+  trigger; assert groups and rows equal the expected ordered set exactly |
 
   | SC-8 | No `.git/modules/` path appears in the map; submodule rows resolve to real
   paths | structural | Assert substring absent from emitted map |
@@ -140,6 +142,10 @@ body: '## Problem
   | SC-11 | `.issues` store worktree on a branch other than `issues-data` fires the
   map with that branch shown | behavioral | Fixture store worktree on alternate branch;
   assert map emitted and row shows the branch; cleanup |
+
+  | SC-12 | Emitted map appears immediately after `## Local Issue Folders` and before
+  `## Repo Information` | behavioral | Map-triggering fixture run; assert marker position
+  between the two section markers; cleanup |
 
 
   Full traceability (each SC → root cause, edge cases, alternatives, risks) lives
@@ -166,4 +172,4 @@ body: '## Problem
   > `.opencode/.issues/1255/`
 
   '
-updated_at: '2026-10-17T02:49:47+00:00'
+updated_at: '2026-10-17T02:54:30+00:00'
