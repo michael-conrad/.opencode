@@ -2,12 +2,12 @@
 name: gb-cli
 description: "Load before any command or code that contacts GitBucket — using the gb CLI, GitBucket API calls, or anything needing GitBucket credentials for issues, pull requests, releases, or repository operations. Also load when authoring or running test-harness scenarios, scripts, or automation that will invoke gb or GitBucket endpoints at runtime, and when any GitBucket operation fails or behaves unexpectedly. Authentication is built into gb; never hand-roll GitBucket API code or hunt for credentials. One load does not carry across operation classes: before your first GitBucket contact in a new class (issues ↔ pull requests ↔ API passthrough), load this card again — even though it is already in context."
 license: MIT
-provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547
+provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .opencode#2547; .opencode#2382 -->
 
 # gb-cli — GitBucket operations
 
@@ -29,8 +29,14 @@ provenance: AI-authored, .opencode#2490; .opencode#2564; .opencode#2589; .openco
 4. **Platform awareness.** GitBucket API differs from GitHub's — consult the
    gb help, not GitHub assumptions, when behavior surprises. Known gaps:
    plain-issue state mutation is absent from GitBucket's GitHub-compatible
-   API (`PATCH .../issues/{n}` → 404); PRs differ (`PATCH .../pulls/{n}`
-   accepts `state`).
+   API (`PATCH .../issues/{n}` → 404). PR state mutation is conditional:
+   the raw `PATCH .../pulls/{n}` endpoint accepts `state`, but `gb pr close`
+   fails with HTTP 404 on GitBucket in every condition observed
+   (.opencode#2382, pinned by reproduction: head branch deleted, base branch
+   deleted, both deleted, and even with branches intact). Close a PR with
+   `gb pr edit <N> --state closed --web` instead — the `--web` fallback
+   prompts for the GitBucket password on a terminal; `gb pr edit` without
+   `--web` reports "REST PR edit is unavailable" on GitBucket.
 5. **Non-interactive issue state changes.** Close/reopen an issue in scripts
    via the comments route's `action` parameter:
    `gb api -X POST repos/{owner}/{repo}/issues/{number}/comments?action=close --input <file|->`
