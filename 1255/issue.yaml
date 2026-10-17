@@ -1,5 +1,161 @@
 number: 1255
-title: '[SPEC] Add git worktree list output to session init injection'
+title: '[SPEC] Deviation-triggered worktree map in session-init'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1255
 status: open
+body: '## Problem
+
+
+  The agent cannot see, from the session-start injection, which git worktrees exist
+  in the workspace or what branch each is on. The only worktree facts session-init
+  emits today are the `Worktree:` context line (when it runs inside a linked worktree)
+  and the `## Local Issue Folders` paths for `.issues/` stores. Branch assignments,
+  non-issue-store worktrees, and stale (prunable) registrations are invisible until
+  the agent runs git itself — and raw `git worktree list` output is misleading: inside
+  a submodule, the main-worktree row is the module gitdir (`.git/modules/...`), not
+  a real worktree path.
+
+
+  Separately, the workspace contains `.git`-bearing paths of several kinds with different
+  operational semantics, and nothing in the injected surface distinguishes them. Developer
+  directive (2026-10-16): non-submodule git sub-repos must not be treated the same
+  as standard git submodules for agent operational purposes — the needs are different,
+  and the agent sometimes gets confused about this.
+
+
+  ## Scope
+
+
+  Revise the original spec (which proposed an always-on `## Worktree Topology` section
+  plus a `buildPreImplementationGate()` update) to the post-rip deck: session-init
+  gains a **deviation-triggered, facts-only worktree map**; the dead gate target is
+  dropped; the classification rule lands in deck cards via governance, not in the
+  injected output.
+
+
+  ## Approach
+
+
+  - **Sub-repo classification (design decision):** registered submodule (routing target,
+  pointer discipline, submodule ops apply) vs parent repo''s linked worktree (same
+  repo — branch exclusivity, never a submodule target, never parent-content) vs embedded
+  non-submodule repo (never enumerated per #2544, never a routing or submodule target).
+
+  - **Enumerated repos:** project root + checked-out registered submodules, exactly
+  `collect_repo_info()`''s #2544 discovery set.
+
+  - **Standard worktree set** per repo: its main worktree + its `.issues` store. **Deviation
+  triggers:** T1 linked worktree outside that set; T2 any `prunable` registration;
+  T3 any detached-HEAD linked worktree; T4 an `.issues` store off `issues-data`.
+
+  - **Map (emitted only on a trigger, placed after `## Local Issue Folders`):** one
+  group per enumerated repo; rows `relpath [branch] [current] [prunable]`; project-relative
+  paths; `[detached]` without SHA; module-gitdir rows resolved to real toplevels (no
+  `.git/modules` path ever shown); complete when emitted; standalone `Worktree:` line
+  and all existing sections unchanged.
+
+
+  ## Requirements
+
+
+  - R-1: session-init SHALL emit no worktree map when only the standard worktree set
+  exists.
+
+  - R-2: session-init SHALL emit the worktree map, complete across all enumerated
+  repos, when any deviation trigger holds.
+
+  - R-3: map rows SHALL carry the worktree''s actual checked-out branch, `current`
+  when it is the running context, and `prunable` when git reports it.
+
+  - R-4: the map SHALL carry facts only (grammar-conforming lines; no rule prose,
+  SHAs, or absolute paths) and SHALL NOT surface any `.git/modules/` path.
+
+  - R-5: an embedded non-submodule repo SHALL neither trigger the map nor appear in
+  it or in `## Repo Information`.
+
+  - R-6: all pre-existing session-init sections and the `Worktree:` line SHALL be
+  preserved.
+
+
+  ## Impact
+
+
+  - Consumers: session-init stdout is injected by `session-enforcement.ts` (system.transform);
+  `.opencode#2102` (open) proposes a temp-file mechanism — this design is mechanism-independent
+  and its verification instruments move with that change if it lands first. Existing
+  session-init unit tests (#2088) are dependents.
+
+  - Risk: bounded — one `git worktree list --porcelain` per enumerated repo plus one
+  toplevel resolution per emitted row, emitted only on deviation. `prunable` verified
+  present in git 2.43.0 porcelain (older git degrades: T2 simply never fires, no mislabel).
+
+  - Deck cards (`git-workflow-branch` classification rule, `issues` citation) change
+  via the skill-creator governance flow as their own artifact — out of scope here.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | No `## Worktree Map` when only the standard worktree set exists | behavioral
+  | Run in scratch fixture workspace (standard topology); assert marker absent |
+
+  | SC-2 | Pre-existing sections preserved in current relative order; `Worktree:`
+  line present when run inside a linked worktree | behavioral | Two runs in scratch
+  fixture (main worktree, inside linked worktree); assert ordered marker presence
+  |
+
+  | SC-3 | Non-standard linked worktree appears with its actual branch | behavioral
+  | Fixture worktree; displayed branch equals `git -C <wt> rev-parse --abbrev-ref
+  HEAD`; full fixture cleanup |
+
+  | SC-4 | Worktree with removed directory is marked `prunable` | behavioral | Fixture:
+  create worktree, delete dir, assert `prunable`; prune and verify |
+
+  | SC-5 | Running from inside a non-standard linked worktree marks that row `current`
+  | behavioral | Fixture worktree as cwd; assert `current` on its row |
+
+  | SC-6 | Every map line conforms to the grammar (group header or row); no other
+  line shape, no SHA, no absolute path, no prose | structural | Line-by-line grammar
+  parse; zero non-conforming lines |
+
+  | SC-7 | Emitted map is complete, including submodule `.issues` store rows | behavioral
+  | Scratch fixture with submodule + parent trigger; assert store row `[issues-data]`
+  |
+
+  | SC-8 | No `.git/modules/` path appears in the map; submodule rows resolve to real
+  paths | structural | Assert substring absent from emitted map |
+
+  | SC-9 | Embedded non-submodule repo neither triggers the map nor appears in it
+  or in Repo Information | behavioral | Scratch fixture + `git init` under ignored
+  path; assert no map, no entry |
+
+
+  Full traceability (each SC → root cause, edge cases, alternatives, risks) lives
+  in the local spec.
+
+
+  ## Out of Scope
+
+
+  - `session-enforcement.ts` changes — `buildPreImplementationGate()` was removed
+  2026-06-23 (`02d19d17`), the plugin stripped to minimal 2026-07-16 (`84c01a8b`);
+  post-rip there is no gate and no second injection surface.
+
+  - Deck card edits — separate skill-creator governance artifact.
+
+  - Embedded-repo discovery/enumeration — #2544 strict discovery stands.
+
+  - Automated pruning/remediation — report-only.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1255/
+
+
+  > `.opencode/.issues/1255/`
+
+  '
+updated_at: '2026-10-17T02:45:31+00:00'
