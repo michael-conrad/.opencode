@@ -1,4 +1,7 @@
 number: 1361
 title: '[SPEC] Auto-file bug reports for configuration defects surfaced as warnings'
 labels: '[]'
-status: open
+status: closed
+closed_at: '2026-10-17T03:54:40+00:00'
+close_reason: not_planned
+updated_at: '2026-10-17T03:54:40+00:00'
