@@ -2,7 +2,7 @@ labels: '[[]"'
 number: 1926
 title: '''[SPEC] Cross-Reference Behavioral Enforcement Tests'''
 github_url: https://github.com/michael-conrad/.opencode/issues/1926
-status: open
+status: closed
 body: '# [SPEC] Cross-Reference Behavioral Enforcement Tests — revised
 
 
@@ -94,4 +94,6 @@ body: '# [SPEC] Cross-Reference Behavioral Enforcement Tests — revised
   🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
 
   '
-updated_at: '2026-10-17T13:45:45+00:00'
+updated_at: '2026-10-17T14:13:34+00:00'
+closed_at: '2026-10-17T14:13:34+00:00'
+close_reason: not_planned
