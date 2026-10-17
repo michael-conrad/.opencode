@@ -5,7 +5,7 @@ labels:
 number: 1394
 title: '[SPEC-FIX] Add floor note: glob does not traverse submodules'
 github_url: https://github.com/michael-conrad/.opencode/issues/1394
-status: open
+status: closed
 body: "## Problem\n\nThe platform `glob` tool silently returns no results for paths\
   \ inside git\nsubmodules. During file discovery, an agent that globs a submodule\
   \ path\nreceives \"No files found\" for files that exist, reads that as ground truth,\n\
@@ -63,4 +63,6 @@ body: "## Problem\n\nThe platform `glob` tool silently returns no results for pa
   \ store.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1394/\n\
   \nAI-facing artifacts pointer: `.opencode/.issues/1394/`\n\n\U0001F916 Co-authored\
   \ with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
-updated_at: '2026-10-17T04:15:11+00:00'
+updated_at: '2026-10-17T04:50:39+00:00'
+closed_at: '2026-10-17T04:50:39+00:00'
+close_reason: completed
