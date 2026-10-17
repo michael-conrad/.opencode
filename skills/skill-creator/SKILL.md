@@ -2,12 +2,12 @@
 name: skill-creator
 description: "Load before creating or editing ANY file under skills/, guidelines/, or floor.md — including adding or removing a rule, skill, artifact, or enforcement mechanism anywhere in the deck. Also load when writing or revising skill descriptions, or when deck content is found missing, stale, or conflicting. Enforces the admission gate, retirement gate, predicate classification, and vendor-card boundary. This card governs the deck itself."
 license: MIT
-provenance: AI-authored, .opencode#2490
+provenance: AI-authored, .opencode#2490; .opencode#1925
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#1925 -->
 
 # skill-creator — deck governance
 
@@ -60,6 +60,17 @@ halt for direction the instruction already carries.
 - Bodies stay lean; details go one level deep in `references/`.
 - No TDTs, no dispatch-gate boilerplate, no artifact chains, no numeric size
   targets.
+
+## Agent-facing cross-references
+
+When deck prose points an agent at content in another deck file, use the
+canonical form `Read [Text](path)`: bracketed descriptive text naming the
+target content in place of `Text`, and a deck-relative path in place of
+`path`. The link is a load directive, not a citation — it instructs the
+reading agent to load the target. Other forms (`See `file.md``, bare `§N`,
+bare file names, `Load [...]`) are nonconforming.
+`./.opencode/tools/reference-integrity` validates that every such link
+resolves. Forwards-only: existing content converts when touched.
 
 ## Retirement gate
 
