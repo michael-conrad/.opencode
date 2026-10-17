@@ -1,0 +1,15 @@
+comments:
+- type: stakeholder
+  body: 'Triage verdict: moot — superseded by the tests-v2 harness rework. The harness
+    this issue targets (tests/behaviors, 330-test population, tests/AGENTS.md) no
+    longer exists. Surviving intent delivered by tests-v2 by other means: project
+    nested in test home (with-test-home moves provisioned workdir to $TEST_HOME/project),
+    per-scenario hooks (fixtures/setup/<name>.sh), BEHAVIOR_SUBMODULE_COMMIT pin verified
+    against remote, artifact-only template.sh, tests-v2/AGENTS.md doc layer. Obsolete/superseded:
+    BEHAVIOR_SETUP_SCRIPT env var, with-test-home CWD guard (enforcement now behavior_run
+    pre-flight gates + Docker-tier isolation + skill-card mandate), test-enforcement.sh
+    lint (now a scenario runner; artifact-only contract enforced by meta-tests), BEHAVIOR_SUBMODULE_BRANCH
+    (redundant under effective-commit-in-remote-ref gate), SC-7 330-test parity (population
+    gone). Residual micro-gaps (no mechanical lint vs raw with-test-home calls; template
+    warning block) are policy-covered. Closed as moot.'
+  timestamp: '2026-10-17T03:37:04+00:00'
