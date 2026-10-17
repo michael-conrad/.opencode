@@ -29,22 +29,25 @@ Branch: `1394-floor-glob-submodule-note` (submodule `.opencode`, base tip
 
 - **Deliverable:** `.opencode/tests-v2/behaviors/1394-sc3-submodule-glob-false-absence.sh`
   — dispatches an agent on a file-discovery task over known-existing files
-  under a submodule path and asserts the report names them as present.
-- **RED:** the failure mode against current behavior is already observed and
-  recorded as spec Evidence (2026-10-17 live reproduction: glob returns
-  "No files found" for existing submodule files). The scenario formalizes
-  that observation; the pre-fix harness run demonstrating the agent cannot
-  pass is the RED record.
-- **GREEN:** with the floor line present (Items 1–2), the dispatched agent's
-  final report names the target files as present.
+  under a submodule path and asserts the report names them as present. The
+  scenario asserts the target files exist before the run (ground truth
+  pre-verified) and fails if the agent's final report treats them as absent.
+- **RED:** with `floor.md` unmodified (trunk state — the scenario is authored
+  and its RED run before Item 1 lands), the harness run fails: the dispatched
+  agent's report does not name the target files as present. Runnable failing
+  assertion against current behavior.
+- **GREEN:** with the floor line present (Items 1–2), the harness run passes:
+  the dispatched agent's final report names the target files as present.
 - **Instrument:** harness run per `tests-v2/AGENTS.md`; the assertion is
   evaluated against session evidence (`session-to-timeline` extraction from
   `session.yaml`).
 
 ### Dependencies
 
-Item 1 → Item 2 (the diff exists only after the insertion) → Item 3 (the
-green harness run requires the floor change present).
+Execution order: Item 3's scenario authoring + RED run (unmodified floor) →
+Item 1 (floor line) → Item 2 (diff scope) → Item 3's GREEN run. Each item's
+cycle builds on verified prior state: the RED run exercises trunk behavior,
+the GREEN run requires Items 1–2 landed.
 
 ### Traceability
 
