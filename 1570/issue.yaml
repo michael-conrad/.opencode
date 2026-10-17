@@ -3,4 +3,7 @@ labels:
 number: 1570
 title: '[BUG] 3 skill-invocation scenarios fail — model does not dispatch expected"  skills'
 github_url: https://github.com/michael-conrad/.opencode/issues/1570
-status: open
+status: closed
+closed_at: '2026-10-17T05:17:32+00:00'
+close_reason: not_planned
+updated_at: '2026-10-17T05:17:32+00:00'
