@@ -100,6 +100,46 @@ Before dispatching a research sub-agent, check `.issues/research-cards/` for exi
 
 - `spec`
 
+## Reconciliation (2026-10-16)
+
+Implemented in the old-deck era by commit `b7014d07` ("feat: implement #1270
+discussion-mode mandates, #1271 research cards, #1272 local-issues fix,
+#1273 pipeline dispatch fix"). The #2490 deck rewrite then retired the old
+deck to `attic/` (tag `pre-rip`) and carried this spec's core intent into
+the live deck.
+
+### Success-criteria disposition
+
+| ID | Disposition | Evidence |
+|----|-------------|----------|
+| SC-1 | Superseded — the registration target `guidelines/020-go-prohibitions.md` §1.6 was retired to `attic/` in #2490; the rule's live home is `skills/research/SKILL.md` items 1 and 5 | live research card carries the check-first and record-back rules |
+| SC-2 | Satisfied (behavioral) | `skills/research/SKILL.md` item 1 — check `.issues/research-cards/` before dispatching |
+| SC-3 | Satisfied (behavioral) | `skills/research/SKILL.md` item 5 — record back; 19 cards in the parent store, 12 in the submodule store; live deck content cites cards (wiki-operations provenance headers) |
+| SC-4 | Not carried into the new deck — the split/merge/archive lifecycle was dropped in the #2490 condensation; no archive/supersede discipline observable in practice (~31 cards, only ad-hoc `status: active`/`resolved`) | catalogue listing; frontmatter sweep |
+| SC-5 | Satisfied (behavioral) | `skills/research/SKILL.md` item 1 — reuse when confidence ≥ 0.7 and current |
+
+### Practice drift from the original design (documented, not defects)
+
+- Cards live in both stores — deck-related research in
+  `.opencode/.issues/research-cards/`, project research in the parent
+  `.issues/research-cards/` — rather than parent-only as originally
+  designed.
+- Card format evolved per this spec's own no-schema-migration principle:
+  bare `.yaml` cards exist alongside `.md` files (consistent with the #582
+  agent-to-agent YAML convention now cited in the research card);
+  frontmatter fields evolved (`research_question`, numeric `confidence`,
+  `last_updated`).
+- The glob-limitation caveats (LIM-1 path-parameter form) lived in attic
+  `060-tool-usage.md` and were not carried into the live research card.
+
+### Verdict
+
+Verified-resolved: the persistent research memory intent is implemented and
+in live use under the new deck. SC-4's reorganization lifecycle is the one
+residual the condensation dropped — flagged for deck-governance direction
+(a small addition to `skills/research/SKILL.md` via the skill-creator gate
+if wanted), not a blocker to closure.
+
 ---
 
 🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
