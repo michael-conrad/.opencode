@@ -1,64 +1,106 @@
-title: '[BUG] gb pr close returns 404 on deleted-branch PRs — undocumented; --web
-  fallback absent from skill deck'
+title: '[BUG] gb pr close returns 404 on deleted-branch PRs — gb-cli card lacks the
+  caveat and --web fallback'
 status: open
 labels:
 - needs-approval
-body: '## Defect
+body: '## Problem
 
 
-  **Severity: HIGH**
+  On the production GitBucket instance (`tomcat-0002.newsrx.com`), closing a pull
+  request whose base/head branches had been deleted returned **HTTP 404** from `gb
+  pr close`, and the flow recovered only through `gb pr edit --state closed --web`
+  — a recovery the deck does not mention. The deck''s only PR-state guidance, [gb-cli
+  §4](https://github.com/michael-conrad/.opencode/blob/main/skills/gb-cli/SKILL.md),
+  states "PRs differ (`PATCH .../pulls/{n}` accepts `state`)" with no deleted-branch
+  exception, so a deck-following agent has no documented recovery path when the 404
+  fires.
 
 
-  The skill deck claims `gb pr close` works unconditionally (✅) with no caveat. On
-  this GitBucket instance (`tomcat-0002.newsrx.com`), `gb pr close` returns **HTTP
-  404** when the PR''s base/head branches have been deleted. The workaround `gb pr
-  edit --state closed --web` exists only in root `AGENTS.md`, not in the operational
-  skill cards. A sub-agent following the deck hits the 404 with no documented recovery
-  path.
+  Verified current state:
 
 
-  ## Affected files
+  - The pre-rewrite deck asserted `Close PR | ✅` unconditionally (preserved at `attic/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
+  lines 58 and 229); those cards are retired under `attic/`.
+
+  - The post-rewrite deck names `gb pr close` nowhere — no deck flow invokes it; the
+  exposure is agent-judgment cleanup of superseded or stale PRs whose branches are
+  already deleted.
+
+  - The `gb pr edit --state closed --web` fallback text appears in no committed file
+  in either repository; its CLI surface is real (`gb pr edit --help`: `--state <open|closed>`,
+  `--web` = "Allow GitBucket web UI fallback when REST PR edit is unavailable"). The
+  card entry is therefore authored from the verified CLI surface and a pinned reproduction,
+  not from any prior document.
+
+  - The single observed incident does not distinguish deleted-head from deleted-base
+  from both, and does not confirm `--web` succeeds in each — the condition must be
+  pinned before the wording lands.
 
 
-  | File | Location |
-
-  |---|---|
-
-  | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` | lines 58,
-  229 |
-
-  | `.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md`
-  | — |
-
-  | `.opencode/skills/gb-cli/SKILL.md` | — |
+  ## Scope
 
 
-  ## Observed impact
+  A minimal in-place edit to `.opencode/skills/gb-cli/SKILL.md` §4 (Platform awareness
+  / Known gaps): add the deleted-branch failure caveat for PR state mutation, name
+  the `--web` fallback as the sanctioned recovery, and qualify the existing "accepts
+  `state`" claim so it no longer reads as unconditional. The caveat''s stated condition
+  follows R-1''s pinned reproduction. The edit routes through the deck-governance
+  admission gate (skill-creator card), like any edit under `skills/`.
 
 
-  - Sub-agent attempting to close a PR whose branches are deleted receives an unexplained
-  404.
-
-  - No documented recovery path in the deck; the working `--web` fallback is invisible
-  to deck-following agents.
-
-  - Pipeline stalls mid-flight on PR closure.
+  Not included: resurrecting attic''d platform/error-recovery cards; changes to any
+  other deck file or to root `AGENTS.md`; new `references/` detail cards; mutation
+  of production repositories for reproduction.
 
 
-  ## Suggested remediation (documentation)
+  ## Requirements
 
 
-  - Document the 404-on-deleted-branch behavior for `gb pr close` in the gitbucket-api
-  and gb-cli skill cards.
+  - **R-1** — The deleted-branch failure condition SHALL be pinned by reproduction
+  on a non-production GitBucket (harness container or equivalent scratch instance;
+  production repositories are never mutated): a PR with a deleted head branch, a PR
+  with a deleted base branch, and a PR with both, recording for each whether `gb pr
+  close` fails (and with what status) and whether `gb pr edit --state closed --web`
+  succeeds. *Instrument: the reproduction transcript stored under `.opencode/.issues/2382/artifacts/`.*
 
-  - Document `gb pr edit --state closed --web` as the sanctioned fallback for closing
-  PRs with deleted branches.
+  - **R-2** — The gb-cli card''s §4 known-gaps SHALL carry a caveat for PR state mutation
+  stating the failure condition exactly as pinned by R-1. *Instrument: read the edited
+  card; the caveat''s stated condition matches the R-1 transcript''s observed condition
+  set.*
+
+  - **R-3** — The same card section SHALL name `gb pr edit <N> --state closed --web`
+  as the sanctioned fallback for closing a PR under that condition. *Instrument: the
+  card contains the fallback command; `gb pr edit --help` confirms the named flags
+  exist.*
+
+  - **R-4** — The same edit SHALL place the deleted-branch exception adjacent to §4''s
+  existing "(`PATCH .../pulls/{n}` accepts `state`)" claim so a reader of §4 alone
+  cannot conclude PR state mutation is unconditional. *Instrument: read the edited
+  card; the exception text sits within the same §4 entry as the PATCH claim.*
+
+  - **R-5** — The change SHALL be confined to `.opencode/skills/gb-cli/SKILL.md` §4
+  as a single-digit-line edit; no attic''d structure is restored and no other file
+  changes. *Instrument: the deck change''s diff touches only that file within §4.*
+
+  - **R-6** — The edited card SHALL carry provenance citing `.opencode#2382`, per
+  the deck-governance admission gate. *Instrument: the changed card''s provenance
+  front-matter and SPDX provenance comment cite `.opencode#2382`.*
+
+
+  ## Impact
+
+
+  Consumers: agents operating GitBucket PRs under the gb-cli card — the scenario is
+  agent-judgment cleanup of superseded or stale PRs whose branches are already deleted;
+  no scripted deck flow calls `gb pr close`, so there is no automated caller to break.
+  Blast radius: one card file, single-digit lines, additive caveats only; existing
+  card guidance is unchanged. Risk of the status quo: an agent hits an unexplained
+  404 mid-cleanup with only generic failure guidance and no recovery path.
 
 
   ---
 
-  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
-
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
 
 
   > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/2382/
@@ -68,6 +110,6 @@ body: '## Defect
 
   '
 created_at: '2026-10-17T14:19:16+00:00'
-updated_at: '2026-10-17T14:20:15+00:00'
+updated_at: '2026-10-17T14:29:26+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2382
 github_url: michael-conrad/.opencode
