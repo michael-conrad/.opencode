@@ -1,9 +1,142 @@
 title: 'Deck practice failure: behavioral contract of a discovery-loop refactor was
   never stated as a test — agent''s watermark-bounded change silently dropped ~500/week
   of records in production (full regression report)'
-status: open
-labels:
-- needs-approval
-body: ''
-created_at: '2026-10-17T16:21:12+00:00'
-updated_at: '2026-10-17T16:21:12+00:00'
+status: closed
+labels: []
+body: '> Behavioral-regression feedback routing to this deck repo, per the deck''s
+  own upstream
+
+  > Filed by the AI agent (OpenCode, glm-5.3-flash) — 100% agent error under scrutiny;
+  the human
+
+  > developer is not involved. Mis-filing note: the agent additionally mis-filed a
+  copy to a foreign
+
+  > CLI-product repo (anomalyco/opencode#55819) by pattern-matching a folder name
+  instead of reading
+
+  > .git/config; that ticket is closed and retracted. This ticket and #2626 are the
+  only valid,
+
+  > canonical filings.
+
+
+  ## Behavioral regression report (full details)
+
+
+  **Reporter:** the human operator (name redacted) — filing on behalf of our AI-agent
+  work practice (OpenCode authored the change that regressed).
+
+  **Environment:** production data pipeline, `ClinicalTrialsAactDbScraper` (Java 21
+  / Gradle multi-module, MariaDB mirror, periodic Postgres snapshot source for ClinicalTrials.gov
+  AACT data).
+
+  **Regression window:** first harmful run 2026-09-26 06:00 UTC−04 (deploy of agent-authored
+  watermark-bounded incremental sync, issues 33/39 of our internal tracker (plain-text;
+  deliberately not bare #refs so this repo does not autolink its own unrelated tickets));
+  still live as of 2026-10-15.
+
+  **Impact:** production output silently lost ~95–100% of `is_new` classifications
+  (~500 brand-new trials/week missed → ~3/week exported); zero errors anywhere; discovered
+  only by downstream count inspection.
+
+
+  ### The behavior change that caused it
+
+
+  The agent replaced every-run full-pull discovery with a watermark-bounded incremental
+  read (intended: eliminate a ~19-minute unbounded re-pull):
+
+
+  ```
+
+  // incremental path
+
+  aact.getLastUpdateSubmittedDateRecordsFrom(watermark)   // AACT pairs lus >= watermark
+
+  ```
+
+
+  where `watermark = mirror max(last_update_submitted_date)`. The source (`studies`)
+  is a **snapshot** — one current row per trial; un-updated trials keep their old
+  lus forever.
+
+
+  The missed interaction: brand-new trials enter the snapshot source only with the
+  next weekly dump, **7–10 days after submission**. By then the *daily-advancing*
+  watermark has already passed their initial `last_update_submitted_date` (= their
+  submission date while un-updated). The pair is below the watermark → structurally
+  never pulled → the trial enters the mirror only as later `''mod''` updates. Its
+  initial filing is lost permanently; the downstream export rule (`counts==1 && type==''new''`)
+  can never fire again.
+
+
+  ### Evidence (production mirror + run logs, both retained)
+
+
+  Per ingest day, rows typed `''new''` (initial filings discovered):
+
+
+  | Ingest day | `new` rows | total | | window pulled (min–max lus) |
+
+  |---|---|---|---|---|
+
+  | 09-15 … 09-24 (pre-deploy builds) | 77–128/day | ~900–1,300/day | | **~25–30 days**
+  back |
+
+  | **09-26 06:00 (first post-deploy run)** | **0** | 781 | | 09-23 → 09-25 |
+
+  | 09-29 … 10-15 (all runs) | 0,0,0,1,0,0,0,7,0,0,428*,0* | 428–1,094/day | | **1–2
+  days** back |
+
+
+  (*tiny survivor count = trials whose initial lus coincidentally sat ≥ the running
+  watermark; e.g. NCT07867184 submitted 2026-10-08 vs watermark 10-01, caught inclusive.)
+
+
+  Run-log counters at the boundary (`Watermark (mirror max lus)` lines started 2026-09-25
+  11:24): `Retrieved 602,891 AACT pairs` → `Retrieved 371`; `Retrieved 2,640,055 mirror
+  pairs` → `Retrieved 371`.
+
+
+  Mirror-side bidirectional stamp check: `type=''new'' ⇔ DATE(lus)=DATE(sfs)` — **0
+  mis-stamped rows in 2.66M**; the stamp rule was never wrong. 667 trials first-seen
+  since issue 2026-10-12 entered the mirror with `0` initial-filing rows. No exceptions
+  or warnings in any log at any point — the pipeline reported success throughout.
+
+
+  ### Lesson / why the agent behavior failed
+
+
+  The change was verified at unit level (bounded reads return the requested window;
+  diff filters present pairs — both individually true), but the behavioral contract
+  "discovery must find every not-yet-ingested record, regardless of watermark position"
+  was never stated as a test. A regression test reproducing "brand-new trial appears
+  in the source with its initial pair below the watermark" would have failed RED immediately.
+  Recommend agent practice treat any bounded-read/diff refactor of a discovery loop
+  as behavior-bearing: the invariant test belongs in the same change as the read.
+
+
+  ### Fix (in progress on our side)
+
+
+  Widen both the remote and mirror cohort reads by a named 30-day look-back; the existing
+  exact `(nct_id, lus)` mirror-diff already provides re-sync-and-skip semantics, so
+  cost stays bounded (lightweight pair reads; full-record fetches only for genuinely
+  new pairs). Plus a container-backed regression test asserting the below-watermark
+  initial filing is discovered and retains its `''new''` stamp.
+
+
+  ---
+
+  *Cross-post in full from the investigating session; all identifiers above are real
+  production identifiers from our infrastructure.*
+
+
+
+  '
+created_at: '2026-10-15T19:19:46Z'
+updated_at: '2026-10-17T16:22:54+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2625
+closed_at: '2026-10-17T16:22:54+00:00'
+close_reason: not_planned
