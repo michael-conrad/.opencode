@@ -1,6 +1,6 @@
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2543 -->
+<!-- Provenance: AI-authored, .opencode#2543; local-only boundary statement, .opencode#2382 -->
 
 # local-issues CLI reference
 
@@ -18,7 +18,7 @@ remains the flag-level source of truth. All numbers use the qualified
 | `create` | `--number repo#N` (required), `--title`, `--labels` | Registers the local `{N}/` folder after the remote-first reservation; duplicate in the target repo exits 1; uniqueness is per-repo only |
 | `read` | `--number`, `--type full\|comments\|labels\|links\|all` | Read an issue as YAML |
 | `read-comments` / `read-labels` / `read-sub-issues` | `--number` | Read one record kind |
-| `update` | `--number`, `--title`, `--status`, `--phase`, `--labels`, `--body-file`, `--github`, `--remote-url` | Update metadata/body; writes `github_url` / `remote_url` |
+| `update` | `--number`, `--title`, `--status`, `--phase`, `--labels`, `--body-file`, `--github`, `--remote-url` | Update metadata/body **in the local store only** — `--github`/`--remote-url` write the local `github_url` / `remote_url` metadata fields and never contact any remote issues-system API on any platform; remote issue-body edits go through the platform-appropriate card (gh-cli / gb-cli) |
 | `comment` | `--number`, `--type internal\|stakeholder`, `--body` | Append a comment (short text only) |
 | `close` | `--number`, `--reason completed\|not_planned\|duplicate`, `--duplicate-of` | Close with reason |
 | `delete` | `--number`, `--force` | Delete an issue directory; blocked when links exist without `--force` |

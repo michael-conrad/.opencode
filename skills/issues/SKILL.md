@@ -2,12 +2,12 @@
 name: issues
 description: "Load when creating, reading, updating, commenting on, linking, or closing any issue — local .issues/ stores, GitHub, or GitBucket. Covers qualified issue names, platform routing via the authenticated CLIs, the local-issues tool, and the comment substantiveness gate: non-substantive progress updates stay in chat and never become issue comments."
 license: MIT
-provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543
+provenance: AI-authored, .opencode#2490; tooling contract consolidated per .opencode#2543; .opencode#2382
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597 -->
+<!-- Provenance: AI-authored, .opencode#2490; .opencode#2543; .opencode#2561 verified-resolved closure; ticket-state hygiene, .opencode#2563; mirror-repair + pointer check, .opencode#2597; local/remote boundary + §7 routing correction, .opencode#2382 -->
 
 # issues — issue operations
 
@@ -19,7 +19,9 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    `references/` carry the CLI and sync mechanics.
 2. **Creation.** Remote first: when the store has a remote tracker, file the
    remote issue to reserve the number before any local folder setup — every
-   issue type; the local `{N}/` mirror follows, linked via `update --github`.
+   issue type; the local `{N}/` mirror follows, its `github_url` field
+   written locally via `update --github` (a local-store write — see §1's
+   boundary; the remote body itself is edited through the platform CLI).
    Remoteless stores pick the next free number in that repo's own namespace.
    The local-artifacts pointer written into the remote body must resolve to
    the actual local folder at write time — an unresolvable pointer is a flow
@@ -57,10 +59,14 @@ provenance: AI-authored, .opencode#2490; tooling contract consolidated per .open
    the local folder it names, repair instead of reporting: create the local
    record at the remote-assigned number via `local-issues create --number
    repo#N`, mirror the remote-tracked content into `{N}/`, and correct the
-   remote body's pointer via `update --github`. The repair is fact work
-   performed on discovery — never a blocker or fail reason by itself. This
-   rule governs a record's absence; ticket-state hygiene (§6) governs state
-   divergence for an existing record.
+   remote body's pointer through the platform-appropriate card (gh-cli /
+   gb-cli) per §1. Boundary: local-issues commands manage only the local
+   issues-data store — they never contact or update any remote issues-system
+   API on any platform; `update --github` writes the local store's
+   `github_url` field only and is never the mechanism for a remote-body
+   correction. The repair is fact work performed on discovery — never a
+   blocker or fail reason by itself. This rule governs a record's absence;
+   ticket-state hygiene (§6) governs state divergence for an existing record.
 8. **Email actions.** Mid-flow email work — drafting, sending, or mailbox
    checks — dispatches to the `email-ops` subagent, which holds the gmail
    tool permissions; the flow itself never calls gmail tools directly.
