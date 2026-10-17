@@ -21,7 +21,8 @@ a deck-following agent has no documented recovery path when the 404 fires.
 
 - **Pre-rewrite deck overclaim.** `attic/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
   (tag `pre-rip`) carries `| Close PR | ✅ | gb pr close <N> -R O/R |` at
-  lines 58 and 229, with no condition or recovery entry in
+  line 58 (capability table) and the same command at line 228
+  (command-reference table), with no condition or recovery entry in
   `attic/.../tasks/error-recovery.md`. Those cards are retired.
 - **Post-rewrite deck silence.** `rg "pr close"` across `.opencode/skills/`
   and `.opencode/floor.md` returns no match. No deck flow invokes

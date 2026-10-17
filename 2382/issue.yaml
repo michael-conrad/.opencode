@@ -20,7 +20,8 @@ body: '## Problem
 
 
   - The pre-rewrite deck asserted `Close PR | ✅` unconditionally (preserved at `attic/skills/issue-operations/platforms/gitbucket-api/SKILL.md`
-  lines 58 and 229); those cards are retired under `attic/`.
+  line 58, with the same command in its command-reference table at line 228); those
+  cards are retired under `attic/`.
 
   - The post-rewrite deck names `gb pr close` nowhere — no deck flow invokes it; the
   exposure is agent-judgment cleanup of superseded or stale PRs whose branches are
@@ -110,6 +111,6 @@ body: '## Problem
 
   '
 created_at: '2026-10-17T14:19:16+00:00'
-updated_at: '2026-10-17T14:29:26+00:00'
+updated_at: '2026-10-17T14:31:33+00:00'
 remote_url: https://github.com/michael-conrad/.opencode/issues/2382
 github_url: michael-conrad/.opencode
