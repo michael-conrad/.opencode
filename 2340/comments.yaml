@@ -1,1 +1,16 @@
-comments: []
+comments:
+- type: internal
+  body: 'VERDICT: verified-resolved (superseded) — closed duplicate-of .opencode#2439.
+    Evidence: the gate intent is delivered in the live deck — release-promoter/SKILL.md
+    step 0 + references/operating-protocol.md Phase A/B implement every core SC: shallow
+    --depth 1 parent-repo clone (CHECKOUT_OK), git submodule update --init --depth
+    1 with --remote/--recursive forbidden, DRIFT_FAIL resolved==pinned assertion,
+    MANIFEST_FAIL/BUILD_FAIL zero-failure build/test through the parent''s build framework,
+    promotion blocked; provenance lines in both files cite the full lineage #2439
+    (implemented) → #2557 (restored post-rip) → #2590 (moved pre-PR, no-retry rescope)
+    → #2592 (parent-checkout boundary), all closed. Spec-as-written divergences are
+    superseded evolutions, not gaps: R-8/SC-5 once-per-release vs the deliberate two-phase
+    design; R-5/R-6 hard AGENTS.md pin vs build-manifest discovery (both AGENTS.md
+    files are now slim pointers); R-10 targets the pre-rip tasks/ layout that no longer
+    exists; pre-#2592 release framing.'
+  timestamp: '2026-10-17T14:18:01+00:00'
