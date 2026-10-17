@@ -49,9 +49,11 @@ All facts verified against the working tree, 2026-10-17:
   references them.
 - `test-enforcement.sh` carries no `FILE_SCENARIO_MAP` entry for any of
   the four scripts — no bookkeeping rides with their deletion.
-- The live `issues` card's description covers all four retired surfaces:
-  "creating, reading, updating, commenting on, linking, or closing any
-  issue".
+- The live `issues` card's description covers three of the four retired
+  surfaces — "creating, reading, updating, commenting on, linking, or
+  closing any issue" (CRUD, comments, sub-issue links). The fourth —
+  sync — is owned by the card's body (ticket-state hygiene, mirror-repair,
+  the `init`/`sync` session-start contract), not its description.
 - Existing behavioral coverage of issue operations under the live deck
   (incidental, directive prompts): `2561-sc1`, `2561-sc2`, `2547-sc1`,
   `2550-sc4`–`2550-sc7`, `2516-terminal-approval-stage-zero`,
@@ -68,10 +70,20 @@ Consolidate the family to one survivor:
 
 1. **Delete** `issue-ops-comments-routing.sh`,
    `issue-ops-sub-issues-routing.sh`, `issue-ops-sync-routing.sh`. Their
-   surfaces collapse into the single live `issues` card and are exercised
-   by the listed pipeline scenarios; dedicated probes for the retired
-   sub-skill split would test the retired architecture's shape — ceremony
-   under the tests-v2 §6b policy.
+   surfaces collapse into the single live `issues` card; dedicated
+   probes for the retired sub-skill split would test the retired
+   architecture's shape — ceremony under the tests-v2 §6b policy.
+   Per-surface coverage after deletion:
+   - **comments** — exercised by `2547-sc1` (post a comment on an issue
+     via the gb CLI).
+   - **sync** — exercised by `2561-sc2` (issue-store reconciliation
+     against the remote tracker).
+   - **CRUD** — exercised by the directive-prompt store scenarios
+     (`2550-sc4`–`2550-sc7`, `2516`, `2518`, `record-authorization-*`).
+   - **sub-issues** — exercised by no scenario; the deletion accepts
+     this coverage loss. The link surface is the card's auxiliary
+     relationships paragraph, and a dedicated tier-2 probe for it does
+     not earn its cost under §6b's verification-cost justification.
 2. **Rewrite** `issue-ops-core-routing.sh` in place as the family's sole
    survivor:
    - Keep `SCENARIO_PROMPT` verbatim — the undirected create-issue
