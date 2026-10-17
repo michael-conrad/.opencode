@@ -1,5 +1,5 @@
 title: '[BUG] gb pr edit --web fallback absent from skill deck'
-status: open
+status: closed
 labels:
 - needs-approval
 body: '## Defect
@@ -57,5 +57,7 @@ body: '## Defect
 
   '
 created_at: '2026-10-17T15:43:26+00:00'
-updated_at: '2026-10-17T15:45:09+00:00'
+updated_at: '2026-10-17T15:54:41+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2384
+closed_at: '2026-10-17T15:54:41+00:00'
+close_reason: completed
