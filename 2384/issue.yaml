@@ -2,6 +2,60 @@ title: '[BUG] gb pr edit --web fallback absent from skill deck'
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Defect
+
+
+  **Severity: MEDIUM**
+
+
+  Root `AGENTS.md` documents that `gb pr edit` requires `--web` on this GitBucket
+  instance, but the skill deck has zero occurrences of `--web` or `pr edit --state`.
+  Sub-agents following the deck would not know to use `--web`.
+
+
+  ## Affected files
+
+
+  | File | Location |
+
+  |---|---|
+
+  | `.opencode/skills/gb-cli/SKILL.md` | — |
+
+  | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` | — |
+
+
+  ## Details
+
+
+  On this GitBucket instance, REST PR edit is unavailable. Without `--web`, `gb pr
+  edit` fails with `Error: REST PR edit is unavailable on this GitBucket instance.
+  Re-run with --web to allow the GitBucket web UI fallback.` The `--web` flag uses
+  the GitBucket web UI as a fallback and works correctly. This is documented only
+  in root `AGENTS.md`, not in the operational skill cards.
+
+
+  ## Observed impact
+
+
+  - Sub-agents following the deck attempt `gb pr edit` without `--web` and hit the
+  documented error.
+
+  - No pointer in the deck to the working `--web` fallback.
+
+
+  ## Suggested remediation
+
+
+  - Document the `--web` requirement for `gb pr edit` in the gb-cli and gitbucket-api
+  skill cards.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+  '
 created_at: '2026-10-17T15:43:26+00:00'
-updated_at: '2026-10-17T15:43:26+00:00'
+updated_at: '2026-10-17T15:45:09+00:00'
+github_url: https://github.com/michael-conrad/.opencode/issues/2384
