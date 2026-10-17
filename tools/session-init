@@ -752,6 +752,128 @@ def collect_issue_artifact_paths(repo_info: list[dict[str, str]]) -> list[str]:
     return entries
 
 
+def _worktree_porcelain_blocks(repo_dir: str) -> list[dict[str, str]]:
+    """Linked-worktree records for a repo from `git worktree list --porcelain`.
+
+    The first block is always the repo's main worktree — inside a submodule
+    that row carries the module gitdir (`.git/modules/...`), not a real
+    worktree path — so it is skipped; the module gitdir never reaches the
+    displayed map (#1255, Git Display Quirks).
+    """
+    porcelain = run_git_command(["-C", repo_dir, "worktree", "list", "--porcelain"])
+    if not porcelain:
+        return []
+    worktrees: list[dict[str, str]] = []
+    for block in porcelain.split("\n\n")[1:]:  # skip main-worktree row
+        if not block.strip():
+            continue
+        record: dict[str, str] = {}
+        for line in block.splitlines():
+            key, _, value = line.partition(" ")
+            if key == "worktree":
+                record["worktree"] = value
+            elif key == "branch":
+                record["branch"] = value.removeprefix("refs/heads/")
+            elif key == "detached":
+                record["detached"] = "1"
+            elif key == "prunable":
+                record["prunable"] = "1"
+        if record.get("worktree"):
+            worktrees.append(record)
+    return worktrees
+
+
+def _worktree_relpath(abs_path: str, project_root: str) -> str:
+    """Project-root-relative display path, single-quoted on whitespace."""
+    rel = os.path.relpath(abs_path, project_root)
+    if any(ch.isspace() for ch in rel):
+        rel = f"'{rel}'"
+    return rel
+
+
+def _repo_main_dir(repo_dir: str) -> str | None:
+    """The repo's main-worktree directory (the project-relative anchor).
+
+    A common git dir ending in `.git` marks a standard layout — the main
+    worktree is its parent. Otherwise (a submodule's module gitdir, a
+    worktree-scoped gitdir) fall back to the toplevel of `repo_dir` itself,
+    which is the submodule's real checkout in the workspace layout.
+    """
+    common = run_git_command([
+        "-C", repo_dir, "rev-parse", "--path-format=absolute", "--git-common-dir",
+    ])
+    if common and os.path.basename(os.path.normpath(common)) == ".git":
+        return os.path.dirname(os.path.normpath(common))
+    return run_git_command(["-C", repo_dir, "rev-parse", "--show-toplevel"])
+
+
+def collect_worktree_map(repo_info: list[dict[str, str]]) -> list[str]:
+    """Deviation-triggered worktree map lines (#1255).
+
+    Standard worktree set for an enumerated repo R: R's main worktree (never
+    displayed) plus its `.issues` store on `issues-data`. The map is emitted
+    only when a deviation trigger holds for any enumerated repo: T1 a linked
+    worktree outside the standard set, T2 any `prunable` registration, T3 any
+    detached-HEAD linked worktree, T4 an `.issues` store on another branch.
+    Facts only — rows carry relpath, branch, `current`, `prunable`; embedded
+    non-submodule repos never appear (#2544 discovery stands).
+
+    Returns the full section lines including the `## Worktree Map` title, or
+    an empty list when no trigger holds.
+    """
+    cwd = os.getcwd()
+    running_toplevel = run_git_command(["rev-parse", "--show-toplevel"])
+    project_root = _repo_main_dir(cwd) or os.path.normpath(cwd)
+    groups: list[tuple[str, list[str]]] = []
+    triggered = False
+
+    for entry in repo_info:
+        path = entry["path"]
+        repo_dir = cwd if path == "." else os.path.join(cwd, path)
+        records = _worktree_porcelain_blocks(repo_dir)
+        if not records:
+            continue
+
+        standard_abs = os.path.normpath(os.path.join(project_root, path, ".issues"))
+
+        rows: list[str] = []
+        for record in records:
+            wt_path = record["worktree"]
+            resolved = run_git_command(["-C", wt_path, "rev-parse", "--show-toplevel"])
+            display_abs = os.path.normpath(resolved) if resolved else os.path.normpath(wt_path)
+            branch = "[detached]" if record.get("detached") else f"[{record.get('branch', '')}]"
+            is_standard = not record.get("detached") and display_abs == standard_abs
+            flags = ""
+            if running_toplevel and os.path.normpath(running_toplevel) == display_abs:
+                flags += " current"
+            if record.get("prunable"):
+                flags += " prunable"
+            rows.append(f"  {_worktree_relpath(display_abs, project_root)} {branch}{flags}")
+
+            branch_name = record.get("branch", "")
+            if (not is_standard
+                    or record.get("prunable")
+                    or record.get("detached")
+                    or (is_standard and branch_name != "issues-data")):
+                triggered = True
+
+        owner = entry.get("owner", "(unknown)")
+        repo = entry.get("repo", "(unknown)")
+        header = f"{owner}/{repo}:" if path == "." else f"submodule {path}:"
+        groups.append((header, rows))
+
+    if not triggered:
+        return []
+
+    lines: list[str] = ["## Worktree Map", ""]
+    for index, (header, rows) in enumerate(groups):
+        if index:
+            lines.append("")
+        lines.append(header)
+        lines.extend(rows)
+    return lines
+
+
 def get_agent_tools_help() -> str:
     """Run ./.opencode/tools/help and return tool listing or error message."""
     try:
@@ -824,6 +946,10 @@ def main() -> int:
     print("## Local Issue Folders")
     for cmd in issue_folders:
         print(cmd)
+
+    # Emit ## Worktree Map — deviation-triggered only (#1255)
+    for line in collect_worktree_map(repo_info):
+        print(line)
 
     # Emit unified ## Repo Information section
     # Fork stamps: local, untrusted context — informational only, never a
