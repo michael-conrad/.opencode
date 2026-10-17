@@ -1,0 +1,48 @@
+comments:
+- type: stakeholder
+  body: '## Triage verdict: moot — closed per developer instruction
+
+
+    **Evidence-backed verdict.** This spec''s audit apparatus was written against
+    the pre-#2490 deck generation, which no longer exists. The audit itself ran on
+    2026-06-27 (report preserved in the store at `.opencode/.issues/1384/audit-report.md`);
+    its ~18 derived fix-specs (#1495–#1511+) are all closed because the skills they
+    targeted were retired wholesale in the deck rewrite. Nothing in the spec''s machinery
+    maps to any live artifact:
+
+
+    1. **D1 (`"Use when"` prefix)** — the current deck''s 35 cards uniformly use the
+    `Load when/before/after…` convention. Enforcing `"Use when"` would reformat every
+    live card against the deck''s own deliberate style.
+
+    2. **D2/D3 (Trigger Dispatch Table alignment)** — TDTs are banned by the `skill-creator`
+    card standards ("No TDTs, no dispatch-gate boilerplate") and the dispatch-table
+    routing concept was retired outright in `.opencode#2617` — descriptions are the
+    sole routing surface. These dimensions have no referent.
+
+    3. **D4 / SC-LINT-002 (mandatory keyword required)** — conflicts with the same
+    boilerplate ban; would fail ~30 of 35 current cards for style, not substance.
+    The deck''s actual failure mode is undertriggering, addressed by deliberately
+    pushy intent-matching descriptions, not keyword mandates.
+
+    4. **SC-LINT-004 (300-char cap)** — conflicts with "no numeric size targets";
+    the live linter (`skildeck-lint`) enforces 1–1024 chars plus presence and quoted-YAML
+    instead.
+
+    5. **SC-SEM-001..005** — SEM-003/004 are TDT-referential (dead); SEM-001/002/005
+    duplicate what `skill-creator` already mandates.
+
+
+    **Surviving intent, already owned elsewhere.** The kernel — descriptions must
+    be reliable routing signals — is more central now (descriptions are the sole routing
+    surface since #2617, and the load-on-demand floor model depends on them). It is
+    codified in `skill-creator`''s card standards ("Descriptions are the router":
+    both abstraction levels, deliberately pushy, no user-phrase matching), and description
+    drift is covered by skill-creator''s stale/conflicting on-demand trigger. No enforcement
+    gap remains for this spec to fill.
+
+
+    **Artifact note.** The June 2026 audit report in this issue''s store folder is
+    a historical record of the retired deck generation (42 skills, most since removed)
+    — not evidence of current-deck state. It is retained for provenance, not currency.'
+  timestamp: '2026-10-17T03:57:29+00:00'
