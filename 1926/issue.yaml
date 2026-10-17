@@ -3,3 +3,95 @@ number: 1926
 title: '''[SPEC] Cross-Reference Behavioral Enforcement Tests'''
 github_url: https://github.com/michael-conrad/.opencode/issues/1926
 status: open
+body: '# [SPEC] Cross-Reference Behavioral Enforcement Tests — revised
+
+
+  ## Problem
+
+
+  The deck''s cross-reference convention is the canonical form `Read [Text](path)`
+  — a load directive whose referenced content is NOT pre-loaded. Nothing verifies
+  the agent actually calls `read` on the linked path. Structural tooling (`reference-integrity`)
+  only proves links resolve; it cannot prove runtime link-following. The failure mode:
+  the agent treats the link as a decorative citation and acts on the summary text
+  alone.
+
+
+  ## Scope
+
+
+  Behavioral enforcement evidence for link-following, split across the tests-v2 harness''s
+  two evidence modes — the harness run (`opencode run` via tier-2 scenario, produces
+  the raw artifact) and the clean-room sub-agent dispatch (tier-1, produces the verdict).
+
+
+  ## Approach
+
+
+  A tier-2 scenario runs a real model session in the isolated test home: a fixture
+  skill file carries a `Read [Topic](path)` link whose target is not pre-loaded, and
+  the prompt requires the linked content. A separate clean-room evaluator dispatch
+  reads the run''s `session.yaml` and judges whether the linked content entered context
+  via a `read` call on the linked path. RED/GREEN is fixture-controlled — the tests
+  ship independently and block nothing. The verdict is model-conditional on the harness''s
+  single `DEFAULT_TEST_MODEL`; model-shopping to flip a FAIL is prohibited.
+
+
+  ## Requirements
+
+
+  - R-1: The scenario SHALL be an artifact-only generator following the `behavioral-testing`
+  card (tier-2, `behavior_run`, never evaluates its own output).
+
+  - R-2: Evaluation SHALL use a clean-room sub-agent receiving only the artifact directory
+  and the SC criterion, with `session.yaml` as the primary source.
+
+  - R-3: The linked content''s entry into agent context SHALL be observable in `session.yaml`
+  (via `read` on the linked path, not pre-loaded).
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | Tier-2 scenario produces a session where the agent encounters a `Read [Text](path)`
+  link (target not pre-loaded) and the prompt requires the linked content | behavioral
+  | Harness run produces the artifact set (`session.yaml`, logs) |
+
+  | SC-2 | Linked content enters context via a `read` call on the linked path — not
+  pre-loaded, not via another path | behavioral | Clean-room sub-agent evaluates `session.yaml`;
+  PASS iff the `read` call preceded any use of the content |
+
+  | SC-3 | RED when link or target absent, GREEN when both present | behavioral |
+  Two fixture-variant runs, each with its own clean-room evaluation |
+
+  | SC-4 | No pre-loaded copy of the linked content at session start | behavioral
+  | SC-2 evaluator additionally verifies the content''s text appears in context only
+  after the first `read` on the linked path |
+
+
+  ## Impact
+
+
+  - Affected: `.opencode/tests-v2/behaviors/` (new scenario script + fixtures, `fixtures/issues/1926/`).
+
+  - Risk: low — additive test assets; no deck content changes.
+
+  - Out of scope: rewriting existing cross-references (#1924 territory), linting (#1925),
+  deck content changes of any kind.
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1926/
+
+  >
+
+  > Agent artifacts pointer: `.opencode/.issues/1926/`
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
+updated_at: '2026-10-17T13:45:45+00:00'
