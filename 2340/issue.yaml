@@ -1,5 +1,5 @@
 title: '[SPEC] Shallow temp-copy build/test gate for release verification'
-status: open
+status: closed
 labels:
 - needs-approval
 - spec-draft
@@ -46,7 +46,10 @@ body: '> Full spec and plan artifacts: https://github.com/michael-conrad/.openco
 
   '
 created_at: '2026-08-26T18:31:19+00:00'
-updated_at: '2026-08-26T18:41:52Z'
+updated_at: '2026-10-17T14:18:17+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2340
 remote_url: https://github.com/michael-conrad/.opencode/issues/2340
 number: 2340
+closed_at: '2026-10-17T14:18:17+00:00'
+close_reason: duplicate
+duplicate_of: 2439
