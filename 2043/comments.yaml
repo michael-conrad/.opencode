@@ -1,1 +1,24 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Verified-resolved verdict (evidence-backed, 2026-10-17): the described defect
+    no longer reproduces against the current tests-v2 harness.
+
+
+    - AC2 (-mindepth 1): satisfied — the isolation verification find at tests-v2/with-test-home:432
+    runs `find "$test_home" -mindepth 1 ...`.
+
+    - AC3 (.cache/uv passes isolation): satisfied — the allowlist case-pattern (line
+    414) explicitly contains .cache/uv|.cache/uv/*, landing via the isolation hardening
+    chain (#2106 → #2582).
+
+    - AC1 (blanket * globs): superseded by a strictly stronger design. The shipped
+    allowlist enumerates specific safe subpaths (.config/opencode/*, .cache/uv/*,
+    ...) instead of blanket .cache/*-style globs, keeping unknown .cache entries flagged
+    as leaks. Blanket globs would also conflict with the #2582 Docker-tier conditional
+    exceptions (.cache/Microsoft, .cache/huggingface allowed only when TEST_ENV=docker).
+    Implementing AC1 literally would weaken isolation and is deliberately not applied.
+
+
+    Closing as completed: intent honored, prescribed mechanism superseded by better
+    implementation consistent with the behavioral-testing deck card.'
+  timestamp: '2026-10-17T14:03:20+00:00'
