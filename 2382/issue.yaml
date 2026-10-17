@@ -3,6 +3,64 @@ title: '[BUG] gb pr close returns 404 on deleted-branch PRs — undocumented; --
 status: open
 labels:
 - needs-approval
-body: ''
+body: '## Defect
+
+
+  **Severity: HIGH**
+
+
+  The skill deck claims `gb pr close` works unconditionally (✅) with no caveat. On
+  this GitBucket instance (`tomcat-0002.newsrx.com`), `gb pr close` returns **HTTP
+  404** when the PR''s base/head branches have been deleted. The workaround `gb pr
+  edit --state closed --web` exists only in root `AGENTS.md`, not in the operational
+  skill cards. A sub-agent following the deck hits the 404 with no documented recovery
+  path.
+
+
+  ## Affected files
+
+
+  | File | Location |
+
+  |---|---|
+
+  | `.opencode/skills/issue-operations/platforms/gitbucket-api/SKILL.md` | lines 58,
+  229 |
+
+  | `.opencode/skills/issue-operations/platforms/gitbucket-api/tasks/error-recovery.md`
+  | — |
+
+  | `.opencode/skills/gb-cli/SKILL.md` | — |
+
+
+  ## Observed impact
+
+
+  - Sub-agent attempting to close a PR whose branches are deleted receives an unexplained
+  404.
+
+  - No documented recovery path in the deck; the working `--web` fallback is invisible
+  to deck-following agents.
+
+  - Pipeline stalls mid-flight on PR closure.
+
+
+  ## Suggested remediation (documentation)
+
+
+  - Document the 404-on-deleted-branch behavior for `gb pr close` in the gitbucket-api
+  and gb-cli skill cards.
+
+  - Document `gb pr edit --state closed --web` as the sanctioned fallback for closing
+  PRs with deleted branches.
+
+
+  ---
+
+  🤖 Co-authored with AI: OpenCode (deepseek-v4-flash)
+
+
+  '
 created_at: '2026-10-17T14:19:16+00:00'
-updated_at: '2026-10-17T14:19:16+00:00'
+updated_at: '2026-10-17T14:19:33+00:00'
+remote_url: https://github.com/michael-conrad/.opencode/issues/2382
