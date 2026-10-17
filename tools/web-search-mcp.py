@@ -6,8 +6,8 @@
 # requires-python = "~=3.12.0"
 # dependencies = [
 #   "mcp~=1.0",
-#   "rich",
-#   "ollama",
+#   "rich~=15.0",
+#   "ollama~=0.6",
 # ]
 # ///
 """
