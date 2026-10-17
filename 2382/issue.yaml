@@ -1,0 +1,8 @@
+title: '[BUG] gb pr close returns 404 on deleted-branch PRs — undocumented; --web
+  fallback absent from skill deck'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-17T14:19:16+00:00'
+updated_at: '2026-10-17T14:19:16+00:00'
