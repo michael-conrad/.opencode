@@ -39,28 +39,27 @@ load at authoring time. The card that governs deck authoring —
 ## Fix
 
 The implementer adds one short normative section to
-`.opencode/skills/skill-creator/SKILL.md` carrying these five fixed elements:
-
-1. The canonical form: `Read [descriptive text](relative/path)`.
-2. The meaning: the link is a load directive, not a citation — it instructs
-   the reading agent to load the target file.
-3. The nonconforming forms: `See \`file.md\``, bare `§N`, bare file names,
-   `Load [...]`.
-4. The validator: `./.opencode/tools/reference-integrity` validates that
-   every such link resolves.
-5. The temporal scope: forwards-only — the rule binds when deck prose is
-   written or revised; existing content converts when touched.
-
-Suggested wording (the implementer may adjust phrasing and placement within
-the card body, provided the five elements appear as normative statements):
+`.opencode/skills/skill-creator/SKILL.md`. The statement below is required
+verbatim — line wrapping may differ, placement within the card body and the
+section heading are the implementer's choice; the wording itself is not
+negotiable:
 
 > **Agent-facing cross-references.** When deck prose points an agent at
-> content in another deck file, use `Read [descriptive text](relative/path)`.
-> The link is a load directive, not a citation — it instructs the reading
-> agent to load the target. Other forms (`See \`file.md\``, bare `§N`, bare
-> file names, `Load [...]`) are nonconforming.
-> `./.opencode/tools/reference-integrity` validates that every such link
-> resolves. Forwards-only: existing content converts when touched.
+> content in another deck file, use the canonical form `Read [Text](path)`:
+> bracketed descriptive text naming the target content in place of `Text`,
+> and a deck-relative path in place of `path`. The link is a load directive,
+> not a citation — it instructs the reading agent to load the target. Other
+> forms (`See \`file.md\``, bare `§N`, bare file names, `Load [...]`) are
+> nonconforming. `./.opencode/tools/reference-integrity` validates that
+> every such link resolves. Forwards-only: existing content converts when
+> touched.
+
+The canonical form is stated using the placeholder token `Text`/`path`
+because that exact pair is the only inline spelling the validator exempts
+(`tools/reference-integrity`, `_is_syntax_placeholder`); the statement must
+never spell the form out with example values — a live-looking example link
+inside the card would be read as a broken link and fail the scan on the
+amended card.
 
 The edit is developer-directed (2026-10-17, scope narrowed in-session to
 this statement only) and routes through this same card's governance. The
@@ -89,9 +88,10 @@ convention: both surfaces carry the same provenance, cf. `skills/gh-cli/SKILL.md
 
 | ID | Criterion | Evidence Type | Verification Method |
 |----|-----------|---------------|---------------------|
-| SC-1 | `skills/skill-creator/SKILL.md` contains the normative cross-reference statement carrying all five fixed elements from Fix | `structural` | grep the file for each fixed element's distinctive substring — `Read [descriptive text](relative/path)`, `load directive, not a citation`, `Load [...]`, `reference-integrity`, `Forwards-only` — every grep must match |
+| SC-1 | `skills/skill-creator/SKILL.md` contains the normative cross-reference statement required by Fix, carrying all five elements: canonical form, load-directive meaning, nonconforming-forms enumeration, validator, forwards-only scope | `structural` | with newlines collapsed to spaces (`tr '\n' ' ' < file`), `grep -F` (fixed-string matching) for one fragment per element, every match required: `Read [Text](path)`; `load directive, not a citation`; ``bare `§N`, bare file names, `Load [...]`) are nonconforming``; `` `./.opencode/tools/reference-integrity` validates that every such link resolves``; `Forwards-only: existing content converts when touched` (fragment matching is wrap-insensitive; the fragments are verified present verbatim in the required wording) |
 | SC-2 | The change is confined to the single intended file | `structural` | `git diff --name-only` against the feature branch base lists only `.opencode/skills/skill-creator/SKILL.md` |
 | SC-3 | The amended card stays intact: frontmatter keys and all non-provenance values unchanged, both provenance surfaces (frontmatter `provenance:` value and HTML provenance comment) name .opencode#1925, all pre-existing sections otherwise unaltered | `structural` | inspect the diff: frontmatter keys unchanged and only the `provenance:` value extended with .opencode#1925; HTML provenance comment updated to match; no deletions outside the added section |
+| SC-4 | The reference-integrity scan still passes after the edit — the new statement introduces no link-shaped string the validator reads as broken | `structural` | run `./.opencode/tools/reference-integrity --scan` after the edit; exit 0 with `PASS` required |
 
 ## Affected Files
 
@@ -105,6 +105,10 @@ convention: both surfaces carry the same provenance, cf. `skills/gh-cli/SKILL.md
   description trigger, so the rule is in context at the only moment
   fragmentation can be prevented: authoring time.
 - Risk: none at runtime. Documentation-only change to one on-demand card.
+  The one regression surface — the new statement introducing a link-shaped
+  string the validator reads as broken — is closed by design (the canonical
+  form is stated in the validator-safe placeholder form `Read [Text](path)`)
+  and guarded by SC-4.
 - Blast radius: one file. The validator, harness docs, floor, and all other
   cards are untouched. Grandfathering means no existing content changes.
 
