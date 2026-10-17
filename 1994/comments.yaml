@@ -1,1 +1,15 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Closed not-planned (superseded/moot verdict): the deck restructure (.opencode#2490,
+    post-rip) replaced the issue''s entire target surface — writing-plans-creation/tasks/{write,create,validate}.md
+    no longer exists; planning is now skills/plan/SKILL.md + references/plan-validation-standards.md.
+    The issue''s legitimate concerns (executable plans, no nested sub-agent dispatch,
+    no preloaded clean-room context, submodule sync, plan validation) are encoded
+    differently: floor.md dispatched-scope section, plan card §1/§5/§7, plan-validation-standards.md,
+    git-workflow-branch submodule sync (#2563). The spec as written conflicts with
+    the new deck — pipeline gates in the plan body contradict plan card §5 (no status
+    tracking in the body), and its scripted task()-template/grep-SC approach contradicts
+    the judgment-over-mechanics standard of plan-validation-standards.md. Not salvageable
+    as a base; if the failure mode recurs under the new plan card, file a fresh spec
+    scoped to the observed defect. Assessed 2026-10-17.'
+  timestamp: '2026-10-17T14:01:59+00:00'
