@@ -1,5 +1,174 @@
 labels: '[[]"'
 number: 1925
-title: '''[SPEC] Cross-Reference Linting Rules and Documentation'''
+title: '[SPEC] Canonical Cross-Reference Format — Normative Statement in skill-creator'
 github_url: https://github.com/michael-conrad/.opencode/issues/1925
 status: open
+body: '## Problem
+
+
+  The deck''s agent-facing cross-reference format has flip-flopped across deck generations
+  and is defined only implicitly: the pre-rip deck used citation-style references
+  (`See \`FILE.md\`` §SECTION`) — .opencode#1923 recorded the failure mode (agents
+  treat citations as decorative and never load the target); .opencode#1988 (78 experimental
+  runs) and .opencode#1958 (2026-07) ruled `Load [Text](path)` for that deck (Phase-1
+  audit: 568 cross-references across 153 files, 141 nonconforming); the deck revision
+  (.opencode#2490, 2026-10-03) replaced the deck wholesale, and the post-rip deck''s
+  cards use `Read [Text](path)`, validated by `tools/reference-integrity` (.opencode#2489
+  SC-12) — passing on all 63 agent-facing files as of 2026-10-17. The #1958 `Load`
+  ruling now governs content preserved under `attic/` only.
+
+
+  The canonical form lives in no normative location: its only definitions are the
+  regex inside `tools/reference-integrity` and a harness-scoped manual instruction
+  in `tests-v2/AGENTS.md` §6c. No card or guideline states the form, its meaning,
+  or its validator where deck prose is authored. Each deck generation has re-decided
+  the format from scratch (`See` → `Load` → `Read`); nothing at the authoring moment
+  prevents the next flip-flop. The live deck is currently clean (zero `See \`` and
+  zero `Load [` in tracked content outside `attic/`) — the risk is recurrence, not
+  current state.
+
+
+  **Root cause:** the format decision is recorded only in artifacts a deck author
+  does not load at authoring time. The card that governs deck authoring — `skill-creator`,
+  whose description triggers on every edit under `skills/`, `guidelines/`, and `floor.md`
+  — carries no cross-reference rule.
+
+
+  ## Scope
+
+
+  Add one short normative section to `.opencode/skills/skill-creator/SKILL.md` (required
+  verbatim, per the local spec''s Fix section):
+
+
+  > **Agent-facing cross-references.** When deck prose points an agent at content
+  in another deck file, use the canonical form `Read [Text](path)`: bracketed descriptive
+  text naming the target content in place of `Text`, and a deck-relative path in place
+  of `path`. The link is a load directive, not a citation — it instructs the reading
+  agent to load the target. Other forms (`See \`file.md\``, bare `§N`, bare file names,
+  `Load [...]`) are nonconforming. `./.opencode/tools/reference-integrity` validates
+  that every such link resolves. Forwards-only: existing content converts when touched.
+
+
+  The canonical form is stated in the validator-safe placeholder spelling (`Text`/`path`
+  is the only inline form the validator exempts); the statement never spells the form
+  out with example values, which the validator would read as a broken link.
+
+
+  The edit is developer-directed (2026-10-17, scope narrowed in-session to this statement
+  only) and routes through this same card''s governance; the card''s content standards
+  bind the edit (root-agnostic, fact-decidable predicate, lean body, provenance updated
+  in both surfaces — frontmatter `provenance:` value and HTML provenance comment,
+  cf. `skills/gh-cli/SKILL.md`).
+
+
+  ## Requirements
+
+
+  - **R-1:** `.opencode/skills/skill-creator/SKILL.md` SHALL contain the normative
+  cross-reference statement required verbatim by the local spec''s Fix section — canonical
+  form `Read [Text](path)`, load-directive-not-citation meaning, nonconforming-forms
+  enumeration, validator invocation, forwards-only scope.
+
+  - **R-2:** The change SHALL be confined to `.opencode/skills/skill-creator/SKILL.md`
+  — no other file.
+
+  - **R-3:** The amended card''s frontmatter keys and all non-provenance values SHALL
+  remain unchanged; both provenance surfaces SHALL be extended to name .opencode#1925.
+
+  - **R-4:** `./.opencode/tools/reference-integrity --scan` SHALL still pass after
+  the edit.
+
+
+  ## Impact
+
+
+  - **Consumers:** deck authors — agents editing any file under `skills/`, `guidelines/`,
+  or `floor.md` load `skill-creator` first by its description trigger, so the rule
+  is in context at the only moment fragmentation can be prevented: authoring time.
+
+  - **Risk:** none at runtime; documentation-only change to one on-demand card. The
+  one regression surface (a link-shaped string the validator reads as broken) is closed
+  by design and guarded by SC-4.
+
+  - **Blast radius:** one file; the validator, harness docs, floor, and all other
+  cards are untouched; grandfathering means no existing content changes.
+
+
+  ## Success Criteria
+
+
+  | ID | Criterion | Class | Instrument |
+
+  |----|-----------|-------|------------|
+
+  | SC-1 | `skills/skill-creator/SKILL.md` contains the normative cross-reference
+  statement required by Fix, carrying all five elements: canonical form, load-directive
+  meaning, nonconforming-forms enumeration, validator, forwards-only scope | structural
+  | with newlines collapsed to spaces (`tr ''\n'' '' '' < file`), `grep -F` for one
+  fragment per element, every match required: `Read [Text](path)`; `load directive,
+  not a citation`; ``bare `§N`, bare file names, `Load [...]`) are nonconforming``;
+  `` `./.opencode/tools/reference-integrity` validates that every such link resolves``;
+  `Forwards-only: existing content converts when touched` |
+
+  | SC-2 | The change is confined to the single intended file | structural | `git
+  diff --name-only` against the feature branch base lists only `.opencode/skills/skill-creator/SKILL.md`
+  |
+
+  | SC-3 | The amended card stays intact: frontmatter keys and non-provenance values
+  unchanged, both provenance surfaces name .opencode#1925, pre-existing sections otherwise
+  unaltered | structural | inspect the diff: frontmatter keys unchanged, only the
+  `provenance:` value extended; HTML provenance comment updated to match; no deletions
+  outside the added section |
+
+  | SC-4 | The reference-integrity scan still passes after the edit | structural |
+  run `./.opencode/tools/reference-integrity --scan` after the edit; exit 0 with `PASS`
+  required |
+
+
+  All four SCs are structural; no behavioral claims are made.
+
+
+  ## Out of Scope
+
+
+  - Wiring `tools/reference-integrity` into pre-commit/pre-push or CI — no observed
+  broken-link recurrence since the tool landed (.opencode#2489); the admission gate
+  does not admit mechanism without observed recurrence.
+
+  - Extending the tool to detect citation-style or legacy forms — those patterns are
+  extinct in tracked live content.
+
+  - Behavioral enforcement tests of link-following — .opencode#1926''s intent; a separate
+  open issue, not remediated by this spec.
+
+  - New guideline files or any `floor.md` change — an on-demand authoring concern
+  gains no standing always-injected surface.
+
+  - Converting grandfathered references anywhere outside the touched card.
+
+
+  ## Approach
+
+
+  Single-file documentation edit routed through deck governance (skill-creator''s
+  developer-instruction carve-out — the edit is developer-directed this session).
+  Alternatives considered and rejected: hook wiring (no observed recurrence → admission
+  gate would not admit it); a standing behavioral test of link-following (.opencode#1926''s
+  intent — observed failure predates the deck revision, .opencode#1988 banked the
+  behavioral evidence, tests-v2 §6b''s performative-test retirement precedent bars
+  low-coverage standing tests); a new guideline file or `floor.md` line (worse trigger
+  point, or permanent always-injected cost for an on-demand concern).
+
+
+  > Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1925/
+
+  >
+
+  > **Local artifacts:** `.opencode/.issues/1925/`
+
+
+  🤖 Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)
+
+  '
+updated_at: '2026-10-17T05:43:21+00:00'
