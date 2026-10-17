@@ -26,6 +26,7 @@ writing discipline at [guidelines/ainglish-writing-discipline.md](guidelines/ain
 Per-root facts (owner, repo, platform, issue-store paths, build/test commands)
 arrive from session-init output every session. They are runtime data — never
 hardcoded anywhere in the deck.
+- The `glob` tool does not traverse submodules — "no files found" there is false absence; use `grep`, `read`, or `bash` for submodule file discovery.
 
 ## External access — authenticated, never hand-rolled
 
