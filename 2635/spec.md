@@ -94,8 +94,10 @@ Consolidate the family to one survivor:
      tooling — `local-issues` with qualified `repo#N` names for local
      stores, `gh`/`gb` CLIs for remote operations — never raw API
      scripts.
-   - Rename the script free of retired-name residue (the "core" in
-     `issue-ops-core-routing` names the retired sub-skill).
+   - Rename the scenario to one coherent live-surface identity — file
+     name stem and `SCENARIO_NAME` agreeing, neither carrying the
+     retired family's name forms (the "core" in `issue-ops-core-routing`
+     names the retired sub-skill).
    - Evaluation stays with the two-SC pattern (§6a): artifact generation,
      then a clean-room sub-agent reading `session.yaml` for the card load
      and tool routing.
@@ -105,8 +107,9 @@ Consolidate the family to one survivor:
 ## Scope boundary
 
 - `tests-v2/behaviors/fixtures/` issue copies are frozen historical
-  records — the specs as filed, not execution targets. R-1 does not
-  reach them.
+  records — the specs as filed, not execution targets. R-1's instrument
+  observes top-level behaviors scripts and the harness doc only; it does
+  not reach fixtures.
 - Other residue instances of the same drift class are excluded — e.g.
   the pre-rewrite skill tables in `README.md`, `test-enforcement.sh`'s
   `FILE_SCENARIO_MAP` keys referencing retired guideline/skill paths
@@ -118,22 +121,23 @@ Consolidate the family to one survivor:
 
 ## Requirements
 
-- R-1. No file under `tests-v2/behaviors/` and no routing directive in
+- R-1. No top-level `tests-v2/behaviors/*.sh` file and no content in
   `tests-v2/AGENTS.md` SHALL reference the retired `issue-operations`
-  family — `issue-operations`, `issue-operations-core`,
-  `issue-operations-comments`, `issue-operations-sub-issues`,
-  `issue-operations-sync` — by name. Instrument: grep of
-  `tests-v2/behaviors/*.sh` and `tests-v2/AGENTS.md` for
-  `issue-operations` (substring covers all variants); zero hits.
+  family by either of its name forms — `issue-operations` (matching all
+  sub-skill variants as a substring) or its abbreviated form
+  `issue-ops`. Instrument: grep of top-level `tests-v2/behaviors/*.sh`
+  (non-recursive) and `tests-v2/AGENTS.md` for both patterns; zero hits.
 - R-2. The three scripts named in Resolution §1 SHALL be absent from
   `tests-v2/behaviors/`. Instrument: file-absence check.
-- R-3. The surviving scenario SHALL carry no retired-name residue in its
-  file name, SHALL keep `SCENARIO_PROMPT` verbatim, and SHALL state in
-  its SC header the live routing surface — `issues` card load on an
-  undirected issue request; sanctioned tooling (`local-issues` with
-  qualified names, `gh`/`gb` CLIs); never raw API scripts — with its
-  clean-room evaluation pairing per §6a. Instrument: header and content
-  inspection against this clause.
+- R-3. The surviving scenario SHALL present one coherent live-surface
+  identity: its file name stem and `SCENARIO_NAME` agree and neither
+  contains `issue-operations` or `issue-ops` (the substring check is
+  supplied by R-1's instrument); `SCENARIO_PROMPT` SHALL remain
+  verbatim; and its SC header SHALL state the live routing surface —
+  `issues` card load on an undirected issue request; sanctioned tooling
+  (`local-issues` with qualified names, `gh`/`gb` CLIs); never raw API
+  scripts — with its clean-room evaluation pairing per §6a. Instrument:
+  header and content inspection against this clause.
 
 ## Impact
 
