@@ -1,1 +1,8 @@
-comments: []
+comments:
+- type: internal
+  body: 'Triage verdict 2026-10-17: verified-resolved. Intent (deck documents the
+    gb pr edit --web fallback) implemented by .opencode#2382 / PR #2637 — commit 6cadc88d,
+    merged 6ad8c527 to trunk; gb-cli SKILL.md section 4 carries the fallback pinned
+    by reproduction; live CLI gb 0.6.1 re-verified at closure. Second named card at
+    filing retired to attic/ (tag pre-rip) in the #2490 rewrite. Closing completed.'
+  timestamp: '2026-10-17T15:54:39+00:00'
