@@ -4,4 +4,8 @@ labels:
 number: 1568
 title: '[SPEC-FIX] Mandatory bug reports for regression check failures'
 github_url: https://github.com/michael-conrad/.opencode/issues/1568
-status: open
+status: closed
+closed_at: '2026-10-17T05:06:22+00:00'
+close_reason: duplicate
+duplicate_of: 2553
+updated_at: '2026-10-17T05:06:22+00:00'
