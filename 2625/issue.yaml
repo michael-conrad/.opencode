@@ -1,0 +1,9 @@
+title: 'Deck practice failure: behavioral contract of a discovery-loop refactor was
+  never stated as a test — agent''s watermark-bounded change silently dropped ~500/week
+  of records in production (full regression report)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-17T16:21:12+00:00'
+updated_at: '2026-10-17T16:21:12+00:00'
