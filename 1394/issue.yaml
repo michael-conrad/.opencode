@@ -1,10 +1,66 @@
 labels:
 - spec-fix
-- sub-agent
 - glob
-- permissions
+- skill-deck
 number: 1394
-title: '[SPEC-FIX] Deny glob tool on all sub-agent cards and replace glob references
-  in skill deck'
+title: '[SPEC-FIX] Add floor note: glob does not traverse submodules'
 github_url: https://github.com/michael-conrad/.opencode/issues/1394
 status: open
+body: "## Problem\n\nThe platform `glob` tool silently returns no results for paths\
+  \ inside git\nsubmodules. During file discovery, an agent that globs a submodule\
+  \ path\nreceives \"No files found\" for files that exist, reads that as ground truth,\n\
+  and concludes the files are absent — producing false-absence reports and\ndownstream\
+  \ failed work.\n\nThe failure window is pre-card: file discovery routinely happens\
+  \ before any\nskill card is loaded, and no card gates reaching for `glob`. On-demand\
+  \ deck\ncontent (guidelines, skill references) loads only after the failure can\n\
+  already have occurred. The only always-injected instruction surface is\n`floor.md`.\n\
+  \n## Scope\n\nAdd exactly one line to `floor.md`'s Environment section (R-1). The\
+  \ work also\nadds the behavioral verification scenario required by SC-3 under `tests-v2/`.\n\
+  No other deck content changes.\n\n## Requirements\n\n- R-1: `floor.md` SHALL contain,\
+  \ in its Environment section, exactly the\n  following line, verbatim and byte-exact:\n\
+  \n> - The `glob` tool does not traverse submodules — \"no files found\" there is\n\
+  >   false absence; use `grep`, `read`, or `bash` for submodule file discovery.\n\
+  \nAs specified, the line is a single line and root-agnostic: it names no\nrepository,\
+  \ owner, or absolute path.\n\n## Impact\n\n- Consumers: every agent session on every\
+  \ repo mounted with this deck — the\n  floor is always-injected, so the note costs\
+  \ one line of tokens per session.\n- Risk: advisory content only; no enforcement,\
+  \ no permission change;\n  regression risk is limited to wording ambiguity, bounded\
+  \ by R-1's fixed\n  content contract.\n- Blast radius: `floor.md` (submodule), the\
+  \ SC-3 behavioral scenario script\n  under `tests-v2/behaviors/`, and the issues-data\
+  \ spec record. No source\n  code; no other deck files.\n\n## Approach\n\nAn always-loaded\
+  \ one-line note in `floor.md`'s Environment section.\nAlternatives weighed: blanket\
+  \ permission deny of `glob` (rejected — `glob`\nworks correctly outside submodules,\
+  \ so a deny removes a working tool to fix a\nbounded failure, and reaching built-in\
+  \ sub-agent types requires the heavier\ncentral-config mechanism); on-demand documentation\
+  \ in a guideline or skill\nreference (rejected — loads after the failure window);\
+  \ upstream platform fix\n(parked — whether submodule opacity is defect or by-design\
+  \ is undetermined\nand does not gate the note).\n\n## Out of scope\n\n- Permission-layer\
+  \ denial of `glob` (central config or per-card) — a rejected\n  alternative, not\
+  \ a defect fix.\n- Scrubbing `glob` references from the skill deck — the pre-rip\
+  \ deck\n  retirement already removed all live glob-tool references; the current\
+  \ live\n  deck contains none.\n- Upstream investigation of `glob`'s submodule handling.\n\
+  - The stale enforcement-test mapping `tests-v2/test-enforcement.sh:145` →\n  retired\
+  \ `guidelines/060-tool-usage.md` — separate defect, different surface.\n\n## Success\
+  \ Criteria\n\n| ID | Criterion | Class | Verification instrument |\n|----|-----------|-------|-------------------------|\n\
+  | SC-1 | `floor.md`'s Environment section contains exactly the R-1 line, verbatim\
+  \ | structural | `rg -F -x` exact-line match of the R-1 line against `floor.md`\
+  \ returns exactly 1 match, located between the `## Environment` heading and the\
+  \ next `## ` heading |\n| SC-2 | The `floor.md` modification consists of exactly\
+  \ one added line — the R-1 line — with no lines removed | structural | The `git\
+  \ diff` of the `floor.md` change contains exactly one `+` line matching the R-1\
+  \ line and zero `-` lines |\n| SC-3 | An agent with the revised floor loaded, assigned\
+  \ a task requiring discovery of known-existing files under a submodule path, reports\
+  \ those files as present (no false absence) | behavioral | tests-v2 behavioral scenario:\
+  \ dispatch an agent on a submodule file-discovery task whose ground truth is pre-verified;\
+  \ assert the agent's final report names the target files as present; session evidence\
+  \ extracted via `session-to-timeline` |\n\nEvidence basis: live reproduction 2026-10-17\
+  \ — `glob(\"**/*.md\")` at the\nholding repo root returned 15 files, all parent-repo\
+  \ paths with zero\nsubmodule entries, and `glob` on a submodule skill path returned\
+  \ \"No files\nfound\" for files verified to exist by direct read; the submodule\
+  \ is a\nregistered git submodule and not gitignored, so ignore-file semantics do\
+  \ not\nexplain the omission. Original incident record: this issue's 2026-06-25\n\
+  investigation. Full evidence, root-cause analysis, and artifacts live in the\nlocal\
+  \ store.\n\n> Full spec and plan artifacts: https://github.com/michael-conrad/.opencode/tree/issues-data/1394/\n\
+  \nAI-facing artifacts pointer: `.opencode/.issues/1394/`\n\n\U0001F916 Co-authored\
+  \ with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)\n"
+updated_at: '2026-10-17T04:15:11+00:00'
