@@ -1,1 +1,28 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Moot-by-replacement verdict — not implementable against the current deck.
+
+
+    Evidence chain: parent #1407 was closed as superseded by #1784 (merge of #1407
+    phases 2–6 with #1669); #1784 was completed (tag feature/1784-routing-dispatch-gate).
+    The deck was subsequently ripped — the pre-rip deck is preserved under attic/
+    (tag pre-rip) — and the rebuilt deck removed the entire machinery this spec validates:
+    no Trigger Dispatch Tables, no tasks/*.md layer, no skills/reference/ directory,
+    no SC-LINT-005/006 or SC-SEM-006 criteria anywhere in skills/, guidelines/, or
+    floor.md. #2617 then retired dispatch-table routing entirely; skill-card descriptions
+    are the sole routing surface (developer ruling 2026-10-15: "the table is a danger").
+
+
+    Every target path in this spec is dead (skill-creator/tasks/validate.md, skills/reference/skill-card-change-types.md,
+    skills/reference/sub-item-semantics.md), and its REQ-4/5/6 checks mandate validating
+    TDT structure that the current skill-creator card standards explicitly prohibit
+    ("No TDTs, no dispatch-gate boilerplate, no artifact chains"). Its Workflow Validation
+    invokes the retired tools/solve and tools/plan (replaced by tools/formal per #2504,
+    retired to attic/tools/).
+
+
+    Residual intent is owned by current mechanisms: SKILL.md leanness by the skill-creator
+    card standards (bodies lean, details one level deep in references/, always-loaded
+    surface discipline in admission gate item 8); routing integrity by description-only
+    routing per #2617 plus skildeck lint. Closing as not_planned.'
+  timestamp: '2026-10-17T04:54:19+00:00'
