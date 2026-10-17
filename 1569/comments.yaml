@@ -1,1 +1,40 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'VERDICT: verified-resolved (moot defect — resolved by framework removal,
+    not by patching this script).
+
+
+    Evidence against the current deck:
+
+    1. The defect surface no longer exists. .opencode/tests/test-enforcement.sh (v1,
+    carrying EXPECTED_SKILLS at line 875) was deleted in commit 99f79567 (2026-07-14)
+    — ''Remove old test framework (.opencode/tests/) — tests-v2 is now the default''
+    — two weeks after this issue was filed.
+
+    2. The successor .opencode/tests-v2/test-enforcement.sh (302 lines) contains no
+    EXPECTED_SKILLS array at all. Its remaining associative-array lookups already
+    use the default-guard pattern this issue recommended as Option B (${SCENARIO_TAGS[$name]:-},
+    ${SCENARIOS[$name]:-}).
+
+    3. None of the 26 named scenario classes exist anywhere in the current harness
+    (cross-validate-*, guideline-*, skill-word-count, guideline-frontmatter, sub-agent-*,
+    model-aware-*, session-enforcement-*, skildeck-lint-*, progressive-disclosure-*,
+    sc* — all absent).
+
+    4. The failure mode this bug describes — a runner crash masking content-verification
+    failures — is architecturally impossible now: under the artifact-only-generator
+    paradigm (tests-v2 AGENTS.md §6a) the runner never evaluates model output, so
+    it can no longer mask evaluation. Standalone scenarios print their own PASSED/FAILED
+    totals.
+
+    5. Implementing this as filed would now itself be a defect: Option A would reintroduce
+    runner-internal evaluation machinery the deck prohibits (§6a), and most of the
+    26 scenarios are the string-grep documentation-phrasing class retired by the ceremony-test
+    retirement policy (§6b, CM-1, #2489) — ''existing tests matching it are retired
+    on encounter.''
+
+
+    Closing as completed: the underlying concern (content-verification failures must
+    not be masked) is delivered by the v1→tests-v2 re-architecture; the reported crash
+    cannot recur by construction.'
+  timestamp: '2026-10-17T05:09:12+00:00'
