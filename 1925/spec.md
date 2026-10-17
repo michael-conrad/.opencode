@@ -67,7 +67,10 @@ this statement only) and routes through this same card's governance. The
 card's content standards bind the edit: root-agnostic (deck-relative paths
 only), fact-decidable predicate (form presence and link resolvability are
 script-checkable; nothing here scripts a judgment), lean body (the section
-stays within the card's size discipline), provenance line updated.
+stays within the card's size discipline), and provenance updated in both
+surfaces the card carries it — the frontmatter `provenance:` value and the
+HTML provenance comment — each extended to name .opencode#1925 (deck
+convention: both surfaces carry the same provenance, cf. `skills/gh-cli/SKILL.md`).
 
 ## Out of Scope
 
@@ -88,7 +91,7 @@ stays within the card's size discipline), provenance line updated.
 |----|-----------|---------------|---------------------|
 | SC-1 | `skills/skill-creator/SKILL.md` contains the normative cross-reference statement carrying all five fixed elements from Fix | `structural` | grep the file for each fixed element's distinctive substring — `Read [descriptive text](relative/path)`, `load directive, not a citation`, `Load [...]`, `reference-integrity`, `Forwards-only` — every grep must match |
 | SC-2 | The change is confined to the single intended file | `structural` | `git diff --name-only` against the feature branch base lists only `.opencode/skills/skill-creator/SKILL.md` |
-| SC-3 | The amended card stays intact: frontmatter keys unchanged, provenance line names .opencode#1925, all pre-existing sections otherwise unaltered | `structural` | inspect the diff: frontmatter block identical except no changes; provenance comment updated; no deletions outside the added section |
+| SC-3 | The amended card stays intact: frontmatter keys and all non-provenance values unchanged, both provenance surfaces (frontmatter `provenance:` value and HTML provenance comment) name .opencode#1925, all pre-existing sections otherwise unaltered | `structural` | inspect the diff: frontmatter keys unchanged and only the `provenance:` value extended with .opencode#1925; HTML provenance comment updated to match; no deletions outside the added section |
 
 ## Affected Files
 
