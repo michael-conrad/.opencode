@@ -133,6 +133,14 @@ body: '## Problem
   or in Repo Information | behavioral | Scratch fixture + `git init` under ignored
   path; assert no map, no entry |
 
+  | SC-10 | Detached-HEAD linked worktree fires the map with a `[detached]` row carrying
+  no SHA | behavioral | Fixture detached worktree (`git worktree add --detach`); assert
+  map emitted and row renders `[detached]` with no hex string; cleanup |
+
+  | SC-11 | `.issues` store worktree on a branch other than `issues-data` fires the
+  map with that branch shown | behavioral | Fixture store worktree on alternate branch;
+  assert map emitted and row shows the branch; cleanup |
+
 
   Full traceability (each SC → root cause, edge cases, alternatives, risks) lives
   in the local spec.
@@ -158,4 +166,4 @@ body: '## Problem
   > `.opencode/.issues/1255/`
 
   '
-updated_at: '2026-10-17T02:45:31+00:00'
+updated_at: '2026-10-17T02:49:47+00:00'
