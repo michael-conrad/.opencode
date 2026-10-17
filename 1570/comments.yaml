@@ -1,1 +1,28 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Triage verdict: MOOT — evidence-backed, closed not_planned.
+
+
+    The reported failure mechanism no longer exists in the tree: the evidence format
+    (''Skills discovered: 42 / Skill invocation: FAIL (no skills detected)'') traces
+    to the retired v1-era test script (.opencode/tests/ removed 2026-07-14); tests-v2/test-enforcement.sh
+    was rewritten in #2490 stage 4e (2026-10-05) to the artifact-only generator paradigm
+    — model probes generate artifacts and exit 0, script-side evaluation removed.
+
+
+    Re-implementing as filed would violate tests-v2/AGENTS.md §1/§2 (script-side skill-invocation
+    detection emitting FAIL verdicts is a prohibited pattern; session.yaml via clean-room
+    sub-agent is the PRIMARY evidence source) — it would re-create work resolved by
+    the harness rewrite and the #2490 deck rip. The create-spec → brainstorming expectation
+    is additionally stale: that skill was retired in the deck rip; pre-spec exploration
+    routes to explore.
+
+
+    Residual finding recorded in the local store (outside this bug''s intent): the
+    test-enforcement.sh scenario registry carries stale deck references (SCENARIO_TAGS
+    with retired skill names; ~13 dead FILE_SCENARIO_MAP paths), which silently disables
+    the --changed filter for those entries. Any repair is new scoped work.
+
+
+    Full verdict record: .opencode/.issues/1570/spec.md (issues-data store).'
+  timestamp: '2026-10-17T05:17:25+00:00'
