@@ -1,1 +1,14 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Verdict: closed as superseded-in-part (developer instruction, 2026-10-16).
+    The core insight — configuration/quality warnings are encounters, not ignorable
+    noise — is already implemented in the current deck via the Deprecation Encounter
+    Protocol (.opencode#2618), wired into implement (§13) and systematic-debugging
+    (§6): evidence-based trigger, in-passing fixes, [BITROT] tickets with search-before-POST
+    dedup, and developer triage authority. The remaining generic mandate (auto-filing
+    GitHub issues from a fixed stderr pattern table, with anti-patterns forbidding
+    deduplication and chat-only reporting) conflicts with the current floor: dispatch-scope
+    containment, intent-decidable rules never scripted, and triage authority resting
+    with the developer. Any residual config-defect warning handling would need a rethink
+    as a small extension of the encounter-protocol pattern via deck governance.'
+  timestamp: '2026-10-17T03:54:31+00:00'
