@@ -2,7 +2,7 @@ number: 1253
 title: '[SPEC-FIX] Fix requires-python tilde specifier in all PEP 723 scripts'
 labels: '[]'
 github_url: https://github.com/michael-conrad/.opencode/issues/1253
-status: open
+status: closed
 body: '## Problem
 
 
@@ -210,4 +210,6 @@ body: '## Problem
   *Co-authored with AI: OpenCode (huggingface/zai-org/GLM-5.3-Flash)*
 
   '
-updated_at: '2026-10-16T20:37:15+00:00'
+updated_at: '2026-10-17T02:25:59+00:00'
+closed_at: '2026-10-17T02:25:59+00:00'
+close_reason: completed
