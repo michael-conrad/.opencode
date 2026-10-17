@@ -1,1 +1,8 @@
-comments: []
+comments:
+- type: stakeholder
+  body: 'Verified-resolved: implemented pre-rewrite (b7014d07) and carried into the
+    new deck by #2490 — skills/research/SKILL.md items 1 and 5 cover check-before-dispatch
+    and record-back; 31 cards in active use across both stores. SC-1''s target was
+    retired to attic/ with the old deck; SC-4 (reorganize lifecycle) is the one dropped
+    residual, flagged for deck governance. Closing completed.'
+  timestamp: '2026-10-17T03:31:03+00:00'
