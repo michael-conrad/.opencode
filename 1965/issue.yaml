@@ -2,4 +2,7 @@ number: 1965
 title: '[BUG] Agent rationalizes away mandatory pipeline gates for "simple" changes'
 labels: []
 github_url: https://github.com/michael-conrad/.opencode/issues/1965
-status: open
+status: closed
+closed_at: '2026-10-17T13:59:19+00:00'
+close_reason: not_planned
+updated_at: '2026-10-17T13:59:19+00:00'
