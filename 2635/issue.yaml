@@ -1,11 +1,66 @@
-title: '[BUG] tests-v2/behaviors/issue-ops-core-routing.sh references retired issue-operations-core
-  skill'
+title: '[BUG] tests-v2 issue-ops routing scenario family references skills retired
+  by the deck rewrite'
 status: open
 labels:
 - needs-approval
 - bug
 - tests
-body: ''
+body: "## Problem\n\nFour routing scenarios under `tests-v2/behaviors/` still target\
+  \ skills the\ndeck rewrite retired to `attic/` (tag `pre-rip`) — the `issue-operations`\n\
+  sub-skill family (`issue-operations-core`, `-comments`, `-sub-issues`,\n`-sync`).\
+  \ Each script's SC header asserts routing to a named sub-skill\n\"not the monolithic\
+  \ issue-operations skill\" — a distinction that no longer\nexists: the live deck's\
+  \ `issues` card owns the entire issue surface,\nrouting local stores through the\
+  \ `local-issues` tool with qualified\n`repo#N` names and remote operations through\
+  \ the authenticated `gh`/`gb`\nCLIs. One harness-doc routing directive names the\
+  \ retired mechanism too:\n`tests-v2/AGENTS.md`'s R-6 line (\"route via issue-operations\"\
+  ).\n\nThe scripts cannot execute meaningfully against the live deck and mislead\n\
+  clean-room agents reading tests for routing expectations. Discovered\nduring the\
+  \ `.opencode#1963` triage (verified-resolved closure,\n2026-10-17).\n\n## Scope\n\
+  \nConsolidate the routing family to one survivor and fix the harness-doc\ndirective:\
+  \ delete three scripts whose surfaces collapse into the live\n`issues` card, rewrite\
+  \ the fourth as the family's sole survivor asserting\nthe live routing surface,\
+  \ and fix the R-6 routing directive in\n`tests-v2/AGENTS.md`.\n\n## Approach\n\n\
+  1. **Delete** `issue-ops-comments-routing.sh`,\n   `issue-ops-sub-issues-routing.sh`,\
+  \ `issue-ops-sync-routing.sh` — their\n   surfaces are exercised by existing pipeline\
+  \ scenarios\n   (`2561-sc1/sc2`, `2547-sc1`, `2550-sc4–sc7`, `2516`, `2518`,\n \
+  \  `record-authorization-*`); dedicated probes for the retired sub-skill\n   split\
+  \ would test the retired architecture's shape (ceremony under the\n   tests-v2 §6b\
+  \ policy).\n2. **Rewrite** `issue-ops-core-routing.sh` in place: keep the undirected\n\
+  \   create-issue prompt verbatim, rewrite the SC header to the live\n   surface\
+  \ (`issues` card load; `local-issues`/qualified names, `gh`/`gb`;\n   never raw\
+  \ API scripts), rename free of retired-name residue,\n   evaluation via the two-SC\
+  \ pattern (§6a).\n3. **Fix** the R-6 directive: \"route via issue-operations\" →\
+  \ \"route via\n   the `issues` card\".\n\n## Requirements\n\n- R-1. No routing scenario\
+  \ under `tests-v2/behaviors/` and no routing\n  directive in `tests-v2/AGENTS.md`\
+  \ SHALL reference the retired\n  `issue-operations` family — `issue-operations`,\
+  \ `issue-operations-core`,\n  `issue-operations-comments`, `issue-operations-sub-issues`,\n\
+  \  `issue-operations-sync` — by name.\n- R-2. The three scripts named in Approach\
+  \ §1 SHALL be absent from\n  `tests-v2/behaviors/`.\n- R-3. The surviving scenario\
+  \ SHALL carry no retired-name residue in its\n  file name, SHALL keep `SCENARIO_PROMPT`\
+  \ verbatim, and SHALL state in\n  its SC header the live routing surface with its\
+  \ clean-room evaluation\n  pairing per §6a.\n\n## Success criteria\n\n| ID | Criterion\
+  \ | Class | Instrument |\n|----|-----------|-------|------------|\n| SC-1 (R-1)\
+  \ | Zero references to the retired `issue-operations` family in `tests-v2/behaviors/*.sh`\
+  \ and `tests-v2/AGENTS.md` | structural | grep for `issue-operations` (substring\
+  \ covers all variants); zero hits |\n| SC-2 (R-2) | The three named scripts are\
+  \ absent from `tests-v2/behaviors/` | structural | file-absence check |\n| SC-3\
+  \ (R-3) | Survivor renamed free of retired-name residue, prompt verbatim, SC header\
+  \ states the live routing surface, §6a pairing present | structural | header and\
+  \ content inspection against the criterion |\n\n## Out of scope\n\n- `tests-v2/behaviors/fixtures/`\
+  \ issue copies — frozen historical records\n  of specs as filed, not execution targets.\n\
+  - Other residue instances of the same drift class: the pre-rewrite skill\n  tables\
+  \ in `README.md`, `test-enforcement.sh`'s dead `FILE_SCENARIO_MAP`\n  keys referencing\
+  \ retired guideline/skill paths, fixture setup scripts\n  referencing retired skill\
+  \ paths — each needs its own disposition.\n- The `vector_db/` retrieval index —\
+  \ derived artifact, not authored deck\n  prose.\n\n## Impact\n\n- **Consumers**:\
+  \ the tests-v2 behavioral suite, clean-room agents reading\n  tests as the source\
+  \ of truth for routing behavior.\n- **Risk**: low — the scripts are inert against\
+  \ the live deck, but they\n  are false signals for test maintenance and clean-room\
+  \ review.\n- **Blast radius**: four scripts and one doc line; no production surface.\n\
+  \  All deletions are git-tracked and recoverable. The survivor's\n  `SCENARIO_PROMPT`\
+  \ is unchanged — no other scenario is touched.\n\n> Full spec and plan artifacts:\
+  \ https://github.com/michael-conrad/.opencode/tree/issues-data/2635/\n\n> `.opencode/.issues/2635/`\n"
 created_at: '2026-10-17T13:46:24+00:00'
-updated_at: '2026-10-17T13:46:44+00:00'
+updated_at: '2026-10-17T16:56:18+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2635
