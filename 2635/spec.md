@@ -62,7 +62,7 @@ All facts verified against the working tree, 2026-10-17:
   "per your rules" phrasing — probing description-driven routing, i.e.
   whether the card description alone catches a natural issue request.
 
-## Resolution (decided)
+## Resolution
 
 Consolidate the family to one survivor:
 
@@ -106,14 +106,13 @@ Consolidate the family to one survivor:
 
 ## Requirements
 
-- R-1. No routing scenario under `tests-v2/behaviors/` and no routing
-  directive in `tests-v2/AGENTS.md` SHALL reference the retired
-  `issue-operations` family — `issue-operations`,
-  `issue-operations-core`, `issue-operations-comments`,
-  `issue-operations-sub-issues`, `issue-operations-sync` — by name.
-  Instrument: grep of `tests-v2/behaviors/*.sh` and
-  `tests-v2/AGENTS.md` for `issue-operations` (substring covers all
-  variants); zero hits.
+- R-1. No file under `tests-v2/behaviors/` and no routing directive in
+  `tests-v2/AGENTS.md` SHALL reference the retired `issue-operations`
+  family — `issue-operations`, `issue-operations-core`,
+  `issue-operations-comments`, `issue-operations-sub-issues`,
+  `issue-operations-sync` — by name. Instrument: grep of
+  `tests-v2/behaviors/*.sh` and `tests-v2/AGENTS.md` for
+  `issue-operations` (substring covers all variants); zero hits.
 - R-2. The three scripts named in Resolution §1 SHALL be absent from
   `tests-v2/behaviors/`. Instrument: file-absence check.
 - R-3. The surviving scenario SHALL carry no retired-name residue in its
