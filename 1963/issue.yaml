@@ -4,4 +4,7 @@ number: 1963
 title: '[BUG] Agent bypassed skill dispatch for GitHub issue listing — "simple""  read-only
   rationalization'
 github_url: https://github.com/michael-conrad/.opencode/issues/1963
-status: open
+status: closed
+closed_at: '2026-10-17T13:45:16+00:00'
+close_reason: completed
+updated_at: '2026-10-17T13:45:16+00:00'
