@@ -1,6 +1,6 @@
 title: '[BUG] tests-v2 issue-ops routing scenario family references skills retired
   by the deck rewrite'
-status: open
+status: closed
 labels:
 - needs-approval
 - bug
@@ -62,5 +62,5 @@ body: "## Problem\n\nFour routing scenarios under `tests-v2/behaviors/` still ta
   \ is unchanged — no other scenario is touched.\n\n> Full spec and plan artifacts:\
   \ https://github.com/michael-conrad/.opencode/tree/issues-data/2635/\n\n> `.opencode/.issues/2635/`\n"
 created_at: '2026-10-17T13:46:24+00:00'
-updated_at: '2026-10-17T16:56:18+00:00'
+updated_at: '2026-10-18T00:04:39+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2635
