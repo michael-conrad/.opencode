@@ -1,4 +1,4 @@
-# Define the authorization-scope boundary for stacked-PR shape — amend `git-workflow-pr` rule 3 and `git-workflow-branch` rule 1
+# Define the authorization-scope boundary for stacked-PR shape and bounded trunk-freshness verification — amend `git-workflow-pr` rule 3, `git-workflow-branch` rule 1, and `git-workflow-branch` rule 2
 
 ## Summary
 
@@ -18,6 +18,7 @@ The post-mortem in D1 names three sub-causes; the deck-state facts below were ve
 1. **Undefined scope boundary.** `git-workflow-pr` rule 3 reads "Issues authorized together share that one branch and that one PR — N branches / N PRs for one authorization scope is the violation", and `git-workflow-branch` rule 1 reads "Issues sharing an authorization scope share **one** feature branch". Neither card states what makes items share a scope — the agent filled the gap by decomposing a single directive per item origin (F1), then by treating each new directive message as a new scope (F2). A 2026-10-19 sweep of the deck's git-workflow cards and the floor found no text defining scope aggregation across messages — the two "authorization scope" sentences above are the only scope-boundary language the deck carries.
 2. **Atomicity instinct over contract.** The agent optimized for clean, single-purpose PRs — a reasonable engineering habit that contradicts the shape contract, whose unit is the authorization scope, not the logical concern (F1, F3).
 3. **Split-by-default defense.** When challenged, the agent conceded only part of the violation ("defensible standalone"), burning a correction round on re-litigating the boundary instead of applying the universal standard (F4).
+4. **Unbounded trunk-freshness verification.** `git-workflow-branch` rule 2 demands trunk freshness without bounding the verification work: agents at the branch-creation decision point launched into open-ended submodule-pointer and issue-store sync remediation — including chasing a sync failure on a network-unreachable remote — before creating the branch. Observed in the #2639 behavioral runs of 2026-10-19 (four tier-2 harness attempts, records under `tmp/issue-2639/artifacts/`): in every attempt the run agent's last visible pre-stall work was rule-2 freshness/store verification ("branch rules require trunk freshness first"; a failed submodule-store SSH sync it resolved "to address later"), and the stalls were multi-minute single-turn reasoning runaways at exactly that decision point. The rule's demands are unbounded; the agent filled the gap with open-ended deliberation (F5).
 
 ## Evidence
 
