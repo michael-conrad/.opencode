@@ -1866,6 +1866,25 @@ behavior_run() {
         # run, export session.yaml per §10.5, record the semantic diagnosis, and
         # break out of the retry loop (no blind re-run after an off-track abort).
         #
+        # Scenario attachment support (.opencode#2640 SC-8): SCENARIO_ATTACH
+        # carries colon-separated workdir-relative file paths that are attached
+        # to the opening prompt via `opencode run -f` — the user-attachment
+        # entry path for image-material scenarios. Paths stay workdir-RELATIVE:
+        # with-test-home moves the attempt workdir into the test home after
+        # fixture setup, so absolute paths recorded here would be stale at run
+        # time; opencode resolves relative paths from its working directory
+        # (the test project) on both tiers.
+        ATTACH_ARGS=()
+        if [ -n "${SCENARIO_ATTACH:-}" ]; then
+            local attach_file
+            local old_ifs="$IFS"
+            IFS=:
+            for attach_file in $SCENARIO_ATTACH; do
+                [ -n "$attach_file" ] && ATTACH_ARGS+=( -f "$attach_file" )
+            done
+            IFS="$old_ifs"
+        fi
+
         # Tier dispatch (.opencode#2582 R-5): tier-2 launches the run inside the
         # test container (docker run -d --network host, only-tmp/ mounts); the
         # monitor's liveness/abort contract is container-aware (docker stop +
@@ -1895,7 +1914,7 @@ behavior_run() {
             # abort-path comment in __semantic_monitor — wrapper-only kill
             # orphans the opencode grandchild and deadlocks the flock).
             TEST_WORKDIR="$attempt_workdir" \
-            setsid bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+            setsid bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
                 > "$output_file" 2> "$err_file" \
                 &
             local run_pid=$!
@@ -1919,7 +1938,7 @@ behavior_run() {
             break
         else
             TEST_WORKDIR="$attempt_workdir" \
-            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${agent:+--agent "$agent"} \
+            bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" "${OPENCODE_CMD[@]}" run "$message" --model "$model" --log-level INFO --print-logs ${ATTACH_ARGS[@]+"${ATTACH_ARGS[@]}"} ${agent:+--agent "$agent"} \
                 > "$output_file" 2> "$err_file" \
                 || true
         fi

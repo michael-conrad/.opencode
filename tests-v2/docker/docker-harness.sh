@@ -363,6 +363,20 @@ __docker_launch_run() {
 
     local -a cmd=(bash "$staged_wth" opencode run "$message" --model "$model" --log-level INFO --print-logs)
     [ -n "$agent" ] && cmd+=(--agent "$agent")
+    # Scenario attachment support (.opencode#2640 SC-8): SCENARIO_ATTACH carries
+    # colon-separated workdir-relative paths, attached via `opencode run -f`.
+    # Paths stay workdir-relative — with-test-home moves the attempt workdir
+    # into the test home after fixture setup, and opencode resolves relative
+    # paths from its working directory (the test project) in-container.
+    if [ -n "${SCENARIO_ATTACH:-}" ]; then
+        local attach_file
+        local old_ifs="$IFS"
+        IFS=:
+        for attach_file in $SCENARIO_ATTACH; do
+            [ -n "$attach_file" ] && cmd+=( -f "$attach_file" )
+        done
+        IFS="$old_ifs"
+    fi
 
     local inner_cmd
     inner_cmd=$(printf '%q ' "${cmd[@]}")
