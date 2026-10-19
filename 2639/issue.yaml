@@ -1,0 +1,8 @@
+title: '[BUG] Agent split one authorization scope into N PRs — stacked-PR shape regressed
+  (algonquian-library #55/#56/#57 incident)'
+status: open
+labels:
+- needs-approval
+body: ''
+created_at: '2026-10-19T14:19:59+00:00'
+updated_at: '2026-10-19T14:19:59+00:00'
