@@ -6,12 +6,12 @@ Spec: `.opencode/.issues/2639/spec.md` (validated). Branch:
 
 ## Execution order
 
-Items 1–2 strictly precede Items 3–4: the behavioral runs execute the
+Items 1–2b strictly precede Items 3–4: the behavioral runs execute the
 amended deck, and `behavior_run()`'s pre-flight git-state gate requires the
 submodule working tree clean and the effective commit pushed — so the
-card amendments (Items 1–2) are committed and pushed before any scenario run
-(Items 3–4). Item 3 precedes Item 4 only in reporting; both depend on the
-same amended-deck state.
+card amendments (Items 1, 2, 2b) are committed and pushed before any
+scenario run (Items 3–4). Item 3 precedes Item 4 only in reporting; both
+depend on the same amended-deck state.
 
 ## Item 1 — Amend `git-workflow-pr` rule 3 (SC-1, SC-2, SC-3, SC-4, SC-6 part)
 
@@ -52,6 +52,29 @@ same amended-deck state.
 - Verify: same three-step instrument as Item 1 (SC-5 assertion + SC-6
   confinement + root-agnostic grep), diff scoped to rule 1's one-branch
   sentence.
+
+## Item 2b — Amend `git-workflow-branch` rule 2 (SC-9, SC-6 part)
+
+- Deliverable: `skills/git-workflow-branch/SKILL.md` rule 2 gains, appended
+  after its existing verification clauses, the bounded-verification provision
+  (R-7): trunk-freshness verification is bounded and read-only — verify the
+  working repo's trunk tip against its remote (fetch and compare) and proceed
+  to the branch decision on that evidence; a submodule-pointer or store sync
+  failure encountered during the same pass is recorded, not remediated, and
+  does not block the branch decision; an unreachable working-repo remote is
+  recorded and the branch decision halts for developer direction. The
+  provenance lines gain the same `.opencode#2639` entry (single entry per
+  line — SC-6's "exactly one new entry" is per provenance line, already
+  satisfied by Items 2/2b sharing one entry).
+- RED (executable, fixed): grep the pre-amendment rule 2 for the provision
+  markers — `bounded and read-only`, `recorded, not remediated`,
+  `halts the branch decision` (or equivalent unreachable-own-remote
+  language). All return empty on the pre-amendment state; the captured empty
+  output is the RED record.
+- GREEN: apply the amendment.
+- Verify: (1) the greps now hit inside rule 2 for all four SC-9 elements;
+  (2) `git diff` against trunk confines rule-2 changes to the appended
+  provision; (3) root-agnostic grep over the file returns nothing.
 
 ## Item 3 — Behavioral SC-7 via the two-SC pattern (SC-7)
 
