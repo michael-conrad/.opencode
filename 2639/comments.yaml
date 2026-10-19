@@ -1,1 +1,19 @@
-comments: []
+comments:
+- type: stakeholder
+  body: '**Recurrence documented (same session, same day):** after the original consolidation
+    (3 PRs → 1), the next developer directive ("the cause for the failed temp checkout
+    smoketest needs to be addressed") produced a NEW branch + NEW PR (#59) instead
+    of stacking onto the open sweep PR — the same scope-boundary rationalization:
+    a new directive message was read as a new authorization scope. The developer corrected
+    it again ("multiple PRs are not valid"); the #58 commit was cherry-picked onto
+    the stacked branch and #59 closed. Both instruments (provisioned + fresh-worktree
+    smoke) were re-executed green on the integrated tip.
+
+
+    Pattern now confirmed twice: **a new directive that arrives while a scope''s PR
+    is open extends that scope** — it does not open a second PR. This matches the
+    hardening suggestion in the report body ("a later message that adds work to an
+    open, unfinished scope extends that scope''s PR rather than opening a second one").
+
+    [mirrored from remote comment by michael-conrad, 2026-10-18]'
+  timestamp: '2026-10-19T14:20:43+00:00'
