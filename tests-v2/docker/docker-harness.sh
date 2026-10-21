@@ -351,6 +351,7 @@ __docker_launch_run() {
     [ -n "${GB_PROTOCOL:-}" ] && docker_env+=(-e "GB_PROTOCOL=$GB_PROTOCOL")
     [ -n "${GB_TOKEN:-}" ] && docker_env+=(-e "GB_TOKEN=$GB_TOKEN")
     [ -n "${BEHAVIOR_NEEDS_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_REMOTE=$BEHAVIOR_NEEDS_REMOTE")
+    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=4000")
     [ -n "${BEHAVIOR_SET_BARE_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_SET_BARE_REMOTE=$BEHAVIOR_SET_BARE_REMOTE")
     [ -n "${BEHAVIOR_NEEDS_MULTI_SUBMODULES:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_MULTI_SUBMODULES=$BEHAVIOR_NEEDS_MULTI_SUBMODULES")
     [ -n "${BEHAVIOR_SHARED_HOME:-}" ] && docker_env+=(-e "BEHAVIOR_SHARED_HOME=$BEHAVIOR_SHARED_HOME")
@@ -389,6 +390,63 @@ __docker_launch_run() {
             "$TESTS_V2_AGENT_IMAGE" \
             bash -c "$inner_cmd" >/dev/null 2>&1; then
         echo "HARNESS_FAILURE: run container creation failed for $cname — inspect: docker ps -a | grep tests-v2-run-" >&2
+        return 1
+    fi
+
+    echo "container:$cname"
+}
+
+# Resume launch (.opencode#2646 R-4): a second container run resuming the
+# prior invocation's staged test home via `--resume-home` + `opencode run
+# --continue`. Same env contract as __docker_launch_run; the staged home
+# persists under the mounted tmp/ (same absolute path), so the in-container
+# determination gate and session store resolve unchanged. The docker-tier
+# home is bare by contract — with-test-home's docker-aware resume branch
+# resolves the image binary (no host binary required in the home).
+__docker_launch_resume() {
+    local scenario_name="$1" home="$2" model="$3" output_file="$4" err_file="$5"
+    # Optional resume message: the cap-resume path uses the #2646 R-4 form;
+    # the two-SC scenarios pass their turn directive (.opencode#2646 docker-
+    # resume fix — observed 2026-10-20: tier-2 turn-2 launches cannot exec
+    # the home's bin/opencode host-side, docker homes are bare of it).
+    local message="${6:-Continue the task from where you left off.}"
+
+    __docker_available || return 1
+    __stage_harness_scripts || return 1
+
+    local staged_wth="$(__staging_dir)/.opencode/tests-v2/with-test-home"
+    local cname="tests-v2-run-${scenario_name}-resume-$(date +%s)-$$"
+    local user_uid_gid
+    user_uid_gid="$(id -u):$(id -g)"
+
+    local -a docker_env=(-e TEST_ENV=docker -e "RESUME_HOME=$home")
+    docker_env+=(-e GIT_CONFIG_COUNT=1 -e "GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf" -e "GIT_CONFIG_VALUE_0=git@github.com:")
+    [ -n "${GITBUCKET_PORT:-}" ] && docker_env+=(-e "GITBUCKET_PORT=$GITBUCKET_PORT")
+    [ -n "${GB_HOST:-}" ] && docker_env+=(-e "GB_HOST=$GB_HOST")
+    [ -n "${GB_REPO:-}" ] && docker_env+=(-e "GB_REPO=$GB_REPO")
+    [ -n "${GB_PROTOCOL:-}" ] && docker_env+=(-e "GB_PROTOCOL=$GB_PROTOCOL")
+    [ -n "${GB_TOKEN:-}" ] && docker_env+=(-e "GB_TOKEN=$GB_TOKEN")
+    [ -n "${BEHAVIOR_NEEDS_REMOTE:-}" ] && docker_env+=(-e "BEHAVIOR_NEEDS_REMOTE=$BEHAVIOR_NEEDS_REMOTE")
+    docker_env+=(-e "OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX=4000")
+    # The §10.7 determination gate inside the container must also scan the
+    # run's evidence dir (where determination records live) — TMP_DIR alone
+    # is the staging root there and never contains the record (.opencode#2646
+    # docker-resume fix; tmp/ is mounted at the same absolute path, so the
+    # host-side evidence dir path is valid in-container).
+    docker_env+=(-e "BEHAVIOR_DETERMINATION_SCAN_DIR=$(dirname "$err_file")")
+
+    local -a cmd=(bash "$staged_wth" --resume-home "$home" opencode run --continue "$message" --model "$model" --log-level INFO --print-logs)
+
+    local inner_cmd
+    inner_cmd=$(printf '%q ' "${cmd[@]}")
+    # Append (>>) — the attempt's logs already carry the original turn's
+    # output incl. the TEST_HOME marker the post-run export and the scenario
+    # turn-2 discovery read; truncating here destroyed them (observed
+    # 2026-10-20: turn-1 evidence lost, turn-2 home discovery failed).
+    inner_cmd="$inner_cmd >> $(printf '%q' "$output_file") 2>> $(printf '%q' "$err_file")"
+
+    if ! docker run -d --name "$cname" --network host             --user "$user_uid_gid"             -v "$PARENT_REPO_DIR/tmp:$PARENT_REPO_DIR/tmp"             "${docker_env[@]}"             "$TESTS_V2_AGENT_IMAGE"             bash -c "$inner_cmd" >/dev/null 2>&1; then
+        echo "HARNESS_FAILURE: resume container creation failed for $cname — inspect: docker ps -a | grep tests-v2-run-" >&2
         return 1
     fi
 

@@ -7,7 +7,7 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606 -->
+<!-- Provenance: AI-authored, .opencode#2490; #2518 criteria invariance; #582 yaml-contract-format convention; #2557 build evidence bar; behavioral-testing dispatch fix, .opencode#2578; artifact-presence gate, .opencode#2597; instrument-capability rule + criteria-set ownership, .opencode#2601; spin-bounded review loop, .opencode#2606; state-decidable verdict resolution, .opencode#2646 -->
 
 # verify — the single verification pass
 
@@ -22,18 +22,28 @@ provenance: AI-authored, .opencode#2490; #2518 criteria invariance
    the executed evidence. Record it once — chat or PR description. No YAML
    artifact chains.
 4. **FAIL path.** Remediate → fresh re-review → repeat until a zero-finding
-   verdict. Each cycle, the agent running the loop judges — never a script —
-   whether the loop is spinning (findings recurring or reshuffling without
-   genuine resolution relative to the remediation performed). On spin, the
-   revision step moves up a level: diagnose the cause and attempt higher-level
-   fixing of it — artifact-level structural revision such as breaking up a
-   composite SC, splitting an over-fat spec, resolving a spec conflict,
-   restructuring into atomic work units, or re-evaluating the approach — and
-   the loop continues on the revised artifact. Escalation to the developer
-   fires when spin persists after genuine higher-level fixing attempts,
-   carrying the specific failing SCs, the suspected cause class(es), the root
-   cause, what was tried, and what is needed. Never proceed past an
-   unremediated FAIL.
+   verdict. A finding whose ground is an append-only record — a recorded
+   historical event in a supervision ledger, determination record, or audit
+   log — resolves by state, not by developer disposition: the agent remediates
+   the cause, completes the record's disclosure, and the criterion's verdict
+   follows from the current evidence — the requirement in force and holding in
+   the post-remediation continuation. Historical violation windows with landed
+   cause-fixes and compliant continuation do not keep the criterion FAILED;
+   recurrence without remediation does. The developer is never a verdict
+   resolver — escalation is for spin, not for disposition (the spec card's
+   validation standards carry the state-decidability rule). Never proceed past
+   an unremediated FAIL: remediate and re-verify instead. Each cycle, the
+   agent running the loop judges — never a script — whether the loop is
+   spinning (findings recurring or reshuffling without genuine resolution
+   relative to the remediation performed). On spin, the revision step moves up
+   a level: diagnose the cause and attempt higher-level fixing of it —
+   artifact-level structural revision such as breaking up a composite SC,
+   splitting an over-fat spec, resolving a spec conflict, restructuring into
+   atomic work units, or re-evaluating the approach — and the loop continues
+   on the revised artifact. Escalation to the developer fires when spin
+   persists after genuine higher-level fixing attempts, carrying the specific
+   failing SCs, the suspected cause class(es), the root cause, what was tried,
+   and what is needed.
 5. **Own-test execution stays with the implementor.** Running tests and showing
    output is fact work, not review — it happens in `implement`, and the
    reviewer consumes its output.

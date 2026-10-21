@@ -477,6 +477,7 @@ CLSPROMPT
         LOGNAME=opencode-test-user \
         LANG="${LANG:-C.UTF-8}" \
         TERM="${TERM:-dumb}" \
+        OPENCODE_EXPERIMENTAL_OUTPUT_TOKEN_MAX="4000" \
         opencode run "$cls_prompt" --model "$model" \
         > "$cls_stdout" 2> "$cls_stderr" 200>&- &
     cls_pid=$!
@@ -1583,6 +1584,72 @@ DIAGEOF
     )
 }
 
+
+# Resume-on-cap-hit (.opencode#2646 R-4): when a monitored model run exits
+# and the session's last assistant message carries finish: length (the
+# per-turn output cap fired), resume the session via the §10.7 machinery so
+# the truncated turn continues. Monitored runs only (the §10.7 SC-8
+# determination gate requires the monitor's determination record; unmonitored
+# runs are out of the resume path — their capped session ends and the
+# post-run block exports the evidence). Ceiling-bounded: at most
+# BEHAVIOR_CAP_RESUME_CEILING (default 3) resumed runs per behavior_run
+# attempt; the counter persists next to the attempt's logs. Emits "0" when
+# no resume was needed/performed, "1" when the ceiling is exhausted.
+__last_assistant_finish() {
+    local db="$1"
+    python3 - "$db" <<'PYEOF2'
+import json, sqlite3, sys
+conn = sqlite3.connect(sys.argv[1])
+c = conn.cursor()
+c.execute("SELECT data FROM event WHERE type='message.updated.1' ORDER BY id DESC LIMIT 12")
+for (data,) in c.fetchall():
+    info = json.loads(data).get("info", {})
+    if info.get("role") == "assistant":
+        print(info.get("finish", ""))
+        break
+PYEOF2
+}
+
+__resume_on_cap_hit() {
+    local tier="$1" scenario_name="$2" attempt="$3" output_file="$4" err_file="$5" model="$6"
+    [ "${BEHAVIOR_SEMANTIC_MONITOR:-0}" = "1" ] || return 0
+
+    local ceiling="${BEHAVIOR_CAP_RESUME_CEILING:-3}"
+    local counter_file="$(dirname "$output_file")/cap-resume-count-${attempt}"
+    local used=0
+    if [ -f "$counter_file" ]; then
+        used=$(cat "$counter_file" 2>/dev/null || echo 0)
+    fi
+    if [ "$used" -ge "$ceiling" ]; then
+        echo "  [harness] cap-resume ceiling ($ceiling) exhausted for attempt $attempt — ending with capped exit" >&2
+        return 1
+    fi
+
+    local test_home
+    test_home=$(grep '^TEST_HOME=' "$err_file" 2>/dev/null | head -1 | sed 's/^TEST_HOME=//' || true)
+    [ -n "$test_home" ] && [ -f "$test_home/.local/share/opencode/opencode.db" ] || return 0
+
+    local finish
+    finish=$(__last_assistant_finish "$test_home/.local/share/opencode/opencode.db")
+    [ "$finish" = "length" ] || return 0
+
+    echo "  [harness] cap hit (finish=length) — resuming session (resume $((used+1))/$ceiling, .opencode#2646 R-4)" >&2
+    echo $((used+1)) > "$counter_file"
+
+    if [ "$tier" = "2" ]; then
+        local run_target
+        run_target=$(__docker_launch_resume "$scenario_name" "$test_home" "$model" "$output_file" "$err_file") || return 1
+        __wait_run_target "$run_target" >/dev/null 2>&1 || true
+        docker rm -f "${run_target#container:}" >/dev/null 2>&1 || true
+    else
+        TEST_WORKDIR="$test_home/project" \
+        bash "$PARENT_REPO_DIR/$BEHAVIOR_TEST_HOME" --resume-home "$test_home" "${OPENCODE_CMD[@]}" run --continue "Continue the task from where you left off." --model "$model" --log-level INFO --print-logs \
+            >> "$output_file" 2>> "$err_file" || true
+    fi
+    # Recurse: the resumed run may itself hit the cap; the ceiling bounds the cycle.
+    __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model"
+}
+
 behavior_run() {
     local scenario_name="$1"
     local message="$2"
@@ -2090,6 +2157,22 @@ MANIFESTEOF
             else
                 __record_orchestrator_decision "$artifact_dir" --decision terminate-with-root-cause --root-cause "run exit_code=${exit_code} after the halt-class notification (monitor halted per SC-6); outcome evidence in stdout.log/stderr.log of $artifact_dir" || true
             fi
+        fi
+        # .opencode#2646 R-4: resume-on-cap-hit — placed AFTER the
+        # determination record and (on the halt-class path) the orchestrator
+        # decision exist, because the §10.7 SC-8 determination gate refuses a
+        # resume whose home has no non-undetermined determination (observed:
+        # all three attempt-7-probe resumes FATAL'd "determination.yaml not
+        # found" when the resume ran before the record was written).
+        __resume_on_cap_hit "$tier" "$scenario_name" "$attempt" "$output_file" "$err_file" "$model" || true
+        if [ -f "$(dirname "$output_file")/cap-resume-count-${attempt}" ]; then
+            # A resume ran: refresh the artifacts so the exported session.yaml
+            # covers the full exchange (original + resumed runs share the
+            # session store).
+            cp "$output_file" "$artifact_dir/stdout.log" 2>/dev/null || true
+            cp "$err_file" "$artifact_dir/stderr.log" 2>/dev/null || true
+            __export_sqlite_to_yaml "$artifact_dir/session.yaml" "$output_file" "$err_file"
+            echo "resumed_after_cap_hit: true" >> "$artifact_dir/manifest.yaml"
         fi
     fi
 
