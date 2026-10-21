@@ -1,1 +1,13 @@
-comments: []
+comments:
+- type: internal
+  body: 'Spec-validation provenance note (2026-10-21): the prior session reported
+    4 spec-validation findings on this spec; that record was lost at the session''s
+    context rollover and is not recoverable from the store. A fresh structural audit
+    (2026-10-21) found the spec sound: R-1..R-5 present, SC-1..SC-6 with class + instrument
+    + R-traceability, governance posture stated, heading ''Success Criteria'' normalized
+    to title case. One tool-level observation: skildeck verify-acceptance extracts
+    zero criteria from ANY table-format spec in this deck (tested against #2639''s
+    spec as control — also zero), so its ''no acceptance criteria'' warning is a parser
+    limitation, not a spec finding. Prior-session findings remain superseded by this
+    fresh audit unless the developer re-supplies them.'
+  timestamp: '2026-10-21T03:34:40+00:00'
