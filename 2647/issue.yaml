@@ -1,9 +1,11 @@
 title: 'Regression: supervisor poll interval drifted past the 60s ceiling during #2646
   SC-8 supervision'
-status: open
+status: closed
 labels:
 - needs-approval
 body: ''
 created_at: '2026-10-20T13:05:51+00:00'
-updated_at: '2026-10-20T13:05:54+00:00'
+updated_at: '2026-10-21T04:40:28+00:00'
 github_url: https://github.com/michael-conrad/.opencode/issues/2647
+closed_at: '2026-10-21T04:40:28+00:00'
+close_reason: completed
