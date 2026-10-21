@@ -2,12 +2,12 @@
 name: git-workflow-pr
 description: "Load before opening any pull request, preparing work for review, or updating an existing PR — in any repo, whenever PR-boundary authorization arrives or the work reaches the review boundary. PRs are for completed and fully tested work; partial PRs require explicit special authorization. Squash the branch's work to one reviewable commit per issue, write a PR body with summary and executed-test evidence, then HALT — humans merge, never the agent."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; #2509 stacked-PR definition; #2519 PR-completion invariant; release PRs are parent-repo artifacts, .opencode#2592; PR-body contract, .opencode#2615; scope-boundary provision, .opencode#2639 -->
 
 # git-workflow-pr
 
@@ -48,7 +48,15 @@ filed fix issue; "the failures pre-existed" is a defect to file, never a
    Squash WIP to one commit per issue at PR creation; a stacked branch chain
    rides in that one PR, never as one PR per stacked layer. Issues authorized
    together share that one branch and that one PR — N branches / N PRs for one
-   authorization scope is the violation. The mandate is universal: it applies
+   authorization scope is the violation. **Scope boundary.** The
+   authorization scope is the developer directive that produced the work —
+   the single message covering it — never a per-item decomposition of that
+   directive. A later message that adds work while that scope's PR is open
+   extends that scope: its commits ride the scope's open branch and PR,
+   never a second branch or PR. A commit with no issue ticket rides in the
+   scope's stacked PR — it never justifies its own PR. When in doubt, one
+   PR; splitting into multiple PRs requires the developer to have named the
+   split. The mandate is universal: it applies
    to all PRs, including release PRs. **Hazard guard:**
    the single PR for an issue exists only at that PR's assigned-scope
    completion — a partial-scope PR that merges closes the linked issue as

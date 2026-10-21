@@ -2,12 +2,12 @@
 name: git-workflow-branch
 description: "Always load before creating any git branch or starting any work on a task in any repo — however small the task seems. Branch naming, trunk-freshness checks, submodule sync, provenance recording. Never commit directly to the trunk-identified primary branch; the feature branch exists before the first file modification."
 license: MIT
-provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563
+provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639
 ---
 
 <!-- SPDX-FileCopyrightText: 2026 Michael Conrad -->
 <!-- SPDX-License-Identifier: MIT -->
-<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563 -->
+<!-- Provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2563; scope-boundary provision, .opencode#2639 -->
 
 # git-workflow-branch
 
@@ -15,6 +15,11 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    `feature/<issue>-<slug>` (or `<issue>-<slug>` for parent-repo submodule work).
    Issues sharing an authorization scope share **one** feature branch — name it
    after the scope's primary issue; one branch per issue is the violation.
+   **Scope boundary.** The authorization scope is the developer directive that
+   produced the work — the single message covering it — never a per-item
+   decomposition of that directive. A later message that adds work while that
+   scope is unfinished extends that scope: its commits land on the scope's
+   open branch, and no new branch opens.
 2. **Trunk freshness.** Before any work in the repo: (a) pull the parent
    repo's trunk to its remote tip; (b) sync each submodule's pointer to that
    submodule's remote trunk tip — the tracked-branch tip per `.gitmodules`,
@@ -27,6 +32,14 @@ provenance: AI-authored, .opencode#2490; submodule discipline rules, .opencode#2
    branches, `issues-data` is a reserved orphan-branch issue-store ref, checked
    out in a linked worktree (the `+` marker in `git branch -a`) — never a
    feature-branch naming or cleanup candidate (#2548 C8).
+   **Bounded verification.** Trunk-freshness verification is bounded and
+   read-only: verify the working repo's trunk tip against its remote (fetch
+   and compare) and proceed to the branch decision on that evidence. A
+   submodule-pointer or store sync failure encountered during the same pass
+   is recorded, not remediated, and does not block the branch decision. If
+   the working repo's own trunk tip cannot be verified because its remote is
+   unreachable, record the failure and halt the branch decision for
+   developer direction rather than branch on unverified freshness.
 3. **Submodules — real-work sequence.** When the parent repo has real content
    beyond pointer bumps, work proceeds in this fixed order: sync (per rule 2)
    first, then feature-branch creation, then an immediate pointer-capture
